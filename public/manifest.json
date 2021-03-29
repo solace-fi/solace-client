@@ -1,0 +1,18 @@
+{
+    "background_color": "#",
+    "display": "",
+    "homepage_url": "",
+    "icons": [
+        {
+            "src": "./images/",
+            "sizes": "",
+            "type": "image/png",
+            "purpose": "any maskable"
+        }
+    ],
+    "orientation": "portrait",
+    "name": "",
+    "short_name": "",
+    "start_url": ".",
+    "theme_color": "#"
+}
