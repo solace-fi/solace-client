@@ -3,16 +3,16 @@ import ReactDOM from 'react-dom'
 import { HashRouter } from 'react-router-dom'
 import App from './pages/App'
 
-import getLibrary from './utils/getLibrary'
-import { Web3ReactProvider } from '@web3-react/core'
+import { Provider } from 'react-redux'
+import { store } from './store'
 
 ReactDOM.render(
   <React.StrictMode>
-    <Web3ReactProvider getLibrary={getLibrary}>
+    <Provider store={store}>
       <HashRouter>
         <App />
       </HashRouter>
-    </Web3ReactProvider>
+    </Provider>
   </React.StrictMode>,
   document.getElementById('root')
 )

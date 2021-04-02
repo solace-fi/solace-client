@@ -1,1 +1,9 @@
-export const GET_QUOTE = 'GET_QUOTE'
+export const SET_QUOTES = 'SET_QUOTES'
+
+export const SET_POSITIONS = 'SET_POSITIONS'
+
+export const SET_COVERAGE = 'SET_COVERAGE'
+export const SET_TIME_PERIOD = 'SET_TIME_PERIOD'
+export const SET_DEDUCTIBLE = 'SET_DEDUCTIBLE'
+
+export const SUBMIT_QUOTE = 'SUBMIT_QUOTE'

@@ -1,32 +1,33 @@
 import React, { Suspense, useEffect } from 'react'
 import { Route, Switch } from 'react-router-dom'
-import { ethers } from 'ethers'
 
 import Dashboard from './dashboard'
 import Invest from './invest'
 import Quote from './quote'
 
+import ContractABI from '../constants/abis/Contract'
+
 import Header from '../components/Header'
 import Loading from '../components/Loader'
 
-// const Web3ProviderNetwork = createWeb3ReactRoot()
-const PRIVATE_KEY_TEST_NEVER_USE = '0xad20c82497421e9784f18460ad2fe84f73569068e98e270b3e63743268af5763'
+import getWeb3 from '../utils/getWeb3'
 
 export default function App(): any {
   useEffect(() => {
-    const metamask = (window as any).ethereum
-    const provider = new ethers.providers.Web3Provider(metamask)
-    // const signer = provider.getSigner()
-    const wallet = new ethers.Wallet(PRIVATE_KEY_TEST_NEVER_USE, provider)
-    wallet.connect(provider)
-    provider.listAccounts().then((result) => {
-      console.log(result[0])
-    })
+    async function fetchWeb3() {
+      const web3: any = await getWeb3()
 
-    const balancePromise = wallet.getBalance()
-    balancePromise.then((balance) => {
-      console.log(balance)
-    })
+      // Use web3 to get the user's accounts.
+      const accounts = await web3.eth.getAccounts()
+
+      // Get the contract instance.
+      const networkId = await web3.eth.net.getId()
+
+      const deployedNetwork = ContractABI.networks[networkId]
+      // const contractInstance = new web3.eth.Contract(ContractABI, deployedNetwork && deployedNetwork.address)
+    }
+
+    fetchWeb3()
   }, [])
 
   return (
