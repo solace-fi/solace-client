@@ -3,24 +3,16 @@ import ReactDOM from 'react-dom'
 import { HashRouter } from 'react-router-dom'
 
 import App from './pages/App'
-import { NetworkContextName } from './constants'
 
-import { createWeb3ReactRoot, Web3ReactProvider } from '@web3-react/core'
-
-// helper hook for wallet balance
-import getLibrary from './utils/getLibrary'
-
-const Web3ProviderNetwork = createWeb3ReactRoot(NetworkContextName)
+import Web3Manager from './context/Web3Manager'
 
 ReactDOM.render(
   <React.StrictMode>
-    <Web3ReactProvider getLibrary={getLibrary}>
-      <Web3ProviderNetwork getLibrary={getLibrary}>
-        <HashRouter>
-          <App />
-        </HashRouter>
-      </Web3ProviderNetwork>
-    </Web3ReactProvider>
+    <Web3Manager>
+      <HashRouter>
+        <App />
+      </HashRouter>
+    </Web3Manager>
   </React.StrictMode>,
   document.getElementById('root')
 )

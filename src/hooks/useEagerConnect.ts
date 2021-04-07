@@ -1,17 +1,21 @@
-import { useState, useEffect } from 'react'
+import { useEffect, useState } from 'react'
+import { WalletConnector } from '../wallets'
 import { useWeb3React } from '@web3-react/core'
 
-import { injected } from '../connectors/connectors'
+import { injected } from '../connectors'
 
-export function useEagerConnect(): boolean {
-  const { activate, active } = useWeb3React()
+export function useEagerConnect(
+  callback: (walletConnector: WalletConnector) => Promise<void>,
+  arg: WalletConnector
+): boolean {
+  const { active } = useWeb3React()
 
   const [tried, setTried] = useState(false)
 
   useEffect(() => {
     injected.isAuthorized().then((isAuthorized: boolean) => {
       if (isAuthorized) {
-        activate(injected, undefined, true).catch(() => {
+        callback(arg).catch(() => {
           setTried(true)
         })
       } else {
