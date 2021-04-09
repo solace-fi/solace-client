@@ -3,10 +3,7 @@ import { useLocalStorage } from 'react-use-storage'
 import { UnsupportedChainIdError, useWeb3React } from '@web3-react/core'
 import { NoEthereumProviderError } from '@web3-react/injected-connector'
 
-// import { useEagerConnect } from '../hooks/useEagerConnect'
-// import { useInactiveListener } from '../hooks/useInactiveListener'
-
-import { WalletConnector, SUPPORTED_WALLETS } from '../wallets'
+import { WalletConnector, SUPPORTED_WALLETS } from '../ethers/wallets'
 
 import { Web3ReactProvider } from '@web3-react/core'
 
@@ -101,12 +98,6 @@ const WalletProvider: React.FC = (props) => {
     },
     [web3React, connectingRef, setConnecting, setLocalProvider, disconnect]
   )
-
-  // handle logic to eagerly connect to the injected ethereum provider, if it exists and has granted access already
-  // const triedEager = useEagerConnect(connect, WalletConnectors[0])
-
-  // handle logic to connect in reaction to certain events on the injected ethereum provider, if it exists
-  // useInactiveListener(!triedEager || !!activeConnector)
 
   useEffect(() => {
     // If the user has a local provider already

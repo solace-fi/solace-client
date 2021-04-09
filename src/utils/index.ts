@@ -13,13 +13,17 @@ export function isAddress(value: any): string | false {
   }
 }
 
+export function calculateGasMargin(value: BigNumber): BigNumber {
+  return value.mul(BigNumber.from(10000).add(BigNumber.from(1000))).div(BigNumber.from(10000))
+}
+
 // account is not optional
-export function getSigner(library: Web3Provider, account: string): JsonRpcSigner {
+function getSigner(library: Web3Provider, account: string): JsonRpcSigner {
   return library.getSigner(account).connectUnchecked()
 }
 
 // account is optional
-export function getProviderOrSigner(library: Web3Provider, account?: string): Web3Provider | JsonRpcSigner {
+function getProviderOrSigner(library: Web3Provider, account?: string): Web3Provider | JsonRpcSigner {
   return account ? getSigner(library, account) : library
 }
 
