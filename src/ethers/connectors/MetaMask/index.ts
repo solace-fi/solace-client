@@ -6,11 +6,11 @@ export type MetaMaskError = Error & {
 }
 
 export const MetaMaskConnector = {
-  getConnector: (): AbstractConnector => {
+  getConnector(): AbstractConnector {
     return injected
   },
 
-  onError: (error: MetaMaskError): Error | undefined => {
+  onError(error: MetaMaskError): Error | undefined {
     if (error.code === -32002) {
       return new Error('MetaMask is already processing. Please verify MetaMask extension.')
     }

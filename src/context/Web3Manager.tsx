@@ -12,12 +12,13 @@ import getLibrary from '../utils/getLibrary'
 
 export const WalletConnectors = SUPPORTED_WALLETS
 
-type Wallet = {
+export type Wallet = {
   initialized: boolean
   connecting?: WalletConnector
   isActive: boolean
   account?: string
   networkId?: number
+  library?: any
   networkName?: string
   connector?: WalletConnector
   provider?: any
@@ -64,7 +65,7 @@ const WalletProvider: React.FC = (props) => {
         return
       }
 
-      const connector = walletConnector.getConnector
+      const connector = walletConnector.getConnector()
 
       connectingRef.current = walletConnector
       setConnecting(walletConnector)
@@ -88,11 +89,12 @@ const WalletProvider: React.FC = (props) => {
           return
         }
 
+        connector.getProvider().then((provider) => setActiveProvider(provider))
         setActiveConnector(walletConnector)
         setLocalProvider(walletConnector.id)
       }
 
-      await web3React.activate(connector(), undefined, true).then(onSuccess).catch(onError)
+      await web3React.activate(connector, undefined, true).then(onSuccess).catch(onError)
 
       setConnecting(undefined)
     },
@@ -121,6 +123,7 @@ const WalletProvider: React.FC = (props) => {
       isActive: web3React.active,
       account: web3React.account ?? undefined,
       networkId: web3React.chainId,
+      library: web3React.library,
       connector: activeConnector,
       provider: activeProvider,
       connect,

@@ -2,48 +2,41 @@ import { useMemo, useCallback } from 'react'
 import { useVaultContract } from '../../../hooks/useContract'
 import { Contract } from '@ethersproject/contracts'
 
-import { useReload } from '../../../hooks/useReload'
-
-import { useWallet } from '../../../context/Web3Manager'
-
 export type VaultContract = {
   contract: Contract | null
   functions: {
     deposit: () => void
-    withdraw: (shares: number, maxLoss: number) => Promise<number>
-    totalAssets: () => Promise<number>
+    withdraw: (shares: number, maxLoss: number) => number
+    totalAssets: () => number
   }
 }
 
-export function useVault(): VaultContract {
-  const contract = useVaultContract(undefined, undefined)
-  const wallet = useWallet()
+export function useDeposit(): void {
+  const contract = useVaultContract(true)
 
-  async function deposit() {
-    // put check here if wallet.isActive is true
-    const response = await contract?.deposit()
-    const result = await response.wait()
+  if (!contract) {
+    return
   }
 
-  async function withdraw(shares: number, maxLoss: number): Promise<number> {
-    // put check here if wallet.isActive is true
-    const response = await contract?.withdraw(shares, maxLoss)
-    const result = await response.wait()
-    return result
-  }
+  // put check here if wallet.isActive is true
+  const response = contract?.deposit()
+}
 
-  async function totalAssets(): Promise<number> {
-    const response = await contract?.totalAssets()
-    const result = await response.wait()
-    return result
+export function useWithdraw(shares: number, maxLoss: number): number {
+  const contract = useVaultContract(true)
+  if (!contract) {
+    return 0
   }
+  // put check here if wallet.isActive is true
+  const response = contract?.withdraw(shares, maxLoss)
+  return response
+}
 
-  return {
-    contract,
-    functions: {
-      deposit,
-      withdraw,
-      totalAssets,
-    },
+export function useTotalAssets(): number {
+  const contract = useVaultContract(true)
+  if (!contract) {
+    return 0
   }
+  const response = contract?.totalAssets()
+  return response
 }

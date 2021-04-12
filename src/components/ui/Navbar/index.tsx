@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom'
-import React, { Fragment } from 'react'
+import React, { Fragment, useState, useEffect } from 'react'
 
 import { useBalance } from '../../../hooks/useBalance'
 import { useWallet } from '../../../context/Web3Manager'
@@ -11,6 +11,12 @@ import { SUPPORTED_WALLETS } from '../../../ethers/wallets'
 export const Navbar = () => {
   const balance = useBalance()
   const wallet = useWallet()
+
+  const [bal, setBal] = useState<number | null | undefined>(0)
+
+  useEffect(() => {
+    setBal(balance)
+  }, [balance])
 
   return (
     <Fragment>
@@ -26,7 +32,7 @@ export const Navbar = () => {
       <>
         {wallet.isActive ? (
           <>
-            <div>Your balance is {`Ξ${balance ? formatEther(balance) : ''}`}</div>
+            <div>Your balance is {`Ξ${bal ? formatEther(bal) : ''}`}</div>
             <button onClick={() => wallet.disconnect()}>Disconnect MetaMask Wallet</button>
           </>
         ) : (

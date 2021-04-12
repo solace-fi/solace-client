@@ -6,7 +6,6 @@ export type CoinProps = {
   price: string
   symbol: string
   marketcap: number
-  volume: number
   image: string
   priceChange: number
 }
@@ -57,10 +56,6 @@ const CoinPrice = styled.div`
   width: 110px;
 `
 
-const CoinVolume = styled.div`
-  width: 155px;
-`
-
 const CoinMarketCap = styled.div`
   width: 230px;
 `
@@ -70,7 +65,7 @@ const CoinPercent = styled.div<{ change: number }>`
   color: ${({ change }) => (change < 0 ? '#f00606' : '#11d811')};
 `
 
-const Coin: React.FC<CoinProps> = ({ name, price, symbol, marketcap, volume, image, priceChange }) => {
+const Coin: React.FC<CoinProps> = ({ name, price, symbol, marketcap, image, priceChange }) => {
   return (
     <CoinContainer>
       <CoinRow>
@@ -81,7 +76,6 @@ const Coin: React.FC<CoinProps> = ({ name, price, symbol, marketcap, volume, ima
         </CoinObj>
         <CoinData>
           <CoinPrice>${price}</CoinPrice>
-          <CoinVolume>${volume.toLocaleString()}</CoinVolume>
           <CoinPercent change={priceChange}>{priceChange.toFixed(2)}%</CoinPercent>
           <CoinMarketCap>Mkt Cap: ${marketcap.toLocaleString()}</CoinMarketCap>
         </CoinData>
