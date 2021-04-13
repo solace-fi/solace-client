@@ -1,9 +1,7 @@
 import { NavLink } from 'react-router-dom'
 import React, { Fragment, useState, useEffect } from 'react'
 
-import { useBalance } from '../../../hooks/useBalance'
 import { useWallet } from '../../../context/Web3Manager'
-import { useReload } from '../../../hooks/useReload'
 
 import { formatEther } from '@ethersproject/units'
 
@@ -11,8 +9,6 @@ import { SUPPORTED_WALLETS } from '../../../ethers/wallets'
 
 export const Navbar = () => {
   const wallet = useWallet()
-
-  // const balance = useBalance()
 
   const [bal, setBal] = useState<number | null | undefined>(0)
 
@@ -22,7 +18,7 @@ export const Navbar = () => {
 
   return (
     <Fragment>
-      <NavLink className="dashboard-nav-link" to={'/'}>
+      <NavLink className="dashboard-nav-link" to={'/dashboard'}>
         Dashboard
       </NavLink>
       <NavLink className="invest-nav-link" to={'/invest'}>
@@ -30,6 +26,9 @@ export const Navbar = () => {
       </NavLink>
       <NavLink className="quote-nav-link" to={'/quote'}>
         Quote
+      </NavLink>
+      <NavLink className="playground-nav-link" to={'/'}>
+        Playground
       </NavLink>
       <>
         {wallet.isActive ? (

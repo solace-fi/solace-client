@@ -66,7 +66,7 @@ const WalletProvider: React.FC = (props) => {
   }, [web3React, removeLocalProvider, setConnecting])
 
   const fetchBalance = useCallback(async (): Promise<void> => {
-    console.log('fetching')
+    console.log('fetching, ', web3React)
     if (!!web3React.library && !!web3React.account) {
       web3React.library
         .getBalance(web3React.account)
