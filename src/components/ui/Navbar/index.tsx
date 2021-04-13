@@ -3,20 +3,22 @@ import React, { Fragment, useState, useEffect } from 'react'
 
 import { useBalance } from '../../../hooks/useBalance'
 import { useWallet } from '../../../context/Web3Manager'
+import { useReload } from '../../../hooks/useReload'
 
 import { formatEther } from '@ethersproject/units'
 
 import { SUPPORTED_WALLETS } from '../../../ethers/wallets'
 
 export const Navbar = () => {
-  const balance = useBalance()
   const wallet = useWallet()
+
+  // const balance = useBalance()
 
   const [bal, setBal] = useState<number | null | undefined>(0)
 
   useEffect(() => {
-    setBal(balance)
-  }, [balance])
+    setBal(wallet.balance)
+  }, [wallet])
 
   return (
     <Fragment>

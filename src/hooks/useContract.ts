@@ -1,4 +1,4 @@
-import { useWeb3React } from '@web3-react/core'
+import { useWallet } from '../context/Web3Manager'
 import { useMemo } from 'react'
 import { getContract } from '../utils'
 import { Contract } from '@ethersproject/contracts'
@@ -13,7 +13,7 @@ const MASTER_CONTRACT_ADDRESS = '0x9fe46736679d2d9a65f0992f2272de9f3c7fa6e0'
 const VAULT_CONTRACT_ADDRESS = '0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9'
 
 export function useContract(address: string, abi: any, hasSigner = true): Contract {
-  const { library, account } = useWeb3React()
+  const { library, account } = useWallet()
 
   return useMemo(() => {
     return getContract(address, abi, library, hasSigner && account ? account : undefined)

@@ -8,6 +8,7 @@ export type ReloadHook = [ReloadFn, number]
 export function useReload(): ReloadHook {
   const [version, setVersion] = React.useState<number>(0)
   const reload = useDebounce(() => {
+    console.log('version', version)
     setVersion((prevState) => prevState + 1)
   }, 400)
 

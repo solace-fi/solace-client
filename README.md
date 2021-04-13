@@ -29,7 +29,6 @@ Run using the following react command
     |   |____Web3Manager
     |___ethers/
     |   |____connectors/
-    |   |____contracts/
     |   |____wallets/
     |___hooks/
     |___pages/
