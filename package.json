@@ -5,6 +5,7 @@
   "dependencies": {
     "@ethersproject/providers": "^5.1.0",
     "@reduxjs/toolkit": "^1.5.1",
+    "@rooks/use-debounce": "^4.11.0",
     "@testing-library/jest-dom": "^5.11.10",
     "@testing-library/react": "^11.2.5",
     "@testing-library/user-event": "^12.8.3",
@@ -13,6 +14,7 @@
     "@types/react": "^17.0.3",
     "@types/react-dom": "^17.0.3",
     "@web3-react/network-connector": "^6.1.9",
+    "axios": "^0.21.1",
     "eslint": "^7.11.0",
     "ethers": "^5.1.0",
     "polished": "^4.1.1",
@@ -53,6 +55,7 @@
     ]
   },
   "devDependencies": {
+    "@ethersproject/bignumber": "^5.1.0",
     "@types/react-router-dom": "^5.1.7",
     "@types/rebass": "^4.0.8",
     "@types/styled-components": "^5.1.9",
@@ -64,6 +67,7 @@
     "@web3-react/portis-connector": "^6.1.9",
     "@web3-react/walletconnect-connector": "^6.1.9",
     "@web3-react/walletlink-connector": "^6.1.9",
+    "dotenv": "^8.2.0",
     "eslint-config-airbnb": "^18.2.1",
     "eslint-config-prettier": "^8.1.0",
     "eslint-plugin-import": "^2.22.1",

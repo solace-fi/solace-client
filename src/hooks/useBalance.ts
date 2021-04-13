@@ -8,6 +8,7 @@ export const useBalance = (): number | null | undefined => {
   const [balance, setBalance] = useState<number | null | undefined>(0)
 
   useEffect(() => {
+    console.log('BALANCE CHANGE', account, library)
     if (!!account && !!library) {
       let stale = false
 
