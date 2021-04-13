@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom'
-import React, { Fragment, useState, useEffect } from 'react'
+import React, { Fragment, useState, useEffect, useMemo } from 'react'
 
 import { useWallet } from '../../../context/Web3Manager'
 
@@ -12,7 +12,8 @@ export const Navbar = () => {
 
   const [bal, setBal] = useState<number | null | undefined>(0)
 
-  useEffect(() => {
+  useMemo(() => {
+    console.log('setting balance')
     setBal(wallet.balance)
   }, [wallet])
 

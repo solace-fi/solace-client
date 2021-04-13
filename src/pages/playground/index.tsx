@@ -32,7 +32,6 @@ function Playground(): any {
   const refresh = async () => {
     totalAssets()
     numFarms()
-    solacePerBlock()
     solaceRewards()
     capitalRewards()
   }
