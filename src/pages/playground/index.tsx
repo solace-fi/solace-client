@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef, useMemo, useCallback } from 'react'
 import { Contract } from '@ethersproject/contracts'
 
 import { useWallet } from '../../context/Web3Manager'
+import { useContracts } from '../../context/ContractsManager'
 import { ethers } from 'ethers'
 import { formatEther } from '@ethersproject/units'
 
@@ -9,7 +10,6 @@ import { BigNumber } from '@ethersproject/bignumber'
 
 import Coins from '../../components/ui/Coins'
 
-import { useMasterContract, useVaultContract, useSolaceContract } from '../../hooks/useContract'
 import { NUM_BLOCKS_PER_DAY, NUM_DAYS_PER_MONTH, DAYS_PER_YEAR } from '../../constants'
 
 function Playground(): any {
@@ -32,9 +32,7 @@ function Playground(): any {
   const vaultContractRef = useRef<Contract>()
   const solaceContractRef = useRef<Contract>()
 
-  const master = useMasterContract()
-  const vault = useVaultContract()
-  const solace = useSolaceContract()
+  const { master, vault, solace } = useContracts()
 
   const refresh = async () => {
     getSolaceBalance()
