@@ -149,9 +149,9 @@ function Playground(): any {
   const getSolaceRewards = async () => {
     setLoading(true)
     if (!masterContractRef.current) return
-    const SOLACE_PER_BLOCK = await getSolacePerBlock()
+    const solacePerBlock = await getSolacePerBlock()
     try {
-      setSolaceRewards(formatEther(SOLACE_PER_BLOCK * NUM_BLOCKS_PER_DAY * NUM_DAYS_PER_MONTH))
+      setSolaceRewards(formatEther(solacePerBlock * NUM_BLOCKS_PER_DAY * NUM_DAYS_PER_MONTH))
     } catch (err) {
       console.log('Error ', err)
     }
@@ -161,11 +161,11 @@ function Playground(): any {
   const getAllocPointsPerSolacePerBlockPerDay = async (farmId: any = 0) => {
     setLoading(true)
     if (!masterContractRef.current) return
-    const SOLACE_PER_BLOCK = await getSolacePerBlock()
+    const solacePerBlock = await getSolacePerBlock()
     try {
       const farmInfo = await getFarmInfo(farmId)
       const totalAllocPoints = await masterContractRef.current.totalAllocPoints()
-      return (farmInfo.allocPoints / totalAllocPoints) * SOLACE_PER_BLOCK * NUM_BLOCKS_PER_DAY
+      return (farmInfo.allocPoints / totalAllocPoints) * solacePerBlock * NUM_BLOCKS_PER_DAY
     } catch (err) {
       console.log('Error ', err)
     }
