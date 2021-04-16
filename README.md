@@ -16,17 +16,17 @@ Run using the following react command
 
 ## Project Structure
 
----
-
     src/
     |___components/
     |   |____ui/
-    |   |____wallets/
+    |   |    |____(general interface components)
     |   |____web3/
+    |   |    |____(components that communicate with the blockchain)
     |___constants/
     |   |____abi/
     |___context/
     |   |____Web3Manager
+    |   |____ContractsManager
     |___ethers/
     |   |____connectors/
     |   |____wallets/
@@ -38,24 +38,42 @@ Run using the following react command
     |   |____App
     |___utils/
 
-## Design Decisions
+## State Structure
 
----
+    // src/index.tsx
+
+    <Web3Manager>
+      <ContractsManager>
+        <HashRouter>
+          <App />
+        </HashRouter>
+      </ContractsManager>
+    </Web3Manager>
+
+Web3Manager allows access to web3-react, wallet connection functionalities, and wallet balance.
+
+ContractsManager allows centralized access to contracts.
+
+We may need more Context providers in the future, for data such as themes and user preferences.
+
+## Design Decisions
 
 There are two git repositories that influenced this application design direction, [Barnbridge](https://github.com/BarnBridge/barnbridge-frontend)
 and [Uniswap](https://github.com/Uniswap/uniswap-interface).
 
 At the time of writing, Barnbridge utilized Web3 and React Context, while Uniswap utilized Redux and Ethers, but they both used Web3-react. To make the most of our application, we tried to get the best of both worlds using the following stack: React Context, Ethers, and Web3-React.
 
-There was also a difference in the organization of connectors and contracts observed in both repositories. Barnbridge centralized all of its contracts into a single Context provider, while Uniswap centralized contract hooks and molded its contract functions into hooks that are called by different components of the application.
+There was also a difference in the organization of connectors and contracts observed in both repositories. Barnbridge centralized all of its contracts into a single Context provider, while Uniswap centralized contract hooks and molded its contract functions into hooks that are called by different components of the application. However, this application is able to use a single Context provider that uses contract hooks.
 
 ## User Journeys
-
----
 
 ### Connecting and disconnecting wallet
 
 Upon starting the application, the Context provider that manages Web3 keeps track of what provider is available. Whether the user selects a provider or not, it is saved locally onto the user's browser. The provider, or the lack of, is then propagated throughout the application.
+
+### Contract function calls
+
+During development, contract functions are implemented to communicate between the smart contract and the frontend. So far, the most basic view and mutable methods work, although needs fine tuning in the future.
 
 ### Changing between pages
 
