@@ -27,6 +27,7 @@ function Playground(): any {
   const [amount, setAmount] = useState<number>(5)
   const [maxLoss, setMaxLoss] = useState<number>(5)
   const [loading, setLoading] = useState<boolean>(false)
+  const [cp, setCp] = useState<string>('0')
 
   const masterContractRef = useRef<Contract>()
   const vaultContractRef = useRef<Contract>()
@@ -43,6 +44,20 @@ function Playground(): any {
     getCurrentRewards()
     getRewardsPerDay()
     getRoi()
+    getCp()
+  }
+
+  const getCp = async () => {
+    setLoading(true)
+    if (!vaultContractRef.current) return
+
+    try {
+      const balance = await vaultContractRef.current.balanceOf(wallet.account)
+      setCp(formatEther(BigNumber.from(balance)).toString())
+    } catch (err) {
+      console.log('Error ', err)
+    }
+    setLoading(false)
   }
 
   const getSolaceBalance = async () => {
@@ -308,6 +323,7 @@ function Playground(): any {
             <div>Chain Id: {wallet.networkId}</div>
             <div>Solace Balance: {solaceBalance}</div>
             <div>Current Rewards: {currentRewards}</div>
+            <div>CP Tokens: {cp}</div>
             <div>Rewards per day: {rewardsPerDay}</div>
             <label htmlFor="amount">Amount</label>
             <input
