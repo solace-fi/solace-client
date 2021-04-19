@@ -25,7 +25,7 @@ export type Wallet = {
   balance?: any
   connect: (connector: WalletConnector, args?: Record<string, any>) => Promise<void>
   disconnect: () => void
-  fetchBalance: () => Promise<void>
+  updateBalance: (b: number) => void
 }
 
 const WalletContext = createContext<Wallet>({
@@ -40,7 +40,7 @@ const WalletContext = createContext<Wallet>({
   balance: undefined,
   connect: () => Promise.reject(),
   disconnect: () => undefined,
-  fetchBalance: () => Promise.reject(),
+  updateBalance: () => undefined,
 })
 
 const WalletProvider: React.FC = (props) => {
@@ -65,19 +65,9 @@ const WalletProvider: React.FC = (props) => {
     removeLocalProvider()
   }, [web3React, removeLocalProvider, setConnecting])
 
-  const fetchBalance = useCallback(async (): Promise<void> => {
-    console.log('fetching, ', web3React)
-    if (!!web3React.library && !!web3React.account) {
-      web3React.library
-        .getBalance(web3React.account)
-        .then((balance: number) => {
-          setBalance(balance)
-        })
-        .catch(() => {
-          setBalance(null)
-        })
-    }
-  }, [web3React])
+  const updateBalance = useCallback((b) => {
+    setBalance(b)
+  }, [])
 
   const connect = useCallback(
     async (walletConnector: WalletConnector): Promise<void> => {
@@ -132,9 +122,20 @@ const WalletProvider: React.FC = (props) => {
         }
       }
 
+      if (!!web3React.library && !!web3React.account) {
+        web3React.library
+          .getBalance(web3React.account)
+          .then((balance: number) => {
+            setBalance(balance)
+          })
+          .catch(() => {
+            setBalance(null)
+          })
+      }
+
       setInitialized(true)
     })()
-  }, [])
+  }, [web3React])
 
   const value = useMemo<Wallet>(
     () => ({
@@ -149,9 +150,9 @@ const WalletProvider: React.FC = (props) => {
       balance: balance,
       connect,
       disconnect,
-      fetchBalance,
+      updateBalance,
     }),
-    [web3React, initialized, connecting, activeConnector, activeProvider, balance, disconnect, connect, fetchBalance]
+    [web3React, initialized, connecting, activeConnector, activeProvider, balance, disconnect, connect, updateBalance]
   )
 
   return <WalletContext.Provider value={value}>{props.children}</WalletContext.Provider>

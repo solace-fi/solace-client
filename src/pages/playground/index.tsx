@@ -36,6 +36,13 @@ function Playground(): any {
   const { master, vault, solace } = useContracts()
 
   const refresh = async () => {
+    if (
+      !masterContractRef.current?.provider &&
+      !vaultContractRef.current?.provider &&
+      !solaceContractRef.current?.provider
+    ) {
+      return
+    }
     getSolaceBalance()
     getTotalAssets()
     getNumFarms()
@@ -78,26 +85,18 @@ function Playground(): any {
     if (!vaultContractRef.current) return
 
     try {
+      console.log('callDeposit')
       const tx = await vaultContractRef.current.deposit({ value: ethers.utils.parseEther(amount.toString()) })
       await tx.wait()
-      refresh()
+      const r = await vaultContractRef.current.on('DepositMade', (sender, amount, shares, tx) => {
+        console.log('deposit event: ', tx)
+        wallet.updateBalance(wallet.balance.sub(amount))
+        refresh()
+        setLoading(false)
+      })
     } catch (err) {
       console.log('Error ', err)
     }
-    setLoading(false)
-  }
-
-  const getNumFarms = async () => {
-    setLoading(true)
-    if (!masterContractRef.current) return
-
-    try {
-      const ans = await masterContractRef.current.numFarms()
-      setFarms(ans.toString())
-    } catch (err) {
-      console.log('Error ', err)
-    }
-    setLoading(false)
   }
 
   const callWithdraw = async () => {
@@ -107,7 +106,24 @@ function Playground(): any {
     try {
       const tx = await vaultContractRef.current.withdraw(ethers.utils.parseEther(amount.toString()), maxLoss)
       await tx.wait()
-      refresh()
+      const r = await vaultContractRef.current.on('WithdrawalMade', (sender, value, tx) => {
+        console.log('withdrawal event: ', tx)
+        wallet.updateBalance(wallet.balance.add(value))
+        refresh()
+        setLoading(false)
+      })
+    } catch (err) {
+      console.log('Error ', err)
+    }
+  }
+
+  const getNumFarms = async () => {
+    setLoading(true)
+    if (!masterContractRef.current) return
+
+    try {
+      const ans = await masterContractRef.current.numFarms()
+      setFarms(ans.toString())
     } catch (err) {
       console.log('Error ', err)
     }
@@ -133,10 +149,8 @@ function Playground(): any {
   const getTotalAssets = async () => {
     setLoading(true)
     if (!vaultContractRef.current) return
-
     try {
       const ans = await vaultContractRef.current.totalAssets().then((ans: any) => {
-        wallet.fetchBalance()
         return ans
       })
       setAssets(formatEther(BigNumber.from(ans)).toString())
@@ -153,7 +167,6 @@ function Playground(): any {
       const ans = await masterContractRef.current.solacePerBlock().then((ans: any) => {
         return ans
       })
-      console.log('solace per block ', formatEther(BigNumber.from(ans)).toString())
       return ans
     } catch (err) {
       console.log('Error ', err)
@@ -301,7 +314,6 @@ function Playground(): any {
   }
 
   useMemo(() => {
-    console.log('setting contracts', vault, master)
     vaultContractRef.current = vault
     masterContractRef.current = master
     solaceContractRef.current = solace
