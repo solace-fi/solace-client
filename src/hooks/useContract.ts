@@ -9,8 +9,14 @@ import registryABI from '../constants/abi/contracts/Registry.sol/Registry.json'
 import solaceABI from '../constants/abi/contracts/SOLACE.sol/SOLACE.json'
 import treasuryABI from '../constants/abi/contracts/Treasury.sol/Treasury.json'
 import vaultABI from '../constants/abi/contracts/Vault.sol/Vault.json'
+import erc20ABI from '../constants/abi/contracts/Erc20Farm.sol/Erc20Farm.json'
 
-import { MASTER_CONTRACT_ADDRESS, VAULT_CONTRACT_ADDRESS, SOLACE_CONTRACT_ADDRESS } from '../constants'
+import {
+  MASTER_CONTRACT_ADDRESS,
+  VAULT_CONTRACT_ADDRESS,
+  SOLACE_CONTRACT_ADDRESS,
+  ERC20FARM_CONTRACT_ADDRESS,
+} from '../constants'
 
 export function useContract(address: string, abi: any, hasSigner = true): Contract {
   const { library, account } = useWallet()
@@ -38,4 +44,8 @@ export function useTreasuryContract(address: string, hasSigner?: boolean): Contr
 
 export function useVaultContract(hasSigner?: boolean): Contract {
   return useContract(VAULT_CONTRACT_ADDRESS ? VAULT_CONTRACT_ADDRESS : AddressZero, vaultABI, hasSigner)
+}
+
+export function useErc20FarmContract(hasSigner?: boolean): Contract {
+  return useContract(ERC20FARM_CONTRACT_ADDRESS ? ERC20FARM_CONTRACT_ADDRESS : AddressZero, erc20ABI, hasSigner)
 }
