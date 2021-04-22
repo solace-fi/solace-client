@@ -3,14 +3,15 @@ import { Contract } from '@ethersproject/contracts'
 
 import { useWallet } from '../../context/Web3Manager'
 import { useContracts } from '../../context/ContractsManager'
-import { ethers } from 'ethers'
+import { ethers, BigNumber as BN, constants } from 'ethers'
 import { formatEther } from '@ethersproject/units'
 
 import { BigNumber } from '@ethersproject/bignumber'
 
 import Coins from '../../components/ui/Coins'
+import { getPermitDigest, sign, getDomainSeparator } from '../../utils/signature'
 
-import { NUM_BLOCKS_PER_DAY, NUM_DAYS_PER_MONTH, DAYS_PER_YEAR } from '../../constants'
+import { NUM_BLOCKS_PER_DAY, NUM_DAYS_PER_MONTH, DAYS_PER_YEAR, TOKEN_NAME } from '../../constants'
 
 function Playground(): any {
   const wallet = useWallet()
@@ -18,12 +19,12 @@ function Playground(): any {
 
   const [assets, setAssets] = useState<string>('0')
   const [farms, setFarms] = useState<string>('0')
-  const [roi, setRoi] = useState<string>('0')
   const [solaceBalance, setSolaceBalance] = useState<string>('0')
-  const [solaceRewards, setSolaceRewards] = useState<string>('0')
-  const [currentRewards, setCurrentRewards] = useState<string>('0')
-  const [capitalRewards, setCapitalRewards] = useState<string>('0')
+
   const [rewardsPerDay, setRewardsPerDay] = useState<string>('0')
+  const [userRewardsPerDay, setUserRewardsPerDay] = useState<string>('0')
+  const [userRewards, setUserRewards] = useState<string>('0')
+
   const [amount, setAmount] = useState<number>(5)
   const [maxLoss, setMaxLoss] = useState<number>(5)
   const [loading, setLoading] = useState<boolean>(false)
@@ -38,20 +39,75 @@ function Playground(): any {
   const { master, vault, solace, erc20farm } = useContracts()
 
   const refresh = async () => {
+    console.log('refresh: ', master, vault, solace, erc20farm)
     getSolaceBalance()
     getTotalAssets()
     getNumFarms()
-    getSolaceRewards()
-    // getCapitalRewards()
-    getCurrentRewards()
+    getUserRewards()
+    getUserRewardsPerDay()
     getRewardsPerDay()
-    // getRoi()
     getCp()
-    getValueStaked()
+    getFarmValueStaked()
+  }
+
+  const getRewardsPerDay = async () => {
+    if (!masterContractRef.current) return
+
+    try {
+      const allocPoints = await masterContractRef.current.allocPoints(0)
+      const totalAllocPoints = await masterContractRef.current.totalAllocPoints()
+      const solacePerBlock = await masterContractRef.current.solacePerBlock()
+      const rewardsPerDay = (allocPoints / totalAllocPoints) * solacePerBlock * NUM_BLOCKS_PER_DAY
+      setRewardsPerDay(formatEther(BigNumber.from(rewardsPerDay)).toString())
+    } catch (err) {
+      console.log('getRewardsPerDay ', err)
+    }
+  }
+
+  const getUserRewardsPerDay = async () => {
+    if (!erc20farmContractRef.current?.provider || !masterContractRef.current) return
+    const userInfo = await erc20farmContractRef.current.userInfo[wallet.account ? wallet.account : 0]
+    if (!userInfo) return
+    try {
+      const value = userInfo.value
+      const farmValue = await getFarmValueStaked()
+      const allocPoints = await masterContractRef.current.allocPoints()
+      const totalAllocPoints = await masterContractRef.current.totalAllocPoints()
+      const solacePerBlock = await masterContractRef.current.solacePerBlock()
+      const userRewardsPerDay =
+        (allocPoints / totalAllocPoints) * solacePerBlock * NUM_BLOCKS_PER_DAY * (value / farmValue)
+      setUserRewardsPerDay(formatEther(BigNumber.from(userRewardsPerDay)).toString())
+    } catch (err) {
+      console.log('getRewardsPerDay ', err)
+    }
+  }
+
+  const getUserRewards = async () => {
+    if (!wallet.isActive || !erc20farmContractRef.current || farms === '') return
+    try {
+      let userRewards = 0
+      for (let i = 0; i < parseInt(farms); i++) {
+        const pendingReward = await erc20farmContractRef.current.pendingRewards(wallet.account)
+        userRewards += pendingReward
+      }
+      setUserRewards(formatEther(userRewards).toString())
+    } catch (err) {
+      console.log('getUserRewards ', err)
+    }
+  }
+
+  const getFarmValueStaked = async () => {
+    if (!erc20farmContractRef.current || farms === '') return
+    try {
+      const farmValueStaked = await erc20farmContractRef.current.valueStaked()
+      setValueStaked(formatEther(BigNumber.from(farmValueStaked)).toString())
+      return farmValueStaked
+    } catch (err) {
+      console.log('getValueStaked ', err)
+    }
   }
 
   const getCp = async () => {
-    setLoading(true)
     if (!vaultContractRef.current?.provider) return
 
     try {
@@ -60,11 +116,9 @@ function Playground(): any {
     } catch (err) {
       console.log('getCp ', err)
     }
-    setLoading(false)
   }
 
   const getSolaceBalance = async () => {
-    setLoading(true)
     if (!solaceContractRef.current?.provider) return
 
     try {
@@ -73,40 +127,19 @@ function Playground(): any {
     } catch (err) {
       console.log('getSolaceBalance ', err)
     }
-    setLoading(false)
   }
 
   const getNumFarms = async () => {
-    setLoading(true)
     if (!masterContractRef.current) return
-
     try {
       const ans = await masterContractRef.current.numFarms()
       setFarms(ans.toString())
     } catch (err) {
       console.log('getNumFarms ', err)
     }
-    setLoading(false)
-  }
-
-  const getRewardsPerDay = async () => {
-    setLoading(true)
-    if (!erc20farmContractRef.current?.provider) return
-    const userInfo = await erc20farmContractRef.current.userInfo[wallet.account ? wallet.account : 0]
-    if (!userInfo) return
-    const value = userInfo.value
-    const farmInfo = await getFarmInfo()
-    const rewardsPerDay = (value / farmInfo.value) * parseFloat(capitalRewards ? capitalRewards : '0')
-    setRewardsPerDay(formatEther(BigNumber.from(rewardsPerDay)).toString())
-    try {
-    } catch (err) {
-      console.log('getRewardsPerDay ', err)
-    }
-    setLoading(false)
   }
 
   const getTotalAssets = async () => {
-    setLoading(true)
     if (!vaultContractRef.current) return
     try {
       const ans = await vaultContractRef.current.totalAssets().then((ans: any) => {
@@ -116,125 +149,6 @@ function Playground(): any {
     } catch (err) {
       console.log('getTotalAssets ', err)
     }
-    setLoading(false)
-  }
-
-  const getSolacePerBlock = useCallback(async () => {
-    setLoading(true)
-    if (!masterContractRef.current) return
-    try {
-      const ans = await masterContractRef.current.solacePerBlock().then((ans: any) => {
-        return ans
-      })
-      return ans
-    } catch (err) {
-      console.log('getSolacePerBlock ', err)
-    }
-    setLoading(false)
-  }, [])
-
-  const getSolaceRewards = async () => {
-    setLoading(true)
-    if (!masterContractRef.current) return
-    const solacePerBlock = await getSolacePerBlock()
-    try {
-      setSolaceRewards(formatEther(solacePerBlock * NUM_BLOCKS_PER_DAY * NUM_DAYS_PER_MONTH))
-    } catch (err) {
-      console.log('getSolaceRewards ', err)
-    }
-    setLoading(false)
-  }
-
-  const getAllocPointsPerSolacePerBlockPerDay = async (farmId: any = 0) => {
-    setLoading(true)
-    if (!masterContractRef.current) return
-    const solacePerBlock = await getSolacePerBlock()
-    try {
-      const farmInfo = await getFarmInfo()
-      const totalAllocPoints = await masterContractRef.current.totalAllocPoints()
-      return (farmInfo.allocPoints / totalAllocPoints) * solacePerBlock * NUM_BLOCKS_PER_DAY
-    } catch (err) {
-      console.log('getAllocPointsPerSolacePerBlockPerDay ', err)
-    }
-    setLoading(false)
-  }
-
-  const getRoi = async () => {
-    setLoading(true)
-    if (!masterContractRef.current) return
-    try {
-      const capitalReward = await getAllocPointsPerSolacePerBlockPerDay(0)
-      const roi = capitalReward ? capitalReward : 0 * DAYS_PER_YEAR
-      setRoi(formatEther(BigNumber.from(roi)).toString())
-    } catch (err) {
-      console.log('getRoi ', err)
-    }
-    setLoading(false)
-  }
-
-  const getCapitalRewards = async () => {
-    setLoading(true)
-    if (!masterContractRef.current) return
-    try {
-      const capitalReward = await getAllocPointsPerSolacePerBlockPerDay(0)
-      setCapitalRewards(formatEther(BigNumber.from(capitalReward)).toString())
-    } catch (err) {
-      console.log('getCapitalRewards ', err)
-    }
-    setLoading(false)
-  }
-
-  const getCurrentRewards = async () => {
-    setLoading(true)
-    if (!masterContractRef.current || farms === '') return
-    try {
-      let currentRewards = 0
-      for (let i = 0; i < parseInt(farms); i++) {
-        const reward = await getPendingRewards()
-        currentRewards += reward
-      }
-      setCurrentRewards(formatEther(currentRewards).toString())
-    } catch (err) {
-      console.log('getCurrentRewards ', err)
-    }
-    setLoading(false)
-  }
-
-  const getPendingRewards = async () => {
-    setLoading(true)
-    if (!erc20farmContractRef.current || farms === '') return
-    try {
-      const pendingReward = await erc20farmContractRef.current.pendingRewards(wallet.account)
-      return pendingReward
-    } catch (err) {
-      console.log('getPendingRewards ', err)
-    }
-    setLoading(false)
-  }
-
-  const getValueStaked = async () => {
-    setLoading(true)
-    if (!erc20farmContractRef.current || farms === '') return
-    try {
-      const farmInfo = await erc20farmContractRef.current.valueStaked()
-      setValueStaked(formatEther(BigNumber.from(farmInfo)).toString())
-    } catch (err) {
-      console.log('getFarmInfo ', err)
-    }
-    setLoading(false)
-  }
-
-  const getFarmInfo = async () => {
-    setLoading(true)
-    if (!erc20farmContractRef.current || farms === '') return
-    try {
-      const farmInfo = await erc20farmContractRef.current.valueStaked()
-      console.log('farm value staked: ', formatEther(BigNumber.from(farmInfo)).toString())
-      return farmInfo
-    } catch (err) {
-      console.log('getFarmInfo ', err)
-    }
-    setLoading(false)
   }
 
   const callDepositErc20 = async () => {
@@ -256,6 +170,23 @@ function Playground(): any {
         refresh()
         setLoading(false)
       })
+      // const deadline = constants.MaxUint256
+      // const nonce = await vaultContractRef.current.nonces(depositor1.address)
+      // const approve = {
+      //   owner: depositor1.address,
+      //   spender: masterContractRef.current?.address,
+      //   value: amount,
+      // }
+      // const digest = getPermitDigest(
+      //   TOKEN_NAME,
+      //   vaultContractRef.current.address,
+      //   wallet.networkId ? wallet.networkId : 0,
+      //   approve,
+      //   nonce,
+      //   deadline
+      // )
+      // const { v, r, s } = sign(digest, Buffer.from(depositor1.privateKey.slice(2), 'hex'))
+      // await vaultContractRef.current.connect(depositor1).depositAndStake(0, deadline, v, r, s, { value: amount })
     } catch (err) {
       console.log('callDepositErc20 ', err)
     }
@@ -353,21 +284,19 @@ function Playground(): any {
   return (
     <>
       {status}
-      <div>Risk-backing ETH Capital Reward: {capitalRewards}</div>
-      <div>Solace Rewards: {solaceRewards}</div>
-      <div>ROI: {roi}</div>
       <div>Farms: {farms}</div>
       <div>Farm value staked: {valueStaked}</div>
-      <div>totalAssets: {assets}</div>
+      <div>Total Assets: {assets}</div>
+      <div>Rewards per day: {rewardsPerDay}</div>
       {wallet.isActive ? (
         !loading ? (
           <>
-            <div>Account: {wallet.account}</div>
+            <div>My rewards per day: {userRewardsPerDay}</div>
+            <div>My rewards: {userRewards}</div>
+            {/* <div>Account: {wallet.account}</div>
             <div>Chain Id: {wallet.networkId}</div>
-            <div>Solace Balance: {solaceBalance}</div>
-            <div>Current Rewards: {currentRewards}</div>
-            <div>CP Tokens: {cp}</div>
-            <div>Rewards per day: {rewardsPerDay}</div>
+            <div>Solace Balance: {solaceBalance}</div> */}
+            <div>SCP Tokens: {cp}</div>
             <label htmlFor="amount">Amount</label>
             <input
               type="number"

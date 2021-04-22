@@ -6,3 +6,6 @@ export const ERC20FARM_CONTRACT_ADDRESS = process.env.REACT_APP_ERC20FARM_CONTRA
 export const NUM_BLOCKS_PER_DAY = 6500
 export const NUM_DAYS_PER_MONTH = 30
 export const DAYS_PER_YEAR = 365
+
+export const TOKEN_NAME = 'Solace CP Token'
+export const TOKEN_SYMBOL = 'SCP'
