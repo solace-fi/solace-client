@@ -39,7 +39,7 @@ function Playground(): any {
 
   const { master, vault, solace, cpFarm } = useContracts()
 
-  const refresh = useCallback(async () => {
+  const refresh = async () => {
     getSolaceBalance()
     getTotalAssets()
     getNumFarms()
@@ -47,7 +47,7 @@ function Playground(): any {
     getUserRewardsPerDay()
     getRewardsPerDay()
     getCp()
-  }, [wallet.provider])
+  }
 
   const getUserValueStaked = async () => {
     console.log('calling getUserValueStaked')
@@ -55,7 +55,8 @@ function Playground(): any {
     try {
       const userInfo = await cpFarmContractRef.current.userInfo(wallet.account)
       const value = userInfo.value
-      if (userValueStaked !== value) setUserValueStaked(value)
+      // if (userValueStaked !== value)
+      setUserValueStaked(value)
       console.log('success getUserValueStaked')
       return value
     } catch (err) {
@@ -295,7 +296,7 @@ function Playground(): any {
     solaceContractRef.current = solace
     cpFarmContractRef.current = cpFarm
     refresh()
-  }, [wallet.provider])
+  }, [master, vault, solace, cpFarm])
 
   return (
     <>
