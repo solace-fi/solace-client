@@ -73,7 +73,7 @@ function Playground(): any {
       const allocPoints = await masterContractRef.current.allocPoints(1)
       const totalAllocPoints = await masterContractRef.current.totalAllocPoints()
       const solacePerBlock = await masterContractRef.current.solacePerBlock()
-      const rewards = (allocPoints / totalAllocPoints) * solacePerBlock * NUM_BLOCKS_PER_DAY
+      const rewards = solacePerBlock * NUM_BLOCKS_PER_DAY * (allocPoints / totalAllocPoints)
       if (rewardsPerDay !== rewards) setRewardsPerDay(rewards)
       console.log('success getRewardsPerDay')
     } catch (err) {
@@ -92,7 +92,7 @@ function Playground(): any {
       const totalAllocPoints = await masterContractRef.current.totalAllocPoints()
       const solacePerBlock = await masterContractRef.current.solacePerBlock()
       const userRewards =
-        (allocPoints / totalAllocPoints) * solacePerBlock * NUM_BLOCKS_PER_DAY * (userValue / farmValue)
+        solacePerBlock * NUM_BLOCKS_PER_DAY * (userValue / farmValue) * (allocPoints / totalAllocPoints)
       if (userRewardsPerDay !== userRewards) setUserRewardsPerDay(userRewards)
       console.log('success getUserRewardsPerDay')
     } catch (err) {
@@ -309,7 +309,7 @@ function Playground(): any {
       {wallet.isActive ? (
         !loading ? (
           <>
-            <div>My rewards per day: {formatEther(BigNumber.from(userRewardsPerDay)).toString()}</div>
+            <div>My rewards per day: {formatEther(BigNumber.from(Math.floor(userRewardsPerDay))).toString()}</div>
             <div>My rewards: {formatEther(userRewards).toString()}</div>
             {/* <div>Account: {wallet.account}</div>
             <div>Chain Id: {wallet.networkId}</div>
