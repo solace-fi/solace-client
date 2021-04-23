@@ -10,6 +10,8 @@ import { Web3ReactProvider } from '@web3-react/core'
 // helper hook for wallet balance
 import getLibrary from '../utils/getLibrary'
 
+import { ethers } from 'ethers'
+
 export const WalletConnectors = SUPPORTED_WALLETS
 
 export type Wallet = {
@@ -144,7 +146,7 @@ const WalletProvider: React.FC = (props) => {
       isActive: web3React.active,
       account: web3React.account ?? undefined,
       networkId: web3React.chainId,
-      library: web3React.library,
+      library: web3React.library ? web3React.library : new ethers.providers.JsonRpcProvider(),
       connector: activeConnector,
       provider: activeProvider,
       balance: balance,
