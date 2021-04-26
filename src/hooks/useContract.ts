@@ -10,6 +10,7 @@ import solaceABI from '../constants/abi/contracts/SOLACE.sol/SOLACE.json'
 import treasuryABI from '../constants/abi/contracts/Treasury.sol/Treasury.json'
 import vaultABI from '../constants/abi/contracts/Vault.sol/Vault.json'
 import cpFarmABI from '../constants/abi/contracts/CpFarm.sol/CpFarm.json'
+import lpFarmABI from '../constants/abi/contracts/UniswapLpFarm.sol/UniswapLpFarm.json'
 
 import {
   SOLACE_CONTRACT_ADDRESS,
@@ -64,6 +65,14 @@ export function useCpFarmContract(hasSigner?: boolean): Contract | null {
   return useContract(CPFARM_CONTRACT_ADDRESS ? CPFARM_CONTRACT_ADDRESS : AddressZero, cpFarmABI, hasSigner)
 }
 
-// export function useLpFarmContract(hasSigner?: boolean): Contract | null {
-//   return useContract(LPFARM_CONTRACT_ADDRESS ? LPFARM_CONTRACT_ADDRESS : AddressZero, lpFarmABI, hasSigner)
-// }
+export function useLpFarmContract(hasSigner?: boolean): Contract | null {
+  return useContract(LPFARM_CONTRACT_ADDRESS ? LPFARM_CONTRACT_ADDRESS : AddressZero, lpFarmABI, hasSigner)
+}
+
+export function useUniswapLpTokenContract(hasSigner?: boolean): Contract | null {
+  return useContract(
+    UNISWAP_LPTOKEN_CONTRACT_ADDRESS ? UNISWAP_LPTOKEN_CONTRACT_ADDRESS : AddressZero,
+    lpFarmABI,
+    hasSigner
+  )
+}

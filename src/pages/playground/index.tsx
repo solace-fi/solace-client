@@ -36,8 +36,9 @@ function Playground(): any {
   const vaultContractRef = useRef<Contract | null>()
   const solaceContractRef = useRef<Contract | null>()
   const cpFarmContractRef = useRef<Contract | null>()
+  const lpFarmContractRef = useRef<Contract | null>()
 
-  const { master, vault, solace, cpFarm } = useContracts()
+  const { master, vault, solace, cpFarm, lpFarm } = useContracts()
 
   const refresh = async () => {
     getSolaceBalance()
@@ -87,6 +88,10 @@ function Playground(): any {
     if (!masterContractRef.current || !wallet.account) return
     try {
       const farmValue = await getFarmValueStaked()
+      if (farmValue <= 0) {
+        setUserRewardsPerDay(0)
+        return
+      }
       const userValue = await getUserValueStaked()
       const allocPoints = await masterContractRef.current.allocPoints(1)
       const totalAllocPoints = await masterContractRef.current.totalAllocPoints()
@@ -295,8 +300,10 @@ function Playground(): any {
     masterContractRef.current = master
     solaceContractRef.current = solace
     cpFarmContractRef.current = cpFarm
+    lpFarmContractRef.current = cpFarm
+
     refresh()
-  }, [master, vault, solace, cpFarm])
+  }, [master, vault, solace, cpFarm, lpFarm])
 
   return (
     <>
