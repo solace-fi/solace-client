@@ -28,9 +28,10 @@ function Playground(): any {
   const [amount, setAmount] = useState<number>(5)
   const [maxLoss, setMaxLoss] = useState<number>(5)
   const [loading, setLoading] = useState<boolean>(false)
-  const [cp, setCp] = useState<number>(0)
+  const [scp, setScp] = useState<number>(0)
   const [valueStaked, setValueStaked] = useState<number>(0)
-  const [userValueStaked, setUserValueStaked] = useState<number>(0)
+  const [userCpValueStaked, setUserCpValueStaked] = useState<number>(0)
+  const [userVaultShare, setUserVaultShare] = useState<number>(0)
 
   const masterContractRef = useRef<Contract | null>()
   const vaultContractRef = useRef<Contract | null>()
@@ -47,21 +48,38 @@ function Playground(): any {
     getUserRewards()
     getUserRewardsPerDay()
     getRewardsPerDay()
-    getCp()
+    getUserVaultShare()
   }
 
-  const getUserValueStaked = async () => {
-    console.log('calling getUserValueStaked')
+  const getUserVaultShare = async () => {
+    console.log('calling getUserVaultShare')
+    if (!cpFarmContractRef.current?.provider || !vaultContractRef.current?.provider || !wallet.account) return
+    try {
+      const totalSupply = await vaultContractRef.current.totalSupply()
+      const userInfo = await cpFarmContractRef.current.userInfo(wallet.account)
+      const value = userInfo.value
+      const cpBalance = await getScp()
+      const share = totalSupply > 0 ? (parseFloat(formatEther(BigNumber.from(cpBalance))) + value) / totalSupply : 0
+      setUserVaultShare(share)
+      console.log('success getUserVaultShare')
+      return value
+    } catch (err) {
+      console.log('error getUserVaultShare ', err)
+    }
+  }
+
+  const getUserCpValueStaked = async () => {
+    console.log('calling getUserCpValueStaked')
     if (!cpFarmContractRef.current?.provider || !wallet.account) return
     try {
       const userInfo = await cpFarmContractRef.current.userInfo(wallet.account)
       const value = userInfo.value
       // if (userValueStaked !== value)
-      setUserValueStaked(value)
-      console.log('success getUserValueStaked')
+      setUserCpValueStaked(value)
+      console.log('success getUserCpValueStaked')
       return value
     } catch (err) {
-      console.log('error getUserValueStaked ', err)
+      console.log('error getUserCpValueStaked ', err)
     }
   }
 
@@ -92,7 +110,7 @@ function Playground(): any {
         setUserRewardsPerDay(0)
         return
       }
-      const userValue = await getUserValueStaked()
+      const userValue = await getUserCpValueStaked()
       const allocPoints = await masterContractRef.current.allocPoints(1)
       const totalAllocPoints = await masterContractRef.current.totalAllocPoints()
       const solacePerBlock = await masterContractRef.current.solacePerBlock()
@@ -136,15 +154,16 @@ function Playground(): any {
     }
   }
 
-  const getCp = async () => {
+  const getScp = async () => {
     console.log('calling getCp')
 
     if (!vaultContractRef.current?.provider || !wallet.account) return
 
     try {
       const balance = await vaultContractRef.current.balanceOf(wallet.account)
-      if (cp !== balance) setCp(balance)
+      if (scp !== balance) setScp(balance)
       console.log('success getCp')
+      return balance
     } catch (err) {
       console.log('error getCp ', err)
     }
@@ -192,8 +211,28 @@ function Playground(): any {
     }
   }
 
-  const callDepositCp = async () => {
-    console.log('calling callDepositCp')
+  // user deposits ETH into Vault for SCP
+  const callDepositVault = async () => {
+    setLoading(true)
+    if (!vaultContractRef.current) return
+
+    try {
+      const tx = await vaultContractRef.current.deposit({ value: ethers.utils.parseEther(amount.toString()) })
+      await tx.wait()
+      const r = await vaultContractRef.current.on('DepositMade', (sender, amount, shares, tx) => {
+        console.log('depositVault event: ', tx)
+        wallet.updateBalance(wallet.balance.sub(amount))
+        refresh()
+        setLoading(false)
+      })
+    } catch (err) {
+      console.log('callDepositVault ', err)
+    }
+  }
+
+  // user deposits ETH into vault and stake in CP farm
+  const callDepositEth = async () => {
+    console.log('calling callDepositEth')
     setLoading(true)
     if (!cpFarmContractRef.current || !vaultContractRef.current) return
     try {
@@ -206,7 +245,52 @@ function Playground(): any {
         setLoading(false)
       })
     } catch (err) {
+      console.log('error callDepositEth ', err)
+    }
+  }
+
+  // user deposits SCP into CP farm
+  const callDepositCp = async () => {
+    console.log('calling callDepositCp')
+    setLoading(true)
+    if (!cpFarmContractRef.current || !vaultContractRef.current) return
+    try {
+      const approval = await vaultContractRef.current.approve(
+        cpFarmContractRef.current.address,
+        ethers.utils.parseEther(amount.toString())
+      )
+      await approval.wait()
+      const approvalEvent = await vaultContractRef.current.on('Approval', (owner, spender, value, tx) => {
+        console.log('approval event: ', tx)
+      })
+      const deposit = await cpFarmContractRef.current.depositCp(ethers.utils.parseEther(amount.toString()))
+      await deposit.wait()
+      const depositEvent = await cpFarmContractRef.current.on('DepositCp', (sender, amount, tx) => {
+        console.log('DepositCp event: ', tx)
+        wallet.updateBalance(wallet.balance.sub(amount))
+        refresh()
+        setLoading(false)
+      })
+    } catch (err) {
       console.log('error callDepositCp ', err)
+    }
+  }
+
+  const callWithdrawVault = async () => {
+    setLoading(true)
+    if (!vaultContractRef.current) return
+
+    try {
+      const tx = await vaultContractRef.current.withdraw(ethers.utils.parseEther(amount.toString()), maxLoss)
+      await tx.wait()
+      const r = await vaultContractRef.current.on('WithdrawalMade', (sender, amount, tx) => {
+        console.log('withdrawal event: ', tx)
+        wallet.updateBalance(wallet.balance.add(amount))
+        refresh()
+        setLoading(false)
+      })
+    } catch (err) {
+      console.log('callWithdrawVault ', err)
     }
   }
 
@@ -258,42 +342,6 @@ function Playground(): any {
     }
   }
 
-  const callDepositVault = async () => {
-    setLoading(true)
-    if (!vaultContractRef.current) return
-
-    try {
-      const tx = await vaultContractRef.current.deposit({ value: ethers.utils.parseEther(amount.toString()) })
-      await tx.wait()
-      const r = await vaultContractRef.current.on('DepositMade', (sender, amount, shares, tx) => {
-        console.log('depositVault event: ', tx)
-        wallet.updateBalance(wallet.balance.sub(amount))
-        refresh()
-        setLoading(false)
-      })
-    } catch (err) {
-      console.log('callDepositVault ', err)
-    }
-  }
-
-  const callWithdrawVault = async () => {
-    setLoading(true)
-    if (!vaultContractRef.current) return
-
-    try {
-      const tx = await vaultContractRef.current.withdraw(ethers.utils.parseEther(amount.toString()), maxLoss)
-      await tx.wait()
-      const r = await vaultContractRef.current.on('WithdrawalMade', (sender, amount, tx) => {
-        console.log('withdrawal event: ', tx)
-        wallet.updateBalance(wallet.balance.add(amount))
-        refresh()
-        setLoading(false)
-      })
-    } catch (err) {
-      console.log('callWithdrawVault ', err)
-    }
-  }
-
   useEffect(() => {
     console.log('mount: \n ', master, ' \n ', vault, ' \n ', solace, ' \n ', cpFarm)
     vaultContractRef.current = vault
@@ -322,8 +370,9 @@ function Playground(): any {
             <div>Chain Id: {wallet.networkId}</div>
             <div>Solace Balance: {solaceBalance}</div> */}
             <div>SOLACE: {formatEther(BigNumber.from(solaceBalance)).toString()}</div>
-            <div>SCP Tokens: {formatEther(BigNumber.from(cp)).toString()}</div>
-            <div>Your stake: {formatEther(BigNumber.from(userValueStaked)).toString()}</div>
+            <div>SCP Tokens: {formatEther(BigNumber.from(scp)).toString()}</div>
+            <div>Your CP stake: {formatEther(BigNumber.from(userCpValueStaked)).toString()}</div>
+            <div>Your vault share: {`${userVaultShare.toString()}%`}</div>
             <label htmlFor="amount">Amount</label>
             <input
               type="number"
@@ -343,8 +392,9 @@ function Playground(): any {
               onChange={(e) => setMaxLoss(parseInt(e.target.value))}
             />
             <button onClick={callDepositVault}>deposit into vault</button>
-            <button onClick={callWithdrawVault}>withdraw from vault</button>
             <button onClick={callDepositCp}>deposit CP</button>
+            <button onClick={callDepositEth}>deposit CP and stake</button>
+            <button onClick={callWithdrawVault}>withdraw from vault</button>
             <button onClick={callWithdrawCp}>withdraw CP</button>
             <button onClick={callDepositErc721}>deposit LP</button>
             <button onClick={callWithdrawErc721}>withdraw LP</button>
