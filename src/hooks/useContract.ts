@@ -45,10 +45,6 @@ export function useMasterContract(hasSigner?: boolean): Contract | null {
   return useContract(MASTER_CONTRACT_ADDRESS ? MASTER_CONTRACT_ADDRESS : AddressZero, masterABI, hasSigner)
 }
 
-export function useRegistryContract(address: string, hasSigner?: boolean): Contract | null {
-  return useContract(address, registryABI, hasSigner)
-}
-
 export function useSolaceContract(hasSigner?: boolean): Contract | null {
   return useContract(SOLACE_CONTRACT_ADDRESS ? SOLACE_CONTRACT_ADDRESS : AddressZero, solaceABI, hasSigner)
 }
@@ -67,6 +63,10 @@ export function useCpFarmContract(hasSigner?: boolean): Contract | null {
 
 export function useLpFarmContract(hasSigner?: boolean): Contract | null {
   return useContract(LPFARM_CONTRACT_ADDRESS ? LPFARM_CONTRACT_ADDRESS : AddressZero, lpFarmABI, hasSigner)
+}
+
+export function useRegistryContract(hasSigner?: boolean): Contract | null {
+  return useContract(REGISTRY_CONTRACT_ADDRESS ? REGISTRY_CONTRACT_ADDRESS : AddressZero, registryABI, hasSigner)
 }
 
 export function useUniswapLpTokenContract(hasSigner?: boolean): Contract | null {

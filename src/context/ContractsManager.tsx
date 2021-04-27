@@ -7,6 +7,7 @@ import {
   useSolaceContract,
   useCpFarmContract,
   useLpFarmContract,
+  useRegistryContract,
 } from '../hooks/useContract'
 
 export type Contracts = {
@@ -15,6 +16,7 @@ export type Contracts = {
   solace?: Contract | null
   cpFarm?: Contract | null
   lpFarm?: Contract | null
+  registry?: Contract | null
 }
 
 const ContractsContext = createContext<Contracts>({
@@ -23,6 +25,7 @@ const ContractsContext = createContext<Contracts>({
   solace: undefined,
   cpFarm: undefined,
   lpFarm: undefined,
+  registry: undefined,
 })
 
 const ContractsProvider: React.FC = (props) => {
@@ -31,6 +34,7 @@ const ContractsProvider: React.FC = (props) => {
   const solace = useSolaceContract()
   const cpFarm = useCpFarmContract()
   const lpFarm = useLpFarmContract()
+  const registry = useRegistryContract()
 
   const value = useMemo<Contracts>(
     () => ({
@@ -39,8 +43,9 @@ const ContractsProvider: React.FC = (props) => {
       solace: solace,
       cpFarm: cpFarm,
       lpFarm: lpFarm,
+      registry: registry,
     }),
-    [master, vault, solace, cpFarm, lpFarm]
+    [master, vault, solace, cpFarm, lpFarm, registry]
   )
 
   return <ContractsContext.Provider value={value}>{props.children}</ContractsContext.Provider>
