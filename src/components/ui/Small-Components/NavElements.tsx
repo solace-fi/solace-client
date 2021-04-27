@@ -1,7 +1,6 @@
 import React from "react";
 import styled from "styled-components"
 import {NavLink as Link} from "react-router-dom";
-import {RiDashboardLine as RI} from "react-icons/ri"
 
 export const Nav = styled.nav`
     background: #000;
