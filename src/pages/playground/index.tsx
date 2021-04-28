@@ -6,10 +6,8 @@ import { useContracts } from '../../context/ContractsManager'
 import { ethers } from 'ethers'
 import { formatEther } from '@ethersproject/units'
 
-// import { BigNumber } from '@ethersproject/bignumber'
-import BigNumber from 'bignumber.js'
-
 import Coins from '../../components/ui/Coins'
+import InvestTabPoolView from '../../components/ui/InvestTabPoolView'
 
 import { NUM_BLOCKS_PER_DAY, NUM_DAYS_PER_MONTH, DAYS_PER_YEAR, TOKEN_NAME } from '../../constants'
 
@@ -416,23 +414,23 @@ function Playground(): any {
     <>
       {/* {console.log('RENDER')} */}
       {status}
-      <div>Farms: {farms}</div>
+      {/* <div>Farms: {farms}</div>
       <div>Total value locked: {totalValueLocked}</div>
       <div>Farm value staked: {formatEther(valueStaked).toString()}</div>
       <div>Capital Pool Size (Total Assets): {formatEther(assets).toString()}</div>
-      <div>Solace Rewards per Month: {rewardsPerMonth.toString()}</div>
-      <div>Rewards per day: {rewardsPerDay.toFixed(2)}</div>
+      <div>Solace Rewards per Month: {rewardsPerMonth.toFixed(2)}</div>
+      <div>Rewards per day: {rewardsPerDay.toFixed(2)}</div> */}
       {wallet.isActive ? (
         !loading ? (
           <>
-            <div>My rewards per day: {userRewardsPerDay.toFixed(2)}</div>
-            <div>My rewards: {userRewards.toFixed(2)}</div>
-            {/* <div>Account: {wallet.account}</div> */}
-            {/* <div>Chain Id: {wallet.networkId}</div> */}
+            {/* <div>My rewards per day: {userRewardsPerDay.toFixed(2)}</div>
+            <div>My rewards: {userRewards.toFixed(2)}</div> */}
+            <div>Account: {wallet.account}</div>
+            {/* <div>Chain Id: {wallet.networkId}</div>
             <div>SOLACE: {solaceBalance}</div>
             <div>SCP Tokens: {scp}</div>
             <div>Your CP stake: {userCpValueStaked}</div>
-            <div>Your vault share: {`${(userVaultShare * 100).toFixed(2)}%`}</div>
+            <div>Your vault share: {`${(userVaultShare * 100).toFixed(2)}%`}</div> */}
             <label htmlFor="amount">Amount</label>
             <input
               type="number"
@@ -451,20 +449,95 @@ function Playground(): any {
               step="1"
               onChange={(e) => setMaxLoss(parseInt(e.target.value))}
             />
-            <button onClick={callDepositVault}>deposit into vault</button>
-            <button onClick={callDepositCp}>deposit CP</button>
-            <button onClick={callDepositEth}>deposit CP and stake</button>
-            <button onClick={callWithdrawVault}>withdraw from vault</button>
-            <button onClick={callWithdrawCp}>withdraw CP</button>
-            <button onClick={callDepositErc721}>deposit LP</button>
-            <button onClick={callWithdrawErc721}>withdraw LP</button>
-            <button onClick={setSolacePerBlock}>set solace per block</button>
           </>
         ) : (
           <div>Loading</div>
         )
       ) : null}
       <Coins />
+      <h2>INVEST</h2>
+      <InvestTabPoolView
+        names={[
+          'Capital Pool Size',
+          'Total Value Locked',
+          'Solace Rewards / Month',
+          'SOLACE',
+          'Current Rewards',
+          'SCP',
+        ]}
+        content={[
+          formatEther(assets).toString(),
+          totalValueLocked,
+          rewardsPerMonth.toFixed(2),
+          wallet.isActive ? solaceBalance : null,
+          rewardsPerDay.toFixed(2),
+          wallet.isActive ? scp : null,
+        ]}
+      />
+      <h2>RISK-BACKING ETH CAPITAL POOL</h2>
+      <InvestTabPoolView
+        names={['ROI', 'Total Assets', 'Deposit ETH', 'Withdraw ETH', 'Vault Share', 'Deposit and stake']}
+        content={[
+          1,
+          formatEther(assets).toString(),
+          wallet.isActive ? (
+            <button key={2} onClick={callDepositVault}>
+              deposit into vault
+            </button>
+          ) : null,
+          wallet.isActive ? (
+            <button key={3} onClick={callWithdrawVault}>
+              withdraw from vault
+            </button>
+          ) : null,
+          wallet.isActive ? `${(userVaultShare * 100).toFixed(2)}%` : null,
+          wallet.isActive ? (
+            <button key={5} onClick={callDepositEth}>
+              deposit CP and stake
+            </button>
+          ) : null,
+        ]}
+      />
+      <h2>SOLACE CAPITAL PROVIDER FARM</h2>
+      <InvestTabPoolView
+        names={['Rewards / Day', 'Total Liquidity', 'My Rewards', 'My Rewards per Day', 'Stake CP', 'Withdraw CP']}
+        content={[
+          rewardsPerDay.toFixed(2),
+          formatEther(valueStaked).toString(),
+          wallet.isActive ? userRewards.toFixed(2) : null,
+          wallet.isActive ? userRewardsPerDay.toFixed(2) : null,
+          wallet.isActive ? (
+            <button key={4} onClick={callDepositCp}>
+              deposit CP
+            </button>
+          ) : null,
+          wallet.isActive ? (
+            <button key={5} onClick={callWithdrawCp}>
+              withdraw CP
+            </button>
+          ) : null,
+        ]}
+      />
+      <h2>SOLACE-ETH LIQUIDITY FARM</h2>
+      <InvestTabPoolView
+        names={['Rewards / Day', 'Total Liquidity', 'My Rewards', 'My Rewards per Day', 'Stake LP', 'Withdraw LP']}
+        content={[
+          rewardsPerDay.toFixed(2),
+          formatEther(valueStaked).toString(),
+          wallet.isActive ? userRewards.toFixed(2) : null,
+          wallet.isActive ? userRewardsPerDay.toFixed(2) : null,
+          wallet.isActive ? (
+            <button key={4} onClick={callDepositCp}>
+              deposit CP
+            </button>
+          ) : null,
+          wallet.isActive ? (
+            <button key={5} onClick={callWithdrawCp}>
+              withdraw CP
+            </button>
+          ) : null,
+        ]}
+      />
     </>
   )
 }
