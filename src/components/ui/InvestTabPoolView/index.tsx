@@ -3,7 +3,6 @@ import styled from 'styled-components'
 
 const OuterDiv = styled.div`
   height: 100px;
-  width: 775px;
   border: 1px solid #4287f5;
   border-radius: 20px;
   display: flex;
@@ -21,7 +20,6 @@ const InnerDiv = styled.div`
 `
 const TableDiv = styled.div`
   height: 70px;
-  width: 625px;
   border-radius: 20px;
   border: 1px solid yellow;
   display: flex;
@@ -30,20 +28,20 @@ const TableDiv = styled.div`
 
 const TopDiv = styled.div`
   height: 20px;
-  width: 625px;
   border: 1px solid black;
   display: flex;
   flex-direction: row;
+  text-align: center;
 `
 
 const BotDiv = styled.div`
   height: 50px;
-  width: 625px;
   border: 1px solid green;
   background-color: Aquamarine;
   border-radius: 20px;
   display: flex;
   flex-direction: row;
+  text-align: center;
 `
 
 const ButtonDiv = styled.div`
