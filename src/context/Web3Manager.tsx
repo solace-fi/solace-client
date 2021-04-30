@@ -14,7 +14,7 @@ import { ethers } from 'ethers'
 
 export const WalletConnectors = SUPPORTED_WALLETS
 
-export type Wallet = {
+export type ContextWallet = {
   initialized: boolean
   connecting?: WalletConnector
   isActive: boolean
@@ -30,7 +30,7 @@ export type Wallet = {
   updateBalance: (b: number) => void
 }
 
-const WalletContext = createContext<Wallet>({
+const WalletContext = createContext<ContextWallet>({
   initialized: false,
   connecting: undefined,
   isActive: false,
@@ -139,7 +139,7 @@ const WalletProvider: React.FC = (props) => {
     })()
   }, [web3React])
 
-  const value = useMemo<Wallet>(
+  const value = useMemo<ContextWallet>(
     () => ({
       initialized,
       connecting,
@@ -160,7 +160,7 @@ const WalletProvider: React.FC = (props) => {
   return <WalletContext.Provider value={value}>{props.children}</WalletContext.Provider>
 }
 
-export function useWallet(): Wallet {
+export function useWallet(): ContextWallet {
   return useContext(WalletContext)
 }
 

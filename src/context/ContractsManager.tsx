@@ -1,4 +1,4 @@
-import React, { useState, createContext, useContext, useRef, useCallback, useMemo, useEffect } from 'react'
+import React, { createContext, useContext, useMemo } from 'react'
 import { Contract } from '@ethersproject/contracts'
 
 import {
@@ -8,6 +8,8 @@ import {
   useCpFarmContract,
   useLpFarmContract,
   useRegistryContract,
+  useLpTokenContract,
+  useWethContract,
 } from '../hooks/useContract'
 
 export type Contracts = {
@@ -17,6 +19,8 @@ export type Contracts = {
   cpFarm?: Contract | null
   lpFarm?: Contract | null
   registry?: Contract | null
+  lpToken?: Contract | null
+  weth?: Contract | null
 }
 
 const ContractsContext = createContext<Contracts>({
@@ -26,6 +30,8 @@ const ContractsContext = createContext<Contracts>({
   cpFarm: undefined,
   lpFarm: undefined,
   registry: undefined,
+  lpToken: undefined,
+  weth: undefined,
 })
 
 const ContractsProvider: React.FC = (props) => {
@@ -35,6 +41,8 @@ const ContractsProvider: React.FC = (props) => {
   const cpFarm = useCpFarmContract()
   const lpFarm = useLpFarmContract()
   const registry = useRegistryContract()
+  const lpToken = useLpTokenContract()
+  const weth = useWethContract()
 
   const value = useMemo<Contracts>(
     () => ({
@@ -44,8 +52,10 @@ const ContractsProvider: React.FC = (props) => {
       cpFarm: cpFarm,
       lpFarm: lpFarm,
       registry: registry,
+      lpToken: lpToken,
+      weth: weth,
     }),
-    [master, vault, solace, cpFarm, lpFarm, registry]
+    [master, vault, solace, cpFarm, lpFarm, registry, lpToken, weth]
   )
 
   return <ContractsContext.Provider value={value}>{props.children}</ContractsContext.Provider>
