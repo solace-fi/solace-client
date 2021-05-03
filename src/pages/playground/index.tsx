@@ -8,6 +8,8 @@ import { formatEther } from '@ethersproject/units'
 
 import Coins from '../../components/ui/Coins'
 import InvestTabPoolView from '../../components/ui/InvestTabPoolView'
+import { Button } from '../../components/ui/Button'
+import { Modal } from '../../components/ui/Modal'
 
 import { NUM_BLOCKS_PER_DAY, NUM_DAYS_PER_MONTH, DAYS_PER_YEAR, TOKEN_NAME } from '../../constants'
 
@@ -17,6 +19,10 @@ import { encodePriceSqrt, FeeAmount, TICK_SPACINGS, getMaxTick, getMinTick } fro
 function Playground(): any {
   const wallet = useWallet()
   const status = wallet.isActive ? <div>Playground, connected</div> : <div>Playground, disconnected</div>
+
+  const [func, setFunc] = useState<() => void | (() => Promise<void>)>()
+  const [disabled, setDisabled] = useState(false)
+  const [modalTitle, setModalTitle] = useState<string>('')
 
   const [assets, setAssets] = useState<number>(0)
   const [farms, setFarms] = useState<string>('0')
@@ -30,9 +36,6 @@ function Playground(): any {
   const [rewardsPerMonth, setRewardsPerMonth] = useState<number>(0)
   const [userRewards, setUserRewards] = useState<number>(0)
 
-  const [amount, setAmount] = useState<number>(5)
-  const [maxLoss, setMaxLoss] = useState<number>(5)
-  const [loading, setLoading] = useState<boolean>(false)
   const [scp, setScp] = useState<number>(0)
 
   const [nft, setNft] = useState<BN>()
@@ -46,6 +49,9 @@ function Playground(): any {
   const [userVaultShare, setUserVaultShare] = useState<number>(0)
 
   const [totalValueLocked, setTotalValueLocked] = useState<number>(0)
+
+  const [loading, setLoading] = useState<boolean>(false)
+  const [showModal, setShowModal] = useState<boolean>(false)
 
   const masterContract = useRef<Contract | null>()
   const vaultContract = useRef<Contract | null>()
@@ -68,6 +74,12 @@ function Playground(): any {
     getUserRewardsPerDay()
     getRewardsPerDay()
     getUserVaultShare()
+  }
+
+  const openModal = async (func: any, modalTitle: string) => {
+    setShowModal((prev) => !prev)
+    setModalTitle(modalTitle)
+    setFunc(() => func)
   }
 
   const getSolacePerMonth = async () => {
@@ -254,10 +266,11 @@ function Playground(): any {
     }
   }
 
-  const callDepositVault = async () => {
+  const callDepositVault = async (amount: number) => {
     setLoading(true)
     if (!vaultContract.current) return
 
+    console.log('vault', amount)
     try {
       const tx = await vaultContract.current.deposit({ value: ethers.utils.parseEther(amount.toString()) })
       await tx.wait()
@@ -265,6 +278,8 @@ function Playground(): any {
         console.log('DepositVault event: ', tx)
         wallet.updateBalance(wallet.balance.sub(amount))
         refresh()
+        setShowModal(false)
+        setDisabled(false)
         setLoading(false)
       })
     } catch (err) {
@@ -272,7 +287,7 @@ function Playground(): any {
     }
   }
 
-  const callDepositEth = async () => {
+  const callDepositEth = async (amount: number) => {
     setLoading(true)
     if (!cpFarmContract.current || !vaultContract.current) return
     try {
@@ -282,6 +297,8 @@ function Playground(): any {
         console.log('DepositEth event: ', tx)
         wallet.updateBalance(wallet.balance.sub(amount))
         refresh()
+        setShowModal(false)
+        setDisabled(false)
         setLoading(false)
       })
     } catch (err) {
@@ -289,7 +306,7 @@ function Playground(): any {
     }
   }
 
-  const callDepositCp = async () => {
+  const callDepositCp = async (amount: number) => {
     setLoading(true)
     if (!cpFarmContract.current || !vaultContract.current) return
     try {
@@ -307,6 +324,8 @@ function Playground(): any {
         console.log('DepositCp event: ', tx)
         wallet.updateBalance(wallet.balance.sub(amount))
         refresh()
+        setShowModal(false)
+        setDisabled(false)
         setLoading(false)
       })
     } catch (err) {
@@ -314,7 +333,7 @@ function Playground(): any {
     }
   }
 
-  const callWithdrawVault = async () => {
+  const callWithdrawVault = async (amount: number, maxLoss: number) => {
     setLoading(true)
     if (!vaultContract.current) return
 
@@ -325,6 +344,8 @@ function Playground(): any {
         console.log('withdrawal event: ', tx)
         wallet.updateBalance(wallet.balance.add(amount))
         refresh()
+        setShowModal(false)
+        setDisabled(false)
         setLoading(false)
       })
     } catch (err) {
@@ -332,7 +353,7 @@ function Playground(): any {
     }
   }
 
-  const callWithdrawCp = async () => {
+  const callWithdrawCp = async (amount: number, maxLoss: number) => {
     setLoading(true)
     if (!cpFarmContract.current) return
     try {
@@ -342,6 +363,8 @@ function Playground(): any {
         console.log('WithdrawEth event: ', tx)
         wallet.updateBalance(wallet.balance.add(amount))
         refresh()
+        setShowModal(false)
+        setDisabled(false)
         setLoading(false)
       })
     } catch (err) {
@@ -351,7 +374,9 @@ function Playground(): any {
 
   const callDepositLp = async () => {
     setLoading(true)
+    console.log(lpTokenContract.current, lpFarmContract.current, nft)
     if (!lpTokenContract.current || !lpFarmContract.current || !nft) return
+    console.log('depositLP')
     try {
       const { v, r, s } = await getPermitNFTSignature(
         wallet,
@@ -372,6 +397,8 @@ function Playground(): any {
       await lpFarmContract.current.on('Deposit', (sender, token, tx) => {
         console.log('DepositSigned event: ', tx)
         refresh()
+        setShowModal(false)
+        setDisabled(false)
         setLoading(false)
       })
     } catch (err) {
@@ -389,6 +416,8 @@ function Playground(): any {
       await lpFarmContract.current.on('Withdraw', (sender, token, tx) => {
         console.log('withdrawLp event: ', tx)
         refresh()
+        setShowModal(false)
+        setDisabled(false)
         setLoading(false)
       })
     } catch (err) {
@@ -396,7 +425,7 @@ function Playground(): any {
     }
   }
 
-  const callMintLpToken = async () => {
+  const callMintLpToken = async (amount: number) => {
     if (!wethContract.current || !solaceContract.current || !lpTokenContract.current) return
     setLoading(true)
     try {
@@ -409,6 +438,8 @@ function Playground(): any {
       console.log('Total Supply of LP Tokens', nft.toNumber())
       setNft(nft)
       refresh()
+      setShowModal(false)
+      setDisabled(false)
       setLoading(false)
     } catch (err) {
       console.log(err)
@@ -462,33 +493,23 @@ function Playground(): any {
 
   return (
     <>
-      {/* {console.log('RENDER')} */}
       {status}
-      <button onClick={setSolacePerBlock}>Set Solace</button>
-      <button onClick={callMintLpToken}>Mint LP Token</button>
+      <Modal
+        showModal={showModal}
+        setShowModal={setShowModal}
+        callbackFunc={func}
+        disabled={disabled}
+        setDisabled={setDisabled}
+      >
+        {modalTitle}
+      </Modal>
+      <Button onClick={setSolacePerBlock}>Set Solace</Button>
+      <Button onClick={() => openModal(callMintLpToken, 'Enter the amount')}>Mint LP Token</Button>
       {wallet.isActive ? (
         !loading ? (
           <>
             <div>Account: {wallet.account}</div>
             <div>Chain Id: {wallet.networkId}</div>
-            <label htmlFor="amount">Amount</label>
-            <input
-              type="number"
-              value={`${amount}`}
-              id="amount"
-              onChange={(e) => setAmount(parseInt(e.target.value))}
-            />
-            <label htmlFor="maxLoss">Max Loss: {maxLoss}</label>
-            <input
-              type="range"
-              name="maxLoss"
-              id="maxLoss"
-              min="1"
-              max="10"
-              value={maxLoss}
-              step="1"
-              onChange={(e) => setMaxLoss(parseInt(e.target.value))}
-            />
           </>
         ) : (
           <div>Loading</div>
@@ -513,20 +534,29 @@ function Playground(): any {
           '6.5%',
           formatEther(assets).toString(),
           wallet.isActive && !loading ? (
-            <button key={2} onClick={callDepositVault}>
+            <Button
+              key={2}
+              onClick={() => openModal(callDepositVault, 'How much ETH would you like to deposit into the vault?')}
+            >
               deposit into vault
-            </button>
+            </Button>
           ) : null,
           wallet.isActive && !loading ? (
-            <button key={3} onClick={callWithdrawVault}>
+            <Button
+              key={3}
+              onClick={() => openModal(callWithdrawVault, 'How much ETH would you like to withdraw from the vault?')}
+            >
               withdraw from vault
-            </button>
+            </Button>
           ) : null,
           wallet.isActive ? `${(userVaultShare * 100).toFixed(2)}%` : null,
           wallet.isActive && !loading ? (
-            <button key={5} onClick={callDepositEth}>
+            <Button
+              key={5}
+              onClick={() => openModal(callDepositEth, 'How much ETH would you like to deposit and stake?')}
+            >
               deposit CP and stake
-            </button>
+            </Button>
           ) : null,
         ]}
       />
@@ -539,14 +569,20 @@ function Playground(): any {
           wallet.isActive ? userRewards.toFixed(2) : null,
           wallet.isActive ? cpUserRewardsPerDay.toFixed(2) : null,
           wallet.isActive && !loading ? (
-            <button key={4} onClick={callDepositCp}>
+            <Button
+              key={4}
+              onClick={() => openModal(callDepositCp, 'Enter the amount of CP tokens you want to deposit.')}
+            >
               deposit CP
-            </button>
+            </Button>
           ) : null,
           wallet.isActive && !loading ? (
-            <button key={5} onClick={callWithdrawCp}>
+            <Button
+              key={5}
+              onClick={() => openModal(callWithdrawCp, 'Enter the amount of CP tokens you want to withdraw.')}
+            >
               withdraw CP
-            </button>
+            </Button>
           ) : null,
         ]}
       />
@@ -559,14 +595,20 @@ function Playground(): any {
           wallet.isActive ? userRewards.toFixed(2) : null,
           wallet.isActive ? lpUserRewardsPerDay.toFixed(2) : null,
           wallet.isActive && !loading ? (
-            <button key={4} onClick={callDepositLp}>
+            <Button
+              key={4}
+              onClick={() => openModal(callDepositLp, 'Enter the amount of LP tokens you want to deposit.')}
+            >
               deposit LP
-            </button>
+            </Button>
           ) : null,
           wallet.isActive && !loading ? (
-            <button key={5} onClick={callWithdrawLp}>
+            <Button
+              key={5}
+              onClick={() => openModal(callWithdrawLp, 'Enter the amount of LP tokens you want to withdraw.')}
+            >
               withdraw LP
-            </button>
+            </Button>
           ) : null,
         ]}
       />
