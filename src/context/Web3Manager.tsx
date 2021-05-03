@@ -10,9 +10,11 @@ import { Web3ReactProvider } from '@web3-react/core'
 // helper hook for wallet balance
 import getLibrary from '../utils/getLibrary'
 
+import { ethers } from 'ethers'
+
 export const WalletConnectors = SUPPORTED_WALLETS
 
-export type Wallet = {
+export type ContextWallet = {
   initialized: boolean
   connecting?: WalletConnector
   isActive: boolean
@@ -25,10 +27,10 @@ export type Wallet = {
   balance?: any
   connect: (connector: WalletConnector, args?: Record<string, any>) => Promise<void>
   disconnect: () => void
-  fetchBalance: () => Promise<void>
+  updateBalance: (b: number) => void
 }
 
-const WalletContext = createContext<Wallet>({
+const WalletContext = createContext<ContextWallet>({
   initialized: false,
   connecting: undefined,
   isActive: false,
@@ -40,7 +42,7 @@ const WalletContext = createContext<Wallet>({
   balance: undefined,
   connect: () => Promise.reject(),
   disconnect: () => undefined,
-  fetchBalance: () => Promise.reject(),
+  updateBalance: () => undefined,
 })
 
 const WalletProvider: React.FC = (props) => {
@@ -65,19 +67,9 @@ const WalletProvider: React.FC = (props) => {
     removeLocalProvider()
   }, [web3React, removeLocalProvider, setConnecting])
 
-  const fetchBalance = useCallback(async (): Promise<void> => {
-    console.log('fetching, ', web3React)
-    if (!!web3React.library && !!web3React.account) {
-      web3React.library
-        .getBalance(web3React.account)
-        .then((balance: number) => {
-          setBalance(balance)
-        })
-        .catch(() => {
-          setBalance(null)
-        })
-    }
-  }, [web3React])
+  const updateBalance = useCallback((b) => {
+    setBalance(b)
+  }, [])
 
   const connect = useCallback(
     async (walletConnector: WalletConnector): Promise<void> => {
@@ -132,32 +124,43 @@ const WalletProvider: React.FC = (props) => {
         }
       }
 
+      if (!!web3React.library && !!web3React.account) {
+        web3React.library
+          .getBalance(web3React.account)
+          .then((balance: number) => {
+            setBalance(balance)
+          })
+          .catch(() => {
+            setBalance(null)
+          })
+      }
+
       setInitialized(true)
     })()
-  }, [])
+  }, [web3React])
 
-  const value = useMemo<Wallet>(
+  const value = useMemo<ContextWallet>(
     () => ({
       initialized,
       connecting,
       isActive: web3React.active,
       account: web3React.account ?? undefined,
       networkId: web3React.chainId,
-      library: web3React.library,
+      library: web3React.library ? web3React.library : new ethers.providers.JsonRpcProvider(),
       connector: activeConnector,
       provider: activeProvider,
       balance: balance,
       connect,
       disconnect,
-      fetchBalance,
+      updateBalance,
     }),
-    [web3React, initialized, connecting, activeConnector, activeProvider, balance, disconnect, connect, fetchBalance]
+    [web3React, initialized, connecting, activeConnector, activeProvider, balance, disconnect, connect, updateBalance]
   )
 
   return <WalletContext.Provider value={value}>{props.children}</WalletContext.Provider>
 }
 
-export function useWallet(): Wallet {
+export function useWallet(): ContextWallet {
   return useContext(WalletContext)
 }
 

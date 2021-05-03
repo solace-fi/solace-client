@@ -13,9 +13,8 @@ export const Navbar = () => {
   const [bal, setBal] = useState<number | null | undefined>(0)
 
   useMemo(() => {
-    console.log('setting balance')
     setBal(wallet.balance)
-  }, [wallet])
+  }, [wallet.balance])
 
   return (
     <Fragment>
