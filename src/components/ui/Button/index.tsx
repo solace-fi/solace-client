@@ -19,6 +19,7 @@ const ButtonBase = styled.button`
   min-height: 34px;
   font-weight: 600;
   font-size: 14px;
+  color: #fff;
   text-align: center;
   background-color: rgba(0, 0, 0, 0);
   transition: background-color 0.2s, color 0.2s;

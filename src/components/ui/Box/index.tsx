@@ -1,6 +1,10 @@
-import React from 'react'
 import styled from 'styled-components'
 import { Box as RebassBox } from 'rebass/styled-components'
+import { TextProps, handleTextProps } from '../Text'
+
+interface BoxProps {
+  purple?: boolean
+}
 
 const BoxBase = styled(RebassBox)<{ width?: string; padding?: string; border?: string; borderRadius?: string }>`
   width: ${({ width }) => width ?? '100%'};
@@ -17,17 +21,24 @@ export const BoxRow = styled(BoxBase)`
   gap: 24px;
 `
 
-export const Box = styled(BoxRow)`
+export const Box = styled(BoxRow)<BoxProps>`
   align-items: center;
   border-radius: 10px;
   padding: 24px;
-  background-color: rgba(0, 255, 209, 0.3);
-
-  &.is-purple {
-    background-color: rgba(250, 0, 255, 0.3);
-  }
+  background-color: ${(props) => (props.purple ? 'rgba(250, 0, 255, 0.3)' : 'rgba(0, 255, 209, 0.3)')};
 `
 
-export const BoxItemtitle = styled.div`
+export const BoxItem = styled.div``
+
+export const BoxItemTitle = styled.div<TextProps>`
+  ${(props) => handleTextProps(props)}
   margin-bottom: 4px;
+`
+
+export const BoxItemValue = styled.div<TextProps>`
+  ${(props) => handleTextProps(props)}
+`
+
+export const BoxItemUnits = styled.span<TextProps>`
+  ${(props) => handleTextProps(props)}
 `

@@ -9,7 +9,7 @@ import { formatEther } from '@ethersproject/units'
 import Coins from '../../components/ui/Coins'
 import InvestTabPoolView from '../../components/ui/InvestTabPoolView'
 import { Button } from '../../components/ui/Button'
-import { Modal } from '../../components/ui/Modal'
+import { AmountModal } from '../../components/ui/Modal/AmountModal'
 
 import { NUM_BLOCKS_PER_DAY, NUM_DAYS_PER_MONTH, DAYS_PER_YEAR, TOKEN_NAME } from '../../constants'
 
@@ -494,7 +494,7 @@ function Playground(): any {
   return (
     <>
       {status}
-      <Modal
+      <AmountModal
         showModal={showModal}
         setShowModal={setShowModal}
         callbackFunc={func}
@@ -502,7 +502,7 @@ function Playground(): any {
         setDisabled={setDisabled}
       >
         {modalTitle}
-      </Modal>
+      </AmountModal>
       <Button onClick={setSolacePerBlock}>Set Solace</Button>
       <Button onClick={() => openModal(callMintLpToken, 'Enter the amount')}>Mint LP Token</Button>
       {wallet.isActive ? (
