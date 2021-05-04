@@ -274,6 +274,10 @@ function Invest(): any {
       })
     } catch (err) {
       console.log('callDepositVault ', err)
+      refresh()
+      setShowModal(false)
+      setDisabled(false)
+      setLoading(false)
     }
   }
 
@@ -293,6 +297,10 @@ function Invest(): any {
       })
     } catch (err) {
       console.log('error callDepositEth ', err)
+      refresh()
+      setShowModal(false)
+      setDisabled(false)
+      setLoading(false)
     }
   }
 
@@ -320,6 +328,10 @@ function Invest(): any {
       })
     } catch (err) {
       console.log('error callDepositCp ', err)
+      refresh()
+      setShowModal(false)
+      setDisabled(false)
+      setLoading(false)
     }
   }
 
@@ -340,6 +352,10 @@ function Invest(): any {
       })
     } catch (err) {
       console.log('callWithdrawVault ', err)
+      refresh()
+      setShowModal(false)
+      setDisabled(false)
+      setLoading(false)
     }
   }
 
@@ -359,6 +375,10 @@ function Invest(): any {
       })
     } catch (err) {
       console.log('error callWithdrawCp ', err)
+      refresh()
+      setShowModal(false)
+      setDisabled(false)
+      setLoading(false)
     }
   }
 
@@ -393,6 +413,10 @@ function Invest(): any {
       })
     } catch (err) {
       console.log('callDepositLp ', err)
+      refresh()
+      setShowModal(false)
+      setDisabled(false)
+      setLoading(false)
     }
   }
 
@@ -412,6 +436,10 @@ function Invest(): any {
       })
     } catch (err) {
       console.log('callWithdrawLp ', err)
+      refresh()
+      setShowModal(false)
+      setDisabled(false)
+      setLoading(false)
     }
   }
 
@@ -433,6 +461,10 @@ function Invest(): any {
       setLoading(false)
     } catch (err) {
       console.log(err)
+      refresh()
+      setShowModal(false)
+      setDisabled(false)
+      setLoading(false)
     }
   }
 
@@ -495,18 +527,18 @@ function Invest(): any {
       <Table isHighlight>
         <TableHead>
           <TableRow>
-            <TableHeader>Vault Share</TableHeader>
+            {wallet.isActive ? <TableHeader>Vault Share</TableHeader> : null}
             <TableHeader>ROI(1Y)</TableHeader>
             <TableHeader>Total Assets</TableHeader>
           </TableRow>
         </TableHead>
         <TableBody>
           <TableRow>
-            <TableData>{wallet.isActive ? `${(userVaultShare * 100).toFixed(2)}%` : null}</TableData>
+            {wallet.isActive ? <TableData>{`${(userVaultShare * 100).toFixed(2)}%`}</TableData> : null}
             <TableData>HC6.5%</TableData>
             <TableData>{formatEther(assets).toString()}</TableData>
-            <TableData cellAlignRight>
-              {wallet.account && !loading ? (
+            {wallet.account && !loading ? (
+              <TableData cellAlignRight>
                 <TableDataGroup>
                   <Button
                     onClick={() =>
@@ -528,8 +560,8 @@ function Invest(): any {
                     deposit CP and stake
                   </Button>
                 </TableDataGroup>
-              ) : null}
-            </TableData>
+              </TableData>
+            ) : null}
           </TableRow>
         </TableBody>
       </Table>
@@ -537,22 +569,22 @@ function Invest(): any {
       <Table isHighlight>
         <TableHead>
           <TableRow>
-            <TableHeader>My Accumulated Rewards</TableHeader>
+            {wallet.account ? <TableHeader>My Accumulated Rewards</TableHeader> : null}
             <TableHeader>ROI(1Y)</TableHeader>
             <TableHeader>Total Assets</TableHeader>
-            <TableHeader>My Rewards per Day</TableHeader>
+            {wallet.account ? <TableHeader>My Rewards per Day</TableHeader> : null}
             <TableHeader>Global Rewards per Day</TableHeader>
           </TableRow>
         </TableHead>
         <TableBody>
           <TableRow>
-            <TableData>{wallet.isActive ? cpUserRewards.toFixed(2) : null}</TableData>
+            {wallet.account ? <TableData>{cpUserRewards.toFixed(2)}</TableData> : null}
             <TableData>HC150%</TableData>
             <TableData>{formatEther(cpPoolValue).toString()}</TableData>
-            <TableData>{cpUserRewardsPerDay.toFixed(2)}</TableData>
+            {wallet.account ? <TableData>{cpUserRewardsPerDay.toFixed(2)}</TableData> : null}
             <TableData>{cpRewardsPerDay.toFixed(2)}</TableData>
-            <TableData cellAlignRight>
-              {wallet.account && !loading ? (
+            {wallet.account && !loading ? (
+              <TableData cellAlignRight>
                 <TableDataGroup>
                   <Button
                     onClick={() => openModal(callDepositCp, 'Enter the amount of CP tokens you want to deposit.')}
@@ -565,8 +597,8 @@ function Invest(): any {
                     withdraw CP
                   </Button>
                 </TableDataGroup>
-              ) : null}
-            </TableData>
+              </TableData>
+            ) : null}
           </TableRow>
         </TableBody>
       </Table>
@@ -574,22 +606,22 @@ function Invest(): any {
       <Table isHighlight>
         <TableHead>
           <TableRow>
-            <TableHeader>My Accumulated Rewards</TableHeader>
+            {wallet.account ? <TableHeader>My Accumulated Rewards</TableHeader> : null}
             <TableHeader>ROI(1Y)</TableHeader>
             <TableHeader>Total Assets</TableHeader>
-            <TableHeader>My Rewards per Day</TableHeader>
+            {wallet.account ? <TableHeader>My Rewards per Day</TableHeader> : null}
             <TableHeader>Global Rewards per Day</TableHeader>
           </TableRow>
         </TableHead>
         <TableBody>
           <TableRow>
-            <TableData>{wallet.isActive ? lpUserRewards.toFixed(2) : null}</TableData>
+            {wallet.account ? <TableData>{lpUserRewards.toFixed(2)}</TableData> : null}
             <TableData>HC150%</TableData>
             <TableData>{formatEther(lpPoolValue).toString()}</TableData>
-            <TableData>{lpUserRewardsPerDay.toFixed(2)}</TableData>
+            {wallet.account ? <TableData>{lpUserRewardsPerDay.toFixed(2)}</TableData> : null}{' '}
             <TableData>{lpRewardsPerDay.toFixed(2)}</TableData>
-            <TableData cellAlignRight>
-              {wallet.account && !loading ? (
+            {wallet.account && !loading ? (
+              <TableData cellAlignRight>
                 <TableDataGroup>
                   <Button
                     onClick={() => openModal(callDepositLp, 'Enter the amount of LP tokens you want to deposit.')}
@@ -602,8 +634,8 @@ function Invest(): any {
                     withdraw LP
                   </Button>
                 </TableDataGroup>
-              ) : null}
-            </TableData>
+              </TableData>
+            ) : null}
           </TableRow>
         </TableBody>
       </Table>

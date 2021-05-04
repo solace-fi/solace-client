@@ -1,6 +1,10 @@
 # client
 
-The solace.fi web interface
+### The solace.fi web interface
+
+![Dashboard](./public/images/dashboard.png)
+
+![Invest](./public/images/invest.png)
 
 ## How to start testing
 
