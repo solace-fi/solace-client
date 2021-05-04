@@ -6,12 +6,11 @@ import { useContracts } from '../../context/ContractsManager'
 import { ethers, constants, BigNumberish, BigNumber as BN } from 'ethers'
 import { formatEther } from '@ethersproject/units'
 
-import Coins from '../../components/ui/Coins'
 import InvestTabPoolView from '../../components/ui/InvestTabPoolView'
 import { Button } from '../../components/ui/Button'
 import { AmountModal } from '../../components/ui/Modal/AmountModal'
 
-import { NUM_BLOCKS_PER_DAY, NUM_DAYS_PER_MONTH, DAYS_PER_YEAR, TOKEN_NAME } from '../../constants'
+import { NUM_BLOCKS_PER_DAY, NUM_DAYS_PER_MONTH, DAYS_PER_YEAR, TOKEN_NAME, DEADLINE } from '../../constants'
 
 import getPermitNFTSignature from '../../utils/signature'
 import { encodePriceSqrt, FeeAmount, TICK_SPACINGS, getMaxTick, getMinTick } from '../../utils/uniswap'
@@ -383,16 +382,9 @@ function Playground(): any {
         lpTokenContract.current,
         lpFarmContract.current.address,
         nft,
-        constants.MaxUint256
+        DEADLINE
       )
-      const depositSigned = await lpFarmContract.current.depositSigned(
-        wallet.account,
-        nft,
-        constants.MaxUint256,
-        v,
-        r,
-        s
-      )
+      const depositSigned = await lpFarmContract.current.depositSigned(wallet.account, nft, DEADLINE, v, r, s)
       await depositSigned.wait()
       await lpFarmContract.current.on('Deposit', (sender, token, tx) => {
         console.log('DepositSigned event: ', tx)
@@ -467,7 +459,7 @@ function Playground(): any {
       amount1Desired: BN.from(amount),
       amount0Min: 0,
       amount1Min: 0,
-      deadline: constants.MaxUint256,
+      deadline: DEADLINE,
     })
     const tokenId = await lpTokenContract.current.totalSupply()
     return tokenId
@@ -515,7 +507,6 @@ function Playground(): any {
           <div>Loading</div>
         )
       ) : null}
-      <Coins />
       <h2 style={{ textAlign: 'center' }}>INVEST</h2>
       <InvestTabPoolView
         names={['Capital Pool Size', 'Total Value Locked', 'SR/M', 'SOLACE', 'SCP']}

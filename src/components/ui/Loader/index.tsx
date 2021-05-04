@@ -1,46 +1,24 @@
 import React from 'react'
 
-import styled, { keyframes } from 'styled-components'
-
-const rotate = keyframes`
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-`
-
-const StyledSVG = styled.svg<{ size: string; stroke?: string }>`
-  animation: 2s ${rotate} linear infinite;
-  height: ${({ size }) => size};
-  width: ${({ size }) => size};
-  path {
-    stroke: ${({ stroke, theme }) => stroke ?? theme.primary1};
-  }
-`
-
-/**
- * Takes in custom size and stroke for circle color, default to primary color as fill,
- * need ...rest for layered styles on top
- */
-export default function Loader({
-  size = '16px',
-  stroke,
-  ...rest
-}: {
-  size?: string
-  stroke?: string
-  [k: string]: any
-}) {
+export const Loader = (): any => {
   return (
-    <StyledSVG viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" size={size} stroke={stroke} {...rest}>
+    <svg style={{ width: '100px', height: '90px' }}>
       <path
-        d="M12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22C17.5228 22 22 17.5228 22 12C22 9.27455 20.9097 6.80375 19.1414 5"
-        strokeWidth="2.5"
+        fill="none"
+        stroke="#ffffff"
+        strokeWidth="1"
+        strokeDasharray="225.7982568359375 30.790671386718742"
+        d="M24.3 30C11.4 30 5 43.3 5 50s6.4 20 19.3 20c19.3 0 32.1-40 51.4-40 C88.6 30 95 43.3 95 50s-6.4 20-19.3 20C56.4 70 43.6 30 24.3 30z"
         strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </StyledSVG>
+      >
+        <animate
+          attributeName="stroke-dashoffset"
+          repeatCount="indefinite"
+          dur="1.2048192771084336s"
+          keyTimes="0;1"
+          values="0;256.58892822265625"
+        ></animate>
+      </path>
+    </svg>
   )
 }

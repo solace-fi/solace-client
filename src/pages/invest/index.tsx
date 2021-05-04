@@ -1,7 +1,20 @@
 import React, { useEffect, useRef, useState, Fragment } from 'react'
 import { Contract } from '@ethersproject/contracts'
+import { Loader } from '../../components/ui/Loader'
+import { Input } from '../../components/ui/Input'
+import {
+  Modal,
+  ModalHeader,
+  ModalContent,
+  ModalRow,
+  ModalCell,
+  ModalCloseButton,
+  ModalButton,
+} from '../../components/ui/Modal/InvestModal'
+import { RadioElement, RadioInput, RadioGroup, RadioLabel } from '../../components/ui/Radio'
+// import { Transition, TransitionStatus } from 'react-transition-group'
 
-import { Heading1 } from '../../components/ui/Text'
+import { Heading1, Heading2 } from '../../components/ui/Text'
 import { Statistics } from '../../components/ui/Box/Statistics'
 import {
   Table,
@@ -14,14 +27,14 @@ import {
 } from '../../components/ui/Table'
 import { useWallet } from '../../context/Web3Manager'
 import { useContracts } from '../../context/ContractsManager'
-import getPermitNFTSignature from '../../utils/signature'
+import getPermitNFTSignature, { getPermitDigest, sign, getDomainSeparator } from '../../utils/signature'
 
-import { ethers, constants, BigNumberish, BigNumber as BN } from 'ethers'
+import { ethers, constants, BigNumberish, BigNumber as BN, Wallet } from 'ethers'
 import { formatEther } from '@ethersproject/units'
 import { Button } from '../../components/ui/Button'
 import { AmountModal } from '../../components/ui/Modal/AmountModal'
 
-import { NUM_BLOCKS_PER_DAY, NUM_DAYS_PER_MONTH, DAYS_PER_YEAR, TOKEN_NAME } from '../../constants'
+import { NUM_BLOCKS_PER_DAY, NUM_DAYS_PER_MONTH, DAYS_PER_YEAR, TOKEN_NAME, DEADLINE } from '../../constants'
 import { encodePriceSqrt, FeeAmount, TICK_SPACINGS, getMaxTick, getMinTick } from '../../utils/uniswap'
 
 function Invest(): any {
@@ -37,6 +50,7 @@ function Invest(): any {
   const solaceContract = useRef<Contract | null>()
 
   const [assets, setAssets] = useState<number>(0)
+  const [select, setSelect] = useState<string>('1')
 
   const [cpUserRewardsPerDay, setCpUserRewardsPerDay] = useState<number>(0)
   const [lpUserRewardsPerDay, setLpUserRewardsPerDay] = useState<number>(0)
@@ -54,9 +68,14 @@ function Invest(): any {
 
   const [loading, setLoading] = useState<boolean>(false)
   const [showModal, setShowModal] = useState<boolean>(false)
-  const [func, setFunc] = useState<() => void | (() => Promise<void>)>()
+  const [func, setFunc] = useState<any>()
   const [modalTitle, setModalTitle] = useState<string>('')
   const [disabled, setDisabled] = useState(false)
+
+  const [amount, setAmount] = useState<string>('0')
+  const [maxLoss, setMaxLoss] = useState<number>(5)
+
+  const [unit, setUnit] = useState<string>('ETH')
 
   const [nft, setNft] = useState<BN>()
 
@@ -71,8 +90,9 @@ function Invest(): any {
     getLpUserRewards()
   }
 
-  const openModal = async (func: any, modalTitle: string) => {
+  const openModal = async (func: any, modalTitle: string, unit: string) => {
     setShowModal((prev) => !prev)
+    setUnit(unit)
     setModalTitle(modalTitle)
     setFunc(() => func)
   }
@@ -393,16 +413,9 @@ function Invest(): any {
         lpTokenContract.current,
         lpFarmContract.current.address,
         nft,
-        constants.MaxUint256
+        DEADLINE
       )
-      const depositSigned = await lpFarmContract.current.depositSigned(
-        wallet.account,
-        nft,
-        constants.MaxUint256,
-        v,
-        r,
-        s
-      )
+      const depositSigned = await lpFarmContract.current.depositSigned(wallet.account, nft, DEADLINE, v, r, s)
       await depositSigned.wait()
       await lpFarmContract.current.on('Deposit', (sender, token, tx) => {
         console.log('DepositSigned event: ', tx)
@@ -468,6 +481,42 @@ function Invest(): any {
     }
   }
 
+  // const mintAndDeposit = async () => {
+  //   if (
+  //     !lpTokenContract.current ||
+  //     !lpFarmContract.current ||
+  //     !solaceContract.current ||
+  //     !wallet.networkId ||
+  //     !wallet.account ||
+  //     !wallet.library
+  //   )
+  //     return
+  //   const approve = { owner: wallet.account, spender: lpFarmContract.current.address, value: excessiveDepositAmount }
+  //   const digest = getPermitDigest(
+  //     TOKEN_NAME,
+  //     solaceContract.current.address,
+  //     wallet.networkId,
+  //     approve,
+  //     nonce,
+  //     DEADLINE
+  //   )
+  //   const { v, r, s } = wallet.library.send('eth_signTypedData_v4', [wallet.account])
+  //   await lpTokenContract.current.mintAndDeposit({
+  //     depositor: wallet.account,
+  //     amountSolace: excessiveDepositAmount,
+  //     amount0Desired: amount,
+  //     amount1Desired: amount,
+  //     amount0Min: 0,
+  //     amount1Min: 0,
+  //     deadline: DEADLINE,
+  //     tickLower: getMinTick(TICK_SPACINGS[FeeAmount.MEDIUM]),
+  //     tickUpper: getMaxTick(TICK_SPACINGS[FeeAmount.MEDIUM]),
+  //     v: v,
+  //     r: r,
+  //     s: s,
+  //   })
+  // }
+
   const mintLpToken = async (
     tokenA: Contract,
     tokenB: Contract,
@@ -489,7 +538,7 @@ function Invest(): any {
       amount1Desired: BN.from(amount),
       amount0Min: 0,
       amount1Min: 0,
-      deadline: constants.MaxUint256,
+      deadline: DEADLINE,
     })
     const tokenId = await lpTokenContract.current.totalSupply()
     return tokenId
@@ -497,6 +546,18 @@ function Invest(): any {
 
   function sortTokens(tokenA: string, tokenB: string) {
     return BN.from(tokenA).lt(BN.from(tokenB)) ? [tokenA, tokenB] : [tokenB, tokenA]
+  }
+
+  const handleSelectChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value
+    setSelect(value)
+  }
+
+  const handleCallbackFunc = async () => {
+    console.log('calling back')
+    setDisabled(true)
+    if (!func) return
+    await func(amount, maxLoss)
   }
 
   useEffect(() => {
@@ -511,9 +572,21 @@ function Invest(): any {
     refresh()
   }, [vault, cpFarm, lpFarm, master, lpToken, weth])
 
+  // const defaultStyle = {
+  //   transition: `opacity ${300}ms ease-in-out`,
+  //   opacity: 0,
+  // }
+
+  // const transitionStyles: { [id: string]: React.CSSProperties } = {
+  //   entering: { opacity: 1 },
+  //   entered: { opacity: 1 },
+  //   exiting: { opacity: 0 },
+  //   exited: { opacity: 0 },
+  // }
+
   return (
     <Fragment>
-      <AmountModal
+      {/* <AmountModal
         showModal={showModal}
         setShowModal={setShowModal}
         callbackFunc={func}
@@ -521,7 +594,50 @@ function Invest(): any {
         setDisabled={setDisabled}
       >
         {modalTitle}
-      </AmountModal>
+      </AmountModal> */}
+      {/* <Transition in={showModal} timeout={300}>
+        {(state: TransitionStatus) => (        )}
+      </Transition> */}
+      <Modal
+        // style={{ ...defaultStyle, ...transitionStyles[state] }}
+        isOpen={showModal}
+      >
+        <ModalHeader>
+          <Heading2>{modalTitle}</Heading2>
+          <ModalCloseButton hidden={disabled} onClick={() => setShowModal(false)} />
+        </ModalHeader>
+        <ModalContent>
+          <ModalRow>
+            <ModalCell>{unit}</ModalCell>
+            <ModalCell>
+              <Input min="0" value={amount} type="number" onChange={(e) => setAmount(e.target.value)} />
+            </ModalCell>
+          </ModalRow>
+          <RadioGroup>
+            <RadioLabel>
+              <RadioInput type="radio" value="1" checked={select === '1'} onChange={(e) => handleSelectChange(e)} />
+              <RadioElement>radio1</RadioElement>
+            </RadioLabel>
+            <RadioLabel>
+              <RadioInput type="radio" value="2" checked={select === '2'} onChange={(e) => handleSelectChange(e)} />
+              <RadioElement>radio2</RadioElement>
+            </RadioLabel>
+            <RadioLabel>
+              <RadioInput type="radio" value="3" checked={select === '3'} onChange={(e) => handleSelectChange(e)} />
+              <RadioElement>radio3</RadioElement>
+            </RadioLabel>
+          </RadioGroup>
+          <ModalButton>
+            {!loading ? (
+              <Button hidden={disabled} onClick={handleCallbackFunc}>
+                Confirm
+              </Button>
+            ) : (
+              <Loader />
+            )}
+          </ModalButton>
+        </ModalContent>
+      </Modal>
       <Statistics />
       <Heading1>Risk Back ETH - Capital Pool</Heading1>
       <Table isHighlight>
@@ -540,24 +656,14 @@ function Invest(): any {
             {wallet.account && !loading ? (
               <TableData cellAlignRight>
                 <TableDataGroup>
-                  <Button
-                    onClick={() =>
-                      openModal(callDepositVault, 'How much ETH would you like to deposit into the vault?')
-                    }
-                  >
-                    deposit into vault
+                  <Button onClick={() => openModal(callDepositVault, 'Deposit into Vault', 'ETH')}>
+                    Deposit into Vault
                   </Button>
-                  <Button
-                    onClick={() =>
-                      openModal(callWithdrawVault, 'How much ETH would you like to withdraw from the vault?')
-                    }
-                  >
-                    withdraw from vault
+                  <Button onClick={() => openModal(callWithdrawVault, 'Withdraw from Vault', 'Solace CP Token')}>
+                    Withdraw from Vault
                   </Button>
-                  <Button
-                    onClick={() => openModal(callDepositEth, 'How much ETH would you like to deposit and stake?')}
-                  >
-                    deposit CP and stake
+                  <Button onClick={() => openModal(callDepositEth, 'Deposit Eth and Stake', 'ETH')}>
+                    Deposit Eth and Stake
                   </Button>
                 </TableDataGroup>
               </TableData>
@@ -586,15 +692,9 @@ function Invest(): any {
             {wallet.account && !loading ? (
               <TableData cellAlignRight>
                 <TableDataGroup>
-                  <Button
-                    onClick={() => openModal(callDepositCp, 'Enter the amount of CP tokens you want to deposit.')}
-                  >
-                    deposit CP
-                  </Button>
-                  <Button
-                    onClick={() => openModal(callWithdrawCp, 'Enter the amount of CP tokens you want to withdraw.')}
-                  >
-                    withdraw CP
+                  <Button onClick={() => openModal(callDepositCp, 'Deposit CP', 'Solace CP Token')}>Deposit CP</Button>
+                  <Button onClick={() => openModal(callWithdrawCp, 'Withdraw CP', 'Solace CP Token')}>
+                    Withdraw CP
                   </Button>
                 </TableDataGroup>
               </TableData>
@@ -623,16 +723,9 @@ function Invest(): any {
             {wallet.account && !loading ? (
               <TableData cellAlignRight>
                 <TableDataGroup>
-                  <Button
-                    onClick={() => openModal(callDepositLp, 'Enter the amount of LP tokens you want to deposit.')}
-                  >
-                    deposit LP
-                  </Button>
-                  <Button
-                    onClick={() => openModal(callWithdrawLp, 'Enter the amount of LP tokens you want to withdraw.')}
-                  >
-                    withdraw LP
-                  </Button>
+                  <Button onClick={() => openModal(callMintLpToken, 'Mint LP', 'LP')}>Mint LP</Button>
+                  <Button onClick={() => openModal(callDepositLp, 'Deposit LP', 'LP')}>Deposit LP</Button>
+                  <Button onClick={() => openModal(callWithdrawLp, 'Withdraw LP', 'LP')}>Withdraw LP</Button>
                 </TableDataGroup>
               </TableData>
             ) : null}

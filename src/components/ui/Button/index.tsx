@@ -5,9 +5,11 @@ interface props {
   disabled?: boolean
   children?: React.ReactNode
   onClick?: any
+  secondary?: boolean
+  hidden?: boolean
 }
 
-const ButtonBase = styled.button`
+const ButtonBase = styled.button<props>`
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -19,21 +21,19 @@ const ButtonBase = styled.button`
   min-height: 34px;
   font-weight: 600;
   font-size: 14px;
-  color: #fff;
   text-align: center;
-  background-color: rgba(0, 0, 0, 0);
   transition: background-color 0.2s, color 0.2s;
   cursor: pointer;
-
-  &:hover {
-    color: #7c7c7c;
-    background-color: #fff;
-  }
+  visibility: ${(props) => (props.hidden ? 'hidden;' : 'visible;')}
+    ${(props) =>
+      props.secondary
+        ? 'color: #7c7c7c; background-color: #fff; &:hover { opacity: 0.8; }'
+        : 'color: #fff; background-color: rgba(0, 0, 0, 0); &:hover { color: #7c7c7c; background-color: #fff; }'};
 `
 
-export const Button: React.FC<props> = ({ disabled, children, onClick }) => {
+export const Button: React.FC<props> = ({ onClick, disabled, secondary, hidden, children }) => {
   return (
-    <ButtonBase onClick={onClick} disabled={disabled}>
+    <ButtonBase onClick={onClick} disabled={disabled} secondary={secondary} hidden={hidden}>
       {children}
     </ButtonBase>
   )
