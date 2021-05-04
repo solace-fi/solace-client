@@ -37,7 +37,6 @@ function Invest(): any {
   const solaceContract = useRef<Contract | null>()
 
   const [assets, setAssets] = useState<number>(0)
-  const [farms, setFarms] = useState<number>(0)
 
   const [cpUserRewardsPerDay, setCpUserRewardsPerDay] = useState<number>(0)
   const [lpUserRewardsPerDay, setLpUserRewardsPerDay] = useState<number>(0)
@@ -62,7 +61,6 @@ function Invest(): any {
   const [nft, setNft] = useState<BN>()
 
   const refresh = async () => {
-    getNumFarms()
     getTotalAssets()
     getUserVaultShare()
     getCpUserRewardsPerDay()
@@ -82,14 +80,17 @@ function Invest(): any {
   const getNumFarms = async () => {
     if (!masterContract.current) return
     try {
-      const ans = await masterContract.current.numFarms()
-      setFarms(ans)
+      const ans = await masterContract.current.numFarms().then((ans: any) => {
+        return ans
+      })
+      return ans
     } catch (err) {
       console.log('error getNumFarms ', err)
     }
   }
 
   const getCpUserRewards = async () => {
+    const farms = await getNumFarms()
     if (!cpFarmContract.current || farms === 0 || !wallet.account) return
     try {
       let rewards = 0
@@ -105,6 +106,7 @@ function Invest(): any {
   }
 
   const getLpUserRewards = async () => {
+    const farms = await getNumFarms()
     if (!lpFarmContract.current || farms === 0 || !wallet.account) return
     try {
       let rewards = 0
@@ -259,7 +261,6 @@ function Invest(): any {
     setLoading(true)
     if (!vaultContract.current) return
 
-    console.log('vault', amount)
     try {
       const tx = await vaultContract.current.deposit({ value: ethers.utils.parseEther(amount.toString()) })
       await tx.wait()
@@ -502,7 +503,7 @@ function Invest(): any {
         <TableBody>
           <TableRow>
             <TableData>{wallet.isActive ? `${(userVaultShare * 100).toFixed(2)}%` : null}</TableData>
-            <TableData>6.5%</TableData>
+            <TableData>HC6.5%</TableData>
             <TableData>{formatEther(assets).toString()}</TableData>
             <TableData cellAlignRight>
               {wallet.account && !loading ? (
@@ -546,7 +547,7 @@ function Invest(): any {
         <TableBody>
           <TableRow>
             <TableData>{wallet.isActive ? cpUserRewards.toFixed(2) : null}</TableData>
-            <TableData>150%</TableData>
+            <TableData>HC150%</TableData>
             <TableData>{formatEther(cpPoolValue).toString()}</TableData>
             <TableData>{cpUserRewardsPerDay.toFixed(2)}</TableData>
             <TableData>{cpRewardsPerDay.toFixed(2)}</TableData>
@@ -583,7 +584,7 @@ function Invest(): any {
         <TableBody>
           <TableRow>
             <TableData>{wallet.isActive ? lpUserRewards.toFixed(2) : null}</TableData>
-            <TableData>150%</TableData>
+            <TableData>HC150%</TableData>
             <TableData>{formatEther(lpPoolValue).toString()}</TableData>
             <TableData>{lpUserRewardsPerDay.toFixed(2)}</TableData>
             <TableData>{lpRewardsPerDay.toFixed(2)}</TableData>

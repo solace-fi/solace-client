@@ -19,14 +19,10 @@ export const Statistics = (): any => {
 
   const [capitalPoolSize, setCapitalPoolSize] = useState<number>(0)
   const [solaceBalance, setSolaceBalance] = useState<number>(0)
-  const [farms, setFarms] = useState<number>(0)
 
   const [totalUserRewards, setTotalUserRewards] = useState<number>(0)
-  const [cpUserRewards, setCpUserRewards] = useState<number>(0)
-  const [lpUserRewards, setLpUserRewards] = useState<number>(0)
 
   const refresh = async () => {
-    getNumFarms()
     getCapitalPoolSize()
     getSolaceBalance()
     getTotalUserRewards()
@@ -35,20 +31,21 @@ export const Statistics = (): any => {
   const getNumFarms = async () => {
     if (!masterContract.current) return
     try {
-      const ans = await masterContract.current.numFarms()
-      setFarms(ans)
+      const ans = await masterContract.current.numFarms().then((ans: any) => {
+        return ans
+      })
+      return ans
     } catch (err) {
       console.log('error getNumFarms ', err)
     }
   }
 
   const getTotalUserRewards = async () => {
+    const farms = await getNumFarms()
     if (farms === 0 || !wallet.account) return
     try {
       const cpUserRewards = await getCpUserRewards()
       const lpUserRewards = await getLpUserRewards()
-      console.log('cpUserRewards', cpUserRewards)
-      console.log('lpUserRewards', lpUserRewards)
 
       const rewards = (cpUserRewards || 0) + (lpUserRewards || 0)
       if (totalUserRewards !== rewards) setTotalUserRewards(rewards)
@@ -58,6 +55,7 @@ export const Statistics = (): any => {
   }
 
   const getCpUserRewards = async () => {
+    const farms = await getNumFarms()
     if (!cpFarmContract.current || farms === 0 || !wallet.account) return
     try {
       let rewards = 0
@@ -65,7 +63,6 @@ export const Statistics = (): any => {
         const pendingReward = await cpFarmContract.current.pendingRewards(wallet.account)
         rewards += parseFloat(pendingReward)
       }
-      if (cpUserRewards !== rewards) setCpUserRewards(rewards)
       return rewards
     } catch (err) {
       console.log('error getUserRewards ', err)
@@ -73,6 +70,7 @@ export const Statistics = (): any => {
   }
 
   const getLpUserRewards = async () => {
+    const farms = await getNumFarms()
     if (!lpFarmContract.current || farms === 0 || !wallet.account) return
     try {
       let rewards = 0
@@ -80,7 +78,6 @@ export const Statistics = (): any => {
         const pendingReward = await lpFarmContract.current.pendingRewards(wallet.account)
         rewards += parseFloat(pendingReward)
       }
-      if (lpUserRewards !== rewards) setLpUserRewards(rewards)
       return rewards
     } catch (err) {
       console.log('error getUserRewards ', err)
