@@ -7,7 +7,7 @@ import { useWallet } from '../../../context/Web3Manager'
 import { useContracts } from '../../../context/ContractsManager'
 import { formatEther } from '@ethersproject/units'
 
-export const Statistics = (): any => {
+export const Statistics = () => {
   const wallet = useWallet()
   const { master, vault, solace, cpFarm, lpFarm } = useContracts()
 
@@ -115,7 +115,7 @@ export const Statistics = (): any => {
     lpFarmContract.current = lpFarm
 
     refresh()
-  }, [master, vault, solace, cpFarm, lpFarm])
+  }, [master, vault, solace, cpFarm, lpFarm, wallet])
 
   return (
     <BoxRow>

@@ -618,7 +618,7 @@ function Invest(): any {
             {wallet.account ? <TableData>{lpUserRewards.toFixed(2)}</TableData> : null}
             <TableData>HC150%</TableData>
             <TableData>{formatEther(lpPoolValue).toString()}</TableData>
-            {wallet.account ? <TableData>{lpUserRewardsPerDay.toFixed(2)}</TableData> : null}{' '}
+            {wallet.account ? <TableData>{lpUserRewardsPerDay.toFixed(2)}</TableData> : null}
             <TableData>{lpRewardsPerDay.toFixed(2)}</TableData>
             {wallet.account && !loading ? (
               <TableData cellAlignRight>
