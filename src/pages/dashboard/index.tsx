@@ -39,7 +39,7 @@ function Dashboard(): any {
 
   return (
     <Fragment>
-      <Statistics />
+      {/* <Statistics /> */}
       <Heading1>Your Policies</Heading1>
       <Table>
         <TableHead>

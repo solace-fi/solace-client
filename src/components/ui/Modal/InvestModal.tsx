@@ -1,8 +1,9 @@
 import React from 'react'
-import styled from 'styled-components'
+import styled, { css, keyframes } from 'styled-components'
 
 interface ModalProps {
   isOpen: boolean
+  style?: any
 }
 
 interface ModalButtonProps {
@@ -10,22 +11,32 @@ interface ModalButtonProps {
   hidden?: boolean
 }
 
+const FadeInAnimation = keyframes`  
+  from { opacity: 0; }
+  to { opacity: 1; }
+`
+
 const ModalContainer = styled.div<ModalProps>`
   position: fixed;
   top: 0;
   left: 0;
-  ${(props) => (props.isOpen ? 'display: flex;' : 'display: none;')}
   width: 100vw;
   height: 100vh;
-  padding: 32px;
-  background: linear-gradient(113.7deg, #b621ff 0%, #21d3fc 100%);
+  background: linear-gradient(113.7deg, rgba(182, 33, 255) 0%, rgba(33, 211, 252) 100%);
+  ${(props) => (props.isOpen ? 'display: flex;' : 'display: none;')}
 `
 
-const ModalBase = styled.div`
+const ModalBase = styled.div<ModalProps>`
   margin: auto;
   border-radius: 10px;
   padding: 24px;
   background-color: rgba(255, 255, 255, 0.3);
+  opacity: 0;
+  ${(props) =>
+    props.isOpen &&
+    css`
+      animation: ${FadeInAnimation} 300ms ease-in-out normal forwards;
+    `}
 `
 
 const ModalClose = styled.div<ModalButtonProps>`
@@ -67,10 +78,12 @@ export const ModalButton = styled.div`
   margin-top: 40px;
 `
 
-export const Modal: React.FC<ModalProps> = ({ isOpen, children }) => {
+export const Modal: React.FC<ModalProps> = ({ isOpen, style, children }) => {
   return (
-    <ModalContainer className="modal" isOpen={isOpen}>
-      <ModalBase>{children}</ModalBase>
+    <ModalContainer isOpen={isOpen} style={style}>
+      <ModalBase isOpen={isOpen} style={style}>
+        {children}
+      </ModalBase>
     </ModalContainer>
   )
 }

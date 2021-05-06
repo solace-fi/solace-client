@@ -4,7 +4,7 @@ import { LayoutSidebar, SidebarItem } from './index'
 export const Nav = (): any => {
   return (
     <LayoutSidebar>
-      <SidebarItem className="dashboard-nav-link" to={'/dashboard'}>
+      <SidebarItem className="dashboard-nav-link" to={'/'}>
         Dashboard
       </SidebarItem>
       <SidebarItem className="invest-nav-link" to={'/invest'}>
@@ -13,7 +13,7 @@ export const Nav = (): any => {
       <SidebarItem className="quote-nav-link" to={'/quote'}>
         Quote
       </SidebarItem>
-      <SidebarItem className="playground-nav-link" to={'/'}>
+      <SidebarItem className="playground-nav-link" to={'/playground'}>
         Playground{' '}
       </SidebarItem>
     </LayoutSidebar>

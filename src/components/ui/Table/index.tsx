@@ -37,10 +37,11 @@ export const TableHead = styled.thead``
 
 export const TableHeader = styled.th`
   padding: 4px 18px;
-  text-align: left;
+  text-align: center;
 `
 
 export const TableData = styled.td<TableProps>`
+  text-align: center;
   padding: 18px;
   &:first-child {
     border-radius: 10px 0 0 10px;

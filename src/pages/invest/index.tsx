@@ -12,7 +12,6 @@ import {
   ModalButton,
 } from '../../components/ui/Modal/InvestModal'
 import { RadioElement, RadioInput, RadioGroup, RadioLabel } from '../../components/ui/Radio'
-// import { Transition, TransitionStatus } from 'react-transition-group'
 
 import { Heading1, Heading2 } from '../../components/ui/Text'
 import { Statistics } from '../../components/ui/Box/Statistics'
@@ -572,36 +571,10 @@ function Invest(): any {
     refresh()
   }, [vault, cpFarm, lpFarm, master, lpToken, weth])
 
-  // const defaultStyle = {
-  //   transition: `opacity ${300}ms ease-in-out`,
-  //   opacity: 0,
-  // }
-
-  // const transitionStyles: { [id: string]: React.CSSProperties } = {
-  //   entering: { opacity: 1 },
-  //   entered: { opacity: 1 },
-  //   exiting: { opacity: 0 },
-  //   exited: { opacity: 0 },
-  // }
-
-  return (
+  return wallet.initialized ? (
     <Fragment>
-      {/* <AmountModal
-        showModal={showModal}
-        setShowModal={setShowModal}
-        callbackFunc={func}
-        disabled={disabled}
-        setDisabled={setDisabled}
-      >
-        {modalTitle}
-      </AmountModal> */}
-      {/* <Transition in={showModal} timeout={300}>
-        {(state: TransitionStatus) => (        )}
-      </Transition> */}
-      <Modal
-        // style={{ ...defaultStyle, ...transitionStyles[state] }}
-        isOpen={showModal}
-      >
+      {/* <Statistics /> */}
+      <Modal isOpen={showModal}>
         <ModalHeader>
           <Heading2>{modalTitle}</Heading2>
           <ModalCloseButton hidden={disabled} onClick={() => setShowModal(false)} />
@@ -638,7 +611,6 @@ function Invest(): any {
           </ModalButton>
         </ModalContent>
       </Modal>
-      <Statistics />
       <Heading1>Risk Back ETH - Capital Pool</Heading1>
       <Table isHighlight>
         <TableHead>
@@ -764,6 +736,8 @@ function Invest(): any {
         </TableBody>
       </Table>
     </Fragment>
+  ) : (
+    <Loader />
   )
 }
 

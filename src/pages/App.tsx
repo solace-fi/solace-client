@@ -6,6 +6,7 @@ import Dashboard from './dashboard'
 import Invest from './invest'
 import Quote from './quote'
 
+import { Statistics } from '../components/ui/Box/Statistics'
 import Nav from '../components/ui/Sidebar/Nav'
 import Prices from '../components/ui/Header/Prices'
 import styled, { createGlobalStyle } from 'styled-components'
@@ -69,11 +70,12 @@ export default function App(): any {
           <Prices />
           <Nav />
           <LayoutContent>
+            <Statistics />
             <Switch>
-              <Route exact path="/" component={Playground} />
-              <Route exact path="/dashboard" component={Dashboard} />
+              <Route exact path="/" component={Dashboard} />
               <Route exact path="/invest" component={Invest} />
               <Route exact path="/quote" component={Quote} />
+              <Route exact path="/playground" component={Playground} />
             </Switch>
           </LayoutContent>
         </LayoutContainer>
