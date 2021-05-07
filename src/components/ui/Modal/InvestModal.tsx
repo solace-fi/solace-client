@@ -1,5 +1,6 @@
 import React from 'react'
 import styled, { css, keyframes } from 'styled-components'
+import { TextProps, handleTextProps } from '../Text'
 
 interface ModalProps {
   isOpen: boolean
@@ -64,11 +65,12 @@ export const ModalRow = styled.div`
   justify-content: space-around;
 `
 
-export const ModalCell = styled.div`
+export const ModalCell = styled.div<TextProps>`
   display: flex;
   align-items: center;
   flex-shrink: 0;
   padding: 24px;
+  ${() => handleTextProps()}
 `
 
 export const ModalButton = styled.div`

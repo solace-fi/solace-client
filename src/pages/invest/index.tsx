@@ -12,7 +12,7 @@ import {
   ModalButton,
 } from '../../components/ui/Modal/InvestModal'
 import { RadioElement, RadioInput, RadioGroup, RadioLabel } from '../../components/ui/Radio'
-
+import { Content } from '../App'
 import { Heading1, Heading2 } from '../../components/ui/Text'
 import { Statistics } from '../../components/ui/Box/Statistics'
 import {
@@ -27,7 +27,7 @@ import {
 import { useWallet } from '../../context/Web3Manager'
 import { useContracts } from '../../context/ContractsManager'
 import getPermitNFTSignature, { getPermitDigest, sign, getDomainSeparator } from '../../utils/signature'
-
+import { getProviderOrSigner } from '../../utils/index'
 import { ethers, constants, BigNumberish, BigNumber as BN, Wallet } from 'ethers'
 import { formatEther } from '@ethersproject/units'
 import { Button } from '../../components/ui/Button'
@@ -38,7 +38,7 @@ import { encodePriceSqrt, FeeAmount, TICK_SPACINGS, getMaxTick, getMinTick } fro
 
 function Invest(): any {
   const wallet = useWallet()
-  const { master, vault, solace, cpFarm, lpFarm, lpToken, weth } = useContracts()
+  const { master, vault, solace, cpFarm, lpFarm, lpToken, weth, registry } = useContracts()
 
   const masterContract = useRef<Contract | null>()
   const vaultContract = useRef<Contract | null>()
@@ -47,6 +47,7 @@ function Invest(): any {
   const lpTokenContract = useRef<Contract | null>()
   const wethContract = useRef<Contract | null>()
   const solaceContract = useRef<Contract | null>()
+  const registryContract = useRef<Contract | null>()
 
   const [assets, setAssets] = useState<number>(0)
   const [select, setSelect] = useState<string>('1')
@@ -69,9 +70,8 @@ function Invest(): any {
   const [showModal, setShowModal] = useState<boolean>(false)
   const [func, setFunc] = useState<any>()
   const [modalTitle, setModalTitle] = useState<string>('')
-  const [disabled, setDisabled] = useState(false)
 
-  const [amount, setAmount] = useState<string>('0')
+  const [amount, setAmount] = useState<string>('')
   const [maxLoss, setMaxLoss] = useState<number>(5)
 
   const [unit, setUnit] = useState<string>('ETH')
@@ -91,9 +91,33 @@ function Invest(): any {
 
   const openModal = async (func: any, modalTitle: string, unit: string) => {
     setShowModal((prev) => !prev)
+    document.body.style.overflowY = 'hidden'
     setUnit(unit)
     setModalTitle(modalTitle)
     setFunc(() => func)
+  }
+
+  const closeModal = async () => {
+    setShowModal(false)
+    document.body.style.overflowY = 'scroll'
+    setLoading(false)
+    setAmount('')
+  }
+
+  const claimCpRewards = async () => {
+    if (!cpFarmContract.current) return
+    setLoading(true)
+    await cpFarmContract.current.withdrawRewards().then((ans: any) => {
+      setLoading(false)
+    })
+  }
+
+  const claimLpRewards = async () => {
+    if (!lpFarmContract.current) return
+    setLoading(true)
+    await lpFarmContract.current.withdrawRewards().then((ans: any) => {
+      setLoading(false)
+    })
   }
 
   const getNumFarms = async () => {
@@ -112,13 +136,11 @@ function Invest(): any {
     const farms = await getNumFarms()
     if (!cpFarmContract.current || farms === 0 || !wallet.account) return
     try {
-      let rewards = 0
-      for (let i = 0; i < farms; i++) {
-        const pendingReward = await cpFarmContract.current.pendingRewards(wallet.account)
-        rewards += parseFloat(pendingReward)
-      }
-      if (cpUserRewards !== rewards) setCpUserRewards(rewards)
-      return rewards
+      const pendingReward = await cpFarmContract.current.pendingRewards(wallet.account)
+      const blockReward = await cpFarmContract.current.accRewardPerShare()
+      // console.log('cp block reward', formatEther(blockReward))
+      if (cpUserRewards !== pendingReward) setCpUserRewards(parseFloat(pendingReward))
+      return pendingReward
     } catch (err) {
       console.log('error getUserRewards ', err)
     }
@@ -128,13 +150,11 @@ function Invest(): any {
     const farms = await getNumFarms()
     if (!lpFarmContract.current || farms === 0 || !wallet.account) return
     try {
-      let rewards = 0
-      for (let i = 0; i < farms; i++) {
-        const pendingReward = await lpFarmContract.current.pendingRewards(wallet.account)
-        rewards += parseFloat(pendingReward)
-      }
-      if (lpUserRewards !== rewards) setLpUserRewards(rewards)
-      return rewards
+      const pendingReward = await lpFarmContract.current.pendingRewards(wallet.account)
+      const blockReward = await lpFarmContract.current.accRewardPerShare()
+      // console.log('lp block reward', formatEther(blockReward))
+      if (lpUserRewards !== pendingReward) setLpUserRewards(parseFloat(pendingReward))
+      return pendingReward
     } catch (err) {
       console.log('error getUserRewards ', err)
     }
@@ -252,8 +272,10 @@ function Invest(): any {
   }
 
   const getTotalAssets = async () => {
-    if (!vaultContract.current) return
+    if (!vaultContract.current || !registryContract.current) return
     try {
+      const addr = await registryContract.current.governance()
+      console.log('GOVERNANCE ', addr)
       const ans = await vaultContract.current.totalAssets().then((ans: any) => {
         return ans
       })
@@ -287,16 +309,12 @@ function Invest(): any {
         console.log('DepositVault event: ', tx)
         wallet.updateBalance(wallet.balance.sub(amount))
         refresh()
-        setShowModal(false)
-        setDisabled(false)
-        setLoading(false)
+        closeModal()
       })
     } catch (err) {
       console.log('callDepositVault ', err)
       refresh()
-      setShowModal(false)
-      setDisabled(false)
-      setLoading(false)
+      closeModal()
     }
   }
 
@@ -310,16 +328,12 @@ function Invest(): any {
         console.log('DepositEth event: ', tx)
         wallet.updateBalance(wallet.balance.sub(amount))
         refresh()
-        setShowModal(false)
-        setDisabled(false)
-        setLoading(false)
+        closeModal()
       })
     } catch (err) {
       console.log('error callDepositEth ', err)
       refresh()
-      setShowModal(false)
-      setDisabled(false)
-      setLoading(false)
+      closeModal()
     }
   }
 
@@ -341,16 +355,12 @@ function Invest(): any {
         console.log('DepositCp event: ', tx)
         wallet.updateBalance(wallet.balance.sub(amount))
         refresh()
-        setShowModal(false)
-        setDisabled(false)
-        setLoading(false)
+        closeModal()
       })
     } catch (err) {
       console.log('error callDepositCp ', err)
       refresh()
-      setShowModal(false)
-      setDisabled(false)
-      setLoading(false)
+      closeModal()
     }
   }
 
@@ -365,16 +375,12 @@ function Invest(): any {
         console.log('withdrawal event: ', tx)
         wallet.updateBalance(wallet.balance.add(amount))
         refresh()
-        setShowModal(false)
-        setDisabled(false)
-        setLoading(false)
+        closeModal()
       })
     } catch (err) {
       console.log('callWithdrawVault ', err)
       refresh()
-      setShowModal(false)
-      setDisabled(false)
-      setLoading(false)
+      closeModal()
     }
   }
 
@@ -388,16 +394,12 @@ function Invest(): any {
         console.log('WithdrawEth event: ', tx)
         wallet.updateBalance(wallet.balance.add(amount))
         refresh()
-        setShowModal(false)
-        setDisabled(false)
-        setLoading(false)
+        closeModal()
       })
     } catch (err) {
       console.log('error callWithdrawCp ', err)
       refresh()
-      setShowModal(false)
-      setDisabled(false)
-      setLoading(false)
+      closeModal()
     }
   }
 
@@ -419,16 +421,12 @@ function Invest(): any {
       await lpFarmContract.current.on('Deposit', (sender, token, tx) => {
         console.log('DepositSigned event: ', tx)
         refresh()
-        setShowModal(false)
-        setDisabled(false)
-        setLoading(false)
+        closeModal()
       })
     } catch (err) {
       console.log('callDepositLp ', err)
       refresh()
-      setShowModal(false)
-      setDisabled(false)
-      setLoading(false)
+      closeModal()
     }
   }
 
@@ -442,16 +440,12 @@ function Invest(): any {
       await lpFarmContract.current.on('Withdraw', (sender, token, tx) => {
         console.log('withdrawLp event: ', tx)
         refresh()
-        setShowModal(false)
-        setDisabled(false)
-        setLoading(false)
+        closeModal()
       })
     } catch (err) {
       console.log('callWithdrawLp ', err)
       refresh()
-      setShowModal(false)
-      setDisabled(false)
-      setLoading(false)
+      closeModal()
     }
   }
 
@@ -459,24 +453,44 @@ function Invest(): any {
     if (!wethContract.current || !solaceContract.current || !lpTokenContract.current) return
     setLoading(true)
     try {
-      await solaceContract.current.addMinter(wallet.account)
-      await solaceContract.current.mint(wallet.account, amount)
-      await wethContract.current.deposit({ value: ethers.utils.parseEther(amount.toString()) })
-      await solaceContract.current.approve(lpTokenContract.current.address, ethers.utils.parseEther(amount.toString()))
-      await wethContract.current.approve(lpTokenContract.current.address, ethers.utils.parseEther(amount.toString()))
-      const nft = await mintLpToken(wethContract.current, solaceContract.current, FeeAmount.MEDIUM, amount)
+      await solaceContract.current
+        .connect(getProviderOrSigner(wallet.library, wallet.account))
+        .addMinter(wallet.account)
+      await solaceContract.current
+        .connect(getProviderOrSigner(wallet.library, wallet.account))
+        .mint(wallet.account, amount)
+      await wethContract.current.connect(getProviderOrSigner(wallet.library, wallet.account)).deposit({ value: amount })
+      const wethAllowance1 = await wethContract.current
+        .connect(getProviderOrSigner(wallet.library, wallet.account))
+        .allowance(wallet.account, lpTokenContract.current.address)
+      const solaceAllowance1 = await solaceContract.current
+        .connect(getProviderOrSigner(wallet.library, wallet.account))
+        .allowance(wallet.account, lpTokenContract.current.address)
+      console.log(wethAllowance1.toString())
+      console.log(solaceAllowance1.toString())
+      await solaceContract.current
+        .connect(getProviderOrSigner(wallet.library, wallet.account))
+        .approve(lpTokenContract.current.address, amount)
+      await wethContract.current
+        .connect(getProviderOrSigner(wallet.library, wallet.account))
+        .approve(lpTokenContract.current.address, amount)
+      const wethAllowance2 = await wethContract.current
+        .connect(getProviderOrSigner(wallet.library, wallet.account))
+        .allowance(wallet.account, lpTokenContract.current.address)
+      const solaceAllowance2 = await solaceContract.current
+        .connect(getProviderOrSigner(wallet.library, wallet.account))
+        .allowance(wallet.account, lpTokenContract.current.address)
+      console.log(wethAllowance2.toString())
+      console.log(solaceAllowance2.toString())
+      const nft = await mintLpToken(wethContract.current, solaceContract.current, FeeAmount.MEDIUM, BN.from(amount))
       console.log('Total Supply of LP Tokens', nft.toNumber())
       setNft(nft)
       refresh()
-      setShowModal(false)
-      setDisabled(false)
-      setLoading(false)
+      closeModal()
     } catch (err) {
       console.log(err)
       refresh()
-      setShowModal(false)
-      setDisabled(false)
-      setLoading(false)
+      closeModal()
     }
   }
 
@@ -520,21 +534,21 @@ function Invest(): any {
     tokenA: Contract,
     tokenB: Contract,
     fee: FeeAmount,
-    amount: number,
+    amount: BigNumberish,
     tickLower: BigNumberish = getMinTick(TICK_SPACINGS[fee]),
     tickUpper: BigNumberish = getMaxTick(TICK_SPACINGS[fee])
   ) => {
     if (!lpTokenContract.current) return
     const [token0, token1] = sortTokens(tokenA.address, tokenB.address)
-    await lpTokenContract.current.mint({
+    await lpTokenContract.current.connect(getProviderOrSigner(wallet.library, wallet.account)).mint({
       token0: token0,
       token1: token1,
       tickLower: tickLower,
       tickUpper: tickUpper,
       fee: fee,
       recipient: wallet.account,
-      amount0Desired: BN.from(amount),
-      amount1Desired: BN.from(amount),
+      amount0Desired: amount,
+      amount1Desired: amount,
       amount0Min: 0,
       amount1Min: 0,
       deadline: DEADLINE,
@@ -553,10 +567,13 @@ function Invest(): any {
   }
 
   const handleCallbackFunc = async () => {
-    console.log('calling back')
-    setDisabled(true)
     if (!func) return
     await func(amount, maxLoss)
+  }
+
+  const handleAmount = (amount: string) => {
+    const filteredAmount = amount.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1')
+    setAmount(filteredAmount)
   }
 
   useEffect(() => {
@@ -567,9 +584,10 @@ function Invest(): any {
     lpTokenContract.current = lpToken
     wethContract.current = weth
     solaceContract.current = solace
+    registryContract.current = registry
 
     refresh()
-  }, [vault, cpFarm, lpFarm, master, lpToken, weth])
+  }, [vault, cpFarm, lpFarm, master, lpToken, weth, registry])
 
   return wallet.initialized ? (
     <Fragment>
@@ -577,13 +595,25 @@ function Invest(): any {
       <Modal isOpen={showModal}>
         <ModalHeader>
           <Heading2>{modalTitle}</Heading2>
-          <ModalCloseButton hidden={disabled} onClick={() => setShowModal(false)} />
+          <ModalCloseButton hidden={loading} onClick={() => closeModal()} />
         </ModalHeader>
         <ModalContent>
           <ModalRow>
-            <ModalCell>{unit}</ModalCell>
+            <ModalCell t2>{unit}</ModalCell>
             <ModalCell>
-              <Input min="0" value={amount} type="number" onChange={(e) => setAmount(e.target.value)} />
+              <Input
+                t2
+                textAlignRight
+                type="text"
+                autoComplete="off"
+                autoCorrect="off"
+                inputMode="decimal"
+                placeholder="0.0"
+                minLength={1}
+                maxLength={79}
+                onChange={(e) => handleAmount(e.target.value)}
+                value={amount}
+              />
             </ModalCell>
           </ModalRow>
           <RadioGroup>
@@ -602,7 +632,7 @@ function Invest(): any {
           </RadioGroup>
           <ModalButton>
             {!loading ? (
-              <Button hidden={disabled} onClick={handleCallbackFunc}>
+              <Button hidden={loading} disabled={amount === '' || parseFloat(amount) <= 0} onClick={handleCallbackFunc}>
                 Confirm
               </Button>
             ) : (
@@ -611,130 +641,142 @@ function Invest(): any {
           </ModalButton>
         </ModalContent>
       </Modal>
-      <Heading1>Risk Back ETH - Capital Pool</Heading1>
-      <Table isHighlight>
-        <TableHead>
-          <TableRow>
-            {wallet.isActive ? <TableHeader>Vault Share</TableHeader> : null}
-            <TableHeader>ROI(1Y)</TableHeader>
-            <TableHeader>Total Assets</TableHeader>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          <TableRow>
-            {wallet.isActive ? <TableData>{`${(userVaultShare * 100).toFixed(2)}%`}</TableData> : null}
-            <TableData>HC6.5%</TableData>
-            <TableData>{formatEther(assets).toString()}</TableData>
-            {wallet.account && !loading ? (
-              <TableData cellAlignRight>
-                <TableDataGroup>
-                  <Button onClick={() => openModal(callDepositVault, 'Deposit into Vault', 'ETH')}>
-                    Deposit into Vault
-                  </Button>
-                  <Button onClick={() => openModal(callWithdrawVault, 'Withdraw from Vault', 'Solace CP Token')}>
-                    Withdraw from Vault
-                  </Button>
-                  <Button onClick={() => openModal(callDepositEth, 'Deposit Eth and Stake', 'ETH')}>
-                    Deposit Eth and Stake
-                  </Button>
-                </TableDataGroup>
-              </TableData>
-            ) : null}
-          </TableRow>
-        </TableBody>
-      </Table>
-      <Heading1>Solace Capital Provider Farm</Heading1>
-      <Table isHighlight>
-        <TableHead>
-          <TableRow>
-            {wallet.account ? <TableHeader>My Accumulated Rewards</TableHeader> : null}
-            <TableHeader>ROI(1Y)</TableHeader>
-            <TableHeader>Total Assets</TableHeader>
-            {wallet.account ? <TableHeader>My Rewards per Day</TableHeader> : null}
-            <TableHeader>Global Rewards per Day</TableHeader>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          <TableRow>
-            {wallet.account ? <TableData>{cpUserRewards.toFixed(2)}</TableData> : null}
-            <TableData>HC150%</TableData>
-            <TableData>{formatEther(cpPoolValue).toString()}</TableData>
-            {wallet.account ? <TableData>{cpUserRewardsPerDay.toFixed(2)}</TableData> : null}
-            <TableData>{cpRewardsPerDay.toFixed(2)}</TableData>
-            {wallet.account && !loading ? (
-              <TableData cellAlignRight>
-                <TableDataGroup>
-                  <Button onClick={() => openModal(callDepositCp, 'Deposit CP', 'Solace CP Token')}>Deposit CP</Button>
-                  <Button onClick={() => openModal(callWithdrawCp, 'Withdraw CP', 'Solace CP Token')}>
-                    Withdraw CP
-                  </Button>
-                </TableDataGroup>
-              </TableData>
-            ) : null}
-          </TableRow>
-        </TableBody>
-      </Table>
-      <Heading1>SOLACE/ETH Liquidity Pool</Heading1>
-      <Table isHighlight>
-        <TableHead>
-          <TableRow>
-            {wallet.account ? <TableHeader>My Accumulated Rewards</TableHeader> : null}
-            <TableHeader>ROI(1Y)</TableHeader>
-            <TableHeader>Total Assets</TableHeader>
-            {wallet.account ? <TableHeader>My Rewards per Day</TableHeader> : null}
-            <TableHeader>Global Rewards per Day</TableHeader>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          <TableRow>
-            {wallet.account ? <TableData>{lpUserRewards.toFixed(2)}</TableData> : null}
-            <TableData>HC150%</TableData>
-            <TableData>{formatEther(lpPoolValue).toString()}</TableData>
-            {wallet.account ? <TableData>{lpUserRewardsPerDay.toFixed(2)}</TableData> : null}
-            <TableData>{lpRewardsPerDay.toFixed(2)}</TableData>
-            {wallet.account && !loading ? (
-              <TableData cellAlignRight>
-                <TableDataGroup>
-                  <Button onClick={() => openModal(callMintLpToken, 'Mint LP', 'LP')}>Mint LP</Button>
-                  <Button onClick={() => openModal(callDepositLp, 'Deposit LP', 'LP')}>Deposit LP</Button>
-                  <Button onClick={() => openModal(callWithdrawLp, 'Withdraw LP', 'LP')}>Withdraw LP</Button>
-                </TableDataGroup>
-              </TableData>
-            ) : null}
-          </TableRow>
-        </TableBody>
-      </Table>
-      <Heading1>Your transactions</Heading1>
-      <Table>
-        <TableHead>
-          <TableRow>
-            <TableHeader>Tx Type</TableHeader>
-            <TableHeader>Address</TableHeader>
-            <TableHeader>Amount</TableHeader>
-            <TableHeader>Date</TableHeader>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          <TableRow>
-            <TableData></TableData>
-            <TableData></TableData>
-            <TableData></TableData>
-            <TableData></TableData>
-          </TableRow>
-          <TableRow>
-            <TableData></TableData>
-            <TableData></TableData>
-            <TableData></TableData>
-            <TableData></TableData>
-          </TableRow>
-          <TableRow>
-            <TableData></TableData>
-            <TableData></TableData>
-            <TableData></TableData>
-            <TableData></TableData>
-          </TableRow>
-        </TableBody>
-      </Table>
+      <Content>
+        <Heading1>Risk Back ETH - Capital Pool</Heading1>
+        <Table isHighlight>
+          <TableHead>
+            <TableRow>
+              {wallet.isActive ? <TableHeader>Vault Share</TableHeader> : null}
+              <TableHeader>ROI(1Y)</TableHeader>
+              <TableHeader>Total Assets</TableHeader>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            <TableRow>
+              {wallet.isActive ? <TableData>{`${(userVaultShare * 100).toFixed(2)}%`}</TableData> : null}
+              <TableData>HC6.5%</TableData>
+              <TableData>{formatEther(assets).toString()}</TableData>
+              {wallet.account && !loading ? (
+                <TableData cellAlignRight>
+                  <TableDataGroup>
+                    <Button onClick={() => openModal(callDepositVault, 'Deposit into Vault', 'ETH')}>
+                      Deposit into Vault
+                    </Button>
+                    <Button onClick={() => openModal(callWithdrawVault, 'Withdraw from Vault', 'Solace CP Token')}>
+                      Withdraw from Vault
+                    </Button>
+                    <Button onClick={() => openModal(callDepositEth, 'Deposit Eth and Stake', 'ETH')}>
+                      Deposit Eth and Stake
+                    </Button>
+                  </TableDataGroup>
+                </TableData>
+              ) : null}
+            </TableRow>
+          </TableBody>
+        </Table>
+      </Content>
+      <Content>
+        <Heading1>Solace Capital Provider Farm</Heading1>
+        <Table isHighlight>
+          <TableHead>
+            <TableRow>
+              {wallet.account ? <TableHeader>My Rewards</TableHeader> : null}
+              <TableHeader>ROI(1Y)</TableHeader>
+              <TableHeader>Total Assets</TableHeader>
+              {wallet.account ? <TableHeader>My Daily Rewards</TableHeader> : null}
+              <TableHeader>Daily Rewards</TableHeader>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            <TableRow>
+              {wallet.account ? <TableData>{cpUserRewards.toFixed(2)}</TableData> : null}
+              <TableData>HC150%</TableData>
+              <TableData>{formatEther(cpPoolValue).toString()}</TableData>
+              {wallet.account ? <TableData>{cpUserRewardsPerDay.toFixed(2)}</TableData> : null}
+              <TableData>{cpRewardsPerDay.toFixed(2)}</TableData>
+              {wallet.account && !loading ? (
+                <TableData cellAlignRight>
+                  <TableDataGroup>
+                    <Button onClick={() => openModal(callDepositCp, 'Deposit CP', 'Solace CP Token')}>
+                      Deposit CP
+                    </Button>
+                    <Button onClick={() => openModal(callWithdrawCp, 'Withdraw CP', 'Solace CP Token')}>
+                      Withdraw CP
+                    </Button>
+                    <Button onClick={claimCpRewards}>Claim</Button>
+                  </TableDataGroup>
+                </TableData>
+              ) : null}
+            </TableRow>
+          </TableBody>
+        </Table>
+      </Content>
+      <Content>
+        <Heading1>SOLACE/ETH Liquidity Pool</Heading1>
+        <Table isHighlight>
+          <TableHead>
+            <TableRow>
+              {wallet.account ? <TableHeader>My Rewards</TableHeader> : null}
+              <TableHeader>ROI(1Y)</TableHeader>
+              <TableHeader>Total Assets</TableHeader>
+              {wallet.account ? <TableHeader>My Daily Rewards</TableHeader> : null}
+              <TableHeader>Daily Rewards</TableHeader>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            <TableRow>
+              {wallet.account ? <TableData>{lpUserRewards.toFixed(2)}</TableData> : null}
+              <TableData>HC150%</TableData>
+              <TableData>{formatEther(lpPoolValue).toString()}</TableData>
+              {wallet.account ? <TableData>{lpUserRewardsPerDay.toFixed(2)}</TableData> : null}
+              <TableData>{lpRewardsPerDay.toFixed(2)}</TableData>
+              {wallet.account && !loading ? (
+                <TableData cellAlignRight>
+                  <TableDataGroup>
+                    <Button onClick={() => openModal(callMintLpToken, 'Mint LP', 'LP')}>Mint LP</Button>
+                    <Button onClick={() => openModal(callDepositLp, 'Deposit LP', 'LP')}>Deposit LP</Button>
+                    <Button onClick={() => openModal(callWithdrawLp, 'Withdraw LP', 'LP')}>Withdraw LP</Button>
+                    <Button onClick={claimLpRewards}>Claim</Button>
+                  </TableDataGroup>
+                </TableData>
+              ) : null}
+            </TableRow>
+          </TableBody>
+        </Table>
+      </Content>
+      <Content>
+        <Heading1>Your transactions</Heading1>
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableHeader>Tx Type</TableHeader>
+              <TableHeader>Address</TableHeader>
+              <TableHeader>Amount</TableHeader>
+              <TableHeader>Date</TableHeader>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            <TableRow>
+              <TableData></TableData>
+              <TableData></TableData>
+              <TableData></TableData>
+              <TableData></TableData>
+            </TableRow>
+            <TableRow>
+              <TableData></TableData>
+              <TableData></TableData>
+              <TableData></TableData>
+              <TableData></TableData>
+            </TableRow>
+            <TableRow>
+              <TableData></TableData>
+              <TableData></TableData>
+              <TableData></TableData>
+              <TableData></TableData>
+            </TableRow>
+          </TableBody>
+        </Table>
+      </Content>
     </Fragment>
   ) : (
     <Loader />

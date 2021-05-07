@@ -1,13 +1,8 @@
+import React from 'react'
 import { NavLink } from 'react-router-dom'
 import styled from 'styled-components'
 
-export const LayoutSidebar = styled.div`
-  grid-column: 1/2;
-  grid-row: 2/3;
-  display: grid;
-  align-content: start;
-  gap: 16px;
-`
+export const Sidebar = styled.nav``
 
 export const SidebarItem = styled(NavLink)`
   font-weight: 600;
@@ -21,3 +16,35 @@ export const SidebarItem = styled(NavLink)`
     opacity: 1;
   }
 `
+
+const ItemText = styled.li`
+  display: flex;
+  justify-content: start;
+  align-items: center;
+  padding: 8px 0px 8px 16px;
+  list-style: none;
+  height: 60px;
+`
+
+const ItemList = styled.ul`
+  width: 100%;
+  padding: 0;
+`
+
+export const LayoutSidebar: React.FC = ({ children }) => {
+  return (
+    <Sidebar>
+      <div style={{ position: 'fixed' }}>{children}</div>
+    </Sidebar>
+  )
+}
+
+export const SidebarItemList: React.FC = ({ children }) => {
+  return (
+    <ItemList>
+      {React.Children.map(children, (child: any) => (
+        <ItemText>{child}</ItemText>
+      ))}
+    </ItemList>
+  )
+}

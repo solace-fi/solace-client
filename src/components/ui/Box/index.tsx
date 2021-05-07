@@ -16,12 +16,13 @@ const BoxBase = styled(RebassBox)<{ width?: string; padding?: string; border?: s
 export default BoxBase
 
 export const BoxRow = styled(BoxBase)`
-  display: grid;
-  grid-auto-flow: column;
+  display: flex;
   gap: 24px;
+  padding: 20px 0;
 `
 
 export const Box = styled(BoxRow)<BoxProps>`
+  justify-content: space-between;
   align-items: center;
   border-radius: 10px;
   padding: 24px;
@@ -31,14 +32,14 @@ export const Box = styled(BoxRow)<BoxProps>`
 export const BoxItem = styled.div``
 
 export const BoxItemTitle = styled.div<TextProps>`
-  ${(props) => handleTextProps(props)}
+  ${() => handleTextProps()}
   margin-bottom: 4px;
 `
 
 export const BoxItemValue = styled.div<TextProps>`
-  ${(props) => handleTextProps(props)}
+  ${() => handleTextProps()}
 `
 
 export const BoxItemUnits = styled.span<TextProps>`
-  ${(props) => handleTextProps(props)}
+  ${() => handleTextProps()}
 `

@@ -1,5 +1,5 @@
 import React from 'react'
-import styled from 'styled-components'
+import styled, { css } from 'styled-components'
 
 interface props {
   disabled?: boolean
@@ -22,14 +22,22 @@ const ButtonBase = styled.button<props>`
   font-weight: 600;
   font-size: 14px;
   text-align: center;
-  transition: background-color 0.2s, color 0.2s;
+  transition: all 0.2s, color 0.2s;
   cursor: pointer;
-  visibility: ${(props) => (props.hidden ? 'hidden;' : 'visible;')}
+  ${() => handleButtonProps()}
+`
+
+export const handleButtonProps = (): any => {
+  return css<props>`
+    visibility: ${(props) => (props.hidden ? 'hidden;' : 'visible;')};
     ${(props) =>
-      props.secondary
+      props.disabled
+        ? 'color: #fff; background-color: rgba(0, 0, 0, 0); opacity: 0.5; transform: scale(.9);'
+        : props.secondary
         ? 'color: #7c7c7c; background-color: #fff; &:hover { opacity: 0.8; }'
         : 'color: #fff; background-color: rgba(0, 0, 0, 0); &:hover { color: #7c7c7c; background-color: #fff; }'};
-`
+  `
+}
 
 export const Button: React.FC<props> = ({ onClick, disabled, secondary, hidden, children }) => {
   return (

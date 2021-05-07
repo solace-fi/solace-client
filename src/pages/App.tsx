@@ -7,11 +7,11 @@ import Invest from './invest'
 import Quote from './quote'
 
 import { Statistics } from '../components/ui/Box/Statistics'
-import Nav from '../components/ui/Sidebar/Nav'
+import Navbar from '../components/ui/Sidebar/Navbar'
 import Prices from '../components/ui/Header/Prices'
 import styled, { createGlobalStyle } from 'styled-components'
 
-import logo from '../static/solace.png'
+const MAX_WIDTH = 1340
 
 const GlobalStyle = createGlobalStyle`
   body{
@@ -21,6 +21,7 @@ const GlobalStyle = createGlobalStyle`
     line-height: 1.4;
     color: #fff;
     background: linear-gradient(113.7deg, #b621ff 0%, #21d3fc 100%);
+    background-attachment: fixed;
   }
 `
 
@@ -31,31 +32,24 @@ const Layout = styled.div`
 `
 
 const LayoutContainer = styled.div`
-  display: grid;
-  grid-template-columns: 200px 1fr;
-  grid-template-rows: auto 1fr;
-  gap: 50px 24px;
+  display: flex;
   margin: 0 auto;
   width: 100%;
-  max-width: 1340px;
+  max-width: ${MAX_WIDTH}px;
 `
 
-const LayoutLogo = styled.a`
-  grid-column: 1/2;
-  grid-row: 1/2;
-  display: flex;
-  align-items: flex-start;
-  width: 114px;
-  text-decoration: none;
-  img {
-    max-width: 100%;
-  }
-`
+interface LayoutContentProps {
+  width?: number
+}
 
-const LayoutContent = styled.div`
-  display: grid;
+const LayoutContent = styled.div<LayoutContentProps>`
+  padding: 20px;
   align-content: start;
-  gap: 50px;
+  ${(props) => props.width && `min-width: ${(props.width / 100) * MAX_WIDTH}px;`}
+`
+
+export const Content = styled.div`
+  padding: 30px 0;
 `
 
 export default function App(): any {
@@ -64,12 +58,11 @@ export default function App(): any {
       <GlobalStyle />
       <Layout>
         <LayoutContainer>
-          <LayoutLogo>
-            <img src={logo} alt="Solace" />
-          </LayoutLogo>
-          <Prices />
-          <Nav />
+          <LayoutContent width={10}>
+            <Navbar />
+          </LayoutContent>
           <LayoutContent>
+            <Prices />
             <Statistics />
             <Switch>
               <Route exact path="/" component={Dashboard} />

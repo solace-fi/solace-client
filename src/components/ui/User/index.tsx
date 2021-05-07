@@ -6,7 +6,6 @@ export const User = styled.div`
   grid-template-columns: 34px 1fr;
   grid-template-rows: auto auto;
   gap: 4px 10px;
-  max-width: 240px;
 `
 
 export const UserImage = styled.div`
