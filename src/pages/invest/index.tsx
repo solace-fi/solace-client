@@ -51,6 +51,7 @@ function Invest(): any {
 
   const [assets, setAssets] = useState<number>(0)
   const [select, setSelect] = useState<string>('1')
+  const [userVaultShare, setUserVaultShare] = useState<number>(0)
 
   const [cpUserRewardsPerDay, setCpUserRewardsPerDay] = useState<number>(0)
   const [lpUserRewardsPerDay, setLpUserRewardsPerDay] = useState<number>(0)
@@ -61,9 +62,12 @@ function Invest(): any {
   const [cpUserRewards, setCpUserRewards] = useState<number>(0)
   const [lpUserRewards, setLpUserRewards] = useState<number>(0)
 
-  const [userVaultShare, setUserVaultShare] = useState<number>(0)
   const [cpPoolValue, setCpPoolValue] = useState<number>(0)
   const [lpPoolValue, setLpPoolValue] = useState<number>(0)
+
+  const [cpUserValue, setCpUserValue] = useState<number>(0)
+  const [lpUserValue, setLpUserValue] = useState<number>(0)
+
   const [scp, setScp] = useState<number>(0)
 
   const [loading, setLoading] = useState<boolean>(false)
@@ -205,6 +209,7 @@ function Invest(): any {
               parseFloat(formatEther(cpPoolValue))) *
             (cpAllocPoints / totalAllocPoints)
           : 0
+      setCpUserValue(cpUserValue)
       if (cpUserRewardsPerDay !== cpUserRewards) setCpUserRewardsPerDay(cpUserRewards)
     } catch (err) {
       console.log('error getCpUserRewardsPerDay', err)
@@ -228,6 +233,7 @@ function Invest(): any {
               parseFloat(formatEther(lpPoolValue))) *
             (lpAllocPoints / totalAllocPoints)
           : 0
+      setLpUserValue(lpUserValue)
       if (lpUserRewardsPerDay !== lpUserRewards) setLpUserRewardsPerDay(lpUserRewards)
     } catch (err) {
       console.log('error getLpUserRewardsPerDay', err)
@@ -538,7 +544,7 @@ function Invest(): any {
     tickLower: BigNumberish = getMinTick(TICK_SPACINGS[fee]),
     tickUpper: BigNumberish = getMaxTick(TICK_SPACINGS[fee])
   ) => {
-    if (!lpTokenContract.current) return
+    if (!lpTokenContract.current?.provider || !wallet.account || !wallet.library) return
     const [token0, token1] = sortTokens(tokenA.address, tokenB.address)
     await lpTokenContract.current.connect(getProviderOrSigner(wallet.library, wallet.account)).mint({
       token0: token0,
@@ -574,6 +580,25 @@ function Invest(): any {
   const handleAmount = (amount: string) => {
     const filteredAmount = amount.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1')
     setAmount(filteredAmount)
+  }
+
+  const isAppropriateAmount = () => {
+    if (amount == '' || parseFloat(amount) <= 0) return false
+    switch (func.toString()) {
+      // if depositing into vault or eth into farm, check eth
+      case callDepositVault.toString():
+      case callDepositEth.toString():
+        return parseFloat(formatEther(wallet.balance)) >= parseFloat(amount)
+      // if depositing cp into farm or withdrawing from vault, check scp
+      case callDepositCp.toString():
+      case callWithdrawVault.toString():
+        return scp >= parseFloat(amount)
+      // if withdrawing cp from the farm, check user stake
+      case callWithdrawCp.toString():
+        return parseFloat(formatEther(cpUserValue)) >= parseFloat(amount)
+      default:
+        return true
+    }
   }
 
   useEffect(() => {
@@ -632,7 +657,7 @@ function Invest(): any {
           </RadioGroup>
           <ModalButton>
             {!loading ? (
-              <Button hidden={loading} disabled={amount === '' || parseFloat(amount) <= 0} onClick={handleCallbackFunc}>
+              <Button hidden={loading} disabled={isAppropriateAmount() ? false : true} onClick={handleCallbackFunc}>
                 Confirm
               </Button>
             ) : (
