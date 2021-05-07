@@ -19,11 +19,11 @@ export const Statistics = () => {
   const lpTokenContract = useRef<Contract | null>()
 
   const [capitalPoolSize, setCapitalPoolSize] = useState<number>(0)
-  const [solaceBalance, setSolaceBalance] = useState<number>(0)
-  const [scp, setScp] = useState<number>(0)
+  const [solaceBalance, setSolaceBalance] = useState<string>('0.00')
+  const [scp, setScp] = useState<string>('0.00')
   const [lp, setLp] = useState<number>(0)
 
-  const [totalUserRewards, setTotalUserRewards] = useState<number>(0)
+  const [totalUserRewards, setTotalUserRewards] = useState<string>('0.00')
 
   const refresh = async () => {
     getCapitalPoolSize()
@@ -63,7 +63,7 @@ export const Statistics = () => {
 
     try {
       const balance = await vaultContract.current.balanceOf(wallet.account)
-      const formattedBalance = parseFloat(formatEther(balance))
+      const formattedBalance = formatEther(balance)
       if (scp !== balance) setScp(formattedBalance)
       return balance
     } catch (err) {
@@ -74,9 +74,7 @@ export const Statistics = () => {
   const getNumFarms = async () => {
     if (!masterContract.current) return
     try {
-      const ans = await masterContract.current.numFarms().then((ans: any) => {
-        return ans
-      })
+      const ans = await masterContract.current.numFarms()
       return ans
     } catch (err) {
       console.log('error getNumFarms ', err)
@@ -90,8 +88,9 @@ export const Statistics = () => {
       const cpUserRewards = await getCpUserRewards()
       const lpUserRewards = await getLpUserRewards()
 
-      const rewards = (cpUserRewards || 0) + (lpUserRewards || 0)
-      if (totalUserRewards !== rewards) setTotalUserRewards(rewards)
+      const rewards = cpUserRewards.add(lpUserRewards)
+      const formattedRewards = formatEther(rewards)
+      if (totalUserRewards !== formattedRewards) setTotalUserRewards(formattedRewards)
     } catch (err) {
       console.log('error getUserRewards ', err)
     }
@@ -102,9 +101,7 @@ export const Statistics = () => {
     if (!cpFarmContract.current || farms === 0 || !wallet.account) return
     try {
       const pendingReward = await cpFarmContract.current.pendingRewards(wallet.account)
-      const blockReward = await cpFarmContract.current.accRewardPerShare()
-      // console.log('cp block reward', blockReward.toNumber())
-      return parseFloat(pendingReward)
+      return pendingReward
     } catch (err) {
       console.log('error getUserRewards ', err)
     }
@@ -115,9 +112,7 @@ export const Statistics = () => {
     if (!lpFarmContract.current || farms === 0 || !wallet.account) return
     try {
       const pendingReward = await lpFarmContract.current.pendingRewards(wallet.account)
-      const blockReward = await lpFarmContract.current.accRewardPerShare()
-      // console.log('lp block reward', blockReward.toNumber())
-      return parseFloat(pendingReward)
+      return pendingReward
     } catch (err) {
       console.log('error getUserRewards ', err)
     }
@@ -140,7 +135,7 @@ export const Statistics = () => {
 
     try {
       const balance = await solaceContract.current.balanceOf(wallet.account)
-      if (solaceBalance !== balance) setSolaceBalance(balance.toNumber())
+      if (solaceBalance !== balance) setSolaceBalance(balance)
     } catch (err) {
       console.log('error getSolaceBalance ', err)
     }
@@ -163,14 +158,14 @@ export const Statistics = () => {
         <BoxItem>
           <BoxItemTitle h3>My Balance</BoxItemTitle>
           <BoxItemValue h2>
-            {`${solaceBalance} `}
+            {`${parseFloat(solaceBalance).toFixed(2)} `}
             <BoxItemUnits h3>SOLACE</BoxItemUnits>
           </BoxItemValue>
         </BoxItem>
         <BoxItem>
           <BoxItemTitle h3>My SCP</BoxItemTitle>
           <BoxItemValue h2>
-            {`${scp} `}
+            {`${parseFloat(scp).toFixed(2)} `}
             <BoxItemUnits h3>TOKENS</BoxItemUnits>
           </BoxItemValue>
         </BoxItem>
@@ -184,7 +179,7 @@ export const Statistics = () => {
         <BoxItem>
           <BoxItemTitle h3>My Rewards</BoxItemTitle>
           <BoxItemValue h2>
-            {`${totalUserRewards} `}
+            {`${parseFloat(totalUserRewards).toFixed(2)} `}
             <BoxItemUnits h3>SOLACE</BoxItemUnits>
           </BoxItemValue>
         </BoxItem>
@@ -193,15 +188,15 @@ export const Statistics = () => {
       <Box purple>
         <BoxItem>
           <BoxItemTitle h3>Capital Pool Size</BoxItemTitle>
-          <BoxItemValue h2>{formatEther(capitalPoolSize).toString()}</BoxItemValue>
+          <BoxItemValue h2>{parseFloat(formatEther(capitalPoolSize).toString()).toFixed(2)}</BoxItemValue>
         </BoxItem>
         <BoxItem>
           <BoxItemTitle h3>Active Cover Amount</BoxItemTitle>
-          <BoxItemValue h2>HC$2,000,000</BoxItemValue>
+          <BoxItemValue h2>$2,000,000</BoxItemValue>
         </BoxItem>
         <BoxItem>
           <BoxItemTitle h3>Total Active Policies</BoxItemTitle>
-          <BoxItemValue h2>HC1,200</BoxItemValue>
+          <BoxItemValue h2>1,200</BoxItemValue>
         </BoxItem>
       </Box>
     </BoxRow>

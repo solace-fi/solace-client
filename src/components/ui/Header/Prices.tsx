@@ -42,8 +42,8 @@ export default function App(): any {
       <Price>
         <PriceItem>
           <PriceTitle>SOLACE/USD</PriceTitle>
-          <PriceValue>HC($1.23)</PriceValue>
-          <PriceAddition>HC(+3.56%)</PriceAddition>
+          <PriceValue>$1.23</PriceValue>
+          <PriceAddition>+3.56%</PriceAddition>
         </PriceItem>
         <PriceItem>
           <PriceTitle>ETH/USD</PriceTitle>
@@ -52,11 +52,11 @@ export default function App(): any {
         </PriceItem>
         <PriceItem>
           <PriceTitle>SOLACE/ETH LP APY.</PriceTitle>
-          <PriceValue>HC(12.5% pa.)</PriceValue>
+          <PriceValue>12.5% pa.</PriceValue>
         </PriceItem>
         <PriceItem>
           <PriceTitle>ETH CP APY.</PriceTitle>
-          <PriceValue>HC(12.5% pa.)</PriceValue>
+          <PriceValue>12.5% pa.</PriceValue>
         </PriceItem>
       </Price>
       <Account />

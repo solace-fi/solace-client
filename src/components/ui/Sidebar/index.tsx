@@ -17,7 +17,7 @@ export const SidebarItem = styled(NavLink)`
   }
 `
 
-const ItemText = styled.li`
+export const ItemText = styled.li`
   display: flex;
   justify-content: start;
   align-items: center;
@@ -26,25 +26,7 @@ const ItemText = styled.li`
   height: 60px;
 `
 
-const ItemList = styled.ul`
+export const ItemList = styled.ul`
   width: 100%;
   padding: 0;
 `
-
-export const LayoutSidebar: React.FC = ({ children }) => {
-  return (
-    <Sidebar>
-      <div style={{ position: 'fixed' }}>{children}</div>
-    </Sidebar>
-  )
-}
-
-export const SidebarItemList: React.FC = ({ children }) => {
-  return (
-    <ItemList>
-      {React.Children.map(children, (child: any) => (
-        <ItemText>{child}</ItemText>
-      ))}
-    </ItemList>
-  )
-}

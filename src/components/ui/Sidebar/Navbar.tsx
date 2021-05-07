@@ -1,6 +1,24 @@
 import React from 'react'
-import { LayoutSidebar, SidebarItem, SidebarItemList } from './index'
+import { SidebarItem, ItemText, ItemList, Sidebar } from './index'
 import { Logo } from '../Logo'
+
+const LayoutSidebar: React.FC = ({ children }) => {
+  return (
+    <Sidebar>
+      <div style={{ position: 'fixed' }}>{children}</div>
+    </Sidebar>
+  )
+}
+
+const SidebarItemList: React.FC = ({ children }) => {
+  return (
+    <ItemList>
+      {React.Children.map(children, (child: any) => (
+        <ItemText>{child}</ItemText>
+      ))}
+    </ItemList>
+  )
+}
 
 export const Navbar = (): any => {
   return (
