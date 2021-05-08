@@ -582,7 +582,7 @@ function Invest(): any {
         return parseEther(cpUserValue)
       default:
         // any amount
-        return BN.from('999999999999999999')
+        return BN.from('999999999999999999999999999999999999')
     }
   }
 
