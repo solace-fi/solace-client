@@ -68,55 +68,22 @@ export const Statistics = () => {
     try {
       const balance = await vaultContract.current.balanceOf(wallet.account)
       const formattedBalance = formatEther(balance)
-      if (scp !== balance) setScp(formattedBalance)
-      return balance
+      setScp(formattedBalance)
     } catch (err) {
       console.log('error getScp ', err)
     }
   }
 
-  const getNumFarms = async () => {
-    if (!masterContract.current) return
-    try {
-      const ans = await masterContract.current.numFarms()
-      return ans
-    } catch (err) {
-      console.log('error getNumFarms ', err)
-    }
-  }
-
   const getTotalUserRewards = async () => {
-    const farms = await getNumFarms()
-    if (farms === 0 || !wallet.account) return
+    const farms = await masterContract.current?.numFarms()
+    if (farms.isZero() || !wallet.account || !cpFarmContract.current || !lpFarmContract.current) return
     try {
-      const cpUserRewards = await getCpUserRewards()
-      const lpUserRewards = await getLpUserRewards()
+      const cpUserRewards = await cpFarmContract.current.pendingRewards(wallet.account)
+      const lpUserRewards = await lpFarmContract.current.pendingRewards(wallet.account)
 
       const rewards = cpUserRewards.add(lpUserRewards)
       const formattedRewards = formatEther(rewards)
-      if (totalUserRewards !== formattedRewards) setTotalUserRewards(formattedRewards)
-    } catch (err) {
-      console.log('error getUserRewards ', err)
-    }
-  }
-
-  const getCpUserRewards = async () => {
-    const farms = await getNumFarms()
-    if (!cpFarmContract.current || farms === 0 || !wallet.account) return
-    try {
-      const pendingReward = await cpFarmContract.current.pendingRewards(wallet.account)
-      return pendingReward
-    } catch (err) {
-      console.log('error getUserRewards ', err)
-    }
-  }
-
-  const getLpUserRewards = async () => {
-    const farms = await getNumFarms()
-    if (!lpFarmContract.current || farms === 0 || !wallet.account) return
-    try {
-      const pendingReward = await lpFarmContract.current.pendingRewards(wallet.account)
-      return pendingReward
+      setTotalUserRewards(formattedRewards)
     } catch (err) {
       console.log('error getUserRewards ', err)
     }
@@ -125,9 +92,7 @@ export const Statistics = () => {
   const getCapitalPoolSize = async () => {
     if (!vaultContract.current) return
     try {
-      const ans = await vaultContract.current.totalAssets().then((ans: any) => {
-        return ans
-      })
+      const ans = await vaultContract.current.totalAssets()
       setCapitalPoolSize(ans)
     } catch (err) {
       console.log('error getTotalAssets ', err)
@@ -139,7 +104,7 @@ export const Statistics = () => {
 
     try {
       const balance = await solaceContract.current.balanceOf(wallet.account)
-      if (solaceBalance !== balance) setSolaceBalance(balance)
+      setSolaceBalance(balance)
     } catch (err) {
       console.log('error getSolaceBalance ', err)
     }

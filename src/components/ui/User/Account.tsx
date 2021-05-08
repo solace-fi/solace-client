@@ -41,7 +41,7 @@ export default function App(): any {
       </UserWallet>
       {wallet.isActive ? (
         <Fragment>
-          <UserName>{wallet.account}</UserName>{' '}
+          <UserName>{wallet.account}</UserName>
           {/* <Button onClick={() => wallet.disconnect()}>Disconnect MetaMask Wallet</Button> */}
         </Fragment>
       ) : null}

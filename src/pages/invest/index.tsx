@@ -14,7 +14,6 @@ import {
 import { RadioElement, RadioInput, RadioGroup, RadioLabel } from '../../components/ui/Radio'
 import { Content } from '../App'
 import { Heading1, Heading2 } from '../../components/ui/Text'
-import { Statistics } from '../../components/ui/Box/Statistics'
 import {
   Table,
   TableHead,
@@ -26,14 +25,13 @@ import {
 } from '../../components/ui/Table'
 import { useWallet } from '../../context/Web3Manager'
 import { useContracts } from '../../context/ContractsManager'
-import getPermitNFTSignature, { getPermitDigest, sign, getDomainSeparator } from '../../utils/signature'
+import getPermitNFTSignature from '../../utils/signature'
 import { getProviderOrSigner } from '../../utils/index'
 import { BigNumberish, BigNumber as BN } from 'ethers'
 import { formatEther, parseEther } from '@ethersproject/units'
 import { Button } from '../../components/ui/Button'
-import { AmountModal } from '../../components/ui/Modal/AmountModal'
 
-import { NUM_BLOCKS_PER_DAY, NUM_DAYS_PER_MONTH, DAYS_PER_YEAR, TOKEN_NAME, ZERO, DEADLINE } from '../../constants'
+import { NUM_BLOCKS_PER_DAY, ZERO, DEADLINE } from '../../constants'
 import { encodePriceSqrt, FeeAmount, TICK_SPACINGS, getMaxTick, getMinTick } from '../../utils/uniswap'
 
 function Invest(): any {
@@ -86,7 +84,7 @@ function Invest(): any {
 
   const refresh = async () => {
     getCapitalPoolSize()
-    getUserVaultShare()
+    getUserVaultDetails()
     getCpUserRewardsPerDay()
     getLpUserRewardsPerDay()
     getCpRewardsPerDay()
@@ -108,6 +106,7 @@ function Invest(): any {
     document.body.style.overflowY = 'scroll'
     setLoading(false)
     setAmount('')
+    setSelect('1')
   }
 
   const claimCpRewards = async () => {
@@ -150,7 +149,7 @@ function Invest(): any {
   }
 
   const getMasterValues = async (farmId: number) => {
-    if (!masterContract.current) return [0, 0, 0]
+    if (!masterContract.current) return [ZERO, ZERO, ZERO]
     const allocPoints = await masterContract.current.allocPoints(farmId)
     const totalAllocPoints = await masterContract.current.totalAllocPoints()
     const solacePerBlock = await masterContract.current.solacePerBlock()
@@ -239,7 +238,7 @@ function Invest(): any {
     }
   }
 
-  const getUserVaultShare = async () => {
+  const getUserVaultDetails = async () => {
     if (!cpFarmContract.current?.provider || !vaultContract.current?.provider || !wallet.account) return
     try {
       const totalSupply = await vaultContract.current.totalSupply()
@@ -247,7 +246,7 @@ function Invest(): any {
       const value = userInfo.value
       const cpBalance = await getScp()
       const userAssets = cpBalance.add(value)
-      const userShare = totalSupply > 0 ? parseFloat(userAssets.mul(100)) / totalSupply : 0
+      const userShare = totalSupply.gt(ZERO) ? parseFloat(userAssets.mul(100)) / totalSupply : 0
       const formattedAssets = formatEther(userAssets)
       setUserVaultAssets(formattedAssets)
       setUserVaultShare(userShare)
@@ -288,7 +287,7 @@ function Invest(): any {
     try {
       const tx = await vaultContract.current.deposit({ value: parseEther(amount.toString()) })
       await tx.wait()
-      const r = await vaultContract.current.on('DepositMade', (sender, amount, shares, tx) => {
+      await vaultContract.current.on('DepositMade', (sender, amount, shares, tx) => {
         console.log('DepositVault event: ', tx)
         wallet.updateBalance(wallet.balance.sub(amount))
         refresh()
@@ -560,7 +559,7 @@ function Invest(): any {
   }
 
   const isAppropriateAmount = () => {
-    if (amount == '' || parseEther(amount).lte(ZERO)) return false
+    if (!amount || parseEther(amount).lte(ZERO)) return false
     return getAssetBalanceByFunc().gte(parseEther(amount))
   }
 
