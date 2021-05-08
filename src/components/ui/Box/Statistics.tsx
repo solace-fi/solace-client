@@ -7,6 +7,8 @@ import { useWallet } from '../../../context/Web3Manager'
 import { useContracts } from '../../../context/ContractsManager'
 import { formatEther } from '@ethersproject/units'
 
+import { SUPPORTED_WALLETS } from '../../../ethers/wallets'
+
 export const Statistics = () => {
   const wallet = useWallet()
   const { master, vault, solace, cpFarm, lpFarm, lpToken } = useContracts()
@@ -18,6 +20,7 @@ export const Statistics = () => {
   const lpFarmContract = useRef<Contract | null>()
   const lpTokenContract = useRef<Contract | null>()
 
+  const [totalValueLocked, setTotalValueLocked] = useState<string>('0.00')
   const [capitalPoolSize, setCapitalPoolSize] = useState<number>(0)
   const [solaceBalance, setSolaceBalance] = useState<string>('0.00')
   const [scp, setScp] = useState<string>('0.00')
@@ -29,6 +32,7 @@ export const Statistics = () => {
     getCapitalPoolSize()
     getSolaceBalance()
     getTotalUserRewards()
+    getTotalValueLocked()
     getScp()
     // getLp()
   }
@@ -141,6 +145,17 @@ export const Statistics = () => {
     }
   }
 
+  const getTotalValueLocked = async () => {
+    if (!cpFarmContract.current?.provider || !lpFarmContract.current?.provider) return
+    try {
+      const cpFarmValue = await cpFarmContract.current.valueStaked()
+      const lpFarmValue = await lpFarmContract.current.valueStaked()
+      setTotalValueLocked(formatEther(cpFarmValue.add(lpFarmValue)))
+    } catch (err) {
+      console.log('error getTotalValueLocked ', err)
+    }
+  }
+
   useEffect(() => {
     masterContract.current = master
     vaultContract.current = vault
@@ -154,41 +169,61 @@ export const Statistics = () => {
 
   return (
     <BoxRow>
-      <Box>
-        <BoxItem>
-          <BoxItemTitle h3>My Balance</BoxItemTitle>
-          <BoxItemValue h2>
-            {`${parseFloat(solaceBalance).toFixed(2)} `}
-            <BoxItemUnits h3>SOLACE</BoxItemUnits>
-          </BoxItemValue>
-        </BoxItem>
-        <BoxItem>
-          <BoxItemTitle h3>My SCP</BoxItemTitle>
-          <BoxItemValue h2>
-            {`${parseFloat(scp).toFixed(2)} `}
-            <BoxItemUnits h3>TOKENS</BoxItemUnits>
-          </BoxItemValue>
-        </BoxItem>
-        {/* <BoxItem>
+      {wallet.initialized ? (
+        <Box>
+          <BoxItem>
+            <BoxItemTitle h3>My Balance</BoxItemTitle>
+            <BoxItemValue h2>
+              {`${parseFloat(solaceBalance).toFixed(2)} `}
+              <BoxItemUnits h3>SOLACE</BoxItemUnits>
+            </BoxItemValue>
+          </BoxItem>
+          <BoxItem>
+            <BoxItemTitle h3>My SCP</BoxItemTitle>
+            <BoxItemValue h2>
+              {`${parseFloat(scp).toFixed(2)} `}
+              <BoxItemUnits h3>TOKENS</BoxItemUnits>
+            </BoxItemValue>
+          </BoxItem>
+          {/* <BoxItem>
           <BoxItemTitle h3>My LP</BoxItemTitle>
           <BoxItemValue h2>
             {`${lp} `}
             <BoxItemUnits h3>TOKENS</BoxItemUnits>
           </BoxItemValue>
         </BoxItem> */}
-        <BoxItem>
-          <BoxItemTitle h3>My Rewards</BoxItemTitle>
-          <BoxItemValue h2>
-            {`${parseFloat(totalUserRewards).toFixed(2)} `}
-            <BoxItemUnits h3>SOLACE</BoxItemUnits>
-          </BoxItemValue>
-        </BoxItem>
-        <Button>Claim</Button>
-      </Box>
+          <BoxItem>
+            <BoxItemTitle h3>My Rewards</BoxItemTitle>
+            <BoxItemValue h2>
+              {`${parseFloat(totalUserRewards).toFixed(2)} `}
+              <BoxItemUnits h3>SOLACE</BoxItemUnits>
+            </BoxItemValue>
+          </BoxItem>
+          <BoxItem>
+            <Button>Claim</Button>
+          </BoxItem>
+        </Box>
+      ) : (
+        <Box>
+          <BoxItem>
+            <Button
+              onClick={() =>
+                wallet.connect(SUPPORTED_WALLETS[SUPPORTED_WALLETS.findIndex((wallet) => wallet.id === 'metamask')])
+              }
+            >
+              Connect Wallet
+            </Button>
+          </BoxItem>
+        </Box>
+      )}
       <Box purple>
         <BoxItem>
           <BoxItemTitle h3>Capital Pool Size</BoxItemTitle>
           <BoxItemValue h2>{parseFloat(formatEther(capitalPoolSize).toString()).toFixed(2)}</BoxItemValue>
+        </BoxItem>
+        <BoxItem>
+          <BoxItemTitle h3>Total Value Locked</BoxItemTitle>
+          <BoxItemValue h2>{parseFloat(totalValueLocked).toFixed(2)}</BoxItemValue>
         </BoxItem>
         <BoxItem>
           <BoxItemTitle h3>Active Cover Amount</BoxItemTitle>

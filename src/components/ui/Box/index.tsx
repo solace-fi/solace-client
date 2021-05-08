@@ -19,6 +19,7 @@ export const BoxRow = styled(BoxBase)`
   display: flex;
   gap: 24px;
   padding: 20px 0;
+  justify-content: space-between;
 `
 
 export const Box = styled(BoxRow)<BoxProps>`
@@ -29,7 +30,9 @@ export const Box = styled(BoxRow)<BoxProps>`
   background-color: ${(props) => (props.purple ? 'rgba(250, 0, 255, 0.3)' : 'rgba(0, 255, 209, 0.3)')};
 `
 
-export const BoxItem = styled.div``
+export const BoxItem = styled.div`
+  margin: 0 auto;
+`
 
 export const BoxItemTitle = styled.div<TextProps>`
   ${() => handleTextProps()}

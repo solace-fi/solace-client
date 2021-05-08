@@ -1,7 +1,6 @@
 import { useWallet } from '../context/Web3Manager'
 import { useMemo } from 'react'
 import { getContract } from '../utils'
-import { AddressZero } from '@ethersproject/constants'
 import { Contract } from '@ethersproject/contracts'
 
 import masterABI from '../constants/abi/contracts/Master.sol/Master.json'
@@ -27,6 +26,7 @@ import {
   LPFARM_CONTRACT_ADDRESS,
   TREASURY_CONTRACT_ADDRESS,
   REGISTRY_CONTRACT_ADDRESS,
+  ADDRESS_ZERO,
 } from '../constants'
 
 export function useContract(address: string, abi: any, hasSigner = true): Contract | null {
@@ -44,15 +44,15 @@ export function useContract(address: string, abi: any, hasSigner = true): Contra
 }
 
 export function useMasterContract(hasSigner?: boolean): Contract | null {
-  return useContract(MASTER_CONTRACT_ADDRESS ? MASTER_CONTRACT_ADDRESS : AddressZero, masterABI, hasSigner)
+  return useContract(MASTER_CONTRACT_ADDRESS ? MASTER_CONTRACT_ADDRESS : ADDRESS_ZERO, masterABI, hasSigner)
 }
 
 export function useSolaceContract(hasSigner?: boolean): Contract | null {
-  return useContract(SOLACE_CONTRACT_ADDRESS ? SOLACE_CONTRACT_ADDRESS : AddressZero, solaceABI, hasSigner)
+  return useContract(SOLACE_CONTRACT_ADDRESS ? SOLACE_CONTRACT_ADDRESS : ADDRESS_ZERO, solaceABI, hasSigner)
 }
 
 export function useWethContract(hasSigner?: boolean): Contract | null {
-  return useContract(WETH_CONTRACT_ADDRESS ? WETH_CONTRACT_ADDRESS : AddressZero, wethABI, hasSigner)
+  return useContract(WETH_CONTRACT_ADDRESS ? WETH_CONTRACT_ADDRESS : ADDRESS_ZERO, wethABI, hasSigner)
 }
 
 export function useTreasuryContract(address: string, hasSigner?: boolean): Contract | null {
@@ -60,25 +60,25 @@ export function useTreasuryContract(address: string, hasSigner?: boolean): Contr
 }
 
 export function useVaultContract(hasSigner?: boolean): Contract | null {
-  return useContract(VAULT_CONTRACT_ADDRESS ? VAULT_CONTRACT_ADDRESS : AddressZero, vaultABI, hasSigner)
+  return useContract(VAULT_CONTRACT_ADDRESS ? VAULT_CONTRACT_ADDRESS : ADDRESS_ZERO, vaultABI, hasSigner)
 }
 
 export function useCpFarmContract(hasSigner?: boolean): Contract | null {
-  return useContract(CPFARM_CONTRACT_ADDRESS ? CPFARM_CONTRACT_ADDRESS : AddressZero, cpFarmABI, hasSigner)
+  return useContract(CPFARM_CONTRACT_ADDRESS ? CPFARM_CONTRACT_ADDRESS : ADDRESS_ZERO, cpFarmABI, hasSigner)
 }
 
 export function useLpFarmContract(hasSigner?: boolean): Contract | null {
-  return useContract(LPFARM_CONTRACT_ADDRESS ? LPFARM_CONTRACT_ADDRESS : AddressZero, lpFarmABI, hasSigner)
+  return useContract(LPFARM_CONTRACT_ADDRESS ? LPFARM_CONTRACT_ADDRESS : ADDRESS_ZERO, lpFarmABI, hasSigner)
 }
 
 export function useLpTokenContract(hasSigner?: boolean): Contract | null {
   return useContract(
-    UNISWAP_LPTOKEN_CONTRACT_ADDRESS ? UNISWAP_LPTOKEN_CONTRACT_ADDRESS : AddressZero,
+    UNISWAP_LPTOKEN_CONTRACT_ADDRESS ? UNISWAP_LPTOKEN_CONTRACT_ADDRESS : ADDRESS_ZERO,
     lpTokenArtifact.abi,
     hasSigner
   )
 }
 
 export function useRegistryContract(hasSigner?: boolean): Contract | null {
-  return useContract(REGISTRY_CONTRACT_ADDRESS ? REGISTRY_CONTRACT_ADDRESS : AddressZero, registryABI, hasSigner)
+  return useContract(REGISTRY_CONTRACT_ADDRESS ? REGISTRY_CONTRACT_ADDRESS : ADDRESS_ZERO, registryABI, hasSigner)
 }

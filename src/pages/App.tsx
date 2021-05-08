@@ -1,4 +1,4 @@
-import React, { Fragment } from 'react'
+import React, { Fragment, useEffect, useState } from 'react'
 import { Route, Switch } from 'react-router-dom'
 
 import Playground from './playground'
@@ -10,6 +10,9 @@ import { Statistics } from '../components/ui/Box/Statistics'
 import Navbar from '../components/ui/Sidebar/Navbar'
 import Prices from '../components/ui/Header/Prices'
 import styled, { createGlobalStyle } from 'styled-components'
+
+import { Loader } from '../components/ui/Loader'
+import { useWallet } from '../context/Web3Manager'
 
 const MAX_WIDTH = 1340
 
@@ -52,6 +55,16 @@ export const Content = styled.div`
   padding: 30px 0;
 `
 
+export const LayoutContentWithLoader: React.FC = ({ children }) => {
+  const { initialized } = useWallet()
+  const [loader, setLoader] = useState<boolean>(false)
+
+  useEffect(() => {
+    setLoader(initialized)
+  }, [initialized])
+  return <Fragment>{loader ? children : <Loader />}</Fragment>
+}
+
 export default function App(): any {
   return (
     <Fragment>
@@ -63,13 +76,15 @@ export default function App(): any {
           </LayoutContent>
           <LayoutContent>
             <Prices />
-            <Statistics />
-            <Switch>
-              <Route exact path="/" component={Dashboard} />
-              <Route exact path="/invest" component={Invest} />
-              <Route exact path="/quote" component={Quote} />
-              <Route exact path="/playground" component={Playground} />
-            </Switch>
+            <LayoutContentWithLoader>
+              <Statistics />
+              <Switch>
+                <Route exact path="/" component={Dashboard} />
+                <Route exact path="/invest" component={Invest} />
+                <Route exact path="/quote" component={Quote} />
+                <Route exact path="/playground" component={Playground} />
+              </Switch>
+            </LayoutContentWithLoader>
           </LayoutContent>
         </LayoutContainer>
       </Layout>

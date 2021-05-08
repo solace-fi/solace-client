@@ -3,7 +3,6 @@ import React, { Fragment } from 'react'
 import { Content } from '../App'
 import { CardContainer, Card, CardHeader, CardTitle, CardBlock, CardActions } from '../../components/ui/Card'
 import { Heading1, Heading2 } from '../../components/ui/Text'
-import { Statistics } from '../../components/ui/Box/Statistics'
 import { Button } from '../../components/ui/Button'
 import {
   Table,
@@ -18,7 +17,6 @@ import {
 function Dashboard(): any {
   return (
     <Fragment>
-      {/* <Statistics /> */}
       <Content>
         <Heading1>Your Policies</Heading1>
         <Table>

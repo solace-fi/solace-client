@@ -22,25 +22,6 @@ export default function App(): any {
       <UserImage>
         <img src={user} alt="User Name" />
       </UserImage>
-      {/* <>
-          {wallet.isActive ? (
-            <>
-              <div>Your balance is {`Ξ${bal ? formatEther(bal) : ''}`}</div>
-              <button onClick={() => wallet.disconnect()}>Disconnect MetaMask Wallet</button>
-            </>
-          ) : (
-            <>
-              <div>Disconnected, please connect wallet</div>
-              <button
-                onClick={() =>
-                  wallet.connect(SUPPORTED_WALLETS[SUPPORTED_WALLETS.findIndex((wallet) => wallet.id === 'metamask')])
-                }
-              >
-                Connect MetaMask Wallet
-              </button>
-            </>
-          )}{' '}
-        </>{' '} */}
       <UserWallet>
         {wallet.isActive ? (
           bal ? (
