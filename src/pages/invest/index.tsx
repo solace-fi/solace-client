@@ -22,6 +22,7 @@ import { getProviderOrSigner } from '../../utils/index'
 import { BigNumberish, BigNumber as BN } from 'ethers'
 import { formatEther, parseEther } from '@ethersproject/units'
 import { Button } from '../../components/Button'
+import { fixed } from '../../utils/fixedValue'
 
 import { NUM_BLOCKS_PER_DAY, ZERO, DEADLINE } from '../../constants'
 import { encodePriceSqrt, FeeAmount, TICK_SPACINGS, getMaxTick, getMinTick } from '../../utils/uniswap'
@@ -653,7 +654,7 @@ function Invest(): any {
                 value={amount}
               />
               <div style={{ position: 'absolute', top: '70%', left: '48%' }}>
-                Available: {func ? parseFloat(formatEther(getAssetBalanceByFunc())).toFixed(2) : 0}
+                Available: {func ? fixed(parseFloat(formatEther(getAssetBalanceByFunc()))) : 0}
               </div>
             </ModalCell>
             <ModalCell t3>
@@ -698,9 +699,9 @@ function Invest(): any {
           </TableHead>
           <TableBody>
             <TableRow>
-              {wallet.account ? <TableData>{parseFloat(userVaultAssets).toFixed(2)}</TableData> : null}
-              <TableData>{parseFloat(formatEther(capitalPoolSize).toString()).toFixed(2)}</TableData>
-              {wallet.account ? <TableData>{`${userVaultShare.toFixed(2)}%`}</TableData> : null}
+              {wallet.account ? <TableData>{fixed(parseFloat(userVaultAssets))}</TableData> : null}
+              <TableData>{fixed(parseFloat(formatEther(capitalPoolSize).toString()))}</TableData>
+              {wallet.account ? <TableData>{`${fixed(userVaultShare)}%`}</TableData> : null}
               <TableData>6.50%</TableData>
               {wallet.account && !loading ? (
                 <TableData cellAlignRight>
@@ -736,12 +737,12 @@ function Invest(): any {
           </TableHead>
           <TableBody>
             <TableRow>
-              {wallet.account ? <TableData>{parseFloat(cpUserStakeValue).toFixed(2)}</TableData> : null}
-              <TableData>{parseFloat(cpPoolValue).toFixed(2)}</TableData>
+              {wallet.account ? <TableData>{fixed(parseFloat(cpUserStakeValue))}</TableData> : null}
+              <TableData>{fixed(parseFloat(cpPoolValue))}</TableData>
               <TableData>150.00%</TableData>
-              {wallet.account ? <TableData>{parseFloat(cpUserRewards).toFixed(2)}</TableData> : null}
-              {wallet.account ? <TableData>{parseFloat(cpUserRewardsPerDay).toFixed(2)}</TableData> : null}
-              <TableData>{parseFloat(cpRewardsPerDay).toFixed(2)}</TableData>
+              {wallet.account ? <TableData>{fixed(parseFloat(cpUserRewards))}</TableData> : null}
+              {wallet.account ? <TableData>{fixed(parseFloat(cpUserRewardsPerDay))}</TableData> : null}
+              <TableData>{fixed(parseFloat(cpRewardsPerDay))}</TableData>
               {wallet.account && !loading ? (
                 <TableData cellAlignRight>
                   <TableDataGroup>
@@ -773,11 +774,11 @@ function Invest(): any {
           </TableHead>
           <TableBody>
             <TableRow>
-              <TableData>{parseFloat(lpPoolValue).toFixed(2)}</TableData>
+              <TableData>{fixed(parseFloat(lpPoolValue))}</TableData>
               <TableData>150.00%</TableData>
-              {wallet.account ? <TableData>{parseFloat(lpUserRewards).toFixed(2)}</TableData> : null}
-              {wallet.account ? <TableData>{parseFloat(lpUserRewardsPerDay).toFixed(2)}</TableData> : null}
-              <TableData>{parseFloat(lpRewardsPerDay).toFixed(2)}</TableData>
+              {wallet.account ? <TableData>{fixed(parseFloat(lpUserRewards))}</TableData> : null}
+              {wallet.account ? <TableData>{fixed(parseFloat(lpUserRewardsPerDay))}</TableData> : null}
+              <TableData>{fixed(parseFloat(lpRewardsPerDay))}</TableData>
               {wallet.account && !loading ? (
                 <TableData cellAlignRight>
                   <TableDataGroup>

@@ -6,6 +6,7 @@ import { formatEther } from '@ethersproject/units'
 import { SUPPORTED_WALLETS } from '../../ethers/wallets'
 import { User, UserImage, UserWallet, UserName } from './index'
 import { useEthBalance } from '../../hooks/useEthBalance'
+import { fixed } from '../../utils/fixedValue'
 
 import { Button } from '../Button'
 
@@ -21,7 +22,7 @@ export default function App(): any {
       <UserWallet>
         {wallet.isActive ? (
           balance ? (
-            `${parseFloat(balance).toFixed(2)} ETH`
+            `${fixed(parseFloat(balance))} ETH`
           ) : (
             ''
           )

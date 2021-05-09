@@ -4,6 +4,7 @@ import styled from 'styled-components'
 import { LayoutHeader } from './index'
 import Account from '../User/Account'
 import { useCoingecko } from '../../hooks/useCoingecko'
+import { fixed } from '../../utils/fixedValue'
 
 const Price = styled.div`
   display: flex;
@@ -48,7 +49,7 @@ export default function App(): any {
         <PriceItem>
           <PriceTitle>ETH/USD</PriceTitle>
           <PriceValue>${coins[0] ? coins[0].current_price : '-'}</PriceValue>
-          <PriceAddition>{`${coins[0] ? coins[0].price_change_percentage_24h.toFixed(2) : '-'}%`}</PriceAddition>
+          <PriceAddition>{`${coins[0] ? fixed(coins[0].price_change_percentage_24h) : '-'}%`}</PriceAddition>
         </PriceItem>
         <PriceItem>
           <PriceTitle>SOLACE/ETH LP APY.</PriceTitle>

@@ -13,6 +13,7 @@ import { useScpBalance } from '../../hooks/useScpBalance'
 import { useTotalPendingRewards } from '../../hooks/useRewards'
 import { useSolaceBalance } from '../../hooks/useSolaceBalance'
 import { usePoolStakedValue } from '../../hooks/usePoolStakedValue'
+import { fixed } from '../../utils/fixedValue'
 
 export const Statistics = () => {
   const wallet = useWallet()
@@ -151,14 +152,14 @@ export const Statistics = () => {
           <BoxItem>
             <BoxItemTitle h3>My Balance</BoxItemTitle>
             <BoxItemValue h2>
-              {`${parseFloat(solaceBalance).toFixed(2)} `}
+              {`${fixed(parseFloat(solaceBalance))} `}
               <BoxItemUnits h3>SOLACE</BoxItemUnits>
             </BoxItemValue>
           </BoxItem>
           <BoxItem>
             <BoxItemTitle h3>My SCP</BoxItemTitle>
             <BoxItemValue h2>
-              {`${parseFloat(scpBalance).toFixed(2)} `}
+              {`${fixed(parseFloat(scpBalance))} `}
               <BoxItemUnits h3>TOKENS</BoxItemUnits>
             </BoxItemValue>
           </BoxItem>
@@ -172,7 +173,7 @@ export const Statistics = () => {
           <BoxItem>
             <BoxItemTitle h3>My Rewards</BoxItemTitle>
             <BoxItemValue h2>
-              {`${parseFloat(totalUserRewards).toFixed(2)} `}
+              {`${fixed(parseFloat(totalUserRewards))} `}
               <BoxItemUnits h3>SOLACE</BoxItemUnits>
             </BoxItemValue>
           </BoxItem>
@@ -196,11 +197,11 @@ export const Statistics = () => {
       <Box purple>
         <BoxItem>
           <BoxItemTitle h3>Capital Pool Size</BoxItemTitle>
-          <BoxItemValue h2>{parseFloat(formatEther(capitalPoolSize).toString()).toFixed(2)}</BoxItemValue>
+          <BoxItemValue h2>{fixed(parseFloat(formatEther(capitalPoolSize).toString()))}</BoxItemValue>
         </BoxItem>
         <BoxItem>
           <BoxItemTitle h3>Total Value Locked</BoxItemTitle>
-          <BoxItemValue h2>{parseFloat(totalValueLocked).toFixed(2)}</BoxItemValue>
+          <BoxItemValue h2>{fixed(parseFloat(totalValueLocked))}</BoxItemValue>
         </BoxItem>
         <BoxItem>
           <BoxItemTitle h3>Active Cover Amount</BoxItemTitle>
