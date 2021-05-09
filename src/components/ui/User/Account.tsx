@@ -1,21 +1,17 @@
-import React, { useState, useMemo, Fragment } from 'react'
+import React, { useState, useEffect, Fragment } from 'react'
 import user from '../../../static/user-avatar.png'
 
 import { useWallet } from '../../../context/Web3Manager'
 import { formatEther } from '@ethersproject/units'
 import { SUPPORTED_WALLETS } from '../../../ethers/wallets'
 import { User, UserImage, UserWallet, UserName } from './index'
+import { useEthBalance } from '../../../hooks/useEthBalance'
 
 import { Button } from '../Button'
 
 export default function App(): any {
   const wallet = useWallet()
-
-  const [bal, setBal] = useState<number | null | undefined>(0)
-
-  useMemo(() => {
-    setBal(wallet.balance)
-  }, [wallet.balance])
+  const balance = useEthBalance()
 
   return (
     <User>
@@ -24,8 +20,8 @@ export default function App(): any {
       </UserImage>
       <UserWallet>
         {wallet.isActive ? (
-          bal ? (
-            `${formatEther(bal)} ETH`
+          balance ? (
+            `${parseFloat(balance).toFixed(2)} ETH`
           ) : (
             ''
           )

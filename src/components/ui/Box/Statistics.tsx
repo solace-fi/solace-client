@@ -5,9 +5,14 @@ import { Button } from '../Button'
 import { Contract } from '@ethersproject/contracts'
 import { useWallet } from '../../../context/Web3Manager'
 import { useContracts } from '../../../context/ContractsManager'
-import { formatEther } from '@ethersproject/units'
+import { formatEther, parseEther } from '@ethersproject/units'
 
 import { SUPPORTED_WALLETS } from '../../../ethers/wallets'
+import { useCapitalPoolSize } from '../../../hooks/useCapitalPoolSize'
+import { useScpBalance } from '../../../hooks/useScpBalance'
+import { useTotalPendingRewards } from '../../../hooks/useRewards'
+import { useSolaceBalance } from '../../../hooks/useSolaceBalance'
+import { usePoolStakedValue } from '../../../hooks/usePoolStakedValue'
 
 export const Statistics = () => {
   const wallet = useWallet()
@@ -21,19 +26,27 @@ export const Statistics = () => {
   const lpTokenContract = useRef<Contract | null>()
 
   const [totalValueLocked, setTotalValueLocked] = useState<string>('0.00')
-  const [capitalPoolSize, setCapitalPoolSize] = useState<number>(0)
-  const [solaceBalance, setSolaceBalance] = useState<string>('0.00')
-  const [scp, setScp] = useState<string>('0.00')
+  // const [capitalPoolSize, setCapitalPoolSize] = useState<number>(0)
+  const capitalPoolSize = useCapitalPoolSize()
+  // const [solaceBalance, setSolaceBalance] = useState<string>('0.00')
+  const solaceBalance = useSolaceBalance()
+  // const [scp, setScp] = useState<string>('0.00')
+  const scpBalance = useScpBalance()
+
   const [lp, setLp] = useState<number>(0)
 
-  const [totalUserRewards, setTotalUserRewards] = useState<string>('0.00')
+  // const [totalUserRewards, setTotalUserRewards] = useState<string>('0.00')
+  const totalUserRewards = useTotalPendingRewards()
+
+  const cpPoolValue = usePoolStakedValue(cpFarm)
+  const lpPoolValue = usePoolStakedValue(lpFarm)
 
   const refresh = async () => {
-    getCapitalPoolSize()
-    getSolaceBalance()
-    getTotalUserRewards()
+    // getCapitalPoolSize()
+    // getSolaceBalance()
+    // getTotalUserRewards()
     getTotalValueLocked()
-    getScp()
+    // getScp()
     // getLp()
   }
 
@@ -62,75 +75,74 @@ export const Statistics = () => {
   //   }
   // }
 
-  const getScp = async () => {
-    if (!vaultContract.current?.provider || !wallet.account) return
+  // const getScp = async () => {
+  //   if (!vaultContract.current?.provider || !wallet.account) return
 
-    try {
-      const balance = await vaultContract.current.balanceOf(wallet.account)
-      const formattedBalance = formatEther(balance)
-      setScp(formattedBalance)
-    } catch (err) {
-      console.log('error getScp ', err)
-    }
-  }
+  //   try {
+  //     const balance = await vaultContract.current.balanceOf(wallet.account)
+  //     const formattedBalance = formatEther(balance)
+  //     setScp(formattedBalance)
+  //   } catch (err) {
+  //     console.log('error getScp ', err)
+  //   }
+  // }
 
-  const getTotalUserRewards = async () => {
-    const farms = await masterContract.current?.numFarms()
-    if (farms.isZero() || !wallet.account || !cpFarmContract.current || !lpFarmContract.current) return
-    try {
-      const cpUserRewards = await cpFarmContract.current.pendingRewards(wallet.account)
-      const lpUserRewards = await lpFarmContract.current.pendingRewards(wallet.account)
+  // const getTotalUserRewards = async () => {
+  //   const farms = await masterContract.current?.numFarms()
+  //   if (farms.isZero() || !wallet.account || !cpFarmContract.current || !lpFarmContract.current) return
+  //   try {
+  //     const cpUserRewards = await cpFarmContract.current.pendingRewards(wallet.account)
+  //     const lpUserRewards = await lpFarmContract.current.pendingRewards(wallet.account)
 
-      const rewards = cpUserRewards.add(lpUserRewards)
-      const formattedRewards = formatEther(rewards)
-      setTotalUserRewards(formattedRewards)
-    } catch (err) {
-      console.log('error getUserRewards ', err)
-    }
-  }
+  //     const rewards = cpUserRewards.add(lpUserRewards)
+  //     const formattedRewards = formatEther(rewards)
+  //     setTotalUserRewards(formattedRewards)
+  //   } catch (err) {
+  //     console.log('error getUserRewards ', err)
+  //   }
+  // }
 
-  const getCapitalPoolSize = async () => {
-    if (!vaultContract.current) return
-    try {
-      const ans = await vaultContract.current.totalAssets()
-      setCapitalPoolSize(ans)
-    } catch (err) {
-      console.log('error getTotalAssets ', err)
-    }
-  }
+  // const getCapitalPoolSize = async () => {
+  //   if (!vaultContract.current) return
+  //   try {
+  //     const ans = await vaultContract.current.totalAssets()
+  //     setCapitalPoolSize(ans)
+  //   } catch (err) {
+  //     console.log('error getTotalAssets ', err)
+  //   }
+  // }
 
-  const getSolaceBalance = async () => {
-    if (!solaceContract.current?.provider || !wallet.account) return
+  // const getSolaceBalance = async () => {
+  //   if (!solaceContract.current?.provider || !wallet.account) return
 
-    try {
-      const balance = await solaceContract.current.balanceOf(wallet.account)
-      setSolaceBalance(balance)
-    } catch (err) {
-      console.log('error getSolaceBalance ', err)
-    }
-  }
+  //   try {
+  //     const balance = await solaceContract.current.balanceOf(wallet.account)
+  //     setSolaceBalance(balance)
+  //   } catch (err) {
+  //     console.log('error getSolaceBalance ', err)
+  //   }
+  // }
 
-  const getTotalValueLocked = async () => {
-    if (!cpFarmContract.current?.provider || !lpFarmContract.current?.provider) return
-    try {
-      const cpFarmValue = await cpFarmContract.current.valueStaked()
-      const lpFarmValue = await lpFarmContract.current.valueStaked()
-      setTotalValueLocked(formatEther(cpFarmValue.add(lpFarmValue)))
-    } catch (err) {
-      console.log('error getTotalValueLocked ', err)
-    }
+  const getTotalValueLocked = () => {
+    const formattedTVL = formatEther(parseEther(cpPoolValue).add(parseEther(lpPoolValue)))
+    // console.log('tvl', formattedTVL)
+    setTotalValueLocked(formattedTVL)
   }
 
   useEffect(() => {
-    masterContract.current = master
-    vaultContract.current = vault
-    solaceContract.current = solace
     cpFarmContract.current = cpFarm
     lpFarmContract.current = lpFarm
-    lpTokenContract.current = lpFarm
+    lpTokenContract.current = lpToken
+    masterContract.current = master
+    solaceContract.current = solace
+    vaultContract.current = vault
 
     refresh()
-  }, [master, vault, solace, cpFarm, lpFarm, wallet, lpToken])
+  }, [master, vault, solace, cpFarm, lpFarm, lpToken])
+
+  useEffect(() => {
+    refresh()
+  }, [cpPoolValue, lpPoolValue, wallet])
 
   return (
     <BoxRow>
@@ -146,7 +158,7 @@ export const Statistics = () => {
           <BoxItem>
             <BoxItemTitle h3>My SCP</BoxItemTitle>
             <BoxItemValue h2>
-              {`${parseFloat(scp).toFixed(2)} `}
+              {`${parseFloat(scpBalance).toFixed(2)} `}
               <BoxItemUnits h3>TOKENS</BoxItemUnits>
             </BoxItemValue>
           </BoxItem>
