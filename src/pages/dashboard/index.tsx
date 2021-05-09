@@ -1,18 +1,10 @@
 import React, { Fragment } from 'react'
 
 import { Content } from '../App'
-import { CardContainer, Card, CardHeader, CardTitle, CardBlock, CardActions } from '../../components/ui/Card'
-import { Heading1, Heading2 } from '../../components/ui/Text'
-import { Button } from '../../components/ui/Button'
-import {
-  Table,
-  TableHead,
-  TableHeader,
-  TableRow,
-  TableBody,
-  TableData,
-  TableDataGroup,
-} from '../../components/ui/Table'
+import { CardContainer, Card, CardHeader, CardTitle, CardBlock, CardActions } from '../../components/Card'
+import { Heading1, Heading2 } from '../../components/Text'
+import { Button } from '../../components/Button'
+import { Table, TableHead, TableHeader, TableRow, TableBody, TableData, TableDataGroup } from '../../components/Table'
 
 function Dashboard(): any {
   return (

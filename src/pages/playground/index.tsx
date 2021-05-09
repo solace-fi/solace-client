@@ -6,9 +6,9 @@ import { useContracts } from '../../context/ContractsManager'
 import { ethers, constants, BigNumberish, BigNumber as BN } from 'ethers'
 import { formatEther } from '@ethersproject/units'
 
-import InvestTabPoolView from '../../components/ui/InvestTabPoolView'
-import { Button } from '../../components/ui/Button'
-import { AmountModal } from '../../components/ui/Modal/AmountModal'
+import InvestTabPoolView from '../../components/InvestTabPoolView'
+import { Button } from '../../components/Button'
+import { AmountModal } from '../../components/Modal/AmountModal'
 
 import { NUM_BLOCKS_PER_DAY, NUM_DAYS_PER_MONTH, DAYS_PER_YEAR, TOKEN_NAME, DEADLINE } from '../../constants'
 

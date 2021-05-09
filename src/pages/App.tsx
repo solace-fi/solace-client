@@ -6,12 +6,12 @@ import Dashboard from './dashboard'
 import Invest from './invest'
 import Quote from './quote'
 
-import { Statistics } from '../components/ui/Box/Statistics'
-import Navbar from '../components/ui/Sidebar/Navbar'
-import Prices from '../components/ui/Header/Prices'
+import { Statistics } from '../components/Box/Statistics'
+import Navbar from '../components/Sidebar/Navbar'
+import Prices from '../components/Header/Prices'
 import styled, { createGlobalStyle } from 'styled-components'
 
-import { Loader } from '../components/ui/Loader'
+import { Loader } from '../components/Loader'
 import { useWallet } from '../context/Web3Manager'
 
 const MAX_WIDTH = 1340

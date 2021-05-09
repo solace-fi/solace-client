@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState, Fragment } from 'react'
 import { Contract } from '@ethersproject/contracts'
-import { Loader } from '../../components/ui/Loader'
-import { Input } from '../../components/ui/Input'
+import { Loader } from '../../components/Loader'
+import { Input } from '../../components/Input'
 import {
   Modal,
   ModalHeader,
@@ -10,26 +10,18 @@ import {
   ModalCell,
   ModalCloseButton,
   ModalButton,
-} from '../../components/ui/Modal/InvestModal'
-import { RadioElement, RadioInput, RadioGroup, RadioLabel } from '../../components/ui/Radio'
+} from '../../components/Modal/InvestModal'
+import { RadioElement, RadioInput, RadioGroup, RadioLabel } from '../../components/Radio'
 import { Content } from '../App'
-import { Heading1, Heading2 } from '../../components/ui/Text'
-import {
-  Table,
-  TableHead,
-  TableHeader,
-  TableRow,
-  TableBody,
-  TableData,
-  TableDataGroup,
-} from '../../components/ui/Table'
+import { Heading1, Heading2 } from '../../components/Text'
+import { Table, TableHead, TableHeader, TableRow, TableBody, TableData, TableDataGroup } from '../../components/Table'
 import { useWallet } from '../../context/Web3Manager'
 import { useContracts } from '../../context/ContractsManager'
 import getPermitNFTSignature from '../../utils/signature'
 import { getProviderOrSigner } from '../../utils/index'
 import { BigNumberish, BigNumber as BN } from 'ethers'
 import { formatEther, parseEther } from '@ethersproject/units'
-import { Button } from '../../components/ui/Button'
+import { Button } from '../../components/Button'
 
 import { NUM_BLOCKS_PER_DAY, ZERO, DEADLINE } from '../../constants'
 import { encodePriceSqrt, FeeAmount, TICK_SPACINGS, getMaxTick, getMinTick } from '../../utils/uniswap'
@@ -646,7 +638,7 @@ function Invest(): any {
         <ModalContent>
           <ModalRow>
             <ModalCell t2>{unit}</ModalCell>
-            <ModalCell>
+            <ModalCell style={{ position: 'relative' }}>
               <Input
                 t2
                 textAlignRight
@@ -660,6 +652,9 @@ function Invest(): any {
                 onChange={(e) => handleAmount(e.target.value)}
                 value={amount}
               />
+              <div style={{ position: 'absolute', top: '70%', left: '48%' }}>
+                Available: {func ? parseFloat(formatEther(getAssetBalanceByFunc())).toFixed(2) : 0}
+              </div>
             </ModalCell>
             <ModalCell t3>
               <Button onClick={getMaxAmount}>MAX</Button>

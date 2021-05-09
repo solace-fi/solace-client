@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Button } from '../../ui/Button'
+import { Button } from '../../components/Button'
 import { ModalBase, ModalBox, ModalOverlay, ModalContent, props } from '../Modal'
 
 export const AmountModal: React.FC<props> = ({

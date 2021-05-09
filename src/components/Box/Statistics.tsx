@@ -3,16 +3,16 @@ import { BoxRow, Box, BoxItem, BoxItemValue, BoxItemTitle, BoxItemUnits } from '
 import { Button } from '../Button'
 
 import { Contract } from '@ethersproject/contracts'
-import { useWallet } from '../../../context/Web3Manager'
-import { useContracts } from '../../../context/ContractsManager'
+import { useWallet } from '../../context/Web3Manager'
+import { useContracts } from '../../context/ContractsManager'
 import { formatEther, parseEther } from '@ethersproject/units'
 
-import { SUPPORTED_WALLETS } from '../../../ethers/wallets'
-import { useCapitalPoolSize } from '../../../hooks/useCapitalPoolSize'
-import { useScpBalance } from '../../../hooks/useScpBalance'
-import { useTotalPendingRewards } from '../../../hooks/useRewards'
-import { useSolaceBalance } from '../../../hooks/useSolaceBalance'
-import { usePoolStakedValue } from '../../../hooks/usePoolStakedValue'
+import { SUPPORTED_WALLETS } from '../../ethers/wallets'
+import { useCapitalPoolSize } from '../../hooks/useCapitalPoolSize'
+import { useScpBalance } from '../../hooks/useScpBalance'
+import { useTotalPendingRewards } from '../../hooks/useRewards'
+import { useSolaceBalance } from '../../hooks/useSolaceBalance'
+import { usePoolStakedValue } from '../../hooks/usePoolStakedValue'
 
 export const Statistics = () => {
   const wallet = useWallet()

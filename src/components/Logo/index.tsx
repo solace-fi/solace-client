@@ -1,7 +1,7 @@
 import React from 'react'
 import styled from 'styled-components'
 
-import logo from '../../../static/solace.png'
+import logo from '../../static/solace.png'
 
 const LogoBase = styled.a`
   display: flex;

@@ -3,7 +3,7 @@ import styled from 'styled-components'
 
 import { LayoutHeader } from './index'
 import Account from '../User/Account'
-import { useCoingecko } from '../../../hooks/useCoingecko'
+import { useCoingecko } from '../../hooks/useCoingecko'
 
 const Price = styled.div`
   display: flex;
