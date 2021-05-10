@@ -24,7 +24,7 @@ import { formatEther, parseEther } from '@ethersproject/units'
 import { Button } from '../../components/Button'
 import { fixed } from '../../utils/fixedValue'
 
-import { NUM_BLOCKS_PER_DAY, ZERO, DEADLINE } from '../../constants'
+import { NUM_BLOCKS_PER_DAY, ZERO, DEADLINE, CP_ROI, LP_ROI } from '../../constants'
 import { encodePriceSqrt, FeeAmount, TICK_SPACINGS, getMaxTick, getMinTick } from '../../utils/uniswap'
 
 import { useCapitalPoolSize } from '../../hooks/useCapitalPoolSize'
@@ -673,7 +673,7 @@ function Invest(): any {
         </ModalContent>
       </Modal>
       <Content>
-        <Heading1>Risk Back ETH - Capital Pool</Heading1>
+        <Heading1>ETH Risk backing Capital Pool</Heading1>
         <Table isHighlight>
           <TableHead>
             <TableRow>
@@ -688,7 +688,7 @@ function Invest(): any {
               {wallet.account ? <TableData>{fixed(parseFloat(userVaultAssets))}</TableData> : null}
               <TableData>{fixed(parseFloat(formatEther(capitalPoolSize).toString()))}</TableData>
               {wallet.account ? <TableData>{`${fixed(userVaultShare)}%`}</TableData> : null}
-              <TableData>6.50%</TableData>
+              <TableData>{CP_ROI}</TableData>
               {wallet.account && !loading ? (
                 <TableData cellAlignRight>
                   <TableDataGroup>
@@ -725,7 +725,7 @@ function Invest(): any {
             <TableRow>
               {wallet.account ? <TableData>{fixed(parseFloat(cpUserStakeValue))}</TableData> : null}
               <TableData>{fixed(parseFloat(cpPoolValue))}</TableData>
-              <TableData>150.00%</TableData>
+              <TableData>{LP_ROI}</TableData>
               {wallet.account ? <TableData>{fixed(parseFloat(cpUserRewards))}</TableData> : null}
               {wallet.account ? <TableData>{fixed(parseFloat(cpUserRewardsPerDay))}</TableData> : null}
               <TableData>{fixed(parseFloat(cpRewardsPerDay))}</TableData>

@@ -22,7 +22,6 @@ export function usePairPrice(): any {
       // Fetch theoretical prices when trading 1 wETH to DAI
       const trade = new Trade(route, new TokenAmount(weth, '1000000000000000'), TradeType.EXACT_INPUT)
       const pairPrice = trade.executionPrice.toSignificant(6)
-      console.log(trade)
       setPairPrice(pairPrice)
     }
     getPairPrice()

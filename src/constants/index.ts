@@ -24,3 +24,6 @@ export const TOKEN_SYMBOL = 'SCP'
 export const DEADLINE = constants.MaxUint256
 export const ZERO = constants.Zero
 export const ADDRESS_ZERO = constants.AddressZero
+
+export const CP_ROI = '150.5%'
+export const LP_ROI = '6.0%'
