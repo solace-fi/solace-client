@@ -119,11 +119,14 @@ function Invest(): any {
 
   const claimCpRewards = async () => {
     if (!cpFarmContract.current || !vaultContract.current) return
-    const vaultBal = await vaultContract.current.balanceOf(wallet.account)
-    console.log('balance from vault before claiming cp rewards', formatEther(vaultBal))
+
+    const vaultBalance1 = await vaultContract.current.balanceOf(wallet.account)
+    console.log('balance from vault before claiming cp rewards', formatEther(vaultBalance1))
+
     await cpFarmContract.current.withdrawRewards()
-    const vaultBalance = await vaultContract.current.balanceOf(wallet.account)
-    console.log('balance from vault after claiming cp rewards', formatEther(vaultBalance))
+
+    const vaultBalance2 = await vaultContract.current.balanceOf(wallet.account)
+    console.log('balance from vault after claiming cp rewards', formatEther(vaultBalance2))
   }
 
   const claimLpRewards = async () => {
@@ -459,36 +462,26 @@ function Invest(): any {
   const callMintLpToken = async (amount: number) => {
     if (!wethContract.current || !solaceContract.current || !lpTokenContract.current) return
     setLoading(true)
+    const signer = getProviderOrSigner(wallet.library, wallet.account)
+    const lpTokenAddress = lpTokenContract.current.address
     try {
-      await solaceContract.current
-        .connect(getProviderOrSigner(wallet.library, wallet.account))
-        .addMinter(wallet.account)
-      await solaceContract.current
-        .connect(getProviderOrSigner(wallet.library, wallet.account))
-        .mint(wallet.account, amount)
-      await wethContract.current.connect(getProviderOrSigner(wallet.library, wallet.account)).deposit({ value: amount })
-      const wethAllowance1 = await wethContract.current
-        .connect(getProviderOrSigner(wallet.library, wallet.account))
-        .allowance(wallet.account, lpTokenContract.current.address)
-      const solaceAllowance1 = await solaceContract.current
-        .connect(getProviderOrSigner(wallet.library, wallet.account))
-        .allowance(wallet.account, lpTokenContract.current.address)
-      console.log(wethAllowance1.toString())
-      console.log(solaceAllowance1.toString())
-      await solaceContract.current
-        .connect(getProviderOrSigner(wallet.library, wallet.account))
-        .approve(lpTokenContract.current.address, amount)
-      await wethContract.current
-        .connect(getProviderOrSigner(wallet.library, wallet.account))
-        .approve(lpTokenContract.current.address, amount)
-      const wethAllowance2 = await wethContract.current
-        .connect(getProviderOrSigner(wallet.library, wallet.account))
-        .allowance(wallet.account, lpTokenContract.current.address)
-      const solaceAllowance2 = await solaceContract.current
-        .connect(getProviderOrSigner(wallet.library, wallet.account))
-        .allowance(wallet.account, lpTokenContract.current.address)
-      console.log(wethAllowance2.toString())
-      console.log(solaceAllowance2.toString())
+      await solaceContract.current.connect(signer).addMinter(wallet.account)
+      await solaceContract.current.connect(signer).mint(wallet.account, amount)
+      await wethContract.current.connect(signer).deposit({ value: amount })
+
+      const wethAllowance1 = await wethContract.current.connect(signer).allowance(wallet.account, lpTokenAddress)
+      const solaceAllowance1 = await solaceContract.current.connect(signer).allowance(wallet.account, lpTokenAddress)
+      console.log('weth allowance before approval', wethAllowance1.toString())
+      console.log('solace allowance before approval', solaceAllowance1.toString())
+
+      await solaceContract.current.connect(signer).approve(lpTokenAddress, amount)
+      await wethContract.current.connect(signer).approve(lpTokenAddress, amount)
+
+      const wethAllowance2 = await wethContract.current.connect(signer).allowance(wallet.account, lpTokenAddress)
+      const solaceAllowance2 = await solaceContract.current.connect(signer).allowance(wallet.account, lpTokenAddress)
+      console.log('weth allowance after approval', wethAllowance2.toString())
+      console.log('solace allowance after approval', solaceAllowance2.toString())
+
       const nft = await mintLpToken(wethContract.current, solaceContract.current, FeeAmount.MEDIUM, BN.from(amount))
       console.log('Total Supply of LP Tokens', nft.toNumber())
       setNft(nft)
@@ -621,8 +614,6 @@ function Invest(): any {
     solaceContract.current = solace
     vaultContract.current = vault
     wethContract.current = weth
-
-    console.log(cpFarm)
   }, [vault, cpFarm, lpFarm, master, lpToken, weth, registry, solace])
 
   useEffect(() => {

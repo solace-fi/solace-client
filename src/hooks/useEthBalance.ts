@@ -16,7 +16,6 @@ export const useEthBalance = () => {
       try {
         const balance = await wallet.library.getBalance(wallet.account)
         const formattedBalance = formatEther(balance)
-        console.log('eth', formattedBalance)
         setBalance(formattedBalance)
       } catch (err) {
         console.log('getEthbalance', err)
