@@ -5,6 +5,7 @@ import { LayoutHeader } from './index'
 import Account from '../User/Account'
 import { useCoingecko } from '../../hooks/useCoingecko'
 import { fixed } from '../../utils/fixedValue'
+import { usePairPrice } from '../../hooks/usePair'
 
 const Price = styled.div`
   display: flex;
@@ -38,12 +39,14 @@ const PriceAddition = styled.span`
 
 export default function App(): any {
   const coins = useCoingecko()
+  const pairPrice = usePairPrice()
+
   return (
     <LayoutHeader>
       <Price>
         <PriceItem>
           <PriceTitle>SOLACE/USD</PriceTitle>
-          <PriceValue>$1.23</PriceValue>
+          <PriceValue>{pairPrice ? `$${pairPrice}` : '-'}</PriceValue>
           <PriceAddition>+3.56%</PriceAddition>
         </PriceItem>
         <PriceItem>
