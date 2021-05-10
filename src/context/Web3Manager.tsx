@@ -77,7 +77,7 @@ const WalletProvider: React.FC = (props) => {
         return
       }
 
-      const connector = walletConnector.getConnector()
+      const connector = walletConnector.connector.getConnector()
 
       connectingRef.current = walletConnector
       setConnecting(walletConnector)
@@ -90,7 +90,7 @@ const WalletProvider: React.FC = (props) => {
         } else if (error instanceof UnsupportedChainIdError) {
           disconnect()
         } else {
-          const err = walletConnector.onError?.(error)
+          const err = walletConnector.connector.onError?.(error)
 
           console.log(err)
         }

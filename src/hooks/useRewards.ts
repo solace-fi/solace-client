@@ -13,10 +13,11 @@ const useMasterValues = (farmId: number) => {
 
   useEffect(() => {
     const getMasterValues = async () => {
+      if (!master) return
       try {
-        const allocPoints = await master?.allocPoints(farmId)
-        const totalAllocPoints = await master?.totalAllocPoints()
-        const solacePerBlock = await master?.solacePerBlock()
+        const allocPoints = await master.allocPoints(farmId)
+        const totalAllocPoints = await master.totalAllocPoints()
+        const solacePerBlock = await master.solacePerBlock()
         setMasterValues({ allocPoints, totalAllocPoints, solacePerBlock })
       } catch (err) {
         console.log('getMasterValues', err)

@@ -11,8 +11,9 @@ export interface WalletConnector {
   primary?: true
   mobile?: true
   mobileOnly?: true
-  getConnector(): AbstractConnector
-  onError(error: Error): Error | undefined
+  // getConnector(): AbstractConnector
+  // onError(error: Error): Error | undefined
+  connector: any
 }
 
 export const SUPPORTED_WALLETS: WalletConnector[] = [
@@ -23,11 +24,12 @@ export const SUPPORTED_WALLETS: WalletConnector[] = [
     description: 'Easy-to-use browser extension.',
     href: null,
     color: '#E8831D',
-    getConnector(): AbstractConnector {
-      return MetaMaskConnector.getConnector()
-    },
-    onError(error: MetaMaskError): Error | undefined {
-      return MetaMaskConnector.onError(error)
-    },
+    // getConnector(): AbstractConnector {
+    //   return MetaMaskConnector.getConnector()
+    // },
+    // onError(error: MetaMaskError): Error | undefined {
+    //   return MetaMaskConnector.onError(error)
+    // },
+    connector: MetaMaskConnector,
   },
 ]
