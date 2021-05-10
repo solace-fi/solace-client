@@ -1,7 +1,6 @@
 import React, { Fragment, useEffect, useState } from 'react'
 import { Route, Switch } from 'react-router-dom'
 
-import Playground from './playground'
 import Dashboard from './dashboard'
 import Invest from './invest'
 import Quote from './quote'
@@ -13,6 +12,7 @@ import styled, { createGlobalStyle } from 'styled-components'
 
 import { Loader } from '../components/Loader'
 import { useWallet } from '../context/Web3Manager'
+import Govern from './govern'
 
 const MAX_WIDTH = 1340
 
@@ -82,7 +82,7 @@ export default function App(): any {
                 <Route exact path="/" component={Dashboard} />
                 <Route exact path="/invest" component={Invest} />
                 <Route exact path="/quote" component={Quote} />
-                <Route exact path="/playground" component={Playground} />
+                <Route exact path="/govern" component={Govern} />
               </Switch>
             </LayoutContentWithLoader>
           </LayoutContent>

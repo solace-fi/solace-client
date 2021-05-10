@@ -275,7 +275,7 @@ function Playground(): any {
       await tx.wait()
       const r = await vaultContract.current.on('DepositMade', (sender, amount, shares, tx) => {
         console.log('DepositVault event: ', tx)
-        wallet.updateBalance(wallet.balance.sub(amount))
+        // wallet.updateBalance(wallet.balance.sub(amount))
         refresh()
         setShowModal(false)
         setDisabled(false)
@@ -294,7 +294,7 @@ function Playground(): any {
       await deposit.wait()
       await cpFarmContract.current.on('DepositEth', (sender, amount, tx) => {
         console.log('DepositEth event: ', tx)
-        wallet.updateBalance(wallet.balance.sub(amount))
+        // wallet.updateBalance(wallet.balance.sub(amount))
         refresh()
         setShowModal(false)
         setDisabled(false)
@@ -321,7 +321,7 @@ function Playground(): any {
       await deposit.wait()
       await cpFarmContract.current.on('DepositCp', (sender, amount, tx) => {
         console.log('DepositCp event: ', tx)
-        wallet.updateBalance(wallet.balance.sub(amount))
+        // wallet.updateBalance(wallet.balance.sub(amount))
         refresh()
         setShowModal(false)
         setDisabled(false)
@@ -341,7 +341,7 @@ function Playground(): any {
       await tx.wait()
       await vaultContract.current.on('WithdrawalMade', (sender, amount, tx) => {
         console.log('withdrawal event: ', tx)
-        wallet.updateBalance(wallet.balance.add(amount))
+        // wallet.updateBalance(wallet.balance.add(amount))
         refresh()
         setShowModal(false)
         setDisabled(false)
@@ -360,7 +360,7 @@ function Playground(): any {
       await withdraw.wait()
       await cpFarmContract.current.on('WithdrawEth', (sender, amount, tx) => {
         console.log('WithdrawEth event: ', tx)
-        wallet.updateBalance(wallet.balance.add(amount))
+        // wallet.updateBalance(wallet.balance.add(amount))
         refresh()
         setShowModal(false)
         setDisabled(false)

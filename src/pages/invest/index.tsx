@@ -60,7 +60,7 @@ function Invest(): any {
   // const [capitalPoolSize, setCapitalPoolSize] = useState<number>(0)
   // const [scpBalance, setScpBalance] = useState<string>('0.00')
 
-  // const { balance, setBalance } = useEthBalance()
+  const ethBalance = useEthBalance()
   const [cpUserRewardsPerDay] = useUserRewardsPerDay(1, cpFarmContract.current)
   const [lpUserRewardsPerDay] = useUserRewardsPerDay(2, lpFarmContract.current)
   const [cpRewardsPerDay] = useRewardsPerDay(1)
@@ -312,8 +312,7 @@ function Invest(): any {
       await tx.wait()
       await vaultContract.current.on('DepositMade', (sender, amount, shares, tx) => {
         console.log('DepositVault event: ', tx)
-        // setBalance(formatEther(parseEther(balance).sub(amount)))
-        wallet.updateBalance(wallet.balance.sub(amount))
+        wallet.reload()
         refresh()
         closeModal()
       })
@@ -332,8 +331,7 @@ function Invest(): any {
       await deposit.wait()
       await cpFarmContract.current.on('DepositEth', (sender, amount, tx) => {
         console.log('DepositEth event: ', tx)
-        // setBalance(formatEther(parseEther(balance).sub(amount)))
-        wallet.updateBalance(wallet.balance.sub(amount))
+        wallet.reload()
         refresh()
         closeModal()
       })
@@ -360,8 +358,7 @@ function Invest(): any {
       await deposit.wait()
       await cpFarmContract.current.on('DepositCp', (sender, amount, tx) => {
         console.log('DepositCp event: ', tx)
-        // setBalance(formatEther(parseEther(balance).sub(amount)))
-        wallet.updateBalance(wallet.balance.sub(amount))
+        wallet.reload()
         refresh()
         closeModal()
       })
@@ -381,8 +378,7 @@ function Invest(): any {
       await tx.wait()
       await vaultContract.current.on('WithdrawalMade', (sender, amount, tx) => {
         console.log('withdrawal event: ', tx)
-        // setBalance(formatEther(parseEther(balance).add(amount)))
-        wallet.updateBalance(wallet.balance.add(amount))
+        wallet.reload()
         refresh()
         closeModal()
       })
@@ -401,8 +397,7 @@ function Invest(): any {
       await withdraw.wait()
       await cpFarmContract.current.on('WithdrawEth', (sender, amount, tx) => {
         console.log('WithdrawEth event: ', tx)
-        // setBalance(formatEther(parseEther(balance).add(amount)))
-        wallet.updateBalance(wallet.balance.add(amount))
+        wallet.reload()
         refresh()
         closeModal()
       })
@@ -591,7 +586,7 @@ function Invest(): any {
       // if depositing into vault or eth into farm, check eth
       case callDepositVault.toString():
       case callDepositEth.toString():
-        return wallet.balance
+        return parseEther(ethBalance)
       // if depositing cp into farm or withdrawing from vault, check scp
       case callDepositCp.toString():
       case callWithdrawVault.toString():

@@ -34,8 +34,8 @@ export const Navbar = (): any => {
         <SidebarItem className="quote-nav-link" to={'/quote'}>
           Quote
         </SidebarItem>
-        <SidebarItem className="playground-nav-link" to={'/playground'}>
-          Playground{' '}
+        <SidebarItem className="govern-nav-link" to={'/govern'}>
+          Govern
         </SidebarItem>
       </SidebarItemList>
     </LayoutSidebar>
