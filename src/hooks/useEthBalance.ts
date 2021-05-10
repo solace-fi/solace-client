@@ -6,23 +6,24 @@ import { ZERO } from '../constants'
 import { useContracts } from '../context/ContractsManager'
 
 export const useEthBalance = () => {
-  const { master, vault, cpFarm } = useContracts()
+  const { master, vault, cpFarm, lpFarm } = useContracts()
   const wallet = useWallet()
-  const [balance, setBalance] = useState<any>('0.00')
+  const [balance, setBalance] = useState<string>('0.00')
 
   useEffect(() => {
-    console.log('changing eth balance')
-    if (!!wallet.library && !!wallet.account) {
-      wallet.library
-        .getBalance(wallet.account)
-        .then((balance: number) => {
-          setBalance(formatEther(balance))
-        })
-        .catch(() => {
-          setBalance(formatEther(ZERO))
-        })
+    const getEthBalance = async () => {
+      if (!wallet.library || !wallet.account) return
+      try {
+        const balance = await wallet.library.getBalance(wallet.account)
+        const formattedBalance = formatEther(balance)
+        console.log('eth', formattedBalance)
+        setBalance(formattedBalance)
+      } catch (err) {
+        console.log('getEthbalance', err)
+      }
     }
-  }, [wallet, master, vault, cpFarm]) // ensures refresh if referential identity of library doesn't change across chainIds
+    getEthBalance()
+  }, [wallet, master, vault, cpFarm, lpFarm]) // ensures refresh if referential identity of library doesn't change across chainIds
 
   return balance
 }

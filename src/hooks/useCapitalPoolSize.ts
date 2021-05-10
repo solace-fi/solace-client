@@ -11,11 +11,15 @@ export const useCapitalPoolSize = () => {
   useEffect(() => {
     const getCapitalPoolSize = async () => {
       if (!registry || !vault) return
-      const addr = await registry.governance()
-      console.log('GOVERNANCE ', addr)
-      const ans = await vault.totalAssets()
-      // console.log('capital pool size', formatEther(ans))
-      setCapitalPoolSize(ans)
+      try {
+        const addr = await registry.governance()
+        console.log('GOVERNANCE ', addr)
+        const ans = await vault.totalAssets()
+        // console.log('capital pool size', formatEther(ans))
+        setCapitalPoolSize(ans)
+      } catch (err) {
+        console.log('useCapitalPoolSize', err)
+      }
     }
     getCapitalPoolSize()
   }, [vault, registry, wallet])

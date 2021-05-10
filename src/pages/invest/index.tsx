@@ -32,7 +32,7 @@ import { useRewardsPerDay, useUserPendingRewards, useUserRewardsPerDay } from '.
 import { useScpBalance } from '../../hooks/useScpBalance'
 import { usePoolStakedValue } from '../../hooks/usePoolStakedValue'
 import { useUserStakedValue } from '../../hooks/useUserStakedValue'
-// import { useEthBalance } from '../../hooks/useEthBalance'
+import { useEthBalance } from '../../hooks/useEthBalance'
 
 function Invest(): any {
   const wallet = useWallet()
@@ -60,7 +60,7 @@ function Invest(): any {
   // const [capitalPoolSize, setCapitalPoolSize] = useState<number>(0)
   // const [scpBalance, setScpBalance] = useState<string>('0.00')
 
-  // const balance = useEthBalance()
+  // const { balance, setBalance } = useEthBalance()
   const [cpUserRewardsPerDay] = useUserRewardsPerDay(1, cpFarmContract.current)
   const [lpUserRewardsPerDay] = useUserRewardsPerDay(2, lpFarmContract.current)
   const [cpRewardsPerDay] = useRewardsPerDay(1)
@@ -309,7 +309,7 @@ function Invest(): any {
       await tx.wait()
       await vaultContract.current.on('DepositMade', (sender, amount, shares, tx) => {
         console.log('DepositVault event: ', tx)
-        // setBalance(balance.sub(amount))
+        // setBalance(formatEther(parseEther(balance).sub(amount)))
         wallet.updateBalance(wallet.balance.sub(amount))
         refresh()
         closeModal()
@@ -329,7 +329,7 @@ function Invest(): any {
       await deposit.wait()
       await cpFarmContract.current.on('DepositEth', (sender, amount, tx) => {
         console.log('DepositEth event: ', tx)
-        // setBalance(balance.sub(amount))
+        // setBalance(formatEther(parseEther(balance).sub(amount)))
         wallet.updateBalance(wallet.balance.sub(amount))
         refresh()
         closeModal()
@@ -357,7 +357,7 @@ function Invest(): any {
       await deposit.wait()
       await cpFarmContract.current.on('DepositCp', (sender, amount, tx) => {
         console.log('DepositCp event: ', tx)
-        // setBalance(balance.sub(amount))
+        // setBalance(formatEther(parseEther(balance).sub(amount)))
         wallet.updateBalance(wallet.balance.sub(amount))
         refresh()
         closeModal()
@@ -378,7 +378,7 @@ function Invest(): any {
       await tx.wait()
       await vaultContract.current.on('WithdrawalMade', (sender, amount, tx) => {
         console.log('withdrawal event: ', tx)
-        // setBalance(balance.add(amount))
+        // setBalance(formatEther(parseEther(balance).add(amount)))
         wallet.updateBalance(wallet.balance.add(amount))
         refresh()
         closeModal()
@@ -398,7 +398,7 @@ function Invest(): any {
       await withdraw.wait()
       await cpFarmContract.current.on('WithdrawEth', (sender, amount, tx) => {
         console.log('WithdrawEth event: ', tx)
-        // setBalance(balance.add(amount))
+        // setBalance(formatEther(parseEther(balance).add(amount)))
         wallet.updateBalance(wallet.balance.add(amount))
         refresh()
         closeModal()
@@ -622,7 +622,7 @@ function Invest(): any {
     vaultContract.current = vault
     wethContract.current = weth
 
-    refresh()
+    console.log(cpFarm)
   }, [vault, cpFarm, lpFarm, master, lpToken, weth, registry, solace])
 
   useEffect(() => {
@@ -653,8 +653,8 @@ function Invest(): any {
                 onChange={(e) => handleAmount(e.target.value)}
                 value={amount}
               />
-              <div style={{ position: 'absolute', top: '70%', left: '48%' }}>
-                Available: {func ? fixed(parseFloat(formatEther(getAssetBalanceByFunc()))) : 0}
+              <div style={{ position: 'absolute', top: '70%' }}>
+                Available: {func ? parseFloat(formatEther(getAssetBalanceByFunc())) : 0}
               </div>
             </ModalCell>
             <ModalCell t3>

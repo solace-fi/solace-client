@@ -11,10 +11,13 @@ export const useScpBalance = () => {
   useEffect(() => {
     const getScpBalance = async () => {
       if (!vault) return
-      const balance = await vault.balanceOf(wallet.account)
-      const formattedBalance = formatEther(balance)
-      // console.log('scp', formattedBalance)
-      setScpBalance(formattedBalance)
+      try {
+        const balance = await vault.balanceOf(wallet.account)
+        const formattedBalance = formatEther(balance)
+        setScpBalance(formattedBalance)
+      } catch (err) {
+        console.log('getScpBalance', err)
+      }
     }
     getScpBalance()
   }, [wallet, vault])

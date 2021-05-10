@@ -13,10 +13,14 @@ const useMasterValues = (farmId: number) => {
 
   useEffect(() => {
     const getMasterValues = async () => {
-      const allocPoints = await master?.allocPoints(farmId)
-      const totalAllocPoints = await master?.totalAllocPoints()
-      const solacePerBlock = await master?.solacePerBlock()
-      setMasterValues({ allocPoints, totalAllocPoints, solacePerBlock })
+      try {
+        const allocPoints = await master?.allocPoints(farmId)
+        const totalAllocPoints = await master?.totalAllocPoints()
+        const solacePerBlock = await master?.solacePerBlock()
+        setMasterValues({ allocPoints, totalAllocPoints, solacePerBlock })
+      } catch (err) {
+        console.log('getMasterValues', err)
+      }
     }
     getMasterValues()
   }, [farmId, master])
@@ -29,11 +33,15 @@ export const useRewardsPerDay = (farmId: number) => {
 
   useEffect(() => {
     const getRewardsPerDay = async () => {
-      const rewards = totalAllocPoints.gt(ZERO)
-        ? solacePerBlock.mul(NUM_BLOCKS_PER_DAY).mul(allocPoints).div(totalAllocPoints)
-        : ZERO
-      const formattedRewards = formatEther(rewards)
-      setRewardsPerDay(formattedRewards)
+      try {
+        const rewards = totalAllocPoints.gt(ZERO)
+          ? solacePerBlock.mul(NUM_BLOCKS_PER_DAY).mul(allocPoints).div(totalAllocPoints)
+          : ZERO
+        const formattedRewards = formatEther(rewards)
+        setRewardsPerDay(formattedRewards)
+      } catch (err) {
+        console.log('getRewardsPerDay', err)
+      }
     }
     getRewardsPerDay()
   }, [allocPoints, totalAllocPoints, solacePerBlock])
@@ -48,12 +56,16 @@ export const useUserRewardsPerDay = (farmId: number, farm: Contract | null | und
 
   useEffect(() => {
     const getUserRewardsPerDay = async () => {
-      const allocPercentage = totalAllocPoints.gt(ZERO) ? allocPoints.div(totalAllocPoints) : ZERO
-      const poolPercentage = poolStakedValue.gt(ZERO) ? userStakedValue.div(poolStakedValue) : ZERO
-      const rewards = solacePerBlock.mul(NUM_BLOCKS_PER_DAY).mul(allocPercentage).mul(poolPercentage)
+      try {
+        const allocPercentage = totalAllocPoints.gt(ZERO) ? allocPoints.div(totalAllocPoints) : ZERO
+        const poolPercentage = poolStakedValue.gt(ZERO) ? userStakedValue.div(poolStakedValue) : ZERO
+        const rewards = solacePerBlock.mul(NUM_BLOCKS_PER_DAY).mul(allocPercentage).mul(poolPercentage)
 
-      const formattedRewards = formatEther(rewards)
-      setUserRewardsPerDay(formattedRewards)
+        const formattedRewards = formatEther(rewards)
+        setUserRewardsPerDay(formattedRewards)
+      } catch (err) {
+        console.log('getUserRewardsPerDay', err)
+      }
     }
     getUserRewardsPerDay()
   }, [allocPoints, totalAllocPoints, solacePerBlock, farm, poolStakedValue, userStakedValue])
@@ -67,15 +79,19 @@ export const useUserPendingRewards = (farm: Contract | null | undefined) => {
   const [userRewards, setUserRewards] = useState<string>('0.00')
 
   useEffect(() => {
-    const getUserRewards = async () => {
+    const getUserPendingRewards = async () => {
       if (!farm || !master || !wallet.account) return
-      const farms = await master.numFarms()
-      if (farms.isZero()) return
-      const pendingReward = await farm.pendingRewards(wallet.account)
-      const formattedPendingReward = formatEther(pendingReward)
-      setUserRewards(formattedPendingReward)
+      try {
+        const farms = await master.numFarms()
+        if (farms.isZero()) return
+        const pendingReward = await farm.pendingRewards(wallet.account)
+        const formattedPendingReward = formatEther(pendingReward)
+        setUserRewards(formattedPendingReward)
+      } catch (err) {
+        console.log('getUserPendingRewards', err)
+      }
     }
-    getUserRewards()
+    getUserPendingRewards()
   }, [wallet, farm, master, vault])
 
   return [userRewards]
@@ -90,10 +106,14 @@ export const useTotalPendingRewards = () => {
   useEffect(() => {
     const getTotalPendingRewards = async () => {
       if (!cpUserRewards || !lpUserRewards) return
-      const rewards = parseEther(cpUserRewards).add(parseEther(lpUserRewards))
-      const formattedRewards = formatEther(rewards)
-      // console.log('total user rewards, cp:', cpUserRewards, 'lp:', lpUserRewards)
-      setTotalPendingRewards(formattedRewards)
+      try {
+        const rewards = parseEther(cpUserRewards).add(parseEther(lpUserRewards))
+        const formattedRewards = formatEther(rewards)
+        // console.log('total user rewards, cp:', cpUserRewards, 'lp:', lpUserRewards)
+        setTotalPendingRewards(formattedRewards)
+      } catch (err) {
+        console.log('getTotalPendingRewards', err)
+      }
     }
     getTotalPendingRewards()
   }, [cpUserRewards, lpUserRewards])

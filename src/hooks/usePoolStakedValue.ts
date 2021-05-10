@@ -11,10 +11,14 @@ export const usePoolStakedValue = (farm: Contract | null | undefined) => {
   useEffect(() => {
     const getPoolStakedValue = async () => {
       if (!farm) return
-      const poolValue = await farm.valueStaked()
-      const formattedPoolValue = formatEther(poolValue)
-      // console.log('pool value', formattedPoolValue)
-      setPoolValue(formattedPoolValue)
+      try {
+        const poolValue = await farm.valueStaked()
+        const formattedPoolValue = formatEther(poolValue)
+        // console.log('pool value', formattedPoolValue)
+        setPoolValue(formattedPoolValue)
+      } catch (err) {
+        console.log('getPoolValue', err)
+      }
     }
     getPoolStakedValue()
   }, [farm, wallet])

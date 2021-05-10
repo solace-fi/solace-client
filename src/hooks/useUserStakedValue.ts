@@ -10,11 +10,15 @@ export const useUserStakedValue = (farm: Contract | null | undefined) => {
   useEffect(() => {
     const getUserStakedValue = async () => {
       if (!farm) return
-      const user = await farm.userInfo(wallet.account)
-      const userStakedValue = user.value
-      const formattedUserStakedValue = formatEther(userStakedValue)
-      // console.log('user staked value', formattedUserStakedValue)
-      setUserStakedValue(formattedUserStakedValue)
+      try {
+        const user = await farm.userInfo(wallet.account)
+        const userStakedValue = user.value
+        const formattedUserStakedValue = formatEther(userStakedValue)
+        // console.log('user staked value', formattedUserStakedValue)
+        setUserStakedValue(formattedUserStakedValue)
+      } catch (err) {
+        console.log('getUserStakedValue', err)
+      }
     }
     getUserStakedValue()
   }, [wallet, farm])

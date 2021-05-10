@@ -9,8 +9,12 @@ export const useFarmUserInfo = (farm: Contract | null | undefined) => {
   useEffect(() => {
     const getFarmUserInfo = async () => {
       if (!farm) return
-      const userInfo = await farm.userInfo(wallet.account)
-      setFarmUserInfo(userInfo)
+      try {
+        const userInfo = await farm.userInfo(wallet.account)
+        setFarmUserInfo(userInfo)
+      } catch (err) {
+        console.log('getFarmUserInfo', err)
+      }
     }
     getFarmUserInfo()
   }, [wallet, farm])
