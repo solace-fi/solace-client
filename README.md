@@ -1,6 +1,10 @@
 # client
 
-The solace.fi web interface
+### The solace.fi web interface
+
+![Dashboard](./public/images/dashboard.png)
+
+![Invest](./public/images/invest.png)
 
 ## How to start testing
 
@@ -57,10 +61,6 @@ Run using the following react command from the client directory
 
     src/
     |___components/
-    |   |____ui/
-    |   |    |____(general interface components)
-    |   |____web3/
-    |   |    |____(components that communicate with the blockchain)
     |___constants/
     |   |____abi/
     |___context/
@@ -75,17 +75,18 @@ Run using the following react command from the client directory
     |   |____invest/
     |   |____quote/
     |   |____App
+    |___static/
     |___utils/
 
-## State Structure
+## React Context Structure
 
     // src/index.tsx
 
     <Web3Manager>
       <ContractsManager>
-        <HashRouter>
+        ...
           <App />
-        </HashRouter>
+        ...
       </ContractsManager>
     </Web3Manager>
 
@@ -102,7 +103,7 @@ and [Uniswap](https://github.com/Uniswap/uniswap-interface).
 
 At the time of writing, Barnbridge utilized Web3 and React Context, while Uniswap utilized Redux and Ethers, but they both used Web3-react. To make the most of our application, we tried to get the best of both worlds using the following stack: React Context, Ethers, and Web3-React.
 
-There was also a difference in the organization of connectors and contracts observed in both repositories. Barnbridge centralized all of its contracts into a single Context provider, while Uniswap centralized contract hooks and molded its contract functions into hooks that are called by different components of the application. However, this application is able to use a single Context provider that uses contract hooks.
+There was also a difference in the organization of connectors and contracts observed in both repositories. Barnbridge centralized all of its contracts into a single Context provider, while Uniswap centralized contract hooks and molded its contract functions into hooks that are called by different components of the application. This application was able to mesh the two types of organizations together.
 
 ## User Journeys
 

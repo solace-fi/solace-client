@@ -1,3 +1,5 @@
+import { constants } from 'ethers'
+
 export const REGISTRY_CONTRACT_ADDRESS = process.env.REACT_APP_REGISTRY_CONTRACT_ADDRESS
 export const SOLACE_CONTRACT_ADDRESS = process.env.REACT_APP_SOLACE_CONTRACT_ADDRESS
 export const WETH_CONTRACT_ADDRESS = process.env.REACT_APP_WETH_CONTRACT_ADDRESS
@@ -19,3 +21,6 @@ export const DAYS_PER_YEAR = 365
 
 export const TOKEN_NAME = 'Solace CP Token'
 export const TOKEN_SYMBOL = 'SCP'
+export const DEADLINE = constants.MaxUint256
+export const ZERO = constants.Zero
+export const ADDRESS_ZERO = constants.AddressZero
