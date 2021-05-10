@@ -768,7 +768,7 @@ function Invest(): any {
               {wallet.account && !loading ? (
                 <TableData cellAlignRight>
                   <TableDataGroup>
-                    <Button onClick={() => openModal(callMintLpToken, 'Mint LP', 'LP')}>Mint LP</Button>
+                    {/* <Button onClick={() => openModal(callMintLpToken, 'Mint LP', 'LP')}>Mint LP</Button> */}
                     <Button onClick={() => openModal(callDepositLp, 'Deposit LP', 'LP')}>Deposit LP</Button>
                     <Button onClick={() => openModal(callWithdrawLp, 'Withdraw LP', 'LP')}>Withdraw LP</Button>
                     <Button onClick={claimLpRewards}>Claim</Button>
