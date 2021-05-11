@@ -1,5 +1,7 @@
 import { constants } from 'ethers'
 
+export const ETHERSCAN_API_KEY = process.env.REACT_APP_ETHERSCAN_API_KEY
+
 export const REGISTRY_CONTRACT_ADDRESS = process.env.REACT_APP_REGISTRY_CONTRACT_ADDRESS
 export const SOLACE_CONTRACT_ADDRESS = process.env.REACT_APP_SOLACE_CONTRACT_ADDRESS
 export const WETH_CONTRACT_ADDRESS = process.env.REACT_APP_WETH_CONTRACT_ADDRESS
