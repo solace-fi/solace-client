@@ -121,15 +121,15 @@ function Invest(): any {
   }
 
   const claimCpRewards = async () => {
-    if (!cpFarmContract.current || !vaultContract.current) return
+    if (!cpFarmContract.current) return
 
-    const vaultBalance1 = await vaultContract.current.balanceOf(wallet.account)
-    console.log('balance from vault before claiming cp rewards', formatEther(vaultBalance1))
+    const balance1 = await cpFarmContract.current.pendingRewards(wallet.account)
+    console.log('balance before claiming cp rewards', formatEther(balance1))
 
     await cpFarmContract.current.withdrawRewards()
 
-    const vaultBalance2 = await vaultContract.current.balanceOf(wallet.account)
-    console.log('balance from vault after claiming cp rewards', formatEther(vaultBalance2))
+    const balance2 = await cpFarmContract.current.pendingRewards(wallet.account)
+    console.log('balance after claiming cp rewards', formatEther(balance2))
   }
 
   const claimLpRewards = async () => {
@@ -793,7 +793,6 @@ function Invest(): any {
               {wallet.account && !loading ? (
                 <TableData cellAlignRight>
                   <TableDataGroup>
-                    {/* <Button onClick={() => openModal(callMintLpToken, 'Mint LP', 'LP')}>Mint LP</Button> */}
                     <Button onClick={() => openModal(callDepositLp, 'Deposit LP', 'LP')}>Deposit LP</Button>
                     <Button onClick={() => openModal(callWithdrawLp, 'Withdraw LP', 'LP')}>Withdraw LP</Button>
                     <Button onClick={claimLpRewards}>Claim</Button>

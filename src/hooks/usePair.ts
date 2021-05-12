@@ -1,31 +1,31 @@
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { ChainId, Fetcher, Route, WETH, Trade, TokenAmount, TradeType } from '@uniswap/sdk'
+import { useWallet } from '../context/Web3Manager'
 
-const chainId = ChainId.MAINNET
-const tokenAddress = '0x6B175474E89094C44Da98b954EedeAC495271d0F' // tokenaddress of DAI
+const chainId = ChainId.RINKEBY
+const tokenAddress = '0x44B843794416911630e74bAB05021458122c40A0' // rinkeby tokenaddress of SOLACE
 
 export function usePairPrice(): any {
-  const [pairPrice, setPairPrice] = useState<any>()
+  const [pairPrice, setPairPrice] = useState<any>('0.01')
+  const { library } = useWallet()
 
   useEffect(() => {
     const getPairPrice = async () => {
-      // Fetch Token Data according to TokenAddress taken from etherscan
-      const dai = await Fetcher.fetchTokenData(chainId, tokenAddress)
-
-      // Fetch Trading Token Data ' Wrapped Ether '
+      const solace = await Fetcher.fetchTokenData(chainId, tokenAddress)
       const weth = WETH[chainId]
-
-      // Fetch theoretical pair data with dai and weth
-      const pair = await Fetcher.fetchPairData(dai, weth)
-      const route = new Route([pair], weth)
-
-      // Fetch theoretical prices when trading 1 wETH to DAI
-      const trade = new Trade(route, new TokenAmount(weth, '1000000000000000'), TradeType.EXACT_INPUT)
-      const pairPrice = trade.executionPrice.toSignificant(6)
-      setPairPrice(pairPrice)
+      try {
+        const pair = await Fetcher.fetchPairData(solace, weth, library)
+        const route = new Route([pair], weth)
+        const trade = new Trade(route, new TokenAmount(weth, '1000000000000000'), TradeType.EXACT_INPUT)
+        console.log('trade', trade)
+        const pairPrice = trade.executionPrice.toSignificant(6)
+        setPairPrice(pairPrice)
+      } catch (err) {
+        console.log('getPairPrice', err)
+      }
     }
     getPairPrice()
-  }, [])
+  }, [library])
 
   return pairPrice
 }
