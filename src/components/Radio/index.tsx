@@ -29,7 +29,7 @@ export const RadioInput = styled.input`
 
 export const RadioGroup = styled.div`
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
   gap: 20px;
   margin-top: 40px;
 `
