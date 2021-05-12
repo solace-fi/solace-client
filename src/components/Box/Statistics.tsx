@@ -205,11 +205,11 @@ export const Statistics = () => {
         </BoxItem>
         <BoxItem>
           <BoxItemTitle h3>Active Cover Amount</BoxItemTitle>
-          <BoxItemValue h2>$2,000,000</BoxItemValue>
+          <BoxItemValue h2>$0</BoxItemValue>
         </BoxItem>
         <BoxItem>
           <BoxItemTitle h3>Total Active Policies</BoxItemTitle>
-          <BoxItemValue h2>1,200</BoxItemValue>
+          <BoxItemValue h2>0</BoxItemValue>
         </BoxItem>
       </Box>
     </BoxRow>

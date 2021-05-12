@@ -5,6 +5,9 @@ import { LayoutHeader } from './index'
 import Account from '../User/Account'
 import { useCoingecko } from '../../hooks/useCoingecko'
 import { fixed } from '../../utils/fixedValue'
+import { usePairPrice } from '../../hooks/usePair'
+
+import { CP_ROI, LP_ROI } from '../../constants/'
 
 const Price = styled.div`
   display: flex;
@@ -38,13 +41,15 @@ const PriceAddition = styled.span`
 
 export default function App(): any {
   const coins = useCoingecko()
+  const pairPrice = usePairPrice()
+
   return (
     <LayoutHeader>
       <Price>
         <PriceItem>
           <PriceTitle>SOLACE/USD</PriceTitle>
-          <PriceValue>$1.23</PriceValue>
-          <PriceAddition>+3.56%</PriceAddition>
+          <PriceValue>{pairPrice ? `$${pairPrice}` : '-'}</PriceValue>
+          {/* <PriceAddition>+3.56%</PriceAddition> */}
         </PriceItem>
         <PriceItem>
           <PriceTitle>ETH/USD</PriceTitle>
@@ -53,11 +58,11 @@ export default function App(): any {
         </PriceItem>
         <PriceItem>
           <PriceTitle>SOLACE/ETH LP APY.</PriceTitle>
-          <PriceValue>12.5% pa.</PriceValue>
+          <PriceValue>{LP_ROI}</PriceValue>
         </PriceItem>
         <PriceItem>
           <PriceTitle>ETH CP APY.</PriceTitle>
-          <PriceValue>12.5% pa.</PriceValue>
+          <PriceValue>{CP_ROI}</PriceValue>
         </PriceItem>
       </Price>
       <Account />

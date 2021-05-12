@@ -22,9 +22,8 @@ import { getProviderOrSigner } from '../../utils/index'
 import { BigNumberish, BigNumber as BN } from 'ethers'
 import { formatEther, parseEther } from '@ethersproject/units'
 import { Button } from '../../components/Button'
-import { fixed } from '../../utils/fixedValue'
-
-import { NUM_BLOCKS_PER_DAY, ZERO, DEADLINE } from '../../constants'
+import { fixed, getGasValue } from '../../utils/fixedValue'
+import { NUM_BLOCKS_PER_DAY, ZERO, DEADLINE, CP_ROI, LP_ROI } from '../../constants'
 import { encodePriceSqrt, FeeAmount, TICK_SPACINGS, getMaxTick, getMinTick } from '../../utils/uniswap'
 
 import { useCapitalPoolSize } from '../../hooks/useCapitalPoolSize'
@@ -33,6 +32,8 @@ import { useScpBalance } from '../../hooks/useScpBalance'
 import { usePoolStakedValue } from '../../hooks/usePoolStakedValue'
 import { useUserStakedValue } from '../../hooks/useUserStakedValue'
 import { useEthBalance } from '../../hooks/useEthBalance'
+import { GasFeeOption } from '../../hooks/useFetchGasPrice'
+import { useFetchGasPrice } from '../../hooks/useFetchGasPrice'
 
 function Invest(): any {
   const wallet = useWallet()
@@ -61,6 +62,7 @@ function Invest(): any {
   // const [scpBalance, setScpBalance] = useState<string>('0.00')
 
   const ethBalance = useEthBalance()
+  const state = useFetchGasPrice()
   const [cpUserRewardsPerDay] = useUserRewardsPerDay(1, cpFarmContract.current)
   const [lpUserRewardsPerDay] = useUserRewardsPerDay(2, lpFarmContract.current)
   const [cpRewardsPerDay] = useRewardsPerDay(1)
@@ -74,7 +76,8 @@ function Invest(): any {
   const capitalPoolSize = useCapitalPoolSize()
   const scpBalance = useScpBalance()
 
-  const [select, setSelect] = useState<string>('1')
+  // const [select, setSelect] = useState<string>('1')
+  const [selectedGasOption, setSelectedGasOption] = useState<GasFeeOption>({ key: '', name: '', value: 0 })
   const [userVaultShare, setUserVaultShare] = useState<number>(0)
   const [userVaultAssets, setUserVaultAssets] = useState<string>('0.00')
 
@@ -114,7 +117,7 @@ function Invest(): any {
     document.body.style.overflowY = 'scroll'
     setLoading(false)
     setAmount('')
-    setSelect('1')
+    setSelectedGasOption(state.options[1])
   }
 
   const claimCpRewards = async () => {
@@ -303,12 +306,15 @@ function Invest(): any {
     }
   }
 
-  const callDepositVault = async (amount: number) => {
+  const callDepositVault = async (amount: number, maxLoss: number, gasValue: number) => {
     setLoading(true)
     if (!vaultContract.current) return
-
+    console.log('depositVault', gasValue)
     try {
-      const tx = await vaultContract.current.deposit({ value: parseEther(amount.toString()) })
+      const tx = await vaultContract.current.deposit({
+        value: parseEther(amount.toString()),
+        gasPrice: getGasValue(gasValue),
+      })
       await tx.wait()
       await vaultContract.current.on('DepositMade', (sender, amount, shares, tx) => {
         console.log('DepositVault event: ', tx)
@@ -323,11 +329,14 @@ function Invest(): any {
     }
   }
 
-  const callDepositEth = async (amount: number) => {
+  const callDepositEth = async (amount: number, maxLoss: number, gasValue: number) => {
     setLoading(true)
     if (!cpFarmContract.current || !vaultContract.current) return
     try {
-      const deposit = await cpFarmContract.current.depositEth({ value: parseEther(amount.toString()) })
+      const deposit = await cpFarmContract.current.depositEth({
+        value: parseEther(amount.toString()),
+        gasPrice: getGasValue(gasValue),
+      })
       await deposit.wait()
       await cpFarmContract.current.on('DepositEth', (sender, amount, tx) => {
         console.log('DepositEth event: ', tx)
@@ -342,7 +351,7 @@ function Invest(): any {
     }
   }
 
-  const callDepositCp = async (amount: number) => {
+  const callDepositCp = async (amount: number, maxLoss: number, gasValue: number) => {
     setLoading(true)
     if (!cpFarmContract.current || !vaultContract.current) return
     try {
@@ -354,7 +363,9 @@ function Invest(): any {
       await vaultContract.current.on('Approval', (owner, spender, value, tx) => {
         console.log('approval event: ', tx)
       })
-      const deposit = await cpFarmContract.current.depositCp(parseEther(amount.toString()))
+      const deposit = await cpFarmContract.current.depositCp(parseEther(amount.toString()), {
+        gasPrice: getGasValue(gasValue),
+      })
       await deposit.wait()
       await cpFarmContract.current.on('DepositCp', (sender, amount, tx) => {
         console.log('DepositCp event: ', tx)
@@ -369,12 +380,14 @@ function Invest(): any {
     }
   }
 
-  const callWithdrawVault = async (amount: number, maxLoss: number) => {
+  const callWithdrawVault = async (amount: number, maxLoss: number, gasValue: number) => {
     setLoading(true)
     if (!vaultContract.current) return
 
     try {
-      const tx = await vaultContract.current.withdraw(parseEther(amount.toString()), maxLoss)
+      const tx = await vaultContract.current.withdraw(parseEther(amount.toString()), maxLoss, {
+        gasPrice: getGasValue(gasValue),
+      })
       await tx.wait()
       await vaultContract.current.on('WithdrawalMade', (sender, amount, tx) => {
         console.log('withdrawal event: ', tx)
@@ -389,11 +402,13 @@ function Invest(): any {
     }
   }
 
-  const callWithdrawCp = async (amount: number, maxLoss: number) => {
+  const callWithdrawCp = async (amount: number, maxLoss: number, gasValue: number) => {
     setLoading(true)
     if (!cpFarmContract.current) return
     try {
-      const withdraw = await cpFarmContract.current.withdrawEth(parseEther(amount.toString()), maxLoss)
+      const withdraw = await cpFarmContract.current.withdrawEth(parseEther(amount.toString()), maxLoss, {
+        gasPrice: getGasValue(gasValue),
+      })
       await withdraw.wait()
       await cpFarmContract.current.on('WithdrawEth', (sender, amount, tx) => {
         console.log('WithdrawEth event: ', tx)
@@ -556,14 +571,13 @@ function Invest(): any {
     return BN.from(tokenA).lt(BN.from(tokenB)) ? [tokenA, tokenB] : [tokenB, tokenA]
   }
 
-  const handleSelectChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value
-    setSelect(value)
+  const handleSelectChange = (option: GasFeeOption) => {
+    setSelectedGasOption(option)
   }
 
   const handleCallbackFunc = async () => {
     if (!func) return
-    await func(amount, maxLoss)
+    await func(amount, maxLoss, selectedGasOption.value ? selectedGasOption.value : 0)
   }
 
   const handleAmount = (input: string) => {
@@ -615,6 +629,11 @@ function Invest(): any {
     refresh()
   }, [wallet, scpBalance])
 
+  useEffect(() => {
+    if (!state.selected) return
+    setSelectedGasOption(state.selected)
+  }, [state])
+
   return (
     <Fragment>
       <Modal isOpen={showModal}>
@@ -648,18 +667,24 @@ function Invest(): any {
             </ModalCell>
           </ModalRow>
           <RadioGroup>
-            <RadioLabel>
-              <RadioInput type="radio" value="1" checked={select === '1'} onChange={(e) => handleSelectChange(e)} />
-              <RadioElement>radio1</RadioElement>
-            </RadioLabel>
-            <RadioLabel>
-              <RadioInput type="radio" value="2" checked={select === '2'} onChange={(e) => handleSelectChange(e)} />
-              <RadioElement>radio2</RadioElement>
-            </RadioLabel>
-            <RadioLabel>
-              <RadioInput type="radio" value="3" checked={select === '3'} onChange={(e) => handleSelectChange(e)} />
-              <RadioElement>radio3</RadioElement>
-            </RadioLabel>
+            {!state.loading ? (
+              state.options.map((option) => (
+                <RadioLabel key={option.key}>
+                  <RadioInput
+                    type="radio"
+                    value={option.value}
+                    checked={selectedGasOption == option}
+                    onChange={() => handleSelectChange(option)}
+                  />
+                  <RadioElement>
+                    <div>{option.name}</div>
+                    <div>{option.value ? option.value : 0}</div>
+                  </RadioElement>
+                </RadioLabel>
+              ))
+            ) : (
+              <Loader />
+            )}
           </RadioGroup>
           <ModalButton>
             {!loading ? (
@@ -673,7 +698,7 @@ function Invest(): any {
         </ModalContent>
       </Modal>
       <Content>
-        <Heading1>Risk Back ETH - Capital Pool</Heading1>
+        <Heading1>ETH Risk backing Capital Pool</Heading1>
         <Table isHighlight>
           <TableHead>
             <TableRow>
@@ -688,7 +713,7 @@ function Invest(): any {
               {wallet.account ? <TableData>{fixed(parseFloat(userVaultAssets))}</TableData> : null}
               <TableData>{fixed(parseFloat(formatEther(capitalPoolSize).toString()))}</TableData>
               {wallet.account ? <TableData>{`${fixed(userVaultShare)}%`}</TableData> : null}
-              <TableData>6.50%</TableData>
+              <TableData>{CP_ROI}</TableData>
               {wallet.account && !loading ? (
                 <TableData cellAlignRight>
                   <TableDataGroup>
@@ -725,7 +750,7 @@ function Invest(): any {
             <TableRow>
               {wallet.account ? <TableData>{fixed(parseFloat(cpUserStakeValue))}</TableData> : null}
               <TableData>{fixed(parseFloat(cpPoolValue))}</TableData>
-              <TableData>150.00%</TableData>
+              <TableData>{LP_ROI}</TableData>
               {wallet.account ? <TableData>{fixed(parseFloat(cpUserRewards))}</TableData> : null}
               {wallet.account ? <TableData>{fixed(parseFloat(cpUserRewardsPerDay))}</TableData> : null}
               <TableData>{fixed(parseFloat(cpRewardsPerDay))}</TableData>
@@ -768,7 +793,7 @@ function Invest(): any {
               {wallet.account && !loading ? (
                 <TableData cellAlignRight>
                   <TableDataGroup>
-                    <Button onClick={() => openModal(callMintLpToken, 'Mint LP', 'LP')}>Mint LP</Button>
+                    {/* <Button onClick={() => openModal(callMintLpToken, 'Mint LP', 'LP')}>Mint LP</Button> */}
                     <Button onClick={() => openModal(callDepositLp, 'Deposit LP', 'LP')}>Deposit LP</Button>
                     <Button onClick={() => openModal(callWithdrawLp, 'Withdraw LP', 'LP')}>Withdraw LP</Button>
                     <Button onClick={claimLpRewards}>Claim</Button>
