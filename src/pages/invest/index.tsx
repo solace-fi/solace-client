@@ -338,8 +338,8 @@ function Invest(): any {
         gasPrice: getGasValue(gasValue),
       })
       await deposit.wait()
-      await cpFarmContract.current.on('DepositEth', (sender, amount, tx) => {
-        console.log('DepositEth event: ', tx)
+      await cpFarmContract.current.on('EthDeposited', (sender, amount, tx) => {
+        console.log('EthDeposited event: ', tx)
         wallet.reload()
         refresh()
         closeModal()
@@ -367,8 +367,8 @@ function Invest(): any {
         gasPrice: getGasValue(gasValue),
       })
       await deposit.wait()
-      await cpFarmContract.current.on('DepositCp', (sender, amount, tx) => {
-        console.log('DepositCp event: ', tx)
+      await cpFarmContract.current.on('CpDeposited', (sender, amount, tx) => {
+        console.log('CpDeposited event: ', tx)
         wallet.reload()
         refresh()
         closeModal()
@@ -410,8 +410,8 @@ function Invest(): any {
         gasPrice: getGasValue(gasValue),
       })
       await withdraw.wait()
-      await cpFarmContract.current.on('WithdrawEth', (sender, amount, tx) => {
-        console.log('WithdrawEth event: ', tx)
+      await cpFarmContract.current.on('EthWithdrawn', (sender, amount, tx) => {
+        console.log('EthWithdrawn event: ', tx)
         wallet.reload()
         refresh()
         closeModal()
@@ -438,8 +438,8 @@ function Invest(): any {
       )
       const depositSigned = await lpFarmContract.current.depositSigned(wallet.account, nft, DEADLINE, v, r, s)
       await depositSigned.wait()
-      await lpFarmContract.current.on('Deposit', (sender, token, tx) => {
-        console.log('DepositSigned event: ', tx)
+      await lpFarmContract.current.on('TokenDeposited', (sender, token, tx) => {
+        console.log('TokenDeposited event: ', tx)
         refresh()
         closeModal()
       })
@@ -457,8 +457,8 @@ function Invest(): any {
     try {
       const tx = await lpFarmContract.current.withdraw(nft)
       await tx.wait()
-      await lpFarmContract.current.on('Withdraw', (sender, token, tx) => {
-        console.log('withdrawLp event: ', tx)
+      await lpFarmContract.current.on('TokenWithdrawn', (sender, token, tx) => {
+        console.log('TokenWithdrawnLp event: ', tx)
         refresh()
         closeModal()
       })
