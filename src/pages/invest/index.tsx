@@ -120,6 +120,15 @@ function Invest(): any {
     }
   }
 
+  // const updateTransactions = (stat: string, tx: any) => {
+  //   const newTransactions: Transaction[] = transactions.map((transaction) =>
+  //     transaction.hash == tx.hash
+  //       ? { ...transaction, blockHash: tx.blockHash ? tx.blockHash : transaction.blockHash, stat: stat }
+  //       : transaction
+  //   )
+  //   setTransactions(newTransactions)
+  // }
+
   const callDepositVault = async () => {
     setLoading(true)
     if (!vaultContract.current) return
