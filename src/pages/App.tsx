@@ -69,14 +69,15 @@ export const LayoutContentWithLoader: React.FC = ({ children }) => {
   return <Fragment>{loader ? children : <Loader />}</Fragment>
 }
 
-export const makeNotification = (condition: string) => {
+export const makeNotification = (txType: string, condition: string) => {
   switch (condition) {
     case 'success':
       store.addNotification({
+        title: txType,
         message: 'Transaction successful',
         type: 'success',
         insert: 'top',
-        container: 'bottom-right',
+        container: 'bottom-left',
         animationIn: ['animate__animated', 'animate__fadeIn'],
         animationOut: ['animate__animated', 'animate__fadeOut'],
         dismiss: {
@@ -87,10 +88,11 @@ export const makeNotification = (condition: string) => {
       break
     case 'failure':
       store.addNotification({
+        title: txType,
         message: 'Transaction failed',
         type: 'danger',
         insert: 'top',
-        container: 'bottom-right',
+        container: 'bottom-left',
         animationIn: ['animate__animated', 'animate__fadeIn'],
         animationOut: ['animate__animated', 'animate__fadeOut'],
         dismiss: {
@@ -101,10 +103,11 @@ export const makeNotification = (condition: string) => {
       break
     default:
       store.addNotification({
+        title: txType,
         message: 'Transaction pending...',
         type: 'info',
         insert: 'top',
-        container: 'bottom-right',
+        container: 'bottom-left',
         animationIn: ['animate__animated', 'animate__fadeIn'],
         animationOut: ['animate__animated', 'animate__fadeOut'],
         dismiss: {
