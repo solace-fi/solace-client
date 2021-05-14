@@ -6,7 +6,6 @@ import { ZERO } from '../constants'
 import { useContracts } from '../context/ContractsManager'
 
 export const useEthBalance = () => {
-  const { master, vault, cpFarm, lpFarm } = useContracts()
   const wallet = useWallet()
   const [balance, setBalance] = useState<string>('0.00')
 
@@ -22,7 +21,7 @@ export const useEthBalance = () => {
       }
     }
     getEthBalance()
-  }, [wallet, master, vault, cpFarm, lpFarm]) // ensures refresh if referential identity of library doesn't change across chainIds
+  }, [wallet]) // ensures refresh if referential identity of library doesn't change across chainIds
 
   return balance
 }

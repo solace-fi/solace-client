@@ -165,7 +165,6 @@ const WalletProvider: React.FC = (props) => {
       activeConnector,
       // balance,
       version,
-      reload,
       disconnect,
       connect,
       // updateBalance

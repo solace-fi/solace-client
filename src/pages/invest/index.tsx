@@ -1,5 +1,14 @@
 import React, { useEffect, useRef, useState, Fragment } from 'react'
+
 import { Contract } from '@ethersproject/contracts'
+import { formatEther, parseEther } from '@ethersproject/units'
+import { BigNumberish, BigNumber as BN } from 'ethers'
+
+import { NUM_BLOCKS_PER_DAY, ZERO, DEADLINE, CP_ROI, LP_ROI } from '../../constants'
+
+import { useContracts } from '../../context/ContractsManager'
+import { useWallet } from '../../context/Web3Manager'
+
 import { Loader } from '../../components/Loader'
 import { Input } from '../../components/Input'
 import {
@@ -12,28 +21,24 @@ import {
   ModalButton,
 } from '../../components/Modal/InvestModal'
 import { RadioElement, RadioInput, RadioGroup, RadioLabel } from '../../components/Radio'
-import { Content } from '../App'
-import { Heading1, Heading2, Heading3 } from '../../components/Text'
 import { Table, TableHead, TableHeader, TableRow, TableBody, TableData, TableDataGroup } from '../../components/Table'
-import { useWallet } from '../../context/Web3Manager'
-import { useContracts } from '../../context/ContractsManager'
-import getPermitNFTSignature from '../../utils/signature'
-import { getProviderOrSigner } from '../../utils/index'
-import { BigNumberish, BigNumber as BN } from 'ethers'
-import { formatEther, parseEther } from '@ethersproject/units'
 import { Button } from '../../components/Button'
-import { fixed, getGasValue } from '../../utils/fixedValue'
-import { NUM_BLOCKS_PER_DAY, ZERO, DEADLINE, CP_ROI, LP_ROI } from '../../constants'
-import { encodePriceSqrt, FeeAmount, TICK_SPACINGS, getMaxTick, getMinTick } from '../../utils/uniswap'
+import { Heading1, Heading2 } from '../../components/Text'
+import { Content, makeNotification } from '../App'
 
+import getPermitNFTSignature from '../../utils/signature'
+import { encodePriceSqrt, FeeAmount, TICK_SPACINGS, getMaxTick, getMinTick } from '../../utils/uniswap'
+import { fixed, getGasValue } from '../../utils/fixedValue'
+import { getProviderOrSigner } from '../../utils/index'
+
+import { GasFeeOption } from '../../hooks/useFetchGasPrice'
 import { useCapitalPoolSize } from '../../hooks/useCapitalPoolSize'
+import { useEthBalance } from '../../hooks/useEthBalance'
+import { useFetchGasPrice } from '../../hooks/useFetchGasPrice'
+import { usePoolStakedValue } from '../../hooks/usePoolStakedValue'
 import { useRewardsPerDay, useUserPendingRewards, useUserRewardsPerDay } from '../../hooks/useRewards'
 import { useScpBalance } from '../../hooks/useScpBalance'
-import { usePoolStakedValue } from '../../hooks/usePoolStakedValue'
 import { useUserStakedValue } from '../../hooks/useUserStakedValue'
-import { useEthBalance } from '../../hooks/useEthBalance'
-import { GasFeeOption } from '../../hooks/useFetchGasPrice'
-import { useFetchGasPrice } from '../../hooks/useFetchGasPrice'
 
 function Invest(): any {
   const wallet = useWallet()
@@ -63,21 +68,29 @@ function Invest(): any {
   const capitalPoolSize = useCapitalPoolSize()
   const scpBalance = useScpBalance()
 
-  const [selectedGasOption, setSelectedGasOption] = useState<GasFeeOption>({ key: '', name: '', value: 0 })
-  const [userVaultShare, setUserVaultShare] = useState<number>(0)
-  const [userVaultAssets, setUserVaultAssets] = useState<string>('0.00')
+  type Transaction = {
+    type: string
+    hash: string
+    amount: string
+    blockHash: string
+    stat: string
+  }
 
-  const [loading, setLoading] = useState<boolean>(false)
-  const [showModal, setShowModal] = useState<boolean>(false)
   const [action, setAction] = useState<string>()
-  const [modalTitle, setModalTitle] = useState<string>('')
-
   const [amount, setAmount] = useState<string>('')
-  const [maxLoss, setMaxLoss] = useState<number>(5)
-
-  const [unit, setUnit] = useState<string>('ETH')
   const [isStaking, setIsStaking] = useState<boolean>(false)
+  const [loading, setLoading] = useState<boolean>(false)
+  const [maxLoss, setMaxLoss] = useState<number>(5)
+  const [modalTitle, setModalTitle] = useState<string>('')
   const [nft, setNft] = useState<BN>()
+  const [selectedGasOption, setSelectedGasOption] = useState<GasFeeOption>({ key: '', name: '', value: 0 })
+  const [showModal, setShowModal] = useState<boolean>(false)
+  const [unit, setUnit] = useState<string>('ETH')
+  const [userVaultAssets, setUserVaultAssets] = useState<string>('0.00')
+  const [userVaultShare, setUserVaultShare] = useState<number>(0)
+  // const [transactions, setTransactions] = useState<Transaction[]>([
+  //   { type: 'Deposit Vault', hash: '', amount: amount, blockHash: '', stat: 'Pending' },
+  // ])
 
   const openModal = async (action: string, modalTitle: string, unit: string) => {
     setShowModal((prev) => !prev)
@@ -114,47 +127,66 @@ function Invest(): any {
     }
   }
 
+  // const updateTransactions = (stat: string, tx: any) => {
+  //   const newTransactions: Transaction[] = transactions.map((transaction) =>
+  //     transaction.hash == tx.hash
+  //       ? { ...transaction, blockHash: tx.blockHash ? tx.blockHash : transaction.blockHash, stat: stat }
+  //       : transaction
+  //   )
+  //   setTransactions(newTransactions)
+  // }
+
   const callDepositVault = async () => {
     setLoading(true)
     if (!vaultContract.current) return
-    console.log('depositVault', selectedGasOption.value)
+    let _tx: any = null
     try {
       const tx = await vaultContract.current.deposit({
         value: parseEther(amount),
         gasPrice: getGasValue(selectedGasOption.value),
       })
+      closeModal()
+      makeNotification('pending')
+      // setTransactions((transactions) => [
+      //   ...transactions,
+      //   { type: 'Deposit Vault', hash: tx.hash, amount: amount, blockHash: '', stat: 'Pending' },
+      // ])
+      _tx = tx
       await tx.wait()
-      await vaultContract.current.on('DepositMade', (sender, amount, shares, tx) => {
+      await vaultContract.current.once('DepositMade', (sender, amount, shares, tx) => {
         console.log('DepositVault event: ', tx)
+        makeNotification('success')
+        // updateTransactions('Success', _tx)
         wallet.reload()
-        closeModal()
       })
     } catch (err) {
       console.log('callDepositVault ', err)
+      makeNotification('failure')
+      // updateTransactions('Failure', _tx)
       wallet.reload()
-      closeModal()
     }
   }
 
   const callDepositEth = async () => {
     setLoading(true)
     if (!cpFarmContract.current || !vaultContract.current) return
-    console.log('depositEth', selectedGasOption.value)
     try {
       const deposit = await cpFarmContract.current.depositEth({
         value: parseEther(amount),
         gasPrice: getGasValue(selectedGasOption.value),
       })
+      closeModal()
+      makeNotification('pending')
       await deposit.wait()
-      await cpFarmContract.current.on('EthDeposited', (sender, amount, tx) => {
+      await cpFarmContract.current.once('EthDeposited', (sender, amount, tx) => {
         console.log('EthDeposited event: ', tx)
+        makeNotification('success')
         wallet.reload()
-        closeModal()
       })
     } catch (err) {
       console.log('error callDepositEth ', err)
+      makeNotification('failure')
       wallet.reload()
-      closeModal()
     }
   }
 
@@ -164,22 +196,24 @@ function Invest(): any {
     try {
       const approval = await vaultContract.current.approve(cpFarmContract.current.address, parseEther(amount))
       await approval.wait()
-      await vaultContract.current.on('Approval', (owner, spender, value, tx) => {
+      await vaultContract.current.once('Approval', (owner, spender, value, tx) => {
         console.log('approval event: ', tx)
       })
       const deposit = await cpFarmContract.current.depositCp(parseEther(amount), {
         gasPrice: getGasValue(selectedGasOption.value),
       })
+      closeModal()
+      makeNotification('pending')
       await deposit.wait()
       await cpFarmContract.current.on('CpDeposited', (sender, amount, tx) => {
         console.log('CpDeposited event: ', tx)
+        makeNotification('success')
         wallet.reload()
-        closeModal()
       })
     } catch (err) {
       console.log('error callDepositCp ', err)
+      makeNotification('failure')
       wallet.reload()
-      closeModal()
     }
   }
 
@@ -191,16 +225,18 @@ function Invest(): any {
       const tx = await vaultContract.current.withdraw(parseEther(amount), maxLoss, {
         gasPrice: getGasValue(selectedGasOption.value),
       })
+      closeModal()
+      makeNotification('pending')
       await tx.wait()
-      await vaultContract.current.on('WithdrawalMade', (sender, amount, tx) => {
+      await vaultContract.current.once('WithdrawalMade', (sender, amount, tx) => {
         console.log('withdrawal event: ', tx)
+        makeNotification('success')
         wallet.reload()
-        closeModal()
       })
     } catch (err) {
       console.log('callWithdrawVault ', err)
+      makeNotification('failure')
       wallet.reload()
-      closeModal()
     }
   }
 
@@ -211,16 +247,19 @@ function Invest(): any {
       const withdraw = await cpFarmContract.current.withdrawEth(parseEther(amount), maxLoss, {
         gasPrice: getGasValue(selectedGasOption.value),
       })
+      closeModal()
+      makeNotification('pending')
       await withdraw.wait()
-      await cpFarmContract.current.on('EthWithdrawn', (sender, amount, tx) => {
+      await cpFarmContract.current.once('EthWithdrawn', (sender, amount, tx) => {
         console.log('EthWithdrawn event: ', tx)
+        makeNotification('success')
+
         wallet.reload()
-        closeModal()
       })
     } catch (err) {
       console.log('error callWithdrawCp ', err)
+      makeNotification('failure')
       wallet.reload()
-      closeModal()
     }
   }
 
@@ -228,7 +267,6 @@ function Invest(): any {
     setLoading(true)
     console.log(lpTokenContract.current, lpFarmContract.current, nft)
     if (!lpTokenContract.current || !lpFarmContract.current || !nft) return
-    console.log('depositLP')
     try {
       const { v, r, s } = await getPermitNFTSignature(
         wallet,
@@ -238,16 +276,18 @@ function Invest(): any {
         DEADLINE
       )
       const depositSigned = await lpFarmContract.current.depositSigned(wallet.account, nft, DEADLINE, v, r, s)
+      closeModal()
+      makeNotification('pending')
       await depositSigned.wait()
-      await lpFarmContract.current.on('TokenDeposited', (sender, token, tx) => {
+      await lpFarmContract.current.once('TokenDeposited', (sender, token, tx) => {
         console.log('TokenDeposited event: ', tx)
+        makeNotification('success')
         wallet.reload()
-        closeModal()
       })
     } catch (err) {
       console.log('callDepositLp ', err)
+      makeNotification('failure')
       wallet.reload()
-      closeModal()
     }
   }
 
@@ -257,16 +297,18 @@ function Invest(): any {
 
     try {
       const tx = await lpFarmContract.current.withdraw(nft)
+      closeModal()
+      makeNotification('pending')
       await tx.wait()
-      await lpFarmContract.current.on('TokenWithdrawn', (sender, token, tx) => {
+      await lpFarmContract.current.once('TokenWithdrawn', (sender, token, tx) => {
         console.log('TokenWithdrawnLp event: ', tx)
+        makeNotification('success')
         wallet.reload()
-        closeModal()
       })
     } catch (err) {
       console.log('callWithdrawLp ', err)
+      makeNotification('failure')
       wallet.reload()
-      closeModal()
     }
   }
 
@@ -582,36 +624,34 @@ function Invest(): any {
         <Table>
           <TableHead>
             <TableRow>
-              <TableHeader>Transaction Type</TableHeader>
-              <TableHeader>Address</TableHeader>
-              <TableHeader>Amount</TableHeader>
-              <TableHeader>Date</TableHeader>
+              <TableHeader>Type</TableHeader>
               <TableHeader>Hash</TableHeader>
+              <TableHeader>Amount</TableHeader>
+              <TableHeader>Block Hash</TableHeader>
               <TableHeader>Status</TableHeader>
             </TableRow>
           </TableHead>
           <TableBody>
-            <TableRow>
-              <TableData>SOLACE/ETH LIQ PROVIDER</TableData>
-              <TableData>3.2 SOLACE-LP TOKENS</TableData>
-              <TableData>0xS0lac3</TableData>
-              <TableData>22:14 - May 29, 2030</TableData>
-              <TableData>0xfb33...</TableData>
-              <TableData>Complete</TableData>
-            </TableRow>
+            {/* {transactions.map((tx: Transaction) => (
+              <TableRow key={tx.hash}>
+                <TableData>{tx.type}</TableData>
+                <TableData>{tx.hash}</TableData>
+                <TableData>{tx.amount}</TableData>
+                <TableData>{tx.blockHash}</TableData>
+                <TableData>{tx.stat}</TableData>
+              </TableRow>
+            ))} */}
             <TableRow>
               <TableData>Reward claim</TableData>
-              <TableData>333 SOLACE</TableData>
               <TableData>0xS0887a</TableData>
-              <TableData>20:14 - May 29, 2030</TableData>
+              <TableData>333 SOLACE</TableData>
               <TableData>0xff33...</TableData>
               <TableData>Pending</TableData>
             </TableRow>
             <TableRow>
               <TableData>RISK BACK LIQ PROVIDER</TableData>
-              <TableData>3 ETH</TableData>
               <TableData>0xS0ladd</TableData>
-              <TableData>19:14 - May 29, 2030</TableData>
+              <TableData>3 ETH</TableData>
               <TableData>0xfb30...</TableData>
               <TableData>Complete</TableData>
             </TableRow>
