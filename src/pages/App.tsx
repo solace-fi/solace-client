@@ -14,6 +14,10 @@ import { Loader } from '../components/Loader'
 import { useWallet } from '../context/Web3Manager'
 import Govern from './govern'
 
+import ReactNotification, { store } from 'react-notifications-component'
+import 'react-notifications-component/dist/theme.css'
+import 'animate.css/animate.min.css'
+
 const MAX_WIDTH = 1340
 
 const GlobalStyle = createGlobalStyle`
@@ -65,10 +69,57 @@ export const LayoutContentWithLoader: React.FC = ({ children }) => {
   return <Fragment>{loader ? children : <Loader />}</Fragment>
 }
 
+export const makeNotification = (condition: string) => {
+  switch (condition) {
+    case 'success':
+      store.addNotification({
+        message: 'Transaction successful',
+        type: 'success',
+        insert: 'top',
+        container: 'bottom-right',
+        animationIn: ['animate__animated', 'animate__fadeIn'],
+        animationOut: ['animate__animated', 'animate__fadeOut'],
+        dismiss: {
+          duration: 5000,
+          onScreen: true,
+        },
+      })
+      break
+    case 'failure':
+      store.addNotification({
+        message: 'Transaction failed',
+        type: 'danger',
+        insert: 'top',
+        container: 'bottom-right',
+        animationIn: ['animate__animated', 'animate__fadeIn'],
+        animationOut: ['animate__animated', 'animate__fadeOut'],
+        dismiss: {
+          duration: 5000,
+          onScreen: true,
+        },
+      })
+      break
+    default:
+      store.addNotification({
+        message: 'Transaction pending...',
+        type: 'info',
+        insert: 'top',
+        container: 'bottom-right',
+        animationIn: ['animate__animated', 'animate__fadeIn'],
+        animationOut: ['animate__animated', 'animate__fadeOut'],
+        dismiss: {
+          duration: 5000,
+          onScreen: true,
+        },
+      })
+  }
+}
+
 export default function App(): any {
   return (
     <Fragment>
       <GlobalStyle />
+      <ReactNotification />
       <Layout>
         <LayoutContainer>
           <LayoutContent width={10}>
