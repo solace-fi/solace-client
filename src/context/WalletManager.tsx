@@ -58,7 +58,6 @@ const WalletProvider: React.FC = (props) => {
   const connectingRef = useRef<WalletConnector | undefined>(connecting)
   connectingRef.current = connecting
   const [activeConnector, setActiveConnector] = useState<WalletConnector | undefined>()
-
   const [reload, version] = useReload()
 
   const disconnect = useCallback(() => {
