@@ -6,14 +6,17 @@ import App from './pages/App'
 
 import Web3Manager from './context/Web3Manager'
 import ContractsManager from './context/ContractsManager'
+import ToastsManager from './context/ToastsManager'
 
 ReactDOM.render(
   <React.StrictMode>
     <Web3Manager>
       <ContractsManager>
-        <HashRouter>
-          <App />
-        </HashRouter>
+        <ToastsManager>
+          <HashRouter>
+            <App />
+          </HashRouter>
+        </ToastsManager>
       </ContractsManager>
     </Web3Manager>
   </React.StrictMode>,
