@@ -39,8 +39,13 @@ export const Statistics = () => {
   const lpPoolValue = usePoolStakedValue(lpFarm)
 
   const claimRewards = async () => {
+<<<<<<< HEAD
     await claimCpRewards()
     await claimLpRewards()
+=======
+    if (!masterContract.current) return
+    await masterContract.current.withdrawRewards()
+>>>>>>> c7e8d054ad0ffd5c033b7688cec6888a10a2f5a6
     wallet.reload()
   }
 
