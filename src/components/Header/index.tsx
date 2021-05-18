@@ -1,7 +1,7 @@
 import React from 'react'
 import styled from 'styled-components'
 
-export const LayoutHeader = styled.div`
+export const Header = styled.div`
   display: flex;
   align-content: center;
   padding-bottom: 20px;
