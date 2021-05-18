@@ -41,10 +41,6 @@ const WalletContext = createContext<ContextWallet>({
   library: undefined,
   networkName: undefined,
   connector: undefined,
-<<<<<<< HEAD:src/context/WalletManager.tsx
-  provider: undefined,
-=======
->>>>>>> c7e8d054ad0ffd5c033b7688cec6888a10a2f5a6:src/context/Web3Manager.tsx
   version: undefined,
   connect: () => Promise.reject(),
   disconnect: () => undefined,
@@ -61,10 +57,6 @@ const WalletProvider: React.FC = (props) => {
   const connectingRef = useRef<WalletConnector | undefined>(connecting)
   connectingRef.current = connecting
   const [activeConnector, setActiveConnector] = useState<WalletConnector | undefined>()
-<<<<<<< HEAD:src/context/WalletManager.tsx
-
-=======
->>>>>>> c7e8d054ad0ffd5c033b7688cec6888a10a2f5a6:src/context/Web3Manager.tsx
   const [reload, version] = useReload()
 
   const disconnect = useCallback(() => {
@@ -124,10 +116,6 @@ const WalletProvider: React.FC = (props) => {
           await connect(walletConnector)
         }
       }
-<<<<<<< HEAD:src/context/WalletManager.tsx
-=======
-
->>>>>>> c7e8d054ad0ffd5c033b7688cec6888a10a2f5a6:src/context/Web3Manager.tsx
       setInitialized(true)
     })()
   }, [web3React])
