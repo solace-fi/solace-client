@@ -21,6 +21,8 @@ import {
   ModalButton,
 } from '../../components/Modal/InvestModal'
 import { RadioElement, RadioInput, RadioGroup, RadioLabel } from '../../components/Radio'
+import { Content } from '../App'
+import { Heading1, Heading2, Heading3 } from '../../components/Text'
 import { Table, TableHead, TableHeader, TableRow, TableBody, TableData, TableDataGroup } from '../../components/Table'
 import { Button } from '../../components/Button'
 import { Heading1, Heading2 } from '../../components/Text'
@@ -55,8 +57,8 @@ function Invest(): any {
   const wethContract = useRef<Contract | null>()
   const solaceContract = useRef<Contract | null>()
   const registryContract = useRef<Contract | null>()
-
   const { transactions, addTransaction, updateTransactions } = useTransactions()
+
   const ethBalance = useEthBalance()
   const gasPrices = useFetchGasPrice()
   const [cpUserRewardsPerDay] = useUserRewardsPerDay(1, cpFarmContract.current)
@@ -73,15 +75,17 @@ function Invest(): any {
   const scpBalance = useScpBalance()
 
   const [action, setAction] = useState<string>()
+  const [modalTitle, setModalTitle] = useState<string>('')
+
   const [amount, setAmount] = useState<string>('')
-  const [isStaking, setIsStaking] = useState<boolean>(false)
   const [loading, setLoading] = useState<boolean>(false)
   const [maxLoss, setMaxLoss] = useState<number>(5)
-  const [modalTitle, setModalTitle] = useState<string>('')
+
+  const [unit, setUnit] = useState<string>('ETH')
+  const [isStaking, setIsStaking] = useState<boolean>(false)
   const [nft, setNft] = useState<BN>()
   const [selectedGasOption, setSelectedGasOption] = useState<GasFeeOption>({ key: '', name: '', value: 0 })
   const [showModal, setShowModal] = useState<boolean>(false)
-  const [unit, setUnit] = useState<string>('ETH')
   const [userVaultAssets, setUserVaultAssets] = useState<string>('0.00')
   const [userVaultShare, setUserVaultShare] = useState<number>(0)
 
