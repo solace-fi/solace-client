@@ -1,7 +1,7 @@
 import { formatEther } from '@ethersproject/units'
 import { useState, useEffect } from 'react'
 import { useContracts } from '../context/ContractsManager'
-import { useWallet } from '../context/Web3Manager'
+import { useWallet } from '../context/WalletManager'
 
 export const useSolaceBalance = () => {
   const { solace } = useContracts()

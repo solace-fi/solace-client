@@ -4,19 +4,19 @@ import { HashRouter } from 'react-router-dom'
 
 import App from './pages/App'
 
-import Web3Manager from './context/Web3Manager'
+import Web3Manager from './context/WalletManager'
 import ContractsManager from './context/ContractsManager'
-import ToastsManager from './context/ToastsManager'
+import NotificationsManager from './context/NotificationsManager'
 
 ReactDOM.render(
   <React.StrictMode>
     <Web3Manager>
       <ContractsManager>
-        <ToastsManager>
+        <NotificationsManager>
           <HashRouter>
             <App />
           </HashRouter>
-        </ToastsManager>
+        </NotificationsManager>
       </ContractsManager>
     </Web3Manager>
   </React.StrictMode>,

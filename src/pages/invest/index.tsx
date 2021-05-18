@@ -7,7 +7,7 @@ import { BigNumberish, BigNumber as BN } from 'ethers'
 import { NUM_BLOCKS_PER_DAY, ZERO, DEADLINE, CP_ROI, LP_ROI } from '../../constants'
 
 import { useContracts } from '../../context/ContractsManager'
-import { useWallet } from '../../context/Web3Manager'
+import { useWallet } from '../../context/WalletManager'
 
 import { Loader } from '../../components/Loader'
 import { Input } from '../../components/Input'
@@ -40,7 +40,7 @@ import { useRewardsPerDay, useUserPendingRewards, useUserRewardsPerDay } from '.
 import { useScpBalance } from '../../hooks/useScpBalance'
 import { useUserStakedValue } from '../../hooks/useUserStakedValue'
 import { useTransactions } from '../../hooks/useTransactions'
-import { useToasts } from '../../context/ToastsManager'
+import { useToasts } from '../../context/NotificationsManager'
 
 function Invest(): any {
   const { makeToast } = useToasts()

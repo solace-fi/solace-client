@@ -1,5 +1,5 @@
 import React, { Fragment, useEffect, useState } from 'react'
-import { useWallet } from '../../context/Web3Manager'
+import { useWallet } from '../../context/WalletManager'
 import { Loader } from '../Loader'
 
 export const LayoutContentWithLoader: React.FC = ({ children }) => {

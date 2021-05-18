@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react'
 import { Contract } from '@ethersproject/contracts'
 
-import { useWallet } from '../../context/Web3Manager'
+import { useWallet } from '../../context/WalletManager'
 import { useContracts } from '../../context/ContractsManager'
 import { ethers, constants, BigNumberish, BigNumber as BN } from 'ethers'
 import { formatEther } from '@ethersproject/units'
@@ -501,7 +501,7 @@ function Playground(): any {
         !loading ? (
           <>
             <div>Account: {wallet.account}</div>
-            <div>Chain Id: {wallet.networkId}</div>
+            <div>Chain Id: {wallet.chainId}</div>
           </>
         ) : (
           <div>Loading</div>
