@@ -4,13 +4,13 @@ import { HashRouter } from 'react-router-dom'
 
 import App from './pages/App'
 
-import Web3Manager from './context/WalletManager'
+import WalletManager from './context/WalletManager'
 import ContractsManager from './context/ContractsManager'
 import NotificationsManager from './context/NotificationsManager'
 
 ReactDOM.render(
   <React.StrictMode>
-    <Web3Manager>
+    <WalletManager>
       <ContractsManager>
         <NotificationsManager>
           <HashRouter>
@@ -18,7 +18,7 @@ ReactDOM.render(
           </HashRouter>
         </NotificationsManager>
       </ContractsManager>
-    </Web3Manager>
+    </WalletManager>
   </React.StrictMode>,
   document.getElementById('root')
 )
