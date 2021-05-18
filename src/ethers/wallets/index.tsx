@@ -24,12 +24,6 @@ export const SUPPORTED_WALLETS: WalletConnector[] = [
     description: 'Easy-to-use browser extension.',
     href: null,
     color: '#E8831D',
-    // getConnector(): AbstractConnector {
-    //   return MetaMaskConnector.getConnector()
-    // },
-    // onError(error: MetaMaskError): Error | undefined {
-    //   return MetaMaskConnector.onError(error)
-    // },
     connector: MetaMaskConnector,
   },
 ]

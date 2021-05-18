@@ -1,4 +1,4 @@
-import { useWallet } from '../context/Web3Manager'
+import { useWallet } from '../context/WalletManager'
 import { useMemo } from 'react'
 import { getContract } from '../utils'
 import { Contract } from '@ethersproject/contracts'

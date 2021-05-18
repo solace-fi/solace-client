@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 // import { useWeb3React } from '@web3-react/core'
-import { useWallet } from '../context/Web3Manager'
+import { useWallet } from '../context/WalletManager'
 import { formatEther } from '@ethersproject/units'
 import { ZERO } from '../constants'
 import { useContracts } from '../context/ContractsManager'

@@ -15,9 +15,9 @@ const ToastsProvider: React.FC = (props) => {
   const makeToast = (txType: string, id: string, condition: string) => {
     const Toast = (txType: any, cond: any) => (
       <div>
-        <p>
-          {txType}: Transaction {cond}
-        </p>
+        {/* <p> */}
+        {txType}: Transaction {cond}
+        {/* </p> */}
         {/* <p>Etherscan: {link}</p> */}
       </div>
     )
@@ -81,8 +81,8 @@ export function useToasts(): ToastSystem {
   return useContext(ToastsContext)
 }
 
-const ToastsManager: React.FC = (props) => {
+const NotificationsManager: React.FC = (props) => {
   return <ToastsProvider>{props.children}</ToastsProvider>
 }
 
-export default ToastsManager
+export default NotificationsManager

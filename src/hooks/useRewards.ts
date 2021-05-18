@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useContracts } from '../context/ContractsManager'
-import { useWallet } from '../context/Web3Manager'
+import { useWallet } from '../context/WalletManager'
 import { usePoolStakedValue } from './usePoolStakedValue'
 import { formatEther, parseEther } from '@ethersproject/units'
 import { NUM_BLOCKS_PER_DAY, ZERO } from '../constants'

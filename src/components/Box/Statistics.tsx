@@ -3,7 +3,7 @@ import { BoxRow, Box, BoxItem, BoxItemValue, BoxItemTitle, BoxItemUnits } from '
 import { Button } from '../Button'
 
 import { Contract } from '@ethersproject/contracts'
-import { useWallet } from '../../context/Web3Manager'
+import { useWallet } from '../../context/WalletManager'
 import { useContracts } from '../../context/ContractsManager'
 import { formatEther, parseEther } from '@ethersproject/units'
 

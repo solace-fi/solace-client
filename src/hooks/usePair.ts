@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { ChainId, Fetcher, Route, WETH, Trade, TokenAmount, TradeType } from '@uniswap/sdk'
-import { useWallet } from '../context/Web3Manager'
+import { useWallet } from '../context/WalletManager'
 
 const chainId = ChainId.RINKEBY
 const tokenAddress = '0x44B843794416911630e74bAB05021458122c40A0' // rinkeby tokenaddress of SOLACE
