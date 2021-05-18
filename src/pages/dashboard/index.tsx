@@ -1,6 +1,6 @@
 import React, { Fragment } from 'react'
 
-import { Content } from '../App'
+import { Content } from '../../components/Layout'
 import { CardContainer, Card, CardHeader, CardTitle, CardBlock, CardActions } from '../../components/Card'
 import { Heading1, Heading2 } from '../../components/Text'
 import { Button } from '../../components/Button'

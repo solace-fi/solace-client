@@ -1,7 +1,7 @@
 import React from 'react'
 import styled from 'styled-components'
 
-import { LayoutHeader } from './index'
+import { Header } from './index'
 import Account from '../User/Account'
 import { useCoingecko } from '../../hooks/useCoingecko'
 import { fixed } from '../../utils/fixedValue'
@@ -44,7 +44,7 @@ export default function App(): any {
   const pairPrice = usePairPrice()
 
   return (
-    <LayoutHeader>
+    <Header>
       <Price>
         <PriceItem>
           <PriceTitle>SOLACE/USD</PriceTitle>
@@ -66,6 +66,6 @@ export default function App(): any {
         </PriceItem>
       </Price>
       <Account />
-    </LayoutHeader>
+    </Header>
   )
 }
