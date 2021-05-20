@@ -2,9 +2,9 @@ import React, { useEffect, useRef, useState, Fragment } from 'react'
 
 import { Contract } from '@ethersproject/contracts'
 import { formatEther, parseEther } from '@ethersproject/units'
-import { BigNumberish, BigNumber as BN } from 'ethers'
+import { BigNumberish, BigNumber as BN, utils } from 'ethers'
 
-import { NUM_BLOCKS_PER_DAY, ZERO, DEADLINE, CP_ROI, LP_ROI } from '../../constants'
+import { NUM_BLOCKS_PER_DAY, ZERO, DEADLINE, CP_ROI, LP_ROI, GAS_LIMIT } from '../../constants'
 
 import { useContracts } from '../../context/ContractsManager'
 import { useWallet } from '../../context/WalletManager'
@@ -129,12 +129,13 @@ function Invest(): any {
       const tx = await vaultContract.current.deposit({
         value: parseEther(amount),
         gasPrice: getGasValue(selectedGasOption.value),
+        gasLimit: GAS_LIMIT,
       })
       closeModal()
       makeToast(txType, id, 'pending')
       addTransaction(txType, tx, amount, unit)
       await tx.wait()
-      await vaultContract.current.once('DepositMade', (sender, amount, shares, tx) => {
+      await vaultContract.current.on('DepositMade', (sender, amount, shares, tx) => {
         console.log('DepositVault event: ', tx)
         makeToast(txType, id, 'success')
         updateTransactions(tx, 'Complete')
@@ -157,6 +158,7 @@ function Invest(): any {
       const tx = await cpFarmContract.current.depositEth({
         value: parseEther(amount),
         gasPrice: getGasValue(selectedGasOption.value),
+        gasLimit: GAS_LIMIT,
       })
       closeModal()
       makeToast(txType, id, 'pending')
@@ -189,6 +191,7 @@ function Invest(): any {
       })
       const tx = await cpFarmContract.current.depositCp(parseEther(amount), {
         gasPrice: getGasValue(selectedGasOption.value),
+        gasLimit: GAS_LIMIT,
       })
       closeModal()
       makeToast(txType, id, 'pending')
@@ -216,6 +219,7 @@ function Invest(): any {
     try {
       const tx = await vaultContract.current.withdraw(parseEther(amount), maxLoss, {
         gasPrice: getGasValue(selectedGasOption.value),
+        gasLimit: GAS_LIMIT,
       })
       closeModal()
       makeToast(txType, id, 'pending')
@@ -243,6 +247,7 @@ function Invest(): any {
     try {
       const tx = await cpFarmContract.current.withdrawEth(parseEther(amount), maxLoss, {
         gasPrice: getGasValue(selectedGasOption.value),
+        gasLimit: GAS_LIMIT,
       })
       closeModal()
       makeToast(txType, id, 'pending')
