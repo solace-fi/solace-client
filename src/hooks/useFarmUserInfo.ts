@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useWallet } from '../context/Web3Manager'
+import { useWallet } from '../context/WalletManager'
 import { Contract } from '@ethersproject/contracts'
 
 export const useFarmUserInfo = (farm: Contract | null | undefined) => {

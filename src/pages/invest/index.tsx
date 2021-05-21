@@ -1,5 +1,14 @@
 import React, { useEffect, useRef, useState, Fragment } from 'react'
+
 import { Contract } from '@ethersproject/contracts'
+import { formatEther, parseEther } from '@ethersproject/units'
+import { BigNumberish, BigNumber as BN, utils } from 'ethers'
+
+import { CHAIN_ID, ZERO, DEADLINE, CP_ROI, LP_ROI, GAS_LIMIT } from '../../constants'
+
+import { useContracts } from '../../context/ContractsManager'
+import { useWallet } from '../../context/WalletManager'
+
 import { Loader } from '../../components/Loader'
 import { Input } from '../../components/Input'
 import {
@@ -12,30 +21,31 @@ import {
   ModalButton,
 } from '../../components/Modal/InvestModal'
 import { RadioElement, RadioInput, RadioGroup, RadioLabel } from '../../components/Radio'
-import { Content } from '../App'
-import { Heading1, Heading2, Heading3 } from '../../components/Text'
 import { Table, TableHead, TableHeader, TableRow, TableBody, TableData, TableDataGroup } from '../../components/Table'
-import { useWallet } from '../../context/Web3Manager'
-import { useContracts } from '../../context/ContractsManager'
-import getPermitNFTSignature from '../../utils/signature'
-import { getProviderOrSigner } from '../../utils/index'
-import { BigNumberish, BigNumber as BN } from 'ethers'
-import { formatEther, parseEther } from '@ethersproject/units'
 import { Button } from '../../components/Button'
-import { fixed, getGasValue } from '../../utils/fixedValue'
-import { NUM_BLOCKS_PER_DAY, ZERO, DEADLINE, CP_ROI, LP_ROI } from '../../constants'
-import { encodePriceSqrt, FeeAmount, TICK_SPACINGS, getMaxTick, getMinTick } from '../../utils/uniswap'
+import { Heading1, Heading2 } from '../../components/Text'
+import { Content } from '../../components/Layout'
 
+import getPermitNFTSignature from '../../utils/signature'
+import { encodePriceSqrt, FeeAmount, TICK_SPACINGS, getMaxTick, getMinTick } from '../../utils/uniswap'
+import { fixed, getGasValue } from '../../utils/fixedValue'
+import { getProviderOrSigner } from '../../utils/index'
+
+import { GasFeeOption } from '../../hooks/useFetchGasPrice'
 import { useCapitalPoolSize } from '../../hooks/useCapitalPoolSize'
+import { useEthBalance } from '../../hooks/useEthBalance'
+import { useFetchGasPrice } from '../../hooks/useFetchGasPrice'
+import { usePoolStakedValue } from '../../hooks/usePoolStakedValue'
 import { useRewardsPerDay, useUserPendingRewards, useUserRewardsPerDay } from '../../hooks/useRewards'
 import { useScpBalance } from '../../hooks/useScpBalance'
-import { usePoolStakedValue } from '../../hooks/usePoolStakedValue'
 import { useUserStakedValue } from '../../hooks/useUserStakedValue'
-import { useEthBalance } from '../../hooks/useEthBalance'
-import { GasFeeOption } from '../../hooks/useFetchGasPrice'
-import { useFetchGasPrice } from '../../hooks/useFetchGasPrice'
+import { useTransactions } from '../../hooks/useTransactions'
+import { useToasts, Condition } from '../../context/NotificationsManager'
+import { useFetchTxHistoryByAddress } from '../../hooks/useFetchTxHistoryByAddress'
+import { getEtherscanTxUrl, getEtherscanBlockUrl } from '../../utils/etherscan'
 
 function Invest(): any {
+  const { makeToast } = useToasts()
   const wallet = useWallet()
   const { master, vault, solace, cpFarm, lpFarm, lpToken, weth, registry } = useContracts()
 
@@ -48,8 +58,10 @@ function Invest(): any {
   const solaceContract = useRef<Contract | null>()
   const registryContract = useRef<Contract | null>()
 
+  const { transactions, addTransaction, updateTransactions, deleteTransactions } = useTransactions()
   const ethBalance = useEthBalance()
   const gasPrices = useFetchGasPrice()
+  const txHistory = useFetchTxHistoryByAddress()
   const [cpUserRewardsPerDay] = useUserRewardsPerDay(1, cpFarmContract.current)
   const [lpUserRewardsPerDay] = useUserRewardsPerDay(2, lpFarmContract.current)
   const [cpRewardsPerDay] = useRewardsPerDay(1)
@@ -63,21 +75,18 @@ function Invest(): any {
   const capitalPoolSize = useCapitalPoolSize()
   const scpBalance = useScpBalance()
 
-  const [selectedGasOption, setSelectedGasOption] = useState<GasFeeOption>({ key: '', name: '', value: 0 })
-  const [userVaultShare, setUserVaultShare] = useState<number>(0)
-  const [userVaultAssets, setUserVaultAssets] = useState<string>('0.00')
-
-  const [loading, setLoading] = useState<boolean>(false)
-  const [showModal, setShowModal] = useState<boolean>(false)
   const [action, setAction] = useState<string>()
-  const [modalTitle, setModalTitle] = useState<string>('')
-
   const [amount, setAmount] = useState<string>('')
-  const [maxLoss, setMaxLoss] = useState<number>(5)
-
-  const [unit, setUnit] = useState<string>('ETH')
   const [isStaking, setIsStaking] = useState<boolean>(false)
+  const [loading, setLoading] = useState<boolean>(false)
+  const [maxLoss, setMaxLoss] = useState<number>(5)
+  const [modalTitle, setModalTitle] = useState<string>('')
   const [nft, setNft] = useState<BN>()
+  const [selectedGasOption, setSelectedGasOption] = useState<GasFeeOption>({ key: '', name: '', value: 0 })
+  const [showModal, setShowModal] = useState<boolean>(false)
+  const [unit, setUnit] = useState<string>('ETH')
+  const [userVaultAssets, setUserVaultAssets] = useState<string>('0.00')
+  const [userVaultShare, setUserVaultShare] = useState<number>(0)
 
   const openModal = async (action: string, modalTitle: string, unit: string) => {
     setShowModal((prev) => !prev)
@@ -117,118 +126,175 @@ function Invest(): any {
   const callDepositVault = async () => {
     setLoading(true)
     if (!vaultContract.current) return
-    console.log('depositVault', selectedGasOption.value)
+    const txType = 'Eth Risk backing Capital Pool Deposit'
     try {
       const tx = await vaultContract.current.deposit({
         value: parseEther(amount),
         gasPrice: getGasValue(selectedGasOption.value),
+        gasLimit: GAS_LIMIT,
       })
-      await tx.wait()
-      await vaultContract.current.on('DepositMade', (sender, amount, shares, tx) => {
-        console.log('DepositVault event: ', tx)
-        wallet.reload()
-        closeModal()
+      const txHash = tx.hash
+      closeModal()
+      makeToast(txType, Condition.PENDING, txHash)
+      addTransaction(txType, tx, amount, unit)
+      await tx.wait().then((receipt: any) => {
+        if (receipt.status) {
+          console.log(receipt)
+          makeToast(txType, Condition.SUCCESS, txHash)
+          updateTransactions(receipt, 'Complete')
+          wallet.reload()
+        } else {
+          makeToast(txType, Condition.FAILURE, txHash)
+          deleteTransactions(tx)
+          closeModal()
+          wallet.reload()
+        }
       })
     } catch (err) {
-      console.log('callDepositVault ', err)
-      wallet.reload()
+      makeToast(txType, Condition.CANCELLED)
       closeModal()
+      wallet.reload()
     }
   }
 
   const callDepositEth = async () => {
     setLoading(true)
     if (!cpFarmContract.current || !vaultContract.current) return
-    console.log('depositEth', selectedGasOption.value)
+    const txType = 'Eth Risk backing Capital Pool Stake'
     try {
-      const deposit = await cpFarmContract.current.depositEth({
+      const tx = await cpFarmContract.current.depositEth({
         value: parseEther(amount),
         gasPrice: getGasValue(selectedGasOption.value),
+        gasLimit: GAS_LIMIT,
       })
-      await deposit.wait()
-      await cpFarmContract.current.on('EthDeposited', (sender, amount, tx) => {
-        console.log('EthDeposited event: ', tx)
-        wallet.reload()
-        closeModal()
+      const txHash = tx.hash
+      closeModal()
+      makeToast(txType, Condition.PENDING, txHash)
+      addTransaction(txType, tx, amount, unit)
+      await tx.wait().then((receipt: any) => {
+        if (receipt.status) {
+          makeToast(txType, Condition.SUCCESS, txHash)
+          updateTransactions(receipt, 'Complete')
+          wallet.reload()
+        } else {
+          makeToast(txType, Condition.FAILURE, txHash)
+          deleteTransactions(tx)
+          closeModal()
+          wallet.reload()
+        }
       })
     } catch (err) {
-      console.log('error callDepositEth ', err)
-      wallet.reload()
+      makeToast(txType, Condition.CANCELLED)
       closeModal()
+      wallet.reload()
     }
   }
 
   const callDepositCp = async () => {
     setLoading(true)
     if (!cpFarmContract.current || !vaultContract.current) return
+    const txType = 'Solace Capital Provider Farm Deposit'
     try {
       const approval = await vaultContract.current.approve(cpFarmContract.current.address, parseEther(amount))
       await approval.wait()
-      await vaultContract.current.on('Approval', (owner, spender, value, tx) => {
+      await vaultContract.current.once('Approval', (owner, spender, value, tx) => {
         console.log('approval event: ', tx)
       })
-      const deposit = await cpFarmContract.current.depositCp(parseEther(amount), {
+      const tx = await cpFarmContract.current.depositCp(parseEther(amount), {
         gasPrice: getGasValue(selectedGasOption.value),
+        gasLimit: GAS_LIMIT,
       })
-      await deposit.wait()
-      await cpFarmContract.current.on('CpDeposited', (sender, amount, tx) => {
-        console.log('CpDeposited event: ', tx)
-        wallet.reload()
-        closeModal()
+      const txHash = tx.hash
+      closeModal()
+      makeToast(txType, Condition.PENDING, txHash)
+      addTransaction(txType, tx, amount, unit)
+      await tx.wait().then((receipt: any) => {
+        if (receipt.status) {
+          makeToast(txType, Condition.SUCCESS, txHash)
+          updateTransactions(receipt, 'Complete')
+          wallet.reload()
+        } else {
+          makeToast(txType, Condition.FAILURE, txHash)
+          deleteTransactions(tx)
+          closeModal()
+          wallet.reload()
+        }
       })
     } catch (err) {
-      console.log('error callDepositCp ', err)
-      wallet.reload()
+      makeToast(txType, Condition.CANCELLED)
       closeModal()
+      wallet.reload()
     }
   }
 
   const callWithdrawVault = async () => {
     setLoading(true)
     if (!vaultContract.current) return
-
+    const txType = 'Eth Risk backing Capital Pool Withdrawal'
     try {
       const tx = await vaultContract.current.withdraw(parseEther(amount), maxLoss, {
         gasPrice: getGasValue(selectedGasOption.value),
+        gasLimit: GAS_LIMIT,
       })
-      await tx.wait()
-      await vaultContract.current.on('WithdrawalMade', (sender, amount, tx) => {
-        console.log('withdrawal event: ', tx)
-        wallet.reload()
-        closeModal()
+      const txHash = tx.hash
+      closeModal()
+      makeToast(txType, Condition.PENDING, txHash)
+      addTransaction(txType, tx, amount, unit)
+      await tx.wait().then((receipt: any) => {
+        if (receipt.status) {
+          makeToast(txType, Condition.SUCCESS, txHash)
+          updateTransactions(receipt, 'Complete')
+          wallet.reload()
+        } else {
+          makeToast(txType, Condition.FAILURE, txHash)
+          deleteTransactions(tx)
+          closeModal()
+          wallet.reload()
+        }
       })
     } catch (err) {
-      console.log('callWithdrawVault ', err)
-      wallet.reload()
+      makeToast(txType, Condition.CANCELLED)
       closeModal()
+      wallet.reload()
     }
   }
 
   const callWithdrawCp = async () => {
     setLoading(true)
     if (!cpFarmContract.current) return
+    const txType = 'Solace Capital Provider Farm Withdrawal'
     try {
-      const withdraw = await cpFarmContract.current.withdrawEth(parseEther(amount), maxLoss, {
+      const tx = await cpFarmContract.current.withdrawEth(parseEther(amount), maxLoss, {
         gasPrice: getGasValue(selectedGasOption.value),
+        gasLimit: GAS_LIMIT,
       })
-      await withdraw.wait()
-      await cpFarmContract.current.on('EthWithdrawn', (sender, amount, tx) => {
-        console.log('EthWithdrawn event: ', tx)
-        wallet.reload()
-        closeModal()
+      const txHash = tx.hash
+      closeModal()
+      makeToast(txType, Condition.PENDING, txHash)
+      addTransaction(txType, tx, amount, unit)
+      await tx.wait().then((receipt: any) => {
+        if (receipt.status) {
+          makeToast(txType, Condition.SUCCESS, txHash)
+          updateTransactions(receipt, 'Complete')
+          wallet.reload()
+        } else {
+          makeToast(txType, Condition.FAILURE, txHash)
+          deleteTransactions(tx)
+          closeModal()
+          wallet.reload()
+        }
       })
     } catch (err) {
-      console.log('error callWithdrawCp ', err)
-      wallet.reload()
+      makeToast(txType, Condition.CANCELLED)
       closeModal()
+      wallet.reload()
     }
   }
 
   const callDepositLp = async () => {
     setLoading(true)
-    console.log(lpTokenContract.current, lpFarmContract.current, nft)
     if (!lpTokenContract.current || !lpFarmContract.current || !nft) return
-    console.log('depositLP')
+    const txType = 'SOLACE/ETH Liquidity Pool Deposit'
     try {
       const { v, r, s } = await getPermitNFTSignature(
         wallet,
@@ -237,36 +303,56 @@ function Invest(): any {
         nft,
         DEADLINE
       )
-      const depositSigned = await lpFarmContract.current.depositSigned(wallet.account, nft, DEADLINE, v, r, s)
-      await depositSigned.wait()
-      await lpFarmContract.current.on('TokenDeposited', (sender, token, tx) => {
-        console.log('TokenDeposited event: ', tx)
-        wallet.reload()
-        closeModal()
+      const tx = await lpFarmContract.current.depositSigned(wallet.account, nft, DEADLINE, v, r, s)
+      const txHash = tx.hash
+      closeModal()
+      makeToast(txType, Condition.PENDING, txHash)
+      addTransaction(txType, tx, amount, unit)
+      await tx.wait().then((receipt: any) => {
+        if (receipt.status) {
+          makeToast(txType, Condition.SUCCESS, txHash)
+          updateTransactions(receipt, 'Complete')
+          wallet.reload()
+        } else {
+          makeToast(txType, Condition.FAILURE, txHash)
+          deleteTransactions(tx)
+          closeModal()
+          wallet.reload()
+        }
       })
     } catch (err) {
-      console.log('callDepositLp ', err)
-      wallet.reload()
+      makeToast(txType, Condition.CANCELLED)
       closeModal()
+      wallet.reload()
     }
   }
 
   const callWithdrawLp = async () => {
     setLoading(true)
     if (!lpFarmContract.current) return
-
+    const txType = 'SOLACE/ETH Liquidity Pool Withdrawal'
     try {
       const tx = await lpFarmContract.current.withdraw(nft)
-      await tx.wait()
-      await lpFarmContract.current.on('TokenWithdrawn', (sender, token, tx) => {
-        console.log('TokenWithdrawnLp event: ', tx)
-        wallet.reload()
-        closeModal()
+      const txHash = tx.hash
+      closeModal()
+      makeToast(txType, Condition.PENDING, txHash)
+      addTransaction(txType, tx, amount, unit)
+      await tx.wait().then((receipt: any) => {
+        if (receipt.status) {
+          makeToast(txType, Condition.SUCCESS, txHash)
+          updateTransactions(receipt, 'Complete')
+          wallet.reload()
+        } else {
+          makeToast(txType, Condition.FAILURE, txHash)
+          deleteTransactions(tx)
+          closeModal()
+          wallet.reload()
+        }
       })
     } catch (err) {
-      console.log('callWithdrawLp ', err)
-      wallet.reload()
+      makeToast(txType, Condition.CANCELLED)
       closeModal()
+      wallet.reload()
     }
   }
 
@@ -406,7 +492,7 @@ function Invest(): any {
 
   useEffect(() => {
     getUserVaultDetails()
-  }, [wallet, scpBalance])
+  }, [wallet, scpBalance, txHistory])
 
   useEffect(() => {
     if (!gasPrices.selected) return
@@ -582,39 +668,48 @@ function Invest(): any {
         <Table>
           <TableHead>
             <TableRow>
-              <TableHeader>Transaction Type</TableHeader>
-              <TableHeader>Address</TableHeader>
+              {/* <TableHeader>Type</TableHeader> */}
               <TableHeader>Amount</TableHeader>
-              <TableHeader>Date</TableHeader>
+              <TableHeader>Time</TableHeader>
               <TableHeader>Hash</TableHeader>
+              <TableHeader>Block Hash</TableHeader>
               <TableHeader>Status</TableHeader>
             </TableRow>
           </TableHead>
           <TableBody>
-            <TableRow>
-              <TableData>SOLACE/ETH LIQ PROVIDER</TableData>
-              <TableData>3.2 SOLACE-LP TOKENS</TableData>
-              <TableData>0xS0lac3</TableData>
-              <TableData>22:14 - May 29, 2030</TableData>
-              <TableData>0xfb33...</TableData>
-              <TableData>Complete</TableData>
-            </TableRow>
-            <TableRow>
-              <TableData>Reward claim</TableData>
-              <TableData>333 SOLACE</TableData>
-              <TableData>0xS0887a</TableData>
-              <TableData>20:14 - May 29, 2030</TableData>
-              <TableData>0xff33...</TableData>
-              <TableData>Pending</TableData>
-            </TableRow>
-            <TableRow>
-              <TableData>RISK BACK LIQ PROVIDER</TableData>
-              <TableData>3 ETH</TableData>
-              <TableData>0xS0ladd</TableData>
-              <TableData>19:14 - May 29, 2030</TableData>
-              <TableData>0xfb30...</TableData>
-              <TableData>Complete</TableData>
-            </TableRow>
+            {/* {transactions.map((tx: any) => (
+              <TableRow key={tx.hash}>
+                <TableData>{tx.type}</TableData>
+                <TableData>{`${tx.amount} ${tx.unit}`}</TableData>
+                <TableData>{tx.time}</TableData>
+                <TableData>{`${tx.hash.substring(0, 8)}...`}</TableData>
+                <TableData>{`${tx.blockHash.substring(0, 8)}...`}</TableData>
+                <TableData>{tx.stat}</TableData>
+              </TableRow>
+            ))} */}
+            {txHistory.txList &&
+              txHistory.txList.map((tx: any) => (
+                <TableRow key={tx.hash}>
+                  {/* <TableData>{tx.type}</TableData> */}
+                  <TableData>{`${formatEther(tx.value)}`}</TableData>
+                  <TableData>{new Date(Number(tx.timeStamp) * 1000).toString()}</TableData>
+                  <TableData>
+                    <a
+                      href={getEtherscanTxUrl(tx.hash)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >{`${tx.hash.substring(0, 8)}...`}</a>
+                  </TableData>
+                  <TableData>
+                    <a
+                      href={getEtherscanBlockUrl(tx.blockHash)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >{`${tx.blockHash.substring(0, 8)}...`}</a>
+                  </TableData>
+                  <TableData>{tx.txreceipt_status ? 'Complete' : 'Incomplete'}</TableData>
+                </TableRow>
+              ))}
           </TableBody>
         </Table>
       </Content>

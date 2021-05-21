@@ -1,12 +1,8 @@
-import { useState, useEffect, useCallback } from 'react'
-// import { useWeb3React } from '@web3-react/core'
-import { useWallet } from '../context/Web3Manager'
+import { useState, useEffect } from 'react'
+import { useWallet } from '../context/WalletManager'
 import { formatEther } from '@ethersproject/units'
-import { ZERO } from '../constants'
-import { useContracts } from '../context/ContractsManager'
 
 export const useEthBalance = () => {
-  const { master, vault, cpFarm, lpFarm } = useContracts()
   const wallet = useWallet()
   const [balance, setBalance] = useState<string>('0.00')
 
@@ -22,7 +18,7 @@ export const useEthBalance = () => {
       }
     }
     getEthBalance()
-  }, [wallet, master, vault, cpFarm, lpFarm]) // ensures refresh if referential identity of library doesn't change across chainIds
+  }, [wallet])
 
   return balance
 }

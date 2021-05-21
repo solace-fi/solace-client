@@ -1,6 +1,6 @@
 import { BigNumberish, constants, Signature, Contract, utils } from 'ethers'
 import { splitSignature } from 'ethers/lib/utils'
-import { ContextWallet } from '../context/Web3Manager'
+import { ContextWallet } from '../context/WalletManager'
 import { ecsign } from 'ethereumjs-util'
 
 export const PERMIT_TYPEHASH = utils.keccak256(
@@ -79,7 +79,7 @@ export default async function getPermitNFTSignature(
     positionManager.positions(tokenId).then((p: any) => p.nonce),
     positionManager.name(),
     '1',
-    wallet.networkId,
+    wallet.chainId,
   ])
 
   return splitSignature(

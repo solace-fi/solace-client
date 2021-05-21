@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useContracts } from '../context/ContractsManager'
-import { useWallet } from '../context/Web3Manager'
+import { useWallet } from '../context/WalletManager'
 import { usePoolStakedValue } from './usePoolStakedValue'
 import { formatEther, parseEther } from '@ethersproject/units'
 import { NUM_BLOCKS_PER_DAY, ZERO } from '../constants'
@@ -75,7 +75,7 @@ export const useUserRewardsPerDay = (farmId: number, farm: Contract | null | und
 }
 
 export const useUserPendingRewards = (farm: Contract | null | undefined) => {
-  const { master, vault } = useContracts()
+  const { master } = useContracts()
   const wallet = useWallet()
   const [userRewards, setUserRewards] = useState<string>('0.00')
 
@@ -93,7 +93,7 @@ export const useUserPendingRewards = (farm: Contract | null | undefined) => {
       }
     }
     getUserPendingRewards()
-  }, [wallet, farm, master, vault])
+  }, [wallet, farm, master])
 
   return [userRewards]
 }
@@ -105,18 +105,9 @@ export const useTotalPendingRewards = () => {
   const [lpUserRewards] = useUserPendingRewards(lpFarm)
 
   useEffect(() => {
-    const getTotalPendingRewards = async () => {
-      if (!cpUserRewards || !lpUserRewards) return
-      try {
-        const rewards = parseEther(cpUserRewards).add(parseEther(lpUserRewards))
-        const formattedRewards = formatEther(rewards)
-        // console.log('total user rewards, cp:', cpUserRewards, 'lp:', lpUserRewards)
-        setTotalPendingRewards(formattedRewards)
-      } catch (err) {
-        console.log('getTotalPendingRewards', err)
-      }
-    }
-    getTotalPendingRewards()
+    const rewards = parseEther(cpUserRewards).add(parseEther(lpUserRewards))
+    const formattedRewards = formatEther(rewards)
+    setTotalPendingRewards(formattedRewards)
   }, [cpUserRewards, lpUserRewards])
 
   return totalPendingRewards

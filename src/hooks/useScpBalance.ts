@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useContracts } from '../context/ContractsManager'
-import { useWallet } from '../context/Web3Manager'
+import { useWallet } from '../context/WalletManager'
 import { formatEther } from '@ethersproject/units'
 
 export const useScpBalance = () => {

@@ -9,9 +9,9 @@ import { Web3ReactProvider } from '@web3-react/core'
 
 // helper hook for wallet balance
 import getLibrary from '../utils/getLibrary'
-
-import { ethers } from 'ethers'
 import { useReload } from '../hooks/useReload'
+import { useProvider } from './ProviderManager'
+import { Web3Provider } from '@ethersproject/providers'
 
 export const WalletConnectors = SUPPORTED_WALLETS
 
@@ -20,16 +20,13 @@ export type ContextWallet = {
   connecting?: WalletConnector
   isActive: boolean
   account?: string
-  networkId?: number
+  chainId?: number
   library?: any
-  networkName?: string
   connector?: WalletConnector
-  // balance?: any
   version?: number
   connect: (connector: WalletConnector, args?: Record<string, any>) => Promise<void>
   disconnect: () => void
   reload: () => void
-  // updateBalance: (b: number) => void
 }
 
 const WalletContext = createContext<ContextWallet>({
@@ -37,20 +34,18 @@ const WalletContext = createContext<ContextWallet>({
   connecting: undefined,
   isActive: false,
   account: undefined,
-  networkId: undefined,
-  networkName: undefined,
+  chainId: undefined,
+  library: undefined,
   connector: undefined,
-  // balance: undefined,
+  provider: undefined,
   version: undefined,
   connect: () => Promise.reject(),
   disconnect: () => undefined,
   reload: () => undefined,
-  // updateBalance: () => undefined,
 })
 
 const WalletProvider: React.FC = (props) => {
   const web3React = useWeb3React()
-
   const [localProvider, setLocalProvider, removeLocalProvider] = useLocalStorage<string | undefined>('wallet_provider')
 
   const [initialized, setInitialized] = useState<boolean>(false)
@@ -58,22 +53,27 @@ const WalletProvider: React.FC = (props) => {
   const connectingRef = useRef<WalletConnector | undefined>(connecting)
   connectingRef.current = connecting
   const [activeConnector, setActiveConnector] = useState<WalletConnector | undefined>()
-  // const [activeProvider, setActiveProvider] = useState<any | undefined>()
-  // const [balance, setBalance] = useState<number | null | undefined>(undefined)
   const [reload, version] = useReload()
+  const provider = useProvider()
+
+  const [web3Provider, setWeb3Provider] = useState<Web3Provider>()
+  const _window = window as any
+
+  const getWeb3 = async () => {
+    if (_window.ethereum) {
+      await _window.ethereum.send('eth_requestAccounts')
+      const provider = new Web3Provider(_window.ethereum)
+      return provider
+    }
+    return undefined
+  }
 
   const disconnect = useCallback(() => {
     web3React.deactivate()
     setConnecting(undefined)
     setActiveConnector(undefined)
-    // setActiveProvider(undefined)
-    // setBalance(undefined)
     removeLocalProvider()
   }, [web3React, removeLocalProvider, setConnecting])
-
-  // const updateBalance = useCallback((b) => {
-  //   setBalance(b)
-  // }, [])
 
   const connect = useCallback(
     async (walletConnector: WalletConnector): Promise<void> => {
@@ -82,7 +82,6 @@ const WalletProvider: React.FC = (props) => {
       }
 
       const connector = walletConnector.connector.getConnector()
-
       connectingRef.current = walletConnector
       setConnecting(walletConnector)
 
@@ -126,18 +125,9 @@ const WalletProvider: React.FC = (props) => {
           await connect(walletConnector)
         }
       }
-
-      // if (!!web3React.library && !!web3React.account) {
-      //   web3React.library
-      //     .getBalance(web3React.account)
-      //     .then((balance: number) => {
-      //       setBalance(balance)
-      //     })
-      //     .catch(() => {
-      //       setBalance(null)
-      //     })
-      // }
-
+      const web3Provider = await getWeb3()
+      console.log('web3', web3Provider)
+      setWeb3Provider(web3Provider)
       setInitialized(true)
     })()
   }, [web3React])
@@ -148,28 +138,15 @@ const WalletProvider: React.FC = (props) => {
       connecting,
       isActive: web3React.active,
       account: web3React.account ?? undefined,
-      networkId: web3React.chainId,
-      library: web3React.library ? web3React.library : new ethers.providers.JsonRpcProvider(),
+      chainId: web3React.chainId,
+      library: web3React.account ? web3Provider : provider.ethProvider,
       connector: activeConnector,
-      // balance: balance,
       version: version,
       connect,
       disconnect,
       reload,
-      // updateBalance,
     }),
-    [
-      web3React,
-      initialized,
-      connecting,
-      activeConnector,
-      // balance,
-      version,
-      reload,
-      disconnect,
-      connect,
-      // updateBalance
-    ]
+    [web3React, provider, initialized, connecting, activeConnector, version, disconnect, connect]
   )
 
   return <WalletContext.Provider value={value}>{props.children}</WalletContext.Provider>
@@ -179,7 +156,7 @@ export function useWallet(): ContextWallet {
   return useContext(WalletContext)
 }
 
-const Web3Manager: React.FC = (props) => {
+const WalletManager: React.FC = (props) => {
   return (
     <Web3ReactProvider getLibrary={getLibrary}>
       <WalletProvider>{props.children}</WalletProvider>
@@ -187,4 +164,4 @@ const Web3Manager: React.FC = (props) => {
   )
 }
 
-export default Web3Manager
+export default WalletManager

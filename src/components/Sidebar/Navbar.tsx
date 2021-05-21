@@ -2,7 +2,7 @@ import React from 'react'
 import { SidebarItem, ItemText, ItemList, Sidebar } from './index'
 import { Logo } from '../Logo'
 
-const LayoutSidebar: React.FC = ({ children }) => {
+const NavSidebar: React.FC = ({ children }) => {
   return (
     <Sidebar>
       <div style={{ position: 'fixed' }}>{children}</div>
@@ -22,7 +22,7 @@ const SidebarItemList: React.FC = ({ children }) => {
 
 export const Navbar = (): any => {
   return (
-    <LayoutSidebar>
+    <NavSidebar>
       <Logo />
       <SidebarItemList>
         <SidebarItem className="dashboard-bar-link" to={'/'}>
@@ -38,7 +38,7 @@ export const Navbar = (): any => {
           Govern
         </SidebarItem>
       </SidebarItemList>
-    </LayoutSidebar>
+    </NavSidebar>
   )
 }
 

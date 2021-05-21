@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useWallet } from '../context/Web3Manager'
+import { useWallet } from '../context/WalletManager'
 import { Contract } from '@ethersproject/contracts'
 import { formatEther } from '@ethersproject/units'
 

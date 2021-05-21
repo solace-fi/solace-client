@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react'
-import { useWallet } from '../../context/Web3Manager'
+import { useWallet } from '../../context/WalletManager'
 
 function Quote(): any {
   const wallet = useWallet()

@@ -64,7 +64,7 @@ Run using the following react command from the client directory
     |___constants/
     |   |____abi/
     |___context/
-    |   |____Web3Manager
+    |   |____WalletManager
     |   |____ContractsManager
     |___ethers/
     |   |____connectors/
@@ -82,15 +82,15 @@ Run using the following react command from the client directory
 
     // src/index.tsx
 
-    <Web3Manager>
+    <WalletManager>
       <ContractsManager>
         ...
           <App />
         ...
       </ContractsManager>
-    </Web3Manager>
+    </WalletManager>
 
-Web3Manager allows access to web3-react, wallet connection functionalities, and wallet balance.
+WalletManager allows access to web3-react, wallet connection functionalities, and wallet balance.
 
 ContractsManager allows centralized access to contracts.
 

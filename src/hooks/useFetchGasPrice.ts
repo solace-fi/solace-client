@@ -1,6 +1,6 @@
-import { useState, useEffect, useRef } from 'react'
-import { fetchGasPrice } from '../utils/fetchGasPrice'
-import { useWallet } from '../context/Web3Manager'
+import { useState, useEffect } from 'react'
+import { fetchGasPrice } from '../utils/etherscan'
+import { useWallet } from '../context/WalletManager'
 
 export type GasFeeOption = {
   key: string
@@ -29,7 +29,6 @@ export const useFetchGasPrice = () => {
   })
 
   useEffect(() => {
-    console.log('fetching new gas prices')
     const fetchGasPrices = async () => {
       await fetchGasPrice()
         .then((result) => {
