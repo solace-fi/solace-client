@@ -59,10 +59,12 @@ export const Statistics = () => {
       addTransaction(txType, tx, totalUserRewards, 'Solace')
       await tx.wait().then((receipt: any) => {
         if (receipt.status) {
+          console.log(receipt)
           makeToast(txType, Condition.SUCCESS, txHash)
           updateTransactions(receipt, 'Complete')
           wallet.reload()
         } else {
+          console.log(receipt)
           makeToast(txType, Condition.FAILURE, txHash)
           deleteTransactions(tx)
           wallet.reload()

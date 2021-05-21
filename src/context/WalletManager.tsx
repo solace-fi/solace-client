@@ -11,6 +11,7 @@ import { Web3ReactProvider } from '@web3-react/core'
 import getLibrary from '../utils/getLibrary'
 import { useReload } from '../hooks/useReload'
 import { useProvider } from './ProviderManager'
+import { Web3Provider } from '@ethersproject/providers'
 
 export const WalletConnectors = SUPPORTED_WALLETS
 
@@ -21,10 +22,7 @@ export type ContextWallet = {
   account?: string
   chainId?: number
   library?: any
-  networkName?: string
   connector?: WalletConnector
-  ethProvider?: any
-  // web3Provider?: any
   version?: number
   connect: (connector: WalletConnector, args?: Record<string, any>) => Promise<void>
   disconnect: () => void
@@ -38,10 +36,7 @@ const WalletContext = createContext<ContextWallet>({
   account: undefined,
   chainId: undefined,
   library: undefined,
-  networkName: undefined,
   connector: undefined,
-  ethProvider: undefined,
-  // web3Provider: undefined,
   version: undefined,
   connect: () => Promise.reject(),
   disconnect: () => undefined,
@@ -59,6 +54,18 @@ const WalletProvider: React.FC = (props) => {
   const [activeConnector, setActiveConnector] = useState<WalletConnector | undefined>()
   const [reload, version] = useReload()
   const provider = useProvider()
+
+  const [web3Provider, setWeb3Provider] = useState<Web3Provider>()
+  const _window = window as any
+
+  const getWeb3 = async () => {
+    if (_window.ethereum) {
+      await _window.ethereum.send('eth_requestAccounts')
+      const provider = new Web3Provider(_window.ethereum)
+      return provider
+    }
+    return undefined
+  }
 
   const disconnect = useCallback(() => {
     web3React.deactivate()
@@ -117,6 +124,8 @@ const WalletProvider: React.FC = (props) => {
           await connect(walletConnector)
         }
       }
+      const web3Provider = await getWeb3()
+      setWeb3Provider(web3Provider)
       setInitialized(true)
     })()
   }, [web3React])
@@ -128,11 +137,8 @@ const WalletProvider: React.FC = (props) => {
       isActive: web3React.active,
       account: web3React.account ?? undefined,
       chainId: web3React.chainId,
-      library: provider.web3Provider,
-      networkName: provider.networkName,
+      library: web3React.account ? web3Provider : provider.ethProvider,
       connector: activeConnector,
-      ethProvider: provider.ethProvider,
-      // web3Provider: provider.web3Provider,
       version: version,
       connect,
       disconnect,
