@@ -40,7 +40,7 @@ import { useRewardsPerDay, useUserPendingRewards, useUserRewardsPerDay } from '.
 import { useScpBalance } from '../../hooks/useScpBalance'
 import { useUserStakedValue } from '../../hooks/useUserStakedValue'
 import { useTransactions } from '../../hooks/useTransactions'
-import { useToasts } from '../../context/NotificationsManager'
+import { useToasts, Condition } from '../../context/NotificationsManager'
 
 function Invest(): any {
   const { makeToast } = useToasts()
@@ -56,7 +56,7 @@ function Invest(): any {
   const solaceContract = useRef<Contract | null>()
   const registryContract = useRef<Contract | null>()
 
-  const { transactions, addTransaction, updateTransactions } = useTransactions()
+  const { transactions, addTransaction, updateTransactions, deleteTransactions } = useTransactions()
   const ethBalance = useEthBalance()
   const gasPrices = useFetchGasPrice()
   const [cpUserRewardsPerDay] = useUserRewardsPerDay(1, cpFarmContract.current)
@@ -124,26 +124,30 @@ function Invest(): any {
     setLoading(true)
     if (!vaultContract.current) return
     const txType = 'Eth Risk backing Capital Pool Deposit'
-    const id = new Date(Date.now()).toISOString()
     try {
       const tx = await vaultContract.current.deposit({
         value: parseEther(amount),
         gasPrice: getGasValue(selectedGasOption.value),
         gasLimit: GAS_LIMIT,
       })
+      const txHash = tx.hash
       closeModal()
-      makeToast(txType, id, 'pending')
+      makeToast(txType, Condition.PENDING, txHash)
       addTransaction(txType, tx, amount, unit)
-      await tx.wait()
-      await vaultContract.current.on('DepositMade', (sender, amount, shares, tx) => {
-        console.log('DepositVault event: ', tx)
-        makeToast(txType, id, 'success')
-        updateTransactions(tx, 'Complete')
-        wallet.reload()
+      await tx.wait().then((receipt: any) => {
+        if (receipt.status) {
+          makeToast(txType, Condition.SUCCESS, txHash)
+          updateTransactions(receipt, 'Complete')
+          wallet.reload()
+        } else {
+          makeToast(txType, Condition.FAILURE, txHash)
+          deleteTransactions(tx)
+          closeModal()
+          wallet.reload()
+        }
       })
     } catch (err) {
-      console.log('callDepositVault ', err)
-      makeToast(txType, id, 'failure')
+      makeToast(txType, Condition.CANCELLED)
       closeModal()
       wallet.reload()
     }
@@ -153,26 +157,30 @@ function Invest(): any {
     setLoading(true)
     if (!cpFarmContract.current || !vaultContract.current) return
     const txType = 'Eth Risk backing Capital Pool Stake'
-    const id = new Date(Date.now()).toISOString()
     try {
       const tx = await cpFarmContract.current.depositEth({
         value: parseEther(amount),
         gasPrice: getGasValue(selectedGasOption.value),
         gasLimit: GAS_LIMIT,
       })
+      const txHash = tx.hash
       closeModal()
-      makeToast(txType, id, 'pending')
+      makeToast(txType, Condition.PENDING, txHash)
       addTransaction(txType, tx, amount, unit)
-      await tx.wait()
-      await cpFarmContract.current.once('EthDeposited', (sender, amount, tx) => {
-        console.log('EthDeposited event: ', tx)
-        makeToast(txType, id, 'success')
-        updateTransactions(tx, 'Complete')
-        wallet.reload()
+      await tx.wait().then((receipt: any) => {
+        if (receipt.status) {
+          makeToast(txType, Condition.SUCCESS, txHash)
+          updateTransactions(receipt, 'Complete')
+          wallet.reload()
+        } else {
+          makeToast(txType, Condition.FAILURE, txHash)
+          deleteTransactions(tx)
+          closeModal()
+          wallet.reload()
+        }
       })
     } catch (err) {
-      console.log('error callDepositEth ', err)
-      makeToast(txType, id, 'failure')
+      makeToast(txType, Condition.CANCELLED)
       closeModal()
       wallet.reload()
     }
@@ -182,7 +190,6 @@ function Invest(): any {
     setLoading(true)
     if (!cpFarmContract.current || !vaultContract.current) return
     const txType = 'Solace Capital Provider Farm Deposit'
-    const id = new Date(Date.now()).toISOString()
     try {
       const approval = await vaultContract.current.approve(cpFarmContract.current.address, parseEther(amount))
       await approval.wait()
@@ -193,19 +200,24 @@ function Invest(): any {
         gasPrice: getGasValue(selectedGasOption.value),
         gasLimit: GAS_LIMIT,
       })
+      const txHash = tx.hash
       closeModal()
-      makeToast(txType, id, 'pending')
+      makeToast(txType, Condition.PENDING, txHash)
       addTransaction(txType, tx, amount, unit)
-      await tx.wait()
-      await cpFarmContract.current.on('CpDeposited', (sender, amount, tx) => {
-        console.log('CpDeposited event: ', tx)
-        makeToast(txType, id, 'success')
-        updateTransactions(tx, 'Complete')
-        wallet.reload()
+      await tx.wait().then((receipt: any) => {
+        if (receipt.status) {
+          makeToast(txType, Condition.SUCCESS, txHash)
+          updateTransactions(receipt, 'Complete')
+          wallet.reload()
+        } else {
+          makeToast(txType, Condition.FAILURE, txHash)
+          deleteTransactions(tx)
+          closeModal()
+          wallet.reload()
+        }
       })
     } catch (err) {
-      console.log('error callDepositCp ', err)
-      makeToast(txType, id, 'failure')
+      makeToast(txType, Condition.CANCELLED)
       closeModal()
       wallet.reload()
     }
@@ -215,25 +227,29 @@ function Invest(): any {
     setLoading(true)
     if (!vaultContract.current) return
     const txType = 'Eth Risk backing Capital Pool Withdrawal'
-    const id = new Date(Date.now()).toISOString()
     try {
       const tx = await vaultContract.current.withdraw(parseEther(amount), maxLoss, {
         gasPrice: getGasValue(selectedGasOption.value),
         gasLimit: GAS_LIMIT,
       })
+      const txHash = tx.hash
       closeModal()
-      makeToast(txType, id, 'pending')
+      makeToast(txType, Condition.PENDING, txHash)
       addTransaction(txType, tx, amount, unit)
-      await tx.wait()
-      await vaultContract.current.once('WithdrawalMade', (sender, amount, tx) => {
-        console.log('withdrawal event: ', tx)
-        makeToast(txType, id, 'success')
-        updateTransactions(tx, 'Complete')
-        wallet.reload()
+      await tx.wait().then((receipt: any) => {
+        if (receipt.status) {
+          makeToast(txType, Condition.SUCCESS, txHash)
+          updateTransactions(receipt, 'Complete')
+          wallet.reload()
+        } else {
+          makeToast(txType, Condition.FAILURE, txHash)
+          deleteTransactions(tx)
+          closeModal()
+          wallet.reload()
+        }
       })
     } catch (err) {
-      console.log('callWithdrawVault ', err)
-      makeToast(txType, id, 'failure')
+      makeToast(txType, Condition.CANCELLED)
       closeModal()
       wallet.reload()
     }
@@ -243,25 +259,29 @@ function Invest(): any {
     setLoading(true)
     if (!cpFarmContract.current) return
     const txType = 'Solace Capital Provider Farm Withdrawal'
-    const id = new Date(Date.now()).toISOString()
     try {
       const tx = await cpFarmContract.current.withdrawEth(parseEther(amount), maxLoss, {
         gasPrice: getGasValue(selectedGasOption.value),
         gasLimit: GAS_LIMIT,
       })
+      const txHash = tx.hash
       closeModal()
-      makeToast(txType, id, 'pending')
+      makeToast(txType, Condition.PENDING, txHash)
       addTransaction(txType, tx, amount, unit)
-      await tx.wait()
-      await cpFarmContract.current.once('EthWithdrawn', (sender, amount, tx) => {
-        console.log('EthWithdrawn event: ', tx)
-        makeToast(txType, id, 'success')
-        updateTransactions(tx, 'Complete')
-        wallet.reload()
+      await tx.wait().then((receipt: any) => {
+        if (receipt.status) {
+          makeToast(txType, Condition.SUCCESS, txHash)
+          updateTransactions(receipt, 'Complete')
+          wallet.reload()
+        } else {
+          makeToast(txType, Condition.FAILURE, txHash)
+          deleteTransactions(tx)
+          closeModal()
+          wallet.reload()
+        }
       })
     } catch (err) {
-      console.log('error callWithdrawCp ', err)
-      makeToast(txType, id, 'failure')
+      makeToast(txType, Condition.CANCELLED)
       closeModal()
       wallet.reload()
     }
@@ -271,7 +291,6 @@ function Invest(): any {
     setLoading(true)
     if (!lpTokenContract.current || !lpFarmContract.current || !nft) return
     const txType = 'SOLACE/ETH Liquidity Pool Deposit'
-    const id = new Date(Date.now()).toISOString()
     try {
       const { v, r, s } = await getPermitNFTSignature(
         wallet,
@@ -281,19 +300,24 @@ function Invest(): any {
         DEADLINE
       )
       const tx = await lpFarmContract.current.depositSigned(wallet.account, nft, DEADLINE, v, r, s)
+      const txHash = tx.hash
       closeModal()
-      makeToast(txType, id, 'pending')
+      makeToast(txType, Condition.PENDING, txHash)
       addTransaction(txType, tx, amount, unit)
-      await tx.wait()
-      await lpFarmContract.current.once('TokenDeposited', (sender, token, tx) => {
-        console.log('TokenDeposited event: ', tx)
-        makeToast(txType, id, 'success')
-        updateTransactions(tx, 'Complete')
-        wallet.reload()
+      await tx.wait().then((receipt: any) => {
+        if (receipt.status) {
+          makeToast(txType, Condition.SUCCESS, txHash)
+          updateTransactions(receipt, 'Complete')
+          wallet.reload()
+        } else {
+          makeToast(txType, Condition.FAILURE, txHash)
+          deleteTransactions(tx)
+          closeModal()
+          wallet.reload()
+        }
       })
     } catch (err) {
-      console.log('callDepositLp ', err)
-      makeToast(txType, id, 'failure')
+      makeToast(txType, Condition.CANCELLED)
       closeModal()
       wallet.reload()
     }
@@ -303,22 +327,26 @@ function Invest(): any {
     setLoading(true)
     if (!lpFarmContract.current) return
     const txType = 'SOLACE/ETH Liquidity Pool Withdrawal'
-    const id = new Date(Date.now()).toISOString()
     try {
       const tx = await lpFarmContract.current.withdraw(nft)
+      const txHash = tx.hash
       closeModal()
-      makeToast(txType, id, 'pending')
+      makeToast(txType, Condition.PENDING, txHash)
       addTransaction(txType, tx, amount, unit)
-      await tx.wait()
-      await lpFarmContract.current.once('TokenWithdrawn', (sender, token, tx) => {
-        console.log('TokenWithdrawnLp event: ', tx)
-        makeToast(txType, id, 'success')
-        updateTransactions(tx, 'Complete')
-        wallet.reload()
+      await tx.wait().then((receipt: any) => {
+        if (receipt.status) {
+          makeToast(txType, Condition.SUCCESS, txHash)
+          updateTransactions(receipt, 'Complete')
+          wallet.reload()
+        } else {
+          makeToast(txType, Condition.FAILURE, txHash)
+          deleteTransactions(tx)
+          closeModal()
+          wallet.reload()
+        }
       })
     } catch (err) {
-      console.log('callWithdrawLp ', err)
-      makeToast(txType, id, 'failure')
+      makeToast(txType, Condition.CANCELLED)
       closeModal()
       wallet.reload()
     }

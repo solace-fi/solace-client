@@ -2,9 +2,18 @@ import React, { createContext, useContext, useMemo } from 'react'
 import { toast, ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 import 'animate.css/animate.min.css'
+import { getEtherscanTxUrl } from '../utils/etherscan'
+import { CHAIN_ID } from '../constants'
+
+export enum Condition {
+  SUCCESS = 0,
+  FAILURE = 1,
+  PENDING = 2,
+  CANCELLED = 3,
+}
 
 export type ToastSystem = {
-  makeToast: (txType: string, id: string, condition: string) => void
+  makeToast: (txType: string, condition: Condition, txHash?: string) => void
 }
 
 const ToastsContext = createContext<ToastSystem>({
@@ -12,52 +21,61 @@ const ToastsContext = createContext<ToastSystem>({
 })
 
 const ToastsProvider: React.FC = (props) => {
-  const makeToast = (txType: string, id: string, condition: string) => {
+  const makeToast = (txType: string, condition: Condition, txHash?: string) => {
     const Toast = (txType: any, cond: any) => (
       <div>
-        {/* <p> */}
-        {txType}: Transaction {cond}
-        {/* </p> */}
-        {/* <p>Etherscan: {link}</p> */}
+        <div>
+          {txType}: Transaction {cond}
+        </div>
+        {txHash ? (
+          <a href={getEtherscanTxUrl(txHash, Number(CHAIN_ID))} target="_blank" rel="noopener noreferrer">
+            Etherscan
+          </a>
+        ) : null}
       </div>
     )
     switch (condition) {
-      case 'success':
-        toast.update(id, {
-          render: Toast(txType, 'successful'),
-          type: toast.TYPE.SUCCESS,
-          position: toast.POSITION.BOTTOM_LEFT,
-          closeOnClick: false,
-          closeButton: true,
-        })
+      case 0:
+        if (txHash) {
+          toast.update(txHash, {
+            render: Toast(txType, 'successful'),
+            type: toast.TYPE.SUCCESS,
+            position: toast.POSITION.BOTTOM_LEFT,
+            closeOnClick: false,
+            closeButton: true,
+          })
+        }
         break
-      case 'failure':
-        if (toast.isActive(id)) {
-          toast.update(id, {
+      case 1:
+        if (txHash) {
+          toast.update(txHash, {
             render: Toast(txType, 'failed'),
             type: toast.TYPE.ERROR,
-            autoClose: 10000,
             position: toast.POSITION.BOTTOM_LEFT,
             closeOnClick: false,
+            closeButton: true,
           })
-        } else {
-          toast(Toast(txType, 'failed'), {
-            toastId: id,
-            type: toast.TYPE.ERROR,
+        }
+        break
+      case 2:
+        if (txHash) {
+          toast(Toast(txType, 'pending'), {
+            toastId: txHash,
+            type: toast.TYPE.INFO,
+            autoClose: false,
             position: toast.POSITION.BOTTOM_LEFT,
-            autoClose: 10000,
             closeOnClick: false,
+            closeButton: false,
           })
         }
         break
       default:
-        toast(Toast(txType, 'pending'), {
-          toastId: id,
-          type: toast.TYPE.INFO,
-          autoClose: false,
+        toast(Toast(txType, 'cancelled'), {
+          type: toast.TYPE.ERROR,
           position: toast.POSITION.BOTTOM_LEFT,
+          autoClose: 10000,
           closeOnClick: false,
-          closeButton: false,
+          closeButton: true,
         })
     }
   }

@@ -38,5 +38,13 @@ export const useTransactions = () => {
     )
   }
 
-  return { transactions, addTransaction, updateTransactions }
+  const deleteTransactions = (tx: any) => {
+    setTransactions((transactions) =>
+      transactions.filter((transaction) => {
+        transaction.hash !== tx.transactionHash
+      })
+    )
+  }
+
+  return { transactions, addTransaction, updateTransactions, deleteTransactions }
 }

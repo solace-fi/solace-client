@@ -23,7 +23,8 @@ export type ContextWallet = {
   library?: any
   networkName?: string
   connector?: WalletConnector
-  provider?: any
+  ethProvider?: any
+  // web3Provider?: any
   version?: number
   connect: (connector: WalletConnector, args?: Record<string, any>) => Promise<void>
   disconnect: () => void
@@ -39,7 +40,8 @@ const WalletContext = createContext<ContextWallet>({
   library: undefined,
   networkName: undefined,
   connector: undefined,
-  provider: undefined,
+  ethProvider: undefined,
+  // web3Provider: undefined,
   version: undefined,
   connect: () => Promise.reject(),
   disconnect: () => undefined,
@@ -126,10 +128,11 @@ const WalletProvider: React.FC = (props) => {
       isActive: web3React.active,
       account: web3React.account ?? undefined,
       chainId: web3React.chainId,
-      library: web3React.library,
-      networkName: provider.networkName, //experimental
+      library: provider.web3Provider,
+      networkName: provider.networkName,
       connector: activeConnector,
-      provider: provider.ethProvider, //experimental
+      ethProvider: provider.ethProvider,
+      // web3Provider: provider.web3Provider,
       version: version,
       connect,
       disconnect,
