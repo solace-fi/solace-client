@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { fetchGasPrice } from '../utils/etherscan'
 import { useWallet } from '../context/WalletManager'
 
@@ -30,7 +30,7 @@ export const useFetchGasPrice = () => {
 
   useEffect(() => {
     const fetchGasPrices = async () => {
-      await fetchGasPrice(wallet.chainId || 1)
+      await fetchGasPrice()
         .then((result) => {
           const options = [
             {

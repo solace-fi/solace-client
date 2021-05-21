@@ -13,11 +13,19 @@ import { useScpBalance } from '../../hooks/useScpBalance'
 import { useTotalPendingRewards } from '../../hooks/useRewards'
 import { useSolaceBalance } from '../../hooks/useSolaceBalance'
 import { usePoolStakedValue } from '../../hooks/usePoolStakedValue'
-import { fixed } from '../../utils/fixedValue'
+import { fixed, getGasValue } from '../../utils/fixedValue'
+import { GAS_LIMIT } from '../../constants'
+
+import { useToasts, Condition } from '../../context/NotificationsManager'
+import { useTransactions } from '../../hooks/useTransactions'
+import { useFetchGasPrice } from '../../hooks/useFetchGasPrice'
 
 export const Statistics = () => {
   const wallet = useWallet()
   const { master, vault, solace, cpFarm, lpFarm, lpToken } = useContracts()
+  const { makeToast } = useToasts()
+  const { transactions, addTransaction, updateTransactions, deleteTransactions } = useTransactions()
+  const gasPrices = useFetchGasPrice()
 
   const masterContract = useRef<Contract | null>()
   const vaultContract = useRef<Contract | null>()
@@ -42,18 +50,37 @@ export const Statistics = () => {
     // await claimCpRewards()
     // await claimLpRewards()
     if (!masterContract.current) return
-    await masterContract.current.withdrawRewards()
-    wallet.reload()
-  }
-
-  const claimCpRewards = async () => {
-    if (!cpFarmContract.current) return
-    await cpFarmContract.current.withdrawRewards()
-  }
-
-  const claimLpRewards = async () => {
-    if (!lpFarmContract.current) return
-    await lpFarmContract.current.withdrawRewards()
+    const txType = 'Claim Rewards'
+    try {
+      const tx = await masterContract.current.withdrawRewards({
+        gasPrice: getGasValue(gasPrices.options[1].value),
+        gasLimit: GAS_LIMIT,
+      })
+      const txHash = tx.hash
+      makeToast(txType, Condition.PENDING, txHash)
+      addTransaction(txType, tx, totalUserRewards, 'Solace')
+      await tx.wait().then((receipt: any) => {
+        if (receipt.status) {
+          console.log(receipt)
+          makeToast(txType, Condition.SUCCESS, txHash)
+          updateTransactions(receipt, 'Complete')
+          wallet.reload()
+        } else {
+          console.log(receipt)
+          makeToast(txType, Condition.FAILURE, txHash)
+          deleteTransactions(tx)
+          wallet.reload()
+        }
+      })
+    } catch (err) {
+      if (err?.code === 4001) {
+        console.log('Transaction rejected.')
+      } else {
+        console.log(`transaction failed: ${err.message}`)
+      }
+      makeToast(txType, Condition.CANCELLED)
+      wallet.reload()
+    }
   }
 
   const getTotalValueLocked = () => {
@@ -78,7 +105,7 @@ export const Statistics = () => {
 
   return (
     <BoxRow>
-      {wallet.initialized ? (
+      {wallet.initialized && wallet.account ? (
         <Box>
           <BoxItem>
             <BoxItemTitle h3>My Balance</BoxItemTitle>
