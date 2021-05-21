@@ -72,9 +72,9 @@ export const Statistics = () => {
       })
     } catch (err) {
       if (err?.code === 4001) {
-        throw new Error('Transaction rejected.')
+        console.log('Transaction rejected.')
       } else {
-        throw new Error(`transaction failed: ${err.message}`)
+        console.log(`transaction failed: ${err.message}`)
       }
       makeToast(txType, Condition.CANCELLED)
       wallet.reload()
@@ -103,7 +103,7 @@ export const Statistics = () => {
 
   return (
     <BoxRow>
-      {wallet.initialized ? (
+      {wallet.initialized && wallet.account ? (
         <Box>
           <BoxItem>
             <BoxItemTitle h3>My Balance</BoxItemTitle>
