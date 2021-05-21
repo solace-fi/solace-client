@@ -1,4 +1,4 @@
-import { ETHERSCAN_API_KEY } from '../constants'
+import { ETHERSCAN_API_KEY, CHAIN_ID } from '../constants'
 const STRINGIFIED_ETHERSCAN_API_KEY = String(ETHERSCAN_API_KEY)
 
 type GasPriceResult = {
@@ -8,8 +8,8 @@ type GasPriceResult = {
   safeLow: number
 }
 
-const getWebPrefix = (chainId: number) => {
-  switch (chainId) {
+const getWebPrefix = () => {
+  switch (Number(CHAIN_ID)) {
     case 4:
       return 'rinkeby.'
     case 42:
@@ -19,8 +19,8 @@ const getWebPrefix = (chainId: number) => {
   }
 }
 
-const getApiPrefix = (chainId: number) => {
-  switch (chainId) {
+const getApiPrefix = () => {
+  switch (Number(CHAIN_ID)) {
     case 4:
       return '-rinkeby'
     case 42:
@@ -30,35 +30,74 @@ const getApiPrefix = (chainId: number) => {
   }
 }
 
-export function getEtherscanTxUrl(txHash?: string, chainId = 1): string | undefined {
+export function getEtherscanTxUrl(txHash?: string): string | undefined {
   if (txHash) {
-    const webPrefix = getWebPrefix(chainId)
+    const webPrefix = getWebPrefix()
     return `https://${webPrefix}etherscan.io/tx/${txHash}`
   }
 
   return undefined
 }
 
-export function getEtherscanAddressUrl(address?: string, chainId = 1): string | undefined {
+export function getEtherscanBlockUrl(blockHash: string): string | undefined {
+  if (blockHash) {
+    const webPrefix = getWebPrefix()
+    return `https://${webPrefix}etherscan.io/block/${blockHash}`
+  }
+
+  return undefined
+}
+
+export function getEtherscanAddressUrl(address?: string): string | undefined {
   if (address) {
-    const webPrefix = getWebPrefix(chainId)
+    const webPrefix = getWebPrefix()
     return `https://${webPrefix}etherscan.io/address/${address}`
   }
 
   return undefined
 }
 
-export function getEtherscanABIUrl(address?: string, apiKey?: string, chainId = 1): string | undefined {
+export function getEtherscanABIUrl(address?: string, apiKey?: string): string | undefined {
   if (address) {
-    const apiPrefix = getApiPrefix(chainId)
+    const apiPrefix = getApiPrefix()
     return `https://api${apiPrefix}.etherscan.io/api?module=contract&action=getabi&address=${address}&apikey=${apiKey}`
   }
 
   return undefined
 }
 
-export async function fetchGasPrice(chainId: number): Promise<GasPriceResult> {
-  const apiPrefix = getApiPrefix(chainId)
+export async function fetchEtherscanLatestBlock(): Promise<any> {
+  const apiPrefix = getApiPrefix()
+  return fetch(
+    `https://api${apiPrefix}.etherscan.io/api?module=proxy&action=eth_blockNumber&apikey=${STRINGIFIED_ETHERSCAN_API_KEY}`
+  )
+    .then((result) => result.json())
+    .then((result) => result.result)
+    .then((result) => {
+      return {
+        latestBlockNumber: Number(result),
+      }
+    })
+}
+
+export async function fetchEtherscanTxHistoryByAddress(address: string): Promise<any> {
+  const apiPrefix = getApiPrefix()
+  const block = await fetchEtherscanLatestBlock()
+  console.log(block)
+  return fetch(
+    `https://api${apiPrefix}.etherscan.io/api?module=account&action=txlist&address=${address}&startblock=0&endblock=${block.latestBlockNumber}&page=1&offset=10&sort=desc&apikey=${STRINGIFIED_ETHERSCAN_API_KEY}`
+  )
+    .then((result) => result.json())
+    .then((result) => result.result)
+    .then((result) => {
+      return {
+        txList: result,
+      }
+    })
+}
+
+export async function fetchGasPrice(): Promise<GasPriceResult> {
+  const apiPrefix = getApiPrefix()
   return fetch(
     `https://api${apiPrefix}.etherscan.io/api?module=gastracker&action=gasoracle&apikey=${STRINGIFIED_ETHERSCAN_API_KEY}`
   )

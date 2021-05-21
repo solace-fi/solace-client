@@ -28,7 +28,7 @@ const ToastsProvider: React.FC = (props) => {
           {txType}: Transaction {cond}
         </div>
         {txHash ? (
-          <a href={getEtherscanTxUrl(txHash, Number(CHAIN_ID))} target="_blank" rel="noopener noreferrer">
+          <a href={getEtherscanTxUrl(txHash)} target="_blank" rel="noopener noreferrer">
             Etherscan
           </a>
         ) : null}

@@ -4,7 +4,7 @@ import { Contract } from '@ethersproject/contracts'
 import { formatEther, parseEther } from '@ethersproject/units'
 import { BigNumberish, BigNumber as BN, utils } from 'ethers'
 
-import { NUM_BLOCKS_PER_DAY, ZERO, DEADLINE, CP_ROI, LP_ROI, GAS_LIMIT } from '../../constants'
+import { CHAIN_ID, ZERO, DEADLINE, CP_ROI, LP_ROI, GAS_LIMIT } from '../../constants'
 
 import { useContracts } from '../../context/ContractsManager'
 import { useWallet } from '../../context/WalletManager'
@@ -41,6 +41,8 @@ import { useScpBalance } from '../../hooks/useScpBalance'
 import { useUserStakedValue } from '../../hooks/useUserStakedValue'
 import { useTransactions } from '../../hooks/useTransactions'
 import { useToasts, Condition } from '../../context/NotificationsManager'
+import { useFetchTxHistoryByAddress } from '../../hooks/useFetchTxHistoryByAddress'
+import { getEtherscanTxUrl, getEtherscanBlockUrl } from '../../utils/etherscan'
 
 function Invest(): any {
   const { makeToast } = useToasts()
@@ -59,6 +61,7 @@ function Invest(): any {
   const { transactions, addTransaction, updateTransactions, deleteTransactions } = useTransactions()
   const ethBalance = useEthBalance()
   const gasPrices = useFetchGasPrice()
+  const txHistory = useFetchTxHistoryByAddress()
   const [cpUserRewardsPerDay] = useUserRewardsPerDay(1, cpFarmContract.current)
   const [lpUserRewardsPerDay] = useUserRewardsPerDay(2, lpFarmContract.current)
   const [cpRewardsPerDay] = useRewardsPerDay(1)
@@ -136,6 +139,7 @@ function Invest(): any {
       addTransaction(txType, tx, amount, unit)
       await tx.wait().then((receipt: any) => {
         if (receipt.status) {
+          console.log(receipt)
           makeToast(txType, Condition.SUCCESS, txHash)
           updateTransactions(receipt, 'Complete')
           wallet.reload()
@@ -488,7 +492,7 @@ function Invest(): any {
 
   useEffect(() => {
     getUserVaultDetails()
-  }, [wallet, scpBalance])
+  }, [wallet, scpBalance, txHistory])
 
   useEffect(() => {
     if (!gasPrices.selected) return
@@ -664,7 +668,7 @@ function Invest(): any {
         <Table>
           <TableHead>
             <TableRow>
-              <TableHeader>Type</TableHeader>
+              {/* <TableHeader>Type</TableHeader> */}
               <TableHeader>Amount</TableHeader>
               <TableHeader>Time</TableHeader>
               <TableHeader>Hash</TableHeader>
@@ -673,7 +677,7 @@ function Invest(): any {
             </TableRow>
           </TableHead>
           <TableBody>
-            {transactions.map((tx: any) => (
+            {/* {transactions.map((tx: any) => (
               <TableRow key={tx.hash}>
                 <TableData>{tx.type}</TableData>
                 <TableData>{`${tx.amount} ${tx.unit}`}</TableData>
@@ -682,7 +686,30 @@ function Invest(): any {
                 <TableData>{`${tx.blockHash.substring(0, 8)}...`}</TableData>
                 <TableData>{tx.stat}</TableData>
               </TableRow>
-            ))}
+            ))} */}
+            {txHistory.txList &&
+              txHistory.txList.map((tx: any) => (
+                <TableRow key={tx.hash}>
+                  {/* <TableData>{tx.type}</TableData> */}
+                  <TableData>{`${formatEther(tx.value)}`}</TableData>
+                  <TableData>{new Date(Number(tx.timeStamp) * 1000).toString()}</TableData>
+                  <TableData>
+                    <a
+                      href={getEtherscanTxUrl(tx.hash)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >{`${tx.hash.substring(0, 8)}...`}</a>
+                  </TableData>
+                  <TableData>
+                    <a
+                      href={getEtherscanBlockUrl(tx.blockHash)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >{`${tx.blockHash.substring(0, 8)}...`}</a>
+                  </TableData>
+                  <TableData>{tx.txreceipt_status ? 'Complete' : 'Incomplete'}</TableData>
+                </TableRow>
+              ))}
           </TableBody>
         </Table>
       </Content>

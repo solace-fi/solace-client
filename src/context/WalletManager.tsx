@@ -125,6 +125,7 @@ const WalletProvider: React.FC = (props) => {
         }
       }
       const web3Provider = await getWeb3()
+      console.log('web3', web3Provider)
       setWeb3Provider(web3Provider)
       setInitialized(true)
     })()
