@@ -45,8 +45,6 @@ export const Statistics = () => {
   const lpPoolValue = usePoolStakedValue(lpFarm)
 
   const claimRewards = async () => {
-    // await claimCpRewards()
-    // await claimLpRewards()
     if (!masterContract.current) return
     const txType = 'Claim Rewards'
     try {
@@ -60,11 +58,11 @@ export const Statistics = () => {
         if (receipt.status) {
           console.log(receipt)
           makeToast(txType, Condition.SUCCESS, txHash)
-          wallet.reload()
+          // wallet.reload()
         } else {
           console.log(receipt)
           makeToast(txType, Condition.FAILURE, txHash)
-          wallet.reload()
+          // wallet.reload()
         }
       })
     } catch (err) {
@@ -74,7 +72,7 @@ export const Statistics = () => {
         console.log(`transaction failed: ${err.message}`)
       }
       makeToast(txType, Condition.CANCELLED)
-      wallet.reload()
+      // wallet.reload()
     }
   }
 
@@ -96,7 +94,7 @@ export const Statistics = () => {
 
   useEffect(() => {
     getTotalValueLocked()
-  }, [cpPoolValue, lpPoolValue, wallet])
+  }, [cpPoolValue, lpPoolValue])
 
   return (
     <BoxRow>

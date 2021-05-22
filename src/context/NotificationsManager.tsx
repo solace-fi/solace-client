@@ -3,7 +3,6 @@ import { toast, ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 import 'animate.css/animate.min.css'
 import { getEtherscanTxUrl } from '../utils/etherscan'
-import { CHAIN_ID } from '../constants'
 
 export enum Condition {
   SUCCESS = 0,

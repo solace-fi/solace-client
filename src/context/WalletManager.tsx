@@ -139,13 +139,9 @@ const WalletProvider: React.FC = (props) => {
         console.log('new block')
         reload()
       })
-      web3?.on('alchemy_newFullPendingTransactions', () => {
-        console.log('pending transactions')
-      })
 
       return () => {
         web3?.removeAllListeners('block')
-        web3?.removeAllListeners('alchemy_newFullPendingTransactions')
       }
     }
     configWeb3()

@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react'
 import axios from 'axios'
+import { useWallet } from '../context/WalletManager'
 
 export function useCoingecko(): any {
+  const { version } = useWallet()
   const [coins, setCoins] = useState<any>([])
 
   useEffect(() => {
@@ -15,7 +17,7 @@ export function useCoingecko(): any {
       .catch((err) => {
         console.log(err)
       })
-  }, [])
+  }, [version])
 
   return coins
 }
