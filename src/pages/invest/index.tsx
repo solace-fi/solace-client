@@ -30,6 +30,7 @@ import getPermitNFTSignature from '../../utils/signature'
 import { encodePriceSqrt, FeeAmount, TICK_SPACINGS, getMaxTick, getMinTick } from '../../utils/uniswap'
 import { fixed, getGasValue } from '../../utils/fixedValue'
 import { getProviderOrSigner } from '../../utils/index'
+import { timeAgo } from '../../utils/timeAgo'
 
 import { GasFeeOption } from '../../hooks/useFetchGasPrice'
 import { useCapitalPoolSize } from '../../hooks/useCapitalPoolSize'
@@ -39,7 +40,6 @@ import { usePoolStakedValue } from '../../hooks/usePoolStakedValue'
 import { useRewardsPerDay, useUserPendingRewards, useUserRewardsPerDay } from '../../hooks/useRewards'
 import { useScpBalance } from '../../hooks/useScpBalance'
 import { useUserStakedValue } from '../../hooks/useUserStakedValue'
-import { useTransactions } from '../../hooks/useTransactions'
 import { useToasts, Condition } from '../../context/NotificationsManager'
 import { useFetchTxHistoryByAddress } from '../../hooks/useFetchTxHistoryByAddress'
 import { getEtherscanTxUrl, getEtherscanBlockUrl } from '../../utils/etherscan'
@@ -58,7 +58,6 @@ function Invest(): any {
   const solaceContract = useRef<Contract | null>()
   const registryContract = useRef<Contract | null>()
 
-  const { transactions, addTransaction, updateTransactions, deleteTransactions } = useTransactions()
   const ethBalance = useEthBalance()
   const gasPrices = useFetchGasPrice()
   const txHistory = useFetchTxHistoryByAddress()
@@ -136,16 +135,13 @@ function Invest(): any {
       const txHash = tx.hash
       closeModal()
       makeToast(txType, Condition.PENDING, txHash)
-      addTransaction(txType, tx, amount, unit)
       await tx.wait().then((receipt: any) => {
         if (receipt.status) {
           console.log(receipt)
           makeToast(txType, Condition.SUCCESS, txHash)
-          updateTransactions(receipt, 'Complete')
           wallet.reload()
         } else {
           makeToast(txType, Condition.FAILURE, txHash)
-          deleteTransactions(tx)
           closeModal()
           wallet.reload()
         }
@@ -170,15 +166,12 @@ function Invest(): any {
       const txHash = tx.hash
       closeModal()
       makeToast(txType, Condition.PENDING, txHash)
-      addTransaction(txType, tx, amount, unit)
       await tx.wait().then((receipt: any) => {
         if (receipt.status) {
           makeToast(txType, Condition.SUCCESS, txHash)
-          updateTransactions(receipt, 'Complete')
           wallet.reload()
         } else {
           makeToast(txType, Condition.FAILURE, txHash)
-          deleteTransactions(tx)
           closeModal()
           wallet.reload()
         }
@@ -207,15 +200,12 @@ function Invest(): any {
       const txHash = tx.hash
       closeModal()
       makeToast(txType, Condition.PENDING, txHash)
-      addTransaction(txType, tx, amount, unit)
       await tx.wait().then((receipt: any) => {
         if (receipt.status) {
           makeToast(txType, Condition.SUCCESS, txHash)
-          updateTransactions(receipt, 'Complete')
           wallet.reload()
         } else {
           makeToast(txType, Condition.FAILURE, txHash)
-          deleteTransactions(tx)
           closeModal()
           wallet.reload()
         }
@@ -239,15 +229,12 @@ function Invest(): any {
       const txHash = tx.hash
       closeModal()
       makeToast(txType, Condition.PENDING, txHash)
-      addTransaction(txType, tx, amount, unit)
       await tx.wait().then((receipt: any) => {
         if (receipt.status) {
           makeToast(txType, Condition.SUCCESS, txHash)
-          updateTransactions(receipt, 'Complete')
           wallet.reload()
         } else {
           makeToast(txType, Condition.FAILURE, txHash)
-          deleteTransactions(tx)
           closeModal()
           wallet.reload()
         }
@@ -271,15 +258,12 @@ function Invest(): any {
       const txHash = tx.hash
       closeModal()
       makeToast(txType, Condition.PENDING, txHash)
-      addTransaction(txType, tx, amount, unit)
       await tx.wait().then((receipt: any) => {
         if (receipt.status) {
           makeToast(txType, Condition.SUCCESS, txHash)
-          updateTransactions(receipt, 'Complete')
           wallet.reload()
         } else {
           makeToast(txType, Condition.FAILURE, txHash)
-          deleteTransactions(tx)
           closeModal()
           wallet.reload()
         }
@@ -307,15 +291,12 @@ function Invest(): any {
       const txHash = tx.hash
       closeModal()
       makeToast(txType, Condition.PENDING, txHash)
-      addTransaction(txType, tx, amount, unit)
       await tx.wait().then((receipt: any) => {
         if (receipt.status) {
           makeToast(txType, Condition.SUCCESS, txHash)
-          updateTransactions(receipt, 'Complete')
           wallet.reload()
         } else {
           makeToast(txType, Condition.FAILURE, txHash)
-          deleteTransactions(tx)
           closeModal()
           wallet.reload()
         }
@@ -336,15 +317,12 @@ function Invest(): any {
       const txHash = tx.hash
       closeModal()
       makeToast(txType, Condition.PENDING, txHash)
-      addTransaction(txType, tx, amount, unit)
       await tx.wait().then((receipt: any) => {
         if (receipt.status) {
           makeToast(txType, Condition.SUCCESS, txHash)
-          updateTransactions(receipt, 'Complete')
           wallet.reload()
         } else {
           makeToast(txType, Condition.FAILURE, txHash)
-          deleteTransactions(tx)
           closeModal()
           wallet.reload()
         }
@@ -532,7 +510,8 @@ function Invest(): any {
             </ModalCell>
           </ModalRow>
           <RadioGroup>
-            {!gasPrices.loading ? (
+            {
+              //!gasPrices.loading ? (
               gasPrices.options.map((option) => (
                 <RadioLabel key={option.key}>
                   <RadioInput
@@ -547,9 +526,10 @@ function Invest(): any {
                   </RadioElement>
                 </RadioLabel>
               ))
-            ) : (
-              <Loader />
-            )}
+              // ) : (
+              //   <Loader />
+              // )
+            }
           </RadioGroup>
           {action == 'depositVaultOrEth' ? (
             <ModalRow>
@@ -677,22 +657,13 @@ function Invest(): any {
             </TableRow>
           </TableHead>
           <TableBody>
-            {/* {transactions.map((tx: any) => (
-              <TableRow key={tx.hash}>
-                <TableData>{tx.type}</TableData>
-                <TableData>{`${tx.amount} ${tx.unit}`}</TableData>
-                <TableData>{tx.time}</TableData>
-                <TableData>{`${tx.hash.substring(0, 8)}...`}</TableData>
-                <TableData>{`${tx.blockHash.substring(0, 8)}...`}</TableData>
-                <TableData>{tx.stat}</TableData>
-              </TableRow>
-            ))} */}
             {txHistory.txList &&
+              txHistory.txList !== 'Max rate limit reached' &&
               txHistory.txList.map((tx: any) => (
                 <TableRow key={tx.hash}>
                   {/* <TableData>{tx.type}</TableData> */}
                   <TableData>{`${formatEther(tx.value)}`}</TableData>
-                  <TableData>{new Date(Number(tx.timeStamp) * 1000).toString()}</TableData>
+                  <TableData>{timeAgo(Number(tx.timeStamp) * 1000)}</TableData>
                   <TableData>
                     <a
                       href={getEtherscanTxUrl(tx.hash)}

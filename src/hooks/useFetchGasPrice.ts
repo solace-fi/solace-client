@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useMemo } from 'react'
 import { fetchGasPrice } from '../utils/etherscan'
 import { useWallet } from '../context/WalletManager'
 
@@ -20,7 +20,7 @@ export type GasFeeListProps = {
 }
 
 export const useFetchGasPrice = () => {
-  const wallet = useWallet()
+  const { version, account } = useWallet()
 
   const [state, setState] = useState<GasFeeListState>({
     options: [],
@@ -28,7 +28,7 @@ export const useFetchGasPrice = () => {
     selected: undefined,
   })
 
-  useEffect(() => {
+  useMemo(() => {
     const fetchGasPrices = async () => {
       await fetchGasPrice()
         .then((result) => {
@@ -68,7 +68,7 @@ export const useFetchGasPrice = () => {
         })
     }
     fetchGasPrices()
-  }, [wallet])
+  }, [account, version])
 
   return state
 }

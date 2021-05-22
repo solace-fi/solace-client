@@ -9,7 +9,6 @@ export const useFetchTxHistoryByAddress = () => {
   useEffect(() => {
     const fetchTxHistoryByAddress = async (account: string) => {
       await fetchEtherscanTxHistoryByAddress(account).then((result) => {
-        console.log('etherscan history', result)
         setTxHistory(result)
       })
     }

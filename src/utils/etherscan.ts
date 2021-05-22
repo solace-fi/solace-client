@@ -83,7 +83,6 @@ export async function fetchEtherscanLatestBlock(): Promise<any> {
 export async function fetchEtherscanTxHistoryByAddress(address: string): Promise<any> {
   const apiPrefix = getApiPrefix()
   const block = await fetchEtherscanLatestBlock()
-  console.log(block)
   return fetch(
     `https://api${apiPrefix}.etherscan.io/api?module=account&action=txlist&address=${address}&startblock=0&endblock=${block.latestBlockNumber}&page=1&offset=10&sort=desc&apikey=${STRINGIFIED_ETHERSCAN_API_KEY}`
   )

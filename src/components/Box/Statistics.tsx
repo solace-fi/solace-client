@@ -17,14 +17,12 @@ import { fixed, getGasValue } from '../../utils/fixedValue'
 import { GAS_LIMIT } from '../../constants'
 
 import { useToasts, Condition } from '../../context/NotificationsManager'
-import { useTransactions } from '../../hooks/useTransactions'
 import { useFetchGasPrice } from '../../hooks/useFetchGasPrice'
 
 export const Statistics = () => {
   const wallet = useWallet()
   const { master, vault, solace, cpFarm, lpFarm, lpToken } = useContracts()
   const { makeToast } = useToasts()
-  const { transactions, addTransaction, updateTransactions, deleteTransactions } = useTransactions()
   const gasPrices = useFetchGasPrice()
 
   const masterContract = useRef<Contract | null>()
@@ -58,17 +56,14 @@ export const Statistics = () => {
       })
       const txHash = tx.hash
       makeToast(txType, Condition.PENDING, txHash)
-      addTransaction(txType, tx, totalUserRewards, 'Solace')
       await tx.wait().then((receipt: any) => {
         if (receipt.status) {
           console.log(receipt)
           makeToast(txType, Condition.SUCCESS, txHash)
-          updateTransactions(receipt, 'Complete')
           wallet.reload()
         } else {
           console.log(receipt)
           makeToast(txType, Condition.FAILURE, txHash)
-          deleteTransactions(tx)
           wallet.reload()
         }
       })

@@ -23,6 +23,7 @@ export type ContextWallet = {
   chainId?: number
   library?: any
   connector?: WalletConnector
+  provider?: any
   version?: number
   connect: (connector: WalletConnector, args?: Record<string, any>) => Promise<void>
   disconnect: () => void
@@ -125,12 +126,30 @@ const WalletProvider: React.FC = (props) => {
           await connect(walletConnector)
         }
       }
-      const web3Provider = await getWeb3()
-      console.log('web3', web3Provider)
-      setWeb3Provider(web3Provider)
+
       setInitialized(true)
     })()
   }, [web3React])
+
+  useEffect(() => {
+    const configWeb3 = async () => {
+      const web3 = await getWeb3()
+      setWeb3Provider(web3)
+      web3?.on('block', () => {
+        console.log('new block')
+        reload()
+      })
+      web3?.on('alchemy_newFullPendingTransactions', () => {
+        console.log('pending transactions')
+      })
+
+      return () => {
+        web3?.removeAllListeners('block')
+        web3?.removeAllListeners('alchemy_newFullPendingTransactions')
+      }
+    }
+    configWeb3()
+  }, [])
 
   const value = useMemo<ContextWallet>(
     () => ({
@@ -140,6 +159,7 @@ const WalletProvider: React.FC = (props) => {
       account: web3React.account ?? undefined,
       chainId: web3React.chainId,
       library: web3React.account ? web3Provider : provider.ethProvider,
+      provider: provider.ethProvider,
       connector: activeConnector,
       version: version,
       connect,
