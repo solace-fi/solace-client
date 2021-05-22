@@ -88,8 +88,6 @@ function Invest(): any {
   const [userVaultAssets, setUserVaultAssets] = useState<string>('0.00')
   const [userVaultShare, setUserVaultShare] = useState<number>(0)
 
-  const [pendingTxs, setPendingTxs] = useState<any>([])
-
   const openModal = async (action: string, modalTitle: string, unit: string) => {
     setShowModal((prev) => !prev)
     document.body.style.overflowY = 'hidden'
@@ -104,20 +102,6 @@ function Invest(): any {
     setLoading(false)
     setAmount('')
     setSelectedGasOption(gasPrices.options[1])
-  }
-
-  const addPendingTx = (tx: any) => {
-    const pendingTx = {
-      hash: tx.hash,
-      status: 'Pending',
-      value: tx.value,
-      timeStamp: new Date(Date.now()),
-    }
-    setPendingTxs((pendingTxs: any) => [pendingTx, ...pendingTxs])
-  }
-
-  const deletePendingTx = (hash: any) => {
-    setPendingTxs((pendingTxs: any) => pendingTxs.filter((pendingTx: any) => pendingTx.hash !== hash))
   }
 
   const getUserVaultDetails = async () => {
@@ -152,23 +136,17 @@ function Invest(): any {
       const txHash = tx.hash
       closeModal()
       makeToast(txType, Condition.PENDING, txHash)
-      const pending = await wallet.library.getTransaction(txHash)
-      addPendingTx(pending)
       await tx.wait().then((receipt: any) => {
         if (receipt.status) {
           console.log(receipt)
           makeToast(txType, Condition.SUCCESS, txHash)
-          // wallet.reload()
         } else {
           makeToast(txType, Condition.FAILURE, txHash)
-          // wallet.reload()
         }
-        deletePendingTx(txHash)
       })
     } catch (err) {
       makeToast(txType, Condition.CANCELLED)
       closeModal()
-      // wallet.reload()
     }
   }
 
@@ -188,17 +166,13 @@ function Invest(): any {
       await tx.wait().then((receipt: any) => {
         if (receipt.status) {
           makeToast(txType, Condition.SUCCESS, txHash)
-          // wallet.reload()
         } else {
           makeToast(txType, Condition.FAILURE, txHash)
-          // wallet.reload()
         }
-        deletePendingTx(txHash)
       })
     } catch (err) {
       makeToast(txType, Condition.CANCELLED)
       closeModal()
-      // wallet.reload()
     }
   }
 
@@ -208,9 +182,14 @@ function Invest(): any {
     const txType = 'Solace Capital Provider Farm Deposit'
     try {
       const approval = await vaultContract.current.approve(cpFarmContract.current.address, parseEther(amount))
-      await approval.wait()
-      await vaultContract.current.once('Approval', (owner, spender, value, tx) => {
-        console.log('approval event: ', tx)
+      const approvalHash = approval.hash
+      makeToast('Approval', Condition.PENDING, approvalHash)
+      await approval.wait().then((receipt: any) => {
+        if (receipt.status) {
+          makeToast('Approval', Condition.SUCCESS, approvalHash)
+        } else {
+          makeToast('Approval', Condition.FAILURE, approvalHash)
+        }
       })
       const tx = await cpFarmContract.current.depositCp(parseEther(amount), {
         gasPrice: getGasValue(selectedGasOption.value),
@@ -222,17 +201,13 @@ function Invest(): any {
       await tx.wait().then((receipt: any) => {
         if (receipt.status) {
           makeToast(txType, Condition.SUCCESS, txHash)
-          // wallet.reload()
         } else {
           makeToast(txType, Condition.FAILURE, txHash)
-          // wallet.reload()
         }
-        deletePendingTx(txHash)
       })
     } catch (err) {
       makeToast(txType, Condition.CANCELLED)
       closeModal()
-      // wallet.reload()
     }
   }
 
@@ -251,17 +226,13 @@ function Invest(): any {
       await tx.wait().then((receipt: any) => {
         if (receipt.status) {
           makeToast(txType, Condition.SUCCESS, txHash)
-          // wallet.reload()
         } else {
           makeToast(txType, Condition.FAILURE, txHash)
-          // wallet.reload()
         }
-        deletePendingTx(txHash)
       })
     } catch (err) {
       makeToast(txType, Condition.CANCELLED)
       closeModal()
-      // wallet.reload()
     }
   }
 
@@ -277,20 +248,17 @@ function Invest(): any {
       const txHash = tx.hash
       closeModal()
       makeToast(txType, Condition.PENDING, txHash)
+      console.log(pending)
       await tx.wait().then((receipt: any) => {
         if (receipt.status) {
           makeToast(txType, Condition.SUCCESS, txHash)
-          // wallet.reload()
         } else {
           makeToast(txType, Condition.FAILURE, txHash)
-          // wallet.reload()
         }
-        deletePendingTx(txHash)
       })
     } catch (err) {
       makeToast(txType, Condition.CANCELLED)
       closeModal()
-      // wallet.reload()
     }
   }
 
@@ -313,17 +281,13 @@ function Invest(): any {
       await tx.wait().then((receipt: any) => {
         if (receipt.status) {
           makeToast(txType, Condition.SUCCESS, txHash)
-          // wallet.reload()
         } else {
           makeToast(txType, Condition.FAILURE, txHash)
-          // wallet.reload()
         }
-        deletePendingTx(txHash)
       })
     } catch (err) {
       makeToast(txType, Condition.CANCELLED)
       closeModal()
-      // wallet.reload()
     }
   }
 
@@ -339,17 +303,13 @@ function Invest(): any {
       await tx.wait().then((receipt: any) => {
         if (receipt.status) {
           makeToast(txType, Condition.SUCCESS, txHash)
-          // wallet.reload()
         } else {
           makeToast(txType, Condition.FAILURE, txHash)
-          // wallet.reload()
         }
-        deletePendingTx(txHash)
       })
     } catch (err) {
       makeToast(txType, Condition.CANCELLED)
       closeModal()
-      // wallet.reload()
     }
   }
 
@@ -379,11 +339,11 @@ function Invest(): any {
       const nft = await mintLpToken(wethContract.current, solaceContract.current, FeeAmount.MEDIUM, BN.from(amount))
       console.log('Total Supply of LP Tokens', nft.toNumber())
       setNft(nft)
-      // wallet.reload()
+
       closeModal()
     } catch (err) {
       console.log(err)
-      // wallet.reload()
+
       closeModal()
     }
   }
@@ -496,47 +456,6 @@ function Invest(): any {
     setSelectedGasOption(gasPrices.selected)
   }, [gasPrices])
 
-  const transactionHistory =
-    txHistory.txList &&
-    txHistory.txList !== 'Max rate limit reached' &&
-    txHistory.txList.map((tx: any) => (
-      <TableRow key={tx.hash}>
-        {/* <TableData>{tx.type}</TableData> */}
-        <TableData>{`${formatEther(tx.value)}`}</TableData>
-        <TableData>{timeAgo(Number(tx.timeStamp) * 1000)}</TableData>
-        <TableData>
-          <a href={getEtherscanTxUrl(tx.hash)} target="_blank" rel="noopener noreferrer">{`${tx.hash.substring(
-            0,
-            10
-          )}...`}</a>
-        </TableData>
-        <TableData>
-          <a
-            href={getEtherscanBlockUrl(tx.blockHash)}
-            target="_blank"
-            rel="noopener noreferrer"
-          >{`${tx.blockHash.substring(0, 10)}...`}</a>
-        </TableData>
-        <TableData>{tx.txreceipt_status ? 'Complete' : 'Failed'}</TableData>
-      </TableRow>
-    ))
-
-  const pendingTransactionHistory = pendingTxs.map((pendingTx: any) => (
-    <TableRow key={pendingTx.hash}>
-      <TableData>{`${formatEther(pendingTx.value)}`}</TableData>
-      <TableData>{timeAgo(Number(pendingTx.timeStamp) * 1000)}</TableData>
-      <TableData>
-        <a
-          href={getEtherscanTxUrl(pendingTx.hash)}
-          target="_blank"
-          rel="noopener noreferrer"
-        >{`${pendingTx.hash.substring(0, 10)}...`}</a>
-      </TableData>
-      <TableData>{`...`}</TableData>
-      <TableData>{pendingTx.status}</TableData>
-    </TableRow>
-  ))
-
   return (
     <Fragment>
       <Modal isOpen={showModal}>
@@ -570,8 +489,7 @@ function Invest(): any {
             </ModalCell>
           </ModalRow>
           <RadioGroup>
-            {
-              //!gasPrices.loading ? (
+            {!gasPrices.loading ? (
               gasPrices.options.map((option) => (
                 <RadioLabel key={option.key}>
                   <RadioInput
@@ -586,10 +504,9 @@ function Invest(): any {
                   </RadioElement>
                 </RadioLabel>
               ))
-              // ) : (
-              //   <Loader />
-              // )
-            }
+            ) : (
+              <Loader />
+            )}
           </RadioGroup>
           {action == 'depositVaultOrEth' ? (
             <ModalRow>
@@ -717,13 +634,29 @@ function Invest(): any {
             </TableRow>
           </TableHead>
           <TableBody>
-            {txHistory.txList !== 'Max rate limit reached' ? (
-              pendingTransactionHistory && transactionHistory
-            ) : (
-              <TableRow>
-                <Loader />
-              </TableRow>
-            )}
+            {txHistory.txList &&
+              txHistory.txList.map((tx: any) => (
+                <TableRow key={tx.hash}>
+                  {/* <TableData>{tx.type}</TableData> */}
+                  <TableData>{`${formatEther(tx.value)}`}</TableData>
+                  <TableData>{timeAgo(Number(tx.timeStamp) * 1000)}</TableData>
+                  <TableData>
+                    <a
+                      href={getEtherscanTxUrl(tx.hash)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >{`${tx.hash.substring(0, 10)}...`}</a>
+                  </TableData>
+                  <TableData>
+                    <a
+                      href={getEtherscanBlockUrl(tx.blockHash)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >{`${tx.blockHash.substring(0, 10)}...`}</a>
+                  </TableData>
+                  <TableData>{tx.txreceipt_status ? 'Complete' : 'Failed'}</TableData>
+                </TableRow>
+              ))}
           </TableBody>
         </Table>
       </Content>
