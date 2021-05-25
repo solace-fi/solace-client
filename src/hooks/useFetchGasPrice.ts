@@ -32,7 +32,6 @@ export const useFetchGasPrice = () => {
     const fetchGasPrices = async () => {
       await fetchGasPrice()
         .then((result) => {
-          console.log(result, version)
           const options = [
             {
               key: 'safeLow',

@@ -1,79 +1,75 @@
-import React, { useMemo, useContext, createContext, useEffect } from 'react'
+import React, { useMemo, useContext, createContext, useEffect, useCallback } from 'react'
 import { useLocalStorage } from 'react-use-storage'
-import { useProvider } from './ProviderManager'
+// import { useProvider } from './ProviderManager'
 import { useWallet } from './WalletManager'
 
+type LocalTx = {
+  hash: any
+  type: string
+  value: string
+  status: string
+}
+
 export type UserData = {
-  pendingTransactions: any | undefined
-  addPendingTransactions: (txsToAdd: any[]) => void
-  deletePendingTransactions: (txsToDelete: any[]) => void
-  removePendingTransactions: () => void
+  localTransactions: any | undefined
+  addLocalTransactions: (txToAdd: LocalTx) => void
+  updateLocalTransactions: (txToUpdate: LocalTx, newStatus: string) => void
+  deleteLocalTransactions: (txsToDelete: []) => void
+  removeLocalTransactions: () => void
 }
 
 const UserDataContext = createContext<UserData>({
-  pendingTransactions: undefined,
-  addPendingTransactions: () => undefined,
-  deletePendingTransactions: () => undefined,
-  removePendingTransactions: () => undefined,
+  localTransactions: undefined,
+  addLocalTransactions: () => undefined,
+  updateLocalTransactions: () => undefined,
+  deleteLocalTransactions: () => undefined,
+  removeLocalTransactions: () => undefined,
 })
 
 const UserDataProvider: React.FC = (props) => {
-  const provider = useProvider()
-  const { account, version, web3Provider, reload } = useWallet()
-  const [pendingTxs, setPendingTxs, removePendingTxs] = useLocalStorage<any | undefined>('pending_txs', [])
+  // const provider = useProvider()
+  const { account, chainId, reload, disconnect } = useWallet()
+  const [localTxs, setLocalTxs, removeLocalTxs] = useLocalStorage<LocalTx[] | undefined>('local_txs', [])
 
-  const addPendingTransactions = (txToAdd: any) => {
-    if (pendingTxs) {
-      // setPendingTxs([txToAdd, ...pendingTxs])
-    }
-    reload()
-  }
-
-  const deletePendingTransactions = (txsToDelete: any[]) => {
-    if (pendingTxs) {
-      const filteredPendingTxs = pendingTxs.filter((finishedtx: any) => !txsToDelete.includes(finishedtx))
-      if (filteredPendingTxs !== pendingTxs) {
-        reload()
-      }
-      // setPendingTxs(filteredPendingTxs)
+  const addLocalTransactions = (txToAdd: LocalTx) => {
+    console.log('calling addLocalTransactions', localTxs, 'txToAdd', txToAdd)
+    if (localTxs !== undefined) {
+      setLocalTxs([txToAdd, ...localTxs])
     }
   }
 
-  useEffect(() => {
-    const configAlchemy = async () => {
-      if (provider.alchemyProvider) {
-        const pendingSub = provider.alchemyProvider.eth.subscribe('alchemy_fullPendingTransactions')
-        pendingSub.on('data', (tx: any) => {
-          if (tx.from == account?.toLowerCase()) {
-            console.log(tx)
-            addPendingTransactions(tx)
-          }
-        })
-
-        web3Provider?.on('block', (blockNum: any) => {
-          web3Provider.getBlock(blockNum).then((res: any) => {
-            deletePendingTransactions(res.transactions)
-          })
-        })
-      }
+  const updateLocalTransactions = (txToUpdate: LocalTx, newStatus: string) => {
+    console.log('calling updateLocalTransactions', localTxs, 'txToUpdate', txToUpdate)
+    if (localTxs) {
+      const updatedLocalTxs = localTxs.map((tx: LocalTx) =>
+        txToUpdate.hash == tx.hash ? { ...tx, status: newStatus } : tx
+      )
+      setLocalTxs(updatedLocalTxs)
     }
-    configAlchemy()
+  }
 
-    return () => {
-      provider.alchemyProvider?.eth.clearSubscriptions((res) => {
-        console.log('cleared subscription', res)
-      })
+  const deleteLocalTransactions = (txsToDelete: any[]) => {
+    console.log('calling deleteLocalTransactions', localTxs, 'txToUpdate', txsToDelete)
+    if (localTxs) {
+      const passedLocalTxs = localTxs.filter((tx: LocalTx) => !txsToDelete.includes(tx))
+      console.log('passedLocalTxs', passedLocalTxs)
+      setLocalTxs(passedLocalTxs)
     }
-  }, [provider, account, version])
+  }
+
+  const clearLocalTransactions = useCallback(() => {
+    removeLocalTxs()
+  }, [disconnect, account, chainId])
 
   const value = useMemo<UserData>(
     () => ({
-      pendingTransactions: pendingTxs,
-      addPendingTransactions,
-      deletePendingTransactions,
-      removePendingTransactions: removePendingTxs,
+      localTransactions: localTxs,
+      addLocalTransactions,
+      updateLocalTransactions,
+      deleteLocalTransactions,
+      removeLocalTransactions: clearLocalTransactions,
     }),
-    []
+    [localTxs, addLocalTransactions, updateLocalTransactions]
   )
 
   return <UserDataContext.Provider value={value}>{props.children}</UserDataContext.Provider>

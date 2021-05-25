@@ -9,7 +9,7 @@ import { useUserStakedValue } from './useUserStakedValue'
 
 const useMasterValues = (farmId: number) => {
   const { master } = useContracts()
-  const { version } = useWallet()
+  const { dataVersion } = useWallet()
   const [masterValues, setMasterValues] = useState({ allocPoints: ZERO, totalAllocPoints: ZERO, solacePerBlock: ZERO })
 
   useEffect(() => {
@@ -25,7 +25,7 @@ const useMasterValues = (farmId: number) => {
       }
     }
     getMasterValues()
-  }, [farmId, master, version])
+  }, [farmId, master, dataVersion])
   return [masterValues]
 }
 
@@ -77,7 +77,7 @@ export const useUserRewardsPerDay = (farmId: number, farm: Contract | null | und
 
 export const useUserPendingRewards = (farm: Contract | null | undefined) => {
   const { master } = useContracts()
-  const { account, version } = useWallet()
+  const { account, dataVersion } = useWallet()
   const [userRewards, setUserRewards] = useState<string>('0.00')
 
   useEffect(() => {
@@ -94,7 +94,7 @@ export const useUserPendingRewards = (farm: Contract | null | undefined) => {
       }
     }
     getUserPendingRewards()
-  }, [account, farm, master, version])
+  }, [account, farm, master, dataVersion])
 
   return [userRewards]
 }

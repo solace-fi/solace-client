@@ -6,7 +6,7 @@ import { formatEther } from '@ethersproject/units'
 export const usePoolStakedValue = (farm: Contract | null | undefined) => {
   const [poolValue, setPoolValue] = useState<string>('0.00')
 
-  const { version } = useWallet()
+  const { dataVersion } = useWallet()
 
   useEffect(() => {
     const getPoolStakedValue = async () => {
@@ -20,7 +20,7 @@ export const usePoolStakedValue = (farm: Contract | null | undefined) => {
       }
     }
     getPoolStakedValue()
-  }, [farm, version])
+  }, [farm, dataVersion])
 
   return poolValue
 }

@@ -5,10 +5,10 @@ import { getEtherscanTxUrl } from '../utils/etherscan'
 import { toast, ToastContainer } from 'react-toastify'
 
 export enum Condition {
-  SUCCESS = 0,
-  FAILURE = 1,
-  PENDING = 2,
-  CANCELLED = 3,
+  SUCCESS = 'Complete',
+  FAILURE = 'Incomplete',
+  PENDING = 'Pending',
+  CANCELLED = 'Cancelled',
 }
 
 export type ToastSystem = {
@@ -34,7 +34,7 @@ const ToastsProvider: React.FC = (props) => {
       </div>
     )
     switch (condition) {
-      case 0:
+      case 'Complete':
         if (txHash) {
           toast.update(txHash, {
             render: Toast(txType, 'successful'),
@@ -45,7 +45,7 @@ const ToastsProvider: React.FC = (props) => {
           })
         }
         break
-      case 1:
+      case 'Incomplete':
         if (txHash) {
           toast.update(txHash, {
             render: Toast(txType, 'failed'),
@@ -56,7 +56,7 @@ const ToastsProvider: React.FC = (props) => {
           })
         }
         break
-      case 2:
+      case 'Pending':
         if (txHash) {
           toast(Toast(txType, 'pending'), {
             toastId: txHash,

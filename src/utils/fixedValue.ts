@@ -1,7 +1,7 @@
 import { BigNumber } from 'ethers'
 
-export const fixed = (n: number) => {
-  return Math.floor(n * 100) / 100
+export const fixed = (n: number, decimals = 1) => {
+  return Math.floor(n * Math.pow(10, decimals)) / Math.pow(10, decimals)
 }
 
 export const getNonHumanValue = (value: BigNumber | number, decimals = 0): BigNumber => {
@@ -18,4 +18,10 @@ export const getExponentValue = (decimals = 0): BigNumber => {
 
 export const getHumanValue = (value?: BigNumber, decimals = 0): BigNumber | undefined => {
   return value?.div(getExponentValue(decimals))
+}
+
+export const filteredAmount = (input: string, amount: string): string => {
+  if (!amount && input == '.') input = '.'
+  const filteredAmount = input.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1')
+  return filteredAmount
 }

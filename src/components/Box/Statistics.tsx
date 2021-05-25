@@ -17,13 +17,13 @@ import { fixed, getGasValue } from '../../utils/fixedValue'
 import { GAS_LIMIT } from '../../constants'
 
 import { useToasts, Condition } from '../../context/NotificationsManager'
-import { useFetchGasPrice } from '../../hooks/useFetchGasPrice'
+import { useUserData } from '../../context/UserDataManager'
 
 export const Statistics = () => {
   const wallet = useWallet()
   const { master, vault, solace, cpFarm, lpFarm, lpToken } = useContracts()
   const { makeToast } = useToasts()
-  const gasPrices = useFetchGasPrice()
+  const { addLocalTransactions, updateLocalTransactions } = useUserData()
 
   const masterContract = useRef<Contract | null>()
   const vaultContract = useRef<Contract | null>()
@@ -49,13 +49,18 @@ export const Statistics = () => {
     const txType = 'Claim Rewards'
     try {
       const tx = await masterContract.current.withdrawRewards({
-        gasPrice: getGasValue(gasPrices.options[1].value),
+        gasPrice: getGasValue(wallet.gasPrices.options[1].value),
         gasLimit: GAS_LIMIT,
       })
       const txHash = tx.hash
+      addLocalTransactions({ hash: txHash, type: txType, value: '0', status: Condition.PENDING })
       makeToast(txType, Condition.PENDING, txHash)
+      wallet.reload()
       await tx.wait().then((receipt: any) => {
-        makeToast(txType, receipt.status ? Condition.SUCCESS : Condition.FAILURE, txHash)
+        const status = receipt.status ? Condition.SUCCESS : Condition.FAILURE
+        makeToast(txType, status, txHash)
+        updateLocalTransactions(tx, status)
+        wallet.reload()
       })
     } catch (err) {
       if (err?.code === 4001) {
@@ -64,6 +69,7 @@ export const Statistics = () => {
         console.log(`transaction failed: ${err.message}`)
       }
       makeToast(txType, Condition.CANCELLED)
+      wallet.reload()
     }
   }
 

@@ -11,6 +11,7 @@ import getLibrary from '../utils/getLibrary'
 import { useReload } from '../hooks/useReload'
 import { useProvider } from './ProviderManager'
 import { Web3Provider } from '@ethersproject/providers'
+import { useFetchGasPrice } from '../hooks/useFetchGasPrice'
 
 export const WalletConnectors = SUPPORTED_WALLETS
 
@@ -24,9 +25,12 @@ export type ContextWallet = {
   web3Provider?: any
   connector?: WalletConnector
   version?: number
+  dataVersion?: any
+  gasPrices?: any
   connect: (connector: WalletConnector, args?: Record<string, any>) => Promise<void>
   disconnect: () => void
   reload: () => void
+  dataReload: () => void
 }
 
 const WalletContext = createContext<ContextWallet>({
@@ -39,19 +43,23 @@ const WalletContext = createContext<ContextWallet>({
   web3Provider: undefined,
   connector: undefined,
   version: undefined,
+  dataVersion: undefined,
+  gasPrices: undefined,
   connect: () => Promise.reject(),
   disconnect: () => undefined,
   reload: () => undefined,
+  dataReload: () => undefined,
 })
 
 const WalletProvider: React.FC = (props) => {
   const web3React = useWeb3React()
   const [localProvider, setLocalProvider, removeLocalProvider] = useLocalStorage<string | undefined>('wallet_provider')
-
+  const gasPrices = useFetchGasPrice()
   const [activeConnector, setActiveConnector] = useState<WalletConnector | undefined>()
   const [connecting, setConnecting] = useState<WalletConnector | undefined>(undefined)
   const [initialized, setInitialized] = useState<boolean>(false)
   const [reload, version] = useReload()
+  const [dataReload, dataVersion] = useReload()
   const [web3Provider, setWeb3Provider] = useState<Web3Provider>()
   const connectingRef = useRef<WalletConnector | undefined>(connecting)
   connectingRef.current = connecting
@@ -135,14 +143,11 @@ const WalletProvider: React.FC = (props) => {
     const configWeb3 = async () => {
       const web3 = await getWeb3()
       setWeb3Provider(web3)
-      web3?.on('block', () => {
-        reload()
-      })
     }
     configWeb3()
-
+    const dataInterval = setInterval(() => dataReload(), 5000)
     return () => {
-      web3Provider?.removeAllListeners('block')
+      clearInterval(dataInterval)
     }
   }, [])
 
@@ -156,10 +161,13 @@ const WalletProvider: React.FC = (props) => {
       library: web3React.account ? web3Provider : provider.ethProvider,
       web3Provider: web3Provider,
       connector: activeConnector,
-      version: version,
+      version,
+      dataVersion,
+      gasPrices,
       connect,
       disconnect,
       reload,
+      dataReload,
     }),
     [web3React, provider, initialized, connecting, activeConnector, version, disconnect, connect]
   )

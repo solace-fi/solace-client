@@ -2,11 +2,9 @@ import React, { useState, useEffect, Fragment } from 'react'
 import user from '../../static/user-avatar.png'
 
 import { useWallet } from '../../context/WalletManager'
-import { formatEther, parseEther } from '@ethersproject/units'
 import { SUPPORTED_WALLETS } from '../../ethers/wallets'
 import { User, UserImage, UserWallet, UserName } from './index'
 import { useEthBalance } from '../../hooks/useEthBalance'
-import { fixed } from '../../utils/fixedValue'
 
 import { Button } from '../Button'
 

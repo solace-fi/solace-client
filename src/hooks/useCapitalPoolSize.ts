@@ -4,7 +4,7 @@ import { useWallet } from '../context/WalletManager'
 
 export const useCapitalPoolSize = () => {
   const { vault, registry } = useContracts()
-  const { version } = useWallet()
+  const { version, dataVersion } = useWallet()
   const [capitalPoolSize, setCapitalPoolSize] = useState<number>(0)
 
   useEffect(() => {
@@ -18,7 +18,7 @@ export const useCapitalPoolSize = () => {
       }
     }
     getCapitalPoolSize()
-  }, [vault, registry, version])
+  }, [vault, registry, version, dataVersion])
 
   return capitalPoolSize
 }
