@@ -7,7 +7,6 @@ import { WalletConnector, SUPPORTED_WALLETS } from '../ethers/wallets'
 
 import { Web3ReactProvider } from '@web3-react/core'
 
-// helper hook for wallet balance
 import getLibrary from '../utils/getLibrary'
 import { useReload } from '../hooks/useReload'
 import { useProvider } from './ProviderManager'
@@ -22,8 +21,8 @@ export type ContextWallet = {
   account?: string
   chainId?: number
   library?: any
+  web3Provider?: any
   connector?: WalletConnector
-  provider?: any
   version?: number
   connect: (connector: WalletConnector, args?: Record<string, any>) => Promise<void>
   disconnect: () => void
@@ -37,8 +36,8 @@ const WalletContext = createContext<ContextWallet>({
   account: undefined,
   chainId: undefined,
   library: undefined,
+  web3Provider: undefined,
   connector: undefined,
-  provider: undefined,
   version: undefined,
   connect: () => Promise.reject(),
   disconnect: () => undefined,
@@ -49,15 +48,16 @@ const WalletProvider: React.FC = (props) => {
   const web3React = useWeb3React()
   const [localProvider, setLocalProvider, removeLocalProvider] = useLocalStorage<string | undefined>('wallet_provider')
 
-  const [initialized, setInitialized] = useState<boolean>(false)
+  const [activeConnector, setActiveConnector] = useState<WalletConnector | undefined>()
   const [connecting, setConnecting] = useState<WalletConnector | undefined>(undefined)
+  const [initialized, setInitialized] = useState<boolean>(false)
+  const [reload, version] = useReload()
+  const [web3Provider, setWeb3Provider] = useState<Web3Provider>()
   const connectingRef = useRef<WalletConnector | undefined>(connecting)
   connectingRef.current = connecting
-  const [activeConnector, setActiveConnector] = useState<WalletConnector | undefined>()
-  const [reload, version] = useReload()
+
   const provider = useProvider()
 
-  const [web3Provider, setWeb3Provider] = useState<Web3Provider>()
   const _window = window as any
 
   const getWeb3 = async () => {
@@ -136,15 +136,14 @@ const WalletProvider: React.FC = (props) => {
       const web3 = await getWeb3()
       setWeb3Provider(web3)
       web3?.on('block', () => {
-        console.log('new block')
         reload()
       })
-
-      return () => {
-        web3?.removeAllListeners('block')
-      }
     }
     configWeb3()
+
+    return () => {
+      web3Provider?.removeAllListeners('block')
+    }
   }, [])
 
   const value = useMemo<ContextWallet>(
@@ -155,7 +154,7 @@ const WalletProvider: React.FC = (props) => {
       account: web3React.account ?? undefined,
       chainId: web3React.chainId,
       library: web3React.account ? web3Provider : provider.ethProvider,
-      provider: provider.ethProvider,
+      web3Provider: web3Provider,
       connector: activeConnector,
       version: version,
       connect,

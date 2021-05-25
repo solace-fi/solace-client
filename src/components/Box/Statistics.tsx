@@ -55,15 +55,7 @@ export const Statistics = () => {
       const txHash = tx.hash
       makeToast(txType, Condition.PENDING, txHash)
       await tx.wait().then((receipt: any) => {
-        if (receipt.status) {
-          console.log(receipt)
-          makeToast(txType, Condition.SUCCESS, txHash)
-          // wallet.reload()
-        } else {
-          console.log(receipt)
-          makeToast(txType, Condition.FAILURE, txHash)
-          // wallet.reload()
-        }
+        makeToast(txType, receipt.status ? Condition.SUCCESS : Condition.FAILURE, txHash)
       })
     } catch (err) {
       if (err?.code === 4001) {
@@ -72,7 +64,6 @@ export const Statistics = () => {
         console.log(`transaction failed: ${err.message}`)
       }
       makeToast(txType, Condition.CANCELLED)
-      // wallet.reload()
     }
   }
 

@@ -1,4 +1,4 @@
-import { ETHERSCAN_API_KEY, CHAIN_ID } from '../constants'
+import { ETHERSCAN_API_KEY, CHAIN_ID, CONTRACTS_ARRAY } from '../constants'
 const STRINGIFIED_ETHERSCAN_API_KEY = String(ETHERSCAN_API_KEY)
 
 type GasPriceResult = {
@@ -84,13 +84,17 @@ export async function fetchEtherscanTxHistoryByAddress(address: string): Promise
   const apiPrefix = getApiPrefix()
   const block = await fetchEtherscanLatestBlock()
   return fetch(
-    `https://api${apiPrefix}.etherscan.io/api?module=account&action=txlist&address=${address}&startblock=0&endblock=${block.latestBlockNumber}&page=1&offset=10&sort=desc&apikey=${STRINGIFIED_ETHERSCAN_API_KEY}`
+    `https://api${apiPrefix}.etherscan.io/api?module=account&action=txlist&address=${address}&startblock=0&endblock=${block.latestBlockNumber}&page=1&offset=40&sort=desc&apikey=${STRINGIFIED_ETHERSCAN_API_KEY}`
   )
     .then((result) => result.json())
     .then((result) => result.result)
     .then((result) => {
+      const filteredResult =
+        result !== 'Max rate limit reached'
+          ? result.filter((tx: any) => CONTRACTS_ARRAY.includes(tx.to)).slice(0, 30)
+          : []
       return {
-        txList: result,
+        txList: filteredResult,
       }
     })
 }

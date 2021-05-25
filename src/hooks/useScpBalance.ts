@@ -5,7 +5,7 @@ import { formatEther } from '@ethersproject/units'
 
 export const useScpBalance = () => {
   const { vault } = useContracts()
-  const { account, version } = useWallet()
+  const { account, version, chainId } = useWallet()
   const [scpBalance, setScpBalance] = useState<string>('0.00')
 
   useEffect(() => {
@@ -20,7 +20,7 @@ export const useScpBalance = () => {
       }
     }
     getScpBalance()
-  }, [account, vault, version])
+  }, [account, vault, version, chainId])
 
   return scpBalance
 }

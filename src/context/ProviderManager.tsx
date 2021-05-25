@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { CHAIN_ID, ALCHEMY_API_KEY } from '../constants'
-import { JsonRpcProvider, getDefaultProvider, Provider } from '@ethersproject/providers'
+import { getDefaultProvider, Provider } from '@ethersproject/providers'
 import { createAlchemyWeb3, AlchemyWeb3 } from '@alch/alchemy-web3'
 
 export function getNetworkName(chainId: number | undefined): string {
@@ -42,16 +42,12 @@ const ProviderManager: React.FC = ({ children }) => {
 
   useEffect(() => {
     const getProviders = async () => {
-      const provider = new JsonRpcProvider(
-        `https://eth-${getNetworkName(Number(CHAIN_ID))}.alchemyapi.io/v2/${ALCHEMY_API_KEY}`
-      )
       const fallbackprovider = getDefaultProvider(getNetworkName(Number(CHAIN_ID)), { alchemy: ALCHEMY_API_KEY })
       setEthProvider(fallbackprovider)
-      // const alchemyProvider = createAlchemyWeb3(
-      //   `wss://eth-${getNetworkName(Number(CHAIN_ID))}.ws.alchemyapi.io/v2/${ALCHEMY_API_KEY}`
-      // )
-      // setAlchemyProvider(alchemyProvider)
-      // alchemyProvider.eth.getBlockNumber().then(console.log)
+      const alchemyProvider = createAlchemyWeb3(
+        `wss://eth-${getNetworkName(Number(CHAIN_ID))}.ws.alchemyapi.io/v2/${ALCHEMY_API_KEY}`
+      )
+      setAlchemyProvider(alchemyProvider)
     }
     getProviders()
   }, [])

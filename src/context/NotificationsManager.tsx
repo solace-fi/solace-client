@@ -1,8 +1,8 @@
-import React, { createContext, useContext, useMemo } from 'react'
-import { toast, ToastContainer } from 'react-toastify'
-import 'react-toastify/dist/ReactToastify.css'
 import 'animate.css/animate.min.css'
+import 'react-toastify/dist/ReactToastify.css'
+import React, { createContext, useContext, useMemo } from 'react'
 import { getEtherscanTxUrl } from '../utils/etherscan'
+import { toast, ToastContainer } from 'react-toastify'
 
 export enum Condition {
   SUCCESS = 0,

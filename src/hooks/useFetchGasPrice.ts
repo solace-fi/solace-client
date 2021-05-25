@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { fetchGasPrice } from '../utils/etherscan'
 import { useWallet } from '../context/WalletManager'
 
@@ -32,26 +32,27 @@ export const useFetchGasPrice = () => {
     const fetchGasPrices = async () => {
       await fetchGasPrice()
         .then((result) => {
+          console.log(result, version)
           const options = [
             {
               key: 'safeLow',
               name: 'Slow',
-              value: result.safeLow,
+              value: result.safeLow != NaN ? result.safeLow : state.options[0].value,
             },
             {
               key: 'average',
               name: 'Standard',
-              value: result.average,
+              value: result.average != NaN ? result.average : state.options[1].value,
             },
             {
               key: 'fast',
               name: 'Fast',
-              value: result.fast,
+              value: result.fast != NaN ? result.fast : state.options[2].value,
             },
             {
               key: 'fastest',
               name: 'Very fast',
-              value: result.veryFast,
+              value: result.veryFast != NaN ? result.veryFast : state.options[3].value,
             },
           ]
           setState({

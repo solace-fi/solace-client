@@ -2,9 +2,9 @@ import React, { useEffect, useRef, useState, Fragment } from 'react'
 
 import { Contract } from '@ethersproject/contracts'
 import { formatEther, parseEther } from '@ethersproject/units'
-import { BigNumberish, BigNumber as BN, utils } from 'ethers'
+import { BigNumberish, BigNumber as BN } from 'ethers'
 
-import { CHAIN_ID, ZERO, DEADLINE, CP_ROI, LP_ROI, GAS_LIMIT } from '../../constants'
+import { ZERO, DEADLINE, CP_ROI, LP_ROI, GAS_LIMIT } from '../../constants'
 
 import { useContracts } from '../../context/ContractsManager'
 import { useWallet } from '../../context/WalletManager'
@@ -27,10 +27,11 @@ import { Heading1, Heading2 } from '../../components/Text'
 import { Content } from '../../components/Layout'
 
 import getPermitNFTSignature from '../../utils/signature'
-import { encodePriceSqrt, FeeAmount, TICK_SPACINGS, getMaxTick, getMinTick } from '../../utils/uniswap'
+import { FeeAmount, TICK_SPACINGS, getMaxTick, getMinTick } from '../../utils/uniswap'
 import { fixed, getGasValue } from '../../utils/fixedValue'
 import { getProviderOrSigner } from '../../utils/index'
 import { timeAgo } from '../../utils/timeAgo'
+import { decodeInput } from '../../utils/decoder'
 
 import { GasFeeOption } from '../../hooks/useFetchGasPrice'
 import { useCapitalPoolSize } from '../../hooks/useCapitalPoolSize'
@@ -43,11 +44,12 @@ import { useUserStakedValue } from '../../hooks/useUserStakedValue'
 import { useToasts, Condition } from '../../context/NotificationsManager'
 import { useFetchTxHistoryByAddress } from '../../hooks/useFetchTxHistoryByAddress'
 import { getEtherscanTxUrl, getEtherscanBlockUrl } from '../../utils/etherscan'
-import getLibrary from '../../utils/getLibrary'
+import { useUserData } from '../../context/UserDataManager'
 
 function Invest(): any {
   const { makeToast } = useToasts()
   const wallet = useWallet()
+  const { pendingTransactions } = useUserData()
   const { master, vault, solace, cpFarm, lpFarm, lpToken, weth, registry } = useContracts()
 
   const masterContract = useRef<Contract | null>()
@@ -137,12 +139,7 @@ function Invest(): any {
       closeModal()
       makeToast(txType, Condition.PENDING, txHash)
       await tx.wait().then((receipt: any) => {
-        if (receipt.status) {
-          console.log(receipt)
-          makeToast(txType, Condition.SUCCESS, txHash)
-        } else {
-          makeToast(txType, Condition.FAILURE, txHash)
-        }
+        makeToast(txType, receipt.status ? Condition.SUCCESS : Condition.FAILURE, txHash)
       })
     } catch (err) {
       makeToast(txType, Condition.CANCELLED)
@@ -164,11 +161,7 @@ function Invest(): any {
       closeModal()
       makeToast(txType, Condition.PENDING, txHash)
       await tx.wait().then((receipt: any) => {
-        if (receipt.status) {
-          makeToast(txType, Condition.SUCCESS, txHash)
-        } else {
-          makeToast(txType, Condition.FAILURE, txHash)
-        }
+        makeToast(txType, receipt.status ? Condition.SUCCESS : Condition.FAILURE, txHash)
       })
     } catch (err) {
       makeToast(txType, Condition.CANCELLED)
@@ -199,11 +192,7 @@ function Invest(): any {
       closeModal()
       makeToast(txType, Condition.PENDING, txHash)
       await tx.wait().then((receipt: any) => {
-        if (receipt.status) {
-          makeToast(txType, Condition.SUCCESS, txHash)
-        } else {
-          makeToast(txType, Condition.FAILURE, txHash)
-        }
+        makeToast(txType, receipt.status ? Condition.SUCCESS : Condition.FAILURE, txHash)
       })
     } catch (err) {
       makeToast(txType, Condition.CANCELLED)
@@ -224,11 +213,7 @@ function Invest(): any {
       closeModal()
       makeToast(txType, Condition.PENDING, txHash)
       await tx.wait().then((receipt: any) => {
-        if (receipt.status) {
-          makeToast(txType, Condition.SUCCESS, txHash)
-        } else {
-          makeToast(txType, Condition.FAILURE, txHash)
-        }
+        makeToast(txType, receipt.status ? Condition.SUCCESS : Condition.FAILURE, txHash)
       })
     } catch (err) {
       makeToast(txType, Condition.CANCELLED)
@@ -250,11 +235,7 @@ function Invest(): any {
       makeToast(txType, Condition.PENDING, txHash)
       console.log(pending)
       await tx.wait().then((receipt: any) => {
-        if (receipt.status) {
-          makeToast(txType, Condition.SUCCESS, txHash)
-        } else {
-          makeToast(txType, Condition.FAILURE, txHash)
-        }
+        makeToast(txType, receipt.status ? Condition.SUCCESS : Condition.FAILURE, txHash)
       })
     } catch (err) {
       makeToast(txType, Condition.CANCELLED)
@@ -279,11 +260,7 @@ function Invest(): any {
       closeModal()
       makeToast(txType, Condition.PENDING, txHash)
       await tx.wait().then((receipt: any) => {
-        if (receipt.status) {
-          makeToast(txType, Condition.SUCCESS, txHash)
-        } else {
-          makeToast(txType, Condition.FAILURE, txHash)
-        }
+        makeToast(txType, receipt.status ? Condition.SUCCESS : Condition.FAILURE, txHash)
       })
     } catch (err) {
       makeToast(txType, Condition.CANCELLED)
@@ -301,11 +278,7 @@ function Invest(): any {
       closeModal()
       makeToast(txType, Condition.PENDING, txHash)
       await tx.wait().then((receipt: any) => {
-        if (receipt.status) {
-          makeToast(txType, Condition.SUCCESS, txHash)
-        } else {
-          makeToast(txType, Condition.FAILURE, txHash)
-        }
+        makeToast(txType, receipt.status ? Condition.SUCCESS : Condition.FAILURE, txHash)
       })
     } catch (err) {
       makeToast(txType, Condition.CANCELLED)
@@ -500,7 +473,7 @@ function Invest(): any {
                   />
                   <RadioElement>
                     <div>{option.name}</div>
-                    <div>{option.value ? option.value : 0}</div>
+                    <div>{option.value}</div>
                   </RadioElement>
                 </RadioLabel>
               ))
@@ -625,7 +598,7 @@ function Invest(): any {
         <Table>
           <TableHead>
             <TableRow>
-              {/* <TableHeader>Type</TableHeader> */}
+              <TableHeader>Type</TableHeader>
               <TableHeader>Amount</TableHeader>
               <TableHeader>Time</TableHeader>
               <TableHeader>Hash</TableHeader>
@@ -634,10 +607,27 @@ function Invest(): any {
             </TableRow>
           </TableHead>
           <TableBody>
+            {/* {pendingTransactions &&
+              pendingTransactions.map((pendingtx: any) => (
+                <TableRow key={pendingtx.hash}>
+                  <TableData>{decodeInput(pendingtx).function_name}</TableData>
+                  <TableData>{`${formatEther(pendingtx.value)}`}</TableData>
+                  <TableData>{timeAgo(Number(Date.now()) * 1000)}</TableData>
+                  <TableData>
+                    <a
+                      href={getEtherscanTxUrl(pendingtx.hash)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >{`${pendingtx.hash.substring(0, 10)}...`}</a>
+                  </TableData>
+                  <TableData>...</TableData>
+                  <TableData>{'Pending'}</TableData>
+                </TableRow>
+              ))} */}
             {txHistory.txList &&
               txHistory.txList.map((tx: any) => (
                 <TableRow key={tx.hash}>
-                  {/* <TableData>{tx.type}</TableData> */}
+                  <TableData>{decodeInput(tx).function_name}</TableData>
                   <TableData>{`${formatEther(tx.value)}`}</TableData>
                   <TableData>{timeAgo(Number(tx.timeStamp) * 1000)}</TableData>
                   <TableData>
