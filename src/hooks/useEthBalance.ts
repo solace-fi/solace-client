@@ -3,7 +3,7 @@ import { useWallet } from '../context/WalletManager'
 import { formatEther } from '@ethersproject/units'
 
 export const useEthBalance = (): string => {
-  const { account, library, version, chainId } = useWallet()
+  const { account, library, version, chainId, connect } = useWallet()
   const [balance, setBalance] = useState<string>('0.00')
 
   useEffect(() => {
@@ -18,7 +18,7 @@ export const useEthBalance = (): string => {
       }
     }
     getEthBalance()
-  }, [account, library, version, chainId])
+  }, [account, library, version, chainId, connect])
 
   return balance
 }

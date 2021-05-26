@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
-import { CHAIN_ID, ALCHEMY_API_KEY, ETHERSCAN_API_KEY } from '../constants'
-import { getDefaultProvider, Provider } from '@ethersproject/providers'
+import { CHAIN_ID, ALCHEMY_API_KEY } from '../constants'
+import { Provider, JsonRpcProvider } from '@ethersproject/providers'
 import { getNetworkName } from '../utils'
 
 export type ProviderContextType = {
@@ -22,11 +22,10 @@ const ProviderManager: React.FC = ({ children }) => {
 
   useEffect(() => {
     const getProviders = async () => {
-      const fallbackprovider = getDefaultProvider(getNetworkName(Number(CHAIN_ID)), {
-        alchemy: ALCHEMY_API_KEY,
-        etherscan: ETHERSCAN_API_KEY,
-      })
-      setEthProvider(fallbackprovider)
+      const provider = new JsonRpcProvider(
+        `https://eth-${getNetworkName(Number(CHAIN_ID))}.alchemyapi.io/v2/${ALCHEMY_API_KEY}`
+      )
+      setEthProvider(provider)
     }
     getProviders()
   }, [])

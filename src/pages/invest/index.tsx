@@ -61,7 +61,7 @@ enum Unit {
 }
 
 function Invest(): any {
-  const { makeToast } = useToasts()
+  const { errors, makeToast } = useToasts()
   const wallet = useWallet()
   const { localTransactions, addLocalTransactions } = useUserData()
   const { master, vault, solace, cpFarm, lpFarm, lpToken, weth, registry } = useContracts()
@@ -583,8 +583,12 @@ function Invest(): any {
               <TableHeader width={100}>Total Assets</TableHeader>
               <TableHeader width={100}>ROI (1Y)</TableHeader>
               {wallet.account ? <TableHeader width={130}>Your Vault Share</TableHeader> : null}
-              <TableHeader width={100}></TableHeader>
-              <TableHeader width={170}></TableHeader>
+              {wallet.account && (
+                <Fragment>
+                  <TableHeader width={100}></TableHeader>
+                  <TableHeader width={170}></TableHeader>
+                </Fragment>
+              )}
             </TableRow>
           </TableHead>
           <TableBody>
@@ -593,13 +597,27 @@ function Invest(): any {
               <TableData width={100}>{fixed(parseFloat(formatEther(capitalPoolSize).toString()), 2)}</TableData>
               <TableData width={100}>{CP_ROI}</TableData>
               {wallet.account ? <TableData width={130}>{`${fixed(userVaultShare, 2)}%`}</TableData> : null}
-              <TableData width={100}></TableData>
-              <TableData width={170}></TableData>
+              {wallet.account && (
+                <Fragment>
+                  <TableData width={100}></TableData>
+                  <TableData width={170}></TableData>
+                </Fragment>
+              )}
               {wallet.account && !loading ? (
                 <TableData cellAlignRight>
                   <TableDataGroup width={200}>
-                    <Button onClick={() => openModal(Action.DEPOSIT_VAULT_OR_ETH, 'Deposit', Unit.ETH)}>Deposit</Button>
-                    <Button onClick={() => openModal(Action.WITHDRAW_VAULT, 'Withdraw', Unit.SCP)}>Withdraw</Button>
+                    <Button
+                      disabled={errors.length > 0}
+                      onClick={() => openModal(Action.DEPOSIT_VAULT_OR_ETH, 'Deposit', Unit.ETH)}
+                    >
+                      Deposit
+                    </Button>
+                    <Button
+                      disabled={errors.length > 0}
+                      onClick={() => openModal(Action.WITHDRAW_VAULT, 'Withdraw', Unit.SCP)}
+                    >
+                      Withdraw
+                    </Button>
                   </TableDataGroup>
                 </TableData>
               ) : null}
@@ -631,8 +649,18 @@ function Invest(): any {
               {wallet.account && !loading ? (
                 <TableData cellAlignRight>
                   <TableDataGroup width={200}>
-                    <Button onClick={() => openModal(Action.DEPOSIT_CP, 'Deposit', Unit.SCP)}>Deposit</Button>
-                    <Button onClick={() => openModal(Action.WITHDRAW_CP, 'Withdraw', Unit.SCP)}>Withdraw</Button>
+                    <Button
+                      disabled={errors.length > 0}
+                      onClick={() => openModal(Action.DEPOSIT_CP, 'Deposit', Unit.SCP)}
+                    >
+                      Deposit
+                    </Button>
+                    <Button
+                      disabled={errors.length > 0}
+                      onClick={() => openModal(Action.WITHDRAW_CP, 'Withdraw', Unit.SCP)}
+                    >
+                      Withdraw
+                    </Button>
                   </TableDataGroup>
                 </TableData>
               ) : null}
@@ -664,8 +692,18 @@ function Invest(): any {
               {wallet.account && !loading ? (
                 <TableData cellAlignRight>
                   <TableDataGroup width={200}>
-                    <Button onClick={() => openModal(Action.DEPOSIT_LP, 'Deposit', Unit.LP)}>Deposit</Button>
-                    <Button onClick={() => openModal(Action.WITHDRAW_LP, 'Withdraw', Unit.LP)}>Withdraw</Button>
+                    <Button
+                      disabled={errors.length > 0}
+                      onClick={() => openModal(Action.DEPOSIT_LP, 'Deposit', Unit.LP)}
+                    >
+                      Deposit
+                    </Button>
+                    <Button
+                      disabled={errors.length > 0}
+                      onClick={() => openModal(Action.WITHDRAW_LP, 'Withdraw', Unit.LP)}
+                    >
+                      Withdraw
+                    </Button>
                   </TableDataGroup>
                 </TableData>
               ) : null}

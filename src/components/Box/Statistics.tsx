@@ -21,7 +21,7 @@ import { useUserData } from '../../context/UserDataManager'
 export const Statistics = () => {
   const wallet = useWallet()
   const { master, vault, solace, cpFarm, lpFarm, lpToken } = useContracts()
-  const { makeToast } = useToasts()
+  const { errors, makeToast } = useToasts()
   const { addLocalTransactions } = useUserData()
 
   const masterContract = useRef<Contract | null>()
@@ -107,7 +107,9 @@ export const Statistics = () => {
             </BoxItemValue>
           </BoxItem>
           <BoxItem>
-            <Button onClick={claimRewards}>Claim</Button>
+            <Button disabled={errors.length > 0} onClick={claimRewards}>
+              Claim
+            </Button>
           </BoxItem>
         </Box>
       ) : (

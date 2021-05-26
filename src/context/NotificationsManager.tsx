@@ -121,7 +121,7 @@ const ToastsProvider: React.FC = (props) => {
       errors,
       makeToast: makeToast,
     }),
-    []
+    [wallet]
   )
 
   return (

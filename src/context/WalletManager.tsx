@@ -22,7 +22,6 @@ export type ContextWallet = {
   account?: string
   chainId?: number
   library?: any
-  web3Provider?: any
   connector?: WalletConnector
   version?: number
   dataVersion?: any
@@ -40,7 +39,6 @@ const WalletContext = createContext<ContextWallet>({
   account: undefined,
   chainId: undefined,
   library: undefined,
-  web3Provider: undefined,
   connector: undefined,
   version: undefined,
   dataVersion: undefined,
@@ -68,11 +66,9 @@ const WalletProvider: React.FC = (props) => {
 
   const _window = window as any
 
-  const getWeb3 = async () => {
+  const getWeb3 = () => {
     if (_window.ethereum) {
-      await _window.ethereum.send('eth_requestAccounts')
-      const provider = new Web3Provider(_window.ethereum, 'any')
-      return provider
+      return new Web3Provider(_window.ethereum, 'any')
     }
     return undefined
   }
@@ -159,7 +155,6 @@ const WalletProvider: React.FC = (props) => {
       account: web3React.account ?? undefined,
       chainId: web3React.chainId,
       library: web3React.account ? web3Provider : provider.ethProvider,
-      web3Provider: web3Provider,
       connector: activeConnector,
       version,
       dataVersion,
