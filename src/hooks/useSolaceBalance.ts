@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react'
 import { useContracts } from '../context/ContractsManager'
 import { useWallet } from '../context/WalletManager'
 
-export const useSolaceBalance = () => {
+export const useSolaceBalance = (): string => {
   const { solace } = useContracts()
   const { account, version } = useWallet()
   const [solaceBalance, setSolaceBalance] = useState<string>('0.00')

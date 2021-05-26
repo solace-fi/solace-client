@@ -9,7 +9,6 @@ import { formatEther, parseEther } from '@ethersproject/units'
 
 import { SUPPORTED_WALLETS } from '../../ethers/wallets'
 import { useCapitalPoolSize } from '../../hooks/useCapitalPoolSize'
-import { useScpBalance } from '../../hooks/useScpBalance'
 import { useTotalPendingRewards } from '../../hooks/useRewards'
 import { useSolaceBalance } from '../../hooks/useSolaceBalance'
 import { usePoolStakedValue } from '../../hooks/usePoolStakedValue'
@@ -23,7 +22,7 @@ export const Statistics = () => {
   const wallet = useWallet()
   const { master, vault, solace, cpFarm, lpFarm, lpToken } = useContracts()
   const { makeToast } = useToasts()
-  const { addLocalTransactions, updateLocalTransactions } = useUserData()
+  const { addLocalTransactions } = useUserData()
 
   const masterContract = useRef<Contract | null>()
   const vaultContract = useRef<Contract | null>()
@@ -35,9 +34,6 @@ export const Statistics = () => {
   const [totalValueLocked, setTotalValueLocked] = useState<string>('0.00')
   const capitalPoolSize = useCapitalPoolSize()
   const solaceBalance = useSolaceBalance()
-  const scpBalance = useScpBalance()
-
-  const [lp, setLp] = useState<number>(0)
 
   const totalUserRewards = useTotalPendingRewards()
 
@@ -59,7 +55,6 @@ export const Statistics = () => {
       await tx.wait().then((receipt: any) => {
         const status = receipt.status ? Condition.SUCCESS : Condition.FAILURE
         makeToast(txType, status, txHash)
-        // updateLocalTransactions(tx, status)
         wallet.reload()
       })
     } catch (err) {
@@ -102,13 +97,6 @@ export const Statistics = () => {
             <BoxItemValue h2>
               {`${fixed(parseFloat(solaceBalance))} `}
               <BoxItemUnits h3>SOLACE</BoxItemUnits>
-            </BoxItemValue>
-          </BoxItem>
-          <BoxItem>
-            <BoxItemTitle h3>My SCP</BoxItemTitle>
-            <BoxItemValue h2>
-              {`${fixed(parseFloat(scpBalance))} `}
-              <BoxItemUnits h3>TOKENS</BoxItemUnits>
             </BoxItemValue>
           </BoxItem>
           <BoxItem>

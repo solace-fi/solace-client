@@ -3,7 +3,7 @@ import { useWallet } from '../context/WalletManager'
 import { Contract } from '@ethersproject/contracts'
 import { formatEther } from '@ethersproject/units'
 
-export const usePoolStakedValue = (farm: Contract | null | undefined) => {
+export const usePoolStakedValue = (farm: Contract | null | undefined): string => {
   const [poolValue, setPoolValue] = useState<string>('0.00')
 
   const { dataVersion } = useWallet()

@@ -42,7 +42,7 @@ import { useScpBalance } from '../../hooks/useScpBalance'
 import { useUserStakedValue } from '../../hooks/useUserStakedValue'
 import { useToasts, Condition } from '../../context/NotificationsManager'
 import { useFetchTxHistoryByAddress } from '../../hooks/useFetchTxHistoryByAddress'
-import { getEtherscanTxUrl, getEtherscanBlockUrl } from '../../utils/etherscan'
+import { getEtherscanTxUrl } from '../../utils/etherscan'
 import { useUserData } from '../../context/UserDataManager'
 
 enum Action {
@@ -54,10 +54,16 @@ enum Action {
   WITHDRAW_LP = 'withdrawLp',
 }
 
+enum Unit {
+  ETH = 'ETH',
+  SCP = 'Solace CP Token',
+  LP = 'LP',
+}
+
 function Invest(): any {
   const { makeToast } = useToasts()
   const wallet = useWallet()
-  const { localTransactions, addLocalTransactions, updateLocalTransactions } = useUserData()
+  const { localTransactions, addLocalTransactions } = useUserData()
   const { master, vault, solace, cpFarm, lpFarm, lpToken, weth, registry } = useContracts()
 
   const masterContract = useRef<Contract | null>()
@@ -94,7 +100,7 @@ function Invest(): any {
   const [nft, setNft] = useState<BN>()
   const [selectedGasOption, setSelectedGasOption] = useState<GasFeeOption>(wallet.gasPrices.selected)
   const [showModal, setShowModal] = useState<boolean>(false)
-  const [unit, setUnit] = useState<string>('ETH')
+  const [unit, setUnit] = useState<string>(Unit.ETH)
   const [userVaultAssets, setUserVaultAssets] = useState<string>('0.00')
   const [userVaultShare, setUserVaultShare] = useState<number>(0)
 
@@ -153,7 +159,6 @@ function Invest(): any {
       await tx.wait().then((receipt: any) => {
         const status = receipt.status ? Condition.SUCCESS : Condition.FAILURE
         makeToast(txType, status, txHash)
-        // updateLocalTransactions(localTx, status)
         wallet.reload()
       })
     } catch (err) {
@@ -166,7 +171,7 @@ function Invest(): any {
   const callDepositEth = async () => {
     setLoading(true)
     if (!cpFarmContract.current || !vaultContract.current) return
-    const txType = 'Deposit'
+    const txType = 'DepositEth'
     try {
       const tx = await cpFarmContract.current.depositEth({
         value: parseEther(amount),
@@ -182,7 +187,6 @@ function Invest(): any {
       await tx.wait().then((receipt: any) => {
         const status = receipt.status ? Condition.SUCCESS : Condition.FAILURE
         makeToast(txType, status, txHash)
-        // updateLocalTransactions(localTx, status)
         wallet.reload()
       })
     } catch (err) {
@@ -205,7 +209,6 @@ function Invest(): any {
       await approval.wait().then((receipt: any) => {
         const status = receipt.status ? Condition.SUCCESS : Condition.FAILURE
         makeToast('Approval', status, approvalHash)
-        // updateLocalTransactions(approvalPendingTx, status)
         wallet.reload()
       })
       const tx = await cpFarmContract.current.depositCp(parseEther(amount), {
@@ -221,7 +224,6 @@ function Invest(): any {
       await tx.wait().then((receipt: any) => {
         const status = receipt.status ? Condition.SUCCESS : Condition.FAILURE
         makeToast(txType, status, txHash)
-        // updateLocalTransactions(localTx, status)
         wallet.reload()
       })
     } catch (err) {
@@ -249,7 +251,6 @@ function Invest(): any {
       await tx.wait().then((receipt: any) => {
         const status = receipt.status ? Condition.SUCCESS : Condition.FAILURE
         makeToast(txType, status, txHash)
-        // updateLocalTransactions(localTx, status)
         wallet.reload()
       })
     } catch (err) {
@@ -277,7 +278,6 @@ function Invest(): any {
       await tx.wait().then((receipt: any) => {
         const status = receipt.status ? Condition.SUCCESS : Condition.FAILURE
         makeToast(txType, status, txHash)
-        // updateLocalTransactions(localTx, status)
         wallet.reload()
       })
     } catch (err) {
@@ -309,7 +309,6 @@ function Invest(): any {
       await tx.wait().then((receipt: any) => {
         const status = receipt.status ? Condition.SUCCESS : Condition.FAILURE
         makeToast(txType, status, txHash)
-        // updateLocalTransactions(localTx, status)
         wallet.reload()
       })
     } catch (err) {
@@ -334,7 +333,6 @@ function Invest(): any {
       await tx.wait().then((receipt: any) => {
         const status = receipt.status ? Condition.SUCCESS : Condition.FAILURE
         makeToast(txType, status, txHash)
-        // updateLocalTransactions(localTx, status)
         wallet.reload()
       })
     } catch (err) {
@@ -581,25 +579,27 @@ function Invest(): any {
         <Table isHighlight>
           <TableHead>
             <TableRow>
-              {wallet.account ? <TableHeader>Your Assets</TableHeader> : null}
-              <TableHeader>Total Assets</TableHeader>
-              {wallet.account ? <TableHeader>Your Vault Share</TableHeader> : null}
-              <TableHeader>ROI (1Y)</TableHeader>
+              {wallet.account ? <TableHeader width={109}>Your Assets</TableHeader> : null}
+              <TableHeader width={100}>Total Assets</TableHeader>
+              <TableHeader width={100}>ROI (1Y)</TableHeader>
+              {wallet.account ? <TableHeader width={130}>Your Vault Share</TableHeader> : null}
+              <TableHeader width={100}></TableHeader>
+              <TableHeader width={170}></TableHeader>
             </TableRow>
           </TableHead>
           <TableBody>
             <TableRow>
-              {wallet.account ? <TableData>{fixed(parseFloat(userVaultAssets), 2)}</TableData> : null}
-              <TableData>{fixed(parseFloat(formatEther(capitalPoolSize).toString()), 2)}</TableData>
-              {wallet.account ? <TableData>{`${fixed(userVaultShare, 2)}%`}</TableData> : null}
-              <TableData>{CP_ROI}</TableData>
+              {wallet.account ? <TableData width={109}>{fixed(parseFloat(userVaultAssets), 2)}</TableData> : null}
+              <TableData width={100}>{fixed(parseFloat(formatEther(capitalPoolSize).toString()), 2)}</TableData>
+              <TableData width={100}>{CP_ROI}</TableData>
+              {wallet.account ? <TableData width={130}>{`${fixed(userVaultShare, 2)}%`}</TableData> : null}
+              <TableData width={100}></TableData>
+              <TableData width={170}></TableData>
               {wallet.account && !loading ? (
                 <TableData cellAlignRight>
-                  <TableDataGroup>
-                    <Button onClick={() => openModal(Action.DEPOSIT_VAULT_OR_ETH, 'Deposit', 'ETH')}>Deposit</Button>
-                    <Button onClick={() => openModal(Action.WITHDRAW_VAULT, 'Withdraw', 'Solace CP Token')}>
-                      Withdraw
-                    </Button>
+                  <TableDataGroup width={200}>
+                    <Button onClick={() => openModal(Action.DEPOSIT_VAULT_OR_ETH, 'Deposit', Unit.ETH)}>Deposit</Button>
+                    <Button onClick={() => openModal(Action.WITHDRAW_VAULT, 'Withdraw', Unit.SCP)}>Withdraw</Button>
                   </TableDataGroup>
                 </TableData>
               ) : null}
@@ -630,11 +630,9 @@ function Invest(): any {
               <TableData>{fixed(parseFloat(cpRewardsPerDay), 2)}</TableData>
               {wallet.account && !loading ? (
                 <TableData cellAlignRight>
-                  <TableDataGroup>
-                    <Button onClick={() => openModal(Action.DEPOSIT_CP, 'Deposit', 'Solace CP Token')}>Deposit</Button>
-                    <Button onClick={() => openModal(Action.WITHDRAW_CP, 'Withdraw', 'Solace CP Token')}>
-                      Withdraw
-                    </Button>
+                  <TableDataGroup width={200}>
+                    <Button onClick={() => openModal(Action.DEPOSIT_CP, 'Deposit', Unit.SCP)}>Deposit</Button>
+                    <Button onClick={() => openModal(Action.WITHDRAW_CP, 'Withdraw', Unit.SCP)}>Withdraw</Button>
                   </TableDataGroup>
                 </TableData>
               ) : null}
@@ -647,6 +645,7 @@ function Invest(): any {
         <Table isHighlight>
           <TableHead>
             <TableRow>
+              {wallet.account ? <TableHeader>Your Stake</TableHeader> : null}
               <TableHeader>Total Assets</TableHeader>
               <TableHeader>ROI (1Y)</TableHeader>
               {wallet.account ? <TableHeader>My Rewards</TableHeader> : null}
@@ -656,6 +655,7 @@ function Invest(): any {
           </TableHead>
           <TableBody>
             <TableRow>
+              {wallet.account ? <TableData>{fixed(parseFloat(lpUserStakeValue), 2)}</TableData> : null}
               <TableData>{fixed(parseFloat(lpPoolValue), 2)}</TableData>
               <TableData>150.00%</TableData>
               {wallet.account ? <TableData>{fixed(parseFloat(lpUserRewards), 2)}</TableData> : null}
@@ -663,9 +663,9 @@ function Invest(): any {
               <TableData>{fixed(parseFloat(lpRewardsPerDay), 2)}</TableData>
               {wallet.account && !loading ? (
                 <TableData cellAlignRight>
-                  <TableDataGroup>
-                    <Button onClick={() => openModal(Action.DEPOSIT_LP, 'Deposit', 'LP')}>Deposit</Button>
-                    <Button onClick={() => openModal(Action.WITHDRAW_LP, 'Withdraw', 'LP')}>Withdraw</Button>
+                  <TableDataGroup width={200}>
+                    <Button onClick={() => openModal(Action.DEPOSIT_LP, 'Deposit', Unit.LP)}>Deposit</Button>
+                    <Button onClick={() => openModal(Action.WITHDRAW_LP, 'Withdraw', Unit.LP)}>Withdraw</Button>
                   </TableDataGroup>
                 </TableData>
               ) : null}
@@ -682,7 +682,6 @@ function Invest(): any {
               <TableHeader>Amount</TableHeader>
               <TableHeader>Time</TableHeader>
               <TableHeader>Hash</TableHeader>
-              <TableHeader>Block Hash</TableHeader>
               <TableHeader>Status</TableHeader>
             </TableRow>
           </TableHead>
@@ -702,7 +701,6 @@ function Invest(): any {
                       {shortenAddress(pendingtx.hash)}
                     </a>
                   </TableData>
-                  <TableData>...</TableData>
                   <TableData>{pendingtx.status}</TableData>
                 </TableRow>
               ))}
@@ -719,15 +717,6 @@ function Invest(): any {
                       rel="noopener noreferrer"
                     >
                       {shortenAddress(tx.hash)}
-                    </a>
-                  </TableData>
-                  <TableData>
-                    <a
-                      href={getEtherscanBlockUrl(wallet.chainId || Number(CHAIN_ID), tx.blockHash)}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      {shortenAddress(tx.blockHash)}
                     </a>
                   </TableData>
                   <TableData>{tx.txreceipt_status ? 'Complete' : 'Failed'}</TableData>

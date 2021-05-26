@@ -20,7 +20,7 @@ export type GasFeeListProps = {
   onChange?: (value: GasFeeOption) => void
 }
 
-export const useFetchGasPrice = () => {
+export const useFetchGasPrice = (): GasFeeListState => {
   const { version, chainId } = useWallet()
 
   const [state, setState] = useState<GasFeeListState>({

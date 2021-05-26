@@ -3,7 +3,7 @@ import { useWallet } from '../context/WalletManager'
 import { formatEther } from '@ethersproject/units'
 import { Contract } from '@ethersproject/contracts'
 
-export const useUserStakedValue = (farm: Contract | null | undefined) => {
+export const useUserStakedValue = (farm: Contract | null | undefined): string => {
   const { account, version } = useWallet()
   const [userStakedValue, setUserStakedValue] = useState<string>('0.00')
 

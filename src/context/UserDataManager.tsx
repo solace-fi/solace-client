@@ -19,7 +19,7 @@ export type UserData = {
 }
 
 const UserDataContext = createContext<UserData>({
-  localTransactions: [],
+  localTransactions: undefined,
   addLocalTransactions: () => undefined,
   updateLocalTransactions: () => undefined,
   deleteLocalTransactions: () => undefined,

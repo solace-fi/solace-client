@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { CHAIN_ID, ALCHEMY_API_KEY } from '../constants'
+import { CHAIN_ID, ALCHEMY_API_KEY, ETHERSCAN_API_KEY } from '../constants'
 import { getDefaultProvider, Provider } from '@ethersproject/providers'
 import { getNetworkName } from '../utils'
 
@@ -22,7 +22,10 @@ const ProviderManager: React.FC = ({ children }) => {
 
   useEffect(() => {
     const getProviders = async () => {
-      const fallbackprovider = getDefaultProvider(getNetworkName(Number(CHAIN_ID)), { alchemy: ALCHEMY_API_KEY })
+      const fallbackprovider = getDefaultProvider(getNetworkName(Number(CHAIN_ID)), {
+        alchemy: ALCHEMY_API_KEY,
+        etherscan: ETHERSCAN_API_KEY,
+      })
       setEthProvider(fallbackprovider)
     }
     getProviders()

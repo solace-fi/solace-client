@@ -52,7 +52,7 @@ function Dashboard(): any {
         </Table>
       </Content>
       <Content>
-        <Heading1>Investments</Heading1>
+        <Heading1>Your Investments</Heading1>
         <CardContainer>
           <Card>
             <CardHeader>
