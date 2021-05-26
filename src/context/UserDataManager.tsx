@@ -31,14 +31,14 @@ const UserDataProvider: React.FC = (props) => {
   const [localTxs, setLocalTxs, removeLocalTxs] = useLocalStorage<LocalTx[] | undefined>('solace_loc_txs', [])
 
   const addLocalTransactions = (txToAdd: LocalTx) => {
-    console.log('calling addLocalTransactions', localTxs, '\n txToAdd', txToAdd)
+    // console.log('calling addLocalTransactions', localTxs, '\n txToAdd', txToAdd)
     if (localTxs !== undefined) {
       setLocalTxs([txToAdd, ...localTxs])
     }
   }
 
   const updateLocalTransactions = (txToUpdate: LocalTx, newStatus: string) => {
-    console.log('calling updateLocalTransactions', localTxs, '\n txToUpdate', txToUpdate)
+    // console.log('calling updateLocalTransactions', localTxs, '\n txToUpdate', txToUpdate)
     if (localTxs) {
       const updatedLocalTxs = localTxs.map((tx: LocalTx) =>
         txToUpdate.hash == tx.hash ? { ...tx, status: newStatus } : tx
