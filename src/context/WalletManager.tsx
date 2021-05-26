@@ -145,7 +145,7 @@ const WalletProvider: React.FC = (props) => {
       setWeb3Provider(web3)
     }
     configWeb3()
-    const dataInterval = setInterval(() => dataReload(), 5000)
+    const dataInterval = setInterval(() => dataReload(), 1500)
     return () => {
       clearInterval(dataInterval)
     }

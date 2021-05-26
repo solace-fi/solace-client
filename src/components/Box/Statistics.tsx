@@ -59,7 +59,7 @@ export const Statistics = () => {
       await tx.wait().then((receipt: any) => {
         const status = receipt.status ? Condition.SUCCESS : Condition.FAILURE
         makeToast(txType, status, txHash)
-        updateLocalTransactions(tx, status)
+        // updateLocalTransactions(tx, status)
         wallet.reload()
       })
     } catch (err) {

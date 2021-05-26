@@ -53,7 +53,9 @@ const UserDataProvider: React.FC = (props) => {
       for (let i = 0; i < txsToDelete.length; i++) {
         formattedTxsToDelete.push(txsToDelete[i].hash)
       }
-      const passedLocalTxs = localTxs.filter((tx: LocalTx) => !formattedTxsToDelete.includes(tx.hash))
+      const passedLocalTxs = localTxs.filter(
+        (tx: LocalTx) => !formattedTxsToDelete.includes(tx.hash) && tx.status !== 'Complete'
+      )
       setLocalTxs(passedLocalTxs)
     }
   }

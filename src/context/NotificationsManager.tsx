@@ -99,7 +99,7 @@ const ToastsProvider: React.FC = (props) => {
   useEffect(() => {
     const makeAppToast = () => {
       if (wallet.chainId !== Number(CHAIN_ID) && wallet.chainId !== undefined) {
-        toast(`Wrong network, please switch to ${getNetworkName(Number(CHAIN_ID))}`, {
+        toast(`Wrong network, please switch to ${getNetworkName(Number(CHAIN_ID))} on MetaMask`, {
           toastId: ERROR.NETWORK,
           type: toast.TYPE.ERROR,
           position: toast.POSITION.BOTTOM_LEFT,

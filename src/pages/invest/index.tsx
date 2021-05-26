@@ -153,7 +153,7 @@ function Invest(): any {
       await tx.wait().then((receipt: any) => {
         const status = receipt.status ? Condition.SUCCESS : Condition.FAILURE
         makeToast(txType, status, txHash)
-        updateLocalTransactions(localTx, status)
+        // updateLocalTransactions(localTx, status)
         wallet.reload()
       })
     } catch (err) {
@@ -182,7 +182,7 @@ function Invest(): any {
       await tx.wait().then((receipt: any) => {
         const status = receipt.status ? Condition.SUCCESS : Condition.FAILURE
         makeToast(txType, status, txHash)
-        updateLocalTransactions(localTx, status)
+        // updateLocalTransactions(localTx, status)
         wallet.reload()
       })
     } catch (err) {
@@ -205,7 +205,7 @@ function Invest(): any {
       await approval.wait().then((receipt: any) => {
         const status = receipt.status ? Condition.SUCCESS : Condition.FAILURE
         makeToast('Approval', status, approvalHash)
-        updateLocalTransactions(approvalPendingTx, status)
+        // updateLocalTransactions(approvalPendingTx, status)
         wallet.reload()
       })
       const tx = await cpFarmContract.current.depositCp(parseEther(amount), {
@@ -221,7 +221,7 @@ function Invest(): any {
       await tx.wait().then((receipt: any) => {
         const status = receipt.status ? Condition.SUCCESS : Condition.FAILURE
         makeToast(txType, status, txHash)
-        updateLocalTransactions(localTx, status)
+        // updateLocalTransactions(localTx, status)
         wallet.reload()
       })
     } catch (err) {
@@ -249,7 +249,7 @@ function Invest(): any {
       await tx.wait().then((receipt: any) => {
         const status = receipt.status ? Condition.SUCCESS : Condition.FAILURE
         makeToast(txType, status, txHash)
-        updateLocalTransactions(localTx, status)
+        // updateLocalTransactions(localTx, status)
         wallet.reload()
       })
     } catch (err) {
@@ -277,7 +277,7 @@ function Invest(): any {
       await tx.wait().then((receipt: any) => {
         const status = receipt.status ? Condition.SUCCESS : Condition.FAILURE
         makeToast(txType, status, txHash)
-        updateLocalTransactions(localTx, status)
+        // updateLocalTransactions(localTx, status)
         wallet.reload()
       })
     } catch (err) {
@@ -309,7 +309,7 @@ function Invest(): any {
       await tx.wait().then((receipt: any) => {
         const status = receipt.status ? Condition.SUCCESS : Condition.FAILURE
         makeToast(txType, status, txHash)
-        updateLocalTransactions(localTx, status)
+        // updateLocalTransactions(localTx, status)
         wallet.reload()
       })
     } catch (err) {
@@ -334,7 +334,7 @@ function Invest(): any {
       await tx.wait().then((receipt: any) => {
         const status = receipt.status ? Condition.SUCCESS : Condition.FAILURE
         makeToast(txType, status, txHash)
-        updateLocalTransactions(localTx, status)
+        // updateLocalTransactions(localTx, status)
         wallet.reload()
       })
     } catch (err) {
@@ -695,10 +695,12 @@ function Invest(): any {
                   <TableData>{timeAgo(Number(Date.now()) * 1000)}</TableData>
                   <TableData>
                     <a
-                      href={getEtherscanTxUrl(pendingtx.hash)}
+                      href={getEtherscanTxUrl(wallet.chainId || Number(CHAIN_ID), pendingtx.hash)}
                       target="_blank"
                       rel="noopener noreferrer"
-                    >{`${pendingtx.hash.substring(0, 10)}...`}</a>
+                    >
+                      {shortenAddress(pendingtx.hash)}
+                    </a>
                   </TableData>
                   <TableData>...</TableData>
                   <TableData>{pendingtx.status}</TableData>
