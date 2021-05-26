@@ -4,7 +4,7 @@ import styled from 'styled-components'
 import { Header } from './index'
 import Account from '../User/Account'
 import { useCoingecko } from '../../hooks/useCoingecko'
-import { fixed } from '../../utils/fixedValue'
+import { fixed } from '../../utils/formatting'
 import { usePairPrice } from '../../hooks/usePair'
 
 import { CP_ROI, LP_ROI } from '../../constants/'

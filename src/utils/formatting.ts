@@ -25,3 +25,7 @@ export const filteredAmount = (input: string, amount: string): string => {
   const filteredAmount = input.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1')
   return filteredAmount
 }
+
+export const shortenAddress = (input: string): string => {
+  return `${input.substring(0, 10)}...`
+}

@@ -71,7 +71,7 @@ const WalletProvider: React.FC = (props) => {
   const getWeb3 = async () => {
     if (_window.ethereum) {
       await _window.ethereum.send('eth_requestAccounts')
-      const provider = new Web3Provider(_window.ethereum)
+      const provider = new Web3Provider(_window.ethereum, 'any')
       return provider
     }
     return undefined

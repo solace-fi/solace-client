@@ -13,7 +13,7 @@ import { useScpBalance } from '../../hooks/useScpBalance'
 import { useTotalPendingRewards } from '../../hooks/useRewards'
 import { useSolaceBalance } from '../../hooks/useSolaceBalance'
 import { usePoolStakedValue } from '../../hooks/usePoolStakedValue'
-import { fixed, getGasValue } from '../../utils/fixedValue'
+import { fixed, getGasValue } from '../../utils/formatting'
 import { GAS_LIMIT } from '../../constants'
 
 import { useToasts, Condition } from '../../context/NotificationsManager'

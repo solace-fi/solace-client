@@ -1,8 +1,12 @@
-import 'animate.css/animate.min.css'
-import 'react-toastify/dist/ReactToastify.css'
-import React, { createContext, useContext, useMemo } from 'react'
+import React, { createContext, useContext, useMemo, useEffect, useState } from 'react'
 import { getEtherscanTxUrl } from '../utils/etherscan'
 import { toast, ToastContainer } from 'react-toastify'
+import { useWallet } from '../context/WalletManager'
+
+import 'animate.css/animate.min.css'
+import 'react-toastify/dist/ReactToastify.css'
+import { CHAIN_ID } from '../constants'
+import { getNetworkName } from '../utils'
 
 export enum Condition {
   SUCCESS = 'Complete',
@@ -11,15 +15,24 @@ export enum Condition {
   CANCELLED = 'Cancelled',
 }
 
+export enum ERROR {
+  NETWORK = 'network',
+}
+
 export type ToastSystem = {
+  errors: any[]
   makeToast: (txType: string, condition: Condition, txHash?: string) => void
 }
 
 const ToastsContext = createContext<ToastSystem>({
+  errors: [undefined],
   makeToast: () => undefined,
 })
 
 const ToastsProvider: React.FC = (props) => {
+  const wallet = useWallet()
+  const [errors, setErrors] = useState<ERROR[]>([])
+
   const makeToast = (txType: string, condition: Condition, txHash?: string) => {
     const Toast = (txType: any, cond: any) => (
       <div>
@@ -27,7 +40,11 @@ const ToastsProvider: React.FC = (props) => {
           {txType}: Transaction {cond}
         </div>
         {txHash ? (
-          <a href={getEtherscanTxUrl(txHash)} target="_blank" rel="noopener noreferrer">
+          <a
+            href={getEtherscanTxUrl(wallet.chainId ?? Number(CHAIN_ID), txHash)}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
             Etherscan
           </a>
         ) : null}
@@ -79,8 +96,29 @@ const ToastsProvider: React.FC = (props) => {
     }
   }
 
+  useEffect(() => {
+    const makeAppToast = () => {
+      if (wallet.chainId !== Number(CHAIN_ID) && wallet.chainId !== undefined) {
+        toast(`Wrong network, please switch to ${getNetworkName(Number(CHAIN_ID))}`, {
+          toastId: ERROR.NETWORK,
+          type: toast.TYPE.ERROR,
+          position: toast.POSITION.BOTTOM_LEFT,
+          autoClose: false,
+          closeOnClick: false,
+          closeButton: false,
+        })
+        setErrors([...errors, ERROR.NETWORK])
+      } else {
+        toast.dismiss(ERROR.NETWORK)
+        setErrors((errors) => errors.filter((error) => error !== ERROR.NETWORK))
+      }
+    }
+    makeAppToast()
+  }, [wallet.chainId])
+
   const value = useMemo<ToastSystem>(
     () => ({
+      errors,
       makeToast: makeToast,
     }),
     []

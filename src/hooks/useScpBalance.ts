@@ -3,7 +3,7 @@ import { useContracts } from '../context/ContractsManager'
 import { useWallet } from '../context/WalletManager'
 import { formatEther } from '@ethersproject/units'
 
-export const useScpBalance = () => {
+export const useScpBalance = (): string => {
   const { vault } = useContracts()
   const { account, version, chainId } = useWallet()
   const [scpBalance, setScpBalance] = useState<string>('0.00')

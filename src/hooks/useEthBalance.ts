@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { useWallet } from '../context/WalletManager'
 import { formatEther } from '@ethersproject/units'
 
-export const useEthBalance = () => {
+export const useEthBalance = (): string => {
   const { account, library, version, chainId } = useWallet()
   const [balance, setBalance] = useState<string>('0.00')
 

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { useContracts } from '../context/ContractsManager'
 import { useWallet } from '../context/WalletManager'
 
-export const useCapitalPoolSize = () => {
+export const useCapitalPoolSize = (): number => {
   const { vault, registry } = useContracts()
   const { version, dataVersion } = useWallet()
   const [capitalPoolSize, setCapitalPoolSize] = useState<number>(0)

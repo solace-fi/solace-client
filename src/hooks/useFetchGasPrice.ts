@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from 'react'
 import { fetchGasPrice } from '../utils/etherscan'
 import { useWallet } from '../context/WalletManager'
+import { CHAIN_ID } from '../constants'
 
 export type GasFeeOption = {
   key: string
@@ -20,7 +21,7 @@ export type GasFeeListProps = {
 }
 
 export const useFetchGasPrice = () => {
-  const { version } = useWallet()
+  const { version, chainId } = useWallet()
 
   const [state, setState] = useState<GasFeeListState>({
     options: [],
@@ -30,7 +31,7 @@ export const useFetchGasPrice = () => {
 
   useEffect(() => {
     const fetchGasPrices = async () => {
-      await fetchGasPrice()
+      await fetchGasPrice(chainId ?? Number(CHAIN_ID))
         .then((result) => {
           const options = [
             {

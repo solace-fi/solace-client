@@ -11,7 +11,7 @@ type LocalTx = {
 }
 
 export type UserData = {
-  localTransactions: any | undefined
+  localTransactions: any[] | undefined
   addLocalTransactions: (txToAdd: LocalTx) => void
   updateLocalTransactions: (txToUpdate: LocalTx, newStatus: string) => void
   deleteLocalTransactions: (txsToDelete: []) => void
@@ -19,7 +19,7 @@ export type UserData = {
 }
 
 const UserDataContext = createContext<UserData>({
-  localTransactions: undefined,
+  localTransactions: [],
   addLocalTransactions: () => undefined,
   updateLocalTransactions: () => undefined,
   deleteLocalTransactions: () => undefined,
@@ -27,19 +27,18 @@ const UserDataContext = createContext<UserData>({
 })
 
 const UserDataProvider: React.FC = (props) => {
-  // const provider = useProvider()
-  const { account, chainId, reload, disconnect } = useWallet()
-  const [localTxs, setLocalTxs, removeLocalTxs] = useLocalStorage<LocalTx[] | undefined>('local_txs', [])
+  const { account, chainId, disconnect } = useWallet()
+  const [localTxs, setLocalTxs, removeLocalTxs] = useLocalStorage<LocalTx[] | undefined>('solace_loc_txs', [])
 
   const addLocalTransactions = (txToAdd: LocalTx) => {
-    console.log('calling addLocalTransactions', localTxs, 'txToAdd', txToAdd)
+    console.log('calling addLocalTransactions', localTxs, '\n txToAdd', txToAdd)
     if (localTxs !== undefined) {
       setLocalTxs([txToAdd, ...localTxs])
     }
   }
 
   const updateLocalTransactions = (txToUpdate: LocalTx, newStatus: string) => {
-    console.log('calling updateLocalTransactions', localTxs, 'txToUpdate', txToUpdate)
+    console.log('calling updateLocalTransactions', localTxs, '\n txToUpdate', txToUpdate)
     if (localTxs) {
       const updatedLocalTxs = localTxs.map((tx: LocalTx) =>
         txToUpdate.hash == tx.hash ? { ...tx, status: newStatus } : tx
@@ -49,10 +48,12 @@ const UserDataProvider: React.FC = (props) => {
   }
 
   const deleteLocalTransactions = (txsToDelete: any[]) => {
-    console.log('calling deleteLocalTransactions', localTxs, 'txToUpdate', txsToDelete)
     if (localTxs) {
-      const passedLocalTxs = localTxs.filter((tx: LocalTx) => !txsToDelete.includes(tx))
-      console.log('passedLocalTxs', passedLocalTxs)
+      const formattedTxsToDelete: any = []
+      for (let i = 0; i < txsToDelete.length; i++) {
+        formattedTxsToDelete.push(txsToDelete[i].hash)
+      }
+      const passedLocalTxs = localTxs.filter((tx: LocalTx) => !formattedTxsToDelete.includes(tx.hash))
       setLocalTxs(passedLocalTxs)
     }
   }

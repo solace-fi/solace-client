@@ -4,7 +4,7 @@ import { Contract } from '@ethersproject/contracts'
 import { formatEther, parseEther } from '@ethersproject/units'
 import { BigNumberish, BigNumber as BN } from 'ethers'
 
-import { ZERO, DEADLINE, CP_ROI, LP_ROI, GAS_LIMIT } from '../../constants'
+import { ZERO, DEADLINE, CP_ROI, LP_ROI, GAS_LIMIT, CHAIN_ID } from '../../constants'
 
 import { useContracts } from '../../context/ContractsManager'
 import { useWallet } from '../../context/WalletManager'
@@ -28,7 +28,7 @@ import { Content } from '../../components/Layout'
 
 import getPermitNFTSignature from '../../utils/signature'
 import { FeeAmount, TICK_SPACINGS, getMaxTick, getMinTick } from '../../utils/uniswap'
-import { fixed, getGasValue, filteredAmount } from '../../utils/fixedValue'
+import { fixed, getGasValue, filteredAmount, shortenAddress } from '../../utils/formatting'
 import { getProviderOrSigner } from '../../utils/index'
 import { timeAgo } from '../../utils/timeAgo'
 import { decodeInput } from '../../utils/decoder'
@@ -712,17 +712,21 @@ function Invest(): any {
                   <TableData>{timeAgo(Number(tx.timeStamp) * 1000)}</TableData>
                   <TableData>
                     <a
-                      href={getEtherscanTxUrl(tx.hash)}
+                      href={getEtherscanTxUrl(wallet.chainId || Number(CHAIN_ID), tx.hash)}
                       target="_blank"
                       rel="noopener noreferrer"
-                    >{`${tx.hash.substring(0, 10)}...`}</a>
+                    >
+                      {shortenAddress(tx.hash)}
+                    </a>
                   </TableData>
                   <TableData>
                     <a
-                      href={getEtherscanBlockUrl(tx.blockHash)}
+                      href={getEtherscanBlockUrl(wallet.chainId || Number(CHAIN_ID), tx.blockHash)}
                       target="_blank"
                       rel="noopener noreferrer"
-                    >{`${tx.blockHash.substring(0, 10)}...`}</a>
+                    >
+                      {shortenAddress(tx.blockHash)}
+                    </a>
                   </TableData>
                   <TableData>{tx.txreceipt_status ? 'Complete' : 'Failed'}</TableData>
                 </TableRow>
