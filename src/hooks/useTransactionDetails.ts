@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react'
 import { useWallet } from '../context/WalletManager'
-import { formatEther, parseEther } from '@ethersproject/units'
 import { Function_Name } from '../utils/decoder'
 import { Provider, Web3Provider } from '@ethersproject/providers'
 import { decodeInput } from '../utils/decoder'
@@ -13,6 +12,7 @@ export const getTransactionAmount = async (
   provider: Web3Provider | Provider
 ): Promise<string> => {
   const receipt = await provider.getTransactionReceipt(tx.hash)
+  if (!receipt) return 'Unknown'
   const logs = receipt.logs
 
   switch (function_name) {

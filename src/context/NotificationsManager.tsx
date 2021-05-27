@@ -7,6 +7,8 @@ import 'animate.css/animate.min.css'
 import 'react-toastify/dist/ReactToastify.css'
 import { CHAIN_ID } from '../constants'
 import { getNetworkName } from '../utils'
+import { HyperLink } from '../components/Hyperlink'
+import { Button } from '../components/Button'
 
 export enum Condition {
   SUCCESS = 'Complete',
@@ -40,13 +42,13 @@ const ToastsProvider: React.FC = (props) => {
           {txType}: Transaction {cond}
         </div>
         {txHash ? (
-          <a
+          <HyperLink
             href={getEtherscanTxUrl(wallet.chainId ?? Number(CHAIN_ID), txHash)}
             target="_blank"
             rel="noopener noreferrer"
           >
-            Etherscan
-          </a>
+            <Button>Check on Etherscan</Button>
+          </HyperLink>
         ) : null}
       </div>
     )
