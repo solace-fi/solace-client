@@ -72,7 +72,7 @@ export const Statistics = () => {
   *************************************************************************************/
   const wallet = useWallet()
   const { master, vault, solace, cpFarm, lpFarm, lpToken } = useContracts()
-  const { errors, makeToast } = useToasts()
+  const { errors, makeTxToast } = useToasts()
   const { addLocalTransactions } = useUserData()
   const capitalPoolSize = useCapitalPoolSize()
   const solaceBalance = useSolaceBalance()
@@ -108,12 +108,12 @@ export const Statistics = () => {
         status: TransactionCondition.PENDING,
         unit: Unit.SOLACE,
       })
-      makeToast(txType, TransactionCondition.PENDING, txHash)
+      makeTxToast(txType, TransactionCondition.PENDING, txHash)
       wallet.reload()
       await tx.wait().then((receipt: any) => {
         console.log(receipt)
         const status = receipt.status ? TransactionCondition.SUCCESS : TransactionCondition.FAILURE
-        makeToast(txType, status, txHash)
+        makeTxToast(txType, status, txHash)
         wallet.reload()
       })
     } catch (err) {
@@ -122,7 +122,7 @@ export const Statistics = () => {
       } else {
         console.log(`transaction failed: ${err.message}`)
       }
-      makeToast(txType, TransactionCondition.CANCELLED)
+      makeTxToast(txType, TransactionCondition.CANCELLED)
       wallet.reload()
     }
   }
