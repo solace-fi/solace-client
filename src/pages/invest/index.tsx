@@ -116,7 +116,7 @@ function Invest(): any {
   const txHistory = useFetchTxHistoryByAddress()
   const transactionDetails = useTransactionDetails(txHistory.txList)
   const wallet = useWallet()
-  const { errors, makeToast } = useToasts()
+  const { errors, makeTxToast } = useToasts()
   const { localTransactions, addLocalTransactions } = useUserData()
   const { master, vault, solace, cpFarm, lpFarm, lpToken, weth, registry } = useContracts()
 
@@ -180,14 +180,14 @@ function Invest(): any {
       closeModal()
       addLocalTransactions(localTx)
       wallet.reload()
-      makeToast(txType, TransactionCondition.PENDING, txHash)
+      makeTxToast(txType, TransactionCondition.PENDING, txHash)
       await tx.wait().then((receipt: any) => {
         const status = receipt.status ? TransactionCondition.SUCCESS : TransactionCondition.FAILURE
-        makeToast(txType, status, txHash)
+        makeTxToast(txType, status, txHash)
         wallet.reload()
       })
     } catch (err) {
-      makeToast(txType, TransactionCondition.CANCELLED)
+      makeTxToast(txType, TransactionCondition.CANCELLED)
       setLoading(false)
       wallet.reload()
     }
@@ -208,15 +208,15 @@ function Invest(): any {
       closeModal()
       addLocalTransactions(localTx)
       wallet.reload()
-      makeToast(txType, TransactionCondition.PENDING, txHash)
+      makeTxToast(txType, TransactionCondition.PENDING, txHash)
       await tx.wait().then((receipt: any) => {
         console.log(receipt)
         const status = receipt.status ? TransactionCondition.SUCCESS : TransactionCondition.FAILURE
-        makeToast(txType, status, txHash)
+        makeTxToast(txType, status, txHash)
         wallet.reload()
       })
     } catch (err) {
-      makeToast(txType, TransactionCondition.CANCELLED)
+      makeTxToast(txType, TransactionCondition.CANCELLED)
       setLoading(false)
       wallet.reload()
     }
@@ -236,11 +236,11 @@ function Invest(): any {
         status: TransactionCondition.PENDING,
         unit: unit,
       }
-      makeToast(FunctionName.APPROVE, TransactionCondition.PENDING, approvalHash)
+      makeTxToast(FunctionName.APPROVE, TransactionCondition.PENDING, approvalHash)
       addLocalTransactions(approvalPendingTx)
       await approval.wait().then((receipt: any) => {
         const status = receipt.status ? TransactionCondition.SUCCESS : TransactionCondition.FAILURE
-        makeToast(FunctionName.APPROVE, status, approvalHash)
+        makeTxToast(FunctionName.APPROVE, status, approvalHash)
         wallet.reload()
       })
       const tx = await cpFarmContract.current.depositCp(parseEther(amount), {
@@ -252,14 +252,14 @@ function Invest(): any {
       closeModal()
       addLocalTransactions(localTx)
       wallet.reload()
-      makeToast(txType, TransactionCondition.PENDING, txHash)
+      makeTxToast(txType, TransactionCondition.PENDING, txHash)
       await tx.wait().then((receipt: any) => {
         const status = receipt.status ? TransactionCondition.SUCCESS : TransactionCondition.FAILURE
-        makeToast(txType, status, txHash)
+        makeTxToast(txType, status, txHash)
         wallet.reload()
       })
     } catch (err) {
-      makeToast(txType, TransactionCondition.CANCELLED)
+      makeTxToast(txType, TransactionCondition.CANCELLED)
       setLoading(false)
       wallet.reload()
     }
@@ -279,14 +279,14 @@ function Invest(): any {
       closeModal()
       addLocalTransactions(localTx)
       wallet.reload()
-      makeToast(txType, TransactionCondition.PENDING, txHash)
+      makeTxToast(txType, TransactionCondition.PENDING, txHash)
       await tx.wait().then((receipt: any) => {
         const status = receipt.status ? TransactionCondition.SUCCESS : TransactionCondition.FAILURE
-        makeToast(txType, status, txHash)
+        makeTxToast(txType, status, txHash)
         wallet.reload()
       })
     } catch (err) {
-      makeToast(txType, TransactionCondition.CANCELLED)
+      makeTxToast(txType, TransactionCondition.CANCELLED)
       setLoading(false)
       wallet.reload()
     }
@@ -306,14 +306,14 @@ function Invest(): any {
       closeModal()
       addLocalTransactions(localTx)
       wallet.reload()
-      makeToast(txType, TransactionCondition.PENDING, txHash)
+      makeTxToast(txType, TransactionCondition.PENDING, txHash)
       await tx.wait().then((receipt: any) => {
         const status = receipt.status ? TransactionCondition.SUCCESS : TransactionCondition.FAILURE
-        makeToast(txType, status, txHash)
+        makeTxToast(txType, status, txHash)
         wallet.reload()
       })
     } catch (err) {
-      makeToast(txType, TransactionCondition.CANCELLED)
+      makeTxToast(txType, TransactionCondition.CANCELLED)
       setLoading(false)
       wallet.reload()
     }
@@ -337,14 +337,14 @@ function Invest(): any {
       closeModal()
       addLocalTransactions(localTx)
       wallet.reload()
-      makeToast(txType, TransactionCondition.PENDING, txHash)
+      makeTxToast(txType, TransactionCondition.PENDING, txHash)
       await tx.wait().then((receipt: any) => {
         const status = receipt.status ? TransactionCondition.SUCCESS : TransactionCondition.FAILURE
-        makeToast(txType, status, txHash)
+        makeTxToast(txType, status, txHash)
         wallet.reload()
       })
     } catch (err) {
-      makeToast(txType, TransactionCondition.CANCELLED)
+      makeTxToast(txType, TransactionCondition.CANCELLED)
       setLoading(false)
       wallet.reload()
     }
@@ -361,14 +361,14 @@ function Invest(): any {
       closeModal()
       addLocalTransactions(localTx)
       wallet.reload()
-      makeToast(txType, TransactionCondition.PENDING, txHash)
+      makeTxToast(txType, TransactionCondition.PENDING, txHash)
       await tx.wait().then((receipt: any) => {
         const status = receipt.status ? TransactionCondition.SUCCESS : TransactionCondition.FAILURE
-        makeToast(txType, status, txHash)
+        makeTxToast(txType, status, txHash)
         wallet.reload()
       })
     } catch (err) {
-      makeToast(txType, TransactionCondition.CANCELLED)
+      makeTxToast(txType, TransactionCondition.CANCELLED)
       setLoading(false)
       wallet.reload()
     }

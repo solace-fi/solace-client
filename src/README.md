@@ -16,4 +16,6 @@
 
     > wallets: contains data about Wallet Connectors, imported from web3-React
 
+    > styles: CSS styles that are not included in styled components for compatability reasons
+
     index: contains instantiation of entire web app, entry point

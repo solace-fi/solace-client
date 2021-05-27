@@ -1,0 +1,24 @@
+.success-toast,
+.info-toast,
+.error-toast {
+  border-radius: 10px;
+  padding: 4px 16px;
+  transition: all 0.2s, color 0.2s;
+  outline: none;
+}
+
+.success-toast {
+  background: rgba(0, 187, 40, 0.7);
+  box-shadow: 0 0 7px #fff;
+  border: 1px solid #fff;
+}
+
+.info-toast {
+  background: rgba(23, 157, 235, 0.7);
+}
+
+.error-toast {
+  background: rgba(255, 12, 28, 0.7);
+  box-shadow: 0 0 7px #fff;
+  border: 1px solid #fff;
+}

@@ -88,6 +88,7 @@ Run using the following react command from the client directory
     |   |____quote/
     |   |____App
     |___static/
+    |___styles/
     |___utils/
 
 ## React Context Structure
