@@ -10,7 +10,6 @@ import { Web3ReactProvider } from '@web3-react/core'
 import getLibrary from '../utils/getLibrary'
 import { useReload } from '../hooks/useReload'
 import { useProvider } from './ProviderManager'
-import { Web3Provider } from '@ethersproject/providers'
 import { useFetchGasPrice } from '../hooks/useFetchGasPrice'
 
 export const WalletConnectors = SUPPORTED_WALLETS
@@ -58,20 +57,10 @@ const WalletProvider: React.FC = (props) => {
   const [initialized, setInitialized] = useState<boolean>(false)
   const [reload, version] = useReload()
   const [dataReload, dataVersion] = useReload()
-  const [web3Provider, setWeb3Provider] = useState<Web3Provider>()
   const connectingRef = useRef<WalletConnector | undefined>(connecting)
   connectingRef.current = connecting
 
   const provider = useProvider()
-
-  const _window = window as any
-
-  const getWeb3 = () => {
-    if (_window.ethereum) {
-      return new Web3Provider(_window.ethereum, 'any')
-    }
-    return undefined
-  }
 
   const disconnect = useCallback(() => {
     web3React.deactivate()
@@ -136,12 +125,7 @@ const WalletProvider: React.FC = (props) => {
   }, [web3React])
 
   useEffect(() => {
-    const configWeb3 = async () => {
-      const web3 = await getWeb3()
-      setWeb3Provider(web3)
-    }
-    configWeb3()
-    const dataInterval = setInterval(() => dataReload(), 1500)
+    const dataInterval = setInterval(() => dataReload(), 3000)
     return () => {
       clearInterval(dataInterval)
     }
@@ -154,7 +138,7 @@ const WalletProvider: React.FC = (props) => {
       isActive: web3React.active,
       account: web3React.account ?? undefined,
       chainId: web3React.chainId,
-      library: web3React.account ? web3Provider : provider.ethProvider,
+      library: web3React.account ? provider.web3Provider : provider.ethProvider,
       connector: activeConnector,
       version,
       dataVersion,

@@ -1,6 +1,5 @@
-import React, { useMemo, useContext, createContext, useEffect, useCallback } from 'react'
+import React, { useMemo, useContext, createContext, useCallback } from 'react'
 import { useLocalStorage } from 'react-use-storage'
-// import { useProvider } from './ProviderManager'
 import { useWallet } from './WalletManager'
 
 type LocalTx = {
@@ -31,14 +30,12 @@ const UserDataProvider: React.FC = (props) => {
   const [localTxs, setLocalTxs, removeLocalTxs] = useLocalStorage<LocalTx[] | undefined>('solace_loc_txs', [])
 
   const addLocalTransactions = (txToAdd: LocalTx) => {
-    // console.log('calling addLocalTransactions', localTxs, '\n txToAdd', txToAdd)
     if (localTxs !== undefined) {
       setLocalTxs([txToAdd, ...localTxs])
     }
   }
 
   const updateLocalTransactions = (txToUpdate: LocalTx, newStatus: string) => {
-    // console.log('calling updateLocalTransactions', localTxs, '\n txToUpdate', txToUpdate)
     if (localTxs) {
       const updatedLocalTxs = localTxs.map((tx: LocalTx) =>
         txToUpdate.hash == tx.hash ? { ...tx, status: newStatus } : tx

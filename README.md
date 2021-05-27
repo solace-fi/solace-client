@@ -64,14 +64,18 @@ Run using the following react command from the client directory
     |___constants/
     |   |____abi/
     |___context/
-    |   |____WalletManager
     |   |____ContractsManager
+    |   |____NotificationssManager
+    |   |____ProviderManager
+    |   |____UserDataManager
+    |   |____WalletManager
     |___ethers/
     |   |____connectors/
     |   |____wallets/
     |___hooks/
     |___pages/
     |   |____dashboard/
+    |   |____govern/
     |   |____invest/
     |   |____quote/
     |   |____App
@@ -80,15 +84,19 @@ Run using the following react command from the client directory
 
 ## React Context Structure
 
-    // src/index.tsx
-
-    <WalletManager>
-      <ContractsManager>
-        ...
-          <App />
-        ...
-      </ContractsManager>
-    </WalletManager>
+    <ProviderManager>              // Web3 Provider
+      <WalletManager>              // wallet connection
+        <ContractsManager>         // contracts
+          <UserDataManager>        // user-specific data
+            <NotificationsManager> // notifications and toasts
+              ...
+                <App />
+              ...
+            </NotificationsManager>
+          </UserDataManager>
+        </ContractsManager>
+      </WalletManager>
+    </ProviderManager>
 
 WalletManager allows access to web3-react, wallet connection functionalities, and wallet balance.
 

@@ -4,7 +4,7 @@ import { Contract } from '@ethersproject/contracts'
 import { formatEther, parseEther } from '@ethersproject/units'
 import { BigNumberish, BigNumber as BN } from 'ethers'
 
-import { ZERO, DEADLINE, CP_ROI, LP_ROI, GAS_LIMIT, CHAIN_ID } from '../../constants'
+import { ZERO, DEADLINE, CP_ROI, LP_ROI, GAS_LIMIT, CHAIN_ID, POW_NINE } from '../../constants'
 
 import { useContracts } from '../../context/ContractsManager'
 import { useWallet } from '../../context/WalletManager'
@@ -28,10 +28,10 @@ import { Content } from '../../components/Layout'
 
 import getPermitNFTSignature from '../../utils/signature'
 import { FeeAmount, TICK_SPACINGS, getMaxTick, getMinTick } from '../../utils/uniswap'
-import { fixed, getGasValue, filteredAmount, shortenAddress } from '../../utils/formatting'
+import { fixed, getGasValue, filteredAmount, shortenAddress, Unit } from '../../utils/formatting'
 import { getProviderOrSigner } from '../../utils/index'
 import { timeAgo } from '../../utils/timeAgo'
-import { decodeInput } from '../../utils/decoder'
+import { decodeInput, Function_Name } from '../../utils/decoder'
 
 import { GasFeeOption } from '../../hooks/useFetchGasPrice'
 import { useCapitalPoolSize } from '../../hooks/useCapitalPoolSize'
@@ -44,21 +44,7 @@ import { useToasts, Condition } from '../../context/NotificationsManager'
 import { useFetchTxHistoryByAddress } from '../../hooks/useFetchTxHistoryByAddress'
 import { getEtherscanTxUrl } from '../../utils/etherscan'
 import { useUserData } from '../../context/UserDataManager'
-
-enum Action {
-  DEPOSIT_VAULT_OR_ETH = 'depositVaultOrEth',
-  DEPOSIT_CP = 'depositCp',
-  WITHDRAW_VAULT = 'withdrawVault',
-  WITHDRAW_CP = 'withdrawCp',
-  DEPOSIT_LP = 'depositLp',
-  WITHDRAW_LP = 'withdrawLp',
-}
-
-enum Unit {
-  ETH = 'ETH',
-  SCP = 'Solace CP Token',
-  LP = 'LP',
-}
+import { useTransactionDetails } from '../../hooks/useTransactionDetails'
 
 function Invest(): any {
   const { errors, makeToast } = useToasts()
@@ -77,6 +63,7 @@ function Invest(): any {
 
   const ethBalance = useEthBalance()
   const txHistory = useFetchTxHistoryByAddress()
+  const transactionDetails = useTransactionDetails(txHistory.txList)
   const [cpUserRewardsPerDay] = useUserRewardsPerDay(1, cpFarmContract.current)
   const [lpUserRewardsPerDay] = useUserRewardsPerDay(2, lpFarmContract.current)
   const [cpRewardsPerDay] = useRewardsPerDay(1)
@@ -90,7 +77,7 @@ function Invest(): any {
   const capitalPoolSize = useCapitalPoolSize()
   const scpBalance = useScpBalance()
 
-  const [action, setAction] = useState<Action>()
+  const [func, setFunc] = useState<Function_Name>()
   const [amount, setAmount] = useState<string>('')
   const [isStaking, setIsStaking] = useState<boolean>(false)
   const [maxSelected, setMaxSelected] = useState<boolean>(false)
@@ -104,12 +91,12 @@ function Invest(): any {
   const [userVaultAssets, setUserVaultAssets] = useState<string>('0.00')
   const [userVaultShare, setUserVaultShare] = useState<number>(0)
 
-  const openModal = async (action: Action, modalTitle: string, unit: string) => {
+  const openModal = async (func: Function_Name, modalTitle: string, unit: string) => {
     setShowModal((prev) => !prev)
     document.body.style.overflowY = 'hidden'
     setUnit(unit)
     setModalTitle(modalTitle)
-    setAction(action)
+    setFunc(func)
   }
 
   const closeModal = async () => {
@@ -143,7 +130,7 @@ function Invest(): any {
   const callDepositVault = async () => {
     setLoading(true)
     if (!vaultContract.current) return
-    const txType = 'Deposit'
+    const txType = Function_Name.DEPOSIT
     try {
       const tx = await vaultContract.current.deposit({
         value: parseEther(amount),
@@ -171,7 +158,7 @@ function Invest(): any {
   const callDepositEth = async () => {
     setLoading(true)
     if (!cpFarmContract.current || !vaultContract.current) return
-    const txType = 'DepositEth'
+    const txType = Function_Name.DEPOSIT_ETH
     try {
       const tx = await cpFarmContract.current.depositEth({
         value: parseEther(amount),
@@ -185,6 +172,7 @@ function Invest(): any {
       wallet.reload()
       makeToast(txType, Condition.PENDING, txHash)
       await tx.wait().then((receipt: any) => {
+        console.log(receipt)
         const status = receipt.status ? Condition.SUCCESS : Condition.FAILURE
         makeToast(txType, status, txHash)
         wallet.reload()
@@ -199,16 +187,21 @@ function Invest(): any {
   const callDepositCp = async () => {
     setLoading(true)
     if (!cpFarmContract.current || !vaultContract.current) return
-    const txType = 'DepositCp'
+    const txType = Function_Name.DEPOSIT_CP
     try {
       const approval = await vaultContract.current.approve(cpFarmContract.current.address, parseEther(amount))
       const approvalHash = approval.hash
-      const approvalPendingTx = { hash: approvalHash, type: 'Approval', value: '0', status: Condition.PENDING }
-      makeToast('Approval', Condition.PENDING, approvalHash)
+      const approvalPendingTx = {
+        hash: approvalHash,
+        type: Function_Name.APPROVE,
+        value: '0',
+        status: Condition.PENDING,
+      }
+      makeToast(Function_Name.APPROVE, Condition.PENDING, approvalHash)
       addLocalTransactions(approvalPendingTx)
       await approval.wait().then((receipt: any) => {
         const status = receipt.status ? Condition.SUCCESS : Condition.FAILURE
-        makeToast('Approval', status, approvalHash)
+        makeToast(Function_Name.APPROVE, status, approvalHash)
         wallet.reload()
       })
       const tx = await cpFarmContract.current.depositCp(parseEther(amount), {
@@ -236,7 +229,7 @@ function Invest(): any {
   const callWithdrawVault = async () => {
     setLoading(true)
     if (!vaultContract.current) return
-    const txType = 'Withdraw'
+    const txType = Function_Name.WITHDRAW_VAULT
     try {
       const tx = await vaultContract.current.withdraw(parseEther(amount), maxLoss, {
         gasPrice: getGasValue(selectedGasOption.value),
@@ -263,7 +256,7 @@ function Invest(): any {
   const callWithdrawCp = async () => {
     setLoading(true)
     if (!cpFarmContract.current) return
-    const txType = 'WithdrawCp'
+    const txType = Function_Name.WITHDRAW_CP
     try {
       const tx = await cpFarmContract.current.withdrawEth(parseEther(amount), maxLoss, {
         gasPrice: getGasValue(selectedGasOption.value),
@@ -290,7 +283,7 @@ function Invest(): any {
   const callDepositLp = async () => {
     setLoading(true)
     if (!lpTokenContract.current || !lpFarmContract.current || !nft) return
-    const txType = 'DepositLp'
+    const txType = Function_Name.DEPOSIT_LP
     try {
       const { v, r, s } = await getPermitNFTSignature(
         wallet,
@@ -321,7 +314,7 @@ function Invest(): any {
   const callWithdrawLp = async () => {
     setLoading(true)
     if (!lpFarmContract.current) return
-    const txType = 'WithdrawLp'
+    const txType = Function_Name.WITHDRAW_LP
     try {
       const tx = await lpFarmContract.current.withdraw(nft)
       const txHash = tx.hash
@@ -413,24 +406,24 @@ function Invest(): any {
   }
 
   const handleCallbackFunc = async () => {
-    if (!action) return
-    switch (action) {
-      case Action.DEPOSIT_VAULT_OR_ETH:
+    if (!func) return
+    switch (func) {
+      case Function_Name.DEPOSIT:
         isStaking ? await callDepositEth() : await callDepositVault()
         break
-      case Action.WITHDRAW_VAULT:
+      case Function_Name.WITHDRAW_VAULT:
         await callWithdrawVault()
         break
-      case Action.DEPOSIT_CP:
+      case Function_Name.DEPOSIT_CP:
         await callDepositCp()
         break
-      case Action.WITHDRAW_CP:
+      case Function_Name.WITHDRAW_CP:
         await callWithdrawCp()
         break
-      case Action.DEPOSIT_LP:
+      case Function_Name.DEPOSIT_LP:
         await callDepositLp()
         break
-      case Action.WITHDRAW_LP:
+      case Function_Name.WITHDRAW_LP:
         await callWithdrawLp()
         break
     }
@@ -442,16 +435,16 @@ function Invest(): any {
   }
 
   const getAssetBalanceByFunc = (): BN => {
-    switch (action) {
+    switch (func) {
       // if depositing into vault or eth into farm, check eth
-      case Action.DEPOSIT_VAULT_OR_ETH:
+      case Function_Name.DEPOSIT:
         return parseEther(ethBalance)
       // if depositing cp into farm or withdrawing from vault, check scp
-      case Action.DEPOSIT_CP:
-      case Action.WITHDRAW_VAULT:
+      case Function_Name.DEPOSIT_CP:
+      case Function_Name.WITHDRAW_VAULT:
         return parseEther(scpBalance)
       // if withdrawing cp from the farm, check user stake
-      case Action.WITHDRAW_CP:
+      case Function_Name.WITHDRAW_CP:
         return parseEther(cpUserStakeValue)
       default:
         // any amount
@@ -461,8 +454,8 @@ function Invest(): any {
 
   const calculateMaxEth = () => {
     const bal = formatEther(getAssetBalanceByFunc())
-    if (action !== 'depositVaultOrEth') return bal
-    const gasInEth = (GAS_LIMIT / 1000000000) * selectedGasOption.value
+    if (func !== Function_Name.DEPOSIT && func !== Function_Name.DEPOSIT_ETH) return bal
+    const gasInEth = (GAS_LIMIT / POW_NINE) * selectedGasOption.value
     return fixed(fixed(parseFloat(bal), 6) - fixed(gasInEth, 6), 6)
   }
 
@@ -521,7 +514,7 @@ function Invest(): any {
                 value={amount}
               />
               <div style={{ position: 'absolute', top: '70%' }}>
-                Available: {action ? parseFloat(formatEther(getAssetBalanceByFunc())) : 0}
+                Available: {func ? parseFloat(formatEther(getAssetBalanceByFunc())) : 0}
               </div>
             </ModalCell>
             <ModalCell t3>
@@ -555,7 +548,7 @@ function Invest(): any {
               <Loader />
             )}
           </RadioGroup>
-          {action == Action.DEPOSIT_VAULT_OR_ETH ? (
+          {func == Function_Name.DEPOSIT || func == Function_Name.DEPOSIT_ETH ? (
             <ModalRow>
               <ModalCell t2>
                 <Input type="checkbox" checked={isStaking} onChange={(e) => setIsStaking(e.target.checked)} />
@@ -608,13 +601,13 @@ function Invest(): any {
                   <TableDataGroup width={200}>
                     <Button
                       disabled={errors.length > 0}
-                      onClick={() => openModal(Action.DEPOSIT_VAULT_OR_ETH, 'Deposit', Unit.ETH)}
+                      onClick={() => openModal(Function_Name.DEPOSIT, Function_Name.DEPOSIT, Unit.ETH)}
                     >
                       Deposit
                     </Button>
                     <Button
                       disabled={errors.length > 0}
-                      onClick={() => openModal(Action.WITHDRAW_VAULT, 'Withdraw', Unit.SCP)}
+                      onClick={() => openModal(Function_Name.WITHDRAW_VAULT, Function_Name.WITHDRAW_VAULT, Unit.SCP)}
                     >
                       Withdraw
                     </Button>
@@ -651,13 +644,13 @@ function Invest(): any {
                   <TableDataGroup width={200}>
                     <Button
                       disabled={errors.length > 0}
-                      onClick={() => openModal(Action.DEPOSIT_CP, 'Deposit', Unit.SCP)}
+                      onClick={() => openModal(Function_Name.DEPOSIT_CP, Function_Name.DEPOSIT, Unit.SCP)}
                     >
                       Deposit
                     </Button>
                     <Button
                       disabled={errors.length > 0}
-                      onClick={() => openModal(Action.WITHDRAW_CP, 'Withdraw', Unit.SCP)}
+                      onClick={() => openModal(Function_Name.WITHDRAW_CP, Function_Name.WITHDRAW_VAULT, Unit.SCP)}
                     >
                       Withdraw
                     </Button>
@@ -694,13 +687,13 @@ function Invest(): any {
                   <TableDataGroup width={200}>
                     <Button
                       disabled={errors.length > 0}
-                      onClick={() => openModal(Action.DEPOSIT_LP, 'Deposit', Unit.LP)}
+                      onClick={() => openModal(Function_Name.DEPOSIT_LP, Function_Name.DEPOSIT, Unit.LP)}
                     >
                       Deposit
                     </Button>
                     <Button
                       disabled={errors.length > 0}
-                      onClick={() => openModal(Action.WITHDRAW_LP, 'Withdraw', Unit.LP)}
+                      onClick={() => openModal(Function_Name.WITHDRAW_LP, Function_Name.WITHDRAW_VAULT, Unit.LP)}
                     >
                       Withdraw
                     </Button>
@@ -743,10 +736,12 @@ function Invest(): any {
                 </TableRow>
               ))}
             {txHistory.txList &&
-              txHistory.txList.map((tx: any) => (
+              txHistory.txList.map((tx: any, i: number) => (
                 <TableRow key={tx.hash}>
                   <TableData>{decodeInput(tx).function_name}</TableData>
-                  <TableData>{`${formatEther(tx.value)}`}</TableData>
+                  <TableData>
+                    {transactionDetails.length > 0 ? transactionDetails[i] : <Loader width={10} height={10} />}
+                  </TableData>
                   <TableData>{timeAgo(Number(tx.timeStamp) * 1000)}</TableData>
                   <TableData>
                     <a

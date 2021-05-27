@@ -31,6 +31,9 @@ export const ZERO = constants.Zero
 export const ADDRESS_ZERO = constants.AddressZero
 export const GAS_LIMIT = 350000
 
+export const POW_NINE = 1000000000
+export const POW_EIGHTEEN = 1000000000000000000
+
 export const CP_ROI = '150.5%'
 export const LP_ROI = '6.0%'
 
@@ -38,7 +41,6 @@ export const CONTRACTS_ARRAY = [
   String(REGISTRY_CONTRACT_ADDRESS).toLowerCase(),
   String(SOLACE_CONTRACT_ADDRESS).toLowerCase(),
   String(WETH_CONTRACT_ADDRESS).toLowerCase(),
-  String(MASTER_CONTRACT_ADDRESS).toLowerCase(),
   String(VAULT_CONTRACT_ADDRESS).toLowerCase(),
   String(CPFARM_CONTRACT_ADDRESS).toLowerCase(),
   String(UNISWAP_FACTORY_CONTRACT_ADDRESS).toLowerCase(),
@@ -47,4 +49,5 @@ export const CONTRACTS_ARRAY = [
   String(UNISWAP_POOL_CONTRACT_ADDRESS).toLowerCase(),
   String(LPFARM_CONTRACT_ADDRESS).toLowerCase(),
   String(TREASURY_CONTRACT_ADDRESS).toLowerCase(),
+  String(MASTER_CONTRACT_ADDRESS).toLowerCase(),
 ]
