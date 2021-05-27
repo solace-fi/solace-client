@@ -2,11 +2,19 @@ import React, { useMemo, useContext, createContext, useCallback } from 'react'
 import { useLocalStorage } from 'react-use-storage'
 import { useWallet } from './WalletManager'
 
+/*
+
+This manager caches data concerning the user's assets, operations, or preferences into the
+web app. Currently, the only data cached here are local transactions.
+
+*/
+
 type LocalTx = {
   hash: any
   type: string
   value: string
   status: string
+  unit: string
 }
 
 export type UserData = {

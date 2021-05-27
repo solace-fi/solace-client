@@ -1,11 +1,29 @@
+/*************************************************************************************
+
+    Table of Contents:
+
+    import react
+    import packages
+    import pages
+    import components
+
+    App function
+
+  *************************************************************************************/
+
+/* import react */
 import React, { Fragment } from 'react'
+
+/* import packages */
 import { Route, Switch } from 'react-router-dom'
 
+/* import pages */
 import Dashboard from './dashboard'
 import Invest from './invest'
 import Quote from './quote'
 import Govern from './govern'
 
+/* import components */
 import Navbar from '../components/Sidebar/Navbar'
 import Prices from '../components/Header/Prices'
 import { GlobalStyle, Layout, LayoutContainer, LayoutContent } from '../components/Layout'

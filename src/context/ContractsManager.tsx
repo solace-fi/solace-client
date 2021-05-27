@@ -12,6 +12,13 @@ import {
   useWethContract,
 } from '../hooks/useContract'
 
+/*
+
+This manager supplies the Contracts data all across the application, it is here where
+the web application mainly reads the contracts.
+
+*/
+
 export type Contracts = {
   master?: Contract | null
   vault?: Contract | null
@@ -44,6 +51,7 @@ const ContractsProvider: React.FC = (props) => {
   const lpToken = useLpTokenContract()
   const weth = useWethContract()
 
+  // update when a contract changes
   const value = useMemo<Contracts>(
     () => ({
       master: master,
@@ -61,6 +69,7 @@ const ContractsProvider: React.FC = (props) => {
   return <ContractsContext.Provider value={value}>{props.children}</ContractsContext.Provider>
 }
 
+// To get access to this Manager, import this into your component or hook
 export function useContracts(): Contracts {
   return useContext(ContractsContext)
 }

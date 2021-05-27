@@ -1,58 +1,39 @@
 import { useState, useEffect } from 'react'
 import { useWallet } from '../context/WalletManager'
-import { Function_Name } from '../utils/decoder'
 import { Provider, Web3Provider } from '@ethersproject/providers'
 import { decodeInput } from '../utils/decoder'
-import { Unit } from '../utils/formatting'
 import { POW_EIGHTEEN } from '../constants'
-
-export const getTransactionAmount = async (
-  function_name: string,
-  tx: any,
-  provider: Web3Provider | Provider
-): Promise<string> => {
-  const receipt = await provider.getTransactionReceipt(tx.hash)
-  if (!receipt) return 'Unknown'
-  const logs = receipt.logs
-
-  switch (function_name) {
-    case Function_Name.DEPOSIT:
-    case Function_Name.WITHDRAW_VAULT:
-      const topics = logs[logs.length - 1].topics
-      return topics[topics.length - 1]
-    case Function_Name.DEPOSIT_ETH:
-    case Function_Name.DEPOSIT_CP:
-    case Function_Name.WITHDRAW_CP:
-    case Function_Name.WITHDRAW_REWARDS:
-    case Function_Name.DEPOSIT_LP:
-    case Function_Name.WITHDRAW_LP:
-    default:
-      return logs[logs.length - 1].data
-  }
-}
-
-const getUnit = (function_name: string): string => {
-  switch (function_name) {
-    case Function_Name.DEPOSIT:
-    case Function_Name.WITHDRAW_VAULT:
-    case Function_Name.DEPOSIT_ETH:
-    case Function_Name.APPROVE:
-      return Unit.ETH
-    case Function_Name.DEPOSIT_CP:
-    case Function_Name.WITHDRAW_CP:
-      return Unit.SCP
-    case Function_Name.WITHDRAW_REWARDS:
-      return Unit.SOLACE
-    case Function_Name.DEPOSIT_LP:
-    case Function_Name.WITHDRAW_LP:
-    default:
-      return 'LP'
-  }
-}
+import { FunctionName } from '../constants/enums'
+import { getUnit } from '../utils/formatting'
 
 export const useTransactionDetails = (txList: any): string[] => {
   const { library } = useWallet()
   const [amounts, setAmounts] = useState<string[]>([])
+
+  const getTransactionAmount = async (
+    function_name: string,
+    tx: any,
+    provider: Web3Provider | Provider
+  ): Promise<string> => {
+    const receipt = await provider.getTransactionReceipt(tx.hash)
+    if (!receipt) return 'Unknown'
+    const logs = receipt.logs
+
+    switch (function_name) {
+      case FunctionName.DEPOSIT:
+      case FunctionName.WITHDRAW_VAULT:
+        const topics = logs[logs.length - 1].topics
+        return topics[topics.length - 1]
+      case FunctionName.DEPOSIT_ETH:
+      case FunctionName.DEPOSIT_CP:
+      case FunctionName.WITHDRAW_CP:
+      case FunctionName.WITHDRAW_REWARDS:
+      case FunctionName.DEPOSIT_LP:
+      case FunctionName.WITHDRAW_LP:
+      default:
+        return logs[logs.length - 1].data
+    }
+  }
 
   const getTransactionAmounts = async () => {
     if (txList) {

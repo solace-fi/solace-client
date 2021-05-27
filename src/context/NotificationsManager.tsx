@@ -6,24 +6,23 @@ import { useWallet } from '../context/WalletManager'
 import 'animate.css/animate.min.css'
 import 'react-toastify/dist/ReactToastify.css'
 import { CHAIN_ID } from '../constants'
+import { TransactionCondition, Error } from '../constants/enums'
 import { getNetworkName } from '../utils'
 import { HyperLink } from '../components/Hyperlink'
 import { Button } from '../components/Button'
 
-export enum Condition {
-  SUCCESS = 'Complete',
-  FAILURE = 'Incomplete',
-  PENDING = 'Pending',
-  CANCELLED = 'Cancelled',
-}
+/*
 
-export enum ERROR {
-  NETWORK = 'network',
-}
+This manager allows for notifications to be created. such notifications can be created
+on trigger or manually. Errors are also tracked so appropriate notifications can be shown but 
+they can also be used elsewhere in the app for other purposes, such as disabling a certain feature
+if an error occurs.
+
+*/
 
 export type ToastSystem = {
   errors: any[]
-  makeToast: (txType: string, condition: Condition, txHash?: string) => void
+  makeToast: (txType: string, condition: TransactionCondition, txHash?: string) => void
 }
 
 const ToastsContext = createContext<ToastSystem>({
@@ -33,9 +32,9 @@ const ToastsContext = createContext<ToastSystem>({
 
 const ToastsProvider: React.FC = (props) => {
   const wallet = useWallet()
-  const [errors, setErrors] = useState<ERROR[]>([])
+  const [errors, setErrors] = useState<Error[]>([])
 
-  const makeToast = (txType: string, condition: Condition, txHash?: string) => {
+  const makeToast = (txType: string, condition: TransactionCondition, txHash?: string) => {
     const Toast = (txType: any, cond: any) => (
       <div>
         <div>
@@ -98,21 +97,22 @@ const ToastsProvider: React.FC = (props) => {
     }
   }
 
+  // Runs whenever the chainId changes
   useEffect(() => {
     const makeAppToast = () => {
       if (wallet.chainId !== Number(CHAIN_ID) && wallet.chainId !== undefined) {
         toast(`Wrong network, please switch to ${getNetworkName(Number(CHAIN_ID))} on MetaMask`, {
-          toastId: ERROR.NETWORK,
+          toastId: Error.NETWORK,
           type: toast.TYPE.ERROR,
           position: toast.POSITION.BOTTOM_LEFT,
           autoClose: false,
           closeOnClick: false,
           closeButton: false,
         })
-        setErrors([...errors, ERROR.NETWORK])
+        setErrors([...errors, Error.NETWORK])
       } else {
-        toast.dismiss(ERROR.NETWORK)
-        setErrors((errors) => errors.filter((error) => error !== ERROR.NETWORK))
+        toast.dismiss(Error.NETWORK)
+        setErrors((errors) => errors.filter((error) => error !== Error.NETWORK))
       }
     }
     makeAppToast()
@@ -134,6 +134,7 @@ const ToastsProvider: React.FC = (props) => {
   )
 }
 
+// To get access to this Manager, import this into your component or hook
 export function useToasts(): ToastSystem {
   return useContext(ToastsContext)
 }

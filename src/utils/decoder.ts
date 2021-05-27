@@ -24,19 +24,6 @@ import {
   REGISTRY_CONTRACT_ADDRESS,
   POW_EIGHTEEN,
 } from '../constants'
-import { Provider, Web3Provider } from '@ethersproject/providers'
-
-export enum Function_Name {
-  DEPOSIT = 'Deposit',
-  DEPOSIT_ETH = 'DepositEth',
-  DEPOSIT_CP = 'DepositCp',
-  WITHDRAW_VAULT = 'Withdraw',
-  WITHDRAW_CP = 'WithdrawCp',
-  DEPOSIT_LP = 'DepositLp',
-  WITHDRAW_LP = 'WithdrawLp',
-  WITHDRAW_REWARDS = 'WithdrawRewards',
-  APPROVE = 'Approve',
-}
 
 const getInterface = (toAddress: string) => {
   switch (toAddress) {
