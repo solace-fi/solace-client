@@ -2,7 +2,6 @@ import { constants } from 'ethers'
 
 export const ETHERSCAN_API_KEY = process.env.REACT_APP_ETHERSCAN_API_KEY
 export const CHAIN_ID = process.env.REACT_APP_CHAIN_ID
-export const NETWORK_URL = process.env.REACT_APP_NETWORK_URL
 export const ALCHEMY_API_KEY = process.env.REACT_APP_ALCHEMY_API_KEY
 
 export const REGISTRY_CONTRACT_ADDRESS = process.env.REACT_APP_REGISTRY_CONTRACT_ADDRESS
@@ -32,5 +31,23 @@ export const ZERO = constants.Zero
 export const ADDRESS_ZERO = constants.AddressZero
 export const GAS_LIMIT = 350000
 
+export const POW_NINE = 1000000000
+export const POW_EIGHTEEN = 1000000000000000000
+
 export const CP_ROI = '150.5%'
 export const LP_ROI = '6.0%'
+
+export const CONTRACTS_ARRAY = [
+  String(REGISTRY_CONTRACT_ADDRESS).toLowerCase(),
+  String(SOLACE_CONTRACT_ADDRESS).toLowerCase(),
+  String(WETH_CONTRACT_ADDRESS).toLowerCase(),
+  String(VAULT_CONTRACT_ADDRESS).toLowerCase(),
+  String(CPFARM_CONTRACT_ADDRESS).toLowerCase(),
+  String(UNISWAP_FACTORY_CONTRACT_ADDRESS).toLowerCase(),
+  String(UNISWAP_ROUTER_CONTRACT_ADDRESS).toLowerCase(),
+  String(UNISWAP_LPTOKEN_CONTRACT_ADDRESS).toLowerCase(),
+  String(UNISWAP_POOL_CONTRACT_ADDRESS).toLowerCase(),
+  String(LPFARM_CONTRACT_ADDRESS).toLowerCase(),
+  String(TREASURY_CONTRACT_ADDRESS).toLowerCase(),
+  String(MASTER_CONTRACT_ADDRESS).toLowerCase(),
+]

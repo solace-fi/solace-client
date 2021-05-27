@@ -9,23 +9,20 @@ import { formatEther, parseEther } from '@ethersproject/units'
 
 import { SUPPORTED_WALLETS } from '../../ethers/wallets'
 import { useCapitalPoolSize } from '../../hooks/useCapitalPoolSize'
-import { useScpBalance } from '../../hooks/useScpBalance'
 import { useTotalPendingRewards } from '../../hooks/useRewards'
 import { useSolaceBalance } from '../../hooks/useSolaceBalance'
 import { usePoolStakedValue } from '../../hooks/usePoolStakedValue'
-import { fixed, getGasValue } from '../../utils/fixedValue'
+import { fixed, getGasValue } from '../../utils/formatting'
 import { GAS_LIMIT } from '../../constants'
 
 import { useToasts, Condition } from '../../context/NotificationsManager'
-import { useTransactions } from '../../hooks/useTransactions'
-import { useFetchGasPrice } from '../../hooks/useFetchGasPrice'
+import { useUserData } from '../../context/UserDataManager'
 
 export const Statistics = () => {
   const wallet = useWallet()
   const { master, vault, solace, cpFarm, lpFarm, lpToken } = useContracts()
-  const { makeToast } = useToasts()
-  const { transactions, addTransaction, updateTransactions, deleteTransactions } = useTransactions()
-  const gasPrices = useFetchGasPrice()
+  const { errors, makeToast } = useToasts()
+  const { addLocalTransactions } = useUserData()
 
   const masterContract = useRef<Contract | null>()
   const vaultContract = useRef<Contract | null>()
@@ -37,9 +34,6 @@ export const Statistics = () => {
   const [totalValueLocked, setTotalValueLocked] = useState<string>('0.00')
   const capitalPoolSize = useCapitalPoolSize()
   const solaceBalance = useSolaceBalance()
-  const scpBalance = useScpBalance()
-
-  const [lp, setLp] = useState<number>(0)
 
   const totalUserRewards = useTotalPendingRewards()
 
@@ -47,30 +41,22 @@ export const Statistics = () => {
   const lpPoolValue = usePoolStakedValue(lpFarm)
 
   const claimRewards = async () => {
-    // await claimCpRewards()
-    // await claimLpRewards()
     if (!masterContract.current) return
     const txType = 'Claim Rewards'
     try {
       const tx = await masterContract.current.withdrawRewards({
-        gasPrice: getGasValue(gasPrices.options[1].value),
+        gasPrice: getGasValue(wallet.gasPrices.options[1].value),
         gasLimit: GAS_LIMIT,
       })
       const txHash = tx.hash
+      addLocalTransactions({ hash: txHash, type: txType, value: '0', status: Condition.PENDING })
       makeToast(txType, Condition.PENDING, txHash)
-      addTransaction(txType, tx, totalUserRewards, 'Solace')
+      wallet.reload()
       await tx.wait().then((receipt: any) => {
-        if (receipt.status) {
-          console.log(receipt)
-          makeToast(txType, Condition.SUCCESS, txHash)
-          updateTransactions(receipt, 'Complete')
-          wallet.reload()
-        } else {
-          console.log(receipt)
-          makeToast(txType, Condition.FAILURE, txHash)
-          deleteTransactions(tx)
-          wallet.reload()
-        }
+        console.log(receipt)
+        const status = receipt.status ? Condition.SUCCESS : Condition.FAILURE
+        makeToast(txType, status, txHash)
+        wallet.reload()
       })
     } catch (err) {
       if (err?.code === 4001) {
@@ -101,7 +87,7 @@ export const Statistics = () => {
 
   useEffect(() => {
     getTotalValueLocked()
-  }, [cpPoolValue, lpPoolValue, wallet])
+  }, [cpPoolValue, lpPoolValue])
 
   return (
     <BoxRow>
@@ -115,13 +101,6 @@ export const Statistics = () => {
             </BoxItemValue>
           </BoxItem>
           <BoxItem>
-            <BoxItemTitle h3>My SCP</BoxItemTitle>
-            <BoxItemValue h2>
-              {`${fixed(parseFloat(scpBalance))} `}
-              <BoxItemUnits h3>TOKENS</BoxItemUnits>
-            </BoxItemValue>
-          </BoxItem>
-          <BoxItem>
             <BoxItemTitle h3>My Rewards</BoxItemTitle>
             <BoxItemValue h2>
               {`${fixed(parseFloat(totalUserRewards))} `}
@@ -129,7 +108,9 @@ export const Statistics = () => {
             </BoxItemValue>
           </BoxItem>
           <BoxItem>
-            <Button onClick={claimRewards}>Claim</Button>
+            <Button disabled={errors.length > 0} onClick={claimRewards}>
+              Claim
+            </Button>
           </BoxItem>
         </Box>
       ) : (

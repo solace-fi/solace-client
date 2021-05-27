@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@alch/alchemy-web3": "^1.0.3",
     "@ethersproject/providers": "^5.1.0",
     "@reduxjs/toolkit": "^1.5.1",
     "@rooks/use-debounce": "^4.11.0",
@@ -21,6 +22,7 @@
     "axios": "^0.21.1",
     "bignumber.js": "^9.0.1",
     "eslint": "^7.11.0",
+    "ethereum-blockies-base64": "^1.0.2",
     "ethers": "^5.1.0",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",

@@ -8,6 +8,7 @@ interface TableProps {
   cellAlignRight?: boolean
   headers?: string[]
   body?: { data: string[]; status: boolean }[]
+  width?: number
 }
 
 const handleCellAlign = (props: TableProps) => {
@@ -35,12 +36,16 @@ export const TableBody = styled.tbody``
 
 export const TableHead = styled.thead``
 
-export const TableHeader = styled.th`
+export const TableHeader = styled.th<TableProps>`
+  ${(props) => props.width && `max-width: ${props.width}px !important`};
   padding: 4px 18px;
   text-align: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
 `
 
 export const TableData = styled.td<TableProps>`
+  ${(props) => props.width && `max-width: ${props.width}px !important`};
   text-align: center;
   padding: 18px;
   &:first-child {
@@ -49,9 +54,12 @@ export const TableData = styled.td<TableProps>`
   &:last-child {
     border-radius: 0 10px 10px 0;
   }
+  overflow: hidden;
+  text-overflow: ellipsis;
 `
 
 export const TableDataGroup = styled.div<TableProps>`
+  width: ${(props) => (props.width ? `${props.width}px` : '100%')};
   display: grid;
   grid-template-columns: repeat(${(props) => React.Children.count(props.children)}, 1fr);
   gap: 16px;

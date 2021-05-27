@@ -77,7 +77,7 @@ export const ModalButton = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-top: 40px;
+  margin: 20px 0;
 `
 
 export const Modal: React.FC<ModalProps> = ({ isOpen, style, children }) => {

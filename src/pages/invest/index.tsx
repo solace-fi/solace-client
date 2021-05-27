@@ -2,9 +2,9 @@ import React, { useEffect, useRef, useState, Fragment } from 'react'
 
 import { Contract } from '@ethersproject/contracts'
 import { formatEther, parseEther } from '@ethersproject/units'
-import { BigNumberish, BigNumber as BN, utils } from 'ethers'
+import { BigNumberish, BigNumber as BN } from 'ethers'
 
-import { CHAIN_ID, ZERO, DEADLINE, CP_ROI, LP_ROI, GAS_LIMIT } from '../../constants'
+import { ZERO, DEADLINE, CP_ROI, LP_ROI, GAS_LIMIT, CHAIN_ID, POW_NINE } from '../../constants'
 
 import { useContracts } from '../../context/ContractsManager'
 import { useWallet } from '../../context/WalletManager'
@@ -27,26 +27,29 @@ import { Heading1, Heading2 } from '../../components/Text'
 import { Content } from '../../components/Layout'
 
 import getPermitNFTSignature from '../../utils/signature'
-import { encodePriceSqrt, FeeAmount, TICK_SPACINGS, getMaxTick, getMinTick } from '../../utils/uniswap'
-import { fixed, getGasValue } from '../../utils/fixedValue'
+import { FeeAmount, TICK_SPACINGS, getMaxTick, getMinTick } from '../../utils/uniswap'
+import { fixed, getGasValue, filteredAmount, shortenAddress, Unit } from '../../utils/formatting'
 import { getProviderOrSigner } from '../../utils/index'
+import { timeAgo } from '../../utils/timeAgo'
+import { decodeInput, Function_Name } from '../../utils/decoder'
 
 import { GasFeeOption } from '../../hooks/useFetchGasPrice'
 import { useCapitalPoolSize } from '../../hooks/useCapitalPoolSize'
 import { useEthBalance } from '../../hooks/useEthBalance'
-import { useFetchGasPrice } from '../../hooks/useFetchGasPrice'
 import { usePoolStakedValue } from '../../hooks/usePoolStakedValue'
 import { useRewardsPerDay, useUserPendingRewards, useUserRewardsPerDay } from '../../hooks/useRewards'
 import { useScpBalance } from '../../hooks/useScpBalance'
 import { useUserStakedValue } from '../../hooks/useUserStakedValue'
-import { useTransactions } from '../../hooks/useTransactions'
 import { useToasts, Condition } from '../../context/NotificationsManager'
 import { useFetchTxHistoryByAddress } from '../../hooks/useFetchTxHistoryByAddress'
-import { getEtherscanTxUrl, getEtherscanBlockUrl } from '../../utils/etherscan'
+import { getEtherscanTxUrl } from '../../utils/etherscan'
+import { useUserData } from '../../context/UserDataManager'
+import { useTransactionDetails } from '../../hooks/useTransactionDetails'
 
 function Invest(): any {
-  const { makeToast } = useToasts()
+  const { errors, makeToast } = useToasts()
   const wallet = useWallet()
+  const { localTransactions, addLocalTransactions } = useUserData()
   const { master, vault, solace, cpFarm, lpFarm, lpToken, weth, registry } = useContracts()
 
   const masterContract = useRef<Contract | null>()
@@ -58,10 +61,9 @@ function Invest(): any {
   const solaceContract = useRef<Contract | null>()
   const registryContract = useRef<Contract | null>()
 
-  const { transactions, addTransaction, updateTransactions, deleteTransactions } = useTransactions()
   const ethBalance = useEthBalance()
-  const gasPrices = useFetchGasPrice()
   const txHistory = useFetchTxHistoryByAddress()
+  const transactionDetails = useTransactionDetails(txHistory.txList)
   const [cpUserRewardsPerDay] = useUserRewardsPerDay(1, cpFarmContract.current)
   const [lpUserRewardsPerDay] = useUserRewardsPerDay(2, lpFarmContract.current)
   const [cpRewardsPerDay] = useRewardsPerDay(1)
@@ -75,25 +77,26 @@ function Invest(): any {
   const capitalPoolSize = useCapitalPoolSize()
   const scpBalance = useScpBalance()
 
-  const [action, setAction] = useState<string>()
+  const [func, setFunc] = useState<Function_Name>()
   const [amount, setAmount] = useState<string>('')
   const [isStaking, setIsStaking] = useState<boolean>(false)
+  const [maxSelected, setMaxSelected] = useState<boolean>(false)
   const [loading, setLoading] = useState<boolean>(false)
   const [maxLoss, setMaxLoss] = useState<number>(5)
   const [modalTitle, setModalTitle] = useState<string>('')
   const [nft, setNft] = useState<BN>()
-  const [selectedGasOption, setSelectedGasOption] = useState<GasFeeOption>({ key: '', name: '', value: 0 })
+  const [selectedGasOption, setSelectedGasOption] = useState<GasFeeOption>(wallet.gasPrices.selected)
   const [showModal, setShowModal] = useState<boolean>(false)
-  const [unit, setUnit] = useState<string>('ETH')
+  const [unit, setUnit] = useState<string>(Unit.ETH)
   const [userVaultAssets, setUserVaultAssets] = useState<string>('0.00')
   const [userVaultShare, setUserVaultShare] = useState<number>(0)
 
-  const openModal = async (action: string, modalTitle: string, unit: string) => {
+  const openModal = async (func: Function_Name, modalTitle: string, unit: string) => {
     setShowModal((prev) => !prev)
     document.body.style.overflowY = 'hidden'
     setUnit(unit)
     setModalTitle(modalTitle)
-    setAction(action)
+    setFunc(func)
   }
 
   const closeModal = async () => {
@@ -101,7 +104,8 @@ function Invest(): any {
     document.body.style.overflowY = 'scroll'
     setLoading(false)
     setAmount('')
-    setSelectedGasOption(gasPrices.options[1])
+    setMaxSelected(false)
+    setSelectedGasOption(wallet.gasPrices.options[1])
   }
 
   const getUserVaultDetails = async () => {
@@ -126,7 +130,7 @@ function Invest(): any {
   const callDepositVault = async () => {
     setLoading(true)
     if (!vaultContract.current) return
-    const txType = 'Eth Risk backing Capital Pool Deposit'
+    const txType = Function_Name.DEPOSIT
     try {
       const tx = await vaultContract.current.deposit({
         value: parseEther(amount),
@@ -134,25 +138,19 @@ function Invest(): any {
         gasLimit: GAS_LIMIT,
       })
       const txHash = tx.hash
+      const localTx = { hash: txHash, type: txType, value: amount, status: Condition.PENDING }
       closeModal()
+      addLocalTransactions(localTx)
+      wallet.reload()
       makeToast(txType, Condition.PENDING, txHash)
-      addTransaction(txType, tx, amount, unit)
       await tx.wait().then((receipt: any) => {
-        if (receipt.status) {
-          console.log(receipt)
-          makeToast(txType, Condition.SUCCESS, txHash)
-          updateTransactions(receipt, 'Complete')
-          wallet.reload()
-        } else {
-          makeToast(txType, Condition.FAILURE, txHash)
-          deleteTransactions(tx)
-          closeModal()
-          wallet.reload()
-        }
+        const status = receipt.status ? Condition.SUCCESS : Condition.FAILURE
+        makeToast(txType, status, txHash)
+        wallet.reload()
       })
     } catch (err) {
       makeToast(txType, Condition.CANCELLED)
-      closeModal()
+      setLoading(false)
       wallet.reload()
     }
   }
@@ -160,7 +158,7 @@ function Invest(): any {
   const callDepositEth = async () => {
     setLoading(true)
     if (!cpFarmContract.current || !vaultContract.current) return
-    const txType = 'Eth Risk backing Capital Pool Stake'
+    const txType = Function_Name.DEPOSIT_ETH
     try {
       const tx = await cpFarmContract.current.depositEth({
         value: parseEther(amount),
@@ -168,24 +166,20 @@ function Invest(): any {
         gasLimit: GAS_LIMIT,
       })
       const txHash = tx.hash
+      const localTx = { hash: txHash, type: txType, value: amount, status: Condition.PENDING }
       closeModal()
+      addLocalTransactions(localTx)
+      wallet.reload()
       makeToast(txType, Condition.PENDING, txHash)
-      addTransaction(txType, tx, amount, unit)
       await tx.wait().then((receipt: any) => {
-        if (receipt.status) {
-          makeToast(txType, Condition.SUCCESS, txHash)
-          updateTransactions(receipt, 'Complete')
-          wallet.reload()
-        } else {
-          makeToast(txType, Condition.FAILURE, txHash)
-          deleteTransactions(tx)
-          closeModal()
-          wallet.reload()
-        }
+        console.log(receipt)
+        const status = receipt.status ? Condition.SUCCESS : Condition.FAILURE
+        makeToast(txType, status, txHash)
+        wallet.reload()
       })
     } catch (err) {
       makeToast(txType, Condition.CANCELLED)
-      closeModal()
+      setLoading(false)
       wallet.reload()
     }
   }
@@ -193,36 +187,41 @@ function Invest(): any {
   const callDepositCp = async () => {
     setLoading(true)
     if (!cpFarmContract.current || !vaultContract.current) return
-    const txType = 'Solace Capital Provider Farm Deposit'
+    const txType = Function_Name.DEPOSIT_CP
     try {
       const approval = await vaultContract.current.approve(cpFarmContract.current.address, parseEther(amount))
-      await approval.wait()
-      await vaultContract.current.once('Approval', (owner, spender, value, tx) => {
-        console.log('approval event: ', tx)
+      const approvalHash = approval.hash
+      const approvalPendingTx = {
+        hash: approvalHash,
+        type: Function_Name.APPROVE,
+        value: '0',
+        status: Condition.PENDING,
+      }
+      makeToast(Function_Name.APPROVE, Condition.PENDING, approvalHash)
+      addLocalTransactions(approvalPendingTx)
+      await approval.wait().then((receipt: any) => {
+        const status = receipt.status ? Condition.SUCCESS : Condition.FAILURE
+        makeToast(Function_Name.APPROVE, status, approvalHash)
+        wallet.reload()
       })
       const tx = await cpFarmContract.current.depositCp(parseEther(amount), {
         gasPrice: getGasValue(selectedGasOption.value),
         gasLimit: GAS_LIMIT,
       })
       const txHash = tx.hash
+      const localTx = { hash: txHash, type: txType, value: amount, status: Condition.PENDING }
       closeModal()
+      addLocalTransactions(localTx)
+      wallet.reload()
       makeToast(txType, Condition.PENDING, txHash)
-      addTransaction(txType, tx, amount, unit)
       await tx.wait().then((receipt: any) => {
-        if (receipt.status) {
-          makeToast(txType, Condition.SUCCESS, txHash)
-          updateTransactions(receipt, 'Complete')
-          wallet.reload()
-        } else {
-          makeToast(txType, Condition.FAILURE, txHash)
-          deleteTransactions(tx)
-          closeModal()
-          wallet.reload()
-        }
+        const status = receipt.status ? Condition.SUCCESS : Condition.FAILURE
+        makeToast(txType, status, txHash)
+        wallet.reload()
       })
     } catch (err) {
       makeToast(txType, Condition.CANCELLED)
-      closeModal()
+      setLoading(false)
       wallet.reload()
     }
   }
@@ -230,31 +229,26 @@ function Invest(): any {
   const callWithdrawVault = async () => {
     setLoading(true)
     if (!vaultContract.current) return
-    const txType = 'Eth Risk backing Capital Pool Withdrawal'
+    const txType = Function_Name.WITHDRAW_VAULT
     try {
       const tx = await vaultContract.current.withdraw(parseEther(amount), maxLoss, {
         gasPrice: getGasValue(selectedGasOption.value),
         gasLimit: GAS_LIMIT,
       })
       const txHash = tx.hash
+      const localTx = { hash: txHash, type: txType, value: amount, status: Condition.PENDING }
       closeModal()
+      addLocalTransactions(localTx)
+      wallet.reload()
       makeToast(txType, Condition.PENDING, txHash)
-      addTransaction(txType, tx, amount, unit)
       await tx.wait().then((receipt: any) => {
-        if (receipt.status) {
-          makeToast(txType, Condition.SUCCESS, txHash)
-          updateTransactions(receipt, 'Complete')
-          wallet.reload()
-        } else {
-          makeToast(txType, Condition.FAILURE, txHash)
-          deleteTransactions(tx)
-          closeModal()
-          wallet.reload()
-        }
+        const status = receipt.status ? Condition.SUCCESS : Condition.FAILURE
+        makeToast(txType, status, txHash)
+        wallet.reload()
       })
     } catch (err) {
       makeToast(txType, Condition.CANCELLED)
-      closeModal()
+      setLoading(false)
       wallet.reload()
     }
   }
@@ -262,31 +256,26 @@ function Invest(): any {
   const callWithdrawCp = async () => {
     setLoading(true)
     if (!cpFarmContract.current) return
-    const txType = 'Solace Capital Provider Farm Withdrawal'
+    const txType = Function_Name.WITHDRAW_CP
     try {
       const tx = await cpFarmContract.current.withdrawEth(parseEther(amount), maxLoss, {
         gasPrice: getGasValue(selectedGasOption.value),
         gasLimit: GAS_LIMIT,
       })
       const txHash = tx.hash
+      const localTx = { hash: txHash, type: txType, value: amount, status: Condition.PENDING }
       closeModal()
+      addLocalTransactions(localTx)
+      wallet.reload()
       makeToast(txType, Condition.PENDING, txHash)
-      addTransaction(txType, tx, amount, unit)
       await tx.wait().then((receipt: any) => {
-        if (receipt.status) {
-          makeToast(txType, Condition.SUCCESS, txHash)
-          updateTransactions(receipt, 'Complete')
-          wallet.reload()
-        } else {
-          makeToast(txType, Condition.FAILURE, txHash)
-          deleteTransactions(tx)
-          closeModal()
-          wallet.reload()
-        }
+        const status = receipt.status ? Condition.SUCCESS : Condition.FAILURE
+        makeToast(txType, status, txHash)
+        wallet.reload()
       })
     } catch (err) {
       makeToast(txType, Condition.CANCELLED)
-      closeModal()
+      setLoading(false)
       wallet.reload()
     }
   }
@@ -294,7 +283,7 @@ function Invest(): any {
   const callDepositLp = async () => {
     setLoading(true)
     if (!lpTokenContract.current || !lpFarmContract.current || !nft) return
-    const txType = 'SOLACE/ETH Liquidity Pool Deposit'
+    const txType = Function_Name.DEPOSIT_LP
     try {
       const { v, r, s } = await getPermitNFTSignature(
         wallet,
@@ -305,24 +294,19 @@ function Invest(): any {
       )
       const tx = await lpFarmContract.current.depositSigned(wallet.account, nft, DEADLINE, v, r, s)
       const txHash = tx.hash
+      const localTx = { hash: txHash, type: txType, value: amount, status: Condition.PENDING }
       closeModal()
+      addLocalTransactions(localTx)
+      wallet.reload()
       makeToast(txType, Condition.PENDING, txHash)
-      addTransaction(txType, tx, amount, unit)
       await tx.wait().then((receipt: any) => {
-        if (receipt.status) {
-          makeToast(txType, Condition.SUCCESS, txHash)
-          updateTransactions(receipt, 'Complete')
-          wallet.reload()
-        } else {
-          makeToast(txType, Condition.FAILURE, txHash)
-          deleteTransactions(tx)
-          closeModal()
-          wallet.reload()
-        }
+        const status = receipt.status ? Condition.SUCCESS : Condition.FAILURE
+        makeToast(txType, status, txHash)
+        wallet.reload()
       })
     } catch (err) {
       makeToast(txType, Condition.CANCELLED)
-      closeModal()
+      setLoading(false)
       wallet.reload()
     }
   }
@@ -330,28 +314,23 @@ function Invest(): any {
   const callWithdrawLp = async () => {
     setLoading(true)
     if (!lpFarmContract.current) return
-    const txType = 'SOLACE/ETH Liquidity Pool Withdrawal'
+    const txType = Function_Name.WITHDRAW_LP
     try {
       const tx = await lpFarmContract.current.withdraw(nft)
       const txHash = tx.hash
+      const localTx = { hash: txHash, type: txType, value: amount, status: Condition.PENDING }
       closeModal()
+      addLocalTransactions(localTx)
+      wallet.reload()
       makeToast(txType, Condition.PENDING, txHash)
-      addTransaction(txType, tx, amount, unit)
       await tx.wait().then((receipt: any) => {
-        if (receipt.status) {
-          makeToast(txType, Condition.SUCCESS, txHash)
-          updateTransactions(receipt, 'Complete')
-          wallet.reload()
-        } else {
-          makeToast(txType, Condition.FAILURE, txHash)
-          deleteTransactions(tx)
-          closeModal()
-          wallet.reload()
-        }
+        const status = receipt.status ? Condition.SUCCESS : Condition.FAILURE
+        makeToast(txType, status, txHash)
+        wallet.reload()
       })
     } catch (err) {
       makeToast(txType, Condition.CANCELLED)
-      closeModal()
+      setLoading(false)
       wallet.reload()
     }
   }
@@ -382,11 +361,11 @@ function Invest(): any {
       const nft = await mintLpToken(wethContract.current, solaceContract.current, FeeAmount.MEDIUM, BN.from(amount))
       console.log('Total Supply of LP Tokens', nft.toNumber())
       setNft(nft)
-      wallet.reload()
+
       closeModal()
     } catch (err) {
       console.log(err)
-      wallet.reload()
+
       closeModal()
     }
   }
@@ -427,56 +406,57 @@ function Invest(): any {
   }
 
   const handleCallbackFunc = async () => {
-    if (!action) return
-    switch (action) {
-      case 'depositVaultOrEth':
+    if (!func) return
+    switch (func) {
+      case Function_Name.DEPOSIT:
         isStaking ? await callDepositEth() : await callDepositVault()
         break
-      case 'withdrawVault':
+      case Function_Name.WITHDRAW_VAULT:
         await callWithdrawVault()
         break
-      case 'depositCp':
+      case Function_Name.DEPOSIT_CP:
         await callDepositCp()
         break
-      case 'withdrawCp':
+      case Function_Name.WITHDRAW_CP:
         await callWithdrawCp()
         break
-      case 'depositLp':
+      case Function_Name.DEPOSIT_LP:
         await callDepositLp()
         break
-      case 'withdrawLp':
+      case Function_Name.WITHDRAW_LP:
         await callWithdrawLp()
         break
     }
   }
 
-  const handleAmount = (input: string) => {
-    if (!amount && input == '.') input = '0.'
-    const filteredAmount = input.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1')
-    setAmount(filteredAmount)
-  }
-
   const isAppropriateAmount = () => {
-    if (!amount || parseEther(amount).lte(ZERO)) return false
+    if (!amount || amount == '.' || parseEther(amount).lte(ZERO)) return false
     return getAssetBalanceByFunc().gte(parseEther(amount))
   }
 
   const getAssetBalanceByFunc = (): BN => {
-    switch (action) {
+    switch (func) {
       // if depositing into vault or eth into farm, check eth
-      case 'depositVaultOrEth':
+      case Function_Name.DEPOSIT:
         return parseEther(ethBalance)
       // if depositing cp into farm or withdrawing from vault, check scp
-      case 'depositCp':
-      case 'withdrawVault':
+      case Function_Name.DEPOSIT_CP:
+      case Function_Name.WITHDRAW_VAULT:
         return parseEther(scpBalance)
       // if withdrawing cp from the farm, check user stake
-      case 'withdrawCp':
+      case Function_Name.WITHDRAW_CP:
         return parseEther(cpUserStakeValue)
       default:
         // any amount
         return BN.from('999999999999999999999999999999999999')
     }
+  }
+
+  const calculateMaxEth = () => {
+    const bal = formatEther(getAssetBalanceByFunc())
+    if (func !== Function_Name.DEPOSIT && func !== Function_Name.DEPOSIT_ETH) return bal
+    const gasInEth = (GAS_LIMIT / POW_NINE) * selectedGasOption.value
+    return fixed(fixed(parseFloat(bal), 6) - fixed(gasInEth, 6), 6)
   }
 
   useEffect(() => {
@@ -492,12 +472,19 @@ function Invest(): any {
 
   useEffect(() => {
     getUserVaultDetails()
-  }, [wallet, scpBalance, txHistory])
+  }, [wallet.library, wallet.version, wallet.account, scpBalance, txHistory])
 
   useEffect(() => {
-    if (!gasPrices.selected) return
-    setSelectedGasOption(gasPrices.selected)
-  }, [gasPrices])
+    if (!wallet.gasPrices.selected) return
+    setSelectedGasOption(wallet.gasPrices.selected)
+  }, [wallet.gasPrices])
+
+  useEffect(() => {
+    const maxEth = calculateMaxEth()
+    if (showModal && maxSelected) {
+      setAmount(maxEth.toString())
+    }
+  }, [handleSelectChange])
 
   return (
     <Fragment>
@@ -520,20 +507,30 @@ function Invest(): any {
                 placeholder="0.0"
                 minLength={1}
                 maxLength={79}
-                onChange={(e) => handleAmount(e.target.value)}
+                onChange={(e) => {
+                  setAmount(filteredAmount(e.target.value, amount))
+                  setMaxSelected(false)
+                }}
                 value={amount}
               />
               <div style={{ position: 'absolute', top: '70%' }}>
-                Available: {action ? parseFloat(formatEther(getAssetBalanceByFunc())) : 0}
+                Available: {func ? parseFloat(formatEther(getAssetBalanceByFunc())) : 0}
               </div>
             </ModalCell>
             <ModalCell t3>
-              <Button onClick={() => setAmount(formatEther(getAssetBalanceByFunc()))}>MAX</Button>
+              <Button
+                onClick={() => {
+                  setAmount(calculateMaxEth().toString())
+                  setMaxSelected(true)
+                }}
+              >
+                MAX
+              </Button>
             </ModalCell>
           </ModalRow>
           <RadioGroup>
-            {!gasPrices.loading ? (
-              gasPrices.options.map((option) => (
+            {!wallet.gasPrices.loading ? (
+              wallet.gasPrices.options.map((option: any) => (
                 <RadioLabel key={option.key}>
                   <RadioInput
                     type="radio"
@@ -543,7 +540,7 @@ function Invest(): any {
                   />
                   <RadioElement>
                     <div>{option.name}</div>
-                    <div>{option.value ? option.value : 0}</div>
+                    <div>{option.value}</div>
                   </RadioElement>
                 </RadioLabel>
               ))
@@ -551,7 +548,7 @@ function Invest(): any {
               <Loader />
             )}
           </RadioGroup>
-          {action == 'depositVaultOrEth' ? (
+          {func == Function_Name.DEPOSIT || func == Function_Name.DEPOSIT_ETH ? (
             <ModalRow>
               <ModalCell t2>
                 <Input type="checkbox" checked={isStaking} onChange={(e) => setIsStaking(e.target.checked)} />
@@ -575,23 +572,45 @@ function Invest(): any {
         <Table isHighlight>
           <TableHead>
             <TableRow>
-              {wallet.account ? <TableHeader>Your Assets</TableHeader> : null}
-              <TableHeader>Total Assets</TableHeader>
-              {wallet.account ? <TableHeader>Your Vault Share</TableHeader> : null}
-              <TableHeader>ROI (1Y)</TableHeader>
+              {wallet.account ? <TableHeader width={109}>Your Assets</TableHeader> : null}
+              <TableHeader width={100}>Total Assets</TableHeader>
+              <TableHeader width={100}>ROI (1Y)</TableHeader>
+              {wallet.account ? <TableHeader width={130}>Your Vault Share</TableHeader> : null}
+              {wallet.account && (
+                <Fragment>
+                  <TableHeader width={100}></TableHeader>
+                  <TableHeader width={170}></TableHeader>
+                </Fragment>
+              )}
             </TableRow>
           </TableHead>
           <TableBody>
             <TableRow>
-              {wallet.account ? <TableData>{fixed(parseFloat(userVaultAssets))}</TableData> : null}
-              <TableData>{fixed(parseFloat(formatEther(capitalPoolSize).toString()))}</TableData>
-              {wallet.account ? <TableData>{`${fixed(userVaultShare)}%`}</TableData> : null}
-              <TableData>{CP_ROI}</TableData>
+              {wallet.account ? <TableData width={109}>{fixed(parseFloat(userVaultAssets), 2)}</TableData> : null}
+              <TableData width={100}>{fixed(parseFloat(formatEther(capitalPoolSize).toString()), 2)}</TableData>
+              <TableData width={100}>{CP_ROI}</TableData>
+              {wallet.account ? <TableData width={130}>{`${fixed(userVaultShare, 2)}%`}</TableData> : null}
+              {wallet.account && (
+                <Fragment>
+                  <TableData width={100}></TableData>
+                  <TableData width={170}></TableData>
+                </Fragment>
+              )}
               {wallet.account && !loading ? (
                 <TableData cellAlignRight>
-                  <TableDataGroup>
-                    <Button onClick={() => openModal('depositVaultOrEth', 'Deposit', 'ETH')}>Deposit</Button>
-                    <Button onClick={() => openModal('withdrawVault', 'Withdraw', 'Solace CP Token')}>Withdraw</Button>
+                  <TableDataGroup width={200}>
+                    <Button
+                      disabled={errors.length > 0}
+                      onClick={() => openModal(Function_Name.DEPOSIT, Function_Name.DEPOSIT, Unit.ETH)}
+                    >
+                      Deposit
+                    </Button>
+                    <Button
+                      disabled={errors.length > 0}
+                      onClick={() => openModal(Function_Name.WITHDRAW_VAULT, Function_Name.WITHDRAW_VAULT, Unit.SCP)}
+                    >
+                      Withdraw
+                    </Button>
                   </TableDataGroup>
                 </TableData>
               ) : null}
@@ -614,17 +633,27 @@ function Invest(): any {
           </TableHead>
           <TableBody>
             <TableRow>
-              {wallet.account ? <TableData>{fixed(parseFloat(cpUserStakeValue))}</TableData> : null}
-              <TableData>{fixed(parseFloat(cpPoolValue))}</TableData>
+              {wallet.account ? <TableData>{fixed(parseFloat(cpUserStakeValue), 2)}</TableData> : null}
+              <TableData>{fixed(parseFloat(cpPoolValue), 2)}</TableData>
               <TableData>{LP_ROI}</TableData>
-              {wallet.account ? <TableData>{fixed(parseFloat(cpUserRewards))}</TableData> : null}
-              {wallet.account ? <TableData>{fixed(parseFloat(cpUserRewardsPerDay))}</TableData> : null}
-              <TableData>{fixed(parseFloat(cpRewardsPerDay))}</TableData>
+              {wallet.account ? <TableData>{fixed(parseFloat(cpUserRewards), 2)}</TableData> : null}
+              {wallet.account ? <TableData>{fixed(parseFloat(cpUserRewardsPerDay), 2)}</TableData> : null}
+              <TableData>{fixed(parseFloat(cpRewardsPerDay), 2)}</TableData>
               {wallet.account && !loading ? (
                 <TableData cellAlignRight>
-                  <TableDataGroup>
-                    <Button onClick={() => openModal('depositCp', 'Deposit', 'Solace CP Token')}>Deposit</Button>
-                    <Button onClick={() => openModal('withdrawCp', 'Withdraw', 'Solace CP Token')}>Withdraw</Button>
+                  <TableDataGroup width={200}>
+                    <Button
+                      disabled={errors.length > 0}
+                      onClick={() => openModal(Function_Name.DEPOSIT_CP, Function_Name.DEPOSIT, Unit.SCP)}
+                    >
+                      Deposit
+                    </Button>
+                    <Button
+                      disabled={errors.length > 0}
+                      onClick={() => openModal(Function_Name.WITHDRAW_CP, Function_Name.WITHDRAW_VAULT, Unit.SCP)}
+                    >
+                      Withdraw
+                    </Button>
                   </TableDataGroup>
                 </TableData>
               ) : null}
@@ -637,6 +666,7 @@ function Invest(): any {
         <Table isHighlight>
           <TableHead>
             <TableRow>
+              {wallet.account ? <TableHeader>Your Stake</TableHeader> : null}
               <TableHeader>Total Assets</TableHeader>
               <TableHeader>ROI (1Y)</TableHeader>
               {wallet.account ? <TableHeader>My Rewards</TableHeader> : null}
@@ -646,16 +676,27 @@ function Invest(): any {
           </TableHead>
           <TableBody>
             <TableRow>
-              <TableData>{fixed(parseFloat(lpPoolValue))}</TableData>
+              {wallet.account ? <TableData>{fixed(parseFloat(lpUserStakeValue), 2)}</TableData> : null}
+              <TableData>{fixed(parseFloat(lpPoolValue), 2)}</TableData>
               <TableData>150.00%</TableData>
-              {wallet.account ? <TableData>{fixed(parseFloat(lpUserRewards))}</TableData> : null}
-              {wallet.account ? <TableData>{fixed(parseFloat(lpUserRewardsPerDay))}</TableData> : null}
-              <TableData>{fixed(parseFloat(lpRewardsPerDay))}</TableData>
+              {wallet.account ? <TableData>{fixed(parseFloat(lpUserRewards), 2)}</TableData> : null}
+              {wallet.account ? <TableData>{fixed(parseFloat(lpUserRewardsPerDay), 2)}</TableData> : null}
+              <TableData>{fixed(parseFloat(lpRewardsPerDay), 2)}</TableData>
               {wallet.account && !loading ? (
                 <TableData cellAlignRight>
-                  <TableDataGroup>
-                    <Button onClick={() => openModal('depositLp', 'Deposit', 'LP')}>Deposit</Button>
-                    <Button onClick={() => openModal('withdrawLp', 'Withdraw', 'LP')}>Withdraw</Button>
+                  <TableDataGroup width={200}>
+                    <Button
+                      disabled={errors.length > 0}
+                      onClick={() => openModal(Function_Name.DEPOSIT_LP, Function_Name.DEPOSIT, Unit.LP)}
+                    >
+                      Deposit
+                    </Button>
+                    <Button
+                      disabled={errors.length > 0}
+                      onClick={() => openModal(Function_Name.WITHDRAW_LP, Function_Name.WITHDRAW_VAULT, Unit.LP)}
+                    >
+                      Withdraw
+                    </Button>
                   </TableDataGroup>
                 </TableData>
               ) : null}
@@ -668,46 +709,50 @@ function Invest(): any {
         <Table>
           <TableHead>
             <TableRow>
-              {/* <TableHeader>Type</TableHeader> */}
+              <TableHeader>Type</TableHeader>
               <TableHeader>Amount</TableHeader>
               <TableHeader>Time</TableHeader>
               <TableHeader>Hash</TableHeader>
-              <TableHeader>Block Hash</TableHeader>
               <TableHeader>Status</TableHeader>
             </TableRow>
           </TableHead>
           <TableBody>
-            {/* {transactions.map((tx: any) => (
-              <TableRow key={tx.hash}>
-                <TableData>{tx.type}</TableData>
-                <TableData>{`${tx.amount} ${tx.unit}`}</TableData>
-                <TableData>{tx.time}</TableData>
-                <TableData>{`${tx.hash.substring(0, 8)}...`}</TableData>
-                <TableData>{`${tx.blockHash.substring(0, 8)}...`}</TableData>
-                <TableData>{tx.stat}</TableData>
-              </TableRow>
-            ))} */}
+            {localTransactions &&
+              localTransactions.map((pendingtx: any, i: number) => (
+                <TableRow key={i}>
+                  <TableData>{pendingtx.type}</TableData>
+                  <TableData>{pendingtx.value}</TableData>
+                  <TableData>{timeAgo(Number(Date.now()) * 1000)}</TableData>
+                  <TableData>
+                    <a
+                      href={getEtherscanTxUrl(wallet.chainId || Number(CHAIN_ID), pendingtx.hash)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      {shortenAddress(pendingtx.hash)}
+                    </a>
+                  </TableData>
+                  <TableData>{pendingtx.status}</TableData>
+                </TableRow>
+              ))}
             {txHistory.txList &&
-              txHistory.txList.map((tx: any) => (
+              txHistory.txList.map((tx: any, i: number) => (
                 <TableRow key={tx.hash}>
-                  {/* <TableData>{tx.type}</TableData> */}
-                  <TableData>{`${formatEther(tx.value)}`}</TableData>
-                  <TableData>{new Date(Number(tx.timeStamp) * 1000).toString()}</TableData>
+                  <TableData>{decodeInput(tx).function_name}</TableData>
+                  <TableData>
+                    {transactionDetails.length > 0 ? transactionDetails[i] : <Loader width={10} height={10} />}
+                  </TableData>
+                  <TableData>{timeAgo(Number(tx.timeStamp) * 1000)}</TableData>
                   <TableData>
                     <a
-                      href={getEtherscanTxUrl(tx.hash)}
+                      href={getEtherscanTxUrl(wallet.chainId || Number(CHAIN_ID), tx.hash)}
                       target="_blank"
                       rel="noopener noreferrer"
-                    >{`${tx.hash.substring(0, 8)}...`}</a>
+                    >
+                      {shortenAddress(tx.hash)}
+                    </a>
                   </TableData>
-                  <TableData>
-                    <a
-                      href={getEtherscanBlockUrl(tx.blockHash)}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >{`${tx.blockHash.substring(0, 8)}...`}</a>
-                  </TableData>
-                  <TableData>{tx.txreceipt_status ? 'Complete' : 'Incomplete'}</TableData>
+                  <TableData>{tx.txreceipt_status ? 'Complete' : 'Failed'}</TableData>
                 </TableRow>
               ))}
           </TableBody>

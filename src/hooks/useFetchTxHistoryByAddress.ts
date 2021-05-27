@@ -1,20 +1,25 @@
 import { useState, useEffect } from 'react'
 import { fetchEtherscanTxHistoryByAddress } from '../utils/etherscan'
 import { useWallet } from '../context/WalletManager'
+import { useUserData } from '../context/UserDataManager'
+import { CHAIN_ID } from '../constants'
 
-export const useFetchTxHistoryByAddress = () => {
-  const wallet = useWallet()
+export const useFetchTxHistoryByAddress = (): any => {
+  const { account, dataVersion, reload, chainId } = useWallet()
+  const { deleteLocalTransactions } = useUserData()
   const [txHistory, setTxHistory] = useState<any>([])
 
+  const fetchTxHistoryByAddress = async (account: string) => {
+    await fetchEtherscanTxHistoryByAddress(chainId ?? Number(CHAIN_ID), account).then((result) => {
+      deleteLocalTransactions(result.txList)
+      setTxHistory(result)
+      reload()
+    })
+  }
+
   useEffect(() => {
-    const fetchTxHistoryByAddress = async (account: string) => {
-      await fetchEtherscanTxHistoryByAddress(account).then((result) => {
-        console.log('etherscan history', result)
-        setTxHistory(result)
-      })
-    }
-    wallet.account ? fetchTxHistoryByAddress(wallet.account) : setTxHistory([])
-  }, [wallet])
+    account ? fetchTxHistoryByAddress(account) : setTxHistory([])
+  }, [account, dataVersion, chainId])
 
   return txHistory
 }

@@ -9,6 +9,7 @@ import { useUserStakedValue } from './useUserStakedValue'
 
 const useMasterValues = (farmId: number) => {
   const { master } = useContracts()
+  const { dataVersion } = useWallet()
   const [masterValues, setMasterValues] = useState({ allocPoints: ZERO, totalAllocPoints: ZERO, solacePerBlock: ZERO })
 
   useEffect(() => {
@@ -24,11 +25,11 @@ const useMasterValues = (farmId: number) => {
       }
     }
     getMasterValues()
-  }, [farmId, master])
+  }, [farmId, master, dataVersion])
   return [masterValues]
 }
 
-export const useRewardsPerDay = (farmId: number) => {
+export const useRewardsPerDay = (farmId: number): string[] => {
   const [{ allocPoints, totalAllocPoints, solacePerBlock }] = useMasterValues(farmId)
   const [rewardsPerDay, setRewardsPerDay] = useState<string>('0.00')
 
@@ -49,7 +50,7 @@ export const useRewardsPerDay = (farmId: number) => {
   return [rewardsPerDay]
 }
 
-export const useUserRewardsPerDay = (farmId: number, farm: Contract | null | undefined) => {
+export const useUserRewardsPerDay = (farmId: number, farm: Contract | null | undefined): string[] => {
   const poolStakedValue = parseEther(usePoolStakedValue(farm))
   const userStakedValue = parseEther(useUserStakedValue(farm))
   const [{ allocPoints, totalAllocPoints, solacePerBlock }] = useMasterValues(farmId)
@@ -74,18 +75,18 @@ export const useUserRewardsPerDay = (farmId: number, farm: Contract | null | und
   return [userRewardsPerDay]
 }
 
-export const useUserPendingRewards = (farm: Contract | null | undefined) => {
+export const useUserPendingRewards = (farm: Contract | null | undefined): string[] => {
   const { master } = useContracts()
-  const wallet = useWallet()
+  const { account, dataVersion } = useWallet()
   const [userRewards, setUserRewards] = useState<string>('0.00')
 
   useEffect(() => {
     const getUserPendingRewards = async () => {
-      if (!farm || !master || !wallet.account) return
+      if (!farm || !master || !account) return
       try {
         const farms = await master.numFarms()
         if (farms.isZero()) return
-        const pendingReward = await farm.pendingRewards(wallet.account)
+        const pendingReward = await farm.pendingRewards(account)
         const formattedPendingReward = formatEther(pendingReward)
         setUserRewards(formattedPendingReward)
       } catch (err) {
@@ -93,7 +94,7 @@ export const useUserPendingRewards = (farm: Contract | null | undefined) => {
       }
     }
     getUserPendingRewards()
-  }, [wallet, farm, master])
+  }, [account, farm, master, dataVersion])
 
   return [userRewards]
 }
