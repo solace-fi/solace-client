@@ -1,5 +1,18 @@
+/*************************************************************************************
+
+    Table of Contents:
+
+    import react
+    import components
+
+    Dashboard function
+
+  *************************************************************************************/
+
+/* import react */
 import React, { Fragment } from 'react'
 
+/* import components */
 import { Content } from '../../components/Layout'
 import { CardContainer, Card, CardHeader, CardTitle, CardBlock, CardActions } from '../../components/Card'
 import { Heading1, Heading2 } from '../../components/Text'

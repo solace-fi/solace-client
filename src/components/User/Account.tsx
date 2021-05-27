@@ -1,18 +1,55 @@
+/*************************************************************************************
+
+    Table of Contents:
+
+    import react
+    import packages
+    import managers
+    import components
+    import hooks
+    import wallet
+    import utils
+    import static
+
+    Account function
+      Hook variables
+      Render
+
+  *************************************************************************************/
+
+/* import react */
 import React, { Fragment } from 'react'
-import user from '../../static/user-avatar.png'
+
+/* import packages */
 import makeBlockie from 'ethereum-blockies-base64'
 
+/* import managers */
 import { useWallet } from '../../context/WalletManager'
-import { SUPPORTED_WALLETS } from '../../ethers/wallets'
-import { User, UserImage, UserWallet, UserName } from './index'
-import { useEthBalance } from '../../hooks/useEthBalance'
-import { shortenAddress, fixed } from '../../utils/formatting'
 
+/* import components */
+import { User, UserImage, UserWallet, UserName } from './index'
 import { Button } from '../Button'
-import { getNetworkName } from '../../utils'
 import { Heading3 } from '../Text'
 
-export default function App(): any {
+/* import hooks */
+import { useEthBalance } from '../../hooks/useEthBalance'
+
+/* import wallet */
+import { SUPPORTED_WALLETS } from '../../wallet/wallets'
+
+/* import utils */
+import { shortenAddress, fixed } from '../../utils/formatting'
+import { getNetworkName } from '../../utils'
+
+/* import static */
+import user from '../../static/user-avatar.png'
+
+export default function Account(): any {
+  /*************************************************************************************
+
+  Hook variables
+
+  *************************************************************************************/
   const wallet = useWallet()
   const balance = useEthBalance()
 

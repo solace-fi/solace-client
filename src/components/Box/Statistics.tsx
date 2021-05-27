@@ -1,29 +1,63 @@
+/*************************************************************************************
+
+    Table of Contents:
+
+    import react
+    import packages
+    import constants
+    import managers
+    import components
+    import hooks
+    import wallet
+
+    Statistics function
+      useRef variables
+      Hook variables
+      useState variables
+      Contract functions
+      Local helper functions
+      useEffect hooks
+      Render
+
+  *************************************************************************************/
+
+/* import react */
 import React, { useEffect, useRef, useState } from 'react'
+
+/* import packages */
+import { formatEther, parseEther } from '@ethersproject/units'
+import { Contract } from '@ethersproject/contracts'
+
+/* import constants */
+import { GAS_LIMIT } from '../../constants'
+import { TransactionCondition, FunctionName, Unit } from '../../constants/enums'
+
+/* import managers */
+import { useWallet } from '../../context/WalletManager'
+import { useContracts } from '../../context/ContractsManager'
+import { useToasts } from '../../context/NotificationsManager'
+import { useUserData } from '../../context/UserDataManager'
+
+/* import components */
 import { BoxRow, Box, BoxItem, BoxItemValue, BoxItemTitle, BoxItemUnits } from './index'
 import { Button } from '../Button'
 
-import { Contract } from '@ethersproject/contracts'
-import { useWallet } from '../../context/WalletManager'
-import { useContracts } from '../../context/ContractsManager'
-import { formatEther, parseEther } from '@ethersproject/units'
-
-import { SUPPORTED_WALLETS } from '../../ethers/wallets'
+/* import hooks */
 import { useCapitalPoolSize } from '../../hooks/useCapitalPoolSize'
 import { useTotalPendingRewards } from '../../hooks/useRewards'
 import { useSolaceBalance } from '../../hooks/useSolaceBalance'
 import { usePoolStakedValue } from '../../hooks/usePoolStakedValue'
 import { fixed, getGasValue } from '../../utils/formatting'
-import { GAS_LIMIT } from '../../constants'
 
-import { useToasts, Condition } from '../../context/NotificationsManager'
-import { useUserData } from '../../context/UserDataManager'
+/* import wallet */
+import { SUPPORTED_WALLETS } from '../../wallet/wallets'
 
 export const Statistics = () => {
-  const wallet = useWallet()
-  const { master, vault, solace, cpFarm, lpFarm, lpToken } = useContracts()
-  const { errors, makeToast } = useToasts()
-  const { addLocalTransactions } = useUserData()
+  /************************************************************************************* 
 
+    useRef variables 
+
+  *************************************************************************************/
   const masterContract = useRef<Contract | null>()
   const vaultContract = useRef<Contract | null>()
   const solaceContract = useRef<Contract | null>()
@@ -31,31 +65,55 @@ export const Statistics = () => {
   const lpFarmContract = useRef<Contract | null>()
   const lpTokenContract = useRef<Contract | null>()
 
-  const [totalValueLocked, setTotalValueLocked] = useState<string>('0.00')
+  /*************************************************************************************
+
+  Hook variables
+
+  *************************************************************************************/
+  const wallet = useWallet()
+  const { master, vault, solace, cpFarm, lpFarm, lpToken } = useContracts()
+  const { errors, makeTxToast } = useToasts()
+  const { addLocalTransactions } = useUserData()
   const capitalPoolSize = useCapitalPoolSize()
   const solaceBalance = useSolaceBalance()
-
   const totalUserRewards = useTotalPendingRewards()
-
   const cpPoolValue = usePoolStakedValue(cpFarm)
   const lpPoolValue = usePoolStakedValue(lpFarm)
 
+  /*************************************************************************************
+
+  useState variables
+
+  *************************************************************************************/
+  const [totalValueLocked, setTotalValueLocked] = useState<string>('0.00')
+
+  /*************************************************************************************
+
+  Contract functions
+
+  *************************************************************************************/
   const claimRewards = async () => {
     if (!masterContract.current) return
-    const txType = 'Claim Rewards'
+    const txType = FunctionName.WITHDRAW_REWARDS
     try {
       const tx = await masterContract.current.withdrawRewards({
         gasPrice: getGasValue(wallet.gasPrices.options[1].value),
         gasLimit: GAS_LIMIT,
       })
       const txHash = tx.hash
-      addLocalTransactions({ hash: txHash, type: txType, value: '0', status: Condition.PENDING })
-      makeToast(txType, Condition.PENDING, txHash)
+      addLocalTransactions({
+        hash: txHash,
+        type: txType,
+        value: totalUserRewards,
+        status: TransactionCondition.PENDING,
+        unit: Unit.SOLACE,
+      })
+      makeTxToast(txType, TransactionCondition.PENDING, txHash)
       wallet.reload()
       await tx.wait().then((receipt: any) => {
         console.log(receipt)
-        const status = receipt.status ? Condition.SUCCESS : Condition.FAILURE
-        makeToast(txType, status, txHash)
+        const status = receipt.status ? TransactionCondition.SUCCESS : TransactionCondition.FAILURE
+        makeTxToast(txType, status, txHash)
         wallet.reload()
       })
     } catch (err) {
@@ -64,16 +122,26 @@ export const Statistics = () => {
       } else {
         console.log(`transaction failed: ${err.message}`)
       }
-      makeToast(txType, Condition.CANCELLED)
+      makeTxToast(txType, TransactionCondition.CANCELLED)
       wallet.reload()
     }
   }
 
+  /*************************************************************************************
+
+  Local helper functions
+
+  *************************************************************************************/
   const getTotalValueLocked = () => {
     const formattedTVL = formatEther(parseEther(cpPoolValue).add(parseEther(lpPoolValue)))
     setTotalValueLocked(formattedTVL)
   }
 
+  /*************************************************************************************
+
+  useEffect hooks
+
+  *************************************************************************************/
   useEffect(() => {
     cpFarmContract.current = cpFarm
     lpFarmContract.current = lpFarm
@@ -96,14 +164,14 @@ export const Statistics = () => {
           <BoxItem>
             <BoxItemTitle h3>My Balance</BoxItemTitle>
             <BoxItemValue h2>
-              {`${fixed(parseFloat(solaceBalance))} `}
+              {`${fixed(parseFloat(solaceBalance), 6)} `}
               <BoxItemUnits h3>SOLACE</BoxItemUnits>
             </BoxItemValue>
           </BoxItem>
           <BoxItem>
             <BoxItemTitle h3>My Rewards</BoxItemTitle>
             <BoxItemValue h2>
-              {`${fixed(parseFloat(totalUserRewards))} `}
+              {`${fixed(parseFloat(totalUserRewards), 6)} `}
               <BoxItemUnits h3>SOLACE</BoxItemUnits>
             </BoxItemValue>
           </BoxItem>

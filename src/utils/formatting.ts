@@ -1,12 +1,7 @@
 import { BigNumber } from 'ethers'
+import { FunctionName, Unit } from '../constants/enums'
 
-export enum Unit {
-  ETH = 'ETH',
-  SCP = 'Solace CP Token',
-  SOLACE = 'SOLACE',
-  LP = 'LP',
-}
-
+// truncate numbers without rounding
 export const fixed = (n: number, decimals = 1) => {
   return Math.floor(n * Math.pow(10, decimals)) / Math.pow(10, decimals)
 }
@@ -27,12 +22,34 @@ export const getHumanValue = (value?: BigNumber, decimals = 0): BigNumber | unde
   return value?.div(getExponentValue(decimals))
 }
 
+// used for correctly user amount input before processing
 export const filteredAmount = (input: string, amount: string): string => {
   if (!amount && input == '.') input = '.'
   const filteredAmount = input.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1')
   return filteredAmount
 }
 
+// truncate strings, mostly addresses
 export const shortenAddress = (input: string): string => {
   return `${input.substring(0, 10)}...`
+}
+
+// get unit based on function name
+export const getUnit = (function_name: string): Unit => {
+  switch (function_name) {
+    case FunctionName.DEPOSIT:
+    case FunctionName.WITHDRAW_VAULT:
+    case FunctionName.DEPOSIT_ETH:
+    case FunctionName.APPROVE:
+      return Unit.ETH
+    case FunctionName.DEPOSIT_CP:
+    case FunctionName.WITHDRAW_CP:
+      return Unit.SCP
+    case FunctionName.WITHDRAW_REWARDS:
+      return Unit.SOLACE
+    case FunctionName.DEPOSIT_LP:
+    case FunctionName.WITHDRAW_LP:
+    default:
+      return Unit.LP
+  }
 }

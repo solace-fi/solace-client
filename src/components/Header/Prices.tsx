@@ -1,13 +1,46 @@
+/*************************************************************************************
+
+    Table of Contents:
+
+    import react
+    import packages
+    import constants
+    import components
+    import hooks
+    import utils
+
+    styled components
+
+    Prices function
+      Render
+
+  *************************************************************************************/
+
+/* import react */
 import React from 'react'
+
+/* import packages */
 import styled from 'styled-components'
 
+/* import constants */
+import { CP_ROI, LP_ROI } from '../../constants/'
+
+/* import components */
 import { Header } from './index'
 import Account from '../User/Account'
+
+/* import hooks */
 import { useCoingecko } from '../../hooks/useCoingecko'
-import { fixed } from '../../utils/formatting'
 import { usePairPrice } from '../../hooks/usePair'
 
-import { CP_ROI, LP_ROI } from '../../constants/'
+/* import utils */
+import { fixed } from '../../utils/formatting'
+
+/*************************************************************************************
+
+styled components
+
+*************************************************************************************/
 
 const Price = styled.div`
   display: flex;
@@ -39,7 +72,7 @@ const PriceAddition = styled.span`
   font-size: 10px;
 `
 
-export default function App(): any {
+export default function Prices(): any {
   const coins = useCoingecko()
   const pairPrice = usePairPrice()
 
@@ -49,7 +82,6 @@ export default function App(): any {
         <PriceItem>
           <PriceTitle>SOLACE/USD</PriceTitle>
           <PriceValue>{pairPrice ? `$${pairPrice}` : '-'}</PriceValue>
-          {/* <PriceAddition>+3.56%</PriceAddition> */}
         </PriceItem>
         <PriceItem>
           <PriceTitle>ETH/USD</PriceTitle>

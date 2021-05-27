@@ -6,9 +6,17 @@
 
 ![Invest](./public/images/invest.png)
 
-## How to start testing
+## Where do I start reading through this code?
 
 ---
+
+Start with src/index, it's the entry point.
+
+## How to start testing locally
+
+---
+
+Note: This project was originally developed alongside the Hardhat framework.
 
 Install dependencies
 
@@ -69,7 +77,7 @@ Run using the following react command from the client directory
     |   |____ProviderManager
     |   |____UserDataManager
     |   |____WalletManager
-    |___ethers/
+    |___wallet/
     |   |____connectors/
     |   |____wallets/
     |___hooks/
@@ -80,6 +88,7 @@ Run using the following react command from the client directory
     |   |____quote/
     |   |____App
     |___static/
+    |___styles/
     |___utils/
 
 ## React Context Structure

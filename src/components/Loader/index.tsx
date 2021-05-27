@@ -2,6 +2,7 @@ import React from 'react'
 import styled, { keyframes } from 'styled-components'
 
 interface props {
+  style?: any
   width?: number
   height?: number
 }
@@ -15,9 +16,9 @@ const rotate = keyframes`
   }`
 
 const LoadingIcon = styled.div<props>`
-  display: inline-block;
-  width: ${(props) => (props.width ? `${props.width}px` : '80px')};
-  height: ${(props) => (props.height ? `${props.height}px` : '80px')};
+  width: ${(props) => (props.width ? `${props.width + 20}px` : '80px')};
+  height: ${(props) => (props.height ? `${props.height + 20}px` : '80px')};
+  margin: auto;
   &:after {
     content: ' ';
     display: block;
@@ -30,6 +31,6 @@ const LoadingIcon = styled.div<props>`
   }
 `
 
-export const Loader: React.FC<props> = ({ width, height }) => {
-  return <LoadingIcon width={width} height={height} />
+export const Loader: React.FC<props> = ({ style, width, height }) => {
+  return <LoadingIcon style={style} width={width} height={height} />
 }

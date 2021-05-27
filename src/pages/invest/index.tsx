@@ -1,14 +1,45 @@
+/*************************************************************************************
+
+    Table of Contents:
+
+    import react
+    import packages
+    import constants
+    import managers
+    import components
+    import hooks
+    import utils
+
+    Invest function
+      useRef variables
+      Hook variables
+      useState variables
+      Contract functions
+      Local helper functions
+      useEffect hooks
+      Render
+
+  *************************************************************************************/
+
+/* import react */
 import React, { useEffect, useRef, useState, Fragment } from 'react'
 
+/* import packages */
 import { Contract } from '@ethersproject/contracts'
 import { formatEther, parseEther } from '@ethersproject/units'
 import { BigNumberish, BigNumber as BN } from 'ethers'
 
+/* import constants */
 import { ZERO, DEADLINE, CP_ROI, LP_ROI, GAS_LIMIT, CHAIN_ID, POW_NINE } from '../../constants'
+import { TransactionCondition, FunctionName, Unit } from '../../constants/enums'
 
+/* import managers */
 import { useContracts } from '../../context/ContractsManager'
 import { useWallet } from '../../context/WalletManager'
+import { useToasts } from '../../context/NotificationsManager'
+import { useUserData } from '../../context/UserDataManager'
 
+/* import components */
 import { Loader } from '../../components/Loader'
 import { Input } from '../../components/Input'
 import {
@@ -19,20 +50,15 @@ import {
   ModalCell,
   ModalCloseButton,
   ModalButton,
-} from '../../components/Modal/InvestModal'
+} from '../../components/Modal'
 import { RadioElement, RadioInput, RadioGroup, RadioLabel } from '../../components/Radio'
 import { Table, TableHead, TableHeader, TableRow, TableBody, TableData, TableDataGroup } from '../../components/Table'
 import { Button } from '../../components/Button'
 import { Heading1, Heading2 } from '../../components/Text'
 import { Content } from '../../components/Layout'
+import { HyperLink } from '../../components/Hyperlink'
 
-import getPermitNFTSignature from '../../utils/signature'
-import { FeeAmount, TICK_SPACINGS, getMaxTick, getMinTick } from '../../utils/uniswap'
-import { fixed, getGasValue, filteredAmount, shortenAddress, Unit } from '../../utils/formatting'
-import { getProviderOrSigner } from '../../utils/index'
-import { timeAgo } from '../../utils/timeAgo'
-import { decodeInput, Function_Name } from '../../utils/decoder'
-
+/* import hooks */
 import { GasFeeOption } from '../../hooks/useFetchGasPrice'
 import { useCapitalPoolSize } from '../../hooks/useCapitalPoolSize'
 import { useEthBalance } from '../../hooks/useEthBalance'
@@ -40,18 +66,24 @@ import { usePoolStakedValue } from '../../hooks/usePoolStakedValue'
 import { useRewardsPerDay, useUserPendingRewards, useUserRewardsPerDay } from '../../hooks/useRewards'
 import { useScpBalance } from '../../hooks/useScpBalance'
 import { useUserStakedValue } from '../../hooks/useUserStakedValue'
-import { useToasts, Condition } from '../../context/NotificationsManager'
 import { useFetchTxHistoryByAddress } from '../../hooks/useFetchTxHistoryByAddress'
-import { getEtherscanTxUrl } from '../../utils/etherscan'
-import { useUserData } from '../../context/UserDataManager'
 import { useTransactionDetails } from '../../hooks/useTransactionDetails'
-import { HyperLink } from '../../components/Hyperlink'
+
+/* import utils */
+import { getEtherscanTxUrl } from '../../utils/etherscan'
+import getPermitNFTSignature from '../../utils/signature'
+import { FeeAmount, TICK_SPACINGS, getMaxTick, getMinTick } from '../../utils/uniswap'
+import { fixed, getGasValue, filteredAmount, shortenAddress, getUnit } from '../../utils/formatting'
+import { getProviderOrSigner } from '../../utils/index'
+import { timeAgo } from '../../utils/timeAgo'
+import { decodeInput } from '../../utils/decoder'
 
 function Invest(): any {
-  const { errors, makeToast } = useToasts()
-  const wallet = useWallet()
-  const { localTransactions, addLocalTransactions } = useUserData()
-  const { master, vault, solace, cpFarm, lpFarm, lpToken, weth, registry } = useContracts()
+  /************************************************************************************* 
+
+    useRef variables 
+
+  *************************************************************************************/
 
   const masterContract = useRef<Contract | null>()
   const vaultContract = useRef<Contract | null>()
@@ -62,52 +94,57 @@ function Invest(): any {
   const solaceContract = useRef<Contract | null>()
   const registryContract = useRef<Contract | null>()
 
+  /*************************************************************************************
+
+  Hook variables
+
+  *************************************************************************************/
+
+  const [cpRewardsPerDay] = useRewardsPerDay(1)
+  const [cpUserRewardsPerDay] = useUserRewardsPerDay(1, cpFarmContract.current)
+  const [cpUserRewards] = useUserPendingRewards(cpFarmContract.current)
+  const [lpRewardsPerDay] = useRewardsPerDay(2)
+  const [lpUserRewardsPerDay] = useUserRewardsPerDay(2, lpFarmContract.current)
+  const [lpUserRewards] = useUserPendingRewards(lpFarmContract.current)
+  const capitalPoolSize = useCapitalPoolSize()
+  const cpPoolValue = usePoolStakedValue(cpFarmContract.current)
+  const cpUserStakeValue = useUserStakedValue(cpFarmContract.current)
   const ethBalance = useEthBalance()
+  const lpPoolValue = usePoolStakedValue(lpFarmContract.current)
+  const lpUserStakeValue = useUserStakedValue(lpFarmContract.current)
+  const scpBalance = useScpBalance()
   const txHistory = useFetchTxHistoryByAddress()
   const transactionDetails = useTransactionDetails(txHistory.txList)
-  const [cpUserRewardsPerDay] = useUserRewardsPerDay(1, cpFarmContract.current)
-  const [lpUserRewardsPerDay] = useUserRewardsPerDay(2, lpFarmContract.current)
-  const [cpRewardsPerDay] = useRewardsPerDay(1)
-  const [lpRewardsPerDay] = useRewardsPerDay(2)
-  const [cpUserRewards] = useUserPendingRewards(cpFarmContract.current)
-  const [lpUserRewards] = useUserPendingRewards(lpFarmContract.current)
-  const cpPoolValue = usePoolStakedValue(cpFarmContract.current)
-  const lpPoolValue = usePoolStakedValue(lpFarmContract.current)
-  const cpUserStakeValue = useUserStakedValue(cpFarmContract.current)
-  const lpUserStakeValue = useUserStakedValue(lpFarmContract.current)
-  const capitalPoolSize = useCapitalPoolSize()
-  const scpBalance = useScpBalance()
+  const wallet = useWallet()
+  const { errors, makeTxToast } = useToasts()
+  const { localTransactions, addLocalTransactions } = useUserData()
+  const { master, vault, solace, cpFarm, lpFarm, lpToken, weth, registry } = useContracts()
 
-  const [func, setFunc] = useState<Function_Name>()
+  /*************************************************************************************
+
+  useState variables
+
+  *************************************************************************************/
+
   const [amount, setAmount] = useState<string>('')
+  const [func, setFunc] = useState<FunctionName>()
   const [isStaking, setIsStaking] = useState<boolean>(false)
-  const [maxSelected, setMaxSelected] = useState<boolean>(false)
   const [loading, setLoading] = useState<boolean>(false)
   const [maxLoss, setMaxLoss] = useState<number>(5)
+  const [maxSelected, setMaxSelected] = useState<boolean>(false)
   const [modalTitle, setModalTitle] = useState<string>('')
   const [nft, setNft] = useState<BN>()
   const [selectedGasOption, setSelectedGasOption] = useState<GasFeeOption>(wallet.gasPrices.selected)
   const [showModal, setShowModal] = useState<boolean>(false)
-  const [unit, setUnit] = useState<string>(Unit.ETH)
+  const [unit, setUnit] = useState<Unit>(Unit.ETH)
   const [userVaultAssets, setUserVaultAssets] = useState<string>('0.00')
   const [userVaultShare, setUserVaultShare] = useState<number>(0)
 
-  const openModal = async (func: Function_Name, modalTitle: string, unit: string) => {
-    setShowModal((prev) => !prev)
-    document.body.style.overflowY = 'hidden'
-    setUnit(unit)
-    setModalTitle(modalTitle)
-    setFunc(func)
-  }
+  /*************************************************************************************
 
-  const closeModal = async () => {
-    setShowModal(false)
-    document.body.style.overflowY = 'scroll'
-    setLoading(false)
-    setAmount('')
-    setMaxSelected(false)
-    setSelectedGasOption(wallet.gasPrices.options[1])
-  }
+  Contract functions
+
+  *************************************************************************************/
 
   const getUserVaultDetails = async () => {
     if (!cpFarmContract.current?.provider || !vaultContract.current?.provider || !wallet.account) return
@@ -131,7 +168,7 @@ function Invest(): any {
   const callDepositVault = async () => {
     setLoading(true)
     if (!vaultContract.current) return
-    const txType = Function_Name.DEPOSIT
+    const txType = FunctionName.DEPOSIT
     try {
       const tx = await vaultContract.current.deposit({
         value: parseEther(amount),
@@ -139,18 +176,18 @@ function Invest(): any {
         gasLimit: GAS_LIMIT,
       })
       const txHash = tx.hash
-      const localTx = { hash: txHash, type: txType, value: amount, status: Condition.PENDING }
+      const localTx = { hash: txHash, type: txType, value: amount, status: TransactionCondition.PENDING, unit: unit }
       closeModal()
       addLocalTransactions(localTx)
       wallet.reload()
-      makeToast(txType, Condition.PENDING, txHash)
+      makeTxToast(txType, TransactionCondition.PENDING, txHash)
       await tx.wait().then((receipt: any) => {
-        const status = receipt.status ? Condition.SUCCESS : Condition.FAILURE
-        makeToast(txType, status, txHash)
+        const status = receipt.status ? TransactionCondition.SUCCESS : TransactionCondition.FAILURE
+        makeTxToast(txType, status, txHash)
         wallet.reload()
       })
     } catch (err) {
-      makeToast(txType, Condition.CANCELLED)
+      makeTxToast(txType, TransactionCondition.CANCELLED)
       setLoading(false)
       wallet.reload()
     }
@@ -159,7 +196,7 @@ function Invest(): any {
   const callDepositEth = async () => {
     setLoading(true)
     if (!cpFarmContract.current || !vaultContract.current) return
-    const txType = Function_Name.DEPOSIT_ETH
+    const txType = FunctionName.DEPOSIT_ETH
     try {
       const tx = await cpFarmContract.current.depositEth({
         value: parseEther(amount),
@@ -167,19 +204,19 @@ function Invest(): any {
         gasLimit: GAS_LIMIT,
       })
       const txHash = tx.hash
-      const localTx = { hash: txHash, type: txType, value: amount, status: Condition.PENDING }
+      const localTx = { hash: txHash, type: txType, value: amount, status: TransactionCondition.PENDING, unit: unit }
       closeModal()
       addLocalTransactions(localTx)
       wallet.reload()
-      makeToast(txType, Condition.PENDING, txHash)
+      makeTxToast(txType, TransactionCondition.PENDING, txHash)
       await tx.wait().then((receipt: any) => {
         console.log(receipt)
-        const status = receipt.status ? Condition.SUCCESS : Condition.FAILURE
-        makeToast(txType, status, txHash)
+        const status = receipt.status ? TransactionCondition.SUCCESS : TransactionCondition.FAILURE
+        makeTxToast(txType, status, txHash)
         wallet.reload()
       })
     } catch (err) {
-      makeToast(txType, Condition.CANCELLED)
+      makeTxToast(txType, TransactionCondition.CANCELLED)
       setLoading(false)
       wallet.reload()
     }
@@ -188,21 +225,22 @@ function Invest(): any {
   const callDepositCp = async () => {
     setLoading(true)
     if (!cpFarmContract.current || !vaultContract.current) return
-    const txType = Function_Name.DEPOSIT_CP
+    const txType = FunctionName.DEPOSIT_CP
     try {
       const approval = await vaultContract.current.approve(cpFarmContract.current.address, parseEther(amount))
       const approvalHash = approval.hash
       const approvalPendingTx = {
         hash: approvalHash,
-        type: Function_Name.APPROVE,
+        type: FunctionName.APPROVE,
         value: '0',
-        status: Condition.PENDING,
+        status: TransactionCondition.PENDING,
+        unit: unit,
       }
-      makeToast(Function_Name.APPROVE, Condition.PENDING, approvalHash)
+      makeTxToast(FunctionName.APPROVE, TransactionCondition.PENDING, approvalHash)
       addLocalTransactions(approvalPendingTx)
       await approval.wait().then((receipt: any) => {
-        const status = receipt.status ? Condition.SUCCESS : Condition.FAILURE
-        makeToast(Function_Name.APPROVE, status, approvalHash)
+        const status = receipt.status ? TransactionCondition.SUCCESS : TransactionCondition.FAILURE
+        makeTxToast(FunctionName.APPROVE, status, approvalHash)
         wallet.reload()
       })
       const tx = await cpFarmContract.current.depositCp(parseEther(amount), {
@@ -210,18 +248,18 @@ function Invest(): any {
         gasLimit: GAS_LIMIT,
       })
       const txHash = tx.hash
-      const localTx = { hash: txHash, type: txType, value: amount, status: Condition.PENDING }
+      const localTx = { hash: txHash, type: txType, value: amount, status: TransactionCondition.PENDING, unit: unit }
       closeModal()
       addLocalTransactions(localTx)
       wallet.reload()
-      makeToast(txType, Condition.PENDING, txHash)
+      makeTxToast(txType, TransactionCondition.PENDING, txHash)
       await tx.wait().then((receipt: any) => {
-        const status = receipt.status ? Condition.SUCCESS : Condition.FAILURE
-        makeToast(txType, status, txHash)
+        const status = receipt.status ? TransactionCondition.SUCCESS : TransactionCondition.FAILURE
+        makeTxToast(txType, status, txHash)
         wallet.reload()
       })
     } catch (err) {
-      makeToast(txType, Condition.CANCELLED)
+      makeTxToast(txType, TransactionCondition.CANCELLED)
       setLoading(false)
       wallet.reload()
     }
@@ -230,25 +268,25 @@ function Invest(): any {
   const callWithdrawVault = async () => {
     setLoading(true)
     if (!vaultContract.current) return
-    const txType = Function_Name.WITHDRAW_VAULT
+    const txType = FunctionName.WITHDRAW_VAULT
     try {
       const tx = await vaultContract.current.withdraw(parseEther(amount), maxLoss, {
         gasPrice: getGasValue(selectedGasOption.value),
         gasLimit: GAS_LIMIT,
       })
       const txHash = tx.hash
-      const localTx = { hash: txHash, type: txType, value: amount, status: Condition.PENDING }
+      const localTx = { hash: txHash, type: txType, value: amount, status: TransactionCondition.PENDING, unit: unit }
       closeModal()
       addLocalTransactions(localTx)
       wallet.reload()
-      makeToast(txType, Condition.PENDING, txHash)
+      makeTxToast(txType, TransactionCondition.PENDING, txHash)
       await tx.wait().then((receipt: any) => {
-        const status = receipt.status ? Condition.SUCCESS : Condition.FAILURE
-        makeToast(txType, status, txHash)
+        const status = receipt.status ? TransactionCondition.SUCCESS : TransactionCondition.FAILURE
+        makeTxToast(txType, status, txHash)
         wallet.reload()
       })
     } catch (err) {
-      makeToast(txType, Condition.CANCELLED)
+      makeTxToast(txType, TransactionCondition.CANCELLED)
       setLoading(false)
       wallet.reload()
     }
@@ -257,25 +295,25 @@ function Invest(): any {
   const callWithdrawCp = async () => {
     setLoading(true)
     if (!cpFarmContract.current) return
-    const txType = Function_Name.WITHDRAW_CP
+    const txType = FunctionName.WITHDRAW_CP
     try {
       const tx = await cpFarmContract.current.withdrawEth(parseEther(amount), maxLoss, {
         gasPrice: getGasValue(selectedGasOption.value),
         gasLimit: GAS_LIMIT,
       })
       const txHash = tx.hash
-      const localTx = { hash: txHash, type: txType, value: amount, status: Condition.PENDING }
+      const localTx = { hash: txHash, type: txType, value: amount, status: TransactionCondition.PENDING, unit: unit }
       closeModal()
       addLocalTransactions(localTx)
       wallet.reload()
-      makeToast(txType, Condition.PENDING, txHash)
+      makeTxToast(txType, TransactionCondition.PENDING, txHash)
       await tx.wait().then((receipt: any) => {
-        const status = receipt.status ? Condition.SUCCESS : Condition.FAILURE
-        makeToast(txType, status, txHash)
+        const status = receipt.status ? TransactionCondition.SUCCESS : TransactionCondition.FAILURE
+        makeTxToast(txType, status, txHash)
         wallet.reload()
       })
     } catch (err) {
-      makeToast(txType, Condition.CANCELLED)
+      makeTxToast(txType, TransactionCondition.CANCELLED)
       setLoading(false)
       wallet.reload()
     }
@@ -284,7 +322,7 @@ function Invest(): any {
   const callDepositLp = async () => {
     setLoading(true)
     if (!lpTokenContract.current || !lpFarmContract.current || !nft) return
-    const txType = Function_Name.DEPOSIT_LP
+    const txType = FunctionName.DEPOSIT_LP
     try {
       const { v, r, s } = await getPermitNFTSignature(
         wallet,
@@ -295,18 +333,18 @@ function Invest(): any {
       )
       const tx = await lpFarmContract.current.depositSigned(wallet.account, nft, DEADLINE, v, r, s)
       const txHash = tx.hash
-      const localTx = { hash: txHash, type: txType, value: amount, status: Condition.PENDING }
+      const localTx = { hash: txHash, type: txType, value: amount, status: TransactionCondition.PENDING, unit: unit }
       closeModal()
       addLocalTransactions(localTx)
       wallet.reload()
-      makeToast(txType, Condition.PENDING, txHash)
+      makeTxToast(txType, TransactionCondition.PENDING, txHash)
       await tx.wait().then((receipt: any) => {
-        const status = receipt.status ? Condition.SUCCESS : Condition.FAILURE
-        makeToast(txType, status, txHash)
+        const status = receipt.status ? TransactionCondition.SUCCESS : TransactionCondition.FAILURE
+        makeTxToast(txType, status, txHash)
         wallet.reload()
       })
     } catch (err) {
-      makeToast(txType, Condition.CANCELLED)
+      makeTxToast(txType, TransactionCondition.CANCELLED)
       setLoading(false)
       wallet.reload()
     }
@@ -315,22 +353,22 @@ function Invest(): any {
   const callWithdrawLp = async () => {
     setLoading(true)
     if (!lpFarmContract.current) return
-    const txType = Function_Name.WITHDRAW_LP
+    const txType = FunctionName.WITHDRAW_LP
     try {
       const tx = await lpFarmContract.current.withdraw(nft)
       const txHash = tx.hash
-      const localTx = { hash: txHash, type: txType, value: amount, status: Condition.PENDING }
+      const localTx = { hash: txHash, type: txType, value: amount, status: TransactionCondition.PENDING, unit: unit }
       closeModal()
       addLocalTransactions(localTx)
       wallet.reload()
-      makeToast(txType, Condition.PENDING, txHash)
+      makeTxToast(txType, TransactionCondition.PENDING, txHash)
       await tx.wait().then((receipt: any) => {
-        const status = receipt.status ? Condition.SUCCESS : Condition.FAILURE
-        makeToast(txType, status, txHash)
+        const status = receipt.status ? TransactionCondition.SUCCESS : TransactionCondition.FAILURE
+        makeTxToast(txType, status, txHash)
         wallet.reload()
       })
     } catch (err) {
-      makeToast(txType, Condition.CANCELLED)
+      makeTxToast(txType, TransactionCondition.CANCELLED)
       setLoading(false)
       wallet.reload()
     }
@@ -402,6 +440,12 @@ function Invest(): any {
     return BN.from(tokenA).lt(BN.from(tokenB)) ? [tokenA, tokenB] : [tokenB, tokenA]
   }
 
+  /*************************************************************************************
+
+  Local helper functions
+
+  *************************************************************************************/
+
   const handleSelectChange = (option: GasFeeOption) => {
     setSelectedGasOption(option)
   }
@@ -409,22 +453,22 @@ function Invest(): any {
   const handleCallbackFunc = async () => {
     if (!func) return
     switch (func) {
-      case Function_Name.DEPOSIT:
+      case FunctionName.DEPOSIT:
         isStaking ? await callDepositEth() : await callDepositVault()
         break
-      case Function_Name.WITHDRAW_VAULT:
+      case FunctionName.WITHDRAW_VAULT:
         await callWithdrawVault()
         break
-      case Function_Name.DEPOSIT_CP:
+      case FunctionName.DEPOSIT_CP:
         await callDepositCp()
         break
-      case Function_Name.WITHDRAW_CP:
+      case FunctionName.WITHDRAW_CP:
         await callWithdrawCp()
         break
-      case Function_Name.DEPOSIT_LP:
+      case FunctionName.DEPOSIT_LP:
         await callDepositLp()
         break
-      case Function_Name.WITHDRAW_LP:
+      case FunctionName.WITHDRAW_LP:
         await callWithdrawLp()
         break
     }
@@ -438,14 +482,14 @@ function Invest(): any {
   const getAssetBalanceByFunc = (): BN => {
     switch (func) {
       // if depositing into vault or eth into farm, check eth
-      case Function_Name.DEPOSIT:
+      case FunctionName.DEPOSIT:
         return parseEther(ethBalance)
       // if depositing cp into farm or withdrawing from vault, check scp
-      case Function_Name.DEPOSIT_CP:
-      case Function_Name.WITHDRAW_VAULT:
+      case FunctionName.DEPOSIT_CP:
+      case FunctionName.WITHDRAW_VAULT:
         return parseEther(scpBalance)
       // if withdrawing cp from the farm, check user stake
-      case Function_Name.WITHDRAW_CP:
+      case FunctionName.WITHDRAW_CP:
         return parseEther(cpUserStakeValue)
       default:
         // any amount
@@ -455,10 +499,33 @@ function Invest(): any {
 
   const calculateMaxEth = () => {
     const bal = formatEther(getAssetBalanceByFunc())
-    if (func !== Function_Name.DEPOSIT && func !== Function_Name.DEPOSIT_ETH) return bal
+    if (func !== FunctionName.DEPOSIT && func !== FunctionName.DEPOSIT_ETH) return bal
     const gasInEth = (GAS_LIMIT / POW_NINE) * selectedGasOption.value
     return fixed(fixed(parseFloat(bal), 6) - fixed(gasInEth, 6), 6)
   }
+
+  const openModal = (func: FunctionName, modalTitle: string, unit: Unit) => {
+    setShowModal((prev) => !prev)
+    document.body.style.overflowY = 'hidden'
+    setUnit(unit)
+    setModalTitle(modalTitle)
+    setFunc(func)
+  }
+
+  const closeModal = () => {
+    setShowModal(false)
+    document.body.style.overflowY = 'scroll'
+    setLoading(false)
+    setAmount('')
+    setMaxSelected(false)
+    setSelectedGasOption(wallet.gasPrices.options[1])
+  }
+
+  /*************************************************************************************
+
+  useEffect hooks
+
+  *************************************************************************************/
 
   useEffect(() => {
     cpFarmContract.current = cpFarm
@@ -475,17 +542,25 @@ function Invest(): any {
     getUserVaultDetails()
   }, [wallet.library, wallet.version, wallet.account, scpBalance, txHistory])
 
+  // selects default gas option
   useEffect(() => {
     if (!wallet.gasPrices.selected) return
     setSelectedGasOption(wallet.gasPrices.selected)
   }, [wallet.gasPrices])
 
+  // when user clicks MAX on modal, return the max amount of ETH the user can send without gas
   useEffect(() => {
     const maxEth = calculateMaxEth()
     if (showModal && maxSelected) {
       setAmount(maxEth.toString())
     }
   }, [handleSelectChange])
+
+  /*************************************************************************************
+
+  Render
+
+  *************************************************************************************/
 
   return (
     <Fragment>
@@ -549,7 +624,7 @@ function Invest(): any {
               <Loader />
             )}
           </RadioGroup>
-          {func == Function_Name.DEPOSIT || func == Function_Name.DEPOSIT_ETH ? (
+          {func == FunctionName.DEPOSIT || func == FunctionName.DEPOSIT_ETH ? (
             <ModalRow>
               <ModalCell t2>
                 <Input type="checkbox" checked={isStaking} onChange={(e) => setIsStaking(e.target.checked)} />
@@ -602,13 +677,15 @@ function Invest(): any {
                   <TableDataGroup width={200}>
                     <Button
                       disabled={errors.length > 0}
-                      onClick={() => openModal(Function_Name.DEPOSIT, Function_Name.DEPOSIT, Unit.ETH)}
+                      onClick={() => openModal(FunctionName.DEPOSIT, 'Deposit', getUnit(FunctionName.DEPOSIT))}
                     >
                       Deposit
                     </Button>
                     <Button
                       disabled={errors.length > 0}
-                      onClick={() => openModal(Function_Name.WITHDRAW_VAULT, Function_Name.WITHDRAW_VAULT, Unit.SCP)}
+                      onClick={() =>
+                        openModal(FunctionName.WITHDRAW_VAULT, 'Withdraw', getUnit(FunctionName.WITHDRAW_VAULT))
+                      }
                     >
                       Withdraw
                     </Button>
@@ -645,13 +722,13 @@ function Invest(): any {
                   <TableDataGroup width={200}>
                     <Button
                       disabled={errors.length > 0}
-                      onClick={() => openModal(Function_Name.DEPOSIT_CP, Function_Name.DEPOSIT, Unit.SCP)}
+                      onClick={() => openModal(FunctionName.DEPOSIT_CP, 'Deposit', getUnit(FunctionName.DEPOSIT_CP))}
                     >
                       Deposit
                     </Button>
                     <Button
                       disabled={errors.length > 0}
-                      onClick={() => openModal(Function_Name.WITHDRAW_CP, Function_Name.WITHDRAW_VAULT, Unit.SCP)}
+                      onClick={() => openModal(FunctionName.WITHDRAW_CP, 'Withdraw', getUnit(FunctionName.WITHDRAW_CP))}
                     >
                       Withdraw
                     </Button>
@@ -688,13 +765,13 @@ function Invest(): any {
                   <TableDataGroup width={200}>
                     <Button
                       disabled={errors.length > 0}
-                      onClick={() => openModal(Function_Name.DEPOSIT_LP, Function_Name.DEPOSIT, Unit.LP)}
+                      onClick={() => openModal(FunctionName.DEPOSIT_LP, 'Deposit', getUnit(FunctionName.DEPOSIT_LP))}
                     >
                       Deposit
                     </Button>
                     <Button
                       disabled={errors.length > 0}
-                      onClick={() => openModal(Function_Name.WITHDRAW_LP, Function_Name.WITHDRAW_VAULT, Unit.LP)}
+                      onClick={() => openModal(FunctionName.WITHDRAW_LP, 'Withdraw', getUnit(FunctionName.WITHDRAW_LP))}
                     >
                       Withdraw
                     </Button>
@@ -722,7 +799,7 @@ function Invest(): any {
               localTransactions.map((pendingtx: any, i: number) => (
                 <TableRow key={i}>
                   <TableData>{pendingtx.type}</TableData>
-                  <TableData>{pendingtx.value}</TableData>
+                  <TableData>{`${pendingtx.value} ${pendingtx.unit}`}</TableData>
                   <TableData>{timeAgo(Number(Date.now()) * 1000)}</TableData>
                   <TableData>
                     <HyperLink
