@@ -1,5 +1,12 @@
 import { BigNumber } from 'ethers'
 
+export enum Unit {
+  ETH = 'ETH',
+  SCP = 'Solace CP Token',
+  SOLACE = 'SOLACE',
+  LP = 'LP',
+}
+
 export const fixed = (n: number, decimals = 1) => {
   return Math.floor(n * Math.pow(10, decimals)) / Math.pow(10, decimals)
 }

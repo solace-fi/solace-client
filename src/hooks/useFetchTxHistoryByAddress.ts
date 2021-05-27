@@ -5,12 +5,12 @@ import { useUserData } from '../context/UserDataManager'
 import { CHAIN_ID } from '../constants'
 
 export const useFetchTxHistoryByAddress = (): any => {
-  const { account, dataVersion, reload } = useWallet()
+  const { account, dataVersion, reload, chainId } = useWallet()
   const { deleteLocalTransactions } = useUserData()
   const [txHistory, setTxHistory] = useState<any>([])
 
   const fetchTxHistoryByAddress = async (account: string) => {
-    await fetchEtherscanTxHistoryByAddress(Number(CHAIN_ID), account).then((result) => {
+    await fetchEtherscanTxHistoryByAddress(chainId ?? Number(CHAIN_ID), account).then((result) => {
       deleteLocalTransactions(result.txList)
       setTxHistory(result)
       reload()
@@ -19,7 +19,7 @@ export const useFetchTxHistoryByAddress = (): any => {
 
   useEffect(() => {
     account ? fetchTxHistoryByAddress(account) : setTxHistory([])
-  }, [account, dataVersion])
+  }, [account, dataVersion, chainId])
 
   return txHistory
 }

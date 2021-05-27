@@ -21,7 +21,7 @@ import { useUserData } from '../../context/UserDataManager'
 export const Statistics = () => {
   const wallet = useWallet()
   const { master, vault, solace, cpFarm, lpFarm, lpToken } = useContracts()
-  const { makeToast } = useToasts()
+  const { errors, makeToast } = useToasts()
   const { addLocalTransactions } = useUserData()
 
   const masterContract = useRef<Contract | null>()
@@ -53,6 +53,7 @@ export const Statistics = () => {
       makeToast(txType, Condition.PENDING, txHash)
       wallet.reload()
       await tx.wait().then((receipt: any) => {
+        console.log(receipt)
         const status = receipt.status ? Condition.SUCCESS : Condition.FAILURE
         makeToast(txType, status, txHash)
         wallet.reload()
@@ -107,7 +108,9 @@ export const Statistics = () => {
             </BoxItemValue>
           </BoxItem>
           <BoxItem>
-            <Button onClick={claimRewards}>Claim</Button>
+            <Button disabled={errors.length > 0} onClick={claimRewards}>
+              Claim
+            </Button>
           </BoxItem>
         </Box>
       ) : (
