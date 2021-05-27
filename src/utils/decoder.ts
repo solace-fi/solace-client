@@ -38,28 +38,6 @@ export enum Function_Name {
   APPROVE = 'Approve',
 }
 
-export const getTransactionAmount = async (tx: any, provider: Web3Provider | Provider): Promise<string> => {
-  const receipt = await provider.getTransactionReceipt(tx.hash)
-  const logs = receipt.logs
-  const function_name = decodeInput(tx).function_name
-
-  switch (function_name) {
-    case Function_Name.DEPOSIT:
-    case Function_Name.WITHDRAW_VAULT:
-      const topics = logs[logs.length - 1].topics
-      return topics[topics.length - 1]
-    case Function_Name.DEPOSIT_ETH:
-    case Function_Name.DEPOSIT_CP:
-    case Function_Name.WITHDRAW_CP:
-    case Function_Name.WITHDRAW_REWARDS:
-    case Function_Name.DEPOSIT_LP:
-    case Function_Name.WITHDRAW_LP:
-      return logs[logs.length - 1].data
-    default:
-      return '0'
-  }
-}
-
 const getInterface = (toAddress: string) => {
   switch (toAddress) {
     case String(SOLACE_CONTRACT_ADDRESS).toLowerCase():

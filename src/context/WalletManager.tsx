@@ -125,7 +125,7 @@ const WalletProvider: React.FC = (props) => {
   }, [web3React])
 
   useEffect(() => {
-    const dataInterval = setInterval(() => dataReload(), 3000)
+    const dataInterval = setInterval(() => dataReload(), 3500)
     return () => {
       clearInterval(dataInterval)
     }

@@ -45,6 +45,7 @@ import { useFetchTxHistoryByAddress } from '../../hooks/useFetchTxHistoryByAddre
 import { getEtherscanTxUrl } from '../../utils/etherscan'
 import { useUserData } from '../../context/UserDataManager'
 import { useTransactionDetails } from '../../hooks/useTransactionDetails'
+import { HyperLink } from '../../components/Hyperlink'
 
 function Invest(): any {
   const { errors, makeToast } = useToasts()
@@ -724,13 +725,13 @@ function Invest(): any {
                   <TableData>{pendingtx.value}</TableData>
                   <TableData>{timeAgo(Number(Date.now()) * 1000)}</TableData>
                   <TableData>
-                    <a
+                    <HyperLink
                       href={getEtherscanTxUrl(wallet.chainId || Number(CHAIN_ID), pendingtx.hash)}
                       target="_blank"
                       rel="noopener noreferrer"
                     >
-                      {shortenAddress(pendingtx.hash)}
-                    </a>
+                      <Button>{shortenAddress(pendingtx.hash)} </Button>
+                    </HyperLink>
                   </TableData>
                   <TableData>{pendingtx.status}</TableData>
                 </TableRow>
@@ -738,21 +739,25 @@ function Invest(): any {
             {txHistory.txList &&
               txHistory.txList.map((tx: any, i: number) => (
                 <TableRow key={tx.hash}>
-                  <TableData>{decodeInput(tx).function_name}</TableData>
                   <TableData>
-                    {transactionDetails.length > 0 ? transactionDetails[i] : <Loader width={10} height={10} />}
+                    {transactionDetails.length > 0 ? decodeInput(tx).function_name : <Loader width={10} height={10} />}
                   </TableData>
-                  <TableData>{timeAgo(Number(tx.timeStamp) * 1000)}</TableData>
+                  <TableData>{transactionDetails.length > 0 && transactionDetails[i]}</TableData>
+                  <TableData>{transactionDetails.length > 0 && timeAgo(Number(tx.timeStamp) * 1000)}</TableData>
                   <TableData>
-                    <a
-                      href={getEtherscanTxUrl(wallet.chainId || Number(CHAIN_ID), tx.hash)}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      {shortenAddress(tx.hash)}
-                    </a>
+                    {transactionDetails.length > 0 && (
+                      <HyperLink
+                        href={getEtherscanTxUrl(wallet.chainId || Number(CHAIN_ID), tx.hash)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <Button>{shortenAddress(tx.hash)} </Button>
+                      </HyperLink>
+                    )}
                   </TableData>
-                  <TableData>{tx.txreceipt_status ? 'Complete' : 'Failed'}</TableData>
+                  <TableData>
+                    {transactionDetails.length > 0 && (tx.txreceipt_status ? 'Complete' : 'Failed')}
+                  </TableData>
                 </TableRow>
               ))}
           </TableBody>
