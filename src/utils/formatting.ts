@@ -38,12 +38,12 @@ export const shortenAddress = (input: string): string => {
 export const getUnit = (function_name: string): Unit => {
   switch (function_name) {
     case FunctionName.DEPOSIT:
-    case FunctionName.WITHDRAW_VAULT:
+    case FunctionName.WITHDRAW:
     case FunctionName.DEPOSIT_ETH:
     case FunctionName.APPROVE:
       return Unit.ETH
     case FunctionName.DEPOSIT_CP:
-    case FunctionName.WITHDRAW_CP:
+    case FunctionName.WITHDRAW_ETH:
       return Unit.SCP
     case FunctionName.WITHDRAW_REWARDS:
       return Unit.SOLACE

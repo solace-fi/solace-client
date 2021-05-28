@@ -176,7 +176,7 @@ export const Statistics = () => {
             </BoxItemValue>
           </BoxItem>
           <BoxItem>
-            <Button disabled={errors.length > 0} onClick={claimRewards}>
+            <Button disabled={errors.length > 0 || fixed(parseFloat(totalUserRewards), 6) <= 0} onClick={claimRewards}>
               Claim
             </Button>
           </BoxItem>
