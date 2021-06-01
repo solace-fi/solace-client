@@ -1,8 +1,9 @@
+import { formatEther } from '@ethersproject/units'
 import { BigNumber } from 'ethers'
 import { FunctionName, Unit } from '../constants/enums'
 
 // truncate numbers without rounding
-export const fixed = (n: number, decimals = 1) => {
+export const fixed = (n: number, decimals = 1): number => {
   return Math.floor(n * Math.pow(10, decimals)) / Math.pow(10, decimals)
 }
 
@@ -20,6 +21,10 @@ export const getExponentValue = (decimals = 0): BigNumber => {
 
 export const getHumanValue = (value?: BigNumber, decimals = 0): BigNumber | undefined => {
   return value?.div(getExponentValue(decimals))
+}
+
+export const floatEther = (value: BigNumber): number => {
+  return parseFloat(formatEther(value))
 }
 
 // used for correctly user amount input before processing

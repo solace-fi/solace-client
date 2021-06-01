@@ -22,7 +22,6 @@ import {
   LPFARM_CONTRACT_ADDRESS,
   TREASURY_CONTRACT_ADDRESS,
   REGISTRY_CONTRACT_ADDRESS,
-  POW_EIGHTEEN,
 } from '../constants'
 
 const getInterface = (toAddress: string) => {

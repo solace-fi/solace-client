@@ -47,7 +47,7 @@ import { useCapitalPoolSize } from '../../hooks/useCapitalPoolSize'
 import { useTotalPendingRewards } from '../../hooks/useRewards'
 import { useSolaceBalance } from '../../hooks/useSolaceBalance'
 import { usePoolStakedValue } from '../../hooks/usePoolStakedValue'
-import { fixed, getGasValue } from '../../utils/formatting'
+import { fixed, getGasValue, floatEther } from '../../utils/formatting'
 
 /* import wallet */
 import { SUPPORTED_WALLETS } from '../../wallet/wallets'
@@ -197,7 +197,7 @@ export const Statistics = () => {
       <Box purple>
         <BoxItem>
           <BoxItemTitle h3>Capital Pool Size</BoxItemTitle>
-          <BoxItemValue h2>{fixed(parseFloat(formatEther(capitalPoolSize).toString()))}</BoxItemValue>
+          <BoxItemValue h2>{fixed(floatEther(parseEther(capitalPoolSize)))}</BoxItemValue>
         </BoxItem>
         <BoxItem>
           <BoxItemTitle h3>Total Value Locked</BoxItemTitle>

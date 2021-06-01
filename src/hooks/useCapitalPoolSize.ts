@@ -1,18 +1,20 @@
+import { formatEther } from '@ethersproject/units'
 import { useState, useEffect } from 'react'
 import { useContracts } from '../context/ContractsManager'
 import { useWallet } from '../context/WalletManager'
 
-export const useCapitalPoolSize = (): number => {
+export const useCapitalPoolSize = (): string => {
   const { vault, registry } = useContracts()
   const { version, dataVersion } = useWallet()
-  const [capitalPoolSize, setCapitalPoolSize] = useState<number>(0)
+  const [capitalPoolSize, setCapitalPoolSize] = useState<string>('0.00')
 
   useEffect(() => {
     const getCapitalPoolSize = async () => {
       if (!registry || !vault) return
       try {
-        const ans = await vault.totalAssets()
-        setCapitalPoolSize(ans)
+        const size = await vault.totalAssets()
+        const formattedSize = formatEther(size)
+        setCapitalPoolSize(formattedSize)
       } catch (err) {
         console.log('useCapitalPoolSize', err)
       }

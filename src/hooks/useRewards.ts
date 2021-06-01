@@ -6,6 +6,7 @@ import { formatEther, parseEther } from '@ethersproject/units'
 import { NUM_BLOCKS_PER_DAY, ZERO } from '../constants'
 import { Contract } from '@ethersproject/contracts'
 import { useUserStakedValue } from './useUserStakedValue'
+import { floatEther } from '../utils/formatting'
 
 const useMasterValues = (farmId: number) => {
   const { master } = useContracts()
@@ -37,8 +38,7 @@ export const useRewardsPerDay = (farmId: number): string[] => {
     const getRewardsPerDay = async () => {
       try {
         const rewards = totalAllocPoints.gt(ZERO)
-          ? (parseFloat(formatEther(solacePerBlock)) * NUM_BLOCKS_PER_DAY * parseFloat(formatEther(allocPoints))) /
-            parseFloat(formatEther(totalAllocPoints))
+          ? (floatEther(solacePerBlock) * NUM_BLOCKS_PER_DAY * floatEther(allocPoints)) / floatEther(totalAllocPoints)
           : 0
         const formattedRewards = rewards.toString()
         setRewardsPerDay(formattedRewards)
@@ -60,13 +60,9 @@ export const useUserRewardsPerDay = (farmId: number, farm: Contract | null | und
   useEffect(() => {
     const getUserRewardsPerDay = async () => {
       try {
-        const allocPercentage = totalAllocPoints.gt(ZERO)
-          ? parseFloat(formatEther(allocPoints)) / parseFloat(formatEther(totalAllocPoints))
-          : 0
-        const poolPercentage = poolStakedValue.gt(ZERO)
-          ? parseFloat(formatEther(userStakedValue)) / parseFloat(formatEther(poolStakedValue))
-          : 0
-        const rewards = parseFloat(formatEther(solacePerBlock)) * allocPercentage * poolPercentage
+        const allocPercentage = totalAllocPoints.gt(ZERO) ? floatEther(allocPoints) / floatEther(totalAllocPoints) : 0
+        const poolPercentage = poolStakedValue.gt(ZERO) ? floatEther(userStakedValue) / floatEther(poolStakedValue) : 0
+        const rewards = floatEther(solacePerBlock) * allocPercentage * poolPercentage
         const formattedRewards = rewards.toString()
         setUserRewardsPerDay(formattedRewards)
       } catch (err) {
