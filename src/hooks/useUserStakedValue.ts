@@ -12,8 +12,8 @@ export const useUserStakedValue = (farm: Contract | null | undefined): string =>
       if (!farm) return
       try {
         const user = await farm.userInfo(account)
-        const userStakedValue = user.value
-        const formattedUserStakedValue = formatEther(userStakedValue)
+        const staked = user.value
+        const formattedUserStakedValue = formatEther(staked)
         setUserStakedValue(formattedUserStakedValue)
       } catch (err) {
         console.log('getUserStakedValue', err)

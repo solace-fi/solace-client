@@ -37,9 +37,10 @@ export const useRewardsPerDay = (farmId: number): string[] => {
     const getRewardsPerDay = async () => {
       try {
         const rewards = totalAllocPoints.gt(ZERO)
-          ? solacePerBlock.mul(NUM_BLOCKS_PER_DAY).mul(allocPoints).div(totalAllocPoints)
-          : ZERO
-        const formattedRewards = formatEther(rewards)
+          ? (parseFloat(formatEther(solacePerBlock)) * NUM_BLOCKS_PER_DAY * parseFloat(formatEther(allocPoints))) /
+            parseFloat(formatEther(totalAllocPoints))
+          : 0
+        const formattedRewards = rewards.toString()
         setRewardsPerDay(formattedRewards)
       } catch (err) {
         console.log('getRewardsPerDay', err)
@@ -59,11 +60,14 @@ export const useUserRewardsPerDay = (farmId: number, farm: Contract | null | und
   useEffect(() => {
     const getUserRewardsPerDay = async () => {
       try {
-        const allocPercentage = totalAllocPoints.gt(ZERO) ? allocPoints.div(totalAllocPoints) : ZERO
-        const poolPercentage = poolStakedValue.gt(ZERO) ? userStakedValue.div(poolStakedValue) : ZERO
-        const rewards = solacePerBlock.mul(NUM_BLOCKS_PER_DAY).mul(allocPercentage).mul(poolPercentage)
-
-        const formattedRewards = formatEther(rewards)
+        const allocPercentage = totalAllocPoints.gt(ZERO)
+          ? parseFloat(formatEther(allocPoints)) / parseFloat(formatEther(totalAllocPoints))
+          : 0
+        const poolPercentage = poolStakedValue.gt(ZERO)
+          ? parseFloat(formatEther(userStakedValue)) / parseFloat(formatEther(poolStakedValue))
+          : 0
+        const rewards = parseFloat(formatEther(solacePerBlock)) * allocPercentage * poolPercentage
+        const formattedRewards = rewards.toString()
         setUserRewardsPerDay(formattedRewards)
       } catch (err) {
         console.log('getUserRewardsPerDay', err)
