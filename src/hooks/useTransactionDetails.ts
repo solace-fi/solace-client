@@ -18,19 +18,24 @@ export const useTransactionDetails = (txList: any): string[] => {
     const receipt = await provider.getTransactionReceipt(tx.hash)
     if (!receipt) return 'Unknown'
     const logs = receipt.logs
+    if (!logs) return 'Unknown'
 
     switch (function_name) {
       case FunctionName.DEPOSIT:
-      case FunctionName.WITHDRAW_VAULT:
+      case FunctionName.WITHDRAW:
         const topics = logs[logs.length - 1].topics
+        if (!topics || topics.length <= 0) return 'Unknown'
         return topics[topics.length - 1]
       case FunctionName.DEPOSIT_ETH:
       case FunctionName.DEPOSIT_CP:
-      case FunctionName.WITHDRAW_CP:
+      case FunctionName.WITHDRAW_ETH:
       case FunctionName.WITHDRAW_REWARDS:
       case FunctionName.DEPOSIT_LP:
       case FunctionName.WITHDRAW_LP:
       default:
+        if (!logs || logs.length <= 0) return 'Unknown'
+        const data = logs[logs.length - 1].data
+        if (!data) return 'Unknown'
         return logs[logs.length - 1].data
     }
   }
@@ -41,7 +46,7 @@ export const useTransactionDetails = (txList: any): string[] => {
       for (const tx of txList) {
         const function_name = decodeInput(tx).function_name
         const unit = getUnit(function_name)
-        const amount = await getTransactionAmount(function_name, tx, library)
+        const amount: string = await getTransactionAmount(function_name, tx, library)
         currentAmounts.push(`${parseInt(amount) / POW_EIGHTEEN} ${unit}`)
       }
       setAmounts(currentAmounts)

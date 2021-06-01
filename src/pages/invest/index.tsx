@@ -165,7 +165,7 @@ function Invest(): any {
     }
   }
 
-  const callDepositVault = async () => {
+  const callDeposit = async () => {
     setLoading(true)
     if (!vaultContract.current) return
     const txType = FunctionName.DEPOSIT
@@ -265,10 +265,10 @@ function Invest(): any {
     }
   }
 
-  const callWithdrawVault = async () => {
+  const callWithdraw = async () => {
     setLoading(true)
     if (!vaultContract.current) return
-    const txType = FunctionName.WITHDRAW_VAULT
+    const txType = FunctionName.WITHDRAW
     try {
       const tx = await vaultContract.current.withdraw(parseEther(amount), maxLoss, {
         gasPrice: getGasValue(selectedGasOption.value),
@@ -292,10 +292,10 @@ function Invest(): any {
     }
   }
 
-  const callWithdrawCp = async () => {
+  const callWithdrawEth = async () => {
     setLoading(true)
     if (!cpFarmContract.current) return
-    const txType = FunctionName.WITHDRAW_CP
+    const txType = FunctionName.WITHDRAW_ETH
     try {
       const tx = await cpFarmContract.current.withdrawEth(parseEther(amount), maxLoss, {
         gasPrice: getGasValue(selectedGasOption.value),
@@ -454,16 +454,16 @@ function Invest(): any {
     if (!func) return
     switch (func) {
       case FunctionName.DEPOSIT:
-        isStaking ? await callDepositEth() : await callDepositVault()
+        isStaking ? await callDepositEth() : await callDeposit()
         break
-      case FunctionName.WITHDRAW_VAULT:
-        await callWithdrawVault()
+      case FunctionName.WITHDRAW:
+        await callWithdraw()
         break
       case FunctionName.DEPOSIT_CP:
         await callDepositCp()
         break
-      case FunctionName.WITHDRAW_CP:
-        await callWithdrawCp()
+      case FunctionName.WITHDRAW_ETH:
+        await callWithdrawEth()
         break
       case FunctionName.DEPOSIT_LP:
         await callDepositLp()
@@ -486,10 +486,10 @@ function Invest(): any {
         return parseEther(ethBalance)
       // if depositing cp into farm or withdrawing from vault, check scp
       case FunctionName.DEPOSIT_CP:
-      case FunctionName.WITHDRAW_VAULT:
+      case FunctionName.WITHDRAW:
         return parseEther(scpBalance)
       // if withdrawing cp from the farm, check user stake
-      case FunctionName.WITHDRAW_CP:
+      case FunctionName.WITHDRAW_ETH:
         return parseEther(cpUserStakeValue)
       default:
         // any amount
@@ -683,9 +683,7 @@ function Invest(): any {
                     </Button>
                     <Button
                       disabled={errors.length > 0}
-                      onClick={() =>
-                        openModal(FunctionName.WITHDRAW_VAULT, 'Withdraw', getUnit(FunctionName.WITHDRAW_VAULT))
-                      }
+                      onClick={() => openModal(FunctionName.WITHDRAW, 'Withdraw', getUnit(FunctionName.WITHDRAW))}
                     >
                       Withdraw
                     </Button>
@@ -728,7 +726,9 @@ function Invest(): any {
                     </Button>
                     <Button
                       disabled={errors.length > 0}
-                      onClick={() => openModal(FunctionName.WITHDRAW_CP, 'Withdraw', getUnit(FunctionName.WITHDRAW_CP))}
+                      onClick={() =>
+                        openModal(FunctionName.WITHDRAW_ETH, 'Withdraw', getUnit(FunctionName.WITHDRAW_ETH))
+                      }
                     >
                       Withdraw
                     </Button>
