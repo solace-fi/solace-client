@@ -73,7 +73,7 @@ import { useTransactionDetails } from '../../hooks/useTransactionDetails'
 import { getEtherscanTxUrl } from '../../utils/etherscan'
 import getPermitNFTSignature from '../../utils/signature'
 import { FeeAmount, TICK_SPACINGS, getMaxTick, getMinTick } from '../../utils/uniswap'
-import { fixed, getGasValue, filteredAmount, shortenAddress, getUnit } from '../../utils/formatting'
+import { fixed, getGasValue, filteredAmount, shortenAddress, getUnit, floatEther } from '../../utils/formatting'
 import { getProviderOrSigner } from '../../utils/index'
 import { timeAgo } from '../../utils/timeAgo'
 import { decodeInput } from '../../utils/decoder'
@@ -154,9 +154,7 @@ function Invest(): any {
       const value = userInfo.value
       const cpBalance = parseEther(scpBalance)
       const userAssets = cpBalance.add(value)
-      const userShare = totalSupply.gt(ZERO)
-        ? parseFloat(formatEther(userAssets.mul(100))) / parseFloat(formatEther(totalSupply))
-        : 0
+      const userShare = totalSupply.gt(ZERO) ? floatEther(userAssets.mul(100)) / floatEther(totalSupply) : 0
       const formattedAssets = formatEther(userAssets)
       setUserVaultAssets(formattedAssets)
       setUserVaultShare(userShare)
@@ -590,7 +588,7 @@ function Invest(): any {
                 value={amount}
               />
               <div style={{ position: 'absolute', top: '70%' }}>
-                Available: {func ? parseFloat(formatEther(getAssetBalanceByFunc())) : 0}
+                Available: {func ? floatEther(getAssetBalanceByFunc()) : 0}
               </div>
             </ModalCell>
             <ModalCell t3>
@@ -663,7 +661,7 @@ function Invest(): any {
           <TableBody>
             <TableRow>
               {wallet.account ? <TableData width={109}>{fixed(parseFloat(userVaultAssets), 2)}</TableData> : null}
-              <TableData width={100}>{fixed(parseFloat(formatEther(capitalPoolSize).toString()), 2)}</TableData>
+              <TableData width={100}>{fixed(floatEther(parseEther(capitalPoolSize)), 2)}</TableData>
               <TableData width={100}>{CP_ROI}</TableData>
               {wallet.account ? <TableData width={130}>{`${fixed(userVaultShare, 2)}%`}</TableData> : null}
               {wallet.account && (

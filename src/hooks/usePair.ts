@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react'
 import { ChainId, Fetcher, Route, WETH, Trade, TokenAmount, TradeType } from '@uniswap/sdk'
+import { SOLACE_CONTRACT_ADDRESS, POW_EIGHTEEN } from '../constants'
 
 const chainId = ChainId.RINKEBY
-const tokenAddress = '0x44B843794416911630e74bAB05021458122c40A0' // rinkeby tokenaddress of SOLACE
+const tokenAddress = String(SOLACE_CONTRACT_ADDRESS) // rinkeby tokenaddress of SOLACE
 
 export function usePairPrice(): any {
   const [pairPrice, setPairPrice] = useState<any>('0.01')
@@ -14,7 +15,7 @@ export function usePairPrice(): any {
       try {
         const pair = await Fetcher.fetchPairData(solace, weth)
         const route = new Route([pair], weth)
-        const trade = new Trade(route, new TokenAmount(weth, '1000000000000000'), TradeType.EXACT_INPUT)
+        const trade = new Trade(route, new TokenAmount(weth, String(POW_EIGHTEEN)), TradeType.EXACT_INPUT)
         console.log('trade', trade)
         const pairPrice = trade.executionPrice.toSignificant(6)
         setPairPrice(pairPrice)

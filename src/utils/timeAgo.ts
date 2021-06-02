@@ -3,9 +3,9 @@ export function timeAgo(someDateInThePast: number): string {
   const difference = Date.now() - someDateInThePast
 
   if (difference < 5 * 1000) {
-    return 'Just now'
+    return 'just now'
   } else if (difference < 90 * 1000) {
-    return 'Moments ago'
+    return 'moments ago'
   }
 
   //it has minutes
