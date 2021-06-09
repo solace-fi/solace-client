@@ -3,6 +3,7 @@ import styled from 'styled-components'
 
 interface TableProps {
   isHighlight?: boolean
+  isQuote?: boolean
   cellAlignLeft?: boolean
   cellAlignCenter?: boolean
   cellAlignRight?: boolean
@@ -13,21 +14,21 @@ interface TableProps {
 
 const handleCellAlign = (props: TableProps) => {
   if (props.cellAlignLeft) return 'text-align: left;'
-  if (props.cellAlignCenter) return 'text-align: center'
-  if (props.cellAlignRight) return 'text-align: right'
+  if (props.cellAlignCenter) return 'text-align: center;'
+  if (props.cellAlignRight) return 'text-align: right;'
 }
 
 const TableBase = styled.table<TableProps>`
   width: 100%;
   border-spacing: 0px 10px;
-  th.cell-align-center,
-  td.cell-align-center {
+  th,
+  td {
     ${(props) => handleCellAlign(props)}
   }
+  ${(props) => props.isHighlight && 'td {background-color: rgba(0, 255, 209, 0.3);}'}
   ${(props) =>
-    props.isHighlight
-      ? 'td {background-color: rgba(0, 255, 209, 0.3);}'
-      : 'td {background-color: rgba(255, 255, 255, 0.3);}'}
+    props.isQuote &&
+    'tr { &:hover { td { background-color: rgba(255, 255, 255, 0.5); transition: background-color 200ms linear;} } }'}
 `
 
 export const TableRow = styled.tr``
@@ -39,14 +40,14 @@ export const TableHead = styled.thead``
 export const TableHeader = styled.th<TableProps>`
   ${(props) => props.width && `max-width: ${props.width}px !important`};
   padding: 4px 18px;
-  text-align: center;
   overflow: hidden;
   text-overflow: ellipsis;
+  text-align: left;
 `
 
 export const TableData = styled.td<TableProps>`
   ${(props) => props.width && `max-width: ${props.width}px !important`};
-  text-align: center;
+  background-color: rgba(255, 255, 255, 0.3);
   padding: 18px;
   &:first-child {
     border-radius: 10px 0 0 10px;
@@ -73,6 +74,7 @@ export const Table: React.FC<TableProps> = ({
   headers,
   body,
   children,
+  isQuote,
 }) => {
   return (
     <TableBase
@@ -82,6 +84,7 @@ export const Table: React.FC<TableProps> = ({
       cellAlignRight={cellAlignRight}
       headers={headers}
       body={body}
+      isQuote={isQuote}
     >
       {children}
     </TableBase>

@@ -1,9 +1,11 @@
-import React from 'react'
+import React, { Fragment } from 'react'
 import { SetForm, useForm, useStep } from 'react-hooks-helper'
-import { Protocol } from './Protocol'
-import { Position } from './Position'
-import { Coverage } from './Coverage'
-import { Confirm } from './Confirm'
+import { ProtocolStep } from './ProtocolStep'
+import { PositionStep } from './PositionStep'
+import { CoverageStep } from './CoverageStep'
+import { ConfirmStep } from './ConfirmStep'
+import { Step, StepsContainer, StepsWrapper, StepsProgress, StepsProgressBar } from '../../components/Progress'
+import styled from 'styled-components'
 
 interface useStepType {
   step: any
@@ -29,6 +31,12 @@ enum StepNumber {
   'confirm' = 3,
 }
 
+const FormContent = styled.div`
+  display: grid;
+  align-content: start;
+  gap: 50px;
+`
+
 const steps = [{ id: 'protocol' }, { id: 'position' }, { id: 'coverage' }, { id: 'confirm' }]
 
 export const MultiStepForm = () => {
@@ -43,20 +51,30 @@ export const MultiStepForm = () => {
   const getForm = () => {
     switch (step.id) {
       case 'protocol':
-        return <Protocol {...props} />
+        return <ProtocolStep {...props} />
       case 'position':
-        return <Position {...props} />
+        return <PositionStep {...props} />
       case 'coverage':
-        return <Coverage {...props} />
+        return <CoverageStep {...props} />
       default:
-        return <Confirm {...props} />
+        return <ConfirmStep {...props} />
     }
   }
 
   return (
-    <div>
-      <div>{StepNumber[step.id]}</div>
-      <div>{getForm()}</div>
-    </div>
+    <FormContent>
+      <StepsContainer step={Number(StepNumber[step.id]) + 1}>
+        <StepsWrapper>
+          <Step>Select Protocol</Step>
+          <Step>Select Position</Step>
+          <Step>Choose Limit &amp; Period</Step>
+          <Step>Confirm</Step>
+        </StepsWrapper>
+        <StepsProgress>
+          <StepsProgressBar></StepsProgressBar>
+        </StepsProgress>
+      </StepsContainer>
+      {getForm()}
+    </FormContent>
   )
 }

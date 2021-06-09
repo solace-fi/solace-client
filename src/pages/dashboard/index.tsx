@@ -14,7 +14,14 @@ import React, { Fragment } from 'react'
 
 /* import components */
 import { Content } from '../../components/Layout'
-import { CardContainer, Card, CardHeader, CardTitle, CardBlock, CardActions } from '../../components/Card'
+import {
+  CardContainer,
+  InvestmentCardComponent,
+  CardHeader,
+  CardTitle,
+  CardBlock,
+  CardActions,
+} from '../../components/Card'
 import { Heading1, Heading2 } from '../../components/Text'
 import { Button } from '../../components/Button'
 import { Table, TableHead, TableHeader, TableRow, TableBody, TableData, TableDataGroup } from '../../components/Table'
@@ -67,7 +74,7 @@ function Dashboard(): any {
       <Content>
         <Heading1>Your Investments</Heading1>
         <CardContainer>
-          <Card>
+          <InvestmentCardComponent>
             <CardHeader>
               <CardTitle h2>{23}</CardTitle>
               <Heading2>{`3000 ETH`}</Heading2>
@@ -83,8 +90,8 @@ function Dashboard(): any {
             <CardActions>
               <Button>Manage</Button>
             </CardActions>
-          </Card>
-          <Card>
+          </InvestmentCardComponent>
+          <InvestmentCardComponent>
             <CardHeader>
               <CardTitle h2>{21}</CardTitle>
               <Heading2>{`423 ETH`}</Heading2>
@@ -100,7 +107,7 @@ function Dashboard(): any {
             <CardActions>
               <Button>Manage</Button>
             </CardActions>
-          </Card>
+          </InvestmentCardComponent>
         </CardContainer>
       </Content>
     </Fragment>
