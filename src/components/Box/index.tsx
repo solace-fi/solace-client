@@ -1,9 +1,11 @@
-import styled from 'styled-components'
+import styled, { css } from 'styled-components'
 import { Box as RebassBox } from 'rebass/styled-components'
 import { TextProps, handleTextProps } from '../Text'
 
 interface BoxProps {
   purple?: boolean
+  transparent?: boolean
+  outlined?: boolean
 }
 
 const BoxBase = styled(RebassBox)<{ width?: string; padding?: string; border?: string; borderRadius?: string }>`
@@ -22,12 +24,25 @@ export const BoxRow = styled(BoxBase)`
   justify-content: space-between;
 `
 
+const TransparentBox = css`
+  background-color: rgba(0, 0, 0, 0);
+`
+
+const Outline = css`
+  border-width: 1px;
+  border-style: solid;
+  border-color: rgb(255, 255, 255);
+`
+
 export const Box = styled(BoxRow)<BoxProps>`
   justify-content: space-between;
   align-items: center;
   border-radius: 10px;
   padding: 24px;
-  background-color: ${(props) => (props.purple ? 'rgba(250, 0, 255, 0.3)' : 'rgba(0, 255, 209, 0.3)')};
+  background-color: rgba(0, 255, 209, 0.3);
+  ${(props) => props.purple && 'background-color: rgba(250, 0, 255, 0.3);'}
+  ${(props) => props.transparent && TransparentBox}
+  ${(props) => props.outlined && Outline}
 `
 
 export const BoxItem = styled.div`

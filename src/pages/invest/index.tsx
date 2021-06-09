@@ -643,7 +643,7 @@ function Invest(): any {
       </Modal>
       <Content>
         <Heading1>ETH Risk backing Capital Pool</Heading1>
-        <Table isHighlight>
+        <Table isHighlight cellAlignCenter>
           <TableHead>
             <TableRow>
               {wallet.account ? <TableHeader width={109}>Your Assets</TableHeader> : null}
@@ -694,7 +694,7 @@ function Invest(): any {
       </Content>
       <Content>
         <Heading1>Solace Capital Provider Farm</Heading1>
-        <Table isHighlight>
+        <Table isHighlight cellAlignCenter>
           <TableHead>
             <TableRow>
               {wallet.account ? <TableHeader>Your Stake</TableHeader> : null}
@@ -739,7 +739,7 @@ function Invest(): any {
       </Content>
       <Content>
         <Heading1>SOLACE/ETH Liquidity Pool</Heading1>
-        <Table isHighlight>
+        <Table isHighlight cellAlignCenter>
           <TableHead>
             <TableRow>
               {wallet.account ? <TableHeader>Your Stake</TableHeader> : null}
@@ -782,7 +782,7 @@ function Invest(): any {
       </Content>
       <Content>
         <Heading1>Your transactions</Heading1>
-        <Table>
+        <Table cellAlignCenter>
           <TableHead>
             <TableRow>
               <TableHeader>Type</TableHeader>
