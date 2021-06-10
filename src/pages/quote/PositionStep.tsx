@@ -23,6 +23,9 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
           </BoxItem>
           <BoxItem>2.60%</BoxItem>
           <BoxItem>43 ETH</BoxItem>
+          <BoxItem>
+            <Button onClick={() => navigation.go(0)}>Change</Button>
+          </BoxItem>
         </Box>
         <Box transparent outlined>
           <BoxItem>Select Position Below</BoxItem>
@@ -38,12 +41,10 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
             1110<BoxItemUnits style={{ fontSize: '12px' }}>USDC</BoxItemUnits>
           </PositionCardCount>
           <PositionCardButton>
-            <Button>Select</Button>
+            <Button onClick={() => navigation.next()}>Select</Button>
           </PositionCardButton>
         </PositionCardComponent>
       </CardContainer>
-      <Button onClick={() => navigation.previous()}>Prev</Button>
-      <Button onClick={() => navigation.next()}>Next</Button>
     </Fragment>
   )
 }

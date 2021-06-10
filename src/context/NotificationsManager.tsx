@@ -8,7 +8,7 @@ import 'react-toastify/dist/ReactToastify.css'
 import { CHAIN_ID } from '../constants'
 import { TransactionCondition, Error } from '../constants/enums'
 import { getNetworkName } from '../utils'
-import { HyperLink } from '../components/Hyperlink'
+import { HyperLink } from '../components/Link'
 import { Button } from '../components/Button'
 
 import '../styles/toast.css'
