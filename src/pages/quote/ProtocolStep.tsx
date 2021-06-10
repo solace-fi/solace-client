@@ -2,9 +2,11 @@ import React, { Fragment, useState } from 'react'
 import { Button } from '../../components/Button'
 import { formProps } from './MultiStepForm'
 import styled from 'styled-components'
-import { ActionRadios, RadioCircle, RadioCircleFigure, RadioCircleInput } from '../../components/Radio/RadioCircle'
+// import { ActionRadios, RadioCircle, RadioCircleFigure, RadioCircleInput } from '../../components/Radio/RadioCircle'
 import { Table, TableData, TableHead, TableHeader, TableRow, TableBody } from '../../components/Table'
 import { Protocol, ProtocolImage, ProtocolTitle } from '../../components/Protocol'
+import { PROTOCOLS_LIST } from '../../constants/protocols'
+import useDebounce from '@rooks/use-debounce'
 
 const Search = styled.input`
   ::placeholder {
@@ -46,24 +48,26 @@ const ActionsContainer = styled.div`
 `
 
 export const ProtocolStep: React.FC<formProps> = ({ formData, setForm, navigation }) => {
-  const { protocol } = formData
+  const [searchValue, setSearchValue] = useState<string>('')
+  const handleChange = (protocol: any) => {
+    setForm({
+      target: {
+        name: 'protocol',
+        value: protocol,
+      },
+    })
+    navigation.next()
+  }
 
-  const [selectedSort, setSelectedSort] = useState<number>(1)
-
-  /*
-  setForm({
-    target: {
-      name: 'protocol', // form element
-      value: result // the data/url
-    }
-  })
-  */
+  const handleSearch = useDebounce((searchValue: string) => {
+    setSearchValue(searchValue)
+  }, 300)
 
   return (
     <Fragment>
       <ActionsContainer>
-        <Search type="search" placeholder="Search" />
-        <ActionRadios>
+        <Search type="search" placeholder="Search" onChange={(e) => handleSearch(e.target.value)} />
+        {/* <ActionRadios>
           <RadioCircle>
             <RadioCircleInput type="radio" value="1" checked={selectedSort == 1} onChange={() => setSelectedSort(1)} />
             <RadioCircleFigure></RadioCircleFigure>
@@ -79,7 +83,7 @@ export const ProtocolStep: React.FC<formProps> = ({ formData, setForm, navigatio
             <RadioCircleFigure></RadioCircleFigure>
             <div>Custodians</div>
           </RadioCircle>
-        </ActionRadios>
+        </ActionRadios> */}
       </ActionsContainer>
       <Table isQuote>
         <TableHead>
@@ -91,36 +95,27 @@ export const ProtocolStep: React.FC<formProps> = ({ formData, setForm, navigatio
           </TableRow>
         </TableHead>
         <TableBody>
-          <TableRow>
-            <TableData>
-              <Protocol>
-                <ProtocolImage>
-                  <img src="" />
-                </ProtocolImage>
-                <ProtocolTitle>Aave V2</ProtocolTitle>
-              </Protocol>
-            </TableData>
-            <TableData>2.60%</TableData>
-            <TableData>43 ETH</TableData>
-            <TableData cellAlignRight>
-              <Button onClick={() => navigation.next()}>Select</Button>
-            </TableData>
-          </TableRow>
-          <TableRow>
-            <TableData>
-              <Protocol>
-                <ProtocolImage>
-                  <img src="" />
-                </ProtocolImage>
-                <ProtocolTitle>Yearn</ProtocolTitle>
-              </Protocol>
-            </TableData>
-            <TableData>2.60%</TableData>
-            <TableData>43 ETH</TableData>
-            <TableData cellAlignRight>
-              <Button onClick={() => navigation.next()}>Select</Button>
-            </TableData>
-          </TableRow>
+          {PROTOCOLS_LIST.filter((protocol) => protocol.name.toLowerCase().includes(searchValue.toLowerCase())).map(
+            (protocol) => {
+              return (
+                <TableRow key={protocol.name}>
+                  <TableData>
+                    <Protocol>
+                      <ProtocolImage>
+                        <img src={protocol.img} />
+                      </ProtocolImage>
+                      <ProtocolTitle>{protocol.name}</ProtocolTitle>
+                    </Protocol>
+                  </TableData>
+                  <TableData>2.60%</TableData>
+                  <TableData>4003 ETH</TableData>
+                  <TableData cellAlignRight>
+                    <Button onClick={() => handleChange(protocol)}>Select</Button>
+                  </TableData>
+                </TableRow>
+              )
+            }
+          )}
         </TableBody>
       </Table>
     </Fragment>

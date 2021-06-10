@@ -5,9 +5,20 @@ import { formProps } from './MultiStepForm'
 import { Protocol, ProtocolImage, ProtocolTitle } from '../../components/Protocol'
 import { CardContainer, PositionCardComponent } from '../../components/Card'
 import { PositionCardButton, PositionCardCount, PositionCardLogo, PositionCardName } from '../../components/Position'
+import { POSITIONS_LIST } from '../../constants/positions'
 
 export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigation }) => {
-  const { position } = formData
+  const { protocol } = formData
+
+  const handleChange = (position: any) => {
+    setForm({
+      target: {
+        name: 'position',
+        value: position,
+      },
+    })
+    navigation.next()
+  }
 
   return (
     <Fragment>
@@ -16,9 +27,9 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
           <BoxItem>
             <Protocol>
               <ProtocolImage>
-                <img src="" />
+                <img src={protocol.img} />
               </ProtocolImage>
-              <ProtocolTitle>Aave V2</ProtocolTitle>
+              <ProtocolTitle>{protocol.name}</ProtocolTitle>
             </Protocol>
           </BoxItem>
           <BoxItem>2.60%</BoxItem>
@@ -32,18 +43,22 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
         </Box>
       </BoxRow>
       <CardContainer cardsPerRow={5}>
-        <PositionCardComponent>
-          <PositionCardLogo>
-            <img src="" />
-          </PositionCardLogo>
-          <PositionCardName>Gemini Dollar</PositionCardName>
-          <PositionCardCount>
-            1110<BoxItemUnits style={{ fontSize: '12px' }}>USDC</BoxItemUnits>
-          </PositionCardCount>
-          <PositionCardButton>
-            <Button onClick={() => navigation.next()}>Select</Button>
-          </PositionCardButton>
-        </PositionCardComponent>
+        {POSITIONS_LIST.map((position) => {
+          return (
+            <PositionCardComponent key={position.name}>
+              <PositionCardLogo>
+                <img src={position.img} />
+              </PositionCardLogo>
+              <PositionCardName>{position.name}</PositionCardName>
+              <PositionCardCount>
+                1110<BoxItemUnits style={{ fontSize: '12px' }}>USDC</BoxItemUnits>
+              </PositionCardCount>
+              <PositionCardButton>
+                <Button onClick={() => handleChange(position)}>Select</Button>
+              </PositionCardButton>
+            </PositionCardComponent>
+          )
+        })}
       </CardContainer>
     </Fragment>
   )

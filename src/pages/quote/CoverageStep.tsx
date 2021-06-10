@@ -16,10 +16,25 @@ import { Input } from '../../components/Input'
 import { Slider } from '@rebass/forms'
 
 export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigation }) => {
-  const { coverage } = formData
+  const { protocol, position, coverageLimit, timePeriod } = formData
 
-  const [coverageLimit, setCoverageLimit] = useState<string>('50')
-  const [timePeriod, setTimePeriod] = useState<string>('180')
+  const handleCoverageChange = (coverageLimit: string) => {
+    setForm({
+      target: {
+        name: 'coverageLimit',
+        value: coverageLimit,
+      },
+    })
+  }
+
+  const handleTimeChange = (timePeriod: string) => {
+    setForm({
+      target: {
+        name: 'timePeriod',
+        value: timePeriod,
+      },
+    })
+  }
 
   return (
     <Fragment>
@@ -28,9 +43,9 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
           <BoxItem>
             <Protocol>
               <ProtocolImage>
-                <img src="" />
+                <img src={protocol.img} />
               </ProtocolImage>
-              <ProtocolTitle>Aave V2</ProtocolTitle>
+              <ProtocolTitle>{protocol.name}</ProtocolTitle>
             </Protocol>
           </BoxItem>
           <BoxItem>2.60%</BoxItem>
@@ -43,9 +58,9 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
           <BoxItem>
             <Protocol>
               <ProtocolImage>
-                <img src="" />
+                <img src={position.img} />
               </ProtocolImage>
-              <ProtocolTitle>Gemini Dollar</ProtocolTitle>
+              <ProtocolTitle>{position.name}</ProtocolTitle>
             </Protocol>
           </BoxItem>
           <BoxItem>1110 USDC</BoxItem>
@@ -74,7 +89,7 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
                 width={200}
                 backgroundColor={'#fff'}
                 value={coverageLimit}
-                onChange={(e) => setCoverageLimit(e.target.value)}
+                onChange={(e) => handleCoverageChange(e.target.value)}
                 min={1}
                 max={100}
               />
@@ -84,7 +99,7 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
                 type="number"
                 width={50}
                 value={coverageLimit}
-                onChange={(e) => setCoverageLimit(e.target.value)}
+                onChange={(e) => handleCoverageChange(e.target.value)}
                 min="1"
                 max="100"
               />
@@ -99,7 +114,7 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
                 width={200}
                 backgroundColor={'#fff'}
                 value={timePeriod}
-                onChange={(e) => setTimePeriod(e.target.value)}
+                onChange={(e) => handleTimeChange(e.target.value)}
                 min="1"
                 max="365"
               />
@@ -109,7 +124,7 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
                 type="number"
                 width={50}
                 value={timePeriod}
-                onChange={(e) => setTimePeriod(e.target.value)}
+                onChange={(e) => handleTimeChange(e.target.value)}
                 min="1"
                 max="365"
               />
