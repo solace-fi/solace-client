@@ -6,9 +6,11 @@ export const PositionCardLogo = styled.div`
   justify-content: center;
   width: 40px;
   height: 40px;
-  background-color: rgb(255, 255, 255);
-  border-radius: 100%;
-  overflow: hidden;
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
 `
 
 export const PositionCardName = styled.div`

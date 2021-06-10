@@ -19,9 +19,11 @@ export interface formProps {
 }
 
 const defaultData = {
-  protocol: '',
-  position: '',
-  coverage: '',
+  protocol: {},
+  position: {},
+  fetchedPositions: [],
+  coverageLimit: '50',
+  timePeriod: '180',
 }
 
 enum StepNumber {
