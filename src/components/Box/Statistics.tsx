@@ -199,14 +199,14 @@ export const Statistics = () => {
           <BoxItemTitle h3>Capital Pool Size</BoxItemTitle>
           <BoxItemValue h2>
             {`${fixed(floatEther(parseEther(capitalPoolSize)))} `}
-            <BoxItemUnits h3>ETH</BoxItemUnits>
+            <BoxItemUnits h3>{Unit.ETH}</BoxItemUnits>
           </BoxItemValue>
         </BoxItem>
         <BoxItem>
           <BoxItemTitle h3>Total Value Locked</BoxItemTitle>
           <BoxItemValue h2>
             {`${fixed(parseFloat(totalValueLocked))} `}
-            <BoxItemUnits h3>ETH</BoxItemUnits>
+            <BoxItemUnits h3>{Unit.ETH}</BoxItemUnits>
           </BoxItemValue>
         </BoxItem>
         <BoxItem>
