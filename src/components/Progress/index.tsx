@@ -89,7 +89,7 @@ export const StepsProgress = styled.div`
   border-radius: 10px;
   padding: 3px;
   width: 100%;
-  height: 10px;
+  height: 5px;
   background-color: rgba(255, 255, 255, 0.3);
 `
 

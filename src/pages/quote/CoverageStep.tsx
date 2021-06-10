@@ -1,4 +1,4 @@
-import React, { Fragment } from 'react'
+import React, { Fragment, useState } from 'react'
 import { Box, BoxItem, BoxRow } from '../../components/Box'
 import {
   BoxChooseRow,
@@ -13,10 +13,13 @@ import { Protocol, ProtocolImage, ProtocolTitle } from '../../components/Protoco
 import { CardBaseComponent, CardContainer } from '../../components/Card'
 import { Heading2, Text3 } from '../../components/Text'
 import { Input } from '../../components/Input'
-import { Label, Slider } from '@rebass/forms'
+import { Slider } from '@rebass/forms'
 
 export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigation }) => {
   const { coverage } = formData
+
+  const [coverageLimit, setCoverageLimit] = useState<string>('50')
+  const [timePeriod, setTimePeriod] = useState<string>('180')
 
   return (
     <Fragment>
@@ -32,6 +35,9 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
           </BoxItem>
           <BoxItem>2.60%</BoxItem>
           <BoxItem>43 ETH</BoxItem>
+          <BoxItem>
+            <Button onClick={() => navigation.go(0)}>Change</Button>
+          </BoxItem>
         </Box>
         <Box purple>
           <BoxItem>
@@ -43,6 +49,9 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
             </Protocol>
           </BoxItem>
           <BoxItem>1110 USDC</BoxItem>
+          <BoxItem>
+            <Button onClick={() => navigation.go(1)}>Change</Button>
+          </BoxItem>
         </Box>
       </BoxRow>
       <CardContainer cardsPerRow={2}>
@@ -61,10 +70,24 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
               <BoxChooseText>Coverage Limit (1 - 100%)</BoxChooseText>
             </BoxChooseCol>
             <BoxChooseCol>
-              <Slider width={200} backgroundColor={'#fff'} defaultValue={50} />
+              <Slider
+                width={200}
+                backgroundColor={'#fff'}
+                value={coverageLimit}
+                onChange={(e) => setCoverageLimit(e.target.value)}
+                min={1}
+                max={100}
+              />
             </BoxChooseCol>
             <BoxChooseCol>
-              <Input type="text" width={50} value="50"></Input>
+              <Input
+                type="number"
+                width={50}
+                value={coverageLimit}
+                onChange={(e) => setCoverageLimit(e.target.value)}
+                min="1"
+                max="100"
+              />
             </BoxChooseCol>
           </BoxChooseRow>
           <BoxChooseRow>
@@ -72,10 +95,24 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
               <BoxChooseText>Time Period (1 - 365 days)</BoxChooseText>
             </BoxChooseCol>
             <BoxChooseCol>
-              <Slider width={200} backgroundColor={'#fff'} defaultValue={25} />
+              <Slider
+                width={200}
+                backgroundColor={'#fff'}
+                value={timePeriod}
+                onChange={(e) => setTimePeriod(e.target.value)}
+                min="1"
+                max="365"
+              />
             </BoxChooseCol>
             <BoxChooseCol>
-              <Input type="text" width={50} value="25"></Input>
+              <Input
+                type="number"
+                width={50}
+                value={timePeriod}
+                onChange={(e) => setTimePeriod(e.target.value)}
+                min="1"
+                max="365"
+              />
             </BoxChooseCol>
           </BoxChooseRow>
           <BoxChooseRow>
@@ -105,7 +142,7 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
             </BoxChooseCol>
           </BoxChooseRow>
           <BoxChooseButton>
-            <Button>Buy</Button>
+            <Button onClick={() => navigation.next()}>Buy</Button>
           </BoxChooseButton>
         </CardBaseComponent>
         <CardBaseComponent transparent>
@@ -126,8 +163,6 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
           </BoxChooseRow>
         </CardBaseComponent>
       </CardContainer>
-      <Button onClick={() => navigation.previous()}>Prev</Button>
-      <Button onClick={() => navigation.next()}>Next</Button>
     </Fragment>
   )
 }

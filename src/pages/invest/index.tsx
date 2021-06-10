@@ -54,9 +54,9 @@ import {
 import { RadioElement, RadioInput, RadioGroup, RadioLabel } from '../../components/Radio'
 import { Table, TableHead, TableHeader, TableRow, TableBody, TableData, TableDataGroup } from '../../components/Table'
 import { Button } from '../../components/Button'
-import { Heading1, Heading2 } from '../../components/Text'
+import { Heading1, Heading2, Text2 } from '../../components/Text'
 import { Content } from '../../components/Layout'
-import { HyperLink } from '../../components/Hyperlink'
+import { HyperLink } from '../../components/Link'
 
 /* import hooks */
 import { GasFeeOption } from '../../hooks/useFetchGasPrice'
@@ -77,6 +77,7 @@ import { fixed, getGasValue, filteredAmount, shortenAddress, getUnit, floatEther
 import { getProviderOrSigner } from '../../utils/index'
 import { timeAgo } from '../../utils/timeAgo'
 import { decodeInput } from '../../utils/decoder'
+import { RadioCircle, RadioCircleFigure, RadioCircleInput } from '../../components/Radio/RadioCircle'
 
 function Invest(): any {
   /************************************************************************************* 
@@ -624,9 +625,16 @@ function Invest(): any {
           </RadioGroup>
           {func == FunctionName.DEPOSIT || func == FunctionName.DEPOSIT_ETH ? (
             <ModalRow>
-              <ModalCell t2>
-                <Input type="checkbox" checked={isStaking} onChange={(e) => setIsStaking(e.target.checked)} />
-                <div>Automatically stake</div>
+              <ModalCell>
+                <RadioCircle>
+                  <RadioCircleInput
+                    type="checkbox"
+                    checked={isStaking}
+                    onChange={(e) => setIsStaking(e.target.checked)}
+                  />
+                  <RadioCircleFigure></RadioCircleFigure>
+                  <div>Automatically stake</div>
+                </RadioCircle>
               </ModalCell>
             </ModalRow>
           ) : null}

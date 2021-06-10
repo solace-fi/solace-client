@@ -1,4 +1,4 @@
-import React, { Fragment } from 'react'
+import React, { Fragment, useState } from 'react'
 import { Button } from '../../components/Button'
 import { formProps } from './MultiStepForm'
 import styled from 'styled-components'
@@ -11,6 +11,21 @@ const Search = styled.input`
     color: #fff;
     opacity: 0.5;
   }
+  ::-webkit-search-cancel-button {
+    -webkit-appearance: none;
+    height: 1em;
+    width: 1em;
+    border-radius: 50em;
+    background: url(https://pro.fontawesome.com/releases/v5.10.0/svgs/solid/times-circle.svg) no-repeat 50% 50%;
+    background-size: contain;
+    opacity: 0;
+    pointer-events: none;
+    filter: invert(1);
+  }
+  :focus::-webkit-search-cancel-button {
+    opacity: 1;
+    pointer-events: all;
+  }
   border-radius: 30px;
   border: 1px solid #fff;
   padding: 10px 20px;
@@ -22,6 +37,7 @@ const Search = styled.input`
 `
 
 const ActionsContainer = styled.div`
+  padding-top: 20px;
   display: flex;
   align-items: center;
   ${Search} {
@@ -31,6 +47,8 @@ const ActionsContainer = styled.div`
 
 export const ProtocolStep: React.FC<formProps> = ({ formData, setForm, navigation }) => {
   const { protocol } = formData
+
+  const [selectedSort, setSelectedSort] = useState<number>(1)
 
   /*
   setForm({
@@ -47,17 +65,17 @@ export const ProtocolStep: React.FC<formProps> = ({ formData, setForm, navigatio
         <Search type="search" placeholder="Search" />
         <ActionRadios>
           <RadioCircle>
-            <RadioCircleInput type="radio" value="1" />
+            <RadioCircleInput type="radio" value="1" checked={selectedSort == 1} onChange={() => setSelectedSort(1)} />
             <RadioCircleFigure></RadioCircleFigure>
             <div>Yield Tokens</div>
           </RadioCircle>
           <RadioCircle>
-            <RadioCircleInput type="radio" value="2" />
+            <RadioCircleInput type="radio" value="2" checked={selectedSort == 2} onChange={() => setSelectedSort(2)} />
             <RadioCircleFigure></RadioCircleFigure>
             <div>Protocols</div>
           </RadioCircle>
           <RadioCircle>
-            <RadioCircleInput type="radio" value="3" />
+            <RadioCircleInput type="radio" value="3" checked={selectedSort == 3} onChange={() => setSelectedSort(3)} />
             <RadioCircleFigure></RadioCircleFigure>
             <div>Custodians</div>
           </RadioCircle>
@@ -85,7 +103,7 @@ export const ProtocolStep: React.FC<formProps> = ({ formData, setForm, navigatio
             <TableData>2.60%</TableData>
             <TableData>43 ETH</TableData>
             <TableData cellAlignRight>
-              <Button>Select</Button>
+              <Button onClick={() => navigation.next()}>Select</Button>
             </TableData>
           </TableRow>
           <TableRow>
@@ -100,12 +118,11 @@ export const ProtocolStep: React.FC<formProps> = ({ formData, setForm, navigatio
             <TableData>2.60%</TableData>
             <TableData>43 ETH</TableData>
             <TableData cellAlignRight>
-              <Button>Select</Button>
+              <Button onClick={() => navigation.next()}>Select</Button>
             </TableData>
           </TableRow>
         </TableBody>
       </Table>
-      <Button onClick={() => navigation.next()}>Next</Button>
     </Fragment>
   )
 }
