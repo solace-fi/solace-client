@@ -4,26 +4,20 @@ const fs = require("fs");
 const { config } = require("dotenv");
 config();
 
-var key, provider, comptrollerJson, comptrollerContract, ctokenJson, ierc20Json, ierc20altJson;
+var key, provider, ctokenJson, ierc20Json, ierc20altJson;
 var eth = "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE";
 var cEth = "0xd6801a1DfFCd0a410336Ef88DeF4320D6DF1883e";
-(async () => { })()
 
 async function getTokens() {
   // get key
   key = process.env.REACT_APP_ALCHEMY_API_KEY;
   provider = new ethers.providers.AlchemyProvider("rinkeby", key);
   // get contract abis
-  [comptrollerJson, ctokenJson, ierc20Json, ierc20altJson] = await Promise.all([
-    fs.promises.readFile("../contracts/IComptroller.json").then(JSON.parse),
+  [ctokenJson, ierc20Json, ierc20altJson] = await Promise.all([
     fs.promises.readFile("../contracts/ICToken.json").then(JSON.parse),
     fs.promises.readFile("../contracts/IERC20Metadata.json").then(JSON.parse),
     fs.promises.readFile("../contracts/IERC20MetadataAlt.json").then(JSON.parse)
   ]);
-  // get comptroller
-  comptrollerContract = new ethers.Contract("0x2EAa9D77AE4D8f9cdD9FAAcd44016E746485bddb", comptrollerJson.abi, provider);
-  // get ctoken addresses
-  //var ctokenAddresses = await withBackoffRetries(async () => comptrollerContract.getAllMarkets()); // method doesn't exist on rinkeby implementation
   var ctokenAddresses = ["0xd6801a1DfFCd0a410336Ef88DeF4320D6DF1883e", "0xEBf1A11532b93a529b5bC942B4bAA98647913002", "0x6D7F0754FFeb405d23C51CE938289d4835bE3b14", "0x5B281A6DdA0B271e91ae35DE655Ad301C976edb1", "0x2fB298BDbeF468638AD6653FF8376575ea41e768", "0x52201ff1720134bBbBB2f6BC97Bf3715490EC19B", "0xebe09eb3411d18f4ff8d859e096c533cac5c6b60", "0x0014f450b8ae7708593f4a46f8fa6e5d50620f96"];
   // get ctoken contracts
   var ctokenContracts = ctokenAddresses.map(address => new ethers.Contract(address, ctokenJson.abi, provider));
@@ -97,6 +91,8 @@ getTokens()
     fs.writeFileSync('tokens.json', JSON.stringify(tokens));
   })
   .catch(console.error);
+
+// TODO: move utils to a common location
 
 // utils
 const MIN_RETRY_DELAY = 1000;
