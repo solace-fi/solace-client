@@ -7,7 +7,6 @@ config();
 var key, provider, comptrollerJson, comptrollerContract, ctokenJson, ierc20Json, ierc20altJson;
 var eth = "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE";
 var cEth = "0x4Ddc2D193948926D02f9B1fE9e1daa0718270ED5";
-(async () => { })()
 
 async function getTokens() {
   // get key
@@ -96,6 +95,8 @@ getTokens()
     fs.writeFileSync('tokens.json', JSON.stringify(tokens));
   })
   .catch(console.error);
+
+// TODO: move utils to a common location
 
 // utils
 const MIN_RETRY_DELAY = 1000;
