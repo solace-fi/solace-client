@@ -21,7 +21,7 @@ export interface formProps {
 const defaultData = {
   protocol: {},
   position: {},
-  fetchedPositions: [],
+  balances: [],
   coverageLimit: '50',
   timePeriod: '180',
 }

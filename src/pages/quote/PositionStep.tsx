@@ -1,4 +1,4 @@
-import React, { Fragment } from 'react'
+import React, { Fragment, useCallback, useEffect } from 'react'
 import { Box, BoxItem, BoxRow, BoxItemUnits } from '../../components/Box'
 import { Button } from '../../components/Button'
 import { formProps } from './MultiStepForm'
@@ -6,9 +6,13 @@ import { Protocol, ProtocolImage, ProtocolTitle } from '../../components/Protoco
 import { CardContainer, PositionCardComponent } from '../../components/Card'
 import { PositionCardButton, PositionCardCount, PositionCardLogo, PositionCardName } from '../../components/Position'
 import { POSITIONS_LIST } from '../../constants/positions'
+import { getBalances as getMainnetBalances } from '../../compoundPositionGetter/mainnet/getBalances'
+import { getBalances as getRinkebyBalances } from '../../compoundPositionGetter/rinkeby/getBalances'
+import { useWallet } from '../../context/WalletManager'
 
 export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigation }) => {
-  const { protocol } = formData
+  const { protocol, balances } = formData
+  const { account, library, chainId } = useWallet()
 
   const handleChange = (position: any) => {
     setForm({
@@ -19,6 +23,33 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
     })
     navigation.next()
   }
+
+  const getBalances = useCallback(async () => {
+    if (chainId == 1) {
+      const balances = await getMainnetBalances(account ?? '0x', library)
+      console.log('balances:', balances)
+      setForm({
+        target: {
+          name: 'balances',
+          value: balances,
+        },
+      })
+    }
+    if (chainId == 4) {
+      const balances = await getRinkebyBalances(account ?? '0x', library)
+      console.log('balances:', balances)
+      setForm({
+        target: {
+          name: 'balances',
+          value: balances,
+        },
+      })
+    }
+  }, [protocol, chainId, account])
+
+  useEffect(() => {
+    getBalances()
+  }, [])
 
   return (
     <Fragment>
@@ -43,15 +74,23 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
         </Box>
       </BoxRow>
       <CardContainer cardsPerRow={5}>
-        {POSITIONS_LIST.map((position) => {
+        {balances.map((position: any) => {
           return (
-            <PositionCardComponent key={position.name}>
+            <PositionCardComponent key={position.underlying.address}>
               <PositionCardLogo>
-                <img src={position.img} />
+                <img src={`https://assets.solace.fi/${position.underlying.address.toLowerCase()}.svg`} />
               </PositionCardLogo>
-              <PositionCardName>{position.name}</PositionCardName>
+              <PositionCardName>{position.underlying.name}</PositionCardName>
               <PositionCardCount>
-                1110<BoxItemUnits style={{ fontSize: '12px' }}>USDC</BoxItemUnits>
+                {position.underlying.balance}{' '}
+                <BoxItemUnits style={{ fontSize: '12px' }}>{position.underlying.symbol}</BoxItemUnits>
+              </PositionCardCount>
+              <PositionCardCount>
+                {position.token.balance}{' '}
+                <BoxItemUnits style={{ fontSize: '12px' }}>{position.token.symbol}</BoxItemUnits>
+              </PositionCardCount>
+              <PositionCardCount>
+                {position.eth.balance} <BoxItemUnits style={{ fontSize: '12px' }}>ETH</BoxItemUnits>
               </PositionCardCount>
               <PositionCardButton>
                 <Button onClick={() => handleChange(position)}>Select</Button>

@@ -9,6 +9,9 @@ import cpFarmABI from '../constants/abi/contracts/CpFarm.sol/CpFarm.json'
 import lpFarmABI from '../constants/abi/contracts/SolaceEthLpFarm.sol/SolaceEthLpFarm.json'
 import lpTokenArtifact from '../../node_modules/@uniswap/v3-periphery/artifacts/contracts/NonfungiblePositionManager.sol/NonfungiblePositionManager.json'
 
+import uniswapFactoryABI from '../constants/importedAbi/uniswapFactory.json'
+import uniswapRouterABI from '../constants/importedAbi/uniswapRouter.json'
+
 import {
   SOLACE_CONTRACT_ADDRESS,
   WETH_CONTRACT_ADDRESS,
@@ -42,6 +45,10 @@ const getInterface = (toAddress: string) => {
       return new ethers.utils.Interface(treasuryABI)
     case String(REGISTRY_CONTRACT_ADDRESS).toLowerCase():
       return new ethers.utils.Interface(registryABI)
+    case String(UNISWAP_FACTORY_CONTRACT_ADDRESS).toLowerCase():
+      return new ethers.utils.Interface(uniswapFactoryABI)
+    case String(UNISWAP_ROUTER_CONTRACT_ADDRESS).toLowerCase():
+      return new ethers.utils.Interface(uniswapRouterABI)
     case String(MASTER_CONTRACT_ADDRESS).toLowerCase():
     default:
       return new ethers.utils.Interface(masterABI)

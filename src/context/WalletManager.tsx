@@ -160,9 +160,6 @@ const WalletProvider: React.FC = (props) => {
       isActive: web3React.active,
       account: web3React.account ?? undefined,
       chainId: web3React.chainId,
-      /* todo: web3React.library vs provider.web3Provider, still need to know the difference
-               and which one best to use
-      */
       library: web3React.account ? web3React.library : provider.ethProvider,
       connector: activeConnector,
       version,

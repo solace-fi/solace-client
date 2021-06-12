@@ -1,23 +1,15 @@
-const { ethers, BigNumber, Contract } = require('ethers')
-const axios = require('axios')
-const fs = require('fs')
-const { config } = require('dotenv')
-config()
+import { ethers, BigNumber, Contract } from 'ethers'
 
-var key, provider, ctokenJson, ierc20Json, ierc20altJson
+import ctokenJson from '../contracts/ICToken.json'
+import ierc20Json from '../contracts/IERC20Metadata.json'
+import ierc20altJson from '../contracts/IERC20MetadataAlt.json'
+
+import { equalsIgnoreCase, withBackoffRetries, numberify, range } from '../../utils/positionGetter'
+
 var eth = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
 var cEth = '0xd6801a1DfFCd0a410336Ef88DeF4320D6DF1883e'
 
-async function getTokens() {
-  // get key
-  key = process.env.REACT_APP_ALCHEMY_API_KEY
-  provider = new ethers.providers.AlchemyProvider('rinkeby', key)
-  // get contract abis
-  ;[ctokenJson, ierc20Json, ierc20altJson] = await Promise.all([
-    fs.promises.readFile('../contracts/ICToken.json').then(JSON.parse),
-    fs.promises.readFile('../contracts/IERC20Metadata.json').then(JSON.parse),
-    fs.promises.readFile('../contracts/IERC20MetadataAlt.json').then(JSON.parse),
-  ])
+export const getTokens = async (provider: any) => {
   var ctokenAddresses = [
     '0xd6801a1DfFCd0a410336Ef88DeF4320D6DF1883e',
     '0xEBf1A11532b93a529b5bC942B4bAA98647913002',
@@ -31,16 +23,16 @@ async function getTokens() {
   // get ctoken contracts
   var ctokenContracts = ctokenAddresses.map((address) => new ethers.Contract(address, ctokenJson.abi, provider))
   // get underlying
-  var utokenAddresses = await Promise.all(ctokenContracts.map(queryUnderlying))
+  var utokenAddresses = await Promise.all(ctokenContracts.map((contract: any) => queryUnderLying(contract)))
   // get utoken contracts
   var utokenContracts = utokenAddresses.map((address) => new ethers.Contract(address, ierc20Json.abi, provider))
   // get metadata
   var [ctokenNames, ctokenSymbols, ctokenDecimals, utokenNames, utokenSymbols, utokenDecimals] = await Promise.all([
-    Promise.all(ctokenContracts.map(queryTokenName)),
-    Promise.all(ctokenContracts.map(queryTokenSymbol)),
+    Promise.all(ctokenContracts.map((contract: any) => queryTokenName(contract, provider))),
+    Promise.all(ctokenContracts.map((contract: any) => queryTokenSymbol(contract, provider))),
     Promise.all(ctokenContracts.map(queryTokenDecimals)),
-    Promise.all(utokenContracts.map(queryTokenName)),
-    Promise.all(utokenContracts.map(queryTokenSymbol)),
+    Promise.all(utokenContracts.map((contract: any) => queryTokenName(contract, provider))),
+    Promise.all(utokenContracts.map((contract: any) => queryTokenSymbol(contract, provider))),
     Promise.all(utokenContracts.map(queryTokenDecimals)),
   ])
   // assemble results
@@ -64,13 +56,13 @@ async function getTokens() {
   return tokens
 }
 
-async function queryUnderlying(ctokenContract) {
-  if (ctokenContract.address.equalsIgnoreCase(cEth)) return eth
+const queryUnderLying = async (ctokenContract: any) => {
+  if (equalsIgnoreCase(ctokenContract.address, cEth)) return eth
   return await withBackoffRetries(async () => ctokenContract.underlying())
 }
 
-async function queryTokenName(tokenContract) {
-  if (tokenContract.address.equalsIgnoreCase(eth)) return 'Ether'
+const queryTokenName = async (tokenContract: any, provider: any) => {
+  if (equalsIgnoreCase(tokenContract.address, eth)) return 'Ether'
   try {
     return await withBackoffRetries(async () => tokenContract.name())
   } catch (e) {
@@ -79,8 +71,8 @@ async function queryTokenName(tokenContract) {
   }
 }
 
-async function queryTokenSymbol(tokenContract) {
-  if (tokenContract.address.equalsIgnoreCase(eth)) return 'ETH'
+const queryTokenSymbol = async (tokenContract: any, provider: any) => {
+  if (equalsIgnoreCase(tokenContract.address, eth)) return 'ETH'
   try {
     return await withBackoffRetries(async () => tokenContract.symbol())
   } catch (e) {
@@ -89,61 +81,7 @@ async function queryTokenSymbol(tokenContract) {
   }
 }
 
-async function queryTokenDecimals(tokenContract) {
-  if (tokenContract.address.equalsIgnoreCase(eth)) return 18
+const queryTokenDecimals = async (tokenContract: any) => {
+  if (equalsIgnoreCase(tokenContract.address, eth)) return 18
   return await withBackoffRetries(async () => tokenContract.decimals().then(numberify))
-}
-
-getTokens()
-  .then((tokens) => {
-    console.log(tokens)
-    fs.writeFileSync('tokens.json', JSON.stringify(tokens))
-  })
-  .catch(console.error)
-
-// TODO: move utils to a common location
-
-// utils
-const MIN_RETRY_DELAY = 1000
-const RETRY_BACKOFF_FACTOR = 2
-const MAX_RETRY_DELAY = 10000
-
-var withBackoffRetries = async (f, retryCount = 3, jitter = 250) => {
-  let nextWaitTime = MIN_RETRY_DELAY
-  let i = 0
-  while (true) {
-    try {
-      return await f()
-    } catch (error) {
-      i++
-      if (i >= retryCount) {
-        throw error
-      }
-      await delay(nextWaitTime + Math.floor(Math.random() * jitter))
-      nextWaitTime =
-        nextWaitTime === 0 ? MIN_RETRY_DELAY : Math.min(MAX_RETRY_DELAY, RETRY_BACKOFF_FACTOR * nextWaitTime)
-    }
-  }
-}
-
-var delay = async (ms) => {
-  return new Promise((resolve) => setTimeout(resolve, ms))
-}
-
-function range(stop) {
-  var arr = []
-  for (var i = 0; i < stop; ++i) {
-    arr.push(i)
-  }
-  return arr
-}
-
-String.prototype.equalsIgnoreCase = function (compareString) {
-  return this.toUpperCase() === compareString.toUpperCase()
-}
-
-function numberify(number) {
-  if (typeof number == 'number') return number
-  if (typeof number == 'string') return number - 0
-  return number.toNumber() // hopefully bignumber
 }

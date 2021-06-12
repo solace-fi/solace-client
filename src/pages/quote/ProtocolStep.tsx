@@ -4,39 +4,10 @@ import { formProps } from './MultiStepForm'
 import styled from 'styled-components'
 // import { ActionRadios, RadioCircle, RadioCircleFigure, RadioCircleInput } from '../../components/Radio/RadioCircle'
 import { Table, TableData, TableHead, TableHeader, TableRow, TableBody } from '../../components/Table'
+import { Search } from '../../components/Input'
 import { Protocol, ProtocolImage, ProtocolTitle } from '../../components/Protocol'
 import { PROTOCOLS_LIST } from '../../constants/protocols'
 import useDebounce from '@rooks/use-debounce'
-
-const Search = styled.input`
-  ::placeholder {
-    color: #fff;
-    opacity: 0.5;
-  }
-  ::-webkit-search-cancel-button {
-    -webkit-appearance: none;
-    height: 1em;
-    width: 1em;
-    border-radius: 50em;
-    background: url(https://pro.fontawesome.com/releases/v5.10.0/svgs/solid/times-circle.svg) no-repeat 50% 50%;
-    background-size: contain;
-    opacity: 0;
-    pointer-events: none;
-    filter: invert(1);
-  }
-  :focus::-webkit-search-cancel-button {
-    opacity: 1;
-    pointer-events: all;
-  }
-  border-radius: 30px;
-  border: 1px solid #fff;
-  padding: 10px 20px;
-  outline: none;
-  font-family: 'Open Sans', sans-serif;
-  font-size: 14px;
-  color: #fff;
-  background-color: rgba(0, 0, 0, 0);
-`
 
 const ActionsContainer = styled.div`
   padding-top: 20px;

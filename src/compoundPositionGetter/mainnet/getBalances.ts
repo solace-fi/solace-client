@@ -1,48 +1,67 @@
-const { ethers, BigNumber, Contract } = require('ethers')
-const BN = BigNumber
-const axios = require('axios')
-const fs = require('fs')
-const { config } = require('dotenv')
-config()
+import { ethers, BigNumber, Contract } from 'ethers'
 
-var key, provider, tokens, tokenJson
-var user = '0xa0f75491720835b36edc92d06ddc468d201e9b73'
+import tokens from './tokens.json'
+import tokenJson from '../contracts/ICToken.json'
 
-async function getBalances(user) {
-  key = process.env.REACT_APP_ALCHEMY_API_KEY
-  provider = new ethers.providers.AlchemyProvider('homestead', key)
-  ;[tokens, tokenJson] = await Promise.all([
-    fs.promises.readFile('tokens.json').then(JSON.parse), // TODO: use api
-    fs.promises.readFile('../contracts/ICToken.json').then(JSON.parse),
-  ])
+import { withBackoffRetries, delay, range } from '../../utils/positionGetter'
+import { formatEther, parseEther } from 'ethers/lib/utils'
+import { POW_EIGHTEEN } from '../../constants'
+
+const tempUser = '0xa0f75491720835b36edc92d06ddc468d201e9b73'
+
+type Token = {
+  token: {
+    address: string
+    name: string
+    symbol: string
+    decimals: number
+    balance: string
+  }
+  underlying: {
+    address: string
+    name: string
+    symbol: string
+    decimals: number
+    balance: string
+  }
+  eth: {
+    balance: string
+  }
+}
+
+export const getBalances = async (user: string, provider: any) => {
   // get ctoken balances
-  var contracts = tokens.map((token) => new ethers.Contract(token.token.address, tokenJson.abi, provider))
-  var balances = await Promise.all(contracts.map((contract) => queryBalance(user, contract)))
+  var contracts = tokens.map((token) => new Contract(token.token.address, tokenJson.abi, provider))
+  const queriedBalances = await Promise.all(contracts.map((contract) => queryBalance(user, contract)))
   var indices = range(tokens.length)
-  indices.forEach((i) => (tokens[i].token.balance = balances[i]))
-  balances = tokens.filter((token) => token.token.balance.gt(0))
+  indices.forEach((i) => (tokens[i].token.balance = formatEther(queriedBalances[i])))
+  const balances: Token[] = tokens.filter((token) => parseEther(token.token.balance).gt(0))
+
   // get utoken balances
   indices = range(balances.length)
   contracts = balances.map((balance) => new ethers.Contract(balance.token.address, tokenJson.abi, provider))
   var exchangeRates = await Promise.all(contracts.map((contract) => queryExchangeRate(contract)))
   indices.forEach(
-    (i) => (balances[i].underlying.balance = balances[i].token.balance.mul(exchangeRates[i]).div('1000000000000000000'))
+    (i) =>
+      (balances[i].underlying.balance = formatEther(
+        parseEther(tokens[i].token.balance).mul(exchangeRates[i]).div(String(POW_EIGHTEEN))
+      ))
   )
-  // get eth balances
-  balances.forEach((balance) => (balance.eth = { balance: queryEthBalance(balance.underlying) }))
+
+  //get eth balances
+  balances.forEach((bal) => (bal.eth = { ...bal.eth, balance: queryEthBalance(bal.underlying) }))
   return balances
 }
 
-async function queryBalance(user, tokenContract) {
+const queryBalance = async (user: string, tokenContract: Contract) => {
   return await withBackoffRetries(async () => tokenContract.balanceOf(user))
 }
 
-async function queryExchangeRate(tokenContract) {
+const queryExchangeRate = async (tokenContract: Contract) => {
   return await withBackoffRetries(async () => tokenContract.exchangeRateStored())
 }
 
-// hardcode exchange rates for now
-var rates = {
+const rates: any = {
   '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee': '1000000000000000000', // ETH
   '0x89d24a6b4ccb1b6faa2625fe562bdd9a23260359': '5214879005539865', // SAI
   '0xc00e94cb662c3520282e6f5717214004a7f26888': '131044789678131649', // COMP
@@ -58,63 +77,14 @@ var rates = {
   '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48': '50000000000000', // USDC
 }
 
-function queryEthBalance(token) {
+function queryEthBalance(token: any): string {
   var address = token.address.toLowerCase()
-  if (Object.keys(rates).includes(address)) return token.balance.mul(rates[address]).div(decimals(token.decimals))
-  else return 0
+  if (Object.keys(rates).includes(address))
+    return formatEther(parseEther(token.balance).mul(rates[address]).div(decimals(token.decimals)))
+  else return '0'
 }
 
-getBalances(user).then(prettyPrint).catch(console.error)
-
-// TODO: move utils to a common location
-
-// utils
-const MIN_RETRY_DELAY = 1000
-const RETRY_BACKOFF_FACTOR = 2
-const MAX_RETRY_DELAY = 10000
-
-var withBackoffRetries = async (f, retryCount = 3, jitter = 250) => {
-  let nextWaitTime = MIN_RETRY_DELAY
-  let i = 0
-  while (true) {
-    try {
-      return await f()
-    } catch (error) {
-      i++
-      if (i >= retryCount) {
-        throw error
-      }
-      await delay(nextWaitTime + Math.floor(Math.random() * jitter))
-      nextWaitTime =
-        nextWaitTime === 0 ? MIN_RETRY_DELAY : Math.min(MAX_RETRY_DELAY, RETRY_BACKOFF_FACTOR * nextWaitTime)
-    }
-  }
-}
-
-var delay = async (ms) => {
-  return new Promise((resolve) => setTimeout(resolve, ms))
-}
-
-function range(stop) {
-  var arr = []
-  for (var i = 0; i < stop; ++i) {
-    arr.push(i)
-  }
-  return arr
-}
-
-function prettyPrint(obj) {
-  function recurse(obj) {
-    Object.keys(obj).forEach((key) => {
-      if (BN.isBigNumber(obj[key])) obj[key] = obj[key].toString()
-      else if (typeof obj[key] === 'object') recurse(obj[key])
-    })
-  }
-  recurse(obj)
-  console.log(JSON.stringify(obj, '', '  '))
-}
-
-function decimals(d) {
+const decimals = (d: number) => {
   var s = '1'
   for (var i = 0; i < d; ++i) {
     s = `${s}0`

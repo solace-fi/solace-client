@@ -58,12 +58,14 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
           <BoxItem>
             <Protocol>
               <ProtocolImage>
-                <img src={position.img} />
+                <img src={`https://assets.solace.fi/${position.underlying.address.toLowerCase()}.svg`} />
               </ProtocolImage>
-              <ProtocolTitle>{position.name}</ProtocolTitle>
+              <ProtocolTitle>{position.underlying.name}</ProtocolTitle>
             </Protocol>
           </BoxItem>
-          <BoxItem>1110 USDC</BoxItem>
+          <BoxItem>
+            {position.underlying.balance} {position.underlying.symbol}
+          </BoxItem>
           <BoxItem>
             <Button onClick={() => navigation.go(1)}>Change</Button>
           </BoxItem>
