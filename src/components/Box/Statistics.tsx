@@ -51,6 +51,7 @@ import { fixed, getGasValue, floatEther } from '../../utils/formatting'
 
 /* import wallet */
 import { SUPPORTED_WALLETS } from '../../wallet/wallets'
+import { WalletConnectButton } from '../Button/WalletConnect'
 
 export const Statistics = () => {
   /************************************************************************************* 
@@ -184,13 +185,7 @@ export const Statistics = () => {
       ) : (
         <Box>
           <BoxItem>
-            <Button
-              onClick={() =>
-                wallet.connect(SUPPORTED_WALLETS[SUPPORTED_WALLETS.findIndex((wallet) => wallet.id === 'metamask')])
-              }
-            >
-              Connect Wallet
-            </Button>
+            <WalletConnectButton />
           </BoxItem>
         </Box>
       )}

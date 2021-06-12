@@ -1,4 +1,4 @@
-import React, { Fragment, useState } from 'react'
+import React, { Fragment } from 'react'
 import { Box, BoxItem, BoxRow } from '../../components/Box'
 import {
   BoxChooseRow,
@@ -43,9 +43,9 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
           <BoxItem>
             <Protocol>
               <ProtocolImage>
-                <img src={protocol.img} />
+                <img src={`https://assets.solace.fi/${protocol.toLowerCase()}.svg`} />
               </ProtocolImage>
-              <ProtocolTitle>{protocol.name}</ProtocolTitle>
+              <ProtocolTitle>{protocol}</ProtocolTitle>
             </Protocol>
           </BoxItem>
           <BoxItem>2.60%</BoxItem>

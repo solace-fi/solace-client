@@ -5,14 +5,13 @@ import { formProps } from './MultiStepForm'
 import { Protocol, ProtocolImage, ProtocolTitle } from '../../components/Protocol'
 import { CardContainer, PositionCardComponent } from '../../components/Card'
 import { PositionCardButton, PositionCardCount, PositionCardLogo, PositionCardName } from '../../components/Position'
-import { POSITIONS_LIST } from '../../constants/positions'
-import { getBalances as getMainnetBalances } from '../../compoundPositionGetter/mainnet/getBalances'
-import { getBalances as getRinkebyBalances } from '../../compoundPositionGetter/rinkeby/getBalances'
 import { useWallet } from '../../context/WalletManager'
+import { getPositions } from '../../utils/positionGetter'
+import { Loader } from '../../components/Loader'
 
 export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigation }) => {
-  const { protocol, balances } = formData
-  const { account, library, chainId } = useWallet()
+  const { protocol, lastProtocol, balances, loading } = formData
+  const { account, chainId } = useWallet()
 
   const handleChange = (position: any) => {
     setForm({
@@ -25,30 +24,39 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
   }
 
   const getBalances = useCallback(async () => {
-    if (chainId == 1) {
-      const balances = await getMainnetBalances(account ?? '0x', library)
-      console.log('balances:', balances)
+    if (chainId == 1 || chainId == 4) {
+      setForm({
+        target: {
+          name: 'loading',
+          value: true,
+        },
+      })
+      const balances = await getPositions(protocol.toLowerCase(), chainId, account ?? '0x')
       setForm({
         target: {
           name: 'balances',
           value: balances,
         },
       })
-    }
-    if (chainId == 4) {
-      const balances = await getRinkebyBalances(account ?? '0x', library)
-      console.log('balances:', balances)
       setForm({
         target: {
-          name: 'balances',
-          value: balances,
+          name: 'lastProtocol',
+          value: protocol,
+        },
+      })
+      setForm({
+        target: {
+          name: 'loading',
+          value: false,
         },
       })
     }
   }, [protocol, chainId, account])
 
   useEffect(() => {
-    getBalances()
+    if (protocol !== lastProtocol) {
+      getBalances()
+    }
   }, [])
 
   return (
@@ -58,9 +66,9 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
           <BoxItem>
             <Protocol>
               <ProtocolImage>
-                <img src={protocol.img} />
+                <img src={`https://assets.solace.fi/${protocol.toLowerCase()}.svg`} />
               </ProtocolImage>
-              <ProtocolTitle>{protocol.name}</ProtocolTitle>
+              <ProtocolTitle>{protocol}</ProtocolTitle>
             </Protocol>
           </BoxItem>
           <BoxItem>2.60%</BoxItem>
@@ -73,32 +81,36 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
           <BoxItem>Select Position Below</BoxItem>
         </Box>
       </BoxRow>
-      <CardContainer cardsPerRow={5}>
-        {balances.map((position: any) => {
-          return (
-            <PositionCardComponent key={position.underlying.address}>
-              <PositionCardLogo>
-                <img src={`https://assets.solace.fi/${position.underlying.address.toLowerCase()}.svg`} />
-              </PositionCardLogo>
-              <PositionCardName>{position.underlying.name}</PositionCardName>
-              <PositionCardCount>
-                {position.underlying.balance}{' '}
-                <BoxItemUnits style={{ fontSize: '12px' }}>{position.underlying.symbol}</BoxItemUnits>
-              </PositionCardCount>
-              <PositionCardCount>
-                {position.token.balance}{' '}
-                <BoxItemUnits style={{ fontSize: '12px' }}>{position.token.symbol}</BoxItemUnits>
-              </PositionCardCount>
-              <PositionCardCount>
-                {position.eth.balance} <BoxItemUnits style={{ fontSize: '12px' }}>ETH</BoxItemUnits>
-              </PositionCardCount>
-              <PositionCardButton>
-                <Button onClick={() => handleChange(position)}>Select</Button>
-              </PositionCardButton>
-            </PositionCardComponent>
-          )
-        })}
-      </CardContainer>
+      {!loading ? (
+        <CardContainer cardsPerRow={5}>
+          {balances.map((position: any) => {
+            return (
+              <PositionCardComponent key={position.underlying.address}>
+                <PositionCardLogo>
+                  <img src={`https://assets.solace.fi/${position.underlying.address.toLowerCase()}.svg`} />
+                </PositionCardLogo>
+                <PositionCardName>{position.underlying.name}</PositionCardName>
+                <PositionCardCount>
+                  {position.underlying.balance}{' '}
+                  <BoxItemUnits style={{ fontSize: '12px' }}>{position.underlying.symbol}</BoxItemUnits>
+                </PositionCardCount>
+                <PositionCardCount>
+                  {position.token.balance}{' '}
+                  <BoxItemUnits style={{ fontSize: '12px' }}>{position.token.symbol}</BoxItemUnits>
+                </PositionCardCount>
+                <PositionCardCount>
+                  {position.eth.balance} <BoxItemUnits style={{ fontSize: '12px' }}>ETH</BoxItemUnits>
+                </PositionCardCount>
+                <PositionCardButton>
+                  <Button onClick={() => handleChange(position)}>Select</Button>
+                </PositionCardButton>
+              </PositionCardComponent>
+            )
+          })}
+        </CardContainer>
+      ) : (
+        <Loader />
+      )}
     </Fragment>
   )
 }
