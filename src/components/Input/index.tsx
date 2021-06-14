@@ -1,8 +1,11 @@
-import React from 'react'
 import styled from 'styled-components'
 import { TextProps, handleTextProps } from '../Text'
 
-export const Input = styled.input<TextProps>`
+interface props {
+  width?: number
+}
+
+export const Input = styled.input<props & TextProps>`
   ::placeholder {
     color: #fff;
     opacity: 0.5;
@@ -26,4 +29,5 @@ export const Input = styled.input<TextProps>`
     border-color: rgba(0, 0, 0, 0);
   }
   ${() => handleTextProps()}
+  ${(props) => props.width && `width: ${props.width}px;`}
 `

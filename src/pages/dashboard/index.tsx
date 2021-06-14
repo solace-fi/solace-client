@@ -33,8 +33,15 @@ import { useWallet } from '../../context/WalletManager'
 
 /* import components */
 import { Content } from '../../components/Layout'
-import { CardContainer, Card, CardHeader, CardTitle, CardBlock } from '../../components/Card'
-import { Heading1, Heading3 } from '../../components/Text'
+import {
+  CardContainer,
+  InvestmentCardComponent,
+  CardHeader,
+  CardTitle,
+  CardBlock,
+  CardActions,
+} from '../../components/Card'
+import { Heading1, Heading2, Heading3 } from '../../components/Text'
 import { Button } from '../../components/Button'
 import { Table, TableHead, TableHeader, TableRow, TableBody, TableData, TableDataGroup } from '../../components/Table'
 
@@ -135,7 +142,7 @@ function Dashboard(): any {
       <Content>
         <Heading1>Your Investments</Heading1>
         <CardContainer>
-          <Card>
+          <InvestmentCardComponent>
             <CardHeader>
               <CardTitle h2>Capital Pool</CardTitle>
               <Heading3>
@@ -154,8 +161,8 @@ function Dashboard(): any {
                 {wallet.account ? fixed(parseFloat(cpUserRewards), 2) : 0} {Unit.SOLACE}
               </CardTitle>
             </CardBlock>
-          </Card>
-          <Card>
+          </InvestmentCardComponent>
+          <InvestmentCardComponent>
             <CardHeader>
               <CardTitle h2>Liquidity Pool</CardTitle>
               <Heading3>
@@ -174,7 +181,7 @@ function Dashboard(): any {
                 {wallet.account ? fixed(parseFloat(lpUserRewards), 2) : 0} {Unit.SOLACE}
               </CardTitle>
             </CardBlock>
-          </Card>
+          </InvestmentCardComponent>
         </CardContainer>
       </Content>
     </Fragment>

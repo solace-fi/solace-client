@@ -1,5 +1,4 @@
-import React from 'react'
-import styled from 'styled-components'
+import styled, { css } from 'styled-components'
 
 export const RadioElement = styled.div`
   border: 1px solid #fff;
@@ -15,10 +14,15 @@ export const RadioElement = styled.div`
     background-color: rgba(#fff, 0.2);
   }
 `
-export const RadioInput = styled.input`
+
+export const InputBase = css`
   position: absolute;
   opacity: 0;
   pointer-events: none;
+`
+
+export const RadioInput = styled.input`
+  ${InputBase}
   &:checked {
     ~ ${RadioElement} {
       color: #7c7c7c;

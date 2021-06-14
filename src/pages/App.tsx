@@ -15,7 +15,7 @@
 import React, { Fragment } from 'react'
 
 /* import packages */
-import { Route, Switch } from 'react-router-dom'
+import { Route, Switch, useLocation } from 'react-router-dom'
 
 /* import pages */
 import Dashboard from './dashboard'
@@ -31,6 +31,8 @@ import { LayoutContentWithLoader } from '../components/Layout/LayoutContentWithL
 import { Statistics } from '../components/Box/Statistics'
 
 export default function App(): any {
+  const location = useLocation()
+
   return (
     <Fragment>
       <GlobalStyle />
@@ -42,7 +44,7 @@ export default function App(): any {
           <LayoutContent width={90}>
             <Prices />
             <LayoutContentWithLoader>
-              <Statistics />
+              {location.pathname !== '/quote' && <Statistics />}
               <Switch>
                 <Route exact path="/" component={Dashboard} />
                 <Route exact path="/invest" component={Invest} />
