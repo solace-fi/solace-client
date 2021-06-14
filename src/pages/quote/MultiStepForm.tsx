@@ -23,7 +23,7 @@ const defaultData = {
   lastProtocol: {},
   position: {},
   balances: [],
-  coverageLimit: '50',
+  coverageLimit: '5000',
   timePeriod: '180',
   loading: false,
 }

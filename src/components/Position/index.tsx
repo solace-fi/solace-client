@@ -23,7 +23,6 @@ export const PositionCardCount = styled.div`
   margin-top: 10px;
   font-size: 24px;
   line-height: 33px;
-  color: rgb(0, 255, 209);
 `
 
 export const PositionCardButton = styled.div`

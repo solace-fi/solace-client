@@ -18,6 +18,9 @@ const InputBase = css`
 
 export const Input = styled.input<props & TextProps>`
   ${InputBase}
+  ::-webkit-calendar-picker-indicator {
+    display: none;
+  }
   ::-webkit-inner-spin-button {
     -webkit-appearance: none;
     margin: 0;

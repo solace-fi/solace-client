@@ -8,6 +8,8 @@ import { PositionCardButton, PositionCardCount, PositionCardLogo, PositionCardNa
 import { useWallet } from '../../context/WalletManager'
 import { getPositions } from '../../utils/positionGetter'
 import { Loader } from '../../components/Loader'
+import { formatEther } from 'ethers/lib/utils'
+import { fixedPositionBalance } from '../../utils/formatting'
 
 export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigation }) => {
   const { protocol, lastProtocol, balances, loading } = formData
@@ -72,13 +74,13 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
             </Protocol>
           </BoxItem>
           <BoxItem>2.60%</BoxItem>
-          <BoxItem>43 ETH</BoxItem>
+          <BoxItem>4003 ETH</BoxItem>
           <BoxItem>
             <Button onClick={() => navigation.go(0)}>Change</Button>
           </BoxItem>
         </Box>
         <Box transparent outlined>
-          <BoxItem>Select Position Below</BoxItem>
+          <BoxItem>{loading ? 'Loading Your Positions...' : 'Select Position Below'}</BoxItem>
         </Box>
       </BoxRow>
       {!loading ? (
@@ -91,15 +93,15 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
                 </PositionCardLogo>
                 <PositionCardName>{position.underlying.name}</PositionCardName>
                 <PositionCardCount>
-                  {position.underlying.balance}{' '}
+                  {fixedPositionBalance(position.underlying)}{' '}
                   <BoxItemUnits style={{ fontSize: '12px' }}>{position.underlying.symbol}</BoxItemUnits>
                 </PositionCardCount>
                 <PositionCardCount>
-                  {position.token.balance}{' '}
+                  {fixedPositionBalance(position.token)}{' '}
                   <BoxItemUnits style={{ fontSize: '12px' }}>{position.token.symbol}</BoxItemUnits>
                 </PositionCardCount>
                 <PositionCardCount>
-                  {position.eth.balance} <BoxItemUnits style={{ fontSize: '12px' }}>ETH</BoxItemUnits>
+                  {formatEther(position.eth.balance)} <BoxItemUnits style={{ fontSize: '12px' }}>ETH</BoxItemUnits>
                 </PositionCardCount>
                 <PositionCardButton>
                   <Button onClick={() => handleChange(position)}>Select</Button>
