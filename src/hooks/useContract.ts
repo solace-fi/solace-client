@@ -13,6 +13,8 @@ import cpFarmABI from '../constants/abi/contracts/CpFarm.sol/CpFarm.json'
 import lpFarmABI from '../constants/abi/contracts/SolaceEthLpFarm.sol/SolaceEthLpFarm.json'
 import lpTokenArtifact from '../../node_modules/@uniswap/v3-periphery/artifacts/contracts/NonfungiblePositionManager.sol/NonfungiblePositionManager.json'
 
+import compAbi from '../constants/abi/contracts/products/CompoundProduct.sol/CompoundProduct.json'
+
 import {
   SOLACE_CONTRACT_ADDRESS,
   WETH_CONTRACT_ADDRESS,
@@ -27,6 +29,7 @@ import {
   TREASURY_CONTRACT_ADDRESS,
   REGISTRY_CONTRACT_ADDRESS,
   ADDRESS_ZERO,
+  COMPOUND_PRODUCT_CONTRACT_ADDRESS,
 } from '../constants'
 
 export function useContract(address: string, abi: any, hasSigner = true): Contract | null {
@@ -81,4 +84,12 @@ export function useLpTokenContract(hasSigner?: boolean): Contract | null {
 
 export function useRegistryContract(hasSigner?: boolean): Contract | null {
   return useContract(REGISTRY_CONTRACT_ADDRESS ? REGISTRY_CONTRACT_ADDRESS : ADDRESS_ZERO, registryABI, hasSigner)
+}
+
+export function useCompoundProductContract(hasSigner?: boolean): Contract | null {
+  return useContract(
+    COMPOUND_PRODUCT_CONTRACT_ADDRESS ? COMPOUND_PRODUCT_CONTRACT_ADDRESS : ADDRESS_ZERO,
+    compAbi,
+    hasSigner
+  )
 }
