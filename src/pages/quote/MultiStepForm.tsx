@@ -1,4 +1,4 @@
-import React, { Fragment } from 'react'
+import React from 'react'
 import { SetForm, useForm, useStep } from 'react-hooks-helper'
 import { ProtocolStep } from './ProtocolStep'
 import { PositionStep } from './PositionStep'
@@ -20,10 +20,12 @@ export interface formProps {
 
 const defaultData = {
   protocol: {},
+  lastProtocol: {},
   position: {},
-  fetchedPositions: [],
-  coverageLimit: '50',
+  balances: [],
+  coverageLimit: '5000',
   timePeriod: '180',
+  loading: false,
 }
 
 enum StepNumber {
@@ -70,7 +72,7 @@ export const MultiStepForm = () => {
           <Step>Select Protocol</Step>
           <Step>Select Position</Step>
           <Step>Choose Limit &amp; Period</Step>
-          <Step>Confirm</Step>
+          <Step>Confirmation</Step>
         </StepsWrapper>
         <StepsProgress>
           <StepsProgressBar></StepsProgressBar>

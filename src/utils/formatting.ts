@@ -7,6 +7,18 @@ export const fixed = (n: number, decimals = 1): number => {
   return Math.floor(n * Math.pow(10, decimals)) / Math.pow(10, decimals)
 }
 
+type Token = {
+  address: string
+  name: string
+  symbol: string
+  decimals: number
+  balance: string
+}
+
+export const fixedPositionBalance = (token: Token): number => {
+  return parseFloat(token.balance) / Math.pow(10, token.decimals)
+}
+
 export const getNonHumanValue = (value: BigNumber | number, decimals = 0): BigNumber => {
   return BigNumber.from(value).mul(getExponentValue(decimals))
 }

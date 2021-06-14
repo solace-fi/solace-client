@@ -18,7 +18,8 @@ export const BoxChooseCol = styled.div`
   }
   ${Input} {
     min-width: 0;
-    width: 50px;
+    width: 60px;
+    text-align: center;
   }
 `
 
@@ -39,7 +40,7 @@ const BoxChooseInfo = css<props>`
 export const BoxChooseDate = styled.div`
   ${BoxChooseInfo}
   ${Input} {
-    width: 100px;
+    width: 80px;
     margin: 0 6px;
 
     &:last-child {

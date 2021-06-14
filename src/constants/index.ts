@@ -43,8 +43,6 @@ export const CONTRACTS_ARRAY = [
   String(WETH_CONTRACT_ADDRESS).toLowerCase(),
   String(VAULT_CONTRACT_ADDRESS).toLowerCase(),
   String(CPFARM_CONTRACT_ADDRESS).toLowerCase(),
-  String(UNISWAP_FACTORY_CONTRACT_ADDRESS).toLowerCase(),
-  String(UNISWAP_ROUTER_CONTRACT_ADDRESS).toLowerCase(),
   String(UNISWAP_LPTOKEN_CONTRACT_ADDRESS).toLowerCase(),
   String(UNISWAP_POOL_CONTRACT_ADDRESS).toLowerCase(),
   String(LPFARM_CONTRACT_ADDRESS).toLowerCase(),

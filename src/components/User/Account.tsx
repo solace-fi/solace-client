@@ -43,6 +43,7 @@ import { getNetworkName } from '../../utils'
 
 /* import static */
 import user from '../../static/user-avatar.png'
+import { WalletConnectButton } from '../Button/WalletConnect'
 
 export default function Account(): any {
   /*************************************************************************************
@@ -81,13 +82,7 @@ export default function Account(): any {
           {wallet.isActive ? (
             <Fragment>{balance ? `${fixed(parseFloat(balance), 6)} ETH` : ''}</Fragment>
           ) : (
-            <Button
-              onClick={() =>
-                wallet.connect(SUPPORTED_WALLETS[SUPPORTED_WALLETS.findIndex((wallet) => wallet.id === 'metamask')])
-              }
-            >
-              Connect Wallet
-            </Button>
+            <WalletConnectButton />
           )}
         </UserWallet>
         {wallet.account && <UserName>{shortenAddress(wallet.account)}</UserName>}
