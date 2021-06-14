@@ -3,23 +3,91 @@
     Table of Contents:
 
     import react
+    import packages
+    import constants
+    import managers
     import components
+    import hooks
+    import utils
 
     Dashboard function
+      useRef variables
+      Hook variables
+      useEffect hooks
+      Render
 
   *************************************************************************************/
 
 /* import react */
-import React, { Fragment } from 'react'
+import React, { Fragment, useRef, useEffect } from 'react'
+
+/* import packages */
+import { Contract } from '@ethersproject/contracts'
+
+/* import constants */
+import { Unit } from '../../constants/enums'
+
+/* import managers */
+import { useContracts } from '../../context/ContractsManager'
+import { useWallet } from '../../context/WalletManager'
 
 /* import components */
 import { Content } from '../../components/Layout'
-import { CardContainer, Card, CardHeader, CardTitle, CardBlock, CardActions } from '../../components/Card'
-import { Heading1, Heading2 } from '../../components/Text'
+import { CardContainer, Card, CardHeader, CardTitle, CardBlock } from '../../components/Card'
+import { Heading1, Heading3 } from '../../components/Text'
 import { Button } from '../../components/Button'
 import { Table, TableHead, TableHeader, TableRow, TableBody, TableData, TableDataGroup } from '../../components/Table'
 
+/* import hooks */
+import { useUserStakedValue } from '../../hooks/useUserStakedValue'
+import { useUserPendingRewards, useUserRewardsPerDay } from '../../hooks/useRewards'
+
+/* import utils */
+import { fixed } from '../../utils/formatting'
+
 function Dashboard(): any {
+  /************************************************************************************* 
+
+    useRef variables 
+
+  *************************************************************************************/
+
+  const cpFarmContract = useRef<Contract | null>()
+  const lpFarmContract = useRef<Contract | null>()
+
+  /*************************************************************************************
+
+    Hook variables
+
+  *************************************************************************************/
+
+  const [cpUserRewards] = useUserPendingRewards(cpFarmContract.current)
+  const [cpUserRewardsPerDay] = useUserRewardsPerDay(1, cpFarmContract.current)
+  const [lpUserRewards] = useUserPendingRewards(lpFarmContract.current)
+  const [lpUserRewardsPerDay] = useUserRewardsPerDay(2, lpFarmContract.current)
+  const cpUserStakeValue = useUserStakedValue(cpFarmContract.current)
+  const lpUserStakeValue = useUserStakedValue(lpFarmContract.current)
+  const { cpFarm, lpFarm } = useContracts()
+
+  const wallet = useWallet()
+
+  /*************************************************************************************
+
+  useEffect hooks
+
+  *************************************************************************************/
+
+  useEffect(() => {
+    cpFarmContract.current = cpFarm
+    lpFarmContract.current = lpFarm
+  }, [cpFarm, lpFarm])
+
+  /*************************************************************************************
+
+    Render
+
+  *************************************************************************************/
+
   return (
     <Fragment>
       <Content>
@@ -69,37 +137,43 @@ function Dashboard(): any {
         <CardContainer>
           <Card>
             <CardHeader>
-              <CardTitle h2>{23}</CardTitle>
-              <Heading2>{`3000 ETH`}</Heading2>
+              <CardTitle h2>Capital Pool</CardTitle>
+              <Heading3>
+                {wallet.account ? fixed(parseFloat(cpUserStakeValue), 2) : 0} {Unit.ETH}
+              </Heading3>
             </CardHeader>
             <CardBlock>
-              <CardTitle t2>Yield:</CardTitle>
-              <CardTitle>{'287'}</CardTitle>
+              <CardTitle t2>Daily Earnings</CardTitle>
+              <CardTitle t3>
+                {wallet.account ? fixed(parseFloat(cpUserRewardsPerDay), 2) : 0} {Unit.SOLACE}
+              </CardTitle>
             </CardBlock>
             <CardBlock>
-              <CardTitle t2>Earnings:</CardTitle>
-              <CardTitle>{'69'}</CardTitle>
+              <CardTitle t2>Total Earnings</CardTitle>
+              <CardTitle t3>
+                {wallet.account ? fixed(parseFloat(cpUserRewards), 2) : 0} {Unit.SOLACE}
+              </CardTitle>
             </CardBlock>
-            <CardActions>
-              <Button>Manage</Button>
-            </CardActions>
           </Card>
           <Card>
             <CardHeader>
-              <CardTitle h2>{21}</CardTitle>
-              <Heading2>{`423 ETH`}</Heading2>
+              <CardTitle h2>Liquidity Pool</CardTitle>
+              <Heading3>
+                {wallet.account ? fixed(parseFloat(lpUserStakeValue), 2) : 0} {Unit.SOLACE}
+              </Heading3>
             </CardHeader>
             <CardBlock>
-              <CardTitle t2>Yield:</CardTitle>
-              <CardTitle>{'222'}</CardTitle>
+              <CardTitle t2>Daily Earnings</CardTitle>
+              <CardTitle t3>
+                {wallet.account ? fixed(parseFloat(lpUserRewardsPerDay), 2) : 0} {Unit.SOLACE}
+              </CardTitle>
             </CardBlock>
             <CardBlock>
-              <CardTitle t2>Earnings:</CardTitle>
-              <CardTitle>{'5444'}</CardTitle>
+              <CardTitle t2>Total Earnings</CardTitle>
+              <CardTitle t3>
+                {wallet.account ? fixed(parseFloat(lpUserRewards), 2) : 0} {Unit.SOLACE}
+              </CardTitle>
             </CardBlock>
-            <CardActions>
-              <Button>Manage</Button>
-            </CardActions>
           </Card>
         </CardContainer>
       </Content>
