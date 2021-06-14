@@ -72,7 +72,7 @@ export const MultiStepForm = () => {
           <Step>Select Protocol</Step>
           <Step>Select Position</Step>
           <Step>Choose Limit &amp; Period</Step>
-          <Step>Confirm</Step>
+          <Step>Confirmation</Step>
         </StepsWrapper>
         <StepsProgress>
           <StepsProgressBar></StepsProgressBar>

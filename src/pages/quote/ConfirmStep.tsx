@@ -6,10 +6,10 @@ import { Heading1, Heading2 } from '../../components/Text'
 import { WelcomeContainer } from './index'
 import { formProps } from './MultiStepForm'
 
-export const ConfirmStep: React.FC<formProps> = ({ formData, setForm, navigation }) => {
+export const ConfirmStep: React.FC<formProps> = ({ navigation }) => {
   return (
     <WelcomeContainer>
-      <Heading1>Confirmed!</Heading1>
+      <Heading1>Transaction Confirmed!</Heading1>
       <Heading2>You are now covered by Solace and can manage your policy on the dashboard.</Heading2>
       <div style={{ marginTop: '24px' }}>
         <TableDataGroup>

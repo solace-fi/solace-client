@@ -19,7 +19,7 @@ export const StepsContainer = styled.div<props>`
   }
 
   ${StepsProgressBar} {
-    width: 37.5%;
+    width: 50%;
   }
   `}
   ${(props) =>
@@ -33,7 +33,7 @@ export const StepsContainer = styled.div<props>`
   }
 
   ${StepsProgressBar} {
-    width: 62.5%;
+    width: 75%;
   }
   `}
   ${(props) =>
@@ -48,7 +48,7 @@ export const StepsContainer = styled.div<props>`
   }
 
   ${StepsProgressBar} {
-    width: 87.5%;
+    width: 100%;
   }
   `}
 `
@@ -75,12 +75,25 @@ export const Step = styled.div`
   &::before {
     position: absolute;
     bottom: 0;
-    left: 50%;
+    left: 0%;
     content: '';
     border-radius: 1px;
     width: 1px;
     height: 10px;
     background-color: #fff;
+  }
+
+  &:last-child {
+    &::after {
+      position: absolute;
+      bottom: 0;
+      left: 100%;
+      content: '';
+      border-radius: 1px;
+      width: 1px;
+      height: 10px;
+      background-color: #fff;
+    }
   }
 `
 
@@ -96,7 +109,7 @@ export const StepsProgress = styled.div`
 export const StepsProgressBar = styled.div`
   border-radius: 10px;
   height: 100%;
-  width: 12.5%;
+  width: 25%;
   background-color: #fff;
   transition: width 300ms linear;
 `
