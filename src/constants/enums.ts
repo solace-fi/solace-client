@@ -19,6 +19,7 @@ export enum FunctionName {
   WITHDRAW_LP = 'WithdrawLp',
   WITHDRAW_REWARDS = 'WithdrawRewards',
   APPROVE = 'Approve',
+  BUY_POLICY = 'BuyPolicy',
 }
 
 export enum Unit {

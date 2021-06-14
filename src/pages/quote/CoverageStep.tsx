@@ -17,10 +17,13 @@ import { Slider } from '@rebass/forms'
 import { fixedPositionBalance } from '../../utils/formatting'
 import { formatEther } from 'ethers/lib/utils'
 import { BigNumber } from 'ethers'
+import { useBuyPolicy, useGetQuote } from '../../hooks/usePolicy'
 
 export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigation }) => {
   const { protocol, position, coverageLimit, timePeriod } = formData
   const [inputCoverage, setInputCoverage] = useState<string>('50')
+  const quote = useGetQuote(coverageLimit, position.token.address, timePeriod)
+  const [buyPolicy, goNextStep] = useBuyPolicy(coverageLimit, position.token.address, timePeriod)
 
   const date = new Date()
 
@@ -70,7 +73,7 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
   const filteredTime = (input: string) => {
     const filtered = input.replace(/[^0-9]*/g, '')
     if (parseFloat(filtered) <= 365 || filtered == '') {
-      setTime(filtered)
+      setTime(filtered == '' ? '1' : filtered)
     }
   }
 
@@ -79,6 +82,23 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
       .mul(coverageLimit == '' ? '100' : coverageLimit)
       .div('10000')
   )
+
+  const handleBuy = async () => {
+    setForm({
+      target: {
+        name: 'loading',
+        value: true,
+      },
+    })
+    await buyPolicy()
+    setForm({
+      target: {
+        name: 'loading',
+        value: false,
+      },
+    })
+    goNextStep && navigation.next()
+  }
 
   return (
     <Fragment>
@@ -204,11 +224,11 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
               <BoxChooseText>Quote</BoxChooseText>
             </BoxChooseCol>
             <BoxChooseCol>
-              <BoxChooseText bold>0.2 ETH</BoxChooseText>
+              <BoxChooseText bold>{quote} ETH</BoxChooseText>
             </BoxChooseCol>
           </BoxChooseRow>
           <BoxChooseButton>
-            <Button onClick={() => navigation.next()}>Buy</Button>
+            <Button onClick={() => handleBuy()}>Buy</Button>
           </BoxChooseButton>
         </CardBaseComponent>
         <CardBaseComponent transparent>

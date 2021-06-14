@@ -10,6 +10,7 @@ import {
   useRegistryContract,
   useLpTokenContract,
   useWethContract,
+  useCompoundProductContract,
 } from '../hooks/useContract'
 
 /*
@@ -28,6 +29,7 @@ export type Contracts = {
   registry?: Contract | null
   lpToken?: Contract | null
   weth?: Contract | null
+  compProduct?: Contract | null
 }
 
 const ContractsContext = createContext<Contracts>({
@@ -39,6 +41,7 @@ const ContractsContext = createContext<Contracts>({
   registry: undefined,
   lpToken: undefined,
   weth: undefined,
+  compProduct: undefined,
 })
 
 const ContractsProvider: React.FC = (props) => {
@@ -50,20 +53,22 @@ const ContractsProvider: React.FC = (props) => {
   const registry = useRegistryContract()
   const lpToken = useLpTokenContract()
   const weth = useWethContract()
+  const compProduct = useCompoundProductContract()
 
   // update when a contract changes
   const value = useMemo<Contracts>(
     () => ({
-      master: master,
-      vault: vault,
-      solace: solace,
-      cpFarm: cpFarm,
-      lpFarm: lpFarm,
-      registry: registry,
-      lpToken: lpToken,
-      weth: weth,
+      master,
+      vault,
+      solace,
+      cpFarm,
+      lpFarm,
+      registry,
+      lpToken,
+      weth,
+      compProduct,
     }),
-    [master, vault, solace, cpFarm, lpFarm, registry, lpToken, weth]
+    [master, vault, solace, cpFarm, lpFarm, registry, lpToken, weth, compProduct]
   )
 
   return <ContractsContext.Provider value={value}>{props.children}</ContractsContext.Provider>
