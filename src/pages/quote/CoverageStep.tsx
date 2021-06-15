@@ -23,7 +23,7 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
   const { protocol, position, coverageLimit, timePeriod } = formData
   const [inputCoverage, setInputCoverage] = useState<string>('50')
   const quote = useGetQuote(coverageLimit, position.token.address, timePeriod)
-  const [buyPolicy, goNextStep] = useBuyPolicy(coverageLimit, position.token.address, timePeriod)
+  const [buyPolicy, goNextStep] = useBuyPolicy(coverageLimit, position.token.address, timePeriod, quote)
 
   const date = new Date()
 

@@ -1,6 +1,6 @@
 import useDebounce from '@rooks/use-debounce'
 import { BigNumber } from 'ethers'
-import { formatEther } from 'ethers/lib/utils'
+import { formatEther, parseEther } from 'ethers/lib/utils'
 import React, { useEffect, useState } from 'react'
 import { GAS_LIMIT, NUM_BLOCKS_PER_DAY } from '../constants'
 import { useContracts } from '../context/ContractsManager'
@@ -8,8 +8,9 @@ import { useWallet } from '../context/WalletManager'
 import { TransactionCondition, FunctionName, Unit } from '../constants/enums'
 import { useUserData } from '../context/UserDataManager'
 import { useToasts } from '../context/NotificationsManager'
+import { getGasValue } from '../utils/formatting'
 
-export const useBuyPolicy = (coverLimit: string, positionContract: string, days: string): any => {
+export const useBuyPolicy = (coverLimit: string, positionContract: string, days: string, quote: string): any => {
   const { compProduct } = useContracts()
   const wallet = useWallet()
   const { addLocalTransactions } = useUserData()
@@ -26,7 +27,9 @@ export const useBuyPolicy = (coverLimit: string, positionContract: string, days:
         coverLimit,
         BigNumber.from(NUM_BLOCKS_PER_DAY * parseInt(days)),
         {
-          gasLimit: GAS_LIMIT,
+          value: parseEther(quote).add(parseEther(quote).div('10000')),
+          gasPrice: getGasValue(wallet.gasPrices.selected.value),
+          gasLimit: 450000,
         }
       )
       setGoNextStep(true)
