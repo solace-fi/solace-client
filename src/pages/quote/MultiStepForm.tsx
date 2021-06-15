@@ -9,7 +9,7 @@ import styled from 'styled-components'
 import { Protocol, ProtocolImage, ProtocolTitle } from '../../components/Protocol'
 import { Box, BoxItem, BoxRow } from '../../components/Box'
 import { Button } from '../../components/Button'
-import { fixedPositionBalance } from '../../utils/formatting'
+import { fixed, fixedPositionBalance } from '../../utils/formatting'
 
 interface useStepType {
   step: any
@@ -26,10 +26,12 @@ const defaultData = {
   protocol: {
     name: '',
     availableCoverage: '',
+    yearlyCost: 0,
   },
   lastProtocol: {
     name: '',
     availableCoverage: '',
+    yearlyCost: 0,
   },
   position: {
     token: {
@@ -110,7 +112,7 @@ export const MultiStepForm = () => {
                 <ProtocolTitle>{protocol.name}</ProtocolTitle>
               </Protocol>
             </BoxItem>
-            <BoxItem>2.60%</BoxItem>
+            <BoxItem>{fixed(protocol.yearlyCost * 100, 2)}%</BoxItem>
             <BoxItem>{protocol.availableCoverage} ETH</BoxItem>
             <BoxItem>
               <Button onClick={() => navigation.go(0)}>Change</Button>
