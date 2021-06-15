@@ -9,7 +9,7 @@ import { Protocol, ProtocolImage, ProtocolTitle } from '../../components/Protoco
 import { PROTOCOLS_LIST } from '../../constants/protocols'
 import useDebounce from '@rooks/use-debounce'
 import { useGetAvailableCoverage, useGetYearlyCost } from '../../hooks/usePolicy'
-import { NUM_BLOCKS_PER_DAY } from '../../constants'
+import { DAYS_PER_YEAR, NUM_BLOCKS_PER_DAY } from '../../constants'
 import { fixed } from '../../utils/formatting'
 
 const ActionsContainer = styled.div`
@@ -74,7 +74,7 @@ export const ProtocolStep: React.FC<formProps> = ({ formData, setForm, navigatio
                     </Protocol>
                   </TableData>
                   <TableData>
-                    {fixed(parseFloat(yearlyCost) * Math.pow(10, 6) * NUM_BLOCKS_PER_DAY * 365 * 100, 2)}%
+                    {fixed(parseFloat(yearlyCost) * Math.pow(10, 6) * NUM_BLOCKS_PER_DAY * DAYS_PER_YEAR * 100, 2)}%
                   </TableData>
                   <TableData>{availableCoverage.split('.')[0]} ETH</TableData>
                   <TableData cellAlignRight>
@@ -83,7 +83,7 @@ export const ProtocolStep: React.FC<formProps> = ({ formData, setForm, navigatio
                         handleChange({
                           name: protocol,
                           availableCoverage: availableCoverage.split('.')[0],
-                          yearlyCost: parseFloat(yearlyCost) * Math.pow(10, 6) * NUM_BLOCKS_PER_DAY * 365,
+                          yearlyCost: parseFloat(yearlyCost) * Math.pow(10, 6) * NUM_BLOCKS_PER_DAY * DAYS_PER_YEAR,
                         })
                       }
                     >

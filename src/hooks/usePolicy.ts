@@ -16,7 +16,7 @@ export const useGetYearlyCost = () => {
       const price = await compProduct.price()
       setYearlyCost(formatEther(price))
     } catch (err) {
-      console.log('getAvailableCoverage', err)
+      console.log('getYearlyCost', err)
     }
   }
 
