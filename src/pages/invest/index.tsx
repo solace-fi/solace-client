@@ -115,7 +115,7 @@ function Invest(): any {
   const lpUserStakeValue = useUserStakedValue(lpFarmContract.current)
   const scpBalance = useScpBalance()
   const txHistory = useFetchTxHistoryByAddress()
-  const transactionDetails = useTransactionDetails(txHistory.txList)
+  const transactionDetails = useTransactionDetails(txHistory)
   const wallet = useWallet()
   const { errors, makeTxToast } = useToasts()
   const { localTransactions, addLocalTransactions } = useUserData()
@@ -819,8 +819,8 @@ function Invest(): any {
                   <TableData>{pendingtx.status}</TableData>
                 </TableRow>
               ))}
-            {txHistory.txList &&
-              txHistory.txList.map((tx: any, i: number) => (
+            {txHistory &&
+              txHistory.map((tx: any, i: number) => (
                 <TableRow key={tx.hash}>
                   <TableData>
                     {transactionDetails.length > 0 ? decodeInput(tx).function_name : <Loader width={10} height={10} />}

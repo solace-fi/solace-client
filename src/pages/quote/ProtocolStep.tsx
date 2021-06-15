@@ -9,6 +9,7 @@ import { Protocol, ProtocolImage, ProtocolTitle } from '../../components/Protoco
 import { PROTOCOLS_LIST } from '../../constants/protocols'
 import useDebounce from '@rooks/use-debounce'
 import { useGetAvailableCoverage } from '../../hooks/usePolicy'
+import { fixed } from '../../utils/formatting'
 
 const ActionsContainer = styled.div`
   padding-top: 20px;
@@ -71,9 +72,18 @@ export const ProtocolStep: React.FC<formProps> = ({ formData, setForm, navigatio
                     </Protocol>
                   </TableData>
                   <TableData>2.60%</TableData>
-                  <TableData>{availableCoverage} ETH</TableData>
+                  <TableData>{availableCoverage.split('.')[0]} ETH</TableData>
                   <TableData cellAlignRight>
-                    <Button onClick={() => handleChange({ name: protocol, availableCoverage })}>Select</Button>
+                    <Button
+                      onClick={() =>
+                        handleChange({
+                          name: protocol,
+                          availableCoverage: availableCoverage.split('.')[0],
+                        })
+                      }
+                    >
+                      Select
+                    </Button>
                   </TableData>
                 </TableRow>
               )

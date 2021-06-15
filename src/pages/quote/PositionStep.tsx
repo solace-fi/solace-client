@@ -80,9 +80,9 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
                   {fixedPositionBalance(position.token)}{' '}
                   <BoxItemUnits style={{ fontSize: '12px' }}>{position.token.symbol}</BoxItemUnits>
                 </PositionCardCount>
+                <PositionCardCount>Eth Value:</PositionCardCount>
                 <PositionCardCount>
-                  Eth Value: {formatEther(position.eth.balance)}{' '}
-                  <BoxItemUnits style={{ fontSize: '12px' }}>ETH</BoxItemUnits>
+                  {formatEther(position.eth.balance)} <BoxItemUnits style={{ fontSize: '12px' }}>ETH</BoxItemUnits>
                 </PositionCardCount>
                 <PositionCardButton>
                   <Button onClick={() => handleChange(position)}>Select</Button>
