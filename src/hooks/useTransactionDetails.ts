@@ -3,9 +3,7 @@ import { useWallet } from '../context/WalletManager'
 import { Provider, Web3Provider } from '@ethersproject/providers'
 import { decodeInput } from '../utils/decoder'
 import { FunctionName } from '../constants/enums'
-import { getUnit } from '../utils/formatting'
-import { BigNumber } from 'ethers'
-import { formatEther } from '@ethersproject/units'
+import { formatTransactionAmount, getUnit } from '../utils/formatting'
 
 export const useTransactionDetails = (txList: any): string[] => {
   const { library } = useWallet()
@@ -27,13 +25,13 @@ export const useTransactionDetails = (txList: any): string[] => {
         const topics = logs[logs.length - 1].topics
         if (!topics || topics.length <= 0) return '0'
         return topics[topics.length - 1]
+      case FunctionName.BUY_POLICY:
       case FunctionName.DEPOSIT_ETH:
       case FunctionName.DEPOSIT_CP:
       case FunctionName.WITHDRAW_ETH:
       case FunctionName.WITHDRAW_REWARDS:
       case FunctionName.DEPOSIT_LP:
       case FunctionName.WITHDRAW_LP:
-      case FunctionName.BUY_POLICY:
       default:
         if (!logs || logs.length <= 0) return '0'
         const data = logs[logs.length - 1].data
@@ -49,7 +47,7 @@ export const useTransactionDetails = (txList: any): string[] => {
         const function_name = decodeInput(tx).function_name
         const unit = getUnit(function_name)
         const amount: string = await getTransactionAmount(function_name, tx, library)
-        currentAmounts.push(`${formatEther(BigNumber.from(amount))} ${unit}`)
+        currentAmounts.push(`${formatTransactionAmount(function_name, amount)} ${unit}`)
       }
       setAmounts(currentAmounts)
     }

@@ -71,3 +71,20 @@ export const getUnit = (function_name: string): Unit => {
       return Unit.ID
   }
 }
+
+export const formatTransactionAmount = (function_name: string, amount: string) => {
+  switch (function_name) {
+    case FunctionName.BUY_POLICY:
+      return BigNumber.from(amount)
+    case FunctionName.DEPOSIT:
+    case FunctionName.WITHDRAW:
+    case FunctionName.DEPOSIT_ETH:
+    case FunctionName.DEPOSIT_CP:
+    case FunctionName.WITHDRAW_ETH:
+    case FunctionName.WITHDRAW_REWARDS:
+    case FunctionName.DEPOSIT_LP:
+    case FunctionName.WITHDRAW_LP:
+    default:
+      return formatEther(BigNumber.from(amount))
+  }
+}
