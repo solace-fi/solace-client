@@ -1,5 +1,4 @@
 import React, { Fragment, useState } from 'react'
-import { Box, BoxItem, BoxRow } from '../../components/Box'
 import {
   BoxChooseRow,
   BoxChooseCol,
@@ -9,21 +8,29 @@ import {
 } from '../../components/Box/BoxChoose'
 import { Button } from '../../components/Button'
 import { formProps } from './MultiStepForm'
-import { Protocol, ProtocolImage, ProtocolTitle } from '../../components/Protocol'
 import { CardBaseComponent, CardContainer } from '../../components/Card'
 import { Heading2, Text3 } from '../../components/Text'
 import { Input } from '../../components/Input'
 import { Slider } from '@rebass/forms'
-import { fixedPositionBalance } from '../../utils/formatting'
-import { formatEther } from 'ethers/lib/utils'
+import { formatEther, parseEther } from 'ethers/lib/utils'
 import { BigNumber } from 'ethers'
-import { useBuyPolicy, useGetQuote } from '../../hooks/usePolicy'
+import { useGetQuote } from '../../hooks/usePolicy'
+import { NUM_BLOCKS_PER_DAY } from '../../constants'
+import { useContracts } from '../../context/ContractsManager'
+import { useWallet } from '../../context/WalletManager'
+import { TransactionCondition, FunctionName, Unit } from '../../constants/enums'
+import { useUserData } from '../../context/UserDataManager'
+import { useToasts } from '../../context/NotificationsManager'
+import { getGasValue } from '../../utils/formatting'
 
 export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigation }) => {
-  const { protocol, position, coverageLimit, timePeriod } = formData
+  const { compProduct } = useContracts()
+  const { position, coverageLimit, timePeriod } = formData
   const [inputCoverage, setInputCoverage] = useState<string>('50')
   const quote = useGetQuote(coverageLimit, position.token.address, timePeriod)
-  const [buyPolicy, goNextStep] = useBuyPolicy(coverageLimit, position.token.address, timePeriod, quote)
+  const wallet = useWallet()
+  const { addLocalTransactions } = useUserData()
+  const { makeTxToast } = useToasts()
 
   const date = new Date()
 
@@ -83,58 +90,42 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
       .div('10000')
   )
 
-  const handleBuy = async () => {
-    setForm({
-      target: {
-        name: 'loading',
-        value: true,
-      },
-    })
-    await buyPolicy()
-    setForm({
-      target: {
-        name: 'loading',
-        value: false,
-      },
-    })
-    goNextStep && navigation.next()
+  const buyPolicy = async () => {
+    if (!compProduct) return
+    const txType = FunctionName.BUY_POLICY
+    try {
+      const tx = await compProduct.buyPolicy(
+        wallet.account,
+        position.token.address,
+        coverageLimit,
+        BigNumber.from(NUM_BLOCKS_PER_DAY * parseInt(timePeriod)),
+        {
+          value: parseEther(quote).add(parseEther(quote).div('10000')),
+          gasPrice: getGasValue(wallet.gasPrices.selected.value),
+          gasLimit: 450000,
+        }
+      )
+      navigation.next()
+      const txHash = tx.hash
+      const localTx = { hash: txHash, type: txType, value: '0', status: TransactionCondition.PENDING, unit: Unit.ETH }
+      addLocalTransactions(localTx)
+      wallet.reload()
+      makeTxToast(txType, TransactionCondition.PENDING, txHash)
+      await tx.wait().then((receipt: any) => {
+        console.log('buyPolicy tx', tx)
+        console.log('buyPolicy receipt', receipt)
+        const status = receipt.status ? TransactionCondition.SUCCESS : TransactionCondition.FAILURE
+        makeTxToast(txType, status, txHash)
+        wallet.reload()
+      })
+    } catch (err) {
+      makeTxToast(txType, TransactionCondition.CANCELLED)
+      wallet.reload()
+    }
   }
 
   return (
     <Fragment>
-      <BoxRow>
-        <Box>
-          <BoxItem>
-            <Protocol>
-              <ProtocolImage>
-                <img src={`https://assets.solace.fi/${protocol.toLowerCase()}.svg`} />
-              </ProtocolImage>
-              <ProtocolTitle>{protocol}</ProtocolTitle>
-            </Protocol>
-          </BoxItem>
-          <BoxItem>2.60%</BoxItem>
-          <BoxItem>4003 ETH</BoxItem>
-          <BoxItem>
-            <Button onClick={() => navigation.go(0)}>Change</Button>
-          </BoxItem>
-        </Box>
-        <Box purple>
-          <BoxItem>
-            <Protocol>
-              <ProtocolImage>
-                <img src={`https://assets.solace.fi/${position.underlying.address.toLowerCase()}.svg`} />
-              </ProtocolImage>
-              <ProtocolTitle>{position.underlying.name}</ProtocolTitle>
-            </Protocol>
-          </BoxItem>
-          <BoxItem>
-            {fixedPositionBalance(position.underlying)} {position.underlying.symbol}
-          </BoxItem>
-          <BoxItem>
-            <Button onClick={() => navigation.go(1)}>Change</Button>
-          </BoxItem>
-        </Box>
-      </BoxRow>
       <CardContainer cardsPerRow={2}>
         <CardBaseComponent>
           <BoxChooseRow>
@@ -228,7 +219,7 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
             </BoxChooseCol>
           </BoxChooseRow>
           <BoxChooseButton>
-            <Button onClick={() => handleBuy()}>Buy</Button>
+            <Button onClick={() => buyPolicy()}>Buy</Button>
           </BoxChooseButton>
         </CardBaseComponent>
         <CardBaseComponent transparent>

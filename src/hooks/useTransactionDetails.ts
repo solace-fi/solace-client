@@ -33,6 +33,7 @@ export const useTransactionDetails = (txList: any): string[] => {
       case FunctionName.WITHDRAW_REWARDS:
       case FunctionName.DEPOSIT_LP:
       case FunctionName.WITHDRAW_LP:
+      case FunctionName.BUY_POLICY:
       default:
         if (!logs || logs.length <= 0) return '0'
         const data = logs[logs.length - 1].data

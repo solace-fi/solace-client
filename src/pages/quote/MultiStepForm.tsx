@@ -6,6 +6,10 @@ import { CoverageStep } from './CoverageStep'
 import { ConfirmStep } from './ConfirmStep'
 import { Step, StepsContainer, StepsWrapper, StepsProgress, StepsProgressBar } from '../../components/Progress'
 import styled from 'styled-components'
+import { Protocol, ProtocolImage, ProtocolTitle } from '../../components/Protocol'
+import { Box, BoxItem, BoxRow } from '../../components/Box'
+import { Button } from '../../components/Button'
+import { fixedPositionBalance } from '../../utils/formatting'
 
 interface useStepType {
   step: any
@@ -19,9 +23,25 @@ export interface formProps {
 }
 
 const defaultData = {
-  protocol: {},
-  lastProtocol: {},
-  position: {},
+  protocol: {
+    name: '',
+    availableCoverage: '',
+  },
+  lastProtocol: {
+    name: '',
+    availableCoverage: '',
+  },
+  position: {
+    token: {
+      address: '',
+      name: '',
+      symbol: '',
+      decimals: 0,
+      balance: '',
+    },
+    underlying: { address: '', name: '', symbol: '', decimals: 0, balance: '' },
+    eth: { balance: '' },
+  },
   balances: [],
   coverageLimit: '5000',
   timePeriod: '180',
@@ -45,6 +65,7 @@ const steps = [{ id: 'protocol' }, { id: 'position' }, { id: 'coverage' }, { id:
 
 export const MultiStepForm = () => {
   const [formData, setForm] = useForm(defaultData)
+  const { protocol, position, loading } = formData
   const { step, navigation }: useStepType = useStep({
     steps,
     initialStep: 0,
@@ -78,6 +99,48 @@ export const MultiStepForm = () => {
           <StepsProgressBar></StepsProgressBar>
         </StepsProgress>
       </StepsContainer>
+      {Number(StepNumber[step.id]) !== 0 && Number(StepNumber[step.id]) !== 3 && (
+        <BoxRow>
+          <Box>
+            <BoxItem>
+              <Protocol>
+                <ProtocolImage>
+                  <img src={`https://assets.solace.fi/${protocol.name.toLowerCase()}.svg`} />
+                </ProtocolImage>
+                <ProtocolTitle>{protocol.name}</ProtocolTitle>
+              </Protocol>
+            </BoxItem>
+            <BoxItem>2.60%</BoxItem>
+            <BoxItem>{protocol.availableCoverage} ETH</BoxItem>
+            <BoxItem>
+              <Button onClick={() => navigation.go(0)}>Change</Button>
+            </BoxItem>
+          </Box>
+          {Number(StepNumber[step.id]) == 1 && (
+            <Box transparent outlined>
+              <BoxItem>{loading ? 'Loading Your Positions...' : 'Select Position Below'}</BoxItem>
+            </Box>
+          )}
+          {Number(StepNumber[step.id]) == 2 && !!position.underlying && (
+            <Box purple>
+              <BoxItem>
+                <Protocol>
+                  <ProtocolImage>
+                    <img src={`https://assets.solace.fi/${position.underlying.address.toLowerCase()}.svg`} />
+                  </ProtocolImage>
+                  <ProtocolTitle>{position.underlying.name}</ProtocolTitle>
+                </Protocol>
+              </BoxItem>
+              <BoxItem>
+                {fixedPositionBalance(position.underlying)} {position.underlying.symbol}
+              </BoxItem>
+              <BoxItem>
+                <Button onClick={() => navigation.go(1)}>Change</Button>
+              </BoxItem>
+            </Box>
+          )}
+        </BoxRow>
+      )}
       {getForm()}
     </FormContent>
   )

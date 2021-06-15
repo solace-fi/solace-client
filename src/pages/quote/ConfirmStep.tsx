@@ -9,8 +9,8 @@ import { formProps } from './MultiStepForm'
 export const ConfirmStep: React.FC<formProps> = ({ navigation }) => {
   return (
     <WelcomeContainer>
-      <Heading1>Transaction Confirmed!</Heading1>
-      <Heading2>You are now covered by Solace and can manage your policy on the dashboard.</Heading2>
+      <Heading1>Transaction Submitted! Your Solace coverage is on the way!</Heading1>
+      <Heading2>You can manage your policies on the dashboard or start a new one.</Heading2>
       <div style={{ marginTop: '24px' }}>
         <TableDataGroup>
           <StyledLink to="/">

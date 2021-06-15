@@ -66,7 +66,8 @@ export const getUnit = (function_name: string): Unit => {
       return Unit.SOLACE
     case FunctionName.DEPOSIT_LP:
     case FunctionName.WITHDRAW_LP:
-    default:
       return Unit.LP
+    default:
+      return Unit.ID
   }
 }

@@ -10,48 +10,26 @@ import { useUserData } from '../context/UserDataManager'
 import { useToasts } from '../context/NotificationsManager'
 import { getGasValue } from '../utils/formatting'
 
-export const useBuyPolicy = (coverLimit: string, positionContract: string, days: string, quote: string): any => {
+export const useGetAvailableCoverage = () => {
   const { compProduct } = useContracts()
-  const wallet = useWallet()
-  const { addLocalTransactions } = useUserData()
-  const { makeTxToast } = useToasts()
-  const [goNextStep, setGoNextStep] = useState<boolean>(false)
+  const [availableCoverage, setAvailableCoverage] = useState<string>('0.00')
 
-  const buyPolicy = async () => {
+  const getAvailableCoverage = async () => {
     if (!compProduct) return
-    const txType = FunctionName.BUY_POLICY
     try {
-      const tx = await compProduct.buyPolicy(
-        wallet.account,
-        positionContract,
-        coverLimit,
-        BigNumber.from(NUM_BLOCKS_PER_DAY * parseInt(days)),
-        {
-          value: parseEther(quote).add(parseEther(quote).div('10000')),
-          gasPrice: getGasValue(wallet.gasPrices.selected.value),
-          gasLimit: 450000,
-        }
-      )
-      setGoNextStep(true)
-      const txHash = tx.hash
-      const localTx = { hash: txHash, type: txType, value: '0', status: TransactionCondition.PENDING, unit: Unit.ETH }
-      addLocalTransactions(localTx)
-      wallet.reload()
-      makeTxToast(txType, TransactionCondition.PENDING, txHash)
-      await tx.wait().then((receipt: any) => {
-        console.log('buyPolicy tx', tx)
-        console.log('buyPolicy receipt', receipt)
-        const status = receipt.status ? TransactionCondition.SUCCESS : TransactionCondition.FAILURE
-        makeTxToast(txType, status, txHash)
-        wallet.reload()
-      })
+      const maxCoverAmount = await compProduct.maxCoverAmount()
+      const activeCoverAmount = await compProduct.activeCoverAmount()
+      setAvailableCoverage(formatEther(maxCoverAmount.sub(activeCoverAmount)))
     } catch (err) {
-      makeTxToast(txType, TransactionCondition.CANCELLED)
-      wallet.reload()
+      console.log('getAvailableCoverage', err)
     }
   }
 
-  return [buyPolicy, goNextStep]
+  useEffect(() => {
+    getAvailableCoverage()
+  }, [])
+
+  return availableCoverage
 }
 
 export const useGetQuote = (coverLimit: string, positionContract: string, days: string): any => {
