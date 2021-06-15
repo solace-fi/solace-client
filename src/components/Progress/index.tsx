@@ -72,10 +72,10 @@ export const Step = styled.div`
     opacity: 1;
   }
 
-  &::before {
+  &::after {
     position: absolute;
     bottom: 0;
-    left: 0%;
+    left: 100%;
     content: '';
     border-radius: 1px;
     width: 1px;
