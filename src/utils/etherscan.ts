@@ -84,15 +84,13 @@ export async function fetchEtherscanTxHistoryByAddress(chainId: number, address:
   const apiPrefix = getApiPrefix(chainId)
   const block = await fetchEtherscanLatestBlock(chainId)
   return fetch(
-    `https://api${apiPrefix}.etherscan.io/api?module=account&action=txlist&address=${address}&startblock=0&endblock=${block.latestBlockNumber}&page=1&offset=40&sort=desc&apikey=${STRINGIFIED_ETHERSCAN_API_KEY}`
+    `https://api${apiPrefix}.etherscan.io/api?module=account&action=txlist&address=${address}&startblock=0&endblock=${block.latestBlockNumber}&page=1&offset=4500&sort=desc&apikey=${STRINGIFIED_ETHERSCAN_API_KEY}`
   )
     .then((result) => result.json())
     .then((result) => result.result)
     .then((result) => {
       const filteredResult =
-        result !== 'Max rate limit reached'
-          ? result.filter((tx: any) => CONTRACTS_ARRAY.includes(tx.to)).slice(0, 30)
-          : []
+        result !== 'Max rate limit reached' ? result.filter((tx: any) => CONTRACTS_ARRAY.includes(tx.to)) : []
       return {
         txList: filteredResult,
       }
