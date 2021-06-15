@@ -15,7 +15,7 @@ import { Slider } from '@rebass/forms'
 import { formatEther, parseEther } from 'ethers/lib/utils'
 import { BigNumber } from 'ethers'
 import { useGetQuote } from '../../hooks/usePolicy'
-import { NUM_BLOCKS_PER_DAY } from '../../constants'
+import { DAYS_PER_YEAR, NUM_BLOCKS_PER_DAY } from '../../constants'
 import { useContracts } from '../../context/ContractsManager'
 import { useWallet } from '../../context/WalletManager'
 import { TransactionCondition, FunctionName, Unit } from '../../constants/enums'
@@ -79,8 +79,8 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
 
   const filteredTime = (input: string) => {
     const filtered = input.replace(/[^0-9]*/g, '')
-    if (parseFloat(filtered) <= 365 || filtered == '') {
-      setTime(filtered == '' ? '1' : filtered)
+    if (parseFloat(filtered) <= DAYS_PER_YEAR || filtered == '') {
+      setTime(filtered)
     }
   }
 
@@ -179,7 +179,7 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
                 value={timePeriod == '' ? '1' : timePeriod}
                 onChange={(e) => setTime(e.target.value)}
                 min="1"
-                max="365"
+                max={DAYS_PER_YEAR}
               />
             </BoxChooseCol>
             <BoxChooseCol>
