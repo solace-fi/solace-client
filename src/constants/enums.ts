@@ -27,4 +27,5 @@ export enum Unit {
   SCP = 'Solace CP Token',
   SOLACE = 'SOLACE',
   LP = 'LP',
+  ID = 'ID',
 }

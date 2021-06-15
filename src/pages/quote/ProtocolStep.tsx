@@ -1,4 +1,4 @@
-import React, { Fragment, useState } from 'react'
+import React, { Fragment, useState, useEffect } from 'react'
 import { Button } from '../../components/Button'
 import { formProps } from './MultiStepForm'
 import styled from 'styled-components'
@@ -8,6 +8,7 @@ import { Search } from '../../components/Input'
 import { Protocol, ProtocolImage, ProtocolTitle } from '../../components/Protocol'
 import { PROTOCOLS_LIST } from '../../constants/protocols'
 import useDebounce from '@rooks/use-debounce'
+import { useGetAvailableCoverage } from '../../hooks/usePolicy'
 
 const ActionsContainer = styled.div`
   padding-top: 20px;
@@ -19,6 +20,7 @@ const ActionsContainer = styled.div`
 `
 
 export const ProtocolStep: React.FC<formProps> = ({ formData, setForm, navigation }) => {
+  const availableCoverage = useGetAvailableCoverage()
   const { protocol } = formData
   const [searchValue, setSearchValue] = useState<string>('')
   const handleChange = (selectedProtocol: any) => {
@@ -69,9 +71,9 @@ export const ProtocolStep: React.FC<formProps> = ({ formData, setForm, navigatio
                     </Protocol>
                   </TableData>
                   <TableData>2.60%</TableData>
-                  <TableData>4003 ETH</TableData>
+                  <TableData>{availableCoverage} ETH</TableData>
                   <TableData cellAlignRight>
-                    <Button onClick={() => handleChange(protocol)}>Select</Button>
+                    <Button onClick={() => handleChange({ name: protocol, availableCoverage })}>Select</Button>
                   </TableData>
                 </TableRow>
               )
