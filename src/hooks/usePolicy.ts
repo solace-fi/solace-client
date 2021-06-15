@@ -1,14 +1,31 @@
 import useDebounce from '@rooks/use-debounce'
 import { BigNumber } from 'ethers'
-import { formatEther, parseEther } from 'ethers/lib/utils'
+import { formatEther } from 'ethers/lib/utils'
 import React, { useEffect, useState } from 'react'
 import { GAS_LIMIT, NUM_BLOCKS_PER_DAY } from '../constants'
 import { useContracts } from '../context/ContractsManager'
 import { useWallet } from '../context/WalletManager'
-import { TransactionCondition, FunctionName, Unit } from '../constants/enums'
-import { useUserData } from '../context/UserDataManager'
-import { useToasts } from '../context/NotificationsManager'
-import { getGasValue } from '../utils/formatting'
+
+export const useGetYearlyCost = () => {
+  const { compProduct } = useContracts()
+  const [yearlyCost, setYearlyCost] = useState<string>('0.00')
+
+  const getYearlyCost = async () => {
+    if (!compProduct) return
+    try {
+      const price = await compProduct.price()
+      setYearlyCost(formatEther(price))
+    } catch (err) {
+      console.log('getAvailableCoverage', err)
+    }
+  }
+
+  useEffect(() => {
+    getYearlyCost()
+  }, [])
+
+  return yearlyCost
+}
 
 export const useGetAvailableCoverage = () => {
   const { compProduct } = useContracts()

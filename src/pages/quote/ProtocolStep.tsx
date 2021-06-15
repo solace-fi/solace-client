@@ -8,7 +8,8 @@ import { Search } from '../../components/Input'
 import { Protocol, ProtocolImage, ProtocolTitle } from '../../components/Protocol'
 import { PROTOCOLS_LIST } from '../../constants/protocols'
 import useDebounce from '@rooks/use-debounce'
-import { useGetAvailableCoverage } from '../../hooks/usePolicy'
+import { useGetAvailableCoverage, useGetYearlyCost } from '../../hooks/usePolicy'
+import { NUM_BLOCKS_PER_DAY } from '../../constants'
 import { fixed } from '../../utils/formatting'
 
 const ActionsContainer = styled.div`
@@ -22,6 +23,7 @@ const ActionsContainer = styled.div`
 
 export const ProtocolStep: React.FC<formProps> = ({ formData, setForm, navigation }) => {
   const availableCoverage = useGetAvailableCoverage()
+  const yearlyCost = useGetYearlyCost()
   const { protocol } = formData
   const [searchValue, setSearchValue] = useState<string>('')
   const handleChange = (selectedProtocol: any) => {
@@ -71,7 +73,9 @@ export const ProtocolStep: React.FC<formProps> = ({ formData, setForm, navigatio
                       <ProtocolTitle>{protocol}</ProtocolTitle>
                     </Protocol>
                   </TableData>
-                  <TableData>2.60%</TableData>
+                  <TableData>
+                    {fixed(parseFloat(yearlyCost) * Math.pow(10, 6) * NUM_BLOCKS_PER_DAY * 365 * 100, 2)}%
+                  </TableData>
                   <TableData>{availableCoverage.split('.')[0]} ETH</TableData>
                   <TableData cellAlignRight>
                     <Button
@@ -79,6 +83,7 @@ export const ProtocolStep: React.FC<formProps> = ({ formData, setForm, navigatio
                         handleChange({
                           name: protocol,
                           availableCoverage: availableCoverage.split('.')[0],
+                          yearlyCost: parseFloat(yearlyCost) * Math.pow(10, 6) * NUM_BLOCKS_PER_DAY * 365,
                         })
                       }
                     >
