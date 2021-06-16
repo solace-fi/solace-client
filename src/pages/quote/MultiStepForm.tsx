@@ -1,16 +1,49 @@
+/*************************************************************************************
+
+    Table of Contents:
+
+    import react
+    import packages
+    import components
+    import utils
+
+    interfaces
+    enums
+    variables
+    styled components
+
+    MultiStepForm function
+      Hook variables
+      Local helper functions
+      Render
+
+  *************************************************************************************/
+
+/* import react */
 import React from 'react'
+
+/* import packages */
 import { SetForm, useForm, useStep } from 'react-hooks-helper'
+import styled from 'styled-components'
+
+/* import components */
 import { ProtocolStep } from './ProtocolStep'
 import { PositionStep } from './PositionStep'
 import { CoverageStep } from './CoverageStep'
 import { ConfirmStep } from './ConfirmStep'
 import { Step, StepsContainer, StepsWrapper, StepsProgress, StepsProgressBar } from '../../components/Progress'
-import styled from 'styled-components'
 import { Protocol, ProtocolImage, ProtocolTitle } from '../../components/Protocol'
 import { Box, BoxItem, BoxRow } from '../../components/Box'
 import { Button } from '../../components/Button'
+
+/* import utils */
 import { fixed, fixedPositionBalance } from '../../utils/formatting'
 
+/************************************************************************************* 
+
+    interfaces
+
+  *************************************************************************************/
 interface useStepType {
   step: any
   navigation: any
@@ -21,6 +54,24 @@ export interface formProps {
   setForm: SetForm
   navigation: any
 }
+
+/************************************************************************************* 
+
+    enums
+
+  *************************************************************************************/
+enum StepNumber {
+  'protocol' = 0,
+  'position' = 1,
+  'coverage' = 2,
+  'confirm' = 3,
+}
+
+/************************************************************************************* 
+
+    variables 
+
+  *************************************************************************************/
 
 const defaultData = {
   protocol: {
@@ -50,12 +101,13 @@ const defaultData = {
   loading: false,
 }
 
-enum StepNumber {
-  'protocol' = 0,
-  'position' = 1,
-  'coverage' = 2,
-  'confirm' = 3,
-}
+const steps = [{ id: 'protocol' }, { id: 'position' }, { id: 'coverage' }, { id: 'confirm' }]
+
+/************************************************************************************* 
+
+    styled components 
+
+  *************************************************************************************/
 
 const FormContent = styled.div`
   display: grid;
@@ -63,9 +115,12 @@ const FormContent = styled.div`
   gap: 50px;
 `
 
-const steps = [{ id: 'protocol' }, { id: 'position' }, { id: 'coverage' }, { id: 'confirm' }]
-
 export const MultiStepForm = () => {
+  /*************************************************************************************
+
+  Hook variables
+
+  *************************************************************************************/
   const [formData, setForm] = useForm(defaultData)
   const { protocol, position, loading } = formData
   const { step, navigation }: useStepType = useStep({
@@ -74,6 +129,12 @@ export const MultiStepForm = () => {
   })
 
   const props = { formData, setForm, navigation }
+
+  /*************************************************************************************
+
+  Local helper functions
+
+  *************************************************************************************/
 
   const getForm = () => {
     switch (step.id) {
@@ -87,6 +148,12 @@ export const MultiStepForm = () => {
         return <ConfirmStep {...props} />
     }
   }
+
+  /*************************************************************************************
+
+  Render
+
+  *************************************************************************************/
 
   return (
     <FormContent>

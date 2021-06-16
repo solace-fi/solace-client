@@ -1,4 +1,19 @@
+/*************************************************************************************
+
+    Table of Contents:
+
+    import react
+    import components
+
+    ConfirmStep function
+      Render
+
+  *************************************************************************************/
+
+/* import react */
 import React from 'react'
+
+/* import components */
 import { StyledLink } from '../../components/Link'
 import { Button } from '../../components/Button'
 import { TableDataGroup } from '../../components/Table'
@@ -7,6 +22,12 @@ import { WelcomeContainer } from './index'
 import { formProps } from './MultiStepForm'
 
 export const ConfirmStep: React.FC<formProps> = ({ navigation }) => {
+  /*************************************************************************************
+
+  Render
+
+  *************************************************************************************/
+
   return (
     <WelcomeContainer>
       <Heading1>Transaction Submitted! Your Solace coverage is on the way!</Heading1>

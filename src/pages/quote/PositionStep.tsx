@@ -1,19 +1,58 @@
+/*************************************************************************************
+
+    Table of Contents:
+
+    import react
+    import packages
+    import managers
+    import components
+    import utils
+
+    PositionStep function
+      Hook variables
+      Local helper functions
+      useEffect hooks
+      Render
+
+  *************************************************************************************/
+
+/* import react */
 import React, { Fragment, useCallback, useEffect } from 'react'
-import { Box, BoxItem, BoxRow, BoxItemUnits } from '../../components/Box'
+
+/* import packages */
+import { formatEther } from 'ethers/lib/utils'
+
+/* import managers */
+import { useWallet } from '../../context/WalletManager'
+
+/* import components */
+import { BoxItemUnits } from '../../components/Box'
 import { Button } from '../../components/Button'
 import { formProps } from './MultiStepForm'
-import { Protocol, ProtocolImage, ProtocolTitle } from '../../components/Protocol'
 import { CardContainer, PositionCardComponent } from '../../components/Card'
 import { PositionCardButton, PositionCardCount, PositionCardLogo, PositionCardName } from '../../components/Position'
-import { useWallet } from '../../context/WalletManager'
-import { getPositions } from '../../utils/positionGetter'
 import { Loader } from '../../components/Loader'
-import { formatEther } from 'ethers/lib/utils'
+
+/* import utils */
+import { getPositions } from '../../utils/positionGetter'
 import { fixedPositionBalance } from '../../utils/formatting'
 
 export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigation }) => {
   const { protocol, lastProtocol, balances, loading } = formData
+
+  /*************************************************************************************
+
+  Hook variables
+
+  *************************************************************************************/
+
   const { account, chainId } = useWallet()
+
+  /*************************************************************************************
+
+  Local helper functions
+
+  *************************************************************************************/
 
   const handleChange = (position: any) => {
     setForm({
@@ -55,11 +94,23 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
     }
   }, [protocol, chainId, account])
 
+  /*************************************************************************************
+
+  useEffect hooks
+
+  *************************************************************************************/
+
   useEffect(() => {
     if (protocol.name !== lastProtocol.name) {
       getBalances()
     }
   }, [])
+
+  /*************************************************************************************
+
+  Render
+
+  *************************************************************************************/
 
   return (
     <Fragment>
