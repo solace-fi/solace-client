@@ -13,19 +13,22 @@
     Dashboard function
       useRef variables
       Hook variables
+      useState variables
+      Local helper functions
       useEffect hooks
       Render
 
   *************************************************************************************/
 
 /* import react */
-import React, { Fragment, useRef, useEffect } from 'react'
+import React, { Fragment, useRef, useEffect, useState } from 'react'
 
 /* import packages */
 import { Contract } from '@ethersproject/contracts'
 
 /* import constants */
-import { Unit } from '../../constants/enums'
+import { Unit, PolicyStatus } from '../../constants/enums'
+import { CHAIN_ID, NUM_BLOCKS_PER_DAY } from '../../constants'
 
 /* import managers */
 import { useContracts } from '../../context/ContractsManager'
@@ -33,17 +36,11 @@ import { useWallet } from '../../context/WalletManager'
 
 /* import components */
 import { Content } from '../../components/Layout'
-import {
-  CardContainer,
-  InvestmentCardComponent,
-  CardHeader,
-  CardTitle,
-  CardBlock,
-  CardActions,
-} from '../../components/Card'
-import { Heading1, Heading2, Heading3 } from '../../components/Text'
+import { CardContainer, InvestmentCardComponent, CardHeader, CardTitle, CardBlock } from '../../components/Card'
+import { Heading1, Heading3 } from '../../components/Text'
 import { Button } from '../../components/Button'
 import { Table, TableHead, TableHeader, TableRow, TableBody, TableData, TableDataGroup } from '../../components/Table'
+import { Text3 } from '../../components/Text'
 
 /* import hooks */
 import { useUserStakedValue } from '../../hooks/useUserStakedValue'
@@ -51,6 +48,9 @@ import { useUserPendingRewards, useUserRewardsPerDay } from '../../hooks/useRewa
 
 /* import utils */
 import { fixed } from '../../utils/formatting'
+import { Policy, getAllPoliciesOfUser } from '../../utils/policyGetter'
+import { formatEther } from 'ethers/lib/utils'
+import { fetchEtherscanLatestBlock } from '../../utils/etherscan'
 
 function Dashboard(): any {
   /************************************************************************************* 
@@ -80,6 +80,59 @@ function Dashboard(): any {
 
   /*************************************************************************************
 
+    useState variables
+
+  *************************************************************************************/
+
+  const [policiesFetched, setPoliciesFetched] = useState<boolean>(false)
+  const [policies, setPolicies] = useState<Policy[]>([])
+  const [latestBlock, setLatestBlock] = useState<number>(0)
+
+  /*************************************************************************************
+
+  Local helper functions
+
+  *************************************************************************************/
+
+  const calculatePolicyExpirationDate = (expirationBlock: string): string => {
+    const days = Math.floor((parseFloat(expirationBlock) - latestBlock) / NUM_BLOCKS_PER_DAY)
+    const date = new Date()
+    date.setDate(date.getDate() + days)
+    return date.toLocaleDateString()
+  }
+
+  const renderPolicies = () => {
+    return policies.map((policy) => {
+      return (
+        <TableRow key={policy.policyId}>
+          <TableData>{policy.policyId}</TableData>
+          <TableData>{policy.status}</TableData>
+          <TableData>{policy.productName}</TableData>
+          <TableData>{calculatePolicyExpirationDate(policy.expirationBlock)}</TableData>
+          <TableData>
+            {policy.coverAmount ? formatEther(policy.coverAmount) : 0} {Unit.ETH}
+          </TableData>
+
+          <TableData cellAlignRight>
+            {policy.status === PolicyStatus.ACTIVE ? (
+              <TableDataGroup>
+                <Button>Claim</Button>
+                <Button>Edit</Button>
+                <Button>Renew</Button>
+              </TableDataGroup>
+            ) : (
+              <TableDataGroup>
+                <Button>View</Button>
+              </TableDataGroup>
+            )}
+          </TableData>
+        </TableRow>
+      )
+    })
+  }
+
+  /*************************************************************************************
+
   useEffect hooks
 
   *************************************************************************************/
@@ -89,6 +142,36 @@ function Dashboard(): any {
     lpFarmContract.current = lpFarm
   }, [cpFarm, lpFarm])
 
+  useEffect(() => {
+    try {
+      const fetchLatestBlock = async () => {
+        const { latestBlockNumber } = await fetchEtherscanLatestBlock(Number(CHAIN_ID))
+        setLatestBlock(latestBlockNumber)
+      }
+      fetchLatestBlock()
+    } catch (e) {
+      console.log(e)
+    }
+  }, [policies])
+
+  useEffect(() => {
+    if (!wallet.isActive || !wallet.account) {
+      return
+    }
+
+    try {
+      const fetchPolicies = async () => {
+        const policies = await getAllPoliciesOfUser(wallet.account as string, Number(CHAIN_ID))
+        setPolicies(policies)
+        setPoliciesFetched(true)
+      }
+      fetchPolicies()
+    } catch (err) {
+      setPoliciesFetched(false)
+      console.log(err)
+    }
+  }, [wallet.account, wallet.isActive])
+
   /*************************************************************************************
 
     Render
@@ -97,48 +180,6 @@ function Dashboard(): any {
 
   return (
     <Fragment>
-      <Content>
-        <Heading1>Your Policies</Heading1>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableHeader>{'Id'}</TableHeader>
-              <TableHeader>{'Status'}</TableHeader>
-              <TableHeader>{'Product'}</TableHeader>
-              <TableHeader>{'Expiration Date'}</TableHeader>
-              <TableHeader>{'Amount'}</TableHeader>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            <TableRow>
-              <TableData>{'23'}</TableData>
-              <TableData>{'Active'}</TableData>
-              <TableData>{'Uniswap'}</TableData>
-              <TableData>{'1-6-2021'}</TableData>
-              <TableData>{'3000 ETH'}</TableData>
-              <TableData cellAlignRight>
-                <TableDataGroup>
-                  <Button>Claim</Button>
-                  <Button>Edit</Button>
-                  <Button>Renew</Button>
-                </TableDataGroup>
-              </TableData>
-            </TableRow>
-            <TableRow>
-              <TableData>{'20'}</TableData>
-              <TableData>{'Expired'}</TableData>
-              <TableData>{'Badger DAO'}</TableData>
-              <TableData>{'1-5-2021'}</TableData>
-              <TableData>{'30 ETH'}</TableData>
-              <TableData cellAlignRight>
-                <TableDataGroup>
-                  <Button>View</Button>
-                </TableDataGroup>
-              </TableData>
-            </TableRow>
-          </TableBody>
-        </Table>
-      </Content>
       <Content>
         <Heading1>Your Investments</Heading1>
         <CardContainer>
@@ -183,6 +224,34 @@ function Dashboard(): any {
             </CardBlock>
           </InvestmentCardComponent>
         </CardContainer>
+      </Content>
+      <Content>
+        <Heading1>Your Policies</Heading1>
+        {policies.length == 0 && policiesFetched && (
+          <Table>
+            <TableBody>
+              <TableRow>
+                <TableData>
+                  <Text3>{`You don't have any policy`}</Text3>
+                </TableData>
+              </TableRow>
+            </TableBody>
+          </Table>
+        )}
+        {policies.length > 0 && policiesFetched && (
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableHeader>{'Id'}</TableHeader>
+                <TableHeader>{'Status'}</TableHeader>
+                <TableHeader>{'Product'}</TableHeader>
+                <TableHeader>{'Expiration Date'}</TableHeader>
+                <TableHeader>{'Amount'}</TableHeader>
+              </TableRow>
+            </TableHead>
+            <TableBody>{renderPolicies()}</TableBody>
+          </Table>
+        )}
       </Content>
     </Fragment>
   )

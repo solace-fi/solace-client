@@ -29,3 +29,8 @@ export enum Unit {
   LP = 'LP',
   ID = 'ID',
 }
+
+export enum PolicyStatus {
+  ACTIVE = 'Active',
+  EXPIRED = 'Expired',
+}
