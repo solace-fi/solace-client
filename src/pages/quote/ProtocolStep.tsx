@@ -1,17 +1,53 @@
-import React, { Fragment, useState, useEffect } from 'react'
+/*************************************************************************************
+
+    Table of Contents:
+
+    import react
+    import packages
+    import constants
+    import components
+    import hooks
+    import utils
+
+    styled components
+
+    ProtocolStep function
+      Hook variables
+      useState variables
+      Local helper functions
+      Render
+
+  *************************************************************************************/
+
+/* import react */
+import React, { Fragment, useState } from 'react'
+
+/* import packages */
+import styled from 'styled-components'
+import useDebounce from '@rooks/use-debounce'
+
+/* import constants */
+import { DAYS_PER_YEAR, NUM_BLOCKS_PER_DAY } from '../../constants'
+import { PROTOCOLS_LIST } from '../../constants/protocols'
+
+/* import components */
 import { Button } from '../../components/Button'
 import { formProps } from './MultiStepForm'
-import styled from 'styled-components'
-// import { ActionRadios, RadioCircle, RadioCircleFigure, RadioCircleInput } from '../../components/Radio/RadioCircle'
 import { Table, TableData, TableHead, TableHeader, TableRow, TableBody } from '../../components/Table'
 import { Search } from '../../components/Input'
 import { Protocol, ProtocolImage, ProtocolTitle } from '../../components/Protocol'
-import { PROTOCOLS_LIST } from '../../constants/protocols'
-import useDebounce from '@rooks/use-debounce'
+
+/* import hooks */
 import { useGetAvailableCoverage, useGetYearlyCost } from '../../hooks/usePolicy'
-import { DAYS_PER_YEAR, NUM_BLOCKS_PER_DAY } from '../../constants'
+
+/* import utils */
 import { fixed } from '../../utils/formatting'
 
+/*************************************************************************************
+
+  styled components
+
+  *************************************************************************************/
 const ActionsContainer = styled.div`
   padding-top: 20px;
   display: flex;
@@ -22,10 +58,29 @@ const ActionsContainer = styled.div`
 `
 
 export const ProtocolStep: React.FC<formProps> = ({ formData, setForm, navigation }) => {
+  /*************************************************************************************
+
+  Hook variables
+
+  *************************************************************************************/
+
   const availableCoverage = useGetAvailableCoverage()
   const yearlyCost = useGetYearlyCost()
   const { protocol } = formData
+
+  /*************************************************************************************
+
+  useState variables
+
+  *************************************************************************************/
   const [searchValue, setSearchValue] = useState<string>('')
+
+  /*************************************************************************************
+
+  Local Helper Functions
+
+  *************************************************************************************/
+
   const handleChange = (selectedProtocol: any) => {
     setForm({
       target: {
@@ -45,6 +100,12 @@ export const ProtocolStep: React.FC<formProps> = ({ formData, setForm, navigatio
   const handleSearch = useDebounce((searchValue: string) => {
     setSearchValue(searchValue)
   }, 300)
+
+  /*************************************************************************************
+
+  Render
+
+  *************************************************************************************/
 
   return (
     <Fragment>

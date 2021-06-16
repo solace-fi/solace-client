@@ -1,4 +1,44 @@
+/*************************************************************************************
+
+    Table of Contents:
+
+    import react
+    import packages
+    import constants
+    import managers
+    import components
+    import hooks
+    import utils
+
+    CoverageStep function
+      Hook variables
+      useState variables
+      variables
+      Contract functions
+      Local helper functions
+      Render
+
+  *************************************************************************************/
+
+/* import react */
 import React, { Fragment, useState } from 'react'
+
+/* import packages */
+import { Slider } from '@rebass/forms'
+import { formatEther, parseEther } from 'ethers/lib/utils'
+import { BigNumber } from 'ethers'
+
+/* import constants */
+import { DAYS_PER_YEAR, NUM_BLOCKS_PER_DAY } from '../../constants'
+import { TransactionCondition, FunctionName, Unit } from '../../constants/enums'
+
+/* import managers */
+import { useContracts } from '../../context/ContractsManager'
+import { useWallet } from '../../context/WalletManager'
+import { useUserData } from '../../context/UserDataManager'
+import { useToasts } from '../../context/NotificationsManager'
+
+/* import components */
 import {
   BoxChooseRow,
   BoxChooseCol,
@@ -11,28 +51,86 @@ import { formProps } from './MultiStepForm'
 import { CardBaseComponent, CardContainer } from '../../components/Card'
 import { Heading2, Text3 } from '../../components/Text'
 import { Input } from '../../components/Input'
-import { Slider } from '@rebass/forms'
-import { formatEther, parseEther } from 'ethers/lib/utils'
-import { BigNumber } from 'ethers'
+
+/* import hooks */
 import { useGetQuote } from '../../hooks/usePolicy'
-import { DAYS_PER_YEAR, NUM_BLOCKS_PER_DAY } from '../../constants'
-import { useContracts } from '../../context/ContractsManager'
-import { useWallet } from '../../context/WalletManager'
-import { TransactionCondition, FunctionName, Unit } from '../../constants/enums'
-import { useUserData } from '../../context/UserDataManager'
-import { useToasts } from '../../context/NotificationsManager'
+
+/* import utils */
 import { getGasValue } from '../../utils/formatting'
 
 export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigation }) => {
+  /*************************************************************************************
+
+  Hook variables
+
+  *************************************************************************************/
   const { compProduct } = useContracts()
   const { position, coverageLimit, timePeriod } = formData
-  const [inputCoverage, setInputCoverage] = useState<string>('50')
   const quote = useGetQuote(coverageLimit, position.token.address, timePeriod)
   const wallet = useWallet()
   const { addLocalTransactions } = useUserData()
   const { makeTxToast } = useToasts()
 
+  /*************************************************************************************
+
+  useState variables
+
+  *************************************************************************************/
+  const [inputCoverage, setInputCoverage] = useState<string>('50')
+
+  /*************************************************************************************
+
+  variables
+
+  *************************************************************************************/
+
   const date = new Date()
+
+  /*************************************************************************************
+
+  Contract functions
+
+  *************************************************************************************/
+
+  const buyPolicy = async () => {
+    if (!compProduct) return
+    const txType = FunctionName.BUY_POLICY
+    try {
+      const tx = await compProduct.buyPolicy(
+        wallet.account,
+        position.token.address,
+        coverageLimit,
+        BigNumber.from(NUM_BLOCKS_PER_DAY * parseInt(timePeriod)),
+        {
+          value: parseEther(quote).add(parseEther(quote).div('10000')),
+          gasPrice: getGasValue(wallet.gasPrices.selected.value),
+          gasLimit: 450000,
+        }
+      )
+      navigation.next()
+      const txHash = tx.hash
+      const localTx = { hash: txHash, type: txType, value: '0', status: TransactionCondition.PENDING, unit: Unit.ETH }
+      addLocalTransactions(localTx)
+      wallet.reload()
+      makeTxToast(txType, TransactionCondition.PENDING, txHash)
+      await tx.wait().then((receipt: any) => {
+        console.log('buyPolicy tx', tx)
+        console.log('buyPolicy receipt', receipt)
+        const status = receipt.status ? TransactionCondition.SUCCESS : TransactionCondition.FAILURE
+        makeTxToast(txType, status, txHash)
+        wallet.reload()
+      })
+    } catch (err) {
+      makeTxToast(txType, TransactionCondition.CANCELLED)
+      wallet.reload()
+    }
+  }
+
+  /*************************************************************************************
+
+  Local helper functions
+
+  *************************************************************************************/
 
   const handleInputCoverage = (input: string) => {
     // allow only numbers and decimals
@@ -90,39 +188,11 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
       .div('10000')
   )
 
-  const buyPolicy = async () => {
-    if (!compProduct) return
-    const txType = FunctionName.BUY_POLICY
-    try {
-      const tx = await compProduct.buyPolicy(
-        wallet.account,
-        position.token.address,
-        coverageLimit,
-        BigNumber.from(NUM_BLOCKS_PER_DAY * parseInt(timePeriod)),
-        {
-          value: parseEther(quote).add(parseEther(quote).div('10000')),
-          gasPrice: getGasValue(wallet.gasPrices.selected.value),
-          gasLimit: 450000,
-        }
-      )
-      navigation.next()
-      const txHash = tx.hash
-      const localTx = { hash: txHash, type: txType, value: '0', status: TransactionCondition.PENDING, unit: Unit.ETH }
-      addLocalTransactions(localTx)
-      wallet.reload()
-      makeTxToast(txType, TransactionCondition.PENDING, txHash)
-      await tx.wait().then((receipt: any) => {
-        console.log('buyPolicy tx', tx)
-        console.log('buyPolicy receipt', receipt)
-        const status = receipt.status ? TransactionCondition.SUCCESS : TransactionCondition.FAILURE
-        makeTxToast(txType, status, txHash)
-        wallet.reload()
-      })
-    } catch (err) {
-      makeTxToast(txType, TransactionCondition.CANCELLED)
-      wallet.reload()
-    }
-  }
+  /*************************************************************************************
+
+  Render
+
+  *************************************************************************************/
 
   return (
     <Fragment>

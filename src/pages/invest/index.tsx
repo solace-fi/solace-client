@@ -54,7 +54,7 @@ import {
 import { RadioElement, RadioInput, RadioGroup, RadioLabel } from '../../components/Radio'
 import { Table, TableHead, TableHeader, TableRow, TableBody, TableData, TableDataGroup } from '../../components/Table'
 import { Button } from '../../components/Button'
-import { Heading1, Heading2, Text2 } from '../../components/Text'
+import { Heading1, Heading2 } from '../../components/Text'
 import { Content } from '../../components/Layout'
 import { HyperLink } from '../../components/Link'
 
