@@ -6,6 +6,8 @@
 
 ![Invest](./public/images/invest.png)
 
+![Quote](./public/images/quote.png)
+
 ## Where do I start reading through this code?
 
 ---
@@ -45,6 +47,7 @@ After the deploy script is ran, copy the output of REACT_APP contract addresses 
     Treasury       | <10>
     ClaimsEscrow   | <11>
     ClaimsAdjustor | <12>
+    ...
 
     REACT_APP_REGISTRY_CONTRACT_ADDRESS=<1>
     REACT_APP_SOLACE_CONTRACT_ADDRESS=<2>
@@ -58,8 +61,10 @@ After the deploy script is ran, copy the output of REACT_APP contract addresses 
     REACT_APP_CLAIMS_ADJUSTOR_CONTRACT_ADDRESS=<10>
     REACT_APP_UNISWAP_FACTORY_CONTRACT_ADDRESS=<11>
     REACT_APP_UNISWAP_ROUTER_CONTRACT_ADDRESS=<12>
-    REACT_APP_UNISWAP_LPTOKEN_CONTRACT_ADDRESS=<13>
-    REACT_APP_UNISWAP_POOL_CONTRACT_ADDRESS=<14>
+    REACT_APP_UNISWAP_LPTOKEN_CONTRACT_ADDRESS=<...>
+    REACT_APP_UNISWAP_POOL_CONTRACT_ADDRESS=<...>
+    REACT_APP_POLICY_MANAGER_CONTRACT_ADDRESS=<...>
+    REACT_APP_COMPOUND_PRODUCT_CONTRACT_ADDRESS=<...>
 
 Run using the following react command from the client directory
 
