@@ -41,7 +41,7 @@ export default function App(): any {
           <LayoutContent width={10}>
             <Navbar />
           </LayoutContent>
-          <LayoutContent width={90}>
+          <LayoutContent>
             <Prices />
             <LayoutContentWithLoader>
               {location.pathname !== '/quote' && <Statistics />}

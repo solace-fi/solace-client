@@ -23,7 +23,7 @@ export const ItemText = styled.li`
   align-items: center;
   padding: 8px 0px 8px 16px;
   list-style: none;
-  height: 60px;
+  height: 30px;
 `
 
 export const ItemList = styled.ul`
