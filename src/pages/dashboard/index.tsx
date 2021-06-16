@@ -84,7 +84,6 @@ function Dashboard(): any {
 
   *************************************************************************************/
 
-  const [policiesFetched, setPoliciesFetched] = useState<boolean>(false)
   const [policies, setPolicies] = useState<Policy[]>([])
   const [latestBlock, setLatestBlock] = useState<number>(0)
 
@@ -163,11 +162,9 @@ function Dashboard(): any {
       const fetchPolicies = async () => {
         const policies = await getAllPoliciesOfUser(wallet.account as string, Number(CHAIN_ID))
         setPolicies(policies)
-        setPoliciesFetched(true)
       }
       fetchPolicies()
     } catch (err) {
-      setPoliciesFetched(false)
       console.log(err)
     }
   }, [wallet.account, wallet.isActive])
@@ -180,6 +177,21 @@ function Dashboard(): any {
 
   return (
     <Fragment>
+      <Content>
+        <Heading1>Your Policies</Heading1>
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableHeader>{'Id'}</TableHeader>
+              <TableHeader>{'Status'}</TableHeader>
+              <TableHeader>{'Product'}</TableHeader>
+              <TableHeader>{'Expiration Date'}</TableHeader>
+              <TableHeader>{'Amount'}</TableHeader>
+            </TableRow>
+          </TableHead>
+          <TableBody>{renderPolicies()}</TableBody>
+        </Table>
+      </Content>
       <Content>
         <Heading1>Your Investments</Heading1>
         <CardContainer>
@@ -224,34 +236,6 @@ function Dashboard(): any {
             </CardBlock>
           </InvestmentCardComponent>
         </CardContainer>
-      </Content>
-      <Content>
-        <Heading1>Your Policies</Heading1>
-        {policies.length == 0 && policiesFetched && (
-          <Table>
-            <TableBody>
-              <TableRow>
-                <TableData>
-                  <Text3>{`You don't have any policy`}</Text3>
-                </TableData>
-              </TableRow>
-            </TableBody>
-          </Table>
-        )}
-        {policies.length > 0 && policiesFetched && (
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableHeader>{'Id'}</TableHeader>
-                <TableHeader>{'Status'}</TableHeader>
-                <TableHeader>{'Product'}</TableHeader>
-                <TableHeader>{'Expiration Date'}</TableHeader>
-                <TableHeader>{'Amount'}</TableHeader>
-              </TableRow>
-            </TableHead>
-            <TableBody>{renderPolicies()}</TableBody>
-          </Table>
-        )}
       </Content>
     </Fragment>
   )
