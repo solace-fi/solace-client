@@ -65,6 +65,7 @@ export const Navbar = (): any => {
     @media screen and (max-width: 1115px) {
       display: block;
       width: 100%;
+      z-index: 1;
     }
   `
   const NavButton = styled.button`
