@@ -10,6 +10,7 @@ interface TableProps {
   headers?: string[]
   body?: { data: string[]; status: boolean }[]
   width?: number
+  disabled?: boolean
 }
 
 const handleCellAlign = (props: TableProps) => {
@@ -31,7 +32,10 @@ const TableBase = styled.table<TableProps>`
     'tr { &:hover { td { background-color: rgba(255, 255, 255, 0.5); transition: background-color 200ms linear;} } }'}
 `
 
-export const TableRow = styled.tr``
+export const TableRow = styled.tr<TableProps>`
+  ${(props) =>
+    props.disabled && 'td {color: #fff; background-color: rgba(0, 255, 209, 0.3); opacity: 0.5; pointer-events: none }'}
+`
 
 export const TableBody = styled.tbody``
 
@@ -75,6 +79,7 @@ export const Table: React.FC<TableProps> = ({
   body,
   children,
   isQuote,
+  disabled,
 }) => {
   return (
     <TableBase
@@ -85,6 +90,7 @@ export const Table: React.FC<TableProps> = ({
       headers={headers}
       body={body}
       isQuote={isQuote}
+      disabled={disabled}
     >
       {children}
     </TableBase>
