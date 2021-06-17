@@ -10,6 +10,7 @@
 
     PositionStep function
       Hook variables
+      useState variables
       Local helper functions
       useEffect hooks
       Render
@@ -17,7 +18,7 @@
   *************************************************************************************/
 
 /* import react */
-import React, { Fragment, useCallback, useEffect } from 'react'
+import React, { Fragment, useCallback, useEffect, useState } from 'react'
 
 /* import packages */
 import { formatEther } from 'ethers/lib/utils'
@@ -36,6 +37,8 @@ import { Loader } from '../../components/Loader'
 /* import utils */
 import { getPositions } from '../../utils/positionGetter'
 import { fixedPositionBalance } from '../../utils/formatting'
+import { getAllPoliciesOfUser } from '../../utils/policyGetter'
+import { PolicyStatus } from '../../constants/enums'
 
 export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigation }) => {
   const { protocol, lastProtocol, balances, loading } = formData
@@ -46,7 +49,14 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
 
   *************************************************************************************/
 
-  const { account, chainId } = useWallet()
+  const { account, chainId, isActive } = useWallet()
+
+  /*************************************************************************************
+
+  useState variables
+
+  *************************************************************************************/
+  const [userPolicyPositions, setUserPolicyPositions] = useState<[string, string, boolean][]>([])
 
   /*************************************************************************************
 
@@ -94,6 +104,17 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
     }
   }, [protocol, chainId, account])
 
+  const userHasActiveProductPosition = (product: string, position: string): boolean => {
+    let result = false
+    for (const policyProductPosition of userPolicyPositions) {
+      if (product === policyProductPosition[0] && position === policyProductPosition[1] && policyProductPosition[2]) {
+        result = true
+        break
+      }
+    }
+    return result
+  }
+
   /*************************************************************************************
 
   useEffect hooks
@@ -105,6 +126,26 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
       getBalances()
     }
   }, [])
+
+  useEffect(() => {
+    try {
+      const fetchPolicies = async () => {
+        const policies = await getAllPoliciesOfUser(account as string, Number(chainId))
+
+        // tuple data type: [product, position, isActive]
+        // [['compound', 'eth', true], ['compound', 'dai', false],..,]
+        const userPolicyPositionList: [string, string, boolean][] = []
+        policies.forEach((policy) => {
+          userPolicyPositionList.push([policy.productName, policy.positionName, policy.status === PolicyStatus.ACTIVE])
+        })
+        setUserPolicyPositions(userPolicyPositionList)
+      }
+
+      fetchPolicies()
+    } catch (err) {
+      console.log(err)
+    }
+  }, [account, isActive, chainId])
 
   /*************************************************************************************
 
@@ -118,7 +159,7 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
         <CardContainer cardsPerRow={3}>
           {balances.map((position: any) => {
             return (
-              <PositionCardComponent key={position.underlying.address}>
+              <PositionCardComponent key={position.underlying.address} disabled={true}>
                 <PositionCardLogo>
                   <img src={`https://assets.solace.fi/${position.underlying.address.toLowerCase()}.svg`} />
                 </PositionCardLogo>
@@ -136,7 +177,12 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
                   {formatEther(position.eth.balance)} <BoxItemUnits style={{ fontSize: '12px' }}>ETH</BoxItemUnits>
                 </PositionCardCount>
                 <PositionCardButton>
-                  <Button onClick={() => handleChange(position)}>Select</Button>
+                  <Button
+                    onClick={() => handleChange(position)}
+                    disabled={userHasActiveProductPosition(protocol.name, position.underlying.symbol)}
+                  >
+                    Select
+                  </Button>
                 </PositionCardButton>
               </PositionCardComponent>
             )

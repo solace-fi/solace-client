@@ -15,13 +15,12 @@
       Hook variables
       useState variables
       Local helper functions
-      useEffect hooks
       Render
 
   *************************************************************************************/
 
 /* import react */
-import React, { Fragment, useState, useEffect } from 'react'
+import React, { Fragment, useState } from 'react'
 
 /* import packages */
 import styled from 'styled-components'
@@ -40,13 +39,9 @@ import { Protocol, ProtocolImage, ProtocolTitle } from '../../components/Protoco
 
 /* import hooks */
 import { useGetAvailableCoverage, useGetYearlyCost } from '../../hooks/usePolicy'
-import { useWallet } from '../../context/WalletManager'
 
 /* import utils */
 import { fixed } from '../../utils/formatting'
-import { getAllPoliciesOfUser } from '../../utils/policyGetter'
-import { PolicyStatus } from '../../constants/enums'
-import { Loader } from '../../components/Loader'
 
 /*************************************************************************************
 
@@ -72,7 +67,6 @@ export const ProtocolStep: React.FC<formProps> = ({ formData, setForm, navigatio
   const availableCoverage = useGetAvailableCoverage()
   const yearlyCost = useGetYearlyCost()
   const { protocol } = formData
-  const wallet = useWallet()
 
   /*************************************************************************************
 
@@ -80,8 +74,6 @@ export const ProtocolStep: React.FC<formProps> = ({ formData, setForm, navigatio
 
   *************************************************************************************/
   const [searchValue, setSearchValue] = useState<string>('')
-  const [userPolicies, setUserPolicies] = useState<Map<string, boolean>>(new Map())
-  const [pageLoaded, setPageLoaded] = useState<boolean>(false)
 
   /*************************************************************************************
 
@@ -109,51 +101,11 @@ export const ProtocolStep: React.FC<formProps> = ({ formData, setForm, navigatio
     setSearchValue(searchValue)
   }, 300)
 
-  const userHasActivePolicy = (product: string): boolean => {
-    if (pageLoaded && userPolicies.has(product)) {
-      const status = userPolicies.get(product) || false
-      return status
-    }
-    return false
-  }
-
-  /*************************************************************************************
-
-    useEffect hooks
-
-  *************************************************************************************/
-
-  useEffect(() => {
-    if (!wallet.isActive || !wallet.account) {
-      return
-    }
-
-    try {
-      const fetchPolicies = async () => {
-        const policies = await getAllPoliciesOfUser(wallet.account as string, Number(CHAIN_ID))
-        const userPolicyMap = new Map<string, boolean>()
-        policies.forEach((policy) => {
-          if (!userPolicyMap.has(policy.productName)) {
-            userPolicyMap.set(policy.productName, policy.status === PolicyStatus.ACTIVE ? true : false)
-          }
-        })
-        setUserPolicies(userPolicyMap)
-        setPageLoaded(true)
-      }
-      fetchPolicies()
-    } catch (err) {
-      console.log(err)
-    }
-  }, [wallet.account, wallet.isActive])
   /*************************************************************************************
 
   Render
 
   *************************************************************************************/
-
-  if (!pageLoaded) {
-    return <Loader />
-  }
 
   return (
     <Fragment>
@@ -173,7 +125,7 @@ export const ProtocolStep: React.FC<formProps> = ({ formData, setForm, navigatio
           {PROTOCOLS_LIST.filter((protocol) => protocol.toLowerCase().includes(searchValue.toLowerCase())).map(
             (protocol) => {
               return (
-                <TableRow key={protocol} disabled={userHasActivePolicy(protocol)}>
+                <TableRow key={protocol}>
                   <TableData>
                     <Protocol>
                       <ProtocolImage>
