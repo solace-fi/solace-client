@@ -19,7 +19,7 @@ export const Layout = styled.div`
   padding: 30px;
 
   @media screen and (max-width: 1115px) {
-    padding-top: 90px;
+    padding: 90px 0 0 0;
   }
 `
 

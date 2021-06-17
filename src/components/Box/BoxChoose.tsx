@@ -39,6 +39,7 @@ const BoxChooseInfo = css<props>`
 
 export const BoxChooseDate = styled.div`
   ${BoxChooseInfo}
+  white-space: nowrap;
   ${Input} {
     width: 80px;
     margin: 0 6px;
