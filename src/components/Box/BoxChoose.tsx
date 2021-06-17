@@ -3,6 +3,7 @@ import { Input } from '../Input'
 
 interface props {
   bold?: boolean
+  warning?: boolean
 }
 
 export const BoxChooseRow = styled.div`
@@ -35,6 +36,7 @@ const BoxChooseInfo = css<props>`
   font-size: 14px;
   line-height: 19px;
   ${(props) => props.bold && 'font-weight: 600;'}
+  ${(props) => props.warning && 'color: rgba(255, 12, 28);'}
 `
 
 export const BoxChooseDate = styled.div`
