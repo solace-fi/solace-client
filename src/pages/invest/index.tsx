@@ -42,21 +42,14 @@ import { useUserData } from '../../context/UserDataManager'
 /* import components */
 import { Loader } from '../../components/Loader'
 import { Input } from '../../components/Input'
-import {
-  Modal,
-  ModalHeader,
-  ModalContent,
-  ModalRow,
-  ModalCell,
-  ModalCloseButton,
-  ModalButton,
-} from '../../components/Modal'
+import { Modal, ModalHeader, ModalContent, ModalRow, ModalCell, ModalCloseButton } from '../../components/Modal'
 import { RadioElement, RadioInput, RadioGroup, RadioLabel } from '../../components/Radio'
 import { Table, TableHead, TableHeader, TableRow, TableBody, TableData, TableDataGroup } from '../../components/Table'
-import { Button } from '../../components/Button'
+import { Button, ButtonWrapper } from '../../components/Button'
 import { Heading1, Heading2 } from '../../components/Text'
 import { Content } from '../../components/Layout'
 import { HyperLink } from '../../components/Link'
+import { RadioCircle, RadioCircleFigure, RadioCircleInput } from '../../components/Radio/RadioCircle'
 
 /* import hooks */
 import { GasFeeOption } from '../../hooks/useFetchGasPrice'
@@ -77,7 +70,6 @@ import { fixed, getGasValue, filteredAmount, shortenAddress, getUnit, floatEther
 import { getProviderOrSigner } from '../../utils/index'
 import { timeAgo } from '../../utils/timeAgo'
 import { decodeInput } from '../../utils/decoder'
-import { RadioCircle, RadioCircleFigure, RadioCircleInput } from '../../components/Radio/RadioCircle'
 
 function Invest(): any {
   /************************************************************************************* 
@@ -638,7 +630,7 @@ function Invest(): any {
               </ModalCell>
             </ModalRow>
           ) : null}
-          <ModalButton>
+          <ButtonWrapper>
             {!loading ? (
               <Button hidden={loading} disabled={isAppropriateAmount() ? false : true} onClick={handleCallbackFunc}>
                 Confirm
@@ -646,7 +638,7 @@ function Invest(): any {
             ) : (
               <Loader />
             )}
-          </ModalButton>
+          </ButtonWrapper>
         </ModalContent>
       </Modal>
       <Content>
@@ -839,7 +831,7 @@ function Invest(): any {
                     )}
                   </TableData>
                   <TableData>
-                    {transactionDetails.length > 0 && (tx.txreceipt_status ? 'Complete' : 'Failed')}
+                    {transactionDetails.length > 0 && (tx.txreceipt_status == '1' ? 'Complete' : 'Failed')}
                   </TableData>
                 </TableRow>
               ))}

@@ -73,13 +73,6 @@ export const ModalCell = styled.div<TextProps>`
   ${() => handleTextProps()}
 `
 
-export const ModalButton = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 20px 0;
-`
-
 export const Modal: React.FC<ModalProps> = ({ isOpen, style, children }) => {
   return (
     <ModalContainer isOpen={isOpen} style={style}>

@@ -6,6 +6,28 @@ import { GAS_LIMIT, NUM_BLOCKS_PER_DAY } from '../constants'
 import { useContracts } from '../context/ContractsManager'
 import { useWallet } from '../context/WalletManager'
 
+export const useGetCancelFee = () => {
+  const { compProduct } = useContracts()
+  const [cancelFee, setCancelFee] = useState<string>('0.00')
+
+  const getCancelFee = async () => {
+    if (!compProduct) return
+    try {
+      const fee = await compProduct.cancelFee()
+      console.log('what is fee', formatEther(fee))
+      setCancelFee(formatEther(fee))
+    } catch (err) {
+      console.log('getCancelFee', err)
+    }
+  }
+
+  useEffect(() => {
+    getCancelFee()
+  }, [])
+
+  return cancelFee
+}
+
 export const useGetYearlyCost = () => {
   const { compProduct } = useContracts()
   const [yearlyCost, setYearlyCost] = useState<string>('0.00')
@@ -49,13 +71,13 @@ export const useGetAvailableCoverage = () => {
   return availableCoverage
 }
 
-export const useGetQuote = (coverLimit: string, positionContract: string, days: string): any => {
+export const useGetQuote = (coverLimit: string | null, positionContract: string | null, days: string): any => {
   const { compProduct } = useContracts()
   const { account } = useWallet()
   const [quote, setQuote] = useState<string>('0.00')
 
   const getQuote = async () => {
-    if (!compProduct) return
+    if (!compProduct || !coverLimit || !positionContract) return
     try {
       const quote = await compProduct.getQuote(
         account,
