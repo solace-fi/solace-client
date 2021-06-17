@@ -239,7 +239,10 @@ export const Statistics = () => {
         <BoxItem>
           <BoxItemTitle h3>Active Cover Amount</BoxItemTitle>
           <BoxItemValue h2>
-            {`$${fixed(parseFloat(formatEther(totalActiveCoverAmount.toString())) * coins[0].current_price, 2)}`}
+            {`$${fixed(
+              parseFloat(formatEther(totalActiveCoverAmount.toString())) * (coins[0] && coins[0].current_price),
+              2
+            )}`}
           </BoxItemValue>
         </BoxItem>
         <BoxItem>

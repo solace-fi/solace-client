@@ -107,9 +107,10 @@ function Dashboard(): any {
           <TableData>{policy.policyId}</TableData>
           <TableData>{policy.status}</TableData>
           <TableData>{policy.productName}</TableData>
+          <TableData>{policy.positionName}</TableData>
           <TableData>{calculatePolicyExpirationDate(policy.expirationBlock)}</TableData>
           <TableData>
-            {policy.coverAmount ? formatEther(policy.coverAmount) : 0} {Unit.ETH}
+            {policy.coverAmount ? fixed(parseFloat(formatEther(policy.coverAmount)), 2) : 0} {Unit.ETH}
           </TableData>
 
           <TableData cellAlignRight>
@@ -185,6 +186,7 @@ function Dashboard(): any {
               <TableHeader>{'Id'}</TableHeader>
               <TableHeader>{'Status'}</TableHeader>
               <TableHeader>{'Product'}</TableHeader>
+              <TableHeader>{'Position'}</TableHeader>
               <TableHeader>{'Expiration Date'}</TableHeader>
               <TableHeader>{'Amount'}</TableHeader>
             </TableRow>

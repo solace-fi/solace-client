@@ -159,7 +159,10 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
         <CardContainer cardsPerRow={3}>
           {balances.map((position: any) => {
             return (
-              <PositionCardComponent key={position.underlying.address} disabled={true}>
+              <PositionCardComponent
+                key={position.underlying.address}
+                disabled={userHasActiveProductPosition(protocol.name, position.underlying.symbol)}
+              >
                 <PositionCardLogo>
                   <img src={`https://assets.solace.fi/${position.underlying.address.toLowerCase()}.svg`} />
                 </PositionCardLogo>
@@ -177,12 +180,7 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
                   {formatEther(position.eth.balance)} <BoxItemUnits style={{ fontSize: '12px' }}>ETH</BoxItemUnits>
                 </PositionCardCount>
                 <PositionCardButton>
-                  <Button
-                    onClick={() => handleChange(position)}
-                    disabled={userHasActiveProductPosition(protocol.name, position.underlying.symbol)}
-                  >
-                    Select
-                  </Button>
+                  <Button onClick={() => handleChange(position)}>Select</Button>
                 </PositionCardButton>
               </PositionCardComponent>
             )
