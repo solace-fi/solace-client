@@ -12,6 +12,7 @@ export interface Policy {
   coverAmount: string
   price: string
   status: PolicyStatus
+  positionName: string
 }
 
 export async function getPoliciesOfUser(user: string, product: string, chainId: number): Promise<Policy[]> {
