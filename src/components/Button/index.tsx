@@ -27,6 +27,13 @@ const ButtonBase = styled.button<props>`
   ${() => handleButtonProps()}
 `
 
+export const ButtonWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 20px 0;
+`
+
 export const handleButtonProps = (): any => {
   return css<props>`
     visibility: ${(props) => (props.hidden ? 'hidden;' : 'visible;')};

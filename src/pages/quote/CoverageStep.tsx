@@ -39,18 +39,13 @@ import { useUserData } from '../../context/UserDataManager'
 import { useToasts } from '../../context/NotificationsManager'
 
 /* import components */
-import {
-  BoxChooseRow,
-  BoxChooseCol,
-  BoxChooseText,
-  BoxChooseDate,
-  BoxChooseButton,
-} from '../../components/Box/BoxChoose'
-import { Button } from '../../components/Button'
+import { BoxChooseRow, BoxChooseCol, BoxChooseText, BoxChooseDate } from '../../components/Box/BoxChoose'
+import { Button, ButtonWrapper } from '../../components/Button'
 import { formProps } from './MultiStepForm'
 import { CardBaseComponent, CardContainer } from '../../components/Card'
 import { Heading2, Text3 } from '../../components/Text'
 import { Input } from '../../components/Input'
+import { Loader } from '../../components/Loader'
 
 /* import hooks */
 import { useGetQuote } from '../../hooks/usePolicy'
@@ -65,7 +60,7 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
 
   *************************************************************************************/
   const { compProduct } = useContracts()
-  const { position, coverageLimit, timePeriod } = formData
+  const { position, coverageLimit, timePeriod, loading } = formData
   const quote = useGetQuote(coverageLimit, position.token.address, timePeriod)
   const wallet = useWallet()
   const { addLocalTransactions } = useUserData()
@@ -93,6 +88,12 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
   *************************************************************************************/
 
   const buyPolicy = async () => {
+    setForm({
+      target: {
+        name: 'loading',
+        value: true,
+      },
+    })
     if (!compProduct) return
     const txType = FunctionName.BUY_POLICY
     try {
@@ -109,7 +110,19 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
       )
       navigation.next()
       const txHash = tx.hash
-      const localTx = { hash: txHash, type: txType, value: '0', status: TransactionCondition.PENDING, unit: Unit.ETH }
+      const localTx = {
+        hash: txHash,
+        type: txType,
+        value: 'Policy',
+        status: TransactionCondition.PENDING,
+        unit: Unit.ETH,
+      }
+      setForm({
+        target: {
+          name: 'loading',
+          value: false,
+        },
+      })
       addLocalTransactions(localTx)
       wallet.reload()
       makeTxToast(txType, TransactionCondition.PENDING, txHash)
@@ -122,6 +135,12 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
       })
     } catch (err) {
       makeTxToast(txType, TransactionCondition.CANCELLED)
+      setForm({
+        target: {
+          name: 'loading',
+          value: false,
+        },
+      })
       wallet.reload()
     }
   }
@@ -288,9 +307,7 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
               <BoxChooseText bold>{quote} ETH</BoxChooseText>
             </BoxChooseCol>
           </BoxChooseRow>
-          <BoxChooseButton>
-            <Button onClick={() => buyPolicy()}>Buy</Button>
-          </BoxChooseButton>
+          <ButtonWrapper>{!loading ? <Button onClick={() => buyPolicy()}>Buy</Button> : <Loader />}</ButtonWrapper>
         </CardBaseComponent>
         <CardBaseComponent transparent>
           <BoxChooseRow>

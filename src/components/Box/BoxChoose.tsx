@@ -58,9 +58,3 @@ export const BoxChooseDate = styled.div`
 export const BoxChooseText = styled.div`
   ${BoxChooseInfo}
 `
-
-export const BoxChooseButton = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-`

@@ -75,6 +75,8 @@ export const getUnit = (function_name: string): Unit => {
 export const formatTransactionAmount = (function_name: string, amount: string) => {
   switch (function_name) {
     case FunctionName.BUY_POLICY:
+    case FunctionName.EXTEND_POLICY:
+    case FunctionName.CANCEL_POLICY:
       return BigNumber.from(amount)
     case FunctionName.DEPOSIT:
     case FunctionName.WITHDRAW:
