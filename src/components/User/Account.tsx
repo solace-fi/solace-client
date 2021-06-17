@@ -28,14 +28,10 @@ import { useWallet } from '../../context/WalletManager'
 
 /* import components */
 import { User, UserImage, UserWallet, UserName } from './index'
-import { Button } from '../Button'
 import { Heading3 } from '../Text'
 
 /* import hooks */
 import { useEthBalance } from '../../hooks/useEthBalance'
-
-/* import wallet */
-import { SUPPORTED_WALLETS } from '../../wallet/wallets'
 
 /* import utils */
 import { shortenAddress, fixed } from '../../utils/formatting'
@@ -57,17 +53,7 @@ export default function Account(): any {
   return (
     <Fragment>
       {wallet.isActive && (
-        <Heading3
-          style={{
-            height: '30px',
-            lineHeight: '30px',
-            textAlign: 'center',
-            padding: '2px 16px',
-            margin: '0 10px 0 10px',
-            border: '1px solid #fff',
-            borderRadius: '10px',
-          }}
-        >
+        <Heading3 outlined>
           {getNetworkName(wallet.chainId) === '-'
             ? getNetworkName(wallet.chainId)
             : `Connected to ${getNetworkName(wallet.chainId)

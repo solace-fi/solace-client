@@ -22,6 +22,10 @@ export const BoxRow = styled(BoxBase)`
   gap: 24px;
   padding: 20px 0;
   justify-content: space-between;
+
+  @media screen and (max-width: 1115px) {
+    flex-direction: column;
+  }
 `
 
 const TransparentBox = css`
@@ -43,6 +47,10 @@ export const Box = styled(BoxRow)<BoxProps>`
   ${(props) => props.purple && 'background-color: rgba(250, 0, 255, 0.3);'}
   ${(props) => props.transparent && TransparentBox}
   ${(props) => props.outlined && Outline}
+
+  @media screen and (max-width: 1115px) {
+    flex-direction: row;
+  }
 `
 
 export const BoxItem = styled.div`

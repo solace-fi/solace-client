@@ -9,7 +9,7 @@ interface props {
   hidden?: boolean
 }
 
-const ButtonBase = styled.button<props>`
+export const ButtonBaseCss = css`
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -24,6 +24,10 @@ const ButtonBase = styled.button<props>`
   text-align: center;
   transition: all 0.2s, color 0.2s;
   cursor: pointer;
+`
+
+const ButtonBase = styled.button<props>`
+  ${ButtonBaseCss}
   ${() => handleButtonProps()}
 `
 

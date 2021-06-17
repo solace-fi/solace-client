@@ -17,6 +17,10 @@ export const Layout = styled.div`
   display: flex;
   min-height: 100vh;
   padding: 30px;
+
+  @media screen and (max-width: 1115px) {
+    padding-top: 90px;
+  }
 `
 
 export const LayoutContainer = styled.div`
@@ -24,11 +28,25 @@ export const LayoutContainer = styled.div`
   margin: 0 auto;
   width: 100%;
   max-width: ${MAX_WIDTH}px;
+
+  @media screen and (max-width: 1115px) {
+    justify-content: center;
+  }
 `
 
 interface LayoutContentProps {
   width?: number
 }
+
+export const NavContent = styled.div<LayoutContentProps>`
+  padding: 20px;
+  align-content: start;
+  ${(props) => props.width && `min-width: ${(props.width / 100) * MAX_WIDTH}px;`}
+
+  @media screen and (max-width: 1115px) {
+    display: none;
+  }
+`
 
 export const LayoutContent = styled.div<LayoutContentProps>`
   padding: 20px;

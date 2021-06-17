@@ -11,7 +11,19 @@ export interface TextProps {
   textAlignCenter?: boolean
   textAlignLeft?: boolean
   textAlignRight?: boolean
+  outlined?: boolean
 }
+
+const OutlinedCss = css`
+  height: 30px;
+  line-height: 30px;
+  text-align: center;
+  padding: 2px 16px;
+  margin: 0 10px 0 10px;
+  border: 1px solid #fff;
+  border-radius: 10px;
+  white-space: nowrap;
+`
 
 const Font1 = css`
   font-size: 24px;
@@ -70,28 +82,34 @@ const AlignRightCss = css`
   text-align: right;
 `
 
-export const Text1 = styled.div`
+export const Text1 = styled.div<TextProps>`
   ${Text1Css}
+  ${() => handleTextProps()}
 `
 
-export const Text2 = styled.div`
+export const Text2 = styled.div<TextProps>`
   ${Text2Css}
+  ${() => handleTextProps()}
 `
 
-export const Text3 = styled.div`
+export const Text3 = styled.div<TextProps>`
   ${Text3Css}
+  ${() => handleTextProps()}
 `
 
-export const Heading1 = styled.div`
+export const Heading1 = styled.div<TextProps>`
   ${Heading1Css}
+  ${() => handleTextProps()}
 `
 
-export const Heading2 = styled.div`
+export const Heading2 = styled.div<TextProps>`
   ${Heading2Css}
+  ${() => handleTextProps()}
 `
 
-export const Heading3 = styled.div`
+export const Heading3 = styled.div<TextProps>`
   ${Heading3Css}
+  ${() => handleTextProps()}
 `
 
 export const handleTextProps = (): any => {
@@ -105,5 +123,6 @@ export const handleTextProps = (): any => {
     ${(props) => props.textAlignCenter && AlignCenterCss}
     ${(props) => props.textAlignLeft && AlignLeftCss}
     ${(props) => props.textAlignRight && AlignRightCss}
+    ${(props) => props.outlined && OutlinedCss}
   `
 }

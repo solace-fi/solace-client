@@ -24,9 +24,9 @@ import Quote from './quote'
 import Govern from './govern'
 
 /* import components */
-import Navbar from '../components/Sidebar/Navbar'
-import Prices from '../components/Header/Prices'
-import { GlobalStyle, Layout, LayoutContainer, LayoutContent } from '../components/Layout'
+import { SideNavbar, Navbar } from '../components/Navbar/Navbar'
+import { PageHeader } from '../components/Header/Prices'
+import { GlobalStyle, Layout, LayoutContainer, LayoutContent, NavContent } from '../components/Layout'
 import { LayoutContentWithLoader } from '../components/Layout/LayoutContentWithLoader'
 import { Statistics } from '../components/Box/Statistics'
 
@@ -36,13 +36,14 @@ export default function App(): any {
   return (
     <Fragment>
       <GlobalStyle />
+      <Navbar />
       <Layout>
         <LayoutContainer>
-          <LayoutContent width={10}>
-            <Navbar />
-          </LayoutContent>
+          <NavContent width={10}>
+            <SideNavbar />
+          </NavContent>
           <LayoutContent>
-            <Prices />
+            <PageHeader />
             <LayoutContentWithLoader>
               {location.pathname !== '/quote' && <Statistics />}
               <Switch>
