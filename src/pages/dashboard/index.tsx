@@ -45,7 +45,7 @@ import { useToasts } from '../../context/NotificationsManager'
 /* import components */
 import { Content } from '../../components/Layout'
 import { CardContainer, InvestmentCardComponent, CardHeader, CardTitle, CardBlock } from '../../components/Card'
-import { Heading1, Heading2, Heading3, Text1 } from '../../components/Text'
+import { Heading1, Heading2, Heading3, Text1, Text2, Text3 } from '../../components/Text'
 import { Button, ButtonWrapper } from '../../components/Button'
 import { Table, TableHead, TableHeader, TableRow, TableBody, TableData, TableDataGroup } from '../../components/Table'
 import { Modal, ModalHeader, ModalContent, ModalRow, ModalCloseButton } from '../../components/Modal'
@@ -305,92 +305,108 @@ function Dashboard(): any {
     <Fragment>
       <Modal isOpen={showModal}>
         <ModalHeader>
-          <Heading2>Policy Management - {selectedPolicy?.policyId}</Heading2>
+          <Heading2>Policy Management</Heading2>
           <ModalCloseButton hidden={loading} onClick={() => closeModal()} />
         </ModalHeader>
-        {!loading ? (
-          <ModalContent>
-            <BoxChooseRow>
-              <Text1>Extend Policy</Text1>
-            </BoxChooseRow>
-            <BoxChooseRow>
-              <BoxChooseCol>
-                <BoxChooseText>
-                  New Period (1 - {DAYS_PER_YEAR - getDays(selectedPolicy ? selectedPolicy.expirationBlock : '0')} days)
-                </BoxChooseText>
-              </BoxChooseCol>
-              <BoxChooseCol>
-                <Slider
-                  width={150}
-                  backgroundColor={'#fff'}
-                  value={extendedTime == '' ? '1' : extendedTime}
-                  onChange={(e) => setExtendedTime(e.target.value)}
-                  min="1"
-                  max={DAYS_PER_YEAR - getDays(selectedPolicy ? selectedPolicy.expirationBlock : '0')}
-                />
-              </BoxChooseCol>
-              <BoxChooseCol>
-                <Input
-                  type="text"
-                  pattern="[0-9]+"
-                  width={50}
-                  value={extendedTime}
-                  onChange={(e) => filteredTime(e.target.value)}
-                  maxLength={3}
-                />
-              </BoxChooseCol>
-            </BoxChooseRow>
-            <BoxChooseRow>
-              <BoxChooseDate>
-                Current expiration{' '}
-                <Input
-                  readOnly
-                  type="date"
-                  value={`${new Date(
-                    date.setDate(date.getDate() + getDays(selectedPolicy ? selectedPolicy.expirationBlock : '0'))
-                  )
-                    .toISOString()
-                    .substr(0, 10)}`}
-                />{' '}
-                New expiration{' '}
-                <Input
-                  readOnly
-                  type="date"
-                  value={`${new Date(date.setDate(date.getDate() + parseFloat(extendedTime || '1')))
-                    .toISOString()
-                    .substr(0, 10)}`}
-                />
-              </BoxChooseDate>
-            </BoxChooseRow>
-            <ButtonWrapper>
-              <Button onClick={() => extendPolicy()}>Extend Policy Period</Button>
-            </ButtonWrapper>
-            <BoxChooseRow>
-              <Text1>Cancel Policy</Text1>
-            </BoxChooseRow>
-            <BoxChooseRow>
-              <BoxChooseCol>
-                <BoxChooseText>Refund amount: {quote} ETH</BoxChooseText>
-              </BoxChooseCol>
-            </BoxChooseRow>
-            <BoxChooseRow>
-              <BoxChooseCol>
-                <BoxChooseText>Cancellation fee: {cancelFee} ETH</BoxChooseText>
-              </BoxChooseCol>
-            </BoxChooseRow>
-            <ModalRow>
-              <Fragment>
+        <ModalContent>
+          <BoxChooseRow>
+            <BoxChooseCol>
+              <Text2>
+                {selectedPolicy?.productName}-{selectedPolicy?.positionName}
+              </Text2>
+            </BoxChooseCol>
+            <BoxChooseCol>
+              <Text2>Id: {selectedPolicy?.policyId}</Text2>
+            </BoxChooseCol>
+          </BoxChooseRow>
+          {!loading ? (
+            <Fragment>
+              <BoxChooseRow>
+                <Text1>Extend Policy</Text1>
+              </BoxChooseRow>
+              <BoxChooseRow>
+                <BoxChooseCol>
+                  <BoxChooseText>
+                    New Period (1 - {DAYS_PER_YEAR - getDays(selectedPolicy ? selectedPolicy.expirationBlock : '0')}{' '}
+                    days)
+                  </BoxChooseText>
+                </BoxChooseCol>
+                <BoxChooseCol>
+                  <Slider
+                    width={150}
+                    backgroundColor={'#fff'}
+                    value={extendedTime == '' ? '1' : extendedTime}
+                    onChange={(e) => setExtendedTime(e.target.value)}
+                    min="1"
+                    max={DAYS_PER_YEAR - getDays(selectedPolicy ? selectedPolicy.expirationBlock : '0')}
+                  />
+                </BoxChooseCol>
+                <BoxChooseCol>
+                  <Input
+                    type="text"
+                    pattern="[0-9]+"
+                    width={50}
+                    value={extendedTime}
+                    onChange={(e) => filteredTime(e.target.value)}
+                    maxLength={3}
+                  />
+                </BoxChooseCol>
+              </BoxChooseRow>
+              <BoxChooseRow>
+                <BoxChooseDate>
+                  Current expiration{' '}
+                  <Input
+                    readOnly
+                    type="date"
+                    value={`${new Date(
+                      date.setDate(date.getDate() + getDays(selectedPolicy ? selectedPolicy.expirationBlock : '0'))
+                    )
+                      .toISOString()
+                      .substr(0, 10)}`}
+                  />{' '}
+                  New expiration{' '}
+                  <Input
+                    readOnly
+                    type="date"
+                    value={`${new Date(date.setDate(date.getDate() + parseFloat(extendedTime || '1')))
+                      .toISOString()
+                      .substr(0, 10)}`}
+                  />
+                </BoxChooseDate>
+              </BoxChooseRow>
+              <ButtonWrapper>
+                <Button onClick={() => extendPolicy()}>Extend Policy Period</Button>
+              </ButtonWrapper>
+              <BoxChooseRow>
+                <Text1>Cancel Policy</Text1>
+              </BoxChooseRow>
+              <BoxChooseRow>
+                <BoxChooseCol>
+                  <BoxChooseText warning={quote !== '0.00' && parseEther(quote).lte(parseEther(cancelFee))}>
+                    Refund amount: {quote} ETH
+                  </BoxChooseText>
+                </BoxChooseCol>
+              </BoxChooseRow>
+              <BoxChooseRow>
+                <BoxChooseCol>
+                  <BoxChooseText>Cancellation fee: {cancelFee} ETH</BoxChooseText>
+                </BoxChooseCol>
+              </BoxChooseRow>
+              {quote !== '0.00' && parseEther(quote).lte(parseEther(cancelFee)) && (
+                <BoxChooseText warning>Refund amount must offset cancellation fee</BoxChooseText>
+              )}
+              <ModalRow>
                 <ButtonWrapper>
                   <Button disabled={parseEther(quote).lte(parseEther(cancelFee))} onClick={() => cancelPolicy()}>
                     Cancel Policy
                   </Button>
                 </ButtonWrapper>
-              </Fragment>
-            </ModalRow>
-          </ModalContent>
-        ) : (
-          <Loader />
-        )}
+              </ModalRow>
+            </Fragment>
+          ) : (
+            <Loader />
+          )}
+        </ModalContent>
       </Modal>
       <Content>
         <Heading1>Your Policies</Heading1>
