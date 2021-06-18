@@ -23,7 +23,7 @@ export const BoxRow = styled(BoxBase)`
   padding: 20px 0;
   justify-content: space-between;
 
-  @media screen and (max-width: 1115px) {
+  @media screen and (max-width: 1160px) {
     flex-direction: column;
   }
 `
@@ -48,7 +48,7 @@ export const Box = styled(BoxRow)<BoxProps>`
   ${(props) => props.transparent && TransparentBox}
   ${(props) => props.outlined && Outline}
 
-  @media screen and (max-width: 1115px) {
+  @media screen and (max-width: 1160px) {
     flex-direction: row;
   }
 `

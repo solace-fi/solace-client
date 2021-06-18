@@ -15,7 +15,6 @@ export const useGetPolicyPrice = (policyId: number): string => {
     if (!compProduct) return
     try {
       const price = await getPolicyPrice(policyId)
-      console.log('fetched price', price)
       setPolicyPrice(price)
     } catch (err) {
       console.log('getPolicyPrice', err)

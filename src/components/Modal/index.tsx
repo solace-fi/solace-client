@@ -24,6 +24,7 @@ const ModalContainer = styled.div<ModalProps>`
   width: 100vw;
   height: 100vh;
   background: linear-gradient(113.7deg, rgba(182, 33, 255) 0%, rgba(33, 211, 252) 100%);
+  z-index: 1;
   ${(props) => (props.isOpen ? 'display: flex;' : 'display: none;')}
 `
 

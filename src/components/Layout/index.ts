@@ -18,7 +18,7 @@ export const Layout = styled.div`
   min-height: 100vh;
   padding: 30px;
 
-  @media screen and (max-width: 1115px) {
+  @media screen and (max-width: 1160px) {
     padding: 90px 0 0 0;
   }
 `
@@ -29,7 +29,7 @@ export const LayoutContainer = styled.div`
   width: 100%;
   max-width: ${MAX_WIDTH}px;
 
-  @media screen and (max-width: 1115px) {
+  @media screen and (max-width: 1160px) {
     justify-content: center;
   }
 `
@@ -43,7 +43,7 @@ export const NavContent = styled.div<LayoutContentProps>`
   align-content: start;
   ${(props) => props.width && `min-width: ${(props.width / 100) * MAX_WIDTH}px;`}
 
-  @media screen and (max-width: 1115px) {
+  @media screen and (max-width: 1160px) {
     display: none;
   }
 `

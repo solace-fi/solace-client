@@ -62,7 +62,7 @@ export const Navbar = (): any => {
     display: none;
     padding: 10px;
 
-    @media screen and (max-width: 1115px) {
+    @media screen and (max-width: 1160px) {
       display: block;
       width: 100%;
       z-index: 1;
