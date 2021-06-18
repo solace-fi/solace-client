@@ -29,4 +29,9 @@ export const ItemText = styled.li`
 export const ItemList = styled.ul`
   width: 100%;
   padding: 0;
+
+  @media screen and (max-width: 1160px) {
+    display: flex;
+    justify-content: space-evenly;
+  }
 `
