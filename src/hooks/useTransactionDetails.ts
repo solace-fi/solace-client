@@ -26,6 +26,8 @@ export const useTransactionDetails = (txList: any): string[] => {
         if (!topics || topics.length <= 0) return '0'
         return topics[topics.length - 1]
       case FunctionName.BUY_POLICY:
+      case FunctionName.EXTEND_POLICY:
+      case FunctionName.CANCEL_POLICY:
       case FunctionName.DEPOSIT_ETH:
       case FunctionName.DEPOSIT_CP:
       case FunctionName.WITHDRAW_ETH:

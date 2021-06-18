@@ -20,6 +20,8 @@ export enum FunctionName {
   WITHDRAW_REWARDS = 'WithdrawRewards',
   APPROVE = 'Approve',
   BUY_POLICY = 'BuyPolicy',
+  EXTEND_POLICY = 'ExtendPolicy',
+  CANCEL_POLICY = 'CancelPolicy',
 }
 
 export enum Unit {
@@ -28,4 +30,9 @@ export enum Unit {
   SOLACE = 'SOLACE',
   LP = 'LP',
   ID = 'ID',
+}
+
+export enum PolicyStatus {
+  ACTIVE = 'Active',
+  EXPIRED = 'Expired',
 }

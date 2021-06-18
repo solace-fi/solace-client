@@ -5,6 +5,50 @@ import React, { useEffect, useState } from 'react'
 import { GAS_LIMIT, NUM_BLOCKS_PER_DAY } from '../constants'
 import { useContracts } from '../context/ContractsManager'
 import { useWallet } from '../context/WalletManager'
+import { getPolicyPrice } from '../utils/policyGetter'
+
+export const useGetPolicyPrice = (policyId: number): string => {
+  const { compProduct } = useContracts()
+  const [policyPrice, setPolicyPrice] = useState<string>('0')
+
+  const getPrice = async () => {
+    if (!compProduct) return
+    try {
+      const price = await getPolicyPrice(policyId)
+      console.log('fetched price', price)
+      setPolicyPrice(price)
+    } catch (err) {
+      console.log('getPolicyPrice', err)
+    }
+  }
+
+  useEffect(() => {
+    getPrice()
+  }, [])
+
+  return policyPrice
+}
+
+export const useGetCancelFee = () => {
+  const { compProduct } = useContracts()
+  const [cancelFee, setCancelFee] = useState<string>('0.00')
+
+  const getCancelFee = async () => {
+    if (!compProduct) return
+    try {
+      const fee = await compProduct.cancelFee()
+      setCancelFee(formatEther(fee))
+    } catch (err) {
+      console.log('getCancelFee', err)
+    }
+  }
+
+  useEffect(() => {
+    getCancelFee()
+  }, [])
+
+  return cancelFee
+}
 
 export const useGetYearlyCost = () => {
   const { compProduct } = useContracts()
@@ -49,13 +93,13 @@ export const useGetAvailableCoverage = () => {
   return availableCoverage
 }
 
-export const useGetQuote = (coverLimit: string, positionContract: string, days: string): any => {
+export const useGetQuote = (coverLimit: string | null, positionContract: string | null, days: string): any => {
   const { compProduct } = useContracts()
   const { account } = useWallet()
   const [quote, setQuote] = useState<string>('0.00')
 
   const getQuote = async () => {
-    if (!compProduct) return
+    if (!compProduct || !coverLimit || !positionContract) return
     try {
       const quote = await compProduct.getQuote(
         account,
