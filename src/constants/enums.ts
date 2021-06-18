@@ -34,9 +34,3 @@ export enum PolicyStatus {
   ACTIVE = 'Active',
   EXPIRED = 'Expired',
 }
-
-export enum PolicyPosition {
-  ETH = 'ETH',
-  USDC = 'USDC',
-  DAI = 'DAI',
-}

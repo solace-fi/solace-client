@@ -1,6 +1,6 @@
 import axios from 'axios'
 import { PACLAS_POLICY_ENDPOINT } from '../constants/apiURL'
-import { PolicyPosition, PolicyStatus } from '../constants/enums'
+import { PolicyStatus } from '../constants/enums'
 
 export interface Policy {
   policyId: number
@@ -12,7 +12,7 @@ export interface Policy {
   coverAmount: string
   price: string
   status: PolicyStatus
-  positionName: PolicyPosition
+  positionName: string
 }
 
 export async function getPoliciesOfUser(user: string, product: string, chainId: number): Promise<Policy[]> {
