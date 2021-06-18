@@ -34,3 +34,9 @@ const handleResponse = (response: any): Policy[] => {
   }
   return policies
 }
+
+export async function getPolicyPrice(policyId: number): Promise<string> {
+  const { data } = await axios.get(PACLAS_POLICY_ENDPOINT)
+  const policy = data.filter((policy: any) => policy.policyId == policyId)[0]
+  return policy.price
+}
