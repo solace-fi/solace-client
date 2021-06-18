@@ -319,6 +319,15 @@ function Dashboard(): any {
               <Text2>Id: {selectedPolicy?.policyId}</Text2>
             </BoxChooseCol>
           </BoxChooseRow>
+          <BoxChooseRow>
+            <BoxChooseCol>
+              <Text2>Cover Amount: </Text2>
+            </BoxChooseCol>
+            <BoxChooseCol>
+              <Text2>{selectedPolicy?.coverAmount ? formatEther(selectedPolicy.coverAmount) : 0} ETH</Text2>
+            </BoxChooseCol>
+          </BoxChooseRow>
+          <hr style={{ marginBottom: '20px' }} />
           {!loading ? (
             <Fragment>
               <BoxChooseRow>
