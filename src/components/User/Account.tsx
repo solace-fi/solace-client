@@ -70,7 +70,7 @@ export default function Account(): any {
         >
           {getNetworkName(wallet.chainId) === '-'
             ? getNetworkName(wallet.chainId)
-            : `Connected to ${getNetworkName(wallet.chainId)
+            : `${getNetworkName(wallet.chainId)
                 .charAt(0)
                 .toUpperCase()
                 .concat(getNetworkName(wallet.chainId).slice(1))}`}
