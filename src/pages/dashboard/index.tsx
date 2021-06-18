@@ -45,7 +45,7 @@ import { useToasts } from '../../context/NotificationsManager'
 /* import components */
 import { Content } from '../../components/Layout'
 import { CardContainer, InvestmentCardComponent, CardHeader, CardTitle, CardBlock } from '../../components/Card'
-import { Heading1, Heading2, Heading3, Text1, Text2, Text3 } from '../../components/Text'
+import { Heading1, Heading2, Heading3, Text1, Text2 } from '../../components/Text'
 import { Button, ButtonWrapper } from '../../components/Button'
 import { Table, TableHead, TableHeader, TableRow, TableBody, TableData, TableDataGroup } from '../../components/Table'
 import { Modal, ModalHeader, ModalContent, ModalRow, ModalCloseButton } from '../../components/Modal'
@@ -56,7 +56,7 @@ import { Loader } from '../../components/Loader'
 /* import hooks */
 import { useUserStakedValue } from '../../hooks/useUserStakedValue'
 import { useUserPendingRewards, useUserRewardsPerDay } from '../../hooks/useRewards'
-import { useGetCancelFee, useGetQuote } from '../../hooks/usePolicy'
+import { useGetCancelFee, useGetQuote, useGetPolicyPrice } from '../../hooks/usePolicy'
 
 /* import utils */
 import { fixed, getGasValue } from '../../utils/formatting'
@@ -107,6 +107,7 @@ function Dashboard(): any {
     selectedPolicy ? selectedPolicy.positionContract : null,
     extendedTime
   )
+  const policyPrice = useGetPolicyPrice(selectedPolicy ? selectedPolicy.policyId : 0)
   const cancelFee = useGetCancelFee()
 
   /*************************************************************************************
@@ -116,6 +117,15 @@ function Dashboard(): any {
   *************************************************************************************/
 
   const date = new Date()
+  const blocksLeft = BigNumber.from(parseFloat(selectedPolicy ? selectedPolicy.expirationBlock : '0') - latestBlock)
+  const coverAmount = BigNumber.from(selectedPolicy ? selectedPolicy.coverAmount : '0')
+  const price = BigNumber.from(policyPrice)
+  const refundAmount = formatEther(
+    blocksLeft
+      .mul(coverAmount)
+      .mul(price)
+      .div(String(Math.pow(10, 12)))
+  )
 
   /*************************************************************************************
 
@@ -391,8 +401,8 @@ function Dashboard(): any {
               </BoxChooseRow>
               <BoxChooseRow>
                 <BoxChooseCol>
-                  <BoxChooseText warning={quote !== '0.00' && parseEther(quote).lte(parseEther(cancelFee))}>
-                    Refund amount: {quote} ETH
+                  <BoxChooseText warning={policyPrice !== '0' && parseEther(refundAmount).lte(parseEther(cancelFee))}>
+                    Refund amount: {refundAmount} ETH
                   </BoxChooseText>
                 </BoxChooseCol>
               </BoxChooseRow>
@@ -401,12 +411,12 @@ function Dashboard(): any {
                   <BoxChooseText>Cancellation fee: {cancelFee} ETH</BoxChooseText>
                 </BoxChooseCol>
               </BoxChooseRow>
-              {quote !== '0.00' && parseEther(quote).lte(parseEther(cancelFee)) && (
+              {policyPrice !== '0' && parseEther(refundAmount).lte(parseEther(cancelFee)) && (
                 <BoxChooseText warning>Refund amount must offset cancellation fee</BoxChooseText>
               )}
               <ModalRow>
                 <ButtonWrapper>
-                  <Button disabled={parseEther(quote).lte(parseEther(cancelFee))} onClick={() => cancelPolicy()}>
+                  <Button disabled={parseEther(refundAmount).lte(parseEther(cancelFee))} onClick={() => cancelPolicy()}>
                     Cancel Policy
                   </Button>
                 </ButtonWrapper>

@@ -5,6 +5,29 @@ import React, { useEffect, useState } from 'react'
 import { GAS_LIMIT, NUM_BLOCKS_PER_DAY } from '../constants'
 import { useContracts } from '../context/ContractsManager'
 import { useWallet } from '../context/WalletManager'
+import { getPolicyPrice } from '../utils/policyGetter'
+
+export const useGetPolicyPrice = (policyId: number): string => {
+  const { compProduct } = useContracts()
+  const [policyPrice, setPolicyPrice] = useState<string>('0')
+
+  const getPrice = async () => {
+    if (!compProduct) return
+    try {
+      const price = await getPolicyPrice(policyId)
+      console.log('fetched price', price)
+      setPolicyPrice(price)
+    } catch (err) {
+      console.log('getPolicyPrice', err)
+    }
+  }
+
+  useEffect(() => {
+    getPrice()
+  }, [])
+
+  return policyPrice
+}
 
 export const useGetCancelFee = () => {
   const { compProduct } = useContracts()
@@ -14,7 +37,6 @@ export const useGetCancelFee = () => {
     if (!compProduct) return
     try {
       const fee = await compProduct.cancelFee()
-      console.log('what is fee', formatEther(fee))
       setCancelFee(formatEther(fee))
     } catch (err) {
       console.log('getCancelFee', err)
