@@ -57,6 +57,7 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
 
   *************************************************************************************/
   const [userPolicyPositions, setUserPolicyPositions] = useState<[string, string, boolean][]>([])
+  const [positionsLoaded, setPositionsLoaded] = useState<boolean>(false)
 
   /*************************************************************************************
 
@@ -139,6 +140,7 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
           userPolicyPositionList.push([policy.productName, policy.positionName, policy.status === PolicyStatus.ACTIVE])
         })
         setUserPolicyPositions(userPolicyPositionList)
+        setPositionsLoaded(true)
       }
 
       fetchPolicies()
@@ -155,7 +157,7 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
 
   return (
     <Fragment>
-      {!loading ? (
+      {!loading && positionsLoaded ? (
         <CardContainer cardsPerRow={3}>
           {balances.map((position: any) => {
             return (
