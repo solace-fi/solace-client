@@ -27,7 +27,7 @@ import styled from 'styled-components'
 import useDebounce from '@rooks/use-debounce'
 
 /* import constants */
-import { DAYS_PER_YEAR, NUM_BLOCKS_PER_DAY } from '../../constants'
+import { DAYS_PER_YEAR, NUM_BLOCKS_PER_DAY, CHAIN_ID } from '../../constants'
 import { PROTOCOLS_LIST } from '../../constants/protocols'
 
 /* import components */

@@ -227,7 +227,7 @@ function Dashboard(): any {
           <TableData>{policy.positionName}</TableData>
           <TableData>{calculatePolicyExpirationDate(policy.expirationBlock)}</TableData>
           <TableData>
-            {policy.coverAmount ? formatEther(policy.coverAmount) : 0} {Unit.ETH}
+            {policy.coverAmount ? fixed(parseFloat(formatEther(policy.coverAmount)), 2) : 0} {Unit.ETH}
           </TableData>
 
           <TableData cellAlignRight>

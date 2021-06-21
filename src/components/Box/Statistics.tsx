@@ -9,6 +9,7 @@
     import components
     import hooks
     import wallet
+    import utils
 
     Statistics function
       useRef variables
@@ -29,8 +30,8 @@ import { formatEther, parseEther } from '@ethersproject/units'
 import { Contract } from '@ethersproject/contracts'
 
 /* import constants */
-import { GAS_LIMIT } from '../../constants'
-import { TransactionCondition, FunctionName, Unit } from '../../constants/enums'
+import { GAS_LIMIT, CHAIN_ID } from '../../constants'
+import { TransactionCondition, FunctionName, Unit, PolicyStatus } from '../../constants/enums'
 
 /* import managers */
 import { useWallet } from '../../context/WalletManager'
@@ -47,11 +48,13 @@ import { useCapitalPoolSize } from '../../hooks/useCapitalPoolSize'
 import { useTotalPendingRewards } from '../../hooks/useRewards'
 import { useSolaceBalance } from '../../hooks/useSolaceBalance'
 import { usePoolStakedValue } from '../../hooks/usePoolStakedValue'
-import { fixed, getGasValue, floatEther } from '../../utils/formatting'
 
 /* import wallet */
-import { SUPPORTED_WALLETS } from '../../wallet/wallets'
 import { WalletConnectButton } from '../Button/WalletConnect'
+
+/* import utils */
+import { getAllPolicies } from '../../utils/policyGetter'
+import { fixed, getGasValue, floatEther } from '../../utils/formatting'
 
 export const Statistics = () => {
   /************************************************************************************* 
@@ -87,6 +90,8 @@ export const Statistics = () => {
 
   *************************************************************************************/
   const [totalValueLocked, setTotalValueLocked] = useState<string>('0.00')
+  const [totalActiveCoverAmount, setTotalActiveCoverAmount] = useState<number>(0.0)
+  const [totalActivePolicies, setTotalActivePolicies] = useState<number>(0.0)
 
   /*************************************************************************************
 
@@ -158,6 +163,30 @@ export const Statistics = () => {
     getTotalValueLocked()
   }, [cpPoolValue, lpPoolValue])
 
+  useEffect(() => {
+    try {
+      const fetchPolicies = async () => {
+        const policies = await getAllPolicies(Number(CHAIN_ID))
+        const activePolicies = policies.filter(({ status }) => status === PolicyStatus.ACTIVE)
+
+        let activeCoverAmount = 0
+        activePolicies.forEach(({ coverAmount }) => {
+          try {
+            activeCoverAmount += parseFloat(coverAmount)
+          } catch (e) {
+            console.log(e)
+          }
+        })
+
+        setTotalActiveCoverAmount(activeCoverAmount)
+        setTotalActivePolicies(activePolicies.length)
+      }
+      fetchPolicies()
+    } catch (err) {
+      console.log(err)
+    }
+  }, [])
+
   return (
     <BoxRow>
       {wallet.initialized && wallet.account ? (
@@ -206,11 +235,14 @@ export const Statistics = () => {
         </BoxItem>
         <BoxItem>
           <BoxItemTitle h3>Active Cover Amount</BoxItemTitle>
-          <BoxItemValue h2>$0</BoxItemValue>
+          <BoxItemValue h2>
+            {`${fixed(parseFloat(formatEther(totalActiveCoverAmount.toString())), 2)} `}
+            <BoxItemUnits h3>{Unit.ETH}</BoxItemUnits>
+          </BoxItemValue>
         </BoxItem>
         <BoxItem>
           <BoxItemTitle h3>Total Active Policies</BoxItemTitle>
-          <BoxItemValue h2>0</BoxItemValue>
+          <BoxItemValue h2>{totalActivePolicies}</BoxItemValue>
         </BoxItem>
       </Box>
     </BoxRow>
