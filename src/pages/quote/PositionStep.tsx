@@ -145,6 +145,7 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
 
       fetchPolicies()
     } catch (err) {
+      setPositionsLoaded(true)
       console.log(err)
     }
   }, [account, isActive, chainId])
