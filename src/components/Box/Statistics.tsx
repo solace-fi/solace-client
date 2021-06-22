@@ -117,7 +117,6 @@ export const Statistics = () => {
       makeTxToast(txType, TransactionCondition.PENDING, txHash)
       wallet.reload()
       await tx.wait().then((receipt: any) => {
-        console.log(receipt)
         const status = receipt.status ? TransactionCondition.SUCCESS : TransactionCondition.FAILURE
         makeTxToast(txType, status, txHash)
         wallet.reload()

@@ -137,7 +137,6 @@ function Dashboard(): any {
     setLoading(true)
     if (!compProduct) return
     const txType = FunctionName.EXTEND_POLICY
-    console.log('my quote', quote)
     try {
       const tx = await compProduct.extendPolicy(
         selectedPolicy?.policyId,
@@ -155,8 +154,6 @@ function Dashboard(): any {
       wallet.reload()
       makeTxToast(txType, TransactionCondition.PENDING, txHash)
       await tx.wait().then((receipt: any) => {
-        console.log('extendPolicy tx', tx)
-        console.log('extendPolicy receipt', receipt)
         const status = receipt.status ? TransactionCondition.SUCCESS : TransactionCondition.FAILURE
         makeTxToast(txType, status, txHash)
         wallet.reload()
@@ -187,8 +184,6 @@ function Dashboard(): any {
       wallet.reload()
       makeTxToast(txType, TransactionCondition.PENDING, txHash)
       await tx.wait().then((receipt: any) => {
-        console.log('cancelPolicy tx', tx)
-        console.log('cancelPolicy receipt', receipt)
         const status = receipt.status ? TransactionCondition.SUCCESS : TransactionCondition.FAILURE
         makeTxToast(txType, status, txHash)
         wallet.reload()
