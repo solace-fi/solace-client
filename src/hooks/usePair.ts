@@ -16,7 +16,6 @@ export function usePairPrice(): any {
         const pair = await Fetcher.fetchPairData(solace, weth)
         const route = new Route([pair], weth)
         const trade = new Trade(route, new TokenAmount(weth, String(POW_EIGHTEEN)), TradeType.EXACT_INPUT)
-        console.log('trade', trade)
         const pairPrice = trade.executionPrice.toSignificant(6)
         setPairPrice(pairPrice)
       } catch (err) {

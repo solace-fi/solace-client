@@ -11,6 +11,7 @@
     PositionStep function
       Hook variables
       useState variables
+      useRef variables
       Local helper functions
       useEffect hooks
       Render
@@ -18,7 +19,7 @@
   *************************************************************************************/
 
 /* import react */
-import React, { Fragment, useCallback, useEffect, useState } from 'react'
+import React, { Fragment, useCallback, useEffect, useRef, useState } from 'react'
 
 /* import packages */
 import { formatEther } from 'ethers/lib/utils'
@@ -33,10 +34,12 @@ import { formProps } from './MultiStepForm'
 import { CardContainer, PositionCardComponent } from '../../components/Card'
 import { PositionCardButton, PositionCardCount, PositionCardLogo, PositionCardName } from '../../components/Position'
 import { Loader } from '../../components/Loader'
+import { WelcomeContainer } from '.'
+import { Heading1 } from '../../components/Text'
 
 /* import utils */
 import { getPositions } from '../../utils/positionGetter'
-import { fixedPositionBalance } from '../../utils/formatting'
+import { fixedPositionBalance, truncateBalance } from '../../utils/formatting'
 import { getAllPoliciesOfUser } from '../../utils/policyGetter'
 import { PolicyStatus } from '../../constants/enums'
 
@@ -58,6 +61,13 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
   *************************************************************************************/
   const [userPolicyPositions, setUserPolicyPositions] = useState<[string, string, boolean][]>([])
   const [positionsLoaded, setPositionsLoaded] = useState<boolean>(false)
+
+  /*************************************************************************************
+
+  useRef variables
+
+  *************************************************************************************/
+  const appMounting = useRef(true)
 
   /*************************************************************************************
 
@@ -129,6 +139,14 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
   }, [])
 
   useEffect(() => {
+    if (!appMounting.current) {
+      getBalances()
+    } else {
+      appMounting.current = false
+    }
+  }, [account, chainId])
+
+  useEffect(() => {
     try {
       const fetchPolicies = async () => {
         const policies = await getAllPoliciesOfUser(account as string, Number(chainId))
@@ -158,6 +176,11 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
 
   return (
     <Fragment>
+      {balances.length == 0 && !loading && positionsLoaded && (
+        <WelcomeContainer>
+          <Heading1>It looks like you do not own any positions for this protocol.</Heading1>
+        </WelcomeContainer>
+      )}
       {!loading && positionsLoaded ? (
         <CardContainer cardsPerRow={3}>
           {balances.map((position: any) => {
@@ -170,17 +193,13 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
                   <img src={`https://assets.solace.fi/${position.underlying.address.toLowerCase()}.svg`} />
                 </PositionCardLogo>
                 <PositionCardName>{position.underlying.name}</PositionCardName>
-                <PositionCardCount>
-                  {fixedPositionBalance(position.underlying)}{' '}
+                <PositionCardCount t1>
+                  {truncateBalance(fixedPositionBalance(position.underlying))}{' '}
                   <BoxItemUnits style={{ fontSize: '12px' }}>{position.underlying.symbol}</BoxItemUnits>
                 </PositionCardCount>
-                <PositionCardCount>
-                  {fixedPositionBalance(position.token)}{' '}
+                <PositionCardCount t2>
+                  {truncateBalance(fixedPositionBalance(position.token))}{' '}
                   <BoxItemUnits style={{ fontSize: '12px' }}>{position.token.symbol}</BoxItemUnits>
-                </PositionCardCount>
-                <PositionCardCount>Eth Value:</PositionCardCount>
-                <PositionCardCount>
-                  {formatEther(position.eth.balance)} <BoxItemUnits style={{ fontSize: '12px' }}>ETH</BoxItemUnits>
                 </PositionCardCount>
                 <PositionCardButton>
                   <Button onClick={() => handleChange(position)}>Select</Button>
