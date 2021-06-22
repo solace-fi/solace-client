@@ -84,6 +84,7 @@ function Dashboard(): any {
   const [latestBlock, setLatestBlock] = useState<number>(0)
   const [showModal, setShowModal] = useState<boolean>(false)
   const [loading, setLoading] = useState<boolean>(false)
+  const [positionsloading, setPositionsLoading] = useState<boolean>(false)
   const [extendedTime, setExtendedTime] = useState<string>('1')
   const [selectedPolicy, setSelectedPolicy] = useState<Policy | undefined>(undefined)
   const [coverLimit, setCoverLimit] = useState<string | null>(null)
@@ -204,7 +205,6 @@ function Dashboard(): any {
   *************************************************************************************/
 
   const getCoverLimit = (policy: Policy | undefined, balances: any) => {
-    console.log(balances, policy)
     if (balances == undefined || policy == undefined) return null
     const coverAmount = policy.coverAmount
     const positionAmount = balances.filter((balance: any) => policy.positionName == balance.underlying.symbol)[0].eth
@@ -254,8 +254,10 @@ function Dashboard(): any {
     setShowModal((prev) => !prev)
     document.body.style.overflowY = 'hidden'
     setSelectedPolicy(policy)
+    setPositionsLoading(true)
     const balances = await getPositions(policy.productName.toLowerCase(), wallet.chainId ?? 1, wallet.account ?? '0x')
     getCoverLimit(policy, balances)
+    setPositionsLoading(false)
   }
 
   const closeModal = () => {
@@ -324,26 +326,42 @@ function Dashboard(): any {
     <Fragment>
       <Modal isOpen={showModal}>
         <ModalHeader>
-          <Heading2>Policy Management</Heading2>
+          <Heading2>
+            Policy Management: {selectedPolicy?.productName} - {selectedPolicy?.positionName}
+          </Heading2>
           <ModalCloseButton hidden={loading} onClick={() => closeModal()} />
         </ModalHeader>
         <ModalContent>
           <BoxChooseRow>
             <BoxChooseCol>
-              <Text2>
-                {selectedPolicy?.productName}-{selectedPolicy?.positionName}
-              </Text2>
+              <Text2>Id: {selectedPolicy?.policyId}</Text2>
             </BoxChooseCol>
             <BoxChooseCol>
-              <Text2>Id: {selectedPolicy?.policyId}</Text2>
+              <Text2>Days left: {getDays(selectedPolicy ? selectedPolicy.expirationBlock : '0')}</Text2>
             </BoxChooseCol>
           </BoxChooseRow>
           <BoxChooseRow>
+            <BoxChooseCol></BoxChooseCol>
             <BoxChooseCol>
-              <Text2>Cover Amount: </Text2>
+              <Text2>
+                Cover Amount: {selectedPolicy?.coverAmount ? formatEther(selectedPolicy.coverAmount) : 0} ETH
+              </Text2>
             </BoxChooseCol>
+          </BoxChooseRow>
+          <BoxChooseRow>
+            <BoxChooseCol></BoxChooseCol>
             <BoxChooseCol>
-              <Text2>{selectedPolicy?.coverAmount ? formatEther(selectedPolicy.coverAmount) : 0} ETH</Text2>
+              <Text2>
+                {coverLimit && !positionsloading ? (
+                  `Coverage: ${
+                    coverLimit.substring(0, coverLimit.length - 2) +
+                    '.' +
+                    coverLimit.substring(coverLimit.length - 2, coverLimit.length)
+                  }%`
+                ) : (
+                  <Loader width={10} height={10} />
+                )}
+              </Text2>
             </BoxChooseCol>
           </BoxChooseRow>
           <hr style={{ marginBottom: '20px' }} />
@@ -355,8 +373,7 @@ function Dashboard(): any {
               <BoxChooseRow>
                 <BoxChooseCol>
                   <BoxChooseText>
-                    New Period (1 - {DAYS_PER_YEAR - getDays(selectedPolicy ? selectedPolicy.expirationBlock : '0')}{' '}
-                    days)
+                    Add days (1 - {DAYS_PER_YEAR - getDays(selectedPolicy ? selectedPolicy.expirationBlock : '0')} days)
                   </BoxChooseText>
                 </BoxChooseCol>
                 <BoxChooseCol>
@@ -403,7 +420,7 @@ function Dashboard(): any {
                 </BoxChooseDate>
               </BoxChooseRow>
               <ButtonWrapper>
-                {quote !== '0.00' ? (
+                {!positionsloading ? (
                   <Button onClick={() => extendPolicy()}>Extend Policy Period</Button>
                 ) : (
                   <Loader width={10} height={10} />
