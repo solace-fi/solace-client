@@ -62,6 +62,7 @@ import { useGetCancelFee, useGetQuote, useGetPolicyPrice } from '../../hooks/use
 import { fixed, getGasValue } from '../../utils/formatting'
 import { Policy, getAllPoliciesOfUser } from '../../utils/policyGetter'
 import { fetchEtherscanLatestBlock } from '../../utils/etherscan'
+import { getPositions } from '../../utils/positionGetter'
 
 function Dashboard(): any {
   /************************************************************************************* 
@@ -85,6 +86,7 @@ function Dashboard(): any {
   const [loading, setLoading] = useState<boolean>(false)
   const [extendedTime, setExtendedTime] = useState<string>('1')
   const [selectedPolicy, setSelectedPolicy] = useState<Policy | undefined>(undefined)
+  const [coverLimit, setCoverLimit] = useState<string | null>(null)
 
   /*************************************************************************************
 
@@ -103,7 +105,7 @@ function Dashboard(): any {
   const { makeTxToast } = useToasts()
   const wallet = useWallet()
   const quote = useGetQuote(
-    selectedPolicy ? selectedPolicy.coverAmount : null,
+    selectedPolicy ? coverLimit : null,
     selectedPolicy ? selectedPolicy.positionContract : null,
     extendedTime
   )
@@ -201,6 +203,16 @@ function Dashboard(): any {
 
   *************************************************************************************/
 
+  const getCoverLimit = (policy: Policy | undefined, balances: any) => {
+    console.log(balances, policy)
+    if (balances == undefined || policy == undefined) return null
+    const coverAmount = policy.coverAmount
+    const positionAmount = balances.filter((balance: any) => policy.positionName == balance.underlying.symbol)[0].eth
+      .balance
+    const coverLimit = BigNumber.from(coverAmount).mul('10000').div(positionAmount).toString()
+    setCoverLimit(coverLimit)
+  }
+
   const calculatePolicyExpirationDate = (expirationBlock: string): string => {
     const days = getDays(expirationBlock)
     const date = new Date()
@@ -238,10 +250,12 @@ function Dashboard(): any {
     })
   }
 
-  const openModal = (days: number, policy: Policy) => {
+  const openModal = async (days: number, policy: Policy) => {
     setShowModal((prev) => !prev)
     document.body.style.overflowY = 'hidden'
     setSelectedPolicy(policy)
+    const balances = await getPositions(policy.productName.toLowerCase(), wallet.chainId ?? 1, wallet.account ?? '0x')
+    getCoverLimit(policy, balances)
   }
 
   const closeModal = () => {
@@ -389,7 +403,11 @@ function Dashboard(): any {
                 </BoxChooseDate>
               </BoxChooseRow>
               <ButtonWrapper>
-                <Button onClick={() => extendPolicy()}>Extend Policy Period</Button>
+                {quote !== '0.00' ? (
+                  <Button onClick={() => extendPolicy()}>Extend Policy Period</Button>
+                ) : (
+                  <Loader width={10} height={10} />
+                )}
               </ButtonWrapper>
               <BoxChooseRow>
                 <Text1>Cancel Policy</Text1>
@@ -411,9 +429,16 @@ function Dashboard(): any {
               )}
               <ModalRow>
                 <ButtonWrapper>
-                  <Button disabled={parseEther(refundAmount).lte(parseEther(cancelFee))} onClick={() => cancelPolicy()}>
-                    Cancel Policy
-                  </Button>
+                  {policyPrice !== '0' ? (
+                    <Button
+                      disabled={parseEther(refundAmount).lte(parseEther(cancelFee))}
+                      onClick={() => cancelPolicy()}
+                    >
+                      Cancel Policy
+                    </Button>
+                  ) : (
+                    <Loader width={10} height={10} />
+                  )}
                 </ButtonWrapper>
               </ModalRow>
             </Fragment>
