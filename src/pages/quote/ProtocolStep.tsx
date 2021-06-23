@@ -5,6 +5,7 @@
     import react
     import packages
     import constants
+    import context
     import components
     import hooks
     import utils
@@ -29,6 +30,9 @@ import useDebounce from '@rooks/use-debounce'
 /* import constants */
 import { DAYS_PER_YEAR, NUM_BLOCKS_PER_DAY, CHAIN_ID } from '../../constants'
 import { PROTOCOLS_LIST } from '../../constants/protocols'
+
+/* import context */
+import { useContracts } from '../../context/ContractsManager'
 
 /* import components */
 import { Button } from '../../components/Button'
@@ -67,6 +71,7 @@ export const ProtocolStep: React.FC<formProps> = ({ formData, setForm, navigatio
   const availableCoverage = useGetAvailableCoverage()
   const yearlyCost = useGetYearlyCost()
   const { protocol } = formData
+  const { setSelectedProtocolByName } = useContracts()
 
   /*************************************************************************************
 
@@ -82,6 +87,7 @@ export const ProtocolStep: React.FC<formProps> = ({ formData, setForm, navigatio
   *************************************************************************************/
 
   const handleChange = (selectedProtocol: any) => {
+    setSelectedProtocolByName(selectedProtocol.name)
     setForm({
       target: {
         name: 'lastProtocol',

@@ -1,5 +1,6 @@
 import React, { useMemo, useContext, createContext, useCallback } from 'react'
 import { useLocalStorage } from 'react-use-storage'
+import { Contract } from '@ethersproject/contracts'
 import { useWallet } from './WalletManager'
 
 /*

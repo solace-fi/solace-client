@@ -8,11 +8,11 @@ import { useWallet } from '../context/WalletManager'
 import { getPolicyPrice } from '../utils/policyGetter'
 
 export const useGetPolicyPrice = (policyId: number): string => {
-  const { compProduct } = useContracts()
   const [policyPrice, setPolicyPrice] = useState<string>('0')
+  const { selectedProtocol } = useContracts()
 
   const getPrice = async () => {
-    if (!compProduct) return
+    if (!selectedProtocol) return
     try {
       const price = await getPolicyPrice(policyId)
       setPolicyPrice(price)
@@ -29,13 +29,13 @@ export const useGetPolicyPrice = (policyId: number): string => {
 }
 
 export const useGetCancelFee = () => {
-  const { compProduct } = useContracts()
   const [cancelFee, setCancelFee] = useState<string>('0.00')
+  const { selectedProtocol } = useContracts()
 
   const getCancelFee = async () => {
-    if (!compProduct) return
+    if (!selectedProtocol) return
     try {
-      const fee = await compProduct.cancelFee()
+      const fee = await selectedProtocol.cancelFee()
       setCancelFee(formatEther(fee))
     } catch (err) {
       console.log('getCancelFee', err)
@@ -50,13 +50,13 @@ export const useGetCancelFee = () => {
 }
 
 export const useGetYearlyCost = () => {
-  const { compProduct } = useContracts()
   const [yearlyCost, setYearlyCost] = useState<string>('0.00')
+  const { selectedProtocol } = useContracts()
 
   const getYearlyCost = async () => {
-    if (!compProduct) return
+    if (!selectedProtocol) return
     try {
-      const price = await compProduct.price()
+      const price = await selectedProtocol.price()
       setYearlyCost(formatEther(price))
     } catch (err) {
       console.log('getYearlyCost', err)
@@ -71,14 +71,14 @@ export const useGetYearlyCost = () => {
 }
 
 export const useGetAvailableCoverage = () => {
-  const { compProduct } = useContracts()
   const [availableCoverage, setAvailableCoverage] = useState<string>('0.00')
+  const { selectedProtocol } = useContracts()
 
   const getAvailableCoverage = async () => {
-    if (!compProduct) return
+    if (!selectedProtocol) return
     try {
-      const maxCoverAmount = await compProduct.maxCoverAmount()
-      const activeCoverAmount = await compProduct.activeCoverAmount()
+      const maxCoverAmount = await selectedProtocol.maxCoverAmount()
+      const activeCoverAmount = await selectedProtocol.activeCoverAmount()
       setAvailableCoverage(formatEther(maxCoverAmount.sub(activeCoverAmount)))
     } catch (err) {
       console.log('getAvailableCoverage', err)
@@ -93,14 +93,14 @@ export const useGetAvailableCoverage = () => {
 }
 
 export const useGetQuote = (coverLimit: string | null, positionContract: string | null, days: string): any => {
-  const { compProduct } = useContracts()
   const { account } = useWallet()
   const [quote, setQuote] = useState<string>('0.00')
+  const { selectedProtocol } = useContracts()
 
   const getQuote = async () => {
-    if (!compProduct || !coverLimit || !positionContract) return
+    if (!selectedProtocol || !coverLimit || !positionContract) return
     try {
-      const quote = await compProduct.getQuote(
+      const quote = await selectedProtocol.getQuote(
         account,
         positionContract,
         coverLimit,
@@ -122,7 +122,7 @@ export const useGetQuote = (coverLimit: string | null, positionContract: string 
 
   useEffect(() => {
     handleQuote()
-  }, [coverLimit, compProduct, account, positionContract, days])
+  }, [coverLimit, selectedProtocol, account, positionContract, days])
 
   return quote
 }
