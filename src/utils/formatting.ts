@@ -62,7 +62,7 @@ export const filteredAmount = (input: string, amount: string): string => {
 
 // truncate strings, mostly addresses
 export const shortenAddress = (input: string): string => {
-  return `${input.substring(0, 10)}...`
+  return `${input.substring(0, 6)}...${input.substring(input.length - 4, input.length)}`
 }
 
 // get unit based on function name
