@@ -188,6 +188,7 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
               <PositionCardComponent
                 key={position.underlying.address}
                 disabled={userHasActiveProductPosition(protocol.name, position.underlying.symbol)}
+                onClick={() => handleChange(position)}
               >
                 <PositionCardLogo>
                   <img src={`https://assets.solace.fi/${position.underlying.address.toLowerCase()}.svg`} />
@@ -202,7 +203,7 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
                   <BoxItemUnits style={{ fontSize: '12px' }}>{position.token.symbol}</BoxItemUnits>
                 </PositionCardCount>
                 <PositionCardButton>
-                  <Button onClick={() => handleChange(position)}>Select</Button>
+                  <Button>Select</Button>
                 </PositionCardButton>
               </PositionCardComponent>
             )

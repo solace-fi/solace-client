@@ -8,6 +8,7 @@ interface CardProps {
   cardsPerRow?: number
   transparent?: boolean
   disabled?: boolean
+  onClick?: any
 }
 
 export const CardContainer = styled.div<CardProps & TextProps>`
@@ -44,6 +45,11 @@ const PositionCard = styled.div<CardProps & TextProps>`
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  cursor: pointer;
+  &:hover {
+    background-color: rgba(255, 255, 255, 0.5);
+    transition: background-color 200ms linear;
+  }
 `
 
 export const CardHeader = styled.div<TextProps>`
@@ -71,13 +77,14 @@ export const InvestmentCardComponent: React.FC<CardProps & TextProps> = ({ cards
 }
 
 export const PositionCardComponent: React.FC<CardProps & TextProps> = ({
+  onClick,
   cardsPerRow,
   transparent,
   children,
   disabled,
 }) => {
   return (
-    <PositionCard cardsPerRow={cardsPerRow} transparent={transparent} disabled={disabled}>
+    <PositionCard cardsPerRow={cardsPerRow} transparent={transparent} disabled={disabled} onClick={onClick}>
       {children}
     </PositionCard>
   )

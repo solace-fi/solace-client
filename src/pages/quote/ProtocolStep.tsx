@@ -125,7 +125,16 @@ export const ProtocolStep: React.FC<formProps> = ({ formData, setForm, navigatio
           {PROTOCOLS_LIST.filter((protocol) => protocol.toLowerCase().includes(searchValue.toLowerCase())).map(
             (protocol) => {
               return (
-                <TableRow key={protocol}>
+                <TableRow
+                  key={protocol}
+                  onClick={() =>
+                    handleChange({
+                      name: protocol,
+                      availableCoverage: availableCoverage.split('.')[0],
+                      yearlyCost: parseFloat(yearlyCost) * Math.pow(10, 6) * NUM_BLOCKS_PER_DAY * DAYS_PER_YEAR,
+                    })
+                  }
+                >
                   <TableData>
                     <Protocol>
                       <ProtocolImage>
@@ -139,17 +148,7 @@ export const ProtocolStep: React.FC<formProps> = ({ formData, setForm, navigatio
                   </TableData>
                   <TableData>{availableCoverage.split('.')[0]} ETH</TableData>
                   <TableData cellAlignRight>
-                    <Button
-                      onClick={() =>
-                        handleChange({
-                          name: protocol,
-                          availableCoverage: availableCoverage.split('.')[0],
-                          yearlyCost: parseFloat(yearlyCost) * Math.pow(10, 6) * NUM_BLOCKS_PER_DAY * DAYS_PER_YEAR,
-                        })
-                      }
-                    >
-                      Select
-                    </Button>
+                    <Button>Select</Button>
                   </TableData>
                 </TableRow>
               )
