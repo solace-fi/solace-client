@@ -178,7 +178,7 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
     <Fragment>
       {balances.length == 0 && !loading && positionsLoaded && (
         <WelcomeContainer>
-          <Heading1>It looks like you do not own any positions for this protocol.</Heading1>
+          <Heading1>You do not own any positions on this protocol.</Heading1>
         </WelcomeContainer>
       )}
       {!loading && positionsLoaded ? (
