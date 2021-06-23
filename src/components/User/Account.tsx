@@ -87,7 +87,7 @@ export default function Account(): any {
           <Heading3 alignVertical>{balance ? `${fixed(parseFloat(balance), 6)} ETH` : ''}</Heading3>
           <SmallBox ml={10} outlined>
             <Heading3 alignVertical>{shortenAddress(wallet.account)}</Heading3>{' '}
-            <UserImage pt={4} pb={4} pl={10} pr={10}>
+            <UserImage pt={4} pb={4} pl={10}>
               <img src={makeBlockie(wallet.account)} />
             </UserImage>
           </SmallBox>
