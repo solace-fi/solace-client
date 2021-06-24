@@ -123,12 +123,11 @@ function Dashboard(): any {
   const blocksLeft = BigNumber.from(parseFloat(selectedPolicy ? selectedPolicy.expirationBlock : '0') - latestBlock)
   const coverAmount = BigNumber.from(selectedPolicy ? selectedPolicy.coverAmount : '0')
   const price = BigNumber.from(policyPrice)
-  const refundAmount = formatEther(
-    blocksLeft
-      .mul(coverAmount)
-      .mul(price)
-      .div(String(Math.pow(10, 12)))
-  )
+  const refundAmount = blocksLeft
+    .mul(coverAmount)
+    .mul(price)
+    .div(String(Math.pow(10, 12)))
+  const formattedRefundAmount = formatEther(refundAmount)
 
   /*************************************************************************************
 
@@ -145,7 +144,7 @@ function Dashboard(): any {
         selectedPolicy?.policyId,
         BigNumber.from(NUM_BLOCKS_PER_DAY * parseInt(extendedTime)),
         {
-          value: parseEther(quote).add(parseEther(quote).div('10000')),
+          value: refundAmount.add(parseEther(quote).div('10000')),
           gasPrice: getGasValue(wallet.gasPrices.selected.value),
           gasLimit: 450000,
         }
@@ -431,8 +430,8 @@ function Dashboard(): any {
               </BoxChooseRow>
               <BoxChooseRow>
                 <BoxChooseCol>
-                  <BoxChooseText warning={policyPrice !== '0' && parseEther(refundAmount).lte(parseEther(cancelFee))}>
-                    Refund amount: {refundAmount} ETH
+                  <BoxChooseText warning={policyPrice !== '0' && refundAmount.lte(parseEther(cancelFee))}>
+                    Refund amount: {formattedRefundAmount} ETH
                   </BoxChooseText>
                 </BoxChooseCol>
               </BoxChooseRow>
@@ -441,16 +440,13 @@ function Dashboard(): any {
                   <BoxChooseText>Cancellation fee: {cancelFee} ETH</BoxChooseText>
                 </BoxChooseCol>
               </BoxChooseRow>
-              {policyPrice !== '0' && parseEther(refundAmount).lte(parseEther(cancelFee)) && (
+              {policyPrice !== '0' && refundAmount.lte(parseEther(cancelFee)) && (
                 <BoxChooseText warning>Refund amount must offset cancellation fee</BoxChooseText>
               )}
               <ModalRow>
                 <ButtonWrapper>
                   {policyPrice !== '0' ? (
-                    <Button
-                      disabled={parseEther(refundAmount).lte(parseEther(cancelFee))}
-                      onClick={() => cancelPolicy()}
-                    >
+                    <Button disabled={refundAmount.lte(parseEther(cancelFee))} onClick={() => cancelPolicy()}>
                       Cancel Policy
                     </Button>
                   ) : (
