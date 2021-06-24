@@ -59,11 +59,11 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
   Hook variables
 
   *************************************************************************************/
-  const { compProduct } = useContracts()
   const { position, coverageLimit, timePeriod, loading } = formData
   const quote = useGetQuote(coverageLimit, position.token.address, timePeriod)
   const wallet = useWallet()
   const { addLocalTransactions } = useUserData()
+  const { selectedProtocol } = useContracts()
   const { makeTxToast } = useToasts()
 
   /*************************************************************************************
@@ -94,10 +94,10 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
         value: true,
       },
     })
-    if (!compProduct) return
+    if (!selectedProtocol) return
     const txType = FunctionName.BUY_POLICY
     try {
-      const tx = await compProduct.buyPolicy(
+      const tx = await selectedProtocol.buyPolicy(
         wallet.account,
         position.token.address,
         coverageLimit,
@@ -127,8 +127,6 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
       wallet.reload()
       makeTxToast(txType, TransactionCondition.PENDING, txHash)
       await tx.wait().then((receipt: any) => {
-        console.log('buyPolicy tx', tx)
-        console.log('buyPolicy receipt', receipt)
         const status = receipt.status ? TransactionCondition.SUCCESS : TransactionCondition.FAILURE
         makeTxToast(txType, status, txHash)
         wallet.reload()
