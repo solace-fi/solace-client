@@ -1,10 +1,12 @@
-import React, { useEffect } from 'react'
-import { useWallet } from '../../context/WalletManager'
-
+import React from 'react'
+import { WelcomeContainer } from '../quote'
+import { Heading1 } from '../../components/Text'
 function Govern(): any {
-  const wallet = useWallet()
-
-  return wallet.isActive ? <div>Govern, connected</div> : <div>Govern, disconnected</div>
+  return (
+    <WelcomeContainer>
+      <Heading1>Governance coming soon!</Heading1>
+    </WelcomeContainer>
+  )
 }
 
 export default Govern

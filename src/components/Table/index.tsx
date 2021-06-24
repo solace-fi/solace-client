@@ -33,6 +33,7 @@ const TableBase = styled.table<TableProps>`
 `
 
 export const TableRow = styled.tr<TableProps>`
+  cursor: pointer;
   ${(props) =>
     props.disabled && 'td {color: #fff; background-color: rgba(0, 255, 209, 0.3); opacity: 0.5; pointer-events: none }'}
 `
