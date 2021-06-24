@@ -54,7 +54,7 @@ import { WalletConnectButton } from '../Button/WalletConnect'
 
 /* import utils */
 import { getAllPolicies } from '../../utils/policyGetter'
-import { fixed, getGasValue, floatEther } from '../../utils/formatting'
+import { fixed, getGasValue, floatEther, truncateBalance } from '../../utils/formatting'
 
 export const Statistics = () => {
   /************************************************************************************* 
@@ -193,14 +193,14 @@ export const Statistics = () => {
           <BoxItem>
             <BoxItemTitle h3>My Balance</BoxItemTitle>
             <BoxItemValue h2>
-              {`${fixed(parseFloat(solaceBalance), 6)} `}
+              {`${truncateBalance(parseFloat(solaceBalance), 6)} `}
               <BoxItemUnits h3>SOLACE</BoxItemUnits>
             </BoxItemValue>
           </BoxItem>
           <BoxItem>
             <BoxItemTitle h3>My Rewards</BoxItemTitle>
             <BoxItemValue h2>
-              {`${fixed(parseFloat(totalUserRewards), 6)} `}
+              {`${truncateBalance(parseFloat(totalUserRewards), 6)} `}
               <BoxItemUnits h3>SOLACE</BoxItemUnits>
             </BoxItemValue>
           </BoxItem>
@@ -221,14 +221,14 @@ export const Statistics = () => {
         <BoxItem>
           <BoxItemTitle h3>Capital Pool Size</BoxItemTitle>
           <BoxItemValue h2>
-            {`${fixed(floatEther(parseEther(capitalPoolSize)))} `}
+            {`${truncateBalance(floatEther(parseEther(capitalPoolSize)), 1)} `}
             <BoxItemUnits h3>{Unit.ETH}</BoxItemUnits>
           </BoxItemValue>
         </BoxItem>
         <BoxItem>
           <BoxItemTitle h3>Total Value Locked</BoxItemTitle>
           <BoxItemValue h2>
-            {`${fixed(parseFloat(totalValueLocked))} `}
+            {`${truncateBalance(parseFloat(totalValueLocked), 1)} `}
             <BoxItemUnits h3>{Unit.ETH}</BoxItemUnits>
           </BoxItemValue>
         </BoxItem>

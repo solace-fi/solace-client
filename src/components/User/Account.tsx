@@ -38,7 +38,7 @@ import { useEthBalance } from '../../hooks/useEthBalance'
 import { SUPPORTED_WALLETS } from '../../wallet/wallets'
 
 /* import utils */
-import { shortenAddress, fixed } from '../../utils/formatting'
+import { shortenAddress, fixed, truncateBalance } from '../../utils/formatting'
 import { getNetworkName } from '../../utils'
 
 /* import static */
