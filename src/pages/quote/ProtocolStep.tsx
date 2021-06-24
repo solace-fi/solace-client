@@ -134,16 +134,16 @@ export const ProtocolStep: React.FC<formProps> = ({ formData, setForm, navigatio
                 <TableRow
                   key={protocol}
                   onClick={() =>
-                        handleChange({
-                          name: protocol,
-                          availableCoverage: availableCoverages[protocol.toLowerCase()]?.split('.')[0] ?? '0',
-                          yearlyCost:
-                            parseFloat(yearlyCosts[protocol.toLowerCase()] ?? '0') *
-                            Math.pow(10, 6) *
-                            NUM_BLOCKS_PER_DAY *
-                            DAYS_PER_YEAR,
-                        })
-                      }
+                    handleChange({
+                      name: protocol,
+                      availableCoverage: availableCoverages[protocol.toLowerCase()]?.split('.')[0] ?? '0',
+                      yearlyCost:
+                        parseFloat(yearlyCosts[protocol.toLowerCase()] ?? '0') *
+                        Math.pow(10, 6) *
+                        NUM_BLOCKS_PER_DAY *
+                        DAYS_PER_YEAR,
+                    })
+                  }
                 >
                   <TableData>
                     <Protocol>

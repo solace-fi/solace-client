@@ -4,6 +4,7 @@
 
     import react
     import packages
+    import context
     import components
     import utils
 
@@ -26,6 +27,9 @@ import React, { useEffect } from 'react'
 import { SetForm, useForm, useStep } from 'react-hooks-helper'
 import styled from 'styled-components'
 
+/* import context */
+import { useWallet } from '../../context/WalletManager'
+
 /* import components */
 import { ProtocolStep } from './ProtocolStep'
 import { PositionStep } from './PositionStep'
@@ -38,7 +42,6 @@ import { Button } from '../../components/Button'
 
 /* import utils */
 import { fixed, fixedPositionBalance } from '../../utils/formatting'
-import { useWallet } from '../../context/WalletManager'
 
 /************************************************************************************* 
 
