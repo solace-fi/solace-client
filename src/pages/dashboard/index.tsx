@@ -101,7 +101,7 @@ function Dashboard(): any {
   const [lpUserRewardsPerDay] = useUserRewardsPerDay(2, lpFarmContract.current)
   const cpUserStakeValue = useUserStakedValue(cpFarmContract.current)
   const lpUserStakeValue = useUserStakedValue(lpFarmContract.current)
-  const { cpFarm, lpFarm, compProduct } = useContracts()
+  const { cpFarm, lpFarm, selectedProtocol, setSelectedProtocolByName } = useContracts()
   const { addLocalTransactions } = useUserData()
   const { makeTxToast } = useToasts()
   const wallet = useWallet()
@@ -137,11 +137,11 @@ function Dashboard(): any {
 
   const extendPolicy = async () => {
     setLoading(true)
-    if (!compProduct) return
+    if (!selectedProtocol) return
     const txType = FunctionName.EXTEND_POLICY
     const extension = BigNumber.from(NUM_BLOCKS_PER_DAY * parseInt(extendedTime))
     try {
-      const tx = await compProduct.extendPolicy(selectedPolicy?.policyId, extension, {
+      const tx = await selectedProtocol.extendPolicy(selectedPolicy?.policyId, extension, {
         value: coverAmount
           .mul(price)
           .mul(extension)
@@ -170,10 +170,10 @@ function Dashboard(): any {
 
   const cancelPolicy = async () => {
     setLoading(true)
-    if (!compProduct || !selectedPolicy) return
+    if (!selectedProtocol || !selectedPolicy) return
     const txType = FunctionName.CANCEL_POLICY
     try {
-      const tx = await compProduct.cancelPolicy(selectedPolicy.policyId)
+      const tx = await selectedProtocol.cancelPolicy(selectedPolicy.policyId)
       const txHash = tx.hash
       const localTx = {
         hash: txHash,
@@ -252,6 +252,7 @@ function Dashboard(): any {
 
   const openModal = async (days: number, policy: Policy) => {
     setShowModal((prev) => !prev)
+    setSelectedProtocolByName(policy.productName.toLowerCase())
     document.body.style.overflowY = 'hidden'
     setSelectedPolicy(policy)
     setPositionsLoading(true)
