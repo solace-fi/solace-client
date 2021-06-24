@@ -33,6 +33,7 @@ export type Contracts = {
     compProduct?: Contract | null
   }
   selectedProtocol: Contract | null
+  getProtocolByName: (productName: string) => Contract | null
   setSelectedProtocolByName: (productName: string) => void
 }
 
@@ -49,6 +50,7 @@ const ContractsContext = createContext<Contracts>({
     compProduct: undefined,
   },
   selectedProtocol: null,
+  getProtocolByName: () => null,
   setSelectedProtocolByName: () => undefined,
 })
 
@@ -64,6 +66,11 @@ const ContractsProvider: React.FC = (props) => {
   const lpToken = useLpTokenContract()
   const weth = useWethContract()
   const compProduct = useCompoundProductContract()
+
+  const getProtocolByName = (productName: string): Contract | null => {
+    if (productName == 'compound') return compProduct
+    return null
+  }
 
   const setSelectedProtocolByName = (productName: string) => {
     if (productName == 'compound') setSelectedProtocol(compProduct)
@@ -84,6 +91,7 @@ const ContractsProvider: React.FC = (props) => {
         compProduct,
       },
       selectedProtocol,
+      getProtocolByName,
       setSelectedProtocolByName,
     }),
     [master, vault, solace, cpFarm, lpFarm, registry, lpToken, weth, compProduct, setSelectedProtocol]

@@ -42,7 +42,7 @@ import { Search } from '../../components/Input'
 import { Protocol, ProtocolImage, ProtocolTitle } from '../../components/Protocol'
 
 /* import hooks */
-import { useGetAvailableCoverage, useGetYearlyCost } from '../../hooks/usePolicy'
+import { useGetAvailableCoverages, useGetYearlyCosts } from '../../hooks/usePolicy'
 
 /* import utils */
 import { fixed } from '../../utils/formatting'
@@ -68,8 +68,8 @@ export const ProtocolStep: React.FC<formProps> = ({ formData, setForm, navigatio
 
   *************************************************************************************/
 
-  const availableCoverage = useGetAvailableCoverage()
-  const yearlyCost = useGetYearlyCost()
+  const availableCoverages = useGetAvailableCoverages()
+  const yearlyCosts = useGetYearlyCosts()
   const { protocol } = formData
   const { setSelectedProtocolByName } = useContracts()
 
@@ -141,16 +141,28 @@ export const ProtocolStep: React.FC<formProps> = ({ formData, setForm, navigatio
                     </Protocol>
                   </TableData>
                   <TableData>
-                    {fixed(parseFloat(yearlyCost) * Math.pow(10, 6) * NUM_BLOCKS_PER_DAY * DAYS_PER_YEAR * 100, 2)}%
+                    {fixed(
+                      parseFloat(yearlyCosts[protocol.toLowerCase()] ?? '0') *
+                        Math.pow(10, 6) *
+                        NUM_BLOCKS_PER_DAY *
+                        DAYS_PER_YEAR *
+                        100,
+                      2
+                    )}
+                    %
                   </TableData>
-                  <TableData>{availableCoverage.split('.')[0]} ETH</TableData>
+                  <TableData>{availableCoverages[protocol.toLowerCase()]?.split('.')[0] ?? '0'} ETH</TableData>
                   <TableData cellAlignRight>
                     <Button
                       onClick={() =>
                         handleChange({
                           name: protocol,
-                          availableCoverage: availableCoverage.split('.')[0],
-                          yearlyCost: parseFloat(yearlyCost) * Math.pow(10, 6) * NUM_BLOCKS_PER_DAY * DAYS_PER_YEAR,
+                          availableCoverage: availableCoverages[protocol.toLowerCase()]?.split('.')[0] ?? '0',
+                          yearlyCost:
+                            parseFloat(yearlyCosts[protocol.toLowerCase()] ?? '0') *
+                            Math.pow(10, 6) *
+                            NUM_BLOCKS_PER_DAY *
+                            DAYS_PER_YEAR,
                         })
                       }
                     >

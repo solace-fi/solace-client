@@ -3,6 +3,7 @@ import { BigNumber } from 'ethers'
 import { formatEther } from 'ethers/lib/utils'
 import React, { useEffect, useState } from 'react'
 import { GAS_LIMIT, NUM_BLOCKS_PER_DAY } from '../constants'
+import { PROTOCOLS_LIST } from '../constants/protocols'
 import { useContracts } from '../context/ContractsManager'
 import { useWallet } from '../context/WalletManager'
 import { getPolicyPrice } from '../utils/policyGetter'
@@ -49,47 +50,64 @@ export const useGetCancelFee = () => {
   return cancelFee
 }
 
-export const useGetYearlyCost = () => {
-  const [yearlyCost, setYearlyCost] = useState<string>('0.00')
-  const { selectedProtocol } = useContracts()
+export const useGetYearlyCosts = () => {
+  const [yearlyCosts, setYearlyCosts] = useState<any>({})
+  const { getProtocolByName } = useContracts()
 
-  const getYearlyCost = async () => {
-    if (!selectedProtocol) return
+  const getYearlyCosts = async () => {
     try {
-      const price = await selectedProtocol.price()
-      setYearlyCost(formatEther(price))
+      const newYearlyCosts: any = {}
+      for (let i = 0; i < PROTOCOLS_LIST.length; i++) {
+        let price = '0'
+        const product = getProtocolByName(PROTOCOLS_LIST[i].toLowerCase())
+        if (product) {
+          const fetchedPrice = await product.price()
+          price = formatEther(fetchedPrice)
+        }
+        newYearlyCosts[PROTOCOLS_LIST[i].toLowerCase()] = price
+      }
+      setYearlyCosts(newYearlyCosts)
     } catch (err) {
       console.log('getYearlyCost', err)
     }
   }
 
   useEffect(() => {
-    getYearlyCost()
+    getYearlyCosts()
   }, [])
 
-  return yearlyCost
+  return yearlyCosts
 }
 
-export const useGetAvailableCoverage = () => {
-  const [availableCoverage, setAvailableCoverage] = useState<string>('0.00')
-  const { selectedProtocol } = useContracts()
+export const useGetAvailableCoverages = () => {
+  const [availableCoverages, setAvailableCoverages] = useState<any>({})
+  const { getProtocolByName } = useContracts()
 
-  const getAvailableCoverage = async () => {
-    if (!selectedProtocol) return
+  const getAvailableCoverages = async () => {
     try {
-      const maxCoverAmount = await selectedProtocol.maxCoverAmount()
-      const activeCoverAmount = await selectedProtocol.activeCoverAmount()
-      setAvailableCoverage(formatEther(maxCoverAmount.sub(activeCoverAmount)))
+      const newAvailableCoverages: any = {}
+      for (let i = 0; i < PROTOCOLS_LIST.length; i++) {
+        let coverage = '0'
+        const product = getProtocolByName(PROTOCOLS_LIST[i].toLowerCase())
+        if (product) {
+          const maxCoverAmount = await product.maxCoverAmount()
+          const activeCoverAmount = await product.activeCoverAmount()
+          coverage = formatEther(maxCoverAmount.sub(activeCoverAmount))
+        }
+        newAvailableCoverages[PROTOCOLS_LIST[i].toLowerCase()] = coverage
+      }
+      setAvailableCoverages(newAvailableCoverages)
     } catch (err) {
       console.log('getAvailableCoverage', err)
+      return '0'
     }
   }
 
   useEffect(() => {
-    getAvailableCoverage()
+    getAvailableCoverages()
   }, [])
 
-  return availableCoverage
+  return availableCoverages
 }
 
 export const useGetQuote = (coverLimit: string | null, positionContract: string | null, days: string): any => {
