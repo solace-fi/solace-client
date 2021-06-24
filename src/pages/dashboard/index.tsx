@@ -141,7 +141,7 @@ function Dashboard(): any {
     const txType = FunctionName.EXTEND_POLICY
     const extension = BigNumber.from(NUM_BLOCKS_PER_DAY * parseInt(extendedTime))
     try {
-      const tx = await compProduct.extendPolicy(selectedPolicy?.policyId, {
+      const tx = await compProduct.extendPolicy(selectedPolicy?.policyId, extension, {
         value: coverAmount
           .mul(price)
           .mul(extension)
