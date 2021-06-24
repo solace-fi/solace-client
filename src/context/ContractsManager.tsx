@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useMemo } from 'react'
+import React, { createContext, useContext, useMemo, useState } from 'react'
 import { Contract } from '@ethersproject/contracts'
 
 import {
@@ -29,7 +29,12 @@ export type Contracts = {
   registry?: Contract | null
   lpToken?: Contract | null
   weth?: Contract | null
-  compProduct?: Contract | null
+  products: {
+    compProduct?: Contract | null
+  }
+  selectedProtocol: Contract | null
+  getProtocolByName: (productName: string) => Contract | null
+  setSelectedProtocolByName: (productName: string) => void
 }
 
 const ContractsContext = createContext<Contracts>({
@@ -41,10 +46,17 @@ const ContractsContext = createContext<Contracts>({
   registry: undefined,
   lpToken: undefined,
   weth: undefined,
-  compProduct: undefined,
+  products: {
+    compProduct: undefined,
+  },
+  selectedProtocol: null,
+  getProtocolByName: () => null,
+  setSelectedProtocolByName: () => undefined,
 })
 
 const ContractsProvider: React.FC = (props) => {
+  const [selectedProtocol, setSelectedProtocol] = useState<Contract | null>(null)
+
   const master = useMasterContract()
   const vault = useVaultContract()
   const solace = useSolaceContract()
@@ -54,6 +66,15 @@ const ContractsProvider: React.FC = (props) => {
   const lpToken = useLpTokenContract()
   const weth = useWethContract()
   const compProduct = useCompoundProductContract()
+
+  const getProtocolByName = (productName: string): Contract | null => {
+    if (productName == 'compound') return compProduct
+    return null
+  }
+
+  const setSelectedProtocolByName = (productName: string) => {
+    if (productName == 'compound') setSelectedProtocol(compProduct)
+  }
 
   // update when a contract changes
   const value = useMemo<Contracts>(
@@ -66,9 +87,14 @@ const ContractsProvider: React.FC = (props) => {
       registry,
       lpToken,
       weth,
-      compProduct,
+      products: {
+        compProduct,
+      },
+      selectedProtocol,
+      getProtocolByName,
+      setSelectedProtocolByName,
     }),
-    [master, vault, solace, cpFarm, lpFarm, registry, lpToken, weth, compProduct]
+    [master, vault, solace, cpFarm, lpFarm, registry, lpToken, weth, compProduct, setSelectedProtocol]
   )
 
   return <ContractsContext.Provider value={value}>{props.children}</ContractsContext.Provider>

@@ -5,6 +5,7 @@
     import react
     import packages
     import constants
+    import context
     import components
     import hooks
     import utils
@@ -30,6 +31,9 @@ import useDebounce from '@rooks/use-debounce'
 import { DAYS_PER_YEAR, NUM_BLOCKS_PER_DAY, CHAIN_ID } from '../../constants'
 import { PROTOCOLS_LIST } from '../../constants/protocols'
 
+/* import context */
+import { useContracts } from '../../context/ContractsManager'
+
 /* import components */
 import { Button } from '../../components/Button'
 import { formProps } from './MultiStepForm'
@@ -38,7 +42,7 @@ import { Search } from '../../components/Input'
 import { Protocol, ProtocolImage, ProtocolTitle } from '../../components/Protocol'
 
 /* import hooks */
-import { useGetAvailableCoverage, useGetYearlyCost } from '../../hooks/usePolicy'
+import { useGetAvailableCoverages, useGetYearlyCosts } from '../../hooks/usePolicy'
 
 /* import utils */
 import { fixed } from '../../utils/formatting'
@@ -64,9 +68,10 @@ export const ProtocolStep: React.FC<formProps> = ({ formData, setForm, navigatio
 
   *************************************************************************************/
 
-  const availableCoverage = useGetAvailableCoverage()
-  const yearlyCost = useGetYearlyCost()
+  const availableCoverages = useGetAvailableCoverages()
+  const yearlyCosts = useGetYearlyCosts()
   const { protocol } = formData
+  const { setSelectedProtocolByName } = useContracts()
 
   /*************************************************************************************
 
@@ -82,6 +87,7 @@ export const ProtocolStep: React.FC<formProps> = ({ formData, setForm, navigatio
   *************************************************************************************/
 
   const handleChange = (selectedProtocol: any) => {
+    setSelectedProtocolByName(selectedProtocol.name)
     setForm({
       target: {
         name: 'lastProtocol',
@@ -128,12 +134,16 @@ export const ProtocolStep: React.FC<formProps> = ({ formData, setForm, navigatio
                 <TableRow
                   key={protocol}
                   onClick={() =>
-                    handleChange({
-                      name: protocol,
-                      availableCoverage: availableCoverage.split('.')[0],
-                      yearlyCost: parseFloat(yearlyCost) * Math.pow(10, 6) * NUM_BLOCKS_PER_DAY * DAYS_PER_YEAR,
-                    })
-                  }
+                        handleChange({
+                          name: protocol,
+                          availableCoverage: availableCoverages[protocol.toLowerCase()]?.split('.')[0] ?? '0',
+                          yearlyCost:
+                            parseFloat(yearlyCosts[protocol.toLowerCase()] ?? '0') *
+                            Math.pow(10, 6) *
+                            NUM_BLOCKS_PER_DAY *
+                            DAYS_PER_YEAR,
+                        })
+                      }
                 >
                   <TableData>
                     <Protocol>
@@ -144,9 +154,17 @@ export const ProtocolStep: React.FC<formProps> = ({ formData, setForm, navigatio
                     </Protocol>
                   </TableData>
                   <TableData>
-                    {fixed(parseFloat(yearlyCost) * Math.pow(10, 6) * NUM_BLOCKS_PER_DAY * DAYS_PER_YEAR * 100, 2)}%
+                    {fixed(
+                      parseFloat(yearlyCosts[protocol.toLowerCase()] ?? '0') *
+                        Math.pow(10, 6) *
+                        NUM_BLOCKS_PER_DAY *
+                        DAYS_PER_YEAR *
+                        100,
+                      2
+                    )}
+                    %
                   </TableData>
-                  <TableData>{availableCoverage.split('.')[0]} ETH</TableData>
+                  <TableData>{availableCoverages[protocol.toLowerCase()]?.split('.')[0] ?? '0'} ETH</TableData>
                   <TableData cellAlignRight>
                     <Button>Select</Button>
                   </TableData>
