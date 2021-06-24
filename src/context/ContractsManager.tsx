@@ -94,7 +94,7 @@ const ContractsProvider: React.FC = (props) => {
       getProtocolByName,
       setSelectedProtocolByName,
     }),
-    [master, vault, solace, cpFarm, lpFarm, registry, lpToken, weth, compProduct, setSelectedProtocol]
+    [master, vault, solace, cpFarm, lpFarm, registry, lpToken, weth, compProduct, setSelectedProtocolByName]
   )
 
   return <ContractsContext.Provider value={value}>{props.children}</ContractsContext.Provider>

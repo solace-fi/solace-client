@@ -24,7 +24,7 @@ export const useGetPolicyPrice = (policyId: number): string => {
 
   useEffect(() => {
     getPrice()
-  }, [])
+  }, [selectedProtocol])
 
   return policyPrice
 }
@@ -45,7 +45,7 @@ export const useGetCancelFee = () => {
 
   useEffect(() => {
     getCancelFee()
-  }, [])
+  }, [selectedProtocol])
 
   return cancelFee
 }

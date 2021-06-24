@@ -28,7 +28,7 @@ import styled from 'styled-components'
 import useDebounce from '@rooks/use-debounce'
 
 /* import constants */
-import { DAYS_PER_YEAR, NUM_BLOCKS_PER_DAY, CHAIN_ID } from '../../constants'
+import { DAYS_PER_YEAR, NUM_BLOCKS_PER_DAY } from '../../constants'
 import { PROTOCOLS_LIST } from '../../constants/protocols'
 
 /* import context */
@@ -87,7 +87,7 @@ export const ProtocolStep: React.FC<formProps> = ({ formData, setForm, navigatio
   *************************************************************************************/
 
   const handleChange = (selectedProtocol: any) => {
-    setSelectedProtocolByName(selectedProtocol.name)
+    setSelectedProtocolByName(selectedProtocol.name.toLowerCase())
     setForm({
       target: {
         name: 'lastProtocol',

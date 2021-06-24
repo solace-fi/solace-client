@@ -3,7 +3,6 @@
     Table of Contents:
 
     import react
-    import packages
     import managers
     import components
     import utils
@@ -20,9 +19,6 @@
 
 /* import react */
 import React, { Fragment, useCallback, useEffect, useRef, useState } from 'react'
-
-/* import packages */
-import { formatEther } from 'ethers/lib/utils'
 
 /* import managers */
 import { useWallet } from '../../context/WalletManager'
