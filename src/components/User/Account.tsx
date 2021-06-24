@@ -69,22 +69,10 @@ export default function Account(): any {
           </Heading3>
         </SmallBox>
       )}
-      {/* <User>
-        <UserImage>{wallet.account ? <img src={makeBlockie(wallet.account)} /> : <img src={user} />}</UserImage>
-        <UserWallet>
-          {wallet.isActive ? (
-            <Fragment>{balance ? `${fixed(parseFloat(balance), 6)} ETH` : ''}</Fragment>
-          ) : (
-            <WalletConnectButton />
-          )}
-        </UserWallet>
-        {wallet.account && <UserName>{shortenAddress(wallet.account)}</UserName>}
-      </User> */}
-
       {!wallet.isActive && <WalletConnectButton />}
       {wallet.account && (
         <SmallBox pl={10} outlined>
-          <Heading3 alignVertical>{balance ? `${fixed(parseFloat(balance), 6)} ETH` : ''}</Heading3>
+          <Heading3 alignVertical>{balance ? `${fixed(parseFloat(balance), 3)} ETH` : ''}</Heading3>
           <SmallBox ml={10} outlined>
             <Heading3 alignVertical>{shortenAddress(wallet.account)}</Heading3>{' '}
             <UserImage pt={4} pb={4} pl={10}>
