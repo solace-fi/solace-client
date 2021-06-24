@@ -139,16 +139,17 @@ function Dashboard(): any {
     setLoading(true)
     if (!compProduct) return
     const txType = FunctionName.EXTEND_POLICY
+    const extension = BigNumber.from(NUM_BLOCKS_PER_DAY * parseInt(extendedTime))
     try {
-      const tx = await compProduct.extendPolicy(
-        selectedPolicy?.policyId,
-        BigNumber.from(NUM_BLOCKS_PER_DAY * parseInt(extendedTime)),
-        {
-          value: refundAmount.add(parseEther(quote).div('10000')),
-          gasPrice: getGasValue(wallet.gasPrices.selected.value),
-          gasLimit: 450000,
-        }
-      )
+      const tx = await compProduct.extendPolicy(selectedPolicy?.policyId, {
+        value: coverAmount
+          .mul(price)
+          .mul(extension)
+          .div(String(Math.pow(10, 12)))
+          .add(parseEther(quote).div('10000')),
+        gasPrice: getGasValue(wallet.gasPrices.selected.value),
+        gasLimit: 450000,
+      })
       const txHash = tx.hash
       const localTx = { hash: txHash, type: txType, value: '0', status: TransactionCondition.PENDING, unit: Unit.ID }
       closeModal()
