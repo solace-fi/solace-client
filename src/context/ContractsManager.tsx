@@ -73,7 +73,7 @@ const ContractsProvider: React.FC = (props) => {
   }
 
   const setSelectedProtocolByName = (productName: string) => {
-    if (productName == 'compound') setSelectedProtocol(compProduct)
+    setSelectedProtocol(getProtocolByName(productName))
   }
 
   // update when a contract changes
