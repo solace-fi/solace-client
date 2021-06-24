@@ -144,6 +144,7 @@ export const ProtocolStep: React.FC<formProps> = ({ formData, setForm, navigatio
                         DAYS_PER_YEAR,
                     })
                   }
+                  style={{ cursor: 'pointer' }}
                 >
                   <TableData>
                     <Protocol>
