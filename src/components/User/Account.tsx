@@ -38,7 +38,7 @@ import { useEthBalance } from '../../hooks/useEthBalance'
 import { SUPPORTED_WALLETS } from '../../wallet/wallets'
 
 /* import utils */
-import { shortenAddress, fixed } from '../../utils/formatting'
+import { shortenAddress, fixed, truncateBalance } from '../../utils/formatting'
 import { getNetworkName } from '../../utils'
 
 /* import static */
@@ -80,7 +80,7 @@ export default function Account(): any {
         <UserImage>{wallet.account ? <img src={makeBlockie(wallet.account)} /> : <img src={user} />}</UserImage>
         <UserWallet>
           {wallet.isActive ? (
-            <Fragment>{balance ? `${fixed(parseFloat(balance), 6)} ETH` : ''}</Fragment>
+            <Fragment>{balance ? `${truncateBalance(parseFloat(balance), 6)} ETH` : ''}</Fragment>
           ) : (
             <WalletConnectButton />
           )}

@@ -59,7 +59,7 @@ import { useUserPendingRewards, useUserRewardsPerDay } from '../../hooks/useRewa
 import { useGetCancelFee, useGetQuote, useGetPolicyPrice } from '../../hooks/usePolicy'
 
 /* import utils */
-import { fixed, getGasValue } from '../../utils/formatting'
+import { getGasValue, truncateBalance } from '../../utils/formatting'
 import { Policy, getAllPoliciesOfUser } from '../../utils/policyGetter'
 import { fetchEtherscanLatestBlock } from '../../utils/etherscan'
 
@@ -222,7 +222,7 @@ function Dashboard(): any {
           <TableData>{policy.positionName}</TableData>
           <TableData>{calculatePolicyExpirationDate(policy.expirationBlock)}</TableData>
           <TableData>
-            {policy.coverAmount ? fixed(parseFloat(formatEther(policy.coverAmount)), 2) : 0} {Unit.ETH}
+            {policy.coverAmount ? truncateBalance(parseFloat(formatEther(policy.coverAmount)), 2) : 0} {Unit.ETH}
           </TableData>
 
           <TableData cellAlignRight>
@@ -445,19 +445,19 @@ function Dashboard(): any {
             <CardHeader>
               <CardTitle h2>Capital Pool</CardTitle>
               <Heading3>
-                {wallet.account ? fixed(parseFloat(cpUserStakeValue), 2) : 0} {Unit.ETH}
+                {wallet.account ? truncateBalance(parseFloat(cpUserStakeValue), 2) : 0} {Unit.ETH}
               </Heading3>
             </CardHeader>
             <CardBlock>
               <CardTitle t2>Daily Earnings</CardTitle>
               <CardTitle t3>
-                {wallet.account ? fixed(parseFloat(cpUserRewardsPerDay), 2) : 0} {Unit.SOLACE}
+                {wallet.account ? truncateBalance(parseFloat(cpUserRewardsPerDay), 2) : 0} {Unit.SOLACE}
               </CardTitle>
             </CardBlock>
             <CardBlock>
               <CardTitle t2>Total Earnings</CardTitle>
               <CardTitle t3>
-                {wallet.account ? fixed(parseFloat(cpUserRewards), 2) : 0} {Unit.SOLACE}
+                {wallet.account ? truncateBalance(parseFloat(cpUserRewards), 2) : 0} {Unit.SOLACE}
               </CardTitle>
             </CardBlock>
           </InvestmentCardComponent>
@@ -465,19 +465,19 @@ function Dashboard(): any {
             <CardHeader>
               <CardTitle h2>Liquidity Pool</CardTitle>
               <Heading3>
-                {wallet.account ? fixed(parseFloat(lpUserStakeValue), 2) : 0} {Unit.SOLACE}
+                {wallet.account ? truncateBalance(parseFloat(lpUserStakeValue), 2) : 0} {Unit.SOLACE}
               </Heading3>
             </CardHeader>
             <CardBlock>
               <CardTitle t2>Daily Earnings</CardTitle>
               <CardTitle t3>
-                {wallet.account ? fixed(parseFloat(lpUserRewardsPerDay), 2) : 0} {Unit.SOLACE}
+                {wallet.account ? truncateBalance(parseFloat(lpUserRewardsPerDay), 2) : 0} {Unit.SOLACE}
               </CardTitle>
             </CardBlock>
             <CardBlock>
               <CardTitle t2>Total Earnings</CardTitle>
               <CardTitle t3>
-                {wallet.account ? fixed(parseFloat(lpUserRewards), 2) : 0} {Unit.SOLACE}
+                {wallet.account ? truncateBalance(parseFloat(lpUserRewards), 2) : 0} {Unit.SOLACE}
               </CardTitle>
             </CardBlock>
           </InvestmentCardComponent>
