@@ -125,7 +125,7 @@ export const Statistics = () => {
       if (err?.code === 4001) {
         console.log('Transaction rejected.')
       } else {
-        console.log(`transaction failed: ${err.message}`)
+        console.log(`Transaction failed: ${err.message}`)
       }
       makeTxToast(txType, TransactionCondition.CANCELLED)
       wallet.reload()
