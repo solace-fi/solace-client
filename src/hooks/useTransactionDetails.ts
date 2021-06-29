@@ -43,16 +43,17 @@ export const useTransactionDetails = (txList: any): string[] => {
   }
 
   const getTransactionAmounts = async () => {
-    if (txList) {
-      const currentAmounts = []
-      for (const tx of txList) {
-        const function_name = decodeInput(tx).function_name
-        const unit = getUnit(function_name)
-        const amount: string = await getTransactionAmount(function_name, tx, library)
-        currentAmounts.push(`${formatTransactionAmount(function_name, amount)} ${unit}`)
-      }
-      setAmounts(currentAmounts)
-    }
+    // TODO: uncomment when contract addresses are updated
+    // if (txList) {
+    //   const currentAmounts = []
+    //   for (const tx of txList) {
+    //     const function_name = decodeInput(tx).function_name
+    //     const unit = getUnit(function_name)
+    //     const amount: string = await getTransactionAmount(function_name, tx, library)
+    //     currentAmounts.push(`${formatTransactionAmount(function_name, amount)} ${unit}`)
+    //   }
+    //   setAmounts(currentAmounts)
+    // }
   }
 
   useEffect(() => {

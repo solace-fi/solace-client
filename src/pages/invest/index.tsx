@@ -820,6 +820,9 @@ function Invest(): any {
                   <TableData>{pendingtx.status}</TableData>
                 </TableRow>
               ))}
+
+            {/* TODO: uncomment when contract addresses are updated
+            
             {txHistory &&
               txHistory.map((tx: any, i: number) => (
                 <TableRow key={tx.hash}>
@@ -843,7 +846,7 @@ function Invest(): any {
                     {transactionDetails.length > 0 && (tx.txreceipt_status == '1' ? 'Complete' : 'Failed')}
                   </TableData>
                 </TableRow>
-              ))}
+              ))} */}
           </TableBody>
         </Table>
       </Content>

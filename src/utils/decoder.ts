@@ -54,7 +54,6 @@ const getInterface = (toAddress: string) => {
 }
 
 export const decodeInput = (tx: any) => {
-  console.log(tx.to, tx.input, tx.value)
   const inter = getInterface(tx.to)
   const decodedInput = inter.parseTransaction({ data: tx.input, value: tx.value })
   const function_name = decodedInput.name.charAt(0).toUpperCase() + decodedInput.name.slice(1)
