@@ -46,9 +46,9 @@ import { useToasts } from '../../context/NotificationsManager'
 import { Content } from '../../components/Layout'
 import { CardContainer, InvestmentCardComponent, CardHeader, CardTitle, CardBlock } from '../../components/Card'
 import { Heading1, Heading2, Heading3, Text1, Text2 } from '../../components/Text'
-import { Button, ButtonWrapper } from '../../components/Button'
+import { Button } from '../../components/Button'
 import { Table, TableHead, TableHeader, TableRow, TableBody, TableData, TableDataGroup } from '../../components/Table'
-import { Modal, ModalHeader, ModalContent, ModalRow, ModalCloseButton } from '../../components/Modal'
+import { Modal, ModalHeader, ModalContent, ModalCloseButton } from '../../components/Modal'
 import { Input } from '../../components/Input'
 import { BoxChooseDate, BoxChooseCol, BoxChooseRow, BoxChooseText } from '../../components/Box/BoxChoose'
 import { Loader } from '../../components/Loader'
@@ -88,6 +88,8 @@ function Dashboard(): any {
   const [extendedTime, setExtendedTime] = useState<string>('1')
   const [selectedPolicy, setSelectedPolicy] = useState<Policy | undefined>(undefined)
   const [coverLimit, setCoverLimit] = useState<string | null>(null)
+  const [inputCoverage, setInputCoverage] = useState<string>('1')
+  const [feedbackCoverage, setFeedbackCoverage] = useState<string>('1')
 
   /*************************************************************************************
 
@@ -211,6 +213,12 @@ function Dashboard(): any {
       .balance
     const coverLimit = BigNumber.from(coverAmount).mul('10000').div(positionAmount).toString()
     setCoverLimit(coverLimit)
+    setFeedbackCoverage(coverLimit)
+    setInputCoverage(
+      coverLimit.substring(0, coverLimit.length - 2) +
+        '.' +
+        coverLimit.substring(coverLimit.length - 2, coverLimit.length)
+    )
   }
 
   const calculatePolicyExpirationDate = (expirationBlock: string): string => {
@@ -276,6 +284,31 @@ function Dashboard(): any {
     ) {
       setExtendedTime(filtered)
     }
+  }
+
+  const handleInputCoverage = (input: string) => {
+    // allow only numbers and decimals
+    const filtered = input.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1')
+
+    // if number is greater than 100, do not update
+    if (parseFloat(filtered) > 100) {
+      return
+    }
+
+    // if number has more than 2 decimal places, do not update
+    if (filtered.includes('.') && filtered.split('.')[1]?.length > 2) {
+      return
+    }
+
+    // convert input into BigNumber-compatible data
+    const multiplied = filtered == '' ? '100' : Math.round(parseFloat(filtered) * 100).toString()
+    setInputCoverage(filtered)
+    setFeedbackCoverage(multiplied)
+  }
+
+  const handleCoverageChange = (coverageLimit: string) => {
+    setInputCoverage((parseInt(coverageLimit) / 100).toString())
+    setFeedbackCoverage(coverageLimit)
   }
 
   /*************************************************************************************
@@ -369,84 +402,118 @@ function Dashboard(): any {
           {!loading ? (
             <Fragment>
               <BoxChooseRow>
-                <Text1>Extend Policy</Text1>
+                <BoxChooseCol>
+                  <BoxChooseRow>
+                    <Text1>Update Policy</Text1>
+                  </BoxChooseRow>
+                  <BoxChooseRow>
+                    <BoxChooseCol>
+                      <BoxChooseText>Edit coverage (1 - 100%)</BoxChooseText>
+                    </BoxChooseCol>
+                    <BoxChooseCol>
+                      <Slider
+                        disabled={positionsloading}
+                        width={150}
+                        backgroundColor={'#fff'}
+                        value={feedbackCoverage}
+                        onChange={(e) => handleCoverageChange(e.target.value)}
+                        min={100}
+                        max={10000}
+                      />
+                    </BoxChooseCol>
+                    <BoxChooseCol>
+                      <Input
+                        disabled={positionsloading}
+                        type="text"
+                        width={50}
+                        value={inputCoverage}
+                        onChange={(e) => handleInputCoverage(e.target.value)}
+                      />
+                    </BoxChooseCol>
+                  </BoxChooseRow>
+                  <BoxChooseRow>
+                    <BoxChooseCol>
+                      <BoxChooseText>
+                        Add days (1 - {DAYS_PER_YEAR - getDays(selectedPolicy ? selectedPolicy.expirationBlock : '0')}{' '}
+                        days)
+                      </BoxChooseText>
+                    </BoxChooseCol>
+                    <BoxChooseCol>
+                      <Slider
+                        disabled={positionsloading}
+                        width={150}
+                        backgroundColor={'#fff'}
+                        value={extendedTime == '' ? '1' : extendedTime}
+                        onChange={(e) => setExtendedTime(e.target.value)}
+                        min="1"
+                        max={DAYS_PER_YEAR - getDays(selectedPolicy ? selectedPolicy.expirationBlock : '0')}
+                      />
+                    </BoxChooseCol>
+                    <BoxChooseCol>
+                      <Input
+                        disabled={positionsloading}
+                        type="text"
+                        pattern="[0-9]+"
+                        width={50}
+                        value={extendedTime}
+                        onChange={(e) => filteredTime(e.target.value)}
+                        maxLength={3}
+                      />
+                    </BoxChooseCol>
+                  </BoxChooseRow>
+                  <BoxChooseRow>
+                    <BoxChooseDate>
+                      Current expiration{' '}
+                      <Input
+                        readOnly
+                        type="date"
+                        value={`${new Date(
+                          date.setDate(date.getDate() + getDays(selectedPolicy ? selectedPolicy.expirationBlock : '0'))
+                        )
+                          .toISOString()
+                          .substr(0, 10)}`}
+                      />{' '}
+                      New expiration{' '}
+                      <Input
+                        readOnly
+                        type="date"
+                        value={`${new Date(date.setDate(date.getDate() + parseFloat(extendedTime || '1')))
+                          .toISOString()
+                          .substr(0, 10)}`}
+                      />
+                    </BoxChooseDate>
+                  </BoxChooseRow>
+                </BoxChooseCol>
+                <BoxChooseCol>
+                  {!positionsloading ? (
+                    <Button onClick={() => extendPolicy()}>Update Policy</Button>
+                  ) : (
+                    <Loader width={10} height={10} />
+                  )}
+                </BoxChooseCol>
               </BoxChooseRow>
               <BoxChooseRow>
                 <BoxChooseCol>
-                  <BoxChooseText>
-                    Add days (1 - {DAYS_PER_YEAR - getDays(selectedPolicy ? selectedPolicy.expirationBlock : '0')} days)
-                  </BoxChooseText>
+                  <BoxChooseRow>
+                    <Text1>Cancel Policy</Text1>
+                  </BoxChooseRow>
+                  <BoxChooseRow>
+                    <BoxChooseCol>
+                      <BoxChooseText warning={policyPrice !== '0' && refundAmount.lte(parseEther(cancelFee))}>
+                        Refund amount: {formattedRefundAmount} ETH
+                      </BoxChooseText>
+                    </BoxChooseCol>
+                  </BoxChooseRow>
+                  <BoxChooseRow>
+                    <BoxChooseCol>
+                      <BoxChooseText>Cancellation fee: {cancelFee} ETH</BoxChooseText>
+                    </BoxChooseCol>
+                  </BoxChooseRow>
+                  {policyPrice !== '0' && refundAmount.lte(parseEther(cancelFee)) && (
+                    <BoxChooseText warning>Refund amount must offset cancellation fee</BoxChooseText>
+                  )}
                 </BoxChooseCol>
                 <BoxChooseCol>
-                  <Slider
-                    width={150}
-                    backgroundColor={'#fff'}
-                    value={extendedTime == '' ? '1' : extendedTime}
-                    onChange={(e) => setExtendedTime(e.target.value)}
-                    min="1"
-                    max={DAYS_PER_YEAR - getDays(selectedPolicy ? selectedPolicy.expirationBlock : '0')}
-                  />
-                </BoxChooseCol>
-                <BoxChooseCol>
-                  <Input
-                    type="text"
-                    pattern="[0-9]+"
-                    width={50}
-                    value={extendedTime}
-                    onChange={(e) => filteredTime(e.target.value)}
-                    maxLength={3}
-                  />
-                </BoxChooseCol>
-              </BoxChooseRow>
-              <BoxChooseRow>
-                <BoxChooseDate>
-                  Current expiration{' '}
-                  <Input
-                    readOnly
-                    type="date"
-                    value={`${new Date(
-                      date.setDate(date.getDate() + getDays(selectedPolicy ? selectedPolicy.expirationBlock : '0'))
-                    )
-                      .toISOString()
-                      .substr(0, 10)}`}
-                  />{' '}
-                  New expiration{' '}
-                  <Input
-                    readOnly
-                    type="date"
-                    value={`${new Date(date.setDate(date.getDate() + parseFloat(extendedTime || '1')))
-                      .toISOString()
-                      .substr(0, 10)}`}
-                  />
-                </BoxChooseDate>
-              </BoxChooseRow>
-              <ButtonWrapper>
-                {!positionsloading ? (
-                  <Button onClick={() => extendPolicy()}>Extend Policy Period</Button>
-                ) : (
-                  <Loader width={10} height={10} />
-                )}
-              </ButtonWrapper>
-              <BoxChooseRow>
-                <Text1>Cancel Policy</Text1>
-              </BoxChooseRow>
-              <BoxChooseRow>
-                <BoxChooseCol>
-                  <BoxChooseText warning={policyPrice !== '0' && refundAmount.lte(parseEther(cancelFee))}>
-                    Refund amount: {formattedRefundAmount} ETH
-                  </BoxChooseText>
-                </BoxChooseCol>
-              </BoxChooseRow>
-              <BoxChooseRow>
-                <BoxChooseCol>
-                  <BoxChooseText>Cancellation fee: {cancelFee} ETH</BoxChooseText>
-                </BoxChooseCol>
-              </BoxChooseRow>
-              {policyPrice !== '0' && refundAmount.lte(parseEther(cancelFee)) && (
-                <BoxChooseText warning>Refund amount must offset cancellation fee</BoxChooseText>
-              )}
-              <ModalRow>
-                <ButtonWrapper>
                   {policyPrice !== '0' ? (
                     <Button disabled={refundAmount.lte(parseEther(cancelFee))} onClick={() => cancelPolicy()}>
                       Cancel Policy
@@ -454,8 +521,8 @@ function Dashboard(): any {
                   ) : (
                     <Loader width={10} height={10} />
                   )}
-                </ButtonWrapper>
-              </ModalRow>
+                </BoxChooseCol>
+              </BoxChooseRow>
             </Fragment>
           ) : (
             <Loader />

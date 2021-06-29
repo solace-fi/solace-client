@@ -8,7 +8,7 @@ import vaultABI from '../constants/abi/contracts/Vault.sol/Vault.json'
 import cpFarmABI from '../constants/abi/contracts/CpFarm.sol/CpFarm.json'
 import lpFarmABI from '../constants/abi/contracts/SolaceEthLpFarm.sol/SolaceEthLpFarm.json'
 import lpTokenArtifact from '../../node_modules/@uniswap/v3-periphery/artifacts/contracts/NonfungiblePositionManager.sol/NonfungiblePositionManager.json'
-import compAbi from '../constants/abi/contracts/products/CompoundProduct.sol/CompoundProduct.json'
+import compAbi from '../constants/abi/contracts/products/CompoundProductRinkeby.sol/CompoundProductRinkeby.json'
 
 import {
   SOLACE_CONTRACT_ADDRESS,
@@ -54,6 +54,7 @@ const getInterface = (toAddress: string) => {
 }
 
 export const decodeInput = (tx: any) => {
+  console.log(tx.to, tx.input, tx.value)
   const inter = getInterface(tx.to)
   const decodedInput = inter.parseTransaction({ data: tx.input, value: tx.value })
   const function_name = decodedInput.name.charAt(0).toUpperCase() + decodedInput.name.slice(1)
