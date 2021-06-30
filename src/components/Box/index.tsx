@@ -9,6 +9,10 @@ interface BoxProps {
   outlined?: boolean
 }
 
+interface SmallBoxProps {
+  warning?: boolean
+}
+
 const BoxPropsHandler = css<GenericProps & BoxProps>`
   ${(props) => props.transparent && TransparentBox}
   ${(props) => props.outlined && Outline}
@@ -57,8 +61,9 @@ export const Box = styled(BoxRow)<BoxProps & GenericProps>`
       : `padding: 24px;`}
 `
 
-export const SmallBox = styled.div<BoxProps & GenericProps>`
+export const SmallBox = styled.div<BoxProps & SmallBoxProps & GenericProps>`
   ${BoxPropsHandler}
+  ${(props) => props.warning && `border-color: rgba(219, 44, 56);`}
   display: flex;
   ${(props) =>
     props.p !== undefined ||

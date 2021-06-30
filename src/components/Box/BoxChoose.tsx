@@ -1,5 +1,6 @@
 import styled, { css } from 'styled-components'
 import { Input } from '../Input'
+import { handleTextStyleProps } from '../Text'
 
 interface props {
   bold?: boolean
@@ -35,8 +36,7 @@ export const BoxChooseDescription = styled.div`
 const BoxChooseInfo = css<props>`
   font-size: 14px;
   line-height: 19px;
-  ${(props) => props.bold && 'font-weight: 600;'}
-  ${(props) => props.warning && 'color: rgba(255, 12, 28);'}
+  ${() => handleTextStyleProps()}
 `
 
 export const BoxChooseDate = styled.div`

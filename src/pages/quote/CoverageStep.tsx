@@ -52,6 +52,7 @@ import { useGetQuote } from '../../hooks/usePolicy'
 
 /* import utils */
 import { getGasValue } from '../../utils/formatting'
+import { SmallBox } from '../../components/Box'
 
 export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigation }) => {
   /*************************************************************************************
@@ -305,6 +306,11 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
               <BoxChooseText bold>{quote} ETH</BoxChooseText>
             </BoxChooseCol>
           </BoxChooseRow>
+          <SmallBox outlined warning>
+            <Text3 warning alignVertical>
+              You can only cover to a maximum of this.
+            </Text3>
+          </SmallBox>
           <ButtonWrapper>{!loading ? <Button onClick={() => buyPolicy()}>Buy</Button> : <Loader />}</ButtonWrapper>
         </CardBaseComponent>
         <CardBaseComponent transparent>

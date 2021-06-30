@@ -17,6 +17,8 @@ export interface TextProps {
 export interface TextStyleProps {
   encircled?: boolean
   alignVertical?: boolean
+  bold?: boolean
+  warning?: boolean
 }
 
 const Font1 = css`
@@ -101,35 +103,41 @@ const NoWrapCss = css`
 export const Text1 = styled.div<TextProps & TextStyleProps>`
   ${Text1Css}
   ${(props) => handleTextProps()}
+  ${(props) => handleTextStyleProps()}
 `
 
 export const Text2 = styled.div<TextProps & TextStyleProps>`
   ${Text2Css}
-  ${(props) => handleTextProps()}
+  ${(props) => handleTextProps()}  
+  ${(props) => handleTextStyleProps()}
 `
 
 export const Text3 = styled.div<TextProps & TextStyleProps>`
   ${Text3Css}
-  ${(props) => handleTextProps()}
+  ${(props) => handleTextProps()}  
+  ${(props) => handleTextStyleProps()}
 `
 
 export const Heading1 = styled.div<TextProps & TextStyleProps>`
   ${Heading1Css}
-  ${(props) => handleTextProps()}
+  ${(props) => handleTextProps()}  
+  ${(props) => handleTextStyleProps()}
 `
 
 export const Heading2 = styled.div<TextProps & TextStyleProps>`
   ${Heading2Css}
-  ${(props) => handleTextProps()}
+  ${(props) => handleTextProps()}  
+  ${(props) => handleTextStyleProps()}
 `
 
 export const Heading3 = styled.div<TextProps & TextStyleProps>`
   ${Heading3Css}
-  ${(props) => handleTextProps()}
+  ${(props) => handleTextProps()}  
+  ${(props) => handleTextStyleProps()}
 `
 
 export const handleTextProps = (): any => {
-  return css<TextProps & TextStyleProps>`
+  return css<TextProps>`
     ${(props) => props.h1 && Heading1Css}
     ${(props) => props.h2 && Heading2Css}
     ${(props) => props.h3 && Heading3Css}
@@ -139,8 +147,15 @@ export const handleTextProps = (): any => {
     ${(props) => props.textAlignCenter && AlignCenterCss}
     ${(props) => props.textAlignLeft && AlignLeftCss}
     ${(props) => props.textAlignRight && AlignRightCss}
+    ${(props) => props.nowrap && NoWrapCss}
+  `
+}
+
+export const handleTextStyleProps = (): any => {
+  return css<TextStyleProps>`
     ${(props) => props.encircled && EncircledCss}
     ${(props) => props.alignVertical && AlignVerticalAutoCss}
-    ${(props) => props.nowrap && NoWrapCss}
+    ${(props) => props.bold && 'font-weight: 600;'}
+    ${(props) => props.warning && 'color: rgba(219, 44, 56);'}
   `
 }
