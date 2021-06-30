@@ -33,7 +33,15 @@ interface LayoutContentProps {
 export const LayoutContent = styled.div<LayoutContentProps>`
   padding: 20px;
   align-content: start;
-  ${(props) => props.width && `min-width: ${(props.width / 100) * MAX_WIDTH}px;`}
+  ${(props) => (props.width ? `min-width: ${(props.width / 100) * MAX_WIDTH}px;` : 'width: 100%;')}
+`
+
+export const HeroContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
 `
 
 export const Content = styled.div`

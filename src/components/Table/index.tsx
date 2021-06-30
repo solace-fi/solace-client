@@ -47,6 +47,7 @@ export const TableHeader = styled.th<TableProps>`
   overflow: hidden;
   text-overflow: ellipsis;
   text-align: left;
+  white-space: nowrap;
 `
 
 export const TableData = styled.td<TableProps>`

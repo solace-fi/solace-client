@@ -6,7 +6,6 @@
     import packages
     import managers
     import components
-    styled components
 
     Quote function
       Hook variables
@@ -27,28 +26,16 @@ import { useWallet } from '../../context/WalletManager'
 import { MultiStepForm } from './MultiStepForm'
 import { Heading1 } from '../../components/Text'
 import { WalletConnectButton } from '../../components/Button/WalletConnect'
-
-/************************************************************************************* 
-
-    styled components 
-
-  *************************************************************************************/
-export const WelcomeContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  min-height: 400px;
-`
+import { HeroContainer } from '../../components/Layout'
 
 function Quote(): any {
   const wallet = useWallet()
 
   return !wallet.isActive || !wallet.account ? (
-    <WelcomeContainer>
+    <HeroContainer>
       <Heading1>Please connect your wallet to buy quotes</Heading1>
       <WalletConnectButton />
-    </WelcomeContainer>
+    </HeroContainer>
   ) : (
     <MultiStepForm />
   )

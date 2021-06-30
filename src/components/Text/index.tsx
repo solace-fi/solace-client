@@ -11,6 +11,7 @@ export interface TextProps {
   textAlignCenter?: boolean
   textAlignLeft?: boolean
   textAlignRight?: boolean
+  nowrap?: boolean
 }
 
 export interface TextStyleProps {
@@ -93,38 +94,42 @@ const EncircledCss = css`
   ${AlignVerticalCss}
 `
 
-export const Text1 = styled.div<TextStyleProps>`
+const NoWrapCss = css`
+  white-space: nowrap;
+`
+
+export const Text1 = styled.div<TextProps & TextStyleProps>`
   ${Text1Css}
-  ${(props) => handleTextStyleProps()}
+  ${(props) => handleTextProps()}
 `
 
-export const Text2 = styled.div<TextStyleProps>`
+export const Text2 = styled.div<TextProps & TextStyleProps>`
   ${Text2Css}
-  ${(props) => handleTextStyleProps()}
+  ${(props) => handleTextProps()}
 `
 
-export const Text3 = styled.div<TextStyleProps>`
+export const Text3 = styled.div<TextProps & TextStyleProps>`
   ${Text3Css}
-  ${(props) => handleTextStyleProps()}
+  ${(props) => handleTextProps()}
 `
 
-export const Heading1 = styled.div<TextStyleProps>`
+export const Heading1 = styled.div<TextProps & TextStyleProps>`
   ${Heading1Css}
-  ${(props) => handleTextStyleProps()}
+  ${(props) => handleTextProps()}
 `
 
-export const Heading2 = styled.div<TextStyleProps>`
+export const Heading2 = styled.div<TextProps & TextStyleProps>`
   ${Heading2Css}
-  ${(props) => handleTextStyleProps()}
+  ${(props) => handleTextProps()}
 `
 
-export const Heading3 = styled.div<TextStyleProps>`
+export const Heading3 = styled.div<TextProps & TextStyleProps>`
   ${Heading3Css}
-  ${(props) => handleTextStyleProps()}
+  ${(props) => handleTextProps()}
 `
 
 export const handleTextProps = (): any => {
-  return css<TextProps>`
+  return css<TextProps & TextStyleProps>`
     ${(props) => props.h1 && Heading1Css}
     ${(props) => props.h2 && Heading2Css}
     ${(props) => props.h3 && Heading3Css}
@@ -134,12 +139,8 @@ export const handleTextProps = (): any => {
     ${(props) => props.textAlignCenter && AlignCenterCss}
     ${(props) => props.textAlignLeft && AlignLeftCss}
     ${(props) => props.textAlignRight && AlignRightCss}
-  `
-}
-
-export const handleTextStyleProps = (): any => {
-  return css<TextStyleProps>`
     ${(props) => props.encircled && EncircledCss}
     ${(props) => props.alignVertical && AlignVerticalAutoCss}
+    ${(props) => props.nowrap && NoWrapCss}
   `
 }

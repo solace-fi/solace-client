@@ -1,11 +1,11 @@
 import React from 'react'
-import { WelcomeContainer } from '../quote'
+import { HeroContainer } from '../../components/Layout'
 import { Heading1 } from '../../components/Text'
 function Govern(): any {
   return (
-    <WelcomeContainer>
+    <HeroContainer>
       <Heading1>Governance coming soon!</Heading1>
-    </WelcomeContainer>
+    </HeroContainer>
   )
 }
 

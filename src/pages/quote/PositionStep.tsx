@@ -30,7 +30,7 @@ import { formProps } from './MultiStepForm'
 import { CardContainer, PositionCardComponent } from '../../components/Card'
 import { PositionCardButton, PositionCardCount, PositionCardLogo, PositionCardName } from '../../components/Position'
 import { Loader } from '../../components/Loader'
-import { WelcomeContainer } from '.'
+import { HeroContainer } from '../../components/Layout'
 import { Heading1 } from '../../components/Text'
 
 /* import utils */
@@ -173,9 +173,9 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
   return (
     <Fragment>
       {balances.length == 0 && !loading && positionsLoaded && (
-        <WelcomeContainer>
+        <HeroContainer>
           <Heading1>You do not own any positions on this protocol.</Heading1>
-        </WelcomeContainer>
+        </HeroContainer>
       )}
       {!loading && positionsLoaded ? (
         <CardContainer cardsPerRow={3}>
