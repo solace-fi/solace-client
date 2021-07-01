@@ -1,4 +1,5 @@
 import styled from 'styled-components'
+import { TextProps, handleTextProps } from '../Text'
 
 export const PositionCardLogo = styled.div`
   display: flex;
@@ -19,10 +20,10 @@ export const PositionCardName = styled.div`
   text-align: center;
 `
 
-export const PositionCardCount = styled.div`
+export const PositionCardCount = styled.div<TextProps>`
   margin-top: 10px;
-  font-size: 24px;
   line-height: 33px;
+  ${() => handleTextProps()}
 `
 
 export const PositionCardButton = styled.div`

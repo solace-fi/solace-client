@@ -59,9 +59,10 @@ import { useUserPendingRewards, useUserRewardsPerDay } from '../../hooks/useRewa
 import { useGetCancelFee, useGetQuote, useGetPolicyPrice } from '../../hooks/usePolicy'
 
 /* import utils */
-import { fixed, getGasValue } from '../../utils/formatting'
+import { getGasValue, truncateBalance } from '../../utils/formatting'
 import { Policy, getAllPoliciesOfUser } from '../../utils/policyGetter'
 import { fetchEtherscanLatestBlock } from '../../utils/etherscan'
+import { getPositions } from '../../utils/positionGetter'
 
 function Dashboard(): any {
   /************************************************************************************* 
@@ -83,8 +84,10 @@ function Dashboard(): any {
   const [latestBlock, setLatestBlock] = useState<number>(0)
   const [showModal, setShowModal] = useState<boolean>(false)
   const [loading, setLoading] = useState<boolean>(false)
+  const [positionsloading, setPositionsLoading] = useState<boolean>(false)
   const [extendedTime, setExtendedTime] = useState<string>('1')
   const [selectedPolicy, setSelectedPolicy] = useState<Policy | undefined>(undefined)
+  const [coverLimit, setCoverLimit] = useState<string | null>(null)
 
   /*************************************************************************************
 
@@ -98,12 +101,12 @@ function Dashboard(): any {
   const [lpUserRewardsPerDay] = useUserRewardsPerDay(2, lpFarmContract.current)
   const cpUserStakeValue = useUserStakedValue(cpFarmContract.current)
   const lpUserStakeValue = useUserStakedValue(lpFarmContract.current)
-  const { cpFarm, lpFarm, compProduct } = useContracts()
+  const { cpFarm, lpFarm, selectedProtocol, setSelectedProtocolByName } = useContracts()
   const { addLocalTransactions } = useUserData()
   const { makeTxToast } = useToasts()
   const wallet = useWallet()
   const quote = useGetQuote(
-    selectedPolicy ? selectedPolicy.coverAmount : null,
+    selectedPolicy ? coverLimit : null,
     selectedPolicy ? selectedPolicy.positionContract : null,
     extendedTime
   )
@@ -120,12 +123,11 @@ function Dashboard(): any {
   const blocksLeft = BigNumber.from(parseFloat(selectedPolicy ? selectedPolicy.expirationBlock : '0') - latestBlock)
   const coverAmount = BigNumber.from(selectedPolicy ? selectedPolicy.coverAmount : '0')
   const price = BigNumber.from(policyPrice)
-  const refundAmount = formatEther(
-    blocksLeft
-      .mul(coverAmount)
-      .mul(price)
-      .div(String(Math.pow(10, 12)))
-  )
+  const refundAmount = blocksLeft
+    .mul(coverAmount)
+    .mul(price)
+    .div(String(Math.pow(10, 12)))
+  const formattedRefundAmount = formatEther(refundAmount)
 
   /*************************************************************************************
 
@@ -135,19 +137,19 @@ function Dashboard(): any {
 
   const extendPolicy = async () => {
     setLoading(true)
-    if (!compProduct) return
+    if (!selectedProtocol) return
     const txType = FunctionName.EXTEND_POLICY
-    console.log('my quote', quote)
+    const extension = BigNumber.from(NUM_BLOCKS_PER_DAY * parseInt(extendedTime))
     try {
-      const tx = await compProduct.extendPolicy(
-        selectedPolicy?.policyId,
-        BigNumber.from(NUM_BLOCKS_PER_DAY * parseInt(extendedTime)),
-        {
-          value: parseEther(quote).add(parseEther(quote).div('10000')),
-          gasPrice: getGasValue(wallet.gasPrices.selected.value),
-          gasLimit: 450000,
-        }
-      )
+      const tx = await selectedProtocol.extendPolicy(selectedPolicy?.policyId, extension, {
+        value: coverAmount
+          .mul(price)
+          .mul(extension)
+          .div(String(Math.pow(10, 12)))
+          .add(parseEther(quote).div('10000')),
+        gasPrice: getGasValue(wallet.gasPrices.selected.value),
+        gasLimit: 450000,
+      })
       const txHash = tx.hash
       const localTx = { hash: txHash, type: txType, value: '0', status: TransactionCondition.PENDING, unit: Unit.ID }
       closeModal()
@@ -155,8 +157,6 @@ function Dashboard(): any {
       wallet.reload()
       makeTxToast(txType, TransactionCondition.PENDING, txHash)
       await tx.wait().then((receipt: any) => {
-        console.log('extendPolicy tx', tx)
-        console.log('extendPolicy receipt', receipt)
         const status = receipt.status ? TransactionCondition.SUCCESS : TransactionCondition.FAILURE
         makeTxToast(txType, status, txHash)
         wallet.reload()
@@ -170,10 +170,10 @@ function Dashboard(): any {
 
   const cancelPolicy = async () => {
     setLoading(true)
-    if (!compProduct || !selectedPolicy) return
+    if (!selectedProtocol || !selectedPolicy) return
     const txType = FunctionName.CANCEL_POLICY
     try {
-      const tx = await compProduct.cancelPolicy(selectedPolicy.policyId)
+      const tx = await selectedProtocol.cancelPolicy(selectedPolicy.policyId)
       const txHash = tx.hash
       const localTx = {
         hash: txHash,
@@ -187,8 +187,6 @@ function Dashboard(): any {
       wallet.reload()
       makeTxToast(txType, TransactionCondition.PENDING, txHash)
       await tx.wait().then((receipt: any) => {
-        console.log('cancelPolicy tx', tx)
-        console.log('cancelPolicy receipt', receipt)
         const status = receipt.status ? TransactionCondition.SUCCESS : TransactionCondition.FAILURE
         makeTxToast(txType, status, txHash)
         wallet.reload()
@@ -205,6 +203,15 @@ function Dashboard(): any {
   Local helper functions
 
   *************************************************************************************/
+
+  const getCoverLimit = (policy: Policy | undefined, balances: any) => {
+    if (balances == undefined || policy == undefined) return null
+    const coverAmount = policy.coverAmount
+    const positionAmount = balances.filter((balance: any) => policy.positionName == balance.underlying.symbol)[0].eth
+      .balance
+    const coverLimit = BigNumber.from(coverAmount).mul('10000').div(positionAmount).toString()
+    setCoverLimit(coverLimit)
+  }
 
   const calculatePolicyExpirationDate = (expirationBlock: string): string => {
     const days = getDays(expirationBlock)
@@ -227,7 +234,7 @@ function Dashboard(): any {
           <TableData>{policy.positionName}</TableData>
           <TableData>{calculatePolicyExpirationDate(policy.expirationBlock)}</TableData>
           <TableData>
-            {policy.coverAmount ? formatEther(policy.coverAmount) : 0} {Unit.ETH}
+            {policy.coverAmount ? truncateBalance(parseFloat(formatEther(policy.coverAmount)), 2) : 0} {Unit.ETH}
           </TableData>
 
           <TableData cellAlignRight>
@@ -243,10 +250,15 @@ function Dashboard(): any {
     })
   }
 
-  const openModal = (days: number, policy: Policy) => {
+  const openModal = async (days: number, policy: Policy) => {
     setShowModal((prev) => !prev)
+    setSelectedProtocolByName(policy.productName.toLowerCase())
     document.body.style.overflowY = 'hidden'
     setSelectedPolicy(policy)
+    setPositionsLoading(true)
+    const balances = await getPositions(policy.productName.toLowerCase(), wallet.chainId ?? 1, wallet.account ?? '0x')
+    getCoverLimit(policy, balances)
+    setPositionsLoading(false)
   }
 
   const closeModal = () => {
@@ -315,26 +327,42 @@ function Dashboard(): any {
     <Fragment>
       <Modal isOpen={showModal}>
         <ModalHeader>
-          <Heading2>Policy Management</Heading2>
+          <Heading2>
+            Policy Management: {selectedPolicy?.productName} - {selectedPolicy?.positionName}
+          </Heading2>
           <ModalCloseButton hidden={loading} onClick={() => closeModal()} />
         </ModalHeader>
         <ModalContent>
           <BoxChooseRow>
             <BoxChooseCol>
-              <Text2>
-                {selectedPolicy?.productName}-{selectedPolicy?.positionName}
-              </Text2>
+              <Text2>Id: {selectedPolicy?.policyId}</Text2>
             </BoxChooseCol>
             <BoxChooseCol>
-              <Text2>Id: {selectedPolicy?.policyId}</Text2>
+              <Text2>Days left: {getDays(selectedPolicy ? selectedPolicy.expirationBlock : '0')}</Text2>
             </BoxChooseCol>
           </BoxChooseRow>
           <BoxChooseRow>
+            <BoxChooseCol></BoxChooseCol>
             <BoxChooseCol>
-              <Text2>Cover Amount: </Text2>
+              <Text2>
+                Cover Amount: {selectedPolicy?.coverAmount ? formatEther(selectedPolicy.coverAmount) : 0} ETH
+              </Text2>
             </BoxChooseCol>
+          </BoxChooseRow>
+          <BoxChooseRow>
+            <BoxChooseCol></BoxChooseCol>
             <BoxChooseCol>
-              <Text2>{selectedPolicy?.coverAmount ? formatEther(selectedPolicy.coverAmount) : 0} ETH</Text2>
+              <Text2>
+                {coverLimit && !positionsloading ? (
+                  `Coverage: ${
+                    coverLimit.substring(0, coverLimit.length - 2) +
+                    '.' +
+                    coverLimit.substring(coverLimit.length - 2, coverLimit.length)
+                  }%`
+                ) : (
+                  <Loader width={10} height={10} />
+                )}
+              </Text2>
             </BoxChooseCol>
           </BoxChooseRow>
           <hr style={{ marginBottom: '20px' }} />
@@ -346,8 +374,7 @@ function Dashboard(): any {
               <BoxChooseRow>
                 <BoxChooseCol>
                   <BoxChooseText>
-                    New Period (1 - {DAYS_PER_YEAR - getDays(selectedPolicy ? selectedPolicy.expirationBlock : '0')}{' '}
-                    days)
+                    Add days (1 - {DAYS_PER_YEAR - getDays(selectedPolicy ? selectedPolicy.expirationBlock : '0')} days)
                   </BoxChooseText>
                 </BoxChooseCol>
                 <BoxChooseCol>
@@ -394,15 +421,19 @@ function Dashboard(): any {
                 </BoxChooseDate>
               </BoxChooseRow>
               <ButtonWrapper>
-                <Button onClick={() => extendPolicy()}>Extend Policy Period</Button>
+                {!positionsloading ? (
+                  <Button onClick={() => extendPolicy()}>Extend Policy Period</Button>
+                ) : (
+                  <Loader width={10} height={10} />
+                )}
               </ButtonWrapper>
               <BoxChooseRow>
                 <Text1>Cancel Policy</Text1>
               </BoxChooseRow>
               <BoxChooseRow>
                 <BoxChooseCol>
-                  <BoxChooseText warning={policyPrice !== '0' && parseEther(refundAmount).lte(parseEther(cancelFee))}>
-                    Refund amount: {refundAmount} ETH
+                  <BoxChooseText warning={policyPrice !== '0' && refundAmount.lte(parseEther(cancelFee))}>
+                    Refund amount: {formattedRefundAmount} ETH
                   </BoxChooseText>
                 </BoxChooseCol>
               </BoxChooseRow>
@@ -411,14 +442,18 @@ function Dashboard(): any {
                   <BoxChooseText>Cancellation fee: {cancelFee} ETH</BoxChooseText>
                 </BoxChooseCol>
               </BoxChooseRow>
-              {policyPrice !== '0' && parseEther(refundAmount).lte(parseEther(cancelFee)) && (
+              {policyPrice !== '0' && refundAmount.lte(parseEther(cancelFee)) && (
                 <BoxChooseText warning>Refund amount must offset cancellation fee</BoxChooseText>
               )}
               <ModalRow>
                 <ButtonWrapper>
-                  <Button disabled={parseEther(refundAmount).lte(parseEther(cancelFee))} onClick={() => cancelPolicy()}>
-                    Cancel Policy
-                  </Button>
+                  {policyPrice !== '0' ? (
+                    <Button disabled={refundAmount.lte(parseEther(cancelFee))} onClick={() => cancelPolicy()}>
+                      Cancel Policy
+                    </Button>
+                  ) : (
+                    <Loader width={10} height={10} />
+                  )}
                 </ButtonWrapper>
               </ModalRow>
             </Fragment>
@@ -450,19 +485,19 @@ function Dashboard(): any {
             <CardHeader>
               <CardTitle h2>Capital Pool</CardTitle>
               <Heading3>
-                {wallet.account ? fixed(parseFloat(cpUserStakeValue), 2) : 0} {Unit.ETH}
+                {wallet.account ? truncateBalance(parseFloat(cpUserStakeValue), 2) : 0} {Unit.ETH}
               </Heading3>
             </CardHeader>
             <CardBlock>
               <CardTitle t2>Daily Earnings</CardTitle>
               <CardTitle t3>
-                {wallet.account ? fixed(parseFloat(cpUserRewardsPerDay), 2) : 0} {Unit.SOLACE}
+                {wallet.account ? truncateBalance(parseFloat(cpUserRewardsPerDay), 2) : 0} {Unit.SOLACE}
               </CardTitle>
             </CardBlock>
             <CardBlock>
               <CardTitle t2>Total Earnings</CardTitle>
               <CardTitle t3>
-                {wallet.account ? fixed(parseFloat(cpUserRewards), 2) : 0} {Unit.SOLACE}
+                {wallet.account ? truncateBalance(parseFloat(cpUserRewards), 2) : 0} {Unit.SOLACE}
               </CardTitle>
             </CardBlock>
           </InvestmentCardComponent>
@@ -470,19 +505,19 @@ function Dashboard(): any {
             <CardHeader>
               <CardTitle h2>Liquidity Pool</CardTitle>
               <Heading3>
-                {wallet.account ? fixed(parseFloat(lpUserStakeValue), 2) : 0} {Unit.SOLACE}
+                {wallet.account ? truncateBalance(parseFloat(lpUserStakeValue), 2) : 0} {Unit.SOLACE}
               </Heading3>
             </CardHeader>
             <CardBlock>
               <CardTitle t2>Daily Earnings</CardTitle>
               <CardTitle t3>
-                {wallet.account ? fixed(parseFloat(lpUserRewardsPerDay), 2) : 0} {Unit.SOLACE}
+                {wallet.account ? truncateBalance(parseFloat(lpUserRewardsPerDay), 2) : 0} {Unit.SOLACE}
               </CardTitle>
             </CardBlock>
             <CardBlock>
               <CardTitle t2>Total Earnings</CardTitle>
               <CardTitle t3>
-                {wallet.account ? fixed(parseFloat(lpUserRewards), 2) : 0} {Unit.SOLACE}
+                {wallet.account ? truncateBalance(parseFloat(lpUserRewards), 2) : 0} {Unit.SOLACE}
               </CardTitle>
             </CardBlock>
           </InvestmentCardComponent>

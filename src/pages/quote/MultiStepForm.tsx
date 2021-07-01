@@ -4,6 +4,7 @@
 
     import react
     import packages
+    import context
     import components
     import utils
 
@@ -20,11 +21,14 @@
   *************************************************************************************/
 
 /* import react */
-import React from 'react'
+import React, { useEffect } from 'react'
 
 /* import packages */
 import { SetForm, useForm, useStep } from 'react-hooks-helper'
 import styled from 'styled-components'
+
+/* import context */
+import { useWallet } from '../../context/WalletManager'
 
 /* import components */
 import { ProtocolStep } from './ProtocolStep'
@@ -127,6 +131,7 @@ export const MultiStepForm = () => {
     steps,
     initialStep: 0,
   })
+  const { account, chainId } = useWallet()
 
   const props = { formData, setForm, navigation }
 
@@ -148,6 +153,12 @@ export const MultiStepForm = () => {
         return <ConfirmStep {...props} />
     }
   }
+
+  useEffect(() => {
+    if (Number(StepNumber[step.id]) == 2) {
+      navigation.go(0)
+    }
+  }, [account, chainId])
 
   /*************************************************************************************
 

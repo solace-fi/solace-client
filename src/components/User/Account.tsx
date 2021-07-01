@@ -34,12 +34,13 @@ import { Heading3 } from '../Text'
 import { useEthBalance } from '../../hooks/useEthBalance'
 
 /* import utils */
-import { shortenAddress, fixed } from '../../utils/formatting'
+import { shortenAddress, fixed, truncateBalance } from '../../utils/formatting'
 import { getNetworkName } from '../../utils'
 
 /* import static */
 import user from '../../static/user-avatar.png'
 import { WalletConnectButton } from '../Button/WalletConnect'
+import { SmallBox } from '../Box'
 
 export default function Account(): any {
   /*************************************************************************************
@@ -52,27 +53,30 @@ export default function Account(): any {
 
   return (
     <Fragment>
-      {wallet.isActive && (
-        <Heading3 outlined>
-          {getNetworkName(wallet.chainId) === '-'
-            ? getNetworkName(wallet.chainId)
-            : `${getNetworkName(wallet.chainId)
-                .charAt(0)
-                .toUpperCase()
-                .concat(getNetworkName(wallet.chainId).slice(1))}`}
-        </Heading3>
+      {wallet.isActive &&
+        <SmallBox outlined>
+          <Heading3 alignVertical>
+            {getNetworkName(wallet.chainId) === '-'
+              ? getNetworkName(wallet.chainId)
+              : `${getNetworkName(wallet.chainId)
+                  .charAt(0)
+                  .toUpperCase()
+                  .concat(getNetworkName(wallet.chainId).slice(1))}`}
+          </Heading3>
+        </SmallBox>
       )}
-      <User>
-        <UserImage>{wallet.account ? <img src={makeBlockie(wallet.account)} /> : <img src={user} />}</UserImage>
-        <UserWallet>
-          {wallet.isActive ? (
-            <Fragment>{balance ? `${fixed(parseFloat(balance), 6)} ETH` : ''}</Fragment>
-          ) : (
-            <WalletConnectButton />
-          )}
-        </UserWallet>
-        {wallet.account && <UserName>{shortenAddress(wallet.account)}</UserName>}
-      </User>
+      {!wallet.isActive && <WalletConnectButton />}
+      {wallet.account && (
+        <SmallBox pl={10} outlined>
+          <Heading3 alignVertical>{balance ? `${fixed(parseFloat(balance), 3)} ETH` : ''}</Heading3>
+          <SmallBox ml={10} outlined>
+            <Heading3 alignVertical>{shortenAddress(wallet.account)}</Heading3>{' '}
+            <UserImage pt={4} pb={4} pl={10}>
+              <img src={makeBlockie(wallet.account)} />
+            </UserImage>
+          </SmallBox>
+        </SmallBox>
+      )}
     </Fragment>
   )
 }

@@ -66,7 +66,15 @@ import { useTransactionDetails } from '../../hooks/useTransactionDetails'
 import { getEtherscanTxUrl } from '../../utils/etherscan'
 import getPermitNFTSignature from '../../utils/signature'
 import { FeeAmount, TICK_SPACINGS, getMaxTick, getMinTick } from '../../utils/uniswap'
-import { fixed, getGasValue, filteredAmount, shortenAddress, getUnit, floatEther } from '../../utils/formatting'
+import {
+  fixed,
+  getGasValue,
+  filteredAmount,
+  shortenAddress,
+  getUnit,
+  floatEther,
+  truncateBalance,
+} from '../../utils/formatting'
 import { getProviderOrSigner } from '../../utils/index'
 import { timeAgo } from '../../utils/timeAgo'
 import { decodeInput } from '../../utils/decoder'
@@ -201,7 +209,6 @@ function Invest(): any {
       wallet.reload()
       makeTxToast(txType, TransactionCondition.PENDING, txHash)
       await tx.wait().then((receipt: any) => {
-        console.log(receipt)
         const status = receipt.status ? TransactionCondition.SUCCESS : TransactionCondition.FAILURE
         makeTxToast(txType, status, txHash)
         wallet.reload()
@@ -660,10 +667,12 @@ function Invest(): any {
           </TableHead>
           <TableBody>
             <TableRow>
-              {wallet.account ? <TableData width={109}>{fixed(parseFloat(userVaultAssets), 2)}</TableData> : null}
-              <TableData width={100}>{fixed(floatEther(parseEther(capitalPoolSize)), 2)}</TableData>
+              {wallet.account ? (
+                <TableData width={109}>{truncateBalance(parseFloat(userVaultAssets), 2)}</TableData>
+              ) : null}
+              <TableData width={100}>{truncateBalance(floatEther(parseEther(capitalPoolSize)), 2)}</TableData>
               <TableData width={100}>{CP_ROI}</TableData>
-              {wallet.account ? <TableData width={130}>{`${fixed(userVaultShare, 2)}%`}</TableData> : null}
+              {wallet.account ? <TableData width={130}>{`${truncateBalance(userVaultShare, 2)}%`}</TableData> : null}
               {wallet.account && (
                 <Fragment>
                   <TableData width={100}></TableData>
@@ -707,12 +716,12 @@ function Invest(): any {
           </TableHead>
           <TableBody>
             <TableRow>
-              {wallet.account ? <TableData>{fixed(parseFloat(cpUserStakeValue), 2)}</TableData> : null}
-              <TableData>{fixed(parseFloat(cpPoolValue), 2)}</TableData>
+              {wallet.account ? <TableData>{truncateBalance(parseFloat(cpUserStakeValue), 2)}</TableData> : null}
+              <TableData>{truncateBalance(parseFloat(cpPoolValue), 2)}</TableData>
               <TableData>{LP_ROI}</TableData>
-              {wallet.account ? <TableData>{fixed(parseFloat(cpUserRewards), 2)}</TableData> : null}
-              {wallet.account ? <TableData>{fixed(parseFloat(cpUserRewardsPerDay), 2)}</TableData> : null}
-              <TableData>{fixed(parseFloat(cpRewardsPerDay), 2)}</TableData>
+              {wallet.account ? <TableData>{truncateBalance(parseFloat(cpUserRewards), 2)}</TableData> : null}
+              {wallet.account ? <TableData>{truncateBalance(parseFloat(cpUserRewardsPerDay), 2)}</TableData> : null}
+              <TableData>{truncateBalance(parseFloat(cpRewardsPerDay), 2)}</TableData>
               {wallet.account && !loading ? (
                 <TableData cellAlignRight>
                   <TableDataGroup width={200}>
@@ -752,12 +761,12 @@ function Invest(): any {
           </TableHead>
           <TableBody>
             <TableRow>
-              {wallet.account ? <TableData>{fixed(parseFloat(lpUserStakeValue), 2)}</TableData> : null}
-              <TableData>{fixed(parseFloat(lpPoolValue), 2)}</TableData>
+              {wallet.account ? <TableData>{truncateBalance(parseFloat(lpUserStakeValue), 2)}</TableData> : null}
+              <TableData>{truncateBalance(parseFloat(lpPoolValue), 2)}</TableData>
               <TableData>150.00%</TableData>
-              {wallet.account ? <TableData>{fixed(parseFloat(lpUserRewards), 2)}</TableData> : null}
-              {wallet.account ? <TableData>{fixed(parseFloat(lpUserRewardsPerDay), 2)}</TableData> : null}
-              <TableData>{fixed(parseFloat(lpRewardsPerDay), 2)}</TableData>
+              {wallet.account ? <TableData>{truncateBalance(parseFloat(lpUserRewards), 2)}</TableData> : null}
+              {wallet.account ? <TableData>{truncateBalance(parseFloat(lpUserRewardsPerDay), 2)}</TableData> : null}
+              <TableData>{truncateBalance(parseFloat(lpRewardsPerDay), 2)}</TableData>
               {wallet.account && !loading ? (
                 <TableData cellAlignRight>
                   <TableDataGroup width={200}>

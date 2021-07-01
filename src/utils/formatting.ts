@@ -15,6 +15,20 @@ type Token = {
   balance: string
 }
 
+export const truncateBalance = (value: number, decimals = 6): string => {
+  const str = value.toString()
+  const decimalIndex = str.indexOf('.')
+  if (decimalIndex == -1) {
+    return str
+  }
+  const cutoffIndex = decimalIndex + decimals
+  const truncatedStr = str.substring(0, cutoffIndex + 1)
+  if (parseFloat(truncatedStr) == 0) {
+    return `< ${truncatedStr.slice(0, -1) + '1'}`
+  }
+  return truncatedStr
+}
+
 export const fixedPositionBalance = (token: Token): number => {
   return parseFloat(token.balance) / Math.pow(10, token.decimals)
 }
@@ -48,7 +62,7 @@ export const filteredAmount = (input: string, amount: string): string => {
 
 // truncate strings, mostly addresses
 export const shortenAddress = (input: string): string => {
-  return `${input.substring(0, 10)}...`
+  return `${input.substring(0, 6)}...${input.substring(input.length - 4, input.length)}`
 }
 
 // get unit based on function name

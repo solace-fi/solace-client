@@ -7,6 +7,8 @@ import { TextProps, handleTextProps } from '../Text'
 interface CardProps {
   cardsPerRow?: number
   transparent?: boolean
+  disabled?: boolean
+  onClick?: any
 }
 
 export const CardContainer = styled.div<CardProps & TextProps>`
@@ -28,6 +30,8 @@ const CardBase = css<CardProps>`
   border-radius: 10px;
   padding: 24px;
   background-color: rgba(255, 255, 255, ${(props) => (props.transparent ? '0' : '0.3')});
+  ${(props) =>
+    props.disabled && '{color: #fff; background-color: rgba(0, 255, 209, 0.3); opacity: 0.5; pointer-events: none }'}
 `
 
 export const CardBaseComponent = styled.div<CardProps & TextProps>`
@@ -49,6 +53,11 @@ const PositionCard = styled.div<CardProps & TextProps>`
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  cursor: pointer;
+  &:hover {
+    background-color: rgba(255, 255, 255, 0.5);
+    transition: background-color 200ms linear;
+  }
 `
 
 export const CardHeader = styled.div<TextProps>`
@@ -75,9 +84,15 @@ export const InvestmentCardComponent: React.FC<CardProps & TextProps> = ({ cards
   )
 }
 
-export const PositionCardComponent: React.FC<CardProps & TextProps> = ({ cardsPerRow, transparent, children }) => {
+export const PositionCardComponent: React.FC<CardProps & TextProps> = ({
+  onClick,
+  cardsPerRow,
+  transparent,
+  children,
+  disabled,
+}) => {
   return (
-    <PositionCard cardsPerRow={cardsPerRow} transparent={transparent}>
+    <PositionCard cardsPerRow={cardsPerRow} transparent={transparent} disabled={disabled} onClick={onClick}>
       {children}
     </PositionCard>
   )

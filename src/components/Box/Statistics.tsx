@@ -9,6 +9,7 @@
     import components
     import hooks
     import wallet
+    import utils
 
     Statistics function
       useRef variables
@@ -29,8 +30,8 @@ import { formatEther, parseEther } from '@ethersproject/units'
 import { Contract } from '@ethersproject/contracts'
 
 /* import constants */
-import { GAS_LIMIT } from '../../constants'
-import { TransactionCondition, FunctionName, Unit } from '../../constants/enums'
+import { GAS_LIMIT, CHAIN_ID } from '../../constants'
+import { TransactionCondition, FunctionName, Unit, PolicyStatus } from '../../constants/enums'
 
 /* import managers */
 import { useWallet } from '../../context/WalletManager'
@@ -47,11 +48,13 @@ import { useCapitalPoolSize } from '../../hooks/useCapitalPoolSize'
 import { useTotalPendingRewards } from '../../hooks/useRewards'
 import { useSolaceBalance } from '../../hooks/useSolaceBalance'
 import { usePoolStakedValue } from '../../hooks/usePoolStakedValue'
-import { fixed, getGasValue, floatEther } from '../../utils/formatting'
 
 /* import wallet */
-import { SUPPORTED_WALLETS } from '../../wallet/wallets'
 import { WalletConnectButton } from '../Button/WalletConnect'
+
+/* import utils */
+import { getAllPolicies } from '../../utils/policyGetter'
+import { fixed, getGasValue, floatEther, truncateBalance } from '../../utils/formatting'
 
 export const Statistics = () => {
   /************************************************************************************* 
@@ -87,6 +90,8 @@ export const Statistics = () => {
 
   *************************************************************************************/
   const [totalValueLocked, setTotalValueLocked] = useState<string>('0.00')
+  const [totalActiveCoverAmount, setTotalActiveCoverAmount] = useState<number>(0.0)
+  const [totalActivePolicies, setTotalActivePolicies] = useState<number>(0.0)
 
   /*************************************************************************************
 
@@ -112,7 +117,6 @@ export const Statistics = () => {
       makeTxToast(txType, TransactionCondition.PENDING, txHash)
       wallet.reload()
       await tx.wait().then((receipt: any) => {
-        console.log(receipt)
         const status = receipt.status ? TransactionCondition.SUCCESS : TransactionCondition.FAILURE
         makeTxToast(txType, status, txHash)
         wallet.reload()
@@ -121,7 +125,7 @@ export const Statistics = () => {
       if (err?.code === 4001) {
         console.log('Transaction rejected.')
       } else {
-        console.log(`transaction failed: ${err.message}`)
+        console.log(`Transaction failed: ${err.message}`)
       }
       makeTxToast(txType, TransactionCondition.CANCELLED)
       wallet.reload()
@@ -158,6 +162,30 @@ export const Statistics = () => {
     getTotalValueLocked()
   }, [cpPoolValue, lpPoolValue])
 
+  useEffect(() => {
+    try {
+      const fetchPolicies = async () => {
+        const policies = await getAllPolicies(Number(CHAIN_ID))
+        const activePolicies = policies.filter(({ status }) => status === PolicyStatus.ACTIVE)
+
+        let activeCoverAmount = 0
+        activePolicies.forEach(({ coverAmount }) => {
+          try {
+            activeCoverAmount += parseFloat(coverAmount)
+          } catch (e) {
+            console.log(e)
+          }
+        })
+
+        setTotalActiveCoverAmount(activeCoverAmount)
+        setTotalActivePolicies(activePolicies.length)
+      }
+      fetchPolicies()
+    } catch (err) {
+      console.log(err)
+    }
+  }, [])
+
   return (
     <BoxRow>
       {wallet.initialized && wallet.account ? (
@@ -165,14 +193,14 @@ export const Statistics = () => {
           <BoxItem>
             <BoxItemTitle h3>My Balance</BoxItemTitle>
             <BoxItemValue h2>
-              {`${fixed(parseFloat(solaceBalance), 6)} `}
+              {`${truncateBalance(parseFloat(solaceBalance), 6)} `}
               <BoxItemUnits h3>SOLACE</BoxItemUnits>
             </BoxItemValue>
           </BoxItem>
           <BoxItem>
             <BoxItemTitle h3>My Rewards</BoxItemTitle>
             <BoxItemValue h2>
-              {`${fixed(parseFloat(totalUserRewards), 6)} `}
+              {`${truncateBalance(parseFloat(totalUserRewards), 6)} `}
               <BoxItemUnits h3>SOLACE</BoxItemUnits>
             </BoxItemValue>
           </BoxItem>
@@ -193,24 +221,27 @@ export const Statistics = () => {
         <BoxItem>
           <BoxItemTitle h3>Capital Pool Size</BoxItemTitle>
           <BoxItemValue h2>
-            {`${fixed(floatEther(parseEther(capitalPoolSize)))} `}
+            {`${truncateBalance(floatEther(parseEther(capitalPoolSize)), 1)} `}
             <BoxItemUnits h3>{Unit.ETH}</BoxItemUnits>
           </BoxItemValue>
         </BoxItem>
         <BoxItem>
           <BoxItemTitle h3>Total Value Locked</BoxItemTitle>
           <BoxItemValue h2>
-            {`${fixed(parseFloat(totalValueLocked))} `}
+            {`${truncateBalance(parseFloat(totalValueLocked), 1)} `}
             <BoxItemUnits h3>{Unit.ETH}</BoxItemUnits>
           </BoxItemValue>
         </BoxItem>
         <BoxItem>
           <BoxItemTitle h3>Active Cover Amount</BoxItemTitle>
-          <BoxItemValue h2>$0</BoxItemValue>
+          <BoxItemValue h2>
+            {`${fixed(parseFloat(formatEther(totalActiveCoverAmount.toString())), 2)} `}
+            <BoxItemUnits h3>{Unit.ETH}</BoxItemUnits>
+          </BoxItemValue>
         </BoxItem>
         <BoxItem>
           <BoxItemTitle h3>Total Active Policies</BoxItemTitle>
-          <BoxItemValue h2>0</BoxItemValue>
+          <BoxItemValue h2>{totalActivePolicies}</BoxItemValue>
         </BoxItem>
       </Box>
     </BoxRow>

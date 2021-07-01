@@ -14,16 +14,10 @@ export interface TextProps {
   outlined?: boolean
 }
 
-const OutlinedCss = css`
-  height: 30px;
-  line-height: 30px;
-  text-align: center;
-  padding: 2px 16px;
-  margin: 0 10px 0 10px;
-  border: 1px solid #fff;
-  border-radius: 10px;
-  white-space: nowrap;
-`
+export interface TextStyleProps {
+  encircled?: boolean
+  alignVertical?: boolean
+}
 
 const Font1 = css`
   font-size: 24px;
@@ -82,34 +76,52 @@ const AlignRightCss = css`
   text-align: right;
 `
 
-export const Text1 = styled.div<TextProps>`
+const AlignVerticalCss = css`
+  height: 30px;
+  line-height: 30px;
+`
+
+const AlignVerticalAutoCss = css`
+  ${AlignVerticalCss}
+  margin: auto;
+`
+
+const EncircledCss = css`
+  padding: 2px 16px;
+  margin: 0 5px 0 5px;
+  border: 1px solid #fff;
+  border-radius: 10px;
+  ${AlignVerticalCss}
+`
+
+export const Text1 = styled.div<TextStyleProps>`
   ${Text1Css}
-  ${() => handleTextProps()}
+  ${(props) => handleTextStyleProps()}
 `
 
-export const Text2 = styled.div<TextProps>`
+export const Text2 = styled.div<TextStyleProps>`
   ${Text2Css}
-  ${() => handleTextProps()}
+  ${(props) => handleTextStyleProps()}
 `
 
-export const Text3 = styled.div<TextProps>`
+export const Text3 = styled.div<TextStyleProps>`
   ${Text3Css}
-  ${() => handleTextProps()}
+  ${(props) => handleTextStyleProps()}
 `
 
-export const Heading1 = styled.div<TextProps>`
+export const Heading1 = styled.div<TextStyleProps>`
   ${Heading1Css}
-  ${() => handleTextProps()}
+  ${(props) => handleTextStyleProps()}
 `
 
-export const Heading2 = styled.div<TextProps>`
+export const Heading2 = styled.div<TextStyleProps>`
   ${Heading2Css}
-  ${() => handleTextProps()}
+  ${(props) => handleTextStyleProps()}
 `
 
-export const Heading3 = styled.div<TextProps>`
+export const Heading3 = styled.div<TextStyleProps>`
   ${Heading3Css}
-  ${() => handleTextProps()}
+  ${(props) => handleTextStyleProps()}
 `
 
 export const handleTextProps = (): any => {
@@ -123,6 +135,12 @@ export const handleTextProps = (): any => {
     ${(props) => props.textAlignCenter && AlignCenterCss}
     ${(props) => props.textAlignLeft && AlignLeftCss}
     ${(props) => props.textAlignRight && AlignRightCss}
-    ${(props) => props.outlined && OutlinedCss}
+  `
+}
+
+export const handleTextStyleProps = (): any => {
+  return css<TextStyleProps>`
+    ${(props) => props.encircled && EncircledCss}
+    ${(props) => props.alignVertical && AlignVerticalAutoCss}
   `
 }
