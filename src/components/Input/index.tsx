@@ -1,7 +1,7 @@
 import styled, { css } from 'styled-components'
 import { TextProps, handleTextProps } from '../Text'
 
-interface props {
+interface InputProps {
   width?: number
 }
 
@@ -16,7 +16,7 @@ const InputBase = css`
   color: #fff;
 `
 
-export const Input = styled.input<props & TextProps>`
+export const Input = styled.input<InputProps & TextProps>`
   ${InputBase}
   ::-webkit-calendar-picker-indicator {
     display: none;

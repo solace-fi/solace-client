@@ -10,7 +10,11 @@ interface BoxProps {
 }
 
 interface SmallBoxProps {
-  warning?: boolean
+  error?: boolean
+}
+
+interface TipBoxProps {
+  appear?: boolean
 }
 
 const BoxPropsHandler = css<GenericProps & BoxProps>`
@@ -63,7 +67,7 @@ export const Box = styled(BoxRow)<BoxProps & GenericProps>`
 
 export const SmallBox = styled.div<BoxProps & SmallBoxProps & GenericProps>`
   ${BoxPropsHandler}
-  ${(props) => props.warning && `border-color: rgba(219, 44, 56);`}
+  ${(props) => props.error && `border-color: rgba(219, 44, 56);`}
   display: flex;
   ${(props) =>
     props.p !== undefined ||
@@ -82,6 +86,11 @@ export const SmallBox = styled.div<BoxProps & SmallBoxProps & GenericProps>`
       ? null
       : `margin: 0 5px 0 5px;`}
   border-radius: 10px;
+`
+
+export const TipBox = styled(SmallBox)<TipBoxProps>`
+  ${(props) => (props.appear ? `transform: scaleY(1); height: 30px;` : `transform: scaleY(0); height: 0;`)}
+  transition: all 200ms ease;
 `
 
 export const BoxItem = styled.div`

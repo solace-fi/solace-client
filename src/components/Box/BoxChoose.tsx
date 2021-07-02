@@ -1,9 +1,10 @@
 import styled, { css } from 'styled-components'
 import { Input } from '../Input'
-import { handleTextStyleProps } from '../Text'
+import { handleTextStyleProps, TextStyleProps } from '../Text'
 
-interface props {
+interface BoxProps {
   bold?: boolean
+  error?: boolean
   warning?: boolean
 }
 
@@ -33,7 +34,7 @@ export const BoxChooseDescription = styled.div`
   line-height: 18px;
 `
 
-const BoxChooseInfo = css<props>`
+const BoxChooseInfo = css<BoxProps & TextStyleProps>`
   font-size: 14px;
   line-height: 19px;
   ${() => handleTextStyleProps()}

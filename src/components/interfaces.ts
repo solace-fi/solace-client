@@ -11,6 +11,8 @@ export interface GenericProps {
   ml?: number
   mr?: number
   mb?: number
+  width?: number
+  height?: number
 }
 
 export const handleGenericProps = () => {
@@ -25,5 +27,7 @@ export const handleGenericProps = () => {
     ${(props) => props.ml != undefined && `margin-left: ${props.ml}px;`}
     ${(props) => props.mr != undefined && `margin-right: ${props.mr}px;`}
     ${(props) => props.mb != undefined && `margin-bottom: ${props.mb}px;`}
+    ${(props) => props.width != undefined && `width: ${props.width}px;`}
+    ${(props) => props.height != undefined && `height: ${props.height}px;`}
   `
 }

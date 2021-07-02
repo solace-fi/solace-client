@@ -1,6 +1,7 @@
 import React from 'react'
 
 import styled, { css } from 'styled-components'
+import { FlexCol } from '../Layout'
 
 import { TextProps, handleTextProps } from '../Text'
 
@@ -39,10 +40,8 @@ const InvestmentCard = styled.div<CardProps & TextProps>`
   gap: 24px;
 `
 
-const PositionCard = styled.div<CardProps & TextProps>`
+const PositionCard = styled(FlexCol)<CardProps & TextProps>`
   ${CardBase}
-  display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
   cursor: pointer;

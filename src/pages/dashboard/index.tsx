@@ -532,7 +532,7 @@ function Dashboard(): any {
                     <BoxChooseCol></BoxChooseCol>
                     <BoxChooseRow>
                       <BoxChooseCol>
-                        <BoxChooseText warning={policyPrice !== '0' && refundAmount.lte(parseEther(cancelFee))}>
+                        <BoxChooseText error={policyPrice !== '0' && refundAmount.lte(parseEther(cancelFee))}>
                           Refund amount: {formattedRefundAmount} ETH
                         </BoxChooseText>
                       </BoxChooseCol>
@@ -542,7 +542,7 @@ function Dashboard(): any {
                       <BoxChooseCol>
                         <BoxChooseText>Cancellation fee: {cancelFee} ETH</BoxChooseText>
                         {policyPrice !== '0' && refundAmount.lte(parseEther(cancelFee)) && (
-                          <BoxChooseText warning>Refund amount must offset cancellation fee</BoxChooseText>
+                          <BoxChooseText error>Refund amount must offset cancellation fee</BoxChooseText>
                         )}
                       </BoxChooseCol>
                     </BoxChooseRow>

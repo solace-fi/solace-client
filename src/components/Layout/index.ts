@@ -1,5 +1,6 @@
 import { MAX_WIDTH } from '../../constants/'
 import styled, { createGlobalStyle } from 'styled-components'
+import { GenericProps, handleGenericProps } from '../interfaces'
 
 export const GlobalStyle = createGlobalStyle`
   body{
@@ -11,6 +12,18 @@ export const GlobalStyle = createGlobalStyle`
     background: linear-gradient(113.7deg, #b621ff 0%, #21d3fc 100%);
     background-attachment: fixed;
   }
+`
+
+export const FlexRow = styled.div<GenericProps>`
+  display: flex;
+  flex-direction: row;
+  ${() => handleGenericProps()}
+`
+
+export const FlexCol = styled.div<GenericProps>`
+  display: flex;
+  flex-direction: column;
+  ${() => handleGenericProps()}
 `
 
 export const Layout = styled.div`
@@ -36,9 +49,7 @@ export const LayoutContent = styled.div<LayoutContentProps>`
   ${(props) => (props.width ? `min-width: ${(props.width / 100) * MAX_WIDTH}px;` : 'width: 100%;')}
 `
 
-export const HeroContainer = styled.div`
-  display: flex;
-  flex-direction: column;
+export const HeroContainer = styled(FlexCol)`
   align-items: center;
   justify-content: center;
   min-height: 400px;

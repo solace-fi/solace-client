@@ -18,6 +18,7 @@ export interface TextStyleProps {
   encircled?: boolean
   alignVertical?: boolean
   bold?: boolean
+  error?: boolean
   warning?: boolean
 }
 
@@ -156,6 +157,7 @@ export const handleTextStyleProps = (): any => {
     ${(props) => props.encircled && EncircledCss}
     ${(props) => props.alignVertical && AlignVerticalAutoCss}
     ${(props) => props.bold && 'font-weight: 600;'}
-    ${(props) => props.warning && 'color: rgba(219, 44, 56);'}
+    ${(props) => props.error && 'color: rgba(219, 44, 56);'}
+    ${(props) => props.warning && 'color: rgba(254, 249, 154);'}
   `
 }
