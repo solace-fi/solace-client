@@ -11,10 +11,7 @@ interface BoxProps {
 
 interface SmallBoxProps {
   error?: boolean
-}
-
-interface TipBoxProps {
-  appear?: boolean
+  disappear?: boolean
 }
 
 const BoxPropsHandler = css<GenericProps & BoxProps>`
@@ -86,10 +83,7 @@ export const SmallBox = styled.div<BoxProps & SmallBoxProps & GenericProps>`
       ? null
       : `margin: 0 5px 0 5px;`}
   border-radius: 10px;
-`
-
-export const TipBox = styled(SmallBox)<TipBoxProps>`
-  ${(props) => (props.appear ? `transform: scaleY(1); height: 30px;` : `transform: scaleY(0); height: 0;`)}
+  ${(props) => (props.disappear ? `transform: scaleY(0); height: 0;` : `transform: scaleY(1);`)}
   transition: all 200ms ease;
 `
 

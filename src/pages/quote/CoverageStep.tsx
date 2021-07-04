@@ -53,7 +53,7 @@ import { useGetQuote, useGetMaxCoverPerUser } from '../../hooks/usePolicy'
 
 /* import utils */
 import { getGasValue } from '../../utils/formatting'
-import { SmallBox, TipBox } from '../../components/Box'
+import { SmallBox } from '../../components/Box'
 import { FlexRow } from '../../components/Layout'
 
 export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigation }) => {
@@ -63,8 +63,7 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
 
   *************************************************************************************/
   const { position, coverageLimit, timePeriod, loading } = formData
-  // const maxCoverPerUser = useGetMaxCoverPerUser()
-  const maxCoverPerUser = '0.00005' // in eth
+  const maxCoverPerUser = useGetMaxCoverPerUser() // in eth
   const quote = useGetQuote(coverageLimit, position.token.address, timePeriod)
   const wallet = useWallet()
   const { addLocalTransactions } = useUserData()
@@ -207,7 +206,8 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
 
   const setMaxCover = () => {
     const maxCoverLimit = parseEther(maxCoverPerUser).mul('10000').div(BigNumber.from(position.eth.balance)).toString()
-    handleCoverageChange(maxCoverLimit)
+    const adjustedCoverLimit = BigNumber.from(maxCoverLimit).gt('10000') ? '10000' : maxCoverLimit
+    handleCoverageChange(adjustedCoverLimit)
   }
 
   /*************************************************************************************
@@ -218,7 +218,7 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
 
   useEffect(() => {
     setMaxCover()
-  }, [])
+  }, [maxCoverPerUser])
 
   useEffect(() => {
     setCoveredAssets(
@@ -278,7 +278,11 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
             </BoxChooseCol>
             <BoxChooseCol>
               <FlexRow>
-                <BoxChooseText alignVertical bold error={parseEther(coveredAssets).gt(parseEther(maxCoverPerUser))}>
+                <BoxChooseText
+                  alignVertical
+                  bold
+                  error={parseEther(coveredAssets).gt(parseEther(maxCoverPerUser)) && maxCoverPerUser !== '0.00'}
+                >
                   {coveredAssets} ETH
                 </BoxChooseText>
                 <Button ml={10} pt={4} pb={4} pl={8} pr={8} width={79} height={30} onClick={() => setMaxCover()}>
@@ -287,11 +291,17 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
               </FlexRow>
             </BoxChooseCol>
           </BoxChooseRow>
-          <TipBox outlined error mb={10} mt={-10} appear={parseEther(coveredAssets).gt(parseEther(maxCoverPerUser))}>
+          <SmallBox
+            outlined
+            error
+            mb={10}
+            mt={-10}
+            disappear={!parseEther(coveredAssets).gt(parseEther(maxCoverPerUser))}
+          >
             <Text3 error alignVertical>
               You can only cover to a maximum amount of {maxCoverPerUser} ETH.
             </Text3>
-          </TipBox>
+          </SmallBox>
           <BoxChooseRow>
             <BoxChooseCol>
               <BoxChooseText>Time Period (1 - 365 days)</BoxChooseText>

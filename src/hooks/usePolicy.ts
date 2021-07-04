@@ -37,8 +37,8 @@ export const useGetMaxCoverPerUser = (): string => {
     if (!selectedProtocol) return
     try {
       const maxCover = await selectedProtocol.maxCoverPerUser()
-      console.log('what is this', maxCover)
-      setMaxCoverPerUser(formatEther(maxCover))
+      const formattedMaxCover = formatEther(maxCover)
+      setMaxCoverPerUser(formattedMaxCover)
     } catch (err) {
       console.log('getMaxCoverPerUser', err)
     }
@@ -58,7 +58,7 @@ export const useGetCancelFee = () => {
   const getCancelFee = async () => {
     if (!selectedProtocol) return
     try {
-      const fee = await selectedProtocol.cancelFee()
+      const fee = await selectedProtocol.manageFee()
       setCancelFee(formatEther(fee))
     } catch (err) {
       console.log('getCancelFee', err)
