@@ -296,7 +296,7 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
             error
             mb={10}
             mt={-10}
-            disappear={!parseEther(coveredAssets).gt(parseEther(maxCoverPerUser))}
+            collapse={!parseEther(coveredAssets).gt(parseEther(maxCoverPerUser))}
           >
             <Text3 error alignVertical>
               You can only cover to a maximum amount of {maxCoverPerUser} ETH.

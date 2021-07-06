@@ -267,7 +267,7 @@ function Dashboard(): any {
             {policy.coverAmount ? truncateBalance(parseFloat(formatEther(policy.coverAmount)), 2) : 0} {Unit.ETH}
           </TableData>
 
-          <TableData cellAlignRight>
+          <TableData textAlignRight>
             {policy.status === PolicyStatus.ACTIVE && (
               <TableDataGroup>
                 <Button>Claim</Button>

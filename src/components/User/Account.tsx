@@ -7,7 +7,6 @@
     import managers
     import components
     import hooks
-    import wallet
     import utils
     import static
 
@@ -27,18 +26,14 @@ import makeBlockie from 'ethereum-blockies-base64'
 import { useWallet } from '../../context/WalletManager'
 
 /* import components */
-import { User, UserImage, UserWallet, UserName } from './index'
-import { Button } from '../Button'
+import { UserImage } from './index'
 import { Heading3 } from '../Text'
 
 /* import hooks */
 import { useEthBalance } from '../../hooks/useEthBalance'
 
-/* import wallet */
-import { SUPPORTED_WALLETS } from '../../wallet/wallets'
-
 /* import utils */
-import { shortenAddress, fixed, truncateBalance } from '../../utils/formatting'
+import { shortenAddress, fixed } from '../../utils/formatting'
 import { getNetworkName } from '../../utils'
 
 /* import static */

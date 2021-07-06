@@ -1,5 +1,5 @@
 import styled, { css } from 'styled-components'
-import { GenericProps, handleGenericProps } from '../interfaces'
+import { GeneralElementProps, GeneralElementCss } from '../interfaces'
 
 export const User = styled.div`
   display: grid;
@@ -9,8 +9,8 @@ export const User = styled.div`
   gap: 4px 10px;
 `
 
-export const UserImage = styled.div<GenericProps>`
-  ${() => handleGenericProps()}
+export const UserImage = styled.div<GeneralElementProps>`
+  ${GeneralElementCss}
   grid-column: 1/2;
   grid-row: 1/3;
   width: 30px;

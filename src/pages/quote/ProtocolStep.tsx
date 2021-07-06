@@ -166,7 +166,7 @@ export const ProtocolStep: React.FC<formProps> = ({ formData, setForm, navigatio
                     %
                   </TableData>
                   <TableData>{availableCoverages[protocol.toLowerCase()]?.split('.')[0] ?? '0'} ETH</TableData>
-                  <TableData cellAlignRight>
+                  <TableData textAlignRight>
                     <Button>Select</Button>
                   </TableData>
                 </TableRow>

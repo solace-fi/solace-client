@@ -1,22 +1,13 @@
 import React from 'react'
 import styled from 'styled-components'
+import { HeightAndWidthProps } from '../interfaces'
+import { TextAlignCss, TextAlignProps } from '../Text'
 
-interface TableProps {
+interface TableProps extends HeightAndWidthProps, TextAlignProps {
   isHighlight?: boolean
   isQuote?: boolean
-  cellAlignLeft?: boolean
-  cellAlignCenter?: boolean
-  cellAlignRight?: boolean
   headers?: string[]
   body?: { data: string[]; status: boolean }[]
-  width?: number
-  disabled?: boolean
-}
-
-const handleCellAlign = (props: TableProps) => {
-  if (props.cellAlignLeft) return 'text-align: left;'
-  if (props.cellAlignCenter) return 'text-align: center;'
-  if (props.cellAlignRight) return 'text-align: right;'
 }
 
 const TableBase = styled.table<TableProps>`
@@ -24,7 +15,7 @@ const TableBase = styled.table<TableProps>`
   border-spacing: 0px 10px;
   th,
   td {
-    ${(props) => handleCellAlign(props)}
+    ${TextAlignCss}
   }
   ${(props) => props.isHighlight && 'td {background-color: rgba(0, 255, 209, 0.3);}'}
   ${(props) =>
@@ -32,10 +23,7 @@ const TableBase = styled.table<TableProps>`
     'tr { &:hover { td { background-color: rgba(255, 255, 255, 0.5); transition: background-color 200ms linear;} } }'}
 `
 
-export const TableRow = styled.tr<TableProps>`
-  ${(props) =>
-    props.disabled && 'td {color: #fff; background-color: rgba(0, 255, 209, 0.3); opacity: 0.5; pointer-events: none }'}
-`
+export const TableRow = styled.tr``
 
 export const TableBody = styled.tbody``
 
@@ -73,25 +61,23 @@ export const TableDataGroup = styled.div<TableProps>`
 
 export const Table: React.FC<TableProps> = ({
   isHighlight,
-  cellAlignLeft,
-  cellAlignCenter,
-  cellAlignRight,
+  textAlignLeft,
+  textAlignCenter,
+  textAlignRight,
   headers,
   body,
   children,
   isQuote,
-  disabled,
 }) => {
   return (
     <TableBase
       isHighlight={isHighlight}
-      cellAlignLeft={cellAlignLeft}
-      cellAlignCenter={cellAlignCenter}
-      cellAlignRight={cellAlignRight}
+      textAlignLeft={textAlignLeft}
+      textAlignCenter={textAlignCenter}
+      textAlignRight={textAlignRight}
       headers={headers}
       body={body}
       isQuote={isQuote}
-      disabled={disabled}
     >
       {children}
     </TableBase>

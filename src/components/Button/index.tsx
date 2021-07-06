@@ -1,16 +1,18 @@
 import React from 'react'
-import { GenericProps, handleGenericProps } from '../interfaces'
+import { GeneralElementProps, GeneralElementCss } from '../interfaces'
 import styled, { css } from 'styled-components'
 
-interface ButtonProps {
-  disabled?: boolean
-  children?: React.ReactNode
+export interface ClickProps {
   onClick?: any
+  disabled?: boolean
+}
+
+interface ButtonProps extends ClickProps {
   secondary?: boolean
   hidden?: boolean
 }
 
-const ButtonBase = styled.button<ButtonProps & GenericProps>`
+const ButtonBase = styled.button<ButtonProps & GeneralElementProps>`
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -33,7 +35,7 @@ const ButtonBase = styled.button<ButtonProps & GenericProps>`
   transition: all 0.2s, color 0.2s;
   cursor: pointer;
   ${() => handleButtonProps()}
-  ${() => handleGenericProps()}
+  ${GeneralElementCss}
 `
 
 export const ButtonWrapper = styled.div`
@@ -55,6 +57,6 @@ export const handleButtonProps = (): any => {
   `
 }
 
-export const Button: React.FC<ButtonProps & GenericProps> = ({ ...props }) => {
+export const Button: React.FC<ButtonProps & GeneralElementProps> = ({ ...props }) => {
   return <ButtonBase {...props}>{props.children}</ButtonBase>
 }

@@ -1,6 +1,6 @@
 import { MAX_WIDTH } from '../../constants/'
 import styled, { createGlobalStyle } from 'styled-components'
-import { GenericProps, handleGenericProps } from '../interfaces'
+import { GeneralElementProps, GeneralElementCss, HeightAndWidthProps } from '../interfaces'
 
 export const GlobalStyle = createGlobalStyle`
   body{
@@ -14,16 +14,16 @@ export const GlobalStyle = createGlobalStyle`
   }
 `
 
-export const FlexRow = styled.div<GenericProps>`
+export const FlexRow = styled.div<GeneralElementProps>`
   display: flex;
   flex-direction: row;
-  ${() => handleGenericProps()}
+  ${GeneralElementCss}
 `
 
-export const FlexCol = styled.div<GenericProps>`
+export const FlexCol = styled.div<GeneralElementProps>`
   display: flex;
   flex-direction: column;
-  ${() => handleGenericProps()}
+  ${GeneralElementCss}
 `
 
 export const Layout = styled.div`
@@ -39,14 +39,10 @@ export const LayoutContainer = styled.div`
   max-width: ${MAX_WIDTH}px;
 `
 
-interface LayoutContentProps {
-  width?: number
-}
-
-export const LayoutContent = styled.div<LayoutContentProps>`
+export const LayoutContent = styled.div<HeightAndWidthProps>`
   padding: 20px;
   align-content: start;
-  ${(props) => (props.width ? `min-width: ${(props.width / 100) * MAX_WIDTH}px;` : 'width: 100%;')}
+  ${(props) => (props.width ? `width: ${(props.width / 100) * MAX_WIDTH}px;` : 'width: 100%;')}
 `
 
 export const HeroContainer = styled(FlexCol)`
