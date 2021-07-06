@@ -6,7 +6,7 @@ import { GAS_LIMIT, NUM_BLOCKS_PER_DAY } from '../constants'
 import { PROTOCOLS_LIST } from '../constants/protocols'
 import { useContracts } from '../context/ContractsManager'
 import { useWallet } from '../context/WalletManager'
-import { getPolicyPrice } from '../utils/policyGetter'
+import { getPolicyPrice } from '../utils/paclas'
 
 export const useGetPolicyPrice = (policyId: number): string => {
   const [policyPrice, setPolicyPrice] = useState<string>('0')

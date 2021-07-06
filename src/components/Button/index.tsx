@@ -1,5 +1,5 @@
 import React from 'react'
-import { GeneralElementProps, GeneralElementCss } from '../interfaces'
+import { GeneralElementProps, GeneralElementCss } from '../generalInterfaces'
 import styled, { css } from 'styled-components'
 
 export interface ClickProps {

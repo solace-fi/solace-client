@@ -41,7 +41,7 @@ import { Box, BoxItem, BoxRow } from '../../components/Box'
 import { Button } from '../../components/Button'
 
 /* import utils */
-import { fixed, fixedPositionBalance } from '../../utils/formatting'
+import { fixed, fixedTokenPositionBalance } from '../../utils/formatting'
 
 /************************************************************************************* 
 
@@ -212,7 +212,7 @@ export const MultiStepForm = () => {
                 </Protocol>
               </BoxItem>
               <BoxItem>
-                {fixedPositionBalance(position.underlying)} {position.underlying.symbol}
+                {fixedTokenPositionBalance(position.underlying)} {position.underlying.symbol}
               </BoxItem>
               <BoxItem>
                 <Button onClick={() => navigation.go(1)}>Change</Button>

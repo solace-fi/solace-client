@@ -1,7 +1,7 @@
 import styled, { css } from 'styled-components'
 import { Box as RebassBox } from 'rebass/styled-components'
 import { GeneralTextProps, GeneralTextCss } from '../Text'
-import { GeneralElementProps, GeneralElementCss } from '../interfaces'
+import { GeneralElementProps, GeneralElementCss } from '../generalInterfaces'
 
 interface BoxProps {
   purple?: boolean
@@ -16,7 +16,7 @@ interface SmallBoxProps {
 
 const BoxPropsHandler = css<GeneralElementProps & BoxProps>`
   ${(props) => props.transparent && TransparentBox}
-  ${(props) => props.outlined && Outline}
+  ${(props) => props.outlined && BoxOutline}
   ${(props) => props.purple && 'background-color: rgba(250, 0, 255, 0.3);'}
   ${GeneralElementCss}
 `
@@ -46,7 +46,7 @@ const TransparentBox = css`
   background-color: rgba(0, 0, 0, 0);
 `
 
-const Outline = css`
+const BoxOutline = css`
   border-width: 1px;
   border-style: solid;
   border-color: rgb(255, 255, 255);

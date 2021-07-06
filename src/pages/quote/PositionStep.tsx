@@ -34,9 +34,8 @@ import { HeroContainer } from '../../components/Layout'
 import { Heading1 } from '../../components/Text'
 
 /* import utils */
-import { getPositions } from '../../utils/positionGetter'
-import { fixedPositionBalance, truncateBalance } from '../../utils/formatting'
-import { getAllPoliciesOfUser } from '../../utils/policyGetter'
+import { fixedTokenPositionBalance, truncateBalance } from '../../utils/formatting'
+import { getAllPoliciesOfUser, getPositions } from '../../utils/paclas'
 import { PolicyStatus } from '../../constants/enums'
 
 export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigation }) => {
@@ -191,11 +190,11 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
                 </PositionCardLogo>
                 <PositionCardName>{position.underlying.name}</PositionCardName>
                 <PositionCardCount t1>
-                  {truncateBalance(fixedPositionBalance(position.underlying))}{' '}
+                  {truncateBalance(fixedTokenPositionBalance(position.underlying))}{' '}
                   <BoxItemUnits style={{ fontSize: '12px' }}>{position.underlying.symbol}</BoxItemUnits>
                 </PositionCardCount>
                 <PositionCardCount t2>
-                  {truncateBalance(fixedPositionBalance(position.token))}{' '}
+                  {truncateBalance(fixedTokenPositionBalance(position.token))}{' '}
                   <BoxItemUnits style={{ fontSize: '12px' }}>{position.token.symbol}</BoxItemUnits>
                 </PositionCardCount>
                 <PositionCardButton>

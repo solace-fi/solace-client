@@ -3,7 +3,7 @@ import { useWallet } from '../context/WalletManager'
 import { Provider, Web3Provider } from '@ethersproject/providers'
 import { decodeInput } from '../utils/decoder'
 import { FunctionName } from '../constants/enums'
-import { formatTransactionAmount, getUnit } from '../utils/formatting'
+import { formatTransactionContent } from '../utils/formatting'
 
 export const useTransactionDetails = (txList: any): string[] => {
   const { library } = useWallet()
@@ -22,6 +22,7 @@ export const useTransactionDetails = (txList: any): string[] => {
     switch (function_name) {
       case FunctionName.DEPOSIT:
       case FunctionName.WITHDRAW:
+      case FunctionName.SUBMIT_CLAIM:
         const topics = logs[logs.length - 1].topics
         if (!topics || topics.length <= 0) return '0'
         return topics[topics.length - 1]
@@ -47,9 +48,8 @@ export const useTransactionDetails = (txList: any): string[] => {
       const currentAmounts = []
       for (const tx of txList) {
         const function_name = decodeInput(tx).function_name
-        const unit = getUnit(function_name)
         const amount: string = await getTransactionAmount(function_name, tx, library)
-        currentAmounts.push(`${formatTransactionAmount(function_name, amount)} ${unit}`)
+        currentAmounts.push(`${formatTransactionContent(function_name, amount)}`)
       }
       setAmounts(currentAmounts)
     }

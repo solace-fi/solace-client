@@ -22,6 +22,7 @@ export enum FunctionName {
   BUY_POLICY = 'BuyPolicy',
   EXTEND_POLICY = 'ExtendPolicy',
   CANCEL_POLICY = 'CancelPolicy',
+  SUBMIT_CLAIM = 'SubmitClaim',
 }
 
 export enum Unit {

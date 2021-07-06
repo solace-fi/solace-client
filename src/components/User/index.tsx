@@ -1,5 +1,5 @@
 import styled, { css } from 'styled-components'
-import { GeneralElementProps, GeneralElementCss } from '../interfaces'
+import { GeneralElementProps, GeneralElementCss } from '../generalInterfaces'
 
 export const User = styled.div`
   display: grid;

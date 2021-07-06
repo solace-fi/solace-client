@@ -1,6 +1,7 @@
 import axios from 'axios'
 import { PACLAS_POLICY_ENDPOINT } from '../constants/apiURL'
 import { PolicyStatus } from '../constants/enums'
+import { getNetworkName } from '../utils'
 
 export interface Policy {
   policyId: number
@@ -13,6 +14,25 @@ export interface Policy {
   price: string
   status: PolicyStatus
   positionName: string
+}
+
+export type ClaimAssessment = {
+  lossEventDetected: boolean
+  tokenIn: string
+  amountIn: string
+  tokenOut: string
+  amountOut: string
+  deadline: string
+  msgHash: string
+  signature: string
+}
+
+export async function getClaimAssessment(policyId: string): Promise<ClaimAssessment> {
+  return fetch(`https://paclas.solace.fi/claims/assess?policyid=${policyId}`)
+    .then((result) => result.json())
+    .then((result) => {
+      return result
+    })
 }
 
 export async function getPoliciesOfUser(user: string, product: string, chainId: number): Promise<Policy[]> {
@@ -46,4 +66,12 @@ export async function getPolicyPrice(policyId: number): Promise<string> {
   const { data } = await axios.get(PACLAS_POLICY_ENDPOINT)
   const policy = data.filter((policy: any) => policy.policyId == policyId)[0]
   return policy.price
+}
+
+export async function getPositions(protocol: string, chainId: number, user: string): Promise<any> {
+  return fetch(`https://paclas.solace.fi/positions/appraise/${protocol}/${getNetworkName(chainId)}/${user}`)
+    .then((result) => result.json())
+    .then((result) => {
+      return result
+    })
 }

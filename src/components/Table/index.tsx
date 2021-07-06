@@ -1,6 +1,6 @@
 import React from 'react'
 import styled from 'styled-components'
-import { HeightAndWidthProps } from '../interfaces'
+import { HeightAndWidthProps } from '../generalInterfaces'
 import { TextAlignCss, TextAlignProps } from '../Text'
 
 interface TableProps extends HeightAndWidthProps, TextAlignProps {

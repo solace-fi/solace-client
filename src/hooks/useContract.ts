@@ -11,6 +11,7 @@ import treasuryABI from '../constants/abi/contracts/Treasury.sol/Treasury.json'
 import vaultABI from '../constants/abi/contracts/Vault.sol/Vault.json'
 import cpFarmABI from '../constants/abi/contracts/CpFarm.sol/CpFarm.json'
 import lpFarmABI from '../constants/abi/contracts/SolaceEthLpFarm.sol/SolaceEthLpFarm.json'
+import claimsEscrowABI from '../constants/abi/contracts/ClaimsEscrow.sol/ClaimsEscrow.json'
 import lpTokenArtifact from '../../node_modules/@uniswap/v3-periphery/artifacts/contracts/NonfungiblePositionManager.sol/NonfungiblePositionManager.json'
 
 import compAbi from '../constants/abi/contracts/products/CompoundProductRinkeby.sol/CompoundProductRinkeby.json'
@@ -30,6 +31,7 @@ import {
   REGISTRY_CONTRACT_ADDRESS,
   ADDRESS_ZERO,
   COMPOUND_PRODUCT_CONTRACT_ADDRESS,
+  CLAIMS_ESCROW_CONTRACT_ADDRESS,
 } from '../constants'
 
 export function useContract(address: string, abi: any, hasSigner = true): Contract | null {
@@ -72,6 +74,14 @@ export function useCpFarmContract(hasSigner?: boolean): Contract | null {
 
 export function useLpFarmContract(hasSigner?: boolean): Contract | null {
   return useContract(LPFARM_CONTRACT_ADDRESS ? LPFARM_CONTRACT_ADDRESS : ADDRESS_ZERO, lpFarmABI, hasSigner)
+}
+
+export function useClaimsEscrowContract(hasSigner?: boolean): Contract | null {
+  return useContract(
+    CLAIMS_ESCROW_CONTRACT_ADDRESS ? CLAIMS_ESCROW_CONTRACT_ADDRESS : ADDRESS_ZERO,
+    claimsEscrowABI,
+    hasSigner
+  )
 }
 
 export function useLpTokenContract(hasSigner?: boolean): Contract | null {

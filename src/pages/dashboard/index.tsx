@@ -37,6 +37,7 @@ import styled from 'styled-components'
 import { Unit, PolicyStatus } from '../../constants/enums'
 import { CHAIN_ID, DAYS_PER_YEAR, NUM_BLOCKS_PER_DAY } from '../../constants'
 import { TransactionCondition, FunctionName } from '../../constants/enums'
+import cTokenABI from '../../constants/abi/contracts/interface/ICToken.sol/ICToken.json'
 
 /* import managers */
 import { useContracts } from '../../context/ContractsManager'
@@ -48,7 +49,7 @@ import { useToasts } from '../../context/NotificationsManager'
 import { Content, HeroContainer } from '../../components/Layout'
 import { CardContainer, InvestmentCardComponent, CardHeader, CardTitle, CardBlock } from '../../components/Card'
 import { Heading1, Heading2, Heading3, Text1, Text2 } from '../../components/Text'
-import { Button } from '../../components/Button'
+import { Button, ButtonWrapper } from '../../components/Button'
 import { Table, TableHead, TableHeader, TableRow, TableBody, TableData, TableDataGroup } from '../../components/Table'
 import { Modal, ModalHeader, ModalContent, ModalCloseButton } from '../../components/Modal'
 import { Input } from '../../components/Input'
@@ -61,10 +62,11 @@ import { useUserPendingRewards, useUserRewardsPerDay } from '../../hooks/useRewa
 import { useGetCancelFee, useGetQuote, useGetPolicyPrice } from '../../hooks/usePolicy'
 
 /* import utils */
-import { getGasValue, truncateBalance } from '../../utils/formatting'
-import { Policy, getAllPoliciesOfUser } from '../../utils/policyGetter'
+import { getGasValue, truncateBalance, fixedPositionBalance } from '../../utils/formatting'
 import { fetchEtherscanLatestBlock } from '../../utils/etherscan'
-import { getPositions } from '../../utils/positionGetter'
+import { Policy, getAllPoliciesOfUser, ClaimAssessment, getClaimAssessment, getPositions } from '../../utils/paclas'
+import { getContract } from '../../utils'
+import { SmallBox } from '../../components/Box'
 
 /*************************************************************************************
 
@@ -103,12 +105,16 @@ function Dashboard(): any {
   *************************************************************************************/
 
   const [policies, setPolicies] = useState<Policy[]>([])
+  const [positionBalances, setPositionBalances] = useState<any>(null)
   const [latestBlock, setLatestBlock] = useState<number>(0)
-  const [showModal, setShowModal] = useState<boolean>(false)
+  const [showStatusModal, setShowStatusModal] = useState<boolean>(false)
+  const [showManageModal, setShowManageModal] = useState<boolean>(false)
   const [loading, setLoading] = useState<boolean>(false)
-  const [positionsloading, setPositionsLoading] = useState<boolean>(false)
+  const [modalLoading, setModalLoading] = useState<boolean>(false)
+  const [asyncLoading, setAsyncLoading] = useState<boolean>(false)
   const [extendedTime, setExtendedTime] = useState<string>('1')
   const [selectedPolicy, setSelectedPolicy] = useState<Policy | undefined>(undefined)
+  const [assessment, setAssessment] = useState<ClaimAssessment | null>(null)
   const [coverLimit, setCoverLimit] = useState<string | null>(null)
   const [inputCoverage, setInputCoverage] = useState<string>('1')
   const [feedbackCoverage, setFeedbackCoverage] = useState<string>('1')
@@ -125,7 +131,7 @@ function Dashboard(): any {
   const [lpUserRewardsPerDay] = useUserRewardsPerDay(2, lpFarmContract.current)
   const cpUserStakeValue = useUserStakedValue(cpFarmContract.current)
   const lpUserStakeValue = useUserStakedValue(lpFarmContract.current)
-  const { cpFarm, lpFarm, selectedProtocol, setSelectedProtocolByName } = useContracts()
+  const { cpFarm, lpFarm, selectedProtocol, setSelectedProtocolByName, claimsEscrow } = useContracts()
   const { addLocalTransactions } = useUserData()
   const { makeTxToast } = useToasts()
   const wallet = useWallet()
@@ -159,8 +165,58 @@ function Dashboard(): any {
 
   *************************************************************************************/
 
+  const submitClaim = async () => {
+    setModalLoading(true)
+    if (!selectedProtocol || !assessment || !selectedPolicy) return
+    const { tokenIn, amountIn, tokenOut, amountOut, deadline, signature } = assessment
+    const txType = FunctionName.SUBMIT_CLAIM
+    try {
+      const cTokenContract = getContract(selectedPolicy.positionContract, cTokenABI, wallet.library, wallet.account)
+      const approval = await cTokenContract.approve(selectedProtocol.address, amountIn)
+      const approvalHash = approval.hash
+      const approvalPendingTx = {
+        hash: approvalHash,
+        type: FunctionName.APPROVE,
+        value: '0',
+        status: TransactionCondition.PENDING,
+        unit: Unit.ID,
+      }
+      makeTxToast(FunctionName.APPROVE, TransactionCondition.PENDING, approvalHash)
+      addLocalTransactions(approvalPendingTx)
+      await approval.wait().then((receipt: any) => {
+        const status = receipt.status ? TransactionCondition.SUCCESS : TransactionCondition.FAILURE
+        makeTxToast(FunctionName.APPROVE, status, approvalHash)
+        wallet.reload()
+      })
+      const tx = await selectedProtocol.submitClaim(
+        selectedPolicy?.policyId,
+        tokenIn,
+        amountIn,
+        tokenOut,
+        amountOut,
+        deadline,
+        signature
+      )
+      const txHash = tx.hash
+      const localTx = { hash: txHash, type: txType, value: '0', status: TransactionCondition.PENDING, unit: Unit.ID }
+      closeModal()
+      addLocalTransactions(localTx)
+      wallet.reload()
+      makeTxToast(txType, TransactionCondition.PENDING, txHash)
+      await tx.wait().then((receipt: any) => {
+        const status = receipt.status ? TransactionCondition.SUCCESS : TransactionCondition.FAILURE
+        makeTxToast(txType, status, txHash)
+        wallet.reload()
+      })
+    } catch (err) {
+      makeTxToast(txType, TransactionCondition.CANCELLED)
+      setModalLoading(false)
+      wallet.reload()
+    }
+  }
+
   const extendPolicy = async () => {
-    setLoading(true)
+    setModalLoading(true)
     if (!selectedProtocol) return
     const txType = FunctionName.EXTEND_POLICY
     const extension = BigNumber.from(NUM_BLOCKS_PER_DAY * parseInt(extendedTime))
@@ -187,13 +243,13 @@ function Dashboard(): any {
       })
     } catch (err) {
       makeTxToast(txType, TransactionCondition.CANCELLED)
-      setLoading(false)
+      setModalLoading(false)
       wallet.reload()
     }
   }
 
   const cancelPolicy = async () => {
-    setLoading(true)
+    setModalLoading(true)
     if (!selectedProtocol || !selectedPolicy) return
     const txType = FunctionName.CANCEL_POLICY
     try {
@@ -217,7 +273,7 @@ function Dashboard(): any {
       })
     } catch (err) {
       makeTxToast(txType, TransactionCondition.CANCELLED)
-      setLoading(false)
+      setModalLoading(false)
       wallet.reload()
     }
   }
@@ -270,8 +326,8 @@ function Dashboard(): any {
           <TableData textAlignRight>
             {policy.status === PolicyStatus.ACTIVE && (
               <TableDataGroup>
-                <Button>Claim</Button>
-                <Button onClick={() => openModal(getDays(policy.expirationBlock), policy)}>Manage</Button>
+                <Button onClick={() => openStatusModal(policy)}>Claim Status</Button>
+                <Button onClick={() => openManageModal(getDays(policy.expirationBlock), policy)}>Manage</Button>
               </TableDataGroup>
             )}
           </TableData>
@@ -280,21 +336,78 @@ function Dashboard(): any {
     })
   }
 
-  const openModal = async (days: number, policy: Policy) => {
-    setShowModal((prev) => !prev)
+  const PolicyInfo = () => {
+    return (
+      <Fragment>
+        <BoxChooseRow>
+          <BoxChooseCol>
+            <Text2>Id: {selectedPolicy?.policyId}</Text2>
+          </BoxChooseCol>
+          <BoxChooseCol>
+            <Text2>Days left: {getDays(selectedPolicy ? selectedPolicy.expirationBlock : '0')}</Text2>
+          </BoxChooseCol>
+        </BoxChooseRow>
+        <BoxChooseRow>
+          <BoxChooseCol></BoxChooseCol>
+          <BoxChooseCol>
+            <Text2>Cover Amount: {selectedPolicy?.coverAmount ? formatEther(selectedPolicy.coverAmount) : 0} ETH</Text2>
+          </BoxChooseCol>
+        </BoxChooseRow>
+        <BoxChooseRow>
+          <BoxChooseCol>
+            <Text2>
+              Protocol - Position: {selectedPolicy?.productName} - {selectedPolicy?.positionName}
+            </Text2>
+          </BoxChooseCol>
+          <BoxChooseCol>
+            <Text2>
+              {coverLimit && !asyncLoading ? (
+                `Coverage: ${
+                  coverLimit.substring(0, coverLimit.length - 2) +
+                  '.' +
+                  coverLimit.substring(coverLimit.length - 2, coverLimit.length)
+                }%`
+              ) : (
+                <Loader width={10} height={10} />
+              )}
+            </Text2>
+          </BoxChooseCol>
+        </BoxChooseRow>
+        <hr style={{ marginBottom: '20px' }} />
+      </Fragment>
+    )
+  }
+
+  const openStatusModal = async (policy: Policy) => {
+    setShowStatusModal((prev) => !prev)
     setSelectedProtocolByName(policy.productName.toLowerCase())
     document.body.style.overflowY = 'hidden'
     setSelectedPolicy(policy)
-    setPositionsLoading(true)
+    setAsyncLoading(true)
+    const assessment = await getClaimAssessment(String(policy.policyId))
     const balances = await getPositions(policy.productName.toLowerCase(), wallet.chainId ?? 1, wallet.account ?? '0x')
     getCoverLimit(policy, balances)
-    setPositionsLoading(false)
+    setPositionBalances(balances)
+    setAssessment(assessment)
+    setAsyncLoading(false)
+  }
+
+  const openManageModal = async (days: number, policy: Policy) => {
+    setShowManageModal((prev) => !prev)
+    setSelectedProtocolByName(policy.productName.toLowerCase())
+    document.body.style.overflowY = 'hidden'
+    setSelectedPolicy(policy)
+    setAsyncLoading(true)
+    const balances = await getPositions(policy.productName.toLowerCase(), wallet.chainId ?? 1, wallet.account ?? '0x')
+    getCoverLimit(policy, balances)
+    setAsyncLoading(false)
   }
 
   const closeModal = () => {
-    setShowModal(false)
+    setShowStatusModal(false)
+    setShowManageModal(false)
     document.body.style.overflowY = 'scroll'
-    setLoading(false)
+    setModalLoading(false)
     setExtendedTime('1')
   }
 
@@ -388,48 +501,14 @@ function Dashboard(): any {
         </HeroContainer>
       ) : (
         <Fragment>
-          <Modal isOpen={showModal}>
+          <Modal isOpen={showManageModal}>
             <ModalHeader>
-              <Heading2>
-                Policy Management: {selectedPolicy?.productName} - {selectedPolicy?.positionName}
-              </Heading2>
-              <ModalCloseButton hidden={loading} onClick={() => closeModal()} />
+              <Heading2>Policy Management</Heading2>
+              <ModalCloseButton hidden={modalLoading} onClick={() => closeModal()} />
             </ModalHeader>
             <ModalContent>
-              <BoxChooseRow>
-                <BoxChooseCol>
-                  <Text2>Id: {selectedPolicy?.policyId}</Text2>
-                </BoxChooseCol>
-                <BoxChooseCol>
-                  <Text2>Days left: {getDays(selectedPolicy ? selectedPolicy.expirationBlock : '0')}</Text2>
-                </BoxChooseCol>
-              </BoxChooseRow>
-              <BoxChooseRow>
-                <BoxChooseCol></BoxChooseCol>
-                <BoxChooseCol>
-                  <Text2>
-                    Cover Amount: {selectedPolicy?.coverAmount ? formatEther(selectedPolicy.coverAmount) : 0} ETH
-                  </Text2>
-                </BoxChooseCol>
-              </BoxChooseRow>
-              <BoxChooseRow>
-                <BoxChooseCol></BoxChooseCol>
-                <BoxChooseCol>
-                  <Text2>
-                    {coverLimit && !positionsloading ? (
-                      `Coverage: ${
-                        coverLimit.substring(0, coverLimit.length - 2) +
-                        '.' +
-                        coverLimit.substring(coverLimit.length - 2, coverLimit.length)
-                      }%`
-                    ) : (
-                      <Loader width={10} height={10} />
-                    )}
-                  </Text2>
-                </BoxChooseCol>
-              </BoxChooseRow>
-              <hr style={{ marginBottom: '20px' }} />
-              {!loading ? (
+              <PolicyInfo />
+              {!modalLoading ? (
                 <Fragment>
                   <UpdatePolicySec>
                     <BoxChooseRow>
@@ -442,7 +521,7 @@ function Dashboard(): any {
                       </BoxChooseCol>
                       <BoxChooseCol>
                         <Slider
-                          disabled={positionsloading}
+                          disabled={asyncLoading}
                           width={150}
                           backgroundColor={'#fff'}
                           value={feedbackCoverage}
@@ -453,7 +532,7 @@ function Dashboard(): any {
                       </BoxChooseCol>
                       <BoxChooseCol>
                         <Input
-                          disabled={positionsloading}
+                          disabled={asyncLoading}
                           type="text"
                           width={50}
                           value={inputCoverage}
@@ -471,7 +550,7 @@ function Dashboard(): any {
                       </BoxChooseCol>
                       <BoxChooseCol>
                         <Slider
-                          disabled={positionsloading}
+                          disabled={asyncLoading}
                           width={150}
                           backgroundColor={'#fff'}
                           value={extendedTime == '' ? '1' : extendedTime}
@@ -482,7 +561,7 @@ function Dashboard(): any {
                       </BoxChooseCol>
                       <BoxChooseCol>
                         <Input
-                          disabled={positionsloading}
+                          disabled={asyncLoading}
                           type="text"
                           pattern="[0-9]+"
                           width={50}
@@ -518,7 +597,7 @@ function Dashboard(): any {
                       </BoxChooseDate>
                     </BoxChooseRow>
                     <BoxChooseRow style={{ justifyContent: 'flex-end' }}>
-                      {!positionsloading ? (
+                      {!asyncLoading ? (
                         <Button onClick={() => extendPolicy()}>Update Policy</Button>
                       ) : (
                         <Loader width={10} height={10} />
@@ -562,9 +641,49 @@ function Dashboard(): any {
               )}
             </ModalContent>
           </Modal>
+          <Modal isOpen={showStatusModal}>
+            <ModalHeader>
+              <Heading2>Policy Claim Status</Heading2>
+              <ModalCloseButton hidden={modalLoading} onClick={() => closeModal()} />
+            </ModalHeader>
+            <ModalContent>
+              <PolicyInfo />
+              {!modalLoading && !asyncLoading ? (
+                <Fragment>
+                  <SmallBox>
+                    <Text2 alignVertical>Giving</Text2>
+                    <Text2 outlined>
+                      {positionBalances &&
+                        positionBalances.map(
+                          (position: any) =>
+                            position.token.address == assessment?.tokenIn &&
+                            `${truncateBalance(
+                              fixedPositionBalance(assessment?.amountIn || '', position.token.decimals)
+                            )} ${position.token.symbol}`
+                        )}
+                    </Text2>
+                    <Text2 alignVertical>for</Text2>
+                    <Text2 outlined>
+                      {positionBalances &&
+                        positionBalances.map(
+                          (position: any) =>
+                            position.underlying.address == assessment?.tokenOut &&
+                            `${formatEther(assessment?.amountOut || 0)} ${position.underlying.symbol}`
+                        )}
+                    </Text2>
+                  </SmallBox>
+                  <ButtonWrapper>
+                    <Button onClick={() => submitClaim()}>Submit Claim</Button>
+                  </ButtonWrapper>
+                </Fragment>
+              ) : (
+                <Loader />
+              )}
+            </ModalContent>
+          </Modal>
           <Content>
             <Heading1>Your Policies</Heading1>
-            {loading ? (
+            {loading && !showManageModal && !showStatusModal ? (
               <Loader />
             ) : policies.length > 0 ? (
               <Table>

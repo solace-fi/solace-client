@@ -17,7 +17,7 @@ export interface TextAlignProps {
 
 export interface TextStyleProps {
   nowrap?: boolean
-  encircled?: boolean
+  outlined?: boolean
   alignVertical?: boolean
   bold?: boolean
   error?: boolean
@@ -93,7 +93,7 @@ const AlignVerticalAutoCss = css`
   margin: auto;
 `
 
-const EncircledCss = css`
+const TextOutlineCss = css`
   padding: 2px 16px;
   margin: 0 5px 0 5px;
   border: 1px solid #fff;
@@ -122,7 +122,7 @@ export const TextAlignCss = css<TextAlignProps>`
 
 export const TextStyleCss = css<TextStyleProps>`
   ${(props) => props.nowrap && NoWrapCss}
-  ${(props) => props.encircled && EncircledCss}
+  ${(props) => props.outlined && TextOutlineCss}
   ${(props) => props.alignVertical && AlignVerticalAutoCss}
   ${(props) => props.bold && 'font-weight: 600;'}
   ${(props) => props.error && 'color: rgba(219, 44, 56);'}

@@ -1,6 +1,6 @@
 import { MAX_WIDTH } from '../../constants/'
 import styled, { createGlobalStyle } from 'styled-components'
-import { GeneralElementProps, GeneralElementCss, HeightAndWidthProps } from '../interfaces'
+import { GeneralElementProps, GeneralElementCss, HeightAndWidthProps } from '../generalInterfaces'
 
 export const GlobalStyle = createGlobalStyle`
   body{
