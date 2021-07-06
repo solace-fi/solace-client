@@ -1,5 +1,5 @@
 import styled from 'styled-components'
-import { TextProps, handleTextProps } from '../Text'
+import { GeneralTextProps, GeneralTextCss } from '../Text'
 
 export const PositionCardLogo = styled.div`
   display: flex;
@@ -20,10 +20,10 @@ export const PositionCardName = styled.div`
   text-align: center;
 `
 
-export const PositionCardCount = styled.div<TextProps>`
+export const PositionCardCount = styled.div<GeneralTextProps>`
   margin-top: 10px;
   line-height: 33px;
-  ${() => handleTextProps()}
+  ${GeneralTextCss}
 `
 
 export const PositionCardButton = styled.div`

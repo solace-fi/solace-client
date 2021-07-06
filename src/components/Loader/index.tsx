@@ -1,11 +1,6 @@
 import React from 'react'
 import styled, { keyframes } from 'styled-components'
-
-interface props {
-  style?: any
-  width?: number
-  height?: number
-}
+import { HeightAndWidthProps } from '../interfaces'
 
 const rotate = keyframes`
   0% {
@@ -15,7 +10,7 @@ const rotate = keyframes`
     transform: rotate(360deg);
   }`
 
-const LoadingIcon = styled.div<props>`
+const LoadingIcon = styled.div<HeightAndWidthProps>`
   width: ${(props) => (props.width ? `${props.width + 20}px` : '80px')};
   height: ${(props) => (props.height ? `${props.height + 20}px` : '80px')};
   margin: auto;
@@ -31,6 +26,6 @@ const LoadingIcon = styled.div<props>`
   }
 `
 
-export const Loader: React.FC<props> = ({ style, width, height }) => {
-  return <LoadingIcon style={style} width={width} height={height} />
+export const Loader: React.FC<HeightAndWidthProps> = ({ width, height }) => {
+  return <LoadingIcon width={width} height={height} />
 }

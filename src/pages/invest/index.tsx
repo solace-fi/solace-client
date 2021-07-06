@@ -650,17 +650,17 @@ function Invest(): any {
       </Modal>
       <Content>
         <Heading1>ETH Risk backing Capital Pool</Heading1>
-        <Table isHighlight cellAlignCenter>
+        <Table isHighlight textAlignCenter>
           <TableHead>
             <TableRow>
-              {wallet.account ? <TableHeader width={109}>Your Assets</TableHeader> : null}
+              {wallet.account ? <TableHeader width={100}>Your Assets</TableHeader> : null}
               <TableHeader width={100}>Total Assets</TableHeader>
               <TableHeader width={100}>ROI (1Y)</TableHeader>
               {wallet.account ? <TableHeader width={130}>Your Vault Share</TableHeader> : null}
               {wallet.account && (
                 <Fragment>
                   <TableHeader width={100}></TableHeader>
-                  <TableHeader width={170}></TableHeader>
+                  <TableHeader width={150}></TableHeader>
                 </Fragment>
               )}
             </TableRow>
@@ -668,7 +668,7 @@ function Invest(): any {
           <TableBody>
             <TableRow>
               {wallet.account ? (
-                <TableData width={109}>{truncateBalance(parseFloat(userVaultAssets), 2)}</TableData>
+                <TableData width={100}>{truncateBalance(parseFloat(userVaultAssets), 2)}</TableData>
               ) : null}
               <TableData width={100}>{truncateBalance(floatEther(parseEther(capitalPoolSize)), 2)}</TableData>
               <TableData width={100}>{CP_ROI}</TableData>
@@ -676,11 +676,11 @@ function Invest(): any {
               {wallet.account && (
                 <Fragment>
                   <TableData width={100}></TableData>
-                  <TableData width={170}></TableData>
+                  <TableData width={150}></TableData>
                 </Fragment>
               )}
               {wallet.account && !loading ? (
-                <TableData cellAlignRight>
+                <TableData textAlignRight>
                   <TableDataGroup width={200}>
                     <Button
                       disabled={errors.length > 0}
@@ -703,12 +703,12 @@ function Invest(): any {
       </Content>
       <Content>
         <Heading1>Solace Capital Provider Farm</Heading1>
-        <Table isHighlight cellAlignCenter>
+        <Table isHighlight textAlignCenter>
           <TableHead>
             <TableRow>
-              {wallet.account ? <TableHeader>Your Stake</TableHeader> : null}
+              {wallet.account ? <TableHeader width={100}>Your Stake</TableHeader> : null}
               <TableHeader>Total Assets</TableHeader>
-              <TableHeader>ROI (1Y)</TableHeader>
+              <TableHeader width={100}>ROI (1Y)</TableHeader>
               {wallet.account ? <TableHeader>My Rewards</TableHeader> : null}
               {wallet.account ? <TableHeader>My Daily Rewards</TableHeader> : null}
               <TableHeader>Daily Rewards</TableHeader>
@@ -716,14 +716,16 @@ function Invest(): any {
           </TableHead>
           <TableBody>
             <TableRow>
-              {wallet.account ? <TableData>{truncateBalance(parseFloat(cpUserStakeValue), 2)}</TableData> : null}
+              {wallet.account ? (
+                <TableData width={100}>{truncateBalance(parseFloat(cpUserStakeValue), 2)}</TableData>
+              ) : null}
               <TableData>{truncateBalance(parseFloat(cpPoolValue), 2)}</TableData>
-              <TableData>{LP_ROI}</TableData>
+              <TableData width={100}>{LP_ROI}</TableData>
               {wallet.account ? <TableData>{truncateBalance(parseFloat(cpUserRewards), 2)}</TableData> : null}
               {wallet.account ? <TableData>{truncateBalance(parseFloat(cpUserRewardsPerDay), 2)}</TableData> : null}
               <TableData>{truncateBalance(parseFloat(cpRewardsPerDay), 2)}</TableData>
               {wallet.account && !loading ? (
-                <TableData cellAlignRight>
+                <TableData textAlignRight>
                   <TableDataGroup width={200}>
                     <Button
                       disabled={errors.length > 0}
@@ -748,12 +750,12 @@ function Invest(): any {
       </Content>
       <Content>
         <Heading1>SOLACE/ETH Liquidity Pool</Heading1>
-        <Table isHighlight cellAlignCenter>
+        <Table isHighlight textAlignCenter>
           <TableHead>
             <TableRow>
-              {wallet.account ? <TableHeader>Your Stake</TableHeader> : null}
+              {wallet.account ? <TableHeader width={100}>Your Stake</TableHeader> : null}
               <TableHeader>Total Assets</TableHeader>
-              <TableHeader>ROI (1Y)</TableHeader>
+              <TableHeader width={100}>ROI (1Y)</TableHeader>
               {wallet.account ? <TableHeader>My Rewards</TableHeader> : null}
               {wallet.account ? <TableHeader>My Daily Rewards</TableHeader> : null}
               <TableHeader>Daily Rewards</TableHeader>
@@ -761,14 +763,16 @@ function Invest(): any {
           </TableHead>
           <TableBody>
             <TableRow>
-              {wallet.account ? <TableData>{truncateBalance(parseFloat(lpUserStakeValue), 2)}</TableData> : null}
+              {wallet.account ? (
+                <TableData width={100}>{truncateBalance(parseFloat(lpUserStakeValue), 2)}</TableData>
+              ) : null}
               <TableData>{truncateBalance(parseFloat(lpPoolValue), 2)}</TableData>
-              <TableData>150.00%</TableData>
+              <TableData width={100}>150.00%</TableData>
               {wallet.account ? <TableData>{truncateBalance(parseFloat(lpUserRewards), 2)}</TableData> : null}
               {wallet.account ? <TableData>{truncateBalance(parseFloat(lpUserRewardsPerDay), 2)}</TableData> : null}
               <TableData>{truncateBalance(parseFloat(lpRewardsPerDay), 2)}</TableData>
               {wallet.account && !loading ? (
-                <TableData cellAlignRight>
+                <TableData textAlignRight>
                   <TableDataGroup width={200}>
                     <Button
                       disabled={errors.length > 0}
@@ -791,7 +795,7 @@ function Invest(): any {
       </Content>
       <Content>
         <Heading1>Your transactions</Heading1>
-        <Table cellAlignCenter>
+        <Table textAlignCenter>
           <TableHead>
             <TableRow>
               <TableHeader>Type</TableHeader>
@@ -820,6 +824,7 @@ function Invest(): any {
                   <TableData>{pendingtx.status}</TableData>
                 </TableRow>
               ))}
+
             {txHistory &&
               txHistory.map((tx: any, i: number) => (
                 <TableRow key={tx.hash}>

@@ -29,6 +29,28 @@ export const useGetPolicyPrice = (policyId: number): string => {
   return policyPrice
 }
 
+export const useGetMaxCoverPerUser = (): string => {
+  const [maxCoverPerUser, setMaxCoverPerUser] = useState<string>('0.00')
+  const { selectedProtocol } = useContracts()
+
+  const getMaxCoverPerUser = async () => {
+    if (!selectedProtocol) return
+    try {
+      const maxCover = await selectedProtocol.maxCoverPerUser()
+      const formattedMaxCover = formatEther(maxCover)
+      setMaxCoverPerUser(formattedMaxCover)
+    } catch (err) {
+      console.log('getMaxCoverPerUser', err)
+    }
+  }
+
+  useEffect(() => {
+    getMaxCoverPerUser()
+  }, [selectedProtocol])
+
+  return maxCoverPerUser
+}
+
 export const useGetCancelFee = () => {
   const [cancelFee, setCancelFee] = useState<string>('0.00')
   const { selectedProtocol } = useContracts()
@@ -36,7 +58,7 @@ export const useGetCancelFee = () => {
   const getCancelFee = async () => {
     if (!selectedProtocol) return
     try {
-      const fee = await selectedProtocol.cancelFee()
+      const fee = await selectedProtocol.manageFee()
       setCancelFee(formatEther(fee))
     } catch (err) {
       console.log('getCancelFee', err)

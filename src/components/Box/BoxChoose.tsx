@@ -1,10 +1,6 @@
 import styled, { css } from 'styled-components'
 import { Input } from '../Input'
-
-interface props {
-  bold?: boolean
-  warning?: boolean
-}
+import { TextStyleCss, TextStyleProps } from '../Text'
 
 export const BoxChooseRow = styled.div`
   display: flex;
@@ -32,14 +28,14 @@ export const BoxChooseDescription = styled.div`
   line-height: 18px;
 `
 
-const BoxChooseInfo = css<props>`
+const BoxChooseInfo = css<TextStyleProps>`
   font-size: 14px;
   line-height: 19px;
-  ${(props) => props.bold && 'font-weight: 600;'}
-  ${(props) => props.warning && 'color: rgba(255, 12, 28);'}
+  ${TextStyleCss}
 `
 
 export const BoxChooseDate = styled.div`
+  white-space: nowrap;
   ${BoxChooseInfo}
   ${Input} {
     width: 100px;

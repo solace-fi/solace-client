@@ -1,7 +1,7 @@
 import styled, { css } from 'styled-components'
 import { Box as RebassBox } from 'rebass/styled-components'
-import { TextProps, handleTextProps } from '../Text'
-import { GenericProps, handleGenericProps } from '../interfaces'
+import { GeneralTextProps, GeneralTextCss } from '../Text'
+import { GeneralElementProps, GeneralElementCss } from '../interfaces'
 
 interface BoxProps {
   purple?: boolean
@@ -9,14 +9,24 @@ interface BoxProps {
   outlined?: boolean
 }
 
-const BoxPropsHandler = css<GenericProps & BoxProps>`
+interface SmallBoxProps {
+  error?: boolean
+  collapse?: boolean
+}
+
+const BoxPropsHandler = css<GeneralElementProps & BoxProps>`
   ${(props) => props.transparent && TransparentBox}
   ${(props) => props.outlined && Outline}
   ${(props) => props.purple && 'background-color: rgba(250, 0, 255, 0.3);'}
-  ${() => handleGenericProps()}
+  ${GeneralElementCss}
 `
 
-const BoxBase = styled(RebassBox)<{ width?: string; padding?: string; border?: string; borderRadius?: string }>`
+const BoxBase = styled(RebassBox)<{
+  width?: string
+  padding?: string
+  border?: string
+  borderRadius?: string
+}>`
   width: ${({ width }) => width ?? '100%'};
   padding: ${({ padding }) => padding};
   border: ${({ border }) => border};
@@ -42,7 +52,7 @@ const Outline = css`
   border-color: rgb(255, 255, 255);
 `
 
-export const Box = styled(BoxRow)<BoxProps & GenericProps>`
+export const Box = styled(BoxRow)<BoxProps & GeneralElementProps>`
   ${BoxPropsHandler}
   align-items: center;
   border-radius: 10px;
@@ -57,8 +67,9 @@ export const Box = styled(BoxRow)<BoxProps & GenericProps>`
       : `padding: 24px;`}
 `
 
-export const SmallBox = styled.div<BoxProps & GenericProps>`
+export const SmallBox = styled.div<BoxProps & SmallBoxProps & GeneralElementProps>`
   ${BoxPropsHandler}
+  ${(props) => props.error && `border-color: rgba(219, 44, 56);`}
   display: flex;
   ${(props) =>
     props.p !== undefined ||
@@ -77,21 +88,23 @@ export const SmallBox = styled.div<BoxProps & GenericProps>`
       ? null
       : `margin: 0 5px 0 5px;`}
   border-radius: 10px;
+  ${(props) => (props.collapse ? `transform: scaleY(0); height: 0;` : `transform: scaleY(1);`)}
+  transition: all 200ms ease;
 `
 
 export const BoxItem = styled.div`
   margin: 0 auto;
 `
 
-export const BoxItemTitle = styled.div<TextProps>`
-  ${() => handleTextProps()}
+export const BoxItemTitle = styled.div<GeneralTextProps>`
+  ${GeneralTextCss}
   margin-bottom: 4px;
 `
 
-export const BoxItemValue = styled.div<TextProps>`
-  ${() => handleTextProps()}
+export const BoxItemValue = styled.div<GeneralTextProps>`
+  ${GeneralTextCss}
 `
 
-export const BoxItemUnits = styled.span<TextProps>`
-  ${() => handleTextProps()}
+export const BoxItemUnits = styled.span<GeneralTextProps>`
+  ${GeneralTextCss}
 `

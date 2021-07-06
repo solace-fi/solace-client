@@ -1,22 +1,30 @@
-import React from 'react'
 import styled, { css } from 'styled-components'
 
-export interface TextProps {
+export interface TextFontProps {
   h1?: boolean
   h2?: boolean
   h3?: boolean
   t1?: boolean
   t2?: boolean
   t3?: boolean
+}
+
+export interface TextAlignProps {
   textAlignCenter?: boolean
   textAlignLeft?: boolean
   textAlignRight?: boolean
 }
 
 export interface TextStyleProps {
+  nowrap?: boolean
   encircled?: boolean
   alignVertical?: boolean
+  bold?: boolean
+  error?: boolean
+  warning?: boolean
 }
+
+export interface GeneralTextProps extends TextFontProps, TextAlignProps, TextStyleProps {}
 
 const Font1 = css`
   font-size: 24px;
@@ -93,53 +101,66 @@ const EncircledCss = css`
   ${AlignVerticalCss}
 `
 
-export const Text1 = styled.div<TextStyleProps>`
+const NoWrapCss = css`
+  white-space: nowrap;
+`
+
+export const TextFontCss = css<TextFontProps>`
+  ${(props) => props.h1 && Heading1Css}
+  ${(props) => props.h2 && Heading2Css}
+  ${(props) => props.h3 && Heading3Css}
+  ${(props) => props.t1 && Text1Css}
+  ${(props) => props.t2 && Text2Css}
+  ${(props) => props.t3 && Text3Css}
+`
+
+export const TextAlignCss = css<TextAlignProps>`
+  ${(props) => props.textAlignCenter && AlignCenterCss}
+  ${(props) => props.textAlignLeft && AlignLeftCss}
+  ${(props) => props.textAlignRight && AlignRightCss}
+`
+
+export const TextStyleCss = css<TextStyleProps>`
+  ${(props) => props.nowrap && NoWrapCss}
+  ${(props) => props.encircled && EncircledCss}
+  ${(props) => props.alignVertical && AlignVerticalAutoCss}
+  ${(props) => props.bold && 'font-weight: 600;'}
+  ${(props) => props.error && 'color: rgba(219, 44, 56);'}
+  ${(props) => props.warning && 'color: rgba(254, 249, 154);'}
+`
+
+export const GeneralTextCss = css<GeneralTextProps>`
+  ${TextFontCss}
+  ${TextAlignCss}
+  ${TextStyleCss}
+`
+
+export const Text1 = styled.div<GeneralTextProps>`
   ${Text1Css}
-  ${(props) => handleTextStyleProps()}
+  ${GeneralTextCss}
 `
 
-export const Text2 = styled.div<TextStyleProps>`
+export const Text2 = styled.div<GeneralTextProps>`
   ${Text2Css}
-  ${(props) => handleTextStyleProps()}
+  ${GeneralTextCss}
 `
 
-export const Text3 = styled.div<TextStyleProps>`
+export const Text3 = styled.div<GeneralTextProps>`
   ${Text3Css}
-  ${(props) => handleTextStyleProps()}
+  ${GeneralTextCss}
 `
 
-export const Heading1 = styled.div<TextStyleProps>`
+export const Heading1 = styled.div<GeneralTextProps>`
   ${Heading1Css}
-  ${(props) => handleTextStyleProps()}
+  ${GeneralTextCss}
 `
 
-export const Heading2 = styled.div<TextStyleProps>`
+export const Heading2 = styled.div<GeneralTextProps>`
   ${Heading2Css}
-  ${(props) => handleTextStyleProps()}
+  ${GeneralTextCss}
 `
 
-export const Heading3 = styled.div<TextStyleProps>`
+export const Heading3 = styled.div<GeneralTextProps>`
   ${Heading3Css}
-  ${(props) => handleTextStyleProps()}
+  ${GeneralTextCss}
 `
-
-export const handleTextProps = (): any => {
-  return css<TextProps>`
-    ${(props) => props.h1 && Heading1Css}
-    ${(props) => props.h2 && Heading2Css}
-    ${(props) => props.h3 && Heading3Css}
-    ${(props) => props.t1 && Text1Css}
-    ${(props) => props.t2 && Text2Css}
-    ${(props) => props.t3 && Text3Css}
-    ${(props) => props.textAlignCenter && AlignCenterCss}
-    ${(props) => props.textAlignLeft && AlignLeftCss}
-    ${(props) => props.textAlignRight && AlignRightCss}
-  `
-}
-
-export const handleTextStyleProps = (): any => {
-  return css<TextStyleProps>`
-    ${(props) => props.encircled && EncircledCss}
-    ${(props) => props.alignVertical && AlignVerticalAutoCss}
-  `
-}

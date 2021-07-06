@@ -7,7 +7,6 @@
     import managers
     import components
     import hooks
-    import wallet
     import utils
     import static
 
@@ -27,22 +26,17 @@ import makeBlockie from 'ethereum-blockies-base64'
 import { useWallet } from '../../context/WalletManager'
 
 /* import components */
-import { User, UserImage, UserWallet, UserName } from './index'
-import { Button } from '../Button'
+import { UserImage } from './index'
 import { Heading3 } from '../Text'
 
 /* import hooks */
 import { useEthBalance } from '../../hooks/useEthBalance'
 
-/* import wallet */
-import { SUPPORTED_WALLETS } from '../../wallet/wallets'
-
 /* import utils */
-import { shortenAddress, fixed, truncateBalance } from '../../utils/formatting'
+import { shortenAddress, fixed } from '../../utils/formatting'
 import { getNetworkName } from '../../utils'
 
 /* import static */
-import user from '../../static/user-avatar.png'
 import { WalletConnectButton } from '../Button/WalletConnect'
 import { SmallBox } from '../Box'
 
@@ -72,7 +66,9 @@ export default function Account(): any {
       {!wallet.isActive && <WalletConnectButton />}
       {wallet.account && (
         <SmallBox pl={10} outlined>
-          <Heading3 alignVertical>{balance ? `${fixed(parseFloat(balance), 3)} ETH` : ''}</Heading3>
+          <Heading3 alignVertical nowrap>
+            {balance ? `${fixed(parseFloat(balance), 3)} ETH` : ''}
+          </Heading3>
           <SmallBox ml={10} outlined>
             <Heading3 alignVertical>{shortenAddress(wallet.account)}</Heading3>{' '}
             <UserImage pt={4} pb={4} pl={10}>

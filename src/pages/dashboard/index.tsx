@@ -9,6 +9,7 @@
     import components
     import hooks
     import utils
+    styled components
 
     Dashboard function
       useRef variables
@@ -30,6 +31,7 @@ import { Contract } from '@ethersproject/contracts'
 import { Slider } from '@rebass/forms'
 import { BigNumber } from 'ethers'
 import { formatEther, parseEther } from 'ethers/lib/utils'
+import styled from 'styled-components'
 
 /* import constants */
 import { Unit, PolicyStatus } from '../../constants/enums'
@@ -43,12 +45,12 @@ import { useUserData } from '../../context/UserDataManager'
 import { useToasts } from '../../context/NotificationsManager'
 
 /* import components */
-import { Content } from '../../components/Layout'
+import { Content, HeroContainer } from '../../components/Layout'
 import { CardContainer, InvestmentCardComponent, CardHeader, CardTitle, CardBlock } from '../../components/Card'
 import { Heading1, Heading2, Heading3, Text1, Text2 } from '../../components/Text'
-import { Button, ButtonWrapper } from '../../components/Button'
+import { Button } from '../../components/Button'
 import { Table, TableHead, TableHeader, TableRow, TableBody, TableData, TableDataGroup } from '../../components/Table'
-import { Modal, ModalHeader, ModalContent, ModalRow, ModalCloseButton } from '../../components/Modal'
+import { Modal, ModalHeader, ModalContent, ModalCloseButton } from '../../components/Modal'
 import { Input } from '../../components/Input'
 import { BoxChooseDate, BoxChooseCol, BoxChooseRow, BoxChooseText } from '../../components/Box/BoxChoose'
 import { Loader } from '../../components/Loader'
@@ -63,6 +65,26 @@ import { getGasValue, truncateBalance } from '../../utils/formatting'
 import { Policy, getAllPoliciesOfUser } from '../../utils/policyGetter'
 import { fetchEtherscanLatestBlock } from '../../utils/etherscan'
 import { getPositions } from '../../utils/positionGetter'
+
+/*************************************************************************************
+
+styled components
+
+*************************************************************************************/
+
+const UpdatePolicySec = styled.div`
+  display: grid;
+  grid-template-columns: 3fr 1fr;
+  grid-template-rows: 1fr 1fr 1fr 1fr;
+  justify-content: space-between;
+`
+
+const CancelPolicySec = styled.div`
+  display: grid;
+  grid-template-columns: 3fr 1fr;
+  grid-template-rows: 1fr 1fr 1fr;
+  justify-content: space-between;
+`
 
 function Dashboard(): any {
   /************************************************************************************* 
@@ -88,6 +110,8 @@ function Dashboard(): any {
   const [extendedTime, setExtendedTime] = useState<string>('1')
   const [selectedPolicy, setSelectedPolicy] = useState<Policy | undefined>(undefined)
   const [coverLimit, setCoverLimit] = useState<string | null>(null)
+  const [inputCoverage, setInputCoverage] = useState<string>('1')
+  const [feedbackCoverage, setFeedbackCoverage] = useState<string>('1')
 
   /*************************************************************************************
 
@@ -211,6 +235,12 @@ function Dashboard(): any {
       .balance
     const coverLimit = BigNumber.from(coverAmount).mul('10000').div(positionAmount).toString()
     setCoverLimit(coverLimit)
+    setFeedbackCoverage(coverLimit)
+    setInputCoverage(
+      coverLimit.substring(0, coverLimit.length - 2) +
+        '.' +
+        coverLimit.substring(coverLimit.length - 2, coverLimit.length)
+    )
   }
 
   const calculatePolicyExpirationDate = (expirationBlock: string): string => {
@@ -237,7 +267,7 @@ function Dashboard(): any {
             {policy.coverAmount ? truncateBalance(parseFloat(formatEther(policy.coverAmount)), 2) : 0} {Unit.ETH}
           </TableData>
 
-          <TableData cellAlignRight>
+          <TableData textAlignRight>
             {policy.status === PolicyStatus.ACTIVE && (
               <TableDataGroup>
                 <Button>Claim</Button>
@@ -278,6 +308,31 @@ function Dashboard(): any {
     }
   }
 
+  const handleInputCoverage = (input: string) => {
+    // allow only numbers and decimals
+    const filtered = input.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1')
+
+    // if number is greater than 100, do not update
+    if (parseFloat(filtered) > 100) {
+      return
+    }
+
+    // if number has more than 2 decimal places, do not update
+    if (filtered.includes('.') && filtered.split('.')[1]?.length > 2) {
+      return
+    }
+
+    // convert input into BigNumber-compatible data
+    const multiplied = filtered == '' ? '100' : Math.round(parseFloat(filtered) * 100).toString()
+    setInputCoverage(filtered)
+    setFeedbackCoverage(multiplied)
+  }
+
+  const handleCoverageChange = (coverageLimit: string) => {
+    setInputCoverage((parseInt(coverageLimit) / 100).toString())
+    setFeedbackCoverage(coverageLimit)
+  }
+
   /*************************************************************************************
 
   useEffect hooks
@@ -308,8 +363,10 @@ function Dashboard(): any {
 
     try {
       const fetchPolicies = async () => {
+        setLoading(true)
         const policies = await getAllPoliciesOfUser(wallet.account as string, Number(CHAIN_ID))
         setPolicies(policies)
+        setLoading(false)
       }
       fetchPolicies()
     } catch (err) {
@@ -325,204 +382,255 @@ function Dashboard(): any {
 
   return (
     <Fragment>
-      <Modal isOpen={showModal}>
-        <ModalHeader>
-          <Heading2>
-            Policy Management: {selectedPolicy?.productName} - {selectedPolicy?.positionName}
-          </Heading2>
-          <ModalCloseButton hidden={loading} onClick={() => closeModal()} />
-        </ModalHeader>
-        <ModalContent>
-          <BoxChooseRow>
-            <BoxChooseCol>
-              <Text2>Id: {selectedPolicy?.policyId}</Text2>
-            </BoxChooseCol>
-            <BoxChooseCol>
-              <Text2>Days left: {getDays(selectedPolicy ? selectedPolicy.expirationBlock : '0')}</Text2>
-            </BoxChooseCol>
-          </BoxChooseRow>
-          <BoxChooseRow>
-            <BoxChooseCol></BoxChooseCol>
-            <BoxChooseCol>
-              <Text2>
-                Cover Amount: {selectedPolicy?.coverAmount ? formatEther(selectedPolicy.coverAmount) : 0} ETH
-              </Text2>
-            </BoxChooseCol>
-          </BoxChooseRow>
-          <BoxChooseRow>
-            <BoxChooseCol></BoxChooseCol>
-            <BoxChooseCol>
-              <Text2>
-                {coverLimit && !positionsloading ? (
-                  `Coverage: ${
-                    coverLimit.substring(0, coverLimit.length - 2) +
-                    '.' +
-                    coverLimit.substring(coverLimit.length - 2, coverLimit.length)
-                  }%`
-                ) : (
-                  <Loader width={10} height={10} />
-                )}
-              </Text2>
-            </BoxChooseCol>
-          </BoxChooseRow>
-          <hr style={{ marginBottom: '20px' }} />
-          {!loading ? (
-            <Fragment>
-              <BoxChooseRow>
-                <Text1>Extend Policy</Text1>
-              </BoxChooseRow>
+      {!wallet.account ? (
+        <HeroContainer>
+          <Heading1>Please connect wallet to view dashboard</Heading1>
+        </HeroContainer>
+      ) : (
+        <Fragment>
+          <Modal isOpen={showModal}>
+            <ModalHeader>
+              <Heading2>
+                Policy Management: {selectedPolicy?.productName} - {selectedPolicy?.positionName}
+              </Heading2>
+              <ModalCloseButton hidden={loading} onClick={() => closeModal()} />
+            </ModalHeader>
+            <ModalContent>
               <BoxChooseRow>
                 <BoxChooseCol>
-                  <BoxChooseText>
-                    Add days (1 - {DAYS_PER_YEAR - getDays(selectedPolicy ? selectedPolicy.expirationBlock : '0')} days)
-                  </BoxChooseText>
+                  <Text2>Id: {selectedPolicy?.policyId}</Text2>
                 </BoxChooseCol>
                 <BoxChooseCol>
-                  <Slider
-                    width={150}
-                    backgroundColor={'#fff'}
-                    value={extendedTime == '' ? '1' : extendedTime}
-                    onChange={(e) => setExtendedTime(e.target.value)}
-                    min="1"
-                    max={DAYS_PER_YEAR - getDays(selectedPolicy ? selectedPolicy.expirationBlock : '0')}
-                  />
-                </BoxChooseCol>
-                <BoxChooseCol>
-                  <Input
-                    type="text"
-                    pattern="[0-9]+"
-                    width={50}
-                    value={extendedTime}
-                    onChange={(e) => filteredTime(e.target.value)}
-                    maxLength={3}
-                  />
+                  <Text2>Days left: {getDays(selectedPolicy ? selectedPolicy.expirationBlock : '0')}</Text2>
                 </BoxChooseCol>
               </BoxChooseRow>
               <BoxChooseRow>
-                <BoxChooseDate>
-                  Current expiration{' '}
-                  <Input
-                    readOnly
-                    type="date"
-                    value={`${new Date(
-                      date.setDate(date.getDate() + getDays(selectedPolicy ? selectedPolicy.expirationBlock : '0'))
-                    )
-                      .toISOString()
-                      .substr(0, 10)}`}
-                  />{' '}
-                  New expiration{' '}
-                  <Input
-                    readOnly
-                    type="date"
-                    value={`${new Date(date.setDate(date.getDate() + parseFloat(extendedTime || '1')))
-                      .toISOString()
-                      .substr(0, 10)}`}
-                  />
-                </BoxChooseDate>
-              </BoxChooseRow>
-              <ButtonWrapper>
-                {!positionsloading ? (
-                  <Button onClick={() => extendPolicy()}>Extend Policy Period</Button>
-                ) : (
-                  <Loader width={10} height={10} />
-                )}
-              </ButtonWrapper>
-              <BoxChooseRow>
-                <Text1>Cancel Policy</Text1>
-              </BoxChooseRow>
-              <BoxChooseRow>
+                <BoxChooseCol></BoxChooseCol>
                 <BoxChooseCol>
-                  <BoxChooseText warning={policyPrice !== '0' && refundAmount.lte(parseEther(cancelFee))}>
-                    Refund amount: {formattedRefundAmount} ETH
-                  </BoxChooseText>
+                  <Text2>
+                    Cover Amount: {selectedPolicy?.coverAmount ? formatEther(selectedPolicy.coverAmount) : 0} ETH
+                  </Text2>
                 </BoxChooseCol>
               </BoxChooseRow>
               <BoxChooseRow>
+                <BoxChooseCol></BoxChooseCol>
                 <BoxChooseCol>
-                  <BoxChooseText>Cancellation fee: {cancelFee} ETH</BoxChooseText>
+                  <Text2>
+                    {coverLimit && !positionsloading ? (
+                      `Coverage: ${
+                        coverLimit.substring(0, coverLimit.length - 2) +
+                        '.' +
+                        coverLimit.substring(coverLimit.length - 2, coverLimit.length)
+                      }%`
+                    ) : (
+                      <Loader width={10} height={10} />
+                    )}
+                  </Text2>
                 </BoxChooseCol>
               </BoxChooseRow>
-              {policyPrice !== '0' && refundAmount.lte(parseEther(cancelFee)) && (
-                <BoxChooseText warning>Refund amount must offset cancellation fee</BoxChooseText>
+              <hr style={{ marginBottom: '20px' }} />
+              {!loading ? (
+                <Fragment>
+                  <UpdatePolicySec>
+                    <BoxChooseRow>
+                      <Text1>Update Policy</Text1>
+                    </BoxChooseRow>
+                    <BoxChooseCol></BoxChooseCol>
+                    <BoxChooseRow>
+                      <BoxChooseCol>
+                        <BoxChooseText>Edit coverage (1 - 100%)</BoxChooseText>
+                      </BoxChooseCol>
+                      <BoxChooseCol>
+                        <Slider
+                          disabled={positionsloading}
+                          width={150}
+                          backgroundColor={'#fff'}
+                          value={feedbackCoverage}
+                          onChange={(e) => handleCoverageChange(e.target.value)}
+                          min={100}
+                          max={10000}
+                        />
+                      </BoxChooseCol>
+                      <BoxChooseCol>
+                        <Input
+                          disabled={positionsloading}
+                          type="text"
+                          width={50}
+                          value={inputCoverage}
+                          onChange={(e) => handleInputCoverage(e.target.value)}
+                        />
+                      </BoxChooseCol>
+                    </BoxChooseRow>
+                    <BoxChooseCol></BoxChooseCol>
+                    <BoxChooseRow>
+                      <BoxChooseCol>
+                        <BoxChooseText>
+                          Add days (1 - {DAYS_PER_YEAR - getDays(selectedPolicy ? selectedPolicy.expirationBlock : '0')}{' '}
+                          days)
+                        </BoxChooseText>
+                      </BoxChooseCol>
+                      <BoxChooseCol>
+                        <Slider
+                          disabled={positionsloading}
+                          width={150}
+                          backgroundColor={'#fff'}
+                          value={extendedTime == '' ? '1' : extendedTime}
+                          onChange={(e) => setExtendedTime(e.target.value)}
+                          min="1"
+                          max={DAYS_PER_YEAR - getDays(selectedPolicy ? selectedPolicy.expirationBlock : '0')}
+                        />
+                      </BoxChooseCol>
+                      <BoxChooseCol>
+                        <Input
+                          disabled={positionsloading}
+                          type="text"
+                          pattern="[0-9]+"
+                          width={50}
+                          value={extendedTime}
+                          onChange={(e) => filteredTime(e.target.value)}
+                          maxLength={3}
+                        />
+                      </BoxChooseCol>
+                    </BoxChooseRow>
+                    <BoxChooseCol></BoxChooseCol>
+                    <BoxChooseRow>
+                      <BoxChooseDate>
+                        Current expiration{' '}
+                        <Input
+                          readOnly
+                          type="date"
+                          value={`${new Date(
+                            date.setDate(
+                              date.getDate() + getDays(selectedPolicy ? selectedPolicy.expirationBlock : '0')
+                            )
+                          )
+                            .toISOString()
+                            .substr(0, 10)}`}
+                        />{' '}
+                        New expiration{' '}
+                        <Input
+                          readOnly
+                          type="date"
+                          value={`${new Date(date.setDate(date.getDate() + parseFloat(extendedTime || '1')))
+                            .toISOString()
+                            .substr(0, 10)}`}
+                        />
+                      </BoxChooseDate>
+                    </BoxChooseRow>
+                    <BoxChooseRow style={{ justifyContent: 'flex-end' }}>
+                      {!positionsloading ? (
+                        <Button onClick={() => extendPolicy()}>Update Policy</Button>
+                      ) : (
+                        <Loader width={10} height={10} />
+                      )}
+                    </BoxChooseRow>
+                  </UpdatePolicySec>
+                  <CancelPolicySec>
+                    <BoxChooseRow>
+                      <Text1>Cancel Policy</Text1>
+                    </BoxChooseRow>
+                    <BoxChooseCol></BoxChooseCol>
+                    <BoxChooseRow>
+                      <BoxChooseCol>
+                        <BoxChooseText error={policyPrice !== '0' && refundAmount.lte(parseEther(cancelFee))}>
+                          Refund amount: {formattedRefundAmount} ETH
+                        </BoxChooseText>
+                      </BoxChooseCol>
+                    </BoxChooseRow>
+                    <BoxChooseCol></BoxChooseCol>
+                    <BoxChooseRow>
+                      <BoxChooseCol>
+                        <BoxChooseText>Cancellation fee: {cancelFee} ETH</BoxChooseText>
+                        {policyPrice !== '0' && refundAmount.lte(parseEther(cancelFee)) && (
+                          <BoxChooseText error>Refund amount must offset cancellation fee</BoxChooseText>
+                        )}
+                      </BoxChooseCol>
+                    </BoxChooseRow>
+                    <BoxChooseRow style={{ justifyContent: 'flex-end' }}>
+                      {policyPrice !== '0' ? (
+                        <Button disabled={refundAmount.lte(parseEther(cancelFee))} onClick={() => cancelPolicy()}>
+                          Cancel Policy
+                        </Button>
+                      ) : (
+                        <Loader width={10} height={10} />
+                      )}
+                    </BoxChooseRow>
+                  </CancelPolicySec>
+                </Fragment>
+              ) : (
+                <Loader />
               )}
-              <ModalRow>
-                <ButtonWrapper>
-                  {policyPrice !== '0' ? (
-                    <Button disabled={refundAmount.lte(parseEther(cancelFee))} onClick={() => cancelPolicy()}>
-                      Cancel Policy
-                    </Button>
-                  ) : (
-                    <Loader width={10} height={10} />
-                  )}
-                </ButtonWrapper>
-              </ModalRow>
-            </Fragment>
-          ) : (
-            <Loader />
-          )}
-        </ModalContent>
-      </Modal>
-      <Content>
-        <Heading1>Your Policies</Heading1>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableHeader>{'Id'}</TableHeader>
-              <TableHeader>{'Status'}</TableHeader>
-              <TableHeader>{'Product'}</TableHeader>
-              <TableHeader>{'Position'}</TableHeader>
-              <TableHeader>{'Expiration Date'}</TableHeader>
-              <TableHeader>{'Amount'}</TableHeader>
-            </TableRow>
-          </TableHead>
-          <TableBody>{renderPolicies()}</TableBody>
-        </Table>
-      </Content>
-      <Content>
-        <Heading1>Your Investments</Heading1>
-        <CardContainer>
-          <InvestmentCardComponent>
-            <CardHeader>
-              <CardTitle h2>Capital Pool</CardTitle>
-              <Heading3>
-                {wallet.account ? truncateBalance(parseFloat(cpUserStakeValue), 2) : 0} {Unit.ETH}
-              </Heading3>
-            </CardHeader>
-            <CardBlock>
-              <CardTitle t2>Daily Earnings</CardTitle>
-              <CardTitle t3>
-                {wallet.account ? truncateBalance(parseFloat(cpUserRewardsPerDay), 2) : 0} {Unit.SOLACE}
-              </CardTitle>
-            </CardBlock>
-            <CardBlock>
-              <CardTitle t2>Total Earnings</CardTitle>
-              <CardTitle t3>
-                {wallet.account ? truncateBalance(parseFloat(cpUserRewards), 2) : 0} {Unit.SOLACE}
-              </CardTitle>
-            </CardBlock>
-          </InvestmentCardComponent>
-          <InvestmentCardComponent>
-            <CardHeader>
-              <CardTitle h2>Liquidity Pool</CardTitle>
-              <Heading3>
-                {wallet.account ? truncateBalance(parseFloat(lpUserStakeValue), 2) : 0} {Unit.SOLACE}
-              </Heading3>
-            </CardHeader>
-            <CardBlock>
-              <CardTitle t2>Daily Earnings</CardTitle>
-              <CardTitle t3>
-                {wallet.account ? truncateBalance(parseFloat(lpUserRewardsPerDay), 2) : 0} {Unit.SOLACE}
-              </CardTitle>
-            </CardBlock>
-            <CardBlock>
-              <CardTitle t2>Total Earnings</CardTitle>
-              <CardTitle t3>
-                {wallet.account ? truncateBalance(parseFloat(lpUserRewards), 2) : 0} {Unit.SOLACE}
-              </CardTitle>
-            </CardBlock>
-          </InvestmentCardComponent>
-        </CardContainer>
-      </Content>
+            </ModalContent>
+          </Modal>
+          <Content>
+            <Heading1>Your Policies</Heading1>
+            {loading ? (
+              <Loader />
+            ) : policies.length > 0 ? (
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    <TableHeader>{'Id'}</TableHeader>
+                    <TableHeader>{'Status'}</TableHeader>
+                    <TableHeader>{'Product'}</TableHeader>
+                    <TableHeader>{'Position'}</TableHeader>
+                    <TableHeader>{'Expiration Date'}</TableHeader>
+                    <TableHeader>{'Amount'}</TableHeader>
+                  </TableRow>
+                </TableHead>
+                <TableBody>{renderPolicies()}</TableBody>
+              </Table>
+            ) : (
+              <Heading2 textAlignCenter>You do not own any policies.</Heading2>
+            )}
+          </Content>
+          <Content>
+            <Heading1>Your Investments</Heading1>
+            <CardContainer>
+              <InvestmentCardComponent>
+                <CardHeader>
+                  <CardTitle h2>Capital Pool</CardTitle>
+                  <Heading3>
+                    {wallet.account ? truncateBalance(parseFloat(cpUserStakeValue), 2) : 0} {Unit.ETH}
+                  </Heading3>
+                </CardHeader>
+                <CardBlock>
+                  <CardTitle t2>Daily Earnings</CardTitle>
+                  <CardTitle t3>
+                    {wallet.account ? truncateBalance(parseFloat(cpUserRewardsPerDay), 2) : 0} {Unit.SOLACE}
+                  </CardTitle>
+                </CardBlock>
+                <CardBlock>
+                  <CardTitle t2>Total Earnings</CardTitle>
+                  <CardTitle t3>
+                    {wallet.account ? truncateBalance(parseFloat(cpUserRewards), 2) : 0} {Unit.SOLACE}
+                  </CardTitle>
+                </CardBlock>
+              </InvestmentCardComponent>
+              <InvestmentCardComponent>
+                <CardHeader>
+                  <CardTitle h2>Liquidity Pool</CardTitle>
+                  <Heading3>
+                    {wallet.account ? truncateBalance(parseFloat(lpUserStakeValue), 2) : 0} {Unit.SOLACE}
+                  </Heading3>
+                </CardHeader>
+                <CardBlock>
+                  <CardTitle t2>Daily Earnings</CardTitle>
+                  <CardTitle t3>
+                    {wallet.account ? truncateBalance(parseFloat(lpUserRewardsPerDay), 2) : 0} {Unit.SOLACE}
+                  </CardTitle>
+                </CardBlock>
+                <CardBlock>
+                  <CardTitle t2>Total Earnings</CardTitle>
+                  <CardTitle t3>
+                    {wallet.account ? truncateBalance(parseFloat(lpUserRewards), 2) : 0} {Unit.SOLACE}
+                  </CardTitle>
+                </CardBlock>
+              </InvestmentCardComponent>
+            </CardContainer>
+          </Content>
+        </Fragment>
+      )}
     </Fragment>
   )
 }

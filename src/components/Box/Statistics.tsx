@@ -220,28 +220,30 @@ export const Statistics = () => {
       <Box purple>
         <BoxItem>
           <BoxItemTitle h3>Capital Pool Size</BoxItemTitle>
-          <BoxItemValue h2>
+          <BoxItemValue h2 nowrap>
             {`${truncateBalance(floatEther(parseEther(capitalPoolSize)), 1)} `}
             <BoxItemUnits h3>{Unit.ETH}</BoxItemUnits>
           </BoxItemValue>
         </BoxItem>
         <BoxItem>
           <BoxItemTitle h3>Total Value Locked</BoxItemTitle>
-          <BoxItemValue h2>
+          <BoxItemValue h2 nowrap>
             {`${truncateBalance(parseFloat(totalValueLocked), 1)} `}
             <BoxItemUnits h3>{Unit.ETH}</BoxItemUnits>
           </BoxItemValue>
         </BoxItem>
         <BoxItem>
           <BoxItemTitle h3>Active Cover Amount</BoxItemTitle>
-          <BoxItemValue h2>
+          <BoxItemValue h2 nowrap>
             {`${fixed(parseFloat(formatEther(totalActiveCoverAmount.toString())), 2)} `}
             <BoxItemUnits h3>{Unit.ETH}</BoxItemUnits>
           </BoxItemValue>
         </BoxItem>
         <BoxItem>
           <BoxItemTitle h3>Total Active Policies</BoxItemTitle>
-          <BoxItemValue h2>{totalActivePolicies}</BoxItemValue>
+          <BoxItemValue h2 nowrap>
+            {totalActivePolicies}
+          </BoxItemValue>
         </BoxItem>
       </Box>
     </BoxRow>
