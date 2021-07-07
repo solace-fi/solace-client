@@ -1,7 +1,7 @@
 import React from 'react'
 import styled from 'styled-components'
-import { HeightAndWidthProps } from '../generalInterfaces'
-import { TextAlignCss, TextAlignProps } from '../Text'
+import { HeightAndWidthProps, HeightAndWidthCss } from '../generalInterfaces'
+import { TextAlignProps, TextAlignCss } from '../Text'
 
 interface TableProps extends HeightAndWidthProps, TextAlignProps {
   isHighlight?: boolean
@@ -36,6 +36,8 @@ export const TableHeader = styled.th<TableProps>`
   text-overflow: ellipsis;
   text-align: left;
   white-space: nowrap;
+  ${HeightAndWidthCss}
+  ${TextAlignCss}
 `
 
 export const TableData = styled.td<TableProps>`
@@ -50,6 +52,8 @@ export const TableData = styled.td<TableProps>`
   }
   overflow: hidden;
   text-overflow: ellipsis;
+  ${HeightAndWidthCss}
+  ${TextAlignCss}
 `
 
 export const TableDataGroup = styled.div<TableProps>`
@@ -57,6 +61,8 @@ export const TableDataGroup = styled.div<TableProps>`
   display: grid;
   grid-template-columns: repeat(${(props) => React.Children.count(props.children)}, 1fr);
   gap: 16px;
+  ${HeightAndWidthCss}
+  ${TextAlignCss}
 `
 
 export const Table: React.FC<TableProps> = ({

@@ -63,7 +63,7 @@ import { useGetCancelFee, useGetQuote, useGetPolicyPrice } from '../../hooks/use
 
 /* import utils */
 import { getGasValue, truncateBalance, fixedPositionBalance } from '../../utils/formatting'
-import { fetchEtherscanLatestBlock } from '../../utils/etherscan'
+import { fetchEtherscanLatestBlockNumber } from '../../utils/etherscan'
 import { Policy, getAllPoliciesOfUser, ClaimAssessment, getClaimAssessment, getPositions } from '../../utils/paclas'
 import { getContract } from '../../utils'
 import { SmallBox } from '../../components/Box'
@@ -459,11 +459,11 @@ function Dashboard(): any {
 
   useEffect(() => {
     try {
-      const fetchLatestBlock = async () => {
-        const { latestBlockNumber } = await fetchEtherscanLatestBlock(Number(CHAIN_ID))
+      const fetchLatestBlockNumber = async () => {
+        const { latestBlockNumber } = await fetchEtherscanLatestBlockNumber(Number(CHAIN_ID))
         setLatestBlock(latestBlockNumber)
       }
-      fetchLatestBlock()
+      fetchLatestBlockNumber()
     } catch (e) {
       console.log(e)
     }
@@ -486,6 +486,15 @@ function Dashboard(): any {
       console.log(err)
     }
   }, [wallet.account, wallet.isActive, wallet.version])
+
+  useEffect(() => {
+    const getLatestBlock = async () => {
+      const { latestBlockNumber } = await fetchEtherscanLatestBlockNumber(Number(CHAIN_ID))
+      const latestBlock = await wallet.library.getBlock(latestBlockNumber)
+      console.log(latestBlock.timestamp)
+    }
+    getLatestBlock()
+  }, [wallet.dataVersion])
 
   /*************************************************************************************
 
@@ -672,9 +681,28 @@ function Dashboard(): any {
                         )}
                     </Text2>
                   </SmallBox>
+                  <SmallBox mt={10} collapse={assessment?.lossEventDetected}>
+                    <Text2 alignVertical error={!assessment?.lossEventDetected}>
+                      No loss event detected, unable to submit claims yet.
+                    </Text2>
+                  </SmallBox>
                   <ButtonWrapper>
-                    <Button onClick={() => submitClaim()}>Submit Claim</Button>
+                    <Button disabled={!assessment?.lossEventDetected} onClick={() => submitClaim()}>
+                      Submit Claim
+                    </Button>
                   </ButtonWrapper>
+                  <Table isHighlight>
+                    <TableBody>
+                      <TableRow>
+                        <TableData>
+                          <Text2>Claim</Text2>
+                        </TableData>
+                        <TableData textAlignRight>
+                          <Button>Payout</Button>
+                        </TableData>
+                      </TableRow>
+                    </TableBody>
+                  </Table>
                 </Fragment>
               ) : (
                 <Loader />
