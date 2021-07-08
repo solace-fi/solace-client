@@ -737,7 +737,9 @@ function Dashboard(): any {
                   </SmallBox>
                   <ButtonWrapper>
                     {!hasApproval(tokenAllowance, assessment?.amountIn) && tokenAllowance != '' && (
-                      <Button onClick={() => approve()}>Approve</Button>
+                      <Button disabled={!assessment?.lossEventDetected} onClick={() => approve()}>
+                        Approve
+                      </Button>
                     )}
                     <Button
                       disabled={!assessment?.lossEventDetected || !hasApproval(tokenAllowance, assessment?.amountIn)}
