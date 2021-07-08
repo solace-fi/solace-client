@@ -15,7 +15,7 @@ type Token = {
   balance: string
 }
 
-export const truncateBalance = (value: number, decimals = 6): string => {
+export const truncateBalance = (value: number | string, decimals = 6): string => {
   const str = value.toString()
   const decimalIndex = str.indexOf('.')
   if (decimalIndex == -1) {

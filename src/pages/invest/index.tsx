@@ -589,7 +589,7 @@ function Invest(): any {
                 value={amount}
               />
               <div style={{ position: 'absolute', top: '70%' }}>
-                Available: {func ? floatEther(getAssetBalanceByFunc()) : 0}
+                Available: {func ? truncateBalance(formatEther(getAssetBalanceByFunc()), 6) : 0}
               </div>
             </ModalCell>
             <ModalCell t3>
