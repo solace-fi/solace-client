@@ -65,8 +65,9 @@ import { useGetCancelFee, useGetQuote, useGetPolicyPrice } from '../../hooks/use
 import { getGasValue, truncateBalance, fixedPositionBalance } from '../../utils/formatting'
 import { fetchEtherscanLatestBlockNumber } from '../../utils/etherscan'
 import { Policy, getAllPoliciesOfUser, ClaimAssessment, getClaimAssessment, getPositions } from '../../utils/paclas'
-import { getContract } from '../../utils'
+import { getContract, hasApproval } from '../../utils'
 import { SmallBox } from '../../components/Box'
+import { useTokenAllowance } from '../../hooks/useTokenAllowance'
 
 /*************************************************************************************
 
@@ -118,6 +119,8 @@ function Dashboard(): any {
   const [coverLimit, setCoverLimit] = useState<string | null>(null)
   const [inputCoverage, setInputCoverage] = useState<string>('1')
   const [feedbackCoverage, setFeedbackCoverage] = useState<string>('1')
+  const [contractForAllowance, setContractForAllowance] = useState<Contract | null>(null)
+  const [claimId, setClaimId] = useState<any>(null)
 
   /*************************************************************************************
 
@@ -142,6 +145,7 @@ function Dashboard(): any {
   )
   const policyPrice = useGetPolicyPrice(selectedPolicy ? selectedPolicy.policyId : 0)
   const cancelFee = useGetCancelFee()
+  const tokenAllowance = useTokenAllowance(contractForAllowance, selectedProtocol?.address)
 
   /*************************************************************************************
 
@@ -152,7 +156,7 @@ function Dashboard(): any {
   const date = new Date()
   const blocksLeft = BigNumber.from(parseFloat(selectedPolicy ? selectedPolicy.expirationBlock : '0') - latestBlock)
   const coverAmount = BigNumber.from(selectedPolicy ? selectedPolicy.coverAmount : '0')
-  const price = BigNumber.from(policyPrice)
+  const price = BigNumber.from(policyPrice || '0')
   const refundAmount = blocksLeft
     .mul(coverAmount)
     .mul(price)
@@ -165,29 +169,40 @@ function Dashboard(): any {
 
   *************************************************************************************/
 
+  const approve = async () => {
+    setModalLoading(true)
+    if (!selectedProtocol || !assessment || !selectedPolicy) return
+    const { amountIn } = assessment
+    const txType = FunctionName.APPROVE
+    try {
+      const contractForAllowance = getContract(
+        selectedPolicy.positionContract,
+        cTokenABI,
+        wallet.library,
+        wallet.account
+      )
+      const approval = await contractForAllowance.approve(selectedProtocol.address, amountIn)
+      const approvalHash = approval.hash
+      makeTxToast(FunctionName.APPROVE, TransactionCondition.PENDING, approvalHash)
+      await approval.wait().then((receipt: any) => {
+        const status = receipt.status ? TransactionCondition.SUCCESS : TransactionCondition.FAILURE
+        makeTxToast(FunctionName.APPROVE, status, approvalHash)
+        wallet.reload()
+      })
+      setModalLoading(false)
+    } catch (err) {
+      makeTxToast(txType, TransactionCondition.CANCELLED)
+      setModalLoading(false)
+      wallet.reload()
+    }
+  }
+
   const submitClaim = async () => {
     setModalLoading(true)
     if (!selectedProtocol || !assessment || !selectedPolicy) return
     const { tokenIn, amountIn, tokenOut, amountOut, deadline, signature } = assessment
     const txType = FunctionName.SUBMIT_CLAIM
     try {
-      const cTokenContract = getContract(selectedPolicy.positionContract, cTokenABI, wallet.library, wallet.account)
-      const approval = await cTokenContract.approve(selectedProtocol.address, amountIn)
-      const approvalHash = approval.hash
-      const approvalPendingTx = {
-        hash: approvalHash,
-        type: FunctionName.APPROVE,
-        value: '0',
-        status: TransactionCondition.PENDING,
-        unit: Unit.ID,
-      }
-      makeTxToast(FunctionName.APPROVE, TransactionCondition.PENDING, approvalHash)
-      addLocalTransactions(approvalPendingTx)
-      await approval.wait().then((receipt: any) => {
-        const status = receipt.status ? TransactionCondition.SUCCESS : TransactionCondition.FAILURE
-        makeTxToast(FunctionName.APPROVE, status, approvalHash)
-        wallet.reload()
-      })
       const tx = await selectedProtocol.submitClaim(
         selectedPolicy?.policyId,
         tokenIn,
@@ -253,12 +268,45 @@ function Dashboard(): any {
     if (!selectedProtocol || !selectedPolicy) return
     const txType = FunctionName.CANCEL_POLICY
     try {
-      const tx = await selectedProtocol.cancelPolicy(selectedPolicy.policyId)
+      const tx = await selectedProtocol.cancelPolicy(selectedPolicy.policyId, {
+        gasPrice: getGasValue(wallet.gasPrices.selected.value),
+        gasLimit: 450000,
+      })
       const txHash = tx.hash
       const localTx = {
         hash: txHash,
         type: txType,
         value: String(selectedPolicy.policyId),
+        status: TransactionCondition.PENDING,
+        unit: Unit.ID,
+      }
+      closeModal()
+      addLocalTransactions(localTx)
+      wallet.reload()
+      makeTxToast(txType, TransactionCondition.PENDING, txHash)
+      await tx.wait().then((receipt: any) => {
+        const status = receipt.status ? TransactionCondition.SUCCESS : TransactionCondition.FAILURE
+        makeTxToast(txType, status, txHash)
+        wallet.reload()
+      })
+    } catch (err) {
+      makeTxToast(txType, TransactionCondition.CANCELLED)
+      setModalLoading(false)
+      wallet.reload()
+    }
+  }
+
+  const withdrawPayout = async () => {
+    setModalLoading(true)
+    if (!claimsEscrow || !claimId) return
+    const txType = FunctionName.WITHDRAW_PAYOUT
+    try {
+      const tx = await claimsEscrow.withdrawClaimsPayout(claimId)
+      const txHash = tx.hash
+      const localTx = {
+        hash: txHash,
+        type: txType,
+        value: String(claimId),
         status: TransactionCondition.PENDING,
         unit: Unit.ID,
       }
@@ -326,7 +374,7 @@ function Dashboard(): any {
           <TableData textAlignRight>
             {policy.status === PolicyStatus.ACTIVE && (
               <TableDataGroup>
-                <Button onClick={() => openStatusModal(policy)}>Claim Status</Button>
+                <Button onClick={() => openStatusModal(policy)}>Claim</Button>
                 <Button onClick={() => openManageModal(getDays(policy.expirationBlock), policy)}>Manage</Button>
               </TableDataGroup>
             )}
@@ -341,7 +389,7 @@ function Dashboard(): any {
       <Fragment>
         <BoxChooseRow>
           <BoxChooseCol>
-            <Text2>Id: {selectedPolicy?.policyId}</Text2>
+            <Text2>Policy Id: {selectedPolicy?.policyId}</Text2>
           </BoxChooseCol>
           <BoxChooseCol>
             <Text2>Days left: {getDays(selectedPolicy ? selectedPolicy.expirationBlock : '0')}</Text2>
@@ -359,19 +407,21 @@ function Dashboard(): any {
               Protocol - Position: {selectedPolicy?.productName} - {selectedPolicy?.positionName}
             </Text2>
           </BoxChooseCol>
-          <BoxChooseCol>
-            <Text2>
-              {coverLimit && !asyncLoading ? (
-                `Coverage: ${
-                  coverLimit.substring(0, coverLimit.length - 2) +
-                  '.' +
-                  coverLimit.substring(coverLimit.length - 2, coverLimit.length)
-                }%`
-              ) : (
-                <Loader width={10} height={10} />
-              )}
-            </Text2>
-          </BoxChooseCol>
+          {showManageModal && (
+            <BoxChooseCol>
+              <Text2>
+                {coverLimit && !asyncLoading ? (
+                  `Coverage: ${
+                    coverLimit.substring(0, coverLimit.length - 2) +
+                    '.' +
+                    coverLimit.substring(coverLimit.length - 2, coverLimit.length)
+                  }%`
+                ) : (
+                  <Loader width={10} height={10} />
+                )}
+              </Text2>
+            </BoxChooseCol>
+          )}
         </BoxChooseRow>
         <hr style={{ marginBottom: '20px' }} />
       </Fragment>
@@ -384,8 +434,10 @@ function Dashboard(): any {
     document.body.style.overflowY = 'hidden'
     setSelectedPolicy(policy)
     setAsyncLoading(true)
+    const tokenContract = getContract(policy.positionContract, cTokenABI, wallet.library, wallet.account)
     const assessment = await getClaimAssessment(String(policy.policyId))
     const balances = await getPositions(policy.productName.toLowerCase(), wallet.chainId ?? 1, wallet.account ?? '0x')
+    setContractForAllowance(tokenContract)
     getCoverLimit(policy, balances)
     setPositionBalances(balances)
     setAssessment(assessment)
@@ -491,7 +543,6 @@ function Dashboard(): any {
     const getLatestBlock = async () => {
       const { latestBlockNumber } = await fetchEtherscanLatestBlockNumber(Number(CHAIN_ID))
       const latestBlock = await wallet.library.getBlock(latestBlockNumber)
-      console.log(latestBlock.timestamp)
     }
     getLatestBlock()
   }, [wallet.dataVersion])
@@ -620,7 +671,7 @@ function Dashboard(): any {
                     <BoxChooseCol></BoxChooseCol>
                     <BoxChooseRow>
                       <BoxChooseCol>
-                        <BoxChooseText error={policyPrice !== '0' && refundAmount.lte(parseEther(cancelFee))}>
+                        <BoxChooseText error={policyPrice !== '' && refundAmount.lte(parseEther(cancelFee))}>
                           Refund amount: {formattedRefundAmount} ETH
                         </BoxChooseText>
                       </BoxChooseCol>
@@ -629,13 +680,13 @@ function Dashboard(): any {
                     <BoxChooseRow>
                       <BoxChooseCol>
                         <BoxChooseText>Cancellation fee: {cancelFee} ETH</BoxChooseText>
-                        {policyPrice !== '0' && refundAmount.lte(parseEther(cancelFee)) && (
+                        {policyPrice !== '' && refundAmount.lte(parseEther(cancelFee)) && (
                           <BoxChooseText error>Refund amount must offset cancellation fee</BoxChooseText>
                         )}
                       </BoxChooseCol>
                     </BoxChooseRow>
                     <BoxChooseRow style={{ justifyContent: 'flex-end' }}>
-                      {policyPrice !== '0' ? (
+                      {policyPrice !== '' ? (
                         <Button disabled={refundAmount.lte(parseEther(cancelFee))} onClick={() => cancelPolicy()}>
                           Cancel Policy
                         </Button>
@@ -652,7 +703,7 @@ function Dashboard(): any {
           </Modal>
           <Modal isOpen={showStatusModal}>
             <ModalHeader>
-              <Heading2>Policy Claim Status</Heading2>
+              <Heading2>Policy Claim</Heading2>
               <ModalCloseButton hidden={modalLoading} onClick={() => closeModal()} />
             </ModalHeader>
             <ModalContent>
@@ -660,8 +711,8 @@ function Dashboard(): any {
               {!modalLoading && !asyncLoading ? (
                 <Fragment>
                   <SmallBox>
-                    <Text2 alignVertical>Giving</Text2>
-                    <Text2 outlined>
+                    <Text2 alignVertical>
+                      Given{' '}
                       {positionBalances &&
                         positionBalances.map(
                           (position: any) =>
@@ -669,10 +720,8 @@ function Dashboard(): any {
                             `${truncateBalance(
                               fixedPositionBalance(assessment?.amountIn || '', position.token.decimals)
                             )} ${position.token.symbol}`
-                        )}
-                    </Text2>
-                    <Text2 alignVertical>for</Text2>
-                    <Text2 outlined>
+                        )}{' '}
+                      for{' '}
                       {positionBalances &&
                         positionBalances.map(
                           (position: any) =>
@@ -687,22 +736,19 @@ function Dashboard(): any {
                     </Text2>
                   </SmallBox>
                   <ButtonWrapper>
-                    <Button disabled={!assessment?.lossEventDetected} onClick={() => submitClaim()}>
+                    {!hasApproval(tokenAllowance, assessment?.amountIn) && tokenAllowance != '' && (
+                      <Button onClick={() => approve()}>Approve</Button>
+                    )}
+                    <Button
+                      disabled={!assessment?.lossEventDetected || !hasApproval(tokenAllowance, assessment?.amountIn)}
+                      onClick={() => submitClaim()}
+                    >
                       Submit Claim
                     </Button>
                   </ButtonWrapper>
-                  <Table isHighlight>
-                    <TableBody>
-                      <TableRow>
-                        <TableData>
-                          <Text2>Claim</Text2>
-                        </TableData>
-                        <TableData textAlignRight>
-                          <Button>Payout</Button>
-                        </TableData>
-                      </TableRow>
-                    </TableBody>
-                  </Table>
+                  <ButtonWrapper>
+                    <Button disabled={!claimId}>Withdraw Payout</Button>
+                  </ButtonWrapper>
                 </Fragment>
               ) : (
                 <Loader />

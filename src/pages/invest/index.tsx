@@ -13,7 +13,6 @@
     Invest function
       useRef variables
       Hook variables
-      useState variables
       Contract functions
       Local helper functions
       useEffect hooks
@@ -61,6 +60,7 @@ import { useScpBalance } from '../../hooks/useScpBalance'
 import { useUserStakedValue } from '../../hooks/useUserStakedValue'
 import { useFetchTxHistoryByAddress } from '../../hooks/useFetchTxHistoryByAddress'
 import { useTransactionDetails } from '../../hooks/useTransactionDetails'
+import { useTokenAllowance } from '../../hooks/useTokenAllowance'
 
 /* import utils */
 import { getEtherscanTxUrl } from '../../utils/etherscan'
@@ -75,7 +75,7 @@ import {
   floatEther,
   truncateBalance,
 } from '../../utils/formatting'
-import { getProviderOrSigner } from '../../utils/index'
+import { getProviderOrSigner, hasApproval } from '../../utils'
 import { timeAgo } from '../../utils/timeAgo'
 import { decodeInput } from '../../utils/decoder'
 
@@ -101,6 +101,19 @@ function Invest(): any {
 
   *************************************************************************************/
 
+  const [amount, setAmount] = useState<string>('')
+  const [func, setFunc] = useState<FunctionName>()
+  const [isStaking, setIsStaking] = useState<boolean>(false)
+  const [loading, setLoading] = useState<boolean>(false)
+  const [maxLoss, setMaxLoss] = useState<number>(5)
+  const [maxSelected, setMaxSelected] = useState<boolean>(false)
+  const [modalTitle, setModalTitle] = useState<string>('')
+  const [nft, setNft] = useState<BN>()
+  const [showModal, setShowModal] = useState<boolean>(false)
+  const [unit, setUnit] = useState<Unit>(Unit.ETH)
+  const [userVaultAssets, setUserVaultAssets] = useState<string>('0.00')
+  const [userVaultShare, setUserVaultShare] = useState<number>(0)
+  const [contractForAllowance, setContractForAllowance] = useState<Contract | null>(null)
   const [cpRewardsPerDay] = useRewardsPerDay(1)
   const [cpUserRewardsPerDay] = useUserRewardsPerDay(1, cpFarmContract.current)
   const [cpUserRewards] = useUserPendingRewards(cpFarmContract.current)
@@ -120,26 +133,8 @@ function Invest(): any {
   const { errors, makeTxToast } = useToasts()
   const { localTransactions, addLocalTransactions } = useUserData()
   const { master, vault, solace, cpFarm, lpFarm, lpToken, weth, registry } = useContracts()
-
-  /*************************************************************************************
-
-  useState variables
-
-  *************************************************************************************/
-
-  const [amount, setAmount] = useState<string>('')
-  const [func, setFunc] = useState<FunctionName>()
-  const [isStaking, setIsStaking] = useState<boolean>(false)
-  const [loading, setLoading] = useState<boolean>(false)
-  const [maxLoss, setMaxLoss] = useState<number>(5)
-  const [maxSelected, setMaxSelected] = useState<boolean>(false)
-  const [modalTitle, setModalTitle] = useState<string>('')
-  const [nft, setNft] = useState<BN>()
+  const tokenAllowance = useTokenAllowance(contractForAllowance, cpFarmContract.current?.address)
   const [selectedGasOption, setSelectedGasOption] = useState<GasFeeOption>(wallet.gasPrices.selected)
-  const [showModal, setShowModal] = useState<boolean>(false)
-  const [unit, setUnit] = useState<Unit>(Unit.ETH)
-  const [userVaultAssets, setUserVaultAssets] = useState<string>('0.00')
-  const [userVaultShare, setUserVaultShare] = useState<number>(0)
 
   /*************************************************************************************
 
@@ -220,27 +215,32 @@ function Invest(): any {
     }
   }
 
-  const callDepositCp = async () => {
+  const approve = async () => {
     setLoading(true)
     if (!cpFarmContract.current || !vaultContract.current) return
-    const txType = FunctionName.DEPOSIT_CP
+    const txType = FunctionName.APPROVE
     try {
       const approval = await vaultContract.current.approve(cpFarmContract.current.address, parseEther(amount))
       const approvalHash = approval.hash
-      const approvalPendingTx = {
-        hash: approvalHash,
-        type: FunctionName.APPROVE,
-        value: '0',
-        status: TransactionCondition.PENDING,
-        unit: unit,
-      }
       makeTxToast(FunctionName.APPROVE, TransactionCondition.PENDING, approvalHash)
-      addLocalTransactions(approvalPendingTx)
       await approval.wait().then((receipt: any) => {
         const status = receipt.status ? TransactionCondition.SUCCESS : TransactionCondition.FAILURE
         makeTxToast(FunctionName.APPROVE, status, approvalHash)
         wallet.reload()
       })
+      setLoading(false)
+    } catch (err) {
+      makeTxToast(txType, TransactionCondition.CANCELLED)
+      setLoading(false)
+      wallet.reload()
+    }
+  }
+
+  const callDepositCp = async () => {
+    setLoading(true)
+    if (!cpFarmContract.current || !vaultContract.current) return
+    const txType = FunctionName.DEPOSIT_CP
+    try {
       const tx = await cpFarmContract.current.depositCp(parseEther(amount), {
         gasPrice: getGasValue(selectedGasOption.value),
         gasLimit: GAS_LIMIT,
@@ -505,6 +505,7 @@ function Invest(): any {
   const openModal = (func: FunctionName, modalTitle: string, unit: Unit) => {
     setShowModal((prev) => !prev)
     document.body.style.overflowY = 'hidden'
+    setContractForAllowance(vaultContract.current || null)
     setUnit(unit)
     setModalTitle(modalTitle)
     setFunc(func)
@@ -639,9 +640,32 @@ function Invest(): any {
           ) : null}
           <ButtonWrapper>
             {!loading ? (
-              <Button hidden={loading} disabled={isAppropriateAmount() ? false : true} onClick={handleCallbackFunc}>
-                Confirm
-              </Button>
+              <ButtonWrapper>
+                {func == FunctionName.DEPOSIT_CP ? (
+                  <Fragment>
+                    {!hasApproval(tokenAllowance, amount ? parseEther(amount).toString() : '0') &&
+                      tokenAllowance != '' && (
+                        <Button disabled={isAppropriateAmount() ? false : true} onClick={() => approve()}>
+                          Approve
+                        </Button>
+                      )}
+                    <Button
+                      hidden={loading}
+                      disabled={
+                        (isAppropriateAmount() ? false : true) ||
+                        !hasApproval(tokenAllowance, amount ? parseEther(amount).toString() : '0')
+                      }
+                      onClick={handleCallbackFunc}
+                    >
+                      Confirm
+                    </Button>
+                  </Fragment>
+                ) : (
+                  <Button hidden={loading} disabled={isAppropriateAmount() ? false : true} onClick={handleCallbackFunc}>
+                    Confirm
+                  </Button>
+                )}
+              </ButtonWrapper>
             ) : (
               <Loader />
             )}

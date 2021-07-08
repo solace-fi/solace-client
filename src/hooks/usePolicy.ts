@@ -9,7 +9,7 @@ import { useWallet } from '../context/WalletManager'
 import { getPolicyPrice } from '../utils/paclas'
 
 export const useGetPolicyPrice = (policyId: number): string => {
-  const [policyPrice, setPolicyPrice] = useState<string>('0')
+  const [policyPrice, setPolicyPrice] = useState<string>('')
   const { selectedProtocol } = useContracts()
 
   const getPrice = async () => {
@@ -24,7 +24,7 @@ export const useGetPolicyPrice = (policyId: number): string => {
 
   useEffect(() => {
     getPrice()
-  }, [selectedProtocol])
+  }, [selectedProtocol, policyId])
 
   return policyPrice
 }
