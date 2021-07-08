@@ -113,7 +113,7 @@ function Dashboard(): any {
   const [loading, setLoading] = useState<boolean>(false)
   const [modalLoading, setModalLoading] = useState<boolean>(false)
   const [asyncLoading, setAsyncLoading] = useState<boolean>(false)
-  const [extendedTime, setExtendedTime] = useState<string>('1')
+  const [extendedTime, setExtendedTime] = useState<string>('0')
   const [selectedPolicy, setSelectedPolicy] = useState<Policy | undefined>(undefined)
   const [assessment, setAssessment] = useState<ClaimAssessment | null>(null)
   const [coverLimit, setCoverLimit] = useState<string | null>(null)
@@ -460,7 +460,7 @@ function Dashboard(): any {
     setShowManageModal(false)
     document.body.style.overflowY = 'scroll'
     setModalLoading(false)
-    setExtendedTime('1')
+    setExtendedTime('0')
   }
 
   const filteredTime = (input: string) => {
@@ -604,7 +604,7 @@ function Dashboard(): any {
                     <BoxChooseRow>
                       <BoxChooseCol>
                         <BoxChooseText>
-                          Add days (1 - {DAYS_PER_YEAR - getDays(selectedPolicy ? selectedPolicy.expirationBlock : '0')}{' '}
+                          Add days (0 - {DAYS_PER_YEAR - getDays(selectedPolicy ? selectedPolicy.expirationBlock : '0')}{' '}
                           days)
                         </BoxChooseText>
                       </BoxChooseCol>
@@ -613,9 +613,9 @@ function Dashboard(): any {
                           disabled={asyncLoading}
                           width={150}
                           backgroundColor={'#fff'}
-                          value={extendedTime == '' ? '1' : extendedTime}
+                          value={extendedTime == '' ? '0' : extendedTime}
                           onChange={(e) => setExtendedTime(e.target.value)}
-                          min="1"
+                          min="0"
                           max={DAYS_PER_YEAR - getDays(selectedPolicy ? selectedPolicy.expirationBlock : '0')}
                         />
                       </BoxChooseCol>
@@ -650,7 +650,7 @@ function Dashboard(): any {
                         <Input
                           readOnly
                           type="date"
-                          value={`${new Date(date.setDate(date.getDate() + parseFloat(extendedTime || '1')))
+                          value={`${new Date(date.setDate(date.getDate() + parseFloat(extendedTime || '0')))
                             .toISOString()
                             .substr(0, 10)}`}
                         />
