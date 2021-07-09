@@ -2,7 +2,7 @@ import { useWallet } from '../context/WalletManager'
 import { useEffect, useState } from 'react'
 import { Contract } from 'ethers'
 
-export const useTokenAllowance = (tokenContract: Contract | null, spender?: string): string => {
+export const useTokenAllowance = (tokenContract: Contract | null, spender: string | null): string => {
   const { library, account, version } = useWallet()
   const [allowance, setAllowance] = useState<string>('')
 

@@ -120,6 +120,7 @@ function Dashboard(): any {
   const [inputCoverage, setInputCoverage] = useState<string>('1')
   const [feedbackCoverage, setFeedbackCoverage] = useState<string>('1')
   const [contractForAllowance, setContractForAllowance] = useState<Contract | null>(null)
+  const [spenderAddress, setSpenderAddress] = useState<string | null>(null)
   const [claimId, setClaimId] = useState<any>(null)
 
   /*************************************************************************************
@@ -145,7 +146,7 @@ function Dashboard(): any {
   )
   const policyPrice = useGetPolicyPrice(selectedPolicy ? selectedPolicy.policyId : 0)
   const cancelFee = useGetCancelFee()
-  const tokenAllowance = useTokenAllowance(contractForAllowance, selectedProtocol?.address)
+  const tokenAllowance = useTokenAllowance(contractForAllowance, spenderAddress)
 
   /*************************************************************************************
 
@@ -174,13 +175,8 @@ function Dashboard(): any {
     if (!selectedProtocol || !assessment || !selectedPolicy) return
     const { amountIn } = assessment
     const txType = FunctionName.APPROVE
+    const contractForAllowance = getContract(selectedPolicy.positionContract, cTokenABI, wallet.library, wallet.account)
     try {
-      const contractForAllowance = getContract(
-        selectedPolicy.positionContract,
-        cTokenABI,
-        wallet.library,
-        wallet.account
-      )
       const approval = await contractForAllowance.approve(selectedProtocol.address, amountIn)
       const approvalHash = approval.hash
       makeTxToast(FunctionName.APPROVE, TransactionCondition.PENDING, approvalHash)
@@ -438,6 +434,7 @@ function Dashboard(): any {
     const assessment = await getClaimAssessment(String(policy.policyId))
     const balances = await getPositions(policy.productName.toLowerCase(), wallet.chainId ?? 1, wallet.account ?? '0x')
     setContractForAllowance(tokenContract)
+    setSpenderAddress(selectedProtocol?.address || null)
     getCoverLimit(policy, balances)
     setPositionBalances(balances)
     setAssessment(assessment)

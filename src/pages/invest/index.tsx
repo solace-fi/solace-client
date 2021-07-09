@@ -114,6 +114,7 @@ function Invest(): any {
   const [userVaultAssets, setUserVaultAssets] = useState<string>('0.00')
   const [userVaultShare, setUserVaultShare] = useState<number>(0)
   const [contractForAllowance, setContractForAllowance] = useState<Contract | null>(null)
+  const [spenderAddress, setSpenderAddress] = useState<string | null>(null)
   const [cpRewardsPerDay] = useRewardsPerDay(1)
   const [cpUserRewardsPerDay] = useUserRewardsPerDay(1, cpFarmContract.current)
   const [cpUserRewards] = useUserPendingRewards(cpFarmContract.current)
@@ -133,7 +134,7 @@ function Invest(): any {
   const { errors, makeTxToast } = useToasts()
   const { localTransactions, addLocalTransactions } = useUserData()
   const { master, vault, solace, cpFarm, lpFarm, lpToken, weth, registry } = useContracts()
-  const tokenAllowance = useTokenAllowance(contractForAllowance, cpFarmContract.current?.address)
+  const tokenAllowance = useTokenAllowance(contractForAllowance, spenderAddress)
   const [selectedGasOption, setSelectedGasOption] = useState<GasFeeOption>(wallet.gasPrices.selected)
 
   /*************************************************************************************
@@ -506,6 +507,7 @@ function Invest(): any {
     setShowModal((prev) => !prev)
     document.body.style.overflowY = 'hidden'
     setContractForAllowance(vaultContract.current || null)
+    setSpenderAddress(cpFarmContract.current?.address || null)
     setUnit(unit)
     setModalTitle(modalTitle)
     setFunc(func)
