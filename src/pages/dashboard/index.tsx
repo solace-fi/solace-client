@@ -61,7 +61,7 @@ import { ProtocolImage, Protocol, ProtocolTitle } from '../../components/Protoco
 /* import hooks */
 import { useUserStakedValue } from '../../hooks/useUserStakedValue'
 import { useUserPendingRewards, useUserRewardsPerDay } from '../../hooks/useRewards'
-import { useGetCancelFee, useGetQuote, useGetPolicyPrice } from '../../hooks/usePolicy'
+import { useGetCancelFee, useGetQuote, useGetPolicyPrice, useAppraisePosition } from '../../hooks/usePolicy'
 import { useTokenAllowance } from '../../hooks/useTokenAllowance'
 import { useClaimsEscrow } from '../../hooks/useClaimsEscrow'
 import { usePolicyGetter } from '../../hooks/useGetter'
@@ -159,7 +159,8 @@ function Dashboard(): any {
   const cancelFee = useGetCancelFee()
   const tokenAllowance = useTokenAllowance(contractForAllowance, spenderAddress)
   const { isWithdrawable, timeLeft } = useClaimsEscrow()
-  const { getPolicies, getUserPolicies, getAllPolicies } = usePolicyGetter()
+  const { getPolicies } = usePolicyGetter()
+  const { getAppraisePosition } = useAppraisePosition()
 
   /*************************************************************************************
 
@@ -344,11 +345,11 @@ function Dashboard(): any {
 
   *************************************************************************************/
 
-  const getCoverLimit = (policy: Policy | undefined, balances: any) => {
-    if (balances == undefined || policy == undefined) return null
+  const getCoverLimit = (policy: Policy | undefined, positionAmount: any) => {
+    if (positionAmount == undefined || policy == undefined) return null
     const coverAmount = policy.coverAmount
-    const positionAmount = balances.filter((balance: any) => policy.positionName == balance.underlying.symbol)[0].eth
-      .balance
+    // FROM PACLAS const positionAmount = balances.filter((balance: any) => policy.positionName == balance.underlying.symbol)[0].eth
+    //   .balance
     const coverLimit = BigNumber.from(coverAmount).mul('10000').div(positionAmount).toString()
     setCoverLimit(coverLimit)
     setFeedbackCoverage(coverLimit)
@@ -467,9 +468,13 @@ function Dashboard(): any {
     const tokenContract = getContract(policy.positionContract, cTokenABI, wallet.library, wallet.account)
     const assessment = await getClaimAssessment(String(policy.policyId))
     const balances = await getPositions(policy.productName.toLowerCase(), wallet.chainId ?? 1, wallet.account ?? '0x')
+    const positionAmount = await getAppraisePosition(
+      getProtocolByName(policy.productName.toLowerCase()),
+      policy.positionContract
+    )
     setContractForAllowance(tokenContract)
     setSpenderAddress(getProtocolByName(policy.productName.toLowerCase())?.address || null)
-    getCoverLimit(policy, balances)
+    getCoverLimit(policy, positionAmount)
     setPositionBalances(balances)
     setAssessment(assessment)
     setAsyncLoading(false)
@@ -481,8 +486,12 @@ function Dashboard(): any {
     document.body.style.overflowY = 'hidden'
     setSelectedPolicy(policy)
     setAsyncLoading(true)
-    const balances = await getPositions(policy.productName.toLowerCase(), wallet.chainId ?? 1, wallet.account ?? '0x')
-    getCoverLimit(policy, balances)
+    // const balances = await getPositions(policy.productName.toLowerCase(), wallet.chainId ?? 1, wallet.account ?? '0x')
+    const positionAmount = await getAppraisePosition(
+      getProtocolByName(policy.productName.toLowerCase()),
+      policy.positionContract
+    )
+    getCoverLimit(policy, positionAmount)
     setAsyncLoading(false)
   }
 

@@ -1,5 +1,5 @@
 import useDebounce from '@rooks/use-debounce'
-import { BigNumber } from 'ethers'
+import { BigNumber, Contract } from 'ethers'
 import { formatEther } from 'ethers/lib/utils'
 import React, { useEffect, useState } from 'react'
 import { GAS_LIMIT, NUM_BLOCKS_PER_DAY } from '../constants'
@@ -27,6 +27,22 @@ export const useGetPolicyPrice = (policyId: number): string => {
   }, [selectedProtocol, policyId])
 
   return policyPrice
+}
+
+export const useAppraisePosition = () => {
+  const wallet = useWallet()
+
+  const getAppraisePosition = async (product: Contract | null, positionContractAddress: string) => {
+    if (!product || !positionContractAddress) return
+    try {
+      const positionAmount = await product.appraisePosition(wallet.account, positionContractAddress)
+      return positionAmount
+    } catch (err) {
+      console.log('AppraisePosition', err)
+    }
+  }
+
+  return { getAppraisePosition }
 }
 
 export const useGetMaxCoverPerUser = (): string => {
