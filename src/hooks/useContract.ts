@@ -15,6 +15,7 @@ import claimsEscrowABI from '../constants/abi/contracts/ClaimsEscrow.sol/ClaimsE
 import lpTokenArtifact from '../../node_modules/@uniswap/v3-periphery/artifacts/contracts/NonfungiblePositionManager.sol/NonfungiblePositionManager.json'
 
 import compAbi from '../constants/abi/contracts/products/CompoundProductRinkeby.sol/CompoundProductRinkeby.json'
+import polMagABI from '../constants/abi/contracts/PolicyManager.sol/PolicyManager.json'
 
 import {
   SOLACE_CONTRACT_ADDRESS,
@@ -32,6 +33,7 @@ import {
   ADDRESS_ZERO,
   COMPOUND_PRODUCT_CONTRACT_ADDRESS,
   CLAIMS_ESCROW_CONTRACT_ADDRESS,
+  POLICY_MANAGER_CONTRACT_ADDRESS,
 } from '../constants'
 
 export function useContract(address: string, abi: any, hasSigner = true): Contract | null {
@@ -100,6 +102,14 @@ export function useCompoundProductContract(hasSigner?: boolean): Contract | null
   return useContract(
     COMPOUND_PRODUCT_CONTRACT_ADDRESS ? COMPOUND_PRODUCT_CONTRACT_ADDRESS : ADDRESS_ZERO,
     compAbi,
+    hasSigner
+  )
+}
+
+export function usePolicyManagerContract(hasSigner?: boolean): Contract | null {
+  return useContract(
+    POLICY_MANAGER_CONTRACT_ADDRESS ? POLICY_MANAGER_CONTRACT_ADDRESS : ADDRESS_ZERO,
+    polMagABI,
     hasSigner
   )
 }

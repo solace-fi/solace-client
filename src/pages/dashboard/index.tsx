@@ -63,11 +63,13 @@ import { useUserStakedValue } from '../../hooks/useUserStakedValue'
 import { useUserPendingRewards, useUserRewardsPerDay } from '../../hooks/useRewards'
 import { useGetCancelFee, useGetQuote, useGetPolicyPrice } from '../../hooks/usePolicy'
 import { useTokenAllowance } from '../../hooks/useTokenAllowance'
+import { useClaimsEscrow } from '../../hooks/useClaimsEscrow'
+import { usePolicyGetter } from '../../hooks/useGetter'
 
 /* import utils */
 import { getGasValue, truncateBalance, fixedPositionBalance } from '../../utils/formatting'
 import { fetchEtherscanLatestBlockNumber } from '../../utils/etherscan'
-import { Policy, getAllPoliciesOfUser, ClaimAssessment, getClaimAssessment, getPositions } from '../../utils/paclas'
+import { Policy, getUserPolicies, ClaimAssessment, getClaimAssessment, getPositions } from '../../utils/paclas'
 import { getContract, hasApproval } from '../../utils'
 
 /*************************************************************************************
@@ -137,7 +139,14 @@ function Dashboard(): any {
   const [lpUserRewardsPerDay] = useUserRewardsPerDay(2, lpFarmContract.current)
   const cpUserStakeValue = useUserStakedValue(cpFarmContract.current)
   const lpUserStakeValue = useUserStakedValue(lpFarmContract.current)
-  const { cpFarm, lpFarm, selectedProtocol, setSelectedProtocolByName, claimsEscrow } = useContracts()
+  const {
+    cpFarm,
+    lpFarm,
+    selectedProtocol,
+    claimsEscrow,
+    setSelectedProtocolByName,
+    getProtocolByName,
+  } = useContracts()
   const { addLocalTransactions } = useUserData()
   const { makeTxToast } = useToasts()
   const wallet = useWallet()
@@ -149,6 +158,8 @@ function Dashboard(): any {
   const policyPrice = useGetPolicyPrice(selectedPolicy ? selectedPolicy.policyId : 0)
   const cancelFee = useGetCancelFee()
   const tokenAllowance = useTokenAllowance(contractForAllowance, spenderAddress)
+  const { isWithdrawable, timeLeft } = useClaimsEscrow()
+  const { getPolicies, getUserPolicies, getAllPolicies } = usePolicyGetter()
 
   /*************************************************************************************
 
@@ -212,15 +223,18 @@ function Dashboard(): any {
       )
       const txHash = tx.hash
       const localTx = { hash: txHash, type: txType, value: '0', status: TransactionCondition.PENDING, unit: Unit.ID }
-      closeModal()
       addLocalTransactions(localTx)
       wallet.reload()
       makeTxToast(txType, TransactionCondition.PENDING, txHash)
       await tx.wait().then((receipt: any) => {
         const status = receipt.status ? TransactionCondition.SUCCESS : TransactionCondition.FAILURE
+        const rawClaimId = receipt.logs[2].topics[1]
+        console.log(receipt)
+        setClaimId(parseInt(rawClaimId))
         makeTxToast(txType, status, txHash)
         wallet.reload()
       })
+      setModalLoading(false)
     } catch (err) {
       makeTxToast(txType, TransactionCondition.CANCELLED)
       setModalLoading(false)
@@ -454,7 +468,7 @@ function Dashboard(): any {
     const assessment = await getClaimAssessment(String(policy.policyId))
     const balances = await getPositions(policy.productName.toLowerCase(), wallet.chainId ?? 1, wallet.account ?? '0x')
     setContractForAllowance(tokenContract)
-    setSpenderAddress(selectedProtocol?.address || null)
+    setSpenderAddress(getProtocolByName(policy.productName.toLowerCase())?.address || null)
     getCoverLimit(policy, balances)
     setPositionBalances(balances)
     setAssessment(assessment)
@@ -545,8 +559,10 @@ function Dashboard(): any {
 
     try {
       const fetchPolicies = async () => {
+        if (!wallet.account) return
         setLoading(true)
-        const policies = await getAllPoliciesOfUser(wallet.account as string, Number(CHAIN_ID))
+        // PACLAS: const policies = await getUserPolicies(wallet.account as string, Number(CHAIN_ID))
+        const policies = await getPolicies(wallet.account)
         setPolicies(policies)
         setLoading(false)
       }
@@ -563,6 +579,17 @@ function Dashboard(): any {
     }
     getLatestBlock()
   }, [wallet.dataVersion])
+
+  useEffect(() => {
+    const checkClaim = async () => {
+      if (claimId) {
+        console.log(typeof claimId, claimId)
+        const withdrawable: any = await isWithdrawable(claimId)
+        const time: any = await timeLeft(claimId)
+      }
+    }
+    checkClaim()
+  }, [claimId])
 
   /*************************************************************************************
 
@@ -752,7 +779,7 @@ function Dashboard(): any {
                       No loss event detected, unable to submit claims yet.
                     </Text2>
                   </SmallBox>
-                  {!hasApproval(tokenAllowance, assessment?.amountIn) && tokenAllowance != '' && (
+                  {!hasApproval(tokenAllowance, assessment?.amountIn) && !claimId && (
                     <ButtonWrapper>
                       <Button widthP={100} disabled={!assessment?.lossEventDetected} onClick={() => approve()}>
                         Approve Solace Protocol to transfer your{' '}
@@ -790,7 +817,9 @@ function Dashboard(): any {
                           <Text2>Payout Status</Text2>
                         </TableData>
                         <TableData textAlignRight>
-                          <Button disabled={!claimId}>Withdraw Payout</Button>
+                          <Button disabled={!claimId} onClick={() => withdrawPayout()}>
+                            Withdraw Payout
+                          </Button>
                         </TableData>
                       </TableRow>
                     </TableBody>

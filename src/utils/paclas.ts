@@ -49,7 +49,7 @@ export async function getAllPolicies(chainId: number): Promise<Policy[]> {
   return handleResponse(data)
 }
 
-export async function getAllPoliciesOfUser(user: string, chainId: number): Promise<Policy[]> {
+export async function getUserPolicies(user: string, chainId: number): Promise<Policy[]> {
   const { data } = await axios.get(PACLAS_POLICY_ENDPOINT, { params: { user: user, chainId: chainId } })
   return handleResponse(data)
 }

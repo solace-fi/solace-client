@@ -35,7 +35,7 @@ import { Heading1 } from '../../components/Text'
 
 /* import utils */
 import { fixedTokenPositionBalance, truncateBalance } from '../../utils/formatting'
-import { getAllPoliciesOfUser, getPositions } from '../../utils/paclas'
+import { getUserPolicies, getPositions } from '../../utils/paclas'
 import { PolicyStatus } from '../../constants/enums'
 
 export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigation }) => {
@@ -144,7 +144,7 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
   useEffect(() => {
     try {
       const fetchPolicies = async () => {
-        const policies = await getAllPoliciesOfUser(account as string, Number(chainId))
+        const policies = await getUserPolicies(account as string, Number(chainId))
 
         // tuple data type: [product, position, isActive]
         // [['compound', 'eth', true], ['compound', 'dai', false],..,]
