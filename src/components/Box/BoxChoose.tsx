@@ -1,12 +1,14 @@
 import styled, { css } from 'styled-components'
 import { Input } from '../Input'
 import { TextStyleCss, TextStyleProps } from '../Text'
+import { GeneralElementProps, GeneralElementCss } from '../generalInterfaces'
 
-export const BoxChooseRow = styled.div`
+export const BoxChooseRow = styled.div<GeneralElementProps>`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 24px;
+  ${GeneralElementCss}
+  ${(props) => !props.mb && 'margin-bottom: 24px;'}
 `
 
 export const BoxChooseCol = styled.div`

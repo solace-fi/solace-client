@@ -135,6 +135,10 @@ export const GeneralTextCss = css<GeneralTextProps>`
   ${TextStyleCss}
 `
 
+export const Text = styled.div<GeneralTextProps>`
+  ${GeneralTextCss}
+`
+
 export const Text1 = styled.div<GeneralTextProps>`
   ${Text1Css}
   ${GeneralTextCss}

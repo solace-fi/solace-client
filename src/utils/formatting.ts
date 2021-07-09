@@ -73,6 +73,7 @@ export const shortenAddress = (input: string): string => {
 // get unit based on function name
 export const getUnit = (function_name: string): Unit => {
   switch (function_name) {
+    // TODO: FunctionName.WITHDRAW_PAYOUT
     case FunctionName.DEPOSIT:
     case FunctionName.WITHDRAW:
     case FunctionName.DEPOSIT_ETH:
@@ -94,6 +95,7 @@ export const getUnit = (function_name: string): Unit => {
 export const formatTransactionContent = (function_name: string, amount: string): string => {
   const unit = getUnit(function_name)
   switch (function_name) {
+    // TODO: FunctionName.WITHDRAW_PAYOUT
     case FunctionName.BUY_POLICY:
     case FunctionName.EXTEND_POLICY:
     case FunctionName.CANCEL_POLICY:

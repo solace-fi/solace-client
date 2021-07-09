@@ -48,7 +48,7 @@ import { useToasts } from '../../context/NotificationsManager'
 /* import components */
 import { Content, HeroContainer } from '../../components/Layout'
 import { CardContainer, InvestmentCardComponent, CardHeader, CardTitle, CardBlock } from '../../components/Card'
-import { Heading1, Heading2, Heading3, Text1, Text2 } from '../../components/Text'
+import { Heading1, Heading2, Heading3, Text1, Text2, Text3 } from '../../components/Text'
 import { Button, ButtonWrapper } from '../../components/Button'
 import { Table, TableHead, TableHeader, TableRow, TableBody, TableData, TableDataGroup } from '../../components/Table'
 import { Modal, ModalHeader, ModalContent, ModalCloseButton } from '../../components/Modal'
@@ -77,15 +77,16 @@ styled components
 
 const UpdatePolicySec = styled.div`
   display: grid;
-  grid-template-columns: 3fr 1fr;
-  grid-template-rows: 1fr 1fr 1fr 1fr;
+  grid-template-columns: 440px 150px;
+  grid-template-rows: 1fr 1fr 1fr;
   justify-content: space-between;
+  margin-bottom: 20px;
 `
 
 const CancelPolicySec = styled.div`
   display: grid;
-  grid-template-columns: 3fr 1fr;
-  grid-template-rows: 1fr 1fr 1fr;
+  grid-template-columns: 440px 150px;
+  grid-template-rows: 1fr 1fr;
   justify-content: space-between;
 `
 
@@ -394,7 +395,10 @@ function Dashboard(): any {
         <BoxChooseRow>
           <BoxChooseCol></BoxChooseCol>
           <BoxChooseCol>
-            <Text2>Cover Amount: {selectedPolicy?.coverAmount ? formatEther(selectedPolicy.coverAmount) : 0} ETH</Text2>
+            <Text2>
+              Cover Amount: {selectedPolicy?.coverAmount ? truncateBalance(formatEther(selectedPolicy.coverAmount)) : 0}{' '}
+              ETH
+            </Text2>
           </BoxChooseCol>
         </BoxChooseRow>
         <BoxChooseRow>
@@ -564,15 +568,43 @@ function Dashboard(): any {
               <ModalCloseButton hidden={modalLoading} onClick={() => closeModal()} />
             </ModalHeader>
             <ModalContent>
-              <PolicyInfo />
+              <BoxChooseRow>
+                <BoxChooseCol>
+                  <Text2>Policy Id: {selectedPolicy?.policyId}</Text2>
+                </BoxChooseCol>
+                <BoxChooseCol>
+                  <Text2>{getDays(selectedPolicy ? selectedPolicy.expirationBlock : '0')} days until expiration</Text2>
+                </BoxChooseCol>
+              </BoxChooseRow>
+              <BoxChooseRow>
+                <BoxChooseCol>
+                  <Text3>
+                    {coverLimit && !asyncLoading ? (
+                      `Coverage: ${
+                        coverLimit.substring(0, coverLimit.length - 2) +
+                        '.' +
+                        coverLimit.substring(coverLimit.length - 2, coverLimit.length)
+                      }%`
+                    ) : (
+                      <Loader width={10} height={10} />
+                    )}
+                  </Text3>
+                </BoxChooseCol>
+                <BoxChooseCol>
+                  <Text3>
+                    Cover Amount:{' '}
+                    {selectedPolicy?.coverAmount ? truncateBalance(formatEther(selectedPolicy.coverAmount)) : 0} ETH
+                  </Text3>
+                </BoxChooseCol>
+              </BoxChooseRow>
+              <hr style={{ marginBottom: '20px' }} />{' '}
               {!modalLoading ? (
                 <Fragment>
+                  <BoxChooseRow>
+                    <Text1>Update Policy</Text1>
+                  </BoxChooseRow>
                   <UpdatePolicySec>
-                    <BoxChooseRow>
-                      <Text1>Update Policy</Text1>
-                    </BoxChooseRow>
-                    <BoxChooseCol></BoxChooseCol>
-                    <BoxChooseRow>
+                    <BoxChooseRow mb={10}>
                       <BoxChooseCol>
                         <BoxChooseText>Edit coverage (1 - 100%)</BoxChooseText>
                       </BoxChooseCol>
@@ -598,7 +630,7 @@ function Dashboard(): any {
                       </BoxChooseCol>
                     </BoxChooseRow>
                     <BoxChooseCol></BoxChooseCol>
-                    <BoxChooseRow>
+                    <BoxChooseRow mb={10}>
                       <BoxChooseCol>
                         <BoxChooseText>
                           Add days (0 - {DAYS_PER_YEAR - getDays(selectedPolicy ? selectedPolicy.expirationBlock : '0')}{' '}
@@ -629,7 +661,7 @@ function Dashboard(): any {
                       </BoxChooseCol>
                     </BoxChooseRow>
                     <BoxChooseCol></BoxChooseCol>
-                    <BoxChooseRow>
+                    <BoxChooseRow mb={10}>
                       <BoxChooseDate>
                         Current expiration{' '}
                         <Input
@@ -653,7 +685,7 @@ function Dashboard(): any {
                         />
                       </BoxChooseDate>
                     </BoxChooseRow>
-                    <BoxChooseRow style={{ justifyContent: 'flex-end' }}>
+                    <BoxChooseRow mb={10} style={{ justifyContent: 'flex-end' }}>
                       {!asyncLoading ? (
                         <Button onClick={() => extendPolicy()}>Update Policy</Button>
                       ) : (
@@ -661,12 +693,11 @@ function Dashboard(): any {
                       )}
                     </BoxChooseRow>
                   </UpdatePolicySec>
+                  <BoxChooseRow>
+                    <Text1>Cancel Policy</Text1>
+                  </BoxChooseRow>
                   <CancelPolicySec>
-                    <BoxChooseRow>
-                      <Text1>Cancel Policy</Text1>
-                    </BoxChooseRow>
-                    <BoxChooseCol></BoxChooseCol>
-                    <BoxChooseRow>
+                    <BoxChooseRow mb={10}>
                       <BoxChooseCol>
                         <BoxChooseText error={policyPrice !== '' && refundAmount.lte(parseEther(cancelFee))}>
                           Refund amount: {formattedRefundAmount} ETH
@@ -674,7 +705,7 @@ function Dashboard(): any {
                       </BoxChooseCol>
                     </BoxChooseRow>
                     <BoxChooseCol></BoxChooseCol>
-                    <BoxChooseRow>
+                    <BoxChooseRow mb={10}>
                       <BoxChooseCol>
                         <BoxChooseText>Cancellation fee: {cancelFee} ETH</BoxChooseText>
                         {policyPrice !== '' && refundAmount.lte(parseEther(cancelFee)) && (
@@ -682,7 +713,7 @@ function Dashboard(): any {
                         )}
                       </BoxChooseCol>
                     </BoxChooseRow>
-                    <BoxChooseRow style={{ justifyContent: 'flex-end' }}>
+                    <BoxChooseRow mb={10} style={{ justifyContent: 'flex-end' }}>
                       {policyPrice !== '' ? (
                         <Button disabled={refundAmount.lte(parseEther(cancelFee))} onClick={() => cancelPolicy()}>
                           Cancel Policy

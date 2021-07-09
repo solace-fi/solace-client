@@ -45,7 +45,7 @@ import { Modal, ModalHeader, ModalContent, ModalRow, ModalCell, ModalCloseButton
 import { RadioElement, RadioInput, RadioGroup, RadioLabel } from '../../components/Radio'
 import { Table, TableHead, TableHeader, TableRow, TableBody, TableData, TableDataGroup } from '../../components/Table'
 import { Button, ButtonWrapper } from '../../components/Button'
-import { Heading1, Heading2 } from '../../components/Text'
+import { Heading1, Heading2, Text } from '../../components/Text'
 import { Content } from '../../components/Layout'
 import { HyperLink } from '../../components/Link'
 import { RadioCircle, RadioCircleFigure, RadioCircleInput } from '../../components/Radio/RadioCircle'
@@ -871,7 +871,11 @@ function Invest(): any {
                     )}
                   </TableData>
                   <TableData>
-                    {transactionDetails.length > 0 && (tx.txreceipt_status == '1' ? 'Complete' : 'Failed')}
+                    {transactionDetails.length > 0 && (
+                      <Text error={tx.txreceipt_status != '1'}>
+                        {tx.txreceipt_status == '1' ? 'Complete' : 'Failed'}
+                      </Text>
+                    )}
                   </TableData>
                 </TableRow>
               ))}
