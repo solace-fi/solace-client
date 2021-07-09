@@ -45,10 +45,10 @@ export const LayoutContent = styled.div<HeightAndWidthProps>`
   ${(props) => (props.width ? `width: ${(props.width / 100) * MAX_WIDTH}px;` : 'width: 100%;')}
 `
 
-export const HeroContainer = styled(FlexCol)`
+export const HeroContainer = styled(FlexCol)<HeightAndWidthProps>`
   align-items: center;
   justify-content: center;
-  min-height: 400px;
+  height: ${(props) => (props.height ? props.height : '400')}px;
 `
 
 export const Content = styled.div`

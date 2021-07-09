@@ -10,7 +10,6 @@ export const User = styled.div`
 `
 
 export const UserImage = styled.div<GeneralElementProps>`
-  ${GeneralElementCss}
   grid-column: 1/2;
   grid-row: 1/3;
   width: 30px;
@@ -20,6 +19,7 @@ export const UserImage = styled.div<GeneralElementProps>`
     height: 100%;
     object-fit: cover;
   }
+  ${GeneralElementCss}
 `
 
 export const UserBase = css`

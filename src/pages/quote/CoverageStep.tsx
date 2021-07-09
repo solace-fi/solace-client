@@ -279,7 +279,7 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
             <BoxChooseCol>
               <FlexRow>
                 <BoxChooseText
-                  alignVertical
+                  autoAlign
                   bold
                   error={parseEther(coveredAssets).gt(parseEther(maxCoverPerUser)) && maxCoverPerUser !== '0.00'}
                 >
@@ -298,7 +298,7 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
             mt={-10}
             collapse={!parseEther(coveredAssets).gt(parseEther(maxCoverPerUser))}
           >
-            <Text3 error alignVertical>
+            <Text3 error autoAlign>
               You can only cover to a maximum amount of {maxCoverPerUser} ETH.
             </Text3>
           </SmallBox>

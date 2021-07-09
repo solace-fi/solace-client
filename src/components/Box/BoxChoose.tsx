@@ -7,8 +7,8 @@ export const BoxChooseRow = styled.div<GeneralElementProps>`
   display: flex;
   align-items: center;
   justify-content: space-between;
+  ${(props) => props.mb !== undefined && 'margin-bottom: 24px;'}
   ${GeneralElementCss}
-  ${(props) => !props.mb && 'margin-bottom: 24px;'}
 `
 
 export const BoxChooseCol = styled.div`

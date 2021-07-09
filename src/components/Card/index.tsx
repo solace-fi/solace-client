@@ -66,27 +66,18 @@ export const CardTitle = styled.div<GeneralTextProps>`
 
 export const CardBlock = styled.div``
 
-export const InvestmentCardComponent: React.FC<CardProps & GeneralTextProps> = ({
-  cardsPerRow,
-  transparent,
-  children,
-}) => {
-  return (
-    <InvestmentCard cardsPerRow={cardsPerRow} transparent={transparent}>
-      {children}
-    </InvestmentCard>
-  )
+export const InvestmentCardComponent: React.FC<CardProps & GeneralTextProps> = ({ transparent, children }) => {
+  return <InvestmentCard transparent={transparent}>{children}</InvestmentCard>
 }
 
 export const PositionCardComponent: React.FC<CardProps & GeneralTextProps> = ({
   onClick,
-  cardsPerRow,
   transparent,
   children,
   disabled,
 }) => {
   return (
-    <PositionCard cardsPerRow={cardsPerRow} transparent={transparent} disabled={disabled} onClick={onClick}>
+    <PositionCard transparent={transparent} disabled={disabled} onClick={onClick}>
       {children}
     </PositionCard>
   )

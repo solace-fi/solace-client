@@ -53,10 +53,9 @@ const BoxOutline = css`
 `
 
 export const Box = styled(BoxRow)<BoxProps & GeneralElementProps>`
-  ${BoxPropsHandler}
   align-items: center;
   border-radius: 10px;
-  ${(props) => !props.purple && !props.transparent && 'background-color: rgba(0, 255, 209, 0.3);'}
+  background-color: rgba(0, 255, 209, 0.3);
   ${(props) =>
     props.p !== undefined ||
     props.pt !== undefined ||
@@ -65,6 +64,7 @@ export const Box = styled(BoxRow)<BoxProps & GeneralElementProps>`
     props.pb !== undefined
       ? null
       : `padding: 24px;`}
+  ${BoxPropsHandler}
 `
 
 export const SmallBox = styled.div<BoxProps & SmallBoxProps & GeneralElementProps>`

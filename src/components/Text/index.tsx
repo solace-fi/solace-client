@@ -18,7 +18,7 @@ export interface TextAlignProps {
 export interface TextStyleProps {
   nowrap?: boolean
   outlined?: boolean
-  alignVertical?: boolean
+  autoAlign?: boolean
   bold?: boolean
   error?: boolean
   warning?: boolean
@@ -88,7 +88,7 @@ const AlignVerticalCss = css`
   line-height: 30px;
 `
 
-const AlignVerticalAutoCss = css`
+const AlignAutoCss = css`
   ${AlignVerticalCss}
   margin: auto;
 `
@@ -123,7 +123,7 @@ export const TextAlignCss = css<TextAlignProps>`
 export const TextStyleCss = css<TextStyleProps>`
   ${(props) => props.nowrap && NoWrapCss}
   ${(props) => props.outlined && TextOutlineCss}
-  ${(props) => props.alignVertical && AlignVerticalAutoCss}
+  ${(props) => props.autoAlign && AlignAutoCss}
   ${(props) => props.bold && 'font-weight: 600;'}
   ${(props) => props.error && 'color: rgba(219, 44, 56);'}
   ${(props) => props.warning && 'color: rgba(254, 249, 154);'}

@@ -54,20 +54,21 @@ import { Table, TableHead, TableHeader, TableRow, TableBody, TableData, TableDat
 import { Modal, ModalHeader, ModalContent, ModalCloseButton } from '../../components/Modal'
 import { Input } from '../../components/Input'
 import { BoxChooseDate, BoxChooseCol, BoxChooseRow, BoxChooseText } from '../../components/Box/BoxChoose'
+import { Box, BoxItem, BoxItemTitle, BoxItemValue, SmallBox } from '../../components/Box'
 import { Loader } from '../../components/Loader'
+import { ProtocolImage, Protocol, ProtocolTitle } from '../../components/Protocol'
 
 /* import hooks */
 import { useUserStakedValue } from '../../hooks/useUserStakedValue'
 import { useUserPendingRewards, useUserRewardsPerDay } from '../../hooks/useRewards'
 import { useGetCancelFee, useGetQuote, useGetPolicyPrice } from '../../hooks/usePolicy'
+import { useTokenAllowance } from '../../hooks/useTokenAllowance'
 
 /* import utils */
 import { getGasValue, truncateBalance, fixedPositionBalance } from '../../utils/formatting'
 import { fetchEtherscanLatestBlockNumber } from '../../utils/etherscan'
 import { Policy, getAllPoliciesOfUser, ClaimAssessment, getClaimAssessment, getPositions } from '../../utils/paclas'
 import { getContract, hasApproval } from '../../utils'
-import { SmallBox } from '../../components/Box'
-import { useTokenAllowance } from '../../hooks/useTokenAllowance'
 
 /*************************************************************************************
 
@@ -384,45 +385,60 @@ function Dashboard(): any {
   const PolicyInfo = () => {
     return (
       <Fragment>
-        <BoxChooseRow>
-          <BoxChooseCol>
-            <Text2>Policy Id: {selectedPolicy?.policyId}</Text2>
-          </BoxChooseCol>
-          <BoxChooseCol>
-            <Text2>Days left: {getDays(selectedPolicy ? selectedPolicy.expirationBlock : '0')}</Text2>
-          </BoxChooseCol>
-        </BoxChooseRow>
-        <BoxChooseRow>
-          <BoxChooseCol></BoxChooseCol>
-          <BoxChooseCol>
-            <Text2>
-              Cover Amount: {selectedPolicy?.coverAmount ? truncateBalance(formatEther(selectedPolicy.coverAmount)) : 0}{' '}
-              ETH
-            </Text2>
-          </BoxChooseCol>
-        </BoxChooseRow>
-        <BoxChooseRow>
-          <BoxChooseCol>
-            <Text2>
-              Protocol - Position: {selectedPolicy?.productName} - {selectedPolicy?.positionName}
-            </Text2>
-          </BoxChooseCol>
-          {showManageModal && (
+        <Box transparent pl={10} pr={10} pt={20} pb={20}>
+          <BoxItem>
+            <BoxItemTitle h3>Policy ID</BoxItemTitle>
+            <BoxItemValue h2 nowrap>
+              {selectedPolicy?.policyId}
+            </BoxItemValue>
+          </BoxItem>
+          <BoxItem>
+            <BoxItemTitle h3>Days to expiration</BoxItemTitle>
+            <BoxItemValue h2 nowrap>
+              {getDays(selectedPolicy ? selectedPolicy.expirationBlock : '0')}
+            </BoxItemValue>
+          </BoxItem>
+          <BoxItem>
+            <BoxItemTitle h3>Cover Amount</BoxItemTitle>
+            <BoxItemValue h2 nowrap>
+              {selectedPolicy?.coverAmount ? truncateBalance(formatEther(selectedPolicy.coverAmount)) : 0} ETH
+            </BoxItemValue>
+          </BoxItem>
+          <BoxItem>
+            <BoxItemTitle h3>Cover Limit</BoxItemTitle>
+            <BoxItemValue h2 nowrap>
+              {coverLimit && !asyncLoading ? (
+                `${
+                  coverLimit.substring(0, coverLimit.length - 2) +
+                  '.' +
+                  coverLimit.substring(coverLimit.length - 2, coverLimit.length)
+                }%`
+              ) : (
+                <Loader width={10} height={10} />
+              )}
+            </BoxItemValue>
+          </BoxItem>
+        </Box>
+        <HeroContainer height={150}>
+          <BoxChooseRow mb={0}>
             <BoxChooseCol>
-              <Text2>
-                {coverLimit && !asyncLoading ? (
-                  `Coverage: ${
-                    coverLimit.substring(0, coverLimit.length - 2) +
-                    '.' +
-                    coverLimit.substring(coverLimit.length - 2, coverLimit.length)
-                  }%`
-                ) : (
-                  <Loader width={10} height={10} />
-                )}
-              </Text2>
+              <Protocol style={{ alignItems: 'center', flexDirection: 'column' }}>
+                <ProtocolImage width={70} height={70} mb={10}>
+                  <img src={`https://assets.solace.fi/${selectedPolicy?.productName.toLowerCase()}.svg`} />
+                </ProtocolImage>
+                <ProtocolTitle t2>{selectedPolicy?.productName}</ProtocolTitle>
+              </Protocol>
             </BoxChooseCol>
-          )}
-        </BoxChooseRow>
+            <BoxChooseCol>
+              <Protocol style={{ alignItems: 'center', flexDirection: 'column' }}>
+                <ProtocolImage width={70} height={70} mb={10}>
+                  <img src={`https://assets.solace.fi/${selectedPolicy?.positionName.toLowerCase()}.svg`} />
+                </ProtocolImage>
+                <ProtocolTitle t2>{selectedPolicy?.positionName}</ProtocolTitle>
+              </Protocol>
+            </BoxChooseCol>
+          </BoxChooseRow>
+        </HeroContainer>
         <hr style={{ marginBottom: '20px' }} />
       </Fragment>
     )
@@ -567,44 +583,16 @@ function Dashboard(): any {
               <Heading2>Policy Management</Heading2>
               <ModalCloseButton hidden={modalLoading} onClick={() => closeModal()} />
             </ModalHeader>
+            <hr style={{ marginBottom: '20px' }} />
             <ModalContent>
-              <BoxChooseRow>
-                <BoxChooseCol>
-                  <Text2>Policy Id: {selectedPolicy?.policyId}</Text2>
-                </BoxChooseCol>
-                <BoxChooseCol>
-                  <Text2>{getDays(selectedPolicy ? selectedPolicy.expirationBlock : '0')} days until expiration</Text2>
-                </BoxChooseCol>
-              </BoxChooseRow>
-              <BoxChooseRow>
-                <BoxChooseCol>
-                  <Text3>
-                    {coverLimit && !asyncLoading ? (
-                      `Coverage: ${
-                        coverLimit.substring(0, coverLimit.length - 2) +
-                        '.' +
-                        coverLimit.substring(coverLimit.length - 2, coverLimit.length)
-                      }%`
-                    ) : (
-                      <Loader width={10} height={10} />
-                    )}
-                  </Text3>
-                </BoxChooseCol>
-                <BoxChooseCol>
-                  <Text3>
-                    Cover Amount:{' '}
-                    {selectedPolicy?.coverAmount ? truncateBalance(formatEther(selectedPolicy.coverAmount)) : 0} ETH
-                  </Text3>
-                </BoxChooseCol>
-              </BoxChooseRow>
-              <hr style={{ marginBottom: '20px' }} />{' '}
+              <PolicyInfo />
               {!modalLoading ? (
                 <Fragment>
                   <BoxChooseRow>
                     <Text1>Update Policy</Text1>
                   </BoxChooseRow>
                   <UpdatePolicySec>
-                    <BoxChooseRow mb={10}>
+                    <BoxChooseRow mb={5}>
                       <BoxChooseCol>
                         <BoxChooseText>Edit coverage (1 - 100%)</BoxChooseText>
                       </BoxChooseCol>
@@ -630,7 +618,7 @@ function Dashboard(): any {
                       </BoxChooseCol>
                     </BoxChooseRow>
                     <BoxChooseCol></BoxChooseCol>
-                    <BoxChooseRow mb={10}>
+                    <BoxChooseRow mb={5}>
                       <BoxChooseCol>
                         <BoxChooseText>
                           Add days (0 - {DAYS_PER_YEAR - getDays(selectedPolicy ? selectedPolicy.expirationBlock : '0')}{' '}
@@ -661,7 +649,7 @@ function Dashboard(): any {
                       </BoxChooseCol>
                     </BoxChooseRow>
                     <BoxChooseCol></BoxChooseCol>
-                    <BoxChooseRow mb={10}>
+                    <BoxChooseRow mb={5}>
                       <BoxChooseDate>
                         Current expiration{' '}
                         <Input
@@ -685,7 +673,7 @@ function Dashboard(): any {
                         />
                       </BoxChooseDate>
                     </BoxChooseRow>
-                    <BoxChooseRow mb={10} style={{ justifyContent: 'flex-end' }}>
+                    <BoxChooseRow mb={5} style={{ justifyContent: 'flex-end' }}>
                       {!asyncLoading ? (
                         <Button onClick={() => extendPolicy()}>Update Policy</Button>
                       ) : (
@@ -734,12 +722,13 @@ function Dashboard(): any {
               <Heading2>Policy Claim</Heading2>
               <ModalCloseButton hidden={modalLoading} onClick={() => closeModal()} />
             </ModalHeader>
+            <hr style={{ marginBottom: '20px' }} />
             <ModalContent>
               <PolicyInfo />
               {!modalLoading && !asyncLoading ? (
                 <Fragment>
                   <SmallBox>
-                    <Text2 alignVertical>
+                    <Text2 autoAlign>
                       Given{' '}
                       {positionBalances &&
                         positionBalances.map(
@@ -759,26 +748,53 @@ function Dashboard(): any {
                     </Text2>
                   </SmallBox>
                   <SmallBox mt={10} collapse={assessment?.lossEventDetected}>
-                    <Text2 alignVertical error={!assessment?.lossEventDetected}>
+                    <Text2 autoAlign error={!assessment?.lossEventDetected}>
                       No loss event detected, unable to submit claims yet.
                     </Text2>
                   </SmallBox>
-                  <ButtonWrapper>
-                    {!hasApproval(tokenAllowance, assessment?.amountIn) && tokenAllowance != '' && (
-                      <Button disabled={!assessment?.lossEventDetected} onClick={() => approve()}>
-                        Approve
+                  {!hasApproval(tokenAllowance, assessment?.amountIn) && tokenAllowance != '' && (
+                    <ButtonWrapper>
+                      <Button widthP={100} disabled={!assessment?.lossEventDetected} onClick={() => approve()}>
+                        Approve Solace Protocol to transfer your{' '}
+                        {positionBalances &&
+                          positionBalances.map(
+                            (position: any) => position.token.address == assessment?.tokenIn && position.token.symbol
+                          )}
                       </Button>
-                    )}
-                    <Button
-                      disabled={!assessment?.lossEventDetected || !hasApproval(tokenAllowance, assessment?.amountIn)}
-                      onClick={() => submitClaim()}
-                    >
-                      Submit Claim
-                    </Button>
-                  </ButtonWrapper>
-                  <ButtonWrapper>
-                    <Button disabled={!claimId}>Withdraw Payout</Button>
-                  </ButtonWrapper>
+                    </ButtonWrapper>
+                  )}
+                  {claimId ? (
+                    <Box purple mt={20} mb={20}>
+                      <Heading2 autoAlign>Claim has been validated and payout submitted to the escrow.</Heading2>
+                    </Box>
+                  ) : (
+                    <ButtonWrapper>
+                      <Button
+                        widthP={100}
+                        disabled={!assessment?.lossEventDetected || !hasApproval(tokenAllowance, assessment?.amountIn)}
+                        onClick={() => submitClaim()}
+                      >
+                        Submit Claim
+                      </Button>
+                    </ButtonWrapper>
+                  )}
+                  <SmallBox>
+                    <Heading3 autoAlign warning>
+                      Please wait for the cooldown period to elapse before withdrawing your payout.
+                    </Heading3>
+                  </SmallBox>
+                  <Table isHighlight>
+                    <TableBody>
+                      <TableRow>
+                        <TableData>
+                          <Text2>Payout Status</Text2>
+                        </TableData>
+                        <TableData textAlignRight>
+                          <Button disabled={!claimId}>Withdraw Payout</Button>
+                        </TableData>
+                      </TableRow>
+                    </TableBody>
+                  </Table>
                 </Fragment>
               ) : (
                 <Loader />

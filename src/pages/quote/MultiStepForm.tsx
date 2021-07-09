@@ -184,7 +184,7 @@ export const MultiStepForm = () => {
           <Box>
             <BoxItem>
               <Protocol>
-                <ProtocolImage>
+                <ProtocolImage mr={10}>
                   <img src={`https://assets.solace.fi/${protocol.name.toLowerCase()}.svg`} />
                 </ProtocolImage>
                 <ProtocolTitle>{protocol.name}</ProtocolTitle>
@@ -205,7 +205,7 @@ export const MultiStepForm = () => {
             <Box purple>
               <BoxItem>
                 <Protocol>
-                  <ProtocolImage>
+                  <ProtocolImage mr={10}>
                     <img src={`https://assets.solace.fi/${position.underlying.address.toLowerCase()}.svg`} />
                   </ProtocolImage>
                   <ProtocolTitle>{position.underlying.name}</ProtocolTitle>
