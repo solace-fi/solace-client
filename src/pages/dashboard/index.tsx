@@ -19,6 +19,7 @@
       contract functions
       Local helper functions
       useEffect hooks
+      JSX Elements
       Render
 
   *************************************************************************************/
@@ -46,7 +47,7 @@ import { useUserData } from '../../context/UserDataManager'
 import { useToasts } from '../../context/NotificationsManager'
 
 /* import components */
-import { Content, HeroContainer } from '../../components/Layout'
+import { Content, FlexCol, HeroContainer } from '../../components/Layout'
 import { CardContainer, InvestmentCardComponent, CardHeader, CardTitle, CardBlock } from '../../components/Card'
 import { Heading1, Heading2, Heading3, Text1, Text2, Text3 } from '../../components/Text'
 import { Button, ButtonWrapper } from '../../components/Button'
@@ -111,6 +112,7 @@ function Dashboard(): any {
 
   const [policies, setPolicies] = useState<Policy[]>([])
   const [positionBalances, setPositionBalances] = useState<any>(null)
+  const [positionAmount, setPositionAmount] = useState<string | null>(null)
   const [latestBlock, setLatestBlock] = useState<number>(0)
   const [showStatusModal, setShowStatusModal] = useState<boolean>(false)
   const [showManageModal, setShowManageModal] = useState<boolean>(false)
@@ -351,6 +353,7 @@ function Dashboard(): any {
     // FROM PACLAS const positionAmount = balances.filter((balance: any) => policy.positionName == balance.underlying.symbol)[0].eth
     //   .balance
     const coverLimit = BigNumber.from(coverAmount).mul('10000').div(positionAmount).toString()
+    // console.log(coverAmount, positionAmount, coverLimit, BigNumber.from(coverAmount).div(positionAmount).toString())
     setCoverLimit(coverLimit)
     setFeedbackCoverage(coverLimit)
     setInputCoverage(
@@ -371,100 +374,13 @@ function Dashboard(): any {
     return Math.floor((parseFloat(expirationBlock) - latestBlock) / NUM_BLOCKS_PER_DAY)
   }
 
-  const renderPolicies = () => {
-    return policies.map((policy) => {
-      return (
-        <TableRow key={policy.policyId}>
-          <TableData>{policy.policyId}</TableData>
-          <TableData>{policy.status}</TableData>
-          <TableData>{policy.productName}</TableData>
-          <TableData>{policy.positionName}</TableData>
-          <TableData>{calculatePolicyExpirationDate(policy.expirationBlock)}</TableData>
-          <TableData>
-            {policy.coverAmount ? truncateBalance(parseFloat(formatEther(policy.coverAmount)), 2) : 0} {Unit.ETH}
-          </TableData>
-
-          <TableData textAlignRight>
-            {policy.status === PolicyStatus.ACTIVE && (
-              <TableDataGroup>
-                <Button onClick={() => openStatusModal(policy)}>Claim</Button>
-                <Button onClick={() => openManageModal(getDays(policy.expirationBlock), policy)}>Manage</Button>
-              </TableDataGroup>
-            )}
-          </TableData>
-        </TableRow>
-      )
-    })
-  }
-
-  const PolicyInfo = () => {
-    return (
-      <Fragment>
-        <Box transparent pl={10} pr={10} pt={20} pb={20}>
-          <BoxItem>
-            <BoxItemTitle h3>Policy ID</BoxItemTitle>
-            <BoxItemValue h2 nowrap>
-              {selectedPolicy?.policyId}
-            </BoxItemValue>
-          </BoxItem>
-          <BoxItem>
-            <BoxItemTitle h3>Days to expiration</BoxItemTitle>
-            <BoxItemValue h2 nowrap>
-              {getDays(selectedPolicy ? selectedPolicy.expirationBlock : '0')}
-            </BoxItemValue>
-          </BoxItem>
-          <BoxItem>
-            <BoxItemTitle h3>Cover Amount</BoxItemTitle>
-            <BoxItemValue h2 nowrap>
-              {selectedPolicy?.coverAmount ? truncateBalance(formatEther(selectedPolicy.coverAmount)) : 0} ETH
-            </BoxItemValue>
-          </BoxItem>
-          <BoxItem>
-            <BoxItemTitle h3>Cover Limit</BoxItemTitle>
-            <BoxItemValue h2 nowrap>
-              {coverLimit && !asyncLoading ? (
-                `${
-                  coverLimit.substring(0, coverLimit.length - 2) +
-                  '.' +
-                  coverLimit.substring(coverLimit.length - 2, coverLimit.length)
-                }%`
-              ) : (
-                <Loader width={10} height={10} />
-              )}
-            </BoxItemValue>
-          </BoxItem>
-        </Box>
-        <HeroContainer height={150}>
-          <BoxChooseRow mb={0}>
-            <BoxChooseCol>
-              <Protocol style={{ alignItems: 'center', flexDirection: 'column' }}>
-                <ProtocolImage width={70} height={70} mb={10}>
-                  <img src={`https://assets.solace.fi/${selectedPolicy?.productName.toLowerCase()}.svg`} />
-                </ProtocolImage>
-                <ProtocolTitle t2>{selectedPolicy?.productName}</ProtocolTitle>
-              </Protocol>
-            </BoxChooseCol>
-            <BoxChooseCol>
-              <Protocol style={{ alignItems: 'center', flexDirection: 'column' }}>
-                <ProtocolImage width={70} height={70} mb={10}>
-                  <img src={`https://assets.solace.fi/${selectedPolicy?.positionName.toLowerCase()}.svg`} />
-                </ProtocolImage>
-                <ProtocolTitle t2>{selectedPolicy?.positionName}</ProtocolTitle>
-              </Protocol>
-            </BoxChooseCol>
-          </BoxChooseRow>
-        </HeroContainer>
-        <hr style={{ marginBottom: '20px' }} />
-      </Fragment>
-    )
-  }
-
   const openStatusModal = async (policy: Policy) => {
     setShowStatusModal((prev) => !prev)
     setSelectedProtocolByName(policy.productName.toLowerCase())
     document.body.style.overflowY = 'hidden'
     setSelectedPolicy(policy)
     setAsyncLoading(true)
+
     const tokenContract = getContract(policy.positionContract, cTokenABI, wallet.library, wallet.account)
     const assessment = await getClaimAssessment(String(policy.policyId))
     const balances = await getPositions(policy.productName.toLowerCase(), wallet.chainId ?? 1, wallet.account ?? '0x')
@@ -472,10 +388,18 @@ function Dashboard(): any {
       getProtocolByName(policy.productName.toLowerCase()),
       policy.positionContract
     )
+    setPositionAmount(formatEther(positionAmount))
+
+    // for approval
     setContractForAllowance(tokenContract)
     setSpenderAddress(getProtocolByName(policy.productName.toLowerCase())?.address || null)
+
     getCoverLimit(policy, positionAmount)
+
+    // getting token symbol
     setPositionBalances(balances)
+
+    // set claim assessment to judge eligibility for claim
     setAssessment(assessment)
     setAsyncLoading(false)
   }
@@ -491,6 +415,7 @@ function Dashboard(): any {
       getProtocolByName(policy.productName.toLowerCase()),
       policy.positionContract
     )
+    setPositionAmount(formatEther(positionAmount))
     getCoverLimit(policy, positionAmount)
     setAsyncLoading(false)
   }
@@ -581,13 +506,13 @@ function Dashboard(): any {
     }
   }, [wallet.account, wallet.isActive, wallet.version])
 
-  useEffect(() => {
-    const getLatestBlock = async () => {
-      const { latestBlockNumber } = await fetchEtherscanLatestBlockNumber(Number(CHAIN_ID))
-      const latestBlock = await wallet.library.getBlock(latestBlockNumber)
-    }
-    getLatestBlock()
-  }, [wallet.dataVersion])
+  // useEffect(() => {
+  //   const getLatestBlock = async () => {
+  //     const { latestBlockNumber } = await fetchEtherscanLatestBlockNumber(Number(CHAIN_ID))
+  //     const latestBlock = await wallet.library.getBlock(latestBlockNumber)
+  //   }
+  //   getLatestBlock()
+  // }, [wallet.dataVersion])
 
   useEffect(() => {
     const checkClaim = async () => {
@@ -599,6 +524,432 @@ function Dashboard(): any {
     }
     checkClaim()
   }, [claimId])
+
+  /*************************************************************************************
+
+    JSX Elements
+
+  *************************************************************************************/
+
+  const PolicyInfo = () => {
+    return (
+      <Fragment>
+        <Box transparent pl={10} pr={10} pt={20} pb={20}>
+          <BoxItem>
+            <BoxItemTitle h3>Policy ID</BoxItemTitle>
+            <BoxItemValue h2 nowrap>
+              {selectedPolicy?.policyId}
+            </BoxItemValue>
+          </BoxItem>
+          <BoxItem>
+            <BoxItemTitle h3>Days to expiration</BoxItemTitle>
+            <BoxItemValue h2 nowrap>
+              {getDays(selectedPolicy ? selectedPolicy.expirationBlock : '0')}
+            </BoxItemValue>
+          </BoxItem>
+          <BoxItem>
+            <BoxItemTitle h3>Cover Amount</BoxItemTitle>
+            <BoxItemValue h2 nowrap>
+              {selectedPolicy?.coverAmount ? truncateBalance(formatEther(selectedPolicy.coverAmount)) : 0} ETH
+            </BoxItemValue>
+          </BoxItem>
+          {/* <BoxItem>
+            <BoxItemTitle h3>Cover Limit</BoxItemTitle>
+            <BoxItemValue h2 nowrap>
+              {coverLimit && !asyncLoading ? (
+                `${
+                  coverLimit.substring(0, coverLimit.length - 2) +
+                  '.' +
+                  coverLimit.substring(coverLimit.length - 2, coverLimit.length)
+                }%`
+              ) : (
+                <Loader width={10} height={10} />
+              )}
+            </BoxItemValue>
+          </BoxItem> */}
+          <BoxItem>
+            <BoxItemTitle h3>Position Amount</BoxItemTitle>
+            <BoxItemValue h2 nowrap>
+              {positionAmount && !asyncLoading ? (
+                `${truncateBalance(positionAmount || '0')} ETH`
+              ) : (
+                <Loader width={10} height={10} />
+              )}
+            </BoxItemValue>
+          </BoxItem>
+        </Box>
+        <HeroContainer height={150}>
+          <BoxChooseRow mb={0}>
+            <BoxChooseCol>
+              <Protocol style={{ alignItems: 'center', flexDirection: 'column' }}>
+                <ProtocolImage width={70} height={70} mb={10}>
+                  <img src={`https://assets.solace.fi/${selectedPolicy?.productName.toLowerCase()}.svg`} />
+                </ProtocolImage>
+                <ProtocolTitle t2>{selectedPolicy?.productName}</ProtocolTitle>
+              </Protocol>
+            </BoxChooseCol>
+            <BoxChooseCol>
+              <Protocol style={{ alignItems: 'center', flexDirection: 'column' }}>
+                <ProtocolImage width={70} height={70} mb={10}>
+                  <img src={`https://assets.solace.fi/${selectedPolicy?.positionName.toLowerCase()}.svg`} />
+                </ProtocolImage>
+                <ProtocolTitle t2>{selectedPolicy?.positionName}</ProtocolTitle>
+              </Protocol>
+            </BoxChooseCol>
+          </BoxChooseRow>
+        </HeroContainer>
+        <hr style={{ marginBottom: '20px' }} />
+      </Fragment>
+    )
+  }
+
+  const MyPolicies = () => {
+    return (
+      <Content>
+        <Heading1>Your Policies</Heading1>
+        {loading && !showManageModal && !showStatusModal ? (
+          <Loader />
+        ) : policies.length > 0 ? (
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableHeader>{'Id'}</TableHeader>
+                <TableHeader>{'Status'}</TableHeader>
+                <TableHeader>{'Product'}</TableHeader>
+                <TableHeader>{'Position'}</TableHeader>
+                <TableHeader>{'Expiration Date'}</TableHeader>
+                <TableHeader>{'Amount'}</TableHeader>
+              </TableRow>
+            </TableHead>
+            <TableBody>{renderPolicies()}</TableBody>
+          </Table>
+        ) : (
+          <Heading2 textAlignCenter>You do not own any policies.</Heading2>
+        )}
+      </Content>
+    )
+  }
+
+  const renderPolicies = () => {
+    return policies.map((policy) => {
+      return (
+        <TableRow key={policy.policyId}>
+          <TableData>{policy.policyId}</TableData>
+          <TableData>{policy.status}</TableData>
+          <TableData>{policy.productName}</TableData>
+          <TableData>{policy.positionName}</TableData>
+          <TableData>{calculatePolicyExpirationDate(policy.expirationBlock)}</TableData>
+          <TableData>
+            {policy.coverAmount ? truncateBalance(parseFloat(formatEther(policy.coverAmount)), 2) : 0} {Unit.ETH}
+          </TableData>
+
+          <TableData textAlignRight>
+            {policy.status === PolicyStatus.ACTIVE && (
+              <TableDataGroup>
+                <Button onClick={() => openStatusModal(policy)}>Claim</Button>
+                <Button onClick={() => openManageModal(getDays(policy.expirationBlock), policy)}>Manage</Button>
+              </TableDataGroup>
+            )}
+          </TableData>
+        </TableRow>
+      )
+    })
+  }
+
+  const MyInvestments = () => {
+    return (
+      <Content>
+        <Heading1>Your Investments</Heading1>
+        <CardContainer>
+          <InvestmentCardComponent>
+            <CardHeader>
+              <CardTitle h2>Capital Pool</CardTitle>
+              <Heading3>
+                {wallet.account ? truncateBalance(parseFloat(cpUserStakeValue), 2) : 0} {Unit.ETH}
+              </Heading3>
+            </CardHeader>
+            <CardBlock>
+              <CardTitle t2>Daily Earnings</CardTitle>
+              <CardTitle t3>
+                {wallet.account ? truncateBalance(parseFloat(cpUserRewardsPerDay), 2) : 0} {Unit.SOLACE}
+              </CardTitle>
+            </CardBlock>
+            <CardBlock>
+              <CardTitle t2>Total Earnings</CardTitle>
+              <CardTitle t3>
+                {wallet.account ? truncateBalance(parseFloat(cpUserRewards), 2) : 0} {Unit.SOLACE}
+              </CardTitle>
+            </CardBlock>
+          </InvestmentCardComponent>
+          <InvestmentCardComponent>
+            <CardHeader>
+              <CardTitle h2>Liquidity Pool</CardTitle>
+              <Heading3>
+                {wallet.account ? truncateBalance(parseFloat(lpUserStakeValue), 2) : 0} {Unit.SOLACE}
+              </Heading3>
+            </CardHeader>
+            <CardBlock>
+              <CardTitle t2>Daily Earnings</CardTitle>
+              <CardTitle t3>
+                {wallet.account ? truncateBalance(parseFloat(lpUserRewardsPerDay), 2) : 0} {Unit.SOLACE}
+              </CardTitle>
+            </CardBlock>
+            <CardBlock>
+              <CardTitle t2>Total Earnings</CardTitle>
+              <CardTitle t3>
+                {wallet.account ? truncateBalance(parseFloat(lpUserRewards), 2) : 0} {Unit.SOLACE}
+              </CardTitle>
+            </CardBlock>
+          </InvestmentCardComponent>
+        </CardContainer>
+      </Content>
+    )
+  }
+
+  const ManageModalContent = () => {
+    return (
+      <Fragment>
+        <ModalHeader>
+          <Heading2>Policy Management</Heading2>
+          <ModalCloseButton hidden={modalLoading} onClick={() => closeModal()} />
+        </ModalHeader>
+        <hr style={{ marginBottom: '20px' }} />
+        <ModalContent>
+          <PolicyInfo />
+          {!modalLoading ? (
+            <Fragment>
+              <BoxChooseRow>
+                <Text1>Update Policy</Text1>
+              </BoxChooseRow>
+              <UpdatePolicySec>
+                <BoxChooseRow mb={5}>
+                  <BoxChooseCol>
+                    <BoxChooseText>Edit coverage (1 - 100%)</BoxChooseText>
+                  </BoxChooseCol>
+                  <BoxChooseCol>
+                    <Slider
+                      disabled={asyncLoading}
+                      width={150}
+                      backgroundColor={'#fff'}
+                      value={feedbackCoverage}
+                      onChange={(e) => handleCoverageChange(e.target.value)}
+                      min={100}
+                      max={10000}
+                    />
+                  </BoxChooseCol>
+                  <BoxChooseCol>
+                    <Input
+                      disabled={asyncLoading}
+                      type="text"
+                      width={50}
+                      value={inputCoverage}
+                      onChange={(e) => handleInputCoverage(e.target.value)}
+                    />
+                  </BoxChooseCol>
+                </BoxChooseRow>
+                <BoxChooseCol></BoxChooseCol>
+                <BoxChooseRow mb={5}>
+                  <BoxChooseCol>
+                    <BoxChooseText>
+                      Add days (0 - {DAYS_PER_YEAR - getDays(selectedPolicy ? selectedPolicy.expirationBlock : '0')}{' '}
+                      days)
+                    </BoxChooseText>
+                  </BoxChooseCol>
+                  <BoxChooseCol>
+                    <Slider
+                      disabled={asyncLoading}
+                      width={150}
+                      backgroundColor={'#fff'}
+                      value={extendedTime == '' ? '0' : extendedTime}
+                      onChange={(e) => setExtendedTime(e.target.value)}
+                      min="0"
+                      max={DAYS_PER_YEAR - getDays(selectedPolicy ? selectedPolicy.expirationBlock : '0')}
+                    />
+                  </BoxChooseCol>
+                  <BoxChooseCol>
+                    <Input
+                      disabled={asyncLoading}
+                      type="text"
+                      pattern="[0-9]+"
+                      width={50}
+                      value={extendedTime}
+                      onChange={(e) => filteredTime(e.target.value)}
+                      maxLength={3}
+                    />
+                  </BoxChooseCol>
+                </BoxChooseRow>
+                <BoxChooseCol></BoxChooseCol>
+                <BoxChooseRow mb={5}>
+                  <BoxChooseDate>
+                    Current expiration{' '}
+                    <Input
+                      readOnly
+                      type="date"
+                      value={`${new Date(
+                        date.setDate(date.getDate() + getDays(selectedPolicy ? selectedPolicy.expirationBlock : '0'))
+                      )
+                        .toISOString()
+                        .substr(0, 10)}`}
+                    />{' '}
+                    New expiration{' '}
+                    <Input
+                      readOnly
+                      type="date"
+                      value={`${new Date(date.setDate(date.getDate() + parseFloat(extendedTime || '0')))
+                        .toISOString()
+                        .substr(0, 10)}`}
+                    />
+                  </BoxChooseDate>
+                </BoxChooseRow>
+                <BoxChooseRow mb={5} style={{ justifyContent: 'flex-end' }}>
+                  {!asyncLoading ? (
+                    <Button onClick={() => extendPolicy()}>Update Policy</Button>
+                  ) : (
+                    <Loader width={10} height={10} />
+                  )}
+                </BoxChooseRow>
+              </UpdatePolicySec>
+              <BoxChooseRow>
+                <Text1>Cancel Policy</Text1>
+              </BoxChooseRow>
+              <CancelPolicySec>
+                <BoxChooseRow mb={10}>
+                  <BoxChooseCol>
+                    <BoxChooseText error={policyPrice !== '' && refundAmount.lte(parseEther(cancelFee))}>
+                      Refund amount: {formattedRefundAmount} ETH
+                    </BoxChooseText>
+                  </BoxChooseCol>
+                </BoxChooseRow>
+                <BoxChooseCol></BoxChooseCol>
+                <BoxChooseRow mb={10}>
+                  <BoxChooseCol>
+                    <BoxChooseText>Cancellation fee: {cancelFee} ETH</BoxChooseText>
+                    {policyPrice !== '' && refundAmount.lte(parseEther(cancelFee)) && (
+                      <BoxChooseText error>Refund amount must offset cancellation fee</BoxChooseText>
+                    )}
+                  </BoxChooseCol>
+                </BoxChooseRow>
+                <BoxChooseRow mb={10} style={{ justifyContent: 'flex-end' }}>
+                  {policyPrice !== '' ? (
+                    <Button disabled={refundAmount.lte(parseEther(cancelFee))} onClick={() => cancelPolicy()}>
+                      Cancel Policy
+                    </Button>
+                  ) : (
+                    <Loader width={10} height={10} />
+                  )}
+                </BoxChooseRow>
+              </CancelPolicySec>
+            </Fragment>
+          ) : (
+            <Loader />
+          )}
+        </ModalContent>
+      </Fragment>
+    )
+  }
+
+  const StatusModalContent = () => {
+    return (
+      <Fragment>
+        <ModalHeader>
+          <Heading2>Policy Claim</Heading2>
+          <ModalCloseButton hidden={modalLoading} onClick={() => closeModal()} />
+        </ModalHeader>
+        <hr style={{ marginBottom: '20px' }} />
+        <ModalContent>
+          <PolicyInfo />
+          {!modalLoading && !asyncLoading ? (
+            <Fragment>
+              <BoxChooseRow>
+                <BoxChooseCol>
+                  <Text3 autoAlign>By submitting a claim you swap</Text3>
+                </BoxChooseCol>
+                <BoxChooseCol>
+                  <Heading2 autoAlign>
+                    {positionBalances &&
+                      positionBalances.map(
+                        (position: any) =>
+                          position.token.address == assessment?.tokenIn &&
+                          `${truncateBalance(
+                            fixedPositionBalance(assessment?.amountIn || '', position.token.decimals)
+                          )} ${position.token.symbol}`
+                      )}{' '}
+                  </Heading2>
+                </BoxChooseCol>
+              </BoxChooseRow>
+              <BoxChooseRow>
+                <BoxChooseCol>
+                  <Text3 autoAlign>for pre-exploit assets value equal to</Text3>
+                </BoxChooseCol>
+                <BoxChooseCol>
+                  <Heading2 autoAlign>
+                    {positionBalances &&
+                      positionBalances.map(
+                        (position: any) =>
+                          position.underlying.address == assessment?.tokenOut &&
+                          `${formatEther(assessment?.amountOut || 0)} ${position.underlying.symbol}`
+                      )}
+                  </Heading2>
+                </BoxChooseCol>
+              </BoxChooseRow>
+              <SmallBox mt={10} collapse={assessment?.lossEventDetected}>
+                <Text2 autoAlign error={!assessment?.lossEventDetected}>
+                  No loss event detected, unable to submit claims yet.
+                </Text2>
+              </SmallBox>
+              {!hasApproval(tokenAllowance, assessment?.amountIn) && !claimId && (
+                <ButtonWrapper>
+                  <Button widthP={100} disabled={!assessment?.lossEventDetected} onClick={() => approve()}>
+                    Approve Solace Protocol to transfer your{' '}
+                    {positionBalances &&
+                      positionBalances.map(
+                        (position: any) => position.token.address == assessment?.tokenIn && position.token.symbol
+                      )}
+                  </Button>
+                </ButtonWrapper>
+              )}
+              {claimId ? (
+                <Box purple mt={20} mb={20}>
+                  <Heading2 autoAlign>Claim has been validated and payout submitted to the escrow.</Heading2>
+                </Box>
+              ) : (
+                <ButtonWrapper>
+                  <Button
+                    widthP={100}
+                    disabled={!assessment?.lossEventDetected || !hasApproval(tokenAllowance, assessment?.amountIn)}
+                    onClick={() => submitClaim()}
+                  >
+                    Submit Claim
+                  </Button>
+                </ButtonWrapper>
+              )}
+              <SmallBox>
+                <Heading3 autoAlign warning>
+                  Please wait for the cooldown period to elapse before withdrawing your payout.
+                </Heading3>
+              </SmallBox>
+              <Table isHighlight>
+                <TableBody>
+                  <TableRow>
+                    <TableData>
+                      <Text2>Payout Status</Text2>
+                    </TableData>
+                    <TableData textAlignRight>
+                      <Button disabled={!claimId} onClick={() => withdrawPayout()}>
+                        Withdraw Payout
+                      </Button>
+                    </TableData>
+                  </TableRow>
+                </TableBody>
+              </Table>
+            </Fragment>
+          ) : (
+            <Loader />
+          )}
+        </ModalContent>
+      </Fragment>
+    )
+  }
 
   /*************************************************************************************
 
@@ -615,297 +966,13 @@ function Dashboard(): any {
       ) : (
         <Fragment>
           <Modal isOpen={showManageModal}>
-            <ModalHeader>
-              <Heading2>Policy Management</Heading2>
-              <ModalCloseButton hidden={modalLoading} onClick={() => closeModal()} />
-            </ModalHeader>
-            <hr style={{ marginBottom: '20px' }} />
-            <ModalContent>
-              <PolicyInfo />
-              {!modalLoading ? (
-                <Fragment>
-                  <BoxChooseRow>
-                    <Text1>Update Policy</Text1>
-                  </BoxChooseRow>
-                  <UpdatePolicySec>
-                    <BoxChooseRow mb={5}>
-                      <BoxChooseCol>
-                        <BoxChooseText>Edit coverage (1 - 100%)</BoxChooseText>
-                      </BoxChooseCol>
-                      <BoxChooseCol>
-                        <Slider
-                          disabled={asyncLoading}
-                          width={150}
-                          backgroundColor={'#fff'}
-                          value={feedbackCoverage}
-                          onChange={(e) => handleCoverageChange(e.target.value)}
-                          min={100}
-                          max={10000}
-                        />
-                      </BoxChooseCol>
-                      <BoxChooseCol>
-                        <Input
-                          disabled={asyncLoading}
-                          type="text"
-                          width={50}
-                          value={inputCoverage}
-                          onChange={(e) => handleInputCoverage(e.target.value)}
-                        />
-                      </BoxChooseCol>
-                    </BoxChooseRow>
-                    <BoxChooseCol></BoxChooseCol>
-                    <BoxChooseRow mb={5}>
-                      <BoxChooseCol>
-                        <BoxChooseText>
-                          Add days (0 - {DAYS_PER_YEAR - getDays(selectedPolicy ? selectedPolicy.expirationBlock : '0')}{' '}
-                          days)
-                        </BoxChooseText>
-                      </BoxChooseCol>
-                      <BoxChooseCol>
-                        <Slider
-                          disabled={asyncLoading}
-                          width={150}
-                          backgroundColor={'#fff'}
-                          value={extendedTime == '' ? '0' : extendedTime}
-                          onChange={(e) => setExtendedTime(e.target.value)}
-                          min="0"
-                          max={DAYS_PER_YEAR - getDays(selectedPolicy ? selectedPolicy.expirationBlock : '0')}
-                        />
-                      </BoxChooseCol>
-                      <BoxChooseCol>
-                        <Input
-                          disabled={asyncLoading}
-                          type="text"
-                          pattern="[0-9]+"
-                          width={50}
-                          value={extendedTime}
-                          onChange={(e) => filteredTime(e.target.value)}
-                          maxLength={3}
-                        />
-                      </BoxChooseCol>
-                    </BoxChooseRow>
-                    <BoxChooseCol></BoxChooseCol>
-                    <BoxChooseRow mb={5}>
-                      <BoxChooseDate>
-                        Current expiration{' '}
-                        <Input
-                          readOnly
-                          type="date"
-                          value={`${new Date(
-                            date.setDate(
-                              date.getDate() + getDays(selectedPolicy ? selectedPolicy.expirationBlock : '0')
-                            )
-                          )
-                            .toISOString()
-                            .substr(0, 10)}`}
-                        />{' '}
-                        New expiration{' '}
-                        <Input
-                          readOnly
-                          type="date"
-                          value={`${new Date(date.setDate(date.getDate() + parseFloat(extendedTime || '0')))
-                            .toISOString()
-                            .substr(0, 10)}`}
-                        />
-                      </BoxChooseDate>
-                    </BoxChooseRow>
-                    <BoxChooseRow mb={5} style={{ justifyContent: 'flex-end' }}>
-                      {!asyncLoading ? (
-                        <Button onClick={() => extendPolicy()}>Update Policy</Button>
-                      ) : (
-                        <Loader width={10} height={10} />
-                      )}
-                    </BoxChooseRow>
-                  </UpdatePolicySec>
-                  <BoxChooseRow>
-                    <Text1>Cancel Policy</Text1>
-                  </BoxChooseRow>
-                  <CancelPolicySec>
-                    <BoxChooseRow mb={10}>
-                      <BoxChooseCol>
-                        <BoxChooseText error={policyPrice !== '' && refundAmount.lte(parseEther(cancelFee))}>
-                          Refund amount: {formattedRefundAmount} ETH
-                        </BoxChooseText>
-                      </BoxChooseCol>
-                    </BoxChooseRow>
-                    <BoxChooseCol></BoxChooseCol>
-                    <BoxChooseRow mb={10}>
-                      <BoxChooseCol>
-                        <BoxChooseText>Cancellation fee: {cancelFee} ETH</BoxChooseText>
-                        {policyPrice !== '' && refundAmount.lte(parseEther(cancelFee)) && (
-                          <BoxChooseText error>Refund amount must offset cancellation fee</BoxChooseText>
-                        )}
-                      </BoxChooseCol>
-                    </BoxChooseRow>
-                    <BoxChooseRow mb={10} style={{ justifyContent: 'flex-end' }}>
-                      {policyPrice !== '' ? (
-                        <Button disabled={refundAmount.lte(parseEther(cancelFee))} onClick={() => cancelPolicy()}>
-                          Cancel Policy
-                        </Button>
-                      ) : (
-                        <Loader width={10} height={10} />
-                      )}
-                    </BoxChooseRow>
-                  </CancelPolicySec>
-                </Fragment>
-              ) : (
-                <Loader />
-              )}
-            </ModalContent>
+            <ManageModalContent />
           </Modal>
           <Modal isOpen={showStatusModal}>
-            <ModalHeader>
-              <Heading2>Policy Claim</Heading2>
-              <ModalCloseButton hidden={modalLoading} onClick={() => closeModal()} />
-            </ModalHeader>
-            <hr style={{ marginBottom: '20px' }} />
-            <ModalContent>
-              <PolicyInfo />
-              {!modalLoading && !asyncLoading ? (
-                <Fragment>
-                  <SmallBox>
-                    <Text2 autoAlign>
-                      Given{' '}
-                      {positionBalances &&
-                        positionBalances.map(
-                          (position: any) =>
-                            position.token.address == assessment?.tokenIn &&
-                            `${truncateBalance(
-                              fixedPositionBalance(assessment?.amountIn || '', position.token.decimals)
-                            )} ${position.token.symbol}`
-                        )}{' '}
-                      for{' '}
-                      {positionBalances &&
-                        positionBalances.map(
-                          (position: any) =>
-                            position.underlying.address == assessment?.tokenOut &&
-                            `${formatEther(assessment?.amountOut || 0)} ${position.underlying.symbol}`
-                        )}
-                    </Text2>
-                  </SmallBox>
-                  <SmallBox mt={10} collapse={assessment?.lossEventDetected}>
-                    <Text2 autoAlign error={!assessment?.lossEventDetected}>
-                      No loss event detected, unable to submit claims yet.
-                    </Text2>
-                  </SmallBox>
-                  {!hasApproval(tokenAllowance, assessment?.amountIn) && !claimId && (
-                    <ButtonWrapper>
-                      <Button widthP={100} disabled={!assessment?.lossEventDetected} onClick={() => approve()}>
-                        Approve Solace Protocol to transfer your{' '}
-                        {positionBalances &&
-                          positionBalances.map(
-                            (position: any) => position.token.address == assessment?.tokenIn && position.token.symbol
-                          )}
-                      </Button>
-                    </ButtonWrapper>
-                  )}
-                  {claimId ? (
-                    <Box purple mt={20} mb={20}>
-                      <Heading2 autoAlign>Claim has been validated and payout submitted to the escrow.</Heading2>
-                    </Box>
-                  ) : (
-                    <ButtonWrapper>
-                      <Button
-                        widthP={100}
-                        disabled={!assessment?.lossEventDetected || !hasApproval(tokenAllowance, assessment?.amountIn)}
-                        onClick={() => submitClaim()}
-                      >
-                        Submit Claim
-                      </Button>
-                    </ButtonWrapper>
-                  )}
-                  <SmallBox>
-                    <Heading3 autoAlign warning>
-                      Please wait for the cooldown period to elapse before withdrawing your payout.
-                    </Heading3>
-                  </SmallBox>
-                  <Table isHighlight>
-                    <TableBody>
-                      <TableRow>
-                        <TableData>
-                          <Text2>Payout Status</Text2>
-                        </TableData>
-                        <TableData textAlignRight>
-                          <Button disabled={!claimId} onClick={() => withdrawPayout()}>
-                            Withdraw Payout
-                          </Button>
-                        </TableData>
-                      </TableRow>
-                    </TableBody>
-                  </Table>
-                </Fragment>
-              ) : (
-                <Loader />
-              )}
-            </ModalContent>
+            <StatusModalContent />
           </Modal>
-          <Content>
-            <Heading1>Your Policies</Heading1>
-            {loading && !showManageModal && !showStatusModal ? (
-              <Loader />
-            ) : policies.length > 0 ? (
-              <Table>
-                <TableHead>
-                  <TableRow>
-                    <TableHeader>{'Id'}</TableHeader>
-                    <TableHeader>{'Status'}</TableHeader>
-                    <TableHeader>{'Product'}</TableHeader>
-                    <TableHeader>{'Position'}</TableHeader>
-                    <TableHeader>{'Expiration Date'}</TableHeader>
-                    <TableHeader>{'Amount'}</TableHeader>
-                  </TableRow>
-                </TableHead>
-                <TableBody>{renderPolicies()}</TableBody>
-              </Table>
-            ) : (
-              <Heading2 textAlignCenter>You do not own any policies.</Heading2>
-            )}
-          </Content>
-          <Content>
-            <Heading1>Your Investments</Heading1>
-            <CardContainer>
-              <InvestmentCardComponent>
-                <CardHeader>
-                  <CardTitle h2>Capital Pool</CardTitle>
-                  <Heading3>
-                    {wallet.account ? truncateBalance(parseFloat(cpUserStakeValue), 2) : 0} {Unit.ETH}
-                  </Heading3>
-                </CardHeader>
-                <CardBlock>
-                  <CardTitle t2>Daily Earnings</CardTitle>
-                  <CardTitle t3>
-                    {wallet.account ? truncateBalance(parseFloat(cpUserRewardsPerDay), 2) : 0} {Unit.SOLACE}
-                  </CardTitle>
-                </CardBlock>
-                <CardBlock>
-                  <CardTitle t2>Total Earnings</CardTitle>
-                  <CardTitle t3>
-                    {wallet.account ? truncateBalance(parseFloat(cpUserRewards), 2) : 0} {Unit.SOLACE}
-                  </CardTitle>
-                </CardBlock>
-              </InvestmentCardComponent>
-              <InvestmentCardComponent>
-                <CardHeader>
-                  <CardTitle h2>Liquidity Pool</CardTitle>
-                  <Heading3>
-                    {wallet.account ? truncateBalance(parseFloat(lpUserStakeValue), 2) : 0} {Unit.SOLACE}
-                  </Heading3>
-                </CardHeader>
-                <CardBlock>
-                  <CardTitle t2>Daily Earnings</CardTitle>
-                  <CardTitle t3>
-                    {wallet.account ? truncateBalance(parseFloat(lpUserRewardsPerDay), 2) : 0} {Unit.SOLACE}
-                  </CardTitle>
-                </CardBlock>
-                <CardBlock>
-                  <CardTitle t2>Total Earnings</CardTitle>
-                  <CardTitle t3>
-                    {wallet.account ? truncateBalance(parseFloat(lpUserRewards), 2) : 0} {Unit.SOLACE}
-                  </CardTitle>
-                </CardBlock>
-              </InvestmentCardComponent>
-            </CardContainer>
-          </Content>
+          <MyPolicies />
+          <MyInvestments />
         </Fragment>
       )}
     </Fragment>
