@@ -43,7 +43,7 @@ export const TableHeader = styled.th<TableProps>`
 export const TableData = styled.td<TableProps>`
   ${(props) => props.width && `max-width: ${props.width}px !important`};
   background-color: rgba(255, 255, 255, 0.3);
-  padding: 18px;
+  padding: 14px 18px;
   &:first-child {
     border-radius: 10px 0 0 10px;
   }

@@ -388,12 +388,15 @@ function Dashboard(): any {
       getProtocolByName(policy.productName.toLowerCase()),
       policy.positionContract
     )
+
+    // for display
     setPositionAmount(formatEther(positionAmount))
 
     // for approval
     setContractForAllowance(tokenContract)
     setSpenderAddress(getProtocolByName(policy.productName.toLowerCase())?.address || null)
 
+    // slider
     getCoverLimit(policy, positionAmount)
 
     // getting token symbol
@@ -579,7 +582,7 @@ function Dashboard(): any {
           </BoxItem>
         </Box>
         <HeroContainer height={150}>
-          <BoxChooseRow mb={0}>
+          <BoxChooseRow>
             <BoxChooseCol>
               <Protocol style={{ alignItems: 'center', flexDirection: 'column' }}>
                 <ProtocolImage width={70} height={70} mb={10}>
@@ -618,7 +621,7 @@ function Dashboard(): any {
                 <TableHeader>{'Product'}</TableHeader>
                 <TableHeader>{'Position'}</TableHeader>
                 <TableHeader>{'Expiration Date'}</TableHeader>
-                <TableHeader>{'Amount'}</TableHeader>
+                <TableHeader>{'Covered Amount'}</TableHeader>
               </TableRow>
             </TableHead>
             <TableBody>{renderPolicies()}</TableBody>
