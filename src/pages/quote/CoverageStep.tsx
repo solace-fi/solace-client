@@ -30,7 +30,7 @@ import { formatEther, parseEther } from 'ethers/lib/utils'
 import { BigNumber } from 'ethers'
 
 /* import constants */
-import { DAYS_PER_YEAR, NUM_BLOCKS_PER_DAY } from '../../constants'
+import { DAYS_PER_YEAR, GAS_LIMIT, NUM_BLOCKS_PER_DAY } from '../../constants'
 import { TransactionCondition, FunctionName, Unit } from '../../constants/enums'
 
 /* import managers */
@@ -110,7 +110,7 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
         {
           value: parseEther(quote).add(parseEther(quote).div('10000')),
           gasPrice: getGasValue(wallet.gasPrices.selected.value),
-          gasLimit: 450000,
+          gasLimit: GAS_LIMIT,
         }
       )
       navigation.next()

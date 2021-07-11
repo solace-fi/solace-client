@@ -1,6 +1,21 @@
 import { withBackoffRetries, range, getContract } from '../utils'
 import { getPoliciesConfig } from '../utils/configs'
 import { useWallet } from '../context/WalletManager'
+import { PolicyStatus } from '../constants/enums'
+import { BigNumber } from 'ethers'
+
+export interface Policy {
+  policyId: number
+  policyHolder: string
+  productAddress: string
+  productName: string
+  positionContract: string
+  expirationBlock: string
+  coverAmount: string
+  price: string
+  status: PolicyStatus
+  positionName: string
+}
 
 export const usePolicyGetter = () => {
   const wallet = useWallet()
@@ -28,7 +43,7 @@ export const usePolicyGetter = () => {
 
   const getPolicies = async (policyHolder?: string, product?: string) => {
     await checkInit()
-    let policies = await (policyHolder ? getUserPolicies(policyHolder) : getAllPolicies)
+    let policies = await (policyHolder ? getUserPolicies(policyHolder) : getAllPolicies())
     policies = policies.filter((policy: any) => policy.policyId >= 0)
     if (product) policies = policies.filter((policy: any) => policy.productAddress.equalsIgnoreCase(product))
     policies.sort((a: any, b: any) => b.policyId - a.policyId) // newest first
@@ -45,7 +60,7 @@ export const usePolicyGetter = () => {
       wallet.library.getBlockNumber(),
       getPoliciesConfig[String(wallet.chainId)].policyManagerContract.listPolicies(policyHolder),
     ])
-    const policies = await Promise.all(policyIds.map((policyId: any) => queryPolicy(policyId, blockNumber)))
+    const policies = await Promise.all(policyIds.map((policyId: BigNumber) => queryPolicy(policyId, blockNumber)))
     return policies
   }
 

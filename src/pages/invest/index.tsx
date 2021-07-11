@@ -76,7 +76,7 @@ import {
   truncateBalance,
 } from '../../utils/formatting'
 import { getProviderOrSigner, hasApproval } from '../../utils'
-import { timeAgo } from '../../utils/timeAgo'
+import { timeAgo } from '../../utils/time'
 import { decodeInput } from '../../utils/decoder'
 
 function Invest(): any {

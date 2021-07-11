@@ -13,7 +13,7 @@ export const useGetPolicyPrice = (policyId: number): string => {
   const { selectedProtocol } = useContracts()
 
   const getPrice = async () => {
-    if (!selectedProtocol) return
+    if (!selectedProtocol || policyId == 0) return
     try {
       const price = await getPolicyPrice(policyId)
       setPolicyPrice(price)

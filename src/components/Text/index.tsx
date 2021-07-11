@@ -125,8 +125,8 @@ export const TextStyleCss = css<TextStyleProps>`
   ${(props) => props.outlined && TextOutlineCss}
   ${(props) => props.autoAlign && AlignAutoCss}
   ${(props) => props.bold && 'font-weight: 600;'}
-  ${(props) => props.error && 'color: rgba(219, 44, 56);'}
-  ${(props) => props.warning && 'color: rgba(254, 249, 154);'}
+  ${(props) => props.error && 'color: rgba(255, 12, 28);'}
+  ${(props) => props.warning && 'color: rgba(245, 221, 83);'}
 `
 
 export const GeneralTextCss = css<GeneralTextProps>`

@@ -36,7 +36,7 @@ import styled from 'styled-components'
 
 /* import constants */
 import { Unit, PolicyStatus } from '../../constants/enums'
-import { CHAIN_ID, DAYS_PER_YEAR, NUM_BLOCKS_PER_DAY } from '../../constants'
+import { CHAIN_ID, DAYS_PER_YEAR, GAS_LIMIT, NUM_BLOCKS_PER_DAY } from '../../constants'
 import { TransactionCondition, FunctionName } from '../../constants/enums'
 import cTokenABI from '../../constants/abi/contracts/interface/ICToken.sol/ICToken.json'
 
@@ -47,8 +47,8 @@ import { useUserData } from '../../context/UserDataManager'
 import { useToasts } from '../../context/NotificationsManager'
 
 /* import components */
-import { Content, FlexCol, HeroContainer } from '../../components/Layout'
-import { CardContainer, InvestmentCardComponent, CardHeader, CardTitle, CardBlock } from '../../components/Card'
+import { Content, HeroContainer } from '../../components/Layout'
+import { CardContainer, InvestmentCard, CardHeader, CardTitle, CardBlock } from '../../components/Card'
 import { Heading1, Heading2, Heading3, Text1, Text2, Text3 } from '../../components/Text'
 import { Button, ButtonWrapper } from '../../components/Button'
 import { Table, TableHead, TableHeader, TableRow, TableBody, TableData, TableDataGroup } from '../../components/Table'
@@ -65,13 +65,14 @@ import { useUserPendingRewards, useUserRewardsPerDay } from '../../hooks/useRewa
 import { useGetCancelFee, useGetQuote, useGetPolicyPrice, useAppraisePosition } from '../../hooks/usePolicy'
 import { useTokenAllowance } from '../../hooks/useTokenAllowance'
 import { useClaimsEscrow } from '../../hooks/useClaimsEscrow'
-import { usePolicyGetter } from '../../hooks/useGetter'
+import { usePolicyGetter, Policy } from '../../hooks/useGetter'
 
 /* import utils */
 import { getGasValue, truncateBalance, fixedPositionBalance } from '../../utils/formatting'
 import { fetchEtherscanLatestBlockNumber } from '../../utils/etherscan'
-import { Policy, getUserPolicies, ClaimAssessment, getClaimAssessment, getPositions } from '../../utils/paclas'
+import { getUserPolicies, ClaimAssessment, getClaimAssessment, getPositions } from '../../utils/paclas'
 import { getContract, hasApproval } from '../../utils'
+import { convertedTime } from '../../utils/time'
 
 /*************************************************************************************
 
@@ -111,6 +112,7 @@ function Dashboard(): any {
   *************************************************************************************/
 
   const [policies, setPolicies] = useState<Policy[]>([])
+  const [claimDetails, setClaimDetails] = useState<any[]>([])
   const [positionBalances, setPositionBalances] = useState<any>(null)
   const [positionAmount, setPositionAmount] = useState<string | null>(null)
   const [latestBlock, setLatestBlock] = useState<number>(0)
@@ -128,6 +130,7 @@ function Dashboard(): any {
   const [contractForAllowance, setContractForAllowance] = useState<Contract | null>(null)
   const [spenderAddress, setSpenderAddress] = useState<string | null>(null)
   const [claimId, setClaimId] = useState<any>(null)
+  const [cooldownPeriod, setCooldownPeriod] = useState<string>('-')
 
   /*************************************************************************************
 
@@ -160,7 +163,7 @@ function Dashboard(): any {
   const policyPrice = useGetPolicyPrice(selectedPolicy ? selectedPolicy.policyId : 0)
   const cancelFee = useGetCancelFee()
   const tokenAllowance = useTokenAllowance(contractForAllowance, spenderAddress)
-  const { isWithdrawable, timeLeft } = useClaimsEscrow()
+  const { isWithdrawable, timeLeft, getClaimDetails, getCooldownPeriod } = useClaimsEscrow()
   const { getPolicies } = usePolicyGetter()
   const { getAppraisePosition } = useAppraisePosition()
 
@@ -222,7 +225,11 @@ function Dashboard(): any {
         tokenOut,
         amountOut,
         deadline,
-        signature
+        signature,
+        {
+          gasPrice: getGasValue(wallet.gasPrices.selected.value),
+          gasLimit: GAS_LIMIT,
+        }
       )
       const txHash = tx.hash
       const localTx = { hash: txHash, type: txType, value: '0', status: TransactionCondition.PENDING, unit: Unit.ID }
@@ -258,7 +265,7 @@ function Dashboard(): any {
           .div(String(Math.pow(10, 12)))
           .add(parseEther(quote).div('10000')),
         gasPrice: getGasValue(wallet.gasPrices.selected.value),
-        gasLimit: 450000,
+        gasLimit: GAS_LIMIT,
       })
       const txHash = tx.hash
       const localTx = { hash: txHash, type: txType, value: '0', status: TransactionCondition.PENDING, unit: Unit.ID }
@@ -285,7 +292,7 @@ function Dashboard(): any {
     try {
       const tx = await selectedProtocol.cancelPolicy(selectedPolicy.policyId, {
         gasPrice: getGasValue(wallet.gasPrices.selected.value),
-        gasLimit: 450000,
+        gasLimit: GAS_LIMIT,
       })
       const txHash = tx.hash
       const localTx = {
@@ -311,17 +318,20 @@ function Dashboard(): any {
     }
   }
 
-  const withdrawPayout = async () => {
+  const withdrawPayout = async (_claimId: any) => {
     setModalLoading(true)
-    if (!claimsEscrow || !claimId) return
-    const txType = FunctionName.WITHDRAW_PAYOUT
+    if (!claimsEscrow || !_claimId) return
+    const txType = FunctionName.WITHDRAW_CLAIMS_PAYOUT
     try {
-      const tx = await claimsEscrow.withdrawClaimsPayout(claimId)
+      const tx = await claimsEscrow.withdrawClaimsPayout(_claimId, {
+        gasPrice: getGasValue(wallet.gasPrices.selected.value),
+        gasLimit: GAS_LIMIT,
+      })
       const txHash = tx.hash
       const localTx = {
         hash: txHash,
         type: txType,
-        value: String(claimId),
+        value: String(_claimId),
         status: TransactionCondition.PENDING,
         unit: Unit.ID,
       }
@@ -350,10 +360,7 @@ function Dashboard(): any {
   const getCoverLimit = (policy: Policy | undefined, positionAmount: any) => {
     if (positionAmount == undefined || policy == undefined) return null
     const coverAmount = policy.coverAmount
-    // FROM PACLAS const positionAmount = balances.filter((balance: any) => policy.positionName == balance.underlying.symbol)[0].eth
-    //   .balance
     const coverLimit = BigNumber.from(coverAmount).mul('10000').div(positionAmount).toString()
-    // console.log(coverAmount, positionAmount, coverLimit, BigNumber.from(coverAmount).div(positionAmount).toString())
     setCoverLimit(coverLimit)
     setFeedbackCoverage(coverLimit)
     setInputCoverage(
@@ -375,15 +382,15 @@ function Dashboard(): any {
   }
 
   const openStatusModal = async (policy: Policy) => {
+    if (!wallet.chainId || !wallet.account) return
     setShowStatusModal((prev) => !prev)
     setSelectedProtocolByName(policy.productName.toLowerCase())
     document.body.style.overflowY = 'hidden'
     setSelectedPolicy(policy)
     setAsyncLoading(true)
-
     const tokenContract = getContract(policy.positionContract, cTokenABI, wallet.library, wallet.account)
     const assessment = await getClaimAssessment(String(policy.policyId))
-    const balances = await getPositions(policy.productName.toLowerCase(), wallet.chainId ?? 1, wallet.account ?? '0x')
+    const balances = await getPositions(policy.productName.toLowerCase(), wallet.chainId, wallet.account)
     const positionAmount = await getAppraisePosition(
       getProtocolByName(policy.productName.toLowerCase()),
       policy.positionContract
@@ -413,7 +420,7 @@ function Dashboard(): any {
     document.body.style.overflowY = 'hidden'
     setSelectedPolicy(policy)
     setAsyncLoading(true)
-    // const balances = await getPositions(policy.productName.toLowerCase(), wallet.chainId ?? 1, wallet.account ?? '0x')
+    // const balances = await getPositions(policy.productName.toLowerCase(), wallet.chainId ?? 1, wallet.account)
     const positionAmount = await getAppraisePosition(
       getProtocolByName(policy.productName.toLowerCase()),
       policy.positionContract
@@ -429,6 +436,7 @@ function Dashboard(): any {
     document.body.style.overflowY = 'scroll'
     setModalLoading(false)
     setExtendedTime('0')
+    setClaimId(null)
   }
 
   const filteredTime = (input: string) => {
@@ -495,15 +503,19 @@ function Dashboard(): any {
     }
 
     try {
-      const fetchPolicies = async () => {
+      const fetchPoliciesAndClaims = async () => {
         if (!wallet.account) return
         setLoading(true)
         // PACLAS: const policies = await getUserPolicies(wallet.account as string, Number(CHAIN_ID))
         const policies = await getPolicies(wallet.account)
+        const claimDetails = await getClaimDetails(wallet.account)
+        const cooldown = await getCooldownPeriod()
+        setCooldownPeriod(cooldown)
+        setClaimDetails(claimDetails)
         setPolicies(policies)
         setLoading(false)
       }
-      fetchPolicies()
+      fetchPoliciesAndClaims()
     } catch (err) {
       console.log(err)
     }
@@ -520,9 +532,9 @@ function Dashboard(): any {
   useEffect(() => {
     const checkClaim = async () => {
       if (claimId) {
-        console.log(typeof claimId, claimId)
         const withdrawable: any = await isWithdrawable(claimId)
         const time: any = await timeLeft(claimId)
+        console.log(withdrawable, time)
       }
     }
     checkClaim()
@@ -556,20 +568,6 @@ function Dashboard(): any {
               {selectedPolicy?.coverAmount ? truncateBalance(formatEther(selectedPolicy.coverAmount)) : 0} ETH
             </BoxItemValue>
           </BoxItem>
-          {/* <BoxItem>
-            <BoxItemTitle h3>Cover Limit</BoxItemTitle>
-            <BoxItemValue h2 nowrap>
-              {coverLimit && !asyncLoading ? (
-                `${
-                  coverLimit.substring(0, coverLimit.length - 2) +
-                  '.' +
-                  coverLimit.substring(coverLimit.length - 2, coverLimit.length)
-                }%`
-              ) : (
-                <Loader width={10} height={10} />
-              )}
-            </BoxItemValue>
-          </BoxItem> */}
           <BoxItem>
             <BoxItemTitle h3>Position Amount</BoxItemTitle>
             <BoxItemValue h2 nowrap>
@@ -659,12 +657,47 @@ function Dashboard(): any {
     })
   }
 
+  const MyClaims = () => {
+    return (
+      <Fragment>
+        {claimDetails && claimDetails.length > 0 && !loading && (
+          <Content>
+            <Heading1>Your Claims</Heading1>
+            <CardContainer cardsPerRow={4}>{renderClaims()}</CardContainer>
+          </Content>
+        )}
+      </Fragment>
+    )
+  }
+
+  const renderClaims = () => {
+    return claimDetails.map((claim) => {
+      return (
+        <InvestmentCard key={claim.id} disabled={!claim.canWithdraw}>
+          <CardHeader>
+            <CardTitle h2>Claim ID</CardTitle>
+            <Heading3>{claim.id}</Heading3>
+          </CardHeader>
+          <CardBlock>
+            <CardTitle h2>Amount</CardTitle>
+            <Heading3>{formatEther(claim.amount)} ETH</Heading3>
+          </CardBlock>
+          <CardBlock>
+            <Button onClick={() => withdrawPayout(claim.id)} disabled={!claim.canWithdraw}>
+              {claim.canWithdraw ? 'Withdraw Payout' : convertedTime(parseInt(claim.cooldown))}
+            </Button>
+          </CardBlock>
+        </InvestmentCard>
+      )
+    })
+  }
+
   const MyInvestments = () => {
     return (
       <Content>
         <Heading1>Your Investments</Heading1>
         <CardContainer>
-          <InvestmentCardComponent>
+          <InvestmentCard>
             <CardHeader>
               <CardTitle h2>Capital Pool</CardTitle>
               <Heading3>
@@ -683,8 +716,8 @@ function Dashboard(): any {
                 {wallet.account ? truncateBalance(parseFloat(cpUserRewards), 2) : 0} {Unit.SOLACE}
               </CardTitle>
             </CardBlock>
-          </InvestmentCardComponent>
-          <InvestmentCardComponent>
+          </InvestmentCard>
+          <InvestmentCard>
             <CardHeader>
               <CardTitle h2>Liquidity Pool</CardTitle>
               <Heading3>
@@ -703,7 +736,7 @@ function Dashboard(): any {
                 {wallet.account ? truncateBalance(parseFloat(lpUserRewards), 2) : 0} {Unit.SOLACE}
               </CardTitle>
             </CardBlock>
-          </InvestmentCardComponent>
+          </InvestmentCard>
         </CardContainer>
       </Content>
     )
@@ -885,14 +918,7 @@ function Dashboard(): any {
                   <Text3 autoAlign>for pre-exploit assets value equal to</Text3>
                 </BoxChooseCol>
                 <BoxChooseCol>
-                  <Heading2 autoAlign>
-                    {positionBalances &&
-                      positionBalances.map(
-                        (position: any) =>
-                          position.underlying.address == assessment?.tokenOut &&
-                          `${formatEther(assessment?.amountOut || 0)} ${position.underlying.symbol}`
-                      )}
-                  </Heading2>
+                  <Heading2 autoAlign>{formatEther(assessment?.amountOut || 0)} ETH</Heading2>
                 </BoxChooseCol>
               </BoxChooseRow>
               <SmallBox mt={10} collapse={assessment?.lossEventDetected}>
@@ -935,12 +961,10 @@ function Dashboard(): any {
                 <TableBody>
                   <TableRow>
                     <TableData>
-                      <Text2>Payout Status</Text2>
+                      <Text2>Current Cooldown Period</Text2>
                     </TableData>
                     <TableData textAlignRight>
-                      <Button disabled={!claimId} onClick={() => withdrawPayout()}>
-                        Withdraw Payout
-                      </Button>
+                      <Text2>{convertedTime(parseInt(cooldownPeriod))}</Text2>
                     </TableData>
                   </TableRow>
                 </TableBody>
@@ -975,6 +999,7 @@ function Dashboard(): any {
             <StatusModalContent />
           </Modal>
           <MyPolicies />
+          <MyClaims />
           <MyInvestments />
         </Fragment>
       )}

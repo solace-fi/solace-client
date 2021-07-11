@@ -15,17 +15,21 @@ export const useTransactionDetails = (txList: any): string[] => {
     provider: Web3Provider | Provider
   ): Promise<string> => {
     const receipt = await provider.getTransactionReceipt(tx.hash)
+    if (receipt.status == 0) return '0'
     if (!receipt) return '0'
     const logs = receipt.logs
     if (!logs) return '0'
+    const topics = logs[logs.length - 1].topics
 
     switch (function_name) {
       case FunctionName.DEPOSIT:
       case FunctionName.WITHDRAW:
       case FunctionName.SUBMIT_CLAIM:
-        const topics = logs[logs.length - 1].topics
         if (!topics || topics.length <= 0) return '0'
         return topics[topics.length - 1]
+      case FunctionName.WITHDRAW_CLAIMS_PAYOUT:
+        if (!topics || topics.length <= 0) return '0'
+        return topics[1]
       case FunctionName.BUY_POLICY:
       case FunctionName.EXTEND_POLICY:
       case FunctionName.CANCEL_POLICY:

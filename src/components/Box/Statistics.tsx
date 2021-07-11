@@ -30,7 +30,7 @@ import { formatEther, parseEther } from '@ethersproject/units'
 import { Contract } from '@ethersproject/contracts'
 
 /* import constants */
-import { GAS_LIMIT, CHAIN_ID } from '../../constants'
+import { GAS_LIMIT } from '../../constants'
 import { TransactionCondition, FunctionName, Unit, PolicyStatus } from '../../constants/enums'
 
 /* import managers */
@@ -48,6 +48,7 @@ import { useCapitalPoolSize } from '../../hooks/useCapitalPoolSize'
 import { useTotalPendingRewards } from '../../hooks/useRewards'
 import { useSolaceBalance } from '../../hooks/useSolaceBalance'
 import { usePoolStakedValue } from '../../hooks/usePoolStakedValue'
+import { usePolicyGetter, Policy } from '../../hooks/useGetter'
 
 /* import wallet */
 import { WalletConnectButton } from '../Button/WalletConnect'
@@ -83,6 +84,7 @@ export const Statistics = () => {
   const totalUserRewards = useTotalPendingRewards()
   const cpPoolValue = usePoolStakedValue(cpFarm)
   const lpPoolValue = usePoolStakedValue(lpFarm)
+  const { getPolicies } = usePolicyGetter()
 
   /*************************************************************************************
 
@@ -165,7 +167,7 @@ export const Statistics = () => {
   useEffect(() => {
     try {
       const fetchPolicies = async () => {
-        const policies = await getAllPolicies(Number(CHAIN_ID))
+        const policies: Policy[] = await getPolicies()
         const activePolicies = policies.filter(({ status }) => status === PolicyStatus.ACTIVE)
 
         let activeCoverAmount = 0

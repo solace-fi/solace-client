@@ -51,5 +51,6 @@ export const CONTRACTS_ARRAY = [
   String(TREASURY_CONTRACT_ADDRESS).toLowerCase(),
   String(MASTER_CONTRACT_ADDRESS).toLowerCase(),
   String(POLICY_MANAGER_CONTRACT_ADDRESS).toLowerCase(),
+  String(CLAIMS_ESCROW_CONTRACT_ADDRESS).toLowerCase(),
   String(COMPOUND_PRODUCT_CONTRACT_ADDRESS).toLowerCase(),
 ]

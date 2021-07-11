@@ -80,7 +80,7 @@ export const delay = async (ms: number) => {
 
 export const range = (stop: number) => {
   const arr = []
-  for (let i = 0; i < stop; ++i) {
+  for (let i = 1; i <= stop; ++i) {
     arr.push(i)
   }
   return arr

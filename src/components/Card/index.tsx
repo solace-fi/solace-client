@@ -30,7 +30,7 @@ export const CardBaseComponent = styled.div<CardProps & GeneralTextProps>`
   ${CardBase}
 `
 
-const InvestmentCard = styled.div<CardProps & GeneralTextProps>`
+export const InvestmentCard = styled.div<CardProps & GeneralTextProps>`
   ${CardBase}
   ${GeneralTextCss}
   display: grid;
@@ -39,7 +39,7 @@ const InvestmentCard = styled.div<CardProps & GeneralTextProps>`
   gap: 24px;
 `
 
-const PositionCard = styled(FlexCol)<CardProps & GeneralTextProps>`
+export const PositionCard = styled(FlexCol)<CardProps & GeneralTextProps>`
   ${CardBase}
   align-items: center;
   justify-content: center;
@@ -65,20 +65,3 @@ export const CardTitle = styled.div<GeneralTextProps>`
 `
 
 export const CardBlock = styled.div``
-
-export const InvestmentCardComponent: React.FC<CardProps & GeneralTextProps> = ({ transparent, children }) => {
-  return <InvestmentCard transparent={transparent}>{children}</InvestmentCard>
-}
-
-export const PositionCardComponent: React.FC<CardProps & GeneralTextProps> = ({
-  onClick,
-  transparent,
-  children,
-  disabled,
-}) => {
-  return (
-    <PositionCard transparent={transparent} disabled={disabled} onClick={onClick}>
-      {children}
-    </PositionCard>
-  )
-}

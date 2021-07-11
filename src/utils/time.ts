@@ -1,5 +1,4 @@
 export function timeAgo(someDateInThePast: number): string {
-  let result = ''
   const difference = Date.now() - someDateInThePast
 
   if (difference < 5 * 1000) {
@@ -7,6 +6,12 @@ export function timeAgo(someDateInThePast: number): string {
   } else if (difference < 90 * 1000) {
     return 'moments ago'
   }
+
+  return convertedTime(difference) + ' ago'
+}
+
+export function convertedTime(difference: number): string {
+  let result = ''
 
   //it has minutes
   if ((difference % 1000) * 3600 > 0) {
@@ -31,6 +36,5 @@ export function timeAgo(someDateInThePast: number): string {
       result = `${Math.floor(difference / 1000 / 60 / 60 / 24)} day${s}${result == '' ? '' : ','} ` + result
     }
   }
-
-  return result + ' ago'
+  return result
 }

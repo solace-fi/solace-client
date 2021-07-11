@@ -1,20 +1,7 @@
 import axios from 'axios'
 import { PACLAS_POLICY_ENDPOINT } from '../constants/apiURL'
-import { PolicyStatus } from '../constants/enums'
 import { getNetworkName } from '../utils'
-
-export interface Policy {
-  policyId: number
-  policyHolder: string
-  productAddress: string
-  productName: string
-  positionContract: string
-  expirationBlock: string
-  coverAmount: string
-  price: string
-  status: PolicyStatus
-  positionName: string
-}
+import { Policy } from '../hooks/useGetter'
 
 export type ClaimAssessment = {
   lossEventDetected: boolean

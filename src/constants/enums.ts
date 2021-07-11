@@ -22,7 +22,7 @@ export enum FunctionName {
   WITHDRAW = 'Withdraw',
   WITHDRAW_ETH = 'WithdrawEth',
   WITHDRAW_LP = 'WithdrawLp',
-  WITHDRAW_PAYOUT = 'WithdrawPayout',
+  WITHDRAW_CLAIMS_PAYOUT = 'WithdrawClaimsPayout',
   WITHDRAW_REWARDS = 'WithdrawRewards',
 }
 
