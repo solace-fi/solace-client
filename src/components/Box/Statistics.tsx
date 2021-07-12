@@ -92,8 +92,8 @@ export const Statistics = () => {
 
   *************************************************************************************/
   const [totalValueLocked, setTotalValueLocked] = useState<string>('0.00')
-  const [totalActiveCoverAmount, setTotalActiveCoverAmount] = useState<number>(0.0)
-  const [totalActivePolicies, setTotalActivePolicies] = useState<number>(0.0)
+  const [totalActiveCoverAmount, setTotalActiveCoverAmount] = useState<number | string>('-')
+  const [totalActivePolicies, setTotalActivePolicies] = useState<number | string>('-')
 
   /*************************************************************************************
 
@@ -237,7 +237,9 @@ export const Statistics = () => {
         <BoxItem>
           <BoxItemTitle h3>Active Cover Amount</BoxItemTitle>
           <BoxItemValue h2 nowrap>
-            {`${fixed(parseFloat(formatEther(totalActiveCoverAmount.toString())), 2)} `}
+            {totalActiveCoverAmount !== '-'
+              ? `${truncateBalance(parseFloat(formatEther(totalActiveCoverAmount.toString())), 2)} `
+              : `${totalActiveCoverAmount} `}
             <BoxItemUnits h3>{Unit.ETH}</BoxItemUnits>
           </BoxItemValue>
         </BoxItem>
