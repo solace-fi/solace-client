@@ -95,18 +95,14 @@ export function timer(millis: number): string {
   const minutes = date.getUTCMinutes()
 
   if (days > 0) {
-    if (days > 1) {
-      str += days + 'd'
-    }
+    str += days + 'd'
   }
 
   if (hours > 0) {
     if (days > 0) {
       str += ' '
     }
-    if (hours > 1) {
-      str += hours + 'hr'
-    }
+    str += hours + 'hr'
   }
 
   if (hours > 0) {
