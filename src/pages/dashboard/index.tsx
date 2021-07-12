@@ -671,7 +671,9 @@ function Dashboard(): any {
             <BoxItem>
               <BoxItemTitle h3>Payout Status</BoxItemTitle>
               <BoxItemValue h2>
-                {claim.canWithdraw ? 'Withdrawal Ready' : `${timer(parseInt(claim.cooldown) * 1000)} left`}
+                {claim.canWithdraw
+                  ? 'Withdrawal Ready'
+                  : `${claim.cooldown == '-' ? claim.cooldown : timer(parseInt(claim.cooldown) * 1000)} left`}
               </BoxItemValue>
             </BoxItem>
           </Box>

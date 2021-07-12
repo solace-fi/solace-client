@@ -93,7 +93,6 @@ export function timer(millis: number): string {
   const days = date.getUTCDate() - 1
   const hours = date.getUTCHours()
   const minutes = date.getUTCMinutes()
-  const seconds = date.getUTCSeconds()
 
   if (days > 0) {
     if (days > 1) {
@@ -110,23 +109,10 @@ export function timer(millis: number): string {
     }
   }
 
-  if (minutes > 0) {
-    if (hours > 0) {
-      str += ' '
-    }
-    if (minutes > 1) {
-      str += minutes + 'm'
-    }
+  if (hours > 0) {
+    str += ' '
   }
-
-  if (seconds > 0) {
-    if (minutes > 0) {
-      str += ' '
-    }
-    if (seconds > 1) {
-      str += seconds + 's'
-    }
-  }
+  str += minutes + 'm'
 
   return str
 }
