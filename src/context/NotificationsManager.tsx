@@ -90,26 +90,48 @@ const ToastsProvider: React.FC = (props) => {
     switch (condition) {
       case 'Complete':
         if (txHash) {
-          toast.update(txHash, {
-            render: TxToast(txType, 'successful'),
-            type: toast.TYPE.SUCCESS,
-            position: toast.POSITION.BOTTOM_LEFT,
-            closeOnClick: false,
-            closeButton: true,
-            className: 'success-toast',
-          })
+          if (toast.isActive(txHash)) {
+            toast.update(txHash, {
+              render: TxToast(txType, 'successful'),
+              type: toast.TYPE.SUCCESS,
+              position: toast.POSITION.BOTTOM_LEFT,
+              closeOnClick: false,
+              closeButton: true,
+              className: 'success-toast',
+            })
+          } else {
+            toast(TxToast(txType, 'successful'), {
+              toastId: txHash,
+              type: toast.TYPE.SUCCESS,
+              position: toast.POSITION.BOTTOM_LEFT,
+              closeOnClick: false,
+              closeButton: true,
+              className: 'success-toast',
+            })
+          }
         }
         break
       case 'Incomplete':
         if (txHash) {
-          toast.update(txHash, {
-            render: TxToast(txType, 'failed'),
-            type: toast.TYPE.ERROR,
-            position: toast.POSITION.BOTTOM_LEFT,
-            closeOnClick: false,
-            closeButton: true,
-            className: 'error-toast',
-          })
+          if (toast.isActive(txHash)) {
+            toast.update(txHash, {
+              render: TxToast(txType, 'failed'),
+              type: toast.TYPE.ERROR,
+              position: toast.POSITION.BOTTOM_LEFT,
+              closeOnClick: false,
+              closeButton: true,
+              className: 'error-toast',
+            })
+          } else {
+            toast(TxToast(txType, 'failed'), {
+              toastId: txHash,
+              type: toast.TYPE.ERROR,
+              position: toast.POSITION.BOTTOM_LEFT,
+              closeOnClick: false,
+              closeButton: true,
+              className: 'error-toast',
+            })
+          }
         }
         break
       case 'Pending':
@@ -120,7 +142,7 @@ const ToastsProvider: React.FC = (props) => {
             autoClose: false,
             position: toast.POSITION.BOTTOM_LEFT,
             closeOnClick: false,
-            closeButton: false,
+            closeButton: true,
             className: 'info-toast',
           })
         }

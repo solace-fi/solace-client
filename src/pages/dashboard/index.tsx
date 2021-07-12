@@ -419,7 +419,6 @@ function Dashboard(): any {
     document.body.style.overflowY = 'hidden'
     setSelectedPolicy(policy)
     setAsyncLoading(true)
-    // const balances = await getPositions(policy.productName.toLowerCase(), wallet.chainId ?? 1, wallet.account)
     const positionAmount = await getAppraisePosition(
       getProtocolByName(policy.productName.toLowerCase()),
       policy.positionContract
