@@ -1,5 +1,5 @@
 import React from 'react'
-import { GeneralElementProps, GeneralElementCss } from '../interfaces'
+import { GeneralElementProps, GeneralElementCss } from '../generalInterfaces'
 import styled, { css } from 'styled-components'
 
 export interface ClickProps {
@@ -43,6 +43,7 @@ export const ButtonWrapper = styled.div`
   align-items: center;
   justify-content: center;
   margin: 20px 0;
+  gap: 5px;
 `
 
 export const handleButtonProps = (): any => {

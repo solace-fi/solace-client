@@ -30,7 +30,7 @@ import { formatEther, parseEther } from 'ethers/lib/utils'
 import { BigNumber } from 'ethers'
 
 /* import constants */
-import { DAYS_PER_YEAR, NUM_BLOCKS_PER_DAY } from '../../constants'
+import { DAYS_PER_YEAR, GAS_LIMIT, NUM_BLOCKS_PER_DAY } from '../../constants'
 import { TransactionCondition, FunctionName, Unit } from '../../constants/enums'
 
 /* import managers */
@@ -110,7 +110,7 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
         {
           value: parseEther(quote).add(parseEther(quote).div('10000')),
           gasPrice: getGasValue(wallet.gasPrices.selected.value),
-          gasLimit: 450000,
+          gasLimit: GAS_LIMIT,
         }
       )
       navigation.next()
@@ -240,16 +240,16 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
     <Fragment>
       <CardContainer cardsPerRow={2}>
         <CardBaseComponent>
-          <BoxChooseRow>
+          <BoxChooseRow mb={15}>
             <BoxChooseCol>
               <Heading2>Total Assets</Heading2>
-              <Text3>ETH Denominated</Text3>
+              {position.underlying.symbol !== 'ETH' && <Text3>ETH Denominated from {position.underlying.symbol}</Text3>}
             </BoxChooseCol>
             <BoxChooseCol>
               <Heading2>{formatEther(position.eth.balance)} ETH</Heading2>
             </BoxChooseCol>
           </BoxChooseRow>
-          <BoxChooseRow>
+          <BoxChooseRow mb={5}>
             <BoxChooseCol>
               <BoxChooseText>Coverage Limit (1 - 100%)</BoxChooseText>
             </BoxChooseCol>
@@ -272,14 +272,14 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
               />
             </BoxChooseCol>
           </BoxChooseRow>
-          <BoxChooseRow>
+          <BoxChooseRow mb={5}>
             <BoxChooseCol>
               <BoxChooseText>Covered Assets</BoxChooseText>
             </BoxChooseCol>
             <BoxChooseCol>
               <FlexRow>
                 <BoxChooseText
-                  alignVertical
+                  autoAlign
                   bold
                   error={parseEther(coveredAssets).gt(parseEther(maxCoverPerUser)) && maxCoverPerUser !== '0.00'}
                 >
@@ -294,15 +294,14 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
           <SmallBox
             outlined
             error
-            mb={10}
-            mt={-10}
             collapse={!parseEther(coveredAssets).gt(parseEther(maxCoverPerUser))}
+            mb={!parseEther(coveredAssets).gt(parseEther(maxCoverPerUser)) ? 0 : 5}
           >
-            <Text3 error alignVertical>
+            <Text3 error autoAlign>
               You can only cover to a maximum amount of {maxCoverPerUser} ETH.
             </Text3>
           </SmallBox>
-          <BoxChooseRow>
+          <BoxChooseRow mb={5}>
             <BoxChooseCol>
               <BoxChooseText>Time Period (1 - 365 days)</BoxChooseText>
             </BoxChooseCol>
@@ -327,7 +326,7 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
               />
             </BoxChooseCol>
           </BoxChooseRow>
-          <BoxChooseRow>
+          <BoxChooseRow mb={5}>
             <BoxChooseCol>
               <BoxChooseText>Covered Period</BoxChooseText>
             </BoxChooseCol>

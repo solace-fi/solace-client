@@ -1,6 +1,6 @@
 import styled, { css } from 'styled-components'
 import { GeneralTextProps, GeneralTextCss } from '../Text'
-import { HeightAndWidthProps, HeightAndWidthCss } from '../interfaces'
+import { HeightAndWidthProps, HeightAndWidthCss } from '../generalInterfaces'
 
 const InputBase = css`
   ::placeholder {

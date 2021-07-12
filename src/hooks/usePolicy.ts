@@ -1,19 +1,19 @@
 import useDebounce from '@rooks/use-debounce'
-import { BigNumber } from 'ethers'
+import { BigNumber, Contract } from 'ethers'
 import { formatEther } from 'ethers/lib/utils'
 import React, { useEffect, useState } from 'react'
 import { GAS_LIMIT, NUM_BLOCKS_PER_DAY } from '../constants'
 import { PROTOCOLS_LIST } from '../constants/protocols'
 import { useContracts } from '../context/ContractsManager'
 import { useWallet } from '../context/WalletManager'
-import { getPolicyPrice } from '../utils/policyGetter'
+import { getPolicyPrice } from '../utils/paclas'
 
 export const useGetPolicyPrice = (policyId: number): string => {
-  const [policyPrice, setPolicyPrice] = useState<string>('0')
+  const [policyPrice, setPolicyPrice] = useState<string>('')
   const { selectedProtocol } = useContracts()
 
   const getPrice = async () => {
-    if (!selectedProtocol) return
+    if (!selectedProtocol || policyId == 0) return
     try {
       const price = await getPolicyPrice(policyId)
       setPolicyPrice(price)
@@ -24,9 +24,25 @@ export const useGetPolicyPrice = (policyId: number): string => {
 
   useEffect(() => {
     getPrice()
-  }, [selectedProtocol])
+  }, [selectedProtocol, policyId])
 
   return policyPrice
+}
+
+export const useAppraisePosition = () => {
+  const wallet = useWallet()
+
+  const getAppraisePosition = async (product: Contract | null, positionContractAddress: string) => {
+    if (!product || !positionContractAddress) return
+    try {
+      const positionAmount = await product.appraisePosition(wallet.account, positionContractAddress)
+      return positionAmount
+    } catch (err) {
+      console.log('AppraisePosition', err)
+    }
+  }
+
+  return { getAppraisePosition }
 }
 
 export const useGetMaxCoverPerUser = (): string => {

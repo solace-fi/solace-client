@@ -9,6 +9,7 @@ import cpFarmABI from '../constants/abi/contracts/CpFarm.sol/CpFarm.json'
 import lpFarmABI from '../constants/abi/contracts/SolaceEthLpFarm.sol/SolaceEthLpFarm.json'
 import lpTokenArtifact from '../../node_modules/@uniswap/v3-periphery/artifacts/contracts/NonfungiblePositionManager.sol/NonfungiblePositionManager.json'
 import compAbi from '../constants/abi/contracts/products/CompoundProductRinkeby.sol/CompoundProductRinkeby.json'
+import claimsEscrowAbi from '../constants/abi/contracts/ClaimsEscrow.sol/ClaimsEscrow.json'
 
 import {
   SOLACE_CONTRACT_ADDRESS,
@@ -25,6 +26,7 @@ import {
   REGISTRY_CONTRACT_ADDRESS,
   POLICY_MANAGER_CONTRACT_ADDRESS,
   COMPOUND_PRODUCT_CONTRACT_ADDRESS,
+  CLAIMS_ESCROW_CONTRACT_ADDRESS,
 } from '../constants'
 
 const getInterface = (toAddress: string) => {
@@ -47,6 +49,8 @@ const getInterface = (toAddress: string) => {
       return new ethers.utils.Interface(registryABI)
     case String(COMPOUND_PRODUCT_CONTRACT_ADDRESS).toLowerCase():
       return new ethers.utils.Interface(compAbi)
+    case String(CLAIMS_ESCROW_CONTRACT_ADDRESS).toLowerCase():
+      return new ethers.utils.Interface(claimsEscrowAbi)
     case String(MASTER_CONTRACT_ADDRESS).toLowerCase():
     default:
       return new ethers.utils.Interface(masterABI)

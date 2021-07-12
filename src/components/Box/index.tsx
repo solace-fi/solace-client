@@ -1,10 +1,11 @@
 import styled, { css } from 'styled-components'
 import { Box as RebassBox } from 'rebass/styled-components'
 import { GeneralTextProps, GeneralTextCss } from '../Text'
-import { GeneralElementProps, GeneralElementCss } from '../interfaces'
+import { GeneralElementProps, GeneralElementCss } from '../generalInterfaces'
 
 interface BoxProps {
   purple?: boolean
+  green?: boolean
   transparent?: boolean
   outlined?: boolean
 }
@@ -16,8 +17,9 @@ interface SmallBoxProps {
 
 const BoxPropsHandler = css<GeneralElementProps & BoxProps>`
   ${(props) => props.transparent && TransparentBox}
-  ${(props) => props.outlined && Outline}
+  ${(props) => props.outlined && BoxOutline}
   ${(props) => props.purple && 'background-color: rgba(250, 0, 255, 0.3);'}
+  ${(props) => props.green && 'background-color: rgba(0, 187, 40, 0.7); box-shadow: 0 0 7px #fff;'}
   ${GeneralElementCss}
 `
 
@@ -46,17 +48,16 @@ const TransparentBox = css`
   background-color: rgba(0, 0, 0, 0);
 `
 
-const Outline = css`
+const BoxOutline = css`
   border-width: 1px;
   border-style: solid;
   border-color: rgb(255, 255, 255);
 `
 
 export const Box = styled(BoxRow)<BoxProps & GeneralElementProps>`
-  ${BoxPropsHandler}
   align-items: center;
   border-radius: 10px;
-  ${(props) => !props.purple && !props.transparent && 'background-color: rgba(0, 255, 209, 0.3);'}
+  background-color: rgba(0, 255, 209, 0.3);
   ${(props) =>
     props.p !== undefined ||
     props.pt !== undefined ||
@@ -65,6 +66,7 @@ export const Box = styled(BoxRow)<BoxProps & GeneralElementProps>`
     props.pb !== undefined
       ? null
       : `padding: 24px;`}
+  ${BoxPropsHandler}
 `
 
 export const SmallBox = styled.div<BoxProps & SmallBoxProps & GeneralElementProps>`

@@ -53,7 +53,7 @@ export default function Account(): any {
     <Fragment>
       {wallet.isActive && (
         <SmallBox outlined>
-          <Heading3 alignVertical>
+          <Heading3 autoAlign>
             {getNetworkName(wallet.chainId) === '-'
               ? getNetworkName(wallet.chainId)
               : `${getNetworkName(wallet.chainId)
@@ -66,11 +66,11 @@ export default function Account(): any {
       {!wallet.isActive && <WalletConnectButton />}
       {wallet.account && (
         <SmallBox pl={10} outlined>
-          <Heading3 alignVertical nowrap>
+          <Heading3 autoAlign nowrap>
             {balance ? `${fixed(parseFloat(balance), 3)} ETH` : ''}
           </Heading3>
           <SmallBox ml={10} outlined>
-            <Heading3 alignVertical>{shortenAddress(wallet.account)}</Heading3>{' '}
+            <Heading3 autoAlign>{shortenAddress(wallet.account)}</Heading3>{' '}
             <UserImage pt={4} pb={4} pl={10}>
               <img src={makeBlockie(wallet.account)} />
             </UserImage>

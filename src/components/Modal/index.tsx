@@ -30,7 +30,8 @@ const ModalBase = styled.div<ModalProps>`
   margin: auto;
   border-radius: 10px;
   padding: 24px;
-  background-color: rgba(255, 255, 255, 0.3);
+  background-color: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 0 7px #fff;
   opacity: 0;
   ${(props) =>
     props.isOpen &&
@@ -53,7 +54,7 @@ export const ModalHeader = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 40px;
+  margin-bottom: 30px;
 `
 
 export const ModalContent = styled.div``

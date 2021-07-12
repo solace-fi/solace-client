@@ -10,18 +10,20 @@ export enum Error {
 }
 
 export enum FunctionName {
-  DEPOSIT = 'Deposit',
-  DEPOSIT_ETH = 'DepositEth',
-  DEPOSIT_CP = 'DepositCp',
-  WITHDRAW = 'Withdraw',
-  WITHDRAW_ETH = 'WithdrawEth',
-  DEPOSIT_LP = 'DepositLp',
-  WITHDRAW_LP = 'WithdrawLp',
-  WITHDRAW_REWARDS = 'WithdrawRewards',
   APPROVE = 'Approve',
   BUY_POLICY = 'BuyPolicy',
-  EXTEND_POLICY = 'ExtendPolicy',
   CANCEL_POLICY = 'CancelPolicy',
+  DEPOSIT = 'Deposit',
+  DEPOSIT_CP = 'DepositCp',
+  DEPOSIT_ETH = 'DepositEth',
+  DEPOSIT_LP = 'DepositLp',
+  EXTEND_POLICY = 'ExtendPolicy',
+  SUBMIT_CLAIM = 'SubmitClaim',
+  WITHDRAW = 'Withdraw',
+  WITHDRAW_ETH = 'WithdrawEth',
+  WITHDRAW_LP = 'WithdrawLp',
+  WITHDRAW_CLAIMS_PAYOUT = 'WithdrawClaimsPayout',
+  WITHDRAW_REWARDS = 'WithdrawRewards',
 }
 
 export enum Unit {

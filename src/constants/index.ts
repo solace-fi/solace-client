@@ -31,7 +31,7 @@ export const TOKEN_SYMBOL = 'SCP'
 export const DEADLINE = constants.MaxUint256
 export const ZERO = constants.Zero
 export const ADDRESS_ZERO = constants.AddressZero
-export const GAS_LIMIT = 350000
+export const GAS_LIMIT = 800000
 
 export const POW_NINE = 1000000000
 export const POW_EIGHTEEN = 1000000000000000000
@@ -51,5 +51,6 @@ export const CONTRACTS_ARRAY = [
   String(TREASURY_CONTRACT_ADDRESS).toLowerCase(),
   String(MASTER_CONTRACT_ADDRESS).toLowerCase(),
   String(POLICY_MANAGER_CONTRACT_ADDRESS).toLowerCase(),
+  String(CLAIMS_ESCROW_CONTRACT_ADDRESS).toLowerCase(),
   String(COMPOUND_PRODUCT_CONTRACT_ADDRESS).toLowerCase(),
 ]

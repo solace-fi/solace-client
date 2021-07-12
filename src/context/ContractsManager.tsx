@@ -11,6 +11,8 @@ import {
   useLpTokenContract,
   useWethContract,
   useCompoundProductContract,
+  useClaimsEscrowContract,
+  usePolicyManagerContract,
 } from '../hooks/useContract'
 
 /*
@@ -29,6 +31,8 @@ export type Contracts = {
   registry?: Contract | null
   lpToken?: Contract | null
   weth?: Contract | null
+  claimsEscrow?: Contract | null
+  policyManager?: Contract | null
   products: {
     compProduct?: Contract | null
   }
@@ -46,6 +50,8 @@ const ContractsContext = createContext<Contracts>({
   registry: undefined,
   lpToken: undefined,
   weth: undefined,
+  claimsEscrow: undefined,
+  policyManager: undefined,
   products: {
     compProduct: undefined,
   },
@@ -65,6 +71,8 @@ const ContractsProvider: React.FC = (props) => {
   const registry = useRegistryContract()
   const lpToken = useLpTokenContract()
   const weth = useWethContract()
+  const claimsEscrow = useClaimsEscrowContract()
+  const policyManager = usePolicyManagerContract()
   const compProduct = useCompoundProductContract()
 
   const getProtocolByName = (productName: string): Contract | null => {
@@ -87,6 +95,8 @@ const ContractsProvider: React.FC = (props) => {
       registry,
       lpToken,
       weth,
+      claimsEscrow,
+      policyManager,
       products: {
         compProduct,
       },
@@ -94,7 +104,21 @@ const ContractsProvider: React.FC = (props) => {
       getProtocolByName,
       setSelectedProtocolByName,
     }),
-    [master, vault, solace, cpFarm, lpFarm, registry, lpToken, weth, compProduct, setSelectedProtocolByName]
+    [
+      master,
+      vault,
+      solace,
+      cpFarm,
+      lpFarm,
+      registry,
+      lpToken,
+      weth,
+      claimsEscrow,
+      policyManager,
+      compProduct,
+      setSelectedProtocolByName,
+      getProtocolByName,
+    ]
   )
 
   return <ContractsContext.Provider value={value}>{props.children}</ContractsContext.Provider>

@@ -3,6 +3,8 @@ import { css } from 'styled-components'
 export interface HeightAndWidthProps {
   width?: number
   height?: number
+  widthP?: number
+  heightP?: number
 }
 
 export interface PaddingProps {
@@ -24,6 +26,8 @@ export interface MarginProps {
 export const HeightAndWidthCss = css<HeightAndWidthProps>`
   ${(props) => props.width != undefined && `width: ${props.width}px;`}
   ${(props) => props.height != undefined && `height: ${props.height}px;`}
+  ${(props) => props.widthP != undefined && `width: ${props.widthP}%;`}
+  ${(props) => props.heightP != undefined && `height: ${props.heightP}%;`}
 `
 
 export const PaddingCss = css<PaddingProps>`

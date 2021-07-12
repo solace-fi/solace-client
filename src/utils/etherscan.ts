@@ -66,7 +66,7 @@ export function getEtherscanABIUrl(chainId: number, address?: string, apiKey?: s
   return undefined
 }
 
-export async function fetchEtherscanLatestBlock(chainId: number): Promise<any> {
+export async function fetchEtherscanLatestBlockNumber(chainId: number): Promise<any> {
   const apiPrefix = getApiPrefix(chainId)
   return fetch(
     `https://api${apiPrefix}.etherscan.io/api?module=proxy&action=eth_blockNumber&apikey=${STRINGIFIED_ETHERSCAN_API_KEY}`
@@ -82,9 +82,9 @@ export async function fetchEtherscanLatestBlock(chainId: number): Promise<any> {
 
 export async function fetchEtherscanTxHistoryByAddress(chainId: number, address: string): Promise<any> {
   const apiPrefix = getApiPrefix(chainId)
-  const block = await fetchEtherscanLatestBlock(chainId)
+  const blockNumber = await fetchEtherscanLatestBlockNumber(chainId)
   return fetch(
-    `https://api${apiPrefix}.etherscan.io/api?module=account&action=txlist&address=${address}&startblock=0&endblock=${block.latestBlockNumber}&page=1&offset=4500&sort=desc&apikey=${STRINGIFIED_ETHERSCAN_API_KEY}`
+    `https://api${apiPrefix}.etherscan.io/api?module=account&action=txlist&address=${address}&startblock=0&endblock=${blockNumber.latestBlockNumber}&page=1&offset=4500&sort=desc&apikey=${STRINGIFIED_ETHERSCAN_API_KEY}`
   )
     .then((result) => result.json())
     .then((result) => result.result)

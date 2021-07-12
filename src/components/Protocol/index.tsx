@@ -1,18 +1,19 @@
 import styled from 'styled-components'
-import { Text3 } from '../Text'
+import { TextFontCss, TextFontProps } from '../Text'
+import { HeightAndWidthProps, HeightAndWidthCss, MarginProps, MarginCss } from '../generalInterfaces'
 
 export const Protocol = styled.div`
   display: flex;
   align-items: center;
 `
 
-export const ProtocolImage = styled.div`
+export const ProtocolImage = styled.div<HeightAndWidthProps & MarginProps>`
   border-radius: 100%;
-  margin-right: 10px;
   display: flex;
   align-items: flex-start;
-  width: 42px;
-  height: 42px;
+  ${HeightAndWidthCss}
+  ${(props) => !props.width && 'width: 42px;'}
+  ${(props) => !props.height && 'height: 42px;'}
   overflow: hidden;
   border: 4px solid #fff;
   img {
@@ -20,9 +21,10 @@ export const ProtocolImage = styled.div`
     height: 100%;
     object-fit: cover;
   }
+  ${MarginCss}
 `
 
-export const ProtocolTitle = styled.div`
-  ${Text3}
+export const ProtocolTitle = styled.div<TextFontProps>`
+  ${TextFontCss}
   line-height: 19px;
 `

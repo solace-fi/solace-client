@@ -17,8 +17,8 @@ export interface TextAlignProps {
 
 export interface TextStyleProps {
   nowrap?: boolean
-  encircled?: boolean
-  alignVertical?: boolean
+  outlined?: boolean
+  autoAlign?: boolean
   bold?: boolean
   error?: boolean
   warning?: boolean
@@ -88,12 +88,12 @@ const AlignVerticalCss = css`
   line-height: 30px;
 `
 
-const AlignVerticalAutoCss = css`
+const AlignAutoCss = css`
   ${AlignVerticalCss}
   margin: auto;
 `
 
-const EncircledCss = css`
+const TextOutlineCss = css`
   padding: 2px 16px;
   margin: 0 5px 0 5px;
   border: 1px solid #fff;
@@ -122,17 +122,21 @@ export const TextAlignCss = css<TextAlignProps>`
 
 export const TextStyleCss = css<TextStyleProps>`
   ${(props) => props.nowrap && NoWrapCss}
-  ${(props) => props.encircled && EncircledCss}
-  ${(props) => props.alignVertical && AlignVerticalAutoCss}
+  ${(props) => props.outlined && TextOutlineCss}
+  ${(props) => props.autoAlign && AlignAutoCss}
   ${(props) => props.bold && 'font-weight: 600;'}
-  ${(props) => props.error && 'color: rgba(219, 44, 56);'}
-  ${(props) => props.warning && 'color: rgba(254, 249, 154);'}
+  ${(props) => props.error && 'color: rgba(255, 12, 28);'}
+  ${(props) => props.warning && 'color: rgba(245, 221, 83);'}
 `
 
 export const GeneralTextCss = css<GeneralTextProps>`
   ${TextFontCss}
   ${TextAlignCss}
   ${TextStyleCss}
+`
+
+export const Text = styled.div<GeneralTextProps>`
+  ${GeneralTextCss}
 `
 
 export const Text1 = styled.div<GeneralTextProps>`
