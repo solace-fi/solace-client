@@ -53,7 +53,7 @@ export default function Account(): any {
 
   return (
     <Fragment>
-      {wallet.isActive &&
+      {wallet.isActive && (
         <SmallBox outlined>
           <Heading3 alignVertical>
             {getNetworkName(wallet.chainId) === '-'
