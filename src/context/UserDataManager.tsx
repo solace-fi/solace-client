@@ -1,6 +1,5 @@
-import React, { useMemo, useContext, createContext, useCallback } from 'react'
+import React, { useMemo, useContext, createContext, useCallback, useEffect } from 'react'
 import { useLocalStorage } from 'react-use-storage'
-import { Contract } from '@ethersproject/contracts'
 import { useWallet } from './WalletManager'
 
 /*
@@ -67,6 +66,10 @@ const UserDataProvider: React.FC = (props) => {
   }
 
   const clearLocalTransactions = useCallback(() => {
+    removeLocalTxs()
+  }, [disconnect, account, chainId])
+
+  useEffect(() => {
     removeLocalTxs()
   }, [disconnect, account, chainId])
 
