@@ -24,7 +24,7 @@ import Quote from './quote'
 import Govern from './govern'
 
 /* import components */
-import { SideNavbar, Navbar } from '../components/Navbar/Navbar'
+import { SideNavbar, TopNavbar } from '../components/Navbar/Navbar'
 import { PageHeader } from '../components/Header/Prices'
 import { GlobalStyle, Layout, LayoutContainer, LayoutContent, NavContent } from '../components/Layout'
 import { LayoutContentWithLoader } from '../components/Layout/LayoutContentWithLoader'
@@ -36,7 +36,7 @@ export default function App(): any {
   return (
     <Fragment>
       <GlobalStyle />
-      <Navbar />
+      <TopNavbar />
       <Layout>
         <LayoutContainer>
           <NavContent width={10}>
