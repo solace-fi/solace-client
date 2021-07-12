@@ -72,32 +72,36 @@ const PriceAddition = styled.span`
   font-size: 10px;
 `
 
-export default function Prices(): any {
+export const Prices = () => {
   const coins = useCoingecko()
   const pairPrice = usePairPrice()
 
   return (
-    <Header>
-      <Price>
-        <PriceItem>
-          <PriceTitle>SOLACE/USD</PriceTitle>
-          <PriceValue>{pairPrice ? `$${pairPrice}` : '-'}</PriceValue>
-        </PriceItem>
-        <PriceItem>
-          <PriceTitle>ETH/USD</PriceTitle>
-          <PriceValue>${coins[0] ? coins[0].current_price : '-'}</PriceValue>
-          <PriceAddition>{`${coins[0] ? fixed(coins[0].price_change_percentage_24h) : '-'}%`}</PriceAddition>
-        </PriceItem>
-        <PriceItem>
-          <PriceTitle>SOLACE/ETH LP APY.</PriceTitle>
-          <PriceValue>{LP_ROI}</PriceValue>
-        </PriceItem>
-        <PriceItem>
-          <PriceTitle>ETH CP APY.</PriceTitle>
-          <PriceValue>{CP_ROI}</PriceValue>
-        </PriceItem>
-      </Price>
-      <Account />
-    </Header>
+    <Price>
+      <PriceItem>
+        <PriceTitle>SOLACE/USD</PriceTitle>
+        <PriceValue>{pairPrice ? `$${pairPrice}` : '-'}</PriceValue>
+      </PriceItem>
+      <PriceItem>
+        <PriceTitle>ETH/USD</PriceTitle>
+        <PriceValue>${coins[0] ? coins[0].current_price : '-'}</PriceValue>
+        <PriceAddition>{`${coins[0] ? fixed(coins[0].price_change_percentage_24h) : '-'}%`}</PriceAddition>
+      </PriceItem>
+      <PriceItem>
+        <PriceTitle>SOLACE/ETH LP APY.</PriceTitle>
+        <PriceValue>{LP_ROI}</PriceValue>
+      </PriceItem>
+      <PriceItem>
+        <PriceTitle>ETH CP APY.</PriceTitle>
+        <PriceValue>{CP_ROI}</PriceValue>
+      </PriceItem>
+    </Price>
   )
 }
+
+export const PageHeader = () => (
+  <Header>
+    <Prices />
+    <Account />
+  </Header>
+)

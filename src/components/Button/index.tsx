@@ -12,7 +12,7 @@ interface ButtonProps extends ClickProps {
   hidden?: boolean
 }
 
-const ButtonBase = styled.button<ButtonProps & GeneralElementProps>`
+export const ButtonBaseCss = css<ButtonProps & GeneralElementProps>`
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -34,6 +34,10 @@ const ButtonBase = styled.button<ButtonProps & GeneralElementProps>`
   text-align: center;
   transition: all 0.2s, color 0.2s;
   cursor: pointer;
+`
+
+const ButtonBase = styled.button<ButtonProps & GeneralElementProps>`
+  ${ButtonBaseCss}
   ${() => handleButtonProps()}
   ${GeneralElementCss}
 `

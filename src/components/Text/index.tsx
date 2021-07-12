@@ -13,6 +13,7 @@ export interface TextAlignProps {
   textAlignCenter?: boolean
   textAlignLeft?: boolean
   textAlignRight?: boolean
+  outlined?: boolean
 }
 
 export interface TextStyleProps {

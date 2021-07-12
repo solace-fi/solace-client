@@ -16,6 +16,14 @@ export const CardContainer = styled.div<CardProps & GeneralTextProps>`
   display: grid;
   grid-template-columns: repeat(${(props) => (props.cardsPerRow ? props.cardsPerRow : '3')}, 1fr);
   gap: 24px;
+
+  @media screen and (max-width: 1215px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @media screen and (max-width: 900px) {
+    grid-template-columns: repeat(1, 1fr);
+  }
 `
 
 const CardBase = css<CardProps>`

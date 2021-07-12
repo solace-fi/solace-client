@@ -1,4 +1,4 @@
-import { MAX_WIDTH } from '../../constants/'
+import { MAX_DEVICE_SCREEN_WIDTH, MAX_WIDTH } from '../../constants/'
 import styled, { createGlobalStyle } from 'styled-components'
 import { GeneralElementProps, GeneralElementCss, HeightAndWidthProps } from '../generalInterfaces'
 
@@ -30,6 +30,10 @@ export const Layout = styled.div`
   display: flex;
   min-height: 100vh;
   padding: 30px;
+
+  @media screen and (max-width: ${MAX_DEVICE_SCREEN_WIDTH}px) {
+    padding: 90px 0 0 0;
+  }
 `
 
 export const LayoutContainer = styled.div`
@@ -37,6 +41,19 @@ export const LayoutContainer = styled.div`
   margin: 0 auto;
   width: 100%;
   max-width: ${MAX_WIDTH}px;
+
+  @media screen and (max-width: ${MAX_DEVICE_SCREEN_WIDTH}px) {
+    justify-content: center;
+  }
+`
+export const NavContent = styled.div<HeightAndWidthProps>`
+  padding: 20px;
+  align-content: start;
+  ${(props) => props.width && `min-width: ${(props.width / 100) * MAX_WIDTH}px;`}
+
+  @media screen and (max-width: ${MAX_DEVICE_SCREEN_WIDTH}px) {
+    display: none;
+  }
 `
 
 export const LayoutContent = styled.div<HeightAndWidthProps>`
