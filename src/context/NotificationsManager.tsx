@@ -17,12 +17,10 @@ import { Loader } from '../components/Loader'
 import { Checkmark } from '@styled-icons/evaicons-solid/Checkmark'
 import { Warning } from '@styled-icons/fluentui-system-regular/Warning'
 /*
-
 This manager allows for notifications to be created. such notifications can be created
 on trigger or manually. Errors are also tracked so appropriate notifications can be shown but 
 they can also be used elsewhere in the app for other purposes, such as disabling a certain feature
 if an error occurs.
-
 */
 
 const FlexDiv = styled.div`
@@ -87,30 +85,51 @@ const ToastsProvider: React.FC = (props) => {
         </FlexDiv>
       </StyledToast>
     )
-    console.log('what is this: ', condition)
     switch (condition) {
       case 'Complete':
         if (txHash) {
-          toast.update(txHash, {
-            render: TxToast(txType, 'successful'),
-            type: toast.TYPE.SUCCESS,
-            position: toast.POSITION.BOTTOM_LEFT,
-            closeOnClick: false,
-            closeButton: true,
-            className: 'success-toast',
-          })
+          if (toast.isActive(txHash)) {
+            toast.update(txHash, {
+              render: TxToast(txType, 'successful'),
+              type: toast.TYPE.SUCCESS,
+              position: toast.POSITION.BOTTOM_LEFT,
+              closeOnClick: false,
+              closeButton: true,
+              className: 'success-toast',
+            })
+          } else {
+            toast(TxToast(txType, 'successful'), {
+              toastId: txHash,
+              type: toast.TYPE.SUCCESS,
+              position: toast.POSITION.BOTTOM_LEFT,
+              closeOnClick: false,
+              closeButton: true,
+              className: 'success-toast',
+            })
+          }
         }
         break
       case 'Incomplete':
         if (txHash) {
-          toast.update(txHash, {
-            render: TxToast(txType, 'failed'),
-            type: toast.TYPE.ERROR,
-            position: toast.POSITION.BOTTOM_LEFT,
-            closeOnClick: false,
-            closeButton: true,
-            className: 'error-toast',
-          })
+          if (toast.isActive(txHash)) {
+            toast.update(txHash, {
+              render: TxToast(txType, 'failed'),
+              type: toast.TYPE.ERROR,
+              position: toast.POSITION.BOTTOM_LEFT,
+              closeOnClick: false,
+              closeButton: true,
+              className: 'error-toast',
+            })
+          } else {
+            toast(TxToast(txType, 'failed'), {
+              toastId: txHash,
+              type: toast.TYPE.ERROR,
+              position: toast.POSITION.BOTTOM_LEFT,
+              closeOnClick: false,
+              closeButton: true,
+              className: 'error-toast',
+            })
+          }
         }
         break
       case 'Pending':
@@ -126,7 +145,7 @@ const ToastsProvider: React.FC = (props) => {
           })
         }
         break
-      case 'Cancelled':
+      default:
         toast(TxToast(txType, 'cancelled'), {
           type: toast.TYPE.ERROR,
           position: toast.POSITION.BOTTOM_LEFT,
@@ -135,9 +154,6 @@ const ToastsProvider: React.FC = (props) => {
           closeButton: true,
           className: 'error-toast',
         })
-        break
-      default:
-        return
     }
   }
 
