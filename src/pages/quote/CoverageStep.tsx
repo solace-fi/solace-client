@@ -16,12 +16,13 @@
       variables
       Contract functions
       Local helper functions
+      useEffect hooks
       Render
 
   *************************************************************************************/
 
 /* import react */
-import React, { Fragment, useState } from 'react'
+import React, { Fragment, useEffect, useState } from 'react'
 
 /* import packages */
 import { Slider } from '@rebass/forms'
@@ -29,7 +30,7 @@ import { formatEther, parseEther } from 'ethers/lib/utils'
 import { BigNumber } from 'ethers'
 
 /* import constants */
-import { DAYS_PER_YEAR, NUM_BLOCKS_PER_DAY } from '../../constants'
+import { DAYS_PER_YEAR, GAS_LIMIT, NUM_BLOCKS_PER_DAY } from '../../constants'
 import { TransactionCondition, FunctionName, Unit } from '../../constants/enums'
 
 /* import managers */
@@ -48,10 +49,12 @@ import { Input } from '../../components/Input'
 import { Loader } from '../../components/Loader'
 
 /* import hooks */
-import { useGetQuote } from '../../hooks/usePolicy'
+import { useGetQuote, useGetMaxCoverPerUser } from '../../hooks/usePolicy'
 
 /* import utils */
 import { getGasValue } from '../../utils/formatting'
+import { SmallBox } from '../../components/Box'
+import { FlexRow } from '../../components/Layout'
 
 export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigation }) => {
   /*************************************************************************************
@@ -60,6 +63,7 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
 
   *************************************************************************************/
   const { position, coverageLimit, timePeriod, loading } = formData
+  const maxCoverPerUser = useGetMaxCoverPerUser() // in eth
   const quote = useGetQuote(coverageLimit, position.token.address, timePeriod)
   const wallet = useWallet()
   const { addLocalTransactions } = useUserData()
@@ -72,6 +76,7 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
 
   *************************************************************************************/
   const [inputCoverage, setInputCoverage] = useState<string>('50')
+  const [coveredAssets, setCoveredAssets] = useState<string>(maxCoverPerUser)
 
   /*************************************************************************************
 
@@ -105,7 +110,7 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
         {
           value: parseEther(quote).add(parseEther(quote).div('10000')),
           gasPrice: getGasValue(wallet.gasPrices.selected.value),
-          gasLimit: 450000,
+          gasLimit: GAS_LIMIT,
         }
       )
       navigation.next()
@@ -149,6 +154,22 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
 
   *************************************************************************************/
 
+  const setTime = (timePeriod: string) => {
+    setForm({
+      target: {
+        name: 'timePeriod',
+        value: timePeriod,
+      },
+    })
+  }
+
+  const filteredTime = (input: string) => {
+    const filtered = input.replace(/[^0-9]*/g, '')
+    if (parseFloat(filtered) <= DAYS_PER_YEAR || filtered == '') {
+      setTime(filtered)
+    }
+  }
+
   const handleInputCoverage = (input: string) => {
     // allow only numbers and decimals
     const filtered = input.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1')
@@ -183,27 +204,31 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
     })
   }
 
-  const setTime = (timePeriod: string) => {
-    setForm({
-      target: {
-        name: 'timePeriod',
-        value: timePeriod,
-      },
-    })
+  const setMaxCover = () => {
+    const maxCoverLimit = parseEther(maxCoverPerUser).mul('10000').div(BigNumber.from(position.eth.balance)).toString()
+    const adjustedCoverLimit = BigNumber.from(maxCoverLimit).gt('10000') ? '10000' : maxCoverLimit
+    handleCoverageChange(adjustedCoverLimit)
   }
 
-  const filteredTime = (input: string) => {
-    const filtered = input.replace(/[^0-9]*/g, '')
-    if (parseFloat(filtered) <= DAYS_PER_YEAR || filtered == '') {
-      setTime(filtered)
-    }
-  }
+  /*************************************************************************************
 
-  const coveredAssets = formatEther(
-    BigNumber.from(position.eth.balance)
-      .mul(coverageLimit == '' ? '100' : coverageLimit)
-      .div('10000')
-  )
+  useEffect hooks
+
+  *************************************************************************************/
+
+  useEffect(() => {
+    setMaxCover()
+  }, [maxCoverPerUser])
+
+  useEffect(() => {
+    setCoveredAssets(
+      formatEther(
+        BigNumber.from(position.eth.balance)
+          .mul(coverageLimit == '' ? '100' : coverageLimit)
+          .div('10000')
+      )
+    )
+  }, [coverageLimit])
 
   /*************************************************************************************
 
@@ -215,16 +240,16 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
     <Fragment>
       <CardContainer cardsPerRow={2}>
         <CardBaseComponent>
-          <BoxChooseRow>
+          <BoxChooseRow mb={15}>
             <BoxChooseCol>
               <Heading2>Total Assets</Heading2>
-              <Text3>ETH Denominated</Text3>
+              {position.underlying.symbol !== 'ETH' && <Text3>ETH Denominated from {position.underlying.symbol}</Text3>}
             </BoxChooseCol>
             <BoxChooseCol>
               <Heading2>{formatEther(position.eth.balance)} ETH</Heading2>
             </BoxChooseCol>
           </BoxChooseRow>
-          <BoxChooseRow>
+          <BoxChooseRow mb={5}>
             <BoxChooseCol>
               <BoxChooseText>Coverage Limit (1 - 100%)</BoxChooseText>
             </BoxChooseCol>
@@ -247,15 +272,36 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
               />
             </BoxChooseCol>
           </BoxChooseRow>
-          <BoxChooseRow>
+          <BoxChooseRow mb={5}>
             <BoxChooseCol>
               <BoxChooseText>Covered Assets</BoxChooseText>
             </BoxChooseCol>
             <BoxChooseCol>
-              <BoxChooseText bold>{coveredAssets} ETH</BoxChooseText>
+              <FlexRow>
+                <BoxChooseText
+                  autoAlign
+                  bold
+                  error={parseEther(coveredAssets).gt(parseEther(maxCoverPerUser)) && maxCoverPerUser !== '0.00'}
+                >
+                  {coveredAssets} ETH
+                </BoxChooseText>
+                <Button ml={10} pt={4} pb={4} pl={8} pr={8} width={79} height={30} onClick={() => setMaxCover()}>
+                  MAX
+                </Button>
+              </FlexRow>
             </BoxChooseCol>
           </BoxChooseRow>
-          <BoxChooseRow>
+          <SmallBox
+            outlined
+            error
+            collapse={!parseEther(coveredAssets).gt(parseEther(maxCoverPerUser))}
+            mb={!parseEther(coveredAssets).gt(parseEther(maxCoverPerUser)) ? 0 : 5}
+          >
+            <Text3 error autoAlign>
+              You can only cover to a maximum amount of {maxCoverPerUser} ETH.
+            </Text3>
+          </SmallBox>
+          <BoxChooseRow mb={5}>
             <BoxChooseCol>
               <BoxChooseText>Time Period (1 - 365 days)</BoxChooseText>
             </BoxChooseCol>
@@ -280,7 +326,7 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
               />
             </BoxChooseCol>
           </BoxChooseRow>
-          <BoxChooseRow>
+          <BoxChooseRow mb={5}>
             <BoxChooseCol>
               <BoxChooseText>Covered Period</BoxChooseText>
             </BoxChooseCol>
@@ -305,7 +351,15 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
               <BoxChooseText bold>{quote} ETH</BoxChooseText>
             </BoxChooseCol>
           </BoxChooseRow>
-          <ButtonWrapper>{!loading ? <Button onClick={() => buyPolicy()}>Buy</Button> : <Loader />}</ButtonWrapper>
+          <ButtonWrapper>
+            {!loading ? (
+              <Button onClick={() => buyPolicy()} disabled={parseEther(coveredAssets).gt(parseEther(maxCoverPerUser))}>
+                Buy
+              </Button>
+            ) : (
+              <Loader />
+            )}
+          </ButtonWrapper>
         </CardBaseComponent>
         <CardBaseComponent transparent>
           <BoxChooseRow>

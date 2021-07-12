@@ -4,6 +4,7 @@ import styled from 'styled-components'
 import { Logo } from '../Logo'
 import { ButtonBaseCss, handleButtonProps } from '../Button'
 import { Menu } from '@styled-icons/boxicons-regular/Menu'
+import { MAX_DEVICE_SCREEN_WIDTH } from '../../constants'
 
 interface TopNavProps {
   isOpen?: boolean
@@ -36,7 +37,7 @@ const TopNav = styled.div<TopNavProps>`
   padding: 10px;
   transition: 200ms ease;
 
-  @media screen and (max-width: 1160px) {
+  @media screen and (max-width: ${MAX_DEVICE_SCREEN_WIDTH}px) {
     display: block;
     width: 100%;
     z-index: 1;

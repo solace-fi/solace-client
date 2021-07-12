@@ -13,7 +13,6 @@
     Invest function
       useRef variables
       Hook variables
-      useState variables
       Contract functions
       Local helper functions
       useEffect hooks
@@ -46,7 +45,7 @@ import { Modal, ModalHeader, ModalContent, ModalRow, ModalCell, ModalCloseButton
 import { RadioElement, RadioInput, RadioGroup, RadioLabel } from '../../components/Radio'
 import { Table, TableHead, TableHeader, TableRow, TableBody, TableData, TableDataGroup } from '../../components/Table'
 import { Button, ButtonWrapper } from '../../components/Button'
-import { Heading1, Heading2 } from '../../components/Text'
+import { Heading1, Heading2, Text } from '../../components/Text'
 import { Content } from '../../components/Layout'
 import { HyperLink } from '../../components/Link'
 import { RadioCircle, RadioCircleFigure, RadioCircleInput } from '../../components/Radio/RadioCircle'
@@ -61,6 +60,7 @@ import { useScpBalance } from '../../hooks/useScpBalance'
 import { useUserStakedValue } from '../../hooks/useUserStakedValue'
 import { useFetchTxHistoryByAddress } from '../../hooks/useFetchTxHistoryByAddress'
 import { useTransactionDetails } from '../../hooks/useTransactionDetails'
+import { useTokenAllowance } from '../../hooks/useTokenAllowance'
 
 /* import utils */
 import { getEtherscanTxUrl } from '../../utils/etherscan'
@@ -75,8 +75,8 @@ import {
   floatEther,
   truncateBalance,
 } from '../../utils/formatting'
-import { getProviderOrSigner } from '../../utils/index'
-import { timeAgo } from '../../utils/timeAgo'
+import { getProviderOrSigner, hasApproval } from '../../utils'
+import { timeAgo } from '../../utils/time'
 import { decodeInput } from '../../utils/decoder'
 
 function Invest(): any {
@@ -101,6 +101,20 @@ function Invest(): any {
 
   *************************************************************************************/
 
+  const [amount, setAmount] = useState<string>('')
+  const [func, setFunc] = useState<FunctionName>()
+  const [isStaking, setIsStaking] = useState<boolean>(false)
+  const [loading, setLoading] = useState<boolean>(false)
+  const [maxLoss, setMaxLoss] = useState<number>(5)
+  const [maxSelected, setMaxSelected] = useState<boolean>(false)
+  const [modalTitle, setModalTitle] = useState<string>('')
+  const [nft, setNft] = useState<BN>()
+  const [showModal, setShowModal] = useState<boolean>(false)
+  const [unit, setUnit] = useState<Unit>(Unit.ETH)
+  const [userVaultAssets, setUserVaultAssets] = useState<string>('0.00')
+  const [userVaultShare, setUserVaultShare] = useState<number>(0)
+  const [contractForAllowance, setContractForAllowance] = useState<Contract | null>(null)
+  const [spenderAddress, setSpenderAddress] = useState<string | null>(null)
   const [cpRewardsPerDay] = useRewardsPerDay(1)
   const [cpUserRewardsPerDay] = useUserRewardsPerDay(1, cpFarmContract.current)
   const [cpUserRewards] = useUserPendingRewards(cpFarmContract.current)
@@ -120,26 +134,8 @@ function Invest(): any {
   const { errors, makeTxToast } = useToasts()
   const { localTransactions, addLocalTransactions } = useUserData()
   const { master, vault, solace, cpFarm, lpFarm, lpToken, weth, registry } = useContracts()
-
-  /*************************************************************************************
-
-  useState variables
-
-  *************************************************************************************/
-
-  const [amount, setAmount] = useState<string>('')
-  const [func, setFunc] = useState<FunctionName>()
-  const [isStaking, setIsStaking] = useState<boolean>(false)
-  const [loading, setLoading] = useState<boolean>(false)
-  const [maxLoss, setMaxLoss] = useState<number>(5)
-  const [maxSelected, setMaxSelected] = useState<boolean>(false)
-  const [modalTitle, setModalTitle] = useState<string>('')
-  const [nft, setNft] = useState<BN>()
+  const tokenAllowance = useTokenAllowance(contractForAllowance, spenderAddress)
   const [selectedGasOption, setSelectedGasOption] = useState<GasFeeOption>(wallet.gasPrices.selected)
-  const [showModal, setShowModal] = useState<boolean>(false)
-  const [unit, setUnit] = useState<Unit>(Unit.ETH)
-  const [userVaultAssets, setUserVaultAssets] = useState<string>('0.00')
-  const [userVaultShare, setUserVaultShare] = useState<number>(0)
 
   /*************************************************************************************
 
@@ -220,27 +216,32 @@ function Invest(): any {
     }
   }
 
-  const callDepositCp = async () => {
+  const approve = async () => {
     setLoading(true)
     if (!cpFarmContract.current || !vaultContract.current) return
-    const txType = FunctionName.DEPOSIT_CP
+    const txType = FunctionName.APPROVE
     try {
       const approval = await vaultContract.current.approve(cpFarmContract.current.address, parseEther(amount))
       const approvalHash = approval.hash
-      const approvalPendingTx = {
-        hash: approvalHash,
-        type: FunctionName.APPROVE,
-        value: '0',
-        status: TransactionCondition.PENDING,
-        unit: unit,
-      }
       makeTxToast(FunctionName.APPROVE, TransactionCondition.PENDING, approvalHash)
-      addLocalTransactions(approvalPendingTx)
       await approval.wait().then((receipt: any) => {
         const status = receipt.status ? TransactionCondition.SUCCESS : TransactionCondition.FAILURE
         makeTxToast(FunctionName.APPROVE, status, approvalHash)
         wallet.reload()
       })
+      setLoading(false)
+    } catch (err) {
+      makeTxToast(txType, TransactionCondition.CANCELLED)
+      setLoading(false)
+      wallet.reload()
+    }
+  }
+
+  const callDepositCp = async () => {
+    setLoading(true)
+    if (!cpFarmContract.current || !vaultContract.current) return
+    const txType = FunctionName.DEPOSIT_CP
+    try {
       const tx = await cpFarmContract.current.depositCp(parseEther(amount), {
         gasPrice: getGasValue(selectedGasOption.value),
         gasLimit: GAS_LIMIT,
@@ -505,6 +506,8 @@ function Invest(): any {
   const openModal = (func: FunctionName, modalTitle: string, unit: Unit) => {
     setShowModal((prev) => !prev)
     document.body.style.overflowY = 'hidden'
+    setContractForAllowance(vaultContract.current || null)
+    setSpenderAddress(cpFarmContract.current?.address || null)
     setUnit(unit)
     setModalTitle(modalTitle)
     setFunc(func)
@@ -588,7 +591,7 @@ function Invest(): any {
                 value={amount}
               />
               <div style={{ position: 'absolute', top: '70%' }}>
-                Available: {func ? floatEther(getAssetBalanceByFunc()) : 0}
+                Available: {func ? truncateBalance(formatEther(getAssetBalanceByFunc()), 6) : 0}
               </div>
             </ModalCell>
             <ModalCell t3>
@@ -639,9 +642,32 @@ function Invest(): any {
           ) : null}
           <ButtonWrapper>
             {!loading ? (
-              <Button hidden={loading} disabled={isAppropriateAmount() ? false : true} onClick={handleCallbackFunc}>
-                Confirm
-              </Button>
+              <ButtonWrapper>
+                {func == FunctionName.DEPOSIT_CP ? (
+                  <Fragment>
+                    {!hasApproval(tokenAllowance, amount ? parseEther(amount).toString() : '0') &&
+                      tokenAllowance != '' && (
+                        <Button disabled={isAppropriateAmount() ? false : true} onClick={() => approve()}>
+                          Approve
+                        </Button>
+                      )}
+                    <Button
+                      hidden={loading}
+                      disabled={
+                        (isAppropriateAmount() ? false : true) ||
+                        !hasApproval(tokenAllowance, amount ? parseEther(amount).toString() : '0')
+                      }
+                      onClick={handleCallbackFunc}
+                    >
+                      Confirm
+                    </Button>
+                  </Fragment>
+                ) : (
+                  <Button hidden={loading} disabled={isAppropriateAmount() ? false : true} onClick={handleCallbackFunc}>
+                    Confirm
+                  </Button>
+                )}
+              </ButtonWrapper>
             ) : (
               <Loader />
             )}
@@ -650,17 +676,17 @@ function Invest(): any {
       </Modal>
       <Content>
         <Heading1>ETH Risk backing Capital Pool</Heading1>
-        <Table isHighlight cellAlignCenter>
+        <Table isHighlight textAlignCenter>
           <TableHead>
             <TableRow>
-              {wallet.account ? <TableHeader width={109}>Your Assets</TableHeader> : null}
+              {wallet.account ? <TableHeader width={100}>Your Assets</TableHeader> : null}
               <TableHeader width={100}>Total Assets</TableHeader>
               <TableHeader width={100}>ROI (1Y)</TableHeader>
               {wallet.account ? <TableHeader width={130}>Your Vault Share</TableHeader> : null}
               {wallet.account && (
                 <Fragment>
                   <TableHeader width={100}></TableHeader>
-                  <TableHeader width={170}></TableHeader>
+                  <TableHeader width={150}></TableHeader>
                 </Fragment>
               )}
             </TableRow>
@@ -668,7 +694,7 @@ function Invest(): any {
           <TableBody>
             <TableRow>
               {wallet.account ? (
-                <TableData width={109}>{truncateBalance(parseFloat(userVaultAssets), 2)}</TableData>
+                <TableData width={100}>{truncateBalance(parseFloat(userVaultAssets), 2)}</TableData>
               ) : null}
               <TableData width={100}>{truncateBalance(floatEther(parseEther(capitalPoolSize)), 2)}</TableData>
               <TableData width={100}>{CP_ROI}</TableData>
@@ -676,11 +702,11 @@ function Invest(): any {
               {wallet.account && (
                 <Fragment>
                   <TableData width={100}></TableData>
-                  <TableData width={170}></TableData>
+                  <TableData width={150}></TableData>
                 </Fragment>
               )}
               {wallet.account && !loading ? (
-                <TableData cellAlignRight>
+                <TableData textAlignRight>
                   <TableDataGroup width={200}>
                     <Button
                       disabled={errors.length > 0}
@@ -703,12 +729,12 @@ function Invest(): any {
       </Content>
       <Content>
         <Heading1>Solace Capital Provider Farm</Heading1>
-        <Table isHighlight cellAlignCenter>
+        <Table isHighlight textAlignCenter>
           <TableHead>
             <TableRow>
-              {wallet.account ? <TableHeader>Your Stake</TableHeader> : null}
+              {wallet.account ? <TableHeader width={100}>Your Stake</TableHeader> : null}
               <TableHeader>Total Assets</TableHeader>
-              <TableHeader>ROI (1Y)</TableHeader>
+              <TableHeader width={100}>ROI (1Y)</TableHeader>
               {wallet.account ? <TableHeader>My Rewards</TableHeader> : null}
               {wallet.account ? <TableHeader>My Daily Rewards</TableHeader> : null}
               <TableHeader>Daily Rewards</TableHeader>
@@ -716,14 +742,16 @@ function Invest(): any {
           </TableHead>
           <TableBody>
             <TableRow>
-              {wallet.account ? <TableData>{truncateBalance(parseFloat(cpUserStakeValue), 2)}</TableData> : null}
+              {wallet.account ? (
+                <TableData width={100}>{truncateBalance(parseFloat(cpUserStakeValue), 2)}</TableData>
+              ) : null}
               <TableData>{truncateBalance(parseFloat(cpPoolValue), 2)}</TableData>
-              <TableData>{LP_ROI}</TableData>
+              <TableData width={100}>{LP_ROI}</TableData>
               {wallet.account ? <TableData>{truncateBalance(parseFloat(cpUserRewards), 2)}</TableData> : null}
               {wallet.account ? <TableData>{truncateBalance(parseFloat(cpUserRewardsPerDay), 2)}</TableData> : null}
               <TableData>{truncateBalance(parseFloat(cpRewardsPerDay), 2)}</TableData>
               {wallet.account && !loading ? (
-                <TableData cellAlignRight>
+                <TableData textAlignRight>
                   <TableDataGroup width={200}>
                     <Button
                       disabled={errors.length > 0}
@@ -748,12 +776,12 @@ function Invest(): any {
       </Content>
       <Content>
         <Heading1>SOLACE/ETH Liquidity Pool</Heading1>
-        <Table isHighlight cellAlignCenter>
+        <Table isHighlight textAlignCenter>
           <TableHead>
             <TableRow>
-              {wallet.account ? <TableHeader>Your Stake</TableHeader> : null}
+              {wallet.account ? <TableHeader width={100}>Your Stake</TableHeader> : null}
               <TableHeader>Total Assets</TableHeader>
-              <TableHeader>ROI (1Y)</TableHeader>
+              <TableHeader width={100}>ROI (1Y)</TableHeader>
               {wallet.account ? <TableHeader>My Rewards</TableHeader> : null}
               {wallet.account ? <TableHeader>My Daily Rewards</TableHeader> : null}
               <TableHeader>Daily Rewards</TableHeader>
@@ -761,14 +789,16 @@ function Invest(): any {
           </TableHead>
           <TableBody>
             <TableRow>
-              {wallet.account ? <TableData>{truncateBalance(parseFloat(lpUserStakeValue), 2)}</TableData> : null}
+              {wallet.account ? (
+                <TableData width={100}>{truncateBalance(parseFloat(lpUserStakeValue), 2)}</TableData>
+              ) : null}
               <TableData>{truncateBalance(parseFloat(lpPoolValue), 2)}</TableData>
-              <TableData>150.00%</TableData>
+              <TableData width={100}>150.00%</TableData>
               {wallet.account ? <TableData>{truncateBalance(parseFloat(lpUserRewards), 2)}</TableData> : null}
               {wallet.account ? <TableData>{truncateBalance(parseFloat(lpUserRewardsPerDay), 2)}</TableData> : null}
               <TableData>{truncateBalance(parseFloat(lpRewardsPerDay), 2)}</TableData>
               {wallet.account && !loading ? (
-                <TableData cellAlignRight>
+                <TableData textAlignRight>
                   <TableDataGroup width={200}>
                     <Button
                       disabled={errors.length > 0}
@@ -791,7 +821,7 @@ function Invest(): any {
       </Content>
       <Content>
         <Heading1>Your transactions</Heading1>
-        <Table cellAlignCenter>
+        <Table textAlignCenter>
           <TableHead>
             <TableRow>
               <TableHeader>Type</TableHeader>
@@ -820,6 +850,7 @@ function Invest(): any {
                   <TableData>{pendingtx.status}</TableData>
                 </TableRow>
               ))}
+
             {txHistory &&
               txHistory.map((tx: any, i: number) => (
                 <TableRow key={tx.hash}>
@@ -840,7 +871,11 @@ function Invest(): any {
                     )}
                   </TableData>
                   <TableData>
-                    {transactionDetails.length > 0 && (tx.txreceipt_status == '1' ? 'Complete' : 'Failed')}
+                    {transactionDetails.length > 0 && (
+                      <Text error={tx.txreceipt_status != '1'}>
+                        {tx.txreceipt_status == '1' ? 'Complete' : 'Failed'}
+                      </Text>
+                    )}
                   </TableData>
                 </TableRow>
               ))}

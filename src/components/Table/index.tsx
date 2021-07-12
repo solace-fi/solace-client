@@ -1,22 +1,13 @@
 import React from 'react'
 import styled from 'styled-components'
+import { HeightAndWidthProps, HeightAndWidthCss } from '../generalInterfaces'
+import { TextAlignProps, TextAlignCss } from '../Text'
 
-interface TableProps {
+interface TableProps extends HeightAndWidthProps, TextAlignProps {
   isHighlight?: boolean
   isQuote?: boolean
-  cellAlignLeft?: boolean
-  cellAlignCenter?: boolean
-  cellAlignRight?: boolean
   headers?: string[]
   body?: { data: string[]; status: boolean }[]
-  width?: number
-  disabled?: boolean
-}
-
-const handleCellAlign = (props: TableProps) => {
-  if (props.cellAlignLeft) return 'text-align: left;'
-  if (props.cellAlignCenter) return 'text-align: center;'
-  if (props.cellAlignRight) return 'text-align: right;'
 }
 
 const TableBase = styled.table<TableProps>`
@@ -24,7 +15,7 @@ const TableBase = styled.table<TableProps>`
   border-spacing: 0px 10px;
   th,
   td {
-    ${(props) => handleCellAlign(props)}
+    ${TextAlignCss}
   }
   ${(props) => props.isHighlight && 'td {background-color: rgba(0, 255, 209, 0.3);}'}
   ${(props) =>
@@ -32,10 +23,7 @@ const TableBase = styled.table<TableProps>`
     'tr { &:hover { td { background-color: rgba(255, 255, 255, 0.5); transition: background-color 200ms linear;} } }'}
 `
 
-export const TableRow = styled.tr<TableProps>`
-  ${(props) =>
-    props.disabled && 'td {color: #fff; background-color: rgba(0, 255, 209, 0.3); opacity: 0.5; pointer-events: none }'}
-`
+export const TableRow = styled.tr``
 
 export const TableBody = styled.tbody``
 
@@ -47,12 +35,15 @@ export const TableHeader = styled.th<TableProps>`
   overflow: hidden;
   text-overflow: ellipsis;
   text-align: left;
+  white-space: nowrap;
+  ${HeightAndWidthCss}
+  ${TextAlignCss}
 `
 
 export const TableData = styled.td<TableProps>`
   ${(props) => props.width && `max-width: ${props.width}px !important`};
-  background-color: rgba(255, 255, 255, 0.3);
-  padding: 18px;
+  background-color: rgba(255, 255, 255, 0.2);
+  padding: 14px 18px;
   &:first-child {
     border-radius: 10px 0 0 10px;
   }
@@ -61,6 +52,8 @@ export const TableData = styled.td<TableProps>`
   }
   overflow: hidden;
   text-overflow: ellipsis;
+  ${HeightAndWidthCss}
+  ${TextAlignCss}
 `
 
 export const TableDataGroup = styled.div<TableProps>`
@@ -68,29 +61,29 @@ export const TableDataGroup = styled.div<TableProps>`
   display: grid;
   grid-template-columns: repeat(${(props) => React.Children.count(props.children)}, 1fr);
   gap: 16px;
+  ${HeightAndWidthCss}
+  ${TextAlignCss}
 `
 
 export const Table: React.FC<TableProps> = ({
   isHighlight,
-  cellAlignLeft,
-  cellAlignCenter,
-  cellAlignRight,
+  textAlignLeft,
+  textAlignCenter,
+  textAlignRight,
   headers,
   body,
   children,
   isQuote,
-  disabled,
 }) => {
   return (
     <TableBase
       isHighlight={isHighlight}
-      cellAlignLeft={cellAlignLeft}
-      cellAlignCenter={cellAlignCenter}
-      cellAlignRight={cellAlignRight}
+      textAlignLeft={textAlignLeft}
+      textAlignCenter={textAlignCenter}
+      textAlignRight={textAlignRight}
       headers={headers}
       body={body}
       isQuote={isQuote}
-      disabled={disabled}
     >
       {children}
     </TableBase>

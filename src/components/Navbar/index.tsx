@@ -1,6 +1,6 @@
-import React from 'react'
 import { NavLink } from 'react-router-dom'
 import styled from 'styled-components'
+import { MAX_DEVICE_SCREEN_WIDTH } from '../../constants'
 
 export const Sidebar = styled.nav``
 
@@ -30,7 +30,7 @@ export const ItemList = styled.ul`
   width: 100%;
   padding: 0;
 
-  @media screen and (max-width: 1160px) {
+  @media screen and (max-width: ${MAX_DEVICE_SCREEN_WIDTH}px) {
     display: flex;
     justify-content: space-evenly;
   }

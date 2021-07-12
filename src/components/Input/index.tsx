@@ -1,9 +1,6 @@
 import styled, { css } from 'styled-components'
-import { TextProps, handleTextProps } from '../Text'
-
-interface props {
-  width?: number
-}
+import { GeneralTextProps, GeneralTextCss } from '../Text'
+import { HeightAndWidthProps, HeightAndWidthCss } from '../generalInterfaces'
 
 const InputBase = css`
   ::placeholder {
@@ -16,7 +13,7 @@ const InputBase = css`
   color: #fff;
 `
 
-export const Input = styled.input<props & TextProps>`
+export const Input = styled.input<HeightAndWidthProps & GeneralTextProps>`
   ${InputBase}
   ::-webkit-calendar-picker-indicator {
     display: none;
@@ -35,8 +32,8 @@ export const Input = styled.input<props & TextProps>`
   &:read-only {
     border-color: rgba(0, 0, 0, 0);
   }
-  ${() => handleTextProps()}
-  ${(props) => props.width && `width: ${props.width}px;`}
+  ${GeneralTextCss}
+  ${HeightAndWidthCss}
 `
 
 export const Search = styled.input`
@@ -55,6 +52,7 @@ export const Search = styled.input`
   :focus::-webkit-search-cancel-button {
     opacity: 1;
     pointer-events: all;
+    cursor: pointer;
   }
   border-radius: 30px;
   padding: 10px 20px;

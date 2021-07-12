@@ -8,6 +8,12 @@
 
 ![Quote](./public/images/quote.png)
 
+![Govern](./public/images/govern.png)
+
+![ManageModal](./public/images/managemodal.png)
+
+![ClaimModal](./public/images/claimmodal.png)
+
 ## Where do I start reading through this code?
 
 ---

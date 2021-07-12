@@ -1,16 +1,14 @@
 import styled, { css } from 'styled-components'
 import { Input } from '../Input'
+import { TextStyleCss, TextStyleProps } from '../Text'
+import { GeneralElementProps, GeneralElementCss } from '../generalInterfaces'
 
-interface props {
-  bold?: boolean
-  warning?: boolean
-}
-
-export const BoxChooseRow = styled.div`
+export const BoxChooseRow = styled.div<GeneralElementProps>`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 24px;
+  ${(props) => props.mb !== undefined && 'margin-bottom: 24px;'}
+  ${GeneralElementCss}
 `
 
 export const BoxChooseCol = styled.div`
@@ -32,14 +30,14 @@ export const BoxChooseDescription = styled.div`
   line-height: 18px;
 `
 
-const BoxChooseInfo = css<props>`
+const BoxChooseInfo = css<TextStyleProps>`
   font-size: 14px;
   line-height: 19px;
-  ${(props) => props.bold && 'font-weight: 600;'}
-  ${(props) => props.warning && 'color: rgba(255, 12, 28);'}
+  ${TextStyleCss}
 `
 
 export const BoxChooseDate = styled.div`
+  white-space: nowrap;
   ${BoxChooseInfo}
   white-space: nowrap;
   ${Input} {

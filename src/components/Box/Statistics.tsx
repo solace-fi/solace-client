@@ -30,7 +30,7 @@ import { formatEther, parseEther } from '@ethersproject/units'
 import { Contract } from '@ethersproject/contracts'
 
 /* import constants */
-import { GAS_LIMIT, CHAIN_ID } from '../../constants'
+import { GAS_LIMIT } from '../../constants'
 import { TransactionCondition, FunctionName, Unit, PolicyStatus } from '../../constants/enums'
 
 /* import managers */
@@ -48,12 +48,13 @@ import { useCapitalPoolSize } from '../../hooks/useCapitalPoolSize'
 import { useTotalPendingRewards } from '../../hooks/useRewards'
 import { useSolaceBalance } from '../../hooks/useSolaceBalance'
 import { usePoolStakedValue } from '../../hooks/usePoolStakedValue'
+import { usePolicyGetter, Policy } from '../../hooks/useGetter'
 
 /* import wallet */
 import { WalletConnectButton } from '../Button/WalletConnect'
 
 /* import utils */
-import { getAllPolicies } from '../../utils/policyGetter'
+import { getAllPolicies } from '../../utils/paclas'
 import { fixed, getGasValue, floatEther, truncateBalance } from '../../utils/formatting'
 
 export const Statistics = () => {
@@ -83,6 +84,7 @@ export const Statistics = () => {
   const totalUserRewards = useTotalPendingRewards()
   const cpPoolValue = usePoolStakedValue(cpFarm)
   const lpPoolValue = usePoolStakedValue(lpFarm)
+  const { getPolicies } = usePolicyGetter()
 
   /*************************************************************************************
 
@@ -90,8 +92,8 @@ export const Statistics = () => {
 
   *************************************************************************************/
   const [totalValueLocked, setTotalValueLocked] = useState<string>('0.00')
-  const [totalActiveCoverAmount, setTotalActiveCoverAmount] = useState<number>(0.0)
-  const [totalActivePolicies, setTotalActivePolicies] = useState<number>(0.0)
+  const [totalActiveCoverAmount, setTotalActiveCoverAmount] = useState<number | string>('-')
+  const [totalActivePolicies, setTotalActivePolicies] = useState<number | string>('-')
 
   /*************************************************************************************
 
@@ -165,7 +167,7 @@ export const Statistics = () => {
   useEffect(() => {
     try {
       const fetchPolicies = async () => {
-        const policies = await getAllPolicies(Number(CHAIN_ID))
+        const policies: Policy[] = await getPolicies()
         const activePolicies = policies.filter(({ status }) => status === PolicyStatus.ACTIVE)
 
         let activeCoverAmount = 0
@@ -220,28 +222,32 @@ export const Statistics = () => {
       <Box purple>
         <BoxItem>
           <BoxItemTitle h3>Capital Pool Size</BoxItemTitle>
-          <BoxItemValue h2>
+          <BoxItemValue h2 nowrap>
             {`${truncateBalance(floatEther(parseEther(capitalPoolSize)), 1)} `}
             <BoxItemUnits h3>{Unit.ETH}</BoxItemUnits>
           </BoxItemValue>
         </BoxItem>
         <BoxItem>
           <BoxItemTitle h3>Total Value Locked</BoxItemTitle>
-          <BoxItemValue h2>
+          <BoxItemValue h2 nowrap>
             {`${truncateBalance(parseFloat(totalValueLocked), 1)} `}
             <BoxItemUnits h3>{Unit.ETH}</BoxItemUnits>
           </BoxItemValue>
         </BoxItem>
         <BoxItem>
           <BoxItemTitle h3>Active Cover Amount</BoxItemTitle>
-          <BoxItemValue h2>
-            {`${fixed(parseFloat(formatEther(totalActiveCoverAmount.toString())), 2)} `}
+          <BoxItemValue h2 nowrap>
+            {totalActiveCoverAmount !== '-'
+              ? `${truncateBalance(parseFloat(formatEther(totalActiveCoverAmount.toString())), 2)} `
+              : `${totalActiveCoverAmount} `}
             <BoxItemUnits h3>{Unit.ETH}</BoxItemUnits>
           </BoxItemValue>
         </BoxItem>
         <BoxItem>
           <BoxItemTitle h3>Total Active Policies</BoxItemTitle>
-          <BoxItemValue h2>{totalActivePolicies}</BoxItemValue>
+          <BoxItemValue h2 nowrap>
+            {totalActivePolicies}
+          </BoxItemValue>
         </BoxItem>
       </Box>
     </BoxRow>

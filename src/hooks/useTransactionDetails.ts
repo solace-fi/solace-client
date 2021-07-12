@@ -3,7 +3,7 @@ import { useWallet } from '../context/WalletManager'
 import { Provider, Web3Provider } from '@ethersproject/providers'
 import { decodeInput } from '../utils/decoder'
 import { FunctionName } from '../constants/enums'
-import { formatTransactionAmount, getUnit } from '../utils/formatting'
+import { formatTransactionContent } from '../utils/formatting'
 
 export const useTransactionDetails = (txList: any): string[] => {
   const { library } = useWallet()
@@ -15,16 +15,21 @@ export const useTransactionDetails = (txList: any): string[] => {
     provider: Web3Provider | Provider
   ): Promise<string> => {
     const receipt = await provider.getTransactionReceipt(tx.hash)
+    if (receipt.status == 0) return '0'
     if (!receipt) return '0'
     const logs = receipt.logs
     if (!logs) return '0'
+    const topics = logs[logs.length - 1].topics
 
     switch (function_name) {
       case FunctionName.DEPOSIT:
       case FunctionName.WITHDRAW:
-        const topics = logs[logs.length - 1].topics
+      case FunctionName.SUBMIT_CLAIM:
         if (!topics || topics.length <= 0) return '0'
         return topics[topics.length - 1]
+      case FunctionName.WITHDRAW_CLAIMS_PAYOUT:
+        if (!topics || topics.length <= 0) return '0'
+        return topics[1]
       case FunctionName.BUY_POLICY:
       case FunctionName.EXTEND_POLICY:
       case FunctionName.CANCEL_POLICY:
@@ -47,9 +52,8 @@ export const useTransactionDetails = (txList: any): string[] => {
       const currentAmounts = []
       for (const tx of txList) {
         const function_name = decodeInput(tx).function_name
-        const unit = getUnit(function_name)
         const amount: string = await getTransactionAmount(function_name, tx, library)
-        currentAmounts.push(`${formatTransactionAmount(function_name, amount)} ${unit}`)
+        currentAmounts.push(`${formatTransactionContent(function_name, amount)}`)
       }
       setAmounts(currentAmounts)
     }

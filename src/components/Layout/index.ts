@@ -1,5 +1,6 @@
-import { MAX_WIDTH } from '../../constants/'
+import { MAX_DEVICE_SCREEN_WIDTH, MAX_WIDTH } from '../../constants/'
 import styled, { createGlobalStyle } from 'styled-components'
+import { GeneralElementProps, GeneralElementCss, HeightAndWidthProps } from '../generalInterfaces'
 
 export const GlobalStyle = createGlobalStyle`
   body{
@@ -13,12 +14,24 @@ export const GlobalStyle = createGlobalStyle`
   }
 `
 
+export const FlexRow = styled.div<GeneralElementProps>`
+  display: flex;
+  flex-direction: row;
+  ${GeneralElementCss}
+`
+
+export const FlexCol = styled.div<GeneralElementProps>`
+  display: flex;
+  flex-direction: column;
+  ${GeneralElementCss}
+`
+
 export const Layout = styled.div`
   display: flex;
   min-height: 100vh;
   padding: 30px;
 
-  @media screen and (max-width: 1160px) {
+  @media screen and (max-width: ${MAX_DEVICE_SCREEN_WIDTH}px) {
     padding: 90px 0 0 0;
   }
 `
@@ -29,29 +42,30 @@ export const LayoutContainer = styled.div`
   width: 100%;
   max-width: ${MAX_WIDTH}px;
 
-  @media screen and (max-width: 1160px) {
+  @media screen and (max-width: ${MAX_DEVICE_SCREEN_WIDTH}px) {
     justify-content: center;
   }
 `
-
-interface LayoutContentProps {
-  width?: number
-}
-
-export const NavContent = styled.div<LayoutContentProps>`
+export const NavContent = styled.div<HeightAndWidthProps>`
   padding: 20px;
   align-content: start;
   ${(props) => props.width && `min-width: ${(props.width / 100) * MAX_WIDTH}px;`}
 
-  @media screen and (max-width: 1160px) {
+  @media screen and (max-width: ${MAX_DEVICE_SCREEN_WIDTH}px) {
     display: none;
   }
 `
 
-export const LayoutContent = styled.div<LayoutContentProps>`
+export const LayoutContent = styled.div<HeightAndWidthProps>`
   padding: 20px;
   align-content: start;
-  ${(props) => props.width && `min-width: ${(props.width / 100) * MAX_WIDTH}px;`}
+  ${(props) => (props.width ? `width: ${(props.width / 100) * MAX_WIDTH}px;` : 'width: 100%;')}
+`
+
+export const HeroContainer = styled(FlexCol)<HeightAndWidthProps>`
+  align-items: center;
+  justify-content: center;
+  height: ${(props) => (props.height ? props.height : '400')}px;
 `
 
 export const Content = styled.div`

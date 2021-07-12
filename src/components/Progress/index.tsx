@@ -1,14 +1,11 @@
-import React from 'react'
-import styled, { css } from 'styled-components'
+import styled from 'styled-components'
+import { FlexCol } from '../Layout'
 
-interface props {
+interface ProgressProps {
   step: number
 }
 
-export const StepsContainer = styled.div<props>`
-  display: flex;
-  flex-direction: column;
-
+export const StepsContainer = styled(FlexCol)<ProgressProps>`
   ${(props) =>
     props.step === 2 &&
     `

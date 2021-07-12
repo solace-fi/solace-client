@@ -1,14 +1,13 @@
 import React from 'react'
 import styled, { css, keyframes } from 'styled-components'
-import { TextProps, handleTextProps } from '../Text'
+import { ClickProps } from '../Button'
+import { GeneralTextProps, GeneralTextCss } from '../Text'
 
 interface ModalProps {
   isOpen: boolean
-  style?: any
 }
 
-interface ModalButtonProps {
-  onClick?: any
+interface ModalButtonProps extends ClickProps {
   hidden?: boolean
 }
 
@@ -32,7 +31,8 @@ const ModalBase = styled.div<ModalProps>`
   margin: auto;
   border-radius: 10px;
   padding: 24px;
-  background-color: rgba(255, 255, 255, 0.3);
+  background-color: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 0 7px #fff;
   opacity: 0;
   ${(props) =>
     props.isOpen &&
@@ -55,7 +55,7 @@ export const ModalHeader = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 40px;
+  margin-bottom: 30px;
 `
 
 export const ModalContent = styled.div``
@@ -66,20 +66,18 @@ export const ModalRow = styled.div`
   justify-content: space-around;
 `
 
-export const ModalCell = styled.div<TextProps>`
+export const ModalCell = styled.div<GeneralTextProps>`
   display: flex;
   align-items: center;
   flex-shrink: 0;
   padding: 24px;
-  ${() => handleTextProps()}
+  ${GeneralTextCss}
 `
 
-export const Modal: React.FC<ModalProps> = ({ isOpen, style, children }) => {
+export const Modal: React.FC<ModalProps> = ({ isOpen, children }) => {
   return (
-    <ModalContainer isOpen={isOpen} style={style}>
-      <ModalBase isOpen={isOpen} style={style}>
-        {children}
-      </ModalBase>
+    <ModalContainer isOpen={isOpen}>
+      <ModalBase isOpen={isOpen}>{children}</ModalBase>
     </ModalContainer>
   )
 }

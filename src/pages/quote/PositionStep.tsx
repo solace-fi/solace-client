@@ -27,17 +27,21 @@ import { useWallet } from '../../context/WalletManager'
 import { BoxItemUnits } from '../../components/Box'
 import { Button } from '../../components/Button'
 import { formProps } from './MultiStepForm'
-import { CardContainer, PositionCardComponent } from '../../components/Card'
+import { CardContainer, PositionCard } from '../../components/Card'
 import { PositionCardButton, PositionCardCount, PositionCardLogo, PositionCardName } from '../../components/Position'
 import { Loader } from '../../components/Loader'
-import { WelcomeContainer } from '.'
+import { HeroContainer } from '../../components/Layout'
 import { Heading1 } from '../../components/Text'
 
-/* import utils */
-import { getPositions } from '../../utils/positionGetter'
-import { fixedPositionBalance, truncateBalance } from '../../utils/formatting'
-import { getAllPoliciesOfUser } from '../../utils/policyGetter'
+/* import constants */
 import { PolicyStatus } from '../../constants/enums'
+
+/* import hooks */
+import { usePolicyGetter } from '../../hooks/useGetter'
+
+/* import utils */
+import { fixedTokenPositionBalance, truncateBalance } from '../../utils/formatting'
+import { getUserPolicies, getPositions } from '../../utils/paclas'
 
 export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigation }) => {
   const { protocol, lastProtocol, balances, loading } = formData
@@ -49,6 +53,7 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
   *************************************************************************************/
 
   const { account, chainId, isActive } = useWallet()
+  const { getPolicies } = usePolicyGetter()
 
   /*************************************************************************************
 
@@ -82,6 +87,7 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
   }
 
   const getBalances = useCallback(async () => {
+    if (!account) return
     if (chainId == 1 || chainId == 4) {
       setForm({
         target: {
@@ -89,7 +95,7 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
           value: true,
         },
       })
-      const balances = await getPositions(protocol.name.toLowerCase(), chainId, account ?? '0x')
+      const balances = await getPositions(protocol.name.toLowerCase(), chainId, account)
       setForm({
         target: {
           name: 'balances',
@@ -145,12 +151,12 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
   useEffect(() => {
     try {
       const fetchPolicies = async () => {
-        const policies = await getAllPoliciesOfUser(account as string, Number(chainId))
+        const policies = await getPolicies(account as string)
 
         // tuple data type: [product, position, isActive]
         // [['compound', 'eth', true], ['compound', 'dai', false],..,]
         const userPolicyPositionList: [string, string, boolean][] = []
-        policies.forEach((policy) => {
+        policies.forEach((policy: any) => {
           userPolicyPositionList.push([policy.productName, policy.positionName, policy.status === PolicyStatus.ACTIVE])
         })
         setUserPolicyPositions(userPolicyPositionList)
@@ -173,15 +179,15 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
   return (
     <Fragment>
       {balances.length == 0 && !loading && positionsLoaded && (
-        <WelcomeContainer>
+        <HeroContainer>
           <Heading1>You do not own any positions on this protocol.</Heading1>
-        </WelcomeContainer>
+        </HeroContainer>
       )}
       {!loading && positionsLoaded ? (
-        <CardContainer cardsPerRow={3}>
+        <CardContainer>
           {balances.map((position: any) => {
             return (
-              <PositionCardComponent
+              <PositionCard
                 key={position.underlying.address}
                 disabled={userHasActiveProductPosition(protocol.name, position.underlying.symbol)}
                 onClick={() => handleChange(position)}
@@ -191,17 +197,17 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
                 </PositionCardLogo>
                 <PositionCardName>{position.underlying.name}</PositionCardName>
                 <PositionCardCount t1>
-                  {truncateBalance(fixedPositionBalance(position.underlying))}{' '}
+                  {truncateBalance(fixedTokenPositionBalance(position.underlying))}{' '}
                   <BoxItemUnits style={{ fontSize: '12px' }}>{position.underlying.symbol}</BoxItemUnits>
                 </PositionCardCount>
                 <PositionCardCount t2>
-                  {truncateBalance(fixedPositionBalance(position.token))}{' '}
+                  {truncateBalance(fixedTokenPositionBalance(position.token))}{' '}
                   <BoxItemUnits style={{ fontSize: '12px' }}>{position.token.symbol}</BoxItemUnits>
                 </PositionCardCount>
                 <PositionCardButton>
                   <Button>Select</Button>
                 </PositionCardButton>
-              </PositionCardComponent>
+              </PositionCard>
             )
           })}
         </CardContainer>

@@ -18,7 +18,7 @@ import { StyledLink } from '../../components/Link'
 import { Button } from '../../components/Button'
 import { TableDataGroup } from '../../components/Table'
 import { Heading1, Heading2 } from '../../components/Text'
-import { WelcomeContainer } from './index'
+import { HeroContainer } from '../../components/Layout'
 import { formProps } from './MultiStepForm'
 
 export const ConfirmStep: React.FC<formProps> = ({ navigation }) => {
@@ -29,7 +29,7 @@ export const ConfirmStep: React.FC<formProps> = ({ navigation }) => {
   *************************************************************************************/
 
   return (
-    <WelcomeContainer>
+    <HeroContainer>
       <Heading1>Transaction Submitted! Your Solace coverage is on the way!</Heading1>
       <Heading2>You can manage your policies on the dashboard or start a new one.</Heading2>
       <div style={{ marginTop: '24px' }}>
@@ -42,6 +42,6 @@ export const ConfirmStep: React.FC<formProps> = ({ navigation }) => {
           </Button>
         </TableDataGroup>
       </div>
-    </WelcomeContainer>
+    </HeroContainer>
   )
 }
