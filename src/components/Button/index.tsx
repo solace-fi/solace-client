@@ -1,5 +1,5 @@
 import React from 'react'
-import { GeneralElementProps, GeneralElementCss } from '../generalInterfaces'
+import { GeneralElementProps, GeneralElementCss, MarginProps, MarginCss } from '../generalInterfaces'
 import styled, { css } from 'styled-components'
 
 export interface ClickProps {
@@ -38,12 +38,13 @@ const ButtonBase = styled.button<ButtonProps & GeneralElementProps>`
   ${GeneralElementCss}
 `
 
-export const ButtonWrapper = styled.div`
+export const ButtonWrapper = styled.div<MarginProps>`
   display: flex;
   align-items: center;
   justify-content: center;
   margin: 20px 0;
   gap: 5px;
+  ${MarginCss}
 `
 
 export const handleButtonProps = (): any => {

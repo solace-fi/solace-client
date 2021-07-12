@@ -665,22 +665,27 @@ function Dashboard(): any {
           <Box pt={20} pb={20} green={claim.canWithdraw}>
             <BoxItem>
               <BoxItemTitle h3>ID</BoxItemTitle>
-              <BoxItemValue h2>{claim.id}</BoxItemValue>
+              <BoxItemValue h3>{claim.id}</BoxItemValue>
             </BoxItem>
             <BoxItem>
               <BoxItemTitle h3>Amount</BoxItemTitle>
-              <BoxItemValue h2>{formatEther(claim.amount)} ETH</BoxItemValue>
+              <BoxItemValue h3>
+                {parseFloat(formatEther(claim.amount)) >= 1
+                  ? truncateBalance(parseFloat(formatEther(claim.amount)))
+                  : formatEther(claim.amount)}{' '}
+                ETH
+              </BoxItemValue>
             </BoxItem>
             <BoxItem>
               <BoxItemTitle h3>Payout Status</BoxItemTitle>
-              <BoxItemValue h2>
+              <BoxItemValue h3>
                 {claim.canWithdraw
-                  ? 'Withdrawal Ready'
+                  ? 'Available'
                   : `${claim.cooldown == '0' ? '-' : timer(parseInt(claim.cooldown) * 1000)} left`}
               </BoxItemValue>
             </BoxItem>
           </Box>
-          <ButtonWrapper>
+          <ButtonWrapper mb={0} mt={20}>
             <Button widthP={100} onClick={() => withdrawPayout(claim.id)} disabled={!claim.canWithdraw}>
               Withdraw Payout
             </Button>
