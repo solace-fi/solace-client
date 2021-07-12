@@ -664,6 +664,10 @@ function Dashboard(): any {
         <ClaimCard key={claim.id}>
           <Box pt={20} pb={20} green={claim.canWithdraw}>
             <BoxItem>
+              <BoxItemTitle h3>ID</BoxItemTitle>
+              <BoxItemValue h2>{claim.id}</BoxItemValue>
+            </BoxItem>
+            <BoxItem>
               <BoxItemTitle h3>Amount</BoxItemTitle>
               <BoxItemValue h2>{formatEther(claim.amount)} ETH</BoxItemValue>
             </BoxItem>
@@ -672,7 +676,7 @@ function Dashboard(): any {
               <BoxItemValue h2>
                 {claim.canWithdraw
                   ? 'Withdrawal Ready'
-                  : `${claim.cooldown == '-' ? claim.cooldown : timer(parseInt(claim.cooldown) * 1000)} left`}
+                  : `${claim.cooldown == '0' ? '-' : timer(parseInt(claim.cooldown) * 1000)} left`}
               </BoxItemValue>
             </BoxItem>
           </Box>
