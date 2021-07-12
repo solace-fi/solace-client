@@ -5,6 +5,7 @@ import { GeneralElementProps, GeneralElementCss } from '../generalInterfaces'
 
 interface BoxProps {
   purple?: boolean
+  green?: boolean
   transparent?: boolean
   outlined?: boolean
 }
@@ -18,6 +19,7 @@ const BoxPropsHandler = css<GeneralElementProps & BoxProps>`
   ${(props) => props.transparent && TransparentBox}
   ${(props) => props.outlined && BoxOutline}
   ${(props) => props.purple && 'background-color: rgba(250, 0, 255, 0.3);'}
+  ${(props) => props.green && 'background-color: rgba(0, 187, 40, 0.7); box-shadow: 0 0 7px #fff;'}
   ${GeneralElementCss}
 `
 

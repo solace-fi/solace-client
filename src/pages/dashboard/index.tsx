@@ -48,7 +48,7 @@ import { useToasts } from '../../context/NotificationsManager'
 
 /* import components */
 import { Content, HeroContainer } from '../../components/Layout'
-import { CardContainer, InvestmentCard, CardHeader, CardTitle, CardBlock } from '../../components/Card'
+import { CardContainer, InvestmentCard, CardHeader, CardTitle, CardBlock, ClaimCard } from '../../components/Card'
 import { Heading1, Heading2, Heading3, Text1, Text2, Text3 } from '../../components/Text'
 import { Button, ButtonWrapper } from '../../components/Button'
 import { Table, TableHead, TableHeader, TableRow, TableBody, TableData, TableDataGroup } from '../../components/Table'
@@ -72,7 +72,7 @@ import { getGasValue, truncateBalance, fixedPositionBalance } from '../../utils/
 import { fetchEtherscanLatestBlockNumber } from '../../utils/etherscan'
 import { getUserPolicies, ClaimAssessment, getClaimAssessment, getPositions } from '../../utils/paclas'
 import { getContract, hasApproval } from '../../utils'
-import { convertedTime } from '../../utils/time'
+import { timer, timeToText } from '../../utils/time'
 
 /*************************************************************************************
 
@@ -239,7 +239,6 @@ function Dashboard(): any {
       await tx.wait().then((receipt: any) => {
         const status = receipt.status ? TransactionCondition.SUCCESS : TransactionCondition.FAILURE
         const rawClaimId = receipt.logs[2].topics[1]
-        console.log(receipt)
         setClaimId(parseInt(rawClaimId))
         makeTxToast(txType, status, txHash)
         wallet.reload()
@@ -521,24 +520,14 @@ function Dashboard(): any {
     }
   }, [wallet.account, wallet.isActive, wallet.version])
 
-  // useEffect(() => {
-  //   const getLatestBlock = async () => {
-  //     const { latestBlockNumber } = await fetchEtherscanLatestBlockNumber(Number(CHAIN_ID))
-  //     const latestBlock = await wallet.library.getBlock(latestBlockNumber)
-  //   }
-  //   getLatestBlock()
-  // }, [wallet.dataVersion])
-
   useEffect(() => {
-    const checkClaim = async () => {
-      if (claimId) {
-        const withdrawable: any = await isWithdrawable(claimId)
-        const time: any = await timeLeft(claimId)
-        console.log(withdrawable, time)
-      }
+    const checkClaims = async () => {
+      if (!wallet.account) return
+      const claimDetails = await getClaimDetails(wallet.account)
+      setClaimDetails(claimDetails)
     }
-    checkClaim()
-  }, [claimId])
+    checkClaims()
+  }, [wallet.dataVersion])
 
   /*************************************************************************************
 
@@ -660,10 +649,10 @@ function Dashboard(): any {
   const MyClaims = () => {
     return (
       <Fragment>
-        {claimDetails && claimDetails.length > 0 && !loading && (
+        {claimDetails && claimDetails.length > 0 && !loading && !showManageModal && !showStatusModal && (
           <Content>
             <Heading1>Your Claims</Heading1>
-            <CardContainer cardsPerRow={4}>{renderClaims()}</CardContainer>
+            <CardContainer cardsPerRow={2}>{renderClaims()}</CardContainer>
           </Content>
         )}
       </Fragment>
@@ -673,21 +662,25 @@ function Dashboard(): any {
   const renderClaims = () => {
     return claimDetails.map((claim) => {
       return (
-        <InvestmentCard key={claim.id} disabled={!claim.canWithdraw}>
-          <CardHeader>
-            <CardTitle h2>Claim ID</CardTitle>
-            <Heading3>{claim.id}</Heading3>
-          </CardHeader>
-          <CardBlock>
-            <CardTitle h2>Amount</CardTitle>
-            <Heading3>{formatEther(claim.amount)} ETH</Heading3>
-          </CardBlock>
-          <CardBlock>
-            <Button onClick={() => withdrawPayout(claim.id)} disabled={!claim.canWithdraw}>
-              {claim.canWithdraw ? 'Withdraw Payout' : convertedTime(parseInt(claim.cooldown))}
+        <ClaimCard key={claim.id}>
+          <Box pt={20} pb={20} green={claim.canWithdraw}>
+            <BoxItem>
+              <BoxItemTitle h3>Amount</BoxItemTitle>
+              <BoxItemValue h2>{formatEther(claim.amount)} ETH</BoxItemValue>
+            </BoxItem>
+            <BoxItem>
+              <BoxItemTitle h3>Payout Status</BoxItemTitle>
+              <BoxItemValue h2>
+                {claim.canWithdraw ? 'Withdrawal Ready' : `${timer(parseInt(claim.cooldown) * 1000)} left`}
+              </BoxItemValue>
+            </BoxItem>
+          </Box>
+          <ButtonWrapper>
+            <Button widthP={100} onClick={() => withdrawPayout(claim.id)} disabled={!claim.canWithdraw}>
+              Withdraw Payout
             </Button>
-          </CardBlock>
-        </InvestmentCard>
+          </ButtonWrapper>
+        </ClaimCard>
       )
     })
   }
@@ -964,7 +957,7 @@ function Dashboard(): any {
                       <Text2>Current Cooldown Period</Text2>
                     </TableData>
                     <TableData textAlignRight>
-                      <Text2>{convertedTime(parseInt(cooldownPeriod))}</Text2>
+                      <Text2>{timeToText(parseInt(cooldownPeriod) * 1000)}</Text2>
                     </TableData>
                   </TableRow>
                 </TableBody>

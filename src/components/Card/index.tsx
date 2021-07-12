@@ -21,26 +21,31 @@ export const CardContainer = styled.div<CardProps & GeneralTextProps>`
 const CardBase = css<CardProps>`
   border-radius: 10px;
   padding: 24px;
-  background-color: rgba(255, 255, 255, ${(props) => (props.transparent ? '0' : '0.3')});
+  background-color: rgba(255, 255, 255, ${(props) => (props.transparent ? '0' : '0.2')});
   ${(props) =>
     props.disabled && '{color: #fff; background-color: rgba(0, 255, 209, 0.3); opacity: 0.5; pointer-events: none }'}
 `
 
 export const CardBaseComponent = styled.div<CardProps & GeneralTextProps>`
   ${CardBase}
+  ${GeneralTextCss}
+`
+
+export const ClaimCard = styled.div<CardProps & GeneralTextProps>`
+  ${CardBase}
+  ${GeneralTextCss}
 `
 
 export const InvestmentCard = styled.div<CardProps & GeneralTextProps>`
-  ${CardBase}
-  ${GeneralTextCss}
   display: grid;
   align-content: start;
   grid-template-columns: 1fr 1fr;
   gap: 24px;
+  ${CardBase}
+  ${GeneralTextCss}
 `
 
 export const PositionCard = styled(FlexCol)<CardProps & GeneralTextProps>`
-  ${CardBase}
   align-items: center;
   justify-content: center;
   cursor: pointer;
@@ -48,6 +53,8 @@ export const PositionCard = styled(FlexCol)<CardProps & GeneralTextProps>`
     background-color: rgba(255, 255, 255, 0.5);
     transition: background-color 200ms linear;
   }
+  ${CardBase}
+  ${GeneralTextCss}
 `
 
 export const CardHeader = styled.div<GeneralTextProps>`

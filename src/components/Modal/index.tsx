@@ -31,8 +31,7 @@ const ModalBase = styled.div<ModalProps>`
   border-radius: 10px;
   padding: 24px;
   background-color: rgba(255, 255, 255, 0.1);
-  border-color: white;
-  border-style: double;
+  box-shadow: 0 0 7px #fff;
   opacity: 0;
   ${(props) =>
     props.isOpen &&
