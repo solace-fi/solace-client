@@ -163,7 +163,7 @@ function Dashboard(): any {
   const policyPrice = useGetPolicyPrice(selectedPolicy ? selectedPolicy.policyId : 0)
   const cancelFee = useGetCancelFee()
   const tokenAllowance = useTokenAllowance(contractForAllowance, spenderAddress)
-  const { isWithdrawable, timeLeft, getClaimDetails, getCooldownPeriod } = useClaimsEscrow()
+  const { getClaimDetails, getCooldownPeriod } = useClaimsEscrow()
   const { getPolicies } = usePolicyGetter()
   const { getAppraisePosition } = useAppraisePosition()
 
