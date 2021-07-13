@@ -9,6 +9,7 @@ import { GeneralTextProps, GeneralTextCss } from '../Text'
 interface CardProps extends ClickProps {
   cardsPerRow?: number
   transparent?: boolean
+  isHighlight?: boolean
 }
 
 export const CardContainer = styled.div<CardProps & GeneralTextProps>`
@@ -32,6 +33,7 @@ const CardBase = css<CardProps>`
   background-color: rgba(255, 255, 255, ${(props) => (props.transparent ? '0' : '0.2')});
   ${(props) =>
     props.disabled && '{color: #fff; background-color: rgba(0, 255, 209, 0.3); opacity: 0.5; pointer-events: none }'}
+  ${(props) => props.isHighlight && 'color: #fff; background-color: rgba(0, 255, 209, 0.3);'}
 `
 
 export const CardBaseComponent = styled.div<CardProps & GeneralTextProps>`

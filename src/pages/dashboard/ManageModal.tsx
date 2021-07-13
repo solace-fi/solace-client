@@ -135,7 +135,7 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
       const txHash = tx.hash
       const localTx = { hash: txHash, type: txType, value: '0', status: TransactionConditions.PENDING, unit: Units.ID }
       setModalLoading(false)
-      closeModal()
+      close()
       addLocalTransactions(localTx)
       wallet.reload()
       makeTxToast(txType, TransactionConditions.PENDING, txHash)
@@ -169,7 +169,7 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
         unit: Units.ID,
       }
       setModalLoading(false)
-      closeModal()
+      close()
       addLocalTransactions(localTx)
       wallet.reload()
       makeTxToast(txType, TransactionConditions.PENDING, txHash)
@@ -249,6 +249,11 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
     }
   }
 
+  const close = () => {
+    setExtendedTime('0')
+    closeModal()
+  }
+
   /*************************************************************************************
 
     useEffect hooks
@@ -279,7 +284,7 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
     <Modal isOpen={isOpen}>
       <ModalHeader>
         <Heading2>Policy Management</Heading2>
-        <ModalCloseButton hidden={modalLoading} onClick={() => closeModal()} />
+        <ModalCloseButton hidden={modalLoading} onClick={() => close()} />
       </ModalHeader>
       <hr style={{ marginBottom: '20px' }} />
       <ModalContent>

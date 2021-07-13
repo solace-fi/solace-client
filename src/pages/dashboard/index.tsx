@@ -28,7 +28,7 @@ import { useWallet } from '../../context/WalletManager'
 import { HeroContainer, Content } from '../../components/Layout'
 import { Heading1 } from '../../components/Text'
 import { ManageModal } from './ManageModal'
-import { StatusModal } from './StatusModal'
+import { ClaimModal } from './ClaimModal'
 import { MyPolicies } from './MyPolicies'
 import { MyClaims } from './MyClaims'
 
@@ -46,7 +46,7 @@ function Dashboard(): any {
 
   *************************************************************************************/
 
-  const [showStatusModal, setShowStatusModal] = useState<boolean>(false)
+  const [showClaimModal, setShowClaimModal] = useState<boolean>(false)
   const [showManageModal, setShowManageModal] = useState<boolean>(false)
   const [selectedPolicy, setSelectedPolicy] = useState<Policy | undefined>(undefined)
 
@@ -66,12 +66,12 @@ function Dashboard(): any {
 
   *************************************************************************************/
 
-  const openStatusModal = async (policy: Policy) => {
-    setShowStatusModal((prev) => !prev)
+  const openClaimModal = async (policy: Policy) => {
+    setShowClaimModal((prev) => !prev)
     setPolicy(policy)
   }
 
-  const openManageModal = async (days: number, policy: Policy) => {
+  const openManageModal = async (policy: Policy) => {
     setShowManageModal((prev) => !prev)
     setPolicy(policy)
   }
@@ -83,7 +83,7 @@ function Dashboard(): any {
   }
 
   const closeModal = () => {
-    setShowStatusModal(false)
+    setShowClaimModal(false)
     setShowManageModal(false)
     document.body.style.overflowY = 'scroll'
   }
@@ -108,23 +108,19 @@ function Dashboard(): any {
             latestBlock={latestBlock}
             selectedPolicy={selectedPolicy}
           />
-          <StatusModal
+          <ClaimModal
             closeModal={closeModal}
-            isOpen={showStatusModal}
+            isOpen={showClaimModal}
             latestBlock={latestBlock}
             selectedPolicy={selectedPolicy}
           />
           <Content>
             <Heading1>Your Policies</Heading1>
-            {!showManageModal && !showStatusModal && (
-              <MyPolicies
-                latestBlock={latestBlock}
-                openStatusModal={openStatusModal}
-                openManageModal={openManageModal}
-              />
+            {!showManageModal && !showClaimModal && (
+              <MyPolicies latestBlock={latestBlock} openClaimModal={openClaimModal} openManageModal={openManageModal} />
             )}
           </Content>
-          {!showManageModal && !showStatusModal && <MyClaims />}
+          {!showManageModal && !showClaimModal && <MyClaims />}
           <MyInvestments />
         </Fragment>
       )}

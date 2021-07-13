@@ -61,7 +61,7 @@ const ActionsContainer = styled.div`
   }
 `
 
-export const ProtocolStep: React.FC<formProps> = ({ formData, setForm, navigation }) => {
+export const ProtocolStep: React.FC<formProps> = ({ setForm, navigation }) => {
   /*************************************************************************************
 
   custom hooks
@@ -70,7 +70,6 @@ export const ProtocolStep: React.FC<formProps> = ({ formData, setForm, navigatio
 
   const availableCoverages = useGetAvailableCoverages()
   const yearlyCosts = useGetYearlyCosts()
-  const { protocol } = formData
   const { setSelectedProtocolByName } = useContracts()
 
   /*************************************************************************************
@@ -88,12 +87,6 @@ export const ProtocolStep: React.FC<formProps> = ({ formData, setForm, navigatio
 
   const handleChange = (selectedProtocol: any) => {
     setSelectedProtocolByName(selectedProtocol.name.toLowerCase())
-    setForm({
-      target: {
-        name: 'lastProtocol',
-        value: protocol,
-      },
-    })
     setForm({
       target: {
         name: 'protocol',

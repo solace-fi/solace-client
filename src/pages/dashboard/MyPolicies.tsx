@@ -42,12 +42,12 @@ import { truncateBalance } from '../../utils/formatting'
 import { getDays } from '../../utils/time'
 
 type MyPoliciesProps = {
-  openStatusModal: any
+  openClaimModal: any
   openManageModal: any
   latestBlock: number
 }
 
-export const MyPolicies: React.FC<MyPoliciesProps> = ({ openStatusModal, openManageModal, latestBlock }) => {
+export const MyPolicies: React.FC<MyPoliciesProps> = ({ openClaimModal, openManageModal, latestBlock }) => {
   /*************************************************************************************
 
     useState hooks
@@ -132,7 +132,7 @@ export const MyPolicies: React.FC<MyPoliciesProps> = ({ openStatusModal, openMan
                   <TableData textAlignRight>
                     {policy.status === PolicyStates.ACTIVE && (
                       <TableDataGroup>
-                        <Button onClick={() => openStatusModal(policy)}>Claim</Button>
+                        <Button onClick={() => openClaimModal(policy)}>Claim</Button>
                         <Button
                           onClick={() =>
                             openManageModal(getDays(parseFloat(policy.expirationBlock), latestBlock), policy)

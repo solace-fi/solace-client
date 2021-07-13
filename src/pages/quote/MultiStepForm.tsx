@@ -83,11 +83,6 @@ const defaultData = {
     availableCoverage: '',
     yearlyCost: 0,
   },
-  lastProtocol: {
-    name: '',
-    availableCoverage: '',
-    yearlyCost: 0,
-  },
   position: {
     token: {
       address: '',

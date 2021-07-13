@@ -10,7 +10,7 @@
     import hooks
     import utils
 
-    StatusModal function
+    ClaimModal function
       useState hooks
       custom hooks
       Contract functions
@@ -58,14 +58,14 @@ import { truncateBalance, fixedPositionBalance, getGasValue } from '../../utils/
 import { hasApproval, getContract } from '../../utils'
 import { timeToText } from '../../utils/time'
 
-type StatusModalProps = {
+type ClaimModalProps = {
   closeModal?: any
   isOpen: boolean
   latestBlock: number
   selectedPolicy: Policy | undefined
 }
 
-export const StatusModal: React.FC<StatusModalProps> = ({ isOpen, selectedPolicy, closeModal, latestBlock }) => {
+export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, closeModal, latestBlock }) => {
   /*************************************************************************************
 
     useState hooks

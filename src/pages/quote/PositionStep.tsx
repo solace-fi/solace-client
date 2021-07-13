@@ -18,10 +18,11 @@
   *************************************************************************************/
 
 /* import react */
-import React, { Fragment, useCallback, useEffect, useRef, useState } from 'react'
+import React, { Fragment, useEffect, useRef, useState } from 'react'
 
 /* import managers */
 import { useWallet } from '../../context/WalletManager'
+import { useContracts } from '../../context/ContractsManager'
 
 /* import components */
 import { BoxItemUnits } from '../../components/Box'
@@ -32,19 +33,22 @@ import { PositionCardButton, PositionCardCount, PositionCardLogo, PositionCardNa
 import { Loader } from '../../components/Loader'
 import { HeroContainer } from '../../components/Layout'
 import { Heading1 } from '../../components/Text'
+import { ManageModal } from '../dashboard/ManageModal'
 
 /* import constants */
 import { PolicyStates } from '../../constants/enums'
+import { Policy } from '../../hooks/useGetter'
 
 /* import hooks */
 import { usePolicyGetter } from '../../hooks/useGetter'
+import { useGetLatestBlockNumber } from '../../hooks/useGetLatestBlockNumber'
 
 /* import utils */
 import { fixedTokenPositionBalance, truncateBalance } from '../../utils/formatting'
-import { getUserPolicies, getPositions } from '../../utils/paclas'
+import { getPositions } from '../../utils/paclas'
 
 export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigation }) => {
-  const { protocol, lastProtocol, balances, loading } = formData
+  const { protocol, balances, loading } = formData
 
   /*************************************************************************************
 
@@ -52,23 +56,28 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
 
   *************************************************************************************/
 
-  const { account, chainId, isActive } = useWallet()
+  const { account, chainId, isActive, version, dataVersion } = useWallet()
   const { getPolicies } = usePolicyGetter()
+  const { setSelectedProtocolByName } = useContracts()
+  const latestBlock = useGetLatestBlockNumber()
 
   /*************************************************************************************
 
   useState hooks
 
   *************************************************************************************/
-  const [userPolicyPositions, setUserPolicyPositions] = useState<[string, string, boolean][]>([])
   const [positionsLoaded, setPositionsLoaded] = useState<boolean>(false)
+  const [showManageModal, setShowManageModal] = useState<boolean>(false)
+  const [selectedPolicy, setSelectedPolicy] = useState<Policy | undefined>(undefined)
+  const [policies, setPolicies] = useState<Policy[]>([])
 
   /*************************************************************************************
 
   useRef variables
 
   *************************************************************************************/
-  const appMounting = useRef(true)
+  const canLoadOnChange = useRef(false)
+  const canLoadOverTime = useRef(false)
 
   /*************************************************************************************
 
@@ -86,15 +95,9 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
     navigation.next()
   }
 
-  const getBalances = useCallback(async () => {
+  const getBalances = async () => {
     if (!account) return
     if (chainId == 1 || chainId == 4) {
-      setForm({
-        target: {
-          name: 'loading',
-          value: true,
-        },
-      })
       const balances = await getPositions(protocol.name.toLowerCase(), chainId, account)
       setForm({
         target: {
@@ -102,30 +105,37 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
           value: balances,
         },
       })
-      setForm({
-        target: {
-          name: 'lastProtocol',
-          value: protocol,
-        },
-      })
-      setForm({
-        target: {
-          name: 'loading',
-          value: false,
-        },
-      })
     }
-  }, [protocol, chainId, account])
+  }
 
   const userHasActiveProductPosition = (product: string, position: string): boolean => {
-    let result = false
+    // tuple data type: [product, position, isActive]
+    // [['compound', 'eth', true], ['compound', 'dai', false],..,]
+    const userPolicyPositions: [string, string, boolean][] = []
+    policies.forEach((policy: any) => {
+      userPolicyPositions.push([policy.productName, policy.positionName, policy.status === PolicyStates.ACTIVE])
+    })
     for (const policyProductPosition of userPolicyPositions) {
       if (product === policyProductPosition[0] && position === policyProductPosition[1] && policyProductPosition[2]) {
-        result = true
-        break
+        return true
       }
     }
-    return result
+    return false
+  }
+
+  const openManageModal = async (policy: Policy) => {
+    setShowManageModal((prev) => !prev)
+    setPolicy(policy)
+  }
+
+  const closeModal = () => {
+    setShowManageModal(false)
+  }
+
+  const setPolicy = (policy: Policy) => {
+    setSelectedProtocolByName(policy.productName.toLowerCase())
+    document.body.style.overflowY = 'hidden'
+    setSelectedPolicy(policy)
   }
 
   /*************************************************************************************
@@ -135,31 +145,63 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
   *************************************************************************************/
 
   useEffect(() => {
-    if (protocol.name !== lastProtocol.name) {
-      getBalances()
+    const initialLoad = async () => {
+      setForm({
+        target: {
+          name: 'loading',
+          value: true,
+        },
+      })
+      await getBalances()
+      setForm({
+        target: {
+          name: 'loading',
+          value: false,
+        },
+      })
     }
+    initialLoad()
   }, [])
 
   useEffect(() => {
-    if (!appMounting.current) {
-      getBalances()
-    } else {
-      appMounting.current = false
+    const loadOnChange = async () => {
+      if (canLoadOnChange.current) {
+        setForm({
+          target: {
+            name: 'loading',
+            value: true,
+          },
+        })
+        await getBalances()
+        setForm({
+          target: {
+            name: 'loading',
+            value: false,
+          },
+        })
+      } else {
+        canLoadOnChange.current = true
+      }
     }
+    loadOnChange()
   }, [account, chainId])
+
+  useEffect(() => {
+    const loadOverTime = async () => {
+      if (canLoadOverTime.current) {
+        await getBalances()
+      } else {
+        canLoadOverTime.current = true
+      }
+    }
+    loadOverTime()
+  }, [dataVersion])
 
   useEffect(() => {
     try {
       const fetchPolicies = async () => {
         const policies = await getPolicies(account as string)
-
-        // tuple data type: [product, position, isActive]
-        // [['compound', 'eth', true], ['compound', 'dai', false],..,]
-        const userPolicyPositionList: [string, string, boolean][] = []
-        policies.forEach((policy: any) => {
-          userPolicyPositionList.push([policy.productName, policy.positionName, policy.status === PolicyStates.ACTIVE])
-        })
-        setUserPolicyPositions(userPolicyPositionList)
+        setPolicies(policies)
         setPositionsLoaded(true)
       }
 
@@ -168,7 +210,7 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
       setPositionsLoaded(true)
       console.log(err)
     }
-  }, [account, isActive, chainId])
+  }, [account, isActive, chainId, version])
 
   /*************************************************************************************
 
@@ -178,6 +220,12 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
 
   return (
     <Fragment>
+      <ManageModal
+        selectedPolicy={selectedPolicy}
+        isOpen={showManageModal}
+        latestBlock={latestBlock}
+        closeModal={closeModal}
+      />
       {balances.length == 0 && !loading && positionsLoaded && (
         <HeroContainer>
           <Heading1>You do not own any positions on this protocol.</Heading1>
@@ -190,8 +238,18 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
               return (
                 <PositionCard
                   key={position.underlying.address}
-                  disabled={userHasActiveProductPosition(protocol.name, position.underlying.symbol)}
-                  onClick={() => handleChange(position)}
+                  isHighlight={userHasActiveProductPosition(protocol.name, position.underlying.symbol)}
+                  onClick={
+                    userHasActiveProductPosition(protocol.name, position.underlying.symbol)
+                      ? () =>
+                          openManageModal(
+                            policies.filter(
+                              (policy) =>
+                                policy.productName == protocol.name && policy.positionName == position.underlying.symbol
+                            )[0]
+                          )
+                      : () => handleChange(position)
+                  }
                 >
                   <PositionCardLogo>
                     <img src={`https://assets.solace.fi/${position.underlying.address.toLowerCase()}.svg`} />
@@ -206,7 +264,11 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
                     <BoxItemUnits style={{ fontSize: '12px' }}>{position.token.symbol}</BoxItemUnits>
                   </PositionCardCount>
                   <PositionCardButton>
-                    <Button>Select</Button>
+                    {userHasActiveProductPosition(protocol.name, position.underlying.symbol) ? (
+                      <Button>Manage</Button>
+                    ) : (
+                      <Button>Select</Button>
+                    )}
                   </PositionCardButton>
                 </PositionCard>
               )
