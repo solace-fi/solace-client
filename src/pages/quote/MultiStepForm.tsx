@@ -14,8 +14,8 @@
     styled components
 
     MultiStepForm function
-      Hook variables
-      Local helper functions
+      custom hooks
+      Local functions
       Render
 
   *************************************************************************************/
@@ -122,7 +122,7 @@ const FormContent = styled.div`
 export const MultiStepForm = () => {
   /*************************************************************************************
 
-  Hook variables
+  custom hooks
 
   *************************************************************************************/
   const [formData, setForm] = useForm(defaultData)
@@ -137,7 +137,7 @@ export const MultiStepForm = () => {
 
   /*************************************************************************************
 
-  Local helper functions
+  Local functions
 
   *************************************************************************************/
 

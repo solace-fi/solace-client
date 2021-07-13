@@ -13,9 +13,9 @@
     styled components
 
     ProtocolStep function
-      Hook variables
-      useState variables
-      Local helper functions
+      custom hooks
+      useState hooks
+      Local functions
       Render
 
   *************************************************************************************/
@@ -64,7 +64,7 @@ const ActionsContainer = styled.div`
 export const ProtocolStep: React.FC<formProps> = ({ formData, setForm, navigation }) => {
   /*************************************************************************************
 
-  Hook variables
+  custom hooks
 
   *************************************************************************************/
 
@@ -75,14 +75,14 @@ export const ProtocolStep: React.FC<formProps> = ({ formData, setForm, navigatio
 
   /*************************************************************************************
 
-  useState variables
+  useState hooks
 
   *************************************************************************************/
   const [searchValue, setSearchValue] = useState<string>('')
 
   /*************************************************************************************
 
-  Local Helper Functions
+  Local functions
 
   *************************************************************************************/
 

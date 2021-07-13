@@ -1,3 +1,5 @@
+import { NUM_BLOCKS_PER_DAY } from '../constants'
+
 export function timeAgo(someDateInThePast: number): string {
   const difference = Date.now() - someDateInThePast
   let result = ''
@@ -111,4 +113,8 @@ export function timer(millis: number): string {
   str += minutes + 'm'
 
   return str
+}
+
+export const getDays = (expirationBlock: number, latestBlock: number): number => {
+  return Math.floor((expirationBlock - latestBlock) / NUM_BLOCKS_PER_DAY)
 }

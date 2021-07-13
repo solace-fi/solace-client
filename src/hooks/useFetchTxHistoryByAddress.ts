@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { fetchEtherscanTxHistoryByAddress } from '../utils/etherscan'
 import { useWallet } from '../context/WalletManager'
 import { useUserData } from '../context/UserDataManager'
-import { CHAIN_ID } from '../constants'
+import { DEFAULT_CHAIN_ID } from '../constants'
 
 export const useFetchTxHistoryByAddress = (): any => {
   const { account, dataVersion, reload, chainId } = useWallet()
@@ -10,7 +10,7 @@ export const useFetchTxHistoryByAddress = (): any => {
   const [txHistory, setTxHistory] = useState<any>([])
 
   const fetchTxHistoryByAddress = async (account: string) => {
-    await fetchEtherscanTxHistoryByAddress(chainId ?? Number(CHAIN_ID), account).then((result) => {
+    await fetchEtherscanTxHistoryByAddress(chainId ?? Number(DEFAULT_CHAIN_ID), account).then((result) => {
       deleteLocalTransactions(result.txList)
       setTxHistory(result.txList.slice(0, 30))
       reload()

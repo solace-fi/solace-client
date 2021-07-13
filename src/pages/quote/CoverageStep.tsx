@@ -11,11 +11,11 @@
     import utils
 
     CoverageStep function
-      Hook variables
-      useState variables
+      custom hooks
+      useState hooks
       variables
       Contract functions
-      Local helper functions
+      Local functions
       useEffect hooks
       Render
 
@@ -59,7 +59,7 @@ import { FlexRow } from '../../components/Layout'
 export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigation }) => {
   /*************************************************************************************
 
-  Hook variables
+  custom hooks
 
   *************************************************************************************/
   const { position, coverageLimit, timePeriod, loading } = formData
@@ -72,7 +72,7 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
 
   /*************************************************************************************
 
-  useState variables
+  useState hooks
 
   *************************************************************************************/
   const [inputCoverage, setInputCoverage] = useState<string>('50')
@@ -150,7 +150,7 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
 
   /*************************************************************************************
 
-  Local helper functions
+  Local functions
 
   *************************************************************************************/
 

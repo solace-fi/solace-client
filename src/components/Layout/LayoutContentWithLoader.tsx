@@ -7,8 +7,8 @@
     import components
 
     LayoutContentWithLoader function
-      Hook variables
-      useState variables
+      custom hooks
+      useState hooks
       useEffect hooks
       Render
 
@@ -23,10 +23,10 @@ import { useWallet } from '../../context/WalletManager'
 import { Loader } from '../Loader'
 
 export const LayoutContentWithLoader: React.FC = ({ children }) => {
-  /* Hook variables */
+  /* custom hooks */
   const { initialized } = useWallet()
 
-  /* useState variables */
+  /* useState hooks */
   const [loader, setLoader] = useState<boolean>(false)
 
   /* useEffecthooks */

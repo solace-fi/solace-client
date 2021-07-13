@@ -8,10 +8,10 @@
     import utils
 
     PositionStep function
-      Hook variables
-      useState variables
+      custom hooks
+      useState hooks
       useRef variables
-      Local helper functions
+      Local functions
       useEffect hooks
       Render
 
@@ -48,7 +48,7 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
 
   /*************************************************************************************
 
-  Hook variables
+  custom hooks
 
   *************************************************************************************/
 
@@ -57,7 +57,7 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
 
   /*************************************************************************************
 
-  useState variables
+  useState hooks
 
   *************************************************************************************/
   const [userPolicyPositions, setUserPolicyPositions] = useState<[string, string, boolean][]>([])
@@ -72,7 +72,7 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
 
   /*************************************************************************************
 
-  Local helper functions
+  Local functions
 
   *************************************************************************************/
 

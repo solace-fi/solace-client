@@ -11,7 +11,7 @@
     import static
 
     Account function
-      Hook variables
+      custom hooks
       Render
 
   *************************************************************************************/
@@ -43,7 +43,7 @@ import { SmallBox } from '../Box'
 export default function Account(): any {
   /*************************************************************************************
 
-  Hook variables
+  custom hooks
 
   *************************************************************************************/
   const wallet = useWallet()

@@ -1,6 +1,6 @@
 import useDebounce from '@rooks/use-debounce'
 import { BigNumber, Contract } from 'ethers'
-import { formatEther } from 'ethers/lib/utils'
+import { formatEther } from '@ethersproject/units'
 import React, { useEffect, useState } from 'react'
 import { GAS_LIMIT, NUM_BLOCKS_PER_DAY } from '../constants'
 import { PROTOCOLS_LIST } from '../constants/protocols'

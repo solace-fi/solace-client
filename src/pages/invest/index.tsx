@@ -12,9 +12,9 @@
 
     Invest function
       useRef variables
-      Hook variables
+      custom hooks
       Contract functions
-      Local helper functions
+      Local functions
       useEffect hooks
       Render
 
@@ -29,7 +29,7 @@ import { formatEther, parseEther } from '@ethersproject/units'
 import { BigNumberish, BigNumber as BN } from 'ethers'
 
 /* import constants */
-import { ZERO, DEADLINE, CP_ROI, LP_ROI, GAS_LIMIT, CHAIN_ID, POW_NINE } from '../../constants'
+import { ZERO, DEADLINE, CP_ROI, LP_ROI, GAS_LIMIT, DEFAULT_CHAIN_ID, POW_NINE } from '../../constants'
 import { TransactionCondition, FunctionName, Unit } from '../../constants/enums'
 
 /* import managers */
@@ -97,7 +97,7 @@ function Invest(): any {
 
   /*************************************************************************************
 
-  Hook variables
+  custom hooks
 
   *************************************************************************************/
 
@@ -441,7 +441,7 @@ function Invest(): any {
 
   /*************************************************************************************
 
-  Local helper functions
+  Local functions
 
   *************************************************************************************/
 
@@ -840,7 +840,7 @@ function Invest(): any {
                   <TableData>{timeAgo(Number(Date.now()) * 1000)}</TableData>
                   <TableData>
                     <HyperLink
-                      href={getEtherscanTxUrl(wallet.chainId || Number(CHAIN_ID), pendingtx.hash)}
+                      href={getEtherscanTxUrl(wallet.chainId ?? Number(DEFAULT_CHAIN_ID), pendingtx.hash)}
                       target="_blank"
                       rel="noopener noreferrer"
                     >
@@ -862,7 +862,7 @@ function Invest(): any {
                   <TableData>
                     {transactionDetails.length > 0 && (
                       <HyperLink
-                        href={getEtherscanTxUrl(wallet.chainId || Number(CHAIN_ID), tx.hash)}
+                        href={getEtherscanTxUrl(wallet.chainId ?? Number(DEFAULT_CHAIN_ID), tx.hash)}
                         target="_blank"
                         rel="noopener noreferrer"
                       >

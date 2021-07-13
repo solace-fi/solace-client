@@ -13,10 +13,10 @@
 
     Statistics function
       useRef variables
-      Hook variables
-      useState variables
+      custom hooks
+      useState hooks
       Contract functions
-      Local helper functions
+      Local functions
       useEffect hooks
       Render
 
@@ -72,7 +72,7 @@ export const Statistics = () => {
 
   /*************************************************************************************
 
-  Hook variables
+  custom hooks
 
   *************************************************************************************/
   const wallet = useWallet()
@@ -88,7 +88,7 @@ export const Statistics = () => {
 
   /*************************************************************************************
 
-  useState variables
+  useState hooks
 
   *************************************************************************************/
   const [totalValueLocked, setTotalValueLocked] = useState<string>('0.00')
@@ -136,7 +136,7 @@ export const Statistics = () => {
 
   /*************************************************************************************
 
-  Local helper functions
+  Local functions
 
   *************************************************************************************/
   const getTotalValueLocked = () => {

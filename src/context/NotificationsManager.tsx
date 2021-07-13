@@ -5,7 +5,7 @@ import { useWallet } from '../context/WalletManager'
 
 import 'animate.css/animate.min.css'
 import 'react-toastify/dist/ReactToastify.css'
-import { CHAIN_ID } from '../constants'
+import { DEFAULT_CHAIN_ID } from '../constants'
 import { TransactionCondition, Error } from '../constants/enums'
 import { getNetworkName } from '../utils'
 import { HyperLink } from '../components/Link'
@@ -68,7 +68,7 @@ const ToastsProvider: React.FC = (props) => {
         <FlexDiv>
           {txHash && (
             <HyperLink
-              href={getEtherscanTxUrl(wallet.chainId ?? Number(CHAIN_ID), txHash)}
+              href={getEtherscanTxUrl(wallet.chainId ?? Number(DEFAULT_CHAIN_ID), txHash)}
               target="_blank"
               rel="noopener noreferrer"
             >
@@ -166,10 +166,10 @@ const ToastsProvider: React.FC = (props) => {
 
   // Runs whenever the chainId changes
   useEffect(() => {
-    if (wallet.chainId !== Number(CHAIN_ID) && wallet.chainId !== undefined) {
+    if (wallet.chainId !== Number(DEFAULT_CHAIN_ID) && wallet.chainId !== undefined) {
       toast(
         appToast(
-          `Wrong network, please switch to ${getNetworkName(Number(CHAIN_ID))} on MetaMask`,
+          `Wrong network, please switch to ${getNetworkName(Number(DEFAULT_CHAIN_ID))} on MetaMask`,
           <StyledWarning size={30} />
         ),
         {

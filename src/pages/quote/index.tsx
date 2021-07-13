@@ -8,7 +8,7 @@
     import components
 
     Quote function
-      Hook variables
+      custom hooks
       Render
 
   *************************************************************************************/
