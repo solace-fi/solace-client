@@ -31,7 +31,7 @@ import { Contract } from '@ethersproject/contracts'
 
 /* import constants */
 import { GAS_LIMIT } from '../../constants'
-import { TransactionCondition, FunctionName, Unit, PolicyStatus } from '../../constants/enums'
+import { TransactionConditions, FunctionNames, Units, PolicyStates } from '../../constants/enums'
 
 /* import managers */
 import { useWallet } from '../../context/WalletManager'
@@ -102,7 +102,7 @@ export const Statistics = () => {
   *************************************************************************************/
   const claimRewards = async () => {
     if (!masterContract.current) return
-    const txType = FunctionName.WITHDRAW_REWARDS
+    const txType = FunctionNames.WITHDRAW_REWARDS
     try {
       const tx = await masterContract.current.withdrawRewards({
         gasPrice: getGasValue(wallet.gasPrices.options[1].value),
@@ -113,13 +113,13 @@ export const Statistics = () => {
         hash: txHash,
         type: txType,
         value: totalUserRewards,
-        status: TransactionCondition.PENDING,
-        unit: Unit.SOLACE,
+        status: TransactionConditions.PENDING,
+        unit: Units.SOLACE,
       })
-      makeTxToast(txType, TransactionCondition.PENDING, txHash)
+      makeTxToast(txType, TransactionConditions.PENDING, txHash)
       wallet.reload()
       await tx.wait().then((receipt: any) => {
-        const status = receipt.status ? TransactionCondition.SUCCESS : TransactionCondition.FAILURE
+        const status = receipt.status ? TransactionConditions.SUCCESS : TransactionConditions.FAILURE
         makeTxToast(txType, status, txHash)
         wallet.reload()
       })
@@ -129,7 +129,7 @@ export const Statistics = () => {
       } else {
         console.log(`Transaction failed: ${err.message}`)
       }
-      makeTxToast(txType, TransactionCondition.CANCELLED)
+      makeTxToast(txType, TransactionConditions.CANCELLED)
       wallet.reload()
     }
   }
@@ -168,7 +168,7 @@ export const Statistics = () => {
     try {
       const fetchPolicies = async () => {
         const policies: Policy[] = await getPolicies()
-        const activePolicies = policies.filter(({ status }) => status === PolicyStatus.ACTIVE)
+        const activePolicies = policies.filter(({ status }) => status === PolicyStates.ACTIVE)
 
         let activeCoverAmount = 0
         activePolicies.forEach(({ coverAmount }) => {
@@ -224,14 +224,14 @@ export const Statistics = () => {
           <BoxItemTitle h3>Capital Pool Size</BoxItemTitle>
           <BoxItemValue h2 nowrap>
             {`${truncateBalance(floatEther(parseEther(capitalPoolSize)), 1)} `}
-            <BoxItemUnits h3>{Unit.ETH}</BoxItemUnits>
+            <BoxItemUnits h3>{Units.ETH}</BoxItemUnits>
           </BoxItemValue>
         </BoxItem>
         <BoxItem>
           <BoxItemTitle h3>Total Value Locked</BoxItemTitle>
           <BoxItemValue h2 nowrap>
             {`${truncateBalance(parseFloat(totalValueLocked), 1)} `}
-            <BoxItemUnits h3>{Unit.ETH}</BoxItemUnits>
+            <BoxItemUnits h3>{Units.ETH}</BoxItemUnits>
           </BoxItemValue>
         </BoxItem>
         <BoxItem>
@@ -240,7 +240,7 @@ export const Statistics = () => {
             {totalActiveCoverAmount !== '-'
               ? `${truncateBalance(parseFloat(formatEther(totalActiveCoverAmount.toString())), 2)} `
               : `${totalActiveCoverAmount} `}
-            <BoxItemUnits h3>{Unit.ETH}</BoxItemUnits>
+            <BoxItemUnits h3>{Units.ETH}</BoxItemUnits>
           </BoxItemValue>
         </BoxItem>
         <BoxItem>

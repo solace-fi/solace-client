@@ -1,7 +1,7 @@
 import { withBackoffRetries, range, getContract } from '../utils'
 import { getPoliciesConfig } from '../utils/configs'
 import { useWallet } from '../context/WalletManager'
-import { PolicyStatus } from '../constants/enums'
+import { PolicyStates } from '../constants/enums'
 import { BigNumber } from 'ethers'
 
 export interface Policy {
@@ -13,7 +13,7 @@ export interface Policy {
   expirationBlock: string
   coverAmount: string
   price: string
-  status: PolicyStatus
+  status: PolicyStates
   positionName: string
 }
 

@@ -6,7 +6,7 @@ import { useWallet } from '../context/WalletManager'
 import 'animate.css/animate.min.css'
 import 'react-toastify/dist/ReactToastify.css'
 import { DEFAULT_CHAIN_ID } from '../constants'
-import { TransactionCondition, Error } from '../constants/enums'
+import { TransactionConditions, Errors } from '../constants/enums'
 import { getNetworkName } from '../utils'
 import { HyperLink } from '../components/Link'
 import { Button } from '../components/Button'
@@ -47,7 +47,7 @@ const StyledToast = styled.div`
 
 export type ToastSystem = {
   errors: any[]
-  makeTxToast: (txType: string, condition: TransactionCondition, txHash?: string) => void
+  makeTxToast: (txType: string, condition: TransactionConditions, txHash?: string) => void
 }
 
 const ToastsContext = createContext<ToastSystem>({
@@ -57,9 +57,9 @@ const ToastsContext = createContext<ToastSystem>({
 
 const ToastsProvider: React.FC = (props) => {
   const wallet = useWallet()
-  const [errors, setErrors] = useState<Error[]>([])
+  const [errors, setErrors] = useState<Errors[]>([])
 
-  const makeTxToast = (txType: string, condition?: TransactionCondition, txHash?: string) => {
+  const makeTxToast = (txType: string, condition?: TransactionConditions, txHash?: string) => {
     const TxToast = (message: any, cond?: any) => (
       <StyledToast>
         <FlexDiv>
@@ -75,9 +75,9 @@ const ToastsProvider: React.FC = (props) => {
               <Button>Check on Etherscan</Button>
             </HyperLink>
           )}
-          {condition == TransactionCondition.PENDING ? (
+          {condition == TransactionConditions.PENDING ? (
             <Loader width={10} height={10} />
-          ) : condition == TransactionCondition.SUCCESS ? (
+          ) : condition == TransactionConditions.SUCCESS ? (
             <StyledCheckmark size={30} />
           ) : (
             <StyledWarning size={30} />
@@ -173,7 +173,7 @@ const ToastsProvider: React.FC = (props) => {
           <StyledWarning size={30} />
         ),
         {
-          toastId: Error.NETWORK,
+          toastId: Errors.NETWORK,
           type: toast.TYPE.ERROR,
           position: toast.POSITION.BOTTOM_LEFT,
           autoClose: false,
@@ -182,10 +182,10 @@ const ToastsProvider: React.FC = (props) => {
           className: 'error-toast',
         }
       )
-      setErrors([...errors, Error.NETWORK])
+      setErrors([...errors, Errors.NETWORK])
     } else {
-      toast.dismiss(Error.NETWORK)
-      setErrors((errors) => errors.filter((error) => error !== Error.NETWORK))
+      toast.dismiss(Errors.NETWORK)
+      setErrors((errors) => errors.filter((error) => error !== Errors.NETWORK))
     }
   }, [wallet.chainId])
 

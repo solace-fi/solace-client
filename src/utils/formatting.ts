@@ -1,6 +1,6 @@
 import { formatEther } from '@ethersproject/units'
 import { BigNumber } from 'ethers'
-import { FunctionName, Unit } from '../constants/enums'
+import { FunctionNames, Units } from '../constants/enums'
 
 // truncate numbers without rounding
 export const fixed = (n: number, decimals = 1): number => {
@@ -71,45 +71,45 @@ export const shortenAddress = (input: string): string => {
 }
 
 // get unit based on function name
-export const getUnit = (function_name: string): Unit => {
+export const getUnit = (function_name: string): Units => {
   switch (function_name) {
-    case FunctionName.DEPOSIT:
-    case FunctionName.WITHDRAW:
-    case FunctionName.DEPOSIT_ETH:
-    case FunctionName.APPROVE:
-      return Unit.ETH
-    case FunctionName.DEPOSIT_CP:
-    case FunctionName.WITHDRAW_ETH:
-      return Unit.SCP
-    case FunctionName.WITHDRAW_REWARDS:
-      return Unit.SOLACE
-    case FunctionName.DEPOSIT_LP:
-    case FunctionName.WITHDRAW_LP:
-      return Unit.LP
-    case FunctionName.WITHDRAW_CLAIMS_PAYOUT:
+    case FunctionNames.DEPOSIT:
+    case FunctionNames.WITHDRAW:
+    case FunctionNames.DEPOSIT_ETH:
+    case FunctionNames.APPROVE:
+      return Units.ETH
+    case FunctionNames.DEPOSIT_CP:
+    case FunctionNames.WITHDRAW_ETH:
+      return Units.SCP
+    case FunctionNames.WITHDRAW_REWARDS:
+      return Units.SOLACE
+    case FunctionNames.DEPOSIT_LP:
+    case FunctionNames.WITHDRAW_LP:
+      return Units.LP
+    case FunctionNames.WITHDRAW_CLAIMS_PAYOUT:
     default:
-      return Unit.ID
+      return Units.ID
   }
 }
 
 export const formatTransactionContent = (function_name: string, amount: string): string => {
   const unit = getUnit(function_name)
   switch (function_name) {
-    case FunctionName.WITHDRAW_CLAIMS_PAYOUT:
+    case FunctionNames.WITHDRAW_CLAIMS_PAYOUT:
       return `Claim ${unit} ${BigNumber.from(amount)}`
-    case FunctionName.BUY_POLICY:
-    case FunctionName.EXTEND_POLICY:
-    case FunctionName.CANCEL_POLICY:
-    case FunctionName.SUBMIT_CLAIM:
+    case FunctionNames.BUY_POLICY:
+    case FunctionNames.EXTEND_POLICY:
+    case FunctionNames.CANCEL_POLICY:
+    case FunctionNames.SUBMIT_CLAIM:
       return `Policy ${unit} ${BigNumber.from(amount)}`
-    case FunctionName.DEPOSIT:
-    case FunctionName.WITHDRAW:
-    case FunctionName.DEPOSIT_ETH:
-    case FunctionName.DEPOSIT_CP:
-    case FunctionName.WITHDRAW_ETH:
-    case FunctionName.WITHDRAW_REWARDS:
-    case FunctionName.DEPOSIT_LP:
-    case FunctionName.WITHDRAW_LP:
+    case FunctionNames.DEPOSIT:
+    case FunctionNames.WITHDRAW:
+    case FunctionNames.DEPOSIT_ETH:
+    case FunctionNames.DEPOSIT_CP:
+    case FunctionNames.WITHDRAW_ETH:
+    case FunctionNames.WITHDRAW_REWARDS:
+    case FunctionNames.DEPOSIT_LP:
+    case FunctionNames.WITHDRAW_LP:
     default:
       return `${formatEther(BigNumber.from(amount))} ${unit}`
   }

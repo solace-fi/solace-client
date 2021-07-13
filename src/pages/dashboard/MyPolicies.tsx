@@ -32,7 +32,7 @@ import { Table, TableBody, TableHead, TableRow, TableHeader, TableData, TableDat
 import { Button } from '../../components/Button'
 import { Loader } from '../../components/Loader'
 import { Heading2 } from '../../components/Text'
-import { Unit, PolicyStatus } from '../../constants/enums'
+import { Units, PolicyStates } from '../../constants/enums'
 
 /* import hooks */
 import { Policy, usePolicyGetter } from '../../hooks/useGetter'
@@ -126,11 +126,11 @@ export const MyPolicies: React.FC<MyPoliciesProps> = ({ openStatusModal, openMan
                   <TableData>{calculatePolicyExpirationDate(policy.expirationBlock)}</TableData>
                   <TableData>
                     {policy.coverAmount ? truncateBalance(parseFloat(formatEther(policy.coverAmount)), 2) : 0}{' '}
-                    {Unit.ETH}
+                    {Units.ETH}
                   </TableData>
 
                   <TableData textAlignRight>
-                    {policy.status === PolicyStatus.ACTIVE && (
+                    {policy.status === PolicyStates.ACTIVE && (
                       <TableDataGroup>
                         <Button onClick={() => openStatusModal(policy)}>Claim</Button>
                         <Button

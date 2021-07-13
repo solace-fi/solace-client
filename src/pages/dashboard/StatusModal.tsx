@@ -43,7 +43,7 @@ import { Button, ButtonWrapper } from '../../components/Button'
 import { Table, TableBody, TableRow, TableData } from '../../components/Table'
 
 /* import constants */
-import { FunctionName, TransactionCondition, Unit } from '../../constants/enums'
+import { FunctionNames, TransactionConditions, Units } from '../../constants/enums'
 import cTokenABI from '../../constants/abi/contracts/interface/ICToken.sol/ICToken.json'
 import { GAS_LIMIT } from '../../constants'
 
@@ -103,20 +103,20 @@ export const StatusModal: React.FC<StatusModalProps> = ({ isOpen, selectedPolicy
     setModalLoading(true)
     if (!selectedProtocol || !assessment || !selectedPolicy) return
     const { amountIn } = assessment
-    const txType = FunctionName.APPROVE
+    const txType = FunctionNames.APPROVE
     const contractForAllowance = getContract(selectedPolicy.positionContract, cTokenABI, wallet.library, wallet.account)
     try {
       const approval = await contractForAllowance.approve(selectedProtocol.address, amountIn)
       const approvalHash = approval.hash
-      makeTxToast(FunctionName.APPROVE, TransactionCondition.PENDING, approvalHash)
+      makeTxToast(FunctionNames.APPROVE, TransactionConditions.PENDING, approvalHash)
       await approval.wait().then((receipt: any) => {
-        const status = receipt.status ? TransactionCondition.SUCCESS : TransactionCondition.FAILURE
-        makeTxToast(FunctionName.APPROVE, status, approvalHash)
+        const status = receipt.status ? TransactionConditions.SUCCESS : TransactionConditions.FAILURE
+        makeTxToast(FunctionNames.APPROVE, status, approvalHash)
         wallet.reload()
       })
       setModalLoading(false)
     } catch (err) {
-      makeTxToast(txType, TransactionCondition.CANCELLED)
+      makeTxToast(txType, TransactionConditions.CANCELLED)
       setModalLoading(false)
       wallet.reload()
     }
@@ -126,7 +126,7 @@ export const StatusModal: React.FC<StatusModalProps> = ({ isOpen, selectedPolicy
     setModalLoading(true)
     if (!selectedProtocol || !assessment || !selectedPolicy) return
     const { tokenIn, amountIn, tokenOut, amountOut, deadline, signature } = assessment
-    const txType = FunctionName.SUBMIT_CLAIM
+    const txType = FunctionNames.SUBMIT_CLAIM
     try {
       const tx = await selectedProtocol.submitClaim(
         selectedPolicy?.policyId,
@@ -142,12 +142,12 @@ export const StatusModal: React.FC<StatusModalProps> = ({ isOpen, selectedPolicy
         }
       )
       const txHash = tx.hash
-      const localTx = { hash: txHash, type: txType, value: '0', status: TransactionCondition.PENDING, unit: Unit.ID }
+      const localTx = { hash: txHash, type: txType, value: '0', status: TransactionConditions.PENDING, unit: Units.ID }
       addLocalTransactions(localTx)
       wallet.reload()
-      makeTxToast(txType, TransactionCondition.PENDING, txHash)
+      makeTxToast(txType, TransactionConditions.PENDING, txHash)
       await tx.wait().then((receipt: any) => {
-        const status = receipt.status ? TransactionCondition.SUCCESS : TransactionCondition.FAILURE
+        const status = receipt.status ? TransactionConditions.SUCCESS : TransactionConditions.FAILURE
         const rawClaimId = receipt.logs[2].topics[1]
         setClaimId(parseInt(rawClaimId))
         makeTxToast(txType, status, txHash)
@@ -155,7 +155,7 @@ export const StatusModal: React.FC<StatusModalProps> = ({ isOpen, selectedPolicy
       })
       setModalLoading(false)
     } catch (err) {
-      makeTxToast(txType, TransactionCondition.CANCELLED)
+      makeTxToast(txType, TransactionConditions.CANCELLED)
       setModalLoading(false)
       wallet.reload()
     }

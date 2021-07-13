@@ -2,11 +2,12 @@ import { useState, useEffect } from 'react'
 import { useWallet } from '../context/WalletManager'
 import { Provider, Web3Provider } from '@ethersproject/providers'
 import { decodeInput } from '../utils/decoder'
-import { FunctionName } from '../constants/enums'
+import { FunctionNames } from '../constants/enums'
 import { formatTransactionContent } from '../utils/formatting'
+import { DEFAULT_CHAIN_ID } from '../constants'
 
 export const useTransactionDetails = (txList: any): string[] => {
-  const { library } = useWallet()
+  const { library, chainId } = useWallet()
   const [amounts, setAmounts] = useState<string[]>([])
 
   const getTransactionAmount = async (
@@ -22,23 +23,23 @@ export const useTransactionDetails = (txList: any): string[] => {
     const topics = logs[logs.length - 1].topics
 
     switch (function_name) {
-      case FunctionName.DEPOSIT:
-      case FunctionName.WITHDRAW:
-      case FunctionName.SUBMIT_CLAIM:
+      case FunctionNames.DEPOSIT:
+      case FunctionNames.WITHDRAW:
+      case FunctionNames.SUBMIT_CLAIM:
         if (!topics || topics.length <= 0) return '0'
         return topics[topics.length - 1]
-      case FunctionName.WITHDRAW_CLAIMS_PAYOUT:
+      case FunctionNames.WITHDRAW_CLAIMS_PAYOUT:
         if (!topics || topics.length <= 0) return '0'
         return topics[1]
-      case FunctionName.BUY_POLICY:
-      case FunctionName.EXTEND_POLICY:
-      case FunctionName.CANCEL_POLICY:
-      case FunctionName.DEPOSIT_ETH:
-      case FunctionName.DEPOSIT_CP:
-      case FunctionName.WITHDRAW_ETH:
-      case FunctionName.WITHDRAW_REWARDS:
-      case FunctionName.DEPOSIT_LP:
-      case FunctionName.WITHDRAW_LP:
+      case FunctionNames.BUY_POLICY:
+      case FunctionNames.EXTEND_POLICY:
+      case FunctionNames.CANCEL_POLICY:
+      case FunctionNames.DEPOSIT_ETH:
+      case FunctionNames.DEPOSIT_CP:
+      case FunctionNames.WITHDRAW_ETH:
+      case FunctionNames.WITHDRAW_REWARDS:
+      case FunctionNames.DEPOSIT_LP:
+      case FunctionNames.WITHDRAW_LP:
       default:
         if (!logs || logs.length <= 0) return '0'
         const data = logs[logs.length - 1].data
@@ -51,7 +52,7 @@ export const useTransactionDetails = (txList: any): string[] => {
     if (txList) {
       const currentAmounts = []
       for (const tx of txList) {
-        const function_name = decodeInput(tx).function_name
+        const function_name = decodeInput(tx, chainId ?? Number(DEFAULT_CHAIN_ID)).function_name
         const amount: string = await getTransactionAmount(function_name, tx, library)
         currentAmounts.push(`${formatTransactionContent(function_name, amount)}`)
       }

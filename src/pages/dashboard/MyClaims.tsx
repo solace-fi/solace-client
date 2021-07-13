@@ -39,7 +39,7 @@ import { Heading1 } from '../../components/Text'
 import { Content } from '../../components/Layout'
 
 /* import constants */
-import { FunctionName, TransactionCondition, Unit } from '../../constants/enums'
+import { FunctionNames, TransactionConditions, Units } from '../../constants/enums'
 import { GAS_LIMIT } from '../../constants'
 
 /* import hooks */
@@ -76,7 +76,7 @@ export const MyClaims = () => {
 
   const withdrawPayout = async (_claimId: any) => {
     if (!claimsEscrow || !_claimId) return
-    const txType = FunctionName.WITHDRAW_CLAIMS_PAYOUT
+    const txType = FunctionNames.WITHDRAW_CLAIMS_PAYOUT
     try {
       const tx = await claimsEscrow.withdrawClaimsPayout(_claimId, {
         gasPrice: getGasValue(wallet.gasPrices.selected.value),
@@ -87,19 +87,19 @@ export const MyClaims = () => {
         hash: txHash,
         type: txType,
         value: String(_claimId),
-        status: TransactionCondition.PENDING,
-        unit: Unit.ID,
+        status: TransactionConditions.PENDING,
+        unit: Units.ID,
       }
       addLocalTransactions(localTx)
       wallet.reload()
-      makeTxToast(txType, TransactionCondition.PENDING, txHash)
+      makeTxToast(txType, TransactionConditions.PENDING, txHash)
       await tx.wait().then((receipt: any) => {
-        const status = receipt.status ? TransactionCondition.SUCCESS : TransactionCondition.FAILURE
+        const status = receipt.status ? TransactionConditions.SUCCESS : TransactionConditions.FAILURE
         makeTxToast(txType, status, txHash)
         wallet.reload()
       })
     } catch (err) {
-      makeTxToast(txType, TransactionCondition.CANCELLED)
+      makeTxToast(txType, TransactionConditions.CANCELLED)
       wallet.reload()
     }
   }

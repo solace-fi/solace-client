@@ -3,10 +3,10 @@ import { BigNumber, Contract } from 'ethers'
 import { formatEther } from '@ethersproject/units'
 import React, { useEffect, useState } from 'react'
 import { GAS_LIMIT, NUM_BLOCKS_PER_DAY } from '../constants'
-import { PROTOCOLS_LIST } from '../constants/protocols'
 import { useContracts } from '../context/ContractsManager'
 import { useWallet } from '../context/WalletManager'
 import { getPolicyPrice } from '../utils/paclas'
+import { ProtocolNames } from '../constants/enums'
 
 export const useGetPolicyPrice = (policyId: number): string => {
   const [policyPrice, setPolicyPrice] = useState<string>('')
@@ -95,14 +95,14 @@ export const useGetYearlyCosts = () => {
   const getYearlyCosts = async () => {
     try {
       const newYearlyCosts: any = {}
-      for (let i = 0; i < PROTOCOLS_LIST.length; i++) {
+      for (let i = 0; i < Object.values(ProtocolNames).length; i++) {
         let price = '0'
-        const product = getProtocolByName(PROTOCOLS_LIST[i].toLowerCase())
+        const product = getProtocolByName(Object.values(ProtocolNames)[i].toLowerCase())
         if (product) {
           const fetchedPrice = await product.price()
           price = formatEther(fetchedPrice)
         }
-        newYearlyCosts[PROTOCOLS_LIST[i].toLowerCase()] = price
+        newYearlyCosts[Object.values(ProtocolNames)[i].toLowerCase()] = price
       }
       setYearlyCosts(newYearlyCosts)
     } catch (err) {
@@ -124,15 +124,15 @@ export const useGetAvailableCoverages = () => {
   const getAvailableCoverages = async () => {
     try {
       const newAvailableCoverages: any = {}
-      for (let i = 0; i < PROTOCOLS_LIST.length; i++) {
+      for (let i = 0; i < Object.values(ProtocolNames).length; i++) {
         let coverage = '0'
-        const product = getProtocolByName(PROTOCOLS_LIST[i].toLowerCase())
+        const product = getProtocolByName(Object.values(ProtocolNames)[i].toLowerCase())
         if (product) {
           const maxCoverAmount = await product.maxCoverAmount()
           const activeCoverAmount = await product.activeCoverAmount()
           coverage = formatEther(maxCoverAmount.sub(activeCoverAmount))
         }
-        newAvailableCoverages[PROTOCOLS_LIST[i].toLowerCase()] = coverage
+        newAvailableCoverages[Object.values(ProtocolNames)[i].toLowerCase()] = coverage
       }
       setAvailableCoverages(newAvailableCoverages)
     } catch (err) {

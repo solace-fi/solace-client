@@ -1,6 +1,6 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
-import { HashRouter, BrowserRouter } from 'react-router-dom'
+import { BrowserRouter } from 'react-router-dom'
 
 import App from './pages/App'
 
@@ -16,9 +16,9 @@ This is the entry point of the web application, where everything is rendered at 
 
 There are two things we need: switching pages and global access to data across the app.
 
-To switch pages, we use HashRouter, a wrapper around the user interface and changes page via routing. See <App /> for more details.
+To switch pages, we use BrowserRouter, a wrapper around the user interface and changes page via routing. See <App /> for more details.
 
-To have global access to data, there are several wrappers around the HashRouter and the App that keeps track of the data. 
+To have global access to data, there are several wrappers around the BrowserRouter and the App that keeps track of the data. 
 Each with their respective category. Currently, these wrappers are created using React Context. To understand the flow of 
 global data and its feed to the user interface, you may want to start from the top one first.
 

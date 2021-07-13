@@ -24,7 +24,6 @@ import {
   LPFARM_CONTRACT_ADDRESS,
   TREASURY_CONTRACT_ADDRESS,
   REGISTRY_CONTRACT_ADDRESS,
-  POLICY_MANAGER_CONTRACT_ADDRESS,
   COMPOUND_PRODUCT_CONTRACT_ADDRESS,
   CLAIMS_ESCROW_CONTRACT_ADDRESS,
 } from '../constants'
@@ -57,7 +56,7 @@ const getInterface = (toAddress: string) => {
   }
 }
 
-export const decodeInput = (tx: any) => {
+export const decodeInput = (tx: any, chainId: number) => {
   const inter = getInterface(tx.to)
   const decodedInput = inter.parseTransaction({ data: tx.input, value: tx.value })
   const function_name = decodedInput.name.charAt(0).toUpperCase() + decodedInput.name.slice(1)

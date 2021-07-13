@@ -34,7 +34,7 @@ import { HeroContainer } from '../../components/Layout'
 import { Heading1 } from '../../components/Text'
 
 /* import constants */
-import { PolicyStatus } from '../../constants/enums'
+import { PolicyStates } from '../../constants/enums'
 
 /* import hooks */
 import { usePolicyGetter } from '../../hooks/useGetter'
@@ -157,7 +157,7 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
         // [['compound', 'eth', true], ['compound', 'dai', false],..,]
         const userPolicyPositionList: [string, string, boolean][] = []
         policies.forEach((policy: any) => {
-          userPolicyPositionList.push([policy.productName, policy.positionName, policy.status === PolicyStatus.ACTIVE])
+          userPolicyPositionList.push([policy.productName, policy.positionName, policy.status === PolicyStates.ACTIVE])
         })
         setUserPolicyPositions(userPolicyPositionList)
         setPositionsLoaded(true)
@@ -184,33 +184,35 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
         </HeroContainer>
       )}
       {!loading && positionsLoaded ? (
-        <CardContainer>
-          {balances.map((position: any) => {
-            return (
-              <PositionCard
-                key={position.underlying.address}
-                disabled={userHasActiveProductPosition(protocol.name, position.underlying.symbol)}
-                onClick={() => handleChange(position)}
-              >
-                <PositionCardLogo>
-                  <img src={`https://assets.solace.fi/${position.underlying.address.toLowerCase()}.svg`} />
-                </PositionCardLogo>
-                <PositionCardName>{position.underlying.name}</PositionCardName>
-                <PositionCardCount t1>
-                  {truncateBalance(fixedTokenPositionBalance(position.underlying))}{' '}
-                  <BoxItemUnits style={{ fontSize: '12px' }}>{position.underlying.symbol}</BoxItemUnits>
-                </PositionCardCount>
-                <PositionCardCount t2>
-                  {truncateBalance(fixedTokenPositionBalance(position.token))}{' '}
-                  <BoxItemUnits style={{ fontSize: '12px' }}>{position.token.symbol}</BoxItemUnits>
-                </PositionCardCount>
-                <PositionCardButton>
-                  <Button>Select</Button>
-                </PositionCardButton>
-              </PositionCard>
-            )
-          })}
-        </CardContainer>
+        <Fragment>
+          <CardContainer>
+            {balances.map((position: any) => {
+              return (
+                <PositionCard
+                  key={position.underlying.address}
+                  disabled={userHasActiveProductPosition(protocol.name, position.underlying.symbol)}
+                  onClick={() => handleChange(position)}
+                >
+                  <PositionCardLogo>
+                    <img src={`https://assets.solace.fi/${position.underlying.address.toLowerCase()}.svg`} />
+                  </PositionCardLogo>
+                  <PositionCardName>{position.underlying.name}</PositionCardName>
+                  <PositionCardCount t1>
+                    {truncateBalance(fixedTokenPositionBalance(position.underlying))}{' '}
+                    <BoxItemUnits style={{ fontSize: '12px' }}>{position.underlying.symbol}</BoxItemUnits>
+                  </PositionCardCount>
+                  <PositionCardCount t2>
+                    {truncateBalance(fixedTokenPositionBalance(position.token))}{' '}
+                    <BoxItemUnits style={{ fontSize: '12px' }}>{position.token.symbol}</BoxItemUnits>
+                  </PositionCardCount>
+                  <PositionCardButton>
+                    <Button>Select</Button>
+                  </PositionCardButton>
+                </PositionCard>
+              )
+            })}
+          </CardContainer>
+        </Fragment>
       ) : (
         <Loader />
       )}

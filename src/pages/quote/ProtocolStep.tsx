@@ -29,7 +29,7 @@ import useDebounce from '@rooks/use-debounce'
 
 /* import constants */
 import { DAYS_PER_YEAR, NUM_BLOCKS_PER_DAY } from '../../constants'
-import { PROTOCOLS_LIST } from '../../constants/protocols'
+import { ProtocolNames } from '../../constants/enums'
 
 /* import context */
 import { useContracts } from '../../context/ContractsManager'
@@ -128,8 +128,9 @@ export const ProtocolStep: React.FC<formProps> = ({ formData, setForm, navigatio
           </TableRow>
         </TableHead>
         <TableBody>
-          {PROTOCOLS_LIST.filter((protocol) => protocol.toLowerCase().includes(searchValue.toLowerCase())).map(
-            (protocol) => {
+          {Object.values(ProtocolNames)
+            .filter((protocol: string) => protocol.toLowerCase().includes(searchValue.toLowerCase()))
+            .map((protocol: string) => {
               return (
                 <TableRow
                   key={protocol}
@@ -171,8 +172,7 @@ export const ProtocolStep: React.FC<formProps> = ({ formData, setForm, navigatio
                   </TableData>
                 </TableRow>
               )
-            }
-          )}
+            })}
         </TableBody>
       </Table>
     </Fragment>

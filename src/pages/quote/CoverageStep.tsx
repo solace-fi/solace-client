@@ -31,7 +31,7 @@ import { BigNumber } from 'ethers'
 
 /* import constants */
 import { DAYS_PER_YEAR, GAS_LIMIT, NUM_BLOCKS_PER_DAY } from '../../constants'
-import { TransactionCondition, FunctionName, Unit } from '../../constants/enums'
+import { TransactionConditions, FunctionNames, Units } from '../../constants/enums'
 
 /* import managers */
 import { useContracts } from '../../context/ContractsManager'
@@ -100,7 +100,7 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
       },
     })
     if (!selectedProtocol) return
-    const txType = FunctionName.BUY_POLICY
+    const txType = FunctionNames.BUY_POLICY
     try {
       const tx = await selectedProtocol.buyPolicy(
         wallet.account,
@@ -119,8 +119,8 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
         hash: txHash,
         type: txType,
         value: 'Policy',
-        status: TransactionCondition.PENDING,
-        unit: Unit.ETH,
+        status: TransactionConditions.PENDING,
+        unit: Units.ETH,
       }
       setForm({
         target: {
@@ -130,14 +130,14 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
       })
       addLocalTransactions(localTx)
       wallet.reload()
-      makeTxToast(txType, TransactionCondition.PENDING, txHash)
+      makeTxToast(txType, TransactionConditions.PENDING, txHash)
       await tx.wait().then((receipt: any) => {
-        const status = receipt.status ? TransactionCondition.SUCCESS : TransactionCondition.FAILURE
+        const status = receipt.status ? TransactionConditions.SUCCESS : TransactionConditions.FAILURE
         makeTxToast(txType, status, txHash)
         wallet.reload()
       })
     } catch (err) {
-      makeTxToast(txType, TransactionCondition.CANCELLED)
+      makeTxToast(txType, TransactionConditions.CANCELLED)
       setForm({
         target: {
           name: 'loading',
