@@ -851,7 +851,7 @@ function Invest(): any {
                   <TableData>{timeAgo(Number(Date.now()) * 1000)}</TableData>
                   <TableData>
                     <HyperLink
-                      href={getEtherscanTxUrl(wallet.chainId ?? Number(DEFAULT_CHAIN_ID), pendingtx.hash)}
+                      href={getEtherscanTxUrl(wallet.chainId ?? DEFAULT_CHAIN_ID, pendingtx.hash)}
                       target="_blank"
                       rel="noopener noreferrer"
                     >
@@ -867,7 +867,7 @@ function Invest(): any {
                 <TableRow key={tx.hash}>
                   <TableData>
                     {transactionDetails.length > 0 ? (
-                      decodeInput(tx, wallet.chainId ?? Number(DEFAULT_CHAIN_ID)).function_name
+                      decodeInput(tx, wallet.chainId ?? DEFAULT_CHAIN_ID).function_name
                     ) : (
                       <Loader width={10} height={10} />
                     )}
@@ -877,7 +877,7 @@ function Invest(): any {
                   <TableData>
                     {transactionDetails.length > 0 && (
                       <HyperLink
-                        href={getEtherscanTxUrl(wallet.chainId ?? Number(DEFAULT_CHAIN_ID), tx.hash)}
+                        href={getEtherscanTxUrl(wallet.chainId ?? DEFAULT_CHAIN_ID, tx.hash)}
                         target="_blank"
                         rel="noopener noreferrer"
                       >

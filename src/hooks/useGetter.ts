@@ -1,8 +1,9 @@
-import { withBackoffRetries, range, getContract } from '../utils'
-import { getPoliciesConfig } from '../utils/configs'
+import { withBackoffRetries, range } from '../utils'
+import { policyConfig } from '../config/policyConfig'
 import { useWallet } from '../context/WalletManager'
 import { PolicyStates } from '../constants/enums'
 import { BigNumber } from 'ethers'
+import { useContracts } from '../context/ContractsManager'
 
 export interface Policy {
   policyId: number
@@ -19,8 +20,10 @@ export interface Policy {
 
 export const usePolicyGetter = () => {
   const wallet = useWallet()
+  const { policyManager } = useContracts()
 
   const getPolicies = async (policyHolder?: string, product?: string) => {
+    if (!policyConfig[String(wallet.chainId)]) return []
     await checkInit()
     let policies = await (policyHolder ? getUserPolicies(policyHolder) : getAllPolicies())
     policies = policies.filter((policy: any) => policy.policyId >= 0)
@@ -29,26 +32,20 @@ export const usePolicyGetter = () => {
     policies.forEach(
       (policy: any) =>
         (policy.positionName =
-          getPoliciesConfig[String(wallet.chainId)].positionNames[policy.positionContract.toLowerCase()])
+          policyConfig[String(wallet.chainId)].positionNames[policy.positionContract.toLowerCase()])
     )
     return policies
   }
 
   const checkInit = async () => {
-    if (!getPoliciesConfig[String(wallet.chainId)].initialized) {
-      const tokens = getPoliciesConfig[String(wallet.chainId)].tokens
-      const contract = getContract(
-        getPoliciesConfig[String(wallet.chainId)].policyManagerAddr,
-        getPoliciesConfig[String(wallet.chainId)].policyManagerAbi,
-        wallet.library
-      )
+    if (!policyConfig[String(wallet.chainId)].initialized) {
+      const tokens = policyConfig[String(wallet.chainId)].tokens
       const positionNames = tokens?.reduce(
         (names: any, token: any) => ({ ...names, [token.token.address.toLowerCase()]: token.underlying.symbol }),
         {}
       )
-      getPoliciesConfig[String(wallet.chainId)] = {
-        ...getPoliciesConfig[String(wallet.chainId)],
-        policyManagerContract: contract,
+      policyConfig[String(wallet.chainId)] = {
+        ...policyConfig[String(wallet.chainId)],
         positionNames,
         initialized: true,
       }
@@ -58,7 +55,7 @@ export const usePolicyGetter = () => {
   const getUserPolicies = async (policyHolder: string): Promise<any> => {
     const [blockNumber, policyIds] = await Promise.all([
       wallet.library.getBlockNumber(),
-      getPoliciesConfig[String(wallet.chainId)].policyManagerContract.listPolicies(policyHolder),
+      policyManager?.listPolicies(policyHolder),
     ])
     const policies = await Promise.all(policyIds.map((policyId: BigNumber) => queryPolicy(policyId, blockNumber)))
     return policies
@@ -67,7 +64,7 @@ export const usePolicyGetter = () => {
   const getAllPolicies = async (): Promise<any> => {
     const [blockNumber, totalPolicyCount] = await Promise.all([
       wallet.library.getBlockNumber(),
-      getPoliciesConfig[String(wallet.chainId)].policyManagerContract.totalPolicyCount(),
+      policyManager?.totalPolicyCount(),
     ])
     const policyIds = range(totalPolicyCount.toNumber())
     const policies = await Promise.all(policyIds.map((policyId) => queryPolicy(policyId, blockNumber)))
@@ -76,18 +73,16 @@ export const usePolicyGetter = () => {
 
   const queryPolicy = async (policyId: any, blockNumber: any) => {
     try {
-      if (!getPoliciesConfig[String(wallet.chainId)].policyManagerContract)
+      if (!policyManager)
         return {
           policyId: -1,
         }
-      const policy = await withBackoffRetries(async () =>
-        getPoliciesConfig[String(wallet.chainId)].policyManagerContract.getPolicyInfo(policyId)
-      )
+      const policy = await withBackoffRetries(async () => policyManager.getPolicyInfo(policyId))
       return {
         policyId: Number(policyId),
         policyholder: policy.policyholder,
         productAddress: policy.product,
-        productName: getPoliciesConfig[String(wallet.chainId)].productsRev[policy.product],
+        productName: policyConfig[String(wallet.chainId)].productsRev[policy.product],
         positionContract: policy.positionContract,
         expirationBlock: policy.expirationBlock.toString(),
         coverAmount: policy.coverAmount.toString(),

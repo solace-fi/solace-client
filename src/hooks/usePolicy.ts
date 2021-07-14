@@ -5,7 +5,6 @@ import React, { useEffect, useState } from 'react'
 import { GAS_LIMIT, NUM_BLOCKS_PER_DAY } from '../constants'
 import { useContracts } from '../context/ContractsManager'
 import { useWallet } from '../context/WalletManager'
-import { ProtocolNames } from '../constants/enums'
 import { usePolicyGetter } from './useGetter'
 
 export const useGetPolicyPrice = (policyId: number): string => {
@@ -93,19 +92,20 @@ export const useGetCancelFee = () => {
 
 export const useGetYearlyCosts = () => {
   const [yearlyCosts, setYearlyCosts] = useState<any>({})
-  const { getProtocolByName } = useContracts()
+  const { products, getProtocolByName } = useContracts()
 
   const getYearlyCosts = async () => {
     try {
+      if (!products) return
       const newYearlyCosts: any = {}
-      for (let i = 0; i < Object.values(ProtocolNames).length; i++) {
+      for (let i = 0; i < products.length; i++) {
         let price = '0'
-        const product = getProtocolByName(Object.values(ProtocolNames)[i].toLowerCase())
+        const product = getProtocolByName(products[i].name)
         if (product) {
           const fetchedPrice = await product.price()
           price = formatEther(fetchedPrice)
         }
-        newYearlyCosts[Object.values(ProtocolNames)[i].toLowerCase()] = price
+        newYearlyCosts[products[i].name] = price
       }
       setYearlyCosts(newYearlyCosts)
     } catch (err) {
@@ -122,25 +122,25 @@ export const useGetYearlyCosts = () => {
 
 export const useGetAvailableCoverages = () => {
   const [availableCoverages, setAvailableCoverages] = useState<any>({})
-  const { getProtocolByName } = useContracts()
+  const { products, getProtocolByName } = useContracts()
 
   const getAvailableCoverages = async () => {
     try {
+      if (!products) return
       const newAvailableCoverages: any = {}
-      for (let i = 0; i < Object.values(ProtocolNames).length; i++) {
+      for (let i = 0; i < products.length; i++) {
         let coverage = '0'
-        const product = getProtocolByName(Object.values(ProtocolNames)[i].toLowerCase())
+        const product = getProtocolByName(products[i].name)
         if (product) {
           const maxCoverAmount = await product.maxCoverAmount()
           const activeCoverAmount = await product.activeCoverAmount()
           coverage = formatEther(maxCoverAmount.sub(activeCoverAmount))
         }
-        newAvailableCoverages[Object.values(ProtocolNames)[i].toLowerCase()] = coverage
+        newAvailableCoverages[products[i].name] = coverage
       }
       setAvailableCoverages(newAvailableCoverages)
     } catch (err) {
       console.log('getAvailableCoverage', err)
-      return '0'
     }
   }
 

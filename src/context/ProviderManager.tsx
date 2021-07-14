@@ -42,7 +42,7 @@ const ProviderManager: React.FC = ({ children }) => {
 
   const getProviders = async () => {
     const provider = new JsonRpcProvider(
-      `https://eth-${getNetworkName(wallet.chainId ?? Number(DEFAULT_CHAIN_ID))}.alchemyapi.io/v2/${ALCHEMY_API_KEY}`
+      `https://eth-${getNetworkName(wallet.chainId ?? DEFAULT_CHAIN_ID)}.alchemyapi.io/v2/${ALCHEMY_API_KEY}`
     )
     setEthProvider(provider)
   }

@@ -12,7 +12,7 @@ import compAbi from '../constants/abi/contracts/products/CompoundProductRinkeby.
 import polMagABI from '../constants/abi/contracts/PolicyManager.sol/PolicyManager.json'
 
 export const contractConfig: any = {
-  4: {
+  '4': {
     keyContracts: {
       master: {
         addr: '0xA5B8d9924413151e93228Dd5f934ff147911CA95',
@@ -55,20 +55,12 @@ export const contractConfig: any = {
         abi: polMagABI,
       },
     },
-    //enumerable list of supported products and stores contract
-    supportedProducts: [{ name: 'compound', contract: null, signer: false }],
-
-    // get product contract address and abi
     productContracts: {
-      compound: {
+      comp: {
         addr: '0x57149Ad6B4c3051023CF46b3978692936C49154E',
         abi: compAbi,
       },
     },
-
-    // get product name for UI
-    productsRev: {
-      '0x57149Ad6B4c3051023CF46b3978692936C49154E': 'Compound',
-    },
+    supportedProducts: [{ name: 'Compound', id: 'comp', contract: null, signer: false }],
   },
 }

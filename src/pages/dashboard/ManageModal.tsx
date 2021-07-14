@@ -265,7 +265,7 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
       if (!selectedPolicy || !wallet.chainId || !wallet.account || !isOpen) return
       setAsyncLoading(true)
       const positionAmount = await getAppraisePosition(
-        getProtocolByName(selectedPolicy.productName.toLowerCase()),
+        getProtocolByName(selectedPolicy.productName),
         selectedPolicy.positionContract
       )
       getCoverLimit(selectedPolicy, positionAmount)

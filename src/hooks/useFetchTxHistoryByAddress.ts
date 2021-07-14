@@ -10,7 +10,7 @@ export const useFetchTxHistoryByAddress = (): any => {
   const [txHistory, setTxHistory] = useState<any>([])
 
   const fetchTxHistoryByAddress = async (account: string) => {
-    await fetchEtherscanTxHistoryByAddress(chainId ?? Number(DEFAULT_CHAIN_ID), account).then((result) => {
+    await fetchEtherscanTxHistoryByAddress(chainId ?? DEFAULT_CHAIN_ID, account).then((result) => {
       deleteLocalTransactions(result.txList)
       setTxHistory(result.txList.slice(0, 30))
       reload()

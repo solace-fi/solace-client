@@ -2,12 +2,12 @@ import React, { createContext, useContext, useMemo, useEffect, useState } from '
 import { getEtherscanTxUrl } from '../utils/etherscan'
 import { toast, ToastContainer } from 'react-toastify'
 import { useWallet } from '../context/WalletManager'
+import { contractConfig } from '../config/chainConfig'
 
 import 'animate.css/animate.min.css'
 import 'react-toastify/dist/ReactToastify.css'
 import { DEFAULT_CHAIN_ID } from '../constants'
 import { TransactionConditions, Errors } from '../constants/enums'
-import { getNetworkName } from '../utils'
 import { HyperLink } from '../components/Link'
 import { Button } from '../components/Button'
 
@@ -68,7 +68,7 @@ const ToastsProvider: React.FC = (props) => {
         <FlexDiv>
           {txHash && (
             <HyperLink
-              href={getEtherscanTxUrl(wallet.chainId ?? Number(DEFAULT_CHAIN_ID), txHash)}
+              href={getEtherscanTxUrl(wallet.chainId ?? DEFAULT_CHAIN_ID, txHash)}
               target="_blank"
               rel="noopener noreferrer"
             >
@@ -166,22 +166,16 @@ const ToastsProvider: React.FC = (props) => {
 
   // Runs whenever the chainId changes
   useEffect(() => {
-    if (wallet.chainId !== Number(DEFAULT_CHAIN_ID) && wallet.chainId !== undefined) {
-      toast(
-        appToast(
-          `Wrong network, please switch to ${getNetworkName(Number(DEFAULT_CHAIN_ID))} on MetaMask`,
-          <StyledWarning size={30} />
-        ),
-        {
-          toastId: Errors.NETWORK,
-          type: toast.TYPE.ERROR,
-          position: toast.POSITION.BOTTOM_LEFT,
-          autoClose: false,
-          closeOnClick: false,
-          closeButton: false,
-          className: 'error-toast',
-        }
-      )
+    if (contractConfig[String(wallet.chainId)] == undefined && wallet.chainId) {
+      toast(appToast(`Unsupported network, please switch to a supported network`, <StyledWarning size={30} />), {
+        toastId: Errors.NETWORK,
+        type: toast.TYPE.ERROR,
+        position: toast.POSITION.BOTTOM_LEFT,
+        autoClose: false,
+        closeOnClick: false,
+        closeButton: false,
+        className: 'error-toast',
+      })
       setErrors([...errors, Errors.NETWORK])
     } else {
       toast.dismiss(Errors.NETWORK)

@@ -135,7 +135,7 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
   }
 
   const setPolicy = (policy: Policy) => {
-    setSelectedProtocolByName(policy.productName.toLowerCase())
+    setSelectedProtocolByName(policy.productName)
     document.body.style.overflowY = 'hidden'
     setSelectedPolicy(policy)
   }

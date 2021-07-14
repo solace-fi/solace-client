@@ -52,7 +52,7 @@ export const useTransactionDetails = (txList: any): string[] => {
     if (txList) {
       const currentAmounts = []
       for (const tx of txList) {
-        const function_name = decodeInput(tx, chainId ?? Number(DEFAULT_CHAIN_ID)).function_name
+        const function_name = decodeInput(tx, chainId ?? DEFAULT_CHAIN_ID).function_name
         const amount: string = await getTransactionAmount(function_name, tx, library)
         currentAmounts.push(`${formatTransactionContent(function_name, amount)}`)
       }

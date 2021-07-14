@@ -75,7 +75,7 @@ export const PolicyInfo: React.FC<PolicyInfoProps> = ({ selectedPolicy, latestBl
     const load = async () => {
       if (!selectedPolicy) return
       const positionAmount = await getAppraisePosition(
-        getProtocolByName(selectedPolicy.productName.toLowerCase()),
+        getProtocolByName(selectedPolicy.productName),
         selectedPolicy.positionContract
       )
       setPositionAmount(formatEther(positionAmount))

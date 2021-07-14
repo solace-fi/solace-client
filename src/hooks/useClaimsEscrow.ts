@@ -15,14 +15,6 @@ export const useClaimsEscrow = () => {
     }
   }
 
-  /* snippet by Andrew for future dev
-  const [claimInfo, cooldownPeriod] = await Promise.all([
-  claimsEscrow.claims(claimID),
-  claimsEscrow.cooldownPeriod()
-  ]);
-  const cooldownEndsAt = claimInfo.receivedAt + cooldownPeriod;
-  */
-
   const timeLeft = async (claimID: any): Promise<BigNumber | undefined> => {
     if (!claimsEscrow || !claimID) return
     try {
@@ -56,16 +48,21 @@ export const useClaimsEscrow = () => {
 
   const getClaimDetails = async (claimant: string): Promise<any> => {
     if (!claimsEscrow) return []
-    const claimIds = await claimsEscrow.listClaims(claimant)
-    const claimsDetails = []
-    for (let i = 0; i < claimIds.length; i++) {
-      const cooldown = await timeLeft(claimIds[i])
-      const canWithdraw = await isWithdrawable(claimIds[i])
-      const claim = await claimsEscrow.claims(claimIds[i])
-      const amount = claim.amount
-      claimsDetails.push({ id: claimIds[i].toString(), cooldown, canWithdraw, amount })
+    try {
+      const claimIds = await claimsEscrow.listClaims(claimant)
+      const claimsDetails = []
+      for (let i = 0; i < claimIds.length; i++) {
+        const cooldown = await timeLeft(claimIds[i])
+        const canWithdraw = await isWithdrawable(claimIds[i])
+        const claim = await claimsEscrow.claims(claimIds[i])
+        const amount = claim.amount
+        claimsDetails.push({ id: claimIds[i].toString(), cooldown, canWithdraw, amount })
+      }
+      return claimsDetails
+    } catch (err) {
+      console.log('getClaimDetails', err)
+      return []
     }
-    return claimsDetails
   }
 
   return { isWithdrawable, timeLeft, listClaims, getClaimDetails, getCooldownPeriod }

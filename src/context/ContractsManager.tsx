@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useMemo, useState } from 'react'
 import { Contract } from '@ethersproject/contracts'
-import { contractConfig } from '../constants/chainConfig'
+import { contractConfig } from '../config/chainConfig'
 
 import { useGetContract, useGetProductContracts } from '../hooks/useContract'
 import { useWallet } from './WalletManager'
@@ -24,7 +24,7 @@ export type Contracts = {
   weth?: Contract | null
   claimsEscrow?: Contract | null
   policyManager?: Contract | null
-  products?: { name: string; contract: Contract; signer: boolean }[] | null
+  products?: { name: string; id: string; contract: Contract; signer: boolean }[] | null
   selectedProtocol: Contract | null
   getProtocolByName: (productName: string) => Contract | null
   setSelectedProtocolByName: (productName: string) => void
@@ -50,7 +50,8 @@ const ContractsContext = createContext<Contracts>({
 const ContractsProvider: React.FC = (props) => {
   const [selectedProtocol, setSelectedProtocol] = useState<Contract | null>(null)
   const { chainId } = useWallet()
-  const keyContracts = contractConfig[chainId ?? Number(DEFAULT_CHAIN_ID)].keyContracts
+  const config = chainId && contractConfig[chainId] ? contractConfig[chainId] : contractConfig[DEFAULT_CHAIN_ID]
+  const keyContracts = config.keyContracts
 
   const master = useGetContract(keyContracts.master.addr, keyContracts.master.abi)
   const vault = useGetContract(keyContracts.vault.addr, keyContracts.vault.abi)

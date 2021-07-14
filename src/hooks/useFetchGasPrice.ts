@@ -31,7 +31,7 @@ export const useFetchGasPrice = (): GasFeeListState => {
 
   useEffect(() => {
     const fetchGasPrices = async () => {
-      await fetchGasPrice(chainId ?? Number(DEFAULT_CHAIN_ID))
+      await fetchGasPrice(chainId ?? DEFAULT_CHAIN_ID)
         .then((result) => {
           const options = [
             {

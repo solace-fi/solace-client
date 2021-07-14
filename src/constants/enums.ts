@@ -38,7 +38,3 @@ export enum PolicyStates {
   ACTIVE = 'Active',
   EXPIRED = 'Expired',
 }
-
-export enum ProtocolNames {
-  COMPOUND = 'Compound',
-}

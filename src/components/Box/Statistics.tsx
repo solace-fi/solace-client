@@ -54,7 +54,6 @@ import { usePolicyGetter, Policy } from '../../hooks/useGetter'
 import { WalletConnectButton } from '../Button/WalletConnect'
 
 /* import utils */
-import { getAllPolicies } from '../../utils/paclas'
 import { fixed, getGasValue, floatEther, truncateBalance } from '../../utils/formatting'
 
 export const Statistics = () => {

@@ -2,7 +2,7 @@ import { useWallet } from '../context/WalletManager'
 import { useMemo } from 'react'
 import { getContract } from '../utils'
 import { Contract } from '@ethersproject/contracts'
-import { contractConfig } from '../constants/chainConfig'
+import { contractConfig } from '../config/chainConfig'
 import { DEFAULT_CHAIN_ID } from '../constants'
 
 export function useGetContract(address: string, abi: any, hasSigner = true): Contract | null {
@@ -19,25 +19,30 @@ export function useGetContract(address: string, abi: any, hasSigner = true): Con
   }, [address, abi, library, hasSigner, account])
 }
 
-export function useGetProductContracts(): { name: string; contract: Contract; signer: boolean }[] | null {
+export function useGetProductContracts(): { name: string; id: string; contract: Contract; signer: boolean }[] | null {
   const { library, account, chainId } = useWallet()
-  const chainID = chainId ?? Number(DEFAULT_CHAIN_ID)
-  const chainConfig = contractConfig[chainID] ?? contractConfig[Number(DEFAULT_CHAIN_ID)]
+  const chainID = chainId ?? DEFAULT_CHAIN_ID
+  const _contractConfig = contractConfig[String(chainID)] ?? contractConfig[String(DEFAULT_CHAIN_ID)]
 
   return useMemo(() => {
     if (!library) return null
-    for (let i = 0; i < chainConfig.supportedProducts.length; i++) {
-      const signer = account ? true : false
-      if (!chainConfig.supportedProducts[i].contract || signer !== chainConfig.supportedProducts[i].signer) {
+    const signer = account ? true : false
+    for (let i = 0; i < _contractConfig.supportedProducts.length; i++) {
+      const id = _contractConfig.supportedProducts[i].id
+      if (!_contractConfig.supportedProducts[i].contract || signer !== _contractConfig.supportedProducts[i].signer) {
         const contract = getContract(
-          chainConfig.productContracts[chainConfig.supportedProducts[i].name].addr,
-          chainConfig.productContracts[chainConfig.supportedProducts[i].name].abi,
+          _contractConfig.productContracts[id].addr,
+          _contractConfig.productContracts[id].abi,
           library,
           account ? account : undefined
         )
-        chainConfig.supportedProducts[i] = { ...chainConfig.supportedProducts[i], contract: contract, signer: signer }
+        _contractConfig.supportedProducts[i] = {
+          ..._contractConfig.supportedProducts[i],
+          contract: contract,
+          signer: signer,
+        }
       }
     }
-    return chainConfig.supportedProducts
+    return _contractConfig.supportedProducts
   }, [library, account, chainId])
 }
