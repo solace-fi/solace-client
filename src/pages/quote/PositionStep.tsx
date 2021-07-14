@@ -23,6 +23,7 @@ import React, { Fragment, useEffect, useRef, useState } from 'react'
 /* import managers */
 import { useWallet } from '../../context/WalletManager'
 import { useContracts } from '../../context/ContractsManager'
+import { useToasts } from '../../context/NotificationsManager'
 
 /* import components */
 import { BoxItemUnits } from '../../components/Box'
@@ -60,6 +61,7 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
   const { getPolicies } = usePolicyGetter()
   const { setSelectedProtocolByName } = useContracts()
   const latestBlock = useGetLatestBlockNumber()
+  const { errors } = useToasts()
 
   /*************************************************************************************
 
@@ -240,7 +242,9 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
                   key={position.underlying.address}
                   isHighlight={userHasActiveProductPosition(protocol.name, position.underlying.symbol)}
                   onClick={
-                    userHasActiveProductPosition(protocol.name, position.underlying.symbol)
+                    errors.length > 0
+                      ? undefined
+                      : userHasActiveProductPosition(protocol.name, position.underlying.symbol)
                       ? () =>
                           openManageModal(
                             policies.filter(

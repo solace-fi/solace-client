@@ -133,13 +133,7 @@ export const MyPolicies: React.FC<MyPoliciesProps> = ({ openClaimModal, openMana
                     {policy.status === PolicyStates.ACTIVE && (
                       <TableDataGroup>
                         <Button onClick={() => openClaimModal(policy)}>Claim</Button>
-                        <Button
-                          onClick={() =>
-                            openManageModal(getDays(parseFloat(policy.expirationBlock), latestBlock), policy)
-                          }
-                        >
-                          Manage
-                        </Button>
+                        <Button onClick={() => openManageModal(policy)}>Manage</Button>
                       </TableDataGroup>
                     )}
                   </TableData>

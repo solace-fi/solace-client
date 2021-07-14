@@ -596,6 +596,7 @@ function Invest(): any {
             </ModalCell>
             <ModalCell t3>
               <Button
+                disabled={errors.length > 0}
                 onClick={() => {
                   setAmount(calculateMaxEth().toString())
                   setMaxSelected(true)
@@ -647,7 +648,10 @@ function Invest(): any {
                   <Fragment>
                     {!hasApproval(tokenAllowance, amount ? parseEther(amount).toString() : '0') &&
                       tokenAllowance != '' && (
-                        <Button disabled={isAppropriateAmount() ? false : true} onClick={() => approve()}>
+                        <Button
+                          disabled={(isAppropriateAmount() ? false : true) || errors.length > 0}
+                          onClick={() => approve()}
+                        >
                           Approve
                         </Button>
                       )}
@@ -655,7 +659,8 @@ function Invest(): any {
                       hidden={loading}
                       disabled={
                         (isAppropriateAmount() ? false : true) ||
-                        !hasApproval(tokenAllowance, amount ? parseEther(amount).toString() : '0')
+                        !hasApproval(tokenAllowance, amount ? parseEther(amount).toString() : '0') ||
+                        errors.length > 0
                       }
                       onClick={handleCallbackFunc}
                     >
@@ -663,7 +668,11 @@ function Invest(): any {
                     </Button>
                   </Fragment>
                 ) : (
-                  <Button hidden={loading} disabled={isAppropriateAmount() ? false : true} onClick={handleCallbackFunc}>
+                  <Button
+                    hidden={loading}
+                    disabled={(isAppropriateAmount() ? false : true) || errors.length > 0}
+                    onClick={handleCallbackFunc}
+                  >
                     Confirm
                   </Button>
                 )}

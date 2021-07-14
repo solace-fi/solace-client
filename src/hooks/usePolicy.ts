@@ -5,18 +5,21 @@ import React, { useEffect, useState } from 'react'
 import { GAS_LIMIT, NUM_BLOCKS_PER_DAY } from '../constants'
 import { useContracts } from '../context/ContractsManager'
 import { useWallet } from '../context/WalletManager'
-import { getPolicyPrice } from '../utils/paclas'
 import { ProtocolNames } from '../constants/enums'
+import { usePolicyGetter } from './useGetter'
 
 export const useGetPolicyPrice = (policyId: number): string => {
   const [policyPrice, setPolicyPrice] = useState<string>('')
   const { selectedProtocol } = useContracts()
+  const { getPolicies } = usePolicyGetter()
+  const { account } = useWallet()
 
   const getPrice = async () => {
     if (!selectedProtocol || policyId == 0) return
     try {
-      const price = await getPolicyPrice(policyId)
-      setPolicyPrice(price)
+      const policies = await getPolicies(account)
+      const policy = policies.filter((policy: any) => policy.policyId == policyId)[0]
+      setPolicyPrice(policy.price)
     } catch (err) {
       console.log('getPolicyPrice', err)
     }

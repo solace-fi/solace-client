@@ -90,7 +90,7 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
   const tokenAllowance = useTokenAllowance(contractForAllowance, spenderAddress)
   const { addLocalTransactions } = useUserData()
   const { selectedProtocol, getProtocolByName } = useContracts()
-  const { makeTxToast } = useToasts()
+  const { errors, makeTxToast } = useToasts()
   const wallet = useWallet()
 
   /*************************************************************************************
@@ -101,10 +101,9 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
 
   const approve = async () => {
     setModalLoading(true)
-    if (!selectedProtocol || !assessment || !selectedPolicy) return
+    if (!selectedProtocol || !assessment || !selectedPolicy || !contractForAllowance) return
     const { amountIn } = assessment
     const txType = FunctionNames.APPROVE
-    const contractForAllowance = getContract(selectedPolicy.positionContract, cTokenABI, wallet.library, wallet.account)
     try {
       const approval = await contractForAllowance.approve(selectedProtocol.address, amountIn)
       const approvalHash = approval.hash
@@ -234,7 +233,11 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
             </SmallBox>
             {!hasApproval(tokenAllowance, assessment?.amountIn) && !claimId && (
               <ButtonWrapper>
-                <Button widthP={100} disabled={!assessment?.lossEventDetected} onClick={() => approve()}>
+                <Button
+                  widthP={100}
+                  disabled={errors.length > 0 || !assessment?.lossEventDetected}
+                  onClick={() => approve()}
+                >
                   Approve Solace Protocol to transfer your{' '}
                   {positionBalances &&
                     positionBalances.map(
@@ -251,7 +254,11 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
               <ButtonWrapper>
                 <Button
                   widthP={100}
-                  disabled={!assessment?.lossEventDetected || !hasApproval(tokenAllowance, assessment?.amountIn)}
+                  disabled={
+                    errors.length > 0 ||
+                    !assessment?.lossEventDetected ||
+                    !hasApproval(tokenAllowance, assessment?.amountIn)
+                  }
                   onClick={() => submitClaim()}
                 >
                   Submit Claim

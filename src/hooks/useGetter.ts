@@ -20,6 +20,20 @@ export interface Policy {
 export const usePolicyGetter = () => {
   const wallet = useWallet()
 
+  const getPolicies = async (policyHolder?: string, product?: string) => {
+    await checkInit()
+    let policies = await (policyHolder ? getUserPolicies(policyHolder) : getAllPolicies())
+    policies = policies.filter((policy: any) => policy.policyId >= 0)
+    if (product) policies = policies.filter((policy: any) => policy.productAddress.equalsIgnoreCase(product))
+    policies.sort((a: any, b: any) => b.policyId - a.policyId) // newest first
+    policies.forEach(
+      (policy: any) =>
+        (policy.positionName =
+          getPoliciesConfig[String(wallet.chainId)].positionNames[policy.positionContract.toLowerCase()])
+    )
+    return policies
+  }
+
   const checkInit = async () => {
     if (!getPoliciesConfig[String(wallet.chainId)].initialized) {
       const tokens = getPoliciesConfig[String(wallet.chainId)].tokens
@@ -39,20 +53,6 @@ export const usePolicyGetter = () => {
         initialized: true,
       }
     }
-  }
-
-  const getPolicies = async (policyHolder?: string, product?: string) => {
-    await checkInit()
-    let policies = await (policyHolder ? getUserPolicies(policyHolder) : getAllPolicies())
-    policies = policies.filter((policy: any) => policy.policyId >= 0)
-    if (product) policies = policies.filter((policy: any) => policy.productAddress.equalsIgnoreCase(product))
-    policies.sort((a: any, b: any) => b.policyId - a.policyId) // newest first
-    policies.forEach(
-      (policy: any) =>
-        (policy.positionName =
-          getPoliciesConfig[String(wallet.chainId)].positionNames[policy.positionContract.toLowerCase()])
-    )
-    return policies
   }
 
   const getUserPolicies = async (policyHolder: string): Promise<any> => {

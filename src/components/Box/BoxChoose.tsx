@@ -57,5 +57,6 @@ export const BoxChooseDate = styled.div`
 `
 
 export const BoxChooseText = styled.div`
+  padding: 10px;
   ${BoxChooseInfo}
 `

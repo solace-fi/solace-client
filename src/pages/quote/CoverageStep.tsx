@@ -68,7 +68,7 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
   const wallet = useWallet()
   const { addLocalTransactions } = useUserData()
   const { selectedProtocol } = useContracts()
-  const { makeTxToast } = useToasts()
+  const { errors, makeTxToast } = useToasts()
 
   /*************************************************************************************
 
@@ -285,7 +285,17 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
                 >
                   {coveredAssets} ETH
                 </BoxChooseText>
-                <Button ml={10} pt={4} pb={4} pl={8} pr={8} width={79} height={30} onClick={() => setMaxCover()}>
+                <Button
+                  disabled={errors.length > 0}
+                  ml={10}
+                  pt={4}
+                  pb={4}
+                  pl={8}
+                  pr={8}
+                  width={79}
+                  height={30}
+                  onClick={() => setMaxCover()}
+                >
                   MAX
                 </Button>
               </FlexRow>
@@ -353,7 +363,10 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
           </BoxChooseRow>
           <ButtonWrapper>
             {!loading ? (
-              <Button onClick={() => buyPolicy()} disabled={parseEther(coveredAssets).gt(parseEther(maxCoverPerUser))}>
+              <Button
+                onClick={() => buyPolicy()}
+                disabled={errors.length > 0 || parseEther(coveredAssets).gt(parseEther(maxCoverPerUser))}
+              >
                 Buy
               </Button>
             ) : (
@@ -366,16 +379,23 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
             <Heading2>Terms and conditions</Heading2>
           </BoxChooseRow>
           <BoxChooseRow>
-            <BoxChooseText>
-              <b>Events covered:</b>
-              <ul>
-                <li>Contract bugs</li>
-                <li>Economic attacks, including oracle failures</li>
-                <li>Governance attacks</li>
-              </ul>
-              This coverage is not a contract of insurance. Coverage is provided on a discretionary basis with Solace
-              protocol and the decentralized governance has the final say on which claims are paid.
-            </BoxChooseText>
+            <BoxChooseCol>
+              <BoxChooseText>
+                <b>Events covered:</b>
+                <ul>
+                  <li>Contract bugs</li>
+                  <li>Economic attacks, including oracle failures</li>
+                  <li>Governance attacks</li>
+                </ul>
+                This coverage is not a contract of insurance. Coverage is provided on a discretionary basis with Solace
+                protocol and the decentralized governance has the final say on which claims are paid.
+              </BoxChooseText>
+              <Heading2>Important Developer Notes</Heading2>
+              <BoxChooseText error>
+                Do not purchase a policy with a lending protocol for an asset that is locked as collateral. You will not
+                be able to submit a claim.
+              </BoxChooseText>
+            </BoxChooseCol>
           </BoxChooseRow>
         </CardBaseComponent>
       </CardContainer>

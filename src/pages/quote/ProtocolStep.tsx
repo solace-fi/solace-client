@@ -33,6 +33,7 @@ import { ProtocolNames } from '../../constants/enums'
 
 /* import context */
 import { useContracts } from '../../context/ContractsManager'
+import { useToasts } from '../../context/NotificationsManager'
 
 /* import components */
 import { Button } from '../../components/Button'
@@ -71,6 +72,7 @@ export const ProtocolStep: React.FC<formProps> = ({ setForm, navigation }) => {
   const availableCoverages = useGetAvailableCoverages()
   const yearlyCosts = useGetYearlyCosts()
   const { setSelectedProtocolByName } = useContracts()
+  const { errors } = useToasts()
 
   /*************************************************************************************
 
@@ -127,16 +129,19 @@ export const ProtocolStep: React.FC<formProps> = ({ setForm, navigation }) => {
               return (
                 <TableRow
                   key={protocol}
-                  onClick={() =>
-                    handleChange({
-                      name: protocol,
-                      availableCoverage: availableCoverages[protocol.toLowerCase()]?.split('.')[0] ?? '0',
-                      yearlyCost:
-                        parseFloat(yearlyCosts[protocol.toLowerCase()] ?? '0') *
-                        Math.pow(10, 6) *
-                        NUM_BLOCKS_PER_DAY *
-                        DAYS_PER_YEAR,
-                    })
+                  onClick={
+                    errors.length > 0
+                      ? undefined
+                      : () =>
+                          handleChange({
+                            name: protocol,
+                            availableCoverage: availableCoverages[protocol.toLowerCase()]?.split('.')[0] ?? '0',
+                            yearlyCost:
+                              parseFloat(yearlyCosts[protocol.toLowerCase()] ?? '0') *
+                              Math.pow(10, 6) *
+                              NUM_BLOCKS_PER_DAY *
+                              DAYS_PER_YEAR,
+                          })
                   }
                   style={{ cursor: 'pointer' }}
                 >

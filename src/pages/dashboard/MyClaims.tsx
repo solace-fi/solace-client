@@ -58,7 +58,7 @@ export const MyClaims = () => {
   const { claimsEscrow } = useContracts()
   const wallet = useWallet()
   const { addLocalTransactions } = useUserData()
-  const { makeTxToast } = useToasts()
+  const { errors, makeTxToast } = useToasts()
   const { getClaimDetails } = useClaimsEscrow()
 
   /*************************************************************************************
@@ -158,7 +158,11 @@ export const MyClaims = () => {
                     </BoxItem>
                   </Box>
                   <ButtonWrapper mb={0} mt={20}>
-                    <Button widthP={100} onClick={() => withdrawPayout(claim.id)} disabled={!claim.canWithdraw}>
+                    <Button
+                      widthP={100}
+                      onClick={() => withdrawPayout(claim.id)}
+                      disabled={!claim.canWithdraw || errors.length > 0}
+                    >
                       Withdraw Payout
                     </Button>
                   </ButtonWrapper>
