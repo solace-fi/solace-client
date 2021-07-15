@@ -84,7 +84,7 @@ export async function fetchEtherscanLatestBlockNumber(chainId: number): Promise<
 export async function fetchEtherscanTxHistoryByAddress(
   chainId: number,
   address: string,
-  contractArray: ContractSources[]
+  contractSources: ContractSources[]
 ): Promise<any> {
   const apiPrefix = getApiPrefix(chainId)
   const blockNumber = await fetchEtherscanLatestBlockNumber(chainId)
@@ -94,7 +94,7 @@ export async function fetchEtherscanTxHistoryByAddress(
     .then((result) => result.json())
     .then((result) => result.result)
     .then((result) => {
-      const contractAddrs = contractArray.map((contract) => {
+      const contractAddrs = contractSources.map((contract) => {
         return contract.addr
       })
       const filteredResult =

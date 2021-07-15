@@ -234,7 +234,7 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
                 No loss event detected, unable to submit claims yet.
               </Text2>
             </SmallBox>
-            {!hasApproval(tokenAllowance, assessment?.amountIn) && claimId > 0 && (
+            {!hasApproval(tokenAllowance, assessment?.amountIn) && claimId == 0 && (
               <ButtonWrapper>
                 <Button
                   widthP={100}

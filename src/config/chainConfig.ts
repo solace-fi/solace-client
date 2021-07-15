@@ -19,60 +19,60 @@ export const contractConfig: any = {
   '4': {
     keyContracts: {
       master: {
-        addr: '0xA5B8d9924413151e93228Dd5f934ff147911CA95',
+        addr: process.env.REACT_APP_RINKEBY_MASTER_ADDR,
         abi: masterABI,
       },
       vault: {
-        addr: '0xBad5C0743d2a272A7F9060761d8D2Ff86Bde05d5',
+        addr: process.env.REACT_APP_RINKEBY_VAULT_ADDR,
         abi: vaultABI,
       },
       solace: {
-        addr: '0x44B843794416911630e74bAB05021458122c40A0',
+        addr: process.env.REACT_APP_RINKEBY_SOLACE_ADDR,
         abi: solaceABI,
       },
       cpFarm: {
-        addr: '0x9145E907175Dfc3Aa14b982E5715e8A6F31c2f9c',
+        addr: process.env.REACT_APP_RINKEBY_CPFARM_ADDR,
         abi: cpFarmABI,
       },
       lpFarm: {
-        addr: '0x530311825798ac952E97CECF72728aCecB0746c4',
+        addr: process.env.REACT_APP_RINKEBY_LPFARM_ADDR,
         abi: lpFarmABI,
       },
       registry: {
-        addr: '0x81c81AB3Ad5DD898B6ED864F6E29e4F031Bd8868',
+        addr: process.env.REACT_APP_RINKEBY_REGISTRY_ADDR,
         abi: registryABI,
       },
       lpToken: {
-        addr: '0xC36442b4a4522E871399CD717aBDD847Ab11FE88',
+        addr: process.env.REACT_APP_RINKEBY_LPTOKEN_ADDR,
         abi: lpTokenArtifact.abi,
       },
       weth: {
-        addr: '0xc778417E063141139Fce010982780140Aa0cD5Ab',
+        addr: process.env.REACT_APP_RINKEBY_WETH_ADDR,
         abi: wethABI,
       },
       claimsEscrow: {
-        addr: '0x9a6D1bDfCbae96034bEb7f6f747B2A3461ffB960',
+        addr: process.env.REACT_APP_RINKEBY_CLAIMS_ESCROW_ADDR,
         abi: claimsEscrowABI,
       },
       policyManager: {
-        addr: '0x1d17Fba6f0472Bf3B73C8d60475002405B6a1008',
+        addr: process.env.REACT_APP_RINKEBY_POLICY_MANAGER_ADDR,
         abi: polMagABI,
       },
     },
     productContracts: {
       [ProductName.COMPOUND]: {
-        addr: '0x57149Ad6B4c3051023CF46b3978692936C49154E',
+        addr: process.env.REACT_APP_RINKEBY_COMPOUND_PRODUCT_ADDR,
         abi: compAbi,
       },
     },
-    supportedProducts: [{ name: ProductName.COMPOUND, contract: null, signer: false }],
+    supportedProducts: [{ name: ProductName.COMPOUND }],
   },
 }
 
 export const policyConfig: any = {
   '4': {
     productsRev: {
-      '0x57149Ad6B4c3051023CF46b3978692936C49154E': ProductName.COMPOUND,
+      [String(process.env.REACT_APP_RINKEBY_COMPOUND_PRODUCT_ADDR)]: ProductName.COMPOUND,
     },
     getTokens: comp4Tokens,
     getBalances: comp4Balances,

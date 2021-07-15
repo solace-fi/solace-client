@@ -31,9 +31,10 @@ export function useGetProductContracts(): SupportedProduct[] | null {
     for (let i = 0; i < _contractConfig.supportedProducts.length; i++) {
       const name = _contractConfig.supportedProducts[i].name
       if (!_contractConfig.supportedProducts[i].contract || signer !== _contractConfig.supportedProducts[i].signer) {
+        const productContractSources = _contractConfig.productContracts[name]
         const contract = getContract(
-          _contractConfig.productContracts[name].addr,
-          _contractConfig.productContracts[name].abi,
+          productContractSources.addr,
+          productContractSources.abi,
           library,
           account ? account : undefined
         )
@@ -52,7 +53,7 @@ export function useContractArray(): ContractSources[] {
   const { chainId } = useWallet()
   const chainID = chainId ?? DEFAULT_CHAIN_ID
   const _contractConfig = contractConfig[String(chainID)] ?? contractConfig[String(DEFAULT_CHAIN_ID)]
-  const [contractAddrs, setContractAddrs] = useState<ContractSources[]>([])
+  const [contractSources, setContractSources] = useState<ContractSources[]>([])
 
   useMemo(() => {
     const arr: ContractSources[] = []
@@ -68,8 +69,8 @@ export function useContractArray(): ContractSources[] {
         abi: _contractConfig.productContracts[key].abi,
       })
     })
-    setContractAddrs(arr)
+    setContractSources(arr)
   }, [chainId])
 
-  return contractAddrs
+  return contractSources
 }
