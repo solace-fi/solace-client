@@ -125,17 +125,14 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
 
   const openManageModal = async (policy: Policy) => {
     setShowManageModal((prev) => !prev)
-    setPolicy(policy)
+    setSelectedProtocolByName(policy.productName)
+    document.body.style.overflowY = 'hidden'
+    setSelectedPolicy(policy)
   }
 
   const closeModal = () => {
     setShowManageModal(false)
-  }
-
-  const setPolicy = (policy: Policy) => {
-    setSelectedProtocolByName(policy.productName)
-    document.body.style.overflowY = 'hidden'
-    setSelectedPolicy(policy)
+    document.body.style.overflowY = 'scroll'
   }
 
   /*************************************************************************************
