@@ -21,8 +21,8 @@ export const useTransactionDetails = (): { txHistory: any; amounts: string[] } =
     provider: Web3Provider | Provider
   ): Promise<string> => {
     const receipt = await provider.getTransactionReceipt(tx.hash)
-    if (receipt.status == 0) return '0'
     if (!receipt) return '0'
+    if (receipt.status == 0) return '0'
     const logs = receipt.logs
     if (!logs) return '0'
     const topics = logs[logs.length - 1].topics
@@ -56,9 +56,9 @@ export const useTransactionDetails = (): { txHistory: any; amounts: string[] } =
   const getTransactionAmounts = async () => {
     if (txHistory) {
       const currentAmounts = []
-      for (const tx of txHistory) {
-        const function_name = decodeInput(tx, chainId ?? DEFAULT_CHAIN_ID, contractArray).function_name
-        const amount: string = await getTransactionAmount(function_name, tx, library)
+      for (let tx_i = 0; tx_i < txHistory.length; tx_i++) {
+        const function_name = decodeInput(txHistory[tx_i], chainId ?? DEFAULT_CHAIN_ID, contractArray).function_name
+        const amount: string = await getTransactionAmount(function_name, txHistory[tx_i], library)
         currentAmounts.push(`${formatTransactionContent(function_name, amount)}`)
       }
       setAmounts(currentAmounts)
@@ -67,7 +67,7 @@ export const useTransactionDetails = (): { txHistory: any; amounts: string[] } =
 
   useEffect(() => {
     getTransactionAmounts()
-  }, [library, txHistory])
+  }, [txHistory])
 
   return { txHistory, amounts }
 }

@@ -154,7 +154,7 @@ export const MultiStepForm = () => {
   }
 
   useEffect(() => {
-    if (Number(StepNumber[step.id]) == 2) {
+    if (Number(StepNumber[step.id]) == 2 || Number(StepNumber[step.id]) == 1) {
       navigation.go(0)
     }
   }, [account, chainId])

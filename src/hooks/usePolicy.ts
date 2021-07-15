@@ -94,6 +94,7 @@ export const useGetCancelFee = () => {
 export const useGetYearlyCosts = () => {
   const [yearlyCosts, setYearlyCosts] = useState<StringToStringMapping>({})
   const { products, getProtocolByName } = useContracts()
+  const { chainId } = useWallet()
 
   const getYearlyCosts = async () => {
     try {
@@ -116,7 +117,7 @@ export const useGetYearlyCosts = () => {
 
   useEffect(() => {
     getYearlyCosts()
-  }, [])
+  }, [chainId])
 
   return yearlyCosts
 }
@@ -124,6 +125,7 @@ export const useGetYearlyCosts = () => {
 export const useGetAvailableCoverages = () => {
   const [availableCoverages, setAvailableCoverages] = useState<StringToStringMapping>({})
   const { products, getProtocolByName } = useContracts()
+  const { chainId } = useWallet()
 
   const getAvailableCoverages = async () => {
     try {
@@ -147,7 +149,7 @@ export const useGetAvailableCoverages = () => {
 
   useEffect(() => {
     getAvailableCoverages()
-  }, [])
+  }, [chainId])
 
   return availableCoverages
 }
