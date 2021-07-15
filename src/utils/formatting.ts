@@ -12,7 +12,7 @@ type Token = {
   name: string
   symbol: string
   decimals: number
-  balance: string
+  balance: BigNumber
 }
 
 export const truncateBalance = (value: number | string, decimals = 6): string => {
@@ -30,7 +30,7 @@ export const truncateBalance = (value: number | string, decimals = 6): string =>
 }
 
 export const fixedTokenPositionBalance = (token: Token): number => {
-  return parseFloat(token.balance) / Math.pow(10, token.decimals)
+  return parseFloat(BigNumber.from(token.balance).toString()) / Math.pow(10, token.decimals)
 }
 
 export const fixedPositionBalance = (balance: string, decimals: number): number => {

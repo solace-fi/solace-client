@@ -5,6 +5,7 @@
     import react
     import packages
     import context
+    import constants
     import components
     import utils
 
@@ -29,6 +30,9 @@ import styled from 'styled-components'
 
 /* import context */
 import { useWallet } from '../../context/WalletManager'
+
+/* import constants */
+import { ZERO } from '../../constants'
 
 /* import components */
 import { ProtocolStep } from './ProtocolStep'
@@ -89,10 +93,10 @@ const defaultData = {
       name: '',
       symbol: '',
       decimals: 0,
-      balance: '',
+      balance: ZERO,
     },
-    underlying: { address: '', name: '', symbol: '', decimals: 0, balance: '' },
-    eth: { balance: '' },
+    underlying: { address: '', name: '', symbol: '', decimals: 0, balance: ZERO },
+    eth: { balance: ZERO },
   },
   balances: [],
   coverageLimit: '5000',

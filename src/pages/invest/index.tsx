@@ -78,6 +78,7 @@ import {
 import { getProviderOrSigner, hasApproval } from '../../utils'
 import { timeAgo } from '../../utils/time'
 import { decodeInput } from '../../utils/decoder'
+import { useContractArray } from '../../hooks/useContract'
 
 function Invest(): any {
   /************************************************************************************* 
@@ -136,6 +137,7 @@ function Invest(): any {
   const { master, vault, solace, cpFarm, lpFarm, lpToken, weth, registry } = useContracts()
   const tokenAllowance = useTokenAllowance(contractForAllowance, spenderAddress)
   const [selectedGasOption, setSelectedGasOption] = useState<GasFeeOption>(wallet.gasPrices.selected)
+  const contractAddrs = useContractArray()
 
   /*************************************************************************************
 
@@ -867,7 +869,7 @@ function Invest(): any {
                 <TableRow key={tx.hash}>
                   <TableData>
                     {transactionDetails.length > 0 ? (
-                      decodeInput(tx, wallet.chainId ?? DEFAULT_CHAIN_ID).function_name
+                      decodeInput(tx, wallet.chainId ?? DEFAULT_CHAIN_ID, contractAddrs).function_name
                     ) : (
                       <Loader width={10} height={10} />
                     )}

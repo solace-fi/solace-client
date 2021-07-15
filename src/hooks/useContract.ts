@@ -1,5 +1,5 @@
 import { useWallet } from '../context/WalletManager'
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { getContract } from '../utils'
 import { Contract } from '@ethersproject/contracts'
 import { contractConfig } from '../config/chainConfig'
@@ -45,4 +45,30 @@ export function useGetProductContracts(): { name: string; id: string; contract: 
     }
     return _contractConfig.supportedProducts
   }, [library, account, chainId])
+}
+
+export function useContractArray(): { addr: string; abi: any }[] {
+  const { chainId } = useWallet()
+  const chainID = chainId ?? DEFAULT_CHAIN_ID
+  const _contractConfig = contractConfig[String(chainID)] ?? contractConfig[String(DEFAULT_CHAIN_ID)]
+  const [contractAddrs, setContractAddrs] = useState<{ addr: string; abi: any }[]>([])
+
+  useMemo(() => {
+    const arr: { addr: string; abi: any }[] = []
+    Object.keys(_contractConfig.keyContracts).forEach((key) => {
+      arr.push({
+        addr: _contractConfig.keyContracts[key].addr.toLowerCase(),
+        abi: _contractConfig.keyContracts[key].abi,
+      })
+    })
+    Object.keys(_contractConfig.productContracts).forEach((key) => {
+      arr.push({
+        addr: _contractConfig.productContracts[key].addr.toLowerCase(),
+        abi: _contractConfig.productContracts[key].abi,
+      })
+    })
+    setContractAddrs(arr)
+  }, [chainId])
+
+  return contractAddrs
 }

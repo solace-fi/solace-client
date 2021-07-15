@@ -3,7 +3,6 @@
     Table of Contents:
 
     import react
-    import packages
     import managers
     import components
 
@@ -15,9 +14,6 @@
 
 /* import react */
 import React from 'react'
-
-/* import packages */
-import styled from 'styled-components'
 
 /* import managers */
 import { useWallet } from '../../context/WalletManager'

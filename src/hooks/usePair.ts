@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react'
 import { ChainId, Fetcher, Route, WETH, Trade, TokenAmount, TradeType } from '@uniswap/sdk'
-import { SOLACE_CONTRACT_ADDRESS, POW_EIGHTEEN } from '../constants'
+import { POW_EIGHTEEN } from '../constants'
+import { contractConfig } from '../config/chainConfig'
 
 const chainId = ChainId.RINKEBY
-const tokenAddress = String(SOLACE_CONTRACT_ADDRESS) // rinkeby tokenaddress of SOLACE
+const tokenAddress = String(contractConfig[chainId].keyContracts.solace.addr) // rinkeby tokenaddress of SOLACE
 
 export function usePairPrice(): any {
   const [pairPrice, setPairPrice] = useState<any>('0.01')

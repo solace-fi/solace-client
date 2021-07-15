@@ -3,8 +3,9 @@ import { Contract, utils } from 'ethers'
 import ctokenJson from '../contracts/ICToken.json'
 import ierc20Json from '../contracts/IERC20Metadata.json'
 import ierc20altJson from '../contracts/IERC20MetadataAlt.json'
+import { ZERO } from '../../../../constants'
 
-import { equalsIgnoreCase, withBackoffRetries, numberify, range } from '../../../'
+import { equalsIgnoreCase, withBackoffRetries, numberify, rangeFrom0 } from '../../../'
 
 const eth = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
 const cEth = '0xd6801a1DfFCd0a410336Ef88DeF4320D6DF1883e'
@@ -36,7 +37,7 @@ export const getTokens = async (provider: any) => {
     Promise.all(utokenContracts.map(queryTokenDecimals)),
   ])
   // assemble results
-  const indices = range(ctokenAddresses.length)
+  const indices = rangeFrom0(ctokenAddresses.length)
   const tokens = indices.map((i) => {
     return {
       token: {
@@ -44,12 +45,17 @@ export const getTokens = async (provider: any) => {
         name: ctokenNames[i],
         symbol: ctokenSymbols[i],
         decimals: ctokenDecimals[i],
+        balance: ZERO,
       },
       underlying: {
         address: utokenAddresses[i],
         name: utokenNames[i],
         symbol: utokenSymbols[i],
         decimals: utokenDecimals[i],
+        balance: ZERO,
+      },
+      eth: {
+        balance: ZERO,
       },
     }
   })

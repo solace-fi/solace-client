@@ -53,10 +53,11 @@ import { useClaimsEscrow } from '../../hooks/useClaimsEscrow'
 import { Policy } from '../../hooks/useGetter'
 
 /* import utils */
-import { ClaimAssessment, getClaimAssessment, getPositions } from '../../utils/paclas'
+import { ClaimAssessment, getClaimAssessment } from '../../utils/paclas'
 import { truncateBalance, fixedPositionBalance, getGasValue } from '../../utils/formatting'
 import { hasApproval, getContract } from '../../utils'
 import { timeToText } from '../../utils/time'
+import { policyConfig } from '../../config/policyConfig'
 
 type ClaimModalProps = {
   closeModal?: any
@@ -172,10 +173,12 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
       setAsyncLoading(true)
       const tokenContract = getContract(selectedPolicy.positionContract, cTokenABI, wallet.library, wallet.account)
       const assessment = await getClaimAssessment(String(selectedPolicy?.policyId))
-      const balances = await getPositions(selectedPolicy.productName, wallet.chainId, wallet.account)
+      if (policyConfig[wallet.chainId]) {
+        const balances = await policyConfig[wallet.chainId].getBalances(wallet.account, wallet.library)
+        setPositionBalances(balances)
+      }
       const cooldown = await getCooldownPeriod()
       setCooldownPeriod(cooldown)
-      setPositionBalances(balances)
       setContractForAllowance(tokenContract)
       setSpenderAddress(getProtocolByName(selectedPolicy.productName)?.address || null)
       setAssessment(assessment)

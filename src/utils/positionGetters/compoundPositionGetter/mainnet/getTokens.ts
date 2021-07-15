@@ -1,11 +1,12 @@
 import { utils, Contract } from 'ethers'
+import { ZERO } from '../../../../constants'
 
 import comptrollerJson from '../contracts/IComptroller.json'
 import ctokenJson from '../contracts/ICToken.json'
 import ierc20Json from '../contracts/IERC20Metadata.json'
 import ierc20altJson from '../contracts/IERC20MetadataAlt.json'
 
-import { equalsIgnoreCase, withBackoffRetries, numberify, range } from '../../../'
+import { equalsIgnoreCase, withBackoffRetries, numberify, rangeFrom0 } from '../../../'
 
 const eth = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
 const cEth = '0x4Ddc2D193948926D02f9B1fE9e1daa0718270ED5'
@@ -13,7 +14,7 @@ const cEth = '0x4Ddc2D193948926D02f9B1fE9e1daa0718270ED5'
 export const getTokens = async (provider: any) => {
   const comptrollerContract = new Contract('0x3d9819210A31b4961b30EF54bE2aeD79B9c9Cd3B', comptrollerJson.abi, provider)
 
-  const ctokenAddresses = await withBackoffRetries(async () => comptrollerContract.getAllMarkets())
+  const ctokenAddresses: string[] = await withBackoffRetries(async () => comptrollerContract.getAllMarkets())
 
   // get ctoken contracts
   const ctokenContracts = ctokenAddresses.map((address: string) => new Contract(address, ctokenJson.abi, provider))
@@ -31,7 +32,7 @@ export const getTokens = async (provider: any) => {
     Promise.all(utokenContracts.map(queryTokenDecimals)),
   ])
   // assemble results
-  const indices = range(ctokenAddresses.length)
+  const indices = rangeFrom0(ctokenAddresses.length)
   const tokens = indices.map((i) => {
     return {
       token: {
@@ -39,12 +40,17 @@ export const getTokens = async (provider: any) => {
         name: ctokenNames[i],
         symbol: ctokenSymbols[i],
         decimals: ctokenDecimals[i],
+        balance: ZERO,
       },
       underlying: {
         address: utokenAddresses[i],
         name: utokenNames[i],
         symbol: utokenSymbols[i],
         decimals: utokenDecimals[i],
+        balance: ZERO,
+      },
+      eth: {
+        balance: ZERO,
       },
     }
   })

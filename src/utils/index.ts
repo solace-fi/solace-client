@@ -77,9 +77,17 @@ export const delay = async (ms: number) => {
   return new Promise((resolve) => setTimeout(resolve, ms))
 }
 
-export const range = (stop: number) => {
+export const rangeFrom1 = (stop: number) => {
   const arr = []
   for (let i = 1; i <= stop; ++i) {
+    arr.push(i)
+  }
+  return arr
+}
+
+export const rangeFrom0 = (stop: number) => {
+  const arr = []
+  for (let i = 0; i < stop; ++i) {
     arr.push(i)
   }
   return arr
@@ -101,6 +109,10 @@ export const decimals = (d: number) => {
     s = `${s}0`
   }
   return s
+}
+
+export const bnCmp = (x: any, y: any) => {
+  return x.eq(y) ? 0 : x.lt(y) ? 1 : -1
 }
 
 export const hasApproval = (tokenAllowance?: string, amountToApprove?: string): boolean => {

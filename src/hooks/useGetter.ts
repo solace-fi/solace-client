@@ -1,4 +1,4 @@
-import { withBackoffRetries, range } from '../utils'
+import { withBackoffRetries, rangeFrom1 } from '../utils'
 import { policyConfig } from '../config/policyConfig'
 import { useWallet } from '../context/WalletManager'
 import { PolicyStates } from '../constants/enums'
@@ -39,7 +39,7 @@ export const usePolicyGetter = () => {
 
   const checkInit = async () => {
     if (!policyConfig[String(wallet.chainId)].initialized) {
-      const tokens = policyConfig[String(wallet.chainId)].tokens
+      const tokens = await policyConfig[String(wallet.chainId)].getTokens(wallet.library)
       const positionNames = tokens?.reduce(
         (names: any, token: any) => ({ ...names, [token.token.address.toLowerCase()]: token.underlying.symbol }),
         {}
@@ -66,7 +66,7 @@ export const usePolicyGetter = () => {
       wallet.library.getBlockNumber(),
       policyManager?.totalPolicyCount(),
     ])
-    const policyIds = range(totalPolicyCount.toNumber())
+    const policyIds = rangeFrom1(totalPolicyCount.toNumber())
     const policies = await Promise.all(policyIds.map((policyId) => queryPolicy(policyId, blockNumber)))
     return policies
   }

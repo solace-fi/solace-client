@@ -46,7 +46,7 @@ import { useGetLatestBlockNumber } from '../../hooks/useGetLatestBlockNumber'
 
 /* import utils */
 import { fixedTokenPositionBalance, truncateBalance } from '../../utils/formatting'
-import { getPositions } from '../../utils/paclas'
+import { policyConfig } from '../../config/policyConfig'
 
 export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigation }) => {
   const { protocol, balances, loading } = formData
@@ -57,7 +57,7 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
 
   *************************************************************************************/
 
-  const { account, chainId, isActive, version, dataVersion } = useWallet()
+  const { account, chainId, isActive, version, dataVersion, library } = useWallet()
   const { getPolicies } = usePolicyGetter()
   const { setSelectedProtocolByName } = useContracts()
   const latestBlock = useGetLatestBlockNumber()
@@ -98,9 +98,9 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
   }
 
   const getBalances = async () => {
-    if (!account) return
-    if (chainId == 1 || chainId == 4) {
-      const balances = await getPositions(protocol.name.toLowerCase(), chainId, account)
+    if (!account || !chainId) return
+    if (policyConfig[chainId]) {
+      const balances = await policyConfig[chainId].getBalances(account, library)
       setForm({
         target: {
           name: 'balances',
@@ -111,8 +111,6 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
   }
 
   const userHasActiveProductPosition = (product: string, position: string): boolean => {
-    // tuple data type: [product, position, isActive]
-    // [['compound', 'eth', true], ['compound', 'dai', false],..,]
     const userPolicyPositions: [string, string, boolean][] = []
     policies.forEach((policy: any) => {
       userPolicyPositions.push([policy.productName, policy.positionName, policy.status === PolicyStates.ACTIVE])

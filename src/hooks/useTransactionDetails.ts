@@ -5,10 +5,12 @@ import { decodeInput } from '../utils/decoder'
 import { FunctionNames } from '../constants/enums'
 import { formatTransactionContent } from '../utils/formatting'
 import { DEFAULT_CHAIN_ID } from '../constants'
+import { useContractArray } from './useContract'
 
 export const useTransactionDetails = (txList: any): string[] => {
   const { library, chainId } = useWallet()
   const [amounts, setAmounts] = useState<string[]>([])
+  const contractArray = useContractArray()
 
   const getTransactionAmount = async (
     function_name: string,
@@ -52,7 +54,7 @@ export const useTransactionDetails = (txList: any): string[] => {
     if (txList) {
       const currentAmounts = []
       for (const tx of txList) {
-        const function_name = decodeInput(tx, chainId ?? DEFAULT_CHAIN_ID).function_name
+        const function_name = decodeInput(tx, chainId ?? DEFAULT_CHAIN_ID, contractArray).function_name
         const amount: string = await getTransactionAmount(function_name, tx, library)
         currentAmounts.push(`${formatTransactionContent(function_name, amount)}`)
       }
