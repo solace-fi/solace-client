@@ -37,8 +37,8 @@ import { Heading1 } from '../../components/Text'
 import { ManageModal } from '../dashboard/ManageModal'
 
 /* import constants */
-import { PolicyStates } from '../../constants/enums'
-import { Policy } from '../../hooks/useGetter'
+import { PolicyState } from '../../constants/enums'
+import { Policy } from '../../constants/types'
 
 /* import hooks */
 import { usePolicyGetter } from '../../hooks/useGetter'
@@ -46,7 +46,7 @@ import { useGetLatestBlockNumber } from '../../hooks/useGetLatestBlockNumber'
 
 /* import utils */
 import { fixedTokenPositionBalance, truncateBalance } from '../../utils/formatting'
-import { policyConfig } from '../../config/policyConfig'
+import { policyConfig } from '../../config/chainConfig'
 
 export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigation }) => {
   const { protocol, balances, loading } = formData
@@ -113,7 +113,7 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
   const userHasActiveProductPosition = (product: string, position: string): boolean => {
     const userPolicyPositions: [string, string, boolean][] = []
     policies.forEach((policy: any) => {
-      userPolicyPositions.push([policy.productName, policy.positionName, policy.status === PolicyStates.ACTIVE])
+      userPolicyPositions.push([policy.productName, policy.positionName, policy.status === PolicyState.ACTIVE])
     })
     for (const policyProductPosition of userPolicyPositions) {
       if (product === policyProductPosition[0] && position === policyProductPosition[1] && policyProductPosition[2]) {

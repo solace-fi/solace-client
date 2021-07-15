@@ -17,7 +17,7 @@ type LocalTx = {
   unit: string
 }
 
-export type UserData = {
+type UserData = {
   localTransactions: any[] | undefined
   addLocalTransactions: (txToAdd: LocalTx) => void
   updateLocalTransactions: (txToUpdate: LocalTx, newStatus: string) => void

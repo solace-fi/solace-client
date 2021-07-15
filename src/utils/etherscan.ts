@@ -1,4 +1,5 @@
 import { ETHERSCAN_API_KEY } from '../constants'
+import { ContractSources } from '../constants/types'
 const STRINGIFIED_ETHERSCAN_API_KEY = String(ETHERSCAN_API_KEY)
 
 type GasPriceResult = {
@@ -83,7 +84,7 @@ export async function fetchEtherscanLatestBlockNumber(chainId: number): Promise<
 export async function fetchEtherscanTxHistoryByAddress(
   chainId: number,
   address: string,
-  contractArray: { addr: string; abi: any }[]
+  contractArray: ContractSources[]
 ): Promise<any> {
   const apiPrefix = getApiPrefix(chainId)
   const blockNumber = await fetchEtherscanLatestBlockNumber(chainId)

@@ -13,7 +13,7 @@ const SidebarItemList: React.FC = ({ children }) => {
   )
 }
 
-export const SideNavbar = (): any => {
+export const SideNavbar: React.FC = () => {
   return (
     <nav>
       <div style={{ position: 'fixed' }}>
@@ -37,7 +37,7 @@ export const SideNavbar = (): any => {
   )
 }
 
-export const TopNavbar = (): any => {
+export const TopNavbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState<boolean>(false)
   document.addEventListener('scroll', function (e) {
     setIsOpen(false)

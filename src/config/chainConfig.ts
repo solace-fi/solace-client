@@ -11,6 +11,10 @@ import lpTokenArtifact from '../../node_modules/@uniswap/v3-periphery/artifacts/
 import compAbi from '../constants/abi/contracts/products/CompoundProductRinkeby.sol/CompoundProductRinkeby.json'
 import polMagABI from '../constants/abi/contracts/PolicyManager.sol/PolicyManager.json'
 
+import { getTokens as comp4Tokens } from '../utils/positionGetters/compoundPositionGetter/rinkeby/getTokens'
+import { getBalances as comp4Balances } from '../utils/positionGetters/compoundPositionGetter/rinkeby/getBalances'
+import { ProductName } from '../constants/enums'
+
 export const contractConfig: any = {
   '4': {
     keyContracts: {
@@ -56,11 +60,22 @@ export const contractConfig: any = {
       },
     },
     productContracts: {
-      comp: {
+      [ProductName.COMPOUND]: {
         addr: '0x57149Ad6B4c3051023CF46b3978692936C49154E',
         abi: compAbi,
       },
     },
-    supportedProducts: [{ name: 'Compound', id: 'comp', contract: null, signer: false }],
+    supportedProducts: [{ name: ProductName.COMPOUND, contract: null, signer: false }],
+  },
+}
+
+export const policyConfig: any = {
+  '4': {
+    productsRev: {
+      '0x57149Ad6B4c3051023CF46b3978692936C49154E': ProductName.COMPOUND,
+    },
+    getTokens: comp4Tokens,
+    getBalances: comp4Balances,
+    initialized: false,
   },
 }

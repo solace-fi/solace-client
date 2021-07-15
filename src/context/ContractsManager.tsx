@@ -5,6 +5,7 @@ import { contractConfig } from '../config/chainConfig'
 import { useGetContract, useGetProductContracts } from '../hooks/useContract'
 import { useWallet } from './WalletManager'
 import { DEFAULT_CHAIN_ID } from '../constants'
+import { SupportedProduct } from '../constants/types'
 
 /*
 
@@ -13,7 +14,7 @@ the web application mainly reads the contracts.
 
 */
 
-export type Contracts = {
+type Contracts = {
   master?: Contract | null
   vault?: Contract | null
   solace?: Contract | null
@@ -24,7 +25,7 @@ export type Contracts = {
   weth?: Contract | null
   claimsEscrow?: Contract | null
   policyManager?: Contract | null
-  products?: { name: string; id: string; contract: Contract; signer: boolean }[] | null
+  products?: SupportedProduct[] | null
   selectedProtocol: Contract | null
   getProtocolByName: (productName: string) => Contract | null
   setSelectedProtocolByName: (productName: string) => void

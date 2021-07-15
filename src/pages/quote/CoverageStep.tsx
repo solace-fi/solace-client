@@ -31,7 +31,7 @@ import { BigNumber } from 'ethers'
 
 /* import constants */
 import { DAYS_PER_YEAR, GAS_LIMIT, NUM_BLOCKS_PER_DAY } from '../../constants'
-import { TransactionConditions, FunctionNames, Units } from '../../constants/enums'
+import { TransactionCondition, FunctionName, Unit } from '../../constants/enums'
 
 /* import managers */
 import { useContracts } from '../../context/ContractsManager'
@@ -100,7 +100,7 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
       },
     })
     if (!selectedProtocol) return
-    const txType = FunctionNames.BUY_POLICY
+    const txType = FunctionName.BUY_POLICY
     try {
       const tx = await selectedProtocol.buyPolicy(
         wallet.account,
@@ -119,8 +119,8 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
         hash: txHash,
         type: txType,
         value: 'Policy',
-        status: TransactionConditions.PENDING,
-        unit: Units.ETH,
+        status: TransactionCondition.PENDING,
+        unit: Unit.ETH,
       }
       setForm({
         target: {
@@ -130,14 +130,14 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
       })
       addLocalTransactions(localTx)
       wallet.reload()
-      makeTxToast(txType, TransactionConditions.PENDING, txHash)
+      makeTxToast(txType, TransactionCondition.PENDING, txHash)
       await tx.wait().then((receipt: any) => {
-        const status = receipt.status ? TransactionConditions.SUCCESS : TransactionConditions.FAILURE
+        const status = receipt.status ? TransactionCondition.SUCCESS : TransactionCondition.FAILURE
         makeTxToast(txType, status, txHash)
         wallet.reload()
       })
     } catch (err) {
-      makeTxToast(txType, TransactionConditions.CANCELLED)
+      makeTxToast(txType, TransactionCondition.CANCELLED)
       setForm({
         target: {
           name: 'loading',
@@ -389,7 +389,9 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
                 </ul>
                 This coverage is not a contract of insurance. Coverage is provided on a discretionary basis with Solace
                 protocol and the decentralized governance has the final say on which claims are paid.
+                <b>Important Developer Notes</b>
               </BoxChooseText>
+              <hr></hr>
               <Heading2>Important Developer Notes</Heading2>
               <BoxChooseText error>
                 Do not purchase a policy with a lending protocol for an asset that is locked as collateral. You will not

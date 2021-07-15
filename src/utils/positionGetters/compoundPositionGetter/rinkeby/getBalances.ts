@@ -2,34 +2,15 @@ import { BigNumber, Contract } from 'ethers'
 
 import { getTokens } from './getTokens'
 import tokenJson from '../contracts/ICToken.json'
+import { Token } from '../../../../constants/types'
 
 import { withBackoffRetries, rangeFrom0, bnCmp, equalsIgnoreCase } from '../../../'
 import { POW_EIGHTEEN } from '../../../../constants'
 import axios from 'axios'
 
-type Token = {
-  token: {
-    address: string
-    name: string
-    symbol: string
-    decimals: number
-    balance: BigNumber
-  }
-  underlying: {
-    address: string
-    name: string
-    symbol: string
-    decimals: number
-    balance: BigNumber
-  }
-  eth: {
-    balance: BigNumber
-  }
-}
-
 const ETH = '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee'
 
-export const getBalances = async (user: string, provider: any) => {
+export const getBalances = async (user: string, provider: any): Promise<Token[]> => {
   // get ctoken balances
   const tokens = await getTokens(provider)
   let contracts = tokens.map((token) => new Contract(token.token.address, tokenJson.abi, provider))

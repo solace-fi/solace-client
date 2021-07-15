@@ -1,11 +1,12 @@
 import useDebounce from '@rooks/use-debounce'
 import { BigNumber, Contract } from 'ethers'
 import { formatEther } from '@ethersproject/units'
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { GAS_LIMIT, NUM_BLOCKS_PER_DAY } from '../constants'
 import { useContracts } from '../context/ContractsManager'
 import { useWallet } from '../context/WalletManager'
 import { usePolicyGetter } from './useGetter'
+import { Policy, StringToStringMapping } from '../constants/types'
 
 export const useGetPolicyPrice = (policyId: number): string => {
   const [policyPrice, setPolicyPrice] = useState<string>('')
@@ -17,7 +18,7 @@ export const useGetPolicyPrice = (policyId: number): string => {
     if (!selectedProtocol || policyId == 0) return
     try {
       const policies = await getPolicies(account)
-      const policy = policies.filter((policy: any) => policy.policyId == policyId)[0]
+      const policy = policies.filter((policy: Policy) => policy.policyId == policyId)[0]
       setPolicyPrice(policy.price)
     } catch (err) {
       console.log('getPolicyPrice', err)
@@ -91,13 +92,13 @@ export const useGetCancelFee = () => {
 }
 
 export const useGetYearlyCosts = () => {
-  const [yearlyCosts, setYearlyCosts] = useState<any>({})
+  const [yearlyCosts, setYearlyCosts] = useState<StringToStringMapping>({})
   const { products, getProtocolByName } = useContracts()
 
   const getYearlyCosts = async () => {
     try {
       if (!products) return
-      const newYearlyCosts: any = {}
+      const newYearlyCosts: StringToStringMapping = {}
       for (let i = 0; i < products.length; i++) {
         let price = '0'
         const product = getProtocolByName(products[i].name)
@@ -121,13 +122,13 @@ export const useGetYearlyCosts = () => {
 }
 
 export const useGetAvailableCoverages = () => {
-  const [availableCoverages, setAvailableCoverages] = useState<any>({})
+  const [availableCoverages, setAvailableCoverages] = useState<StringToStringMapping>({})
   const { products, getProtocolByName } = useContracts()
 
   const getAvailableCoverages = async () => {
     try {
       if (!products) return
-      const newAvailableCoverages: any = {}
+      const newAvailableCoverages: StringToStringMapping = {}
       for (let i = 0; i < products.length; i++) {
         let coverage = '0'
         const product = getProtocolByName(products[i].name)

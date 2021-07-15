@@ -5,6 +5,7 @@
     import react
     import packages
     import managers
+    import constants
     import components
     import hooks
     import utils
@@ -27,6 +28,9 @@ import { formatEther } from '@ethersproject/units'
 import { useWallet } from '../../context/WalletManager'
 import { useContracts } from '../../context/ContractsManager'
 
+/* import constants */
+import { Policy } from '../../constants/types'
+
 /* import components */
 import { Box, BoxItem, BoxItemTitle, BoxItemValue } from '../../components/Box'
 import { BoxChooseRow, BoxChooseCol } from '../../components/Box/BoxChoose'
@@ -35,14 +39,13 @@ import { Protocol, ProtocolImage, ProtocolTitle } from '../../components/Protoco
 import { Loader } from '../../components/Loader'
 
 /* import hooks */
-import { Policy } from '../../hooks/useGetter'
 import { useAppraisePosition } from '../../hooks/usePolicy'
 
 /* import utils */
 import { getDays } from '../../utils/time'
 import { truncateBalance } from '../../utils/formatting'
 
-type PolicyInfoProps = {
+interface PolicyInfoProps {
   selectedPolicy: Policy | undefined
   latestBlock: number
   asyncLoading: boolean

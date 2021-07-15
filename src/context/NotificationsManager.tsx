@@ -7,7 +7,7 @@ import { contractConfig } from '../config/chainConfig'
 import 'animate.css/animate.min.css'
 import 'react-toastify/dist/ReactToastify.css'
 import { DEFAULT_CHAIN_ID } from '../constants'
-import { TransactionConditions, Errors } from '../constants/enums'
+import { TransactionCondition, Error } from '../constants/enums'
 import { HyperLink } from '../components/Link'
 import { Button } from '../components/Button'
 
@@ -18,7 +18,7 @@ import { Checkmark } from '@styled-icons/evaicons-solid/Checkmark'
 import { Warning } from '@styled-icons/fluentui-system-regular/Warning'
 /*
 This manager allows for notifications to be created. such notifications can be created
-on trigger or manually. Errors are also tracked so appropriate notifications can be shown but 
+on trigger or manually. Error are also tracked so appropriate notifications can be shown but 
 they can also be used elsewhere in the app for other purposes, such as disabling a certain feature
 if an error occurs.
 */
@@ -45,9 +45,9 @@ const StyledToast = styled.div`
   text-align: center;
 `
 
-export type ToastSystem = {
+type ToastSystem = {
   errors: any[]
-  makeTxToast: (txType: string, condition: TransactionConditions, txHash?: string) => void
+  makeTxToast: (txType: string, condition: TransactionCondition, txHash?: string) => void
 }
 
 const ToastsContext = createContext<ToastSystem>({
@@ -57,9 +57,9 @@ const ToastsContext = createContext<ToastSystem>({
 
 const ToastsProvider: React.FC = (props) => {
   const wallet = useWallet()
-  const [errors, setErrors] = useState<Errors[]>([])
+  const [errors, setErrors] = useState<Error[]>([])
 
-  const makeTxToast = (txType: string, condition?: TransactionConditions, txHash?: string) => {
+  const makeTxToast = (txType: string, condition?: TransactionCondition, txHash?: string) => {
     const TxToast = (message: any, cond?: any) => (
       <StyledToast>
         <FlexDiv>
@@ -75,9 +75,9 @@ const ToastsProvider: React.FC = (props) => {
               <Button>Check on Etherscan</Button>
             </HyperLink>
           )}
-          {condition == TransactionConditions.PENDING ? (
+          {condition == TransactionCondition.PENDING ? (
             <Loader width={10} height={10} />
-          ) : condition == TransactionConditions.SUCCESS ? (
+          ) : condition == TransactionCondition.SUCCESS ? (
             <StyledCheckmark size={30} />
           ) : (
             <StyledWarning size={30} />
@@ -168,7 +168,7 @@ const ToastsProvider: React.FC = (props) => {
   useEffect(() => {
     if (contractConfig[String(wallet.chainId)] == undefined && wallet.chainId) {
       toast(appToast(`Unsupported network, please switch to a supported network`, <StyledWarning size={30} />), {
-        toastId: Errors.NETWORK,
+        toastId: Error.NETWORK,
         type: toast.TYPE.ERROR,
         position: toast.POSITION.BOTTOM_LEFT,
         autoClose: false,
@@ -176,10 +176,10 @@ const ToastsProvider: React.FC = (props) => {
         closeButton: false,
         className: 'error-toast',
       })
-      setErrors([...errors, Errors.NETWORK])
+      setErrors([...errors, Error.NETWORK])
     } else {
-      toast.dismiss(Errors.NETWORK)
-      setErrors((errors) => errors.filter((error) => error !== Errors.NETWORK))
+      toast.dismiss(Error.NETWORK)
+      setErrors((errors) => errors.filter((error) => error !== Error.NETWORK))
     }
   }, [wallet.chainId])
 

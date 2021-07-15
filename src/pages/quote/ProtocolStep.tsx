@@ -100,6 +100,11 @@ export const ProtocolStep: React.FC<formProps> = ({ setForm, navigation }) => {
     setSearchValue(searchValue)
   }, 300)
 
+  const handleAvailableCoverage = (protocol: string) => {
+    if (!availableCoverages[protocol]) return '0'
+    return availableCoverages[protocol].split('.')[0]
+  }
+
   /*************************************************************************************
 
   Render
@@ -125,8 +130,8 @@ export const ProtocolStep: React.FC<formProps> = ({ setForm, navigation }) => {
             ?.map((product) => {
               return product.name
             })
-            .filter((protocol: any) => protocol.toLowerCase().includes(searchValue.toLowerCase()))
-            .map((protocol: any) => {
+            .filter((protocol: string) => protocol.toLowerCase().includes(searchValue.toLowerCase()))
+            .map((protocol: string) => {
               return (
                 <TableRow
                   key={protocol}
@@ -136,7 +141,7 @@ export const ProtocolStep: React.FC<formProps> = ({ setForm, navigation }) => {
                       : () =>
                           handleChange({
                             name: protocol,
-                            availableCoverage: availableCoverages[protocol]?.split('.')[0] ?? '0',
+                            availableCoverage: handleAvailableCoverage(protocol),
                             yearlyCost:
                               parseFloat(yearlyCosts[protocol] ?? '0') *
                               Math.pow(10, 6) *
@@ -165,7 +170,7 @@ export const ProtocolStep: React.FC<formProps> = ({ setForm, navigation }) => {
                     )}
                     %
                   </TableData>
-                  <TableData>{availableCoverages[protocol]?.split('.')[0] ?? '0'} ETH</TableData>
+                  <TableData>{handleAvailableCoverage(protocol)} ETH</TableData>
                   <TableData textAlignRight>
                     <Button disabled={errors.length > 0}>Select</Button>
                   </TableData>

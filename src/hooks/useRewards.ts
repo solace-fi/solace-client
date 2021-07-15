@@ -1,11 +1,10 @@
 import { useState, useEffect } from 'react'
 import { useContracts } from '../context/ContractsManager'
 import { useWallet } from '../context/WalletManager'
-import { usePoolStakedValue } from './usePoolStakedValue'
+import { usePoolStakedValue, useUserStakedValue } from './useFarm'
 import { formatEther, parseEther } from '@ethersproject/units'
 import { NUM_BLOCKS_PER_DAY, ZERO } from '../constants'
 import { Contract } from '@ethersproject/contracts'
-import { useUserStakedValue } from './useUserStakedValue'
 import { floatEther } from '../utils/formatting'
 
 const useMasterValues = (farmId: number) => {

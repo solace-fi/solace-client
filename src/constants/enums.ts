@@ -1,15 +1,15 @@
-export enum TransactionConditions {
+export enum TransactionCondition {
   SUCCESS = 'Complete',
   FAILURE = 'Incomplete',
   PENDING = 'Pending',
   CANCELLED = 'Cancelled',
 }
 
-export enum Errors {
+export enum Error {
   NETWORK = 'network',
 }
 
-export enum FunctionNames {
+export enum FunctionName {
   APPROVE = 'Approve',
   BUY_POLICY = 'BuyPolicy',
   CANCEL_POLICY = 'CancelPolicy',
@@ -26,7 +26,7 @@ export enum FunctionNames {
   WITHDRAW_REWARDS = 'WithdrawRewards',
 }
 
-export enum Units {
+export enum Unit {
   ETH = 'ETH',
   SCP = 'Solace CP Token',
   SOLACE = 'SOLACE',
@@ -34,7 +34,11 @@ export enum Units {
   ID = 'ID',
 }
 
-export enum PolicyStates {
+export enum PolicyState {
   ACTIVE = 'Active',
   EXPIRED = 'Expired',
+}
+
+export enum ProductName {
+  COMPOUND = 'Compound',
 }

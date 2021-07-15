@@ -1,5 +1,6 @@
 import { BigNumber } from 'ethers'
 import { useContracts } from '../context/ContractsManager'
+import { ClaimDetails } from '../constants/types'
 
 export const useClaimsEscrow = () => {
   const { claimsEscrow } = useContracts()
@@ -25,16 +26,6 @@ export const useClaimsEscrow = () => {
     }
   }
 
-  const listClaims = async (claimant: string): Promise<any> => {
-    if (!claimsEscrow || !claimant) return
-    try {
-      const list = await claimsEscrow.listClaims(claimant)
-      return list
-    } catch (err) {
-      console.log('listClaims', err)
-    }
-  }
-
   const getCooldownPeriod = async (): Promise<string> => {
     if (!claimsEscrow) return '-'
     try {
@@ -46,10 +37,10 @@ export const useClaimsEscrow = () => {
     }
   }
 
-  const getClaimDetails = async (claimant: string): Promise<any> => {
+  const getClaimDetails = async (claimant: string): Promise<ClaimDetails[]> => {
     if (!claimsEscrow) return []
     try {
-      const claimIds = await claimsEscrow.listClaims(claimant)
+      const claimIds: BigNumber[] = await claimsEscrow.listClaims(claimant)
       const claimsDetails = []
       for (let i = 0; i < claimIds.length; i++) {
         const cooldown = await timeLeft(claimIds[i])
@@ -65,5 +56,5 @@ export const useClaimsEscrow = () => {
     }
   }
 
-  return { isWithdrawable, timeLeft, listClaims, getClaimDetails, getCooldownPeriod }
+  return { getClaimDetails, getCooldownPeriod }
 }

@@ -7,7 +7,6 @@ interface TableProps extends HeightAndWidthProps, TextAlignProps {
   isHighlight?: boolean
   isQuote?: boolean
   headers?: string[]
-  body?: { data: string[]; status: boolean }[]
 }
 
 const TableBase = styled.table<TableProps>`
@@ -71,7 +70,6 @@ export const Table: React.FC<TableProps> = ({
   textAlignCenter,
   textAlignRight,
   headers,
-  body,
   children,
   isQuote,
 }) => {
@@ -82,7 +80,6 @@ export const Table: React.FC<TableProps> = ({
       textAlignCenter={textAlignCenter}
       textAlignRight={textAlignRight}
       headers={headers}
-      body={body}
       isQuote={isQuote}
     >
       {children}

@@ -4,6 +4,7 @@ import { getContract } from '../utils'
 import { Contract } from '@ethersproject/contracts'
 import { contractConfig } from '../config/chainConfig'
 import { DEFAULT_CHAIN_ID } from '../constants'
+import { ContractSources, SupportedProduct } from '../constants/types'
 
 export function useGetContract(address: string, abi: any, hasSigner = true): Contract | null {
   const { library, account } = useWallet()
@@ -19,7 +20,7 @@ export function useGetContract(address: string, abi: any, hasSigner = true): Con
   }, [address, abi, library, hasSigner, account])
 }
 
-export function useGetProductContracts(): { name: string; id: string; contract: Contract; signer: boolean }[] | null {
+export function useGetProductContracts(): SupportedProduct[] | null {
   const { library, account, chainId } = useWallet()
   const chainID = chainId ?? DEFAULT_CHAIN_ID
   const _contractConfig = contractConfig[String(chainID)] ?? contractConfig[String(DEFAULT_CHAIN_ID)]
@@ -28,11 +29,11 @@ export function useGetProductContracts(): { name: string; id: string; contract: 
     if (!library) return null
     const signer = account ? true : false
     for (let i = 0; i < _contractConfig.supportedProducts.length; i++) {
-      const id = _contractConfig.supportedProducts[i].id
+      const name = _contractConfig.supportedProducts[i].name
       if (!_contractConfig.supportedProducts[i].contract || signer !== _contractConfig.supportedProducts[i].signer) {
         const contract = getContract(
-          _contractConfig.productContracts[id].addr,
-          _contractConfig.productContracts[id].abi,
+          _contractConfig.productContracts[name].addr,
+          _contractConfig.productContracts[name].abi,
           library,
           account ? account : undefined
         )
@@ -47,14 +48,14 @@ export function useGetProductContracts(): { name: string; id: string; contract: 
   }, [library, account, chainId])
 }
 
-export function useContractArray(): { addr: string; abi: any }[] {
+export function useContractArray(): ContractSources[] {
   const { chainId } = useWallet()
   const chainID = chainId ?? DEFAULT_CHAIN_ID
   const _contractConfig = contractConfig[String(chainID)] ?? contractConfig[String(DEFAULT_CHAIN_ID)]
-  const [contractAddrs, setContractAddrs] = useState<{ addr: string; abi: any }[]>([])
+  const [contractAddrs, setContractAddrs] = useState<ContractSources[]>([])
 
   useMemo(() => {
-    const arr: { addr: string; abi: any }[] = []
+    const arr: ContractSources[] = []
     Object.keys(_contractConfig.keyContracts).forEach((key) => {
       arr.push({
         addr: _contractConfig.keyContracts[key].addr.toLowerCase(),

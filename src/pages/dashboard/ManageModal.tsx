@@ -46,17 +46,17 @@ import { Loader } from '../../components/Loader'
 
 /* import constants */
 import { DAYS_PER_YEAR, NUM_BLOCKS_PER_DAY, GAS_LIMIT } from '../../constants'
-import { FunctionNames, TransactionConditions, Units } from '../../constants/enums'
+import { FunctionName, TransactionCondition, Unit } from '../../constants/enums'
+import { Policy } from '../../constants/types'
 
 /* import hooks */
-import { Policy } from '../../hooks/useGetter'
 import { useAppraisePosition, useGetCancelFee, useGetPolicyPrice, useGetQuote } from '../../hooks/usePolicy'
 
 /* import utils */
 import { getGasValue } from '../../utils/formatting'
 import { getDays } from '../../utils/time'
 
-type ManageModalProps = {
+interface ManageModalProps {
   closeModal?: any
   isOpen: boolean
   selectedPolicy: Policy | undefined
@@ -120,7 +120,7 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
   const extendPolicy = async () => {
     setModalLoading(true)
     if (!selectedProtocol) return
-    const txType = FunctionNames.EXTEND_POLICY
+    const txType = FunctionName.EXTEND_POLICY
     const extension = BigNumber.from(NUM_BLOCKS_PER_DAY * parseInt(extendedTime))
     try {
       const tx = await selectedProtocol.extendPolicy(selectedPolicy?.policyId, extension, {
@@ -133,19 +133,19 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
         gasLimit: GAS_LIMIT,
       })
       const txHash = tx.hash
-      const localTx = { hash: txHash, type: txType, value: '0', status: TransactionConditions.PENDING, unit: Units.ID }
+      const localTx = { hash: txHash, type: txType, value: '0', status: TransactionCondition.PENDING, unit: Unit.ID }
       setModalLoading(false)
       close()
       addLocalTransactions(localTx)
       wallet.reload()
-      makeTxToast(txType, TransactionConditions.PENDING, txHash)
+      makeTxToast(txType, TransactionCondition.PENDING, txHash)
       await tx.wait().then((receipt: any) => {
-        const status = receipt.status ? TransactionConditions.SUCCESS : TransactionConditions.FAILURE
+        const status = receipt.status ? TransactionCondition.SUCCESS : TransactionCondition.FAILURE
         makeTxToast(txType, status, txHash)
         wallet.reload()
       })
     } catch (err) {
-      makeTxToast(txType, TransactionConditions.CANCELLED)
+      makeTxToast(txType, TransactionCondition.CANCELLED)
       setModalLoading(false)
       wallet.reload()
     }
@@ -154,7 +154,7 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
   const cancelPolicy = async () => {
     setModalLoading(true)
     if (!selectedProtocol || !selectedPolicy) return
-    const txType = FunctionNames.CANCEL_POLICY
+    const txType = FunctionName.CANCEL_POLICY
     try {
       const tx = await selectedProtocol.cancelPolicy(selectedPolicy.policyId, {
         gasPrice: getGasValue(wallet.gasPrices.selected.value),
@@ -165,21 +165,21 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
         hash: txHash,
         type: txType,
         value: String(selectedPolicy.policyId),
-        status: TransactionConditions.PENDING,
-        unit: Units.ID,
+        status: TransactionCondition.PENDING,
+        unit: Unit.ID,
       }
       setModalLoading(false)
       close()
       addLocalTransactions(localTx)
       wallet.reload()
-      makeTxToast(txType, TransactionConditions.PENDING, txHash)
+      makeTxToast(txType, TransactionCondition.PENDING, txHash)
       await tx.wait().then((receipt: any) => {
-        const status = receipt.status ? TransactionConditions.SUCCESS : TransactionConditions.FAILURE
+        const status = receipt.status ? TransactionCondition.SUCCESS : TransactionCondition.FAILURE
         makeTxToast(txType, status, txHash)
         wallet.reload()
       })
     } catch (err) {
-      makeTxToast(txType, TransactionConditions.CANCELLED)
+      makeTxToast(txType, TransactionCondition.CANCELLED)
       setModalLoading(false)
       wallet.reload()
     }
