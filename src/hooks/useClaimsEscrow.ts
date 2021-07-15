@@ -16,13 +16,14 @@ export const useClaimsEscrow = () => {
     }
   }
 
-  const timeLeft = async (claimID: any): Promise<BigNumber | undefined> => {
-    if (!claimsEscrow || !claimID) return
+  const timeLeft = async (claimID: any): Promise<string> => {
+    if (!claimsEscrow || !claimID) return '0'
     try {
       const timeLeft = await claimsEscrow.timeLeft(claimID)
       return timeLeft.toString()
     } catch (err) {
       console.log('timeLeft', err)
+      return '0'
     }
   }
 
@@ -47,7 +48,8 @@ export const useClaimsEscrow = () => {
         const canWithdraw = await isWithdrawable(claimIds[i])
         const claim = await claimsEscrow.claims(claimIds[i])
         const amount = claim.amount
-        claimsDetails.push({ id: claimIds[i].toString(), cooldown, canWithdraw, amount })
+        const claimsDetail = { id: claimIds[i].toString(), cooldown, canWithdraw, amount }
+        claimsDetails.push(claimsDetail)
       }
       return claimsDetails
     } catch (err) {

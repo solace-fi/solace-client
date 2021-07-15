@@ -43,7 +43,7 @@ import { usePolicyGetter } from '../../hooks/useGetter'
 
 /* import utils */
 import { truncateBalance } from '../../utils/formatting'
-import { getDays } from '../../utils/time'
+import { getDays, getDateStringWithMonthName, getDateExtended } from '../../utils/time'
 
 interface MyPoliciesProps {
   openClaimModal: any
@@ -74,10 +74,8 @@ export const MyPolicies: React.FC<MyPoliciesProps> = ({ openClaimModal, openMana
 
   *************************************************************************************/
   const calculatePolicyExpirationDate = (expirationBlock: string): string => {
-    const days = getDays(parseFloat(expirationBlock), latestBlock)
-    const date = new Date()
-    date.setDate(date.getDate() + days)
-    return date.toLocaleDateString()
+    const daysLeft = getDays(parseFloat(expirationBlock), latestBlock)
+    return getDateStringWithMonthName(getDateExtended(daysLeft))
   }
 
   /*************************************************************************************

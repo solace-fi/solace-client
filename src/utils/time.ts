@@ -118,3 +118,12 @@ export function timer(millis: number): string {
 export const getDays = (expirationBlock: number, latestBlock: number): number => {
   return Math.floor((expirationBlock - latestBlock) / NUM_BLOCKS_PER_DAY)
 }
+
+export const getDateStringWithMonthName = (date: Date): string => {
+  return date.toLocaleString('default', { month: 'long', day: 'numeric', year: 'numeric' })
+}
+
+export const getDateExtended = (additionalDays: number): Date => {
+  const date = new Date()
+  return new Date(date.setDate(date.getDate() + additionalDays))
+}

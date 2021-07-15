@@ -41,6 +41,7 @@ import { Content } from '../../components/Layout'
 /* import constants */
 import { FunctionName, TransactionCondition, Unit } from '../../constants/enums'
 import { GAS_LIMIT } from '../../constants'
+import { ClaimDetails } from '../../constants/types'
 
 /* import hooks */
 import { useClaimsEscrow } from '../../hooks/useClaimsEscrow'
@@ -66,7 +67,7 @@ export const MyClaims = () => {
     useState hooks
 
   *************************************************************************************/
-  const [claimDetails, setClaimDetails] = useState<any[]>([])
+  const [claimDetails, setClaimDetails] = useState<ClaimDetails[]>([])
 
   /*************************************************************************************
 
@@ -131,7 +132,7 @@ export const MyClaims = () => {
         <Content>
           <Heading1>Your Claims</Heading1>
           <CardContainer cardsPerRow={2}>
-            {claimDetails.map((claim) => {
+            {claimDetails.map((claim: ClaimDetails) => {
               return (
                 <ClaimCard key={claim.id}>
                   <Box pt={20} pb={20} green={claim.canWithdraw}>

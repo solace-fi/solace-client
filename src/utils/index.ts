@@ -111,7 +111,7 @@ export const decimals = (d: number) => {
   return s
 }
 
-export const bnCmp = (x: any, y: any) => {
+export const bnCmp = (x: BigNumber, y: BigNumber) => {
   return x.eq(y) ? 0 : x.lt(y) ? 1 : -1
 }
 

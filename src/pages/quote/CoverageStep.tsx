@@ -13,7 +13,6 @@
     CoverageStep function
       custom hooks
       useState hooks
-      variables
       Contract functions
       Local functions
       useEffect hooks
@@ -40,21 +39,22 @@ import { useUserData } from '../../context/UserDataManager'
 import { useToasts } from '../../context/NotificationsManager'
 
 /* import components */
-import { BoxChooseRow, BoxChooseCol, BoxChooseText, BoxChooseDate } from '../../components/Box/BoxChoose'
+import { BoxChooseRow, BoxChooseCol, BoxChooseText } from '../../components/Box/BoxChoose'
 import { Button, ButtonWrapper } from '../../components/Button'
 import { formProps } from './MultiStepForm'
 import { CardBaseComponent, CardContainer } from '../../components/Card'
-import { Heading2, Text3 } from '../../components/Text'
+import { Heading2, Text3, TextSpan } from '../../components/Text'
 import { Input } from '../../components/Input'
 import { Loader } from '../../components/Loader'
+import { SmallBox } from '../../components/Box'
+import { FlexRow } from '../../components/Layout'
 
 /* import hooks */
 import { useGetQuote, useGetMaxCoverPerUser } from '../../hooks/usePolicy'
 
 /* import utils */
 import { getGasValue } from '../../utils/formatting'
-import { SmallBox } from '../../components/Box'
-import { FlexRow } from '../../components/Layout'
+import { getDateStringWithMonthName, getDateExtended } from '../../utils/time'
 
 export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigation }) => {
   /*************************************************************************************
@@ -77,14 +77,6 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
   *************************************************************************************/
   const [inputCoverage, setInputCoverage] = useState<string>('50')
   const [coveredAssets, setCoveredAssets] = useState<string>(maxCoverPerUser)
-
-  /*************************************************************************************
-
-  variables
-
-  *************************************************************************************/
-
-  const date = new Date()
 
   /*************************************************************************************
 
@@ -338,19 +330,16 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
           </BoxChooseRow>
           <BoxChooseRow mb={5}>
             <BoxChooseCol>
-              <BoxChooseText>Covered Period</BoxChooseText>
-            </BoxChooseCol>
-            <BoxChooseCol>
-              <BoxChooseDate>
-                from <Input readOnly type="date" value={`${date.toISOString().substr(0, 10)}`} /> to{' '}
-                <Input
-                  readOnly
-                  type="date"
-                  value={`${new Date(date.setDate(date.getDate() + parseFloat(timePeriod || '1')))
-                    .toISOString()
-                    .substr(0, 10)}`}
-                />
-              </BoxChooseDate>
+              <Text3 nowrap>
+                Coverage will last from{' '}
+                <TextSpan pl={5} pr={5}>
+                  {getDateStringWithMonthName(new Date(Date.now()))}
+                </TextSpan>{' '}
+                to{' '}
+                <TextSpan pl={5} pr={5}>
+                  {getDateStringWithMonthName(getDateExtended(parseFloat(timePeriod || '1')))}
+                </TextSpan>
+              </Text3>
             </BoxChooseCol>
           </BoxChooseRow>
           <BoxChooseRow>

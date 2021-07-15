@@ -2,7 +2,7 @@ import { BigNumber } from 'ethers'
 import { PolicyState } from '../constants/enums'
 import { Contract } from '@ethersproject/contracts'
 
-export type ClaimDetails = { id: string; cooldown: BigNumber | undefined; canWithdraw: boolean; amount: BigNumber }
+export type ClaimDetails = { id: string; cooldown: string; canWithdraw: boolean; amount: BigNumber }
 
 export type Policy = {
   policyId: number

@@ -70,7 +70,7 @@ export const ProtocolStep: React.FC<formProps> = ({ setForm, navigation }) => {
 
   const availableCoverages = useGetAvailableCoverages()
   const yearlyCosts = useGetYearlyCosts()
-  const { products } = useContracts()
+  const { products, setSelectedProtocolByName } = useContracts()
   const { errors } = useToasts()
 
   /*************************************************************************************
@@ -87,6 +87,7 @@ export const ProtocolStep: React.FC<formProps> = ({ setForm, navigation }) => {
   *************************************************************************************/
 
   const handleChange = (selectedProtocol: any) => {
+    setSelectedProtocolByName(selectedProtocol.name)
     setForm({
       target: {
         name: 'protocol',

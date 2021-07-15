@@ -37,8 +37,8 @@ import { useContracts } from '../../context/ContractsManager'
 
 /* import components */
 import { Modal, ModalHeader, ModalContent, ModalCloseButton } from '../../components/Modal'
-import { BoxChooseRow, BoxChooseCol, BoxChooseText, BoxChooseDate } from '../../components/Box/BoxChoose'
-import { Heading2, Text1 } from '../../components/Text'
+import { BoxChooseRow, BoxChooseCol, BoxChooseText } from '../../components/Box/BoxChoose'
+import { Heading2, Text1, Text3 } from '../../components/Text'
 import { PolicyInfo } from './PolicyInfo'
 import { Input } from '../../components/Input'
 import { Button } from '../../components/Button'
@@ -54,7 +54,7 @@ import { useAppraisePosition, useGetCancelFee, useGetPolicyPrice, useGetQuote } 
 
 /* import utils */
 import { getGasValue } from '../../utils/formatting'
-import { getDays } from '../../utils/time'
+import { getDays, getDateStringWithMonthName, getDateExtended } from '../../utils/time'
 
 interface ManageModalProps {
   closeModal?: any
@@ -191,7 +191,7 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
 
   *************************************************************************************/
 
-  const date = new Date()
+  const daysLeft = getDays(selectedPolicy ? parseFloat(selectedPolicy.expirationBlock) : 0, latestBlock)
   const blocksLeft = BigNumber.from(parseFloat(selectedPolicy ? selectedPolicy.expirationBlock : '0') - latestBlock)
   const coverAmount = BigNumber.from(selectedPolicy ? selectedPolicy.coverAmount : '0')
   const price = BigNumber.from(policyPrice || '0')
@@ -217,6 +217,14 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
         '.' +
         coverLimit.substring(coverLimit.length - 2, coverLimit.length)
     )
+  }
+
+  const getCurrentExpiration = (): string => {
+    return getDateStringWithMonthName(getDateExtended(daysLeft))
+  }
+
+  const getNewExpiration = (): string => {
+    return getDateStringWithMonthName(getDateExtended(parseFloat(extendedTime || '0')))
   }
 
   const handleCoverageChange = (coverageLimit: string) => {
@@ -323,12 +331,7 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
               <BoxChooseCol></BoxChooseCol>
               <BoxChooseRow mb={5}>
                 <BoxChooseCol>
-                  <BoxChooseText>
-                    Add days (0 -{' '}
-                    {DAYS_PER_YEAR -
-                      getDays(selectedPolicy ? parseFloat(selectedPolicy.expirationBlock) : 0, latestBlock)}{' '}
-                    days)
-                  </BoxChooseText>
+                  <BoxChooseText>Add days (0 - {DAYS_PER_YEAR - daysLeft} days)</BoxChooseText>
                 </BoxChooseCol>
                 <BoxChooseCol>
                   <Slider
@@ -338,10 +341,7 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
                     value={extendedTime == '' ? '0' : extendedTime}
                     onChange={(e) => setExtendedTime(e.target.value)}
                     min="0"
-                    max={
-                      DAYS_PER_YEAR -
-                      getDays(selectedPolicy ? parseFloat(selectedPolicy.expirationBlock) : 0, latestBlock)
-                    }
+                    max={DAYS_PER_YEAR - daysLeft}
                   />
                 </BoxChooseCol>
                 <BoxChooseCol>
@@ -358,29 +358,14 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
               </BoxChooseRow>
               <BoxChooseCol></BoxChooseCol>
               <BoxChooseRow mb={5}>
-                <BoxChooseDate>
-                  Current expiration{' '}
-                  <Input
-                    readOnly
-                    type="date"
-                    value={`${new Date(
-                      date.setDate(
-                        date.getDate() +
-                          getDays(selectedPolicy ? parseFloat(selectedPolicy.expirationBlock) : 0, latestBlock)
-                      )
-                    )
-                      .toISOString()
-                      .substr(0, 10)}`}
-                  />{' '}
-                  New expiration{' '}
-                  <Input
-                    readOnly
-                    type="date"
-                    value={`${new Date(date.setDate(date.getDate() + parseFloat(extendedTime || '0')))
-                      .toISOString()
-                      .substr(0, 10)}`}
-                  />
-                </BoxChooseDate>
+                {/* <BoxChooseDate> */}
+                <BoxChooseCol>
+                  <Text3 nowrap>Expiration: {getCurrentExpiration()}</Text3>
+                </BoxChooseCol>
+                <BoxChooseCol>
+                  <Text3 nowrap>New expiration: {getNewExpiration()}</Text3>
+                </BoxChooseCol>
+                {/* </BoxChooseDate> */}
               </BoxChooseRow>
               <BoxChooseRow mb={5} style={{ justifyContent: 'flex-end' }}>
                 {!asyncLoading ? (

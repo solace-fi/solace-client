@@ -38,7 +38,7 @@ import { ManageModal } from '../dashboard/ManageModal'
 
 /* import constants */
 import { PolicyState } from '../../constants/enums'
-import { Policy } from '../../constants/types'
+import { Policy, Token } from '../../constants/types'
 
 /* import hooks */
 import { usePolicyGetter } from '../../hooks/useGetter'
@@ -87,7 +87,7 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
 
   *************************************************************************************/
 
-  const handleChange = (position: any) => {
+  const handleChange = (position: Token) => {
     setForm({
       target: {
         name: 'position',
@@ -100,7 +100,7 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
   const getBalances = async () => {
     if (!account || !chainId) return
     if (policyConfig[chainId]) {
-      const balances = await policyConfig[chainId].getBalances(account, library)
+      const balances: Token[] = await policyConfig[chainId].getBalances(account, library)
       setForm({
         target: {
           name: 'balances',
@@ -112,7 +112,7 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
 
   const userHasActiveProductPosition = (product: string, position: string): boolean => {
     const userPolicyPositions: [string, string, boolean][] = []
-    policies.forEach((policy: any) => {
+    policies.forEach((policy: Policy) => {
       userPolicyPositions.push([policy.productName, policy.positionName, policy.status === PolicyState.ACTIVE])
     })
     for (const policyProductPosition of userPolicyPositions) {
@@ -231,7 +231,7 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
       {!loading && positionsLoaded ? (
         <Fragment>
           <CardContainer>
-            {balances.map((position: any) => {
+            {balances.map((position: Token) => {
               return (
                 <PositionCard
                   key={position.underlying.address}

@@ -1,4 +1,5 @@
 import styled, { css } from 'styled-components'
+import { GeneralElementProps, GeneralElementCss } from '../generalInterfaces'
 
 export interface TextFontProps {
   h1?: boolean
@@ -140,32 +141,43 @@ export const Text = styled.div<GeneralTextProps>`
   ${GeneralTextCss}
 `
 
-export const Text1 = styled.div<GeneralTextProps>`
+export const TextSpan = styled.span<GeneralTextProps & GeneralElementProps>`
+  ${GeneralTextCss}
+  ${GeneralElementCss}
+`
+
+export const Text1 = styled.div<TextAlignProps & TextStyleProps>`
   ${Text1Css}
-  ${GeneralTextCss}
+  ${TextAlignCss}
+  ${TextStyleCss}
 `
 
-export const Text2 = styled.div<GeneralTextProps>`
+export const Text2 = styled.div<TextAlignProps & TextStyleProps>`
   ${Text2Css}
-  ${GeneralTextCss}
+  ${TextAlignCss}
+  ${TextStyleCss}
 `
 
-export const Text3 = styled.div<GeneralTextProps>`
+export const Text3 = styled.div<TextAlignProps & TextStyleProps>`
   ${Text3Css}
-  ${GeneralTextCss}
+  ${TextAlignCss}
+  ${TextStyleCss}
 `
 
-export const Heading1 = styled.div<GeneralTextProps>`
+export const Heading1 = styled.div<TextAlignProps & TextStyleProps>`
   ${Heading1Css}
-  ${GeneralTextCss}
+  ${TextAlignCss}
+  ${TextStyleCss}
 `
 
-export const Heading2 = styled.div<GeneralTextProps>`
+export const Heading2 = styled.div<TextAlignProps & TextStyleProps>`
   ${Heading2Css}
-  ${GeneralTextCss}
+  ${TextAlignCss}
+  ${TextStyleCss}
 `
 
-export const Heading3 = styled.div<GeneralTextProps>`
+export const Heading3 = styled.div<TextAlignProps & TextStyleProps>`
   ${Heading3Css}
-  ${GeneralTextCss}
+  ${TextAlignCss}
+  ${TextStyleCss}
 `
