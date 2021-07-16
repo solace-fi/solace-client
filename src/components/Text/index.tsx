@@ -22,6 +22,7 @@ export interface TextStyleProps {
   outlined?: boolean
   autoAlign?: boolean
   bold?: boolean
+  green?: boolean
   error?: boolean
   warning?: boolean
 }
@@ -127,6 +128,7 @@ export const TextStyleCss = css<TextStyleProps>`
   ${(props) => props.outlined && TextOutlineCss}
   ${(props) => props.autoAlign && AlignAutoCss}
   ${(props) => props.bold && 'font-weight: 600;'}
+  ${(props) => props.green && 'color: #00ffd1;'}
   ${(props) => props.error && 'color: rgba(255, 12, 28);'}
   ${(props) => props.warning && 'color: rgba(245, 221, 83);'}
 `

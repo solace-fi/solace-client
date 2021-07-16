@@ -67,3 +67,8 @@ export type StringToStringMapping = { [key: string]: string }
 export type SupportedProduct = { name: string; contract: Contract; signer: boolean }
 
 export type ContractSources = { addr: string; abi: any }
+
+export type WindowDimensions = {
+  width: number
+  height: number
+}
