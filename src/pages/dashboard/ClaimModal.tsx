@@ -33,7 +33,7 @@ import { useToasts } from '../../context/NotificationsManager'
 import { useContracts } from '../../context/ContractsManager'
 
 /* import components */
-import { Modal, ModalHeader, ModalContent, ModalCloseButton } from '../../components/Modal'
+import { Modal } from '../../components/Modal/Modal'
 import { BoxChooseRow, BoxChooseCol } from '../../components/Box/BoxChoose'
 import { Heading2, Heading3, Text2, Text3 } from '../../components/Text'
 import { PolicyInfo } from './PolicyInfo'
@@ -60,7 +60,7 @@ import { timeToText } from '../../utils/time'
 import { policyConfig } from '../../config/chainConfig'
 
 interface ClaimModalProps {
-  closeModal?: any
+  closeModal: () => void
   isOpen: boolean
   latestBlock: number
   selectedPolicy: Policy | undefined
@@ -161,6 +161,10 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
     }
   }
 
+  const handleClose = () => {
+    closeModal()
+  }
+
   /*************************************************************************************
 
     useEffect hooks
@@ -196,13 +200,8 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
   console.log(wallet.errors)
 
   return (
-    <Modal isOpen={isOpen}>
-      <ModalHeader>
-        <Heading2>Policy Claim</Heading2>
-        <ModalCloseButton hidden={modalLoading} onClick={() => closeModal()} />
-      </ModalHeader>
-      <hr style={{ marginBottom: '20px' }} />
-      <ModalContent>
+    <Modal isOpen={isOpen} handleClose={handleClose} modalTitle={'Policy Claim'} modalLoading={modalLoading}>
+      <Fragment>
         <PolicyInfo selectedPolicy={selectedPolicy} latestBlock={latestBlock} asyncLoading={asyncLoading} />
         {!modalLoading && !asyncLoading ? (
           <Fragment>
@@ -291,7 +290,7 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
         ) : (
           <Loader />
         )}
-      </ModalContent>
+      </Fragment>
     </Modal>
   )
 }

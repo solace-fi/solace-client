@@ -36,9 +36,9 @@ import { useWallet } from '../../context/WalletManager'
 import { useContracts } from '../../context/ContractsManager'
 
 /* import components */
-import { Modal, ModalHeader, ModalContent, ModalCloseButton } from '../../components/Modal'
+import { Modal } from '../../components/Modal/Modal'
 import { BoxChooseRow, BoxChooseCol, BoxChooseText } from '../../components/Box/BoxChoose'
-import { Heading2, Text1, Text3 } from '../../components/Text'
+import { Text1, Text3 } from '../../components/Text'
 import { PolicyInfo } from './PolicyInfo'
 import { Input } from '../../components/Input'
 import { Button } from '../../components/Button'
@@ -57,7 +57,7 @@ import { getGasValue } from '../../utils/formatting'
 import { getDays, getDateStringWithMonthName, getDateExtended } from '../../utils/time'
 
 interface ManageModalProps {
-  closeModal?: any
+  closeModal: () => void
   isOpen: boolean
   selectedPolicy: Policy | undefined
   latestBlock: number
@@ -257,7 +257,7 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
     }
   }
 
-  const close = () => {
+  const handleClose = () => {
     setExtendedTime('0')
     closeModal()
   }
@@ -289,13 +289,8 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
   *************************************************************************************/
 
   return (
-    <Modal isOpen={isOpen}>
-      <ModalHeader>
-        <Heading2>Policy Management</Heading2>
-        <ModalCloseButton hidden={modalLoading} onClick={() => close()} />
-      </ModalHeader>
-      <hr style={{ marginBottom: '20px' }} />
-      <ModalContent>
+    <Modal isOpen={isOpen} handleClose={handleClose} modalTitle={'Policy Management'} modalLoading={modalLoading}>
+      <Fragment>
         <PolicyInfo selectedPolicy={selectedPolicy} latestBlock={latestBlock} asyncLoading={asyncLoading} />
         {!modalLoading ? (
           <Fragment>
@@ -414,7 +409,7 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
         ) : (
           <Loader />
         )}
-      </ModalContent>
+      </Fragment>
     </Modal>
   )
 }

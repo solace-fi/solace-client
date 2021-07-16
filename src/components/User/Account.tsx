@@ -28,6 +28,7 @@ import { useWallet } from '../../context/WalletManager'
 /* import components */
 import { UserImage } from './index'
 import { Heading3 } from '../Text'
+import { Button } from '../Button'
 
 /* import hooks */
 import { useEthBalance } from '../../hooks/useEthBalance'
@@ -69,12 +70,13 @@ export default function Account(): any {
           <Heading3 autoAlign nowrap>
             {balance ? `${fixed(parseFloat(balance), 3)} ETH` : ''}
           </Heading3>
-          <SmallBox ml={10} outlined>
+          <SmallBox ml={10} mr={10} outlined>
             <Heading3 autoAlign>{shortenAddress(wallet.account)}</Heading3>{' '}
             <UserImage pt={4} pb={4} pl={10}>
               <img src={makeBlockie(wallet.account)} />
             </UserImage>
           </SmallBox>
+          <Button>History</Button>
         </SmallBox>
       )}
     </Fragment>
