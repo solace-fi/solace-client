@@ -169,7 +169,6 @@ const ToastsProvider: React.FC = (props) => {
 
   // Runs whenever the chainId changes
   useEffect(() => {
-    console.log(wallet.errors)
     if (!wallet.errors) return
     if (wallet.errors.includes(Error.UNSUPPORTED_NETWORK)) {
       toast(appToast(`Unsupported network, please switch to a supported network`, <StyledWarning size={30} />), {

@@ -186,7 +186,7 @@ export const Statistics = () => {
     } catch (err) {
       console.log(err)
     }
-  }, [wallet.chainId])
+  }, [wallet.dataVersion])
 
   return (
     <BoxRow>

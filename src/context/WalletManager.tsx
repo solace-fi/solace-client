@@ -99,7 +99,6 @@ const WalletProvider: React.FC = (props) => {
 
   const connect = useCallback(
     async (walletConnector: WalletConnector): Promise<void> => {
-      console.log('connecting')
       // if a connector is trying to connect, do not try to connect again
       if (connectingRef.current) {
         return
@@ -129,7 +128,7 @@ const WalletProvider: React.FC = (props) => {
       }
 
       function onSuccess() {
-        setErrors(walletErrors)
+        setErrors([])
         if (!connectingRef.current) {
           return
         }
