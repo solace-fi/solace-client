@@ -5,6 +5,7 @@
     import react
     import packages
     import managers
+    import constants
     import components
     import hooks
     import utils
@@ -27,21 +28,24 @@ import { formatEther } from '@ethersproject/units'
 /* import managers */
 import { useWallet } from '../../context/WalletManager'
 
+/* import constants */
+import { Policy } from '../../constants/types'
+
 /* import components */
 import { Table, TableBody, TableHead, TableRow, TableHeader, TableData, TableDataGroup } from '../../components/Table'
 import { Button } from '../../components/Button'
 import { Loader } from '../../components/Loader'
 import { Heading2 } from '../../components/Text'
-import { Units, PolicyStates } from '../../constants/enums'
+import { Unit, PolicyState } from '../../constants/enums'
 
 /* import hooks */
-import { Policy, usePolicyGetter } from '../../hooks/useGetter'
+import { usePolicyGetter } from '../../hooks/useGetter'
 
 /* import utils */
 import { truncateBalance } from '../../utils/formatting'
-import { getDays } from '../../utils/time'
+import { getDays, getDateStringWithMonthName, getDateExtended } from '../../utils/time'
 
-type MyPoliciesProps = {
+interface MyPoliciesProps {
   openClaimModal: any
   openManageModal: any
   latestBlock: number
@@ -70,10 +74,8 @@ export const MyPolicies: React.FC<MyPoliciesProps> = ({ openClaimModal, openMana
 
   *************************************************************************************/
   const calculatePolicyExpirationDate = (expirationBlock: string): string => {
-    const days = getDays(parseFloat(expirationBlock), latestBlock)
-    const date = new Date()
-    date.setDate(date.getDate() + days)
-    return date.toLocaleDateString()
+    const daysLeft = getDays(parseFloat(expirationBlock), latestBlock)
+    return getDateStringWithMonthName(getDateExtended(daysLeft))
   }
 
   /*************************************************************************************
@@ -126,20 +128,14 @@ export const MyPolicies: React.FC<MyPoliciesProps> = ({ openClaimModal, openMana
                   <TableData>{calculatePolicyExpirationDate(policy.expirationBlock)}</TableData>
                   <TableData>
                     {policy.coverAmount ? truncateBalance(parseFloat(formatEther(policy.coverAmount)), 2) : 0}{' '}
-                    {Units.ETH}
+                    {Unit.ETH}
                   </TableData>
 
                   <TableData textAlignRight>
-                    {policy.status === PolicyStates.ACTIVE && (
+                    {policy.status === PolicyState.ACTIVE && (
                       <TableDataGroup>
                         <Button onClick={() => openClaimModal(policy)}>Claim</Button>
-                        <Button
-                          onClick={() =>
-                            openManageModal(getDays(parseFloat(policy.expirationBlock), latestBlock), policy)
-                          }
-                        >
-                          Manage
-                        </Button>
+                        <Button onClick={() => openManageModal(policy)}>Manage</Button>
                       </TableDataGroup>
                     )}
                   </TableData>

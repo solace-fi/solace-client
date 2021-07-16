@@ -31,7 +31,8 @@ import { Contract } from '@ethersproject/contracts'
 
 /* import constants */
 import { GAS_LIMIT } from '../../constants'
-import { TransactionConditions, FunctionNames, Units, PolicyStates } from '../../constants/enums'
+import { TransactionCondition, FunctionName, Unit, PolicyState } from '../../constants/enums'
+import { Policy } from '../../constants/types'
 
 /* import managers */
 import { useWallet } from '../../context/WalletManager'
@@ -44,17 +45,16 @@ import { BoxRow, Box, BoxItem, BoxItemValue, BoxItemTitle, BoxItemUnits } from '
 import { Button } from '../Button'
 
 /* import hooks */
-import { useCapitalPoolSize } from '../../hooks/useCapitalPoolSize'
+import { useCapitalPoolSize } from '../../hooks/useVault'
 import { useTotalPendingRewards } from '../../hooks/useRewards'
 import { useSolaceBalance } from '../../hooks/useSolaceBalance'
-import { usePoolStakedValue } from '../../hooks/usePoolStakedValue'
-import { usePolicyGetter, Policy } from '../../hooks/useGetter'
+import { usePolicyGetter } from '../../hooks/useGetter'
+import { usePoolStakedValue } from '../../hooks/useFarm'
 
 /* import wallet */
 import { WalletConnectButton } from '../Button/WalletConnect'
 
 /* import utils */
-import { getAllPolicies } from '../../utils/paclas'
 import { fixed, getGasValue, floatEther, truncateBalance } from '../../utils/formatting'
 
 export const Statistics = () => {
@@ -77,7 +77,7 @@ export const Statistics = () => {
   *************************************************************************************/
   const wallet = useWallet()
   const { master, vault, solace, cpFarm, lpFarm, lpToken } = useContracts()
-  const { errors, makeTxToast } = useToasts()
+  const { makeTxToast } = useToasts()
   const { addLocalTransactions } = useUserData()
   const capitalPoolSize = useCapitalPoolSize()
   const solaceBalance = useSolaceBalance()
@@ -102,7 +102,7 @@ export const Statistics = () => {
   *************************************************************************************/
   const claimRewards = async () => {
     if (!masterContract.current) return
-    const txType = FunctionNames.WITHDRAW_REWARDS
+    const txType = FunctionName.WITHDRAW_REWARDS
     try {
       const tx = await masterContract.current.withdrawRewards({
         gasPrice: getGasValue(wallet.gasPrices.options[1].value),
@@ -113,13 +113,13 @@ export const Statistics = () => {
         hash: txHash,
         type: txType,
         value: totalUserRewards,
-        status: TransactionConditions.PENDING,
-        unit: Units.SOLACE,
+        status: TransactionCondition.PENDING,
+        unit: Unit.SOLACE,
       })
-      makeTxToast(txType, TransactionConditions.PENDING, txHash)
+      makeTxToast(txType, TransactionCondition.PENDING, txHash)
       wallet.reload()
       await tx.wait().then((receipt: any) => {
-        const status = receipt.status ? TransactionConditions.SUCCESS : TransactionConditions.FAILURE
+        const status = receipt.status ? TransactionCondition.SUCCESS : TransactionCondition.FAILURE
         makeTxToast(txType, status, txHash)
         wallet.reload()
       })
@@ -129,7 +129,7 @@ export const Statistics = () => {
       } else {
         console.log(`Transaction failed: ${err.message}`)
       }
-      makeTxToast(txType, TransactionConditions.CANCELLED)
+      makeTxToast(txType, TransactionCondition.CANCELLED)
       wallet.reload()
     }
   }
@@ -168,7 +168,7 @@ export const Statistics = () => {
     try {
       const fetchPolicies = async () => {
         const policies: Policy[] = await getPolicies()
-        const activePolicies = policies.filter(({ status }) => status === PolicyStates.ACTIVE)
+        const activePolicies = policies.filter(({ status }) => status === PolicyState.ACTIVE)
 
         let activeCoverAmount = 0
         activePolicies.forEach(({ coverAmount }) => {
@@ -186,7 +186,7 @@ export const Statistics = () => {
     } catch (err) {
       console.log(err)
     }
-  }, [])
+  }, [wallet.dataVersion])
 
   return (
     <BoxRow>
@@ -207,7 +207,10 @@ export const Statistics = () => {
             </BoxItemValue>
           </BoxItem>
           <BoxItem>
-            <Button disabled={errors.length > 0 || fixed(parseFloat(totalUserRewards), 6) <= 0} onClick={claimRewards}>
+            <Button
+              disabled={wallet.errors.length > 0 || fixed(parseFloat(totalUserRewards), 6) <= 0}
+              onClick={claimRewards}
+            >
               Claim
             </Button>
           </BoxItem>
@@ -224,14 +227,14 @@ export const Statistics = () => {
           <BoxItemTitle h3>Capital Pool Size</BoxItemTitle>
           <BoxItemValue h2 nowrap>
             {`${truncateBalance(floatEther(parseEther(capitalPoolSize)), 1)} `}
-            <BoxItemUnits h3>{Units.ETH}</BoxItemUnits>
+            <BoxItemUnits h3>{Unit.ETH}</BoxItemUnits>
           </BoxItemValue>
         </BoxItem>
         <BoxItem>
           <BoxItemTitle h3>Total Value Locked</BoxItemTitle>
           <BoxItemValue h2 nowrap>
             {`${truncateBalance(parseFloat(totalValueLocked), 1)} `}
-            <BoxItemUnits h3>{Units.ETH}</BoxItemUnits>
+            <BoxItemUnits h3>{Unit.ETH}</BoxItemUnits>
           </BoxItemValue>
         </BoxItem>
         <BoxItem>
@@ -240,7 +243,7 @@ export const Statistics = () => {
             {totalActiveCoverAmount !== '-'
               ? `${truncateBalance(parseFloat(formatEther(totalActiveCoverAmount.toString())), 2)} `
               : `${totalActiveCoverAmount} `}
-            <BoxItemUnits h3>{Units.ETH}</BoxItemUnits>
+            <BoxItemUnits h3>{Unit.ETH}</BoxItemUnits>
           </BoxItemValue>
         </BoxItem>
         <BoxItem>

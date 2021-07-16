@@ -39,8 +39,9 @@ import { Heading1 } from '../../components/Text'
 import { Content } from '../../components/Layout'
 
 /* import constants */
-import { FunctionNames, TransactionConditions, Units } from '../../constants/enums'
+import { FunctionName, TransactionCondition, Unit } from '../../constants/enums'
 import { GAS_LIMIT } from '../../constants'
+import { ClaimDetails } from '../../constants/types'
 
 /* import hooks */
 import { useClaimsEscrow } from '../../hooks/useClaimsEscrow'
@@ -66,7 +67,7 @@ export const MyClaims = () => {
     useState hooks
 
   *************************************************************************************/
-  const [claimDetails, setClaimDetails] = useState<any[]>([])
+  const [claimDetails, setClaimDetails] = useState<ClaimDetails[]>([])
 
   /*************************************************************************************
 
@@ -76,7 +77,7 @@ export const MyClaims = () => {
 
   const withdrawPayout = async (_claimId: any) => {
     if (!claimsEscrow || !_claimId) return
-    const txType = FunctionNames.WITHDRAW_CLAIMS_PAYOUT
+    const txType = FunctionName.WITHDRAW_CLAIMS_PAYOUT
     try {
       const tx = await claimsEscrow.withdrawClaimsPayout(_claimId, {
         gasPrice: getGasValue(wallet.gasPrices.selected.value),
@@ -87,19 +88,19 @@ export const MyClaims = () => {
         hash: txHash,
         type: txType,
         value: String(_claimId),
-        status: TransactionConditions.PENDING,
-        unit: Units.ID,
+        status: TransactionCondition.PENDING,
+        unit: Unit.ID,
       }
       addLocalTransactions(localTx)
       wallet.reload()
-      makeTxToast(txType, TransactionConditions.PENDING, txHash)
+      makeTxToast(txType, TransactionCondition.PENDING, txHash)
       await tx.wait().then((receipt: any) => {
-        const status = receipt.status ? TransactionConditions.SUCCESS : TransactionConditions.FAILURE
+        const status = receipt.status ? TransactionCondition.SUCCESS : TransactionCondition.FAILURE
         makeTxToast(txType, status, txHash)
         wallet.reload()
       })
     } catch (err) {
-      makeTxToast(txType, TransactionConditions.CANCELLED)
+      makeTxToast(txType, TransactionCondition.CANCELLED)
       wallet.reload()
     }
   }
@@ -131,7 +132,7 @@ export const MyClaims = () => {
         <Content>
           <Heading1>Your Claims</Heading1>
           <CardContainer cardsPerRow={2}>
-            {claimDetails.map((claim) => {
+            {claimDetails.map((claim: ClaimDetails) => {
               return (
                 <ClaimCard key={claim.id}>
                   <Box pt={20} pb={20} green={claim.canWithdraw}>
@@ -158,7 +159,11 @@ export const MyClaims = () => {
                     </BoxItem>
                   </Box>
                   <ButtonWrapper mb={0} mt={20}>
-                    <Button widthP={100} onClick={() => withdrawPayout(claim.id)} disabled={!claim.canWithdraw}>
+                    <Button
+                      widthP={100}
+                      onClick={() => withdrawPayout(claim.id)}
+                      disabled={!claim.canWithdraw || wallet.errors.length > 0}
+                    >
                       Withdraw Payout
                     </Button>
                   </ButtonWrapper>

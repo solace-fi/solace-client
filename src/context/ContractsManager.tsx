@@ -1,19 +1,11 @@
 import React, { createContext, useContext, useMemo, useState } from 'react'
 import { Contract } from '@ethersproject/contracts'
+import { contractConfig } from '../config/chainConfig'
 
-import {
-  useMasterContract,
-  useVaultContract,
-  useSolaceContract,
-  useCpFarmContract,
-  useLpFarmContract,
-  useRegistryContract,
-  useLpTokenContract,
-  useWethContract,
-  useCompoundProductContract,
-  useClaimsEscrowContract,
-  usePolicyManagerContract,
-} from '../hooks/useContract'
+import { useGetContract, useGetProductContracts } from '../hooks/useContract'
+import { useWallet } from './WalletManager'
+import { DEFAULT_CHAIN_ID } from '../constants'
+import { SupportedProduct } from '../constants/types'
 
 /*
 
@@ -22,9 +14,10 @@ the web application mainly reads the contracts.
 
 */
 
-export type Contracts = {
+type Contracts = {
   master?: Contract | null
   vault?: Contract | null
+  treasury?: Contract | null
   solace?: Contract | null
   cpFarm?: Contract | null
   lpFarm?: Contract | null
@@ -33,9 +26,7 @@ export type Contracts = {
   weth?: Contract | null
   claimsEscrow?: Contract | null
   policyManager?: Contract | null
-  products: {
-    compProduct?: Contract | null
-  }
+  products?: SupportedProduct[]
   selectedProtocol: Contract | null
   getProtocolByName: (productName: string) => Contract | null
   setSelectedProtocolByName: (productName: string) => void
@@ -44,6 +35,7 @@ export type Contracts = {
 const ContractsContext = createContext<Contracts>({
   master: undefined,
   vault: undefined,
+  treasury: undefined,
   solace: undefined,
   cpFarm: undefined,
   lpFarm: undefined,
@@ -52,9 +44,7 @@ const ContractsContext = createContext<Contracts>({
   weth: undefined,
   claimsEscrow: undefined,
   policyManager: undefined,
-  products: {
-    compProduct: undefined,
-  },
+  products: [],
   selectedProtocol: null,
   getProtocolByName: () => null,
   setSelectedProtocolByName: () => undefined,
@@ -62,21 +52,26 @@ const ContractsContext = createContext<Contracts>({
 
 const ContractsProvider: React.FC = (props) => {
   const [selectedProtocol, setSelectedProtocol] = useState<Contract | null>(null)
+  const { chainId } = useWallet()
+  const config = chainId && contractConfig[chainId] ? contractConfig[chainId] : contractConfig[DEFAULT_CHAIN_ID]
+  const keyContracts = config.keyContracts
 
-  const master = useMasterContract()
-  const vault = useVaultContract()
-  const solace = useSolaceContract()
-  const cpFarm = useCpFarmContract()
-  const lpFarm = useLpFarmContract()
-  const registry = useRegistryContract()
-  const lpToken = useLpTokenContract()
-  const weth = useWethContract()
-  const claimsEscrow = useClaimsEscrowContract()
-  const policyManager = usePolicyManagerContract()
-  const compProduct = useCompoundProductContract()
+  const master = useGetContract(keyContracts.master.addr, keyContracts.master.abi)
+  const vault = useGetContract(keyContracts.vault.addr, keyContracts.vault.abi)
+  const treasury = useGetContract(keyContracts.treasury.addr, keyContracts.treasury.abi)
+  const solace = useGetContract(keyContracts.solace.addr, keyContracts.solace.abi)
+  const cpFarm = useGetContract(keyContracts.cpFarm.addr, keyContracts.cpFarm.abi)
+  const lpFarm = useGetContract(keyContracts.lpFarm.addr, keyContracts.lpFarm.abi)
+  const registry = useGetContract(keyContracts.registry.addr, keyContracts.registry.abi)
+  const lpToken = useGetContract(keyContracts.lpToken.addr, keyContracts.lpToken.abi)
+  const weth = useGetContract(keyContracts.weth.addr, keyContracts.weth.abi)
+  const claimsEscrow = useGetContract(keyContracts.claimsEscrow.addr, keyContracts.claimsEscrow.abi)
+  const policyManager = useGetContract(keyContracts.policyManager.addr, keyContracts.policyManager.abi)
+  const products = useGetProductContracts()
 
   const getProtocolByName = (productName: string): Contract | null => {
-    if (productName == 'compound') return compProduct
+    const foundProduct = products.filter((product) => product.name == productName)
+    if (foundProduct && foundProduct.length > 0) return foundProduct[0].contract
     return null
   }
 
@@ -89,6 +84,7 @@ const ContractsProvider: React.FC = (props) => {
     () => ({
       master,
       vault,
+      treasury,
       solace,
       cpFarm,
       lpFarm,
@@ -97,9 +93,7 @@ const ContractsProvider: React.FC = (props) => {
       weth,
       claimsEscrow,
       policyManager,
-      products: {
-        compProduct,
-      },
+      products,
       selectedProtocol,
       getProtocolByName,
       setSelectedProtocolByName,
@@ -107,6 +101,7 @@ const ContractsProvider: React.FC = (props) => {
     [
       master,
       vault,
+      treasury,
       solace,
       cpFarm,
       lpFarm,
@@ -115,7 +110,7 @@ const ContractsProvider: React.FC = (props) => {
       weth,
       claimsEscrow,
       policyManager,
-      compProduct,
+      products,
       setSelectedProtocolByName,
       getProtocolByName,
     ]

@@ -1,23 +1,13 @@
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect } from 'react'
 import { fetchGasPrice } from '../utils/etherscan'
 import { useWallet } from '../context/WalletManager'
 import { DEFAULT_CHAIN_ID } from '../constants'
+import { GasFeeOption } from '../constants/types'
 
-export type GasFeeOption = {
-  key: string
-  name: string
-  value: number
-}
-
-type GasFeeListState = {
+interface GasFeeListState {
   options: GasFeeOption[]
   loading: boolean
   selected?: GasFeeOption
-}
-
-export type GasFeeListProps = {
-  option?: GasFeeOption
-  onChange?: (value: GasFeeOption) => void
 }
 
 export const useFetchGasPrice = (): GasFeeListState => {
@@ -31,7 +21,7 @@ export const useFetchGasPrice = (): GasFeeListState => {
 
   useEffect(() => {
     const fetchGasPrices = async () => {
-      await fetchGasPrice(chainId ?? Number(DEFAULT_CHAIN_ID))
+      await fetchGasPrice(chainId ?? DEFAULT_CHAIN_ID)
         .then((result) => {
           const options = [
             {

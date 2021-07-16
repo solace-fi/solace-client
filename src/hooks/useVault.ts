@@ -1,6 +1,6 @@
 import { formatEther } from '@ethersproject/units'
-import { useState, useEffect } from 'react'
 import { useContracts } from '../context/ContractsManager'
+import { useState, useEffect } from 'react'
 import { useWallet } from '../context/WalletManager'
 
 export const useCapitalPoolSize = (): string => {
@@ -23,4 +23,26 @@ export const useCapitalPoolSize = (): string => {
   }, [vault, registry, version, dataVersion])
 
   return capitalPoolSize
+}
+
+export const useScpBalance = (): string => {
+  const { vault } = useContracts()
+  const { account, version, chainId } = useWallet()
+  const [scpBalance, setScpBalance] = useState<string>('0.00')
+
+  useEffect(() => {
+    const getScpBalance = async () => {
+      if (!vault) return
+      try {
+        const balance = await vault.balanceOf(account)
+        const formattedBalance = formatEther(balance)
+        setScpBalance(formattedBalance)
+      } catch (err) {
+        console.log('getScpBalance', err)
+      }
+    }
+    getScpBalance()
+  }, [account, vault, version, chainId])
+
+  return scpBalance
 }

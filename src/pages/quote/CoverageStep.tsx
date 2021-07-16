@@ -13,7 +13,6 @@
     CoverageStep function
       custom hooks
       useState hooks
-      variables
       Contract functions
       Local functions
       useEffect hooks
@@ -31,7 +30,7 @@ import { BigNumber } from 'ethers'
 
 /* import constants */
 import { DAYS_PER_YEAR, GAS_LIMIT, NUM_BLOCKS_PER_DAY } from '../../constants'
-import { TransactionConditions, FunctionNames, Units } from '../../constants/enums'
+import { TransactionCondition, FunctionName, Unit } from '../../constants/enums'
 
 /* import managers */
 import { useContracts } from '../../context/ContractsManager'
@@ -40,21 +39,22 @@ import { useUserData } from '../../context/UserDataManager'
 import { useToasts } from '../../context/NotificationsManager'
 
 /* import components */
-import { BoxChooseRow, BoxChooseCol, BoxChooseText, BoxChooseDate } from '../../components/Box/BoxChoose'
+import { BoxChooseRow, BoxChooseCol, BoxChooseText } from '../../components/Box/BoxChoose'
 import { Button, ButtonWrapper } from '../../components/Button'
 import { formProps } from './MultiStepForm'
 import { CardBaseComponent, CardContainer } from '../../components/Card'
-import { Heading2, Text3 } from '../../components/Text'
+import { Heading2, Text3, TextSpan } from '../../components/Text'
 import { Input } from '../../components/Input'
 import { Loader } from '../../components/Loader'
+import { SmallBox } from '../../components/Box'
+import { FlexRow } from '../../components/Layout'
 
 /* import hooks */
 import { useGetQuote, useGetMaxCoverPerUser } from '../../hooks/usePolicy'
 
 /* import utils */
 import { getGasValue } from '../../utils/formatting'
-import { SmallBox } from '../../components/Box'
-import { FlexRow } from '../../components/Layout'
+import { getDateStringWithMonthName, getDateExtended } from '../../utils/time'
 
 export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigation }) => {
   /*************************************************************************************
@@ -80,14 +80,6 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
 
   /*************************************************************************************
 
-  variables
-
-  *************************************************************************************/
-
-  const date = new Date()
-
-  /*************************************************************************************
-
   Contract functions
 
   *************************************************************************************/
@@ -100,7 +92,7 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
       },
     })
     if (!selectedProtocol) return
-    const txType = FunctionNames.BUY_POLICY
+    const txType = FunctionName.BUY_POLICY
     try {
       const tx = await selectedProtocol.buyPolicy(
         wallet.account,
@@ -119,8 +111,8 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
         hash: txHash,
         type: txType,
         value: 'Policy',
-        status: TransactionConditions.PENDING,
-        unit: Units.ETH,
+        status: TransactionCondition.PENDING,
+        unit: Unit.ETH,
       }
       setForm({
         target: {
@@ -130,14 +122,14 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
       })
       addLocalTransactions(localTx)
       wallet.reload()
-      makeTxToast(txType, TransactionConditions.PENDING, txHash)
+      makeTxToast(txType, TransactionCondition.PENDING, txHash)
       await tx.wait().then((receipt: any) => {
-        const status = receipt.status ? TransactionConditions.SUCCESS : TransactionConditions.FAILURE
+        const status = receipt.status ? TransactionCondition.SUCCESS : TransactionCondition.FAILURE
         makeTxToast(txType, status, txHash)
         wallet.reload()
       })
     } catch (err) {
-      makeTxToast(txType, TransactionConditions.CANCELLED)
+      makeTxToast(txType, TransactionCondition.CANCELLED)
       setForm({
         target: {
           name: 'loading',
@@ -285,7 +277,17 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
                 >
                   {coveredAssets} ETH
                 </BoxChooseText>
-                <Button ml={10} pt={4} pb={4} pl={8} pr={8} width={79} height={30} onClick={() => setMaxCover()}>
+                <Button
+                  disabled={wallet.errors.length > 0}
+                  ml={10}
+                  pt={4}
+                  pb={4}
+                  pl={8}
+                  pr={8}
+                  width={79}
+                  height={30}
+                  onClick={() => setMaxCover()}
+                >
                   MAX
                 </Button>
               </FlexRow>
@@ -328,19 +330,16 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
           </BoxChooseRow>
           <BoxChooseRow mb={5}>
             <BoxChooseCol>
-              <BoxChooseText>Covered Period</BoxChooseText>
-            </BoxChooseCol>
-            <BoxChooseCol>
-              <BoxChooseDate>
-                from <Input readOnly type="date" value={`${date.toISOString().substr(0, 10)}`} /> to{' '}
-                <Input
-                  readOnly
-                  type="date"
-                  value={`${new Date(date.setDate(date.getDate() + parseFloat(timePeriod || '1')))
-                    .toISOString()
-                    .substr(0, 10)}`}
-                />
-              </BoxChooseDate>
+              <Text3 nowrap>
+                Coverage will last from{' '}
+                <TextSpan pl={5} pr={5}>
+                  {getDateStringWithMonthName(new Date(Date.now()))}
+                </TextSpan>{' '}
+                to{' '}
+                <TextSpan pl={5} pr={5}>
+                  {getDateStringWithMonthName(getDateExtended(parseFloat(timePeriod || '1')))}
+                </TextSpan>
+              </Text3>
             </BoxChooseCol>
           </BoxChooseRow>
           <BoxChooseRow>
@@ -353,7 +352,10 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
           </BoxChooseRow>
           <ButtonWrapper>
             {!loading ? (
-              <Button onClick={() => buyPolicy()} disabled={parseEther(coveredAssets).gt(parseEther(maxCoverPerUser))}>
+              <Button
+                onClick={() => buyPolicy()}
+                disabled={wallet.errors.length > 0 || parseEther(coveredAssets).gt(parseEther(maxCoverPerUser))}
+              >
                 Buy
               </Button>
             ) : (
@@ -366,16 +368,25 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
             <Heading2>Terms and conditions</Heading2>
           </BoxChooseRow>
           <BoxChooseRow>
-            <BoxChooseText>
-              <b>Events covered:</b>
-              <ul>
-                <li>Contract bugs</li>
-                <li>Economic attacks, including oracle failures</li>
-                <li>Governance attacks</li>
-              </ul>
-              This coverage is not a contract of insurance. Coverage is provided on a discretionary basis with Solace
-              protocol and the decentralized governance has the final say on which claims are paid.
-            </BoxChooseText>
+            <BoxChooseCol>
+              <BoxChooseText>
+                <b>Events covered:</b>
+                <ul>
+                  <li>Contract bugs</li>
+                  <li>Economic attacks, including oracle failures</li>
+                  <li>Governance attacks</li>
+                </ul>
+                This coverage is not a contract of insurance. Coverage is provided on a discretionary basis with Solace
+                protocol and the decentralized governance has the final say on which claims are paid.
+                <b>Important Developer Notes</b>
+              </BoxChooseText>
+              <hr></hr>
+              <Heading2>Important Developer Notes</Heading2>
+              <BoxChooseText error>
+                Do not purchase a policy with a lending protocol for an asset that is locked as collateral. You will not
+                be able to submit a claim.
+              </BoxChooseText>
+            </BoxChooseCol>
           </BoxChooseRow>
         </CardBaseComponent>
       </CardContainer>

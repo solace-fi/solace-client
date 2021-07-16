@@ -1,22 +1,25 @@
 import useDebounce from '@rooks/use-debounce'
 import { BigNumber, Contract } from 'ethers'
 import { formatEther } from '@ethersproject/units'
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { GAS_LIMIT, NUM_BLOCKS_PER_DAY } from '../constants'
 import { useContracts } from '../context/ContractsManager'
 import { useWallet } from '../context/WalletManager'
-import { getPolicyPrice } from '../utils/paclas'
-import { ProtocolNames } from '../constants/enums'
+import { usePolicyGetter } from './useGetter'
+import { Policy, StringToStringMapping } from '../constants/types'
 
 export const useGetPolicyPrice = (policyId: number): string => {
   const [policyPrice, setPolicyPrice] = useState<string>('')
   const { selectedProtocol } = useContracts()
+  const { getPolicies } = usePolicyGetter()
+  const { account } = useWallet()
 
   const getPrice = async () => {
     if (!selectedProtocol || policyId == 0) return
     try {
-      const price = await getPolicyPrice(policyId)
-      setPolicyPrice(price)
+      const policies = await getPolicies(account)
+      const policy = policies.filter((policy: Policy) => policy.policyId == policyId)[0]
+      setPolicyPrice(policy.price)
     } catch (err) {
       console.log('getPolicyPrice', err)
     }
@@ -89,20 +92,22 @@ export const useGetCancelFee = () => {
 }
 
 export const useGetYearlyCosts = () => {
-  const [yearlyCosts, setYearlyCosts] = useState<any>({})
-  const { getProtocolByName } = useContracts()
+  const [yearlyCosts, setYearlyCosts] = useState<StringToStringMapping>({})
+  const { products, getProtocolByName } = useContracts()
+  const { chainId } = useWallet()
 
   const getYearlyCosts = async () => {
     try {
-      const newYearlyCosts: any = {}
-      for (let i = 0; i < Object.values(ProtocolNames).length; i++) {
+      if (!products) return
+      const newYearlyCosts: StringToStringMapping = {}
+      for (let i = 0; i < products.length; i++) {
         let price = '0'
-        const product = getProtocolByName(Object.values(ProtocolNames)[i].toLowerCase())
+        const product = getProtocolByName(products[i].name)
         if (product) {
           const fetchedPrice = await product.price()
           price = formatEther(fetchedPrice)
         }
-        newYearlyCosts[Object.values(ProtocolNames)[i].toLowerCase()] = price
+        newYearlyCosts[products[i].name] = price
       }
       setYearlyCosts(newYearlyCosts)
     } catch (err) {
@@ -112,38 +117,39 @@ export const useGetYearlyCosts = () => {
 
   useEffect(() => {
     getYearlyCosts()
-  }, [])
+  }, [chainId])
 
   return yearlyCosts
 }
 
 export const useGetAvailableCoverages = () => {
-  const [availableCoverages, setAvailableCoverages] = useState<any>({})
-  const { getProtocolByName } = useContracts()
+  const [availableCoverages, setAvailableCoverages] = useState<StringToStringMapping>({})
+  const { products, getProtocolByName } = useContracts()
+  const { chainId } = useWallet()
 
   const getAvailableCoverages = async () => {
     try {
-      const newAvailableCoverages: any = {}
-      for (let i = 0; i < Object.values(ProtocolNames).length; i++) {
+      if (!products) return
+      const newAvailableCoverages: StringToStringMapping = {}
+      for (let i = 0; i < products.length; i++) {
         let coverage = '0'
-        const product = getProtocolByName(Object.values(ProtocolNames)[i].toLowerCase())
+        const product = getProtocolByName(products[i].name)
         if (product) {
           const maxCoverAmount = await product.maxCoverAmount()
           const activeCoverAmount = await product.activeCoverAmount()
           coverage = formatEther(maxCoverAmount.sub(activeCoverAmount))
         }
-        newAvailableCoverages[Object.values(ProtocolNames)[i].toLowerCase()] = coverage
+        newAvailableCoverages[products[i].name] = coverage
       }
       setAvailableCoverages(newAvailableCoverages)
     } catch (err) {
       console.log('getAvailableCoverage', err)
-      return '0'
     }
   }
 
   useEffect(() => {
     getAvailableCoverages()
-  }, [])
+  }, [chainId])
 
   return availableCoverages
 }

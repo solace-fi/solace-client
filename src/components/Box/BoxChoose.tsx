@@ -41,8 +41,7 @@ export const BoxChooseDate = styled.div`
   ${BoxChooseInfo}
   white-space: nowrap;
   ${Input} {
-    width: 100px;
-    margin: 0 6px;
+    width: 130px;
 
     &:last-child {
       margin-right: 0;
@@ -56,6 +55,6 @@ export const BoxChooseDate = styled.div`
   }
 `
 
-export const BoxChooseText = styled.div`
+export const BoxChooseText = styled.div<TextStyleProps>`
   ${BoxChooseInfo}
 `

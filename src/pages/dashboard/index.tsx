@@ -4,8 +4,8 @@
 
     import react
     import managers
+    import constants
     import components
-    import hooks
     import utils
 
     Dashboard function
@@ -24,6 +24,9 @@ import React, { Fragment, useState } from 'react'
 import { useContracts } from '../../context/ContractsManager'
 import { useWallet } from '../../context/WalletManager'
 
+/* import constants */
+import { Policy } from '../../constants/types'
+
 /* import components */
 import { HeroContainer, Content } from '../../components/Layout'
 import { Heading1 } from '../../components/Text'
@@ -31,9 +34,6 @@ import { ManageModal } from './ManageModal'
 import { ClaimModal } from './ClaimModal'
 import { MyPolicies } from './MyPolicies'
 import { MyClaims } from './MyClaims'
-
-/* import hooks */
-import { Policy } from '../../hooks/useGetter'
 
 /* import utils */
 import { MyInvestments } from './MyInvestments'
@@ -77,7 +77,7 @@ function Dashboard(): any {
   }
 
   const setPolicy = (policy: Policy) => {
-    setSelectedProtocolByName(policy.productName.toLowerCase())
+    setSelectedProtocolByName(policy.productName)
     document.body.style.overflowY = 'hidden'
     setSelectedPolicy(policy)
   }

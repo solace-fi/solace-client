@@ -2,12 +2,12 @@ import React, { createContext, useContext, useMemo, useEffect, useState } from '
 import { getEtherscanTxUrl } from '../utils/etherscan'
 import { toast, ToastContainer } from 'react-toastify'
 import { useWallet } from '../context/WalletManager'
+import { contractConfig } from '../config/chainConfig'
 
 import 'animate.css/animate.min.css'
 import 'react-toastify/dist/ReactToastify.css'
 import { DEFAULT_CHAIN_ID } from '../constants'
-import { TransactionConditions, Errors } from '../constants/enums'
-import { getNetworkName } from '../utils'
+import { TransactionCondition, Error } from '../constants/enums'
 import { HyperLink } from '../components/Link'
 import { Button } from '../components/Button'
 
@@ -18,7 +18,7 @@ import { Checkmark } from '@styled-icons/evaicons-solid/Checkmark'
 import { Warning } from '@styled-icons/fluentui-system-regular/Warning'
 /*
 This manager allows for notifications to be created. such notifications can be created
-on trigger or manually. Errors are also tracked so appropriate notifications can be shown but 
+on trigger or manually. Error are also tracked so appropriate notifications can be shown but 
 they can also be used elsewhere in the app for other purposes, such as disabling a certain feature
 if an error occurs.
 */
@@ -45,21 +45,19 @@ const StyledToast = styled.div`
   text-align: center;
 `
 
-export type ToastSystem = {
-  errors: any[]
-  makeTxToast: (txType: string, condition: TransactionConditions, txHash?: string) => void
+type ToastSystem = {
+  makeTxToast: (txType: string, condition: TransactionCondition, txHash?: string) => void
 }
 
 const ToastsContext = createContext<ToastSystem>({
-  errors: [undefined],
   makeTxToast: () => undefined,
 })
 
 const ToastsProvider: React.FC = (props) => {
   const wallet = useWallet()
-  const [errors, setErrors] = useState<Errors[]>([])
+  const [errors, setErrors] = useState<Error[]>([])
 
-  const makeTxToast = (txType: string, condition?: TransactionConditions, txHash?: string) => {
+  const makeTxToast = (txType: string, condition?: TransactionCondition, txHash?: string) => {
     const TxToast = (message: any, cond?: any) => (
       <StyledToast>
         <FlexDiv>
@@ -68,16 +66,16 @@ const ToastsProvider: React.FC = (props) => {
         <FlexDiv>
           {txHash && (
             <HyperLink
-              href={getEtherscanTxUrl(wallet.chainId ?? Number(DEFAULT_CHAIN_ID), txHash)}
+              href={getEtherscanTxUrl(wallet.chainId ?? DEFAULT_CHAIN_ID, txHash)}
               target="_blank"
               rel="noopener noreferrer"
             >
               <Button>Check on Etherscan</Button>
             </HyperLink>
           )}
-          {condition == TransactionConditions.PENDING ? (
+          {condition == TransactionCondition.PENDING ? (
             <Loader width={10} height={10} />
-          ) : condition == TransactionConditions.SUCCESS ? (
+          ) : condition == TransactionCondition.SUCCESS ? (
             <StyledCheckmark size={30} />
           ) : (
             <StyledWarning size={30} />
@@ -164,34 +162,70 @@ const ToastsProvider: React.FC = (props) => {
     </StyledToast>
   )
 
+  // Removes toasts from display on chainId or account change
+  useEffect(() => {
+    toast.dismiss()
+  }, [wallet.chainId, wallet.account])
+
   // Runs whenever the chainId changes
   useEffect(() => {
-    if (wallet.chainId !== Number(DEFAULT_CHAIN_ID) && wallet.chainId !== undefined) {
-      toast(
-        appToast(
-          `Wrong network, please switch to ${getNetworkName(Number(DEFAULT_CHAIN_ID))} on MetaMask`,
-          <StyledWarning size={30} />
-        ),
-        {
-          toastId: Errors.NETWORK,
-          type: toast.TYPE.ERROR,
-          position: toast.POSITION.BOTTOM_LEFT,
-          autoClose: false,
-          closeOnClick: false,
-          closeButton: false,
-          className: 'error-toast',
-        }
-      )
-      setErrors([...errors, Errors.NETWORK])
+    if (!wallet.errors) return
+    if (wallet.errors.includes(Error.UNSUPPORTED_NETWORK)) {
+      toast(appToast(`Unsupported network, please switch to a supported network`, <StyledWarning size={30} />), {
+        toastId: Error.UNSUPPORTED_NETWORK,
+        type: toast.TYPE.ERROR,
+        position: toast.POSITION.BOTTOM_LEFT,
+        autoClose: false,
+        closeOnClick: false,
+        closeButton: false,
+        className: 'error-toast',
+      })
     } else {
-      toast.dismiss(Errors.NETWORK)
-      setErrors((errors) => errors.filter((error) => error !== Errors.NETWORK))
+      toast.dismiss(Error.UNSUPPORTED_NETWORK)
     }
-  }, [wallet.chainId])
+    if (wallet.errors.includes(Error.NO_ETH_PROVIDER)) {
+      toast(appToast(`No Ethereum browser extension detected`, <StyledWarning size={30} />), {
+        toastId: Error.NO_ETH_PROVIDER,
+        type: toast.TYPE.ERROR,
+        position: toast.POSITION.BOTTOM_LEFT,
+        autoClose: false,
+        closeOnClick: false,
+        closeButton: false,
+        className: 'error-toast',
+      })
+    } else {
+      toast.dismiss(Error.NO_ETH_PROVIDER)
+    }
+    if (wallet.errors.includes(Error.NO_ACCESS)) {
+      toast(appToast(`Please authorize this website to access your Ethereum account`, <StyledWarning size={30} />), {
+        toastId: Error.NO_ACCESS,
+        type: toast.TYPE.ERROR,
+        position: toast.POSITION.BOTTOM_LEFT,
+        autoClose: false,
+        closeOnClick: false,
+        closeButton: false,
+        className: 'error-toast',
+      })
+    } else {
+      toast.dismiss(Error.NO_ACCESS)
+    }
+    if (wallet.errors.includes(Error.UNKNOWN)) {
+      toast(appToast(`An unknown error occurred`, <StyledWarning size={30} />), {
+        toastId: Error.UNKNOWN,
+        type: toast.TYPE.ERROR,
+        position: toast.POSITION.BOTTOM_LEFT,
+        autoClose: false,
+        closeOnClick: false,
+        closeButton: false,
+        className: 'error-toast',
+      })
+    } else {
+      toast.dismiss(Error.UNKNOWN)
+    }
+  }, [wallet.errors])
 
   const value = useMemo<ToastSystem>(
     () => ({
-      errors,
       makeTxToast: makeTxToast,
     }),
     [wallet]

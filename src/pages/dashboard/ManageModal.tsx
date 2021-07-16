@@ -37,8 +37,8 @@ import { useContracts } from '../../context/ContractsManager'
 
 /* import components */
 import { Modal, ModalHeader, ModalContent, ModalCloseButton } from '../../components/Modal'
-import { BoxChooseRow, BoxChooseCol, BoxChooseText, BoxChooseDate } from '../../components/Box/BoxChoose'
-import { Heading2, Text1 } from '../../components/Text'
+import { BoxChooseRow, BoxChooseCol, BoxChooseText } from '../../components/Box/BoxChoose'
+import { Heading2, Text1, Text3 } from '../../components/Text'
 import { PolicyInfo } from './PolicyInfo'
 import { Input } from '../../components/Input'
 import { Button } from '../../components/Button'
@@ -46,17 +46,17 @@ import { Loader } from '../../components/Loader'
 
 /* import constants */
 import { DAYS_PER_YEAR, NUM_BLOCKS_PER_DAY, GAS_LIMIT } from '../../constants'
-import { FunctionNames, TransactionConditions, Units } from '../../constants/enums'
+import { FunctionName, TransactionCondition, Unit } from '../../constants/enums'
+import { Policy } from '../../constants/types'
 
 /* import hooks */
-import { Policy } from '../../hooks/useGetter'
 import { useAppraisePosition, useGetCancelFee, useGetPolicyPrice, useGetQuote } from '../../hooks/usePolicy'
 
 /* import utils */
 import { getGasValue } from '../../utils/formatting'
-import { getDays } from '../../utils/time'
+import { getDays, getDateStringWithMonthName, getDateExtended } from '../../utils/time'
 
-type ManageModalProps = {
+interface ManageModalProps {
   closeModal?: any
   isOpen: boolean
   selectedPolicy: Policy | undefined
@@ -120,7 +120,7 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
   const extendPolicy = async () => {
     setModalLoading(true)
     if (!selectedProtocol) return
-    const txType = FunctionNames.EXTEND_POLICY
+    const txType = FunctionName.EXTEND_POLICY
     const extension = BigNumber.from(NUM_BLOCKS_PER_DAY * parseInt(extendedTime))
     try {
       const tx = await selectedProtocol.extendPolicy(selectedPolicy?.policyId, extension, {
@@ -133,19 +133,19 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
         gasLimit: GAS_LIMIT,
       })
       const txHash = tx.hash
-      const localTx = { hash: txHash, type: txType, value: '0', status: TransactionConditions.PENDING, unit: Units.ID }
+      const localTx = { hash: txHash, type: txType, value: '0', status: TransactionCondition.PENDING, unit: Unit.ID }
       setModalLoading(false)
       close()
       addLocalTransactions(localTx)
       wallet.reload()
-      makeTxToast(txType, TransactionConditions.PENDING, txHash)
+      makeTxToast(txType, TransactionCondition.PENDING, txHash)
       await tx.wait().then((receipt: any) => {
-        const status = receipt.status ? TransactionConditions.SUCCESS : TransactionConditions.FAILURE
+        const status = receipt.status ? TransactionCondition.SUCCESS : TransactionCondition.FAILURE
         makeTxToast(txType, status, txHash)
         wallet.reload()
       })
     } catch (err) {
-      makeTxToast(txType, TransactionConditions.CANCELLED)
+      makeTxToast(txType, TransactionCondition.CANCELLED)
       setModalLoading(false)
       wallet.reload()
     }
@@ -154,7 +154,7 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
   const cancelPolicy = async () => {
     setModalLoading(true)
     if (!selectedProtocol || !selectedPolicy) return
-    const txType = FunctionNames.CANCEL_POLICY
+    const txType = FunctionName.CANCEL_POLICY
     try {
       const tx = await selectedProtocol.cancelPolicy(selectedPolicy.policyId, {
         gasPrice: getGasValue(wallet.gasPrices.selected.value),
@@ -165,21 +165,21 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
         hash: txHash,
         type: txType,
         value: String(selectedPolicy.policyId),
-        status: TransactionConditions.PENDING,
-        unit: Units.ID,
+        status: TransactionCondition.PENDING,
+        unit: Unit.ID,
       }
       setModalLoading(false)
       close()
       addLocalTransactions(localTx)
       wallet.reload()
-      makeTxToast(txType, TransactionConditions.PENDING, txHash)
+      makeTxToast(txType, TransactionCondition.PENDING, txHash)
       await tx.wait().then((receipt: any) => {
-        const status = receipt.status ? TransactionConditions.SUCCESS : TransactionConditions.FAILURE
+        const status = receipt.status ? TransactionCondition.SUCCESS : TransactionCondition.FAILURE
         makeTxToast(txType, status, txHash)
         wallet.reload()
       })
     } catch (err) {
-      makeTxToast(txType, TransactionConditions.CANCELLED)
+      makeTxToast(txType, TransactionCondition.CANCELLED)
       setModalLoading(false)
       wallet.reload()
     }
@@ -191,7 +191,7 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
 
   *************************************************************************************/
 
-  const date = new Date()
+  const daysLeft = getDays(selectedPolicy ? parseFloat(selectedPolicy.expirationBlock) : 0, latestBlock)
   const blocksLeft = BigNumber.from(parseFloat(selectedPolicy ? selectedPolicy.expirationBlock : '0') - latestBlock)
   const coverAmount = BigNumber.from(selectedPolicy ? selectedPolicy.coverAmount : '0')
   const price = BigNumber.from(policyPrice || '0')
@@ -217,6 +217,14 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
         '.' +
         coverLimit.substring(coverLimit.length - 2, coverLimit.length)
     )
+  }
+
+  const getCurrentExpiration = (): string => {
+    return getDateStringWithMonthName(getDateExtended(daysLeft))
+  }
+
+  const getNewExpiration = (): string => {
+    return getDateStringWithMonthName(getDateExtended(parseFloat(extendedTime || '0')))
   }
 
   const handleCoverageChange = (coverageLimit: string) => {
@@ -265,7 +273,7 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
       if (!selectedPolicy || !wallet.chainId || !wallet.account || !isOpen) return
       setAsyncLoading(true)
       const positionAmount = await getAppraisePosition(
-        getProtocolByName(selectedPolicy.productName.toLowerCase()),
+        getProtocolByName(selectedPolicy.productName),
         selectedPolicy.positionContract
       )
       getCoverLimit(selectedPolicy, positionAmount)
@@ -323,12 +331,7 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
               <BoxChooseCol></BoxChooseCol>
               <BoxChooseRow mb={5}>
                 <BoxChooseCol>
-                  <BoxChooseText>
-                    Add days (0 -{' '}
-                    {DAYS_PER_YEAR -
-                      getDays(selectedPolicy ? parseFloat(selectedPolicy.expirationBlock) : 0, latestBlock)}{' '}
-                    days)
-                  </BoxChooseText>
+                  <BoxChooseText>Add days (0 - {DAYS_PER_YEAR - daysLeft} days)</BoxChooseText>
                 </BoxChooseCol>
                 <BoxChooseCol>
                   <Slider
@@ -338,10 +341,7 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
                     value={extendedTime == '' ? '0' : extendedTime}
                     onChange={(e) => setExtendedTime(e.target.value)}
                     min="0"
-                    max={
-                      DAYS_PER_YEAR -
-                      getDays(selectedPolicy ? parseFloat(selectedPolicy.expirationBlock) : 0, latestBlock)
-                    }
+                    max={DAYS_PER_YEAR - daysLeft}
                   />
                 </BoxChooseCol>
                 <BoxChooseCol>
@@ -358,33 +358,20 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
               </BoxChooseRow>
               <BoxChooseCol></BoxChooseCol>
               <BoxChooseRow mb={5}>
-                <BoxChooseDate>
-                  Current expiration{' '}
-                  <Input
-                    readOnly
-                    type="date"
-                    value={`${new Date(
-                      date.setDate(
-                        date.getDate() +
-                          getDays(selectedPolicy ? parseFloat(selectedPolicy.expirationBlock) : 0, latestBlock)
-                      )
-                    )
-                      .toISOString()
-                      .substr(0, 10)}`}
-                  />{' '}
-                  New expiration{' '}
-                  <Input
-                    readOnly
-                    type="date"
-                    value={`${new Date(date.setDate(date.getDate() + parseFloat(extendedTime || '0')))
-                      .toISOString()
-                      .substr(0, 10)}`}
-                  />
-                </BoxChooseDate>
+                {/* <BoxChooseDate> */}
+                <BoxChooseCol>
+                  <Text3 nowrap>Expiration: {getCurrentExpiration()}</Text3>
+                </BoxChooseCol>
+                <BoxChooseCol>
+                  <Text3 nowrap>New expiration: {getNewExpiration()}</Text3>
+                </BoxChooseCol>
+                {/* </BoxChooseDate> */}
               </BoxChooseRow>
               <BoxChooseRow mb={5} style={{ justifyContent: 'flex-end' }}>
                 {!asyncLoading ? (
-                  <Button onClick={() => extendPolicy()}>Update Policy</Button>
+                  <Button disabled={wallet.errors.length > 0} onClick={() => extendPolicy()}>
+                    Update Policy
+                  </Button>
                 ) : (
                   <Loader width={10} height={10} />
                 )}
@@ -412,7 +399,10 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
               </BoxChooseRow>
               <BoxChooseRow mb={10} style={{ justifyContent: 'flex-end' }}>
                 {policyPrice !== '' ? (
-                  <Button disabled={refundAmount.lte(parseEther(cancelFee))} onClick={() => cancelPolicy()}>
+                  <Button
+                    disabled={wallet.errors.length > 0 || refundAmount.lte(parseEther(cancelFee))}
+                    onClick={() => cancelPolicy()}
+                  >
                     Cancel Policy
                   </Button>
                 ) : (

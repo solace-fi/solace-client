@@ -25,10 +25,10 @@ import { useContracts } from '../../context/ContractsManager'
 import { Content } from '../../components/Layout'
 import { Heading1, Heading3 } from '../../components/Text'
 import { CardContainer, InvestmentCard, CardHeader, CardTitle, CardBlock } from '../../components/Card'
-import { Units } from '../../constants/enums'
+import { Unit } from '../../constants/enums'
 
 /* import hooks */
-import { useUserStakedValue } from '../../hooks/useUserStakedValue'
+import { useUserStakedValue } from '../../hooks/useFarm'
 import { useUserPendingRewards, useUserRewardsPerDay } from '../../hooks/useRewards'
 
 /* import utils */
@@ -63,19 +63,19 @@ export const MyInvestments = () => {
           <CardHeader>
             <CardTitle h2>Capital Pool</CardTitle>
             <Heading3>
-              {wallet.account ? truncateBalance(parseFloat(cpUserStakeValue), 2) : 0} {Units.ETH}
+              {wallet.account ? truncateBalance(parseFloat(cpUserStakeValue), 2) : 0} {Unit.ETH}
             </Heading3>
           </CardHeader>
           <CardBlock>
             <CardTitle t2>Daily Earnings</CardTitle>
             <CardTitle t3>
-              {wallet.account ? truncateBalance(parseFloat(cpUserRewardsPerDay), 2) : 0} {Units.SOLACE}
+              {wallet.account ? truncateBalance(parseFloat(cpUserRewardsPerDay), 2) : 0} {Unit.SOLACE}
             </CardTitle>
           </CardBlock>
           <CardBlock>
             <CardTitle t2>Total Earnings</CardTitle>
             <CardTitle t3>
-              {wallet.account ? truncateBalance(parseFloat(cpUserRewards), 2) : 0} {Units.SOLACE}
+              {wallet.account ? truncateBalance(parseFloat(cpUserRewards), 2) : 0} {Unit.SOLACE}
             </CardTitle>
           </CardBlock>
         </InvestmentCard>
@@ -83,19 +83,19 @@ export const MyInvestments = () => {
           <CardHeader>
             <CardTitle h2>Liquidity Pool</CardTitle>
             <Heading3>
-              {wallet.account ? truncateBalance(parseFloat(lpUserStakeValue), 2) : 0} {Units.SOLACE}
+              {wallet.account ? truncateBalance(parseFloat(lpUserStakeValue), 2) : 0} {Unit.SOLACE}
             </Heading3>
           </CardHeader>
           <CardBlock>
             <CardTitle t2>Daily Earnings</CardTitle>
             <CardTitle t3>
-              {wallet.account ? truncateBalance(parseFloat(lpUserRewardsPerDay), 2) : 0} {Units.SOLACE}
+              {wallet.account ? truncateBalance(parseFloat(lpUserRewardsPerDay), 2) : 0} {Unit.SOLACE}
             </CardTitle>
           </CardBlock>
           <CardBlock>
             <CardTitle t2>Total Earnings</CardTitle>
             <CardTitle t3>
-              {wallet.account ? truncateBalance(parseFloat(lpUserRewards), 2) : 0} {Units.SOLACE}
+              {wallet.account ? truncateBalance(parseFloat(lpUserRewards), 2) : 0} {Unit.SOLACE}
             </CardTitle>
           </CardBlock>
         </InvestmentCard>

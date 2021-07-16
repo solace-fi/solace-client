@@ -36,8 +36,8 @@ import { Heading1 } from '../../components/Text'
 import { ManageModal } from '../dashboard/ManageModal'
 
 /* import constants */
-import { PolicyStates } from '../../constants/enums'
-import { Policy } from '../../hooks/useGetter'
+import { PolicyState } from '../../constants/enums'
+import { Policy, Token } from '../../constants/types'
 
 /* import hooks */
 import { usePolicyGetter } from '../../hooks/useGetter'
@@ -45,7 +45,7 @@ import { useGetLatestBlockNumber } from '../../hooks/useGetLatestBlockNumber'
 
 /* import utils */
 import { fixedTokenPositionBalance, truncateBalance } from '../../utils/formatting'
-import { getPositions } from '../../utils/paclas'
+import { policyConfig } from '../../config/chainConfig'
 
 export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigation }) => {
   const { protocol, balances, loading } = formData
@@ -56,7 +56,7 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
 
   *************************************************************************************/
 
-  const { account, chainId, isActive, version, dataVersion } = useWallet()
+  const { account, chainId, isActive, version, dataVersion, library, errors } = useWallet()
   const { getPolicies } = usePolicyGetter()
   const { setSelectedProtocolByName } = useContracts()
   const latestBlock = useGetLatestBlockNumber()
@@ -85,7 +85,7 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
 
   *************************************************************************************/
 
-  const handleChange = (position: any) => {
+  const handleChange = (position: Token) => {
     setForm({
       target: {
         name: 'position',
@@ -96,9 +96,9 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
   }
 
   const getBalances = async () => {
-    if (!account) return
-    if (chainId == 1 || chainId == 4) {
-      const balances = await getPositions(protocol.name.toLowerCase(), chainId, account)
+    if (!account || !chainId) return
+    if (policyConfig[chainId]) {
+      const balances: Token[] = await policyConfig[chainId].getBalances(account, library)
       setForm({
         target: {
           name: 'balances',
@@ -109,11 +109,9 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
   }
 
   const userHasActiveProductPosition = (product: string, position: string): boolean => {
-    // tuple data type: [product, position, isActive]
-    // [['compound', 'eth', true], ['compound', 'dai', false],..,]
     const userPolicyPositions: [string, string, boolean][] = []
-    policies.forEach((policy: any) => {
-      userPolicyPositions.push([policy.productName, policy.positionName, policy.status === PolicyStates.ACTIVE])
+    policies.forEach((policy: Policy) => {
+      userPolicyPositions.push([policy.productName, policy.positionName, policy.status === PolicyState.ACTIVE])
     })
     for (const policyProductPosition of userPolicyPositions) {
       if (product === policyProductPosition[0] && position === policyProductPosition[1] && policyProductPosition[2]) {
@@ -125,17 +123,14 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
 
   const openManageModal = async (policy: Policy) => {
     setShowManageModal((prev) => !prev)
-    setPolicy(policy)
+    setSelectedProtocolByName(policy.productName)
+    document.body.style.overflowY = 'hidden'
+    setSelectedPolicy(policy)
   }
 
   const closeModal = () => {
     setShowManageModal(false)
-  }
-
-  const setPolicy = (policy: Policy) => {
-    setSelectedProtocolByName(policy.productName.toLowerCase())
-    document.body.style.overflowY = 'hidden'
-    setSelectedPolicy(policy)
+    document.body.style.overflowY = 'scroll'
   }
 
   /*************************************************************************************
@@ -234,13 +229,15 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
       {!loading && positionsLoaded ? (
         <Fragment>
           <CardContainer>
-            {balances.map((position: any) => {
+            {balances.map((position: Token) => {
               return (
                 <PositionCard
                   key={position.underlying.address}
                   isHighlight={userHasActiveProductPosition(protocol.name, position.underlying.symbol)}
                   onClick={
-                    userHasActiveProductPosition(protocol.name, position.underlying.symbol)
+                    errors.length > 0
+                      ? undefined
+                      : userHasActiveProductPosition(protocol.name, position.underlying.symbol)
                       ? () =>
                           openManageModal(
                             policies.filter(

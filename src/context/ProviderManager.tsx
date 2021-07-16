@@ -21,7 +21,7 @@ and write to the blockchain.
 
 */
 
-export type ProviderContextType = {
+type ProviderContextType = {
   ethProvider?: Provider
 }
 
@@ -40,16 +40,16 @@ const ProviderManager: React.FC = ({ children }) => {
   const [ethProvider, setEthProvider] = useState<Provider>()
   const wallet = useWallet()
 
-  const getProviders = async () => {
+  const getProvider = async () => {
     const provider = new JsonRpcProvider(
-      `https://eth-${getNetworkName(wallet.chainId ?? Number(DEFAULT_CHAIN_ID))}.alchemyapi.io/v2/${ALCHEMY_API_KEY}`
+      `https://eth-${getNetworkName(wallet.chainId ?? DEFAULT_CHAIN_ID)}.alchemyapi.io/v2/${ALCHEMY_API_KEY}`
     )
     setEthProvider(provider)
   }
 
   // Runs only when component mounts for the first time
   useEffect(() => {
-    getProviders()
+    getProvider()
   }, [wallet.chainId])
 
   const value = React.useMemo(
