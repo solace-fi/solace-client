@@ -26,6 +26,10 @@ export const contractConfig: any = {
         addr: process.env.REACT_APP_RINKEBY_VAULT_ADDR,
         abi: vaultABI,
       },
+      treasury: {
+        addr: process.env.REACT_APP_RINKEBY_TREASURY_ADDR,
+        abi: treasuryABI,
+      },
       solace: {
         addr: process.env.REACT_APP_RINKEBY_SOLACE_ADDR,
         abi: solaceABI,

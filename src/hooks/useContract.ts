@@ -20,13 +20,13 @@ export function useGetContract(address: string, abi: any, hasSigner = true): Con
   }, [address, abi, library, hasSigner, account])
 }
 
-export function useGetProductContracts(): SupportedProduct[] | null {
+export function useGetProductContracts(): SupportedProduct[] {
   const { library, account, chainId } = useWallet()
   const chainID = chainId ?? DEFAULT_CHAIN_ID
   const _contractConfig = contractConfig[String(chainID)] ?? contractConfig[String(DEFAULT_CHAIN_ID)]
 
   return useMemo(() => {
-    if (!library) return null
+    if (!library) return []
     const signer = account ? true : false
     for (let i = 0; i < _contractConfig.supportedProducts.length; i++) {
       const name = _contractConfig.supportedProducts[i].name

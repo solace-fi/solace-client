@@ -17,6 +17,7 @@ the web application mainly reads the contracts.
 type Contracts = {
   master?: Contract | null
   vault?: Contract | null
+  treasury?: Contract | null
   solace?: Contract | null
   cpFarm?: Contract | null
   lpFarm?: Contract | null
@@ -25,7 +26,7 @@ type Contracts = {
   weth?: Contract | null
   claimsEscrow?: Contract | null
   policyManager?: Contract | null
-  products?: SupportedProduct[] | null
+  products?: SupportedProduct[]
   selectedProtocol: Contract | null
   getProtocolByName: (productName: string) => Contract | null
   setSelectedProtocolByName: (productName: string) => void
@@ -34,6 +35,7 @@ type Contracts = {
 const ContractsContext = createContext<Contracts>({
   master: undefined,
   vault: undefined,
+  treasury: undefined,
   solace: undefined,
   cpFarm: undefined,
   lpFarm: undefined,
@@ -42,7 +44,7 @@ const ContractsContext = createContext<Contracts>({
   weth: undefined,
   claimsEscrow: undefined,
   policyManager: undefined,
-  products: undefined,
+  products: [],
   selectedProtocol: null,
   getProtocolByName: () => null,
   setSelectedProtocolByName: () => undefined,
@@ -56,6 +58,7 @@ const ContractsProvider: React.FC = (props) => {
 
   const master = useGetContract(keyContracts.master.addr, keyContracts.master.abi)
   const vault = useGetContract(keyContracts.vault.addr, keyContracts.vault.abi)
+  const treasury = useGetContract(keyContracts.treasury.addr, keyContracts.treasury.abi)
   const solace = useGetContract(keyContracts.solace.addr, keyContracts.solace.abi)
   const cpFarm = useGetContract(keyContracts.cpFarm.addr, keyContracts.cpFarm.abi)
   const lpFarm = useGetContract(keyContracts.lpFarm.addr, keyContracts.lpFarm.abi)
@@ -67,7 +70,7 @@ const ContractsProvider: React.FC = (props) => {
   const products = useGetProductContracts()
 
   const getProtocolByName = (productName: string): Contract | null => {
-    const foundProduct = products?.filter((product) => product.name == productName)
+    const foundProduct = products.filter((product) => product.name == productName)
     if (foundProduct && foundProduct.length > 0) return foundProduct[0].contract
     return null
   }
@@ -81,6 +84,7 @@ const ContractsProvider: React.FC = (props) => {
     () => ({
       master,
       vault,
+      treasury,
       solace,
       cpFarm,
       lpFarm,
@@ -97,6 +101,7 @@ const ContractsProvider: React.FC = (props) => {
     [
       master,
       vault,
+      treasury,
       solace,
       cpFarm,
       lpFarm,
