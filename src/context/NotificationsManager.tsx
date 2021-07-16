@@ -46,12 +46,10 @@ const StyledToast = styled.div`
 `
 
 type ToastSystem = {
-  errors: any[]
   makeTxToast: (txType: string, condition: TransactionCondition, txHash?: string) => void
 }
 
 const ToastsContext = createContext<ToastSystem>({
-  errors: [undefined],
   makeTxToast: () => undefined,
 })
 
@@ -164,11 +162,18 @@ const ToastsProvider: React.FC = (props) => {
     </StyledToast>
   )
 
+  // Removes toasts from display on chainId or account change
+  useEffect(() => {
+    toast.dismiss()
+  }, [wallet.chainId, wallet.account])
+
   // Runs whenever the chainId changes
   useEffect(() => {
-    if (contractConfig[String(wallet.chainId)] == undefined && wallet.chainId) {
+    console.log(wallet.errors)
+    if (!wallet.errors) return
+    if (wallet.errors.includes(Error.UNSUPPORTED_NETWORK)) {
       toast(appToast(`Unsupported network, please switch to a supported network`, <StyledWarning size={30} />), {
-        toastId: Error.NETWORK,
+        toastId: Error.UNSUPPORTED_NETWORK,
         type: toast.TYPE.ERROR,
         position: toast.POSITION.BOTTOM_LEFT,
         autoClose: false,
@@ -176,16 +181,52 @@ const ToastsProvider: React.FC = (props) => {
         closeButton: false,
         className: 'error-toast',
       })
-      setErrors([...errors, Error.NETWORK])
     } else {
-      toast.dismiss(Error.NETWORK)
-      setErrors((errors) => errors.filter((error) => error !== Error.NETWORK))
+      toast.dismiss(Error.UNSUPPORTED_NETWORK)
     }
-  }, [wallet.chainId])
+    if (wallet.errors.includes(Error.NO_ETH_PROVIDER)) {
+      toast(appToast(`No Ethereum browser extension detected`, <StyledWarning size={30} />), {
+        toastId: Error.NO_ETH_PROVIDER,
+        type: toast.TYPE.ERROR,
+        position: toast.POSITION.BOTTOM_LEFT,
+        autoClose: false,
+        closeOnClick: false,
+        closeButton: false,
+        className: 'error-toast',
+      })
+    } else {
+      toast.dismiss(Error.NO_ETH_PROVIDER)
+    }
+    if (wallet.errors.includes(Error.NO_ACCESS)) {
+      toast(appToast(`Please authorize this website to access your Ethereum account`, <StyledWarning size={30} />), {
+        toastId: Error.NO_ACCESS,
+        type: toast.TYPE.ERROR,
+        position: toast.POSITION.BOTTOM_LEFT,
+        autoClose: false,
+        closeOnClick: false,
+        closeButton: false,
+        className: 'error-toast',
+      })
+    } else {
+      toast.dismiss(Error.NO_ACCESS)
+    }
+    if (wallet.errors.includes(Error.UNKNOWN)) {
+      toast(appToast(`An unknown error occurred`, <StyledWarning size={30} />), {
+        toastId: Error.UNKNOWN,
+        type: toast.TYPE.ERROR,
+        position: toast.POSITION.BOTTOM_LEFT,
+        autoClose: false,
+        closeOnClick: false,
+        closeButton: false,
+        className: 'error-toast',
+      })
+    } else {
+      toast.dismiss(Error.UNKNOWN)
+    }
+  }, [wallet.errors])
 
   const value = useMemo<ToastSystem>(
     () => ({
-      errors,
       makeTxToast: makeTxToast,
     }),
     [wallet]

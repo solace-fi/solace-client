@@ -68,7 +68,7 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
   const wallet = useWallet()
   const { addLocalTransactions } = useUserData()
   const { selectedProtocol } = useContracts()
-  const { errors, makeTxToast } = useToasts()
+  const { makeTxToast } = useToasts()
 
   /*************************************************************************************
 
@@ -278,7 +278,7 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
                   {coveredAssets} ETH
                 </BoxChooseText>
                 <Button
-                  disabled={errors.length > 0}
+                  disabled={wallet.errors.length > 0}
                   ml={10}
                   pt={4}
                   pb={4}
@@ -354,7 +354,7 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
             {!loading ? (
               <Button
                 onClick={() => buyPolicy()}
-                disabled={errors.length > 0 || parseEther(coveredAssets).gt(parseEther(maxCoverPerUser))}
+                disabled={wallet.errors.length > 0 || parseEther(coveredAssets).gt(parseEther(maxCoverPerUser))}
               >
                 Buy
               </Button>

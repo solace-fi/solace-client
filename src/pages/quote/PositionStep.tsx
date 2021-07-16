@@ -23,7 +23,6 @@ import React, { Fragment, useEffect, useRef, useState } from 'react'
 /* import managers */
 import { useWallet } from '../../context/WalletManager'
 import { useContracts } from '../../context/ContractsManager'
-import { useToasts } from '../../context/NotificationsManager'
 
 /* import components */
 import { BoxItemUnits } from '../../components/Box'
@@ -57,11 +56,10 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
 
   *************************************************************************************/
 
-  const { account, chainId, isActive, version, dataVersion, library } = useWallet()
+  const { account, chainId, isActive, version, dataVersion, library, errors } = useWallet()
   const { getPolicies } = usePolicyGetter()
   const { setSelectedProtocolByName } = useContracts()
   const latestBlock = useGetLatestBlockNumber()
-  const { errors } = useToasts()
 
   /*************************************************************************************
 

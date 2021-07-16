@@ -77,7 +77,7 @@ export const Statistics = () => {
   *************************************************************************************/
   const wallet = useWallet()
   const { master, vault, solace, cpFarm, lpFarm, lpToken } = useContracts()
-  const { errors, makeTxToast } = useToasts()
+  const { makeTxToast } = useToasts()
   const { addLocalTransactions } = useUserData()
   const capitalPoolSize = useCapitalPoolSize()
   const solaceBalance = useSolaceBalance()
@@ -207,7 +207,10 @@ export const Statistics = () => {
             </BoxItemValue>
           </BoxItem>
           <BoxItem>
-            <Button disabled={errors.length > 0 || fixed(parseFloat(totalUserRewards), 6) <= 0} onClick={claimRewards}>
+            <Button
+              disabled={wallet.errors.length > 0 || fixed(parseFloat(totalUserRewards), 6) <= 0}
+              onClick={claimRewards}
+            >
               Claim
             </Button>
           </BoxItem>

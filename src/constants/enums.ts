@@ -6,7 +6,10 @@ export enum TransactionCondition {
 }
 
 export enum Error {
-  NETWORK = 'network',
+  UNSUPPORTED_NETWORK,
+  NO_ETH_PROVIDER,
+  UNKNOWN,
+  NO_ACCESS,
 }
 
 export enum FunctionName {

@@ -128,7 +128,7 @@ function Invest(): any {
   const scpBalance = useScpBalance()
   const { txHistory, amounts } = useTransactionDetails()
   const wallet = useWallet()
-  const { errors, makeTxToast } = useToasts()
+  const { makeTxToast } = useToasts()
   const { localTransactions, addLocalTransactions } = useUserData()
   const { master, vault, solace, cpFarm, lpFarm, lpToken, weth, registry } = useContracts()
   const tokenAllowance = useTokenAllowance(contractForAllowance, spenderAddress)
@@ -433,15 +433,15 @@ function Invest(): any {
     return tokenId
   }
 
-  const sortTokens = (tokenA: string, tokenB: string) => {
-    return BN.from(tokenA).lt(BN.from(tokenB)) ? [tokenA, tokenB] : [tokenB, tokenA]
-  }
-
   /*************************************************************************************
 
   Local functions
 
   *************************************************************************************/
+
+  const sortTokens = (tokenA: string, tokenB: string) => {
+    return BN.from(tokenA).lt(BN.from(tokenB)) ? [tokenA, tokenB] : [tokenB, tokenA]
+  }
 
   const handleSelectChange = (option: GasFeeOption) => {
     setSelectedGasOption(option)
@@ -478,14 +478,11 @@ function Invest(): any {
 
   const getAssetBalanceByFunc = (): BN => {
     switch (func) {
-      // if depositing into vault or eth into farm, check eth
       case FunctionName.DEPOSIT:
         return parseEther(ethBalance)
-      // if depositing cp into farm or withdrawing from vault, check scp
       case FunctionName.DEPOSIT_CP:
       case FunctionName.WITHDRAW:
         return parseEther(scpBalance)
-      // if withdrawing cp from the farm, check user stake
       case FunctionName.WITHDRAW_ETH:
         return parseEther(cpUserStakeValue)
       default:
@@ -594,7 +591,7 @@ function Invest(): any {
             </ModalCell>
             <ModalCell t3>
               <Button
-                disabled={errors.length > 0}
+                disabled={wallet.errors.length > 0}
                 onClick={() => {
                   setAmount(calculateMaxEth().toString())
                   setMaxSelected(true)
@@ -647,7 +644,7 @@ function Invest(): any {
                     {!hasApproval(tokenAllowance, amount ? parseEther(amount).toString() : '0') &&
                       tokenAllowance != '' && (
                         <Button
-                          disabled={(isAppropriateAmount() ? false : true) || errors.length > 0}
+                          disabled={(isAppropriateAmount() ? false : true) || wallet.errors.length > 0}
                           onClick={() => approve()}
                         >
                           Approve
@@ -658,7 +655,7 @@ function Invest(): any {
                       disabled={
                         (isAppropriateAmount() ? false : true) ||
                         !hasApproval(tokenAllowance, amount ? parseEther(amount).toString() : '0') ||
-                        errors.length > 0
+                        wallet.errors.length > 0
                       }
                       onClick={handleCallbackFunc}
                     >
@@ -668,7 +665,7 @@ function Invest(): any {
                 ) : (
                   <Button
                     hidden={loading}
-                    disabled={(isAppropriateAmount() ? false : true) || errors.length > 0}
+                    disabled={(isAppropriateAmount() ? false : true) || wallet.errors.length > 0}
                     onClick={handleCallbackFunc}
                   >
                     Confirm
@@ -716,13 +713,13 @@ function Invest(): any {
                 <TableData textAlignRight>
                   <TableDataGroup width={200}>
                     <Button
-                      disabled={errors.length > 0}
+                      disabled={wallet.errors.length > 0}
                       onClick={() => openModal(FunctionName.DEPOSIT, 'Deposit', getUnit(FunctionName.DEPOSIT))}
                     >
                       Deposit
                     </Button>
                     <Button
-                      disabled={errors.length > 0}
+                      disabled={wallet.errors.length > 0}
                       onClick={() => openModal(FunctionName.WITHDRAW, 'Withdraw', getUnit(FunctionName.WITHDRAW))}
                     >
                       Withdraw
@@ -761,13 +758,13 @@ function Invest(): any {
                 <TableData textAlignRight>
                   <TableDataGroup width={200}>
                     <Button
-                      disabled={errors.length > 0}
+                      disabled={wallet.errors.length > 0}
                       onClick={() => openModal(FunctionName.DEPOSIT_CP, 'Deposit', getUnit(FunctionName.DEPOSIT_CP))}
                     >
                       Deposit
                     </Button>
                     <Button
-                      disabled={errors.length > 0}
+                      disabled={wallet.errors.length > 0}
                       onClick={() =>
                         openModal(FunctionName.WITHDRAW_ETH, 'Withdraw', getUnit(FunctionName.WITHDRAW_ETH))
                       }
@@ -808,13 +805,13 @@ function Invest(): any {
                 <TableData textAlignRight>
                   <TableDataGroup width={200}>
                     <Button
-                      disabled={errors.length > 0}
+                      disabled={wallet.errors.length > 0}
                       onClick={() => openModal(FunctionName.DEPOSIT_LP, 'Deposit', getUnit(FunctionName.DEPOSIT_LP))}
                     >
                       Deposit
                     </Button>
                     <Button
-                      disabled={errors.length > 0}
+                      disabled={wallet.errors.length > 0}
                       onClick={() => openModal(FunctionName.WITHDRAW_LP, 'Withdraw', getUnit(FunctionName.WITHDRAW_LP))}
                     >
                       Withdraw

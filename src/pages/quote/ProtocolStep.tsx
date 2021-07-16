@@ -32,7 +32,7 @@ import { DAYS_PER_YEAR, NUM_BLOCKS_PER_DAY } from '../../constants'
 
 /* import context */
 import { useContracts } from '../../context/ContractsManager'
-import { useToasts } from '../../context/NotificationsManager'
+import { useWallet } from '../../context/WalletManager'
 
 /* import components */
 import { Button } from '../../components/Button'
@@ -71,7 +71,7 @@ export const ProtocolStep: React.FC<formProps> = ({ setForm, navigation }) => {
   const availableCoverages = useGetAvailableCoverages()
   const yearlyCosts = useGetYearlyCosts()
   const { products, setSelectedProtocolByName } = useContracts()
-  const { errors } = useToasts()
+  const wallet = useWallet()
 
   /*************************************************************************************
 
@@ -137,7 +137,7 @@ export const ProtocolStep: React.FC<formProps> = ({ setForm, navigation }) => {
                 <TableRow
                   key={protocol}
                   onClick={
-                    errors.length > 0
+                    wallet.errors.length > 0
                       ? undefined
                       : () =>
                           handleChange({
@@ -173,7 +173,7 @@ export const ProtocolStep: React.FC<formProps> = ({ setForm, navigation }) => {
                   </TableData>
                   <TableData>{handleAvailableCoverage(protocol)} ETH</TableData>
                   <TableData textAlignRight>
-                    <Button disabled={errors.length > 0}>Select</Button>
+                    <Button disabled={wallet.errors.length > 0}>Select</Button>
                   </TableData>
                 </TableRow>
               )

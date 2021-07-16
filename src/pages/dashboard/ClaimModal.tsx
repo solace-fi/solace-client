@@ -91,7 +91,7 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
   const tokenAllowance = useTokenAllowance(contractForAllowance, spenderAddress)
   const { addLocalTransactions } = useUserData()
   const { selectedProtocol, getProtocolByName } = useContracts()
-  const { errors, makeTxToast } = useToasts()
+  const { makeTxToast } = useToasts()
   const wallet = useWallet()
 
   /*************************************************************************************
@@ -193,6 +193,8 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
 
   *************************************************************************************/
 
+  console.log(wallet.errors)
+
   return (
     <Modal isOpen={isOpen}>
       <ModalHeader>
@@ -238,7 +240,7 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
               <ButtonWrapper>
                 <Button
                   widthP={100}
-                  disabled={errors.length > 0 || !assessment?.lossEventDetected}
+                  disabled={wallet.errors.length > 0 || !assessment?.lossEventDetected}
                   onClick={() => approve()}
                 >
                   Approve Solace Protocol to transfer your{' '}
@@ -258,7 +260,7 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
                 <Button
                   widthP={100}
                   disabled={
-                    errors.length > 0 ||
+                    wallet.errors.length > 0 ||
                     !assessment?.lossEventDetected ||
                     !hasApproval(tokenAllowance, assessment?.amountIn)
                   }

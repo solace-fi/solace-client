@@ -101,7 +101,7 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
   const { selectedProtocol, getProtocolByName } = useContracts()
   const wallet = useWallet()
   const { addLocalTransactions } = useUserData()
-  const { errors, makeTxToast } = useToasts()
+  const { makeTxToast } = useToasts()
   const policyPrice = useGetPolicyPrice(selectedPolicy ? selectedPolicy.policyId : 0)
   const cancelFee = useGetCancelFee()
   const quote = useGetQuote(
@@ -369,7 +369,7 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
               </BoxChooseRow>
               <BoxChooseRow mb={5} style={{ justifyContent: 'flex-end' }}>
                 {!asyncLoading ? (
-                  <Button disabled={errors.length > 0} onClick={() => extendPolicy()}>
+                  <Button disabled={wallet.errors.length > 0} onClick={() => extendPolicy()}>
                     Update Policy
                   </Button>
                 ) : (
@@ -400,7 +400,7 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
               <BoxChooseRow mb={10} style={{ justifyContent: 'flex-end' }}>
                 {policyPrice !== '' ? (
                   <Button
-                    disabled={errors.length > 0 || refundAmount.lte(parseEther(cancelFee))}
+                    disabled={wallet.errors.length > 0 || refundAmount.lte(parseEther(cancelFee))}
                     onClick={() => cancelPolicy()}
                   >
                     Cancel Policy
