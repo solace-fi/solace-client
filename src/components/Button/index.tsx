@@ -24,14 +24,10 @@ export const ButtonBaseCss = css<ButtonProps & GeneralElementProps>`
   text-align: center;
   transition: all 0.2s, color 0.2s;
   cursor: pointer;
-  ${(props) =>
-    props.p !== undefined ||
-    props.pt !== undefined ||
-    props.pl !== undefined ||
-    props.pr !== undefined ||
-    props.pb !== undefined
-      ? null
-      : `padding: 4px 16px;`}
+  ${(props) => props.pt !== undefined && 'padding-top: 4px;'}
+  ${(props) => props.pb !== undefined && 'padding-bottom: 4px;'}
+  ${(props) => props.pl !== undefined && 'padding-left: 16px;'}
+  ${(props) => props.pr !== undefined && 'padding-right: 16px;'}
   ${(props) => props.width == undefined && 'min-width: 90px;'}
   ${(props) => props.height == undefined && 'min-height: 34px;'}
   visibility: ${(props) => (props.hidden ? 'hidden;' : 'visible;')};

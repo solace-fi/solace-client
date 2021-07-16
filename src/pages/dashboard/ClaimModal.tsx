@@ -197,10 +197,8 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
 
   *************************************************************************************/
 
-  console.log(wallet.errors)
-
   return (
-    <Modal isOpen={isOpen} handleClose={handleClose} modalTitle={'Policy Claim'} modalLoading={modalLoading}>
+    <Modal isOpen={isOpen} handleClose={handleClose} modalTitle={'Policy Claim'} disableCloseButton={modalLoading}>
       <Fragment>
         <PolicyInfo selectedPolicy={selectedPolicy} latestBlock={latestBlock} asyncLoading={asyncLoading} />
         {!modalLoading && !asyncLoading ? (
@@ -230,7 +228,7 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
                 <Heading2 autoAlign>{formatEther(assessment?.amountOut || 0)} ETH</Heading2>
               </BoxChooseCol>
             </BoxChooseRow>
-            <SmallBox mt={10} collapse={assessment?.lossEventDetected}>
+            <SmallBox transparent mt={10} collapse={assessment?.lossEventDetected}>
               <Text2 autoAlign error={!assessment?.lossEventDetected}>
                 No loss event detected, unable to submit claims yet.
               </Text2>

@@ -18,7 +18,7 @@ type LocalTx = {
 }
 
 type UserData = {
-  localTransactions: any[] | undefined
+  localTransactions: LocalTx[]
   addLocalTransactions: (txToAdd: LocalTx) => void
   updateLocalTransactions: (txToUpdate: LocalTx, newStatus: string) => void
   deleteLocalTransactions: (txsToDelete: []) => void
@@ -26,7 +26,7 @@ type UserData = {
 }
 
 const UserDataContext = createContext<UserData>({
-  localTransactions: undefined,
+  localTransactions: [],
   addLocalTransactions: () => undefined,
   updateLocalTransactions: () => undefined,
   deleteLocalTransactions: () => undefined,
@@ -35,7 +35,7 @@ const UserDataContext = createContext<UserData>({
 
 const UserDataProvider: React.FC = (props) => {
   const { account, chainId, disconnect } = useWallet()
-  const [localTxs, setLocalTxs, removeLocalTxs] = useLocalStorage<LocalTx[] | undefined>('solace_loc_txs', [])
+  const [localTxs, setLocalTxs, removeLocalTxs] = useLocalStorage<LocalTx[]>('solace_loc_txs', [])
 
   const addLocalTransactions = (txToAdd: LocalTx) => {
     if (localTxs !== undefined) {
@@ -75,7 +75,7 @@ const UserDataProvider: React.FC = (props) => {
 
   const value = useMemo<UserData>(
     () => ({
-      localTransactions: localTxs,
+      localTransactions: localTxs || [],
       addLocalTransactions,
       updateLocalTransactions,
       deleteLocalTransactions,

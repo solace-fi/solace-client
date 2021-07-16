@@ -294,6 +294,7 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
             </BoxChooseCol>
           </BoxChooseRow>
           <SmallBox
+            transparent
             outlined
             error
             collapse={!parseEther(coveredAssets).gt(parseEther(maxCoverPerUser))}

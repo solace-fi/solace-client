@@ -289,7 +289,7 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
   *************************************************************************************/
 
   return (
-    <Modal isOpen={isOpen} handleClose={handleClose} modalTitle={'Policy Management'} modalLoading={modalLoading}>
+    <Modal isOpen={isOpen} handleClose={handleClose} modalTitle={'Policy Management'} disableCloseButton={modalLoading}>
       <Fragment>
         <PolicyInfo selectedPolicy={selectedPolicy} latestBlock={latestBlock} asyncLoading={asyncLoading} />
         {!modalLoading ? (

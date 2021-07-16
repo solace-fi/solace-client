@@ -6,7 +6,7 @@ export interface ModalProps {
   handleClose: () => void
   isOpen: boolean
   modalTitle: string
-  modalLoading: boolean
+  disableCloseButton: boolean
 }
 
 export interface ModalButtonProps extends ClickProps {

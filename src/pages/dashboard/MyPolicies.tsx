@@ -93,7 +93,16 @@ export const MyPolicies: React.FC<MyPoliciesProps> = ({ openClaimModal, openMana
       setLoading(false)
     }
     fetchPolicies()
-  }, [wallet.account, wallet.isActive, wallet.version, wallet.chainId])
+  }, [wallet.account, wallet.isActive, wallet.chainId])
+
+  useEffect(() => {
+    const fetchPolicies = async () => {
+      if (!wallet.isActive || !wallet.account) return
+      const policies = await getPolicies(wallet.account)
+      setPolicies(policies)
+    }
+    fetchPolicies()
+  }, [wallet.dataVersion, wallet.version])
 
   /*************************************************************************************
 

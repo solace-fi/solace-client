@@ -450,7 +450,7 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
   }, [isOpen])
 
   return (
-    <Modal isOpen={isOpen} handleClose={handleClose} modalTitle={modalTitle} modalLoading={modalLoading}>
+    <Modal isOpen={isOpen} handleClose={handleClose} modalTitle={modalTitle} disableCloseButton={modalLoading}>
       <Fragment>
         <ModalRow>
           <ModalCell t2>{getUnit(func)}</ModalCell>

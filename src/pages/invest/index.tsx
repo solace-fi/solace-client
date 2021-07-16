@@ -26,7 +26,6 @@ import { PoolModal } from './PoolModal'
 import { RiskBackingCapitalPool } from './RiskBackingCapitalPool'
 import { CapitalProviderPool } from './CapitalProviderPool'
 import { LiquidityPool } from './LiquidityPool'
-import { TransactionHistory } from './TransactionHistory'
 
 function Invest(): any {
   /*************************************************************************************
@@ -68,7 +67,6 @@ function Invest(): any {
       <RiskBackingCapitalPool openModal={openModal} />
       <CapitalProviderPool openModal={openModal} />
       <LiquidityPool openModal={openModal} />
-      <TransactionHistory />
     </Fragment>
   )
 }

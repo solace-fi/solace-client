@@ -135,7 +135,7 @@ export const MyClaims = () => {
             {claimDetails.map((claim: ClaimDetails) => {
               return (
                 <ClaimCard key={claim.id}>
-                  <Box pt={20} pb={20} green={claim.canWithdraw}>
+                  <Box pt={20} pb={20} glow green={claim.canWithdraw}>
                     <BoxItem>
                       <BoxItemTitle h3>ID</BoxItemTitle>
                       <BoxItemValue h3>{claim.id}</BoxItemValue>

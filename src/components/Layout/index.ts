@@ -11,6 +11,21 @@ export const GlobalStyle = createGlobalStyle`
     color: #fff;
     background: linear-gradient(113.7deg, #b621ff 0%, #21d3fc 100%);
     background-attachment: fixed;
+    ::-webkit-scrollbar {
+      width: 10px;
+    }
+    ::-webkit-scrollbar-track {
+      box-shadow: inset 0 0 60px rgba(6, 119, 145, 1);
+    }
+    ::-webkit-scrollbar-thumb {
+      background-color: #FFF;
+      background-image: -webkit-gradient(linear,
+                         40% 0%,
+                         75% 84%,
+                         from(#b621ff),
+                         to(#b621ff),
+                         color-stop(.6,#f1d6ff))
+    }
   }
 `
 

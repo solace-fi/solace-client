@@ -1,8 +1,7 @@
-import React, { createContext, useContext, useMemo, useEffect, useState } from 'react'
+import React, { createContext, useContext, useMemo, useEffect } from 'react'
 import { getEtherscanTxUrl } from '../utils/etherscan'
 import { toast, ToastContainer } from 'react-toastify'
 import { useWallet } from '../context/WalletManager'
-import { contractConfig } from '../config/chainConfig'
 
 import 'animate.css/animate.min.css'
 import 'react-toastify/dist/ReactToastify.css'
@@ -55,7 +54,6 @@ const ToastsContext = createContext<ToastSystem>({
 
 const ToastsProvider: React.FC = (props) => {
   const wallet = useWallet()
-  const [errors, setErrors] = useState<Error[]>([])
 
   const makeTxToast = (txType: string, condition?: TransactionCondition, txHash?: string) => {
     const TxToast = (message: any, cond?: any) => (
