@@ -135,7 +135,7 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
       const txHash = tx.hash
       const localTx = { hash: txHash, type: txType, value: '0', status: TransactionCondition.PENDING, unit: Unit.ID }
       setModalLoading(false)
-      close()
+      closeModal()
       addLocalTransactions(localTx)
       wallet.reload()
       makeTxToast(txType, TransactionCondition.PENDING, txHash)
@@ -169,7 +169,7 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
         unit: Unit.ID,
       }
       setModalLoading(false)
-      close()
+      closeModal()
       addLocalTransactions(localTx)
       wallet.reload()
       makeTxToast(txType, TransactionCondition.PENDING, txHash)

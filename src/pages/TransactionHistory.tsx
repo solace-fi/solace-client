@@ -47,8 +47,6 @@ export const TransactionHistory: React.FC = () => {
   const { localTransactions } = useUserData()
   const contractAddrs = useContractArray()
 
-  console.log(localTransactions)
-
   return (
     <Scrollable>
       <Table textAlignCenter style={{ borderSpacing: '0px 7px' }}>
