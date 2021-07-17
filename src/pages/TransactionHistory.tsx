@@ -67,30 +67,29 @@ export const TransactionHistory: React.FC = () => {
           </TableRow>
         </TableHead>
         <TableBody>
-          {localTransactions &&
-            localTransactions.map((pendingtx: any, i: number) => (
-              <TableRow isHighlight key={i}>
-                <TableData pt={10} pb={10}>
-                  {pendingtx.type}
-                </TableData>
-                <TableData pt={10} pb={10}>{`${pendingtx.value} ${pendingtx.unit}`}</TableData>
-                <TableData pt={10} pb={10}>
-                  {timeAgo(Number(Date.now()) * 1000)}
-                </TableData>
-                <TableData pt={10} pb={10}>
-                  <HyperLink
-                    href={getEtherscanTxUrl(wallet.chainId ?? DEFAULT_CHAIN_ID, pendingtx.hash)}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    <Button>{shortenAddress(pendingtx.hash)} </Button>
-                  </HyperLink>
-                </TableData>
-                <TableData pt={10} pb={10}>
-                  <Text>{pendingtx.status}</Text>
-                </TableData>
-              </TableRow>
-            ))}
+          {localTransactions.map((pendingtx: any, i: number) => (
+            <TableRow isHighlight key={i}>
+              <TableData pt={10} pb={10}>
+                {pendingtx.type}
+              </TableData>
+              <TableData pt={10} pb={10}>{`${pendingtx.value} ${pendingtx.unit}`}</TableData>
+              <TableData pt={10} pb={10}>
+                {timeAgo(Number(Date.now()) * 1000)}
+              </TableData>
+              <TableData pt={10} pb={10}>
+                <HyperLink
+                  href={getEtherscanTxUrl(wallet.chainId ?? DEFAULT_CHAIN_ID, pendingtx.hash)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <Button>{shortenAddress(pendingtx.hash)} </Button>
+                </HyperLink>
+              </TableData>
+              <TableData pt={10} pb={10}>
+                <Text>{pendingtx.status}</Text>
+              </TableData>
+            </TableRow>
+          ))}
           {txHistory &&
             txHistory.map((tx: any, i: number) => (
               <TableRow key={tx.hash}>

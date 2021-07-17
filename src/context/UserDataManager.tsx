@@ -12,14 +12,14 @@ web app. Currently, the only data cached here are local transactions.
 */
 
 type UserData = {
-  localTransactions: LocalTx[] | undefined
+  localTransactions: LocalTx[]
   addLocalTransactions: (txToAdd: LocalTx) => void
   deleteLocalTransactions: (txsToDelete: []) => void
   removeLocalTransactions: () => void
 }
 
 const UserDataContext = createContext<UserData>({
-  localTransactions: undefined,
+  localTransactions: [],
   addLocalTransactions: () => undefined,
   deleteLocalTransactions: () => undefined,
   removeLocalTransactions: () => undefined,
@@ -58,7 +58,7 @@ const UserDataProvider: React.FC = (props) => {
       deleteLocalTransactions,
       removeLocalTransactions: clearLocalTransactions,
     }),
-    [localTxs, addLocalTransactions]
+    [addLocalTransactions, deleteLocalTransactions, removeLocalTxs]
   )
 
   return <UserDataContext.Provider value={value}>{props.children}</UserDataContext.Provider>

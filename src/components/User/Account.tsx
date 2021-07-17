@@ -99,15 +99,10 @@ export default function Account(): any {
               </UserImage>
             </SmallBox>
           </SmallBox>
-          <SmallBox p={0} transparent glow={localTransactions && localTransactions.length > 0}>
-            <Button
-              pl={10}
-              pr={10}
-              onClick={() => openModal()}
-              secondary={localTransactions ? localTransactions.length > 0 : false}
-            >
+          <SmallBox p={0} transparent glow={localTransactions.length > 0}>
+            <Button pl={10} pr={10} onClick={() => openModal()} secondary={localTransactions.length > 0}>
               <StyledHistory size={30} />
-              {localTransactions && localTransactions.length > 0 ? localTransactions.length : 'History'}
+              {localTransactions.length > 0 ? localTransactions.length : 'History'}
             </Button>
           </SmallBox>
         </Fragment>
