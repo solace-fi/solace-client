@@ -14,6 +14,7 @@ import { Table, TableHead, TableHeader, TableRow, TableBody, TableData } from '.
 import { Button } from '../components/Button'
 import { Text } from '../components/Text'
 import { HyperLink } from '../components/Link'
+import { CustomScrollbar } from '../components/Layout'
 
 /* import hooks */
 import { useTransactionDetails } from '../hooks/useTransactionHistory'
@@ -29,16 +30,7 @@ import styled from 'styled-components'
 const Scrollable = styled.div`
   max-height: 60vh;
   overflow-y: scroll;
-  ::-webkit-scrollbar {
-    width: 10px;
-  }
-  ::-webkit-scrollbar-track {
-    box-shadow: inset 0 0 60px rgba(6, 119, 145, 0.5);
-  }
-  ::-webkit-scrollbar-thumb {
-    background-color: #fff;
-    background-image: -webkit-gradient(linear, 40% 0%, 75% 84%, from(#b621ff), to(#b621ff), color-stop(0.6, #f1d6ff));
-  }
+  ${CustomScrollbar}
 `
 
 export const TransactionHistory: React.FC = () => {

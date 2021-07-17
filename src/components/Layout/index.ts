@@ -1,6 +1,19 @@
 import { MAX_DEVICE_SCREEN_WIDTH, MAX_WIDTH, MAX_PRICES_SCREEN_WIDTH } from '../../constants/'
-import styled, { createGlobalStyle } from 'styled-components'
+import styled, { createGlobalStyle, css } from 'styled-components'
 import { GeneralElementProps, GeneralElementCss, HeightAndWidthProps } from '../generalInterfaces'
+
+export const CustomScrollbar = css`
+  ::-webkit-scrollbar {
+    width: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    box-shadow: inset 0 0 60px rgba(6, 119, 145, 0.5);
+  }
+  ::-webkit-scrollbar-thumb {
+    background-color: #fff;
+    background-image: -webkit-gradient(linear, 40% 0%, 75% 84%, from(#b621ff), to(#b621ff), color-stop(0.6, #f1d6ff));
+  }
+`
 
 export const GlobalStyle = createGlobalStyle`
   body{
@@ -11,21 +24,7 @@ export const GlobalStyle = createGlobalStyle`
     color: #fff;
     background: linear-gradient(113.7deg, #b621ff 0%, #21d3fc 100%);
     background-attachment: fixed;
-    ::-webkit-scrollbar {
-      width: 10px;
-    }
-    ::-webkit-scrollbar-track {
-      box-shadow: inset 0 0 60px rgba(6, 119, 145, 1);
-    }
-    ::-webkit-scrollbar-thumb {
-      background-color: #FFF;
-      background-image: -webkit-gradient(linear,
-                         40% 0%,
-                         75% 84%,
-                         from(#b621ff),
-                         to(#b621ff),
-                         color-stop(.6,#f1d6ff))
-    }
+    ${CustomScrollbar}
   }
 `
 

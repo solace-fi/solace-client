@@ -22,8 +22,12 @@ export const usePolicyGetter = () => {
     policies = policies.filter((policy: any) => policy.policyId >= 0)
     if (product) policies = policies.filter((policy: any) => policy.productAddress.equalsIgnoreCase(product))
     policies.sort((a: any, b: any) => b.policyId - a.policyId) // newest first
+    const initializedConfig =
+      wallet.chainId && policyConfig[String(wallet.chainId)]
+        ? policyConfig[String(wallet.chainId)]
+        : policyConfig[String(DEFAULT_CHAIN_ID)]
     policies.forEach(
-      (policy: any) => (policy.positionName = config.positionNames[policy.positionContract.toLowerCase()])
+      (policy: Policy) => (policy.positionName = initializedConfig.positionNames[policy.positionContract.toLowerCase()])
     )
     return policies
   }
