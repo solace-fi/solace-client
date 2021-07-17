@@ -5,7 +5,7 @@ import { ClaimDetails } from '../constants/types'
 export const useClaimsEscrow = () => {
   const { claimsEscrow } = useContracts()
 
-  const isWithdrawable = async (claimID: any): Promise<boolean> => {
+  const isWithdrawable = async (claimID: BigNumber): Promise<boolean> => {
     if (!claimsEscrow || !claimID) return false
     try {
       const isWithdrawable = await claimsEscrow.isWithdrawable(claimID)
@@ -16,7 +16,7 @@ export const useClaimsEscrow = () => {
     }
   }
 
-  const timeLeft = async (claimID: any): Promise<string> => {
+  const timeLeft = async (claimID: BigNumber): Promise<string> => {
     if (!claimsEscrow || !claimID) return '0'
     try {
       const timeLeft = await claimsEscrow.timeLeft(claimID)

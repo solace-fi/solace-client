@@ -15,6 +15,7 @@ import { useReload } from '../hooks/useReload'
 import { useProvider } from './ProviderManager'
 import { useFetchGasPrice } from '../hooks/useFetchGasPrice'
 import { Error as AppError } from '../constants/enums'
+import { useUserData } from './UserDataManager'
 
 /*
 
@@ -77,6 +78,7 @@ const WalletContext = createContext<ContextWallet>({
 
 const WalletProvider: React.FC = (props) => {
   const web3React = useWeb3React()
+  const { removeLocalTransactions } = useUserData()
   const [localProvider, setLocalProvider, removeLocalProvider] = useLocalStorage<string | undefined>('wallet_provider')
   const gasPrices = useFetchGasPrice()
   const [activeConnector, setActiveConnector] = useState<WalletConnector | undefined>()
@@ -95,6 +97,7 @@ const WalletProvider: React.FC = (props) => {
     setConnecting(undefined)
     setActiveConnector(undefined)
     removeLocalProvider()
+    removeLocalTransactions()
   }, [web3React, removeLocalProvider, setConnecting])
 
   const connect = useCallback(

@@ -1,5 +1,5 @@
 import { BigNumber } from 'ethers'
-import { PolicyState } from '../constants/enums'
+import { PolicyState, TransactionCondition, Unit } from '../constants/enums'
 import { Contract } from '@ethersproject/contracts'
 
 export type ClaimDetails = { id: string; cooldown: string; canWithdraw: boolean; amount: BigNumber }
@@ -71,4 +71,12 @@ export type ContractSources = { addr: string; abi: any }
 export type WindowDimensions = {
   width: number
   height: number
+}
+
+export type LocalTx = {
+  hash: any
+  type: string
+  value: string
+  status: TransactionCondition
+  unit: Unit
 }

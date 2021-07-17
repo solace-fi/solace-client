@@ -100,9 +100,14 @@ export default function Account(): any {
             </SmallBox>
           </SmallBox>
           <SmallBox p={0} transparent>
-            <Button pl={10} pr={10} onClick={() => openModal()} secondary={localTransactions.length > 0}>
+            <Button
+              pl={10}
+              pr={10}
+              onClick={() => openModal()}
+              secondary={localTransactions ? localTransactions.length > 0 : false}
+            >
               <StyledHistory size={30} />
-              {localTransactions.length > 0 ? localTransactions.length : 'History'}
+              {localTransactions && localTransactions.length > 0 ? localTransactions.length : 'History'}
             </Button>
           </SmallBox>
         </Fragment>

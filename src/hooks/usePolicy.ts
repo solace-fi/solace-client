@@ -154,7 +154,7 @@ export const useGetAvailableCoverages = () => {
   return availableCoverages
 }
 
-export const useGetQuote = (coverLimit: string | null, positionContract: string | null, days: string): any => {
+export const useGetQuote = (coverLimit: string | null, positionContract: string | null, days: string): string => {
   const { account } = useWallet()
   const [quote, setQuote] = useState<string>('0.00')
   const { selectedProtocol } = useContracts()

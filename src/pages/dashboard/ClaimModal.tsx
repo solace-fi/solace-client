@@ -162,6 +162,8 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
   }
 
   const handleClose = () => {
+    setClaimId(0)
+    setModalLoading(false)
     closeModal()
   }
 
@@ -267,7 +269,7 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
                 </Button>
               </ButtonWrapper>
             )}
-            <SmallBox>
+            <SmallBox transparent>
               <Heading3 autoAlign warning>
                 Please wait for the cooldown period to elapse before withdrawing your payout.
               </Heading3>

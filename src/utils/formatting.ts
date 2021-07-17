@@ -9,6 +9,8 @@ export const fixed = (n: number, decimals = 1): number => {
 }
 
 export const truncateBalance = (value: number | string, decimals = 6): string => {
+  if (typeof value == 'number' && value == 0) return '0'
+  if (typeof value == 'string' && parseFloat(value) == 0) return '0'
   const str = value.toString()
   const decimalIndex = str.indexOf('.')
   if (decimalIndex == -1) {

@@ -32,7 +32,9 @@ export const Table = styled.table<TableProps>`
   ${PaddingCss}
 `
 
-export const TableRow = styled.tr``
+export const TableRow = styled.tr<TableProps>`
+  ${(props) => props.isHighlight && 'background-color: rgba(0, 255, 209, 0.3);'}
+`
 
 export const TableBody = styled.tbody``
 

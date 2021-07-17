@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useWallet } from '../context/WalletManager'
 
 export const useGetLatestBlockNumber = (): number => {

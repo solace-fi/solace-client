@@ -47,6 +47,8 @@ export const TransactionHistory: React.FC = () => {
   const { localTransactions } = useUserData()
   const contractAddrs = useContractArray()
 
+  console.log(localTransactions)
+
   return (
     <Scrollable>
       <Table textAlignCenter style={{ borderSpacing: '0px 7px' }}>
@@ -69,7 +71,7 @@ export const TransactionHistory: React.FC = () => {
         <TableBody>
           {localTransactions &&
             localTransactions.map((pendingtx: any, i: number) => (
-              <TableRow key={i}>
+              <TableRow isHighlight key={i}>
                 <TableData pt={10} pb={10}>
                   {pendingtx.type}
                 </TableData>
@@ -87,7 +89,7 @@ export const TransactionHistory: React.FC = () => {
                   </HyperLink>
                 </TableData>
                 <TableData pt={10} pb={10}>
-                  {pendingtx.status}
+                  <Text>{pendingtx.status}</Text>
                 </TableData>
               </TableRow>
             ))}

@@ -56,7 +56,7 @@ const ToastsProvider: React.FC = (props) => {
   const wallet = useWallet()
 
   const makeTxToast = (txType: string, condition?: TransactionCondition, txHash?: string) => {
-    const TxToast = (message: any, cond?: any) => (
+    const TxToast = (message: string, cond?: string) => (
       <StyledToast>
         <FlexDiv>
           {message}: Transaction {cond}

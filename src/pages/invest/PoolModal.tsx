@@ -489,7 +489,7 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
         </ModalRow>
         <RadioGroup>
           {!wallet.gasPrices.loading ? (
-            wallet.gasPrices.options.map((option: any) => (
+            wallet.gasPrices.options.map((option: GasFeeOption) => (
               <RadioLabel key={option.key}>
                 <RadioInput
                   type="radio"

@@ -31,6 +31,7 @@ import { BigNumber } from 'ethers'
 /* import constants */
 import { DAYS_PER_YEAR, GAS_LIMIT, NUM_BLOCKS_PER_DAY } from '../../constants'
 import { TransactionCondition, FunctionName, Unit } from '../../constants/enums'
+import { LocalTx } from '../../constants/types'
 
 /* import managers */
 import { useContracts } from '../../context/ContractsManager'
@@ -107,7 +108,7 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
       )
       navigation.next()
       const txHash = tx.hash
-      const localTx = {
+      const localTx: LocalTx = {
         hash: txHash,
         type: txType,
         value: 'Policy',
