@@ -5,38 +5,43 @@ import { PolicyState } from '../constants/enums'
 import { Policy } from '../constants/types'
 import { BigNumber } from 'ethers'
 import { useContracts } from '../context/ContractsManager'
+import { DEFAULT_CHAIN_ID } from '../constants'
 
 export const usePolicyGetter = () => {
   const wallet = useWallet()
   const { policyManager } = useContracts()
+  const config =
+    wallet.chainId && policyConfig[String(wallet.chainId)]
+      ? policyConfig[String(wallet.chainId)]
+      : policyConfig[String(DEFAULT_CHAIN_ID)]
 
   const getPolicies = async (policyHolder?: string, product?: string) => {
-    if (!policyConfig[String(wallet.chainId)]) return []
+    if (!config) return []
     await checkInit()
     let policies = await (policyHolder ? getUserPolicies(policyHolder) : getAllPolicies())
     policies = policies.filter((policy: any) => policy.policyId >= 0)
     if (product) policies = policies.filter((policy: any) => policy.productAddress.equalsIgnoreCase(product))
     policies.sort((a: any, b: any) => b.policyId - a.policyId) // newest first
     policies.forEach(
-      (policy: any) =>
-        (policy.positionName =
-          policyConfig[String(wallet.chainId)].positionNames[policy.positionContract.toLowerCase()])
+      (policy: any) => (policy.positionName = config.positionNames[policy.positionContract.toLowerCase()])
     )
     return policies
   }
 
   const checkInit = async () => {
-    if (!policyConfig[String(wallet.chainId)].initialized) {
-      const tokens = await policyConfig[String(wallet.chainId)].getTokens(wallet.library)
+    if (!config.initialized) {
+      const tokens = await config.getTokens(wallet.library)
       const positionNames = tokens?.reduce(
         (names: any, token: any) => ({ ...names, [token.token.address.toLowerCase()]: token.underlying.symbol }),
         {}
       )
-      policyConfig[String(wallet.chainId)] = {
-        ...policyConfig[String(wallet.chainId)],
-        positionNames,
-        initialized: true,
-      }
+      wallet.chainId && policyConfig[String(wallet.chainId)]
+        ? policyConfig[String(wallet.chainId)]
+        : (policyConfig[String(DEFAULT_CHAIN_ID)] = {
+            ...config,
+            positionNames,
+            initialized: true,
+          })
     }
   }
 
@@ -77,7 +82,7 @@ export const usePolicyGetter = () => {
         policyId: Number(policyId),
         policyHolder: policy.policyholder,
         productAddress: policy.product,
-        productName: policyConfig[String(wallet.chainId)].productsRev[policy.product],
+        productName: config.productsRev[policy.product],
         positionContract: policy.positionContract,
         expirationBlock: policy.expirationBlock.toString(),
         coverAmount: policy.coverAmount.toString(),

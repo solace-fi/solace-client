@@ -53,7 +53,10 @@ const ContractsContext = createContext<Contracts>({
 const ContractsProvider: React.FC = (props) => {
   const [selectedProtocol, setSelectedProtocol] = useState<Contract | null>(null)
   const { chainId } = useWallet()
-  const config = chainId && contractConfig[chainId] ? contractConfig[chainId] : contractConfig[DEFAULT_CHAIN_ID]
+  const config =
+    chainId && contractConfig[String(chainId)]
+      ? contractConfig[String(chainId)]
+      : contractConfig[String(DEFAULT_CHAIN_ID)]
   const keyContracts = config.keyContracts
 
   const master = useGetContract(keyContracts.master.addr, keyContracts.master.abi)
