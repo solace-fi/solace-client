@@ -1,21 +1,16 @@
 import { formatEther } from '@ethersproject/units'
 import { BigNumber } from 'ethers'
 import { FunctionName, Unit } from '../constants/enums'
+import { TokenInfo } from '../constants/types'
 
 // truncate numbers without rounding
 export const fixed = (n: number, decimals = 1): number => {
   return Math.floor(n * Math.pow(10, decimals)) / Math.pow(10, decimals)
 }
 
-type Token = {
-  address: string
-  name: string
-  symbol: string
-  decimals: number
-  balance: string
-}
-
 export const truncateBalance = (value: number | string, decimals = 6): string => {
+  if (typeof value == 'number' && value == 0) return '0'
+  if (typeof value == 'string' && parseFloat(value) == 0) return '0'
   const str = value.toString()
   const decimalIndex = str.indexOf('.')
   if (decimalIndex == -1) {
@@ -29,8 +24,8 @@ export const truncateBalance = (value: number | string, decimals = 6): string =>
   return truncatedStr
 }
 
-export const fixedTokenPositionBalance = (token: Token): number => {
-  return parseFloat(token.balance) / Math.pow(10, token.decimals)
+export const fixedTokenPositionBalance = (token: TokenInfo): number => {
+  return parseFloat(BigNumber.from(token.balance).toString()) / Math.pow(10, token.decimals)
 }
 
 export const fixedPositionBalance = (balance: string, decimals: number): number => {

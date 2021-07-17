@@ -20,7 +20,7 @@ export const PositionCardName = styled.div`
   text-align: center;
 `
 
-export const PositionCardCount = styled.div<GeneralTextProps>`
+export const PositionCardText = styled.div<GeneralTextProps>`
   margin-top: 10px;
   line-height: 33px;
   ${GeneralTextCss}

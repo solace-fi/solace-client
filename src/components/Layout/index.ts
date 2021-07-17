@@ -1,4 +1,4 @@
-import { MAX_DEVICE_SCREEN_WIDTH, MAX_WIDTH } from '../../constants/'
+import { MAX_DEVICE_SCREEN_WIDTH, MAX_WIDTH, MAX_PRICES_SCREEN_WIDTH } from '../../constants/'
 import styled, { createGlobalStyle } from 'styled-components'
 import { GeneralElementProps, GeneralElementCss, HeightAndWidthProps } from '../generalInterfaces'
 
@@ -11,6 +11,21 @@ export const GlobalStyle = createGlobalStyle`
     color: #fff;
     background: linear-gradient(113.7deg, #b621ff 0%, #21d3fc 100%);
     background-attachment: fixed;
+    ::-webkit-scrollbar {
+      width: 10px;
+    }
+    ::-webkit-scrollbar-track {
+      box-shadow: inset 0 0 60px rgba(6, 119, 145, 1);
+    }
+    ::-webkit-scrollbar-thumb {
+      background-color: #FFF;
+      background-image: -webkit-gradient(linear,
+                         40% 0%,
+                         75% 84%,
+                         from(#b621ff),
+                         to(#b621ff),
+                         color-stop(.6,#f1d6ff))
+    }
   }
 `
 
@@ -66,6 +81,24 @@ export const HeroContainer = styled(FlexCol)<HeightAndWidthProps>`
   align-items: center;
   justify-content: center;
   height: ${(props) => (props.height ? props.height : '400')}px;
+`
+
+export const Footer = styled.div`
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  background-color: rgba(0, 0, 0, 0.9);
+  text-align: center;
+  display: none;
+  overflow: hidden;
+  padding: 10px;
+
+  @media screen and (max-width: ${MAX_PRICES_SCREEN_WIDTH}px) {
+    display: block;
+    width: 100%;
+    z-index: 1;
+  }
 `
 
 export const Content = styled.div`

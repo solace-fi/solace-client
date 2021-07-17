@@ -7,9 +7,13 @@ export const useTokenAllowance = (tokenContract: Contract | null, spender: strin
   const [allowance, setAllowance] = useState<string>('')
 
   const checkAllowance = async () => {
-    if (!library || !account || !tokenContract || !spender) return
-    const _allowance = await tokenContract.allowance(account, spender)
-    setAllowance(_allowance.toString())
+    try {
+      if (!library || !account || !tokenContract || !spender) return
+      const _allowance = await tokenContract.allowance(account, spender)
+      setAllowance(_allowance.toString())
+    } catch (err) {
+      console.log('checkAllowance', err)
+    }
   }
 
   useEffect(() => {

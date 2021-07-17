@@ -13,10 +13,10 @@
 
     Statistics function
       useRef variables
-      Hook variables
-      useState variables
+      custom hooks
+      useState hooks
       Contract functions
-      Local helper functions
+      Local functions
       useEffect hooks
       Render
 
@@ -31,7 +31,8 @@ import { Contract } from '@ethersproject/contracts'
 
 /* import constants */
 import { GAS_LIMIT } from '../../constants'
-import { TransactionCondition, FunctionName, Unit, PolicyStatus } from '../../constants/enums'
+import { TransactionCondition, FunctionName, Unit, PolicyState } from '../../constants/enums'
+import { Policy } from '../../constants/types'
 
 /* import managers */
 import { useWallet } from '../../context/WalletManager'
@@ -44,17 +45,16 @@ import { BoxRow, Box, BoxItem, BoxItemValue, BoxItemTitle, BoxItemUnits } from '
 import { Button } from '../Button'
 
 /* import hooks */
-import { useCapitalPoolSize } from '../../hooks/useCapitalPoolSize'
+import { useCapitalPoolSize } from '../../hooks/useVault'
 import { useTotalPendingRewards } from '../../hooks/useRewards'
 import { useSolaceBalance } from '../../hooks/useSolaceBalance'
-import { usePoolStakedValue } from '../../hooks/usePoolStakedValue'
-import { usePolicyGetter, Policy } from '../../hooks/useGetter'
+import { usePolicyGetter } from '../../hooks/useGetter'
+import { usePoolStakedValue } from '../../hooks/useFarm'
 
 /* import wallet */
 import { WalletConnectButton } from '../Button/WalletConnect'
 
 /* import utils */
-import { getAllPolicies } from '../../utils/paclas'
 import { fixed, getGasValue, floatEther, truncateBalance } from '../../utils/formatting'
 
 export const Statistics = () => {
@@ -72,12 +72,12 @@ export const Statistics = () => {
 
   /*************************************************************************************
 
-  Hook variables
+  custom hooks
 
   *************************************************************************************/
   const wallet = useWallet()
   const { master, vault, solace, cpFarm, lpFarm, lpToken } = useContracts()
-  const { errors, makeTxToast } = useToasts()
+  const { makeTxToast } = useToasts()
   const { addLocalTransactions } = useUserData()
   const capitalPoolSize = useCapitalPoolSize()
   const solaceBalance = useSolaceBalance()
@@ -88,7 +88,7 @@ export const Statistics = () => {
 
   /*************************************************************************************
 
-  useState variables
+  useState hooks
 
   *************************************************************************************/
   const [totalValueLocked, setTotalValueLocked] = useState<string>('0.00')
@@ -136,7 +136,7 @@ export const Statistics = () => {
 
   /*************************************************************************************
 
-  Local helper functions
+  Local functions
 
   *************************************************************************************/
   const getTotalValueLocked = () => {
@@ -168,7 +168,7 @@ export const Statistics = () => {
     try {
       const fetchPolicies = async () => {
         const policies: Policy[] = await getPolicies()
-        const activePolicies = policies.filter(({ status }) => status === PolicyStatus.ACTIVE)
+        const activePolicies = policies.filter(({ status }) => status === PolicyState.ACTIVE)
 
         let activeCoverAmount = 0
         activePolicies.forEach(({ coverAmount }) => {
@@ -186,7 +186,7 @@ export const Statistics = () => {
     } catch (err) {
       console.log(err)
     }
-  }, [])
+  }, [wallet.dataVersion])
 
   return (
     <BoxRow>
@@ -207,7 +207,10 @@ export const Statistics = () => {
             </BoxItemValue>
           </BoxItem>
           <BoxItem>
-            <Button disabled={errors.length > 0 || fixed(parseFloat(totalUserRewards), 6) <= 0} onClick={claimRewards}>
+            <Button
+              disabled={wallet.errors.length > 0 || fixed(parseFloat(totalUserRewards), 6) <= 0}
+              onClick={claimRewards}
+            >
               Claim
             </Button>
           </BoxItem>

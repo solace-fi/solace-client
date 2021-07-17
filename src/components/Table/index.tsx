@@ -1,16 +1,22 @@
 import React from 'react'
 import styled from 'styled-components'
-import { HeightAndWidthProps, HeightAndWidthCss } from '../generalInterfaces'
+import {
+  HeightAndWidthProps,
+  HeightAndWidthCss,
+  MarginProps,
+  PaddingProps,
+  MarginCss,
+  PaddingCss,
+} from '../generalInterfaces'
 import { TextAlignProps, TextAlignCss } from '../Text'
 
-interface TableProps extends HeightAndWidthProps, TextAlignProps {
+interface TableProps extends HeightAndWidthProps, TextAlignProps, MarginProps, PaddingProps {
   isHighlight?: boolean
   isQuote?: boolean
   headers?: string[]
-  body?: { data: string[]; status: boolean }[]
 }
 
-const TableBase = styled.table<TableProps>`
+export const Table = styled.table<TableProps>`
   width: 100%;
   border-spacing: 0px 10px;
   th,
@@ -21,9 +27,14 @@ const TableBase = styled.table<TableProps>`
   ${(props) =>
     props.isQuote &&
     'tr { &:hover { td { background-color: rgba(255, 255, 255, 0.5); transition: background-color 200ms linear;} } }'}
+  ${HeightAndWidthCss}
+  ${MarginCss}
+  ${PaddingCss}
 `
 
-export const TableRow = styled.tr``
+export const TableRow = styled.tr<TableProps>`
+  ${(props) => props.isHighlight && 'background-color: rgba(0, 255, 209, 0.3);'}
+`
 
 export const TableBody = styled.tbody``
 
@@ -38,6 +49,8 @@ export const TableHeader = styled.th<TableProps>`
   white-space: nowrap;
   ${HeightAndWidthCss}
   ${TextAlignCss}
+  ${MarginCss}
+  ${PaddingCss}
 `
 
 export const TableData = styled.td<TableProps>`
@@ -54,6 +67,8 @@ export const TableData = styled.td<TableProps>`
   text-overflow: ellipsis;
   ${HeightAndWidthCss}
   ${TextAlignCss}
+  ${MarginCss}
+  ${PaddingCss}
 `
 
 export const TableDataGroup = styled.div<TableProps>`
@@ -64,28 +79,3 @@ export const TableDataGroup = styled.div<TableProps>`
   ${HeightAndWidthCss}
   ${TextAlignCss}
 `
-
-export const Table: React.FC<TableProps> = ({
-  isHighlight,
-  textAlignLeft,
-  textAlignCenter,
-  textAlignRight,
-  headers,
-  body,
-  children,
-  isQuote,
-}) => {
-  return (
-    <TableBase
-      isHighlight={isHighlight}
-      textAlignLeft={textAlignLeft}
-      textAlignCenter={textAlignCenter}
-      textAlignRight={textAlignRight}
-      headers={headers}
-      body={body}
-      isQuote={isQuote}
-    >
-      {children}
-    </TableBase>
-  )
-}

@@ -13,9 +13,9 @@
     styled components
 
     ProtocolStep function
-      Hook variables
-      useState variables
-      Local helper functions
+      custom hooks
+      useState hooks
+      Local functions
       Render
 
   *************************************************************************************/
@@ -29,10 +29,10 @@ import useDebounce from '@rooks/use-debounce'
 
 /* import constants */
 import { DAYS_PER_YEAR, NUM_BLOCKS_PER_DAY } from '../../constants'
-import { PROTOCOLS_LIST } from '../../constants/protocols'
 
 /* import context */
 import { useContracts } from '../../context/ContractsManager'
+import { useWallet } from '../../context/WalletManager'
 
 /* import components */
 import { Button } from '../../components/Button'
@@ -61,39 +61,33 @@ const ActionsContainer = styled.div`
   }
 `
 
-export const ProtocolStep: React.FC<formProps> = ({ formData, setForm, navigation }) => {
+export const ProtocolStep: React.FC<formProps> = ({ setForm, navigation }) => {
   /*************************************************************************************
 
-  Hook variables
+  custom hooks
 
   *************************************************************************************/
 
   const availableCoverages = useGetAvailableCoverages()
   const yearlyCosts = useGetYearlyCosts()
-  const { protocol } = formData
-  const { setSelectedProtocolByName } = useContracts()
+  const { products, setSelectedProtocolByName } = useContracts()
+  const wallet = useWallet()
 
   /*************************************************************************************
 
-  useState variables
+  useState hooks
 
   *************************************************************************************/
   const [searchValue, setSearchValue] = useState<string>('')
 
   /*************************************************************************************
 
-  Local Helper Functions
+  Local functions
 
   *************************************************************************************/
 
   const handleChange = (selectedProtocol: any) => {
-    setSelectedProtocolByName(selectedProtocol.name.toLowerCase())
-    setForm({
-      target: {
-        name: 'lastProtocol',
-        value: protocol,
-      },
-    })
+    setSelectedProtocolByName(selectedProtocol.name)
     setForm({
       target: {
         name: 'protocol',
@@ -106,6 +100,11 @@ export const ProtocolStep: React.FC<formProps> = ({ formData, setForm, navigatio
   const handleSearch = useDebounce((searchValue: string) => {
     setSearchValue(searchValue)
   }, 300)
+
+  const handleAvailableCoverage = (protocol: string) => {
+    if (!availableCoverages[protocol]) return '0'
+    return availableCoverages[protocol].split('.')[0]
+  }
 
   /*************************************************************************************
 
@@ -128,21 +127,28 @@ export const ProtocolStep: React.FC<formProps> = ({ formData, setForm, navigatio
           </TableRow>
         </TableHead>
         <TableBody>
-          {PROTOCOLS_LIST.filter((protocol) => protocol.toLowerCase().includes(searchValue.toLowerCase())).map(
-            (protocol) => {
+          {products
+            ?.map((product) => {
+              return product.name
+            })
+            .filter((protocol: string) => protocol.toLowerCase().includes(searchValue.toLowerCase()))
+            .map((protocol: string) => {
               return (
                 <TableRow
                   key={protocol}
-                  onClick={() =>
-                    handleChange({
-                      name: protocol,
-                      availableCoverage: availableCoverages[protocol.toLowerCase()]?.split('.')[0] ?? '0',
-                      yearlyCost:
-                        parseFloat(yearlyCosts[protocol.toLowerCase()] ?? '0') *
-                        Math.pow(10, 6) *
-                        NUM_BLOCKS_PER_DAY *
-                        DAYS_PER_YEAR,
-                    })
+                  onClick={
+                    wallet.errors.length > 0
+                      ? undefined
+                      : () =>
+                          handleChange({
+                            name: protocol,
+                            availableCoverage: handleAvailableCoverage(protocol),
+                            yearlyCost:
+                              parseFloat(yearlyCosts[protocol] ?? '0') *
+                              Math.pow(10, 6) *
+                              NUM_BLOCKS_PER_DAY *
+                              DAYS_PER_YEAR,
+                          })
                   }
                   style={{ cursor: 'pointer' }}
                 >
@@ -156,7 +162,7 @@ export const ProtocolStep: React.FC<formProps> = ({ formData, setForm, navigatio
                   </TableData>
                   <TableData>
                     {fixed(
-                      parseFloat(yearlyCosts[protocol.toLowerCase()] ?? '0') *
+                      parseFloat(yearlyCosts[protocol] ?? '0') *
                         Math.pow(10, 6) *
                         NUM_BLOCKS_PER_DAY *
                         DAYS_PER_YEAR *
@@ -165,14 +171,13 @@ export const ProtocolStep: React.FC<formProps> = ({ formData, setForm, navigatio
                     )}
                     %
                   </TableData>
-                  <TableData>{availableCoverages[protocol.toLowerCase()]?.split('.')[0] ?? '0'} ETH</TableData>
+                  <TableData>{handleAvailableCoverage(protocol)} ETH</TableData>
                   <TableData textAlignRight>
-                    <Button>Select</Button>
+                    <Button disabled={wallet.errors.length > 0}>Select</Button>
                   </TableData>
                 </TableRow>
               )
-            }
-          )}
+            })}
         </TableBody>
       </Table>
     </Fragment>

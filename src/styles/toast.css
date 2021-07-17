@@ -2,7 +2,7 @@
 .info-toast,
 .error-toast {
   border-radius: 10px;
-  padding: 4px 16px;
+  padding: 5px;
   transition: all 0.2s, color 0.2s;
   outline: none;
 }

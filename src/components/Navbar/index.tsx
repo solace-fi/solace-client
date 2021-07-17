@@ -1,7 +1,7 @@
 import { NavLink } from 'react-router-dom'
 import styled from 'styled-components'
 import { MAX_DEVICE_SCREEN_WIDTH } from '../../constants'
-import { ButtonBaseCss, handleButtonProps } from '../Button'
+import { ButtonBaseCss } from '../Button'
 
 interface TopNavProps {
   isOpen?: boolean
@@ -30,7 +30,6 @@ export const NavButton = styled.button`
   top: 15px;
   min-height: 40px;
   min-width: 70px;
-  ${() => handleButtonProps()};
 `
 
 export const SidebarItem = styled(NavLink)`

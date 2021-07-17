@@ -8,75 +8,84 @@
     import utils
 
     PositionStep function
-      Hook variables
-      useState variables
+      custom hooks
+      useState hooks
       useRef variables
-      Local helper functions
+      Local functions
       useEffect hooks
       Render
 
   *************************************************************************************/
 
 /* import react */
-import React, { Fragment, useCallback, useEffect, useRef, useState } from 'react'
+import React, { Fragment, useEffect, useRef, useState } from 'react'
 
 /* import managers */
 import { useWallet } from '../../context/WalletManager'
+import { useContracts } from '../../context/ContractsManager'
 
 /* import components */
 import { BoxItemUnits } from '../../components/Box'
 import { Button } from '../../components/Button'
 import { formProps } from './MultiStepForm'
 import { CardContainer, PositionCard } from '../../components/Card'
-import { PositionCardButton, PositionCardCount, PositionCardLogo, PositionCardName } from '../../components/Position'
+import { PositionCardButton, PositionCardText, PositionCardLogo, PositionCardName } from '../../components/Position'
 import { Loader } from '../../components/Loader'
 import { HeroContainer } from '../../components/Layout'
 import { Heading1 } from '../../components/Text'
+import { ManageModal } from '../dashboard/ManageModal'
 
 /* import constants */
-import { PolicyStatus } from '../../constants/enums'
+import { PolicyState } from '../../constants/enums'
+import { Policy, Token } from '../../constants/types'
 
 /* import hooks */
 import { usePolicyGetter } from '../../hooks/useGetter'
+import { useGetLatestBlockNumber } from '../../hooks/useGetLatestBlockNumber'
 
 /* import utils */
 import { fixedTokenPositionBalance, truncateBalance } from '../../utils/formatting'
-import { getUserPolicies, getPositions } from '../../utils/paclas'
+import { policyConfig } from '../../config/chainConfig'
 
 export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigation }) => {
-  const { protocol, lastProtocol, balances, loading } = formData
+  const { protocol, balances, loading } = formData
 
   /*************************************************************************************
 
-  Hook variables
+  custom hooks
 
   *************************************************************************************/
 
-  const { account, chainId, isActive } = useWallet()
+  const { account, chainId, isActive, version, dataVersion, library, errors } = useWallet()
   const { getPolicies } = usePolicyGetter()
+  const { setSelectedProtocolByName } = useContracts()
+  const latestBlock = useGetLatestBlockNumber()
 
   /*************************************************************************************
 
-  useState variables
+  useState hooks
 
   *************************************************************************************/
-  const [userPolicyPositions, setUserPolicyPositions] = useState<[string, string, boolean][]>([])
   const [positionsLoaded, setPositionsLoaded] = useState<boolean>(false)
+  const [showManageModal, setShowManageModal] = useState<boolean>(false)
+  const [selectedPolicy, setSelectedPolicy] = useState<Policy | undefined>(undefined)
+  const [policies, setPolicies] = useState<Policy[]>([])
 
   /*************************************************************************************
 
   useRef variables
 
   *************************************************************************************/
-  const appMounting = useRef(true)
+  const canLoadOnChange = useRef(false)
+  const canLoadOverTime = useRef(false)
 
   /*************************************************************************************
 
-  Local helper functions
+  Local functions
 
   *************************************************************************************/
 
-  const handleChange = (position: any) => {
+  const handleChange = (position: Token) => {
     setForm({
       target: {
         name: 'position',
@@ -86,46 +95,42 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
     navigation.next()
   }
 
-  const getBalances = useCallback(async () => {
-    if (!account) return
-    if (chainId == 1 || chainId == 4) {
-      setForm({
-        target: {
-          name: 'loading',
-          value: true,
-        },
-      })
-      const balances = await getPositions(protocol.name.toLowerCase(), chainId, account)
+  const getBalances = async () => {
+    if (!account || !chainId) return
+    if (policyConfig[chainId]) {
+      const balances: Token[] = await policyConfig[chainId].getBalances(account, library)
       setForm({
         target: {
           name: 'balances',
           value: balances,
         },
       })
-      setForm({
-        target: {
-          name: 'lastProtocol',
-          value: protocol,
-        },
-      })
-      setForm({
-        target: {
-          name: 'loading',
-          value: false,
-        },
-      })
     }
-  }, [protocol, chainId, account])
+  }
 
   const userHasActiveProductPosition = (product: string, position: string): boolean => {
-    let result = false
+    const userPolicyPositions: [string, string, boolean][] = []
+    policies.forEach((policy: Policy) => {
+      userPolicyPositions.push([policy.productName, policy.positionName, policy.status === PolicyState.ACTIVE])
+    })
     for (const policyProductPosition of userPolicyPositions) {
       if (product === policyProductPosition[0] && position === policyProductPosition[1] && policyProductPosition[2]) {
-        result = true
-        break
+        return true
       }
     }
-    return result
+    return false
+  }
+
+  const openManageModal = async (policy: Policy) => {
+    setShowManageModal((prev) => !prev)
+    setSelectedProtocolByName(policy.productName)
+    document.body.style.overflowY = 'hidden'
+    setSelectedPolicy(policy)
+  }
+
+  const closeModal = () => {
+    setShowManageModal(false)
+    document.body.style.overflowY = 'scroll'
   }
 
   /*************************************************************************************
@@ -135,31 +140,63 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
   *************************************************************************************/
 
   useEffect(() => {
-    if (protocol.name !== lastProtocol.name) {
-      getBalances()
+    const initialLoad = async () => {
+      setForm({
+        target: {
+          name: 'loading',
+          value: true,
+        },
+      })
+      await getBalances()
+      setForm({
+        target: {
+          name: 'loading',
+          value: false,
+        },
+      })
     }
+    initialLoad()
   }, [])
 
   useEffect(() => {
-    if (!appMounting.current) {
-      getBalances()
-    } else {
-      appMounting.current = false
+    const loadOnChange = async () => {
+      if (canLoadOnChange.current) {
+        setForm({
+          target: {
+            name: 'loading',
+            value: true,
+          },
+        })
+        await getBalances()
+        setForm({
+          target: {
+            name: 'loading',
+            value: false,
+          },
+        })
+      } else {
+        canLoadOnChange.current = true
+      }
     }
+    loadOnChange()
   }, [account, chainId])
+
+  useEffect(() => {
+    const loadOverTime = async () => {
+      if (canLoadOverTime.current) {
+        await getBalances()
+      } else {
+        canLoadOverTime.current = true
+      }
+    }
+    loadOverTime()
+  }, [dataVersion])
 
   useEffect(() => {
     try {
       const fetchPolicies = async () => {
         const policies = await getPolicies(account as string)
-
-        // tuple data type: [product, position, isActive]
-        // [['compound', 'eth', true], ['compound', 'dai', false],..,]
-        const userPolicyPositionList: [string, string, boolean][] = []
-        policies.forEach((policy: any) => {
-          userPolicyPositionList.push([policy.productName, policy.positionName, policy.status === PolicyStatus.ACTIVE])
-        })
-        setUserPolicyPositions(userPolicyPositionList)
+        setPolicies(policies)
         setPositionsLoaded(true)
       }
 
@@ -168,7 +205,7 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
       setPositionsLoaded(true)
       console.log(err)
     }
-  }, [account, isActive, chainId])
+  }, [account, isActive, chainId, version])
 
   /*************************************************************************************
 
@@ -178,39 +215,87 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
 
   return (
     <Fragment>
+      <ManageModal
+        selectedPolicy={selectedPolicy}
+        isOpen={showManageModal}
+        latestBlock={latestBlock}
+        closeModal={closeModal}
+      />
       {balances.length == 0 && !loading && positionsLoaded && (
         <HeroContainer>
           <Heading1>You do not own any positions on this protocol.</Heading1>
         </HeroContainer>
       )}
       {!loading && positionsLoaded ? (
-        <CardContainer>
-          {balances.map((position: any) => {
-            return (
-              <PositionCard
-                key={position.underlying.address}
-                disabled={userHasActiveProductPosition(protocol.name, position.underlying.symbol)}
-                onClick={() => handleChange(position)}
-              >
-                <PositionCardLogo>
-                  <img src={`https://assets.solace.fi/${position.underlying.address.toLowerCase()}.svg`} />
-                </PositionCardLogo>
-                <PositionCardName>{position.underlying.name}</PositionCardName>
-                <PositionCardCount t1>
-                  {truncateBalance(fixedTokenPositionBalance(position.underlying))}{' '}
-                  <BoxItemUnits style={{ fontSize: '12px' }}>{position.underlying.symbol}</BoxItemUnits>
-                </PositionCardCount>
-                <PositionCardCount t2>
-                  {truncateBalance(fixedTokenPositionBalance(position.token))}{' '}
-                  <BoxItemUnits style={{ fontSize: '12px' }}>{position.token.symbol}</BoxItemUnits>
-                </PositionCardCount>
-                <PositionCardButton>
-                  <Button>Select</Button>
-                </PositionCardButton>
-              </PositionCard>
-            )
-          })}
-        </CardContainer>
+        <Fragment>
+          <CardContainer>
+            {balances.map((position: Token) => {
+              return (
+                <PositionCard
+                  key={position.underlying.address}
+                  fade={userHasActiveProductPosition(protocol.name, position.underlying.symbol)}
+                  onClick={
+                    errors.length > 0
+                      ? undefined
+                      : userHasActiveProductPosition(protocol.name, position.underlying.symbol)
+                      ? () =>
+                          openManageModal(
+                            policies.filter(
+                              (policy) =>
+                                policy.productName == protocol.name && policy.positionName == position.underlying.symbol
+                            )[0]
+                          )
+                      : () => handleChange(position)
+                  }
+                >
+                  {userHasActiveProductPosition(protocol.name, position.underlying.symbol) && (
+                    <PositionCardText style={{ opacity: '.8' }}>This position is already covered</PositionCardText>
+                  )}
+                  <PositionCardLogo
+                    style={{
+                      opacity: userHasActiveProductPosition(protocol.name, position.underlying.symbol) ? '.5' : '1',
+                    }}
+                  >
+                    <img src={`https://assets.solace.fi/${position.underlying.address.toLowerCase()}.svg`} />
+                  </PositionCardLogo>
+                  <PositionCardName
+                    style={{
+                      opacity: userHasActiveProductPosition(protocol.name, position.underlying.symbol) ? '.5' : '1',
+                    }}
+                  >
+                    {position.underlying.name}
+                  </PositionCardName>
+                  <PositionCardText
+                    t1
+                    style={{
+                      opacity: userHasActiveProductPosition(protocol.name, position.underlying.symbol) ? '.5' : '1',
+                    }}
+                  >
+                    {truncateBalance(fixedTokenPositionBalance(position.underlying))}{' '}
+                    <BoxItemUnits style={{ fontSize: '12px' }}>{position.underlying.symbol}</BoxItemUnits>
+                  </PositionCardText>
+                  <PositionCardText
+                    t2
+                    style={{
+                      opacity: userHasActiveProductPosition(protocol.name, position.underlying.symbol) ? '.5' : '1',
+                    }}
+                  >
+                    {truncateBalance(fixedTokenPositionBalance(position.token))}{' '}
+                    <BoxItemUnits style={{ fontSize: '12px' }}>{position.token.symbol}</BoxItemUnits>
+                  </PositionCardText>
+
+                  <PositionCardButton>
+                    {userHasActiveProductPosition(protocol.name, position.underlying.symbol) ? (
+                      <Button>Manage</Button>
+                    ) : (
+                      <Button>Select</Button>
+                    )}
+                  </PositionCardButton>
+                </PositionCard>
+              )
+            })}
+          </CardContainer>
+        </Fragment>
       ) : (
         <Loader />
       )}

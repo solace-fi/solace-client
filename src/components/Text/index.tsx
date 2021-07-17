@@ -1,4 +1,5 @@
 import styled, { css } from 'styled-components'
+import { GeneralElementProps, GeneralElementCss } from '../generalInterfaces'
 
 export interface TextFontProps {
   h1?: boolean
@@ -21,6 +22,7 @@ export interface TextStyleProps {
   outlined?: boolean
   autoAlign?: boolean
   bold?: boolean
+  green?: boolean
   error?: boolean
   warning?: boolean
 }
@@ -126,6 +128,7 @@ export const TextStyleCss = css<TextStyleProps>`
   ${(props) => props.outlined && TextOutlineCss}
   ${(props) => props.autoAlign && AlignAutoCss}
   ${(props) => props.bold && 'font-weight: 600;'}
+  ${(props) => props.green && 'color: #00ffd1;'}
   ${(props) => props.error && 'color: rgba(255, 12, 28);'}
   ${(props) => props.warning && 'color: rgba(245, 221, 83);'}
 `
@@ -140,32 +143,43 @@ export const Text = styled.div<GeneralTextProps>`
   ${GeneralTextCss}
 `
 
-export const Text1 = styled.div<GeneralTextProps>`
+export const TextSpan = styled.span<GeneralTextProps & GeneralElementProps>`
+  ${GeneralTextCss}
+  ${GeneralElementCss}
+`
+
+export const Text1 = styled.div<TextAlignProps & TextStyleProps>`
   ${Text1Css}
-  ${GeneralTextCss}
+  ${TextAlignCss}
+  ${TextStyleCss}
 `
 
-export const Text2 = styled.div<GeneralTextProps>`
+export const Text2 = styled.div<TextAlignProps & TextStyleProps>`
   ${Text2Css}
-  ${GeneralTextCss}
+  ${TextAlignCss}
+  ${TextStyleCss}
 `
 
-export const Text3 = styled.div<GeneralTextProps>`
+export const Text3 = styled.div<TextAlignProps & TextStyleProps>`
   ${Text3Css}
-  ${GeneralTextCss}
+  ${TextAlignCss}
+  ${TextStyleCss}
 `
 
-export const Heading1 = styled.div<GeneralTextProps>`
+export const Heading1 = styled.div<TextAlignProps & TextStyleProps>`
   ${Heading1Css}
-  ${GeneralTextCss}
+  ${TextAlignCss}
+  ${TextStyleCss}
 `
 
-export const Heading2 = styled.div<GeneralTextProps>`
+export const Heading2 = styled.div<TextAlignProps & TextStyleProps>`
   ${Heading2Css}
-  ${GeneralTextCss}
+  ${TextAlignCss}
+  ${TextStyleCss}
 `
 
-export const Heading3 = styled.div<GeneralTextProps>`
+export const Heading3 = styled.div<TextAlignProps & TextStyleProps>`
   ${Heading3Css}
-  ${GeneralTextCss}
+  ${TextAlignCss}
+  ${TextStyleCss}
 `

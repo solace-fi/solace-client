@@ -39,38 +39,7 @@ In a different terminal, run the following commands from the core directory
 
     npx hardhat run --network localhost scripts/deploy.ts
 
-After the deploy script is ran, copy the output of REACT_APP contract addresses into the .env file of the client directory
-
-    Registry       | <1>
-    Master         | <2>
-    Vault          | <3>
-    CpFarm         | <4>
-    UniswapFactory | <5>
-    UniswapRouter  | <6>
-    UniswapLpToken | <7>
-    UniswapPool    | <8>
-    LpFarm         | <9>
-    Treasury       | <10>
-    ClaimsEscrow   | <11>
-    ClaimsAdjustor | <12>
-    ...
-
-    REACT_APP_REGISTRY_CONTRACT_ADDRESS=<1>
-    REACT_APP_SOLACE_CONTRACT_ADDRESS=<2>
-    REACT_APP_WETH_CONTRACT_ADDRESS=<3>
-    REACT_APP_MASTER_CONTRACT_ADDRESS=<4>
-    REACT_APP_CPFARM_CONTRACT_ADDRESS=<5>
-    REACT_APP_LPFARM_CONTRACT_ADDRESS=<6>
-    REACT_APP_VAULT_CONTRACT_ADDRESS=<7>
-    REACT_APP_TREASURY_CONTRACT_ADDRESS=<8>
-    REACT_APP_CLAIMS_ESCROW_CONTRACT_ADDRESS=<9>
-    REACT_APP_CLAIMS_ADJUSTOR_CONTRACT_ADDRESS=<10>
-    REACT_APP_UNISWAP_FACTORY_CONTRACT_ADDRESS=<11>
-    REACT_APP_UNISWAP_ROUTER_CONTRACT_ADDRESS=<12>
-    REACT_APP_UNISWAP_LPTOKEN_CONTRACT_ADDRESS=<...>
-    REACT_APP_UNISWAP_POOL_CONTRACT_ADDRESS=<...>
-    REACT_APP_POLICY_MANAGER_CONTRACT_ADDRESS=<...>
-    REACT_APP_COMPOUND_PRODUCT_CONTRACT_ADDRESS=<...>
+After the deploy script is ran, copy the contract addresses into the chainConfig.ts file at client/src/config. Be sure that the name of the contract matches the name of the object within the config file.
 
 Run using the following react command from the client directory
 

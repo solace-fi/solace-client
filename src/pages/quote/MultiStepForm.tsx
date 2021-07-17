@@ -5,6 +5,7 @@
     import react
     import packages
     import context
+    import constants
     import components
     import utils
 
@@ -14,8 +15,8 @@
     styled components
 
     MultiStepForm function
-      Hook variables
-      Local helper functions
+      custom hooks
+      Local functions
       Render
 
   *************************************************************************************/
@@ -29,6 +30,9 @@ import styled from 'styled-components'
 
 /* import context */
 import { useWallet } from '../../context/WalletManager'
+
+/* import constants */
+import { ZERO } from '../../constants'
 
 /* import components */
 import { ProtocolStep } from './ProtocolStep'
@@ -83,21 +87,16 @@ const defaultData = {
     availableCoverage: '',
     yearlyCost: 0,
   },
-  lastProtocol: {
-    name: '',
-    availableCoverage: '',
-    yearlyCost: 0,
-  },
   position: {
     token: {
       address: '',
       name: '',
       symbol: '',
       decimals: 0,
-      balance: '',
+      balance: ZERO,
     },
-    underlying: { address: '', name: '', symbol: '', decimals: 0, balance: '' },
-    eth: { balance: '' },
+    underlying: { address: '', name: '', symbol: '', decimals: 0, balance: ZERO },
+    eth: { balance: ZERO },
   },
   balances: [],
   coverageLimit: '5000',
@@ -122,7 +121,7 @@ const FormContent = styled.div`
 export const MultiStepForm = () => {
   /*************************************************************************************
 
-  Hook variables
+  custom hooks
 
   *************************************************************************************/
   const [formData, setForm] = useForm(defaultData)
@@ -137,7 +136,7 @@ export const MultiStepForm = () => {
 
   /*************************************************************************************
 
-  Local helper functions
+  Local functions
 
   *************************************************************************************/
 
@@ -155,7 +154,7 @@ export const MultiStepForm = () => {
   }
 
   useEffect(() => {
-    if (Number(StepNumber[step.id]) == 2) {
+    if (Number(StepNumber[step.id]) == 2 || Number(StepNumber[step.id]) == 1) {
       navigation.go(0)
     }
   }, [account, chainId])

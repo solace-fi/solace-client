@@ -25,7 +25,7 @@ import Govern from './govern'
 
 /* import components */
 import { SideNavbar, TopNavbar } from '../components/Navbar/Navbar'
-import { PageHeader } from '../components/Header/Prices'
+import { BottomPrices, PageHeader } from '../components/Header/Prices'
 import { GlobalStyle, Layout, LayoutContainer, LayoutContent, NavContent } from '../components/Layout'
 import { LayoutContentWithLoader } from '../components/Layout/LayoutContentWithLoader'
 import { Statistics } from '../components/Box/Statistics'
@@ -37,6 +37,7 @@ export default function App(): any {
     <Fragment>
       <GlobalStyle />
       <TopNavbar />
+      <BottomPrices />
       <Layout>
         <LayoutContainer>
           <NavContent width={10}>

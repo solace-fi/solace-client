@@ -1,8 +1,11 @@
 import React, { useState, createContext, useContext, useRef, useCallback, useMemo, useEffect } from 'react'
 import { useLocalStorage } from 'react-use-storage'
 import { UnsupportedChainIdError, useWeb3React } from '@web3-react/core'
-import { NoEthereumProviderError } from '@web3-react/injected-connector'
-
+import {
+  NoEthereumProviderError,
+  UserRejectedRequestError as UserRejectedRequestErrorInjected,
+} from '@web3-react/injected-connector'
+import { UserRejectedRequestError as UserRejectedRequestErrorWalletConnect } from '@web3-react/walletconnect-connector'
 import { WalletConnector, SUPPORTED_WALLETS } from '../wallet/wallets'
 
 import { Web3ReactProvider } from '@web3-react/core'
@@ -11,6 +14,8 @@ import getLibrary from '../utils/getLibrary'
 import { useReload } from '../hooks/useReload'
 import { useProvider } from './ProviderManager'
 import { useFetchGasPrice } from '../hooks/useFetchGasPrice'
+import { Error as AppError } from '../constants/enums'
+import { useUserData } from './UserDataManager'
 
 /*
 
@@ -46,6 +51,7 @@ export type ContextWallet = {
   version?: number
   dataVersion?: any
   gasPrices?: any
+  errors: AppError[]
   connect: (connector: WalletConnector, args?: Record<string, any>) => Promise<void>
   disconnect: () => void
   reload: () => void
@@ -63,6 +69,7 @@ const WalletContext = createContext<ContextWallet>({
   version: undefined,
   dataVersion: undefined,
   gasPrices: undefined,
+  errors: [],
   connect: () => Promise.reject(),
   disconnect: () => undefined,
   reload: () => undefined,
@@ -71,6 +78,7 @@ const WalletContext = createContext<ContextWallet>({
 
 const WalletProvider: React.FC = (props) => {
   const web3React = useWeb3React()
+  const { removeLocalTransactions } = useUserData()
   const [localProvider, setLocalProvider, removeLocalProvider] = useLocalStorage<string | undefined>('wallet_provider')
   const gasPrices = useFetchGasPrice()
   const [activeConnector, setActiveConnector] = useState<WalletConnector | undefined>()
@@ -80,6 +88,7 @@ const WalletProvider: React.FC = (props) => {
   const [dataReload, dataVersion] = useReload()
   const connectingRef = useRef<WalletConnector | undefined>(connecting)
   connectingRef.current = connecting
+  const [errors, setErrors] = useState<AppError[]>([])
 
   const provider = useProvider()
 
@@ -88,10 +97,12 @@ const WalletProvider: React.FC = (props) => {
     setConnecting(undefined)
     setActiveConnector(undefined)
     removeLocalProvider()
+    removeLocalTransactions()
   }, [web3React, removeLocalProvider, setConnecting])
 
   const connect = useCallback(
     async (walletConnector: WalletConnector): Promise<void> => {
+      // if a connector is trying to connect, do not try to connect again
       if (connectingRef.current) {
         return
       }
@@ -99,26 +110,31 @@ const WalletProvider: React.FC = (props) => {
       const connector = walletConnector.connector.getConnector()
       connectingRef.current = walletConnector
       setConnecting(walletConnector)
+      const walletErrors: AppError[] = []
 
       function onError(error: Error) {
-        console.error('Wallet::Connect().onError', { error })
-
         if (error instanceof NoEthereumProviderError) {
-          disconnect()
+          walletErrors.push(AppError.NO_ETH_PROVIDER)
         } else if (error instanceof UnsupportedChainIdError) {
-          disconnect()
+          walletErrors.push(AppError.UNSUPPORTED_NETWORK)
+        } else if (
+          error instanceof UserRejectedRequestErrorInjected ||
+          error instanceof UserRejectedRequestErrorWalletConnect
+        ) {
+          walletErrors.push(AppError.NO_ACCESS)
         } else {
           const err = walletConnector.connector.onError?.(error)
-
+          walletErrors.push(AppError.UNKNOWN)
           console.log(err)
         }
+        setErrors(walletErrors)
       }
 
       function onSuccess() {
+        setErrors([])
         if (!connectingRef.current) {
           return
         }
-
         setActiveConnector(walletConnector)
         setLocalProvider(walletConnector.id)
       }
@@ -165,12 +181,13 @@ const WalletProvider: React.FC = (props) => {
       version,
       dataVersion,
       gasPrices,
+      errors,
       connect,
       disconnect,
       reload,
       dataReload,
     }),
-    [web3React, provider, initialized, connecting, activeConnector, version, disconnect, connect]
+    [web3React, provider, initialized, connecting, activeConnector, version, errors, disconnect, connect]
   )
 
   return <WalletContext.Provider value={value}>{props.children}</WalletContext.Provider>

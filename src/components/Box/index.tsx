@@ -7,8 +7,11 @@ import { MAX_DEVICE_SCREEN_WIDTH } from '../../constants'
 interface BoxProps {
   purple?: boolean
   green?: boolean
+  navy?: boolean
   transparent?: boolean
   outlined?: boolean
+  glow?: boolean
+  shadow?: boolean
 }
 
 interface SmallBoxProps {
@@ -17,10 +20,14 @@ interface SmallBoxProps {
 }
 
 const BoxPropsHandler = css<GeneralElementProps & BoxProps>`
+  background-color: rgba(0, 255, 209, 0.3);
   ${(props) => props.transparent && TransparentBox}
   ${(props) => props.outlined && BoxOutline}
   ${(props) => props.purple && 'background-color: rgba(250, 0, 255, 0.3);'}
-  ${(props) => props.green && 'background-color: rgba(0, 187, 40, 0.7); box-shadow: 0 0 7px #fff;'}
+  ${(props) => props.green && 'background-color: rgba(0, 187, 40, 0.7);'}
+  ${(props) => props.navy && 'background-color: rgba(16, 32, 97, 0.3);'}
+  ${(props) => props.glow && 'box-shadow: 0 0 7px #fff;'}
+  ${(props) => props.shadow && 'box-shadow: 0 3px 3px rgba(0, 0, 0, 0.5);'}
   ${GeneralElementCss}
 `
 
@@ -62,7 +69,6 @@ const BoxOutline = css`
 export const Box = styled(BoxRow)<BoxProps & GeneralElementProps>`
   align-items: center;
   border-radius: 10px;
-  background-color: rgba(0, 255, 209, 0.3);
   ${(props) =>
     props.p !== undefined ||
     props.pt !== undefined ||
@@ -79,7 +85,6 @@ export const Box = styled(BoxRow)<BoxProps & GeneralElementProps>`
 `
 
 export const SmallBox = styled.div<BoxProps & SmallBoxProps & GeneralElementProps>`
-  ${BoxPropsHandler}
   ${(props) => props.error && `border-color: rgba(219, 44, 56);`}
   display: flex;
   ${(props) =>
@@ -101,6 +106,7 @@ export const SmallBox = styled.div<BoxProps & SmallBoxProps & GeneralElementProp
   border-radius: 10px;
   ${(props) => (props.collapse ? `transform: scaleY(0); height: 0;` : `transform: scaleY(1);`)}
   transition: all 200ms ease;
+  ${BoxPropsHandler}
 `
 
 export const BoxItem = styled.div`
