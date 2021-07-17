@@ -47,7 +47,7 @@ export const contractConfig: any = {
         abi: registryABI,
       },
       lpToken: {
-        addr: process.env.REACT_APP_RINKEBY_LPTOKEN_ADDR,
+        addr: process.env.REACT_APP_RINKEBY_UNISWAP_LPTOKEN_ADDR,
         abi: lpTokenArtifact.abi,
       },
       weth: {
