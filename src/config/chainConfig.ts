@@ -11,8 +11,8 @@ import lpTokenArtifact from '../../node_modules/@uniswap/v3-periphery/artifacts/
 import compAbi from '../constants/abi/contracts/products/CompoundProductRinkeby.sol/CompoundProductRinkeby.json'
 import polMagABI from '../constants/abi/contracts/PolicyManager.sol/PolicyManager.json'
 
-import { getTokens as comp4Tokens } from '../utils/positionGetters/compoundPositionGetter/rinkeby/getTokens'
-import { getBalances as comp4Balances } from '../utils/positionGetters/compoundPositionGetter/rinkeby/getBalances'
+import { getTokens as comp4Tokens } from '../utils/positionGetters/compound/rinkeby/getTokens'
+import { getBalances as comp4Balances } from '../utils/positionGetters/compound/rinkeby/getBalances'
 import { ProductName } from '../constants/enums'
 
 export const contractConfig: any = {
@@ -47,7 +47,7 @@ export const contractConfig: any = {
         abi: registryABI,
       },
       lpToken: {
-        addr: process.env.REACT_APP_RINKEBY_LPTOKEN_ADDR,
+        addr: process.env.REACT_APP_RINKEBY_UNISWAP_LPTOKEN_ADDR,
         abi: lpTokenArtifact.abi,
       },
       weth: {
@@ -71,12 +71,75 @@ export const contractConfig: any = {
     },
     supportedProducts: [{ name: ProductName.COMPOUND }],
   },
+  '42': {
+    keyContracts: {
+      master: {
+        addr: process.env.REACT_APP_KOVAN_MASTER_ADDR,
+        abi: masterABI,
+      },
+      vault: {
+        addr: process.env.REACT_APP_KOVAN_VAULT_ADDR,
+        abi: vaultABI,
+      },
+      treasury: {
+        addr: process.env.REACT_APP_KOVAN_TREASURY_ADDR,
+        abi: treasuryABI,
+      },
+      solace: {
+        addr: process.env.REACT_APP_KOVAN_SOLACE_ADDR,
+        abi: solaceABI,
+      },
+      cpFarm: {
+        addr: process.env.REACT_APP_KOVAN_CPFARM_ADDR,
+        abi: cpFarmABI,
+      },
+      lpFarm: {
+        addr: process.env.REACT_APP_KOVAN_LPFARM_ADDR,
+        abi: lpFarmABI,
+      },
+      registry: {
+        addr: process.env.REACT_APP_KOVAN_REGISTRY_ADDR,
+        abi: registryABI,
+      },
+      lpToken: {
+        addr: process.env.REACT_APP_KOVAN_UNISWAP_LPTOKEN_ADDR,
+        abi: lpTokenArtifact.abi,
+      },
+      weth: {
+        addr: process.env.REACT_APP_KOVAN_WETH_ADDR,
+        abi: wethABI,
+      },
+      claimsEscrow: {
+        addr: process.env.REACT_APP_KOVAN_CLAIMS_ESCROW_ADDR,
+        abi: claimsEscrowABI,
+      },
+      policyManager: {
+        addr: process.env.REACT_APP_KOVAN_POLICY_MANAGER_ADDR,
+        abi: polMagABI,
+      },
+    },
+    productContracts: {
+      [ProductName.AAVE]: {
+        addr: process.env.REACT_APP_KOVAN_AAVE_PRODUCT_ADDR,
+        abi: compAbi,
+      },
+    },
+    supportedProducts: [{ name: ProductName.AAVE }],
+  },
 }
 
 export const policyConfig: any = {
   '4': {
     productsRev: {
       [String(process.env.REACT_APP_RINKEBY_COMPOUND_PRODUCT_ADDR)]: ProductName.COMPOUND,
+    },
+    getTokens: comp4Tokens,
+    getBalances: comp4Balances,
+    initialized: false,
+  },
+  '42': {
+    productsRev: {
+      [String(process.env.REACT_APP_AAVE_KOVAN_PRODUCT_ADDR)]: ProductName.AAVE,
     },
     getTokens: comp4Tokens,
     getBalances: comp4Balances,

@@ -39,13 +39,11 @@ export const usePolicyGetter = () => {
         (names: any, token: any) => ({ ...names, [token.token.address.toLowerCase()]: token.underlying.symbol }),
         {}
       )
-      wallet.chainId && policyConfig[String(wallet.chainId)]
-        ? policyConfig[String(wallet.chainId)]
-        : (policyConfig[String(DEFAULT_CHAIN_ID)] = {
-            ...config,
-            positionNames,
-            initialized: true,
-          })
+      policyConfig[String(wallet.chainId ?? DEFAULT_CHAIN_ID)] = {
+        ...config,
+        positionNames,
+        initialized: true,
+      }
     }
   }
 

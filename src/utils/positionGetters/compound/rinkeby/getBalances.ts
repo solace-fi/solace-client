@@ -4,7 +4,7 @@ import { getTokens } from './getTokens'
 import tokenJson from '../contracts/ICToken.json'
 import { Token } from '../../../../constants/types'
 
-import { withBackoffRetries, rangeFrom0, bnCmp, equalsIgnoreCase } from '../../../'
+import { withBackoffRetries, rangeFrom0, bnCmp, equalsIgnoreCase } from '../../..'
 import { POW_EIGHTEEN } from '../../../../constants'
 import axios from 'axios'
 

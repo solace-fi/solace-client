@@ -44,4 +44,5 @@ export enum PolicyState {
 
 export enum ProductName {
   COMPOUND = 'Compound',
+  AAVE = 'Aave',
 }
