@@ -29,7 +29,7 @@ import { BoxItemUnits } from '../../components/Box'
 import { Button } from '../../components/Button'
 import { formProps } from './MultiStepForm'
 import { CardContainer, PositionCard } from '../../components/Card'
-import { PositionCardButton, PositionCardCount, PositionCardLogo, PositionCardName } from '../../components/Position'
+import { PositionCardButton, PositionCardText, PositionCardLogo, PositionCardName } from '../../components/Position'
 import { Loader } from '../../components/Loader'
 import { HeroContainer } from '../../components/Layout'
 import { Heading1 } from '../../components/Text'
@@ -233,7 +233,7 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
               return (
                 <PositionCard
                   key={position.underlying.address}
-                  isHighlight={userHasActiveProductPosition(protocol.name, position.underlying.symbol)}
+                  fade={userHasActiveProductPosition(protocol.name, position.underlying.symbol)}
                   onClick={
                     errors.length > 0
                       ? undefined
@@ -248,18 +248,42 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
                       : () => handleChange(position)
                   }
                 >
-                  <PositionCardLogo>
+                  {userHasActiveProductPosition(protocol.name, position.underlying.symbol) && (
+                    <PositionCardText style={{ opacity: '.8' }}>This position is already covered</PositionCardText>
+                  )}
+                  <PositionCardLogo
+                    style={{
+                      opacity: userHasActiveProductPosition(protocol.name, position.underlying.symbol) ? '.5' : '1',
+                    }}
+                  >
                     <img src={`https://assets.solace.fi/${position.underlying.address.toLowerCase()}.svg`} />
                   </PositionCardLogo>
-                  <PositionCardName>{position.underlying.name}</PositionCardName>
-                  <PositionCardCount t1>
+                  <PositionCardName
+                    style={{
+                      opacity: userHasActiveProductPosition(protocol.name, position.underlying.symbol) ? '.5' : '1',
+                    }}
+                  >
+                    {position.underlying.name}
+                  </PositionCardName>
+                  <PositionCardText
+                    t1
+                    style={{
+                      opacity: userHasActiveProductPosition(protocol.name, position.underlying.symbol) ? '.5' : '1',
+                    }}
+                  >
                     {truncateBalance(fixedTokenPositionBalance(position.underlying))}{' '}
                     <BoxItemUnits style={{ fontSize: '12px' }}>{position.underlying.symbol}</BoxItemUnits>
-                  </PositionCardCount>
-                  <PositionCardCount t2>
+                  </PositionCardText>
+                  <PositionCardText
+                    t2
+                    style={{
+                      opacity: userHasActiveProductPosition(protocol.name, position.underlying.symbol) ? '.5' : '1',
+                    }}
+                  >
                     {truncateBalance(fixedTokenPositionBalance(position.token))}{' '}
                     <BoxItemUnits style={{ fontSize: '12px' }}>{position.token.symbol}</BoxItemUnits>
-                  </PositionCardCount>
+                  </PositionCardText>
+
                   <PositionCardButton>
                     {userHasActiveProductPosition(protocol.name, position.underlying.symbol) ? (
                       <Button>Manage</Button>

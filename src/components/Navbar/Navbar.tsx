@@ -26,7 +26,7 @@ export const SideNavbar: React.FC = () => {
             Invest
           </SidebarItem>
           <SidebarItem className="quote-nav-link" to={'/quote'}>
-            Quote
+            Buy Cover
           </SidebarItem>
           <SidebarItem className="govern-nav-link" to={'/govern'}>
             Govern
@@ -54,7 +54,7 @@ export const TopNavbar: React.FC = () => {
           Invest
         </SidebarItem>
         <SidebarItem className="quote-nav-link" onClick={() => setIsOpen(!isOpen)} to={'/quote'}>
-          Quote
+          Buy Cover
         </SidebarItem>
         <SidebarItem className="govern-nav-link" onClick={() => setIsOpen(!isOpen)} to={'/govern'}>
           Govern

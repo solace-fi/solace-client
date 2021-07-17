@@ -99,7 +99,7 @@ export default function Account(): any {
               </UserImage>
             </SmallBox>
           </SmallBox>
-          <SmallBox p={0} transparent>
+          <SmallBox p={0} transparent glow={localTransactions && localTransactions.length > 0}>
             <Button
               pl={10}
               pr={10}
