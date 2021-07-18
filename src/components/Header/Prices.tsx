@@ -29,7 +29,7 @@ import { CP_ROI, LP_ROI, MAX_PRICES_SCREEN_WIDTH } from '../../constants/'
 import { Header } from './index'
 import Account from '../User/Account'
 import { SmallBox } from '../Box'
-import { Heading3 } from '../Text'
+import { Heading3 } from '../Typography'
 
 /* import hooks */
 import { useCoingecko } from '../../hooks/useCoingecko'

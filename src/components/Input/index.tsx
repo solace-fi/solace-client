@@ -1,5 +1,5 @@
 import styled, { css } from 'styled-components'
-import { GeneralTextProps, GeneralTextCss } from '../Text'
+import { GeneralTextProps, GeneralTextCss } from '../Typography'
 import { HeightAndWidthProps, HeightAndWidthCss } from '../generalInterfaces'
 
 const InputBase = css`

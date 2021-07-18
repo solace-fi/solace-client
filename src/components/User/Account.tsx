@@ -20,9 +20,7 @@
 import React, { Fragment, useState } from 'react'
 
 /* import packages */
-import styled from 'styled-components'
 import makeBlockie from 'ethereum-blockies-base64'
-import { History } from '@styled-icons/boxicons-regular/History'
 
 /* import managers */
 import { useWallet } from '../../context/WalletManager'
@@ -30,9 +28,10 @@ import { useUserData } from '../../context/UserDataManager'
 
 /* import components */
 import { UserImage } from './index'
-import { Heading3 } from '../Text'
+import { Heading3 } from '../Typography'
 import { Button } from '../Button'
 import { TransactionHistoryModal } from './TransactionHistoryModal'
+import { StyledHistory } from '../Icon'
 
 /* import hooks */
 import { useEthBalance } from '../../hooks/useEthBalance'
@@ -44,10 +43,6 @@ import { getNetworkName } from '../../utils'
 /* import static */
 import { WalletConnectButton } from '../Button/WalletConnect'
 import { SmallBox } from '../Box'
-
-const StyledHistory = styled(History)`
-  display: block;
-`
 
 export default function Account(): any {
   /*************************************************************************************

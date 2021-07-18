@@ -20,7 +20,7 @@ import { useWallet } from '../../context/WalletManager'
 
 /* import components */
 import { MultiStepForm } from './MultiStepForm'
-import { Heading1 } from '../../components/Text'
+import { Heading1 } from '../../components/Typography'
 import { WalletConnectButton } from '../../components/Button/WalletConnect'
 import { HeroContainer } from '../../components/Layout'
 

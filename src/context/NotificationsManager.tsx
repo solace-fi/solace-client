@@ -1,48 +1,21 @@
 import React, { createContext, useContext, useMemo, useEffect } from 'react'
-import { getEtherscanTxUrl } from '../utils/etherscan'
 import { toast, ToastContainer } from 'react-toastify'
 import { useWallet } from '../context/WalletManager'
 
 import 'animate.css/animate.min.css'
 import 'react-toastify/dist/ReactToastify.css'
-import { DEFAULT_CHAIN_ID } from '../constants'
 import { TransactionCondition, Error } from '../constants/enums'
-import { HyperLink } from '../components/Link'
-import { Button } from '../components/Button'
 
 import '../styles/toast.css'
-import styled from 'styled-components'
-import { Loader } from '../components/Loader'
-import { Checkmark } from '@styled-icons/evaicons-solid/Checkmark'
-import { Warning } from '@styled-icons/fluentui-system-regular/Warning'
+import { AppToast, NotificationToast } from '../components/Toast'
+import { StyledWarning } from '../components/Icon'
+
 /*
 This manager allows for notifications to be created. such notifications can be created
 on trigger or manually. Error are also tracked so appropriate notifications can be shown but 
 they can also be used elsewhere in the app for other purposes, such as disabling a certain feature
 if an error occurs.
 */
-
-const FlexDiv = styled.div`
-  margin-top: 10px;
-  margin-right: 0px;
-  margin-bottom: 10px;
-  margin-left: 0px;
-  display: flex;
-`
-
-const StyledCheckmark = styled(Checkmark)`
-  margin: auto;
-  display: block;
-`
-
-const StyledWarning = styled(Warning)`
-  margin: auto;
-  display: block;
-`
-
-const StyledToast = styled.div`
-  text-align: center;
-`
 
 type ToastSystem = {
   makeTxToast: (txType: string, condition: TransactionCondition, txHash?: string) => void
@@ -55,31 +28,9 @@ const ToastsContext = createContext<ToastSystem>({
 const ToastsProvider: React.FC = (props) => {
   const wallet = useWallet()
 
-  const makeTxToast = (txType: string, condition?: TransactionCondition, txHash?: string) => {
-    const TxToast = (message: string, cond?: string) => (
-      <StyledToast>
-        <FlexDiv>
-          {message}: Transaction {cond}
-        </FlexDiv>
-        <FlexDiv>
-          {txHash && (
-            <HyperLink
-              href={getEtherscanTxUrl(wallet.chainId ?? DEFAULT_CHAIN_ID, txHash)}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <Button>Check on Etherscan</Button>
-            </HyperLink>
-          )}
-          {condition == TransactionCondition.PENDING ? (
-            <Loader width={10} height={10} />
-          ) : condition == TransactionCondition.SUCCESS ? (
-            <StyledCheckmark size={30} />
-          ) : (
-            <StyledWarning size={30} />
-          )}
-        </FlexDiv>
-      </StyledToast>
+  const makeTxToast = (txType: string, condition: TransactionCondition, txHash?: string) => {
+    const TxToast = (message: string, cond: string) => (
+      <NotificationToast message={message} condition={condition} cond={cond} txHash={txHash} />
     )
     switch (condition) {
       case 'Complete':
@@ -153,12 +104,7 @@ const ToastsProvider: React.FC = (props) => {
     }
   }
 
-  const appToast = (message: string, icon?: any) => (
-    <StyledToast>
-      {icon}
-      <FlexDiv>{message}</FlexDiv>
-    </StyledToast>
-  )
+  const appToast = (message: string, icon: any) => <AppToast message={message} icon={icon} />
 
   // Removes toasts from display on chainId or account change
   useEffect(() => {

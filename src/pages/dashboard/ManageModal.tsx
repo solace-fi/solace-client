@@ -37,8 +37,8 @@ import { useContracts } from '../../context/ContractsManager'
 
 /* import components */
 import { Modal } from '../../components/Modal/Modal'
-import { BoxChooseRow, BoxChooseCol, BoxChooseText } from '../../components/Box/BoxChoose'
-import { Text1, Text3 } from '../../components/Text'
+import { FormRow, FormCol } from '../../components/Input/Form'
+import { Text1, Text3 } from '../../components/Typography'
 import { PolicyInfo } from './PolicyInfo'
 import { Input } from '../../components/Input'
 import { Button } from '../../components/Button'
@@ -270,7 +270,7 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
 
   useEffect(() => {
     const load = async () => {
-      if (!selectedPolicy || !wallet.chainId || !wallet.account || !isOpen) return
+      if (!selectedPolicy || !wallet.account || !isOpen) return
       setAsyncLoading(true)
       const positionAmount = await getAppraisePosition(
         getProtocolByName(selectedPolicy.productName),
@@ -294,15 +294,15 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
         <PolicyInfo selectedPolicy={selectedPolicy} latestBlock={latestBlock} asyncLoading={asyncLoading} />
         {!modalLoading ? (
           <Fragment>
-            <BoxChooseRow>
+            <FormRow>
               <Text1>Update Policy</Text1>
-            </BoxChooseRow>
+            </FormRow>
             <UpdatePolicySec>
-              <BoxChooseRow mb={5}>
-                <BoxChooseCol>
-                  <BoxChooseText>Edit coverage (1 - 100%)</BoxChooseText>
-                </BoxChooseCol>
-                <BoxChooseCol>
+              <FormRow mb={5}>
+                <FormCol>
+                  <Text3>Edit coverage (1 - 100%)</Text3>
+                </FormCol>
+                <FormCol>
                   <Slider
                     disabled={asyncLoading}
                     width={150}
@@ -312,8 +312,8 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
                     min={100}
                     max={10000}
                   />
-                </BoxChooseCol>
-                <BoxChooseCol>
+                </FormCol>
+                <FormCol>
                   <Input
                     disabled={asyncLoading}
                     type="text"
@@ -321,14 +321,14 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
                     value={inputCoverage}
                     onChange={(e) => handleInputCoverage(e.target.value)}
                   />
-                </BoxChooseCol>
-              </BoxChooseRow>
-              <BoxChooseCol></BoxChooseCol>
-              <BoxChooseRow mb={5}>
-                <BoxChooseCol>
-                  <BoxChooseText>Add days (0 - {DAYS_PER_YEAR - daysLeft} days)</BoxChooseText>
-                </BoxChooseCol>
-                <BoxChooseCol>
+                </FormCol>
+              </FormRow>
+              <FormCol></FormCol>
+              <FormRow mb={5}>
+                <FormCol>
+                  <Text3>Add days (0 - {DAYS_PER_YEAR - daysLeft} days)</Text3>
+                </FormCol>
+                <FormCol>
                   <Slider
                     disabled={asyncLoading}
                     width={150}
@@ -338,8 +338,8 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
                     min="0"
                     max={DAYS_PER_YEAR - daysLeft}
                   />
-                </BoxChooseCol>
-                <BoxChooseCol>
+                </FormCol>
+                <FormCol>
                   <Input
                     disabled={asyncLoading}
                     type="text"
@@ -349,20 +349,18 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
                     onChange={(e) => filteredTime(e.target.value)}
                     maxLength={3}
                   />
-                </BoxChooseCol>
-              </BoxChooseRow>
-              <BoxChooseCol></BoxChooseCol>
-              <BoxChooseRow mb={5}>
-                {/* <BoxChooseDate> */}
-                <BoxChooseCol>
+                </FormCol>
+              </FormRow>
+              <FormCol></FormCol>
+              <FormRow mb={5}>
+                <FormCol>
                   <Text3 nowrap>Expiration: {getCurrentExpiration()}</Text3>
-                </BoxChooseCol>
-                <BoxChooseCol>
+                </FormCol>
+                <FormCol>
                   <Text3 nowrap>New expiration: {getNewExpiration()}</Text3>
-                </BoxChooseCol>
-                {/* </BoxChooseDate> */}
-              </BoxChooseRow>
-              <BoxChooseRow mb={5} style={{ justifyContent: 'flex-end' }}>
+                </FormCol>
+              </FormRow>
+              <FormRow mb={5} style={{ justifyContent: 'flex-end' }}>
                 {!asyncLoading ? (
                   <Button disabled={wallet.errors.length > 0} onClick={() => extendPolicy()}>
                     Update Policy
@@ -370,29 +368,29 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
                 ) : (
                   <Loader width={10} height={10} />
                 )}
-              </BoxChooseRow>
+              </FormRow>
             </UpdatePolicySec>
-            <BoxChooseRow>
+            <FormRow>
               <Text1>Cancel Policy</Text1>
-            </BoxChooseRow>
+            </FormRow>
             <CancelPolicySec>
-              <BoxChooseRow mb={10}>
-                <BoxChooseCol>
-                  <BoxChooseText error={policyPrice !== '' && refundAmount.lte(parseEther(cancelFee))}>
+              <FormRow mb={10}>
+                <FormCol>
+                  <Text3 error={policyPrice !== '' && refundAmount.lte(parseEther(cancelFee))}>
                     Refund amount: {formatEther(refundAmount)} ETH
-                  </BoxChooseText>
-                </BoxChooseCol>
-              </BoxChooseRow>
-              <BoxChooseCol></BoxChooseCol>
-              <BoxChooseRow mb={10}>
-                <BoxChooseCol>
-                  <BoxChooseText>Cancellation fee: {cancelFee} ETH</BoxChooseText>
+                  </Text3>
+                </FormCol>
+              </FormRow>
+              <FormCol></FormCol>
+              <FormRow mb={10}>
+                <FormCol>
+                  <Text3>Cancellation fee: {cancelFee} ETH</Text3>
                   {policyPrice !== '' && refundAmount.lte(parseEther(cancelFee)) && (
-                    <BoxChooseText error>Refund amount must offset cancellation fee</BoxChooseText>
+                    <Text3 error>Refund amount must offset cancellation fee</Text3>
                   )}
-                </BoxChooseCol>
-              </BoxChooseRow>
-              <BoxChooseRow mb={10} style={{ justifyContent: 'flex-end' }}>
+                </FormCol>
+              </FormRow>
+              <FormRow mb={10} style={{ justifyContent: 'flex-end' }}>
                 {policyPrice !== '' ? (
                   <Button
                     disabled={wallet.errors.length > 0 || refundAmount.lte(parseEther(cancelFee))}
@@ -403,7 +401,7 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
                 ) : (
                   <Loader width={10} height={10} />
                 )}
-              </BoxChooseRow>
+              </FormRow>
             </CancelPolicySec>
           </Fragment>
         ) : (

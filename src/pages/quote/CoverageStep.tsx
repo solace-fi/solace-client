@@ -40,11 +40,11 @@ import { useUserData } from '../../context/UserDataManager'
 import { useToasts } from '../../context/NotificationsManager'
 
 /* import components */
-import { BoxChooseRow, BoxChooseCol, BoxChooseText } from '../../components/Box/BoxChoose'
+import { FormRow, FormCol } from '../../components/Input/Form'
 import { Button, ButtonWrapper } from '../../components/Button'
 import { formProps } from './MultiStepForm'
-import { CardBaseComponent, CardContainer } from '../../components/Card'
-import { Heading2, Text3, TextSpan } from '../../components/Text'
+import { Card, CardContainer } from '../../components/Card'
+import { Heading2, Text3, TextSpan } from '../../components/Typography'
 import { Input } from '../../components/Input'
 import { Loader } from '../../components/Loader'
 import { SmallBox } from '../../components/Box'
@@ -232,21 +232,21 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
   return (
     <Fragment>
       <CardContainer cardsPerRow={2}>
-        <CardBaseComponent>
-          <BoxChooseRow mb={15}>
-            <BoxChooseCol>
+        <Card>
+          <FormRow mb={15}>
+            <FormCol>
               <Heading2>Total Assets</Heading2>
               {position.underlying.symbol !== 'ETH' && <Text3>ETH Denominated from {position.underlying.symbol}</Text3>}
-            </BoxChooseCol>
-            <BoxChooseCol>
+            </FormCol>
+            <FormCol>
               <Heading2>{formatEther(position.eth.balance)} ETH</Heading2>
-            </BoxChooseCol>
-          </BoxChooseRow>
-          <BoxChooseRow mb={5}>
-            <BoxChooseCol>
-              <BoxChooseText>Coverage Limit (1 - 100%)</BoxChooseText>
-            </BoxChooseCol>
-            <BoxChooseCol>
+            </FormCol>
+          </FormRow>
+          <FormRow mb={5}>
+            <FormCol>
+              <Text3>Coverage Limit (1 - 100%)</Text3>
+            </FormCol>
+            <FormCol>
               <Slider
                 width={200}
                 backgroundColor={'#fff'}
@@ -255,29 +255,29 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
                 min={100}
                 max={10000}
               />
-            </BoxChooseCol>
-            <BoxChooseCol>
+            </FormCol>
+            <FormCol>
               <Input
                 type="text"
                 width={50}
                 value={inputCoverage}
                 onChange={(e) => handleInputCoverage(e.target.value)}
               />
-            </BoxChooseCol>
-          </BoxChooseRow>
-          <BoxChooseRow mb={5}>
-            <BoxChooseCol>
-              <BoxChooseText>Covered Assets</BoxChooseText>
-            </BoxChooseCol>
-            <BoxChooseCol>
+            </FormCol>
+          </FormRow>
+          <FormRow mb={5}>
+            <FormCol>
+              <Text3>Covered Assets</Text3>
+            </FormCol>
+            <FormCol>
               <FlexRow>
-                <BoxChooseText
+                <Text3
                   autoAlign
                   bold
                   error={parseEther(coveredAssets).gt(parseEther(maxCoverPerUser)) && maxCoverPerUser !== '0.00'}
                 >
                   {coveredAssets} ETH
-                </BoxChooseText>
+                </Text3>
                 <Button
                   disabled={wallet.errors.length > 0}
                   ml={10}
@@ -292,8 +292,8 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
                   MAX
                 </Button>
               </FlexRow>
-            </BoxChooseCol>
-          </BoxChooseRow>
+            </FormCol>
+          </FormRow>
           <SmallBox
             transparent
             outlined
@@ -305,11 +305,11 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
               You can only cover to a maximum amount of {maxCoverPerUser} ETH.
             </Text3>
           </SmallBox>
-          <BoxChooseRow mb={5}>
-            <BoxChooseCol>
-              <BoxChooseText>Time Period (1 - 365 days)</BoxChooseText>
-            </BoxChooseCol>
-            <BoxChooseCol>
+          <FormRow mb={5}>
+            <FormCol>
+              <Text3>Time Period (1 - 365 days)</Text3>
+            </FormCol>
+            <FormCol>
               <Slider
                 width={200}
                 backgroundColor={'#fff'}
@@ -318,8 +318,8 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
                 min="1"
                 max={DAYS_PER_YEAR}
               />
-            </BoxChooseCol>
-            <BoxChooseCol>
+            </FormCol>
+            <FormCol>
               <Input
                 type="text"
                 pattern="[0-9]+"
@@ -328,10 +328,10 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
                 onChange={(e) => filteredTime(e.target.value)}
                 maxLength={3}
               />
-            </BoxChooseCol>
-          </BoxChooseRow>
-          <BoxChooseRow mb={5}>
-            <BoxChooseCol>
+            </FormCol>
+          </FormRow>
+          <FormRow mb={5}>
+            <FormCol>
               <Text3 nowrap>
                 Coverage will last from{' '}
                 <TextSpan pl={5} pr={5}>
@@ -342,16 +342,16 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
                   {getDateStringWithMonthName(getDateExtended(parseFloat(timePeriod || '1')))}
                 </TextSpan>
               </Text3>
-            </BoxChooseCol>
-          </BoxChooseRow>
-          <BoxChooseRow>
-            <BoxChooseCol>
-              <BoxChooseText>Quote</BoxChooseText>
-            </BoxChooseCol>
-            <BoxChooseCol>
-              <BoxChooseText bold>{quote} ETH</BoxChooseText>
-            </BoxChooseCol>
-          </BoxChooseRow>
+            </FormCol>
+          </FormRow>
+          <FormRow>
+            <FormCol>
+              <Text3>Quote</Text3>
+            </FormCol>
+            <FormCol>
+              <Text3 bold>{quote} ETH</Text3>
+            </FormCol>
+          </FormRow>
           <ButtonWrapper>
             {!loading ? (
               <Button
@@ -364,14 +364,14 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
               <Loader />
             )}
           </ButtonWrapper>
-        </CardBaseComponent>
-        <CardBaseComponent transparent>
-          <BoxChooseRow>
+        </Card>
+        <Card transparent>
+          <FormRow>
             <Heading2>Terms and conditions</Heading2>
-          </BoxChooseRow>
-          <BoxChooseRow>
-            <BoxChooseCol>
-              <BoxChooseText>
+          </FormRow>
+          <FormRow>
+            <FormCol>
+              <Text3>
                 <b>Events covered:</b>
                 <ul>
                   <li>Contract bugs</li>
@@ -381,16 +381,16 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
                 This coverage is not a contract of insurance. Coverage is provided on a discretionary basis with Solace
                 protocol and the decentralized governance has the final say on which claims are paid.
                 <b>Important Developer Notes</b>
-              </BoxChooseText>
+              </Text3>
               <hr></hr>
               <Heading2>Important Developer Notes</Heading2>
-              <BoxChooseText error>
+              <Text3 error>
                 Do not purchase a policy with a lending protocol for an asset that is locked as collateral. You will not
                 be able to submit a claim.
-              </BoxChooseText>
-            </BoxChooseCol>
-          </BoxChooseRow>
-        </CardBaseComponent>
+              </Text3>
+            </FormCol>
+          </FormRow>
+        </Card>
       </CardContainer>
     </Fragment>
   )

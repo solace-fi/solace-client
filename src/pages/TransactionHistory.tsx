@@ -1,9 +1,6 @@
 /* import react */
 import React from 'react'
 
-/* import constants */
-import { DEFAULT_CHAIN_ID } from '../constants'
-
 /* import managers */
 import { useWallet } from '../context/WalletManager'
 import { useUserData } from '../context/UserDataManager'
@@ -12,7 +9,7 @@ import { useUserData } from '../context/UserDataManager'
 import { Loader } from '../components/Loader'
 import { Table, TableHead, TableHeader, TableRow, TableBody, TableData } from '../components/Table'
 import { Button } from '../components/Button'
-import { Text } from '../components/Text'
+import { Text } from '../components/Typography'
 import { HyperLink } from '../components/Link'
 import { CustomScrollbar } from '../components/Layout'
 
@@ -20,12 +17,13 @@ import { CustomScrollbar } from '../components/Layout'
 import { useTransactionDetails } from '../hooks/useTransactionHistory'
 
 /* import utils */
-import { getEtherscanTxUrl } from '../utils/etherscan'
+import { getExplorerItemUrl } from '../utils/explorer'
 import { shortenAddress } from '../utils/formatting'
 import { timeAgo } from '../utils/time'
 import { decodeInput } from '../utils/decoder'
 import { useContractArray } from '../hooks/useContract'
 import styled from 'styled-components'
+import { ExplorerscanApi } from '../constants/enums'
 
 const Scrollable = styled.div`
   max-height: 60vh;
@@ -70,7 +68,7 @@ export const TransactionHistory: React.FC = () => {
               </TableData>
               <TableData pt={10} pb={10}>
                 <HyperLink
-                  href={getEtherscanTxUrl(wallet.chainId ?? DEFAULT_CHAIN_ID, pendingtx.hash)}
+                  href={getExplorerItemUrl(wallet.chainId, pendingtx.hash, ExplorerscanApi.TX)}
                   target="_blank"
                   rel="noopener noreferrer"
                 >
@@ -87,7 +85,7 @@ export const TransactionHistory: React.FC = () => {
               <TableRow key={tx.hash}>
                 <TableData pt={10} pb={10}>
                   {amounts.length > 0 ? (
-                    decodeInput(tx, wallet.chainId ?? DEFAULT_CHAIN_ID, contractAddrs).function_name
+                    decodeInput(tx, wallet.chainId, contractAddrs).function_name
                   ) : (
                     <Loader width={10} height={10} />
                   )}
@@ -101,7 +99,7 @@ export const TransactionHistory: React.FC = () => {
                 <TableData pt={10} pb={10}>
                   {amounts.length > 0 && (
                     <HyperLink
-                      href={getEtherscanTxUrl(wallet.chainId ?? DEFAULT_CHAIN_ID, tx.hash)}
+                      href={getExplorerItemUrl(wallet.chainId, tx.hash, ExplorerscanApi.TX)}
                       target="_blank"
                       rel="noopener noreferrer"
                     >

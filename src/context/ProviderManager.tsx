@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { DEFAULT_CHAIN_ID, ALCHEMY_API_KEY } from '../constants'
+import { ALCHEMY_API_KEY } from '../constants'
 import { Provider, JsonRpcProvider } from '@ethersproject/providers'
 import { useWallet } from './WalletManager'
 import { getNetworkName } from '../utils'
@@ -42,7 +42,7 @@ const ProviderManager: React.FC = ({ children }) => {
 
   const getProvider = async () => {
     const provider = new JsonRpcProvider(
-      `https://eth-${getNetworkName(wallet.chainId ?? DEFAULT_CHAIN_ID)}.alchemyapi.io/v2/${ALCHEMY_API_KEY}`
+      `https://eth-${getNetworkName(wallet.chainId)}.alchemyapi.io/v2/${ALCHEMY_API_KEY}`
     )
     setEthProvider(provider)
   }

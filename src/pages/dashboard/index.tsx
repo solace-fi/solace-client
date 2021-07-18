@@ -29,7 +29,7 @@ import { Policy } from '../../constants/types'
 
 /* import components */
 import { HeroContainer, Content } from '../../components/Layout'
-import { Heading1 } from '../../components/Text'
+import { Heading1 } from '../../components/Typography'
 import { ManageModal } from './ManageModal'
 import { ClaimModal } from './ClaimModal'
 import { MyPolicies } from './MyPolicies'

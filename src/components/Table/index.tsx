@@ -8,7 +8,7 @@ import {
   MarginCss,
   PaddingCss,
 } from '../generalInterfaces'
-import { TextAlignProps, TextAlignCss } from '../Text'
+import { TextAlignProps, TextAlignCss } from '../Typography'
 
 interface TableProps extends HeightAndWidthProps, TextAlignProps, MarginProps, PaddingProps {
   isHighlight?: boolean

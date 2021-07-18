@@ -34,8 +34,8 @@ import { useContracts } from '../../context/ContractsManager'
 
 /* import components */
 import { Modal } from '../../components/Modal/Modal'
-import { BoxChooseRow, BoxChooseCol } from '../../components/Box/BoxChoose'
-import { Heading2, Heading3, Text2, Text3 } from '../../components/Text'
+import { FormRow, FormCol } from '../../components/Input/Form'
+import { Heading2, Heading3, Text2, Text3 } from '../../components/Typography'
 import { PolicyInfo } from './PolicyInfo'
 import { Loader } from '../../components/Loader'
 import { SmallBox, Box } from '../../components/Box'
@@ -175,7 +175,7 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
 
   useEffect(() => {
     const load = async () => {
-      if (!selectedPolicy || !wallet.chainId || !wallet.account || !isOpen) return
+      if (!selectedPolicy || !wallet.account || !isOpen) return
       setAsyncLoading(true)
       const tokenContract = getContract(selectedPolicy.positionContract, cTokenABI, wallet.library, wallet.account)
       const assessment = await getClaimAssessment(String(selectedPolicy?.policyId))
@@ -205,11 +205,11 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
         <PolicyInfo selectedPolicy={selectedPolicy} latestBlock={latestBlock} asyncLoading={asyncLoading} />
         {!modalLoading && !asyncLoading ? (
           <Fragment>
-            <BoxChooseRow>
-              <BoxChooseCol>
+            <FormRow>
+              <FormCol>
                 <Text3 autoAlign>By submitting a claim you swap</Text3>
-              </BoxChooseCol>
-              <BoxChooseCol>
+              </FormCol>
+              <FormCol>
                 <Heading2 autoAlign>
                   {positionBalances &&
                     positionBalances.map(
@@ -220,16 +220,16 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
                         )} ${position.token.symbol}`
                     )}{' '}
                 </Heading2>
-              </BoxChooseCol>
-            </BoxChooseRow>
-            <BoxChooseRow>
-              <BoxChooseCol>
+              </FormCol>
+            </FormRow>
+            <FormRow>
+              <FormCol>
                 <Text3 autoAlign>for pre-exploit assets value equal to</Text3>
-              </BoxChooseCol>
-              <BoxChooseCol>
+              </FormCol>
+              <FormCol>
                 <Heading2 autoAlign>{formatEther(assessment?.amountOut || 0)} ETH</Heading2>
-              </BoxChooseCol>
-            </BoxChooseRow>
+              </FormCol>
+            </FormRow>
             <SmallBox transparent mt={10} collapse={assessment?.lossEventDetected}>
               <Text2 autoAlign error={!assessment?.lossEventDetected}>
                 No loss event detected, unable to submit claims yet.

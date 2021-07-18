@@ -5,15 +5,11 @@ import { PolicyState } from '../constants/enums'
 import { Policy } from '../constants/types'
 import { BigNumber } from 'ethers'
 import { useContracts } from '../context/ContractsManager'
-import { DEFAULT_CHAIN_ID } from '../constants'
 
 export const usePolicyGetter = () => {
   const wallet = useWallet()
   const { policyManager } = useContracts()
-  const config =
-    wallet.chainId && policyConfig[String(wallet.chainId)]
-      ? policyConfig[String(wallet.chainId)]
-      : policyConfig[String(DEFAULT_CHAIN_ID)]
+  const config = policyConfig[String(wallet.chainId)]
 
   const getPolicies = async (policyHolder?: string, product?: string) => {
     if (!config) return []
@@ -22,10 +18,7 @@ export const usePolicyGetter = () => {
     policies = policies.filter((policy: any) => policy.policyId >= 0)
     if (product) policies = policies.filter((policy: any) => policy.productAddress.equalsIgnoreCase(product))
     policies.sort((a: any, b: any) => b.policyId - a.policyId) // newest first
-    const initializedConfig =
-      wallet.chainId && policyConfig[String(wallet.chainId)]
-        ? policyConfig[String(wallet.chainId)]
-        : policyConfig[String(DEFAULT_CHAIN_ID)]
+    const initializedConfig = policyConfig[String(wallet.chainId)]
     policies.forEach(
       (policy: Policy) => (policy.positionName = initializedConfig.positionNames[policy.positionContract.toLowerCase()])
     )
@@ -39,7 +32,7 @@ export const usePolicyGetter = () => {
         (names: any, token: any) => ({ ...names, [token.token.address.toLowerCase()]: token.underlying.symbol }),
         {}
       )
-      policyConfig[String(wallet.chainId ?? DEFAULT_CHAIN_ID)] = {
+      policyConfig[String(wallet.chainId)] = {
         ...config,
         positionNames,
         initialized: true,

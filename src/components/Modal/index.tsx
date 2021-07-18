@@ -1,6 +1,6 @@
 import styled, { css, keyframes } from 'styled-components'
 import { ClickProps } from '../Button'
-import { GeneralTextProps, GeneralTextCss } from '../Text'
+import { GeneralTextProps, GeneralTextCss } from '../Typography'
 
 export interface ModalProps {
   handleClose: () => void
@@ -59,8 +59,6 @@ export const ModalHeader = styled.div`
   justify-content: space-between;
   margin-bottom: 30px;
 `
-
-export const ModalContent = styled.div``
 
 export const ModalRow = styled.div`
   display: flex;

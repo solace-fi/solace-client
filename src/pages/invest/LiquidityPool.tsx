@@ -1,6 +1,6 @@
 import React from 'react'
 import { Content } from '../../components/Layout'
-import { Heading1 } from '../../components/Text'
+import { Heading1 } from '../../components/Typography'
 import { Table, TableHead, TableRow, TableHeader, TableBody, TableData, TableDataGroup } from '../../components/Table'
 import { LP_ROI } from '../../constants'
 import { useWallet } from '../../context/WalletManager'

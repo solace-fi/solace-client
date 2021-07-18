@@ -25,14 +25,13 @@ import { useWallet } from '../../context/WalletManager'
 import { useContracts } from '../../context/ContractsManager'
 
 /* import components */
-import { BoxItemUnits } from '../../components/Box'
 import { Button } from '../../components/Button'
 import { formProps } from './MultiStepForm'
 import { CardContainer, PositionCard } from '../../components/Card'
 import { PositionCardButton, PositionCardText, PositionCardLogo, PositionCardName } from '../../components/Position'
 import { Loader } from '../../components/Loader'
 import { HeroContainer } from '../../components/Layout'
-import { Heading1 } from '../../components/Text'
+import { Heading1, TextSpan } from '../../components/Typography'
 import { ManageModal } from '../dashboard/ManageModal'
 
 /* import constants */
@@ -96,7 +95,7 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
   }
 
   const getBalances = async () => {
-    if (!account || !chainId) return
+    if (!account) return
     if (policyConfig[chainId]) {
       const balances: Token[] = await policyConfig[chainId].getBalances(account, library)
       setForm({
@@ -272,7 +271,7 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
                     }}
                   >
                     {truncateBalance(fixedTokenPositionBalance(position.underlying))}{' '}
-                    <BoxItemUnits style={{ fontSize: '12px' }}>{position.underlying.symbol}</BoxItemUnits>
+                    <TextSpan style={{ fontSize: '12px' }}>{position.underlying.symbol}</TextSpan>
                   </PositionCardText>
                   <PositionCardText
                     t2
@@ -281,7 +280,7 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
                     }}
                   >
                     {truncateBalance(fixedTokenPositionBalance(position.token))}{' '}
-                    <BoxItemUnits style={{ fontSize: '12px' }}>{position.token.symbol}</BoxItemUnits>
+                    <TextSpan style={{ fontSize: '12px' }}>{position.token.symbol}</TextSpan>
                   </PositionCardText>
 
                   <PositionCardButton>

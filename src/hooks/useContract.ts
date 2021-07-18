@@ -3,7 +3,6 @@ import { useMemo, useState } from 'react'
 import { getContract } from '../utils'
 import { Contract } from '@ethersproject/contracts'
 import { contractConfig } from '../config/chainConfig'
-import { DEFAULT_CHAIN_ID } from '../constants'
 import { ContractSources, SupportedProduct } from '../constants/types'
 
 export function useGetContract(address: string, abi: any, hasSigner = true): Contract | null {
@@ -22,8 +21,7 @@ export function useGetContract(address: string, abi: any, hasSigner = true): Con
 
 export function useGetProductContracts(): SupportedProduct[] {
   const { library, account, chainId } = useWallet()
-  const chainID = chainId ?? DEFAULT_CHAIN_ID
-  const _contractConfig = contractConfig[String(chainID)] ?? contractConfig[String(DEFAULT_CHAIN_ID)]
+  const _contractConfig = contractConfig[String(chainId)]
 
   return useMemo(() => {
     if (!library) return []
@@ -51,8 +49,7 @@ export function useGetProductContracts(): SupportedProduct[] {
 
 export function useContractArray(): ContractSources[] {
   const { chainId } = useWallet()
-  const chainID = chainId ?? DEFAULT_CHAIN_ID
-  const _contractConfig = contractConfig[String(chainID)] ?? contractConfig[String(DEFAULT_CHAIN_ID)]
+  const _contractConfig = contractConfig[String(chainId)]
   const [contractSources, setContractSources] = useState<ContractSources[]>([])
 
   useMemo(() => {

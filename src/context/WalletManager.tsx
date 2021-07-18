@@ -17,6 +17,8 @@ import { useFetchGasPrice } from '../hooks/useFetchGasPrice'
 import { Error as AppError } from '../constants/enums'
 import { useUserData } from './UserDataManager'
 import { getTokens } from '../utils/positionGetters/aave/getTokens'
+import { useInterval } from '../hooks/useInterval'
+import { DEFAULT_CHAIN_ID } from '../constants'
 
 /*
 
@@ -46,7 +48,7 @@ export type ContextWallet = {
   connecting?: WalletConnector
   isActive: boolean
   account?: string
-  chainId?: number
+  chainId: number
   library?: any
   connector?: WalletConnector
   version?: number
@@ -64,7 +66,7 @@ const WalletContext = createContext<ContextWallet>({
   connecting: undefined,
   isActive: false,
   account: undefined,
-  chainId: undefined,
+  chainId: DEFAULT_CHAIN_ID,
   library: undefined,
   connector: undefined,
   version: undefined,
@@ -104,16 +106,14 @@ const WalletProvider: React.FC = (props) => {
   const connect = useCallback(
     async (walletConnector: WalletConnector): Promise<void> => {
       // if a connector is trying to connect, do not try to connect again
-      if (connectingRef.current) {
-        return
-      }
+      if (connectingRef.current) return
 
       const connector = walletConnector.connector.getConnector()
       connectingRef.current = walletConnector
       setConnecting(walletConnector)
-      const walletErrors: AppError[] = []
 
       function onError(error: Error) {
+        const walletErrors: AppError[] = []
         if (error instanceof NoEthereumProviderError) {
           walletErrors.push(AppError.NO_ETH_PROVIDER)
         } else if (error instanceof UnsupportedChainIdError) {
@@ -133,9 +133,7 @@ const WalletProvider: React.FC = (props) => {
 
       function onSuccess() {
         setErrors([])
-        if (!connectingRef.current) {
-          return
-        }
+        if (!connectingRef.current) return
         setActiveConnector(walletConnector)
         setLocalProvider(walletConnector.id)
       }
@@ -152,23 +150,16 @@ const WalletProvider: React.FC = (props) => {
     ;(async () => {
       if (localProvider) {
         const walletConnector = WalletConnectors.find((c) => c.id === localProvider)
-
-        if (walletConnector) {
-          await connect(walletConnector)
-        }
+        if (walletConnector) await connect(walletConnector)
       }
 
       setInitialized(true)
     })()
   }, [web3React])
 
-  // dataReload is called on an interval
-  useEffect(() => {
-    const dataInterval = setInterval(() => dataReload(), 3500)
-    return () => {
-      clearInterval(dataInterval)
-    }
-  }, [])
+  useInterval(() => {
+    dataReload()
+  }, 3500)
 
   const value = useMemo<ContextWallet>(
     () => ({
@@ -176,7 +167,7 @@ const WalletProvider: React.FC = (props) => {
       connecting,
       isActive: web3React.active,
       account: web3React.account ?? undefined,
-      chainId: web3React.chainId,
+      chainId: web3React.chainId ?? DEFAULT_CHAIN_ID,
       library: web3React.account ? web3React.library : provider.ethProvider,
       connector: activeConnector,
       version,

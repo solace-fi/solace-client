@@ -15,6 +15,7 @@
   *************************************************************************************/
 /* import react */
 import React, { Fragment, useEffect, useState } from 'react'
+import { HeroContainer } from '.'
 
 /* import managers */
 import { useWallet } from '../../context/WalletManager'
@@ -33,5 +34,15 @@ export const LayoutContentWithLoader: React.FC = ({ children }) => {
   useEffect(() => {
     setLoader(initialized)
   }, [initialized])
-  return <Fragment>{loader ? children : <Loader />}</Fragment>
+  return (
+    <Fragment>
+      {loader ? (
+        children
+      ) : (
+        <HeroContainer>
+          <Loader />
+        </HeroContainer>
+      )}
+    </Fragment>
+  )
 }

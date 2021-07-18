@@ -29,6 +29,12 @@ export enum FunctionName {
   WITHDRAW_REWARDS = 'WithdrawRewards',
 }
 
+export enum ExplorerscanApi {
+  TX = 'tx',
+  BLOCK = 'block',
+  ADDRESS = 'address',
+}
+
 export enum Unit {
   ETH = 'ETH',
   SCP = 'Solace CP Token',

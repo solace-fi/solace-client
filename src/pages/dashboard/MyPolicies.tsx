@@ -35,7 +35,7 @@ import { Policy } from '../../constants/types'
 import { Table, TableBody, TableHead, TableRow, TableHeader, TableData, TableDataGroup } from '../../components/Table'
 import { Button } from '../../components/Button'
 import { Loader } from '../../components/Loader'
-import { Heading2 } from '../../components/Text'
+import { Heading2 } from '../../components/Typography'
 import { Unit, PolicyState } from '../../constants/enums'
 
 /* import hooks */

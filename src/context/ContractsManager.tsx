@@ -4,7 +4,6 @@ import { contractConfig } from '../config/chainConfig'
 
 import { useGetContract, useGetProductContracts } from '../hooks/useContract'
 import { useWallet } from './WalletManager'
-import { DEFAULT_CHAIN_ID } from '../constants'
 import { SupportedProduct } from '../constants/types'
 
 /*
@@ -53,10 +52,7 @@ const ContractsContext = createContext<Contracts>({
 const ContractsProvider: React.FC = (props) => {
   const [selectedProtocol, setSelectedProtocol] = useState<Contract | null>(null)
   const { chainId } = useWallet()
-  const config =
-    chainId && contractConfig[String(chainId)]
-      ? contractConfig[String(chainId)]
-      : contractConfig[String(DEFAULT_CHAIN_ID)]
+  const config = contractConfig[String(chainId)]
   const keyContracts = config.keyContracts
 
   const master = useGetContract(keyContracts.master.addr, keyContracts.master.abi)
@@ -74,7 +70,7 @@ const ContractsProvider: React.FC = (props) => {
 
   const getProtocolByName = (productName: string): Contract | null => {
     const foundProduct = products.filter((product) => product.name == productName)
-    if (foundProduct && foundProduct.length > 0) return foundProduct[0].contract
+    if (foundProduct.length > 0) return foundProduct[0].contract
     return null
   }
 

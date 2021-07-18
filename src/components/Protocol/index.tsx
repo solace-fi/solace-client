@@ -1,5 +1,5 @@
 import styled from 'styled-components'
-import { TextFontCss, TextFontProps } from '../Text'
+import { TextFontCss, TextFontProps } from '../Typography'
 import { HeightAndWidthProps, HeightAndWidthCss, MarginProps, MarginCss } from '../generalInterfaces'
 
 export const Protocol = styled.div`

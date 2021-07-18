@@ -1,6 +1,6 @@
 import React from 'react'
-import { Heading2 } from '../Text'
-import { ModalContainer, ModalBase, ModalClose, ModalContent, ModalHeader } from './index'
+import { Heading2 } from '../Typography'
+import { ModalContainer, ModalBase, ModalClose, ModalHeader } from './index'
 import { ModalProps, ModalButtonProps } from './index'
 
 export const Modal: React.FC<ModalProps> = ({ children, ...props }) => {
@@ -12,7 +12,7 @@ export const Modal: React.FC<ModalProps> = ({ children, ...props }) => {
           <ModalCloseButton hidden={props.disableCloseButton} onClick={() => props.handleClose()} />
         </ModalHeader>
         <hr style={{ marginBottom: '20px' }} />
-        <ModalContent>{children}</ModalContent>
+        <div>{children}</div>
       </ModalBase>
     </ModalContainer>
   )

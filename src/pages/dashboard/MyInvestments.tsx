@@ -23,7 +23,7 @@ import { useContracts } from '../../context/ContractsManager'
 
 /* import components */
 import { Content } from '../../components/Layout'
-import { Heading1, Heading3 } from '../../components/Text'
+import { Heading1, Heading3 } from '../../components/Typography'
 import { CardContainer, InvestmentCard, CardHeader, CardTitle, CardBlock } from '../../components/Card'
 import { Unit } from '../../constants/enums'
 

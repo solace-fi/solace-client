@@ -63,7 +63,7 @@ export const LayoutContainer = styled.div`
 export const NavContent = styled.div<HeightAndWidthProps>`
   padding: 20px;
   align-content: start;
-  ${(props) => props.width && `min-width: ${(props.width / 100) * MAX_WIDTH}px;`}
+  min-width: ${(props) => ((props.width ? props.width : 10) / 100) * MAX_WIDTH}px;
 
   @media screen and (max-width: ${MAX_DEVICE_SCREEN_WIDTH}px) {
     display: none;

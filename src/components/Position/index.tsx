@@ -1,5 +1,5 @@
 import styled from 'styled-components'
-import { GeneralTextProps, GeneralTextCss } from '../Text'
+import { GeneralTextProps, GeneralTextCss } from '../Typography'
 
 export const PositionCardLogo = styled.div`
   display: flex;

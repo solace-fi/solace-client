@@ -1,5 +1,4 @@
-import { DEFAULT_CHAIN_ID } from '../constants'
-import { fetchEtherscanTxHistoryByAddress } from '../utils/etherscan'
+import { fetchExplorerTxHistoryByAddress } from '../utils/explorer'
 import { useContractArray } from './useContract'
 import { useState, useEffect } from 'react'
 import { useUserData } from '../context/UserDataManager'
@@ -57,7 +56,7 @@ export const useTransactionDetails = (): { txHistory: any; amounts: string[] } =
     if (txHistory) {
       const currentAmounts = []
       for (let tx_i = 0; tx_i < txHistory.length; tx_i++) {
-        const function_name = decodeInput(txHistory[tx_i], chainId ?? DEFAULT_CHAIN_ID, contractArray).function_name
+        const function_name = decodeInput(txHistory[tx_i], chainId, contractArray).function_name
         const amount: string = await getTransactionAmount(function_name, txHistory[tx_i], library)
         currentAmounts.push(`${formatTransactionContent(function_name, amount)}`)
       }
@@ -79,7 +78,7 @@ export const useFetchTxHistoryByAddress = (): any => {
   const contractAddrs = useContractArray()
 
   const fetchTxHistoryByAddress = async (account: string) => {
-    await fetchEtherscanTxHistoryByAddress(chainId ?? DEFAULT_CHAIN_ID, account, contractAddrs).then((result) => {
+    await fetchExplorerTxHistoryByAddress(chainId, account, contractAddrs).then((result) => {
       deleteLocalTransactions(result.txList)
       setTxHistory(result.txList.slice(0, 30))
       reload()

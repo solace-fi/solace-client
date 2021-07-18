@@ -41,8 +41,9 @@ import { useToasts } from '../../context/NotificationsManager'
 import { useUserData } from '../../context/UserDataManager'
 
 /* import components */
-import { BoxRow, Box, BoxItem, BoxItemValue, BoxItemTitle, BoxItemUnits } from './index'
+import { BoxRow, Box, BoxItem, BoxItemTitle } from './index'
 import { Button } from '../Button'
+import { Text, TextSpan } from '../Typography'
 
 /* import hooks */
 import { useCapitalPoolSize } from '../../hooks/useVault'
@@ -194,17 +195,17 @@ export const Statistics = () => {
         <Box>
           <BoxItem>
             <BoxItemTitle h3>My Balance</BoxItemTitle>
-            <BoxItemValue h2>
+            <Text h2>
               {`${truncateBalance(parseFloat(solaceBalance), 6)} `}
-              <BoxItemUnits h3>SOLACE</BoxItemUnits>
-            </BoxItemValue>
+              <TextSpan h3>SOLACE</TextSpan>
+            </Text>
           </BoxItem>
           <BoxItem>
             <BoxItemTitle h3>My Rewards</BoxItemTitle>
-            <BoxItemValue h2>
+            <Text h2>
               {`${truncateBalance(parseFloat(totalUserRewards), 6)} `}
-              <BoxItemUnits h3>SOLACE</BoxItemUnits>
-            </BoxItemValue>
+              <TextSpan h3>SOLACE</TextSpan>
+            </Text>
           </BoxItem>
           <BoxItem>
             <Button
@@ -225,32 +226,32 @@ export const Statistics = () => {
       <Box purple>
         <BoxItem>
           <BoxItemTitle h3>Capital Pool Size</BoxItemTitle>
-          <BoxItemValue h2 nowrap>
+          <Text h2 nowrap>
             {`${truncateBalance(floatEther(parseEther(capitalPoolSize)), 1)} `}
-            <BoxItemUnits h3>{Unit.ETH}</BoxItemUnits>
-          </BoxItemValue>
+            <TextSpan h3>{Unit.ETH}</TextSpan>
+          </Text>
         </BoxItem>
         <BoxItem>
           <BoxItemTitle h3>Total Value Locked</BoxItemTitle>
-          <BoxItemValue h2 nowrap>
+          <Text h2 nowrap>
             {`${truncateBalance(parseFloat(totalValueLocked), 1)} `}
-            <BoxItemUnits h3>{Unit.ETH}</BoxItemUnits>
-          </BoxItemValue>
+            <TextSpan h3>{Unit.ETH}</TextSpan>
+          </Text>
         </BoxItem>
         <BoxItem>
           <BoxItemTitle h3>Active Cover Amount</BoxItemTitle>
-          <BoxItemValue h2 nowrap>
+          <Text h2 nowrap>
             {totalActiveCoverAmount !== '-'
               ? `${truncateBalance(parseFloat(formatEther(totalActiveCoverAmount.toString())), 2)} `
               : `${totalActiveCoverAmount} `}
-            <BoxItemUnits h3>{Unit.ETH}</BoxItemUnits>
-          </BoxItemValue>
+            <TextSpan h3>{Unit.ETH}</TextSpan>
+          </Text>
         </BoxItem>
         <BoxItem>
           <BoxItemTitle h3>Total Active Policies</BoxItemTitle>
-          <BoxItemValue h2 nowrap>
+          <Text h2 nowrap>
             {totalActivePolicies}
-          </BoxItemValue>
+          </Text>
         </BoxItem>
       </Box>
     </BoxRow>

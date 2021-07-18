@@ -62,6 +62,13 @@ export type GasFeeOption = {
   value: number
 }
 
+export type GasPriceResult = {
+  veryFast: number
+  fast: number
+  average: number
+  safeLow: number
+}
+
 export type StringToStringMapping = { [key: string]: string }
 
 export type SupportedProduct = { name: string; contract: Contract; signer: boolean }

@@ -32,10 +32,10 @@ import { useToasts } from '../../context/NotificationsManager'
 import { useContracts } from '../../context/ContractsManager'
 
 /* import components */
-import { CardContainer, ClaimCard } from '../../components/Card'
-import { Box, BoxItem, BoxItemTitle, BoxItemValue } from '../../components/Box'
+import { CardContainer, Card } from '../../components/Card'
+import { Box, BoxItem, BoxItemTitle } from '../../components/Box'
 import { Button, ButtonWrapper } from '../../components/Button'
-import { Heading1 } from '../../components/Text'
+import { Heading1, Text } from '../../components/Typography'
 import { Content } from '../../components/Layout'
 
 /* import constants */
@@ -134,28 +134,28 @@ export const MyClaims = () => {
           <CardContainer cardsPerRow={2}>
             {claimDetails.map((claim: ClaimDetails) => {
               return (
-                <ClaimCard key={claim.id}>
+                <Card key={claim.id}>
                   <Box pt={20} pb={20} glow green={claim.canWithdraw}>
                     <BoxItem>
                       <BoxItemTitle h3>ID</BoxItemTitle>
-                      <BoxItemValue h3>{claim.id}</BoxItemValue>
+                      <Text h3>{claim.id}</Text>
                     </BoxItem>
                     <BoxItem>
                       <BoxItemTitle h3>Amount</BoxItemTitle>
-                      <BoxItemValue h3>
+                      <Text h3>
                         {parseFloat(formatEther(claim.amount)) >= 1
                           ? truncateBalance(parseFloat(formatEther(claim.amount)))
                           : formatEther(claim.amount)}{' '}
                         ETH
-                      </BoxItemValue>
+                      </Text>
                     </BoxItem>
                     <BoxItem>
                       <BoxItemTitle h3>Payout Status</BoxItemTitle>
-                      <BoxItemValue h3>
+                      <Text h3>
                         {claim.canWithdraw
                           ? 'Available'
                           : `${claim.cooldown == '0' ? '-' : timer(parseInt(claim.cooldown) * 1000)} left`}
-                      </BoxItemValue>
+                      </Text>
                     </BoxItem>
                   </Box>
                   <ButtonWrapper mb={0} mt={20}>
@@ -167,7 +167,7 @@ export const MyClaims = () => {
                       Withdraw Payout
                     </Button>
                   </ButtonWrapper>
-                </ClaimCard>
+                </Card>
               )
             })}
           </CardContainer>
