@@ -8,9 +8,9 @@ import {
   MarginCss,
   PaddingCss,
 } from '../generalInterfaces'
-import { TextAlignProps, TextAlignCss } from '../Typography'
+import { GeneralTextProps, GeneralTextCss } from '../Typography'
 
-interface TableProps extends HeightAndWidthProps, TextAlignProps, MarginProps, PaddingProps {
+interface TableProps extends HeightAndWidthProps, GeneralTextProps, MarginProps, PaddingProps {
   isHighlight?: boolean
   isQuote?: boolean
   headers?: string[]
@@ -21,7 +21,7 @@ export const Table = styled.table<TableProps>`
   border-spacing: 0px 10px;
   th,
   td {
-    ${TextAlignCss}
+    ${GeneralTextCss}
   }
   ${(props) => props.isHighlight && 'td {background-color: rgba(0, 255, 209, 0.3);}'}
   ${(props) =>
@@ -48,7 +48,7 @@ export const TableHeader = styled.th<TableProps>`
   text-align: left;
   white-space: nowrap;
   ${HeightAndWidthCss}
-  ${TextAlignCss}
+  ${GeneralTextCss}
   ${MarginCss}
   ${PaddingCss}
 `
@@ -66,7 +66,7 @@ export const TableData = styled.td<TableProps>`
   overflow: hidden;
   text-overflow: ellipsis;
   ${HeightAndWidthCss}
-  ${TextAlignCss}
+  ${GeneralTextCss}
   ${MarginCss}
   ${PaddingCss}
 `
@@ -77,5 +77,5 @@ export const TableDataGroup = styled.div<TableProps>`
   grid-template-columns: repeat(${(props) => React.Children.count(props.children)}, 1fr);
   gap: 16px;
   ${HeightAndWidthCss}
-  ${TextAlignCss}
+  ${GeneralTextCss}
 `

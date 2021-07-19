@@ -34,7 +34,7 @@ import { TransactionHistoryModal } from './TransactionHistoryModal'
 import { StyledHistory } from '../Icon'
 
 /* import hooks */
-import { useEthBalance } from '../../hooks/useEthBalance'
+import { useNativeTokenBalance } from '../../hooks/useNativeTokenBalance'
 
 /* import utils */
 import { shortenAddress, fixed } from '../../utils/formatting'
@@ -51,7 +51,7 @@ export default function Account(): any {
 
   *************************************************************************************/
   const wallet = useWallet()
-  const balance = useEthBalance()
+  const balance = useNativeTokenBalance()
   const { localTransactions } = useUserData()
   const [showHistoryModal, setShowHistoryModal] = useState<boolean>(false)
 

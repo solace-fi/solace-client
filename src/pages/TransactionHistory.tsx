@@ -85,7 +85,7 @@ export const TransactionHistory: React.FC = () => {
               <TableRow key={tx.hash}>
                 <TableData pt={10} pb={10}>
                   {amounts.length > 0 ? (
-                    decodeInput(tx, wallet.chainId, contractAddrs).function_name
+                    decodeInput(tx, contractAddrs).function_name
                   ) : (
                     <Loader width={10} height={10} />
                   )}

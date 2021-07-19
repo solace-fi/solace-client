@@ -11,9 +11,11 @@ import lpTokenArtifact from '../../node_modules/@uniswap/v3-periphery/artifacts/
 import compAbi from '../constants/abi/contracts/products/CompoundProductRinkeby.sol/CompoundProductRinkeby.json'
 import polMagABI from '../constants/abi/contracts/PolicyManager.sol/PolicyManager.json'
 
+import { ProductName } from '../constants/enums'
 import { getTokens as comp4Tokens } from '../utils/positionGetters/compound/rinkeby/getTokens'
 import { getBalances as comp4Balances } from '../utils/positionGetters/compound/rinkeby/getBalances'
-import { ProductName } from '../constants/enums'
+import { getTokens as aave42Tokens } from '../utils/positionGetters/aave/getTokens'
+import { getBalances as aave42Balances } from '../utils/positionGetters/aave/getBalances'
 
 export const contractConfig: any = {
   '4': {
@@ -139,10 +141,10 @@ export const policyConfig: any = {
   },
   '42': {
     productsRev: {
-      [String(process.env.REACT_APP_AAVE_KOVAN_PRODUCT_ADDR)]: ProductName.AAVE,
+      [String(process.env.REACT_APP_KOVAN_AAVE_PRODUCT_ADDR)]: ProductName.AAVE,
     },
-    getTokens: comp4Tokens,
-    getBalances: comp4Balances,
+    getTokens: aave42Tokens,
+    getBalances: aave42Balances,
     initialized: false,
   },
 }

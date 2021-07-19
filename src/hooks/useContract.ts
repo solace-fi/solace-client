@@ -44,7 +44,7 @@ export function useGetProductContracts(): SupportedProduct[] {
       }
     }
     return _contractConfig.supportedProducts
-  }, [library, account, chainId])
+  }, [library, account, _contractConfig.supportedProducts, _contractConfig.productContracts])
 }
 
 export function useContractArray(): ContractSources[] {
@@ -67,7 +67,7 @@ export function useContractArray(): ContractSources[] {
       })
     })
     setContractSources(arr)
-  }, [chainId])
+  }, [_contractConfig.keyContracts, _contractConfig.productContracts])
 
   return contractSources
 }

@@ -1,7 +1,9 @@
 import { Contract } from '@ethersproject/contracts'
-import { formatEther } from '@ethersproject/units'
+import { formatEther, parseEther } from '@ethersproject/units'
 import { useState, useEffect } from 'react'
+import { useContracts } from '../context/ContractsManager'
 import { useWallet } from '../context/WalletManager'
+import { useGetLatestBlockNumber } from './useGetLatestBlockNumber'
 
 export const useUserStakedValue = (farm: Contract | null | undefined): string => {
   const { account, version } = useWallet()
@@ -28,7 +30,7 @@ export const useUserStakedValue = (farm: Contract | null | undefined): string =>
 export const usePoolStakedValue = (farm: Contract | null | undefined): string => {
   const [poolValue, setPoolValue] = useState<string>('0.00')
 
-  const { dataVersion } = useWallet()
+  const latestblock = useGetLatestBlockNumber()
 
   useEffect(() => {
     const getPoolStakedValue = async () => {
@@ -42,7 +44,24 @@ export const usePoolStakedValue = (farm: Contract | null | undefined): string =>
       }
     }
     getPoolStakedValue()
-  }, [farm, dataVersion])
+  }, [farm, latestblock])
 
   return poolValue
+}
+
+export const useGetTotalValueLocked = (): string => {
+  const { cpFarm, lpFarm } = useContracts()
+  const [totalValueLocked, setTotalValueLocked] = useState<string>('0.00')
+  const cpPoolValue = usePoolStakedValue(cpFarm)
+  const lpPoolValue = usePoolStakedValue(lpFarm)
+
+  useEffect(() => {
+    const getTotalValueLocked = async () => {
+      const formattedTVL = formatEther(parseEther(cpPoolValue).add(parseEther(lpPoolValue)))
+      setTotalValueLocked(formattedTVL)
+    }
+    getTotalValueLocked()
+  }, [cpPoolValue, lpPoolValue])
+
+  return totalValueLocked
 }

@@ -155,7 +155,7 @@ export const ProtocolStep: React.FC<formProps> = ({ setForm, navigation }) => {
                   <TableData>
                     <Protocol>
                       <ProtocolImage mr={10}>
-                        <img src={`https://assets.solace.fi/${protocol.toLowerCase()}.svg`} />
+                        <img src={`https://assets.solace.fi/${protocol.toLowerCase()}`} />
                       </ProtocolImage>
                       <ProtocolTitle>{protocol}</ProtocolTitle>
                     </Protocol>

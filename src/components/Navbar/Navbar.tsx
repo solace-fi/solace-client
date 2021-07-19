@@ -38,7 +38,7 @@ export const TopNavbar: React.FC = () => {
   return (
     <TopNav isOpen={isOpen}>
       <Logo />
-      <SidebarItemList>
+      <ItemList>
         <SidebarItem onClick={() => setIsOpen(!isOpen)} to={'/'}>
           Dashboard
         </SidebarItem>
@@ -51,7 +51,7 @@ export const TopNavbar: React.FC = () => {
         <SidebarItem onClick={() => setIsOpen(!isOpen)} to={'/govern'}>
           Govern
         </SidebarItem>
-      </SidebarItemList>
+      </ItemList>
       <NavButton onClick={() => setIsOpen(!isOpen)}>
         <StyledMenu />
       </NavButton>

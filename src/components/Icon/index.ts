@@ -10,7 +10,7 @@ export const StyledIconCss = css`
 `
 
 export const StyledHistory = styled(History)`
-  ${StyledIconCss}
+  display: block;
 `
 
 export const StyledMenu = styled(Menu)`

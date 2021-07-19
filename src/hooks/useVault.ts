@@ -1,11 +1,15 @@
-import { formatEther } from '@ethersproject/units'
+import { formatEther, parseEther } from '@ethersproject/units'
 import { useContracts } from '../context/ContractsManager'
 import { useState, useEffect } from 'react'
 import { useWallet } from '../context/WalletManager'
+import { floatEther } from '../utils/formatting'
+import { ZERO } from '../constants'
+import { useGetLatestBlockNumber } from './useGetLatestBlockNumber'
 
 export const useCapitalPoolSize = (): string => {
   const { vault, registry } = useContracts()
-  const { version, dataVersion } = useWallet()
+  const { version } = useWallet()
+  const latestBlock = useGetLatestBlockNumber()
   const [capitalPoolSize, setCapitalPoolSize] = useState<string>('0.00')
 
   useEffect(() => {
@@ -20,13 +24,14 @@ export const useCapitalPoolSize = (): string => {
       }
     }
     getCapitalPoolSize()
-  }, [vault, registry, version, dataVersion])
+  }, [vault, registry, version, latestBlock])
 
   return capitalPoolSize
 }
 
 export const useScpBalance = (): string => {
   const { vault } = useContracts()
+  const latestBlock = useGetLatestBlockNumber()
   const { account, version, chainId } = useWallet()
   const [scpBalance, setScpBalance] = useState<string>('0.00')
 
@@ -42,7 +47,37 @@ export const useScpBalance = (): string => {
       }
     }
     getScpBalance()
-  }, [account, vault, version, chainId])
+  }, [account, vault, version, chainId, latestBlock])
 
   return scpBalance
+}
+
+export const useUserVaultDetails = () => {
+  const [userVaultAssets, setUserVaultAssets] = useState<string>('0.00')
+  const [userVaultShare, setUserVaultShare] = useState<string>('0')
+  const scpBalance = useScpBalance()
+  const { library, account } = useWallet()
+  const { vault, cpFarm } = useContracts()
+
+  useEffect(() => {
+    const getUserVaultDetails = async () => {
+      if (!cpFarm || !vault || !account) return
+      try {
+        const totalSupply = await vault.totalSupply()
+        const userInfo = await cpFarm.userInfo(account)
+        const value = userInfo.value
+        const cpBalance = parseEther(scpBalance)
+        const userAssets = cpBalance.add(value)
+        const userShare = totalSupply.gt(ZERO) ? floatEther(userAssets.mul(100)) / floatEther(totalSupply) : 0
+        const formattedAssets = formatEther(userAssets)
+        setUserVaultAssets(formattedAssets)
+        setUserVaultShare(userShare.toString())
+      } catch (err) {
+        console.log('error getUserVaultShare ', err)
+      }
+    }
+    getUserVaultDetails()
+  }, [library, scpBalance, cpFarm])
+
+  return { userVaultAssets, userVaultShare }
 }

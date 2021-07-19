@@ -1,6 +1,7 @@
 import React from 'react'
 import { GeneralElementProps, GeneralElementCss, MarginProps, MarginCss } from '../generalInterfaces'
 import styled, { css } from 'styled-components'
+import { Text3Css } from '../Typography'
 
 export interface ClickProps {
   onClick?: any
@@ -20,7 +21,6 @@ export const ButtonBaseCss = css<ButtonProps & GeneralElementProps>`
   border: 1px solid #fff;
   border-radius: 10px;
   font-weight: 600;
-  font-size: 14px;
   text-align: center;
   transition: all 0.2s, color 0.2s;
   cursor: pointer;
@@ -37,6 +37,7 @@ export const ButtonBaseCss = css<ButtonProps & GeneralElementProps>`
       : props.secondary
       ? 'color: #7c7c7c; background-color: #fff; &:hover { opacity: 0.8; }'
       : 'color: #fff; background-color: rgba(0, 0, 0, 0); &:hover { color: #7c7c7c; background-color: #fff; }'};
+  ${Text3Css}
 `
 
 const ButtonBase = styled.button<ButtonProps & GeneralElementProps>`

@@ -7,6 +7,7 @@ import { FunctionName } from '../constants/enums'
 import { Provider, Web3Provider } from '@ethersproject/providers'
 import { decodeInput } from '../utils/decoder'
 import { formatTransactionContent } from '../utils/formatting'
+import { useGetLatestBlockNumber } from './useGetLatestBlockNumber'
 
 export const useTransactionDetails = (): { txHistory: any; amounts: string[] } => {
   const { library, chainId } = useWallet()
@@ -56,9 +57,13 @@ export const useTransactionDetails = (): { txHistory: any; amounts: string[] } =
     if (txHistory) {
       const currentAmounts = []
       for (let tx_i = 0; tx_i < txHistory.length; tx_i++) {
-        const function_name = decodeInput(txHistory[tx_i], chainId, contractArray).function_name
-        const amount: string = await getTransactionAmount(function_name, txHistory[tx_i], library)
-        currentAmounts.push(`${formatTransactionContent(function_name, amount)}`)
+        const function_name = decodeInput(txHistory[tx_i], contractArray).function_name
+        if (!function_name) {
+          currentAmounts.push('N/A')
+        } else {
+          const amount: string = await getTransactionAmount(function_name, txHistory[tx_i], library)
+          currentAmounts.push(`${formatTransactionContent(function_name, amount, chainId)}`)
+        }
       }
       setAmounts(currentAmounts)
     }
@@ -72,10 +77,11 @@ export const useTransactionDetails = (): { txHistory: any; amounts: string[] } =
 }
 
 export const useFetchTxHistoryByAddress = (): any => {
-  const { account, dataVersion, reload, chainId } = useWallet()
+  const { account, reload, chainId } = useWallet()
   const { deleteLocalTransactions } = useUserData()
   const [txHistory, setTxHistory] = useState<any>([])
   const contractAddrs = useContractArray()
+  const latestBlock = useGetLatestBlockNumber()
 
   const fetchTxHistoryByAddress = async (account: string) => {
     await fetchExplorerTxHistoryByAddress(chainId, account, contractAddrs).then((result) => {
@@ -87,7 +93,7 @@ export const useFetchTxHistoryByAddress = (): any => {
 
   useEffect(() => {
     account ? fetchTxHistoryByAddress(account) : setTxHistory([])
-  }, [account, dataVersion, chainId])
+  }, [account, latestBlock, contractAddrs])
 
   return txHistory
 }

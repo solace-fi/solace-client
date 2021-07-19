@@ -35,15 +35,17 @@ import { Policy } from '../../constants/types'
 import { Table, TableBody, TableHead, TableRow, TableHeader, TableData, TableDataGroup } from '../../components/Table'
 import { Button } from '../../components/Button'
 import { Loader } from '../../components/Loader'
-import { Heading2 } from '../../components/Typography'
-import { Unit, PolicyState } from '../../constants/enums'
+import { Heading2, Text } from '../../components/Typography'
+import { PolicyState } from '../../constants/enums'
 
 /* import hooks */
 import { usePolicyGetter } from '../../hooks/useGetter'
 
 /* import utils */
-import { truncateBalance } from '../../utils/formatting'
+import { getNativeTokenUnit, truncateBalance } from '../../utils/formatting'
 import { getDays, getDateStringWithMonthName, getDateExtended } from '../../utils/time'
+import { FlexRow } from '../../components/Layout'
+import { PositionCardLogo } from '../../components/Position'
 
 interface MyPoliciesProps {
   openClaimModal: any
@@ -115,29 +117,41 @@ export const MyPolicies: React.FC<MyPoliciesProps> = ({ openClaimModal, openMana
       {loading ? (
         <Loader />
       ) : policies.length > 0 ? (
-        <Table>
+        <Table textAlignCenter>
           <TableHead>
             <TableRow>
-              <TableHeader>{'Id'}</TableHeader>
-              <TableHeader>{'Status'}</TableHeader>
-              <TableHeader>{'Product'}</TableHeader>
-              <TableHeader>{'Position'}</TableHeader>
-              <TableHeader>{'Expiration Date'}</TableHeader>
-              <TableHeader>{'Covered Amount'}</TableHeader>
+              <TableHeader>Coverage Type</TableHeader>
+              <TableHeader>Status</TableHeader>
+              <TableHeader>Id</TableHeader>
+              <TableHeader>Expiration Date</TableHeader>
+              <TableHeader>Covered Amount</TableHeader>
             </TableRow>
           </TableHead>
           <TableBody>
             {policies.map((policy) => {
               return (
                 <TableRow key={policy.policyId}>
+                  <TableData>
+                    {
+                      <FlexRow>
+                        <PositionCardLogo>
+                          <img src={`https://assets.solace.fi/${policy.productName.toLowerCase()}.svg`} />
+                        </PositionCardLogo>
+                        <PositionCardLogo>
+                          <img src={`https://assets.solace.fi/${policy.positionName.toLowerCase()}.svg`} />
+                        </PositionCardLogo>
+                        <Text autoAlign>
+                          {policy.productName} - {policy.positionName}
+                        </Text>
+                      </FlexRow>
+                    }
+                  </TableData>
+                  <TableData error={policy.status === PolicyState.EXPIRED}>{policy.status}</TableData>
                   <TableData>{policy.policyId}</TableData>
-                  <TableData>{policy.status}</TableData>
-                  <TableData>{policy.productName}</TableData>
-                  <TableData>{policy.positionName}</TableData>
                   <TableData>{calculatePolicyExpirationDate(policy.expirationBlock)}</TableData>
                   <TableData>
                     {policy.coverAmount ? truncateBalance(parseFloat(formatEther(policy.coverAmount)), 2) : 0}{' '}
-                    {Unit.ETH}
+                    {getNativeTokenUnit(wallet.chainId)}
                   </TableData>
 
                   <TableData textAlignRight>

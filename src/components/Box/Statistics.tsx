@@ -23,11 +23,10 @@
   *************************************************************************************/
 
 /* import react */
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 
 /* import packages */
 import { formatEther, parseEther } from '@ethersproject/units'
-import { Contract } from '@ethersproject/contracts'
 
 /* import constants */
 import { GAS_LIMIT } from '../../constants'
@@ -50,13 +49,14 @@ import { useCapitalPoolSize } from '../../hooks/useVault'
 import { useTotalPendingRewards } from '../../hooks/useRewards'
 import { useSolaceBalance } from '../../hooks/useSolaceBalance'
 import { usePolicyGetter } from '../../hooks/useGetter'
-import { usePoolStakedValue } from '../../hooks/useFarm'
+import { useGetTotalValueLocked } from '../../hooks/useFarm'
+import { useGetLatestBlockNumber } from '../../hooks/useGetLatestBlockNumber'
 
 /* import wallet */
 import { WalletConnectButton } from '../Button/WalletConnect'
 
 /* import utils */
-import { fixed, getGasValue, floatEther, truncateBalance } from '../../utils/formatting'
+import { fixed, getGasValue, floatEther, truncateBalance, getNativeTokenUnit } from '../../utils/formatting'
 
 export const Statistics = () => {
   /************************************************************************************* 
@@ -64,12 +64,6 @@ export const Statistics = () => {
     useRef variables 
 
   *************************************************************************************/
-  const masterContract = useRef<Contract | null>()
-  const vaultContract = useRef<Contract | null>()
-  const solaceContract = useRef<Contract | null>()
-  const cpFarmContract = useRef<Contract | null>()
-  const lpFarmContract = useRef<Contract | null>()
-  const lpTokenContract = useRef<Contract | null>()
 
   /*************************************************************************************
 
@@ -77,22 +71,21 @@ export const Statistics = () => {
 
   *************************************************************************************/
   const wallet = useWallet()
-  const { master, vault, solace, cpFarm, lpFarm, lpToken } = useContracts()
+  const { master } = useContracts()
   const { makeTxToast } = useToasts()
   const { addLocalTransactions } = useUserData()
   const capitalPoolSize = useCapitalPoolSize()
   const solaceBalance = useSolaceBalance()
   const totalUserRewards = useTotalPendingRewards()
-  const cpPoolValue = usePoolStakedValue(cpFarm)
-  const lpPoolValue = usePoolStakedValue(lpFarm)
   const { getPolicies } = usePolicyGetter()
+  const latestBlock = useGetLatestBlockNumber()
+  const totalValueLocked = useGetTotalValueLocked()
 
   /*************************************************************************************
 
   useState hooks
 
   *************************************************************************************/
-  const [totalValueLocked, setTotalValueLocked] = useState<string>('0.00')
   const [totalActiveCoverAmount, setTotalActiveCoverAmount] = useState<number | string>('-')
   const [totalActivePolicies, setTotalActivePolicies] = useState<number | string>('-')
 
@@ -102,10 +95,10 @@ export const Statistics = () => {
 
   *************************************************************************************/
   const claimRewards = async () => {
-    if (!masterContract.current) return
+    if (!master) return
     const txType = FunctionName.WITHDRAW_REWARDS
     try {
-      const tx = await masterContract.current.withdrawRewards({
+      const tx = await master.withdrawRewards({
         gasPrice: getGasValue(wallet.gasPrices.options[1].value),
         gasLimit: GAS_LIMIT,
       })
@@ -140,30 +133,12 @@ export const Statistics = () => {
   Local functions
 
   *************************************************************************************/
-  const getTotalValueLocked = () => {
-    const formattedTVL = formatEther(parseEther(cpPoolValue).add(parseEther(lpPoolValue)))
-    setTotalValueLocked(formattedTVL)
-  }
 
   /*************************************************************************************
 
   useEffect hooks
 
   *************************************************************************************/
-  useEffect(() => {
-    cpFarmContract.current = cpFarm
-    lpFarmContract.current = lpFarm
-    lpTokenContract.current = lpToken
-    masterContract.current = master
-    solaceContract.current = solace
-    vaultContract.current = vault
-
-    getTotalValueLocked()
-  }, [master, vault, solace, cpFarm, lpFarm, lpToken])
-
-  useEffect(() => {
-    getTotalValueLocked()
-  }, [cpPoolValue, lpPoolValue])
 
   useEffect(() => {
     try {
@@ -187,7 +162,7 @@ export const Statistics = () => {
     } catch (err) {
       console.log(err)
     }
-  }, [wallet.dataVersion])
+  }, [latestBlock])
 
   return (
     <BoxRow>
@@ -228,14 +203,14 @@ export const Statistics = () => {
           <BoxItemTitle h3>Capital Pool Size</BoxItemTitle>
           <Text h2 nowrap>
             {`${truncateBalance(floatEther(parseEther(capitalPoolSize)), 1)} `}
-            <TextSpan h3>{Unit.ETH}</TextSpan>
+            <TextSpan h3>{getNativeTokenUnit(wallet.chainId)}</TextSpan>
           </Text>
         </BoxItem>
         <BoxItem>
           <BoxItemTitle h3>Total Value Locked</BoxItemTitle>
           <Text h2 nowrap>
             {`${truncateBalance(parseFloat(totalValueLocked), 1)} `}
-            <TextSpan h3>{Unit.ETH}</TextSpan>
+            <TextSpan h3>{getNativeTokenUnit(wallet.chainId)}</TextSpan>
           </Text>
         </BoxItem>
         <BoxItem>
@@ -244,7 +219,7 @@ export const Statistics = () => {
             {totalActiveCoverAmount !== '-'
               ? `${truncateBalance(parseFloat(formatEther(totalActiveCoverAmount.toString())), 2)} `
               : `${totalActiveCoverAmount} `}
-            <TextSpan h3>{Unit.ETH}</TextSpan>
+            <TextSpan h3>{getNativeTokenUnit(wallet.chainId)}</TextSpan>
           </Text>
         </BoxItem>
         <BoxItem>

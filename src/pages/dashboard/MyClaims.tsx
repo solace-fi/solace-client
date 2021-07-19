@@ -47,7 +47,7 @@ import { ClaimDetails } from '../../constants/types'
 import { useClaimsEscrow } from '../../hooks/useClaimsEscrow'
 
 /* import utils */
-import { truncateBalance, getGasValue } from '../../utils/formatting'
+import { truncateBalance, getGasValue, getNativeTokenUnit } from '../../utils/formatting'
 import { timer } from '../../utils/time'
 
 export const MyClaims = () => {
@@ -146,7 +146,7 @@ export const MyClaims = () => {
                         {parseFloat(formatEther(claim.amount)) >= 1
                           ? truncateBalance(parseFloat(formatEther(claim.amount)))
                           : formatEther(claim.amount)}{' '}
-                        ETH
+                        {getNativeTokenUnit(wallet.chainId)}
                       </Text>
                     </BoxItem>
                     <BoxItem>

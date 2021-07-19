@@ -32,7 +32,7 @@ import { useUserStakedValue } from '../../hooks/useFarm'
 import { useUserPendingRewards, useUserRewardsPerDay } from '../../hooks/useRewards'
 
 /* import utils */
-import { truncateBalance } from '../../utils/formatting'
+import { getNativeTokenUnit, truncateBalance } from '../../utils/formatting'
 
 export const MyInvestments = () => {
   /*************************************************************************************
@@ -63,7 +63,8 @@ export const MyInvestments = () => {
           <CardHeader>
             <CardTitle h2>Capital Pool</CardTitle>
             <Heading3>
-              {wallet.account ? truncateBalance(parseFloat(cpUserStakeValue), 2) : 0} {Unit.ETH}
+              {wallet.account ? truncateBalance(parseFloat(cpUserStakeValue), 2) : 0}{' '}
+              {getNativeTokenUnit(wallet.chainId)}
             </Heading3>
           </CardHeader>
           <CardBlock>

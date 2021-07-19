@@ -16,7 +16,6 @@ import { useProvider } from './ProviderManager'
 import { useFetchGasPrice } from '../hooks/useFetchGasPrice'
 import { Error as AppError } from '../constants/enums'
 import { useUserData } from './UserDataManager'
-import { getTokens } from '../utils/positionGetters/aave/getTokens'
 import { useInterval } from '../hooks/useInterval'
 import { DEFAULT_CHAIN_ID } from '../constants'
 
@@ -112,6 +111,15 @@ const WalletProvider: React.FC = (props) => {
       connectingRef.current = walletConnector
       setConnecting(walletConnector)
 
+      await web3React.activate(connector, undefined, true).then(onSuccess).catch(onError)
+
+      function onSuccess() {
+        setErrors([])
+        if (!connectingRef.current) return
+        setActiveConnector(walletConnector)
+        setLocalProvider(walletConnector.id)
+      }
+
       function onError(error: Error) {
         const walletErrors: AppError[] = []
         if (error instanceof NoEthereumProviderError) {
@@ -130,15 +138,6 @@ const WalletProvider: React.FC = (props) => {
         }
         setErrors(walletErrors)
       }
-
-      function onSuccess() {
-        setErrors([])
-        if (!connectingRef.current) return
-        setActiveConnector(walletConnector)
-        setLocalProvider(walletConnector.id)
-      }
-
-      await web3React.activate(connector, undefined, true).then(onSuccess).catch(onError)
 
       setConnecting(undefined)
     },

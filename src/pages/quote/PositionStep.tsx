@@ -97,7 +97,7 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
   const getBalances = async () => {
     if (!account) return
     if (policyConfig[chainId]) {
-      const balances: Token[] = await policyConfig[chainId].getBalances(account, library)
+      const balances: Token[] = await policyConfig[chainId].getBalances(account, library, chainId)
       setForm({
         target: {
           name: 'balances',
@@ -108,14 +108,9 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
   }
 
   const userHasActiveProductPosition = (product: string, position: string): boolean => {
-    const userPolicyPositions: [string, string, boolean][] = []
-    policies.forEach((policy: Policy) => {
-      userPolicyPositions.push([policy.productName, policy.positionName, policy.status === PolicyState.ACTIVE])
-    })
-    for (const policyProductPosition of userPolicyPositions) {
-      if (product === policyProductPosition[0] && position === policyProductPosition[1] && policyProductPosition[2]) {
+    for (const policy of policies) {
+      if (product === policy.productName && position === policy.positionName && policy.status === PolicyState.ACTIVE)
         return true
-      }
     }
     return false
   }
@@ -255,7 +250,7 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
                       opacity: userHasActiveProductPosition(protocol.name, position.underlying.symbol) ? '.5' : '1',
                     }}
                   >
-                    <img src={`https://assets.solace.fi/${position.underlying.address.toLowerCase()}.svg`} />
+                    <img src={`https://assets.solace.fi/${position.underlying.address.toLowerCase()}`} />
                   </PositionCardLogo>
                   <PositionCardName
                     style={{

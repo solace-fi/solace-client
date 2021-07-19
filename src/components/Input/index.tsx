@@ -1,5 +1,5 @@
 import styled, { css } from 'styled-components'
-import { GeneralTextProps, GeneralTextCss } from '../Typography'
+import { GeneralTextProps, GeneralTextCss, Text3Css } from '../Typography'
 import { HeightAndWidthProps, HeightAndWidthCss } from '../generalInterfaces'
 
 const InputBase = css`
@@ -32,6 +32,7 @@ export const Input = styled.input<HeightAndWidthProps & GeneralTextProps>`
   &:read-only {
     border-color: rgba(0, 0, 0, 0);
   }
+  ${Text3Css}
   ${GeneralTextCss}
   ${HeightAndWidthCss}
 `
@@ -57,5 +58,4 @@ export const Search = styled.input`
   border-radius: 30px;
   padding: 10px 20px;
   font-family: 'Open Sans', sans-serif;
-  font-size: 14px;
 `

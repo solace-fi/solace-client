@@ -4,6 +4,7 @@
 
     import react
     import packages
+    import context
     import constants
     import components
     import hooks
@@ -21,21 +22,28 @@ import React from 'react'
 
 /* import packages */
 import styled from 'styled-components'
+import { useCoingeckoPrice } from '@usedapp/coingecko'
+
+/* import context */
+import { useWallet } from '../../context/WalletManager'
 
 /* import constants */
 import { CP_ROI, LP_ROI, MAX_PRICES_SCREEN_WIDTH } from '../../constants/'
+import { Unit } from '../../constants/enums'
 
 /* import components */
 import { Header } from './index'
 import Account from '../User/Account'
 import { SmallBox } from '../Box'
 import { Heading3 } from '../Typography'
+import { Footer } from '../Layout'
 
 /* import hooks */
-import { useCoingecko } from '../../hooks/useCoingecko'
 import { usePairPrice } from '../../hooks/usePair'
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'
-import { Footer } from '../Layout'
+
+/* import utils */
+import { getNativeTokenUnit } from '../../utils/formatting'
 
 /*************************************************************************************
 
@@ -53,9 +61,16 @@ const Price = styled.div`
   }
 `
 
+const unitToNameMap: any = {
+  [Unit.ETH]: 'ethereum',
+  [Unit.MATIC]: 'matic-network',
+}
+
 export const Prices = () => {
-  const coins = useCoingecko()
+  const { chainId } = useWallet()
   const pairPrice = usePairPrice()
+  const nativeToken = getNativeTokenUnit(chainId)
+  const coinPrice = useCoingeckoPrice(unitToNameMap[nativeToken], 'usd')
 
   return (
     <Price>
@@ -71,11 +86,11 @@ export const Prices = () => {
       </SmallBox>
       <SmallBox pl={10} navy>
         <Heading3 autoAlign nowrap>
-          ETH
+          {nativeToken}
         </Heading3>
         <SmallBox ml={10} navy>
           <Heading3 autoAlign green>
-            ${coins[0] ? coins[0].current_price : '-'}
+            ${coinPrice ? coinPrice : '-'}
           </Heading3>
         </SmallBox>
       </SmallBox>

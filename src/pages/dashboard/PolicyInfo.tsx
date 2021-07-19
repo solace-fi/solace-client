@@ -130,7 +130,7 @@ export const PolicyInfo: React.FC<PolicyInfoProps> = ({ selectedPolicy, latestBl
           <FormCol>
             <Protocol style={{ alignItems: 'center', flexDirection: 'column' }}>
               <ProtocolImage width={70} height={70} mb={10}>
-                <img src={`https://assets.solace.fi/${selectedPolicy?.productName.toLowerCase()}.svg`} />
+                <img src={`https://assets.solace.fi/${selectedPolicy?.productName.toLowerCase()}`} />
               </ProtocolImage>
               <ProtocolTitle t2>{selectedPolicy?.productName}</ProtocolTitle>
             </Protocol>
@@ -138,7 +138,7 @@ export const PolicyInfo: React.FC<PolicyInfoProps> = ({ selectedPolicy, latestBl
           <FormCol>
             <Protocol style={{ alignItems: 'center', flexDirection: 'column' }}>
               <ProtocolImage width={70} height={70} mb={10}>
-                <img src={`https://assets.solace.fi/${selectedPolicy?.positionName.toLowerCase()}.svg`} />
+                <img src={`https://assets.solace.fi/${selectedPolicy?.positionName.toLowerCase()}`} />
               </ProtocolImage>
               <ProtocolTitle t2>{selectedPolicy?.positionName}</ProtocolTitle>
             </Protocol>

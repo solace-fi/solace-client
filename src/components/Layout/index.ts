@@ -1,6 +1,7 @@
-import { MAX_DEVICE_SCREEN_WIDTH, MAX_WIDTH, MAX_PRICES_SCREEN_WIDTH } from '../../constants/'
+import { MAX_FULL_SCREEN_WIDTH, MAX_WIDTH, MAX_PRICES_SCREEN_WIDTH } from '../../constants/'
 import styled, { createGlobalStyle, css } from 'styled-components'
 import { GeneralElementProps, GeneralElementCss, HeightAndWidthProps } from '../generalInterfaces'
+import { GlobalFont } from '../Typography'
 
 export const CustomScrollbar = css`
   ::-webkit-scrollbar {
@@ -19,12 +20,12 @@ export const GlobalStyle = createGlobalStyle`
   body{
     margin: 0;
     font-family: 'Open Sans', sans-serif;
-    font-size: 16px;
     line-height: 1.4;
     color: #fff;
     background: linear-gradient(113.7deg, #b621ff 0%, #21d3fc 100%);
     background-attachment: fixed;
     ${CustomScrollbar}
+    ${GlobalFont}
   }
 `
 
@@ -45,7 +46,7 @@ export const Layout = styled.div`
   min-height: 100vh;
   padding: 30px;
 
-  @media screen and (max-width: ${MAX_DEVICE_SCREEN_WIDTH}px) {
+  @media screen and (max-width: ${MAX_FULL_SCREEN_WIDTH}px) {
     padding: 90px 0 0 0;
   }
 `
@@ -56,7 +57,7 @@ export const LayoutContainer = styled.div`
   width: 100%;
   max-width: ${MAX_WIDTH}px;
 
-  @media screen and (max-width: ${MAX_DEVICE_SCREEN_WIDTH}px) {
+  @media screen and (max-width: ${MAX_FULL_SCREEN_WIDTH}px) {
     justify-content: center;
   }
 `
@@ -65,7 +66,7 @@ export const NavContent = styled.div<HeightAndWidthProps>`
   align-content: start;
   min-width: ${(props) => ((props.width ? props.width : 10) / 100) * MAX_WIDTH}px;
 
-  @media screen and (max-width: ${MAX_DEVICE_SCREEN_WIDTH}px) {
+  @media screen and (max-width: ${MAX_FULL_SCREEN_WIDTH}px) {
     display: none;
   }
 `

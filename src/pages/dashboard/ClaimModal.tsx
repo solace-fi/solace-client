@@ -180,7 +180,11 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
       const tokenContract = getContract(selectedPolicy.positionContract, cTokenABI, wallet.library, wallet.account)
       const assessment = await getClaimAssessment(String(selectedPolicy?.policyId))
       if (policyConfig[wallet.chainId]) {
-        const balances: Token[] = await policyConfig[wallet.chainId].getBalances(wallet.account, wallet.library)
+        const balances: Token[] = await policyConfig[wallet.chainId].getBalances(
+          wallet.account,
+          wallet.library,
+          wallet.chainId
+        )
         setPositionBalances(balances)
       }
       const cooldown = await getCooldownPeriod()

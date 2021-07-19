@@ -11,7 +11,7 @@ import { ZERO, GAS_LIMIT, POW_NINE, DEADLINE } from '../../constants'
 import { FunctionName, TransactionCondition } from '../../constants/enums'
 import { useContracts } from '../../context/ContractsManager'
 import { useUserStakedValue } from '../../hooks/useFarm'
-import { useEthBalance } from '../../hooks/useEthBalance'
+import { useNativeTokenBalance } from '../../hooks/useNativeTokenBalance'
 import { useScpBalance } from '../../hooks/useVault'
 import { fixed, getGasValue, filteredAmount, getUnit, truncateBalance } from '../../utils/formatting'
 import { GasFeeOption } from '../../constants/types'
@@ -38,7 +38,7 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
   const [amount, setAmount] = useState<string>('')
   const [isStaking, setIsStaking] = useState<boolean>(false)
   const cpUserStakeValue = useUserStakedValue(cpFarm)
-  const ethBalance = useEthBalance()
+  const nativeTokenBalance = useNativeTokenBalance()
   const scpBalance = useScpBalance()
   const wallet = useWallet()
   const [selectedGasOption, setSelectedGasOption] = useState<GasFeeOption>(wallet.gasPrices.selected)
@@ -68,7 +68,7 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
         type: txType,
         value: amount,
         status: TransactionCondition.PENDING,
-        unit: getUnit(func),
+        unit: getUnit(func, wallet.chainId),
       }
       handleClose()
       addLocalTransactions(localTx)
@@ -102,7 +102,7 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
         type: txType,
         value: amount,
         status: TransactionCondition.PENDING,
-        unit: getUnit(func),
+        unit: getUnit(func, wallet.chainId),
       }
       handleClose()
       addLocalTransactions(localTx)
@@ -156,7 +156,7 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
         type: txType,
         value: amount,
         status: TransactionCondition.PENDING,
-        unit: getUnit(func),
+        unit: getUnit(func, wallet.chainId),
       }
       handleClose()
       addLocalTransactions(localTx)
@@ -189,7 +189,7 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
         type: txType,
         value: amount,
         status: TransactionCondition.PENDING,
-        unit: getUnit(func),
+        unit: getUnit(func, wallet.chainId),
       }
       handleClose()
       addLocalTransactions(localTx)
@@ -222,7 +222,7 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
         type: txType,
         value: amount,
         status: TransactionCondition.PENDING,
-        unit: getUnit(func),
+        unit: getUnit(func, wallet.chainId),
       }
       handleClose()
       addLocalTransactions(localTx)
@@ -253,7 +253,7 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
         type: txType,
         value: amount,
         status: TransactionCondition.PENDING,
-        unit: getUnit(func),
+        unit: getUnit(func, wallet.chainId),
       }
       handleClose()
       addLocalTransactions(localTx)
@@ -283,7 +283,7 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
         type: txType,
         value: amount,
         status: TransactionCondition.PENDING,
-        unit: getUnit(func),
+        unit: getUnit(func, wallet.chainId),
       }
       handleClose()
       addLocalTransactions(localTx)
@@ -371,7 +371,7 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
   const getAssetBalanceByFunc = (): BN => {
     switch (func) {
       case FunctionName.DEPOSIT:
-        return parseEther(ethBalance)
+        return parseEther(nativeTokenBalance)
       case FunctionName.DEPOSIT_CP:
       case FunctionName.WITHDRAW:
         return parseEther(scpBalance)
@@ -453,7 +453,7 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
     <Modal isOpen={isOpen} handleClose={handleClose} modalTitle={modalTitle} disableCloseButton={modalLoading}>
       <Fragment>
         <ModalRow>
-          <ModalCell t2>{getUnit(func)}</ModalCell>
+          <ModalCell t2>{getUnit(func, wallet.chainId)}</ModalCell>
           <ModalCell style={{ position: 'relative' }}>
             <Input
               t2

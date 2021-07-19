@@ -66,13 +66,13 @@ export const shortenAddress = (input: string): string => {
 }
 
 // get unit based on function name
-export const getUnit = (function_name: string): Unit => {
+export const getUnit = (function_name: string, chainId: number): Unit => {
   switch (function_name) {
     case FunctionName.DEPOSIT:
     case FunctionName.WITHDRAW:
     case FunctionName.DEPOSIT_ETH:
     case FunctionName.APPROVE:
-      return Unit.ETH
+      return getNativeTokenUnit(chainId)
     case FunctionName.DEPOSIT_CP:
     case FunctionName.WITHDRAW_ETH:
       return Unit.SCP
@@ -87,8 +87,21 @@ export const getUnit = (function_name: string): Unit => {
   }
 }
 
-export const formatTransactionContent = (function_name: string, amount: string): string => {
-  const unit = getUnit(function_name)
+export const getNativeTokenUnit = (chainId: number): Unit => {
+  switch (chainId) {
+    case 137:
+      return Unit.MATIC
+    case 1:
+    case 4:
+    case 5:
+    case 42:
+    default:
+      return Unit.ETH
+  }
+}
+
+export const formatTransactionContent = (function_name: string, amount: string, chainId: number): string => {
+  const unit = getUnit(function_name, chainId)
   switch (function_name) {
     case FunctionName.WITHDRAW_CLAIMS_PAYOUT:
       return `Claim ${unit} ${BigNumber.from(amount)}`
