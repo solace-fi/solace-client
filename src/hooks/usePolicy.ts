@@ -6,12 +6,12 @@ import { GAS_LIMIT, NUM_BLOCKS_PER_DAY } from '../constants'
 import { useContracts } from '../context/ContractsManager'
 import { useWallet } from '../context/WalletManager'
 import { Policy, StringToStringMapping } from '../constants/types'
-import { useUserData } from '../context/UserDataManager'
+import { useCachedData } from '../context/CachedDataManager'
 
 export const useGetPolicyPrice = (policyId: number): string => {
   const [policyPrice, setPolicyPrice] = useState<string>('')
   const { selectedProtocol } = useContracts()
-  const { userPolicies } = useUserData()
+  const { userPolicies } = useCachedData()
 
   const getPrice = async () => {
     if (!selectedProtocol || policyId == 0) return

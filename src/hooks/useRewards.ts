@@ -6,10 +6,11 @@ import { formatEther, parseEther } from '@ethersproject/units'
 import { NUM_BLOCKS_PER_DAY, ZERO } from '../constants'
 import { Contract } from '@ethersproject/contracts'
 import { floatEther } from '../utils/formatting'
+import { useCachedData } from '../context/CachedDataManager'
 
 const useMasterValues = (farmId: number) => {
   const { master } = useContracts()
-  const { dataVersion } = useWallet()
+  const { dataVersion } = useCachedData()
   const [masterValues, setMasterValues] = useState({ allocPoints: ZERO, totalAllocPoints: ZERO, solacePerBlock: ZERO })
 
   useEffect(() => {
@@ -76,7 +77,8 @@ export const useUserRewardsPerDay = (farmId: number, farm: Contract | null | und
 
 export const useUserPendingRewards = (farm: Contract | null | undefined): string[] => {
   const { master } = useContracts()
-  const { account, dataVersion } = useWallet()
+  const { dataVersion } = useCachedData()
+  const { account } = useWallet()
   const [userRewards, setUserRewards] = useState<string>('0.00')
 
   useEffect(() => {

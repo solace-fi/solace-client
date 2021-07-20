@@ -27,7 +27,7 @@ import { formatEther } from '@ethersproject/units'
 
 /* import managers */
 import { useWallet } from '../../context/WalletManager'
-import { useUserData } from '../../context/UserDataManager'
+import { useCachedData } from '../../context/CachedDataManager'
 import { useToasts } from '../../context/NotificationsManager'
 import { useContracts } from '../../context/ContractsManager'
 
@@ -58,7 +58,7 @@ export const MyClaims = () => {
   *************************************************************************************/
   const { claimsEscrow } = useContracts()
   const wallet = useWallet()
-  const { addLocalTransactions } = useUserData()
+  const { addLocalTransactions, dataVersion, version, reload, gasPrices } = useCachedData()
   const { makeTxToast } = useToasts()
   const { getClaimDetails } = useClaimsEscrow()
 
@@ -80,7 +80,7 @@ export const MyClaims = () => {
     const txType = FunctionName.WITHDRAW_CLAIMS_PAYOUT
     try {
       const tx = await claimsEscrow.withdrawClaimsPayout(_claimId, {
-        gasPrice: getGasValue(wallet.gasPrices.selected.value),
+        gasPrice: getGasValue(gasPrices.selected.value),
         gasLimit: GAS_LIMIT,
       })
       const txHash = tx.hash
@@ -92,16 +92,16 @@ export const MyClaims = () => {
         unit: Unit.ID,
       }
       addLocalTransactions(localTx)
-      wallet.reload()
+      reload()
       makeTxToast(txType, TransactionCondition.PENDING, txHash)
       await tx.wait().then((receipt: any) => {
         const status = receipt.status ? TransactionCondition.SUCCESS : TransactionCondition.FAILURE
         makeTxToast(txType, status, txHash)
-        wallet.reload()
+        reload()
       })
     } catch (err) {
       makeTxToast(txType, TransactionCondition.CANCELLED)
-      wallet.reload()
+      reload()
     }
   }
 
@@ -118,7 +118,7 @@ export const MyClaims = () => {
       setClaimDetails(details)
     }
     fetchClaims()
-  }, [wallet.account, wallet.isActive, wallet.dataVersion, wallet.version])
+  }, [wallet.account, wallet.isActive, dataVersion, version])
 
   /*************************************************************************************
 

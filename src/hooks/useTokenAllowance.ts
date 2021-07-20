@@ -1,9 +1,11 @@
 import { useWallet } from '../context/WalletManager'
 import { useEffect, useState } from 'react'
 import { Contract } from 'ethers'
+import { useCachedData } from '../context/CachedDataManager'
 
 export const useTokenAllowance = (tokenContract: Contract | null, spender: string | null): string => {
-  const { library, account, version } = useWallet()
+  const { library, account } = useWallet()
+  const { version } = useCachedData()
   const [allowance, setAllowance] = useState<string>('')
 
   const checkAllowance = async () => {

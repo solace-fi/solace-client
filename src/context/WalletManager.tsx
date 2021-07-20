@@ -11,12 +11,9 @@ import { WalletConnector, SUPPORTED_WALLETS } from '../wallet/wallets'
 import { Web3ReactProvider } from '@web3-react/core'
 
 import getLibrary from '../utils/getLibrary'
-import { useReload } from '../hooks/useReload'
 import { useProvider } from './ProviderManager'
-import { useFetchGasPrice } from '../hooks/useFetchGasPrice'
 import { Error as AppError } from '../constants/enums'
-import { useUserData } from './UserDataManager'
-import { useInterval } from '../hooks/useInterval'
+import { useCachedData } from './CachedDataManager'
 import { DEFAULT_CHAIN_ID } from '../constants'
 
 /*
@@ -50,14 +47,9 @@ export type ContextWallet = {
   chainId: number
   library?: any
   connector?: WalletConnector
-  version?: number
-  dataVersion?: any
-  gasPrices?: any
   errors: AppError[]
   connect: (connector: WalletConnector, args?: Record<string, any>) => Promise<void>
   disconnect: () => void
-  reload: () => void
-  dataReload: () => void
 }
 
 const WalletContext = createContext<ContextWallet>({
@@ -68,26 +60,18 @@ const WalletContext = createContext<ContextWallet>({
   chainId: DEFAULT_CHAIN_ID,
   library: undefined,
   connector: undefined,
-  version: undefined,
-  dataVersion: undefined,
-  gasPrices: undefined,
   errors: [],
   connect: () => Promise.reject(),
   disconnect: () => undefined,
-  reload: () => undefined,
-  dataReload: () => undefined,
 })
 
 const WalletProvider: React.FC = (props) => {
   const web3React = useWeb3React()
-  const { removeLocalTransactions } = useUserData()
+  const { removeLocalTransactions } = useCachedData()
   const [localProvider, setLocalProvider, removeLocalProvider] = useLocalStorage<string | undefined>('wallet_provider')
-  const gasPrices = useFetchGasPrice()
   const [activeConnector, setActiveConnector] = useState<WalletConnector | undefined>()
   const [connecting, setConnecting] = useState<WalletConnector | undefined>(undefined)
   const [initialized, setInitialized] = useState<boolean>(false)
-  const [reload, version] = useReload()
-  const [dataReload, dataVersion] = useReload()
   const connectingRef = useRef<WalletConnector | undefined>(connecting)
   connectingRef.current = connecting
   const [errors, setErrors] = useState<AppError[]>([])
@@ -156,10 +140,6 @@ const WalletProvider: React.FC = (props) => {
     })()
   }, [web3React])
 
-  useInterval(() => {
-    dataReload()
-  }, 3500)
-
   const value = useMemo<ContextWallet>(
     () => ({
       initialized,
@@ -169,16 +149,11 @@ const WalletProvider: React.FC = (props) => {
       chainId: web3React.chainId ?? DEFAULT_CHAIN_ID,
       library: web3React.account ? web3React.library : provider.ethProvider,
       connector: activeConnector,
-      version,
-      dataVersion,
-      gasPrices,
       errors,
       connect,
       disconnect,
-      reload,
-      dataReload,
     }),
-    [web3React, provider, initialized, connecting, activeConnector, version, errors, disconnect, connect]
+    [web3React, provider, initialized, connecting, activeConnector, errors, disconnect, connect]
   )
 
   return <WalletContext.Provider value={value}>{props.children}</WalletContext.Provider>

@@ -2,9 +2,9 @@ import React, { createContext, useContext, useMemo, useState } from 'react'
 import { Contract } from '@ethersproject/contracts'
 import { contractConfig } from '../config/chainConfig'
 
-import { useGetContract, useGetProductContracts } from '../hooks/useContract'
+import { useContractArray, useGetContract, useGetProductContracts } from '../hooks/useContract'
 import { useWallet } from './WalletManager'
-import { SupportedProduct } from '../constants/types'
+import { ContractSources, SupportedProduct } from '../constants/types'
 
 /*
 
@@ -26,6 +26,7 @@ type Contracts = {
   claimsEscrow?: Contract | null
   policyManager?: Contract | null
   products?: SupportedProduct[]
+  contractSources: ContractSources[]
   selectedProtocol: Contract | null
   getProtocolByName: (productName: string) => Contract | null
   setSelectedProtocolByName: (productName: string) => void
@@ -44,6 +45,7 @@ const ContractsContext = createContext<Contracts>({
   claimsEscrow: undefined,
   policyManager: undefined,
   products: [],
+  contractSources: [],
   selectedProtocol: null,
   getProtocolByName: () => null,
   setSelectedProtocolByName: () => undefined,
@@ -53,6 +55,7 @@ const ContractsProvider: React.FC = (props) => {
   const [selectedProtocol, setSelectedProtocol] = useState<Contract | null>(null)
   const { chainId } = useWallet()
   const config = contractConfig[String(chainId)]
+  const contractSources = useContractArray()
   const keyContracts = config.keyContracts
 
   const master = useGetContract(keyContracts.master.addr, keyContracts.master.abi)
@@ -93,6 +96,7 @@ const ContractsProvider: React.FC = (props) => {
       claimsEscrow,
       policyManager,
       products,
+      contractSources,
       selectedProtocol,
       getProtocolByName,
       setSelectedProtocolByName,
@@ -110,6 +114,7 @@ const ContractsProvider: React.FC = (props) => {
       claimsEscrow,
       policyManager,
       products,
+      contractSources,
       setSelectedProtocolByName,
       getProtocolByName,
     ]

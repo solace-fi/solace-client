@@ -1,16 +1,12 @@
 import { useState, useEffect } from 'react'
 import { fetchGasPrice } from '../utils/explorer'
 import { useWallet } from '../context/WalletManager'
-import { GasFeeOption } from '../constants/types'
-
-interface GasFeeListState {
-  options: GasFeeOption[]
-  loading: boolean
-  selected?: GasFeeOption
-}
+import { GasFeeListState } from '../constants/types'
+import { useCachedData } from '../context/CachedDataManager'
 
 export const useFetchGasPrice = (): GasFeeListState => {
-  const { version, chainId } = useWallet()
+  const { chainId } = useWallet()
+  const { version } = useCachedData()
 
   const [state, setState] = useState<GasFeeListState>({
     options: [],

@@ -6,16 +6,16 @@ import { Policy } from '../constants/types'
 import { BigNumber } from 'ethers'
 import { useContracts } from '../context/ContractsManager'
 import { useState, useEffect, useRef } from 'react'
-import { useGetLatestBlockNumber } from './useGetLatestBlockNumber'
+import { useCachedData } from '../context/CachedDataManager'
 
 export const usePolicyGetter = (policyHolder?: string, product?: string) => {
   const wallet = useWallet()
+  const { version, latestBlock } = useCachedData()
   const { policyManager } = useContracts()
   const config = policyConfig[String(wallet.chainId)]
   const [userPolicies, setUserPolicies] = useState<Policy[]>([])
   const [allPolicies, setAllPolicies] = useState<Policy[]>([])
   const [policiesLoading, setPoliciesLoading] = useState<boolean>(false)
-  const latestBlock = useGetLatestBlockNumber()
   const mounting = useRef(true)
 
   const getPolicies = async (policyHolder?: string, product?: string) => {
@@ -130,7 +130,7 @@ export const usePolicyGetter = (policyHolder?: string, product?: string) => {
       await getPolicies(policyHolder)
     }
     loadOverTime()
-  }, [latestBlock, wallet.version])
+  }, [latestBlock, version])
 
   return { policiesLoading, userPolicies, allPolicies }
 }

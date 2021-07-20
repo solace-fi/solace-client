@@ -23,6 +23,7 @@ import React, { Fragment, useState } from 'react'
 /* import managers */
 import { useContracts } from '../../context/ContractsManager'
 import { useWallet } from '../../context/WalletManager'
+import { useCachedData } from '../../context/CachedDataManager'
 
 /* import constants */
 import { Policy } from '../../constants/types'
@@ -34,10 +35,7 @@ import { ManageModal } from './ManageModal'
 import { ClaimModal } from './ClaimModal'
 import { MyPolicies } from './MyPolicies'
 import { MyClaims } from './MyClaims'
-
-/* import utils */
 import { MyInvestments } from './MyInvestments'
-import { useGetLatestBlockNumber } from '../../hooks/useGetLatestBlockNumber'
 
 function Dashboard(): any {
   /*************************************************************************************
@@ -57,7 +55,7 @@ function Dashboard(): any {
   *************************************************************************************/
 
   const { setSelectedProtocolByName } = useContracts()
-  const latestBlock = useGetLatestBlockNumber()
+  const { latestBlock } = useCachedData()
   const wallet = useWallet()
 
   /*************************************************************************************

@@ -1,12 +1,13 @@
 import { Contract } from '@ethersproject/contracts'
 import { formatEther, parseEther } from '@ethersproject/units'
 import { useState, useEffect } from 'react'
+import { useCachedData } from '../context/CachedDataManager'
 import { useContracts } from '../context/ContractsManager'
 import { useWallet } from '../context/WalletManager'
-import { useGetLatestBlockNumber } from './useGetLatestBlockNumber'
 
 export const useUserStakedValue = (farm: Contract | null | undefined): string => {
-  const { account, version } = useWallet()
+  const { account } = useWallet()
+  const { version } = useCachedData()
   const [userStakedValue, setUserStakedValue] = useState<string>('0.00')
 
   useEffect(() => {
@@ -30,7 +31,7 @@ export const useUserStakedValue = (farm: Contract | null | undefined): string =>
 export const usePoolStakedValue = (farm: Contract | null | undefined): string => {
   const [poolValue, setPoolValue] = useState<string>('0.00')
 
-  const latestblock = useGetLatestBlockNumber()
+  const { latestBlock } = useCachedData()
 
   useEffect(() => {
     const getPoolStakedValue = async () => {
@@ -44,7 +45,7 @@ export const usePoolStakedValue = (farm: Contract | null | undefined): string =>
       }
     }
     getPoolStakedValue()
-  }, [farm, latestblock])
+  }, [farm, latestBlock])
 
   return poolValue
 }

@@ -36,7 +36,7 @@ import { LocalTx } from '../../constants/types'
 /* import managers */
 import { useContracts } from '../../context/ContractsManager'
 import { useWallet } from '../../context/WalletManager'
-import { useUserData } from '../../context/UserDataManager'
+import { useCachedData } from '../../context/CachedDataManager'
 import { useToasts } from '../../context/NotificationsManager'
 
 /* import components */
@@ -67,7 +67,7 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
   const maxCoverPerUser = useGetMaxCoverPerUser() // in eth
   const quote = useGetQuote(coverageLimit, position.token.address, timePeriod)
   const wallet = useWallet()
-  const { addLocalTransactions } = useUserData()
+  const { addLocalTransactions, reload, gasPrices } = useCachedData()
   const { selectedProtocol } = useContracts()
   const { makeTxToast } = useToasts()
 
@@ -102,7 +102,7 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
         BigNumber.from(NUM_BLOCKS_PER_DAY * parseInt(timePeriod)),
         {
           value: parseEther(quote).add(parseEther(quote).div('10000')),
-          gasPrice: getGasValue(wallet.gasPrices.selected.value),
+          gasPrice: getGasValue(gasPrices.selected.value),
           gasLimit: GAS_LIMIT,
         }
       )
@@ -122,12 +122,12 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
         },
       })
       addLocalTransactions(localTx)
-      wallet.reload()
+      reload()
       makeTxToast(txType, TransactionCondition.PENDING, txHash)
       await tx.wait().then((receipt: any) => {
         const status = receipt.status ? TransactionCondition.SUCCESS : TransactionCondition.FAILURE
         makeTxToast(txType, status, txHash)
-        wallet.reload()
+        reload()
       })
     } catch (err) {
       makeTxToast(txType, TransactionCondition.CANCELLED)
@@ -137,7 +137,7 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
           value: false,
         },
       })
-      wallet.reload()
+      reload()
     }
   }
 

@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react'
+import { useCachedData } from '../context/CachedDataManager'
 import { useWallet } from '../context/WalletManager'
 
 export const useGetLatestBlockNumber = (): number => {
   const wallet = useWallet()
   const [latestBlock, setLatestBlock] = useState<number>(0)
+  const cachedData = useCachedData()
 
   useEffect(() => {
     try {
@@ -16,7 +18,7 @@ export const useGetLatestBlockNumber = (): number => {
     } catch (e) {
       console.log(e)
     }
-  }, [wallet.dataVersion, wallet.chainId])
+  }, [cachedData.dataVersion, wallet.chainId])
 
   return latestBlock
 }

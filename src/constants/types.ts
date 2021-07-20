@@ -56,6 +56,12 @@ export type ClaimAssessment = {
   signature: string
 }
 
+export type GasFeeListState = {
+  options: GasFeeOption[]
+  loading: boolean
+  selected?: GasFeeOption
+}
+
 export type GasFeeOption = {
   key: string
   name: string

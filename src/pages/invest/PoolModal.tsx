@@ -19,7 +19,7 @@ import { useWallet } from '../../context/WalletManager'
 import { useTokenAllowance } from '../../hooks/useTokenAllowance'
 import { Contract } from '@ethersproject/contracts'
 import { useToasts } from '../../context/NotificationsManager'
-import { useUserData } from '../../context/UserDataManager'
+import { useCachedData } from '../../context/CachedDataManager'
 import getPermitNFTSignature from '../../utils/signature'
 import { FeeAmount, TICK_SPACINGS, getMaxTick, getMinTick } from '../../utils/uniswap'
 import { getProviderOrSigner, hasApproval } from '../../utils'
@@ -41,14 +41,14 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
   const nativeTokenBalance = useNativeTokenBalance()
   const scpBalance = useScpBalance()
   const wallet = useWallet()
-  const [selectedGasOption, setSelectedGasOption] = useState<GasFeeOption>(wallet.gasPrices.selected)
+  const { addLocalTransactions, reload, gasPrices } = useCachedData()
+  const [selectedGasOption, setSelectedGasOption] = useState<GasFeeOption>(gasPrices.selected)
   const [maxSelected, setMaxSelected] = useState<boolean>(false)
   const [modalLoading, setModalLoading] = useState<boolean>(false)
   const [contractForAllowance, setContractForAllowance] = useState<Contract | null>(null)
   const [spenderAddress, setSpenderAddress] = useState<string | null>(null)
   const tokenAllowance = useTokenAllowance(contractForAllowance, spenderAddress)
   const { makeTxToast } = useToasts()
-  const { addLocalTransactions } = useUserData()
   const maxLoss = 5
   const [nft, setNft] = useState<BN>()
 
@@ -72,17 +72,17 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
       }
       handleClose()
       addLocalTransactions(localTx)
-      wallet.reload()
+      reload()
       makeTxToast(txType, TransactionCondition.PENDING, txHash)
       await tx.wait().then((receipt: any) => {
         const status = receipt.status ? TransactionCondition.SUCCESS : TransactionCondition.FAILURE
         makeTxToast(txType, status, txHash)
-        wallet.reload()
+        reload()
       })
     } catch (err) {
       makeTxToast(txType, TransactionCondition.CANCELLED)
       setModalLoading(false)
-      wallet.reload()
+      reload()
     }
   }
 
@@ -106,17 +106,17 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
       }
       handleClose()
       addLocalTransactions(localTx)
-      wallet.reload()
+      reload()
       makeTxToast(txType, TransactionCondition.PENDING, txHash)
       await tx.wait().then((receipt: any) => {
         const status = receipt.status ? TransactionCondition.SUCCESS : TransactionCondition.FAILURE
         makeTxToast(txType, status, txHash)
-        wallet.reload()
+        reload()
       })
     } catch (err) {
       makeTxToast(txType, TransactionCondition.CANCELLED)
       setModalLoading(false)
-      wallet.reload()
+      reload()
     }
   }
 
@@ -131,13 +131,13 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
       await approval.wait().then((receipt: any) => {
         const status = receipt.status ? TransactionCondition.SUCCESS : TransactionCondition.FAILURE
         makeTxToast(FunctionName.APPROVE, status, approvalHash)
-        wallet.reload()
+        reload()
       })
       setModalLoading(false)
     } catch (err) {
       makeTxToast(txType, TransactionCondition.CANCELLED)
       setModalLoading(false)
-      wallet.reload()
+      reload()
     }
   }
 
@@ -160,17 +160,17 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
       }
       handleClose()
       addLocalTransactions(localTx)
-      wallet.reload()
+      reload()
       makeTxToast(txType, TransactionCondition.PENDING, txHash)
       await tx.wait().then((receipt: any) => {
         const status = receipt.status ? TransactionCondition.SUCCESS : TransactionCondition.FAILURE
         makeTxToast(txType, status, txHash)
-        wallet.reload()
+        reload()
       })
     } catch (err) {
       makeTxToast(txType, TransactionCondition.CANCELLED)
       setModalLoading(false)
-      wallet.reload()
+      reload()
     }
   }
 
@@ -193,17 +193,17 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
       }
       handleClose()
       addLocalTransactions(localTx)
-      wallet.reload()
+      reload()
       makeTxToast(txType, TransactionCondition.PENDING, txHash)
       await tx.wait().then((receipt: any) => {
         const status = receipt.status ? TransactionCondition.SUCCESS : TransactionCondition.FAILURE
         makeTxToast(txType, status, txHash)
-        wallet.reload()
+        reload()
       })
     } catch (err) {
       makeTxToast(txType, TransactionCondition.CANCELLED)
       setModalLoading(false)
-      wallet.reload()
+      reload()
     }
   }
 
@@ -226,17 +226,17 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
       }
       handleClose()
       addLocalTransactions(localTx)
-      wallet.reload()
+      reload()
       makeTxToast(txType, TransactionCondition.PENDING, txHash)
       await tx.wait().then((receipt: any) => {
         const status = receipt.status ? TransactionCondition.SUCCESS : TransactionCondition.FAILURE
         makeTxToast(txType, status, txHash)
-        wallet.reload()
+        reload()
       })
     } catch (err) {
       makeTxToast(txType, TransactionCondition.CANCELLED)
       setModalLoading(false)
-      wallet.reload()
+      reload()
     }
   }
 
@@ -257,17 +257,17 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
       }
       handleClose()
       addLocalTransactions(localTx)
-      wallet.reload()
+      reload()
       makeTxToast(txType, TransactionCondition.PENDING, txHash)
       await tx.wait().then((receipt: any) => {
         const status = receipt.status ? TransactionCondition.SUCCESS : TransactionCondition.FAILURE
         makeTxToast(txType, status, txHash)
-        wallet.reload()
+        reload()
       })
     } catch (err) {
       makeTxToast(txType, TransactionCondition.CANCELLED)
       setModalLoading(false)
-      wallet.reload()
+      reload()
     }
   }
 
@@ -287,17 +287,17 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
       }
       handleClose()
       addLocalTransactions(localTx)
-      wallet.reload()
+      reload()
       makeTxToast(txType, TransactionCondition.PENDING, txHash)
       await tx.wait().then((receipt: any) => {
         const status = receipt.status ? TransactionCondition.SUCCESS : TransactionCondition.FAILURE
         makeTxToast(txType, status, txHash)
-        wallet.reload()
+        reload()
       })
     } catch (err) {
       makeTxToast(txType, TransactionCondition.CANCELLED)
       setModalLoading(false)
-      wallet.reload()
+      reload()
     }
   }
 
@@ -424,16 +424,16 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
 
   const handleClose = () => {
     setAmount('')
-    setSelectedGasOption(wallet.gasPrices.options[1])
+    setSelectedGasOption(gasPrices.options[1])
     setMaxSelected(false)
     setModalLoading(false)
     closeModal()
   }
 
   useEffect(() => {
-    if (!wallet.gasPrices.selected) return
-    setSelectedGasOption(wallet.gasPrices.selected)
-  }, [wallet.gasPrices])
+    if (!gasPrices.selected) return
+    setSelectedGasOption(gasPrices.selected)
+  }, [gasPrices])
 
   useEffect(() => {
     if (maxSelected) {
@@ -488,8 +488,8 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
           </ModalCell>
         </ModalRow>
         <RadioGroup>
-          {!wallet.gasPrices.loading ? (
-            wallet.gasPrices.options.map((option: GasFeeOption) => (
+          {!gasPrices.loading ? (
+            gasPrices.options.map((option: GasFeeOption) => (
               <RadioLabel key={option.key}>
                 <RadioInput
                   type="radio"

@@ -24,7 +24,7 @@ import makeBlockie from 'ethereum-blockies-base64'
 
 /* import managers */
 import { useWallet } from '../../context/WalletManager'
-import { useUserData } from '../../context/UserDataManager'
+import { useCachedData } from '../../context/CachedDataManager'
 
 /* import components */
 import { UserImage } from './index'
@@ -52,7 +52,7 @@ export default function Account(): any {
   *************************************************************************************/
   const wallet = useWallet()
   const balance = useNativeTokenBalance()
-  const { localTransactions } = useUserData()
+  const { localTransactions } = useCachedData()
   const [showHistoryModal, setShowHistoryModal] = useState<boolean>(false)
 
   const openModal = () => {

@@ -28,7 +28,7 @@ import { Contract } from 'ethers'
 
 /* import managers */
 import { useWallet } from '../../context/WalletManager'
-import { useUserData } from '../../context/UserDataManager'
+import { useCachedData } from '../../context/CachedDataManager'
 import { useToasts } from '../../context/NotificationsManager'
 import { useContracts } from '../../context/ContractsManager'
 
@@ -89,7 +89,7 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
 
   const { getCooldownPeriod } = useClaimsEscrow()
   const tokenAllowance = useTokenAllowance(contractForAllowance, spenderAddress)
-  const { addLocalTransactions } = useUserData()
+  const { addLocalTransactions, reload, gasPrices } = useCachedData()
   const { selectedProtocol, getProtocolByName } = useContracts()
   const { makeTxToast } = useToasts()
   const wallet = useWallet()
@@ -112,13 +112,13 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
       await approval.wait().then((receipt: any) => {
         const status = receipt.status ? TransactionCondition.SUCCESS : TransactionCondition.FAILURE
         makeTxToast(FunctionName.APPROVE, status, approvalHash)
-        wallet.reload()
+        reload()
       })
       setModalLoading(false)
     } catch (err) {
       makeTxToast(txType, TransactionCondition.CANCELLED)
       setModalLoading(false)
-      wallet.reload()
+      reload()
     }
   }
 
@@ -137,27 +137,27 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
         deadline,
         signature,
         {
-          gasPrice: getGasValue(wallet.gasPrices.selected.value),
+          gasPrice: getGasValue(gasPrices.selected.value),
           gasLimit: GAS_LIMIT,
         }
       )
       const txHash = tx.hash
       const localTx = { hash: txHash, type: txType, value: '0', status: TransactionCondition.PENDING, unit: Unit.ID }
       addLocalTransactions(localTx)
-      wallet.reload()
+      reload()
       makeTxToast(txType, TransactionCondition.PENDING, txHash)
       await tx.wait().then((receipt: any) => {
         const status = receipt.status ? TransactionCondition.SUCCESS : TransactionCondition.FAILURE
         const rawClaimId = receipt.logs[2].topics[1]
         setClaimId(parseInt(rawClaimId))
         makeTxToast(txType, status, txHash)
-        wallet.reload()
+        reload()
       })
       setModalLoading(false)
     } catch (err) {
       makeTxToast(txType, TransactionCondition.CANCELLED)
       setModalLoading(false)
-      wallet.reload()
+      reload()
     }
   }
 

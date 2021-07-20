@@ -4,12 +4,11 @@ import { useState, useEffect } from 'react'
 import { useWallet } from '../context/WalletManager'
 import { floatEther } from '../utils/formatting'
 import { ZERO } from '../constants'
-import { useGetLatestBlockNumber } from './useGetLatestBlockNumber'
+import { useCachedData } from '../context/CachedDataManager'
 
 export const useCapitalPoolSize = (): string => {
   const { vault, registry } = useContracts()
-  const { version } = useWallet()
-  const latestBlock = useGetLatestBlockNumber()
+  const { version, latestBlock } = useCachedData()
   const [capitalPoolSize, setCapitalPoolSize] = useState<string>('0.00')
 
   useEffect(() => {
@@ -31,8 +30,8 @@ export const useCapitalPoolSize = (): string => {
 
 export const useScpBalance = (): string => {
   const { vault } = useContracts()
-  const latestBlock = useGetLatestBlockNumber()
-  const { account, version, chainId } = useWallet()
+  const { account, chainId } = useWallet()
+  const { version, latestBlock } = useCachedData()
   const [scpBalance, setScpBalance] = useState<string>('0.00')
 
   useEffect(() => {

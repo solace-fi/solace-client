@@ -3,7 +3,7 @@ import React from 'react'
 
 /* import managers */
 import { useWallet } from '../context/WalletManager'
-import { useUserData } from '../context/UserDataManager'
+import { useCachedData } from '../context/CachedDataManager'
 
 /* import components */
 import { Loader } from '../components/Loader'
@@ -21,9 +21,9 @@ import { getExplorerItemUrl } from '../utils/explorer'
 import { shortenAddress } from '../utils/formatting'
 import { timeAgo } from '../utils/time'
 import { decodeInput } from '../utils/decoder'
-import { useContractArray } from '../hooks/useContract'
 import styled from 'styled-components'
 import { ExplorerscanApi } from '../constants/enums'
+import { useContracts } from '../context/ContractsManager'
 
 const Scrollable = styled.div`
   max-height: 60vh;
@@ -34,8 +34,8 @@ const Scrollable = styled.div`
 export const TransactionHistory: React.FC = () => {
   const { txHistory, amounts } = useTransactionDetails()
   const wallet = useWallet()
-  const { localTransactions } = useUserData()
-  const contractAddrs = useContractArray()
+  const { localTransactions } = useCachedData()
+  const { contractSources } = useContracts()
 
   return (
     <Scrollable>
@@ -85,7 +85,7 @@ export const TransactionHistory: React.FC = () => {
               <TableRow key={tx.hash}>
                 <TableData pt={10} pb={10}>
                   {amounts.length > 0 ? (
-                    decodeInput(tx, contractAddrs).function_name
+                    decodeInput(tx, contractSources).function_name
                   ) : (
                     <Loader width={10} height={10} />
                   )}

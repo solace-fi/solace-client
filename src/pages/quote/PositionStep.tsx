@@ -5,6 +5,7 @@
     import react
     import managers
     import components
+    import constants
     import utils
 
     PositionStep function
@@ -38,13 +39,10 @@ import { ManageModal } from '../dashboard/ManageModal'
 import { PolicyState } from '../../constants/enums'
 import { Policy, Token } from '../../constants/types'
 
-/* import hooks */
-import { useGetLatestBlockNumber } from '../../hooks/useGetLatestBlockNumber'
-
 /* import utils */
 import { fixedTokenPositionBalance, truncateBalance } from '../../utils/formatting'
 import { policyConfig } from '../../config/chainConfig'
-import { useUserData } from '../../context/UserDataManager'
+import { useCachedData } from '../../context/CachedDataManager'
 
 export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigation }) => {
   const { protocol, balances, loading } = formData
@@ -55,10 +53,9 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
 
   *************************************************************************************/
 
-  const { account, chainId, dataVersion, library, errors } = useWallet()
+  const { account, chainId, library, errors } = useWallet()
   const { setSelectedProtocolByName } = useContracts()
-  const latestBlock = useGetLatestBlockNumber()
-  const { userPolicies } = useUserData()
+  const { userPolicies, dataVersion, latestBlock } = useCachedData()
 
   /*************************************************************************************
 

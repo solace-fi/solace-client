@@ -8,7 +8,7 @@ import WalletManager from './context/WalletManager'
 import ContractsManager from './context/ContractsManager'
 import NotificationsManager from './context/NotificationsManager'
 import ProviderManager from './context/ProviderManager'
-import UserDataManager from './context/UserDataManager'
+import CachedDataManager from './context/CachedDataManager'
 
 /*
 
@@ -32,13 +32,13 @@ ReactDOM.render(
     <ProviderManager>
       <WalletManager>
         <ContractsManager>
-          <UserDataManager>
+          <CachedDataManager>
             <NotificationsManager>
               <BrowserRouter>
                 <App />
               </BrowserRouter>
             </NotificationsManager>
-          </UserDataManager>
+          </CachedDataManager>
         </ContractsManager>
       </WalletManager>
     </ProviderManager>

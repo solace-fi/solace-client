@@ -1,18 +1,17 @@
 import { fetchExplorerTxHistoryByAddress } from '../utils/explorer'
-import { useContractArray } from './useContract'
 import { useState, useEffect } from 'react'
-import { useUserData } from '../context/UserDataManager'
+import { useCachedData } from '../context/CachedDataManager'
 import { useWallet } from '../context/WalletManager'
 import { FunctionName } from '../constants/enums'
 import { Provider, Web3Provider } from '@ethersproject/providers'
 import { decodeInput } from '../utils/decoder'
 import { formatTransactionContent } from '../utils/formatting'
-import { useGetLatestBlockNumber } from './useGetLatestBlockNumber'
+import { useContracts } from '../context/ContractsManager'
 
 export const useTransactionDetails = (): { txHistory: any; amounts: string[] } => {
   const { library, chainId } = useWallet()
   const [amounts, setAmounts] = useState<string[]>([])
-  const contractArray = useContractArray()
+  const { contractSources } = useContracts()
   const txHistory = useFetchTxHistoryByAddress()
 
   const getTransactionAmount = async (
@@ -57,7 +56,7 @@ export const useTransactionDetails = (): { txHistory: any; amounts: string[] } =
     if (txHistory) {
       const currentAmounts = []
       for (let tx_i = 0; tx_i < txHistory.length; tx_i++) {
-        const function_name = decodeInput(txHistory[tx_i], contractArray).function_name
+        const function_name = decodeInput(txHistory[tx_i], contractSources).function_name
         if (!function_name) {
           currentAmounts.push('N/A')
         } else {
@@ -77,14 +76,13 @@ export const useTransactionDetails = (): { txHistory: any; amounts: string[] } =
 }
 
 export const useFetchTxHistoryByAddress = (): any => {
-  const { account, reload, chainId } = useWallet()
-  const { deleteLocalTransactions } = useUserData()
+  const { account, chainId } = useWallet()
+  const { deleteLocalTransactions, reload, latestBlock } = useCachedData()
   const [txHistory, setTxHistory] = useState<any>([])
-  const contractAddrs = useContractArray()
-  const latestBlock = useGetLatestBlockNumber()
+  const { contractSources } = useContracts()
 
   const fetchTxHistoryByAddress = async (account: string) => {
-    await fetchExplorerTxHistoryByAddress(chainId, account, contractAddrs).then((result) => {
+    await fetchExplorerTxHistoryByAddress(chainId, account, contractSources).then((result) => {
       deleteLocalTransactions(result.txList)
       setTxHistory(result.txList.slice(0, 30))
       reload()
@@ -93,7 +91,7 @@ export const useFetchTxHistoryByAddress = (): any => {
 
   useEffect(() => {
     account ? fetchTxHistoryByAddress(account) : setTxHistory([])
-  }, [account, latestBlock, contractAddrs])
+  }, [account, latestBlock, contractSources])
 
   return txHistory
 }

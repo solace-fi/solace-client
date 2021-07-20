@@ -30,7 +30,7 @@ import { parseEther, formatEther } from '@ethersproject/units'
 import { BigNumber } from 'ethers'
 
 /* import managers */
-import { useUserData } from '../../context/UserDataManager'
+import { useCachedData } from '../../context/CachedDataManager'
 import { useToasts } from '../../context/NotificationsManager'
 import { useWallet } from '../../context/WalletManager'
 import { useContracts } from '../../context/ContractsManager'
@@ -100,7 +100,7 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
 
   const { selectedProtocol, getProtocolByName } = useContracts()
   const wallet = useWallet()
-  const { addLocalTransactions } = useUserData()
+  const { addLocalTransactions, reload, gasPrices } = useCachedData()
   const { makeTxToast } = useToasts()
   const policyPrice = useGetPolicyPrice(selectedPolicy ? selectedPolicy.policyId : 0)
   const cancelFee = useGetCancelFee()
@@ -129,7 +129,7 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
           .mul(extension)
           .div(String(Math.pow(10, 12)))
           .add(parseEther(quote).div('10000')),
-        gasPrice: getGasValue(wallet.gasPrices.selected.value),
+        gasPrice: getGasValue(gasPrices.selected.value),
         gasLimit: GAS_LIMIT,
       })
       const txHash = tx.hash
@@ -137,17 +137,17 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
       setModalLoading(false)
       closeModal()
       addLocalTransactions(localTx)
-      wallet.reload()
+      reload()
       makeTxToast(txType, TransactionCondition.PENDING, txHash)
       await tx.wait().then((receipt: any) => {
         const status = receipt.status ? TransactionCondition.SUCCESS : TransactionCondition.FAILURE
         makeTxToast(txType, status, txHash)
-        wallet.reload()
+        reload()
       })
     } catch (err) {
       makeTxToast(txType, TransactionCondition.CANCELLED)
       setModalLoading(false)
-      wallet.reload()
+      reload()
     }
   }
 
@@ -157,7 +157,7 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
     const txType = FunctionName.CANCEL_POLICY
     try {
       const tx = await selectedProtocol.cancelPolicy(selectedPolicy.policyId, {
-        gasPrice: getGasValue(wallet.gasPrices.selected.value),
+        gasPrice: getGasValue(gasPrices.selected.value),
         gasLimit: GAS_LIMIT,
       })
       const txHash = tx.hash
@@ -171,17 +171,17 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
       setModalLoading(false)
       closeModal()
       addLocalTransactions(localTx)
-      wallet.reload()
+      reload()
       makeTxToast(txType, TransactionCondition.PENDING, txHash)
       await tx.wait().then((receipt: any) => {
         const status = receipt.status ? TransactionCondition.SUCCESS : TransactionCondition.FAILURE
         makeTxToast(txType, status, txHash)
-        wallet.reload()
+        reload()
       })
     } catch (err) {
       makeTxToast(txType, TransactionCondition.CANCELLED)
       setModalLoading(false)
-      wallet.reload()
+      reload()
     }
   }
 

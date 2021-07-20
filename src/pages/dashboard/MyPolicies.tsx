@@ -24,7 +24,7 @@ import { formatEther } from '@ethersproject/units'
 
 /* import managers */
 import { useWallet } from '../../context/WalletManager'
-import { useUserData } from '../../context/UserDataManager'
+import { useCachedData } from '../../context/CachedDataManager'
 
 /* import constants */
 import { Policy } from '../../constants/types'
@@ -55,7 +55,7 @@ export const MyPolicies: React.FC<MyPoliciesProps> = ({ openClaimModal, openMana
 
   *************************************************************************************/
   const wallet = useWallet()
-  const { userPolicies } = useUserData()
+  const { userPolicies } = useCachedData()
 
   /*************************************************************************************
 
