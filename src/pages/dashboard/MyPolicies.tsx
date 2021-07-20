@@ -7,26 +7,24 @@
     import managers
     import constants
     import components
-    import hooks
     import utils
 
     MyPolicies function
-      useState hooks
       custom hooks
-      Contract functions
-      useEffect hooks
+      Local functions
       Render
 
   *************************************************************************************/
 
 /* import react */
-import React, { useEffect, useState, Fragment } from 'react'
+import React, { Fragment } from 'react'
 
 /* import packages */
 import { formatEther } from '@ethersproject/units'
 
 /* import managers */
 import { useWallet } from '../../context/WalletManager'
+import { useUserData } from '../../context/UserDataManager'
 
 /* import constants */
 import { Policy } from '../../constants/types'
@@ -37,15 +35,12 @@ import { Button } from '../../components/Button'
 import { Loader } from '../../components/Loader'
 import { Heading2, Text } from '../../components/Typography'
 import { PolicyState } from '../../constants/enums'
-
-/* import hooks */
-import { usePolicyGetter } from '../../hooks/useGetter'
+import { FlexRow } from '../../components/Layout'
+import { PositionCardLogo } from '../../components/Position'
 
 /* import utils */
 import { getNativeTokenUnit, truncateBalance } from '../../utils/formatting'
 import { getDays, getDateStringWithMonthName, getDateExtended } from '../../utils/time'
-import { FlexRow } from '../../components/Layout'
-import { PositionCardLogo } from '../../components/Position'
 
 interface MyPoliciesProps {
   openClaimModal: any
@@ -56,19 +51,11 @@ interface MyPoliciesProps {
 export const MyPolicies: React.FC<MyPoliciesProps> = ({ openClaimModal, openManageModal, latestBlock }) => {
   /*************************************************************************************
 
-    useState hooks
-
-  *************************************************************************************/
-  const [policies, setPolicies] = useState<Policy[]>([])
-  const [loading, setLoading] = useState<boolean>(false)
-
-  /*************************************************************************************
-
     custom hooks
 
   *************************************************************************************/
   const wallet = useWallet()
-  const { getPolicies } = usePolicyGetter()
+  const { userPolicies } = useUserData()
 
   /*************************************************************************************
 
@@ -80,31 +67,9 @@ export const MyPolicies: React.FC<MyPoliciesProps> = ({ openClaimModal, openMana
     return getDateStringWithMonthName(getDateExtended(daysLeft))
   }
 
-  /*************************************************************************************
-
-    useEffect hooks
-
-  *************************************************************************************/
-
-  useEffect(() => {
-    const fetchPolicies = async () => {
-      if (!wallet.isActive || !wallet.account) return
-      setLoading(true)
-      const policies = await getPolicies(wallet.account)
-      setPolicies(policies)
-      setLoading(false)
-    }
-    fetchPolicies()
-  }, [wallet.account, wallet.isActive, wallet.chainId])
-
-  useEffect(() => {
-    const fetchPolicies = async () => {
-      if (!wallet.isActive || !wallet.account) return
-      const policies = await getPolicies(wallet.account)
-      setPolicies(policies)
-    }
-    fetchPolicies()
-  }, [wallet.dataVersion, wallet.version])
+  const shouldWarnUser = (policy: Policy): boolean => {
+    return policy.status === PolicyState.ACTIVE && getDays(parseFloat(policy.expirationBlock), latestBlock) <= 1
+  }
 
   /*************************************************************************************
 
@@ -114,9 +79,9 @@ export const MyPolicies: React.FC<MyPoliciesProps> = ({ openClaimModal, openMana
 
   return (
     <Fragment>
-      {loading ? (
+      {userPolicies.policiesLoading ? (
         <Loader />
-      ) : policies.length > 0 ? (
+      ) : userPolicies.userPolicies.length > 0 ? (
         <Table textAlignCenter>
           <TableHead>
             <TableRow>
@@ -128,7 +93,7 @@ export const MyPolicies: React.FC<MyPoliciesProps> = ({ openClaimModal, openMana
             </TableRow>
           </TableHead>
           <TableBody>
-            {policies.map((policy) => {
+            {userPolicies.userPolicies.map((policy) => {
               return (
                 <TableRow key={policy.policyId}>
                   <TableData>
@@ -146,9 +111,13 @@ export const MyPolicies: React.FC<MyPoliciesProps> = ({ openClaimModal, openMana
                       </FlexRow>
                     }
                   </TableData>
-                  <TableData error={policy.status === PolicyState.EXPIRED}>{policy.status}</TableData>
+                  <TableData error={policy.status === PolicyState.EXPIRED} warning={shouldWarnUser(policy)}>
+                    {policy.status}
+                  </TableData>
                   <TableData>{policy.policyId}</TableData>
-                  <TableData>{calculatePolicyExpirationDate(policy.expirationBlock)}</TableData>
+                  <TableData warning={shouldWarnUser(policy)}>
+                    {calculatePolicyExpirationDate(policy.expirationBlock)}
+                  </TableData>
                   <TableData>
                     {policy.coverAmount ? truncateBalance(parseFloat(formatEther(policy.coverAmount)), 2) : 0}{' '}
                     {getNativeTokenUnit(wallet.chainId)}

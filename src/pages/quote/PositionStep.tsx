@@ -39,12 +39,12 @@ import { PolicyState } from '../../constants/enums'
 import { Policy, Token } from '../../constants/types'
 
 /* import hooks */
-import { usePolicyGetter } from '../../hooks/useGetter'
 import { useGetLatestBlockNumber } from '../../hooks/useGetLatestBlockNumber'
 
 /* import utils */
 import { fixedTokenPositionBalance, truncateBalance } from '../../utils/formatting'
 import { policyConfig } from '../../config/chainConfig'
+import { useUserData } from '../../context/UserDataManager'
 
 export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigation }) => {
   const { protocol, balances, loading } = formData
@@ -55,20 +55,19 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
 
   *************************************************************************************/
 
-  const { account, chainId, isActive, version, dataVersion, library, errors } = useWallet()
-  const { getPolicies } = usePolicyGetter()
+  const { account, chainId, dataVersion, library, errors } = useWallet()
   const { setSelectedProtocolByName } = useContracts()
   const latestBlock = useGetLatestBlockNumber()
+  const { userPolicies } = useUserData()
 
   /*************************************************************************************
 
   useState hooks
 
   *************************************************************************************/
-  const [positionsLoaded, setPositionsLoaded] = useState<boolean>(false)
   const [showManageModal, setShowManageModal] = useState<boolean>(false)
   const [selectedPolicy, setSelectedPolicy] = useState<Policy | undefined>(undefined)
-  const [policies, setPolicies] = useState<Policy[]>([])
+  // const [policies, setPolicies] = useState<Policy[]>([])
 
   /*************************************************************************************
 
@@ -108,7 +107,7 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
   }
 
   const userHasActiveProductPosition = (product: string, position: string): boolean => {
-    for (const policy of policies) {
+    for (const policy of userPolicies.userPolicies) {
       if (product === policy.productName && position === policy.positionName && policy.status === PolicyState.ACTIVE)
         return true
     }
@@ -186,21 +185,6 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
     loadOverTime()
   }, [dataVersion])
 
-  useEffect(() => {
-    try {
-      const fetchPolicies = async () => {
-        const policies = await getPolicies(account as string)
-        setPolicies(policies)
-        setPositionsLoaded(true)
-      }
-
-      fetchPolicies()
-    } catch (err) {
-      setPositionsLoaded(true)
-      console.log(err)
-    }
-  }, [account, isActive, chainId, version])
-
   /*************************************************************************************
 
   Render
@@ -215,12 +199,12 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
         latestBlock={latestBlock}
         closeModal={closeModal}
       />
-      {balances.length == 0 && !loading && positionsLoaded && (
+      {balances.length == 0 && !loading && !userPolicies.policiesLoading && (
         <HeroContainer>
           <Heading1>You do not own any positions on this protocol.</Heading1>
         </HeroContainer>
       )}
-      {!loading && positionsLoaded ? (
+      {!loading && !userPolicies.policiesLoading ? (
         <Fragment>
           <CardContainer>
             {balances.map((position: Token) => {
@@ -234,7 +218,7 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
                       : userHasActiveProductPosition(protocol.name, position.underlying.symbol)
                       ? () =>
                           openManageModal(
-                            policies.filter(
+                            userPolicies.userPolicies.filter(
                               (policy) =>
                                 policy.productName == protocol.name && policy.positionName == position.underlying.symbol
                             )[0]

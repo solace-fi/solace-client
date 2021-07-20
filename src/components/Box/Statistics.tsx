@@ -16,7 +16,6 @@
       custom hooks
       useState hooks
       Contract functions
-      Local functions
       useEffect hooks
       Render
 
@@ -31,7 +30,6 @@ import { formatEther, parseEther } from '@ethersproject/units'
 /* import constants */
 import { GAS_LIMIT } from '../../constants'
 import { TransactionCondition, FunctionName, Unit, PolicyState } from '../../constants/enums'
-import { Policy } from '../../constants/types'
 
 /* import managers */
 import { useWallet } from '../../context/WalletManager'
@@ -50,7 +48,6 @@ import { useTotalPendingRewards } from '../../hooks/useRewards'
 import { useSolaceBalance } from '../../hooks/useSolaceBalance'
 import { usePolicyGetter } from '../../hooks/useGetter'
 import { useGetTotalValueLocked } from '../../hooks/useFarm'
-import { useGetLatestBlockNumber } from '../../hooks/useGetLatestBlockNumber'
 
 /* import wallet */
 import { WalletConnectButton } from '../Button/WalletConnect'
@@ -77,8 +74,7 @@ export const Statistics = () => {
   const capitalPoolSize = useCapitalPoolSize()
   const solaceBalance = useSolaceBalance()
   const totalUserRewards = useTotalPendingRewards()
-  const { getPolicies } = usePolicyGetter()
-  const latestBlock = useGetLatestBlockNumber()
+  const { allPolicies } = usePolicyGetter()
   const totalValueLocked = useGetTotalValueLocked()
 
   /*************************************************************************************
@@ -103,13 +99,14 @@ export const Statistics = () => {
         gasLimit: GAS_LIMIT,
       })
       const txHash = tx.hash
-      addLocalTransactions({
+      const localTx = {
         hash: txHash,
         type: txType,
         value: totalUserRewards,
         status: TransactionCondition.PENDING,
         unit: Unit.SOLACE,
-      })
+      }
+      addLocalTransactions(localTx)
       makeTxToast(txType, TransactionCondition.PENDING, txHash)
       wallet.reload()
       await tx.wait().then((receipt: any) => {
@@ -130,12 +127,6 @@ export const Statistics = () => {
 
   /*************************************************************************************
 
-  Local functions
-
-  *************************************************************************************/
-
-  /*************************************************************************************
-
   useEffect hooks
 
   *************************************************************************************/
@@ -143,9 +134,7 @@ export const Statistics = () => {
   useEffect(() => {
     try {
       const fetchPolicies = async () => {
-        const policies: Policy[] = await getPolicies()
-        const activePolicies = policies.filter(({ status }) => status === PolicyState.ACTIVE)
-
+        const activePolicies = allPolicies.filter(({ status }) => status === PolicyState.ACTIVE)
         let activeCoverAmount = 0
         activePolicies.forEach(({ coverAmount }) => {
           try {
@@ -162,7 +151,7 @@ export const Statistics = () => {
     } catch (err) {
       console.log(err)
     }
-  }, [latestBlock])
+  }, [allPolicies])
 
   return (
     <BoxRow>

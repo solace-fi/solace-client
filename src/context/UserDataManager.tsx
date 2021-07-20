@@ -2,7 +2,8 @@ import React, { useMemo, useContext, createContext, useCallback } from 'react'
 import { useLocalStorage } from 'react-use-storage'
 import { useWallet } from './WalletManager'
 
-import { LocalTx } from '../constants/types'
+import { LocalTx, Policy } from '../constants/types'
+import { usePolicyGetter } from '../hooks/useGetter'
 
 /*
 
@@ -13,6 +14,7 @@ web app. Currently, the only data cached here are local transactions.
 
 type UserData = {
   localTransactions: LocalTx[]
+  userPolicies: { policiesLoading: boolean; userPolicies: Policy[] }
   addLocalTransactions: (txToAdd: LocalTx) => void
   deleteLocalTransactions: (txsToDelete: []) => void
   removeLocalTransactions: () => void
@@ -20,6 +22,7 @@ type UserData = {
 
 const UserDataContext = createContext<UserData>({
   localTransactions: [],
+  userPolicies: { policiesLoading: false, userPolicies: [] },
   addLocalTransactions: () => undefined,
   deleteLocalTransactions: () => undefined,
   removeLocalTransactions: () => undefined,
@@ -28,6 +31,7 @@ const UserDataContext = createContext<UserData>({
 const UserDataProvider: React.FC = (props) => {
   const { account, chainId, disconnect } = useWallet()
   const [localTxs, setLocalTxs, removeLocalTxs] = useLocalStorage<LocalTx[]>('solace_loc_txs', [])
+  const { policiesLoading, userPolicies } = usePolicyGetter(account)
 
   const addLocalTransactions = (txToAdd: LocalTx) => {
     if (localTxs !== undefined) {
@@ -54,6 +58,7 @@ const UserDataProvider: React.FC = (props) => {
   const value = useMemo<UserData>(
     () => ({
       localTransactions: localTxs,
+      userPolicies: { policiesLoading, userPolicies },
       addLocalTransactions,
       deleteLocalTransactions,
       removeLocalTransactions: clearLocalTransactions,
