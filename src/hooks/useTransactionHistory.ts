@@ -77,7 +77,7 @@ export const useTransactionDetails = (): { txHistory: any; amounts: string[] } =
 
 export const useFetchTxHistoryByAddress = (): any => {
   const { account, chainId } = useWallet()
-  const { deleteLocalTransactions, reload, latestBlock } = useCachedData()
+  const { deleteLocalTransactions, reload, dataVersion } = useCachedData()
   const [txHistory, setTxHistory] = useState<any>([])
   const { contractSources } = useContracts()
 
@@ -91,7 +91,7 @@ export const useFetchTxHistoryByAddress = (): any => {
 
   useEffect(() => {
     account ? fetchTxHistoryByAddress(account) : setTxHistory([])
-  }, [account, latestBlock, contractSources])
+  }, [account, contractSources, dataVersion])
 
   return txHistory
 }

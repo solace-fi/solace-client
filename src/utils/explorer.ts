@@ -45,7 +45,9 @@ export async function fetchExplorerTxHistoryByAddress(
         return contract.addr
       })
       const filteredResult =
-        result !== 'Max rate limit reached' ? result.filter((tx: any) => contractAddrs.includes(tx.to)) : []
+        result !== 'Max rate limit reached'
+          ? result.filter((tx: any) => contractAddrs.includes(tx.to.toLowerCase()))
+          : []
       return {
         txList: filteredResult,
       }

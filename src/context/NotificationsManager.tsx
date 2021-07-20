@@ -25,6 +25,31 @@ const ToastsContext = createContext<ToastSystem>({
   makeTxToast: () => undefined,
 })
 
+const txSuccess = {
+  type: toast.TYPE.SUCCESS,
+  position: toast.POSITION.BOTTOM_LEFT,
+  closeOnClick: false,
+  closeButton: true,
+  className: 'success-toast',
+}
+
+const txError = {
+  type: toast.TYPE.ERROR,
+  position: toast.POSITION.BOTTOM_LEFT,
+  closeOnClick: false,
+  closeButton: true,
+  className: 'error-toast',
+}
+
+const appError: any = {
+  type: toast.TYPE.ERROR,
+  position: toast.POSITION.BOTTOM_LEFT,
+  autoClose: false,
+  closeOnClick: false,
+  closeButton: false,
+  className: 'error-toast',
+}
+
 const ToastsProvider: React.FC = (props) => {
   const wallet = useWallet()
 
@@ -38,20 +63,12 @@ const ToastsProvider: React.FC = (props) => {
           if (toast.isActive(txHash)) {
             toast.update(txHash, {
               render: TxToast(txType, 'successful'),
-              type: toast.TYPE.SUCCESS,
-              position: toast.POSITION.BOTTOM_LEFT,
-              closeOnClick: false,
-              closeButton: true,
-              className: 'success-toast',
+              ...txSuccess,
             })
           } else {
             toast(TxToast(txType, 'successful'), {
               toastId: txHash,
-              type: toast.TYPE.SUCCESS,
-              position: toast.POSITION.BOTTOM_LEFT,
-              closeOnClick: false,
-              closeButton: true,
-              className: 'success-toast',
+              ...txSuccess,
             })
           }
         }
@@ -61,20 +78,12 @@ const ToastsProvider: React.FC = (props) => {
           if (toast.isActive(txHash)) {
             toast.update(txHash, {
               render: TxToast(txType, 'failed'),
-              type: toast.TYPE.ERROR,
-              position: toast.POSITION.BOTTOM_LEFT,
-              closeOnClick: false,
-              closeButton: true,
-              className: 'error-toast',
+              ...txError,
             })
           } else {
             toast(TxToast(txType, 'failed'), {
               toastId: txHash,
-              type: toast.TYPE.ERROR,
-              position: toast.POSITION.BOTTOM_LEFT,
-              closeOnClick: false,
-              closeButton: true,
-              className: 'error-toast',
+              ...txError,
             })
           }
         }
@@ -94,12 +103,8 @@ const ToastsProvider: React.FC = (props) => {
         break
       default:
         toast(TxToast(txType, 'cancelled'), {
-          type: toast.TYPE.ERROR,
-          position: toast.POSITION.BOTTOM_LEFT,
           autoClose: 10000,
-          closeOnClick: false,
-          closeButton: true,
-          className: 'error-toast',
+          ...txError,
         })
     }
   }
@@ -117,12 +122,7 @@ const ToastsProvider: React.FC = (props) => {
     if (wallet.errors.includes(Error.UNSUPPORTED_NETWORK)) {
       toast(appToast(`Unsupported network, please switch to a supported network`, <StyledWarning size={30} />), {
         toastId: Error.UNSUPPORTED_NETWORK,
-        type: toast.TYPE.ERROR,
-        position: toast.POSITION.BOTTOM_LEFT,
-        autoClose: false,
-        closeOnClick: false,
-        closeButton: false,
-        className: 'error-toast',
+        ...appError,
       })
     } else {
       toast.dismiss(Error.UNSUPPORTED_NETWORK)
@@ -131,11 +131,7 @@ const ToastsProvider: React.FC = (props) => {
       toast(appToast(`No Ethereum browser extension detected`, <StyledWarning size={30} />), {
         toastId: Error.NO_ETH_PROVIDER,
         type: toast.TYPE.ERROR,
-        position: toast.POSITION.BOTTOM_LEFT,
-        autoClose: false,
-        closeOnClick: false,
-        closeButton: false,
-        className: 'error-toast',
+        ...appError,
       })
     } else {
       toast.dismiss(Error.NO_ETH_PROVIDER)
@@ -143,12 +139,7 @@ const ToastsProvider: React.FC = (props) => {
     if (wallet.errors.includes(Error.NO_ACCESS)) {
       toast(appToast(`Please authorize this website to access your Ethereum account`, <StyledWarning size={30} />), {
         toastId: Error.NO_ACCESS,
-        type: toast.TYPE.ERROR,
-        position: toast.POSITION.BOTTOM_LEFT,
-        autoClose: false,
-        closeOnClick: false,
-        closeButton: false,
-        className: 'error-toast',
+        ...appError,
       })
     } else {
       toast.dismiss(Error.NO_ACCESS)
@@ -156,12 +147,7 @@ const ToastsProvider: React.FC = (props) => {
     if (wallet.errors.includes(Error.UNKNOWN)) {
       toast(appToast(`An unknown error occurred`, <StyledWarning size={30} />), {
         toastId: Error.UNKNOWN,
-        type: toast.TYPE.ERROR,
-        position: toast.POSITION.BOTTOM_LEFT,
-        autoClose: false,
-        closeOnClick: false,
-        closeButton: false,
-        className: 'error-toast',
+        ...appError,
       })
     } else {
       toast.dismiss(Error.UNKNOWN)
