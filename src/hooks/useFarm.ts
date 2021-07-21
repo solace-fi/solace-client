@@ -3,16 +3,14 @@ import { formatEther, parseEther } from '@ethersproject/units'
 import { useState, useEffect } from 'react'
 import { useCachedData } from '../context/CachedDataManager'
 import { useContracts } from '../context/ContractsManager'
-import { useWallet } from '../context/WalletManager'
 
-export const useUserStakedValue = (farm: Contract | null | undefined): string => {
-  const { account } = useWallet()
+export const useUserStakedValue = (farm: Contract | null | undefined, account: string | undefined): string => {
   const { version } = useCachedData()
   const [userStakedValue, setUserStakedValue] = useState<string>('0.00')
 
   useEffect(() => {
     const getUserStakedValue = async () => {
-      if (!farm) return
+      if (!farm || !account) return
       try {
         const user = await farm.userInfo(account)
         const staked = user.value

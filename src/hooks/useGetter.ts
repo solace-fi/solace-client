@@ -1,22 +1,64 @@
-import { withBackoffRetries, rangeFrom1 } from '../utils'
+import { withBackoffRetries, rangeFrom0 } from '../utils'
 import { policyConfig } from '../config/chainConfig'
 import { useWallet } from '../context/WalletManager'
 import { PolicyState } from '../constants/enums'
-import { Policy } from '../constants/types'
+import { Policy, Token } from '../constants/types'
 import { BigNumber } from 'ethers'
 import { useContracts } from '../context/ContractsManager'
 import { useState, useEffect, useRef } from 'react'
-import { useCachedData } from '../context/CachedDataManager'
 
-export const usePolicyGetter = (policyHolder?: string, product?: string) => {
+export const usePolicyGetter = (
+  getAll: boolean,
+  latestBlock: number,
+  version: number,
+  policyHolder?: string,
+  product?: string
+) => {
   const wallet = useWallet()
-  const { version, latestBlock } = useCachedData()
   const { policyManager } = useContracts()
   const config = policyConfig[String(wallet.chainId)]
   const [userPolicies, setUserPolicies] = useState<Policy[]>([])
   const [allPolicies, setAllPolicies] = useState<Policy[]>([])
   const [policiesLoading, setPoliciesLoading] = useState<boolean>(false)
   const mounting = useRef(true)
+
+  const checkInit = async () => {
+    if (!config.initialized && wallet.library) {
+      const tokens: Token[] = await config.getTokens(wallet.library)
+      const positionNames = tokens.reduce(
+        (names: any, token: any) => ({ ...names, [token.token.address.toLowerCase()]: token.underlying.symbol }),
+        {}
+      )
+      policyConfig[String(wallet.chainId)] = {
+        ...config,
+        positionNames,
+        initialized: true,
+      }
+    }
+  }
+
+  const getUserPolicies = async (policyHolder: string): Promise<Policy[]> => {
+    if (!policyManager || !wallet.library) return []
+    const blockNumber = await wallet.library.getBlockNumber()
+    const policyIds: BigNumber[] = await policyManager.listPolicies(policyHolder)
+    const policies = await Promise.all(policyIds.map((policyId: BigNumber) => queryPolicy(policyId, blockNumber)))
+    return policies
+  }
+
+  const getAllPolicies = async (): Promise<Policy[]> => {
+    if (!policyManager || !wallet.library) return []
+    const [blockNumber, totalSupply] = await Promise.all([
+      wallet.library.getBlockNumber(),
+      policyManager.totalSupply().catch((err: any) => {
+        console.log(err)
+        return 0
+      }),
+    ])
+    const indices = rangeFrom0(totalSupply)
+    const policyIds = await Promise.all(indices.map((index) => policyManager.tokenByIndex(index)))
+    const policies = await Promise.all(policyIds.map((policyId: number) => queryPolicy(policyId, blockNumber)))
+    return policies
+  }
 
   const getPolicies = async (policyHolder?: string, product?: string) => {
     if (!config) return
@@ -34,41 +76,6 @@ export const usePolicyGetter = (policyHolder?: string, product?: string) => {
     } else {
       setAllPolicies(policies)
     }
-  }
-
-  const checkInit = async () => {
-    if (!config.initialized) {
-      const tokens = await config.getTokens(wallet.library)
-      const positionNames = tokens?.reduce(
-        (names: any, token: any) => ({ ...names, [token.token.address.toLowerCase()]: token.underlying.symbol }),
-        {}
-      )
-      policyConfig[String(wallet.chainId)] = {
-        ...config,
-        positionNames,
-        initialized: true,
-      }
-    }
-  }
-
-  const getUserPolicies = async (policyHolder: string): Promise<Policy[]> => {
-    const blockNumber = await wallet.library.getBlockNumber()
-    const policyIds: BigNumber[] = await policyManager?.listPolicies(policyHolder)
-    const policies = await Promise.all(policyIds.map((policyId: BigNumber) => queryPolicy(policyId, blockNumber)))
-    return policies
-  }
-
-  const getAllPolicies = async (): Promise<Policy[]> => {
-    const [blockNumber, totalPolicyCount] = await Promise.all([
-      wallet.library.getBlockNumber(),
-      policyManager?.totalPolicyCount().catch((err: any) => {
-        console.log(err)
-        return 0
-      }),
-    ])
-    const policyIds = rangeFrom1(totalPolicyCount.toNumber())
-    const policies = await Promise.all(policyIds.map((policyId: number) => queryPolicy(policyId, blockNumber)))
-    return policies
   }
 
   const queryPolicy = async (policyId: BigNumber | number, blockNumber: number): Promise<Policy> => {
@@ -106,31 +113,30 @@ export const usePolicyGetter = (policyHolder?: string, product?: string) => {
 
   useEffect(() => {
     const loadOverTime = async () => {
-      if (policyHolder || !wallet.library) return
       await getPolicies()
     }
+    if (policyHolder !== undefined || !wallet.library || !getAll) return
     loadOverTime()
   }, [latestBlock, wallet.library])
 
   useEffect(() => {
     const loadOnBoot = async () => {
-      if (!policyHolder) return
-
       setPoliciesLoading(true)
       await getPolicies(policyHolder)
       setPoliciesLoading(false)
       mounting.current = false
     }
+    if (!policyHolder || !wallet.library || getAll) return
     loadOnBoot()
-  }, [policyHolder, wallet.chainId, wallet.isActive])
+  }, [policyHolder, wallet.chainId, wallet.isActive, wallet.library])
 
   useEffect(() => {
     const loadOverTime = async () => {
-      if (!policyHolder || mounting) return
       await getPolicies(policyHolder)
     }
+    if (policyHolder == undefined || mounting.current || getAll) return
     loadOverTime()
-  }, [latestBlock, version])
+  }, [policyHolder, latestBlock, version])
 
   return { policiesLoading, userPolicies, allPolicies }
 }

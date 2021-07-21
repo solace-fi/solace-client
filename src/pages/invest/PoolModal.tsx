@@ -34,13 +34,12 @@ interface PoolModalProps {
 
 export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, closeModal }) => {
   const { vault, solace, cpFarm, lpFarm, lpToken, weth } = useContracts()
-
+  const wallet = useWallet()
   const [amount, setAmount] = useState<string>('')
   const [isStaking, setIsStaking] = useState<boolean>(false)
-  const cpUserStakeValue = useUserStakedValue(cpFarm)
+  const cpUserStakeValue = useUserStakedValue(cpFarm, wallet.account)
   const nativeTokenBalance = useNativeTokenBalance()
   const scpBalance = useScpBalance()
-  const wallet = useWallet()
   const { addLocalTransactions, reload, gasPrices } = useCachedData()
   const [selectedGasOption, setSelectedGasOption] = useState<GasFeeOption>(gasPrices.selected)
   const [maxSelected, setMaxSelected] = useState<boolean>(false)

@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useMemo, useState } from 'react'
+import React, { createContext, useCallback, useContext, useMemo, useState } from 'react'
 import { Contract } from '@ethersproject/contracts'
 import { contractConfig } from '../config/chainConfig'
 
@@ -25,7 +25,7 @@ type Contracts = {
   weth?: Contract | null
   claimsEscrow?: Contract | null
   policyManager?: Contract | null
-  products?: SupportedProduct[]
+  products: SupportedProduct[]
   contractSources: ContractSources[]
   selectedProtocol: Contract | null
   getProtocolByName: (productName: string) => Contract | null
@@ -71,17 +71,22 @@ const ContractsProvider: React.FC = (props) => {
   const policyManager = useGetContract(keyContracts.policyManager.addr, keyContracts.policyManager.abi)
   const products = useGetProductContracts()
 
-  const getProtocolByName = (productName: string): Contract | null => {
-    const foundProduct = products.filter((product) => product.name == productName)
-    if (foundProduct.length > 0) return foundProduct[0].contract
-    return null
-  }
+  const getProtocolByName = useCallback(
+    (productName: string): Contract | null => {
+      const foundProduct = products.filter((product) => product.name == productName)
+      if (foundProduct.length > 0) return foundProduct[0].contract
+      return null
+    },
+    [products]
+  )
 
-  const setSelectedProtocolByName = (productName: string) => {
-    setSelectedProtocol(getProtocolByName(productName))
-  }
+  const setSelectedProtocolByName = useCallback(
+    (productName: string) => {
+      setSelectedProtocol(getProtocolByName(productName))
+    },
+    [getProtocolByName]
+  )
 
-  // update when a contract changes
   const value = useMemo<Contracts>(
     () => ({
       master,
@@ -115,6 +120,7 @@ const ContractsProvider: React.FC = (props) => {
       policyManager,
       products,
       contractSources,
+      selectedProtocol,
       setSelectedProtocolByName,
       getProtocolByName,
     ]

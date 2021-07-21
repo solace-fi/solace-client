@@ -67,7 +67,6 @@ const WalletContext = createContext<ContextWallet>({
 
 const WalletProvider: React.FC = (props) => {
   const web3React = useWeb3React()
-  const { removeLocalTransactions } = useCachedData()
   const [localProvider, setLocalProvider, removeLocalProvider] = useLocalStorage<string | undefined>('wallet_provider')
   const [activeConnector, setActiveConnector] = useState<WalletConnector | undefined>()
   const [connecting, setConnecting] = useState<WalletConnector | undefined>(undefined)
@@ -83,7 +82,6 @@ const WalletProvider: React.FC = (props) => {
     setConnecting(undefined)
     setActiveConnector(undefined)
     removeLocalProvider()
-    removeLocalTransactions()
   }, [web3React, removeLocalProvider, setConnecting])
 
   const connect = useCallback(
@@ -125,7 +123,7 @@ const WalletProvider: React.FC = (props) => {
 
       setConnecting(undefined)
     },
-    [web3React, connectingRef, setConnecting, setLocalProvider, disconnect]
+    [web3React, connectingRef, setConnecting, setLocalProvider]
   )
 
   useEffect(() => {

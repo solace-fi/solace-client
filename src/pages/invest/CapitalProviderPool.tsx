@@ -1,4 +1,4 @@
-import React, { Fragment, useState, useEffect } from 'react'
+import React from 'react'
 import { Content } from '../../components/Layout'
 import { Heading1 } from '../../components/Typography'
 import { Table, TableHead, TableRow, TableHeader, TableBody, TableData, TableDataGroup } from '../../components/Table'
@@ -19,9 +19,9 @@ export const CapitalProviderPool: React.FC<CapitalProviderPoolProps> = ({ openMo
   const wallet = useWallet()
   const { cpFarm } = useContracts()
 
-  const cpUserStakeValue = useUserStakedValue(cpFarm)
-  const [cpRewardsPerDay] = useRewardsPerDay(1)
-  const [cpUserRewardsPerDay] = useUserRewardsPerDay(1, cpFarm)
+  const cpUserStakeValue = useUserStakedValue(cpFarm, wallet.account)
+  const cpRewardsPerDay = useRewardsPerDay(1)
+  const cpUserRewardsPerDay = useUserRewardsPerDay(1, cpFarm, wallet.account)
   const [cpUserRewards] = useUserPendingRewards(cpFarm)
   const cpPoolValue = usePoolStakedValue(cpFarm)
 

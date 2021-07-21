@@ -128,7 +128,7 @@ export const ProtocolStep: React.FC<formProps> = ({ setForm, navigation }) => {
         </TableHead>
         <TableBody>
           {products
-            ?.map((product) => {
+            .map((product) => {
               return product.name
             })
             .filter((protocol: string) => protocol.toLowerCase().includes(searchValue.toLowerCase()))

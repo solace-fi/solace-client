@@ -77,7 +77,7 @@ export const delay = async (ms: number) => {
   return new Promise((resolve) => setTimeout(resolve, ms))
 }
 
-export const rangeFrom1 = (stop: number) => {
+export const rangeFrom1 = (stop: number): number[] => {
   const arr = []
   for (let i = 1; i <= stop; ++i) {
     arr.push(i)
@@ -85,7 +85,7 @@ export const rangeFrom1 = (stop: number) => {
   return arr
 }
 
-export const rangeFrom0 = (stop: number) => {
+export const rangeFrom0 = (stop: number): number[] => {
   const arr = []
   for (let i = 0; i < stop; ++i) {
     arr.push(i)
@@ -93,17 +93,17 @@ export const rangeFrom0 = (stop: number) => {
   return arr
 }
 
-export const equalsIgnoreCase = (baseString: string, compareString: string) => {
+export const equalsIgnoreCase = (baseString: string, compareString: string): boolean => {
   return baseString.toUpperCase() === compareString.toUpperCase()
 }
 
-export const numberify = (number: any) => {
+export const numberify = (number: any): number => {
   if (typeof number == 'number') return number
   if (typeof number == 'string') return parseFloat(number)
   return number.toNumber() // hopefully bignumber
 }
 
-export const decimals = (d: number) => {
+export const decimals = (d: number): string => {
   let s = '1'
   for (let i = 0; i < d; ++i) {
     s = `${s}0`
@@ -111,7 +111,7 @@ export const decimals = (d: number) => {
   return s
 }
 
-export const bnCmp = (x: BigNumber, y: BigNumber) => {
+export const bnCmp = (x: BigNumber, y: BigNumber): number => {
   return x.eq(y) ? 0 : x.lt(y) ? 1 : -1
 }
 

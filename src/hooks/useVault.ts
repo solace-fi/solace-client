@@ -52,7 +52,7 @@ export const useScpBalance = (): string => {
 }
 
 export const useUserVaultDetails = () => {
-  const [userVaultAssets, setUserVaultAssets] = useState<string>('0.00')
+  const [userVaultAssets, setUserVaultAssets] = useState<string>('0')
   const [userVaultShare, setUserVaultShare] = useState<string>('0')
   const scpBalance = useScpBalance()
   const { library, account } = useWallet()
@@ -76,7 +76,7 @@ export const useUserVaultDetails = () => {
       }
     }
     getUserVaultDetails()
-  }, [library, scpBalance, cpFarm])
+  }, [library, scpBalance, cpFarm, account, vault])
 
   return { userVaultAssets, userVaultShare }
 }

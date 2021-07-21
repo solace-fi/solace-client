@@ -26,6 +26,7 @@ const ToastsContext = createContext<ToastSystem>({
 })
 
 const txSuccess = {
+  autoClose: 10000,
   type: toast.TYPE.SUCCESS,
   position: toast.POSITION.BOTTOM_LEFT,
   closeOnClick: false,
@@ -34,6 +35,7 @@ const txSuccess = {
 }
 
 const txError = {
+  autoClose: 10000,
   type: toast.TYPE.ERROR,
   position: toast.POSITION.BOTTOM_LEFT,
   closeOnClick: false,
@@ -103,7 +105,6 @@ const ToastsProvider: React.FC = (props) => {
         break
       default:
         toast(TxToast(txType, 'cancelled'), {
-          autoClose: 10000,
           ...txError,
         })
     }
@@ -158,7 +159,7 @@ const ToastsProvider: React.FC = (props) => {
     () => ({
       makeTxToast: makeTxToast,
     }),
-    [wallet]
+    []
   )
 
   return (

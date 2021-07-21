@@ -183,11 +183,6 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
     setCoverage(multiplied)
   }
 
-  const handleCoverageChange = (coverageLimit: string) => {
-    setInputCoverage((parseInt(coverageLimit) / 100).toString())
-    setCoverage(coverageLimit)
-  }
-
   const setCoverage = (coverageLimit: string) => {
     setForm({
       target: {
@@ -195,6 +190,11 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
         value: coverageLimit,
       },
     })
+  }
+
+  const handleCoverageChange = (coverageLimit: string) => {
+    setInputCoverage((parseInt(coverageLimit) / 100).toString())
+    setCoverage(coverageLimit)
   }
 
   const setMaxCover = () => {

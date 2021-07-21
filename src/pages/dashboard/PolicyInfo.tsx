@@ -4,29 +4,22 @@
 
     import react
     import packages
-    import managers
     import constants
     import components
     import hooks
     import utils
 
     PolicyInfo function
-      useState hooks
       custom hooks
-      useEffect hooks
       Render
 
   *************************************************************************************/
 
 /* import react */
-import React, { Fragment, useEffect, useState } from 'react'
+import React, { Fragment } from 'react'
 
 /* import packages */
 import { formatEther } from '@ethersproject/units'
-
-/* import managers */
-import { useWallet } from '../../context/WalletManager'
-import { useContracts } from '../../context/ContractsManager'
 
 /* import constants */
 import { Policy } from '../../constants/types'
@@ -55,37 +48,10 @@ interface PolicyInfoProps {
 export const PolicyInfo: React.FC<PolicyInfoProps> = ({ selectedPolicy, latestBlock, asyncLoading }) => {
   /*************************************************************************************
 
-    useState hooks
-
-  *************************************************************************************/
-  const [positionAmount, setPositionAmount] = useState<string | null>(null)
-
-  /*************************************************************************************
-
     custom hooks
 
   *************************************************************************************/
-  const { getAppraisePosition } = useAppraisePosition()
-  const wallet = useWallet()
-  const { getProtocolByName } = useContracts()
-
-  /*************************************************************************************
-
-    useEffect Hooks
-
-  *************************************************************************************/
-
-  useEffect(() => {
-    const load = async () => {
-      if (!selectedPolicy) return
-      const positionAmount = await getAppraisePosition(
-        getProtocolByName(selectedPolicy.productName),
-        selectedPolicy.positionContract
-      )
-      setPositionAmount(formatEther(positionAmount))
-    }
-    load()
-  }, [selectedPolicy, wallet.account, wallet.chainId])
+  const appraisal = useAppraisePosition(selectedPolicy)
 
   /*************************************************************************************
 
@@ -117,8 +83,8 @@ export const PolicyInfo: React.FC<PolicyInfoProps> = ({ selectedPolicy, latestBl
         <BoxItem>
           <BoxItemTitle h3>Position Amount</BoxItemTitle>
           <Text h2 nowrap>
-            {positionAmount && !asyncLoading ? (
-              `${truncateBalance(positionAmount || '0')} ETH`
+            {!asyncLoading ? (
+              `${truncateBalance(formatEther(appraisal) || '0')} ETH`
             ) : (
               <Loader width={10} height={10} />
             )}

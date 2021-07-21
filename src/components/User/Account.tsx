@@ -17,7 +17,7 @@
   *************************************************************************************/
 
 /* import react */
-import React, { Fragment, useState } from 'react'
+import React, { Fragment, useCallback, useState } from 'react'
 
 /* import packages */
 import makeBlockie from 'ethereum-blockies-base64'
@@ -55,15 +55,15 @@ export default function Account(): any {
   const { localTransactions } = useCachedData()
   const [showHistoryModal, setShowHistoryModal] = useState<boolean>(false)
 
-  const openModal = () => {
+  const openModal = useCallback(() => {
     document.body.style.overflowY = 'hidden'
     setShowHistoryModal(true)
-  }
+  }, [])
 
-  const closeModal = () => {
+  const closeModal = useCallback(() => {
     document.body.style.overflowY = 'scroll'
     setShowHistoryModal(false)
-  }
+  }, [])
 
   return (
     <Fragment>

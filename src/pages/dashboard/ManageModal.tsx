@@ -21,7 +21,7 @@
   *************************************************************************************/
 
 /* import react */
-import React, { Fragment, useState, useEffect } from 'react'
+import React, { Fragment, useState, useEffect, useMemo } from 'react'
 
 /* import packages */
 import styled from 'styled-components'
@@ -45,7 +45,7 @@ import { Button } from '../../components/Button'
 import { Loader } from '../../components/Loader'
 
 /* import constants */
-import { DAYS_PER_YEAR, NUM_BLOCKS_PER_DAY, GAS_LIMIT } from '../../constants'
+import { DAYS_PER_YEAR, NUM_BLOCKS_PER_DAY, GAS_LIMIT, ZERO } from '../../constants'
 import { FunctionName, TransactionCondition, Unit } from '../../constants/enums'
 import { Policy } from '../../constants/types'
 
@@ -98,7 +98,7 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
 
   *************************************************************************************/
 
-  const { selectedProtocol, getProtocolByName } = useContracts()
+  const { selectedProtocol } = useContracts()
   const wallet = useWallet()
   const { addLocalTransactions, reload, gasPrices } = useCachedData()
   const { makeTxToast } = useToasts()
@@ -109,7 +109,25 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
     selectedPolicy ? selectedPolicy.positionContract : null,
     extendedTime
   )
-  const { getAppraisePosition } = useAppraisePosition()
+  const appraisal = useAppraisePosition(selectedPolicy)
+  const daysLeft = useMemo(
+    () => getDays(selectedPolicy ? parseFloat(selectedPolicy.expirationBlock) : 0, latestBlock),
+    [latestBlock, selectedPolicy]
+  )
+  const blocksLeft = useMemo(
+    () => BigNumber.from(parseFloat(selectedPolicy ? selectedPolicy.expirationBlock : '0') - latestBlock),
+    [latestBlock, selectedPolicy]
+  )
+  const coverAmount = useMemo(() => BigNumber.from(selectedPolicy ? selectedPolicy.coverAmount : '0'), [selectedPolicy])
+  const price = useMemo(() => BigNumber.from(policyPrice || '0'), [policyPrice])
+  const refundAmount = useMemo(
+    () =>
+      blocksLeft
+        .mul(coverAmount)
+        .mul(price)
+        .div(String(Math.pow(10, 12))),
+    [blocksLeft, coverAmount, price]
+  )
 
   /*************************************************************************************
 
@@ -119,11 +137,11 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
 
   const extendPolicy = async () => {
     setModalLoading(true)
-    if (!selectedProtocol) return
+    if (!selectedProtocol || !selectedPolicy) return
     const txType = FunctionName.EXTEND_POLICY
     const extension = BigNumber.from(NUM_BLOCKS_PER_DAY * parseInt(extendedTime))
     try {
-      const tx = await selectedProtocol.extendPolicy(selectedPolicy?.policyId, extension, {
+      const tx = await selectedProtocol.extendPolicy(selectedPolicy.policyId, extension, {
         value: coverAmount
           .mul(price)
           .mul(extension)
@@ -184,21 +202,6 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
       reload()
     }
   }
-
-  /*************************************************************************************
-
-    Local variables
-
-  *************************************************************************************/
-
-  const daysLeft = getDays(selectedPolicy ? parseFloat(selectedPolicy.expirationBlock) : 0, latestBlock)
-  const blocksLeft = BigNumber.from(parseFloat(selectedPolicy ? selectedPolicy.expirationBlock : '0') - latestBlock)
-  const coverAmount = BigNumber.from(selectedPolicy ? selectedPolicy.coverAmount : '0')
-  const price = BigNumber.from(policyPrice || '0')
-  const refundAmount = blocksLeft
-    .mul(coverAmount)
-    .mul(price)
-    .div(String(Math.pow(10, 12)))
 
   /*************************************************************************************
 
@@ -270,17 +273,13 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
 
   useEffect(() => {
     const load = async () => {
-      if (!selectedPolicy || !wallet.account || !isOpen) return
       setAsyncLoading(true)
-      const positionAmount = await getAppraisePosition(
-        getProtocolByName(selectedPolicy.productName),
-        selectedPolicy.positionContract
-      )
-      getCoverLimit(selectedPolicy, positionAmount)
+      if (!selectedPolicy || !isOpen || appraisal == ZERO) return
+      getCoverLimit(selectedPolicy, appraisal)
       setAsyncLoading(false)
     }
     load()
-  }, [isOpen, selectedPolicy, wallet.account, wallet.chainId])
+  }, [isOpen, selectedPolicy, appraisal])
 
   /*************************************************************************************
 

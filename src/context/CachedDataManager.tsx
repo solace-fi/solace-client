@@ -1,4 +1,4 @@
-import React, { useMemo, useContext, createContext, useCallback } from 'react'
+import React, { useMemo, useContext, createContext, useCallback, useEffect } from 'react'
 import { useLocalStorage } from 'react-use-storage'
 import { useWallet } from './WalletManager'
 
@@ -18,40 +18,38 @@ web app.
 
 type CachedData = {
   localTransactions: LocalTx[]
-  userPolicies: { policiesLoading: boolean; userPolicies: Policy[] }
-  version?: number
+  userPolicyData: { policiesLoading: boolean; userPolicies: Policy[] }
+  version: number
   dataVersion?: number
   gasPrices?: any
   latestBlock: number
   addLocalTransactions: (txToAdd: LocalTx) => void
   deleteLocalTransactions: (txsToDelete: []) => void
-  removeLocalTransactions: () => void
   reload: () => void
   dataReload: () => void
 }
 
 const CachedDataContext = createContext<CachedData>({
   localTransactions: [],
-  userPolicies: { policiesLoading: false, userPolicies: [] },
-  version: undefined,
+  userPolicyData: { policiesLoading: false, userPolicies: [] },
+  version: 0,
   dataVersion: undefined,
   gasPrices: undefined,
   latestBlock: 0,
   addLocalTransactions: () => undefined,
   deleteLocalTransactions: () => undefined,
-  removeLocalTransactions: () => undefined,
   reload: () => undefined,
   dataReload: () => undefined,
 })
 
 const CachedDataProvider: React.FC = (props) => {
   const { account, chainId, disconnect } = useWallet()
-  const [localTxs, setLocalTxs, removeLocalTxs] = useLocalStorage<LocalTx[]>('solace_loc_txs', [])
-  const { policiesLoading, userPolicies } = usePolicyGetter(account)
+  const [localTxs, setLocalTxs] = useLocalStorage<LocalTx[]>('solace_loc_txs', [])
   const [reload, version] = useReload()
   const [dataReload, dataVersion] = useReload()
   const gasPrices = useFetchGasPrice()
-  const latestBlock = useGetLatestBlockNumber()
+  const latestBlock = useGetLatestBlockNumber(dataVersion)
+  const { policiesLoading, userPolicies } = usePolicyGetter(false, latestBlock, version, account)
 
   const addLocalTransactions = (txToAdd: LocalTx) => {
     if (localTxs !== undefined) {
@@ -71,29 +69,41 @@ const CachedDataProvider: React.FC = (props) => {
     setLocalTxs(passedLocalTxs)
   }
 
-  const clearLocalTransactions = useCallback(() => {
-    removeLocalTxs()
-  }, [disconnect, account, chainId])
-
   useInterval(() => {
     dataReload()
   }, 3500)
 
+  useEffect(() => {
+    const clearLocalTransactions = () => {
+      setLocalTxs([])
+    }
+    clearLocalTransactions()
+  }, [disconnect, account, chainId])
+
   const value = useMemo<CachedData>(
     () => ({
       localTransactions: localTxs,
-      userPolicies: { policiesLoading, userPolicies },
+      userPolicyData: { policiesLoading, userPolicies },
       version,
       dataVersion,
       gasPrices,
       latestBlock,
       addLocalTransactions,
       deleteLocalTransactions,
-      removeLocalTransactions: clearLocalTransactions,
       reload,
       dataReload,
     }),
-    [addLocalTransactions, deleteLocalTransactions, removeLocalTxs, gasPrices, version, dataVersion, userPolicies]
+    [
+      localTxs,
+      addLocalTransactions,
+      deleteLocalTransactions,
+      version,
+      dataVersion,
+      latestBlock,
+      gasPrices,
+      userPolicies,
+      policiesLoading,
+    ]
   )
 
   return <CachedDataContext.Provider value={value}>{props.children}</CachedDataContext.Provider>

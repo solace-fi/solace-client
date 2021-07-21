@@ -70,11 +70,11 @@ export const Statistics = () => {
   const wallet = useWallet()
   const { master } = useContracts()
   const { makeTxToast } = useToasts()
-  const { addLocalTransactions, reload, gasPrices } = useCachedData()
+  const { addLocalTransactions, reload, gasPrices, latestBlock, version } = useCachedData()
   const capitalPoolSize = useCapitalPoolSize()
   const solaceBalance = useSolaceBalance()
   const totalUserRewards = useTotalPendingRewards()
-  const { allPolicies } = usePolicyGetter()
+  const { allPolicies } = usePolicyGetter(true, latestBlock, version)
   const totalValueLocked = useGetTotalValueLocked()
 
   /*************************************************************************************
