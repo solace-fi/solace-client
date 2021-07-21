@@ -23,6 +23,7 @@ import { formatEther } from '@ethersproject/units'
 
 /* import constants */
 import { Policy } from '../../constants/types'
+import { ZERO } from '../../constants'
 
 /* import components */
 import { Box, BoxItem, BoxItemTitle } from '../../components/Box'
@@ -42,10 +43,9 @@ import { truncateBalance } from '../../utils/formatting'
 interface PolicyInfoProps {
   selectedPolicy: Policy | undefined
   latestBlock: number
-  asyncLoading: boolean
 }
 
-export const PolicyInfo: React.FC<PolicyInfoProps> = ({ selectedPolicy, latestBlock, asyncLoading }) => {
+export const PolicyInfo: React.FC<PolicyInfoProps> = ({ selectedPolicy, latestBlock }) => {
   /*************************************************************************************
 
     custom hooks
@@ -83,7 +83,7 @@ export const PolicyInfo: React.FC<PolicyInfoProps> = ({ selectedPolicy, latestBl
         <BoxItem>
           <BoxItemTitle h3>Position Amount</BoxItemTitle>
           <Text h2 nowrap>
-            {!asyncLoading ? (
+            {appraisal.gt(ZERO) ? (
               `${truncateBalance(formatEther(appraisal) || '0')} ETH`
             ) : (
               <Loader width={10} height={10} />

@@ -21,7 +21,7 @@
   *************************************************************************************/
 
 /* import react */
-import React, { Fragment, useState, useEffect, useMemo } from 'react'
+import React, { Fragment, useState, useEffect, useMemo, useCallback } from 'react'
 
 /* import packages */
 import styled from 'styled-components'
@@ -90,7 +90,6 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
   const [feedbackCoverage, setFeedbackCoverage] = useState<string>('1')
   const [extendedTime, setExtendedTime] = useState<string>('0')
   const [modalLoading, setModalLoading] = useState<boolean>(false)
-  const [coverLimit, setCoverLimit] = useState<string | null>(null)
 
   /*************************************************************************************
 
@@ -104,14 +103,9 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
   const { makeTxToast } = useToasts()
   const policyPrice = useGetPolicyPrice(selectedPolicy ? selectedPolicy.policyId : 0)
   const cancelFee = useGetCancelFee()
-  const quote = useGetQuote(
-    selectedPolicy ? coverLimit : null,
-    selectedPolicy ? selectedPolicy.positionContract : null,
-    extendedTime
-  )
-  const appraisal = useAppraisePosition(selectedPolicy)
+
   const daysLeft = useMemo(
-    () => getDays(selectedPolicy ? parseFloat(selectedPolicy.expirationBlock) : 0, latestBlock),
+    () => getDays(parseFloat(selectedPolicy ? selectedPolicy.expirationBlock : '0'), latestBlock),
     [latestBlock, selectedPolicy]
   )
   const blocksLeft = useMemo(
@@ -127,6 +121,16 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
         .mul(price)
         .div(String(Math.pow(10, 12))),
     [blocksLeft, coverAmount, price]
+  )
+  const appraisal = useAppraisePosition(selectedPolicy)
+  const coverLimit = useMemo(
+    () => (appraisal == ZERO ? ZERO.toString() : BigNumber.from(coverAmount).mul('10000').div(appraisal).toString()),
+    [appraisal, coverAmount]
+  )
+  const quote = useGetQuote(
+    selectedPolicy ? coverLimit : null,
+    selectedPolicy ? selectedPolicy.positionContract : null,
+    extendedTime
   )
 
   /*************************************************************************************
@@ -209,11 +213,7 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
 
   *************************************************************************************/
 
-  const getCoverLimit = (policy: Policy | undefined, positionAmount: any) => {
-    if (positionAmount == undefined || policy == undefined) return null
-    const coverAmount = policy.coverAmount
-    const coverLimit = BigNumber.from(coverAmount).mul('10000').div(positionAmount).toString()
-    setCoverLimit(coverLimit)
+  const initCoverage = () => {
     setFeedbackCoverage(coverLimit)
     setInputCoverage(
       coverLimit.substring(0, coverLimit.length - 2) +
@@ -222,12 +222,8 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
     )
   }
 
-  const getCurrentExpiration = (): string => {
-    return getDateStringWithMonthName(getDateExtended(daysLeft))
-  }
-
-  const getNewExpiration = (): string => {
-    return getDateStringWithMonthName(getDateExtended(parseFloat(extendedTime || '0')))
+  const getExpiration = (days: number): string => {
+    return getDateStringWithMonthName(getDateExtended(days))
   }
 
   const handleCoverageChange = (coverageLimit: string) => {
@@ -260,10 +256,10 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
     }
   }
 
-  const handleClose = () => {
+  const handleClose = useCallback(() => {
     setExtendedTime('0')
     closeModal()
-  }
+  }, [closeModal])
 
   /*************************************************************************************
 
@@ -273,9 +269,10 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
 
   useEffect(() => {
     const load = async () => {
+      if (!selectedPolicy || !isOpen) return
       setAsyncLoading(true)
-      if (!selectedPolicy || !isOpen || appraisal == ZERO) return
-      getCoverLimit(selectedPolicy, appraisal)
+      if (appraisal == ZERO) return
+      initCoverage()
       setAsyncLoading(false)
     }
     load()
@@ -290,7 +287,7 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
   return (
     <Modal isOpen={isOpen} handleClose={handleClose} modalTitle={'Policy Management'} disableCloseButton={modalLoading}>
       <Fragment>
-        <PolicyInfo selectedPolicy={selectedPolicy} latestBlock={latestBlock} asyncLoading={asyncLoading} />
+        <PolicyInfo selectedPolicy={selectedPolicy} latestBlock={latestBlock} />
         {!modalLoading ? (
           <Fragment>
             <FormRow>
@@ -351,12 +348,12 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
                 </FormCol>
               </FormRow>
               <FormCol></FormCol>
-              <FormRow mb={5}>
+              <FormRow mb={5} style={{ justifyContent: 'flex-start' }}>
                 <FormCol>
-                  <Text3 nowrap>Expiration: {getCurrentExpiration()}</Text3>
+                  <Text3 nowrap>Expiration: {getExpiration(daysLeft)}</Text3>
                 </FormCol>
                 <FormCol>
-                  <Text3 nowrap>New expiration: {getNewExpiration()}</Text3>
+                  <Text3 nowrap>New expiration: {getExpiration(daysLeft + parseFloat(extendedTime || '0'))}</Text3>
                 </FormCol>
               </FormRow>
               <FormRow mb={5} style={{ justifyContent: 'flex-end' }}>

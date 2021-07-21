@@ -24,6 +24,7 @@ import React, { Fragment, useCallback, useEffect, useRef, useState } from 'react
 /* import managers */
 import { useWallet } from '../../context/WalletManager'
 import { useContracts } from '../../context/ContractsManager'
+import { useCachedData } from '../../context/CachedDataManager'
 
 /* import components */
 import { Button } from '../../components/Button'
@@ -41,8 +42,7 @@ import { Policy, Token } from '../../constants/types'
 
 /* import utils */
 import { fixedTokenPositionBalance, truncateBalance } from '../../utils/formatting'
-import { policyConfig } from '../../config/chainConfig'
-import { useCachedData } from '../../context/CachedDataManager'
+import { policyConfig } from '../../utils/config/chainConfig'
 
 export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigation }) => {
   const { protocol, balances, loading } = formData
@@ -90,7 +90,7 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
   }
 
   const getBalances = async () => {
-    if (!account) return
+    if (!account || !library) return
     if (policyConfig[chainId]) {
       const balances: Token[] = await policyConfig[chainId].getBalances(account, library, chainId)
       setForm({

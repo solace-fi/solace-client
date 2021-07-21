@@ -30,7 +30,7 @@ import { BigNumber } from 'ethers'
 
 /* import constants */
 import { DAYS_PER_YEAR, GAS_LIMIT, NUM_BLOCKS_PER_DAY } from '../../constants'
-import { TransactionCondition, FunctionName } from '../../constants/enums'
+import { TransactionCondition, FunctionName, Unit } from '../../constants/enums'
 import { LocalTx } from '../../constants/types'
 
 /* import managers */
@@ -54,7 +54,7 @@ import { FlexRow } from '../../components/Layout'
 import { useGetQuote, useGetMaxCoverPerUser } from '../../hooks/usePolicy'
 
 /* import utils */
-import { getGasValue, getNativeTokenUnit } from '../../utils/formatting'
+import { getGasValue } from '../../utils/formatting'
 import { getDateStringWithMonthName, getDateExtended } from '../../utils/time'
 
 export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigation }) => {
@@ -113,7 +113,7 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
         type: txType,
         value: 'Policy',
         status: TransactionCondition.PENDING,
-        unit: getNativeTokenUnit(wallet.chainId),
+        unit: Unit.ID,
       }
       setForm({
         target: {

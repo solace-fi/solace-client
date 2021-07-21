@@ -1,4 +1,4 @@
-import { BigNumberish, constants, Signature, Contract, utils } from 'ethers'
+import { BigNumberish, constants, Signature, Contract } from 'ethers'
 import { splitSignature } from 'ethers/lib/utils'
 import { ContextWallet } from '../context/WalletManager'
 

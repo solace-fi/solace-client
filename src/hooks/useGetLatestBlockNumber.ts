@@ -20,7 +20,7 @@ export const useGetLatestBlockNumber = (dataVersion: number): number => {
     } catch (e) {
       console.log(e)
     }
-  }, [dataVersion, wallet.chainId, wallet.library])
+  }, [dataVersion, wallet.library])
 
   return latestBlock
 }

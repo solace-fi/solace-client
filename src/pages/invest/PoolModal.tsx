@@ -1,4 +1,4 @@
-import React, { useState, Fragment, useEffect } from 'react'
+import React, { useState, Fragment, useEffect, useCallback } from 'react'
 import { Input } from '../../components/Input'
 import { ModalRow, ModalCell } from '../../components/Modal'
 import { Modal } from '../../components/Modal/Modal'
@@ -421,13 +421,13 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
     }
   }
 
-  const handleClose = () => {
+  const handleClose = useCallback(() => {
     setAmount('')
     setSelectedGasOption(gasPrices.options[1])
     setMaxSelected(false)
     setModalLoading(false)
     closeModal()
-  }
+  }, [closeModal, gasPrices.options])
 
   useEffect(() => {
     if (!gasPrices.selected) return

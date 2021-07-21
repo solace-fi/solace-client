@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useCallback } from 'react'
 import { Modal } from '../Modal/Modal'
 import { TransactionHistory } from '../../pages/TransactionHistory'
 
@@ -8,9 +8,9 @@ interface TransactionHistoryModalProps {
 }
 
 export const TransactionHistoryModal: React.FC<TransactionHistoryModalProps> = ({ closeModal, isOpen }) => {
-  const handleClose = () => {
+  const handleClose = useCallback(() => {
     closeModal()
-  }
+  }, [closeModal])
 
   return (
     <Modal handleClose={handleClose} isOpen={isOpen} modalTitle={'Recent Transactions'} disableCloseButton={false}>

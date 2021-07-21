@@ -1,5 +1,5 @@
 import { withBackoffRetries, rangeFrom0 } from '../utils'
-import { policyConfig } from '../config/chainConfig'
+import { policyConfig } from '../utils/config/chainConfig'
 import { useWallet } from '../context/WalletManager'
 import { PolicyState } from '../constants/enums'
 import { Policy, Token } from '../constants/types'
@@ -14,22 +14,22 @@ export const usePolicyGetter = (
   policyHolder?: string,
   product?: string
 ) => {
-  const wallet = useWallet()
+  const { library, chainId, isActive } = useWallet()
   const { policyManager } = useContracts()
-  const config = policyConfig[String(wallet.chainId)]
+  const config = policyConfig[String(chainId)]
   const [userPolicies, setUserPolicies] = useState<Policy[]>([])
   const [allPolicies, setAllPolicies] = useState<Policy[]>([])
   const [policiesLoading, setPoliciesLoading] = useState<boolean>(false)
   const mounting = useRef(true)
 
   const checkInit = async () => {
-    if (!config.initialized && wallet.library) {
-      const tokens: Token[] = await config.getTokens(wallet.library)
+    if (!config.initialized && library) {
+      const tokens: Token[] = await config.getTokens(library)
       const positionNames = tokens.reduce(
         (names: any, token: any) => ({ ...names, [token.token.address.toLowerCase()]: token.underlying.symbol }),
         {}
       )
-      policyConfig[String(wallet.chainId)] = {
+      policyConfig[String(chainId)] = {
         ...config,
         positionNames,
         initialized: true,
@@ -38,17 +38,17 @@ export const usePolicyGetter = (
   }
 
   const getUserPolicies = async (policyHolder: string): Promise<Policy[]> => {
-    if (!policyManager || !wallet.library) return []
-    const blockNumber = await wallet.library.getBlockNumber()
+    if (!policyManager || !library) return []
+    const blockNumber = await library.getBlockNumber()
     const policyIds: BigNumber[] = await policyManager.listPolicies(policyHolder)
     const policies = await Promise.all(policyIds.map((policyId: BigNumber) => queryPolicy(policyId, blockNumber)))
     return policies
   }
 
   const getAllPolicies = async (): Promise<Policy[]> => {
-    if (!policyManager || !wallet.library) return []
+    if (!policyManager || !library) return []
     const [blockNumber, totalSupply] = await Promise.all([
-      wallet.library.getBlockNumber(),
+      library.getBlockNumber(),
       policyManager.totalSupply().catch((err: any) => {
         console.log(err)
         return 0
@@ -67,7 +67,7 @@ export const usePolicyGetter = (
     policies = policies.filter((policy: any) => policy.policyId >= 0)
     if (product) policies = policies.filter((policy: any) => policy.productAddress.equalsIgnoreCase(product))
     policies.sort((a: any, b: any) => b.policyId - a.policyId) // newest first
-    const initializedConfig = policyConfig[String(wallet.chainId)]
+    const initializedConfig = policyConfig[String(chainId)]
     policies.forEach(
       (policy: Policy) => (policy.positionName = initializedConfig.positionNames[policy.positionContract.toLowerCase()])
     )
@@ -115,9 +115,9 @@ export const usePolicyGetter = (
     const loadOverTime = async () => {
       await getPolicies()
     }
-    if (policyHolder !== undefined || !wallet.library || !getAll) return
+    if (policyHolder !== undefined || !library || !getAll) return
     loadOverTime()
-  }, [latestBlock, wallet.library])
+  }, [latestBlock, library])
 
   useEffect(() => {
     const loadOnBoot = async () => {
@@ -126,9 +126,9 @@ export const usePolicyGetter = (
       setPoliciesLoading(false)
       mounting.current = false
     }
-    if (!policyHolder || !wallet.library || getAll) return
+    if (!policyHolder || !library || getAll) return
     loadOnBoot()
-  }, [policyHolder, wallet.chainId, wallet.isActive, wallet.library])
+  }, [policyHolder, isActive, library])
 
   useEffect(() => {
     const loadOverTime = async () => {

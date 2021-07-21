@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { ChainId, Fetcher, Route, WETH, Trade, TokenAmount, TradeType } from '@uniswap/sdk'
 import { POW_EIGHTEEN } from '../constants'
-import { contractConfig } from '../config/chainConfig'
+import { contractConfig } from '../utils/config/chainConfig'
 
 const chainId = ChainId.RINKEBY
 const tokenAddress = String(contractConfig[chainId].keyContracts.solace.addr) // rinkeby tokenaddress of SOLACE

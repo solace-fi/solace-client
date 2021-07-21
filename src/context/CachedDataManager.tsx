@@ -1,4 +1,4 @@
-import React, { useMemo, useContext, createContext, useCallback, useEffect } from 'react'
+import React, { useMemo, useContext, createContext, useEffect } from 'react'
 import { useLocalStorage } from 'react-use-storage'
 import { useWallet } from './WalletManager'
 
@@ -52,9 +52,7 @@ const CachedDataProvider: React.FC = (props) => {
   const { policiesLoading, userPolicies } = usePolicyGetter(false, latestBlock, version, account)
 
   const addLocalTransactions = (txToAdd: LocalTx) => {
-    if (localTxs !== undefined) {
-      setLocalTxs([txToAdd, ...localTxs])
-    }
+    setLocalTxs([txToAdd, ...localTxs])
   }
 
   const deleteLocalTransactions = (txsToDelete: LocalTx[]) => {

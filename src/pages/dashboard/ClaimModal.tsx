@@ -13,14 +13,15 @@
     ClaimModal function
       useState hooks
       custom hooks
-      Contract functions
+      contract functions
+      local functions
       useEffect hooks
       Render
 
   *************************************************************************************/
 
 /* import react */
-import React, { Fragment, useEffect, useState } from 'react'
+import React, { Fragment, useCallback, useEffect, useState } from 'react'
 
 /* import packages */
 import { formatEther } from '@ethersproject/units'
@@ -57,7 +58,7 @@ import { getClaimAssessment } from '../../utils/paclas'
 import { truncateBalance, fixedPositionBalance, getGasValue } from '../../utils/formatting'
 import { hasApproval, getContract } from '../../utils'
 import { timeToText } from '../../utils/time'
-import { policyConfig } from '../../config/chainConfig'
+import { policyConfig } from '../../utils/config/chainConfig'
 
 interface ClaimModalProps {
   closeModal: () => void
@@ -160,11 +161,17 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
     }
   }
 
-  const handleClose = () => {
+  /*************************************************************************************
+
+  local functions
+
+  *************************************************************************************/
+
+  const handleClose = useCallback(() => {
     setClaimId(0)
     setModalLoading(false)
     closeModal()
-  }
+  }, [closeModal])
 
   /*************************************************************************************
 
@@ -192,7 +199,7 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
       setAsyncLoading(false)
     }
     load()
-  }, [isOpen, selectedPolicy, wallet.account, wallet.chainId, wallet.library])
+  }, [isOpen, selectedPolicy, wallet.account, wallet.library])
 
   /*************************************************************************************
 
@@ -203,7 +210,7 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
   return (
     <Modal isOpen={isOpen} handleClose={handleClose} modalTitle={'Policy Claim'} disableCloseButton={modalLoading}>
       <Fragment>
-        <PolicyInfo selectedPolicy={selectedPolicy} latestBlock={latestBlock} asyncLoading={asyncLoading} />
+        <PolicyInfo selectedPolicy={selectedPolicy} latestBlock={latestBlock} />
         {!modalLoading && !asyncLoading ? (
           <Fragment>
             <FormRow>

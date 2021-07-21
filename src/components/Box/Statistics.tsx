@@ -12,7 +12,6 @@
     import utils
 
     Statistics function
-      useRef variables
       custom hooks
       useState hooks
       Contract functions
@@ -56,12 +55,6 @@ import { WalletConnectButton } from '../Button/WalletConnect'
 import { fixed, getGasValue, floatEther, truncateBalance, getNativeTokenUnit } from '../../utils/formatting'
 
 export const Statistics = () => {
-  /************************************************************************************* 
-
-    useRef variables 
-
-  *************************************************************************************/
-
   /*************************************************************************************
 
   custom hooks

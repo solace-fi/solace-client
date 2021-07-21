@@ -13,7 +13,6 @@ import { Web3ReactProvider } from '@web3-react/core'
 import getLibrary from '../utils/getLibrary'
 import { useProvider } from './ProviderManager'
 import { Error as AppError } from '../constants/enums'
-import { useCachedData } from './CachedDataManager'
 import { DEFAULT_CHAIN_ID } from '../constants'
 
 /*
