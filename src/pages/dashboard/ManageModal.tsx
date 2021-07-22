@@ -167,6 +167,7 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
         reload()
       })
     } catch (err) {
+      console.log('extendPolicy:', err)
       makeTxToast(txType, TransactionCondition.CANCELLED)
       setModalLoading(false)
       reload()
@@ -201,6 +202,7 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
         reload()
       })
     } catch (err) {
+      console.log('cancelPolicy:', err)
       makeTxToast(txType, TransactionCondition.CANCELLED)
       setModalLoading(false)
       reload()

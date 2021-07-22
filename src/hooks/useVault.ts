@@ -5,6 +5,7 @@ import { useWallet } from '../context/WalletManager'
 import { floatEther } from '../utils/formatting'
 import { ZERO } from '../constants'
 import { useCachedData } from '../context/CachedDataManager'
+import { useScpBalance } from './useBalance'
 
 export const useCapitalPoolSize = (): string => {
   const { vault } = useContracts()
@@ -26,29 +27,6 @@ export const useCapitalPoolSize = (): string => {
   }, [vault, version, latestBlock])
 
   return capitalPoolSize
-}
-
-export const useScpBalance = (): string => {
-  const { vault } = useContracts()
-  const { account } = useWallet()
-  const { version, latestBlock } = useCachedData()
-  const [scpBalance, setScpBalance] = useState<string>('0.00')
-
-  useEffect(() => {
-    const getScpBalance = async () => {
-      if (!vault) return
-      try {
-        const balance = await vault.balanceOf(account)
-        const formattedBalance = formatEther(balance)
-        setScpBalance(formattedBalance)
-      } catch (err) {
-        console.log('getScpBalance', err)
-      }
-    }
-    getScpBalance()
-  }, [account, vault, version, latestBlock])
-
-  return scpBalance
 }
 
 export const useUserVaultDetails = () => {

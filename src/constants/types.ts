@@ -47,13 +47,13 @@ export type Token = {
 
 export type ClaimAssessment = {
   lossEventDetected: boolean
-  tokenIn: string
-  amountIn: string
-  tokenOut: string
   amountOut: string
   deadline: string
   msgHash: string
   signature: string
+  tokenIn?: string
+  amountIn?: string
+  tokenOut?: string
 }
 
 export type GasFeeListState = {

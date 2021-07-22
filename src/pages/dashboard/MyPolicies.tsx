@@ -76,7 +76,6 @@ export const MyPolicies: React.FC<MyPoliciesProps> = ({ openClaimModal, openMana
     Render
 
   *************************************************************************************/
-
   return (
     <Fragment>
       {userPolicyData.policiesLoading ? (

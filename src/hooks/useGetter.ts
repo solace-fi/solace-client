@@ -99,7 +99,7 @@ export const usePolicyGetter = (
         policyId: Number(policyId),
         policyHolder: policy.policyholder,
         productAddress: policy.product,
-        productName: config.productsRev[policy.product],
+        productName: config.productsRev[policy.product] ?? '',
         positionContract: policy.positionContract,
         expirationBlock: policy.expirationBlock.toString(),
         coverAmount: policy.coverAmount.toString(),

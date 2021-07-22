@@ -9,6 +9,7 @@ import lpFarmABI from '../../constants/abi/contracts/SolaceEthLpFarm.sol/SolaceE
 import claimsEscrowABI from '../../constants/abi/contracts/ClaimsEscrow.sol/ClaimsEscrow.json'
 import lpTokenArtifact from '../../../node_modules/@uniswap/v3-periphery/artifacts/contracts/NonfungiblePositionManager.sol/NonfungiblePositionManager.json'
 import compAbi from '../../constants/abi/contracts/products/CompoundProductRinkeby.sol/CompoundProductRinkeby.json'
+import aaveAbi from '../../constants/abi/contracts/products/AaveV2Product.sol/AaveV2Product.json'
 import polMagABI from '../../constants/abi/contracts/PolicyManager.sol/PolicyManager.json'
 
 import { ProductName } from '../../constants/enums'
@@ -123,7 +124,7 @@ export const contractConfig: any = {
     productContracts: {
       [ProductName.AAVE]: {
         addr: process.env.REACT_APP_KOVAN_AAVE_PRODUCT_ADDR,
-        abi: compAbi,
+        abi: aaveAbi,
       },
     },
     supportedProducts: [{ name: ProductName.AAVE }],

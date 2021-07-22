@@ -11,8 +11,8 @@ import { ZERO, GAS_LIMIT, POW_NINE, DEADLINE } from '../../constants'
 import { FunctionName, TransactionCondition } from '../../constants/enums'
 import { useContracts } from '../../context/ContractsManager'
 import { useUserStakedValue } from '../../hooks/useFarm'
-import { useNativeTokenBalance } from '../../hooks/useNativeTokenBalance'
-import { useScpBalance } from '../../hooks/useVault'
+import { useLpBalance, useNativeTokenBalance } from '../../hooks/useBalance'
+import { useScpBalance } from '../../hooks/useBalance'
 import { fixed, getGasValue, filteredAmount, getUnit, truncateBalance } from '../../utils/formatting'
 import { GasFeeOption } from '../../constants/types'
 import { useWallet } from '../../context/WalletManager'
@@ -24,6 +24,7 @@ import getPermitNFTSignature from '../../utils/signature'
 import { FeeAmount, TICK_SPACINGS, getMaxTick, getMinTick } from '../../utils/uniswap'
 import { getProviderOrSigner, hasApproval } from '../../utils'
 import { Loader } from '../../components/Loader'
+import { sortTokens } from '../../utils/token'
 
 interface PoolModalProps {
   modalTitle: string
@@ -38,8 +39,10 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
   const [amount, setAmount] = useState<string>('')
   const [isStaking, setIsStaking] = useState<boolean>(false)
   const cpUserStakeValue = useUserStakedValue(cpFarm, wallet.account)
+  const lpUserStakeValue = useUserStakedValue(lpFarm, wallet.account)
   const nativeTokenBalance = useNativeTokenBalance()
   const scpBalance = useScpBalance()
+  const lpBalance = useLpBalance()
   const { addLocalTransactions, reload, gasPrices } = useCachedData()
   const [selectedGasOption, setSelectedGasOption] = useState<GasFeeOption>(gasPrices.selected)
   const [maxSelected, setMaxSelected] = useState<boolean>(false)
@@ -79,6 +82,7 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
         reload()
       })
     } catch (err) {
+      console.log('callDeposit', err)
       makeTxToast(txType, TransactionCondition.CANCELLED)
       setModalLoading(false)
       reload()
@@ -113,6 +117,7 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
         reload()
       })
     } catch (err) {
+      console.log('callDepositEth', err)
       makeTxToast(txType, TransactionCondition.CANCELLED)
       setModalLoading(false)
       reload()
@@ -134,6 +139,7 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
       })
       setModalLoading(false)
     } catch (err) {
+      console.log('approve', err)
       makeTxToast(txType, TransactionCondition.CANCELLED)
       setModalLoading(false)
       reload()
@@ -167,6 +173,7 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
         reload()
       })
     } catch (err) {
+      console.log('callDepositCp', err)
       makeTxToast(txType, TransactionCondition.CANCELLED)
       setModalLoading(false)
       reload()
@@ -200,6 +207,7 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
         reload()
       })
     } catch (err) {
+      console.log('callWithdraw', err)
       makeTxToast(txType, TransactionCondition.CANCELLED)
       setModalLoading(false)
       reload()
@@ -233,6 +241,7 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
         reload()
       })
     } catch (err) {
+      console.log('callWithdrawEth', err)
       makeTxToast(txType, TransactionCondition.CANCELLED)
       setModalLoading(false)
       reload()
@@ -264,6 +273,7 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
         reload()
       })
     } catch (err) {
+      console.log('callDepositLp', err)
       makeTxToast(txType, TransactionCondition.CANCELLED)
       setModalLoading(false)
       reload()
@@ -294,6 +304,7 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
         reload()
       })
     } catch (err) {
+      console.log('callWithdrawLp', err)
       makeTxToast(txType, TransactionCondition.CANCELLED)
       setModalLoading(false)
       reload()
@@ -369,6 +380,7 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
     return getAssetBalanceByFunc().gte(parseEther(amount))
   }
 
+  // TODO: fix up lp farm
   const getAssetBalanceByFunc = (): BN => {
     switch (func) {
       case FunctionName.DEPOSIT:
@@ -378,6 +390,10 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
         return parseEther(scpBalance)
       case FunctionName.WITHDRAW_ETH:
         return parseEther(cpUserStakeValue)
+      case FunctionName.WITHDRAW_LP:
+        return parseEther(lpUserStakeValue)
+      case FunctionName.DEPOSIT_LP:
+        return parseEther(lpBalance)
       default:
         // any amount
         return BN.from('999999999999999999999999999999999999')
@@ -389,10 +405,6 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
     if (func !== FunctionName.DEPOSIT && func !== FunctionName.DEPOSIT_ETH) return bal
     const gasInEth = (GAS_LIMIT / POW_NINE) * selectedGasOption.value
     return fixed(fixed(parseFloat(bal), 6) - fixed(gasInEth, 6), 6)
-  }
-
-  const sortTokens = (tokenA: string, tokenB: string) => {
-    return BN.from(tokenA).lt(BN.from(tokenB)) ? [tokenA, tokenB] : [tokenB, tokenA]
   }
 
   const handleSelectChange = (option: GasFeeOption) => {

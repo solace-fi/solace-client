@@ -35,7 +35,7 @@ import { WalletConnectButton } from '../Button/WalletConnect'
 import { SmallBox } from '../Box'
 
 /* import hooks */
-import { useNativeTokenBalance } from '../../hooks/useNativeTokenBalance'
+import { useNativeTokenBalance } from '../../hooks/useBalance'
 
 /* import utils */
 import { shortenAddress, fixed, getNetworkName } from '../../utils/formatting'

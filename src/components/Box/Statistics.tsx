@@ -44,7 +44,7 @@ import { Text, TextSpan } from '../Typography'
 /* import hooks */
 import { useCapitalPoolSize } from '../../hooks/useVault'
 import { useTotalPendingRewards } from '../../hooks/useRewards'
-import { useSolaceBalance } from '../../hooks/useSolaceBalance'
+import { useSolaceBalance } from '../../hooks/useBalance'
 import { usePolicyGetter } from '../../hooks/useGetter'
 import { useGetTotalValueLocked } from '../../hooks/useFarm'
 
