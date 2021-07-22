@@ -158,7 +158,7 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
 
   const filteredTime = (input: string) => {
     const filtered = input.replace(/[^0-9]*/g, '')
-    if (parseFloat(filtered) <= DAYS_PER_YEAR || filtered == '') {
+    if ((parseFloat(filtered) <= DAYS_PER_YEAR && parseFloat(filtered) > 0) || filtered == '') {
       setTime(filtered)
     }
   }
