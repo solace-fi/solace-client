@@ -14,13 +14,12 @@
       custom hooks
       useState hooks
       contract functions
-      useEffect hooks
       Render
 
   *************************************************************************************/
 
 /* import react */
-import React, { useEffect, useState, Fragment } from 'react'
+import React, { Fragment } from 'react'
 
 /* import packages */
 import { formatEther } from '@ethersproject/units'
@@ -44,7 +43,7 @@ import { GAS_LIMIT } from '../../constants'
 import { ClaimDetails } from '../../constants/types'
 
 /* import hooks */
-import { useClaimsEscrow } from '../../hooks/useClaimsEscrow'
+import { useGetClaimsDetails } from '../../hooks/useClaimsEscrow'
 
 /* import utils */
 import { truncateBalance, getGasValue, getNativeTokenUnit } from '../../utils/formatting'
@@ -58,16 +57,9 @@ export const MyClaims = () => {
   *************************************************************************************/
   const { claimsEscrow } = useContracts()
   const wallet = useWallet()
-  const { addLocalTransactions, dataVersion, version, reload, gasPrices } = useCachedData()
+  const { addLocalTransactions, reload, gasPrices } = useCachedData()
   const { makeTxToast } = useToasts()
-  const { getClaimDetails } = useClaimsEscrow()
-
-  /*************************************************************************************
-
-    useState hooks
-
-  *************************************************************************************/
-  const [claimDetails, setClaimDetails] = useState<ClaimDetails[]>([])
+  const claimsDetails = useGetClaimsDetails(wallet.account)
 
   /*************************************************************************************
 
@@ -107,35 +99,20 @@ export const MyClaims = () => {
 
   /*************************************************************************************
 
-    useEffect Hooks
-
-  *************************************************************************************/
-
-  useEffect(() => {
-    const fetchClaims = async () => {
-      if (!wallet.isActive || !wallet.account) return
-      const details = await getClaimDetails(wallet.account)
-      setClaimDetails(details)
-    }
-    fetchClaims()
-  }, [wallet.account, wallet.isActive, dataVersion, version])
-
-  /*************************************************************************************
-
     Render
 
   *************************************************************************************/
 
   return (
     <Fragment>
-      {claimDetails && claimDetails.length > 0 && (
+      {claimsDetails.length > 0 && (
         <Content>
           <Heading1>Your Claims</Heading1>
           <CardContainer cardsPerRow={2}>
-            {claimDetails.map((claim: ClaimDetails) => {
+            {claimsDetails.map((claim: ClaimDetails) => {
               return (
                 <Card key={claim.id}>
-                  <Box pt={20} pb={20} glow green={claim.canWithdraw}>
+                  <Box pt={20} pb={20} glow={claim.canWithdraw} green={claim.canWithdraw}>
                     <BoxItem>
                       <BoxItemTitle h3>ID</BoxItemTitle>
                       <Text h3>{claim.id}</Text>

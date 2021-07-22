@@ -13,14 +13,15 @@
     ClaimModal function
       useState hooks
       custom hooks
-      Contract functions
+      contract functions
+      local functions
       useEffect hooks
       Render
 
   *************************************************************************************/
 
 /* import react */
-import React, { Fragment, useEffect, useState } from 'react'
+import React, { Fragment, useCallback, useEffect, useState } from 'react'
 
 /* import packages */
 import { formatEther } from '@ethersproject/units'
@@ -50,14 +51,14 @@ import { Token, Policy, ClaimAssessment } from '../../constants/types'
 
 /* import hooks */
 import { useTokenAllowance } from '../../hooks/useTokenAllowance'
-import { useClaimsEscrow } from '../../hooks/useClaimsEscrow'
+import { useGetCooldownPeriod } from '../../hooks/useClaimsEscrow'
 
 /* import utils */
 import { getClaimAssessment } from '../../utils/paclas'
 import { truncateBalance, fixedPositionBalance, getGasValue } from '../../utils/formatting'
 import { hasApproval, getContract } from '../../utils'
 import { timeToText } from '../../utils/time'
-import { policyConfig } from '../../config/chainConfig'
+import { policyConfig } from '../../utils/config/chainConfig'
 
 interface ClaimModalProps {
   closeModal: () => void
@@ -79,7 +80,6 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
   const [asyncLoading, setAsyncLoading] = useState<boolean>(false)
   const [assessment, setAssessment] = useState<ClaimAssessment | null>(null)
   const [positionBalances, setPositionBalances] = useState<Token[]>([])
-  const [cooldownPeriod, setCooldownPeriod] = useState<string>('-')
 
   /*************************************************************************************
 
@@ -87,7 +87,7 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
 
   *************************************************************************************/
 
-  const { getCooldownPeriod } = useClaimsEscrow()
+  const cooldown = useGetCooldownPeriod()
   const tokenAllowance = useTokenAllowance(contractForAllowance, spenderAddress)
   const { addLocalTransactions, reload, gasPrices } = useCachedData()
   const { selectedProtocol, getProtocolByName } = useContracts()
@@ -129,7 +129,7 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
     const txType = FunctionName.SUBMIT_CLAIM
     try {
       const tx = await selectedProtocol.submitClaim(
-        selectedPolicy?.policyId,
+        selectedPolicy.policyId,
         tokenIn,
         amountIn,
         tokenOut,
@@ -161,11 +161,17 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
     }
   }
 
-  const handleClose = () => {
+  /*************************************************************************************
+
+  local functions
+
+  *************************************************************************************/
+
+  const handleClose = useCallback(() => {
     setClaimId(0)
     setModalLoading(false)
     closeModal()
-  }
+  }, [closeModal])
 
   /*************************************************************************************
 
@@ -175,10 +181,10 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
 
   useEffect(() => {
     const load = async () => {
-      if (!selectedPolicy || !wallet.account || !isOpen) return
+      if (!selectedPolicy || !wallet.account || !isOpen || !wallet.library) return
       setAsyncLoading(true)
       const tokenContract = getContract(selectedPolicy.positionContract, cTokenABI, wallet.library, wallet.account)
-      const assessment = await getClaimAssessment(String(selectedPolicy?.policyId))
+      const assessment = await getClaimAssessment(String(selectedPolicy.policyId))
       if (policyConfig[wallet.chainId]) {
         const balances: Token[] = await policyConfig[wallet.chainId].getBalances(
           wallet.account,
@@ -187,15 +193,13 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
         )
         setPositionBalances(balances)
       }
-      const cooldown = await getCooldownPeriod()
-      setCooldownPeriod(cooldown)
       setContractForAllowance(tokenContract)
       setSpenderAddress(getProtocolByName(selectedPolicy.productName)?.address || null)
       setAssessment(assessment)
       setAsyncLoading(false)
     }
     load()
-  }, [isOpen, selectedPolicy, wallet.account, wallet.chainId])
+  }, [isOpen, selectedPolicy, wallet.account, wallet.library])
 
   /*************************************************************************************
 
@@ -206,7 +210,7 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
   return (
     <Modal isOpen={isOpen} handleClose={handleClose} modalTitle={'Policy Claim'} disableCloseButton={modalLoading}>
       <Fragment>
-        <PolicyInfo selectedPolicy={selectedPolicy} latestBlock={latestBlock} asyncLoading={asyncLoading} />
+        <PolicyInfo selectedPolicy={selectedPolicy} latestBlock={latestBlock} />
         {!modalLoading && !asyncLoading ? (
           <Fragment>
             <FormRow>
@@ -285,7 +289,7 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
                     <Text2>Current Cooldown Period</Text2>
                   </TableData>
                   <TableData textAlignRight>
-                    <Text2>{timeToText(parseInt(cooldownPeriod) * 1000)}</Text2>
+                    <Text2>{timeToText(parseInt(cooldown) * 1000)}</Text2>
                   </TableData>
                 </TableRow>
               </TableBody>

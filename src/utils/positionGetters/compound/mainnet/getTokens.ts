@@ -3,10 +3,12 @@ import { ZERO } from '../../../../constants'
 
 import comptrollerJson from '../contracts/IComptroller.json'
 import ctokenJson from '../contracts/ICToken.json'
-import ierc20Json from '../../../contracts/IERC20Metadata.json'
+import ierc20Json from '../../contracts/IERC20Metadata.json'
 import ierc20altJson from '../contracts/IERC20MetadataAlt.json'
 
-import { equalsIgnoreCase, withBackoffRetries, numberify, rangeFrom0 } from '../../..'
+import { equalsIgnoreCase } from '../../..'
+import { withBackoffRetries } from '../../../time'
+import { numberify, rangeFrom0 } from '../../../numeric'
 
 const eth = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
 const cEth = '0x4Ddc2D193948926D02f9B1fE9e1daa0718270ED5'

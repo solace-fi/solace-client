@@ -1,6 +1,8 @@
 import { Token } from '../../constants/types'
 import { Contract } from '@ethersproject/contracts'
-import { rangeFrom0, withBackoffRetries, equalsIgnoreCase, bnCmp } from '..'
+import { equalsIgnoreCase } from '..'
+import { withBackoffRetries } from '../time'
+import { rangeFrom0, bnCmp } from '../numeric'
 import { BigNumber } from 'ethers'
 import axios from 'axios'
 

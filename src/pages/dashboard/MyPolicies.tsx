@@ -40,7 +40,7 @@ import { PositionCardLogo } from '../../components/Position'
 
 /* import utils */
 import { getNativeTokenUnit, truncateBalance } from '../../utils/formatting'
-import { getDays, getDateStringWithMonthName, getDateExtended } from '../../utils/time'
+import { getDays, getExpiration } from '../../utils/time'
 
 interface MyPoliciesProps {
   openClaimModal: any
@@ -55,7 +55,7 @@ export const MyPolicies: React.FC<MyPoliciesProps> = ({ openClaimModal, openMana
 
   *************************************************************************************/
   const wallet = useWallet()
-  const { userPolicies } = useCachedData()
+  const { userPolicyData } = useCachedData()
 
   /*************************************************************************************
 
@@ -64,7 +64,7 @@ export const MyPolicies: React.FC<MyPoliciesProps> = ({ openClaimModal, openMana
   *************************************************************************************/
   const calculatePolicyExpirationDate = (expirationBlock: string): string => {
     const daysLeft = getDays(parseFloat(expirationBlock), latestBlock)
-    return getDateStringWithMonthName(getDateExtended(daysLeft))
+    return getExpiration(daysLeft)
   }
 
   const shouldWarnUser = (policy: Policy): boolean => {
@@ -79,9 +79,9 @@ export const MyPolicies: React.FC<MyPoliciesProps> = ({ openClaimModal, openMana
 
   return (
     <Fragment>
-      {userPolicies.policiesLoading ? (
+      {userPolicyData.policiesLoading ? (
         <Loader />
-      ) : userPolicies.userPolicies.length > 0 ? (
+      ) : userPolicyData.userPolicies.length > 0 ? (
         <Table textAlignCenter>
           <TableHead>
             <TableRow>
@@ -93,17 +93,17 @@ export const MyPolicies: React.FC<MyPoliciesProps> = ({ openClaimModal, openMana
             </TableRow>
           </TableHead>
           <TableBody>
-            {userPolicies.userPolicies.map((policy) => {
+            {userPolicyData.userPolicies.map((policy) => {
               return (
                 <TableRow key={policy.policyId}>
                   <TableData>
                     {
                       <FlexRow>
                         <PositionCardLogo>
-                          <img src={`https://assets.solace.fi/${policy.productName.toLowerCase()}.svg`} />
+                          <img src={`https://assets.solace.fi/${policy.productName.toLowerCase()}`} />
                         </PositionCardLogo>
                         <PositionCardLogo>
-                          <img src={`https://assets.solace.fi/${policy.positionName.toLowerCase()}.svg`} />
+                          <img src={`https://assets.solace.fi/${policy.positionName.toLowerCase()}`} />
                         </PositionCardLogo>
                         <Text autoAlign>
                           {policy.productName} - {policy.positionName}

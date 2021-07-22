@@ -1,4 +1,4 @@
-import React, { useState, Fragment, useEffect } from 'react'
+import React, { useState, Fragment, useEffect, useCallback } from 'react'
 import { Input } from '../../components/Input'
 import { ModalRow, ModalCell } from '../../components/Modal'
 import { Modal } from '../../components/Modal/Modal'
@@ -34,13 +34,12 @@ interface PoolModalProps {
 
 export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, closeModal }) => {
   const { vault, solace, cpFarm, lpFarm, lpToken, weth } = useContracts()
-
+  const wallet = useWallet()
   const [amount, setAmount] = useState<string>('')
   const [isStaking, setIsStaking] = useState<boolean>(false)
-  const cpUserStakeValue = useUserStakedValue(cpFarm)
+  const cpUserStakeValue = useUserStakedValue(cpFarm, wallet.account)
   const nativeTokenBalance = useNativeTokenBalance()
   const scpBalance = useScpBalance()
-  const wallet = useWallet()
   const { addLocalTransactions, reload, gasPrices } = useCachedData()
   const [selectedGasOption, setSelectedGasOption] = useState<GasFeeOption>(gasPrices.selected)
   const [maxSelected, setMaxSelected] = useState<boolean>(false)
@@ -363,6 +362,8 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
     return tokenId
   }
 
+  // TODO: maybe extract pure functions into utils
+
   const isAppropriateAmount = () => {
     if (!amount || amount == '.' || parseEther(amount).lte(ZERO)) return false
     return getAssetBalanceByFunc().gte(parseEther(amount))
@@ -422,13 +423,13 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
     }
   }
 
-  const handleClose = () => {
+  const handleClose = useCallback(() => {
     setAmount('')
     setSelectedGasOption(gasPrices.options[1])
     setMaxSelected(false)
     setModalLoading(false)
     closeModal()
-  }
+  }, [closeModal, gasPrices.options])
 
   useEffect(() => {
     if (!gasPrices.selected) return

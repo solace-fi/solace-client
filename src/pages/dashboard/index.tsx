@@ -18,7 +18,7 @@
   *************************************************************************************/
 
 /* import react */
-import React, { Fragment, useState } from 'react'
+import React, { Fragment, useState, useCallback } from 'react'
 
 /* import managers */
 import { useContracts } from '../../context/ContractsManager'
@@ -80,11 +80,11 @@ function Dashboard(): any {
     setSelectedPolicy(policy)
   }
 
-  const closeModal = () => {
+  const closeModal = useCallback(() => {
     setShowClaimModal(false)
     setShowManageModal(false)
     document.body.style.overflowY = 'scroll'
-  }
+  }, [])
 
   /*************************************************************************************
 

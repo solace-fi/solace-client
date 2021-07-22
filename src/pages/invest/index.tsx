@@ -17,7 +17,7 @@
   *************************************************************************************/
 
 /* import react */
-import React, { useState, Fragment } from 'react'
+import React, { useState, Fragment, useCallback } from 'react'
 
 /* import constants */
 import { FunctionName } from '../../constants/enums'
@@ -50,10 +50,10 @@ function Invest(): any {
     setFunc(func)
   }
 
-  const closeModal = () => {
+  const closeModal = useCallback(() => {
     setShowPoolModal(false)
     document.body.style.overflowY = 'scroll'
-  }
+  }, [])
 
   /*************************************************************************************
 

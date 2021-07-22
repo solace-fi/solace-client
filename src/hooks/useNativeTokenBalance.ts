@@ -4,7 +4,7 @@ import { formatEther } from '@ethersproject/units'
 import { useCachedData } from '../context/CachedDataManager'
 
 export const useNativeTokenBalance = (): string => {
-  const { account, library, chainId, connect } = useWallet()
+  const { account, library, connect } = useWallet()
   const { version } = useCachedData()
   const [balance, setBalance] = useState<string>('0.00')
 
@@ -20,7 +20,7 @@ export const useNativeTokenBalance = (): string => {
       }
     }
     getNativeTokenBalance()
-  }, [account, library, version, chainId, connect])
+  }, [account, library, version, connect])
 
   return balance
 }

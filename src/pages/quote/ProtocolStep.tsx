@@ -45,7 +45,7 @@ import { Protocol, ProtocolImage, ProtocolTitle } from '../../components/Protoco
 import { useGetAvailableCoverages, useGetYearlyCosts } from '../../hooks/usePolicy'
 
 /* import utils */
-import { fixed } from '../../utils/formatting'
+import { fixed, getNativeTokenUnit } from '../../utils/formatting'
 
 /*************************************************************************************
 
@@ -128,7 +128,7 @@ export const ProtocolStep: React.FC<formProps> = ({ setForm, navigation }) => {
         </TableHead>
         <TableBody>
           {products
-            ?.map((product) => {
+            .map((product) => {
               return product.name
             })
             .filter((protocol: string) => protocol.toLowerCase().includes(searchValue.toLowerCase()))
@@ -171,7 +171,9 @@ export const ProtocolStep: React.FC<formProps> = ({ setForm, navigation }) => {
                     )}
                     %
                   </TableData>
-                  <TableData>{handleAvailableCoverage(protocol)} ETH</TableData>
+                  <TableData>
+                    {handleAvailableCoverage(protocol)} {getNativeTokenUnit(wallet.chainId)}
+                  </TableData>
                   <TableData textAlignRight>
                     <Button disabled={wallet.errors.length > 0}>Select</Button>
                   </TableData>

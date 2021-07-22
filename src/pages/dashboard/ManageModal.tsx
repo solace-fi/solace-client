@@ -21,7 +21,7 @@
   *************************************************************************************/
 
 /* import react */
-import React, { Fragment, useState, useEffect } from 'react'
+import React, { Fragment, useState, useEffect, useMemo, useCallback } from 'react'
 
 /* import packages */
 import styled from 'styled-components'
@@ -45,7 +45,7 @@ import { Button } from '../../components/Button'
 import { Loader } from '../../components/Loader'
 
 /* import constants */
-import { DAYS_PER_YEAR, NUM_BLOCKS_PER_DAY, GAS_LIMIT } from '../../constants'
+import { DAYS_PER_YEAR, NUM_BLOCKS_PER_DAY, GAS_LIMIT, ZERO } from '../../constants'
 import { FunctionName, TransactionCondition, Unit } from '../../constants/enums'
 import { Policy } from '../../constants/types'
 
@@ -54,7 +54,7 @@ import { useAppraisePosition, useGetCancelFee, useGetPolicyPrice, useGetQuote } 
 
 /* import utils */
 import { getGasValue } from '../../utils/formatting'
-import { getDays, getDateStringWithMonthName, getDateExtended } from '../../utils/time'
+import { getDays, getExpiration } from '../../utils/time'
 
 interface ManageModalProps {
   closeModal: () => void
@@ -90,7 +90,6 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
   const [feedbackCoverage, setFeedbackCoverage] = useState<string>('1')
   const [extendedTime, setExtendedTime] = useState<string>('0')
   const [modalLoading, setModalLoading] = useState<boolean>(false)
-  const [coverLimit, setCoverLimit] = useState<string | null>(null)
 
   /*************************************************************************************
 
@@ -98,18 +97,41 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
 
   *************************************************************************************/
 
-  const { selectedProtocol, getProtocolByName } = useContracts()
+  const { selectedProtocol } = useContracts()
   const wallet = useWallet()
   const { addLocalTransactions, reload, gasPrices } = useCachedData()
   const { makeTxToast } = useToasts()
   const policyPrice = useGetPolicyPrice(selectedPolicy ? selectedPolicy.policyId : 0)
   const cancelFee = useGetCancelFee()
+
+  const daysLeft = useMemo(
+    () => getDays(parseFloat(selectedPolicy ? selectedPolicy.expirationBlock : '0'), latestBlock),
+    [latestBlock, selectedPolicy]
+  )
+  const blocksLeft = useMemo(
+    () => BigNumber.from(parseFloat(selectedPolicy ? selectedPolicy.expirationBlock : '0') - latestBlock),
+    [latestBlock, selectedPolicy]
+  )
+  const coverAmount = useMemo(() => BigNumber.from(selectedPolicy ? selectedPolicy.coverAmount : '0'), [selectedPolicy])
+  const price = useMemo(() => BigNumber.from(policyPrice || '0'), [policyPrice])
+  const refundAmount = useMemo(
+    () =>
+      blocksLeft
+        .mul(coverAmount)
+        .mul(price)
+        .div(String(Math.pow(10, 12))),
+    [blocksLeft, coverAmount, price]
+  )
+  const appraisal = useAppraisePosition(selectedPolicy)
+  const coverLimit = useMemo(
+    () => (appraisal == ZERO ? ZERO.toString() : BigNumber.from(coverAmount).mul('10000').div(appraisal).toString()),
+    [appraisal, coverAmount]
+  )
   const quote = useGetQuote(
     selectedPolicy ? coverLimit : null,
     selectedPolicy ? selectedPolicy.positionContract : null,
     extendedTime
   )
-  const { getAppraisePosition } = useAppraisePosition()
 
   /*************************************************************************************
 
@@ -119,11 +141,11 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
 
   const extendPolicy = async () => {
     setModalLoading(true)
-    if (!selectedProtocol) return
+    if (!selectedProtocol || !selectedPolicy) return
     const txType = FunctionName.EXTEND_POLICY
     const extension = BigNumber.from(NUM_BLOCKS_PER_DAY * parseInt(extendedTime))
     try {
-      const tx = await selectedProtocol.extendPolicy(selectedPolicy?.policyId, extension, {
+      const tx = await selectedProtocol.extendPolicy(selectedPolicy.policyId, extension, {
         value: coverAmount
           .mul(price)
           .mul(extension)
@@ -187,44 +209,17 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
 
   /*************************************************************************************
 
-    Local variables
-
-  *************************************************************************************/
-
-  const daysLeft = getDays(selectedPolicy ? parseFloat(selectedPolicy.expirationBlock) : 0, latestBlock)
-  const blocksLeft = BigNumber.from(parseFloat(selectedPolicy ? selectedPolicy.expirationBlock : '0') - latestBlock)
-  const coverAmount = BigNumber.from(selectedPolicy ? selectedPolicy.coverAmount : '0')
-  const price = BigNumber.from(policyPrice || '0')
-  const refundAmount = blocksLeft
-    .mul(coverAmount)
-    .mul(price)
-    .div(String(Math.pow(10, 12)))
-
-  /*************************************************************************************
-
     Local functions
 
   *************************************************************************************/
 
-  const getCoverLimit = (policy: Policy | undefined, positionAmount: any) => {
-    if (positionAmount == undefined || policy == undefined) return null
-    const coverAmount = policy.coverAmount
-    const coverLimit = BigNumber.from(coverAmount).mul('10000').div(positionAmount).toString()
-    setCoverLimit(coverLimit)
+  const initCoverage = () => {
     setFeedbackCoverage(coverLimit)
     setInputCoverage(
       coverLimit.substring(0, coverLimit.length - 2) +
         '.' +
         coverLimit.substring(coverLimit.length - 2, coverLimit.length)
     )
-  }
-
-  const getCurrentExpiration = (): string => {
-    return getDateStringWithMonthName(getDateExtended(daysLeft))
-  }
-
-  const getNewExpiration = (): string => {
-    return getDateStringWithMonthName(getDateExtended(parseFloat(extendedTime || '0')))
   }
 
   const handleCoverageChange = (coverageLimit: string) => {
@@ -257,10 +252,10 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
     }
   }
 
-  const handleClose = () => {
+  const handleClose = useCallback(() => {
     setExtendedTime('0')
     closeModal()
-  }
+  }, [closeModal])
 
   /*************************************************************************************
 
@@ -270,17 +265,14 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
 
   useEffect(() => {
     const load = async () => {
-      if (!selectedPolicy || !wallet.account || !isOpen) return
+      if (!selectedPolicy || !isOpen) return
       setAsyncLoading(true)
-      const positionAmount = await getAppraisePosition(
-        getProtocolByName(selectedPolicy.productName),
-        selectedPolicy.positionContract
-      )
-      getCoverLimit(selectedPolicy, positionAmount)
+      if (BigNumber.from(coverLimit).lte(ZERO)) return
+      initCoverage()
       setAsyncLoading(false)
     }
     load()
-  }, [isOpen, selectedPolicy, wallet.account, wallet.chainId])
+  }, [isOpen, selectedPolicy, appraisal])
 
   /*************************************************************************************
 
@@ -291,7 +283,7 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
   return (
     <Modal isOpen={isOpen} handleClose={handleClose} modalTitle={'Policy Management'} disableCloseButton={modalLoading}>
       <Fragment>
-        <PolicyInfo selectedPolicy={selectedPolicy} latestBlock={latestBlock} asyncLoading={asyncLoading} />
+        <PolicyInfo selectedPolicy={selectedPolicy} latestBlock={latestBlock} />
         {!modalLoading ? (
           <Fragment>
             <FormRow>
@@ -352,12 +344,12 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
                 </FormCol>
               </FormRow>
               <FormCol></FormCol>
-              <FormRow mb={5}>
+              <FormRow mb={5} style={{ justifyContent: 'flex-start' }}>
                 <FormCol>
-                  <Text3 nowrap>Expiration: {getCurrentExpiration()}</Text3>
+                  <Text3 nowrap>Expiration: {getExpiration(daysLeft)}</Text3>
                 </FormCol>
                 <FormCol>
-                  <Text3 nowrap>New expiration: {getNewExpiration()}</Text3>
+                  <Text3 nowrap>New expiration: {getExpiration(daysLeft + parseFloat(extendedTime || '0'))}</Text3>
                 </FormCol>
               </FormRow>
               <FormRow mb={5} style={{ justifyContent: 'flex-end' }}>

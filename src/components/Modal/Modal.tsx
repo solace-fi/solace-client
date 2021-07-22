@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { Fragment } from 'react'
 import { Heading2 } from '../Typography'
 import { ModalContainer, ModalBase, ModalClose, ModalHeader } from './index'
 import { ModalProps, ModalButtonProps } from './index'
@@ -12,7 +12,7 @@ export const Modal: React.FC<ModalProps> = ({ children, ...props }) => {
           <ModalCloseButton hidden={props.disableCloseButton} onClick={() => props.handleClose()} />
         </ModalHeader>
         <hr style={{ marginBottom: '20px' }} />
-        <div>{children}</div>
+        <Fragment>{children}</Fragment>
       </ModalBase>
     </ModalContainer>
   )

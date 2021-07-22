@@ -1,7 +1,7 @@
 import { getTokens } from './getTokens'
 import tokenJson from '../contracts/ICToken.json'
 import { Token } from '../../../../constants/types'
-import { rangeFrom0 } from '../../..'
+import { rangeFrom0 } from '../../../numeric'
 import { addNativeTokenBalances, getProductTokenBalances } from '../../getBalances'
 import { addExchangeRates } from '../addExchangeRates'
 

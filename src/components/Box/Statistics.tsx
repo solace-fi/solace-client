@@ -12,7 +12,6 @@
     import utils
 
     Statistics function
-      useRef variables
       custom hooks
       useState hooks
       Contract functions
@@ -56,12 +55,6 @@ import { WalletConnectButton } from '../Button/WalletConnect'
 import { fixed, getGasValue, floatEther, truncateBalance, getNativeTokenUnit } from '../../utils/formatting'
 
 export const Statistics = () => {
-  /************************************************************************************* 
-
-    useRef variables 
-
-  *************************************************************************************/
-
   /*************************************************************************************
 
   custom hooks
@@ -70,11 +63,11 @@ export const Statistics = () => {
   const wallet = useWallet()
   const { master } = useContracts()
   const { makeTxToast } = useToasts()
-  const { addLocalTransactions, reload, gasPrices } = useCachedData()
+  const { addLocalTransactions, reload, gasPrices, latestBlock, version } = useCachedData()
   const capitalPoolSize = useCapitalPoolSize()
   const solaceBalance = useSolaceBalance()
   const totalUserRewards = useTotalPendingRewards()
-  const { allPolicies } = usePolicyGetter()
+  const { allPolicies } = usePolicyGetter(true, latestBlock, version)
   const totalValueLocked = useGetTotalValueLocked()
 
   /*************************************************************************************

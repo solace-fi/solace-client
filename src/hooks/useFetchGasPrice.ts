@@ -6,7 +6,7 @@ import { useCachedData } from '../context/CachedDataManager'
 
 export const useFetchGasPrice = (): GasFeeListState => {
   const { chainId } = useWallet()
-  const { version } = useCachedData()
+  const { version, latestBlock } = useCachedData()
 
   const [state, setState] = useState<GasFeeListState>({
     options: [],
@@ -54,7 +54,7 @@ export const useFetchGasPrice = (): GasFeeListState => {
         })
     }
     fetchGasPrices()
-  }, [version, chainId])
+  }, [version, chainId, latestBlock])
 
   return state
 }

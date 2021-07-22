@@ -1,7 +1,7 @@
 import { Contract, providers } from 'ethers'
 import { ZERO } from '../../../constants'
 import { Token } from '../../../constants/types'
-import ierc20Json from '../../contracts/IERC20Metadata.json'
+import ierc20Json from '../contracts/IERC20Metadata.json'
 import { AaveProtocolDataProviderFactory } from './contracts/AaveProtocolDataProviderFactory'
 const KEY = process.env.REACT_APP_ALCHEMY_API_KEY
 if (KEY === '') throw new Error('ENV ALCHEMY KEY not configured')

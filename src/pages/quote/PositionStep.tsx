@@ -19,11 +19,12 @@
   *************************************************************************************/
 
 /* import react */
-import React, { Fragment, useEffect, useRef, useState } from 'react'
+import React, { Fragment, useCallback, useEffect, useRef, useState } from 'react'
 
 /* import managers */
 import { useWallet } from '../../context/WalletManager'
 import { useContracts } from '../../context/ContractsManager'
+import { useCachedData } from '../../context/CachedDataManager'
 
 /* import components */
 import { Button } from '../../components/Button'
@@ -41,8 +42,7 @@ import { Policy, Token } from '../../constants/types'
 
 /* import utils */
 import { fixedTokenPositionBalance, truncateBalance } from '../../utils/formatting'
-import { policyConfig } from '../../config/chainConfig'
-import { useCachedData } from '../../context/CachedDataManager'
+import { policyConfig } from '../../utils/config/chainConfig'
 
 export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigation }) => {
   const { protocol, balances, loading } = formData
@@ -55,7 +55,7 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
 
   const { account, chainId, library, errors } = useWallet()
   const { setSelectedProtocolByName } = useContracts()
-  const { userPolicies, dataVersion, latestBlock } = useCachedData()
+  const { userPolicyData, latestBlock } = useCachedData()
 
   /*************************************************************************************
 
@@ -64,7 +64,6 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
   *************************************************************************************/
   const [showManageModal, setShowManageModal] = useState<boolean>(false)
   const [selectedPolicy, setSelectedPolicy] = useState<Policy | undefined>(undefined)
-  // const [policies, setPolicies] = useState<Policy[]>([])
 
   /*************************************************************************************
 
@@ -91,7 +90,7 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
   }
 
   const getBalances = async () => {
-    if (!account) return
+    if (!account || !library) return
     if (policyConfig[chainId]) {
       const balances: Token[] = await policyConfig[chainId].getBalances(account, library, chainId)
       setForm({
@@ -104,7 +103,7 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
   }
 
   const userHasActiveProductPosition = (product: string, position: string): boolean => {
-    for (const policy of userPolicies.userPolicies) {
+    for (const policy of userPolicyData.userPolicies) {
       if (product === policy.productName && position === policy.positionName && policy.status === PolicyState.ACTIVE)
         return true
     }
@@ -118,10 +117,10 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
     setSelectedPolicy(policy)
   }
 
-  const closeModal = () => {
+  const closeModal = useCallback(() => {
     setShowManageModal(false)
     document.body.style.overflowY = 'scroll'
-  }
+  }, [])
 
   /*************************************************************************************
 
@@ -180,7 +179,7 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
       }
     }
     loadOverTime()
-  }, [dataVersion])
+  }, [latestBlock])
 
   /*************************************************************************************
 
@@ -196,12 +195,12 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
         latestBlock={latestBlock}
         closeModal={closeModal}
       />
-      {balances.length == 0 && !loading && !userPolicies.policiesLoading && (
+      {balances.length == 0 && !loading && !userPolicyData.policiesLoading && (
         <HeroContainer>
           <Heading1>You do not own any positions on this protocol.</Heading1>
         </HeroContainer>
       )}
-      {!loading && !userPolicies.policiesLoading ? (
+      {!loading && !userPolicyData.policiesLoading ? (
         <Fragment>
           <CardContainer>
             {balances.map((position: Token) => {
@@ -215,7 +214,7 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
                       : userHasActiveProductPosition(protocol.name, position.underlying.symbol)
                       ? () =>
                           openManageModal(
-                            userPolicies.userPolicies.filter(
+                            userPolicyData.userPolicies.filter(
                               (policy) =>
                                 policy.productName == protocol.name && policy.positionName == position.underlying.symbol
                             )[0]

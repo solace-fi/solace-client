@@ -1,8 +1,8 @@
 import useDebounce from '@rooks/use-debounce'
-import { BigNumber, Contract } from 'ethers'
+import { BigNumber } from 'ethers'
 import { formatEther } from '@ethersproject/units'
 import { useEffect, useState } from 'react'
-import { GAS_LIMIT, NUM_BLOCKS_PER_DAY } from '../constants'
+import { GAS_LIMIT, NUM_BLOCKS_PER_DAY, ZERO } from '../constants'
 import { useContracts } from '../context/ContractsManager'
 import { useWallet } from '../context/WalletManager'
 import { Policy, StringToStringMapping } from '../constants/types'
@@ -11,12 +11,12 @@ import { useCachedData } from '../context/CachedDataManager'
 export const useGetPolicyPrice = (policyId: number): string => {
   const [policyPrice, setPolicyPrice] = useState<string>('')
   const { selectedProtocol } = useContracts()
-  const { userPolicies } = useCachedData()
+  const { userPolicyData } = useCachedData()
 
   const getPrice = async () => {
     if (!selectedProtocol || policyId == 0) return
     try {
-      const policy = userPolicies.userPolicies.filter((policy: Policy) => policy.policyId == policyId)[0]
+      const policy = userPolicyData.userPolicies.filter((policy: Policy) => policy.policyId == policyId)[0]
       setPolicyPrice(policy.price)
     } catch (err) {
       console.log('getPolicyPrice', err)
@@ -25,25 +25,33 @@ export const useGetPolicyPrice = (policyId: number): string => {
 
   useEffect(() => {
     getPrice()
-  }, [selectedProtocol, policyId, userPolicies])
+  }, [selectedProtocol, policyId, userPolicyData.userPolicies])
 
   return policyPrice
 }
 
-export const useAppraisePosition = () => {
+export const useAppraisePosition = (policy: Policy | undefined): BigNumber => {
   const wallet = useWallet()
+  const { getProtocolByName } = useContracts()
+  const [appraisal, setAppraisal] = useState<BigNumber>(ZERO)
 
-  const getAppraisePosition = async (product: Contract | null, positionContractAddress: string) => {
-    if (!product || !positionContractAddress) return
-    try {
-      const positionAmount = await product.appraisePosition(wallet.account, positionContractAddress)
-      return positionAmount
-    } catch (err) {
-      console.log('AppraisePosition', err)
+  useEffect(() => {
+    const getAppraisal = async () => {
+      if (!policy) return
+      try {
+        const product = getProtocolByName(policy.productName)
+        if (!product) return
+        const position = policy.positionContract
+        const appraisal: BigNumber = await product.appraisePosition(wallet.account, position)
+        setAppraisal(appraisal)
+      } catch (err) {
+        console.log('AppraisePosition', err)
+      }
     }
-  }
+    getAppraisal()
+  }, [policy, wallet.account, getProtocolByName])
 
-  return { getAppraisePosition }
+  return appraisal
 }
 
 export const useGetMaxCoverPerUser = (): string => {
@@ -68,7 +76,7 @@ export const useGetMaxCoverPerUser = (): string => {
   return maxCoverPerUser
 }
 
-export const useGetCancelFee = () => {
+export const useGetCancelFee = (): string => {
   const [cancelFee, setCancelFee] = useState<string>('0.00')
   const { selectedProtocol } = useContracts()
 
@@ -89,24 +97,25 @@ export const useGetCancelFee = () => {
   return cancelFee
 }
 
-export const useGetYearlyCosts = () => {
+export const useGetYearlyCosts = (): StringToStringMapping => {
   const [yearlyCosts, setYearlyCosts] = useState<StringToStringMapping>({})
   const { products, getProtocolByName } = useContracts()
-  const { chainId } = useWallet()
 
   const getYearlyCosts = async () => {
     try {
       if (!products) return
       const newYearlyCosts: StringToStringMapping = {}
-      for (let i = 0; i < products.length; i++) {
-        let price = '0'
-        const product = getProtocolByName(products[i].name)
-        if (product) {
-          const fetchedPrice = await product.price()
-          price = formatEther(fetchedPrice)
-        }
-        newYearlyCosts[products[i].name] = price
-      }
+      await Promise.all(
+        products.map(async (productContract) => {
+          const product = getProtocolByName(productContract.name)
+          if (product) {
+            const fetchedPrice = await product.price()
+            newYearlyCosts[productContract.name] = formatEther(fetchedPrice)
+          } else {
+            newYearlyCosts[productContract.name] = '0'
+          }
+        })
+      )
       setYearlyCosts(newYearlyCosts)
     } catch (err) {
       console.log('getYearlyCost', err)
@@ -115,30 +124,32 @@ export const useGetYearlyCosts = () => {
 
   useEffect(() => {
     getYearlyCosts()
-  }, [chainId])
+  }, [products])
 
   return yearlyCosts
 }
 
-export const useGetAvailableCoverages = () => {
+export const useGetAvailableCoverages = (): StringToStringMapping => {
   const [availableCoverages, setAvailableCoverages] = useState<StringToStringMapping>({})
   const { products, getProtocolByName } = useContracts()
-  const { chainId } = useWallet()
 
   const getAvailableCoverages = async () => {
     try {
       if (!products) return
       const newAvailableCoverages: StringToStringMapping = {}
-      for (let i = 0; i < products.length; i++) {
-        let coverage = '0'
-        const product = getProtocolByName(products[i].name)
-        if (product) {
-          const maxCoverAmount = await product.maxCoverAmount()
-          const activeCoverAmount = await product.activeCoverAmount()
-          coverage = formatEther(maxCoverAmount.sub(activeCoverAmount))
-        }
-        newAvailableCoverages[products[i].name] = coverage
-      }
+      await Promise.all(
+        products.map(async (productContract) => {
+          const product = getProtocolByName(productContract.name)
+          if (product) {
+            const maxCoverAmount = await product.maxCoverAmount()
+            const activeCoverAmount = await product.activeCoverAmount()
+            const coverage = formatEther(maxCoverAmount.sub(activeCoverAmount))
+            newAvailableCoverages[productContract.name] = coverage
+          } else {
+            newAvailableCoverages[productContract.name] = '0'
+          }
+        })
+      )
       setAvailableCoverages(newAvailableCoverages)
     } catch (err) {
       console.log('getAvailableCoverage', err)
@@ -147,7 +158,7 @@ export const useGetAvailableCoverages = () => {
 
   useEffect(() => {
     getAvailableCoverages()
-  }, [chainId])
+  }, [products])
 
   return availableCoverages
 }

@@ -7,13 +7,13 @@ import { ZERO } from '../constants'
 import { useCachedData } from '../context/CachedDataManager'
 
 export const useCapitalPoolSize = (): string => {
-  const { vault, registry } = useContracts()
+  const { vault } = useContracts()
   const { version, latestBlock } = useCachedData()
   const [capitalPoolSize, setCapitalPoolSize] = useState<string>('0.00')
 
   useEffect(() => {
     const getCapitalPoolSize = async () => {
-      if (!registry || !vault) return
+      if (!vault) return
       try {
         const size = await vault.totalAssets()
         const formattedSize = formatEther(size)
@@ -23,14 +23,14 @@ export const useCapitalPoolSize = (): string => {
       }
     }
     getCapitalPoolSize()
-  }, [vault, registry, version, latestBlock])
+  }, [vault, version, latestBlock])
 
   return capitalPoolSize
 }
 
 export const useScpBalance = (): string => {
   const { vault } = useContracts()
-  const { account, chainId } = useWallet()
+  const { account } = useWallet()
   const { version, latestBlock } = useCachedData()
   const [scpBalance, setScpBalance] = useState<string>('0.00')
 
@@ -46,13 +46,13 @@ export const useScpBalance = (): string => {
       }
     }
     getScpBalance()
-  }, [account, vault, version, chainId, latestBlock])
+  }, [account, vault, version, latestBlock])
 
   return scpBalance
 }
 
 export const useUserVaultDetails = () => {
-  const [userVaultAssets, setUserVaultAssets] = useState<string>('0.00')
+  const [userVaultAssets, setUserVaultAssets] = useState<string>('0')
   const [userVaultShare, setUserVaultShare] = useState<string>('0')
   const scpBalance = useScpBalance()
   const { library, account } = useWallet()
@@ -76,7 +76,7 @@ export const useUserVaultDetails = () => {
       }
     }
     getUserVaultDetails()
-  }, [library, scpBalance, cpFarm])
+  }, [library, scpBalance, cpFarm, account, vault])
 
   return { userVaultAssets, userVaultShare }
 }

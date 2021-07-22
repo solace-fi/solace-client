@@ -1,62 +1,58 @@
 import { BigNumber } from 'ethers'
 import { useContracts } from '../context/ContractsManager'
 import { ClaimDetails } from '../constants/types'
+import { useEffect, useState } from 'react'
+import { useCachedData } from '../context/CachedDataManager'
 
-export const useClaimsEscrow = () => {
+export const useGetClaimsDetails = (claimant: string | undefined): ClaimDetails[] => {
   const { claimsEscrow } = useContracts()
+  const [claimsDetails, setClaimsDetails] = useState<ClaimDetails[]>([])
+  const { latestBlock } = useCachedData()
 
-  const isWithdrawable = async (claimID: BigNumber): Promise<boolean> => {
-    if (!claimsEscrow || !claimID) return false
-    try {
-      const isWithdrawable = await claimsEscrow.isWithdrawable(claimID)
-      return isWithdrawable
-    } catch (err) {
-      console.log('isWithdrawable', err)
-      return false
-    }
-  }
-
-  const timeLeft = async (claimID: BigNumber): Promise<string> => {
-    if (!claimsEscrow || !claimID) return '0'
-    try {
-      const timeLeft = await claimsEscrow.timeLeft(claimID)
-      return timeLeft.toString()
-    } catch (err) {
-      console.log('timeLeft', err)
-      return '0'
-    }
-  }
-
-  const getCooldownPeriod = async (): Promise<string> => {
-    if (!claimsEscrow) return '-'
-    try {
-      const cooldown = await claimsEscrow.cooldownPeriod()
-      return cooldown.toString()
-    } catch (err) {
-      console.log('getCooldownPeriod', err)
-      return '-'
-    }
-  }
-
-  const getClaimDetails = async (claimant: string): Promise<ClaimDetails[]> => {
-    if (!claimsEscrow) return []
-    try {
-      const claimIds: BigNumber[] = await claimsEscrow.listClaims(claimant)
-      const claimsDetails = []
-      for (let i = 0; i < claimIds.length; i++) {
-        const cooldown = await timeLeft(claimIds[i])
-        const canWithdraw = await isWithdrawable(claimIds[i])
-        const claim = await claimsEscrow.claims(claimIds[i])
-        const amount = claim.amount
-        const claimsDetail = { id: claimIds[i].toString(), cooldown, canWithdraw, amount }
-        claimsDetails.push(claimsDetail)
+  useEffect(() => {
+    const getClaimDetails = async () => {
+      if (!claimsEscrow || !claimant) return
+      try {
+        const claimIds: BigNumber[] = await claimsEscrow.listClaims(claimant)
+        const claimsDetails = await Promise.all(
+          claimIds.map(async (claimId) => {
+            const [cooldown, canWithdraw, claim] = await Promise.all([
+              claimsEscrow.timeLeft(claimId),
+              claimsEscrow.isWithdrawable(claimId),
+              claimsEscrow.claims(claimId),
+            ])
+            const amount = claim.amount
+            const claimsDetail = { id: claimId.toString(), cooldown, canWithdraw, amount }
+            return claimsDetail
+          })
+        )
+        setClaimsDetails(claimsDetails)
+      } catch (err) {
+        console.log('getClaimDetails', err)
       }
-      return claimsDetails
-    } catch (err) {
-      console.log('getClaimDetails', err)
-      return []
     }
-  }
+    getClaimDetails()
+  }, [claimsEscrow, claimant, latestBlock])
 
-  return { getClaimDetails, getCooldownPeriod }
+  return claimsDetails
+}
+
+export const useGetCooldownPeriod = (): string => {
+  const { claimsEscrow } = useContracts()
+  const [cooldownPeriod, setCooldownPeriod] = useState<string>('0')
+
+  useEffect(() => {
+    const getCooldownPeriod = async () => {
+      if (!claimsEscrow) return
+      try {
+        const cooldown = await claimsEscrow.cooldownPeriod()
+        setCooldownPeriod(cooldown.toString())
+      } catch (err) {
+        console.log('getCooldownPeriod', err)
+      }
+    }
+    getCooldownPeriod()
+  }, [claimsEscrow])
+
+  return cooldownPeriod
 }
