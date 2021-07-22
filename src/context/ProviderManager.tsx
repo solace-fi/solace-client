@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { ALCHEMY_API_KEY } from '../constants'
 import { Provider, JsonRpcProvider } from '@ethersproject/providers'
 import { useWallet } from './WalletManager'
-import { getNetworkName } from '../utils'
+import { getNetworkName } from '../utils/formatting'
 
 /*
 

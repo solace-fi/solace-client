@@ -38,8 +38,7 @@ import { SmallBox } from '../Box'
 import { useNativeTokenBalance } from '../../hooks/useNativeTokenBalance'
 
 /* import utils */
-import { shortenAddress, fixed } from '../../utils/formatting'
-import { getNetworkName } from '../../utils'
+import { shortenAddress, fixed, getNetworkName } from '../../utils/formatting'
 
 export default function Account(): any {
   /*************************************************************************************

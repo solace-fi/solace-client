@@ -2,32 +2,37 @@ import { BigNumber } from 'ethers'
 import { useContracts } from '../context/ContractsManager'
 import { ClaimDetails } from '../constants/types'
 import { useEffect, useState } from 'react'
+import { useCachedData } from '../context/CachedDataManager'
 
 export const useGetClaimsDetails = (claimant: string | undefined): ClaimDetails[] => {
   const { claimsEscrow } = useContracts()
   const [claimsDetails, setClaimsDetails] = useState<ClaimDetails[]>([])
+  const { latestBlock } = useCachedData()
 
   useEffect(() => {
     const getClaimDetails = async () => {
       if (!claimsEscrow || !claimant) return
       try {
         const claimIds: BigNumber[] = await claimsEscrow.listClaims(claimant)
-        const claimsDetails = []
-        for (let i = 0; i < claimIds.length; i++) {
-          const cooldown = await claimsEscrow.timeLeft(claimIds[i])
-          const canWithdraw = await claimsEscrow.isWithdrawable(claimIds[i])
-          const claim = await claimsEscrow.claims(claimIds[i])
-          const amount = claim.amount
-          const claimsDetail = { id: claimIds[i].toString(), cooldown, canWithdraw, amount }
-          claimsDetails.push(claimsDetail)
-        }
+        const claimsDetails = await Promise.all(
+          claimIds.map(async (claimId) => {
+            const [cooldown, canWithdraw, claim] = await Promise.all([
+              claimsEscrow.timeLeft(claimId),
+              claimsEscrow.isWithdrawable(claimId),
+              claimsEscrow.claims(claimId),
+            ])
+            const amount = claim.amount
+            const claimsDetail = { id: claimId.toString(), cooldown, canWithdraw, amount }
+            return claimsDetail
+          })
+        )
         setClaimsDetails(claimsDetails)
       } catch (err) {
         console.log('getClaimDetails', err)
       }
     }
     getClaimDetails()
-  }, [claimsEscrow, claimant])
+  }, [claimsEscrow, claimant, latestBlock])
 
   return claimsDetails
 }

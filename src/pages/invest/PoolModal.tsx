@@ -362,6 +362,8 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
     return tokenId
   }
 
+  // TODO: maybe extract pure functions into utils
+
   const isAppropriateAmount = () => {
     if (!amount || amount == '.' || parseEther(amount).lte(ZERO)) return false
     return getAssetBalanceByFunc().gte(parseEther(amount))

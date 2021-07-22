@@ -26,9 +26,9 @@ export function useGetProductContracts(): SupportedProduct[] {
     const config = contractConfig[String(chainId)]
     if (!library) return []
     const signer = account ? true : false
-    for (let i = 0; i < config.supportedProducts.length; i++) {
-      const name = config.supportedProducts[i].name
-      if (!config.supportedProducts[i].contract || signer !== config.supportedProducts[i].signer) {
+    config.supportedProducts.map((product: SupportedProduct, i: number) => {
+      const name = product.name
+      if (!product.contract || signer !== product.signer) {
         const productContractSources = config.productContracts[name]
         const contract = getContract(
           productContractSources.addr,
@@ -37,12 +37,12 @@ export function useGetProductContracts(): SupportedProduct[] {
           account ? account : undefined
         )
         config.supportedProducts[i] = {
-          ...config.supportedProducts[i],
+          ...product,
           contract: contract,
           signer: signer,
         }
       }
-    }
+    })
     return config.supportedProducts
   }, [library, account, chainId])
 }

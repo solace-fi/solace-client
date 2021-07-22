@@ -54,7 +54,7 @@ import { useAppraisePosition, useGetCancelFee, useGetPolicyPrice, useGetQuote } 
 
 /* import utils */
 import { getGasValue } from '../../utils/formatting'
-import { getDays, getDateStringWithMonthName, getDateExtended } from '../../utils/time'
+import { getDays, getExpiration } from '../../utils/time'
 
 interface ManageModalProps {
   closeModal: () => void
@@ -222,10 +222,6 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
     )
   }
 
-  const getExpiration = (days: number): string => {
-    return getDateStringWithMonthName(getDateExtended(days))
-  }
-
   const handleCoverageChange = (coverageLimit: string) => {
     setInputCoverage((parseInt(coverageLimit) / 100).toString())
     setFeedbackCoverage(coverageLimit)
@@ -271,7 +267,7 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
     const load = async () => {
       if (!selectedPolicy || !isOpen) return
       setAsyncLoading(true)
-      if (appraisal == ZERO) return
+      if (BigNumber.from(coverLimit).lte(ZERO)) return
       initCoverage()
       setAsyncLoading(false)
     }

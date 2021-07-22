@@ -57,10 +57,7 @@ const CachedDataProvider: React.FC = (props) => {
 
   const deleteLocalTransactions = (txsToDelete: LocalTx[]) => {
     if (txsToDelete.length == 0) return
-    const formattedTxsToDelete: LocalTx[] = []
-    for (let i = 0; i < txsToDelete.length; i++) {
-      formattedTxsToDelete.push(txsToDelete[i].hash)
-    }
+    const formattedTxsToDelete = txsToDelete.map((tx) => tx.hash)
     const passedLocalTxs = localTxs.filter(
       (tx: LocalTx) => !formattedTxsToDelete.includes(tx.hash) && tx.status !== 'Complete'
     )

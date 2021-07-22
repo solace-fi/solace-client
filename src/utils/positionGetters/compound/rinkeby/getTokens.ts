@@ -1,12 +1,14 @@
 import { Contract, utils } from 'ethers'
 
 import ctokenJson from '../contracts/ICToken.json'
-import ierc20Json from '../../../contracts/IERC20Metadata.json'
+import ierc20Json from '../../contracts/IERC20Metadata.json'
 import ierc20altJson from '../contracts/IERC20MetadataAlt.json'
 import { ZERO } from '../../../../constants'
 import { Token } from '../../../../constants/types'
 
-import { equalsIgnoreCase, withBackoffRetries, numberify, rangeFrom0 } from '../../..'
+import { equalsIgnoreCase } from '../../..'
+import { numberify, rangeFrom0 } from '../../../numeric'
+import { withBackoffRetries } from '../../../time'
 
 const eth = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
 const cEth = '0xd6801a1DfFCd0a410336Ef88DeF4320D6DF1883e'

@@ -1,4 +1,5 @@
-import { withBackoffRetries, rangeFrom0 } from '../utils'
+import { withBackoffRetries } from '../utils/time'
+import { rangeFrom0 } from '../utils/numeric'
 import { policyConfig } from '../utils/config/chainConfig'
 import { useWallet } from '../context/WalletManager'
 import { PolicyState } from '../constants/enums'

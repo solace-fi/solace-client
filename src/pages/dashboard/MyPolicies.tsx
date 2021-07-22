@@ -40,7 +40,7 @@ import { PositionCardLogo } from '../../components/Position'
 
 /* import utils */
 import { getNativeTokenUnit, truncateBalance } from '../../utils/formatting'
-import { getDays, getDateStringWithMonthName, getDateExtended } from '../../utils/time'
+import { getDays, getExpiration } from '../../utils/time'
 
 interface MyPoliciesProps {
   openClaimModal: any
@@ -64,7 +64,7 @@ export const MyPolicies: React.FC<MyPoliciesProps> = ({ openClaimModal, openMana
   *************************************************************************************/
   const calculatePolicyExpirationDate = (expirationBlock: string): string => {
     const daysLeft = getDays(parseFloat(expirationBlock), latestBlock)
-    return getDateStringWithMonthName(getDateExtended(daysLeft))
+    return getExpiration(daysLeft)
   }
 
   const shouldWarnUser = (policy: Policy): boolean => {

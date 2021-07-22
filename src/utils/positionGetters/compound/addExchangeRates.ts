@@ -1,7 +1,7 @@
 import { Contract } from '@ethersproject/contracts'
 import { Token } from '../../../constants/types'
 import { POW_EIGHTEEN } from '../../../constants'
-import { withBackoffRetries } from '../..'
+import { withBackoffRetries } from '../../time'
 
 export const addExchangeRates = async (
   balances: Token[],

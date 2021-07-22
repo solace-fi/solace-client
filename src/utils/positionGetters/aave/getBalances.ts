@@ -1,7 +1,7 @@
 import { getTokens } from './getTokens'
 import { Token } from '../../../constants/types'
-import ierc20Json from '../../contracts/IERC20Metadata.json'
-import { rangeFrom0 } from '../..'
+import ierc20Json from '../contracts/IERC20Metadata.json'
+import { rangeFrom0 } from '../../numeric'
 import { addNativeTokenBalances, getProductTokenBalances } from '../getBalances'
 
 export const getBalances = async (user: string, provider: any, chainId: number): Promise<Token[]> => {

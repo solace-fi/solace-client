@@ -105,15 +105,17 @@ export const useGetYearlyCosts = (): StringToStringMapping => {
     try {
       if (!products) return
       const newYearlyCosts: StringToStringMapping = {}
-      for (let i = 0; i < products.length; i++) {
-        let price = '0'
-        const product = getProtocolByName(products[i].name)
-        if (product) {
-          const fetchedPrice = await product.price()
-          price = formatEther(fetchedPrice)
-        }
-        newYearlyCosts[products[i].name] = price
-      }
+      await Promise.all(
+        products.map(async (productContract) => {
+          const product = getProtocolByName(productContract.name)
+          if (product) {
+            const fetchedPrice = await product.price()
+            newYearlyCosts[productContract.name] = formatEther(fetchedPrice)
+          } else {
+            newYearlyCosts[productContract.name] = '0'
+          }
+        })
+      )
       setYearlyCosts(newYearlyCosts)
     } catch (err) {
       console.log('getYearlyCost', err)
@@ -135,16 +137,19 @@ export const useGetAvailableCoverages = (): StringToStringMapping => {
     try {
       if (!products) return
       const newAvailableCoverages: StringToStringMapping = {}
-      for (let i = 0; i < products.length; i++) {
-        let coverage = '0'
-        const product = getProtocolByName(products[i].name)
-        if (product) {
-          const maxCoverAmount = await product.maxCoverAmount()
-          const activeCoverAmount = await product.activeCoverAmount()
-          coverage = formatEther(maxCoverAmount.sub(activeCoverAmount))
-        }
-        newAvailableCoverages[products[i].name] = coverage
-      }
+      await Promise.all(
+        products.map(async (productContract) => {
+          const product = getProtocolByName(productContract.name)
+          if (product) {
+            const maxCoverAmount = await product.maxCoverAmount()
+            const activeCoverAmount = await product.activeCoverAmount()
+            const coverage = formatEther(maxCoverAmount.sub(activeCoverAmount))
+            newAvailableCoverages[productContract.name] = coverage
+          } else {
+            newAvailableCoverages[productContract.name] = '0'
+          }
+        })
+      )
       setAvailableCoverages(newAvailableCoverages)
     } catch (err) {
       console.log('getAvailableCoverage', err)
