@@ -49,7 +49,7 @@ export const useAppraisePosition = (policy: Policy | undefined): BigNumber => {
       }
     }
     getAppraisal()
-  }, [policy, wallet.account])
+  }, [policy, wallet.account, getProtocolByName])
 
   return appraisal
 }

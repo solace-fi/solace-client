@@ -84,7 +84,7 @@ export const PolicyInfo: React.FC<PolicyInfoProps> = ({ selectedPolicy, latestBl
           <BoxItemTitle h3>Position Amount</BoxItemTitle>
           <Text h2 nowrap>
             {appraisal.gt(ZERO) ? (
-              `${truncateBalance(formatEther(appraisal) || '0')} ETH`
+              `${truncateBalance(formatEther(appraisal) || 0)} ETH`
             ) : (
               <Loader width={10} height={10} />
             )}

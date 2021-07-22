@@ -3,11 +3,10 @@ import { ChainId, Fetcher, Route, WETH, Trade, TokenAmount, TradeType } from '@u
 import { POW_EIGHTEEN } from '../constants'
 import { contractConfig } from '../utils/config/chainConfig'
 
-const chainId = ChainId.RINKEBY
-const tokenAddress = String(contractConfig[chainId].keyContracts.solace.addr) // rinkeby tokenaddress of SOLACE
-
 export function usePairPrice(): any {
   const [pairPrice, setPairPrice] = useState<any>('0.01')
+  const chainId = ChainId.RINKEBY
+  const tokenAddress = String(contractConfig[chainId].keyContracts.solace.addr) // rinkeby tokenaddress of SOLACE
 
   useEffect(() => {
     const getPairPrice = async () => {

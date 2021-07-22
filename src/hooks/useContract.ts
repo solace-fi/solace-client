@@ -21,9 +21,9 @@ export function useGetContract(address: string, abi: any, hasSigner = true): Con
 
 export function useGetProductContracts(): SupportedProduct[] {
   const { library, account, chainId } = useWallet()
-  const config = contractConfig[String(chainId)]
 
   return useMemo(() => {
+    const config = contractConfig[String(chainId)]
     if (!library) return []
     const signer = account ? true : false
     for (let i = 0; i < config.supportedProducts.length; i++) {
@@ -44,14 +44,14 @@ export function useGetProductContracts(): SupportedProduct[] {
       }
     }
     return config.supportedProducts
-  }, [library, account, config])
+  }, [library, account, chainId])
 }
 
 export function useContractArray(): ContractSources[] {
   const { chainId } = useWallet()
-  const config = contractConfig[String(chainId)]
 
   return useMemo(() => {
+    const config = contractConfig[String(chainId)]
     const contractSources: ContractSources[] = []
     Object.keys(config.keyContracts).forEach((key) => {
       contractSources.push({
@@ -66,5 +66,5 @@ export function useContractArray(): ContractSources[] {
       })
     })
     return contractSources
-  }, [config])
+  }, [chainId])
 }
