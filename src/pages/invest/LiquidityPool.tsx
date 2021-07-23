@@ -22,7 +22,7 @@ interface LiquidityPoolProps {
 
 export const LiquidityPool: React.FC<LiquidityPoolProps> = ({ openModal }) => {
   const wallet = useWallet()
-  const { solace, lpFarm, lpToken, weth } = useContracts()
+  const { lpFarm } = useContracts()
 
   const lpRewardsPerDay = useRewardsPerDay(2)
   const lpUserRewardsPerDay = useUserRewardsPerDay(2, lpFarm, wallet.account)
@@ -30,64 +30,6 @@ export const LiquidityPool: React.FC<LiquidityPoolProps> = ({ openModal }) => {
 
   const lpPoolValue = usePoolStakedValue(lpFarm)
   const lpUserStakeValue = useUserStakedValue(lpFarm, wallet.account)
-
-  const callMintLpToken = async (amount: number) => {
-    if (!weth || !solace || !lpToken) return
-    const signer = getProviderOrSigner(wallet.library, wallet.account)
-    const lpTokenAddress = lpToken.address
-    try {
-      const governance = await solace.governance()
-      console.log(governance)
-      await solace.connect(signer).addMinter(wallet.account)
-      await solace.connect(signer).mint(wallet.account, amount)
-      await weth.connect(signer).deposit({ value: amount })
-
-      const wethAllowance1 = await weth.connect(signer).allowance(wallet.account, lpTokenAddress)
-      const solaceAllowance1 = await solace.connect(signer).allowance(wallet.account, lpTokenAddress)
-      console.log('weth allowance before approval', wethAllowance1.toString())
-      console.log('solace allowance before approval', solaceAllowance1.toString())
-
-      await solace.connect(signer).approve(lpTokenAddress, amount)
-      await weth.connect(signer).approve(lpTokenAddress, amount)
-
-      const wethAllowance2 = await weth.connect(signer).allowance(wallet.account, lpTokenAddress)
-      const solaceAllowance2 = await solace.connect(signer).allowance(wallet.account, lpTokenAddress)
-      console.log('weth allowance after approval', wethAllowance2.toString())
-      console.log('solace allowance after approval', solaceAllowance2.toString())
-
-      const nft = await mintLpToken(weth, solace, FeeAmount.MEDIUM, BN.from(amount))
-      console.log('Total Supply of LP Tokens', nft.toNumber())
-    } catch (err) {
-      console.log(err)
-    }
-  }
-
-  const mintLpToken = async (
-    tokenA: Contract,
-    tokenB: Contract,
-    fee: FeeAmount,
-    amount: BigNumberish,
-    tickLower: BigNumberish = getMinTick(TICK_SPACINGS[fee]),
-    tickUpper: BigNumberish = getMaxTick(TICK_SPACINGS[fee])
-  ) => {
-    if (!lpToken?.provider || !wallet.account || !wallet.library) return
-    const [token0, token1] = sortTokens(tokenA.address, tokenB.address)
-    await lpToken.connect(getProviderOrSigner(wallet.library, wallet.account)).mint({
-      token0: token0,
-      token1: token1,
-      tickLower: tickLower,
-      tickUpper: tickUpper,
-      fee: fee,
-      recipient: wallet.account,
-      amount0Desired: amount,
-      amount1Desired: amount,
-      amount0Min: 0,
-      amount1Min: 0,
-      deadline: DEADLINE,
-    })
-    const tokenId = await lpToken.totalSupply()
-    return tokenId
-  }
 
   return (
     <Content>
@@ -119,7 +61,7 @@ export const LiquidityPool: React.FC<LiquidityPoolProps> = ({ openModal }) => {
                   {/* <Button onClick={() => callMintLpToken(0.02)}>mintlp</Button> */}
                   <Button
                     disabled={wallet.errors.length > 0}
-                    onClick={() => openModal(FunctionName.DEPOSIT_LP, 'Deposit')}
+                    onClick={() => openModal(FunctionName.DEPOSIT_SIGNED, 'Deposit')}
                   >
                     Deposit
                   </Button>

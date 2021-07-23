@@ -71,5 +71,6 @@ export const ModalCell = styled.div<GeneralTextProps>`
   align-items: center;
   flex-shrink: 0;
   padding: 24px;
+  position: relative;
   ${GeneralTextCss}
 `

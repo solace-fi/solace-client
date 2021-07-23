@@ -2,7 +2,7 @@ import { BigNumber as BN } from 'ethers'
 import { Contract } from '@ethersproject/contracts'
 import { rangeFrom0 } from './numeric'
 
-export const sortTokens = (tokenA: string, tokenB: string) => {
+export const sortTokens = (tokenA: string, tokenB: string): [string, string] => {
   return BN.from(tokenA).lt(BN.from(tokenB)) ? [tokenA, tokenB] : [tokenB, tokenA]
 }
 

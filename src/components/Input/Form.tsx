@@ -28,9 +28,11 @@ export const FormSelect = styled.select`
   color: inherit;
   border-color: white;
   line-height: inherit;
+  outline: none !important;
+  min-width: 100px;
+  border-radius: 10px;
 `
 
 export const FormOption = styled.option`
-  background: transparent !important;
-  color: black;
+  color: #7c7c7c;
 `

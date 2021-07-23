@@ -24,7 +24,6 @@ import getPermitNFTSignature from '../../utils/signature'
 import { hasApproval } from '../../utils'
 import { Loader } from '../../components/Loader'
 import { FormOption, FormSelect } from '../../components/Input/Form'
-import BigNumber from 'bignumber.js'
 
 interface PoolModalProps {
   modalTitle: string
@@ -53,6 +52,7 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
   const { makeTxToast } = useToasts()
   const maxLoss = 5
   const [nft, setNft] = useState<BN>(ZERO)
+  const [nftSelection, setNftSelection] = useState<string>('')
 
   const callDeposit = async () => {
     setModalLoading(true)
@@ -251,7 +251,7 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
   const callDepositLp = async () => {
     setModalLoading(true)
     if (!lpToken || !lpFarm || !nft) return
-    const txType = FunctionName.DEPOSIT_LP
+    const txType = FunctionName.DEPOSIT_SIGNED
     try {
       const { v, r, s } = await getPermitNFTSignature(wallet, lpToken, lpFarm.address, nft, DEADLINE)
       const tx = await lpFarm.depositSigned(wallet.account, nft, DEADLINE, v, r, s)
@@ -328,10 +328,10 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
         return parseEther(scpBalance)
       case FunctionName.WITHDRAW_ETH:
         return parseEther(cpUserStakeValue)
-      case FunctionName.DEPOSIT_LP:
-        const sum = ZERO
+      case FunctionName.DEPOSIT_SIGNED:
+        let sum = ZERO
         for (let i = 0; i < userLpTokenInfo.length; i++) {
-          sum.add(userLpTokenInfo[i].value)
+          sum = sum.add(userLpTokenInfo[i].value)
         }
         return sum
       case FunctionName.WITHDRAW_LP:
@@ -343,7 +343,7 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
 
   const getAssetTokensByFunc = (): LpTokenInfo[] => {
     switch (func) {
-      case FunctionName.DEPOSIT_LP:
+      case FunctionName.DEPOSIT_SIGNED:
         return userLpTokenInfo
       case FunctionName.WITHDRAW_LP:
         return depositedLpTokenInfo
@@ -378,7 +378,7 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
       case FunctionName.WITHDRAW_ETH:
         await callWithdrawEth()
         break
-      case FunctionName.DEPOSIT_LP:
+      case FunctionName.DEPOSIT_SIGNED:
         await callDepositLp()
         break
       case FunctionName.WITHDRAW_LP:
@@ -394,6 +394,13 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
     setModalLoading(false)
     closeModal()
   }, [closeModal, gasPrices.options])
+
+  const handleNft = (target: any) => {
+    const info = target.value.split('-')
+    setNft(BN.from(info[0]))
+    setAmount(info[1])
+    setNftSelection(target.value)
+  }
 
   useEffect(() => {
     if (!gasPrices.selected) return
@@ -411,6 +418,20 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
     if (isOpen) {
       setContractForAllowance(vault || null)
       setSpenderAddress(cpFarm?.address || null)
+      if (func == FunctionName.DEPOSIT_SIGNED) {
+        if (userLpTokenInfo.length > 0) {
+          setNft(userLpTokenInfo[0].id)
+          setAmount(formatEther(userLpTokenInfo[0].value))
+          setNftSelection(`${userLpTokenInfo[0].id.toString()}-${userLpTokenInfo[0].value}`)
+        }
+      }
+      if (func == FunctionName.WITHDRAW_LP) {
+        if (depositedLpTokenInfo.length > 0) {
+          setNft(depositedLpTokenInfo[0].id)
+          setAmount(formatEther(depositedLpTokenInfo[0].value))
+          setNftSelection(`${depositedLpTokenInfo[0].id.toString()}-${depositedLpTokenInfo[0].value}`)
+        }
+      }
     }
   }, [isOpen])
 
@@ -419,17 +440,13 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
       <Fragment>
         <ModalRow>
           <ModalCell t2>{getUnit(func, wallet.chainId)}</ModalCell>
-          {func == FunctionName.DEPOSIT_LP || func == FunctionName.WITHDRAW_LP ? (
+          {func == FunctionName.DEPOSIT_SIGNED || func == FunctionName.WITHDRAW_LP ? (
             <Fragment>
               <ModalCell>
-                <FormSelect value={nft.toString()} onChange={(e) => setNft(BN.from(e.target.value))}>
+                <FormSelect value={nftSelection} onChange={(e) => handleNft(e.target)}>
                   {getAssetTokensByFunc().map((token) => (
-                    <FormOption
-                      key={token.id.toString()}
-                      value={token.value.toString()}
-                      selected={token.value.toString() == nft.toString()}
-                    >
-                      {token.value.toString()}
+                    <FormOption key={token.id.toString()} value={`${token.id.toString()}-${formatEther(token.value)}`}>
+                      #{token.id.toString()} - {truncateBalance(formatEther(token.value))}
                     </FormOption>
                   ))}
                 </FormSelect>
@@ -440,7 +457,7 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
             </Fragment>
           ) : (
             <Fragment>
-              <ModalCell style={{ position: 'relative' }}>
+              <ModalCell>
                 <Input
                   t2
                   textAlignRight

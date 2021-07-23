@@ -4,9 +4,9 @@ import { useCachedData } from '../context/CachedDataManager'
 import { useState, useEffect } from 'react'
 import { formatEther } from '@ethersproject/units'
 import { BigNumber } from 'ethers'
-import { listTokensOfOwner } from '../utils/token'
-import { rangeFrom0 } from '../utils/numeric'
 import { LpTokenInfo } from '../constants/types'
+import { rangeFrom0 } from '../utils/numeric'
+import { listTokensOfOwner } from '../utils/token'
 
 export const useNativeTokenBalance = (): string => {
   const { account, library, connect } = useWallet()
@@ -38,7 +38,7 @@ export const useScpBalance = (): string => {
 
   useEffect(() => {
     const getScpBalance = async () => {
-      if (!vault) return
+      if (!vault || !account) return
       try {
         const balance = await vault.balanceOf(account)
         const formattedBalance = formatEther(balance)
@@ -104,8 +104,6 @@ export const useLpBalances = (): { userLpTokenInfo: LpTokenInfo[]; depositedLpTo
             return { id: listOfDepositedLpTokens[0][i], value: listOfDepositedLpTokens[1][i] }
           })
         )
-
-        console.log(userLpTokenInfo, depositedLpTokenInfo)
         setUserLpTokenInfo(userLpTokenInfo)
         setFarmLpTokenInfo(depositedLpTokenInfo)
       } catch (err) {
