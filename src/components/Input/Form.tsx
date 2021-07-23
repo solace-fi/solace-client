@@ -20,3 +20,17 @@ export const FormCol = styled.div`
     text-align: center;
   }
 `
+
+export const FormSelect = styled.select`
+  padding: 4px;
+  font-size: inherit;
+  background-color: transparent;
+  color: inherit;
+  border-color: white;
+  line-height: inherit;
+`
+
+export const FormOption = styled.option`
+  background: transparent !important;
+  color: black;
+`

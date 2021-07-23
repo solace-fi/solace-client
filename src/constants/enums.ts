@@ -40,7 +40,7 @@ export enum Unit {
   MATIC = 'MATIC',
   SCP = 'Solace CP Token',
   SOLACE = 'SOLACE',
-  LP = 'LP',
+  LP = 'LP Token',
   ID = 'ID',
 }
 

@@ -11,6 +11,7 @@ import lpTokenArtifact from '../../../node_modules/@uniswap/v3-periphery/artifac
 import compAbi from '../../constants/abi/contracts/products/CompoundProductRinkeby.sol/CompoundProductRinkeby.json'
 import aaveAbi from '../../constants/abi/contracts/products/AaveV2Product.sol/AaveV2Product.json'
 import polMagABI from '../../constants/abi/contracts/PolicyManager.sol/PolicyManager.json'
+import lpAppraisorABI from '../../constants/abi/contracts/LpAppraisor.sol/LpAppraisor.json'
 
 import { ProductName } from '../../constants/enums'
 import { getTokens as comp4Tokens } from '../positionGetters/compound/rinkeby/getTokens'
@@ -64,6 +65,10 @@ export const contractConfig: any = {
       policyManager: {
         addr: process.env.REACT_APP_RINKEBY_POLICY_MANAGER_ADDR,
         abi: polMagABI,
+      },
+      lpAppraisor: {
+        addr: process.env.REACT_APP_RINKEBY_LPAPPRAISOR_ADDR,
+        abi: lpAppraisorABI,
       },
     },
     productContracts: {
@@ -119,6 +124,10 @@ export const contractConfig: any = {
       policyManager: {
         addr: process.env.REACT_APP_KOVAN_POLICY_MANAGER_ADDR,
         abi: polMagABI,
+      },
+      lpAppraisor: {
+        addr: process.env.REACT_APP_KOVAN_LPAPPRAISOR_ADDR,
+        abi: lpAppraisorABI,
       },
     },
     productContracts: {

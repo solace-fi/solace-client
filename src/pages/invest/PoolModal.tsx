@@ -6,25 +6,25 @@ import { RadioElement, RadioInput, RadioGroup, RadioLabel } from '../../componen
 import { RadioCircle, RadioCircleFigure, RadioCircleInput } from '../../components/Radio/RadioCircle'
 import { Button, ButtonWrapper } from '../../components/Button'
 import { formatEther, parseEther } from '@ethersproject/units'
-import { BigNumberish, BigNumber as BN } from 'ethers'
+import { BigNumber as BN } from 'ethers'
 import { ZERO, GAS_LIMIT, POW_NINE, DEADLINE } from '../../constants'
 import { FunctionName, TransactionCondition } from '../../constants/enums'
 import { useContracts } from '../../context/ContractsManager'
 import { useUserStakedValue } from '../../hooks/useFarm'
-import { useLpBalance, useNativeTokenBalance } from '../../hooks/useBalance'
+import { useLpBalances, useNativeTokenBalance } from '../../hooks/useBalance'
 import { useScpBalance } from '../../hooks/useBalance'
 import { fixed, getGasValue, filteredAmount, getUnit, truncateBalance } from '../../utils/formatting'
-import { GasFeeOption } from '../../constants/types'
+import { GasFeeOption, LpTokenInfo } from '../../constants/types'
 import { useWallet } from '../../context/WalletManager'
 import { useTokenAllowance } from '../../hooks/useTokenAllowance'
 import { Contract } from '@ethersproject/contracts'
 import { useToasts } from '../../context/NotificationsManager'
 import { useCachedData } from '../../context/CachedDataManager'
 import getPermitNFTSignature from '../../utils/signature'
-import { FeeAmount, TICK_SPACINGS, getMaxTick, getMinTick } from '../../utils/uniswap'
-import { getProviderOrSigner, hasApproval } from '../../utils'
+import { hasApproval } from '../../utils'
 import { Loader } from '../../components/Loader'
-import { sortTokens } from '../../utils/token'
+import { FormOption, FormSelect } from '../../components/Input/Form'
+import BigNumber from 'bignumber.js'
 
 interface PoolModalProps {
   modalTitle: string
@@ -34,7 +34,7 @@ interface PoolModalProps {
 }
 
 export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, closeModal }) => {
-  const { vault, solace, cpFarm, lpFarm, lpToken, weth } = useContracts()
+  const { vault, cpFarm, lpFarm, lpToken } = useContracts()
   const wallet = useWallet()
   const [amount, setAmount] = useState<string>('')
   const [isStaking, setIsStaking] = useState<boolean>(false)
@@ -42,7 +42,7 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
   const lpUserStakeValue = useUserStakedValue(lpFarm, wallet.account)
   const nativeTokenBalance = useNativeTokenBalance()
   const scpBalance = useScpBalance()
-  const lpBalance = useLpBalance()
+  const { userLpTokenInfo, depositedLpTokenInfo } = useLpBalances()
   const { addLocalTransactions, reload, gasPrices } = useCachedData()
   const [selectedGasOption, setSelectedGasOption] = useState<GasFeeOption>(gasPrices.selected)
   const [maxSelected, setMaxSelected] = useState<boolean>(false)
@@ -52,7 +52,7 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
   const tokenAllowance = useTokenAllowance(contractForAllowance, spenderAddress)
   const { makeTxToast } = useToasts()
   const maxLoss = 5
-  const [nft, setNft] = useState<BN>()
+  const [nft, setNft] = useState<BN>(ZERO)
 
   const callDeposit = async () => {
     setModalLoading(true)
@@ -311,68 +311,6 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
     }
   }
 
-  const callMintLpToken = async (amount: number) => {
-    if (!weth || !solace || !lpToken) return
-    setModalLoading(true)
-    const signer = getProviderOrSigner(wallet.library, wallet.account)
-    const lpTokenAddress = lpToken.address
-    try {
-      await solace.connect(signer).addMinter(wallet.account)
-      await solace.connect(signer).mint(wallet.account, amount)
-      await weth.connect(signer).deposit({ value: amount })
-
-      const wethAllowance1 = await weth.connect(signer).allowance(wallet.account, lpTokenAddress)
-      const solaceAllowance1 = await solace.connect(signer).allowance(wallet.account, lpTokenAddress)
-      console.log('weth allowance before approval', wethAllowance1.toString())
-      console.log('solace allowance before approval', solaceAllowance1.toString())
-
-      await solace.connect(signer).approve(lpTokenAddress, amount)
-      await weth.connect(signer).approve(lpTokenAddress, amount)
-
-      const wethAllowance2 = await weth.connect(signer).allowance(wallet.account, lpTokenAddress)
-      const solaceAllowance2 = await solace.connect(signer).allowance(wallet.account, lpTokenAddress)
-      console.log('weth allowance after approval', wethAllowance2.toString())
-      console.log('solace allowance after approval', solaceAllowance2.toString())
-
-      const nft = await mintLpToken(weth, solace, FeeAmount.MEDIUM, BN.from(amount))
-      console.log('Total Supply of LP Tokens', nft.toNumber())
-      setNft(nft)
-
-      handleClose()
-    } catch (err) {
-      console.log(err)
-
-      handleClose()
-    }
-  }
-
-  const mintLpToken = async (
-    tokenA: Contract,
-    tokenB: Contract,
-    fee: FeeAmount,
-    amount: BigNumberish,
-    tickLower: BigNumberish = getMinTick(TICK_SPACINGS[fee]),
-    tickUpper: BigNumberish = getMaxTick(TICK_SPACINGS[fee])
-  ) => {
-    if (!lpToken?.provider || !wallet.account || !wallet.library) return
-    const [token0, token1] = sortTokens(tokenA.address, tokenB.address)
-    await lpToken.connect(getProviderOrSigner(wallet.library, wallet.account)).mint({
-      token0: token0,
-      token1: token1,
-      tickLower: tickLower,
-      tickUpper: tickUpper,
-      fee: fee,
-      recipient: wallet.account,
-      amount0Desired: amount,
-      amount1Desired: amount,
-      amount0Min: 0,
-      amount1Min: 0,
-      deadline: DEADLINE,
-    })
-    const tokenId = await lpToken.totalSupply()
-    return tokenId
-  }
-
   // TODO: maybe extract pure functions into utils
 
   const isAppropriateAmount = () => {
@@ -390,13 +328,27 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
         return parseEther(scpBalance)
       case FunctionName.WITHDRAW_ETH:
         return parseEther(cpUserStakeValue)
+      case FunctionName.DEPOSIT_LP:
+        const sum = ZERO
+        for (let i = 0; i < userLpTokenInfo.length; i++) {
+          sum.add(userLpTokenInfo[i].value)
+        }
+        return sum
       case FunctionName.WITHDRAW_LP:
         return parseEther(lpUserStakeValue)
-      case FunctionName.DEPOSIT_LP:
-        return parseEther(lpBalance)
       default:
-        // any amount
         return BN.from('999999999999999999999999999999999999')
+    }
+  }
+
+  const getAssetTokensByFunc = (): LpTokenInfo[] => {
+    switch (func) {
+      case FunctionName.DEPOSIT_LP:
+        return userLpTokenInfo
+      case FunctionName.WITHDRAW_LP:
+        return depositedLpTokenInfo
+      default:
+        return []
     }
   }
 
@@ -467,38 +419,61 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
       <Fragment>
         <ModalRow>
           <ModalCell t2>{getUnit(func, wallet.chainId)}</ModalCell>
-          <ModalCell style={{ position: 'relative' }}>
-            <Input
-              t2
-              textAlignRight
-              type="text"
-              autoComplete="off"
-              autoCorrect="off"
-              inputMode="decimal"
-              placeholder="0.0"
-              minLength={1}
-              maxLength={79}
-              onChange={(e) => {
-                setAmount(filteredAmount(e.target.value, amount))
-                setMaxSelected(false)
-              }}
-              value={amount}
-            />
-            <div style={{ position: 'absolute', top: '70%' }}>
-              Available: {func ? truncateBalance(formatEther(getAssetBalanceByFunc()), 6) : 0}
-            </div>
-          </ModalCell>
-          <ModalCell t3>
-            <Button
-              disabled={wallet.errors.length > 0}
-              onClick={() => {
-                setAmount(calculateMaxEth().toString())
-                setMaxSelected(true)
-              }}
-            >
-              MAX
-            </Button>
-          </ModalCell>
+          {func == FunctionName.DEPOSIT_LP || func == FunctionName.WITHDRAW_LP ? (
+            <Fragment>
+              <ModalCell>
+                <FormSelect value={nft.toString()} onChange={(e) => setNft(BN.from(e.target.value))}>
+                  {getAssetTokensByFunc().map((token) => (
+                    <FormOption
+                      key={token.id.toString()}
+                      value={token.value.toString()}
+                      selected={token.value.toString() == nft.toString()}
+                    >
+                      {token.value.toString()}
+                    </FormOption>
+                  ))}
+                </FormSelect>
+                <div style={{ position: 'absolute', top: '70%' }}>
+                  Available: {func ? truncateBalance(formatEther(getAssetBalanceByFunc()), 6) : 0}
+                </div>
+              </ModalCell>
+            </Fragment>
+          ) : (
+            <Fragment>
+              <ModalCell style={{ position: 'relative' }}>
+                <Input
+                  t2
+                  textAlignRight
+                  type="text"
+                  autoComplete="off"
+                  autoCorrect="off"
+                  inputMode="decimal"
+                  placeholder="0.0"
+                  minLength={1}
+                  maxLength={79}
+                  onChange={(e) => {
+                    setAmount(filteredAmount(e.target.value, amount))
+                    setMaxSelected(false)
+                  }}
+                  value={amount}
+                />
+                <div style={{ position: 'absolute', top: '70%' }}>
+                  Available: {func ? truncateBalance(formatEther(getAssetBalanceByFunc()), 6) : 0}
+                </div>
+              </ModalCell>
+              <ModalCell t3>
+                <Button
+                  disabled={wallet.errors.length > 0}
+                  onClick={() => {
+                    setAmount(calculateMaxEth().toString())
+                    setMaxSelected(true)
+                  }}
+                >
+                  MAX
+                </Button>
+              </ModalCell>
+            </Fragment>
+          )}
         </ModalRow>
         <RadioGroup>
           {!gasPrices.loading ? (
