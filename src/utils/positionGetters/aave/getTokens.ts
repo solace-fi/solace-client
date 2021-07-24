@@ -3,6 +3,9 @@ import { ZERO } from '../../../constants'
 import { Token } from '../../../constants/types'
 import ierc20Json from '../contracts/IERC20Metadata.json'
 import { AaveProtocolDataProviderFactory } from './contracts/AaveProtocolDataProviderFactory'
+import { withBackoffRetries } from '../../time'
+import { equalsIgnoreCase } from '../..'
+
 const KEY = process.env.REACT_APP_ALCHEMY_API_KEY
 if (KEY === '') throw new Error('ENV ALCHEMY KEY not configured')
 
@@ -12,8 +15,10 @@ type Market = {
   protocolDataProviderAddress: string
 }
 
+const eth = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
+
 const NETWORKS_CONFIG: any = {
-  '4': [
+  '1': [
     {
       market: 'proto',
       nodeUrl: `https://eth-mainnet.alchemyapi.io/v2/${KEY}`,
@@ -58,6 +63,11 @@ const generateTokensData = async (
         helperContract.getReserveConfigurationData(token.tokenAddress),
       ])
 
+      console.log('tokens:', tokens)
+      console.log('aTokens:', aTokens)
+      console.log('reserve:', reserve)
+      console.log('config:', config)
+
       const aToken = aTokens.find((aToken) => aToken.tokenAddress === reserve.aTokenAddress)
       if (!aToken)
         return {
@@ -82,8 +92,8 @@ const generateTokensData = async (
 
       const aTokenContract = new Contract(aToken.tokenAddress, ierc20Json.abi, provider)
       const tokenContract = new Contract(token.tokenAddress, ierc20Json.abi, provider)
-      const aTokenName: string = await aTokenContract.name()
-      const tokenName: string = await tokenContract.name()
+      const aTokenName: string = await queryTokenName(aTokenContract)
+      const tokenName: string = await queryTokenName(tokenContract)
 
       return {
         token: {
@@ -130,4 +140,9 @@ export const getTokens = async (provider: any): Promise<Token[]> => {
     )
   )
   return allTokens
+}
+
+const queryTokenName = async (tokenContract: any) => {
+  if (equalsIgnoreCase(tokenContract.address, eth)) return 'Ether'
+  return await withBackoffRetries(async () => tokenContract.name())
 }

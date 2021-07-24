@@ -19,7 +19,7 @@ export enum FunctionName {
   DEPOSIT = 'Deposit',
   DEPOSIT_CP = 'DepositCp',
   DEPOSIT_ETH = 'DepositEth',
-  DEPOSIT_LP = 'DepositLp',
+  DEPOSIT_SIGNED = 'DepositSigned',
   EXTEND_POLICY = 'ExtendPolicy',
   SUBMIT_CLAIM = 'SubmitClaim',
   WITHDRAW = 'Withdraw',
@@ -27,6 +27,7 @@ export enum FunctionName {
   WITHDRAW_LP = 'WithdrawLp',
   WITHDRAW_CLAIMS_PAYOUT = 'WithdrawClaimsPayout',
   WITHDRAW_REWARDS = 'WithdrawRewards',
+  MULTI_CALL = 'Multicall',
 }
 
 export enum ExplorerscanApi {
@@ -40,7 +41,7 @@ export enum Unit {
   MATIC = 'MATIC',
   SCP = 'Solace CP Token',
   SOLACE = 'SOLACE',
-  LP = 'LP',
+  LP = 'LP Token',
   ID = 'ID',
 }
 

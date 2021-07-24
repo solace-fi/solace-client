@@ -226,24 +226,34 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
           <Fragment>
             <FormRow>
               <FormCol>
-                <Text3 autoAlign>By submitting a claim you swap</Text3>
+                <Text3 autoAlign>
+                  {assessment?.amountIn != undefined
+                    ? 'By submitting a claim you swap'
+                    : 'By submitting a claim, you receive'}
+                </Text3>
               </FormCol>
               <FormCol>
-                <Heading2 autoAlign>
-                  {positionBalances &&
-                    positionBalances.map(
-                      (position: any) =>
-                        position.token.address == selectedPolicy?.positionContract &&
-                        `${truncateBalance(
-                          fixedPositionBalance(assessment?.amountIn || '', position.token.decimals)
-                        )} ${position.token.symbol}`
-                    )}{' '}
-                </Heading2>
+                {assessment?.amountIn != undefined && (
+                  <Heading2 autoAlign>
+                    {positionBalances &&
+                      positionBalances.map(
+                        (position: any) =>
+                          position.token.address == selectedPolicy?.positionContract &&
+                          `${truncateBalance(
+                            fixedPositionBalance(assessment?.amountIn || '', position.token.decimals)
+                          )} ${position.token.symbol}`
+                      )}{' '}
+                  </Heading2>
+                )}
               </FormCol>
             </FormRow>
             <FormRow>
               <FormCol>
-                <Text3 autoAlign>for pre-exploit assets value equal to</Text3>
+                <Text3 autoAlign>
+                  {assessment?.amountIn != undefined
+                    ? 'for pre-exploit assets value equal to'
+                    : 'pre-exploit assets value equal to'}
+                </Text3>
               </FormCol>
               <FormCol>
                 <Heading2 autoAlign>{formatEther(assessment?.amountOut || 0)} ETH</Heading2>

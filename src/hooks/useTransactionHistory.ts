@@ -7,6 +7,7 @@ import { Provider, Web3Provider } from '@ethersproject/providers'
 import { decodeInput } from '../utils/decoder'
 import { formatTransactionContent } from '../utils/formatting'
 import { useContracts } from '../context/ContractsManager'
+import { contractConfig } from '../utils/config/chainConfig'
 
 export const useTransactionDetails = (): { txHistory: any; amounts: string[] } => {
   const { library, chainId } = useWallet()
@@ -23,12 +24,20 @@ export const useTransactionDetails = (): { txHistory: any; amounts: string[] } =
     if (!receipt) return '0'
     if (receipt.status == 0) return '0'
     const logs = receipt.logs
-    if (!logs) return '0'
+    if (!logs || logs.length <= 0) return '0'
     const topics = logs[logs.length - 1].topics
 
     switch (function_name) {
       case FunctionName.DEPOSIT:
       case FunctionName.WITHDRAW:
+        if (receipt.to.toLowerCase() === contractConfig[String(chainId)].keyContracts.lpFarm.addr.toLowerCase()) {
+          const data = logs[logs.length - 1].data
+          if (!data) return '0'
+          return logs[logs.length - 1].data
+        } else {
+          if (!topics || topics.length <= 0) return '0'
+          return topics[topics.length - 1]
+        }
       case FunctionName.SUBMIT_CLAIM:
         if (!topics || topics.length <= 0) return '0'
         return topics[topics.length - 1]
@@ -42,13 +51,16 @@ export const useTransactionDetails = (): { txHistory: any; amounts: string[] } =
       case FunctionName.DEPOSIT_CP:
       case FunctionName.WITHDRAW_ETH:
       case FunctionName.WITHDRAW_REWARDS:
-      case FunctionName.DEPOSIT_LP:
+      case FunctionName.DEPOSIT_SIGNED:
       case FunctionName.WITHDRAW_LP:
-      default:
-        if (!logs || logs.length <= 0) return '0'
+      case FunctionName.APPROVE:
         const data = logs[logs.length - 1].data
         if (!data) return '0'
         return logs[logs.length - 1].data
+      case FunctionName.MULTI_CALL:
+      default:
+        if (!topics || topics.length <= 0) return '0'
+        return topics[1]
     }
   }
 
@@ -61,7 +73,7 @@ export const useTransactionDetails = (): { txHistory: any; amounts: string[] } =
           currentAmounts.push('N/A')
         } else {
           const amount: string = await getTransactionAmount(function_name, txHistory[tx_i], library)
-          currentAmounts.push(`${formatTransactionContent(function_name, amount, chainId)}`)
+          currentAmounts.push(`${formatTransactionContent(function_name, amount, chainId, txHistory[tx_i].to)}`)
         }
       }
       setAmounts(currentAmounts)

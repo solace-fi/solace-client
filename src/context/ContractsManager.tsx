@@ -23,6 +23,7 @@ type Contracts = {
   registry?: Contract | null
   lpToken?: Contract | null
   weth?: Contract | null
+  lpAppraisor?: Contract | null
   claimsEscrow?: Contract | null
   policyManager?: Contract | null
   products: SupportedProduct[]
@@ -42,6 +43,7 @@ const ContractsContext = createContext<Contracts>({
   registry: undefined,
   lpToken: undefined,
   weth: undefined,
+  lpAppraisor: undefined,
   claimsEscrow: undefined,
   policyManager: undefined,
   products: [],
@@ -68,6 +70,7 @@ const ContractsProvider: React.FC = (props) => {
   const weth = useGetContract(keyContracts.weth.addr, keyContracts.weth.abi)
   const claimsEscrow = useGetContract(keyContracts.claimsEscrow.addr, keyContracts.claimsEscrow.abi)
   const policyManager = useGetContract(keyContracts.policyManager.addr, keyContracts.policyManager.abi)
+  const lpAppraisor = useGetContract(keyContracts.lpAppraisor.addr, keyContracts.lpAppraisor.abi)
   const products = useGetProductContracts()
 
   const getProtocolByName = useCallback(
@@ -97,6 +100,7 @@ const ContractsProvider: React.FC = (props) => {
       registry,
       lpToken,
       weth,
+      lpAppraisor,
       claimsEscrow,
       policyManager,
       products,
@@ -115,6 +119,7 @@ const ContractsProvider: React.FC = (props) => {
       registry,
       lpToken,
       weth,
+      lpAppraisor,
       claimsEscrow,
       policyManager,
       products,

@@ -25,6 +25,11 @@ export type TokenInfo = {
   balance: BigNumber
 }
 
+export type LpTokenInfo = {
+  id: BigNumber
+  value: BigNumber
+}
+
 export type Token = {
   token: {
     address: string
