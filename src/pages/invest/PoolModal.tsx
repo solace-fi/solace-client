@@ -259,7 +259,7 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
       const localTx = {
         hash: txHash,
         type: txType,
-        value: amount,
+        value: `#${nft.toString()}`,
         status: TransactionCondition.PENDING,
         unit: getUnit(func, wallet.chainId),
       }
@@ -290,7 +290,7 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
       const localTx = {
         hash: txHash,
         type: txType,
-        value: amount,
+        value: `#${nft.toString()}`,
         status: TransactionCondition.PENDING,
         unit: getUnit(func, wallet.chainId),
       }
@@ -390,6 +390,7 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
   const handleClose = useCallback(() => {
     setAmount('')
     setSelectedGasOption(gasPrices.options[1])
+    setIsStaking(false)
     setMaxSelected(false)
     setModalLoading(false)
     closeModal()
@@ -415,9 +416,9 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
   }, [handleSelectChange])
 
   useEffect(() => {
-    if (isOpen) {
-      setContractForAllowance(vault || null)
-      setSpenderAddress(cpFarm?.address || null)
+    if (isOpen && vault && cpFarm?.address) {
+      setContractForAllowance(vault)
+      setSpenderAddress(cpFarm?.address)
       if (func == FunctionName.DEPOSIT_SIGNED) {
         if (userLpTokenInfo.length > 0) {
           setNft(userLpTokenInfo[0].id)
@@ -433,7 +434,42 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
         }
       }
     }
-  }, [isOpen])
+  }, [isOpen, cpFarm?.address, vault])
+
+  const GasRadioGroup: React.FC = () => (
+    <RadioGroup>
+      {!gasPrices.loading ? (
+        gasPrices.options.map((option: GasFeeOption) => (
+          <RadioLabel key={option.key}>
+            <RadioInput
+              type="radio"
+              value={option.value}
+              checked={selectedGasOption == option}
+              onChange={() => handleSelectChange(option)}
+            />
+            <RadioElement>
+              <div>{option.name}</div>
+              <div>{option.value}</div>
+            </RadioElement>
+          </RadioLabel>
+        ))
+      ) : (
+        <Loader />
+      )}
+    </RadioGroup>
+  )
+
+  const AutoStakeOption: React.FC = () => (
+    <ModalRow>
+      <ModalCell>
+        <RadioCircle>
+          <RadioCircleInput type="checkbox" checked={isStaking} onChange={(e) => setIsStaking(e.target.checked)} />
+          <RadioCircleFigure />
+          <div>Automatically stake</div>
+        </RadioCircle>
+      </ModalCell>
+    </ModalRow>
+  )
 
   return (
     <Modal isOpen={isOpen} handleClose={handleClose} modalTitle={modalTitle} disableCloseButton={modalLoading}>
@@ -441,20 +477,18 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
         <ModalRow>
           <ModalCell t2>{getUnit(func, wallet.chainId)}</ModalCell>
           {func == FunctionName.DEPOSIT_SIGNED || func == FunctionName.WITHDRAW_LP ? (
-            <Fragment>
-              <ModalCell>
-                <FormSelect value={nftSelection} onChange={(e) => handleNft(e.target)}>
-                  {getAssetTokensByFunc().map((token) => (
-                    <FormOption key={token.id.toString()} value={`${token.id.toString()}-${formatEther(token.value)}`}>
-                      #{token.id.toString()} - {truncateBalance(formatEther(token.value))}
-                    </FormOption>
-                  ))}
-                </FormSelect>
-                <div style={{ position: 'absolute', top: '70%' }}>
-                  Available: {func ? truncateBalance(formatEther(getAssetBalanceByFunc()), 6) : 0}
-                </div>
-              </ModalCell>
-            </Fragment>
+            <ModalCell>
+              <FormSelect value={nftSelection} onChange={(e) => handleNft(e.target)}>
+                {getAssetTokensByFunc().map((token) => (
+                  <FormOption key={token.id.toString()} value={`${token.id.toString()}-${formatEther(token.value)}`}>
+                    #{token.id.toString()} - {truncateBalance(formatEther(token.value))}
+                  </FormOption>
+                ))}
+              </FormSelect>
+              <div style={{ position: 'absolute', top: '70%' }}>
+                Available: {func ? truncateBalance(formatEther(getAssetBalanceByFunc()), 6) : 0}
+              </div>
+            </ModalCell>
           ) : (
             <Fragment>
               <ModalCell>
@@ -492,41 +526,8 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
             </Fragment>
           )}
         </ModalRow>
-        <RadioGroup>
-          {!gasPrices.loading ? (
-            gasPrices.options.map((option: GasFeeOption) => (
-              <RadioLabel key={option.key}>
-                <RadioInput
-                  type="radio"
-                  value={option.value}
-                  checked={selectedGasOption == option}
-                  onChange={() => handleSelectChange(option)}
-                />
-                <RadioElement>
-                  <div>{option.name}</div>
-                  <div>{option.value}</div>
-                </RadioElement>
-              </RadioLabel>
-            ))
-          ) : (
-            <Loader />
-          )}
-        </RadioGroup>
-        {func == FunctionName.DEPOSIT || func == FunctionName.DEPOSIT_ETH ? (
-          <ModalRow>
-            <ModalCell>
-              <RadioCircle>
-                <RadioCircleInput
-                  type="checkbox"
-                  checked={isStaking}
-                  onChange={(e) => setIsStaking(e.target.checked)}
-                />
-                <RadioCircleFigure></RadioCircleFigure>
-                <div>Automatically stake</div>
-              </RadioCircle>
-            </ModalCell>
-          </ModalRow>
-        ) : null}
+        <GasRadioGroup />
+        {(func == FunctionName.DEPOSIT || func == FunctionName.DEPOSIT_ETH) && <AutoStakeOption />}
         <ButtonWrapper>
           {!modalLoading ? (
             <ButtonWrapper>
