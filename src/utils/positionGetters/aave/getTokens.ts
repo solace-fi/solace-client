@@ -18,7 +18,7 @@ type Market = {
 const eth = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
 
 const NETWORKS_CONFIG: any = {
-  '4': [
+  '1': [
     {
       market: 'proto',
       nodeUrl: `https://eth-mainnet.alchemyapi.io/v2/${KEY}`,
