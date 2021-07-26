@@ -81,6 +81,7 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
   const [assessment, setAssessment] = useState<ClaimAssessment | null>(null)
   const [positionBalances, setPositionBalances] = useState<Token[]>([])
   const needApproval = useRef(true)
+  const canLoadOverTime = useRef(false)
 
   /*************************************************************************************
 
@@ -174,6 +175,21 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
 
   *************************************************************************************/
 
+  const getUserBalances = async () => {
+    if (!wallet.account || !wallet.library || !tokenPositionDataInitialized || !wallet.chainId || !selectedPolicy)
+      return
+    if (policyConfig[wallet.chainId]) {
+      try {
+        const balances: Token[] = await policyConfig[wallet.chainId ?? DEFAULT_CHAIN_ID].getBalances[
+          selectedPolicy.productName
+        ](wallet.account, wallet.library, wallet.chainId)
+        setPositionBalances(balances)
+      } catch (err) {
+        console.log(err)
+      }
+    }
+  }
+
   const handleClose = useCallback(() => {
     setClaimSubmitted(false)
     setModalLoading(false)
@@ -189,16 +205,11 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
 
   useEffect(() => {
     const load = async () => {
-      if (!selectedPolicy || !wallet.account || !isOpen || !wallet.library || !tokenPositionDataInitialized) return
+      if (!selectedPolicy || !isOpen) return
       if (selectedPolicy.productName == ProductName.AAVE) needApproval.current = false
       setAsyncLoading(true)
       if (policyConfig[wallet.chainId ?? DEFAULT_CHAIN_ID]) {
-        const balances: Token[] = await policyConfig[wallet.chainId ?? DEFAULT_CHAIN_ID].getBalances(
-          wallet.account,
-          wallet.library,
-          wallet.chainId
-        )
-        setPositionBalances(balances)
+        await getUserBalances()
       }
       if (needApproval.current) {
         const tokenContract = getContract(selectedPolicy.positionContract, cTokenABI, wallet.library, wallet.account)
@@ -207,10 +218,20 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
       }
       const assessment = await getClaimAssessment(String(selectedPolicy.policyId), wallet.chainId ?? DEFAULT_CHAIN_ID)
       setAssessment(assessment)
+      canLoadOverTime.current = true
       setAsyncLoading(false)
     }
     load()
   }, [isOpen, selectedPolicy, wallet.account, wallet.library, tokenPositionDataInitialized])
+
+  useEffect(() => {
+    const loadOverTime = async () => {
+      if (canLoadOverTime.current) {
+        await getUserBalances()
+      }
+    }
+    loadOverTime()
+  }, [latestBlock])
 
   /*************************************************************************************
 

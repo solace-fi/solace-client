@@ -153,15 +153,6 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
       canLoadOverTime.current = true
     }
     loadOnBoot()
-
-    return () => {
-      setForm({
-        target: {
-          name: 'loading',
-          value: true,
-        },
-      })
-    }
   }, [])
 
   useEffect(() => {

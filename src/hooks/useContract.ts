@@ -27,22 +27,18 @@ export function useGetProductContracts(): SupportedProduct[] {
     const contractCnfg = contractConfig[String(chainId ?? DEFAULT_CHAIN_ID)]
     const policyCnfg = policyConfig[String(chainId ?? DEFAULT_CHAIN_ID)]
     if (!library) return []
-    const signer = account ? true : false
     policyCnfg.supportedProducts.map((product: SupportedProduct, i: number) => {
       const name = product.name
-      if (!product.contract || signer !== product.signer) {
-        const productContractSources = contractCnfg.productContracts[name]
-        const contract = getContract(
-          productContractSources.addr,
-          productContractSources.abi,
-          library,
-          account ? account : undefined
-        )
-        policyCnfg.supportedProducts[i] = {
-          ...product,
-          contract: contract,
-          signer: signer,
-        }
+      const productContractSources = contractCnfg.productContracts[name]
+      const contract = getContract(
+        productContractSources.addr,
+        productContractSources.abi,
+        library,
+        account ? account : undefined
+      )
+      policyCnfg.supportedProducts[i] = {
+        ...product,
+        contract: contract,
       }
     })
     return policyCnfg.supportedProducts
