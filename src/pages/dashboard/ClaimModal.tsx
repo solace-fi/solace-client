@@ -156,7 +156,7 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
       makeTxToast(txType, TransactionCondition.PENDING, txHash)
       await tx.wait().then((receipt: any) => {
         const status = receipt.status ? TransactionCondition.SUCCESS : TransactionCondition.FAILURE
-        setClaimSubmitted(true)
+        if (receipt.status) setClaimSubmitted(true)
         makeTxToast(txType, status, txHash)
         reload()
       })
