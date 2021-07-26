@@ -70,7 +70,6 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
   useRef variables
 
   *************************************************************************************/
-  const canLoadOnChange = useRef(false)
   const canLoadOverTime = useRef(false)
 
   /*************************************************************************************
@@ -92,11 +91,21 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
   const getUserBalances = async () => {
     if (!account || !library || !tokenPositionDataInitialized || !chainId) return
     if (policyConfig[chainId]) {
-      const balances: Token[] = await policyConfig[chainId].getBalances[protocol.name](account, library, chainId)
+      const balances: Token[] = await policyConfig[String(chainId)].getBalances[protocol.name](
+        account,
+        library,
+        chainId
+      )
       setForm({
         target: {
           name: 'balances',
           value: balances,
+        },
+      })
+      setForm({
+        target: {
+          name: 'loading',
+          value: false,
         },
       })
     }
@@ -129,7 +138,7 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
   *************************************************************************************/
 
   useEffect(() => {
-    const initialLoad = async () => {
+    const loadOnChange = async () => {
       setForm({
         target: {
           name: 'loading',
@@ -137,35 +146,6 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
         },
       })
       await getUserBalances()
-      setForm({
-        target: {
-          name: 'loading',
-          value: false,
-        },
-      })
-    }
-    initialLoad()
-  }, [])
-
-  useEffect(() => {
-    const loadOnChange = async () => {
-      if (canLoadOnChange.current) {
-        setForm({
-          target: {
-            name: 'loading',
-            value: true,
-          },
-        })
-        await getUserBalances()
-        setForm({
-          target: {
-            name: 'loading',
-            value: false,
-          },
-        })
-      } else {
-        canLoadOnChange.current = true
-      }
     }
     loadOnChange()
   }, [account, chainId])

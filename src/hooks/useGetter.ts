@@ -21,7 +21,7 @@ export const usePolicyGetter = (
   const { policyManager } = useContracts()
   const [userPolicies, setUserPolicies] = useState<Policy[]>([])
   const [allPolicies, setAllPolicies] = useState<Policy[]>([])
-  const [policiesLoading, setPoliciesLoading] = useState<boolean>(false)
+  const [policiesLoading, setPoliciesLoading] = useState<boolean>(true)
   const mounting = useRef(true)
   const config = policyConfig[String(chainId ?? DEFAULT_CHAIN_ID)]
 

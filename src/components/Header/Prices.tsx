@@ -94,26 +94,6 @@ export const Prices = () => {
           </Heading3>
         </SmallBox>
       </SmallBox>
-      <SmallBox pl={10} navy>
-        <Heading3 autoAlign nowrap>
-          LP ROI
-        </Heading3>
-        <SmallBox ml={10} navy>
-          <Heading3 autoAlign green>
-            {LP_ROI}
-          </Heading3>
-        </SmallBox>
-      </SmallBox>
-      <SmallBox pl={10} navy>
-        <Heading3 autoAlign nowrap>
-          CP ROI
-        </Heading3>
-        <SmallBox ml={10} navy>
-          <Heading3 autoAlign green>
-            {CP_ROI}
-          </Heading3>
-        </SmallBox>
-      </SmallBox>
     </Price>
   )
 }
