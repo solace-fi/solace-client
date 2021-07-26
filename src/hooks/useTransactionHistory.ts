@@ -8,6 +8,7 @@ import { decodeInput } from '../utils/decoder'
 import { formatTransactionContent } from '../utils/formatting'
 import { useContracts } from '../context/ContractsManager'
 import { contractConfig } from '../utils/config/chainConfig'
+import { DEFAULT_CHAIN_ID } from '../constants'
 
 export const useTransactionDetails = (): { txHistory: any; amounts: string[] } => {
   const { library, chainId } = useWallet()
@@ -30,7 +31,10 @@ export const useTransactionDetails = (): { txHistory: any; amounts: string[] } =
     switch (function_name) {
       case FunctionName.DEPOSIT:
       case FunctionName.WITHDRAW:
-        if (receipt.to.toLowerCase() === contractConfig[String(chainId)].keyContracts.lpFarm.addr.toLowerCase()) {
+        if (
+          receipt.to.toLowerCase() ===
+          contractConfig[String(chainId ?? DEFAULT_CHAIN_ID)].keyContracts.lpFarm.addr.toLowerCase()
+        ) {
           const data = logs[logs.length - 1].data
           if (!data) return '0'
           return logs[logs.length - 1].data
@@ -73,7 +77,9 @@ export const useTransactionDetails = (): { txHistory: any; amounts: string[] } =
           currentAmounts.push('N/A')
         } else {
           const amount: string = await getTransactionAmount(function_name, txHistory[tx_i], library)
-          currentAmounts.push(`${formatTransactionContent(function_name, amount, chainId, txHistory[tx_i].to)}`)
+          currentAmounts.push(
+            `${formatTransactionContent(function_name, amount, chainId ?? DEFAULT_CHAIN_ID, txHistory[tx_i].to)}`
+          )
         }
       }
       setAmounts(currentAmounts)
@@ -94,7 +100,7 @@ export const useFetchTxHistoryByAddress = (): any => {
   const { contractSources } = useContracts()
 
   const fetchTxHistoryByAddress = async (account: string) => {
-    await fetchExplorerTxHistoryByAddress(chainId, account, contractSources).then((result) => {
+    await fetchExplorerTxHistoryByAddress(chainId ?? DEFAULT_CHAIN_ID, account, contractSources).then((result) => {
       deleteLocalTransactions(result.txList)
       setTxHistory(result.txList.slice(0, 30))
     })

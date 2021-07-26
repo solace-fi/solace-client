@@ -41,6 +41,7 @@ import { PositionCardLogo } from '../../components/Position'
 /* import utils */
 import { getNativeTokenUnit, truncateBalance } from '../../utils/formatting'
 import { getDays, getExpiration } from '../../utils/time'
+import { DEFAULT_CHAIN_ID } from '../../constants'
 
 interface MyPoliciesProps {
   openClaimModal: any
@@ -119,7 +120,7 @@ export const MyPolicies: React.FC<MyPoliciesProps> = ({ openClaimModal, openMana
                   </TableData>
                   <TableData>
                     {policy.coverAmount ? truncateBalance(parseFloat(formatEther(policy.coverAmount)), 2) : 0}{' '}
-                    {getNativeTokenUnit(wallet.chainId)}
+                    {getNativeTokenUnit(wallet.chainId ?? DEFAULT_CHAIN_ID)}
                   </TableData>
 
                   <TableData textAlignRight>

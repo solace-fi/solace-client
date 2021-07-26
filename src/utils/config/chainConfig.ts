@@ -14,6 +14,8 @@ import polMagABI from '../../constants/abi/contracts/PolicyManager.sol/PolicyMan
 import lpAppraisorABI from '../../constants/abi/contracts/LpAppraisor.sol/LpAppraisor.json'
 
 import { ProductName } from '../../constants/enums'
+import { getTokens as comp1Tokens } from '../positionGetters/compound/mainnet/getTokens'
+import { getBalances as comp1Balances } from '../positionGetters/compound/mainnet/getBalances'
 import { getTokens as comp4Tokens } from '../positionGetters/compound/rinkeby/getTokens'
 import { getBalances as comp4Balances } from '../positionGetters/compound/rinkeby/getBalances'
 import { getTokens as aave42Tokens } from '../positionGetters/aave/getTokens'
@@ -77,7 +79,6 @@ export const contractConfig: any = {
         abi: compAbi,
       },
     },
-    supportedProducts: [{ name: ProductName.COMPOUND }],
   },
   '42': {
     keyContracts: {
@@ -136,25 +137,26 @@ export const contractConfig: any = {
         abi: aaveAbi,
       },
     },
-    supportedProducts: [{ name: ProductName.AAVE }],
   },
 }
 
 export const policyConfig: any = {
   '4': {
+    supportedProducts: [{ name: ProductName.COMPOUND }],
     productsRev: {
       [String(process.env.REACT_APP_RINKEBY_COMPOUND_PRODUCT_ADDR)]: ProductName.COMPOUND,
     },
-    getTokens: comp4Tokens,
-    getBalances: comp4Balances,
-    initialized: false,
+    tokens: { [ProductName.COMPOUND]: { getTokens: comp4Tokens, savedTokens: [], tokensInitialized: false } },
+    getBalances: { [ProductName.COMPOUND]: comp4Balances },
+    positions: { [ProductName.COMPOUND]: { positionNamesInitialized: false } },
   },
   '42': {
+    supportedProducts: [{ name: ProductName.AAVE }],
     productsRev: {
       [String(process.env.REACT_APP_KOVAN_AAVE_PRODUCT_ADDR)]: ProductName.AAVE,
     },
-    getTokens: aave42Tokens,
-    getBalances: aave42Balances,
-    initialized: false,
+    tokens: { [ProductName.AAVE]: { getTokens: aave42Tokens, savedTokens: [], tokensInitialized: false } },
+    getBalances: { [ProductName.AAVE]: aave42Balances },
+    positions: { [ProductName.AAVE]: { positionNamesInitialized: false } },
   },
 }

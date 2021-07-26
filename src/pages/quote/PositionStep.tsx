@@ -55,7 +55,7 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
 
   const { account, chainId, library, errors } = useWallet()
   const { setSelectedProtocolByName } = useContracts()
-  const { userPolicyData, latestBlock } = useCachedData()
+  const { userPolicyData, latestBlock, tokenPositionDataInitialized } = useCachedData()
 
   /*************************************************************************************
 
@@ -89,10 +89,10 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
     navigation.next()
   }
 
-  const getBalances = async () => {
-    if (!account || !library) return
+  const getUserBalances = async () => {
+    if (!account || !library || !tokenPositionDataInitialized || !chainId) return
     if (policyConfig[chainId]) {
-      const balances: Token[] = await policyConfig[chainId].getBalances(account, library, chainId)
+      const balances: Token[] = await policyConfig[chainId].getBalances[protocol.name](account, library, chainId)
       setForm({
         target: {
           name: 'balances',
@@ -136,7 +136,7 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
           value: true,
         },
       })
-      await getBalances()
+      await getUserBalances()
       setForm({
         target: {
           name: 'loading',
@@ -156,7 +156,7 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
             value: true,
           },
         })
-        await getBalances()
+        await getUserBalances()
         setForm({
           target: {
             name: 'loading',
@@ -173,7 +173,7 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
   useEffect(() => {
     const loadOverTime = async () => {
       if (canLoadOverTime.current) {
-        await getBalances()
+        await getUserBalances()
       } else {
         canLoadOverTime.current = true
       }

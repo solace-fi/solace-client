@@ -46,7 +46,7 @@ import { Table, TableBody, TableRow, TableData } from '../../components/Table'
 /* import constants */
 import { FunctionName, TransactionCondition, Unit, ProductName } from '../../constants/enums'
 import cTokenABI from '../../constants/abi/contracts/interface/ICToken.sol/ICToken.json'
-import { GAS_LIMIT } from '../../constants'
+import { DEFAULT_CHAIN_ID, GAS_LIMIT } from '../../constants'
 import { Token, Policy, ClaimAssessment } from '../../constants/types'
 
 /* import hooks */
@@ -90,7 +90,7 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
 
   const cooldown = useGetCooldownPeriod()
   const tokenAllowance = useTokenAllowance(contractForAllowance, spenderAddress)
-  const { addLocalTransactions, reload, gasPrices } = useCachedData()
+  const { addLocalTransactions, reload, gasPrices, tokenPositionDataInitialized } = useCachedData()
   const { selectedProtocol, getProtocolByName } = useContracts()
   const { makeTxToast } = useToasts()
   const wallet = useWallet()
@@ -189,11 +189,11 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
 
   useEffect(() => {
     const load = async () => {
-      if (!selectedPolicy || !wallet.account || !isOpen || !wallet.library) return
+      if (!selectedPolicy || !wallet.account || !isOpen || !wallet.library || !tokenPositionDataInitialized) return
       if (selectedPolicy.productName == ProductName.AAVE) needApproval.current = false
       setAsyncLoading(true)
-      if (policyConfig[wallet.chainId]) {
-        const balances: Token[] = await policyConfig[wallet.chainId].getBalances(
+      if (policyConfig[wallet.chainId ?? DEFAULT_CHAIN_ID]) {
+        const balances: Token[] = await policyConfig[wallet.chainId ?? DEFAULT_CHAIN_ID].getBalances(
           wallet.account,
           wallet.library,
           wallet.chainId
@@ -205,12 +205,12 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
         setContractForAllowance(tokenContract)
         setSpenderAddress(getProtocolByName(selectedPolicy.productName)?.address || null)
       }
-      const assessment = await getClaimAssessment(String(selectedPolicy.policyId), wallet.chainId)
+      const assessment = await getClaimAssessment(String(selectedPolicy.policyId), wallet.chainId ?? DEFAULT_CHAIN_ID)
       setAssessment(assessment)
       setAsyncLoading(false)
     }
     load()
-  }, [isOpen, selectedPolicy, wallet.account, wallet.library])
+  }, [isOpen, selectedPolicy, wallet.account, wallet.library, tokenPositionDataInitialized])
 
   /*************************************************************************************
 

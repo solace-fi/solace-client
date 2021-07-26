@@ -10,6 +10,7 @@ import { getExplorerItemUrl } from '../../utils/explorer'
 import { ExplorerscanApi } from '../../constants/enums'
 
 import { StyledCheckmark, StyledWarning } from '../Icon'
+import { DEFAULT_CHAIN_ID } from '../../constants'
 
 interface AppToastProps {
   message: string
@@ -55,7 +56,7 @@ export const NotificationToast: React.FC<NotificationToastProps> = ({ message, c
       <FlexedMessage>
         {txHash && (
           <HyperLink
-            href={getExplorerItemUrl(chainId, txHash, ExplorerscanApi.TX)}
+            href={getExplorerItemUrl(chainId ?? DEFAULT_CHAIN_ID, txHash, ExplorerscanApi.TX)}
             target="_blank"
             rel="noopener noreferrer"
           >

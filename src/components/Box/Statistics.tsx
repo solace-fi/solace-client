@@ -27,7 +27,7 @@ import React, { useEffect, useState } from 'react'
 import { formatEther, parseEther } from '@ethersproject/units'
 
 /* import constants */
-import { GAS_LIMIT } from '../../constants'
+import { DEFAULT_CHAIN_ID, GAS_LIMIT } from '../../constants'
 import { TransactionCondition, FunctionName, Unit, PolicyState } from '../../constants/enums'
 
 /* import managers */
@@ -63,11 +63,18 @@ export const Statistics = () => {
   const wallet = useWallet()
   const { master } = useContracts()
   const { makeTxToast } = useToasts()
-  const { addLocalTransactions, reload, gasPrices, latestBlock, version } = useCachedData()
+  const {
+    addLocalTransactions,
+    reload,
+    gasPrices,
+    tokenPositionDataInitialized,
+    latestBlock,
+    version,
+  } = useCachedData()
   const capitalPoolSize = useCapitalPoolSize()
   const solaceBalance = useSolaceBalance()
   const totalUserRewards = useTotalPendingRewards()
-  const { allPolicies } = usePolicyGetter(true, latestBlock, version)
+  const { allPolicies } = usePolicyGetter(true, latestBlock, tokenPositionDataInitialized, version)
   const totalValueLocked = useGetTotalValueLocked()
 
   /*************************************************************************************
@@ -185,14 +192,14 @@ export const Statistics = () => {
           <BoxItemTitle h3>Capital Pool Size</BoxItemTitle>
           <Text h2 nowrap>
             {`${truncateBalance(floatEther(parseEther(capitalPoolSize)), 1)} `}
-            <TextSpan h3>{getNativeTokenUnit(wallet.chainId)}</TextSpan>
+            <TextSpan h3>{getNativeTokenUnit(wallet.chainId ?? DEFAULT_CHAIN_ID)}</TextSpan>
           </Text>
         </BoxItem>
         <BoxItem>
           <BoxItemTitle h3>Total Value Locked</BoxItemTitle>
           <Text h2 nowrap>
             {`${truncateBalance(parseFloat(totalValueLocked), 1)} `}
-            <TextSpan h3>{getNativeTokenUnit(wallet.chainId)}</TextSpan>
+            <TextSpan h3>{getNativeTokenUnit(wallet.chainId ?? DEFAULT_CHAIN_ID)}</TextSpan>
           </Text>
         </BoxItem>
         <BoxItem>
@@ -201,7 +208,7 @@ export const Statistics = () => {
             {totalActiveCoverAmount !== '-'
               ? `${truncateBalance(parseFloat(formatEther(totalActiveCoverAmount.toString())), 2)} `
               : `${totalActiveCoverAmount} `}
-            <TextSpan h3>{getNativeTokenUnit(wallet.chainId)}</TextSpan>
+            <TextSpan h3>{getNativeTokenUnit(wallet.chainId ?? DEFAULT_CHAIN_ID)}</TextSpan>
           </Text>
         </BoxItem>
         <BoxItem>

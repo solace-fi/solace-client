@@ -28,7 +28,7 @@ import styled from 'styled-components'
 import useDebounce from '@rooks/use-debounce'
 
 /* import constants */
-import { DAYS_PER_YEAR, NUM_BLOCKS_PER_DAY } from '../../constants'
+import { DAYS_PER_YEAR, DEFAULT_CHAIN_ID, NUM_BLOCKS_PER_DAY } from '../../constants'
 
 /* import context */
 import { useContracts } from '../../context/ContractsManager'
@@ -172,7 +172,7 @@ export const ProtocolStep: React.FC<formProps> = ({ setForm, navigation }) => {
                     %
                   </TableData>
                   <TableData>
-                    {handleAvailableCoverage(protocol)} {getNativeTokenUnit(wallet.chainId)}
+                    {handleAvailableCoverage(protocol)} {getNativeTokenUnit(wallet.chainId ?? DEFAULT_CHAIN_ID)}
                   </TableData>
                   <TableData textAlignRight>
                     <Button disabled={wallet.errors.length > 0}>Select</Button>

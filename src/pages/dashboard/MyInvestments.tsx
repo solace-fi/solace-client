@@ -33,6 +33,7 @@ import { useUserPendingRewards, useUserRewardsPerDay } from '../../hooks/useRewa
 
 /* import utils */
 import { getNativeTokenUnit, truncateBalance } from '../../utils/formatting'
+import { DEFAULT_CHAIN_ID } from '../../constants'
 
 export const MyInvestments = () => {
   /*************************************************************************************
@@ -64,7 +65,7 @@ export const MyInvestments = () => {
             <CardTitle h2>Capital Pool</CardTitle>
             <Heading3>
               {wallet.account ? truncateBalance(parseFloat(cpUserStakeValue), 2) : 0}{' '}
-              {getNativeTokenUnit(wallet.chainId)}
+              {getNativeTokenUnit(wallet.chainId ?? DEFAULT_CHAIN_ID)}
             </Heading3>
           </CardHeader>
           <CardBlock>

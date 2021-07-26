@@ -7,7 +7,7 @@ import { RadioCircle, RadioCircleFigure, RadioCircleInput } from '../../componen
 import { Button, ButtonWrapper } from '../../components/Button'
 import { formatEther, parseEther } from '@ethersproject/units'
 import { BigNumber as BN } from 'ethers'
-import { ZERO, GAS_LIMIT, POW_NINE, DEADLINE } from '../../constants'
+import { ZERO, GAS_LIMIT, POW_NINE, DEADLINE, DEFAULT_CHAIN_ID } from '../../constants'
 import { FunctionName, TransactionCondition } from '../../constants/enums'
 import { useContracts } from '../../context/ContractsManager'
 import { useUserStakedValue } from '../../hooks/useFarm'
@@ -70,7 +70,7 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
         type: txType,
         value: amount,
         status: TransactionCondition.PENDING,
-        unit: getUnit(func, wallet.chainId),
+        unit: getUnit(func, wallet.chainId ?? DEFAULT_CHAIN_ID),
       }
       handleClose()
       addLocalTransactions(localTx)
@@ -105,7 +105,7 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
         type: txType,
         value: amount,
         status: TransactionCondition.PENDING,
-        unit: getUnit(func, wallet.chainId),
+        unit: getUnit(func, wallet.chainId ?? DEFAULT_CHAIN_ID),
       }
       handleClose()
       addLocalTransactions(localTx)
@@ -161,7 +161,7 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
         type: txType,
         value: amount,
         status: TransactionCondition.PENDING,
-        unit: getUnit(func, wallet.chainId),
+        unit: getUnit(func, wallet.chainId ?? DEFAULT_CHAIN_ID),
       }
       handleClose()
       addLocalTransactions(localTx)
@@ -195,7 +195,7 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
         type: txType,
         value: amount,
         status: TransactionCondition.PENDING,
-        unit: getUnit(func, wallet.chainId),
+        unit: getUnit(func, wallet.chainId ?? DEFAULT_CHAIN_ID),
       }
       handleClose()
       addLocalTransactions(localTx)
@@ -229,7 +229,7 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
         type: txType,
         value: amount,
         status: TransactionCondition.PENDING,
-        unit: getUnit(func, wallet.chainId),
+        unit: getUnit(func, wallet.chainId ?? DEFAULT_CHAIN_ID),
       }
       handleClose()
       addLocalTransactions(localTx)
@@ -261,7 +261,7 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
         type: txType,
         value: `#${nft.toString()}`,
         status: TransactionCondition.PENDING,
-        unit: getUnit(func, wallet.chainId),
+        unit: getUnit(func, wallet.chainId ?? DEFAULT_CHAIN_ID),
       }
       handleClose()
       addLocalTransactions(localTx)
@@ -292,7 +292,7 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
         type: txType,
         value: `#${nft.toString()}`,
         status: TransactionCondition.PENDING,
-        unit: getUnit(func, wallet.chainId),
+        unit: getUnit(func, wallet.chainId ?? DEFAULT_CHAIN_ID),
       }
       handleClose()
       addLocalTransactions(localTx)
@@ -475,7 +475,7 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
     <Modal isOpen={isOpen} handleClose={handleClose} modalTitle={modalTitle} disableCloseButton={modalLoading}>
       <Fragment>
         <ModalRow>
-          <ModalCell t2>{getUnit(func, wallet.chainId)}</ModalCell>
+          <ModalCell t2>{getUnit(func, wallet.chainId ?? DEFAULT_CHAIN_ID)}</ModalCell>
           {func == FunctionName.DEPOSIT_SIGNED || func == FunctionName.WITHDRAW_LP ? (
             <ModalCell>
               <FormSelect value={nftSelection} onChange={(e) => handleNft(e.target)}>
