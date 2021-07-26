@@ -1,12 +1,14 @@
-import { getTokens } from './getTokens'
 import { Token } from '../../../constants/types'
 import ierc20Json from '../contracts/IERC20Metadata.json'
 import { rangeFrom0 } from '../../numeric'
 import { addNativeTokenBalances, getProductTokenBalances } from '../getBalances'
+import { policyConfig } from '../../config/chainConfig'
+import { ProductName } from '../../../constants/enums'
 
 export const getBalances = async (user: string, provider: any, chainId: number): Promise<Token[]> => {
   // get atoken balances
-  const balances: Token[] = await getProductTokenBalances(user, ierc20Json.abi, getTokens, provider)
+  const savedTokens = policyConfig[String(chainId)].tokens[ProductName.AAVE].savedTokens
+  const balances: Token[] = await getProductTokenBalances(user, ierc20Json.abi, savedTokens, provider)
 
   //get utoken balances
   const indices = rangeFrom0(balances.length)

@@ -39,7 +39,7 @@ import { Content } from '../../components/Layout'
 
 /* import constants */
 import { FunctionName, TransactionCondition, Unit } from '../../constants/enums'
-import { GAS_LIMIT } from '../../constants'
+import { DEFAULT_CHAIN_ID, GAS_LIMIT } from '../../constants'
 import { ClaimDetails } from '../../constants/types'
 
 /* import hooks */
@@ -123,7 +123,7 @@ export const MyClaims = () => {
                         {parseFloat(formatEther(claim.amount)) >= 1
                           ? truncateBalance(parseFloat(formatEther(claim.amount)))
                           : formatEther(claim.amount)}{' '}
-                        {getNativeTokenUnit(wallet.chainId)}
+                        {getNativeTokenUnit(wallet.chainId ?? DEFAULT_CHAIN_ID)}
                       </Text>
                     </BoxItem>
                     <BoxItem>

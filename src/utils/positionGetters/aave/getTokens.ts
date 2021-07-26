@@ -63,10 +63,10 @@ const generateTokensData = async (
         helperContract.getReserveConfigurationData(token.tokenAddress),
       ])
 
-      console.log('tokens:', tokens)
-      console.log('aTokens:', aTokens)
-      console.log('reserve:', reserve)
-      console.log('config:', config)
+      // console.log('tokens:', tokens)
+      // console.log('aTokens:', aTokens)
+      // console.log('reserve:', reserve)
+      // console.log('config:', config)
 
       const aToken = aTokens.find((aToken) => aToken.tokenAddress === reserve.aTokenAddress)
       if (!aToken)

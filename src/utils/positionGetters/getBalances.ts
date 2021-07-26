@@ -11,10 +11,10 @@ const ETH = '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee'
 export const getProductTokenBalances = async (
   user: string,
   abi: any,
-  getTokensFunc: (provider: any) => Promise<Token[]>,
+  tokens: Token[],
   provider: any
 ): Promise<Token[]> => {
-  const tokens = await getTokensFunc(provider)
+  if (tokens.length == 0) return []
   const contracts = tokens.map((token) => new Contract(token.token.address, abi, provider))
   const queriedBalances = await Promise.all(contracts.map((contract) => queryBalance(user, contract)))
   const indices = rangeFrom0(tokens.length)

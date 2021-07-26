@@ -24,6 +24,7 @@ import { decodeInput } from '../utils/decoder'
 import styled from 'styled-components'
 import { ExplorerscanApi } from '../constants/enums'
 import { useContracts } from '../context/ContractsManager'
+import { DEFAULT_CHAIN_ID } from '../constants'
 
 const Scrollable = styled.div`
   max-height: 60vh;
@@ -68,7 +69,7 @@ export const TransactionHistory: React.FC = () => {
               </TableData>
               <TableData pt={10} pb={10}>
                 <HyperLink
-                  href={getExplorerItemUrl(wallet.chainId, pendingtx.hash, ExplorerscanApi.TX)}
+                  href={getExplorerItemUrl(wallet.chainId ?? DEFAULT_CHAIN_ID, pendingtx.hash, ExplorerscanApi.TX)}
                   target="_blank"
                   rel="noopener noreferrer"
                 >
@@ -99,7 +100,7 @@ export const TransactionHistory: React.FC = () => {
                 <TableData pt={10} pb={10}>
                   {amounts.length > 0 && (
                     <HyperLink
-                      href={getExplorerItemUrl(wallet.chainId, tx.hash, ExplorerscanApi.TX)}
+                      href={getExplorerItemUrl(wallet.chainId ?? DEFAULT_CHAIN_ID, tx.hash, ExplorerscanApi.TX)}
                       target="_blank"
                       rel="noopener noreferrer"
                     >

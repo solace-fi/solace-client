@@ -9,6 +9,7 @@ import { useInterval } from '../hooks/useInterval'
 
 import { useFetchGasPrice } from '../hooks/useFetchGasPrice'
 import { useGetLatestBlockNumber } from '../hooks/useGetLatestBlockNumber'
+import { useGetTokens } from '../hooks/useGetTokens'
 /*
 
 This manager caches data concerning the user's assets, operations, or preferences into the
@@ -19,6 +20,7 @@ web app.
 type CachedData = {
   localTransactions: LocalTx[]
   userPolicyData: { policiesLoading: boolean; userPolicies: Policy[] }
+  tokenPositionDataInitialized: boolean
   version: number
   dataVersion?: number
   gasPrices?: any
@@ -32,6 +34,7 @@ type CachedData = {
 const CachedDataContext = createContext<CachedData>({
   localTransactions: [],
   userPolicyData: { policiesLoading: false, userPolicies: [] },
+  tokenPositionDataInitialized: false,
   version: 0,
   dataVersion: undefined,
   gasPrices: undefined,
@@ -49,7 +52,8 @@ const CachedDataProvider: React.FC = (props) => {
   const [dataReload, dataVersion] = useReload()
   const gasPrices = useFetchGasPrice()
   const latestBlock = useGetLatestBlockNumber(dataVersion)
-  const { policiesLoading, userPolicies } = usePolicyGetter(false, latestBlock, version, account)
+  const dataInitialized = useGetTokens()
+  const { policiesLoading, userPolicies } = usePolicyGetter(false, latestBlock, dataInitialized, version, account)
 
   const addLocalTransactions = (txToAdd: LocalTx) => {
     setLocalTxs([txToAdd, ...localTxs])
@@ -79,6 +83,7 @@ const CachedDataProvider: React.FC = (props) => {
     () => ({
       localTransactions: localTxs,
       userPolicyData: { policiesLoading, userPolicies },
+      tokenPositionDataInitialized: dataInitialized,
       version,
       dataVersion,
       gasPrices,
@@ -92,6 +97,7 @@ const CachedDataProvider: React.FC = (props) => {
       localTxs,
       addLocalTransactions,
       deleteLocalTransactions,
+      dataInitialized,
       version,
       dataVersion,
       latestBlock,

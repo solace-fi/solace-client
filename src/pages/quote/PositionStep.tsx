@@ -55,7 +55,7 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
 
   const { account, chainId, library, errors } = useWallet()
   const { setSelectedProtocolByName } = useContracts()
-  const { userPolicyData, latestBlock } = useCachedData()
+  const { userPolicyData, latestBlock, tokenPositionDataInitialized } = useCachedData()
 
   /*************************************************************************************
 
@@ -70,7 +70,6 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
   useRef variables
 
   *************************************************************************************/
-  const canLoadOnChange = useRef(false)
   const canLoadOverTime = useRef(false)
 
   /*************************************************************************************
@@ -89,16 +88,30 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
     navigation.next()
   }
 
-  const getBalances = async () => {
-    if (!account || !library) return
+  const getUserBalances = async () => {
+    if (!account || !library || !tokenPositionDataInitialized || !chainId) return
     if (policyConfig[chainId]) {
-      const balances: Token[] = await policyConfig[chainId].getBalances(account, library, chainId)
-      setForm({
-        target: {
-          name: 'balances',
-          value: balances,
-        },
-      })
+      try {
+        const balances: Token[] = await policyConfig[String(chainId)].getBalances[protocol.name](
+          account,
+          library,
+          chainId
+        )
+        setForm({
+          target: {
+            name: 'balances',
+            value: balances,
+          },
+        })
+        setForm({
+          target: {
+            name: 'loading',
+            value: false,
+          },
+        })
+      } catch (err) {
+        console.log(err)
+      }
     }
   }
 
@@ -129,53 +142,32 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
   *************************************************************************************/
 
   useEffect(() => {
-    const initialLoad = async () => {
+    const loadOnBoot = async () => {
       setForm({
         target: {
           name: 'loading',
           value: true,
         },
       })
-      await getBalances()
+      await getUserBalances()
+      canLoadOverTime.current = true
+    }
+    loadOnBoot()
+
+    return () => {
       setForm({
         target: {
           name: 'loading',
-          value: false,
+          value: true,
         },
       })
     }
-    initialLoad()
   }, [])
-
-  useEffect(() => {
-    const loadOnChange = async () => {
-      if (canLoadOnChange.current) {
-        setForm({
-          target: {
-            name: 'loading',
-            value: true,
-          },
-        })
-        await getBalances()
-        setForm({
-          target: {
-            name: 'loading',
-            value: false,
-          },
-        })
-      } else {
-        canLoadOnChange.current = true
-      }
-    }
-    loadOnChange()
-  }, [account, chainId])
 
   useEffect(() => {
     const loadOverTime = async () => {
       if (canLoadOverTime.current) {
-        await getBalances()
-      } else {
-        canLoadOverTime.current = true
+        await getUserBalances()
       }
     }
     loadOverTime()

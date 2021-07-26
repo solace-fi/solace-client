@@ -5,6 +5,7 @@ import { contractConfig } from '../utils/config/chainConfig'
 import { useContractArray, useGetContract, useGetProductContracts } from '../hooks/useContract'
 import { useWallet } from './WalletManager'
 import { ContractSources, SupportedProduct } from '../constants/types'
+import { DEFAULT_CHAIN_ID } from '../constants'
 
 /*
 
@@ -57,7 +58,7 @@ const ContractsProvider: React.FC = (props) => {
   const [selectedProtocol, setSelectedProtocol] = useState<Contract | null>(null)
   const { chainId } = useWallet()
   const contractSources = useContractArray()
-  const keyContracts = useMemo(() => contractConfig[String(chainId)].keyContracts, [chainId])
+  const keyContracts = useMemo(() => contractConfig[String(chainId ?? DEFAULT_CHAIN_ID)].keyContracts, [chainId])
 
   const master = useGetContract(keyContracts.master.addr, keyContracts.master.abi)
   const vault = useGetContract(keyContracts.vault.addr, keyContracts.vault.abi)

@@ -28,7 +28,7 @@ import { useCoingeckoPrice } from '@usedapp/coingecko'
 import { useWallet } from '../../context/WalletManager'
 
 /* import constants */
-import { CP_ROI, LP_ROI, MAX_PRICES_SCREEN_WIDTH } from '../../constants/'
+import { CP_ROI, DEFAULT_CHAIN_ID, LP_ROI, MAX_PRICES_SCREEN_WIDTH } from '../../constants/'
 import { Unit } from '../../constants/enums'
 
 /* import components */
@@ -69,7 +69,7 @@ const unitToNameMap: any = {
 export const Prices = () => {
   const { chainId } = useWallet()
   const pairPrice = usePairPrice()
-  const nativeToken = getNativeTokenUnit(chainId)
+  const nativeToken = getNativeTokenUnit(chainId ?? DEFAULT_CHAIN_ID)
   const coinPrice = useCoingeckoPrice(unitToNameMap[nativeToken], 'usd')
 
   return (
@@ -91,26 +91,6 @@ export const Prices = () => {
         <SmallBox ml={10} navy>
           <Heading3 autoAlign green>
             ${coinPrice ? coinPrice : '-'}
-          </Heading3>
-        </SmallBox>
-      </SmallBox>
-      <SmallBox pl={10} navy>
-        <Heading3 autoAlign nowrap>
-          LP ROI
-        </Heading3>
-        <SmallBox ml={10} navy>
-          <Heading3 autoAlign green>
-            {LP_ROI}
-          </Heading3>
-        </SmallBox>
-      </SmallBox>
-      <SmallBox pl={10} navy>
-        <Heading3 autoAlign nowrap>
-          CP ROI
-        </Heading3>
-        <SmallBox ml={10} navy>
-          <Heading3 autoAlign green>
-            {CP_ROI}
           </Heading3>
         </SmallBox>
       </SmallBox>

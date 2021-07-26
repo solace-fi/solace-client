@@ -3,45 +3,35 @@ import { rangeFrom0 } from '../utils/numeric'
 import { policyConfig } from '../utils/config/chainConfig'
 import { useWallet } from '../context/WalletManager'
 import { PolicyState } from '../constants/enums'
-import { Policy, Token } from '../constants/types'
+import { Policy } from '../constants/types'
 import { BigNumber } from 'ethers'
 import { useContracts } from '../context/ContractsManager'
 import { useState, useEffect, useRef } from 'react'
+import { DEFAULT_CHAIN_ID } from '../constants'
 
 export const usePolicyGetter = (
   getAll: boolean,
   latestBlock: number,
+  dataInit: boolean,
   version: number,
   policyHolder?: string,
   product?: string
 ) => {
   const { library, chainId, isActive } = useWallet()
   const { policyManager } = useContracts()
-  const config = policyConfig[String(chainId)]
   const [userPolicies, setUserPolicies] = useState<Policy[]>([])
   const [allPolicies, setAllPolicies] = useState<Policy[]>([])
-  const [policiesLoading, setPoliciesLoading] = useState<boolean>(false)
+  const [policiesLoading, setPoliciesLoading] = useState<boolean>(true)
   const mounting = useRef(true)
-
-  const checkInit = async () => {
-    if (!config.initialized && library) {
-      const tokens: Token[] = await config.getTokens(library)
-      const positionNames = tokens.reduce(
-        (names: any, token: any) => ({ ...names, [token.token.address.toLowerCase()]: token.underlying.symbol }),
-        {}
-      )
-      policyConfig[String(chainId)] = {
-        ...config,
-        positionNames,
-        initialized: true,
-      }
-    }
-  }
+  const config = policyConfig[String(chainId ?? DEFAULT_CHAIN_ID)]
 
   const getUserPolicies = async (policyHolder: string): Promise<Policy[]> => {
     if (!policyManager || !library) return []
     const blockNumber = await library.getBlockNumber()
-    const policyIds: BigNumber[] = await policyManager.listPolicies(policyHolder)
+    const policyIds: BigNumber[] = await policyManager.listPolicies(policyHolder).catch((err: any) => {
+      console.log(err)
+      return []
+    })
     const policies = await Promise.all(policyIds.map((policyId: BigNumber) => queryPolicy(policyId, blockNumber)))
     return policies
   }
@@ -62,20 +52,26 @@ export const usePolicyGetter = (
   }
 
   const getPolicies = async (policyHolder?: string, product?: string) => {
-    if (!config) return
-    await checkInit()
+    if (!config || !library) return
     let policies = await (policyHolder ? getUserPolicies(policyHolder) : getAllPolicies())
     policies = policies.filter((policy: any) => policy.policyId >= 0)
     if (product) policies = policies.filter((policy: any) => policy.productAddress.equalsIgnoreCase(product))
     policies.sort((a: any, b: any) => b.policyId - a.policyId) // newest first
-    const initializedConfig = policyConfig[String(chainId)]
-    policies.forEach(
-      (policy: Policy) => (policy.positionName = initializedConfig.positionNames[policy.positionContract.toLowerCase()])
-    )
-    if (policyHolder) {
-      setUserPolicies(policies)
-    } else {
-      setAllPolicies(policies)
+    const initializedConfig = policyConfig[String(chainId ?? DEFAULT_CHAIN_ID)]
+    try {
+      policies.forEach((policy: Policy) => {
+        const productPosition = initializedConfig.positions[config.productsRev[policy.productAddress] ?? '']
+        if (productPosition) {
+          policy.positionName = productPosition.positionNames[policy.positionContract.toLowerCase()]
+        }
+      })
+      if (policyHolder) {
+        setUserPolicies(policies)
+      } else {
+        setAllPolicies(policies)
+      }
+    } catch (err) {
+      console.log(err)
     }
   }
 
@@ -116,28 +112,30 @@ export const usePolicyGetter = (
     const loadOverTime = async () => {
       await getPolicies()
     }
-    if (policyHolder !== undefined || !library || !getAll) return
+    if (policyHolder !== undefined || !library || !getAll || !dataInit) return
+
     loadOverTime()
-  }, [latestBlock, library])
+  }, [latestBlock, library, dataInit])
 
   useEffect(() => {
     const loadOnBoot = async () => {
-      setPoliciesLoading(true)
       await getPolicies(policyHolder)
       setPoliciesLoading(false)
       mounting.current = false
     }
-    if (!policyHolder || !library || getAll) return
+    setPoliciesLoading(true)
+    if (!policyHolder || !library || getAll || !dataInit) return
     loadOnBoot()
-  }, [policyHolder, isActive, library])
+  }, [policyHolder, isActive, library, dataInit])
 
   useEffect(() => {
     const loadOverTime = async () => {
       await getPolicies(policyHolder)
     }
-    if (policyHolder == undefined || mounting.current || getAll) return
+    if (policyHolder == undefined || mounting.current || getAll || !dataInit) return
+
     loadOverTime()
-  }, [policyHolder, latestBlock, version])
+  }, [policyHolder, latestBlock, version, dataInit])
 
   return { policiesLoading, userPolicies, allPolicies }
 }

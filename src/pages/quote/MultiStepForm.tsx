@@ -101,7 +101,7 @@ const defaultData = {
   balances: [],
   coverageLimit: '5000',
   timePeriod: '180',
-  loading: false,
+  loading: true,
 }
 
 const steps = [{ id: 'protocol' }, { id: 'position' }, { id: 'coverage' }, { id: 'confirm' }]
