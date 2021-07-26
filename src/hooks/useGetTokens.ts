@@ -25,7 +25,7 @@ export const useGetTokens = (): boolean => {
             !policyConfig[String(chainId)].tokens[productName].tokensInitialized &&
             !policyConfig[String(chainId)].positions[productName].positionNamesInitialized
           ) {
-            const tokens: Token[] = await policyConfig[String(chainId)].tokens[productName].getTokens(library)
+            const tokens: Token[] = await policyConfig[String(chainId)].tokens[productName].getTokens(library, chainId)
             policyConfig[String(chainId)].tokens[productName] = {
               ...policyConfig[String(chainId)].tokens[productName],
               savedTokens: tokens,

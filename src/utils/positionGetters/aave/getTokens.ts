@@ -57,47 +57,18 @@ const generateTokensData = async (
 
   try {
     const [tokens, aTokens] = await Promise.all([helperContract.getAllReservesTokens(), helperContract.getAllATokens()])
-    const promises = tokens.map(async (token) => {
-      const [reserve, config] = await Promise.all([
-        helperContract.getReserveTokensAddresses(token.tokenAddress),
-        helperContract.getReserveConfigurationData(token.tokenAddress),
-      ])
+    console.log(tokens, aTokens)
+    const promises = tokens.map(async (token, index) => {
+      const [config] = await Promise.all([helperContract.getReserveConfigurationData(token.tokenAddress)])
 
-      // console.log('tokens:', tokens)
-      // console.log('aTokens:', aTokens)
-      // console.log('reserve:', reserve)
-      // console.log('config:', config)
-
-      const aToken = aTokens.find((aToken) => aToken.tokenAddress === reserve.aTokenAddress)
-      if (!aToken)
-        return {
-          token: {
-            address: '',
-            name: '',
-            symbol: '',
-            decimals: 0,
-            balance: ZERO,
-          },
-          underlying: {
-            address: '',
-            name: '',
-            symbol: '',
-            decimals: 0,
-            balance: ZERO,
-          },
-          eth: {
-            balance: ZERO,
-          },
-        }
-
+      const aToken = aTokens[index]
       const aTokenContract = new Contract(aToken.tokenAddress, ierc20Json.abi, provider)
       const tokenContract = new Contract(token.tokenAddress, ierc20Json.abi, provider)
-      const aTokenName: string = await queryTokenName(aTokenContract)
-      const tokenName: string = await queryTokenName(tokenContract)
+      const [aTokenName, tokenName] = await Promise.all([queryTokenName(aTokenContract), queryTokenName(tokenContract)])
 
       return {
         token: {
-          address: reserve.aTokenAddress,
+          address: aToken.tokenAddress,
           name: aTokenName,
           symbol: aToken ? aToken.symbol : '',
           decimals: config.decimals.toNumber(),
@@ -124,10 +95,8 @@ const generateTokensData = async (
   }
 }
 
-export const getTokens = async (provider: any): Promise<Token[]> => {
+export const getTokens = async (provider: any, chainId: number): Promise<Token[]> => {
   if (!provider) return []
-  const network = await provider.getNetwork()
-  const chainId = network.chainId
   let allTokens: Token[] = []
   await Promise.all(
     NETWORKS_CONFIG[String(chainId)].map((marketConfig: Market) =>
