@@ -91,23 +91,27 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
   const getUserBalances = async () => {
     if (!account || !library || !tokenPositionDataInitialized || !chainId) return
     if (policyConfig[chainId]) {
-      const balances: Token[] = await policyConfig[String(chainId)].getBalances[protocol.name](
-        account,
-        library,
-        chainId
-      )
-      setForm({
-        target: {
-          name: 'balances',
-          value: balances,
-        },
-      })
-      setForm({
-        target: {
-          name: 'loading',
-          value: false,
-        },
-      })
+      try {
+        const balances: Token[] = await policyConfig[String(chainId)].getBalances[protocol.name](
+          account,
+          library,
+          chainId
+        )
+        setForm({
+          target: {
+            name: 'balances',
+            value: balances,
+          },
+        })
+        setForm({
+          target: {
+            name: 'loading',
+            value: false,
+          },
+        })
+      } catch (err) {
+        console.log(err)
+      }
     }
   }
 
@@ -138,7 +142,7 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
   *************************************************************************************/
 
   useEffect(() => {
-    const loadOnChange = async () => {
+    const loadOnBoot = async () => {
       setForm({
         target: {
           name: 'loading',
@@ -146,16 +150,24 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
         },
       })
       await getUserBalances()
+      canLoadOverTime.current = true
     }
-    loadOnChange()
-  }, [account, chainId])
+    loadOnBoot()
+
+    return () => {
+      setForm({
+        target: {
+          name: 'loading',
+          value: true,
+        },
+      })
+    }
+  }, [])
 
   useEffect(() => {
     const loadOverTime = async () => {
       if (canLoadOverTime.current) {
         await getUserBalances()
-      } else {
-        canLoadOverTime.current = true
       }
     }
     loadOverTime()

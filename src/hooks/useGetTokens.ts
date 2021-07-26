@@ -17,7 +17,6 @@ export const useGetTokens = (): boolean => {
         running.current = false
         return
       }
-      console.log('initializing tokens and positions for all supported products, should only happen once per chain')
       const supportedProducts = policyConfig[String(chainId)].supportedProducts
       await Promise.all(
         supportedProducts.map(async (supportedProduct: any) => {
@@ -44,7 +43,6 @@ export const useGetTokens = (): boolean => {
           }
         })
       )
-      console.log('initializing tokens and positions complete')
       setDataInitialized(true)
       running.current = false
     }

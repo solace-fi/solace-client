@@ -28,7 +28,10 @@ export const usePolicyGetter = (
   const getUserPolicies = async (policyHolder: string): Promise<Policy[]> => {
     if (!policyManager || !library) return []
     const blockNumber = await library.getBlockNumber()
-    const policyIds: BigNumber[] = await policyManager.listPolicies(policyHolder).catch((err: any) => console.log(err))
+    const policyIds: BigNumber[] = await policyManager.listPolicies(policyHolder).catch((err: any) => {
+      console.log(err)
+      return []
+    })
     const policies = await Promise.all(policyIds.map((policyId: BigNumber) => queryPolicy(policyId, blockNumber)))
     return policies
   }
@@ -55,16 +58,20 @@ export const usePolicyGetter = (
     if (product) policies = policies.filter((policy: any) => policy.productAddress.equalsIgnoreCase(product))
     policies.sort((a: any, b: any) => b.policyId - a.policyId) // newest first
     const initializedConfig = policyConfig[String(chainId ?? DEFAULT_CHAIN_ID)]
-    policies.forEach((policy: Policy) => {
-      const productPosition = initializedConfig.positions[config.productsRev[policy.productAddress] ?? '']
-      if (productPosition) {
-        policy.positionName = productPosition.positionNames[policy.positionContract.toLowerCase()]
+    try {
+      policies.forEach((policy: Policy) => {
+        const productPosition = initializedConfig.positions[config.productsRev[policy.productAddress] ?? '']
+        if (productPosition) {
+          policy.positionName = productPosition.positionNames[policy.positionContract.toLowerCase()]
+        }
+      })
+      if (policyHolder) {
+        setUserPolicies(policies)
+      } else {
+        setAllPolicies(policies)
       }
-    })
-    if (policyHolder) {
-      setUserPolicies(policies)
-    } else {
-      setAllPolicies(policies)
+    } catch (err) {
+      console.log(err)
     }
   }
 
