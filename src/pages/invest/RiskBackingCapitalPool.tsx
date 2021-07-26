@@ -1,16 +1,14 @@
-import React, { Fragment, useState, useEffect } from 'react'
+import React, { Fragment } from 'react'
 import { Content } from '../../components/Layout'
-import { Heading1 } from '../../components/Text'
+import { Heading1 } from '../../components/Typography'
 import { Table, TableHead, TableRow, TableHeader, TableBody, TableData, TableDataGroup } from '../../components/Table'
-import { CP_ROI, ZERO } from '../../constants'
+import { CP_ROI } from '../../constants'
 import { useWallet } from '../../context/WalletManager'
 import { Button } from '../../components/Button'
 import { parseEther } from '@ethersproject/units'
 import { floatEther, truncateBalance } from '../../utils/formatting'
 import { FunctionName } from '../../constants/enums'
-import { useCapitalPoolSize, useScpBalance } from '../../hooks/useVault'
-import { useContracts } from '../../context/ContractsManager'
-import { formatEther } from '@ethersproject/units'
+import { useCapitalPoolSize, useUserVaultDetails } from '../../hooks/useVault'
 
 interface RiskBackingCapitalPoolProps {
   openModal: (func: FunctionName, modalTitle: string) => void
@@ -18,32 +16,8 @@ interface RiskBackingCapitalPoolProps {
 
 export const RiskBackingCapitalPool: React.FC<RiskBackingCapitalPoolProps> = ({ openModal }) => {
   const wallet = useWallet()
-  const [userVaultAssets, setUserVaultAssets] = useState<string>('0.00')
-  const [userVaultShare, setUserVaultShare] = useState<number>(0)
+  const { userVaultAssets, userVaultShare } = useUserVaultDetails()
   const capitalPoolSize = useCapitalPoolSize()
-  const { cpFarm, vault } = useContracts()
-  const scpBalance = useScpBalance()
-
-  const getUserVaultDetails = async () => {
-    if (!cpFarm?.provider || !vault?.provider || !wallet.account) return
-    try {
-      const totalSupply = await vault.totalSupply()
-      const userInfo = await cpFarm.userInfo(wallet.account)
-      const value = userInfo.value
-      const cpBalance = parseEther(scpBalance)
-      const userAssets = cpBalance.add(value)
-      const userShare = totalSupply.gt(ZERO) ? floatEther(userAssets.mul(100)) / floatEther(totalSupply) : 0
-      const formattedAssets = formatEther(userAssets)
-      setUserVaultAssets(formattedAssets)
-      setUserVaultShare(userShare)
-    } catch (err) {
-      console.log('error getUserVaultShare ', err)
-    }
-  }
-
-  useEffect(() => {
-    getUserVaultDetails()
-  }, [wallet.library, wallet.version, wallet.account, scpBalance, cpFarm, vault])
 
   return (
     <Content>

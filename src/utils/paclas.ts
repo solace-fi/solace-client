@@ -1,9 +1,9 @@
 import { ClaimAssessment } from '../constants/types'
+import axios from 'axios'
 
-export async function getClaimAssessment(policyId: string): Promise<ClaimAssessment> {
-  return fetch(`https://paclas.solace.fi/claims/assess?policyid=${policyId}`)
-    .then((result) => result.json())
-    .then((result) => {
-      return result
-    })
+export async function getClaimAssessment(policyId: string, chainId: number): Promise<ClaimAssessment> {
+  const { data } = await axios.get(`https://paclas.solace.fi/claims/assess`, {
+    params: { chainid: chainId, policyid: policyId },
+  })
+  return data
 }

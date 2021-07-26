@@ -18,26 +18,24 @@
   *************************************************************************************/
 
 /* import react */
-import React, { Fragment, useState } from 'react'
+import React, { Fragment, useState, useCallback } from 'react'
 
 /* import managers */
 import { useContracts } from '../../context/ContractsManager'
 import { useWallet } from '../../context/WalletManager'
+import { useCachedData } from '../../context/CachedDataManager'
 
 /* import constants */
 import { Policy } from '../../constants/types'
 
 /* import components */
 import { HeroContainer, Content } from '../../components/Layout'
-import { Heading1 } from '../../components/Text'
+import { Heading1 } from '../../components/Typography'
 import { ManageModal } from './ManageModal'
 import { ClaimModal } from './ClaimModal'
 import { MyPolicies } from './MyPolicies'
 import { MyClaims } from './MyClaims'
-
-/* import utils */
 import { MyInvestments } from './MyInvestments'
-import { useGetLatestBlockNumber } from '../../hooks/useGetLatestBlockNumber'
 
 function Dashboard(): any {
   /*************************************************************************************
@@ -57,7 +55,7 @@ function Dashboard(): any {
   *************************************************************************************/
 
   const { setSelectedProtocolByName } = useContracts()
-  const latestBlock = useGetLatestBlockNumber()
+  const { latestBlock } = useCachedData()
   const wallet = useWallet()
 
   /*************************************************************************************
@@ -82,11 +80,11 @@ function Dashboard(): any {
     setSelectedPolicy(policy)
   }
 
-  const closeModal = () => {
+  const closeModal = useCallback(() => {
     setShowClaimModal(false)
     setShowManageModal(false)
     document.body.style.overflowY = 'scroll'
-  }
+  }, [])
 
   /*************************************************************************************
 

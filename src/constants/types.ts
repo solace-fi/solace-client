@@ -25,6 +25,11 @@ export type TokenInfo = {
   balance: BigNumber
 }
 
+export type LpTokenInfo = {
+  id: BigNumber
+  value: BigNumber
+}
+
 export type Token = {
   token: {
     address: string
@@ -47,19 +52,32 @@ export type Token = {
 
 export type ClaimAssessment = {
   lossEventDetected: boolean
-  tokenIn: string
-  amountIn: string
-  tokenOut: string
   amountOut: string
   deadline: string
   msgHash: string
   signature: string
+  tokenIn?: string
+  amountIn?: string
+  tokenOut?: string
+}
+
+export type GasFeeListState = {
+  options: GasFeeOption[]
+  loading: boolean
+  selected?: GasFeeOption
 }
 
 export type GasFeeOption = {
   key: string
   name: string
   value: number
+}
+
+export type GasPriceResult = {
+  veryFast: number
+  fast: number
+  average: number
+  safeLow: number
 }
 
 export type StringToStringMapping = { [key: string]: string }

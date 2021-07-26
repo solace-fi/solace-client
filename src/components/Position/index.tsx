@@ -1,5 +1,5 @@
 import styled from 'styled-components'
-import { GeneralTextProps, GeneralTextCss } from '../Text'
+import { GeneralTextProps, GeneralTextCss } from '../Typography'
 
 export const PositionCardLogo = styled.div`
   display: flex;
@@ -7,6 +7,7 @@ export const PositionCardLogo = styled.div`
   justify-content: center;
   width: 40px;
   height: 40px;
+  overflow: hidden;
   img {
     width: 100%;
     height: 100%;

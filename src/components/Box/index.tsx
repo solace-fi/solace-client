@@ -1,8 +1,8 @@
 import styled, { css } from 'styled-components'
 import { Box as RebassBox } from 'rebass/styled-components'
-import { GeneralTextProps, GeneralTextCss } from '../Text'
+import { GeneralTextProps, GeneralTextCss } from '../Typography'
 import { GeneralElementProps, GeneralElementCss } from '../generalInterfaces'
-import { MAX_DEVICE_SCREEN_WIDTH } from '../../constants'
+import { MAX_FULL_SCREEN_WIDTH } from '../../constants'
 
 interface BoxProps {
   purple?: boolean
@@ -21,7 +21,7 @@ interface SmallBoxProps {
 
 const BoxPropsHandler = css<GeneralElementProps & BoxProps>`
   background-color: rgba(0, 255, 209, 0.3);
-  ${(props) => props.transparent && TransparentBox}
+  ${(props) => props.transparent && 'background-color: rgba(0, 0, 0, 0);'}
   ${(props) => props.outlined && BoxOutline}
   ${(props) => props.purple && 'background-color: rgba(250, 0, 255, 0.3);'}
   ${(props) => props.green && 'background-color: rgba(0, 187, 40, 0.7);'}
@@ -51,13 +51,9 @@ export const BoxRow = styled(BoxBase)`
   padding: 20px 0;
   justify-content: space-between;
 
-  @media screen and (max-width: ${MAX_DEVICE_SCREEN_WIDTH}px) {
+  @media screen and (max-width: ${MAX_FULL_SCREEN_WIDTH}px) {
     flex-direction: column;
   }
-`
-
-const TransparentBox = css`
-  background-color: rgba(0, 0, 0, 0);
 `
 
 const BoxOutline = css`
@@ -79,7 +75,7 @@ export const Box = styled(BoxRow)<BoxProps & GeneralElementProps>`
       : `padding: 24px;`}
   ${BoxPropsHandler}
 
-  @media screen and (max-width: ${MAX_DEVICE_SCREEN_WIDTH}px) {
+  @media screen and (max-width: ${MAX_FULL_SCREEN_WIDTH}px) {
     flex-direction: row;
   }
 `
@@ -116,12 +112,4 @@ export const BoxItem = styled.div`
 export const BoxItemTitle = styled.div<GeneralTextProps>`
   ${GeneralTextCss}
   margin-bottom: 4px;
-`
-
-export const BoxItemValue = styled.div<GeneralTextProps>`
-  ${GeneralTextCss}
-`
-
-export const BoxItemUnits = styled.span<GeneralTextProps>`
-  ${GeneralTextCss}
 `

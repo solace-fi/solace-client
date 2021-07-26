@@ -2,7 +2,7 @@ import styled, { css } from 'styled-components'
 import { ClickProps } from '../Button'
 import { FlexCol } from '../Layout'
 
-import { GeneralTextProps, GeneralTextCss } from '../Text'
+import { GeneralTextProps, GeneralTextCss } from '../Typography'
 
 interface CardProps extends ClickProps {
   cardsPerRow?: number
@@ -32,16 +32,11 @@ const CardBase = css<CardProps>`
   background-color: rgba(255, 255, 255, ${(props) => (props.transparent ? '0' : '0.2')});
   ${(props) => props.fade && '{background-color: rgba(0, 176, 144, 0.3); }'}
   ${(props) => props.isHighlight && 'color: #fff; background-color: rgba(0, 255, 209, 0.3);'}
-`
-
-export const CardBaseComponent = styled.div<CardProps & GeneralTextProps>`
-  ${CardBase}
   ${GeneralTextCss}
 `
 
-export const ClaimCard = styled.div<CardProps & GeneralTextProps>`
+export const Card = styled.div<CardProps & GeneralTextProps>`
   ${CardBase}
-  ${GeneralTextCss}
 `
 
 export const InvestmentCard = styled.div<CardProps & GeneralTextProps>`
@@ -50,7 +45,6 @@ export const InvestmentCard = styled.div<CardProps & GeneralTextProps>`
   grid-template-columns: 1fr 1fr;
   gap: 24px;
   ${CardBase}
-  ${GeneralTextCss}
 `
 
 export const PositionCard = styled(FlexCol)<CardProps & GeneralTextProps>`
@@ -62,16 +56,11 @@ export const PositionCard = styled(FlexCol)<CardProps & GeneralTextProps>`
       ? null
       : '&:hover { background-color: rgba(255, 255, 255, 0.5); transition: background-color 200ms linear; }'}
   ${CardBase}
-  ${GeneralTextCss}
 `
 
 export const CardHeader = styled.div<GeneralTextProps>`
   ${GeneralTextCss}
   grid-column: 1/3;
-`
-
-export const CardActions = styled.div<GeneralTextProps>`
-  width: 100%;
 `
 
 export const CardTitle = styled.div<GeneralTextProps>`

@@ -28,7 +28,7 @@ import styled from 'styled-components'
 import useDebounce from '@rooks/use-debounce'
 
 /* import constants */
-import { DAYS_PER_YEAR, NUM_BLOCKS_PER_DAY } from '../../constants'
+import { DAYS_PER_YEAR, DEFAULT_CHAIN_ID, NUM_BLOCKS_PER_DAY } from '../../constants'
 
 /* import context */
 import { useContracts } from '../../context/ContractsManager'
@@ -45,7 +45,7 @@ import { Protocol, ProtocolImage, ProtocolTitle } from '../../components/Protoco
 import { useGetAvailableCoverages, useGetYearlyCosts } from '../../hooks/usePolicy'
 
 /* import utils */
-import { fixed } from '../../utils/formatting'
+import { fixed, getNativeTokenUnit } from '../../utils/formatting'
 
 /*************************************************************************************
 
@@ -128,7 +128,7 @@ export const ProtocolStep: React.FC<formProps> = ({ setForm, navigation }) => {
         </TableHead>
         <TableBody>
           {products
-            ?.map((product) => {
+            .map((product) => {
               return product.name
             })
             .filter((protocol: string) => protocol.toLowerCase().includes(searchValue.toLowerCase()))
@@ -155,7 +155,7 @@ export const ProtocolStep: React.FC<formProps> = ({ setForm, navigation }) => {
                   <TableData>
                     <Protocol>
                       <ProtocolImage mr={10}>
-                        <img src={`https://assets.solace.fi/${protocol.toLowerCase()}.svg`} />
+                        <img src={`https://assets.solace.fi/${protocol.toLowerCase()}`} />
                       </ProtocolImage>
                       <ProtocolTitle>{protocol}</ProtocolTitle>
                     </Protocol>
@@ -171,7 +171,9 @@ export const ProtocolStep: React.FC<formProps> = ({ setForm, navigation }) => {
                     )}
                     %
                   </TableData>
-                  <TableData>{handleAvailableCoverage(protocol)} ETH</TableData>
+                  <TableData>
+                    {handleAvailableCoverage(protocol)} {getNativeTokenUnit(wallet.chainId ?? DEFAULT_CHAIN_ID)}
+                  </TableData>
                   <TableData textAlignRight>
                     <Button disabled={wallet.errors.length > 0}>Select</Button>
                   </TableData>

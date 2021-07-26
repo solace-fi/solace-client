@@ -13,14 +13,15 @@
     ClaimModal function
       useState hooks
       custom hooks
-      Contract functions
+      contract functions
+      local functions
       useEffect hooks
       Render
 
   *************************************************************************************/
 
 /* import react */
-import React, { Fragment, useEffect, useState } from 'react'
+import React, { Fragment, useCallback, useEffect, useState, useRef } from 'react'
 
 /* import packages */
 import { formatEther } from '@ethersproject/units'
@@ -28,14 +29,14 @@ import { Contract } from 'ethers'
 
 /* import managers */
 import { useWallet } from '../../context/WalletManager'
-import { useUserData } from '../../context/UserDataManager'
+import { useCachedData } from '../../context/CachedDataManager'
 import { useToasts } from '../../context/NotificationsManager'
 import { useContracts } from '../../context/ContractsManager'
 
 /* import components */
 import { Modal } from '../../components/Modal/Modal'
-import { BoxChooseRow, BoxChooseCol } from '../../components/Box/BoxChoose'
-import { Heading2, Heading3, Text2, Text3 } from '../../components/Text'
+import { FormRow, FormCol } from '../../components/Input/Form'
+import { Heading2, Heading3, Text2, Text3 } from '../../components/Typography'
 import { PolicyInfo } from './PolicyInfo'
 import { Loader } from '../../components/Loader'
 import { SmallBox, Box } from '../../components/Box'
@@ -43,21 +44,21 @@ import { Button, ButtonWrapper } from '../../components/Button'
 import { Table, TableBody, TableRow, TableData } from '../../components/Table'
 
 /* import constants */
-import { FunctionName, TransactionCondition, Unit } from '../../constants/enums'
+import { FunctionName, TransactionCondition, Unit, ProductName } from '../../constants/enums'
 import cTokenABI from '../../constants/abi/contracts/interface/ICToken.sol/ICToken.json'
-import { GAS_LIMIT } from '../../constants'
+import { DEFAULT_CHAIN_ID, GAS_LIMIT } from '../../constants'
 import { Token, Policy, ClaimAssessment } from '../../constants/types'
 
 /* import hooks */
 import { useTokenAllowance } from '../../hooks/useTokenAllowance'
-import { useClaimsEscrow } from '../../hooks/useClaimsEscrow'
+import { useGetCooldownPeriod } from '../../hooks/useClaimsEscrow'
 
 /* import utils */
 import { getClaimAssessment } from '../../utils/paclas'
 import { truncateBalance, fixedPositionBalance, getGasValue } from '../../utils/formatting'
 import { hasApproval, getContract } from '../../utils'
 import { timeToText } from '../../utils/time'
-import { policyConfig } from '../../config/chainConfig'
+import { policyConfig } from '../../utils/config/chainConfig'
 
 interface ClaimModalProps {
   closeModal: () => void
@@ -73,13 +74,14 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
 
   *************************************************************************************/
   const [modalLoading, setModalLoading] = useState<boolean>(false)
-  const [claimId, setClaimId] = useState<number>(0)
+  const [claimSubmitted, setClaimSubmitted] = useState<boolean>(false)
   const [contractForAllowance, setContractForAllowance] = useState<Contract | null>(null)
   const [spenderAddress, setSpenderAddress] = useState<string | null>(null)
   const [asyncLoading, setAsyncLoading] = useState<boolean>(false)
   const [assessment, setAssessment] = useState<ClaimAssessment | null>(null)
   const [positionBalances, setPositionBalances] = useState<Token[]>([])
-  const [cooldownPeriod, setCooldownPeriod] = useState<string>('-')
+  const needApproval = useRef(true)
+  const canLoadOverTime = useRef(false)
 
   /*************************************************************************************
 
@@ -87,9 +89,9 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
 
   *************************************************************************************/
 
-  const { getCooldownPeriod } = useClaimsEscrow()
+  const cooldown = useGetCooldownPeriod()
   const tokenAllowance = useTokenAllowance(contractForAllowance, spenderAddress)
-  const { addLocalTransactions } = useUserData()
+  const { addLocalTransactions, reload, gasPrices, tokenPositionDataInitialized } = useCachedData()
   const { selectedProtocol, getProtocolByName } = useContracts()
   const { makeTxToast } = useToasts()
   const wallet = useWallet()
@@ -112,13 +114,14 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
       await approval.wait().then((receipt: any) => {
         const status = receipt.status ? TransactionCondition.SUCCESS : TransactionCondition.FAILURE
         makeTxToast(FunctionName.APPROVE, status, approvalHash)
-        wallet.reload()
+        reload()
       })
       setModalLoading(false)
     } catch (err) {
+      console.log('approve:', err)
       makeTxToast(txType, TransactionCondition.CANCELLED)
       setModalLoading(false)
-      wallet.reload()
+      reload()
     }
   }
 
@@ -128,44 +131,71 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
     const { tokenIn, amountIn, tokenOut, amountOut, deadline, signature } = assessment
     const txType = FunctionName.SUBMIT_CLAIM
     try {
-      const tx = await selectedProtocol.submitClaim(
-        selectedPolicy?.policyId,
-        tokenIn,
-        amountIn,
-        tokenOut,
-        amountOut,
-        deadline,
-        signature,
-        {
-          gasPrice: getGasValue(wallet.gasPrices.selected.value),
-          gasLimit: GAS_LIMIT,
-        }
-      )
+      const tx = needApproval.current
+        ? await selectedProtocol.submitClaim(
+            selectedPolicy.policyId,
+            tokenIn,
+            amountIn,
+            tokenOut,
+            amountOut,
+            deadline,
+            signature,
+            {
+              gasPrice: getGasValue(gasPrices.selected.value),
+              gasLimit: GAS_LIMIT,
+            }
+          )
+        : await selectedProtocol.submitClaim(selectedPolicy.policyId, amountOut, deadline, signature, {
+            gasPrice: getGasValue(gasPrices.selected.value),
+            gasLimit: GAS_LIMIT,
+          })
       const txHash = tx.hash
       const localTx = { hash: txHash, type: txType, value: '0', status: TransactionCondition.PENDING, unit: Unit.ID }
       addLocalTransactions(localTx)
-      wallet.reload()
+      reload()
       makeTxToast(txType, TransactionCondition.PENDING, txHash)
       await tx.wait().then((receipt: any) => {
         const status = receipt.status ? TransactionCondition.SUCCESS : TransactionCondition.FAILURE
-        const rawClaimId = receipt.logs[2].topics[1]
-        setClaimId(parseInt(rawClaimId))
+        if (receipt.status) setClaimSubmitted(true)
         makeTxToast(txType, status, txHash)
-        wallet.reload()
+        reload()
       })
       setModalLoading(false)
     } catch (err) {
+      console.log('submitClaim:', err)
       makeTxToast(txType, TransactionCondition.CANCELLED)
       setModalLoading(false)
-      wallet.reload()
+      reload()
     }
   }
 
-  const handleClose = () => {
-    setClaimId(0)
+  /*************************************************************************************
+
+  local functions
+
+  *************************************************************************************/
+
+  const getUserBalances = async () => {
+    if (!wallet.account || !wallet.library || !tokenPositionDataInitialized || !wallet.chainId || !selectedPolicy)
+      return
+    if (policyConfig[wallet.chainId]) {
+      try {
+        const balances: Token[] = await policyConfig[wallet.chainId ?? DEFAULT_CHAIN_ID].getBalances[
+          selectedPolicy.productName
+        ](wallet.account, wallet.library, wallet.chainId)
+        setPositionBalances(balances)
+      } catch (err) {
+        console.log(err)
+      }
+    }
+  }
+
+  const handleClose = useCallback(() => {
+    setClaimSubmitted(false)
     setModalLoading(false)
     closeModal()
-  }
+    needApproval.current = true
+  }, [closeModal])
 
   /*************************************************************************************
 
@@ -175,23 +205,33 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
 
   useEffect(() => {
     const load = async () => {
-      if (!selectedPolicy || !wallet.chainId || !wallet.account || !isOpen) return
+      if (!selectedPolicy || !isOpen) return
+      if (selectedPolicy.productName == ProductName.AAVE) needApproval.current = false
       setAsyncLoading(true)
-      const tokenContract = getContract(selectedPolicy.positionContract, cTokenABI, wallet.library, wallet.account)
-      const assessment = await getClaimAssessment(String(selectedPolicy?.policyId))
-      if (policyConfig[wallet.chainId]) {
-        const balances: Token[] = await policyConfig[wallet.chainId].getBalances(wallet.account, wallet.library)
-        setPositionBalances(balances)
+      if (policyConfig[wallet.chainId ?? DEFAULT_CHAIN_ID]) {
+        await getUserBalances()
       }
-      const cooldown = await getCooldownPeriod()
-      setCooldownPeriod(cooldown)
-      setContractForAllowance(tokenContract)
-      setSpenderAddress(getProtocolByName(selectedPolicy.productName)?.address || null)
+      if (needApproval.current) {
+        const tokenContract = getContract(selectedPolicy.positionContract, cTokenABI, wallet.library, wallet.account)
+        setContractForAllowance(tokenContract)
+        setSpenderAddress(getProtocolByName(selectedPolicy.productName)?.address || null)
+      }
+      const assessment = await getClaimAssessment(String(selectedPolicy.policyId), wallet.chainId ?? DEFAULT_CHAIN_ID)
       setAssessment(assessment)
+      canLoadOverTime.current = true
       setAsyncLoading(false)
     }
     load()
-  }, [isOpen, selectedPolicy, wallet.account, wallet.chainId])
+  }, [isOpen, selectedPolicy, wallet.account, wallet.library, tokenPositionDataInitialized])
+
+  useEffect(() => {
+    const loadOverTime = async () => {
+      if (canLoadOverTime.current) {
+        await getUserBalances()
+      }
+    }
+    loadOverTime()
+  }, [latestBlock])
 
   /*************************************************************************************
 
@@ -202,40 +242,50 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
   return (
     <Modal isOpen={isOpen} handleClose={handleClose} modalTitle={'Policy Claim'} disableCloseButton={modalLoading}>
       <Fragment>
-        <PolicyInfo selectedPolicy={selectedPolicy} latestBlock={latestBlock} asyncLoading={asyncLoading} />
+        <PolicyInfo selectedPolicy={selectedPolicy} latestBlock={latestBlock} />
         {!modalLoading && !asyncLoading ? (
           <Fragment>
-            <BoxChooseRow>
-              <BoxChooseCol>
-                <Text3 autoAlign>By submitting a claim you swap</Text3>
-              </BoxChooseCol>
-              <BoxChooseCol>
-                <Heading2 autoAlign>
-                  {positionBalances &&
-                    positionBalances.map(
-                      (position: any) =>
-                        position.token.address == assessment?.tokenIn &&
-                        `${truncateBalance(
-                          fixedPositionBalance(assessment?.amountIn || '', position.token.decimals)
-                        )} ${position.token.symbol}`
-                    )}{' '}
-                </Heading2>
-              </BoxChooseCol>
-            </BoxChooseRow>
-            <BoxChooseRow>
-              <BoxChooseCol>
-                <Text3 autoAlign>for pre-exploit assets value equal to</Text3>
-              </BoxChooseCol>
-              <BoxChooseCol>
+            <FormRow>
+              <FormCol>
+                <Text3 autoAlign>
+                  {assessment?.amountIn != undefined
+                    ? 'By submitting a claim you swap'
+                    : 'By submitting a claim, you receive'}
+                </Text3>
+              </FormCol>
+              <FormCol>
+                {assessment?.amountIn != undefined && (
+                  <Heading2 autoAlign>
+                    {positionBalances &&
+                      positionBalances.map(
+                        (position: any) =>
+                          position.token.address == selectedPolicy?.positionContract &&
+                          `${truncateBalance(
+                            fixedPositionBalance(assessment?.amountIn || '', position.token.decimals)
+                          )} ${position.token.symbol}`
+                      )}{' '}
+                  </Heading2>
+                )}
+              </FormCol>
+            </FormRow>
+            <FormRow>
+              <FormCol>
+                <Text3 autoAlign>
+                  {assessment?.amountIn != undefined
+                    ? 'for pre-exploit assets value equal to'
+                    : 'pre-exploit assets value equal to'}
+                </Text3>
+              </FormCol>
+              <FormCol>
                 <Heading2 autoAlign>{formatEther(assessment?.amountOut || 0)} ETH</Heading2>
-              </BoxChooseCol>
-            </BoxChooseRow>
+              </FormCol>
+            </FormRow>
             <SmallBox transparent mt={10} collapse={assessment?.lossEventDetected}>
               <Text2 autoAlign error={!assessment?.lossEventDetected}>
                 No loss event detected, unable to submit claims yet.
               </Text2>
             </SmallBox>
-            {!hasApproval(tokenAllowance, assessment?.amountIn) && claimId == 0 && (
+            {!hasApproval(tokenAllowance, assessment?.amountIn) && needApproval.current && !claimSubmitted && (
               <ButtonWrapper>
                 <Button
                   widthP={100}
@@ -245,12 +295,13 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
                   Approve Solace Protocol to transfer your{' '}
                   {positionBalances &&
                     positionBalances.map(
-                      (position: any) => position.token.address == assessment?.tokenIn && position.token.symbol
+                      (position: any) =>
+                        position.token.address == selectedPolicy?.positionContract && position.token.symbol
                     )}
                 </Button>
               </ButtonWrapper>
             )}
-            {claimId > 0 ? (
+            {claimSubmitted ? (
               <Box purple mt={20} mb={20}>
                 <Heading2 autoAlign>Claim has been validated and payout submitted to the escrow.</Heading2>
               </Box>
@@ -261,7 +312,7 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
                   disabled={
                     wallet.errors.length > 0 ||
                     !assessment?.lossEventDetected ||
-                    !hasApproval(tokenAllowance, assessment?.amountIn)
+                    (!hasApproval(tokenAllowance, assessment?.amountIn) && needApproval.current)
                   }
                   onClick={() => submitClaim()}
                 >
@@ -281,7 +332,7 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
                     <Text2>Current Cooldown Period</Text2>
                   </TableData>
                   <TableData textAlignRight>
-                    <Text2>{timeToText(parseInt(cooldownPeriod) * 1000)}</Text2>
+                    <Text2>{timeToText(parseInt(cooldown) * 1000)}</Text2>
                   </TableData>
                 </TableRow>
               </TableBody>

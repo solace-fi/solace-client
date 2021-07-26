@@ -23,7 +23,7 @@ import { useContracts } from '../../context/ContractsManager'
 
 /* import components */
 import { Content } from '../../components/Layout'
-import { Heading1, Heading3 } from '../../components/Text'
+import { Heading1, Heading3 } from '../../components/Typography'
 import { CardContainer, InvestmentCard, CardHeader, CardTitle, CardBlock } from '../../components/Card'
 import { Unit } from '../../constants/enums'
 
@@ -32,7 +32,8 @@ import { useUserStakedValue } from '../../hooks/useFarm'
 import { useUserPendingRewards, useUserRewardsPerDay } from '../../hooks/useRewards'
 
 /* import utils */
-import { truncateBalance } from '../../utils/formatting'
+import { getNativeTokenUnit, truncateBalance } from '../../utils/formatting'
+import { DEFAULT_CHAIN_ID } from '../../constants'
 
 export const MyInvestments = () => {
   /*************************************************************************************
@@ -43,11 +44,11 @@ export const MyInvestments = () => {
   const wallet = useWallet()
   const { cpFarm, lpFarm } = useContracts()
   const [cpUserRewards] = useUserPendingRewards(cpFarm)
-  const [cpUserRewardsPerDay] = useUserRewardsPerDay(1, cpFarm)
+  const cpUserRewardsPerDay = useUserRewardsPerDay(1, cpFarm, wallet.account)
   const [lpUserRewards] = useUserPendingRewards(lpFarm)
-  const [lpUserRewardsPerDay] = useUserRewardsPerDay(2, lpFarm)
-  const cpUserStakeValue = useUserStakedValue(cpFarm)
-  const lpUserStakeValue = useUserStakedValue(lpFarm)
+  const lpUserRewardsPerDay = useUserRewardsPerDay(2, lpFarm, wallet.account)
+  const cpUserStakeValue = useUserStakedValue(cpFarm, wallet.account)
+  const lpUserStakeValue = useUserStakedValue(lpFarm, wallet.account)
 
   /*************************************************************************************
 
@@ -63,7 +64,8 @@ export const MyInvestments = () => {
           <CardHeader>
             <CardTitle h2>Capital Pool</CardTitle>
             <Heading3>
-              {wallet.account ? truncateBalance(parseFloat(cpUserStakeValue), 2) : 0} {Unit.ETH}
+              {wallet.account ? truncateBalance(parseFloat(cpUserStakeValue), 2) : 0}{' '}
+              {getNativeTokenUnit(wallet.chainId ?? DEFAULT_CHAIN_ID)}
             </Heading3>
           </CardHeader>
           <CardBlock>

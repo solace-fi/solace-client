@@ -1,5 +1,6 @@
 import styled, { css } from 'styled-components'
 import { GeneralElementProps, GeneralElementCss } from '../generalInterfaces'
+import { MAX_MOBILE_SCREEN_WIDTH } from '../../constants'
 
 export interface TextFontProps {
   h1?: boolean
@@ -21,6 +22,8 @@ export interface TextStyleProps {
   nowrap?: boolean
   outlined?: boolean
   autoAlign?: boolean
+  autoAlignVertical?: boolean
+  autoAlignHorizontal?: boolean
   bold?: boolean
   green?: boolean
   error?: boolean
@@ -29,16 +32,36 @@ export interface TextStyleProps {
 
 export interface GeneralTextProps extends TextFontProps, TextAlignProps, TextStyleProps {}
 
+export const GlobalFont = css`
+  font-size: 16px;
+
+  @media screen and (max-width: ${MAX_MOBILE_SCREEN_WIDTH}px) {
+    font-size: 12px;
+  }
+`
+
 const Font1 = css`
   font-size: 24px;
+
+  @media screen and (max-width: ${MAX_MOBILE_SCREEN_WIDTH}px) {
+    font-size: 18px;
+  }
 `
 
 const Font2 = css`
   font-size: 20px;
+
+  @media screen and (max-width: ${MAX_MOBILE_SCREEN_WIDTH}px) {
+    font-size: 14px;
+  }
 `
 
 const Font3 = css`
   font-size: 14px;
+
+  @media screen and (max-width: ${MAX_MOBILE_SCREEN_WIDTH}px) {
+    font-size: 8px;
+  }
 `
 
 const HeadingCss = css`
@@ -62,15 +85,15 @@ const Heading3Css = css`
   margin: 0;
 `
 
-const Text1Css = css`
+export const Text1Css = css`
   ${Font1}
 `
 
-const Text2Css = css`
+export const Text2Css = css`
   ${Font2}
 `
 
-const Text3Css = css`
+export const Text3Css = css`
   ${Font3}
 `
 
@@ -86,14 +109,25 @@ const AlignRightCss = css`
   text-align: right;
 `
 
-const AlignVerticalCss = css`
+const AlignHeightCss = css`
   height: 30px;
   line-height: 30px;
 `
 
+const AlignVerticalCss = css`
+  margin-top: auto;
+  margin-bottom: auto;
+`
+
+const AlignHorizontalCss = css`
+  margin-left: auto;
+  margin-right: auto;
+`
+
 const AlignAutoCss = css`
+  ${AlignHeightCss}
+  ${AlignHorizontalCss}
   ${AlignVerticalCss}
-  margin: auto;
 `
 
 const TextOutlineCss = css`
@@ -101,7 +135,7 @@ const TextOutlineCss = css`
   margin: 0 5px 0 5px;
   border: 1px solid #fff;
   border-radius: 10px;
-  ${AlignVerticalCss}
+  ${AlignHeightCss}
 `
 
 const NoWrapCss = css`
@@ -127,6 +161,8 @@ export const TextStyleCss = css<TextStyleProps>`
   ${(props) => props.nowrap && NoWrapCss}
   ${(props) => props.outlined && TextOutlineCss}
   ${(props) => props.autoAlign && AlignAutoCss}
+  ${(props) => props.autoAlignVertical && AlignVerticalCss}
+  ${(props) => props.autoAlignHorizontal && AlignHorizontalCss}
   ${(props) => props.bold && 'font-weight: 600;'}
   ${(props) => props.green && 'color: #00ffd1;'}
   ${(props) => props.error && 'color: rgba(255, 12, 28);'}

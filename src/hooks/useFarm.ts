@@ -1,15 +1,16 @@
 import { Contract } from '@ethersproject/contracts'
-import { formatEther } from '@ethersproject/units'
+import { formatEther, parseEther } from '@ethersproject/units'
 import { useState, useEffect } from 'react'
-import { useWallet } from '../context/WalletManager'
+import { useCachedData } from '../context/CachedDataManager'
+import { useContracts } from '../context/ContractsManager'
 
-export const useUserStakedValue = (farm: Contract | null | undefined): string => {
-  const { account, version } = useWallet()
+export const useUserStakedValue = (farm: Contract | null | undefined, account: string | undefined): string => {
+  const { version } = useCachedData()
   const [userStakedValue, setUserStakedValue] = useState<string>('0.00')
 
   useEffect(() => {
     const getUserStakedValue = async () => {
-      if (!farm) return
+      if (!farm || !account) return
       try {
         const user = await farm.userInfo(account)
         const staked = user.value
@@ -28,7 +29,7 @@ export const useUserStakedValue = (farm: Contract | null | undefined): string =>
 export const usePoolStakedValue = (farm: Contract | null | undefined): string => {
   const [poolValue, setPoolValue] = useState<string>('0.00')
 
-  const { dataVersion } = useWallet()
+  const { latestBlock } = useCachedData()
 
   useEffect(() => {
     const getPoolStakedValue = async () => {
@@ -42,7 +43,24 @@ export const usePoolStakedValue = (farm: Contract | null | undefined): string =>
       }
     }
     getPoolStakedValue()
-  }, [farm, dataVersion])
+  }, [farm, latestBlock])
 
   return poolValue
+}
+
+export const useGetTotalValueLocked = (): string => {
+  const { cpFarm, lpFarm } = useContracts()
+  const [totalValueLocked, setTotalValueLocked] = useState<string>('0.00')
+  const cpPoolValue = usePoolStakedValue(cpFarm)
+  const lpPoolValue = usePoolStakedValue(lpFarm)
+
+  useEffect(() => {
+    const getTotalValueLocked = async () => {
+      const formattedTVL = formatEther(parseEther(cpPoolValue).add(parseEther(lpPoolValue)))
+      setTotalValueLocked(formattedTVL)
+    }
+    getTotalValueLocked()
+  }, [cpPoolValue, lpPoolValue])
+
+  return totalValueLocked
 }

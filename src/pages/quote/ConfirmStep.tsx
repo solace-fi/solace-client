@@ -17,7 +17,7 @@ import React from 'react'
 import { StyledLink } from '../../components/Link'
 import { Button } from '../../components/Button'
 import { TableDataGroup } from '../../components/Table'
-import { Heading1, Heading2 } from '../../components/Text'
+import { Heading1, Heading2 } from '../../components/Typography'
 import { HeroContainer } from '../../components/Layout'
 import { formProps } from './MultiStepForm'
 

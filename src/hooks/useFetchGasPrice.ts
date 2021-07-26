@@ -1,17 +1,13 @@
 import { useState, useEffect } from 'react'
-import { fetchGasPrice } from '../utils/etherscan'
+import { fetchGasPrice } from '../utils/explorer'
 import { useWallet } from '../context/WalletManager'
+import { GasFeeListState } from '../constants/types'
+import { useCachedData } from '../context/CachedDataManager'
 import { DEFAULT_CHAIN_ID } from '../constants'
-import { GasFeeOption } from '../constants/types'
-
-interface GasFeeListState {
-  options: GasFeeOption[]
-  loading: boolean
-  selected?: GasFeeOption
-}
 
 export const useFetchGasPrice = (): GasFeeListState => {
-  const { version, chainId } = useWallet()
+  const { chainId } = useWallet()
+  const { version, latestBlock } = useCachedData()
 
   const [state, setState] = useState<GasFeeListState>({
     options: [],
@@ -59,7 +55,7 @@ export const useFetchGasPrice = (): GasFeeListState => {
         })
     }
     fetchGasPrices()
-  }, [version, chainId])
+  }, [version, chainId, latestBlock])
 
   return state
 }

@@ -1,8 +1,8 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Content } from '../../components/Layout'
-import { Heading1 } from '../../components/Text'
+import { Heading1 } from '../../components/Typography'
 import { Table, TableHead, TableRow, TableHeader, TableBody, TableData, TableDataGroup } from '../../components/Table'
-import { LP_ROI } from '../../constants'
+import { LP_ROI, DEADLINE } from '../../constants'
 import { useWallet } from '../../context/WalletManager'
 import { Button } from '../../components/Button'
 import { truncateBalance } from '../../utils/formatting'
@@ -10,6 +10,11 @@ import { FunctionName } from '../../constants/enums'
 import { useContracts } from '../../context/ContractsManager'
 import { useRewardsPerDay, useUserPendingRewards, useUserRewardsPerDay } from '../../hooks/useRewards'
 import { useUserStakedValue, usePoolStakedValue } from '../../hooks/useFarm'
+import { BigNumberish, BigNumber as BN } from 'ethers'
+import { sortTokens } from '../../utils/token'
+import { FeeAmount, TICK_SPACINGS, getMaxTick, getMinTick } from '../../utils/uniswap'
+import { getProviderOrSigner } from '../../utils'
+import { Contract } from '@ethersproject/contracts'
 
 interface LiquidityPoolProps {
   openModal: (func: FunctionName, modalTitle: string) => void
@@ -19,12 +24,12 @@ export const LiquidityPool: React.FC<LiquidityPoolProps> = ({ openModal }) => {
   const wallet = useWallet()
   const { lpFarm } = useContracts()
 
-  const [lpRewardsPerDay] = useRewardsPerDay(2)
-  const [lpUserRewardsPerDay] = useUserRewardsPerDay(2, lpFarm)
+  const lpRewardsPerDay = useRewardsPerDay(2)
+  const lpUserRewardsPerDay = useUserRewardsPerDay(2, lpFarm, wallet.account)
   const [lpUserRewards] = useUserPendingRewards(lpFarm)
 
   const lpPoolValue = usePoolStakedValue(lpFarm)
-  const lpUserStakeValue = useUserStakedValue(lpFarm)
+  const lpUserStakeValue = useUserStakedValue(lpFarm, wallet.account)
 
   return (
     <Content>
@@ -53,9 +58,10 @@ export const LiquidityPool: React.FC<LiquidityPoolProps> = ({ openModal }) => {
             {wallet.account ? (
               <TableData textAlignRight>
                 <TableDataGroup width={200}>
+                  {/* <Button onClick={() => callMintLpToken(0.02)}>mintlp</Button> */}
                   <Button
                     disabled={wallet.errors.length > 0}
-                    onClick={() => openModal(FunctionName.DEPOSIT_LP, 'Deposit')}
+                    onClick={() => openModal(FunctionName.DEPOSIT_SIGNED, 'Deposit')}
                   >
                     Deposit
                   </Button>

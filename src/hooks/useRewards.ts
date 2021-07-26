@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useContracts } from '../context/ContractsManager'
 import { useWallet } from '../context/WalletManager'
 import { usePoolStakedValue, useUserStakedValue } from './useFarm'
@@ -6,10 +6,11 @@ import { formatEther, parseEther } from '@ethersproject/units'
 import { NUM_BLOCKS_PER_DAY, ZERO } from '../constants'
 import { Contract } from '@ethersproject/contracts'
 import { floatEther } from '../utils/formatting'
+import { useCachedData } from '../context/CachedDataManager'
 
 const useMasterValues = (farmId: number) => {
   const { master } = useContracts()
-  const { dataVersion } = useWallet()
+  const { latestBlock } = useCachedData()
   const [masterValues, setMasterValues] = useState({ allocPoints: ZERO, totalAllocPoints: ZERO, solacePerBlock: ZERO })
 
   useEffect(() => {
@@ -25,58 +26,44 @@ const useMasterValues = (farmId: number) => {
       }
     }
     getMasterValues()
-  }, [farmId, master, dataVersion])
-  return [masterValues]
+  }, [farmId, master, latestBlock])
+  return masterValues
 }
 
-export const useRewardsPerDay = (farmId: number): string[] => {
-  const [{ allocPoints, totalAllocPoints, solacePerBlock }] = useMasterValues(farmId)
-  const [rewardsPerDay, setRewardsPerDay] = useState<string>('0.00')
+export const useRewardsPerDay = (farmId: number): string => {
+  const { allocPoints, totalAllocPoints, solacePerBlock } = useMasterValues(farmId)
 
-  useEffect(() => {
-    const getRewardsPerDay = async () => {
-      try {
-        const rewards = totalAllocPoints.gt(ZERO)
-          ? (floatEther(solacePerBlock) * NUM_BLOCKS_PER_DAY * floatEther(allocPoints)) / floatEther(totalAllocPoints)
-          : 0
-        const formattedRewards = rewards.toString()
-        setRewardsPerDay(formattedRewards)
-      } catch (err) {
-        console.log('getRewardsPerDay', err)
-      }
-    }
-    getRewardsPerDay()
+  return useMemo(() => {
+    const rewards = totalAllocPoints.gt(ZERO)
+      ? (floatEther(solacePerBlock) * NUM_BLOCKS_PER_DAY * floatEther(allocPoints)) / floatEther(totalAllocPoints)
+      : 0
+    const formattedRewards = rewards.toString()
+    return formattedRewards
   }, [allocPoints, totalAllocPoints, solacePerBlock])
-  return [rewardsPerDay]
 }
 
-export const useUserRewardsPerDay = (farmId: number, farm: Contract | null | undefined): string[] => {
+export const useUserRewardsPerDay = (
+  farmId: number,
+  farm: Contract | null | undefined,
+  account: string | undefined
+): string => {
   const poolStakedValue = parseEther(usePoolStakedValue(farm))
-  const userStakedValue = parseEther(useUserStakedValue(farm))
-  const [{ allocPoints, totalAllocPoints, solacePerBlock }] = useMasterValues(farmId)
-  const [userRewardsPerDay, setUserRewardsPerDay] = useState<string>('0.00')
+  const userStakedValue = parseEther(useUserStakedValue(farm, account))
+  const { allocPoints, totalAllocPoints, solacePerBlock } = useMasterValues(farmId)
 
-  useEffect(() => {
-    const getUserRewardsPerDay = async () => {
-      try {
-        const allocPercentage = totalAllocPoints.gt(ZERO) ? floatEther(allocPoints) / floatEther(totalAllocPoints) : 0
-        const poolPercentage = poolStakedValue.gt(ZERO) ? floatEther(userStakedValue) / floatEther(poolStakedValue) : 0
-        const rewards = floatEther(solacePerBlock) * allocPercentage * poolPercentage
-        const formattedRewards = rewards.toString()
-        setUserRewardsPerDay(formattedRewards)
-      } catch (err) {
-        console.log('getUserRewardsPerDay', err)
-      }
-    }
-    getUserRewardsPerDay()
-  }, [allocPoints, totalAllocPoints, solacePerBlock, farm, poolStakedValue, userStakedValue])
-
-  return [userRewardsPerDay]
+  return useMemo(() => {
+    const allocPercentage = totalAllocPoints.gt(ZERO) ? floatEther(allocPoints) / floatEther(totalAllocPoints) : 0
+    const poolPercentage = poolStakedValue.gt(ZERO) ? floatEther(userStakedValue) / floatEther(poolStakedValue) : 0
+    const rewards = floatEther(solacePerBlock) * allocPercentage * poolPercentage
+    const formattedRewards = rewards.toString()
+    return formattedRewards
+  }, [allocPoints, totalAllocPoints, solacePerBlock, poolStakedValue, userStakedValue])
 }
 
 export const useUserPendingRewards = (farm: Contract | null | undefined): string[] => {
   const { master } = useContracts()
-  const { account, dataVersion } = useWallet()
+  const { latestBlock } = useCachedData()
+  const { account } = useWallet()
   const [userRewards, setUserRewards] = useState<string>('0.00')
 
   useEffect(() => {
@@ -93,22 +80,19 @@ export const useUserPendingRewards = (farm: Contract | null | undefined): string
       }
     }
     getUserPendingRewards()
-  }, [account, farm, master, dataVersion])
+  }, [account, farm, master, latestBlock])
 
   return [userRewards]
 }
 
-export const useTotalPendingRewards = () => {
+export const useTotalPendingRewards = (): string => {
   const { cpFarm, lpFarm } = useContracts()
-  const [totalPendingRewards, setTotalPendingRewards] = useState<string>('0.00')
   const [cpUserRewards] = useUserPendingRewards(cpFarm)
   const [lpUserRewards] = useUserPendingRewards(lpFarm)
 
-  useEffect(() => {
+  return useMemo(() => {
     const rewards = parseEther(cpUserRewards).add(parseEther(lpUserRewards))
     const formattedRewards = formatEther(rewards)
-    setTotalPendingRewards(formattedRewards)
+    return formattedRewards
   }, [cpUserRewards, lpUserRewards])
-
-  return totalPendingRewards
 }

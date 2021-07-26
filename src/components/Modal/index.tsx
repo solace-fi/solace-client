@@ -1,6 +1,6 @@
 import styled, { css, keyframes } from 'styled-components'
 import { ClickProps } from '../Button'
-import { GeneralTextProps, GeneralTextCss } from '../Text'
+import { GeneralTextProps, GeneralTextCss } from '../Typography'
 
 export interface ModalProps {
   handleClose: () => void
@@ -60,8 +60,6 @@ export const ModalHeader = styled.div`
   margin-bottom: 30px;
 `
 
-export const ModalContent = styled.div``
-
 export const ModalRow = styled.div`
   display: flex;
   margin-bottom: 20px;
@@ -73,5 +71,6 @@ export const ModalCell = styled.div<GeneralTextProps>`
   align-items: center;
   flex-shrink: 0;
   padding: 24px;
+  position: relative;
   ${GeneralTextCss}
 `

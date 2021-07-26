@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { SidebarItem, ItemText, ItemList, TopNav, NavButton } from './index'
 import { Logo } from '../Logo'
-import { Menu } from '@styled-icons/boxicons-regular/Menu'
+import { StyledMenu } from '../Icon'
 
 const SidebarItemList: React.FC = ({ children }) => {
   return (
@@ -19,18 +19,10 @@ export const SideNavbar: React.FC = () => {
       <div style={{ position: 'fixed' }}>
         <Logo />
         <SidebarItemList>
-          <SidebarItem className="dashboard-bar-link" to={'/'}>
-            Dashboard
-          </SidebarItem>
-          <SidebarItem className="invest-nav-link" to={'/invest'}>
-            Invest
-          </SidebarItem>
-          <SidebarItem className="quote-nav-link" to={'/quote'}>
-            Buy Cover
-          </SidebarItem>
-          <SidebarItem className="govern-nav-link" to={'/govern'}>
-            Govern
-          </SidebarItem>
+          <SidebarItem to={'/'}>Dashboard</SidebarItem>
+          <SidebarItem to={'/invest'}>Invest</SidebarItem>
+          <SidebarItem to={'/quote'}>Buy Cover</SidebarItem>
+          <SidebarItem to={'/govern'}>Govern</SidebarItem>
         </SidebarItemList>
       </div>
     </nav>
@@ -46,22 +38,22 @@ export const TopNavbar: React.FC = () => {
   return (
     <TopNav isOpen={isOpen}>
       <Logo />
-      <SidebarItemList>
-        <SidebarItem className="dashboard-bar-link" onClick={() => setIsOpen(!isOpen)} to={'/'}>
+      <ItemList>
+        <SidebarItem onClick={() => setIsOpen(!isOpen)} to={'/'}>
           Dashboard
         </SidebarItem>
-        <SidebarItem className="invest-nav-link" onClick={() => setIsOpen(!isOpen)} to={'/invest'}>
+        <SidebarItem onClick={() => setIsOpen(!isOpen)} to={'/invest'}>
           Invest
         </SidebarItem>
-        <SidebarItem className="quote-nav-link" onClick={() => setIsOpen(!isOpen)} to={'/quote'}>
+        <SidebarItem onClick={() => setIsOpen(!isOpen)} to={'/quote'}>
           Buy Cover
         </SidebarItem>
-        <SidebarItem className="govern-nav-link" onClick={() => setIsOpen(!isOpen)} to={'/govern'}>
+        <SidebarItem onClick={() => setIsOpen(!isOpen)} to={'/govern'}>
           Govern
         </SidebarItem>
-      </SidebarItemList>
+      </ItemList>
       <NavButton onClick={() => setIsOpen(!isOpen)}>
-        <Menu />
+        <StyledMenu />
       </NavButton>
     </TopNav>
   )

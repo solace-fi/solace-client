@@ -1,11 +1,11 @@
-import React, { createContext, useContext, useMemo, useState } from 'react'
+import React, { createContext, useCallback, useContext, useMemo, useState } from 'react'
 import { Contract } from '@ethersproject/contracts'
-import { contractConfig } from '../config/chainConfig'
+import { contractConfig } from '../utils/config/chainConfig'
 
-import { useGetContract, useGetProductContracts } from '../hooks/useContract'
+import { useContractArray, useGetContract, useGetProductContracts } from '../hooks/useContract'
 import { useWallet } from './WalletManager'
+import { ContractSources, SupportedProduct } from '../constants/types'
 import { DEFAULT_CHAIN_ID } from '../constants'
-import { SupportedProduct } from '../constants/types'
 
 /*
 
@@ -24,9 +24,11 @@ type Contracts = {
   registry?: Contract | null
   lpToken?: Contract | null
   weth?: Contract | null
+  lpAppraisor?: Contract | null
   claimsEscrow?: Contract | null
   policyManager?: Contract | null
-  products?: SupportedProduct[]
+  products: SupportedProduct[]
+  contractSources: ContractSources[]
   selectedProtocol: Contract | null
   getProtocolByName: (productName: string) => Contract | null
   setSelectedProtocolByName: (productName: string) => void
@@ -42,9 +44,11 @@ const ContractsContext = createContext<Contracts>({
   registry: undefined,
   lpToken: undefined,
   weth: undefined,
+  lpAppraisor: undefined,
   claimsEscrow: undefined,
   policyManager: undefined,
   products: [],
+  contractSources: [],
   selectedProtocol: null,
   getProtocolByName: () => null,
   setSelectedProtocolByName: () => undefined,
@@ -53,11 +57,8 @@ const ContractsContext = createContext<Contracts>({
 const ContractsProvider: React.FC = (props) => {
   const [selectedProtocol, setSelectedProtocol] = useState<Contract | null>(null)
   const { chainId } = useWallet()
-  const config =
-    chainId && contractConfig[String(chainId)]
-      ? contractConfig[String(chainId)]
-      : contractConfig[String(DEFAULT_CHAIN_ID)]
-  const keyContracts = config.keyContracts
+  const contractSources = useContractArray()
+  const keyContracts = useMemo(() => contractConfig[String(chainId ?? DEFAULT_CHAIN_ID)].keyContracts, [chainId])
 
   const master = useGetContract(keyContracts.master.addr, keyContracts.master.abi)
   const vault = useGetContract(keyContracts.vault.addr, keyContracts.vault.abi)
@@ -70,19 +71,25 @@ const ContractsProvider: React.FC = (props) => {
   const weth = useGetContract(keyContracts.weth.addr, keyContracts.weth.abi)
   const claimsEscrow = useGetContract(keyContracts.claimsEscrow.addr, keyContracts.claimsEscrow.abi)
   const policyManager = useGetContract(keyContracts.policyManager.addr, keyContracts.policyManager.abi)
+  const lpAppraisor = useGetContract(keyContracts.lpAppraisor.addr, keyContracts.lpAppraisor.abi)
   const products = useGetProductContracts()
 
-  const getProtocolByName = (productName: string): Contract | null => {
-    const foundProduct = products.filter((product) => product.name == productName)
-    if (foundProduct && foundProduct.length > 0) return foundProduct[0].contract
-    return null
-  }
+  const getProtocolByName = useCallback(
+    (productName: string): Contract | null => {
+      const foundProduct = products.filter((product) => product.name == productName)
+      if (foundProduct.length > 0) return foundProduct[0].contract
+      return null
+    },
+    [products]
+  )
 
-  const setSelectedProtocolByName = (productName: string) => {
-    setSelectedProtocol(getProtocolByName(productName))
-  }
+  const setSelectedProtocolByName = useCallback(
+    (productName: string) => {
+      setSelectedProtocol(getProtocolByName(productName))
+    },
+    [getProtocolByName]
+  )
 
-  // update when a contract changes
   const value = useMemo<Contracts>(
     () => ({
       master,
@@ -94,9 +101,11 @@ const ContractsProvider: React.FC = (props) => {
       registry,
       lpToken,
       weth,
+      lpAppraisor,
       claimsEscrow,
       policyManager,
       products,
+      contractSources,
       selectedProtocol,
       getProtocolByName,
       setSelectedProtocolByName,
@@ -111,9 +120,12 @@ const ContractsProvider: React.FC = (props) => {
       registry,
       lpToken,
       weth,
+      lpAppraisor,
       claimsEscrow,
       policyManager,
       products,
+      contractSources,
+      selectedProtocol,
       setSelectedProtocolByName,
       getProtocolByName,
     ]

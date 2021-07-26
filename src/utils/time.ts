@@ -1,4 +1,4 @@
-import { NUM_BLOCKS_PER_DAY } from '../constants'
+import { MIN_RETRY_DELAY, RETRY_BACKOFF_FACTOR, MAX_RETRY_DELAY, NUM_BLOCKS_PER_DAY } from '../constants'
 
 export function timeAgo(someDateInThePast: number): string {
   const difference = Date.now() - someDateInThePast
@@ -126,4 +126,30 @@ export const getDateStringWithMonthName = (date: Date): string => {
 export const getDateExtended = (additionalDays: number): Date => {
   const date = new Date()
   return new Date(date.setDate(date.getDate() + additionalDays))
+}
+
+export const getExpiration = (days: number): string => {
+  return getDateStringWithMonthName(getDateExtended(days))
+}
+
+export const withBackoffRetries = async (f: any, retryCount = 3, jitter = 250) => {
+  let nextWaitTime = MIN_RETRY_DELAY
+  let i = 0
+  while (true) {
+    try {
+      return await f()
+    } catch (error) {
+      i++
+      if (i >= retryCount) {
+        throw error
+      }
+      await delay(nextWaitTime + Math.floor(Math.random() * jitter))
+      nextWaitTime =
+        nextWaitTime === 0 ? MIN_RETRY_DELAY : Math.min(MAX_RETRY_DELAY, RETRY_BACKOFF_FACTOR * nextWaitTime)
+    }
+  }
+}
+
+export const delay = async (ms: number) => {
+  return new Promise((resolve) => setTimeout(resolve, ms))
 }

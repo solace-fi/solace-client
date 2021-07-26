@@ -1,10 +1,10 @@
 import { useWallet } from '../context/WalletManager'
-import { useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import { getContract } from '../utils'
 import { Contract } from '@ethersproject/contracts'
-import { contractConfig } from '../config/chainConfig'
-import { DEFAULT_CHAIN_ID } from '../constants'
+import { contractConfig, policyConfig } from '../utils/config/chainConfig'
 import { ContractSources, SupportedProduct } from '../constants/types'
+import { DEFAULT_CHAIN_ID } from '../constants'
 
 export function useGetContract(address: string, abi: any, hasSigner = true): Contract | null {
   const { library, account } = useWallet()
@@ -22,55 +22,47 @@ export function useGetContract(address: string, abi: any, hasSigner = true): Con
 
 export function useGetProductContracts(): SupportedProduct[] {
   const { library, account, chainId } = useWallet()
-  const chainID = chainId ?? DEFAULT_CHAIN_ID
-  const _contractConfig = contractConfig[String(chainID)] ?? contractConfig[String(DEFAULT_CHAIN_ID)]
 
   return useMemo(() => {
+    const contractCnfg = contractConfig[String(chainId ?? DEFAULT_CHAIN_ID)]
+    const policyCnfg = policyConfig[String(chainId ?? DEFAULT_CHAIN_ID)]
     if (!library) return []
-    const signer = account ? true : false
-    for (let i = 0; i < _contractConfig.supportedProducts.length; i++) {
-      const name = _contractConfig.supportedProducts[i].name
-      if (!_contractConfig.supportedProducts[i].contract || signer !== _contractConfig.supportedProducts[i].signer) {
-        const productContractSources = _contractConfig.productContracts[name]
-        const contract = getContract(
-          productContractSources.addr,
-          productContractSources.abi,
-          library,
-          account ? account : undefined
-        )
-        _contractConfig.supportedProducts[i] = {
-          ..._contractConfig.supportedProducts[i],
-          contract: contract,
-          signer: signer,
-        }
+    policyCnfg.supportedProducts.map((product: SupportedProduct, i: number) => {
+      const name = product.name
+      const productContractSources = contractCnfg.productContracts[name]
+      const contract = getContract(
+        productContractSources.addr,
+        productContractSources.abi,
+        library,
+        account ? account : undefined
+      )
+      policyCnfg.supportedProducts[i] = {
+        ...product,
+        contract: contract,
       }
-    }
-    return _contractConfig.supportedProducts
+    })
+    return policyCnfg.supportedProducts
   }, [library, account, chainId])
 }
 
 export function useContractArray(): ContractSources[] {
   const { chainId } = useWallet()
-  const chainID = chainId ?? DEFAULT_CHAIN_ID
-  const _contractConfig = contractConfig[String(chainID)] ?? contractConfig[String(DEFAULT_CHAIN_ID)]
-  const [contractSources, setContractSources] = useState<ContractSources[]>([])
 
-  useMemo(() => {
-    const arr: ContractSources[] = []
-    Object.keys(_contractConfig.keyContracts).forEach((key) => {
-      arr.push({
-        addr: _contractConfig.keyContracts[key].addr.toLowerCase(),
-        abi: _contractConfig.keyContracts[key].abi,
+  return useMemo(() => {
+    const config = contractConfig[String(chainId ?? DEFAULT_CHAIN_ID)]
+    const contractSources: ContractSources[] = []
+    Object.keys(config.keyContracts).forEach((key) => {
+      contractSources.push({
+        addr: config.keyContracts[key].addr.toLowerCase(),
+        abi: config.keyContracts[key].abi,
       })
     })
-    Object.keys(_contractConfig.productContracts).forEach((key) => {
-      arr.push({
-        addr: _contractConfig.productContracts[key].addr.toLowerCase(),
-        abi: _contractConfig.productContracts[key].abi,
+    Object.keys(config.productContracts).forEach((key) => {
+      contractSources.push({
+        addr: config.productContracts[key].addr.toLowerCase(),
+        abi: config.productContracts[key].abi,
       })
     })
-    setContractSources(arr)
+    return contractSources
   }, [chainId])
-
-  return contractSources
 }

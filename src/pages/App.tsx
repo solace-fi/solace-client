@@ -40,7 +40,7 @@ export default function App(): any {
       <BottomPrices />
       <Layout>
         <LayoutContainer>
-          <NavContent width={10}>
+          <NavContent>
             <SideNavbar />
           </NavContent>
           <LayoutContent>
