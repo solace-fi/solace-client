@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { Token } from '../constants/types'
 import { useWallet } from '../context/WalletManager'
-import { policyConfig } from '../utils/config/chainConfig'
+import { policyConfig } from '../config/chainConfig'
 
 export const useGetTokens = (): boolean => {
   const { chainId, library } = useWallet()

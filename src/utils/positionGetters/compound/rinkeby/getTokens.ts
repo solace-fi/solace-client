@@ -1,7 +1,7 @@
 import { Contract, utils } from 'ethers'
 
 import ctokenJson from '../contracts/ICToken.json'
-import ierc20Json from '../../contracts/IERC20Metadata.json'
+import ierc20Json from '../../_contracts/IERC20Metadata.json'
 import ierc20altJson from '../contracts/IERC20MetadataAlt.json'
 import { ZERO } from '../../../../constants'
 import { Token } from '../../../../constants/types'

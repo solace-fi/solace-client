@@ -3,7 +3,7 @@ import { Token } from '../../../../constants/types'
 import { rangeFrom0 } from '../../../numeric'
 import { addNativeTokenBalances, getProductTokenBalances } from '../../getBalances'
 import { addExchangeRates } from '../addExchangeRates'
-import { policyConfig } from '../../../config/chainConfig'
+import { policyConfig } from '../../../../config/chainConfig'
 import { ProductName } from '../../../../constants/enums'
 
 export const getBalances = async (user: string, provider: any, chainId: number): Promise<Token[]> => {

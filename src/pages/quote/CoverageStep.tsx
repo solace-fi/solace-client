@@ -385,8 +385,8 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
               <hr></hr>
               <Heading2>Important Developer Notes</Heading2>
               <Text3 error>
-                Do not purchase a policy with a lending protocol for an asset that is locked as collateral. You will not
-                be able to submit a claim.
+                Policies with a lending protocol for an asset that is locked as collateral will not be able to submit a
+                claim if you have borrowed assets. Debts need to be paid before a claim can be submitted.
               </Text3>
             </FormCol>
           </FormRow>

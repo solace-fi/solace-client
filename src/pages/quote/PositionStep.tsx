@@ -42,7 +42,7 @@ import { Policy, Token } from '../../constants/types'
 
 /* import utils */
 import { fixedTokenPositionBalance, truncateBalance } from '../../utils/formatting'
-import { policyConfig } from '../../utils/config/chainConfig'
+import { policyConfig } from '../../config/chainConfig'
 
 export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigation }) => {
   const { protocol, balances, loading } = formData

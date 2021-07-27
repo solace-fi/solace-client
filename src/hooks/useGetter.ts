@@ -1,6 +1,6 @@
 import { withBackoffRetries } from '../utils/time'
 import { rangeFrom0 } from '../utils/numeric'
-import { policyConfig } from '../utils/config/chainConfig'
+import { policyConfig } from '../config/chainConfig'
 import { useWallet } from '../context/WalletManager'
 import { PolicyState } from '../constants/enums'
 import { Policy } from '../constants/types'

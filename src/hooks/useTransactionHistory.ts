@@ -7,7 +7,7 @@ import { Provider, Web3Provider } from '@ethersproject/providers'
 import { decodeInput } from '../utils/decoder'
 import { formatTransactionContent } from '../utils/formatting'
 import { useContracts } from '../context/ContractsManager'
-import { contractConfig } from '../utils/config/chainConfig'
+import { contractConfig } from '../config/chainConfig'
 import { DEFAULT_CHAIN_ID } from '../constants'
 
 export const useTransactionDetails = (): { txHistory: any; amounts: string[] } => {

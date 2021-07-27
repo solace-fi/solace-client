@@ -2,7 +2,7 @@ import { formatEther } from '@ethersproject/units'
 import { BigNumber } from 'ethers'
 import { FunctionName, Unit } from '../constants/enums'
 import { TokenInfo } from '../constants/types'
-import { contractConfig } from '../utils/config/chainConfig'
+import { contractConfig } from '../config/chainConfig'
 
 // truncate numbers without rounding
 export const fixed = (n: number, decimals = 1): number => {
@@ -156,4 +156,8 @@ export function getNetworkName(chainId: number | undefined): string {
     default:
       return '-'
   }
+}
+
+export const capitalizeFirstLetter = (str: string): string => {
+  return str.charAt(0).toUpperCase().concat(str.slice(1))
 }

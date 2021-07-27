@@ -2,7 +2,7 @@ import { useWallet } from '../context/WalletManager'
 import { useMemo } from 'react'
 import { getContract } from '../utils'
 import { Contract } from '@ethersproject/contracts'
-import { contractConfig, policyConfig } from '../utils/config/chainConfig'
+import { contractConfig, policyConfig } from '../config/chainConfig'
 import { ContractSources, SupportedProduct } from '../constants/types'
 import { DEFAULT_CHAIN_ID } from '../constants'
 

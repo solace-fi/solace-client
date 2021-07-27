@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { ChainId, Fetcher, Route, WETH, Trade, TokenAmount, TradeType } from '@uniswap/sdk'
 import { POW_EIGHTEEN } from '../constants'
-import { contractConfig } from '../utils/config/chainConfig'
+import { contractConfig } from '../config/chainConfig'
 
 export function usePairPrice(): any {
   const [pairPrice, setPairPrice] = useState<any>('0.01')

@@ -38,7 +38,7 @@ import { SmallBox } from '../Box'
 import { useNativeTokenBalance } from '../../hooks/useBalance'
 
 /* import utils */
-import { shortenAddress, fixed, getNetworkName } from '../../utils/formatting'
+import { shortenAddress, fixed, getNetworkName, capitalizeFirstLetter } from '../../utils/formatting'
 
 export default function Account(): any {
   /*************************************************************************************
@@ -75,7 +75,7 @@ export default function Account(): any {
           <Heading3 autoAlign>
             {getNetworkName(chainId) === '-'
               ? getNetworkName(chainId)
-              : `${getNetworkName(chainId).charAt(0).toUpperCase().concat(getNetworkName(chainId).slice(1))}`}
+              : `${capitalizeFirstLetter(getNetworkName(chainId))}`}
           </Heading3>
         </SmallBox>
       )}

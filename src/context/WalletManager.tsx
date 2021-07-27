@@ -13,7 +13,6 @@ import { Web3ReactProvider } from '@web3-react/core'
 import getLibrary from '../utils/getLibrary'
 import { useProvider } from './ProviderManager'
 import { Error as AppError } from '../constants/enums'
-import { DEFAULT_CHAIN_ID } from '../constants'
 
 /*
 
@@ -132,7 +131,6 @@ const WalletProvider: React.FC = (props) => {
         const walletConnector = WalletConnectors.find((c) => c.id === localProvider)
         if (walletConnector) await connect(walletConnector)
       }
-
       setInitialized(true)
     })()
   }, [web3React])

@@ -58,7 +58,7 @@ import { getClaimAssessment } from '../../utils/paclas'
 import { truncateBalance, fixedPositionBalance, getGasValue } from '../../utils/formatting'
 import { hasApproval, getContract } from '../../utils'
 import { timeToText } from '../../utils/time'
-import { policyConfig } from '../../utils/config/chainConfig'
+import { policyConfig } from '../../config/chainConfig'
 
 interface ClaimModalProps {
   closeModal: () => void
