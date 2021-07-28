@@ -1,10 +1,12 @@
-import tokenJson from '../contracts/ICToken.json'
-import { Token } from '../../../../constants/types'
-import { rangeFrom0 } from '../../../numeric'
-import { addNativeTokenBalances, getProductTokenBalances } from '../../getBalances'
-import { addExchangeRates } from '../addExchangeRates'
-import { policyConfig } from '../../../../config/chainConfig'
-import { ProductName } from '../../../../constants/enums'
+import tokenJson from './contracts/ICToken.json'
+import { rangeFrom0 } from '../../numeric'
+import { Token } from '../../../constants/types'
+import { addNativeTokenBalances, getProductTokenBalances } from '../getBalances'
+import { policyConfig } from '../../../config/chainConfig'
+import { ProductName } from '../../../constants/enums'
+import { Contract } from '@ethersproject/contracts'
+import { POW_EIGHTEEN } from '../../../constants'
+import { withBackoffRetries } from '../../time'
 
 export const getBalances = async (user: string, provider: any, chainId: number): Promise<Token[]> => {
   // get ctoken balances
@@ -13,10 +15,14 @@ export const getBalances = async (user: string, provider: any, chainId: number):
 
   // get utoken balances
   const indices = rangeFrom0(balances.length)
-  const balancesWithRates = await addExchangeRates(balances, indices, tokenJson.abi, provider)
+  const contracts = balances.map((balance) => new Contract(balance.token.address, tokenJson.abi, provider))
+  const exchangeRates = await Promise.all(contracts.map((contract) => queryExchangeRate(contract)))
+  indices.forEach(
+    (i) => (balances[i].underlying.balance = balances[i].token.balance.mul(exchangeRates[i]).div(String(POW_EIGHTEEN)))
+  )
 
-  //get native token balances
-  const tokenBalances = await addNativeTokenBalances(balancesWithRates, indices, chainId, getMainNetworkToken)
+  // get native token balances
+  const tokenBalances = await addNativeTokenBalances(balances, indices, chainId, getMainNetworkToken)
   return tokenBalances
 }
 
@@ -37,4 +43,8 @@ const getMainNetworkToken = (address: string, chainId: number): string => {
     return rmumap[address.toLowerCase()]
   }
   return address.toLowerCase()
+}
+
+const queryExchangeRate = async (tokenContract: Contract) => {
+  return await withBackoffRetries(async () => tokenContract.exchangeRateStored())
 }

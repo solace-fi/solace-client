@@ -1,9 +1,10 @@
 import { Token } from '../../../constants/types'
 import { getContract } from '../..'
-import { rangeFrom0 } from '../../numeric'
+import { numberify, rangeFrom0 } from '../../numeric'
 import { ZERO } from '../../../constants'
 import ierc20Json from '../_contracts/IERC20Metadata.json'
 import { capitalizeFirstLetter } from '../../formatting'
+import { withBackoffRetries } from '../../time'
 
 const yregistryAbi = [
   {
@@ -93,23 +94,24 @@ const vaultAbi = [
 const yRegistryAddress = '0x3eE41C098f9666ed2eA246f4D2558010e59d63A0'
 
 export const getTokens = async (provider: any): Promise<Token[]> => {
+  // TODO: reduce the ~1000 requests down
   if (!provider) return []
   const yregistry = getContract(yRegistryAddress, yregistryAbi, provider)
   const vaultAddrs = await yregistry.getVaults()
-  const vaultContracts = await Promise.all(vaultAddrs.map((addr: any) => getContract(addr, vaultAbi, provider)))
-  const vaultSymbols = await Promise.all(vaultContracts.map((vault: any) => vault.symbol()))
   const vaultInfos: any = await Promise.all(vaultAddrs.map((addr: any) => yregistry.getVaultInfo(addr)))
 
-  const uTokenContracts = await Promise.all(
-    vaultInfos.map((info: any) => getContract(info.token, ierc20Json.abi, provider))
-  )
-  const uTokenSymbols = await Promise.all(uTokenContracts.map((contract: any) => contract.symbol()))
+  const [vaultContracts, uTokenContracts] = await Promise.all([
+    Promise.all(vaultAddrs.map((addr: any) => getContract(addr, vaultAbi, provider))),
+    Promise.all(vaultInfos.map((info: any) => getContract(info.token, ierc20Json.abi, provider))),
+  ])
 
-  const [vNames, uNames, vDecimals, uDecimals] = await Promise.all([
-    Promise.all(vaultContracts.map((contract: any) => contract.name())),
-    Promise.all(uTokenContracts.map((contract: any) => contract.name())),
-    Promise.all(vaultContracts.map((contract: any) => contract.decimals())),
-    Promise.all(uTokenContracts.map((contract: any) => contract.decimals())),
+  const [vNames, vSymbols, vDecimals, uNames, uSymbols, uDecimals] = await Promise.all([
+    Promise.all(vaultContracts.map((contract: any) => queryTokenName(contract))),
+    Promise.all(vaultContracts.map((contract: any) => queryTokenSymbol(contract))),
+    Promise.all(vaultContracts.map((contract: any) => queryTokenDecimals(contract))),
+    Promise.all(uTokenContracts.map((contract: any) => queryTokenName(contract))),
+    Promise.all(uTokenContracts.map((contract: any) => queryTokenSymbol(contract))),
+    Promise.all(uTokenContracts.map((contract: any) => queryTokenDecimals(contract))),
   ])
   const indices = rangeFrom0(vaultAddrs.length)
   const tokens: Token[] = indices.map((i) => {
@@ -117,14 +119,14 @@ export const getTokens = async (provider: any): Promise<Token[]> => {
       token: {
         address: vaultAddrs[i],
         name: capitalizeFirstLetter(vNames[i]),
-        symbol: vaultSymbols[i],
+        symbol: vSymbols[i],
         decimals: vDecimals[i],
         balance: ZERO,
       },
       underlying: {
         address: vaultInfos[i].token,
         name: uNames[i],
-        symbol: uTokenSymbols[i],
+        symbol: uSymbols[i],
         decimals: uDecimals[i],
         balance: ZERO,
       },
@@ -133,6 +135,17 @@ export const getTokens = async (provider: any): Promise<Token[]> => {
       },
     }
   })
-  console.log(tokens)
   return tokens
+}
+
+const queryTokenName = async (tokenContract: any) => {
+  return await withBackoffRetries(async () => tokenContract.name())
+}
+
+const queryTokenSymbol = async (tokenContract: any) => {
+  return await withBackoffRetries(async () => tokenContract.symbol())
+}
+
+const queryTokenDecimals = async (tokenContract: any) => {
+  return await withBackoffRetries(async () => tokenContract.decimals().then(numberify))
 }

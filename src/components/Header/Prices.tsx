@@ -80,7 +80,7 @@ export const Prices = () => {
         </Heading3>
         <SmallBox ml={10} navy>
           <Heading3 autoAlign green>
-            {pairPrice ? `$${pairPrice}` : '-'}
+            {`$${pairPrice}`}
           </Heading3>
         </SmallBox>
       </SmallBox>

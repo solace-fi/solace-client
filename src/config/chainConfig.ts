@@ -14,12 +14,10 @@ import polMagABI from '../constants/abi/contracts/PolicyManager.sol/PolicyManage
 import lpAppraisorABI from '../constants/abi/contracts/LpAppraisor.sol/LpAppraisor.json'
 
 import { ProductName } from '../constants/enums'
-import { getTokens as comp1Tokens } from '../utils/positionGetters/compound/mainnet/getTokens'
-import { getBalances as comp1Balances } from '../utils/positionGetters/compound/mainnet/getBalances'
-import { getTokens as comp4Tokens } from '../utils/positionGetters/compound/rinkeby/getTokens'
-import { getBalances as comp4Balances } from '../utils/positionGetters/compound/rinkeby/getBalances'
-import { getTokens as aave42Tokens } from '../utils/positionGetters/aave/getTokens'
-import { getBalances as aave42Balances } from '../utils/positionGetters/aave/getBalances'
+import { getTokens as compTokens } from '../utils/positionGetters/compound/getTokens'
+import { getBalances as compBalances } from '../utils/positionGetters/compound/getBalances'
+import { getTokens as aaveTokens } from '../utils/positionGetters/aave/getTokens'
+import { getBalances as aaveBalances } from '../utils/positionGetters/aave/getBalances'
 
 export const contractConfig: any = {
   '4': {
@@ -146,8 +144,8 @@ export const policyConfig: any = {
     productsRev: {
       [String(process.env.REACT_APP_RINKEBY_COMPOUND_PRODUCT_ADDR)]: ProductName.COMPOUND,
     },
-    tokens: { [ProductName.COMPOUND]: { getTokens: comp4Tokens, savedTokens: [], tokensInitialized: false } },
-    getBalances: { [ProductName.COMPOUND]: comp4Balances },
+    tokens: { [ProductName.COMPOUND]: { getTokens: compTokens, savedTokens: [], tokensInitialized: false } },
+    getBalances: { [ProductName.COMPOUND]: compBalances },
     positions: { [ProductName.COMPOUND]: { positionNamesInitialized: false } },
   },
   '42': {
@@ -155,8 +153,8 @@ export const policyConfig: any = {
     productsRev: {
       [String(process.env.REACT_APP_KOVAN_AAVE_PRODUCT_ADDR)]: ProductName.AAVE,
     },
-    tokens: { [ProductName.AAVE]: { getTokens: aave42Tokens, savedTokens: [], tokensInitialized: false } },
-    getBalances: { [ProductName.AAVE]: aave42Balances },
+    tokens: { [ProductName.AAVE]: { getTokens: aaveTokens, savedTokens: [], tokensInitialized: false } },
+    getBalances: { [ProductName.AAVE]: aaveBalances },
     positions: { [ProductName.AAVE]: { positionNamesInitialized: false } },
   },
 }

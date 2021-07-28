@@ -45,8 +45,8 @@ const ProviderManager: React.FC = ({ children }) => {
     const provider = new JsonRpcProvider(
       `https://eth-${getNetworkName(chainId ?? DEFAULT_CHAIN_ID)}.alchemyapi.io/v2/${ALCHEMY_API_KEY}`
     )
-    const mainnetProvider = new JsonRpcProvider(`https://eth-mainnet.alchemyapi.io/v2/${ALCHEMY_API_KEY}`)
-    getTokens(mainnetProvider)
+    // const mainnetProvider = new JsonRpcProvider(`https://eth-mainnet.alchemyapi.io/v2/${ALCHEMY_API_KEY}`)
+    // getTokens(mainnetProvider)
     setEthProvider(provider)
   }
 
