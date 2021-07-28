@@ -49,6 +49,7 @@ Run using the following react command from the client directory
 
     src/
     |___components/
+    |___config/
     |___constants/
     |   |____abi/
     |___context/
@@ -73,16 +74,16 @@ Run using the following react command from the client directory
 
 ## React Context Structure
 
-    <ProviderManager>              // Web3 Provider
+    <ProviderManager>              // web3 Provider
       <WalletManager>              // wallet connection
         <ContractsManager>         // contracts
-          <UserDataManager>        // user-specific data
+          <CachedDataManager>      // cached data
             <NotificationsManager> // notifications and toasts
               ...
                 <App />
               ...
             </NotificationsManager>
-          </UserDataManager>
+          </CachedDataManager>
         </ContractsManager>
       </WalletManager>
     </ProviderManager>
