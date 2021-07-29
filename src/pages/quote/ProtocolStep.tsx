@@ -35,11 +35,11 @@ import { useContracts } from '../../context/ContractsManager'
 import { useWallet } from '../../context/WalletManager'
 
 /* import components */
-import { Button } from '../../components/Button'
+import { Button } from '../../components/atoms/Button'
 import { formProps } from './MultiStepForm'
-import { Table, TableData, TableHead, TableHeader, TableRow, TableBody } from '../../components/Table'
-import { Search } from '../../components/Input'
-import { Protocol, ProtocolImage, ProtocolTitle } from '../../components/Protocol'
+import { Table, TableData, TableHead, TableHeader, TableRow, TableBody } from '../../components/atoms/Table'
+import { Search } from '../../components/atoms/Input'
+import { Protocol, ProtocolImage, ProtocolTitle } from '../../components/atoms/Protocol'
 
 /* import hooks */
 import { useGetAvailableCoverages, useGetYearlyCosts } from '../../hooks/usePolicy'

@@ -13,7 +13,7 @@ import { useGetTokens } from '../hooks/useGetTokens'
 
 /*
 
-This manager caches data concerning the user's assets, operations, or preferences into the
+This manager caches data such as the user's assets, operations, or preferences into the
 web app.
 
 */

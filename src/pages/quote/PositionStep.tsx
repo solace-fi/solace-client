@@ -31,14 +31,19 @@ import { useCachedData } from '../../context/CachedDataManager'
 import { policyConfig } from '../../config/chainConfig'
 
 /* import components */
-import { Button } from '../../components/Button'
+import { Button } from '../../components/atoms/Button'
 import { formProps } from './MultiStepForm'
-import { CardContainer, PositionCard } from '../../components/Card'
-import { PositionCardButton, PositionCardText, PositionCardLogo, PositionCardName } from '../../components/Position'
-import { Loader } from '../../components/Loader/Loader'
-import { HeroContainer } from '../../components/Layout'
-import { Heading1, TextSpan } from '../../components/Typography'
-import { ManageModal } from '../dashboard/ManageModal'
+import { CardContainer, PositionCard } from '../../components/atoms/Card'
+import {
+  PositionCardButton,
+  PositionCardText,
+  PositionCardLogo,
+  PositionCardName,
+} from '../../components/atoms/Position'
+import { Loader } from '../../components/atoms/Loader'
+import { HeroContainer } from '../../components/atoms/Layout'
+import { Heading1, TextSpan } from '../../components/atoms/Typography'
+import { ManageModal } from '../../components/organisms/ManageModal'
 
 /* import constants */
 import { PolicyState } from '../../constants/enums'
