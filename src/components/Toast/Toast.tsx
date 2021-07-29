@@ -1,10 +1,10 @@
 import React from 'react'
-import styled from 'styled-components'
 import { TransactionCondition } from '../../constants/enums'
 import { useWallet } from '../../context/WalletManager'
-import { Loader } from '../Loader'
+import { Loader } from '../Loader/Loader'
 import { HyperLink } from '../Link'
 import { Button } from '../Button'
+import { ToastWrapper, FlexedToastMessage } from '.'
 
 import { getExplorerItemUrl } from '../../utils/explorer'
 import { ExplorerscanApi } from '../../constants/enums'
@@ -24,23 +24,11 @@ interface NotificationToastProps {
   txHash?: string
 }
 
-const FlexedMessage = styled.div`
-  margin-top: 10px;
-  margin-right: 0px;
-  margin-bottom: 10px;
-  margin-left: 0px;
-  display: flex;
-`
-
-const ToastWrapper = styled.div`
-  text-align: center;
-`
-
 export const AppToast: React.FC<AppToastProps> = ({ message, icon }) => {
   return (
     <ToastWrapper>
       {icon}
-      <FlexedMessage>{message}</FlexedMessage>
+      <FlexedToastMessage>{message}</FlexedToastMessage>
     </ToastWrapper>
   )
 }
@@ -50,10 +38,10 @@ export const NotificationToast: React.FC<NotificationToastProps> = ({ message, c
 
   return (
     <ToastWrapper>
-      <FlexedMessage>
+      <FlexedToastMessage>
         {message}: Transaction {cond}
-      </FlexedMessage>
-      <FlexedMessage>
+      </FlexedToastMessage>
+      <FlexedToastMessage>
         {txHash && (
           <HyperLink
             href={getExplorerItemUrl(chainId ?? DEFAULT_CHAIN_ID, txHash, ExplorerscanApi.TX)}
@@ -70,7 +58,7 @@ export const NotificationToast: React.FC<NotificationToastProps> = ({ message, c
         ) : (
           <StyledWarning size={30} />
         )}
-      </FlexedMessage>
+      </FlexedToastMessage>
     </ToastWrapper>
   )
 }

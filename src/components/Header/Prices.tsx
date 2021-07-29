@@ -13,6 +13,7 @@
     styled components
 
     Prices function
+      custom hooks
       Render
 
   *************************************************************************************/
@@ -28,11 +29,11 @@ import { useCoingeckoPrice } from '@usedapp/coingecko'
 import { useWallet } from '../../context/WalletManager'
 
 /* import constants */
-import { CP_ROI, DEFAULT_CHAIN_ID, LP_ROI, MAX_PRICES_SCREEN_WIDTH } from '../../constants/'
+import { DEFAULT_CHAIN_ID, MAX_PRICES_SCREEN_WIDTH } from '../../constants/'
 import { Unit } from '../../constants/enums'
 
 /* import components */
-import { Header } from './index'
+import { Header } from '.'
 import Account from '../User/Account'
 import { SmallBox } from '../Box'
 import { Heading3 } from '../Typography'
@@ -66,12 +67,22 @@ const unitToNameMap: any = {
   [Unit.MATIC]: 'matic-network',
 }
 
-export const Prices = () => {
+export const Prices: React.FC = () => {
+  /*************************************************************************************
+
+  custom hooks
+
+  *************************************************************************************/
   const { chainId } = useWallet()
   const pairPrice = usePairPrice()
   const nativeToken = getNativeTokenUnit(chainId ?? DEFAULT_CHAIN_ID)
   const coinPrice = useCoingeckoPrice(unitToNameMap[nativeToken], 'usd')
 
+  /*************************************************************************************
+
+  Render
+
+  *************************************************************************************/
   return (
     <Price>
       <SmallBox pl={10} navy>

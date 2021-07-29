@@ -25,7 +25,18 @@ import { WalletConnectButton } from '../../components/Button/WalletConnect'
 import { HeroContainer } from '../../components/Layout'
 
 function Quote(): any {
+  /*************************************************************************************
+    
+  custom hooks
+
+  *************************************************************************************/
   const wallet = useWallet()
+
+  /************************************************************************************** 
+      
+  Render
+
+  *************************************************************************************/
 
   return !wallet.isActive || !wallet.account ? (
     <HeroContainer>

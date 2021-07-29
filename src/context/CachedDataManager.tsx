@@ -10,6 +10,7 @@ import { useInterval } from '../hooks/useInterval'
 import { useFetchGasPrice } from '../hooks/useFetchGasPrice'
 import { useGetLatestBlockNumber } from '../hooks/useGetLatestBlockNumber'
 import { useGetTokens } from '../hooks/useGetTokens'
+
 /*
 
 This manager caches data concerning the user's assets, operations, or preferences into the

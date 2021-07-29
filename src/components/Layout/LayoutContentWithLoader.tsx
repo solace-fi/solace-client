@@ -21,7 +21,7 @@ import { HeroContainer } from '.'
 import { useWallet } from '../../context/WalletManager'
 
 /* import components */
-import { Loader } from '../Loader'
+import { Loader } from '../Loader/Loader'
 
 export const LayoutContentWithLoader: React.FC = ({ children }) => {
   /* custom hooks */

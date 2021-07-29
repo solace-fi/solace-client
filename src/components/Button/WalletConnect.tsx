@@ -1,6 +1,6 @@
 import React from 'react'
 import { useWallet } from '../../context/WalletManager'
-import { Button } from './index'
+import { Button } from '.'
 import { SUPPORTED_WALLETS } from '../../wallet/wallets'
 
 export const WalletConnectButton: React.FC = () => {

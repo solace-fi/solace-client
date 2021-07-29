@@ -5,6 +5,7 @@
     import react
     import managers
     import components
+    import constants
     import hooks
     import utils
 
@@ -25,7 +26,10 @@ import { useContracts } from '../../context/ContractsManager'
 import { Content } from '../../components/Layout'
 import { Heading1, Heading3 } from '../../components/Typography'
 import { CardContainer, InvestmentCard, CardHeader, CardTitle, CardBlock } from '../../components/Card'
+
+/* import constants */
 import { Unit } from '../../constants/enums'
+import { DEFAULT_CHAIN_ID } from '../../constants'
 
 /* import hooks */
 import { useUserStakedValue } from '../../hooks/useFarm'
@@ -33,7 +37,6 @@ import { useUserPendingRewards, useUserRewardsPerDay } from '../../hooks/useRewa
 
 /* import utils */
 import { getNativeTokenUnit, truncateBalance } from '../../utils/formatting'
-import { DEFAULT_CHAIN_ID } from '../../constants'
 
 export const MyInvestments = () => {
   /*************************************************************************************

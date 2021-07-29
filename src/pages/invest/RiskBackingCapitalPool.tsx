@@ -1,23 +1,66 @@
+/*************************************************************************************
+
+    Table of Contents:
+
+    import react
+    import packages
+    import managers
+    import constants
+    import components
+    import hooks
+    import utils
+
+    RiskBackingCapitalPool function
+      custom hooks
+      Render
+
+  *************************************************************************************/
+
+/* import react */
 import React, { Fragment } from 'react'
+
+/* import packages */
+import { parseEther } from '@ethersproject/units'
+
+/* import managers */
+import { useWallet } from '../../context/WalletManager'
+
+/* import constants */
+import { CP_ROI } from '../../constants'
+
+/* import components */
 import { Content } from '../../components/Layout'
 import { Heading1 } from '../../components/Typography'
 import { Table, TableHead, TableRow, TableHeader, TableBody, TableData, TableDataGroup } from '../../components/Table'
-import { CP_ROI } from '../../constants'
-import { useWallet } from '../../context/WalletManager'
 import { Button } from '../../components/Button'
-import { parseEther } from '@ethersproject/units'
-import { floatEther, truncateBalance } from '../../utils/formatting'
 import { FunctionName } from '../../constants/enums'
+
+/* import hooks */
 import { useCapitalPoolSize, useUserVaultDetails } from '../../hooks/useVault'
+
+/* import utils */
+import { floatEther, truncateBalance } from '../../utils/formatting'
 
 interface RiskBackingCapitalPoolProps {
   openModal: (func: FunctionName, modalTitle: string) => void
 }
 
 export const RiskBackingCapitalPool: React.FC<RiskBackingCapitalPoolProps> = ({ openModal }) => {
+  /*************************************************************************************
+
+  custom hooks
+
+  *************************************************************************************/
+
   const wallet = useWallet()
   const { userVaultAssets, userVaultShare } = useUserVaultDetails()
   const capitalPoolSize = useCapitalPoolSize()
+
+  /*************************************************************************************
+
+  Render
+
+  *************************************************************************************/
 
   return (
     <Content>

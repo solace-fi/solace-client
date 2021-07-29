@@ -1,4 +1,3 @@
-import React from 'react'
 import styled, { keyframes } from 'styled-components'
 import { HeightAndWidthProps } from '../generalInterfaces'
 
@@ -10,7 +9,7 @@ const rotate = keyframes`
     transform: rotate(360deg);
   }`
 
-const LoadingIcon = styled.div<HeightAndWidthProps>`
+export const LoadingIcon = styled.div<HeightAndWidthProps>`
   width: ${(props) => (props.width ? `${props.width + 20}px` : '80px')};
   height: ${(props) => (props.height ? `${props.height + 20}px` : '80px')};
   margin: auto;
@@ -25,7 +24,3 @@ const LoadingIcon = styled.div<HeightAndWidthProps>`
     animation: ${rotate} 1.2s linear infinite;
   }
 `
-
-export const Loader: React.FC<HeightAndWidthProps> = ({ width, height }) => {
-  return <LoadingIcon width={width} height={height} />
-}

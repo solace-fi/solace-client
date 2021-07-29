@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
-import { SidebarItem, ItemText, ItemList, TopNav, NavButton } from './index'
-import { Logo } from '../Logo'
+import { SidebarItem, ItemText, ItemList, TopNav, NavButton } from '.'
+import { Logo } from '../Logo/Logo'
 import { StyledMenu } from '../Icon'
 
 const SidebarItemList: React.FC = ({ children }) => {

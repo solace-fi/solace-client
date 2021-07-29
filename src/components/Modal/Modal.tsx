@@ -1,7 +1,26 @@
-import React, { Fragment } from 'react'
+import React, { Fragment, useCallback } from 'react'
 import { Heading2 } from '../Typography'
-import { ModalContainer, ModalBase, ModalClose, ModalHeader } from './index'
-import { ModalProps, ModalButtonProps } from './index'
+import { ModalContainer, ModalBase, ModalClose, ModalHeader } from '.'
+import { ModalProps, ModalButtonProps } from '.'
+
+import { TransactionHistory } from '../../pages/TransactionHistory'
+
+interface TransactionHistoryModalProps {
+  closeModal: () => void
+  isOpen: boolean
+}
+
+export const TransactionHistoryModal: React.FC<TransactionHistoryModalProps> = ({ closeModal, isOpen }) => {
+  const handleClose = useCallback(() => {
+    closeModal()
+  }, [closeModal])
+
+  return (
+    <Modal handleClose={handleClose} isOpen={isOpen} modalTitle={'Recent Transactions'} disableCloseButton={false}>
+      <TransactionHistory />
+    </Modal>
+  )
+}
 
 export const Modal: React.FC<ModalProps> = ({ children, ...props }) => {
   return (

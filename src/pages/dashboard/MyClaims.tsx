@@ -12,7 +12,6 @@
 
     MyClaims function
       custom hooks
-      useState hooks
       contract functions
       Render
 

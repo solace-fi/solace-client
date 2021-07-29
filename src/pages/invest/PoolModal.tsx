@@ -1,29 +1,71 @@
+/*************************************************************************************
+
+    Table of Contents:
+
+    import react
+    import packages
+    import managers
+    import constants
+    import components
+    import hooks
+    import utils
+
+    PoolModal function
+      custom hooks
+      contract functions
+      local functions
+      useEffect hooks
+      functional components
+      Render
+
+  *************************************************************************************/
+
+/* import react */
 import React, { useState, Fragment, useEffect, useCallback } from 'react'
+
+/* import packages */
+import { formatEther, parseEther } from '@ethersproject/units'
+import { BigNumber as BN } from 'ethers'
+import { Contract } from '@ethersproject/contracts'
+
+/* import managers */
+import { useToasts } from '../../context/NotificationsManager'
+import { useCachedData } from '../../context/CachedDataManager'
+import { useContracts } from '../../context/ContractsManager'
+import { useWallet } from '../../context/WalletManager'
+
+/* import constants */
+import { ZERO, GAS_LIMIT, POW_NINE, DEADLINE, DEFAULT_CHAIN_ID } from '../../constants'
+import { FunctionName, TransactionCondition } from '../../constants/enums'
+import { GasFeeOption, LpTokenInfo } from '../../constants/types'
+
+/* import components */
 import { Input } from '../../components/Input'
 import { ModalRow, ModalCell } from '../../components/Modal'
 import { Modal } from '../../components/Modal/Modal'
-import { RadioElement, RadioInput, RadioGroup, RadioLabel } from '../../components/Radio'
-import { RadioCircle, RadioCircleFigure, RadioCircleInput } from '../../components/Radio/RadioCircle'
+import {
+  RadioElement,
+  RadioInput,
+  RadioGroup,
+  RadioLabel,
+  RadioCircle,
+  RadioCircleFigure,
+  RadioCircleInput,
+} from '../../components/Radio'
 import { Button, ButtonWrapper } from '../../components/Button'
-import { formatEther, parseEther } from '@ethersproject/units'
-import { BigNumber as BN } from 'ethers'
-import { ZERO, GAS_LIMIT, POW_NINE, DEADLINE, DEFAULT_CHAIN_ID } from '../../constants'
-import { FunctionName, TransactionCondition } from '../../constants/enums'
-import { useContracts } from '../../context/ContractsManager'
+import { Loader } from '../../components/Loader/Loader'
+import { FormOption, FormSelect } from '../../components/Form'
+
+/* import hooks */
 import { useUserStakedValue } from '../../hooks/useFarm'
 import { useLpBalances, useNativeTokenBalance } from '../../hooks/useBalance'
 import { useScpBalance } from '../../hooks/useBalance'
-import { fixed, getGasValue, filteredAmount, getUnit, truncateBalance } from '../../utils/formatting'
-import { GasFeeOption, LpTokenInfo } from '../../constants/types'
-import { useWallet } from '../../context/WalletManager'
 import { useTokenAllowance } from '../../hooks/useTokenAllowance'
-import { Contract } from '@ethersproject/contracts'
-import { useToasts } from '../../context/NotificationsManager'
-import { useCachedData } from '../../context/CachedDataManager'
+
+/* import utils */
 import getPermitNFTSignature from '../../utils/signature'
 import { hasApproval } from '../../utils'
-import { Loader } from '../../components/Loader'
-import { FormOption, FormSelect } from '../../components/Input/Form'
+import { fixed, getGasValue, filteredAmount, getUnit, truncateBalance } from '../../utils/formatting'
 
 interface PoolModalProps {
   modalTitle: string
@@ -33,6 +75,12 @@ interface PoolModalProps {
 }
 
 export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, closeModal }) => {
+  /*************************************************************************************
+
+  custom hooks
+
+  *************************************************************************************/
+
   const { vault, cpFarm, lpFarm, lpToken } = useContracts()
   const wallet = useWallet()
   const [amount, setAmount] = useState<string>('')
@@ -53,6 +101,12 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
   const maxLoss = 5
   const [nft, setNft] = useState<BN>(ZERO)
   const [nftSelection, setNftSelection] = useState<string>('')
+
+  /*************************************************************************************
+
+  contract functions
+
+  *************************************************************************************/
 
   const callDeposit = async () => {
     setModalLoading(true)
@@ -311,14 +365,17 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
     }
   }
 
-  // TODO: maybe extract pure functions into utils
+  /*************************************************************************************
+
+  local functions
+
+  *************************************************************************************/
 
   const isAppropriateAmount = () => {
     if (!amount || amount == '.' || parseEther(amount).lte(ZERO)) return false
     return getAssetBalanceByFunc().gte(parseEther(amount))
   }
 
-  // TODO: fix up lp farm
   const getAssetBalanceByFunc = (): BN => {
     switch (func) {
       case FunctionName.DEPOSIT:
@@ -403,6 +460,12 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
     setNftSelection(target.value)
   }
 
+  /*************************************************************************************
+
+  useEffect hooks
+
+  *************************************************************************************/
+
   useEffect(() => {
     if (!gasPrices.selected) return
     setSelectedGasOption(gasPrices.selected)
@@ -435,6 +498,12 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
       }
     }
   }, [isOpen, cpFarm?.address, vault])
+
+  /*************************************************************************************
+
+    functional components
+
+  *************************************************************************************/
 
   const GasRadioGroup: React.FC = () => (
     <RadioGroup>
@@ -470,6 +539,12 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
       </ModalCell>
     </ModalRow>
   )
+
+  /*************************************************************************************
+
+  Render
+
+  *************************************************************************************/
 
   return (
     <Modal isOpen={isOpen} handleClose={handleClose} modalTitle={modalTitle} disableCloseButton={modalLoading}>
@@ -530,7 +605,7 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
         {(func == FunctionName.DEPOSIT || func == FunctionName.DEPOSIT_ETH) && <AutoStakeOption />}
         <ButtonWrapper>
           {!modalLoading ? (
-            <ButtonWrapper>
+            <Fragment>
               {func == FunctionName.DEPOSIT_CP ? (
                 <Fragment>
                   {!hasApproval(tokenAllowance, amount ? parseEther(amount).toString() : '0') && tokenAllowance != '' && (
@@ -562,7 +637,7 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
                   Confirm
                 </Button>
               )}
-            </ButtonWrapper>
+            </Fragment>
           ) : (
             <Loader />
           )}

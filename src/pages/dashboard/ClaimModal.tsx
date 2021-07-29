@@ -6,6 +6,7 @@
     import packages
     import managers
     import components
+    import config
     import constants
     import hooks
     import utils
@@ -35,13 +36,16 @@ import { useContracts } from '../../context/ContractsManager'
 
 /* import components */
 import { Modal } from '../../components/Modal/Modal'
-import { FormRow, FormCol } from '../../components/Input/Form'
+import { FormRow, FormCol } from '../../components/Form'
 import { Heading2, Heading3, Text2, Text3 } from '../../components/Typography'
 import { PolicyInfo } from './PolicyInfo'
-import { Loader } from '../../components/Loader'
+import { Loader } from '../../components/Loader/Loader'
 import { SmallBox, Box } from '../../components/Box'
 import { Button, ButtonWrapper } from '../../components/Button'
 import { Table, TableBody, TableRow, TableData } from '../../components/Table'
+
+/* import config */
+import { policyConfig } from '../../config/chainConfig'
 
 /* import constants */
 import { FunctionName, TransactionCondition, Unit, ProductName } from '../../constants/enums'
@@ -58,7 +62,6 @@ import { getClaimAssessment } from '../../utils/paclas'
 import { truncateBalance, fixedPositionBalance, getGasValue } from '../../utils/formatting'
 import { hasApproval, getContract } from '../../utils'
 import { timeToText } from '../../utils/time'
-import { policyConfig } from '../../config/chainConfig'
 
 interface ClaimModalProps {
   closeModal: () => void
@@ -328,11 +331,9 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
             <Table isHighlight>
               <TableBody>
                 <TableRow>
-                  <TableData>
-                    <Text2>Current Cooldown Period</Text2>
-                  </TableData>
-                  <TableData textAlignRight>
-                    <Text2>{timeToText(parseInt(cooldown) * 1000)}</Text2>
+                  <TableData t2>Current Cooldown Period</TableData>
+                  <TableData t2 textAlignRight>
+                    {timeToText(parseInt(cooldown) * 1000)}
                   </TableData>
                 </TableRow>
               </TableBody>

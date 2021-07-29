@@ -1,5 +1,5 @@
 import styled from 'styled-components'
-import { Input } from '.'
+import { Input } from '../Input'
 import { GeneralElementProps, GeneralElementCss } from '../generalInterfaces'
 
 export const FormRow = styled.div<GeneralElementProps>`

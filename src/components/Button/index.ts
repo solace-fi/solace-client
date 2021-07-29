@@ -1,4 +1,3 @@
-import React from 'react'
 import { GeneralElementProps, GeneralElementCss, MarginProps, MarginCss } from '../generalInterfaces'
 import styled, { css } from 'styled-components'
 import { Text3Css } from '../Typography'
@@ -40,7 +39,7 @@ export const ButtonBaseCss = css<ButtonProps & GeneralElementProps>`
   ${Text3Css}
 `
 
-const ButtonBase = styled.button<ButtonProps & GeneralElementProps>`
+export const Button = styled.button<ButtonProps & GeneralElementProps>`
   ${ButtonBaseCss}
   ${GeneralElementCss}
 `
@@ -53,7 +52,3 @@ export const ButtonWrapper = styled.div<MarginProps>`
   gap: 5px;
   ${MarginCss}
 `
-
-export const Button: React.FC<ButtonProps & GeneralElementProps> = ({ ...props }) => {
-  return <ButtonBase {...props}>{props.children}</ButtonBase>
-}

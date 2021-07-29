@@ -88,31 +88,23 @@ Run using the following react command from the client directory
       </WalletManager>
     </ProviderManager>
 
+ProviderManager allows access to the provider from Alchemy, this is used to call read-only contract methods.
+
 WalletManager allows access to web3-react, wallet connection functionalities, and wallet balance.
 
 ContractsManager allows centralized access to contracts.
 
+CachedDataManager allows the app to access data that is already cached onto the app.
+
+NotificationsManager allows the app to create notifications for the user.
+
 We may need more Context providers in the future, for data such as themes and user preferences.
 
-## Design Decisions
+## Beginning Design Decisions
 
-There are two git repositories that influenced this application design direction, [Barnbridge](https://github.com/BarnBridge/barnbridge-frontend)
+There are two git repositories that initially influenced the design direction of this application, [Barnbridge](https://github.com/BarnBridge/barnbridge-frontend)
 and [Uniswap](https://github.com/Uniswap/uniswap-interface).
 
 At the time of writing, Barnbridge utilized Web3 and React Context, while Uniswap utilized Redux and Ethers, but they both used Web3-react. To make the most of our application, we tried to get the best of both worlds using the following stack: React Context, Ethers, and Web3-React.
 
 There was also a difference in the organization of connectors and contracts observed in both repositories. Barnbridge centralized all of its contracts into a single Context provider, while Uniswap centralized contract hooks and molded its contract functions into hooks that are called by different components of the application. This application was able to mesh the two types of organizations together.
-
-## User Journeys
-
-### Connecting and disconnecting wallet
-
-Upon starting the application, the Context provider that manages Web3 keeps track of what provider is available. Whether the user selects a provider or not, it is saved locally onto the user's browser. The provider, or the lack of, is then propagated throughout the application.
-
-### Contract function calls
-
-During development, contract functions are implemented to communicate between the smart contract and the frontend. So far, the most basic view and mutable methods work, although needs fine tuning in the future.
-
-### Changing between pages
-
-The application uses a HashRouter that will display different components or pages to the user based on the URL.

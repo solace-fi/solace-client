@@ -7,7 +7,7 @@ import 'react-toastify/dist/ReactToastify.css'
 import { TransactionCondition, Error } from '../constants/enums'
 
 import '../styles/toast.css'
-import { AppToast, NotificationToast } from '../components/Toast'
+import { AppToast, NotificationToast } from '../components/Toast/Toast'
 import { StyledWarning } from '../components/Icon'
 
 /*

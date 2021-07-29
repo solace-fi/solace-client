@@ -3,11 +3,8 @@
     Table of Contents:
 
     import react
-    import constants
-    import managers
     import components
-    import hooks
-    import utils
+    import constants
 
     Invest function
       custom hooks
@@ -19,13 +16,14 @@
 /* import react */
 import React, { useState, Fragment, useCallback } from 'react'
 
-/* import constants */
-import { FunctionName } from '../../constants/enums'
-
+/* import components */
 import { PoolModal } from './PoolModal'
 import { RiskBackingCapitalPool } from './RiskBackingCapitalPool'
 import { CapitalProviderPool } from './CapitalProviderPool'
 import { LiquidityPool } from './LiquidityPool'
+
+/* import constants */
+import { FunctionName } from '../../constants/enums'
 
 function Invest(): any {
   /*************************************************************************************

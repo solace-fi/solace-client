@@ -28,11 +28,12 @@ import { useCachedData } from '../../context/CachedDataManager'
 
 /* import constants */
 import { Policy } from '../../constants/types'
+import { DEFAULT_CHAIN_ID } from '../../constants'
 
 /* import components */
 import { Table, TableBody, TableHead, TableRow, TableHeader, TableData, TableDataGroup } from '../../components/Table'
 import { Button } from '../../components/Button'
-import { Loader } from '../../components/Loader'
+import { Loader } from '../../components/Loader/Loader'
 import { Heading2, Text } from '../../components/Typography'
 import { PolicyState } from '../../constants/enums'
 import { FlexRow } from '../../components/Layout'
@@ -41,7 +42,6 @@ import { PositionCardLogo } from '../../components/Position'
 /* import utils */
 import { getNativeTokenUnit, truncateBalance } from '../../utils/formatting'
 import { getDays, getExpiration } from '../../utils/time'
-import { DEFAULT_CHAIN_ID } from '../../constants'
 
 interface MyPoliciesProps {
   openClaimModal: any

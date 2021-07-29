@@ -1,12 +1,40 @@
+/*************************************************************************************
+
+    Table of Contents:
+
+    import react
+    import packages
+    import constants
+    import managers
+    import components
+    import hooks
+    import utils
+
+    styled components
+
+    TransactionHistory function
+      custom hooks
+      Render
+
+  *************************************************************************************/
+
 /* import react */
 import React from 'react'
+
+/* import packages */
+import styled from 'styled-components'
+
+/* import constants */
+import { DEFAULT_CHAIN_ID } from '../constants'
+import { ExplorerscanApi } from '../constants/enums'
 
 /* import managers */
 import { useWallet } from '../context/WalletManager'
 import { useCachedData } from '../context/CachedDataManager'
+import { useContracts } from '../context/ContractsManager'
 
 /* import components */
-import { Loader } from '../components/Loader'
+import { Loader } from '../components/Loader/Loader'
 import { Table, TableHead, TableHeader, TableRow, TableBody, TableData } from '../components/Table'
 import { Button } from '../components/Button'
 import { Text } from '../components/Typography'
@@ -21,10 +49,12 @@ import { getExplorerItemUrl } from '../utils/explorer'
 import { shortenAddress } from '../utils/formatting'
 import { timeAgo } from '../utils/time'
 import { decodeInput } from '../utils/decoder'
-import styled from 'styled-components'
-import { ExplorerscanApi } from '../constants/enums'
-import { useContracts } from '../context/ContractsManager'
-import { DEFAULT_CHAIN_ID } from '../constants'
+
+/*************************************************************************************
+
+  styled components
+
+  *************************************************************************************/
 
 const Scrollable = styled.div`
   max-height: 60vh;
@@ -33,10 +63,22 @@ const Scrollable = styled.div`
 `
 
 export const TransactionHistory: React.FC = () => {
+  /*************************************************************************************
+
+  custom hooks
+
+  *************************************************************************************/
+
   const { txHistory, amounts } = useTransactionDetails()
   const wallet = useWallet()
   const { localTransactions } = useCachedData()
   const { contractSources } = useContracts()
+
+  /*************************************************************************************
+
+  Render
+
+  *************************************************************************************/
 
   return (
     <Scrollable>

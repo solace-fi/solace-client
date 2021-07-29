@@ -37,12 +37,12 @@ import { useContracts } from '../../context/ContractsManager'
 
 /* import components */
 import { Modal } from '../../components/Modal/Modal'
-import { FormRow, FormCol } from '../../components/Input/Form'
+import { FormRow, FormCol } from '../../components/Form'
 import { Text1, Text3 } from '../../components/Typography'
 import { PolicyInfo } from './PolicyInfo'
 import { Input } from '../../components/Input'
 import { Button } from '../../components/Button'
-import { Loader } from '../../components/Loader'
+import { Loader } from '../../components/Loader/Loader'
 
 /* import constants */
 import { DAYS_PER_YEAR, NUM_BLOCKS_PER_DAY, GAS_LIMIT, ZERO } from '../../constants'

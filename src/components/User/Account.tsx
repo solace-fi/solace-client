@@ -26,10 +26,10 @@ import { useWallet } from '../../context/WalletManager'
 import { useCachedData } from '../../context/CachedDataManager'
 
 /* import components */
-import { UserImage } from './index'
+import { UserImage } from '.'
 import { Heading3 } from '../Typography'
 import { Button } from '../Button'
-import { TransactionHistoryModal } from './TransactionHistoryModal'
+import { TransactionHistoryModal } from '../Modal/Modal'
 import { StyledHistory } from '../Icon'
 import { WalletConnectButton } from '../Button/WalletConnect'
 import { SmallBox } from '../Box'

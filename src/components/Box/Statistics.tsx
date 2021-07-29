@@ -37,7 +37,7 @@ import { useToasts } from '../../context/NotificationsManager'
 import { useCachedData } from '../../context/CachedDataManager'
 
 /* import components */
-import { BoxRow, Box, BoxItem, BoxItemTitle } from './index'
+import { BoxRow, Box, BoxItem, BoxItemTitle } from '.'
 import { Button } from '../Button'
 import { Text, TextSpan } from '../Typography'
 
@@ -54,7 +54,7 @@ import { WalletConnectButton } from '../Button/WalletConnect'
 /* import utils */
 import { fixed, getGasValue, floatEther, truncateBalance, getNativeTokenUnit } from '../../utils/formatting'
 
-export const Statistics = () => {
+export const Statistics: React.FC = () => {
   /*************************************************************************************
 
   custom hooks
@@ -152,6 +152,12 @@ export const Statistics = () => {
       console.log(err)
     }
   }, [allPolicies])
+
+  /*************************************************************************************
+
+  Render
+
+  *************************************************************************************/
 
   return (
     <BoxRow>

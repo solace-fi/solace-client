@@ -40,13 +40,13 @@ import { useCachedData } from '../../context/CachedDataManager'
 import { useToasts } from '../../context/NotificationsManager'
 
 /* import components */
-import { FormRow, FormCol } from '../../components/Input/Form'
+import { FormRow, FormCol } from '../../components/Form'
 import { Button, ButtonWrapper } from '../../components/Button'
 import { formProps } from './MultiStepForm'
 import { Card, CardContainer } from '../../components/Card'
 import { Heading2, Text3, TextSpan } from '../../components/Typography'
 import { Input } from '../../components/Input'
-import { Loader } from '../../components/Loader'
+import { Loader } from '../../components/Loader/Loader'
 import { SmallBox } from '../../components/Box'
 import { FlexRow } from '../../components/Layout'
 

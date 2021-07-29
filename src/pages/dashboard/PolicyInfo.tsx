@@ -27,10 +27,10 @@ import { ZERO } from '../../constants'
 
 /* import components */
 import { Box, BoxItem, BoxItemTitle } from '../../components/Box'
-import { FormCol } from '../../components/Input/Form'
+import { FormCol } from '../../components/Form'
 import { FlexRow, HeroContainer } from '../../components/Layout'
 import { Protocol, ProtocolImage, ProtocolTitle } from '../../components/Protocol'
-import { Loader } from '../../components/Loader'
+import { Loader } from '../../components/Loader/Loader'
 import { Text } from '../../components/Typography'
 
 /* import hooks */

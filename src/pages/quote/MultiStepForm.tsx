@@ -17,6 +17,7 @@
     MultiStepForm function
       custom hooks
       Local functions
+      useEffect hooks
       Render
 
   *************************************************************************************/
@@ -152,6 +153,12 @@ export const MultiStepForm = () => {
         return <ConfirmStep {...props} />
     }
   }
+
+  /*************************************************************************************
+
+  useEffect hooks
+
+  *************************************************************************************/
 
   useEffect(() => {
     if (Number(StepNumber[step.id]) == 2 || Number(StepNumber[step.id]) == 1) {

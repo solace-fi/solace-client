@@ -1,29 +1,68 @@
+/*************************************************************************************
+
+    Table of Contents:
+
+    import react
+    import managers
+    import components
+    import constants
+    import hooks
+    import utils
+
+    CapitalProviderPool function
+      custom hooks
+      Render
+
+  *************************************************************************************/
+
+/* import react */
 import React from 'react'
+
+/* import managers */
+import { useContracts } from '../../context/ContractsManager'
+import { useWallet } from '../../context/WalletManager'
+
+/* import components */
 import { Content } from '../../components/Layout'
 import { Heading1 } from '../../components/Typography'
 import { Table, TableHead, TableRow, TableHeader, TableBody, TableData, TableDataGroup } from '../../components/Table'
 import { Button } from '../../components/Button'
-import { truncateBalance } from '../../utils/formatting'
-import { FunctionName } from '../../constants/enums'
-import { useWallet } from '../../context/WalletManager'
+
+/* import constants */
 import { CP_ROI } from '../../constants'
+import { FunctionName } from '../../constants/enums'
+
+/* import hooks */
 import { useRewardsPerDay, useUserPendingRewards, useUserRewardsPerDay } from '../../hooks/useRewards'
 import { useUserStakedValue, usePoolStakedValue } from '../../hooks/useFarm'
-import { useContracts } from '../../context/ContractsManager'
+
+/* import utils */
+import { truncateBalance } from '../../utils/formatting'
 
 interface CapitalProviderPoolProps {
   openModal: (func: FunctionName, modalTitle: string) => void
 }
 
 export const CapitalProviderPool: React.FC<CapitalProviderPoolProps> = ({ openModal }) => {
+  /*************************************************************************************
+
+    custom hooks
+
+  *************************************************************************************/
+
   const wallet = useWallet()
   const { cpFarm } = useContracts()
-
   const cpUserStakeValue = useUserStakedValue(cpFarm, wallet.account)
   const cpRewardsPerDay = useRewardsPerDay(1)
   const cpUserRewardsPerDay = useUserRewardsPerDay(1, cpFarm, wallet.account)
   const [cpUserRewards] = useUserPendingRewards(cpFarm)
   const cpPoolValue = usePoolStakedValue(cpFarm)
+
+  /*************************************************************************************
+
+    Render
+
+  *************************************************************************************/
 
   return (
     <Content>
