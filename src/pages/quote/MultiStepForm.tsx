@@ -17,6 +17,7 @@
     MultiStepForm function
       custom hooks
       Local functions
+      useEffect hooks
       Render
 
   *************************************************************************************/
@@ -39,10 +40,10 @@ import { ProtocolStep } from './ProtocolStep'
 import { PositionStep } from './PositionStep'
 import { CoverageStep } from './CoverageStep'
 import { ConfirmStep } from './ConfirmStep'
-import { Step, StepsContainer, StepsWrapper, StepsProgress, StepsProgressBar } from '../../components/Progress'
-import { Protocol, ProtocolImage, ProtocolTitle } from '../../components/Protocol'
-import { Box, BoxItem, BoxRow } from '../../components/Box'
-import { Button } from '../../components/Button'
+import { Step, StepsContainer, StepsWrapper, StepsProgress, StepsProgressBar } from '../../components/atoms/Progress'
+import { Protocol, ProtocolImage, ProtocolTitle } from '../../components/atoms/Protocol'
+import { Box, BoxItem, BoxRow } from '../../components/atoms/Box'
+import { Button } from '../../components/atoms/Button'
 
 /* import utils */
 import { fixed, fixedTokenPositionBalance } from '../../utils/formatting'
@@ -152,6 +153,12 @@ export const MultiStepForm = () => {
         return <ConfirmStep {...props} />
     }
   }
+
+  /*************************************************************************************
+
+  useEffect hooks
+
+  *************************************************************************************/
 
   useEffect(() => {
     if (Number(StepNumber[step.id]) == 2 || Number(StepNumber[step.id]) == 1) {

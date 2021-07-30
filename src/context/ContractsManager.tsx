@@ -1,6 +1,6 @@
 import React, { createContext, useCallback, useContext, useMemo, useState } from 'react'
 import { Contract } from '@ethersproject/contracts'
-import { contractConfig } from '../utils/config/chainConfig'
+import { contractConfig } from '../config/chainConfig'
 
 import { useContractArray, useGetContract, useGetProductContracts } from '../hooks/useContract'
 import { useWallet } from './WalletManager'

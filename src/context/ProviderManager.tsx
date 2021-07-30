@@ -3,6 +3,7 @@ import { ALCHEMY_API_KEY, DEFAULT_CHAIN_ID } from '../constants'
 import { Provider, JsonRpcProvider } from '@ethersproject/providers'
 import { useWallet } from './WalletManager'
 import { getNetworkName } from '../utils/formatting'
+// import { getTokens } from '../utils/positionGetters/yearn/getTokens'
 
 /*
 
@@ -44,6 +45,8 @@ const ProviderManager: React.FC = ({ children }) => {
     const provider = new JsonRpcProvider(
       `https://eth-${getNetworkName(chainId ?? DEFAULT_CHAIN_ID)}.alchemyapi.io/v2/${ALCHEMY_API_KEY}`
     )
+    // const mainnetProvider = new JsonRpcProvider(`https://eth-mainnet.alchemyapi.io/v2/${ALCHEMY_API_KEY}`)
+    // getTokens(mainnetProvider)
     setEthProvider(provider)
   }
 

@@ -1,6 +1,6 @@
 import { withBackoffRetries } from '../utils/time'
 import { rangeFrom0 } from '../utils/numeric'
-import { policyConfig } from '../utils/config/chainConfig'
+import { policyConfig } from '../config/chainConfig'
 import { useWallet } from '../context/WalletManager'
 import { PolicyState } from '../constants/enums'
 import { Policy } from '../constants/types'
@@ -126,7 +126,7 @@ export const usePolicyGetter = (
     setPoliciesLoading(true)
     if (!policyHolder || !library || getAll || !dataInit) return
     loadOnBoot()
-  }, [policyHolder, isActive, library, dataInit])
+  }, [policyHolder, isActive, chainId, dataInit])
 
   useEffect(() => {
     const loadOverTime = async () => {
@@ -135,7 +135,7 @@ export const usePolicyGetter = (
     if (policyHolder == undefined || mounting.current || getAll || !dataInit) return
 
     loadOverTime()
-  }, [policyHolder, latestBlock, version, dataInit])
+  }, [latestBlock, version])
 
   return { policiesLoading, userPolicies, allPolicies }
 }

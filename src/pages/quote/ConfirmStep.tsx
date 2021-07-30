@@ -14,11 +14,11 @@
 import React from 'react'
 
 /* import components */
-import { StyledLink } from '../../components/Link'
-import { Button } from '../../components/Button'
-import { TableDataGroup } from '../../components/Table'
-import { Heading1, Heading2 } from '../../components/Typography'
-import { HeroContainer } from '../../components/Layout'
+import { StyledLink } from '../../components/atoms/Link'
+import { Button } from '../../components/atoms/Button'
+import { TableDataGroup } from '../../components/atoms/Table'
+import { Heading1, Heading2 } from '../../components/atoms/Typography'
+import { HeroContainer } from '../../components/atoms/Layout'
 import { formProps } from './MultiStepForm'
 
 export const ConfirmStep: React.FC<formProps> = ({ navigation }) => {

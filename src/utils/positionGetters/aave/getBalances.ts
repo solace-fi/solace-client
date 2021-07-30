@@ -1,8 +1,8 @@
 import { Token } from '../../../constants/types'
-import ierc20Json from '../contracts/IERC20Metadata.json'
+import ierc20Json from '../_contracts/IERC20Metadata.json'
 import { rangeFrom0 } from '../../numeric'
 import { addNativeTokenBalances, getProductTokenBalances } from '../getBalances'
-import { policyConfig } from '../../config/chainConfig'
+import { policyConfig } from '../../../config/chainConfig'
 import { ProductName } from '../../../constants/enums'
 
 export const getBalances = async (user: string, provider: any, chainId: number): Promise<Token[]> => {

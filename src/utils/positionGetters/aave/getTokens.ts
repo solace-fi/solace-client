@@ -1,7 +1,7 @@
 import { Contract, providers } from 'ethers'
 import { ZERO } from '../../../constants'
 import { Token } from '../../../constants/types'
-import ierc20Json from '../contracts/IERC20Metadata.json'
+import ierc20Json from '../_contracts/IERC20Metadata.json'
 import { AaveProtocolDataProviderFactory } from './contracts/AaveProtocolDataProviderFactory'
 import { withBackoffRetries } from '../../time'
 import { equalsIgnoreCase } from '../..'
@@ -57,7 +57,6 @@ const generateTokensData = async (
 
   try {
     const [tokens, aTokens] = await Promise.all([helperContract.getAllReservesTokens(), helperContract.getAllATokens()])
-    console.log(tokens, aTokens)
     const promises = tokens.map(async (token, index) => {
       const [config] = await Promise.all([helperContract.getReserveConfigurationData(token.tokenAddress)])
 

@@ -6,7 +6,6 @@
     import managers
     import constants
     import components
-    import utils
 
     Dashboard function
       useState hooks
@@ -29,13 +28,13 @@ import { useCachedData } from '../../context/CachedDataManager'
 import { Policy } from '../../constants/types'
 
 /* import components */
-import { HeroContainer, Content } from '../../components/Layout'
-import { Heading1 } from '../../components/Typography'
-import { ManageModal } from './ManageModal'
-import { ClaimModal } from './ClaimModal'
-import { MyPolicies } from './MyPolicies'
-import { MyClaims } from './MyClaims'
-import { MyInvestments } from './MyInvestments'
+import { HeroContainer, Content } from '../../components/atoms/Layout'
+import { Heading1 } from '../../components/atoms/Typography'
+import { ManageModal } from '../../components/organisms/ManageModal'
+import { ClaimModal } from '../../components/organisms/ClaimModal'
+import { MyPolicies } from '../../components/molecules/MyPolicies'
+import { MyClaims } from '../../components/molecules/MyClaims'
+import { MyInvestments } from '../../components/molecules/MyInvestments'
 
 function Dashboard(): any {
   /*************************************************************************************

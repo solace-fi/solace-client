@@ -1,5 +1,5 @@
 import { AbstractConnector } from '@web3-react/abstract-connector'
-import { injected } from '../index'
+import { injected } from '..'
 
 export type MetaMaskError = Error & {
   code: number

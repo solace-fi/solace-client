@@ -7,8 +7,8 @@ import 'react-toastify/dist/ReactToastify.css'
 import { TransactionCondition, Error } from '../constants/enums'
 
 import '../styles/toast.css'
-import { AppToast, NotificationToast } from '../components/Toast'
-import { StyledWarning } from '../components/Icon'
+import { AppToast, NotificationToast } from '../components/molecules/Toast'
+import { StyledWarning } from '../components/atoms/Icon'
 
 /*
 This manager allows for notifications to be created. such notifications can be created

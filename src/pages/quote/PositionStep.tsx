@@ -4,6 +4,7 @@
 
     import react
     import managers
+    import config
     import components
     import constants
     import utils
@@ -26,15 +27,23 @@ import { useWallet } from '../../context/WalletManager'
 import { useContracts } from '../../context/ContractsManager'
 import { useCachedData } from '../../context/CachedDataManager'
 
+/* import config */
+import { policyConfig } from '../../config/chainConfig'
+
 /* import components */
-import { Button } from '../../components/Button'
+import { Button } from '../../components/atoms/Button'
 import { formProps } from './MultiStepForm'
-import { CardContainer, PositionCard } from '../../components/Card'
-import { PositionCardButton, PositionCardText, PositionCardLogo, PositionCardName } from '../../components/Position'
-import { Loader } from '../../components/Loader'
-import { HeroContainer } from '../../components/Layout'
-import { Heading1, TextSpan } from '../../components/Typography'
-import { ManageModal } from '../dashboard/ManageModal'
+import { CardContainer, PositionCard } from '../../components/atoms/Card'
+import {
+  PositionCardButton,
+  PositionCardText,
+  PositionCardLogo,
+  PositionCardName,
+} from '../../components/atoms/Position'
+import { Loader } from '../../components/atoms/Loader'
+import { HeroContainer } from '../../components/atoms/Layout'
+import { Heading1, TextSpan } from '../../components/atoms/Typography'
+import { ManageModal } from '../../components/organisms/ManageModal'
 
 /* import constants */
 import { PolicyState } from '../../constants/enums'
@@ -42,7 +51,6 @@ import { Policy, Token } from '../../constants/types'
 
 /* import utils */
 import { fixedTokenPositionBalance, truncateBalance } from '../../utils/formatting'
-import { policyConfig } from '../../utils/config/chainConfig'
 
 export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigation }) => {
   const { protocol, balances, loading } = formData

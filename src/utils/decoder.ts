@@ -1,5 +1,6 @@
 import { ethers } from 'ethers'
 import { ContractSources } from '../constants/types'
+import { capitalizeFirstLetter } from './formatting'
 
 const getInterface = (toAddress: string, contractSources: ContractSources[]): ethers.utils.Interface | undefined => {
   const matchingContract = contractSources.find((contract) => contract.addr.toLowerCase() == toAddress)
@@ -19,7 +20,7 @@ export const decodeInput = (
       function_name: null,
     }
   const decodedInput = inter.parseTransaction({ data: tx.input, value: tx.value })
-  const function_name = decodedInput.name.charAt(0).toUpperCase() + decodedInput.name.slice(1)
+  const function_name = capitalizeFirstLetter(decodedInput.name)
   return {
     function_name,
   }

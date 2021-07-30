@@ -40,15 +40,15 @@ import { useCachedData } from '../../context/CachedDataManager'
 import { useToasts } from '../../context/NotificationsManager'
 
 /* import components */
-import { FormRow, FormCol } from '../../components/Input/Form'
-import { Button, ButtonWrapper } from '../../components/Button'
+import { FormRow, FormCol } from '../../components/atoms/Form'
+import { Button, ButtonWrapper } from '../../components/atoms/Button'
 import { formProps } from './MultiStepForm'
-import { Card, CardContainer } from '../../components/Card'
-import { Heading2, Text3, TextSpan } from '../../components/Typography'
-import { Input } from '../../components/Input'
-import { Loader } from '../../components/Loader'
-import { SmallBox } from '../../components/Box'
-import { FlexRow } from '../../components/Layout'
+import { Card, CardContainer } from '../../components/atoms/Card'
+import { Heading2, Text3, TextSpan } from '../../components/atoms/Typography'
+import { Input } from '../../components/atoms/Input'
+import { Loader } from '../../components/atoms/Loader'
+import { SmallBox } from '../../components/atoms/Box'
+import { FlexRow } from '../../components/atoms/Layout'
 
 /* import hooks */
 import { useGetQuote, useGetMaxCoverPerUser } from '../../hooks/usePolicy'
@@ -385,8 +385,8 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
               <hr></hr>
               <Heading2>Important Developer Notes</Heading2>
               <Text3 error>
-                Do not purchase a policy with a lending protocol for an asset that is locked as collateral. You will not
-                be able to submit a claim.
+                Policies with a lending protocol for an asset that is locked as collateral will not be able to submit a
+                claim if you have borrowed assets. Debts need to be paid before a claim can be submitted.
               </Text3>
             </FormCol>
           </FormRow>
