@@ -10,6 +10,26 @@ import { useContracts } from '../context/ContractsManager'
 import { contractConfig } from '../config/chainConfig'
 import { DEFAULT_CHAIN_ID } from '../constants'
 
+export const useFetchTxHistoryByAddress = (): any => {
+  const { account, chainId } = useWallet()
+  const { deleteLocalTransactions, dataVersion } = useCachedData()
+  const [txHistory, setTxHistory] = useState<any>([])
+  const { contractSources } = useContracts()
+
+  const fetchTxHistoryByAddress = async (account: string) => {
+    await fetchExplorerTxHistoryByAddress(chainId ?? DEFAULT_CHAIN_ID, account, contractSources).then((result) => {
+      deleteLocalTransactions(result.txList)
+      setTxHistory(result.txList.slice(0, 30))
+    })
+  }
+
+  useEffect(() => {
+    account ? fetchTxHistoryByAddress(account) : setTxHistory([])
+  }, [account, contractSources, dataVersion])
+
+  return txHistory
+}
+
 export const useTransactionDetails = (): { txHistory: any; amounts: string[] } => {
   const { library, chainId } = useWallet()
   const [amounts, setAmounts] = useState<string[]>([])
@@ -91,24 +111,4 @@ export const useTransactionDetails = (): { txHistory: any; amounts: string[] } =
   }, [txHistory])
 
   return { txHistory, amounts }
-}
-
-export const useFetchTxHistoryByAddress = (): any => {
-  const { account, chainId } = useWallet()
-  const { deleteLocalTransactions, dataVersion } = useCachedData()
-  const [txHistory, setTxHistory] = useState<any>([])
-  const { contractSources } = useContracts()
-
-  const fetchTxHistoryByAddress = async (account: string) => {
-    await fetchExplorerTxHistoryByAddress(chainId ?? DEFAULT_CHAIN_ID, account, contractSources).then((result) => {
-      deleteLocalTransactions(result.txList)
-      setTxHistory(result.txList.slice(0, 30))
-    })
-  }
-
-  useEffect(() => {
-    account ? fetchTxHistoryByAddress(account) : setTxHistory([])
-  }, [account, contractSources, dataVersion])
-
-  return txHistory
 }
