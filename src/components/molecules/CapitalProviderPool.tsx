@@ -55,7 +55,7 @@ export const CapitalProviderPool: React.FC<CapitalProviderPoolProps> = ({ openMo
   const cpUserStakeValue = useUserStakedValue(cpFarm, wallet.account)
   const cpRewardsPerDay = useRewardsPerDay(1)
   const cpUserRewardsPerDay = useUserRewardsPerDay(1, cpFarm, wallet.account)
-  const [cpUserRewards] = useUserPendingRewards(cpFarm)
+  const cpUserRewards = useUserPendingRewards(cpFarm)
   const cpPoolValue = usePoolStakedValue(cpFarm)
 
   /*************************************************************************************

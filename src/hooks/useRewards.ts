@@ -60,7 +60,7 @@ export const useUserRewardsPerDay = (
   }, [allocPoints, totalAllocPoints, solacePerBlock, poolStakedValue, userStakedValue])
 }
 
-export const useUserPendingRewards = (farm: Contract | null | undefined): string[] => {
+export const useUserPendingRewards = (farm: Contract | null | undefined): string => {
   const { master } = useContracts()
   const { latestBlock } = useCachedData()
   const { account } = useWallet()
@@ -82,13 +82,13 @@ export const useUserPendingRewards = (farm: Contract | null | undefined): string
     getUserPendingRewards()
   }, [account, farm, master, latestBlock])
 
-  return [userRewards]
+  return userRewards
 }
 
 export const useTotalPendingRewards = (): string => {
   const { cpFarm, lpFarm } = useContracts()
-  const [cpUserRewards] = useUserPendingRewards(cpFarm)
-  const [lpUserRewards] = useUserPendingRewards(lpFarm)
+  const cpUserRewards = useUserPendingRewards(cpFarm)
+  const lpUserRewards = useUserPendingRewards(lpFarm)
 
   return useMemo(() => {
     const rewards = parseEther(cpUserRewards).add(parseEther(lpUserRewards))

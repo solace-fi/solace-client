@@ -46,9 +46,9 @@ export const MyInvestments = () => {
   *************************************************************************************/
   const wallet = useWallet()
   const { cpFarm, lpFarm } = useContracts()
-  const [cpUserRewards] = useUserPendingRewards(cpFarm)
+  const cpUserRewards = useUserPendingRewards(cpFarm)
   const cpUserRewardsPerDay = useUserRewardsPerDay(1, cpFarm, wallet.account)
-  const [lpUserRewards] = useUserPendingRewards(lpFarm)
+  const lpUserRewards = useUserPendingRewards(lpFarm)
   const lpUserRewardsPerDay = useUserRewardsPerDay(2, lpFarm, wallet.account)
   const cpUserStakeValue = useUserStakedValue(cpFarm, wallet.account)
   const lpUserStakeValue = useUserStakedValue(lpFarm, wallet.account)

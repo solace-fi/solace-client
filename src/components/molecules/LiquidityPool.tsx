@@ -56,7 +56,7 @@ export const LiquidityPool: React.FC<LiquidityPoolProps> = ({ openModal }) => {
 
   const lpRewardsPerDay = useRewardsPerDay(2)
   const lpUserRewardsPerDay = useUserRewardsPerDay(2, lpFarm, wallet.account)
-  const [lpUserRewards] = useUserPendingRewards(lpFarm)
+  const lpUserRewards = useUserPendingRewards(lpFarm)
 
   const lpPoolValue = usePoolStakedValue(lpFarm)
   const lpUserStakeValue = useUserStakedValue(lpFarm, wallet.account)
