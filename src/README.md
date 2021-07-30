@@ -2,6 +2,8 @@
 
     > components: contains folders of visual and stateful components to build app
 
+    > config: contains config files
+
     > constants: contains contract abi, constant variables and enums
 
     > context: contains React Context providers

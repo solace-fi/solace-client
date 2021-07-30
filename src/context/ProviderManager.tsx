@@ -3,7 +3,7 @@ import { ALCHEMY_API_KEY, DEFAULT_CHAIN_ID } from '../constants'
 import { Provider, JsonRpcProvider } from '@ethersproject/providers'
 import { useWallet } from './WalletManager'
 import { getNetworkName } from '../utils/formatting'
-import { getTokens } from '../utils/positionGetters/yearn/getTokens'
+// import { getTokens } from '../utils/positionGetters/yearn/getTokens'
 
 /*
 

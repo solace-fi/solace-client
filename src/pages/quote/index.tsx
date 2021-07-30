@@ -20,12 +20,23 @@ import { useWallet } from '../../context/WalletManager'
 
 /* import components */
 import { MultiStepForm } from './MultiStepForm'
-import { Heading1 } from '../../components/Typography'
-import { WalletConnectButton } from '../../components/Button/WalletConnect'
-import { HeroContainer } from '../../components/Layout'
+import { Heading1 } from '../../components/atoms/Typography'
+import { WalletConnectButton } from '../../components/molecules/WalletConnect'
+import { HeroContainer } from '../../components/atoms/Layout'
 
 function Quote(): any {
+  /*************************************************************************************
+    
+  custom hooks
+
+  *************************************************************************************/
   const wallet = useWallet()
+
+  /************************************************************************************** 
+      
+  Render
+
+  *************************************************************************************/
 
   return !wallet.isActive || !wallet.account ? (
     <HeroContainer>

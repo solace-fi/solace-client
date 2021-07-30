@@ -1,6 +1,6 @@
 import React from 'react'
-import { HeroContainer } from '../../components/Layout'
-import { Heading1 } from '../../components/Typography'
+import { HeroContainer } from '../../components/atoms/Layout'
+import { Heading1 } from '../../components/atoms/Typography'
 function Govern(): any {
   return (
     <HeroContainer>

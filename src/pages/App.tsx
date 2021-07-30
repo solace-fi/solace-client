@@ -24,11 +24,11 @@ import Quote from './quote'
 import Govern from './govern'
 
 /* import components */
-import { SideNavbar, TopNavbar } from '../components/Navbar/Navbar'
-import { BottomPrices, PageHeader } from '../components/Header/Prices'
-import { GlobalStyle, Layout, LayoutContainer, LayoutContent, NavContent } from '../components/Layout'
-import { LayoutContentWithLoader } from '../components/Layout/LayoutContentWithLoader'
-import { Statistics } from '../components/Box/Statistics'
+import { SideNavbar, TopNavbar } from '../components/organisms/Navbar'
+import { BottomPrices, PageHeader } from '../components/organisms/Header'
+import { GlobalStyle, Layout, LayoutContainer, LayoutContent, NavContent } from '../components/atoms/Layout'
+import { LayoutContentWithLoader } from '../components/molecules/LayoutContentWithLoader'
+import { Statistics } from '../components/organisms/Statistics'
 
 export default function App(): any {
   const location = useLocation()

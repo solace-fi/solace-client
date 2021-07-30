@@ -10,9 +10,10 @@ import { useInterval } from '../hooks/useInterval'
 import { useFetchGasPrice } from '../hooks/useFetchGasPrice'
 import { useGetLatestBlockNumber } from '../hooks/useGetLatestBlockNumber'
 import { useGetTokens } from '../hooks/useGetTokens'
+
 /*
 
-This manager caches data concerning the user's assets, operations, or preferences into the
+This manager caches data such as the user's assets, operations, or preferences into the
 web app.
 
 */
@@ -28,7 +29,6 @@ type CachedData = {
   addLocalTransactions: (txToAdd: LocalTx) => void
   deleteLocalTransactions: (txsToDelete: []) => void
   reload: () => void
-  dataReload: () => void
 }
 
 const CachedDataContext = createContext<CachedData>({
@@ -42,7 +42,6 @@ const CachedDataContext = createContext<CachedData>({
   addLocalTransactions: () => undefined,
   deleteLocalTransactions: () => undefined,
   reload: () => undefined,
-  dataReload: () => undefined,
 })
 
 const CachedDataProvider: React.FC = (props) => {
@@ -91,7 +90,6 @@ const CachedDataProvider: React.FC = (props) => {
       addLocalTransactions,
       deleteLocalTransactions,
       reload,
-      dataReload,
     }),
     [
       localTxs,
