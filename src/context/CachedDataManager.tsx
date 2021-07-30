@@ -29,7 +29,6 @@ type CachedData = {
   addLocalTransactions: (txToAdd: LocalTx) => void
   deleteLocalTransactions: (txsToDelete: []) => void
   reload: () => void
-  dataReload: () => void
 }
 
 const CachedDataContext = createContext<CachedData>({
@@ -43,7 +42,6 @@ const CachedDataContext = createContext<CachedData>({
   addLocalTransactions: () => undefined,
   deleteLocalTransactions: () => undefined,
   reload: () => undefined,
-  dataReload: () => undefined,
 })
 
 const CachedDataProvider: React.FC = (props) => {
@@ -92,7 +90,6 @@ const CachedDataProvider: React.FC = (props) => {
       addLocalTransactions,
       deleteLocalTransactions,
       reload,
-      dataReload,
     }),
     [
       localTxs,
