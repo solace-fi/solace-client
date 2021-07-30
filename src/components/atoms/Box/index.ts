@@ -19,7 +19,7 @@ interface SmallBoxProps {
   collapse?: boolean
 }
 
-const BoxPropsHandler = css<GeneralElementProps & BoxProps>`
+const BoxCss = css<GeneralElementProps & BoxProps>`
   background-color: rgba(0, 255, 209, 0.3);
   ${(props) => props.transparent && 'background-color: rgba(0, 0, 0, 0);'}
   ${(props) => props.outlined && BoxOutline}
@@ -73,7 +73,7 @@ export const Box = styled(BoxRow)<BoxProps & GeneralElementProps>`
     props.pb !== undefined
       ? null
       : `padding: 24px;`}
-  ${BoxPropsHandler}
+  ${BoxCss}
 
   @media screen and (max-width: ${MAX_FULL_SCREEN_WIDTH}px) {
     flex-direction: row;
@@ -102,7 +102,7 @@ export const SmallBox = styled.div<BoxProps & SmallBoxProps & GeneralElementProp
   border-radius: 10px;
   ${(props) => (props.collapse ? `transform: scaleY(0); height: 0;` : `transform: scaleY(1);`)}
   transition: all 200ms ease;
-  ${BoxPropsHandler}
+  ${BoxCss}
 `
 
 export const BoxItem = styled.div`
