@@ -58,7 +58,7 @@ import { FormOption, FormSelect } from '../atoms/Form'
 
 /* import hooks */
 import { useUserStakedValue } from '../../hooks/useFarm'
-import { useLpBalances, useNativeTokenBalance } from '../../hooks/useBalance'
+import { useNativeTokenBalance, useUserWalletLpBalance, useDepositedLpBalance } from '../../hooks/useBalance'
 import { useScpBalance } from '../../hooks/useBalance'
 import { useTokenAllowance } from '../../hooks/useTokenAllowance'
 
@@ -86,10 +86,11 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
   const [amount, setAmount] = useState<string>('')
   const [isStaking, setIsStaking] = useState<boolean>(false)
   const cpUserStakeValue = useUserStakedValue(cpFarm, account)
-  const lpUserStakeValue = useUserStakedValue(lpFarm, account)
+  // const lpUserStakeValue = useUserStakedValue(lpFarm, account)
   const nativeTokenBalance = useNativeTokenBalance()
   const scpBalance = useScpBalance()
-  const { userLpTokenInfo, depositedLpTokenInfo } = useLpBalances()
+  const userLpTokenInfo = useUserWalletLpBalance()
+  const depositedLpTokenInfo = useDepositedLpBalance()
   const { addLocalTransactions, reload, gasPrices } = useCachedData()
   const [selectedGasOption, setSelectedGasOption] = useState<GasFeeOption>(gasPrices.selected)
   const [maxSelected, setMaxSelected] = useState<boolean>(false)
@@ -386,13 +387,9 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
       case FunctionName.WITHDRAW_ETH:
         return parseEther(cpUserStakeValue)
       case FunctionName.DEPOSIT_SIGNED:
-        let sum = ZERO
-        for (let i = 0; i < userLpTokenInfo.length; i++) {
-          sum = sum.add(userLpTokenInfo[i].value)
-        }
-        return sum
+        return userLpTokenInfo.reduce((a, b) => a.add(b.value), ZERO)
       case FunctionName.WITHDRAW_LP:
-        return parseEther(lpUserStakeValue)
+        return depositedLpTokenInfo.reduce((a, b) => a.add(b.value), ZERO)
       default:
         return BN.from('999999999999999999999999999999999999')
     }
@@ -608,19 +605,20 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
             <Fragment>
               {func == FunctionName.DEPOSIT_CP ? (
                 <Fragment>
-                  {!hasApproval(tokenAllowance, amount ? parseEther(amount).toString() : '0') && tokenAllowance != '' && (
-                    <Button
-                      disabled={(isAppropriateAmount() ? false : true) || errors.length > 0}
-                      onClick={() => approve()}
-                    >
-                      Approve
-                    </Button>
-                  )}
+                  {!hasApproval(tokenAllowance, amount && amount != '.' ? parseEther(amount).toString() : '0') &&
+                    tokenAllowance != '' && (
+                      <Button
+                        disabled={(isAppropriateAmount() ? false : true) || errors.length > 0}
+                        onClick={() => approve()}
+                      >
+                        Approve
+                      </Button>
+                    )}
                   <Button
                     hidden={modalLoading}
                     disabled={
                       (isAppropriateAmount() ? false : true) ||
-                      !hasApproval(tokenAllowance, amount ? parseEther(amount).toString() : '0') ||
+                      !hasApproval(tokenAllowance, amount && amount != '.' ? parseEther(amount).toString() : '0') ||
                       errors.length > 0
                     }
                     onClick={handleCallbackFunc}

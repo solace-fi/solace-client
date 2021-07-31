@@ -3,6 +3,7 @@
     Table of Contents:
 
     import react
+    import packages
     import managers
     import components
     import constants
@@ -18,6 +19,9 @@
 /* import react */
 import React from 'react'
 
+/* import packages */
+import { formatEther } from '@ethersproject/units'
+
 /* import managers */
 import { useWallet } from '../../context/WalletManager'
 import { useContracts } from '../../context/ContractsManager'
@@ -29,7 +33,7 @@ import { CardContainer, InvestmentCard, CardHeader, CardTitle, CardBlock } from 
 
 /* import constants */
 import { Unit } from '../../constants/enums'
-import { DEFAULT_CHAIN_ID } from '../../constants'
+import { DEFAULT_CHAIN_ID, ZERO } from '../../constants'
 
 /* import hooks */
 import { useUserStakedValue } from '../../hooks/useFarm'
@@ -37,6 +41,7 @@ import { useUserPendingRewards, useUserRewardsPerDay } from '../../hooks/useRewa
 
 /* import utils */
 import { getNativeTokenUnit, truncateBalance } from '../../utils/formatting'
+import { useDepositedLpBalance } from '../../hooks/useBalance'
 
 export const MyInvestments: React.FC = () => {
   /*************************************************************************************
@@ -49,7 +54,8 @@ export const MyInvestments: React.FC = () => {
   const cpUserRewards = useUserPendingRewards(cpFarm)
   const lpUserRewards = useUserPendingRewards(lpFarm)
   const cpUserStakeValue = useUserStakedValue(cpFarm, account)
-  const lpUserStakeValue = useUserStakedValue(lpFarm, account)
+  // const lpUserStakeValue = useUserStakedValue(lpFarm, account)
+  const depositedLpTokenInfo = useDepositedLpBalance()
   const cpUserRewardsPerDay = useUserRewardsPerDay(1, cpFarm, account)
   const lpUserRewardsPerDay = useUserRewardsPerDay(2, lpFarm, account)
 
@@ -88,7 +94,13 @@ export const MyInvestments: React.FC = () => {
           <CardHeader>
             <CardTitle h2>Liquidity Pool</CardTitle>
             <Heading3>
-              {account ? truncateBalance(parseFloat(lpUserStakeValue), 2) : 0} {Unit.SOLACE}
+              {account
+                ? truncateBalance(
+                    formatEther(depositedLpTokenInfo.reduce((a, b) => a.add(b.value), ZERO).toString()),
+                    2
+                  )
+                : 0}{' '}
+              {Unit.SOLACE}
             </Heading3>
           </CardHeader>
           <CardBlock>
