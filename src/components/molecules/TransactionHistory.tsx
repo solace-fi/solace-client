@@ -70,7 +70,7 @@ export const TransactionHistory: React.FC = () => {
   *************************************************************************************/
 
   const { txHistory, amounts } = useTransactionDetails()
-  const wallet = useWallet()
+  const { chainId } = useWallet()
   const { localTransactions } = useCachedData()
   const { contractSources } = useContracts()
 
@@ -111,7 +111,7 @@ export const TransactionHistory: React.FC = () => {
               </TableData>
               <TableData pt={10} pb={10}>
                 <HyperLink
-                  href={getExplorerItemUrl(wallet.chainId ?? DEFAULT_CHAIN_ID, pendingtx.hash, ExplorerscanApi.TX)}
+                  href={getExplorerItemUrl(chainId ?? DEFAULT_CHAIN_ID, pendingtx.hash, ExplorerscanApi.TX)}
                   target="_blank"
                   rel="noopener noreferrer"
                 >
@@ -142,7 +142,7 @@ export const TransactionHistory: React.FC = () => {
                 <TableData pt={10} pb={10}>
                   {amounts.length > 0 && (
                     <HyperLink
-                      href={getExplorerItemUrl(wallet.chainId ?? DEFAULT_CHAIN_ID, tx.hash, ExplorerscanApi.TX)}
+                      href={getExplorerItemUrl(chainId ?? DEFAULT_CHAIN_ID, tx.hash, ExplorerscanApi.TX)}
                       target="_blank"
                       rel="noopener noreferrer"
                     >

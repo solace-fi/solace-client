@@ -1,18 +1,11 @@
 import React from 'react'
 import styled from 'styled-components'
-import {
-  HeightAndWidthProps,
-  HeightAndWidthCss,
-  MarginProps,
-  PaddingProps,
-  MarginCss,
-  PaddingCss,
-} from '../../generalInterfaces'
+import { GeneralElementProps, GeneralElementCss } from '../../generalInterfaces'
 import { GeneralTextProps, GeneralTextCss } from '../Typography'
 
-interface TableProps extends HeightAndWidthProps, GeneralTextProps, MarginProps, PaddingProps {
+interface TableProps extends GeneralTextProps, GeneralElementProps {
   isHighlight?: boolean
-  isQuote?: boolean
+  canHover?: boolean
   headers?: string[]
 }
 
@@ -25,11 +18,9 @@ export const Table = styled.table<TableProps>`
   }
   ${(props) => props.isHighlight && 'td {background-color: rgba(0, 255, 209, 0.3);}'}
   ${(props) =>
-    props.isQuote &&
+    props.canHover &&
     'tr { &:hover { td { background-color: rgba(255, 255, 255, 0.5); transition: background-color 200ms linear;} } }'}
-  ${HeightAndWidthCss}
-  ${MarginCss}
-  ${PaddingCss}
+  ${GeneralElementCss}
 `
 
 export const TableRow = styled.tr<TableProps>`
@@ -47,10 +38,8 @@ export const TableHeader = styled.th<TableProps>`
   text-overflow: ellipsis;
   text-align: left;
   white-space: nowrap;
-  ${HeightAndWidthCss}
   ${GeneralTextCss}
-  ${MarginCss}
-  ${PaddingCss}
+  ${GeneralElementCss}
 `
 
 export const TableData = styled.td<TableProps>`
@@ -65,10 +54,8 @@ export const TableData = styled.td<TableProps>`
   }
   overflow: hidden;
   text-overflow: ellipsis;
-  ${HeightAndWidthCss}
   ${GeneralTextCss}
-  ${MarginCss}
-  ${PaddingCss}
+  ${GeneralElementCss}
 `
 
 export const TableDataGroup = styled.div<TableProps>`
@@ -76,6 +63,6 @@ export const TableDataGroup = styled.div<TableProps>`
   display: grid;
   grid-template-columns: repeat(${(props) => React.Children.count(props.children)}, 1fr);
   gap: 16px;
-  ${HeightAndWidthCss}
   ${GeneralTextCss}
+  ${GeneralElementCss}
 `

@@ -52,7 +52,7 @@ export const RiskBackingCapitalPool: React.FC<RiskBackingCapitalPoolProps> = ({ 
 
   *************************************************************************************/
 
-  const wallet = useWallet()
+  const { account, errors } = useWallet()
   const { userVaultAssets, userVaultShare } = useUserVaultDetails()
   const capitalPoolSize = useCapitalPoolSize()
 
@@ -68,11 +68,11 @@ export const RiskBackingCapitalPool: React.FC<RiskBackingCapitalPoolProps> = ({ 
       <Table isHighlight textAlignCenter>
         <TableHead>
           <TableRow>
-            {wallet.account ? <TableHeader width={100}>Your Assets</TableHeader> : null}
+            {account ? <TableHeader width={100}>Your Assets</TableHeader> : null}
             <TableHeader width={100}>Total Assets</TableHeader>
             <TableHeader width={100}>ROI (1Y)</TableHeader>
-            {wallet.account ? <TableHeader width={130}>Your Vault Share</TableHeader> : null}
-            {wallet.account && (
+            {account ? <TableHeader width={130}>Your Vault Share</TableHeader> : null}
+            {account && (
               <Fragment>
                 <TableHeader width={100}></TableHeader>
                 <TableHeader width={150}></TableHeader>
@@ -82,31 +82,23 @@ export const RiskBackingCapitalPool: React.FC<RiskBackingCapitalPoolProps> = ({ 
         </TableHead>
         <TableBody>
           <TableRow>
-            {wallet.account ? (
-              <TableData width={100}>{truncateBalance(parseFloat(userVaultAssets), 2)}</TableData>
-            ) : null}
+            {account ? <TableData width={100}>{truncateBalance(parseFloat(userVaultAssets), 2)}</TableData> : null}
             <TableData width={100}>{truncateBalance(floatEther(parseEther(capitalPoolSize)), 2)}</TableData>
             <TableData width={100}>{CP_ROI}</TableData>
-            {wallet.account ? <TableData width={130}>{`${truncateBalance(userVaultShare, 2)}%`}</TableData> : null}
-            {wallet.account && (
+            {account ? <TableData width={130}>{`${truncateBalance(userVaultShare, 2)}%`}</TableData> : null}
+            {account && (
               <Fragment>
                 <TableData width={100}></TableData>
                 <TableData width={150}></TableData>
               </Fragment>
             )}
-            {wallet.account ? (
+            {account ? (
               <TableData textAlignRight>
                 <TableDataGroup width={200}>
-                  <Button
-                    disabled={wallet.errors.length > 0}
-                    onClick={() => openModal(FunctionName.DEPOSIT, 'Deposit')}
-                  >
+                  <Button disabled={errors.length > 0} onClick={() => openModal(FunctionName.DEPOSIT, 'Deposit')}>
                     Deposit
                   </Button>
-                  <Button
-                    disabled={wallet.errors.length > 0}
-                    onClick={() => openModal(FunctionName.WITHDRAW, 'Withdraw')}
-                  >
+                  <Button disabled={errors.length > 0} onClick={() => openModal(FunctionName.WITHDRAW, 'Withdraw')}>
                     Withdraw
                   </Button>
                 </TableDataGroup>

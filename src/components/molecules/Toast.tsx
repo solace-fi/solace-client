@@ -12,6 +12,7 @@
       Render
     NotificationToast function
       custom hooks
+      local functions
       Render
 
   *************************************************************************************/
@@ -45,7 +46,6 @@ interface AppToastProps {
 interface NotificationToastProps {
   message: string
   condition: TransactionCondition
-  cond: string
   txHash?: string
 }
 
@@ -63,7 +63,7 @@ export const AppToast: React.FC<AppToastProps> = ({ message, icon }) => {
   )
 }
 
-export const NotificationToast: React.FC<NotificationToastProps> = ({ message, condition, cond, txHash }) => {
+export const NotificationToast: React.FC<NotificationToastProps> = ({ message, condition, txHash }) => {
   /*************************************************************************************
 
    custom hooks
@@ -73,13 +73,33 @@ export const NotificationToast: React.FC<NotificationToastProps> = ({ message, c
 
   /*************************************************************************************
 
+   Local functions
+
+  *************************************************************************************/
+
+  const getStateFromCondition = (condition: TransactionCondition): string => {
+    switch (condition) {
+      case TransactionCondition.SUCCESS:
+        return 'successful'
+      case TransactionCondition.FAILURE:
+        return 'failed'
+      case TransactionCondition.PENDING:
+        return 'pending'
+      case TransactionCondition.CANCELLED:
+      default:
+        return 'cancelled'
+    }
+  }
+
+  /*************************************************************************************
+
     Render
 
   *************************************************************************************/
   return (
     <ToastWrapper>
       <FlexedToastMessage>
-        {message}: Transaction {cond}
+        {message}: Transaction {getStateFromCondition(condition)}
       </FlexedToastMessage>
       <FlexedToastMessage>
         {txHash && (

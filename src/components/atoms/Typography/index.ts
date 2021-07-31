@@ -15,15 +15,14 @@ export interface TextAlignProps {
   textAlignCenter?: boolean
   textAlignLeft?: boolean
   textAlignRight?: boolean
-  outlined?: boolean
 }
 
 export interface TextStyleProps {
   nowrap?: boolean
   outlined?: boolean
-  autoAlign?: boolean
   autoAlignVertical?: boolean
   autoAlignHorizontal?: boolean
+  autoAlign?: boolean
   bold?: boolean
   green?: boolean
   error?: boolean
@@ -31,14 +30,6 @@ export interface TextStyleProps {
 }
 
 export interface GeneralTextProps extends TextFontProps, TextAlignProps, TextStyleProps {}
-
-export const GlobalFont = css`
-  font-size: 16px;
-
-  @media screen and (max-width: ${MAX_MOBILE_SCREEN_WIDTH}px) {
-    font-size: 12px;
-  }
-`
 
 const Font1 = css`
   font-size: 24px;
@@ -85,18 +76,6 @@ const Heading3Css = css`
   margin: 0;
 `
 
-export const Text1Css = css`
-  ${Font1}
-`
-
-export const Text2Css = css`
-  ${Font2}
-`
-
-export const Text3Css = css`
-  ${Font3}
-`
-
 const AlignCenterCss = css`
   text-align: center;
 `
@@ -140,6 +119,26 @@ const TextOutlineCss = css`
 
 const NoWrapCss = css`
   white-space: nowrap;
+`
+
+export const GlobalFont = css`
+  font-size: 16px;
+
+  @media screen and (max-width: ${MAX_MOBILE_SCREEN_WIDTH}px) {
+    font-size: 12px;
+  }
+`
+
+export const Text1Css = css`
+  ${Font1}
+`
+
+export const Text2Css = css`
+  ${Font2}
+`
+
+export const Text3Css = css`
+  ${Font3}
 `
 
 export const TextFontCss = css<TextFontProps>`

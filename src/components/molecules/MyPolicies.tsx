@@ -55,7 +55,7 @@ export const MyPolicies: React.FC<MyPoliciesProps> = ({ openClaimModal, openMana
     custom hooks
 
   *************************************************************************************/
-  const wallet = useWallet()
+  const { chainId } = useWallet()
   const { userPolicyData } = useCachedData()
 
   /*************************************************************************************
@@ -120,7 +120,7 @@ export const MyPolicies: React.FC<MyPoliciesProps> = ({ openClaimModal, openMana
                   </TableData>
                   <TableData>
                     {policy.coverAmount ? truncateBalance(parseFloat(formatEther(policy.coverAmount)), 2) : 0}{' '}
-                    {getNativeTokenUnit(wallet.chainId ?? DEFAULT_CHAIN_ID)}
+                    {getNativeTokenUnit(chainId ?? DEFAULT_CHAIN_ID)}
                   </TableData>
 
                   <TableData textAlignRight>

@@ -82,11 +82,11 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
   *************************************************************************************/
 
   const { vault, cpFarm, lpFarm, lpToken } = useContracts()
-  const wallet = useWallet()
+  const { account, chainId, errors, library } = useWallet()
   const [amount, setAmount] = useState<string>('')
   const [isStaking, setIsStaking] = useState<boolean>(false)
-  const cpUserStakeValue = useUserStakedValue(cpFarm, wallet.account)
-  const lpUserStakeValue = useUserStakedValue(lpFarm, wallet.account)
+  const cpUserStakeValue = useUserStakedValue(cpFarm, account)
+  const lpUserStakeValue = useUserStakedValue(lpFarm, account)
   const nativeTokenBalance = useNativeTokenBalance()
   const scpBalance = useScpBalance()
   const { userLpTokenInfo, depositedLpTokenInfo } = useLpBalances()
@@ -122,9 +122,9 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
       const localTx = {
         hash: txHash,
         type: txType,
-        value: amount,
+        value: truncateBalance(amount),
         status: TransactionCondition.PENDING,
-        unit: getUnit(func, wallet.chainId ?? DEFAULT_CHAIN_ID),
+        unit: getUnit(func, chainId ?? DEFAULT_CHAIN_ID),
       }
       handleClose()
       addLocalTransactions(localTx)
@@ -145,7 +145,7 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
 
   const callDepositEth = async () => {
     setModalLoading(true)
-    if (!cpFarm || !vault) return
+    if (!cpFarm) return
     const txType = FunctionName.DEPOSIT_ETH
     try {
       const tx = await cpFarm.depositEth({
@@ -157,9 +157,9 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
       const localTx = {
         hash: txHash,
         type: txType,
-        value: amount,
+        value: truncateBalance(amount),
         status: TransactionCondition.PENDING,
-        unit: getUnit(func, wallet.chainId ?? DEFAULT_CHAIN_ID),
+        unit: getUnit(func, chainId ?? DEFAULT_CHAIN_ID),
       }
       handleClose()
       addLocalTransactions(localTx)
@@ -213,9 +213,9 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
       const localTx = {
         hash: txHash,
         type: txType,
-        value: amount,
+        value: truncateBalance(amount),
         status: TransactionCondition.PENDING,
-        unit: getUnit(func, wallet.chainId ?? DEFAULT_CHAIN_ID),
+        unit: getUnit(func, chainId ?? DEFAULT_CHAIN_ID),
       }
       handleClose()
       addLocalTransactions(localTx)
@@ -247,9 +247,9 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
       const localTx = {
         hash: txHash,
         type: txType,
-        value: amount,
+        value: truncateBalance(amount),
         status: TransactionCondition.PENDING,
-        unit: getUnit(func, wallet.chainId ?? DEFAULT_CHAIN_ID),
+        unit: getUnit(func, chainId ?? DEFAULT_CHAIN_ID),
       }
       handleClose()
       addLocalTransactions(localTx)
@@ -281,9 +281,9 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
       const localTx = {
         hash: txHash,
         type: txType,
-        value: amount,
+        value: truncateBalance(amount),
         status: TransactionCondition.PENDING,
-        unit: getUnit(func, wallet.chainId ?? DEFAULT_CHAIN_ID),
+        unit: getUnit(func, chainId ?? DEFAULT_CHAIN_ID),
       }
       handleClose()
       addLocalTransactions(localTx)
@@ -304,18 +304,18 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
 
   const callDepositLp = async () => {
     setModalLoading(true)
-    if (!lpToken || !lpFarm || !nft) return
+    if (!lpToken || !lpFarm || !nft || !chainId || !account || !library) return
     const txType = FunctionName.DEPOSIT_SIGNED
     try {
-      const { v, r, s } = await getPermitNFTSignature(wallet, lpToken, lpFarm.address, nft, DEADLINE)
-      const tx = await lpFarm.depositSigned(wallet.account, nft, DEADLINE, v, r, s)
+      const { v, r, s } = await getPermitNFTSignature(account, chainId, library, lpToken, lpFarm.address, nft, DEADLINE)
+      const tx = await lpFarm.depositSigned(account, nft, DEADLINE, v, r, s)
       const txHash = tx.hash
       const localTx = {
         hash: txHash,
         type: txType,
         value: `#${nft.toString()}`,
         status: TransactionCondition.PENDING,
-        unit: getUnit(func, wallet.chainId ?? DEFAULT_CHAIN_ID),
+        unit: getUnit(func, chainId ?? DEFAULT_CHAIN_ID),
       }
       handleClose()
       addLocalTransactions(localTx)
@@ -346,7 +346,7 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
         type: txType,
         value: `#${nft.toString()}`,
         status: TransactionCondition.PENDING,
-        unit: getUnit(func, wallet.chainId ?? DEFAULT_CHAIN_ID),
+        unit: getUnit(func, chainId ?? DEFAULT_CHAIN_ID),
       }
       handleClose()
       addLocalTransactions(localTx)
@@ -550,7 +550,7 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
     <Modal isOpen={isOpen} handleClose={handleClose} modalTitle={modalTitle} disableCloseButton={modalLoading}>
       <Fragment>
         <ModalRow>
-          <ModalCell t2>{getUnit(func, wallet.chainId ?? DEFAULT_CHAIN_ID)}</ModalCell>
+          <ModalCell t2>{getUnit(func, chainId ?? DEFAULT_CHAIN_ID)}</ModalCell>
           {func == FunctionName.DEPOSIT_SIGNED || func == FunctionName.WITHDRAW_LP ? (
             <ModalCell>
               <FormSelect value={nftSelection} onChange={(e) => handleNft(e.target)}>
@@ -589,7 +589,7 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
               </ModalCell>
               <ModalCell t3>
                 <Button
-                  disabled={wallet.errors.length > 0}
+                  disabled={errors.length > 0}
                   onClick={() => {
                     setAmount(calculateMaxEth().toString())
                     setMaxSelected(true)
@@ -610,7 +610,7 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
                 <Fragment>
                   {!hasApproval(tokenAllowance, amount ? parseEther(amount).toString() : '0') && tokenAllowance != '' && (
                     <Button
-                      disabled={(isAppropriateAmount() ? false : true) || wallet.errors.length > 0}
+                      disabled={(isAppropriateAmount() ? false : true) || errors.length > 0}
                       onClick={() => approve()}
                     >
                       Approve
@@ -621,7 +621,7 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
                     disabled={
                       (isAppropriateAmount() ? false : true) ||
                       !hasApproval(tokenAllowance, amount ? parseEther(amount).toString() : '0') ||
-                      wallet.errors.length > 0
+                      errors.length > 0
                     }
                     onClick={handleCallbackFunc}
                   >
@@ -631,7 +631,7 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
               ) : (
                 <Button
                   hidden={modalLoading}
-                  disabled={(isAppropriateAmount() ? false : true) || wallet.errors.length > 0}
+                  disabled={(isAppropriateAmount() ? false : true) || errors.length > 0}
                   onClick={handleCallbackFunc}
                 >
                   Confirm

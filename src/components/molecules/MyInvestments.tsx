@@ -38,20 +38,20 @@ import { useUserPendingRewards, useUserRewardsPerDay } from '../../hooks/useRewa
 /* import utils */
 import { getNativeTokenUnit, truncateBalance } from '../../utils/formatting'
 
-export const MyInvestments = () => {
+export const MyInvestments: React.FC = () => {
   /*************************************************************************************
 
     custom hooks
 
   *************************************************************************************/
-  const wallet = useWallet()
+  const { account, chainId } = useWallet()
   const { cpFarm, lpFarm } = useContracts()
   const cpUserRewards = useUserPendingRewards(cpFarm)
-  const cpUserRewardsPerDay = useUserRewardsPerDay(1, cpFarm, wallet.account)
   const lpUserRewards = useUserPendingRewards(lpFarm)
-  const lpUserRewardsPerDay = useUserRewardsPerDay(2, lpFarm, wallet.account)
-  const cpUserStakeValue = useUserStakedValue(cpFarm, wallet.account)
-  const lpUserStakeValue = useUserStakedValue(lpFarm, wallet.account)
+  const cpUserStakeValue = useUserStakedValue(cpFarm, account)
+  const lpUserStakeValue = useUserStakedValue(lpFarm, account)
+  const cpUserRewardsPerDay = useUserRewardsPerDay(1, cpFarm, account)
+  const lpUserRewardsPerDay = useUserRewardsPerDay(2, lpFarm, account)
 
   /*************************************************************************************
 
@@ -67,20 +67,20 @@ export const MyInvestments = () => {
           <CardHeader>
             <CardTitle h2>Capital Pool</CardTitle>
             <Heading3>
-              {wallet.account ? truncateBalance(parseFloat(cpUserStakeValue), 2) : 0}{' '}
-              {getNativeTokenUnit(wallet.chainId ?? DEFAULT_CHAIN_ID)}
+              {account ? truncateBalance(parseFloat(cpUserStakeValue), 2) : 0}{' '}
+              {getNativeTokenUnit(chainId ?? DEFAULT_CHAIN_ID)}
             </Heading3>
           </CardHeader>
           <CardBlock>
             <CardTitle t2>Daily Earnings</CardTitle>
             <CardTitle t3>
-              {wallet.account ? truncateBalance(parseFloat(cpUserRewardsPerDay), 2) : 0} {Unit.SOLACE}
+              {account ? truncateBalance(parseFloat(cpUserRewardsPerDay), 2) : 0} {Unit.SOLACE}
             </CardTitle>
           </CardBlock>
           <CardBlock>
             <CardTitle t2>Total Earnings</CardTitle>
             <CardTitle t3>
-              {wallet.account ? truncateBalance(parseFloat(cpUserRewards), 2) : 0} {Unit.SOLACE}
+              {account ? truncateBalance(parseFloat(cpUserRewards), 2) : 0} {Unit.SOLACE}
             </CardTitle>
           </CardBlock>
         </InvestmentCard>
@@ -88,19 +88,19 @@ export const MyInvestments = () => {
           <CardHeader>
             <CardTitle h2>Liquidity Pool</CardTitle>
             <Heading3>
-              {wallet.account ? truncateBalance(parseFloat(lpUserStakeValue), 2) : 0} {Unit.SOLACE}
+              {account ? truncateBalance(parseFloat(lpUserStakeValue), 2) : 0} {Unit.SOLACE}
             </Heading3>
           </CardHeader>
           <CardBlock>
             <CardTitle t2>Daily Earnings</CardTitle>
             <CardTitle t3>
-              {wallet.account ? truncateBalance(parseFloat(lpUserRewardsPerDay), 2) : 0} {Unit.SOLACE}
+              {account ? truncateBalance(parseFloat(lpUserRewardsPerDay), 2) : 0} {Unit.SOLACE}
             </CardTitle>
           </CardBlock>
           <CardBlock>
             <CardTitle t2>Total Earnings</CardTitle>
             <CardTitle t3>
-              {wallet.account ? truncateBalance(parseFloat(lpUserRewards), 2) : 0} {Unit.SOLACE}
+              {account ? truncateBalance(parseFloat(lpUserRewards), 2) : 0} {Unit.SOLACE}
             </CardTitle>
           </CardBlock>
         </InvestmentCard>

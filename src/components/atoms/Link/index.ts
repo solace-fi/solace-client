@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom'
 import styled, { css } from 'styled-components'
 
-const LinkBase = css`
+const LinkCss = css`
   text-decoration: none;
   transition: opacity 0.2s;
   &:hover,
@@ -11,9 +11,9 @@ const LinkBase = css`
 `
 
 export const HyperLink = styled.a`
-  ${LinkBase}
+  ${LinkCss}
 `
 
-export const StyledLink = styled(Link)`
-  ${LinkBase}
+export const StyledNavLink = styled(Link)`
+  ${LinkCss}
 `

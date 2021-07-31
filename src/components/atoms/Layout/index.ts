@@ -51,7 +51,7 @@ export const Layout = styled.div`
   }
 `
 
-export const LayoutContainer = styled.div`
+export const ContentContainer = styled.div`
   display: flex;
   margin: 0 auto;
   width: 100%;
@@ -61,7 +61,7 @@ export const LayoutContainer = styled.div`
     justify-content: center;
   }
 `
-export const NavContent = styled.div<HeightAndWidthProps>`
+export const SideNavContent = styled.div<HeightAndWidthProps>`
   padding: 20px;
   align-content: start;
   min-width: ${(props) => ((props.width ? props.width : 10) / 100) * MAX_WIDTH}px;

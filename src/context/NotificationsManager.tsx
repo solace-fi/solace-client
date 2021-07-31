@@ -56,19 +56,17 @@ const ToastsProvider: React.FC = (props) => {
   const wallet = useWallet()
 
   const makeTxToast = (txType: string, condition: TransactionCondition, txHash?: string) => {
-    const TxToast = (message: string, cond: string) => (
-      <NotificationToast message={message} condition={condition} cond={cond} txHash={txHash} />
-    )
+    const TxToast = (message: string) => <NotificationToast message={message} condition={condition} txHash={txHash} />
     switch (condition) {
       case 'Complete':
         if (txHash) {
           if (toast.isActive(txHash)) {
             toast.update(txHash, {
-              render: TxToast(txType, 'successful'),
+              render: TxToast(txType),
               ...txSuccess,
             })
           } else {
-            toast(TxToast(txType, 'successful'), {
+            toast(TxToast(txType), {
               toastId: txHash,
               ...txSuccess,
             })
@@ -79,11 +77,11 @@ const ToastsProvider: React.FC = (props) => {
         if (txHash) {
           if (toast.isActive(txHash)) {
             toast.update(txHash, {
-              render: TxToast(txType, 'failed'),
+              render: TxToast(txType),
               ...txError,
             })
           } else {
-            toast(TxToast(txType, 'failed'), {
+            toast(TxToast(txType), {
               toastId: txHash,
               ...txError,
             })
@@ -92,7 +90,7 @@ const ToastsProvider: React.FC = (props) => {
         break
       case 'Pending':
         if (txHash) {
-          toast(TxToast(txType, 'pending'), {
+          toast(TxToast(txType), {
             toastId: txHash,
             type: toast.TYPE.INFO,
             autoClose: false,
@@ -104,7 +102,7 @@ const ToastsProvider: React.FC = (props) => {
         }
         break
       default:
-        toast(TxToast(txType, 'cancelled'), {
+        toast(TxToast(txType), {
           ...txError,
         })
     }

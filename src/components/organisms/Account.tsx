@@ -11,6 +11,7 @@
 
     Account function
       custom hooks
+      local functions
       Render
 
   *************************************************************************************/
@@ -40,7 +41,7 @@ import { useNativeTokenBalance } from '../../hooks/useBalance'
 /* import utils */
 import { shortenAddress, fixed, getNetworkName, capitalizeFirstLetter } from '../../utils/formatting'
 
-export const Account = () => {
+export const Account: React.FC = () => {
   /*************************************************************************************
 
   custom hooks
@@ -50,6 +51,12 @@ export const Account = () => {
   const balance = useNativeTokenBalance()
   const { localTransactions } = useCachedData()
   const [showHistoryModal, setShowHistoryModal] = useState<boolean>(false)
+
+  /*************************************************************************************
+
+  local functions
+
+  *************************************************************************************/
 
   const openModal = useCallback(() => {
     document.body.style.overflowY = 'hidden'

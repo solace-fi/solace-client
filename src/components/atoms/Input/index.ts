@@ -2,7 +2,7 @@ import styled, { css } from 'styled-components'
 import { GeneralTextProps, GeneralTextCss, Text3Css } from '../Typography'
 import { HeightAndWidthProps, HeightAndWidthCss } from '../../generalInterfaces'
 
-const InputBase = css`
+const InputCss = css`
   ::placeholder {
     color: #fff;
     opacity: 0.5;
@@ -14,7 +14,7 @@ const InputBase = css`
 `
 
 export const Input = styled.input<HeightAndWidthProps & GeneralTextProps>`
-  ${InputBase}
+  ${InputCss}
   ::-webkit-calendar-picker-indicator {
     display: none;
   }
@@ -38,7 +38,7 @@ export const Input = styled.input<HeightAndWidthProps & GeneralTextProps>`
 `
 
 export const Search = styled.input`
-  ${InputBase}
+  ${InputCss}
   ::-webkit-search-cancel-button {
     -webkit-appearance: none;
     height: 1em;

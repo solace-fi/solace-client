@@ -57,7 +57,7 @@ export const Statistics: React.FC = () => {
   custom hooks
 
   *************************************************************************************/
-  const wallet = useWallet()
+  const { account, errors, chainId, initialized } = useWallet()
   const { master } = useContracts()
   const { makeTxToast } = useToasts()
   const {
@@ -99,7 +99,7 @@ export const Statistics: React.FC = () => {
       const localTx = {
         hash: txHash,
         type: txType,
-        value: totalUserRewards,
+        value: truncateBalance(totalUserRewards),
         status: TransactionCondition.PENDING,
         unit: Unit.SOLACE,
       }
@@ -158,7 +158,7 @@ export const Statistics: React.FC = () => {
 
   return (
     <BoxRow>
-      {wallet.initialized && wallet.account ? (
+      {initialized && account ? (
         <Box>
           <BoxItem>
             <BoxItemTitle h3>My Balance</BoxItemTitle>
@@ -175,10 +175,7 @@ export const Statistics: React.FC = () => {
             </Text>
           </BoxItem>
           <BoxItem>
-            <Button
-              disabled={wallet.errors.length > 0 || fixed(parseFloat(totalUserRewards), 6) <= 0}
-              onClick={claimRewards}
-            >
+            <Button disabled={errors.length > 0 || fixed(parseFloat(totalUserRewards), 6) <= 0} onClick={claimRewards}>
               Claim
             </Button>
           </BoxItem>
@@ -195,14 +192,14 @@ export const Statistics: React.FC = () => {
           <BoxItemTitle h3>Capital Pool Size</BoxItemTitle>
           <Text h2 nowrap>
             {`${truncateBalance(floatEther(parseEther(capitalPoolSize)), 1)} `}
-            <TextSpan h3>{getNativeTokenUnit(wallet.chainId ?? DEFAULT_CHAIN_ID)}</TextSpan>
+            <TextSpan h3>{getNativeTokenUnit(chainId ?? DEFAULT_CHAIN_ID)}</TextSpan>
           </Text>
         </BoxItem>
         <BoxItem>
           <BoxItemTitle h3>Total Value Locked</BoxItemTitle>
           <Text h2 nowrap>
             {`${truncateBalance(parseFloat(totalValueLocked), 1)} `}
-            <TextSpan h3>{getNativeTokenUnit(wallet.chainId ?? DEFAULT_CHAIN_ID)}</TextSpan>
+            <TextSpan h3>{getNativeTokenUnit(chainId ?? DEFAULT_CHAIN_ID)}</TextSpan>
           </Text>
         </BoxItem>
         <BoxItem>
@@ -211,7 +208,7 @@ export const Statistics: React.FC = () => {
             {totalActiveCoverAmount !== '-'
               ? `${truncateBalance(parseFloat(formatEther(totalActiveCoverAmount.toString())), 2)} `
               : `${totalActiveCoverAmount} `}
-            <TextSpan h3>{getNativeTokenUnit(wallet.chainId ?? DEFAULT_CHAIN_ID)}</TextSpan>
+            <TextSpan h3>{getNativeTokenUnit(chainId ?? DEFAULT_CHAIN_ID)}</TextSpan>
           </Text>
         </BoxItem>
         <BoxItem>

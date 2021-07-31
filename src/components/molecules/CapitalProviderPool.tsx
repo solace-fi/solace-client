@@ -50,11 +50,11 @@ export const CapitalProviderPool: React.FC<CapitalProviderPoolProps> = ({ openMo
 
   *************************************************************************************/
 
-  const wallet = useWallet()
+  const { account, errors } = useWallet()
   const { cpFarm } = useContracts()
-  const cpUserStakeValue = useUserStakedValue(cpFarm, wallet.account)
+  const cpUserStakeValue = useUserStakedValue(cpFarm, account)
   const cpRewardsPerDay = useRewardsPerDay(1)
-  const cpUserRewardsPerDay = useUserRewardsPerDay(1, cpFarm, wallet.account)
+  const cpUserRewardsPerDay = useUserRewardsPerDay(1, cpFarm, account)
   const cpUserRewards = useUserPendingRewards(cpFarm)
   const cpPoolValue = usePoolStakedValue(cpFarm)
 
@@ -70,37 +70,29 @@ export const CapitalProviderPool: React.FC<CapitalProviderPoolProps> = ({ openMo
       <Table isHighlight textAlignCenter>
         <TableHead>
           <TableRow>
-            {wallet.account ? <TableHeader width={100}>Your Stake</TableHeader> : null}
+            {account ? <TableHeader width={100}>Your Stake</TableHeader> : null}
             <TableHeader>Total Assets</TableHeader>
             <TableHeader width={100}>ROI (1Y)</TableHeader>
-            {wallet.account ? <TableHeader>My Rewards</TableHeader> : null}
-            {wallet.account ? <TableHeader>My Daily Rewards</TableHeader> : null}
+            {account ? <TableHeader>My Rewards</TableHeader> : null}
+            {account ? <TableHeader>My Daily Rewards</TableHeader> : null}
             <TableHeader>Daily Rewards</TableHeader>
           </TableRow>
         </TableHead>
         <TableBody>
           <TableRow>
-            {wallet.account ? (
-              <TableData width={100}>{truncateBalance(parseFloat(cpUserStakeValue), 2)}</TableData>
-            ) : null}
+            {account ? <TableData width={100}>{truncateBalance(parseFloat(cpUserStakeValue), 2)}</TableData> : null}
             <TableData>{truncateBalance(parseFloat(cpPoolValue), 2)}</TableData>
             <TableData width={100}>{CP_ROI}</TableData>
-            {wallet.account ? <TableData>{truncateBalance(parseFloat(cpUserRewards), 2)}</TableData> : null}
-            {wallet.account ? <TableData>{truncateBalance(parseFloat(cpUserRewardsPerDay), 2)}</TableData> : null}
+            {account ? <TableData>{truncateBalance(parseFloat(cpUserRewards), 2)}</TableData> : null}
+            {account ? <TableData>{truncateBalance(parseFloat(cpUserRewardsPerDay), 2)}</TableData> : null}
             <TableData>{truncateBalance(parseFloat(cpRewardsPerDay), 2)}</TableData>
-            {wallet.account ? (
+            {account ? (
               <TableData textAlignRight>
                 <TableDataGroup width={200}>
-                  <Button
-                    disabled={wallet.errors.length > 0}
-                    onClick={() => openModal(FunctionName.DEPOSIT_CP, 'Deposit')}
-                  >
+                  <Button disabled={errors.length > 0} onClick={() => openModal(FunctionName.DEPOSIT_CP, 'Deposit')}>
                     Deposit
                   </Button>
-                  <Button
-                    disabled={wallet.errors.length > 0}
-                    onClick={() => openModal(FunctionName.WITHDRAW_ETH, 'Withdraw')}
-                  >
+                  <Button disabled={errors.length > 0} onClick={() => openModal(FunctionName.WITHDRAW_ETH, 'Withdraw')}>
                     Withdraw
                   </Button>
                 </TableDataGroup>

@@ -1,5 +1,11 @@
 import styled, { css } from 'styled-components'
 
+const RadioInputCss = css`
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+`
+
 export const RadioElement = styled.div`
   border: 1px solid #fff;
   border-radius: 10px;
@@ -15,14 +21,8 @@ export const RadioElement = styled.div`
   }
 `
 
-export const RadioInputBase = css`
-  position: absolute;
-  opacity: 0;
-  pointer-events: none;
-`
-
 export const RadioInput = styled.input`
-  ${RadioInputBase}
+  ${RadioInputCss}
   &:checked {
     ~ ${RadioElement} {
       color: #7c7c7c;
@@ -40,15 +40,6 @@ export const RadioGroup = styled.div`
 
 export const RadioLabel = styled.label``
 
-export const ActionRadios = styled.div`
-  display: grid;
-  grid-template-columns: auto;
-  grid-auto-flow: column;
-  justify-content: end;
-  gap: 24px;
-  flex-grow: 1;
-`
-
 export const RadioCircle = styled.label`
   display: flex;
   align-items: center;
@@ -65,7 +56,7 @@ export const RadioCircleFigure = styled.div`
 `
 
 export const RadioCircleInput = styled.input`
-  ${RadioInputBase}
+  ${RadioInputCss}
   &:checked {
     ~ ${RadioCircleFigure} {
       &::before {

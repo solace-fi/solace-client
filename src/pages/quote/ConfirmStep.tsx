@@ -14,7 +14,7 @@
 import React from 'react'
 
 /* import components */
-import { StyledLink } from '../../components/atoms/Link'
+import { StyledNavLink } from '../../components/atoms/Link'
 import { Button } from '../../components/atoms/Button'
 import { TableDataGroup } from '../../components/atoms/Table'
 import { Heading1, Heading2 } from '../../components/atoms/Typography'
@@ -34,9 +34,9 @@ export const ConfirmStep: React.FC<formProps> = ({ navigation }) => {
       <Heading2>You can manage your policies on the dashboard or start a new one.</Heading2>
       <div style={{ marginTop: '24px' }}>
         <TableDataGroup>
-          <StyledLink to="/">
+          <StyledNavLink to="/">
             <Button secondary>Go to Dashboard</Button>
-          </StyledLink>
+          </StyledNavLink>
           <Button secondary onClick={() => navigation.go(0)}>
             Start New Quote
           </Button>

@@ -48,17 +48,17 @@ import { useGetClaimsDetails } from '../../hooks/useClaimsEscrow'
 import { truncateBalance, getGasValue, getNativeTokenUnit } from '../../utils/formatting'
 import { timer } from '../../utils/time'
 
-export const MyClaims = () => {
+export const MyClaims: React.FC = () => {
   /*************************************************************************************
 
     custom hooks
 
   *************************************************************************************/
   const { claimsEscrow } = useContracts()
-  const wallet = useWallet()
+  const { account, errors, chainId } = useWallet()
   const { addLocalTransactions, reload, gasPrices } = useCachedData()
   const { makeTxToast } = useToasts()
-  const claimsDetails = useGetClaimsDetails(wallet.account)
+  const claimsDetails = useGetClaimsDetails(account)
 
   /*************************************************************************************
 
@@ -122,7 +122,7 @@ export const MyClaims = () => {
                         {parseFloat(formatEther(claim.amount)) >= 1
                           ? truncateBalance(parseFloat(formatEther(claim.amount)))
                           : formatEther(claim.amount)}{' '}
-                        {getNativeTokenUnit(wallet.chainId ?? DEFAULT_CHAIN_ID)}
+                        {getNativeTokenUnit(chainId ?? DEFAULT_CHAIN_ID)}
                       </Text>
                     </BoxItem>
                     <BoxItem>
@@ -138,7 +138,7 @@ export const MyClaims = () => {
                     <Button
                       widthP={100}
                       onClick={() => withdrawPayout(claim.id)}
-                      disabled={!claim.canWithdraw || wallet.errors.length > 0}
+                      disabled={!claim.canWithdraw || errors.length > 0}
                     >
                       Withdraw Payout
                     </Button>

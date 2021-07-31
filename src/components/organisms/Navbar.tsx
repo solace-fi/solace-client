@@ -19,9 +19,10 @@
 import React, { useEffect, useState } from 'react'
 
 /* import components */
-import { SidebarItem, ItemList, TopNav, NavButton } from '../atoms/Navbar'
+import { SidebarItem, TopNav } from '../atoms/Navbar'
+import { NavButton } from '../atoms/Button'
 import { Logo } from '../molecules/Logo'
-import { SidebarItemList } from '../molecules/SidebarList'
+import { ItemText, ItemList } from '../atoms/Navbar'
 import { StyledMenu } from '../atoms/Icon'
 
 export const SideNavbar: React.FC = () => {
@@ -35,12 +36,20 @@ export const SideNavbar: React.FC = () => {
     <nav>
       <div style={{ position: 'fixed' }}>
         <Logo />
-        <SidebarItemList>
-          <SidebarItem to={'/'}>Dashboard</SidebarItem>
-          <SidebarItem to={'/invest'}>Invest</SidebarItem>
-          <SidebarItem to={'/quote'}>Buy Cover</SidebarItem>
-          <SidebarItem to={'/govern'}>Govern</SidebarItem>
-        </SidebarItemList>
+        <ItemList>
+          <ItemText>
+            <SidebarItem to={'/'}>Dashboard</SidebarItem>
+          </ItemText>
+          <ItemText>
+            <SidebarItem to={'/invest'}>Invest</SidebarItem>
+          </ItemText>
+          <ItemText>
+            <SidebarItem to={'/quote'}>Buy Cover</SidebarItem>
+          </ItemText>
+          <ItemText>
+            <SidebarItem to={'/govern'}>Govern</SidebarItem>
+          </ItemText>
+        </ItemList>
       </div>
     </nav>
   )

@@ -5,13 +5,22 @@ import { FlexCol } from '../Layout'
 import { GeneralTextProps, GeneralTextCss } from '../Typography'
 
 interface CardProps extends ClickProps {
-  cardsPerRow?: number
   transparent?: boolean
-  isHighlight?: boolean
   fade?: boolean
 }
 
-export const CardContainer = styled.div<CardProps & GeneralTextProps>`
+interface CardContainerProps {
+  cardsPerRow?: number
+}
+
+const CardCss = css<CardProps>`
+  border-radius: 10px;
+  padding: 24px;
+  background-color: rgba(255, 255, 255, ${(props) => (props.transparent ? '0' : '0.2')});
+  ${(props) => props.fade && '{background-color: rgba(0, 176, 144, 0.3); }'}
+`
+
+export const CardContainer = styled.div<CardContainerProps & GeneralTextProps>`
   ${GeneralTextCss}
   display: grid;
   grid-template-columns: repeat(${(props) => (props.cardsPerRow ? props.cardsPerRow : '3')}, 1fr);
@@ -26,28 +35,19 @@ export const CardContainer = styled.div<CardProps & GeneralTextProps>`
   }
 `
 
-const CardBase = css<CardProps>`
-  border-radius: 10px;
-  padding: 24px;
-  background-color: rgba(255, 255, 255, ${(props) => (props.transparent ? '0' : '0.2')});
-  ${(props) => props.fade && '{background-color: rgba(0, 176, 144, 0.3); }'}
-  ${(props) => props.isHighlight && 'color: #fff; background-color: rgba(0, 255, 209, 0.3);'}
-  ${GeneralTextCss}
+export const Card = styled.div<CardProps>`
+  ${CardCss}
 `
 
-export const Card = styled.div<CardProps & GeneralTextProps>`
-  ${CardBase}
-`
-
-export const InvestmentCard = styled.div<CardProps & GeneralTextProps>`
+export const InvestmentCard = styled.div<CardProps>`
   display: grid;
   align-content: start;
   grid-template-columns: 1fr 1fr;
   gap: 24px;
-  ${CardBase}
+  ${CardCss}
 `
 
-export const PositionCard = styled(FlexCol)<CardProps & GeneralTextProps>`
+export const PositionCard = styled(FlexCol)<CardProps>`
   align-items: center;
   justify-content: center;
   cursor: pointer;
@@ -55,7 +55,7 @@ export const PositionCard = styled(FlexCol)<CardProps & GeneralTextProps>`
     props.fade
       ? null
       : '&:hover { background-color: rgba(255, 255, 255, 0.5); transition: background-color 200ms linear; }'}
-  ${CardBase}
+  ${CardCss}
 `
 
 export const CardHeader = styled.div<GeneralTextProps>`

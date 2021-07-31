@@ -1,6 +1,5 @@
 import { NavLink } from 'react-router-dom'
 import styled from 'styled-components'
-import { ButtonBaseCss } from '../Button'
 import { MAX_FULL_SCREEN_WIDTH } from '../../../constants'
 
 interface TopNavProps {
@@ -21,15 +20,6 @@ export const TopNav = styled.div<TopNavProps>`
     width: 100%;
     z-index: 1;
   }
-`
-export const NavButton = styled.button`
-  ${ButtonBaseCss}
-  display: block;
-  position: absolute;
-  right: 30px;
-  top: 15px;
-  min-height: 40px;
-  min-width: 70px;
 `
 
 export const SidebarItem = styled(NavLink)`

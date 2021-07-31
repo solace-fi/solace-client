@@ -117,7 +117,7 @@ export const ProtocolStep: React.FC<formProps> = ({ setForm, navigation }) => {
       <ActionsContainer>
         <Search type="search" placeholder="Search" onChange={(e) => handleSearch(e.target.value)} />
       </ActionsContainer>
-      <Table isQuote>
+      <Table canHover>
         <TableHead>
           <TableRow>
             <TableHeader>Protocol</TableHeader>

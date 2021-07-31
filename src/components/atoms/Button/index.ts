@@ -2,14 +2,14 @@ import { GeneralElementProps, GeneralElementCss, MarginProps, MarginCss } from '
 import styled, { css } from 'styled-components'
 import { Text3Css } from '../Typography'
 
-export interface ClickProps {
-  onClick?: any
-  disabled?: boolean
-}
-
 interface ButtonProps extends ClickProps {
   secondary?: boolean
   hidden?: boolean
+}
+
+export interface ClickProps {
+  onClick?: any
+  disabled?: boolean
 }
 
 export const ButtonBaseCss = css<ButtonProps & GeneralElementProps>`
@@ -42,6 +42,16 @@ export const ButtonBaseCss = css<ButtonProps & GeneralElementProps>`
 export const Button = styled.button<ButtonProps & GeneralElementProps>`
   ${ButtonBaseCss}
   ${GeneralElementCss}
+`
+
+export const NavButton = styled.button`
+  ${ButtonBaseCss}
+  display: block;
+  position: absolute;
+  right: 30px;
+  top: 15px;
+  min-height: 40px;
+  min-width: 70px;
 `
 
 export const ButtonWrapper = styled.div<MarginProps>`
