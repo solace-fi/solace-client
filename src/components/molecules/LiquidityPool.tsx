@@ -63,8 +63,8 @@ export const LiquidityPool: React.FC<LiquidityPoolProps> = ({ openModal }) => {
   const lpUserRewardsPerDay = useUserRewardsPerDay(2, lpFarm, account)
   const lpUserRewards = useUserPendingRewards(lpFarm)
   const lpPoolValue = usePoolStakedValue(lpFarm)
-  // const lpUserStakeValue = useUserStakedValue(lpFarm, account)
-  const depositedLpTokenInfo = useDepositedLpBalance()
+  const lpUserStakeValue = useUserStakedValue(lpFarm, account)
+  // const depositedLpTokenInfo = useDepositedLpBalance()
 
   /*************************************************************************************
 
@@ -88,14 +88,15 @@ export const LiquidityPool: React.FC<LiquidityPoolProps> = ({ openModal }) => {
         </TableHead>
         <TableBody>
           <TableRow>
-            {account ? (
+            {/* {account ? (
               <TableData width={100}>
                 {truncateBalance(
                   formatEther(depositedLpTokenInfo.reduce((a, b) => a.add(b.value), ZERO).toString()),
                   2
                 )}
               </TableData>
-            ) : null}
+            ) : null} */}
+            {account ? <TableData width={100}>{truncateBalance(parseFloat(lpUserStakeValue), 2)}</TableData> : null}
             <TableData>{truncateBalance(parseFloat(lpPoolValue), 2)}</TableData>
             <TableData width={100}>{LP_ROI}</TableData>
             {account ? <TableData>{truncateBalance(parseFloat(lpUserRewards), 2)}</TableData> : null}

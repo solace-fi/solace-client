@@ -86,7 +86,7 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
   const [amount, setAmount] = useState<string>('')
   const [isStaking, setIsStaking] = useState<boolean>(false)
   const cpUserStakeValue = useUserStakedValue(cpFarm, account)
-  // const lpUserStakeValue = useUserStakedValue(lpFarm, account)
+  const lpUserStakeValue = useUserStakedValue(lpFarm, account)
   const nativeTokenBalance = useNativeTokenBalance()
   const scpBalance = useScpBalance()
   const userLpTokenInfo = useUserWalletLpBalance()
@@ -389,7 +389,8 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
       case FunctionName.DEPOSIT_SIGNED:
         return userLpTokenInfo.reduce((a, b) => a.add(b.value), ZERO)
       case FunctionName.WITHDRAW_LP:
-        return depositedLpTokenInfo.reduce((a, b) => a.add(b.value), ZERO)
+        // return depositedLpTokenInfo.reduce((a, b) => a.add(b.value), ZERO)
+        return parseEther(lpUserStakeValue)
       default:
         return BN.from('999999999999999999999999999999999999')
     }

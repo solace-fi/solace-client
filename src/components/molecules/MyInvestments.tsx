@@ -54,8 +54,8 @@ export const MyInvestments: React.FC = () => {
   const cpUserRewards = useUserPendingRewards(cpFarm)
   const lpUserRewards = useUserPendingRewards(lpFarm)
   const cpUserStakeValue = useUserStakedValue(cpFarm, account)
-  // const lpUserStakeValue = useUserStakedValue(lpFarm, account)
-  const depositedLpTokenInfo = useDepositedLpBalance()
+  const lpUserStakeValue = useUserStakedValue(lpFarm, account)
+  // const depositedLpTokenInfo = useDepositedLpBalance()
   const cpUserRewardsPerDay = useUserRewardsPerDay(1, cpFarm, account)
   const lpUserRewardsPerDay = useUserRewardsPerDay(2, lpFarm, account)
 
@@ -94,13 +94,14 @@ export const MyInvestments: React.FC = () => {
           <CardHeader>
             <CardTitle h2>Liquidity Pool</CardTitle>
             <Heading3>
-              {account
+              {/* {account
                 ? truncateBalance(
                     formatEther(depositedLpTokenInfo.reduce((a, b) => a.add(b.value), ZERO).toString()),
                     2
                   )
                 : 0}{' '}
-              {Unit.SOLACE}
+              {Unit.SOLACE} */}
+              {account ? truncateBalance(parseFloat(lpUserStakeValue), 2) : 0} {Unit.SOLACE}
             </Heading3>
           </CardHeader>
           <CardBlock>
