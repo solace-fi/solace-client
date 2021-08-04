@@ -35,6 +35,7 @@ export const useUserVaultDetails = () => {
   const scpBalance = useScpBalance()
   const { library, account } = useWallet()
   const { vault, cpFarm } = useContracts()
+  const { version } = useCachedData()
 
   useEffect(() => {
     const getUserVaultDetails = async () => {
@@ -54,7 +55,7 @@ export const useUserVaultDetails = () => {
       }
     }
     getUserVaultDetails()
-  }, [library, scpBalance, cpFarm, account, vault])
+  }, [library, scpBalance, cpFarm, account, vault, version])
 
   return { userVaultAssets, userVaultShare }
 }

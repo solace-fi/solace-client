@@ -33,7 +33,7 @@ export const WalletConnectButton: React.FC = () => {
     custom hooks
 
   *************************************************************************************/
-  const wallet = useWallet()
+  const { connect } = useWallet()
 
   /*************************************************************************************
 
@@ -42,9 +42,7 @@ export const WalletConnectButton: React.FC = () => {
   *************************************************************************************/
   return (
     <Button
-      onClick={() =>
-        wallet.connect(SUPPORTED_WALLETS[SUPPORTED_WALLETS.findIndex((wallet) => wallet.id === 'metamask')])
-      }
+      onClick={() => connect(SUPPORTED_WALLETS[SUPPORTED_WALLETS.findIndex((wallet) => wallet.id === 'metamask')])}
     >
       Connect Wallet
     </Button>

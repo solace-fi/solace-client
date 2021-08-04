@@ -3,6 +3,7 @@
     Table of Contents:
 
     import react
+    import packages
     import managers
     import constants
     import components
@@ -19,13 +20,16 @@
 /* import react */
 import React from 'react'
 
+/* import packages */
+import { formatEther } from '@ethersproject/units'
+
 /* import managers */
 import { useContracts } from '../../context/ContractsManager'
 import { useWallet } from '../../context/WalletManager'
 
 /* import constants */
 import { FunctionName } from '../../constants/enums'
-import { LP_ROI } from '../../constants'
+import { LP_ROI, ZERO } from '../../constants'
 
 /* import components */
 import { Content } from '../atoms/Layout'
@@ -39,6 +43,7 @@ import { useUserStakedValue, usePoolStakedValue } from '../../hooks/useFarm'
 
 /* import utils */
 import { truncateBalance } from '../../utils/formatting'
+import { useDepositedLpBalance } from '../../hooks/useBalance'
 
 interface LiquidityPoolProps {
   openModal: (func: FunctionName, modalTitle: string) => void
@@ -59,6 +64,7 @@ export const LiquidityPool: React.FC<LiquidityPoolProps> = ({ openModal }) => {
   const lpUserRewards = useUserPendingRewards(lpFarm)
   const lpPoolValue = usePoolStakedValue(lpFarm)
   const lpUserStakeValue = useUserStakedValue(lpFarm, account)
+  // const depositedLpTokenInfo = useDepositedLpBalance()
 
   /*************************************************************************************
 
@@ -68,7 +74,7 @@ export const LiquidityPool: React.FC<LiquidityPoolProps> = ({ openModal }) => {
 
   return (
     <Content>
-      <Heading1>SOLACE/ETH Liquidity Pool</Heading1>
+      <Heading1>SOLACE Liquidity Pool</Heading1>
       <Table isHighlight textAlignCenter>
         <TableHead>
           <TableRow>
@@ -82,6 +88,14 @@ export const LiquidityPool: React.FC<LiquidityPoolProps> = ({ openModal }) => {
         </TableHead>
         <TableBody>
           <TableRow>
+            {/* {account ? (
+              <TableData width={100}>
+                {truncateBalance(
+                  formatEther(depositedLpTokenInfo.reduce((a, b) => a.add(b.value), ZERO).toString()),
+                  2
+                )}
+              </TableData>
+            ) : null} */}
             {account ? <TableData width={100}>{truncateBalance(parseFloat(lpUserStakeValue), 2)}</TableData> : null}
             <TableData>{truncateBalance(parseFloat(lpPoolValue), 2)}</TableData>
             <TableData width={100}>{LP_ROI}</TableData>
