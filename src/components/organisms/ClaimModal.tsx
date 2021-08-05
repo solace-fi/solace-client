@@ -247,7 +247,7 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
         <PolicyModalInfo selectedPolicy={selectedPolicy} latestBlock={latestBlock} />
         {!modalLoading && !asyncLoading ? (
           <Fragment>
-            <FormRow>
+            <FormRow mb={0}>
               <FormCol>
                 <Text3 autoAlign>
                   {assessment?.amountIn != undefined
@@ -270,7 +270,7 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
                 )}
               </FormCol>
             </FormRow>
-            <FormRow>
+            <FormRow mb={0}>
               <FormCol>
                 <Text3 autoAlign>
                   {assessment?.amountIn != undefined
@@ -279,7 +279,7 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
                 </Text3>
               </FormCol>
               <FormCol>
-                <Heading2 autoAlign>{formatEther(assessment?.amountOut || 0)} ETH</Heading2>
+                <Heading2 autoAlign>{truncateBalance(formatEther(assessment?.amountOut || 0))} ETH</Heading2>
               </FormCol>
             </FormRow>
             <SmallBox transparent mt={10} collapse={assessment?.lossEventDetected}>

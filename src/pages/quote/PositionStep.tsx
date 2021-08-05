@@ -41,7 +41,7 @@ import {
   PositionCardName,
 } from '../../components/atoms/Position'
 import { Loader } from '../../components/atoms/Loader'
-import { HeroContainer } from '../../components/atoms/Layout'
+import { Content, HeroContainer } from '../../components/atoms/Layout'
 import { Heading1, TextSpan } from '../../components/atoms/Typography'
 import { ManageModal } from '../../components/organisms/ManageModal'
 
@@ -192,7 +192,7 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
         </HeroContainer>
       )}
       {!loading && !userPolicyData.policiesLoading ? (
-        <Fragment>
+        <Content>
           <CardContainer>
             {balances.map((position: Token) => {
               return (
@@ -260,7 +260,7 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
               )
             })}
           </CardContainer>
-        </Fragment>
+        </Content>
       ) : (
         <Loader />
       )}

@@ -1,6 +1,7 @@
 import styled, { css, keyframes } from 'styled-components'
 import { ClickProps } from '../Button'
 import { GeneralTextProps, GeneralTextCss } from '../Typography'
+import { MAX_MOBILE_SCREEN_WIDTH, MOBILE_SCREEN_MARGIN } from '../../../constants'
 
 export interface ModalProps {
   handleClose: () => void

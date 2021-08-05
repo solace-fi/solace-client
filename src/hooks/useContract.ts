@@ -51,17 +51,23 @@ export function useContractArray(): ContractSources[] {
   return useMemo(() => {
     const config = contractConfig[String(chainId ?? DEFAULT_CHAIN_ID)]
     const contractSources: ContractSources[] = []
+    const excludedContractSources = [process.env.REACT_APP_RINKEBY_UNISWAP_LPTOKEN_ADDR]
+
     Object.keys(config.keyContracts).forEach((key) => {
-      contractSources.push({
-        addr: config.keyContracts[key].addr.toLowerCase(),
-        abi: config.keyContracts[key].abi,
-      })
+      if (!excludedContractSources.includes(config.keyContracts[key].addr)) {
+        contractSources.push({
+          addr: config.keyContracts[key].addr.toLowerCase(),
+          abi: config.keyContracts[key].abi,
+        })
+      }
     })
     Object.keys(config.productContracts).forEach((key) => {
-      contractSources.push({
-        addr: config.productContracts[key].addr.toLowerCase(),
-        abi: config.productContracts[key].abi,
-      })
+      if (!excludedContractSources.includes(config.productContracts[key].addr)) {
+        contractSources.push({
+          addr: config.productContracts[key].addr.toLowerCase(),
+          abi: config.productContracts[key].abi,
+        })
+      }
     })
     return contractSources
   }, [chainId])

@@ -21,15 +21,22 @@
   *************************************************************************************/
 
 /* import react */
-import React, { Fragment, useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 
 /* import packages */
 import { Slider } from '@rebass/forms'
 import { formatEther, parseEther } from 'ethers/lib/utils'
 import { BigNumber } from 'ethers'
+import styled from 'styled-components'
 
 /* import constants */
-import { DAYS_PER_YEAR, GAS_LIMIT, NUM_BLOCKS_PER_DAY } from '../../constants'
+import {
+  DAYS_PER_YEAR,
+  GAS_LIMIT,
+  NUM_BLOCKS_PER_DAY,
+  MAX_MOBILE_SCREEN_WIDTH,
+  MOBILE_SCREEN_MARGIN,
+} from '../../constants'
 import { TransactionCondition, FunctionName, Unit } from '../../constants/enums'
 import { LocalTx } from '../../constants/types'
 
@@ -56,6 +63,12 @@ import { useGetQuote, useGetMaxCoverPerUser } from '../../hooks/usePolicy'
 /* import utils */
 import { getGasValue } from '../../utils/formatting'
 import { getDateStringWithMonthName, getDateExtended } from '../../utils/time'
+
+const CardsWrapper = styled.div`
+  @media screen and (max-width: ${MAX_MOBILE_SCREEN_WIDTH}px) {
+    padding: 0 ${MOBILE_SCREEN_MARGIN}px;
+  }
+`
 
 export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigation }) => {
   /*************************************************************************************
@@ -230,7 +243,7 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
   *************************************************************************************/
 
   return (
-    <Fragment>
+    <CardsWrapper>
       <CardContainer cardsPerRow={2}>
         <Card>
           <FormRow mb={15}>
@@ -369,7 +382,7 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
           <FormRow>
             <Heading2>Terms and conditions</Heading2>
           </FormRow>
-          <FormRow>
+          <FormRow mb={0}>
             <FormCol>
               <Text3>
                 <b>Events covered:</b>
@@ -392,6 +405,6 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
           </FormRow>
         </Card>
       </CardContainer>
-    </Fragment>
+    </CardsWrapper>
   )
 }

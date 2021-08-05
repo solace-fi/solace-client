@@ -46,7 +46,7 @@ import { Box, BoxItem, BoxRow } from '../../components/atoms/Box'
 import { Button } from '../../components/atoms/Button'
 
 /* import utils */
-import { fixed, fixedTokenPositionBalance } from '../../utils/formatting'
+import { fixed, fixedTokenPositionBalance, truncateBalance } from '../../utils/formatting'
 
 /************************************************************************************* 
 
@@ -116,7 +116,7 @@ const steps = [{ id: 'protocol' }, { id: 'position' }, { id: 'coverage' }, { id:
 const FormContent = styled.div`
   display: grid;
   align-content: start;
-  gap: 50px;
+  gap: 20px;
 `
 
 export const MultiStepForm = () => {
@@ -218,7 +218,7 @@ export const MultiStepForm = () => {
                 </Protocol>
               </BoxItem>
               <BoxItem>
-                {fixedTokenPositionBalance(position.underlying)} {position.underlying.symbol}
+                {truncateBalance(fixedTokenPositionBalance(position.underlying))} {position.underlying.symbol}
               </BoxItem>
               <BoxItem>
                 <Button onClick={() => navigation.go(1)}>Change</Button>

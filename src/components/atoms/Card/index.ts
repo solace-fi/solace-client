@@ -1,4 +1,5 @@
 import styled, { css } from 'styled-components'
+import { GeneralElementCss, GeneralElementProps } from '../../generalInterfaces'
 import { ClickProps } from '../Button'
 import { FlexCol } from '../Layout'
 
@@ -7,9 +8,10 @@ import { GeneralTextProps, GeneralTextCss } from '../Typography'
 interface CardProps extends ClickProps {
   transparent?: boolean
   fade?: boolean
+  standalone?: boolean
 }
 
-interface CardContainerProps {
+interface CardContainerProps extends GeneralElementProps {
   cardsPerRow?: number
 }
 
@@ -21,17 +23,18 @@ const CardCss = css<CardProps>`
 `
 
 export const CardContainer = styled.div<CardContainerProps & GeneralTextProps>`
-  ${GeneralTextCss}
   display: grid;
   grid-template-columns: repeat(${(props) => (props.cardsPerRow ? props.cardsPerRow : '3')}, 1fr);
   gap: 24px;
-
-  @media screen and (max-width: 1215px) {
-    grid-template-columns: repeat(2, 1fr);
-  }
+  ${GeneralTextCss}
+  ${GeneralElementCss}
 
   @media screen and (max-width: 900px) {
-    grid-template-columns: repeat(1, 1fr);
+    grid-template-columns: repeat(${(props) => (props.cardsPerRow ? props.cardsPerRow - 1 : '2')}, 1fr);
+  }
+
+  @media screen and (max-width: 600px) {
+    grid-template-columns: repeat(${(props) => (props.cardsPerRow ? props.cardsPerRow - 2 : '1')}, 1fr);
   }
 `
 
