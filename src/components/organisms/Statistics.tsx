@@ -158,29 +158,7 @@ export const Statistics: React.FC = () => {
 
   return (
     <BoxRow>
-      {initialized && account ? (
-        <Box>
-          <BoxItem>
-            <BoxItemTitle h3>My Balance</BoxItemTitle>
-            <Text h2>
-              {`${truncateBalance(parseFloat(solaceBalance), 6)} `}
-              <TextSpan h3>SOLACE</TextSpan>
-            </Text>
-          </BoxItem>
-          <BoxItem>
-            <BoxItemTitle h3>My Rewards</BoxItemTitle>
-            <Text h2>
-              {`${truncateBalance(parseFloat(totalUserRewards), 6)} `}
-              <TextSpan h3>SOLACE</TextSpan>
-            </Text>
-          </BoxItem>
-          <BoxItem>
-            <Button disabled={errors.length > 0 || fixed(parseFloat(totalUserRewards), 6) <= 0} onClick={claimRewards}>
-              Claim
-            </Button>
-          </BoxItem>
-        </Box>
-      ) : (
+      {initialized && account ? null : (
         <Box>
           <BoxItem>
             <WalletConnectButton />

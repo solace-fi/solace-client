@@ -70,7 +70,6 @@ export const Prices: React.FC = () => {
 
   *************************************************************************************/
   const { chainId } = useWallet()
-  const pairPrice = usePairPrice()
   const nativeToken = getNativeTokenUnit(chainId ?? DEFAULT_CHAIN_ID)
   const coinPrice = useCoingeckoPrice(unitToNameMap[nativeToken], 'usd')
 
@@ -81,16 +80,6 @@ export const Prices: React.FC = () => {
   *************************************************************************************/
   return (
     <Price>
-      <SmallBox pl={10} navy>
-        <Heading3 autoAlign nowrap>
-          SOLACE
-        </Heading3>
-        <SmallBox ml={10} navy>
-          <Heading3 autoAlign green>
-            {`$${pairPrice}`}
-          </Heading3>
-        </SmallBox>
-      </SmallBox>
       <SmallBox pl={10} navy>
         <Heading3 autoAlign nowrap>
           {nativeToken}

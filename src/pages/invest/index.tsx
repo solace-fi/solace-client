@@ -70,16 +70,9 @@ function Invest(): any {
     <Fragment>
       <PoolModal isOpen={showPoolModal} modalTitle={modalTitle} func={func} closeModal={closeModal} />
       <RiskBackingCapitalPool openModal={openModal} />
-      {chainId == 1 ? (
-        <HeroContainer>
-          <Heading1>More pools coming soon!</Heading1>
-        </HeroContainer>
-      ) : (
-        <>
-          <CapitalProviderPool openModal={openModal} />
-          <LiquidityPool openModal={openModal} />
-        </>
-      )}
+      <HeroContainer>
+        <Heading1>More pools coming soon!</Heading1>
+      </HeroContainer>
     </Fragment>
   )
 }
