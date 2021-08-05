@@ -3,6 +3,7 @@
     Table of Contents:
 
     import react
+    import context
     import components
     import constants
 
@@ -16,6 +17,9 @@
 /* import react */
 import React, { useState, Fragment, useCallback } from 'react'
 
+/* import context */
+import { useWallet } from '../../context/WalletManager'
+
 /* import components */
 import { PoolModal } from '../../components/organisms/PoolModal'
 import { RiskBackingCapitalPool } from '../../components/molecules/RiskBackingCapitalPool'
@@ -24,6 +28,8 @@ import { LiquidityPool } from '../../components/molecules/LiquidityPool'
 
 /* import constants */
 import { FunctionName } from '../../constants/enums'
+import { HeroContainer } from '../../components/atoms/Layout'
+import { Heading1 } from '../../components/atoms/Typography'
 
 function Invest(): any {
   /*************************************************************************************
@@ -31,6 +37,7 @@ function Invest(): any {
   custom hooks
 
   *************************************************************************************/
+  const { chainId } = useWallet()
   const [func, setFunc] = useState<FunctionName>(FunctionName.DEPOSIT)
   const [modalTitle, setModalTitle] = useState<string>('')
   const [showPoolModal, setShowPoolModal] = useState<boolean>(false)
@@ -63,8 +70,16 @@ function Invest(): any {
     <Fragment>
       <PoolModal isOpen={showPoolModal} modalTitle={modalTitle} func={func} closeModal={closeModal} />
       <RiskBackingCapitalPool openModal={openModal} />
-      <CapitalProviderPool openModal={openModal} />
-      <LiquidityPool openModal={openModal} />
+      {chainId == 1 ? (
+        <HeroContainer>
+          <Heading1>More pools coming soon!</Heading1>
+        </HeroContainer>
+      ) : (
+        <>
+          <CapitalProviderPool openModal={openModal} />
+          <LiquidityPool openModal={openModal} />
+        </>
+      )}
     </Fragment>
   )
 }

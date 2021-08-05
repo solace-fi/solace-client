@@ -1,4 +1,5 @@
 import styled from 'styled-components'
+import { MAX_MOBILE_SCREEN_WIDTH } from '../../../constants'
 import { FlexCol } from '../Layout'
 
 interface ProgressProps {
@@ -48,6 +49,8 @@ export const StepsContainer = styled(FlexCol)<ProgressProps>`
     width: 100%;
   }
   `}
+
+  padding: 10px;
 `
 
 export const StepsWrapper = styled.div`

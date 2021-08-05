@@ -14,10 +14,12 @@ export const ZERO = constants.Zero
 export const ADDRESS_ZERO = constants.AddressZero
 export const GAS_LIMIT = 800000
 
-export const MAX_FULL_SCREEN_WIDTH = 1300
-export const MAX_MOBILE_SCREEN_WIDTH = 670
-export const MAX_PRICES_SCREEN_WIDTH = 1040
+export const MAX_NAVBAR_SCREEN_WIDTH = 1300
+export const MAX_TEXT_SCREEN_WIDTH = 670
+export const MAX_MOBILE_SCREEN_WIDTH = 1060
 export const MAX_WIDTH = 1340
+
+export const MOBILE_SCREEN_MARGIN = 20
 
 export const POW_NINE = 1000000000
 export const POW_EIGHTEEN = 1000000000000000000

@@ -1,6 +1,6 @@
 import { NavLink } from 'react-router-dom'
 import styled from 'styled-components'
-import { MAX_FULL_SCREEN_WIDTH } from '../../../constants'
+import { MAX_NAVBAR_SCREEN_WIDTH } from '../../../constants'
 
 interface TopNavProps {
   isOpen?: boolean
@@ -15,7 +15,7 @@ export const TopNav = styled.div<TopNavProps>`
   padding: 10px;
   transition: 200ms ease;
 
-  @media screen and (max-width: ${MAX_FULL_SCREEN_WIDTH}px) {
+  @media screen and (max-width: ${MAX_NAVBAR_SCREEN_WIDTH}px) {
     display: block;
     width: 100%;
     z-index: 1;
@@ -48,7 +48,7 @@ export const ItemList = styled.ul`
   width: 100%;
   padding: 0;
 
-  @media screen and (max-width: ${MAX_FULL_SCREEN_WIDTH}px) {
+  @media screen and (max-width: ${MAX_NAVBAR_SCREEN_WIDTH}px) {
     display: flex;
     justify-content: space-evenly;
   }

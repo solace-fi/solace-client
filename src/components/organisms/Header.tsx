@@ -27,7 +27,7 @@ import { Account } from './Account'
 import { Prices } from '../molecules/Prices'
 
 /* import constants */
-import { MAX_PRICES_SCREEN_WIDTH } from '../../constants'
+import { MAX_MOBILE_SCREEN_WIDTH } from '../../constants'
 
 /* import hooks */
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'
@@ -47,7 +47,7 @@ export const PageHeader: React.FC = () => {
   *************************************************************************************/
   return (
     <Header>
-      {width > MAX_PRICES_SCREEN_WIDTH && <Prices />}
+      {width > MAX_MOBILE_SCREEN_WIDTH && <Prices />}
       <Account />
     </Header>
   )
@@ -66,9 +66,9 @@ export const BottomPrices: React.FC = () => {
           Render
     
   *************************************************************************************/
-  return width <= MAX_PRICES_SCREEN_WIDTH ? (
+  return width > MAX_MOBILE_SCREEN_WIDTH ? null : (
     <Footer>
       <Prices />
     </Footer>
-  ) : null
+  )
 }

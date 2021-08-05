@@ -55,7 +55,7 @@ function Dashboard(): any {
 
   const { setSelectedProtocolByName } = useContracts()
   const { latestBlock } = useCachedData()
-  const wallet = useWallet()
+  const { chainId, account } = useWallet()
 
   /*************************************************************************************
 
@@ -93,7 +93,7 @@ function Dashboard(): any {
 
   return (
     <Fragment>
-      {!wallet.account ? (
+      {!account ? (
         <HeroContainer>
           <Heading1>Please connect wallet to view dashboard</Heading1>
         </HeroContainer>
@@ -118,7 +118,7 @@ function Dashboard(): any {
             )}
           </Content>
           {!showManageModal && !showClaimModal && <MyClaims />}
-          <MyInvestments />
+          {chainId == 1 ? null : <MyInvestments />}
         </Fragment>
       )}
     </Fragment>
