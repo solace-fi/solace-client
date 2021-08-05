@@ -26,7 +26,7 @@ import { parseEther } from '@ethersproject/units'
 import { useWallet } from '../../context/WalletManager'
 
 /* import constants */
-import { CP_ROI } from '../../constants'
+import { CP_ROI, MAX_MOBILE_SCREEN_WIDTH } from '../../constants'
 import { FunctionName } from '../../constants/enums'
 
 /* import components */
@@ -69,7 +69,7 @@ export const RiskBackingCapitalPool: React.FC<RiskBackingCapitalPoolProps> = ({ 
   return (
     <Content>
       <Heading1>ETH Risk backing Capital Pool</Heading1>
-      {width > 1080 ? (
+      {width > MAX_MOBILE_SCREEN_WIDTH ? (
         <Table isHighlight textAlignCenter>
           <TableHead>
             <TableRow>

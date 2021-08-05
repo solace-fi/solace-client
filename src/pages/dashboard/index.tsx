@@ -118,7 +118,7 @@ function Dashboard(): any {
             )}
           </Content>
           {!showManageModal && !showClaimModal && <MyClaims />}
-          {chainId == 1 ? null : <MyInvestments />}
+          <MyInvestments />
         </Fragment>
       )}
     </Fragment>

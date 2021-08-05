@@ -29,7 +29,7 @@ import { useWallet } from '../../context/WalletManager'
 
 /* import constants */
 import { FunctionName } from '../../constants/enums'
-import { LP_ROI, ZERO } from '../../constants'
+import { LP_ROI, MAX_MOBILE_SCREEN_WIDTH, ZERO } from '../../constants'
 
 /* import components */
 import { Content } from '../atoms/Layout'
@@ -79,7 +79,7 @@ export const LiquidityPool: React.FC<LiquidityPoolProps> = ({ openModal }) => {
   return (
     <Content>
       <Heading1>SOLACE Liquidity Pool</Heading1>
-      {width > 1080 ? (
+      {width > MAX_MOBILE_SCREEN_WIDTH ? (
         <Table isHighlight textAlignCenter>
           <TableHead>
             <TableRow>

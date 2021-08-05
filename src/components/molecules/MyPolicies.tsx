@@ -29,7 +29,7 @@ import { useCachedData } from '../../context/CachedDataManager'
 
 /* import constants */
 import { Policy } from '../../constants/types'
-import { DEFAULT_CHAIN_ID } from '../../constants'
+import { DEFAULT_CHAIN_ID, MAX_MOBILE_SCREEN_WIDTH } from '../../constants'
 import { PolicyState } from '../../constants/enums'
 
 /* import components */
@@ -89,7 +89,7 @@ export const MyPolicies: React.FC<MyPoliciesProps> = ({ openClaimModal, openMana
       {userPolicyData.policiesLoading ? (
         <Loader />
       ) : userPolicyData.userPolicies.length > 0 ? (
-        width > 1080 ? (
+        width > MAX_MOBILE_SCREEN_WIDTH ? (
           <Table textAlignCenter>
             <TableHead>
               <TableRow>

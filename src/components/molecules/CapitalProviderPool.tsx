@@ -31,7 +31,7 @@ import { Card } from '../atoms/Card'
 import { FormRow, FormCol } from '../atoms/Form'
 
 /* import constants */
-import { CP_ROI } from '../../constants'
+import { CP_ROI, MAX_MOBILE_SCREEN_WIDTH } from '../../constants'
 import { FunctionName } from '../../constants/enums'
 
 /* import hooks */
@@ -71,7 +71,7 @@ export const CapitalProviderPool: React.FC<CapitalProviderPoolProps> = ({ openMo
   return (
     <Content>
       <Heading1>Solace Capital Provider Farm</Heading1>
-      {width > 1080 ? (
+      {width > MAX_MOBILE_SCREEN_WIDTH ? (
         <Table isHighlight textAlignCenter>
           <TableHead>
             <TableRow>
