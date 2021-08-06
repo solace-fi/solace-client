@@ -53,14 +53,14 @@ export const useTransactionDetails = (): { txHistory: any; amounts: string[] } =
       case FunctionName.WITHDRAW:
         if (
           receipt.to.toLowerCase() ===
-          contractConfig[String(chainId ?? DEFAULT_CHAIN_ID)].keyContracts.lpFarm.addr.toLowerCase()
+          contractConfig[String(chainId ?? DEFAULT_CHAIN_ID)].keyContracts.vault.addr.toLowerCase()
         ) {
+          if (!topics || topics.length <= 0) return '0'
+          return topics[topics.length - 1]
+        } else {
           const data = logs[logs.length - 1].data
           if (!data) return '0'
           return logs[logs.length - 1].data
-        } else {
-          if (!topics || topics.length <= 0) return '0'
-          return topics[topics.length - 1]
         }
       case FunctionName.SUBMIT_CLAIM:
         if (!topics || topics.length <= 0) return '0'

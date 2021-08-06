@@ -123,10 +123,10 @@ export const formatTransactionContent = (
       return `Policy ${unit} ${BigNumber.from(amount)}`
     case FunctionName.DEPOSIT:
     case FunctionName.WITHDRAW:
-      if (to.toLowerCase() === contractConfig[String(chainId)].keyContracts.lpFarm.addr.toLowerCase()) {
-        return `#${BigNumber.from(amount)} ${Unit.LP}`
-      } else {
+      if (to.toLowerCase() === contractConfig[String(chainId)].keyContracts.vault.addr.toLowerCase()) {
         return `${truncateBalance(formatEther(BigNumber.from(amount)))} ${unit}`
+      } else {
+        return `#${BigNumber.from(amount)} ${Unit.LP}`
       }
     case FunctionName.DEPOSIT_ETH:
     case FunctionName.DEPOSIT_CP:
