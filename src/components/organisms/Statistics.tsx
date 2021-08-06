@@ -69,10 +69,9 @@ export const Statistics: React.FC = () => {
     version,
   } = useCachedData()
   const capitalPoolSize = useCapitalPoolSize()
-  const solaceBalance = useSolaceBalance()
-  const totalUserRewards = useTotalPendingRewards()
+  // const totalUserRewards = useTotalPendingRewards()
   const { allPolicies } = usePolicyGetter(true, latestBlock, tokenPositionDataInitialized, version)
-  const totalValueLocked = useGetTotalValueLocked()
+  // const totalValueLocked = useGetTotalValueLocked()
 
   /*************************************************************************************
 
@@ -87,40 +86,40 @@ export const Statistics: React.FC = () => {
   Contract functions
 
   *************************************************************************************/
-  const claimRewards = async () => {
-    if (!master) return
-    const txType = FunctionName.WITHDRAW_REWARDS
-    try {
-      const tx = await master.withdrawRewards({
-        gasPrice: getGasValue(gasPrices.options[1].value),
-        gasLimit: GAS_LIMIT,
-      })
-      const txHash = tx.hash
-      const localTx = {
-        hash: txHash,
-        type: txType,
-        value: truncateBalance(totalUserRewards),
-        status: TransactionCondition.PENDING,
-        unit: Unit.SOLACE,
-      }
-      addLocalTransactions(localTx)
-      makeTxToast(txType, TransactionCondition.PENDING, txHash)
-      reload()
-      await tx.wait().then((receipt: any) => {
-        const status = receipt.status ? TransactionCondition.SUCCESS : TransactionCondition.FAILURE
-        makeTxToast(txType, status, txHash)
-        reload()
-      })
-    } catch (err) {
-      if (err?.code === 4001) {
-        console.log('Transaction rejected.')
-      } else {
-        console.log(`Transaction failed: ${err.message}`)
-      }
-      makeTxToast(txType, TransactionCondition.CANCELLED)
-      reload()
-    }
-  }
+  // const claimRewards = async () => {
+  //   if (!master) return
+  //   const txType = FunctionName.WITHDRAW_REWARDS
+  //   try {
+  //     const tx = await master.withdrawRewards({
+  //       gasPrice: getGasValue(gasPrices.options[1].value),
+  //       gasLimit: GAS_LIMIT,
+  //     })
+  //     const txHash = tx.hash
+  //     const localTx = {
+  //       hash: txHash,
+  //       type: txType,
+  //       value: truncateBalance(totalUserRewards),
+  //       status: TransactionCondition.PENDING,
+  //       unit: Unit.SOLACE,
+  //     }
+  //     addLocalTransactions(localTx)
+  //     makeTxToast(txType, TransactionCondition.PENDING, txHash)
+  //     reload()
+  //     await tx.wait().then((receipt: any) => {
+  //       const status = receipt.status ? TransactionCondition.SUCCESS : TransactionCondition.FAILURE
+  //       makeTxToast(txType, status, txHash)
+  //       reload()
+  //     })
+  //   } catch (err) {
+  //     if (err?.code === 4001) {
+  //       console.log('Transaction rejected.')
+  //     } else {
+  //       console.log(`Transaction failed: ${err.message}`)
+  //     }
+  //     makeTxToast(txType, TransactionCondition.CANCELLED)
+  //     reload()
+  //   }
+  // }
 
   /*************************************************************************************
 
@@ -173,13 +172,13 @@ export const Statistics: React.FC = () => {
             <TextSpan h3>{getNativeTokenUnit(chainId ?? DEFAULT_CHAIN_ID)}</TextSpan>
           </Text>
         </BoxItem>
-        <BoxItem>
+        {/* <BoxItem>
           <BoxItemTitle h3>Total Value Locked</BoxItemTitle>
           <Text h2 nowrap>
             {`${truncateBalance(parseFloat(totalValueLocked), 1)} `}
             <TextSpan h3>{getNativeTokenUnit(chainId ?? DEFAULT_CHAIN_ID)}</TextSpan>
           </Text>
-        </BoxItem>
+        </BoxItem> */}
         <BoxItem>
           <BoxItemTitle h3>Active Cover Amount</BoxItemTitle>
           <Text h2 nowrap>

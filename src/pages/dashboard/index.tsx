@@ -118,7 +118,7 @@ function Dashboard(): any {
             )}
           </Content>
           {!showManageModal && !showClaimModal && <MyClaims />}
-          <MyInvestments />
+          {/* <MyInvestments /> */}
         </Fragment>
       )}
     </Fragment>

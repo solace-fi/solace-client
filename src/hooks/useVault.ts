@@ -34,18 +34,16 @@ export const useUserVaultDetails = () => {
   const [userVaultShare, setUserVaultShare] = useState<string>('0')
   const scpBalance = useScpBalance()
   const { library, account } = useWallet()
-  const { vault, cpFarm } = useContracts()
+  const { vault } = useContracts()
   const { version } = useCachedData()
 
   useEffect(() => {
     const getUserVaultDetails = async () => {
-      if (!cpFarm || !vault || !account) return
+      if (!vault || !account) return
       try {
         const totalSupply = await vault.totalSupply()
-        const userInfo = await cpFarm.userInfo(account)
-        const value = userInfo.value
         const cpBalance = parseEther(scpBalance)
-        const userAssets = cpBalance.add(value)
+        const userAssets = cpBalance
         const userShare = totalSupply.gt(ZERO) ? floatEther(userAssets.mul(100)) / floatEther(totalSupply) : 0
         const formattedAssets = formatEther(userAssets)
         setUserVaultAssets(formattedAssets)
@@ -55,7 +53,7 @@ export const useUserVaultDetails = () => {
       }
     }
     getUserVaultDetails()
-  }, [library, scpBalance, cpFarm, account, vault, version])
+  }, [library, scpBalance, account, vault, version])
 
   return { userVaultAssets, userVaultShare }
 }
