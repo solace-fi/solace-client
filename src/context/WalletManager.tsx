@@ -87,7 +87,7 @@ const WalletProvider: React.FC = (props) => {
       // if a connector is trying to connect, do not try to connect again
       if (connectingRef.current) return
 
-      const connector = walletConnector.connector.getConnector()
+      const connector = walletConnector.getConnector()
       connectingRef.current = walletConnector
       setConnecting(walletConnector)
 
@@ -112,7 +112,7 @@ const WalletProvider: React.FC = (props) => {
         ) {
           walletErrors.push(AppError.NO_ACCESS)
         } else {
-          const err = walletConnector.connector.onError?.(error)
+          const err = walletConnector.onError?.(error)
           walletErrors.push(AppError.UNKNOWN)
           console.log(err)
         }

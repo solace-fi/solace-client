@@ -100,7 +100,7 @@ const defaultData = {
     eth: { balance: ZERO },
   },
   balances: [],
-  coverageLimit: '5000',
+  coverageLimit: '5000', // TODO: Replace with coverAmount on new deployed contracts
   timePeriod: '180',
   loading: true,
 }

@@ -30,3 +30,11 @@ export const LP_ROI = '6.0%'
 export const MIN_RETRY_DELAY = 1000
 export const RETRY_BACKOFF_FACTOR = 2
 export const MAX_RETRY_DELAY = 10000
+
+export const POLLING_INTERVAL = 12000
+
+export const RPC_URLS = {
+  1: `https://eth-mainnet.alchemyapi.io/v2/${ALCHEMY_API_KEY}`,
+  4: `https://eth-rinkeby.alchemyapi.io/v2/${ALCHEMY_API_KEY}`,
+  42: `https://eth-kovan.alchemyapi.io/v2/${ALCHEMY_API_KEY}`,
+}
