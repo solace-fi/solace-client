@@ -101,7 +101,7 @@ const defaultData = {
   },
   balances: [],
   coverageLimit: '5000',
-  timePeriod: '180',
+  timePeriod: '5',
   loading: true,
 }
 

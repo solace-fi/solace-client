@@ -83,7 +83,6 @@ export const Box = styled(BoxRow)<BoxProps & GeneralElementProps>`
 `
 
 export const SmallBox = styled.div<BoxProps & SmallBoxProps & GeneralElementProps>`
-  ${(props) => props.error && `border-color: rgba(219, 44, 56);`}
   display: flex;
   ${(props) =>
     props.p !== undefined ||
@@ -105,6 +104,7 @@ export const SmallBox = styled.div<BoxProps & SmallBoxProps & GeneralElementProp
   ${(props) => (props.collapse ? `transform: scaleY(0); height: 0;` : `transform: scaleY(1);`)}
   transition: all 200ms ease;
   ${BoxCss}
+  ${(props) => props.error && `border-color: rgba(219, 44, 56);`}
 `
 
 export const BoxItem = styled.div`

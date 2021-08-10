@@ -51,11 +51,11 @@ import { FormRow, FormCol } from '../../components/atoms/Form'
 import { Button, ButtonWrapper } from '../../components/atoms/Button'
 import { formProps } from './MultiStepForm'
 import { Card, CardContainer } from '../../components/atoms/Card'
-import { Heading2, Text3, TextSpan } from '../../components/atoms/Typography'
+import { Heading2, Heading3, Text2, Text3, TextSpan } from '../../components/atoms/Typography'
 import { Input } from '../../components/atoms/Input'
 import { Loader } from '../../components/atoms/Loader'
 import { SmallBox } from '../../components/atoms/Box'
-import { FlexRow } from '../../components/atoms/Layout'
+import { FlexCol, FlexRow } from '../../components/atoms/Layout'
 
 /* import hooks */
 import { useGetQuote, useGetMaxCoverPerUser } from '../../hooks/usePolicy'
@@ -249,48 +249,26 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
           <FormRow mb={15}>
             <FormCol>
               <Heading2>Total Assets</Heading2>
-              {position.underlying.symbol !== 'ETH' && <Text3>ETH Denominated from {position.underlying.symbol}</Text3>}
+              {position.underlying.symbol !== 'ETH' && <Text3>Denominated from {position.underlying.symbol}</Text3>}
             </FormCol>
             <FormCol>
-              <Heading2>{formatEther(position.eth.balance)} ETH</Heading2>
-            </FormCol>
-          </FormRow>
-          <FormRow mb={5}>
-            <FormCol>
-              <Text3>Coverage Limit (1 - 100%)</Text3>
-            </FormCol>
-            <FormCol>
-              <Slider
-                width={200}
-                backgroundColor={'#fff'}
-                value={coverageLimit}
-                onChange={(e) => handleCoverageChange(e.target.value)}
-                min={100}
-                max={10000}
-              />
-            </FormCol>
-            <FormCol>
-              <Input
-                type="text"
-                width={50}
-                value={inputCoverage}
-                onChange={(e) => handleInputCoverage(e.target.value)}
-              />
+              <Heading2>{formatEther(position.eth.balance)}</Heading2>
+              <Text3 textAlignRight>ETH</Text3>
             </FormCol>
           </FormRow>
-          <FormRow mb={5}>
-            <FormCol>
-              <Text3>Covered Assets</Text3>
-            </FormCol>
-            <FormCol>
-              <FlexRow>
-                <Text3
-                  autoAlign
-                  bold
-                  error={parseEther(coveredAssets).gt(parseEther(maxCoverPerUser)) && maxCoverPerUser !== '0.00'}
-                >
-                  {coveredAssets} ETH
-                </Text3>
+          <hr style={{ marginBottom: '10px' }} />
+          <FlexCol mb={20} style={{ padding: '10px 30px' }}>
+            <div style={{ textAlign: 'center' }}>
+              <Heading2>Coverage Limit</Heading2>
+              <Text3>How much do you want to cover?</Text3>
+              <div>
+                <Input
+                  style={{ marginTop: '20px', marginBottom: '5px', textAlign: 'center' }}
+                  type="text"
+                  width={50}
+                  value={inputCoverage}
+                  onChange={(e) => handleInputCoverage(e.target.value)}
+                />
                 <Button
                   disabled={wallet.errors.length > 0}
                   ml={10}
@@ -304,6 +282,52 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
                 >
                   MAX
                 </Button>
+              </div>
+              <Slider
+                backgroundColor={'#fff'}
+                value={coverageLimit}
+                onChange={(e) => handleCoverageChange(e.target.value)}
+                min={100}
+                max={10000}
+              />
+            </div>
+            <br />
+            <div style={{ textAlign: 'center' }}>
+              <Heading2>Coverage Period</Heading2>
+              <Text3>How many days should the coverage last?</Text3>
+              <div>
+                <Input
+                  style={{ marginTop: '20px', marginBottom: '5px', textAlign: 'center' }}
+                  type="text"
+                  pattern="[0-9]+"
+                  width={50}
+                  value={timePeriod}
+                  onChange={(e) => filteredTime(e.target.value)}
+                  maxLength={3}
+                />
+                <Slider
+                  backgroundColor={'#fff'}
+                  value={timePeriod == '' ? '1' : timePeriod}
+                  onChange={(e) => setTime(e.target.value)}
+                  min="1"
+                  max={DAYS_PER_YEAR}
+                />
+              </div>
+            </div>
+          </FlexCol>
+          <hr style={{ marginBottom: '20px' }} />
+          <FormRow mb={5}>
+            <FormCol>
+              <Text3>Covered Assets</Text3>
+            </FormCol>
+            <FormCol>
+              <FlexRow>
+                <Text3
+                  bold
+                  error={parseEther(coveredAssets).gt(parseEther(maxCoverPerUser)) && maxCoverPerUser !== '0.00'}
+                >
+                  {coveredAssets} ETH
+                </Text3>
               </FlexRow>
             </FormCol>
           </FormRow>
@@ -320,44 +344,21 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
           </SmallBox>
           <FormRow mb={5}>
             <FormCol>
-              <Text3>Time Period (1 - 365 days)</Text3>
+              <Text3>Coverage Period</Text3>
             </FormCol>
             <FormCol>
-              <Slider
-                width={200}
-                backgroundColor={'#fff'}
-                value={timePeriod == '' ? '1' : timePeriod}
-                onChange={(e) => setTime(e.target.value)}
-                min="1"
-                max={DAYS_PER_YEAR}
-              />
-            </FormCol>
-            <FormCol>
-              <Input
-                type="text"
-                pattern="[0-9]+"
-                width={50}
-                value={timePeriod}
-                onChange={(e) => filteredTime(e.target.value)}
-                maxLength={3}
-              />
-            </FormCol>
-          </FormRow>
-          <FormRow mb={5}>
-            <FormCol>
-              <Text3 nowrap>
-                Coverage will last from{' '}
-                <TextSpan pl={5} pr={5}>
+              <Text3>
+                <TextSpan nowrap pl={5} pr={5}>
                   {getDateStringWithMonthName(new Date(Date.now()))}
                 </TextSpan>{' '}
-                to{' '}
+                -{' '}
                 <TextSpan pl={5} pr={5}>
                   {getDateStringWithMonthName(getDateExtended(parseFloat(timePeriod || '1')))}
                 </TextSpan>
               </Text3>
             </FormCol>
           </FormRow>
-          <FormRow>
+          <FormRow mb={5}>
             <FormCol>
               <Text3>Quote</Text3>
             </FormCol>

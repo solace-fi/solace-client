@@ -18,7 +18,7 @@ interface CardContainerProps extends GeneralElementProps {
 const CardCss = css<CardProps>`
   border-radius: 10px;
   padding: 24px;
-  background-color: rgba(255, 255, 255, ${(props) => (props.transparent ? '0' : '0.2')});
+  background-color: rgba(255, 255, 255, ${(props) => (props.transparent ? '0' : '0.1')});
   ${(props) => props.fade && '{background-color: rgba(0, 176, 144, 0.3); }'}
 `
 
