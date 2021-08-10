@@ -25,7 +25,7 @@ import React from 'react'
 import styled from 'styled-components'
 
 /* import constants */
-import { DEFAULT_CHAIN_ID, MAX_MOBILE_SCREEN_WIDTH } from '../../constants'
+import { DEFAULT_CHAIN_ID, MAX_TABLET_SCREEN_WIDTH, MAX_MOBILE_SCREEN_WIDTH } from '../../constants'
 import { ExplorerscanApi } from '../../constants/enums'
 
 /* import managers */
@@ -61,6 +61,10 @@ const Scrollable = styled.div`
   max-height: 60vh;
   overflow-y: scroll;
   ${CustomScrollbar}
+
+  @media screen and (max-width: ${MAX_MOBILE_SCREEN_WIDTH}px) {
+    max-height: 85vh;
+  }
 `
 
 export const TransactionHistory: React.FC = () => {
@@ -95,14 +99,14 @@ export const TransactionHistory: React.FC = () => {
         >
           <TableRow>
             <TableHeader>Type</TableHeader>
-            {width > MAX_MOBILE_SCREEN_WIDTH && (
+            {width > MAX_TABLET_SCREEN_WIDTH && (
               <>
                 <TableHeader>Amount</TableHeader>
                 <TableHeader>Time</TableHeader>
               </>
             )}
             <TableHeader>Hash</TableHeader>
-            {width > MAX_MOBILE_SCREEN_WIDTH && <TableHeader>Status</TableHeader>}
+            {width > MAX_TABLET_SCREEN_WIDTH && <TableHeader>Status</TableHeader>}
           </TableRow>
         </TableHead>
         <TableBody>
@@ -111,7 +115,7 @@ export const TransactionHistory: React.FC = () => {
               <TableData pt={10} pb={10}>
                 {pendingtx.type}
               </TableData>
-              {width > MAX_MOBILE_SCREEN_WIDTH && (
+              {width > MAX_TABLET_SCREEN_WIDTH && (
                 <>
                   <TableData pt={10} pb={10}>{`${pendingtx.value} ${pendingtx.unit}`}</TableData>
                   <TableData pt={10} pb={10}>
@@ -128,7 +132,7 @@ export const TransactionHistory: React.FC = () => {
                   <Button>{shortenAddress(pendingtx.hash)} </Button>
                 </HyperLink>
               </TableData>
-              {width > MAX_MOBILE_SCREEN_WIDTH && (
+              {width > MAX_TABLET_SCREEN_WIDTH && (
                 <TableData pt={10} pb={10}>
                   <Text>{pendingtx.status}</Text>
                 </TableData>
@@ -145,7 +149,7 @@ export const TransactionHistory: React.FC = () => {
                     <Loader width={10} height={10} />
                   )}
                 </TableData>
-                {width > MAX_MOBILE_SCREEN_WIDTH && (
+                {width > MAX_TABLET_SCREEN_WIDTH && (
                   <>
                     <TableData pt={10} pb={10}>
                       {amounts.length > 0 && amounts[i]}
@@ -166,7 +170,7 @@ export const TransactionHistory: React.FC = () => {
                     </HyperLink>
                   )}
                 </TableData>
-                {width > MAX_MOBILE_SCREEN_WIDTH && (
+                {width > MAX_TABLET_SCREEN_WIDTH && (
                   <TableData pt={10} pb={10}>
                     {amounts.length > 0 && (
                       <Text error={tx.txreceipt_status != '1'}>

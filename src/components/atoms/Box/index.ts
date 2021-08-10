@@ -2,7 +2,7 @@ import styled, { css } from 'styled-components'
 import { Box as RebassBox } from 'rebass/styled-components'
 import { GeneralTextProps, GeneralTextCss } from '../Typography'
 import { GeneralElementProps, GeneralElementCss } from '../../generalInterfaces'
-import { MAX_MOBILE_SCREEN_WIDTH, MOBILE_SCREEN_MARGIN } from '../../../constants'
+import { MAX_TABLET_SCREEN_WIDTH, MOBILE_SCREEN_MARGIN } from '../../../constants'
 
 interface BoxProps {
   purple?: boolean
@@ -51,7 +51,7 @@ export const BoxRow = styled(BoxBase)`
   padding: 20px 0;
   justify-content: space-between;
 
-  @media screen and (max-width: ${MAX_MOBILE_SCREEN_WIDTH}px) {
+  @media screen and (max-width: ${MAX_TABLET_SCREEN_WIDTH}px) {
     flex-direction: column;
     padding: 20px ${MOBILE_SCREEN_MARGIN}px;
     gap: 10px;
@@ -74,10 +74,10 @@ export const Box = styled(BoxRow)<BoxProps & GeneralElementProps>`
     props.pr !== undefined ||
     props.pb !== undefined
       ? null
-      : `padding: 24px;`}
+      : `padding: 24px 15px;`}
   ${BoxCss}
 
-  @media screen and (max-width: ${MAX_MOBILE_SCREEN_WIDTH}px) {
+  @media screen and (max-width: ${MAX_TABLET_SCREEN_WIDTH}px) {
     flex-direction: row;
   }
 `

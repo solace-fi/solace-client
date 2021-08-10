@@ -1,4 +1,4 @@
-import { MAX_NAVBAR_SCREEN_WIDTH, MAX_WIDTH, MAX_MOBILE_SCREEN_WIDTH, MOBILE_SCREEN_MARGIN } from '../../../constants'
+import { MAX_NAVBAR_SCREEN_WIDTH, MAX_WIDTH, MAX_TABLET_SCREEN_WIDTH, MOBILE_SCREEN_MARGIN } from '../../../constants'
 import styled, { createGlobalStyle, css } from 'styled-components'
 import { GeneralElementProps, GeneralElementCss, HeightAndWidthProps } from '../../generalInterfaces'
 import { GlobalFont } from '../Typography'
@@ -76,7 +76,7 @@ export const LayoutContent = styled.div<HeightAndWidthProps>`
   ${(props) => (props.width ? `width: ${(props.width / 100) * MAX_WIDTH}px;` : 'width: 100%;')}
   padding: 20px;
 
-  @media screen and (max-width: ${MAX_MOBILE_SCREEN_WIDTH}px) {
+  @media screen and (max-width: ${MAX_TABLET_SCREEN_WIDTH}px) {
     padding: 0px;
   }
 `
@@ -98,7 +98,7 @@ export const Footer = styled.div`
   overflow: hidden;
   padding: 10px;
 
-  @media screen and (max-width: ${MAX_MOBILE_SCREEN_WIDTH}px) {
+  @media screen and (max-width: ${MAX_TABLET_SCREEN_WIDTH}px) {
     display: block;
     width: 100%;
     z-index: 1;
@@ -108,7 +108,7 @@ export const Footer = styled.div`
 export const Content = styled.div`
   padding: 30px 0;
 
-  @media screen and (max-width: ${MAX_MOBILE_SCREEN_WIDTH}px) {
+  @media screen and (max-width: ${MAX_TABLET_SCREEN_WIDTH}px) {
     padding: 30px ${MOBILE_SCREEN_MARGIN}px;
   }
 `

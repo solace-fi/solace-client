@@ -29,7 +29,7 @@ import { useCachedData } from '../../context/CachedDataManager'
 
 /* import constants */
 import { Policy } from '../../constants/types'
-import { DEFAULT_CHAIN_ID, MAX_MOBILE_SCREEN_WIDTH } from '../../constants'
+import { DEFAULT_CHAIN_ID, MAX_TABLET_SCREEN_WIDTH } from '../../constants'
 import { PolicyState } from '../../constants/enums'
 
 /* import components */
@@ -37,7 +37,7 @@ import { Table, TableBody, TableHead, TableRow, TableHeader, TableData, TableDat
 import { Button, ButtonWrapper } from '../atoms/Button'
 import { Loader } from '../atoms/Loader'
 import { Heading2, Text } from '../atoms/Typography'
-import { FlexRow } from '../atoms/Layout'
+import { FlexCol, FlexRow } from '../atoms/Layout'
 import { PositionCardLogo } from '../atoms/Position'
 
 /* import hooks */
@@ -89,7 +89,7 @@ export const MyPolicies: React.FC<MyPoliciesProps> = ({ openClaimModal, openMana
       {userPolicyData.policiesLoading ? (
         <Loader />
       ) : userPolicyData.userPolicies.length > 0 ? (
-        width > MAX_MOBILE_SCREEN_WIDTH ? (
+        width > MAX_TABLET_SCREEN_WIDTH ? (
           <Table textAlignCenter>
             <TableHead>
               <TableRow>
@@ -145,12 +145,13 @@ export const MyPolicies: React.FC<MyPoliciesProps> = ({ openClaimModal, openMana
             </TableBody>
           </Table>
         ) : (
+          // mobile version
           <CardContainer cardsPerRow={3}>
             {userPolicyData.userPolicies.map((policy) => {
               return (
                 <Card key={policy.policyId}>
-                  <FormRow>
-                    <FormCol>
+                  <FlexCol style={{ alignItems: 'center' }}>
+                    <FormRow>
                       <FlexRow>
                         <PositionCardLogo>
                           <img src={`https://assets.solace.fi/${policy.productName.toLowerCase()}`} />
@@ -159,42 +160,52 @@ export const MyPolicies: React.FC<MyPoliciesProps> = ({ openClaimModal, openMana
                           <img src={`https://assets.solace.fi/${policy.positionName.toLowerCase()}`} />
                         </PositionCardLogo>
                       </FlexRow>
-                    </FormCol>
-                    <FormCol style={{ display: 'flex', alignItems: 'center' }}>
-                      {policy.productName} - {policy.positionName}
-                    </FormCol>
-                  </FormRow>
-                  <FormRow>
+                    </FormRow>
+                    <FormRow style={{ display: 'flex', alignItems: 'center' }}>
+                      <Heading2>
+                        {policy.productName} - {policy.positionName}
+                      </Heading2>
+                    </FormRow>
+                  </FlexCol>
+                  <FormRow mb={10}>
                     <FormCol>Status:</FormCol>
                     <FormCol>
-                      <Text error={policy.status === PolicyState.EXPIRED} warning={shouldWarnUser(policy)}>
+                      <Heading2 error={policy.status === PolicyState.EXPIRED} warning={shouldWarnUser(policy)}>
                         {policy.status}
-                      </Text>
+                      </Heading2>
                     </FormCol>
                   </FormRow>
-                  <FormRow>
+                  <FormRow mb={10}>
                     <FormCol>Id:</FormCol>
-                    <FormCol>{policy.policyId}</FormCol>
+                    <FormCol>
+                      <Heading2>{policy.policyId}</Heading2>
+                    </FormCol>
                   </FormRow>
-                  <FormRow>
+                  <FormRow mb={10}>
                     <FormCol>Expiration Date:</FormCol>
                     <FormCol>
-                      <Text warning={shouldWarnUser(policy)}>
+                      <Heading2 warning={shouldWarnUser(policy)}>
                         {calculatePolicyExpirationDate(policy.expirationBlock)}
-                      </Text>
+                      </Heading2>
                     </FormCol>
                   </FormRow>
-                  <FormRow>
+                  <FormRow mb={10}>
                     <FormCol>Covered Amount:</FormCol>
                     <FormCol>
-                      {policy.coverAmount ? truncateBalance(parseFloat(formatEther(policy.coverAmount)), 2) : 0}{' '}
-                      {getNativeTokenUnit(chainId ?? DEFAULT_CHAIN_ID)}
+                      <Heading2>
+                        {policy.coverAmount ? truncateBalance(parseFloat(formatEther(policy.coverAmount)), 2) : 0}{' '}
+                        {getNativeTokenUnit(chainId ?? DEFAULT_CHAIN_ID)}
+                      </Heading2>
                     </FormCol>
                   </FormRow>
                   {policy.status === PolicyState.ACTIVE && (
-                    <ButtonWrapper>
-                      <Button onClick={() => openClaimModal(policy)}>Claim</Button>
-                      <Button onClick={() => openManageModal(policy)}>Manage</Button>
+                    <ButtonWrapper isColumn>
+                      <Button widthP={100} onClick={() => openClaimModal(policy)}>
+                        Claim
+                      </Button>
+                      <Button widthP={100} onClick={() => openManageModal(policy)}>
+                        Manage
+                      </Button>
                     </ButtonWrapper>
                   )}
                 </Card>

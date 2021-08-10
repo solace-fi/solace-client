@@ -29,7 +29,7 @@ import { useWallet } from '../../context/WalletManager'
 
 /* import constants */
 import { FunctionName } from '../../constants/enums'
-import { LP_ROI, MAX_MOBILE_SCREEN_WIDTH, ZERO } from '../../constants'
+import { LP_ROI, MAX_TABLET_SCREEN_WIDTH, ZERO } from '../../constants'
 
 /* import components */
 import { Content } from '../atoms/Layout'
@@ -79,7 +79,7 @@ export const LiquidityPool: React.FC<LiquidityPoolProps> = ({ openModal }) => {
   return (
     <Content>
       <Heading1>SOLACE Liquidity Pool</Heading1>
-      {width > MAX_MOBILE_SCREEN_WIDTH ? (
+      {width > MAX_TABLET_SCREEN_WIDTH ? (
         <Table isHighlight textAlignCenter>
           <TableHead>
             <TableRow>
@@ -161,11 +161,19 @@ export const LiquidityPool: React.FC<LiquidityPoolProps> = ({ openModal }) => {
             <FormCol>{truncateBalance(parseFloat(lpRewardsPerDay), 2)}</FormCol>
           </FormRow>
           {account && (
-            <ButtonWrapper>
-              <Button disabled={errors.length > 0} onClick={() => openModal(FunctionName.DEPOSIT_SIGNED, 'Deposit')}>
+            <ButtonWrapper isColumn>
+              <Button
+                widthP={100}
+                disabled={errors.length > 0}
+                onClick={() => openModal(FunctionName.DEPOSIT_SIGNED, 'Deposit')}
+              >
                 Deposit
               </Button>
-              <Button disabled={errors.length > 0} onClick={() => openModal(FunctionName.WITHDRAW_LP, 'Withdraw')}>
+              <Button
+                widthP={100}
+                disabled={errors.length > 0}
+                onClick={() => openModal(FunctionName.WITHDRAW_LP, 'Withdraw')}
+              >
                 Withdraw
               </Button>
             </ButtonWrapper>

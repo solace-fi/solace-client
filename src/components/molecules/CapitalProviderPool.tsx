@@ -31,7 +31,7 @@ import { Card } from '../atoms/Card'
 import { FormRow, FormCol } from '../atoms/Form'
 
 /* import constants */
-import { CP_ROI, MAX_MOBILE_SCREEN_WIDTH } from '../../constants'
+import { CP_ROI, MAX_TABLET_SCREEN_WIDTH } from '../../constants'
 import { FunctionName } from '../../constants/enums'
 
 /* import hooks */
@@ -71,7 +71,7 @@ export const CapitalProviderPool: React.FC<CapitalProviderPoolProps> = ({ openMo
   return (
     <Content>
       <Heading1>Solace Capital Provider Farm</Heading1>
-      {width > MAX_MOBILE_SCREEN_WIDTH ? (
+      {width > MAX_TABLET_SCREEN_WIDTH ? (
         <Table isHighlight textAlignCenter>
           <TableHead>
             <TableRow>
@@ -142,11 +142,19 @@ export const CapitalProviderPool: React.FC<CapitalProviderPoolProps> = ({ openMo
             <FormCol>{truncateBalance(parseFloat(cpRewardsPerDay), 2)}</FormCol>
           </FormRow>
           {account && (
-            <ButtonWrapper>
-              <Button disabled={errors.length > 0} onClick={() => openModal(FunctionName.DEPOSIT_CP, 'Deposit')}>
+            <ButtonWrapper isColumn>
+              <Button
+                widthP={100}
+                disabled={errors.length > 0}
+                onClick={() => openModal(FunctionName.DEPOSIT_CP, 'Deposit')}
+              >
                 Deposit
               </Button>
-              <Button disabled={errors.length > 0} onClick={() => openModal(FunctionName.WITHDRAW_ETH, 'Withdraw')}>
+              <Button
+                widthP={100}
+                disabled={errors.length > 0}
+                onClick={() => openModal(FunctionName.WITHDRAW_ETH, 'Withdraw')}
+              >
                 Withdraw
               </Button>
             </ButtonWrapper>

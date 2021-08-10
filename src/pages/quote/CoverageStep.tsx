@@ -34,7 +34,7 @@ import {
   DAYS_PER_YEAR,
   GAS_LIMIT,
   NUM_BLOCKS_PER_DAY,
-  MAX_MOBILE_SCREEN_WIDTH,
+  MAX_TABLET_SCREEN_WIDTH,
   MOBILE_SCREEN_MARGIN,
 } from '../../constants'
 import { TransactionCondition, FunctionName, Unit } from '../../constants/enums'
@@ -65,7 +65,7 @@ import { getGasValue } from '../../utils/formatting'
 import { getDateStringWithMonthName, getDateExtended } from '../../utils/time'
 
 const CardsWrapper = styled.div`
-  @media screen and (max-width: ${MAX_MOBILE_SCREEN_WIDTH}px) {
+  @media screen and (max-width: ${MAX_TABLET_SCREEN_WIDTH}px) {
     padding: 0 ${MOBILE_SCREEN_MARGIN}px;
   }
 `
@@ -263,7 +263,9 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
               <Text3>How much do you want to cover?</Text3>
               <div>
                 <Input
-                  style={{ marginTop: '20px', marginBottom: '5px', textAlign: 'center' }}
+                  mt={20}
+                  mb={5}
+                  textAlignCenter
                   type="text"
                   width={50}
                   value={inputCoverage}
@@ -297,7 +299,9 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
               <Text3>How many days should the coverage last?</Text3>
               <div>
                 <Input
-                  style={{ marginTop: '20px', marginBottom: '5px', textAlign: 'center' }}
+                  mt={20}
+                  mb={5}
+                  textAlignCenter
                   type="text"
                   pattern="[0-9]+"
                   width={50}
@@ -369,6 +373,7 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
           <ButtonWrapper>
             {!loading ? (
               <Button
+                widthP={100}
                 onClick={() => buyPolicy()}
                 disabled={wallet.errors.length > 0 || parseEther(coveredAssets).gt(parseEther(maxCoverPerUser))}
               >

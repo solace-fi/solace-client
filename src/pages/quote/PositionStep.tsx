@@ -7,6 +7,7 @@
     import config
     import components
     import constants
+    import hooks
     import utils
 
     PositionStep function
@@ -49,8 +50,12 @@ import { ManageModal } from '../../components/organisms/ManageModal'
 import { PolicyState } from '../../constants/enums'
 import { Policy, Token } from '../../constants/types'
 
+/* import hooks */
+import { useWindowDimensions } from '../../hooks/useWindowDimensions'
+
 /* import utils */
 import { fixedTokenPositionBalance, truncateBalance } from '../../utils/formatting'
+import { MAX_MOBILE_SCREEN_WIDTH } from '../../constants'
 
 export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigation }) => {
   const { protocol, balances, loading } = formData
@@ -64,6 +69,7 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
   const { account, chainId, library, errors } = useWallet()
   const { setSelectedProtocolByName } = useContracts()
   const { userPolicyData, latestBlock, tokenPositionDataInitialized } = useCachedData()
+  const { width } = useWindowDimensions()
 
   /*************************************************************************************
 
@@ -251,9 +257,9 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
 
                   <PositionCardButton>
                     {userHasActiveProductPosition(protocol.name, position.underlying.symbol) ? (
-                      <Button>Manage</Button>
+                      <Button widthP={width > MAX_MOBILE_SCREEN_WIDTH ? undefined : 100}>Manage</Button>
                     ) : (
-                      <Button>Select</Button>
+                      <Button widthP={width > MAX_MOBILE_SCREEN_WIDTH ? undefined : 100}>Select</Button>
                     )}
                   </PositionCardButton>
                 </PositionCard>

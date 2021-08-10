@@ -7,10 +7,20 @@ interface ButtonProps extends ClickProps {
   hidden?: boolean
 }
 
+interface ButtonWrapperProps {
+  isRow?: boolean
+  isColumn?: boolean
+}
+
 export interface ClickProps {
   onClick?: any
   disabled?: boolean
 }
+
+export const ButtonWrapperCss = css<ButtonWrapperProps>`
+  ${(props) => props.isColumn && 'flex-direction: row;'}
+  ${(props) => props.isColumn && 'flex-direction: column;'}
+`
 
 export const ButtonBaseCss = css<ButtonProps & GeneralElementProps>`
   display: inline-flex;
@@ -54,11 +64,12 @@ export const NavButton = styled.button`
   min-width: 70px;
 `
 
-export const ButtonWrapper = styled.div<MarginProps>`
+export const ButtonWrapper = styled.div<MarginProps & ButtonWrapperProps>`
   display: flex;
   align-items: center;
   justify-content: center;
   margin: 20px 0;
-  gap: 5px;
+  gap: 10px;
   ${MarginCss}
+  ${ButtonWrapperCss}
 `

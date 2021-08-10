@@ -7,6 +7,7 @@
     import context
     import constants
     import components
+    import hooks
     import utils
 
     interfaces
@@ -33,7 +34,7 @@ import styled from 'styled-components'
 import { useWallet } from '../../context/WalletManager'
 
 /* import constants */
-import { ZERO } from '../../constants'
+import { MAX_MOBILE_SCREEN_WIDTH, ZERO } from '../../constants'
 
 /* import components */
 import { ProtocolStep } from './ProtocolStep'
@@ -43,7 +44,12 @@ import { ConfirmStep } from './ConfirmStep'
 import { Step, StepsContainer, StepsWrapper, StepsProgress, StepsProgressBar } from '../../components/atoms/Progress'
 import { Protocol, ProtocolImage, ProtocolTitle } from '../../components/atoms/Protocol'
 import { Box, BoxItem, BoxRow } from '../../components/atoms/Box'
-import { Button } from '../../components/atoms/Button'
+import { Button, ButtonWrapper } from '../../components/atoms/Button'
+import { Card, CardContainer } from '../../components/atoms/Card'
+import { FormRow, FormCol } from '../../components/atoms/Form'
+
+/* import hooks */
+import { useWindowDimensions } from '../../hooks/useWindowDimensions'
 
 /* import utils */
 import { fixed, fixedTokenPositionBalance, truncateBalance } from '../../utils/formatting'
@@ -132,7 +138,7 @@ export const MultiStepForm = () => {
     initialStep: 0,
   })
   const { account, chainId } = useWallet()
-
+  const { width } = useWindowDimensions()
   const props = { formData, setForm, navigation }
 
   /*************************************************************************************
@@ -186,46 +192,107 @@ export const MultiStepForm = () => {
         </StepsProgress>
       </StepsContainer>
       {Number(StepNumber[step.id]) !== 0 && Number(StepNumber[step.id]) !== 3 && (
-        <BoxRow>
-          <Box>
-            <BoxItem>
-              <Protocol>
-                <ProtocolImage mr={10}>
-                  <img src={`https://assets.solace.fi/${protocol.name.toLowerCase()}`} />
-                </ProtocolImage>
-                <ProtocolTitle>{protocol.name}</ProtocolTitle>
-              </Protocol>
-            </BoxItem>
-            <BoxItem>{fixed(protocol.yearlyCost * 100, 2)}%</BoxItem>
-            <BoxItem>{protocol.availableCoverage} ETH</BoxItem>
-            <BoxItem>
-              <Button onClick={() => navigation.go(0)}>Change</Button>
-            </BoxItem>
-          </Box>
-          {Number(StepNumber[step.id]) == 1 && (
-            <Box transparent outlined>
-              <BoxItem>{loading ? 'Loading Your Positions...' : 'Select Position Below'}</BoxItem>
-            </Box>
+        <>
+          {width > MAX_MOBILE_SCREEN_WIDTH ? (
+            <BoxRow>
+              <Box>
+                <BoxItem>
+                  <Protocol>
+                    <ProtocolImage mr={10}>
+                      <img src={`https://assets.solace.fi/${protocol.name.toLowerCase()}`} />
+                    </ProtocolImage>
+                    <ProtocolTitle>{protocol.name}</ProtocolTitle>
+                  </Protocol>
+                </BoxItem>
+                <BoxItem>{fixed(protocol.yearlyCost * 100, 2)}%</BoxItem>
+                <BoxItem>{protocol.availableCoverage} ETH</BoxItem>
+                <BoxItem>
+                  <Button onClick={() => navigation.go(0)}>Change</Button>
+                </BoxItem>
+              </Box>
+              {Number(StepNumber[step.id]) == 1 && (
+                <Box transparent outlined>
+                  <BoxItem>{loading ? 'Loading Your Positions...' : 'Select Position Below'}</BoxItem>
+                </Box>
+              )}
+              {Number(StepNumber[step.id]) == 2 && !!position.underlying && (
+                <Box purple>
+                  <BoxItem>
+                    <Protocol>
+                      <ProtocolImage mr={10}>
+                        <img src={`https://assets.solace.fi/${position.underlying.address.toLowerCase()}`} />
+                      </ProtocolImage>
+                      <ProtocolTitle>{position.underlying.name}</ProtocolTitle>
+                    </Protocol>
+                  </BoxItem>
+                  <BoxItem>
+                    {truncateBalance(fixedTokenPositionBalance(position.underlying))} {position.underlying.symbol}
+                  </BoxItem>
+                  <BoxItem>
+                    <Button onClick={() => navigation.go(1)}>Change</Button>
+                  </BoxItem>
+                </Box>
+              )}
+            </BoxRow>
+          ) : (
+            //mobile version
+            <CardContainer m={20}>
+              <Card blue>
+                <FormRow>
+                  <Protocol>
+                    <ProtocolImage mr={10}>
+                      <img src={`https://assets.solace.fi/${protocol.name.toLowerCase()}`} />
+                    </ProtocolImage>
+                    <ProtocolTitle>{protocol.name}</ProtocolTitle>
+                  </Protocol>
+                </FormRow>
+                <FormRow>
+                  <FormCol>Yearly Cost</FormCol>
+                  <FormCol>{fixed(protocol.yearlyCost * 100, 2)}%</FormCol>
+                </FormRow>
+                <FormRow>
+                  <FormCol>Available Coverage</FormCol>
+                  <FormCol>{protocol.availableCoverage} ETH</FormCol>
+                </FormRow>
+                <ButtonWrapper>
+                  <Button widthP={100} onClick={() => navigation.go(0)}>
+                    Change
+                  </Button>
+                </ButtonWrapper>
+              </Card>
+              {Number(StepNumber[step.id]) == 1 && (
+                <Card transparent p={0}>
+                  <Box transparent outlined>
+                    <BoxItem>{loading ? 'Loading Your Positions...' : 'Select Position Below'}</BoxItem>
+                  </Box>
+                </Card>
+              )}
+              {Number(StepNumber[step.id]) == 2 && !!position.underlying && (
+                <Card purple>
+                  <FormRow>
+                    <Protocol>
+                      <ProtocolImage mr={10}>
+                        <img src={`https://assets.solace.fi/${position.underlying.address.toLowerCase()}`} />
+                      </ProtocolImage>
+                      <ProtocolTitle>{position.underlying.name}</ProtocolTitle>
+                    </Protocol>
+                  </FormRow>
+                  <FormRow>
+                    <FormCol>Position Amount</FormCol>
+                    <FormCol>
+                      {truncateBalance(fixedTokenPositionBalance(position.underlying))} {position.underlying.symbol}
+                    </FormCol>
+                  </FormRow>
+                  <ButtonWrapper>
+                    <Button widthP={100} onClick={() => navigation.go(1)}>
+                      Change
+                    </Button>
+                  </ButtonWrapper>
+                </Card>
+              )}
+            </CardContainer>
           )}
-          {Number(StepNumber[step.id]) == 2 && !!position.underlying && (
-            <Box purple>
-              <BoxItem>
-                <Protocol>
-                  <ProtocolImage mr={10}>
-                    <img src={`https://assets.solace.fi/${position.underlying.address.toLowerCase()}`} />
-                  </ProtocolImage>
-                  <ProtocolTitle>{position.underlying.name}</ProtocolTitle>
-                </Protocol>
-              </BoxItem>
-              <BoxItem>
-                {truncateBalance(fixedTokenPositionBalance(position.underlying))} {position.underlying.symbol}
-              </BoxItem>
-              <BoxItem>
-                <Button onClick={() => navigation.go(1)}>Change</Button>
-              </BoxItem>
-            </Box>
-          )}
-        </BoxRow>
+        </>
       )}
       {getForm()}
     </FormContent>

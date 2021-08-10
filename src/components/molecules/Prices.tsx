@@ -29,7 +29,7 @@ import { useCoingeckoPrice } from '@usedapp/coingecko'
 import { useWallet } from '../../context/WalletManager'
 
 /* import constants */
-import { DEFAULT_CHAIN_ID, MAX_MOBILE_SCREEN_WIDTH } from '../../constants'
+import { DEFAULT_CHAIN_ID, MAX_TABLET_SCREEN_WIDTH } from '../../constants'
 import { Unit } from '../../constants/enums'
 
 /* import components */
@@ -53,7 +53,7 @@ const Price = styled.div`
   align-content: center;
   flex-grow: 1;
 
-  @media screen and (max-width: ${MAX_MOBILE_SCREEN_WIDTH}px) {
+  @media screen and (max-width: ${MAX_TABLET_SCREEN_WIDTH}px) {
     justify-content: space-evenly;
   }
 `

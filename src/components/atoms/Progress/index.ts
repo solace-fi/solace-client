@@ -1,5 +1,5 @@
 import styled from 'styled-components'
-import { MAX_MOBILE_SCREEN_WIDTH } from '../../../constants'
+import { MAX_TABLET_SCREEN_WIDTH } from '../../../constants'
 import { FlexCol } from '../Layout'
 
 interface ProgressProps {
