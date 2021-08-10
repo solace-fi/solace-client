@@ -64,12 +64,6 @@ import { useGetQuote, useGetMaxCoverPerUser } from '../../hooks/usePolicy'
 import { getGasValue } from '../../utils/formatting'
 import { getDateStringWithMonthName, getDateExtended } from '../../utils/time'
 
-const CardsWrapper = styled.div`
-  @media screen and (max-width: ${MAX_TABLET_SCREEN_WIDTH}px) {
-    padding: 0 ${MOBILE_SCREEN_MARGIN}px;
-  }
-`
-
 export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigation }) => {
   /*************************************************************************************
 
@@ -243,174 +237,172 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
   *************************************************************************************/
 
   return (
-    <CardsWrapper>
-      <CardContainer cardsPerRow={2}>
-        <Card>
-          <FormRow mb={15}>
-            <FormCol>
-              <Heading2>Total Assets</Heading2>
-              {position.underlying.symbol !== 'ETH' && <Text3>Denominated from {position.underlying.symbol}</Text3>}
-            </FormCol>
-            <FormCol>
-              <Heading2>{formatEther(position.eth.balance)}</Heading2>
-              <Text3 textAlignRight>ETH</Text3>
-            </FormCol>
-          </FormRow>
-          <hr style={{ marginBottom: '10px' }} />
-          <FlexCol mb={20} style={{ padding: '10px 30px' }}>
-            <div style={{ textAlign: 'center' }}>
-              <Heading2>Coverage Limit</Heading2>
-              <Text3>How much do you want to cover?</Text3>
-              <div>
-                <Input
-                  mt={20}
-                  mb={5}
-                  textAlignCenter
-                  type="text"
-                  width={50}
-                  value={inputCoverage}
-                  onChange={(e) => handleInputCoverage(e.target.value)}
-                />
-                <Button
-                  disabled={wallet.errors.length > 0}
-                  ml={10}
-                  pt={4}
-                  pb={4}
-                  pl={8}
-                  pr={8}
-                  width={79}
-                  height={30}
-                  onClick={() => setMaxCover()}
-                >
-                  MAX
-                </Button>
-              </div>
+    <CardContainer cardsPerRow={2}>
+      <Card>
+        <FormRow mb={15}>
+          <FormCol>
+            <Heading2>Total Assets</Heading2>
+            {position.underlying.symbol !== 'ETH' && <Text3>Denominated from {position.underlying.symbol}</Text3>}
+          </FormCol>
+          <FormCol>
+            <Heading2>{formatEther(position.eth.balance)}</Heading2>
+            <Text3 textAlignRight>ETH</Text3>
+          </FormCol>
+        </FormRow>
+        <hr style={{ marginBottom: '10px' }} />
+        <FlexCol mb={20} style={{ padding: '10px 30px' }}>
+          <div style={{ textAlign: 'center' }}>
+            <Heading2>Coverage Limit</Heading2>
+            <Text3>How much do you want to cover?</Text3>
+            <div>
+              <Input
+                mt={20}
+                mb={5}
+                textAlignCenter
+                type="text"
+                width={50}
+                value={inputCoverage}
+                onChange={(e) => handleInputCoverage(e.target.value)}
+              />
+              <Button
+                disabled={wallet.errors.length > 0}
+                ml={10}
+                pt={4}
+                pb={4}
+                pl={8}
+                pr={8}
+                width={79}
+                height={30}
+                onClick={() => setMaxCover()}
+              >
+                MAX
+              </Button>
+            </div>
+            <Slider
+              backgroundColor={'#fff'}
+              value={coverageLimit}
+              onChange={(e) => handleCoverageChange(e.target.value)}
+              min={100}
+              max={10000}
+            />
+          </div>
+          <br />
+          <div style={{ textAlign: 'center' }}>
+            <Heading2>Coverage Period</Heading2>
+            <Text3>How many days should the coverage last?</Text3>
+            <div>
+              <Input
+                mt={20}
+                mb={5}
+                textAlignCenter
+                type="text"
+                pattern="[0-9]+"
+                width={50}
+                value={timePeriod}
+                onChange={(e) => filteredTime(e.target.value)}
+                maxLength={3}
+              />
               <Slider
                 backgroundColor={'#fff'}
-                value={coverageLimit}
-                onChange={(e) => handleCoverageChange(e.target.value)}
-                min={100}
-                max={10000}
+                value={timePeriod == '' ? '1' : timePeriod}
+                onChange={(e) => setTime(e.target.value)}
+                min="1"
+                max={DAYS_PER_YEAR}
               />
             </div>
-            <br />
-            <div style={{ textAlign: 'center' }}>
-              <Heading2>Coverage Period</Heading2>
-              <Text3>How many days should the coverage last?</Text3>
-              <div>
-                <Input
-                  mt={20}
-                  mb={5}
-                  textAlignCenter
-                  type="text"
-                  pattern="[0-9]+"
-                  width={50}
-                  value={timePeriod}
-                  onChange={(e) => filteredTime(e.target.value)}
-                  maxLength={3}
-                />
-                <Slider
-                  backgroundColor={'#fff'}
-                  value={timePeriod == '' ? '1' : timePeriod}
-                  onChange={(e) => setTime(e.target.value)}
-                  min="1"
-                  max={DAYS_PER_YEAR}
-                />
-              </div>
-            </div>
-          </FlexCol>
-          <hr style={{ marginBottom: '20px' }} />
-          <FormRow mb={5}>
-            <FormCol>
-              <Text3>Covered Assets</Text3>
-            </FormCol>
-            <FormCol>
-              <FlexRow>
-                <Text3
-                  bold
-                  error={parseEther(coveredAssets).gt(parseEther(maxCoverPerUser)) && maxCoverPerUser !== '0.00'}
-                >
-                  {coveredAssets} ETH
-                </Text3>
-              </FlexRow>
-            </FormCol>
-          </FormRow>
-          <SmallBox
-            transparent
-            outlined
-            error
-            collapse={!parseEther(coveredAssets).gt(parseEther(maxCoverPerUser))}
-            mb={!parseEther(coveredAssets).gt(parseEther(maxCoverPerUser)) ? 0 : 5}
-          >
-            <Text3 error autoAlign>
-              You can only cover to a maximum amount of {maxCoverPerUser} ETH.
-            </Text3>
-          </SmallBox>
-          <FormRow mb={5}>
-            <FormCol>
-              <Text3>Coverage Period</Text3>
-            </FormCol>
-            <FormCol>
-              <Text3>
-                <TextSpan nowrap pl={5} pr={5}>
-                  {getDateStringWithMonthName(new Date(Date.now()))}
-                </TextSpan>{' '}
-                -{' '}
-                <TextSpan pl={5} pr={5}>
-                  {getDateStringWithMonthName(getDateExtended(parseFloat(timePeriod || '1')))}
-                </TextSpan>
-              </Text3>
-            </FormCol>
-          </FormRow>
-          <FormRow mb={5}>
-            <FormCol>
-              <Text3>Quote</Text3>
-            </FormCol>
-            <FormCol>
-              <Text3 bold>{quote} ETH</Text3>
-            </FormCol>
-          </FormRow>
-          <ButtonWrapper>
-            {!loading ? (
-              <Button
-                widthP={100}
-                onClick={() => buyPolicy()}
-                disabled={wallet.errors.length > 0 || parseEther(coveredAssets).gt(parseEther(maxCoverPerUser))}
+          </div>
+        </FlexCol>
+        <hr style={{ marginBottom: '20px' }} />
+        <FormRow mb={5}>
+          <FormCol>
+            <Text3>Covered Assets</Text3>
+          </FormCol>
+          <FormCol>
+            <FlexRow>
+              <Text3
+                bold
+                error={parseEther(coveredAssets).gt(parseEther(maxCoverPerUser)) && maxCoverPerUser !== '0.00'}
               >
-                Buy
-              </Button>
-            ) : (
-              <Loader />
-            )}
-          </ButtonWrapper>
-        </Card>
-        <Card transparent>
-          <FormRow>
-            <Heading2>Terms and conditions</Heading2>
-          </FormRow>
-          <FormRow mb={0}>
-            <FormCol>
-              <Text3>
-                <b>Events covered:</b>
-                <ul>
-                  <li>Contract bugs</li>
-                  <li>Economic attacks, including oracle failures</li>
-                  <li>Governance attacks</li>
-                </ul>
-                This coverage is not a contract of insurance. Coverage is provided on a discretionary basis with Solace
-                protocol and the decentralized governance has the final say on which claims are paid.
-                <b>Important Developer Notes</b>
+                {coveredAssets} ETH
               </Text3>
-              <hr></hr>
-              <Heading2>Important Developer Notes</Heading2>
-              <Text3 error>
-                Policies with a lending protocol for an asset that is locked as collateral will not be able to submit a
-                claim if you have borrowed assets. Debts need to be paid before a claim can be submitted.
-              </Text3>
-            </FormCol>
-          </FormRow>
-        </Card>
-      </CardContainer>
-    </CardsWrapper>
+            </FlexRow>
+          </FormCol>
+        </FormRow>
+        <SmallBox
+          transparent
+          outlined
+          error
+          collapse={!parseEther(coveredAssets).gt(parseEther(maxCoverPerUser))}
+          mb={!parseEther(coveredAssets).gt(parseEther(maxCoverPerUser)) ? 0 : 5}
+        >
+          <Text3 error autoAlign>
+            You can only cover to a maximum amount of {maxCoverPerUser} ETH.
+          </Text3>
+        </SmallBox>
+        <FormRow mb={5}>
+          <FormCol>
+            <Text3>Coverage Period</Text3>
+          </FormCol>
+          <FormCol>
+            <Text3>
+              <TextSpan nowrap pl={5} pr={5}>
+                {getDateStringWithMonthName(new Date(Date.now()))}
+              </TextSpan>{' '}
+              -{' '}
+              <TextSpan pl={5} pr={5}>
+                {getDateStringWithMonthName(getDateExtended(parseFloat(timePeriod || '1')))}
+              </TextSpan>
+            </Text3>
+          </FormCol>
+        </FormRow>
+        <FormRow mb={5}>
+          <FormCol>
+            <Text3>Quote</Text3>
+          </FormCol>
+          <FormCol>
+            <Text3 bold>{quote} ETH</Text3>
+          </FormCol>
+        </FormRow>
+        <ButtonWrapper>
+          {!loading ? (
+            <Button
+              widthP={100}
+              onClick={() => buyPolicy()}
+              disabled={wallet.errors.length > 0 || parseEther(coveredAssets).gt(parseEther(maxCoverPerUser))}
+            >
+              Buy
+            </Button>
+          ) : (
+            <Loader />
+          )}
+        </ButtonWrapper>
+      </Card>
+      <Card transparent>
+        <FormRow>
+          <Heading2>Terms and conditions</Heading2>
+        </FormRow>
+        <FormRow mb={0}>
+          <FormCol>
+            <Text3>
+              <b>Events covered:</b>
+              <ul>
+                <li>Contract bugs</li>
+                <li>Economic attacks, including oracle failures</li>
+                <li>Governance attacks</li>
+              </ul>
+              This coverage is not a contract of insurance. Coverage is provided on a discretionary basis with Solace
+              protocol and the decentralized governance has the final say on which claims are paid.
+              <b>Important Developer Notes</b>
+            </Text3>
+            <hr></hr>
+            <Heading2>Important Developer Notes</Heading2>
+            <Text3 error>
+              Policies with a lending protocol for an asset that is locked as collateral will not be able to submit a
+              claim if you have borrowed assets. Debts need to be paid before a claim can be submitted.
+            </Text3>
+          </FormCol>
+        </FormRow>
+      </Card>
+    </CardContainer>
   )
 }
