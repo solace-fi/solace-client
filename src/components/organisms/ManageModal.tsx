@@ -38,23 +38,25 @@ import { useContracts } from '../../context/ContractsManager'
 /* import components */
 import { Modal } from '../molecules/Modal'
 import { FormRow, FormCol } from '../atoms/Form'
-import { Text1, Text3 } from '../atoms/Typography'
+import { Heading2, Text1, Text3, TextSpan } from '../atoms/Typography'
 import { PolicyModalInfo } from '../molecules/PolicyModalInfo'
 import { Input } from '../atoms/Input'
-import { Button } from '../atoms/Button'
+import { Button, ButtonWrapper } from '../atoms/Button'
 import { Loader } from '../atoms/Loader'
 
 /* import constants */
-import { DAYS_PER_YEAR, NUM_BLOCKS_PER_DAY, GAS_LIMIT, ZERO } from '../../constants'
+import { DAYS_PER_YEAR, NUM_BLOCKS_PER_DAY, GAS_LIMIT, ZERO, MAX_MOBILE_SCREEN_WIDTH } from '../../constants'
 import { FunctionName, TransactionCondition, Unit } from '../../constants/enums'
 import { Policy } from '../../constants/types'
 
 /* import hooks */
 import { useAppraisePosition, useGetCancelFee, useGetPolicyPrice, useGetQuote } from '../../hooks/usePolicy'
+import { useWindowDimensions } from '../../hooks/useWindowDimensions'
 
 /* import utils */
 import { getGasValue } from '../../utils/formatting'
 import { getDays, getExpiration } from '../../utils/time'
+import { FlexCol, FlexRow } from '../atoms/Layout'
 
 interface ManageModalProps {
   closeModal: () => void
@@ -103,6 +105,7 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
   const { makeTxToast } = useToasts()
   const policyPrice = useGetPolicyPrice(selectedPolicy ? selectedPolicy.policyId : 0)
   const cancelFee = useGetCancelFee()
+  const { width } = useWindowDimensions()
 
   const daysLeft = useMemo(
     () => getDays(parseFloat(selectedPolicy ? selectedPolicy.expirationBlock : '0'), latestBlock),
@@ -288,115 +291,224 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
         <PolicyModalInfo selectedPolicy={selectedPolicy} latestBlock={latestBlock} />
         {!modalLoading ? (
           <Fragment>
-            <FormRow>
-              <Text1>Update Policy</Text1>
-            </FormRow>
-            <UpdatePolicySec>
-              <FormRow mb={5}>
-                <FormCol>
-                  <Text3>Edit coverage (1 - 100%)</Text3>
-                </FormCol>
-                <FormCol>
-                  <Slider
-                    disabled={asyncLoading}
-                    width={150}
-                    backgroundColor={'#fff'}
-                    value={feedbackCoverage}
-                    onChange={(e) => handleCoverageChange(e.target.value)}
-                    min={100}
-                    max={10000}
-                  />
-                </FormCol>
-                <FormCol>
-                  <Input
-                    disabled={asyncLoading}
-                    type="text"
-                    width={50}
-                    value={inputCoverage}
-                    onChange={(e) => handleInputCoverage(e.target.value)}
-                  />
-                </FormCol>
-              </FormRow>
-              <FormCol></FormCol>
-              <FormRow mb={5}>
-                <FormCol>
-                  <Text3>Add days (0 - {DAYS_PER_YEAR - daysLeft} days)</Text3>
-                </FormCol>
-                <FormCol>
-                  <Slider
-                    disabled={asyncLoading}
-                    width={150}
-                    backgroundColor={'#fff'}
-                    value={extendedTime == '' ? '0' : extendedTime}
-                    onChange={(e) => setExtendedTime(e.target.value)}
-                    min="0"
-                    max={DAYS_PER_YEAR - daysLeft}
-                  />
-                </FormCol>
-                <FormCol>
-                  <Input
-                    disabled={asyncLoading}
-                    type="text"
-                    pattern="[0-9]+"
-                    width={50}
-                    value={extendedTime}
-                    onChange={(e) => filteredTime(e.target.value)}
-                    maxLength={3}
-                  />
-                </FormCol>
-              </FormRow>
-              <FormCol></FormCol>
-              <FormRow mb={5} style={{ justifyContent: 'flex-start' }}>
-                <FormCol>
-                  <Text3 nowrap>Expiration: {getExpiration(daysLeft)}</Text3>
-                </FormCol>
-                <FormCol>
-                  <Text3 nowrap>New expiration: {getExpiration(daysLeft + parseFloat(extendedTime || '0'))}</Text3>
-                </FormCol>
-              </FormRow>
-              <FormRow mb={5} style={{ justifyContent: 'flex-end' }}>
-                {!asyncLoading ? (
-                  <Button disabled={errors.length > 0} onClick={() => extendPolicy()}>
-                    Update Policy
-                  </Button>
-                ) : (
-                  <Loader width={10} height={10} />
-                )}
-              </FormRow>
-            </UpdatePolicySec>
-            <FormRow>
-              <Text1>Cancel Policy</Text1>
-            </FormRow>
-            <CancelPolicySec>
-              <FormRow mb={10}>
-                <FormCol>
-                  <Text3 error={policyPrice !== '' && refundAmount.lte(parseEther(cancelFee))}>
-                    Refund amount: {formatEther(refundAmount)} ETH
-                  </Text3>
-                </FormCol>
-              </FormRow>
-              <FormCol></FormCol>
-              <FormRow mb={10}>
-                <FormCol>
-                  <Text3>Cancellation fee: {cancelFee} ETH</Text3>
-                  {policyPrice !== '' && refundAmount.lte(parseEther(cancelFee)) && (
-                    <Text3 error>Refund amount must offset cancellation fee</Text3>
-                  )}
-                </FormCol>
-              </FormRow>
-              <FormRow mb={10} style={{ justifyContent: 'flex-end' }}>
-                {policyPrice !== '' ? (
-                  <Button
-                    disabled={errors.length > 0 || refundAmount.lte(parseEther(cancelFee))}
-                    onClick={() => cancelPolicy()}
-                  >
-                    Cancel Policy
-                  </Button>
-                ) : (
-                  <Loader width={10} height={10} />
-                )}
-              </FormRow>
-            </CancelPolicySec>
+            {width > MAX_MOBILE_SCREEN_WIDTH ? (
+              <>
+                <FormRow>
+                  <Text1>Update Policy</Text1>
+                </FormRow>
+                <UpdatePolicySec>
+                  <FormRow mb={5}>
+                    <FormCol>
+                      <Text3>Edit coverage (1 - 100%)</Text3>
+                    </FormCol>
+                    <FormCol>
+                      <Slider
+                        disabled={asyncLoading}
+                        width={150}
+                        backgroundColor={'#fff'}
+                        value={feedbackCoverage}
+                        onChange={(e) => handleCoverageChange(e.target.value)}
+                        min={100}
+                        max={10000}
+                      />
+                    </FormCol>
+                    <FormCol>
+                      <Input
+                        disabled={asyncLoading}
+                        type="text"
+                        width={50}
+                        value={inputCoverage}
+                        onChange={(e) => handleInputCoverage(e.target.value)}
+                      />
+                    </FormCol>
+                  </FormRow>
+                  <FormCol></FormCol>
+                  <FormRow mb={5}>
+                    <FormCol>
+                      <Text3>Add days (0 - {DAYS_PER_YEAR - daysLeft} days)</Text3>
+                    </FormCol>
+                    <FormCol>
+                      <Slider
+                        disabled={asyncLoading}
+                        width={150}
+                        backgroundColor={'#fff'}
+                        value={extendedTime == '' ? '0' : extendedTime}
+                        onChange={(e) => setExtendedTime(e.target.value)}
+                        min="0"
+                        max={DAYS_PER_YEAR - daysLeft}
+                      />
+                    </FormCol>
+                    <FormCol>
+                      <Input
+                        disabled={asyncLoading}
+                        type="text"
+                        pattern="[0-9]+"
+                        width={50}
+                        value={extendedTime}
+                        onChange={(e) => filteredTime(e.target.value)}
+                        maxLength={3}
+                      />
+                    </FormCol>
+                  </FormRow>
+                  <FormCol></FormCol>
+                  <FormRow mb={5} style={{ justifyContent: 'flex-start' }}>
+                    <FormCol>
+                      <Text3 nowrap>Expiration: {getExpiration(daysLeft)}</Text3>
+                    </FormCol>
+                    <FormCol>
+                      <Text3 nowrap>New expiration: {getExpiration(daysLeft + parseFloat(extendedTime || '0'))}</Text3>
+                    </FormCol>
+                  </FormRow>
+                  <FormRow mb={5} style={{ justifyContent: 'flex-end' }}>
+                    {!asyncLoading ? (
+                      <Button disabled={errors.length > 0} onClick={() => extendPolicy()}>
+                        Update Policy
+                      </Button>
+                    ) : (
+                      <Loader width={10} height={10} />
+                    )}
+                  </FormRow>
+                </UpdatePolicySec>
+              </>
+            ) : (
+              // mobile version
+              <div style={{ textAlign: 'center' }}>
+                <Heading2>Update Policy</Heading2>
+                <FlexCol style={{ justifyContent: 'center', marginTop: '20px' }}>
+                  <div style={{ width: '100%' }}>
+                    <div style={{ textAlign: 'center', padding: '5px' }}>
+                      <Text3>Edit Coverage</Text3>
+                      <Input
+                        mt={5}
+                        mb={5}
+                        textAlignCenter
+                        disabled={asyncLoading}
+                        type="text"
+                        width={50}
+                        value={inputCoverage}
+                        onChange={(e) => handleInputCoverage(e.target.value)}
+                      />
+                      <Slider
+                        disabled={asyncLoading}
+                        backgroundColor={'#fff'}
+                        value={feedbackCoverage}
+                        onChange={(e) => handleCoverageChange(e.target.value)}
+                        min={100}
+                        max={10000}
+                      />
+                    </div>
+                  </div>
+                  <div style={{ width: '100%' }}>
+                    <div style={{ textAlign: 'center', padding: '5px' }}>
+                      <Text3>Add days</Text3>
+                      <Input
+                        mt={5}
+                        mb={5}
+                        textAlignCenter
+                        disabled={asyncLoading}
+                        type="text"
+                        pattern="[0-9]+"
+                        width={50}
+                        value={extendedTime}
+                        onChange={(e) => filteredTime(e.target.value)}
+                        maxLength={3}
+                      />
+                      <Slider
+                        disabled={asyncLoading}
+                        backgroundColor={'#fff'}
+                        value={extendedTime == '' ? '0' : extendedTime}
+                        onChange={(e) => setExtendedTime(e.target.value)}
+                        min="0"
+                        max={DAYS_PER_YEAR - daysLeft}
+                      />
+                      <Text3>New expiration: {getExpiration(daysLeft + parseFloat(extendedTime || '0'))}</Text3>
+                      <ButtonWrapper>
+                        {!asyncLoading ? (
+                          <Button widthP={100} disabled={errors.length > 0} onClick={() => extendPolicy()}>
+                            Update Policy
+                          </Button>
+                        ) : (
+                          <Loader width={10} height={10} />
+                        )}
+                      </ButtonWrapper>
+                    </div>
+                  </div>
+                </FlexCol>
+              </div>
+            )}
+            {width > MAX_MOBILE_SCREEN_WIDTH ? (
+              <>
+                <FormRow>
+                  <Text1>Cancel Policy</Text1>
+                </FormRow>
+                <CancelPolicySec>
+                  <FormRow mb={10}>
+                    <FormCol>
+                      <Text3 error={policyPrice !== '' && refundAmount.lte(parseEther(cancelFee))}>
+                        Refund amount: <TextSpan nowrap>{formatEther(refundAmount)} ETH</TextSpan>
+                      </Text3>
+                    </FormCol>
+                  </FormRow>
+                  <FormCol></FormCol>
+                  <FormRow mb={10}>
+                    <FormCol>
+                      <Text3>Cancellation fee: {cancelFee} ETH</Text3>
+                      {policyPrice !== '' && refundAmount.lte(parseEther(cancelFee)) && (
+                        <Text3 error>Refund amount must offset cancellation fee</Text3>
+                      )}
+                    </FormCol>
+                  </FormRow>
+                  <FormRow mb={10} style={{ justifyContent: 'flex-end' }}>
+                    {policyPrice !== '' ? (
+                      <Button
+                        disabled={errors.length > 0 || refundAmount.lte(parseEther(cancelFee))}
+                        onClick={() => cancelPolicy()}
+                      >
+                        Cancel Policy
+                      </Button>
+                    ) : (
+                      <Loader width={10} height={10} />
+                    )}
+                  </FormRow>
+                </CancelPolicySec>
+              </>
+            ) : (
+              // mobile version
+              <div style={{ textAlign: 'center' }}>
+                <Heading2>Cancel Policy</Heading2>
+                <FlexCol mt={20}>
+                  <FormRow mb={10}>
+                    <FormCol>
+                      <Text3 error={policyPrice !== '' && refundAmount.lte(parseEther(cancelFee))}>
+                        Refund amount: {formatEther(refundAmount)} ETH
+                      </Text3>
+                    </FormCol>
+                  </FormRow>
+                  <FormCol></FormCol>
+                  <FormRow mb={10}>
+                    <FormCol>
+                      <Text3 textAlignLeft>Cancellation fee: {cancelFee} ETH</Text3>
+                      {policyPrice !== '' && refundAmount.lte(parseEther(cancelFee)) && (
+                        <Text3 error>Refund amount must offset cancellation fee</Text3>
+                      )}
+                    </FormCol>
+                  </FormRow>
+                  <ButtonWrapper>
+                    {policyPrice !== '' ? (
+                      <Button
+                        widthP={100}
+                        disabled={errors.length > 0 || refundAmount.lte(parseEther(cancelFee))}
+                        onClick={() => cancelPolicy()}
+                      >
+                        Cancel Policy
+                      </Button>
+                    ) : (
+                      <Loader width={10} height={10} />
+                    )}
+                  </ButtonWrapper>
+                </FlexCol>
+              </div>
+            )}
           </Fragment>
         ) : (
           <Loader />

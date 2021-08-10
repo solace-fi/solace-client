@@ -50,12 +50,13 @@ import { policyConfig } from '../../config/chainConfig'
 /* import constants */
 import { FunctionName, TransactionCondition, Unit, ProductName } from '../../constants/enums'
 import cTokenABI from '../../constants/abi/contracts/interface/ICToken.sol/ICToken.json'
-import { DEFAULT_CHAIN_ID, GAS_LIMIT } from '../../constants'
+import { DEFAULT_CHAIN_ID, GAS_LIMIT, MAX_MOBILE_SCREEN_WIDTH } from '../../constants'
 import { Token, Policy, ClaimAssessment } from '../../constants/types'
 
 /* import hooks */
 import { useTokenAllowance } from '../../hooks/useTokenAllowance'
 import { useGetCooldownPeriod } from '../../hooks/useClaimsEscrow'
+import { useWindowDimensions } from '../../hooks/useWindowDimensions'
 
 /* import utils */
 import { getClaimAssessment } from '../../utils/paclas'
@@ -98,6 +99,7 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
   const { selectedProtocol, getProtocolByName } = useContracts()
   const { makeTxToast } = useToasts()
   const { account, chainId, errors, library } = useWallet()
+  const { width } = useWindowDimensions()
 
   /*************************************************************************************
 
@@ -249,10 +251,14 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
           <Fragment>
             <FormRow mb={0}>
               <FormCol>
-                <Text3 autoAlign>
+                <Text3 autoAlign nowrap>
                   {assessment?.amountIn != undefined
-                    ? 'By submitting a claim you swap'
-                    : 'By submitting a claim, you receive'}
+                    ? width > MAX_MOBILE_SCREEN_WIDTH
+                      ? 'By submitting a claim you swap'
+                      : 'Swapping'
+                    : width > MAX_MOBILE_SCREEN_WIDTH
+                    ? 'By submitting a claim, you receive'
+                    : null}
                 </Text3>
               </FormCol>
               <FormCol>
@@ -272,17 +278,21 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
             </FormRow>
             <FormRow mb={0}>
               <FormCol>
-                <Text3 autoAlign>
+                <Text3 autoAlign nowrap>
                   {assessment?.amountIn != undefined
-                    ? 'for pre-exploit assets value equal to'
-                    : 'pre-exploit assets value equal to'}
+                    ? width > MAX_MOBILE_SCREEN_WIDTH
+                      ? 'for pre-exploit assets value equal to'
+                      : 'for pre-exploit assets'
+                    : width > MAX_MOBILE_SCREEN_WIDTH
+                    ? 'pre-exploit assets value equal to'
+                    : 'Receiving'}
                 </Text3>
               </FormCol>
               <FormCol>
                 <Heading2 autoAlign>{truncateBalance(formatEther(assessment?.amountOut || 0))} ETH</Heading2>
               </FormCol>
             </FormRow>
-            <SmallBox transparent mt={10} collapse={assessment?.lossEventDetected}>
+            <SmallBox transparent mt={!assessment?.lossEventDetected ? 10 : 0} collapse={assessment?.lossEventDetected}>
               <Text2 autoAlign error={!assessment?.lossEventDetected}>
                 No loss event detected, unable to submit claims yet.
               </Text2>
@@ -322,11 +332,15 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
                 </Button>
               </ButtonWrapper>
             )}
-            <SmallBox transparent>
-              <Heading3 autoAlign warning>
-                Please wait for the cooldown period to elapse before withdrawing your payout.
-              </Heading3>
-            </SmallBox>
+            {width > MAX_MOBILE_SCREEN_WIDTH && (
+              <>
+                <SmallBox transparent>
+                  <Heading3 autoAlign warning>
+                    Please wait for the cooldown period to elapse before withdrawing your payout.
+                  </Heading3>
+                </SmallBox>
+              </>
+            )}
             <Table isHighlight>
               <TableBody>
                 <TableRow>

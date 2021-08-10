@@ -1,6 +1,6 @@
 import styled, { css } from 'styled-components'
 import { GeneralElementProps, GeneralElementCss } from '../../generalInterfaces'
-import { MAX_TEXT_SCREEN_WIDTH } from '../../../constants'
+import { MAX_MOBILE_SCREEN_WIDTH } from '../../../constants'
 
 export interface TextFontProps {
   h1?: boolean
@@ -34,7 +34,7 @@ export interface GeneralTextProps extends TextFontProps, TextAlignProps, TextSty
 const Font1 = css`
   font-size: 24px;
 
-  @media screen and (max-width: ${MAX_TEXT_SCREEN_WIDTH}px) {
+  @media screen and (max-width: ${MAX_MOBILE_SCREEN_WIDTH}px) {
     font-size: 22px;
   }
 `
@@ -42,7 +42,7 @@ const Font1 = css`
 const Font2 = css`
   font-size: 20px;
 
-  @media screen and (max-width: ${MAX_TEXT_SCREEN_WIDTH}px) {
+  @media screen and (max-width: ${MAX_MOBILE_SCREEN_WIDTH}px) {
     font-size: 18px;
   }
 `
@@ -50,7 +50,7 @@ const Font2 = css`
 const Font3 = css`
   font-size: 14px;
 
-  @media screen and (max-width: ${MAX_TEXT_SCREEN_WIDTH}px) {
+  @media screen and (max-width: ${MAX_MOBILE_SCREEN_WIDTH}px) {
     font-size: 12px;
   }
 `
@@ -124,7 +124,7 @@ const NoWrapCss = css`
 export const GlobalFont = css`
   font-size: 16px;
 
-  @media screen and (max-width: ${MAX_TEXT_SCREEN_WIDTH}px) {
+  @media screen and (max-width: ${MAX_MOBILE_SCREEN_WIDTH}px) {
     font-size: 14px;
   }
 `

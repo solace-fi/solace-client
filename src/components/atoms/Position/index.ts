@@ -32,4 +32,5 @@ export const PositionCardButton = styled.div`
   align-items: flex-end;
   justify-content: center;
   margin-top: 16px;
+  width: 100%;
 `

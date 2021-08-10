@@ -26,7 +26,7 @@ import { parseEther } from '@ethersproject/units'
 import { useWallet } from '../../context/WalletManager'
 
 /* import constants */
-import { CP_ROI, MAX_MOBILE_SCREEN_WIDTH } from '../../constants'
+import { CP_ROI, MAX_TABLET_SCREEN_WIDTH } from '../../constants'
 import { FunctionName } from '../../constants/enums'
 
 /* import components */
@@ -69,7 +69,7 @@ export const RiskBackingCapitalPool: React.FC<RiskBackingCapitalPoolProps> = ({ 
   return (
     <Content>
       <Heading1>ETH Risk backing Capital Pool</Heading1>
-      {width > MAX_MOBILE_SCREEN_WIDTH ? (
+      {width > MAX_TABLET_SCREEN_WIDTH ? (
         <Table isHighlight textAlignCenter>
           <TableHead>
             <TableRow>
@@ -132,11 +132,19 @@ export const RiskBackingCapitalPool: React.FC<RiskBackingCapitalPoolProps> = ({ 
             <FormCol>Your Vault Share:</FormCol>
             <FormCol>{`${truncateBalance(userVaultShare, 2)}%`}</FormCol>
           </FormRow>
-          <ButtonWrapper>
-            <Button disabled={errors.length > 0} onClick={() => openModal(FunctionName.DEPOSIT, 'Deposit')}>
+          <ButtonWrapper isColumn>
+            <Button
+              widthP={100}
+              disabled={errors.length > 0}
+              onClick={() => openModal(FunctionName.DEPOSIT, 'Deposit')}
+            >
               Deposit
             </Button>
-            <Button disabled={errors.length > 0} onClick={() => openModal(FunctionName.WITHDRAW, 'Withdraw')}>
+            <Button
+              widthP={100}
+              disabled={errors.length > 0}
+              onClick={() => openModal(FunctionName.WITHDRAW, 'Withdraw')}
+            >
               Withdraw
             </Button>
           </ButtonWrapper>

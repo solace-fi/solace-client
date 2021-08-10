@@ -527,15 +527,11 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
   )
 
   const AutoStakeOption: React.FC = () => (
-    <ModalRow>
-      <ModalCell>
-        <RadioCircle>
-          <RadioCircleInput type="checkbox" checked={isStaking} onChange={(e) => setIsStaking(e.target.checked)} />
-          <RadioCircleFigure />
-          <div>Automatically stake</div>
-        </RadioCircle>
-      </ModalCell>
-    </ModalRow>
+    <RadioCircle style={{ paddingTop: '20px', justifyContent: 'center' }}>
+      <RadioCircleInput type="checkbox" checked={isStaking} onChange={(e) => setIsStaking(e.target.checked)} />
+      <RadioCircleFigure />
+      <div>Automatically stake</div>
+    </RadioCircle>
   )
 
   /*************************************************************************************

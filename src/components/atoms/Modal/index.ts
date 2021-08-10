@@ -1,7 +1,7 @@
 import styled, { css, keyframes } from 'styled-components'
 import { ClickProps } from '../Button'
 import { GeneralTextProps, GeneralTextCss } from '../Typography'
-import { MAX_MOBILE_SCREEN_WIDTH, MOBILE_SCREEN_MARGIN } from '../../../constants'
+import { MAX_TABLET_SCREEN_WIDTH, MOBILE_SCREEN_MARGIN, MAX_MOBILE_SCREEN_WIDTH } from '../../../constants'
 
 export interface ModalProps {
   handleClose: () => void
@@ -28,6 +28,11 @@ export const ModalContainer = styled.div<ModalProps>`
   background: linear-gradient(113.7deg, rgba(182, 33, 255) 0%, rgba(33, 211, 252) 100%);
   z-index: 1;
   ${(props) => (props.isOpen ? 'display: flex;' : 'display: none;')}
+  overflow-y: hidden;
+
+  @media screen and (max-width: ${MAX_MOBILE_SCREEN_WIDTH}px) {
+    overflow-y: scroll;
+  }
 `
 
 export const ModalBase = styled.div<ModalProps>`
@@ -42,6 +47,10 @@ export const ModalBase = styled.div<ModalProps>`
     css`
       animation: ${FadeInAnimation} 300ms ease-in-out normal forwards;
     `}
+
+  @media screen and (max-width: ${MAX_MOBILE_SCREEN_WIDTH}px) {
+    width: 100%;
+  }
 `
 
 export const ModalClose = styled.div<ModalButtonProps>`
@@ -58,13 +67,18 @@ export const ModalHeader = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 30px;
+  margin-bottom: 20px;
 `
 
 export const ModalRow = styled.div`
   display: flex;
   margin-bottom: 20px;
   justify-content: space-around;
+
+  @media screen and (max-width: ${MAX_MOBILE_SCREEN_WIDTH}px) {
+    flex-direction: column;
+    align-items: center;
+  }
 `
 
 export const ModalCell = styled.div<GeneralTextProps>`

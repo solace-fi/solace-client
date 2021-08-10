@@ -15,8 +15,8 @@ export const ADDRESS_ZERO = constants.AddressZero
 export const GAS_LIMIT = 800000
 
 export const MAX_NAVBAR_SCREEN_WIDTH = 1300
-export const MAX_TEXT_SCREEN_WIDTH = 670
-export const MAX_MOBILE_SCREEN_WIDTH = 1080
+export const MAX_MOBILE_SCREEN_WIDTH = 670
+export const MAX_TABLET_SCREEN_WIDTH = 1080
 export const MAX_WIDTH = 1340
 
 export const MOBILE_SCREEN_MARGIN = 20

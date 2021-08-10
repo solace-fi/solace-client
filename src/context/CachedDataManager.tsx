@@ -1,4 +1,4 @@
-import React, { useMemo, useContext, createContext, useEffect } from 'react'
+import React, { useMemo, useContext, createContext, useEffect, useState } from 'react'
 import { useLocalStorage } from 'react-use-storage'
 import { useWallet } from './WalletManager'
 
@@ -22,12 +22,14 @@ type CachedData = {
   localTransactions: LocalTx[]
   userPolicyData: { policiesLoading: boolean; userPolicies: Policy[] }
   tokenPositionDataInitialized: boolean
+  showHistoryModal: boolean
   version: number
   dataVersion?: number
   gasPrices?: any
   latestBlock: number
   addLocalTransactions: (txToAdd: LocalTx) => void
   deleteLocalTransactions: (txsToDelete: []) => void
+  setShowHistoryModal: (res: boolean) => void
   reload: () => void
 }
 
@@ -35,12 +37,14 @@ const CachedDataContext = createContext<CachedData>({
   localTransactions: [],
   userPolicyData: { policiesLoading: false, userPolicies: [] },
   tokenPositionDataInitialized: false,
+  showHistoryModal: false,
   version: 0,
   dataVersion: undefined,
   gasPrices: undefined,
   latestBlock: 0,
   addLocalTransactions: () => undefined,
   deleteLocalTransactions: () => undefined,
+  setShowHistoryModal: () => undefined,
   reload: () => undefined,
 })
 
@@ -53,6 +57,11 @@ const CachedDataProvider: React.FC = (props) => {
   const latestBlock = useGetLatestBlockNumber(dataVersion)
   const dataInitialized = useGetTokens()
   const { policiesLoading, userPolicies } = usePolicyGetter(false, latestBlock, dataInitialized, version, account)
+  const [historyModal, setHistoryModal] = useState<boolean>(false)
+
+  const setShowHistoryModal = (res: boolean) => {
+    setHistoryModal(res)
+  }
 
   const addLocalTransactions = (txToAdd: LocalTx) => {
     setLocalTxs([txToAdd, ...localTxs])
@@ -83,18 +92,21 @@ const CachedDataProvider: React.FC = (props) => {
       localTransactions: localTxs,
       userPolicyData: { policiesLoading, userPolicies },
       tokenPositionDataInitialized: dataInitialized,
+      showHistoryModal: historyModal,
       version,
       dataVersion,
       gasPrices,
       latestBlock,
       addLocalTransactions,
       deleteLocalTransactions,
+      setShowHistoryModal,
       reload,
     }),
     [
       localTxs,
       addLocalTransactions,
       deleteLocalTransactions,
+      setShowHistoryModal,
       dataInitialized,
       version,
       dataVersion,

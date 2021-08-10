@@ -22,12 +22,12 @@ import React from 'react'
 
 /* import components */
 import { Footer } from '../atoms/Layout'
-import { Header } from '../atoms/Header'
+import { CenteredHeader, FlexEndHeader } from '../atoms/Header'
 import { Account } from './Account'
 import { Prices } from '../molecules/Prices'
 
 /* import constants */
-import { MAX_MOBILE_SCREEN_WIDTH } from '../../constants'
+import { MAX_TABLET_SCREEN_WIDTH, MAX_MOBILE_SCREEN_WIDTH } from '../../constants'
 
 /* import hooks */
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'
@@ -46,10 +46,14 @@ export const PageHeader: React.FC = () => {
 
   *************************************************************************************/
   return (
-    <Header>
-      {width > MAX_MOBILE_SCREEN_WIDTH && <Prices />}
-      <Account />
-    </Header>
+    <>
+      {width > MAX_MOBILE_SCREEN_WIDTH && (
+        <FlexEndHeader>
+          {width > MAX_TABLET_SCREEN_WIDTH && <Prices />}
+          <Account />
+        </FlexEndHeader>
+      )}
+    </>
   )
 }
 
@@ -66,9 +70,20 @@ export const BottomPrices: React.FC = () => {
           Render
     
   *************************************************************************************/
-  return width > MAX_MOBILE_SCREEN_WIDTH ? null : (
-    <Footer>
-      <Prices />
-    </Footer>
+  return (
+    <>
+      {MAX_MOBILE_SCREEN_WIDTH <= width && width < MAX_TABLET_SCREEN_WIDTH && (
+        <Footer>
+          <Prices />
+        </Footer>
+      )}
+      {width < MAX_MOBILE_SCREEN_WIDTH && (
+        <Footer>
+          <CenteredHeader>
+            <Account />
+          </CenteredHeader>
+        </Footer>
+      )}
+    </>
   )
 }

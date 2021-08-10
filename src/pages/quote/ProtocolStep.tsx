@@ -41,8 +41,7 @@ import { Table, TableData, TableHead, TableHeader, TableRow, TableBody } from '.
 import { Search } from '../../components/atoms/Input'
 import { Protocol, ProtocolImage, ProtocolTitle } from '../../components/atoms/Protocol'
 import { Card, CardContainer } from '../../components/atoms/Card'
-import { ModalRow } from '../../components/atoms/Modal'
-import { FormCol } from '../../components/atoms/Form'
+import { FormRow, FormCol } from '../../components/atoms/Form'
 import { Content } from '../../components/atoms/Layout'
 
 /* import hooks */
@@ -51,6 +50,7 @@ import { useWindowDimensions } from '../../hooks/useWindowDimensions'
 
 /* import utils */
 import { fixed, getNativeTokenUnit } from '../../utils/formatting'
+import { Heading2 } from '../../components/atoms/Typography'
 
 /*************************************************************************************
 
@@ -195,6 +195,7 @@ export const ProtocolStep: React.FC<formProps> = ({ setForm, navigation }) => {
             </TableBody>
           </Table>
         ) : (
+          // mobile version
           <CardContainer cardsPerRow={2}>
             {products
               .map((product) => {
@@ -220,34 +221,40 @@ export const ProtocolStep: React.FC<formProps> = ({ setForm, navigation }) => {
                             })
                     }
                   >
-                    <ModalRow>
+                    <FormRow>
                       <FormCol>
                         <ProtocolImage mr={10}>
                           <img src={`https://assets.solace.fi/${protocol.toLowerCase()}`} />
                         </ProtocolImage>
                       </FormCol>
-                      <FormCol style={{ display: 'flex', alignItems: 'center' }}>{protocol}</FormCol>
-                    </ModalRow>
-                    <ModalRow>
+                      <FormCol style={{ display: 'flex', alignItems: 'center' }}>
+                        <Heading2>{protocol}</Heading2>
+                      </FormCol>
+                    </FormRow>
+                    <FormRow>
                       <FormCol>Yearly Cost</FormCol>
                       <FormCol>
-                        {fixed(
-                          parseFloat(yearlyCosts[protocol] ?? '0') *
-                            Math.pow(10, 6) *
-                            NUM_BLOCKS_PER_DAY *
-                            DAYS_PER_YEAR *
-                            100,
-                          2
-                        )}
-                        %
+                        <Heading2>
+                          {fixed(
+                            parseFloat(yearlyCosts[protocol] ?? '0') *
+                              Math.pow(10, 6) *
+                              NUM_BLOCKS_PER_DAY *
+                              DAYS_PER_YEAR *
+                              100,
+                            2
+                          )}
+                          %
+                        </Heading2>
                       </FormCol>
-                    </ModalRow>
-                    <ModalRow>
+                    </FormRow>
+                    <FormRow>
                       <FormCol>Coverage Available</FormCol>
                       <FormCol>
-                        {handleAvailableCoverage(protocol)} {getNativeTokenUnit(chainId ?? DEFAULT_CHAIN_ID)}
+                        <Heading2>
+                          {handleAvailableCoverage(protocol)} {getNativeTokenUnit(chainId ?? DEFAULT_CHAIN_ID)}
+                        </Heading2>
                       </FormCol>
-                    </ModalRow>
+                    </FormRow>
                   </Card>
                 )
               })}
