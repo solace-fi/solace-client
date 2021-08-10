@@ -120,7 +120,7 @@ export const getDays = (expirationBlock: number, latestBlock: number): number =>
 }
 
 export const getDateStringWithMonthName = (date: Date): string => {
-  return date.toLocaleString('default', { month: 'long', day: 'numeric', year: 'numeric' })
+  return date.toLocaleString('default', { month: 'short', day: 'numeric', year: 'numeric' })
 }
 
 export const getDateExtended = (additionalDays: number): Date => {

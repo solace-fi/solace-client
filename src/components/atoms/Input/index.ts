@@ -1,6 +1,6 @@
 import styled, { css } from 'styled-components'
 import { GeneralTextProps, GeneralTextCss, Text3Css } from '../Typography'
-import { HeightAndWidthProps, HeightAndWidthCss } from '../../generalInterfaces'
+import { GeneralElementProps, GeneralElementCss } from '../../generalInterfaces'
 
 const InputCss = css`
   ::placeholder {
@@ -13,7 +13,7 @@ const InputCss = css`
   color: #fff;
 `
 
-export const Input = styled.input<HeightAndWidthProps & GeneralTextProps>`
+export const Input = styled.input<GeneralElementProps & GeneralTextProps>`
   ${InputCss}
   ::-webkit-calendar-picker-indicator {
     display: none;
@@ -34,7 +34,7 @@ export const Input = styled.input<HeightAndWidthProps & GeneralTextProps>`
   }
   ${Text3Css}
   ${GeneralTextCss}
-  ${HeightAndWidthCss}
+  ${GeneralElementCss}
 `
 
 export const Search = styled.input`

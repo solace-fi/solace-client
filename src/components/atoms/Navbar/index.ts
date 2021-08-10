@@ -1,6 +1,6 @@
 import { NavLink } from 'react-router-dom'
 import styled from 'styled-components'
-import { MAX_NAVBAR_SCREEN_WIDTH } from '../../../constants'
+import { MAX_NAVBAR_SCREEN_WIDTH, MAX_MOBILE_SCREEN_WIDTH } from '../../../constants'
 
 interface TopNavProps {
   isOpen?: boolean
@@ -20,6 +20,11 @@ export const TopNav = styled.div<TopNavProps>`
     width: 100%;
     z-index: 1;
   }
+
+  @media screen and (max-width: ${MAX_MOBILE_SCREEN_WIDTH}px) {
+    ${(props) => (props.isOpen == false ? 'max-height: 4rem;' : 'max-height: 50vh;')}
+    text-align: center;
+  }
 `
 
 export const SidebarItem = styled(NavLink)`
@@ -32,6 +37,10 @@ export const SidebarItem = styled(NavLink)`
   &.is-active {
     opacity: 1;
     transform: scale(1.1);
+  }
+
+  @media screen and (max-width: ${MAX_MOBILE_SCREEN_WIDTH}px) {
+    padding: 20px 0;
   }
 `
 
@@ -51,5 +60,9 @@ export const ItemList = styled.ul`
   @media screen and (max-width: ${MAX_NAVBAR_SCREEN_WIDTH}px) {
     display: flex;
     justify-content: space-evenly;
+  }
+
+  @media screen and (max-width: ${MAX_MOBILE_SCREEN_WIDTH}px) {
+    flex-direction: column;
   }
 `

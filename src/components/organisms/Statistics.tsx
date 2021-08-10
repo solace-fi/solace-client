@@ -26,7 +26,7 @@ import React, { useEffect, useState } from 'react'
 import { formatEther, parseEther } from '@ethersproject/units'
 
 /* import constants */
-import { DEFAULT_CHAIN_ID, GAS_LIMIT } from '../../constants'
+import { DEFAULT_CHAIN_ID, GAS_LIMIT, MAX_MOBILE_SCREEN_WIDTH } from '../../constants'
 import { TransactionCondition, FunctionName, Unit, PolicyState } from '../../constants/enums'
 
 /* import managers */
@@ -37,9 +37,11 @@ import { useCachedData } from '../../context/CachedDataManager'
 
 /* import components */
 import { BoxRow, Box, BoxItem, BoxItemTitle } from '../atoms/Box'
-import { Button } from '../atoms/Button'
+import { Button, ButtonWrapper } from '../atoms/Button'
 import { Text, TextSpan } from '../atoms/Typography'
 import { WalletConnectButton } from '../molecules/WalletConnect'
+import { FormRow, FormCol } from '../atoms/Form'
+import { Card, CardContainer } from '../atoms/Card'
 
 /* import hooks */
 import { useCapitalPoolSize } from '../../hooks/useVault'
@@ -47,6 +49,7 @@ import { useTotalPendingRewards } from '../../hooks/useRewards'
 import { useSolaceBalance } from '../../hooks/useBalance'
 import { usePolicyGetter } from '../../hooks/useGetter'
 import { useGetTotalValueLocked } from '../../hooks/useFarm'
+import { useWindowDimensions } from '../../hooks/useWindowDimensions'
 
 /* import utils */
 import { fixed, getGasValue, floatEther, truncateBalance, getNativeTokenUnit } from '../../utils/formatting'
@@ -73,6 +76,7 @@ export const Statistics: React.FC = () => {
   const totalUserRewards = useTotalPendingRewards()
   const { allPolicies } = usePolicyGetter(true, latestBlock, tokenPositionDataInitialized, version)
   const totalValueLocked = useGetTotalValueLocked()
+  const { width } = useWindowDimensions()
 
   /*************************************************************************************
 
@@ -157,67 +161,156 @@ export const Statistics: React.FC = () => {
   *************************************************************************************/
 
   return (
-    <BoxRow>
-      {initialized && account ? (
-        <Box>
-          <BoxItem>
-            <BoxItemTitle h3>My Balance</BoxItemTitle>
-            <Text h2>
-              {`${truncateBalance(parseFloat(solaceBalance), 6)} `}
-              <TextSpan h3>SOLACE</TextSpan>
-            </Text>
-          </BoxItem>
-          <BoxItem>
-            <BoxItemTitle h3>My Rewards</BoxItemTitle>
-            <Text h2>
-              {`${truncateBalance(parseFloat(totalUserRewards), 6)} `}
-              <TextSpan h3>SOLACE</TextSpan>
-            </Text>
-          </BoxItem>
-          <BoxItem>
-            <Button disabled={errors.length > 0 || fixed(parseFloat(totalUserRewards), 6) <= 0} onClick={claimRewards}>
-              Claim
-            </Button>
-          </BoxItem>
-        </Box>
+    <>
+      {width > MAX_MOBILE_SCREEN_WIDTH ? (
+        <BoxRow>
+          {initialized && account ? (
+            <Box>
+              <BoxItem>
+                <BoxItemTitle h3>My Balance</BoxItemTitle>
+                <Text h2>
+                  {`${truncateBalance(parseFloat(solaceBalance), 1)} `}
+                  <TextSpan h3>SOLACE</TextSpan>
+                </Text>
+              </BoxItem>
+              <BoxItem>
+                <BoxItemTitle h3>My Rewards</BoxItemTitle>
+                <Text h2>
+                  {`${truncateBalance(parseFloat(totalUserRewards), 1)} `}
+                  <TextSpan h3>SOLACE</TextSpan>
+                </Text>
+              </BoxItem>
+              <BoxItem>
+                <Button
+                  disabled={errors.length > 0 || fixed(parseFloat(totalUserRewards), 6) <= 0}
+                  onClick={claimRewards}
+                >
+                  Claim
+                </Button>
+              </BoxItem>
+            </Box>
+          ) : (
+            <Box>
+              <BoxItem>
+                <WalletConnectButton />
+              </BoxItem>
+            </Box>
+          )}
+          <Box purple>
+            <BoxItem>
+              <BoxItemTitle h3>Capital Pool Size</BoxItemTitle>
+              <Text h2 nowrap>
+                {`${truncateBalance(floatEther(parseEther(capitalPoolSize)), 1)} `}
+                <TextSpan h3>{getNativeTokenUnit(chainId ?? DEFAULT_CHAIN_ID)}</TextSpan>
+              </Text>
+            </BoxItem>
+            <BoxItem>
+              <BoxItemTitle h3>Total Value Locked</BoxItemTitle>
+              <Text h2 nowrap>
+                {`${truncateBalance(parseFloat(totalValueLocked), 1)} `}
+                <TextSpan h3>{getNativeTokenUnit(chainId ?? DEFAULT_CHAIN_ID)}</TextSpan>
+              </Text>
+            </BoxItem>
+            <BoxItem>
+              <BoxItemTitle h3>Active Cover Amount</BoxItemTitle>
+              <Text h2 nowrap>
+                {totalActiveCoverAmount !== '-'
+                  ? `${truncateBalance(parseFloat(formatEther(totalActiveCoverAmount.toString())), 2)} `
+                  : `${totalActiveCoverAmount} `}
+                <TextSpan h3>{getNativeTokenUnit(chainId ?? DEFAULT_CHAIN_ID)}</TextSpan>
+              </Text>
+            </BoxItem>
+            <BoxItem>
+              <BoxItemTitle h3>Total Active Policies</BoxItemTitle>
+              <Text h2 nowrap>
+                {totalActivePolicies}
+              </Text>
+            </BoxItem>
+          </Box>
+        </BoxRow>
       ) : (
-        <Box>
-          <BoxItem>
-            <WalletConnectButton />
-          </BoxItem>
-        </Box>
+        // mobile version
+        <>
+          {initialized && account ? (
+            <CardContainer m={20}>
+              <Card blue>
+                <FormRow>
+                  <FormCol>My Balance</FormCol>
+                  <FormCol>
+                    <Text h2>
+                      {`${truncateBalance(parseFloat(solaceBalance), 1)} `}
+                      <TextSpan h3>SOLACE</TextSpan>
+                    </Text>
+                  </FormCol>
+                </FormRow>
+                <FormRow>
+                  <FormCol>My Rewards</FormCol>
+                  <FormCol>
+                    <Text h2>
+                      {`${truncateBalance(parseFloat(totalUserRewards), 1)} `}
+                      <TextSpan h3>SOLACE</TextSpan>
+                    </Text>
+                  </FormCol>
+                </FormRow>
+                <ButtonWrapper>
+                  <Button
+                    widthP={100}
+                    disabled={errors.length > 0 || fixed(parseFloat(totalUserRewards), 6) <= 0}
+                    onClick={claimRewards}
+                  >
+                    Claim
+                  </Button>
+                </ButtonWrapper>
+              </Card>
+              <Card purple>
+                <FormRow>
+                  <FormCol>Capital Pool Size</FormCol>
+                  <FormCol>
+                    <Text h2 nowrap>
+                      {`${truncateBalance(floatEther(parseEther(capitalPoolSize)), 1)} `}
+                      <TextSpan h3>{getNativeTokenUnit(chainId ?? DEFAULT_CHAIN_ID)}</TextSpan>
+                    </Text>
+                  </FormCol>
+                </FormRow>
+                <FormRow>
+                  <FormCol>Total Value Locked</FormCol>
+                  <FormCol>
+                    <Text h2 nowrap>
+                      {`${truncateBalance(parseFloat(totalValueLocked), 1)} `}
+                      <TextSpan h3>{getNativeTokenUnit(chainId ?? DEFAULT_CHAIN_ID)}</TextSpan>
+                    </Text>
+                  </FormCol>
+                </FormRow>
+                <FormRow>
+                  <FormCol>Active Cover Amount</FormCol>
+                  <FormCol>
+                    <Text h2 nowrap>
+                      {totalActiveCoverAmount !== '-'
+                        ? `${truncateBalance(parseFloat(formatEther(totalActiveCoverAmount.toString())), 2)} `
+                        : `${totalActiveCoverAmount} `}
+                      <TextSpan h3>{getNativeTokenUnit(chainId ?? DEFAULT_CHAIN_ID)}</TextSpan>
+                    </Text>
+                  </FormCol>
+                </FormRow>
+                <FormRow>
+                  <FormCol>Total Active Policies</FormCol>
+                  <FormCol>
+                    <Text h2 nowrap>
+                      {totalActivePolicies}
+                    </Text>
+                  </FormCol>
+                </FormRow>
+              </Card>
+            </CardContainer>
+          ) : (
+            <Box>
+              <BoxItem>
+                <WalletConnectButton />
+              </BoxItem>
+            </Box>
+          )}
+        </>
       )}
-      <Box purple>
-        <BoxItem>
-          <BoxItemTitle h3>Capital Pool Size</BoxItemTitle>
-          <Text h2 nowrap>
-            {`${truncateBalance(floatEther(parseEther(capitalPoolSize)), 1)} `}
-            <TextSpan h3>{getNativeTokenUnit(chainId ?? DEFAULT_CHAIN_ID)}</TextSpan>
-          </Text>
-        </BoxItem>
-        <BoxItem>
-          <BoxItemTitle h3>Total Value Locked</BoxItemTitle>
-          <Text h2 nowrap>
-            {`${truncateBalance(parseFloat(totalValueLocked), 1)} `}
-            <TextSpan h3>{getNativeTokenUnit(chainId ?? DEFAULT_CHAIN_ID)}</TextSpan>
-          </Text>
-        </BoxItem>
-        <BoxItem>
-          <BoxItemTitle h3>Active Cover Amount</BoxItemTitle>
-          <Text h2 nowrap>
-            {totalActiveCoverAmount !== '-'
-              ? `${truncateBalance(parseFloat(formatEther(totalActiveCoverAmount.toString())), 2)} `
-              : `${totalActiveCoverAmount} `}
-            <TextSpan h3>{getNativeTokenUnit(chainId ?? DEFAULT_CHAIN_ID)}</TextSpan>
-          </Text>
-        </BoxItem>
-        <BoxItem>
-          <BoxItemTitle h3>Total Active Policies</BoxItemTitle>
-          <Text h2 nowrap>
-            {totalActivePolicies}
-          </Text>
-        </BoxItem>
-      </Box>
-    </BoxRow>
+    </>
   )
 }

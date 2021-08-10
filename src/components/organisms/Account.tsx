@@ -40,6 +40,8 @@ import { useNativeTokenBalance } from '../../hooks/useBalance'
 
 /* import utils */
 import { shortenAddress, fixed, getNetworkName, capitalizeFirstLetter } from '../../utils/formatting'
+import { MAX_MOBILE_SCREEN_WIDTH } from '../../constants'
+import { useWindowDimensions } from '../../hooks/useWindowDimensions'
 
 export const Account: React.FC = () => {
   /*************************************************************************************
@@ -49,8 +51,8 @@ export const Account: React.FC = () => {
   *************************************************************************************/
   const { isActive, chainId, account } = useWallet()
   const balance = useNativeTokenBalance()
-  const { localTransactions } = useCachedData()
-  const [showHistoryModal, setShowHistoryModal] = useState<boolean>(false)
+  const { localTransactions, showHistoryModal, setShowHistoryModal } = useCachedData()
+  const { width } = useWindowDimensions()
 
   /*************************************************************************************
 
@@ -77,7 +79,7 @@ export const Account: React.FC = () => {
   return (
     <Fragment>
       <TransactionHistoryModal closeModal={closeModal} isOpen={showHistoryModal} />
-      {isActive && (
+      {width >= MAX_MOBILE_SCREEN_WIDTH && isActive && (
         <SmallBox navy>
           <Heading3 autoAlign>
             {getNetworkName(chainId) === '-'
@@ -101,9 +103,15 @@ export const Account: React.FC = () => {
             </SmallBox>
           </SmallBox>
           <SmallBox p={0} transparent glow={localTransactions.length > 0}>
-            <Button pl={10} pr={10} onClick={() => openModal()} secondary={localTransactions.length > 0}>
+            <Button
+              width={width >= MAX_MOBILE_SCREEN_WIDTH ? undefined : 50}
+              pl={10}
+              pr={10}
+              onClick={() => openModal()}
+              secondary={localTransactions.length > 0}
+            >
               <StyledHistory size={30} />
-              {localTransactions.length > 0 ? localTransactions.length : 'History'}
+              {localTransactions.length > 0 ? localTransactions.length : width >= MAX_MOBILE_SCREEN_WIDTH && 'History'}
             </Button>
           </SmallBox>
         </Fragment>

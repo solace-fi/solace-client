@@ -30,8 +30,9 @@ export const ConfirmStep: React.FC<formProps> = ({ navigation }) => {
 
   return (
     <HeroContainer>
-      <Heading1>Transaction Submitted! Your Solace coverage is on the way!</Heading1>
-      <Heading2>You can manage your policies on the dashboard or start a new one.</Heading2>
+      <Heading1 textAlignCenter>Transaction Submitted!</Heading1>
+      <Heading1 textAlignCenter>Your Solace coverage is on the way!</Heading1>
+      <Heading2 textAlignCenter>You can manage your policies on the dashboard or start a new one.</Heading2>
       <div style={{ marginTop: '24px' }}>
         <TableDataGroup>
           <StyledNavLink to="/">

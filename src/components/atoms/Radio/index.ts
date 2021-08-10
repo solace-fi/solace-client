@@ -1,4 +1,5 @@
 import styled, { css } from 'styled-components'
+import { MAX_MOBILE_SCREEN_WIDTH } from '../../../constants'
 
 const RadioInputCss = css`
   position: absolute;
@@ -36,6 +37,10 @@ export const RadioGroup = styled.div`
   grid-template-columns: 1fr 1fr 1fr 1fr;
   gap: 20px;
   margin-top: 40px;
+
+  @media screen and (max-width: ${MAX_MOBILE_SCREEN_WIDTH}px) {
+    grid-template-columns: none;
+  }
 `
 
 export const RadioLabel = styled.label``
