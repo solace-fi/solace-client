@@ -50,7 +50,7 @@ import { useWindowDimensions } from '../../hooks/useWindowDimensions'
 
 /* import utils */
 import { fixed, getNativeTokenUnit } from '../../utils/formatting'
-import { Heading2, Text2 } from '../../components/atoms/Typography'
+import { Heading2 } from '../../components/atoms/Typography'
 
 /*************************************************************************************
 
@@ -195,6 +195,7 @@ export const ProtocolStep: React.FC<formProps> = ({ setForm, navigation }) => {
             </TableBody>
           </Table>
         ) : (
+          // mobile version
           <CardContainer cardsPerRow={2}>
             {products
               .map((product) => {

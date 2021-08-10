@@ -47,6 +47,7 @@ import { Box, BoxItem, BoxRow } from '../../components/atoms/Box'
 import { Button, ButtonWrapper } from '../../components/atoms/Button'
 import { Card, CardContainer } from '../../components/atoms/Card'
 import { FormRow, FormCol } from '../../components/atoms/Form'
+import { Heading2 } from '../../components/atoms/Typography'
 
 /* import hooks */
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'
@@ -239,20 +240,26 @@ export const MultiStepForm = () => {
             <CardContainer m={20}>
               <Card blue>
                 <FormRow>
-                  <Protocol>
+                  <FormCol>
                     <ProtocolImage mr={10}>
                       <img src={`https://assets.solace.fi/${protocol.name.toLowerCase()}`} />
                     </ProtocolImage>
-                    <ProtocolTitle>{protocol.name}</ProtocolTitle>
-                  </Protocol>
+                  </FormCol>
+                  <FormCol style={{ display: 'flex', alignItems: 'center' }}>
+                    <Heading2>{protocol.name}</Heading2>
+                  </FormCol>
                 </FormRow>
                 <FormRow>
                   <FormCol>Yearly Cost</FormCol>
-                  <FormCol>{fixed(protocol.yearlyCost * 100, 2)}%</FormCol>
+                  <FormCol>
+                    <Heading2>{fixed(protocol.yearlyCost * 100, 2)}%</Heading2>
+                  </FormCol>
                 </FormRow>
                 <FormRow>
                   <FormCol>Available Coverage</FormCol>
-                  <FormCol>{protocol.availableCoverage} ETH</FormCol>
+                  <FormCol>
+                    <Heading2>{protocol.availableCoverage} ETH</Heading2>
+                  </FormCol>
                 </FormRow>
                 <ButtonWrapper>
                   <Button widthP={100} onClick={() => navigation.go(0)}>

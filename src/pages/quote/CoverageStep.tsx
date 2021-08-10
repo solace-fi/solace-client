@@ -27,16 +27,9 @@ import React, { useEffect, useState } from 'react'
 import { Slider } from '@rebass/forms'
 import { formatEther, parseEther } from 'ethers/lib/utils'
 import { BigNumber } from 'ethers'
-import styled from 'styled-components'
 
 /* import constants */
-import {
-  DAYS_PER_YEAR,
-  GAS_LIMIT,
-  NUM_BLOCKS_PER_DAY,
-  MAX_TABLET_SCREEN_WIDTH,
-  MOBILE_SCREEN_MARGIN,
-} from '../../constants'
+import { DAYS_PER_YEAR, GAS_LIMIT, NUM_BLOCKS_PER_DAY } from '../../constants'
 import { TransactionCondition, FunctionName, Unit } from '../../constants/enums'
 import { LocalTx } from '../../constants/types'
 
@@ -51,7 +44,7 @@ import { FormRow, FormCol } from '../../components/atoms/Form'
 import { Button, ButtonWrapper } from '../../components/atoms/Button'
 import { formProps } from './MultiStepForm'
 import { Card, CardContainer } from '../../components/atoms/Card'
-import { Heading2, Heading3, Text2, Text3, TextSpan } from '../../components/atoms/Typography'
+import { Heading2, Text3, TextSpan } from '../../components/atoms/Typography'
 import { Input } from '../../components/atoms/Input'
 import { Loader } from '../../components/atoms/Loader'
 import { SmallBox } from '../../components/atoms/Box'
