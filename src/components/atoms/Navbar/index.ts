@@ -12,7 +12,7 @@ export const TopNav = styled.div<TopNavProps>`
   overflow: hidden;
   background-color: rgba(0, 0, 0, 0.9);
   display: none;
-  padding: 10px;
+  padding: 10px 0;
   transition: 200ms ease;
 
   @media screen and (max-width: ${MAX_NAVBAR_SCREEN_WIDTH}px) {

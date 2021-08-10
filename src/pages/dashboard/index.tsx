@@ -95,7 +95,7 @@ function Dashboard(): any {
     <Fragment>
       {!account ? (
         <HeroContainer>
-          <Heading1>Please connect wallet to view dashboard</Heading1>
+          <Heading1 textAlignCenter>Please connect wallet to view dashboard</Heading1>
         </HeroContainer>
       ) : (
         <Fragment>

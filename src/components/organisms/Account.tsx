@@ -88,7 +88,6 @@ export const Account: React.FC = () => {
           </Heading3>
         </SmallBox>
       )}
-      {!isActive && <WalletConnectButton />}
       {account && (
         <Fragment>
           <SmallBox pl={10} navy>
@@ -116,6 +115,7 @@ export const Account: React.FC = () => {
           </SmallBox>
         </Fragment>
       )}
+      <WalletConnectButton ml={5} mr={5} />
     </Fragment>
   )
 }

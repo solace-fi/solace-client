@@ -72,7 +72,7 @@ function Invest(): any {
       <RiskBackingCapitalPool openModal={openModal} />
       {chainId == 1 ? (
         <HeroContainer>
-          <Heading1>More pools coming soon!</Heading1>
+          <Heading1 textAlignCenter>More pools coming soon!</Heading1>
         </HeroContainer>
       ) : (
         <>

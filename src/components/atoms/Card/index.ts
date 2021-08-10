@@ -7,6 +7,7 @@ import { GeneralTextProps, GeneralTextCss } from '../Typography'
 
 interface CardProps extends ClickProps, GeneralElementProps {
   transparent?: boolean
+  canHover?: boolean
   fade?: boolean
   standalone?: boolean
   blue?: boolean
@@ -25,6 +26,9 @@ const CardCss = css<CardProps>`
   ${(props) => props.purple && 'background-color: rgba(250, 0, 255, 0.3);'}
   ${(props) => props.transparent && 'background-color: rgba(255, 255, 255, 0);'}
   ${(props) => props.fade && 'background-color: rgba(0, 176, 144, 0.3);'}
+  ${(props) =>
+    props.canHover &&
+    'cursor: pointer; &:hover { background-color: rgba(255, 255, 255, 0.5); transition: background-color 200ms linear; }'}
 `
 
 export const CardContainer = styled.div<CardContainerProps & GeneralTextProps>`

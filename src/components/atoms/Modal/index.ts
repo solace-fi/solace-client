@@ -1,7 +1,8 @@
 import styled, { css, keyframes } from 'styled-components'
 import { ClickProps } from '../Button'
 import { GeneralTextProps, GeneralTextCss } from '../Typography'
-import { MAX_TABLET_SCREEN_WIDTH, MOBILE_SCREEN_MARGIN, MAX_MOBILE_SCREEN_WIDTH } from '../../../constants'
+import { MAX_MOBILE_SCREEN_WIDTH } from '../../../constants'
+import { GeneralElementProps, GeneralElementCss } from '../../generalInterfaces'
 
 export interface ModalProps {
   handleClose: () => void
@@ -70,10 +71,11 @@ export const ModalHeader = styled.div`
   margin-bottom: 20px;
 `
 
-export const ModalRow = styled.div`
+export const ModalRow = styled.div<GeneralElementProps>`
   display: flex;
   margin-bottom: 20px;
   justify-content: space-around;
+  ${GeneralElementCss}
 
   @media screen and (max-width: ${MAX_MOBILE_SCREEN_WIDTH}px) {
     flex-direction: column;

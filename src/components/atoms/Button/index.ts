@@ -58,8 +58,8 @@ export const NavButton = styled.button`
   ${ButtonBaseCss}
   display: block;
   position: absolute;
-  right: 30px;
-  top: 15px;
+  right: 10px;
+  top: 10px;
   min-height: 40px;
   min-width: 70px;
 `

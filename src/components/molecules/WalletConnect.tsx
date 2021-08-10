@@ -6,6 +6,7 @@
     import managers
     import components
     import wallets
+    import hooks
 
     styled components
 
@@ -16,35 +17,32 @@
   *************************************************************************************/
 
 /* import react */
-import React, { useState, useCallback } from 'react'
+import React, { useCallback } from 'react'
 
 /* import managers */
 import { useWallet } from '../../context/WalletManager'
 
 /* import components */
 import { Button } from '../atoms/Button'
-import { WalletModal } from '../organisms/WalletModal'
+import { StyledWallet } from '../atoms/Icon'
 
-/* import wallets */
-import { SUPPORTED_WALLETS } from '../../wallet/wallets'
+/* import hooks */
+import { useWindowDimensions } from '../../hooks/useWindowDimensions'
+import { MAX_MOBILE_SCREEN_WIDTH } from '../../constants'
 
-export const WalletConnectButton: React.FC = () => {
+import { GeneralElementProps } from '../generalInterfaces'
+
+export const WalletConnectButton: React.FC<GeneralElementProps> = ({ ...props }) => {
   /*************************************************************************************
 
     custom hooks
 
   *************************************************************************************/
-  const { connect } = useWallet()
-  const [showWalletModal, setShowWalletModal] = useState<boolean>(false)
+  const { isActive, openWalletModal } = useWallet()
+  const { width } = useWindowDimensions()
 
   const openModal = useCallback(() => {
-    document.body.style.overflowY = 'hidden'
-    setShowWalletModal(true)
-  }, [])
-
-  const closeModal = useCallback(() => {
-    document.body.style.overflowY = 'scroll'
-    setShowWalletModal(false)
+    openWalletModal()
   }, [])
 
   /*************************************************************************************
@@ -53,14 +51,11 @@ export const WalletConnectButton: React.FC = () => {
 
   *************************************************************************************/
   return (
-    <Button
-      onClick={() => connect(SUPPORTED_WALLETS[SUPPORTED_WALLETS.findIndex((wallet) => wallet.id === 'metamask')])}
-    >
-      Connect Wallet
-    </Button>
-    // <>
-    //   <WalletModal closeModal={closeModal} isOpen={showWalletModal}></WalletModal>
-    //   <Button onClick={() => openModal()}>Connect Wallet</Button>
-    // </>
+    <>
+      <Button width={width >= MAX_MOBILE_SCREEN_WIDTH ? undefined : 50} onClick={() => openModal()} {...props}>
+        <StyledWallet size={30} />
+        {width >= MAX_MOBILE_SCREEN_WIDTH && (isActive ? 'Switch Wallet' : 'Connect Wallet')}
+      </Button>
+    </>
   )
 }

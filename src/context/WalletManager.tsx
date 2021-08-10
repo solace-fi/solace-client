@@ -6,13 +6,15 @@ import {
   UserRejectedRequestError as UserRejectedRequestErrorInjected,
 } from '@web3-react/injected-connector'
 import { UserRejectedRequestError as UserRejectedRequestErrorWalletConnect } from '@web3-react/walletconnect-connector'
-import { WalletConnector, SUPPORTED_WALLETS } from '../wallet/wallets'
+import { WalletConnector, SUPPORTED_WALLETS } from '../wallet'
 
 import { Web3ReactProvider } from '@web3-react/core'
 
 import getLibrary from '../utils/getLibrary'
 import { useProvider } from './ProviderManager'
 import { Error as AppError } from '../constants/enums'
+
+import { WalletModal } from '../components/organisms/WalletModal'
 
 /*
 
@@ -46,6 +48,7 @@ export type ContextWallet = {
   library?: any
   connector?: WalletConnector
   errors: AppError[]
+  openWalletModal: () => void
   connect: (connector: WalletConnector, args?: Record<string, any>) => Promise<void>
   disconnect: () => void
 }
@@ -59,6 +62,7 @@ const WalletContext = createContext<ContextWallet>({
   library: undefined,
   connector: undefined,
   errors: [],
+  openWalletModal: () => undefined,
   connect: () => Promise.reject(),
   disconnect: () => undefined,
 })
@@ -72,8 +76,19 @@ const WalletProvider: React.FC = (props) => {
   const connectingRef = useRef<WalletConnector | undefined>(connecting)
   connectingRef.current = connecting
   const [errors, setErrors] = useState<AppError[]>([])
+  const [walletModal, setWalletModal] = useState<boolean>(false)
 
   const provider = useProvider()
+
+  const openModal = useCallback(() => {
+    document.body.style.overflowY = 'hidden'
+    setWalletModal(true)
+  }, [])
+
+  const closeModal = useCallback(() => {
+    document.body.style.overflowY = 'scroll'
+    setWalletModal(false)
+  }, [])
 
   const disconnect = useCallback(() => {
     web3React.deactivate()
@@ -145,13 +160,19 @@ const WalletProvider: React.FC = (props) => {
       library: web3React.account ? web3React.library : provider.ethProvider,
       connector: activeConnector,
       errors,
+      openWalletModal: openModal,
       connect,
       disconnect,
     }),
     [web3React, provider, initialized, connecting, activeConnector, errors, disconnect, connect]
   )
 
-  return <WalletContext.Provider value={value}>{props.children}</WalletContext.Provider>
+  return (
+    <WalletContext.Provider value={value}>
+      <WalletModal closeModal={closeModal} isOpen={walletModal}></WalletModal>
+      {props.children}
+    </WalletContext.Provider>
+  )
 }
 
 // To get access to this Manager, import this into your component or hook

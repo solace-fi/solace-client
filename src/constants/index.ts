@@ -38,3 +38,5 @@ export const RPC_URLS = {
   4: `https://eth-rinkeby.alchemyapi.io/v2/${ALCHEMY_API_KEY}`,
   42: `https://eth-kovan.alchemyapi.io/v2/${ALCHEMY_API_KEY}`,
 }
+
+export const WALLET_CONNECT_BRIDGE = 'https://bridge.walletconnect.org'

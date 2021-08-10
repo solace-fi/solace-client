@@ -1,4 +1,6 @@
+import { ToastContainer } from 'react-toastify'
 import styled from 'styled-components'
+import { MAX_MOBILE_SCREEN_WIDTH } from '../../../constants'
 
 export const FlexedToastMessage = styled.div`
   margin-top: 10px;
@@ -10,4 +12,10 @@ export const FlexedToastMessage = styled.div`
 
 export const ToastWrapper = styled.div`
   text-align: center;
+`
+
+export const StylizedToastContainer = styled(ToastContainer)`
+  @media screen and (max-width: ${MAX_MOBILE_SCREEN_WIDTH}px) {
+    bottom: 60px;
+  }
 `

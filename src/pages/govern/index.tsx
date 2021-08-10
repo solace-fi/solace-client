@@ -4,7 +4,7 @@ import { Heading1 } from '../../components/atoms/Typography'
 function Govern(): any {
   return (
     <HeroContainer>
-      <Heading1>Governance coming soon!</Heading1>
+      <Heading1 textAlignCenter>Governance coming soon!</Heading1>
     </HeroContainer>
   )
 }

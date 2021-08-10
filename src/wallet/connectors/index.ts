@@ -6,7 +6,7 @@ import { LedgerConnector } from '@web3-react/ledger-connector'
 import { TorusConnector } from '@web3-react/torus-connector'
 import { AuthereumConnector } from '@web3-react/authereum-connector'
 
-import { RPC_URLS, POLLING_INTERVAL } from '../../constants'
+import { RPC_URLS, POLLING_INTERVAL, WALLET_CONNECT_BRIDGE } from '../../constants'
 
 // browser extension
 export const injected = new InjectedConnector({
@@ -15,6 +15,8 @@ export const injected = new InjectedConnector({
 
 export const walletconnect = new WalletConnectConnector({
   rpc: { 1: RPC_URLS[1], 4: RPC_URLS[4] },
+  pollingInterval: POLLING_INTERVAL,
+  bridge: WALLET_CONNECT_BRIDGE,
   qrcode: true,
 })
 

@@ -40,7 +40,7 @@ function Quote(): any {
 
   return !wallet.isActive || !wallet.account ? (
     <HeroContainer>
-      <Heading1>Please connect your wallet to buy quotes</Heading1>
+      <Heading1 textAlignCenter>Please connect your wallet to buy quotes</Heading1>
       <WalletConnectButton />
     </HeroContainer>
   ) : (
