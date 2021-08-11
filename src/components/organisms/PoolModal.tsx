@@ -55,6 +55,7 @@ import {
 import { Button, ButtonWrapper } from '../atoms/Button'
 import { Loader } from '../atoms/Loader'
 import { FormOption, FormSelect } from '../atoms/Form'
+import { Card } from '../atoms/Card'
 
 /* import hooks */
 import { useUserStakedValue } from '../../hooks/useFarm'
@@ -504,26 +505,28 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
   *************************************************************************************/
 
   const GasRadioGroup: React.FC = () => (
-    <RadioGroup>
-      {!gasPrices.loading ? (
-        gasPrices.options.map((option: GasFeeOption) => (
-          <RadioLabel key={option.key}>
-            <RadioInput
-              type="radio"
-              value={option.value}
-              checked={selectedGasOption == option}
-              onChange={() => handleSelectChange(option)}
-            />
-            <RadioElement>
-              <div>{option.name}</div>
-              <div>{option.value}</div>
-            </RadioElement>
-          </RadioLabel>
-        ))
-      ) : (
-        <Loader />
-      )}
-    </RadioGroup>
+    <Card>
+      <RadioGroup m={0}>
+        {!gasPrices.loading ? (
+          gasPrices.options.map((option: GasFeeOption) => (
+            <RadioLabel key={option.key}>
+              <RadioInput
+                type="radio"
+                value={option.value}
+                checked={selectedGasOption == option}
+                onChange={() => handleSelectChange(option)}
+              />
+              <RadioElement>
+                <div>{option.name}</div>
+                <div>{option.value}</div>
+              </RadioElement>
+            </RadioLabel>
+          ))
+        ) : (
+          <Loader />
+        )}
+      </RadioGroup>
+    </Card>
   )
 
   const AutoStakeOption: React.FC = () => (
@@ -598,21 +601,25 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
         </ModalRow>
         <GasRadioGroup />
         {(func == FunctionName.DEPOSIT || func == FunctionName.DEPOSIT_ETH) && <AutoStakeOption />}
-        <ButtonWrapper>
-          {!modalLoading ? (
-            <Fragment>
-              {func == FunctionName.DEPOSIT_CP ? (
-                <Fragment>
-                  {!hasApproval(tokenAllowance, amount && amount != '.' ? parseEther(amount).toString() : '0') &&
-                    tokenAllowance != '' && (
+        {!modalLoading ? (
+          <Fragment>
+            {func == FunctionName.DEPOSIT_CP ? (
+              <Fragment>
+                {!hasApproval(tokenAllowance, amount && amount != '.' ? parseEther(amount).toString() : '0') &&
+                  tokenAllowance != '' && (
+                    <ButtonWrapper>
                       <Button
+                        widthP={100}
                         disabled={(isAppropriateAmount() ? false : true) || errors.length > 0}
                         onClick={() => approve()}
                       >
                         Approve
                       </Button>
-                    )}
+                    </ButtonWrapper>
+                  )}
+                <ButtonWrapper>
                   <Button
+                    widthP={100}
                     hidden={modalLoading}
                     disabled={
                       (isAppropriateAmount() ? false : true) ||
@@ -623,21 +630,24 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
                   >
                     Confirm
                   </Button>
-                </Fragment>
-              ) : (
+                </ButtonWrapper>
+              </Fragment>
+            ) : (
+              <ButtonWrapper>
                 <Button
+                  widthP={100}
                   hidden={modalLoading}
                   disabled={(isAppropriateAmount() ? false : true) || errors.length > 0}
                   onClick={handleCallbackFunc}
                 >
                   Confirm
                 </Button>
-              )}
-            </Fragment>
-          ) : (
-            <Loader />
-          )}
-        </ButtonWrapper>
+              </ButtonWrapper>
+            )}
+          </Fragment>
+        ) : (
+          <Loader />
+        )}
       </Fragment>
     </Modal>
   )

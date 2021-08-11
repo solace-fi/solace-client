@@ -1,5 +1,6 @@
 import styled, { css } from 'styled-components'
 import { MAX_MOBILE_SCREEN_WIDTH } from '../../../constants'
+import { GeneralElementProps, GeneralElementCss } from '../../generalInterfaces'
 
 const RadioInputCss = css`
   position: absolute;
@@ -14,11 +15,10 @@ export const RadioElement = styled.div`
   text-align: center;
   color: #fff;
   background-color: rgba(0, 0, 0, 0);
-  transition: background-color 0.2s, color 0.2s;
   cursor: pointer;
 
   &:hover {
-    background-color: rgba(#fff, 0.2);
+    background-color: rgba(255, 255, 255, 0.3);
   }
 `
 
@@ -32,7 +32,7 @@ export const RadioInput = styled.input`
   }
 `
 
-export const RadioGroup = styled.div`
+export const RadioGroup = styled.div<GeneralElementProps>`
   display: grid;
   grid-template-columns: 1fr 1fr 1fr 1fr;
   gap: 20px;
@@ -41,6 +41,8 @@ export const RadioGroup = styled.div`
   @media screen and (max-width: ${MAX_MOBILE_SCREEN_WIDTH}px) {
     grid-template-columns: none;
   }
+
+  ${GeneralElementCss}
 `
 
 export const RadioLabel = styled.label``
