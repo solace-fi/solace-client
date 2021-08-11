@@ -4,8 +4,9 @@ import { useWallet } from '../../context/WalletManager'
 
 import { Card, CardContainer } from '../atoms/Card'
 import { ModalCell, ModalRow } from '../atoms/Modal'
-import { Text2 } from '../atoms/Typography'
+import { Text2, Text3, Heading3 } from '../atoms/Typography'
 import { Modal } from '../molecules/Modal'
+import { FormRow } from '../atoms/Form'
 
 interface WalletModalProps {
   closeModal: () => void
@@ -25,26 +26,29 @@ export const WalletModal: React.FC<WalletModalProps> = ({ closeModal, isOpen }) 
   }, [])
 
   return (
-    <Modal
-      handleClose={handleClose}
-      isOpen={isOpen}
-      modalTitle={'Connect a wallet to Solace'}
-      disableCloseButton={false}
-    >
+    <Modal handleClose={handleClose} isOpen={isOpen} modalTitle={'Connect a wallet'} disableCloseButton={false}>
       <CardContainer cardsPerRow={2}>
         {SUPPORTED_WALLETS.map((wallet) => (
           <Card
             canHover
-            p={0}
+            pt={5}
+            pb={5}
+            pl={30}
+            pr={30}
             key={wallet.id}
             onClick={() => connectWallet(wallet.id)}
+            glow={wallet.id == connector?.id}
             blue={wallet.id == connector?.id}
+            style={{ display: 'flex', justifyContent: 'center' }}
           >
-            <ModalRow mb={0}>
-              <ModalCell>
-                <Text2>{wallet.name}</Text2>
+            <FormRow mb={0}>
+              <ModalCell p={10}>
+                <img src={wallet.logo} alt={wallet.name} height={32} />
               </ModalCell>
-            </ModalRow>
+              <ModalCell p={10}>
+                <Heading3>{wallet.name}</Heading3>
+              </ModalCell>
+            </FormRow>
           </Card>
         ))}
       </CardContainer>

@@ -12,6 +12,7 @@ interface CardProps extends ClickProps, GeneralElementProps {
   standalone?: boolean
   blue?: boolean
   purple?: boolean
+  glow?: boolean
 }
 
 interface CardContainerProps extends GeneralElementProps {
@@ -29,6 +30,7 @@ const CardCss = css<CardProps>`
   ${(props) =>
     props.canHover &&
     'cursor: pointer; &:hover { background-color: rgba(255, 255, 255, 0.5); transition: background-color 200ms linear; }'}
+    ${(props) => props.glow && 'box-shadow: 0 0 7px #fff;'}
 `
 
 export const CardContainer = styled.div<CardContainerProps & GeneralTextProps>`

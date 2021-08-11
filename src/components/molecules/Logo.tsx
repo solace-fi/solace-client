@@ -4,7 +4,7 @@
 
     import react
     import components
-    import static
+    import resources
 
     Logo function
       Render
@@ -17,8 +17,8 @@ import React from 'react'
 /* import components */
 import { LogoBase } from '../atoms/Logo'
 
-/* import static */
-import logo from '../../static/solace.png'
+/* import resources */
+import logo from '../../resources/solace.png'
 
 import { GeneralElementProps } from '../generalInterfaces'
 

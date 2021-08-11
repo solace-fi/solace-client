@@ -12,7 +12,7 @@
 
     > pages: contains components that serve as web pages
 
-    > static: contains media such as images
+    > resources: contains media such as images
 
     > utils: contains stateless functions that serve as helper functions
 

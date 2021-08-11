@@ -68,7 +68,7 @@ Run using the following react command from the client directory
     |   |____invest/
     |   |____quote/
     |   |____App
-    |___static/
+    |___resources/
     |___styles/
     |___utils/
 

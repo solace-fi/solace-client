@@ -83,11 +83,12 @@ export const ModalRow = styled.div<GeneralElementProps>`
   }
 `
 
-export const ModalCell = styled.div<GeneralTextProps>`
+export const ModalCell = styled.div<GeneralTextProps & GeneralElementProps>`
   display: flex;
   align-items: center;
   flex-shrink: 0;
   padding: 24px;
   position: relative;
   ${GeneralTextCss}
+  ${GeneralElementCss}
 `
