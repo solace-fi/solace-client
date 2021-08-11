@@ -194,7 +194,7 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
       />
       {balances.length == 0 && !loading && !userPolicyData.policiesLoading && (
         <HeroContainer>
-          <Heading1>You do not own any positions on this protocol.</Heading1>
+          <Heading1 textAlignCenter>You do not own any positions on this protocol.</Heading1>
         </HeroContainer>
       )}
       {!loading && !userPolicyData.policiesLoading ? (

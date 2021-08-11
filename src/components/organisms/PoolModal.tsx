@@ -562,6 +562,7 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
             <Fragment>
               <ModalCell>
                 <Input
+                  widthP={100}
                   t2
                   textAlignRight
                   type="text"
