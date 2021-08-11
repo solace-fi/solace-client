@@ -163,6 +163,7 @@ export const useGetAvailableCoverages = (): StringToStringMapping => {
   return availableCoverages
 }
 
+// TODO: Replace with coverAmount on new deployed contracts
 export const useGetQuote = (coverLimit: string | null, positionContract: string | null, days: string): string => {
   const { account } = useWallet()
   const [quote, setQuote] = useState<string>('0.00')

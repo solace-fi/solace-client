@@ -96,7 +96,7 @@ export const Footer = styled.div`
   text-align: center;
   display: none;
   overflow: hidden;
-  padding: 10px;
+  padding: 10px 0;
 
   @media screen and (max-width: ${MAX_TABLET_SCREEN_WIDTH}px) {
     display: block;

@@ -98,7 +98,7 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
       const tx = await selectedProtocol.buyPolicy(
         wallet.account,
         position.token.address,
-        coverageLimit,
+        coverageLimit, // TODO: Replace with coverAmount on new deployed contracts
         BigNumber.from(NUM_BLOCKS_PER_DAY * parseInt(timePeriod)),
         {
           value: parseEther(quote).add(parseEther(quote).div('10000')),

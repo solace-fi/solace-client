@@ -3,6 +3,7 @@ import { Menu } from '@styled-icons/boxicons-regular/Menu'
 import { Checkmark } from '@styled-icons/evaicons-solid/Checkmark'
 import { Warning } from '@styled-icons/fluentui-system-regular/Warning'
 import { History } from '@styled-icons/boxicons-regular/History'
+import { Wallet } from '@styled-icons/boxicons-solid/Wallet'
 
 export const StyledIconCss = css`
   margin: auto;
@@ -10,6 +11,10 @@ export const StyledIconCss = css`
 `
 
 export const StyledHistory = styled(History)`
+  display: block;
+`
+
+export const StyledWallet = styled(Wallet)`
   display: block;
 `
 

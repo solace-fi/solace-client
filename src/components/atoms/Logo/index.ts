@@ -1,6 +1,7 @@
 import styled from 'styled-components'
+import { GeneralElementCss, GeneralElementProps } from '../../generalInterfaces'
 
-export const LogoBase = styled.a`
+export const LogoBase = styled.a<GeneralElementProps>`
   display: flex;
   align-items: flex-start;
   width: 114px;
@@ -14,4 +15,5 @@ export const LogoBase = styled.a`
   :hover {
     transform: scale(1.1);
   }
+  ${GeneralElementCss}
 `

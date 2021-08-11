@@ -126,6 +126,7 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
     [blocksLeft, coverAmount, price]
   )
   const appraisal = useAppraisePosition(selectedPolicy)
+  // TODO: Use coverAmount on new deployed contracts
   const coverLimit = useMemo(
     () => (appraisal == ZERO ? ZERO.toString() : BigNumber.from(coverAmount).mul('10000').div(appraisal).toString()),
     [appraisal, coverAmount]

@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useMemo, useEffect } from 'react'
-import { toast, ToastContainer } from 'react-toastify'
+import { toast } from 'react-toastify'
 import { useWallet } from '../context/WalletManager'
 
 import 'animate.css/animate.min.css'
@@ -7,6 +7,7 @@ import 'react-toastify/dist/ReactToastify.css'
 import { TransactionCondition, Error } from '../constants/enums'
 
 import '../styles/toast.css'
+import { StylizedToastContainer } from '../components/atoms/Toast'
 import { AppToast, NotificationToast } from '../components/molecules/Toast'
 import { StyledWarning } from '../components/atoms/Icon'
 
@@ -38,7 +39,7 @@ const txError = {
   autoClose: 10000,
   type: toast.TYPE.ERROR,
   position: toast.POSITION.BOTTOM_LEFT,
-  closeOnClick: false,
+  closeOnClick: true,
   closeButton: true,
   className: 'error-toast',
 }
@@ -47,8 +48,8 @@ const appError: any = {
   type: toast.TYPE.ERROR,
   position: toast.POSITION.BOTTOM_LEFT,
   autoClose: false,
-  closeOnClick: false,
-  closeButton: false,
+  closeOnClick: true,
+  closeButton: true,
   className: 'error-toast',
 }
 
@@ -162,7 +163,7 @@ const ToastsProvider: React.FC = (props) => {
 
   return (
     <ToastsContext.Provider value={value}>
-      <ToastContainer />
+      <StylizedToastContainer />
       {props.children}
     </ToastsContext.Provider>
   )

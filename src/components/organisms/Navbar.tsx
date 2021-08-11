@@ -89,7 +89,7 @@ export const TopNavbar: React.FC = () => {
 
   return (
     <TopNav isOpen={isOpen}>
-      <Logo />
+      <Logo pl={10} />
       <ItemList>
         <SidebarItem onClick={() => setIsOpen(!isOpen)} to={'/'}>
           Dashboard
