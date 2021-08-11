@@ -78,7 +78,7 @@ const WalletProvider: React.FC = (props) => {
   const [errors, setErrors] = useState<AppError[]>([])
   const [walletModal, setWalletModal] = useState<boolean>(false)
 
-  const provider = useProvider()
+  const { ethProvider } = useProvider()
 
   const openModal = useCallback(() => {
     document.body.style.overflowY = 'hidden'
@@ -157,14 +157,14 @@ const WalletProvider: React.FC = (props) => {
       isActive: web3React.active,
       account: web3React.account ?? undefined,
       chainId: web3React.chainId,
-      library: web3React.account ? web3React.library : provider.ethProvider,
+      library: web3React.account ? web3React.library : ethProvider,
       connector: activeConnector,
       errors,
       openWalletModal: openModal,
       connect,
       disconnect,
     }),
-    [web3React, provider, initialized, connecting, activeConnector, errors, disconnect, connect]
+    [web3React, ethProvider, initialized, connecting, activeConnector, errors, disconnect, connect]
   )
 
   return (

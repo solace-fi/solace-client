@@ -30,7 +30,7 @@ function Quote(): any {
   custom hooks
 
   *************************************************************************************/
-  const wallet = useWallet()
+  const { isActive, account } = useWallet()
 
   /************************************************************************************** 
       
@@ -38,7 +38,7 @@ function Quote(): any {
 
   *************************************************************************************/
 
-  return !wallet.isActive || !wallet.account ? (
+  return !isActive || !account ? (
     <HeroContainer>
       <Heading1 textAlignCenter>Please connect your wallet to buy quotes</Heading1>
       <WalletConnectButton />

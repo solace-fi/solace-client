@@ -54,7 +54,7 @@ const appError: any = {
 }
 
 const ToastsProvider: React.FC = (props) => {
-  const wallet = useWallet()
+  const { chainId, account, errors } = useWallet()
 
   const makeTxToast = (txType: string, condition: TransactionCondition, txHash?: string) => {
     const TxToast = (message: string) => <NotificationToast message={message} condition={condition} txHash={txHash} />
@@ -114,12 +114,12 @@ const ToastsProvider: React.FC = (props) => {
   // Removes toasts from display on chainId or account change
   useEffect(() => {
     toast.dismiss()
-  }, [wallet.chainId, wallet.account])
+  }, [chainId, account])
 
   // Runs whenever the chainId changes
   useEffect(() => {
-    if (!wallet.errors) return
-    if (wallet.errors.includes(Error.UNSUPPORTED_NETWORK)) {
+    if (!errors) return
+    if (errors.includes(Error.UNSUPPORTED_NETWORK)) {
       toast(appToast(`Unsupported network, please switch to a supported network`, <StyledWarning size={30} />), {
         toastId: Error.UNSUPPORTED_NETWORK,
         ...appError,
@@ -127,7 +127,7 @@ const ToastsProvider: React.FC = (props) => {
     } else {
       toast.dismiss(Error.UNSUPPORTED_NETWORK)
     }
-    if (wallet.errors.includes(Error.NO_PROVIDER)) {
+    if (errors.includes(Error.NO_PROVIDER)) {
       toast(appToast(`No Ethereum browser extension detected`, <StyledWarning size={30} />), {
         toastId: Error.NO_PROVIDER,
         type: toast.TYPE.ERROR,
@@ -136,7 +136,7 @@ const ToastsProvider: React.FC = (props) => {
     } else {
       toast.dismiss(Error.NO_PROVIDER)
     }
-    if (wallet.errors.includes(Error.NO_ACCESS)) {
+    if (errors.includes(Error.NO_ACCESS)) {
       toast(appToast(`Please authorize this website to access your account`, <StyledWarning size={30} />), {
         toastId: Error.NO_ACCESS,
         ...appError,
@@ -144,7 +144,7 @@ const ToastsProvider: React.FC = (props) => {
     } else {
       toast.dismiss(Error.NO_ACCESS)
     }
-    if (wallet.errors.includes(Error.UNKNOWN)) {
+    if (errors.includes(Error.UNKNOWN)) {
       toast(appToast(`An unknown error occurred`, <StyledWarning size={30} />), {
         toastId: Error.UNKNOWN,
         ...appError,
@@ -152,7 +152,7 @@ const ToastsProvider: React.FC = (props) => {
     } else {
       toast.dismiss(Error.UNKNOWN)
     }
-  }, [wallet.errors])
+  }, [errors])
 
   const value = useMemo<ToastSystem>(
     () => ({

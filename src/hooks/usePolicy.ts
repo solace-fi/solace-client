@@ -31,7 +31,7 @@ export const useGetPolicyPrice = (policyId: number): string => {
 }
 
 export const useAppraisePosition = (policy: Policy | undefined): BigNumber => {
-  const wallet = useWallet()
+  const { account } = useWallet()
   const { getProtocolByName } = useContracts()
   const [appraisal, setAppraisal] = useState<BigNumber>(ZERO)
 
@@ -42,14 +42,14 @@ export const useAppraisePosition = (policy: Policy | undefined): BigNumber => {
         const product = getProtocolByName(policy.productName)
         if (!product) return
         const position = policy.positionContract
-        const appraisal: BigNumber = await product.appraisePosition(wallet.account, position)
+        const appraisal: BigNumber = await product.appraisePosition(account, position)
         setAppraisal(appraisal)
       } catch (err) {
         console.log('AppraisePosition', err)
       }
     }
     getAppraisal()
-  }, [policy, wallet.account, getProtocolByName])
+  }, [policy, account, getProtocolByName])
 
   return appraisal
 }

@@ -66,7 +66,7 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
   const { position, coverageLimit, timePeriod, loading } = formData
   const maxCoverPerUser = useGetMaxCoverPerUser() // in eth
   const quote = useGetQuote(coverageLimit, position.token.address, timePeriod)
-  const wallet = useWallet()
+  const { account, errors } = useWallet()
   const { addLocalTransactions, reload, gasPrices } = useCachedData()
   const { selectedProtocol } = useContracts()
   const { makeTxToast } = useToasts()
@@ -96,7 +96,7 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
     const txType = FunctionName.BUY_POLICY
     try {
       const tx = await selectedProtocol.buyPolicy(
-        wallet.account,
+        account,
         position.token.address,
         coverageLimit, // TODO: Replace with coverAmount on new deployed contracts
         BigNumber.from(NUM_BLOCKS_PER_DAY * parseInt(timePeriod)),
@@ -258,7 +258,7 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
                 onChange={(e) => handleInputCoverage(e.target.value)}
               />
               <Button
-                disabled={wallet.errors.length > 0}
+                disabled={errors.length > 0}
                 ml={10}
                 pt={4}
                 pb={4}
@@ -361,7 +361,7 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
             <Button
               widthP={100}
               onClick={() => buyPolicy()}
-              disabled={wallet.errors.length > 0 || parseEther(coveredAssets).gt(parseEther(maxCoverPerUser))}
+              disabled={errors.length > 0 || parseEther(coveredAssets).gt(parseEther(maxCoverPerUser))}
             >
               Buy
             </Button>

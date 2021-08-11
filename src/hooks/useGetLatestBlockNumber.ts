@@ -2,16 +2,16 @@ import { useEffect, useState, useRef } from 'react'
 import { useWallet } from '../context/WalletManager'
 
 export const useGetLatestBlockNumber = (dataVersion: number): number => {
-  const wallet = useWallet()
+  const { library } = useWallet()
   const [latestBlock, setLatestBlock] = useState<number>(0)
   const gettingBlockNumber = useRef(false)
 
   useEffect(() => {
     try {
       const fetchLatestBlockNumber = async () => {
-        if (!wallet.library) return
+        if (!library) return
         gettingBlockNumber.current = true
-        const latestBlockNumber = await wallet.library.getBlockNumber()
+        const latestBlockNumber = await library.getBlockNumber()
         setLatestBlock(latestBlockNumber)
         gettingBlockNumber.current = false
       }
@@ -20,7 +20,7 @@ export const useGetLatestBlockNumber = (dataVersion: number): number => {
     } catch (e) {
       console.log(e)
     }
-  }, [dataVersion, wallet.library])
+  }, [dataVersion, library])
 
   return latestBlock
 }
