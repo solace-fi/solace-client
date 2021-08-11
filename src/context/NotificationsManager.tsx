@@ -127,17 +127,17 @@ const ToastsProvider: React.FC = (props) => {
     } else {
       toast.dismiss(Error.UNSUPPORTED_NETWORK)
     }
-    if (wallet.errors.includes(Error.NO_ETH_PROVIDER)) {
+    if (wallet.errors.includes(Error.NO_PROVIDER)) {
       toast(appToast(`No Ethereum browser extension detected`, <StyledWarning size={30} />), {
-        toastId: Error.NO_ETH_PROVIDER,
+        toastId: Error.NO_PROVIDER,
         type: toast.TYPE.ERROR,
         ...appError,
       })
     } else {
-      toast.dismiss(Error.NO_ETH_PROVIDER)
+      toast.dismiss(Error.NO_PROVIDER)
     }
     if (wallet.errors.includes(Error.NO_ACCESS)) {
-      toast(appToast(`Please authorize this website to access your Ethereum account`, <StyledWarning size={30} />), {
+      toast(appToast(`Please authorize this website to access your account`, <StyledWarning size={30} />), {
         toastId: Error.NO_ACCESS,
         ...appError,
       })

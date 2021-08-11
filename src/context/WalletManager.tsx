@@ -106,7 +106,7 @@ const WalletProvider: React.FC = (props) => {
       connectingRef.current = walletConnector
       setConnecting(walletConnector)
 
-      await web3React.activate(connector, undefined, true).then(onSuccess).catch(onError)
+      await web3React.activate(connector, undefined, true).then(onSuccess).catch(onError).then(closeModal)
 
       function onSuccess() {
         setErrors([])
@@ -118,7 +118,7 @@ const WalletProvider: React.FC = (props) => {
       function onError(error: Error) {
         const walletErrors: AppError[] = []
         if (error instanceof NoEthereumProviderError) {
-          walletErrors.push(AppError.NO_ETH_PROVIDER)
+          walletErrors.push(AppError.NO_PROVIDER)
         } else if (error instanceof UnsupportedChainIdError) {
           walletErrors.push(AppError.UNSUPPORTED_NETWORK)
         } else if (

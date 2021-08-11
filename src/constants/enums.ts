@@ -7,7 +7,7 @@ export enum TransactionCondition {
 
 export enum Error {
   UNSUPPORTED_NETWORK,
-  NO_ETH_PROVIDER,
+  NO_PROVIDER,
   UNKNOWN,
   NO_ACCESS,
 }
