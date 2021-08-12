@@ -39,7 +39,7 @@ In a different terminal, run the following commands from the core directory
 
     npx hardhat run --network localhost scripts/deploy.ts
 
-After the deploy script is ran, copy the contract addresses into the chainConfig.ts file at client/src/config. Be sure that the name of the contract matches the name of the object within the config file.
+After the deploy script is ran, copy the contract addresses into the appropriate network file at client/src/config. Be sure that the name of the contract matches the name of the object within the config file.
 
 Run using the following react command from the client directory
 
@@ -49,7 +49,7 @@ Run using the following react command from the client directory
 
     src/
     |___components/
-    |___config/
+    |___networks/
     |___constants/
     |   |____abi/
     |___context/

@@ -3,8 +3,6 @@ import { constants } from 'ethers'
 export const ETHERSCAN_API_KEY = process.env.REACT_APP_ETHERSCAN_API_KEY
 export const ALCHEMY_API_KEY = process.env.REACT_APP_ALCHEMY_API_KEY
 
-export const DEFAULT_CHAIN_ID = 4
-
 export const NUM_BLOCKS_PER_DAY = 6450
 export const NUM_DAYS_PER_MONTH = 30
 export const DAYS_PER_YEAR = 365

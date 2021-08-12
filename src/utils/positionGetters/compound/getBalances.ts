@@ -1,16 +1,15 @@
 import tokenJson from './contracts/ICToken.json'
 import { rangeFrom0 } from '../../numeric'
-import { Token } from '../../../constants/types'
+import { NetworkConfig, Token } from '../../../constants/types'
 import { addNativeTokenBalances, getProductTokenBalances } from '../getBalances'
-import { policyConfig } from '../../../config/chainConfig'
 import { ProductName } from '../../../constants/enums'
 import { Contract } from '@ethersproject/contracts'
 import { POW_EIGHTEEN } from '../../../constants'
 import { withBackoffRetries } from '../../time'
 
-export const getBalances = async (user: string, provider: any, chainId: number): Promise<Token[]> => {
+export const getBalances = async (user: string, provider: any, activeNetwork: NetworkConfig): Promise<Token[]> => {
   // get ctoken balances
-  const savedTokens = policyConfig[String(chainId)].tokens[ProductName.COMPOUND].savedTokens
+  const savedTokens = activeNetwork.cache.tokens[ProductName.COMPOUND].savedTokens
   const balances: Token[] = await getProductTokenBalances(user, tokenJson.abi, savedTokens, provider)
 
   // get utoken balances
@@ -22,7 +21,7 @@ export const getBalances = async (user: string, provider: any, chainId: number):
   )
 
   // get native token balances
-  const tokenBalances = await addNativeTokenBalances(balances, indices, chainId, getMainNetworkToken)
+  const tokenBalances = await addNativeTokenBalances(balances, indices, activeNetwork.chainId, getMainNetworkToken)
   return tokenBalances
 }
 

@@ -21,11 +21,10 @@
 import React from 'react'
 
 /* import managers */
-import { useWallet } from '../../context/WalletManager'
+import { useNetwork } from '../../context/NetworkManager'
 
 /* import constants */
 import { ExplorerscanApi } from '../../constants/enums'
-import { DEFAULT_CHAIN_ID } from '../../constants'
 import { TransactionCondition } from '../../constants/enums'
 
 /* import components */
@@ -69,7 +68,7 @@ export const NotificationToast: React.FC<NotificationToastProps> = ({ message, c
    custom hooks
 
   *************************************************************************************/
-  const { chainId } = useWallet()
+  const { activeNetwork } = useNetwork()
 
   /*************************************************************************************
 
@@ -104,11 +103,11 @@ export const NotificationToast: React.FC<NotificationToastProps> = ({ message, c
       <FlexedToastMessage>
         {txHash && (
           <HyperLink
-            href={getExplorerItemUrl(chainId ?? DEFAULT_CHAIN_ID, txHash, ExplorerscanApi.TX)}
+            href={getExplorerItemUrl(activeNetwork.explorer.url, txHash, ExplorerscanApi.TX)}
             target="_blank"
             rel="noopener noreferrer"
           >
-            <Button>Check on Etherscan</Button>
+            <Button>Check on {activeNetwork.explorer.name}</Button>
           </HyperLink>
         )}
         {condition == TransactionCondition.PENDING ? (

@@ -27,9 +27,7 @@ import React, { Fragment, useCallback, useEffect, useRef, useState } from 'react
 import { useWallet } from '../../context/WalletManager'
 import { useContracts } from '../../context/ContractsManager'
 import { useCachedData } from '../../context/CachedDataManager'
-
-/* import config */
-import { policyConfig } from '../../config/chainConfig'
+import { useNetwork } from '../../context/NetworkManager'
 
 /* import components */
 import { Button } from '../../components/atoms/Button'
@@ -67,6 +65,7 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
   *************************************************************************************/
 
   const { account, chainId, library, errors } = useWallet()
+  const { activeNetwork, findNetworkByChainId } = useNetwork()
   const { setSelectedProtocolByName } = useContracts()
   const { userPolicyData, latestBlock, tokenPositionDataInitialized } = useCachedData()
   const { width } = useWindowDimensions()
@@ -104,13 +103,9 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
 
   const getUserBalances = async () => {
     if (!account || !library || !tokenPositionDataInitialized || !chainId) return
-    if (policyConfig[chainId]) {
+    if (findNetworkByChainId(chainId)) {
       try {
-        const balances: Token[] = await policyConfig[String(chainId)].getBalances[protocol.name](
-          account,
-          library,
-          chainId
-        )
+        const balances: Token[] = await activeNetwork.cache.getBalances[protocol.name](account, library, activeNetwork)
         setForm({
           target: {
             name: 'balances',

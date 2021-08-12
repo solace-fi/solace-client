@@ -3,10 +3,11 @@ import { fetchGasPrice } from '../utils/explorer'
 import { useWallet } from '../context/WalletManager'
 import { GasFeeListState } from '../constants/types'
 import { useCachedData } from '../context/CachedDataManager'
-import { DEFAULT_CHAIN_ID } from '../constants'
+import { useNetwork } from '../context/NetworkManager'
 
 export const useFetchGasPrice = (): GasFeeListState => {
   const { chainId } = useWallet()
+  const { activeNetwork } = useNetwork()
   const { version, latestBlock } = useCachedData()
 
   const [state, setState] = useState<GasFeeListState>({
@@ -17,7 +18,7 @@ export const useFetchGasPrice = (): GasFeeListState => {
 
   useEffect(() => {
     const fetchGasPrices = async () => {
-      await fetchGasPrice(chainId ?? DEFAULT_CHAIN_ID)
+      await fetchGasPrice(activeNetwork.explorer.apiUrl)
         .then((result) => {
           const options = [
             {

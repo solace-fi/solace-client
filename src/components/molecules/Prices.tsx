@@ -26,10 +26,10 @@ import styled from 'styled-components'
 import { useCoingeckoPrice } from '@usedapp/coingecko'
 
 /* import context */
-import { useWallet } from '../../context/WalletManager'
+import { useNetwork } from '../../context/NetworkManager'
 
 /* import constants */
-import { DEFAULT_CHAIN_ID, MAX_TABLET_SCREEN_WIDTH } from '../../constants'
+import { MAX_TABLET_SCREEN_WIDTH } from '../../constants'
 import { Unit } from '../../constants/enums'
 
 /* import components */
@@ -38,9 +38,6 @@ import { Heading3 } from '../atoms/Typography'
 
 /* import hooks */
 import { usePairPrice } from '../../hooks/usePair'
-
-/* import utils */
-import { getNativeTokenUnit } from '../../utils/formatting'
 
 /*************************************************************************************
 
@@ -69,9 +66,9 @@ export const Prices: React.FC = () => {
   custom hooks
 
   *************************************************************************************/
-  const { chainId } = useWallet()
+  const { activeNetwork } = useNetwork()
   const pairPrice = usePairPrice()
-  const nativeToken = getNativeTokenUnit(chainId ?? DEFAULT_CHAIN_ID)
+  const nativeToken = activeNetwork.nativeCurrency
   const coinPrice = useCoingeckoPrice(unitToNameMap[nativeToken], 'usd')
 
   /*************************************************************************************

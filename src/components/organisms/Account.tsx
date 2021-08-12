@@ -17,7 +17,7 @@
   *************************************************************************************/
 
 /* import react */
-import React, { Fragment, useCallback, useState } from 'react'
+import React, { Fragment } from 'react'
 
 /* import packages */
 import makeBlockie from 'ethereum-blockies-base64'
@@ -25,23 +25,25 @@ import makeBlockie from 'ethereum-blockies-base64'
 /* import managers */
 import { useWallet } from '../../context/WalletManager'
 import { useCachedData } from '../../context/CachedDataManager'
+import { useNetwork } from '../../context/NetworkManager'
 
 /* import components */
 import { Button } from '../atoms/Button'
 import { Heading3 } from '../atoms/Typography'
 import { SmallBox } from '../atoms/Box'
 import { StyledHistory } from '../atoms/Icon'
-import { TransactionHistoryModal } from './TransactionHistoryModal'
 import { UserImage } from '../atoms/User'
 import { WalletConnectButton } from '../molecules/WalletConnect'
 
+/* import constants */
+import { MAX_MOBILE_SCREEN_WIDTH } from '../../constants'
+
 /* import hooks */
 import { useNativeTokenBalance } from '../../hooks/useBalance'
+import { useWindowDimensions } from '../../hooks/useWindowDimensions'
 
 /* import utils */
-import { shortenAddress, fixed, getNetworkName, capitalizeFirstLetter } from '../../utils/formatting'
-import { MAX_MOBILE_SCREEN_WIDTH } from '../../constants'
-import { useWindowDimensions } from '../../hooks/useWindowDimensions'
+import { shortenAddress, fixed, capitalizeFirstLetter } from '../../utils/formatting'
 
 export const Account: React.FC = () => {
   /*************************************************************************************
@@ -51,24 +53,9 @@ export const Account: React.FC = () => {
   *************************************************************************************/
   const { isActive, chainId, account } = useWallet()
   const balance = useNativeTokenBalance()
-  const { localTransactions, showHistoryModal, setShowHistoryModal } = useCachedData()
+  const { localTransactions, openHistoryModal } = useCachedData()
   const { width } = useWindowDimensions()
-
-  /*************************************************************************************
-
-  local functions
-
-  *************************************************************************************/
-
-  const openModal = useCallback(() => {
-    document.body.style.overflowY = 'hidden'
-    setShowHistoryModal(true)
-  }, [])
-
-  const closeModal = useCallback(() => {
-    document.body.style.overflowY = 'scroll'
-    setShowHistoryModal(false)
-  }, [])
+  const { activeNetwork, findNetworkByChainId } = useNetwork()
 
   /*************************************************************************************
 
@@ -78,13 +65,10 @@ export const Account: React.FC = () => {
 
   return (
     <Fragment>
-      <TransactionHistoryModal closeModal={closeModal} isOpen={showHistoryModal} />
       {width >= MAX_MOBILE_SCREEN_WIDTH && isActive && (
         <SmallBox navy>
           <Heading3 autoAlign>
-            {getNetworkName(chainId) === '-'
-              ? getNetworkName(chainId)
-              : `${capitalizeFirstLetter(getNetworkName(chainId))}`}
+            {findNetworkByChainId(chainId) ? `${capitalizeFirstLetter(activeNetwork.name)}` : `-`}
           </Heading3>
         </SmallBox>
       )}
@@ -106,7 +90,7 @@ export const Account: React.FC = () => {
               width={width >= MAX_MOBILE_SCREEN_WIDTH ? undefined : 50}
               pl={10}
               pr={10}
-              onClick={() => openModal()}
+              onClick={() => openHistoryModal()}
               secondary={localTransactions.length > 0}
             >
               <StyledHistory size={30} />

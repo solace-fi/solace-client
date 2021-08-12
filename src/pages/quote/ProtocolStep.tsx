@@ -28,11 +28,12 @@ import styled from 'styled-components'
 import useDebounce from '@rooks/use-debounce'
 
 /* import constants */
-import { DAYS_PER_YEAR, DEFAULT_CHAIN_ID, NUM_BLOCKS_PER_DAY } from '../../constants'
+import { DAYS_PER_YEAR, NUM_BLOCKS_PER_DAY } from '../../constants'
 
 /* import context */
 import { useContracts } from '../../context/ContractsManager'
 import { useWallet } from '../../context/WalletManager'
+import { useNetwork } from '../../context/NetworkManager'
 
 /* import components */
 import { Button } from '../../components/atoms/Button'
@@ -43,14 +44,14 @@ import { Protocol, ProtocolImage, ProtocolTitle } from '../../components/atoms/P
 import { Card, CardContainer } from '../../components/atoms/Card'
 import { FormRow, FormCol } from '../../components/atoms/Form'
 import { Content } from '../../components/atoms/Layout'
+import { Heading2 } from '../../components/atoms/Typography'
 
 /* import hooks */
 import { useGetAvailableCoverages, useGetYearlyCosts } from '../../hooks/usePolicy'
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'
 
 /* import utils */
-import { fixed, getNativeTokenUnit } from '../../utils/formatting'
-import { Heading2 } from '../../components/atoms/Typography'
+import { fixed } from '../../utils/formatting'
 
 /*************************************************************************************
 
@@ -80,8 +81,9 @@ export const ProtocolStep: React.FC<formProps> = ({ setForm, navigation }) => {
   const availableCoverages = useGetAvailableCoverages()
   const yearlyCosts = useGetYearlyCosts()
   const { products, setSelectedProtocolByName } = useContracts()
-  const { chainId, errors } = useWallet()
+  const { errors } = useWallet()
   const { width } = useWindowDimensions()
+  const { activeNetwork } = useNetwork()
 
   /*************************************************************************************
 
@@ -184,7 +186,7 @@ export const ProtocolStep: React.FC<formProps> = ({ setForm, navigation }) => {
                         %
                       </TableData>
                       <TableData>
-                        {handleAvailableCoverage(protocol)} {getNativeTokenUnit(chainId ?? DEFAULT_CHAIN_ID)}
+                        {handleAvailableCoverage(protocol)} {activeNetwork.nativeCurrency}
                       </TableData>
                       <TableData textAlignRight>
                         <Button disabled={errors.length > 0}>Select</Button>
@@ -251,7 +253,7 @@ export const ProtocolStep: React.FC<formProps> = ({ setForm, navigation }) => {
                       <FormCol>Coverage Available</FormCol>
                       <FormCol>
                         <Heading2>
-                          {handleAvailableCoverage(protocol)} {getNativeTokenUnit(chainId ?? DEFAULT_CHAIN_ID)}
+                          {handleAvailableCoverage(protocol)} {activeNetwork.nativeCurrency}
                         </Heading2>
                       </FormCol>
                     </FormRow>

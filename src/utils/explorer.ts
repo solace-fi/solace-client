@@ -3,40 +3,17 @@ import { ExplorerscanApi } from '../constants/enums'
 import { ContractSources, GasPriceResult } from '../constants/types'
 const STRINGIFIED_ETHERSCAN_API_KEY = String(ETHERSCAN_API_KEY)
 
-const getExplorer = (chainId: number) => {
-  switch (chainId) {
-    case 4:
-      return 'rinkeby.etherscan.io'
-    case 42:
-      return 'kovan.etherscan.io'
-    default:
-      return 'etherscan.io'
-  }
-}
-
-const getApiPrefix = (chainId: number) => {
-  switch (chainId) {
-    case 4:
-    case 42:
-      return 'api-'
-    default:
-      return 'api.'
-  }
-}
-
-export const getExplorerItemUrl = (chainId: number, address: string, api: ExplorerscanApi): string => {
-  return `https://${getExplorer(chainId)}/${api}/${address}`
+export const getExplorerItemUrl = (explorer: string, address: string, api: ExplorerscanApi): string => {
+  return `${explorer}/${api}/${address}`
 }
 
 export async function fetchExplorerTxHistoryByAddress(
-  chainId: number,
+  explorer: string,
   address: string,
   contractSources: ContractSources[]
 ): Promise<any> {
   return fetch(
-    `https://${getApiPrefix(chainId)}${getExplorer(
-      chainId
-    )}/api?module=account&action=txlist&address=${address}&startblock=0&endblock=latest&page=1&offset=4500&sort=desc&apikey=${STRINGIFIED_ETHERSCAN_API_KEY}`
+    `${explorer}/api?module=account&action=txlist&address=${address}&startblock=0&endblock=latest&page=1&offset=4500&sort=desc&apikey=${STRINGIFIED_ETHERSCAN_API_KEY}`
   )
     .then((result) => result.json())
     .then((result) => result.result)
@@ -54,12 +31,8 @@ export async function fetchExplorerTxHistoryByAddress(
     })
 }
 
-export async function fetchGasPrice(chainId: number): Promise<GasPriceResult> {
-  return fetch(
-    `https://${getApiPrefix(chainId)}${getExplorer(
-      chainId
-    )}/api?module=gastracker&action=gasoracle&apikey=${STRINGIFIED_ETHERSCAN_API_KEY}`
-  )
+export async function fetchGasPrice(explorer: string): Promise<GasPriceResult> {
+  return fetch(`${explorer}/api?module=gastracker&action=gasoracle&apikey=${STRINGIFIED_ETHERSCAN_API_KEY}`)
     .then((result) => result.json())
     .then((result) => result.result)
     .then((result) => {

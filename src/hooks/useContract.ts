@@ -2,9 +2,8 @@ import { useWallet } from '../context/WalletManager'
 import { useMemo } from 'react'
 import { getContract } from '../utils'
 import { Contract } from '@ethersproject/contracts'
-import { contractConfig, policyConfig } from '../config/chainConfig'
 import { ContractSources, SupportedProduct } from '../constants/types'
-import { DEFAULT_CHAIN_ID } from '../constants'
+import { useNetwork } from '../context/NetworkManager'
 
 export function useGetContract(address: string, abi: any, hasSigner = true): Contract | null {
   const { library, account } = useWallet()
@@ -21,35 +20,36 @@ export function useGetContract(address: string, abi: any, hasSigner = true): Con
 }
 
 export function useGetProductContracts(): SupportedProduct[] {
-  const { library, account, chainId } = useWallet()
+  const { library, account } = useWallet()
+  const { activeNetwork } = useNetwork()
 
   return useMemo(() => {
-    const contractCnfg = contractConfig[String(chainId ?? DEFAULT_CHAIN_ID)]
-    const policyCnfg = policyConfig[String(chainId ?? DEFAULT_CHAIN_ID)]
+    const config = activeNetwork.config
+    const cache = activeNetwork.cache
     if (!library) return []
-    policyCnfg.supportedProducts.map((product: SupportedProduct, i: number) => {
+    cache.supportedProducts.map((product: SupportedProduct, i: number) => {
       const name = product.name
-      const productContractSources = contractCnfg.productContracts[name]
+      const productContractSources = config.productContracts[name]
       const contract = getContract(
         productContractSources.addr,
         productContractSources.abi,
         library,
         account ? account : undefined
       )
-      policyCnfg.supportedProducts[i] = {
+      cache.supportedProducts[i] = {
         ...product,
         contract: contract,
       }
     })
-    return policyCnfg.supportedProducts
-  }, [library, account, chainId])
+    return cache.supportedProducts
+  }, [library, account, activeNetwork])
 }
 
 export function useContractArray(): ContractSources[] {
-  const { chainId } = useWallet()
+  const { activeNetwork } = useNetwork()
 
   return useMemo(() => {
-    const config = contractConfig[String(chainId ?? DEFAULT_CHAIN_ID)]
+    const config = activeNetwork.config
     const contractSources: ContractSources[] = []
     const excludedContractSources = [process.env.REACT_APP_RINKEBY_UNISWAP_LPTOKEN_ADDR]
 
@@ -70,5 +70,5 @@ export function useContractArray(): ContractSources[] {
       }
     })
     return contractSources
-  }, [chainId])
+  }, [activeNetwork])
 }

@@ -98,3 +98,20 @@ export type LocalTx = {
   status: TransactionCondition
   unit: Unit
 }
+
+export type NetworkConfig = {
+  name: string
+  chainId: number
+  nativeCurrency: Unit
+  explorer: {
+    name: 'Etherscan' | 'Polygonscan'
+    key: string
+    url: string
+    apiUrl: string
+  }
+  config: {
+    keyContracts: any
+    productContracts: any
+  }
+  cache: any
+}
