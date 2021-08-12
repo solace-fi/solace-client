@@ -1,10 +1,11 @@
 import { useEffect, useRef, useState } from 'react'
 import { Token } from '../constants/types'
 import { useWallet } from '../context/WalletManager'
-import { policyConfig } from '../config/chainConfig'
+import { useNetwork } from '../context/NetworkManager'
 
 export const useGetTokens = (): boolean => {
   const { chainId, library } = useWallet()
+  const { activeNetwork, findNetworkByChainId } = useNetwork()
   const running = useRef(false)
   const [dataInitialized, setDataInitialized] = useState<boolean>(false)
 
@@ -13,21 +14,24 @@ export const useGetTokens = (): boolean => {
       if (running.current || library == undefined || chainId == undefined) return
       setDataInitialized(false)
       running.current = true
-      if (!policyConfig[String(chainId)]) {
+      if (!findNetworkByChainId(chainId)) {
         running.current = false
         return
       }
-      const supportedProducts = policyConfig[String(chainId)].supportedProducts
+      const supportedProducts = activeNetwork.cache.supportedProducts
       await Promise.all(
         supportedProducts.map(async (supportedProduct: any) => {
           const productName = supportedProduct.name
           if (
-            !policyConfig[String(chainId)].tokens[productName].tokensInitialized &&
-            !policyConfig[String(chainId)].positions[productName].positionNamesInitialized
+            !activeNetwork.cache.tokens[productName].tokensInitialized &&
+            !activeNetwork.cache.positions[productName].positionNamesInitialized
           ) {
-            const tokens: Token[] = await policyConfig[String(chainId)].tokens[productName].getTokens(library, chainId)
-            policyConfig[String(chainId)].tokens[productName] = {
-              ...policyConfig[String(chainId)].tokens[productName],
+            const tokens: Token[] = await activeNetwork.cache.tokens[productName].getTokens(
+              library,
+              activeNetwork.chainId
+            )
+            activeNetwork.cache.tokens[productName] = {
+              ...activeNetwork.cache.tokens[productName],
               savedTokens: tokens,
               tokensInitialized: true,
             }
@@ -35,8 +39,8 @@ export const useGetTokens = (): boolean => {
               (names: any, token: any) => ({ ...names, [token.token.address.toLowerCase()]: token.underlying.symbol }),
               {}
             )
-            policyConfig[String(chainId)].positions[productName] = {
-              ...policyConfig[String(chainId)].positions[productName],
+            activeNetwork.cache.positions[productName] = {
+              ...activeNetwork.cache.positions[productName],
               positionNames: positionNames,
               positionNamesInitialized: true,
             }

@@ -1,4 +1,4 @@
-import React, { useMemo, useContext, createContext, useEffect, useState } from 'react'
+import React, { useMemo, useContext, createContext, useEffect, useState, useCallback } from 'react'
 import { useLocalStorage } from 'react-use-storage'
 import { useWallet } from './WalletManager'
 
@@ -10,6 +10,8 @@ import { useInterval } from '../hooks/useInterval'
 import { useFetchGasPrice } from '../hooks/useFetchGasPrice'
 import { useGetLatestBlockNumber } from '../hooks/useGetLatestBlockNumber'
 import { useGetTokens } from '../hooks/useGetTokens'
+
+import { TransactionHistoryModal } from '../components/organisms/TransactionHistoryModal'
 
 /*
 
@@ -29,7 +31,7 @@ type CachedData = {
   latestBlock: number
   addLocalTransactions: (txToAdd: LocalTx) => void
   deleteLocalTransactions: (txsToDelete: []) => void
-  setShowHistoryModal: (res: boolean) => void
+  openHistoryModal: () => void
   reload: () => void
 }
 
@@ -44,7 +46,7 @@ const CachedDataContext = createContext<CachedData>({
   latestBlock: 0,
   addLocalTransactions: () => undefined,
   deleteLocalTransactions: () => undefined,
-  setShowHistoryModal: () => undefined,
+  openHistoryModal: () => undefined,
   reload: () => undefined,
 })
 
@@ -59,9 +61,15 @@ const CachedDataProvider: React.FC = (props) => {
   const { policiesLoading, userPolicies } = usePolicyGetter(false, latestBlock, dataInitialized, version, account)
   const [historyModal, setHistoryModal] = useState<boolean>(false)
 
-  const setShowHistoryModal = (res: boolean) => {
-    setHistoryModal(res)
-  }
+  const openModal = useCallback(() => {
+    document.body.style.overflowY = 'hidden'
+    setHistoryModal(true)
+  }, [])
+
+  const closeModal = useCallback(() => {
+    document.body.style.overflowY = 'scroll'
+    setHistoryModal(false)
+  }, [])
 
   const addLocalTransactions = (txToAdd: LocalTx) => {
     setLocalTxs([txToAdd, ...localTxs])
@@ -99,14 +107,13 @@ const CachedDataProvider: React.FC = (props) => {
       latestBlock,
       addLocalTransactions,
       deleteLocalTransactions,
-      setShowHistoryModal,
+      openHistoryModal: openModal,
       reload,
     }),
     [
       localTxs,
       addLocalTransactions,
       deleteLocalTransactions,
-      setShowHistoryModal,
       dataInitialized,
       version,
       dataVersion,
@@ -117,7 +124,12 @@ const CachedDataProvider: React.FC = (props) => {
     ]
   )
 
-  return <CachedDataContext.Provider value={value}>{props.children}</CachedDataContext.Provider>
+  return (
+    <CachedDataContext.Provider value={value}>
+      <TransactionHistoryModal closeModal={closeModal} isOpen={historyModal} />
+      {props.children}
+    </CachedDataContext.Provider>
+  )
 }
 
 export function useCachedData(): CachedData {

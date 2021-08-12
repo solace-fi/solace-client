@@ -9,6 +9,7 @@ import ContractsManager from './context/ContractsManager'
 import NotificationsManager from './context/NotificationsManager'
 import ProviderManager from './context/ProviderManager'
 import CachedDataManager from './context/CachedDataManager'
+import NetworkManager from './context/NetworkManager'
 
 /*
 
@@ -31,15 +32,17 @@ ReactDOM.render(
   <React.StrictMode>
     <ProviderManager>
       <WalletManager>
-        <ContractsManager>
-          <CachedDataManager>
-            <NotificationsManager>
-              <BrowserRouter>
-                <App />
-              </BrowserRouter>
-            </NotificationsManager>
-          </CachedDataManager>
-        </ContractsManager>
+        <NetworkManager>
+          <ContractsManager>
+            <CachedDataManager>
+              <NotificationsManager>
+                <BrowserRouter>
+                  <App />
+                </BrowserRouter>
+              </NotificationsManager>
+            </CachedDataManager>
+          </ContractsManager>
+        </NetworkManager>
       </WalletManager>
     </ProviderManager>
   </React.StrictMode>,

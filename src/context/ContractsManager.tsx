@@ -1,11 +1,9 @@
 import React, { createContext, useCallback, useContext, useMemo, useState } from 'react'
 import { Contract } from '@ethersproject/contracts'
-import { contractConfig } from '../config/chainConfig'
 
 import { useContractArray, useGetContract, useGetProductContracts } from '../hooks/useContract'
-import { useWallet } from './WalletManager'
 import { ContractSources, SupportedProduct } from '../constants/types'
-import { DEFAULT_CHAIN_ID } from '../constants'
+import { useNetwork } from './NetworkManager'
 
 /*
 
@@ -56,9 +54,9 @@ const ContractsContext = createContext<Contracts>({
 
 const ContractsProvider: React.FC = (props) => {
   const [selectedProtocol, setSelectedProtocol] = useState<Contract | null>(null)
-  const { chainId } = useWallet()
+  const { activeNetwork } = useNetwork()
   const contractSources = useContractArray()
-  const keyContracts = useMemo(() => contractConfig[String(chainId ?? DEFAULT_CHAIN_ID)].keyContracts, [chainId])
+  const keyContracts = useMemo(() => activeNetwork.config.keyContracts, [activeNetwork])
 
   const master = useGetContract(keyContracts.master.addr, keyContracts.master.abi)
   const vault = useGetContract(keyContracts.vault.addr, keyContracts.vault.abi)

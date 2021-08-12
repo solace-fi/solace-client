@@ -51,24 +51,8 @@ export const Account: React.FC = () => {
   *************************************************************************************/
   const { isActive, chainId, account } = useWallet()
   const balance = useNativeTokenBalance()
-  const { localTransactions, showHistoryModal, setShowHistoryModal } = useCachedData()
+  const { localTransactions, openHistoryModal } = useCachedData()
   const { width } = useWindowDimensions()
-
-  /*************************************************************************************
-
-  local functions
-
-  *************************************************************************************/
-
-  const openModal = useCallback(() => {
-    document.body.style.overflowY = 'hidden'
-    setShowHistoryModal(true)
-  }, [])
-
-  const closeModal = useCallback(() => {
-    document.body.style.overflowY = 'scroll'
-    setShowHistoryModal(false)
-  }, [])
 
   /*************************************************************************************
 
@@ -78,7 +62,6 @@ export const Account: React.FC = () => {
 
   return (
     <Fragment>
-      <TransactionHistoryModal closeModal={closeModal} isOpen={showHistoryModal} />
       {width >= MAX_MOBILE_SCREEN_WIDTH && isActive && (
         <SmallBox navy>
           <Heading3 autoAlign>
@@ -106,7 +89,7 @@ export const Account: React.FC = () => {
               width={width >= MAX_MOBILE_SCREEN_WIDTH ? undefined : 50}
               pl={10}
               pr={10}
-              onClick={() => openModal()}
+              onClick={() => openHistoryModal()}
               secondary={localTransactions.length > 0}
             >
               <StyledHistory size={30} />

@@ -7,8 +7,8 @@ import { Provider, Web3Provider } from '@ethersproject/providers'
 import { decodeInput } from '../utils/decoder'
 import { formatTransactionContent } from '../utils/formatting'
 import { useContracts } from '../context/ContractsManager'
-import { contractConfig } from '../config/chainConfig'
 import { DEFAULT_CHAIN_ID } from '../constants'
+import { useNetwork } from '../context/NetworkManager'
 
 export const useFetchTxHistoryByAddress = (): any => {
   const { account, chainId } = useWallet()
@@ -31,7 +31,8 @@ export const useFetchTxHistoryByAddress = (): any => {
 }
 
 export const useTransactionDetails = (): { txHistory: any; amounts: string[] } => {
-  const { library, chainId } = useWallet()
+  const { library } = useWallet()
+  const { activeNetwork } = useNetwork()
   const [amounts, setAmounts] = useState<string[]>([])
   const { contractSources } = useContracts()
   const txHistory = useFetchTxHistoryByAddress()
@@ -51,10 +52,7 @@ export const useTransactionDetails = (): { txHistory: any; amounts: string[] } =
     switch (function_name) {
       case FunctionName.DEPOSIT:
       case FunctionName.WITHDRAW:
-        if (
-          receipt.to.toLowerCase() ===
-          contractConfig[String(chainId ?? DEFAULT_CHAIN_ID)].keyContracts.vault.addr.toLowerCase()
-        ) {
+        if (receipt.to.toLowerCase() === activeNetwork.config.keyContracts.vault.addr.toLowerCase()) {
           if (!topics || topics.length <= 0) return '0'
           return topics[topics.length - 1]
         } else {
@@ -97,9 +95,7 @@ export const useTransactionDetails = (): { txHistory: any; amounts: string[] } =
           currentAmounts.push('N/A')
         } else {
           const amount: string = await getTransactionAmount(function_name, txHistory[tx_i], library)
-          currentAmounts.push(
-            `${formatTransactionContent(function_name, amount, chainId ?? DEFAULT_CHAIN_ID, txHistory[tx_i].to)}`
-          )
+          currentAmounts.push(`${formatTransactionContent(function_name, amount, activeNetwork, txHistory[tx_i].to)}`)
         }
       }
       setAmounts(currentAmounts)

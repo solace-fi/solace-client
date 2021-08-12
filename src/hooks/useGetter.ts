@@ -1,13 +1,12 @@
 import { withBackoffRetries } from '../utils/time'
 import { rangeFrom0 } from '../utils/numeric'
-import { policyConfig } from '../config/chainConfig'
 import { useWallet } from '../context/WalletManager'
 import { PolicyState } from '../constants/enums'
 import { Policy } from '../constants/types'
 import { BigNumber } from 'ethers'
 import { useContracts } from '../context/ContractsManager'
 import { useState, useEffect, useRef } from 'react'
-import { DEFAULT_CHAIN_ID } from '../constants'
+import { useNetwork } from '../context/NetworkManager'
 
 export const usePolicyGetter = (
   getAll: boolean,
@@ -17,13 +16,13 @@ export const usePolicyGetter = (
   policyHolder?: string,
   product?: string
 ) => {
-  const { library, chainId, isActive } = useWallet()
+  const { library, isActive, chainId } = useWallet()
+  const { activeNetwork, findNetworkByChainId } = useNetwork()
   const { policyManager } = useContracts()
   const [userPolicies, setUserPolicies] = useState<Policy[]>([])
   const [allPolicies, setAllPolicies] = useState<Policy[]>([])
   const [policiesLoading, setPoliciesLoading] = useState<boolean>(true)
   const mounting = useRef(true)
-  const config = policyConfig[String(chainId ?? DEFAULT_CHAIN_ID)]
 
   const getUserPolicies = async (policyHolder: string): Promise<Policy[]> => {
     if (!policyManager || !library) return []
@@ -52,15 +51,15 @@ export const usePolicyGetter = (
   }
 
   const getPolicies = async (policyHolder?: string, product?: string) => {
-    if (!config || !library) return
+    if (!findNetworkByChainId(chainId) || !library) return
     let policies = await (policyHolder ? getUserPolicies(policyHolder) : getAllPolicies())
     policies = policies.filter((policy: any) => policy.policyId >= 0)
     if (product) policies = policies.filter((policy: any) => policy.productAddress.equalsIgnoreCase(product))
     policies.sort((a: any, b: any) => b.policyId - a.policyId) // newest first
-    const initializedConfig = policyConfig[String(chainId ?? DEFAULT_CHAIN_ID)]
+    const initializedCache = activeNetwork.cache
     try {
       policies.forEach((policy: Policy) => {
-        const productPosition = initializedConfig.positions[config.productsRev[policy.productAddress] ?? '']
+        const productPosition = initializedCache.positions[activeNetwork.cache.productsRev[policy.productAddress] ?? '']
         if (productPosition) {
           policy.positionName = productPosition.positionNames[policy.positionContract.toLowerCase()]
         }
@@ -95,7 +94,7 @@ export const usePolicyGetter = (
         policyId: Number(policyId),
         policyHolder: policy.policyholder,
         productAddress: policy.product,
-        productName: config.productsRev[policy.product] ?? '',
+        productName: activeNetwork.cache.productsRev[policy.product] ?? '',
         positionContract: policy.positionContract,
         expirationBlock: policy.expirationBlock.toString(),
         coverAmount: policy.coverAmount.toString(),
@@ -126,7 +125,7 @@ export const usePolicyGetter = (
     setPoliciesLoading(true)
     if (!policyHolder || !library || getAll || !dataInit) return
     loadOnBoot()
-  }, [policyHolder, isActive, chainId, dataInit])
+  }, [policyHolder, isActive, activeNetwork, dataInit])
 
   useEffect(() => {
     const loadOverTime = async () => {

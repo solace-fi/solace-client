@@ -1,8 +1,7 @@
 import { formatEther } from '@ethersproject/units'
 import { BigNumber } from 'ethers'
 import { FunctionName, Unit } from '../constants/enums'
-import { TokenInfo } from '../constants/types'
-import { contractConfig } from '../config/chainConfig'
+import { NetworkConfig, TokenInfo } from '../constants/types'
 
 // truncate numbers without rounding
 export const fixed = (n: number, decimals = 1): number => {
@@ -109,10 +108,10 @@ export const getNativeTokenUnit = (chainId: number): Unit => {
 export const formatTransactionContent = (
   function_name: string,
   amount: string,
-  chainId: number,
+  activeNetwork: NetworkConfig,
   to: string
 ): string => {
-  const unit = getUnit(function_name, chainId)
+  const unit = getUnit(function_name, activeNetwork.chainId)
   switch (function_name) {
     case FunctionName.WITHDRAW_CLAIMS_PAYOUT:
       return `Claim ${unit} ${BigNumber.from(amount)}`
@@ -123,7 +122,7 @@ export const formatTransactionContent = (
       return `Policy ${unit} ${BigNumber.from(amount)}`
     case FunctionName.DEPOSIT:
     case FunctionName.WITHDRAW:
-      if (to.toLowerCase() === contractConfig[String(chainId)].keyContracts.vault.addr.toLowerCase()) {
+      if (to.toLowerCase() === activeNetwork.config.keyContracts.vault.addr.toLowerCase()) {
         return `${truncateBalance(formatEther(BigNumber.from(amount)))} ${unit}`
       } else {
         return `#${BigNumber.from(amount)} ${Unit.LP}`

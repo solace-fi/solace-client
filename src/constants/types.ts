@@ -98,3 +98,12 @@ export type LocalTx = {
   status: TransactionCondition
   unit: Unit
 }
+
+export type NetworkConfig = {
+  chainId: number
+  config: {
+    keyContracts: any
+    productContracts: any
+  }
+  cache: any
+}

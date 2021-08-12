@@ -6,7 +6,6 @@
     import packages
     import managers
     import components
-    import config
     import constants
     import hooks
     import utils
@@ -33,6 +32,7 @@ import { useWallet } from '../../context/WalletManager'
 import { useCachedData } from '../../context/CachedDataManager'
 import { useToasts } from '../../context/NotificationsManager'
 import { useContracts } from '../../context/ContractsManager'
+import { useNetwork } from '../../context/NetworkManager'
 
 /* import components */
 import { Modal } from '../molecules/Modal'
@@ -43,9 +43,6 @@ import { Loader } from '../atoms/Loader'
 import { SmallBox, Box } from '../atoms/Box'
 import { Button, ButtonWrapper } from '../atoms/Button'
 import { Table, TableBody, TableRow, TableData } from '../atoms/Table'
-
-/* import config */
-import { policyConfig } from '../../config/chainConfig'
 
 /* import constants */
 import { FunctionName, TransactionCondition, Unit, ProductName } from '../../constants/enums'
@@ -99,6 +96,7 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
   const { selectedProtocol, getProtocolByName } = useContracts()
   const { makeTxToast } = useToasts()
   const { account, chainId, errors, library } = useWallet()
+  const { activeNetwork, findNetworkByChainId } = useNetwork()
   const { width } = useWindowDimensions()
 
   /*************************************************************************************
@@ -182,11 +180,13 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
 
   const getUserBalances = async () => {
     if (!account || !library || !tokenPositionDataInitialized || !chainId || !selectedPolicy) return
-    if (policyConfig[chainId]) {
+    if (findNetworkByChainId(chainId)) {
       try {
-        const balances: Token[] = await policyConfig[chainId ?? DEFAULT_CHAIN_ID].getBalances[
-          selectedPolicy.productName
-        ](account, library, chainId)
+        const balances: Token[] = await activeNetwork.cache.getBalances[selectedPolicy.productName](
+          account,
+          library,
+          activeNetwork
+        )
         setPositionBalances(balances)
       } catch (err) {
         console.log(err)
@@ -212,9 +212,7 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
       if (!selectedPolicy || !isOpen) return
       if (selectedPolicy.productName == ProductName.AAVE) needApproval.current = false
       setAsyncLoading(true)
-      if (policyConfig[chainId ?? DEFAULT_CHAIN_ID]) {
-        await getUserBalances()
-      }
+      await getUserBalances()
       if (needApproval.current) {
         const tokenContract = getContract(selectedPolicy.positionContract, cTokenABI, library, account)
         setContractForAllowance(tokenContract)
