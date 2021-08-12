@@ -12,14 +12,23 @@ import compAbi from '../constants/abi/contracts/products/CompoundProductRinkeby.
 import polMagABI from '../constants/abi/contracts/PolicyManager.sol/PolicyManager.json'
 import lpAppraisorABI from '../constants/abi/contracts/LpAppraisor.sol/LpAppraisor.json'
 
-import { ProductName } from '../constants/enums'
+import { ProductName, Unit } from '../constants/enums'
 import { getTokens as compTokens } from '../utils/positionGetters/compound/getTokens'
 import { getBalances as compBalances } from '../utils/positionGetters/compound/getBalances'
 
 import { NetworkConfig } from '../constants/types'
+import { ETHERSCAN_API_KEY } from '../constants'
 
 export const RinkebyNetwork: NetworkConfig = {
+  name: 'rinkeby',
   chainId: 4,
+  nativeCurrency: Unit.ETH,
+  explorer: {
+    name: 'Etherscan',
+    key: String(ETHERSCAN_API_KEY),
+    url: 'https://rinkeby.etherscan.io',
+    apiUrl: 'https://api-rinkeby.etherscan.io',
+  },
   config: {
     keyContracts: {
       master: {

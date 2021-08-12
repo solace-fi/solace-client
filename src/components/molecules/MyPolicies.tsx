@@ -24,12 +24,12 @@ import React, { Fragment } from 'react'
 import { formatEther } from '@ethersproject/units'
 
 /* import managers */
-import { useWallet } from '../../context/WalletManager'
 import { useCachedData } from '../../context/CachedDataManager'
+import { useNetwork } from '../../context/NetworkManager'
 
 /* import constants */
 import { Policy } from '../../constants/types'
-import { DEFAULT_CHAIN_ID, MAX_TABLET_SCREEN_WIDTH } from '../../constants'
+import { MAX_TABLET_SCREEN_WIDTH } from '../../constants'
 import { PolicyState } from '../../constants/enums'
 
 /* import components */
@@ -39,15 +39,15 @@ import { Loader } from '../atoms/Loader'
 import { Heading2, Text } from '../atoms/Typography'
 import { FlexCol, FlexRow } from '../atoms/Layout'
 import { PositionCardLogo } from '../atoms/Position'
+import { Card, CardContainer } from '../atoms/Card'
+import { FormRow, FormCol } from '../atoms/Form'
 
 /* import hooks */
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'
 
 /* import utils */
-import { getNativeTokenUnit, truncateBalance } from '../../utils/formatting'
+import { truncateBalance } from '../../utils/formatting'
 import { getDays, getExpiration } from '../../utils/time'
-import { Card, CardContainer } from '../atoms/Card'
-import { FormRow, FormCol } from '../atoms/Form'
 
 interface MyPoliciesProps {
   openClaimModal: any
@@ -61,9 +61,9 @@ export const MyPolicies: React.FC<MyPoliciesProps> = ({ openClaimModal, openMana
     custom hooks
 
   *************************************************************************************/
-  const { chainId } = useWallet()
   const { userPolicyData } = useCachedData()
   const { width } = useWindowDimensions()
+  const { activeNetwork } = useNetwork()
 
   /*************************************************************************************
 
@@ -128,7 +128,7 @@ export const MyPolicies: React.FC<MyPoliciesProps> = ({ openClaimModal, openMana
                     </TableData>
                     <TableData>
                       {policy.coverAmount ? truncateBalance(parseFloat(formatEther(policy.coverAmount)), 2) : 0}{' '}
-                      {getNativeTokenUnit(chainId ?? DEFAULT_CHAIN_ID)}
+                      {activeNetwork.nativeCurrency}
                     </TableData>
 
                     <TableData textAlignRight>
@@ -194,7 +194,7 @@ export const MyPolicies: React.FC<MyPoliciesProps> = ({ openClaimModal, openMana
                     <FormCol>
                       <Heading2>
                         {policy.coverAmount ? truncateBalance(parseFloat(formatEther(policy.coverAmount)), 2) : 0}{' '}
-                        {getNativeTokenUnit(chainId ?? DEFAULT_CHAIN_ID)}
+                        {activeNetwork.nativeCurrency}
                       </Heading2>
                     </FormCol>
                   </FormRow>

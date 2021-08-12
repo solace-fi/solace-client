@@ -33,9 +33,10 @@ import { useToasts } from '../../context/NotificationsManager'
 import { useCachedData } from '../../context/CachedDataManager'
 import { useContracts } from '../../context/ContractsManager'
 import { useWallet } from '../../context/WalletManager'
+import { useNetwork } from '../../context/NetworkManager'
 
 /* import constants */
-import { ZERO, GAS_LIMIT, POW_NINE, DEADLINE, DEFAULT_CHAIN_ID } from '../../constants'
+import { ZERO, GAS_LIMIT, POW_NINE, DEADLINE } from '../../constants'
 import { FunctionName, TransactionCondition } from '../../constants/enums'
 import { GasFeeOption, LpTokenInfo } from '../../constants/types'
 
@@ -83,6 +84,7 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
   *************************************************************************************/
 
   const { vault, cpFarm, lpFarm, lpToken } = useContracts()
+  const { activeNetwork } = useNetwork()
   const { account, chainId, errors, library } = useWallet()
   const [amount, setAmount] = useState<string>('')
   const [isStaking, setIsStaking] = useState<boolean>(false)
@@ -126,7 +128,7 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
         type: txType,
         value: truncateBalance(amount),
         status: TransactionCondition.PENDING,
-        unit: getUnit(func, chainId ?? DEFAULT_CHAIN_ID),
+        unit: getUnit(func, activeNetwork),
       }
       handleClose()
       addLocalTransactions(localTx)
@@ -161,7 +163,7 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
         type: txType,
         value: truncateBalance(amount),
         status: TransactionCondition.PENDING,
-        unit: getUnit(func, chainId ?? DEFAULT_CHAIN_ID),
+        unit: getUnit(func, activeNetwork),
       }
       handleClose()
       addLocalTransactions(localTx)
@@ -217,7 +219,7 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
         type: txType,
         value: truncateBalance(amount),
         status: TransactionCondition.PENDING,
-        unit: getUnit(func, chainId ?? DEFAULT_CHAIN_ID),
+        unit: getUnit(func, activeNetwork),
       }
       handleClose()
       addLocalTransactions(localTx)
@@ -251,7 +253,7 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
         type: txType,
         value: truncateBalance(amount),
         status: TransactionCondition.PENDING,
-        unit: getUnit(func, chainId ?? DEFAULT_CHAIN_ID),
+        unit: getUnit(func, activeNetwork),
       }
       handleClose()
       addLocalTransactions(localTx)
@@ -285,7 +287,7 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
         type: txType,
         value: truncateBalance(amount),
         status: TransactionCondition.PENDING,
-        unit: getUnit(func, chainId ?? DEFAULT_CHAIN_ID),
+        unit: getUnit(func, activeNetwork),
       }
       handleClose()
       addLocalTransactions(localTx)
@@ -317,7 +319,7 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
         type: txType,
         value: `#${nft.toString()}`,
         status: TransactionCondition.PENDING,
-        unit: getUnit(func, chainId ?? DEFAULT_CHAIN_ID),
+        unit: getUnit(func, activeNetwork),
       }
       handleClose()
       addLocalTransactions(localTx)
@@ -348,7 +350,7 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
         type: txType,
         value: `#${nft.toString()}`,
         status: TransactionCondition.PENDING,
-        unit: getUnit(func, chainId ?? DEFAULT_CHAIN_ID),
+        unit: getUnit(func, activeNetwork),
       }
       handleClose()
       addLocalTransactions(localTx)
@@ -547,7 +549,7 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
     <Modal isOpen={isOpen} handleClose={handleClose} modalTitle={modalTitle} disableCloseButton={modalLoading}>
       <Fragment>
         <ModalRow>
-          <ModalCell t2>{getUnit(func, chainId ?? DEFAULT_CHAIN_ID)}</ModalCell>
+          <ModalCell t2>{getUnit(func, activeNetwork)}</ModalCell>
           {func == FunctionName.DEPOSIT_SIGNED || func == FunctionName.WITHDRAW_LP ? (
             <ModalCell>
               <FormSelect value={nftSelection} onChange={(e) => handleNft(e.target)}>

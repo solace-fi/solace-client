@@ -25,6 +25,7 @@ import { formatEther } from '@ethersproject/units'
 /* import managers */
 import { useWallet } from '../../context/WalletManager'
 import { useContracts } from '../../context/ContractsManager'
+import { useNetwork } from '../../context/NetworkManager'
 
 /* import components */
 import { Content } from '../atoms/Layout'
@@ -33,15 +34,15 @@ import { CardContainer, InvestmentCard, CardHeader, CardTitle, CardBlock } from 
 
 /* import constants */
 import { Unit } from '../../constants/enums'
-import { DEFAULT_CHAIN_ID, ZERO } from '../../constants'
+import { ZERO } from '../../constants'
 
 /* import hooks */
 import { useUserStakedValue } from '../../hooks/useFarm'
 import { useUserPendingRewards, useUserRewardsPerDay } from '../../hooks/useRewards'
+import { useDepositedLpBalance } from '../../hooks/useBalance'
 
 /* import utils */
-import { getNativeTokenUnit, truncateBalance } from '../../utils/formatting'
-import { useDepositedLpBalance } from '../../hooks/useBalance'
+import { truncateBalance } from '../../utils/formatting'
 
 export const MyInvestments: React.FC = () => {
   /*************************************************************************************
@@ -49,7 +50,8 @@ export const MyInvestments: React.FC = () => {
     custom hooks
 
   *************************************************************************************/
-  const { account, chainId } = useWallet()
+  const { account } = useWallet()
+  const { activeNetwork } = useNetwork()
   const { cpFarm, lpFarm } = useContracts()
   const cpUserRewards = useUserPendingRewards(cpFarm)
   const lpUserRewards = useUserPendingRewards(lpFarm)
@@ -73,8 +75,7 @@ export const MyInvestments: React.FC = () => {
           <CardHeader>
             <CardTitle h2>Capital Pool</CardTitle>
             <Heading3>
-              {account ? truncateBalance(parseFloat(cpUserStakeValue), 2) : 0}{' '}
-              {getNativeTokenUnit(chainId ?? DEFAULT_CHAIN_ID)}
+              {account ? truncateBalance(parseFloat(cpUserStakeValue), 2) : 0} {activeNetwork.nativeCurrency}
             </Heading3>
           </CardHeader>
           <CardBlock>

@@ -25,13 +25,13 @@ import React from 'react'
 import styled from 'styled-components'
 
 /* import constants */
-import { DEFAULT_CHAIN_ID, MAX_TABLET_SCREEN_WIDTH, MAX_MOBILE_SCREEN_WIDTH } from '../../constants'
+import { MAX_TABLET_SCREEN_WIDTH, MAX_MOBILE_SCREEN_WIDTH } from '../../constants'
 import { ExplorerscanApi } from '../../constants/enums'
 
 /* import managers */
-import { useWallet } from '../../context/WalletManager'
 import { useCachedData } from '../../context/CachedDataManager'
 import { useContracts } from '../../context/ContractsManager'
+import { useNetwork } from '../../context/NetworkManager'
 
 /* import components */
 import { Button } from '../atoms/Button'
@@ -75,7 +75,7 @@ export const TransactionHistory: React.FC = () => {
   *************************************************************************************/
 
   const { txHistory, amounts } = useTransactionDetails()
-  const { chainId } = useWallet()
+  const { activeNetwork } = useNetwork()
   const { localTransactions } = useCachedData()
   const { contractSources } = useContracts()
   const { width } = useWindowDimensions()
@@ -125,7 +125,7 @@ export const TransactionHistory: React.FC = () => {
               )}
               <TableData pt={10} pb={10}>
                 <HyperLink
-                  href={getExplorerItemUrl(chainId ?? DEFAULT_CHAIN_ID, pendingtx.hash, ExplorerscanApi.TX)}
+                  href={getExplorerItemUrl(activeNetwork.explorer.url, pendingtx.hash, ExplorerscanApi.TX)}
                   target="_blank"
                   rel="noopener noreferrer"
                 >
@@ -162,7 +162,7 @@ export const TransactionHistory: React.FC = () => {
                 <TableData pt={10} pb={10}>
                   {amounts.length > 0 && (
                     <HyperLink
-                      href={getExplorerItemUrl(chainId ?? DEFAULT_CHAIN_ID, tx.hash, ExplorerscanApi.TX)}
+                      href={getExplorerItemUrl(activeNetwork.explorer.url, tx.hash, ExplorerscanApi.TX)}
                       target="_blank"
                       rel="noopener noreferrer"
                     >

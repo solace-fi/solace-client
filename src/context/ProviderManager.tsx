@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react'
-import { ALCHEMY_API_KEY, DEFAULT_CHAIN_ID } from '../constants'
+import { ALCHEMY_API_KEY } from '../constants'
 import { Provider, JsonRpcProvider } from '@ethersproject/providers'
-import { useWallet } from './WalletManager'
-import { getNetworkName } from '../utils/formatting'
+import { useNetwork } from './NetworkManager'
 // import { getTokens } from '../utils/positionGetters/yearn/getTokens'
 
 /*
@@ -39,21 +38,16 @@ export function useProvider(): ProviderContextType {
 
 const ProviderManager: React.FC = ({ children }) => {
   const [ethProvider, setEthProvider] = useState<Provider>()
-  const { chainId } = useWallet()
+  const { activeNetwork } = useNetwork()
 
   const getProvider = async () => {
-    const provider = new JsonRpcProvider(
-      `https://eth-${getNetworkName(chainId ?? DEFAULT_CHAIN_ID)}.alchemyapi.io/v2/${ALCHEMY_API_KEY}`
-    )
-    // const mainnetProvider = new JsonRpcProvider(`https://eth-mainnet.alchemyapi.io/v2/${ALCHEMY_API_KEY}`)
-    // getTokens(mainnetProvider)
+    const provider = new JsonRpcProvider(`https://eth-${activeNetwork.name}.alchemyapi.io/v2/${ALCHEMY_API_KEY}`)
     setEthProvider(provider)
   }
 
-  // Runs only when component mounts for the first time
   useEffect(() => {
     getProvider()
-  }, [chainId])
+  }, [activeNetwork])
 
   const value = React.useMemo(
     () => ({

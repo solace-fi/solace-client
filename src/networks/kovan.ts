@@ -12,14 +12,23 @@ import aaveAbi from '../constants/abi/contracts/products/AaveV2Product.sol/AaveV
 import polMagABI from '../constants/abi/contracts/PolicyManager.sol/PolicyManager.json'
 import lpAppraisorABI from '../constants/abi/contracts/LpAppraisor.sol/LpAppraisor.json'
 
-import { ProductName } from '../constants/enums'
+import { ProductName, Unit } from '../constants/enums'
 import { getTokens as aaveTokens } from '../utils/positionGetters/aave/getTokens'
 import { getBalances as aaveBalances } from '../utils/positionGetters/aave/getBalances'
 
 import { NetworkConfig } from '../constants/types'
+import { ETHERSCAN_API_KEY } from '../constants'
 
 export const KovanNetwork: NetworkConfig = {
+  name: 'kovan',
   chainId: 42,
+  nativeCurrency: Unit.ETH,
+  explorer: {
+    name: 'Etherscan',
+    key: String(ETHERSCAN_API_KEY),
+    url: 'https://kovan.etherscan.io',
+    apiUrl: 'https://api-kovan.etherscan.io',
+  },
   config: {
     keyContracts: {
       master: {

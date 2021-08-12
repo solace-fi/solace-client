@@ -26,7 +26,7 @@ import React, { useEffect, useState } from 'react'
 import { formatEther, parseEther } from '@ethersproject/units'
 
 /* import constants */
-import { DEFAULT_CHAIN_ID, GAS_LIMIT, MAX_MOBILE_SCREEN_WIDTH } from '../../constants'
+import { GAS_LIMIT, MAX_MOBILE_SCREEN_WIDTH } from '../../constants'
 import { TransactionCondition, FunctionName, Unit, PolicyState } from '../../constants/enums'
 
 /* import managers */
@@ -34,6 +34,7 @@ import { useWallet } from '../../context/WalletManager'
 import { useContracts } from '../../context/ContractsManager'
 import { useToasts } from '../../context/NotificationsManager'
 import { useCachedData } from '../../context/CachedDataManager'
+import { useNetwork } from '../../context/NetworkManager'
 
 /* import components */
 import { BoxRow, Box, BoxItem, BoxItemTitle } from '../atoms/Box'
@@ -52,7 +53,7 @@ import { useGetTotalValueLocked } from '../../hooks/useFarm'
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'
 
 /* import utils */
-import { fixed, getGasValue, floatEther, truncateBalance, getNativeTokenUnit } from '../../utils/formatting'
+import { fixed, getGasValue, floatEther, truncateBalance } from '../../utils/formatting'
 
 export const Statistics: React.FC = () => {
   /*************************************************************************************
@@ -60,7 +61,8 @@ export const Statistics: React.FC = () => {
   custom hooks
 
   *************************************************************************************/
-  const { account, errors, chainId, initialized } = useWallet()
+  const { account, errors, initialized } = useWallet()
+  const { activeNetwork } = useNetwork()
   const { master } = useContracts()
   const { makeTxToast } = useToasts()
   const {
@@ -201,14 +203,14 @@ export const Statistics: React.FC = () => {
               <BoxItemTitle h3>Capital Pool Size</BoxItemTitle>
               <Text h2 nowrap>
                 {`${truncateBalance(floatEther(parseEther(capitalPoolSize)), 1)} `}
-                <TextSpan h3>{getNativeTokenUnit(chainId ?? DEFAULT_CHAIN_ID)}</TextSpan>
+                <TextSpan h3>{activeNetwork.nativeCurrency}</TextSpan>
               </Text>
             </BoxItem>
             <BoxItem>
               <BoxItemTitle h3>Total Value Locked</BoxItemTitle>
               <Text h2 nowrap>
                 {`${truncateBalance(parseFloat(totalValueLocked), 1)} `}
-                <TextSpan h3>{getNativeTokenUnit(chainId ?? DEFAULT_CHAIN_ID)}</TextSpan>
+                <TextSpan h3>{activeNetwork.nativeCurrency}</TextSpan>
               </Text>
             </BoxItem>
             <BoxItem>
@@ -217,7 +219,7 @@ export const Statistics: React.FC = () => {
                 {totalActiveCoverAmount !== '-'
                   ? `${truncateBalance(parseFloat(formatEther(totalActiveCoverAmount.toString())), 2)} `
                   : `${totalActiveCoverAmount} `}
-                <TextSpan h3>{getNativeTokenUnit(chainId ?? DEFAULT_CHAIN_ID)}</TextSpan>
+                <TextSpan h3>{activeNetwork.nativeCurrency}</TextSpan>
               </Text>
             </BoxItem>
             <BoxItem>
@@ -268,7 +270,7 @@ export const Statistics: React.FC = () => {
                   <FormCol>
                     <Text h2 nowrap>
                       {`${truncateBalance(floatEther(parseEther(capitalPoolSize)), 1)} `}
-                      <TextSpan h3>{getNativeTokenUnit(chainId ?? DEFAULT_CHAIN_ID)}</TextSpan>
+                      <TextSpan h3>{activeNetwork.nativeCurrency}</TextSpan>
                     </Text>
                   </FormCol>
                 </FormRow>
@@ -277,7 +279,7 @@ export const Statistics: React.FC = () => {
                   <FormCol>
                     <Text h2 nowrap>
                       {`${truncateBalance(parseFloat(totalValueLocked), 1)} `}
-                      <TextSpan h3>{getNativeTokenUnit(chainId ?? DEFAULT_CHAIN_ID)}</TextSpan>
+                      <TextSpan h3>{activeNetwork.nativeCurrency}</TextSpan>
                     </Text>
                   </FormCol>
                 </FormRow>
@@ -288,7 +290,7 @@ export const Statistics: React.FC = () => {
                       {totalActiveCoverAmount !== '-'
                         ? `${truncateBalance(parseFloat(formatEther(totalActiveCoverAmount.toString())), 2)} `
                         : `${totalActiveCoverAmount} `}
-                      <TextSpan h3>{getNativeTokenUnit(chainId ?? DEFAULT_CHAIN_ID)}</TextSpan>
+                      <TextSpan h3>{activeNetwork.nativeCurrency}</TextSpan>
                     </Text>
                   </FormCol>
                 </FormRow>

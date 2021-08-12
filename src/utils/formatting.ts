@@ -66,13 +66,13 @@ export const shortenAddress = (input: string): string => {
 }
 
 // get unit based on function name
-export const getUnit = (function_name: string, chainId: number): Unit => {
+export const getUnit = (function_name: string, activeNetwork: NetworkConfig): Unit => {
   switch (function_name) {
     case FunctionName.DEPOSIT:
     case FunctionName.WITHDRAW:
     case FunctionName.DEPOSIT_ETH:
     case FunctionName.APPROVE:
-      return getNativeTokenUnit(chainId)
+      return activeNetwork.nativeCurrency
     case FunctionName.DEPOSIT_CP:
     case FunctionName.WITHDRAW_ETH:
       return Unit.SCP
@@ -92,26 +92,13 @@ export const getUnit = (function_name: string, chainId: number): Unit => {
   }
 }
 
-export const getNativeTokenUnit = (chainId: number): Unit => {
-  switch (chainId) {
-    case 137:
-      return Unit.MATIC
-    case 1:
-    case 4:
-    case 5:
-    case 42:
-    default:
-      return Unit.ETH
-  }
-}
-
 export const formatTransactionContent = (
   function_name: string,
   amount: string,
   activeNetwork: NetworkConfig,
   to: string
 ): string => {
-  const unit = getUnit(function_name, activeNetwork.chainId)
+  const unit = getUnit(function_name, activeNetwork)
   switch (function_name) {
     case FunctionName.WITHDRAW_CLAIMS_PAYOUT:
       return `Claim ${unit} ${BigNumber.from(amount)}`
@@ -137,23 +124,6 @@ export const formatTransactionContent = (
     case FunctionName.WITHDRAW_LP:
     default:
       return `#${BigNumber.from(amount)} ${unit}`
-  }
-}
-
-export function getNetworkName(chainId: number | undefined): string {
-  switch (chainId) {
-    case 1:
-      return 'mainnet'
-    case 3:
-      return 'ropsten'
-    case 4:
-      return 'rinkeby'
-    case 5:
-      return 'goerli'
-    case 42:
-      return 'kovan'
-    default:
-      return '-'
   }
 }
 

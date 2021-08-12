@@ -47,7 +47,7 @@ import { Table, TableBody, TableRow, TableData } from '../atoms/Table'
 /* import constants */
 import { FunctionName, TransactionCondition, Unit, ProductName } from '../../constants/enums'
 import cTokenABI from '../../constants/abi/contracts/interface/ICToken.sol/ICToken.json'
-import { DEFAULT_CHAIN_ID, GAS_LIMIT, MAX_MOBILE_SCREEN_WIDTH } from '../../constants'
+import { GAS_LIMIT, MAX_MOBILE_SCREEN_WIDTH } from '../../constants'
 import { Token, Policy, ClaimAssessment } from '../../constants/types'
 
 /* import hooks */
@@ -218,7 +218,7 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
         setContractForAllowance(tokenContract)
         setSpenderAddress(getProtocolByName(selectedPolicy.productName)?.address || null)
       }
-      const assessment = await getClaimAssessment(String(selectedPolicy.policyId), chainId ?? DEFAULT_CHAIN_ID)
+      const assessment = await getClaimAssessment(String(selectedPolicy.policyId), activeNetwork.chainId)
       setAssessment(assessment)
       canLoadOverTime.current = true
       setAsyncLoading(false)

@@ -7,17 +7,17 @@ import { Provider, Web3Provider } from '@ethersproject/providers'
 import { decodeInput } from '../utils/decoder'
 import { formatTransactionContent } from '../utils/formatting'
 import { useContracts } from '../context/ContractsManager'
-import { DEFAULT_CHAIN_ID } from '../constants'
 import { useNetwork } from '../context/NetworkManager'
 
 export const useFetchTxHistoryByAddress = (): any => {
-  const { account, chainId } = useWallet()
+  const { account } = useWallet()
+  const { activeNetwork } = useNetwork()
   const { deleteLocalTransactions, dataVersion } = useCachedData()
   const [txHistory, setTxHistory] = useState<any>([])
   const { contractSources } = useContracts()
 
   const fetchTxHistoryByAddress = async (account: string) => {
-    await fetchExplorerTxHistoryByAddress(chainId ?? DEFAULT_CHAIN_ID, account, contractSources).then((result) => {
+    await fetchExplorerTxHistoryByAddress(activeNetwork.explorer.apiUrl, account, contractSources).then((result) => {
       deleteLocalTransactions(result.txList)
       setTxHistory(result.txList.slice(0, 30))
     })

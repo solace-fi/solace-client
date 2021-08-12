@@ -28,6 +28,7 @@ import { useWallet } from '../../context/WalletManager'
 import { useCachedData } from '../../context/CachedDataManager'
 import { useToasts } from '../../context/NotificationsManager'
 import { useContracts } from '../../context/ContractsManager'
+import { useNetwork } from '../../context/NetworkManager'
 
 /* import components */
 import { CardContainer, Card } from '../atoms/Card'
@@ -38,14 +39,14 @@ import { Content } from '../atoms/Layout'
 
 /* import constants */
 import { FunctionName, TransactionCondition, Unit } from '../../constants/enums'
-import { DEFAULT_CHAIN_ID, GAS_LIMIT } from '../../constants'
+import { GAS_LIMIT } from '../../constants'
 import { ClaimDetails } from '../../constants/types'
 
 /* import hooks */
 import { useGetClaimsDetails } from '../../hooks/useClaimsEscrow'
 
 /* import utils */
-import { truncateBalance, getGasValue, getNativeTokenUnit } from '../../utils/formatting'
+import { truncateBalance, getGasValue } from '../../utils/formatting'
 import { timer } from '../../utils/time'
 
 export const MyClaims: React.FC = () => {
@@ -55,7 +56,8 @@ export const MyClaims: React.FC = () => {
 
   *************************************************************************************/
   const { claimsEscrow } = useContracts()
-  const { account, errors, chainId } = useWallet()
+  const { account, errors } = useWallet()
+  const { activeNetwork } = useNetwork()
   const { addLocalTransactions, reload, gasPrices } = useCachedData()
   const { makeTxToast } = useToasts()
   const claimsDetails = useGetClaimsDetails(account)
@@ -122,7 +124,7 @@ export const MyClaims: React.FC = () => {
                         {parseFloat(formatEther(claim.amount)) >= 1
                           ? truncateBalance(parseFloat(formatEther(claim.amount)))
                           : formatEther(claim.amount)}{' '}
-                        {getNativeTokenUnit(chainId ?? DEFAULT_CHAIN_ID)}
+                        {activeNetwork.nativeCurrency}
                       </Text>
                     </BoxItem>
                     <BoxItem>
