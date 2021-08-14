@@ -100,10 +100,13 @@ export const RiskBackingCapitalPool: React.FC<RiskBackingCapitalPoolProps> = ({ 
               {account ? (
                 <TableData textAlignRight>
                   <TableDataGroup width={200}>
-                    <Button disabled={errors.length > 0} onClick={() => openModal(FunctionName.DEPOSIT, 'Deposit')}>
+                    <Button disabled={errors.length > 0} onClick={() => openModal(FunctionName.DEPOSIT_ETH, 'Deposit')}>
                       Deposit
                     </Button>
-                    <Button disabled={errors.length > 0} onClick={() => openModal(FunctionName.WITHDRAW, 'Withdraw')}>
+                    <Button
+                      disabled={errors.length > 0}
+                      onClick={() => openModal(FunctionName.WITHDRAW_ETH, 'Withdraw')}
+                    >
                       Withdraw
                     </Button>
                   </TableDataGroup>
@@ -136,14 +139,14 @@ export const RiskBackingCapitalPool: React.FC<RiskBackingCapitalPoolProps> = ({ 
             <Button
               widthP={100}
               disabled={errors.length > 0}
-              onClick={() => openModal(FunctionName.DEPOSIT, 'Deposit')}
+              onClick={() => openModal(FunctionName.DEPOSIT_ETH, 'Deposit')}
             >
               Deposit
             </Button>
             <Button
               widthP={100}
               disabled={errors.length > 0}
-              onClick={() => openModal(FunctionName.WITHDRAW, 'Withdraw')}
+              onClick={() => openModal(FunctionName.WITHDRAW_ETH, 'Withdraw')}
             >
               Withdraw
             </Button>

@@ -21,7 +21,7 @@
   *************************************************************************************/
 
 /* import react */
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 
 /* import packages */
 import { Slider } from '@rebass/forms'
@@ -38,6 +38,7 @@ import { useContracts } from '../../context/ContractsManager'
 import { useWallet } from '../../context/WalletManager'
 import { useCachedData } from '../../context/CachedDataManager'
 import { useToasts } from '../../context/NotificationsManager'
+import { useNetwork } from '../../context/NetworkManager'
 
 /* import components */
 import { FormRow, FormCol } from '../../components/atoms/Form'
@@ -54,7 +55,7 @@ import { FlexCol, FlexRow } from '../../components/atoms/Layout'
 import { useGetQuote, useGetMaxCoverPerUser } from '../../hooks/usePolicy'
 
 /* import utils */
-import { getGasValue } from '../../utils/formatting'
+import { accurateMultiply, getGasValue, getNonHumanValue } from '../../utils/formatting'
 import { getDateStringWithMonthName, getDateExtended } from '../../utils/time'
 
 export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigation }) => {
@@ -63,20 +64,36 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
   custom hooks
 
   *************************************************************************************/
-  const { position, coverageLimit, timePeriod, loading } = formData
+  const { position, coverAmount, timePeriod, loading } = formData
   const maxCoverPerUser = useGetMaxCoverPerUser() // in eth
-  const quote = useGetQuote(coverageLimit, position.token.address, timePeriod)
+  const quote = useGetQuote(coverAmount, position.token.address, timePeriod)
   const { account, errors } = useWallet()
   const { addLocalTransactions, reload, gasPrices } = useCachedData()
   const { selectedProtocol } = useContracts()
   const { makeTxToast } = useToasts()
+  const { activeNetwork } = useNetwork()
+
+  const maxCoverPerUserInWei = useMemo(
+    () => parseEther(maxCoverPerUser).mul(getNonHumanValue(1, activeNetwork.nativeCurrency.decimals)),
+    [maxCoverPerUser, activeNetwork.nativeCurrency.decimals]
+  )
+
+  // positionAmount: BigNumber = wei but displayable, position.eth.balance: BigNumber = wei
+  const positionAmount: BigNumber = useMemo(
+    () =>
+      BigNumber.from(
+        parseFloat(formatEther(position.eth.balance)) *
+          parseFloat(getNonHumanValue(1, activeNetwork.nativeCurrency.decimals).toString())
+      ),
+    [position.eth.balance, activeNetwork.nativeCurrency.decimals]
+  )
 
   /*************************************************************************************
 
   useState hooks
 
   *************************************************************************************/
-  const [inputCoverage, setInputCoverage] = useState<string>('50')
+  const [inputCoverage, setInputCoverage] = useState<string>('')
   const [coveredAssets, setCoveredAssets] = useState<string>(maxCoverPerUser)
 
   /*************************************************************************************
@@ -98,10 +115,10 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
       const tx = await selectedProtocol.buyPolicy(
         account,
         position.token.address,
-        coverageLimit, // TODO: Replace with coverAmount on new deployed contracts
+        coverAmount,
         BigNumber.from(NUM_BLOCKS_PER_DAY * parseInt(timePeriod)),
         {
-          value: parseEther(quote).add(parseEther(quote).div('10000')),
+          value: parseEther(quote),
           gasPrice: getGasValue(gasPrices.selected.value),
           gasLimit: GAS_LIMIT,
         }
@@ -167,40 +184,42 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
     // allow only numbers and decimals
     const filtered = input.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1')
 
-    // if number is greater than 100, do not update
-    if (parseFloat(filtered) > 100) {
-      return
-    }
+    // if number is greater than the max cover per user, do not update
+    if (parseFloat(filtered) > parseFloat(maxCoverPerUser)) return
 
-    // if number has more than 2 decimal places, do not update
-    if (filtered.includes('.') && filtered.split('.')[1]?.length > 2) {
-      return
-    }
+    // if number is greater than the position amount, do not update
+    if (parseFloat(filtered) > parseFloat(formatEther(positionAmount))) return
 
-    // convert input into BigNumber-compatible data
-    const multiplied = filtered == '' ? '100' : Math.round(parseFloat(filtered) * 100).toString()
+    // if number is empty or less than smallest denomination of currency, do not update
+    if (filtered == '' || parseFloat(filtered) < parseFloat(formatEther(BigNumber.from(1)))) return
+
+    // if number has more than 18 decimal places, do not update
+    if (filtered.includes('.') && filtered.split('.')[1]?.length > 18) return
+
     setInputCoverage(filtered)
-    setCoverage(multiplied)
+    setCoverage(accurateMultiply(filtered, 18))
   }
 
-  const setCoverage = (coverageLimit: string) => {
+  // coverAmount in wei
+  const setCoverage = (coverAmount: string) => {
     setForm({
       target: {
-        name: 'coverageLimit',
-        value: coverageLimit,
+        name: 'coverAmount',
+        value: coverAmount,
       },
     })
   }
 
-  const handleCoverageChange = (coverageLimit: string) => {
-    setInputCoverage((parseInt(coverageLimit) / 100).toString())
-    setCoverage(coverageLimit)
+  const handleCoverageChange = (coverAmount: string) => {
+    setInputCoverage(formatEther(BigNumber.from(coverAmount)))
+    setCoverage(coverAmount)
   }
 
   const setMaxCover = () => {
-    const maxCoverLimit = parseEther(maxCoverPerUser).mul('10000').div(BigNumber.from(position.eth.balance)).toString()
-    const adjustedCoverLimit = BigNumber.from(maxCoverLimit).gt('10000') ? '10000' : maxCoverLimit
-    handleCoverageChange(adjustedCoverLimit)
+    const adjustedCoverAmount = maxCoverPerUserInWei.gt(positionAmount)
+      ? positionAmount.toString()
+      : maxCoverPerUserInWei.toString()
+    handleCoverageChange(adjustedCoverAmount)
   }
 
   /*************************************************************************************
@@ -214,14 +233,8 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
   }, [maxCoverPerUser])
 
   useEffect(() => {
-    setCoveredAssets(
-      formatEther(
-        BigNumber.from(position.eth.balance)
-          .mul(coverageLimit == '' ? '100' : coverageLimit)
-          .div('10000')
-      )
-    )
-  }, [coverageLimit])
+    setCoveredAssets(formatEther(BigNumber.from(coverAmount)))
+  }, [coverAmount])
 
   /*************************************************************************************
 
@@ -238,14 +251,14 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
             {position.underlying.symbol !== 'ETH' && <Text3>Denominated from {position.underlying.symbol}</Text3>}
           </FormCol>
           <FormCol>
-            <Heading2>{formatEther(position.eth.balance)}</Heading2>
+            <Heading2>{formatEther(positionAmount)}</Heading2>
             <Text3 textAlignRight>ETH</Text3>
           </FormCol>
         </FormRow>
         <hr style={{ marginBottom: '10px' }} />
         <FlexCol mb={20} style={{ padding: '10px 30px' }}>
           <div style={{ textAlign: 'center' }}>
-            <Heading2>Coverage Limit</Heading2>
+            <Heading2>Coverage Amount</Heading2>
             <Text3>How much do you want to cover?</Text3>
             <div>
               <Input
@@ -253,7 +266,6 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
                 mb={5}
                 textAlignCenter
                 type="text"
-                width={50}
                 value={inputCoverage}
                 onChange={(e) => handleInputCoverage(e.target.value)}
               />
@@ -273,10 +285,10 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
             </div>
             <Slider
               backgroundColor={'#fff'}
-              value={coverageLimit}
+              value={coverAmount}
               onChange={(e) => handleCoverageChange(e.target.value)}
-              min={100}
-              max={10000}
+              min={1}
+              max={positionAmount.toString()}
             />
           </div>
           <br />
@@ -290,7 +302,6 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
                 textAlignCenter
                 type="text"
                 pattern="[0-9]+"
-                width={50}
                 value={timePeriod}
                 onChange={(e) => filteredTime(e.target.value)}
                 maxLength={3}
@@ -312,10 +323,7 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
           </FormCol>
           <FormCol>
             <FlexRow>
-              <Text3
-                bold
-                error={parseEther(coveredAssets).gt(parseEther(maxCoverPerUser)) && maxCoverPerUser !== '0.00'}
-              >
+              <Text3 bold error={parseEther(coveredAssets).gt(parseEther(maxCoverPerUser)) && maxCoverPerUser !== '0'}>
                 {coveredAssets} ETH
               </Text3>
             </FlexRow>
@@ -329,12 +337,12 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
           mb={!parseEther(coveredAssets).gt(parseEther(maxCoverPerUser)) ? 0 : 5}
         >
           <Text3 error autoAlign>
-            You can only cover to a maximum amount of {maxCoverPerUser} ETH.
+            You can only cover up to {maxCoverPerUser} ETH.
           </Text3>
         </SmallBox>
         <FormRow mb={5}>
           <FormCol>
-            <Text3>Coverage Period</Text3>
+            <Text3>Covered Period</Text3>
           </FormCol>
           <FormCol>
             <Text3>

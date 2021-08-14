@@ -76,46 +76,6 @@ export const useSolaceBalance = (): string => {
   return solaceBalance
 }
 
-export const useLpBalances = (): { userLpTokenInfo: LpTokenInfo[]; depositedLpTokenInfo: LpTokenInfo[] } => {
-  const { lpToken, lpFarm, lpAppraisor } = useContracts()
-  const { account } = useWallet()
-  const { version, latestBlock } = useCachedData()
-  const [userLpTokenInfo, setUserLpTokenInfo] = useState<LpTokenInfo[]>([])
-  const [depositedLpTokenInfo, setFarmLpTokenInfo] = useState<LpTokenInfo[]>([])
-
-  useEffect(() => {
-    const getLpBalance = async () => {
-      if (!lpToken || !account || !lpFarm || !lpAppraisor) return
-      try {
-        const userLpTokenIds = await listTokensOfOwner(lpToken, account)
-        const userLpTokenValues = await Promise.all(userLpTokenIds.map(async (id) => await lpAppraisor.appraise(id)))
-        let indices = rangeFrom0(userLpTokenIds.length)
-        const userLpTokenInfo: LpTokenInfo[] = await Promise.all(
-          indices.map((i) => {
-            return { id: userLpTokenIds[i], value: userLpTokenValues[i] }
-          })
-        )
-
-        const countDepositedLpTokens = await lpFarm.countDeposited(account)
-        indices = rangeFrom0(countDepositedLpTokens)
-        const listOfDepositedLpTokens: [BigNumber[], BigNumber[]] = await lpFarm.listDeposited(account)
-        const depositedLpTokenInfo: LpTokenInfo[] = await Promise.all(
-          indices.map((i) => {
-            return { id: listOfDepositedLpTokens[0][i], value: listOfDepositedLpTokens[1][i] }
-          })
-        )
-        setUserLpTokenInfo(userLpTokenInfo)
-        setFarmLpTokenInfo(depositedLpTokenInfo)
-      } catch (err) {
-        console.log('getLpBalance', err)
-      }
-    }
-    getLpBalance()
-  }, [lpToken, account, version, latestBlock, lpFarm, lpAppraisor])
-
-  return { userLpTokenInfo, depositedLpTokenInfo }
-}
-
 export const useUserWalletLpBalance = (): LpTokenInfo[] => {
   const { lpToken, lpFarm, lpAppraisor } = useContracts()
   const { account } = useWallet()
@@ -128,12 +88,16 @@ export const useUserWalletLpBalance = (): LpTokenInfo[] => {
       try {
         const userLpTokenIds = await listTokensOfOwner(lpToken, account)
         const userLpTokenValues = await Promise.all(userLpTokenIds.map(async (id) => await lpAppraisor.appraise(id)))
-        const indices = rangeFrom0(userLpTokenIds.length)
-        const userLpTokenInfo: LpTokenInfo[] = await Promise.all(
-          indices.map((i) => {
-            return { id: userLpTokenIds[i], value: userLpTokenValues[i] }
-          })
-        )
+        const _token0 = await lpFarm.token0()
+        const _token1 = await lpFarm.token1()
+        const userLpTokenInfo: LpTokenInfo[] = []
+        for (let i = 0; i < userLpTokenIds.length; i++) {
+          const lpTokenData = await lpToken.positions(userLpTokenIds[i])
+          const { token0, token1 } = lpTokenData
+          if (_token0 == token0 && _token1 == token1) {
+            userLpTokenInfo.push({ id: userLpTokenIds[i], value: userLpTokenValues[i] })
+          }
+        }
         setUserLpTokenInfo(userLpTokenInfo)
       } catch (err) {
         console.log('useUserWalletLpBalance', err)

@@ -59,3 +59,40 @@ export const useUserVaultDetails = () => {
 
   return { userVaultAssets, userVaultShare }
 }
+
+export const useCooldown = () => {
+  const { vault } = useContracts()
+  const { account } = useWallet()
+  const [cooldownStarted, setCooldownStarted] = useState<boolean>(false)
+  const [timeWaited, setTimeWaited] = useState<number>(0)
+  const [canWithdrawEth, setCanWithdrawEth] = useState<boolean>(false)
+  const [cooldownMin, setCooldownMin] = useState<number>(0)
+  const [cooldownMax, setCooldownMax] = useState<number>(0)
+  const { latestBlock } = useCachedData()
+
+  useEffect(() => {
+    const getCooldown = async () => {
+      if (!vault || !account) return
+      try {
+        const _cooldownStart: number = await vault.cooldownStart(account)
+        const _cooldownMin: number = await vault.cooldownMin()
+        const _cooldownMax: number = await vault.cooldownMax()
+        const _timeWaited = Date.now() - _cooldownStart * 1000
+        setCooldownMin(_cooldownMin * 1000)
+        setCooldownMax(_cooldownMax * 1000)
+        setTimeWaited(_timeWaited)
+        if (_cooldownStart > 0) {
+          setCanWithdrawEth(_cooldownMin * 1000 <= _timeWaited && _timeWaited <= _cooldownMax * 1000)
+          setCooldownStarted(true)
+        } else {
+          setCooldownStarted(false)
+        }
+      } catch (err) {
+        console.log('error getCooldown ', err)
+      }
+    }
+    getCooldown()
+  }, [vault, account, latestBlock])
+
+  return { cooldownStarted, timeWaited, cooldownMin, cooldownMax, canWithdrawEth }
+}

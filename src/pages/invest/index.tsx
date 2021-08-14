@@ -38,7 +38,7 @@ function Invest(): any {
 
   *************************************************************************************/
   const { chainId } = useWallet()
-  const [func, setFunc] = useState<FunctionName>(FunctionName.DEPOSIT)
+  const [func, setFunc] = useState<FunctionName>(FunctionName.DEPOSIT_ETH)
   const [modalTitle, setModalTitle] = useState<string>('')
   const [showPoolModal, setShowPoolModal] = useState<boolean>(false)
 

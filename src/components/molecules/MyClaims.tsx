@@ -47,7 +47,7 @@ import { useGetClaimsDetails } from '../../hooks/useClaimsEscrow'
 
 /* import utils */
 import { truncateBalance, getGasValue } from '../../utils/formatting'
-import { timer } from '../../utils/time'
+import { timeToDate } from '../../utils/time'
 
 export const MyClaims: React.FC = () => {
   /*************************************************************************************
@@ -124,7 +124,7 @@ export const MyClaims: React.FC = () => {
                         {parseFloat(formatEther(claim.amount)) >= 1
                           ? truncateBalance(parseFloat(formatEther(claim.amount)))
                           : formatEther(claim.amount)}{' '}
-                        {activeNetwork.nativeCurrency}
+                        {activeNetwork.nativeCurrency.symbol}
                       </Text>
                     </BoxItem>
                     <BoxItem>
@@ -132,7 +132,7 @@ export const MyClaims: React.FC = () => {
                       <Text h3>
                         {claim.canWithdraw
                           ? 'Available'
-                          : `${claim.cooldown == '0' ? '-' : timer(parseInt(claim.cooldown) * 1000)} left`}
+                          : `${claim.cooldown == '0' ? '-' : timeToDate(parseInt(claim.cooldown) * 1000)} left`}
                       </Text>
                     </BoxItem>
                   </Box>

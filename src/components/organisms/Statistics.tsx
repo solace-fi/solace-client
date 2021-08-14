@@ -203,14 +203,14 @@ export const Statistics: React.FC = () => {
               <BoxItemTitle h3>Capital Pool Size</BoxItemTitle>
               <Text h2 nowrap>
                 {`${truncateBalance(floatEther(parseEther(capitalPoolSize)), 1)} `}
-                <TextSpan h3>{activeNetwork.nativeCurrency}</TextSpan>
+                <TextSpan h3>{activeNetwork.nativeCurrency.symbol}</TextSpan>
               </Text>
             </BoxItem>
             <BoxItem>
               <BoxItemTitle h3>Total Value Locked</BoxItemTitle>
               <Text h2 nowrap>
                 {`${truncateBalance(parseFloat(totalValueLocked), 1)} `}
-                <TextSpan h3>{activeNetwork.nativeCurrency}</TextSpan>
+                <TextSpan h3>{activeNetwork.nativeCurrency.symbol}</TextSpan>
               </Text>
             </BoxItem>
             <BoxItem>
@@ -219,7 +219,7 @@ export const Statistics: React.FC = () => {
                 {totalActiveCoverAmount !== '-'
                   ? `${truncateBalance(parseFloat(formatEther(totalActiveCoverAmount.toString())), 2)} `
                   : `${totalActiveCoverAmount} `}
-                <TextSpan h3>{activeNetwork.nativeCurrency}</TextSpan>
+                <TextSpan h3>{activeNetwork.nativeCurrency.symbol}</TextSpan>
               </Text>
             </BoxItem>
             <BoxItem>
@@ -270,7 +270,7 @@ export const Statistics: React.FC = () => {
                   <FormCol>
                     <Text h2 nowrap>
                       {`${truncateBalance(floatEther(parseEther(capitalPoolSize)), 1)} `}
-                      <TextSpan h3>{activeNetwork.nativeCurrency}</TextSpan>
+                      <TextSpan h3>{activeNetwork.nativeCurrency.symbol}</TextSpan>
                     </Text>
                   </FormCol>
                 </FormRow>
@@ -279,7 +279,7 @@ export const Statistics: React.FC = () => {
                   <FormCol>
                     <Text h2 nowrap>
                       {`${truncateBalance(parseFloat(totalValueLocked), 1)} `}
-                      <TextSpan h3>{activeNetwork.nativeCurrency}</TextSpan>
+                      <TextSpan h3>{activeNetwork.nativeCurrency.symbol}</TextSpan>
                     </Text>
                   </FormCol>
                 </FormRow>
@@ -290,7 +290,7 @@ export const Statistics: React.FC = () => {
                       {totalActiveCoverAmount !== '-'
                         ? `${truncateBalance(parseFloat(formatEther(totalActiveCoverAmount.toString())), 2)} `
                         : `${totalActiveCoverAmount} `}
-                      <TextSpan h3>{activeNetwork.nativeCurrency}</TextSpan>
+                      <TextSpan h3>{activeNetwork.nativeCurrency.symbol}</TextSpan>
                     </Text>
                   </FormCol>
                 </FormRow>

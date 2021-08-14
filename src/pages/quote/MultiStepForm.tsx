@@ -107,7 +107,7 @@ const defaultData = {
     eth: { balance: ZERO },
   },
   balances: [],
-  coverageLimit: '5000',
+  coverAmount: '1',
   timePeriod: '5',
   loading: true,
 }

@@ -2,6 +2,7 @@ import { formatEther } from '@ethersproject/units'
 import { BigNumber } from 'ethers'
 import { FunctionName, Unit } from '../constants/enums'
 import { NetworkConfig, TokenInfo } from '../constants/types'
+import { rangeFrom0 } from './numeric'
 
 // truncate numbers without rounding
 export const fixed = (n: number, decimals = 1): number => {
@@ -22,6 +23,23 @@ export const truncateBalance = (value: number | string, decimals = 6): string =>
     return `< ${truncatedStr.slice(0, -1) + '1'}`
   }
   return truncatedStr
+}
+
+export const accurateMultiply = (value: number | string, decimals: number): string => {
+  let result = typeof value == 'number' ? value.toString() : value
+  const decimalIndex = result.indexOf('.')
+  if (result.indexOf('.') != result.lastIndexOf('.')) return result
+  if (decimalIndex == -1) {
+    const range = rangeFrom0(decimals)
+    range.forEach(() => (result += '0'))
+    return result
+  }
+  const currentNumDecimalPlaces = result.length - decimalIndex - 1
+  const decimalPlacesToAdd = decimals - currentNumDecimalPlaces
+  result = result.substr(0, decimalIndex).concat(result.substr(decimalIndex + 1, result.length))
+  const range = rangeFrom0(decimalPlacesToAdd)
+  range.forEach(() => (result += '0'))
+  return result.replace(/^0+/, '')
 }
 
 export const fixedTokenPositionBalance = (token: TokenInfo): number => {
@@ -68,13 +86,12 @@ export const shortenAddress = (input: string): string => {
 // get unit based on function name
 export const getUnit = (function_name: string, activeNetwork: NetworkConfig): Unit => {
   switch (function_name) {
-    case FunctionName.DEPOSIT:
-    case FunctionName.WITHDRAW:
     case FunctionName.DEPOSIT_ETH:
-    case FunctionName.APPROVE:
-      return activeNetwork.nativeCurrency
-    case FunctionName.DEPOSIT_CP:
     case FunctionName.WITHDRAW_ETH:
+    case FunctionName.APPROVE:
+      return activeNetwork.nativeCurrency.symbol
+    case FunctionName.DEPOSIT_CP:
+    case FunctionName.WITHDRAW_CP:
       return Unit.SCP
     case FunctionName.WITHDRAW_REWARDS:
       return Unit.SOLACE
@@ -85,10 +102,15 @@ export const getUnit = (function_name: string, activeNetwork: NetworkConfig): Un
     case FunctionName.WITHDRAW_CLAIMS_PAYOUT:
     case FunctionName.BUY_POLICY:
     case FunctionName.CANCEL_POLICY:
-    case FunctionName.EXTEND_POLICY:
+    case FunctionName.EXTEND_POLICY_PERIOD:
+    case FunctionName.UPDATE_POLICY_AMOUNT:
+    case FunctionName.UPDATE_POLICY:
     case FunctionName.SUBMIT_CLAIM:
-    default:
       return Unit.ID
+    case FunctionName.START_COOLDOWN:
+    case FunctionName.STOP_COOLDOWN:
+    default:
+      return Unit._
   }
 }
 
@@ -103,27 +125,27 @@ export const formatTransactionContent = (
     case FunctionName.WITHDRAW_CLAIMS_PAYOUT:
       return `Claim ${unit} ${BigNumber.from(amount)}`
     case FunctionName.BUY_POLICY:
-    case FunctionName.EXTEND_POLICY:
+    case FunctionName.EXTEND_POLICY_PERIOD:
+    case FunctionName.UPDATE_POLICY:
+    case FunctionName.UPDATE_POLICY_AMOUNT:
     case FunctionName.CANCEL_POLICY:
     case FunctionName.SUBMIT_CLAIM:
       return `Policy ${unit} ${BigNumber.from(amount)}`
-    case FunctionName.DEPOSIT:
-    case FunctionName.WITHDRAW:
-      if (to.toLowerCase() === activeNetwork.config.keyContracts.vault.addr.toLowerCase()) {
-        return `${truncateBalance(formatEther(BigNumber.from(amount)))} ${unit}`
-      } else {
-        return `#${BigNumber.from(amount)} ${Unit.LP}`
-      }
+    case FunctionName.WITHDRAW_ETH:
+      return `${truncateBalance(formatEther(BigNumber.from(amount)))} ${unit}`
+    case FunctionName.WITHDRAW_LP:
+      return `#${BigNumber.from(amount)} ${Unit.LP}`
     case FunctionName.DEPOSIT_ETH:
     case FunctionName.DEPOSIT_CP:
-    case FunctionName.WITHDRAW_ETH:
+    case FunctionName.WITHDRAW_CP:
     case FunctionName.WITHDRAW_REWARDS:
     case FunctionName.APPROVE:
       return `${truncateBalance(formatEther(BigNumber.from(amount)))} ${unit}`
     case FunctionName.DEPOSIT_SIGNED:
     case FunctionName.WITHDRAW_LP:
-    default:
       return `#${BigNumber.from(amount)} ${unit}`
+    default:
+      return `${amount} ${unit}`
   }
 }
 

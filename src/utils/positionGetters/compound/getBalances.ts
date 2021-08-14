@@ -4,7 +4,7 @@ import { NetworkConfig, Token } from '../../../constants/types'
 import { addNativeTokenBalances, getProductTokenBalances } from '../getBalances'
 import { ProductName } from '../../../constants/enums'
 import { Contract } from '@ethersproject/contracts'
-import { POW_EIGHTEEN } from '../../../constants'
+import { getNonHumanValue } from '../../../utils/formatting'
 import { withBackoffRetries } from '../../time'
 
 export const getBalances = async (user: string, provider: any, activeNetwork: NetworkConfig): Promise<Token[]> => {
@@ -17,7 +17,10 @@ export const getBalances = async (user: string, provider: any, activeNetwork: Ne
   const contracts = balances.map((balance) => new Contract(balance.token.address, tokenJson.abi, provider))
   const exchangeRates = await Promise.all(contracts.map((contract) => queryExchangeRate(contract)))
   indices.forEach(
-    (i) => (balances[i].underlying.balance = balances[i].token.balance.mul(exchangeRates[i]).div(String(POW_EIGHTEEN)))
+    (i) =>
+      (balances[i].underlying.balance = balances[i].token.balance
+        .mul(exchangeRates[i])
+        .div(String(getNonHumanValue(1, activeNetwork.nativeCurrency.decimals))))
   )
 
   // get native token balances

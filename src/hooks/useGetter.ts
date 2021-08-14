@@ -99,10 +99,11 @@ export const usePolicyGetter = (
         expirationBlock: policy.expirationBlock.toString(),
         coverAmount: policy.coverAmount.toString(),
         price: policy.price.toString(),
-        status: policy.expirationBlock.lt(blockNumber) ? PolicyState.EXPIRED : PolicyState.ACTIVE,
+        status: policy.expirationBlock < blockNumber ? PolicyState.EXPIRED : PolicyState.ACTIVE,
         positionName: '',
       }
     } catch (err) {
+      console.log(err)
       return returnError
     }
   }

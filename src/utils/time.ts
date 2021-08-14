@@ -37,7 +37,7 @@ export function timeAgo(someDateInThePast: number): string {
   return result + ' ago'
 }
 
-export function timeToText(millis: number): string {
+export function timeToDateText(millis: number): string {
   const date = new Date(millis)
   let str = ''
   const days = date.getUTCDate() - 1
@@ -89,7 +89,7 @@ export function timeToText(millis: number): string {
   return str
 }
 
-export function timer(millis: number): string {
+export function timeToDate(millis: number): string {
   const date = new Date(millis)
   let str = ''
   const days = date.getUTCDate() - 1
@@ -115,7 +115,23 @@ export function timer(millis: number): string {
   return str
 }
 
-export const getDays = (expirationBlock: number, latestBlock: number): number => {
+export const getTimeFromMillis = (millis: number): string => {
+  // 1- Convert to seconds:
+  let seconds = parseInt((millis / 1000).toString())
+  // 2- Extract days:
+  const days = parseInt((seconds / 86400).toString()) // 86400 seconds in 1 day
+  seconds = seconds % 86400
+  // 3- Extract hours:
+  const hours = parseInt((seconds / 3600).toString()) // 3,600 seconds in 1 hour
+  seconds = seconds % 3600 // seconds remaining after extracting hours
+  // 4- Extract minutes:
+  const minutes = parseInt((seconds / 60).toString()) // 60 seconds in 1 minute
+  // 5- Keep only seconds not extracted to minutes:
+  seconds = seconds % 60
+  return `${days}d${hours > 0 ? ` ${hours}h` : ''}${minutes > 0 ? ` ${minutes}m` : ''}`
+}
+
+export const getDaysLeft = (expirationBlock: number, latestBlock: number): number => {
   return Math.floor((expirationBlock - latestBlock) / NUM_BLOCKS_PER_DAY)
 }
 

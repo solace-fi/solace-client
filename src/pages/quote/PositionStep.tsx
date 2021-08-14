@@ -249,7 +249,6 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
                     {truncateBalance(fixedTokenPositionBalance(position.token))}{' '}
                     <TextSpan style={{ fontSize: '12px' }}>{position.token.symbol}</TextSpan>
                   </PositionCardText>
-
                   <PositionCardButton>
                     {userHasActiveProductPosition(protocol.name, position.underlying.symbol) ? (
                       <Button widthP={width > MAX_MOBILE_SCREEN_WIDTH ? undefined : 100}>Manage</Button>

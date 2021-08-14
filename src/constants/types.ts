@@ -102,7 +102,10 @@ export type LocalTx = {
 export type NetworkConfig = {
   name: string
   chainId: number
-  nativeCurrency: Unit
+  nativeCurrency: {
+    symbol: Unit
+    decimals: number
+  }
   explorer: {
     name: 'Etherscan' | 'Polygonscan'
     key: string
@@ -110,8 +113,12 @@ export type NetworkConfig = {
     apiUrl: string
   }
   config: {
-    keyContracts: any
+    keyContracts: KeyContracts
     productContracts: any
   }
   cache: any
+}
+
+export type KeyContracts = {
+  [key: string]: ContractSources
 }

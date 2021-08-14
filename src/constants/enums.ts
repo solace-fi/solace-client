@@ -16,18 +16,21 @@ export enum FunctionName {
   APPROVE = 'Approve',
   BUY_POLICY = 'BuyPolicy',
   CANCEL_POLICY = 'CancelPolicy',
-  DEPOSIT = 'Deposit',
-  DEPOSIT_CP = 'DepositCp',
   DEPOSIT_ETH = 'DepositEth',
+  DEPOSIT_CP = 'DepositCp',
   DEPOSIT_SIGNED = 'DepositSigned',
-  EXTEND_POLICY = 'ExtendPolicy',
+  EXTEND_POLICY_PERIOD = 'ExtendPolicy',
+  UPDATE_POLICY_AMOUNT = 'UpdateCoverAmount',
+  UPDATE_POLICY = 'UpdatePolicy',
   SUBMIT_CLAIM = 'SubmitClaim',
-  WITHDRAW = 'Withdraw',
   WITHDRAW_ETH = 'WithdrawEth',
-  WITHDRAW_LP = 'WithdrawLp',
+  WITHDRAW_CP = 'WithdrawCp',
+  WITHDRAW_LP = 'Withdraw',
   WITHDRAW_CLAIMS_PAYOUT = 'WithdrawClaimsPayout',
   WITHDRAW_REWARDS = 'WithdrawRewards',
   MULTI_CALL = 'Multicall',
+  START_COOLDOWN = 'StartCooldown',
+  STOP_COOLDOWN = 'StopCooldown',
 }
 
 export enum ExplorerscanApi {
@@ -43,6 +46,7 @@ export enum Unit {
   SOLACE = 'SOLACE',
   LP = 'LP Token',
   ID = 'ID',
+  _ = 'Unknown',
 }
 
 export enum PolicyState {

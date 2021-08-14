@@ -47,7 +47,7 @@ import { useWindowDimensions } from '../../hooks/useWindowDimensions'
 
 /* import utils */
 import { truncateBalance } from '../../utils/formatting'
-import { getDays, getExpiration } from '../../utils/time'
+import { getDaysLeft, getExpiration } from '../../utils/time'
 
 interface MyPoliciesProps {
   openClaimModal: any
@@ -71,12 +71,12 @@ export const MyPolicies: React.FC<MyPoliciesProps> = ({ openClaimModal, openMana
 
   *************************************************************************************/
   const calculatePolicyExpirationDate = (expirationBlock: string): string => {
-    const daysLeft = getDays(parseFloat(expirationBlock), latestBlock)
+    const daysLeft = getDaysLeft(parseFloat(expirationBlock), latestBlock)
     return getExpiration(daysLeft)
   }
 
   const shouldWarnUser = (policy: Policy): boolean => {
-    return policy.status === PolicyState.ACTIVE && getDays(parseFloat(policy.expirationBlock), latestBlock) <= 1
+    return policy.status === PolicyState.ACTIVE && getDaysLeft(parseFloat(policy.expirationBlock), latestBlock) <= 1
   }
 
   /*************************************************************************************
@@ -128,7 +128,7 @@ export const MyPolicies: React.FC<MyPoliciesProps> = ({ openClaimModal, openMana
                     </TableData>
                     <TableData>
                       {policy.coverAmount ? truncateBalance(parseFloat(formatEther(policy.coverAmount)), 2) : 0}{' '}
-                      {activeNetwork.nativeCurrency}
+                      {activeNetwork.nativeCurrency.symbol}
                     </TableData>
 
                     <TableData textAlignRight>
@@ -194,7 +194,7 @@ export const MyPolicies: React.FC<MyPoliciesProps> = ({ openClaimModal, openMana
                     <FormCol>
                       <Heading2>
                         {policy.coverAmount ? truncateBalance(parseFloat(formatEther(policy.coverAmount)), 2) : 0}{' '}
-                        {activeNetwork.nativeCurrency}
+                        {activeNetwork.nativeCurrency.symbol}
                       </Heading2>
                     </FormCol>
                   </FormRow>

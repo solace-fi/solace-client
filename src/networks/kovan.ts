@@ -22,7 +22,7 @@ import { ETHERSCAN_API_KEY } from '../constants'
 export const KovanNetwork: NetworkConfig = {
   name: 'kovan',
   chainId: 42,
-  nativeCurrency: Unit.ETH,
+  nativeCurrency: { symbol: Unit.ETH, decimals: 18 },
   explorer: {
     name: 'Etherscan',
     key: String(ETHERSCAN_API_KEY),
@@ -32,57 +32,57 @@ export const KovanNetwork: NetworkConfig = {
   config: {
     keyContracts: {
       master: {
-        addr: process.env.REACT_APP_KOVAN_MASTER_ADDR,
+        addr: String(process.env.REACT_APP_KOVAN_MASTER_ADDR),
         abi: masterABI,
       },
       vault: {
-        addr: process.env.REACT_APP_KOVAN_VAULT_ADDR,
+        addr: String(process.env.REACT_APP_KOVAN_VAULT_ADDR),
         abi: vaultABI,
       },
       treasury: {
-        addr: process.env.REACT_APP_KOVAN_TREASURY_ADDR,
+        addr: String(process.env.REACT_APP_KOVAN_TREASURY_ADDR),
         abi: treasuryABI,
       },
       solace: {
-        addr: process.env.REACT_APP_KOVAN_SOLACE_ADDR,
+        addr: String(process.env.REACT_APP_KOVAN_SOLACE_ADDR),
         abi: solaceABI,
       },
       cpFarm: {
-        addr: process.env.REACT_APP_KOVAN_CPFARM_ADDR,
+        addr: String(process.env.REACT_APP_KOVAN_CPFARM_ADDR),
         abi: cpFarmABI,
       },
       lpFarm: {
-        addr: process.env.REACT_APP_KOVAN_LPFARM_ADDR,
+        addr: String(process.env.REACT_APP_KOVAN_LPFARM_ADDR),
         abi: lpFarmABI,
       },
       registry: {
-        addr: process.env.REACT_APP_KOVAN_REGISTRY_ADDR,
+        addr: String(process.env.REACT_APP_KOVAN_REGISTRY_ADDR),
         abi: registryABI,
       },
       lpToken: {
-        addr: process.env.REACT_APP_KOVAN_UNISWAP_LPTOKEN_ADDR,
+        addr: String(process.env.REACT_APP_KOVAN_UNISWAP_LPTOKEN_ADDR),
         abi: lpTokenArtifact.abi,
       },
       weth: {
-        addr: process.env.REACT_APP_KOVAN_WETH_ADDR,
+        addr: String(process.env.REACT_APP_KOVAN_WETH_ADDR),
         abi: wethABI,
       },
       claimsEscrow: {
-        addr: process.env.REACT_APP_KOVAN_CLAIMS_ESCROW_ADDR,
+        addr: String(process.env.REACT_APP_KOVAN_CLAIMS_ESCROW_ADDR),
         abi: claimsEscrowABI,
       },
       policyManager: {
-        addr: process.env.REACT_APP_KOVAN_POLICY_MANAGER_ADDR,
+        addr: String(process.env.REACT_APP_KOVAN_POLICY_MANAGER_ADDR),
         abi: polMagABI,
       },
       lpAppraisor: {
-        addr: process.env.REACT_APP_KOVAN_LPAPPRAISOR_ADDR,
+        addr: String(process.env.REACT_APP_KOVAN_LPAPPRAISOR_ADDR),
         abi: lpAppraisorABI,
       },
     },
     productContracts: {
       [ProductName.AAVE]: {
-        addr: process.env.REACT_APP_KOVAN_AAVE_PRODUCT_ADDR,
+        addr: String(process.env.REACT_APP_KOVAN_AAVE_PRODUCT_ADDR),
         abi: aaveAbi,
       },
     },

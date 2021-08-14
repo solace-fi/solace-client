@@ -5,18 +5,18 @@ import { Contract } from '@ethersproject/contracts'
 import { ContractSources, SupportedProduct } from '../constants/types'
 import { useNetwork } from '../context/NetworkManager'
 
-export function useGetContract(address: string, abi: any, hasSigner = true): Contract | null {
+export function useGetContract(source: ContractSources | undefined, hasSigner = true): Contract | null {
   const { library, account } = useWallet()
 
   return useMemo(() => {
-    if (!address || !abi || !library) return null
+    if (!source || !library) return null
     try {
-      return getContract(address, abi, library, hasSigner && account ? account : undefined)
+      return getContract(source.addr, source.abi, library, hasSigner && account ? account : undefined)
     } catch (error) {
       console.error('Failed to get contract', error)
       return null
     }
-  }, [address, abi, library, hasSigner, account])
+  }, [source, library, hasSigner, account])
 }
 
 export function useGetProductContracts(): SupportedProduct[] {

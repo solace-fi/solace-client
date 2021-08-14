@@ -34,6 +34,7 @@ import { useCachedData } from '../../context/CachedDataManager'
 import { useToasts } from '../../context/NotificationsManager'
 import { useWallet } from '../../context/WalletManager'
 import { useContracts } from '../../context/ContractsManager'
+import { useNetwork } from '../../context/NetworkManager'
 
 /* import components */
 import { Modal } from '../molecules/Modal'
@@ -43,6 +44,8 @@ import { PolicyModalInfo } from '../molecules/PolicyModalInfo'
 import { Input } from '../atoms/Input'
 import { Button, ButtonWrapper } from '../atoms/Button'
 import { Loader } from '../atoms/Loader'
+import { FlexCol } from '../atoms/Layout'
+import { SmallBox } from '../atoms/Box'
 
 /* import constants */
 import { DAYS_PER_YEAR, NUM_BLOCKS_PER_DAY, GAS_LIMIT, ZERO, MAX_MOBILE_SCREEN_WIDTH } from '../../constants'
@@ -50,13 +53,12 @@ import { FunctionName, TransactionCondition, Unit } from '../../constants/enums'
 import { Policy } from '../../constants/types'
 
 /* import hooks */
-import { useAppraisePosition, useGetCancelFee, useGetPolicyPrice, useGetQuote } from '../../hooks/usePolicy'
+import { useAppraisePosition, useGetMaxCoverPerUser, useGetPolicyPrice, useGetQuote } from '../../hooks/usePolicy'
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'
 
 /* import utils */
-import { getGasValue } from '../../utils/formatting'
-import { getDays, getExpiration } from '../../utils/time'
-import { FlexCol, FlexRow } from '../atoms/Layout'
+import { accurateMultiply, getGasValue } from '../../utils/formatting'
+import { getDaysLeft, getExpiration } from '../../utils/time'
 
 interface ManageModalProps {
   closeModal: () => void
@@ -89,7 +91,7 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
 
   const [asyncLoading, setAsyncLoading] = useState<boolean>(false)
   const [inputCoverage, setInputCoverage] = useState<string>('1')
-  const [feedbackCoverage, setFeedbackCoverage] = useState<string>('1')
+  const [newCoverage, setNewCoverage] = useState<string>('1')
   const [extendedTime, setExtendedTime] = useState<string>('0')
   const [modalLoading, setModalLoading] = useState<boolean>(false)
 
@@ -104,38 +106,29 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
   const { addLocalTransactions, reload, gasPrices } = useCachedData()
   const { makeTxToast } = useToasts()
   const policyPrice = useGetPolicyPrice(selectedPolicy ? selectedPolicy.policyId : 0)
-  const cancelFee = useGetCancelFee()
   const { width } = useWindowDimensions()
+  const maxCoverPerUser = useGetMaxCoverPerUser()
+  const { activeNetwork } = useNetwork()
 
   const daysLeft = useMemo(
-    () => getDays(parseFloat(selectedPolicy ? selectedPolicy.expirationBlock : '0'), latestBlock),
+    () => getDaysLeft(parseFloat(selectedPolicy ? selectedPolicy.expirationBlock : '0'), latestBlock),
     [latestBlock, selectedPolicy]
   )
   const blocksLeft = useMemo(
     () => BigNumber.from(parseFloat(selectedPolicy ? selectedPolicy.expirationBlock : '0') - latestBlock),
     [latestBlock, selectedPolicy]
   )
-  const coverAmount = useMemo(() => BigNumber.from(selectedPolicy ? selectedPolicy.coverAmount : '0'), [selectedPolicy])
+  const currentCoverAmount = useMemo(() => (selectedPolicy ? selectedPolicy.coverAmount : '0'), [selectedPolicy])
   const price = useMemo(() => BigNumber.from(policyPrice || '0'), [policyPrice])
   const refundAmount = useMemo(
     () =>
       blocksLeft
-        .mul(coverAmount)
+        .mul(currentCoverAmount)
         .mul(price)
         .div(String(Math.pow(10, 12))),
-    [blocksLeft, coverAmount, price]
+    [blocksLeft, currentCoverAmount, price]
   )
   const appraisal = useAppraisePosition(selectedPolicy)
-  // TODO: Use coverAmount on new deployed contracts
-  const coverLimit = useMemo(
-    () => (appraisal == ZERO ? ZERO.toString() : BigNumber.from(coverAmount).mul('10000').div(appraisal).toString()),
-    [appraisal, coverAmount]
-  )
-  const quote = useGetQuote(
-    selectedPolicy ? coverLimit : null,
-    selectedPolicy ? selectedPolicy.positionContract : null,
-    extendedTime
-  )
 
   /*************************************************************************************
 
@@ -143,25 +136,103 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
 
   *************************************************************************************/
 
+  const updatePolicy = async () => {
+    setModalLoading(true)
+    if (!selectedProtocol || !selectedPolicy) return
+    const txType = FunctionName.UPDATE_POLICY
+    const extension = BigNumber.from(NUM_BLOCKS_PER_DAY * parseInt(extendedTime))
+    try {
+      const tx = await selectedProtocol.updatePolicy(selectedPolicy.policyId, newCoverage, extension, {
+        value: BigNumber.from(newCoverage)
+          .mul(price)
+          .mul(BigNumber.from(parseFloat(selectedPolicy.expirationBlock) - latestBlock))
+          .div(String(Math.pow(10, 12))),
+        gasPrice: getGasValue(gasPrices.selected.value),
+        gasLimit: GAS_LIMIT,
+      })
+      const txHash = tx.hash
+      const localTx = {
+        hash: txHash,
+        type: txType,
+        value: '0',
+        status: TransactionCondition.PENDING,
+        unit: activeNetwork.nativeCurrency.symbol,
+      }
+      setModalLoading(false)
+      handleClose()
+      addLocalTransactions(localTx)
+      reload()
+      makeTxToast(txType, TransactionCondition.PENDING, txHash)
+      await tx.wait().then((receipt: any) => {
+        const status = receipt.status ? TransactionCondition.SUCCESS : TransactionCondition.FAILURE
+        makeTxToast(txType, status, txHash)
+        reload()
+      })
+    } catch (err) {
+      console.log('updatePolicy:', err)
+      makeTxToast(txType, TransactionCondition.CANCELLED)
+      setModalLoading(false)
+      reload()
+    }
+  }
+
+  const updateCoverAmount = async () => {
+    setModalLoading(true)
+    if (!selectedProtocol || !selectedPolicy) return
+    const txType = FunctionName.UPDATE_POLICY_AMOUNT
+    try {
+      const tx = await selectedProtocol.updateCoverAmount(selectedPolicy.policyId, newCoverage, {
+        value: BigNumber.from(newCoverage)
+          .mul(BigNumber.from(parseFloat(selectedPolicy.expirationBlock) - latestBlock))
+          .mul(price)
+          .div(String(Math.pow(10, 12))),
+        gasPrice: getGasValue(gasPrices.selected.value),
+        gasLimit: GAS_LIMIT,
+      })
+      const txHash = tx.hash
+      const localTx = {
+        hash: txHash,
+        type: txType,
+        value: '0',
+        status: TransactionCondition.PENDING,
+        unit: Unit.ID,
+      }
+      setModalLoading(false)
+      handleClose()
+      addLocalTransactions(localTx)
+      reload()
+      makeTxToast(txType, TransactionCondition.PENDING, txHash)
+      await tx.wait().then((receipt: any) => {
+        const status = receipt.status ? TransactionCondition.SUCCESS : TransactionCondition.FAILURE
+        makeTxToast(txType, status, txHash)
+        reload()
+      })
+    } catch (err) {
+      console.log('updateCoverAmount:', err)
+      makeTxToast(txType, TransactionCondition.CANCELLED)
+      setModalLoading(false)
+      reload()
+    }
+  }
+
   const extendPolicy = async () => {
     setModalLoading(true)
     if (!selectedProtocol || !selectedPolicy) return
-    const txType = FunctionName.EXTEND_POLICY
+    const txType = FunctionName.EXTEND_POLICY_PERIOD
     const extension = BigNumber.from(NUM_BLOCKS_PER_DAY * parseInt(extendedTime))
     try {
       const tx = await selectedProtocol.extendPolicy(selectedPolicy.policyId, extension, {
-        value: coverAmount
+        value: BigNumber.from(currentCoverAmount)
           .mul(price)
           .mul(extension)
-          .div(String(Math.pow(10, 12)))
-          .add(parseEther(quote).div('10000')),
+          .div(String(Math.pow(10, 12))),
         gasPrice: getGasValue(gasPrices.selected.value),
         gasLimit: GAS_LIMIT,
       })
       const txHash = tx.hash
       const localTx = { hash: txHash, type: txType, value: '0', status: TransactionCondition.PENDING, unit: Unit.ID }
       setModalLoading(false)
-      closeModal()
+      handleClose()
       addLocalTransactions(localTx)
       reload()
       makeTxToast(txType, TransactionCondition.PENDING, txHash)
@@ -196,7 +267,7 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
         unit: Unit.ID,
       }
       setModalLoading(false)
-      closeModal()
+      handleClose()
       addLocalTransactions(localTx)
       reload()
       makeTxToast(txType, TransactionCondition.PENDING, txHash)
@@ -219,41 +290,39 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
 
   *************************************************************************************/
 
-  const initCoverage = () => {
-    setFeedbackCoverage(coverLimit)
-    setInputCoverage(
-      coverLimit.substring(0, coverLimit.length - 2) +
-        '.' +
-        coverLimit.substring(coverLimit.length - 2, coverLimit.length)
-    )
-  }
-
-  const handleCoverageChange = (coverageLimit: string) => {
-    setInputCoverage((parseInt(coverageLimit) / 100).toString())
-    setFeedbackCoverage(coverageLimit)
+  const handleCoverageChange = (coverAmount: string) => {
+    setNewCoverage(coverAmount) // coveramount in wei
+    setInputCoverage(formatEther(BigNumber.from(coverAmount))) // coveramount in eth
   }
 
   const handleInputCoverage = (input: string) => {
+    // allow only numbers and decimals
     const filtered = input.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1')
 
-    if (parseFloat(filtered) > 100) {
-      return
-    }
-    if (filtered.includes('.') && filtered.split('.')[1]?.length > 2) {
-      return
-    }
-    const multiplied = filtered == '' ? '100' : Math.round(parseFloat(filtered) * 100).toString()
-    setInputCoverage(filtered)
-    setFeedbackCoverage(multiplied)
+    // if number is greater than the max cover per user, do not update
+    if (parseFloat(filtered) > parseFloat(maxCoverPerUser)) return
+
+    // if number is greater than the position amount, do not update
+    if (parseFloat(filtered) > parseFloat(formatEther(appraisal))) return
+
+    // if number is empty or less than smallest denomination of currency, do not update
+    if (filtered == '' || parseFloat(filtered) < parseFloat(formatEther(BigNumber.from(1)))) return
+
+    // if number has more than 18 decimal places, do not update
+    if (filtered.includes('.') && filtered.split('.')[1]?.length > 18) return
+
+    setNewCoverage(accurateMultiply(filtered, 18)) // set new amount in wei
+    setInputCoverage(filtered) // set new amount in eth
   }
 
   const filteredTime = (input: string) => {
     const filtered = input.replace(/[^0-9]*/g, '')
     if (
       parseFloat(filtered) <=
-        DAYS_PER_YEAR - getDays(selectedPolicy ? parseFloat(selectedPolicy.expirationBlock) : 0, latestBlock) ||
+        DAYS_PER_YEAR - getDaysLeft(selectedPolicy ? parseFloat(selectedPolicy.expirationBlock) : 0, latestBlock) ||
       filtered == ''
     ) {
+      console.log('filtered time', filtered)
       setExtendedTime(filtered)
     }
   }
@@ -262,6 +331,21 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
     setExtendedTime('0')
     closeModal()
   }, [closeModal])
+
+  const handleFunc = async () => {
+    if (extendedTime != '0' && extendedTime != '' && newCoverage != currentCoverAmount) {
+      await updatePolicy()
+      return
+    }
+    if (extendedTime != '0' && extendedTime != '') {
+      await extendPolicy()
+      return
+    }
+    if (newCoverage != currentCoverAmount) {
+      await updateCoverAmount()
+      return
+    }
+  }
 
   /*************************************************************************************
 
@@ -273,12 +357,12 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
     const load = async () => {
       if (!selectedPolicy || !isOpen) return
       setAsyncLoading(true)
-      if (BigNumber.from(coverLimit).lte(ZERO)) return
-      initCoverage()
+      if (BigNumber.from(currentCoverAmount).lte(ZERO) || appraisal.lte(ZERO)) return
+      handleCoverageChange(currentCoverAmount)
       setAsyncLoading(false)
     }
     load()
-  }, [isOpen, selectedPolicy, appraisal])
+  }, [isOpen, selectedPolicy, currentCoverAmount, appraisal])
 
   /*************************************************************************************
 
@@ -292,7 +376,7 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
         <PolicyModalInfo selectedPolicy={selectedPolicy} latestBlock={latestBlock} />
         {!modalLoading ? (
           <Fragment>
-            {width > MAX_MOBILE_SCREEN_WIDTH ? (
+            {width <= MAX_MOBILE_SCREEN_WIDTH ? (
               <>
                 <FormRow>
                   <Text1>Update Policy</Text1>
@@ -300,24 +384,23 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
                 <UpdatePolicySec>
                   <FormRow mb={5}>
                     <FormCol>
-                      <Text3>Edit coverage (1 - 100%)</Text3>
+                      <Text3>Edit coverage</Text3>
                     </FormCol>
                     <FormCol>
                       <Slider
                         disabled={asyncLoading}
                         width={150}
                         backgroundColor={'#fff'}
-                        value={feedbackCoverage}
+                        value={newCoverage}
                         onChange={(e) => handleCoverageChange(e.target.value)}
-                        min={100}
-                        max={10000}
+                        min={1}
+                        max={appraisal.toString()}
                       />
                     </FormCol>
                     <FormCol>
                       <Input
                         disabled={asyncLoading}
                         type="text"
-                        width={50}
                         value={inputCoverage}
                         onChange={(e) => handleInputCoverage(e.target.value)}
                       />
@@ -344,7 +427,6 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
                         disabled={asyncLoading}
                         type="text"
                         pattern="[0-9]+"
-                        width={50}
                         value={extendedTime}
                         onChange={(e) => filteredTime(e.target.value)}
                         maxLength={3}
@@ -360,9 +442,23 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
                       <Text3 nowrap>New expiration: {getExpiration(daysLeft + parseFloat(extendedTime || '0'))}</Text3>
                     </FormCol>
                   </FormRow>
+                  <SmallBox
+                    transparent
+                    outlined
+                    error
+                    collapse={!parseEther(inputCoverage).gt(parseEther(maxCoverPerUser))}
+                    mb={!parseEther(inputCoverage).gt(parseEther(maxCoverPerUser)) ? 0 : 5}
+                  >
+                    <Text3 error autoAlign>
+                      You can only cover up to {maxCoverPerUser} ETH.
+                    </Text3>
+                  </SmallBox>
                   <FormRow mb={5} style={{ justifyContent: 'flex-end' }}>
                     {!asyncLoading ? (
-                      <Button disabled={errors.length > 0} onClick={() => extendPolicy()}>
+                      <Button
+                        disabled={errors.length > 0 || parseEther(inputCoverage).gt(parseEther(maxCoverPerUser))}
+                        onClick={handleFunc}
+                      >
                         Update Policy
                       </Button>
                     ) : (
@@ -385,17 +481,16 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
                         textAlignCenter
                         disabled={asyncLoading}
                         type="text"
-                        width={50}
                         value={inputCoverage}
                         onChange={(e) => handleInputCoverage(e.target.value)}
                       />
                       <Slider
                         disabled={asyncLoading}
                         backgroundColor={'#fff'}
-                        value={feedbackCoverage}
+                        value={newCoverage}
                         onChange={(e) => handleCoverageChange(e.target.value)}
-                        min={100}
-                        max={10000}
+                        min={1}
+                        max={appraisal.toString()}
                       />
                     </div>
                   </div>
@@ -409,7 +504,6 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
                         disabled={asyncLoading}
                         type="text"
                         pattern="[0-9]+"
-                        width={50}
                         value={extendedTime}
                         onChange={(e) => filteredTime(e.target.value)}
                         maxLength={3}
@@ -423,9 +517,24 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
                         max={DAYS_PER_YEAR - daysLeft}
                       />
                       <Text3>New expiration: {getExpiration(daysLeft + parseFloat(extendedTime || '0'))}</Text3>
+                      <SmallBox
+                        transparent
+                        outlined
+                        error
+                        collapse={!parseEther(inputCoverage).gt(parseEther(maxCoverPerUser))}
+                        mb={!parseEther(inputCoverage).gt(parseEther(maxCoverPerUser)) ? 0 : 5}
+                      >
+                        <Text3 error autoAlign>
+                          You can only cover up to {maxCoverPerUser} ETH.
+                        </Text3>
+                      </SmallBox>
                       <ButtonWrapper>
                         {!asyncLoading ? (
-                          <Button widthP={100} disabled={errors.length > 0} onClick={() => extendPolicy()}>
+                          <Button
+                            widthP={100}
+                            disabled={errors.length > 0 || parseEther(inputCoverage).gt(parseEther(maxCoverPerUser))}
+                            onClick={handleFunc}
+                          >
                             Update Policy
                           </Button>
                         ) : (
@@ -437,7 +546,7 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
                 </FlexCol>
               </div>
             )}
-            {width > MAX_MOBILE_SCREEN_WIDTH ? (
+            {width <= MAX_MOBILE_SCREEN_WIDTH ? (
               <>
                 <FormRow>
                   <Text1>Cancel Policy</Text1>
@@ -445,26 +554,15 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
                 <CancelPolicySec>
                   <FormRow mb={10}>
                     <FormCol>
-                      <Text3 error={policyPrice !== '' && refundAmount.lte(parseEther(cancelFee))}>
+                      <Text3>
                         Refund amount: <TextSpan nowrap>{formatEther(refundAmount)} ETH</TextSpan>
                       </Text3>
                     </FormCol>
                   </FormRow>
                   <FormCol></FormCol>
-                  <FormRow mb={10}>
-                    <FormCol>
-                      <Text3>Cancellation fee: {cancelFee} ETH</Text3>
-                      {policyPrice !== '' && refundAmount.lte(parseEther(cancelFee)) && (
-                        <Text3 error>Refund amount must offset cancellation fee</Text3>
-                      )}
-                    </FormCol>
-                  </FormRow>
                   <FormRow mb={10} style={{ justifyContent: 'flex-end' }}>
                     {policyPrice !== '' ? (
-                      <Button
-                        disabled={errors.length > 0 || refundAmount.lte(parseEther(cancelFee))}
-                        onClick={() => cancelPolicy()}
-                      >
+                      <Button disabled={errors.length > 0} onClick={() => cancelPolicy()}>
                         Cancel Policy
                       </Button>
                     ) : (
@@ -480,27 +578,13 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
                 <FlexCol mt={20}>
                   <FormRow mb={10}>
                     <FormCol>
-                      <Text3 error={policyPrice !== '' && refundAmount.lte(parseEther(cancelFee))}>
-                        Refund amount: {formatEther(refundAmount)} ETH
-                      </Text3>
+                      <Text3>Refund amount: {formatEther(refundAmount)} ETH</Text3>
                     </FormCol>
                   </FormRow>
                   <FormCol></FormCol>
-                  <FormRow mb={10}>
-                    <FormCol>
-                      <Text3 textAlignLeft>Cancellation fee: {cancelFee} ETH</Text3>
-                      {policyPrice !== '' && refundAmount.lte(parseEther(cancelFee)) && (
-                        <Text3 error>Refund amount must offset cancellation fee</Text3>
-                      )}
-                    </FormCol>
-                  </FormRow>
                   <ButtonWrapper>
                     {policyPrice !== '' ? (
-                      <Button
-                        widthP={100}
-                        disabled={errors.length > 0 || refundAmount.lte(parseEther(cancelFee))}
-                        onClick={() => cancelPolicy()}
-                      >
+                      <Button widthP={100} disabled={errors.length > 0} onClick={() => cancelPolicy()}>
                         Cancel Policy
                       </Button>
                     ) : (

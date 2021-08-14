@@ -55,7 +55,7 @@ export const useAppraisePosition = (policy: Policy | undefined): BigNumber => {
 }
 
 export const useGetMaxCoverPerUser = (): string => {
-  const [maxCoverPerUser, setMaxCoverPerUser] = useState<string>('0.00')
+  const [maxCoverPerUser, setMaxCoverPerUser] = useState<string>('0')
   const { selectedProtocol } = useContracts()
 
   const getMaxCoverPerUser = async () => {
@@ -74,27 +74,6 @@ export const useGetMaxCoverPerUser = (): string => {
   }, [selectedProtocol])
 
   return maxCoverPerUser
-}
-
-export const useGetCancelFee = (): string => {
-  const [cancelFee, setCancelFee] = useState<string>('0.00')
-  const { selectedProtocol } = useContracts()
-
-  const getCancelFee = async () => {
-    if (!selectedProtocol) return
-    try {
-      const fee = await selectedProtocol.manageFee()
-      setCancelFee(formatEther(fee))
-    } catch (err) {
-      console.log('getCancelFee', err)
-    }
-  }
-
-  useEffect(() => {
-    getCancelFee()
-  }, [selectedProtocol])
-
-  return cancelFee
 }
 
 export const useGetYearlyCosts = (): StringToStringMapping => {
@@ -164,18 +143,18 @@ export const useGetAvailableCoverages = (): StringToStringMapping => {
 }
 
 // TODO: Replace with coverAmount on new deployed contracts
-export const useGetQuote = (coverLimit: string | null, positionContract: string | null, days: string): string => {
+export const useGetQuote = (coverAmount: string | null, positionContract: string | null, days: string): string => {
   const { account } = useWallet()
   const [quote, setQuote] = useState<string>('0.00')
   const { selectedProtocol } = useContracts()
 
   const getQuote = async () => {
-    if (!selectedProtocol || !coverLimit || !positionContract) return
+    if (!selectedProtocol || !coverAmount || !positionContract) return
     try {
       const quote = await selectedProtocol.getQuote(
         account,
         positionContract,
-        coverLimit,
+        coverAmount,
         BigNumber.from(NUM_BLOCKS_PER_DAY * parseInt(days)),
         {
           gasLimit: GAS_LIMIT,
@@ -194,7 +173,7 @@ export const useGetQuote = (coverLimit: string | null, positionContract: string 
 
   useEffect(() => {
     handleQuote()
-  }, [coverLimit, selectedProtocol, account, positionContract, days])
+  }, [coverAmount, selectedProtocol, account, positionContract, days])
 
   return quote
 }
