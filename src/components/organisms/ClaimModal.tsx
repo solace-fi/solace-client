@@ -209,15 +209,11 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
                 </Button>
               </ButtonWrapper>
             )}
-            {width > MAX_MOBILE_SCREEN_WIDTH && (
-              <>
-                <SmallBox transparent>
-                  <Heading3 autoAlign warning>
-                    Please wait for the cooldown period to elapse before withdrawing your payout.
-                  </Heading3>
-                </SmallBox>
-              </>
-            )}
+            <SmallBox transparent>
+              <Heading3 warning textAlignCenter>
+                Please wait for the cooldown period to elapse before withdrawing your payout.
+              </Heading3>
+            </SmallBox>
             <Table isHighlight>
               <TableBody>
                 <TableRow>

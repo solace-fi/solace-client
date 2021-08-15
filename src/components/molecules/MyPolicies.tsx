@@ -70,13 +70,13 @@ export const MyPolicies: React.FC<MyPoliciesProps> = ({ openClaimModal, openMana
     Local functions
 
   *************************************************************************************/
-  const calculatePolicyExpirationDate = (expirationBlock: string): string => {
-    const daysLeft = getDaysLeft(parseFloat(expirationBlock), latestBlock)
+  const calculatePolicyExpirationDate = (expirationBlock: number): string => {
+    const daysLeft = getDaysLeft(expirationBlock, latestBlock)
     return getExpiration(daysLeft)
   }
 
   const shouldWarnUser = (policy: Policy): boolean => {
-    return policy.status === PolicyState.ACTIVE && getDaysLeft(parseFloat(policy.expirationBlock), latestBlock) <= 1
+    return policy.status === PolicyState.ACTIVE && getDaysLeft(policy.expirationBlock, latestBlock) <= 1
   }
 
   /*************************************************************************************

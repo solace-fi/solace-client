@@ -80,7 +80,7 @@ export const PolicyModalInfo: React.FC<PolicyModalInfoProps> = ({ selectedPolicy
           <BoxItem>
             <BoxItemTitle h3>Days to expiration</BoxItemTitle>
             <Text h2 nowrap>
-              {getDaysLeft(selectedPolicy ? parseFloat(selectedPolicy.expirationBlock) : 0, latestBlock)}
+              {getDaysLeft(selectedPolicy ? selectedPolicy.expirationBlock : 0, latestBlock)}
             </Text>
           </BoxItem>
           <BoxItem>
@@ -121,9 +121,7 @@ export const PolicyModalInfo: React.FC<PolicyModalInfoProps> = ({ selectedPolicy
               <Text3>Days to expiration:</Text3>
             </FormCol>
             <FormCol>
-              <Heading3>
-                {getDaysLeft(selectedPolicy ? parseFloat(selectedPolicy.expirationBlock) : 0, latestBlock)}
-              </Heading3>
+              <Heading3>{getDaysLeft(selectedPolicy ? selectedPolicy.expirationBlock : 0, latestBlock)}</Heading3>
             </FormCol>
           </FormRow>
           <FormRow mb={10}>

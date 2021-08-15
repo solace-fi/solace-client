@@ -10,7 +10,7 @@ export type Policy = {
   productAddress: string
   productName: string
   positionContract: string
-  expirationBlock: string
+  expirationBlock: number
   coverAmount: string
   price: string
   status: PolicyState

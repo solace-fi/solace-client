@@ -18,6 +18,7 @@ export const useGetPolicyPrice = (policyId: number): string => {
     if (!selectedProtocol || policyId == 0) return
     try {
       const policy = userPolicyData.userPolicies.filter((policy: Policy) => policy.policyId == policyId)[0]
+      if (!policy.price) return
       setPolicyPrice(policy.price)
     } catch (err) {
       console.log('getPolicyPrice', err)
@@ -146,7 +147,6 @@ export const useGetAvailableCoverages = (): StringToStringMapping => {
   return availableCoverages
 }
 
-// TODO: Replace with coverAmount on new deployed contracts
 export const useGetQuote = (coverAmount: string | null, positionContract: string | null, days: string): string => {
   const { account } = useWallet()
   const [quote, setQuote] = useState<string>('0.00')

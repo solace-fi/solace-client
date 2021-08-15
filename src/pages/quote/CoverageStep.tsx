@@ -115,7 +115,7 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
         account,
         position.token.address,
         coverAmount,
-        BigNumber.from(NUM_BLOCKS_PER_DAY * parseInt(timePeriod)),
+        NUM_BLOCKS_PER_DAY * parseInt(timePeriod),
         {
           value: parseUnits(quote, activeNetwork.nativeCurrency.decimals),
           gasPrice: getGasValue(gasPrices.selected.value),
