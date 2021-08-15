@@ -1,14 +1,16 @@
-import { formatEther, parseEther } from '@ethersproject/units'
+import { formatUnits, parseUnits } from '@ethersproject/units'
 import { useContracts } from '../context/ContractsManager'
 import { useState, useEffect } from 'react'
 import { useWallet } from '../context/WalletManager'
-import { floatEther } from '../utils/formatting'
+import { floatUnits } from '../utils/formatting'
 import { ZERO } from '../constants'
 import { useCachedData } from '../context/CachedDataManager'
 import { useScpBalance } from './useBalance'
+import { useNetwork } from '../context/NetworkManager'
 
 export const useCapitalPoolSize = (): string => {
   const { vault } = useContracts()
+  const { activeNetwork } = useNetwork()
   const { version, latestBlock } = useCachedData()
   const [capitalPoolSize, setCapitalPoolSize] = useState<string>('0.00')
 
@@ -17,7 +19,7 @@ export const useCapitalPoolSize = (): string => {
       if (!vault) return
       try {
         const size = await vault.totalAssets()
-        const formattedSize = formatEther(size)
+        const formattedSize = formatUnits(size, activeNetwork.nativeCurrency.decimals)
         setCapitalPoolSize(formattedSize)
       } catch (err) {
         console.log('useCapitalPoolSize', err)
@@ -36,6 +38,7 @@ export const useUserVaultDetails = () => {
   const { library, account } = useWallet()
   const { vault, cpFarm } = useContracts()
   const { version } = useCachedData()
+  const { activeNetwork } = useNetwork()
 
   useEffect(() => {
     const getUserVaultDetails = async () => {
@@ -44,10 +47,13 @@ export const useUserVaultDetails = () => {
         const totalSupply = await vault.totalSupply()
         const userInfo = await cpFarm.userInfo(account)
         const value = userInfo.value
-        const cpBalance = parseEther(scpBalance)
+        const cpBalance = parseUnits(scpBalance, activeNetwork.nativeCurrency.decimals)
         const userAssets = cpBalance.add(value)
-        const userShare = totalSupply.gt(ZERO) ? floatEther(userAssets.mul(100)) / floatEther(totalSupply) : 0
-        const formattedAssets = formatEther(userAssets)
+        const userShare = totalSupply.gt(ZERO)
+          ? floatUnits(userAssets.mul(100), activeNetwork.nativeCurrency.decimals) /
+            floatUnits(totalSupply, activeNetwork.nativeCurrency.decimals)
+          : 0
+        const formattedAssets = formatUnits(userAssets, activeNetwork.nativeCurrency.decimals)
         setUserVaultAssets(formattedAssets)
         setUserVaultShare(userShare.toString())
       } catch (err) {

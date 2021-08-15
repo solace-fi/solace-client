@@ -23,7 +23,7 @@
 import React, { useEffect, useState } from 'react'
 
 /* import packages */
-import { formatEther, parseEther } from '@ethersproject/units'
+import { formatUnits, parseUnits } from '@ethersproject/units'
 
 /* import constants */
 import { GAS_LIMIT, MAX_MOBILE_SCREEN_WIDTH } from '../../constants'
@@ -53,7 +53,7 @@ import { useGetTotalValueLocked } from '../../hooks/useFarm'
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'
 
 /* import utils */
-import { fixed, getGasValue, floatEther, truncateBalance } from '../../utils/formatting'
+import { fixed, getGasValue, floatUnits, truncateBalance } from '../../utils/formatting'
 
 export const Statistics: React.FC = () => {
   /*************************************************************************************
@@ -202,7 +202,13 @@ export const Statistics: React.FC = () => {
             <BoxItem>
               <BoxItemTitle h3>Capital Pool Size</BoxItemTitle>
               <Text h2 nowrap>
-                {`${truncateBalance(floatEther(parseEther(capitalPoolSize)), 1)} `}
+                {`${truncateBalance(
+                  floatUnits(
+                    parseUnits(capitalPoolSize, activeNetwork.nativeCurrency.decimals),
+                    activeNetwork.nativeCurrency.decimals
+                  ),
+                  1
+                )} `}
                 <TextSpan h3>{activeNetwork.nativeCurrency.symbol}</TextSpan>
               </Text>
             </BoxItem>
@@ -217,7 +223,10 @@ export const Statistics: React.FC = () => {
               <BoxItemTitle h3>Active Cover Amount</BoxItemTitle>
               <Text h2 nowrap>
                 {totalActiveCoverAmount !== '-'
-                  ? `${truncateBalance(parseFloat(formatEther(totalActiveCoverAmount.toString())), 2)} `
+                  ? `${truncateBalance(
+                      parseFloat(formatUnits(totalActiveCoverAmount.toString(), activeNetwork.nativeCurrency.decimals)),
+                      2
+                    )} `
                   : `${totalActiveCoverAmount} `}
                 <TextSpan h3>{activeNetwork.nativeCurrency.symbol}</TextSpan>
               </Text>
@@ -269,7 +278,13 @@ export const Statistics: React.FC = () => {
                   <FormCol>Capital Pool Size</FormCol>
                   <FormCol>
                     <Text h2 nowrap>
-                      {`${truncateBalance(floatEther(parseEther(capitalPoolSize)), 1)} `}
+                      {`${truncateBalance(
+                        floatUnits(
+                          parseUnits(capitalPoolSize, activeNetwork.nativeCurrency.decimals),
+                          activeNetwork.nativeCurrency.decimals
+                        ),
+                        1
+                      )} `}
                       <TextSpan h3>{activeNetwork.nativeCurrency.symbol}</TextSpan>
                     </Text>
                   </FormCol>
@@ -288,7 +303,12 @@ export const Statistics: React.FC = () => {
                   <FormCol>
                     <Text h2 nowrap>
                       {totalActiveCoverAmount !== '-'
-                        ? `${truncateBalance(parseFloat(formatEther(totalActiveCoverAmount.toString())), 2)} `
+                        ? `${truncateBalance(
+                            parseFloat(
+                              formatUnits(totalActiveCoverAmount.toString(), activeNetwork.nativeCurrency.decimals)
+                            ),
+                            2
+                          )} `
                         : `${totalActiveCoverAmount} `}
                       <TextSpan h3>{activeNetwork.nativeCurrency.symbol}</TextSpan>
                     </Text>

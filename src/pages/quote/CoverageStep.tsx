@@ -25,7 +25,7 @@ import React, { useEffect, useMemo, useState } from 'react'
 
 /* import packages */
 import { Slider } from '@rebass/forms'
-import { formatEther, parseEther } from 'ethers/lib/utils'
+import { formatUnits, parseUnits } from 'ethers/lib/utils'
 import { BigNumber } from 'ethers'
 
 /* import constants */
@@ -55,7 +55,7 @@ import { FlexCol, FlexRow } from '../../components/atoms/Layout'
 import { useGetQuote, useGetMaxCoverPerUser } from '../../hooks/usePolicy'
 
 /* import utils */
-import { accurateMultiply, getGasValue, getNonHumanValue } from '../../utils/formatting'
+import { accurateMultiply, getGasValue } from '../../utils/formatting'
 import { getDateStringWithMonthName, getDateExtended } from '../../utils/time'
 
 export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigation }) => {
@@ -73,20 +73,19 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
   const { makeTxToast } = useToasts()
   const { activeNetwork } = useNetwork()
 
-  const maxCoverPerUserInWei = useMemo(
-    () => parseEther(maxCoverPerUser).mul(getNonHumanValue(1, activeNetwork.nativeCurrency.decimals)),
-    [maxCoverPerUser, activeNetwork.nativeCurrency.decimals]
-  )
+  const maxCoverPerUserInWei = useMemo(() => {
+    return parseUnits(maxCoverPerUser, activeNetwork.nativeCurrency.decimals)
+  }, [maxCoverPerUser, activeNetwork])
 
   // positionAmount: BigNumber = wei but displayable, position.eth.balance: BigNumber = wei
-  const positionAmount: BigNumber = useMemo(
-    () =>
-      BigNumber.from(
-        parseFloat(formatEther(position.eth.balance)) *
-          parseFloat(getNonHumanValue(1, activeNetwork.nativeCurrency.decimals).toString())
-      ),
-    [position.eth.balance, activeNetwork.nativeCurrency.decimals]
-  )
+  const positionAmount: BigNumber = useMemo(() => {
+    return BigNumber.from(
+      accurateMultiply(
+        formatUnits(position.eth.balance, activeNetwork.nativeCurrency.decimals),
+        activeNetwork.nativeCurrency.decimals
+      )
+    )
+  }, [position.eth.balance, activeNetwork.nativeCurrency.decimals])
 
   /*************************************************************************************
 
@@ -118,7 +117,7 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
         coverAmount,
         BigNumber.from(NUM_BLOCKS_PER_DAY * parseInt(timePeriod)),
         {
-          value: parseEther(quote),
+          value: parseUnits(quote, activeNetwork.nativeCurrency.decimals),
           gasPrice: getGasValue(gasPrices.selected.value),
           gasLimit: GAS_LIMIT,
         }
@@ -188,16 +187,20 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
     if (parseFloat(filtered) > parseFloat(maxCoverPerUser)) return
 
     // if number is greater than the position amount, do not update
-    if (parseFloat(filtered) > parseFloat(formatEther(positionAmount))) return
+    if (parseFloat(filtered) > parseFloat(formatUnits(positionAmount, activeNetwork.nativeCurrency.decimals))) return
 
     // if number is empty or less than smallest denomination of currency, do not update
-    if (filtered == '' || parseFloat(filtered) < parseFloat(formatEther(BigNumber.from(1)))) return
+    if (
+      filtered == '' ||
+      parseFloat(filtered) < parseFloat(formatUnits(BigNumber.from(1), activeNetwork.nativeCurrency.decimals))
+    )
+      return
 
     // if number has more than 18 decimal places, do not update
     if (filtered.includes('.') && filtered.split('.')[1]?.length > 18) return
 
     setInputCoverage(filtered)
-    setCoverage(accurateMultiply(filtered, 18))
+    setCoverage(accurateMultiply(filtered, activeNetwork.nativeCurrency.decimals))
   }
 
   // coverAmount in wei
@@ -211,7 +214,7 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
   }
 
   const handleCoverageChange = (coverAmount: string) => {
-    setInputCoverage(formatEther(BigNumber.from(coverAmount)))
+    setInputCoverage(formatUnits(BigNumber.from(coverAmount), activeNetwork.nativeCurrency.decimals))
     setCoverage(coverAmount)
   }
 
@@ -233,7 +236,7 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
   }, [maxCoverPerUser])
 
   useEffect(() => {
-    setCoveredAssets(formatEther(BigNumber.from(coverAmount)))
+    setCoveredAssets(formatUnits(BigNumber.from(coverAmount), activeNetwork.nativeCurrency.decimals))
   }, [coverAmount])
 
   /*************************************************************************************
@@ -248,11 +251,13 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
         <FormRow mb={15}>
           <FormCol>
             <Heading2>Total Assets</Heading2>
-            {position.underlying.symbol !== 'ETH' && <Text3>Denominated from {position.underlying.symbol}</Text3>}
+            {position.underlying.symbol !== activeNetwork.nativeCurrency.symbol && (
+              <Text3>Denominated from {position.underlying.symbol}</Text3>
+            )}
           </FormCol>
           <FormCol>
-            <Heading2>{formatEther(positionAmount)}</Heading2>
-            <Text3 textAlignRight>ETH</Text3>
+            <Heading2>{formatUnits(positionAmount, activeNetwork.nativeCurrency.decimals)}</Heading2>
+            <Text3 textAlignRight>{activeNetwork.nativeCurrency.symbol}</Text3>
           </FormCol>
         </FormRow>
         <hr style={{ marginBottom: '10px' }} />
@@ -323,8 +328,15 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
           </FormCol>
           <FormCol>
             <FlexRow>
-              <Text3 bold error={parseEther(coveredAssets).gt(parseEther(maxCoverPerUser)) && maxCoverPerUser !== '0'}>
-                {coveredAssets} ETH
+              <Text3
+                bold
+                error={
+                  parseUnits(coveredAssets, activeNetwork.nativeCurrency.decimals).gt(
+                    parseUnits(maxCoverPerUser, activeNetwork.nativeCurrency.decimals)
+                  ) && maxCoverPerUser !== '0'
+                }
+              >
+                {coveredAssets} {activeNetwork.nativeCurrency.symbol}
               </Text3>
             </FlexRow>
           </FormCol>
@@ -333,11 +345,21 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
           transparent
           outlined
           error
-          collapse={!parseEther(coveredAssets).gt(parseEther(maxCoverPerUser))}
-          mb={!parseEther(coveredAssets).gt(parseEther(maxCoverPerUser)) ? 0 : 5}
+          collapse={
+            !parseUnits(coveredAssets, activeNetwork.nativeCurrency.decimals).gt(
+              parseUnits(maxCoverPerUser, activeNetwork.nativeCurrency.decimals)
+            )
+          }
+          mb={
+            !parseUnits(coveredAssets, activeNetwork.nativeCurrency.decimals).gt(
+              parseUnits(maxCoverPerUser, activeNetwork.nativeCurrency.decimals)
+            )
+              ? 0
+              : 5
+          }
         >
           <Text3 error autoAlign>
-            You can only cover up to {maxCoverPerUser} ETH.
+            You can only cover up to {maxCoverPerUser} {activeNetwork.nativeCurrency.symbol}.
           </Text3>
         </SmallBox>
         <FormRow mb={5}>
@@ -361,7 +383,9 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
             <Text3>Quote</Text3>
           </FormCol>
           <FormCol>
-            <Text3 bold>{quote} ETH</Text3>
+            <Text3 bold>
+              {quote} {activeNetwork.nativeCurrency.symbol}
+            </Text3>
           </FormCol>
         </FormRow>
         <ButtonWrapper>
@@ -369,7 +393,12 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
             <Button
               widthP={100}
               onClick={() => buyPolicy()}
-              disabled={errors.length > 0 || parseEther(coveredAssets).gt(parseEther(maxCoverPerUser))}
+              disabled={
+                errors.length > 0 ||
+                parseUnits(coveredAssets, activeNetwork.nativeCurrency.decimals).gt(
+                  parseUnits(maxCoverPerUser, activeNetwork.nativeCurrency.decimals)
+                )
+              }
             >
               Buy
             </Button>

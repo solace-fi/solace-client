@@ -21,7 +21,7 @@
 import React, { Fragment } from 'react'
 
 /* import packages */
-import { formatEther } from '@ethersproject/units'
+import { formatUnits } from '@ethersproject/units'
 
 /* import managers */
 import { useWallet } from '../../context/WalletManager'
@@ -121,9 +121,11 @@ export const MyClaims: React.FC = () => {
                     <BoxItem>
                       <BoxItemTitle h3>Amount</BoxItemTitle>
                       <Text h3>
-                        {parseFloat(formatEther(claim.amount)) >= 1
-                          ? truncateBalance(parseFloat(formatEther(claim.amount)))
-                          : formatEther(claim.amount)}{' '}
+                        {parseFloat(formatUnits(claim.amount, activeNetwork.nativeCurrency.decimals)) >= 1
+                          ? truncateBalance(
+                              parseFloat(formatUnits(claim.amount, activeNetwork.nativeCurrency.decimals))
+                            )
+                          : formatUnits(claim.amount, activeNetwork.nativeCurrency.decimals)}{' '}
                         {activeNetwork.nativeCurrency.symbol}
                       </Text>
                     </BoxItem>

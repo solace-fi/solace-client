@@ -1,4 +1,4 @@
-import { formatEther } from '@ethersproject/units'
+import { formatUnits } from '@ethersproject/units'
 import { BigNumber } from 'ethers'
 import { FunctionName, Unit } from '../constants/enums'
 import { NetworkConfig, TokenInfo } from '../constants/types'
@@ -67,8 +67,8 @@ export const getHumanValue = (value?: BigNumber, decimals = 0): BigNumber | unde
   return value?.div(getExponentValue(decimals))
 }
 
-export const floatEther = (value: BigNumber): number => {
-  return parseFloat(formatEther(value))
+export const floatUnits = (value: BigNumber, decimals: number): number => {
+  return parseFloat(formatUnits(value, decimals))
 }
 
 // used for correctly user amount input before processing
@@ -132,7 +132,7 @@ export const formatTransactionContent = (
     case FunctionName.SUBMIT_CLAIM:
       return `Policy ${unit} ${BigNumber.from(amount)}`
     case FunctionName.WITHDRAW_ETH:
-      return `${truncateBalance(formatEther(BigNumber.from(amount)))} ${unit}`
+      return `${truncateBalance(formatUnits(BigNumber.from(amount), activeNetwork.nativeCurrency.decimals))} ${unit}`
     case FunctionName.WITHDRAW_LP:
       return `#${BigNumber.from(amount)} ${Unit.LP}`
     case FunctionName.DEPOSIT_ETH:
@@ -140,7 +140,7 @@ export const formatTransactionContent = (
     case FunctionName.WITHDRAW_CP:
     case FunctionName.WITHDRAW_REWARDS:
     case FunctionName.APPROVE:
-      return `${truncateBalance(formatEther(BigNumber.from(amount)))} ${unit}`
+      return `${truncateBalance(formatUnits(BigNumber.from(amount), activeNetwork.nativeCurrency.decimals))} ${unit}`
     case FunctionName.DEPOSIT_SIGNED:
     case FunctionName.WITHDRAW_LP:
       return `#${BigNumber.from(amount)} ${unit}`

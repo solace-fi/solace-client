@@ -21,7 +21,7 @@
 import React, { Fragment } from 'react'
 
 /* import packages */
-import { formatEther } from '@ethersproject/units'
+import { formatUnits } from '@ethersproject/units'
 
 /* import managers */
 import { useCachedData } from '../../context/CachedDataManager'
@@ -127,7 +127,9 @@ export const MyPolicies: React.FC<MyPoliciesProps> = ({ openClaimModal, openMana
                       {calculatePolicyExpirationDate(policy.expirationBlock)}
                     </TableData>
                     <TableData>
-                      {policy.coverAmount ? truncateBalance(parseFloat(formatEther(policy.coverAmount)), 2) : 0}{' '}
+                      {policy.coverAmount
+                        ? truncateBalance(formatUnits(policy.coverAmount, activeNetwork.nativeCurrency.decimals), 2)
+                        : 0}{' '}
                       {activeNetwork.nativeCurrency.symbol}
                     </TableData>
 
@@ -193,7 +195,9 @@ export const MyPolicies: React.FC<MyPoliciesProps> = ({ openClaimModal, openMana
                     <FormCol>Covered Amount:</FormCol>
                     <FormCol>
                       <Heading2>
-                        {policy.coverAmount ? truncateBalance(parseFloat(formatEther(policy.coverAmount)), 2) : 0}{' '}
+                        {policy.coverAmount
+                          ? truncateBalance(formatUnits(policy.coverAmount, activeNetwork.nativeCurrency.decimals), 2)
+                          : 0}{' '}
                         {activeNetwork.nativeCurrency.symbol}
                       </Heading2>
                     </FormCol>

@@ -21,15 +21,16 @@
 import React from 'react'
 
 /* import packages */
-import { formatEther } from '@ethersproject/units'
+import { formatUnits } from '@ethersproject/units'
 
 /* import managers */
 import { useContracts } from '../../context/ContractsManager'
 import { useWallet } from '../../context/WalletManager'
+import { useNetwork } from '../../context/NetworkManager'
 
 /* import constants */
 import { FunctionName } from '../../constants/enums'
-import { LP_ROI, MAX_TABLET_SCREEN_WIDTH, ZERO } from '../../constants'
+import { LP_ROI, MAX_TABLET_SCREEN_WIDTH } from '../../constants'
 
 /* import components */
 import { Content } from '../atoms/Layout'
@@ -62,6 +63,7 @@ export const LiquidityPool: React.FC<LiquidityPoolProps> = ({ openModal }) => {
   const { account, errors } = useWallet()
   const { lpFarm } = useContracts()
   const { width } = useWindowDimensions()
+  const { activeNetwork } = useNetwork()
 
   const lpRewardsPerDay = useRewardsPerDay(2)
   const lpUserRewardsPerDay = useUserRewardsPerDay(2, lpFarm, account)
@@ -96,7 +98,7 @@ export const LiquidityPool: React.FC<LiquidityPoolProps> = ({ openModal }) => {
               {/* {account ? (
                 <TableData width={100}>
                   {truncateBalance(
-                    formatEther(depositedLpTokenInfo.reduce((a, b) => a.add(b.value), ZERO).toString()),
+                    formatUnits(depositedLpTokenInfo.reduce((a, b) => a.add(b.value), ZERO).toString(), activeNetwork.nativeCurrency.decimals),
                     2
                   )}
                 </TableData>

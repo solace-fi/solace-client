@@ -32,6 +32,7 @@ import styled from 'styled-components'
 
 /* import context */
 import { useWallet } from '../../context/WalletManager'
+import { useNetwork } from '../../context/NetworkManager'
 
 /* import constants */
 import { MAX_MOBILE_SCREEN_WIDTH, ZERO } from '../../constants'
@@ -139,6 +140,7 @@ export const MultiStepForm = () => {
     initialStep: 0,
   })
   const { account, chainId } = useWallet()
+  const { activeNetwork } = useNetwork()
   const { width } = useWindowDimensions()
   const props = { formData, setForm, navigation }
 
@@ -206,7 +208,9 @@ export const MultiStepForm = () => {
                   </Protocol>
                 </BoxItem>
                 <BoxItem>{fixed(protocol.yearlyCost * 100, 2)}%</BoxItem>
-                <BoxItem>{protocol.availableCoverage} ETH</BoxItem>
+                <BoxItem>
+                  {protocol.availableCoverage} {activeNetwork.nativeCurrency.symbol}
+                </BoxItem>
                 <BoxItem>
                   <Button onClick={() => navigation.go(0)}>Change</Button>
                 </BoxItem>
@@ -258,7 +262,9 @@ export const MultiStepForm = () => {
                 <FormRow>
                   <FormCol>Available Coverage</FormCol>
                   <FormCol>
-                    <Heading2>{protocol.availableCoverage} ETH</Heading2>
+                    <Heading2>
+                      {protocol.availableCoverage} {activeNetwork.nativeCurrency.symbol}
+                    </Heading2>
                   </FormCol>
                 </FormRow>
                 <ButtonWrapper>

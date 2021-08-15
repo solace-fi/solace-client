@@ -1,12 +1,13 @@
 import useDebounce from '@rooks/use-debounce'
 import { BigNumber } from 'ethers'
-import { formatEther } from '@ethersproject/units'
+import { formatUnits } from '@ethersproject/units'
 import { useEffect, useState } from 'react'
 import { GAS_LIMIT, NUM_BLOCKS_PER_DAY, ZERO } from '../constants'
 import { useContracts } from '../context/ContractsManager'
 import { useWallet } from '../context/WalletManager'
 import { Policy, StringToStringMapping } from '../constants/types'
 import { useCachedData } from '../context/CachedDataManager'
+import { useNetwork } from '../context/NetworkManager'
 
 export const useGetPolicyPrice = (policyId: number): string => {
   const [policyPrice, setPolicyPrice] = useState<string>('')
@@ -57,12 +58,13 @@ export const useAppraisePosition = (policy: Policy | undefined): BigNumber => {
 export const useGetMaxCoverPerUser = (): string => {
   const [maxCoverPerUser, setMaxCoverPerUser] = useState<string>('0')
   const { selectedProtocol } = useContracts()
+  const { activeNetwork } = useNetwork()
 
   const getMaxCoverPerUser = async () => {
     if (!selectedProtocol) return
     try {
       const maxCover = await selectedProtocol.maxCoverPerUser()
-      const formattedMaxCover = formatEther(maxCover)
+      const formattedMaxCover = formatUnits(maxCover, activeNetwork.nativeCurrency.decimals)
       setMaxCoverPerUser(formattedMaxCover)
     } catch (err) {
       console.log('getMaxCoverPerUser', err)
@@ -79,6 +81,7 @@ export const useGetMaxCoverPerUser = (): string => {
 export const useGetYearlyCosts = (): StringToStringMapping => {
   const [yearlyCosts, setYearlyCosts] = useState<StringToStringMapping>({})
   const { products, getProtocolByName } = useContracts()
+  const { activeNetwork } = useNetwork()
 
   const getYearlyCosts = async () => {
     try {
@@ -89,7 +92,7 @@ export const useGetYearlyCosts = (): StringToStringMapping => {
           const product = getProtocolByName(productContract.name)
           if (product) {
             const fetchedPrice = await product.price()
-            newYearlyCosts[productContract.name] = formatEther(fetchedPrice)
+            newYearlyCosts[productContract.name] = formatUnits(fetchedPrice, activeNetwork.nativeCurrency.decimals)
           } else {
             newYearlyCosts[productContract.name] = '0'
           }
@@ -111,6 +114,7 @@ export const useGetYearlyCosts = (): StringToStringMapping => {
 export const useGetAvailableCoverages = (): StringToStringMapping => {
   const [availableCoverages, setAvailableCoverages] = useState<StringToStringMapping>({})
   const { products, getProtocolByName } = useContracts()
+  const { activeNetwork } = useNetwork()
 
   const getAvailableCoverages = async () => {
     try {
@@ -122,7 +126,7 @@ export const useGetAvailableCoverages = (): StringToStringMapping => {
           if (product) {
             const maxCoverAmount = await product.maxCoverAmount()
             const activeCoverAmount = await product.activeCoverAmount()
-            const coverage = formatEther(maxCoverAmount.sub(activeCoverAmount))
+            const coverage = formatUnits(maxCoverAmount.sub(activeCoverAmount), activeNetwork.nativeCurrency.decimals)
             newAvailableCoverages[productContract.name] = coverage
           } else {
             newAvailableCoverages[productContract.name] = '0'
@@ -147,6 +151,7 @@ export const useGetQuote = (coverAmount: string | null, positionContract: string
   const { account } = useWallet()
   const [quote, setQuote] = useState<string>('0.00')
   const { selectedProtocol } = useContracts()
+  const { activeNetwork } = useNetwork()
 
   const getQuote = async () => {
     if (!selectedProtocol || !coverAmount || !positionContract) return
@@ -160,7 +165,7 @@ export const useGetQuote = (coverAmount: string | null, positionContract: string
           gasLimit: GAS_LIMIT,
         }
       )
-      const formattedQuote = formatEther(quote)
+      const formattedQuote = formatUnits(quote, activeNetwork.nativeCurrency.decimals)
       setQuote(formattedQuote)
     } catch (err) {
       console.log('getQuote', err)

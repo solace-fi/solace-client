@@ -20,7 +20,7 @@
 import React from 'react'
 
 /* import packages */
-import { formatEther } from '@ethersproject/units'
+import { formatUnits } from '@ethersproject/units'
 
 /* import managers */
 import { useWallet } from '../../context/WalletManager'
@@ -97,7 +97,7 @@ export const MyInvestments: React.FC = () => {
             <Heading3>
               {/* {account
                 ? truncateBalance(
-                    formatEther(depositedLpTokenInfo.reduce((a, b) => a.add(b.value), ZERO).toString()),
+                    formatUnits(depositedLpTokenInfo.reduce((a, b) => a.add(b.value), ZERO).toString(), activeNetwork.nativeCurrency.decimals),
                     2
                   )
                 : 0}{' '}

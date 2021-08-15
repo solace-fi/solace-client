@@ -4,6 +4,7 @@
 
     import react
     import packages
+    import managers
     import constants
     import components
     import hooks
@@ -19,7 +20,10 @@
 import React, { Fragment } from 'react'
 
 /* import packages */
-import { formatEther } from '@ethersproject/units'
+import { formatUnits } from '@ethersproject/units'
+
+/* import managers */
+import { useNetwork } from '../../context/NetworkManager'
 
 /* import constants */
 import { Policy } from '../../constants/types'
@@ -54,6 +58,7 @@ export const PolicyModalInfo: React.FC<PolicyModalInfoProps> = ({ selectedPolicy
 
   *************************************************************************************/
   const appraisal = useAppraisePosition(selectedPolicy)
+  const { activeNetwork } = useNetwork()
   const { width } = useWindowDimensions()
 
   /*************************************************************************************
@@ -81,14 +86,19 @@ export const PolicyModalInfo: React.FC<PolicyModalInfoProps> = ({ selectedPolicy
           <BoxItem>
             <BoxItemTitle h3>Cover Amount</BoxItemTitle>
             <Text h2 nowrap>
-              {selectedPolicy?.coverAmount ? truncateBalance(formatEther(selectedPolicy.coverAmount)) : 0} ETH
+              {selectedPolicy?.coverAmount
+                ? truncateBalance(formatUnits(selectedPolicy.coverAmount, activeNetwork.nativeCurrency.decimals))
+                : 0}{' '}
+              {activeNetwork.nativeCurrency.symbol}
             </Text>
           </BoxItem>
           <BoxItem>
             <BoxItemTitle h3>Position Amount</BoxItemTitle>
             <Text h2 nowrap>
               {appraisal.gt(ZERO) ? (
-                `${truncateBalance(formatEther(appraisal) || 0)} ETH`
+                `${truncateBalance(formatUnits(appraisal, activeNetwork.nativeCurrency.decimals) || 0)} ${
+                  activeNetwork.nativeCurrency.symbol
+                }`
               ) : (
                 <Loader width={10} height={10} />
               )}
@@ -122,7 +132,10 @@ export const PolicyModalInfo: React.FC<PolicyModalInfoProps> = ({ selectedPolicy
             </FormCol>
             <FormCol>
               <Heading3>
-                {selectedPolicy?.coverAmount ? truncateBalance(formatEther(selectedPolicy.coverAmount)) : 0} ETH
+                {selectedPolicy?.coverAmount
+                  ? truncateBalance(formatUnits(selectedPolicy.coverAmount, activeNetwork.nativeCurrency.decimals))
+                  : 0}{' '}
+                {activeNetwork.nativeCurrency.symbol}
               </Heading3>
             </FormCol>
           </FormRow>
@@ -133,7 +146,9 @@ export const PolicyModalInfo: React.FC<PolicyModalInfoProps> = ({ selectedPolicy
             <FormCol>
               <Heading3>
                 {appraisal.gt(ZERO) ? (
-                  `${truncateBalance(formatEther(appraisal) || 0)} ETH`
+                  `${truncateBalance(formatUnits(appraisal, activeNetwork.nativeCurrency.decimals) || 0)} ${
+                    activeNetwork.nativeCurrency.symbol
+                  }`
                 ) : (
                   <Loader width={10} height={10} />
                 )}{' '}

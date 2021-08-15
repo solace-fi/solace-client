@@ -2,14 +2,16 @@ import { useContracts } from '../context/ContractsManager'
 import { useWallet } from '../context/WalletManager'
 import { useCachedData } from '../context/CachedDataManager'
 import { useState, useEffect } from 'react'
-import { formatEther } from '@ethersproject/units'
+import { formatUnits } from '@ethersproject/units'
 import { BigNumber } from 'ethers'
 import { LpTokenInfo } from '../constants/types'
 import { rangeFrom0 } from '../utils/numeric'
 import { listTokensOfOwner } from '../utils/token'
+import { useNetwork } from '../context/NetworkManager'
 
 export const useNativeTokenBalance = (): string => {
   const { account, library, connect } = useWallet()
+  const { activeNetwork } = useNetwork()
   const { version } = useCachedData()
   const [balance, setBalance] = useState<string>('0.00')
 
@@ -18,7 +20,7 @@ export const useNativeTokenBalance = (): string => {
       if (!library || !account) return
       try {
         const balance = await library.getBalance(account)
-        const formattedBalance = formatEther(balance)
+        const formattedBalance = formatUnits(balance, activeNetwork.nativeCurrency.decimals)
         setBalance(formattedBalance)
       } catch (err) {
         console.log('getNativeTokenbalance', err)
@@ -32,6 +34,7 @@ export const useNativeTokenBalance = (): string => {
 
 export const useScpBalance = (): string => {
   const { vault } = useContracts()
+  const { activeNetwork } = useNetwork()
   const { account } = useWallet()
   const { version, latestBlock } = useCachedData()
   const [scpBalance, setScpBalance] = useState<string>('0.00')
@@ -41,7 +44,7 @@ export const useScpBalance = (): string => {
       if (!vault || !account) return
       try {
         const balance = await vault.balanceOf(account)
-        const formattedBalance = formatEther(balance)
+        const formattedBalance = formatUnits(balance, activeNetwork.nativeCurrency.decimals)
         setScpBalance(formattedBalance)
       } catch (err) {
         console.log('getScpBalance', err)
@@ -55,6 +58,7 @@ export const useScpBalance = (): string => {
 
 export const useSolaceBalance = (): string => {
   const { solace } = useContracts()
+  const { activeNetwork } = useNetwork()
   const { account } = useWallet()
   const { version, latestBlock } = useCachedData()
   const [solaceBalance, setSolaceBalance] = useState<string>('0.00')
@@ -64,7 +68,7 @@ export const useSolaceBalance = (): string => {
       if (!solace) return
       try {
         const balance = await solace.balanceOf(account)
-        const formattedBalance = formatEther(balance)
+        const formattedBalance = formatUnits(balance, activeNetwork.nativeCurrency.decimals)
         setSolaceBalance(formattedBalance)
       } catch (err) {
         console.log('getSolaceBalance', err)

@@ -24,8 +24,7 @@
 import React, { Fragment, useCallback, useEffect, useState, useRef } from 'react'
 
 /* import packages */
-import { formatEther } from '@ethersproject/units'
-import { Contract } from 'ethers'
+import { formatUnits } from '@ethersproject/units'
 
 /* import managers */
 import { useWallet } from '../../context/WalletManager'
@@ -184,7 +183,10 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
                 </Text3>
               </FormCol>
               <FormCol>
-                <Heading2 autoAlign>{truncateBalance(formatEther(assessment?.amountOut || 0))} ETH</Heading2>
+                <Heading2 autoAlign>
+                  {truncateBalance(formatUnits(assessment?.amountOut || 0, activeNetwork.nativeCurrency.decimals))}{' '}
+                  {activeNetwork.nativeCurrency.symbol}
+                </Heading2>
               </FormCol>
             </FormRow>
             <SmallBox transparent mt={!assessment?.lossEventDetected ? 10 : 0} collapse={assessment?.lossEventDetected}>

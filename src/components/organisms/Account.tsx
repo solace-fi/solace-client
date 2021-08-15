@@ -76,7 +76,7 @@ export const Account: React.FC = () => {
         <Fragment>
           <SmallBox pl={10} navy>
             <Heading3 autoAlign nowrap>
-              {balance ? `${fixed(parseFloat(balance), 3)} ETH` : ''}
+              {balance ? `${fixed(parseFloat(balance), 3)} ${activeNetwork.nativeCurrency.symbol}` : ''}
             </Heading3>
             <SmallBox ml={10} navy>
               <Heading3 autoAlign>{shortenAddress(account)}</Heading3>{' '}

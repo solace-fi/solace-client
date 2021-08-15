@@ -26,7 +26,7 @@ import React, { Fragment, useState, useEffect, useMemo, useCallback } from 'reac
 /* import packages */
 import styled from 'styled-components'
 import { Slider } from '@rebass/forms'
-import { parseEther, formatEther } from '@ethersproject/units'
+import { parseUnits, formatUnits } from '@ethersproject/units'
 import { BigNumber } from 'ethers'
 
 /* import managers */
@@ -292,7 +292,7 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
 
   const handleCoverageChange = (coverAmount: string) => {
     setNewCoverage(coverAmount) // coveramount in wei
-    setInputCoverage(formatEther(BigNumber.from(coverAmount))) // coveramount in eth
+    setInputCoverage(formatUnits(BigNumber.from(coverAmount), activeNetwork.nativeCurrency.decimals)) // coveramount in eth
   }
 
   const handleInputCoverage = (input: string) => {
@@ -303,15 +303,19 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
     if (parseFloat(filtered) > parseFloat(maxCoverPerUser)) return
 
     // if number is greater than the position amount, do not update
-    if (parseFloat(filtered) > parseFloat(formatEther(appraisal))) return
+    if (parseFloat(filtered) > parseFloat(formatUnits(appraisal, activeNetwork.nativeCurrency.decimals))) return
 
     // if number is empty or less than smallest denomination of currency, do not update
-    if (filtered == '' || parseFloat(filtered) < parseFloat(formatEther(BigNumber.from(1)))) return
+    if (
+      filtered == '' ||
+      parseFloat(filtered) < parseFloat(formatUnits(BigNumber.from(1), activeNetwork.nativeCurrency.decimals))
+    )
+      return
 
     // if number has more than 18 decimal places, do not update
     if (filtered.includes('.') && filtered.split('.')[1]?.length > 18) return
 
-    setNewCoverage(accurateMultiply(filtered, 18)) // set new amount in wei
+    setNewCoverage(accurateMultiply(filtered, activeNetwork.nativeCurrency.decimals)) // set new amount in wei
     setInputCoverage(filtered) // set new amount in eth
   }
 
@@ -322,7 +326,6 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
         DAYS_PER_YEAR - getDaysLeft(selectedPolicy ? parseFloat(selectedPolicy.expirationBlock) : 0, latestBlock) ||
       filtered == ''
     ) {
-      console.log('filtered time', filtered)
       setExtendedTime(filtered)
     }
   }
@@ -446,17 +449,32 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
                     transparent
                     outlined
                     error
-                    collapse={!parseEther(inputCoverage).gt(parseEther(maxCoverPerUser))}
-                    mb={!parseEther(inputCoverage).gt(parseEther(maxCoverPerUser)) ? 0 : 5}
+                    collapse={
+                      !parseUnits(inputCoverage, activeNetwork.nativeCurrency.decimals).gt(
+                        parseUnits(maxCoverPerUser, activeNetwork.nativeCurrency.decimals)
+                      )
+                    }
+                    mb={
+                      !parseUnits(inputCoverage, activeNetwork.nativeCurrency.decimals).gt(
+                        parseUnits(maxCoverPerUser, activeNetwork.nativeCurrency.decimals)
+                      )
+                        ? 0
+                        : 5
+                    }
                   >
                     <Text3 error autoAlign>
-                      You can only cover up to {maxCoverPerUser} ETH.
+                      You can only cover up to {maxCoverPerUser} {activeNetwork.nativeCurrency.symbol}.
                     </Text3>
                   </SmallBox>
                   <FormRow mb={5} style={{ justifyContent: 'flex-end' }}>
                     {!asyncLoading ? (
                       <Button
-                        disabled={errors.length > 0 || parseEther(inputCoverage).gt(parseEther(maxCoverPerUser))}
+                        disabled={
+                          errors.length > 0 ||
+                          parseUnits(inputCoverage, activeNetwork.nativeCurrency.decimals).gt(
+                            parseUnits(maxCoverPerUser, activeNetwork.nativeCurrency.decimals)
+                          )
+                        }
                         onClick={handleFunc}
                       >
                         Update Policy
@@ -521,18 +539,33 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
                         transparent
                         outlined
                         error
-                        collapse={!parseEther(inputCoverage).gt(parseEther(maxCoverPerUser))}
-                        mb={!parseEther(inputCoverage).gt(parseEther(maxCoverPerUser)) ? 0 : 5}
+                        collapse={
+                          !parseUnits(inputCoverage, activeNetwork.nativeCurrency.decimals).gt(
+                            parseUnits(maxCoverPerUser, activeNetwork.nativeCurrency.decimals)
+                          )
+                        }
+                        mb={
+                          !parseUnits(inputCoverage, activeNetwork.nativeCurrency.decimals).gt(
+                            parseUnits(maxCoverPerUser, activeNetwork.nativeCurrency.decimals)
+                          )
+                            ? 0
+                            : 5
+                        }
                       >
                         <Text3 error autoAlign>
-                          You can only cover up to {maxCoverPerUser} ETH.
+                          You can only cover up to {maxCoverPerUser} {activeNetwork.nativeCurrency.symbol}.
                         </Text3>
                       </SmallBox>
                       <ButtonWrapper>
                         {!asyncLoading ? (
                           <Button
                             widthP={100}
-                            disabled={errors.length > 0 || parseEther(inputCoverage).gt(parseEther(maxCoverPerUser))}
+                            disabled={
+                              errors.length > 0 ||
+                              parseUnits(inputCoverage, activeNetwork.nativeCurrency.decimals).gt(
+                                parseUnits(maxCoverPerUser, activeNetwork.nativeCurrency.decimals)
+                              )
+                            }
                             onClick={handleFunc}
                           >
                             Update Policy
@@ -555,7 +588,11 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
                   <FormRow mb={10}>
                     <FormCol>
                       <Text3>
-                        Refund amount: <TextSpan nowrap>{formatEther(refundAmount)} ETH</TextSpan>
+                        Refund amount:{' '}
+                        <TextSpan nowrap>
+                          {formatUnits(refundAmount, activeNetwork.nativeCurrency.decimals)}{' '}
+                          {activeNetwork.nativeCurrency.symbol}
+                        </TextSpan>
                       </Text3>
                     </FormCol>
                   </FormRow>
@@ -578,7 +615,10 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
                 <FlexCol mt={20}>
                   <FormRow mb={10}>
                     <FormCol>
-                      <Text3>Refund amount: {formatEther(refundAmount)} ETH</Text3>
+                      <Text3>
+                        Refund amount: {formatUnits(refundAmount, activeNetwork.nativeCurrency.decimals)}{' '}
+                        {activeNetwork.nativeCurrency.symbol}
+                      </Text3>
                     </FormCol>
                   </FormRow>
                   <FormCol></FormCol>
