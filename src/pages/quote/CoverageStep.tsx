@@ -196,8 +196,8 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
     )
       return
 
-    // if number has more than 18 decimal places, do not update
-    if (filtered.includes('.') && filtered.split('.')[1]?.length > 18) return
+    // if number has more than max decimal places, do not update
+    if (filtered.includes('.') && filtered.split('.')[1]?.length > activeNetwork.nativeCurrency.decimals) return
 
     setInputCoverage(filtered)
     setCoverage(accurateMultiply(filtered, activeNetwork.nativeCurrency.decimals))

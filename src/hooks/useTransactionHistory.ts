@@ -43,10 +43,10 @@ export const useTransactionDetails = (): { txHistory: any; amounts: string[] } =
     provider: Web3Provider | Provider
   ): Promise<string> => {
     const receipt = await provider.getTransactionReceipt(tx.hash)
-    if (!receipt) return '0'
-    if (receipt.status == 0) return '0'
+    if (!receipt) return ''
+    if (receipt.status == 0) return ''
     const logs = receipt.logs
-    if (!logs || logs.length <= 0) return '0'
+    if (!logs || logs.length <= 0) return ''
     const topics = logs[logs.length - 1].topics
 
     switch (function_name) {
@@ -89,7 +89,7 @@ export const useTransactionDetails = (): { txHistory: any; amounts: string[] } =
           currentAmounts.push('N/A')
         } else {
           const amount: string = await getTransactionAmount(function_name, txHistory[tx_i], library)
-          currentAmounts.push(`${formatTransactionContent(function_name, amount, activeNetwork, txHistory[tx_i].to)}`)
+          currentAmounts.push(`${formatTransactionContent(function_name, amount, activeNetwork)}`)
         }
       }
       setAmounts(currentAmounts)

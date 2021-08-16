@@ -555,7 +555,7 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
       const maxEth = calculateMaxEth()
       setAmount(maxEth.toString())
     }
-  }, [handleSelectChange])
+  }, [maxSelected, handleSelectChange])
 
   useEffect(() => {
     if (isOpen && vault && cpFarm?.address) {

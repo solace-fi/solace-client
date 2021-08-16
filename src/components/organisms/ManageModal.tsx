@@ -326,8 +326,8 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
     )
       return
 
-    // if number has more than 18 decimal places, do not update
-    if (filtered.includes('.') && filtered.split('.')[1]?.length > 18) return
+    // if number has more than max decimal places, do not update
+    if (filtered.includes('.') && filtered.split('.')[1]?.length > activeNetwork.nativeCurrency.decimals) return
 
     setNewCoverage(accurateMultiply(filtered, activeNetwork.nativeCurrency.decimals)) // set new amount in wei
     setInputCoverage(filtered) // set new amount in eth

@@ -117,8 +117,7 @@ export const getUnit = (function_name: string, activeNetwork: NetworkConfig): Un
 export const formatTransactionContent = (
   function_name: string,
   amount: string,
-  activeNetwork: NetworkConfig,
-  to: string
+  activeNetwork: NetworkConfig
 ): string => {
   const unit = getUnit(function_name, activeNetwork)
   switch (function_name) {
@@ -144,6 +143,10 @@ export const formatTransactionContent = (
     case FunctionName.DEPOSIT_SIGNED:
     case FunctionName.WITHDRAW_LP:
       return `#${BigNumber.from(amount)} ${unit}`
+    case FunctionName.START_COOLDOWN:
+      return `Withdrawal cooldown started`
+    case FunctionName.STOP_COOLDOWN:
+      return `Withdrawal cooldown stopped`
     default:
       return `${amount} ${unit}`
   }
