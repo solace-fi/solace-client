@@ -89,7 +89,7 @@ export const RinkebyNetwork: NetworkConfig = {
     },
   },
   cache: {
-    supportedProducts: [{ name: ProductName.COMPOUND }],
+    supportedProducts: [{ name: ProductName.COMPOUND, contract: null }],
     productsRev: {
       [String(process.env.REACT_APP_RINKEBY_COMPOUND_PRODUCT_ADDR)]: ProductName.COMPOUND,
     },

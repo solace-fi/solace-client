@@ -89,7 +89,7 @@ export const KovanNetwork: NetworkConfig = {
     },
   },
   cache: {
-    supportedProducts: [{ name: ProductName.AAVE }],
+    supportedProducts: [{ name: ProductName.AAVE, contract: null }],
     productsRev: {
       [String(process.env.REACT_APP_KOVAN_AAVE_PRODUCT_ADDR)]: ProductName.AAVE,
     },
