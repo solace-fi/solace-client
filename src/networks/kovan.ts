@@ -96,4 +96,5 @@ export const KovanNetwork: NetworkConfig = {
     getBalances: { [ProductName.AAVE]: aaveBalances },
     positions: { [ProductName.AAVE]: { positionNamesInitialized: false } },
   },
+  isMetaMask: true,
 }

@@ -90,7 +90,7 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
   const { makeTxToast } = useToasts()
   const policyPrice = useGetPolicyPrice(selectedPolicy ? selectedPolicy.policyId : 0)
   const maxCoverPerUser = useGetMaxCoverPerUser()
-  const { activeNetwork } = useNetwork()
+  const { activeNetwork, currencyDecimals } = useNetwork()
 
   const daysLeft = useMemo(() => getDaysLeft(selectedPolicy ? selectedPolicy.expirationBlock : 0, latestBlock), [
     latestBlock,
@@ -306,7 +306,7 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
 
   const handleCoverageChange = (coverAmount: string) => {
     setNewCoverage(coverAmount) // coveramount in wei
-    setInputCoverage(formatUnits(BigNumber.from(coverAmount), activeNetwork.nativeCurrency.decimals)) // coveramount in eth
+    setInputCoverage(formatUnits(BigNumber.from(coverAmount), currencyDecimals)) // coveramount in eth
   }
 
   const handleInputCoverage = (input: string) => {
@@ -317,19 +317,15 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
     if (parseFloat(filtered) > parseFloat(maxCoverPerUser)) return
 
     // if number is greater than the position amount, do not update
-    if (parseFloat(filtered) > parseFloat(formatUnits(appraisal, activeNetwork.nativeCurrency.decimals))) return
+    if (parseFloat(filtered) > parseFloat(formatUnits(appraisal, currencyDecimals))) return
 
     // if number is empty or less than smallest denomination of currency, do not update
-    if (
-      filtered == '' ||
-      parseFloat(filtered) < parseFloat(formatUnits(BigNumber.from(1), activeNetwork.nativeCurrency.decimals))
-    )
-      return
+    if (filtered == '' || parseFloat(filtered) < parseFloat(formatUnits(BigNumber.from(1), currencyDecimals))) return
 
     // if number has more than max decimal places, do not update
-    if (filtered.includes('.') && filtered.split('.')[1]?.length > activeNetwork.nativeCurrency.decimals) return
+    if (filtered.includes('.') && filtered.split('.')[1]?.length > currencyDecimals) return
 
-    setNewCoverage(accurateMultiply(filtered, activeNetwork.nativeCurrency.decimals)) // set new amount in wei
+    setNewCoverage(accurateMultiply(filtered, currencyDecimals)) // set new amount in wei
     setInputCoverage(filtered) // set new amount in eth
   }
 
@@ -446,14 +442,10 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
                       outlined
                       error
                       collapse={
-                        !parseUnits(inputCoverage, activeNetwork.nativeCurrency.decimals).gt(
-                          parseUnits(maxCoverPerUser, activeNetwork.nativeCurrency.decimals)
-                        )
+                        !parseUnits(inputCoverage, currencyDecimals).gt(parseUnits(maxCoverPerUser, currencyDecimals))
                       }
                       mb={
-                        !parseUnits(inputCoverage, activeNetwork.nativeCurrency.decimals).gt(
-                          parseUnits(maxCoverPerUser, activeNetwork.nativeCurrency.decimals)
-                        )
+                        !parseUnits(inputCoverage, currencyDecimals).gt(parseUnits(maxCoverPerUser, currencyDecimals))
                           ? 0
                           : 5
                       }
@@ -468,8 +460,8 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
                           widthP={100}
                           disabled={
                             errors.length > 0 ||
-                            parseUnits(inputCoverage, activeNetwork.nativeCurrency.decimals).gt(
-                              parseUnits(maxCoverPerUser, activeNetwork.nativeCurrency.decimals)
+                            parseUnits(inputCoverage, currencyDecimals).gt(
+                              parseUnits(maxCoverPerUser, currencyDecimals)
                             )
                           }
                           onClick={handleFunc}
@@ -490,8 +482,7 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
                 <FormRow mb={10}>
                   <FormCol>
                     <Text3>
-                      Refund amount: {formatUnits(refundAmount, activeNetwork.nativeCurrency.decimals)}{' '}
-                      {activeNetwork.nativeCurrency.symbol}
+                      Refund amount: {formatUnits(refundAmount, currencyDecimals)} {activeNetwork.nativeCurrency.symbol}
                     </Text3>
                   </FormCol>
                 </FormRow>

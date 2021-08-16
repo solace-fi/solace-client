@@ -44,7 +44,6 @@ export type ContextWallet = {
   connecting?: WalletConnector
   isActive: boolean
   account?: string
-  chainId?: number
   library?: any
   connector?: WalletConnector
   errors: AppError[]
@@ -58,7 +57,6 @@ const WalletContext = createContext<ContextWallet>({
   connecting: undefined,
   isActive: false,
   account: undefined,
-  chainId: undefined,
   library: undefined,
   connector: undefined,
   errors: [],
@@ -156,7 +154,6 @@ const WalletProvider: React.FC = (props) => {
       connecting,
       isActive: web3React.active,
       account: web3React.account ?? undefined,
-      chainId: web3React.chainId,
       library: web3React.account ? web3React.library : ethProvider,
       connector: activeConnector,
       errors,

@@ -63,7 +63,7 @@ export const LiquidityPool: React.FC<LiquidityPoolProps> = ({ openModal }) => {
   const { account, errors } = useWallet()
   const { lpFarm } = useContracts()
   const { width } = useWindowDimensions()
-  const { activeNetwork } = useNetwork()
+  const { currencyDecimals } = useNetwork()
 
   const lpRewardsPerDay = useRewardsPerDay(2)
   const lpUserRewardsPerDay = useUserRewardsPerDay(2, lpFarm, account)
@@ -98,7 +98,7 @@ export const LiquidityPool: React.FC<LiquidityPoolProps> = ({ openModal }) => {
               {/* {account ? (
                 <TableData width={100}>
                   {truncateBalance(
-                    formatUnits(depositedLpTokenInfo.reduce((a, b) => a.add(b.value), ZERO).toString(), activeNetwork.nativeCurrency.decimals),
+                    formatUnits(depositedLpTokenInfo.reduce((a, b) => a.add(b.value), ZERO).toString(), currencyDecimals),
                     2
                   )}
                 </TableData>

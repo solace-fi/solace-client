@@ -62,7 +62,7 @@ export const Statistics: React.FC = () => {
 
   *************************************************************************************/
   const { account, errors, initialized } = useWallet()
-  const { activeNetwork } = useNetwork()
+  const { activeNetwork, currencyDecimals } = useNetwork()
   const { master } = useContracts()
   const { makeTxToast } = useToasts()
   const {
@@ -202,13 +202,7 @@ export const Statistics: React.FC = () => {
             <BoxItem>
               <BoxItemTitle h3>Capital Pool Size</BoxItemTitle>
               <Text h2 nowrap>
-                {`${truncateBalance(
-                  floatUnits(
-                    parseUnits(capitalPoolSize, activeNetwork.nativeCurrency.decimals),
-                    activeNetwork.nativeCurrency.decimals
-                  ),
-                  1
-                )} `}
+                {`${truncateBalance(floatUnits(parseUnits(capitalPoolSize, currencyDecimals), currencyDecimals), 1)} `}
                 <TextSpan h3>{activeNetwork.nativeCurrency.symbol}</TextSpan>
               </Text>
             </BoxItem>
@@ -224,7 +218,7 @@ export const Statistics: React.FC = () => {
               <Text h2 nowrap>
                 {totalActiveCoverAmount !== '-'
                   ? `${truncateBalance(
-                      parseFloat(formatUnits(totalActiveCoverAmount.toString(), activeNetwork.nativeCurrency.decimals)),
+                      parseFloat(formatUnits(totalActiveCoverAmount.toString(), currencyDecimals)),
                       2
                     )} `
                   : `${totalActiveCoverAmount} `}
@@ -279,10 +273,7 @@ export const Statistics: React.FC = () => {
                   <FormCol>
                     <Text h2 nowrap>
                       {`${truncateBalance(
-                        floatUnits(
-                          parseUnits(capitalPoolSize, activeNetwork.nativeCurrency.decimals),
-                          activeNetwork.nativeCurrency.decimals
-                        ),
+                        floatUnits(parseUnits(capitalPoolSize, currencyDecimals), currencyDecimals),
                         1
                       )} `}
                       <TextSpan h3>{activeNetwork.nativeCurrency.symbol}</TextSpan>
@@ -304,9 +295,7 @@ export const Statistics: React.FC = () => {
                     <Text h2 nowrap>
                       {totalActiveCoverAmount !== '-'
                         ? `${truncateBalance(
-                            parseFloat(
-                              formatUnits(totalActiveCoverAmount.toString(), activeNetwork.nativeCurrency.decimals)
-                            ),
+                            parseFloat(formatUnits(totalActiveCoverAmount.toString(), currencyDecimals)),
                             2
                           )} `
                         : `${totalActiveCoverAmount} `}

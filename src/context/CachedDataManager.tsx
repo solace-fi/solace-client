@@ -12,6 +12,7 @@ import { useGetLatestBlockNumber } from '../hooks/useGetLatestBlockNumber'
 import { useGetTokens } from '../hooks/useGetTokens'
 
 import { TransactionHistoryModal } from '../components/organisms/TransactionHistoryModal'
+import { useNetwork } from './NetworkManager'
 
 /*
 
@@ -51,7 +52,8 @@ const CachedDataContext = createContext<CachedData>({
 })
 
 const CachedDataProvider: React.FC = (props) => {
-  const { account, chainId, disconnect } = useWallet()
+  const { account, disconnect } = useWallet()
+  const { chainId } = useNetwork()
   const [localTxs, setLocalTxs] = useLocalStorage<LocalTx[]>('solace_loc_txs', [])
   const [reload, version] = useReload()
   const [dataReload, dataVersion] = useReload()

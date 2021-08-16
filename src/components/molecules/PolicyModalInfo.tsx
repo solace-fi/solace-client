@@ -58,7 +58,7 @@ export const PolicyModalInfo: React.FC<PolicyModalInfoProps> = ({ selectedPolicy
 
   *************************************************************************************/
   const appraisal = useAppraisePosition(selectedPolicy)
-  const { activeNetwork } = useNetwork()
+  const { activeNetwork, currencyDecimals } = useNetwork()
   const { width } = useWindowDimensions()
 
   /*************************************************************************************
@@ -87,7 +87,7 @@ export const PolicyModalInfo: React.FC<PolicyModalInfoProps> = ({ selectedPolicy
             <BoxItemTitle h3>Cover Amount</BoxItemTitle>
             <Text h2 nowrap>
               {selectedPolicy?.coverAmount
-                ? truncateBalance(formatUnits(selectedPolicy.coverAmount, activeNetwork.nativeCurrency.decimals))
+                ? truncateBalance(formatUnits(selectedPolicy.coverAmount, currencyDecimals))
                 : 0}{' '}
               {activeNetwork.nativeCurrency.symbol}
             </Text>
@@ -96,7 +96,7 @@ export const PolicyModalInfo: React.FC<PolicyModalInfoProps> = ({ selectedPolicy
             <BoxItemTitle h3>Position Amount</BoxItemTitle>
             <Text h2 nowrap>
               {appraisal.gt(ZERO) ? (
-                `${truncateBalance(formatUnits(appraisal, activeNetwork.nativeCurrency.decimals) || 0)} ${
+                `${truncateBalance(formatUnits(appraisal, currencyDecimals) || 0)} ${
                   activeNetwork.nativeCurrency.symbol
                 }`
               ) : (
@@ -131,7 +131,7 @@ export const PolicyModalInfo: React.FC<PolicyModalInfoProps> = ({ selectedPolicy
             <FormCol>
               <Heading3>
                 {selectedPolicy?.coverAmount
-                  ? truncateBalance(formatUnits(selectedPolicy.coverAmount, activeNetwork.nativeCurrency.decimals))
+                  ? truncateBalance(formatUnits(selectedPolicy.coverAmount, currencyDecimals))
                   : 0}{' '}
                 {activeNetwork.nativeCurrency.symbol}
               </Heading3>
@@ -144,7 +144,7 @@ export const PolicyModalInfo: React.FC<PolicyModalInfoProps> = ({ selectedPolicy
             <FormCol>
               <Heading3>
                 {appraisal.gt(ZERO) ? (
-                  `${truncateBalance(formatUnits(appraisal, activeNetwork.nativeCurrency.decimals) || 0)} ${
+                  `${truncateBalance(formatUnits(appraisal, currencyDecimals) || 0)} ${
                     activeNetwork.nativeCurrency.symbol
                   }`
                 ) : (

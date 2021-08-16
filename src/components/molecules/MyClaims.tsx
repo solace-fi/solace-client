@@ -57,7 +57,7 @@ export const MyClaims: React.FC = () => {
   *************************************************************************************/
   const { claimsEscrow } = useContracts()
   const { account, errors } = useWallet()
-  const { activeNetwork } = useNetwork()
+  const { activeNetwork, currencyDecimals } = useNetwork()
   const { addLocalTransactions, reload, gasPrices } = useCachedData()
   const { makeTxToast } = useToasts()
   const claimsDetails = useGetClaimsDetails(account)
@@ -121,11 +121,9 @@ export const MyClaims: React.FC = () => {
                     <BoxItem>
                       <BoxItemTitle h3>Amount</BoxItemTitle>
                       <Text h3>
-                        {parseFloat(formatUnits(claim.amount, activeNetwork.nativeCurrency.decimals)) >= 1
-                          ? truncateBalance(
-                              parseFloat(formatUnits(claim.amount, activeNetwork.nativeCurrency.decimals))
-                            )
-                          : formatUnits(claim.amount, activeNetwork.nativeCurrency.decimals)}{' '}
+                        {parseFloat(formatUnits(claim.amount, currencyDecimals)) >= 1
+                          ? truncateBalance(parseFloat(formatUnits(claim.amount, currencyDecimals)))
+                          : formatUnits(claim.amount, currencyDecimals)}{' '}
                         {activeNetwork.nativeCurrency.symbol}
                       </Text>
                     </BoxItem>

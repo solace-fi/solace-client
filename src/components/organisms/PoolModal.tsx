@@ -89,8 +89,8 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
   *************************************************************************************/
 
   const { vault, cpFarm, lpFarm, lpToken } = useContracts()
-  const { activeNetwork } = useNetwork()
-  const { account, chainId, errors, library } = useWallet()
+  const { activeNetwork, currencyDecimals, chainId } = useNetwork()
+  const { account, errors, library } = useWallet()
   const [amount, setAmount] = useState<string>('')
   const [isStaking, setIsStaking] = useState<boolean>(false)
   const cpUserStakeValue = useUserStakedValue(cpFarm, account)
@@ -185,7 +185,7 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
     const txType = FunctionName.DEPOSIT_ETH
     try {
       const tx = await vault.depositEth({
-        value: parseUnits(amount, activeNetwork.nativeCurrency.decimals),
+        value: parseUnits(amount, currencyDecimals),
         gasPrice: getGasValue(selectedGasOption.value),
         gasLimit: GAS_LIMIT,
       })
@@ -220,7 +220,7 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
     const txType = FunctionName.DEPOSIT_ETH
     try {
       const tx = await cpFarm.depositEth({
-        value: parseUnits(amount, activeNetwork.nativeCurrency.decimals),
+        value: parseUnits(amount, currencyDecimals),
         gasPrice: getGasValue(selectedGasOption.value),
         gasLimit: GAS_LIMIT,
       })
@@ -254,7 +254,7 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
     if (!cpFarm || !vault) return
     const txType = FunctionName.APPROVE
     try {
-      const approval = await vault.approve(cpFarm.address, parseUnits(amount, activeNetwork.nativeCurrency.decimals))
+      const approval = await vault.approve(cpFarm.address, parseUnits(amount, currencyDecimals))
       const approvalHash = approval.hash
       makeTxToast(FunctionName.APPROVE, TransactionCondition.PENDING, approvalHash)
       await approval.wait().then((receipt: any) => {
@@ -276,7 +276,7 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
     if (!cpFarm || !vault) return
     const txType = FunctionName.DEPOSIT_CP
     try {
-      const tx = await cpFarm.depositCp(parseUnits(amount, activeNetwork.nativeCurrency.decimals), {
+      const tx = await cpFarm.depositCp(parseUnits(amount, currencyDecimals), {
         gasPrice: getGasValue(selectedGasOption.value),
         gasLimit: GAS_LIMIT,
       })
@@ -310,7 +310,7 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
     if (!vault || !canWithdrawEth) return
     const txType = FunctionName.WITHDRAW_ETH
     try {
-      const tx = await vault.withdrawEth(parseUnits(amount, activeNetwork.nativeCurrency.decimals), {
+      const tx = await vault.withdrawEth(parseUnits(amount, currencyDecimals), {
         gasPrice: getGasValue(selectedGasOption.value),
         gasLimit: GAS_LIMIT,
       })
@@ -344,7 +344,7 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
     if (!cpFarm) return
     const txType = FunctionName.WITHDRAW_CP
     try {
-      const tx = await cpFarm.withdrawCp(parseUnits(amount, activeNetwork.nativeCurrency.decimals), {
+      const tx = await cpFarm.withdrawCp(parseUnits(amount, currencyDecimals), {
         gasPrice: getGasValue(selectedGasOption.value),
         gasLimit: GAS_LIMIT,
       })
@@ -443,24 +443,24 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
   *************************************************************************************/
 
   const isAppropriateAmount = () => {
-    if (!amount || amount == '.' || parseUnits(amount, activeNetwork.nativeCurrency.decimals).lte(ZERO)) return false
-    return getAssetBalanceByFunc().gte(parseUnits(amount, activeNetwork.nativeCurrency.decimals))
+    if (!amount || amount == '.' || parseUnits(amount, currencyDecimals).lte(ZERO)) return false
+    return getAssetBalanceByFunc().gte(parseUnits(amount, currencyDecimals))
   }
 
   const getAssetBalanceByFunc = (): BN => {
     switch (func) {
       case FunctionName.DEPOSIT_ETH:
-        return parseUnits(nativeTokenBalance, activeNetwork.nativeCurrency.decimals)
+        return parseUnits(nativeTokenBalance, currencyDecimals)
       case FunctionName.DEPOSIT_CP:
       case FunctionName.WITHDRAW_ETH:
-        return parseUnits(scpBalance, activeNetwork.nativeCurrency.decimals)
+        return parseUnits(scpBalance, currencyDecimals)
       case FunctionName.WITHDRAW_CP:
-        return parseUnits(cpUserStakeValue, activeNetwork.nativeCurrency.decimals)
+        return parseUnits(cpUserStakeValue, currencyDecimals)
       case FunctionName.DEPOSIT_SIGNED:
         return userLpTokenInfo.reduce((a, b) => a.add(b.value), ZERO)
       case FunctionName.WITHDRAW_LP:
         // return depositedLpTokenInfo.reduce((a, b) => a.add(b.value), ZERO)
-        return parseUnits(lpUserStakeValue, activeNetwork.nativeCurrency.decimals)
+        return parseUnits(lpUserStakeValue, currencyDecimals)
       default:
         return BN.from('999999999999999999999999999999999999')
     }
@@ -478,7 +478,7 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
   }
 
   const calculateMaxEth = () => {
-    const bal = formatUnits(getAssetBalanceByFunc(), activeNetwork.nativeCurrency.decimals)
+    const bal = formatUnits(getAssetBalanceByFunc(), currencyDecimals)
     if (func !== FunctionName.DEPOSIT_ETH) return bal
     const gasInEth = (GAS_LIMIT / POW_NINE) * selectedGasOption.value
     return fixed(fixed(parseFloat(bal), 6) - fixed(gasInEth, 6), 6)
@@ -564,14 +564,14 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
       if (func == FunctionName.DEPOSIT_SIGNED) {
         if (userLpTokenInfo.length > 0) {
           setNft(userLpTokenInfo[0].id)
-          setAmount(formatUnits(userLpTokenInfo[0].value, activeNetwork.nativeCurrency.decimals))
+          setAmount(formatUnits(userLpTokenInfo[0].value, currencyDecimals))
           setNftSelection(`${userLpTokenInfo[0].id.toString()}-${userLpTokenInfo[0].value}`)
         }
       }
       if (func == FunctionName.WITHDRAW_LP) {
         if (depositedLpTokenInfo.length > 0) {
           setNft(depositedLpTokenInfo[0].id)
-          setAmount(formatUnits(depositedLpTokenInfo[0].value, activeNetwork.nativeCurrency.decimals))
+          setAmount(formatUnits(depositedLpTokenInfo[0].value, currencyDecimals))
           setNftSelection(`${depositedLpTokenInfo[0].id.toString()}-${depositedLpTokenInfo[0].value}`)
         }
       }
@@ -634,18 +634,14 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
                 {getAssetTokensByFunc().map((token) => (
                   <FormOption
                     key={token.id.toString()}
-                    value={`${token.id.toString()}-${formatUnits(token.value, activeNetwork.nativeCurrency.decimals)}`}
+                    value={`${token.id.toString()}-${formatUnits(token.value, currencyDecimals)}`}
                   >
-                    #{token.id.toString()} -{' '}
-                    {truncateBalance(formatUnits(token.value, activeNetwork.nativeCurrency.decimals))}
+                    #{token.id.toString()} - {truncateBalance(formatUnits(token.value, currencyDecimals))}
                   </FormOption>
                 ))}
               </FormSelect>
               <div style={{ position: 'absolute', top: '70%' }}>
-                Available:{' '}
-                {func
-                  ? truncateBalance(formatUnits(getAssetBalanceByFunc(), activeNetwork.nativeCurrency.decimals), 6)
-                  : 0}
+                Available: {func ? truncateBalance(formatUnits(getAssetBalanceByFunc(), currencyDecimals), 6) : 0}
               </div>
             </ModalCell>
           ) : (
@@ -669,10 +665,7 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
                   value={amount}
                 />
                 <div style={{ position: 'absolute', top: '70%' }}>
-                  Available:{' '}
-                  {func
-                    ? truncateBalance(formatUnits(getAssetBalanceByFunc(), activeNetwork.nativeCurrency.decimals), 6)
-                    : 0}
+                  Available: {func ? truncateBalance(formatUnits(getAssetBalanceByFunc(), currencyDecimals), 6) : 0}
                 </div>
               </ModalCell>
               <ModalCell t3>
@@ -697,7 +690,7 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
               <Fragment>
                 {!hasApproval(
                   tokenAllowance,
-                  amount && amount != '.' ? parseUnits(amount, activeNetwork.nativeCurrency.decimals).toString() : '0'
+                  amount && amount != '.' ? parseUnits(amount, currencyDecimals).toString() : '0'
                 ) &&
                   tokenAllowance != '' && (
                     <ButtonWrapper>
@@ -718,9 +711,7 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
                       (isAppropriateAmount() ? false : true) ||
                       !hasApproval(
                         tokenAllowance,
-                        amount && amount != '.'
-                          ? parseUnits(amount, activeNetwork.nativeCurrency.decimals).toString()
-                          : '0'
+                        amount && amount != '.' ? parseUnits(amount, currencyDecimals).toString() : '0'
                       ) ||
                       errors.length > 0
                     }

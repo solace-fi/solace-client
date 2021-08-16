@@ -51,11 +51,11 @@ export const Account: React.FC = () => {
   custom hooks
 
   *************************************************************************************/
-  const { isActive, chainId, account } = useWallet()
+  const { isActive, account } = useWallet()
   const balance = useNativeTokenBalance()
   const { localTransactions, openHistoryModal } = useCachedData()
   const { width } = useWindowDimensions()
-  const { activeNetwork, findNetworkByChainId } = useNetwork()
+  const { activeNetwork, chainId, findNetworkByChainId } = useNetwork()
 
   /*************************************************************************************
 

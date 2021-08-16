@@ -60,7 +60,7 @@ export const RiskBackingCapitalPool: React.FC<RiskBackingCapitalPoolProps> = ({ 
   const { userVaultAssets, userVaultShare } = useUserVaultDetails()
   const capitalPoolSize = useCapitalPoolSize()
   const { width } = useWindowDimensions()
-  const { activeNetwork } = useNetwork()
+  const { currencyDecimals } = useNetwork()
 
   /*************************************************************************************
 
@@ -91,13 +91,7 @@ export const RiskBackingCapitalPool: React.FC<RiskBackingCapitalPoolProps> = ({ 
             <TableRow>
               {account ? <TableData width={100}>{truncateBalance(parseFloat(userVaultAssets), 2)}</TableData> : null}
               <TableData width={100}>
-                {truncateBalance(
-                  floatUnits(
-                    parseUnits(capitalPoolSize, activeNetwork.nativeCurrency.decimals),
-                    activeNetwork.nativeCurrency.decimals
-                  ),
-                  2
-                )}
+                {truncateBalance(floatUnits(parseUnits(capitalPoolSize, currencyDecimals), currencyDecimals), 2)}
               </TableData>
               <TableData width={100}>{CP_ROI}</TableData>
               {account ? <TableData width={130}>{`${truncateBalance(userVaultShare, 2)}%`}</TableData> : null}
@@ -136,13 +130,7 @@ export const RiskBackingCapitalPool: React.FC<RiskBackingCapitalPoolProps> = ({ 
           <FormRow>
             <FormCol>Total Assets:</FormCol>
             <FormCol>
-              {truncateBalance(
-                floatUnits(
-                  parseUnits(capitalPoolSize, activeNetwork.nativeCurrency.decimals),
-                  activeNetwork.nativeCurrency.decimals
-                ),
-                2
-              )}
+              {truncateBalance(floatUnits(parseUnits(capitalPoolSize, currencyDecimals), currencyDecimals), 2)}
             </FormCol>
           </FormRow>
           <FormRow>

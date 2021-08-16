@@ -10,6 +10,7 @@ import '../styles/toast.css'
 import { StylizedToastContainer } from '../components/atoms/Toast'
 import { AppToast, NotificationToast } from '../components/molecules/Toast'
 import { StyledWarning } from '../components/atoms/Icon'
+import { useNetwork } from './NetworkManager'
 
 /*
 This manager allows for notifications to be created. such notifications can be created
@@ -54,7 +55,8 @@ const appError: any = {
 }
 
 const ToastsProvider: React.FC = (props) => {
-  const { chainId, account, errors } = useWallet()
+  const { account, errors } = useWallet()
+  const { chainId } = useNetwork()
 
   const makeTxToast = (txType: string, condition: TransactionCondition, txHash?: string) => {
     const TxToast = (message: string) => <NotificationToast message={message} condition={condition} txHash={txHash} />

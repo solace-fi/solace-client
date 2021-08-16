@@ -33,18 +33,18 @@ const useMasterValues = (farmId: number) => {
 
 export const useRewardsPerDay = (farmId: number): string => {
   const { allocPoints, totalAllocPoints, solacePerBlock } = useMasterValues(farmId)
-  const { activeNetwork } = useNetwork()
+  const { currencyDecimals } = useNetwork()
 
   return useMemo(() => {
     const rewards = totalAllocPoints.gt(ZERO)
-      ? (floatUnits(solacePerBlock, activeNetwork.nativeCurrency.decimals) *
+      ? (floatUnits(solacePerBlock, currencyDecimals) *
           NUM_BLOCKS_PER_DAY *
-          floatUnits(allocPoints, activeNetwork.nativeCurrency.decimals)) /
-        floatUnits(totalAllocPoints, activeNetwork.nativeCurrency.decimals)
+          floatUnits(allocPoints, currencyDecimals)) /
+        floatUnits(totalAllocPoints, currencyDecimals)
       : 0
     const formattedRewards = rewards.toString()
     return formattedRewards
-  }, [allocPoints, totalAllocPoints, solacePerBlock])
+  }, [allocPoints, totalAllocPoints, solacePerBlock, currencyDecimals])
 }
 
 export const useUserRewardsPerDay = (
@@ -52,21 +52,19 @@ export const useUserRewardsPerDay = (
   farm: Contract | null | undefined,
   account: string | undefined
 ): string => {
-  const { activeNetwork } = useNetwork()
-  const poolStakedValue = parseUnits(usePoolStakedValue(farm), activeNetwork.nativeCurrency.decimals)
-  const userStakedValue = parseUnits(useUserStakedValue(farm, account), activeNetwork.nativeCurrency.decimals)
+  const { activeNetwork, currencyDecimals } = useNetwork()
+  const poolStakedValue = parseUnits(usePoolStakedValue(farm), currencyDecimals)
+  const userStakedValue = parseUnits(useUserStakedValue(farm, account), currencyDecimals)
   const { allocPoints, totalAllocPoints, solacePerBlock } = useMasterValues(farmId)
 
   return useMemo(() => {
     const allocPercentage = totalAllocPoints.gt(ZERO)
-      ? floatUnits(allocPoints, activeNetwork.nativeCurrency.decimals) /
-        floatUnits(totalAllocPoints, activeNetwork.nativeCurrency.decimals)
+      ? floatUnits(allocPoints, currencyDecimals) / floatUnits(totalAllocPoints, currencyDecimals)
       : 0
     const poolPercentage = poolStakedValue.gt(ZERO)
-      ? floatUnits(userStakedValue, activeNetwork.nativeCurrency.decimals) /
-        floatUnits(poolStakedValue, activeNetwork.nativeCurrency.decimals)
+      ? floatUnits(userStakedValue, currencyDecimals) / floatUnits(poolStakedValue, currencyDecimals)
       : 0
-    const rewards = floatUnits(solacePerBlock, activeNetwork.nativeCurrency.decimals) * allocPercentage * poolPercentage
+    const rewards = floatUnits(solacePerBlock, currencyDecimals) * allocPercentage * poolPercentage
     const formattedRewards = rewards.toString()
     return formattedRewards
   }, [allocPoints, totalAllocPoints, solacePerBlock, poolStakedValue, userStakedValue, activeNetwork])
@@ -76,8 +74,8 @@ export const useUserPendingRewards = (farm: Contract | null | undefined): string
   const { master } = useContracts()
   const { latestBlock } = useCachedData()
   const { account } = useWallet()
-  const { activeNetwork } = useNetwork()
-  const [userRewards, setUserRewards] = useState<string>('0.00')
+  const { currencyDecimals } = useNetwork()
+  const [userRewards, setUserRewards] = useState<string>('0')
 
   useEffect(() => {
     const getUserPendingRewards = async () => {
@@ -86,29 +84,27 @@ export const useUserPendingRewards = (farm: Contract | null | undefined): string
         const farms = await master.numFarms()
         if (farms.isZero()) return
         const pendingReward = await farm.pendingRewards(account)
-        const formattedPendingReward = formatUnits(pendingReward, activeNetwork.nativeCurrency.decimals)
+        const formattedPendingReward = formatUnits(pendingReward, currencyDecimals)
         setUserRewards(formattedPendingReward)
       } catch (err) {
         console.log('getUserPendingRewards', err)
       }
     }
     getUserPendingRewards()
-  }, [account, farm, master, latestBlock])
+  }, [account, farm, master, latestBlock, currencyDecimals])
 
   return userRewards
 }
 
 export const useTotalPendingRewards = (): string => {
   const { cpFarm, lpFarm } = useContracts()
-  const { activeNetwork } = useNetwork()
+  const { currencyDecimals } = useNetwork()
   const cpUserRewards = useUserPendingRewards(cpFarm)
   const lpUserRewards = useUserPendingRewards(lpFarm)
 
   return useMemo(() => {
-    const rewards = parseUnits(cpUserRewards, activeNetwork.nativeCurrency.decimals).add(
-      parseUnits(lpUserRewards, activeNetwork.nativeCurrency.decimals)
-    )
-    const formattedRewards = formatUnits(rewards, activeNetwork.nativeCurrency.decimals)
+    const rewards = parseUnits(cpUserRewards, currencyDecimals).add(parseUnits(lpUserRewards, currencyDecimals))
+    const formattedRewards = formatUnits(rewards, currencyDecimals)
     return formattedRewards
-  }, [cpUserRewards, lpUserRewards])
+  }, [cpUserRewards, lpUserRewards, currencyDecimals])
 }

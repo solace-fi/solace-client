@@ -139,8 +139,8 @@ export const MultiStepForm = () => {
     steps,
     initialStep: 0,
   })
-  const { account, chainId } = useWallet()
-  const { activeNetwork } = useNetwork()
+  const { account } = useWallet()
+  const { activeNetwork, chainId } = useNetwork()
   const { width } = useWindowDimensions()
   const props = { formData, setForm, navigation }
 

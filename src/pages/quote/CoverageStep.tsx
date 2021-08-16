@@ -71,21 +71,16 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
   const { addLocalTransactions, reload, gasPrices } = useCachedData()
   const { selectedProtocol } = useContracts()
   const { makeTxToast } = useToasts()
-  const { activeNetwork } = useNetwork()
+  const { activeNetwork, currencyDecimals } = useNetwork()
 
   const maxCoverPerUserInWei = useMemo(() => {
-    return parseUnits(maxCoverPerUser, activeNetwork.nativeCurrency.decimals)
-  }, [maxCoverPerUser, activeNetwork])
+    return parseUnits(maxCoverPerUser, currencyDecimals)
+  }, [maxCoverPerUser, currencyDecimals])
 
   // positionAmount: BigNumber = wei but displayable, position.eth.balance: BigNumber = wei
   const positionAmount: BigNumber = useMemo(() => {
-    return BigNumber.from(
-      accurateMultiply(
-        formatUnits(position.eth.balance, activeNetwork.nativeCurrency.decimals),
-        activeNetwork.nativeCurrency.decimals
-      )
-    )
-  }, [position.eth.balance, activeNetwork.nativeCurrency.decimals])
+    return BigNumber.from(accurateMultiply(formatUnits(position.eth.balance, currencyDecimals), currencyDecimals))
+  }, [position.eth.balance, currencyDecimals])
 
   /*************************************************************************************
 
@@ -117,7 +112,7 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
         coverAmount,
         NUM_BLOCKS_PER_DAY * parseInt(timePeriod),
         {
-          value: parseUnits(quote, activeNetwork.nativeCurrency.decimals),
+          value: parseUnits(quote, currencyDecimals),
           gasPrice: getGasValue(gasPrices.selected.value),
           gasLimit: GAS_LIMIT,
         }
@@ -187,20 +182,16 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
     if (parseFloat(filtered) > parseFloat(maxCoverPerUser)) return
 
     // if number is greater than the position amount, do not update
-    if (parseFloat(filtered) > parseFloat(formatUnits(positionAmount, activeNetwork.nativeCurrency.decimals))) return
+    if (parseFloat(filtered) > parseFloat(formatUnits(positionAmount, currencyDecimals))) return
 
     // if number is empty or less than smallest denomination of currency, do not update
-    if (
-      filtered == '' ||
-      parseFloat(filtered) < parseFloat(formatUnits(BigNumber.from(1), activeNetwork.nativeCurrency.decimals))
-    )
-      return
+    if (filtered == '' || parseFloat(filtered) < parseFloat(formatUnits(BigNumber.from(1), currencyDecimals))) return
 
     // if number has more than max decimal places, do not update
-    if (filtered.includes('.') && filtered.split('.')[1]?.length > activeNetwork.nativeCurrency.decimals) return
+    if (filtered.includes('.') && filtered.split('.')[1]?.length > currencyDecimals) return
 
     setInputCoverage(filtered)
-    setCoverage(accurateMultiply(filtered, activeNetwork.nativeCurrency.decimals))
+    setCoverage(accurateMultiply(filtered, currencyDecimals))
   }
 
   // coverAmount in wei
@@ -214,7 +205,7 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
   }
 
   const handleCoverageChange = (coverAmount: string) => {
-    setInputCoverage(formatUnits(BigNumber.from(coverAmount), activeNetwork.nativeCurrency.decimals))
+    setInputCoverage(formatUnits(BigNumber.from(coverAmount), currencyDecimals))
     setCoverage(coverAmount)
   }
 
@@ -236,8 +227,8 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
   }, [maxCoverPerUser])
 
   useEffect(() => {
-    setCoveredAssets(formatUnits(BigNumber.from(coverAmount), activeNetwork.nativeCurrency.decimals))
-  }, [coverAmount])
+    setCoveredAssets(formatUnits(BigNumber.from(coverAmount), currencyDecimals))
+  }, [coverAmount, currencyDecimals])
 
   /*************************************************************************************
 
@@ -256,7 +247,7 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
             )}
           </FormCol>
           <FormCol>
-            <Heading2>{formatUnits(positionAmount, activeNetwork.nativeCurrency.decimals)}</Heading2>
+            <Heading2>{formatUnits(positionAmount, currencyDecimals)}</Heading2>
             <Text3 textAlignRight>{activeNetwork.nativeCurrency.symbol}</Text3>
           </FormCol>
         </FormRow>
@@ -331,9 +322,8 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
               <Text3
                 bold
                 error={
-                  parseUnits(coveredAssets, activeNetwork.nativeCurrency.decimals).gt(
-                    parseUnits(maxCoverPerUser, activeNetwork.nativeCurrency.decimals)
-                  ) && maxCoverPerUser !== '0'
+                  parseUnits(coveredAssets, currencyDecimals).gt(parseUnits(maxCoverPerUser, currencyDecimals)) &&
+                  maxCoverPerUser !== '0'
                 }
               >
                 {coveredAssets} {activeNetwork.nativeCurrency.symbol}
@@ -345,18 +335,8 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
           transparent
           outlined
           error
-          collapse={
-            !parseUnits(coveredAssets, activeNetwork.nativeCurrency.decimals).gt(
-              parseUnits(maxCoverPerUser, activeNetwork.nativeCurrency.decimals)
-            )
-          }
-          mb={
-            !parseUnits(coveredAssets, activeNetwork.nativeCurrency.decimals).gt(
-              parseUnits(maxCoverPerUser, activeNetwork.nativeCurrency.decimals)
-            )
-              ? 0
-              : 5
-          }
+          collapse={!parseUnits(coveredAssets, currencyDecimals).gt(parseUnits(maxCoverPerUser, currencyDecimals))}
+          mb={!parseUnits(coveredAssets, currencyDecimals).gt(parseUnits(maxCoverPerUser, currencyDecimals)) ? 0 : 5}
         >
           <Text3 error autoAlign>
             You can only cover up to {maxCoverPerUser} {activeNetwork.nativeCurrency.symbol}.
@@ -395,9 +375,7 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
               onClick={() => buyPolicy()}
               disabled={
                 errors.length > 0 ||
-                parseUnits(coveredAssets, activeNetwork.nativeCurrency.decimals).gt(
-                  parseUnits(maxCoverPerUser, activeNetwork.nativeCurrency.decimals)
-                )
+                parseUnits(coveredAssets, currencyDecimals).gt(parseUnits(maxCoverPerUser, currencyDecimals))
               }
             >
               Buy

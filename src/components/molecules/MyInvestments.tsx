@@ -97,7 +97,7 @@ export const MyInvestments: React.FC = () => {
             <Heading3>
               {/* {account
                 ? truncateBalance(
-                    formatUnits(depositedLpTokenInfo.reduce((a, b) => a.add(b.value), ZERO).toString(), activeNetwork.nativeCurrency.decimals),
+                    formatUnits(depositedLpTokenInfo.reduce((a, b) => a.add(b.value), ZERO).toString(), currencyDecimals),
                     2
                   )
                 : 0}{' '}

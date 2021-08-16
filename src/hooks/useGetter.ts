@@ -16,8 +16,8 @@ export const usePolicyGetter = (
   policyHolder?: string,
   product?: string
 ) => {
-  const { library, isActive, chainId } = useWallet()
-  const { activeNetwork, findNetworkByChainId } = useNetwork()
+  const { library, isActive } = useWallet()
+  const { activeNetwork, findNetworkByChainId, chainId } = useNetwork()
   const { policyManager } = useContracts()
   const [userPolicies, setUserPolicies] = useState<Policy[]>([])
   const [allPolicies, setAllPolicies] = useState<Policy[]>([])

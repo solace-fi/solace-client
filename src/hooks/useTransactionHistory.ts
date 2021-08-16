@@ -43,10 +43,10 @@ export const useTransactionDetails = (): { txHistory: any; amounts: string[] } =
     provider: Web3Provider | Provider
   ): Promise<string> => {
     const receipt = await provider.getTransactionReceipt(tx.hash)
-    if (!receipt) return ''
-    if (receipt.status == 0) return ''
+    if (!receipt) return '0'
+    if (receipt.status == 0) return '0'
     const logs = receipt.logs
-    if (!logs || logs.length <= 0) return ''
+    if (!logs || logs.length <= 0) return '0'
     const topics = logs[logs.length - 1].topics
 
     switch (function_name) {

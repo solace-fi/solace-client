@@ -117,6 +117,7 @@ export type NetworkConfig = {
     productContracts: any
   }
   cache: any
+  isMetaMask?: boolean
 }
 
 export type KeyContracts = {

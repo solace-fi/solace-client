@@ -64,8 +64,8 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
 
   *************************************************************************************/
 
-  const { account, chainId, library, errors } = useWallet()
-  const { activeNetwork, findNetworkByChainId } = useNetwork()
+  const { account, library, errors } = useWallet()
+  const { activeNetwork, findNetworkByChainId, chainId } = useNetwork()
   const { setSelectedProtocolByName } = useContracts()
   const { userPolicyData, latestBlock, tokenPositionDataInitialized } = useCachedData()
   const { width } = useWindowDimensions()

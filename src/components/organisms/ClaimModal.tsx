@@ -87,7 +87,7 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
   const { selectedProtocol } = useContracts()
   const { makeTxToast } = useToasts()
   const { account, errors, library } = useWallet()
-  const { activeNetwork } = useNetwork()
+  const { activeNetwork, currencyDecimals } = useNetwork()
   const { width } = useWindowDimensions()
 
   /*************************************************************************************
@@ -184,7 +184,7 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
               </FormCol>
               <FormCol>
                 <Heading2 autoAlign>
-                  {truncateBalance(formatUnits(assessment?.amountOut || 0, activeNetwork.nativeCurrency.decimals))}{' '}
+                  {truncateBalance(formatUnits(assessment?.amountOut || 0, currencyDecimals))}{' '}
                   {activeNetwork.nativeCurrency.symbol}
                 </Heading2>
               </FormCol>

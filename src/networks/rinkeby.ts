@@ -96,4 +96,5 @@ export const RinkebyNetwork: NetworkConfig = {
     getBalances: { [ProductName.COMPOUND]: compBalances },
     positions: { [ProductName.COMPOUND]: { positionNamesInitialized: false } },
   },
+  isMetaMask: true,
 }

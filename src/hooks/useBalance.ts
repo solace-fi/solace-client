@@ -11,16 +11,16 @@ import { useNetwork } from '../context/NetworkManager'
 
 export const useNativeTokenBalance = (): string => {
   const { account, library, connect } = useWallet()
-  const { activeNetwork } = useNetwork()
+  const { currencyDecimals } = useNetwork()
   const { version } = useCachedData()
-  const [balance, setBalance] = useState<string>('0.00')
+  const [balance, setBalance] = useState<string>('0')
 
   useEffect(() => {
     const getNativeTokenBalance = async () => {
       if (!library || !account) return
       try {
         const balance = await library.getBalance(account)
-        const formattedBalance = formatUnits(balance, activeNetwork.nativeCurrency.decimals)
+        const formattedBalance = formatUnits(balance, currencyDecimals)
         setBalance(formattedBalance)
       } catch (err) {
         console.log('getNativeTokenbalance', err)
@@ -34,17 +34,17 @@ export const useNativeTokenBalance = (): string => {
 
 export const useScpBalance = (): string => {
   const { vault } = useContracts()
-  const { activeNetwork } = useNetwork()
+  const { currencyDecimals } = useNetwork()
   const { account } = useWallet()
   const { version, latestBlock } = useCachedData()
-  const [scpBalance, setScpBalance] = useState<string>('0.00')
+  const [scpBalance, setScpBalance] = useState<string>('0')
 
   useEffect(() => {
     const getScpBalance = async () => {
       if (!vault || !account) return
       try {
         const balance = await vault.balanceOf(account)
-        const formattedBalance = formatUnits(balance, activeNetwork.nativeCurrency.decimals)
+        const formattedBalance = formatUnits(balance, currencyDecimals)
         setScpBalance(formattedBalance)
       } catch (err) {
         console.log('getScpBalance', err)
@@ -58,17 +58,17 @@ export const useScpBalance = (): string => {
 
 export const useSolaceBalance = (): string => {
   const { solace } = useContracts()
-  const { activeNetwork } = useNetwork()
+  const { currencyDecimals } = useNetwork()
   const { account } = useWallet()
   const { version, latestBlock } = useCachedData()
-  const [solaceBalance, setSolaceBalance] = useState<string>('0.00')
+  const [solaceBalance, setSolaceBalance] = useState<string>('0')
 
   useEffect(() => {
     const getSolaceBalance = async () => {
       if (!solace) return
       try {
         const balance = await solace.balanceOf(account)
-        const formattedBalance = formatUnits(balance, activeNetwork.nativeCurrency.decimals)
+        const formattedBalance = formatUnits(balance, currencyDecimals)
         setSolaceBalance(formattedBalance)
       } catch (err) {
         console.log('getSolaceBalance', err)

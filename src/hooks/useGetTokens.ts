@@ -4,8 +4,8 @@ import { useWallet } from '../context/WalletManager'
 import { useNetwork } from '../context/NetworkManager'
 
 export const useGetTokens = (): boolean => {
-  const { chainId, library } = useWallet()
-  const { activeNetwork, findNetworkByChainId } = useNetwork()
+  const { library } = useWallet()
+  const { activeNetwork, findNetworkByChainId, chainId } = useNetwork()
   const running = useRef(false)
   const [dataInitialized, setDataInitialized] = useState<boolean>(false)
 

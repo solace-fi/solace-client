@@ -10,23 +10,23 @@ import { useNetwork } from '../context/NetworkManager'
 
 export const useCapitalPoolSize = (): string => {
   const { vault } = useContracts()
-  const { activeNetwork } = useNetwork()
+  const { currencyDecimals } = useNetwork()
   const { version, latestBlock } = useCachedData()
-  const [capitalPoolSize, setCapitalPoolSize] = useState<string>('0.00')
+  const [capitalPoolSize, setCapitalPoolSize] = useState<string>('0')
 
   useEffect(() => {
     const getCapitalPoolSize = async () => {
       if (!vault) return
       try {
         const size = await vault.totalAssets()
-        const formattedSize = formatUnits(size, activeNetwork.nativeCurrency.decimals)
+        const formattedSize = formatUnits(size, currencyDecimals)
         setCapitalPoolSize(formattedSize)
       } catch (err) {
         console.log('useCapitalPoolSize', err)
       }
     }
     getCapitalPoolSize()
-  }, [vault, version, latestBlock])
+  }, [vault, version, latestBlock, currencyDecimals])
 
   return capitalPoolSize
 }
@@ -38,22 +38,21 @@ export const useUserVaultDetails = () => {
   const { library, account } = useWallet()
   const { vault, cpFarm } = useContracts()
   const { version } = useCachedData()
-  const { activeNetwork } = useNetwork()
+  const { activeNetwork, currencyDecimals } = useNetwork()
 
   useEffect(() => {
     const getUserVaultDetails = async () => {
-      if (!cpFarm || !vault || !account) return
+      if (!vault || !account) return
       try {
         const totalSupply = await vault.totalSupply()
-        const userInfo = await cpFarm.userInfo(account)
+        const userInfo = cpFarm ? await cpFarm.userInfo(account) : { value: ZERO }
         const value = userInfo.value
-        const cpBalance = parseUnits(scpBalance, activeNetwork.nativeCurrency.decimals)
+        const cpBalance = parseUnits(scpBalance, currencyDecimals)
         const userAssets = cpBalance.add(value)
         const userShare = totalSupply.gt(ZERO)
-          ? floatUnits(userAssets.mul(100), activeNetwork.nativeCurrency.decimals) /
-            floatUnits(totalSupply, activeNetwork.nativeCurrency.decimals)
+          ? floatUnits(userAssets.mul(100), currencyDecimals) / floatUnits(totalSupply, currencyDecimals)
           : 0
-        const formattedAssets = formatUnits(userAssets, activeNetwork.nativeCurrency.decimals)
+        const formattedAssets = formatUnits(userAssets, currencyDecimals)
         setUserVaultAssets(formattedAssets)
         setUserVaultShare(userShare.toString())
       } catch (err) {
@@ -61,7 +60,7 @@ export const useUserVaultDetails = () => {
       }
     }
     getUserVaultDetails()
-  }, [library, scpBalance, cpFarm, account, vault, version])
+  }, [library, scpBalance, cpFarm, account, vault, version, activeNetwork])
 
   return { userVaultAssets, userVaultShare }
 }

@@ -63,7 +63,7 @@ export const MyPolicies: React.FC<MyPoliciesProps> = ({ openClaimModal, openMana
   *************************************************************************************/
   const { userPolicyData } = useCachedData()
   const { width } = useWindowDimensions()
-  const { activeNetwork } = useNetwork()
+  const { activeNetwork, currencyDecimals } = useNetwork()
 
   /*************************************************************************************
 
@@ -127,9 +127,7 @@ export const MyPolicies: React.FC<MyPoliciesProps> = ({ openClaimModal, openMana
                       {calculatePolicyExpirationDate(policy.expirationBlock)}
                     </TableData>
                     <TableData>
-                      {policy.coverAmount
-                        ? truncateBalance(formatUnits(policy.coverAmount, activeNetwork.nativeCurrency.decimals), 2)
-                        : 0}{' '}
+                      {policy.coverAmount ? truncateBalance(formatUnits(policy.coverAmount, currencyDecimals), 2) : 0}{' '}
                       {activeNetwork.nativeCurrency.symbol}
                     </TableData>
 
@@ -195,9 +193,7 @@ export const MyPolicies: React.FC<MyPoliciesProps> = ({ openClaimModal, openMana
                     <FormCol>Covered Amount:</FormCol>
                     <FormCol>
                       <Heading2>
-                        {policy.coverAmount
-                          ? truncateBalance(formatUnits(policy.coverAmount, activeNetwork.nativeCurrency.decimals), 2)
-                          : 0}{' '}
+                        {policy.coverAmount ? truncateBalance(formatUnits(policy.coverAmount, currencyDecimals), 2) : 0}{' '}
                         {activeNetwork.nativeCurrency.symbol}
                       </Heading2>
                     </FormCol>
