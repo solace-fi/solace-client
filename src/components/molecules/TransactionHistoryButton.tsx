@@ -17,14 +17,14 @@
   *************************************************************************************/
 
 /* import react */
-import React, { useCallback } from 'react'
+import React from 'react'
 
 /* import managers */
-import { useWallet } from '../../context/WalletManager'
+import { useCachedData } from '../../context/CachedDataManager'
 
 /* import components */
 import { Button } from '../atoms/Button'
-import { StyledWallet } from '../atoms/Icon'
+import { StyledHistory } from '../atoms/Icon'
 
 /* import hooks */
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'
@@ -32,18 +32,15 @@ import { MAX_MOBILE_SCREEN_WIDTH } from '../../constants'
 
 import { GeneralElementProps } from '../generalInterfaces'
 
-export const WalletConnectButton: React.FC<GeneralElementProps> = ({ ...props }) => {
+export const TransactionHistoryButton: React.FC<GeneralElementProps> = ({ ...props }) => {
   /*************************************************************************************
 
     custom hooks
 
   *************************************************************************************/
-  const { isActive, openWalletModal } = useWallet()
-  const { width } = useWindowDimensions()
 
-  const openModal = useCallback(() => {
-    openWalletModal()
-  }, [])
+  const { localTransactions, openHistoryModal } = useCachedData()
+  const { width } = useWindowDimensions()
 
   /*************************************************************************************
 
@@ -52,9 +49,14 @@ export const WalletConnectButton: React.FC<GeneralElementProps> = ({ ...props })
   *************************************************************************************/
   return (
     <>
-      <Button width={width >= MAX_MOBILE_SCREEN_WIDTH ? undefined : 50} onClick={() => openModal()} {...props}>
-        <StyledWallet size={30} />
-        {width >= MAX_MOBILE_SCREEN_WIDTH && (isActive ? 'Switch Wallet' : 'Connect Wallet')}
+      <Button
+        {...props}
+        width={width >= MAX_MOBILE_SCREEN_WIDTH ? undefined : 50}
+        onClick={() => openHistoryModal()}
+        secondary={localTransactions.length > 0}
+      >
+        <StyledHistory size={30} />
+        {localTransactions.length > 0 ? localTransactions.length : width >= MAX_MOBILE_SCREEN_WIDTH && 'History'}
       </Button>
     </>
   )

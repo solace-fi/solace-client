@@ -3,12 +3,10 @@ import { SUPPORTED_WALLETS } from '../../wallet/'
 import { useWallet } from '../../context/WalletManager'
 
 import { Card, CardContainer } from '../atoms/Card'
-import { ModalCell, ModalRow } from '../atoms/Modal'
+import { ModalCell } from '../atoms/Modal'
 import { Heading3 } from '../atoms/Typography'
 import { Modal } from '../molecules/Modal'
 import { FormRow } from '../atoms/Form'
-import { useNetwork } from '../../context/NetworkManager'
-import { capitalizeFirstLetter } from '../../utils/formatting'
 
 interface WalletModalProps {
   closeModal: () => void
@@ -16,8 +14,7 @@ interface WalletModalProps {
 }
 
 export const WalletModal: React.FC<WalletModalProps> = ({ closeModal, isOpen }) => {
-  const { connect, connector } = useWallet()
-  const { activeNetwork, chainId } = useNetwork()
+  const { connect, activeWalletConnector } = useWallet()
 
   const handleClose = useCallback(() => {
     closeModal()
@@ -30,11 +27,6 @@ export const WalletModal: React.FC<WalletModalProps> = ({ closeModal, isOpen }) 
 
   return (
     <Modal handleClose={handleClose} isOpen={isOpen} modalTitle={'Connect a wallet'} disableCloseButton={false}>
-      <ModalRow>
-        <Card purple pt={10} pb={10} pl={30} pr={30}>
-          {capitalizeFirstLetter(activeNetwork.name)} ({chainId})
-        </Card>
-      </ModalRow>
       <CardContainer cardsPerRow={2}>
         {SUPPORTED_WALLETS.map((wallet) => (
           <Card
@@ -45,8 +37,8 @@ export const WalletModal: React.FC<WalletModalProps> = ({ closeModal, isOpen }) 
             pr={30}
             key={wallet.id}
             onClick={() => connectWallet(wallet.id)}
-            glow={wallet.id == connector?.id}
-            blue={wallet.id == connector?.id}
+            glow={wallet.id == activeWalletConnector?.id}
+            blue={wallet.id == activeWalletConnector?.id}
             style={{ display: 'flex', justifyContent: 'center' }}
           >
             <FormRow mb={0}>

@@ -18,6 +18,7 @@ import { getBalances as compBalances } from '../utils/positionGetters/compound/g
 
 import { NetworkConfig } from '../constants/types'
 import { ETHERSCAN_API_KEY } from '../constants'
+import { hexValue } from '@ethersproject/bytes'
 
 export const RinkebyNetwork: NetworkConfig = {
   name: 'rinkeby',
@@ -96,5 +97,11 @@ export const RinkebyNetwork: NetworkConfig = {
     getBalances: { [ProductName.COMPOUND]: compBalances },
     positions: { [ProductName.COMPOUND]: { positionNamesInitialized: false } },
   },
-  isMetaMask: true,
+  metamaskChain: {
+    chainId: hexValue(4),
+    chainName: 'Rinkeby Testnet',
+    nativeCurrency: { name: 'Ethereum', symbol: Unit.ETH, decimals: 18 },
+    rpcUrls: ['https://eth-rinkeby.alchemyapi.io'],
+    blockExplorerUrls: ['https://rinkeby.etherscan.io'],
+  },
 }

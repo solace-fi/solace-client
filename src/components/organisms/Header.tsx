@@ -23,7 +23,7 @@ import React from 'react'
 /* import components */
 import { Footer } from '../atoms/Layout'
 import { CenteredHeader, FlexEndHeader } from '../atoms/Header'
-import { Account } from './Account'
+import { Account, UserAccount } from './Account'
 import { Prices } from '../molecules/Prices'
 
 /* import constants */
@@ -80,7 +80,7 @@ export const BottomPrices: React.FC = () => {
       {width < MAX_MOBILE_SCREEN_WIDTH && (
         <Footer>
           <CenteredHeader>
-            <Account />
+            <UserAccount />
           </CenteredHeader>
         </Footer>
       )}

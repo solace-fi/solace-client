@@ -21,7 +21,7 @@ import { useWallet } from '../../context/WalletManager'
 /* import components */
 import { MultiStepForm } from './MultiStepForm'
 import { Heading1 } from '../../components/atoms/Typography'
-import { WalletConnectButton } from '../../components/molecules/WalletConnect'
+import { WalletConnectButton } from '../../components/molecules/WalletConnectButton'
 import { HeroContainer } from '../../components/atoms/Layout'
 
 function Quote(): any {

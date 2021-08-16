@@ -40,7 +40,7 @@ import { useNetwork } from '../../context/NetworkManager'
 import { BoxRow, Box, BoxItem, BoxItemTitle } from '../atoms/Box'
 import { Button, ButtonWrapper } from '../atoms/Button'
 import { Text, TextSpan } from '../atoms/Typography'
-import { WalletConnectButton } from '../molecules/WalletConnect'
+import { WalletConnectButton } from '../molecules/WalletConnectButton'
 import { FormRow, FormCol } from '../atoms/Form'
 import { Card, CardContainer } from '../atoms/Card'
 

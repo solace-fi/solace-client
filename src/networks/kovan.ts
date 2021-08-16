@@ -18,6 +18,7 @@ import { getBalances as aaveBalances } from '../utils/positionGetters/aave/getBa
 
 import { NetworkConfig } from '../constants/types'
 import { ETHERSCAN_API_KEY } from '../constants'
+import { hexValue } from '@ethersproject/bytes'
 
 export const KovanNetwork: NetworkConfig = {
   name: 'kovan',
@@ -96,5 +97,11 @@ export const KovanNetwork: NetworkConfig = {
     getBalances: { [ProductName.AAVE]: aaveBalances },
     positions: { [ProductName.AAVE]: { positionNamesInitialized: false } },
   },
-  isMetaMask: true,
+  metamaskChain: {
+    chainId: hexValue(42),
+    chainName: 'Kovan Testnet',
+    nativeCurrency: { name: 'Ethereum', symbol: Unit.ETH, decimals: 18 },
+    rpcUrls: ['https://eth-kovan.alchemyapi.io'],
+    blockExplorerUrls: ['https://rinkeby.etherscan.io'],
+  },
 }

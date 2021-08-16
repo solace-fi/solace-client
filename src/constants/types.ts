@@ -117,9 +117,34 @@ export type NetworkConfig = {
     productContracts: any
   }
   cache: any
-  isMetaMask?: boolean
+  metamaskChain?: MetamaskAddEthereumChain
 }
 
 export type KeyContracts = {
   [key: string]: ContractSources
+}
+
+export type MetamaskAddEthereumChain = {
+  chainId: string
+  chainName: string
+  nativeCurrency: {
+    name: string
+    symbol: string
+    decimals: number
+  }
+  rpcUrls: string[]
+  blockExplorerUrls: string[]
+}
+
+export type MetamaskSwitchEthereumChain = {
+  chainId: string
+}
+
+export type MetamaskWatchAsset = {
+  type: string
+  options: {
+    address: string
+    symbol: string
+    decimals: number
+  }
 }

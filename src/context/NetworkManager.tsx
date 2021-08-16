@@ -1,10 +1,12 @@
-import React, { createContext, useCallback, useContext, useMemo, useEffect } from 'react'
+import React, { createContext, useCallback, useContext, useMemo, useEffect, useState } from 'react'
 import { useSessionStorage } from 'react-use-storage'
 import { NetworkConfig } from '../constants/types'
 import { KovanNetwork } from '../networks/kovan'
 import { RinkebyNetwork } from '../networks/rinkeby'
 import { useCachedData } from './CachedDataManager'
 import { useWallet } from './WalletManager'
+import { MetamaskConnector } from '../wallet/wallets/MetaMask'
+import { NetworkModal } from '../components/organisms/NetworkModal'
 
 const networks: NetworkConfig[] = [RinkebyNetwork, KovanNetwork]
 
@@ -13,6 +15,8 @@ type NetworkContext = {
   chainId: number
   currencyDecimals: number
   networks: NetworkConfig[]
+  openNetworkModal: () => void
+  switchNetwork: (networkName: string) => void
   findNetworkByChainId: (chainId: number | undefined) => NetworkConfig | undefined
 }
 
@@ -21,6 +25,8 @@ const NetworkContext = createContext<NetworkContext>({
   chainId: networks[0].chainId,
   currencyDecimals: networks[0].nativeCurrency.decimals,
   networks,
+  openNetworkModal: () => undefined,
+  switchNetwork: () => undefined,
   findNetworkByChainId: () => undefined,
 })
 
@@ -28,6 +34,17 @@ const NetworksProvider: React.FC = (props) => {
   const { connector } = useWallet()
   const { reload } = useCachedData()
   const [lastNetwork, setLastNetwork] = useSessionStorage<string | undefined>('solace_net')
+  const [networkModal, setNetworkModal] = useState<boolean>(false)
+
+  const openModal = useCallback(() => {
+    document.body.style.overflowY = 'hidden'
+    setNetworkModal(true)
+  }, [])
+
+  const closeModal = useCallback(() => {
+    document.body.style.overflowY = 'scroll'
+    setNetworkModal(false)
+  }, [])
 
   const activeNetwork = useMemo(() => {
     let network: NetworkConfig | undefined
@@ -65,54 +82,50 @@ const NetworksProvider: React.FC = (props) => {
   )
 
   useEffect(() => {
-    if (connector && connector.id == 'metamask') {
-      connector
-        .getConnector()
-        .getProvider()
-        .then((provider) => {
-          provider.on('chainChanged', (chainId: number) => {
-            const network = findNetworkByChainId(Number(chainId)) ?? networks[0]
-            changeNetwork(network.name)
-          })
+    if (connector instanceof MetamaskConnector) {
+      connector.getProvider().then((provider) => {
+        provider.on('chainChanged', (chainId: number) => {
+          const network = findNetworkByChainId(Number(chainId)) ?? networks[0]
+          changeNetwork(network.name)
         })
+      })
     }
   }, [connector, changeNetwork, findNetworkByChainId])
 
-  // const switchNetwork = useCallback(
-  //   async (networkName: string) => {
-  //     const network = findNetworkByName(networkName)
+  const switchNetwork = useCallback(
+    async (networkName: string) => {
+      const network = findNetworkByName(networkName)
 
-  //     if (!network) {
-  //       return
-  //     }
+      if (!network) {
+        return
+      }
 
-  //     let canSetNetwork = true
+      let canSetNetwork = true
 
-  //     if (connector && connector.id == 'metamask') {
-  //       try {
-  //         const error = await connector.switchChain({
-  //           chainId: network.chainId,
-  //         })
+      if (connector instanceof MetamaskConnector && network.metamaskChain) {
+        try {
+          const error = await connector.switchChain({
+            chainId: network.metamaskChain.chainId,
+          })
 
-  //         if (error) {
-  //           canSetNetwork = false
-  //         }
-  //       } catch (e) {
-  //         canSetNetwork = false
+          if (error) {
+            canSetNetwork = false
+          }
+        } catch (e) {
+          canSetNetwork = false
 
-  //         // @ts-ignore
-  //         if (e.code === 4902) {
-  //           await connector.addChain(network.metamaskChain)
-  //         }
-  //       }
-  //     }
+          if (e.code === 4902) {
+            await connector.addChain(network.metamaskChain)
+          }
+        }
+      }
 
-  //     if (canSetNetwork) {
-  //       changeNetwork(network.id)
-  //     }
-  //   },
-  //   [connector]
-  // )
+      if (canSetNetwork) {
+        changeNetwork(network.name)
+      }
+    },
+    [connector]
+  )
 
   const value = useMemo<NetworkContext>(
     () => ({
@@ -120,12 +133,19 @@ const NetworksProvider: React.FC = (props) => {
       chainId: activeNetwork.chainId,
       currencyDecimals: activeNetwork?.nativeCurrency.decimals ?? networks[0].nativeCurrency.decimals,
       networks,
+      openNetworkModal: openModal,
+      switchNetwork,
       findNetworkByChainId,
     }),
-    [activeNetwork, findNetworkByChainId]
+    [activeNetwork, findNetworkByChainId, switchNetwork, openModal]
   )
 
-  return <NetworkContext.Provider value={value}>{props.children}</NetworkContext.Provider>
+  return (
+    <NetworkContext.Provider value={value}>
+      <NetworkModal closeModal={closeModal} isOpen={networkModal} />
+      {props.children}
+    </NetworkContext.Provider>
+  )
 }
 
 // To get access to this Manager, import this into your component or hook

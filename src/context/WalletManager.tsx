@@ -7,6 +7,7 @@ import {
 } from '@web3-react/injected-connector'
 import { UserRejectedRequestError as UserRejectedRequestErrorWalletConnect } from '@web3-react/walletconnect-connector'
 import { WalletConnector, SUPPORTED_WALLETS } from '../wallet'
+import { AbstractConnector } from '@web3-react/abstract-connector'
 
 import { Web3ReactProvider } from '@web3-react/core'
 
@@ -45,7 +46,8 @@ export type ContextWallet = {
   isActive: boolean
   account?: string
   library?: any
-  connector?: WalletConnector
+  connector?: AbstractConnector
+  activeWalletConnector?: WalletConnector
   errors: AppError[]
   openWalletModal: () => void
   connect: (connector: WalletConnector, args?: Record<string, any>) => Promise<void>
@@ -155,18 +157,19 @@ const WalletProvider: React.FC = (props) => {
       isActive: web3React.active,
       account: web3React.account ?? undefined,
       library: web3React.account ? web3React.library : ethProvider,
-      connector: activeConnector,
+      connector: web3React.connector,
+      activeWalletConnector: activeConnector,
       errors,
       openWalletModal: openModal,
       connect,
       disconnect,
     }),
-    [web3React, ethProvider, initialized, connecting, activeConnector, errors, disconnect, connect]
+    [web3React, ethProvider, initialized, activeConnector, connecting, errors, disconnect, connect]
   )
 
   return (
     <WalletContext.Provider value={value}>
-      <WalletModal closeModal={closeModal} isOpen={walletModal}></WalletModal>
+      <WalletModal closeModal={closeModal} isOpen={walletModal} />
       {props.children}
     </WalletContext.Provider>
   )
