@@ -102,6 +102,6 @@ export const KovanNetwork: NetworkConfig = {
     chainName: 'Kovan Testnet',
     nativeCurrency: { name: 'Ethereum', symbol: Unit.ETH, decimals: 18 },
     rpcUrls: ['https://eth-kovan.alchemyapi.io'],
-    blockExplorerUrls: ['https://rinkeby.etherscan.io'],
+    blockExplorerUrls: ['https://kovan.etherscan.io'],
   },
 }

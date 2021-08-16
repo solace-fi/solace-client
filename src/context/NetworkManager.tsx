@@ -6,7 +6,13 @@ import { RinkebyNetwork } from '../networks/rinkeby'
 import { useCachedData } from './CachedDataManager'
 import { useWallet } from './WalletManager'
 import { MetamaskConnector } from '../wallet/wallets/MetaMask'
-import { NetworkModal } from '../components/organisms/NetworkModal'
+
+import { Card, CardContainer } from '../components/atoms/Card'
+import { ModalCell } from '../components/atoms/Modal'
+import { Heading3 } from '../components/atoms/Typography'
+import { Modal } from '../components/molecules/Modal'
+import { FormRow } from '../components/atoms/Form'
+import { capitalizeFirstLetter } from '../utils/formatting'
 
 const networks: NetworkConfig[] = [RinkebyNetwork, KovanNetwork]
 
@@ -123,6 +129,7 @@ const NetworksProvider: React.FC = (props) => {
       if (canSetNetwork) {
         changeNetwork(network.name)
       }
+      closeModal()
     },
     [connector]
   )
@@ -142,7 +149,30 @@ const NetworksProvider: React.FC = (props) => {
 
   return (
     <NetworkContext.Provider value={value}>
-      <NetworkModal closeModal={closeModal} isOpen={networkModal} />
+      <Modal handleClose={closeModal} isOpen={networkModal} modalTitle={'Connect a network'} disableCloseButton={false}>
+        <CardContainer cardsPerRow={1}>
+          {networks.map((network) => (
+            <Card
+              canHover
+              pt={5}
+              pb={5}
+              pl={80}
+              pr={80}
+              key={network.name}
+              onClick={() => switchNetwork(network.name)}
+              glow={network.name == activeNetwork.name}
+              blue={network.name == activeNetwork.name}
+              style={{ display: 'flex', justifyContent: 'center' }}
+            >
+              <FormRow mb={0}>
+                <ModalCell p={10}>
+                  <Heading3>{capitalizeFirstLetter(network.name)}</Heading3>
+                </ModalCell>
+              </FormRow>
+            </Card>
+          ))}
+        </CardContainer>
+      </Modal>
       {props.children}
     </NetworkContext.Provider>
   )
