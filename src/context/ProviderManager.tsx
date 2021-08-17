@@ -1,6 +1,4 @@
 import React, { useState, useEffect, useCallback } from 'react'
-import { ALCHEMY_API_KEY } from '../constants'
-import { Provider, JsonRpcProvider } from '@ethersproject/providers'
 import { useNetwork } from './NetworkManager'
 import { useWallet } from './WalletManager'
 import { MetamaskConnector } from '../wallet/wallets/MetaMask'
@@ -32,12 +30,10 @@ and write to the blockchain.
 */
 
 type ProviderContextType = {
-  ethProvider?: Provider
   openNetworkModal: () => void
 }
 
 const InitialContextValue: ProviderContextType = {
-  ethProvider: undefined,
   openNetworkModal: () => undefined,
 }
 
@@ -49,7 +45,6 @@ export function useProvider(): ProviderContextType {
 }
 
 const ProviderManager: React.FC = ({ children }) => {
-  const [ethProvider, setEthProvider] = useState<Provider>()
   const { networks, activeNetwork, findNetworkByChainId, findNetworkByName, changeNetwork } = useNetwork()
   const { connector } = useWallet()
 
@@ -64,15 +59,6 @@ const ProviderManager: React.FC = ({ children }) => {
     document.body.style.overflowY = 'scroll'
     setNetworkModal(false)
   }, [])
-
-  const getProvider = async () => {
-    const provider = new JsonRpcProvider(`https://eth-${activeNetwork.name}.alchemyapi.io/v2/${ALCHEMY_API_KEY}`)
-    setEthProvider(provider)
-  }
-
-  useEffect(() => {
-    getProvider()
-  }, [activeNetwork])
 
   useEffect(() => {
     if (connector instanceof MetamaskConnector) {
@@ -122,10 +108,9 @@ const ProviderManager: React.FC = ({ children }) => {
 
   const value = React.useMemo(
     () => ({
-      ethProvider,
       openNetworkModal: openModal,
     }),
-    [ethProvider, openModal]
+    [openModal]
   )
   return (
     <ProviderContext.Provider value={value}>

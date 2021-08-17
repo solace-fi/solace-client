@@ -8,11 +8,9 @@ import {
 import { UserRejectedRequestError as UserRejectedRequestErrorWalletConnect } from '@web3-react/walletconnect-connector'
 import { WalletConnector, SUPPORTED_WALLETS } from '../wallet'
 import { AbstractConnector } from '@web3-react/abstract-connector'
-
 import { Web3ReactProvider } from '@web3-react/core'
-
+import { JsonRpcProvider } from '@ethersproject/providers'
 import getLibrary from '../utils/getLibrary'
-import { useProvider } from './ProviderManager'
 import { Error as AppError } from '../constants/enums'
 
 import { WalletModal } from '../components/organisms/WalletModal'
@@ -80,7 +78,8 @@ const WalletProvider: React.FC = (props) => {
   connectingRef.current = connecting
   const [errors, setErrors] = useState<AppError[]>([])
   const [walletModal, setWalletModal] = useState<boolean>(false)
-  const { ethProvider } = useProvider()
+
+  const ethProvider = useMemo(() => new JsonRpcProvider(activeNetwork.rpc.httpsUrl), [activeNetwork])
 
   const openModal = useCallback(() => {
     document.body.style.overflowY = 'hidden'

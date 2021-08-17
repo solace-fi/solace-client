@@ -1,6 +1,7 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
 import { BrowserRouter } from 'react-router-dom'
+import { createProviderTreeFromList } from 'react-provider-tree'
 
 import App from './pages/App'
 
@@ -28,23 +29,22 @@ already reserved in our system for something else.
 
 */
 
+const ProviderTree = createProviderTreeFromList(
+  [NetworkManager, {}],
+  [WalletManager, {}],
+  [ProviderManager, {}],
+  [ContractsManager, {}],
+  [CachedDataManager, {}],
+  [NotificationsManager, {}]
+)
+
 ReactDOM.render(
   <React.StrictMode>
-    <NetworkManager>
-      <WalletManager>
-        <ProviderManager>
-          <ContractsManager>
-            <CachedDataManager>
-              <NotificationsManager>
-                <BrowserRouter>
-                  <App />
-                </BrowserRouter>
-              </NotificationsManager>
-            </CachedDataManager>
-          </ContractsManager>
-        </ProviderManager>
-      </WalletManager>
-    </NetworkManager>
+    <ProviderTree>
+      <BrowserRouter>
+        <App />
+      </BrowserRouter>
+    </ProviderTree>
   </React.StrictMode>,
   document.getElementById('root')
 )

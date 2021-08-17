@@ -61,8 +61,9 @@ const NetworksProvider: React.FC = (props) => {
 
     if (network) {
       setLastNetwork(network.name.toLowerCase())
-      // if (connector && !(connector instanceof MetamaskConnector)) window.location.reload()
-      connect
+
+      // there were cases where changing networks without changing the wallet does not give the accurate balance in that network
+      if (connector && !(connector instanceof MetamaskConnector)) window.location.reload()
     }
 
     return network

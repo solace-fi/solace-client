@@ -30,20 +30,22 @@ export const useGetTokens = (): boolean => {
               library,
               activeNetwork.chainId
             )
-            activeNetwork.cache.tokens[productName] = {
+            const initializedTokens = {
               ...activeNetwork.cache.tokens[productName],
               savedTokens: tokens,
               tokensInitialized: true,
             }
+            activeNetwork.cache.tokens[productName] = initializedTokens
             const positionNames = tokens.reduce(
               (names: any, token: any) => ({ ...names, [token.token.address.toLowerCase()]: token.underlying.symbol }),
               {}
             )
-            activeNetwork.cache.positions[productName] = {
+            const initializedPositions = {
               ...activeNetwork.cache.positions[productName],
               positionNames: positionNames,
               positionNamesInitialized: true,
             }
+            activeNetwork.cache.positions[productName] = initializedPositions
           }
         })
       )
