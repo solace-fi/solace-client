@@ -16,11 +16,11 @@
   *************************************************************************************/
 
 /* import react */
-import React, { useCallback } from 'react'
+import React from 'react'
 
 /* import managers */
 import { useNetwork } from '../../context/NetworkManager'
-import { useWallet } from '../../context/WalletManager'
+import { useProvider } from '../../context/ProviderManager'
 
 /* import components */
 import { Button } from '../atoms/Button'
@@ -35,8 +35,8 @@ export const NetworkConnectButton: React.FC<GeneralElementProps> = ({ ...props }
     custom hooks
 
   *************************************************************************************/
-  const { isActive } = useWallet()
-  const { activeNetwork, openNetworkModal } = useNetwork()
+  const { activeNetwork } = useNetwork()
+  const { openNetworkModal } = useProvider()
 
   /*************************************************************************************
 
@@ -47,7 +47,7 @@ export const NetworkConnectButton: React.FC<GeneralElementProps> = ({ ...props }
     <>
       <Button onClick={() => openNetworkModal()} {...props}>
         <StyledNetworkChart size={30} />
-        {isActive && `${capitalizeFirstLetter(activeNetwork.name)}`}
+        {capitalizeFirstLetter(activeNetwork.name)}
       </Button>
     </>
   )

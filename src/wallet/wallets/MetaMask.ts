@@ -1,6 +1,11 @@
 import { AbstractConnector } from '@web3-react/abstract-connector'
 import { InjectedConnector } from '@web3-react/injected-connector'
-import { MetamaskAddEthereumChain, MetamaskSwitchEthereumChain, MetamaskWatchAsset } from '../../constants/types'
+import {
+  MetamaskAddEthereumChain,
+  MetamaskSwitchEthereumChain,
+  MetamaskWatchAsset,
+  NetworkConfig,
+} from '../../constants/types'
 import MetamaskLogo from '../../resources/svg/wallets/metamask-logo.svg'
 
 export type MetaMaskError = Error & {
@@ -40,7 +45,7 @@ export const MetaMaskConnector = {
   id: 'metamask',
   name: 'MetaMask',
   logo: MetamaskLogo,
-  getConnector: (): AbstractConnector => {
+  getConnector(network: NetworkConfig): AbstractConnector {
     return new MetamaskConnector({
       supportedChainIds: [4, 42],
     })

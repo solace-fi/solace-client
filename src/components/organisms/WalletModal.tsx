@@ -7,6 +7,7 @@ import { ModalCell } from '../atoms/Modal'
 import { Heading3 } from '../atoms/Typography'
 import { Modal } from '../molecules/Modal'
 import { FormRow } from '../atoms/Form'
+import { Button, ButtonWrapper } from '../atoms/Button'
 
 interface WalletModalProps {
   closeModal: () => void
@@ -14,7 +15,7 @@ interface WalletModalProps {
 }
 
 export const WalletModal: React.FC<WalletModalProps> = ({ closeModal, isOpen }) => {
-  const { connect, activeWalletConnector } = useWallet()
+  const { connect, disconnect, activeWalletConnector } = useWallet()
 
   const handleClose = useCallback(() => {
     closeModal()
@@ -52,6 +53,11 @@ export const WalletModal: React.FC<WalletModalProps> = ({ closeModal, isOpen }) 
           </Card>
         ))}
       </CardContainer>
+      {activeWalletConnector && (
+        <ButtonWrapper>
+          <Button onClick={() => disconnect()}>Disconnect Wallet</Button>
+        </ButtonWrapper>
+      )}
     </Modal>
   )
 }

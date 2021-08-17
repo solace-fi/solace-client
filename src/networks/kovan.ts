@@ -19,11 +19,13 @@ import { getBalances as aaveBalances } from '../utils/positionGetters/aave/getBa
 import { NetworkConfig } from '../constants/types'
 import { ETHERSCAN_API_KEY } from '../constants'
 import { hexValue } from '@ethersproject/bytes'
+import { ALCHEMY_API_KEY } from '../constants'
 
 export const KovanNetwork: NetworkConfig = {
   name: 'kovan',
   chainId: 42,
   nativeCurrency: { symbol: Unit.ETH, decimals: 18 },
+  rpc: { httpsUrl: `https://eth-kovan.alchemyapi.io/v2/${ALCHEMY_API_KEY}` },
   explorer: {
     name: 'Etherscan',
     key: String(ETHERSCAN_API_KEY),
@@ -103,5 +105,8 @@ export const KovanNetwork: NetworkConfig = {
     nativeCurrency: { name: 'Ethereum', symbol: Unit.ETH, decimals: 18 },
     rpcUrls: ['https://eth-kovan.alchemyapi.io'],
     blockExplorerUrls: ['https://kovan.etherscan.io'],
+  },
+  walletConfig: {
+    portisId: String(process.env.REACT_APP_PORTIS_ID),
   },
 }

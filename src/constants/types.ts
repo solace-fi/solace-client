@@ -106,6 +106,9 @@ export type NetworkConfig = {
     symbol: Unit
     decimals: number
   }
+  rpc: {
+    httpsUrl: string
+  }
   explorer: {
     name: 'Etherscan' | 'Polygonscan'
     key: string
@@ -118,6 +121,7 @@ export type NetworkConfig = {
   }
   cache: any
   metamaskChain?: MetamaskAddEthereumChain
+  walletConfig: any
 }
 
 export type KeyContracts = {

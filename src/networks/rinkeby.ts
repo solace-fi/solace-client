@@ -19,11 +19,13 @@ import { getBalances as compBalances } from '../utils/positionGetters/compound/g
 import { NetworkConfig } from '../constants/types'
 import { ETHERSCAN_API_KEY } from '../constants'
 import { hexValue } from '@ethersproject/bytes'
+import { ALCHEMY_API_KEY } from '../constants'
 
 export const RinkebyNetwork: NetworkConfig = {
   name: 'rinkeby',
   chainId: 4,
   nativeCurrency: { symbol: Unit.ETH, decimals: 18 },
+  rpc: { httpsUrl: `https://eth-rinkeby.alchemyapi.io/v2/${ALCHEMY_API_KEY}` },
   explorer: {
     name: 'Etherscan',
     key: String(ETHERSCAN_API_KEY),
@@ -103,5 +105,8 @@ export const RinkebyNetwork: NetworkConfig = {
     nativeCurrency: { name: 'Ethereum', symbol: Unit.ETH, decimals: 18 },
     rpcUrls: ['https://eth-rinkeby.alchemyapi.io'],
     blockExplorerUrls: ['https://rinkeby.etherscan.io'],
+  },
+  walletConfig: {
+    portisId: String(process.env.REACT_APP_PORTIS_ID),
   },
 }
