@@ -25,7 +25,7 @@ import Govern from './govern'
 
 /* import components */
 import { SideNavbar, TopNavbar } from '../components/organisms/Navbar'
-import { BottomPrices, PageHeader } from '../components/organisms/Header'
+import { BottomAccount, PageHeader } from '../components/organisms/Header'
 import { GlobalStyle, Layout, ContentContainer, LayoutContent, SideNavContent } from '../components/atoms/Layout'
 import { LayoutContentWithLoader } from '../components/molecules/LayoutContentWithLoader'
 import { Statistics } from '../components/organisms/Statistics'
@@ -37,7 +37,7 @@ export default function App(): any {
     <Fragment>
       <GlobalStyle />
       <TopNavbar />
-      <BottomPrices />
+      <BottomAccount />
       <Layout>
         <ContentContainer>
           <SideNavContent>

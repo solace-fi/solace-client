@@ -11,7 +11,7 @@
       custom hooks
       Render
 
-    BottomPrices function
+    BottomAccount function
       custom hooks
       Render
 
@@ -57,7 +57,7 @@ export const PageHeader: React.FC = () => {
   )
 }
 
-export const BottomPrices: React.FC = () => {
+export const BottomAccount: React.FC = () => {
   /*************************************************************************************
 
       custom hooks
