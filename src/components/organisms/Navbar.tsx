@@ -32,6 +32,7 @@ import { NetworkConnectButton } from '../molecules/NetworkConnectButton'
 /* import hooks */
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'
 import { MAX_MOBILE_SCREEN_WIDTH } from '../../constants'
+import { useWallet } from '../../context/WalletManager'
 
 export const SideNavbar: React.FC = () => {
   /*************************************************************************************
@@ -71,6 +72,7 @@ export const TopNavbar: React.FC = () => {
   *************************************************************************************/
   const { width } = useWindowDimensions()
   const [isOpen, setIsOpen] = useState<boolean>(false)
+  const { account } = useWallet()
 
   /*************************************************************************************
 
@@ -120,9 +122,11 @@ export const TopNavbar: React.FC = () => {
             <div onClick={() => setIsOpen(!isOpen)}>
               <WalletConnectButton />
             </div>
-            <div onClick={() => setIsOpen(!isOpen)}>
-              <TransactionHistoryButton />
-            </div>
+            {account && (
+              <div onClick={() => setIsOpen(!isOpen)}>
+                <TransactionHistoryButton />
+              </div>
+            )}
           </ButtonWrapper>
         )}
       </ItemList>

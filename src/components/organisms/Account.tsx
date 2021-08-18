@@ -74,6 +74,7 @@ export const Account: React.FC = () => {
 
   *************************************************************************************/
   const { localTransactions } = useCachedData()
+  const { account } = useWallet()
 
   /*************************************************************************************
 
@@ -90,9 +91,11 @@ export const Account: React.FC = () => {
       <SmallBox p={0} transparent>
         <WalletConnectButton pl={10} pr={10} />
       </SmallBox>
-      <SmallBox p={0} transparent glow={localTransactions.length > 0}>
-        <TransactionHistoryButton pl={10} pr={10} />
-      </SmallBox>
+      {account && (
+        <SmallBox p={0} transparent glow={localTransactions.length > 0}>
+          <TransactionHistoryButton pl={10} pr={10} />
+        </SmallBox>
+      )}
     </Fragment>
   )
 }

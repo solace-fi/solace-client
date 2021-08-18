@@ -83,10 +83,10 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
   *************************************************************************************/
 
   const cooldown = useGetCooldownPeriod()
-  const { addLocalTransactions, reload, gasPrices, tokenPositionDataInitialized } = useCachedData()
+  const { addLocalTransactions, reload, gasPrices, tokenPositionData } = useCachedData()
   const { selectedProtocol } = useContracts()
   const { makeTxToast } = useToasts()
-  const { account, errors, library } = useWallet()
+  const { errors } = useWallet()
   const { activeNetwork, currencyDecimals } = useNetwork()
   const { width } = useWindowDimensions()
 
@@ -154,7 +154,7 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
       setAsyncLoading(false)
     }
     load()
-  }, [isOpen, selectedPolicy, account, library, tokenPositionDataInitialized])
+  }, [isOpen, selectedPolicy, activeNetwork, tokenPositionData])
 
   /*************************************************************************************
 

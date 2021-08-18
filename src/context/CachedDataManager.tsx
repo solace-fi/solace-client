@@ -2,14 +2,14 @@ import React, { useMemo, useContext, createContext, useEffect, useState, useCall
 import { useLocalStorage } from 'react-use-storage'
 import { useWallet } from './WalletManager'
 
-import { LocalTx, Policy } from '../constants/types'
+import { LocalTx, Policy, NetworkCache } from '../constants/types'
 import { usePolicyGetter } from '../hooks/useGetter'
 import { useReload } from '../hooks/useReload'
 import { useInterval } from '../hooks/useInterval'
 
 import { useFetchGasPrice } from '../hooks/useFetchGasPrice'
 import { useGetLatestBlockNumber } from '../hooks/useGetLatestBlockNumber'
-import { useGetTokens } from '../hooks/useGetTokens'
+import { useCacheTokens } from '../hooks/useCacheTokens'
 
 import { TransactionHistoryModal } from '../components/organisms/TransactionHistoryModal'
 import { useNetwork } from './NetworkManager'
@@ -24,7 +24,7 @@ web app.
 type CachedData = {
   localTransactions: LocalTx[]
   userPolicyData: { policiesLoading: boolean; userPolicies: Policy[] }
-  tokenPositionDataInitialized: boolean
+  tokenPositionData: { dataInitialized: boolean; storedTokenAndPositionData: NetworkCache[] }
   showHistoryModal: boolean
   version: number
   dataVersion?: number
@@ -39,7 +39,7 @@ type CachedData = {
 const CachedDataContext = createContext<CachedData>({
   localTransactions: [],
   userPolicyData: { policiesLoading: false, userPolicies: [] },
-  tokenPositionDataInitialized: false,
+  tokenPositionData: { dataInitialized: false, storedTokenAndPositionData: [] },
   showHistoryModal: false,
   version: 0,
   dataVersion: undefined,
@@ -59,8 +59,14 @@ const CachedDataProvider: React.FC = (props) => {
   const [dataReload, dataVersion] = useReload()
   const gasPrices = useFetchGasPrice()
   const latestBlock = useGetLatestBlockNumber(dataVersion)
-  const dataInitialized = useGetTokens()
-  const { policiesLoading, userPolicies } = usePolicyGetter(false, latestBlock, dataInitialized, version, account)
+  const { dataInitialized, storedTokenAndPositionData } = useCacheTokens()
+  const { policiesLoading, userPolicies } = usePolicyGetter(
+    false,
+    latestBlock,
+    { dataInitialized, storedTokenAndPositionData },
+    version,
+    account
+  )
   const [historyModal, setHistoryModal] = useState<boolean>(false)
 
   const openModal = useCallback(() => {
@@ -101,7 +107,7 @@ const CachedDataProvider: React.FC = (props) => {
     () => ({
       localTransactions: localTxs,
       userPolicyData: { policiesLoading, userPolicies },
-      tokenPositionDataInitialized: dataInitialized,
+      tokenPositionData: { dataInitialized, storedTokenAndPositionData },
       showHistoryModal: historyModal,
       version,
       dataVersion,
@@ -117,6 +123,7 @@ const CachedDataProvider: React.FC = (props) => {
       addLocalTransactions,
       deleteLocalTransactions,
       dataInitialized,
+      storedTokenAndPositionData,
       version,
       dataVersion,
       latestBlock,

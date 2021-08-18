@@ -4,6 +4,7 @@ import { getContract } from '../utils'
 import { Contract } from '@ethersproject/contracts'
 import { ContractSources, SupportedProduct } from '../constants/types'
 import { useNetwork } from '../context/NetworkManager'
+import { useCachedData } from '../context/CachedDataManager'
 
 export function useGetContract(source: ContractSources | undefined, hasSigner = true): Contract | null {
   const { library, account } = useWallet()
@@ -22,11 +23,12 @@ export function useGetContract(source: ContractSources | undefined, hasSigner = 
 export function useGetProductContracts(): SupportedProduct[] {
   const { library, account } = useWallet()
   const { activeNetwork } = useNetwork()
+  const { tokenPositionData } = useCachedData()
 
   return useMemo(() => {
     const config = activeNetwork.config
-    const cache = activeNetwork.cache
-    if (!library) return []
+    const cache = tokenPositionData.storedTokenAndPositionData.find((dataset) => dataset.name == activeNetwork.name)
+    if (!library || !cache) return []
     cache.supportedProducts.map((product: SupportedProduct, i: number) => {
       const name = product.name
       const productContractSources = config.productContracts[name]
@@ -42,7 +44,7 @@ export function useGetProductContracts(): SupportedProduct[] {
       }
     })
     return cache.supportedProducts
-  }, [library, account, activeNetwork])
+  }, [library, account, activeNetwork, tokenPositionData])
 }
 
 export function useContractArray(): ContractSources[] {

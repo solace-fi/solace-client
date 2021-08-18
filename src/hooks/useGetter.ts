@@ -2,7 +2,7 @@ import { withBackoffRetries } from '../utils/time'
 import { rangeFrom0 } from '../utils/numeric'
 import { useWallet } from '../context/WalletManager'
 import { PolicyState } from '../constants/enums'
-import { Policy } from '../constants/types'
+import { Policy, NetworkCache } from '../constants/types'
 import { BigNumber } from 'ethers'
 import { useContracts } from '../context/ContractsManager'
 import { useState, useEffect, useRef } from 'react'
@@ -11,7 +11,7 @@ import { useNetwork } from '../context/NetworkManager'
 export const usePolicyGetter = (
   getAll: boolean,
   latestBlock: number,
-  dataInit: boolean,
+  data: { dataInitialized: boolean; storedTokenAndPositionData: NetworkCache[] },
   version: number,
   policyHolder?: string,
   product?: string
@@ -55,16 +55,16 @@ export const usePolicyGetter = (
     let policies = await (policyHolder ? getUserPolicies(policyHolder) : getAllPolicies())
     policies = policies.filter((policy: any) => policy.policyId >= 0)
     if (product) policies = policies.filter((policy: any) => policy.productAddress.equalsIgnoreCase(product))
-    policies.sort((a: any, b: any) => b.policyId - a.policyId) // newest first
-    const initializedCache = activeNetwork.cache
     try {
-      policies.forEach((policy: Policy) => {
-        const productPosition = initializedCache.positions[activeNetwork.cache.productsRev[policy.productAddress] ?? '']
-        if (productPosition) {
-          policy.positionName = productPosition.positionNames[policy.positionContract.toLowerCase()]
-        }
-      })
       if (policyHolder) {
+        policies.sort((a: any, b: any) => b.policyId - a.policyId) // newest first
+        const matchingCache = data.storedTokenAndPositionData.find((dataset) => dataset.name == activeNetwork.name)
+        policies.forEach((policy: Policy) => {
+          const productPosition = matchingCache?.positions[activeNetwork.cache.productsRev[policy.productAddress] ?? '']
+          if (productPosition) {
+            policy.positionName = productPosition.positionNames[policy.positionContract.toLowerCase()]
+          }
+        })
         setUserPolicies(policies)
       } else {
         setAllPolicies(policies)
@@ -112,10 +112,10 @@ export const usePolicyGetter = (
     const loadOverTime = async () => {
       await getPolicies()
     }
-    if (policyHolder !== undefined || !library || !getAll || !dataInit) return
+    if (policyHolder !== undefined || !library || !getAll) return
 
     loadOverTime()
-  }, [latestBlock, library, dataInit])
+  }, [latestBlock, library])
 
   useEffect(() => {
     const loadOnBoot = async () => {
@@ -124,15 +124,15 @@ export const usePolicyGetter = (
       mounting.current = false
     }
     setPoliciesLoading(true)
-    if (!policyHolder || !library || getAll || !dataInit) return
+    if (!policyHolder || !library || getAll || !data.dataInitialized) return
     loadOnBoot()
-  }, [policyHolder, isActive, activeNetwork, dataInit])
+  }, [policyHolder, isActive, activeNetwork, data.dataInitialized])
 
   useEffect(() => {
     const loadOverTime = async () => {
       await getPolicies(policyHolder)
     }
-    if (policyHolder == undefined || mounting.current || getAll || !dataInit) return
+    if (policyHolder == undefined || mounting.current || getAll || !data.dataInitialized) return
 
     loadOverTime()
   }, [latestBlock, version])

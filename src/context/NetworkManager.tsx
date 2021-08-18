@@ -30,7 +30,6 @@ const NetworkContext = createContext<NetworkContext>({
 })
 
 const NetworksProvider: React.FC = (props) => {
-  const { connect } = useWallet()
   const [lastNetwork, setLastNetwork] = useSessionStorage<string | undefined>('solace_net')
 
   const activeNetwork = useMemo(() => {

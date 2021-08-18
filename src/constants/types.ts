@@ -2,6 +2,14 @@ import { BigNumber } from 'ethers'
 import { PolicyState, TransactionCondition, Unit } from '../constants/enums'
 import { Contract } from '@ethersproject/contracts'
 
+export type NetworkCache = {
+  name: string
+  chainId: number
+  supportedProducts: any
+  tokens: any
+  positions: any
+}
+
 export type ClaimDetails = { id: string; cooldown: string; canWithdraw: boolean; amount: BigNumber }
 
 export type Policy = {
