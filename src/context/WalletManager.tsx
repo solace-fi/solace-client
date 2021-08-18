@@ -70,7 +70,7 @@ const WalletProvider: React.FC = (props) => {
   const web3React = useWeb3React()
   const { activeNetwork } = useNetwork()
   const [selectedProvider, setSelectedProvider, removeSelectedProvider] = useSessionStorage<string | undefined>(
-    'wallet_provider'
+    'sol_wallet_0'
   )
   const [activeConnector, setActiveConnector] = useState<WalletConnector | undefined>()
   const [connecting, setConnecting] = useState<WalletConnector | undefined>(undefined)
@@ -147,7 +147,13 @@ const WalletProvider: React.FC = (props) => {
   )
 
   useEffect(() => {
-    if (web3React.chainId && activeNetwork.chainId && web3React.chainId !== activeNetwork.chainId && connecting) {
+    if (
+      selectedProvider == 'metamask' &&
+      web3React.chainId &&
+      activeNetwork.chainId &&
+      web3React.chainId !== activeNetwork.chainId &&
+      connecting
+    ) {
       if (!errors.includes(AppError.WALLET_NETWORK_UNSYNC))
         setErrors((errors) => [...errors, AppError.WALLET_NETWORK_UNSYNC])
     }
