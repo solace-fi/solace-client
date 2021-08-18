@@ -146,6 +146,20 @@ const ToastsProvider: React.FC = (props) => {
     } else {
       toast.dismiss(Error.NO_ACCESS)
     }
+    if (errors.includes(Error.WALLET_NETWORK_UNSYNC)) {
+      toast(
+        appToast(
+          `Please ensure that the network on your wallet and the network on the Solace app match`,
+          <StyledWarning size={30} />
+        ),
+        {
+          toastId: Error.WALLET_NETWORK_UNSYNC,
+          ...appError,
+        }
+      )
+    } else {
+      toast.dismiss(Error.WALLET_NETWORK_UNSYNC)
+    }
     if (errors.includes(Error.UNKNOWN)) {
       toast(appToast(`An unknown error occurred`, <StyledWarning size={30} />), {
         toastId: Error.UNKNOWN,

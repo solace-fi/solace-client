@@ -10,6 +10,7 @@ export enum Error {
   NO_PROVIDER,
   UNKNOWN,
   NO_ACCESS,
+  WALLET_NETWORK_UNSYNC,
 }
 
 export enum FunctionName {

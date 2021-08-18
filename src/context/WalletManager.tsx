@@ -12,7 +12,6 @@ import { Web3ReactProvider } from '@web3-react/core'
 import { JsonRpcProvider } from '@ethersproject/providers'
 import getLibrary from '../utils/getLibrary'
 import { Error as AppError } from '../constants/enums'
-
 import { WalletModal } from '../components/organisms/WalletModal'
 import { useNetwork } from './NetworkManager'
 /*
@@ -48,6 +47,7 @@ export type ContextWallet = {
   activeWalletConnector?: WalletConnector
   errors: AppError[]
   openWalletModal: () => void
+  changeWallet: (walletConnector: WalletConnector) => void
   connect: (connector: WalletConnector, args?: Record<string, any>) => Promise<void>
   disconnect: () => void
 }
@@ -61,6 +61,7 @@ const WalletContext = createContext<ContextWallet>({
   connector: undefined,
   errors: [],
   openWalletModal: () => undefined,
+  changeWallet: () => undefined,
   connect: () => Promise.reject(),
   disconnect: () => undefined,
 })
@@ -68,7 +69,7 @@ const WalletContext = createContext<ContextWallet>({
 const WalletProvider: React.FC = (props) => {
   const web3React = useWeb3React()
   const { activeNetwork } = useNetwork()
-  const [localProvider, setLocalProvider, removeLocalProvider] = useSessionStorage<string | undefined>(
+  const [selectedProvider, setSelectedProvider, removeSelectedProvider] = useSessionStorage<string | undefined>(
     'wallet_provider'
   )
   const [activeConnector, setActiveConnector] = useState<WalletConnector | undefined>()
@@ -91,12 +92,18 @@ const WalletProvider: React.FC = (props) => {
     setWalletModal(false)
   }, [])
 
+  const changeWallet = useCallback((walletConnector: WalletConnector) => {
+    // there were cases where changing wallets without changing the network does not give the correct balance in that network
+    setSelectedProvider(walletConnector.id)
+    window.location.reload()
+  }, [])
+
   const disconnect = useCallback(() => {
     web3React.deactivate()
     setConnecting(undefined)
     setActiveConnector(undefined)
-    removeLocalProvider()
-  }, [web3React, removeLocalProvider, setConnecting])
+    removeSelectedProvider()
+  }, [web3React, removeSelectedProvider, setConnecting])
 
   const connect = useCallback(
     async (walletConnector: WalletConnector): Promise<void> => {
@@ -113,7 +120,6 @@ const WalletProvider: React.FC = (props) => {
         if (!connectingRef.current) return
         walletConnector.onConnect?.(connector)
         setActiveConnector(walletConnector)
-        setLocalProvider(walletConnector.id)
       }
 
       function onError(error: Error) {
@@ -137,14 +143,21 @@ const WalletProvider: React.FC = (props) => {
 
       setConnecting(undefined)
     },
-    [web3React, activeNetwork, connectingRef, setConnecting, setLocalProvider]
+    [web3React, activeNetwork, connectingRef, setConnecting, setSelectedProvider]
   )
+
+  useEffect(() => {
+    if (web3React.chainId && activeNetwork.chainId && web3React.chainId !== activeNetwork.chainId && connecting) {
+      if (!errors.includes(AppError.WALLET_NETWORK_UNSYNC))
+        setErrors((errors) => [...errors, AppError.WALLET_NETWORK_UNSYNC])
+    }
+  }, [activeNetwork, errors, web3React.chainId, selectedProvider, connecting])
 
   useEffect(() => {
     // If the user has a local provider already
     ;(async () => {
-      if (localProvider) {
-        const walletConnector = WalletConnectors.find((c) => c.id === localProvider)
+      if (selectedProvider) {
+        const walletConnector = WalletConnectors.find((c) => c.id === selectedProvider)
         if (walletConnector) await connect(walletConnector)
       }
       setInitialized(true)
@@ -162,6 +175,7 @@ const WalletProvider: React.FC = (props) => {
       activeWalletConnector: activeConnector,
       errors,
       openWalletModal: openModal,
+      changeWallet,
       connect,
       disconnect,
     }),
