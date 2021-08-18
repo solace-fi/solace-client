@@ -23,7 +23,7 @@
 import React, { useEffect, useState } from 'react'
 
 /* import packages */
-import { formatEther, parseEther } from '@ethersproject/units'
+import { formatUnits, parseUnits } from '@ethersproject/units'
 
 /* import constants */
 import { GAS_LIMIT, MAX_MOBILE_SCREEN_WIDTH } from '../../constants'
@@ -40,7 +40,7 @@ import { useNetwork } from '../../context/NetworkManager'
 import { BoxRow, Box, BoxItem, BoxItemTitle } from '../atoms/Box'
 import { Button, ButtonWrapper } from '../atoms/Button'
 import { Text, TextSpan } from '../atoms/Typography'
-import { WalletConnectButton } from '../molecules/WalletConnect'
+import { WalletConnectButton } from '../molecules/WalletConnectButton'
 import { FormRow, FormCol } from '../atoms/Form'
 import { Card, CardContainer } from '../atoms/Card'
 
@@ -53,7 +53,7 @@ import { useGetTotalValueLocked } from '../../hooks/useFarm'
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'
 
 /* import utils */
-import { fixed, getGasValue, floatEther, truncateBalance } from '../../utils/formatting'
+import { fixed, getGasValue, floatUnits, truncateBalance } from '../../utils/formatting'
 
 export const Statistics: React.FC = () => {
   /*************************************************************************************
@@ -62,21 +62,14 @@ export const Statistics: React.FC = () => {
 
   *************************************************************************************/
   const { account, errors, initialized } = useWallet()
-  const { activeNetwork } = useNetwork()
+  const { activeNetwork, currencyDecimals } = useNetwork()
   const { master } = useContracts()
   const { makeTxToast } = useToasts()
-  const {
-    addLocalTransactions,
-    reload,
-    gasPrices,
-    tokenPositionDataInitialized,
-    latestBlock,
-    version,
-  } = useCachedData()
+  const { addLocalTransactions, reload, gasPrices, tokenPositionData, latestBlock, version } = useCachedData()
   const capitalPoolSize = useCapitalPoolSize()
   const solaceBalance = useSolaceBalance()
   const totalUserRewards = useTotalPendingRewards()
-  const { allPolicies } = usePolicyGetter(true, latestBlock, tokenPositionDataInitialized, version)
+  const { allPolicies } = usePolicyGetter(true, latestBlock, tokenPositionData, version)
   const totalValueLocked = useGetTotalValueLocked()
   const { width } = useWindowDimensions()
 
@@ -202,24 +195,27 @@ export const Statistics: React.FC = () => {
             <BoxItem>
               <BoxItemTitle h3>Capital Pool Size</BoxItemTitle>
               <Text h2 nowrap>
-                {`${truncateBalance(floatEther(parseEther(capitalPoolSize)), 1)} `}
-                <TextSpan h3>{activeNetwork.nativeCurrency}</TextSpan>
+                {`${truncateBalance(floatUnits(parseUnits(capitalPoolSize, currencyDecimals), currencyDecimals), 1)} `}
+                <TextSpan h3>{activeNetwork.nativeCurrency.symbol}</TextSpan>
               </Text>
             </BoxItem>
             <BoxItem>
               <BoxItemTitle h3>Total Value Locked</BoxItemTitle>
               <Text h2 nowrap>
                 {`${truncateBalance(parseFloat(totalValueLocked), 1)} `}
-                <TextSpan h3>{activeNetwork.nativeCurrency}</TextSpan>
+                <TextSpan h3>{activeNetwork.nativeCurrency.symbol}</TextSpan>
               </Text>
             </BoxItem>
             <BoxItem>
               <BoxItemTitle h3>Active Cover Amount</BoxItemTitle>
               <Text h2 nowrap>
                 {totalActiveCoverAmount !== '-'
-                  ? `${truncateBalance(parseFloat(formatEther(totalActiveCoverAmount.toString())), 2)} `
+                  ? `${truncateBalance(
+                      parseFloat(formatUnits(totalActiveCoverAmount.toString(), currencyDecimals)),
+                      2
+                    )} `
                   : `${totalActiveCoverAmount} `}
-                <TextSpan h3>{activeNetwork.nativeCurrency}</TextSpan>
+                <TextSpan h3>{activeNetwork.nativeCurrency.symbol}</TextSpan>
               </Text>
             </BoxItem>
             <BoxItem>
@@ -269,8 +265,11 @@ export const Statistics: React.FC = () => {
                   <FormCol>Capital Pool Size</FormCol>
                   <FormCol>
                     <Text h2 nowrap>
-                      {`${truncateBalance(floatEther(parseEther(capitalPoolSize)), 1)} `}
-                      <TextSpan h3>{activeNetwork.nativeCurrency}</TextSpan>
+                      {`${truncateBalance(
+                        floatUnits(parseUnits(capitalPoolSize, currencyDecimals), currencyDecimals),
+                        1
+                      )} `}
+                      <TextSpan h3>{activeNetwork.nativeCurrency.symbol}</TextSpan>
                     </Text>
                   </FormCol>
                 </FormRow>
@@ -279,7 +278,7 @@ export const Statistics: React.FC = () => {
                   <FormCol>
                     <Text h2 nowrap>
                       {`${truncateBalance(parseFloat(totalValueLocked), 1)} `}
-                      <TextSpan h3>{activeNetwork.nativeCurrency}</TextSpan>
+                      <TextSpan h3>{activeNetwork.nativeCurrency.symbol}</TextSpan>
                     </Text>
                   </FormCol>
                 </FormRow>
@@ -288,9 +287,12 @@ export const Statistics: React.FC = () => {
                   <FormCol>
                     <Text h2 nowrap>
                       {totalActiveCoverAmount !== '-'
-                        ? `${truncateBalance(parseFloat(formatEther(totalActiveCoverAmount.toString())), 2)} `
+                        ? `${truncateBalance(
+                            parseFloat(formatUnits(totalActiveCoverAmount.toString(), currencyDecimals)),
+                            2
+                          )} `
                         : `${totalActiveCoverAmount} `}
-                      <TextSpan h3>{activeNetwork.nativeCurrency}</TextSpan>
+                      <TextSpan h3>{activeNetwork.nativeCurrency.symbol}</TextSpan>
                     </Text>
                   </FormCol>
                 </FormRow>

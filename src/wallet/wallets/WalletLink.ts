@@ -1,6 +1,6 @@
 import { AbstractConnector } from '@web3-react/abstract-connector'
 import { WalletLinkConnector as WalletLink_Connector } from '@web3-react/walletlink-connector'
-import { RPC_URLS } from '../../constants'
+import { NetworkConfig } from '../../constants/types'
 
 import CoinbaseWalletLogo from '../../resources/svg/wallets/coinbase-logo.svg'
 
@@ -8,9 +8,9 @@ export const WalletLinkConnector = {
   id: 'coinbase',
   name: 'Coinbase Wallet',
   logo: CoinbaseWalletLogo,
-  getConnector: (): AbstractConnector => {
+  getConnector(network: NetworkConfig): AbstractConnector {
     return new WalletLink_Connector({
-      url: RPC_URLS[4],
+      url: network.rpc.httpsUrl,
       appName: 'solace-coinbase',
     })
   },

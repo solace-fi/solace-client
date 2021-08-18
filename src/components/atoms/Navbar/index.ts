@@ -22,7 +22,7 @@ export const TopNav = styled.div<TopNavProps>`
   }
 
   @media screen and (max-width: ${MAX_MOBILE_SCREEN_WIDTH}px) {
-    ${(props) => (props.isOpen == false ? 'max-height: 4rem;' : 'max-height: 50vh;')}
+    ${(props) => (props.isOpen == false ? 'max-height: 4rem;' : 'max-height: 60vh;')}
     text-align: center;
   }
 `

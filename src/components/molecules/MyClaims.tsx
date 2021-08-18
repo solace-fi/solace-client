@@ -21,7 +21,7 @@
 import React, { Fragment } from 'react'
 
 /* import packages */
-import { formatEther } from '@ethersproject/units'
+import { formatUnits } from '@ethersproject/units'
 
 /* import managers */
 import { useWallet } from '../../context/WalletManager'
@@ -47,7 +47,7 @@ import { useGetClaimsDetails } from '../../hooks/useClaimsEscrow'
 
 /* import utils */
 import { truncateBalance, getGasValue } from '../../utils/formatting'
-import { timer } from '../../utils/time'
+import { timeToDate } from '../../utils/time'
 
 export const MyClaims: React.FC = () => {
   /*************************************************************************************
@@ -57,7 +57,7 @@ export const MyClaims: React.FC = () => {
   *************************************************************************************/
   const { claimsEscrow } = useContracts()
   const { account, errors } = useWallet()
-  const { activeNetwork } = useNetwork()
+  const { activeNetwork, currencyDecimals } = useNetwork()
   const { addLocalTransactions, reload, gasPrices } = useCachedData()
   const { makeTxToast } = useToasts()
   const claimsDetails = useGetClaimsDetails(account)
@@ -121,10 +121,10 @@ export const MyClaims: React.FC = () => {
                     <BoxItem>
                       <BoxItemTitle h3>Amount</BoxItemTitle>
                       <Text h3>
-                        {parseFloat(formatEther(claim.amount)) >= 1
-                          ? truncateBalance(parseFloat(formatEther(claim.amount)))
-                          : formatEther(claim.amount)}{' '}
-                        {activeNetwork.nativeCurrency}
+                        {parseFloat(formatUnits(claim.amount, currencyDecimals)) >= 1
+                          ? truncateBalance(parseFloat(formatUnits(claim.amount, currencyDecimals)))
+                          : formatUnits(claim.amount, currencyDecimals)}{' '}
+                        {activeNetwork.nativeCurrency.symbol}
                       </Text>
                     </BoxItem>
                     <BoxItem>
@@ -132,7 +132,7 @@ export const MyClaims: React.FC = () => {
                       <Text h3>
                         {claim.canWithdraw
                           ? 'Available'
-                          : `${claim.cooldown == '0' ? '-' : timer(parseInt(claim.cooldown) * 1000)} left`}
+                          : `${claim.cooldown == '0' ? '-' : timeToDate(parseInt(claim.cooldown) * 1000)} left`}
                       </Text>
                     </BoxItem>
                   </Box>

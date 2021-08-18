@@ -50,16 +50,9 @@ export const useTransactionDetails = (): { txHistory: any; amounts: string[] } =
     const topics = logs[logs.length - 1].topics
 
     switch (function_name) {
-      case FunctionName.DEPOSIT:
-      case FunctionName.WITHDRAW:
-        if (receipt.to.toLowerCase() === activeNetwork.config.keyContracts.vault.addr.toLowerCase()) {
-          if (!topics || topics.length <= 0) return '0'
-          return topics[topics.length - 1]
-        } else {
-          const data = logs[logs.length - 1].data
-          if (!data) return '0'
-          return logs[logs.length - 1].data
-        }
+      case FunctionName.DEPOSIT_ETH:
+      case FunctionName.WITHDRAW_ETH:
+        return logs[0].data
       case FunctionName.SUBMIT_CLAIM:
         if (!topics || topics.length <= 0) return '0'
         return topics[topics.length - 1]
@@ -67,11 +60,12 @@ export const useTransactionDetails = (): { txHistory: any; amounts: string[] } =
         if (!topics || topics.length <= 0) return '0'
         return topics[1]
       case FunctionName.BUY_POLICY:
-      case FunctionName.EXTEND_POLICY:
+      case FunctionName.EXTEND_POLICY_PERIOD:
+      case FunctionName.UPDATE_POLICY:
+      case FunctionName.UPDATE_POLICY_AMOUNT:
       case FunctionName.CANCEL_POLICY:
-      case FunctionName.DEPOSIT_ETH:
       case FunctionName.DEPOSIT_CP:
-      case FunctionName.WITHDRAW_ETH:
+      case FunctionName.WITHDRAW_CP:
       case FunctionName.WITHDRAW_REWARDS:
       case FunctionName.DEPOSIT_SIGNED:
       case FunctionName.WITHDRAW_LP:
@@ -95,7 +89,7 @@ export const useTransactionDetails = (): { txHistory: any; amounts: string[] } =
           currentAmounts.push('N/A')
         } else {
           const amount: string = await getTransactionAmount(function_name, txHistory[tx_i], library)
-          currentAmounts.push(`${formatTransactionContent(function_name, amount, activeNetwork, txHistory[tx_i].to)}`)
+          currentAmounts.push(`${formatTransactionContent(function_name, amount, activeNetwork)}`)
         }
       }
       setAmounts(currentAmounts)

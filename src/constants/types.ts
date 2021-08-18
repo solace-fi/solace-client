@@ -2,6 +2,14 @@ import { BigNumber } from 'ethers'
 import { PolicyState, TransactionCondition, Unit } from '../constants/enums'
 import { Contract } from '@ethersproject/contracts'
 
+export type NetworkCache = {
+  name: string
+  chainId: number
+  supportedProducts: any
+  tokens: any
+  positions: any
+}
+
 export type ClaimDetails = { id: string; cooldown: string; canWithdraw: boolean; amount: BigNumber }
 
 export type Policy = {
@@ -10,7 +18,7 @@ export type Policy = {
   productAddress: string
   productName: string
   positionContract: string
-  expirationBlock: string
+  expirationBlock: number
   coverAmount: string
   price: string
   status: PolicyState
@@ -102,7 +110,13 @@ export type LocalTx = {
 export type NetworkConfig = {
   name: string
   chainId: number
-  nativeCurrency: Unit
+  nativeCurrency: {
+    symbol: Unit
+    decimals: number
+  }
+  rpc: {
+    httpsUrl: string
+  }
   explorer: {
     name: 'Etherscan' | 'Polygonscan'
     key: string
@@ -110,8 +124,39 @@ export type NetworkConfig = {
     apiUrl: string
   }
   config: {
-    keyContracts: any
+    keyContracts: KeyContracts
     productContracts: any
   }
   cache: any
+  metamaskChain?: MetamaskAddEthereumChain
+  walletConfig: any
+}
+
+export type KeyContracts = {
+  [key: string]: ContractSources
+}
+
+export type MetamaskAddEthereumChain = {
+  chainId: string
+  chainName: string
+  nativeCurrency: {
+    name: string
+    symbol: string
+    decimals: number
+  }
+  rpcUrls: string[]
+  blockExplorerUrls: string[]
+}
+
+export type MetamaskSwitchEthereumChain = {
+  chainId: string
+}
+
+export type MetamaskWatchAsset = {
+  type: string
+  options: {
+    address: string
+    symbol: string
+    decimals: number
+  }
 }

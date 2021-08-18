@@ -1,13 +1,11 @@
 import { useState, useEffect } from 'react'
 import { fetchGasPrice } from '../utils/explorer'
-import { useWallet } from '../context/WalletManager'
 import { GasFeeListState } from '../constants/types'
 import { useCachedData } from '../context/CachedDataManager'
 import { useNetwork } from '../context/NetworkManager'
 
 export const useFetchGasPrice = (): GasFeeListState => {
-  const { chainId } = useWallet()
-  const { activeNetwork } = useNetwork()
+  const { activeNetwork, chainId } = useNetwork()
   const { version, latestBlock } = useCachedData()
 
   const [state, setState] = useState<GasFeeListState>({

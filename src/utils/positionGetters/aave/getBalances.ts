@@ -1,12 +1,17 @@
-import { NetworkConfig, Token } from '../../../constants/types'
+import { NetworkCache, NetworkConfig, Token } from '../../../constants/types'
 import ierc20Json from '../_contracts/IERC20Metadata.json'
 import { rangeFrom0 } from '../../numeric'
 import { addNativeTokenBalances, getProductTokenBalances } from '../getBalances'
 import { ProductName } from '../../../constants/enums'
 
-export const getBalances = async (user: string, provider: any, activeNetwork: NetworkConfig): Promise<Token[]> => {
+export const getBalances = async (
+  user: string,
+  provider: any,
+  activeNetwork: NetworkConfig,
+  cache: NetworkCache
+): Promise<Token[]> => {
   // get atoken balances
-  const savedTokens = activeNetwork.cache.tokens[ProductName.AAVE].savedTokens
+  const savedTokens = cache.tokens[ProductName.AAVE].savedTokens
   const balances: Token[] = await getProductTokenBalances(user, ierc20Json.abi, savedTokens, provider)
 
   //get utoken balances
@@ -14,7 +19,7 @@ export const getBalances = async (user: string, provider: any, activeNetwork: Ne
   indices.forEach((i) => (balances[i].underlying.balance = balances[i].token.balance))
 
   //get native token balances
-  const tokenBalances = await addNativeTokenBalances(balances, indices, activeNetwork.chainId, getMainNetworkToken)
+  const tokenBalances = await addNativeTokenBalances(balances, indices, cache.chainId, getMainNetworkToken)
   return tokenBalances
 }
 

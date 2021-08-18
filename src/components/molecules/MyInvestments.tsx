@@ -20,7 +20,7 @@
 import React from 'react'
 
 /* import packages */
-import { formatEther } from '@ethersproject/units'
+import { formatUnits } from '@ethersproject/units'
 
 /* import managers */
 import { useWallet } from '../../context/WalletManager'
@@ -75,7 +75,7 @@ export const MyInvestments: React.FC = () => {
           <CardHeader>
             <CardTitle h2>Capital Pool</CardTitle>
             <Heading3>
-              {account ? truncateBalance(parseFloat(cpUserStakeValue), 2) : 0} {activeNetwork.nativeCurrency}
+              {account ? truncateBalance(parseFloat(cpUserStakeValue), 2) : 0} {activeNetwork.nativeCurrency.symbol}
             </Heading3>
           </CardHeader>
           <CardBlock>
@@ -97,7 +97,7 @@ export const MyInvestments: React.FC = () => {
             <Heading3>
               {/* {account
                 ? truncateBalance(
-                    formatEther(depositedLpTokenInfo.reduce((a, b) => a.add(b.value), ZERO).toString()),
+                    formatUnits(depositedLpTokenInfo.reduce((a, b) => a.add(b.value), ZERO).toString(), currencyDecimals),
                     2
                   )
                 : 0}{' '}

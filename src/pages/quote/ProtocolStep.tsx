@@ -186,7 +186,7 @@ export const ProtocolStep: React.FC<formProps> = ({ setForm, navigation }) => {
                         %
                       </TableData>
                       <TableData>
-                        {handleAvailableCoverage(protocol)} {activeNetwork.nativeCurrency}
+                        {handleAvailableCoverage(protocol)} {activeNetwork.nativeCurrency.symbol}
                       </TableData>
                       <TableData textAlignRight>
                         <Button disabled={errors.length > 0}>Select</Button>
@@ -253,7 +253,7 @@ export const ProtocolStep: React.FC<formProps> = ({ setForm, navigation }) => {
                       <FormCol>Coverage Available</FormCol>
                       <FormCol>
                         <Heading2>
-                          {handleAvailableCoverage(protocol)} {activeNetwork.nativeCurrency}
+                          {handleAvailableCoverage(protocol)} {activeNetwork.nativeCurrency.symbol}
                         </Heading2>
                       </FormCol>
                     </FormRow>

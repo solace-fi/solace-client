@@ -1,12 +1,13 @@
 import useDebounce from '@rooks/use-debounce'
 import { BigNumber } from 'ethers'
-import { formatEther } from '@ethersproject/units'
+import { formatUnits } from '@ethersproject/units'
 import { useEffect, useState } from 'react'
 import { GAS_LIMIT, NUM_BLOCKS_PER_DAY, ZERO } from '../constants'
 import { useContracts } from '../context/ContractsManager'
 import { useWallet } from '../context/WalletManager'
 import { Policy, StringToStringMapping } from '../constants/types'
 import { useCachedData } from '../context/CachedDataManager'
+import { useNetwork } from '../context/NetworkManager'
 
 export const useGetPolicyPrice = (policyId: number): string => {
   const [policyPrice, setPolicyPrice] = useState<string>('')
@@ -17,6 +18,7 @@ export const useGetPolicyPrice = (policyId: number): string => {
     if (!selectedProtocol || policyId == 0) return
     try {
       const policy = userPolicyData.userPolicies.filter((policy: Policy) => policy.policyId == policyId)[0]
+      if (!policy) return
       setPolicyPrice(policy.price)
     } catch (err) {
       console.log('getPolicyPrice', err)
@@ -55,14 +57,15 @@ export const useAppraisePosition = (policy: Policy | undefined): BigNumber => {
 }
 
 export const useGetMaxCoverPerUser = (): string => {
-  const [maxCoverPerUser, setMaxCoverPerUser] = useState<string>('0.00')
+  const [maxCoverPerUser, setMaxCoverPerUser] = useState<string>('0')
   const { selectedProtocol } = useContracts()
+  const { currencyDecimals } = useNetwork()
 
   const getMaxCoverPerUser = async () => {
     if (!selectedProtocol) return
     try {
       const maxCover = await selectedProtocol.maxCoverPerUser()
-      const formattedMaxCover = formatEther(maxCover)
+      const formattedMaxCover = formatUnits(maxCover, currencyDecimals)
       setMaxCoverPerUser(formattedMaxCover)
     } catch (err) {
       console.log('getMaxCoverPerUser', err)
@@ -76,30 +79,10 @@ export const useGetMaxCoverPerUser = (): string => {
   return maxCoverPerUser
 }
 
-export const useGetCancelFee = (): string => {
-  const [cancelFee, setCancelFee] = useState<string>('0.00')
-  const { selectedProtocol } = useContracts()
-
-  const getCancelFee = async () => {
-    if (!selectedProtocol) return
-    try {
-      const fee = await selectedProtocol.manageFee()
-      setCancelFee(formatEther(fee))
-    } catch (err) {
-      console.log('getCancelFee', err)
-    }
-  }
-
-  useEffect(() => {
-    getCancelFee()
-  }, [selectedProtocol])
-
-  return cancelFee
-}
-
 export const useGetYearlyCosts = (): StringToStringMapping => {
   const [yearlyCosts, setYearlyCosts] = useState<StringToStringMapping>({})
   const { products, getProtocolByName } = useContracts()
+  const { currencyDecimals } = useNetwork()
 
   const getYearlyCosts = async () => {
     try {
@@ -110,7 +93,7 @@ export const useGetYearlyCosts = (): StringToStringMapping => {
           const product = getProtocolByName(productContract.name)
           if (product) {
             const fetchedPrice = await product.price()
-            newYearlyCosts[productContract.name] = formatEther(fetchedPrice)
+            newYearlyCosts[productContract.name] = formatUnits(fetchedPrice, currencyDecimals)
           } else {
             newYearlyCosts[productContract.name] = '0'
           }
@@ -132,6 +115,7 @@ export const useGetYearlyCosts = (): StringToStringMapping => {
 export const useGetAvailableCoverages = (): StringToStringMapping => {
   const [availableCoverages, setAvailableCoverages] = useState<StringToStringMapping>({})
   const { products, getProtocolByName } = useContracts()
+  const { currencyDecimals } = useNetwork()
 
   const getAvailableCoverages = async () => {
     try {
@@ -143,7 +127,7 @@ export const useGetAvailableCoverages = (): StringToStringMapping => {
           if (product) {
             const maxCoverAmount = await product.maxCoverAmount()
             const activeCoverAmount = await product.activeCoverAmount()
-            const coverage = formatEther(maxCoverAmount.sub(activeCoverAmount))
+            const coverage = formatUnits(maxCoverAmount.sub(activeCoverAmount), currencyDecimals)
             newAvailableCoverages[productContract.name] = coverage
           } else {
             newAvailableCoverages[productContract.name] = '0'
@@ -163,25 +147,25 @@ export const useGetAvailableCoverages = (): StringToStringMapping => {
   return availableCoverages
 }
 
-// TODO: Replace with coverAmount on new deployed contracts
-export const useGetQuote = (coverLimit: string | null, positionContract: string | null, days: string): string => {
+export const useGetQuote = (coverAmount: string | null, positionContract: string | null, days: string): string => {
   const { account } = useWallet()
-  const [quote, setQuote] = useState<string>('0.00')
+  const [quote, setQuote] = useState<string>('0')
   const { selectedProtocol } = useContracts()
+  const { currencyDecimals } = useNetwork()
 
   const getQuote = async () => {
-    if (!selectedProtocol || !coverLimit || !positionContract) return
+    if (!selectedProtocol || !coverAmount || !positionContract) return
     try {
       const quote = await selectedProtocol.getQuote(
         account,
         positionContract,
-        coverLimit,
+        coverAmount,
         BigNumber.from(NUM_BLOCKS_PER_DAY * parseInt(days)),
         {
           gasLimit: GAS_LIMIT,
         }
       )
-      const formattedQuote = formatEther(quote)
+      const formattedQuote = formatUnits(quote, currencyDecimals)
       setQuote(formattedQuote)
     } catch (err) {
       console.log('getQuote', err)
@@ -194,7 +178,7 @@ export const useGetQuote = (coverLimit: string | null, positionContract: string 
 
   useEffect(() => {
     handleQuote()
-  }, [coverLimit, selectedProtocol, account, positionContract, days])
+  }, [coverAmount, selectedProtocol, account, positionContract, days])
 
   return quote
 }

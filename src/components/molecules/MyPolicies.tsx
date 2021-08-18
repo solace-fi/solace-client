@@ -21,7 +21,7 @@
 import React, { Fragment } from 'react'
 
 /* import packages */
-import { formatEther } from '@ethersproject/units'
+import { formatUnits } from '@ethersproject/units'
 
 /* import managers */
 import { useCachedData } from '../../context/CachedDataManager'
@@ -47,7 +47,7 @@ import { useWindowDimensions } from '../../hooks/useWindowDimensions'
 
 /* import utils */
 import { truncateBalance } from '../../utils/formatting'
-import { getDays, getExpiration } from '../../utils/time'
+import { getDaysLeft, getExpiration } from '../../utils/time'
 
 interface MyPoliciesProps {
   openClaimModal: any
@@ -63,20 +63,20 @@ export const MyPolicies: React.FC<MyPoliciesProps> = ({ openClaimModal, openMana
   *************************************************************************************/
   const { userPolicyData } = useCachedData()
   const { width } = useWindowDimensions()
-  const { activeNetwork } = useNetwork()
+  const { activeNetwork, currencyDecimals } = useNetwork()
 
   /*************************************************************************************
 
     Local functions
 
   *************************************************************************************/
-  const calculatePolicyExpirationDate = (expirationBlock: string): string => {
-    const daysLeft = getDays(parseFloat(expirationBlock), latestBlock)
+  const calculatePolicyExpirationDate = (expirationBlock: number): string => {
+    const daysLeft = getDaysLeft(expirationBlock, latestBlock)
     return getExpiration(daysLeft)
   }
 
   const shouldWarnUser = (policy: Policy): boolean => {
-    return policy.status === PolicyState.ACTIVE && getDays(parseFloat(policy.expirationBlock), latestBlock) <= 1
+    return policy.status === PolicyState.ACTIVE && getDaysLeft(policy.expirationBlock, latestBlock) <= 1
   }
 
   /*************************************************************************************
@@ -127,8 +127,8 @@ export const MyPolicies: React.FC<MyPoliciesProps> = ({ openClaimModal, openMana
                       {calculatePolicyExpirationDate(policy.expirationBlock)}
                     </TableData>
                     <TableData>
-                      {policy.coverAmount ? truncateBalance(parseFloat(formatEther(policy.coverAmount)), 2) : 0}{' '}
-                      {activeNetwork.nativeCurrency}
+                      {policy.coverAmount ? truncateBalance(formatUnits(policy.coverAmount, currencyDecimals), 2) : 0}{' '}
+                      {activeNetwork.nativeCurrency.symbol}
                     </TableData>
 
                     <TableData textAlignRight>
@@ -193,8 +193,8 @@ export const MyPolicies: React.FC<MyPoliciesProps> = ({ openClaimModal, openMana
                     <FormCol>Covered Amount:</FormCol>
                     <FormCol>
                       <Heading2>
-                        {policy.coverAmount ? truncateBalance(parseFloat(formatEther(policy.coverAmount)), 2) : 0}{' '}
-                        {activeNetwork.nativeCurrency}
+                        {policy.coverAmount ? truncateBalance(formatUnits(policy.coverAmount, currencyDecimals), 2) : 0}{' '}
+                        {activeNetwork.nativeCurrency.symbol}
                       </Heading2>
                     </FormCol>
                   </FormRow>

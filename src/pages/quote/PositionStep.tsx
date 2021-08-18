@@ -64,10 +64,10 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
 
   *************************************************************************************/
 
-  const { account, chainId, library, errors } = useWallet()
-  const { activeNetwork, findNetworkByChainId } = useNetwork()
+  const { account, library, errors } = useWallet()
+  const { activeNetwork, findNetworkByChainId, chainId } = useNetwork()
   const { setSelectedProtocolByName } = useContracts()
-  const { userPolicyData, latestBlock, tokenPositionDataInitialized } = useCachedData()
+  const { userPolicyData, latestBlock, tokenPositionData } = useCachedData()
   const { width } = useWindowDimensions()
 
   /*************************************************************************************
@@ -102,10 +102,16 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
   }
 
   const getUserBalances = async () => {
-    if (!account || !library || !tokenPositionDataInitialized || !chainId) return
-    if (findNetworkByChainId(chainId)) {
+    if (!account || !library || !tokenPositionData.dataInitialized || !chainId) return
+    const cache = tokenPositionData.storedTokenAndPositionData.find((dataset) => dataset.name == activeNetwork.name)
+    if (findNetworkByChainId(chainId) && cache) {
       try {
-        const balances: Token[] = await activeNetwork.cache.getBalances[protocol.name](account, library, activeNetwork)
+        const balances: Token[] = await activeNetwork.cache.getBalances[protocol.name](
+          account,
+          library,
+          activeNetwork,
+          cache
+        )
         setForm({
           target: {
             name: 'balances',
@@ -249,7 +255,6 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
                     {truncateBalance(fixedTokenPositionBalance(position.token))}{' '}
                     <TextSpan style={{ fontSize: '12px' }}>{position.token.symbol}</TextSpan>
                   </PositionCardText>
-
                   <PositionCardButton>
                     {userHasActiveProductPosition(protocol.name, position.underlying.symbol) ? (
                       <Button widthP={width > MAX_MOBILE_SCREEN_WIDTH ? undefined : 100}>Manage</Button>

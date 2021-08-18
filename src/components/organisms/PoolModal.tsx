@@ -24,7 +24,7 @@
 import React, { useState, Fragment, useEffect, useCallback } from 'react'
 
 /* import packages */
-import { formatEther, parseEther } from '@ethersproject/units'
+import { formatUnits, parseUnits } from '@ethersproject/units'
 import { BigNumber as BN } from 'ethers'
 import { Contract } from '@ethersproject/contracts'
 
@@ -57,17 +57,22 @@ import { Button, ButtonWrapper } from '../atoms/Button'
 import { Loader } from '../atoms/Loader'
 import { FormOption, FormSelect } from '../atoms/Form'
 import { Card } from '../atoms/Card'
+import { Box, BoxItem, BoxItemTitle } from '../atoms/Box'
+import { Heading2, Text3 } from '../atoms/Typography'
 
 /* import hooks */
 import { useUserStakedValue } from '../../hooks/useFarm'
 import { useNativeTokenBalance, useUserWalletLpBalance, useDepositedLpBalance } from '../../hooks/useBalance'
 import { useScpBalance } from '../../hooks/useBalance'
 import { useTokenAllowance } from '../../hooks/useTokenAllowance'
+import { useCooldown } from '../../hooks/useVault'
 
 /* import utils */
 import getPermitNFTSignature from '../../utils/signature'
 import { hasApproval } from '../../utils'
 import { fixed, getGasValue, filteredAmount, getUnit, truncateBalance } from '../../utils/formatting'
+import { getTimeFromMillis, timeToDate } from '../../utils/time'
+import { GeneralElementProps } from '../generalInterfaces'
 
 interface PoolModalProps {
   modalTitle: string
@@ -84,8 +89,8 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
   *************************************************************************************/
 
   const { vault, cpFarm, lpFarm, lpToken } = useContracts()
-  const { activeNetwork } = useNetwork()
-  const { account, chainId, errors, library } = useWallet()
+  const { activeNetwork, currencyDecimals, chainId } = useNetwork()
+  const { account, errors, library } = useWallet()
   const [amount, setAmount] = useState<string>('')
   const [isStaking, setIsStaking] = useState<boolean>(false)
   const cpUserStakeValue = useUserStakedValue(cpFarm, account)
@@ -102,7 +107,7 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
   const [spenderAddress, setSpenderAddress] = useState<string | null>(null)
   const tokenAllowance = useTokenAllowance(contractForAllowance, spenderAddress)
   const { makeTxToast } = useToasts()
-  const maxLoss = 5
+  const { cooldownStarted, timeWaited, cooldownMin, cooldownMax, canWithdrawEth } = useCooldown()
   const [nft, setNft] = useState<BN>(ZERO)
   const [nftSelection, setNftSelection] = useState<string>('')
 
@@ -112,13 +117,75 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
 
   *************************************************************************************/
 
+  const callStartCooldown = async () => {
+    setModalLoading(true)
+    if (!vault) return
+    const txType = FunctionName.START_COOLDOWN
+    try {
+      const tx = await vault.startCooldown()
+      const txHash = tx.hash
+      const localTx = {
+        hash: txHash,
+        type: txType,
+        value: truncateBalance(amount),
+        status: TransactionCondition.PENDING,
+        unit: getUnit(func, activeNetwork),
+      }
+      handleClose()
+      addLocalTransactions(localTx)
+      reload()
+      makeTxToast(txType, TransactionCondition.PENDING, txHash)
+      await tx.wait().then((receipt: any) => {
+        const status = receipt.status ? TransactionCondition.SUCCESS : TransactionCondition.FAILURE
+        makeTxToast(txType, status, txHash)
+        reload()
+      })
+    } catch (err) {
+      console.log('callStartCooldown', err)
+      makeTxToast(txType, TransactionCondition.CANCELLED)
+      setModalLoading(false)
+      reload()
+    }
+  }
+
+  const callStopCooldown = async () => {
+    setModalLoading(true)
+    if (!vault) return
+    const txType = FunctionName.STOP_COOLDOWN
+    try {
+      const tx = await vault.stopCooldown()
+      const txHash = tx.hash
+      const localTx = {
+        hash: txHash,
+        type: txType,
+        value: truncateBalance(amount),
+        status: TransactionCondition.PENDING,
+        unit: getUnit(func, activeNetwork),
+      }
+      handleClose()
+      addLocalTransactions(localTx)
+      reload()
+      makeTxToast(txType, TransactionCondition.PENDING, txHash)
+      await tx.wait().then((receipt: any) => {
+        const status = receipt.status ? TransactionCondition.SUCCESS : TransactionCondition.FAILURE
+        makeTxToast(txType, status, txHash)
+        reload()
+      })
+    } catch (err) {
+      console.log('callStopCooldown', err)
+      makeTxToast(txType, TransactionCondition.CANCELLED)
+      setModalLoading(false)
+      reload()
+    }
+  }
+
   const callDeposit = async () => {
     setModalLoading(true)
     if (!vault) return
-    const txType = FunctionName.DEPOSIT
+    const txType = FunctionName.DEPOSIT_ETH
     try {
-      const tx = await vault.deposit({
-        value: parseEther(amount),
+      const tx = await vault.depositEth({
+        value: parseUnits(amount, currencyDecimals),
         gasPrice: getGasValue(selectedGasOption.value),
         gasLimit: GAS_LIMIT,
       })
@@ -153,7 +220,7 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
     const txType = FunctionName.DEPOSIT_ETH
     try {
       const tx = await cpFarm.depositEth({
-        value: parseEther(amount),
+        value: parseUnits(amount, currencyDecimals),
         gasPrice: getGasValue(selectedGasOption.value),
         gasLimit: GAS_LIMIT,
       })
@@ -187,7 +254,7 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
     if (!cpFarm || !vault) return
     const txType = FunctionName.APPROVE
     try {
-      const approval = await vault.approve(cpFarm.address, parseEther(amount))
+      const approval = await vault.approve(cpFarm.address, parseUnits(amount, currencyDecimals))
       const approvalHash = approval.hash
       makeTxToast(FunctionName.APPROVE, TransactionCondition.PENDING, approvalHash)
       await approval.wait().then((receipt: any) => {
@@ -209,7 +276,7 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
     if (!cpFarm || !vault) return
     const txType = FunctionName.DEPOSIT_CP
     try {
-      const tx = await cpFarm.depositCp(parseEther(amount), {
+      const tx = await cpFarm.depositCp(parseUnits(amount, currencyDecimals), {
         gasPrice: getGasValue(selectedGasOption.value),
         gasLimit: GAS_LIMIT,
       })
@@ -238,46 +305,12 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
     }
   }
 
-  const callWithdraw = async () => {
-    setModalLoading(true)
-    if (!vault) return
-    const txType = FunctionName.WITHDRAW
-    try {
-      const tx = await vault.withdraw(parseEther(amount), maxLoss, {
-        gasPrice: getGasValue(selectedGasOption.value),
-        gasLimit: GAS_LIMIT,
-      })
-      const txHash = tx.hash
-      const localTx = {
-        hash: txHash,
-        type: txType,
-        value: truncateBalance(amount),
-        status: TransactionCondition.PENDING,
-        unit: getUnit(func, activeNetwork),
-      }
-      handleClose()
-      addLocalTransactions(localTx)
-      reload()
-      makeTxToast(txType, TransactionCondition.PENDING, txHash)
-      await tx.wait().then((receipt: any) => {
-        const status = receipt.status ? TransactionCondition.SUCCESS : TransactionCondition.FAILURE
-        makeTxToast(txType, status, txHash)
-        reload()
-      })
-    } catch (err) {
-      console.log('callWithdraw', err)
-      makeTxToast(txType, TransactionCondition.CANCELLED)
-      setModalLoading(false)
-      reload()
-    }
-  }
-
   const callWithdrawEth = async () => {
     setModalLoading(true)
-    if (!cpFarm) return
+    if (!vault || !canWithdrawEth) return
     const txType = FunctionName.WITHDRAW_ETH
     try {
-      const tx = await cpFarm.withdrawEth(parseEther(amount), maxLoss, {
+      const tx = await vault.withdrawEth(parseUnits(amount, currencyDecimals), {
         gasPrice: getGasValue(selectedGasOption.value),
         gasLimit: GAS_LIMIT,
       })
@@ -300,6 +333,40 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
       })
     } catch (err) {
       console.log('callWithdrawEth', err)
+      makeTxToast(txType, TransactionCondition.CANCELLED)
+      setModalLoading(false)
+      reload()
+    }
+  }
+
+  const callWithdrawCp = async () => {
+    setModalLoading(true)
+    if (!cpFarm) return
+    const txType = FunctionName.WITHDRAW_CP
+    try {
+      const tx = await cpFarm.withdrawCp(parseUnits(amount, currencyDecimals), {
+        gasPrice: getGasValue(selectedGasOption.value),
+        gasLimit: GAS_LIMIT,
+      })
+      const txHash = tx.hash
+      const localTx = {
+        hash: txHash,
+        type: txType,
+        value: truncateBalance(amount),
+        status: TransactionCondition.PENDING,
+        unit: getUnit(func, activeNetwork),
+      }
+      handleClose()
+      addLocalTransactions(localTx)
+      reload()
+      makeTxToast(txType, TransactionCondition.PENDING, txHash)
+      await tx.wait().then((receipt: any) => {
+        const status = receipt.status ? TransactionCondition.SUCCESS : TransactionCondition.FAILURE
+        makeTxToast(txType, status, txHash)
+        reload()
+      })
+    } catch (err) {
+      console.log('callWithdrawCp', err)
       makeTxToast(txType, TransactionCondition.CANCELLED)
       setModalLoading(false)
       reload()
@@ -376,24 +443,24 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
   *************************************************************************************/
 
   const isAppropriateAmount = () => {
-    if (!amount || amount == '.' || parseEther(amount).lte(ZERO)) return false
-    return getAssetBalanceByFunc().gte(parseEther(amount))
+    if (!amount || amount == '.' || parseUnits(amount, currencyDecimals).lte(ZERO)) return false
+    return getAssetBalanceByFunc().gte(parseUnits(amount, currencyDecimals))
   }
 
   const getAssetBalanceByFunc = (): BN => {
     switch (func) {
-      case FunctionName.DEPOSIT:
-        return parseEther(nativeTokenBalance)
+      case FunctionName.DEPOSIT_ETH:
+        return parseUnits(nativeTokenBalance, currencyDecimals)
       case FunctionName.DEPOSIT_CP:
-      case FunctionName.WITHDRAW:
-        return parseEther(scpBalance)
       case FunctionName.WITHDRAW_ETH:
-        return parseEther(cpUserStakeValue)
+        return parseUnits(scpBalance, currencyDecimals)
+      case FunctionName.WITHDRAW_CP:
+        return parseUnits(cpUserStakeValue, currencyDecimals)
       case FunctionName.DEPOSIT_SIGNED:
         return userLpTokenInfo.reduce((a, b) => a.add(b.value), ZERO)
       case FunctionName.WITHDRAW_LP:
         // return depositedLpTokenInfo.reduce((a, b) => a.add(b.value), ZERO)
-        return parseEther(lpUserStakeValue)
+        return parseUnits(lpUserStakeValue, currencyDecimals)
       default:
         return BN.from('999999999999999999999999999999999999')
     }
@@ -411,8 +478,8 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
   }
 
   const calculateMaxEth = () => {
-    const bal = formatEther(getAssetBalanceByFunc())
-    if (func !== FunctionName.DEPOSIT && func !== FunctionName.DEPOSIT_ETH) return bal
+    const bal = formatUnits(getAssetBalanceByFunc(), currencyDecimals)
+    if (func !== FunctionName.DEPOSIT_ETH) return bal
     const gasInEth = (GAS_LIMIT / POW_NINE) * selectedGasOption.value
     return fixed(fixed(parseFloat(bal), 6) - fixed(gasInEth, 6), 6)
   }
@@ -424,17 +491,28 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
   const handleCallbackFunc = async () => {
     if (!func) return
     switch (func) {
-      case FunctionName.DEPOSIT:
+      case FunctionName.DEPOSIT_ETH:
         isStaking ? await callDepositEth() : await callDeposit()
         break
-      case FunctionName.WITHDRAW:
-        await callWithdraw()
+      case FunctionName.WITHDRAW_ETH:
+        if (!cooldownStarted) {
+          await callStartCooldown()
+          break
+        }
+        if (canWithdrawEth) {
+          await callWithdrawEth()
+          break
+        }
+        if (cooldownMax < timeWaited) {
+          await callStopCooldown()
+          break
+        }
         break
       case FunctionName.DEPOSIT_CP:
         await callDepositCp()
         break
-      case FunctionName.WITHDRAW_ETH:
-        await callWithdrawEth()
+      case FunctionName.WITHDRAW_CP:
+        await callWithdrawCp()
         break
       case FunctionName.DEPOSIT_SIGNED:
         await callDepositLp()
@@ -477,7 +555,7 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
       const maxEth = calculateMaxEth()
       setAmount(maxEth.toString())
     }
-  }, [handleSelectChange])
+  }, [maxSelected, handleSelectChange])
 
   useEffect(() => {
     if (isOpen && vault && cpFarm?.address) {
@@ -486,14 +564,14 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
       if (func == FunctionName.DEPOSIT_SIGNED) {
         if (userLpTokenInfo.length > 0) {
           setNft(userLpTokenInfo[0].id)
-          setAmount(formatEther(userLpTokenInfo[0].value))
+          setAmount(formatUnits(userLpTokenInfo[0].value, currencyDecimals))
           setNftSelection(`${userLpTokenInfo[0].id.toString()}-${userLpTokenInfo[0].value}`)
         }
       }
       if (func == FunctionName.WITHDRAW_LP) {
         if (depositedLpTokenInfo.length > 0) {
           setNft(depositedLpTokenInfo[0].id)
-          setAmount(formatEther(depositedLpTokenInfo[0].value))
+          setAmount(formatUnits(depositedLpTokenInfo[0].value, currencyDecimals))
           setNftSelection(`${depositedLpTokenInfo[0].id.toString()}-${depositedLpTokenInfo[0].value}`)
         }
       }
@@ -506,8 +584,8 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
 
   *************************************************************************************/
 
-  const GasRadioGroup: React.FC = () => (
-    <Card>
+  const GasRadioGroup: React.FC<GeneralElementProps> = (props) => (
+    <Card {...props}>
       <RadioGroup m={0}>
         {!gasPrices.loading ? (
           gasPrices.options.map((option: GasFeeOption) => (
@@ -532,7 +610,7 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
   )
 
   const AutoStakeOption: React.FC = () => (
-    <RadioCircle style={{ paddingTop: '20px', justifyContent: 'center' }}>
+    <RadioCircle style={{ justifyContent: 'center' }}>
       <RadioCircleInput type="checkbox" checked={isStaking} onChange={(e) => setIsStaking(e.target.checked)} />
       <RadioCircleFigure />
       <div>Automatically stake</div>
@@ -554,13 +632,16 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
             <ModalCell>
               <FormSelect value={nftSelection} onChange={(e) => handleNft(e.target)}>
                 {getAssetTokensByFunc().map((token) => (
-                  <FormOption key={token.id.toString()} value={`${token.id.toString()}-${formatEther(token.value)}`}>
-                    #{token.id.toString()} - {truncateBalance(formatEther(token.value))}
+                  <FormOption
+                    key={token.id.toString()}
+                    value={`${token.id.toString()}-${formatUnits(token.value, currencyDecimals)}`}
+                  >
+                    #{token.id.toString()} - {truncateBalance(formatUnits(token.value, currencyDecimals))}
                   </FormOption>
                 ))}
               </FormSelect>
               <div style={{ position: 'absolute', top: '70%' }}>
-                Available: {func ? truncateBalance(formatEther(getAssetBalanceByFunc()), 6) : 0}
+                Available: {func ? truncateBalance(formatUnits(getAssetBalanceByFunc(), currencyDecimals), 6) : 0}
               </div>
             </ModalCell>
           ) : (
@@ -584,7 +665,7 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
                   value={amount}
                 />
                 <div style={{ position: 'absolute', top: '70%' }}>
-                  Available: {func ? truncateBalance(formatEther(getAssetBalanceByFunc()), 6) : 0}
+                  Available: {func ? truncateBalance(formatUnits(getAssetBalanceByFunc(), currencyDecimals), 6) : 0}
                 </div>
               </ModalCell>
               <ModalCell t3>
@@ -601,13 +682,16 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
             </Fragment>
           )}
         </ModalRow>
-        <GasRadioGroup />
-        {(func == FunctionName.DEPOSIT || func == FunctionName.DEPOSIT_ETH) && <AutoStakeOption />}
+        <GasRadioGroup mb={20} />
+        {func == FunctionName.DEPOSIT_ETH && <AutoStakeOption />}
         {!modalLoading ? (
           <Fragment>
             {func == FunctionName.DEPOSIT_CP ? (
               <Fragment>
-                {!hasApproval(tokenAllowance, amount && amount != '.' ? parseEther(amount).toString() : '0') &&
+                {!hasApproval(
+                  tokenAllowance,
+                  amount && amount != '.' ? parseUnits(amount, currencyDecimals).toString() : '0'
+                ) &&
                   tokenAllowance != '' && (
                     <ButtonWrapper>
                       <Button
@@ -625,7 +709,10 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
                     hidden={modalLoading}
                     disabled={
                       (isAppropriateAmount() ? false : true) ||
-                      !hasApproval(tokenAllowance, amount && amount != '.' ? parseEther(amount).toString() : '0') ||
+                      !hasApproval(
+                        tokenAllowance,
+                        amount && amount != '.' ? parseUnits(amount, currencyDecimals).toString() : '0'
+                      ) ||
                       errors.length > 0
                     }
                     onClick={handleCallbackFunc}
@@ -634,6 +721,74 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
                   </Button>
                 </ButtonWrapper>
               </Fragment>
+            ) : func == FunctionName.WITHDRAW_ETH ? (
+              <>
+                {canWithdrawEth && (
+                  <Box green glow mt={20} mb={20}>
+                    <Heading2 autoAlign>You can withdraw now!</Heading2>
+                  </Box>
+                )}
+                {cooldownStarted && timeWaited < cooldownMin && (
+                  <Box mt={20} mb={20}>
+                    <Heading2 autoAlign>Cooldown Elapsing...</Heading2>
+                  </Box>
+                )}
+                <Box navy>
+                  <BoxItem>
+                    <BoxItemTitle h3 textAlignCenter>
+                      Min Cooldown
+                    </BoxItemTitle>
+                    <Text3 textAlignCenter>{getTimeFromMillis(cooldownMin)}</Text3>
+                  </BoxItem>
+                  {cooldownStarted && (
+                    <BoxItem>
+                      <BoxItemTitle h3 textAlignCenter>
+                        Time waited
+                      </BoxItemTitle>
+                      <Text3 textAlignCenter green={canWithdrawEth}>
+                        {timeToDate(timeWaited)}
+                      </Text3>
+                    </BoxItem>
+                  )}
+                  <BoxItem>
+                    <BoxItemTitle h3 textAlignCenter>
+                      Max Cooldown
+                    </BoxItemTitle>
+                    <Text3 textAlignCenter>{getTimeFromMillis(cooldownMax)}</Text3>
+                  </BoxItem>
+                </Box>
+
+                {(!cooldownStarted || cooldownMax < timeWaited) && (
+                  <ButtonWrapper>
+                    <Button
+                      widthP={100}
+                      hidden={modalLoading}
+                      disabled={
+                        errors.length > 0 || (cooldownStarted && cooldownMax > timeWaited && timeWaited >= cooldownMin)
+                      }
+                      onClick={handleCallbackFunc}
+                    >
+                      {!cooldownStarted
+                        ? 'Start cooldown'
+                        : cooldownMax < timeWaited
+                        ? 'Restart cooldown'
+                        : 'Unknown error'}
+                    </Button>
+                  </ButtonWrapper>
+                )}
+                {canWithdrawEth && (
+                  <ButtonWrapper>
+                    <Button
+                      widthP={100}
+                      hidden={modalLoading}
+                      disabled={(isAppropriateAmount() ? false : true) || errors.length > 0}
+                      onClick={handleCallbackFunc}
+                    >
+                      Withdraw
+                    </Button>
+                  </ButtonWrapper>
+                )}
+              </>
             ) : (
               <ButtonWrapper>
                 <Button

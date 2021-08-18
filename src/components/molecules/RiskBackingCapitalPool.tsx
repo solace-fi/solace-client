@@ -20,10 +20,11 @@
 import React, { Fragment } from 'react'
 
 /* import packages */
-import { parseEther } from '@ethersproject/units'
+import { parseUnits } from '@ethersproject/units'
 
 /* import managers */
 import { useWallet } from '../../context/WalletManager'
+import { useNetwork } from '../../context/NetworkManager'
 
 /* import constants */
 import { CP_ROI, MAX_TABLET_SCREEN_WIDTH } from '../../constants'
@@ -42,7 +43,7 @@ import { useCapitalPoolSize, useUserVaultDetails } from '../../hooks/useVault'
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'
 
 /* import utils */
-import { floatEther, truncateBalance } from '../../utils/formatting'
+import { floatUnits, truncateBalance } from '../../utils/formatting'
 
 interface RiskBackingCapitalPoolProps {
   openModal: (func: FunctionName, modalTitle: string) => void
@@ -59,6 +60,7 @@ export const RiskBackingCapitalPool: React.FC<RiskBackingCapitalPoolProps> = ({ 
   const { userVaultAssets, userVaultShare } = useUserVaultDetails()
   const capitalPoolSize = useCapitalPoolSize()
   const { width } = useWindowDimensions()
+  const { currencyDecimals } = useNetwork()
 
   /*************************************************************************************
 
@@ -88,7 +90,9 @@ export const RiskBackingCapitalPool: React.FC<RiskBackingCapitalPoolProps> = ({ 
           <TableBody>
             <TableRow>
               {account ? <TableData width={100}>{truncateBalance(parseFloat(userVaultAssets), 2)}</TableData> : null}
-              <TableData width={100}>{truncateBalance(floatEther(parseEther(capitalPoolSize)), 2)}</TableData>
+              <TableData width={100}>
+                {truncateBalance(floatUnits(parseUnits(capitalPoolSize, currencyDecimals), currencyDecimals), 2)}
+              </TableData>
               <TableData width={100}>{CP_ROI}</TableData>
               {account ? <TableData width={130}>{`${truncateBalance(userVaultShare, 2)}%`}</TableData> : null}
               {account && (
@@ -100,10 +104,13 @@ export const RiskBackingCapitalPool: React.FC<RiskBackingCapitalPoolProps> = ({ 
               {account ? (
                 <TableData textAlignRight>
                   <TableDataGroup width={200}>
-                    <Button disabled={errors.length > 0} onClick={() => openModal(FunctionName.DEPOSIT, 'Deposit')}>
+                    <Button disabled={errors.length > 0} onClick={() => openModal(FunctionName.DEPOSIT_ETH, 'Deposit')}>
                       Deposit
                     </Button>
-                    <Button disabled={errors.length > 0} onClick={() => openModal(FunctionName.WITHDRAW, 'Withdraw')}>
+                    <Button
+                      disabled={errors.length > 0}
+                      onClick={() => openModal(FunctionName.WITHDRAW_ETH, 'Withdraw')}
+                    >
                       Withdraw
                     </Button>
                   </TableDataGroup>
@@ -122,7 +129,9 @@ export const RiskBackingCapitalPool: React.FC<RiskBackingCapitalPoolProps> = ({ 
           )}
           <FormRow>
             <FormCol>Total Assets:</FormCol>
-            <FormCol>{truncateBalance(floatEther(parseEther(capitalPoolSize)), 2)}</FormCol>
+            <FormCol>
+              {truncateBalance(floatUnits(parseUnits(capitalPoolSize, currencyDecimals), currencyDecimals), 2)}
+            </FormCol>
           </FormRow>
           <FormRow>
             <FormCol>ROI:</FormCol>
@@ -136,14 +145,14 @@ export const RiskBackingCapitalPool: React.FC<RiskBackingCapitalPoolProps> = ({ 
             <Button
               widthP={100}
               disabled={errors.length > 0}
-              onClick={() => openModal(FunctionName.DEPOSIT, 'Deposit')}
+              onClick={() => openModal(FunctionName.DEPOSIT_ETH, 'Deposit')}
             >
               Deposit
             </Button>
             <Button
               widthP={100}
               disabled={errors.length > 0}
-              onClick={() => openModal(FunctionName.WITHDRAW, 'Withdraw')}
+              onClick={() => openModal(FunctionName.WITHDRAW_ETH, 'Withdraw')}
             >
               Withdraw
             </Button>

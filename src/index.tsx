@@ -30,9 +30,9 @@ already reserved in our system for something else.
 
 ReactDOM.render(
   <React.StrictMode>
-    <ProviderManager>
+    <NetworkManager>
       <WalletManager>
-        <NetworkManager>
+        <ProviderManager>
           <ContractsManager>
             <CachedDataManager>
               <NotificationsManager>
@@ -42,9 +42,9 @@ ReactDOM.render(
               </NotificationsManager>
             </CachedDataManager>
           </ContractsManager>
-        </NetworkManager>
+        </ProviderManager>
       </WalletManager>
-    </ProviderManager>
+    </NetworkManager>
   </React.StrictMode>,
   document.getElementById('root')
 )

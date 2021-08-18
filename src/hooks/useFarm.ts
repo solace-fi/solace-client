@@ -1,12 +1,14 @@
 import { Contract } from '@ethersproject/contracts'
-import { formatEther, parseEther } from '@ethersproject/units'
+import { formatUnits, parseUnits } from '@ethersproject/units'
 import { useState, useEffect } from 'react'
 import { useCachedData } from '../context/CachedDataManager'
 import { useContracts } from '../context/ContractsManager'
+import { useNetwork } from '../context/NetworkManager'
 
 export const useUserStakedValue = (farm: Contract | null | undefined, account: string | undefined): string => {
+  const { currencyDecimals } = useNetwork()
   const { version } = useCachedData()
-  const [userStakedValue, setUserStakedValue] = useState<string>('0.00')
+  const [userStakedValue, setUserStakedValue] = useState<string>('0')
 
   useEffect(() => {
     const getUserStakedValue = async () => {
@@ -14,53 +16,57 @@ export const useUserStakedValue = (farm: Contract | null | undefined, account: s
       try {
         const user = await farm.userInfo(account)
         const staked = user.value
-        const formattedUserStakedValue = formatEther(staked)
+        const formattedUserStakedValue = formatUnits(staked, currencyDecimals)
         setUserStakedValue(formattedUserStakedValue)
       } catch (err) {
         console.log('getUserStakedValue', err)
       }
     }
     getUserStakedValue()
-  }, [account, version, farm])
+  }, [account, version, farm, currencyDecimals])
 
   return userStakedValue
 }
 
 export const usePoolStakedValue = (farm: Contract | null | undefined): string => {
-  const [poolValue, setPoolValue] = useState<string>('0.00')
-
+  const [poolValue, setPoolValue] = useState<string>('0')
   const { latestBlock } = useCachedData()
+  const { currencyDecimals } = useNetwork()
 
   useEffect(() => {
     const getPoolStakedValue = async () => {
       if (!farm) return
       try {
         const poolValue = await farm.valueStaked()
-        const formattedPoolValue = formatEther(poolValue)
+        const formattedPoolValue = formatUnits(poolValue, currencyDecimals)
         setPoolValue(formattedPoolValue)
       } catch (err) {
         console.log('getPoolValue', err)
       }
     }
     getPoolStakedValue()
-  }, [farm, latestBlock])
+  }, [farm, latestBlock, currencyDecimals])
 
   return poolValue
 }
 
 export const useGetTotalValueLocked = (): string => {
+  const { currencyDecimals } = useNetwork()
   const { cpFarm, lpFarm } = useContracts()
-  const [totalValueLocked, setTotalValueLocked] = useState<string>('0.00')
+  const [totalValueLocked, setTotalValueLocked] = useState<string>('0')
   const cpPoolValue = usePoolStakedValue(cpFarm)
   const lpPoolValue = usePoolStakedValue(lpFarm)
 
   useEffect(() => {
     const getTotalValueLocked = async () => {
-      const formattedTVL = formatEther(parseEther(cpPoolValue).add(parseEther(lpPoolValue)))
+      const formattedTVL = formatUnits(
+        parseUnits(cpPoolValue, currencyDecimals).add(parseUnits(lpPoolValue, currencyDecimals)),
+        currencyDecimals
+      )
       setTotalValueLocked(formattedTVL)
     }
     getTotalValueLocked()
-  }, [cpPoolValue, lpPoolValue])
+  }, [cpPoolValue, lpPoolValue, currencyDecimals])
 
   return totalValueLocked
 }

@@ -10,6 +10,7 @@ import '../styles/toast.css'
 import { StylizedToastContainer } from '../components/atoms/Toast'
 import { AppToast, NotificationToast } from '../components/molecules/Toast'
 import { StyledWarning } from '../components/atoms/Icon'
+import { useNetwork } from './NetworkManager'
 
 /*
 This manager allows for notifications to be created. such notifications can be created
@@ -54,7 +55,8 @@ const appError: any = {
 }
 
 const ToastsProvider: React.FC = (props) => {
-  const { chainId, account, errors } = useWallet()
+  const { account, errors } = useWallet()
+  const { chainId } = useNetwork()
 
   const makeTxToast = (txType: string, condition: TransactionCondition, txHash?: string) => {
     const TxToast = (message: string) => <NotificationToast message={message} condition={condition} txHash={txHash} />
@@ -143,6 +145,20 @@ const ToastsProvider: React.FC = (props) => {
       })
     } else {
       toast.dismiss(Error.NO_ACCESS)
+    }
+    if (errors.includes(Error.WALLET_NETWORK_UNSYNC)) {
+      toast(
+        appToast(
+          `Please ensure that the network on your wallet and the network on the Solace app match`,
+          <StyledWarning size={30} />
+        ),
+        {
+          toastId: Error.WALLET_NETWORK_UNSYNC,
+          ...appError,
+        }
+      )
+    } else {
+      toast.dismiss(Error.WALLET_NETWORK_UNSYNC)
     }
     if (errors.includes(Error.UNKNOWN)) {
       toast(appToast(`An unknown error occurred`, <StyledWarning size={30} />), {

@@ -55,7 +55,7 @@ function Dashboard(): any {
 
   const { setSelectedProtocolByName } = useContracts()
   const { latestBlock } = useCachedData()
-  const { chainId, account } = useWallet()
+  const { account } = useWallet()
 
   /*************************************************************************************
 

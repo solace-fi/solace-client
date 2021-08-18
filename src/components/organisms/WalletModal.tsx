@@ -3,10 +3,11 @@ import { SUPPORTED_WALLETS } from '../../wallet/'
 import { useWallet } from '../../context/WalletManager'
 
 import { Card, CardContainer } from '../atoms/Card'
-import { ModalCell, ModalRow } from '../atoms/Modal'
-import { Text2, Text3, Heading3 } from '../atoms/Typography'
+import { ModalCell } from '../atoms/Modal'
+import { Heading3 } from '../atoms/Typography'
 import { Modal } from '../molecules/Modal'
 import { FormRow } from '../atoms/Form'
+import { Button, ButtonWrapper } from '../atoms/Button'
 
 interface WalletModalProps {
   closeModal: () => void
@@ -14,14 +15,14 @@ interface WalletModalProps {
 }
 
 export const WalletModal: React.FC<WalletModalProps> = ({ closeModal, isOpen }) => {
-  const { connect, connector } = useWallet()
+  const { changeWallet, disconnect, activeWalletConnector } = useWallet()
 
   const handleClose = useCallback(() => {
     closeModal()
   }, [closeModal])
 
   const connectWallet = useCallback(async (id: string) => {
-    await connect(SUPPORTED_WALLETS[SUPPORTED_WALLETS.findIndex((wallet) => wallet.id === id)])
+    await changeWallet(SUPPORTED_WALLETS[SUPPORTED_WALLETS.findIndex((wallet) => wallet.id === id)])
     handleClose()
   }, [])
 
@@ -37,8 +38,8 @@ export const WalletModal: React.FC<WalletModalProps> = ({ closeModal, isOpen }) 
             pr={30}
             key={wallet.id}
             onClick={() => connectWallet(wallet.id)}
-            glow={wallet.id == connector?.id}
-            blue={wallet.id == connector?.id}
+            glow={wallet.id == activeWalletConnector?.id}
+            blue={wallet.id == activeWalletConnector?.id}
             style={{ display: 'flex', justifyContent: 'center' }}
           >
             <FormRow mb={0}>
@@ -52,6 +53,13 @@ export const WalletModal: React.FC<WalletModalProps> = ({ closeModal, isOpen }) 
           </Card>
         ))}
       </CardContainer>
+      {activeWalletConnector && (
+        <ButtonWrapper>
+          <Button widthP={100} onClick={() => disconnect()}>
+            Disconnect Wallet
+          </Button>
+        </ButtonWrapper>
+      )}
     </Modal>
   )
 }

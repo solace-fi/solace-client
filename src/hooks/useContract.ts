@@ -4,29 +4,31 @@ import { getContract } from '../utils'
 import { Contract } from '@ethersproject/contracts'
 import { ContractSources, SupportedProduct } from '../constants/types'
 import { useNetwork } from '../context/NetworkManager'
+import { useCachedData } from '../context/CachedDataManager'
 
-export function useGetContract(address: string, abi: any, hasSigner = true): Contract | null {
+export function useGetContract(source: ContractSources | undefined, hasSigner = true): Contract | null {
   const { library, account } = useWallet()
 
   return useMemo(() => {
-    if (!address || !abi || !library) return null
+    if (!source || !library) return null
     try {
-      return getContract(address, abi, library, hasSigner && account ? account : undefined)
+      return getContract(source.addr, source.abi, library, hasSigner && account ? account : undefined)
     } catch (error) {
       console.error('Failed to get contract', error)
       return null
     }
-  }, [address, abi, library, hasSigner, account])
+  }, [source, library, hasSigner, account])
 }
 
 export function useGetProductContracts(): SupportedProduct[] {
   const { library, account } = useWallet()
   const { activeNetwork } = useNetwork()
+  const { tokenPositionData } = useCachedData()
 
   return useMemo(() => {
     const config = activeNetwork.config
-    const cache = activeNetwork.cache
-    if (!library) return []
+    const cache = tokenPositionData.storedTokenAndPositionData.find((dataset) => dataset.name == activeNetwork.name)
+    if (!library || !cache) return []
     cache.supportedProducts.map((product: SupportedProduct, i: number) => {
       const name = product.name
       const productContractSources = config.productContracts[name]
@@ -42,7 +44,7 @@ export function useGetProductContracts(): SupportedProduct[] {
       }
     })
     return cache.supportedProducts
-  }, [library, account, activeNetwork])
+  }, [library, account, activeNetwork, tokenPositionData])
 }
 
 export function useContractArray(): ContractSources[] {

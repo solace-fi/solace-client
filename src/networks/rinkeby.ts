@@ -18,11 +18,14 @@ import { getBalances as compBalances } from '../utils/positionGetters/compound/g
 
 import { NetworkConfig } from '../constants/types'
 import { ETHERSCAN_API_KEY } from '../constants'
+import { hexValue } from '@ethersproject/bytes'
+import { ALCHEMY_API_KEY } from '../constants'
 
 export const RinkebyNetwork: NetworkConfig = {
   name: 'rinkeby',
   chainId: 4,
-  nativeCurrency: Unit.ETH,
+  nativeCurrency: { symbol: Unit.ETH, decimals: 18 },
+  rpc: { httpsUrl: `https://eth-rinkeby.alchemyapi.io/v2/${ALCHEMY_API_KEY}` },
   explorer: {
     name: 'Etherscan',
     key: String(ETHERSCAN_API_KEY),
@@ -32,51 +35,51 @@ export const RinkebyNetwork: NetworkConfig = {
   config: {
     keyContracts: {
       master: {
-        addr: process.env.REACT_APP_RINKEBY_MASTER_ADDR,
+        addr: String(process.env.REACT_APP_RINKEBY_MASTER_ADDR),
         abi: masterABI,
       },
       vault: {
-        addr: process.env.REACT_APP_RINKEBY_VAULT_ADDR,
+        addr: String(process.env.REACT_APP_RINKEBY_VAULT_ADDR),
         abi: vaultABI,
       },
       treasury: {
-        addr: process.env.REACT_APP_RINKEBY_TREASURY_ADDR,
+        addr: String(process.env.REACT_APP_RINKEBY_TREASURY_ADDR),
         abi: treasuryABI,
       },
       solace: {
-        addr: process.env.REACT_APP_RINKEBY_SOLACE_ADDR,
+        addr: String(process.env.REACT_APP_RINKEBY_SOLACE_ADDR),
         abi: solaceABI,
       },
       cpFarm: {
-        addr: process.env.REACT_APP_RINKEBY_CPFARM_ADDR,
+        addr: String(process.env.REACT_APP_RINKEBY_CPFARM_ADDR),
         abi: cpFarmABI,
       },
       lpFarm: {
-        addr: process.env.REACT_APP_RINKEBY_LPFARM_ADDR,
+        addr: String(process.env.REACT_APP_RINKEBY_LPFARM_ADDR),
         abi: lpFarmABI,
       },
       registry: {
-        addr: process.env.REACT_APP_RINKEBY_REGISTRY_ADDR,
+        addr: String(process.env.REACT_APP_RINKEBY_REGISTRY_ADDR),
         abi: registryABI,
       },
       lpToken: {
-        addr: process.env.REACT_APP_RINKEBY_UNISWAP_LPTOKEN_ADDR,
+        addr: String(process.env.REACT_APP_RINKEBY_UNISWAP_LPTOKEN_ADDR),
         abi: lpTokenArtifact.abi,
       },
       weth: {
-        addr: process.env.REACT_APP_RINKEBY_WETH_ADDR,
+        addr: String(process.env.REACT_APP_RINKEBY_WETH_ADDR),
         abi: wethABI,
       },
       claimsEscrow: {
-        addr: process.env.REACT_APP_RINKEBY_CLAIMS_ESCROW_ADDR,
+        addr: String(process.env.REACT_APP_RINKEBY_CLAIMS_ESCROW_ADDR),
         abi: claimsEscrowABI,
       },
       policyManager: {
-        addr: process.env.REACT_APP_RINKEBY_POLICY_MANAGER_ADDR,
+        addr: String(process.env.REACT_APP_RINKEBY_POLICY_MANAGER_ADDR),
         abi: polMagABI,
       },
       lpAppraisor: {
-        addr: process.env.REACT_APP_RINKEBY_LPAPPRAISOR_ADDR,
+        addr: String(process.env.REACT_APP_RINKEBY_LPAPPRAISOR_ADDR),
         abi: lpAppraisorABI,
       },
     },
@@ -88,12 +91,22 @@ export const RinkebyNetwork: NetworkConfig = {
     },
   },
   cache: {
-    supportedProducts: [{ name: ProductName.COMPOUND }],
+    supportedProducts: [{ name: ProductName.COMPOUND, contract: null }],
     productsRev: {
       [String(process.env.REACT_APP_RINKEBY_COMPOUND_PRODUCT_ADDR)]: ProductName.COMPOUND,
     },
     tokens: { [ProductName.COMPOUND]: { getTokens: compTokens, savedTokens: [], tokensInitialized: false } },
     getBalances: { [ProductName.COMPOUND]: compBalances },
     positions: { [ProductName.COMPOUND]: { positionNamesInitialized: false } },
+  },
+  metamaskChain: {
+    chainId: hexValue(4),
+    chainName: 'Rinkeby Testnet',
+    nativeCurrency: { name: 'Ethereum', symbol: Unit.ETH, decimals: 18 },
+    rpcUrls: ['https://eth-rinkeby.alchemyapi.io'],
+    blockExplorerUrls: ['https://rinkeby.etherscan.io'],
+  },
+  walletConfig: {
+    portisId: String(process.env.REACT_APP_PORTIS_ID),
   },
 }

@@ -1,7 +1,15 @@
-import React, { useState, useEffect } from 'react'
-import { ALCHEMY_API_KEY } from '../constants'
-import { Provider, JsonRpcProvider } from '@ethersproject/providers'
+import React, { useState, useEffect, useCallback } from 'react'
 import { useNetwork } from './NetworkManager'
+import { useWallet } from './WalletManager'
+import { MetamaskConnector } from '../wallet/wallets/MetaMask'
+
+import { Card, CardContainer } from '../components/atoms/Card'
+import { ModalCell } from '../components/atoms/Modal'
+import { Heading3 } from '../components/atoms/Typography'
+import { Modal } from '../components/molecules/Modal'
+import { FormRow } from '../components/atoms/Form'
+import { capitalizeFirstLetter } from '../utils/formatting'
+
 // import { getTokens } from '../utils/positionGetters/yearn/getTokens'
 
 /*
@@ -22,11 +30,11 @@ and write to the blockchain.
 */
 
 type ProviderContextType = {
-  ethProvider?: Provider
+  openNetworkModal: () => void
 }
 
 const InitialContextValue: ProviderContextType = {
-  ethProvider: undefined,
+  openNetworkModal: () => undefined,
 }
 
 const ProviderContext = React.createContext<ProviderContextType>(InitialContextValue)
@@ -37,25 +45,102 @@ export function useProvider(): ProviderContextType {
 }
 
 const ProviderManager: React.FC = ({ children }) => {
-  const [ethProvider, setEthProvider] = useState<Provider>()
-  const { activeNetwork } = useNetwork()
+  const { networks, activeNetwork, findNetworkByChainId, findNetworkByName, changeNetwork } = useNetwork()
+  const { connector } = useWallet()
 
-  const getProvider = async () => {
-    const provider = new JsonRpcProvider(`https://eth-${activeNetwork.name}.alchemyapi.io/v2/${ALCHEMY_API_KEY}`)
-    setEthProvider(provider)
-  }
+  const [networkModal, setNetworkModal] = useState<boolean>(false)
+
+  const openModal = useCallback(() => {
+    document.body.style.overflowY = 'hidden'
+    setNetworkModal(true)
+  }, [])
+
+  const closeModal = useCallback(() => {
+    document.body.style.overflowY = 'scroll'
+    setNetworkModal(false)
+  }, [])
 
   useEffect(() => {
-    getProvider()
-  }, [activeNetwork])
+    if (connector instanceof MetamaskConnector) {
+      connector.getProvider().then((provider) => {
+        provider.on('chainChanged', (chainId: number) => {
+          const network = findNetworkByChainId(Number(chainId)) ?? networks[0]
+          changeNetwork(network.name, connector)
+        })
+      })
+    }
+  }, [connector, changeNetwork, findNetworkByChainId])
+
+  const switchNetwork = useCallback(
+    async (networkName: string) => {
+      const network = findNetworkByName(networkName)
+
+      if (!network) {
+        return
+      }
+
+      let canSetNetwork = true
+      if (connector instanceof MetamaskConnector && network.metamaskChain) {
+        try {
+          const error = await connector.switchChain({
+            chainId: network.metamaskChain.chainId,
+          })
+
+          if (error) {
+            canSetNetwork = false
+          }
+        } catch (e) {
+          canSetNetwork = false
+
+          if (e.code === 4902) {
+            await connector.addChain(network.metamaskChain)
+          }
+        }
+      }
+
+      if (canSetNetwork) {
+        changeNetwork(network.name, connector)
+      }
+      closeModal()
+    },
+    [connector]
+  )
 
   const value = React.useMemo(
     () => ({
-      ethProvider,
+      openNetworkModal: openModal,
     }),
-    [ethProvider]
+    [openModal]
   )
-  return <ProviderContext.Provider value={value}>{children}</ProviderContext.Provider>
+  return (
+    <ProviderContext.Provider value={value}>
+      <Modal handleClose={closeModal} isOpen={networkModal} modalTitle={'Connect a network'} disableCloseButton={false}>
+        <CardContainer cardsPerRow={1}>
+          {networks.map((network) => (
+            <Card
+              canHover
+              pt={5}
+              pb={5}
+              pl={80}
+              pr={80}
+              key={network.name}
+              onClick={() => switchNetwork(network.name)}
+              glow={network.name == activeNetwork.name}
+              blue={network.name == activeNetwork.name}
+              style={{ display: 'flex', justifyContent: 'center' }}
+            >
+              <FormRow mb={0}>
+                <ModalCell p={10}>
+                  <Heading3>{capitalizeFirstLetter(network.name)}</Heading3>
+                </ModalCell>
+              </FormRow>
+            </Card>
+          ))}
+        </CardContainer>
+      </Modal>
+      {children}
+    </ProviderContext.Provider>
+  )
 }
 
 export default ProviderManager

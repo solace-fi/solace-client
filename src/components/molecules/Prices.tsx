@@ -68,7 +68,7 @@ export const Prices: React.FC = () => {
   *************************************************************************************/
   const { activeNetwork } = useNetwork()
   const pairPrice = usePairPrice()
-  const nativeToken = activeNetwork.nativeCurrency
+  const nativeToken = activeNetwork.nativeCurrency.symbol
   const coinPrice = useCoingeckoPrice(unitToNameMap[nativeToken], 'usd')
 
   /*************************************************************************************

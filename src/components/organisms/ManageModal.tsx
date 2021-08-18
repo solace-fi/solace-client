@@ -24,9 +24,8 @@
 import React, { Fragment, useState, useEffect, useMemo, useCallback } from 'react'
 
 /* import packages */
-import styled from 'styled-components'
 import { Slider } from '@rebass/forms'
-import { parseEther, formatEther } from '@ethersproject/units'
+import { parseUnits, formatUnits } from '@ethersproject/units'
 import { BigNumber } from 'ethers'
 
 /* import managers */
@@ -34,29 +33,30 @@ import { useCachedData } from '../../context/CachedDataManager'
 import { useToasts } from '../../context/NotificationsManager'
 import { useWallet } from '../../context/WalletManager'
 import { useContracts } from '../../context/ContractsManager'
+import { useNetwork } from '../../context/NetworkManager'
 
 /* import components */
 import { Modal } from '../molecules/Modal'
 import { FormRow, FormCol } from '../atoms/Form'
-import { Heading2, Text1, Text3, TextSpan } from '../atoms/Typography'
+import { Heading2, Text3 } from '../atoms/Typography'
 import { PolicyModalInfo } from '../molecules/PolicyModalInfo'
 import { Input } from '../atoms/Input'
 import { Button, ButtonWrapper } from '../atoms/Button'
 import { Loader } from '../atoms/Loader'
+import { FlexCol } from '../atoms/Layout'
+import { SmallBox } from '../atoms/Box'
 
 /* import constants */
-import { DAYS_PER_YEAR, NUM_BLOCKS_PER_DAY, GAS_LIMIT, ZERO, MAX_MOBILE_SCREEN_WIDTH } from '../../constants'
+import { DAYS_PER_YEAR, NUM_BLOCKS_PER_DAY, GAS_LIMIT, ZERO } from '../../constants'
 import { FunctionName, TransactionCondition, Unit } from '../../constants/enums'
 import { Policy } from '../../constants/types'
 
 /* import hooks */
-import { useAppraisePosition, useGetCancelFee, useGetPolicyPrice, useGetQuote } from '../../hooks/usePolicy'
-import { useWindowDimensions } from '../../hooks/useWindowDimensions'
+import { useAppraisePosition, useGetMaxCoverPerUser, useGetPolicyPrice } from '../../hooks/usePolicy'
 
 /* import utils */
-import { getGasValue } from '../../utils/formatting'
-import { getDays, getExpiration } from '../../utils/time'
-import { FlexCol, FlexRow } from '../atoms/Layout'
+import { accurateMultiply, getGasValue } from '../../utils/formatting'
+import { getDaysLeft, getExpiration } from '../../utils/time'
 
 interface ManageModalProps {
   closeModal: () => void
@@ -64,21 +64,6 @@ interface ManageModalProps {
   selectedPolicy: Policy | undefined
   latestBlock: number
 }
-
-const UpdatePolicySec = styled.div`
-  display: grid;
-  grid-template-columns: 440px 150px;
-  grid-template-rows: 1fr 1fr 1fr;
-  justify-content: space-between;
-  margin-bottom: 20px;
-`
-
-const CancelPolicySec = styled.div`
-  display: grid;
-  grid-template-columns: 440px 150px;
-  grid-template-rows: 1fr 1fr;
-  justify-content: space-between;
-`
 
 export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, selectedPolicy, latestBlock }) => {
   /*************************************************************************************
@@ -89,7 +74,7 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
 
   const [asyncLoading, setAsyncLoading] = useState<boolean>(false)
   const [inputCoverage, setInputCoverage] = useState<string>('1')
-  const [feedbackCoverage, setFeedbackCoverage] = useState<string>('1')
+  const [newCoverage, setNewCoverage] = useState<string>('1')
   const [extendedTime, setExtendedTime] = useState<string>('0')
   const [modalLoading, setModalLoading] = useState<boolean>(false)
 
@@ -104,38 +89,28 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
   const { addLocalTransactions, reload, gasPrices } = useCachedData()
   const { makeTxToast } = useToasts()
   const policyPrice = useGetPolicyPrice(selectedPolicy ? selectedPolicy.policyId : 0)
-  const cancelFee = useGetCancelFee()
-  const { width } = useWindowDimensions()
+  const maxCoverPerUser = useGetMaxCoverPerUser()
+  const { activeNetwork, currencyDecimals } = useNetwork()
 
-  const daysLeft = useMemo(
-    () => getDays(parseFloat(selectedPolicy ? selectedPolicy.expirationBlock : '0'), latestBlock),
-    [latestBlock, selectedPolicy]
-  )
-  const blocksLeft = useMemo(
-    () => BigNumber.from(parseFloat(selectedPolicy ? selectedPolicy.expirationBlock : '0') - latestBlock),
-    [latestBlock, selectedPolicy]
-  )
-  const coverAmount = useMemo(() => BigNumber.from(selectedPolicy ? selectedPolicy.coverAmount : '0'), [selectedPolicy])
-  const price = useMemo(() => BigNumber.from(policyPrice || '0'), [policyPrice])
+  const daysLeft = useMemo(() => getDaysLeft(selectedPolicy ? selectedPolicy.expirationBlock : 0, latestBlock), [
+    latestBlock,
+    selectedPolicy,
+  ])
+  const blocksLeft = useMemo(() => BigNumber.from(selectedPolicy ? selectedPolicy.expirationBlock : 0 - latestBlock), [
+    latestBlock,
+    selectedPolicy,
+  ])
+  const currentCoverAmount = useMemo(() => (selectedPolicy ? selectedPolicy.coverAmount : '0'), [selectedPolicy])
+  const paidprice = useMemo(() => BigNumber.from(policyPrice || '0'), [policyPrice])
   const refundAmount = useMemo(
     () =>
       blocksLeft
-        .mul(coverAmount)
-        .mul(price)
+        .mul(currentCoverAmount)
+        .mul(paidprice)
         .div(String(Math.pow(10, 12))),
-    [blocksLeft, coverAmount, price]
+    [blocksLeft, currentCoverAmount, paidprice]
   )
   const appraisal = useAppraisePosition(selectedPolicy)
-  // TODO: Use coverAmount on new deployed contracts
-  const coverLimit = useMemo(
-    () => (appraisal == ZERO ? ZERO.toString() : BigNumber.from(coverAmount).mul('10000').div(appraisal).toString()),
-    [appraisal, coverAmount]
-  )
-  const quote = useGetQuote(
-    selectedPolicy ? coverLimit : null,
-    selectedPolicy ? selectedPolicy.positionContract : null,
-    extendedTime
-  )
 
   /*************************************************************************************
 
@@ -143,25 +118,135 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
 
   *************************************************************************************/
 
-  const extendPolicy = async () => {
+  const updatePolicy = async () => {
     setModalLoading(true)
     if (!selectedProtocol || !selectedPolicy) return
-    const txType = FunctionName.EXTEND_POLICY
-    const extension = BigNumber.from(NUM_BLOCKS_PER_DAY * parseInt(extendedTime))
+    const txType = FunctionName.UPDATE_POLICY
+    const price = await selectedProtocol.price()
     try {
-      const tx = await selectedProtocol.extendPolicy(selectedPolicy.policyId, extension, {
-        value: coverAmount
-          .mul(price)
-          .mul(extension)
-          .div(String(Math.pow(10, 12)))
-          .add(parseEther(quote).div('10000')),
+      const newPremium = BigNumber.from(newCoverage)
+        .mul(price)
+        .mul(selectedPolicy.expirationBlock + NUM_BLOCKS_PER_DAY * parseInt(extendedTime) - latestBlock)
+        .div(String(Math.pow(10, 12)))
+      // const paidPremium = BigNumber.from(currentCoverAmount)
+      //   .mul(paidprice)
+      //   .mul(selectedPolicy.expirationBlock - latestBlock)
+      //   .div(String(Math.pow(10, 12)))
+      // const premium = newPremium.sub(paidPremium)
+      // console.log('newPremium:', newPremium)
+      // console.log('paidPremium:', paidPremium)
+      // console.log('newPremium >= paidPremium ? ', newPremium.gte(paidPremium))
+      // console.log('premium = newPremium - paidPremium: ', premium)
+      // console.log('newPremium >= premium ? ', newPremium.gte(premium))
+      const tx = await selectedProtocol.updatePolicy(
+        selectedPolicy.policyId,
+        newCoverage,
+        NUM_BLOCKS_PER_DAY * parseInt(extendedTime),
+        {
+          value: newPremium,
+          gasPrice: getGasValue(gasPrices.selected.value),
+          gasLimit: GAS_LIMIT,
+        }
+      )
+      const txHash = tx.hash
+      const localTx = {
+        hash: txHash,
+        type: txType,
+        value: '0',
+        status: TransactionCondition.PENDING,
+        unit: activeNetwork.nativeCurrency.symbol,
+      }
+      setModalLoading(false)
+      handleClose()
+      addLocalTransactions(localTx)
+      reload()
+      makeTxToast(txType, TransactionCondition.PENDING, txHash)
+      await tx.wait().then((receipt: any) => {
+        const status = receipt.status ? TransactionCondition.SUCCESS : TransactionCondition.FAILURE
+        makeTxToast(txType, status, txHash)
+        reload()
+      })
+    } catch (err) {
+      console.log('updatePolicy:', err)
+      makeTxToast(txType, TransactionCondition.CANCELLED)
+      setModalLoading(false)
+      reload()
+    }
+  }
+
+  const updateCoverAmount = async () => {
+    setModalLoading(true)
+    if (!selectedProtocol || !selectedPolicy) return
+    const txType = FunctionName.UPDATE_POLICY_AMOUNT
+    const price = await selectedProtocol.price()
+    const newPremium = BigNumber.from(newCoverage)
+      .mul(price)
+      .mul(selectedPolicy.expirationBlock - latestBlock)
+      .div(String(Math.pow(10, 12)))
+    // const paidPremium = BigNumber.from(currentCoverAmount)
+    //   .mul(paidprice)
+    //   .mul(selectedPolicy.expirationBlock - latestBlock)
+    //   .div(String(Math.pow(10, 12)))
+    // const premium = newPremium.sub(paidPremium)
+    // console.log('newPremium:', newPremium)
+    // console.log('paidPremium:', paidPremium)
+    // console.log('newPremium >= paidPremium ? ', newPremium.gte(paidPremium))
+    // console.log('premium = newPremium - paidPremium: ', premium)
+    // console.log('newPremium >= premium ? ', newPremium.gte(premium))
+    try {
+      const tx = await selectedProtocol.updateCoverAmount(selectedPolicy.policyId, newCoverage, {
+        value: newPremium,
         gasPrice: getGasValue(gasPrices.selected.value),
         gasLimit: GAS_LIMIT,
       })
       const txHash = tx.hash
+      const localTx = {
+        hash: txHash,
+        type: txType,
+        value: '0',
+        status: TransactionCondition.PENDING,
+        unit: Unit.ID,
+      }
+      setModalLoading(false)
+      handleClose()
+      addLocalTransactions(localTx)
+      reload()
+      makeTxToast(txType, TransactionCondition.PENDING, txHash)
+      await tx.wait().then((receipt: any) => {
+        const status = receipt.status ? TransactionCondition.SUCCESS : TransactionCondition.FAILURE
+        makeTxToast(txType, status, txHash)
+        reload()
+      })
+    } catch (err) {
+      console.log('updateCoverAmount:', err)
+      makeTxToast(txType, TransactionCondition.CANCELLED)
+      setModalLoading(false)
+      reload()
+    }
+  }
+
+  const extendPolicy = async () => {
+    setModalLoading(true)
+    if (!selectedProtocol || !selectedPolicy) return
+    const txType = FunctionName.EXTEND_POLICY_PERIOD
+    const newPremium = BigNumber.from(currentCoverAmount)
+      .mul(paidprice)
+      .mul(BigNumber.from(NUM_BLOCKS_PER_DAY * parseInt(extendedTime)))
+      .div(String(Math.pow(10, 12)))
+    try {
+      const tx = await selectedProtocol.extendPolicy(
+        selectedPolicy.policyId,
+        NUM_BLOCKS_PER_DAY * parseInt(extendedTime),
+        {
+          value: newPremium,
+          gasPrice: getGasValue(gasPrices.selected.value),
+          gasLimit: GAS_LIMIT,
+        }
+      )
+      const txHash = tx.hash
       const localTx = { hash: txHash, type: txType, value: '0', status: TransactionCondition.PENDING, unit: Unit.ID }
       setModalLoading(false)
-      closeModal()
+      handleClose()
       addLocalTransactions(localTx)
       reload()
       makeTxToast(txType, TransactionCondition.PENDING, txHash)
@@ -196,7 +281,7 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
         unit: Unit.ID,
       }
       setModalLoading(false)
-      closeModal()
+      handleClose()
       addLocalTransactions(localTx)
       reload()
       makeTxToast(txType, TransactionCondition.PENDING, txHash)
@@ -219,39 +304,36 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
 
   *************************************************************************************/
 
-  const initCoverage = () => {
-    setFeedbackCoverage(coverLimit)
-    setInputCoverage(
-      coverLimit.substring(0, coverLimit.length - 2) +
-        '.' +
-        coverLimit.substring(coverLimit.length - 2, coverLimit.length)
-    )
-  }
-
-  const handleCoverageChange = (coverageLimit: string) => {
-    setInputCoverage((parseInt(coverageLimit) / 100).toString())
-    setFeedbackCoverage(coverageLimit)
+  const handleCoverageChange = (coverAmount: string) => {
+    setNewCoverage(coverAmount) // coveramount in wei
+    setInputCoverage(formatUnits(BigNumber.from(coverAmount), currencyDecimals)) // coveramount in eth
   }
 
   const handleInputCoverage = (input: string) => {
+    // allow only numbers and decimals
     const filtered = input.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1')
 
-    if (parseFloat(filtered) > 100) {
-      return
-    }
-    if (filtered.includes('.') && filtered.split('.')[1]?.length > 2) {
-      return
-    }
-    const multiplied = filtered == '' ? '100' : Math.round(parseFloat(filtered) * 100).toString()
-    setInputCoverage(filtered)
-    setFeedbackCoverage(multiplied)
+    // if number is greater than the max cover per user, do not update
+    if (parseFloat(filtered) > parseFloat(maxCoverPerUser)) return
+
+    // if number is greater than the position amount, do not update
+    if (parseFloat(filtered) > parseFloat(formatUnits(appraisal, currencyDecimals))) return
+
+    // if number is empty or less than smallest denomination of currency, do not update
+    if (filtered == '' || parseFloat(filtered) < parseFloat(formatUnits(BigNumber.from(1), currencyDecimals))) return
+
+    // if number has more than max decimal places, do not update
+    if (filtered.includes('.') && filtered.split('.')[1]?.length > currencyDecimals) return
+
+    setNewCoverage(accurateMultiply(filtered, currencyDecimals)) // set new amount in wei
+    setInputCoverage(filtered) // set new amount in eth
   }
 
   const filteredTime = (input: string) => {
     const filtered = input.replace(/[^0-9]*/g, '')
     if (
       parseFloat(filtered) <=
-        DAYS_PER_YEAR - getDays(selectedPolicy ? parseFloat(selectedPolicy.expirationBlock) : 0, latestBlock) ||
+        DAYS_PER_YEAR - getDaysLeft(selectedPolicy ? selectedPolicy.expirationBlock : 0, latestBlock) ||
       filtered == ''
     ) {
       setExtendedTime(filtered)
@@ -263,6 +345,21 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
     closeModal()
   }, [closeModal])
 
+  const handleFunc = async () => {
+    if (extendedTime != '0' && extendedTime != '' && newCoverage != currentCoverAmount) {
+      await updatePolicy()
+      return
+    }
+    if (extendedTime != '0' && extendedTime != '') {
+      await extendPolicy()
+      return
+    }
+    if (newCoverage != currentCoverAmount) {
+      await updateCoverAmount()
+      return
+    }
+  }
+
   /*************************************************************************************
 
     useEffect hooks
@@ -273,12 +370,12 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
     const load = async () => {
       if (!selectedPolicy || !isOpen) return
       setAsyncLoading(true)
-      if (BigNumber.from(coverLimit).lte(ZERO)) return
-      initCoverage()
+      if (BigNumber.from(currentCoverAmount).lte(ZERO) || appraisal.lte(ZERO)) return
+      handleCoverageChange(currentCoverAmount)
       setAsyncLoading(false)
     }
     load()
-  }, [isOpen, selectedPolicy, appraisal])
+  }, [isOpen, selectedPolicy, currentCoverAmount, appraisal])
 
   /*************************************************************************************
 
@@ -292,224 +389,115 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
         <PolicyModalInfo selectedPolicy={selectedPolicy} latestBlock={latestBlock} />
         {!modalLoading ? (
           <Fragment>
-            {width > MAX_MOBILE_SCREEN_WIDTH ? (
-              <>
-                <FormRow>
-                  <Text1>Update Policy</Text1>
-                </FormRow>
-                <UpdatePolicySec>
-                  <FormRow mb={5}>
-                    <FormCol>
-                      <Text3>Edit coverage (1 - 100%)</Text3>
-                    </FormCol>
-                    <FormCol>
-                      <Slider
-                        disabled={asyncLoading}
-                        width={150}
-                        backgroundColor={'#fff'}
-                        value={feedbackCoverage}
-                        onChange={(e) => handleCoverageChange(e.target.value)}
-                        min={100}
-                        max={10000}
-                      />
-                    </FormCol>
-                    <FormCol>
-                      <Input
-                        disabled={asyncLoading}
-                        type="text"
-                        width={50}
-                        value={inputCoverage}
-                        onChange={(e) => handleInputCoverage(e.target.value)}
-                      />
-                    </FormCol>
-                  </FormRow>
-                  <FormCol></FormCol>
-                  <FormRow mb={5}>
-                    <FormCol>
-                      <Text3>Add days (0 - {DAYS_PER_YEAR - daysLeft} days)</Text3>
-                    </FormCol>
-                    <FormCol>
-                      <Slider
-                        disabled={asyncLoading}
-                        width={150}
-                        backgroundColor={'#fff'}
-                        value={extendedTime == '' ? '0' : extendedTime}
-                        onChange={(e) => setExtendedTime(e.target.value)}
-                        min="0"
-                        max={DAYS_PER_YEAR - daysLeft}
-                      />
-                    </FormCol>
-                    <FormCol>
-                      <Input
-                        disabled={asyncLoading}
-                        type="text"
-                        pattern="[0-9]+"
-                        width={50}
-                        value={extendedTime}
-                        onChange={(e) => filteredTime(e.target.value)}
-                        maxLength={3}
-                      />
-                    </FormCol>
-                  </FormRow>
-                  <FormCol></FormCol>
-                  <FormRow mb={5} style={{ justifyContent: 'flex-start' }}>
-                    <FormCol>
-                      <Text3 nowrap>Expiration: {getExpiration(daysLeft)}</Text3>
-                    </FormCol>
-                    <FormCol>
-                      <Text3 nowrap>New expiration: {getExpiration(daysLeft + parseFloat(extendedTime || '0'))}</Text3>
-                    </FormCol>
-                  </FormRow>
-                  <FormRow mb={5} style={{ justifyContent: 'flex-end' }}>
-                    {!asyncLoading ? (
-                      <Button disabled={errors.length > 0} onClick={() => extendPolicy()}>
-                        Update Policy
-                      </Button>
-                    ) : (
-                      <Loader width={10} height={10} />
-                    )}
-                  </FormRow>
-                </UpdatePolicySec>
-              </>
-            ) : (
-              // mobile version
-              <div style={{ textAlign: 'center' }}>
-                <Heading2>Update Policy</Heading2>
-                <FlexCol style={{ justifyContent: 'center', marginTop: '20px' }}>
-                  <div style={{ width: '100%' }}>
-                    <div style={{ textAlign: 'center', padding: '5px' }}>
-                      <Text3>Edit Coverage</Text3>
-                      <Input
-                        mt={5}
-                        mb={5}
-                        textAlignCenter
-                        disabled={asyncLoading}
-                        type="text"
-                        width={50}
-                        value={inputCoverage}
-                        onChange={(e) => handleInputCoverage(e.target.value)}
-                      />
-                      <Slider
-                        disabled={asyncLoading}
-                        backgroundColor={'#fff'}
-                        value={feedbackCoverage}
-                        onChange={(e) => handleCoverageChange(e.target.value)}
-                        min={100}
-                        max={10000}
-                      />
-                    </div>
+            <div style={{ textAlign: 'center' }}>
+              <Heading2>Update Policy</Heading2>
+              <FlexCol style={{ justifyContent: 'center', marginTop: '20px' }}>
+                <div style={{ width: '100%' }}>
+                  <div style={{ textAlign: 'center', padding: '5px' }}>
+                    <Text3>Edit Coverage</Text3>
+                    <Input
+                      mt={5}
+                      mb={5}
+                      textAlignCenter
+                      disabled={asyncLoading}
+                      type="text"
+                      value={inputCoverage}
+                      onChange={(e) => handleInputCoverage(e.target.value)}
+                    />
+                    <Slider
+                      disabled={asyncLoading}
+                      backgroundColor={'#fff'}
+                      value={newCoverage}
+                      onChange={(e) => handleCoverageChange(e.target.value)}
+                      min={1}
+                      max={appraisal.toString()}
+                    />
                   </div>
-                  <div style={{ width: '100%' }}>
-                    <div style={{ textAlign: 'center', padding: '5px' }}>
-                      <Text3>Add days</Text3>
-                      <Input
-                        mt={5}
-                        mb={5}
-                        textAlignCenter
-                        disabled={asyncLoading}
-                        type="text"
-                        pattern="[0-9]+"
-                        width={50}
-                        value={extendedTime}
-                        onChange={(e) => filteredTime(e.target.value)}
-                        maxLength={3}
-                      />
-                      <Slider
-                        disabled={asyncLoading}
-                        backgroundColor={'#fff'}
-                        value={extendedTime == '' ? '0' : extendedTime}
-                        onChange={(e) => setExtendedTime(e.target.value)}
-                        min="0"
-                        max={DAYS_PER_YEAR - daysLeft}
-                      />
-                      <Text3>New expiration: {getExpiration(daysLeft + parseFloat(extendedTime || '0'))}</Text3>
-                      <ButtonWrapper>
-                        {!asyncLoading ? (
-                          <Button widthP={100} disabled={errors.length > 0} onClick={() => extendPolicy()}>
-                            Update Policy
-                          </Button>
-                        ) : (
-                          <Loader width={10} height={10} />
-                        )}
-                      </ButtonWrapper>
-                    </div>
+                </div>
+                <div style={{ width: '100%' }}>
+                  <div style={{ textAlign: 'center', padding: '5px' }}>
+                    <Text3>Add days</Text3>
+                    <Input
+                      mt={5}
+                      mb={5}
+                      textAlignCenter
+                      disabled={asyncLoading}
+                      type="text"
+                      pattern="[0-9]+"
+                      value={extendedTime}
+                      onChange={(e) => filteredTime(e.target.value)}
+                      maxLength={3}
+                    />
+                    <Slider
+                      disabled={asyncLoading}
+                      backgroundColor={'#fff'}
+                      value={extendedTime == '' ? '0' : extendedTime}
+                      onChange={(e) => setExtendedTime(e.target.value)}
+                      min="0"
+                      max={DAYS_PER_YEAR - daysLeft}
+                    />
+                    <Text3>New expiration: {getExpiration(daysLeft + parseFloat(extendedTime || '0'))}</Text3>
+                    <SmallBox
+                      transparent
+                      outlined
+                      error
+                      collapse={
+                        !parseUnits(inputCoverage, currencyDecimals).gt(parseUnits(maxCoverPerUser, currencyDecimals))
+                      }
+                      mb={
+                        !parseUnits(inputCoverage, currencyDecimals).gt(parseUnits(maxCoverPerUser, currencyDecimals))
+                          ? 0
+                          : 5
+                      }
+                    >
+                      <Text3 error autoAlign>
+                        You can only cover up to {maxCoverPerUser} {activeNetwork.nativeCurrency.symbol}.
+                      </Text3>
+                    </SmallBox>
+                    <ButtonWrapper>
+                      {!asyncLoading ? (
+                        <Button
+                          widthP={100}
+                          disabled={
+                            errors.length > 0 ||
+                            parseUnits(inputCoverage, currencyDecimals).gt(
+                              parseUnits(maxCoverPerUser, currencyDecimals)
+                            )
+                          }
+                          onClick={handleFunc}
+                        >
+                          Update Policy
+                        </Button>
+                      ) : (
+                        <Loader width={10} height={10} />
+                      )}
+                    </ButtonWrapper>
                   </div>
-                </FlexCol>
-              </div>
-            )}
-            {width > MAX_MOBILE_SCREEN_WIDTH ? (
-              <>
-                <FormRow>
-                  <Text1>Cancel Policy</Text1>
+                </div>
+              </FlexCol>
+            </div>
+            <div style={{ textAlign: 'center' }}>
+              <Heading2>Cancel Policy</Heading2>
+              <FlexCol mt={20}>
+                <FormRow mb={10}>
+                  <FormCol>
+                    <Text3>
+                      Refund amount: {formatUnits(refundAmount, currencyDecimals)} {activeNetwork.nativeCurrency.symbol}
+                    </Text3>
+                  </FormCol>
                 </FormRow>
-                <CancelPolicySec>
-                  <FormRow mb={10}>
-                    <FormCol>
-                      <Text3 error={policyPrice !== '' && refundAmount.lte(parseEther(cancelFee))}>
-                        Refund amount: <TextSpan nowrap>{formatEther(refundAmount)} ETH</TextSpan>
-                      </Text3>
-                    </FormCol>
-                  </FormRow>
-                  <FormCol></FormCol>
-                  <FormRow mb={10}>
-                    <FormCol>
-                      <Text3>Cancellation fee: {cancelFee} ETH</Text3>
-                      {policyPrice !== '' && refundAmount.lte(parseEther(cancelFee)) && (
-                        <Text3 error>Refund amount must offset cancellation fee</Text3>
-                      )}
-                    </FormCol>
-                  </FormRow>
-                  <FormRow mb={10} style={{ justifyContent: 'flex-end' }}>
-                    {policyPrice !== '' ? (
-                      <Button
-                        disabled={errors.length > 0 || refundAmount.lte(parseEther(cancelFee))}
-                        onClick={() => cancelPolicy()}
-                      >
-                        Cancel Policy
-                      </Button>
-                    ) : (
-                      <Loader width={10} height={10} />
-                    )}
-                  </FormRow>
-                </CancelPolicySec>
-              </>
-            ) : (
-              // mobile version
-              <div style={{ textAlign: 'center' }}>
-                <Heading2>Cancel Policy</Heading2>
-                <FlexCol mt={20}>
-                  <FormRow mb={10}>
-                    <FormCol>
-                      <Text3 error={policyPrice !== '' && refundAmount.lte(parseEther(cancelFee))}>
-                        Refund amount: {formatEther(refundAmount)} ETH
-                      </Text3>
-                    </FormCol>
-                  </FormRow>
-                  <FormCol></FormCol>
-                  <FormRow mb={10}>
-                    <FormCol>
-                      <Text3 textAlignLeft>Cancellation fee: {cancelFee} ETH</Text3>
-                      {policyPrice !== '' && refundAmount.lte(parseEther(cancelFee)) && (
-                        <Text3 error>Refund amount must offset cancellation fee</Text3>
-                      )}
-                    </FormCol>
-                  </FormRow>
-                  <ButtonWrapper>
-                    {policyPrice !== '' ? (
-                      <Button
-                        widthP={100}
-                        disabled={errors.length > 0 || refundAmount.lte(parseEther(cancelFee))}
-                        onClick={() => cancelPolicy()}
-                      >
-                        Cancel Policy
-                      </Button>
-                    ) : (
-                      <Loader width={10} height={10} />
-                    )}
-                  </ButtonWrapper>
-                </FlexCol>
-              </div>
-            )}
+                <FormCol></FormCol>
+                <ButtonWrapper>
+                  {policyPrice !== '' ? (
+                    <Button widthP={100} disabled={errors.length > 0} onClick={() => cancelPolicy()}>
+                      Cancel Policy
+                    </Button>
+                  ) : (
+                    <Loader width={10} height={10} />
+                  )}
+                </ButtonWrapper>
+              </FlexCol>
+            </div>
           </Fragment>
         ) : (
           <Loader />

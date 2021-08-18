@@ -99,7 +99,7 @@ export const CapitalProviderPool: React.FC<CapitalProviderPoolProps> = ({ openMo
                     </Button>
                     <Button
                       disabled={errors.length > 0}
-                      onClick={() => openModal(FunctionName.WITHDRAW_ETH, 'Withdraw')}
+                      onClick={() => openModal(FunctionName.WITHDRAW_CP, 'Withdraw')}
                     >
                       Withdraw
                     </Button>
@@ -153,7 +153,7 @@ export const CapitalProviderPool: React.FC<CapitalProviderPoolProps> = ({ openMo
               <Button
                 widthP={100}
                 disabled={errors.length > 0}
-                onClick={() => openModal(FunctionName.WITHDRAW_ETH, 'Withdraw')}
+                onClick={() => openModal(FunctionName.WITHDRAW_CP, 'Withdraw')}
               >
                 Withdraw
               </Button>

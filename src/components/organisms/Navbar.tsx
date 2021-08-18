@@ -4,6 +4,7 @@
 
     import react
     import components
+    import hooks
 
     SideNavbar function
       Render
@@ -20,10 +21,18 @@ import React, { useEffect, useState } from 'react'
 
 /* import components */
 import { SidebarItem, TopNav } from '../atoms/Navbar'
-import { NavButton } from '../atoms/Button'
+import { ButtonWrapper, NavButton } from '../atoms/Button'
 import { Logo } from '../molecules/Logo'
 import { ItemText, ItemList } from '../atoms/Navbar'
 import { StyledMenu } from '../atoms/Icon'
+import { WalletConnectButton } from '../molecules/WalletConnectButton'
+import { TransactionHistoryButton } from '../molecules/TransactionHistoryButton'
+import { NetworkConnectButton } from '../molecules/NetworkConnectButton'
+
+/* import hooks */
+import { useWindowDimensions } from '../../hooks/useWindowDimensions'
+import { MAX_MOBILE_SCREEN_WIDTH } from '../../constants'
+import { useWallet } from '../../context/WalletManager'
 
 export const SideNavbar: React.FC = () => {
   /*************************************************************************************
@@ -61,7 +70,9 @@ export const TopNavbar: React.FC = () => {
   custom hooks
 
   *************************************************************************************/
+  const { width } = useWindowDimensions()
   const [isOpen, setIsOpen] = useState<boolean>(false)
+  const { account } = useWallet()
 
   /*************************************************************************************
 
@@ -103,6 +114,21 @@ export const TopNavbar: React.FC = () => {
         <SidebarItem onClick={() => setIsOpen(!isOpen)} to={'/govern'}>
           Govern
         </SidebarItem>
+        {width <= MAX_MOBILE_SCREEN_WIDTH && (
+          <ButtonWrapper>
+            <div onClick={() => setIsOpen(!isOpen)}>
+              <NetworkConnectButton />
+            </div>
+            <div onClick={() => setIsOpen(!isOpen)}>
+              <WalletConnectButton />
+            </div>
+            {account && (
+              <div onClick={() => setIsOpen(!isOpen)}>
+                <TransactionHistoryButton />
+              </div>
+            )}
+          </ButtonWrapper>
+        )}
       </ItemList>
       <NavButton onClick={() => setIsOpen(!isOpen)}>
         <StyledMenu />
