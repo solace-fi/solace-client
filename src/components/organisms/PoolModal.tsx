@@ -57,7 +57,7 @@ import { Button, ButtonWrapper } from '../atoms/Button'
 import { Loader } from '../atoms/Loader'
 import { FormOption, FormSelect } from '../atoms/Form'
 import { Card } from '../atoms/Card'
-import { Box } from '../atoms/Box'
+import { Box, BoxItem, BoxItemTitle } from '../atoms/Box'
 import { Heading2, Text3 } from '../atoms/Typography'
 
 /* import hooks */
@@ -733,9 +733,31 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
                     <Heading2 autoAlign>Cooldown Elapsing...</Heading2>
                   </Box>
                 )}
-                {cooldownStarted && <Text3>Time waited: {timeToDate(timeWaited)}</Text3>}
-                <Text3>Min Cooldown to withdraw: {getTimeFromMillis(cooldownMin)}</Text3>
-                <Text3>Max Cooldown to withdraw: {getTimeFromMillis(cooldownMax)}</Text3>
+                <Box navy>
+                  <BoxItem>
+                    <BoxItemTitle h3 textAlignCenter>
+                      Min Cooldown
+                    </BoxItemTitle>
+                    <Text3 textAlignCenter>{getTimeFromMillis(cooldownMin)}</Text3>
+                  </BoxItem>
+                  {cooldownStarted && (
+                    <BoxItem>
+                      <BoxItemTitle h3 textAlignCenter>
+                        Time waited
+                      </BoxItemTitle>
+                      <Text3 textAlignCenter green={canWithdrawEth}>
+                        {timeToDate(timeWaited)}
+                      </Text3>
+                    </BoxItem>
+                  )}
+                  <BoxItem>
+                    <BoxItemTitle h3 textAlignCenter>
+                      Max Cooldown
+                    </BoxItemTitle>
+                    <Text3 textAlignCenter>{getTimeFromMillis(cooldownMax)}</Text3>
+                  </BoxItem>
+                </Box>
+
                 {(!cooldownStarted || cooldownMax < timeWaited) && (
                   <ButtonWrapper>
                     <Button
