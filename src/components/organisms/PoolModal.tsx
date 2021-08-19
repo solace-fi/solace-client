@@ -503,7 +503,7 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
           await callWithdrawEth()
           break
         }
-        if (cooldownMax < timeWaited) {
+        if (cooldownMax < timeWaited || timeWaited < cooldownMin) {
           await callStopCooldown()
           break
         }
@@ -757,19 +757,18 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
                     <Text3 textAlignCenter>{getTimeFromMillis(cooldownMax)}</Text3>
                   </BoxItem>
                 </Box>
-
-                {(!cooldownStarted || cooldownMax < timeWaited) && (
+                {!canWithdrawEth && (
                   <ButtonWrapper>
                     <Button
                       widthP={100}
                       hidden={modalLoading}
-                      disabled={
-                        errors.length > 0 || (cooldownStarted && cooldownMax > timeWaited && timeWaited >= cooldownMin)
-                      }
+                      disabled={errors.length > 0}
                       onClick={handleCallbackFunc}
                     >
                       {!cooldownStarted
                         ? 'Start cooldown'
+                        : timeWaited < cooldownMin
+                        ? 'Stop cooldown'
                         : cooldownMax < timeWaited
                         ? 'Restart cooldown'
                         : 'Unknown error'}

@@ -126,8 +126,17 @@ export type NetworkConfig = {
   config: {
     keyContracts: KeyContracts
     productContracts: any
+    functions: {
+      getTokens: any
+      getBalances: any
+    }
   }
-  cache: any
+  cache: {
+    supportedProducts: any
+    productsRev: any
+    tokens: any
+    positions: any
+  }
   metamaskChain?: MetamaskAddEthereumChain
   walletConfig: any
 }

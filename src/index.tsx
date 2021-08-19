@@ -33,15 +33,15 @@ ReactDOM.render(
     <NetworkManager>
       <WalletManager>
         <ProviderManager>
-          <CachedDataManager>
-            <ContractsManager>
+          <ContractsManager>
+            <CachedDataManager>
               <NotificationsManager>
                 <BrowserRouter>
                   <App />
                 </BrowserRouter>
               </NotificationsManager>
-            </ContractsManager>
-          </CachedDataManager>
+            </CachedDataManager>
+          </ContractsManager>
         </ProviderManager>
       </WalletManager>
     </NetworkManager>

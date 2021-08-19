@@ -400,13 +400,6 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
               </ul>
               This coverage is not a contract of insurance. Coverage is provided on a discretionary basis with Solace
               protocol and the decentralized governance has the final say on which claims are paid.
-              <b>Important Developer Notes</b>
-            </Text3>
-            <hr></hr>
-            <Heading2>Important Developer Notes</Heading2>
-            <Text3 error>
-              Policies with a lending protocol for an asset that is locked as collateral will not be able to submit a
-              claim if you have borrowed assets. Debts need to be paid before a claim can be submitted.
             </Text3>
           </FormCol>
         </FormRow>

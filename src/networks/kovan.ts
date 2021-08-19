@@ -89,14 +89,17 @@ export const KovanNetwork: NetworkConfig = {
         abi: aaveAbi,
       },
     },
+    functions: {
+      getTokens: { [ProductName.AAVE]: aaveTokens },
+      getBalances: { [ProductName.AAVE]: aaveBalances },
+    },
   },
   cache: {
     supportedProducts: [{ name: ProductName.AAVE, contract: null }],
     productsRev: {
       [String(process.env.REACT_APP_KOVAN_AAVE_PRODUCT_ADDR)]: ProductName.AAVE,
     },
-    tokens: { [ProductName.AAVE]: { getTokens: aaveTokens, savedTokens: [], tokensInitialized: false } },
-    getBalances: { [ProductName.AAVE]: aaveBalances },
+    tokens: { [ProductName.AAVE]: { savedTokens: [], tokensInitialized: false } },
     positions: { [ProductName.AAVE]: { positionNamesInitialized: false } },
   },
   metamaskChain: {

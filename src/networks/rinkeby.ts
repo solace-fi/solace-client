@@ -89,14 +89,17 @@ export const RinkebyNetwork: NetworkConfig = {
         abi: compAbi,
       },
     },
+    functions: {
+      getTokens: { [ProductName.COMPOUND]: compTokens },
+      getBalances: { [ProductName.COMPOUND]: compBalances },
+    },
   },
   cache: {
     supportedProducts: [{ name: ProductName.COMPOUND, contract: null }],
     productsRev: {
       [String(process.env.REACT_APP_RINKEBY_COMPOUND_PRODUCT_ADDR)]: ProductName.COMPOUND,
     },
-    tokens: { [ProductName.COMPOUND]: { getTokens: compTokens, savedTokens: [], tokensInitialized: false } },
-    getBalances: { [ProductName.COMPOUND]: compBalances },
+    tokens: { [ProductName.COMPOUND]: { savedTokens: [], tokensInitialized: false } },
     positions: { [ProductName.COMPOUND]: { positionNamesInitialized: false } },
   },
   metamaskChain: {

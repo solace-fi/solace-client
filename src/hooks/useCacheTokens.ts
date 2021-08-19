@@ -16,6 +16,7 @@ export const useCacheTokens = () => {
   const [dataInitialized, setDataInitialized] = useState<boolean>(false)
 
   const setStoredData = useCallback(() => {
+    // on mount, if stored data exists in session already, return that data, else return newly made data
     if (storedTokenAndPositionData.length == 0) {
       const unsetTokenAndPositionData: NetworkCache[] = []
       networks.forEach((network) =>
@@ -42,10 +43,14 @@ export const useCacheTokens = () => {
         running.current = false
         return
       }
+
+      // given the input data, find the dataset from that data appropriate to the current network
       const newCache = data.find((dataset) => dataset.name == activeNetwork.name)
       if (!newCache) return
       const supportedProducts = newCache.supportedProducts
       let changeOccurred = false
+
+      // for every supported product in this network, initialize the tokens and positions
       await Promise.all(
         supportedProducts.map(async (supportedProduct: any) => {
           const productName = supportedProduct.name
@@ -53,7 +58,7 @@ export const useCacheTokens = () => {
             !newCache.tokens[productName].tokensInitialized &&
             !newCache.positions[productName].positionNamesInitialized
           ) {
-            const tokens: Token[] = await activeNetwork.cache.tokens[productName].getTokens(
+            const tokens: Token[] = await activeNetwork.config.functions.getTokens[productName](
               library,
               activeNetwork.chainId
             )

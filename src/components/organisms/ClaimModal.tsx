@@ -83,7 +83,7 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
   *************************************************************************************/
 
   const cooldown = useGetCooldownPeriod()
-  const { addLocalTransactions, reload, gasPrices, tokenPositionData } = useCachedData()
+  const { addLocalTransactions, reload, gasPrices } = useCachedData()
   const { selectedProtocol } = useContracts()
   const { makeTxToast } = useToasts()
   const { errors } = useWallet()
@@ -154,7 +154,7 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
       setAsyncLoading(false)
     }
     load()
-  }, [isOpen, selectedPolicy, activeNetwork, tokenPositionData])
+  }, [isOpen, selectedPolicy, activeNetwork])
 
   /*************************************************************************************
 
