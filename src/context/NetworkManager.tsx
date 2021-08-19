@@ -6,6 +6,12 @@ import { RinkebyNetwork } from '../networks/rinkeby'
 import { AbstractConnector } from '@web3-react/abstract-connector'
 import { MetamaskConnector } from '../wallet/wallets/MetaMask'
 
+/*
+
+This manager keeps track of the current network and other important information.
+
+*/
+
 const networks: NetworkConfig[] = [RinkebyNetwork, KovanNetwork]
 
 type NetworkContext = {

@@ -9,6 +9,10 @@
     import hooks
     import utils
 
+    UserAccount function
+      custom hooks
+      local functions
+      Render
     Account function
       custom hooks
       local functions
@@ -33,19 +37,28 @@ import { SmallBox } from '../atoms/Box'
 import { UserImage } from '../atoms/User'
 import { WalletConnectButton } from '../molecules/WalletConnectButton'
 import { TransactionHistoryButton } from '../molecules/TransactionHistoryButton'
+import { NetworkConnectButton } from '../molecules/NetworkConnectButton'
 
 /* import hooks */
 import { useNativeTokenBalance } from '../../hooks/useBalance'
 
 /* import utils */
 import { shortenAddress, fixed } from '../../utils/formatting'
-import { NetworkConnectButton } from '../molecules/NetworkConnectButton'
 
 export const UserAccount: React.FC = () => {
+  /*************************************************************************************
+
+  custom hooks
+
+  *************************************************************************************/
   const { account } = useWallet()
   const balance = useNativeTokenBalance()
   const { activeNetwork } = useNetwork()
+  /*************************************************************************************
 
+  Render
+  
+  *************************************************************************************/
   return (
     <>
       {account && (

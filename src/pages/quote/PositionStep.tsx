@@ -47,13 +47,13 @@ import { ManageModal } from '../../components/organisms/ManageModal'
 /* import constants */
 import { PolicyState } from '../../constants/enums'
 import { Policy, Token } from '../../constants/types'
+import { MAX_MOBILE_SCREEN_WIDTH } from '../../constants'
 
 /* import hooks */
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'
 
 /* import utils */
 import { fixedTokenPositionBalance, truncateBalance } from '../../utils/formatting'
-import { MAX_MOBILE_SCREEN_WIDTH } from '../../constants'
 
 export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigation }) => {
   const { protocol, balances, loading } = formData

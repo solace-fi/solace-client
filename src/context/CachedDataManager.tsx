@@ -16,8 +16,12 @@ import { useNetwork } from './NetworkManager'
 
 /*
 
-This manager caches data such as the user's assets, operations, or preferences into the
-web app.
+This manager caches data such as the user's pending transactions, policies, token and position data.
+
+Currently, the reload and dataReload features take place in this manager as well. These features are called and
+read by components and hooks across the app to stay in sync with each other. The main difference is that reload
+should be called manually, such as when the user sends a transaction, and dataReload is called on an interval and
+updates the app at a fixed rate with the user's input.
 
 */
 

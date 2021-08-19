@@ -59,6 +59,7 @@ import { FormOption, FormSelect } from '../atoms/Form'
 import { Card } from '../atoms/Card'
 import { Box, BoxItem, BoxItemTitle } from '../atoms/Box'
 import { Heading2, Text3 } from '../atoms/Typography'
+import { GeneralElementProps } from '../generalInterfaces'
 
 /* import hooks */
 import { useUserStakedValue } from '../../hooks/useFarm'
@@ -72,7 +73,6 @@ import getPermitNFTSignature from '../../utils/signature'
 import { hasApproval } from '../../utils'
 import { fixed, getGasValue, filteredAmount, getUnit, truncateBalance } from '../../utils/formatting'
 import { getTimeFromMillis, timeToDate } from '../../utils/time'
-import { GeneralElementProps } from '../generalInterfaces'
 
 interface PoolModalProps {
   modalTitle: string

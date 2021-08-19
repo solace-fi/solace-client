@@ -25,11 +25,11 @@ import { PoolModal } from '../../components/organisms/PoolModal'
 import { RiskBackingCapitalPool } from '../../components/molecules/RiskBackingCapitalPool'
 import { CapitalProviderPool } from '../../components/molecules/CapitalProviderPool'
 import { LiquidityPool } from '../../components/molecules/LiquidityPool'
+import { HeroContainer } from '../../components/atoms/Layout'
+import { Heading1 } from '../../components/atoms/Typography'
 
 /* import constants */
 import { FunctionName } from '../../constants/enums'
-import { HeroContainer } from '../../components/atoms/Layout'
-import { Heading1 } from '../../components/atoms/Typography'
 
 function Invest(): any {
   /*************************************************************************************

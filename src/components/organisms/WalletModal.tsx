@@ -1,7 +1,26 @@
+/*************************************************************************************
+
+    Table of Contents:
+
+    import react
+    import managers
+    import components
+    import wallets
+
+    WalletModal function
+      custom hooks
+      local functions
+      Render
+
+  *************************************************************************************/
+
+/* import react */
 import React, { useCallback } from 'react'
-import { SUPPORTED_WALLETS } from '../../wallet/'
+
+/* import managers */
 import { useWallet } from '../../context/WalletManager'
 
+/* import components */
 import { Card, CardContainer } from '../atoms/Card'
 import { ModalCell } from '../atoms/Modal'
 import { Heading3 } from '../atoms/Typography'
@@ -9,14 +28,26 @@ import { Modal } from '../molecules/Modal'
 import { FormRow } from '../atoms/Form'
 import { Button, ButtonWrapper } from '../atoms/Button'
 
+/* import wallets */
+import { SUPPORTED_WALLETS } from '../../wallet/'
+
 interface WalletModalProps {
   closeModal: () => void
   isOpen: boolean
 }
 
 export const WalletModal: React.FC<WalletModalProps> = ({ closeModal, isOpen }) => {
-  const { changeWallet, disconnect, activeWalletConnector } = useWallet()
+  /************************************************************************************* 
+    
+  custom hooks
 
+  *************************************************************************************/
+  const { changeWallet, disconnect, activeWalletConnector } = useWallet()
+  /************************************************************************************* 
+    
+  local functions
+
+  *************************************************************************************/
   const handleClose = useCallback(() => {
     closeModal()
   }, [closeModal])
@@ -25,7 +56,11 @@ export const WalletModal: React.FC<WalletModalProps> = ({ closeModal, isOpen }) 
     await changeWallet(SUPPORTED_WALLETS[SUPPORTED_WALLETS.findIndex((wallet) => wallet.id === id)])
     handleClose()
   }, [])
+  /************************************************************************************* 
+    
+  Render
 
+  *************************************************************************************/
   return (
     <Modal handleClose={handleClose} isOpen={isOpen} modalTitle={'Connect a wallet'} disableCloseButton={false}>
       <CardContainer cardsPerRow={2}>

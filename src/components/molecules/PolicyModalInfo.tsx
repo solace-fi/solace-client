@@ -36,6 +36,7 @@ import { FlexRow, HeroContainer } from '../atoms/Layout'
 import { Protocol, ProtocolImage, ProtocolTitle } from '../atoms/Protocol'
 import { Loader } from '../atoms/Loader'
 import { Heading3, Text, Text3 } from '../atoms/Typography'
+import { Card } from '../atoms/Card'
 
 /* import hooks */
 import { useAppraisePosition } from '../../hooks/usePolicy'
@@ -44,7 +45,6 @@ import { useWindowDimensions } from '../../hooks/useWindowDimensions'
 /* import utils */
 import { getDaysLeft } from '../../utils/time'
 import { truncateBalance } from '../../utils/formatting'
-import { Card } from '../atoms/Card'
 
 interface PolicyModalInfoProps {
   selectedPolicy: Policy | undefined

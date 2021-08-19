@@ -10,8 +10,6 @@ import { Modal } from '../components/molecules/Modal'
 import { FormRow } from '../components/atoms/Form'
 import { capitalizeFirstLetter } from '../utils/formatting'
 
-// import { getTokens } from '../utils/positionGetters/yearn/getTokens'
-
 /*
 
 This Manager initializes the Web3 provider and the JSON-RPC provider.

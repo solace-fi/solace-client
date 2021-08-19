@@ -34,6 +34,8 @@ export const LayoutContentWithLoader: React.FC = ({ children }) => {
   useEffect(() => {
     setLoader(initialized)
   }, [initialized])
+
+  /* render */
   return (
     <Fragment>
       {loader ? (

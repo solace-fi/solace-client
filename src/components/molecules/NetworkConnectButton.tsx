@@ -5,7 +5,7 @@
     import react
     import managers
     import components
-    import wallets
+    import utils
 
     styled components
 
@@ -25,8 +25,9 @@ import { useProvider } from '../../context/ProviderManager'
 /* import components */
 import { Button } from '../atoms/Button'
 import { StyledNetworkChart } from '../atoms/Icon'
-
 import { GeneralElementProps } from '../generalInterfaces'
+
+/* import utils */
 import { capitalizeFirstLetter } from '../../utils/formatting'
 
 export const NetworkConnectButton: React.FC<GeneralElementProps> = ({ ...props }) => {

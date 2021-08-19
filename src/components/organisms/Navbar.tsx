@@ -3,6 +3,8 @@
     Table of Contents:
 
     import react
+    import managers
+    import constants
     import components
     import hooks
 
@@ -19,6 +21,12 @@
 /* import react */
 import React, { useEffect, useState } from 'react'
 
+/* import managers */
+import { useWallet } from '../../context/WalletManager'
+
+/* import constants */
+import { MAX_MOBILE_SCREEN_WIDTH } from '../../constants'
+
 /* import components */
 import { SidebarItem, TopNav } from '../atoms/Navbar'
 import { ButtonWrapper, NavButton } from '../atoms/Button'
@@ -31,8 +39,6 @@ import { NetworkConnectButton } from '../molecules/NetworkConnectButton'
 
 /* import hooks */
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'
-import { MAX_MOBILE_SCREEN_WIDTH } from '../../constants'
-import { useWallet } from '../../context/WalletManager'
 
 export const SideNavbar: React.FC = () => {
   /*************************************************************************************

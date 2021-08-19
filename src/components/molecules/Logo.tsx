@@ -16,11 +16,10 @@ import React from 'react'
 
 /* import components */
 import { LogoBase } from '../atoms/Logo'
+import { GeneralElementProps } from '../generalInterfaces'
 
 /* import resources */
 import logo from '../../resources/solace.png'
-
-import { GeneralElementProps } from '../generalInterfaces'
 
 export const Logo: React.FC<GeneralElementProps> = ({ ...props }) => {
   /*************************************************************************************

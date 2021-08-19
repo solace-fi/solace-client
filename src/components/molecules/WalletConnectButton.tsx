@@ -4,8 +4,8 @@
 
     import react
     import managers
+    import constants
     import components
-    import wallets
     import hooks
 
     styled components
@@ -17,20 +17,21 @@
   *************************************************************************************/
 
 /* import react */
-import React, { useCallback } from 'react'
+import React from 'react'
 
 /* import managers */
 import { useWallet } from '../../context/WalletManager'
 
+/* import constants */
+import { MAX_MOBILE_SCREEN_WIDTH } from '../../constants'
+
 /* import components */
 import { Button } from '../atoms/Button'
 import { StyledWallet } from '../atoms/Icon'
+import { GeneralElementProps } from '../generalInterfaces'
 
 /* import hooks */
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'
-import { MAX_MOBILE_SCREEN_WIDTH } from '../../constants'
-
-import { GeneralElementProps } from '../generalInterfaces'
 
 export const WalletConnectButton: React.FC<GeneralElementProps> = ({ ...props }) => {
   /*************************************************************************************

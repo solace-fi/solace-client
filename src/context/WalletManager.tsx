@@ -16,22 +16,14 @@ import { WalletModal } from '../components/organisms/WalletModal'
 import { useNetwork } from './NetworkManager'
 /*
 
-This Manager keeps track of the user's wallet and details, including the wallet type, account, 
-and the network id, as well as provide the functions to connect and disconnect the wallet.
-
-Please note that some of this code was ported over from the Barnbridge frontend so there could 
-be some incoherent code here and there.
+This Manager keeps track of the user's wallet and details, including the wallet type and account, 
+as well as provide the functions to connect and disconnect the wallet.
 
 SUPPORTED_WALLETS contains connectors that the application allows, if the user's connected wallet is included,
 the connect function is called.
 
-The user's selected wallet connector is then stored into local storage so when they come into the web app again,
+The user's selected wallet connector is then stored into session storage so when they come into the web app again,
 the connection will be automatic.
-
-Currently, the reload and dataReload features take place in this manager as well. These features are called and
-read by components and hooks across the app to stay in sync with each other. The main difference is that reload
-should be called manually, such as when the user sends a transaction, and dataReload is called on an interval and
-updates the app at a fixed rate with the user's input.
 
 */
 
