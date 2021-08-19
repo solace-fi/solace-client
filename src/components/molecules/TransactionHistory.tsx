@@ -142,7 +142,13 @@ export const TransactionHistory: React.FC = () => {
           {txHistory &&
             txHistory.map((tx: any, i: number) => (
               <TableRow key={tx.hash}>
-                <TableData error={tx.txreceipt_status != '1'} pt={10} pb={10}>
+                <TableData
+                  error={tx.txreceipt_status != '1'}
+                  pt={10}
+                  pb={10}
+                  pl={width <= MAX_MOBILE_SCREEN_WIDTH ? 0 : undefined}
+                  pr={width <= MAX_MOBILE_SCREEN_WIDTH ? 0 : undefined}
+                >
                   {amounts.length > 0 ? (
                     decodeInput(tx, contractSources).function_name
                   ) : (
@@ -159,7 +165,12 @@ export const TransactionHistory: React.FC = () => {
                     </TableData>
                   </>
                 )}
-                <TableData pt={10} pb={10}>
+                <TableData
+                  pt={10}
+                  pb={10}
+                  pl={width <= MAX_MOBILE_SCREEN_WIDTH ? 0 : undefined}
+                  pr={width <= MAX_MOBILE_SCREEN_WIDTH ? 0 : undefined}
+                >
                   {amounts.length > 0 && (
                     <HyperLink
                       href={getExplorerItemUrl(activeNetwork.explorer.url, tx.hash, ExplorerscanApi.TX)}

@@ -5,7 +5,6 @@ import { KovanNetwork } from '../networks/kovan'
 import { RinkebyNetwork } from '../networks/rinkeby'
 import { AbstractConnector } from '@web3-react/abstract-connector'
 import { MetamaskConnector } from '../wallet/wallets/MetaMask'
-import { useWallet } from './WalletManager'
 
 const networks: NetworkConfig[] = [RinkebyNetwork, KovanNetwork]
 

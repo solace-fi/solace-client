@@ -5,7 +5,7 @@ import { MetamaskConnector } from '../wallet/wallets/MetaMask'
 
 import { Card, CardContainer } from '../components/atoms/Card'
 import { ModalCell } from '../components/atoms/Modal'
-import { Heading3 } from '../components/atoms/Typography'
+import { Heading3, Text } from '../components/atoms/Typography'
 import { Modal } from '../components/molecules/Modal'
 import { FormRow } from '../components/atoms/Form'
 import { capitalizeFirstLetter } from '../utils/formatting'
@@ -115,6 +115,11 @@ const ProviderManager: React.FC = ({ children }) => {
   return (
     <ProviderContext.Provider value={value}>
       <Modal handleClose={closeModal} isOpen={networkModal} modalTitle={'Connect a network'} disableCloseButton={false}>
+        <Card purple p={10} mb={20}>
+          <Text textAlignCenter>Please ensure that the network on your</Text>
+          <Text textAlignCenter>wallet and the network on this app match.</Text>
+        </Card>
+
         <CardContainer cardsPerRow={1}>
           {networks.map((network) => (
             <Card
