@@ -12,6 +12,7 @@ export const WalletLinkConnector = {
     return new WalletLink_Connector({
       url: network.rpc.httpsUrl,
       appName: 'solace-coinbase',
+      appLogoUrl: '',
     })
   },
   onDisconnect(connector?: WalletLink_Connector): void {

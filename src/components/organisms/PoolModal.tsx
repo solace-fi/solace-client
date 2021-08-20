@@ -583,7 +583,7 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
 
   useEffect(() => {
     const getUri = async () => {
-      if (!lpToken || !selectedGasOption || nft.eq(ZERO)) return
+      if (!lpToken || nft.eq(ZERO) || nftSelection == '') return
       const uri = await lpToken.tokenURI(nft)
       const newUri = uri.replace('data:application/json;base64,', '')
       const json = JSON.parse(atob(newUri))
@@ -592,7 +592,7 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
       setLpNftSvgString(svgString)
     }
     getUri()
-  }, [lpToken, nft, selectedGasOption])
+  }, [lpToken, nft, nftSelection])
 
   /*************************************************************************************
 

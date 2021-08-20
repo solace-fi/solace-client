@@ -30,10 +30,6 @@ export const ModalContainer = styled.div<ModalProps>`
   z-index: 2;
   ${(props) => (props.isOpen ? 'display: flex;' : 'display: none;')}
   overflow-y: scroll;
-  ::-webkit-scrollbar {
-    width: 0;
-    background: transparent;
-  }
 `
 
 export const ModalBase = styled.div<ModalProps>`
