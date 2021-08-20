@@ -98,9 +98,8 @@ export const useUserWalletLpBalance = (): LpTokenInfo[] => {
         for (let i = 0; i < userLpTokenIds.length; i++) {
           const lpTokenData = await lpToken.positions(userLpTokenIds[i])
           const { token0, token1 } = lpTokenData
-          if (_token0 == token0 && _token1 == token1) {
-            userLpTokenInfo.push({ id: userLpTokenIds[i], value: userLpTokenValues[i] })
-          }
+          if (!(_token0 == token0 && _token1 == token1)) return
+          userLpTokenInfo.push({ id: userLpTokenIds[i], value: userLpTokenValues[i] })
         }
         setUserLpTokenInfo(userLpTokenInfo)
       } catch (err) {
