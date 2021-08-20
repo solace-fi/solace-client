@@ -700,13 +700,13 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
         </ModalRow>
         {(func == FunctionName.DEPOSIT_SIGNED || func == FunctionName.WITHDRAW_LP) && (
           <div style={{ marginBottom: '20px' }}>
-            {lpNftSvgString ? (
+            {getAssetTokensByFunc().length == 0 ? null : lpNftSvgString ? (
               <ModalCell style={{ justifyContent: 'center' }} p={0}>
                 <NftPosition src={`data:image/svg+xml,${encodeURIComponent(lpNftSvgString)}`} />
               </ModalCell>
-            ) : nftSelection != '' && !nft.eq(ZERO) ? (
+            ) : (
               <Loader />
-            ) : null}
+            )}
           </div>
         )}
         <GasRadioGroup mb={20} />
