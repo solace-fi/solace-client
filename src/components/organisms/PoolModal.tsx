@@ -704,7 +704,7 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
               <ModalCell style={{ justifyContent: 'center' }} p={0}>
                 <NftPosition src={`data:image/svg+xml,${encodeURIComponent(lpNftSvgString)}`} />
               </ModalCell>
-            ) : nftSelection != '' ? (
+            ) : nftSelection != '' && !nft.eq(ZERO) ? (
               <Loader />
             ) : null}
           </div>
