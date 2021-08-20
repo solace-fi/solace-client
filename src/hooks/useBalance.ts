@@ -95,7 +95,6 @@ export const useUserWalletLpBalance = (): LpTokenInfo[] => {
         const _token0 = await lpFarm.token0()
         const _token1 = await lpFarm.token1()
         const userLpTokenInfo: LpTokenInfo[] = []
-        console.log(userLpTokenIds.length)
         for (let i = 0; i < userLpTokenIds.length; i++) {
           const lpTokenData = await lpToken.positions(userLpTokenIds[i])
           const { token0, token1 } = lpTokenData
