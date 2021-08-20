@@ -86,40 +86,40 @@ export const Statistics: React.FC = () => {
   Contract functions
 
   *************************************************************************************/
-  const claimRewards = async () => {
-    if (!master) return
-    const txType = FunctionName.WITHDRAW_REWARDS
-    try {
-      const tx = await master.withdrawRewards({
-        gasPrice: getGasValue(gasPrices.options[1].value),
-        gasLimit: GAS_LIMIT,
-      })
-      const txHash = tx.hash
-      const localTx = {
-        hash: txHash,
-        type: txType,
-        value: truncateBalance(totalUserRewards),
-        status: TransactionCondition.PENDING,
-        unit: Unit.SOLACE,
-      }
-      addLocalTransactions(localTx)
-      makeTxToast(txType, TransactionCondition.PENDING, txHash)
-      reload()
-      await tx.wait().then((receipt: any) => {
-        const status = receipt.status ? TransactionCondition.SUCCESS : TransactionCondition.FAILURE
-        makeTxToast(txType, status, txHash)
-        reload()
-      })
-    } catch (err) {
-      if (err?.code === 4001) {
-        console.log('Transaction rejected.')
-      } else {
-        console.log(`Transaction failed: ${err.message}`)
-      }
-      makeTxToast(txType, TransactionCondition.CANCELLED)
-      reload()
-    }
-  }
+  // const claimRewards = async () => {
+  //   if (!master) return
+  //   const txType = FunctionName.WITHDRAW_REWARDS
+  //   try {
+  //     const tx = await master.withdrawRewards({
+  //       gasPrice: getGasValue(gasPrices.options[1].value),
+  //       gasLimit: GAS_LIMIT,
+  //     })
+  //     const txHash = tx.hash
+  //     const localTx = {
+  //       hash: txHash,
+  //       type: txType,
+  //       value: truncateBalance(totalUserRewards),
+  //       status: TransactionCondition.PENDING,
+  //       unit: Unit.SOLACE,
+  //     }
+  //     addLocalTransactions(localTx)
+  //     makeTxToast(txType, TransactionCondition.PENDING, txHash)
+  //     reload()
+  //     await tx.wait().then((receipt: any) => {
+  //       const status = receipt.status ? TransactionCondition.SUCCESS : TransactionCondition.FAILURE
+  //       makeTxToast(txType, status, txHash)
+  //       reload()
+  //     })
+  //   } catch (err) {
+  //     if (err?.code === 4001) {
+  //       console.log('Transaction rejected.')
+  //     } else {
+  //       console.log(`Transaction failed: ${err.message}`)
+  //     }
+  //     makeTxToast(txType, TransactionCondition.CANCELLED)
+  //     reload()
+  //   }
+  // }
 
   /*************************************************************************************
 
@@ -159,32 +159,7 @@ export const Statistics: React.FC = () => {
     <>
       {width > MAX_MOBILE_SCREEN_WIDTH ? (
         <BoxRow>
-          {initialized && account ? (
-            <Box>
-              <BoxItem>
-                <BoxItemTitle h3>My Balance</BoxItemTitle>
-                <Text h2>
-                  {`${truncateBalance(parseFloat(solaceBalance), 1)} `}
-                  <TextSpan h3>SOLACE</TextSpan>
-                </Text>
-              </BoxItem>
-              <BoxItem>
-                <BoxItemTitle h3>My Rewards</BoxItemTitle>
-                <Text h2>
-                  {`${truncateBalance(parseFloat(totalUserRewards), 1)} `}
-                  <TextSpan h3>SOLACE</TextSpan>
-                </Text>
-              </BoxItem>
-              <BoxItem>
-                <Button
-                  disabled={errors.length > 0 || fixed(parseFloat(totalUserRewards), 6) <= 0}
-                  onClick={claimRewards}
-                >
-                  Claim
-                </Button>
-              </BoxItem>
-            </Box>
-          ) : (
+          {initialized && account ? null : (
             <Box>
               <BoxItem>
                 <WalletConnectButton />
@@ -199,13 +174,13 @@ export const Statistics: React.FC = () => {
                 <TextSpan h3>{activeNetwork.nativeCurrency.symbol}</TextSpan>
               </Text>
             </BoxItem>
-            <BoxItem>
+            {/* <BoxItem>
               <BoxItemTitle h3>Total Value Locked</BoxItemTitle>
               <Text h2 nowrap>
                 {`${truncateBalance(parseFloat(totalValueLocked), 1)} `}
                 <TextSpan h3>{activeNetwork.nativeCurrency.symbol}</TextSpan>
               </Text>
-            </BoxItem>
+            </BoxItem> */}
             <BoxItem>
               <BoxItemTitle h3>Active Cover Amount</BoxItemTitle>
               <Text h2 nowrap>
@@ -231,7 +206,7 @@ export const Statistics: React.FC = () => {
         <>
           {initialized && account ? (
             <CardContainer m={20}>
-              <Card blue>
+              {/* <Card blue>
                 <FormRow>
                   <FormCol>My Balance</FormCol>
                   <FormCol>
@@ -259,7 +234,7 @@ export const Statistics: React.FC = () => {
                     Claim
                   </Button>
                 </ButtonWrapper>
-              </Card>
+              </Card> */}
               <Card purple>
                 <FormRow>
                   <FormCol>Capital Pool Size</FormCol>
@@ -273,7 +248,7 @@ export const Statistics: React.FC = () => {
                     </Text>
                   </FormCol>
                 </FormRow>
-                <FormRow>
+                {/* <FormRow>
                   <FormCol>Total Value Locked</FormCol>
                   <FormCol>
                     <Text h2 nowrap>
@@ -281,7 +256,7 @@ export const Statistics: React.FC = () => {
                       <TextSpan h3>{activeNetwork.nativeCurrency.symbol}</TextSpan>
                     </Text>
                   </FormCol>
-                </FormRow>
+                </FormRow> */}
                 <FormRow>
                   <FormCol>Active Cover Amount</FormCol>
                   <FormCol>

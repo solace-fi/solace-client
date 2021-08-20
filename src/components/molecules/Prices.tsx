@@ -66,7 +66,7 @@ export const Prices: React.FC = () => {
 
   *************************************************************************************/
   const { activeNetwork } = useNetwork()
-  const pairPrice = usePairPrice()
+  // const pairPrice = usePairPrice()
   const nativeToken = activeNetwork.nativeCurrency.symbol
   const coinPrice = useCoingeckoPrice(unitToNameMap[nativeToken], 'usd')
 
@@ -77,7 +77,7 @@ export const Prices: React.FC = () => {
   *************************************************************************************/
   return (
     <Price>
-      <SmallBox pl={10} navy>
+      {/* <SmallBox pl={10} navy>
         <Heading3 autoAlign nowrap>
           SOLACE
         </Heading3>
@@ -86,7 +86,7 @@ export const Prices: React.FC = () => {
             {`$${pairPrice}`}
           </Heading3>
         </SmallBox>
-      </SmallBox>
+      </SmallBox> */}
       <SmallBox pl={10} navy>
         <Heading3 autoAlign nowrap>
           {nativeToken}
