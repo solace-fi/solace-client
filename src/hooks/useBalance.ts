@@ -95,11 +95,13 @@ export const useUserWalletLpBalance = (): LpTokenInfo[] => {
         const _token0 = await lpFarm.token0()
         const _token1 = await lpFarm.token1()
         const userLpTokenInfo: LpTokenInfo[] = []
+        console.log(userLpTokenIds.length)
         for (let i = 0; i < userLpTokenIds.length; i++) {
           const lpTokenData = await lpToken.positions(userLpTokenIds[i])
           const { token0, token1 } = lpTokenData
-          if (!(_token0 == token0 && _token1 == token1)) return
-          userLpTokenInfo.push({ id: userLpTokenIds[i], value: userLpTokenValues[i] })
+          if (_token0 == token0 && _token1 == token1) {
+            userLpTokenInfo.push({ id: userLpTokenIds[i], value: userLpTokenValues[i] })
+          }
         }
         setUserLpTokenInfo(userLpTokenInfo)
       } catch (err) {
