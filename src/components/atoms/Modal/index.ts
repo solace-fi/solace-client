@@ -29,11 +29,7 @@ export const ModalContainer = styled.div<ModalProps>`
   background: linear-gradient(113.7deg, rgba(182, 33, 255) 0%, rgba(33, 211, 252) 100%);
   z-index: 2;
   ${(props) => (props.isOpen ? 'display: flex;' : 'display: none;')}
-  overflow-y: hidden;
-
-  @media screen and (max-width: ${MAX_MOBILE_SCREEN_WIDTH}px) {
-    overflow-y: scroll;
-  }
+  overflow-y: scroll;
 `
 
 export const ModalBase = styled.div<ModalProps>`
