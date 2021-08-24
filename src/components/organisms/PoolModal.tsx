@@ -73,7 +73,7 @@ import getPermitNFTSignature from '../../utils/signature'
 import { hasApproval } from '../../utils'
 import { fixed, getGasValue, filteredAmount, getUnit, truncateBalance } from '../../utils/formatting'
 import { getTimeFromMillis, timeToDate } from '../../utils/time'
-import { NftPosition } from '../NftPosition'
+import { NftPosition } from '../molecules/NftPosition'
 
 interface PoolModalProps {
   modalTitle: string
@@ -111,7 +111,6 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
   const { cooldownStarted, timeWaited, cooldownMin, cooldownMax, canWithdrawEth } = useCooldown()
   const [nft, setNft] = useState<BN>(ZERO)
   const [nftSelection, setNftSelection] = useState<string>('')
-  const [lpNftSvgString, setLpNftSvgString] = useState<string | null>()
 
   /*************************************************************************************
 
@@ -531,8 +530,8 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
     setIsStaking(false)
     setMaxSelected(false)
     setModalLoading(false)
+    setNft(ZERO)
     closeModal()
-    setLpNftSvgString(null)
   }, [closeModal, gasPrices.options])
 
   const handleNft = (target: any) => {
@@ -579,20 +578,7 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
         }
       }
     }
-  }, [isOpen, cpFarm?.address, vault])
-
-  useEffect(() => {
-    const getUri = async () => {
-      if (!lpToken || nft.eq(ZERO) || nftSelection == '') return
-      const uri = await lpToken.tokenURI(nft)
-      const newUri = uri.replace('data:application/json;base64,', '')
-      const json = JSON.parse(atob(newUri))
-      const imageBase64 = json.image.replace('data:image/svg+xml;base64,', '')
-      const svgString = atob(imageBase64)
-      setLpNftSvgString(svgString)
-    }
-    getUri()
-  }, [lpToken, nft, nftSelection])
+  }, [isOpen, cpFarm?.address, vault, userLpTokenInfo, depositedLpTokenInfo, func, currencyDecimals])
 
   /*************************************************************************************
 
@@ -700,12 +686,10 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
         </ModalRow>
         {(func == FunctionName.DEPOSIT_SIGNED || func == FunctionName.WITHDRAW_LP) && (
           <div style={{ marginBottom: '20px' }}>
-            {getAssetTokensByFunc().length == 0 ? null : lpNftSvgString ? (
+            {getAssetTokensByFunc().length == 0 ? null : (
               <ModalCell style={{ justifyContent: 'center' }} p={0}>
-                <NftPosition src={`data:image/svg+xml,${encodeURIComponent(lpNftSvgString)}`} />
+                <NftPosition tokenId={nft} />
               </ModalCell>
-            ) : (
-              <Loader />
             )}
           </div>
         )}
