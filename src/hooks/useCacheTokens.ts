@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, useCallback } from 'react'
-import { Token } from '../constants/types'
+import { NetworkConfig, Token } from '../constants/types'
 import { useWallet } from '../context/WalletManager'
 import { useNetwork } from '../context/NetworkManager'
 import { useSessionStorage } from 'react-use-storage'
@@ -23,7 +23,6 @@ export const useCacheTokens = () => {
         unsetTokenAndPositionData.push({
           name: network.name,
           chainId: network.chainId,
-          supportedProducts: network.cache.supportedProducts,
           tokens: network.cache.tokens,
           positions: network.cache.positions,
         })
@@ -35,19 +34,19 @@ export const useCacheTokens = () => {
   }, [])
 
   const getAllTokensAndPositionsforChain = useCallback(
-    async (data: NetworkCache[]) => {
-      if (running.current || library == undefined || chainId == undefined) return
+    async (data: NetworkCache[], _activeNetwork: NetworkConfig, _chainId: number, _library: any) => {
+      if (running.current || _library == undefined || _chainId == undefined) return
       setDataInitialized(false)
       running.current = true
-      if (!findNetworkByChainId(chainId)) {
+      if (!findNetworkByChainId(_chainId)) {
         running.current = false
         return
       }
 
       // given the input data, find the dataset from that data appropriate to the current network
-      const newCache = data.find((dataset) => dataset.name == activeNetwork.name)
+      const newCache = data.find((dataset) => dataset.name == _activeNetwork.name)
       if (!newCache) return
-      const supportedProducts = newCache.supportedProducts
+      const supportedProducts = _activeNetwork.cache.supportedProducts
       let changeOccurred = false
 
       // for every supported product in this network, initialize the tokens and positions
@@ -58,9 +57,9 @@ export const useCacheTokens = () => {
             !newCache.tokens[productName].tokensInitialized &&
             !newCache.positions[productName].positionNamesInitialized
           ) {
-            const tokens: Token[] = await activeNetwork.config.functions.getTokens[productName](
-              library,
-              activeNetwork.chainId
+            const tokens: Token[] = await _activeNetwork.config.functions.getTokens[productName](
+              _library,
+              _activeNetwork.chainId
             )
             const initializedTokens = {
               ...newCache.tokens[productName],
@@ -93,12 +92,12 @@ export const useCacheTokens = () => {
       setDataInitialized(true)
       running.current = false
     },
-    [activeNetwork]
+    []
   )
 
   useEffect(() => {
     const data = setStoredData()
-    getAllTokensAndPositionsforChain(data)
+    getAllTokensAndPositionsforChain(data, activeNetwork, chainId, library)
   }, [activeNetwork])
 
   return { dataInitialized, storedTokenAndPositionData }

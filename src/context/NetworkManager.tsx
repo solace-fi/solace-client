@@ -66,7 +66,7 @@ const NetworksProvider: React.FC = (props) => {
     if (network) {
       setLastNetwork(network.name.toLowerCase())
 
-      // there were cases where changing networks without changing the wallet does not give the correct balance
+      // there were cases where changing networks with the same wallet (not metamask) does not give the correct balance
       if (connector && !(connector instanceof MetamaskConnector)) window.location.reload()
     }
 

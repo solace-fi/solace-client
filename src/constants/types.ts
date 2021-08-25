@@ -5,7 +5,6 @@ import { Contract } from '@ethersproject/contracts'
 export type NetworkCache = {
   name: string
   chainId: number
-  supportedProducts: any
   tokens: any
   positions: any
 }

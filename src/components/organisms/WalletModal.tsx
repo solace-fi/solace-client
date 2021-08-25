@@ -42,7 +42,7 @@ export const WalletModal: React.FC<WalletModalProps> = ({ closeModal, isOpen }) 
   custom hooks
 
   *************************************************************************************/
-  const { changeWallet, disconnect, activeWalletConnector } = useWallet()
+  const { changeWallet, connect, disconnect, activeWalletConnector } = useWallet()
   /************************************************************************************* 
     
   local functions
@@ -53,7 +53,12 @@ export const WalletModal: React.FC<WalletModalProps> = ({ closeModal, isOpen }) 
   }, [closeModal])
 
   const connectWallet = useCallback(async (id: string) => {
-    await changeWallet(SUPPORTED_WALLETS[SUPPORTED_WALLETS.findIndex((wallet) => wallet.id === id)])
+    const foundWalletConnector = SUPPORTED_WALLETS[SUPPORTED_WALLETS.findIndex((wallet) => wallet.id === id)]
+    if (foundWalletConnector.id == 'metamask') {
+      await connect(foundWalletConnector)
+    } else {
+      await changeWallet(foundWalletConnector)
+    }
     handleClose()
   }, [])
   /************************************************************************************* 
