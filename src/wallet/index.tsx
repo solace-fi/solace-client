@@ -8,6 +8,7 @@ import { AuthereumConnector } from './wallets/Authereum'
 import { TorusConnector } from './wallets/Torus'
 import { PortisConnector } from './wallets/Portis'
 import { TrezorConnector } from './wallets/Trezor'
+import { LedgerConnector } from './wallets/Ledger'
 
 export interface WalletConnector {
   name: string
@@ -28,4 +29,5 @@ export const SUPPORTED_WALLETS: WalletConnector[] = [
   TorusConnector,
   PortisConnector,
   TrezorConnector,
+  LedgerConnector,
 ]

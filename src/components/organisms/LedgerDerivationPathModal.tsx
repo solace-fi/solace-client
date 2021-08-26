@@ -1,6 +1,8 @@
 import React, { useState, useCallback } from 'react'
 import { useWallet } from '../../context/WalletManager'
+import { LedgerConnector } from '../../wallet/wallets/Ledger'
 import { Button, ButtonWrapper } from '../atoms/Button'
+import { FormOption, FormSelect } from '../atoms/Form'
 import { ModalRow } from '../atoms/Modal'
 import { Modal } from '../molecules/Modal'
 
@@ -28,10 +30,19 @@ export const LedgerDerivationPathModal: React.FC<LedgerDerivationPathModalProps>
     closeModal()
   }, [closeModal])
 
-  const handleSelect = (value: any) => {
-    setDerivationPath(value as string)
+  const handleSelect = (target: any) => {
+    setDerivationPath(target.value as string)
   }
 
+  function handleConnect() {
+    handleClose()
+
+    setTimeout(() => {
+      connect(LedgerConnector, {
+        baseDerivationPath: derivationPath,
+      }).catch(Error)
+    })
+  }
   return (
     <Modal
       handleClose={handleClose}
@@ -39,9 +50,17 @@ export const LedgerDerivationPathModal: React.FC<LedgerDerivationPathModalProps>
       modalTitle={'Configure derivation path'}
       disableCloseButton={false}
     >
-      <ModalRow></ModalRow>
+      <ModalRow>
+        <FormSelect value={derivationPath} onChange={(e) => handleSelect(e.target)}>
+          {LEDGER_DERIVATION_PATHS.map((path, i) => (
+            <FormOption key={i} value={path.value}>
+              {path.label}
+            </FormOption>
+          ))}
+        </FormSelect>
+      </ModalRow>
       <ButtonWrapper>
-        <Button></Button>
+        <Button onClick={() => handleConnect()}>Connect</Button>
       </ButtonWrapper>
     </Modal>
   )
