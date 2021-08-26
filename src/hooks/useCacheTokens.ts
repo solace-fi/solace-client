@@ -59,7 +59,7 @@ export const useCacheTokens = () => {
           ) {
             const tokens: Token[] = await _activeNetwork.config.functions.getTokens[productName](
               _library,
-              _activeNetwork.chainId
+              _activeNetwork
             )
             const initializedTokens = {
               ...newCache.tokens[productName],

@@ -19,7 +19,7 @@ export const useGetClaimsDetails = (claimant: string | undefined): ClaimDetails[
             const [cooldown, canWithdraw, claim] = await Promise.all([
               claimsEscrow.timeLeft(claimId),
               claimsEscrow.isWithdrawable(claimId),
-              claimsEscrow.claims(claimId),
+              claimsEscrow.claim(claimId),
             ])
             const amount = claim.amount
             const claimsDetail = { id: claimId.toString(), cooldown, canWithdraw, amount }

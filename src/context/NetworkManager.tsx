@@ -1,5 +1,5 @@
 import React, { createContext, useCallback, useContext, useMemo } from 'react'
-import { useSessionStorage } from 'react-use-storage'
+import { useSessionStorage, useLocalStorage } from 'react-use-storage'
 import { NetworkConfig } from '../constants/types'
 import { KovanNetwork } from '../networks/kovan'
 import { RinkebyNetwork } from '../networks/rinkeby'
@@ -35,7 +35,7 @@ const NetworkContext = createContext<NetworkContext>({
 })
 
 const NetworksProvider: React.FC = (props) => {
-  const [lastNetwork, setLastNetwork] = useSessionStorage<string | undefined>('solace_net')
+  const [lastNetwork, setLastNetwork] = useLocalStorage<string | undefined>('solace_net')
 
   const activeNetwork = useMemo(() => {
     let network: NetworkConfig | undefined

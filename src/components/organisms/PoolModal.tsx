@@ -380,7 +380,7 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
     const txType = FunctionName.DEPOSIT_SIGNED
     try {
       const { v, r, s } = await getPermitNFTSignature(account, chainId, library, lpToken, lpFarm.address, nft, DEADLINE)
-      const tx = await lpFarm.depositSigned(account, nft, DEADLINE, v, r, s)
+      const tx = await lpFarm.depositLpSigned(account, nft, DEADLINE, v, r, s)
       const txHash = tx.hash
       const localTx = {
         hash: txHash,
@@ -411,7 +411,7 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
     if (!lpFarm) return
     const txType = FunctionName.WITHDRAW_LP
     try {
-      const tx = await lpFarm.withdraw(nft)
+      const tx = await lpFarm.withdrawLp(nft)
       const txHash = tx.hash
       const localTx = {
         hash: txHash,
