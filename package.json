@@ -24,6 +24,7 @@
     "@web3-react/ledger-connector": "^6.1.9",
     "@web3-react/network-connector": "^6.1.9",
     "@web3-react/torus-connector": "^6.1.9",
+    "@web3-react/trezor-connector": "^6.1.9",
     "@web3-react/walletconnect-connector": "^6.2.4",
     "animate.css": "^4.1.1",
     "axios": "^0.21.1",

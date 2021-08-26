@@ -35,7 +35,7 @@ export const KovanNetwork: NetworkConfig = {
   name: 'kovan',
   chainId: 42,
   nativeCurrency: { symbol: Unit.ETH, decimals: 18 },
-  rpc: { httpsUrl: `https://eth-kovan.alchemyapi.io/v2/${ALCHEMY_API_KEY}` },
+  rpc: { httpsUrl: `https://eth-kovan.alchemyapi.io/v2/${ALCHEMY_API_KEY}`, pollingInterval: 12_000 },
   explorer: {
     name: 'Etherscan',
     key: String(ETHERSCAN_API_KEY),
@@ -99,7 +99,7 @@ export const KovanNetwork: NetworkConfig = {
         abi: aaveAbi,
       },
       [ProductName.WAAVE]: {
-        addr: process.env.REACT_APP_KOVAN_WAAVE_PRODUCT_ADDR,
+        addr: String(process.env.REACT_APP_KOVAN_WAAVE_PRODUCT_ADDR),
         abi: waaveAbi,
       },
     },
@@ -107,24 +107,16 @@ export const KovanNetwork: NetworkConfig = {
       getTokens: { [ProductName.AAVE]: aaveTokens, [ProductName.WAAVE]: waaveTokens },
       getBalances: { [ProductName.AAVE]: aaveBalances, [ProductName.WAAVE]: waaveBalances },
     },
+    productsRev: {
+      [String(process.env.REACT_APP_KOVAN_AAVE_PRODUCT_ADDR)]: ProductName.AAVE,
+      [String(process.env.REACT_APP_KOVAN_WAAVE_PRODUCT_ADDR)]: ProductName.WAAVE,
+    },
   },
   cache: {
     supportedProducts: [
       { name: ProductName.AAVE, contract: null },
       { name: ProductName.WAAVE, contract: null },
     ],
-    productsRev: {
-      [String(process.env.REACT_APP_KOVAN_AAVE_PRODUCT_ADDR)]: ProductName.AAVE,
-      [String(process.env.REACT_APP_KOVAN_WAAVE_PRODUCT_ADDR)]: ProductName.WAAVE,
-    },
-    tokens: {
-      [ProductName.AAVE]: { savedTokens: [], tokensInitialized: false },
-      [ProductName.WAAVE]: { savedTokens: [], tokensInitialized: false },
-    },
-    positions: {
-      [ProductName.AAVE]: { positionNamesInitialized: false },
-      [ProductName.WAAVE]: { positionNamesInitialized: false },
-    },
   },
   metamaskChain: {
     chainId: hexValue(42),
@@ -135,5 +127,7 @@ export const KovanNetwork: NetworkConfig = {
   },
   walletConfig: {
     portisId: String(process.env.REACT_APP_PORTIS_ID),
+    trezorEmail: '',
+    trezorAppUrl: 'https://polygon.solace.fi/',
   },
 }

@@ -4,10 +4,11 @@ import { useWallet } from '../context/WalletManager'
 import { useNetwork } from '../context/NetworkManager'
 import { useSessionStorage } from 'react-use-storage'
 import { NetworkCache } from '../constants/types'
+import { ProductName } from '../constants/enums'
 
 export const useCacheTokens = () => {
   const { library } = useWallet()
-  const { activeNetwork, chainId, networks, findNetworkByChainId } = useNetwork()
+  const { activeNetwork, networks, findNetworkByChainId } = useNetwork()
   const [storedTokenAndPositionData, setStoredTokenAndPositionData] = useSessionStorage<NetworkCache[]>(
     'sol_token_data',
     []
@@ -19,14 +20,21 @@ export const useCacheTokens = () => {
     // on mount, if stored data exists in session already, return that data, else return newly made data
     if (storedTokenAndPositionData.length == 0) {
       const unsetTokenAndPositionData: NetworkCache[] = []
-      networks.forEach((network) =>
+      networks.forEach((network) => {
+        const supportedProducts = network.cache.supportedProducts.map((product: any) => product.name)
+        const cachedTokens: { [key: string]: { savedTokens: any[]; tokensInitialized: boolean } } = {}
+        const cachedPositions: { [key: string]: { positionNamesInitialized: boolean } } = {}
+        supportedProducts.forEach((name: ProductName) => {
+          cachedTokens[name] = { savedTokens: [], tokensInitialized: false }
+          cachedPositions[name] = { positionNamesInitialized: false }
+        })
         unsetTokenAndPositionData.push({
           name: network.name,
           chainId: network.chainId,
-          tokens: network.cache.tokens,
-          positions: network.cache.positions,
+          tokens: cachedTokens,
+          positions: cachedPositions,
         })
-      )
+      })
       setStoredTokenAndPositionData(unsetTokenAndPositionData)
       return unsetTokenAndPositionData
     }
@@ -34,11 +42,11 @@ export const useCacheTokens = () => {
   }, [])
 
   const getAllTokensAndPositionsforChain = useCallback(
-    async (data: NetworkCache[], _activeNetwork: NetworkConfig, _chainId: number, _library: any) => {
-      if (running.current || _library == undefined || _chainId == undefined) return
+    async (data: NetworkCache[], _activeNetwork: NetworkConfig, _library: any) => {
+      if (running.current || _library == undefined || _activeNetwork.chainId == undefined) return
       setDataInitialized(false)
       running.current = true
-      if (!findNetworkByChainId(_chainId)) {
+      if (!findNetworkByChainId(_activeNetwork.chainId)) {
         running.current = false
         return
       }
@@ -82,10 +90,12 @@ export const useCacheTokens = () => {
         })
       )
       if (!changeOccurred) {
+        console.log('useCacheTokens: no token init needed')
       } else {
         const editedData = data.filter((data) => data.name != newCache.name)
         const newData = [...editedData, newCache]
         setStoredTokenAndPositionData(newData)
+        console.log('useCacheTokens: token init completed')
       }
       setDataInitialized(true)
       running.current = false
@@ -95,7 +105,7 @@ export const useCacheTokens = () => {
 
   useEffect(() => {
     const data = setStoredData()
-    getAllTokensAndPositionsforChain(data, activeNetwork, chainId, library)
+    getAllTokensAndPositionsforChain(data, activeNetwork, library)
   }, [activeNetwork])
 
   return { dataInitialized, storedTokenAndPositionData }

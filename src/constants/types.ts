@@ -115,6 +115,7 @@ export type NetworkConfig = {
   }
   rpc: {
     httpsUrl: string
+    pollingInterval: number
   }
   explorer: {
     name: 'Etherscan' | 'Polygonscan'
@@ -129,12 +130,10 @@ export type NetworkConfig = {
       getTokens: any
       getBalances: any
     }
+    productsRev: any
   }
   cache: {
     supportedProducts: any
-    productsRev: any
-    tokens: any
-    positions: any
   }
   metamaskChain?: MetamaskAddEthereumChain
   walletConfig: any

@@ -35,7 +35,7 @@ export const RinkebyNetwork: NetworkConfig = {
   name: 'rinkeby',
   chainId: 4,
   nativeCurrency: { symbol: Unit.ETH, decimals: 18 },
-  rpc: { httpsUrl: `https://eth-rinkeby.alchemyapi.io/v2/${ALCHEMY_API_KEY}` },
+  rpc: { httpsUrl: `https://eth-rinkeby.alchemyapi.io/v2/${ALCHEMY_API_KEY}`, pollingInterval: 12_000 },
   explorer: {
     name: 'Etherscan',
     key: String(ETHERSCAN_API_KEY),
@@ -95,11 +95,11 @@ export const RinkebyNetwork: NetworkConfig = {
     },
     productContracts: {
       [ProductName.COMPOUND]: {
-        addr: process.env.REACT_APP_RINKEBY_COMPOUND_PRODUCT_ADDR,
+        addr: String(process.env.REACT_APP_RINKEBY_COMPOUND_PRODUCT_ADDR),
         abi: compAbi,
       },
       [ProductName.WAAVE]: {
-        addr: process.env.REACT_APP_RINKEBY_WAAVE_PRODUCT_ADDR,
+        addr: String(process.env.REACT_APP_RINKEBY_WAAVE_PRODUCT_ADDR),
         abi: waaveAbi,
       },
     },
@@ -107,24 +107,16 @@ export const RinkebyNetwork: NetworkConfig = {
       getTokens: { [ProductName.COMPOUND]: compTokens, [ProductName.WAAVE]: waaveTokens },
       getBalances: { [ProductName.COMPOUND]: compBalances, [ProductName.WAAVE]: waaveBalances },
     },
+    productsRev: {
+      [String(process.env.REACT_APP_RINKEBY_COMPOUND_PRODUCT_ADDR)]: ProductName.COMPOUND,
+      [String(process.env.REACT_APP_RINKEBY_WAAVE_PRODUCT_ADDR)]: ProductName.WAAVE,
+    },
   },
   cache: {
     supportedProducts: [
       { name: ProductName.COMPOUND, contract: null },
       { name: ProductName.WAAVE, contract: null },
     ],
-    productsRev: {
-      [String(process.env.REACT_APP_RINKEBY_COMPOUND_PRODUCT_ADDR)]: ProductName.COMPOUND,
-      [String(process.env.REACT_APP_RINKEBY_WAAVE_PRODUCT_ADDR)]: ProductName.WAAVE,
-    },
-    tokens: {
-      [ProductName.COMPOUND]: { savedTokens: [], tokensInitialized: false },
-      [ProductName.WAAVE]: { savedTokens: [], tokensInitialized: false },
-    },
-    positions: {
-      [ProductName.COMPOUND]: { positionNamesInitialized: false },
-      [ProductName.WAAVE]: { positionNamesInitialized: false },
-    },
   },
   metamaskChain: {
     chainId: hexValue(4),
@@ -135,5 +127,7 @@ export const RinkebyNetwork: NetworkConfig = {
   },
   walletConfig: {
     portisId: String(process.env.REACT_APP_PORTIS_ID),
+    trezorEmail: '',
+    trezorAppUrl: 'https://polygon.solace.fi/',
   },
 }
