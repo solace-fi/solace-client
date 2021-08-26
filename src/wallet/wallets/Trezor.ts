@@ -7,7 +7,7 @@ export const TrezorConnector = {
   id: 'trezor',
   name: 'Trezor',
   logo: TrezorLogo,
-  factory(network: NetworkConfig): AbstractConnector {
+  getConnector(network: NetworkConfig): AbstractConnector {
     return new Trezor_Connector({
       chainId: network.chainId,
       url: network.rpc.httpsUrl,

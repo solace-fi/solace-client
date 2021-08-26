@@ -7,6 +7,7 @@ import { FortmaticConnector } from './wallets/Fortmatic'
 import { AuthereumConnector } from './wallets/Authereum'
 import { TorusConnector } from './wallets/Torus'
 import { PortisConnector } from './wallets/Portis'
+import { TrezorConnector } from './wallets/Trezor'
 
 export interface WalletConnector {
   name: string
@@ -26,4 +27,5 @@ export const SUPPORTED_WALLETS: WalletConnector[] = [
   AuthereumConnector,
   TorusConnector,
   PortisConnector,
+  TrezorConnector,
 ]
