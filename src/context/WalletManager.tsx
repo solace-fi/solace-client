@@ -166,7 +166,7 @@ const WalletProvider: React.FC = (props) => {
       if (!errors.includes(AppError.WALLET_NETWORK_UNSYNC))
         setErrors((errors) => [...errors, AppError.WALLET_NETWORK_UNSYNC])
     }
-  }, [activeNetwork, errors, web3React.chainId, selectedProvider, connecting])
+  }, [activeNetwork, errors, web3React, selectedProvider, connecting])
 
   useEffect(() => {
     // If the user has a local provider already

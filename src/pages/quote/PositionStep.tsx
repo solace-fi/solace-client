@@ -109,7 +109,8 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
         const balances: Token[] = await activeNetwork.config.functions.getBalances[protocol.name](
           account,
           library,
-          cache
+          cache,
+          activeNetwork
         )
         setForm({
           target: {

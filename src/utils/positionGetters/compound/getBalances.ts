@@ -1,13 +1,18 @@
 import tokenJson from './contracts/ICToken.json'
 import { rangeFrom0 } from '../../numeric'
-import { NetworkCache, Token } from '../../../constants/types'
+import { NetworkCache, NetworkConfig, Token } from '../../../constants/types'
 import { addNativeTokenBalances, getProductTokenBalances } from '../getBalances'
 import { ProductName } from '../../../constants/enums'
 import { Contract } from '@ethersproject/contracts'
 import { getNonHumanValue } from '../../../utils/formatting'
 import { withBackoffRetries } from '../../time'
 
-export const getBalances = async (user: string, provider: any, cache: NetworkCache): Promise<Token[]> => {
+export const getBalances = async (
+  user: string,
+  provider: any,
+  cache: NetworkCache,
+  activeNetwork: NetworkConfig
+): Promise<Token[]> => {
   // get ctoken balances
   const savedTokens = cache.tokens[ProductName.COMPOUND].savedTokens
   const balances: Token[] = await getProductTokenBalances(user, tokenJson.abi, savedTokens, provider)
@@ -20,7 +25,7 @@ export const getBalances = async (user: string, provider: any, cache: NetworkCac
     (i) =>
       (balances[i].underlying.balance = balances[i].token.balance
         .mul(exchangeRates[i])
-        .div(String(getNonHumanValue(1, balances[i].token.decimals))))
+        .div(String(getNonHumanValue(1, activeNetwork.nativeCurrency.decimals))))
   )
 
   // get native token balances

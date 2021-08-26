@@ -1,4 +1,4 @@
-import { NetworkCache, Token } from '../../../constants/types'
+import { NetworkCache, NetworkConfig, Token } from '../../../constants/types'
 import { rangeFrom0 } from '../../numeric'
 import { ProductName } from '../../../constants/enums'
 import { Contract } from '@ethersproject/contracts'
@@ -7,7 +7,12 @@ import { getNonHumanValue } from '../../../utils/formatting'
 import { withBackoffRetries } from '../../time'
 import waaveTokenAbi from '../../../constants/abi/contracts/interface/Waave/IWaToken.sol/IWaToken.json'
 
-export const getBalances = async (user: string, provider: any, cache: NetworkCache): Promise<Token[]> => {
+export const getBalances = async (
+  user: string,
+  provider: any,
+  cache: NetworkCache,
+  activeNetwork: NetworkConfig
+): Promise<Token[]> => {
   const savedTokens = cache.tokens[ProductName.WAAVE].savedTokens
   const balances: Token[] = await getProductTokenBalances(user, waaveTokenAbi, savedTokens, provider)
 
