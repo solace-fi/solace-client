@@ -82,12 +82,10 @@ export const useCacheTokens = () => {
         })
       )
       if (!changeOccurred) {
-        console.log('no init needed')
       } else {
         const editedData = data.filter((data) => data.name != newCache.name)
         const newData = [...editedData, newCache]
         setStoredTokenAndPositionData(newData)
-        console.log('init complete')
       }
       setDataInitialized(true)
       running.current = false

@@ -23,7 +23,7 @@ as well as provide the functions to connect and disconnect the wallet.
 SUPPORTED_WALLETS contains connectors that the application allows, if the user's connected wallet is included,
 the connect function is called.
 
-The user's selected wallet connector is then stored into session storage so when they come into the web app again,
+The user's selected wallet connector is then stored into storage so when they come into the web app again,
 the connection will be automatic.
 
 */
@@ -124,8 +124,8 @@ const WalletProvider: React.FC = (props) => {
       await web3React.activate(connector, undefined, true).then(onSuccess).catch(onError).then(closeModal)
 
       function onSuccess() {
-        setErrors([])
         if (!connectingRef.current) return
+        setErrors([])
         walletConnector.onConnect?.(connector)
         setActiveConnector(walletConnector)
         setSelectedProvider(walletConnector.id)
