@@ -67,7 +67,7 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
   const { position, coverAmount, timePeriod, loading } = formData
   const maxCoverPerUser = useGetMaxCoverPerUser() // in eth
   const quote = useGetQuote(coverAmount, position.token.address, timePeriod)
-  const { account, errors } = useWallet()
+  const { account, errors, activeWalletConnector } = useWallet()
   const { addLocalTransactions, reload, gasPrices } = useCachedData()
   const { selectedProtocol } = useContracts()
   const { makeTxToast } = useToasts()
@@ -103,9 +103,17 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
         value: true,
       },
     })
-    if (!selectedProtocol) return
+    if (!selectedProtocol || !activeWalletConnector) return
     const txType = FunctionName.BUY_POLICY
     try {
+      const gasConfig = activeWalletConnector.supportedTxTypes.includes(2)
+        ? {
+            maxFeePerGas: getGasValue(gasPrices.selected.value),
+            type: 2,
+          }
+        : activeWalletConnector.supportedTxTypes.includes(0) && {
+            gasPrice: getGasValue(gasPrices.selected.value),
+          }
       const tx = await selectedProtocol.buyPolicy(
         account,
         position.token.address,
@@ -113,7 +121,7 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
         NUM_BLOCKS_PER_DAY * parseInt(timePeriod),
         {
           value: parseUnits(quote, currencyDecimals),
-          gasPrice: getGasValue(gasPrices.selected.value),
+          ...gasConfig,
           gasLimit: GAS_LIMIT,
         }
       )

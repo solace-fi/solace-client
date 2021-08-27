@@ -8,6 +8,7 @@ export const WalletLinkConnector = {
   id: 'coinbase',
   name: 'Coinbase Wallet',
   logo: CoinbaseWalletLogo,
+  supportedTxTypes: [0],
   getConnector(network: NetworkConfig): AbstractConnector {
     return new WalletLink_Connector({
       url: network.rpc.httpsUrl,

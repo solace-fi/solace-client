@@ -86,7 +86,7 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
   const { addLocalTransactions, reload, gasPrices } = useCachedData()
   const { selectedProtocol } = useContracts()
   const { makeTxToast } = useToasts()
-  const { errors } = useWallet()
+  const { errors, activeWalletConnector } = useWallet()
   const { activeNetwork, currencyDecimals } = useNetwork()
   const { width } = useWindowDimensions()
 
@@ -98,12 +98,20 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
 
   const submitClaim = async () => {
     setModalLoading(true)
-    if (!selectedProtocol || !assessment || !selectedPolicy) return
+    if (!selectedProtocol || !assessment || !selectedPolicy || !activeWalletConnector) return
     const { amountOut, deadline, signature } = assessment
     const txType = FunctionName.SUBMIT_CLAIM
     try {
+      const gasConfig = activeWalletConnector.supportedTxTypes.includes(2)
+        ? {
+            maxFeePerGas: getGasValue(gasPrices.selected.value),
+            type: 2,
+          }
+        : activeWalletConnector.supportedTxTypes.includes(0) && {
+            gasPrice: getGasValue(gasPrices.selected.value),
+          }
       const tx = await selectedProtocol.submitClaim(selectedPolicy.policyId, amountOut, deadline, signature, {
-        gasPrice: getGasValue(gasPrices.selected.value),
+        ...gasConfig,
         gasLimit: GAS_LIMIT,
       })
       const txHash = tx.hash

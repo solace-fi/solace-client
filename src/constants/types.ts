@@ -72,6 +72,7 @@ export type GasFeeListState = {
   options: GasFeeOption[]
   loading: boolean
   selected?: GasFeeOption
+  suggestedBaseFee?: number
 }
 
 export type GasFeeOption = {
@@ -85,6 +86,7 @@ export type GasPriceResult = {
   fast: number
   average: number
   safeLow: number
+  suggestBaseFee?: number
 }
 
 export type StringToStringMapping = { [key: string]: string }

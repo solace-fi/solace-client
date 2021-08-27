@@ -7,6 +7,7 @@ export const FortmaticConnector = {
   id: 'fortmatic',
   name: 'Fortmatic',
   logo: FortmaticLogo,
+  supportedTxTypes: [0],
   getConnector(network: NetworkConfig): AbstractConnector {
     return new Fortmatic_Connector({
       chainId: network.chainId,

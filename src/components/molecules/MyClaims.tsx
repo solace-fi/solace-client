@@ -56,7 +56,7 @@ export const MyClaims: React.FC = () => {
 
   *************************************************************************************/
   const { claimsEscrow } = useContracts()
-  const { account, errors } = useWallet()
+  const { account, errors, activeWalletConnector } = useWallet()
   const { activeNetwork, currencyDecimals } = useNetwork()
   const { addLocalTransactions, reload, gasPrices } = useCachedData()
   const { makeTxToast } = useToasts()
@@ -69,11 +69,19 @@ export const MyClaims: React.FC = () => {
   *************************************************************************************/
 
   const withdrawPayout = async (_claimId: any) => {
-    if (!claimsEscrow || !_claimId) return
+    if (!claimsEscrow || !_claimId || !activeWalletConnector) return
     const txType = FunctionName.WITHDRAW_CLAIMS_PAYOUT
     try {
+      const gasConfig = activeWalletConnector.supportedTxTypes.includes(2)
+        ? {
+            maxFeePerGas: getGasValue(gasPrices.selected.value),
+            type: 2,
+          }
+        : activeWalletConnector.supportedTxTypes.includes(0) && {
+            gasPrice: getGasValue(gasPrices.selected.value),
+          }
       const tx = await claimsEscrow.withdrawClaimsPayout(_claimId, {
-        gasPrice: getGasValue(gasPrices.selected.value),
+        ...gasConfig,
         gasLimit: GAS_LIMIT,
       })
       const txHash = tx.hash

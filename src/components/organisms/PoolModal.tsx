@@ -91,7 +91,7 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
 
   const { vault, cpFarm, lpFarm, lpToken } = useContracts()
   const { activeNetwork, currencyDecimals, chainId } = useNetwork()
-  const { account, errors, library } = useWallet()
+  const { account, errors, library, activeWalletConnector } = useWallet()
   const [amount, setAmount] = useState<string>('')
   const [isStaking, setIsStaking] = useState<boolean>(false)
   const cpUserStakeValue = useUserStakedValue(cpFarm, account)
@@ -182,12 +182,20 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
 
   const callDeposit = async () => {
     setModalLoading(true)
-    if (!vault) return
+    if (!vault || !activeWalletConnector) return
     const txType = FunctionName.DEPOSIT_ETH
     try {
+      const gasConfig = activeWalletConnector.supportedTxTypes.includes(2)
+        ? {
+            maxFeePerGas: getGasValue(selectedGasOption.value),
+            type: 2,
+          }
+        : activeWalletConnector.supportedTxTypes.includes(0) && {
+            gasPrice: getGasValue(selectedGasOption.value),
+          }
       const tx = await vault.depositEth({
         value: parseUnits(amount, currencyDecimals),
-        gasPrice: getGasValue(selectedGasOption.value),
+        ...gasConfig,
         gasLimit: GAS_LIMIT,
       })
       const txHash = tx.hash
@@ -217,12 +225,20 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
 
   const callDepositEth = async () => {
     setModalLoading(true)
-    if (!cpFarm) return
+    if (!cpFarm || !activeWalletConnector) return
     const txType = FunctionName.DEPOSIT_ETH
     try {
+      const gasConfig = activeWalletConnector.supportedTxTypes.includes(2)
+        ? {
+            maxFeePerGas: getGasValue(selectedGasOption.value),
+            type: 2,
+          }
+        : activeWalletConnector.supportedTxTypes.includes(0) && {
+            gasPrice: getGasValue(selectedGasOption.value),
+          }
       const tx = await cpFarm.depositEth({
         value: parseUnits(amount, currencyDecimals),
-        gasPrice: getGasValue(selectedGasOption.value),
+        ...gasConfig,
         gasLimit: GAS_LIMIT,
       })
       const txHash = tx.hash
@@ -274,11 +290,19 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
 
   const callDepositCp = async () => {
     setModalLoading(true)
-    if (!cpFarm || !vault) return
+    if (!cpFarm || !vault || !activeWalletConnector) return
     const txType = FunctionName.DEPOSIT_CP
     try {
+      const gasConfig = activeWalletConnector.supportedTxTypes.includes(2)
+        ? {
+            maxFeePerGas: getGasValue(selectedGasOption.value),
+            type: 2,
+          }
+        : activeWalletConnector.supportedTxTypes.includes(0) && {
+            gasPrice: getGasValue(selectedGasOption.value),
+          }
       const tx = await cpFarm.depositCp(parseUnits(amount, currencyDecimals), {
-        gasPrice: getGasValue(selectedGasOption.value),
+        ...gasConfig,
         gasLimit: GAS_LIMIT,
       })
       const txHash = tx.hash
@@ -308,11 +332,19 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
 
   const callWithdrawEth = async () => {
     setModalLoading(true)
-    if (!vault || !canWithdrawEth) return
+    if (!vault || !canWithdrawEth || !activeWalletConnector) return
     const txType = FunctionName.WITHDRAW_ETH
     try {
+      const gasConfig = activeWalletConnector.supportedTxTypes.includes(2)
+        ? {
+            maxFeePerGas: getGasValue(selectedGasOption.value),
+            type: 2,
+          }
+        : activeWalletConnector.supportedTxTypes.includes(0) && {
+            gasPrice: getGasValue(selectedGasOption.value),
+          }
       const tx = await vault.withdrawEth(parseUnits(amount, currencyDecimals), {
-        gasPrice: getGasValue(selectedGasOption.value),
+        ...gasConfig,
         gasLimit: GAS_LIMIT,
       })
       const txHash = tx.hash
@@ -342,11 +374,19 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
 
   const callWithdrawCp = async () => {
     setModalLoading(true)
-    if (!cpFarm) return
+    if (!cpFarm || !activeWalletConnector) return
     const txType = FunctionName.WITHDRAW_CP
     try {
+      const gasConfig = activeWalletConnector.supportedTxTypes.includes(2)
+        ? {
+            maxFeePerGas: getGasValue(selectedGasOption.value),
+            type: 2,
+          }
+        : activeWalletConnector.supportedTxTypes.includes(0) && {
+            gasPrice: getGasValue(selectedGasOption.value),
+          }
       const tx = await cpFarm.withdrawCp(parseUnits(amount, currencyDecimals), {
-        gasPrice: getGasValue(selectedGasOption.value),
+        ...gasConfig,
         gasLimit: GAS_LIMIT,
       })
       const txHash = tx.hash

@@ -7,6 +7,7 @@ export const PortisConnector = {
   id: 'portis',
   name: 'Portis',
   logo: PortisLogo,
+  supportedTxTypes: [0],
   getConnector(network: NetworkConfig): AbstractConnector {
     return new Portis_Connector({
       dAppId: network.walletConfig.portisId,

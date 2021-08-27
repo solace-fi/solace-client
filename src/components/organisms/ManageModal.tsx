@@ -85,7 +85,7 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
   *************************************************************************************/
 
   const { selectedProtocol } = useContracts()
-  const { errors } = useWallet()
+  const { errors, activeWalletConnector } = useWallet()
   const { addLocalTransactions, reload, gasPrices } = useCachedData()
   const { makeTxToast } = useToasts()
   const policyPrice = useGetPolicyPrice(selectedPolicy ? selectedPolicy.policyId : 0)
@@ -120,7 +120,7 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
 
   const updatePolicy = async () => {
     setModalLoading(true)
-    if (!selectedProtocol || !selectedPolicy) return
+    if (!selectedProtocol || !selectedPolicy || !activeWalletConnector) return
     const txType = FunctionName.UPDATE_POLICY
     const price = await selectedProtocol.price()
     try {
@@ -128,23 +128,21 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
         .mul(price)
         .mul(selectedPolicy.expirationBlock + NUM_BLOCKS_PER_DAY * parseInt(extendedTime) - latestBlock)
         .div(String(Math.pow(10, 12)))
-      // const paidPremium = BigNumber.from(currentCoverAmount)
-      //   .mul(paidprice)
-      //   .mul(selectedPolicy.expirationBlock - latestBlock)
-      //   .div(String(Math.pow(10, 12)))
-      // const premium = newPremium.sub(paidPremium)
-      // console.log('newPremium:', newPremium)
-      // console.log('paidPremium:', paidPremium)
-      // console.log('newPremium >= paidPremium ? ', newPremium.gte(paidPremium))
-      // console.log('premium = newPremium - paidPremium: ', premium)
-      // console.log('newPremium >= premium ? ', newPremium.gte(premium))
+      const gasConfig = activeWalletConnector.supportedTxTypes.includes(2)
+        ? {
+            maxFeePerGas: getGasValue(gasPrices.selected.value),
+            type: 2,
+          }
+        : activeWalletConnector.supportedTxTypes.includes(0) && {
+            gasPrice: getGasValue(gasPrices.selected.value),
+          }
       const tx = await selectedProtocol.updatePolicy(
         selectedPolicy.policyId,
         newCoverage,
         NUM_BLOCKS_PER_DAY * parseInt(extendedTime),
         {
           value: newPremium,
-          gasPrice: getGasValue(gasPrices.selected.value),
+          ...gasConfig,
           gasLimit: GAS_LIMIT,
         }
       )
@@ -176,27 +174,25 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
 
   const updateCoverAmount = async () => {
     setModalLoading(true)
-    if (!selectedProtocol || !selectedPolicy) return
+    if (!selectedProtocol || !selectedPolicy || !activeWalletConnector) return
     const txType = FunctionName.UPDATE_POLICY_AMOUNT
     const price = await selectedProtocol.price()
     const newPremium = BigNumber.from(newCoverage)
       .mul(price)
       .mul(selectedPolicy.expirationBlock - latestBlock)
       .div(String(Math.pow(10, 12)))
-    // const paidPremium = BigNumber.from(currentCoverAmount)
-    //   .mul(paidprice)
-    //   .mul(selectedPolicy.expirationBlock - latestBlock)
-    //   .div(String(Math.pow(10, 12)))
-    // const premium = newPremium.sub(paidPremium)
-    // console.log('newPremium:', newPremium)
-    // console.log('paidPremium:', paidPremium)
-    // console.log('newPremium >= paidPremium ? ', newPremium.gte(paidPremium))
-    // console.log('premium = newPremium - paidPremium: ', premium)
-    // console.log('newPremium >= premium ? ', newPremium.gte(premium))
     try {
+      const gasConfig = activeWalletConnector.supportedTxTypes.includes(2)
+        ? {
+            maxFeePerGas: getGasValue(gasPrices.selected.value),
+            type: 2,
+          }
+        : activeWalletConnector.supportedTxTypes.includes(0) && {
+            gasPrice: getGasValue(gasPrices.selected.value),
+          }
       const tx = await selectedProtocol.updateCoverAmount(selectedPolicy.policyId, newCoverage, {
         value: newPremium,
-        gasPrice: getGasValue(gasPrices.selected.value),
+        ...gasConfig,
         gasLimit: GAS_LIMIT,
       })
       const txHash = tx.hash
@@ -227,19 +223,27 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
 
   const extendPolicy = async () => {
     setModalLoading(true)
-    if (!selectedProtocol || !selectedPolicy) return
+    if (!selectedProtocol || !selectedPolicy || !activeWalletConnector) return
     const txType = FunctionName.EXTEND_POLICY_PERIOD
     const newPremium = BigNumber.from(currentCoverAmount)
       .mul(paidprice)
       .mul(BigNumber.from(NUM_BLOCKS_PER_DAY * parseInt(extendedTime)))
       .div(String(Math.pow(10, 12)))
     try {
+      const gasConfig = activeWalletConnector.supportedTxTypes.includes(2)
+        ? {
+            maxFeePerGas: getGasValue(gasPrices.selected.value),
+            type: 2,
+          }
+        : activeWalletConnector.supportedTxTypes.includes(0) && {
+            gasPrice: getGasValue(gasPrices.selected.value),
+          }
       const tx = await selectedProtocol.extendPolicy(
         selectedPolicy.policyId,
         NUM_BLOCKS_PER_DAY * parseInt(extendedTime),
         {
           value: newPremium,
-          gasPrice: getGasValue(gasPrices.selected.value),
+          ...gasConfig,
           gasLimit: GAS_LIMIT,
         }
       )
@@ -265,11 +269,19 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
 
   const cancelPolicy = async () => {
     setModalLoading(true)
-    if (!selectedProtocol || !selectedPolicy) return
+    if (!selectedProtocol || !selectedPolicy || !activeWalletConnector) return
     const txType = FunctionName.CANCEL_POLICY
     try {
+      const gasConfig = activeWalletConnector.supportedTxTypes.includes(2)
+        ? {
+            maxFeePerGas: getGasValue(gasPrices.selected.value),
+            type: 2,
+          }
+        : activeWalletConnector.supportedTxTypes.includes(0) && {
+            gasPrice: getGasValue(gasPrices.selected.value),
+          }
       const tx = await selectedProtocol.cancelPolicy(selectedPolicy.policyId, {
-        gasPrice: getGasValue(gasPrices.selected.value),
+        ...gasConfig,
         gasLimit: GAS_LIMIT,
       })
       const txHash = tx.hash

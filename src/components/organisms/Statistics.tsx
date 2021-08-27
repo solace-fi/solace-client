@@ -61,7 +61,7 @@ export const Statistics: React.FC = () => {
   custom hooks
 
   *************************************************************************************/
-  const { account, errors, initialized } = useWallet()
+  const { account, errors, initialized, activeWalletConnector } = useWallet()
   const { activeNetwork, currencyDecimals } = useNetwork()
   const { master } = useContracts()
   const { makeTxToast } = useToasts()
@@ -87,11 +87,19 @@ export const Statistics: React.FC = () => {
 
   *************************************************************************************/
   const claimRewards = async () => {
-    if (!master) return
+    if (!master || !activeWalletConnector) return
     const txType = FunctionName.WITHDRAW_REWARDS
     try {
+      const gasConfig = activeWalletConnector.supportedTxTypes.includes(2)
+        ? {
+            maxFeePerGas: getGasValue(gasPrices.options[1].value),
+            type: 2,
+          }
+        : activeWalletConnector.supportedTxTypes.includes(0) && {
+            gasPrice: getGasValue(gasPrices.options[1].value),
+          }
       const tx = await master.withdrawRewards({
-        gasPrice: getGasValue(gasPrices.options[1].value),
+        ...gasConfig,
         gasLimit: GAS_LIMIT,
       })
       const txHash = tx.hash

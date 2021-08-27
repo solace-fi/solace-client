@@ -7,6 +7,7 @@ export const TrezorConnector = {
   id: 'trezor',
   name: 'Trezor',
   logo: TrezorLogo,
+  supportedTxTypes: [0],
   getConnector(network: NetworkConfig): AbstractConnector {
     return new Trezor_Connector({
       chainId: network.chainId,
