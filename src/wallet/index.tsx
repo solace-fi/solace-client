@@ -1,14 +1,14 @@
 import { AbstractConnector } from '@web3-react/abstract-connector'
 import { NetworkConfig } from '../constants/types'
-import { MetaMaskConnector } from './wallets/MetaMask'
-import { WalletConnectConnector } from './wallets/WalletConnect'
-import { WalletLinkConnector } from './wallets/WalletLink'
-import { FortmaticConnector } from './wallets/Fortmatic'
-import { AuthereumConnector } from './wallets/Authereum'
-import { TorusConnector } from './wallets/Torus'
-import { PortisConnector } from './wallets/Portis'
-import { TrezorConnector } from './wallets/Trezor'
-import { LedgerConnector } from './wallets/Ledger'
+import { MetaMaskConnector } from './wallet-connectors/MetaMask'
+import { WalletConnectConnector } from './wallet-connectors/WalletConnect'
+import { WalletLinkConnector } from './wallet-connectors/WalletLink'
+import { FortmaticConnector } from './wallet-connectors/Fortmatic'
+import { AuthereumConnector } from './wallet-connectors/Authereum'
+import { TorusConnector } from './wallet-connectors/Torus'
+import { PortisConnector } from './wallet-connectors/Portis'
+import { TrezorConnector } from './wallet-connectors/Trezor'
+import { LedgerConnector } from './wallet-connectors/Ledger'
 
 export interface WalletConnector {
   name: string

@@ -1,10 +1,10 @@
 import React, { createContext, useCallback, useContext, useMemo } from 'react'
-import { useSessionStorage, useLocalStorage } from 'react-use-storage'
+import { useLocalStorage } from 'react-use-storage'
 import { NetworkConfig } from '../constants/types'
 import { KovanNetwork } from '../networks/kovan'
 import { RinkebyNetwork } from '../networks/rinkeby'
 import { AbstractConnector } from '@web3-react/abstract-connector'
-import { MetamaskConnector } from '../wallet/wallets/MetaMask'
+import { MetamaskConnector } from '../wallet/wallet-connectors/MetaMask'
 
 /*
 

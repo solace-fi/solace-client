@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import { useNetwork } from './NetworkManager'
 import { useWallet } from './WalletManager'
-import { MetamaskConnector } from '../wallet/wallets/MetaMask'
+import { MetamaskConnector } from '../wallet/wallet-connectors/MetaMask'
 
 import { Card, CardContainer } from '../components/atoms/Card'
 import { ModalCell } from '../components/atoms/Modal'

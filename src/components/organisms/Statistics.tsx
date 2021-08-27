@@ -176,10 +176,7 @@ export const Statistics: React.FC = () => {
                 </Text>
               </BoxItem>
               <BoxItem>
-                <Button
-                  disabled={errors.length > 0 || fixed(parseFloat(totalUserRewards), 6) <= 0}
-                  onClick={claimRewards}
-                >
+                <Button disabled={errors.length > 0 || fixed(totalUserRewards, 6) <= 0} onClick={claimRewards}>
                   Claim
                 </Button>
               </BoxItem>
@@ -253,7 +250,7 @@ export const Statistics: React.FC = () => {
                 <ButtonWrapper>
                   <Button
                     widthP={100}
-                    disabled={errors.length > 0 || fixed(parseFloat(totalUserRewards), 6) <= 0}
+                    disabled={errors.length > 0 || fixed(totalUserRewards, 6) <= 0}
                     onClick={claimRewards}
                   >
                     Claim

@@ -5,7 +5,10 @@ import { NetworkConfig, TokenInfo } from '../constants/types'
 import { rangeFrom0 } from './numeric'
 
 // truncate numbers without rounding
-export const fixed = (n: number, decimals = 1): number => {
+export const fixed = (n: number | string, decimals = 1): number => {
+  if (typeof n == 'string') {
+    n = parseFloat(n)
+  }
   return Math.floor(n * Math.pow(10, decimals)) / Math.pow(10, decimals)
 }
 

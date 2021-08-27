@@ -482,7 +482,7 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
     const bal = formatUnits(getAssetBalanceByFunc(), currencyDecimals)
     if (func !== FunctionName.DEPOSIT_ETH) return bal
     const gasInEth = (GAS_LIMIT / POW_NINE) * selectedGasOption.value
-    return fixed(fixed(parseFloat(bal), 6) - fixed(gasInEth, 6), 6)
+    return fixed(fixed(bal, 6) - fixed(gasInEth, 6), 6)
   }
 
   const handleSelectChange = (option: GasFeeOption) => {

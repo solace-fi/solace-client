@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from 'react'
 import { useWallet } from '../../context/WalletManager'
-import { LedgerConnector } from '../../wallet/wallets/Ledger'
+import { LedgerConnector } from '../../wallet/wallet-connectors/Ledger'
 import { Button, ButtonWrapper } from '../atoms/Button'
 import { FormOption, FormSelect } from '../atoms/Form'
 import { ModalRow } from '../atoms/Modal'

@@ -1,5 +1,5 @@
 import React, { useState, createContext, useContext, useRef, useCallback, useMemo, useEffect } from 'react'
-import { useLocalStorage, useSessionStorage } from 'react-use-storage'
+import { useLocalStorage } from 'react-use-storage'
 import { UnsupportedChainIdError, useWeb3React } from '@web3-react/core'
 import {
   NoEthereumProviderError,
@@ -14,7 +14,7 @@ import getLibrary from '../utils/getLibrary'
 import { Error as AppError } from '../constants/enums'
 import { WalletModal } from '../components/organisms/WalletModal'
 import { useNetwork } from './NetworkManager'
-import { MetamaskConnector } from '../wallet/wallets/MetaMask'
+import { MetamaskConnector } from '../wallet/wallet-connectors/MetaMask'
 /*
 
 This Manager keeps track of the user's wallet and details, including the wallet type and account, 
