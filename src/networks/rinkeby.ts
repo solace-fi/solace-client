@@ -34,6 +34,7 @@ When adding new products, please add into productContracts, functions, and cache
 export const RinkebyNetwork: NetworkConfig = {
   name: 'rinkeby',
   chainId: 4,
+  supportedTxTypes: [0, 2],
   nativeCurrency: { symbol: Unit.ETH, decimals: 18 },
   rpc: { httpsUrl: `https://eth-rinkeby.alchemyapi.io/v2/${ALCHEMY_API_KEY}`, pollingInterval: 12_000 },
   explorer: {
@@ -121,7 +122,7 @@ export const RinkebyNetwork: NetworkConfig = {
   metamaskChain: {
     chainId: hexValue(4),
     chainName: 'Rinkeby Testnet',
-    nativeCurrency: { name: 'Ethereum', symbol: Unit.ETH, decimals: 18 },
+    nativeCurrency: { name: 'Ether', symbol: Unit.ETH, decimals: 18 },
     rpcUrls: ['https://eth-rinkeby.alchemyapi.io'],
     blockExplorerUrls: ['https://rinkeby.etherscan.io'],
   },

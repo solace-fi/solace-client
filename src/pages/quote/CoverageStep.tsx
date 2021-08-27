@@ -106,14 +106,16 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
     if (!selectedProtocol || !activeWalletConnector) return
     const txType = FunctionName.BUY_POLICY
     try {
-      const gasConfig = activeWalletConnector.supportedTxTypes.includes(2)
-        ? {
-            maxFeePerGas: getGasValue(gasPrices.selected.value),
-            type: 2,
-          }
-        : activeWalletConnector.supportedTxTypes.includes(0) && {
-            gasPrice: getGasValue(gasPrices.selected.value),
-          }
+      const gasConfig =
+        activeWalletConnector.supportedTxTypes.includes(2) && activeNetwork.supportedTxTypes.includes(2)
+          ? {
+              maxFeePerGas: getGasValue(gasPrices.selected.value),
+              type: 2,
+            }
+          : activeWalletConnector.supportedTxTypes.includes(0) &&
+            activeNetwork.supportedTxTypes.includes(0) && {
+              gasPrice: getGasValue(gasPrices.selected.value),
+            }
       const tx = await selectedProtocol.buyPolicy(
         account,
         position.token.address,

@@ -72,14 +72,16 @@ export const MyClaims: React.FC = () => {
     if (!claimsEscrow || !_claimId || !activeWalletConnector) return
     const txType = FunctionName.WITHDRAW_CLAIMS_PAYOUT
     try {
-      const gasConfig = activeWalletConnector.supportedTxTypes.includes(2)
-        ? {
-            maxFeePerGas: getGasValue(gasPrices.selected.value),
-            type: 2,
-          }
-        : activeWalletConnector.supportedTxTypes.includes(0) && {
-            gasPrice: getGasValue(gasPrices.selected.value),
-          }
+      const gasConfig =
+        activeWalletConnector.supportedTxTypes.includes(2) && activeNetwork.supportedTxTypes.includes(2)
+          ? {
+              maxFeePerGas: getGasValue(gasPrices.selected.value),
+              type: 2,
+            }
+          : activeWalletConnector.supportedTxTypes.includes(0) &&
+            activeNetwork.supportedTxTypes.includes(0) && {
+              gasPrice: getGasValue(gasPrices.selected.value),
+            }
       const tx = await claimsEscrow.withdrawClaimsPayout(_claimId, {
         ...gasConfig,
         gasLimit: GAS_LIMIT,

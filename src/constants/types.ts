@@ -111,6 +111,7 @@ export type LocalTx = {
 export type NetworkConfig = {
   name: string
   chainId: number
+  supportedTxTypes: number[]
   nativeCurrency: {
     symbol: Unit
     decimals: number
