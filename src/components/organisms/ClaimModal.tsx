@@ -21,7 +21,7 @@
   *************************************************************************************/
 
 /* import react */
-import React, { Fragment, useCallback, useEffect, useState, useRef } from 'react'
+import React, { Fragment, useCallback, useEffect, useState, useRef, useMemo } from 'react'
 
 /* import packages */
 import { formatUnits } from '@ethersproject/units'
@@ -54,8 +54,9 @@ import { useWindowDimensions } from '../../hooks/useWindowDimensions'
 
 /* import utils */
 import { getClaimAssessment } from '../../utils/paclas'
-import { truncateBalance, getGasValue } from '../../utils/formatting'
+import { truncateBalance } from '../../utils/formatting'
 import { timeToDateText } from '../../utils/time'
+import { getGasConfig } from '../../utils'
 
 interface ClaimModalProps {
   closeModal: () => void
@@ -86,9 +87,14 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
   const { addLocalTransactions, reload, gasPrices } = useCachedData()
   const { selectedProtocol } = useContracts()
   const { makeTxToast } = useToasts()
-  const { errors } = useWallet()
+  const { errors, activeWalletConnector } = useWallet()
   const { activeNetwork, currencyDecimals } = useNetwork()
   const { width } = useWindowDimensions()
+  const gasConfig = useMemo(() => getGasConfig(activeWalletConnector, activeNetwork, gasPrices.selected?.value), [
+    activeWalletConnector,
+    activeNetwork,
+    gasPrices.selected?.value,
+  ])
 
   /*************************************************************************************
 
@@ -103,7 +109,7 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
     const txType = FunctionName.SUBMIT_CLAIM
     try {
       const tx = await selectedProtocol.submitClaim(selectedPolicy.policyId, amountOut, deadline, signature, {
-        gasPrice: getGasValue(gasPrices.selected.value),
+        ...gasConfig,
         gasLimit: GAS_LIMIT,
       })
       const txHash = tx.hash

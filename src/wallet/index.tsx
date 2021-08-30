@@ -14,6 +14,7 @@ export interface WalletConnector {
   name: string
   id: string
   logo: string
+  supportedTxTypes: number[]
   getConnector(network: NetworkConfig): AbstractConnector
   onConnect?(connector: AbstractConnector, args?: Record<string, any>): void
   onDisconnect?(connector?: AbstractConnector): void

@@ -55,8 +55,9 @@ import { FlexCol, FlexRow } from '../../components/atoms/Layout'
 import { useGetQuote, useGetMaxCoverPerUser } from '../../hooks/usePolicy'
 
 /* import utils */
-import { accurateMultiply, getGasValue } from '../../utils/formatting'
+import { accurateMultiply } from '../../utils/formatting'
 import { getDateStringWithMonthName, getDateExtended } from '../../utils/time'
+import { getGasConfig } from '../../utils'
 
 export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigation }) => {
   /*************************************************************************************
@@ -67,12 +68,16 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
   const { position, coverAmount, timePeriod, loading } = formData
   const maxCoverPerUser = useGetMaxCoverPerUser() // in eth
   const quote = useGetQuote(coverAmount, position.token.address, timePeriod)
-  const { account, errors } = useWallet()
+  const { account, errors, activeWalletConnector } = useWallet()
   const { addLocalTransactions, reload, gasPrices } = useCachedData()
   const { selectedProtocol } = useContracts()
   const { makeTxToast } = useToasts()
   const { activeNetwork, currencyDecimals } = useNetwork()
-
+  const gasConfig = useMemo(() => getGasConfig(activeWalletConnector, activeNetwork, gasPrices.selected?.value), [
+    activeWalletConnector,
+    activeNetwork,
+    gasPrices.selected?.value,
+  ])
   const maxCoverPerUserInWei = useMemo(() => {
     return parseUnits(maxCoverPerUser, currencyDecimals)
   }, [maxCoverPerUser, currencyDecimals])
@@ -113,7 +118,7 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
         NUM_BLOCKS_PER_DAY * parseInt(timePeriod),
         {
           value: parseUnits(quote, currencyDecimals),
-          gasPrice: getGasValue(gasPrices.selected.value),
+          ...gasConfig,
           gasLimit: GAS_LIMIT,
         }
       )

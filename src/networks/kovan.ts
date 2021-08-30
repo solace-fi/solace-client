@@ -34,6 +34,7 @@ When adding new products, please add into productContracts, functions, and cache
 export const KovanNetwork: NetworkConfig = {
   name: 'kovan',
   chainId: 42,
+  supportedTxTypes: [0, 2],
   nativeCurrency: { symbol: Unit.ETH, decimals: 18 },
   rpc: { httpsUrl: `https://eth-kovan.alchemyapi.io/v2/${ALCHEMY_API_KEY}`, pollingInterval: 12_000 },
   explorer: {
@@ -121,7 +122,7 @@ export const KovanNetwork: NetworkConfig = {
   metamaskChain: {
     chainId: hexValue(42),
     chainName: 'Kovan Testnet',
-    nativeCurrency: { name: 'Ethereum', symbol: Unit.ETH, decimals: 18 },
+    nativeCurrency: { name: 'Ether', symbol: Unit.ETH, decimals: 18 },
     rpcUrls: ['https://eth-kovan.alchemyapi.io'],
     blockExplorerUrls: ['https://kovan.etherscan.io'],
   },

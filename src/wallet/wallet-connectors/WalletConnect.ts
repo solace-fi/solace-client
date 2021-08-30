@@ -9,6 +9,7 @@ export const WalletConnectConnector = {
   id: 'walletconnect',
   name: 'WalletConnect',
   logo: WalletConnectLogo,
+  supportedTxTypes: [0],
   getConnector(network: NetworkConfig): AbstractConnector {
     return new WalletConnect_Connector({
       rpc: { [network.chainId]: network.rpc.httpsUrl },

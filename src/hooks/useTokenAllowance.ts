@@ -1,6 +1,6 @@
 import { useWallet } from '../context/WalletManager'
 import { useEffect, useState } from 'react'
-import { Contract } from 'ethers'
+import { Contract } from '@ethersproject/contracts'
 import { useCachedData } from '../context/CachedDataManager'
 
 export const useTokenAllowance = (tokenContract: Contract | null, spender: string | null): string => {

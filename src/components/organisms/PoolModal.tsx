@@ -21,7 +21,7 @@
   *************************************************************************************/
 
 /* import react */
-import React, { useState, Fragment, useEffect, useCallback } from 'react'
+import React, { useState, Fragment, useEffect, useCallback, useMemo } from 'react'
 
 /* import packages */
 import { formatUnits, parseUnits } from '@ethersproject/units'
@@ -70,8 +70,8 @@ import { useCooldown } from '../../hooks/useVault'
 
 /* import utils */
 import getPermitNFTSignature from '../../utils/signature'
-import { hasApproval } from '../../utils'
-import { fixed, getGasValue, filteredAmount, getUnit, truncateBalance } from '../../utils/formatting'
+import { getGasConfig, hasApproval } from '../../utils'
+import { fixed, filteredAmount, getUnit, truncateBalance } from '../../utils/formatting'
 import { getTimeFromMillis, timeToDate } from '../../utils/time'
 import { NftPosition } from '../molecules/NftPosition'
 
@@ -91,7 +91,7 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
 
   const { vault, cpFarm, lpFarm, lpToken } = useContracts()
   const { activeNetwork, currencyDecimals, chainId } = useNetwork()
-  const { account, errors, library } = useWallet()
+  const { account, errors, library, activeWalletConnector } = useWallet()
   const [amount, setAmount] = useState<string>('')
   const [isStaking, setIsStaking] = useState<boolean>(false)
   const cpUserStakeValue = useUserStakedValue(cpFarm, account)
@@ -101,7 +101,11 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
   const userLpTokenInfo = useUserWalletLpBalance()
   const depositedLpTokenInfo = useDepositedLpBalance()
   const { addLocalTransactions, reload, gasPrices } = useCachedData()
-  const [selectedGasOption, setSelectedGasOption] = useState<GasFeeOption>(gasPrices.selected)
+  const [selectedGasOption, setSelectedGasOption] = useState<GasFeeOption | undefined>(gasPrices.selected)
+  const gasConfig = useMemo(
+    () => getGasConfig(activeWalletConnector, activeNetwork, selectedGasOption ? selectedGasOption.value : null),
+    [activeWalletConnector, activeNetwork, selectedGasOption]
+  )
   const [maxSelected, setMaxSelected] = useState<boolean>(false)
   const [modalLoading, setModalLoading] = useState<boolean>(false)
   const [contractForAllowance, setContractForAllowance] = useState<Contract | null>(null)
@@ -187,7 +191,7 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
     try {
       const tx = await vault.depositEth({
         value: parseUnits(amount, currencyDecimals),
-        gasPrice: getGasValue(selectedGasOption.value),
+        ...gasConfig,
         gasLimit: GAS_LIMIT,
       })
       const txHash = tx.hash
@@ -222,7 +226,7 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
     try {
       const tx = await cpFarm.depositEth({
         value: parseUnits(amount, currencyDecimals),
-        gasPrice: getGasValue(selectedGasOption.value),
+        ...gasConfig,
         gasLimit: GAS_LIMIT,
       })
       const txHash = tx.hash
@@ -278,7 +282,7 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
     const txType = FunctionName.DEPOSIT_CP
     try {
       const tx = await cpFarm.depositCp(parseUnits(amount, currencyDecimals), {
-        gasPrice: getGasValue(selectedGasOption.value),
+        ...gasConfig,
         gasLimit: GAS_LIMIT,
       })
       const txHash = tx.hash
@@ -312,7 +316,7 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
     const txType = FunctionName.WITHDRAW_ETH
     try {
       const tx = await vault.withdrawEth(parseUnits(amount, currencyDecimals), {
-        gasPrice: getGasValue(selectedGasOption.value),
+        ...gasConfig,
         gasLimit: GAS_LIMIT,
       })
       const txHash = tx.hash
@@ -346,7 +350,7 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
     const txType = FunctionName.WITHDRAW_CP
     try {
       const tx = await cpFarm.withdrawCp(parseUnits(amount, currencyDecimals), {
-        gasPrice: getGasValue(selectedGasOption.value),
+        ...gasConfig,
         gasLimit: GAS_LIMIT,
       })
       const txHash = tx.hash
@@ -480,7 +484,7 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
 
   const calculateMaxEth = () => {
     const bal = formatUnits(getAssetBalanceByFunc(), currencyDecimals)
-    if (func !== FunctionName.DEPOSIT_ETH) return bal
+    if (func !== FunctionName.DEPOSIT_ETH || !selectedGasOption) return bal
     const gasInEth = (GAS_LIMIT / POW_NINE) * selectedGasOption.value
     return fixed(fixed(bal, 6) - fixed(gasInEth, 6), 6)
   }
@@ -526,13 +530,13 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
 
   const handleClose = useCallback(() => {
     setAmount('')
-    setSelectedGasOption(gasPrices.options[1])
+    setSelectedGasOption(gasPrices.selected)
     setIsStaking(false)
     setMaxSelected(false)
     setModalLoading(false)
     setNft(ZERO)
     closeModal()
-  }, [closeModal, gasPrices.options])
+  }, [closeModal, gasPrices.selected])
 
   const handleNft = (target: any) => {
     const info = target.value.split('-')

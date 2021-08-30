@@ -1,4 +1,5 @@
-import { Contract, providers } from 'ethers'
+import { providers } from 'ethers'
+import { Contract } from '@ethersproject/contracts'
 import { ZERO } from '../../../constants'
 import { NetworkConfig, Token } from '../../../constants/types'
 import ierc20Json from '../_contracts/IERC20Metadata.json'

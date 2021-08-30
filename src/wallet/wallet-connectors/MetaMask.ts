@@ -45,6 +45,7 @@ export const MetaMaskConnector = {
   id: 'metamask',
   name: 'MetaMask',
   logo: MetamaskLogo,
+  supportedTxTypes: [0, 2],
   getConnector(network: NetworkConfig): AbstractConnector {
     return new MetamaskConnector({
       supportedChainIds: [4, 42],

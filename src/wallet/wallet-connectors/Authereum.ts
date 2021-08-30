@@ -7,6 +7,7 @@ export const AuthereumConnector = {
   id: 'authereum',
   name: 'Authereum',
   logo: AuthereumLogo,
+  supportedTxTypes: [0],
   getConnector(network: NetworkConfig): AbstractConnector {
     return new Authereum_Connector({
       chainId: network.chainId,

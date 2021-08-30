@@ -2,7 +2,7 @@ import React, { useMemo, useContext, createContext, useEffect, useState, useCall
 import { useLocalStorage } from 'react-use-storage'
 import { useWallet } from './WalletManager'
 
-import { LocalTx, Policy, NetworkCache } from '../constants/types'
+import { LocalTx, Policy, NetworkCache, GasFeeListState } from '../constants/types'
 import { usePolicyGetter } from '../hooks/useGetter'
 import { useReload } from '../hooks/useReload'
 import { useInterval } from '../hooks/useInterval'
@@ -31,8 +31,8 @@ type CachedData = {
   tokenPositionData: { dataInitialized: boolean; storedTokenAndPositionData: NetworkCache[] }
   showHistoryModal: boolean
   version: number
-  dataVersion?: number
-  gasPrices?: any
+  dataVersion: number
+  gasPrices: GasFeeListState
   latestBlock: number
   addLocalTransactions: (txToAdd: LocalTx) => void
   deleteLocalTransactions: (txsToDelete: []) => void
@@ -46,8 +46,11 @@ const CachedDataContext = createContext<CachedData>({
   tokenPositionData: { dataInitialized: false, storedTokenAndPositionData: [] },
   showHistoryModal: false,
   version: 0,
-  dataVersion: undefined,
-  gasPrices: undefined,
+  dataVersion: 0,
+  gasPrices: {
+    options: [],
+    loading: true,
+  },
   latestBlock: 0,
   addLocalTransactions: () => undefined,
   deleteLocalTransactions: () => undefined,
