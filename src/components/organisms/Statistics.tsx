@@ -20,7 +20,7 @@
   *************************************************************************************/
 
 /* import react */
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 
 /* import packages */
 import { formatUnits, parseUnits } from '@ethersproject/units'
@@ -53,7 +53,8 @@ import { useGetTotalValueLocked } from '../../hooks/useFarm'
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'
 
 /* import utils */
-import { fixed, getGasValue, floatUnits, truncateBalance } from '../../utils/formatting'
+import { fixed, floatUnits, truncateBalance } from '../../utils/formatting'
+import { getGasConfig } from '../../utils'
 
 export const Statistics: React.FC = () => {
   /*************************************************************************************
@@ -72,7 +73,11 @@ export const Statistics: React.FC = () => {
   const { allPolicies } = usePolicyGetter(true, latestBlock, tokenPositionData, version)
   const totalValueLocked = useGetTotalValueLocked()
   const { width } = useWindowDimensions()
-
+  const gasConfig = useMemo(() => getGasConfig(activeWalletConnector, activeNetwork, gasPrices.selected?.value), [
+    activeWalletConnector,
+    activeNetwork,
+    gasPrices.selected,
+  ])
   /*************************************************************************************
 
   useState hooks
@@ -90,16 +95,6 @@ export const Statistics: React.FC = () => {
     if (!master || !activeWalletConnector) return
     const txType = FunctionName.WITHDRAW_REWARDS
     try {
-      const gasConfig =
-        activeWalletConnector.supportedTxTypes.includes(2) && activeNetwork.supportedTxTypes.includes(2)
-          ? {
-              maxFeePerGas: getGasValue(gasPrices.options[1].value),
-              type: 2,
-            }
-          : activeWalletConnector.supportedTxTypes.includes(0) &&
-            activeNetwork.supportedTxTypes.includes(0) && {
-              gasPrice: getGasValue(gasPrices.options[1].value),
-            }
       const tx = await master.withdrawRewards({
         ...gasConfig,
         gasLimit: GAS_LIMIT,

@@ -18,7 +18,7 @@
   *************************************************************************************/
 
 /* import react */
-import React, { Fragment } from 'react'
+import React, { Fragment, useMemo } from 'react'
 
 /* import packages */
 import { formatUnits } from '@ethersproject/units'
@@ -46,8 +46,9 @@ import { ClaimDetails } from '../../constants/types'
 import { useGetClaimsDetails } from '../../hooks/useClaimsEscrow'
 
 /* import utils */
-import { truncateBalance, getGasValue } from '../../utils/formatting'
+import { truncateBalance } from '../../utils/formatting'
 import { timeToDate } from '../../utils/time'
+import { getGasConfig } from '../../utils'
 
 export const MyClaims: React.FC = () => {
   /*************************************************************************************
@@ -61,6 +62,11 @@ export const MyClaims: React.FC = () => {
   const { addLocalTransactions, reload, gasPrices } = useCachedData()
   const { makeTxToast } = useToasts()
   const claimsDetails = useGetClaimsDetails(account)
+  const gasConfig = useMemo(() => getGasConfig(activeWalletConnector, activeNetwork, gasPrices.selected?.value), [
+    activeWalletConnector,
+    activeNetwork,
+    gasPrices.selected?.value,
+  ])
 
   /*************************************************************************************
 
@@ -72,16 +78,6 @@ export const MyClaims: React.FC = () => {
     if (!claimsEscrow || !_claimId || !activeWalletConnector) return
     const txType = FunctionName.WITHDRAW_CLAIMS_PAYOUT
     try {
-      const gasConfig =
-        activeWalletConnector.supportedTxTypes.includes(2) && activeNetwork.supportedTxTypes.includes(2)
-          ? {
-              maxFeePerGas: getGasValue(gasPrices.selected.value),
-              type: 2,
-            }
-          : activeWalletConnector.supportedTxTypes.includes(0) &&
-            activeNetwork.supportedTxTypes.includes(0) && {
-              gasPrice: getGasValue(gasPrices.selected.value),
-            }
       const tx = await claimsEscrow.withdrawClaimsPayout(_claimId, {
         ...gasConfig,
         gasLimit: GAS_LIMIT,

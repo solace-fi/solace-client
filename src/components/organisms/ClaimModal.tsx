@@ -21,7 +21,7 @@
   *************************************************************************************/
 
 /* import react */
-import React, { Fragment, useCallback, useEffect, useState, useRef } from 'react'
+import React, { Fragment, useCallback, useEffect, useState, useRef, useMemo } from 'react'
 
 /* import packages */
 import { formatUnits } from '@ethersproject/units'
@@ -54,8 +54,9 @@ import { useWindowDimensions } from '../../hooks/useWindowDimensions'
 
 /* import utils */
 import { getClaimAssessment } from '../../utils/paclas'
-import { truncateBalance, getGasValue } from '../../utils/formatting'
+import { truncateBalance } from '../../utils/formatting'
 import { timeToDateText } from '../../utils/time'
+import { getGasConfig } from '../../utils'
 
 interface ClaimModalProps {
   closeModal: () => void
@@ -89,6 +90,11 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
   const { errors, activeWalletConnector } = useWallet()
   const { activeNetwork, currencyDecimals } = useNetwork()
   const { width } = useWindowDimensions()
+  const gasConfig = useMemo(() => getGasConfig(activeWalletConnector, activeNetwork, gasPrices.selected?.value), [
+    activeWalletConnector,
+    activeNetwork,
+    gasPrices.selected?.value,
+  ])
 
   /*************************************************************************************
 
@@ -102,16 +108,6 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
     const { amountOut, deadline, signature } = assessment
     const txType = FunctionName.SUBMIT_CLAIM
     try {
-      const gasConfig =
-        activeWalletConnector.supportedTxTypes.includes(2) && activeNetwork.supportedTxTypes.includes(2)
-          ? {
-              maxFeePerGas: getGasValue(gasPrices.selected.value),
-              type: 2,
-            }
-          : activeWalletConnector.supportedTxTypes.includes(0) &&
-            activeNetwork.supportedTxTypes.includes(0) && {
-              gasPrice: getGasValue(gasPrices.selected.value),
-            }
       const tx = await selectedProtocol.submitClaim(selectedPolicy.policyId, amountOut, deadline, signature, {
         ...gasConfig,
         gasLimit: GAS_LIMIT,

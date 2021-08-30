@@ -55,8 +55,9 @@ import { FlexCol, FlexRow } from '../../components/atoms/Layout'
 import { useGetQuote, useGetMaxCoverPerUser } from '../../hooks/usePolicy'
 
 /* import utils */
-import { accurateMultiply, getGasValue } from '../../utils/formatting'
+import { accurateMultiply } from '../../utils/formatting'
 import { getDateStringWithMonthName, getDateExtended } from '../../utils/time'
+import { getGasConfig } from '../../utils'
 
 export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigation }) => {
   /*************************************************************************************
@@ -72,7 +73,11 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
   const { selectedProtocol } = useContracts()
   const { makeTxToast } = useToasts()
   const { activeNetwork, currencyDecimals } = useNetwork()
-
+  const gasConfig = useMemo(() => getGasConfig(activeWalletConnector, activeNetwork, gasPrices.selected?.value), [
+    activeWalletConnector,
+    activeNetwork,
+    gasPrices.selected?.value,
+  ])
   const maxCoverPerUserInWei = useMemo(() => {
     return parseUnits(maxCoverPerUser, currencyDecimals)
   }, [maxCoverPerUser, currencyDecimals])
@@ -106,16 +111,6 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
     if (!selectedProtocol || !activeWalletConnector) return
     const txType = FunctionName.BUY_POLICY
     try {
-      const gasConfig =
-        activeWalletConnector.supportedTxTypes.includes(2) && activeNetwork.supportedTxTypes.includes(2)
-          ? {
-              maxFeePerGas: getGasValue(gasPrices.selected.value),
-              type: 2,
-            }
-          : activeWalletConnector.supportedTxTypes.includes(0) &&
-            activeNetwork.supportedTxTypes.includes(0) && {
-              gasPrice: getGasValue(gasPrices.selected.value),
-            }
       const tx = await selectedProtocol.buyPolicy(
         account,
         position.token.address,
