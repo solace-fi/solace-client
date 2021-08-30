@@ -1,5 +1,5 @@
 import { NetworkConfig, Token } from '../../../constants/types'
-import { Contract } from 'ethers'
+import { Contract } from '@ethersproject/contracts'
 import { ZERO } from '../../../constants'
 import { withBackoffRetries } from '../../time'
 import { numberify, rangeFrom0 } from '../../numeric'

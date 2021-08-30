@@ -1,4 +1,5 @@
-import { utils, Contract } from 'ethers'
+import { utils } from 'ethers'
+import { Contract } from '@ethersproject/contracts'
 import { ZERO } from '../../../constants'
 import ctokenJson from './contracts/ICToken.json'
 import ierc20Json from '../_contracts/IERC20Metadata.json'
