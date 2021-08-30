@@ -92,7 +92,7 @@ export const Statistics: React.FC = () => {
 
   *************************************************************************************/
   const claimRewards = async () => {
-    if (!master || !activeWalletConnector) return
+    if (!master) return
     const txType = FunctionName.WITHDRAW_REWARDS
     try {
       const tx = await master.withdrawRewards({

@@ -186,7 +186,7 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
 
   const callDeposit = async () => {
     setModalLoading(true)
-    if (!vault || !activeWalletConnector) return
+    if (!vault) return
     const txType = FunctionName.DEPOSIT_ETH
     try {
       const tx = await vault.depositEth({
@@ -221,7 +221,7 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
 
   const callDepositEth = async () => {
     setModalLoading(true)
-    if (!cpFarm || !activeWalletConnector) return
+    if (!cpFarm) return
     const txType = FunctionName.DEPOSIT_ETH
     try {
       const tx = await cpFarm.depositEth({
@@ -278,7 +278,7 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
 
   const callDepositCp = async () => {
     setModalLoading(true)
-    if (!cpFarm || !vault || !activeWalletConnector) return
+    if (!cpFarm || !vault) return
     const txType = FunctionName.DEPOSIT_CP
     try {
       const tx = await cpFarm.depositCp(parseUnits(amount, currencyDecimals), {
@@ -312,7 +312,7 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
 
   const callWithdrawEth = async () => {
     setModalLoading(true)
-    if (!vault || !canWithdrawEth || !activeWalletConnector) return
+    if (!vault || !canWithdrawEth) return
     const txType = FunctionName.WITHDRAW_ETH
     try {
       const tx = await vault.withdrawEth(parseUnits(amount, currencyDecimals), {
@@ -346,7 +346,7 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
 
   const callWithdrawCp = async () => {
     setModalLoading(true)
-    if (!cpFarm || !activeWalletConnector) return
+    if (!cpFarm) return
     const txType = FunctionName.WITHDRAW_CP
     try {
       const tx = await cpFarm.withdrawCp(parseUnits(amount, currencyDecimals), {

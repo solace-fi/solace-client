@@ -75,7 +75,7 @@ export const MyClaims: React.FC = () => {
   *************************************************************************************/
 
   const withdrawPayout = async (_claimId: any) => {
-    if (!claimsEscrow || !_claimId || !activeWalletConnector) return
+    if (!claimsEscrow || !_claimId) return
     const txType = FunctionName.WITHDRAW_CLAIMS_PAYOUT
     try {
       const tx = await claimsEscrow.withdrawClaimsPayout(_claimId, {

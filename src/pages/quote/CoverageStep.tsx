@@ -108,7 +108,7 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
         value: true,
       },
     })
-    if (!selectedProtocol || !activeWalletConnector) return
+    if (!selectedProtocol) return
     const txType = FunctionName.BUY_POLICY
     try {
       const tx = await selectedProtocol.buyPolicy(

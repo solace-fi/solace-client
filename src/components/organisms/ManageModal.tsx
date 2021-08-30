@@ -125,7 +125,7 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
 
   const updatePolicy = async () => {
     setModalLoading(true)
-    if (!selectedProtocol || !selectedPolicy || !activeWalletConnector) return
+    if (!selectedProtocol || !selectedPolicy) return
     const txType = FunctionName.UPDATE_POLICY
     const price = await selectedProtocol.price()
     try {
@@ -171,7 +171,7 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
 
   const updateCoverAmount = async () => {
     setModalLoading(true)
-    if (!selectedProtocol || !selectedPolicy || !activeWalletConnector) return
+    if (!selectedProtocol || !selectedPolicy) return
     const txType = FunctionName.UPDATE_POLICY_AMOUNT
     const price = await selectedProtocol.price()
     const newPremium = BigNumber.from(newCoverage)
@@ -212,7 +212,7 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
 
   const extendPolicy = async () => {
     setModalLoading(true)
-    if (!selectedProtocol || !selectedPolicy || !activeWalletConnector) return
+    if (!selectedProtocol || !selectedPolicy) return
     const txType = FunctionName.EXTEND_POLICY_PERIOD
     const newPremium = BigNumber.from(currentCoverAmount)
       .mul(paidprice)
@@ -250,7 +250,7 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
 
   const cancelPolicy = async () => {
     setModalLoading(true)
-    if (!selectedProtocol || !selectedPolicy || !activeWalletConnector) return
+    if (!selectedProtocol || !selectedPolicy) return
     const txType = FunctionName.CANCEL_POLICY
     try {
       const tx = await selectedProtocol.cancelPolicy(selectedPolicy.policyId, {

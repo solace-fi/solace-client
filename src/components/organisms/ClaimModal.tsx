@@ -104,7 +104,7 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
 
   const submitClaim = async () => {
     setModalLoading(true)
-    if (!selectedProtocol || !assessment || !selectedPolicy || !activeWalletConnector) return
+    if (!selectedProtocol || !assessment || !selectedPolicy) return
     const { amountOut, deadline, signature } = assessment
     const txType = FunctionName.SUBMIT_CLAIM
     try {
