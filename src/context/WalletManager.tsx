@@ -99,13 +99,13 @@ const WalletProvider: React.FC = (props) => {
   }, [web3React, removeSelectedProvider, setConnecting])
 
   const connect = useCallback(
-    async (walletConnector: WalletConnector): Promise<void> => {
+    async (walletConnector: WalletConnector, args?: Record<string, any>): Promise<void> => {
       // if a connector is trying to connect, do not try to connect again
       if (connectingRef.current) return
 
       connectingRef.current = walletConnector
       setConnecting(walletConnector)
-      const connector = walletConnector.getConnector(activeNetwork)
+      const connector = walletConnector.getConnector(activeNetwork, args)
 
       // when connecting via metamask, if app not initialized yet,
       // set wallet network to app network before activation
@@ -121,12 +121,25 @@ const WalletProvider: React.FC = (props) => {
         }
       }
 
-      await web3React.activate(connector, undefined, true).then(onSuccess).catch(onError).then(closeModal)
+      // console.log('on connect connector:', connector)
+      await web3React.activate(connector, undefined, true).then(onSuccess).catch(onError)
+
+      // if (walletConnector.id == 'ledger') {
+      //   console.log('ledger connector detected, begin getting provider')
+      //   const res = await connector.getProvider()
+      //   if (res) {
+      //     const accounts = await res._providers[0].getAccountsAsync(30)
+      //     console.log('on connect provider:', res)
+      //     console.log('on connect accounts:', accounts)
+      //   } else {
+      //     console.log('error, res not exist:', res)
+      //   }
+      // }
 
       function onSuccess() {
         if (!connectingRef.current) return
         setErrors([])
-        walletConnector.onConnect?.(connector)
+        walletConnector.onConnect?.(connector, args)
         setActiveConnector(walletConnector)
         setSelectedProvider(walletConnector.id)
       }

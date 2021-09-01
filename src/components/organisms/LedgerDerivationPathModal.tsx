@@ -1,4 +1,5 @@
 import React, { useState, useCallback } from 'react'
+import { useNetwork } from '../../context/NetworkManager'
 import { useWallet } from '../../context/WalletManager'
 import { LedgerConnector } from '../../wallet/wallet-connectors/Ledger'
 import { Button, ButtonWrapper } from '../atoms/Button'
@@ -24,6 +25,7 @@ const LEDGER_DERIVATION_PATHS = [
 
 export const LedgerDerivationPathModal: React.FC<LedgerDerivationPathModalProps> = ({ closeModal, isOpen }) => {
   const { connect } = useWallet()
+  const { activeNetwork } = useNetwork()
   const [derivationPath, setDerivationPath] = useState<string>(String(LEDGER_DERIVATION_PATHS[0].value))
 
   const handleClose = useCallback(() => {
@@ -34,15 +36,32 @@ export const LedgerDerivationPathModal: React.FC<LedgerDerivationPathModalProps>
     setDerivationPath(target.value as string)
   }
 
-  function handleConnect() {
+  const handleConnect = async () => {
     handleClose()
 
-    setTimeout(() => {
-      connect(LedgerConnector, {
-        baseDerivationPath: derivationPath,
-      }).catch(Error)
+    // console.log('handleClose')
+    // console.log('derivationPath:', derivationPath)
+    // const connector = LedgerConnector.getConnector(activeNetwork)
+    // console.log('on handleConnect connector:', connector)
+    // const res = await connector.getProvider()
+    // if (res) {
+    //   const accounts = await res._providers[0].getAccountsAsync(30)
+    //   console.log('on handleConnect provider:', res)
+    //   console.log('on handleConnect accounts:', accounts)
+    // } else {
+    //   console.log('error, res not exist:', res)
+    // }
+    connect(LedgerConnector, {
+      baseDerivationPath: derivationPath,
     })
+      .then(onSuccess)
+      .catch(Error)
   }
+
+  const onSuccess = () => {
+    console.log('successfully connected ledger wallet')
+  }
+
   return (
     <Modal
       handleClose={handleClose}
