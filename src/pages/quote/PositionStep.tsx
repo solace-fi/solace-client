@@ -174,7 +174,7 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
       }
     }
     loadOverTime()
-  }, [latestBlock])
+  }, [latestBlock, tokenPositionData.dataInitialized])
 
   /*************************************************************************************
 

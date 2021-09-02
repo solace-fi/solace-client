@@ -5,7 +5,6 @@ import { getTokens } from './positionGetters/compound/getTokens'
 
 export const CompoundProduct: SupportedProduct = {
   name: ProductName.COMPOUND,
-  contract: null,
   getTokens,
   getBalances,
 }

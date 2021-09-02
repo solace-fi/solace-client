@@ -93,9 +93,13 @@ export type StringToStringMapping = { [key: string]: string }
 
 export type SupportedProduct = {
   name: ProductName
-  contract: Contract | null
   getTokens: (provider: any, activeNetwork: NetworkConfig) => Promise<Token[]>
   getBalances: (user: string, provider: any, cache: NetworkCache, activeNetwork: NetworkConfig) => Promise<Token[]>
+}
+
+export type ProductContract = {
+  name: ProductName
+  contract?: Contract
 }
 
 export type ContractSources = { addr: string; abi: any }

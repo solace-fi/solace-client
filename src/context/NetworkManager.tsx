@@ -12,7 +12,7 @@ This manager keeps track of the current network and other important information.
 
 */
 
-const networks: NetworkConfig[] = [RinkebyNetwork, KovanNetwork]
+export const networks: NetworkConfig[] = [RinkebyNetwork, KovanNetwork]
 
 type NetworkContext = {
   activeNetwork: NetworkConfig
