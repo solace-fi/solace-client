@@ -1,31 +1,42 @@
 import masterABI from '../constants/abi/contracts/Master.sol/Master.json'
 import registryABI from '../constants/abi/contracts/Registry.sol/Registry.json'
 import solaceABI from '../constants/abi/contracts/SOLACE.sol/SOLACE.json'
-import wethABI from '../constants/abi/contracts/mocks/WETH9.sol/WETH9.json'
+import wethABI from '../constants/abi/contracts/WETH9.sol/WETH9.json'
 import treasuryABI from '../constants/abi/contracts/Treasury.sol/Treasury.json'
 import vaultABI from '../constants/abi/contracts/Vault.sol/Vault.json'
 import cpFarmABI from '../constants/abi/contracts/CpFarm.sol/CpFarm.json'
 import lpFarmABI from '../constants/abi/contracts/SolaceEthLpFarm.sol/SolaceEthLpFarm.json'
 import claimsEscrowABI from '../constants/abi/contracts/ClaimsEscrow.sol/ClaimsEscrow.json'
 import lpTokenArtifact from '../../node_modules/@uniswap/v3-periphery/artifacts/contracts/NonfungiblePositionManager.sol/NonfungiblePositionManager.json'
-import compAbi from '../constants/abi/contracts/products/CompoundProductRinkeby.sol/CompoundProductRinkeby.json'
 import polMagABI from '../constants/abi/contracts/PolicyManager.sol/PolicyManager.json'
 import lpAppraisorABI from '../constants/abi/contracts/LpAppraisor.sol/LpAppraisor.json'
+
+import compAbi from '../constants/abi/contracts/products/CompoundProductRinkeby.sol/CompoundProductRinkeby.json'
+import waaveAbi from '../constants/abi/contracts/products/WaaveProduct.sol/WaaveProduct.json'
 
 import { ProductName, Unit } from '../constants/enums'
 import { getTokens as compTokens } from '../utils/positionGetters/compound/getTokens'
 import { getBalances as compBalances } from '../utils/positionGetters/compound/getBalances'
+import { getTokens as waaveTokens } from '../utils/positionGetters/waave/getTokens'
+import { getBalances as waaveBalances } from '../utils/positionGetters/waave/getBalances'
 
 import { NetworkConfig } from '../constants/types'
 import { ETHERSCAN_API_KEY } from '../constants'
 import { hexValue } from '@ethersproject/bytes'
 import { ALCHEMY_API_KEY } from '../constants'
 
+/*
+
+When adding new products, please add into productContracts, functions, and cache
+
+*/
+
 export const RinkebyNetwork: NetworkConfig = {
   name: 'rinkeby',
   chainId: 4,
+  supportedTxTypes: [0, 2],
   nativeCurrency: { symbol: Unit.ETH, decimals: 18 },
-  rpc: { httpsUrl: `https://eth-rinkeby.alchemyapi.io/v2/${ALCHEMY_API_KEY}` },
+  rpc: { httpsUrl: `https://eth-rinkeby.alchemyapi.io/v2/${ALCHEMY_API_KEY}`, pollingInterval: 12_000 },
   explorer: {
     name: 'Etherscan',
     key: String(ETHERSCAN_API_KEY),
@@ -85,31 +96,39 @@ export const RinkebyNetwork: NetworkConfig = {
     },
     productContracts: {
       [ProductName.COMPOUND]: {
-        addr: process.env.REACT_APP_RINKEBY_COMPOUND_PRODUCT_ADDR,
+        addr: String(process.env.REACT_APP_RINKEBY_COMPOUND_PRODUCT_ADDR),
         abi: compAbi,
+      },
+      [ProductName.WAAVE]: {
+        addr: String(process.env.REACT_APP_RINKEBY_WAAVE_PRODUCT_ADDR),
+        abi: waaveAbi,
       },
     },
     functions: {
-      getTokens: { [ProductName.COMPOUND]: compTokens },
-      getBalances: { [ProductName.COMPOUND]: compBalances },
+      getTokens: { [ProductName.COMPOUND]: compTokens, [ProductName.WAAVE]: waaveTokens },
+      getBalances: { [ProductName.COMPOUND]: compBalances, [ProductName.WAAVE]: waaveBalances },
+    },
+    productsRev: {
+      [String(process.env.REACT_APP_RINKEBY_COMPOUND_PRODUCT_ADDR)]: ProductName.COMPOUND,
+      [String(process.env.REACT_APP_RINKEBY_WAAVE_PRODUCT_ADDR)]: ProductName.WAAVE,
     },
   },
   cache: {
-    supportedProducts: [{ name: ProductName.COMPOUND, contract: null }],
-    productsRev: {
-      [String(process.env.REACT_APP_RINKEBY_COMPOUND_PRODUCT_ADDR)]: ProductName.COMPOUND,
-    },
-    tokens: { [ProductName.COMPOUND]: { savedTokens: [], tokensInitialized: false } },
-    positions: { [ProductName.COMPOUND]: { positionNamesInitialized: false } },
+    supportedProducts: [
+      { name: ProductName.COMPOUND, contract: null },
+      { name: ProductName.WAAVE, contract: null },
+    ],
   },
   metamaskChain: {
     chainId: hexValue(4),
     chainName: 'Rinkeby Testnet',
-    nativeCurrency: { name: 'Ethereum', symbol: Unit.ETH, decimals: 18 },
+    nativeCurrency: { name: 'Ether', symbol: Unit.ETH, decimals: 18 },
     rpcUrls: ['https://eth-rinkeby.alchemyapi.io'],
     blockExplorerUrls: ['https://rinkeby.etherscan.io'],
   },
   walletConfig: {
     portisId: String(process.env.REACT_APP_PORTIS_ID),
+    trezorEmail: '',
+    trezorAppUrl: 'https://polygon.solace.fi/',
   },
 }

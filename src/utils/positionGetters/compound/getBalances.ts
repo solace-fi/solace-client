@@ -10,8 +10,8 @@ import { withBackoffRetries } from '../../time'
 export const getBalances = async (
   user: string,
   provider: any,
-  activeNetwork: NetworkConfig,
-  cache: NetworkCache
+  cache: NetworkCache,
+  activeNetwork: NetworkConfig
 ): Promise<Token[]> => {
   // get ctoken balances
   const savedTokens = cache.tokens[ProductName.COMPOUND].savedTokens

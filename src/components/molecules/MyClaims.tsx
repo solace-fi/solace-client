@@ -18,7 +18,7 @@
   *************************************************************************************/
 
 /* import react */
-import React, { Fragment } from 'react'
+import React, { Fragment, useMemo } from 'react'
 
 /* import packages */
 import { formatUnits } from '@ethersproject/units'
@@ -46,8 +46,9 @@ import { ClaimDetails } from '../../constants/types'
 import { useGetClaimsDetails } from '../../hooks/useClaimsEscrow'
 
 /* import utils */
-import { truncateBalance, getGasValue } from '../../utils/formatting'
+import { truncateBalance } from '../../utils/formatting'
 import { timeToDate } from '../../utils/time'
+import { getGasConfig } from '../../utils'
 
 export const MyClaims: React.FC = () => {
   /*************************************************************************************
@@ -56,11 +57,16 @@ export const MyClaims: React.FC = () => {
 
   *************************************************************************************/
   const { claimsEscrow } = useContracts()
-  const { account, errors } = useWallet()
+  const { account, errors, activeWalletConnector } = useWallet()
   const { activeNetwork, currencyDecimals } = useNetwork()
   const { addLocalTransactions, reload, gasPrices } = useCachedData()
   const { makeTxToast } = useToasts()
   const claimsDetails = useGetClaimsDetails(account)
+  const gasConfig = useMemo(() => getGasConfig(activeWalletConnector, activeNetwork, gasPrices.selected?.value), [
+    activeWalletConnector,
+    activeNetwork,
+    gasPrices.selected?.value,
+  ])
 
   /*************************************************************************************
 
@@ -73,7 +79,7 @@ export const MyClaims: React.FC = () => {
     const txType = FunctionName.WITHDRAW_CLAIMS_PAYOUT
     try {
       const tx = await claimsEscrow.withdrawClaimsPayout(_claimId, {
-        gasPrice: getGasValue(gasPrices.selected.value),
+        ...gasConfig,
         gasLimit: GAS_LIMIT,
       })
       const txHash = tx.hash

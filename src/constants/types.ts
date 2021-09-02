@@ -1,11 +1,10 @@
 import { BigNumber } from 'ethers'
-import { PolicyState, TransactionCondition, Unit } from '../constants/enums'
+import { PolicyState, ProductName, TransactionCondition, Unit } from '../constants/enums'
 import { Contract } from '@ethersproject/contracts'
 
 export type NetworkCache = {
   name: string
   chainId: number
-  supportedProducts: any
   tokens: any
   positions: any
 }
@@ -73,6 +72,7 @@ export type GasFeeListState = {
   options: GasFeeOption[]
   loading: boolean
   selected?: GasFeeOption
+  suggestedBaseFee?: number
 }
 
 export type GasFeeOption = {
@@ -86,11 +86,12 @@ export type GasPriceResult = {
   fast: number
   average: number
   safeLow: number
+  suggestBaseFee?: number
 }
 
 export type StringToStringMapping = { [key: string]: string }
 
-export type SupportedProduct = { name: string; contract: Contract; signer: boolean }
+export type SupportedProduct = { name: string; contract: Contract | null }
 
 export type ContractSources = { addr: string; abi: any }
 
@@ -110,12 +111,14 @@ export type LocalTx = {
 export type NetworkConfig = {
   name: string
   chainId: number
+  supportedTxTypes: number[]
   nativeCurrency: {
     symbol: Unit
     decimals: number
   }
   rpc: {
     httpsUrl: string
+    pollingInterval: number
   }
   explorer: {
     name: 'Etherscan' | 'Polygonscan'
@@ -124,25 +127,34 @@ export type NetworkConfig = {
     apiUrl: string
   }
   config: {
-    keyContracts: KeyContracts
-    productContracts: any
+    keyContracts: {
+      [key: string]: ContractSources
+    }
+    productContracts: {
+      [key: string]: ContractSources
+    }
     functions: {
-      getTokens: any
-      getBalances: any
+      getTokens: {
+        [key: string]: (provider: any, activeNetwork: NetworkConfig) => Promise<Token[]>
+      }
+      getBalances: {
+        [key: string]: (
+          user: string,
+          provider: any,
+          cache: NetworkCache,
+          activeNetwork: NetworkConfig
+        ) => Promise<Token[]>
+      }
+    }
+    productsRev: {
+      [key: string]: ProductName
     }
   }
   cache: {
-    supportedProducts: any
-    productsRev: any
-    tokens: any
-    positions: any
+    supportedProducts: SupportedProduct[]
   }
   metamaskChain?: MetamaskAddEthereumChain
   walletConfig: any
-}
-
-export type KeyContracts = {
-  [key: string]: ContractSources
 }
 
 export type MetamaskAddEthereumChain = {

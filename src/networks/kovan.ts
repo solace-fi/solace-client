@@ -1,31 +1,42 @@
 import masterABI from '../constants/abi/contracts/Master.sol/Master.json'
 import registryABI from '../constants/abi/contracts/Registry.sol/Registry.json'
 import solaceABI from '../constants/abi/contracts/SOLACE.sol/SOLACE.json'
-import wethABI from '../constants/abi/contracts/mocks/WETH9.sol/WETH9.json'
+import wethABI from '../constants/abi/contracts/WETH9.sol/WETH9.json'
 import treasuryABI from '../constants/abi/contracts/Treasury.sol/Treasury.json'
 import vaultABI from '../constants/abi/contracts/Vault.sol/Vault.json'
 import cpFarmABI from '../constants/abi/contracts/CpFarm.sol/CpFarm.json'
 import lpFarmABI from '../constants/abi/contracts/SolaceEthLpFarm.sol/SolaceEthLpFarm.json'
 import claimsEscrowABI from '../constants/abi/contracts/ClaimsEscrow.sol/ClaimsEscrow.json'
 import lpTokenArtifact from '../../node_modules/@uniswap/v3-periphery/artifacts/contracts/NonfungiblePositionManager.sol/NonfungiblePositionManager.json'
-import aaveAbi from '../constants/abi/contracts/products/AaveV2Product.sol/AaveV2Product.json'
 import polMagABI from '../constants/abi/contracts/PolicyManager.sol/PolicyManager.json'
 import lpAppraisorABI from '../constants/abi/contracts/LpAppraisor.sol/LpAppraisor.json'
+
+import aaveAbi from '../constants/abi/contracts/products/AaveV2Product.sol/AaveV2Product.json'
+import waaveAbi from '../constants/abi/contracts/products/WaaveProduct.sol/WaaveProduct.json'
 
 import { ProductName, Unit } from '../constants/enums'
 import { getTokens as aaveTokens } from '../utils/positionGetters/aave/getTokens'
 import { getBalances as aaveBalances } from '../utils/positionGetters/aave/getBalances'
+import { getTokens as waaveTokens } from '../utils/positionGetters/waave/getTokens'
+import { getBalances as waaveBalances } from '../utils/positionGetters/waave/getBalances'
 
 import { NetworkConfig } from '../constants/types'
 import { ETHERSCAN_API_KEY } from '../constants'
 import { hexValue } from '@ethersproject/bytes'
 import { ALCHEMY_API_KEY } from '../constants'
 
+/*
+
+When adding new products, please add into productContracts, functions, and cache
+
+*/
+
 export const KovanNetwork: NetworkConfig = {
   name: 'kovan',
   chainId: 42,
+  supportedTxTypes: [0, 2],
   nativeCurrency: { symbol: Unit.ETH, decimals: 18 },
-  rpc: { httpsUrl: `https://eth-kovan.alchemyapi.io/v2/${ALCHEMY_API_KEY}` },
+  rpc: { httpsUrl: `https://eth-kovan.alchemyapi.io/v2/${ALCHEMY_API_KEY}`, pollingInterval: 12_000 },
   explorer: {
     name: 'Etherscan',
     key: String(ETHERSCAN_API_KEY),
@@ -88,28 +99,36 @@ export const KovanNetwork: NetworkConfig = {
         addr: String(process.env.REACT_APP_KOVAN_AAVE_PRODUCT_ADDR),
         abi: aaveAbi,
       },
+      [ProductName.WAAVE]: {
+        addr: String(process.env.REACT_APP_KOVAN_WAAVE_PRODUCT_ADDR),
+        abi: waaveAbi,
+      },
     },
     functions: {
-      getTokens: { [ProductName.AAVE]: aaveTokens },
-      getBalances: { [ProductName.AAVE]: aaveBalances },
+      getTokens: { [ProductName.AAVE]: aaveTokens, [ProductName.WAAVE]: waaveTokens },
+      getBalances: { [ProductName.AAVE]: aaveBalances, [ProductName.WAAVE]: waaveBalances },
+    },
+    productsRev: {
+      [String(process.env.REACT_APP_KOVAN_AAVE_PRODUCT_ADDR)]: ProductName.AAVE,
+      [String(process.env.REACT_APP_KOVAN_WAAVE_PRODUCT_ADDR)]: ProductName.WAAVE,
     },
   },
   cache: {
-    supportedProducts: [{ name: ProductName.AAVE, contract: null }],
-    productsRev: {
-      [String(process.env.REACT_APP_KOVAN_AAVE_PRODUCT_ADDR)]: ProductName.AAVE,
-    },
-    tokens: { [ProductName.AAVE]: { savedTokens: [], tokensInitialized: false } },
-    positions: { [ProductName.AAVE]: { positionNamesInitialized: false } },
+    supportedProducts: [
+      { name: ProductName.AAVE, contract: null },
+      { name: ProductName.WAAVE, contract: null },
+    ],
   },
   metamaskChain: {
     chainId: hexValue(42),
     chainName: 'Kovan Testnet',
-    nativeCurrency: { name: 'Ethereum', symbol: Unit.ETH, decimals: 18 },
+    nativeCurrency: { name: 'Ether', symbol: Unit.ETH, decimals: 18 },
     rpcUrls: ['https://eth-kovan.alchemyapi.io'],
     blockExplorerUrls: ['https://kovan.etherscan.io'],
   },
   walletConfig: {
     portisId: String(process.env.REACT_APP_PORTIS_ID),
+    trezorEmail: '',
+    trezorAppUrl: 'https://polygon.solace.fi/',
   },
 }

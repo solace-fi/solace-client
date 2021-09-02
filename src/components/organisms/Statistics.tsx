@@ -20,7 +20,7 @@
   *************************************************************************************/
 
 /* import react */
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 
 /* import packages */
 import { formatUnits, parseUnits } from '@ethersproject/units'
@@ -53,7 +53,8 @@ import { useGetTotalValueLocked } from '../../hooks/useFarm'
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'
 
 /* import utils */
-import { fixed, getGasValue, floatUnits, truncateBalance } from '../../utils/formatting'
+import { fixed, floatUnits, truncateBalance } from '../../utils/formatting'
+import { getGasConfig } from '../../utils'
 
 export const Statistics: React.FC = () => {
   /*************************************************************************************
@@ -61,7 +62,7 @@ export const Statistics: React.FC = () => {
   custom hooks
 
   *************************************************************************************/
-  const { account, errors, initialized } = useWallet()
+  const { account, errors, initialized, activeWalletConnector } = useWallet()
   const { activeNetwork, currencyDecimals } = useNetwork()
   const { master } = useContracts()
   const { makeTxToast } = useToasts()
@@ -72,7 +73,11 @@ export const Statistics: React.FC = () => {
   const { allPolicies } = usePolicyGetter(true, latestBlock, tokenPositionData, version)
   const totalValueLocked = useGetTotalValueLocked()
   const { width } = useWindowDimensions()
-
+  const gasConfig = useMemo(() => getGasConfig(activeWalletConnector, activeNetwork, gasPrices.selected?.value), [
+    activeWalletConnector,
+    activeNetwork,
+    gasPrices.selected,
+  ])
   /*************************************************************************************
 
   useState hooks
@@ -91,7 +96,7 @@ export const Statistics: React.FC = () => {
     const txType = FunctionName.WITHDRAW_REWARDS
     try {
       const tx = await master.withdrawRewards({
-        gasPrice: getGasValue(gasPrices.options[1].value),
+        ...gasConfig,
         gasLimit: GAS_LIMIT,
       })
       const txHash = tx.hash
@@ -176,10 +181,7 @@ export const Statistics: React.FC = () => {
                 </Text>
               </BoxItem>
               <BoxItem>
-                <Button
-                  disabled={errors.length > 0 || fixed(parseFloat(totalUserRewards), 6) <= 0}
-                  onClick={claimRewards}
-                >
+                <Button disabled={errors.length > 0 || fixed(totalUserRewards, 6) <= 0} onClick={claimRewards}>
                   Claim
                 </Button>
               </BoxItem>
@@ -253,7 +255,7 @@ export const Statistics: React.FC = () => {
                 <ButtonWrapper>
                   <Button
                     widthP={100}
-                    disabled={errors.length > 0 || fixed(parseFloat(totalUserRewards), 6) <= 0}
+                    disabled={errors.length > 0 || fixed(totalUserRewards, 6) <= 0}
                     onClick={claimRewards}
                   >
                     Claim

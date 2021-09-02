@@ -7,8 +7,8 @@ import { ProductName } from '../../../constants/enums'
 export const getBalances = async (
   user: string,
   provider: any,
-  activeNetwork: NetworkConfig,
-  cache: NetworkCache
+  cache: NetworkCache,
+  activeNetwork: NetworkConfig
 ): Promise<Token[]> => {
   // get atoken balances
   const savedTokens = cache.tokens[ProductName.AAVE].savedTokens

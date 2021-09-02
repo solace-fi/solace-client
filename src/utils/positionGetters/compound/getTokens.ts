@@ -1,9 +1,10 @@
-import { utils, Contract } from 'ethers'
+import { utils } from 'ethers'
+import { Contract } from '@ethersproject/contracts'
 import { ZERO } from '../../../constants'
 import ctokenJson from './contracts/ICToken.json'
 import ierc20Json from '../_contracts/IERC20Metadata.json'
 import ierc20altJson from './contracts/IERC20MetadataAlt.json'
-import { Token } from '../../../constants/types'
+import { NetworkConfig, Token } from '../../../constants/types'
 import { equalsIgnoreCase } from '../..'
 import { withBackoffRetries } from '../../time'
 import { numberify, rangeFrom0 } from '../../numeric'
@@ -12,9 +13,9 @@ import comptrollerJson from './contracts/IComptroller.json'
 const eth = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
 let cEth = '0x4Ddc2D193948926D02f9B1fE9e1daa0718270ED5'
 
-export const getTokens = async (provider: any, chainId: number): Promise<Token[]> => {
+export const getTokens = async (provider: any, activeNetwork: NetworkConfig): Promise<Token[]> => {
   let ctokenAddresses: string[] = []
-  if (chainId == 4) {
+  if (activeNetwork.chainId == 4) {
     cEth = '0xd6801a1DfFCd0a410336Ef88DeF4320D6DF1883e'
     ctokenAddresses = [
       '0xd6801a1DfFCd0a410336Ef88DeF4320D6DF1883e',
@@ -26,7 +27,7 @@ export const getTokens = async (provider: any, chainId: number): Promise<Token[]
       '0xebe09eb3411d18f4ff8d859e096c533cac5c6b60',
       '0x0014f450b8ae7708593f4a46f8fa6e5d50620f96',
     ]
-  } else if (chainId == 1) {
+  } else if (activeNetwork.chainId == 1) {
     const comptrollerContract = new Contract(
       '0x3d9819210A31b4961b30EF54bE2aeD79B9c9Cd3B',
       comptrollerJson.abi,

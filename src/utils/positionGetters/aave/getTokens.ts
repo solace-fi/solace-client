@@ -1,6 +1,7 @@
-import { Contract, providers } from 'ethers'
+import { providers } from 'ethers'
+import { Contract } from '@ethersproject/contracts'
 import { ZERO } from '../../../constants'
-import { Token } from '../../../constants/types'
+import { NetworkConfig, Token } from '../../../constants/types'
 import ierc20Json from '../_contracts/IERC20Metadata.json'
 import { AaveProtocolDataProviderFactory } from './contracts/AaveProtocolDataProviderFactory'
 import { withBackoffRetries } from '../../time'
@@ -94,13 +95,13 @@ const generateTokensData = async (
   }
 }
 
-export const getTokens = async (provider: any, chainId: number): Promise<Token[]> => {
+export const getTokens = async (provider: any, activeNetwork: NetworkConfig): Promise<Token[]> => {
   if (!provider) return []
   let allTokens: Token[] = []
   await Promise.all(
-    NETWORKS_CONFIG[String(chainId)].map((marketConfig: Market) =>
+    NETWORKS_CONFIG[String(activeNetwork.chainId)].map((marketConfig: Market) =>
       generateTokensData(
-        chainId,
+        activeNetwork.chainId,
         marketConfig.nodeUrl,
         marketConfig.market,
         marketConfig.protocolDataProviderAddress

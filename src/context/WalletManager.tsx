@@ -1,5 +1,5 @@
 import React, { useState, createContext, useContext, useRef, useCallback, useMemo, useEffect } from 'react'
-import { useSessionStorage } from 'react-use-storage'
+import { useLocalStorage } from 'react-use-storage'
 import { UnsupportedChainIdError, useWeb3React } from '@web3-react/core'
 import {
   NoEthereumProviderError,
@@ -14,6 +14,7 @@ import getLibrary from '../utils/getLibrary'
 import { Error as AppError } from '../constants/enums'
 import { WalletModal } from '../components/organisms/WalletModal'
 import { useNetwork } from './NetworkManager'
+import { MetamaskConnector } from '../wallet/wallet-connectors/MetaMask'
 /*
 
 This Manager keeps track of the user's wallet and details, including the wallet type and account, 
@@ -22,7 +23,7 @@ as well as provide the functions to connect and disconnect the wallet.
 SUPPORTED_WALLETS contains connectors that the application allows, if the user's connected wallet is included,
 the connect function is called.
 
-The user's selected wallet connector is then stored into session storage so when they come into the web app again,
+The user's selected wallet connector is then stored into storage so when they come into the web app again,
 the connection will be automatic.
 
 */
@@ -61,7 +62,7 @@ const WalletContext = createContext<ContextWallet>({
 const WalletProvider: React.FC = (props) => {
   const web3React = useWeb3React()
   const { activeNetwork } = useNetwork()
-  const [selectedProvider, setSelectedProvider, removeSelectedProvider] = useSessionStorage<string | undefined>(
+  const [selectedProvider, setSelectedProvider, removeSelectedProvider] = useLocalStorage<string | undefined>(
     'sol_wallet_0'
   )
   const [activeConnector, setActiveConnector] = useState<WalletConnector | undefined>()
@@ -98,20 +99,49 @@ const WalletProvider: React.FC = (props) => {
   }, [web3React, removeSelectedProvider, setConnecting])
 
   const connect = useCallback(
-    async (walletConnector: WalletConnector): Promise<void> => {
+    async (walletConnector: WalletConnector, args?: Record<string, any>): Promise<void> => {
       // if a connector is trying to connect, do not try to connect again
       if (connectingRef.current) return
 
       connectingRef.current = walletConnector
       setConnecting(walletConnector)
-      const connector = walletConnector.getConnector(activeNetwork)
-      await web3React.activate(connector, undefined, true).then(onSuccess).catch(onError).then(closeModal)
+      const connector = walletConnector.getConnector(activeNetwork, args)
+
+      // when connecting via metamask, if app not initialized yet,
+      // set wallet network to app network before activation
+      if (connector instanceof MetamaskConnector && activeNetwork.metamaskChain && !initialized) {
+        try {
+          await connector.switchChain({
+            chainId: activeNetwork.metamaskChain.chainId,
+          })
+        } catch (e) {
+          if (e.code === 4902) {
+            await connector.addChain(activeNetwork.metamaskChain)
+          }
+        }
+      }
+
+      // console.log('on connect connector:', connector)
+      await web3React.activate(connector, undefined, true).then(onSuccess).catch(onError)
+
+      // if (walletConnector.id == 'ledger') {
+      //   console.log('ledger connector detected, begin getting provider')
+      //   const res = await connector.getProvider()
+      //   if (res) {
+      //     const accounts = await res._providers[0].getAccountsAsync(30)
+      //     console.log('on connect provider:', res)
+      //     console.log('on connect accounts:', accounts)
+      //   } else {
+      //     console.log('error, res not exist:', res)
+      //   }
+      // }
 
       function onSuccess() {
-        setErrors([])
         if (!connectingRef.current) return
-        walletConnector.onConnect?.(connector)
+        setErrors([])
+        walletConnector.onConnect?.(connector, args)
         setActiveConnector(walletConnector)
+        setSelectedProvider(walletConnector.id)
       }
 
       function onError(error: Error) {
@@ -149,7 +179,7 @@ const WalletProvider: React.FC = (props) => {
       if (!errors.includes(AppError.WALLET_NETWORK_UNSYNC))
         setErrors((errors) => [...errors, AppError.WALLET_NETWORK_UNSYNC])
     }
-  }, [activeNetwork, errors, web3React.chainId, selectedProvider, connecting])
+  }, [activeNetwork, errors, web3React, selectedProvider, connecting])
 
   useEffect(() => {
     // If the user has a local provider already

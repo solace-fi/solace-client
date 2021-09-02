@@ -11,12 +11,11 @@ export const useFetchGasPrice = (): GasFeeListState => {
   const [state, setState] = useState<GasFeeListState>({
     options: [],
     loading: true,
-    selected: undefined,
   })
 
   useEffect(() => {
     const fetchGasPrices = async () => {
-      await fetchGasPrice(activeNetwork.explorer.apiUrl)
+      await fetchGasPrice(activeNetwork.explorer.apiUrl, chainId)
         .then((result) => {
           const options = [
             {
@@ -44,6 +43,7 @@ export const useFetchGasPrice = (): GasFeeListState => {
             loading: false,
             options,
             selected: options[1],
+            suggestedBaseFee: result.suggestBaseFee,
           })
         })
         .catch(() => {

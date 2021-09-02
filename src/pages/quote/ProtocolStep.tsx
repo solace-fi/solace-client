@@ -51,7 +51,7 @@ import { useGetAvailableCoverages, useGetYearlyCosts } from '../../hooks/usePoli
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'
 
 /* import utils */
-import { fixed } from '../../utils/formatting'
+import { fixed, truncateBalance } from '../../utils/formatting'
 
 /*************************************************************************************
 
@@ -115,7 +115,7 @@ export const ProtocolStep: React.FC<formProps> = ({ setForm, navigation }) => {
 
   const handleAvailableCoverage = (protocol: string) => {
     if (!availableCoverages[protocol]) return '0'
-    return availableCoverages[protocol].split('.')[0]
+    return truncateBalance(availableCoverages[protocol], 2)
   }
 
   /*************************************************************************************

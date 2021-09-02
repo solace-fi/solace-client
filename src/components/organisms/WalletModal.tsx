@@ -15,7 +15,7 @@
   *************************************************************************************/
 
 /* import react */
-import React, { useCallback } from 'react'
+import React, { useCallback, useState } from 'react'
 
 /* import managers */
 import { useWallet } from '../../context/WalletManager'
@@ -30,10 +30,19 @@ import { Button, ButtonWrapper } from '../atoms/Button'
 
 /* import wallets */
 import { SUPPORTED_WALLETS } from '../../wallet/'
+import { LedgerDerivationPathModal } from './LedgerDerivationPathModal'
 
 interface WalletModalProps {
   closeModal: () => void
   isOpen: boolean
+}
+
+type ConnectWalletModalState = {
+  showLedgerModal: boolean
+}
+
+const InitialState: ConnectWalletModalState = {
+  showLedgerModal: false,
 }
 
 export const WalletModal: React.FC<WalletModalProps> = ({ closeModal, isOpen }) => {
@@ -43,6 +52,8 @@ export const WalletModal: React.FC<WalletModalProps> = ({ closeModal, isOpen }) 
 
   *************************************************************************************/
   const { changeWallet, disconnect, activeWalletConnector } = useWallet()
+  const [state, setState] = useState<ConnectWalletModalState>(InitialState)
+
   /************************************************************************************* 
     
   local functions
@@ -53,8 +64,16 @@ export const WalletModal: React.FC<WalletModalProps> = ({ closeModal, isOpen }) 
   }, [closeModal])
 
   const connectWallet = useCallback(async (id: string) => {
-    await changeWallet(SUPPORTED_WALLETS[SUPPORTED_WALLETS.findIndex((wallet) => wallet.id === id)])
-    handleClose()
+    const foundWalletConnector = SUPPORTED_WALLETS[SUPPORTED_WALLETS.findIndex((wallet) => wallet.id === id)]
+
+    if (foundWalletConnector.id === 'ledger') {
+      setState({
+        showLedgerModal: true,
+      })
+      return
+    }
+
+    await changeWallet(foundWalletConnector)
   }, [])
   /************************************************************************************* 
     
@@ -95,6 +114,12 @@ export const WalletModal: React.FC<WalletModalProps> = ({ closeModal, isOpen }) 
           </Button>
         </ButtonWrapper>
       )}
+      <LedgerDerivationPathModal
+        isOpen={state.showLedgerModal}
+        closeModal={() => {
+          setState({ showLedgerModal: false })
+        }}
+      />
     </Modal>
   )
 }

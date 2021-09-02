@@ -60,7 +60,8 @@ export const usePolicyGetter = (
         policies.sort((a: any, b: any) => b.policyId - a.policyId) // newest first
         const matchingCache = data.storedTokenAndPositionData.find((dataset) => dataset.name == activeNetwork.name)
         policies.forEach((policy: Policy) => {
-          const productPosition = matchingCache?.positions[activeNetwork.cache.productsRev[policy.productAddress] ?? '']
+          const productPosition =
+            matchingCache?.positions[activeNetwork.config.productsRev[policy.productAddress] ?? '']
           if (productPosition) {
             policy.positionName = productPosition.positionNames[policy.positionContract.toLowerCase()]
           }
@@ -94,7 +95,7 @@ export const usePolicyGetter = (
         policyId: Number(policyId),
         policyHolder: policy.policyholder,
         productAddress: policy.product,
-        productName: activeNetwork.cache.productsRev[policy.product] ?? '',
+        productName: activeNetwork.config.productsRev[policy.product] ?? '',
         positionContract: policy.positionContract,
         expirationBlock: policy.expirationBlock,
         coverAmount: policy.coverAmount.toString(),

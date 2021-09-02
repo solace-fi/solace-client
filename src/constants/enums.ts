@@ -19,14 +19,14 @@ export enum FunctionName {
   CANCEL_POLICY = 'CancelPolicy',
   DEPOSIT_ETH = 'DepositEth',
   DEPOSIT_CP = 'DepositCp',
-  DEPOSIT_SIGNED = 'DepositSigned',
+  DEPOSIT_SIGNED = 'DepositLpSigned',
   EXTEND_POLICY_PERIOD = 'ExtendPolicy',
   UPDATE_POLICY_AMOUNT = 'UpdateCoverAmount',
   UPDATE_POLICY = 'UpdatePolicy',
   SUBMIT_CLAIM = 'SubmitClaim',
   WITHDRAW_ETH = 'WithdrawEth',
   WITHDRAW_CP = 'WithdrawCp',
-  WITHDRAW_LP = 'Withdraw',
+  WITHDRAW_LP = 'WithdrawLp',
   WITHDRAW_CLAIMS_PAYOUT = 'WithdrawClaimsPayout',
   WITHDRAW_REWARDS = 'WithdrawRewards',
   MULTI_CALL = 'Multicall',
@@ -58,4 +58,5 @@ export enum PolicyState {
 export enum ProductName {
   COMPOUND = 'Compound',
   AAVE = 'Aave',
+  WAAVE = 'Waave',
 }

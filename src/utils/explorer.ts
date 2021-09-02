@@ -31,16 +31,18 @@ export async function fetchExplorerTxHistoryByAddress(
     })
 }
 
-export async function fetchGasPrice(explorer: string): Promise<GasPriceResult> {
+export async function fetchGasPrice(explorer: string, chainId: number): Promise<GasPriceResult> {
   return fetch(`${explorer}/api?module=gastracker&action=gasoracle&apikey=${STRINGIFIED_ETHERSCAN_API_KEY}`)
     .then((result) => result.json())
     .then((result) => result.result)
     .then((result) => {
-      return {
+      const fetchedResult: GasPriceResult = {
         veryFast: Number(result.FastGasPrice),
         fast: Number(result.ProposeGasPrice),
         average: Math.round((Number(result.ProposeGasPrice) + Number(result.SafeGasPrice)) / 2),
         safeLow: Number(result.SafeGasPrice),
       }
+      if (chainId == 1) fetchedResult.suggestBaseFee = Number(result.suggestBaseFee)
+      return fetchedResult
     })
 }

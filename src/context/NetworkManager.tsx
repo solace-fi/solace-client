@@ -1,10 +1,10 @@
 import React, { createContext, useCallback, useContext, useMemo } from 'react'
-import { useSessionStorage } from 'react-use-storage'
+import { useLocalStorage } from 'react-use-storage'
 import { NetworkConfig } from '../constants/types'
 import { KovanNetwork } from '../networks/kovan'
 import { RinkebyNetwork } from '../networks/rinkeby'
 import { AbstractConnector } from '@web3-react/abstract-connector'
-import { MetamaskConnector } from '../wallet/wallets/MetaMask'
+import { MetamaskConnector } from '../wallet/wallet-connectors/MetaMask'
 
 /*
 
@@ -35,7 +35,7 @@ const NetworkContext = createContext<NetworkContext>({
 })
 
 const NetworksProvider: React.FC = (props) => {
-  const [lastNetwork, setLastNetwork] = useSessionStorage<string | undefined>('solace_net')
+  const [lastNetwork, setLastNetwork] = useLocalStorage<string | undefined>('solace_net')
 
   const activeNetwork = useMemo(() => {
     let network: NetworkConfig | undefined
@@ -66,7 +66,7 @@ const NetworksProvider: React.FC = (props) => {
     if (network) {
       setLastNetwork(network.name.toLowerCase())
 
-      // there were cases where changing networks without changing the wallet does not give the correct balance
+      // there were cases where changing networks with the same wallet (not metamask) does not give the correct balance
       if (connector && !(connector instanceof MetamaskConnector)) window.location.reload()
     }
 

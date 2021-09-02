@@ -55,8 +55,9 @@ import { Policy } from '../../constants/types'
 import { useAppraisePosition, useGetMaxCoverPerUser, useGetPolicyPrice } from '../../hooks/usePolicy'
 
 /* import utils */
-import { accurateMultiply, getGasValue } from '../../utils/formatting'
+import { accurateMultiply } from '../../utils/formatting'
 import { getDaysLeft, getExpiration } from '../../utils/time'
+import { getGasConfig } from '../../utils'
 
 interface ManageModalProps {
   closeModal: () => void
@@ -85,13 +86,17 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
   *************************************************************************************/
 
   const { selectedProtocol } = useContracts()
-  const { errors } = useWallet()
+  const { errors, activeWalletConnector } = useWallet()
   const { addLocalTransactions, reload, gasPrices } = useCachedData()
   const { makeTxToast } = useToasts()
   const policyPrice = useGetPolicyPrice(selectedPolicy ? selectedPolicy.policyId : 0)
   const maxCoverPerUser = useGetMaxCoverPerUser()
   const { activeNetwork, currencyDecimals } = useNetwork()
-
+  const gasConfig = useMemo(() => getGasConfig(activeWalletConnector, activeNetwork, gasPrices.selected?.value), [
+    activeWalletConnector,
+    activeNetwork,
+    gasPrices.selected?.value,
+  ])
   const daysLeft = useMemo(() => getDaysLeft(selectedPolicy ? selectedPolicy.expirationBlock : 0, latestBlock), [
     latestBlock,
     selectedPolicy,
@@ -128,23 +133,13 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
         .mul(price)
         .mul(selectedPolicy.expirationBlock + NUM_BLOCKS_PER_DAY * parseInt(extendedTime) - latestBlock)
         .div(String(Math.pow(10, 12)))
-      // const paidPremium = BigNumber.from(currentCoverAmount)
-      //   .mul(paidprice)
-      //   .mul(selectedPolicy.expirationBlock - latestBlock)
-      //   .div(String(Math.pow(10, 12)))
-      // const premium = newPremium.sub(paidPremium)
-      // console.log('newPremium:', newPremium)
-      // console.log('paidPremium:', paidPremium)
-      // console.log('newPremium >= paidPremium ? ', newPremium.gte(paidPremium))
-      // console.log('premium = newPremium - paidPremium: ', premium)
-      // console.log('newPremium >= premium ? ', newPremium.gte(premium))
       const tx = await selectedProtocol.updatePolicy(
         selectedPolicy.policyId,
         newCoverage,
         NUM_BLOCKS_PER_DAY * parseInt(extendedTime),
         {
           value: newPremium,
-          gasPrice: getGasValue(gasPrices.selected.value),
+          ...gasConfig,
           gasLimit: GAS_LIMIT,
         }
       )
@@ -183,20 +178,10 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
       .mul(price)
       .mul(selectedPolicy.expirationBlock - latestBlock)
       .div(String(Math.pow(10, 12)))
-    // const paidPremium = BigNumber.from(currentCoverAmount)
-    //   .mul(paidprice)
-    //   .mul(selectedPolicy.expirationBlock - latestBlock)
-    //   .div(String(Math.pow(10, 12)))
-    // const premium = newPremium.sub(paidPremium)
-    // console.log('newPremium:', newPremium)
-    // console.log('paidPremium:', paidPremium)
-    // console.log('newPremium >= paidPremium ? ', newPremium.gte(paidPremium))
-    // console.log('premium = newPremium - paidPremium: ', premium)
-    // console.log('newPremium >= premium ? ', newPremium.gte(premium))
     try {
       const tx = await selectedProtocol.updateCoverAmount(selectedPolicy.policyId, newCoverage, {
         value: newPremium,
-        gasPrice: getGasValue(gasPrices.selected.value),
+        ...gasConfig,
         gasLimit: GAS_LIMIT,
       })
       const txHash = tx.hash
@@ -239,7 +224,7 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
         NUM_BLOCKS_PER_DAY * parseInt(extendedTime),
         {
           value: newPremium,
-          gasPrice: getGasValue(gasPrices.selected.value),
+          ...gasConfig,
           gasLimit: GAS_LIMIT,
         }
       )
@@ -269,7 +254,7 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
     const txType = FunctionName.CANCEL_POLICY
     try {
       const tx = await selectedProtocol.cancelPolicy(selectedPolicy.policyId, {
-        gasPrice: getGasValue(gasPrices.selected.value),
+        ...gasConfig,
         gasLimit: GAS_LIMIT,
       })
       const txHash = tx.hash
