@@ -40,6 +40,13 @@ export const RinkebyNetwork: NetworkConfig = {
     key: String(ETHERSCAN_API_KEY),
     url: 'https://rinkeby.etherscan.io',
     apiUrl: 'https://api-rinkeby.etherscan.io',
+    excludedContractAddrs: [
+      String(process.env.REACT_APP_RINKEBY_UNISWAP_LPTOKEN_ADDR),
+      String(process.env.REACT_APP_RINKEBY_WAAVE_PRODUCT_ADDR),
+      String(process.env.REACT_APP_RINKEBY_COMPOUND_PRODUCT_ADDR),
+      String(process.env.REACT_APP_RINKEBY_LPFARM_ADDR),
+      String(process.env.REACT_APP_RINKEBY_SOLACE_ADDR),
+    ],
   },
   config: {
     keyContracts: {

@@ -134,6 +134,7 @@ export type NetworkConfig = {
     key: string
     url: string
     apiUrl: string
+    excludedContractAddrs: string[]
   }
   config: {
     keyContracts: {

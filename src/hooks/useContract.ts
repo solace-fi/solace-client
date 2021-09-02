@@ -52,10 +52,10 @@ export function useContractArray(): ContractSources[] {
   return useMemo(() => {
     const config = activeNetwork.config
     const contractSources: ContractSources[] = []
-    const excludedContractSources = [process.env.REACT_APP_RINKEBY_UNISWAP_LPTOKEN_ADDR]
+    const excludedContractAddrs = activeNetwork.explorer.excludedContractAddrs
 
     Object.keys(config.keyContracts).forEach((key) => {
-      if (!excludedContractSources.includes(config.keyContracts[key].addr)) {
+      if (!excludedContractAddrs.includes(config.keyContracts[key].addr)) {
         contractSources.push({
           addr: config.keyContracts[key].addr.toLowerCase(),
           abi: config.keyContracts[key].abi,
@@ -63,7 +63,7 @@ export function useContractArray(): ContractSources[] {
       }
     })
     Object.keys(config.productContracts).forEach((key) => {
-      if (!excludedContractSources.includes(config.productContracts[key].addr)) {
+      if (!excludedContractAddrs.includes(config.productContracts[key].addr)) {
         contractSources.push({
           addr: config.productContracts[key].addr.toLowerCase(),
           abi: config.productContracts[key].abi,
