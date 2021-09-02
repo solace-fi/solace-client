@@ -15,15 +15,13 @@ import compAbi from '../constants/abi/contracts/products/CompoundProductRinkeby.
 import waaveAbi from '../constants/abi/contracts/products/WaaveProduct.sol/WaaveProduct.json'
 
 import { ProductName, Unit } from '../constants/enums'
-import { getTokens as compTokens } from '../utils/positionGetters/compound/getTokens'
-import { getBalances as compBalances } from '../utils/positionGetters/compound/getBalances'
-import { getTokens as waaveTokens } from '../utils/positionGetters/waave/getTokens'
-import { getBalances as waaveBalances } from '../utils/positionGetters/waave/getBalances'
 
 import { NetworkConfig } from '../constants/types'
 import { ETHERSCAN_API_KEY } from '../constants'
 import { hexValue } from '@ethersproject/bytes'
 import { ALCHEMY_API_KEY } from '../constants'
+import { CompoundProduct } from '../products/compound'
+import { WaaveProduct } from '../products/waave'
 
 /*
 
@@ -104,20 +102,13 @@ export const RinkebyNetwork: NetworkConfig = {
         abi: waaveAbi,
       },
     },
-    functions: {
-      getTokens: { [ProductName.COMPOUND]: compTokens, [ProductName.WAAVE]: waaveTokens },
-      getBalances: { [ProductName.COMPOUND]: compBalances, [ProductName.WAAVE]: waaveBalances },
-    },
     productsRev: {
       [String(process.env.REACT_APP_RINKEBY_COMPOUND_PRODUCT_ADDR)]: ProductName.COMPOUND,
       [String(process.env.REACT_APP_RINKEBY_WAAVE_PRODUCT_ADDR)]: ProductName.WAAVE,
     },
   },
   cache: {
-    supportedProducts: [
-      { name: ProductName.COMPOUND, contract: null },
-      { name: ProductName.WAAVE, contract: null },
-    ],
+    supportedProducts: [CompoundProduct, WaaveProduct],
   },
   metamaskChain: {
     chainId: hexValue(4),

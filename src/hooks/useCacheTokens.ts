@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, useCallback } from 'react'
-import { NetworkConfig, Token } from '../constants/types'
+import { NetworkConfig, SupportedProduct, Token } from '../constants/types'
 import { useWallet } from '../context/WalletManager'
 import { useNetwork } from '../context/NetworkManager'
 import { useSessionStorage } from 'react-use-storage'
@@ -21,8 +21,8 @@ export const useCacheTokens = () => {
     if (storedTokenAndPositionData.length == 0) {
       const unsetTokenAndPositionData: NetworkCache[] = []
       networks.forEach((network) => {
-        const supportedProducts = network.cache.supportedProducts.map((product: any) => product.name)
-        const cachedTokens: { [key: string]: { savedTokens: any[]; tokensInitialized: boolean } } = {}
+        const supportedProducts = network.cache.supportedProducts.map((product: SupportedProduct) => product.name)
+        const cachedTokens: { [key: string]: { savedTokens: Token[]; tokensInitialized: boolean } } = {}
         const cachedPositions: { [key: string]: { positionNamesInitialized: boolean } } = {}
         supportedProducts.forEach((name: ProductName) => {
           cachedTokens[name] = { savedTokens: [], tokensInitialized: false }
@@ -59,16 +59,13 @@ export const useCacheTokens = () => {
 
       // for every supported product in this network, initialize the tokens and positions
       await Promise.all(
-        supportedProducts.map(async (supportedProduct: any) => {
+        supportedProducts.map(async (supportedProduct: SupportedProduct) => {
           const productName = supportedProduct.name
           if (
             !newCache.tokens[productName].tokensInitialized &&
             !newCache.positions[productName].positionNamesInitialized
           ) {
-            const tokens: Token[] = await _activeNetwork.config.functions.getTokens[productName](
-              _library,
-              _activeNetwork
-            )
+            const tokens: Token[] = await supportedProduct.getTokens(_library, _activeNetwork)
             const initializedTokens = {
               ...newCache.tokens[productName],
               savedTokens: tokens,

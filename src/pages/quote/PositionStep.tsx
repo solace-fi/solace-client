@@ -106,12 +106,9 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
     const cache = tokenPositionData.storedTokenAndPositionData.find((dataset) => dataset.name == activeNetwork.name)
     if (findNetworkByChainId(chainId) && cache) {
       try {
-        const balances: Token[] = await activeNetwork.config.functions.getBalances[protocol.name](
-          account,
-          library,
-          cache,
-          activeNetwork
-        )
+        const supportedProduct = activeNetwork.cache.supportedProducts.find((product) => product.name == protocol.name)
+        if (!supportedProduct) return
+        const balances: Token[] = await supportedProduct.getBalances(account, library, cache, activeNetwork)
         setForm({
           target: {
             name: 'balances',

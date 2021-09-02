@@ -69,32 +69,35 @@ Run using the following react command from the client directory
     |   |____quote/
     |   |____App
     |___resources/
+    |___products/
     |___styles/
     |___utils/
 
 ## React Context Structure
 
-    <ProviderManager>              // web3 Provider
-      <WalletManager>              // wallet connection
-        <ContractsManager>         // contracts
-          <CachedDataManager>      // cached data
-            <NotificationsManager> // notifications and toasts
-              ...
-                <App />
-              ...
-            </NotificationsManager>
+    <NetworkManager>                 // network management
+      <WalletManager>                // wallet connection
+        <ProviderManager>            // network-wallet mediator
+          <CachedDataManager>        // cached data
+            <ContractsManager>       // contracts
+              <NotificationsManager> // notifications and toasts
+                ...
+              </NotificationsManager>
+            </ContractsManager>
           </CachedDataManager>
-        </ContractsManager>
+        </ProviderManager>
       </WalletManager>
-    </ProviderManager>
+    </NetworkManager>
 
-ProviderManager allows access to the provider from Alchemy, this is used to call read-only contract methods.
+NetworkManager allows access to current network and its configuration.
 
-WalletManager allows access to web3-react, wallet connection functionalities, and wallet balance.
+WalletManager allows access to web3-react and wallet connection functionalities.
 
-ContractsManager allows centralized access to contracts.
+ProviderManager allows functions from Network and Wallet Managers to work together.
 
 CachedDataManager allows the app to access data that is already cached onto the app.
+
+ContractsManager allows centralized access to contracts.
 
 NotificationsManager allows the app to create notifications for the user.
 
@@ -107,4 +110,4 @@ and [Uniswap](https://github.com/Uniswap/uniswap-interface).
 
 At the time of writing, Barnbridge utilized Web3 and React Context, while Uniswap utilized Redux and Ethers, but they both used Web3-react. To make the most of our application, we tried to get the best of both worlds using the following stack: React Context, Ethers, and Web3-React.
 
-There was also a difference in the organization of connectors and contracts observed in both repositories. Barnbridge centralized all of its contracts into a single Context provider, while Uniswap centralized contract hooks and molded its contract functions into hooks that are called by different components of the application. This application was able to mesh the two types of organizations together.
+There was also a difference in the organization of connectors and contracts observed in both repositories. Barnbridge centralized all of its contracts into a single Context provider, while Uniswap centralized contract hooks and molded its contract functions into hooks that are called by different components of the application. This application was able to mesh the two types of organizations together. Over time, the design of the app was slowly following Barnbridge's direction.

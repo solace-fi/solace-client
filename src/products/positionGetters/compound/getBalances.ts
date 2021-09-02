@@ -1,11 +1,11 @@
 import tokenJson from './contracts/ICToken.json'
-import { rangeFrom0 } from '../../numeric'
+import { rangeFrom0 } from '../../../utils/numeric'
 import { NetworkCache, NetworkConfig, Token } from '../../../constants/types'
 import { addNativeTokenBalances, getProductTokenBalances } from '../getBalances'
 import { ProductName } from '../../../constants/enums'
 import { Contract } from '@ethersproject/contracts'
 import { getNonHumanValue } from '../../../utils/formatting'
-import { withBackoffRetries } from '../../time'
+import { withBackoffRetries } from '../../../utils/time'
 
 export const getBalances = async (
   user: string,

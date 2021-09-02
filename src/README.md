@@ -16,8 +16,10 @@
 
     > utils: contains stateless functions that serve as helper functions
 
-    > wallets: contains data about Wallet Connectors, imported from web3-React
+    > wallet: contains data about Wallet Connectors, imported from web3-React
 
     > styles: CSS styles that are not included in styled components for compatability reasons
+
+    > products: contains the individual products and related functions
 
     index: contains instantiation of entire web app, entry point

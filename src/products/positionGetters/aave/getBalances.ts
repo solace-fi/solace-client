@@ -1,6 +1,6 @@
 import { NetworkCache, NetworkConfig, Token } from '../../../constants/types'
 import ierc20Json from '../_contracts/IERC20Metadata.json'
-import { rangeFrom0 } from '../../numeric'
+import { rangeFrom0 } from '../../../utils/numeric'
 import { addNativeTokenBalances, getProductTokenBalances } from '../getBalances'
 import { ProductName } from '../../../constants/enums'
 

@@ -15,15 +15,13 @@ import aaveAbi from '../constants/abi/contracts/products/AaveV2Product.sol/AaveV
 import waaveAbi from '../constants/abi/contracts/products/WaaveProduct.sol/WaaveProduct.json'
 
 import { ProductName, Unit } from '../constants/enums'
-import { getTokens as aaveTokens } from '../utils/positionGetters/aave/getTokens'
-import { getBalances as aaveBalances } from '../utils/positionGetters/aave/getBalances'
-import { getTokens as waaveTokens } from '../utils/positionGetters/waave/getTokens'
-import { getBalances as waaveBalances } from '../utils/positionGetters/waave/getBalances'
 
 import { NetworkConfig } from '../constants/types'
 import { ETHERSCAN_API_KEY } from '../constants'
 import { hexValue } from '@ethersproject/bytes'
 import { ALCHEMY_API_KEY } from '../constants'
+import { AaveProduct } from '../products/aave'
+import { WaaveProduct } from '../products/waave'
 
 /*
 
@@ -104,20 +102,13 @@ export const KovanNetwork: NetworkConfig = {
         abi: waaveAbi,
       },
     },
-    functions: {
-      getTokens: { [ProductName.AAVE]: aaveTokens, [ProductName.WAAVE]: waaveTokens },
-      getBalances: { [ProductName.AAVE]: aaveBalances, [ProductName.WAAVE]: waaveBalances },
-    },
     productsRev: {
       [String(process.env.REACT_APP_KOVAN_AAVE_PRODUCT_ADDR)]: ProductName.AAVE,
       [String(process.env.REACT_APP_KOVAN_WAAVE_PRODUCT_ADDR)]: ProductName.WAAVE,
     },
   },
   cache: {
-    supportedProducts: [
-      { name: ProductName.AAVE, contract: null },
-      { name: ProductName.WAAVE, contract: null },
-    ],
+    supportedProducts: [AaveProduct, WaaveProduct],
   },
   metamaskChain: {
     chainId: hexValue(42),

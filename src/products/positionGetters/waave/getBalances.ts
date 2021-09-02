@@ -1,10 +1,10 @@
 import { NetworkCache, NetworkConfig, Token } from '../../../constants/types'
-import { rangeFrom0 } from '../../numeric'
+import { rangeFrom0 } from '../../../utils/numeric'
 import { ProductName } from '../../../constants/enums'
 import { Contract } from '@ethersproject/contracts'
 import { addNativeTokenBalances, getProductTokenBalances } from '../getBalances'
 import { getNonHumanValue } from '../../../utils/formatting'
-import { withBackoffRetries } from '../../time'
+import { withBackoffRetries } from '../../../utils/time'
 import waaveTokenAbi from '../../../constants/abi/contracts/interface/Waave/IWaToken.sol/IWaToken.json'
 
 export const getBalances = async (
