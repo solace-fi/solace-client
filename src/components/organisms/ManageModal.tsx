@@ -49,7 +49,7 @@ import { SmallBox } from '../atoms/Box'
 /* import constants */
 import { DAYS_PER_YEAR, NUM_BLOCKS_PER_DAY, GAS_LIMIT, ZERO } from '../../constants'
 import { FunctionName, TransactionCondition, Unit } from '../../constants/enums'
-import { Policy } from '../../constants/types'
+import { LocalTx, Policy } from '../../constants/types'
 
 /* import hooks */
 import { useAppraisePosition, useGetMaxCoverPerUser, useGetPolicyPrice } from '../../hooks/usePolicy'
@@ -143,29 +143,16 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
           gasLimit: GAS_LIMIT,
         }
       )
-      const txHash = tx.hash
       const localTx = {
-        hash: txHash,
+        hash: tx.hash,
         type: txType,
         value: '0',
         status: TransactionCondition.PENDING,
         unit: activeNetwork.nativeCurrency.symbol,
       }
-      setModalLoading(false)
-      handleClose()
-      addLocalTransactions(localTx)
-      reload()
-      makeTxToast(txType, TransactionCondition.PENDING, txHash)
-      await tx.wait().then((receipt: any) => {
-        const status = receipt.status ? TransactionCondition.SUCCESS : TransactionCondition.FAILURE
-        makeTxToast(txType, status, txHash)
-        reload()
-      })
+      await handleToast(tx, localTx)
     } catch (err) {
-      console.log('updatePolicy:', err)
-      makeTxToast(txType, TransactionCondition.CANCELLED)
-      setModalLoading(false)
-      reload()
+      handleContractCallError('updatePolicy:', err, txType)
     }
   }
 
@@ -184,29 +171,16 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
         ...gasConfig,
         gasLimit: GAS_LIMIT,
       })
-      const txHash = tx.hash
       const localTx = {
-        hash: txHash,
+        hash: tx.hash,
         type: txType,
         value: '0',
         status: TransactionCondition.PENDING,
         unit: Unit.ID,
       }
-      setModalLoading(false)
-      handleClose()
-      addLocalTransactions(localTx)
-      reload()
-      makeTxToast(txType, TransactionCondition.PENDING, txHash)
-      await tx.wait().then((receipt: any) => {
-        const status = receipt.status ? TransactionCondition.SUCCESS : TransactionCondition.FAILURE
-        makeTxToast(txType, status, txHash)
-        reload()
-      })
+      await handleToast(tx, localTx)
     } catch (err) {
-      console.log('updateCoverAmount:', err)
-      makeTxToast(txType, TransactionCondition.CANCELLED)
-      setModalLoading(false)
-      reload()
+      handleContractCallError('updateCoverAmount:', err, txType)
     }
   }
 
@@ -228,23 +202,10 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
           gasLimit: GAS_LIMIT,
         }
       )
-      const txHash = tx.hash
-      const localTx = { hash: txHash, type: txType, value: '0', status: TransactionCondition.PENDING, unit: Unit.ID }
-      setModalLoading(false)
-      handleClose()
-      addLocalTransactions(localTx)
-      reload()
-      makeTxToast(txType, TransactionCondition.PENDING, txHash)
-      await tx.wait().then((receipt: any) => {
-        const status = receipt.status ? TransactionCondition.SUCCESS : TransactionCondition.FAILURE
-        makeTxToast(txType, status, txHash)
-        reload()
-      })
+      const localTx = { hash: tx.hash, type: txType, value: '0', status: TransactionCondition.PENDING, unit: Unit.ID }
+      await handleToast(tx, localTx)
     } catch (err) {
-      console.log('extendPolicy:', err)
-      makeTxToast(txType, TransactionCondition.CANCELLED)
-      setModalLoading(false)
-      reload()
+      handleContractCallError('extendPolicy:', err, txType)
     }
   }
 
@@ -257,29 +218,16 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
         ...gasConfig,
         gasLimit: GAS_LIMIT,
       })
-      const txHash = tx.hash
       const localTx = {
-        hash: txHash,
+        hash: tx.hash,
         type: txType,
         value: String(selectedPolicy.policyId),
         status: TransactionCondition.PENDING,
         unit: Unit.ID,
       }
-      setModalLoading(false)
-      handleClose()
-      addLocalTransactions(localTx)
-      reload()
-      makeTxToast(txType, TransactionCondition.PENDING, txHash)
-      await tx.wait().then((receipt: any) => {
-        const status = receipt.status ? TransactionCondition.SUCCESS : TransactionCondition.FAILURE
-        makeTxToast(txType, status, txHash)
-        reload()
-      })
+      await handleToast(tx, localTx)
     } catch (err) {
-      console.log('cancelPolicy:', err)
-      makeTxToast(txType, TransactionCondition.CANCELLED)
-      setModalLoading(false)
-      reload()
+      handleContractCallError('cancelPolicy:', err, txType)
     }
   }
 
@@ -288,6 +236,26 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
     Local functions
 
   *************************************************************************************/
+
+  const handleToast = async (tx: any, localTx: LocalTx) => {
+    setModalLoading(false)
+    handleClose()
+    addLocalTransactions(localTx)
+    reload()
+    makeTxToast(localTx.type, TransactionCondition.PENDING, localTx.hash)
+    await tx.wait().then((receipt: any) => {
+      const status = receipt.status ? TransactionCondition.SUCCESS : TransactionCondition.FAILURE
+      makeTxToast(localTx.type, status, localTx.hash)
+      reload()
+    })
+  }
+
+  const handleContractCallError = (functionName: string, err: any, txType: FunctionName) => {
+    console.log(functionName, err)
+    makeTxToast(txType, TransactionCondition.CANCELLED)
+    setModalLoading(false)
+    reload()
+  }
 
   const handleCoverageChange = (coverAmount: string) => {
     setNewCoverage(coverAmount) // coveramount in wei

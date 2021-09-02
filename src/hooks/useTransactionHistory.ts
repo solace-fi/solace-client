@@ -51,6 +51,9 @@ export const useTransactionDetails = (): { txHistory: any; amounts: string[] } =
 
     switch (function_name) {
       case FunctionName.DEPOSIT_ETH:
+        // same method name between vault and CpFarm
+        if (receipt.to.toLowerCase() === activeNetwork.config.keyContracts.vault.addr.toLowerCase()) return logs[0].data
+        return logs[logs.length - 1].data
       case FunctionName.WITHDRAW_ETH:
         return logs[0].data
       case FunctionName.SUBMIT_CLAIM:
