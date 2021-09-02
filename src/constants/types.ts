@@ -120,6 +120,7 @@ export type LocalTx = {
 export type NetworkConfig = {
   name: string
   chainId: number
+  isTestnet: boolean
   supportedTxTypes: number[]
   nativeCurrency: {
     symbol: Unit

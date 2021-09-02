@@ -3,9 +3,6 @@ import { getAddress } from '@ethersproject/address'
 import { AddressZero } from '@ethersproject/constants'
 import { JsonRpcSigner, Web3Provider } from '@ethersproject/providers'
 import { BigNumber } from 'ethers'
-import { WalletConnector } from '../wallet'
-import { NetworkConfig } from '../constants/types'
-import { getGasValue } from './formatting'
 
 // returns the checksummed address if the address is valid, otherwise returns false
 export function isAddress(value: any): string | false {
@@ -49,20 +46,4 @@ export const hasApproval = (tokenAllowance?: string, amountToApprove?: string): 
     return true
   }
   return false
-}
-
-export const getGasConfig = (
-  activeWalletConnector: WalletConnector | undefined,
-  activeNetwork: NetworkConfig,
-  gasValue: any
-): any => {
-  if (!activeWalletConnector || !gasValue) return {}
-  if (activeWalletConnector.supportedTxTypes.includes(2) && activeNetwork.supportedTxTypes.includes(2))
-    return {
-      maxFeePerGas: getGasValue(gasValue),
-      type: 2,
-    }
-  return {
-    gasPrice: getGasValue(gasValue),
-  }
 }

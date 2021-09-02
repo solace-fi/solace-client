@@ -57,7 +57,7 @@ import { useAppraisePosition, useGetMaxCoverPerUser, useGetPolicyPrice } from '.
 /* import utils */
 import { accurateMultiply } from '../../utils/formatting'
 import { getDaysLeft, getExpiration } from '../../utils/time'
-import { getGasConfig } from '../../utils'
+import { getGasConfig } from '../../utils/gas'
 
 interface ManageModalProps {
   closeModal: () => void

@@ -70,7 +70,8 @@ import { useCooldown } from '../../hooks/useVault'
 
 /* import utils */
 import getPermitNFTSignature from '../../utils/signature'
-import { getGasConfig, hasApproval } from '../../utils'
+import { hasApproval } from '../../utils'
+import { getGasConfig } from '../../utils/gas'
 import { fixed, filteredAmount, getUnit, truncateBalance } from '../../utils/formatting'
 import { getTimeFromMillis, timeToDate } from '../../utils/time'
 import { NftPosition } from '../molecules/NftPosition'

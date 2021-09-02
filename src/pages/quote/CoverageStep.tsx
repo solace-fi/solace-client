@@ -57,7 +57,7 @@ import { useGetQuote, useGetMaxCoverPerUser } from '../../hooks/usePolicy'
 /* import utils */
 import { accurateMultiply } from '../../utils/formatting'
 import { getDateStringWithMonthName, getDateExtended } from '../../utils/time'
-import { getGasConfig } from '../../utils'
+import { getGasConfig } from '../../utils/gas'
 
 export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigation }) => {
   /*************************************************************************************
