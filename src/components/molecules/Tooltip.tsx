@@ -1,11 +1,38 @@
-import React from 'react'
-import ReactTooltip from 'react-tooltip'
-import { MAX_MOBILE_SCREEN_WIDTH } from '../../constants'
-import { useWindowDimensions } from '../../hooks/useWindowDimensions'
-import '../../styles/tooltip.css'
+/*************************************************************************************
 
+    Table of Contents:
+
+    import react
+    import packages
+    import constants
+    import components
+    import hooks
+    import styles
+
+    StyledTooltip function
+      custom hooks
+      Render
+
+  *************************************************************************************/
+
+/* import react */
+import React from 'react'
+
+/* import packages */
+import ReactTooltip from 'react-tooltip'
+
+/* import constants */
+import { MAX_MOBILE_SCREEN_WIDTH } from '../../constants'
+
+/* import components */
 import { StyledInfo, StyledLinkExternal } from '../atoms/Icon'
 import { Text } from '../atoms/Typography'
+
+/* import hooks */
+import { useWindowDimensions } from '../../hooks/useWindowDimensions'
+
+/* import styles */
+import '../../styles/tooltip.css'
 
 type StyledTooltipProps = {
   id: string
@@ -14,8 +41,17 @@ type StyledTooltipProps = {
 }
 
 export const StyledTooltip: React.FC<StyledTooltipProps> = ({ id, tip, link }) => {
-  const { width } = useWindowDimensions()
+  /*************************************************************************************
 
+  custom hooks
+
+  *************************************************************************************/
+  const { width } = useWindowDimensions()
+  /*************************************************************************************
+
+  render
+
+  *************************************************************************************/
   return (
     <>
       {width > MAX_MOBILE_SCREEN_WIDTH ? (
