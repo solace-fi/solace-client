@@ -36,6 +36,9 @@ import { MyPolicies } from '../../components/organisms/MyPolicies'
 import { MyClaims } from '../../components/molecules/MyClaims'
 import { MyInvestments } from '../../components/molecules/MyInvestments'
 import { StyledTooltip } from '../../components/molecules/Tooltip'
+import { Accordion } from '../../components/atoms/Accordion/Accordion'
+import { StyledArrowDropDownCircle } from '../../components/atoms/Icon'
+import { Button } from '../../components/atoms/Button'
 
 function Dashboard(): any {
   /*************************************************************************************
@@ -46,6 +49,7 @@ function Dashboard(): any {
 
   const [showClaimModal, setShowClaimModal] = useState<boolean>(false)
   const [showManageModal, setShowManageModal] = useState<boolean>(false)
+  const [openPolicies, setOpenPolicies] = useState<boolean>(true)
   const [selectedPolicy, setSelectedPolicy] = useState<Policy | undefined>(undefined)
 
   /*************************************************************************************
@@ -122,9 +126,22 @@ function Dashboard(): any {
                 }
                 link={`https://docs.solace.fi/docs/user-guides/buy-cover`}
               />
+              <Button style={{ float: 'right' }} onClick={() => setOpenPolicies(!openPolicies)}>
+                <StyledArrowDropDownCircle
+                  style={{ transform: openPolicies ? 'rotate(180deg)' : 'rotate(0deg)' }}
+                  size={30}
+                />
+                {openPolicies ? 'Hide Policies' : 'Show Policies'}
+              </Button>
             </Heading1>
             {!showManageModal && !showClaimModal && (
-              <MyPolicies latestBlock={latestBlock} openClaimModal={openClaimModal} openManageModal={openManageModal} />
+              <Accordion isOpen={openPolicies}>
+                <MyPolicies
+                  latestBlock={latestBlock}
+                  openClaimModal={openClaimModal}
+                  openManageModal={openManageModal}
+                />
+              </Accordion>
             )}
           </Content>
           {!showManageModal && !showClaimModal && <MyClaims />}
