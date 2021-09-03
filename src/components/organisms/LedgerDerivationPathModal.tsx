@@ -1,11 +1,34 @@
+/*************************************************************************************
+
+    Table of Contents:
+
+    import react
+    import managers
+    import components
+    import wallet
+
+    LedgerDerivationPathModal function
+      custom hooks
+      Local functions
+      Render
+
+  *************************************************************************************/
+
+/* import react */
 import React, { useState, useCallback } from 'react'
+
+/* import managers */
 import { useNetwork } from '../../context/NetworkManager'
 import { useWallet } from '../../context/WalletManager'
-import { LedgerConnector } from '../../wallet/wallet-connectors/Ledger'
+
+/* import components */
 import { Button, ButtonWrapper } from '../atoms/Button'
 import { FormOption, FormSelect } from '../atoms/Form'
 import { ModalRow } from '../atoms/Modal'
 import { Modal } from '../molecules/Modal'
+
+/* import wallet */
+import { LedgerConnector } from '../../wallet/wallet-connectors/Ledger'
 
 interface LedgerDerivationPathModalProps {
   closeModal: () => void
@@ -24,9 +47,19 @@ const LEDGER_DERIVATION_PATHS = [
 ]
 
 export const LedgerDerivationPathModal: React.FC<LedgerDerivationPathModalProps> = ({ closeModal, isOpen }) => {
+  /*************************************************************************************
+
+  custom hooks
+
+  *************************************************************************************/
   const { connect } = useWallet()
-  const { activeNetwork } = useNetwork()
   const [derivationPath, setDerivationPath] = useState<string>(String(LEDGER_DERIVATION_PATHS[0].value))
+
+  /*************************************************************************************
+
+  local functions
+
+  *************************************************************************************/
 
   const handleClose = useCallback(() => {
     closeModal()
@@ -38,19 +71,6 @@ export const LedgerDerivationPathModal: React.FC<LedgerDerivationPathModalProps>
 
   const handleConnect = async () => {
     handleClose()
-
-    // console.log('handleClose')
-    // console.log('derivationPath:', derivationPath)
-    // const connector = LedgerConnector.getConnector(activeNetwork)
-    // console.log('on handleConnect connector:', connector)
-    // const res = await connector.getProvider()
-    // if (res) {
-    //   const accounts = await res._providers[0].getAccountsAsync(30)
-    //   console.log('on handleConnect provider:', res)
-    //   console.log('on handleConnect accounts:', accounts)
-    // } else {
-    //   console.log('error, res not exist:', res)
-    // }
     connect(LedgerConnector, {
       baseDerivationPath: derivationPath,
     })
@@ -62,6 +82,11 @@ export const LedgerDerivationPathModal: React.FC<LedgerDerivationPathModalProps>
     console.log('successfully connected ledger wallet')
   }
 
+  /*************************************************************************************
+
+  render
+
+  *************************************************************************************/
   return (
     <Modal
       handleClose={handleClose}

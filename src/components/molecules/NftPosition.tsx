@@ -23,13 +23,13 @@ import React, { useEffect, useState } from 'react'
 /* import packages */
 import styled from 'styled-components'
 import { BigNumber } from 'ethers'
+import Tilt from 'react-parallax-tilt'
 
 /* import managers */
 import { useContracts } from '../../context/ContractsManager'
 
 /* import components */
 import { Loader } from '../atoms/Loader'
-import Tilt from 'react-parallax-tilt'
 
 /* import constants */
 import { MAX_MOBILE_SCREEN_WIDTH, ZERO } from '../../constants'

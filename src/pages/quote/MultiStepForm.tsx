@@ -51,6 +51,7 @@ import { Button, ButtonWrapper } from '../../components/atoms/Button'
 import { Card, CardContainer } from '../../components/atoms/Card'
 import { FormRow, FormCol } from '../../components/atoms/Form'
 import { Heading2, Text } from '../../components/atoms/Typography'
+import { StyledTooltip } from '../../components/molecules/Tooltip'
 
 /* import hooks */
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'
@@ -239,9 +240,12 @@ export const MultiStepForm = () => {
                     <ProtocolTitle>{protocol.name}</ProtocolTitle>
                   </Protocol>
                 </BoxItem>
-                <BoxItem>{fixed(protocol.yearlyCost * 100, 2)}%</BoxItem>
                 <BoxItem>
-                  {protocol.availableCoverage} {activeNetwork.nativeCurrency.symbol}
+                  {fixed(protocol.yearlyCost * 100, 2)}% <StyledTooltip id={'yearly-cost'} tip={'Yearly Cost'} />
+                </BoxItem>
+                <BoxItem>
+                  {protocol.availableCoverage} {activeNetwork.nativeCurrency.symbol}{' '}
+                  <StyledTooltip id={'available-coverage'} tip={'Available Coverage'} />
                 </BoxItem>
                 <BoxItem>
                   <Button onClick={() => navigation.go(0)}>Change</Button>
@@ -263,7 +267,8 @@ export const MultiStepForm = () => {
                     </Protocol>
                   </BoxItem>
                   <BoxItem>
-                    {truncateBalance(fixedTokenPositionBalance(position.underlying))} {position.underlying.symbol}
+                    {truncateBalance(fixedTokenPositionBalance(position.underlying))} {position.underlying.symbol}{' '}
+                    <StyledTooltip id={'position-amount'} tip={'Your Position Amount'} />
                   </BoxItem>
                   <BoxItem>
                     <Button onClick={() => navigation.go(1)}>Change</Button>
