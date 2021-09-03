@@ -29,6 +29,8 @@ import React, { useEffect } from 'react'
 /* import packages */
 import { SetForm, useForm, useStep } from 'react-hooks-helper'
 import styled from 'styled-components'
+import { CircularProgressbar, buildStyles } from 'react-circular-progressbar'
+import 'react-circular-progressbar/dist/styles.css'
 
 /* import context */
 import { useWallet } from '../../context/WalletManager'
@@ -48,7 +50,7 @@ import { Box, BoxItem, BoxRow } from '../../components/atoms/Box'
 import { Button, ButtonWrapper } from '../../components/atoms/Button'
 import { Card, CardContainer } from '../../components/atoms/Card'
 import { FormRow, FormCol } from '../../components/atoms/Form'
-import { Heading2 } from '../../components/atoms/Typography'
+import { Heading2, Text } from '../../components/atoms/Typography'
 
 /* import hooks */
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'
@@ -83,6 +85,13 @@ enum StepNumber {
   'coverage' = 2,
   'confirm' = 3,
 }
+
+const StepSections = [
+  { name: 'Select Protocol', description: 'Which protocol do you want coverage for?' },
+  { name: 'Select Position', description: 'What asset do you want to cover?' },
+  { name: 'Choose Limit & Period', description: 'How much and for how long?' },
+  { name: 'Confirmation', description: 'Coverage policy successfully purchased!' },
+]
 
 /************************************************************************************* 
 
@@ -183,17 +192,40 @@ export const MultiStepForm = () => {
 
   return (
     <FormContent>
-      <StepsContainer step={Number(StepNumber[step.id]) + 1}>
-        <StepsWrapper>
-          <Step>Select Protocol</Step>
-          <Step>Select Position</Step>
-          <Step>Choose Limit &amp; Period</Step>
-          <Step>Confirmation</Step>
-        </StepsWrapper>
-        <StepsProgress>
-          <StepsProgressBar></StepsProgressBar>
-        </StepsProgress>
-      </StepsContainer>
+      {width > MAX_MOBILE_SCREEN_WIDTH ? (
+        <StepsContainer step={Number(StepNumber[step.id]) + 1}>
+          <StepsWrapper>
+            {StepSections.map((section, i) => (
+              <Step key={i}>{section.name}</Step>
+            ))}
+          </StepsWrapper>
+          <StepsProgress>
+            <StepsProgressBar></StepsProgressBar>
+          </StepsProgress>
+        </StepsContainer>
+      ) : (
+        <FormRow mb={0} mt={20} ml={30} mr={30} style={{ justifyContent: 'center' }}>
+          <FormCol>
+            <div style={{ width: 100, height: 100 }}>
+              <CircularProgressbar
+                value={((Number(StepNumber[step.id]) + 1) / StepSections.length) * 100}
+                text={`${Number(StepNumber[step.id]) + 1} / ${StepSections.length}`}
+                strokeWidth={4}
+                styles={buildStyles({
+                  textSize: '24px',
+                  textColor: 'white',
+                  trailColor: 'rgba(255,255,255,0.1)',
+                  pathColor: `rgb(255,255,255)`,
+                })}
+              />
+            </div>
+          </FormCol>
+          <FormCol>
+            <Text h2>{StepSections[Number(StepNumber[step.id])].name}</Text>
+            <Text t3>{StepSections[Number(StepNumber[step.id])].description}</Text>
+          </FormCol>
+        </FormRow>
+      )}
       {Number(StepNumber[step.id]) !== 0 && Number(StepNumber[step.id]) !== 3 && (
         <>
           {width > MAX_MOBILE_SCREEN_WIDTH ? (
