@@ -43,6 +43,7 @@ import { Text, TextSpan } from '../atoms/Typography'
 import { WalletConnectButton } from '../molecules/WalletConnectButton'
 import { FormRow, FormCol } from '../atoms/Form'
 import { Card, CardContainer } from '../atoms/Card'
+import { StyledTooltip } from '../molecules/Tooltip'
 
 /* import hooks */
 import { useCapitalPoolSize } from '../../hooks/useVault'
@@ -167,14 +168,23 @@ export const Statistics: React.FC = () => {
           {initialized && account ? (
             <Box>
               <BoxItem>
-                <BoxItemTitle h3>My Balance</BoxItemTitle>
+                <BoxItemTitle h3>
+                  My Balance <StyledTooltip id={'solace'} tip={'Number of SOLACE tokens in your wallet'} />
+                </BoxItemTitle>
                 <Text h2>
                   {`${truncateBalance(parseFloat(solaceBalance), 1)} `}
                   <TextSpan h3>SOLACE</TextSpan>
                 </Text>
               </BoxItem>
               <BoxItem>
-                <BoxItemTitle h3>My Rewards</BoxItemTitle>
+                <BoxItemTitle h3>
+                  My Rewards{' '}
+                  <StyledTooltip
+                    id={'rewards'}
+                    tip={'Total amount of your unclaimed rewards'}
+                    link={'https://docs.solace.fi/docs/user-guides/earn-rewards'}
+                  />
+                </BoxItemTitle>
                 <Text h2>
                   {`${truncateBalance(parseFloat(totalUserRewards), 1)} `}
                   <TextSpan h3>SOLACE</TextSpan>
@@ -195,21 +205,27 @@ export const Statistics: React.FC = () => {
           )}
           <Box purple>
             <BoxItem>
-              <BoxItemTitle h3>Capital Pool Size</BoxItemTitle>
+              <BoxItemTitle h3>
+                Capital Pool Size <StyledTooltip id={'cps'} tip={'Current amount of capital in the vault'} />
+              </BoxItemTitle>
               <Text h2 nowrap>
                 {`${truncateBalance(floatUnits(parseUnits(capitalPoolSize, currencyDecimals), currencyDecimals), 1)} `}
                 <TextSpan h3>{activeNetwork.nativeCurrency.symbol}</TextSpan>
               </Text>
             </BoxItem>
             <BoxItem>
-              <BoxItemTitle h3>Total Value Locked</BoxItemTitle>
+              <BoxItemTitle h3>
+                Total Value Locked <StyledTooltip id={'tvl'} tip={'Current amount of funds locked into the pools'} />{' '}
+              </BoxItemTitle>
               <Text h2 nowrap>
                 {`${truncateBalance(parseFloat(totalValueLocked), 1)} `}
                 <TextSpan h3>{activeNetwork.nativeCurrency.symbol}</TextSpan>
               </Text>
             </BoxItem>
             <BoxItem>
-              <BoxItemTitle h3>Active Cover Amount</BoxItemTitle>
+              <BoxItemTitle h3>
+                Active Cover Amount <StyledTooltip id={'aca'} tip={'Current amount of coverage in use'} />
+              </BoxItemTitle>
               <Text h2 nowrap>
                 {totalActiveCoverAmount !== '-'
                   ? `${truncateBalance(

@@ -32,9 +32,10 @@ import { HeroContainer, Content } from '../../components/atoms/Layout'
 import { Heading1 } from '../../components/atoms/Typography'
 import { ManageModal } from '../../components/organisms/ManageModal'
 import { ClaimModal } from '../../components/organisms/ClaimModal'
-import { MyPolicies } from '../../components/molecules/MyPolicies'
+import { MyPolicies } from '../../components/organisms/MyPolicies'
 import { MyClaims } from '../../components/molecules/MyClaims'
 import { MyInvestments } from '../../components/molecules/MyInvestments'
+import { StyledTooltip } from '../../components/molecules/Tooltip'
 
 function Dashboard(): any {
   /*************************************************************************************
@@ -112,7 +113,16 @@ function Dashboard(): any {
             selectedPolicy={selectedPolicy}
           />
           <Content>
-            <Heading1>Your Policies</Heading1>
+            <Heading1>
+              Your Policies{' '}
+              <StyledTooltip
+                id={'user-policies'}
+                tip={
+                  'Make changes to your existing policies or submit claims, \n if you do not own a policy, you may buy one.'
+                }
+                link={`https://docs.solace.fi/docs/user-guides/buy-cover`}
+              />
+            </Heading1>
             {!showManageModal && !showClaimModal && (
               <MyPolicies latestBlock={latestBlock} openClaimModal={openClaimModal} openManageModal={openManageModal} />
             )}

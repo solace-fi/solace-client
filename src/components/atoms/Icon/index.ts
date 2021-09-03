@@ -5,6 +5,9 @@ import { Warning } from '@styled-icons/fluentui-system-regular/Warning'
 import { History } from '@styled-icons/boxicons-regular/History'
 import { Wallet } from '@styled-icons/boxicons-solid/Wallet'
 import { NetworkChart } from '@styled-icons/boxicons-regular/NetworkChart'
+import { Info } from '@styled-icons/fluentui-system-regular/Info'
+import { LinkExternal } from '@styled-icons/boxicons-regular/LinkExternal'
+
 export const StyledIconCss = css`
   margin: auto;
   display: block;
@@ -21,6 +24,10 @@ export const StyledWallet = styled(Wallet)`
 export const StyledNetworkChart = styled(NetworkChart)`
   display: block;
 `
+
+export const StyledInfo = styled(Info)``
+
+export const StyledLinkExternal = styled(LinkExternal)``
 
 export const StyledMenu = styled(Menu)`
   ${StyledIconCss}

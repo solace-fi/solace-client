@@ -37,6 +37,7 @@ import { Table, TableHead, TableRow, TableHeader, TableBody, TableData, TableDat
 import { Button, ButtonWrapper } from '../atoms/Button'
 import { Card } from '../atoms/Card'
 import { FormRow, FormCol } from '../atoms/Form'
+import { StyledTooltip } from '../molecules/Tooltip'
 
 /* import hooks */
 import { useCapitalPoolSize, useUserVaultDetails } from '../../hooks/useVault'
@@ -70,7 +71,13 @@ export const RiskBackingCapitalPool: React.FC<RiskBackingCapitalPoolProps> = ({ 
 
   return (
     <Content>
-      <Heading1>ETH Risk backing Capital Pool</Heading1>
+      <Heading1>
+        ETH Risk backing Capital Pool{' '}
+        <StyledTooltip
+          id={'risk-backing-cp'}
+          tip={'Provide capital here for Solace to issue payouts and receive SCP tokens'}
+        />{' '}
+      </Heading1>
       {width > MAX_TABLET_SCREEN_WIDTH ? (
         <Table isHighlight textAlignCenter>
           <TableHead>

@@ -22,9 +22,9 @@ import { useNetwork } from '../../context/NetworkManager'
 
 /* import components */
 import { PoolModal } from '../../components/organisms/PoolModal'
-import { RiskBackingCapitalPool } from '../../components/molecules/RiskBackingCapitalPool'
-import { CapitalProviderPool } from '../../components/molecules/CapitalProviderPool'
-import { LiquidityPool } from '../../components/molecules/LiquidityPool'
+import { RiskBackingCapitalPool } from '../../components/organisms/RiskBackingCapitalPool'
+import { CapitalProviderPool } from '../../components/organisms/CapitalProviderPool'
+import { LiquidityPool } from '../../components/organisms/LiquidityPool'
 import { HeroContainer } from '../../components/atoms/Layout'
 import { Heading1 } from '../../components/atoms/Typography'
 

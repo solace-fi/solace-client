@@ -37,6 +37,7 @@ import { Protocol, ProtocolImage, ProtocolTitle } from '../atoms/Protocol'
 import { Loader } from '../atoms/Loader'
 import { Heading3, Text, Text3 } from '../atoms/Typography'
 import { Card } from '../atoms/Card'
+import { StyledTooltip } from '../molecules/Tooltip'
 
 /* import hooks */
 import { useAppraisePosition } from '../../hooks/usePolicy'
@@ -78,13 +79,18 @@ export const PolicyModalInfo: React.FC<PolicyModalInfoProps> = ({ selectedPolicy
             </Text>
           </BoxItem>
           <BoxItem>
-            <BoxItemTitle h3>Days to expiration</BoxItemTitle>
+            <BoxItemTitle h3>
+              Days to expiration{' '}
+              <StyledTooltip id={'days-to-expiration'} tip={'Number of days left until this policy expires'} />
+            </BoxItemTitle>
             <Text h2 nowrap>
               {getDaysLeft(selectedPolicy ? selectedPolicy.expirationBlock : 0, latestBlock)}
             </Text>
           </BoxItem>
           <BoxItem>
-            <BoxItemTitle h3>Cover Amount</BoxItemTitle>
+            <BoxItemTitle h3>
+              Cover Amount <StyledTooltip id={'covered-amount'} tip={'The amount you are covered on this policy'} />
+            </BoxItemTitle>
             <Text h2 nowrap>
               {selectedPolicy?.coverAmount
                 ? truncateBalance(formatUnits(selectedPolicy.coverAmount, currencyDecimals))
@@ -93,7 +99,9 @@ export const PolicyModalInfo: React.FC<PolicyModalInfoProps> = ({ selectedPolicy
             </Text>
           </BoxItem>
           <BoxItem>
-            <BoxItemTitle h3>Position Amount</BoxItemTitle>
+            <BoxItemTitle h3>
+              Position Amount <StyledTooltip id={'position-amount'} tip={'The amount of this asset you own'} />
+            </BoxItemTitle>
             <Text h2 nowrap>
               {appraisal.gt(ZERO) ? (
                 `${truncateBalance(formatUnits(appraisal, currencyDecimals) || 0)} ${

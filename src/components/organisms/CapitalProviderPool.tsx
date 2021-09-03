@@ -29,6 +29,7 @@ import { Table, TableHead, TableRow, TableHeader, TableBody, TableData, TableDat
 import { Button, ButtonWrapper } from '../atoms/Button'
 import { Card } from '../atoms/Card'
 import { FormRow, FormCol } from '../atoms/Form'
+import { StyledTooltip } from '../molecules/Tooltip'
 
 /* import constants */
 import { CP_ROI, MAX_TABLET_SCREEN_WIDTH } from '../../constants'
@@ -70,7 +71,14 @@ export const CapitalProviderPool: React.FC<CapitalProviderPoolProps> = ({ openMo
 
   return (
     <Content>
-      <Heading1>Solace Capital Provider Farm</Heading1>
+      <Heading1>
+        Solace Capital Provider Farm{' '}
+        <StyledTooltip
+          id={'cp-farm'}
+          tip={'Deposit SCP tokens here to earn rewards'}
+          link={'https://docs.solace.fi/docs/user-guides/capital-provider/cp-role-guide'}
+        />{' '}
+      </Heading1>
       {width > MAX_TABLET_SCREEN_WIDTH ? (
         <Table isHighlight textAlignCenter>
           <TableHead>
@@ -78,9 +86,21 @@ export const CapitalProviderPool: React.FC<CapitalProviderPoolProps> = ({ openMo
               {account ? <TableHeader width={100}>Your Stake</TableHeader> : null}
               <TableHeader>Total Assets</TableHeader>
               <TableHeader width={100}>ROI (1Y)</TableHeader>
-              {account ? <TableHeader>My Rewards</TableHeader> : null}
-              {account ? <TableHeader>My Daily Rewards</TableHeader> : null}
-              <TableHeader>Daily Rewards</TableHeader>
+              {account ? (
+                <TableHeader>
+                  My Rewards <StyledTooltip id={'cp-rewards'} tip={'Amount of your unclaimed rewards from this pool'} />
+                </TableHeader>
+              ) : null}
+              {account ? (
+                <TableHeader>
+                  My Daily Rewards{' '}
+                  <StyledTooltip id={'my-daily-cp-rewards'} tip={'Amount of rewards you earn from this pool per day'} />
+                </TableHeader>
+              ) : null}
+              <TableHeader>
+                Daily Rewards{' '}
+                <StyledTooltip id={'daily-cp-rewards'} tip={'Total amount of rewards for this pool per day'} />
+              </TableHeader>
             </TableRow>
           </TableHead>
           <TableBody>
