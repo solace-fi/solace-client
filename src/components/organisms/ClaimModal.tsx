@@ -56,7 +56,7 @@ import { useWindowDimensions } from '../../hooks/useWindowDimensions'
 import { getClaimAssessment } from '../../utils/paclas'
 import { truncateBalance } from '../../utils/formatting'
 import { timeToDateText } from '../../utils/time'
-import { getGasConfig } from '../../utils'
+import { getGasConfig } from '../../utils/gas'
 
 interface ClaimModalProps {
   closeModal: () => void

@@ -15,15 +15,13 @@ import compAbi from '../constants/abi/contracts/products/CompoundProductRinkeby.
 import waaveAbi from '../constants/abi/contracts/products/WaaveProduct.sol/WaaveProduct.json'
 
 import { ProductName, Unit } from '../constants/enums'
-import { getTokens as compTokens } from '../utils/positionGetters/compound/getTokens'
-import { getBalances as compBalances } from '../utils/positionGetters/compound/getBalances'
-import { getTokens as waaveTokens } from '../utils/positionGetters/waave/getTokens'
-import { getBalances as waaveBalances } from '../utils/positionGetters/waave/getBalances'
 
 import { NetworkConfig } from '../constants/types'
 import { ETHERSCAN_API_KEY } from '../constants'
 import { hexValue } from '@ethersproject/bytes'
 import { ALCHEMY_API_KEY } from '../constants'
+import { CompoundProduct } from '../products/compound'
+import { WaaveProduct } from '../products/waave'
 
 /*
 
@@ -34,6 +32,7 @@ When adding new products, please add into productContracts, functions, and cache
 export const RinkebyNetwork: NetworkConfig = {
   name: 'rinkeby',
   chainId: 4,
+  isTestnet: true,
   supportedTxTypes: [0, 2],
   nativeCurrency: { symbol: Unit.ETH, decimals: 18 },
   rpc: { httpsUrl: `https://eth-rinkeby.alchemyapi.io/v2/${ALCHEMY_API_KEY}`, pollingInterval: 12_000 },
@@ -42,6 +41,13 @@ export const RinkebyNetwork: NetworkConfig = {
     key: String(ETHERSCAN_API_KEY),
     url: 'https://rinkeby.etherscan.io',
     apiUrl: 'https://api-rinkeby.etherscan.io',
+    excludedContractAddrs: [
+      String(process.env.REACT_APP_RINKEBY_UNISWAP_LPTOKEN_ADDR),
+      String(process.env.REACT_APP_RINKEBY_WAAVE_PRODUCT_ADDR),
+      String(process.env.REACT_APP_RINKEBY_COMPOUND_PRODUCT_ADDR),
+      String(process.env.REACT_APP_RINKEBY_LPFARM_ADDR),
+      String(process.env.REACT_APP_RINKEBY_SOLACE_ADDR),
+    ],
   },
   config: {
     keyContracts: {
@@ -104,20 +110,13 @@ export const RinkebyNetwork: NetworkConfig = {
         abi: waaveAbi,
       },
     },
-    functions: {
-      getTokens: { [ProductName.COMPOUND]: compTokens, [ProductName.WAAVE]: waaveTokens },
-      getBalances: { [ProductName.COMPOUND]: compBalances, [ProductName.WAAVE]: waaveBalances },
-    },
     productsRev: {
       [String(process.env.REACT_APP_RINKEBY_COMPOUND_PRODUCT_ADDR)]: ProductName.COMPOUND,
       [String(process.env.REACT_APP_RINKEBY_WAAVE_PRODUCT_ADDR)]: ProductName.WAAVE,
     },
   },
   cache: {
-    supportedProducts: [
-      { name: ProductName.COMPOUND, contract: null },
-      { name: ProductName.WAAVE, contract: null },
-    ],
+    supportedProducts: [CompoundProduct, WaaveProduct],
   },
   metamaskChain: {
     chainId: hexValue(4),

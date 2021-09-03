@@ -48,7 +48,7 @@ import { useGetClaimsDetails } from '../../hooks/useClaimsEscrow'
 /* import utils */
 import { truncateBalance } from '../../utils/formatting'
 import { timeToDate } from '../../utils/time'
-import { getGasConfig } from '../../utils'
+import { getGasConfig } from '../../utils/gas'
 
 export const MyClaims: React.FC = () => {
   /*************************************************************************************

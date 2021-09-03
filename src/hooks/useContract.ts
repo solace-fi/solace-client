@@ -2,7 +2,7 @@ import { useWallet } from '../context/WalletManager'
 import { useMemo } from 'react'
 import { getContract } from '../utils'
 import { Contract } from '@ethersproject/contracts'
-import { ContractSources, SupportedProduct } from '../constants/types'
+import { ContractSources, ProductContract, SupportedProduct } from '../constants/types'
 import { useNetwork } from '../context/NetworkManager'
 
 export function useGetContract(source: ContractSources | undefined, hasSigner = true): Contract | null {
@@ -19,7 +19,7 @@ export function useGetContract(source: ContractSources | undefined, hasSigner = 
   }, [source, library, hasSigner, account])
 }
 
-export function useGetProductContracts(): SupportedProduct[] {
+export function useGetProductContracts(): ProductContract[] {
   const { library, account } = useWallet()
   const { activeNetwork } = useNetwork()
 
@@ -27,7 +27,8 @@ export function useGetProductContracts(): SupportedProduct[] {
     const config = activeNetwork.config
     const cache = activeNetwork.cache
     if (!library || !cache) return []
-    cache.supportedProducts.map((product: SupportedProduct, i: number) => {
+    const productContracts: ProductContract[] = []
+    cache.supportedProducts.map((product: SupportedProduct) => {
       const name = product.name
       const productContractSources = config.productContracts[name]
       const contract = getContract(
@@ -36,12 +37,12 @@ export function useGetProductContracts(): SupportedProduct[] {
         library,
         account ? account : undefined
       )
-      cache.supportedProducts[i] = {
-        ...product,
-        contract: contract,
-      }
+      productContracts.push({
+        name,
+        contract,
+      })
     })
-    return cache.supportedProducts
+    return productContracts
   }, [library, account, activeNetwork])
 }
 
@@ -51,10 +52,10 @@ export function useContractArray(): ContractSources[] {
   return useMemo(() => {
     const config = activeNetwork.config
     const contractSources: ContractSources[] = []
-    const excludedContractSources = [process.env.REACT_APP_RINKEBY_UNISWAP_LPTOKEN_ADDR]
+    const excludedContractAddrs = activeNetwork.explorer.excludedContractAddrs
 
     Object.keys(config.keyContracts).forEach((key) => {
-      if (!excludedContractSources.includes(config.keyContracts[key].addr)) {
+      if (!excludedContractAddrs.includes(config.keyContracts[key].addr)) {
         contractSources.push({
           addr: config.keyContracts[key].addr.toLowerCase(),
           abi: config.keyContracts[key].abi,
@@ -62,7 +63,7 @@ export function useContractArray(): ContractSources[] {
       }
     })
     Object.keys(config.productContracts).forEach((key) => {
-      if (!excludedContractSources.includes(config.productContracts[key].addr)) {
+      if (!excludedContractAddrs.includes(config.productContracts[key].addr)) {
         contractSources.push({
           addr: config.productContracts[key].addr.toLowerCase(),
           abi: config.productContracts[key].abi,

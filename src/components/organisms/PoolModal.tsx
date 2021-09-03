@@ -38,7 +38,7 @@ import { useNetwork } from '../../context/NetworkManager'
 /* import constants */
 import { ZERO, GAS_LIMIT, POW_NINE, DEADLINE } from '../../constants'
 import { FunctionName, TransactionCondition } from '../../constants/enums'
-import { GasFeeOption, LpTokenInfo } from '../../constants/types'
+import { GasFeeOption, LocalTx, LpTokenInfo } from '../../constants/types'
 
 /* import components */
 import { Input } from '../atoms/Input'
@@ -70,7 +70,8 @@ import { useCooldown } from '../../hooks/useVault'
 
 /* import utils */
 import getPermitNFTSignature from '../../utils/signature'
-import { getGasConfig, hasApproval } from '../../utils'
+import { hasApproval } from '../../utils'
+import { getGasConfig } from '../../utils/gas'
 import { fixed, filteredAmount, getUnit, truncateBalance } from '../../utils/formatting'
 import { getTimeFromMillis, timeToDate } from '../../utils/time'
 import { NftPosition } from '../molecules/NftPosition'
@@ -128,28 +129,16 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
     const txType = FunctionName.START_COOLDOWN
     try {
       const tx = await vault.startCooldown()
-      const txHash = tx.hash
       const localTx = {
-        hash: txHash,
+        hash: tx.hash,
         type: txType,
         value: truncateBalance(amount),
         status: TransactionCondition.PENDING,
         unit: getUnit(func, activeNetwork),
       }
-      handleClose()
-      addLocalTransactions(localTx)
-      reload()
-      makeTxToast(txType, TransactionCondition.PENDING, txHash)
-      await tx.wait().then((receipt: any) => {
-        const status = receipt.status ? TransactionCondition.SUCCESS : TransactionCondition.FAILURE
-        makeTxToast(txType, status, txHash)
-        reload()
-      })
+      handleToast(tx, localTx)
     } catch (err) {
-      console.log('callStartCooldown', err)
-      makeTxToast(txType, TransactionCondition.CANCELLED)
-      setModalLoading(false)
-      reload()
+      handleContractCallError('callStartCooldown', err, txType)
     }
   }
 
@@ -159,28 +148,16 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
     const txType = FunctionName.STOP_COOLDOWN
     try {
       const tx = await vault.stopCooldown()
-      const txHash = tx.hash
       const localTx = {
-        hash: txHash,
+        hash: tx.hash,
         type: txType,
         value: truncateBalance(amount),
         status: TransactionCondition.PENDING,
         unit: getUnit(func, activeNetwork),
       }
-      handleClose()
-      addLocalTransactions(localTx)
-      reload()
-      makeTxToast(txType, TransactionCondition.PENDING, txHash)
-      await tx.wait().then((receipt: any) => {
-        const status = receipt.status ? TransactionCondition.SUCCESS : TransactionCondition.FAILURE
-        makeTxToast(txType, status, txHash)
-        reload()
-      })
+      handleToast(tx, localTx)
     } catch (err) {
-      console.log('callStopCooldown', err)
-      makeTxToast(txType, TransactionCondition.CANCELLED)
-      setModalLoading(false)
-      reload()
+      handleContractCallError('callStopCooldown', err, txType)
     }
   }
 
@@ -194,28 +171,16 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
         ...gasConfig,
         gasLimit: GAS_LIMIT,
       })
-      const txHash = tx.hash
       const localTx = {
-        hash: txHash,
+        hash: tx.hash,
         type: txType,
         value: truncateBalance(amount),
         status: TransactionCondition.PENDING,
         unit: getUnit(func, activeNetwork),
       }
-      handleClose()
-      addLocalTransactions(localTx)
-      reload()
-      makeTxToast(txType, TransactionCondition.PENDING, txHash)
-      await tx.wait().then((receipt: any) => {
-        const status = receipt.status ? TransactionCondition.SUCCESS : TransactionCondition.FAILURE
-        makeTxToast(txType, status, txHash)
-        reload()
-      })
+      handleToast(tx, localTx)
     } catch (err) {
-      console.log('callDeposit', err)
-      makeTxToast(txType, TransactionCondition.CANCELLED)
-      setModalLoading(false)
-      reload()
+      handleContractCallError('callDeposit', err, txType)
     }
   }
 
@@ -229,28 +194,16 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
         ...gasConfig,
         gasLimit: GAS_LIMIT,
       })
-      const txHash = tx.hash
       const localTx = {
-        hash: txHash,
+        hash: tx.hash,
         type: txType,
         value: truncateBalance(amount),
         status: TransactionCondition.PENDING,
         unit: getUnit(func, activeNetwork),
       }
-      handleClose()
-      addLocalTransactions(localTx)
-      reload()
-      makeTxToast(txType, TransactionCondition.PENDING, txHash)
-      await tx.wait().then((receipt: any) => {
-        const status = receipt.status ? TransactionCondition.SUCCESS : TransactionCondition.FAILURE
-        makeTxToast(txType, status, txHash)
-        reload()
-      })
+      handleToast(tx, localTx)
     } catch (err) {
-      console.log('callDepositEth', err)
-      makeTxToast(txType, TransactionCondition.CANCELLED)
-      setModalLoading(false)
-      reload()
+      handleContractCallError('callDepositEth', err, txType)
     }
   }
 
@@ -269,10 +222,7 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
       })
       setModalLoading(false)
     } catch (err) {
-      console.log('approve', err)
-      makeTxToast(txType, TransactionCondition.CANCELLED)
-      setModalLoading(false)
-      reload()
+      handleContractCallError('approve', err, txType)
     }
   }
 
@@ -285,28 +235,16 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
         ...gasConfig,
         gasLimit: GAS_LIMIT,
       })
-      const txHash = tx.hash
       const localTx = {
-        hash: txHash,
+        hash: tx.hash,
         type: txType,
         value: truncateBalance(amount),
         status: TransactionCondition.PENDING,
         unit: getUnit(func, activeNetwork),
       }
-      handleClose()
-      addLocalTransactions(localTx)
-      reload()
-      makeTxToast(txType, TransactionCondition.PENDING, txHash)
-      await tx.wait().then((receipt: any) => {
-        const status = receipt.status ? TransactionCondition.SUCCESS : TransactionCondition.FAILURE
-        makeTxToast(txType, status, txHash)
-        reload()
-      })
+      handleToast(tx, localTx)
     } catch (err) {
-      console.log('callDepositCp', err)
-      makeTxToast(txType, TransactionCondition.CANCELLED)
-      setModalLoading(false)
-      reload()
+      handleContractCallError('callDepositCp', err, txType)
     }
   }
 
@@ -319,28 +257,16 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
         ...gasConfig,
         gasLimit: GAS_LIMIT,
       })
-      const txHash = tx.hash
       const localTx = {
-        hash: txHash,
+        hash: tx.hash,
         type: txType,
         value: truncateBalance(amount),
         status: TransactionCondition.PENDING,
         unit: getUnit(func, activeNetwork),
       }
-      handleClose()
-      addLocalTransactions(localTx)
-      reload()
-      makeTxToast(txType, TransactionCondition.PENDING, txHash)
-      await tx.wait().then((receipt: any) => {
-        const status = receipt.status ? TransactionCondition.SUCCESS : TransactionCondition.FAILURE
-        makeTxToast(txType, status, txHash)
-        reload()
-      })
+      handleToast(tx, localTx)
     } catch (err) {
-      console.log('callWithdrawEth', err)
-      makeTxToast(txType, TransactionCondition.CANCELLED)
-      setModalLoading(false)
-      reload()
+      handleContractCallError('callWithdrawEth', err, txType)
     }
   }
 
@@ -353,28 +279,16 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
         ...gasConfig,
         gasLimit: GAS_LIMIT,
       })
-      const txHash = tx.hash
       const localTx = {
-        hash: txHash,
+        hash: tx.hash,
         type: txType,
         value: truncateBalance(amount),
         status: TransactionCondition.PENDING,
         unit: getUnit(func, activeNetwork),
       }
-      handleClose()
-      addLocalTransactions(localTx)
-      reload()
-      makeTxToast(txType, TransactionCondition.PENDING, txHash)
-      await tx.wait().then((receipt: any) => {
-        const status = receipt.status ? TransactionCondition.SUCCESS : TransactionCondition.FAILURE
-        makeTxToast(txType, status, txHash)
-        reload()
-      })
+      handleToast(tx, localTx)
     } catch (err) {
-      console.log('callWithdrawCp', err)
-      makeTxToast(txType, TransactionCondition.CANCELLED)
-      setModalLoading(false)
-      reload()
+      handleContractCallError('callWithdrawCp', err, txType)
     }
   }
 
@@ -385,28 +299,16 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
     try {
       const { v, r, s } = await getPermitNFTSignature(account, chainId, library, lpToken, lpFarm.address, nft, DEADLINE)
       const tx = await lpFarm.depositLpSigned(account, nft, DEADLINE, v, r, s)
-      const txHash = tx.hash
       const localTx = {
-        hash: txHash,
+        hash: tx.hash,
         type: txType,
         value: `#${nft.toString()}`,
         status: TransactionCondition.PENDING,
         unit: getUnit(func, activeNetwork),
       }
-      handleClose()
-      addLocalTransactions(localTx)
-      reload()
-      makeTxToast(txType, TransactionCondition.PENDING, txHash)
-      await tx.wait().then((receipt: any) => {
-        const status = receipt.status ? TransactionCondition.SUCCESS : TransactionCondition.FAILURE
-        makeTxToast(txType, status, txHash)
-        reload()
-      })
+      handleToast(tx, localTx)
     } catch (err) {
-      console.log('callDepositLp', err)
-      makeTxToast(txType, TransactionCondition.CANCELLED)
-      setModalLoading(false)
-      reload()
+      handleContractCallError('callDepositLp', err, txType)
     }
   }
 
@@ -416,28 +318,16 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
     const txType = FunctionName.WITHDRAW_LP
     try {
       const tx = await lpFarm.withdrawLp(nft)
-      const txHash = tx.hash
       const localTx = {
-        hash: txHash,
+        hash: tx.hash,
         type: txType,
         value: `#${nft.toString()}`,
         status: TransactionCondition.PENDING,
         unit: getUnit(func, activeNetwork),
       }
-      handleClose()
-      addLocalTransactions(localTx)
-      reload()
-      makeTxToast(txType, TransactionCondition.PENDING, txHash)
-      await tx.wait().then((receipt: any) => {
-        const status = receipt.status ? TransactionCondition.SUCCESS : TransactionCondition.FAILURE
-        makeTxToast(txType, status, txHash)
-        reload()
-      })
+      handleToast(tx, localTx)
     } catch (err) {
-      console.log('callWithdrawLp', err)
-      makeTxToast(txType, TransactionCondition.CANCELLED)
-      setModalLoading(false)
-      reload()
+      handleContractCallError('callWithdrawLp', err, txType)
     }
   }
 
@@ -446,6 +336,25 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
   local functions
 
   *************************************************************************************/
+
+  const handleToast = async (tx: any, localTx: LocalTx) => {
+    handleClose()
+    addLocalTransactions(localTx)
+    reload()
+    makeTxToast(localTx.type, TransactionCondition.PENDING, localTx.hash)
+    await tx.wait().then((receipt: any) => {
+      const status = receipt.status ? TransactionCondition.SUCCESS : TransactionCondition.FAILURE
+      makeTxToast(localTx.type, status, localTx.hash)
+      reload()
+    })
+  }
+
+  const handleContractCallError = (functionName: string, err: any, txType: FunctionName) => {
+    console.log(functionName, err)
+    makeTxToast(txType, TransactionCondition.CANCELLED)
+    setModalLoading(false)
+    reload()
+  }
 
   const isAppropriateAmount = () => {
     if (!amount || amount == '.' || parseUnits(amount, currencyDecimals).lte(ZERO)) return false

@@ -91,7 +91,16 @@ export type GasPriceResult = {
 
 export type StringToStringMapping = { [key: string]: string }
 
-export type SupportedProduct = { name: string; contract: Contract | null }
+export type SupportedProduct = {
+  name: ProductName
+  getTokens: (provider: any, activeNetwork: NetworkConfig) => Promise<Token[]>
+  getBalances: (user: string, provider: any, cache: NetworkCache, activeNetwork: NetworkConfig) => Promise<Token[]>
+}
+
+export type ProductContract = {
+  name: ProductName
+  contract?: Contract
+}
 
 export type ContractSources = { addr: string; abi: any }
 
@@ -111,6 +120,7 @@ export type LocalTx = {
 export type NetworkConfig = {
   name: string
   chainId: number
+  isTestnet: boolean
   supportedTxTypes: number[]
   nativeCurrency: {
     symbol: Unit
@@ -125,6 +135,7 @@ export type NetworkConfig = {
     key: string
     url: string
     apiUrl: string
+    excludedContractAddrs: string[]
   }
   config: {
     keyContracts: {
@@ -132,19 +143,6 @@ export type NetworkConfig = {
     }
     productContracts: {
       [key: string]: ContractSources
-    }
-    functions: {
-      getTokens: {
-        [key: string]: (provider: any, activeNetwork: NetworkConfig) => Promise<Token[]>
-      }
-      getBalances: {
-        [key: string]: (
-          user: string,
-          provider: any,
-          cache: NetworkCache,
-          activeNetwork: NetworkConfig
-        ) => Promise<Token[]>
-      }
     }
     productsRev: {
       [key: string]: ProductName

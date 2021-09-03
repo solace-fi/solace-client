@@ -15,15 +15,13 @@ import aaveAbi from '../constants/abi/contracts/products/AaveV2Product.sol/AaveV
 import waaveAbi from '../constants/abi/contracts/products/WaaveProduct.sol/WaaveProduct.json'
 
 import { ProductName, Unit } from '../constants/enums'
-import { getTokens as aaveTokens } from '../utils/positionGetters/aave/getTokens'
-import { getBalances as aaveBalances } from '../utils/positionGetters/aave/getBalances'
-import { getTokens as waaveTokens } from '../utils/positionGetters/waave/getTokens'
-import { getBalances as waaveBalances } from '../utils/positionGetters/waave/getBalances'
 
 import { NetworkConfig } from '../constants/types'
 import { ETHERSCAN_API_KEY } from '../constants'
 import { hexValue } from '@ethersproject/bytes'
 import { ALCHEMY_API_KEY } from '../constants'
+import { AaveProduct } from '../products/aave'
+import { WaaveProduct } from '../products/waave'
 
 /*
 
@@ -34,6 +32,7 @@ When adding new products, please add into productContracts, functions, and cache
 export const KovanNetwork: NetworkConfig = {
   name: 'kovan',
   chainId: 42,
+  isTestnet: true,
   supportedTxTypes: [0, 2],
   nativeCurrency: { symbol: Unit.ETH, decimals: 18 },
   rpc: { httpsUrl: `https://eth-kovan.alchemyapi.io/v2/${ALCHEMY_API_KEY}`, pollingInterval: 12_000 },
@@ -42,6 +41,12 @@ export const KovanNetwork: NetworkConfig = {
     key: String(ETHERSCAN_API_KEY),
     url: 'https://kovan.etherscan.io',
     apiUrl: 'https://api-kovan.etherscan.io',
+    excludedContractAddrs: [
+      String(process.env.REACT_APP_KOVAN_UNISWAP_LPTOKEN_ADDR),
+      String(process.env.REACT_APP_KOVAN_WAAVE_PRODUCT_ADDR),
+      String(process.env.REACT_APP_KOVAN_LPFARM_ADDR),
+      String(process.env.REACT_APP_KOVAN_SOLACE_ADDR),
+    ],
   },
   config: {
     keyContracts: {
@@ -104,20 +109,13 @@ export const KovanNetwork: NetworkConfig = {
         abi: waaveAbi,
       },
     },
-    functions: {
-      getTokens: { [ProductName.AAVE]: aaveTokens, [ProductName.WAAVE]: waaveTokens },
-      getBalances: { [ProductName.AAVE]: aaveBalances, [ProductName.WAAVE]: waaveBalances },
-    },
     productsRev: {
       [String(process.env.REACT_APP_KOVAN_AAVE_PRODUCT_ADDR)]: ProductName.AAVE,
       [String(process.env.REACT_APP_KOVAN_WAAVE_PRODUCT_ADDR)]: ProductName.WAAVE,
     },
   },
   cache: {
-    supportedProducts: [
-      { name: ProductName.AAVE, contract: null },
-      { name: ProductName.WAAVE, contract: null },
-    ],
+    supportedProducts: [AaveProduct, WaaveProduct],
   },
   metamaskChain: {
     chainId: hexValue(42),

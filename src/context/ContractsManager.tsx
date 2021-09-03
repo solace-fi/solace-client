@@ -2,7 +2,7 @@ import React, { createContext, useCallback, useContext, useMemo, useState } from
 import { Contract } from '@ethersproject/contracts'
 
 import { useContractArray, useGetContract, useGetProductContracts } from '../hooks/useContract'
-import { ContractSources, SupportedProduct } from '../constants/types'
+import { ContractSources, ProductContract } from '../constants/types'
 import { useNetwork } from './NetworkManager'
 
 /*
@@ -25,10 +25,10 @@ type Contracts = {
   lpAppraisor?: Contract | null
   claimsEscrow?: Contract | null
   policyManager?: Contract | null
-  products: SupportedProduct[]
+  products: ProductContract[]
   contractSources: ContractSources[]
-  selectedProtocol: Contract | null
-  getProtocolByName: (productName: string) => Contract | null
+  selectedProtocol: Contract | undefined
+  getProtocolByName: (productName: string) => Contract | undefined
   setSelectedProtocolByName: (productName: string) => void
 }
 
@@ -47,13 +47,13 @@ const ContractsContext = createContext<Contracts>({
   policyManager: undefined,
   products: [],
   contractSources: [],
-  selectedProtocol: null,
-  getProtocolByName: () => null,
+  selectedProtocol: undefined,
+  getProtocolByName: () => undefined,
   setSelectedProtocolByName: () => undefined,
 })
 
 const ContractsProvider: React.FC = (props) => {
-  const [selectedProtocol, setSelectedProtocol] = useState<Contract | null>(null)
+  const [selectedProtocol, setSelectedProtocol] = useState<Contract | undefined>(undefined)
   const { activeNetwork } = useNetwork()
   const contractSources = useContractArray()
   const keyContracts = useMemo(() => activeNetwork.config.keyContracts, [activeNetwork])
@@ -73,10 +73,10 @@ const ContractsProvider: React.FC = (props) => {
   const products = useGetProductContracts()
 
   const getProtocolByName = useCallback(
-    (productName: string): Contract | null => {
+    (productName: string): Contract | undefined => {
       const foundProduct = products.filter((product) => product.name == productName)
       if (foundProduct.length > 0) return foundProduct[0].contract
-      return null
+      return undefined
     },
     [products]
   )

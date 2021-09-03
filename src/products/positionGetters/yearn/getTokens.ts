@@ -1,10 +1,10 @@
 import { Token } from '../../../constants/types'
-import { getContract } from '../..'
-import { numberify, rangeFrom0 } from '../../numeric'
+import { getContract } from '../../../utils'
+import { numberify, rangeFrom0 } from '../../../utils/numeric'
 import { ZERO } from '../../../constants'
 import ierc20Json from '../_contracts/IERC20Metadata.json'
-import { capitalizeFirstLetter } from '../../formatting'
-import { withBackoffRetries } from '../../time'
+import { capitalizeFirstLetter } from '../../../utils/formatting'
+import { withBackoffRetries } from '../../../utils/time'
 
 const yregistryAbi = [
   {

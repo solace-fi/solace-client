@@ -54,7 +54,7 @@ import { useWindowDimensions } from '../../hooks/useWindowDimensions'
 
 /* import utils */
 import { fixed, floatUnits, truncateBalance } from '../../utils/formatting'
-import { getGasConfig } from '../../utils'
+import { getGasConfig } from '../../utils/gas'
 
 export const Statistics: React.FC = () => {
   /*************************************************************************************

@@ -8,6 +8,8 @@ import {
 } from '../../constants/types'
 import MetamaskLogo from '../../resources/svg/wallets/metamask-logo.svg'
 
+import { networks } from '../../context/NetworkManager'
+
 export type MetaMaskError = Error & {
   code: number
 }
@@ -48,7 +50,7 @@ export const MetaMaskConnector = {
   supportedTxTypes: [0, 2],
   getConnector(network: NetworkConfig): AbstractConnector {
     return new MetamaskConnector({
-      supportedChainIds: [4, 42],
+      supportedChainIds: networks.map((network) => network.chainId),
     })
   },
   onError: (error: MetaMaskError): Error | undefined => {

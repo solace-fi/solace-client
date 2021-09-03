@@ -24,7 +24,7 @@ export const useFetchTxHistoryByAddress = (): any => {
   }
 
   useEffect(() => {
-    // account ? fetchTxHistoryByAddress(account) : setTxHistory([])
+    account ? fetchTxHistoryByAddress(account) : setTxHistory([])
   }, [account, contractSources, dataVersion])
 
   return txHistory
@@ -51,6 +51,9 @@ export const useTransactionDetails = (): { txHistory: any; amounts: string[] } =
 
     switch (function_name) {
       case FunctionName.DEPOSIT_ETH:
+        // same method name between vault and CpFarm
+        if (receipt.to.toLowerCase() === activeNetwork.config.keyContracts.vault.addr.toLowerCase()) return logs[0].data
+        return logs[logs.length - 1].data
       case FunctionName.WITHDRAW_ETH:
         return logs[0].data
       case FunctionName.SUBMIT_CLAIM:
@@ -84,7 +87,7 @@ export const useTransactionDetails = (): { txHistory: any; amounts: string[] } =
     if (txHistory) {
       const currentAmounts = []
       for (let tx_i = 0; tx_i < txHistory.length; tx_i++) {
-        console.log(txHistory[tx_i])
+        // console.log(txHistory[tx_i].hash)
         const function_name = decodeInput(txHistory[tx_i], contractSources).function_name
         if (!function_name) {
           currentAmounts.push('N/A')
