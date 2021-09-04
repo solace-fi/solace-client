@@ -7,7 +7,7 @@ type AccordionProps = {
 }
 
 export const Accordion = styled.div<AccordionProps>`
-  max-height: ${(props) => (props.isOpen ? '50vh' : '0vh')};
+  max-height: ${(props) => (props.isOpen ? '70vh' : '0vh')};
   transition: all 200ms ease;
   overflow-y: scroll;
   ${CustomScrollbar}

@@ -41,11 +41,12 @@ import { Accordion } from '../atoms/Accordion/Accordion'
 
 /* import constants */
 import { FunctionName, TransactionCondition, Unit } from '../../constants/enums'
-import { GAS_LIMIT } from '../../constants'
+import { GAS_LIMIT, MAX_MOBILE_SCREEN_WIDTH } from '../../constants'
 import { ClaimDetails } from '../../constants/types'
 
 /* import hooks */
 import { useGetClaimsDetails } from '../../hooks/useClaimsEscrow'
+import { useWindowDimensions } from '../../hooks/useWindowDimensions'
 
 /* import utils */
 import { truncateBalance } from '../../utils/formatting'
@@ -70,6 +71,7 @@ export const MyClaims: React.FC = () => {
     gasPrices.selected?.value,
   ])
   const [openClaims, setOpenClaims] = useState<boolean>(true)
+  const { width } = useWindowDimensions()
 
   /*************************************************************************************
 
@@ -141,8 +143,14 @@ export const MyClaims: React.FC = () => {
                         <BoxItemTitle h3>Amount</BoxItemTitle>
                         <Text h3>
                           {parseFloat(formatUnits(claim.amount, currencyDecimals)) >= 1
-                            ? truncateBalance(parseFloat(formatUnits(claim.amount, currencyDecimals)))
-                            : formatUnits(claim.amount, currencyDecimals)}{' '}
+                            ? truncateBalance(
+                                formatUnits(claim.amount, currencyDecimals),
+                                width > MAX_MOBILE_SCREEN_WIDTH ? currencyDecimals : 2
+                              )
+                            : truncateBalance(
+                                formatUnits(claim.amount, currencyDecimals),
+                                width > MAX_MOBILE_SCREEN_WIDTH ? currencyDecimals : 6
+                              )}{' '}
                           {activeNetwork.nativeCurrency.symbol}
                         </Text>
                       </BoxItem>
