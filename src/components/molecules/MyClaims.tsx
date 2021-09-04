@@ -18,7 +18,7 @@
   *************************************************************************************/
 
 /* import react */
-import React, { Fragment, useMemo } from 'react'
+import React, { Fragment, useMemo, useState } from 'react'
 
 /* import packages */
 import { formatUnits } from '@ethersproject/units'
@@ -36,6 +36,8 @@ import { Box, BoxItem, BoxItemTitle } from '../atoms/Box'
 import { Button, ButtonWrapper } from '../atoms/Button'
 import { Heading1, Text } from '../atoms/Typography'
 import { Content } from '../atoms/Layout'
+import { StyledArrowDropDownCircle } from '../../components/atoms/Icon'
+import { Accordion } from '../atoms/Accordion/Accordion'
 
 /* import constants */
 import { FunctionName, TransactionCondition, Unit } from '../../constants/enums'
@@ -67,6 +69,7 @@ export const MyClaims: React.FC = () => {
     activeNetwork,
     gasPrices.selected?.value,
   ])
+  const [openClaims, setOpenClaims] = useState<boolean>(true)
 
   /*************************************************************************************
 
@@ -114,47 +117,58 @@ export const MyClaims: React.FC = () => {
     <Fragment>
       {claimsDetails.length > 0 && (
         <Content>
-          <Heading1>Your Claims</Heading1>
-          <CardContainer cardsPerRow={2}>
-            {claimsDetails.map((claim: ClaimDetails) => {
-              return (
-                <Card key={claim.id}>
-                  <Box pt={20} pb={20} glow={claim.canWithdraw} green={claim.canWithdraw}>
-                    <BoxItem>
-                      <BoxItemTitle h3>ID</BoxItemTitle>
-                      <Text h3>{claim.id}</Text>
-                    </BoxItem>
-                    <BoxItem>
-                      <BoxItemTitle h3>Amount</BoxItemTitle>
-                      <Text h3>
-                        {parseFloat(formatUnits(claim.amount, currencyDecimals)) >= 1
-                          ? truncateBalance(parseFloat(formatUnits(claim.amount, currencyDecimals)))
-                          : formatUnits(claim.amount, currencyDecimals)}{' '}
-                        {activeNetwork.nativeCurrency.symbol}
-                      </Text>
-                    </BoxItem>
-                    <BoxItem>
-                      <BoxItemTitle h3>Payout Status</BoxItemTitle>
-                      <Text h3>
-                        {claim.canWithdraw
-                          ? 'Available'
-                          : `${claim.cooldown == '0' ? '-' : timeToDate(parseInt(claim.cooldown) * 1000)} left`}
-                      </Text>
-                    </BoxItem>
-                  </Box>
-                  <ButtonWrapper mb={0} mt={20}>
-                    <Button
-                      widthP={100}
-                      onClick={() => withdrawPayout(claim.id)}
-                      disabled={!claim.canWithdraw || errors.length > 0}
-                    >
-                      Withdraw Payout
-                    </Button>
-                  </ButtonWrapper>
-                </Card>
-              )
-            })}
-          </CardContainer>
+          <Heading1>
+            Your Claims
+            <Button style={{ float: 'right' }} onClick={() => setOpenClaims(!openClaims)}>
+              <StyledArrowDropDownCircle
+                style={{ transform: openClaims ? 'rotate(180deg)' : 'rotate(0deg)' }}
+                size={30}
+              />
+              {openClaims ? 'Hide Claims' : 'Show Claims'}
+            </Button>
+          </Heading1>
+          <Accordion isOpen={openClaims}>
+            <CardContainer cardsPerRow={2}>
+              {claimsDetails.map((claim: ClaimDetails) => {
+                return (
+                  <Card key={claim.id}>
+                    <Box pt={20} pb={20} glow={claim.canWithdraw} green={claim.canWithdraw}>
+                      <BoxItem>
+                        <BoxItemTitle h3>ID</BoxItemTitle>
+                        <Text h3>{claim.id}</Text>
+                      </BoxItem>
+                      <BoxItem>
+                        <BoxItemTitle h3>Amount</BoxItemTitle>
+                        <Text h3>
+                          {parseFloat(formatUnits(claim.amount, currencyDecimals)) >= 1
+                            ? truncateBalance(parseFloat(formatUnits(claim.amount, currencyDecimals)))
+                            : formatUnits(claim.amount, currencyDecimals)}{' '}
+                          {activeNetwork.nativeCurrency.symbol}
+                        </Text>
+                      </BoxItem>
+                      <BoxItem>
+                        <BoxItemTitle h3>Payout Status</BoxItemTitle>
+                        <Text h3>
+                          {claim.canWithdraw
+                            ? 'Available'
+                            : `${claim.cooldown == '0' ? '-' : timeToDate(parseInt(claim.cooldown) * 1000)} left`}
+                        </Text>
+                      </BoxItem>
+                    </Box>
+                    <ButtonWrapper mb={0} mt={20}>
+                      <Button
+                        widthP={100}
+                        onClick={() => withdrawPayout(claim.id)}
+                        disabled={!claim.canWithdraw || errors.length > 0}
+                      >
+                        Withdraw Payout
+                      </Button>
+                    </ButtonWrapper>
+                  </Card>
+                )
+              })}
+            </CardContainer>
+          </Accordion>
         </Content>
       )}
     </Fragment>

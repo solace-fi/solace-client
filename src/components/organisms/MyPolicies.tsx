@@ -91,8 +91,15 @@ export const MyPolicies: React.FC<MyPoliciesProps> = ({ openClaimModal, openMana
         <Loader />
       ) : userPolicyData.userPolicies.length > 0 ? (
         width > MAX_TABLET_SCREEN_WIDTH ? (
-          <Table textAlignCenter>
-            <TableHead>
+          <Table textAlignCenter style={{ borderSpacing: '0px 7px' }}>
+            <TableHead
+              style={{
+                position: 'sticky',
+                transform: 'translateY(-7px)',
+                top: '7px',
+                backgroundColor: 'rgba(16, 32, 97, 0.7)',
+              }}
+            >
               <TableRow>
                 <TableHeader>Coverage Type</TableHeader>
                 <TableHeader>Status</TableHeader>
@@ -102,6 +109,7 @@ export const MyPolicies: React.FC<MyPoliciesProps> = ({ openClaimModal, openMana
                   Covered Amount{' '}
                   <StyledTooltip id={'covered-amount'} tip={'The amount you are covered on this policy'} />
                 </TableHeader>
+                <TableHeader></TableHeader>
               </TableRow>
             </TableHead>
             <TableBody>

@@ -195,10 +195,15 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
                 </Heading2>
               </FormCol>
             </FormRow>
-            <SmallBox transparent mt={!assessment?.lossEventDetected ? 10 : 0} collapse={assessment?.lossEventDetected}>
-              <Text2 autoAlign error={!assessment?.lossEventDetected}>
+            <SmallBox
+              style={{ justifyContent: 'center' }}
+              transparent
+              mt={!assessment?.lossEventDetected ? 10 : 0}
+              collapse={assessment?.lossEventDetected}
+            >
+              <Heading3 error={!assessment?.lossEventDetected} textAlignCenter>
                 No loss event detected, unable to submit claims yet.
-              </Text2>
+              </Heading3>
             </SmallBox>
             {claimSubmitted ? (
               <Box purple mt={20} mb={20}>
@@ -215,7 +220,7 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
                 </Button>
               </ButtonWrapper>
             )}
-            <SmallBox transparent>
+            <SmallBox style={{ justifyContent: 'center' }} transparent>
               <Heading3 warning textAlignCenter>
                 Please wait for the cooldown period to elapse before withdrawing your payout.
               </Heading3>
