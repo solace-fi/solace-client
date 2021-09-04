@@ -41,7 +41,6 @@ import { FlexCol, FlexRow } from '../atoms/Layout'
 import { PositionCardLogo } from '../atoms/Position'
 import { Card, CardContainer } from '../atoms/Card'
 import { FormRow, FormCol } from '../atoms/Form'
-import { StyledTooltip } from '../molecules/Tooltip'
 
 /* import hooks */
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'
@@ -105,10 +104,7 @@ export const MyPolicies: React.FC<MyPoliciesProps> = ({ openClaimModal, openMana
                 <TableHeader>Status</TableHeader>
                 <TableHeader>Id</TableHeader>
                 <TableHeader>Expiration Date</TableHeader>
-                <TableHeader>
-                  Covered Amount{' '}
-                  <StyledTooltip id={'covered-amount'} tip={'The amount you are covered on this policy'} />
-                </TableHeader>
+                <TableHeader>Covered Amount </TableHeader>
                 <TableHeader></TableHeader>
               </TableRow>
             </TableHead>
