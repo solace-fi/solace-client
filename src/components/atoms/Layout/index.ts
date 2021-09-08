@@ -1,5 +1,5 @@
 import { MAX_NAVBAR_SCREEN_WIDTH, MAX_WIDTH, MAX_TABLET_SCREEN_WIDTH, MOBILE_SCREEN_MARGIN } from '../../../constants'
-import styled, { createGlobalStyle, css } from 'styled-components'
+import styled, { createGlobalStyle, css, keyframes } from 'styled-components'
 import { GeneralElementProps, GeneralElementCss, HeightAndWidthProps } from '../../generalInterfaces'
 import { Text3Css } from '../Typography'
 
@@ -16,6 +16,18 @@ export const CustomScrollbar = css`
   }
 `
 
+const movingGradient = keyframes`
+0% {
+  background-position: 0% 50%;
+}
+50% {
+  background-position: 100% 50%;
+}
+100% {
+  background-position: 0% 50%;
+}
+`
+
 export const GlobalStyle = createGlobalStyle`
   body{
     margin: 0;
@@ -24,6 +36,8 @@ export const GlobalStyle = createGlobalStyle`
     color: ${({ theme }) => theme.typography.med_emphasis};
     background: ${({ theme }) => theme.body.bg_color};
     background-attachment: fixed;
+    background-size: 120% 120%;
+    animation: ${movingGradient} 30s ease infinite;
     ${CustomScrollbar}
     ${Text3Css}
   }

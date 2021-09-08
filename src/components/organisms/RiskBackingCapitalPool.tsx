@@ -139,22 +139,26 @@ export const RiskBackingCapitalPool: React.FC<RiskBackingCapitalPoolProps> = ({ 
           {account && (
             <FormRow>
               <FormCol>Your Assets:</FormCol>
-              <FormCol h3>{truncateBalance(parseFloat(userVaultAssets), 2)}</FormCol>
+              <FormCol h2 high_em>
+                {truncateBalance(parseFloat(userVaultAssets), 2)}
+              </FormCol>
             </FormRow>
           )}
           <FormRow>
             <FormCol>Total Assets:</FormCol>
-            <FormCol h3>
+            <FormCol h2 high_em>
               {truncateBalance(floatUnits(parseUnits(capitalPoolSize, currencyDecimals), currencyDecimals), 2)}
             </FormCol>
           </FormRow>
           <FormRow>
             <FormCol>ROI:</FormCol>
-            <FormCol h3>{CP_ROI}</FormCol>
+            <FormCol h2 high_em>
+              {CP_ROI}
+            </FormCol>
           </FormRow>
           <FormRow>
             <FormCol>Your Vault Share:</FormCol>
-            <FormCol h3>{`${truncateBalance(userVaultShare, 2)}%`}</FormCol>
+            <FormCol h2 high_em>{`${truncateBalance(userVaultShare, 2)}%`}</FormCol>
           </FormRow>
           <ButtonWrapper isColumn>
             <Button

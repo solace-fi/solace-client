@@ -187,7 +187,7 @@ export const TextStyleCss = css<TextStyleProps>`
   ${(props) => props.med_em && `color: ${props.theme.typography.med_emphasis};`}
   ${(props) => props.high_em && `color: ${props.theme.typography.high_emphasis};`}
 
-  ${(props) => props.green && 'color: #00ffd1;'}
+  ${(props) => props.green && `color: ${props.theme.typography.green};`}
   ${(props) => props.error && `color: ${props.theme.typography.error};`}
   ${(props) => props.warning && `color: ${props.theme.typography.warning};`}
 `

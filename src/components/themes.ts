@@ -5,6 +5,7 @@ export const lightTheme = {
     high_emphasis: 'rgba(255, 255, 255)',
     error: 'rgba(255, 12, 28)',
     warning: 'rgba(245, 221, 83)',
+    green: '#00ffd1',
   },
   scrollbar: {
     track_color: 'rgba(6, 119, 145, 0.5)',
@@ -49,6 +50,7 @@ export const lightTheme = {
     color: '#fff',
     border_color: '#fff',
     bg_color: 'rgba(0, 0, 0, 0)',
+    slider_color: '#fff',
   },
   modal: {
     bg_color: 'linear-gradient(113.7deg, rgba(182, 33, 255) 0%, rgba(33, 211, 252) 100%)',
@@ -70,32 +72,36 @@ export const lightTheme = {
     progress_bg_color: 'rgba(255, 255, 255, 0.3)',
     bar_bg_color: '#fff',
   },
+  tooltip: {
+    bg_color: 'rgba(16, 32, 97, 0.9)',
+  },
 }
 
 export const darkTheme = {
   typography: {
     low_emphasis: 'rgba(255, 255, 255, 0.4)',
-    med_emphasis: 'rgba(255, 255, 255, 0.6)',
+    med_emphasis: 'rgba(255, 255, 255, 0.75)',
     high_emphasis: 'rgba(255, 255, 255)',
     error: 'rgba(255, 66, 79)',
     warning: 'rgba(240, 164, 50)',
+    green: '#00ffd1',
   },
   body: {
-    bg_color: '#14161e',
+    bg_color: 'linear-gradient(113deg, rgba(40,41,51,1) 0%, rgba(20,22,30,1) 100%)',
   },
   scrollbar: {
-    track_color: 'rgba(36, 40, 56, 0.5)',
+    track_color: 'rgba(36, 40, 56, 1)',
   },
   accordion: {
     color: 'auto',
     bg_color: 'auto',
   },
   box: {
-    bg_color: 'rgba(24, 34, 61, 1)',
+    bg_color: 'rgba(37, 52, 97, .4)',
     border_color: 'rgba(255, 255, 255, 0.2)',
     purple: 'rgba(86, 54, 117, .4)',
     green: 'rgba(21, 163, 52, 0.7)',
-    navy: 'rgba(76, 87, 133, .1)',
+    navy: 'rgba(76, 87, 133, .2)',
     glow: '0 0 0px #fff',
     shadow: '0 3px 3px rgba(0, 0, 0, 0.5)',
     smallbox_border_color: 'rgba(219, 44, 56)',
@@ -108,9 +114,9 @@ export const darkTheme = {
   },
   card: {
     bg_color: 'rgba(255, 255, 255, 0.05)',
-    blue: 'rgba(24, 34, 61, 1)',
+    blue: 'rgba(37, 52, 97, 1)',
     purple: 'rgba(86, 54, 117, .4)',
-    fade: 'rgba(38, 145, 252, 0.3)',
+    fade: 'rgba(64, 80, 128, 0.2)',
     hover_color: 'rgba(255, 255, 255, 0.2)',
     glow: '0 0 7px #fff',
   },
@@ -123,9 +129,10 @@ export const darkTheme = {
     color: '#fff',
     border_color: 'rgba(255, 255, 255, 0.4)',
     bg_color: 'rgba(255, 255, 255, 0.04)',
+    slider_color: '#00ffd1',
   },
   modal: {
-    bg_color: '#14161e',
+    bg_color: 'rgba(20, 22, 30, 1)',
     base_color: 'rgba(255, 255, 255, 0.1)',
     glow: '0',
   },
@@ -143,5 +150,8 @@ export const darkTheme = {
     step_bg_color: '#fff',
     progress_bg_color: 'rgba(255, 255, 255, 0.3)',
     bar_bg_color: '#fff',
+  },
+  tooltip: {
+    bg_color: 'rgba(25, 29, 36, 0.9)',
   },
 }

@@ -7,7 +7,6 @@
     import constants
     import components
     import hooks
-    import styles
 
     StyledTooltip function
       custom hooks
@@ -20,6 +19,7 @@ import React from 'react'
 
 /* import packages */
 import ReactTooltip from 'react-tooltip'
+import styled from 'styled-components'
 
 /* import constants */
 import { MAX_MOBILE_SCREEN_WIDTH } from '../../constants'
@@ -31,14 +31,23 @@ import { Text } from '../atoms/Typography'
 /* import hooks */
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'
 
-/* import styles */
-import '../../styles/tooltip.css'
-
 type StyledTooltipProps = {
   id: string
   tip: string
   link?: string
 }
+
+const CustomTooltip = styled(ReactTooltip)`
+  max-width: 350px;
+  font-size: 14px !important;
+  pointer-events: auto !important;
+  background-color: ${({ theme }) => theme.tooltip.bg_color} !important;
+  cursor: pointer;
+  &:hover {
+    visibility: visible !important;
+    opacity: 1 !important;
+  }
+`
 
 export const StyledTooltip: React.FC<StyledTooltipProps> = ({ id, tip, link }) => {
   /*************************************************************************************
@@ -59,7 +68,7 @@ export const StyledTooltip: React.FC<StyledTooltipProps> = ({ id, tip, link }) =
           <a data-for={id} data-tip={tip}>
             <StyledInfo size={20} />
           </a>
-          <ReactTooltip id={id} className="custom-tooltip" delayShow={200} delayHide={200} effect="solid">
+          <CustomTooltip id={id} delayShow={200} delayHide={200} effect="solid">
             {link ? (
               <a
                 href={link}
@@ -76,7 +85,7 @@ export const StyledTooltip: React.FC<StyledTooltipProps> = ({ id, tip, link }) =
             ) : (
               tip
             )}
-          </ReactTooltip>
+          </CustomTooltip>
         </>
       ) : null}
     </>

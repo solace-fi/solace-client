@@ -24,7 +24,6 @@
 import React, { Fragment, useState, useEffect, useMemo, useCallback } from 'react'
 
 /* import packages */
-import { Slider } from '@rebass/forms'
 import { parseUnits, formatUnits } from '@ethersproject/units'
 import { BigNumber } from 'ethers'
 
@@ -40,7 +39,7 @@ import { Modal } from '../molecules/Modal'
 import { FormRow, FormCol } from '../atoms/Form'
 import { Heading2, Text4 } from '../atoms/Typography'
 import { PolicyModalInfo } from './PolicyModalInfo'
-import { Input } from '../atoms/Input'
+import { Input, StyledSlider } from '../../components/atoms/Input'
 import { Button, ButtonWrapper } from '../atoms/Button'
 import { Loader } from '../atoms/Loader'
 import { FlexCol } from '../atoms/Layout'
@@ -350,16 +349,15 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
                     <Text4>Edit Coverage</Text4>
                     <Input
                       mt={5}
-                      mb={5}
+                      mb={20}
                       textAlignCenter
                       disabled={asyncLoading}
                       type="text"
                       value={inputCoverage}
                       onChange={(e) => handleInputCoverage(e.target.value)}
                     />
-                    <Slider
+                    <StyledSlider
                       disabled={asyncLoading}
-                      backgroundColor={'#fff'}
                       value={newCoverage}
                       onChange={(e) => handleCoverageChange(e.target.value)}
                       min={1}
@@ -372,7 +370,7 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
                     <Text4>Add days</Text4>
                     <Input
                       mt={5}
-                      mb={5}
+                      mb={20}
                       textAlignCenter
                       disabled={asyncLoading}
                       type="text"
@@ -381,9 +379,8 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
                       onChange={(e) => filteredTime(e.target.value)}
                       maxLength={3}
                     />
-                    <Slider
+                    <StyledSlider
                       disabled={asyncLoading}
-                      backgroundColor={'#fff'}
                       value={extendedTime == '' ? '0' : extendedTime}
                       onChange={(e) => setExtendedTime(e.target.value)}
                       min="0"
@@ -394,8 +391,14 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
                       transparent
                       outlined
                       error
+                      style={{ display: maxCoverPerUser == '0' ? 'none' : 'auto' }}
                       collapse={
                         !parseUnits(inputCoverage, currencyDecimals).gt(parseUnits(maxCoverPerUser, currencyDecimals))
+                      }
+                      mt={
+                        !parseUnits(inputCoverage, currencyDecimals).gt(parseUnits(maxCoverPerUser, currencyDecimals))
+                          ? 0
+                          : 5
                       }
                       mb={
                         !parseUnits(inputCoverage, currencyDecimals).gt(parseUnits(maxCoverPerUser, currencyDecimals))

@@ -44,7 +44,7 @@ import { Protocol, ProtocolImage, ProtocolTitle } from '../../components/atoms/P
 import { Card, CardContainer } from '../../components/atoms/Card'
 import { FormRow, FormCol } from '../../components/atoms/Form'
 import { Content } from '../../components/atoms/Layout'
-import { Heading3 } from '../../components/atoms/Typography'
+import { Heading2 } from '../../components/atoms/Typography'
 
 /* import hooks */
 import { useGetAvailableCoverages, useGetYearlyCosts } from '../../hooks/usePolicy'
@@ -232,13 +232,13 @@ export const ProtocolStep: React.FC<formProps> = ({ setForm, navigation }) => {
                         </ProtocolImage>
                       </FormCol>
                       <FormCol style={{ display: 'flex', alignItems: 'center' }}>
-                        <Heading3 high_em>{protocol}</Heading3>
+                        <Heading2 high_em>{protocol}</Heading2>
                       </FormCol>
                     </FormRow>
                     <FormRow>
                       <FormCol>Yearly Cost</FormCol>
                       <FormCol>
-                        <Heading3 high_em>
+                        <Heading2 high_em>
                           {fixed(
                             parseFloat(yearlyCosts[protocol] ?? '0') *
                               Math.pow(10, 6) *
@@ -248,15 +248,15 @@ export const ProtocolStep: React.FC<formProps> = ({ setForm, navigation }) => {
                             2
                           )}
                           %
-                        </Heading3>
+                        </Heading2>
                       </FormCol>
                     </FormRow>
                     <FormRow>
                       <FormCol>Coverage Available</FormCol>
                       <FormCol>
-                        <Heading3 high_em>
+                        <Heading2 high_em>
                           {handleAvailableCoverage(protocol)} {activeNetwork.nativeCurrency.symbol}
-                        </Heading3>
+                        </Heading2>
                       </FormCol>
                     </FormRow>
                   </Card>

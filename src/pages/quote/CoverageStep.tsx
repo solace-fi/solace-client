@@ -24,7 +24,6 @@
 import React, { useEffect, useMemo, useState } from 'react'
 
 /* import packages */
-import { Slider } from '@rebass/forms'
 import { formatUnits, parseUnits } from 'ethers/lib/utils'
 import { BigNumber } from 'ethers'
 
@@ -46,7 +45,7 @@ import { Button, ButtonWrapper } from '../../components/atoms/Button'
 import { formProps } from './MultiStepForm'
 import { Card, CardContainer } from '../../components/atoms/Card'
 import { Heading2, Heading3, Text4, TextSpan } from '../../components/atoms/Typography'
-import { Input } from '../../components/atoms/Input'
+import { Input, StyledSlider } from '../../components/atoms/Input'
 import { Loader } from '../../components/atoms/Loader'
 import { SmallBox } from '../../components/atoms/Box'
 import { FlexCol, FlexRow } from '../../components/atoms/Layout'
@@ -284,8 +283,7 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
                 MAX
               </Button>
             </div>
-            <Slider
-              backgroundColor={'#fff'}
+            <StyledSlider
               value={coverAmount}
               onChange={(e) => handleCoverageChange(e.target.value)}
               min={1}
@@ -308,8 +306,7 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
                 maxLength={3}
               />
             </div>
-            <Slider
-              backgroundColor={'#fff'}
+            <StyledSlider
               value={timePeriod == '' ? '1' : timePeriod}
               onChange={(e) => setTime(e.target.value)}
               min="1"

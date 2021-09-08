@@ -50,7 +50,7 @@ import { Box, BoxItem, BoxRow } from '../../components/atoms/Box'
 import { Button, ButtonWrapper } from '../../components/atoms/Button'
 import { Card, CardContainer } from '../../components/atoms/Card'
 import { FormRow, FormCol } from '../../components/atoms/Form'
-import { Heading3, Text } from '../../components/atoms/Typography'
+import { Heading2, Text } from '../../components/atoms/Typography'
 import { StyledTooltip } from '../../components/molecules/Tooltip'
 
 /* import hooks */
@@ -222,12 +222,10 @@ export const MultiStepForm = () => {
             </div>
           </FormCol>
           <FormCol>
-            <Text high_em h3>
+            <Text high_em h2 style={{ marginBottom: '10px' }}>
               {StepSections[Number(StepNumber[step.id])].name}
             </Text>
-            <Text low_em t4>
-              {StepSections[Number(StepNumber[step.id])].description}
-            </Text>
+            <Text t4>{StepSections[Number(StepNumber[step.id])].description}</Text>
           </FormCol>
         </FormRow>
       )}
@@ -301,21 +299,21 @@ export const MultiStepForm = () => {
                     </ProtocolImage>
                   </FormCol>
                   <FormCol style={{ display: 'flex', alignItems: 'center' }}>
-                    <Heading3 high_em>{protocol.name}</Heading3>
+                    <Heading2 high_em>{protocol.name}</Heading2>
                   </FormCol>
                 </FormRow>
                 <FormRow>
                   <FormCol>Yearly Cost</FormCol>
                   <FormCol>
-                    <Heading3>{fixed(protocol.yearlyCost * 100, 2)}%</Heading3>
+                    <Heading2>{fixed(protocol.yearlyCost * 100, 2)}%</Heading2>
                   </FormCol>
                 </FormRow>
                 <FormRow>
                   <FormCol>Available Coverage</FormCol>
                   <FormCol>
-                    <Heading3>
+                    <Heading2>
                       {protocol.availableCoverage} {activeNetwork.nativeCurrency.symbol}
-                    </Heading3>
+                    </Heading2>
                   </FormCol>
                 </FormRow>
                 <ButtonWrapper>
@@ -334,17 +332,21 @@ export const MultiStepForm = () => {
               {Number(StepNumber[step.id]) == 2 && !!position.underlying && (
                 <Card purple>
                   <FormRow>
-                    <Protocol>
+                    <FormCol>
                       <ProtocolImage mr={10}>
                         <img src={`https://assets.solace.fi/${position.underlying.address.toLowerCase()}`} />
                       </ProtocolImage>
-                      <ProtocolTitle high_em>{position.underlying.name}</ProtocolTitle>
-                    </Protocol>
+                    </FormCol>
+                    <FormCol style={{ display: 'flex', alignItems: 'center' }}>
+                      <Heading2 high_em>{position.underlying.name}</Heading2>
+                    </FormCol>
                   </FormRow>
                   <FormRow>
                     <FormCol>Position Amount</FormCol>
                     <FormCol>
-                      {truncateBalance(fixedTokenPositionBalance(position.underlying))} {position.underlying.symbol}
+                      <Heading2 high_em>
+                        {truncateBalance(fixedTokenPositionBalance(position.underlying))} {position.underlying.symbol}
+                      </Heading2>
                     </FormCol>
                   </FormRow>
                   <ButtonWrapper>

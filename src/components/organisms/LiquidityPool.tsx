@@ -174,20 +174,20 @@ export const LiquidityPool: React.FC<LiquidityPoolProps> = ({ openModal }) => {
           {account && (
             <FormRow>
               <FormCol>Your Stake:</FormCol>
-              <FormCol h3 high_em>
+              <FormCol h2 high_em>
                 {truncateBalance(parseFloat(lpUserStakeValue), 2)}
               </FormCol>
             </FormRow>
           )}
           <FormRow>
             <FormCol>Total Assets:</FormCol>
-            <FormCol h3 high_em>
+            <FormCol h2 high_em>
               {truncateBalance(parseFloat(lpPoolValue), 2)}
             </FormCol>
           </FormRow>
           <FormRow>
             <FormCol>ROI:</FormCol>
-            <FormCol h3 high_em>
+            <FormCol h2 high_em>
               {LP_ROI}
             </FormCol>
           </FormRow>
@@ -195,13 +195,13 @@ export const LiquidityPool: React.FC<LiquidityPoolProps> = ({ openModal }) => {
             <>
               <FormRow>
                 <FormCol>My Rewards:</FormCol>
-                <FormCol h3 high_em>
+                <FormCol h2 high_em>
                   {truncateBalance(parseFloat(lpUserRewards), 2)}
                 </FormCol>
               </FormRow>
               <FormRow>
                 <FormCol>My Daily Rewards:</FormCol>
-                <FormCol h3 high_em>
+                <FormCol h2 high_em>
                   {truncateBalance(parseFloat(lpUserRewardsPerDay), 2)}
                 </FormCol>
               </FormRow>
@@ -209,7 +209,7 @@ export const LiquidityPool: React.FC<LiquidityPoolProps> = ({ openModal }) => {
           )}
           <FormRow>
             <FormCol>Daily Rewards:</FormCol>
-            <FormCol h3 high_em>
+            <FormCol h2 high_em>
               {truncateBalance(parseFloat(lpRewardsPerDay), 2)}
             </FormCol>
           </FormRow>
