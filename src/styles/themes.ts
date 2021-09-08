@@ -141,7 +141,7 @@ export const darkTheme = {
     checked_bg_color: 'rgba(255, 255, 255, 0.4)',
   },
   table: {
-    highlight_bg_color: 'rgba(255, 255, 255, 0.1)',
+    highlight_bg_color: 'rgba(72, 130, 148, .5)',
     hover_color: 'rgba(255, 255, 255, 0.2)',
     cell_bg_color: 'rgba(255, 255, 255, 0.05)',
     head_bg_color: 'rgba(36, 40, 56, 1)',

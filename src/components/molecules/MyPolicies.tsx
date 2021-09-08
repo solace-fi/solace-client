@@ -71,6 +71,7 @@ export const MyPolicies: React.FC<MyPoliciesProps> = ({ openClaimModal, openMana
 
   *************************************************************************************/
   const calculatePolicyExpirationDate = (expirationBlock: number): string => {
+    if (latestBlock == 0) return 'Fetching...'
     const daysLeft = getDaysLeft(expirationBlock, latestBlock)
     return getExpiration(daysLeft)
   }

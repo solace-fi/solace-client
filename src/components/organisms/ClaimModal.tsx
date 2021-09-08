@@ -36,7 +36,7 @@ import { useNetwork } from '../../context/NetworkManager'
 /* import components */
 import { Modal } from '../molecules/Modal'
 import { FormRow, FormCol } from '../atoms/Form'
-import { Heading3, Heading4, Text2, Text4 } from '../atoms/Typography'
+import { Heading4, Heading2, Text4 } from '../atoms/Typography'
 import { PolicyModalInfo } from './PolicyModalInfo'
 import { Loader } from '../atoms/Loader'
 import { SmallBox, Box } from '../atoms/Box'
@@ -191,10 +191,10 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
                 </Text4>
               </FormCol>
               <FormCol>
-                <Heading3 autoAlign>
+                <Heading2 autoAlign high_em>
                   {truncateBalance(formatUnits(assessment?.amountOut || 0, currencyDecimals))}{' '}
                   {activeNetwork.nativeCurrency.symbol}
-                </Heading3>
+                </Heading2>
               </FormCol>
             </FormRow>
             <SmallBox
@@ -209,7 +209,9 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
             </SmallBox>
             {claimSubmitted ? (
               <Box purple mt={20} mb={20}>
-                <Heading3 autoAlign>Claim has been validated and payout submitted to the escrow.</Heading3>
+                <Heading2 high_em autoAlign>
+                  Claim has been validated and payout submitted to the escrow.
+                </Heading2>
               </Box>
             ) : (
               <ButtonWrapper>
@@ -230,8 +232,10 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
             <Table isHighlight>
               <TableBody>
                 <TableRow>
-                  <TableData t3>Current Cooldown Period</TableData>
-                  <TableData t3 textAlignRight>
+                  <TableData t2 high_em>
+                    Current Cooldown Period
+                  </TableData>
+                  <TableData h2 high_em textAlignRight>
                     {timeToDateText(parseInt(cooldown) * 1000)}
                   </TableData>
                 </TableRow>
