@@ -36,6 +36,7 @@ import { StyledMenu } from '../atoms/Icon'
 import { WalletConnectButton } from '../molecules/WalletConnectButton'
 import { TransactionHistoryButton } from '../molecules/TransactionHistoryButton'
 import { NetworkConnectButton } from '../molecules/NetworkConnectButton'
+import { ThemeButton } from '../molecules/ThemeButton'
 
 /* import hooks */
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'
@@ -133,6 +134,9 @@ export const TopNavbar: React.FC = () => {
                 <TransactionHistoryButton />
               </div>
             )}
+            <div>
+              <ThemeButton />
+            </div>
           </ButtonWrapper>
         )}
       </ItemList>

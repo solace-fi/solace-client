@@ -1,14 +1,14 @@
 import { MAX_NAVBAR_SCREEN_WIDTH, MAX_WIDTH, MAX_TABLET_SCREEN_WIDTH, MOBILE_SCREEN_MARGIN } from '../../../constants'
 import styled, { createGlobalStyle, css } from 'styled-components'
 import { GeneralElementProps, GeneralElementCss, HeightAndWidthProps } from '../../generalInterfaces'
-import { GlobalFont } from '../Typography'
+import { Text3Css } from '../Typography'
 
 export const CustomScrollbar = css`
   ::-webkit-scrollbar {
     width: 10px;
   }
   ::-webkit-scrollbar-track {
-    box-shadow: inset 0 0 60px rgba(6, 119, 145, 0.5);
+    box-shadow: inset 0 0 60px ${({ theme }) => theme.scrollbar.track_color};
   }
   ::-webkit-scrollbar-thumb {
     background-color: #fff;
@@ -21,11 +21,11 @@ export const GlobalStyle = createGlobalStyle`
     margin: 0;
     font-family: 'Open Sans', sans-serif;
     line-height: 1.4;
-    color: #fff;
-    background: linear-gradient(113.7deg, #b621ff 0%, #21d3fc 100%);
+    color: ${({ theme }) => theme.typography.med_emphasis};
+    background: ${({ theme }) => theme.body.bg_color};
     background-attachment: fixed;
     ${CustomScrollbar}
-    ${GlobalFont}
+    ${Text3Css}
   }
 `
 

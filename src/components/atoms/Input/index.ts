@@ -1,16 +1,16 @@
 import styled, { css } from 'styled-components'
-import { GeneralTextProps, GeneralTextCss, Text3Css } from '../Typography'
+import { GeneralTextProps, GeneralTextCss, Text4Css } from '../Typography'
 import { GeneralElementProps, GeneralElementCss } from '../../generalInterfaces'
 
 const InputCss = css`
   ::placeholder {
-    color: #fff;
+    color: ${({ theme }) => theme.input.color};
     opacity: 0.5;
   }
-  background-color: rgba(0, 0, 0, 0);
-  border: 1px solid #fff;
+  background-color: ${({ theme }) => theme.input.bg_color};
+  border: 1px solid ${({ theme }) => theme.input.border_color};
   outline: none;
-  color: #fff;
+  color: ${({ theme }) => theme.input.color};
 `
 
 export const Input = styled.input<GeneralElementProps & GeneralTextProps>`
@@ -32,7 +32,7 @@ export const Input = styled.input<GeneralElementProps & GeneralTextProps>`
   &:read-only {
     border-color: rgba(0, 0, 0, 0);
   }
-  ${Text3Css}
+  ${Text4Css}
   ${GeneralTextCss}
   ${GeneralElementCss}
 `

@@ -73,28 +73,28 @@ export const MyInvestments: React.FC = () => {
       <CardContainer>
         <InvestmentCard>
           <CardHeader>
-            <CardTitle h2>Capital Pool</CardTitle>
-            <Heading3>
+            <CardTitle t4>Capital Pool</CardTitle>
+            <CardTitle h3 nowrap high_em>
               {account ? truncateBalance(parseFloat(cpUserStakeValue), 2) : 0} {activeNetwork.nativeCurrency.symbol}
-            </Heading3>
+            </CardTitle>
           </CardHeader>
           <CardBlock>
-            <CardTitle t2>Daily Earnings</CardTitle>
-            <CardTitle t3>
+            <CardTitle t4>Daily Earnings</CardTitle>
+            <CardTitle h3 nowrap high_em>
               {account ? truncateBalance(parseFloat(cpUserRewardsPerDay), 2) : 0} {Unit.SOLACE}
             </CardTitle>
           </CardBlock>
           <CardBlock>
-            <CardTitle t2>Total Earnings</CardTitle>
-            <CardTitle t3>
+            <CardTitle t4>Total Earnings</CardTitle>
+            <CardTitle h3 nowrap high_em>
               {account ? truncateBalance(parseFloat(cpUserRewards), 2) : 0} {Unit.SOLACE}
             </CardTitle>
           </CardBlock>
         </InvestmentCard>
         <InvestmentCard>
           <CardHeader>
-            <CardTitle h2>Liquidity Pool</CardTitle>
-            <Heading3>
+            <CardTitle t4>Liquidity Pool</CardTitle>
+            <CardTitle h3 nowrap high_em>
               {/* {account
                 ? truncateBalance(
                     formatUnits(depositedLpTokenInfo.reduce((a, b) => a.add(b.value), ZERO).toString(), currencyDecimals),
@@ -103,17 +103,17 @@ export const MyInvestments: React.FC = () => {
                 : 0}{' '}
               {Unit.SOLACE} */}
               {account ? truncateBalance(parseFloat(lpUserStakeValue), 2) : 0} {Unit.SOLACE}
-            </Heading3>
+            </CardTitle>
           </CardHeader>
           <CardBlock>
-            <CardTitle t2>Daily Earnings</CardTitle>
-            <CardTitle t3>
+            <CardTitle t4>Daily Earnings</CardTitle>
+            <CardTitle h3 nowrap high_em>
               {account ? truncateBalance(parseFloat(lpUserRewardsPerDay), 2) : 0} {Unit.SOLACE}
             </CardTitle>
           </CardBlock>
           <CardBlock>
-            <CardTitle t2>Total Earnings</CardTitle>
-            <CardTitle t3>
+            <CardTitle t4>Total Earnings</CardTitle>
+            <CardTitle h3 nowrap high_em>
               {account ? truncateBalance(parseFloat(lpUserRewards), 2) : 0} {Unit.SOLACE}
             </CardTitle>
           </CardBlock>

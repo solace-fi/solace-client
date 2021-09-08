@@ -8,6 +8,7 @@ import { NetworkChart } from '@styled-icons/boxicons-regular/NetworkChart'
 import { Info } from '@styled-icons/fluentui-system-regular/Info'
 import { LinkExternal } from '@styled-icons/boxicons-regular/LinkExternal'
 import { ArrowDropDownCircle } from '@styled-icons/material-sharp/ArrowDropDownCircle'
+import { DarkTheme } from '@styled-icons/fluentui-system-regular/DarkTheme'
 
 export const StyledIconCss = css`
   margin: auto;
@@ -27,6 +28,8 @@ export const StyledNetworkChart = styled(NetworkChart)`
 `
 
 export const StyledInfo = styled(Info)``
+
+export const StyledTheme = styled(DarkTheme)``
 
 export const StyledArrowDropDownCircle = styled(ArrowDropDownCircle)``
 

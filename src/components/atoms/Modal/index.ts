@@ -26,7 +26,7 @@ export const ModalContainer = styled.div<ModalProps>`
   left: 0;
   width: 100vw;
   height: 100vh;
-  background: linear-gradient(113.7deg, rgba(182, 33, 255) 0%, rgba(33, 211, 252) 100%);
+  background: ${({ theme }) => theme.modal.bg_color};
   z-index: 2;
   ${(props) => (props.isOpen ? 'display: flex;' : 'display: none;')}
   overflow-y: scroll;
@@ -36,8 +36,8 @@ export const ModalBase = styled.div<ModalProps>`
   margin: auto;
   border-radius: 10px;
   padding: 24px;
-  background-color: rgba(255, 255, 255, 0.1);
-  box-shadow: 0 0 7px #fff;
+  background-color: ${({ theme }) => theme.modal.base_color};
+  box-shadow: ${({ theme }) => theme.modal.glow};
   opacity: 0;
   ${(props) =>
     props.isOpen &&

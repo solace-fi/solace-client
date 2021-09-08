@@ -45,7 +45,7 @@ import { FormRow, FormCol } from '../../components/atoms/Form'
 import { Button, ButtonWrapper } from '../../components/atoms/Button'
 import { formProps } from './MultiStepForm'
 import { Card, CardContainer } from '../../components/atoms/Card'
-import { Heading2, Text3, TextSpan } from '../../components/atoms/Typography'
+import { Heading2, Heading3, Text4, TextSpan } from '../../components/atoms/Typography'
 import { Input } from '../../components/atoms/Input'
 import { Loader } from '../../components/atoms/Loader'
 import { SmallBox } from '../../components/atoms/Box'
@@ -246,22 +246,22 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
       <Card>
         <FormRow mb={15}>
           <FormCol>
-            <Heading2>Total Assets</Heading2>
+            <Heading2 high_em>Total Assets</Heading2>
             {position.underlying.symbol !== activeNetwork.nativeCurrency.symbol && (
-              <Text3>Denominated from {position.underlying.symbol}</Text3>
+              <Text4>Denominated from {position.underlying.symbol}</Text4>
             )}
           </FormCol>
           <FormCol>
-            <Heading2>{formatUnits(positionAmount, currencyDecimals)}</Heading2>
-            <Text3 textAlignRight>{activeNetwork.nativeCurrency.symbol}</Text3>
+            <Heading2 high_em>{formatUnits(positionAmount, currencyDecimals)}</Heading2>
+            <Text4 textAlignRight>{activeNetwork.nativeCurrency.symbol}</Text4>
           </FormCol>
         </FormRow>
         <hr style={{ marginBottom: '10px' }} />
         <FlexCol mb={20} style={{ padding: '10px 30px' }}>
           <div style={{ textAlign: 'center' }}>
-            <Heading2>Coverage Amount</Heading2>
-            <Text3>How much do you want to cover?</Text3>
-            <div>
+            <Heading3 high_em>Coverage Amount</Heading3>
+            <Text4 low_em>How much do you want to cover?</Text4>
+            <div style={{ marginBottom: '20px' }}>
               <Input
                 mt={20}
                 mb={5}
@@ -294,9 +294,9 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
           </div>
           <br />
           <div style={{ textAlign: 'center' }}>
-            <Heading2>Coverage Period</Heading2>
-            <Text3>How many days should the coverage last?</Text3>
-            <div>
+            <Heading3 high_em>Coverage Period</Heading3>
+            <Text4 low_em>How many days should the coverage last?</Text4>
+            <div style={{ marginBottom: '20px' }}>
               <Input
                 mt={20}
                 mb={5}
@@ -307,24 +307,25 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
                 onChange={(e) => filteredTime(e.target.value)}
                 maxLength={3}
               />
-              <Slider
-                backgroundColor={'#fff'}
-                value={timePeriod == '' ? '1' : timePeriod}
-                onChange={(e) => setTime(e.target.value)}
-                min="1"
-                max={DAYS_PER_YEAR}
-              />
             </div>
+            <Slider
+              backgroundColor={'#fff'}
+              value={timePeriod == '' ? '1' : timePeriod}
+              onChange={(e) => setTime(e.target.value)}
+              min="1"
+              max={DAYS_PER_YEAR}
+            />
           </div>
         </FlexCol>
         <hr style={{ marginBottom: '20px' }} />
         <FormRow mb={5}>
           <FormCol>
-            <Text3>Covered Assets</Text3>
+            <Text4>Covered Assets</Text4>
           </FormCol>
           <FormCol>
             <FlexRow>
-              <Text3
+              <Text4
+                high_em
                 bold
                 error={
                   parseUnits(coveredAssets, currencyDecimals).gt(parseUnits(maxCoverPerUser, currencyDecimals)) &&
@@ -332,7 +333,7 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
                 }
               >
                 {coveredAssets} {activeNetwork.nativeCurrency.symbol}
-              </Text3>
+              </Text4>
             </FlexRow>
           </FormCol>
         </FormRow>
@@ -343,16 +344,16 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
           collapse={!parseUnits(coveredAssets, currencyDecimals).gt(parseUnits(maxCoverPerUser, currencyDecimals))}
           mb={!parseUnits(coveredAssets, currencyDecimals).gt(parseUnits(maxCoverPerUser, currencyDecimals)) ? 0 : 5}
         >
-          <Text3 error autoAlign>
+          <Text4 error autoAlign>
             You can only cover up to {maxCoverPerUser} {activeNetwork.nativeCurrency.symbol}.
-          </Text3>
+          </Text4>
         </SmallBox>
         <FormRow mb={5}>
           <FormCol>
-            <Text3>Covered Period</Text3>
+            <Text4>Covered Period</Text4>
           </FormCol>
           <FormCol>
-            <Text3>
+            <Text4 high_em>
               <TextSpan nowrap pl={5} pr={5}>
                 {getDateStringWithMonthName(new Date(Date.now()))}
               </TextSpan>{' '}
@@ -360,17 +361,17 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
               <TextSpan pl={5} pr={5}>
                 {getDateStringWithMonthName(getDateExtended(parseFloat(timePeriod || '1')))}
               </TextSpan>
-            </Text3>
+            </Text4>
           </FormCol>
         </FormRow>
         <FormRow mb={5}>
           <FormCol>
-            <Text3>Quote</Text3>
+            <Text4>Quote</Text4>
           </FormCol>
           <FormCol>
-            <Text3 bold>
+            <Text4 bold high_em>
               {quote} {activeNetwork.nativeCurrency.symbol}
-            </Text3>
+            </Text4>
           </FormCol>
         </FormRow>
         <ButtonWrapper>
@@ -392,11 +393,11 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
       </Card>
       <Card transparent>
         <FormRow>
-          <Heading2>Terms and conditions</Heading2>
+          <Heading3>Terms and conditions</Heading3>
         </FormRow>
         <FormRow mb={0}>
           <FormCol>
-            <Text3>
+            <Text4>
               <b>Events covered:</b>
               <ul>
                 <li>Contract bugs</li>
@@ -405,7 +406,7 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
               </ul>
               This coverage is not a contract of insurance. Coverage is provided on a discretionary basis with Solace
               protocol and the decentralized governance has the final say on which claims are paid.
-            </Text3>
+            </Text4>
           </FormCol>
         </FormRow>
       </Card>

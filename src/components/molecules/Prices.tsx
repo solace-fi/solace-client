@@ -33,7 +33,7 @@ import { Unit } from '../../constants/enums'
 
 /* import components */
 import { SmallBox } from '../atoms/Box'
-import { Heading3 } from '../atoms/Typography'
+import { Heading4 } from '../atoms/Typography'
 
 /* import hooks */
 import { usePairPrice } from '../../hooks/usePair'
@@ -78,23 +78,23 @@ export const Prices: React.FC = () => {
   return (
     <Price>
       <SmallBox pl={10} navy>
-        <Heading3 autoAlign nowrap>
+        <Heading4 high_em autoAlign nowrap>
           SOLACE
-        </Heading3>
+        </Heading4>
         <SmallBox ml={10} navy>
-          <Heading3 autoAlign green>
+          <Heading4 autoAlign green>
             {`$${pairPrice}`}
-          </Heading3>
+          </Heading4>
         </SmallBox>
       </SmallBox>
       <SmallBox pl={10} navy>
-        <Heading3 autoAlign nowrap>
+        <Heading4 high_em autoAlign nowrap>
           {nativeToken}
-        </Heading3>
+        </Heading4>
         <SmallBox ml={10} navy>
-          <Heading3 autoAlign green>
+          <Heading4 autoAlign green>
             ${coinPrice ? coinPrice : '-'}
-          </Heading3>
+          </Heading4>
         </SmallBox>
       </SmallBox>
     </Price>

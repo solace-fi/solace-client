@@ -36,7 +36,7 @@ import { useNetwork } from '../../context/NetworkManager'
 /* import components */
 import { Modal } from '../molecules/Modal'
 import { FormRow, FormCol } from '../atoms/Form'
-import { Heading2, Heading3, Text2, Text3 } from '../atoms/Typography'
+import { Heading3, Heading4, Text2, Text4 } from '../atoms/Typography'
 import { PolicyModalInfo } from './PolicyModalInfo'
 import { Loader } from '../atoms/Loader'
 import { SmallBox, Box } from '../atoms/Box'
@@ -176,23 +176,23 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
           <Fragment>
             <FormRow mb={0}>
               <FormCol>
-                <Text3 autoAlign nowrap>
+                <Text4 autoAlign nowrap>
                   {width > MAX_MOBILE_SCREEN_WIDTH ? 'By submitting a claim, you receive' : null}
-                </Text3>
+                </Text4>
               </FormCol>
               <FormCol></FormCol>
             </FormRow>
             <FormRow mb={0}>
               <FormCol>
-                <Text3 autoAlign nowrap>
+                <Text4 autoAlign nowrap>
                   {width > MAX_MOBILE_SCREEN_WIDTH ? 'pre-exploit assets value equal to' : 'Receiving'}
-                </Text3>
+                </Text4>
               </FormCol>
               <FormCol>
-                <Heading2 autoAlign>
+                <Heading3 autoAlign>
                   {truncateBalance(formatUnits(assessment?.amountOut || 0, currencyDecimals))}{' '}
                   {activeNetwork.nativeCurrency.symbol}
-                </Heading2>
+                </Heading3>
               </FormCol>
             </FormRow>
             <SmallBox
@@ -201,13 +201,13 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
               mt={!assessment?.lossEventDetected ? 10 : 0}
               collapse={assessment?.lossEventDetected}
             >
-              <Heading3 error={!assessment?.lossEventDetected} textAlignCenter>
+              <Heading4 error={!assessment?.lossEventDetected} textAlignCenter>
                 No loss event detected, unable to submit claims yet.
-              </Heading3>
+              </Heading4>
             </SmallBox>
             {claimSubmitted ? (
               <Box purple mt={20} mb={20}>
-                <Heading2 autoAlign>Claim has been validated and payout submitted to the escrow.</Heading2>
+                <Heading3 autoAlign>Claim has been validated and payout submitted to the escrow.</Heading3>
               </Box>
             ) : (
               <ButtonWrapper>
@@ -221,15 +221,15 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
               </ButtonWrapper>
             )}
             <SmallBox style={{ justifyContent: 'center' }} transparent>
-              <Heading3 warning textAlignCenter>
+              <Heading4 warning textAlignCenter>
                 Please wait for the cooldown period to elapse before withdrawing your payout.
-              </Heading3>
+              </Heading4>
             </SmallBox>
             <Table isHighlight>
               <TableBody>
                 <TableRow>
-                  <TableData t2>Current Cooldown Period</TableData>
-                  <TableData t2 textAlignRight>
+                  <TableData t3>Current Cooldown Period</TableData>
+                  <TableData t3 textAlignRight>
                     {timeToDateText(parseInt(cooldown) * 1000)}
                   </TableData>
                 </TableRow>

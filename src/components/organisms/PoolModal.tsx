@@ -58,7 +58,7 @@ import { Loader } from '../atoms/Loader'
 import { FormOption, FormSelect } from '../atoms/Form'
 import { Card } from '../atoms/Card'
 import { Box, BoxItem, BoxItemTitle } from '../atoms/Box'
-import { Heading2, Text3 } from '../atoms/Typography'
+import { Heading3, Text4 } from '../atoms/Typography'
 import { GeneralElementProps } from '../generalInterfaces'
 
 /* import hooks */
@@ -542,7 +542,7 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
     <Modal isOpen={isOpen} handleClose={handleClose} modalTitle={modalTitle} disableCloseButton={modalLoading}>
       <Fragment>
         <ModalRow>
-          <ModalCell t2>{getUnit(func, activeNetwork)}</ModalCell>
+          <ModalCell t3>{getUnit(func, activeNetwork)}</ModalCell>
           {func == FunctionName.DEPOSIT_SIGNED || func == FunctionName.WITHDRAW_LP ? (
             <ModalCell>
               <FormSelect value={nftSelection} onChange={(e) => handleNft(e.target)}>
@@ -564,7 +564,7 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
               <ModalCell>
                 <Input
                   widthP={100}
-                  t2
+                  t3
                   textAlignRight
                   type="text"
                   autoComplete="off"
@@ -583,7 +583,7 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
                   Available: {func ? truncateBalance(formatUnits(getAssetBalanceByFunc(), currencyDecimals), 6) : 0}
                 </div>
               </ModalCell>
-              <ModalCell t3>
+              <ModalCell t4>
                 <Button
                   disabled={errors.length > 0}
                   onClick={() => {
@@ -649,36 +649,36 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
               <>
                 {canWithdrawEth && (
                   <Box green glow mt={20} mb={20}>
-                    <Heading2 autoAlign>You can withdraw now!</Heading2>
+                    <Heading3 autoAlign>You can withdraw now!</Heading3>
                   </Box>
                 )}
                 {cooldownStarted && timeWaited < cooldownMin && (
                   <Box mt={20} mb={20}>
-                    <Heading2 autoAlign>Cooldown Elapsing...</Heading2>
+                    <Heading3 autoAlign>Cooldown Elapsing...</Heading3>
                   </Box>
                 )}
                 <Box navy>
                   <BoxItem>
-                    <BoxItemTitle h3 textAlignCenter>
+                    <BoxItemTitle h4 textAlignCenter>
                       Min Cooldown
                     </BoxItemTitle>
-                    <Text3 textAlignCenter>{getTimeFromMillis(cooldownMin)}</Text3>
+                    <Text4 textAlignCenter>{getTimeFromMillis(cooldownMin)}</Text4>
                   </BoxItem>
                   {cooldownStarted && (
                     <BoxItem>
-                      <BoxItemTitle h3 textAlignCenter>
+                      <BoxItemTitle h4 textAlignCenter>
                         Time waited
                       </BoxItemTitle>
-                      <Text3 textAlignCenter green={canWithdrawEth}>
+                      <Text4 textAlignCenter green={canWithdrawEth}>
                         {timeToDate(timeWaited)}
-                      </Text3>
+                      </Text4>
                     </BoxItem>
                   )}
                   <BoxItem>
-                    <BoxItemTitle h3 textAlignCenter>
+                    <BoxItemTitle h4 textAlignCenter>
                       Max Cooldown
                     </BoxItemTitle>
-                    <Text3 textAlignCenter>{getTimeFromMillis(cooldownMax)}</Text3>
+                    <Text4 textAlignCenter>{getTimeFromMillis(cooldownMax)}</Text4>
                   </BoxItem>
                 </Box>
                 {!canWithdrawEth && (

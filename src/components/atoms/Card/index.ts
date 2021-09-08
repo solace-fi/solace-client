@@ -22,15 +22,15 @@ interface CardContainerProps extends GeneralElementProps {
 const CardCss = css<CardProps>`
   border-radius: 10px;
   padding: 24px;
-  background-color: rgba(255, 255, 255, 0.1);
-  ${(props) => props.blue && 'background-color: rgba(0, 255, 209, 0.3);'}
-  ${(props) => props.purple && 'background-color: rgba(250, 0, 255, 0.3);'}
-  ${(props) => props.transparent && 'background-color: rgba(255, 255, 255, 0);'}
-  ${(props) => props.fade && 'background-color: rgba(0, 176, 144, 0.3);'}
+  background-color: ${({ theme }) => theme.card.bg_color};
+  ${(props) => props.blue && `background-color: ${props.theme.card.blue};`}
+  ${(props) => props.purple && `background-color:${props.theme.card.purple};`}
+  ${(props) => props.transparent && `background-color: rgba(255, 255, 255, 0);`}
+  ${(props) => props.fade && `background-color: ${props.theme.card.fade};`}
   ${(props) =>
     props.canHover &&
-    'cursor: pointer; &:hover { background-color: rgba(255, 255, 255, 0.5); transition: background-color 200ms linear; }'}
-    ${(props) => props.glow && 'box-shadow: 0 0 7px #fff;'}
+    `cursor: pointer; &:hover { background-color: ${props.theme.card.hover_color}; transition: background-color 200ms linear; }`}
+    ${(props) => props.glow && `box-shadow: ${props.theme.card.glow};`}
 `
 
 export const CardContainer = styled.div<CardContainerProps & GeneralTextProps>`
@@ -69,7 +69,7 @@ export const PositionCard = styled(FlexCol)<CardProps>`
   ${(props) =>
     props.fade
       ? null
-      : '&:hover { background-color: rgba(255, 255, 255, 0.5); transition: background-color 200ms linear; }'}
+      : `&:hover { background-color: ${props.theme.card.hover_color}; transition: background-color 200ms linear; }`}
   ${CardCss}
 `
 

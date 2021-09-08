@@ -30,7 +30,7 @@ export const TopNav = styled.div<TopNavProps>`
 export const SidebarItem = styled(NavLink)`
   font-weight: 600;
   font-size: 16px;
-  color: #fff;
+  color: ${({ theme }) => theme.typography.med_emphasis};
   text-decoration: none;
   transition: all 0.2s;
   &:hover,

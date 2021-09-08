@@ -6,9 +6,12 @@ export interface TextFontProps {
   h1?: boolean
   h2?: boolean
   h3?: boolean
+  h4?: boolean
+
   t1?: boolean
   t2?: boolean
   t3?: boolean
+  t4?: boolean
 }
 
 export interface TextAlignProps {
@@ -27,6 +30,9 @@ export interface TextStyleProps {
   green?: boolean
   error?: boolean
   warning?: boolean
+  high_em?: boolean
+  med_em?: boolean
+  low_em?: boolean
 }
 
 export interface GeneralTextProps extends TextFontProps, TextAlignProps, TextStyleProps {}
@@ -48,6 +54,14 @@ const Font2 = css`
 `
 
 const Font3 = css`
+  font-size: 16px;
+
+  @media screen and (max-width: ${MAX_MOBILE_SCREEN_WIDTH}px) {
+    font-size: 14px;
+  }
+`
+
+const Font4 = css`
   font-size: 14px;
 
   @media screen and (max-width: ${MAX_MOBILE_SCREEN_WIDTH}px) {
@@ -64,6 +78,7 @@ const Heading1Css = css`
   ${HeadingCss}
   ${Font1}
   margin: 20px 0;
+  color: ${({ theme }) => theme.typography.high_emphasis};
 `
 const Heading2Css = css`
   ${HeadingCss}
@@ -73,6 +88,12 @@ const Heading2Css = css`
 const Heading3Css = css`
   ${HeadingCss}
   ${Font3}
+  margin: 0;
+`
+
+const Heading4Css = css`
+  ${HeadingCss}
+  ${Font4}
   margin: 0;
 `
 
@@ -121,14 +142,6 @@ const NoWrapCss = css`
   white-space: nowrap;
 `
 
-export const GlobalFont = css`
-  font-size: 16px;
-
-  @media screen and (max-width: ${MAX_MOBILE_SCREEN_WIDTH}px) {
-    font-size: 14px;
-  }
-`
-
 export const Text1Css = css`
   ${Font1}
 `
@@ -141,13 +154,19 @@ export const Text3Css = css`
   ${Font3}
 `
 
+export const Text4Css = css`
+  ${Font4}
+`
+
 export const TextFontCss = css<TextFontProps>`
   ${(props) => props.h1 && Heading1Css}
   ${(props) => props.h2 && Heading2Css}
   ${(props) => props.h3 && Heading3Css}
+  ${(props) => props.h4 && Heading3Css}
   ${(props) => props.t1 && Text1Css}
   ${(props) => props.t2 && Text2Css}
   ${(props) => props.t3 && Text3Css}
+  ${(props) => props.t4 && Heading3Css}
 `
 
 export const TextAlignCss = css<TextAlignProps>`
@@ -163,9 +182,14 @@ export const TextStyleCss = css<TextStyleProps>`
   ${(props) => props.autoAlignVertical && AlignVerticalCss}
   ${(props) => props.autoAlignHorizontal && AlignHorizontalCss}
   ${(props) => props.bold && 'font-weight: 600;'}
+
+  ${(props) => props.low_em && `color: ${props.theme.typography.low_emphasis};`}
+  ${(props) => props.med_em && `color: ${props.theme.typography.med_emphasis};`}
+  ${(props) => props.high_em && `color: ${props.theme.typography.high_emphasis};`}
+
   ${(props) => props.green && 'color: #00ffd1;'}
-  ${(props) => props.error && 'color: rgba(255, 12, 28);'}
-  ${(props) => props.warning && 'color: rgba(245, 221, 83);'}
+  ${(props) => props.error && `color: ${props.theme.typography.error};`}
+  ${(props) => props.warning && `color: ${props.theme.typography.warning};`}
 `
 
 export const GeneralTextCss = css<GeneralTextProps>`
@@ -201,6 +225,12 @@ export const Text3 = styled.div<TextAlignProps & TextStyleProps>`
   ${TextStyleCss}
 `
 
+export const Text4 = styled.div<TextAlignProps & TextStyleProps>`
+  ${Text4Css}
+  ${TextAlignCss}
+  ${TextStyleCss}
+`
+
 export const Heading1 = styled.div<TextAlignProps & TextStyleProps>`
   ${Heading1Css}
   ${TextAlignCss}
@@ -215,6 +245,12 @@ export const Heading2 = styled.div<TextAlignProps & TextStyleProps>`
 
 export const Heading3 = styled.div<TextAlignProps & TextStyleProps>`
   ${Heading3Css}
+  ${TextAlignCss}
+  ${TextStyleCss}
+`
+
+export const Heading4 = styled.div<TextAlignProps & TextStyleProps>`
+  ${Heading4Css}
   ${TextAlignCss}
   ${TextStyleCss}
 `

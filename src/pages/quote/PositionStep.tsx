@@ -228,6 +228,7 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
                     <img src={`https://assets.solace.fi/${position.underlying.address.toLowerCase()}`} />
                   </PositionCardLogo>
                   <PositionCardName
+                    high_em
                     style={{
                       opacity: userHasActiveProductPosition(protocol.name, position.underlying.symbol) ? '.5' : '1',
                     }}
@@ -236,6 +237,7 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
                   </PositionCardName>
                   <PositionCardText
                     t1
+                    high_em
                     style={{
                       opacity: userHasActiveProductPosition(protocol.name, position.underlying.symbol) ? '.5' : '1',
                     }}
@@ -244,7 +246,7 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
                     <TextSpan style={{ fontSize: '12px' }}>{position.underlying.symbol}</TextSpan>
                   </PositionCardText>
                   <PositionCardText
-                    t2
+                    t3
                     style={{
                       opacity: userHasActiveProductPosition(protocol.name, position.underlying.symbol) ? '.5' : '1',
                     }}

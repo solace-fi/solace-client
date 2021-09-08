@@ -1,5 +1,5 @@
 import styled from 'styled-components'
-import { TextFontCss, TextFontProps } from '../Typography'
+import { GeneralTextCss, GeneralTextProps } from '../Typography'
 import { HeightAndWidthProps, HeightAndWidthCss, MarginProps, MarginCss } from '../../generalInterfaces'
 
 export const Protocol = styled.div`
@@ -24,7 +24,7 @@ export const ProtocolImage = styled.div<HeightAndWidthProps & MarginProps>`
   ${MarginCss}
 `
 
-export const ProtocolTitle = styled.div<TextFontProps>`
-  ${TextFontCss}
+export const ProtocolTitle = styled.div<GeneralTextProps>`
+  ${GeneralTextCss}
   line-height: 19px;
 `
