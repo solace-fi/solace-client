@@ -31,7 +31,7 @@ const movingGradient = keyframes`
 export const GlobalStyle = createGlobalStyle`
   body{
     margin: 0;
-    font-family: 'Open Sans', sans-serif;
+    font-family: 'PT Sans',Arial,sans-serif;
     line-height: 1.4;
     color: ${({ theme }) => theme.typography.med_emphasis};
     background: ${({ theme }) => theme.body.bg_color};

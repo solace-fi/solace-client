@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react'
 import { useLocalStorage } from 'react-use-storage'
 import { ThemeProvider } from 'styled-components'
-import { lightTheme, darkTheme } from '../components/themes'
+import { lightTheme, darkTheme } from '../styles/themes'
 
 type GeneralContextType = {
   appTheme: 'light' | 'dark'

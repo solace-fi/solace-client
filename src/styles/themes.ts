@@ -87,7 +87,7 @@ export const darkTheme = {
     green: '#00ffd1',
   },
   body: {
-    bg_color: 'linear-gradient(113deg, rgba(40,41,51,1) 0%, rgba(20,22,30,1) 100%)',
+    bg_color: 'linear-gradient(113deg, rgba(40,41,51,1) 0%, rgba(11,12,15,1) 100%)',
   },
   scrollbar: {
     track_color: 'rgba(36, 40, 56, 1)',
