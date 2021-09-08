@@ -93,7 +93,6 @@ export const MyPolicies: React.FC<MyPoliciesProps> = ({ openClaimModal, openMana
           <Table textAlignCenter style={{ borderSpacing: '0px 7px' }}>
             <TableHead sticky>
               <TableRow>
-                <TableHeader t3>Id</TableHeader>
                 <TableHeader t3>Coverage Type</TableHeader>
                 <TableHeader t3>Status</TableHeader>
                 <TableHeader t3>Expiration Date</TableHeader>
@@ -105,7 +104,6 @@ export const MyPolicies: React.FC<MyPoliciesProps> = ({ openClaimModal, openMana
               {userPolicyData.userPolicies.map((policy) => {
                 return (
                   <TableRow key={policy.policyId}>
-                    <TableData h3>{policy.policyId}</TableData>
                     <TableData h2 high_em>
                       {
                         <FlexRow>

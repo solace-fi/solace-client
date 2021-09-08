@@ -305,13 +305,13 @@ export const MultiStepForm = () => {
                 <FormRow>
                   <FormCol>Yearly Cost</FormCol>
                   <FormCol>
-                    <Heading2>{fixed(protocol.yearlyCost * 100, 2)}%</Heading2>
+                    <Heading2 high_em>{fixed(protocol.yearlyCost * 100, 2)}%</Heading2>
                   </FormCol>
                 </FormRow>
                 <FormRow>
                   <FormCol>Available Coverage</FormCol>
                   <FormCol>
-                    <Heading2>
+                    <Heading2 high_em>
                       {protocol.availableCoverage} {activeNetwork.nativeCurrency.symbol}
                     </Heading2>
                   </FormCol>

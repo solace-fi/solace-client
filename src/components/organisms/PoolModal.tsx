@@ -542,7 +542,7 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
     <Modal isOpen={isOpen} handleClose={handleClose} modalTitle={modalTitle} disableCloseButton={modalLoading}>
       <Fragment>
         <ModalRow>
-          <ModalCell t3>{getUnit(func, activeNetwork)}</ModalCell>
+          <ModalCell t2>{getUnit(func, activeNetwork)}</ModalCell>
           {func == FunctionName.DEPOSIT_SIGNED || func == FunctionName.WITHDRAW_LP ? (
             <ModalCell>
               <FormSelect value={nftSelection} onChange={(e) => handleNft(e.target)}>
@@ -583,7 +583,7 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
                   Available: {func ? truncateBalance(formatUnits(getAssetBalanceByFunc(), currencyDecimals), 6) : 0}
                 </div>
               </ModalCell>
-              <ModalCell t4>
+              <ModalCell t3>
                 <Button
                   disabled={errors.length > 0}
                   onClick={() => {
@@ -649,12 +649,16 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
               <>
                 {canWithdrawEth && (
                   <Box green glow mt={20} mb={20}>
-                    <Heading3 autoAlign>You can withdraw now!</Heading3>
+                    <Heading3 autoAlign high_em>
+                      You can withdraw now!
+                    </Heading3>
                   </Box>
                 )}
                 {cooldownStarted && timeWaited < cooldownMin && (
                   <Box mt={20} mb={20}>
-                    <Heading3 autoAlign>Cooldown Elapsing...</Heading3>
+                    <Heading3 autoAlign high_em>
+                      Cooldown Elapsing...
+                    </Heading3>
                   </Box>
                 )}
                 <Box navy>
@@ -662,14 +666,16 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
                     <BoxItemTitle h4 textAlignCenter>
                       Min Cooldown
                     </BoxItemTitle>
-                    <Text4 textAlignCenter>{getTimeFromMillis(cooldownMin)}</Text4>
+                    <Text4 textAlignCenter high_em>
+                      {getTimeFromMillis(cooldownMin)}
+                    </Text4>
                   </BoxItem>
                   {cooldownStarted && (
                     <BoxItem>
                       <BoxItemTitle h4 textAlignCenter>
                         Time waited
                       </BoxItemTitle>
-                      <Text4 textAlignCenter green={canWithdrawEth}>
+                      <Text4 textAlignCenter high_em green={canWithdrawEth}>
                         {timeToDate(timeWaited)}
                       </Text4>
                     </BoxItem>
@@ -678,7 +684,9 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
                     <BoxItemTitle h4 textAlignCenter>
                       Max Cooldown
                     </BoxItemTitle>
-                    <Text4 textAlignCenter>{getTimeFromMillis(cooldownMax)}</Text4>
+                    <Text4 textAlignCenter high_em>
+                      {getTimeFromMillis(cooldownMax)}
+                    </Text4>
                   </BoxItem>
                 </Box>
                 {!canWithdrawEth && (
