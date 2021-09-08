@@ -27,10 +27,10 @@ export const addNativeTokenBalances = async (
   balances: Token[],
   indices: number[],
   chainId: number,
-  getMainNetworkToken?: (address: string, chainId: number) => string
+  getMainNetworkTokenAddress?: (address: string, chainId: number) => string
 ): Promise<Token[]> => {
   const ethAmounts = await Promise.all(
-    balances.map((balance) => queryNativeTokenBalance(balance.underlying, chainId, getMainNetworkToken))
+    balances.map((balance) => queryNativeTokenBalance(balance.underlying, chainId, getMainNetworkTokenAddress))
   )
   indices.forEach((i) => (balances[i].eth.balance = ethAmounts[i]))
   balances.sort((balanceA, balanceB) => bnCmp(balanceA.eth.balance, balanceB.eth.balance))
@@ -44,12 +44,12 @@ const queryBalance = async (user: string, tokenContract: Contract) => {
 const queryNativeTokenBalance = async (
   token: any,
   chainId: number,
-  getMainNetworkToken?: (address: string, chainId: number) => string
+  getMainNetworkTokenAddress?: (address: string, chainId: number) => string
 ) => {
   if (equalsIgnoreCase(token.address, ETH)) return BigNumber.from(token.balance)
   let address = token.address
-  if (getMainNetworkToken) {
-    address = getMainNetworkToken(token.address, chainId)
+  if (getMainNetworkTokenAddress) {
+    address = getMainNetworkTokenAddress(token.address, chainId)
   }
   const url = `https://api.1inch.exchange/v3.0/1/quote?fromTokenAddress=${address}&toTokenAddress=${ETH}&amount=${token.balance.toString()}`
   const res = await withBackoffRetries(async () => axios.get(url))

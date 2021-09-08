@@ -338,7 +338,7 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
   return (
     <Modal isOpen={isOpen} handleClose={handleClose} modalTitle={'Policy Management'} disableCloseButton={modalLoading}>
       <Fragment>
-        <PolicyModalInfo selectedPolicy={selectedPolicy} latestBlock={latestBlock} />
+        <PolicyModalInfo selectedPolicy={selectedPolicy} latestBlock={latestBlock} appraisal={appraisal} />
         {!modalLoading ? (
           <Fragment>
             <div style={{ textAlign: 'center' }}>

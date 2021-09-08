@@ -21,6 +21,7 @@ import React, { Fragment } from 'react'
 
 /* import packages */
 import { formatUnits } from '@ethersproject/units'
+import { BigNumber } from 'ethers'
 
 /* import managers */
 import { useNetwork } from '../../context/NetworkManager'
@@ -40,7 +41,6 @@ import { Card } from '../atoms/Card'
 import { StyledTooltip } from '../molecules/Tooltip'
 
 /* import hooks */
-import { useAppraisePosition } from '../../hooks/usePolicy'
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'
 
 /* import utils */
@@ -48,17 +48,17 @@ import { getDaysLeft } from '../../utils/time'
 import { truncateBalance } from '../../utils/formatting'
 
 interface PolicyModalInfoProps {
+  appraisal: BigNumber
   selectedPolicy: Policy | undefined
   latestBlock: number
 }
 
-export const PolicyModalInfo: React.FC<PolicyModalInfoProps> = ({ selectedPolicy, latestBlock }) => {
+export const PolicyModalInfo: React.FC<PolicyModalInfoProps> = ({ appraisal, selectedPolicy, latestBlock }) => {
   /*************************************************************************************
 
     custom hooks
 
   *************************************************************************************/
-  const appraisal = useAppraisePosition(selectedPolicy)
   const { activeNetwork, currencyDecimals } = useNetwork()
   const { width } = useWindowDimensions()
 

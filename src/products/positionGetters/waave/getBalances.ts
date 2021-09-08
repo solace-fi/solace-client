@@ -28,7 +28,7 @@ export const getBalances = async (
   )
 
   // get native token balances
-  const tokenBalances = await addNativeTokenBalances(balances, indices, cache.chainId, getMainNetworkToken)
+  const tokenBalances = await addNativeTokenBalances(balances, indices, cache.chainId, getMainNetworkTokenAddress)
   return tokenBalances
 }
 
@@ -47,7 +47,7 @@ const kmumap: any = {
   '0xd1b98b6607330172f1d991521145a22bce793277': '0x2260fac5e5542a773aa44fbcfedf7c193bc2c599',
 }
 
-const getMainNetworkToken = (address: string, chainId: number): string => {
+const getMainNetworkTokenAddress = (address: string, chainId: number): string => {
   if (chainId == 4) {
     return rmumap[address.toLowerCase()]
   }

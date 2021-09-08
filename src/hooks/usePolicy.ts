@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react'
 import { GAS_LIMIT, NUM_BLOCKS_PER_DAY, ZERO } from '../constants'
 import { useContracts } from '../context/ContractsManager'
 import { useWallet } from '../context/WalletManager'
-import { Policy, StringToStringMapping } from '../constants/types'
+import { Policy, StringToStringMapping, Token } from '../constants/types'
 import { useCachedData } from '../context/CachedDataManager'
 import { useNetwork } from '../context/NetworkManager'
 
@@ -33,25 +33,42 @@ export const useGetPolicyPrice = (policyId: number): string => {
 }
 
 export const useAppraisePosition = (policy: Policy | undefined): BigNumber => {
-  const { account } = useWallet()
+  const { activeNetwork } = useNetwork()
+  const { account, library } = useWallet()
   const { getProtocolByName } = useContracts()
+  const { latestBlock, tokenPositionData } = useCachedData()
   const [appraisal, setAppraisal] = useState<BigNumber>(ZERO)
 
   useEffect(() => {
     const getAppraisal = async () => {
-      if (!policy) return
+      if (!policy || !library || !account || !tokenPositionData.dataInitialized) return
       try {
         const product = getProtocolByName(policy.productName)
-        if (!product) return
-        const position = policy.positionContract
-        const appraisal: BigNumber = await product.appraisePosition(account, position)
-        setAppraisal(appraisal)
+        const cache = tokenPositionData.storedTokenAndPositionData.find((dataset) => dataset.name == activeNetwork.name)
+
+        // if product is not found or token cache is not found, don't do anything
+        if (!product || !cache) return
+        const supportedProduct = activeNetwork.cache.supportedProducts.find(
+          (product) => product.name == policy.productName
+        )
+        if (!supportedProduct) return
+
+        // grab the user balances for the supported product
+        const balances: Token[] = await supportedProduct.getBalances(account, library, cache, activeNetwork)
+        const token = balances.find((token) => token.token.address == policy.positionContract)
+        if (!token) return
+        setAppraisal(token.eth.balance)
       } catch (err) {
         console.log('AppraisePosition', err)
       }
     }
     getAppraisal()
-  }, [policy, account, getProtocolByName])
+  }, [policy, account, tokenPositionData, latestBlock])
+
+  useEffect(() => {
+    // if policy changes, reset appraisal to 0 to enable loading icon on frontend
+    if (!appraisal.eq(ZERO)) setAppraisal(ZERO)
+  }, [policy])
 
   return appraisal
 }

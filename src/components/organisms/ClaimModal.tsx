@@ -57,6 +57,7 @@ import { getClaimAssessment } from '../../utils/paclas'
 import { truncateBalance } from '../../utils/formatting'
 import { timeToDateText } from '../../utils/time'
 import { getGasConfig } from '../../utils/gas'
+import { useAppraisePosition } from '../../hooks/usePolicy'
 
 interface ClaimModalProps {
   closeModal: () => void
@@ -95,6 +96,7 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
     activeNetwork,
     gasPrices.selected?.value,
   ])
+  const appraisal = useAppraisePosition(selectedPolicy)
 
   /*************************************************************************************
 
@@ -171,7 +173,7 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
   return (
     <Modal isOpen={isOpen} handleClose={handleClose} modalTitle={'Policy Claim'} disableCloseButton={modalLoading}>
       <Fragment>
-        <PolicyModalInfo selectedPolicy={selectedPolicy} latestBlock={latestBlock} />
+        <PolicyModalInfo selectedPolicy={selectedPolicy} latestBlock={latestBlock} appraisal={appraisal} />
         {!modalLoading && !asyncLoading ? (
           <Fragment>
             <FormRow mb={0}>
