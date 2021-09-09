@@ -94,7 +94,13 @@ export type StringToStringMapping = { [key: string]: string }
 export type SupportedProduct = {
   name: ProductName
   getTokens: (provider: any, activeNetwork: NetworkConfig) => Promise<Token[]>
-  getBalances: (user: string, provider: any, cache: NetworkCache, activeNetwork: NetworkConfig) => Promise<Token[]>
+  getBalances: (
+    user: string,
+    provider: any,
+    cache: NetworkCache,
+    activeNetwork: NetworkConfig,
+    tokens: Token[]
+  ) => Promise<Token[]>
 }
 
 export type ProductContract = {

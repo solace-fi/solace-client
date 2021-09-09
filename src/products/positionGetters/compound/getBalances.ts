@@ -2,7 +2,6 @@ import tokenJson from './contracts/ICToken.json'
 import { rangeFrom0 } from '../../../utils/numeric'
 import { NetworkCache, NetworkConfig, Token } from '../../../constants/types'
 import { addNativeTokenBalances, getProductTokenBalances } from '../getBalances'
-import { ProductName } from '../../../constants/enums'
 import { Contract } from '@ethersproject/contracts'
 import { getNonHumanValue } from '../../../utils/formatting'
 import { withBackoffRetries } from '../../../utils/time'
@@ -11,11 +10,11 @@ export const getBalances = async (
   user: string,
   provider: any,
   cache: NetworkCache,
-  activeNetwork: NetworkConfig
+  activeNetwork: NetworkConfig,
+  tokens: Token[]
 ): Promise<Token[]> => {
   // get ctoken balances
-  const savedTokens = cache.tokens[ProductName.COMPOUND].savedTokens
-  const balances: Token[] = await getProductTokenBalances(user, tokenJson.abi, savedTokens, provider)
+  const balances: Token[] = await getProductTokenBalances(user, tokenJson.abi, tokens, provider)
 
   // get utoken balances
   const indices = rangeFrom0(balances.length)

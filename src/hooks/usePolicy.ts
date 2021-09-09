@@ -54,16 +54,20 @@ export const useAppraisePosition = (policy: Policy | undefined): BigNumber => {
         if (!supportedProduct) return
 
         // grab the user balances for the supported product
-        const balances: Token[] = await supportedProduct.getBalances(account, library, cache, activeNetwork)
-        const token = balances.find((token) => token.token.address == policy.positionContract)
-        if (!token) return
+        const tokenToAppraise: Token | undefined = cache.tokens[supportedProduct.name].savedTokens.find(
+          (token: Token) => token.token.address == policy.positionContract
+        )
+        if (!tokenToAppraise) return
+        const [token]: Token[] = await supportedProduct.getBalances(account, library, cache, activeNetwork, [
+          tokenToAppraise,
+        ])
         setAppraisal(token.eth.balance)
       } catch (err) {
         console.log('AppraisePosition', err)
       }
     }
     getAppraisal()
-  }, [policy, account, tokenPositionData, latestBlock])
+  }, [policy, account, tokenPositionData.dataInitialized, latestBlock])
 
   useEffect(() => {
     // if policy changes, reset appraisal to 0 to enable loading icon on frontend

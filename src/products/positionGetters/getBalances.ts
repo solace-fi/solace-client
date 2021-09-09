@@ -33,7 +33,7 @@ export const addNativeTokenBalances = async (
     balances.map((balance) => queryNativeTokenBalance(balance.underlying, chainId, getMainNetworkTokenAddress))
   )
   indices.forEach((i) => (balances[i].eth.balance = ethAmounts[i]))
-  balances.sort((balanceA, balanceB) => bnCmp(balanceA.eth.balance, balanceB.eth.balance))
+  if (balances.length > 1) balances.sort((balanceA, balanceB) => bnCmp(balanceA.eth.balance, balanceB.eth.balance))
   return balances
 }
 

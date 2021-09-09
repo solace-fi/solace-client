@@ -2,17 +2,16 @@ import { NetworkCache, NetworkConfig, Token } from '../../../constants/types'
 import ierc20Json from '../_contracts/IERC20Metadata.json'
 import { rangeFrom0 } from '../../../utils/numeric'
 import { addNativeTokenBalances, getProductTokenBalances } from '../getBalances'
-import { ProductName } from '../../../constants/enums'
 
 export const getBalances = async (
   user: string,
   provider: any,
   cache: NetworkCache,
-  activeNetwork: NetworkConfig
+  activeNetwork: NetworkConfig,
+  tokens: Token[]
 ): Promise<Token[]> => {
   // get atoken balances
-  const savedTokens = cache.tokens[ProductName.AAVE].savedTokens
-  const balances: Token[] = await getProductTokenBalances(user, ierc20Json.abi, savedTokens, provider)
+  const balances: Token[] = await getProductTokenBalances(user, ierc20Json.abi, tokens, provider)
 
   //get utoken balances
   const indices = rangeFrom0(balances.length)

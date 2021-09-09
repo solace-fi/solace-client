@@ -1,6 +1,5 @@
 import { NetworkCache, NetworkConfig, Token } from '../../../constants/types'
 import { rangeFrom0 } from '../../../utils/numeric'
-import { ProductName } from '../../../constants/enums'
 import { Contract } from '@ethersproject/contracts'
 import { addNativeTokenBalances, getProductTokenBalances } from '../getBalances'
 import { getNonHumanValue } from '../../../utils/formatting'
@@ -11,10 +10,10 @@ export const getBalances = async (
   user: string,
   provider: any,
   cache: NetworkCache,
-  activeNetwork: NetworkConfig
+  activeNetwork: NetworkConfig,
+  tokens: Token[]
 ): Promise<Token[]> => {
-  const savedTokens = cache.tokens[ProductName.WAAVE].savedTokens
-  const balances: Token[] = await getProductTokenBalances(user, waaveTokenAbi, savedTokens, provider)
+  const balances: Token[] = await getProductTokenBalances(user, waaveTokenAbi, tokens, provider)
 
   // get utoken balances
   const indices = rangeFrom0(balances.length)
