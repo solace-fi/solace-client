@@ -67,12 +67,12 @@ export const useAppraisePosition = (policy: Policy | undefined): BigNumber => {
       }
     }
     getAppraisal()
-  }, [policy, account, tokenPositionData.dataInitialized, latestBlock])
+  }, [policy?.policyId, account, tokenPositionData.dataInitialized, latestBlock])
 
   useEffect(() => {
-    // if policy changes, reset appraisal to 0 to enable loading icon on frontend
+    // if policy id changes, reset appraisal to 0 to enable loading icon on frontend
     if (!appraisal.eq(ZERO)) setAppraisal(ZERO)
-  }, [policy])
+  }, [policy?.policyId])
 
   return appraisal
 }

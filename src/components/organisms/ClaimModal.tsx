@@ -170,73 +170,81 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
       <Fragment>
         <PolicyModalInfo selectedPolicy={selectedPolicy} latestBlock={latestBlock} appraisal={appraisal} />
         {!modalLoading ? (
-          <Fragment>
-            <FormRow mb={0}>
-              <FormCol>
-                <Text4 autoAlign nowrap>
-                  {width > MAX_MOBILE_SCREEN_WIDTH ? 'By submitting a claim, you receive' : null}
-                </Text4>
-              </FormCol>
-              <FormCol></FormCol>
-            </FormRow>
-            <FormRow mb={0}>
-              <FormCol>
-                <Text4 autoAlign nowrap>
-                  {width > MAX_MOBILE_SCREEN_WIDTH ? 'pre-exploit assets value equal to' : 'Receiving'}
-                </Text4>
-              </FormCol>
-              <FormCol>
-                <Heading2 autoAlign high_em>
-                  {truncateBalance(formatUnits(assessment?.amountOut || 0, currencyDecimals))}{' '}
-                  {activeNetwork.nativeCurrency.symbol}
-                </Heading2>
-              </FormCol>
-            </FormRow>
-            <SmallBox
-              style={{ justifyContent: 'center' }}
-              transparent
-              mt={!assessment?.lossEventDetected ? 10 : 0}
-              collapse={assessment?.lossEventDetected}
-            >
-              <Heading4 error={!assessment?.lossEventDetected} textAlignCenter>
-                No loss event detected, unable to submit claims yet.
-              </Heading4>
-            </SmallBox>
-            {claimSubmitted ? (
-              <Box purple mt={20} mb={20}>
-                <Heading2 high_em autoAlign>
-                  Claim has been validated and payout submitted to the escrow.
-                </Heading2>
-              </Box>
-            ) : (
-              <ButtonWrapper>
-                <Button
-                  widthP={100}
-                  disabled={errors.length > 0 || !assessment?.lossEventDetected}
-                  onClick={() => submitClaim()}
-                >
-                  Submit Claim
-                </Button>
-              </ButtonWrapper>
-            )}
-            <SmallBox style={{ justifyContent: 'center' }} transparent>
-              <Heading4 warning textAlignCenter>
-                Please wait for the cooldown period to elapse before withdrawing your payout.
-              </Heading4>
-            </SmallBox>
-            <Table isHighlight>
-              <TableBody>
-                <TableRow>
-                  <TableData t2 high_em>
-                    Current Cooldown Period
-                  </TableData>
-                  <TableData h2 high_em textAlignRight>
-                    {timeToDateText(parseInt(cooldown) * 1000)}
-                  </TableData>
-                </TableRow>
-              </TableBody>
-            </Table>
-          </Fragment>
+          assessment ? (
+            <Fragment>
+              <FormRow mb={0}>
+                <FormCol>
+                  <Text4 autoAlign nowrap>
+                    {width > MAX_MOBILE_SCREEN_WIDTH ? 'By submitting a claim, you receive' : null}
+                  </Text4>
+                </FormCol>
+                <FormCol></FormCol>
+              </FormRow>
+              <FormRow mb={0}>
+                <FormCol>
+                  <Text4 autoAlign nowrap>
+                    {width > MAX_MOBILE_SCREEN_WIDTH ? 'pre-exploit assets value equal to' : 'Receiving'}
+                  </Text4>
+                </FormCol>
+                <FormCol>
+                  <Heading2 autoAlign high_em>
+                    {truncateBalance(formatUnits(assessment.amountOut || 0, currencyDecimals))}{' '}
+                    {activeNetwork.nativeCurrency.symbol}
+                  </Heading2>
+                </FormCol>
+              </FormRow>
+              <SmallBox
+                style={{ justifyContent: 'center' }}
+                transparent
+                mt={!assessment.lossEventDetected ? 10 : 0}
+                collapse={assessment.lossEventDetected}
+              >
+                <Heading4 error={!assessment.lossEventDetected} textAlignCenter>
+                  No loss event detected, unable to submit claims yet.
+                </Heading4>
+              </SmallBox>
+              {claimSubmitted ? (
+                <Box purple mt={20} mb={20}>
+                  <Heading2 high_em autoAlign>
+                    Claim has been validated and payout submitted to the escrow.
+                  </Heading2>
+                </Box>
+              ) : (
+                <ButtonWrapper>
+                  <Button
+                    widthP={100}
+                    disabled={errors.length > 0 || !assessment.lossEventDetected}
+                    onClick={() => submitClaim()}
+                  >
+                    Submit Claim
+                  </Button>
+                </ButtonWrapper>
+              )}
+              <SmallBox style={{ justifyContent: 'center' }} transparent>
+                <Heading4 warning textAlignCenter>
+                  Please wait for the cooldown period to elapse before withdrawing your payout.
+                </Heading4>
+              </SmallBox>
+              <Table isHighlight>
+                <TableBody>
+                  <TableRow>
+                    <TableData t2 high_em>
+                      Current Cooldown Period
+                    </TableData>
+                    <TableData h2 high_em textAlignRight>
+                      {timeToDateText(parseInt(cooldown) * 1000)}
+                    </TableData>
+                  </TableRow>
+                </TableBody>
+              </Table>
+            </Fragment>
+          ) : (
+            <Box transparent mt={20} mb={20}>
+              <Heading2 high_em autoAlign error>
+                Claim assessment data not found.
+              </Heading2>
+            </Box>
+          )
         ) : (
           <Loader />
         )}
