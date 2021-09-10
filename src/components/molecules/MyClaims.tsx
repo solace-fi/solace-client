@@ -29,6 +29,7 @@ import { useCachedData } from '../../context/CachedDataManager'
 import { useToasts } from '../../context/NotificationsManager'
 import { useContracts } from '../../context/ContractsManager'
 import { useNetwork } from '../../context/NetworkManager'
+import { useGeneral } from '../../context/GeneralProvider'
 
 /* import components */
 import { CardContainer, Card } from '../atoms/Card'
@@ -59,8 +60,9 @@ export const MyClaims: React.FC = () => {
     custom hooks
 
   *************************************************************************************/
+  const { errors } = useGeneral()
   const { claimsEscrow } = useContracts()
-  const { account, errors, activeWalletConnector } = useWallet()
+  const { account, activeWalletConnector } = useWallet()
   const { activeNetwork, currencyDecimals } = useNetwork()
   const { addLocalTransactions, reload, gasPrices } = useCachedData()
   const { makeTxToast } = useToasts()

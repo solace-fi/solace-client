@@ -12,9 +12,11 @@ import { Web3ReactProvider } from '@web3-react/core'
 import { JsonRpcProvider } from '@ethersproject/providers'
 import getLibrary from '../utils/getLibrary'
 import { Error as AppError } from '../constants/enums'
+import { ErrorData } from '../constants/types'
 import { WalletModal } from '../components/organisms/WalletModal'
 import { useNetwork } from './NetworkManager'
 import { MetamaskConnector } from '../wallet/wallet-connectors/MetaMask'
+import { useGeneral } from './GeneralProvider'
 /*
 
 This Manager keeps track of the user's wallet and details, including the wallet type and account, 
@@ -38,7 +40,6 @@ export type ContextWallet = {
   library?: any
   connector?: AbstractConnector
   activeWalletConnector?: WalletConnector
-  errors: AppError[]
   openWalletModal: () => void
   changeWallet: (walletConnector: WalletConnector) => void
   connect: (connector: WalletConnector, args?: Record<string, any>) => Promise<void>
@@ -52,7 +53,6 @@ const WalletContext = createContext<ContextWallet>({
   account: undefined,
   library: undefined,
   connector: undefined,
-  errors: [],
   openWalletModal: () => undefined,
   changeWallet: () => undefined,
   connect: () => Promise.reject(),
@@ -70,10 +70,18 @@ const WalletProvider: React.FC = (props) => {
   const [initialized, setInitialized] = useState<boolean>(false)
   const connectingRef = useRef<WalletConnector | undefined>(connecting)
   connectingRef.current = connecting
-  const [errors, setErrors] = useState<AppError[]>([])
   const [walletModal, setWalletModal] = useState<boolean>(false)
+  const { addErrors, removeErrors } = useGeneral()
 
   const ethProvider = useMemo(() => new JsonRpcProvider(activeNetwork.rpc.httpsUrl), [activeNetwork])
+
+  const ContextErrors = [
+    AppError.NO_PROVIDER,
+    AppError.UNSUPPORTED_NETWORK,
+    AppError.NO_ACCESS,
+    AppError.WALLET_NETWORK_UNSYNC,
+    AppError.UNKNOWN,
+  ]
 
   const openModal = useCallback(() => {
     document.body.style.overflowY = 'hidden'
@@ -125,34 +133,34 @@ const WalletProvider: React.FC = (props) => {
 
       function onSuccess() {
         if (!connectingRef.current) return
-        setErrors([])
+        removeErrors(ContextErrors)
         walletConnector.onConnect?.(connector, args)
         setActiveConnector(walletConnector)
         setSelectedProvider(walletConnector.id)
       }
 
       function onError(error: Error) {
-        const walletErrors: AppError[] = []
+        const walletErrors: ErrorData[] = []
         if (error instanceof NoEthereumProviderError) {
-          walletErrors.push(AppError.NO_PROVIDER)
+          walletErrors.push({ errorType: AppError.NO_PROVIDER })
         } else if (error instanceof UnsupportedChainIdError) {
-          walletErrors.push(AppError.UNSUPPORTED_NETWORK)
+          walletErrors.push({ errorType: AppError.UNSUPPORTED_NETWORK })
         } else if (
           error instanceof UserRejectedRequestErrorInjected ||
           error instanceof UserRejectedRequestErrorWalletConnect
         ) {
-          walletErrors.push(AppError.NO_ACCESS)
+          walletErrors.push({ errorType: AppError.NO_ACCESS })
         } else {
           const err = walletConnector.onError?.(error)
-          walletErrors.push(AppError.UNKNOWN)
+          walletErrors.push({ errorType: AppError.UNKNOWN, metadata: String(err) })
           console.log(err)
         }
-        setErrors(walletErrors)
+        addErrors(walletErrors)
       }
 
       setConnecting(undefined)
     },
-    [web3React, activeNetwork, connectingRef, setConnecting, setSelectedProvider]
+    [web3React, activeNetwork, connectingRef, setConnecting, setSelectedProvider, addErrors]
   )
 
   useEffect(() => {
@@ -163,10 +171,9 @@ const WalletProvider: React.FC = (props) => {
       web3React.chainId !== activeNetwork.chainId &&
       connecting
     ) {
-      if (!errors.includes(AppError.WALLET_NETWORK_UNSYNC))
-        setErrors((errors) => [...errors, AppError.WALLET_NETWORK_UNSYNC])
+      addErrors([{ errorType: AppError.WALLET_NETWORK_UNSYNC }])
     }
-  }, [activeNetwork, errors, web3React, selectedProvider, connecting])
+  }, [activeNetwork, web3React, selectedProvider, connecting])
 
   useEffect(() => {
     // If the user has a local provider already
@@ -188,13 +195,12 @@ const WalletProvider: React.FC = (props) => {
       library: web3React.account ? web3React.library : ethProvider,
       connector: web3React.connector,
       activeWalletConnector: activeConnector,
-      errors,
       openWalletModal: openModal,
       changeWallet,
       connect,
       disconnect,
     }),
-    [web3React, ethProvider, initialized, activeConnector, connecting, errors, disconnect, connect]
+    [web3React, ethProvider, initialized, activeConnector, connecting, disconnect, connect]
   )
 
   return (

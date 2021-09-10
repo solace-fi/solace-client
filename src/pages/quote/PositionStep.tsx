@@ -28,6 +28,7 @@ import { useWallet } from '../../context/WalletManager'
 import { useContracts } from '../../context/ContractsManager'
 import { useCachedData } from '../../context/CachedDataManager'
 import { useNetwork } from '../../context/NetworkManager'
+import { useGeneral } from '../../context/GeneralProvider'
 
 /* import components */
 import { Button } from '../../components/atoms/Button'
@@ -64,7 +65,8 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
 
   *************************************************************************************/
 
-  const { account, library, errors } = useWallet()
+  const { errors } = useGeneral()
+  const { account, library } = useWallet()
   const { activeNetwork, findNetworkByChainId, chainId } = useNetwork()
   const { setSelectedProtocolByName } = useContracts()
   const { userPolicyData, latestBlock, tokenPositionData } = useCachedData()

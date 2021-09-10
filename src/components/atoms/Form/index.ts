@@ -23,19 +23,3 @@ export const FormCol = styled.div<GeneralElementProps & GeneralTextProps>`
   ${GeneralElementCss}
   ${GeneralTextCss}
 `
-
-export const FormSelect = styled.select`
-  padding: 4px;
-  font-size: inherit;
-  background-color: ${({ theme }) => theme.form.bg_color};
-  color: inherit;
-  border-color: ${({ theme }) => theme.form.border_color};
-  line-height: inherit;
-  outline: none !important;
-  min-width: 100px;
-  border-radius: 10px;
-`
-
-export const FormOption = styled.option`
-  color: ${({ theme }) => theme.form.option_color};
-`

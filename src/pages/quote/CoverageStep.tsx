@@ -38,6 +38,7 @@ import { useWallet } from '../../context/WalletManager'
 import { useCachedData } from '../../context/CachedDataManager'
 import { useToasts } from '../../context/NotificationsManager'
 import { useNetwork } from '../../context/NetworkManager'
+import { useGeneral } from '../../context/GeneralProvider'
 
 /* import components */
 import { FormRow, FormCol } from '../../components/atoms/Form'
@@ -64,10 +65,11 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
   custom hooks
 
   *************************************************************************************/
+  const { errors } = useGeneral()
   const { position, coverAmount, timePeriod, loading } = formData
   const maxCoverPerUser = useGetMaxCoverPerUser() // in eth
   const quote = useGetQuote(coverAmount, position.token.address, timePeriod)
-  const { account, errors, activeWalletConnector } = useWallet()
+  const { account, activeWalletConnector } = useWallet()
   const { addLocalTransactions, reload, gasPrices } = useCachedData()
   const { selectedProtocol } = useContracts()
   const { makeTxToast } = useToasts()

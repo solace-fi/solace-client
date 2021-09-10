@@ -21,6 +21,7 @@ import React from 'react'
 /* import managers */
 import { useContracts } from '../../context/ContractsManager'
 import { useWallet } from '../../context/WalletManager'
+import { useGeneral } from '../../context/GeneralProvider'
 
 /* import components */
 import { Content } from '../atoms/Layout'
@@ -54,7 +55,8 @@ export const CapitalProviderPool: React.FC<CapitalProviderPoolProps> = ({ openMo
 
   *************************************************************************************/
 
-  const { account, errors } = useWallet()
+  const { errors } = useGeneral()
+  const { account } = useWallet()
   const { width } = useWindowDimensions()
   const { cpFarm } = useContracts()
   const cpUserStakeValue = useUserStakedValue(cpFarm, account)

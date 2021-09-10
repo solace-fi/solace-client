@@ -25,6 +25,7 @@ import { parseUnits } from '@ethersproject/units'
 /* import managers */
 import { useWallet } from '../../context/WalletManager'
 import { useNetwork } from '../../context/NetworkManager'
+import { useGeneral } from '../../context/GeneralProvider'
 
 /* import constants */
 import { CP_ROI, MAX_TABLET_SCREEN_WIDTH } from '../../constants'
@@ -57,7 +58,8 @@ export const RiskBackingCapitalPool: React.FC<RiskBackingCapitalPoolProps> = ({ 
 
   *************************************************************************************/
 
-  const { account, errors } = useWallet()
+  const { errors } = useGeneral()
+  const { account } = useWallet()
   const { userVaultAssets, userVaultShare } = useUserVaultDetails()
   const capitalPoolSize = useCapitalPoolSize()
   const { width } = useWindowDimensions()

@@ -4,6 +4,7 @@ import { Text4Css } from '../Typography'
 
 interface ButtonProps extends ClickProps {
   secondary?: boolean
+  glow?: boolean
   hidden?: boolean
 }
 
@@ -46,6 +47,7 @@ export const ButtonBaseCss = css<ButtonProps & GeneralElementProps>`
       : props.secondary
       ? `color: ${props.theme.button.secondary_text_color}; background-color: ${props.theme.button.hover_color}; &:hover { opacity: 0.8; }`
       : `color: ${props.theme.button.text_color}; background-color: rgba(0, 0, 0, 0); &:hover { color: ${props.theme.button.secondary_text_color}; background-color: ${props.theme.button.hover_color}; }`};
+  ${(props) => props.glow && `box-shadow: ${props.theme.button.green_glow};`}
   ${Text4Css}
 `
 

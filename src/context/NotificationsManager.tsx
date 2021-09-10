@@ -4,13 +4,15 @@ import { useWallet } from '../context/WalletManager'
 
 import 'animate.css/animate.min.css'
 import 'react-toastify/dist/ReactToastify.css'
-import { TransactionCondition, Error } from '../constants/enums'
+import { TransactionCondition, Error, SystemNotice } from '../constants/enums'
 
 import '../styles/toast.css'
 import { StylizedToastContainer } from '../components/atoms/Toast'
 import { AppToast, NotificationToast } from '../components/molecules/Toast'
-import { StyledWarning } from '../components/atoms/Icon'
+import { StyledInfo, StyledWarning } from '../components/atoms/Icon'
 import { useNetwork } from './NetworkManager'
+import { useGeneral } from './GeneralProvider'
+import { ErrorData, SystemNoticeData } from '../constants/types'
 
 /*
 This manager allows for notifications to be created. such notifications can be created
@@ -45,6 +47,15 @@ const txError = {
   className: 'error-toast',
 }
 
+const appNotice: any = {
+  type: toast.TYPE.INFO,
+  position: toast.POSITION.BOTTOM_LEFT,
+  autoClose: false,
+  closeOnClick: true,
+  closeButton: true,
+  className: 'info-toast',
+}
+
 const appError: any = {
   type: toast.TYPE.ERROR,
   position: toast.POSITION.BOTTOM_LEFT,
@@ -55,7 +66,8 @@ const appError: any = {
 }
 
 const ToastsProvider: React.FC = (props) => {
-  const { account, errors } = useWallet()
+  const { notices, errors } = useGeneral()
+  const { account } = useWallet()
   const { chainId } = useNetwork()
 
   const makeTxToast = (txType: string, condition: TransactionCondition, txHash?: string) => {
@@ -118,10 +130,36 @@ const ToastsProvider: React.FC = (props) => {
     toast.dismiss()
   }, [chainId, account])
 
-  // Runs whenever the chainId changes
+  useEffect(() => {
+    if (!notices) return
+    const lossEventDetectedError = notices.find(
+      (notice) => (JSON.parse(notice) as SystemNoticeData).noticeType == SystemNotice.LOSS_EVENT_DETECTED
+    )
+    if (lossEventDetectedError) {
+      toast(
+        appToast(
+          `${
+            (JSON.parse(lossEventDetectedError) as ErrorData).metadata
+          } loss events detected, view your policies for details`,
+          <StyledInfo size={30} />
+        ),
+        {
+          toastId: SystemNotice.LOSS_EVENT_DETECTED,
+          ...appNotice,
+        }
+      )
+    } else {
+      toast.dismiss(Error.UNSUPPORTED_NETWORK)
+    }
+  }, [notices])
+
   useEffect(() => {
     if (!errors) return
-    if (errors.includes(Error.UNSUPPORTED_NETWORK)) {
+
+    const unsupportedNetworkError = errors.find(
+      (error) => (JSON.parse(error) as ErrorData).errorType == Error.UNSUPPORTED_NETWORK
+    )
+    if (unsupportedNetworkError) {
       toast(appToast(`Unsupported network, please switch to a supported network`, <StyledWarning size={30} />), {
         toastId: Error.UNSUPPORTED_NETWORK,
         ...appError,
@@ -129,7 +167,9 @@ const ToastsProvider: React.FC = (props) => {
     } else {
       toast.dismiss(Error.UNSUPPORTED_NETWORK)
     }
-    if (errors.includes(Error.NO_PROVIDER)) {
+
+    const noProviderError = errors.find((error) => (JSON.parse(error) as ErrorData).errorType == Error.NO_PROVIDER)
+    if (noProviderError) {
       toast(appToast(`No Ethereum browser extension detected`, <StyledWarning size={30} />), {
         toastId: Error.NO_PROVIDER,
         type: toast.TYPE.ERROR,
@@ -138,7 +178,9 @@ const ToastsProvider: React.FC = (props) => {
     } else {
       toast.dismiss(Error.NO_PROVIDER)
     }
-    if (errors.includes(Error.NO_ACCESS)) {
+
+    const noAccessError = errors.find((error) => (JSON.parse(error) as ErrorData).errorType == Error.NO_ACCESS)
+    if (noAccessError) {
       toast(appToast(`Please authorize this website to access your account`, <StyledWarning size={30} />), {
         toastId: Error.NO_ACCESS,
         ...appError,
@@ -146,7 +188,11 @@ const ToastsProvider: React.FC = (props) => {
     } else {
       toast.dismiss(Error.NO_ACCESS)
     }
-    if (errors.includes(Error.WALLET_NETWORK_UNSYNC)) {
+
+    const walletNetworkUnsyncError = errors.find(
+      (error) => (JSON.parse(error) as ErrorData).errorType == Error.WALLET_NETWORK_UNSYNC
+    )
+    if (walletNetworkUnsyncError) {
       toast(
         appToast(
           `Please ensure that the network on your wallet and the network on the Solace app match`,
@@ -160,11 +206,19 @@ const ToastsProvider: React.FC = (props) => {
     } else {
       toast.dismiss(Error.WALLET_NETWORK_UNSYNC)
     }
-    if (errors.includes(Error.UNKNOWN)) {
-      toast(appToast(`An unknown error occurred`, <StyledWarning size={30} />), {
-        toastId: Error.UNKNOWN,
-        ...appError,
-      })
+
+    const unknownError = errors.find((error) => (JSON.parse(error) as ErrorData).errorType == Error.UNKNOWN)
+    if (unknownError) {
+      toast(
+        appToast(
+          `An unknown error occurred: ${(JSON.parse(unknownError) as ErrorData).metadata}`,
+          <StyledWarning size={30} />
+        ),
+        {
+          toastId: Error.UNKNOWN,
+          ...appError,
+        }
+      )
     } else {
       toast.dismiss(Error.UNKNOWN)
     }
@@ -172,7 +226,7 @@ const ToastsProvider: React.FC = (props) => {
 
   const value = useMemo<ToastSystem>(
     () => ({
-      makeTxToast: makeTxToast,
+      makeTxToast,
     }),
     []
   )

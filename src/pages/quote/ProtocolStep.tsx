@@ -32,7 +32,7 @@ import { DAYS_PER_YEAR, NUM_BLOCKS_PER_DAY, MAX_MOBILE_SCREEN_WIDTH } from '../.
 
 /* import context */
 import { useContracts } from '../../context/ContractsManager'
-import { useWallet } from '../../context/WalletManager'
+import { useGeneral } from '../../context/GeneralProvider'
 import { useNetwork } from '../../context/NetworkManager'
 
 /* import components */
@@ -81,7 +81,7 @@ export const ProtocolStep: React.FC<formProps> = ({ setForm, navigation }) => {
   const availableCoverages = useGetAvailableCoverages()
   const yearlyCosts = useGetYearlyCosts()
   const { products, setSelectedProtocolByName } = useContracts()
-  const { errors } = useWallet()
+  const { errors } = useGeneral()
   const { width } = useWindowDimensions()
   const { activeNetwork } = useNetwork()
 

@@ -35,6 +35,7 @@ import { useContracts } from '../../context/ContractsManager'
 import { useToasts } from '../../context/NotificationsManager'
 import { useCachedData } from '../../context/CachedDataManager'
 import { useNetwork } from '../../context/NetworkManager'
+import { useGeneral } from '../../context/GeneralProvider'
 
 /* import components */
 import { BoxRow, Box, BoxItem, BoxItemTitle } from '../atoms/Box'
@@ -63,7 +64,8 @@ export const Statistics: React.FC = () => {
   custom hooks
 
   *************************************************************************************/
-  const { account, errors, initialized, activeWalletConnector } = useWallet()
+  const { errors } = useGeneral()
+  const { account, initialized, activeWalletConnector } = useWallet()
   const { activeNetwork, currencyDecimals } = useNetwork()
   const { master } = useContracts()
   const { makeTxToast } = useToasts()

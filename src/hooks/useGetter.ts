@@ -7,6 +7,7 @@ import { BigNumber } from 'ethers'
 import { useContracts } from '../context/ContractsManager'
 import { useState, useEffect, useRef } from 'react'
 import { useNetwork } from '../context/NetworkManager'
+import { getClaimAssessment } from '../utils/paclas'
 
 export const usePolicyGetter = (
   getAll: boolean,
@@ -91,6 +92,7 @@ export const usePolicyGetter = (
     if (!policyManager) return returnError
     try {
       const policy = await withBackoffRetries(async () => policyManager.getPolicyInfo(policyId))
+      const assessment = await getClaimAssessment(String(policyId), chainId)
       return {
         policyId: Number(policyId),
         policyHolder: policy.policyholder,
@@ -102,6 +104,7 @@ export const usePolicyGetter = (
         price: policy.price.toString(),
         status: policy.expirationBlock < blockNumber ? PolicyState.EXPIRED : PolicyState.ACTIVE,
         positionName: '',
+        claimAssessment: assessment,
       }
     } catch (err) {
       console.log(err)
@@ -116,7 +119,7 @@ export const usePolicyGetter = (
     if (policyHolder !== undefined || !library || !getAll) return
 
     loadOverTime()
-  }, [latestBlock, library])
+  }, [latestBlock])
 
   useEffect(() => {
     const loadOnBoot = async () => {

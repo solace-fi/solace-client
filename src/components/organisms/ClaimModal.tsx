@@ -32,6 +32,7 @@ import { useCachedData } from '../../context/CachedDataManager'
 import { useToasts } from '../../context/NotificationsManager'
 import { useContracts } from '../../context/ContractsManager'
 import { useNetwork } from '../../context/NetworkManager'
+import { useGeneral } from '../../context/GeneralProvider'
 
 /* import components */
 import { Modal } from '../molecules/Modal'
@@ -51,13 +52,12 @@ import { Policy, ClaimAssessment } from '../../constants/types'
 /* import hooks */
 import { useGetCooldownPeriod } from '../../hooks/useClaimsEscrow'
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'
+import { useAppraisePosition } from '../../hooks/usePolicy'
 
 /* import utils */
-import { getClaimAssessment } from '../../utils/paclas'
 import { truncateBalance } from '../../utils/formatting'
 import { timeToDateText } from '../../utils/time'
 import { getGasConfig } from '../../utils/gas'
-import { useAppraisePosition } from '../../hooks/usePolicy'
 
 interface ClaimModalProps {
   closeModal: () => void
@@ -74,9 +74,7 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
   *************************************************************************************/
   const [modalLoading, setModalLoading] = useState<boolean>(false)
   const [claimSubmitted, setClaimSubmitted] = useState<boolean>(false)
-  const [asyncLoading, setAsyncLoading] = useState<boolean>(false)
-  const [assessment, setAssessment] = useState<ClaimAssessment | null>(null)
-  const canLoadOverTime = useRef(false)
+  const [assessment, setAssessment] = useState<ClaimAssessment | undefined>(undefined)
 
   /*************************************************************************************
 
@@ -88,7 +86,8 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
   const { addLocalTransactions, reload, gasPrices } = useCachedData()
   const { selectedProtocol } = useContracts()
   const { makeTxToast } = useToasts()
-  const { errors, activeWalletConnector } = useWallet()
+  const { activeWalletConnector } = useWallet()
+  const { errors } = useGeneral()
   const { activeNetwork, currencyDecimals } = useNetwork()
   const { width } = useWindowDimensions()
   const gasConfig = useMemo(() => getGasConfig(activeWalletConnector, activeNetwork, gasPrices.selected?.value), [
@@ -155,11 +154,7 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
   useEffect(() => {
     const load = async () => {
       if (!selectedPolicy || !isOpen) return
-      setAsyncLoading(true)
-      const assessment = await getClaimAssessment(String(selectedPolicy.policyId), activeNetwork.chainId)
-      setAssessment(assessment)
-      canLoadOverTime.current = true
-      setAsyncLoading(false)
+      setAssessment(selectedPolicy.claimAssessment)
     }
     load()
   }, [isOpen, selectedPolicy, activeNetwork])
@@ -174,7 +169,7 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
     <Modal isOpen={isOpen} handleClose={handleClose} modalTitle={'Policy Claim'} disableCloseButton={modalLoading}>
       <Fragment>
         <PolicyModalInfo selectedPolicy={selectedPolicy} latestBlock={latestBlock} appraisal={appraisal} />
-        {!modalLoading && !asyncLoading ? (
+        {!modalLoading ? (
           <Fragment>
             <FormRow mb={0}>
               <FormCol>

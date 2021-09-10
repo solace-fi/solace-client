@@ -139,7 +139,13 @@ export const MyPolicies: React.FC<MyPoliciesProps> = ({ openClaimModal, openMana
                     <TableData textAlignRight>
                       {policy.status === PolicyState.ACTIVE && (
                         <TableDataGroup>
-                          <Button onClick={() => openClaimModal(policy)}>Claim</Button>
+                          <Button
+                            glow={policy.claimAssessment && policy.claimAssessment.lossEventDetected}
+                            secondary={policy.claimAssessment && policy.claimAssessment.lossEventDetected}
+                            onClick={() => openClaimModal(policy)}
+                          >
+                            Claim
+                          </Button>
                           <Button onClick={() => openManageModal(policy)}>Manage</Button>
                         </TableDataGroup>
                       )}

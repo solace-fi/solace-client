@@ -34,6 +34,7 @@ import { useCachedData } from '../../context/CachedDataManager'
 import { useContracts } from '../../context/ContractsManager'
 import { useWallet } from '../../context/WalletManager'
 import { useNetwork } from '../../context/NetworkManager'
+import { useGeneral } from '../../context/GeneralProvider'
 
 /* import constants */
 import { ZERO, GAS_LIMIT, POW_NINE, DEADLINE } from '../../constants'
@@ -90,9 +91,10 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
 
   *************************************************************************************/
 
+  const { errors } = useGeneral()
   const { vault, cpFarm, lpFarm, lpToken } = useContracts()
   const { activeNetwork, currencyDecimals, chainId } = useNetwork()
-  const { account, errors, library, activeWalletConnector } = useWallet()
+  const { account, library, activeWalletConnector } = useWallet()
   const [amount, setAmount] = useState<string>('')
   const [isStaking, setIsStaking] = useState<boolean>(false)
   const cpUserStakeValue = useUserStakedValue(cpFarm, account)

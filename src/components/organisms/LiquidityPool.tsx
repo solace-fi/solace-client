@@ -27,6 +27,7 @@ import { formatUnits } from '@ethersproject/units'
 import { useContracts } from '../../context/ContractsManager'
 import { useWallet } from '../../context/WalletManager'
 import { useNetwork } from '../../context/NetworkManager'
+import { useGeneral } from '../../context/GeneralProvider'
 
 /* import constants */
 import { FunctionName } from '../../constants/enums'
@@ -61,7 +62,8 @@ export const LiquidityPool: React.FC<LiquidityPoolProps> = ({ openModal }) => {
 
   *************************************************************************************/
 
-  const { account, errors } = useWallet()
+  const { errors } = useGeneral()
+  const { account } = useWallet()
   const { lpFarm } = useContracts()
   const { width } = useWindowDimensions()
   const { currencyDecimals } = useNetwork()

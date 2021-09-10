@@ -13,6 +13,10 @@ export enum Error {
   WALLET_NETWORK_UNSYNC,
 }
 
+export enum SystemNotice {
+  LOSS_EVENT_DETECTED,
+}
+
 export enum FunctionName {
   APPROVE = 'Approve',
   BUY_POLICY = 'BuyPolicy',

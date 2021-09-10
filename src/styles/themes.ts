@@ -32,6 +32,7 @@ export const lightTheme = {
     text_color: '#fff',
     secondary_text_color: '#7c7c7c',
     hover_color: '#fff',
+    glow: '0 0 7px #fff',
   },
   card: {
     bg_color: 'rgba(255, 255, 255, 0.1)',
@@ -111,6 +112,7 @@ export const darkTheme = {
     text_color: '#fff',
     secondary_text_color: '#fff',
     hover_color: 'rgba(255, 255, 255, 0.2)',
+    green_glow: '0 0 7px #00ffd1',
   },
   card: {
     bg_color: 'rgba(255, 255, 255, 0.05)',

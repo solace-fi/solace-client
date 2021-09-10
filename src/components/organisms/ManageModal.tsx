@@ -33,6 +33,7 @@ import { useToasts } from '../../context/NotificationsManager'
 import { useWallet } from '../../context/WalletManager'
 import { useContracts } from '../../context/ContractsManager'
 import { useNetwork } from '../../context/NetworkManager'
+import { useGeneral } from '../../context/GeneralProvider'
 
 /* import components */
 import { Modal } from '../molecules/Modal'
@@ -84,8 +85,9 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
 
   *************************************************************************************/
 
+  const { errors } = useGeneral()
   const { selectedProtocol } = useContracts()
-  const { errors, activeWalletConnector } = useWallet()
+  const { activeWalletConnector } = useWallet()
   const { addLocalTransactions, reload, gasPrices } = useCachedData()
   const { makeTxToast } = useToasts()
   const policyPrice = useGetPolicyPrice(selectedPolicy ? selectedPolicy.policyId : 0)
