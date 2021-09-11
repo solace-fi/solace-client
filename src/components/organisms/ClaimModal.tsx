@@ -21,7 +21,7 @@
   *************************************************************************************/
 
 /* import react */
-import React, { Fragment, useCallback, useEffect, useState, useRef, useMemo } from 'react'
+import React, { Fragment, useCallback, useEffect, useState, useMemo } from 'react'
 
 /* import packages */
 import { formatUnits } from '@ethersproject/units'

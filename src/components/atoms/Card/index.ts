@@ -9,7 +9,6 @@ interface CardProps extends ClickProps, GeneralElementProps {
   transparent?: boolean
   canHover?: boolean
   fade?: boolean
-  standalone?: boolean
   blue?: boolean
   purple?: boolean
   glow?: boolean

@@ -53,6 +53,7 @@ const WalletContext = createContext<ContextWallet>({
   account: undefined,
   library: undefined,
   connector: undefined,
+  activeWalletConnector: undefined,
   openWalletModal: () => undefined,
   changeWallet: () => undefined,
   connect: () => Promise.reject(),
