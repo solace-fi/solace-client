@@ -185,11 +185,11 @@ export type MetamaskWatchAsset = {
 }
 
 export type ErrorData = {
-  errorType: Error
-  metadata?: string
+  type: Error
+  metadata: string
 }
 
 export type SystemNoticeData = {
-  noticeType: SystemNotice
-  metadata?: string
+  type: SystemNotice
+  metadata: string
 }

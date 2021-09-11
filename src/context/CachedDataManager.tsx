@@ -115,16 +115,23 @@ const CachedDataProvider: React.FC = (props) => {
 
   useEffect(() => {
     if (!policiesLoading) {
-      let numLossEvents = 0
+      let totalNumLossEvents = 0
       userPolicies.forEach(
         (policy) =>
           policy.claimAssessment &&
           policy.status == PolicyState.ACTIVE &&
           policy.claimAssessment.lossEventDetected &&
-          ++numLossEvents
+          ++totalNumLossEvents
       )
-      if (numLossEvents > 0) {
-        addNotices([{ noticeType: SystemNotice.LOSS_EVENT_DETECTED, metadata: `${numLossEvents}` }])
+      if (totalNumLossEvents > 0) {
+        addNotices([
+          {
+            type: SystemNotice.LOSS_EVENT_DETECTED,
+            metadata: `${totalNumLossEvents} loss event${
+              totalNumLossEvents > 0 && 's'
+            } detected in total, view your policies for details`,
+          },
+        ])
       } else {
         removeNotices([SystemNotice.LOSS_EVENT_DETECTED])
       }

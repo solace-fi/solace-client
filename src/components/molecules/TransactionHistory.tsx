@@ -103,8 +103,8 @@ export const TransactionHistory: React.FC = () => {
           </TableRow>
         </TableHead>
         <TableBody>
-          {localTransactions.map((pendingtx: any, i: number) => (
-            <TableRow isHighlight key={i}>
+          {localTransactions.map((pendingtx: any) => (
+            <TableRow isHighlight key={pendingtx.hash}>
               <TableData high_em pt={10} pb={10}>
                 {pendingtx.type}
               </TableData>

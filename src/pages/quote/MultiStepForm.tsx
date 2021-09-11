@@ -196,8 +196,8 @@ export const MultiStepForm = () => {
       {width > MAX_MOBILE_SCREEN_WIDTH ? (
         <StepsContainer step={Number(StepNumber[step.id]) + 1}>
           <StepsWrapper>
-            {StepSections.map((section, i) => (
-              <Step key={i}>{section.name}</Step>
+            {StepSections.map((section) => (
+              <Step key={section.name}>{section.name}</Step>
             ))}
           </StepsWrapper>
           <StepsProgress>

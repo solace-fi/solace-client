@@ -80,7 +80,7 @@ const WalletProvider: React.FC = (props) => {
     AppError.UNSUPPORTED_NETWORK,
     AppError.NO_ACCESS,
     AppError.WALLET_NETWORK_UNSYNC,
-    AppError.UNKNOWN,
+    AppError.UNKNOWN_WALLET_ERROR,
   ]
 
   const openModal = useCallback(() => {
@@ -141,18 +141,19 @@ const WalletProvider: React.FC = (props) => {
 
       function onError(error: Error) {
         const walletErrors: ErrorData[] = []
+        const date = Date.now()
         if (error instanceof NoEthereumProviderError) {
-          walletErrors.push({ errorType: AppError.NO_PROVIDER })
+          walletErrors.push({ type: AppError.NO_PROVIDER, metadata: 'n/a' })
         } else if (error instanceof UnsupportedChainIdError) {
-          walletErrors.push({ errorType: AppError.UNSUPPORTED_NETWORK })
+          walletErrors.push({ type: AppError.UNSUPPORTED_NETWORK, metadata: `not supported////${date}` })
         } else if (
           error instanceof UserRejectedRequestErrorInjected ||
           error instanceof UserRejectedRequestErrorWalletConnect
         ) {
-          walletErrors.push({ errorType: AppError.NO_ACCESS })
+          walletErrors.push({ type: AppError.NO_ACCESS, metadata: `no access////${date}` })
         } else {
           const err = walletConnector.onError?.(error)
-          walletErrors.push({ errorType: AppError.UNKNOWN, metadata: String(err) })
+          walletErrors.push({ type: AppError.UNKNOWN_WALLET_ERROR, metadata: `${String(err)}////${date}` })
           console.log(err)
         }
         addErrors(walletErrors)
@@ -171,7 +172,7 @@ const WalletProvider: React.FC = (props) => {
       web3React.chainId !== activeNetwork.chainId &&
       connecting
     ) {
-      addErrors([{ errorType: AppError.WALLET_NETWORK_UNSYNC }])
+      addErrors([{ type: AppError.WALLET_NETWORK_UNSYNC, metadata: `not matching to chain ${activeNetwork.chainId}` }])
     }
   }, [activeNetwork, web3React, selectedProvider, connecting])
 

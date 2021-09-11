@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useMemo, useEffect } from 'react'
+import React, { createContext, useContext, useMemo, useEffect, useState } from 'react'
 import { toast } from 'react-toastify'
 import { useWallet } from '../context/WalletManager'
 
@@ -69,6 +69,8 @@ const ToastsProvider: React.FC = (props) => {
   const { notices, errors } = useGeneral()
   const { account } = useWallet()
   const { chainId } = useNetwork()
+  const [noticeMap, setNoticeMap] = useState(new Map())
+  const [errorMap, setErrorMap] = useState(new Map())
 
   const makeTxToast = (txType: string, condition: TransactionCondition, txHash?: string) => {
     const TxToast = (message: string) => <NotificationToast message={message} condition={condition} txHash={txHash} />
@@ -125,6 +127,33 @@ const ToastsProvider: React.FC = (props) => {
 
   const appToast = (message: string, icon: any) => <AppToast message={message} icon={icon} />
 
+  const makeAppToast = (
+    parsedData: SystemNoticeData | ErrorData,
+    id: SystemNotice | Error,
+    appToast: JSX.Element,
+    toastConfig: any,
+    isNotice: boolean
+  ) => {
+    if (isNotice) {
+      if (noticeMap.get(parsedData.type) == parsedData.metadata) return
+      setNoticeMap(new Map(noticeMap.set(parsedData.type, parsedData.metadata)))
+    } else {
+      if (errorMap.get(parsedData.type) == parsedData.metadata) return
+      setErrorMap(new Map(errorMap.set(parsedData.type, parsedData.metadata)))
+    }
+    if (toast.isActive(id)) {
+      toast.update(id, {
+        render: appToast,
+        ...toastConfig,
+      })
+    } else {
+      toast(appToast, {
+        toastId: id,
+        ...toastConfig,
+      })
+    }
+  }
+
   // Removes toasts from display on chainId or account change
   useEffect(() => {
     toast.dismiss()
@@ -132,95 +161,106 @@ const ToastsProvider: React.FC = (props) => {
 
   useEffect(() => {
     if (!notices) return
-    const lossEventDetectedError = notices.find(
-      (notice) => (JSON.parse(notice) as SystemNoticeData).noticeType == SystemNotice.LOSS_EVENT_DETECTED
+    const lossEventDetectedNotice = notices.find(
+      (notice) => (JSON.parse(notice) as SystemNoticeData).type == SystemNotice.LOSS_EVENT_DETECTED
     )
-    if (lossEventDetectedError) {
-      toast(
-        appToast(
-          `${
-            (JSON.parse(lossEventDetectedError) as ErrorData).metadata
-          } loss events detected, view your policies for details`,
-          <StyledInfo size={30} />
-        ),
-        {
-          toastId: SystemNotice.LOSS_EVENT_DETECTED,
-          ...appNotice,
-        }
+    if (lossEventDetectedNotice) {
+      const parsedNotice: SystemNoticeData = JSON.parse(lossEventDetectedNotice)
+      makeAppToast(
+        parsedNotice,
+        SystemNotice.LOSS_EVENT_DETECTED,
+        appToast(`${parsedNotice.metadata.split('////')[0]}`, <StyledInfo size={30} />),
+        appNotice,
+        true
       )
     } else {
-      toast.dismiss(Error.UNSUPPORTED_NETWORK)
+      setNoticeMap(new Map(noticeMap.set(SystemNotice.LOSS_EVENT_DETECTED, undefined)))
+      toast.dismiss(SystemNotice.LOSS_EVENT_DETECTED)
     }
   }, [notices])
 
   useEffect(() => {
     if (!errors) return
-
     const unsupportedNetworkError = errors.find(
-      (error) => (JSON.parse(error) as ErrorData).errorType == Error.UNSUPPORTED_NETWORK
+      (error) => (JSON.parse(error) as ErrorData).type == Error.UNSUPPORTED_NETWORK
     )
     if (unsupportedNetworkError) {
-      toast(appToast(`Unsupported network, please switch to a supported network`, <StyledWarning size={30} />), {
-        toastId: Error.UNSUPPORTED_NETWORK,
-        ...appError,
-      })
+      const parsedError: ErrorData = JSON.parse(unsupportedNetworkError)
+      makeAppToast(
+        parsedError,
+        Error.UNSUPPORTED_NETWORK,
+        appToast(`Unsupported network, please switch to a supported network`, <StyledWarning size={30} />),
+        appError,
+        false
+      )
     } else {
+      setErrorMap(new Map(errorMap.set(Error.UNSUPPORTED_NETWORK, undefined)))
       toast.dismiss(Error.UNSUPPORTED_NETWORK)
     }
 
-    const noProviderError = errors.find((error) => (JSON.parse(error) as ErrorData).errorType == Error.NO_PROVIDER)
+    const noProviderError = errors.find((error) => (JSON.parse(error) as ErrorData).type == Error.NO_PROVIDER)
     if (noProviderError) {
-      toast(appToast(`No Ethereum browser extension detected`, <StyledWarning size={30} />), {
-        toastId: Error.NO_PROVIDER,
-        type: toast.TYPE.ERROR,
-        ...appError,
-      })
+      const parsedError: ErrorData = JSON.parse(noProviderError)
+      makeAppToast(
+        parsedError,
+        Error.NO_PROVIDER,
+        appToast(`No Ethereum browser extension detected`, <StyledWarning size={30} />),
+        appError,
+        false
+      )
     } else {
+      setErrorMap(new Map(errorMap.set(Error.NO_PROVIDER, undefined)))
       toast.dismiss(Error.NO_PROVIDER)
     }
 
-    const noAccessError = errors.find((error) => (JSON.parse(error) as ErrorData).errorType == Error.NO_ACCESS)
+    const noAccessError = errors.find((error) => (JSON.parse(error) as ErrorData).type == Error.NO_ACCESS)
     if (noAccessError) {
-      toast(appToast(`Please authorize this website to access your account`, <StyledWarning size={30} />), {
-        toastId: Error.NO_ACCESS,
-        ...appError,
-      })
+      const parsedError: ErrorData = JSON.parse(noAccessError)
+      makeAppToast(
+        parsedError,
+        Error.NO_ACCESS,
+        appToast(`Please authorize this website to access your account`, <StyledWarning size={30} />),
+        appError,
+        false
+      )
     } else {
+      setErrorMap(new Map(errorMap.set(Error.NO_ACCESS, undefined)))
       toast.dismiss(Error.NO_ACCESS)
     }
 
     const walletNetworkUnsyncError = errors.find(
-      (error) => (JSON.parse(error) as ErrorData).errorType == Error.WALLET_NETWORK_UNSYNC
+      (error) => (JSON.parse(error) as ErrorData).type == Error.WALLET_NETWORK_UNSYNC
     )
     if (walletNetworkUnsyncError) {
-      toast(
+      const parsedError: ErrorData = JSON.parse(walletNetworkUnsyncError)
+      makeAppToast(
+        parsedError,
+        Error.WALLET_NETWORK_UNSYNC,
         appToast(
           `Please ensure that the network on your wallet and the network on the Solace app match`,
           <StyledWarning size={30} />
         ),
-        {
-          toastId: Error.WALLET_NETWORK_UNSYNC,
-          ...appError,
-        }
+        appError,
+        false
       )
     } else {
+      setErrorMap(new Map(errorMap.set(Error.WALLET_NETWORK_UNSYNC, undefined)))
       toast.dismiss(Error.WALLET_NETWORK_UNSYNC)
     }
 
-    const unknownError = errors.find((error) => (JSON.parse(error) as ErrorData).errorType == Error.UNKNOWN)
+    const unknownError = errors.find((error) => (JSON.parse(error) as ErrorData).type == Error.UNKNOWN_WALLET_ERROR)
     if (unknownError) {
-      toast(
-        appToast(
-          `An unknown error occurred: ${(JSON.parse(unknownError) as ErrorData).metadata}`,
-          <StyledWarning size={30} />
-        ),
-        {
-          toastId: Error.UNKNOWN,
-          ...appError,
-        }
+      const parsedError: ErrorData = JSON.parse(unknownError)
+      makeAppToast(
+        parsedError,
+        Error.UNKNOWN_WALLET_ERROR,
+        appToast(`An unknown error occurred: ${parsedError.metadata.split('////')[0]}`, <StyledWarning size={30} />),
+        appError,
+        false
       )
     } else {
-      toast.dismiss(Error.UNKNOWN)
+      setErrorMap(new Map(errorMap.set(Error.UNKNOWN_WALLET_ERROR, undefined)))
+      toast.dismiss(Error.UNKNOWN_WALLET_ERROR)
     }
   }, [errors])
 

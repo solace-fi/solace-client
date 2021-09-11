@@ -41,31 +41,26 @@ const GeneralProvider: React.FC = (props) => {
   const [selectedTheme, setSelectedTheme, removeSelectedTheme] = useLocalStorage<'light' | 'dark' | undefined>(
     'sol_data_theme'
   )
+  const appTheme: 'light' | 'dark' = selectedTheme || osColorScheme
+  const theme = appTheme == 'light' ? lightTheme : darkTheme
   const [notices, setNotices] = useState<string[]>([])
   const [errors, setErrors] = useState<string[]>([])
-
-  const appTheme: 'light' | 'dark' = selectedTheme || osColorScheme
-
-  const theme = appTheme == 'light' ? lightTheme : darkTheme
 
   const addNotices = useCallback((noticesToAdd: SystemNoticeData[]) => {
     if (noticesToAdd.length == 0) return
 
-    // convert input data into JSON string array for easy deep comparison
+    // convert input data into JSON string array
     const stringifiedNoticeData = noticesToAdd.map((notice) => JSON.stringify(notice))
 
-    // remove additions that already exist on cache
-    const updatedNotices = stringifiedNoticeData.filter((notice: string) => !notices.includes(notice))
-    if (updatedNotices.length == 0) return
-    setNotices([...updatedNotices, ...notices])
+    setNotices([...stringifiedNoticeData, ...notices])
   }, [])
 
   const removeNotices = useCallback((noticesToRemove: SystemNotice[]) => {
     if (noticesToRemove.length == 0) return
 
-    // convert cached data into JSON object to compare Error values, then remove those from cache whose values match
+    // convert cached data into JSON object to compare types, then remove those from cache whose types match
     const updatedNotices = notices.filter(
-      (notice: string) => !noticesToRemove.includes((JSON.parse(notice) as SystemNoticeData).noticeType)
+      (notice: string) => !noticesToRemove.includes((JSON.parse(notice) as SystemNoticeData).type)
     )
     if (updatedNotices == notices) return
     setNotices(updatedNotices)
@@ -74,21 +69,18 @@ const GeneralProvider: React.FC = (props) => {
   const addErrors = useCallback((errorsToAdd: ErrorData[]) => {
     if (errorsToAdd.length == 0) return
 
-    // convert input data into JSON string array for easy deep comparison
+    // convert input data into JSON string array
     const stringifiedErrorData = errorsToAdd.map((error) => JSON.stringify(error))
 
-    // remove additions that already exist on cache
-    const updatedErrors = stringifiedErrorData.filter((error) => !errors.includes(error))
-    if (updatedErrors.length == 0) return
-    setErrors([...updatedErrors, ...errors])
+    setErrors([...stringifiedErrorData, ...errors])
   }, [])
 
   const removeErrors = useCallback((errorsToRemove: Error[]) => {
     if (errorsToRemove.length == 0) return
 
-    // convert cached data into JSON object to compare Error values, then remove those from cache whose values match
+    // convert cached data into JSON object to compare types, then remove those from cache whose types match
     const updatedErrors = errors.filter(
-      (error: string) => !errorsToRemove.includes((JSON.parse(error) as ErrorData).errorType)
+      (error: string) => !errorsToRemove.includes((JSON.parse(error) as ErrorData).type)
     )
     if (updatedErrors == notices) return
     setErrors(updatedErrors)
