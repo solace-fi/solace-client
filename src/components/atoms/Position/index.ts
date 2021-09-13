@@ -15,10 +15,11 @@ export const PositionCardLogo = styled.div`
   }
 `
 
-export const PositionCardName = styled.div`
+export const PositionCardName = styled.div<GeneralTextProps>`
   margin-top: 6px;
   font-weight: 600;
   text-align: center;
+  ${GeneralTextCss}
 `
 
 export const PositionCardText = styled.div<GeneralTextProps>`

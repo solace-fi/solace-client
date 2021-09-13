@@ -59,8 +59,7 @@ Run using the following react command from the client directory
     |   |____UserDataManager
     |   |____WalletManager
     |___wallet/
-    |   |____connectors/
-    |   |____wallets/
+    |   |____wallet-connectors/
     |___hooks/
     |___pages/
     |   |____dashboard/
@@ -75,19 +74,23 @@ Run using the following react command from the client directory
 
 ## React Context Structure
 
-    <NetworkManager>                 // network management
-      <WalletManager>                // wallet connection
-        <ProviderManager>            // network-wallet mediator
-          <CachedDataManager>        // cached data
-            <ContractsManager>       // contracts
-              <NotificationsManager> // notifications and toasts
-                ...
-              </NotificationsManager>
-            </ContractsManager>
-          </CachedDataManager>
-        </ProviderManager>
-      </WalletManager>
-    </NetworkManager>
+    <GeneralProvider>                  // user-related data
+      <NetworkManager>                 // network management
+        <WalletManager>                // wallet connection
+          <ProviderManager>            // network-wallet mediator
+            <CachedDataManager>        // cached data
+              <ContractsManager>       // contracts
+                <NotificationsManager> // notifications and toasts
+                  ...
+                </NotificationsManager>
+              </ContractsManager>
+            </CachedDataManager>
+          </ProviderManager>
+        </WalletManager>
+      </NetworkManager>
+    </GeneralProvider>
+
+GeneralManager allows access to the theme, user preferences and other data that should be at the top of the data flow.
 
 NetworkManager allows access to current network and its configuration.
 
@@ -100,8 +103,6 @@ CachedDataManager allows the app to access data that is already cached onto the 
 ContractsManager allows centralized access to contracts.
 
 NotificationsManager allows the app to create notifications for the user.
-
-We may need more Context providers in the future, for data such as themes and user preferences.
 
 ## Beginning Design Decisions
 

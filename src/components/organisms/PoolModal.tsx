@@ -34,6 +34,7 @@ import { useCachedData } from '../../context/CachedDataManager'
 import { useContracts } from '../../context/ContractsManager'
 import { useWallet } from '../../context/WalletManager'
 import { useNetwork } from '../../context/NetworkManager'
+import { useGeneral } from '../../context/GeneralProvider'
 
 /* import constants */
 import { ZERO, GAS_LIMIT, POW_NINE, DEADLINE } from '../../constants'
@@ -55,10 +56,11 @@ import {
 } from '../atoms/Radio'
 import { Button, ButtonWrapper } from '../atoms/Button'
 import { Loader } from '../atoms/Loader'
-import { FormOption, FormSelect } from '../atoms/Form'
 import { Card } from '../atoms/Card'
 import { Box, BoxItem, BoxItemTitle } from '../atoms/Box'
-import { Heading2, Text3 } from '../atoms/Typography'
+import { Heading3, Text4 } from '../atoms/Typography'
+import { NftPosition } from '../molecules/NftPosition'
+import { StyledSelect } from '../molecules/Select'
 import { GeneralElementProps } from '../generalInterfaces'
 
 /* import hooks */
@@ -74,7 +76,6 @@ import { hasApproval } from '../../utils'
 import { getGasConfig } from '../../utils/gas'
 import { fixed, filteredAmount, getUnit, truncateBalance } from '../../utils/formatting'
 import { getTimeFromMillis, timeToDate } from '../../utils/time'
-import { NftPosition } from '../molecules/NftPosition'
 
 interface PoolModalProps {
   modalTitle: string
@@ -90,9 +91,10 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
 
   *************************************************************************************/
 
+  const { errors } = useGeneral()
   const { vault, cpFarm, lpFarm, lpToken } = useContracts()
   const { activeNetwork, currencyDecimals, chainId } = useNetwork()
-  const { account, errors, library, activeWalletConnector } = useWallet()
+  const { account, library, activeWalletConnector } = useWallet()
   const [amount, setAmount] = useState<string>('')
   const [isStaking, setIsStaking] = useState<boolean>(false)
   const cpUserStakeValue = useUserStakedValue(cpFarm, account)
@@ -114,8 +116,8 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
   const tokenAllowance = useTokenAllowance(contractForAllowance, spenderAddress)
   const { makeTxToast } = useToasts()
   const { cooldownStarted, timeWaited, cooldownMin, cooldownMax, canWithdrawEth } = useCooldown()
-  const [nft, setNft] = useState<BN>(ZERO)
-  const [nftSelection, setNftSelection] = useState<string>('')
+  const [nftId, setNftId] = useState<BN>(ZERO)
+  const [nftSelection, setNftSelection] = useState<{ value: string; label: string }>({ value: '', label: '' })
 
   /*************************************************************************************
 
@@ -294,15 +296,23 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
 
   const callDepositLp = async () => {
     setModalLoading(true)
-    if (!lpToken || !lpFarm || !nft || !chainId || !account || !library) return
+    if (!lpToken || !lpFarm || !nftId || !chainId || !account || !library) return
     const txType = FunctionName.DEPOSIT_SIGNED
     try {
-      const { v, r, s } = await getPermitNFTSignature(account, chainId, library, lpToken, lpFarm.address, nft, DEADLINE)
-      const tx = await lpFarm.depositLpSigned(account, nft, DEADLINE, v, r, s)
+      const { v, r, s } = await getPermitNFTSignature(
+        account,
+        chainId,
+        library,
+        lpToken,
+        lpFarm.address,
+        nftId,
+        DEADLINE
+      )
+      const tx = await lpFarm.depositLpSigned(account, nftId, DEADLINE, v, r, s)
       const localTx = {
         hash: tx.hash,
         type: txType,
-        value: `#${nft.toString()}`,
+        value: `#${nftId.toString()}`,
         status: TransactionCondition.PENDING,
         unit: getUnit(func, activeNetwork),
       }
@@ -317,11 +327,11 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
     if (!lpFarm) return
     const txType = FunctionName.WITHDRAW_LP
     try {
-      const tx = await lpFarm.withdrawLp(nft)
+      const tx = await lpFarm.withdrawLp(nftId)
       const localTx = {
         hash: tx.hash,
         type: txType,
-        value: `#${nft.toString()}`,
+        value: `#${nftId.toString()}`,
         status: TransactionCondition.PENDING,
         unit: getUnit(func, activeNetwork),
       }
@@ -443,15 +453,16 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
     setIsStaking(false)
     setMaxSelected(false)
     setModalLoading(false)
-    setNft(ZERO)
+    setNftId(ZERO)
+    setNftSelection({ value: '', label: '' })
     closeModal()
   }, [closeModal, gasPrices.selected])
 
-  const handleNft = (target: any) => {
-    const info = target.value.split('-')
-    setNft(BN.from(info[0]))
+  const handleNft = (target: { value: string; label: string }) => {
+    const info = target.label.split(' - ')
+    setNftId(BN.from(target.value))
     setAmount(info[1])
-    setNftSelection(target.value)
+    setNftSelection(target)
   }
 
   /*************************************************************************************
@@ -478,16 +489,25 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
       setSpenderAddress(cpFarm?.address)
       if (func == FunctionName.DEPOSIT_SIGNED) {
         if (userLpTokenInfo.length > 0) {
-          setNft(userLpTokenInfo[0].id)
+          setNftId(userLpTokenInfo[0].id)
           setAmount(formatUnits(userLpTokenInfo[0].value, currencyDecimals))
-          setNftSelection(`${userLpTokenInfo[0].id.toString()}-${userLpTokenInfo[0].value}`)
+          setNftSelection({
+            value: `${userLpTokenInfo[0].id.toString()}`,
+            label: `#${userLpTokenInfo[0].id.toString()} - ${formatUnits(userLpTokenInfo[0].value, currencyDecimals)}`,
+          })
         }
       }
       if (func == FunctionName.WITHDRAW_LP) {
         if (depositedLpTokenInfo.length > 0) {
-          setNft(depositedLpTokenInfo[0].id)
+          setNftId(depositedLpTokenInfo[0].id)
           setAmount(formatUnits(depositedLpTokenInfo[0].value, currencyDecimals))
-          setNftSelection(`${depositedLpTokenInfo[0].id.toString()}-${depositedLpTokenInfo[0].value}`)
+          setNftSelection({
+            value: `${depositedLpTokenInfo[0].id.toString()}`,
+            label: `#${depositedLpTokenInfo[0].id.toString()} - ${formatUnits(
+              depositedLpTokenInfo[0].value,
+              currencyDecimals
+            )}`,
+          })
         }
       }
     }
@@ -541,67 +561,70 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
   return (
     <Modal isOpen={isOpen} handleClose={handleClose} modalTitle={modalTitle} disableCloseButton={modalLoading}>
       <Fragment>
-        <ModalRow>
-          <ModalCell t2>{getUnit(func, activeNetwork)}</ModalCell>
-          {func == FunctionName.DEPOSIT_SIGNED || func == FunctionName.WITHDRAW_LP ? (
+        {func == FunctionName.DEPOSIT_SIGNED || func == FunctionName.WITHDRAW_LP ? (
+          <ModalRow style={{ display: 'block' }}>
+            <ModalCell t2 high_em>
+              {getUnit(func, activeNetwork)}
+            </ModalCell>
+            <ModalCell style={{ display: 'block' }}>
+              <StyledSelect
+                value={nftSelection}
+                onChange={handleNft}
+                options={getAssetTokensByFunc().map((token) => ({
+                  value: `${token.id.toString()}`,
+                  label: `#${token.id.toString()} - ${formatUnits(token.value, currencyDecimals)}`,
+                }))}
+              />
+              <div style={{ position: 'absolute', top: '77%' }}>
+                Available: {func ? truncateBalance(formatUnits(getAssetBalanceByFunc(), currencyDecimals), 6) : 0}
+              </div>
+            </ModalCell>
+          </ModalRow>
+        ) : (
+          <ModalRow>
+            <ModalCell t2 high_em>
+              {getUnit(func, activeNetwork)}
+            </ModalCell>
             <ModalCell>
-              <FormSelect value={nftSelection} onChange={(e) => handleNft(e.target)}>
-                {getAssetTokensByFunc().map((token) => (
-                  <FormOption
-                    key={token.id.toString()}
-                    value={`${token.id.toString()}-${formatUnits(token.value, currencyDecimals)}`}
-                  >
-                    #{token.id.toString()} - {truncateBalance(formatUnits(token.value, currencyDecimals))}
-                  </FormOption>
-                ))}
-              </FormSelect>
+              <Input
+                widthP={100}
+                t3
+                textAlignRight
+                type="text"
+                autoComplete="off"
+                autoCorrect="off"
+                inputMode="decimal"
+                placeholder="0.0"
+                minLength={1}
+                maxLength={79}
+                onChange={(e) => {
+                  setAmount(filteredAmount(e.target.value, amount))
+                  setMaxSelected(false)
+                }}
+                value={amount}
+              />
               <div style={{ position: 'absolute', top: '70%' }}>
                 Available: {func ? truncateBalance(formatUnits(getAssetBalanceByFunc(), currencyDecimals), 6) : 0}
               </div>
             </ModalCell>
-          ) : (
-            <Fragment>
-              <ModalCell>
-                <Input
-                  widthP={100}
-                  t2
-                  textAlignRight
-                  type="text"
-                  autoComplete="off"
-                  autoCorrect="off"
-                  inputMode="decimal"
-                  placeholder="0.0"
-                  minLength={1}
-                  maxLength={79}
-                  onChange={(e) => {
-                    setAmount(filteredAmount(e.target.value, amount))
-                    setMaxSelected(false)
-                  }}
-                  value={amount}
-                />
-                <div style={{ position: 'absolute', top: '70%' }}>
-                  Available: {func ? truncateBalance(formatUnits(getAssetBalanceByFunc(), currencyDecimals), 6) : 0}
-                </div>
-              </ModalCell>
-              <ModalCell t3>
-                <Button
-                  disabled={errors.length > 0}
-                  onClick={() => {
-                    setAmount(calculateMaxEth().toString())
-                    setMaxSelected(true)
-                  }}
-                >
-                  MAX
-                </Button>
-              </ModalCell>
-            </Fragment>
-          )}
-        </ModalRow>
+            <ModalCell t3>
+              <Button
+                disabled={errors.length > 0}
+                onClick={() => {
+                  setAmount(calculateMaxEth().toString())
+                  setMaxSelected(true)
+                }}
+              >
+                MAX
+              </Button>
+            </ModalCell>
+          </ModalRow>
+        )}
         {(func == FunctionName.DEPOSIT_SIGNED || func == FunctionName.WITHDRAW_LP) && (
           <div style={{ marginBottom: '20px' }}>
             {getAssetTokensByFunc().length == 0 ? null : (
               <ModalCell style={{ justifyContent: 'center' }} p={0}>
-                <NftPosition tokenId={nft} />
+                <NftPosition tokenId={nftId} />
               </ModalCell>
             )}
           </div>
@@ -649,36 +672,44 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
               <>
                 {canWithdrawEth && (
                   <Box green glow mt={20} mb={20}>
-                    <Heading2 autoAlign>You can withdraw now!</Heading2>
+                    <Heading3 autoAlign high_em>
+                      You can withdraw now!
+                    </Heading3>
                   </Box>
                 )}
                 {cooldownStarted && timeWaited < cooldownMin && (
                   <Box mt={20} mb={20}>
-                    <Heading2 autoAlign>Cooldown Elapsing...</Heading2>
+                    <Heading3 autoAlign high_em>
+                      Cooldown Elapsing...
+                    </Heading3>
                   </Box>
                 )}
                 <Box navy>
                   <BoxItem>
-                    <BoxItemTitle h3 textAlignCenter>
+                    <BoxItemTitle h4 textAlignCenter>
                       Min Cooldown
                     </BoxItemTitle>
-                    <Text3 textAlignCenter>{getTimeFromMillis(cooldownMin)}</Text3>
+                    <Text4 textAlignCenter high_em>
+                      {getTimeFromMillis(cooldownMin)}
+                    </Text4>
                   </BoxItem>
                   {cooldownStarted && (
                     <BoxItem>
-                      <BoxItemTitle h3 textAlignCenter>
+                      <BoxItemTitle h4 textAlignCenter>
                         Time waited
                       </BoxItemTitle>
-                      <Text3 textAlignCenter green={canWithdrawEth}>
+                      <Text4 textAlignCenter high_em green={canWithdrawEth}>
                         {timeToDate(timeWaited)}
-                      </Text3>
+                      </Text4>
                     </BoxItem>
                   )}
                   <BoxItem>
-                    <BoxItemTitle h3 textAlignCenter>
+                    <BoxItemTitle h4 textAlignCenter>
                       Max Cooldown
                     </BoxItemTitle>
-                    <Text3 textAlignCenter>{getTimeFromMillis(cooldownMax)}</Text3>
+                    <Text4 textAlignCenter high_em>
+                      {getTimeFromMillis(cooldownMax)}
+                    </Text4>
                   </BoxItem>
                 </Box>
                 {!canWithdrawEth && (

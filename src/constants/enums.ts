@@ -6,11 +6,15 @@ export enum TransactionCondition {
 }
 
 export enum Error {
-  UNSUPPORTED_NETWORK,
-  NO_PROVIDER,
-  UNKNOWN,
-  NO_ACCESS,
-  WALLET_NETWORK_UNSYNC,
+  UNSUPPORTED_NETWORK = 'UN',
+  NO_PROVIDER = 'NP',
+  UNKNOWN_WALLET_ERROR = 'UWE',
+  NO_ACCESS = 'NA',
+  WALLET_NETWORK_UNSYNC = 'WNU',
+}
+
+export enum SystemNotice {
+  LOSS_EVENT_DETECTED = 'LED',
 }
 
 export enum FunctionName {

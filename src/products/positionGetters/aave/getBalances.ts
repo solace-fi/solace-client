@@ -2,24 +2,23 @@ import { NetworkCache, NetworkConfig, Token } from '../../../constants/types'
 import ierc20Json from '../_contracts/IERC20Metadata.json'
 import { rangeFrom0 } from '../../../utils/numeric'
 import { addNativeTokenBalances, getProductTokenBalances } from '../getBalances'
-import { ProductName } from '../../../constants/enums'
 
 export const getBalances = async (
   user: string,
   provider: any,
   cache: NetworkCache,
-  activeNetwork: NetworkConfig
+  activeNetwork: NetworkConfig,
+  tokens: Token[]
 ): Promise<Token[]> => {
   // get atoken balances
-  const savedTokens = cache.tokens[ProductName.AAVE].savedTokens
-  const balances: Token[] = await getProductTokenBalances(user, ierc20Json.abi, savedTokens, provider)
+  const balances: Token[] = await getProductTokenBalances(user, ierc20Json.abi, tokens, provider)
 
   //get utoken balances
   const indices = rangeFrom0(balances.length)
   indices.forEach((i) => (balances[i].underlying.balance = balances[i].token.balance))
 
   //get native token balances
-  const tokenBalances = await addNativeTokenBalances(balances, indices, cache.chainId, getMainNetworkToken)
+  const tokenBalances = await addNativeTokenBalances(balances, indices, cache.chainId, getMainNetworkTokenAddress)
   return tokenBalances
 }
 
@@ -48,7 +47,7 @@ const kmumap: any = {
   '0x3e0437898a5667a4769b1ca5a34aab1ae7e81377': '0xd46ba6d942050d489dbd938a2c909a5d5039a161',
 }
 
-const getMainNetworkToken = (address: string, chainId: number): string => {
+const getMainNetworkTokenAddress = (address: string, chainId: number): string => {
   if (chainId == 42) {
     return kmumap[address.toLowerCase()]
   }

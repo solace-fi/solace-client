@@ -32,7 +32,7 @@ import { DAYS_PER_YEAR, NUM_BLOCKS_PER_DAY, MAX_MOBILE_SCREEN_WIDTH } from '../.
 
 /* import context */
 import { useContracts } from '../../context/ContractsManager'
-import { useWallet } from '../../context/WalletManager'
+import { useGeneral } from '../../context/GeneralProvider'
 import { useNetwork } from '../../context/NetworkManager'
 
 /* import components */
@@ -81,7 +81,7 @@ export const ProtocolStep: React.FC<formProps> = ({ setForm, navigation }) => {
   const availableCoverages = useGetAvailableCoverages()
   const yearlyCosts = useGetYearlyCosts()
   const { products, setSelectedProtocolByName } = useContracts()
-  const { errors } = useWallet()
+  const { errors } = useGeneral()
   const { width } = useWindowDimensions()
   const { activeNetwork } = useNetwork()
 
@@ -171,10 +171,12 @@ export const ProtocolStep: React.FC<formProps> = ({ setForm, navigation }) => {
                           <ProtocolImage mr={10}>
                             <img src={`https://assets.solace.fi/${protocol.toLowerCase()}`} />
                           </ProtocolImage>
-                          <ProtocolTitle>{protocol}</ProtocolTitle>
+                          <ProtocolTitle high_em h3>
+                            {protocol}
+                          </ProtocolTitle>
                         </Protocol>
                       </TableData>
-                      <TableData>
+                      <TableData high_em>
                         {fixed(
                           parseFloat(yearlyCosts[protocol] ?? '0') *
                             Math.pow(10, 6) *
@@ -185,7 +187,7 @@ export const ProtocolStep: React.FC<formProps> = ({ setForm, navigation }) => {
                         )}
                         %
                       </TableData>
-                      <TableData>
+                      <TableData high_em>
                         {handleAvailableCoverage(protocol)} {activeNetwork.nativeCurrency.symbol}
                       </TableData>
                       <TableData textAlignRight>
@@ -230,13 +232,13 @@ export const ProtocolStep: React.FC<formProps> = ({ setForm, navigation }) => {
                         </ProtocolImage>
                       </FormCol>
                       <FormCol style={{ display: 'flex', alignItems: 'center' }}>
-                        <Heading2>{protocol}</Heading2>
+                        <Heading2 high_em>{protocol}</Heading2>
                       </FormCol>
                     </FormRow>
                     <FormRow>
                       <FormCol>Yearly Cost</FormCol>
                       <FormCol>
-                        <Heading2>
+                        <Heading2 high_em>
                           {fixed(
                             parseFloat(yearlyCosts[protocol] ?? '0') *
                               Math.pow(10, 6) *
@@ -252,7 +254,7 @@ export const ProtocolStep: React.FC<formProps> = ({ setForm, navigation }) => {
                     <FormRow>
                       <FormCol>Coverage Available</FormCol>
                       <FormCol>
-                        <Heading2>
+                        <Heading2 high_em>
                           {handleAvailableCoverage(protocol)} {activeNetwork.nativeCurrency.symbol}
                         </Heading2>
                       </FormCol>

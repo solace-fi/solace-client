@@ -1,16 +1,18 @@
-import React, { createContext, useContext, useMemo, useEffect } from 'react'
+import React, { createContext, useContext, useMemo, useEffect, useState } from 'react'
 import { toast } from 'react-toastify'
 import { useWallet } from '../context/WalletManager'
 
 import 'animate.css/animate.min.css'
 import 'react-toastify/dist/ReactToastify.css'
-import { TransactionCondition, Error } from '../constants/enums'
+import { TransactionCondition, Error, SystemNotice } from '../constants/enums'
 
 import '../styles/toast.css'
 import { StylizedToastContainer } from '../components/atoms/Toast'
 import { AppToast, NotificationToast } from '../components/molecules/Toast'
-import { StyledWarning } from '../components/atoms/Icon'
+import { StyledInfo, StyledWarning } from '../components/atoms/Icon'
 import { useNetwork } from './NetworkManager'
+import { useGeneral } from './GeneralProvider'
+import { ErrorData, SystemNoticeData } from '../constants/types'
 
 /*
 This manager allows for notifications to be created. such notifications can be created
@@ -45,6 +47,15 @@ const txError = {
   className: 'error-toast',
 }
 
+const appNotice: any = {
+  type: toast.TYPE.INFO,
+  position: toast.POSITION.BOTTOM_LEFT,
+  autoClose: false,
+  closeOnClick: true,
+  closeButton: true,
+  className: 'info-toast',
+}
+
 const appError: any = {
   type: toast.TYPE.ERROR,
   position: toast.POSITION.BOTTOM_LEFT,
@@ -55,8 +66,11 @@ const appError: any = {
 }
 
 const ToastsProvider: React.FC = (props) => {
-  const { account, errors } = useWallet()
+  const { notices, errors } = useGeneral()
+  const { account } = useWallet()
   const { chainId } = useNetwork()
+  const [noticeMap, setNoticeMap] = useState(new Map())
+  const [errorMap, setErrorMap] = useState(new Map())
 
   const makeTxToast = (txType: string, condition: TransactionCondition, txHash?: string) => {
     const TxToast = (message: string) => <NotificationToast message={message} condition={condition} txHash={txHash} />
@@ -113,66 +127,146 @@ const ToastsProvider: React.FC = (props) => {
 
   const appToast = (message: string, icon: any) => <AppToast message={message} icon={icon} />
 
+  const makeAppToast = (
+    parsedData: SystemNoticeData | ErrorData,
+    id: SystemNotice | Error,
+    appToast: JSX.Element,
+    toastConfig: any,
+    isNotice: boolean
+  ) => {
+    if (isNotice) {
+      if (noticeMap.get(parsedData.type) == parsedData.metadata.concat(parsedData.uniqueId)) return
+      setNoticeMap(new Map(noticeMap.set(parsedData.type, parsedData.metadata.concat(parsedData.uniqueId))))
+    } else {
+      if (errorMap.get(parsedData.type) == parsedData.metadata.concat(parsedData.uniqueId)) return
+      setErrorMap(new Map(errorMap.set(parsedData.type, parsedData.metadata.concat(parsedData.uniqueId))))
+    }
+    if (toast.isActive(id)) {
+      toast.update(id, {
+        render: appToast,
+        ...toastConfig,
+      })
+    } else {
+      toast(appToast, {
+        toastId: id,
+        ...toastConfig,
+      })
+    }
+  }
+
   // Removes toasts from display on chainId or account change
   useEffect(() => {
     toast.dismiss()
   }, [chainId, account])
 
-  // Runs whenever the chainId changes
+  useEffect(() => {
+    if (!notices) return
+    const lossEventDetectedNotice = notices.find(
+      (notice) => (JSON.parse(notice) as SystemNoticeData).type == SystemNotice.LOSS_EVENT_DETECTED
+    )
+    if (lossEventDetectedNotice) {
+      const parsedNotice: SystemNoticeData = JSON.parse(lossEventDetectedNotice)
+      makeAppToast(
+        parsedNotice,
+        SystemNotice.LOSS_EVENT_DETECTED,
+        appToast(`${parsedNotice.metadata}`, <StyledInfo size={30} />),
+        appNotice,
+        true
+      )
+    } else {
+      setNoticeMap(new Map(noticeMap.set(SystemNotice.LOSS_EVENT_DETECTED, undefined)))
+      toast.dismiss(SystemNotice.LOSS_EVENT_DETECTED)
+    }
+  }, [notices])
+
   useEffect(() => {
     if (!errors) return
-    if (errors.includes(Error.UNSUPPORTED_NETWORK)) {
-      toast(appToast(`Unsupported network, please switch to a supported network`, <StyledWarning size={30} />), {
-        toastId: Error.UNSUPPORTED_NETWORK,
-        ...appError,
-      })
+    const unsupportedNetworkError = errors.find(
+      (error) => (JSON.parse(error) as ErrorData).type == Error.UNSUPPORTED_NETWORK
+    )
+    if (unsupportedNetworkError) {
+      const parsedError: ErrorData = JSON.parse(unsupportedNetworkError)
+      makeAppToast(
+        parsedError,
+        Error.UNSUPPORTED_NETWORK,
+        appToast(`Unsupported network, please switch to a supported network`, <StyledWarning size={30} />),
+        appError,
+        false
+      )
     } else {
+      setErrorMap(new Map(errorMap.set(Error.UNSUPPORTED_NETWORK, undefined)))
       toast.dismiss(Error.UNSUPPORTED_NETWORK)
     }
-    if (errors.includes(Error.NO_PROVIDER)) {
-      toast(appToast(`No Ethereum browser extension detected`, <StyledWarning size={30} />), {
-        toastId: Error.NO_PROVIDER,
-        type: toast.TYPE.ERROR,
-        ...appError,
-      })
+
+    const noProviderError = errors.find((error) => (JSON.parse(error) as ErrorData).type == Error.NO_PROVIDER)
+    if (noProviderError) {
+      const parsedError: ErrorData = JSON.parse(noProviderError)
+      makeAppToast(
+        parsedError,
+        Error.NO_PROVIDER,
+        appToast(`No Ethereum browser extension detected`, <StyledWarning size={30} />),
+        appError,
+        false
+      )
     } else {
+      setErrorMap(new Map(errorMap.set(Error.NO_PROVIDER, undefined)))
       toast.dismiss(Error.NO_PROVIDER)
     }
-    if (errors.includes(Error.NO_ACCESS)) {
-      toast(appToast(`Please authorize this website to access your account`, <StyledWarning size={30} />), {
-        toastId: Error.NO_ACCESS,
-        ...appError,
-      })
+
+    const noAccessError = errors.find((error) => (JSON.parse(error) as ErrorData).type == Error.NO_ACCESS)
+    if (noAccessError) {
+      const parsedError: ErrorData = JSON.parse(noAccessError)
+      makeAppToast(
+        parsedError,
+        Error.NO_ACCESS,
+        appToast(`Please authorize this website to access your account`, <StyledWarning size={30} />),
+        appError,
+        false
+      )
     } else {
+      setErrorMap(new Map(errorMap.set(Error.NO_ACCESS, undefined)))
       toast.dismiss(Error.NO_ACCESS)
     }
-    if (errors.includes(Error.WALLET_NETWORK_UNSYNC)) {
-      toast(
+
+    const walletNetworkUnsyncError = errors.find(
+      (error) => (JSON.parse(error) as ErrorData).type == Error.WALLET_NETWORK_UNSYNC
+    )
+    if (walletNetworkUnsyncError) {
+      const parsedError: ErrorData = JSON.parse(walletNetworkUnsyncError)
+      makeAppToast(
+        parsedError,
+        Error.WALLET_NETWORK_UNSYNC,
         appToast(
           `Please ensure that the network on your wallet and the network on the Solace app match`,
           <StyledWarning size={30} />
         ),
-        {
-          toastId: Error.WALLET_NETWORK_UNSYNC,
-          ...appError,
-        }
+        appError,
+        false
       )
     } else {
+      setErrorMap(new Map(errorMap.set(Error.WALLET_NETWORK_UNSYNC, undefined)))
       toast.dismiss(Error.WALLET_NETWORK_UNSYNC)
     }
-    if (errors.includes(Error.UNKNOWN)) {
-      toast(appToast(`An unknown error occurred`, <StyledWarning size={30} />), {
-        toastId: Error.UNKNOWN,
-        ...appError,
-      })
+
+    const unknownError = errors.find((error) => (JSON.parse(error) as ErrorData).type == Error.UNKNOWN_WALLET_ERROR)
+    if (unknownError) {
+      const parsedError: ErrorData = JSON.parse(unknownError)
+      makeAppToast(
+        parsedError,
+        Error.UNKNOWN_WALLET_ERROR,
+        appToast(`An unknown error occurred: ${parsedError.metadata}`, <StyledWarning size={30} />),
+        appError,
+        false
+      )
     } else {
-      toast.dismiss(Error.UNKNOWN)
+      setErrorMap(new Map(errorMap.set(Error.UNKNOWN_WALLET_ERROR, undefined)))
+      toast.dismiss(Error.UNKNOWN_WALLET_ERROR)
     }
   }, [errors])
 
   const value = useMemo<ToastSystem>(
     () => ({
-      makeTxToast: makeTxToast,
+      makeTxToast,
     }),
     []
   )

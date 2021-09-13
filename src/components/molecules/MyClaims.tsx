@@ -29,6 +29,7 @@ import { useCachedData } from '../../context/CachedDataManager'
 import { useToasts } from '../../context/NotificationsManager'
 import { useContracts } from '../../context/ContractsManager'
 import { useNetwork } from '../../context/NetworkManager'
+import { useGeneral } from '../../context/GeneralProvider'
 
 /* import components */
 import { CardContainer, Card } from '../atoms/Card'
@@ -59,8 +60,9 @@ export const MyClaims: React.FC = () => {
     custom hooks
 
   *************************************************************************************/
+  const { errors } = useGeneral()
   const { claimsEscrow } = useContracts()
-  const { account, errors, activeWalletConnector } = useWallet()
+  const { account, activeWalletConnector } = useWallet()
   const { activeNetwork, currencyDecimals } = useNetwork()
   const { addLocalTransactions, reload, gasPrices } = useCachedData()
   const { makeTxToast } = useToasts()
@@ -136,12 +138,14 @@ export const MyClaims: React.FC = () => {
                   <Card key={claim.id}>
                     <Box pt={20} pb={20} glow={claim.canWithdraw} green={claim.canWithdraw}>
                       <BoxItem>
-                        <BoxItemTitle h3>ID</BoxItemTitle>
-                        <Text h3>{claim.id}</Text>
+                        <BoxItemTitle t4>ID</BoxItemTitle>
+                        <Text h4 high_em>
+                          {claim.id}
+                        </Text>
                       </BoxItem>
                       <BoxItem>
-                        <BoxItemTitle h3>Amount</BoxItemTitle>
-                        <Text h3>
+                        <BoxItemTitle t4>Amount</BoxItemTitle>
+                        <Text h4 high_em>
                           {parseFloat(formatUnits(claim.amount, currencyDecimals)) >= 1
                             ? truncateBalance(
                                 formatUnits(claim.amount, currencyDecimals),
@@ -155,8 +159,8 @@ export const MyClaims: React.FC = () => {
                         </Text>
                       </BoxItem>
                       <BoxItem>
-                        <BoxItemTitle h3>Payout Status</BoxItemTitle>
-                        <Text h3>
+                        <BoxItemTitle t4>Payout Status</BoxItemTitle>
+                        <Text h4 high_em>
                           {claim.canWithdraw
                             ? 'Available'
                             : `${claim.cooldown == '0' ? '-' : timeToDate(parseInt(claim.cooldown) * 1000)} left`}

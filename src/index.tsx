@@ -10,6 +10,7 @@ import NotificationsManager from './context/NotificationsManager'
 import ProviderManager from './context/ProviderManager'
 import CachedDataManager from './context/CachedDataManager'
 import NetworkManager from './context/NetworkManager'
+import GeneralManager from './context/GeneralProvider'
 
 /*
 
@@ -30,21 +31,23 @@ already reserved in our system for something else.
 
 ReactDOM.render(
   <React.StrictMode>
-    <NetworkManager>
-      <WalletManager>
-        <ProviderManager>
-          <ContractsManager>
-            <CachedDataManager>
-              <NotificationsManager>
-                <BrowserRouter>
-                  <App />
-                </BrowserRouter>
-              </NotificationsManager>
-            </CachedDataManager>
-          </ContractsManager>
-        </ProviderManager>
-      </WalletManager>
-    </NetworkManager>
+    <GeneralManager>
+      <NetworkManager>
+        <WalletManager>
+          <ProviderManager>
+            <ContractsManager>
+              <CachedDataManager>
+                <NotificationsManager>
+                  <BrowserRouter>
+                    <App />
+                  </BrowserRouter>
+                </NotificationsManager>
+              </CachedDataManager>
+            </ContractsManager>
+          </ProviderManager>
+        </WalletManager>
+      </NetworkManager>
+    </GeneralManager>
   </React.StrictMode>,
   document.getElementById('root')
 )

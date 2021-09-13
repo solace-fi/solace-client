@@ -21,7 +21,7 @@
   *************************************************************************************/
 
 /* import react */
-import React, { Fragment, useCallback, useEffect, useState, useRef, useMemo } from 'react'
+import React, { Fragment, useCallback, useEffect, useState, useMemo } from 'react'
 
 /* import packages */
 import { formatUnits } from '@ethersproject/units'
@@ -32,11 +32,12 @@ import { useCachedData } from '../../context/CachedDataManager'
 import { useToasts } from '../../context/NotificationsManager'
 import { useContracts } from '../../context/ContractsManager'
 import { useNetwork } from '../../context/NetworkManager'
+import { useGeneral } from '../../context/GeneralProvider'
 
 /* import components */
 import { Modal } from '../molecules/Modal'
 import { FormRow, FormCol } from '../atoms/Form'
-import { Heading2, Heading3, Text2, Text3 } from '../atoms/Typography'
+import { Heading4, Heading2, Text4 } from '../atoms/Typography'
 import { PolicyModalInfo } from './PolicyModalInfo'
 import { Loader } from '../atoms/Loader'
 import { SmallBox, Box } from '../atoms/Box'
@@ -51,9 +52,9 @@ import { Policy, ClaimAssessment } from '../../constants/types'
 /* import hooks */
 import { useGetCooldownPeriod } from '../../hooks/useClaimsEscrow'
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'
+import { useAppraisePosition } from '../../hooks/usePolicy'
 
 /* import utils */
-import { getClaimAssessment } from '../../utils/paclas'
 import { truncateBalance } from '../../utils/formatting'
 import { timeToDateText } from '../../utils/time'
 import { getGasConfig } from '../../utils/gas'
@@ -73,9 +74,7 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
   *************************************************************************************/
   const [modalLoading, setModalLoading] = useState<boolean>(false)
   const [claimSubmitted, setClaimSubmitted] = useState<boolean>(false)
-  const [asyncLoading, setAsyncLoading] = useState<boolean>(false)
-  const [assessment, setAssessment] = useState<ClaimAssessment | null>(null)
-  const canLoadOverTime = useRef(false)
+  const [assessment, setAssessment] = useState<ClaimAssessment | undefined>(undefined)
 
   /*************************************************************************************
 
@@ -87,7 +86,8 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
   const { addLocalTransactions, reload, gasPrices } = useCachedData()
   const { selectedProtocol } = useContracts()
   const { makeTxToast } = useToasts()
-  const { errors, activeWalletConnector } = useWallet()
+  const { activeWalletConnector } = useWallet()
+  const { errors } = useGeneral()
   const { activeNetwork, currencyDecimals } = useNetwork()
   const { width } = useWindowDimensions()
   const gasConfig = useMemo(() => getGasConfig(activeWalletConnector, activeNetwork, gasPrices.selected?.value), [
@@ -95,6 +95,7 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
     activeNetwork,
     gasPrices.selected?.value,
   ])
+  const appraisal = useAppraisePosition(selectedPolicy)
 
   /*************************************************************************************
 
@@ -153,11 +154,7 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
   useEffect(() => {
     const load = async () => {
       if (!selectedPolicy || !isOpen) return
-      setAsyncLoading(true)
-      const assessment = await getClaimAssessment(String(selectedPolicy.policyId), activeNetwork.chainId)
-      setAssessment(assessment)
-      canLoadOverTime.current = true
-      setAsyncLoading(false)
+      setAssessment(selectedPolicy.claimAssessment)
     }
     load()
   }, [isOpen, selectedPolicy, activeNetwork])
@@ -171,71 +168,83 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
   return (
     <Modal isOpen={isOpen} handleClose={handleClose} modalTitle={'Policy Claim'} disableCloseButton={modalLoading}>
       <Fragment>
-        <PolicyModalInfo selectedPolicy={selectedPolicy} latestBlock={latestBlock} />
-        {!modalLoading && !asyncLoading ? (
-          <Fragment>
-            <FormRow mb={0}>
-              <FormCol>
-                <Text3 autoAlign nowrap>
-                  {width > MAX_MOBILE_SCREEN_WIDTH ? 'By submitting a claim, you receive' : null}
-                </Text3>
-              </FormCol>
-              <FormCol></FormCol>
-            </FormRow>
-            <FormRow mb={0}>
-              <FormCol>
-                <Text3 autoAlign nowrap>
-                  {width > MAX_MOBILE_SCREEN_WIDTH ? 'pre-exploit assets value equal to' : 'Receiving'}
-                </Text3>
-              </FormCol>
-              <FormCol>
-                <Heading2 autoAlign>
-                  {truncateBalance(formatUnits(assessment?.amountOut || 0, currencyDecimals))}{' '}
-                  {activeNetwork.nativeCurrency.symbol}
-                </Heading2>
-              </FormCol>
-            </FormRow>
-            <SmallBox
-              style={{ justifyContent: 'center' }}
-              transparent
-              mt={!assessment?.lossEventDetected ? 10 : 0}
-              collapse={assessment?.lossEventDetected}
-            >
-              <Heading3 error={!assessment?.lossEventDetected} textAlignCenter>
-                No loss event detected, unable to submit claims yet.
-              </Heading3>
-            </SmallBox>
-            {claimSubmitted ? (
-              <Box purple mt={20} mb={20}>
-                <Heading2 autoAlign>Claim has been validated and payout submitted to the escrow.</Heading2>
-              </Box>
-            ) : (
-              <ButtonWrapper>
-                <Button
-                  widthP={100}
-                  disabled={errors.length > 0 || !assessment?.lossEventDetected}
-                  onClick={() => submitClaim()}
-                >
-                  Submit Claim
-                </Button>
-              </ButtonWrapper>
-            )}
-            <SmallBox style={{ justifyContent: 'center' }} transparent>
-              <Heading3 warning textAlignCenter>
-                Please wait for the cooldown period to elapse before withdrawing your payout.
-              </Heading3>
-            </SmallBox>
-            <Table isHighlight>
-              <TableBody>
-                <TableRow>
-                  <TableData t2>Current Cooldown Period</TableData>
-                  <TableData t2 textAlignRight>
-                    {timeToDateText(parseInt(cooldown) * 1000)}
-                  </TableData>
-                </TableRow>
-              </TableBody>
-            </Table>
-          </Fragment>
+        <PolicyModalInfo selectedPolicy={selectedPolicy} latestBlock={latestBlock} appraisal={appraisal} />
+        {!modalLoading ? (
+          assessment ? (
+            <Fragment>
+              <FormRow mb={0}>
+                <FormCol>
+                  <Text4 autoAlign nowrap>
+                    {width > MAX_MOBILE_SCREEN_WIDTH ? 'By submitting a claim, you receive' : null}
+                  </Text4>
+                </FormCol>
+                <FormCol></FormCol>
+              </FormRow>
+              <FormRow mb={0}>
+                <FormCol>
+                  <Text4 autoAlign nowrap>
+                    {width > MAX_MOBILE_SCREEN_WIDTH ? 'pre-exploit assets value equal to' : 'Receiving'}
+                  </Text4>
+                </FormCol>
+                <FormCol>
+                  <Heading2 autoAlign high_em>
+                    {truncateBalance(formatUnits(assessment.amountOut || 0, currencyDecimals))}{' '}
+                    {activeNetwork.nativeCurrency.symbol}
+                  </Heading2>
+                </FormCol>
+              </FormRow>
+              <SmallBox
+                style={{ justifyContent: 'center' }}
+                transparent
+                mt={!assessment.lossEventDetected ? 10 : 0}
+                collapse={assessment.lossEventDetected}
+              >
+                <Heading4 error={!assessment.lossEventDetected} textAlignCenter>
+                  No loss event detected, unable to submit claims yet.
+                </Heading4>
+              </SmallBox>
+              {claimSubmitted ? (
+                <Box purple mt={20} mb={20}>
+                  <Heading2 high_em autoAlign>
+                    Claim has been validated and payout submitted to the escrow.
+                  </Heading2>
+                </Box>
+              ) : (
+                <ButtonWrapper>
+                  <Button
+                    widthP={100}
+                    disabled={errors.length > 0 || !assessment.lossEventDetected}
+                    onClick={() => submitClaim()}
+                  >
+                    Submit Claim
+                  </Button>
+                </ButtonWrapper>
+              )}
+              <SmallBox style={{ justifyContent: 'center' }} transparent>
+                <Heading4 warning textAlignCenter>
+                  Please wait for the cooldown period to elapse before withdrawing your payout.
+                </Heading4>
+              </SmallBox>
+              <Table isHighlight>
+                <TableBody>
+                  <TableRow>
+                    <TableData t2 high_em>
+                      Current Cooldown Period
+                    </TableData>
+                    <TableData h2 high_em textAlignRight>
+                      {timeToDateText(parseInt(cooldown) * 1000)}
+                    </TableData>
+                  </TableRow>
+                </TableBody>
+              </Table>
+            </Fragment>
+          ) : (
+            <Box transparent mt={20} mb={20}>
+              <Heading2 high_em autoAlign error>
+                Claim assessment data not found.
+              </Heading2>
+            </Box>
+          )
         ) : (
           <Loader />
         )}

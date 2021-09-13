@@ -21,6 +21,7 @@ import React from 'react'
 /* import managers */
 import { useContracts } from '../../context/ContractsManager'
 import { useWallet } from '../../context/WalletManager'
+import { useGeneral } from '../../context/GeneralProvider'
 
 /* import components */
 import { Content } from '../atoms/Layout'
@@ -54,7 +55,8 @@ export const CapitalProviderPool: React.FC<CapitalProviderPoolProps> = ({ openMo
 
   *************************************************************************************/
 
-  const { account, errors } = useWallet()
+  const { errors } = useGeneral()
+  const { account } = useWallet()
   const { width } = useWindowDimensions()
   const { cpFarm } = useContracts()
   const cpUserStakeValue = useUserStakedValue(cpFarm, account)
@@ -105,12 +107,30 @@ export const CapitalProviderPool: React.FC<CapitalProviderPoolProps> = ({ openMo
           </TableHead>
           <TableBody>
             <TableRow>
-              {account ? <TableData width={100}>{truncateBalance(parseFloat(cpUserStakeValue), 2)}</TableData> : null}
-              <TableData>{truncateBalance(parseFloat(cpPoolValue), 2)}</TableData>
-              <TableData width={100}>{CP_ROI}</TableData>
-              {account ? <TableData>{truncateBalance(parseFloat(cpUserRewards), 2)}</TableData> : null}
-              {account ? <TableData>{truncateBalance(parseFloat(cpUserRewardsPerDay), 2)}</TableData> : null}
-              <TableData>{truncateBalance(parseFloat(cpRewardsPerDay), 2)}</TableData>
+              {account ? (
+                <TableData h3 high_em width={100}>
+                  {truncateBalance(parseFloat(cpUserStakeValue), 2)}
+                </TableData>
+              ) : null}
+              <TableData h3 high_em>
+                {truncateBalance(parseFloat(cpPoolValue), 2)}
+              </TableData>
+              <TableData h3 high_em width={100}>
+                {CP_ROI}
+              </TableData>
+              {account ? (
+                <TableData h3 high_em>
+                  {truncateBalance(parseFloat(cpUserRewards), 2)}
+                </TableData>
+              ) : null}
+              {account ? (
+                <TableData h3 high_em>
+                  {truncateBalance(parseFloat(cpUserRewardsPerDay), 2)}
+                </TableData>
+              ) : null}
+              <TableData h3 high_em>
+                {truncateBalance(parseFloat(cpRewardsPerDay), 2)}
+              </TableData>
               {account ? (
                 <TableData textAlignRight>
                   <TableDataGroup width={200}>
@@ -134,32 +154,44 @@ export const CapitalProviderPool: React.FC<CapitalProviderPoolProps> = ({ openMo
           {account && (
             <FormRow>
               <FormCol>Your Stake:</FormCol>
-              <FormCol>{truncateBalance(parseFloat(cpUserStakeValue), 2)}</FormCol>
+              <FormCol h2 high_em>
+                {truncateBalance(parseFloat(cpUserStakeValue), 2)}
+              </FormCol>
             </FormRow>
           )}
           <FormRow>
             <FormCol>Total Assets:</FormCol>
-            <FormCol>{truncateBalance(parseFloat(cpPoolValue), 2)}</FormCol>
+            <FormCol h2 high_em>
+              {truncateBalance(parseFloat(cpPoolValue), 2)}
+            </FormCol>
           </FormRow>
           <FormRow>
             <FormCol>ROI:</FormCol>
-            <FormCol>{CP_ROI}</FormCol>
+            <FormCol h2 high_em>
+              {CP_ROI}
+            </FormCol>
           </FormRow>
           {account && (
             <>
               <FormRow>
                 <FormCol>My Rewards:</FormCol>
-                <FormCol>{truncateBalance(parseFloat(cpUserRewards), 2)}</FormCol>
+                <FormCol h2 high_em>
+                  {truncateBalance(parseFloat(cpUserRewards), 2)}
+                </FormCol>
               </FormRow>
               <FormRow>
                 <FormCol>My Daily Rewards:</FormCol>
-                <FormCol>{truncateBalance(parseFloat(cpUserRewardsPerDay), 2)}</FormCol>
+                <FormCol h2 high_em>
+                  {truncateBalance(parseFloat(cpUserRewardsPerDay), 2)}
+                </FormCol>
               </FormRow>
             </>
           )}
           <FormRow>
             <FormCol>Daily Rewards:</FormCol>
-            <FormCol>{truncateBalance(parseFloat(cpRewardsPerDay), 2)}</FormCol>
+            <FormCol h2 high_em>
+              {truncateBalance(parseFloat(cpRewardsPerDay), 2)}
+            </FormCol>
           </FormRow>
           {account && (
             <ButtonWrapper isColumn>

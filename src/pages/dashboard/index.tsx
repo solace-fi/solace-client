@@ -10,14 +10,14 @@
     Dashboard function
       useState hooks
       custom hooks
-      Local functions
+      local functions
       useEffect hooks
       Render
 
   *************************************************************************************/
 
 /* import react */
-import React, { Fragment, useState, useCallback } from 'react'
+import React, { Fragment, useState, useCallback, useEffect } from 'react'
 
 /* import managers */
 import { useContracts } from '../../context/ContractsManager'
@@ -59,22 +59,22 @@ function Dashboard(): any {
   *************************************************************************************/
 
   const { setSelectedProtocolByName } = useContracts()
-  const { latestBlock } = useCachedData()
+  const { latestBlock, userPolicyData } = useCachedData()
   const { account } = useWallet()
 
   /*************************************************************************************
 
-  Local functions
+  local functions
 
   *************************************************************************************/
 
   const openClaimModal = async (policy: Policy) => {
-    setShowClaimModal((prev) => !prev)
+    setShowClaimModal(true)
     setPolicy(policy)
   }
 
   const openManageModal = async (policy: Policy) => {
-    setShowManageModal((prev) => !prev)
+    setShowManageModal(true)
     setPolicy(policy)
   }
 
@@ -87,8 +87,28 @@ function Dashboard(): any {
   const closeModal = useCallback(() => {
     setShowClaimModal(false)
     setShowManageModal(false)
+    setSelectedPolicy(undefined)
     document.body.style.overflowY = 'scroll'
   }, [])
+
+  /*************************************************************************************
+
+    useEffect hooks
+
+  *************************************************************************************/
+
+  // if a policy is displayed on modal, always get latest policy
+  useEffect(() => {
+    if (selectedPolicy) {
+      const matchingPolicy = userPolicyData.userPolicies.find(
+        (policy: Policy) => policy.policyId == selectedPolicy.policyId
+      )
+      if (!matchingPolicy) return
+      if (JSON.stringify(matchingPolicy) !== JSON.stringify(selectedPolicy)) {
+        setPolicy(matchingPolicy)
+      }
+    }
+  }, [userPolicyData.userPolicies])
 
   /*************************************************************************************
 

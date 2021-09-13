@@ -1,6 +1,7 @@
 import { NavLink } from 'react-router-dom'
 import styled from 'styled-components'
 import { MAX_NAVBAR_SCREEN_WIDTH, MAX_MOBILE_SCREEN_WIDTH } from '../../../constants'
+import { GeneralTextProps, GeneralTextCss } from '../Typography'
 
 interface TopNavProps {
   isOpen?: boolean
@@ -27,10 +28,10 @@ export const TopNav = styled.div<TopNavProps>`
   }
 `
 
-export const SidebarItem = styled(NavLink)`
+export const SidebarItem = styled(NavLink)<GeneralTextProps>`
   font-weight: 600;
   font-size: 16px;
-  color: #fff;
+  color: ${({ theme }) => theme.typography.med_emphasis};
   text-decoration: none;
   transition: all 0.2s;
   &:hover,
@@ -42,6 +43,7 @@ export const SidebarItem = styled(NavLink)`
   @media screen and (max-width: ${MAX_MOBILE_SCREEN_WIDTH}px) {
     padding: 20px 0;
   }
+  ${GeneralTextCss}
 `
 
 export const ItemText = styled.li`

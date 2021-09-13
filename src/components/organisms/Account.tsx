@@ -32,12 +32,13 @@ import { useCachedData } from '../../context/CachedDataManager'
 import { useNetwork } from '../../context/NetworkManager'
 
 /* import components */
-import { Heading3 } from '../atoms/Typography'
+import { Heading4 } from '../atoms/Typography'
 import { SmallBox } from '../atoms/Box'
 import { UserImage } from '../atoms/User'
 import { WalletConnectButton } from '../molecules/WalletConnectButton'
 import { TransactionHistoryButton } from '../molecules/TransactionHistoryButton'
 import { NetworkConnectButton } from '../molecules/NetworkConnectButton'
+import { ThemeButton } from '../molecules/ThemeButton'
 
 /* import hooks */
 import { useNativeTokenBalance } from '../../hooks/useBalance'
@@ -64,11 +65,13 @@ export const UserAccount: React.FC = () => {
       {account && (
         <>
           <SmallBox pl={10} navy>
-            <Heading3 autoAlign nowrap>
+            <Heading4 high_em autoAlign nowrap>
               {balance ? `${fixed(balance, 3)} ${activeNetwork.nativeCurrency.symbol}` : ''}
-            </Heading3>
+            </Heading4>
             <SmallBox ml={10} navy>
-              <Heading3 autoAlign>{shortenAddress(account)}</Heading3>{' '}
+              <Heading4 high_em autoAlign>
+                {shortenAddress(account)}
+              </Heading4>{' '}
               <UserImage pt={4} pb={4} pl={10}>
                 <img src={makeBlockie(account)} />
               </UserImage>
@@ -109,6 +112,9 @@ export const Account: React.FC = () => {
           <TransactionHistoryButton pl={10} pr={10} />
         </SmallBox>
       )}
+      <SmallBox p={0} transparent>
+        <ThemeButton pl={10} pr={10} />
+      </SmallBox>
     </Fragment>
   )
 }

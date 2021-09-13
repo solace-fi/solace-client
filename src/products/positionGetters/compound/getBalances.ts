@@ -2,7 +2,6 @@ import tokenJson from './contracts/ICToken.json'
 import { rangeFrom0 } from '../../../utils/numeric'
 import { NetworkCache, NetworkConfig, Token } from '../../../constants/types'
 import { addNativeTokenBalances, getProductTokenBalances } from '../getBalances'
-import { ProductName } from '../../../constants/enums'
 import { Contract } from '@ethersproject/contracts'
 import { getNonHumanValue } from '../../../utils/formatting'
 import { withBackoffRetries } from '../../../utils/time'
@@ -11,11 +10,11 @@ export const getBalances = async (
   user: string,
   provider: any,
   cache: NetworkCache,
-  activeNetwork: NetworkConfig
+  activeNetwork: NetworkConfig,
+  tokens: Token[]
 ): Promise<Token[]> => {
   // get ctoken balances
-  const savedTokens = cache.tokens[ProductName.COMPOUND].savedTokens
-  const balances: Token[] = await getProductTokenBalances(user, tokenJson.abi, savedTokens, provider)
+  const balances: Token[] = await getProductTokenBalances(user, tokenJson.abi, tokens, provider)
 
   // get utoken balances
   const indices = rangeFrom0(balances.length)
@@ -29,7 +28,7 @@ export const getBalances = async (
   )
 
   // get native token balances
-  const tokenBalances = await addNativeTokenBalances(balances, indices, cache.chainId, getMainNetworkToken)
+  const tokenBalances = await addNativeTokenBalances(balances, indices, cache.chainId, getMainNetworkTokenAddress)
   return tokenBalances
 }
 
@@ -45,7 +44,7 @@ const rmumap: any = {
   '0xddea378a6ddc8afec82c36e9b0078826bf9e68b6': '0xe41d2489571d322189246dafa5ebde1f4699f498',
 }
 
-const getMainNetworkToken = (address: string, chainId: number): string => {
+const getMainNetworkTokenAddress = (address: string, chainId: number): string => {
   if (chainId == 4) {
     return rmumap[address.toLowerCase()]
   }

@@ -36,11 +36,17 @@ import { StyledMenu } from '../atoms/Icon'
 import { WalletConnectButton } from '../molecules/WalletConnectButton'
 import { TransactionHistoryButton } from '../molecules/TransactionHistoryButton'
 import { NetworkConnectButton } from '../molecules/NetworkConnectButton'
+import { ThemeButton } from '../molecules/ThemeButton'
+import { Text } from '../atoms/Typography'
 
 /* import hooks */
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'
 
-export const SideNavbar: React.FC = () => {
+interface NavbarProps {
+  location: any
+}
+
+export const SideNavbar: React.FC<NavbarProps> = ({ location }) => {
   /*************************************************************************************
 
     Render
@@ -53,16 +59,24 @@ export const SideNavbar: React.FC = () => {
         <Logo />
         <ItemList>
           <ItemText>
-            <SidebarItem to={'/'}>Dashboard</SidebarItem>
+            <SidebarItem to={'/'}>
+              <Text high_em={location.pathname == '/'}>Dashboard</Text>
+            </SidebarItem>
           </ItemText>
           <ItemText>
-            <SidebarItem to={'/invest'}>Invest</SidebarItem>
+            <SidebarItem to={'/invest'}>
+              <Text high_em={location.pathname == '/invest'}>Invest</Text>
+            </SidebarItem>
           </ItemText>
           <ItemText>
-            <SidebarItem to={'/quote'}>Buy Cover</SidebarItem>
+            <SidebarItem to={'/quote'}>
+              <Text high_em={location.pathname == '/quote'}>Buy Cover</Text>
+            </SidebarItem>
           </ItemText>
           <ItemText>
-            <SidebarItem to={'/govern'}>Govern</SidebarItem>
+            <SidebarItem to={'/govern'}>
+              <Text high_em={location.pathname == '/govern'}>Govern</Text>
+            </SidebarItem>
           </ItemText>
         </ItemList>
       </div>
@@ -70,7 +84,7 @@ export const SideNavbar: React.FC = () => {
   )
 }
 
-export const TopNavbar: React.FC = () => {
+export const TopNavbar: React.FC<NavbarProps> = ({ location }) => {
   /*************************************************************************************
 
   custom hooks
@@ -109,16 +123,16 @@ export const TopNavbar: React.FC = () => {
       <Logo pl={10} />
       <ItemList>
         <SidebarItem onClick={() => setIsOpen(!isOpen)} to={'/'}>
-          Dashboard
+          <Text high_em={location.pathname == '/'}>Dashboard</Text>
         </SidebarItem>
         <SidebarItem onClick={() => setIsOpen(!isOpen)} to={'/invest'}>
-          Invest
+          <Text high_em={location.pathname == '/invest'}>Invest</Text>
         </SidebarItem>
         <SidebarItem onClick={() => setIsOpen(!isOpen)} to={'/quote'}>
-          Buy Cover
+          <Text high_em={location.pathname == '/quote'}>Buy Cover</Text>
         </SidebarItem>
         <SidebarItem onClick={() => setIsOpen(!isOpen)} to={'/govern'}>
-          Govern
+          <Text high_em={location.pathname == '/govern'}>Govern</Text>
         </SidebarItem>
         {width <= MAX_MOBILE_SCREEN_WIDTH && (
           <ButtonWrapper>
@@ -133,6 +147,9 @@ export const TopNavbar: React.FC = () => {
                 <TransactionHistoryButton />
               </div>
             )}
+            <div>
+              <ThemeButton />
+            </div>
           </ButtonWrapper>
         )}
       </ItemList>

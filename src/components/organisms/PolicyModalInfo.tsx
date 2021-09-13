@@ -21,6 +21,7 @@ import React, { Fragment } from 'react'
 
 /* import packages */
 import { formatUnits } from '@ethersproject/units'
+import { BigNumber } from 'ethers'
 
 /* import managers */
 import { useNetwork } from '../../context/NetworkManager'
@@ -35,12 +36,11 @@ import { FormCol, FormRow } from '../atoms/Form'
 import { FlexRow, HeroContainer } from '../atoms/Layout'
 import { Protocol, ProtocolImage, ProtocolTitle } from '../atoms/Protocol'
 import { Loader } from '../atoms/Loader'
-import { Heading3, Text, Text3 } from '../atoms/Typography'
+import { Heading3, Text } from '../atoms/Typography'
 import { Card } from '../atoms/Card'
 import { StyledTooltip } from '../molecules/Tooltip'
 
 /* import hooks */
-import { useAppraisePosition } from '../../hooks/usePolicy'
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'
 
 /* import utils */
@@ -48,17 +48,17 @@ import { getDaysLeft } from '../../utils/time'
 import { truncateBalance } from '../../utils/formatting'
 
 interface PolicyModalInfoProps {
+  appraisal: BigNumber
   selectedPolicy: Policy | undefined
   latestBlock: number
 }
 
-export const PolicyModalInfo: React.FC<PolicyModalInfoProps> = ({ selectedPolicy, latestBlock }) => {
+export const PolicyModalInfo: React.FC<PolicyModalInfoProps> = ({ appraisal, selectedPolicy, latestBlock }) => {
   /*************************************************************************************
 
     custom hooks
 
   *************************************************************************************/
-  const appraisal = useAppraisePosition(selectedPolicy)
   const { activeNetwork, currencyDecimals } = useNetwork()
   const { width } = useWindowDimensions()
 
@@ -73,25 +73,27 @@ export const PolicyModalInfo: React.FC<PolicyModalInfoProps> = ({ selectedPolicy
       {width > MAX_MOBILE_SCREEN_WIDTH ? (
         <Box transparent pl={10} pr={10} pt={20} pb={20}>
           <BoxItem>
-            <BoxItemTitle h3>Policy ID</BoxItemTitle>
-            <Text h2 nowrap>
+            <BoxItemTitle h3 high_em>
+              Policy ID
+            </BoxItemTitle>
+            <Text h2 nowrap high_em>
               {selectedPolicy?.policyId}
             </Text>
           </BoxItem>
           <BoxItem>
-            <BoxItemTitle h3>
+            <BoxItemTitle h3 high_em>
               Days to expiration{' '}
               <StyledTooltip id={'days-to-expiration'} tip={'Number of days left until this policy expires'} />
             </BoxItemTitle>
-            <Text h2 nowrap>
+            <Text h2 nowrap high_em>
               {getDaysLeft(selectedPolicy ? selectedPolicy.expirationBlock : 0, latestBlock)}
             </Text>
           </BoxItem>
           <BoxItem>
-            <BoxItemTitle h3>
+            <BoxItemTitle h3 high_em>
               Cover Amount <StyledTooltip id={'covered-amount'} tip={'The amount you are covered on this policy'} />
             </BoxItemTitle>
-            <Text h2 nowrap>
+            <Text h2 nowrap high_em>
               {selectedPolicy?.coverAmount
                 ? truncateBalance(formatUnits(selectedPolicy.coverAmount, currencyDecimals))
                 : 0}{' '}
@@ -99,10 +101,10 @@ export const PolicyModalInfo: React.FC<PolicyModalInfoProps> = ({ selectedPolicy
             </Text>
           </BoxItem>
           <BoxItem>
-            <BoxItemTitle h3>
+            <BoxItemTitle h3 high_em>
               Position Amount <StyledTooltip id={'position-amount'} tip={'The amount of this asset you own'} />
             </BoxItemTitle>
-            <Text h2 nowrap>
+            <Text h2 nowrap high_em>
               {appraisal.gt(ZERO) ? (
                 `${truncateBalance(formatUnits(appraisal, currencyDecimals) || 0)} ${
                   activeNetwork.nativeCurrency.symbol
@@ -118,26 +120,34 @@ export const PolicyModalInfo: React.FC<PolicyModalInfoProps> = ({ selectedPolicy
         <Card transparent p={0}>
           <FormRow mb={10}>
             <FormCol>
-              <Text3>Policy ID:</Text3>
+              <Text t4 high_em>
+                Policy ID:
+              </Text>
             </FormCol>
             <FormCol>
-              <Heading3>{selectedPolicy?.policyId}</Heading3>
-            </FormCol>
-          </FormRow>
-          <FormRow mb={10}>
-            <FormCol>
-              <Text3>Days to expiration:</Text3>
-            </FormCol>
-            <FormCol>
-              <Heading3>{getDaysLeft(selectedPolicy ? selectedPolicy.expirationBlock : 0, latestBlock)}</Heading3>
+              <Heading3 high_em>{selectedPolicy?.policyId}</Heading3>
             </FormCol>
           </FormRow>
           <FormRow mb={10}>
             <FormCol>
-              <Text3>Cover Amount:</Text3>
+              <Text t4 high_em>
+                Days to expiration:
+              </Text>
             </FormCol>
             <FormCol>
-              <Heading3>
+              <Heading3 high_em>
+                {getDaysLeft(selectedPolicy ? selectedPolicy.expirationBlock : 0, latestBlock)}
+              </Heading3>
+            </FormCol>
+          </FormRow>
+          <FormRow mb={10}>
+            <FormCol>
+              <Text t4 high_em>
+                Cover Amount:
+              </Text>
+            </FormCol>
+            <FormCol>
+              <Heading3 high_em>
                 {selectedPolicy?.coverAmount
                   ? truncateBalance(formatUnits(selectedPolicy.coverAmount, currencyDecimals))
                   : 0}{' '}
@@ -147,10 +157,12 @@ export const PolicyModalInfo: React.FC<PolicyModalInfoProps> = ({ selectedPolicy
           </FormRow>
           <FormRow mb={10}>
             <FormCol>
-              <Text3>Position Amount:</Text3>
+              <Text t4 high_em>
+                Position Amount:
+              </Text>
             </FormCol>
             <FormCol>
-              <Heading3>
+              <Heading3 high_em>
                 {appraisal.gt(ZERO) ? (
                   `${truncateBalance(formatUnits(appraisal, currencyDecimals) || 0)} ${
                     activeNetwork.nativeCurrency.symbol
@@ -170,7 +182,9 @@ export const PolicyModalInfo: React.FC<PolicyModalInfoProps> = ({ selectedPolicy
               <ProtocolImage width={70} height={70} mb={10}>
                 <img src={`https://assets.solace.fi/${selectedPolicy?.productName.toLowerCase()}`} />
               </ProtocolImage>
-              <ProtocolTitle t2>{selectedPolicy?.productName}</ProtocolTitle>
+              <ProtocolTitle t2 high_em>
+                {selectedPolicy?.productName}
+              </ProtocolTitle>
             </Protocol>
           </FormCol>
           <FormCol>
@@ -178,7 +192,9 @@ export const PolicyModalInfo: React.FC<PolicyModalInfoProps> = ({ selectedPolicy
               <ProtocolImage width={70} height={70} mb={10}>
                 <img src={`https://assets.solace.fi/${selectedPolicy?.positionName.toLowerCase()}`} />
               </ProtocolImage>
-              <ProtocolTitle t2>{selectedPolicy?.positionName}</ProtocolTitle>
+              <ProtocolTitle t2 high_em>
+                {selectedPolicy?.positionName}
+              </ProtocolTitle>
             </Protocol>
           </FormCol>
         </FlexRow>

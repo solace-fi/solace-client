@@ -30,7 +30,7 @@ export const Modal: React.FC<ModalProps> = ({ children, ...props }) => {
     <ModalContainer {...props}>
       <ModalBase {...props}>
         <ModalHeader>
-          <Heading2>{props.modalTitle}</Heading2>
+          <Heading2 high_em>{props.modalTitle}</Heading2>
           <ModalCloseButton hidden={props.disableCloseButton} onClick={() => props.handleClose()} />
         </ModalHeader>
         <hr style={{ marginBottom: '20px' }} />

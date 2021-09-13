@@ -24,7 +24,6 @@
 import React, { Fragment, useState, useEffect, useMemo, useCallback } from 'react'
 
 /* import packages */
-import { Slider } from '@rebass/forms'
 import { parseUnits, formatUnits } from '@ethersproject/units'
 import { BigNumber } from 'ethers'
 
@@ -34,18 +33,18 @@ import { useToasts } from '../../context/NotificationsManager'
 import { useWallet } from '../../context/WalletManager'
 import { useContracts } from '../../context/ContractsManager'
 import { useNetwork } from '../../context/NetworkManager'
+import { useGeneral } from '../../context/GeneralProvider'
 
 /* import components */
 import { Modal } from '../molecules/Modal'
 import { FormRow, FormCol } from '../atoms/Form'
-import { Heading2, Text3 } from '../atoms/Typography'
+import { Heading2, Text4 } from '../atoms/Typography'
 import { PolicyModalInfo } from './PolicyModalInfo'
-import { Input } from '../atoms/Input'
+import { Input, StyledSlider } from '../../components/atoms/Input'
 import { Button, ButtonWrapper } from '../atoms/Button'
 import { Loader } from '../atoms/Loader'
 import { FlexCol } from '../atoms/Layout'
 import { SmallBox } from '../atoms/Box'
-import { StyledTooltip } from '../molecules/Tooltip'
 
 /* import constants */
 import { DAYS_PER_YEAR, NUM_BLOCKS_PER_DAY, GAS_LIMIT, ZERO } from '../../constants'
@@ -86,8 +85,9 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
 
   *************************************************************************************/
 
+  const { errors } = useGeneral()
   const { selectedProtocol } = useContracts()
-  const { errors, activeWalletConnector } = useWallet()
+  const { activeWalletConnector } = useWallet()
   const { addLocalTransactions, reload, gasPrices } = useCachedData()
   const { makeTxToast } = useToasts()
   const policyPrice = useGetPolicyPrice(selectedPolicy ? selectedPolicy.policyId : 0)
@@ -340,27 +340,26 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
   return (
     <Modal isOpen={isOpen} handleClose={handleClose} modalTitle={'Policy Management'} disableCloseButton={modalLoading}>
       <Fragment>
-        <PolicyModalInfo selectedPolicy={selectedPolicy} latestBlock={latestBlock} />
+        <PolicyModalInfo selectedPolicy={selectedPolicy} latestBlock={latestBlock} appraisal={appraisal} />
         {!modalLoading ? (
           <Fragment>
             <div style={{ textAlign: 'center' }}>
-              <Heading2>Update Policy</Heading2>
+              <Heading2 high_em>Update Policy</Heading2>
               <FlexCol style={{ justifyContent: 'center', marginTop: '20px' }}>
                 <div style={{ width: '100%' }}>
                   <div style={{ textAlign: 'center', padding: '5px' }}>
-                    <Text3>Edit Coverage</Text3>
+                    <Text4>Edit Coverage</Text4>
                     <Input
                       mt={5}
-                      mb={5}
+                      mb={20}
                       textAlignCenter
                       disabled={asyncLoading}
                       type="text"
                       value={inputCoverage}
                       onChange={(e) => handleInputCoverage(e.target.value)}
                     />
-                    <Slider
+                    <StyledSlider
                       disabled={asyncLoading}
-                      backgroundColor={'#fff'}
                       value={newCoverage}
                       onChange={(e) => handleCoverageChange(e.target.value)}
                       min={1}
@@ -370,10 +369,10 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
                 </div>
                 <div style={{ width: '100%' }}>
                   <div style={{ textAlign: 'center', padding: '5px' }}>
-                    <Text3>Add days</Text3>
+                    <Text4>Add days</Text4>
                     <Input
                       mt={5}
-                      mb={5}
+                      mb={20}
                       textAlignCenter
                       disabled={asyncLoading}
                       type="text"
@@ -382,21 +381,26 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
                       onChange={(e) => filteredTime(e.target.value)}
                       maxLength={3}
                     />
-                    <Slider
+                    <StyledSlider
                       disabled={asyncLoading}
-                      backgroundColor={'#fff'}
                       value={extendedTime == '' ? '0' : extendedTime}
                       onChange={(e) => setExtendedTime(e.target.value)}
                       min="0"
                       max={DAYS_PER_YEAR - daysLeft}
                     />
-                    <Text3>New expiration: {getExpiration(daysLeft + parseFloat(extendedTime || '0'))}</Text3>
+                    <Text4 high_em>New expiration: {getExpiration(daysLeft + parseFloat(extendedTime || '0'))}</Text4>
                     <SmallBox
                       transparent
                       outlined
                       error
+                      style={{ display: maxCoverPerUser == '0' ? 'none' : 'auto' }}
                       collapse={
                         !parseUnits(inputCoverage, currencyDecimals).gt(parseUnits(maxCoverPerUser, currencyDecimals))
+                      }
+                      mt={
+                        !parseUnits(inputCoverage, currencyDecimals).gt(parseUnits(maxCoverPerUser, currencyDecimals))
+                          ? 0
+                          : 5
                       }
                       mb={
                         !parseUnits(inputCoverage, currencyDecimals).gt(parseUnits(maxCoverPerUser, currencyDecimals))
@@ -404,9 +408,9 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
                           : 5
                       }
                     >
-                      <Text3 error autoAlign>
+                      <Text4 error autoAlign>
                         You can only cover up to {maxCoverPerUser} {activeNetwork.nativeCurrency.symbol}.
-                      </Text3>
+                      </Text4>
                     </SmallBox>
                     <ButtonWrapper>
                       {!asyncLoading ? (
@@ -431,13 +435,13 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
               </FlexCol>
             </div>
             <div style={{ textAlign: 'center' }}>
-              <Heading2>Cancel Policy</Heading2>
+              <Heading2 high_em>Cancel Policy</Heading2>
               <FlexCol mt={20}>
                 <FormRow mb={10}>
                   <FormCol>
-                    <Text3>
+                    <Text4 high_em>
                       Refund amount: {formatUnits(refundAmount, currencyDecimals)} {activeNetwork.nativeCurrency.symbol}
-                    </Text3>
+                    </Text4>
                   </FormCol>
                 </FormRow>
                 <FormCol></FormCol>

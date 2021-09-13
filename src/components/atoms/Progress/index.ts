@@ -1,5 +1,4 @@
 import styled from 'styled-components'
-import { MAX_TABLET_SCREEN_WIDTH } from '../../../constants'
 import { FlexCol } from '../Layout'
 
 interface ProgressProps {
@@ -80,7 +79,7 @@ export const Step = styled.div`
     border-radius: 1px;
     width: 1px;
     height: 10px;
-    background-color: #fff;
+    background-color: ${({ theme }) => theme.progress.step_bg_color};
   }
 
   &:last-child {
@@ -92,7 +91,7 @@ export const Step = styled.div`
       border-radius: 1px;
       width: 1px;
       height: 10px;
-      background-color: #fff;
+      background-color: ${({ theme }) => theme.progress.step_bg_color};
     }
   }
 `
@@ -103,13 +102,13 @@ export const StepsProgress = styled.div`
   padding: 3px;
   width: 100%;
   height: 5px;
-  background-color: rgba(255, 255, 255, 0.3);
+  background-color: ${({ theme }) => theme.progress.progress_bg_color};
 `
 
 export const StepsProgressBar = styled.div`
   border-radius: 10px;
   height: 100%;
   width: 25%;
-  background-color: #fff;
+  background-color: ${({ theme }) => theme.progress.bar_bg_color};
   transition: width 300ms linear;
 `

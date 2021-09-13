@@ -196,8 +196,8 @@ export const MultiStepForm = () => {
       {width > MAX_MOBILE_SCREEN_WIDTH ? (
         <StepsContainer step={Number(StepNumber[step.id]) + 1}>
           <StepsWrapper>
-            {StepSections.map((section, i) => (
-              <Step key={i}>{section.name}</Step>
+            {StepSections.map((section) => (
+              <Step key={section.name}>{section.name}</Step>
             ))}
           </StepsWrapper>
           <StepsProgress>
@@ -222,8 +222,10 @@ export const MultiStepForm = () => {
             </div>
           </FormCol>
           <FormCol>
-            <Text h2>{StepSections[Number(StepNumber[step.id])].name}</Text>
-            <Text t3>{StepSections[Number(StepNumber[step.id])].description}</Text>
+            <Text high_em h2 style={{ marginBottom: '10px' }}>
+              {StepSections[Number(StepNumber[step.id])].name}
+            </Text>
+            <Text t4>{StepSections[Number(StepNumber[step.id])].description}</Text>
           </FormCol>
         </FormRow>
       )}
@@ -237,15 +239,21 @@ export const MultiStepForm = () => {
                     <ProtocolImage mr={10}>
                       <img src={`https://assets.solace.fi/${protocol.name.toLowerCase()}`} />
                     </ProtocolImage>
-                    <ProtocolTitle>{protocol.name}</ProtocolTitle>
+                    <ProtocolTitle high_em h3>
+                      {protocol.name}
+                    </ProtocolTitle>
                   </Protocol>
                 </BoxItem>
                 <BoxItem>
-                  {fixed(protocol.yearlyCost * 100, 2)}% <StyledTooltip id={'yearly-cost'} tip={'Yearly Cost'} />
+                  <Text t3 high_em>
+                    {fixed(protocol.yearlyCost * 100, 2)}% <StyledTooltip id={'yearly-cost'} tip={'Yearly Cost'} />
+                  </Text>
                 </BoxItem>
                 <BoxItem>
-                  {protocol.availableCoverage} {activeNetwork.nativeCurrency.symbol}{' '}
-                  <StyledTooltip id={'available-coverage'} tip={'Available Coverage'} />
+                  <Text t3 high_em>
+                    {protocol.availableCoverage} {activeNetwork.nativeCurrency.symbol}{' '}
+                    <StyledTooltip id={'available-coverage'} tip={'Available Coverage'} />
+                  </Text>
                 </BoxItem>
                 <BoxItem>
                   <Button onClick={() => navigation.go(0)}>Change</Button>
@@ -253,7 +261,9 @@ export const MultiStepForm = () => {
               </Box>
               {Number(StepNumber[step.id]) == 1 && (
                 <Box transparent outlined>
-                  <BoxItem>{loading ? 'Loading Your Positions...' : 'Select Position Below'}</BoxItem>
+                  <BoxItem>
+                    <Text high_em>{loading ? 'Loading Your Positions...' : 'Select Position Below'}</Text>
+                  </BoxItem>
                 </Box>
               )}
               {Number(StepNumber[step.id]) == 2 && !!position.underlying && (
@@ -263,7 +273,9 @@ export const MultiStepForm = () => {
                       <ProtocolImage mr={10}>
                         <img src={`https://assets.solace.fi/${position.underlying.address.toLowerCase()}`} />
                       </ProtocolImage>
-                      <ProtocolTitle>{position.underlying.name}</ProtocolTitle>
+                      <ProtocolTitle high_em h3>
+                        {position.underlying.name}
+                      </ProtocolTitle>
                     </Protocol>
                   </BoxItem>
                   <BoxItem>
@@ -287,19 +299,19 @@ export const MultiStepForm = () => {
                     </ProtocolImage>
                   </FormCol>
                   <FormCol style={{ display: 'flex', alignItems: 'center' }}>
-                    <Heading2>{protocol.name}</Heading2>
+                    <Heading2 high_em>{protocol.name}</Heading2>
                   </FormCol>
                 </FormRow>
                 <FormRow>
                   <FormCol>Yearly Cost</FormCol>
                   <FormCol>
-                    <Heading2>{fixed(protocol.yearlyCost * 100, 2)}%</Heading2>
+                    <Heading2 high_em>{fixed(protocol.yearlyCost * 100, 2)}%</Heading2>
                   </FormCol>
                 </FormRow>
                 <FormRow>
                   <FormCol>Available Coverage</FormCol>
                   <FormCol>
-                    <Heading2>
+                    <Heading2 high_em>
                       {protocol.availableCoverage} {activeNetwork.nativeCurrency.symbol}
                     </Heading2>
                   </FormCol>
@@ -320,17 +332,21 @@ export const MultiStepForm = () => {
               {Number(StepNumber[step.id]) == 2 && !!position.underlying && (
                 <Card purple>
                   <FormRow>
-                    <Protocol>
+                    <FormCol>
                       <ProtocolImage mr={10}>
                         <img src={`https://assets.solace.fi/${position.underlying.address.toLowerCase()}`} />
                       </ProtocolImage>
-                      <ProtocolTitle>{position.underlying.name}</ProtocolTitle>
-                    </Protocol>
+                    </FormCol>
+                    <FormCol style={{ display: 'flex', alignItems: 'center' }}>
+                      <Heading2 high_em>{position.underlying.name}</Heading2>
+                    </FormCol>
                   </FormRow>
                   <FormRow>
                     <FormCol>Position Amount</FormCol>
                     <FormCol>
-                      {truncateBalance(fixedTokenPositionBalance(position.underlying))} {position.underlying.symbol}
+                      <Heading2 high_em>
+                        {truncateBalance(fixedTokenPositionBalance(position.underlying))} {position.underlying.symbol}
+                      </Heading2>
                     </FormCol>
                   </FormRow>
                   <ButtonWrapper>

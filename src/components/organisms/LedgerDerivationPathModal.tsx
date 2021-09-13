@@ -18,14 +18,13 @@
 import React, { useState, useCallback } from 'react'
 
 /* import managers */
-import { useNetwork } from '../../context/NetworkManager'
 import { useWallet } from '../../context/WalletManager'
 
 /* import components */
 import { Button, ButtonWrapper } from '../atoms/Button'
-import { FormOption, FormSelect } from '../atoms/Form'
 import { ModalRow } from '../atoms/Modal'
 import { Modal } from '../molecules/Modal'
+import { StyledSelect } from '../molecules/Select'
 
 /* import wallet */
 import { LedgerConnector } from '../../wallet/wallet-connectors/Ledger'
@@ -53,7 +52,7 @@ export const LedgerDerivationPathModal: React.FC<LedgerDerivationPathModalProps>
 
   *************************************************************************************/
   const { connect } = useWallet()
-  const [derivationPath, setDerivationPath] = useState<string>(String(LEDGER_DERIVATION_PATHS[0].value))
+  const [derivationPath, setDerivationPath] = useState(LEDGER_DERIVATION_PATHS[0])
 
   /*************************************************************************************
 
@@ -65,14 +64,14 @@ export const LedgerDerivationPathModal: React.FC<LedgerDerivationPathModalProps>
     closeModal()
   }, [closeModal])
 
-  const handleSelect = (target: any) => {
-    setDerivationPath(target.value as string)
+  const handleSelect = (d: any) => {
+    setDerivationPath(d)
   }
 
   const handleConnect = async () => {
     handleClose()
     connect(LedgerConnector, {
-      baseDerivationPath: derivationPath,
+      baseDerivationPath: derivationPath.value,
     })
       .then(onSuccess)
       .catch(Error)
@@ -94,14 +93,8 @@ export const LedgerDerivationPathModal: React.FC<LedgerDerivationPathModalProps>
       modalTitle={'Configure derivation path'}
       disableCloseButton={false}
     >
-      <ModalRow>
-        <FormSelect value={derivationPath} onChange={(e) => handleSelect(e.target)}>
-          {LEDGER_DERIVATION_PATHS.map((path, i) => (
-            <FormOption key={i} value={path.value}>
-              {path.label}
-            </FormOption>
-          ))}
-        </FormSelect>
+      <ModalRow style={{ display: 'block' }}>
+        <StyledSelect value={derivationPath} onChange={handleSelect} options={LEDGER_DERIVATION_PATHS} />
       </ModalRow>
       <ButtonWrapper>
         <Button onClick={() => handleConnect()}>Connect</Button>

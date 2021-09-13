@@ -1,9 +1,10 @@
 import { GeneralElementProps, GeneralElementCss, MarginProps, MarginCss } from '../../generalInterfaces'
 import styled, { css } from 'styled-components'
-import { Text3Css } from '../Typography'
+import { Text4Css } from '../Typography'
 
 interface ButtonProps extends ClickProps {
   secondary?: boolean
+  glow?: boolean
   hidden?: boolean
 }
 
@@ -27,7 +28,7 @@ export const ButtonBaseCss = css<ButtonProps & GeneralElementProps>`
   align-items: center;
   justify-content: center;
   outline: none;
-  border: 1px solid #fff;
+  border: 1px solid ${({ theme }) => theme.button.border_color};
   border-radius: 10px;
   font-weight: 600;
   text-align: center;
@@ -42,11 +43,12 @@ export const ButtonBaseCss = css<ButtonProps & GeneralElementProps>`
   visibility: ${(props) => (props.hidden ? 'hidden;' : 'visible;')};
   ${(props) =>
     props.disabled
-      ? 'color: #fff; background-color: rgba(0, 0, 0, 0); opacity: 0.5; transform: scale(.9);'
+      ? `color: ${props.theme.button.text_color}; background-color: rgba(0, 0, 0, 0); opacity: 0.5; transform: scale(.9);`
       : props.secondary
-      ? 'color: #7c7c7c; background-color: #fff; &:hover { opacity: 0.8; }'
-      : 'color: #fff; background-color: rgba(0, 0, 0, 0); &:hover { color: #7c7c7c; background-color: #fff; }'};
-  ${Text3Css}
+      ? `color: ${props.theme.button.secondary_text_color}; background-color: ${props.theme.button.hover_color}; &:hover { opacity: 0.8; }`
+      : `color: ${props.theme.button.text_color}; background-color: rgba(0, 0, 0, 0); &:hover { color: ${props.theme.button.secondary_text_color}; background-color: ${props.theme.button.hover_color}; }`};
+  ${(props) => props.glow && `box-shadow: ${props.theme.button.green_glow};`}
+  ${Text4Css}
 `
 
 export const Button = styled.button<ButtonProps & GeneralElementProps>`

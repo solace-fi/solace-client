@@ -28,6 +28,7 @@ import { useWallet } from '../../context/WalletManager'
 import { useContracts } from '../../context/ContractsManager'
 import { useCachedData } from '../../context/CachedDataManager'
 import { useNetwork } from '../../context/NetworkManager'
+import { useGeneral } from '../../context/GeneralProvider'
 
 /* import components */
 import { Button } from '../../components/atoms/Button'
@@ -64,7 +65,8 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
 
   *************************************************************************************/
 
-  const { account, library, errors } = useWallet()
+  const { errors } = useGeneral()
+  const { account, library } = useWallet()
   const { activeNetwork, findNetworkByChainId, chainId } = useNetwork()
   const { setSelectedProtocolByName } = useContracts()
   const { userPolicyData, latestBlock, tokenPositionData } = useCachedData()
@@ -108,7 +110,14 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
       try {
         const supportedProduct = activeNetwork.cache.supportedProducts.find((product) => product.name == protocol.name)
         if (!supportedProduct) return
-        const balances: Token[] = await supportedProduct.getBalances(account, library, cache, activeNetwork)
+        const savedTokens = cache.tokens[supportedProduct.name].savedTokens
+        const balances: Token[] = await supportedProduct.getBalances(
+          account,
+          library,
+          cache,
+          activeNetwork,
+          savedTokens
+        )
         setForm({
           target: {
             name: 'balances',
@@ -228,6 +237,7 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
                     <img src={`https://assets.solace.fi/${position.underlying.address.toLowerCase()}`} />
                   </PositionCardLogo>
                   <PositionCardName
+                    high_em
                     style={{
                       opacity: userHasActiveProductPosition(protocol.name, position.underlying.symbol) ? '.5' : '1',
                     }}
@@ -236,6 +246,7 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
                   </PositionCardName>
                   <PositionCardText
                     t1
+                    high_em
                     style={{
                       opacity: userHasActiveProductPosition(protocol.name, position.underlying.symbol) ? '.5' : '1',
                     }}
@@ -244,7 +255,7 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
                     <TextSpan style={{ fontSize: '12px' }}>{position.underlying.symbol}</TextSpan>
                   </PositionCardText>
                   <PositionCardText
-                    t2
+                    t3
                     style={{
                       opacity: userHasActiveProductPosition(protocol.name, position.underlying.symbol) ? '.5' : '1',
                     }}

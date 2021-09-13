@@ -20,14 +20,14 @@ interface SmallBoxProps {
 }
 
 const BoxCss = css<GeneralElementProps & BoxProps>`
-  background-color: rgba(0, 255, 209, 0.3);
+  background-color: ${({ theme }) => theme.box.bg_color};
   ${(props) => props.transparent && 'background-color: rgba(0, 0, 0, 0);'}
   ${(props) => props.outlined && BoxOutline}
-  ${(props) => props.purple && 'background-color: rgba(250, 0, 255, 0.3);'}
-  ${(props) => props.green && 'background-color: rgba(0, 187, 40, 0.7);'}
-  ${(props) => props.navy && 'background-color: rgba(16, 32, 97, 0.3);'}
-  ${(props) => props.glow && 'box-shadow: 0 0 7px #fff;'}
-  ${(props) => props.shadow && 'box-shadow: 0 3px 3px rgba(0, 0, 0, 0.5);'}
+  ${(props) => props.purple && `background-color: ${props.theme.box.purple};`}
+  ${(props) => props.green && `background-color: ${props.theme.box.green};`}
+  ${(props) => props.navy && `background-color: ${props.theme.box.navy};`}
+  ${(props) => props.glow && `box-shadow: ${props.theme.box.glow};`}
+  ${(props) => props.shadow && `box-shadow: ${props.theme.box.shadow};`}
   ${GeneralElementCss}
 `
 
@@ -61,7 +61,7 @@ export const BoxRow = styled(BoxBase)`
 const BoxOutline = css`
   border-width: 1px;
   border-style: solid;
-  border-color: rgb(255, 255, 255);
+  border-color: ${({ theme }) => theme.box.border_color};
 `
 
 export const Box = styled(BoxRow)<BoxProps & GeneralElementProps>`
@@ -104,7 +104,7 @@ export const SmallBox = styled.div<BoxProps & SmallBoxProps & GeneralElementProp
   ${(props) => (props.collapse ? `transform: scaleY(0); height: 0;` : `transform: scaleY(1);`)}
   transition: all 200ms ease;
   ${BoxCss}
-  ${(props) => props.error && `border-color: rgba(219, 44, 56);`}
+  ${(props) => props.error && `border-color: ${props.theme.box.smallbox_border_color};`}
 `
 
 export const BoxItem = styled.div`

@@ -89,14 +89,7 @@ export const TransactionHistory: React.FC = () => {
   return (
     <Scrollable>
       <Table textAlignCenter style={{ borderSpacing: '0px 7px' }}>
-        <TableHead
-          style={{
-            position: 'sticky',
-            transform: 'translateY(-7px)',
-            top: '7px',
-            backgroundColor: 'rgba(16, 32, 97, 0.7)',
-          }}
-        >
+        <TableHead sticky>
           <TableRow>
             <TableHeader>Type</TableHeader>
             {width > MAX_TABLET_SCREEN_WIDTH && (
@@ -110,20 +103,20 @@ export const TransactionHistory: React.FC = () => {
           </TableRow>
         </TableHead>
         <TableBody>
-          {localTransactions.map((pendingtx: any, i: number) => (
-            <TableRow isHighlight key={i}>
-              <TableData pt={10} pb={10}>
+          {localTransactions.map((pendingtx: any) => (
+            <TableRow isHighlight key={pendingtx.hash}>
+              <TableData high_em pt={10} pb={10}>
                 {pendingtx.type}
               </TableData>
               {width > MAX_TABLET_SCREEN_WIDTH && (
                 <>
-                  <TableData pt={10} pb={10}>{`${pendingtx.value} ${pendingtx.unit}`}</TableData>
-                  <TableData pt={10} pb={10}>
+                  <TableData high_em pt={10} pb={10}>{`${pendingtx.value} ${pendingtx.unit}`}</TableData>
+                  <TableData high_em pt={10} pb={10}>
                     {timeAgo(Number(Date.now()) * 1000)}
                   </TableData>
                 </>
               )}
-              <TableData pt={10} pb={10}>
+              <TableData high_em pt={10} pb={10}>
                 <HyperLink
                   href={getExplorerItemUrl(activeNetwork.explorer.url, pendingtx.hash, ExplorerscanApi.TX)}
                   target="_blank"
@@ -133,7 +126,7 @@ export const TransactionHistory: React.FC = () => {
                 </HyperLink>
               </TableData>
               {width > MAX_TABLET_SCREEN_WIDTH && (
-                <TableData pt={10} pb={10}>
+                <TableData high_em pt={10} pb={10}>
                   <Text>{pendingtx.status}</Text>
                 </TableData>
               )}
@@ -143,6 +136,7 @@ export const TransactionHistory: React.FC = () => {
             txHistory.map((tx: any, i: number) => (
               <TableRow key={tx.hash}>
                 <TableData
+                  high_em
                   error={tx.txreceipt_status != '1'}
                   pt={10}
                   pb={10}
@@ -157,15 +151,16 @@ export const TransactionHistory: React.FC = () => {
                 </TableData>
                 {width > MAX_TABLET_SCREEN_WIDTH && (
                   <>
-                    <TableData pt={10} pb={10}>
+                    <TableData high_em pt={10} pb={10}>
                       {amounts.length > 0 && amounts[i]}
                     </TableData>
-                    <TableData pt={10} pb={10}>
+                    <TableData high_em pt={10} pb={10}>
                       {amounts.length > 0 && timeAgo(Number(tx.timeStamp) * 1000)}
                     </TableData>
                   </>
                 )}
                 <TableData
+                  high_em
                   pt={10}
                   pb={10}
                   pl={width <= MAX_MOBILE_SCREEN_WIDTH ? 0 : undefined}
@@ -182,7 +177,7 @@ export const TransactionHistory: React.FC = () => {
                   )}
                 </TableData>
                 {width > MAX_TABLET_SCREEN_WIDTH && (
-                  <TableData pt={10} pb={10}>
+                  <TableData high_em pt={10} pb={10}>
                     {amounts.length > 0 && (
                       <Text error={tx.txreceipt_status != '1'}>
                         {tx.txreceipt_status == '1' ? 'Complete' : 'Failed'}

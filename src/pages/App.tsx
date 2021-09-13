@@ -36,12 +36,12 @@ export default function App(): any {
   return (
     <Fragment>
       <GlobalStyle />
-      <TopNavbar />
+      <TopNavbar location={location} />
       <BottomAccount />
       <Layout>
         <ContentContainer>
           <SideNavContent>
-            <SideNavbar />
+            <SideNavbar location={location} />
           </SideNavContent>
           <LayoutContent>
             <PageHeader />

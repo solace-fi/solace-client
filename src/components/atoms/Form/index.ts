@@ -1,6 +1,7 @@
 import styled from 'styled-components'
 import { Input } from '../Input'
 import { GeneralElementProps, GeneralElementCss } from '../../generalInterfaces'
+import { GeneralTextProps, GeneralTextCss } from '../../atoms/Typography'
 
 export const FormRow = styled.div<GeneralElementProps>`
   display: flex;
@@ -10,7 +11,7 @@ export const FormRow = styled.div<GeneralElementProps>`
   ${GeneralElementCss}
 `
 
-export const FormCol = styled.div<GeneralElementProps>`
+export const FormCol = styled.div<GeneralElementProps & GeneralTextProps>`
   &:first-child {
     padding-right: 24px;
   }
@@ -20,20 +21,5 @@ export const FormCol = styled.div<GeneralElementProps>`
     text-align: center;
   }
   ${GeneralElementCss}
-`
-
-export const FormSelect = styled.select`
-  padding: 4px;
-  font-size: inherit;
-  background-color: transparent;
-  color: inherit;
-  border-color: white;
-  line-height: inherit;
-  outline: none !important;
-  min-width: 100px;
-  border-radius: 10px;
-`
-
-export const FormOption = styled.option`
-  color: #7c7c7c;
+  ${GeneralTextCss}
 `

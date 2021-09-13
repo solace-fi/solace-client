@@ -1,5 +1,5 @@
 import { BigNumber } from 'ethers'
-import { PolicyState, ProductName, TransactionCondition, Unit } from '../constants/enums'
+import { PolicyState, ProductName, TransactionCondition, Unit, SystemNotice, Error } from '../constants/enums'
 import { Contract } from '@ethersproject/contracts'
 
 export type NetworkCache = {
@@ -22,6 +22,7 @@ export type Policy = {
   price: string
   status: PolicyState
   positionName: string
+  claimAssessment?: ClaimAssessment
 }
 
 export type TokenInfo = {
@@ -63,9 +64,6 @@ export type ClaimAssessment = {
   deadline: string
   msgHash: string
   signature: string
-  tokenIn?: string
-  amountIn?: string
-  tokenOut?: string
 }
 
 export type GasFeeListState = {
@@ -94,7 +92,13 @@ export type StringToStringMapping = { [key: string]: string }
 export type SupportedProduct = {
   name: ProductName
   getTokens: (provider: any, activeNetwork: NetworkConfig) => Promise<Token[]>
-  getBalances: (user: string, provider: any, cache: NetworkCache, activeNetwork: NetworkConfig) => Promise<Token[]>
+  getBalances: (
+    user: string,
+    provider: any,
+    cache: NetworkCache,
+    activeNetwork: NetworkConfig,
+    tokens: Token[]
+  ) => Promise<Token[]>
 }
 
 export type ProductContract = {
@@ -178,4 +182,16 @@ export type MetamaskWatchAsset = {
     symbol: string
     decimals: number
   }
+}
+
+export type ErrorData = {
+  type: Error
+  metadata: string
+  uniqueId: string
+}
+
+export type SystemNoticeData = {
+  type: SystemNotice
+  metadata: string
+  uniqueId: string
 }

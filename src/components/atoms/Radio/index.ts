@@ -9,7 +9,7 @@ const RadioInputCss = css`
 `
 
 export const RadioElement = styled.div`
-  border: 1px solid #fff;
+  border: 1px solid ${({ theme }) => theme.button.border_color};
   border-radius: 10px;
   padding: 10px 16px;
   text-align: center;
@@ -26,8 +26,8 @@ export const RadioInput = styled.input`
   ${RadioInputCss}
   &:checked {
     ~ ${RadioElement} {
-      color: #7c7c7c;
-      background-color: #fff;
+      color: ${({ theme }) => theme.radio.checked_color};
+      background-color: ${({ theme }) => theme.radio.checked_bg_color};
     }
   }
 `

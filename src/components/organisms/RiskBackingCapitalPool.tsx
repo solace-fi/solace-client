@@ -25,6 +25,7 @@ import { parseUnits } from '@ethersproject/units'
 /* import managers */
 import { useWallet } from '../../context/WalletManager'
 import { useNetwork } from '../../context/NetworkManager'
+import { useGeneral } from '../../context/GeneralProvider'
 
 /* import constants */
 import { CP_ROI, MAX_TABLET_SCREEN_WIDTH } from '../../constants'
@@ -57,7 +58,8 @@ export const RiskBackingCapitalPool: React.FC<RiskBackingCapitalPoolProps> = ({ 
 
   *************************************************************************************/
 
-  const { account, errors } = useWallet()
+  const { errors } = useGeneral()
+  const { account } = useWallet()
   const { userVaultAssets, userVaultShare } = useUserVaultDetails()
   const capitalPoolSize = useCapitalPoolSize()
   const { width } = useWindowDimensions()
@@ -96,12 +98,20 @@ export const RiskBackingCapitalPool: React.FC<RiskBackingCapitalPoolProps> = ({ 
           </TableHead>
           <TableBody>
             <TableRow>
-              {account ? <TableData width={100}>{truncateBalance(parseFloat(userVaultAssets), 2)}</TableData> : null}
-              <TableData width={100}>
+              {account ? (
+                <TableData h3 high_em width={100}>
+                  {truncateBalance(parseFloat(userVaultAssets), 2)}
+                </TableData>
+              ) : null}
+              <TableData h3 high_em width={100}>
                 {truncateBalance(floatUnits(parseUnits(capitalPoolSize, currencyDecimals), currencyDecimals), 2)}
               </TableData>
-              <TableData width={100}>{CP_ROI}</TableData>
-              {account ? <TableData width={130}>{`${truncateBalance(userVaultShare, 2)}%`}</TableData> : null}
+              <TableData h3 high_em width={100}>
+                {CP_ROI}
+              </TableData>
+              {account ? (
+                <TableData h3 high_em width={130}>{`${truncateBalance(userVaultShare, 2)}%`}</TableData>
+              ) : null}
               {account && (
                 <Fragment>
                   <TableData width={100}></TableData>
@@ -131,22 +141,26 @@ export const RiskBackingCapitalPool: React.FC<RiskBackingCapitalPoolProps> = ({ 
           {account && (
             <FormRow>
               <FormCol>Your Assets:</FormCol>
-              <FormCol>{truncateBalance(parseFloat(userVaultAssets), 2)}</FormCol>
+              <FormCol h2 high_em>
+                {truncateBalance(parseFloat(userVaultAssets), 2)}
+              </FormCol>
             </FormRow>
           )}
           <FormRow>
             <FormCol>Total Assets:</FormCol>
-            <FormCol>
+            <FormCol h2 high_em>
               {truncateBalance(floatUnits(parseUnits(capitalPoolSize, currencyDecimals), currencyDecimals), 2)}
             </FormCol>
           </FormRow>
           <FormRow>
             <FormCol>ROI:</FormCol>
-            <FormCol>{CP_ROI}</FormCol>
+            <FormCol h2 high_em>
+              {CP_ROI}
+            </FormCol>
           </FormRow>
           <FormRow>
             <FormCol>Your Vault Share:</FormCol>
-            <FormCol>{`${truncateBalance(userVaultShare, 2)}%`}</FormCol>
+            <FormCol h2 high_em>{`${truncateBalance(userVaultShare, 2)}%`}</FormCol>
           </FormRow>
           <ButtonWrapper isColumn>
             <Button

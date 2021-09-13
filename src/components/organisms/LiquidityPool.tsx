@@ -27,6 +27,7 @@ import { formatUnits } from '@ethersproject/units'
 import { useContracts } from '../../context/ContractsManager'
 import { useWallet } from '../../context/WalletManager'
 import { useNetwork } from '../../context/NetworkManager'
+import { useGeneral } from '../../context/GeneralProvider'
 
 /* import constants */
 import { FunctionName } from '../../constants/enums'
@@ -61,7 +62,8 @@ export const LiquidityPool: React.FC<LiquidityPoolProps> = ({ openModal }) => {
 
   *************************************************************************************/
 
-  const { account, errors } = useWallet()
+  const { errors } = useGeneral()
+  const { account } = useWallet()
   const { lpFarm } = useContracts()
   const { width } = useWindowDimensions()
   const { currencyDecimals } = useNetwork()
@@ -124,12 +126,30 @@ export const LiquidityPool: React.FC<LiquidityPoolProps> = ({ openModal }) => {
                   )}
                 </TableData>
               ) : null} */}
-              {account ? <TableData width={100}>{truncateBalance(parseFloat(lpUserStakeValue), 2)}</TableData> : null}
-              <TableData>{truncateBalance(parseFloat(lpPoolValue), 2)}</TableData>
-              <TableData width={100}>{LP_ROI}</TableData>
-              {account ? <TableData>{truncateBalance(parseFloat(lpUserRewards), 2)}</TableData> : null}
-              {account ? <TableData>{truncateBalance(parseFloat(lpUserRewardsPerDay), 2)}</TableData> : null}
-              <TableData>{truncateBalance(parseFloat(lpRewardsPerDay), 2)}</TableData>
+              {account ? (
+                <TableData h3 high_em width={100}>
+                  {truncateBalance(parseFloat(lpUserStakeValue), 2)}
+                </TableData>
+              ) : null}
+              <TableData h3 high_em>
+                {truncateBalance(parseFloat(lpPoolValue), 2)}
+              </TableData>
+              <TableData h3 high_em width={100}>
+                {LP_ROI}
+              </TableData>
+              {account ? (
+                <TableData h3 high_em>
+                  {truncateBalance(parseFloat(lpUserRewards), 2)}
+                </TableData>
+              ) : null}
+              {account ? (
+                <TableData h3 high_em>
+                  {truncateBalance(parseFloat(lpUserRewardsPerDay), 2)}
+                </TableData>
+              ) : null}
+              <TableData h3 high_em>
+                {truncateBalance(parseFloat(lpRewardsPerDay), 2)}
+              </TableData>
               {account ? (
                 <TableData textAlignRight>
                   <TableDataGroup width={200}>
@@ -156,32 +176,44 @@ export const LiquidityPool: React.FC<LiquidityPoolProps> = ({ openModal }) => {
           {account && (
             <FormRow>
               <FormCol>Your Stake:</FormCol>
-              <FormCol>{truncateBalance(parseFloat(lpUserStakeValue), 2)}</FormCol>
+              <FormCol h2 high_em>
+                {truncateBalance(parseFloat(lpUserStakeValue), 2)}
+              </FormCol>
             </FormRow>
           )}
           <FormRow>
             <FormCol>Total Assets:</FormCol>
-            <FormCol>{truncateBalance(parseFloat(lpPoolValue), 2)}</FormCol>
+            <FormCol h2 high_em>
+              {truncateBalance(parseFloat(lpPoolValue), 2)}
+            </FormCol>
           </FormRow>
           <FormRow>
             <FormCol>ROI:</FormCol>
-            <FormCol>{LP_ROI}</FormCol>
+            <FormCol h2 high_em>
+              {LP_ROI}
+            </FormCol>
           </FormRow>
           {account && (
             <>
               <FormRow>
                 <FormCol>My Rewards:</FormCol>
-                <FormCol>{truncateBalance(parseFloat(lpUserRewards), 2)}</FormCol>
+                <FormCol h2 high_em>
+                  {truncateBalance(parseFloat(lpUserRewards), 2)}
+                </FormCol>
               </FormRow>
               <FormRow>
                 <FormCol>My Daily Rewards:</FormCol>
-                <FormCol>{truncateBalance(parseFloat(lpUserRewardsPerDay), 2)}</FormCol>
+                <FormCol h2 high_em>
+                  {truncateBalance(parseFloat(lpUserRewardsPerDay), 2)}
+                </FormCol>
               </FormRow>
             </>
           )}
           <FormRow>
             <FormCol>Daily Rewards:</FormCol>
-            <FormCol>{truncateBalance(parseFloat(lpRewardsPerDay), 2)}</FormCol>
+            <FormCol h2 high_em>
+              {truncateBalance(parseFloat(lpRewardsPerDay), 2)}
+            </FormCol>
           </FormRow>
           {account && (
             <ButtonWrapper isColumn>

@@ -9,6 +9,10 @@ interface TableProps extends GeneralTextProps, GeneralElementProps {
   headers?: string[]
 }
 
+interface TableHeadProps {
+  sticky?: boolean
+}
+
 export const Table = styled.table<TableProps>`
   width: 100%;
   border-spacing: 0px 10px;
@@ -16,20 +20,29 @@ export const Table = styled.table<TableProps>`
   td {
     ${GeneralTextCss}
   }
-  ${(props) => props.isHighlight && 'td {background-color: rgba(0, 255, 209, 0.3);}'}
+  ${(props) => props.isHighlight && `td {background-color: ${props.theme.table.highlight_bg_color};}`}
   ${(props) =>
     props.canHover &&
-    'tr { &:hover { td { background-color: rgba(255, 255, 255, 0.5); transition: background-color 200ms linear;} } }'}
+    `tr { &:hover { td { background-color: ${props.theme.table.hover_color}; transition: background-color 200ms linear;} } }`}
   ${GeneralElementCss}
 `
 
 export const TableRow = styled.tr<TableProps>`
-  ${(props) => props.isHighlight && 'background-color: rgba(0, 255, 209, 0.3);'}
+  ${(props) => props.isHighlight && `background-color: ${props.theme.table.highlight_bg_color};`}
 `
 
 export const TableBody = styled.tbody``
 
-export const TableHead = styled.thead``
+export const TableHead = styled.thead<TableHeadProps>`
+  ${(props) =>
+    props.sticky &&
+    `
+    position: sticky;
+    transform: translateY(-7px);
+    top: 7px;
+    background-color: ${props.theme.table.head_bg_color};
+  `};
+`
 
 export const TableHeader = styled.th<TableProps>`
   ${(props) => props.width && `max-width: ${props.width}px !important`};
@@ -44,7 +57,7 @@ export const TableHeader = styled.th<TableProps>`
 
 export const TableData = styled.td<TableProps>`
   ${(props) => props.width && `max-width: ${props.width}px !important`};
-  background-color: rgba(255, 255, 255, 0.2);
+  background-color: ${({ theme }) => theme.table.cell_bg_color};
   padding: 14px 18px;
   &:first-child {
     border-radius: 10px 0 0 10px;

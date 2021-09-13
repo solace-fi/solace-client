@@ -35,6 +35,7 @@ import { useContracts } from '../../context/ContractsManager'
 import { useToasts } from '../../context/NotificationsManager'
 import { useCachedData } from '../../context/CachedDataManager'
 import { useNetwork } from '../../context/NetworkManager'
+import { useGeneral } from '../../context/GeneralProvider'
 
 /* import components */
 import { BoxRow, Box, BoxItem, BoxItemTitle } from '../atoms/Box'
@@ -63,7 +64,8 @@ export const Statistics: React.FC = () => {
   custom hooks
 
   *************************************************************************************/
-  const { account, errors, initialized, activeWalletConnector } = useWallet()
+  const { errors } = useGeneral()
+  const { account, initialized, activeWalletConnector } = useWallet()
   const { activeNetwork, currencyDecimals } = useNetwork()
   const { master } = useContracts()
   const { makeTxToast } = useToasts()
@@ -168,16 +170,16 @@ export const Statistics: React.FC = () => {
           {initialized && account ? (
             <Box>
               <BoxItem>
-                <BoxItemTitle h3>
+                <BoxItemTitle h4>
                   My Balance <StyledTooltip id={'solace'} tip={'Number of SOLACE tokens in your wallet'} />
                 </BoxItemTitle>
-                <Text h2>
+                <Text h2 high_em>
                   {`${truncateBalance(parseFloat(solaceBalance), 1)} `}
-                  <TextSpan h3>SOLACE</TextSpan>
+                  <TextSpan h4>SOLACE</TextSpan>
                 </Text>
               </BoxItem>
               <BoxItem>
-                <BoxItemTitle h3>
+                <BoxItemTitle h4>
                   My Rewards{' '}
                   <StyledTooltip
                     id={'rewards'}
@@ -185,9 +187,9 @@ export const Statistics: React.FC = () => {
                     link={'https://docs.solace.fi/docs/user-guides/earn-rewards'}
                   />
                 </BoxItemTitle>
-                <Text h2>
+                <Text h2 high_em>
                   {`${truncateBalance(parseFloat(totalUserRewards), 1)} `}
-                  <TextSpan h3>SOLACE</TextSpan>
+                  <TextSpan h4>SOLACE</TextSpan>
                 </Text>
               </BoxItem>
               <BoxItem>
@@ -205,40 +207,40 @@ export const Statistics: React.FC = () => {
           )}
           <Box purple>
             <BoxItem>
-              <BoxItemTitle h3>
+              <BoxItemTitle h4>
                 Capital Pool Size <StyledTooltip id={'cps'} tip={'Current amount of capital in the vault'} />
               </BoxItemTitle>
-              <Text h2 nowrap>
+              <Text h2 nowrap high_em>
                 {`${truncateBalance(floatUnits(parseUnits(capitalPoolSize, currencyDecimals), currencyDecimals), 1)} `}
-                <TextSpan h3>{activeNetwork.nativeCurrency.symbol}</TextSpan>
+                <TextSpan h4>{activeNetwork.nativeCurrency.symbol}</TextSpan>
               </Text>
             </BoxItem>
             <BoxItem>
-              <BoxItemTitle h3>
+              <BoxItemTitle h4>
                 Total Value Locked <StyledTooltip id={'tvl'} tip={'Current amount of funds locked into the pools'} />{' '}
               </BoxItemTitle>
-              <Text h2 nowrap>
+              <Text h2 nowrap high_em>
                 {`${truncateBalance(parseFloat(totalValueLocked), 1)} `}
-                <TextSpan h3>{activeNetwork.nativeCurrency.symbol}</TextSpan>
+                <TextSpan h4>{activeNetwork.nativeCurrency.symbol}</TextSpan>
               </Text>
             </BoxItem>
             <BoxItem>
-              <BoxItemTitle h3>
+              <BoxItemTitle h4>
                 Active Cover Amount <StyledTooltip id={'aca'} tip={'Current amount of coverage in use'} />
               </BoxItemTitle>
-              <Text h2 nowrap>
+              <Text h2 nowrap high_em>
                 {totalActiveCoverAmount !== '-'
                   ? `${truncateBalance(
                       parseFloat(formatUnits(totalActiveCoverAmount.toString(), currencyDecimals)),
                       2
                     )} `
                   : `${totalActiveCoverAmount} `}
-                <TextSpan h3>{activeNetwork.nativeCurrency.symbol}</TextSpan>
+                <TextSpan h4>{activeNetwork.nativeCurrency.symbol}</TextSpan>
               </Text>
             </BoxItem>
             <BoxItem>
-              <BoxItemTitle h3>Total Active Policies</BoxItemTitle>
-              <Text h2 nowrap>
+              <BoxItemTitle h4>Total Active Policies</BoxItemTitle>
+              <Text h2 nowrap high_em>
                 {totalActivePolicies}
               </Text>
             </BoxItem>
@@ -253,18 +255,18 @@ export const Statistics: React.FC = () => {
                 <FormRow>
                   <FormCol>My Balance</FormCol>
                   <FormCol>
-                    <Text h2>
+                    <Text h2 high_em>
                       {`${truncateBalance(parseFloat(solaceBalance), 1)} `}
-                      <TextSpan h3>SOLACE</TextSpan>
+                      <TextSpan h4>SOLACE</TextSpan>
                     </Text>
                   </FormCol>
                 </FormRow>
                 <FormRow>
                   <FormCol>My Rewards</FormCol>
                   <FormCol>
-                    <Text h2>
+                    <Text h2 high_em>
                       {`${truncateBalance(parseFloat(totalUserRewards), 1)} `}
-                      <TextSpan h3>SOLACE</TextSpan>
+                      <TextSpan h4>SOLACE</TextSpan>
                     </Text>
                   </FormCol>
                 </FormRow>
@@ -282,42 +284,42 @@ export const Statistics: React.FC = () => {
                 <FormRow>
                   <FormCol>Capital Pool Size</FormCol>
                   <FormCol>
-                    <Text h2 nowrap>
+                    <Text h2 nowrap high_em>
                       {`${truncateBalance(
                         floatUnits(parseUnits(capitalPoolSize, currencyDecimals), currencyDecimals),
                         1
                       )} `}
-                      <TextSpan h3>{activeNetwork.nativeCurrency.symbol}</TextSpan>
+                      <TextSpan h4>{activeNetwork.nativeCurrency.symbol}</TextSpan>
                     </Text>
                   </FormCol>
                 </FormRow>
                 <FormRow>
                   <FormCol>Total Value Locked</FormCol>
                   <FormCol>
-                    <Text h2 nowrap>
+                    <Text h2 nowrap high_em>
                       {`${truncateBalance(parseFloat(totalValueLocked), 1)} `}
-                      <TextSpan h3>{activeNetwork.nativeCurrency.symbol}</TextSpan>
+                      <TextSpan h4>{activeNetwork.nativeCurrency.symbol}</TextSpan>
                     </Text>
                   </FormCol>
                 </FormRow>
                 <FormRow>
                   <FormCol>Active Cover Amount</FormCol>
                   <FormCol>
-                    <Text h2 nowrap>
+                    <Text h2 nowrap high_em>
                       {totalActiveCoverAmount !== '-'
                         ? `${truncateBalance(
                             parseFloat(formatUnits(totalActiveCoverAmount.toString(), currencyDecimals)),
                             2
                           )} `
                         : `${totalActiveCoverAmount} `}
-                      <TextSpan h3>{activeNetwork.nativeCurrency.symbol}</TextSpan>
+                      <TextSpan h4>{activeNetwork.nativeCurrency.symbol}</TextSpan>
                     </Text>
                   </FormCol>
                 </FormRow>
                 <FormRow>
                   <FormCol>Total Active Policies</FormCol>
                   <FormCol>
-                    <Text h2 nowrap>
+                    <Text h2 nowrap high_em>
                       {totalActivePolicies}
                     </Text>
                   </FormCol>

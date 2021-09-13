@@ -13,6 +13,8 @@ import { useCacheTokens } from '../hooks/useCacheTokens'
 
 import { TransactionHistoryModal } from '../components/organisms/TransactionHistoryModal'
 import { useNetwork } from './NetworkManager'
+import { PolicyState, SystemNotice } from '../constants/enums'
+import { useGeneral } from './GeneralProvider'
 
 /*
 
@@ -67,6 +69,7 @@ const CachedDataProvider: React.FC = (props) => {
   const gasPrices = useFetchGasPrice()
   const latestBlock = useGetLatestBlockNumber(dataVersion)
   const { dataInitialized, storedTokenAndPositionData } = useCacheTokens()
+  const { addNotices, removeNotices } = useGeneral()
   const { policiesLoading, userPolicies } = usePolicyGetter(
     false,
     latestBlock,
@@ -109,6 +112,32 @@ const CachedDataProvider: React.FC = (props) => {
     }
     clearLocalTransactions()
   }, [disconnect, account, chainId])
+
+  useEffect(() => {
+    if (!policiesLoading) {
+      let totalNumLossEvents = 0
+      userPolicies.forEach(
+        (policy) =>
+          policy.claimAssessment &&
+          policy.status == PolicyState.ACTIVE &&
+          policy.claimAssessment.lossEventDetected &&
+          ++totalNumLossEvents
+      )
+      if (totalNumLossEvents > 0) {
+        addNotices([
+          {
+            type: SystemNotice.LOSS_EVENT_DETECTED,
+            metadata: `${totalNumLossEvents} loss event${
+              totalNumLossEvents > 0 && 's'
+            } detected in total, view your policies for details`,
+            uniqueId: `${SystemNotice.LOSS_EVENT_DETECTED}`,
+          },
+        ])
+      } else {
+        removeNotices([SystemNotice.LOSS_EVENT_DETECTED])
+      }
+    }
+  }, [policiesLoading, latestBlock])
 
   const value = useMemo<CachedData>(
     () => ({

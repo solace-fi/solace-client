@@ -36,7 +36,7 @@ import { PolicyState } from '../../constants/enums'
 import { Table, TableBody, TableHead, TableRow, TableHeader, TableData, TableDataGroup } from '../atoms/Table'
 import { Button, ButtonWrapper } from '../atoms/Button'
 import { Loader } from '../atoms/Loader'
-import { Heading2, Text } from '../atoms/Typography'
+import { Heading2, Heading3, Text } from '../atoms/Typography'
 import { FlexCol, FlexRow } from '../atoms/Layout'
 import { PositionCardLogo } from '../atoms/Position'
 import { Card, CardContainer } from '../atoms/Card'
@@ -71,6 +71,7 @@ export const MyPolicies: React.FC<MyPoliciesProps> = ({ openClaimModal, openMana
 
   *************************************************************************************/
   const calculatePolicyExpirationDate = (expirationBlock: number): string => {
+    if (latestBlock == 0) return 'Fetching...'
     const daysLeft = getDaysLeft(expirationBlock, latestBlock)
     return getExpiration(daysLeft)
   }
@@ -91,28 +92,20 @@ export const MyPolicies: React.FC<MyPoliciesProps> = ({ openClaimModal, openMana
       ) : userPolicyData.userPolicies.length > 0 ? (
         width > MAX_TABLET_SCREEN_WIDTH ? (
           <Table textAlignCenter style={{ borderSpacing: '0px 7px' }}>
-            <TableHead
-              style={{
-                position: 'sticky',
-                transform: 'translateY(-7px)',
-                top: '7px',
-                backgroundColor: 'rgba(16, 32, 97, 0.7)',
-              }}
-            >
+            <TableHead sticky>
               <TableRow>
-                <TableHeader>Coverage Type</TableHeader>
-                <TableHeader>Status</TableHeader>
-                <TableHeader>Id</TableHeader>
-                <TableHeader>Expiration Date</TableHeader>
-                <TableHeader>Covered Amount </TableHeader>
-                <TableHeader></TableHeader>
+                <TableHeader t3>Coverage Type</TableHeader>
+                <TableHeader t3>Status</TableHeader>
+                <TableHeader t3>Expiration Date</TableHeader>
+                <TableHeader t3>Covered Amount </TableHeader>
+                <TableHeader t3></TableHeader>
               </TableRow>
             </TableHead>
             <TableBody>
               {userPolicyData.userPolicies.map((policy) => {
                 return (
                   <TableRow key={policy.policyId}>
-                    <TableData>
+                    <TableData h2 high_em>
                       {
                         <FlexRow>
                           <PositionCardLogo>
@@ -127,14 +120,18 @@ export const MyPolicies: React.FC<MyPoliciesProps> = ({ openClaimModal, openMana
                         </FlexRow>
                       }
                     </TableData>
-                    <TableData error={policy.status === PolicyState.EXPIRED} warning={shouldWarnUser(policy)}>
+                    <TableData
+                      h2
+                      high_em
+                      error={policy.status === PolicyState.EXPIRED}
+                      warning={shouldWarnUser(policy)}
+                    >
                       {policy.status}
                     </TableData>
-                    <TableData>{policy.policyId}</TableData>
-                    <TableData warning={shouldWarnUser(policy)}>
+                    <TableData h2 high_em warning={shouldWarnUser(policy)}>
                       {calculatePolicyExpirationDate(policy.expirationBlock)}
                     </TableData>
-                    <TableData>
+                    <TableData h2 high_em>
                       {policy.coverAmount ? truncateBalance(formatUnits(policy.coverAmount, currencyDecimals), 2) : 0}{' '}
                       {activeNetwork.nativeCurrency.symbol}
                     </TableData>
@@ -142,7 +139,13 @@ export const MyPolicies: React.FC<MyPoliciesProps> = ({ openClaimModal, openMana
                     <TableData textAlignRight>
                       {policy.status === PolicyState.ACTIVE && (
                         <TableDataGroup>
-                          <Button onClick={() => openClaimModal(policy)}>Claim</Button>
+                          <Button
+                            glow={policy.claimAssessment && policy.claimAssessment.lossEventDetected}
+                            secondary={policy.claimAssessment && policy.claimAssessment.lossEventDetected}
+                            onClick={() => openClaimModal(policy)}
+                          >
+                            Claim
+                          </Button>
                           <Button onClick={() => openManageModal(policy)}>Manage</Button>
                         </TableDataGroup>
                       )}
@@ -170,29 +173,29 @@ export const MyPolicies: React.FC<MyPoliciesProps> = ({ openClaimModal, openMana
                       </FlexRow>
                     </FormRow>
                     <FormRow style={{ display: 'flex', alignItems: 'center' }}>
-                      <Heading2>
+                      <Heading2 high_em>
                         {policy.productName} - {policy.positionName}
                       </Heading2>
                     </FormRow>
                   </FlexCol>
                   <FormRow mb={10}>
+                    <FormCol>Id:</FormCol>
+                    <FormCol>
+                      <Heading3>{policy.policyId}</Heading3>
+                    </FormCol>
+                  </FormRow>
+                  <FormRow mb={10}>
                     <FormCol>Status:</FormCol>
                     <FormCol>
-                      <Heading2 error={policy.status === PolicyState.EXPIRED} warning={shouldWarnUser(policy)}>
+                      <Heading2 high_em error={policy.status === PolicyState.EXPIRED} warning={shouldWarnUser(policy)}>
                         {policy.status}
                       </Heading2>
                     </FormCol>
                   </FormRow>
                   <FormRow mb={10}>
-                    <FormCol>Id:</FormCol>
-                    <FormCol>
-                      <Heading2>{policy.policyId}</Heading2>
-                    </FormCol>
-                  </FormRow>
-                  <FormRow mb={10}>
                     <FormCol>Expiration Date:</FormCol>
                     <FormCol>
-                      <Heading2 warning={shouldWarnUser(policy)}>
+                      <Heading2 high_em warning={shouldWarnUser(policy)}>
                         {calculatePolicyExpirationDate(policy.expirationBlock)}
                       </Heading2>
                     </FormCol>
@@ -200,7 +203,7 @@ export const MyPolicies: React.FC<MyPoliciesProps> = ({ openClaimModal, openMana
                   <FormRow mb={10}>
                     <FormCol>Covered Amount:</FormCol>
                     <FormCol>
-                      <Heading2>
+                      <Heading2 high_em>
                         {policy.coverAmount ? truncateBalance(formatUnits(policy.coverAmount, currencyDecimals), 2) : 0}{' '}
                         {activeNetwork.nativeCurrency.symbol}
                       </Heading2>
