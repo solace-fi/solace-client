@@ -73,9 +73,9 @@ const WalletProvider: React.FC = (props) => {
   connectingRef.current = connecting
   const [walletModal, setWalletModal] = useState<boolean>(false)
   const { addErrors, removeErrors } = useGeneral()
-
   const ethProvider = useMemo(() => new JsonRpcProvider(activeNetwork.rpc.httpsUrl), [activeNetwork])
 
+  const date = Date.now()
   const ContextErrors = [
     AppError.NO_PROVIDER,
     AppError.UNSUPPORTED_NETWORK,
@@ -142,19 +142,18 @@ const WalletProvider: React.FC = (props) => {
 
       function onError(error: Error) {
         const walletErrors: ErrorData[] = []
-        const date = Date.now()
         if (error instanceof NoEthereumProviderError) {
-          walletErrors.push({ type: AppError.NO_PROVIDER, metadata: 'n/a' })
+          walletErrors.push({ type: AppError.NO_PROVIDER, metadata: 'n/a', uniqueId: `${AppError.NO_PROVIDER}` })
         } else if (error instanceof UnsupportedChainIdError) {
-          walletErrors.push({ type: AppError.UNSUPPORTED_NETWORK, metadata: `not supported////${date}` })
+          walletErrors.push({ type: AppError.UNSUPPORTED_NETWORK, metadata: `not supported`, uniqueId: `${date}` })
         } else if (
           error instanceof UserRejectedRequestErrorInjected ||
           error instanceof UserRejectedRequestErrorWalletConnect
         ) {
-          walletErrors.push({ type: AppError.NO_ACCESS, metadata: `no access////${date}` })
+          walletErrors.push({ type: AppError.NO_ACCESS, metadata: `no access`, uniqueId: `${date}` })
         } else {
           const err = walletConnector.onError?.(error)
-          walletErrors.push({ type: AppError.UNKNOWN_WALLET_ERROR, metadata: `${String(err)}////${date}` })
+          walletErrors.push({ type: AppError.UNKNOWN_WALLET_ERROR, metadata: `${String(err)}`, uniqueId: `${date}` })
           console.log(err)
         }
         addErrors(walletErrors)
@@ -173,7 +172,13 @@ const WalletProvider: React.FC = (props) => {
       web3React.chainId !== activeNetwork.chainId &&
       connecting
     ) {
-      addErrors([{ type: AppError.WALLET_NETWORK_UNSYNC, metadata: `not matching to chain ${activeNetwork.chainId}` }])
+      addErrors([
+        {
+          type: AppError.WALLET_NETWORK_UNSYNC,
+          metadata: `not matching to chain ${activeNetwork.chainId}`,
+          uniqueId: `${date}`,
+        },
+      ])
     }
   }, [activeNetwork, web3React, selectedProvider, connecting])
 

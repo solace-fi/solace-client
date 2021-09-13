@@ -135,11 +135,11 @@ const ToastsProvider: React.FC = (props) => {
     isNotice: boolean
   ) => {
     if (isNotice) {
-      if (noticeMap.get(parsedData.type) == parsedData.metadata) return
-      setNoticeMap(new Map(noticeMap.set(parsedData.type, parsedData.metadata)))
+      if (noticeMap.get(parsedData.type) == parsedData.metadata.concat(parsedData.uniqueId)) return
+      setNoticeMap(new Map(noticeMap.set(parsedData.type, parsedData.metadata.concat(parsedData.uniqueId))))
     } else {
-      if (errorMap.get(parsedData.type) == parsedData.metadata) return
-      setErrorMap(new Map(errorMap.set(parsedData.type, parsedData.metadata)))
+      if (errorMap.get(parsedData.type) == parsedData.metadata.concat(parsedData.uniqueId)) return
+      setErrorMap(new Map(errorMap.set(parsedData.type, parsedData.metadata.concat(parsedData.uniqueId))))
     }
     if (toast.isActive(id)) {
       toast.update(id, {
@@ -169,7 +169,7 @@ const ToastsProvider: React.FC = (props) => {
       makeAppToast(
         parsedNotice,
         SystemNotice.LOSS_EVENT_DETECTED,
-        appToast(`${parsedNotice.metadata.split('////')[0]}`, <StyledInfo size={30} />),
+        appToast(`${parsedNotice.metadata}`, <StyledInfo size={30} />),
         appNotice,
         true
       )
@@ -254,7 +254,7 @@ const ToastsProvider: React.FC = (props) => {
       makeAppToast(
         parsedError,
         Error.UNKNOWN_WALLET_ERROR,
-        appToast(`An unknown error occurred: ${parsedError.metadata.split('////')[0]}`, <StyledWarning size={30} />),
+        appToast(`An unknown error occurred: ${parsedError.metadata}`, <StyledWarning size={30} />),
         appError,
         false
       )
