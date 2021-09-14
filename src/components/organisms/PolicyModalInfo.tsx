@@ -67,7 +67,7 @@ export const PolicyModalInfo: React.FC<PolicyModalInfoProps> = ({ appraisal, sel
   *************************************************************************************/
   const { activeNetwork, currencyDecimals } = useNetwork()
   const { width } = useWindowDimensions()
-  const { account, library } = useWallet()
+  const { account } = useWallet()
   const { tokenPositionData } = useCachedData()
   const [showAssetsModal, setShowAssetsModal] = useState<boolean>(false)
   const [tokens, setTokens] = useState<any[]>([])
@@ -82,7 +82,12 @@ export const PolicyModalInfo: React.FC<PolicyModalInfoProps> = ({ appraisal, sel
       )
       if (!supportedProduct) return
       const savedTokens = cache.tokens[supportedProduct.name].savedTokens
-      const balances: Token[] = await supportedProduct.getBalances(account, library, cache, activeNetwork, savedTokens)
+      const balances: Token[] = []
+      savedTokens.forEach((savedToken: Token) => {
+        if (selectedPolicy.positionDescription.includes(savedToken.token.address.slice(2).toLowerCase())) {
+          balances.push(savedToken)
+        }
+      })
       setTokens(balances)
     }
     getTokens()
