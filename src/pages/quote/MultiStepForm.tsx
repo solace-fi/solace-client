@@ -110,7 +110,6 @@ const defaultData = {
     yearlyCost: 0,
   },
   positions: [],
-  balances: [],
   coverAmount: '1',
   timePeriod: '5',
   loading: true,

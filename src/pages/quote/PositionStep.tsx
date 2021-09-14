@@ -72,7 +72,7 @@ const Scrollable = styled.div`
 `
 
 export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigation }) => {
-  const { protocol, balances, loading } = formData
+  const { protocol, loading, positions } = formData
 
   /*************************************************************************************
 
@@ -87,8 +87,6 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
   const { userPolicyData, latestBlock, tokenPositionData } = useCachedData()
   const { width } = useWindowDimensions()
 
-  const [selectableBalances, setSelectableBalances] = useState<Token[]>([])
-
   /*************************************************************************************
 
   useState hooks
@@ -96,7 +94,9 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
   *************************************************************************************/
   const [showManageModal, setShowManageModal] = useState<boolean>(false)
   const [selectedPolicy, setSelectedPolicy] = useState<Policy | undefined>(undefined)
-  const [selectedPositions, setSelectedPositions] = useState<Token[]>([])
+  const [selectableBalances, setSelectableBalances] = useState<Token[]>([])
+  const [selectedPositions, setSelectedPositions] = useState<Token[]>(positions)
+  const [fetchedBalances, setFetchedBalances] = useState<Token[]>([])
 
   /*************************************************************************************
 
@@ -170,12 +170,7 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
           activeNetwork,
           savedTokens
         )
-        setForm({
-          target: {
-            name: 'balances',
-            value: balances,
-          },
-        })
+        setFetchedBalances(balances)
         setForm({
           target: {
             name: 'loading',
@@ -243,9 +238,11 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
 
   useEffect(() => {
     setSelectableBalances(
-      balances.filter((balance: Token) => !userHasActiveProductPosition(protocol.name, balance.underlying.symbol))
+      fetchedBalances.filter(
+        (balance: Token) => !userHasActiveProductPosition(protocol.name, balance.underlying.symbol)
+      )
     )
-  }, [balances, protocol.name])
+  }, [fetchedBalances, protocol.name])
 
   /*************************************************************************************
 
@@ -261,7 +258,7 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
         latestBlock={latestBlock}
         closeModal={closeModal}
       />
-      {balances.length == 0 && !loading && !userPolicyData.policiesLoading && (
+      {fetchedBalances.length == 0 && !loading && !userPolicyData.policiesLoading && (
         <HeroContainer>
           <Heading1 textAlignCenter>You do not own any positions on this protocol.</Heading1>
         </HeroContainer>
@@ -282,7 +279,7 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
           </ButtonWrapper>
           <Scrollable>
             <CardContainer>
-              {balances.map((position: Token) => {
+              {fetchedBalances.map((position: Token) => {
                 return (
                   <PositionCard
                     key={position.underlying.address}
