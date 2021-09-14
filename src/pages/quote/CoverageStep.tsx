@@ -28,9 +28,9 @@ import { formatUnits, parseUnits } from 'ethers/lib/utils'
 import { BigNumber } from 'ethers'
 
 /* import constants */
-import { DAYS_PER_YEAR, GAS_LIMIT, NUM_BLOCKS_PER_DAY } from '../../constants'
+import { DAYS_PER_YEAR, GAS_LIMIT, NUM_BLOCKS_PER_DAY, ZERO } from '../../constants'
 import { TransactionCondition, FunctionName, Unit } from '../../constants/enums'
-import { LocalTx } from '../../constants/types'
+import { LocalTx, Token } from '../../constants/types'
 
 /* import managers */
 import { useContracts } from '../../context/ContractsManager'
@@ -55,7 +55,7 @@ import { FlexCol, FlexRow } from '../../components/atoms/Layout'
 import { useGetQuote, useGetMaxCoverPerUser } from '../../hooks/usePolicy'
 
 /* import utils */
-import { accurateMultiply } from '../../utils/formatting'
+import { accurateMultiply, encodeAddresses } from '../../utils/formatting'
 import { getDateStringWithMonthName, getDateExtended } from '../../utils/time'
 import { getGasConfig } from '../../utils/gas'
 
@@ -66,9 +66,9 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
 
   *************************************************************************************/
   const { errors } = useGeneral()
-  const { position, coverAmount, timePeriod, loading } = formData
+  const { positions, coverAmount, timePeriod, loading } = formData
   const maxCoverPerUser = useGetMaxCoverPerUser() // in eth
-  const quote = useGetQuote(coverAmount, position.token.address, timePeriod)
+  const quote = useGetQuote(coverAmount, timePeriod)
   const { account, activeWalletConnector } = useWallet()
   const { addLocalTransactions, reload, gasPrices } = useCachedData()
   const { selectedProtocol } = useContracts()
@@ -85,8 +85,9 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
 
   // positionAmount: BigNumber = wei but displayable, position.eth.balance: BigNumber = wei
   const positionAmount: BigNumber = useMemo(() => {
-    return BigNumber.from(accurateMultiply(formatUnits(position.eth.balance, currencyDecimals), currencyDecimals))
-  }, [position.eth.balance, currencyDecimals])
+    const totalBalance = positions.reduce((pv: BigNumber, cv: Token) => pv.add(cv.eth.balance), ZERO)
+    return BigNumber.from(accurateMultiply(formatUnits(totalBalance, currencyDecimals), currencyDecimals))
+  }, [positions, currencyDecimals])
 
   /*************************************************************************************
 
@@ -114,7 +115,12 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
     try {
       const tx = await selectedProtocol.buyPolicy(
         account,
-        position.token.address,
+        encodeAddresses(
+          positions.reduce((pv: string[], cv: Token) => {
+            pv.push(cv.token.address)
+            return pv
+          }, [])
+        ),
         coverAmount,
         NUM_BLOCKS_PER_DAY * parseInt(timePeriod),
         {
@@ -147,6 +153,7 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
         reload()
       })
     } catch (err) {
+      console.log('buyPolicy', err)
       makeTxToast(txType, TransactionCondition.CANCELLED)
       setForm({
         target: {
@@ -248,9 +255,6 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
         <FormRow mb={15}>
           <FormCol>
             <Heading2 high_em>Total Assets</Heading2>
-            {position.underlying.symbol !== activeNetwork.nativeCurrency.symbol && (
-              <Text4>Denominated from {position.underlying.symbol}</Text4>
-            )}
           </FormCol>
           <FormCol>
             <Heading2 high_em>{formatUnits(positionAmount, currencyDecimals)}</Heading2>
@@ -289,7 +293,7 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
               value={coverAmount}
               onChange={(e) => handleCoverageChange(e.target.value)}
               min={1}
-              max={positionAmount.toString()}
+              max={maxCoverPerUserInWei.toString()}
             />
           </div>
           <br />

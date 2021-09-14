@@ -9,6 +9,7 @@ import { Info } from '@styled-icons/fluentui-system-regular/Info'
 import { LinkExternal } from '@styled-icons/boxicons-regular/LinkExternal'
 import { ArrowDropDownCircle } from '@styled-icons/material-sharp/ArrowDropDownCircle'
 import { DarkTheme } from '@styled-icons/fluentui-system-regular/DarkTheme'
+import { DotsHorizontalRounded } from '@styled-icons/boxicons-regular/DotsHorizontalRounded'
 
 export const StyledIconCss = css`
   margin: auto;
@@ -24,6 +25,11 @@ export const StyledWallet = styled(Wallet)`
 `
 
 export const StyledNetworkChart = styled(NetworkChart)`
+  display: block;
+`
+
+export const StyledDots = styled(DotsHorizontalRounded)`
+  margin: auto 0;
   display: block;
 `
 

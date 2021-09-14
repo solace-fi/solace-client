@@ -64,7 +64,11 @@ export const usePolicyGetter = (
           const productPosition =
             matchingCache?.positions[activeNetwork.config.productsRev[policy.productAddress] ?? '']
           if (productPosition) {
-            policy.positionName = productPosition.positionNames[policy.positionContract.toLowerCase()]
+            Object.keys(productPosition.positionNames).forEach((key) => {
+              if (policy.positionDescription.includes(key.slice(2))) {
+                policy.positionNames.push(productPosition.positionNames[key])
+              }
+            })
           }
         })
         setUserPolicies(policies)
@@ -82,12 +86,12 @@ export const usePolicyGetter = (
       policyHolder: '',
       productAddress: '',
       productName: '',
-      positionContract: '',
+      positionDescription: '',
+      positionNames: [],
       expirationBlock: 0,
       coverAmount: '',
       price: '',
       status: PolicyState.EXPIRED,
-      positionName: '',
     }
     if (!policyManager) return returnError
     try {
@@ -98,12 +102,12 @@ export const usePolicyGetter = (
         policyHolder: policy.policyholder,
         productAddress: policy.product,
         productName: activeNetwork.config.productsRev[policy.product] ?? '',
-        positionContract: policy.positionContract,
+        positionDescription: policy.positionDescription,
+        positionNames: [],
         expirationBlock: policy.expirationBlock,
         coverAmount: policy.coverAmount.toString(),
         price: policy.price.toString(),
         status: policy.expirationBlock < blockNumber ? PolicyState.EXPIRED : PolicyState.ACTIVE,
-        positionName: '',
         claimAssessment: assessment,
       }
     } catch (err) {

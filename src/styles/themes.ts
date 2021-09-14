@@ -22,7 +22,7 @@ export const lightTheme = {
     border_color: 'rgb(255, 255, 255)',
     purple: 'rgba(250, 0, 255, 0.3)',
     green: 'rgba(0, 187, 40, 0.7)',
-    navy: 'rgba(16, 32, 97, 0.3)',
+    navy: 'rgba(16, 32, 97, 0.4)',
     glow: '0 0 7px #fff',
     shadow: '0 3px 3px rgba(0, 0, 0, 0.5)',
     smallbox_border_color: 'rgba(219, 44, 56)',

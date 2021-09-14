@@ -24,7 +24,7 @@
   *************************************************************************************/
 
 /* import react */
-import React, { useEffect } from 'react'
+import React, { useEffect, useState, useCallback } from 'react'
 
 /* import packages */
 import { SetForm, useForm, useStep } from 'react-hooks-helper'
@@ -38,6 +38,7 @@ import { useNetwork } from '../../context/NetworkManager'
 
 /* import constants */
 import { MAX_MOBILE_SCREEN_WIDTH, ZERO } from '../../constants'
+import { Token } from '../../constants/types'
 
 /* import components */
 import { ProtocolStep } from './ProtocolStep'
@@ -52,12 +53,14 @@ import { Card, CardContainer } from '../../components/atoms/Card'
 import { FormRow, FormCol } from '../../components/atoms/Form'
 import { Heading2, Text } from '../../components/atoms/Typography'
 import { StyledTooltip } from '../../components/molecules/Tooltip'
-
+import { FlexRow } from '../../components/atoms/Layout'
+import { StyledDots } from '../../components/atoms/Icon'
+import { AssetsModal } from '../../components/molecules/AssetsModal'
 /* import hooks */
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'
 
 /* import utils */
-import { fixed, fixedTokenPositionBalance, truncateBalance } from '../../utils/formatting'
+import { fixed } from '../../utils/formatting'
 
 /************************************************************************************* 
 
@@ -106,17 +109,7 @@ const defaultData = {
     availableCoverage: '',
     yearlyCost: 0,
   },
-  position: {
-    token: {
-      address: '',
-      name: '',
-      symbol: '',
-      decimals: 0,
-      balance: ZERO,
-    },
-    underlying: { address: '', name: '', symbol: '', decimals: 0, balance: ZERO },
-    eth: { balance: ZERO },
-  },
+  positions: [],
   balances: [],
   coverAmount: '1',
   timePeriod: '5',
@@ -144,7 +137,7 @@ export const MultiStepForm = () => {
 
   *************************************************************************************/
   const [formData, setForm] = useForm(defaultData)
-  const { protocol, position, loading } = formData
+  const { protocol, positions, loading } = formData
   const { step, navigation }: useStepType = useStep({
     steps,
     initialStep: 0,
@@ -153,6 +146,8 @@ export const MultiStepForm = () => {
   const { activeNetwork, chainId } = useNetwork()
   const { width } = useWindowDimensions()
   const props = { formData, setForm, navigation }
+  const [showAssetsModal, setShowAssetsModal] = useState<boolean>(false)
+  const maxPositionsToDisplay = 4
 
   /*************************************************************************************
 
@@ -172,6 +167,10 @@ export const MultiStepForm = () => {
         return <ConfirmStep {...props} />
     }
   }
+
+  const closeModal = useCallback(() => {
+    setShowAssetsModal(false)
+  }, [])
 
   /*************************************************************************************
 
@@ -193,6 +192,12 @@ export const MultiStepForm = () => {
 
   return (
     <FormContent>
+      <AssetsModal
+        closeModal={closeModal}
+        isOpen={showAssetsModal}
+        assets={positions}
+        modalTitle={'Selected Positions'}
+      />
       {width > MAX_MOBILE_SCREEN_WIDTH ? (
         <StepsContainer step={Number(StepNumber[step.id]) + 1}>
           <StepsWrapper>
@@ -266,22 +271,26 @@ export const MultiStepForm = () => {
                   </BoxItem>
                 </Box>
               )}
-              {Number(StepNumber[step.id]) == 2 && !!position.underlying && (
+              {Number(StepNumber[step.id]) == 2 && positions.length > 0 && (
                 <Box purple>
                   <BoxItem>
-                    <Protocol>
-                      <ProtocolImage mr={10}>
-                        <img src={`https://assets.solace.fi/${position.underlying.address.toLowerCase()}`} />
-                      </ProtocolImage>
-                      <ProtocolTitle high_em h3>
-                        {position.underlying.name}
-                      </ProtocolTitle>
-                    </Protocol>
+                    <FlexRow>
+                      {positions.slice(0, maxPositionsToDisplay).map((position: Token) => (
+                        <Protocol key={position.underlying.address}>
+                          <ProtocolImage mr={5}>
+                            <img src={`https://assets.solace.fi/${position.underlying.address.toLowerCase()}`} />
+                          </ProtocolImage>
+                        </Protocol>
+                      ))}
+                      {positions.length > maxPositionsToDisplay && <StyledDots size={20} />}
+                    </FlexRow>
                   </BoxItem>
-                  <BoxItem>
-                    {truncateBalance(fixedTokenPositionBalance(position.underlying))} {position.underlying.symbol}{' '}
-                    <StyledTooltip id={'position-amount'} tip={'Your Position Amount'} />
-                  </BoxItem>
+                  {positions.length > maxPositionsToDisplay && (
+                    <BoxItem>
+                      <Button onClick={() => setShowAssetsModal(true)}>View all assets</Button>
+                    </BoxItem>
+                  )}
+
                   <BoxItem>
                     <Button onClick={() => navigation.go(1)}>Change</Button>
                   </BoxItem>
@@ -329,27 +338,23 @@ export const MultiStepForm = () => {
                   </Box>
                 </Card>
               )}
-              {Number(StepNumber[step.id]) == 2 && !!position.underlying && (
+              {Number(StepNumber[step.id]) == 2 && positions.length > 0 && (
                 <Card purple>
-                  <FormRow>
-                    <FormCol>
-                      <ProtocolImage mr={10}>
+                  <FlexRow>
+                    {positions.slice(0, maxPositionsToDisplay).map((position: Token) => (
+                      <ProtocolImage mr={5} key={position.underlying.address}>
                         <img src={`https://assets.solace.fi/${position.underlying.address.toLowerCase()}`} />
                       </ProtocolImage>
-                    </FormCol>
-                    <FormCol style={{ display: 'flex', alignItems: 'center' }}>
-                      <Heading2 high_em>{position.underlying.name}</Heading2>
-                    </FormCol>
-                  </FormRow>
-                  <FormRow>
-                    <FormCol>Position Amount</FormCol>
-                    <FormCol>
-                      <Heading2 high_em>
-                        {truncateBalance(fixedTokenPositionBalance(position.underlying))} {position.underlying.symbol}
-                      </Heading2>
-                    </FormCol>
-                  </FormRow>
-                  <ButtonWrapper>
+                    ))}
+                    {positions.length > maxPositionsToDisplay && <StyledDots size={20} />}
+                  </FlexRow>
+                  <ButtonWrapper isColumn>
+                    {positions.length > maxPositionsToDisplay && (
+                      <Button widthP={100} onClick={() => setShowAssetsModal(true)}>
+                        View all assets
+                      </Button>
+                    )}
+
                     <Button widthP={100} onClick={() => navigation.go(1)}>
                       Change
                     </Button>

@@ -61,6 +61,7 @@ const Scrollable = styled.div`
   max-height: 60vh;
   overflow-y: scroll;
   ${CustomScrollbar}
+  padding: 10px;
 
   @media screen and (max-width: ${MAX_MOBILE_SCREEN_WIDTH}px) {
     max-height: 85vh;

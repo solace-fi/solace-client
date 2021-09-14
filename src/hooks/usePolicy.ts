@@ -54,14 +54,22 @@ export const useAppraisePosition = (policy: Policy | undefined): BigNumber => {
         if (!supportedProduct) return
 
         // grab the user balances for the supported product
-        const tokenToAppraise: Token | undefined = cache.tokens[supportedProduct.name].savedTokens.find(
-          (token: Token) => token.token.address == policy.positionContract
+        const tokensToAppraise: Token[] = []
+        policy.positionNames.forEach(async (name) => {
+          const tokenToAppraise: Token | undefined = cache.tokens[supportedProduct.name].savedTokens.find(
+            (token: Token) => token.underlying.symbol == name
+          )
+          if (!tokenToAppraise) return
+          tokensToAppraise.push(tokenToAppraise)
+        })
+        const balances: Token[] = await supportedProduct.getBalances(
+          account,
+          library,
+          cache,
+          activeNetwork,
+          tokensToAppraise
         )
-        if (!tokenToAppraise) return
-        const [token]: Token[] = await supportedProduct.getBalances(account, library, cache, activeNetwork, [
-          tokenToAppraise,
-        ])
-        setAppraisal(token.eth.balance)
+        setAppraisal(balances.reduce((pv, cv) => pv.add(cv.eth.balance), ZERO))
       } catch (err) {
         console.log('AppraisePosition', err)
       }
@@ -168,25 +176,23 @@ export const useGetAvailableCoverages = (): StringToStringMapping => {
   return availableCoverages
 }
 
-export const useGetQuote = (coverAmount: string | null, positionContract: string | null, days: string): string => {
+export const useGetQuote = (coverAmount: string | null, days: string): string => {
   const { account } = useWallet()
-  const [quote, setQuote] = useState<string>('0')
   const { selectedProtocol } = useContracts()
   const { currencyDecimals } = useNetwork()
+  const [quote, setQuote] = useState<string>('0')
 
   const getQuote = async () => {
-    if (!selectedProtocol || !coverAmount || !positionContract) return
+    if (!selectedProtocol || !coverAmount) return
     try {
-      const quote = await selectedProtocol.getQuote(
-        account,
-        positionContract,
+      const positionsQuote: BigNumber = await selectedProtocol.getQuote(
         coverAmount,
         BigNumber.from(NUM_BLOCKS_PER_DAY * parseInt(days)),
         {
           gasLimit: GAS_LIMIT,
         }
       )
-      const formattedQuote = formatUnits(quote, currencyDecimals)
+      const formattedQuote = formatUnits(positionsQuote, currencyDecimals)
       setQuote(formattedQuote)
     } catch (err) {
       console.log('getQuote', err)
@@ -199,7 +205,7 @@ export const useGetQuote = (coverAmount: string | null, positionContract: string
 
   useEffect(() => {
     handleQuote()
-  }, [coverAmount, selectedProtocol, account, positionContract, days])
+  }, [coverAmount, selectedProtocol, account, days])
 
   return quote
 }

@@ -162,11 +162,11 @@ export const TextFontCss = css<TextFontProps>`
   ${(props) => props.h1 && Heading1Css}
   ${(props) => props.h2 && Heading2Css}
   ${(props) => props.h3 && Heading3Css}
-  ${(props) => props.h4 && Heading3Css}
+  ${(props) => props.h4 && Heading4Css}
   ${(props) => props.t1 && Text1Css}
   ${(props) => props.t2 && Text2Css}
   ${(props) => props.t3 && Text3Css}
-  ${(props) => props.t4 && Heading3Css}
+  ${(props) => props.t4 && Text4Css}
 `
 
 export const TextAlignCss = css<TextAlignProps>`
