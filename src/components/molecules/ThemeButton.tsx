@@ -26,7 +26,7 @@ import { useGeneral } from '../../context/GeneralProvider'
 
 /* import components */
 import { Button } from '../atoms/Button'
-import { StyledTheme } from '../atoms/Icon'
+import { StyledTheme, StyledSun, StyledMoon } from '../atoms/Icon'
 import { GeneralElementProps } from '../generalInterfaces'
 
 /* import hooks */
@@ -47,7 +47,14 @@ export const ThemeButton: React.FC<GeneralElementProps> = ({ ...props }) => {
   return (
     <>
       <Button onClick={() => toggleTheme()} {...props}>
-        <StyledTheme size={30} />
+        {selectedTheme == 'light' ? (
+          <StyledSun size={30} />
+        ) : selectedTheme == 'dark' ? (
+          <StyledMoon size={30} />
+        ) : (
+          <StyledTheme size={30} />
+        )}
+
         {selectedTheme == 'light' ? 'Light' : selectedTheme == 'dark' ? 'Dark' : 'Auto'}
       </Button>
     </>

@@ -9,8 +9,12 @@ import { Info } from '@styled-icons/fluentui-system-regular/Info'
 import { LinkExternal } from '@styled-icons/boxicons-regular/LinkExternal'
 import { ArrowDropDownCircle } from '@styled-icons/material-sharp/ArrowDropDownCircle'
 import { DarkTheme } from '@styled-icons/fluentui-system-regular/DarkTheme'
+import { DarkMode } from '@styled-icons/material-outlined/DarkMode'
+import { Sun } from '@styled-icons/evaicons-solid/Sun'
 import { DotsHorizontalRounded } from '@styled-icons/boxicons-regular/DotsHorizontalRounded'
-
+import { Discord } from '@styled-icons/simple-icons/Discord'
+import { Twitter } from '@styled-icons/boxicons-logos/Twitter'
+import { Github } from '@styled-icons/boxicons-logos/Github'
 export const StyledIconCss = css`
   margin: auto;
   display: block;
@@ -34,6 +38,16 @@ export const StyledDots = styled(DotsHorizontalRounded)`
 `
 
 export const StyledInfo = styled(Info)``
+
+export const StyledDiscord = styled(Discord)``
+
+export const StyledTwitter = styled(Twitter)``
+
+export const StyledGithub = styled(Github)``
+
+export const StyledSun = styled(Sun)``
+
+export const StyledMoon = styled(DarkMode)``
 
 export const StyledTheme = styled(DarkTheme)``
 

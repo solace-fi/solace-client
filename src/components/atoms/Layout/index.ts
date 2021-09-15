@@ -101,22 +101,17 @@ export const HeroContainer = styled(FlexCol)<HeightAndWidthProps>`
   height: ${(props) => (props.height ? props.height : '400')}px;
 `
 
-export const Footer = styled.div`
+export const FooterComponent = styled.div`
   position: fixed;
   left: 0;
   bottom: 0;
   width: 100%;
-  background-color: rgba(0, 0, 0, 0.9);
+  background-color: rgba(0, 0, 0, 0.92);
   text-align: center;
-  display: none;
   overflow: hidden;
-  padding: 10px 0;
-
-  @media screen and (max-width: ${MAX_TABLET_SCREEN_WIDTH}px) {
-    display: block;
-    width: 100%;
-    z-index: 1;
-  }
+  padding: 6px 0;
+  display: block;
+  z-index: 1;
 `
 
 export const Content = styled.div`

@@ -112,9 +112,6 @@ export const Account: React.FC = () => {
           <TransactionHistoryButton pl={10} pr={10} />
         </SmallBox>
       )}
-      <SmallBox p={0} transparent>
-        <ThemeButton pl={10} pr={10} />
-      </SmallBox>
     </Fragment>
   )
 }
