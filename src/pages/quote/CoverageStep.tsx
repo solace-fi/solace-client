@@ -271,7 +271,11 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
         <FormRow mb={15}>
           <FormCol>
             <Heading3 high_em>
-              Max Coverage <StyledTooltip id={`max-coverage`} tip={`The max amount that this policy can cover up to`} />
+              Max Coverage{' '}
+              <StyledTooltip
+                id={`max-coverage`}
+                tip={`Each policy can only cover up to a certain amount based on the size of the capital pool and active cover`}
+              />
             </Heading3>
           </FormCol>
           <FormCol>
@@ -397,7 +401,7 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
       </Card>
       <Card transparent>
         <FormRow>
-          <Heading3>Terms and conditions</Heading3>
+          <Heading3 high_em>Terms and conditions</Heading3>
         </FormRow>
         <FormRow mb={0}>
           <FormCol>
