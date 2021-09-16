@@ -1,4 +1,10 @@
-import { MAX_NAVBAR_SCREEN_WIDTH, MAX_WIDTH, MAX_TABLET_SCREEN_WIDTH, MOBILE_SCREEN_MARGIN } from '../../../constants'
+import {
+  MAX_NAVBAR_SCREEN_WIDTH,
+  MAX_WIDTH,
+  MAX_TABLET_SCREEN_WIDTH,
+  MOBILE_SCREEN_MARGIN,
+  MAX_MOBILE_SCREEN_WIDTH,
+} from '../../../constants'
 import styled, { createGlobalStyle, css, keyframes } from 'styled-components'
 import { GeneralElementProps, GeneralElementCss, HeightAndWidthProps } from '../../generalInterfaces'
 import { Text3Css } from '../Typography'
@@ -109,9 +115,12 @@ export const FooterComponent = styled.div`
   background-color: rgba(0, 0, 0, 0.92);
   text-align: center;
   overflow: hidden;
-  padding: 10px 0;
   display: block;
   z-index: 1;
+
+  @media screen and (max-width: ${MAX_MOBILE_SCREEN_WIDTH}px) {
+    padding: 10px 0;
+  }
 `
 
 export const Content = styled.div`

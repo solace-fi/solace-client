@@ -25,13 +25,13 @@ import { useGeneral } from '../../context/GeneralProvider'
 /* import constants */
 
 /* import components */
-import { Button } from '../atoms/Button'
+import { Button, ButtonProps } from '../atoms/Button'
 import { StyledTheme, StyledSun, StyledMoon } from '../atoms/Icon'
 import { GeneralElementProps } from '../generalInterfaces'
 
 /* import hooks */
 
-export const ThemeButton: React.FC<GeneralElementProps> = ({ ...props }) => {
+export const ThemeButton: React.FC<GeneralElementProps & ButtonProps> = ({ ...props }) => {
   /*************************************************************************************
 
     custom hooks

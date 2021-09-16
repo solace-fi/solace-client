@@ -74,7 +74,7 @@ export const lightTheme = {
     bar_bg_color: '#fff',
   },
   tooltip: {
-    bg_color: 'rgba(16, 32, 97, 0.9)',
+    bg_color: 'rgba(16, 32, 97, 1)',
   },
 }
 
@@ -154,6 +154,6 @@ export const darkTheme = {
     bar_bg_color: '#fff',
   },
   tooltip: {
-    bg_color: 'rgba(25, 29, 36, 0.9)',
+    bg_color: 'rgba(25, 29, 36, 1)',
   },
 }
