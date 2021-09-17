@@ -12,6 +12,8 @@
 
     PolicyModalInfo function
       custom hooks
+      local functions
+      useEffect hooks
       Render
 
   *************************************************************************************/
@@ -73,29 +75,45 @@ export const PolicyModalInfo: React.FC<PolicyModalInfoProps> = ({ appraisal, sel
   const [tokens, setTokens] = useState<any[]>([])
   const maxPositionsOnDisplay = 4
 
-  useEffect(() => {
-    const getTokens = async () => {
-      const cache = tokenPositionData.storedTokenAndPositionData.find((dataset) => dataset.name == activeNetwork.name)
-      if (!selectedPolicy || !cache || !account) return
-      const supportedProduct = activeNetwork.cache.supportedProducts.find(
-        (product) => product.name == selectedPolicy.productName
-      )
-      if (!supportedProduct) return
-      const savedTokens = cache.tokens[supportedProduct.name].savedTokens
-      const balances: Token[] = []
-      savedTokens.forEach((savedToken: Token) => {
-        if (selectedPolicy.positionDescription.includes(savedToken.token.address.slice(2).toLowerCase())) {
-          balances.push(savedToken)
-        }
-      })
-      setTokens(balances)
-    }
-    getTokens()
-  }, [selectedPolicy])
+  /*************************************************************************************
+
+    local functions
+
+  *************************************************************************************/
+
+  const getTokens = async () => {
+    const cache = tokenPositionData.storedTokenAndPositionData.find((dataset) => dataset.name == activeNetwork.name)
+    if (!selectedPolicy || !cache || !account) return
+    const supportedProduct = activeNetwork.cache.supportedProducts.find(
+      (product) => product.name == selectedPolicy.productName
+    )
+    if (!supportedProduct) return
+    const savedTokens = cache.tokens[supportedProduct.name].savedTokens
+    // const balances: Token[] = []
+    // savedTokens.forEach((savedToken: Token) => {
+    //   if (selectedPolicy.positionDescription.includes(savedToken.token.address.slice(2).toLowerCase())) {
+    //     balances.push(savedToken)
+    //   }
+    // })
+    const balances: Token[] = savedTokens.filter((savedToken: Token) =>
+      selectedPolicy.positionDescription.includes(savedToken.token.address.slice(2).toLowerCase())
+    )
+    setTokens(balances)
+  }
 
   const closeModal = useCallback(() => {
     setShowAssetsModal(false)
   }, [])
+
+  /*************************************************************************************
+
+    useEffect hooks
+
+  *************************************************************************************/
+
+  useEffect(() => {
+    getTokens()
+  }, [selectedPolicy])
 
   /*************************************************************************************
 
