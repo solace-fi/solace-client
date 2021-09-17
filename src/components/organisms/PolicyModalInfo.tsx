@@ -89,12 +89,6 @@ export const PolicyModalInfo: React.FC<PolicyModalInfoProps> = ({ appraisal, sel
     )
     if (!supportedProduct) return
     const savedTokens = cache.tokens[supportedProduct.name].savedTokens
-    // const balances: Token[] = []
-    // savedTokens.forEach((savedToken: Token) => {
-    //   if (selectedPolicy.positionDescription.includes(savedToken.token.address.slice(2).toLowerCase())) {
-    //     balances.push(savedToken)
-    //   }
-    // })
     const balances: Token[] = savedTokens.filter((savedToken: Token) =>
       selectedPolicy.positionDescription.includes(savedToken.token.address.slice(2).toLowerCase())
     )
