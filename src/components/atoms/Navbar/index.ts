@@ -11,7 +11,7 @@ export const TopNav = styled.div<TopNavProps>`
   ${(props) => (props.isOpen == false ? 'max-height: 4rem;' : 'max-height: 8rem;')}
   position: fixed;
   overflow: hidden;
-  background-color: rgba(0, 0, 0, 0.9);
+  background-color: rgba(0, 0, 0, 0.92);
   display: none;
   padding: 10px 0;
   transition: 200ms ease;

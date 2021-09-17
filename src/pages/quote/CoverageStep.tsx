@@ -28,9 +28,9 @@ import { formatUnits, parseUnits } from 'ethers/lib/utils'
 import { BigNumber } from 'ethers'
 
 /* import constants */
-import { DAYS_PER_YEAR, GAS_LIMIT, NUM_BLOCKS_PER_DAY } from '../../constants'
+import { DAYS_PER_YEAR, GAS_LIMIT, NUM_BLOCKS_PER_DAY, ZERO } from '../../constants'
 import { TransactionCondition, FunctionName, Unit } from '../../constants/enums'
-import { LocalTx } from '../../constants/types'
+import { LocalTx, Token } from '../../constants/types'
 
 /* import managers */
 import { useContracts } from '../../context/ContractsManager'
@@ -48,14 +48,14 @@ import { Card, CardContainer } from '../../components/atoms/Card'
 import { Heading2, Heading3, Text4, TextSpan } from '../../components/atoms/Typography'
 import { Input, StyledSlider } from '../../components/atoms/Input'
 import { Loader } from '../../components/atoms/Loader'
-import { SmallBox } from '../../components/atoms/Box'
 import { FlexCol, FlexRow } from '../../components/atoms/Layout'
+import { StyledTooltip } from '../../components/molecules/Tooltip'
 
 /* import hooks */
 import { useGetQuote, useGetMaxCoverPerUser } from '../../hooks/usePolicy'
 
 /* import utils */
-import { accurateMultiply } from '../../utils/formatting'
+import { accurateMultiply, encodeAddresses } from '../../utils/formatting'
 import { getDateStringWithMonthName, getDateExtended } from '../../utils/time'
 import { getGasConfig } from '../../utils/gas'
 
@@ -66,9 +66,9 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
 
   *************************************************************************************/
   const { errors } = useGeneral()
-  const { position, coverAmount, timePeriod, loading } = formData
+  const { positions, coverAmount, timePeriod, loading } = formData
   const maxCoverPerUser = useGetMaxCoverPerUser() // in eth
-  const quote = useGetQuote(coverAmount, position.token.address, timePeriod)
+  const quote = useGetQuote(coverAmount, timePeriod)
   const { account, activeWalletConnector } = useWallet()
   const { addLocalTransactions, reload, gasPrices } = useCachedData()
   const { selectedProtocol } = useContracts()
@@ -85,8 +85,9 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
 
   // positionAmount: BigNumber = wei but displayable, position.eth.balance: BigNumber = wei
   const positionAmount: BigNumber = useMemo(() => {
-    return BigNumber.from(accurateMultiply(formatUnits(position.eth.balance, currencyDecimals), currencyDecimals))
-  }, [position.eth.balance, currencyDecimals])
+    const totalBalance = positions.reduce((pv: BigNumber, cv: Token) => pv.add(cv.eth.balance), ZERO)
+    return BigNumber.from(accurateMultiply(formatUnits(totalBalance, currencyDecimals), currencyDecimals))
+  }, [positions, currencyDecimals])
 
   /*************************************************************************************
 
@@ -114,7 +115,12 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
     try {
       const tx = await selectedProtocol.buyPolicy(
         account,
-        position.token.address,
+        encodeAddresses(
+          positions.reduce((pv: string[], cv: Token) => {
+            pv.push(cv.token.address)
+            return pv
+          }, [])
+        ),
         coverAmount,
         NUM_BLOCKS_PER_DAY * parseInt(timePeriod),
         {
@@ -147,6 +153,7 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
         reload()
       })
     } catch (err) {
+      console.log('buyPolicy', err)
       makeTxToast(txType, TransactionCondition.CANCELLED)
       setForm({
         target: {
@@ -245,16 +252,36 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
   return (
     <CardContainer cardsPerRow={2}>
       <Card>
-        <FormRow mb={15}>
+        <FormRow mb={5}>
           <FormCol>
-            <Heading2 high_em>Total Assets</Heading2>
-            {position.underlying.symbol !== activeNetwork.nativeCurrency.symbol && (
-              <Text4>Denominated from {position.underlying.symbol}</Text4>
-            )}
+            <Heading2 high_em>
+              Total Assets{' '}
+              <StyledTooltip
+                id={`total-assets`}
+                tip={`The sum of amounts from your chosen positions denominated in ${activeNetwork.nativeCurrency.symbol}`}
+              />
+            </Heading2>
           </FormCol>
           <FormCol>
-            <Heading2 high_em>{formatUnits(positionAmount, currencyDecimals)}</Heading2>
-            <Text4 textAlignRight>{activeNetwork.nativeCurrency.symbol}</Text4>
+            <Heading2 high_em textAlignRight>
+              {formatUnits(positionAmount, currencyDecimals)} {activeNetwork.nativeCurrency.symbol}
+            </Heading2>
+          </FormCol>
+        </FormRow>
+        <FormRow mb={15}>
+          <FormCol>
+            <Heading3 high_em>
+              Max Coverage{' '}
+              <StyledTooltip
+                id={`max-coverage`}
+                tip={`Each policy can only cover up to a certain amount based on the size of the capital pool and active cover`}
+              />
+            </Heading3>
+          </FormCol>
+          <FormCol>
+            <Heading3 high_em textAlignRight>
+              {maxCoverPerUser} {activeNetwork.nativeCurrency.symbol}
+            </Heading3>
           </FormCol>
         </FormRow>
         <hr style={{ marginBottom: '10px' }} />
@@ -289,7 +316,7 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
               value={coverAmount}
               onChange={(e) => handleCoverageChange(e.target.value)}
               min={1}
-              max={positionAmount.toString()}
+              max={maxCoverPerUserInWei.toString()}
             />
           </div>
           <br />
@@ -323,30 +350,12 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
           </FormCol>
           <FormCol>
             <FlexRow>
-              <Text4
-                high_em
-                bold
-                error={
-                  parseUnits(coveredAssets, currencyDecimals).gt(parseUnits(maxCoverPerUser, currencyDecimals)) &&
-                  maxCoverPerUser !== '0'
-                }
-              >
+              <Text4 high_em bold>
                 {coveredAssets} {activeNetwork.nativeCurrency.symbol}
               </Text4>
             </FlexRow>
           </FormCol>
         </FormRow>
-        <SmallBox
-          transparent
-          outlined
-          error
-          collapse={!parseUnits(coveredAssets, currencyDecimals).gt(parseUnits(maxCoverPerUser, currencyDecimals))}
-          mb={!parseUnits(coveredAssets, currencyDecimals).gt(parseUnits(maxCoverPerUser, currencyDecimals)) ? 0 : 5}
-        >
-          <Text4 error autoAlign>
-            You can only cover up to {maxCoverPerUser} {activeNetwork.nativeCurrency.symbol}.
-          </Text4>
-        </SmallBox>
         <FormRow mb={5}>
           <FormCol>
             <Text4>Covered Period</Text4>
@@ -392,7 +401,7 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
       </Card>
       <Card transparent>
         <FormRow>
-          <Heading3>Terms and conditions</Heading3>
+          <Heading3 high_em>Terms and conditions</Heading3>
         </FormRow>
         <FormRow mb={0}>
           <FormCol>

@@ -1,18 +1,21 @@
 import styled from 'styled-components'
 import { GeneralTextProps, GeneralTextCss } from '../Typography'
+import { HeightAndWidthProps, HeightAndWidthCss, MarginProps, MarginCss } from '../../generalInterfaces'
 
-export const PositionCardLogo = styled.div`
+export const PositionCardLogo = styled.div<HeightAndWidthProps & MarginProps>`
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  height: 40px;
+  ${HeightAndWidthCss}
+  ${(props) => !props.width && 'width: 40px;'}
+  ${(props) => !props.height && 'height: 40px;'}
   overflow: hidden;
   img {
     width: 100%;
     height: 100%;
     object-fit: cover;
   }
+  ${MarginCss}
 `
 
 export const PositionCardName = styled.div<GeneralTextProps>`

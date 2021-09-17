@@ -116,6 +116,9 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
         .div(String(Math.pow(10, 12))),
     [blocksLeft, currentCoverAmount, paidprice]
   )
+  const maxCoverPerUserInWei = useMemo(() => {
+    return parseUnits(maxCoverPerUser, currencyDecimals)
+  }, [maxCoverPerUser, currencyDecimals])
   const appraisal = useAppraisePosition(selectedPolicy)
 
   /*************************************************************************************
@@ -363,7 +366,7 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
                       value={newCoverage}
                       onChange={(e) => handleCoverageChange(e.target.value)}
                       min={1}
-                      max={appraisal.toString()}
+                      max={maxCoverPerUserInWei.toString()}
                     />
                   </div>
                 </div>

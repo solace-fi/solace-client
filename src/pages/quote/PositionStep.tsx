@@ -3,6 +3,7 @@
     Table of Contents:
 
     import react
+    import packages
     import managers
     import config
     import components
@@ -23,6 +24,9 @@
 /* import react */
 import React, { Fragment, useCallback, useEffect, useRef, useState } from 'react'
 
+/* import packages */
+import styled from 'styled-components'
+
 /* import managers */
 import { useWallet } from '../../context/WalletManager'
 import { useContracts } from '../../context/ContractsManager'
@@ -31,7 +35,7 @@ import { useNetwork } from '../../context/NetworkManager'
 import { useGeneral } from '../../context/GeneralProvider'
 
 /* import components */
-import { Button } from '../../components/atoms/Button'
+import { Button, ButtonWrapper } from '../../components/atoms/Button'
 import { formProps } from './MultiStepForm'
 import { CardContainer, PositionCard } from '../../components/atoms/Card'
 import {
@@ -41,7 +45,7 @@ import {
   PositionCardName,
 } from '../../components/atoms/Position'
 import { Loader } from '../../components/atoms/Loader'
-import { Content, HeroContainer } from '../../components/atoms/Layout'
+import { Content, CustomScrollbar, HeroContainer } from '../../components/atoms/Layout'
 import { Heading1, TextSpan } from '../../components/atoms/Typography'
 import { ManageModal } from '../../components/organisms/ManageModal'
 
@@ -56,8 +60,19 @@ import { useWindowDimensions } from '../../hooks/useWindowDimensions'
 /* import utils */
 import { fixedTokenPositionBalance, truncateBalance } from '../../utils/formatting'
 
+const Scrollable = styled.div`
+  max-height: 60vh;
+  overflow-y: scroll;
+  ${CustomScrollbar}
+  padding: 10px;
+
+  @media screen and (max-width: ${MAX_MOBILE_SCREEN_WIDTH}px) {
+    max-height: 65vh;
+  }
+`
+
 export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigation }) => {
-  const { protocol, balances, loading } = formData
+  const { protocol, loading, positions } = formData
 
   /*************************************************************************************
 
@@ -79,6 +94,9 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
   *************************************************************************************/
   const [showManageModal, setShowManageModal] = useState<boolean>(false)
   const [selectedPolicy, setSelectedPolicy] = useState<Policy | undefined>(undefined)
+  const [selectableBalances, setSelectableBalances] = useState<Token[]>([])
+  const [selectedPositions, setSelectedPositions] = useState<Token[]>(positions)
+  const [fetchedBalances, setFetchedBalances] = useState<Token[]>([])
 
   /*************************************************************************************
 
@@ -93,14 +111,48 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
 
   *************************************************************************************/
 
-  const handleChange = (position: Token) => {
+  const handleChange = () => {
     setForm({
       target: {
-        name: 'position',
-        value: position,
+        name: 'positions',
+        value: selectedPositions,
       },
     })
     navigation.next()
+  }
+
+  const handleSelect = (position: Token) => {
+    const found = selectedPositions.some(
+      (selectedPosition) => selectedPosition.underlying.address == position.underlying.address
+    )
+    if (!found) {
+      setSelectedPositions((selectedPositions) => [position, ...selectedPositions])
+    } else {
+      setSelectedPositions(
+        selectedPositions.filter(
+          (selectedPosition) => selectedPosition.underlying.address != position.underlying.address
+        )
+      )
+    }
+  }
+
+  const toggleSelectAll = () => {
+    // deselect all
+    if (selectedPositions.length == selectableBalances.length) {
+      setSelectedPositions([])
+    } else {
+      // select all
+      const tokensToAdd: Token[] = []
+      selectableBalances.forEach((balance: Token) => {
+        const found = selectedPositions.find(
+          (selectedPosition) => selectedPosition.underlying.address == balance.underlying.address
+        )
+        if (!found) {
+          tokensToAdd.push(balance)
+        }
+      })
+      setSelectedPositions((selectedPositions) => [...tokensToAdd, ...selectedPositions])
+    }
   }
 
   const getUserBalances = async () => {
@@ -118,12 +170,7 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
           activeNetwork,
           savedTokens
         )
-        setForm({
-          target: {
-            name: 'balances',
-            value: balances,
-          },
-        })
+        setFetchedBalances(balances)
         setForm({
           target: {
             name: 'loading',
@@ -138,7 +185,11 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
 
   const userHasActiveProductPosition = (product: string, position: string): boolean => {
     for (const policy of userPolicyData.userPolicies) {
-      if (product === policy.productName && position === policy.positionName && policy.status === PolicyState.ACTIVE)
+      if (
+        product === policy.productName &&
+        policy.positionNames.includes(position) &&
+        policy.status === PolicyState.ACTIVE
+      )
         return true
     }
     return false
@@ -185,6 +236,14 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
     loadOverTime()
   }, [latestBlock, tokenPositionData.dataInitialized])
 
+  useEffect(() => {
+    setSelectableBalances(
+      fetchedBalances.filter(
+        (balance: Token) => !userHasActiveProductPosition(protocol.name, balance.underlying.symbol)
+      )
+    )
+  }, [fetchedBalances, protocol.name])
+
   /*************************************************************************************
 
   Render
@@ -199,81 +258,108 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
         latestBlock={latestBlock}
         closeModal={closeModal}
       />
-      {balances.length == 0 && !loading && !userPolicyData.policiesLoading && (
+      {fetchedBalances.length == 0 && !loading && !userPolicyData.policiesLoading && (
         <HeroContainer>
           <Heading1 textAlignCenter>You do not own any positions on this protocol.</Heading1>
         </HeroContainer>
       )}
       {!loading && !userPolicyData.policiesLoading ? (
         <Content>
-          <CardContainer>
-            {balances.map((position: Token) => {
-              return (
-                <PositionCard
-                  key={position.underlying.address}
-                  fade={userHasActiveProductPosition(protocol.name, position.underlying.symbol)}
-                  onClick={
-                    errors.length > 0
-                      ? undefined
-                      : userHasActiveProductPosition(protocol.name, position.underlying.symbol)
-                      ? () =>
-                          openManageModal(
-                            userPolicyData.userPolicies.filter(
-                              (policy) =>
-                                policy.productName == protocol.name && policy.positionName == position.underlying.symbol
-                            )[0]
-                          )
-                      : () => handleChange(position)
-                  }
-                >
-                  {userHasActiveProductPosition(protocol.name, position.underlying.symbol) && (
-                    <PositionCardText style={{ opacity: '.8' }}>This position is already covered</PositionCardText>
-                  )}
-                  <PositionCardLogo
-                    style={{
-                      opacity: userHasActiveProductPosition(protocol.name, position.underlying.symbol) ? '.5' : '1',
-                    }}
-                  >
-                    <img src={`https://assets.solace.fi/${position.underlying.address.toLowerCase()}`} />
-                  </PositionCardLogo>
-                  <PositionCardName
-                    high_em
-                    style={{
-                      opacity: userHasActiveProductPosition(protocol.name, position.underlying.symbol) ? '.5' : '1',
-                    }}
-                  >
-                    {position.underlying.name}
-                  </PositionCardName>
-                  <PositionCardText
-                    t1
-                    high_em
-                    style={{
-                      opacity: userHasActiveProductPosition(protocol.name, position.underlying.symbol) ? '.5' : '1',
-                    }}
-                  >
-                    {truncateBalance(fixedTokenPositionBalance(position.underlying))}{' '}
-                    <TextSpan style={{ fontSize: '12px' }}>{position.underlying.symbol}</TextSpan>
-                  </PositionCardText>
-                  <PositionCardText
-                    t3
-                    style={{
-                      opacity: userHasActiveProductPosition(protocol.name, position.underlying.symbol) ? '.5' : '1',
-                    }}
-                  >
-                    {truncateBalance(fixedTokenPositionBalance(position.token))}{' '}
-                    <TextSpan style={{ fontSize: '12px' }}>{position.token.symbol}</TextSpan>
-                  </PositionCardText>
-                  <PositionCardButton>
-                    {userHasActiveProductPosition(protocol.name, position.underlying.symbol) ? (
-                      <Button widthP={width > MAX_MOBILE_SCREEN_WIDTH ? undefined : 100}>Manage</Button>
-                    ) : (
-                      <Button widthP={width > MAX_MOBILE_SCREEN_WIDTH ? undefined : 100}>Select</Button>
+          <ButtonWrapper style={{ marginTop: '0' }} isColumn={width <= MAX_MOBILE_SCREEN_WIDTH}>
+            {selectableBalances.length > 0 && (
+              <Button widthP={100} secondary onClick={() => toggleSelectAll()}>
+                {selectedPositions.length == selectableBalances.length
+                  ? `Deselect All (${selectableBalances.length} available)`
+                  : `Select All (${selectableBalances.length} available)`}
+              </Button>
+            )}
+            <Button disabled={selectedPositions.length == 0} widthP={100} onClick={handleChange}>
+              Proceed to next page
+            </Button>
+          </ButtonWrapper>
+          <Scrollable>
+            <CardContainer>
+              {fetchedBalances.map((position: Token) => {
+                return (
+                  <PositionCard
+                    key={position.underlying.address}
+                    blue={selectedPositions.some(
+                      (selectedPosition) => selectedPosition.underlying.address == position.underlying.address
                     )}
-                  </PositionCardButton>
-                </PositionCard>
-              )
-            })}
-          </CardContainer>
+                    glow={selectedPositions.some(
+                      (selectedPosition) => selectedPosition.underlying.address == position.underlying.address
+                    )}
+                    fade={userHasActiveProductPosition(protocol.name, position.underlying.symbol)}
+                    onClick={
+                      errors.length > 0
+                        ? undefined
+                        : userHasActiveProductPosition(protocol.name, position.underlying.symbol)
+                        ? () =>
+                            openManageModal(
+                              userPolicyData.userPolicies.filter(
+                                (policy) =>
+                                  policy.productName == protocol.name &&
+                                  policy.positionNames.includes(position.underlying.symbol)
+                              )[0]
+                            )
+                        : () => handleSelect(position)
+                    }
+                  >
+                    {userHasActiveProductPosition(protocol.name, position.underlying.symbol) && (
+                      <PositionCardText style={{ opacity: '.8' }}>This position is already covered</PositionCardText>
+                    )}
+                    <PositionCardLogo
+                      style={{
+                        opacity: userHasActiveProductPosition(protocol.name, position.underlying.symbol) ? '.5' : '1',
+                      }}
+                    >
+                      <img src={`https://assets.solace.fi/${position.underlying.address.toLowerCase()}`} />
+                    </PositionCardLogo>
+                    <PositionCardName
+                      high_em
+                      style={{
+                        opacity: userHasActiveProductPosition(protocol.name, position.underlying.symbol) ? '.5' : '1',
+                      }}
+                    >
+                      {position.underlying.name}
+                    </PositionCardName>
+                    <PositionCardText
+                      t1
+                      high_em
+                      style={{
+                        opacity: userHasActiveProductPosition(protocol.name, position.underlying.symbol) ? '.5' : '1',
+                      }}
+                    >
+                      {truncateBalance(fixedTokenPositionBalance(position.underlying))}{' '}
+                      <TextSpan style={{ fontSize: '12px' }}>{position.underlying.symbol}</TextSpan>
+                    </PositionCardText>
+                    <PositionCardText
+                      t3
+                      style={{
+                        opacity: userHasActiveProductPosition(protocol.name, position.underlying.symbol) ? '.5' : '1',
+                      }}
+                    >
+                      {truncateBalance(fixedTokenPositionBalance(position.token))}{' '}
+                      <TextSpan style={{ fontSize: '12px' }}>{position.token.symbol}</TextSpan>
+                    </PositionCardText>
+                    <PositionCardButton>
+                      {userHasActiveProductPosition(protocol.name, position.underlying.symbol) ? (
+                        <Button widthP={width > MAX_MOBILE_SCREEN_WIDTH ? undefined : 100}>Manage</Button>
+                      ) : (
+                        <Button widthP={width > MAX_MOBILE_SCREEN_WIDTH ? undefined : 100}>
+                          {selectedPositions.some(
+                            (selectedPosition) => selectedPosition.underlying.address == position.underlying.address
+                          )
+                            ? 'Deselect'
+                            : 'Select'}
+                        </Button>
+                      )}
+                    </PositionCardButton>
+                  </PositionCard>
+                )
+              })}
+            </CardContainer>
+          </Scrollable>
         </Content>
       ) : (
         <Loader />

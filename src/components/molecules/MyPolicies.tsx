@@ -41,6 +41,7 @@ import { FlexCol, FlexRow } from '../atoms/Layout'
 import { PositionCardLogo } from '../atoms/Position'
 import { Card, CardContainer } from '../atoms/Card'
 import { FormRow, FormCol } from '../atoms/Form'
+import { ProtocolImage } from '../atoms/Protocol'
 
 /* import hooks */
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'
@@ -48,6 +49,7 @@ import { useWindowDimensions } from '../../hooks/useWindowDimensions'
 /* import utils */
 import { truncateBalance } from '../../utils/formatting'
 import { getDaysLeft, getExpiration } from '../../utils/time'
+import { StyledDots } from '../atoms/Icon'
 
 interface MyPoliciesProps {
   openClaimModal: any
@@ -94,7 +96,8 @@ export const MyPolicies: React.FC<MyPoliciesProps> = ({ openClaimModal, openMana
           <Table textAlignCenter style={{ borderSpacing: '0px 7px' }}>
             <TableHead sticky>
               <TableRow>
-                <TableHeader t3>Coverage Type</TableHeader>
+                <TableHeader t3>ID</TableHeader>
+                <TableHeader t3>Coverage</TableHeader>
                 <TableHeader t3>Status</TableHeader>
                 <TableHeader t3>Expiration Date</TableHeader>
                 <TableHeader t3>Covered Amount </TableHeader>
@@ -106,17 +109,29 @@ export const MyPolicies: React.FC<MyPoliciesProps> = ({ openClaimModal, openMana
                 return (
                   <TableRow key={policy.policyId}>
                     <TableData h2 high_em>
+                      {policy.policyId}
+                    </TableData>
+                    <TableData h2 high_em>
                       {
                         <FlexRow>
-                          <PositionCardLogo>
+                          <ProtocolImage>
                             <img src={`https://assets.solace.fi/${policy.productName.toLowerCase()}`} />
-                          </PositionCardLogo>
-                          <PositionCardLogo>
-                            <img src={`https://assets.solace.fi/${policy.positionName.toLowerCase()}`} />
-                          </PositionCardLogo>
-                          <Text autoAlign>
-                            {policy.productName} - {policy.positionName}
-                          </Text>
+                          </ProtocolImage>
+                          <FlexCol>
+                            <FlexRow>
+                              {policy.positionNames.slice(0, 8).map((name) => (
+                                <PositionCardLogo key={name} width={25} height={25}>
+                                  <img src={`https://assets.solace.fi/${name.toLowerCase()}`} />
+                                </PositionCardLogo>
+                              ))}
+                              {policy.positionNames.length > 8 && <StyledDots size={20} />}
+                            </FlexRow>
+                            <FlexRow>
+                              <Text t4 autoAlign high_em>
+                                {policy.productName}
+                              </Text>
+                            </FlexRow>
+                          </FlexCol>
                         </FlexRow>
                       }
                     </TableData>
@@ -164,22 +179,27 @@ export const MyPolicies: React.FC<MyPoliciesProps> = ({ openClaimModal, openMana
                   <FlexCol style={{ alignItems: 'center' }}>
                     <FormRow>
                       <FlexRow>
-                        <PositionCardLogo>
+                        <ProtocolImage>
                           <img src={`https://assets.solace.fi/${policy.productName.toLowerCase()}`} />
-                        </PositionCardLogo>
-                        <PositionCardLogo>
-                          <img src={`https://assets.solace.fi/${policy.positionName.toLowerCase()}`} />
-                        </PositionCardLogo>
+                        </ProtocolImage>
+                        <FlexCol>
+                          <FlexRow>
+                            {policy.positionNames.slice(0, 4).map((name) => (
+                              <PositionCardLogo key={name} width={35} height={35}>
+                                <img src={`https://assets.solace.fi/${name.toLowerCase()}`} />
+                              </PositionCardLogo>
+                            ))}
+                            {policy.positionNames.length > 4 && <StyledDots size={20} />}
+                          </FlexRow>
+                        </FlexCol>
                       </FlexRow>
                     </FormRow>
                     <FormRow style={{ display: 'flex', alignItems: 'center' }}>
-                      <Heading2 high_em>
-                        {policy.productName} - {policy.positionName}
-                      </Heading2>
+                      <Heading2 high_em>{policy.productName}</Heading2>
                     </FormRow>
                   </FlexCol>
                   <FormRow mb={10}>
-                    <FormCol>Id:</FormCol>
+                    <FormCol>ID:</FormCol>
                     <FormCol>
                       <Heading3>{policy.policyId}</Heading3>
                     </FormCol>

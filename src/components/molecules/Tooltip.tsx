@@ -76,14 +76,18 @@ export const StyledTooltip: React.FC<StyledTooltipProps> = ({ id, tip, link }) =
                 rel="noopener noreferrer"
                 style={{ textDecoration: 'none', color: '#fff' }}
               >
-                {tip}
+                <Text high_em h4>
+                  {tip}
+                </Text>
                 <br />
                 <Text green textAlignRight style={{ marginTop: '1px' }}>
                   Learn more <StyledLinkExternal size={20} />
                 </Text>
               </a>
             ) : (
-              tip
+              <Text high_em h4>
+                {tip}
+              </Text>
             )}
           </CustomTooltip>
         </>
