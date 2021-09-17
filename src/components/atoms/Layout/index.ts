@@ -1,4 +1,10 @@
-import { MAX_NAVBAR_SCREEN_WIDTH, MAX_WIDTH, MAX_TABLET_SCREEN_WIDTH, MOBILE_SCREEN_MARGIN } from '../../../constants'
+import {
+  MAX_NAVBAR_SCREEN_WIDTH,
+  MAX_WIDTH,
+  MAX_TABLET_SCREEN_WIDTH,
+  MOBILE_SCREEN_MARGIN,
+  MAX_MOBILE_SCREEN_WIDTH,
+} from '../../../constants'
 import styled, { createGlobalStyle, css, keyframes } from 'styled-components'
 import { GeneralElementProps, GeneralElementCss, HeightAndWidthProps } from '../../generalInterfaces'
 import { Text3Css } from '../Typography'
@@ -58,7 +64,7 @@ export const FlexCol = styled.div<GeneralElementProps>`
 export const Layout = styled.div`
   display: flex;
   min-height: 100vh;
-  padding: 30px;
+  padding: 30px 30px 40px 30px;
 
   @media screen and (max-width: ${MAX_NAVBAR_SCREEN_WIDTH}px) {
     padding: 90px 0 60px 0;
@@ -101,21 +107,19 @@ export const HeroContainer = styled(FlexCol)<HeightAndWidthProps>`
   height: ${(props) => (props.height ? props.height : '400')}px;
 `
 
-export const Footer = styled.div`
+export const FooterComponent = styled.div`
   position: fixed;
   left: 0;
   bottom: 0;
   width: 100%;
-  background-color: rgba(0, 0, 0, 0.9);
+  background-color: rgba(0, 0, 0, 0.92);
   text-align: center;
-  display: none;
   overflow: hidden;
-  padding: 10px 0;
+  display: block;
+  z-index: 1;
 
-  @media screen and (max-width: ${MAX_TABLET_SCREEN_WIDTH}px) {
-    display: block;
-    width: 100%;
-    z-index: 1;
+  @media screen and (max-width: ${MAX_MOBILE_SCREEN_WIDTH}px) {
+    padding: 10px 0;
   }
 `
 

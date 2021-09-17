@@ -23,15 +23,15 @@ import React, { useEffect, useState } from 'react'
 
 /* import managers */
 import { useWallet } from '../../context/WalletManager'
+import { useGeneral } from '../../context/GeneralProvider'
 
 /* import constants */
 import { MAX_MOBILE_SCREEN_WIDTH } from '../../constants'
 
 /* import components */
-import { SidebarItem, TopNav } from '../atoms/Navbar'
-import { ButtonWrapper, NavButton } from '../atoms/Button'
+import { SidebarItem, TopNav, ItemText, ItemList } from '../atoms/Navbar'
+import { ButtonWrapper, NavButton, Button } from '../atoms/Button'
 import { Logo } from '../molecules/Logo'
-import { ItemText, ItemList } from '../atoms/Navbar'
 import { StyledMenu } from '../atoms/Icon'
 import { WalletConnectButton } from '../molecules/WalletConnectButton'
 import { TransactionHistoryButton } from '../molecules/TransactionHistoryButton'
@@ -91,6 +91,7 @@ export const TopNavbar: React.FC<NavbarProps> = ({ location }) => {
 
   *************************************************************************************/
   const { width } = useWindowDimensions()
+  const { openModal } = useGeneral()
   const [isOpen, setIsOpen] = useState<boolean>(false)
   const { account } = useWallet()
 
@@ -135,22 +136,27 @@ export const TopNavbar: React.FC<NavbarProps> = ({ location }) => {
           <Text high_em={location.pathname == '/govern'}>Govern</Text>
         </SidebarItem>
         {width <= MAX_MOBILE_SCREEN_WIDTH && (
-          <ButtonWrapper>
-            <div onClick={() => setIsOpen(!isOpen)}>
-              <NetworkConnectButton />
-            </div>
-            <div onClick={() => setIsOpen(!isOpen)}>
-              <WalletConnectButton />
-            </div>
-            {account && (
+          <>
+            <ButtonWrapper>
               <div onClick={() => setIsOpen(!isOpen)}>
-                <TransactionHistoryButton />
+                <NetworkConnectButton />
               </div>
-            )}
-            <div>
-              <ThemeButton />
-            </div>
-          </ButtonWrapper>
+              <div onClick={() => setIsOpen(!isOpen)}>
+                <WalletConnectButton />
+              </div>
+              {account && (
+                <div onClick={() => setIsOpen(!isOpen)}>
+                  <TransactionHistoryButton />
+                </div>
+              )}
+              <div>
+                <ThemeButton />
+              </div>
+            </ButtonWrapper>
+            <Button ml={20} mr={20} onClick={() => openModal()}>
+              Community Links
+            </Button>
+          </>
         )}
       </ItemList>
       <NavButton onClick={() => setIsOpen(!isOpen)}>

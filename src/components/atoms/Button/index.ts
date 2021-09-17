@@ -2,10 +2,12 @@ import { GeneralElementProps, GeneralElementCss, MarginProps, MarginCss } from '
 import styled, { css } from 'styled-components'
 import { Text4Css } from '../Typography'
 
-interface ButtonProps extends ClickProps {
+export interface ButtonProps extends ClickProps {
   secondary?: boolean
+  inconspicuous?: boolean
   glow?: boolean
   hidden?: boolean
+  noradius?: boolean
 }
 
 interface ButtonWrapperProps {
@@ -29,7 +31,7 @@ export const ButtonBaseCss = css<ButtonProps & GeneralElementProps>`
   justify-content: center;
   outline: none;
   border: 1px solid ${({ theme }) => theme.button.border_color};
-  border-radius: 10px;
+  ${(props) => !props.noradius && `border-radius: 10px;`}
   font-weight: 600;
   text-align: center;
   transition: all 0.2s, color 0.2s;
@@ -46,6 +48,8 @@ export const ButtonBaseCss = css<ButtonProps & GeneralElementProps>`
       ? `color: ${props.theme.button.text_color}; background-color: rgba(0, 0, 0, 0); opacity: 0.5; transform: scale(.9);`
       : props.secondary
       ? `color: ${props.theme.button.secondary_text_color}; background-color: ${props.theme.button.hover_color}; &:hover { opacity: 0.8; }`
+      : props.inconspicuous
+      ? `color: ${props.theme.typography.med_emphasis}; background-color: #111212; opacity: 1; border: none; &:hover { background-color: #161717; }`
       : `color: ${props.theme.button.text_color}; background-color: rgba(0, 0, 0, 0); &:hover { color: ${props.theme.button.secondary_text_color}; background-color: ${props.theme.button.hover_color}; }`};
   ${(props) => props.glow && `box-shadow: ${props.theme.button.green_glow};`}
   ${Text4Css}

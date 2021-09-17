@@ -5,6 +5,10 @@ import { lightTheme, darkTheme } from '../styles/themes'
 import { Error, SystemNotice } from '../constants/enums'
 import { ErrorData, SystemNoticeData } from '../constants/types'
 
+import { LinksModal } from '../components/molecules/LinksModal'
+import { useWindowDimensions } from '../hooks/useWindowDimensions'
+import { MAX_MOBILE_SCREEN_WIDTH } from '../constants'
+
 type GeneralContextType = {
   appTheme: 'light' | 'dark'
   selectedTheme: 'light' | 'dark' | undefined
@@ -15,6 +19,7 @@ type GeneralContextType = {
   removeNotices: (noticesToRemove: SystemNotice[]) => void
   addErrors: (errorsToAdd: ErrorData[]) => void
   removeErrors: (errorsToRemove: Error[]) => void
+  openModal: () => void
 }
 
 const GeneralContext = createContext<GeneralContextType>({
@@ -27,6 +32,7 @@ const GeneralContext = createContext<GeneralContextType>({
   removeNotices: () => undefined,
   addErrors: () => undefined,
   removeErrors: () => undefined,
+  openModal: () => undefined,
 })
 
 const mqlDark = window.matchMedia('(prefers-color-scheme: dark)')
@@ -45,6 +51,16 @@ const GeneralProvider: React.FC = (props) => {
   const theme = appTheme == 'light' ? lightTheme : darkTheme
   const [notices, setNotices] = useState<string[]>([])
   const [errors, setErrors] = useState<string[]>([])
+  const { width } = useWindowDimensions()
+  const [showLinksModal, setShowLinksModal] = useState<boolean>(false)
+
+  const openModal = useCallback(() => {
+    setShowLinksModal(true)
+  }, [])
+
+  const closeModal = useCallback(() => {
+    setShowLinksModal(false)
+  }, [])
 
   const addNotices = useCallback((noticesToAdd: SystemNoticeData[]) => {
     if (noticesToAdd.length == 0) return
@@ -114,11 +130,15 @@ const GeneralProvider: React.FC = (props) => {
     removeNotices,
     addErrors,
     removeErrors,
+    openModal,
   }
 
   return (
     <GeneralContext.Provider value={value}>
-      <ThemeProvider theme={theme}>{props.children}</ThemeProvider>
+      <ThemeProvider theme={theme}>
+        <LinksModal isOpen={showLinksModal && width <= MAX_MOBILE_SCREEN_WIDTH} closeModal={() => closeModal()} />
+        {props.children}
+      </ThemeProvider>
     </GeneralContext.Provider>
   )
 }
