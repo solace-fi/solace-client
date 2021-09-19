@@ -32,7 +32,7 @@ export const usePolicyGetter = (
       console.log(err)
       return []
     })
-    const policies = await Promise.all(policyIds.map((policyId: BigNumber) => queryPolicy(policyId, blockNumber)))
+    const policies = await Promise.all(policyIds.map((policyId: BigNumber) => queryPolicy(policyId, blockNumber, true)))
     return policies
   }
 
@@ -47,7 +47,7 @@ export const usePolicyGetter = (
     ])
     const indices = rangeFrom0(totalSupply)
     const policyIds = await Promise.all(indices.map((index) => policyManager.tokenByIndex(index)))
-    const policies = await Promise.all(policyIds.map((policyId: number) => queryPolicy(policyId, blockNumber)))
+    const policies = await Promise.all(policyIds.map((policyId: number) => queryPolicy(policyId, blockNumber, false)))
     return policies
   }
 
@@ -80,7 +80,11 @@ export const usePolicyGetter = (
     }
   }
 
-  const queryPolicy = async (policyId: BigNumber | number, blockNumber: number): Promise<Policy> => {
+  const queryPolicy = async (
+    policyId: BigNumber | number,
+    blockNumber: number,
+    canGetClaimAssessment: boolean
+  ): Promise<Policy> => {
     const returnError = {
       policyId: 0,
       policyHolder: '',
@@ -96,7 +100,7 @@ export const usePolicyGetter = (
     if (!policyManager) return returnError
     try {
       const policy = await withBackoffRetries(async () => policyManager.getPolicyInfo(policyId))
-      const assessment = await getClaimAssessment(String(policyId), chainId)
+      const assessment = canGetClaimAssessment ? await getClaimAssessment(String(policyId), chainId) : undefined
       return {
         policyId: Number(policyId),
         policyHolder: policy.policyholder,

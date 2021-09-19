@@ -181,6 +181,12 @@ export const MultiStepForm = () => {
     if (Number(StepNumber[step.id]) == 2 || Number(StepNumber[step.id]) == 1) {
       navigation.go(0)
     }
+    setForm({
+      target: {
+        name: 'positions',
+        value: [],
+      },
+    })
   }, [account, chainId])
 
   /*************************************************************************************

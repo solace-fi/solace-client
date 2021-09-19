@@ -5,6 +5,7 @@ import { getTokens } from './positionGetters/aave/getTokens'
 
 export const AaveProduct: SupportedProduct = {
   name: ProductName.AAVE,
+  productLink: 'https://app.aave.com/markets',
   getTokens,
   getBalances,
 }

@@ -59,6 +59,7 @@ import { useWindowDimensions } from '../../hooks/useWindowDimensions'
 
 /* import utils */
 import { fixedTokenPositionBalance, truncateBalance } from '../../utils/formatting'
+import { HyperLink } from '../../components/atoms/Link'
 
 const Scrollable = styled.div`
   max-height: 60vh;
@@ -97,6 +98,7 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
   const [selectableBalances, setSelectableBalances] = useState<Token[]>([])
   const [selectedPositions, setSelectedPositions] = useState<Token[]>(positions)
   const [fetchedBalances, setFetchedBalances] = useState<Token[]>([])
+  const [productLink, setProductLink] = useState<string | undefined>(undefined)
 
   /*************************************************************************************
 
@@ -214,6 +216,15 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
   *************************************************************************************/
 
   useEffect(() => {
+    const getProductLink = () => {
+      const supportedProduct = activeNetwork.cache.supportedProducts.find((product) => product.name == protocol.name)
+      if (!supportedProduct) return
+      if (supportedProduct.productLink) setProductLink(supportedProduct.productLink)
+    }
+    getProductLink()
+  }, [])
+
+  useEffect(() => {
     const loadOnBoot = async () => {
       setForm({
         target: {
@@ -261,105 +272,112 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
       {fetchedBalances.length == 0 && !loading && !userPolicyData.policiesLoading && (
         <HeroContainer>
           <Heading1 textAlignCenter>You do not own any positions on this protocol.</Heading1>
+          {productLink && (
+            <HyperLink href={productLink} target="_blank" rel="noopener noreferrer" style={{ color: 'white' }}>
+              <Button secondary>Click here to start positions on {protocol.name}</Button>
+            </HyperLink>
+          )}
         </HeroContainer>
       )}
       {!loading && !userPolicyData.policiesLoading ? (
         <Content>
-          <ButtonWrapper style={{ marginTop: '0' }} isColumn={width <= MAX_MOBILE_SCREEN_WIDTH}>
-            {selectableBalances.length > 0 && (
+          {selectableBalances.length > 0 && (
+            <ButtonWrapper style={{ marginTop: '0' }} isColumn={width <= MAX_MOBILE_SCREEN_WIDTH}>
               <Button widthP={100} secondary onClick={() => toggleSelectAll()}>
                 {selectedPositions.length == selectableBalances.length
                   ? `Deselect All (${selectableBalances.length} available)`
                   : `Select All (${selectableBalances.length} available)`}
               </Button>
-            )}
-            <Button disabled={selectedPositions.length == 0} widthP={100} onClick={handleChange}>
-              Proceed to next page
-            </Button>
-          </ButtonWrapper>
-          <Scrollable>
-            <CardContainer>
-              {fetchedBalances.map((position: Token) => {
-                return (
-                  <PositionCard
-                    key={position.underlying.address}
-                    blue={selectedPositions.some(
-                      (selectedPosition) => selectedPosition.underlying.address == position.underlying.address
-                    )}
-                    glow={selectedPositions.some(
-                      (selectedPosition) => selectedPosition.underlying.address == position.underlying.address
-                    )}
-                    fade={userHasActiveProductPosition(protocol.name, position.underlying.symbol)}
-                    onClick={
-                      errors.length > 0
-                        ? undefined
-                        : userHasActiveProductPosition(protocol.name, position.underlying.symbol)
-                        ? () =>
-                            openManageModal(
-                              userPolicyData.userPolicies.filter(
-                                (policy) =>
-                                  policy.productName == protocol.name &&
-                                  policy.positionNames.includes(position.underlying.symbol)
-                              )[0]
-                            )
-                        : () => handleSelect(position)
-                    }
-                  >
-                    {userHasActiveProductPosition(protocol.name, position.underlying.symbol) && (
-                      <PositionCardText style={{ opacity: '.8' }}>This position is already covered</PositionCardText>
-                    )}
-                    <PositionCardLogo
-                      style={{
-                        opacity: userHasActiveProductPosition(protocol.name, position.underlying.symbol) ? '.5' : '1',
-                      }}
-                    >
-                      <img src={`https://assets.solace.fi/${position.underlying.address.toLowerCase()}`} />
-                    </PositionCardLogo>
-                    <PositionCardName
-                      high_em
-                      style={{
-                        opacity: userHasActiveProductPosition(protocol.name, position.underlying.symbol) ? '.5' : '1',
-                      }}
-                    >
-                      {position.underlying.name}
-                    </PositionCardName>
-                    <PositionCardText
-                      t1
-                      high_em
-                      style={{
-                        opacity: userHasActiveProductPosition(protocol.name, position.underlying.symbol) ? '.5' : '1',
-                      }}
-                    >
-                      {truncateBalance(fixedTokenPositionBalance(position.underlying))}{' '}
-                      <TextSpan style={{ fontSize: '12px' }}>{position.underlying.symbol}</TextSpan>
-                    </PositionCardText>
-                    <PositionCardText
-                      t3
-                      style={{
-                        opacity: userHasActiveProductPosition(protocol.name, position.underlying.symbol) ? '.5' : '1',
-                      }}
-                    >
-                      {truncateBalance(fixedTokenPositionBalance(position.token))}{' '}
-                      <TextSpan style={{ fontSize: '12px' }}>{position.token.symbol}</TextSpan>
-                    </PositionCardText>
-                    <PositionCardButton>
-                      {userHasActiveProductPosition(protocol.name, position.underlying.symbol) ? (
-                        <Button widthP={width > MAX_MOBILE_SCREEN_WIDTH ? undefined : 100}>Manage</Button>
-                      ) : (
-                        <Button widthP={width > MAX_MOBILE_SCREEN_WIDTH ? undefined : 100}>
-                          {selectedPositions.some(
-                            (selectedPosition) => selectedPosition.underlying.address == position.underlying.address
-                          )
-                            ? 'Deselect'
-                            : 'Select'}
-                        </Button>
+              <Button disabled={selectedPositions.length == 0} widthP={100} onClick={handleChange}>
+                Proceed to next page
+              </Button>
+            </ButtonWrapper>
+          )}
+          {fetchedBalances.length > 0 && (
+            <Scrollable>
+              <CardContainer>
+                {fetchedBalances.map((position: Token) => {
+                  return (
+                    <PositionCard
+                      key={position.underlying.address}
+                      blue={selectedPositions.some(
+                        (selectedPosition) => selectedPosition.underlying.address == position.underlying.address
                       )}
-                    </PositionCardButton>
-                  </PositionCard>
-                )
-              })}
-            </CardContainer>
-          </Scrollable>
+                      glow={selectedPositions.some(
+                        (selectedPosition) => selectedPosition.underlying.address == position.underlying.address
+                      )}
+                      fade={userHasActiveProductPosition(protocol.name, position.underlying.symbol)}
+                      onClick={
+                        errors.length > 0
+                          ? undefined
+                          : userHasActiveProductPosition(protocol.name, position.underlying.symbol)
+                          ? () =>
+                              openManageModal(
+                                userPolicyData.userPolicies.filter(
+                                  (policy) =>
+                                    policy.productName == protocol.name &&
+                                    policy.positionNames.includes(position.underlying.symbol)
+                                )[0]
+                              )
+                          : () => handleSelect(position)
+                      }
+                    >
+                      {userHasActiveProductPosition(protocol.name, position.underlying.symbol) && (
+                        <PositionCardText style={{ opacity: '.8' }}>This position is already covered</PositionCardText>
+                      )}
+                      <PositionCardLogo
+                        style={{
+                          opacity: userHasActiveProductPosition(protocol.name, position.underlying.symbol) ? '.5' : '1',
+                        }}
+                      >
+                        <img src={`https://assets.solace.fi/${position.underlying.address.toLowerCase()}`} />
+                      </PositionCardLogo>
+                      <PositionCardName
+                        high_em
+                        style={{
+                          opacity: userHasActiveProductPosition(protocol.name, position.underlying.symbol) ? '.5' : '1',
+                        }}
+                      >
+                        {position.underlying.name}
+                      </PositionCardName>
+                      <PositionCardText
+                        t1
+                        high_em
+                        style={{
+                          opacity: userHasActiveProductPosition(protocol.name, position.underlying.symbol) ? '.5' : '1',
+                        }}
+                      >
+                        {truncateBalance(fixedTokenPositionBalance(position.underlying))}{' '}
+                        <TextSpan style={{ fontSize: '12px' }}>{position.underlying.symbol}</TextSpan>
+                      </PositionCardText>
+                      <PositionCardText
+                        t3
+                        style={{
+                          opacity: userHasActiveProductPosition(protocol.name, position.underlying.symbol) ? '.5' : '1',
+                        }}
+                      >
+                        {truncateBalance(fixedTokenPositionBalance(position.token))}{' '}
+                        <TextSpan style={{ fontSize: '12px' }}>{position.token.symbol}</TextSpan>
+                      </PositionCardText>
+                      <PositionCardButton>
+                        {userHasActiveProductPosition(protocol.name, position.underlying.symbol) ? (
+                          <Button widthP={width > MAX_MOBILE_SCREEN_WIDTH ? undefined : 100}>Manage</Button>
+                        ) : (
+                          <Button widthP={width > MAX_MOBILE_SCREEN_WIDTH ? undefined : 100}>
+                            {selectedPositions.some(
+                              (selectedPosition) => selectedPosition.underlying.address == position.underlying.address
+                            )
+                              ? 'Deselect'
+                              : 'Select'}
+                          </Button>
+                        )}
+                      </PositionCardButton>
+                    </PositionCard>
+                  )
+                })}
+              </CardContainer>
+            </Scrollable>
+          )}
         </Content>
       ) : (
         <Loader />
