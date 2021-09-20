@@ -401,11 +401,11 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
     }
   }
 
-  const calculateMaxEth = () => {
+  const calculateMaxEth = (): string | number => {
     const bal = formatUnits(getAssetBalanceByFunc(), currencyDecimals)
     if (func !== FunctionName.DEPOSIT_ETH || !selectedGasOption) return bal
     const gasInEth = (GAS_LIMIT / POW_NINE) * selectedGasOption.value
-    return fixed(fixed(bal, 6) - fixed(gasInEth, 6), 6)
+    return Math.max(fixed(fixed(bal, 6) - fixed(gasInEth, 6), 6), 0)
   }
 
   const handleSelectChange = (option: GasFeeOption) => {
