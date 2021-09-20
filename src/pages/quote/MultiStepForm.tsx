@@ -247,7 +247,7 @@ export const MultiStepForm = () => {
                 <BoxItem>
                   <DeFiAsset>
                     <DeFiAssetImage mr={10}>
-                      <img src={`https://assets.solace.fi/${protocol.name.toLowerCase()}`} />
+                      <img src={`https://assets.solace.fi/${protocol.name.toLowerCase()}`} alt={protocol.name} />
                     </DeFiAssetImage>
                     <ProtocolTitle high_em h3>
                       {protocol.name}
@@ -283,7 +283,10 @@ export const MultiStepForm = () => {
                       {positions.slice(0, maxPositionsToDisplay).map((position: Token) => (
                         <DeFiAsset key={position.underlying.address}>
                           <DeFiAssetImage mr={5}>
-                            <img src={`https://assets.solace.fi/${position.underlying.address.toLowerCase()}`} />
+                            <img
+                              src={`https://assets.solace.fi/${position.underlying.address.toLowerCase()}`}
+                              alt={position.underlying.name}
+                            />
                           </DeFiAssetImage>
                         </DeFiAsset>
                       ))}
@@ -309,7 +312,7 @@ export const MultiStepForm = () => {
                 <FormRow>
                   <FormCol>
                     <DeFiAssetImage mr={10}>
-                      <img src={`https://assets.solace.fi/${protocol.name.toLowerCase()}`} />
+                      <img src={`https://assets.solace.fi/${protocol.name.toLowerCase()}`} alt={protocol.name} />
                     </DeFiAssetImage>
                   </FormCol>
                   <FormCol style={{ display: 'flex', alignItems: 'center' }}>
@@ -348,7 +351,10 @@ export const MultiStepForm = () => {
                   <FlexRow>
                     {positions.slice(0, maxPositionsToDisplay).map((position: Token) => (
                       <DeFiAssetImage mr={5} key={position.underlying.address}>
-                        <img src={`https://assets.solace.fi/${position.underlying.address.toLowerCase()}`} />
+                        <img
+                          src={`https://assets.solace.fi/${position.underlying.address.toLowerCase()}`}
+                          alt={position.underlying.name}
+                        />
                       </DeFiAssetImage>
                     ))}
                     {positions.length > maxPositionsToDisplay && <StyledDots size={20} />}

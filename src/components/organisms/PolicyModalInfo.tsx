@@ -228,7 +228,10 @@ export const PolicyModalInfo: React.FC<PolicyModalInfoProps> = ({ appraisal, sel
             <FormCol>
               <DeFiAsset style={{ flexDirection: 'column' }}>
                 <DeFiAssetImage width={60} height={60}>
-                  <img src={`https://assets.solace.fi/${selectedPolicy?.productName.toLowerCase()}`} />
+                  <img
+                    src={`https://assets.solace.fi/${selectedPolicy?.productName.toLowerCase()}`}
+                    alt={selectedPolicy?.productName}
+                  />
                 </DeFiAssetImage>
                 <TextSpan h2 high_em>
                   {selectedPolicy?.productName}
@@ -240,7 +243,7 @@ export const PolicyModalInfo: React.FC<PolicyModalInfoProps> = ({ appraisal, sel
                 {selectedPolicy?.positionNames.slice(0, maxPositionsOnDisplay).map((name: string) => (
                   <FlexCol style={{ alignItems: 'center' }} key={name}>
                     <DeFiAssetImage borderless width={45} height={45}>
-                      <img src={`https://assets.solace.fi/${name.toLowerCase()}`} />
+                      <img src={`https://assets.solace.fi/${name.toLowerCase()}`} alt={name} />
                     </DeFiAssetImage>
                   </FlexCol>
                 ))}
@@ -256,7 +259,10 @@ export const PolicyModalInfo: React.FC<PolicyModalInfoProps> = ({ appraisal, sel
               <FlexCol>
                 <DeFiAsset style={{ flexDirection: 'column' }}>
                   <DeFiAssetImage width={60} height={60}>
-                    <img src={`https://assets.solace.fi/${selectedPolicy?.productName.toLowerCase()}`} />
+                    <img
+                      src={`https://assets.solace.fi/${selectedPolicy?.productName.toLowerCase()}`}
+                      alt={selectedPolicy?.productName}
+                    />
                   </DeFiAssetImage>
                   <TextSpan h2 high_em>
                     {selectedPolicy?.productName}
@@ -268,7 +274,7 @@ export const PolicyModalInfo: React.FC<PolicyModalInfoProps> = ({ appraisal, sel
               {selectedPolicy?.positionNames.slice(0, maxPositionsOnDisplay).map((name: string) => (
                 <FlexCol style={{ alignItems: 'center' }} key={name}>
                   <DeFiAssetImage borderless width={45} height={45}>
-                    <img src={`https://assets.solace.fi/${name.toLowerCase()}`} />
+                    <img src={`https://assets.solace.fi/${name.toLowerCase()}`} alt={name} />
                   </DeFiAssetImage>
                 </FlexCol>
               ))}

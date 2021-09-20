@@ -320,7 +320,10 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
                           opacity: userHasActiveProductPosition(protocol.name, position.underlying.symbol) ? '.5' : '1',
                         }}
                       >
-                        <img src={`https://assets.solace.fi/${position.underlying.address.toLowerCase()}`} />
+                        <img
+                          src={`https://assets.solace.fi/${position.underlying.address.toLowerCase()}`}
+                          alt={position.underlying.name}
+                        />
                       </DeFiAssetImage>
                       <PositionCardName
                         high_em

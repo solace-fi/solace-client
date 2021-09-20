@@ -114,13 +114,16 @@ export const MyPolicies: React.FC<MyPoliciesProps> = ({ openClaimModal, openMana
                       {
                         <FlexRow>
                           <DeFiAssetImage>
-                            <img src={`https://assets.solace.fi/${policy.productName.toLowerCase()}`} />
+                            <img
+                              src={`https://assets.solace.fi/${policy.productName.toLowerCase()}`}
+                              alt={policy.productName}
+                            />
                           </DeFiAssetImage>
                           <FlexCol>
                             <FlexRow>
                               {policy.positionNames.slice(0, 8).map((name) => (
                                 <DeFiAssetImage borderless key={name} width={25} height={25}>
-                                  <img src={`https://assets.solace.fi/${name.toLowerCase()}`} />
+                                  <img src={`https://assets.solace.fi/${name.toLowerCase()}`} alt={name} />
                                 </DeFiAssetImage>
                               ))}
                               {policy.positionNames.length > 8 && <StyledDots size={20} />}
@@ -179,13 +182,16 @@ export const MyPolicies: React.FC<MyPoliciesProps> = ({ openClaimModal, openMana
                     <FormRow>
                       <FlexRow>
                         <DeFiAssetImage>
-                          <img src={`https://assets.solace.fi/${policy.productName.toLowerCase()}`} />
+                          <img
+                            src={`https://assets.solace.fi/${policy.productName.toLowerCase()}`}
+                            alt={policy.productName}
+                          />
                         </DeFiAssetImage>
                         <FlexCol>
                           <FlexRow>
                             {policy.positionNames.slice(0, 4).map((name) => (
                               <DeFiAssetImage borderless key={name} width={35} height={35}>
-                                <img src={`https://assets.solace.fi/${name.toLowerCase()}`} />
+                                <img src={`https://assets.solace.fi/${name.toLowerCase()}`} alt={name} />
                               </DeFiAssetImage>
                             ))}
                             {policy.positionNames.length > 4 && <StyledDots size={20} />}

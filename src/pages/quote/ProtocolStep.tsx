@@ -169,7 +169,7 @@ export const ProtocolStep: React.FC<formProps> = ({ setForm, navigation }) => {
                       <TableData>
                         <DeFiAsset>
                           <DeFiAssetImage mr={10}>
-                            <img src={`https://assets.solace.fi/${protocol.toLowerCase()}`} />
+                            <img src={`https://assets.solace.fi/${protocol.toLowerCase()}`} alt={protocol} />
                           </DeFiAssetImage>
                           <ProtocolTitle high_em h3>
                             {protocol}
@@ -228,7 +228,7 @@ export const ProtocolStep: React.FC<formProps> = ({ setForm, navigation }) => {
                     <FormRow>
                       <FormCol>
                         <DeFiAssetImage mr={10}>
-                          <img src={`https://assets.solace.fi/${protocol.toLowerCase()}`} />
+                          <img src={`https://assets.solace.fi/${protocol.toLowerCase()}`} alt={protocol} />
                         </DeFiAssetImage>
                       </FormCol>
                       <FormCol style={{ display: 'flex', alignItems: 'center' }}>
