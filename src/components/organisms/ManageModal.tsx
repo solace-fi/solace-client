@@ -262,8 +262,8 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
   }
 
   const handleCoverageChange = (coverAmount: string) => {
-    setNewCoverage(coverAmount) // coveramount in wei
-    setInputCoverage(formatUnits(BigNumber.from(coverAmount), currencyDecimals)) // coveramount in eth
+    setNewCoverage(`${+coverAmount}`) // coveramount in wei
+    setInputCoverage(formatUnits(BigNumber.from(`${+coverAmount}`), currencyDecimals)) // coveramount in eth
   }
 
   const handleInputCoverage = (input: string) => {

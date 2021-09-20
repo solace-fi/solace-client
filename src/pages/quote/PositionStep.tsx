@@ -41,11 +41,11 @@ import { CardContainer, PositionCard } from '../../components/atoms/Card'
 import {
   PositionCardButton,
   PositionCardText,
-  PositionCardLogo,
+  DeFiAssetImage,
   PositionCardName,
-} from '../../components/atoms/Position'
+} from '../../components/atoms/DeFiAsset'
 import { Loader } from '../../components/atoms/Loader'
-import { Content, CustomScrollbar, HeroContainer } from '../../components/atoms/Layout'
+import { Content, Scrollable, HeroContainer } from '../../components/atoms/Layout'
 import { Heading1, TextSpan } from '../../components/atoms/Typography'
 import { ManageModal } from '../../components/organisms/ManageModal'
 
@@ -60,17 +60,6 @@ import { useWindowDimensions } from '../../hooks/useWindowDimensions'
 /* import utils */
 import { fixedTokenPositionBalance, truncateBalance } from '../../utils/formatting'
 import { HyperLink } from '../../components/atoms/Link'
-
-const Scrollable = styled.div`
-  max-height: 60vh;
-  overflow-y: scroll;
-  ${CustomScrollbar}
-  padding: 10px;
-
-  @media screen and (max-width: ${MAX_MOBILE_SCREEN_WIDTH}px) {
-    max-height: 65vh;
-  }
-`
 
 export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigation }) => {
   const { protocol, loading, positions } = formData
@@ -294,7 +283,7 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
             </ButtonWrapper>
           )}
           {fetchedBalances.length > 0 && (
-            <Scrollable>
+            <Scrollable maxMobileHeight={65}>
               <CardContainer>
                 {fetchedBalances.map((position: Token) => {
                   return (
@@ -325,13 +314,14 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
                       {userHasActiveProductPosition(protocol.name, position.underlying.symbol) && (
                         <PositionCardText style={{ opacity: '.8' }}>This position is already covered</PositionCardText>
                       )}
-                      <PositionCardLogo
+                      <DeFiAssetImage
+                        borderless
                         style={{
                           opacity: userHasActiveProductPosition(protocol.name, position.underlying.symbol) ? '.5' : '1',
                         }}
                       >
                         <img src={`https://assets.solace.fi/${position.underlying.address.toLowerCase()}`} />
-                      </PositionCardLogo>
+                      </DeFiAssetImage>
                       <PositionCardName
                         high_em
                         style={{

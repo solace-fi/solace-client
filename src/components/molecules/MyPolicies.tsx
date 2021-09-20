@@ -38,10 +38,9 @@ import { Button, ButtonWrapper } from '../atoms/Button'
 import { Loader } from '../atoms/Loader'
 import { Heading2, Heading3, Text } from '../atoms/Typography'
 import { FlexCol, FlexRow } from '../atoms/Layout'
-import { PositionCardLogo } from '../atoms/Position'
 import { Card, CardContainer } from '../atoms/Card'
 import { FormRow, FormCol } from '../atoms/Form'
-import { ProtocolImage } from '../atoms/Protocol'
+import { DeFiAssetImage } from '../atoms/DeFiAsset'
 
 /* import hooks */
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'
@@ -114,15 +113,15 @@ export const MyPolicies: React.FC<MyPoliciesProps> = ({ openClaimModal, openMana
                     <TableData h2 high_em>
                       {
                         <FlexRow>
-                          <ProtocolImage>
+                          <DeFiAssetImage>
                             <img src={`https://assets.solace.fi/${policy.productName.toLowerCase()}`} />
-                          </ProtocolImage>
+                          </DeFiAssetImage>
                           <FlexCol>
                             <FlexRow>
                               {policy.positionNames.slice(0, 8).map((name) => (
-                                <PositionCardLogo key={name} width={25} height={25}>
+                                <DeFiAssetImage borderless key={name} width={25} height={25}>
                                   <img src={`https://assets.solace.fi/${name.toLowerCase()}`} />
-                                </PositionCardLogo>
+                                </DeFiAssetImage>
                               ))}
                               {policy.positionNames.length > 8 && <StyledDots size={20} />}
                             </FlexRow>
@@ -179,15 +178,15 @@ export const MyPolicies: React.FC<MyPoliciesProps> = ({ openClaimModal, openMana
                   <FlexCol style={{ alignItems: 'center' }}>
                     <FormRow>
                       <FlexRow>
-                        <ProtocolImage>
+                        <DeFiAssetImage>
                           <img src={`https://assets.solace.fi/${policy.productName.toLowerCase()}`} />
-                        </ProtocolImage>
+                        </DeFiAssetImage>
                         <FlexCol>
                           <FlexRow>
                             {policy.positionNames.slice(0, 4).map((name) => (
-                              <PositionCardLogo key={name} width={35} height={35}>
+                              <DeFiAssetImage borderless key={name} width={35} height={35}>
                                 <img src={`https://assets.solace.fi/${name.toLowerCase()}`} />
-                              </PositionCardLogo>
+                              </DeFiAssetImage>
                             ))}
                             {policy.positionNames.length > 4 && <StyledDots size={20} />}
                           </FlexRow>

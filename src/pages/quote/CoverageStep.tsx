@@ -218,14 +218,12 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
   }
 
   const handleCoverageChange = (coverAmount: string) => {
-    setInputCoverage(formatUnits(BigNumber.from(coverAmount), currencyDecimals))
-    setCoverage(coverAmount)
+    setInputCoverage(formatUnits(BigNumber.from(`${+coverAmount}`), currencyDecimals))
+    setCoverage(`${+coverAmount}`)
   }
 
   const setMaxCover = () => {
-    const adjustedCoverAmount = maxCoverPerUserInWei.gt(positionAmount)
-      ? positionAmount.toString()
-      : maxCoverPerUserInWei.toString()
+    const adjustedCoverAmount = maxCoverPerUserInWei.toString()
     handleCoverageChange(adjustedCoverAmount)
   }
 

@@ -37,7 +37,7 @@ import { useWallet } from '../../context/WalletManager'
 import { useNetwork } from '../../context/NetworkManager'
 
 /* import constants */
-import { MAX_MOBILE_SCREEN_WIDTH, ZERO } from '../../constants'
+import { MAX_MOBILE_SCREEN_WIDTH } from '../../constants'
 import { Token } from '../../constants/types'
 
 /* import components */
@@ -46,7 +46,7 @@ import { PositionStep } from './PositionStep'
 import { CoverageStep } from './CoverageStep'
 import { ConfirmStep } from './ConfirmStep'
 import { Step, StepsContainer, StepsWrapper, StepsProgress, StepsProgressBar } from '../../components/atoms/Progress'
-import { Protocol, ProtocolImage, ProtocolTitle } from '../../components/atoms/Protocol'
+import { DeFiAsset, DeFiAssetImage, ProtocolTitle } from '../../components/atoms/DeFiAsset'
 import { Box, BoxItem, BoxRow } from '../../components/atoms/Box'
 import { Button, ButtonWrapper } from '../../components/atoms/Button'
 import { Card, CardContainer } from '../../components/atoms/Card'
@@ -245,14 +245,14 @@ export const MultiStepForm = () => {
             <BoxRow>
               <Box>
                 <BoxItem>
-                  <Protocol>
-                    <ProtocolImage mr={10}>
+                  <DeFiAsset>
+                    <DeFiAssetImage mr={10}>
                       <img src={`https://assets.solace.fi/${protocol.name.toLowerCase()}`} />
-                    </ProtocolImage>
+                    </DeFiAssetImage>
                     <ProtocolTitle high_em h3>
                       {protocol.name}
                     </ProtocolTitle>
-                  </Protocol>
+                  </DeFiAsset>
                 </BoxItem>
                 <BoxItem>
                   <Text t3 high_em>
@@ -281,11 +281,11 @@ export const MultiStepForm = () => {
                   <BoxItem>
                     <FlexRow>
                       {positions.slice(0, maxPositionsToDisplay).map((position: Token) => (
-                        <Protocol key={position.underlying.address}>
-                          <ProtocolImage mr={5}>
+                        <DeFiAsset key={position.underlying.address}>
+                          <DeFiAssetImage mr={5}>
                             <img src={`https://assets.solace.fi/${position.underlying.address.toLowerCase()}`} />
-                          </ProtocolImage>
-                        </Protocol>
+                          </DeFiAssetImage>
+                        </DeFiAsset>
                       ))}
                       {positions.length > maxPositionsToDisplay && <StyledDots size={20} />}
                     </FlexRow>
@@ -308,9 +308,9 @@ export const MultiStepForm = () => {
               <Card blue>
                 <FormRow>
                   <FormCol>
-                    <ProtocolImage mr={10}>
+                    <DeFiAssetImage mr={10}>
                       <img src={`https://assets.solace.fi/${protocol.name.toLowerCase()}`} />
-                    </ProtocolImage>
+                    </DeFiAssetImage>
                   </FormCol>
                   <FormCol style={{ display: 'flex', alignItems: 'center' }}>
                     <Heading2 high_em>{protocol.name}</Heading2>
@@ -347,9 +347,9 @@ export const MultiStepForm = () => {
                 <Card purple>
                   <FlexRow>
                     {positions.slice(0, maxPositionsToDisplay).map((position: Token) => (
-                      <ProtocolImage mr={5} key={position.underlying.address}>
+                      <DeFiAssetImage mr={5} key={position.underlying.address}>
                         <img src={`https://assets.solace.fi/${position.underlying.address.toLowerCase()}`} />
-                      </ProtocolImage>
+                      </DeFiAssetImage>
                     ))}
                     {positions.length > maxPositionsToDisplay && <StyledDots size={20} />}
                   </FlexRow>
