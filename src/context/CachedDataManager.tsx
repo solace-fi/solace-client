@@ -29,7 +29,11 @@ updates the app at a fixed rate with the user's input.
 
 type CachedData = {
   localTransactions: LocalTx[]
-  userPolicyData: { policiesLoading: boolean; userPolicies: Policy[] }
+  userPolicyData: {
+    policiesLoading: boolean
+    userPolicies: Policy[]
+    setCanGetAssessments: (toggle: boolean) => void
+  }
   tokenPositionData: { dataInitialized: boolean; storedTokenAndPositionData: NetworkCache[] }
   showHistoryModal: boolean
   version: number
@@ -44,7 +48,11 @@ type CachedData = {
 
 const CachedDataContext = createContext<CachedData>({
   localTransactions: [],
-  userPolicyData: { policiesLoading: false, userPolicies: [] },
+  userPolicyData: {
+    policiesLoading: false,
+    userPolicies: [],
+    setCanGetAssessments: () => undefined,
+  },
   tokenPositionData: { dataInitialized: false, storedTokenAndPositionData: [] },
   showHistoryModal: false,
   version: 0,
@@ -70,7 +78,7 @@ const CachedDataProvider: React.FC = (props) => {
   const latestBlock = useGetLatestBlockNumber(dataVersion)
   const { dataInitialized, storedTokenAndPositionData } = useCacheTokens()
   const { addNotices, removeNotices } = useGeneral()
-  const { policiesLoading, userPolicies } = usePolicyGetter(
+  const { policiesLoading, userPolicies, setCanGetAssessments } = usePolicyGetter(
     false,
     latestBlock,
     { dataInitialized, storedTokenAndPositionData },
@@ -142,7 +150,7 @@ const CachedDataProvider: React.FC = (props) => {
   const value = useMemo<CachedData>(
     () => ({
       localTransactions: localTxs,
-      userPolicyData: { policiesLoading, userPolicies },
+      userPolicyData: { policiesLoading, userPolicies, setCanGetAssessments },
       tokenPositionData: { dataInitialized, storedTokenAndPositionData },
       showHistoryModal: historyModal,
       version,
@@ -164,8 +172,9 @@ const CachedDataProvider: React.FC = (props) => {
       dataVersion,
       latestBlock,
       gasPrices,
-      userPolicies,
       policiesLoading,
+      userPolicies,
+      setCanGetAssessments,
     ]
   )
 

@@ -17,13 +17,18 @@ export const usePolicyGetter = (
   policyHolder?: string,
   product?: string
 ) => {
-  const { library, isActive } = useWallet()
+  const { library } = useWallet()
   const { activeNetwork, findNetworkByChainId, chainId } = useNetwork()
   const { policyManager } = useContracts()
   const [userPolicies, setUserPolicies] = useState<Policy[]>([])
   const [allPolicies, setAllPolicies] = useState<Policy[]>([])
   const [policiesLoading, setPoliciesLoading] = useState<boolean>(true)
+  const [canGetClaimAssessments, setCanGetClaimAssessments] = useState<boolean>(true)
   const mounting = useRef(true)
+
+  const setCanGetAssessments = (toggle: boolean) => {
+    setCanGetClaimAssessments(toggle)
+  }
 
   const getUserPolicies = async (policyHolder: string): Promise<Policy[]> => {
     if (!policyManager || !library) return []
@@ -32,7 +37,7 @@ export const usePolicyGetter = (
       console.log(err)
       return []
     })
-    const policies = await Promise.all(policyIds.map((policyId: BigNumber) => queryPolicy(policyId, blockNumber, true)))
+    const policies = await Promise.all(policyIds.map((policyId: BigNumber) => queryPolicy(policyId, blockNumber)))
     return policies
   }
 
@@ -47,7 +52,7 @@ export const usePolicyGetter = (
     ])
     const indices = rangeFrom0(totalSupply)
     const policyIds = await Promise.all(indices.map((index) => policyManager.tokenByIndex(index)))
-    const policies = await Promise.all(policyIds.map((policyId: number) => queryPolicy(policyId, blockNumber, false)))
+    const policies = await Promise.all(policyIds.map((policyId: number) => queryPolicy(policyId, blockNumber)))
     return policies
   }
 
@@ -71,7 +76,17 @@ export const usePolicyGetter = (
             })
           }
         })
-        setUserPolicies(policies)
+        if (canGetClaimAssessments) {
+          const claimAssessments = await Promise.all(
+            policies.map(async (policy) => getClaimAssessment(String(policy.policyId), chainId))
+          )
+          const policiesWithClaimAssessments = policies.map((policy, i) => {
+            return { ...policy, claimAssessment: claimAssessments[i] }
+          })
+          setUserPolicies(policiesWithClaimAssessments)
+        } else {
+          setUserPolicies(policies)
+        }
       } else {
         setAllPolicies(policies)
       }
@@ -80,11 +95,7 @@ export const usePolicyGetter = (
     }
   }
 
-  const queryPolicy = async (
-    policyId: BigNumber | number,
-    blockNumber: number,
-    canGetClaimAssessment: boolean
-  ): Promise<Policy> => {
+  const queryPolicy = async (policyId: BigNumber | number, blockNumber: number): Promise<Policy> => {
     const returnError = {
       policyId: 0,
       policyHolder: '',
@@ -100,7 +111,6 @@ export const usePolicyGetter = (
     if (!policyManager) return returnError
     try {
       const policy = await withBackoffRetries(async () => policyManager.getPolicyInfo(policyId))
-      const assessment = canGetClaimAssessment ? await getClaimAssessment(String(policyId), chainId) : undefined
       return {
         policyId: Number(policyId),
         policyHolder: policy.policyholder,
@@ -112,7 +122,7 @@ export const usePolicyGetter = (
         coverAmount: policy.coverAmount.toString(),
         price: policy.price.toString(),
         status: policy.expirationBlock < blockNumber ? PolicyState.EXPIRED : PolicyState.ACTIVE,
-        claimAssessment: assessment,
+        claimAssessment: undefined,
       }
     } catch (err) {
       console.log(err)
@@ -124,7 +134,7 @@ export const usePolicyGetter = (
     const loadOverTime = async () => {
       await getPolicies()
     }
-    if (policyHolder !== undefined || !library || !getAll) return
+    if (policyHolder !== undefined || !getAll) return
 
     loadOverTime()
   }, [latestBlock])
@@ -136,9 +146,9 @@ export const usePolicyGetter = (
       mounting.current = false
     }
     setPoliciesLoading(true)
-    if (!policyHolder || !library || getAll || !data.dataInitialized) return
+    if (policyHolder == undefined || getAll || !data.dataInitialized) return
     loadOnBoot()
-  }, [policyHolder, isActive, activeNetwork, data.dataInitialized])
+  }, [policyHolder, activeNetwork, data.dataInitialized])
 
   useEffect(() => {
     const loadOverTime = async () => {
@@ -147,7 +157,7 @@ export const usePolicyGetter = (
     if (policyHolder == undefined || mounting.current || getAll || !data.dataInitialized) return
 
     loadOverTime()
-  }, [latestBlock, version])
+  }, [latestBlock])
 
-  return { policiesLoading, userPolicies, allPolicies }
+  return { policiesLoading, userPolicies, allPolicies, setCanGetAssessments }
 }
