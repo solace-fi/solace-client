@@ -55,7 +55,7 @@ import { StyledTooltip } from '../../components/molecules/Tooltip'
 import { useGetQuote, useGetMaxCoverPerUser } from '../../hooks/usePolicy'
 
 /* import utils */
-import { accurateMultiply, encodeAddresses } from '../../utils/formatting'
+import { accurateMultiply, encodeAddresses, filteredAmount } from '../../utils/formatting'
 import { getDateStringWithMonthName, getDateExtended } from '../../utils/time'
 import { getGasConfig } from '../../utils/gas'
 
@@ -194,12 +194,6 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
     // if number is greater than the max cover per user, do not update
     if (parseFloat(filtered) > parseFloat(maxCoverPerUser)) return
 
-    // if number is greater than the position amount, do not update
-    if (parseFloat(filtered) > parseFloat(formatUnits(positionAmount, currencyDecimals))) return
-
-    // if number is empty or less than smallest denomination of currency, do not update
-    if (filtered == '' || parseFloat(filtered) < parseFloat(formatUnits(BigNumber.from(1), currencyDecimals))) return
-
     // if number has more than max decimal places, do not update
     if (filtered.includes('.') && filtered.split('.')[1]?.length > currencyDecimals) return
 
@@ -217,14 +211,16 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
     })
   }
 
-  const handleCoverageChange = (coverAmount: string) => {
-    setInputCoverage(formatUnits(BigNumber.from(`${+coverAmount}`), currencyDecimals))
-    setCoverage(`${+coverAmount}`)
+  const handleCoverageChange = (coverAmount: string, convertFromSciNota = true) => {
+    setInputCoverage(
+      formatUnits(BigNumber.from(`${convertFromSciNota ? +coverAmount : coverAmount}`), currencyDecimals)
+    )
+    setCoverage(`${convertFromSciNota ? +coverAmount : coverAmount}`)
   }
 
   const setMaxCover = () => {
     const adjustedCoverAmount = maxCoverPerUserInWei.toString()
-    handleCoverageChange(adjustedCoverAmount)
+    handleCoverageChange(adjustedCoverAmount, false)
   }
 
   /*************************************************************************************
@@ -294,7 +290,7 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
                 textAlignCenter
                 type="text"
                 value={inputCoverage}
-                onChange={(e) => handleInputCoverage(e.target.value)}
+                onChange={(e) => handleInputCoverage(filteredAmount(e.target.value, inputCoverage))}
               />
               <Button
                 disabled={errors.length > 0}
@@ -385,10 +381,7 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
             <Button
               widthP={100}
               onClick={() => buyPolicy()}
-              disabled={
-                errors.length > 0 ||
-                parseUnits(coveredAssets, currencyDecimals).gt(parseUnits(maxCoverPerUser, currencyDecimals))
-              }
+              disabled={errors.length > 0 || !inputCoverage || inputCoverage == '.'}
             >
               Buy
             </Button>
