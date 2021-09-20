@@ -9,6 +9,11 @@ import styled, { createGlobalStyle, css, keyframes } from 'styled-components'
 import { GeneralElementProps, GeneralElementCss, HeightAndWidthProps } from '../../generalInterfaces'
 import { Text3Css } from '../Typography'
 
+interface ScrollableProps {
+  maxDesktopHeight?: number
+  maxMobileHeight?: number
+}
+
 export const CustomScrollbar = css`
   ::-webkit-scrollbar {
     width: 10px;
@@ -19,6 +24,17 @@ export const CustomScrollbar = css`
   ::-webkit-scrollbar-thumb {
     background-color: #fff;
     background-image: -webkit-gradient(linear, 40% 0%, 75% 84%, from(#b621ff), to(#b621ff), color-stop(0.6, #f1d6ff));
+  }
+`
+
+export const Scrollable = styled.div<ScrollableProps>`
+  max-height: ${(props) => (props.maxDesktopHeight ? props.maxDesktopHeight : `60`)}vh;
+  overflow-y: scroll;
+  ${CustomScrollbar}
+  padding: 10px;
+
+  @media screen and (max-width: ${MAX_MOBILE_SCREEN_WIDTH}px) {
+    max-height: ${(props) => (props.maxMobileHeight ? props.maxMobileHeight : `85`)}vh;
   }
 `
 

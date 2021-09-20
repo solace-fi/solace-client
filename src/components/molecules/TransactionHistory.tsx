@@ -3,14 +3,11 @@
     Table of Contents:
 
     import react
-    import packages
     import constants
     import managers
     import components
     import hooks
     import utils
-
-    styled components
 
     TransactionHistory function
       custom hooks
@@ -20,9 +17,6 @@
 
 /* import react */
 import React from 'react'
-
-/* import packages */
-import styled from 'styled-components'
 
 /* import constants */
 import { MAX_TABLET_SCREEN_WIDTH, MAX_MOBILE_SCREEN_WIDTH } from '../../constants'
@@ -35,7 +29,7 @@ import { useNetwork } from '../../context/NetworkManager'
 
 /* import components */
 import { Button } from '../atoms/Button'
-import { CustomScrollbar } from '../atoms/Layout'
+import { Scrollable } from '../atoms/Layout'
 import { HyperLink } from '../atoms/Link'
 import { Loader } from '../atoms/Loader'
 import { Table, TableHead, TableHeader, TableRow, TableBody, TableData } from '../atoms/Table'
@@ -50,23 +44,6 @@ import { getExplorerItemUrl } from '../../utils/explorer'
 import { shortenAddress } from '../../utils/formatting'
 import { timeAgo } from '../../utils/time'
 import { decodeInput } from '../../utils/decoder'
-
-/*************************************************************************************
-
-  styled components
-
-  *************************************************************************************/
-
-const Scrollable = styled.div`
-  max-height: 60vh;
-  overflow-y: scroll;
-  ${CustomScrollbar}
-  padding: 10px;
-
-  @media screen and (max-width: ${MAX_MOBILE_SCREEN_WIDTH}px) {
-    max-height: 85vh;
-  }
-`
 
 export const TransactionHistory: React.FC = () => {
   /*************************************************************************************

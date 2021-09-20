@@ -40,7 +40,7 @@ import { Button } from '../../components/atoms/Button'
 import { formProps } from './MultiStepForm'
 import { Table, TableData, TableHead, TableHeader, TableRow, TableBody } from '../../components/atoms/Table'
 import { Search } from '../../components/atoms/Input'
-import { Protocol, ProtocolImage, ProtocolTitle } from '../../components/atoms/Protocol'
+import { DeFiAsset, DeFiAssetImage, ProtocolTitle } from '../../components/atoms/DeFiAsset'
 import { Card, CardContainer } from '../../components/atoms/Card'
 import { FormRow, FormCol } from '../../components/atoms/Form'
 import { Content } from '../../components/atoms/Layout'
@@ -167,14 +167,14 @@ export const ProtocolStep: React.FC<formProps> = ({ setForm, navigation }) => {
                       style={{ cursor: 'pointer' }}
                     >
                       <TableData>
-                        <Protocol>
-                          <ProtocolImage mr={10}>
-                            <img src={`https://assets.solace.fi/${protocol.toLowerCase()}`} />
-                          </ProtocolImage>
+                        <DeFiAsset>
+                          <DeFiAssetImage mr={10}>
+                            <img src={`https://assets.solace.fi/${protocol.toLowerCase()}`} alt={protocol} />
+                          </DeFiAssetImage>
                           <ProtocolTitle high_em h3>
                             {protocol}
                           </ProtocolTitle>
-                        </Protocol>
+                        </DeFiAsset>
                       </TableData>
                       <TableData high_em>
                         {fixed(
@@ -227,9 +227,9 @@ export const ProtocolStep: React.FC<formProps> = ({ setForm, navigation }) => {
                   >
                     <FormRow>
                       <FormCol>
-                        <ProtocolImage mr={10}>
-                          <img src={`https://assets.solace.fi/${protocol.toLowerCase()}`} />
-                        </ProtocolImage>
+                        <DeFiAssetImage mr={10}>
+                          <img src={`https://assets.solace.fi/${protocol.toLowerCase()}`} alt={protocol} />
+                        </DeFiAssetImage>
                       </FormCol>
                       <FormCol style={{ display: 'flex', alignItems: 'center' }}>
                         <Heading2 high_em>{protocol}</Heading2>

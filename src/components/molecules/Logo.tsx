@@ -29,7 +29,7 @@ export const Logo: React.FC<GeneralElementProps> = ({ ...props }) => {
   *************************************************************************************/
   return (
     <LogoBase href={`https://solace.fi/`} target="_blank" rel="noopener noreferrer" {...props}>
-      <img src={logo} alt="Solace" />
+      <img src={logo} alt="Solace | Decentralized Coverage Protocol" />
     </LogoBase>
   )
 }

@@ -38,12 +38,11 @@ import { MAX_MOBILE_SCREEN_WIDTH, ZERO } from '../../constants'
 import { Box, BoxItem, BoxItemTitle } from '../atoms/Box'
 import { FormCol, FormRow } from '../atoms/Form'
 import { FlexCol, FlexRow, HeroContainer } from '../atoms/Layout'
-import { Protocol, ProtocolImage } from '../atoms/Protocol'
+import { DeFiAsset, DeFiAssetImage } from '../atoms/DeFiAsset'
 import { Loader } from '../atoms/Loader'
 import { Heading3, Text, TextSpan } from '../atoms/Typography'
 import { Card } from '../atoms/Card'
 import { StyledTooltip } from '../molecules/Tooltip'
-import { PositionCardLogo } from '../atoms/Position'
 import { Button, ButtonWrapper } from '../atoms/Button'
 import { StyledDots } from '../atoms/Icon'
 import { AssetsModal } from '../molecules/AssetsModal'
@@ -227,22 +226,25 @@ export const PolicyModalInfo: React.FC<PolicyModalInfoProps> = ({ appraisal, sel
         {width > MAX_MOBILE_SCREEN_WIDTH ? (
           <FlexRow>
             <FormCol>
-              <Protocol style={{ alignItems: 'center', flexDirection: 'column' }}>
-                <ProtocolImage width={60} height={60}>
-                  <img src={`https://assets.solace.fi/${selectedPolicy?.productName.toLowerCase()}`} />
-                </ProtocolImage>
+              <DeFiAsset style={{ flexDirection: 'column' }}>
+                <DeFiAssetImage width={60} height={60}>
+                  <img
+                    src={`https://assets.solace.fi/${selectedPolicy?.productName.toLowerCase()}`}
+                    alt={selectedPolicy?.productName}
+                  />
+                </DeFiAssetImage>
                 <TextSpan h2 high_em>
                   {selectedPolicy?.productName}
                 </TextSpan>
-              </Protocol>
+              </DeFiAsset>
             </FormCol>
             <FormCol style={{ margin: 'auto' }}>
               <FlexRow>
                 {selectedPolicy?.positionNames.slice(0, maxPositionsOnDisplay).map((name: string) => (
                   <FlexCol style={{ alignItems: 'center' }} key={name}>
-                    <PositionCardLogo width={45} height={45}>
-                      <img src={`https://assets.solace.fi/${name.toLowerCase()}`} />
-                    </PositionCardLogo>
+                    <DeFiAssetImage borderless width={45} height={45}>
+                      <img src={`https://assets.solace.fi/${name.toLowerCase()}`} alt={name} />
+                    </DeFiAssetImage>
                   </FlexCol>
                 ))}
                 {selectedPolicy?.positionNames && selectedPolicy?.positionNames.length > maxPositionsOnDisplay && (
@@ -255,22 +257,25 @@ export const PolicyModalInfo: React.FC<PolicyModalInfoProps> = ({ appraisal, sel
           <FlexCol>
             <FlexRow style={{ justifyContent: 'center' }} mt={10} mb={10}>
               <FlexCol>
-                <Protocol style={{ alignItems: 'center', flexDirection: 'column' }}>
-                  <ProtocolImage width={60} height={60}>
-                    <img src={`https://assets.solace.fi/${selectedPolicy?.productName.toLowerCase()}`} />
-                  </ProtocolImage>
+                <DeFiAsset style={{ flexDirection: 'column' }}>
+                  <DeFiAssetImage width={60} height={60}>
+                    <img
+                      src={`https://assets.solace.fi/${selectedPolicy?.productName.toLowerCase()}`}
+                      alt={selectedPolicy?.productName}
+                    />
+                  </DeFiAssetImage>
                   <TextSpan h2 high_em>
                     {selectedPolicy?.productName}
                   </TextSpan>
-                </Protocol>
+                </DeFiAsset>
               </FlexCol>
             </FlexRow>
             <FlexRow>
               {selectedPolicy?.positionNames.slice(0, maxPositionsOnDisplay).map((name: string) => (
                 <FlexCol style={{ alignItems: 'center' }} key={name}>
-                  <PositionCardLogo width={45} height={45}>
-                    <img src={`https://assets.solace.fi/${name.toLowerCase()}`} />
-                  </PositionCardLogo>
+                  <DeFiAssetImage borderless width={45} height={45}>
+                    <img src={`https://assets.solace.fi/${name.toLowerCase()}`} alt={name} />
+                  </DeFiAssetImage>
                 </FlexCol>
               ))}
               {selectedPolicy?.positionNames && selectedPolicy?.positionNames.length > maxPositionsOnDisplay && (

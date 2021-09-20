@@ -30,6 +30,8 @@ import { StyledTheme, StyledSun, StyledMoon } from '../atoms/Icon'
 import { GeneralElementProps } from '../generalInterfaces'
 
 /* import hooks */
+import { useWindowDimensions } from '../../hooks/useWindowDimensions'
+import { MAX_MOBILE_SCREEN_WIDTH } from '../../constants'
 
 export const ThemeButton: React.FC<GeneralElementProps & ButtonProps> = ({ ...props }) => {
   /*************************************************************************************
@@ -38,6 +40,7 @@ export const ThemeButton: React.FC<GeneralElementProps & ButtonProps> = ({ ...pr
 
   *************************************************************************************/
   const { selectedTheme, toggleTheme } = useGeneral()
+  const { width } = useWindowDimensions()
 
   /*************************************************************************************
 
@@ -54,8 +57,8 @@ export const ThemeButton: React.FC<GeneralElementProps & ButtonProps> = ({ ...pr
         ) : (
           <StyledTheme size={30} />
         )}
-
         {selectedTheme == 'light' ? 'Light' : selectedTheme == 'dark' ? 'Dark' : 'Auto'}
+        {width > MAX_MOBILE_SCREEN_WIDTH && ` Theme`}
       </Button>
     </>
   )

@@ -21,7 +21,7 @@
   *************************************************************************************/
 
 /* import react */
-import React, { Fragment, useCallback, useEffect, useState, useMemo } from 'react'
+import React, { Fragment, useCallback, useEffect, useState, useMemo, useRef } from 'react'
 
 /* import packages */
 import { formatUnits } from '@ethersproject/units'
@@ -58,6 +58,7 @@ import { useAppraisePosition } from '../../hooks/usePolicy'
 import { truncateBalance } from '../../utils/formatting'
 import { timeToDateText } from '../../utils/time'
 import { getGasConfig } from '../../utils/gas'
+import { getClaimAssessment } from '../../utils/paclas'
 
 interface ClaimModalProps {
   closeModal: () => void
@@ -83,12 +84,12 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
   *************************************************************************************/
 
   const cooldown = useGetCooldownPeriod()
-  const { addLocalTransactions, reload, gasPrices } = useCachedData()
+  const { addLocalTransactions, reload, gasPrices, userPolicyData } = useCachedData()
   const { selectedProtocol } = useContracts()
   const { makeTxToast } = useToasts()
   const { activeWalletConnector } = useWallet()
   const { errors } = useGeneral()
-  const { activeNetwork, currencyDecimals } = useNetwork()
+  const { activeNetwork, currencyDecimals, chainId } = useNetwork()
   const { width } = useWindowDimensions()
   const gasConfig = useMemo(() => getGasConfig(activeWalletConnector, activeNetwork, gasPrices.selected?.value), [
     activeWalletConnector,
@@ -96,6 +97,7 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
     gasPrices.selected?.value,
   ])
   const appraisal = useAppraisePosition(selectedPolicy)
+  const mounting = useRef(true)
 
   /*************************************************************************************
 
@@ -142,6 +144,9 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
   const handleClose = useCallback(() => {
     setClaimSubmitted(false)
     setModalLoading(false)
+    setAssessment(undefined)
+    userPolicyData.setCanGetAssessments(true)
+    mounting.current = true
     closeModal()
   }, [closeModal])
 
@@ -152,12 +157,27 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
   *************************************************************************************/
 
   useEffect(() => {
-    const load = async () => {
+    const loadOnBoot = async () => {
       if (!selectedPolicy || !isOpen) return
-      setAssessment(selectedPolicy.claimAssessment)
+      userPolicyData.setCanGetAssessments(false)
+      setModalLoading(true)
+      const assessment = await getClaimAssessment(String(selectedPolicy.policyId), chainId)
+      setAssessment(assessment)
+      setModalLoading(false)
+      mounting.current = false
     }
-    load()
-  }, [isOpen, selectedPolicy, activeNetwork])
+    loadOnBoot()
+  }, [isOpen])
+
+  useEffect(() => {
+    const loadOverTime = async () => {
+      if (!selectedPolicy || !isOpen || mounting.current) return
+      userPolicyData.setCanGetAssessments(false)
+      const assessment = await getClaimAssessment(String(selectedPolicy.policyId), chainId)
+      setAssessment(assessment)
+    }
+    loadOverTime()
+  }, [selectedPolicy])
 
   /*************************************************************************************
 

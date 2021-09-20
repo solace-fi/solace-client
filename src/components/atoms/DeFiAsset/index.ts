@@ -2,20 +2,34 @@ import styled from 'styled-components'
 import { GeneralTextProps, GeneralTextCss } from '../Typography'
 import { HeightAndWidthProps, HeightAndWidthCss, MarginProps, MarginCss } from '../../generalInterfaces'
 
-export const PositionCardLogo = styled.div<HeightAndWidthProps & MarginProps>`
+interface DeFiAssetProps extends HeightAndWidthProps, MarginProps {
+  borderless?: boolean
+}
+
+export const DeFiAsset = styled.div`
   display: flex;
   align-items: center;
-  justify-content: center;
+`
+
+export const DeFiAssetImage = styled.div<DeFiAssetProps>`
+  display: flex;
+  align-items: center;
   ${HeightAndWidthCss}
   ${(props) => !props.width && 'width: 40px;'}
   ${(props) => !props.height && 'height: 40px;'}
   overflow: hidden;
+  ${(props) => !props.borderless && `border: 4px solid #fff; border-radius: 100%;`}
   img {
     width: 100%;
     height: 100%;
     object-fit: cover;
   }
   ${MarginCss}
+`
+
+export const ProtocolTitle = styled.div<GeneralTextProps>`
+  ${GeneralTextCss}
+  line-height: 19px;
 `
 
 export const PositionCardName = styled.div<GeneralTextProps>`

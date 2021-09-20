@@ -56,7 +56,7 @@ export const NftPosition: React.FC<NftPositionProps> = ({ tokenId }) => {
   *************************************************************************************/
   const { width } = useWindowDimensions()
   const { lpToken } = useContracts()
-  const [lpNftSvgString, setLpNftSvgString] = useState<string | null>()
+  const [image, setImage] = useState<any>(null)
 
   /*************************************************************************************
 
@@ -69,9 +69,7 @@ export const NftPosition: React.FC<NftPositionProps> = ({ tokenId }) => {
       const uri = await lpToken.tokenURI(tokenId)
       const newUri = uri.replace('data:application/json;base64,', '')
       const json = JSON.parse(atob(newUri))
-      const imageBase64 = json.image.replace('data:image/svg+xml;base64,', '')
-      const svgString = atob(imageBase64)
-      setLpNftSvgString(svgString)
+      setImage(json.image)
     }
     getUri()
   }, [lpToken, tokenId])
@@ -84,14 +82,14 @@ export const NftPosition: React.FC<NftPositionProps> = ({ tokenId }) => {
 
   return (
     <>
-      {lpNftSvgString ? (
+      {image ? (
         <Tilt style={{ textAlign: 'center' }}>
           {width > MAX_MOBILE_SCREEN_WIDTH ? (
             <ScaledContainer>
-              <img src={`data:image/svg+xml,${encodeURIComponent(lpNftSvgString)}`} style={{ width: '80%' }} />
+              <img src={image} style={{ width: '80%' }} />
             </ScaledContainer>
           ) : (
-            <img src={`data:image/svg+xml,${encodeURIComponent(lpNftSvgString)}`} style={{ width: '80%' }} />
+            <img src={image} style={{ width: '80%' }} />
           )}
         </Tilt>
       ) : (

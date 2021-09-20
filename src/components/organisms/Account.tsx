@@ -73,7 +73,7 @@ export const UserAccount: React.FC = () => {
                 {shortenAddress(account)}
               </Heading4>{' '}
               <UserImage pt={4} pb={4} pl={10}>
-                <img src={makeBlockie(account)} />
+                <img src={makeBlockie(account)} alt={'account'} />
               </UserImage>
             </SmallBox>
           </SmallBox>

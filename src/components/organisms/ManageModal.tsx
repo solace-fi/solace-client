@@ -21,7 +21,7 @@
   *************************************************************************************/
 
 /* import react */
-import React, { Fragment, useState, useEffect, useMemo, useCallback } from 'react'
+import React, { Fragment, useState, useEffect, useMemo, useCallback, useRef } from 'react'
 
 /* import packages */
 import { parseUnits, formatUnits } from '@ethersproject/units'
@@ -44,7 +44,6 @@ import { Input, StyledSlider } from '../../components/atoms/Input'
 import { Button, ButtonWrapper } from '../atoms/Button'
 import { Loader } from '../atoms/Loader'
 import { FlexCol } from '../atoms/Layout'
-import { SmallBox } from '../atoms/Box'
 
 /* import constants */
 import { DAYS_PER_YEAR, NUM_BLOCKS_PER_DAY, GAS_LIMIT, ZERO } from '../../constants'
@@ -55,7 +54,7 @@ import { LocalTx, Policy } from '../../constants/types'
 import { useAppraisePosition, useGetMaxCoverPerUser, useGetPolicyPrice } from '../../hooks/usePolicy'
 
 /* import utils */
-import { accurateMultiply } from '../../utils/formatting'
+import { accurateMultiply, filteredAmount } from '../../utils/formatting'
 import { getDaysLeft, getExpiration } from '../../utils/time'
 import { getGasConfig } from '../../utils/gas'
 
@@ -120,6 +119,7 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
     return parseUnits(maxCoverPerUser, currencyDecimals)
   }, [maxCoverPerUser, currencyDecimals])
   const appraisal = useAppraisePosition(selectedPolicy)
+  const mounting = useRef(true)
 
   /*************************************************************************************
 
@@ -261,9 +261,11 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
     reload()
   }
 
-  const handleCoverageChange = (coverAmount: string) => {
-    setNewCoverage(coverAmount) // coveramount in wei
-    setInputCoverage(formatUnits(BigNumber.from(coverAmount), currencyDecimals)) // coveramount in eth
+  const handleCoverageChange = (coverAmount: string, convertFromSciNota = true) => {
+    setInputCoverage(
+      formatUnits(BigNumber.from(`${convertFromSciNota ? +coverAmount : coverAmount}`), currencyDecimals)
+    )
+    setNewCoverage(`${convertFromSciNota ? +coverAmount : coverAmount}`)
   }
 
   const handleInputCoverage = (input: string) => {
@@ -272,12 +274,6 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
 
     // if number is greater than the max cover per user, do not update
     if (parseFloat(filtered) > parseFloat(maxCoverPerUser)) return
-
-    // if number is greater than the position amount, do not update
-    if (parseFloat(filtered) > parseFloat(formatUnits(appraisal, currencyDecimals))) return
-
-    // if number is empty or less than smallest denomination of currency, do not update
-    if (filtered == '' || parseFloat(filtered) < parseFloat(formatUnits(BigNumber.from(1), currencyDecimals))) return
 
     // if number has more than max decimal places, do not update
     if (filtered.includes('.') && filtered.split('.')[1]?.length > currencyDecimals) return
@@ -317,6 +313,11 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
     }
   }
 
+  const setMaxCover = () => {
+    const adjustedCoverAmount = maxCoverPerUserInWei.toString()
+    handleCoverageChange(adjustedCoverAmount, false)
+  }
+
   /*************************************************************************************
 
     useEffect hooks
@@ -328,11 +329,18 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
       if (!selectedPolicy || !isOpen) return
       setAsyncLoading(true)
       if (BigNumber.from(currentCoverAmount).lte(ZERO) || appraisal.lte(ZERO)) return
-      handleCoverageChange(currentCoverAmount)
+      if (mounting.current) {
+        handleCoverageChange(currentCoverAmount)
+        mounting.current = false
+      }
       setAsyncLoading(false)
     }
     load()
   }, [isOpen, selectedPolicy, currentCoverAmount, appraisal])
+
+  useEffect(() => {
+    setMaxCover()
+  }, [maxCoverPerUser])
 
   /*************************************************************************************
 
@@ -359,8 +367,21 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
                       disabled={asyncLoading}
                       type="text"
                       value={inputCoverage}
-                      onChange={(e) => handleInputCoverage(e.target.value)}
+                      onChange={(e) => handleInputCoverage(filteredAmount(e.target.value, inputCoverage))}
                     />
+                    <Button
+                      disabled={errors.length > 0}
+                      ml={10}
+                      pt={4}
+                      pb={4}
+                      pl={8}
+                      pr={8}
+                      width={79}
+                      height={30}
+                      onClick={() => setMaxCover()}
+                    >
+                      MAX
+                    </Button>
                     <StyledSlider
                       disabled={asyncLoading}
                       value={newCoverage}
@@ -392,39 +413,11 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
                       max={DAYS_PER_YEAR - daysLeft}
                     />
                     <Text4 high_em>New expiration: {getExpiration(daysLeft + parseFloat(extendedTime || '0'))}</Text4>
-                    <SmallBox
-                      transparent
-                      outlined
-                      error
-                      style={{ display: maxCoverPerUser == '0' ? 'none' : 'auto' }}
-                      collapse={
-                        !parseUnits(inputCoverage, currencyDecimals).gt(parseUnits(maxCoverPerUser, currencyDecimals))
-                      }
-                      mt={
-                        !parseUnits(inputCoverage, currencyDecimals).gt(parseUnits(maxCoverPerUser, currencyDecimals))
-                          ? 0
-                          : 5
-                      }
-                      mb={
-                        !parseUnits(inputCoverage, currencyDecimals).gt(parseUnits(maxCoverPerUser, currencyDecimals))
-                          ? 0
-                          : 5
-                      }
-                    >
-                      <Text4 error autoAlign>
-                        You can only cover up to {maxCoverPerUser} {activeNetwork.nativeCurrency.symbol}.
-                      </Text4>
-                    </SmallBox>
                     <ButtonWrapper>
                       {!asyncLoading ? (
                         <Button
                           widthP={100}
-                          disabled={
-                            errors.length > 0 ||
-                            parseUnits(inputCoverage, currencyDecimals).gt(
-                              parseUnits(maxCoverPerUser, currencyDecimals)
-                            )
-                          }
+                          disabled={errors.length > 0 || !inputCoverage || inputCoverage == '.'}
                           onClick={handleFunc}
                         >
                           Update Policy
