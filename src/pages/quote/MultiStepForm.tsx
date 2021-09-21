@@ -111,7 +111,7 @@ const defaultData = {
   },
   positions: [],
   coverAmount: '1',
-  timePeriod: '5',
+  timePeriod: '30',
   loading: true,
 }
 
