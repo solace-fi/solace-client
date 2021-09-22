@@ -1,6 +1,6 @@
 import { formatUnits, parseUnits } from '@ethersproject/units'
 import { useContracts } from '../context/ContractsManager'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useWallet } from '../context/WalletManager'
 import { floatUnits } from '../utils/formatting'
 import { ZERO } from '../constants'
@@ -11,7 +11,7 @@ import { useNetwork } from '../context/NetworkManager'
 export const useCapitalPoolSize = (): string => {
   const { vault } = useContracts()
   const { currencyDecimals } = useNetwork()
-  const { version, latestBlock } = useCachedData()
+  const { latestBlock } = useCachedData()
   const [capitalPoolSize, setCapitalPoolSize] = useState<string>('0')
 
   useEffect(() => {
@@ -26,7 +26,7 @@ export const useCapitalPoolSize = (): string => {
       }
     }
     getCapitalPoolSize()
-  }, [vault, version, latestBlock, currencyDecimals])
+  }, [vault, latestBlock, currencyDecimals])
 
   return capitalPoolSize
 }
@@ -35,10 +35,9 @@ export const useUserVaultDetails = () => {
   const [userVaultAssets, setUserVaultAssets] = useState<string>('0')
   const [userVaultShare, setUserVaultShare] = useState<string>('0')
   const scpBalance = useScpBalance()
-  const { library, account } = useWallet()
+  const { account } = useWallet()
   const { vault, cpFarm } = useContracts()
-  const { version } = useCachedData()
-  const { activeNetwork, currencyDecimals } = useNetwork()
+  const { currencyDecimals } = useNetwork()
 
   useEffect(() => {
     const getUserVaultDetails = async () => {
@@ -60,7 +59,7 @@ export const useUserVaultDetails = () => {
       }
     }
     getUserVaultDetails()
-  }, [library, scpBalance, cpFarm, account, vault, version, activeNetwork])
+  }, [vault, cpFarm, scpBalance, account])
 
   return { userVaultAssets, userVaultShare }
 }
@@ -73,31 +72,43 @@ export const useCooldown = () => {
   const [canWithdrawEth, setCanWithdrawEth] = useState<boolean>(false)
   const [cooldownMin, setCooldownMin] = useState<number>(0)
   const [cooldownMax, setCooldownMax] = useState<number>(0)
+  const [cooldownStart, setCooldownStart] = useState<number>(0)
   const { latestBlock } = useCachedData()
+  const gettingCooldown = useRef(true)
 
   useEffect(() => {
     const getCooldown = async () => {
       if (!vault || !account) return
       try {
+        gettingCooldown.current = true
         const _cooldownStart: number = await vault.cooldownStart(account)
         const _cooldownMin: number = await vault.cooldownMin()
         const _cooldownMax: number = await vault.cooldownMax()
-        const _timeWaited = Date.now() - _cooldownStart * 1000
+        setCooldownStart(_cooldownStart * 1000)
         setCooldownMin(_cooldownMin * 1000)
         setCooldownMax(_cooldownMax * 1000)
-        setTimeWaited(_timeWaited)
-        if (_cooldownStart > 0) {
-          setCanWithdrawEth(_cooldownMin * 1000 <= _timeWaited && _timeWaited <= _cooldownMax * 1000)
-          setCooldownStarted(true)
-        } else {
-          setCooldownStarted(false)
-        }
+        gettingCooldown.current = false
       } catch (err) {
         console.log('error getCooldown ', err)
       }
     }
     getCooldown()
-  }, [vault, account, latestBlock])
+  }, [vault, account])
+
+  useEffect(() => {
+    const calculateTime = () => {
+      const _timeWaited = Date.now() - cooldownStart
+      setTimeWaited(_timeWaited)
+      if (cooldownStart > 0) {
+        setCanWithdrawEth(cooldownMin <= _timeWaited && _timeWaited <= cooldownMax)
+        setCooldownStarted(true)
+      } else {
+        setCooldownStarted(false)
+      }
+    }
+    if (gettingCooldown) return
+    calculateTime()
+  }, [latestBlock])
 
   return { cooldownStarted, timeWaited, cooldownMin, cooldownMax, canWithdrawEth }
 }

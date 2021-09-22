@@ -229,12 +229,12 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
 
   useEffect(() => {
     const loadOverTime = async () => {
-      if (canLoadOverTime.current) {
+      if (canLoadOverTime.current && tokenPositionData.dataInitialized) {
         await getUserBalances()
       }
     }
     loadOverTime()
-  }, [latestBlock, tokenPositionData.dataInitialized])
+  }, [latestBlock])
 
   useEffect(() => {
     setSelectableBalances(

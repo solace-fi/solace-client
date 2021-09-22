@@ -52,7 +52,7 @@ export const useUserRewardsPerDay = (
   farm: Contract | null | undefined,
   account: string | undefined
 ): string => {
-  const { activeNetwork, currencyDecimals } = useNetwork()
+  const { currencyDecimals } = useNetwork()
   const poolStakedValue = parseUnits(usePoolStakedValue(farm), currencyDecimals)
   const userStakedValue = parseUnits(useUserStakedValue(farm, account), currencyDecimals)
   const { allocPoints, totalAllocPoints, solacePerBlock } = useMasterValues(farmId)
@@ -67,7 +67,7 @@ export const useUserRewardsPerDay = (
     const rewards = floatUnits(solacePerBlock, currencyDecimals) * allocPercentage * poolPercentage
     const formattedRewards = rewards.toString()
     return formattedRewards
-  }, [allocPoints, totalAllocPoints, solacePerBlock, poolStakedValue, userStakedValue, activeNetwork])
+  }, [allocPoints, totalAllocPoints, solacePerBlock, poolStakedValue, userStakedValue])
 }
 
 export const useUserPendingRewards = (farm: Contract | null | undefined): string => {
