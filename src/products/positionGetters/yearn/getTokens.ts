@@ -1,4 +1,4 @@
-import { Token } from '../../../constants/types'
+import { NetworkConfig, Token } from '../../../constants/types'
 import { getContract } from '../../../utils'
 import { numberify, rangeFrom0 } from '../../../utils/numeric'
 import { ZERO } from '../../../constants'
@@ -93,7 +93,7 @@ const vaultAbi = [
 
 const yRegistryAddress = '0x3eE41C098f9666ed2eA246f4D2558010e59d63A0'
 
-export const getTokens = async (provider: any): Promise<Token[]> => {
+export const getTokens = async (provider: any, activeNetwork: NetworkConfig): Promise<Token[]> => {
   // TODO: reduce the ~1000 requests down
   if (!provider) return []
   const yregistry = getContract(yRegistryAddress, yregistryAbi, provider)
