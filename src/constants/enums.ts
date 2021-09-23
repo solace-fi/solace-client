@@ -63,4 +63,5 @@ export enum ProductName {
   COMPOUND = 'Compound',
   AAVE = 'Aave',
   WAAVE = 'Waave',
+  LIQUITY = 'Liquity',
 }

@@ -31,6 +31,8 @@ export function useGetProductContracts(): ProductContract[] {
     cache.supportedProducts.map((product: SupportedProduct) => {
       const name = product.name
       const productContractSources = config.productContracts[name]
+      console.log(name)
+      console.log(productContractSources)
       const contract = getContract(
         productContractSources.addr,
         productContractSources.abi,
