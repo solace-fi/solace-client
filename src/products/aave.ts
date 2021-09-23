@@ -5,6 +5,7 @@ import { getTokens } from './positionGetters/aave/getTokens'
 
 export const AaveProduct: SupportedProduct = {
   name: ProductName.AAVE,
+  positionsType: 'erc20',
   productLink: 'https://app.aave.com/markets',
   getTokens,
   getBalances,

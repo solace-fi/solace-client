@@ -5,6 +5,7 @@ import { getTokens } from './positionGetters/waave/getTokens'
 
 export const WaaveProduct: SupportedProduct = {
   name: ProductName.WAAVE,
+  positionsType: 'erc20',
   getTokens,
   getBalances,
 }

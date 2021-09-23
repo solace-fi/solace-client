@@ -91,8 +91,10 @@ export type StringToStringMapping = { [key: string]: string }
 
 export type SupportedProduct = {
   name: ProductName
+  positionsType: 'erc20' | 'liquity' | 'other'
   productLink?: string
-  getTokens: (provider: any, activeNetwork: NetworkConfig) => Promise<Token[]>
+
+  getTokens?: (provider: any, activeNetwork: NetworkConfig) => Promise<Token[]>
   getBalances: (
     user: string,
     provider: any,

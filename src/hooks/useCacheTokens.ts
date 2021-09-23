@@ -63,7 +63,8 @@ export const useCacheTokens = () => {
           const productName = supportedProduct.name
           if (
             !newCache.tokens[productName].tokensInitialized &&
-            !newCache.positions[productName].positionNamesInitialized
+            !newCache.positions[productName].positionNamesInitialized &&
+            typeof supportedProduct.getTokens !== 'undefined'
           ) {
             const tokens: Token[] = await supportedProduct.getTokens(_library, _activeNetwork)
             const initializedTokens = {

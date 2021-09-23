@@ -5,6 +5,7 @@ import { getTokens } from './positionGetters/compound/getTokens'
 
 export const CompoundProduct: SupportedProduct = {
   name: ProductName.COMPOUND,
+  positionsType: 'erc20',
   productLink: 'https://app.compound.finance',
   getTokens,
   getBalances,
