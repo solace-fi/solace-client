@@ -19,11 +19,12 @@ import { Modal } from '../molecules/Modal'
 import { Scrollable } from '../atoms/Layout'
 import { DeFiAssetImage } from '../atoms/DeFiAsset'
 import { Table, TableRow, TableBody, TableData } from '../atoms/Table'
+import { BasicData } from '../../constants/types'
 
 type AssetsModalProps = {
   isOpen: boolean
   closeModal: () => void
-  assets: { name: string; address: string }[]
+  assets: BasicData[]
   modalTitle: string
 }
 

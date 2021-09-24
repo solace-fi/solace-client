@@ -38,7 +38,7 @@ import { useNetwork } from '../../context/NetworkManager'
 
 /* import constants */
 import { MAX_MOBILE_SCREEN_WIDTH } from '../../constants'
-import { LiquityPosition, Position, Token } from '../../constants/types'
+import { BasicData, LiquityPosition, Position, Token } from '../../constants/types'
 
 /* import components */
 import { ProtocolStep } from './ProtocolStep'
@@ -146,16 +146,27 @@ export const MultiStepForm = () => {
   const { width } = useWindowDimensions()
   const props = { formData, setForm, navigation }
   const [showAssetsModal, setShowAssetsModal] = useState<boolean>(false)
-  const formattedAssets = useMemo(
+  const formattedAssets: BasicData[] = useMemo(
     () =>
       positions.map((pos: Position) => {
-        if (pos.type == 'erc20')
-          return { name: (pos.position as Token).underlying.name, address: (pos.position as Token).underlying.address }
-        else
-          return {
-            name: (pos.position as LiquityPosition).positionName,
-            address: (pos.position as LiquityPosition).positionAddress,
-          }
+        switch (pos.type) {
+          case 'erc20':
+            return {
+              name: (pos.position as Token).underlying.name,
+              address: (pos.position as Token).underlying.address,
+            }
+          case 'liquity':
+            return {
+              name: (pos.position as LiquityPosition).positionName,
+              address: (pos.position as LiquityPosition).positionAddress,
+            }
+          case 'other':
+          default:
+            return {
+              name: '',
+              address: '',
+            }
+        }
       }),
     [positions]
   )
@@ -296,7 +307,7 @@ export const MultiStepForm = () => {
                   <BoxItem>
                     <FlexRow>
                       {positions.slice(0, maxPositionsToDisplay).map((position: Position) => {
-                        if (position.type == 'erc20') {
+                        if (position.type == 'erc20')
                           return (
                             <DeFiAsset key={(position.position as Token).underlying.address}>
                               <DeFiAssetImage mr={5}>
@@ -307,7 +318,8 @@ export const MultiStepForm = () => {
                               </DeFiAssetImage>
                             </DeFiAsset>
                           )
-                        } else if (position.type == 'liquity') {
+
+                        if (position.type == 'liquity')
                           return (
                             <DeFiAsset key={(position.position as LiquityPosition).positionAddress}>
                               <DeFiAssetImage mr={5}>
@@ -318,7 +330,6 @@ export const MultiStepForm = () => {
                               </DeFiAssetImage>
                             </DeFiAsset>
                           )
-                        }
                       })}
                       {positions.length > maxPositionsToDisplay && <StyledDots size={20} />}
                     </FlexRow>

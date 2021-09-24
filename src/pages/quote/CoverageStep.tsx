@@ -82,8 +82,15 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
   // positionAmount: BigNumber = wei but displayable, position.eth.balance: BigNumber = wei
   const positionAmount: BigNumber = useMemo(() => {
     const totalBalance = positions.reduce((pv: BigNumber, cv: Position) => {
-      if (cv.type == 'erc20') return pv.add((cv.position as Token).eth.balance)
-      if (cv.type == 'liquity') return pv.add((cv.position as LiquityPosition).amount)
+      switch (cv.type) {
+        case 'erc20':
+          return pv.add((cv.position as Token).eth.balance)
+        case 'liquity':
+          return pv.add((cv.position as LiquityPosition).amount)
+        case 'other':
+        default:
+          ZERO
+      }
     }, ZERO)
     return BigNumber.from(accurateMultiply(formatUnits(totalBalance, currencyDecimals), currencyDecimals))
   }, [positions, currencyDecimals])

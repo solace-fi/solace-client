@@ -31,7 +31,7 @@ import { useCachedData } from '../../context/CachedDataManager'
 import { useWallet } from '../../context/WalletManager'
 
 /* import constants */
-import { Policy, Token, Position } from '../../constants/types'
+import { Policy, Token, Position, SupportedProduct, NetworkCache, BasicData } from '../../constants/types'
 import { MAX_MOBILE_SCREEN_WIDTH, ZERO } from '../../constants'
 
 /* import components */
@@ -72,7 +72,7 @@ export const PolicyModalInfo: React.FC<PolicyModalInfoProps> = ({ appraisal, sel
   const { account, library } = useWallet()
   const { tokenPositionData } = useCachedData()
   const [showAssetsModal, setShowAssetsModal] = useState<boolean>(false)
-  const [assets, setAssets] = useState<any[]>([])
+  const [assets, setAssets] = useState<BasicData[]>([])
   const maxPositionsOnDisplay = 4
 
   /*************************************************************************************
@@ -88,32 +88,46 @@ export const PolicyModalInfo: React.FC<PolicyModalInfoProps> = ({ appraisal, sel
       (product) => product.name == selectedPolicy.productName
     )
     if (!supportedProduct) return
-    if (supportedProduct.positionsType == 'erc20') {
-      const savedPositions: Position[] = cache.positions[supportedProduct.name].savedPositions
-      const filteredPositions: Position[] = savedPositions.filter((savedPosition: Position) =>
-        selectedPolicy.positionDescription.includes(
-          (savedPosition.position as Token).token.address.slice(2).toLowerCase()
+    const foundPositions = await handleFilterPositions(supportedProduct, cache, selectedPolicy)
+    setAssets(foundPositions)
+  }
+
+  const handleFilterPositions = async (
+    supportedProduct: SupportedProduct,
+    _cache: NetworkCache,
+    _selectedPolicy: Policy
+  ): Promise<BasicData[]> => {
+    let res: BasicData[] = []
+    switch (supportedProduct.positionsType) {
+      case 'erc20':
+        const savedPositions: Position[] = _cache.positions[supportedProduct.name].savedPositions
+        const filteredPositions: Position[] = savedPositions.filter((savedPosition: Position) =>
+          _selectedPolicy.positionDescription.includes(
+            (savedPosition.position as Token).token.address.slice(2).toLowerCase()
+          )
         )
-      )
-      setAssets(
-        filteredPositions.map((filteredPosition: Position) => {
+        res = filteredPositions.map((filteredPosition: Position) => {
           return {
             name: (filteredPosition.position as Token).underlying.name,
             address: (filteredPosition.position as Token).underlying.address,
           }
         })
-      )
-    } else if (supportedProduct.positionsType == 'liquity') {
-      const troveManagerContract = getTroveContract(library, activeNetwork.chainId)
-      const stabilityPoolAddr: string = await troveManagerContract.stabilityPool()
-      const lqtyStakingAddr: string = await troveManagerContract.lqtyStaking()
-      const foundPositions = [
-        { address: troveManagerContract.address, name: 'Trove' },
-        { address: stabilityPoolAddr, name: 'Stability Pool' },
-        { address: lqtyStakingAddr, name: 'Staking Pool' },
-      ].filter((pos: any) => selectedPolicy.positionDescription.includes(pos.address.slice(2).toLowerCase()))
-      setAssets(foundPositions)
+        break
+      case 'liquity':
+        const troveManagerContract = getTroveContract(library, activeNetwork.chainId)
+        const stabilityPoolAddr: string = await troveManagerContract.stabilityPool()
+        const lqtyStakingAddr: string = await troveManagerContract.lqtyStaking()
+        const foundPositions = [
+          { address: troveManagerContract.address, name: 'Trove' },
+          { address: stabilityPoolAddr, name: 'Stability Pool' },
+          { address: lqtyStakingAddr, name: 'Staking Pool' },
+        ].filter((pos: any) => _selectedPolicy.positionDescription.includes(pos.address.slice(2).toLowerCase()))
+        res = foundPositions
+        break
+      case 'other':
+      default:
     }
+    return res
   }
 
   const closeModal = useCallback(() => {

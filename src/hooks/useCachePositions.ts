@@ -1,5 +1,15 @@
 import { useEffect, useRef, useState, useCallback } from 'react'
-import { LiquityPosition, NetworkConfig, Position, SupportedProduct, Token } from '../constants/types'
+import {
+  LiquityPosition,
+  NetworkConfig,
+  Position,
+  PositionNamesCache,
+  PositionNamesCacheValue,
+  PositionsCache,
+  PositionsCacheValue,
+  SupportedProduct,
+  Token,
+} from '../constants/types'
 import { useWallet } from '../context/WalletManager'
 import { useNetwork } from '../context/NetworkManager'
 import { useSessionStorage } from 'react-use-storage'
@@ -22,10 +32,8 @@ export const useCachePositions = () => {
       networks.forEach((network) => {
         const supportedProducts = network.cache.supportedProducts.map((product: SupportedProduct) => product.name)
 
-        const cachedPositions: { [key: string]: { savedPositions: Position[]; positionsInitialized: boolean } } = {}
-        const cachedPositionNames: {
-          [key: string]: { positionNames: { [key: string]: string }; positionNamesInitialized: boolean }
-        } = {}
+        const cachedPositions: PositionsCache = {}
+        const cachedPositionNames: PositionNamesCache = {}
 
         supportedProducts.forEach((name: ProductName) => {
           cachedPositions[name] = { savedPositions: [], positionsInitialized: false }
@@ -69,83 +77,15 @@ export const useCachePositions = () => {
             !newCache.positions[productName].positionsInitialized &&
             !newCache.positionNames[productName].positionNamesInitialized
           ) {
-            if (supportedProduct.positionsType == 'erc20' && typeof supportedProduct.getTokens !== 'undefined') {
-              const tokens: Token[] = await supportedProduct.getTokens(_library, _activeNetwork)
-              const initializedPositions = {
-                ...newCache.positions[productName],
-                savedPositions: tokens.map((token) => {
-                  return { type: 'erc20', position: token }
-                }) as Position[],
-                positionsInitialized: true,
-              }
-              const positionNames = tokens.reduce(
-                (names: any, token: any) => ({
-                  ...names,
-                  [token.token.address.toLowerCase()]: token.underlying.symbol,
-                }),
-                {}
-              )
-              const initializedPositionNames = {
-                ...newCache.positionNames[productName],
-                positionNames: positionNames,
-                positionNamesInitialized: true,
-              }
-              newCache.positions[productName] = initializedPositions
-              newCache.positionNames[productName] = initializedPositionNames
-              changeOccurred = true
-            } else if (supportedProduct.positionsType == 'liquity') {
-              const troveManagerContract = getTroveContract(library, activeNetwork.chainId)
-              const stabilityPoolAddr: string = await troveManagerContract.stabilityPool()
-              const lqtyStakingAddr: string = await troveManagerContract.lqtyStaking()
-              const lusdTokenAddr: string = await troveManagerContract.lusdToken()
-              const lqtyTokenAddr: string = await troveManagerContract.lqtyToken()
-              const liquityPositions: LiquityPosition[] = [
-                {
-                  positionAddress: troveManagerContract.address,
-                  positionName: 'Trove',
-                  amount: ZERO,
-                  associatedToken: {
-                    address: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE',
-                    name: 'Ether',
-                    symbol: 'ETH',
-                  },
-                },
-                {
-                  positionAddress: stabilityPoolAddr,
-                  positionName: 'Stability Pool',
-                  amount: ZERO,
-                  associatedToken: { address: lusdTokenAddr, name: 'LUSD', symbol: 'LUSD' },
-                },
-                {
-                  positionAddress: lqtyStakingAddr,
-                  positionName: 'Staking Pool',
-                  amount: ZERO,
-                  associatedToken: { address: lqtyTokenAddr, name: 'LQTY', symbol: 'LQTY' },
-                },
-              ]
-              const initializedPositions = {
-                ...newCache.positions[productName],
-                savedPositions: liquityPositions.map((liquityPos) => {
-                  return { type: 'erc20', position: liquityPos }
-                }) as Position[],
-                positionsInitialized: true,
-              }
-              const positionNames = liquityPositions.reduce(
-                (names: any, liquityPos: any) => ({
-                  ...names,
-                  [liquityPos.positionAddress.toLowerCase()]: liquityPos.posiitonName,
-                }),
-                {}
-              )
-              const initializedPositionNames = {
-                ...newCache.positionNames[productName],
-                positionNames: positionNames,
-                positionNamesInitialized: true,
-              }
-              newCache.positions[productName] = initializedPositions
-              newCache.positionNames[productName] = initializedPositionNames
-              changeOccurred = true
-            }
+            const { initializedPositions, initializedPositionNames } = await handleInitPositions(
+              supportedProduct,
+              newCache,
+              library,
+              activeNetwork
+            )
+            newCache.positions[productName] = initializedPositions
+            newCache.positionNames[productName] = initializedPositionNames
+            changeOccurred = true
           }
         })
       )
@@ -162,6 +102,96 @@ export const useCachePositions = () => {
     },
     []
   )
+
+  // return initializedPositions and initializedPositionNames
+  const handleInitPositions = async (
+    supportedProduct: SupportedProduct,
+    newCache: NetworkCache,
+    _library: any,
+    _activeNetwork: NetworkConfig
+  ) => {
+    let initializedPositions: PositionsCacheValue = {
+      savedPositions: [],
+      positionsInitialized: false,
+    }
+    let _positionNames: any = null
+    switch (supportedProduct.positionsType) {
+      case 'erc20':
+        if (typeof supportedProduct.getTokens !== 'undefined') {
+          const tokens: Token[] = await supportedProduct.getTokens(_library, _activeNetwork)
+          initializedPositions = {
+            ...newCache.positions[supportedProduct.name],
+            savedPositions: tokens.map((token) => {
+              return { type: 'erc20', position: token }
+            }) as Position[],
+            positionsInitialized: true,
+          }
+          const positionNames = tokens.reduce(
+            (names: any, token: Token) => ({
+              ...names,
+              [token.token.address.toLowerCase()]: token.underlying.symbol,
+            }),
+            {}
+          )
+          _positionNames = positionNames
+          break
+        } else break
+      case 'liquity':
+        const troveManagerContract = getTroveContract(library, activeNetwork.chainId)
+        const stabilityPoolAddr: string = await troveManagerContract.stabilityPool()
+        const lqtyStakingAddr: string = await troveManagerContract.lqtyStaking()
+        const lusdTokenAddr: string = await troveManagerContract.lusdToken()
+        const lqtyTokenAddr: string = await troveManagerContract.lqtyToken()
+        const liquityPositions: LiquityPosition[] = [
+          {
+            positionAddress: troveManagerContract.address,
+            positionName: 'Trove',
+            amount: ZERO,
+            associatedToken: {
+              address: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE',
+              name: 'Ether',
+              symbol: 'ETH',
+            },
+          },
+          {
+            positionAddress: stabilityPoolAddr,
+            positionName: 'Stability Pool',
+            amount: ZERO,
+            associatedToken: { address: lusdTokenAddr, name: 'LUSD', symbol: 'LUSD' },
+          },
+          {
+            positionAddress: lqtyStakingAddr,
+            positionName: 'Staking Pool',
+            amount: ZERO,
+            associatedToken: { address: lqtyTokenAddr, name: 'LQTY', symbol: 'LQTY' },
+          },
+        ]
+        initializedPositions = {
+          ...newCache.positions[supportedProduct.name],
+          savedPositions: liquityPositions.map((liquityPos) => {
+            return { type: 'liquity', position: liquityPos }
+          }) as Position[],
+          positionsInitialized: true,
+        }
+        const positionNames = liquityPositions.reduce(
+          (names: any, liquityPos: LiquityPosition) => ({
+            ...names,
+            [liquityPos.positionAddress.toLowerCase()]: liquityPos.positionName,
+          }),
+          {}
+        )
+        _positionNames = positionNames
+        break
+      case 'other':
+      default:
+    }
+    const initializedPositionNames: PositionNamesCacheValue = {
+      ...newCache.positionNames[supportedProduct.name],
+      positionNames: _positionNames,
+      positionNamesInitialized: true,
+    }
+    return { initializedPositions, initializedPositionNames }
+  }
 
   useEffect(() => {
     const data = setStoredData()

@@ -1,14 +1,9 @@
 import React from 'react'
 
-import { PositionCard } from '../../components/atoms/Card'
-import {
-  PositionCardButton,
-  PositionCardText,
-  DeFiAssetImage,
-  PositionCardName,
-} from '../../components/atoms/DeFiAsset'
-import { Button } from '../../components/atoms/Button'
-import { TextSpan } from '../../components/atoms/Typography'
+import { PositionCard } from '../atoms/Card'
+import { PositionCardButton, PositionCardText, DeFiAssetImage, PositionCardName } from '../atoms/DeFiAsset'
+import { Button } from '../atoms/Button'
+import { TextSpan } from '../atoms/Typography'
 
 import { useGeneral } from '../../context/GeneralProvider'
 
@@ -19,7 +14,7 @@ import { useWindowDimensions } from '../../hooks/useWindowDimensions'
 
 import { fixedTokenPositionBalance, truncateBalance } from '../../utils/formatting'
 
-interface TokenPositionProps {
+interface TokenPositionCardProps {
   position: Position
   protocolName: string
   selectedPositions: Position[]
@@ -29,7 +24,7 @@ interface TokenPositionProps {
   userHasActiveProductPosition: (product: string, position: string) => boolean
 }
 
-export const TokenPosition: React.FC<TokenPositionProps> = ({
+export const TokenPositionCard: React.FC<TokenPositionCardProps> = ({
   position,
   protocolName,
   selectedPositions,

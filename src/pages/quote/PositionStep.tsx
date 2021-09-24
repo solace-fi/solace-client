@@ -47,7 +47,7 @@ import { ManageModal } from '../../components/organisms/ManageModal'
 
 /* import constants */
 import { PolicyState } from '../../constants/enums'
-import { LiquityPosition, Policy, Position, Token } from '../../constants/types'
+import { LiquityPosition, NetworkCache, Policy, Position, SupportedProduct, Token } from '../../constants/types'
 import { MAX_MOBILE_SCREEN_WIDTH } from '../../constants'
 
 /* import hooks */
@@ -56,7 +56,7 @@ import { useWindowDimensions } from '../../hooks/useWindowDimensions'
 /* import utils */
 import { fixedPositionBalance, truncateBalance } from '../../utils/formatting'
 import { HyperLink } from '../../components/atoms/Link'
-import { TokenPosition } from '../../components/organisms/TokenPosition'
+import { TokenPositionCard } from '../../components/organisms/TokenPositionCard'
 
 export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigation }) => {
   const { protocol, loading, positions } = formData
@@ -109,35 +109,69 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
     navigation.next()
   }
 
-  const handleSelect = (position: Position) => {
-    const found = selectedPositions.some((selectedPosition) => {
-      if (position.type == 'erc20') {
-        return (
-          (selectedPosition.position as Token).underlying.address == (position.position as Token).underlying.address
-        )
-      } else if (position.type == 'liquity') {
-        return (
+  const handlePositionAddressFind = (selectedPosition: Position, positionToSelect: Position) => {
+    switch (positionToSelect.type) {
+      case 'erc20':
+        const erc20Eq =
+          (selectedPosition.position as Token).underlying.address ==
+          (positionToSelect.position as Token).underlying.address
+        return erc20Eq
+      case 'liquity':
+        const liquityEq =
           (selectedPosition.position as LiquityPosition).positionAddress ==
-          (position.position as LiquityPosition).positionAddress
-        )
-      }
-    })
+          (positionToSelect.position as LiquityPosition).positionAddress
+        return liquityEq
+      case 'other':
+      default:
+        return true
+    }
+  }
+
+  const handleFetchPositions = async (supportedProduct: SupportedProduct, cache: NetworkCache): Promise<Position[]> => {
+    if (!account || !library) return []
+    switch (supportedProduct.positionsType) {
+      case 'erc20':
+        if (typeof supportedProduct.getBalances !== 'undefined') {
+          const savedPositions = cache.positions[supportedProduct.name].savedPositions
+          const balances: Token[] = await supportedProduct.getBalances(
+            account,
+            library,
+            cache,
+            activeNetwork,
+            savedPositions.map((position) => position.position as Token)
+          )
+          return balances.map((balance) => {
+            return { type: 'erc20', position: balance }
+          })
+        }
+        return []
+      case 'liquity':
+        if (typeof supportedProduct.getPositions !== 'undefined') {
+          const savedPositions = cache.positions[supportedProduct.name].savedPositions
+          const positions: LiquityPosition[] = await supportedProduct.getPositions(
+            account,
+            library,
+            activeNetwork,
+            savedPositions.map((position) => position.position as LiquityPosition)
+          )
+          return positions.map((balance) => {
+            return { type: 'liquity', position: balance }
+          })
+        }
+        return []
+      case 'other':
+      default:
+        return []
+    }
+  }
+
+  const handleSelect = (position: Position) => {
+    const found = selectedPositions.some((selectedPosition) => handlePositionAddressFind(selectedPosition, position))
     if (!found) {
       setSelectedPositions((selectedPositions) => [position, ...selectedPositions])
     } else {
       setSelectedPositions(
-        selectedPositions.filter((selectedPosition) => {
-          if (position.type == 'erc20') {
-            return (
-              (selectedPosition.position as Token).underlying.address != (position.position as Token).underlying.address
-            )
-          } else if (position.type == 'liquity') {
-            return (
-              (selectedPosition.position as LiquityPosition).positionAddress !=
-              (position.position as LiquityPosition).positionAddress
-            )
-          }
-        })
+        selectedPositions.filter((selectedPosition) => !handlePositionAddressFind(selectedPosition, position))
       )
     }
   }
@@ -150,18 +184,9 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
       // select all
       const positionsToAdd: Position[] = []
       selectablePositions.forEach((position: Position) => {
-        const found = selectedPositions.find((selectedPosition) => {
-          if (position.type == 'erc20') {
-            return (
-              (selectedPosition.position as Token).underlying.address == (position.position as Token).underlying.address
-            )
-          } else if (position.type == 'liquity') {
-            return (
-              (selectedPosition.position as LiquityPosition).positionAddress ==
-              (position.position as LiquityPosition).positionAddress
-            )
-          }
-        })
+        const found = selectedPositions.find((selectedPosition) =>
+          handlePositionAddressFind(selectedPosition, position)
+        )
         if (!found) {
           positionsToAdd.push(position)
         }
@@ -171,44 +196,14 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
   }
 
   const getUserPositions = async () => {
-    if (!account || !library || !tokenPositionData.dataInitialized || !chainId) return
+    if (!tokenPositionData.dataInitialized || !chainId) return
     if (findNetworkByChainId(chainId)) {
       try {
         const supportedProduct = activeNetwork.cache.supportedProducts.find((product) => product.name == protocol.name)
-        if (!supportedProduct) return
         const cache = tokenPositionData.storedPositionData.find((dataset) => dataset.name == activeNetwork.name)
-        if (supportedProduct.positionsType == 'erc20' && typeof supportedProduct.getBalances !== 'undefined' && cache) {
-          const savedPositions = cache.positions[supportedProduct.name].savedPositions
-          const balances: Token[] = await supportedProduct.getBalances(
-            account,
-            library,
-            cache,
-            activeNetwork,
-            savedPositions.map((position) => position.position as Token)
-          )
-          setFetchedPositions(
-            balances.map((balance) => {
-              return { type: 'erc20', position: balance }
-            })
-          )
-        } else if (
-          supportedProduct.positionsType == 'liquity' &&
-          typeof supportedProduct.getPositions !== 'undefined' &&
-          cache
-        ) {
-          const savedPositions = cache.positions[supportedProduct.name].savedPositions
-          const positions: LiquityPosition[] = await supportedProduct.getPositions(
-            account,
-            library,
-            activeNetwork,
-            savedPositions.map((position) => position.position as LiquityPosition)
-          )
-          setFetchedPositions(
-            positions.map((balance) => {
-              return { type: 'liquity', position: balance }
-            })
-          )
-        }
+        if (!supportedProduct || !cache) return
+        const _fetchedPositions = await handleFetchPositions(supportedProduct, cache)
+        setFetchedPositions(_fetchedPositions)
         setForm({
           target: {
             name: 'loading',
@@ -287,10 +282,15 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
     setSelectablePositions(
       fetchedPositions.filter((position: Position) => {
         let positionStr = ''
-        if (position.type == 'erc20') {
-          positionStr = (position.position as Token).underlying.symbol
-        } else if (position.type == 'liquity') {
-          positionStr = (position.position as LiquityPosition).positionName
+        switch (position.type) {
+          case 'erc20':
+            positionStr = (position.position as Token).underlying.symbol
+            break
+          case 'liquity':
+            positionStr = (position.position as LiquityPosition).positionName
+            break
+          case 'other':
+          default:
         }
         return !userHasActiveProductPosition(protocol.name, positionStr)
       })
@@ -339,9 +339,9 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
             <Scrollable maxMobileHeight={65}>
               <CardContainer>
                 {fetchedPositions.map((position: Position) => {
-                  if (position.type == 'erc20') {
+                  if (position.type == 'erc20')
                     return (
-                      <TokenPosition
+                      <TokenPositionCard
                         key={(position.position as Token).underlying.address}
                         position={position}
                         protocolName={protocol.name}
@@ -352,7 +352,7 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
                         userHasActiveProductPosition={userHasActiveProductPosition}
                       />
                     )
-                  } else if (position.type == 'liquity') {
+                  if (position.type == 'liquity')
                     return (
                       <PositionCard
                         key={(position.position as LiquityPosition).positionAddress}
@@ -464,7 +464,6 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
                         </PositionCardButton>
                       </PositionCard>
                     )
-                  }
                 })}
               </CardContainer>
             </Scrollable>
