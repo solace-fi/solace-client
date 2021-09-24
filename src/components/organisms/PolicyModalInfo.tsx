@@ -31,7 +31,7 @@ import { useCachedData } from '../../context/CachedDataManager'
 import { useWallet } from '../../context/WalletManager'
 
 /* import constants */
-import { Policy, Token } from '../../constants/types'
+import { Policy, Token, Position } from '../../constants/types'
 import { MAX_MOBILE_SCREEN_WIDTH, ZERO } from '../../constants'
 
 /* import components */
@@ -82,20 +82,25 @@ export const PolicyModalInfo: React.FC<PolicyModalInfoProps> = ({ appraisal, sel
   *************************************************************************************/
 
   const getAssets = async () => {
-    const cache = tokenPositionData.storedTokenAndPositionData.find((dataset) => dataset.name == activeNetwork.name)
+    const cache = tokenPositionData.storedPositionData.find((dataset) => dataset.name == activeNetwork.name)
     if (!selectedPolicy || !cache || !account) return
     const supportedProduct = activeNetwork.cache.supportedProducts.find(
       (product) => product.name == selectedPolicy.productName
     )
     if (!supportedProduct) return
     if (supportedProduct.positionsType == 'erc20') {
-      const savedTokens = cache.tokens[supportedProduct.name].savedTokens
-      const balances: Token[] = savedTokens.filter((savedToken: Token) =>
-        selectedPolicy.positionDescription.includes(savedToken.token.address.slice(2).toLowerCase())
+      const savedPositions: Position[] = cache.positions[supportedProduct.name].savedPositions
+      const filteredPositions: Position[] = savedPositions.filter((savedPosition: Position) =>
+        selectedPolicy.positionDescription.includes(
+          (savedPosition.position as Token).token.address.slice(2).toLowerCase()
+        )
       )
       setAssets(
-        balances.map((balance) => {
-          return { name: balance.underlying.name, address: balance.underlying.address }
+        filteredPositions.map((filteredPosition: Position) => {
+          return {
+            name: (filteredPosition.position as Token).underlying.name,
+            address: (filteredPosition.position as Token).underlying.address,
+          }
         })
       )
     } else if (supportedProduct.positionsType == 'liquity') {

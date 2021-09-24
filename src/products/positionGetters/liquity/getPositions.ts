@@ -116,13 +116,19 @@ const IStabilityPoolAbi = [
   },
 ]
 
-export const getPositions = async (user: string, provider: any, activeNetwork: NetworkConfig): Promise<any> => {
+export const getPositions = async (
+  user: string,
+  provider: any,
+  activeNetwork: NetworkConfig,
+  savedLiquityPositions: LiquityPosition[]
+): Promise<LiquityPosition[]> => {
   const troveManagerContract = getTroveContract(provider, activeNetwork.chainId)
 
-  const stabilityPoolAddr: string = await troveManagerContract.stabilityPool()
-  const lqtyStakingAddr: string = await troveManagerContract.lqtyStaking()
-  const lusdTokenAddr: string = await troveManagerContract.lusdToken()
-  const lqtyTokenAddr: string = await troveManagerContract.lqtyToken()
+  const lqtyStakingPositionData = savedLiquityPositions.filter((pos) => pos.positionName == 'Staking Pool')[0]
+  const stabilityPoolPositionData = savedLiquityPositions.filter((pos) => pos.positionName == 'Stability Pool')[0]
+
+  const lqtyStakingAddr = lqtyStakingPositionData.positionAddress
+  const stabilityPoolAddr = stabilityPoolPositionData.positionAddress
 
   const lqtyStakingContract = getContract(lqtyStakingAddr, ILQTYStakingAbi, provider)
   const stabilityPoolContract = getContract(stabilityPoolAddr, IStabilityPoolAbi, provider)
@@ -136,17 +142,17 @@ export const getPositions = async (user: string, provider: any, activeNetwork: N
       positionName: 'Stability Pool',
       positionAddress: stabilityPoolAddr,
       amount: stabilityPoolPosition[0],
-      associatedToken: { address: lusdTokenAddr, name: 'LUSD', symbol: 'LUSD' },
+      associatedToken: { address: stabilityPoolPositionData.associatedToken.address, name: 'LUSD', symbol: 'LUSD' },
     },
     {
       positionName: 'Staking Pool',
       positionAddress: lqtyStakingAddr,
       amount: lqtyStakes[0],
-      associatedToken: { address: lqtyTokenAddr, name: 'LQTY', symbol: 'LQTY' },
+      associatedToken: { address: lqtyStakingPositionData.associatedToken.address, name: 'LQTY', symbol: 'LQTY' },
     },
   ]
 
-  if (status.eq(BigNumber.from(1)))
+  if (status.eq(BigNumber.from(1))) {
     positions = [
       {
         positionName: 'Trove',
@@ -156,6 +162,7 @@ export const getPositions = async (user: string, provider: any, activeNetwork: N
       },
       ...positions,
     ]
+  }
   return positions
 }
 

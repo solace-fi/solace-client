@@ -12,7 +12,7 @@ import { getClaimAssessment } from '../utils/paclas'
 export const usePolicyGetter = (
   getAll: boolean,
   latestBlock: number,
-  data: { dataInitialized: boolean; storedTokenAndPositionData: NetworkCache[] },
+  data: { dataInitialized: boolean; storedPositionData: NetworkCache[] },
   version: number,
   policyHolder?: string,
   product?: string
@@ -64,10 +64,10 @@ export const usePolicyGetter = (
     try {
       if (policyHolder) {
         policies.sort((a: any, b: any) => b.policyId - a.policyId) // newest first
-        const matchingCache = data.storedTokenAndPositionData.find((dataset) => dataset.name == activeNetwork.name)
+        const matchingCache = data.storedPositionData.find((dataset) => dataset.name == activeNetwork.name)
         policies.forEach((policy: Policy) => {
           const productPosition =
-            matchingCache?.positions[activeNetwork.config.productsRev[policy.productAddress] ?? '']
+            matchingCache?.positionNames[activeNetwork.config.productsRev[policy.productAddress] ?? '']
           if (productPosition) {
             Object.keys(productPosition.positionNames).forEach((key) => {
               if (policy.positionDescription.includes(key.slice(2))) {

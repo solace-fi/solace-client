@@ -176,15 +176,15 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
       try {
         const supportedProduct = activeNetwork.cache.supportedProducts.find((product) => product.name == protocol.name)
         if (!supportedProduct) return
-        const cache = tokenPositionData.storedTokenAndPositionData.find((dataset) => dataset.name == activeNetwork.name)
-        if (supportedProduct.positionsType == 'erc20' && cache && typeof supportedProduct.getBalances !== 'undefined') {
-          const savedTokens = cache.tokens[supportedProduct.name].savedTokens
+        const cache = tokenPositionData.storedPositionData.find((dataset) => dataset.name == activeNetwork.name)
+        if (supportedProduct.positionsType == 'erc20' && typeof supportedProduct.getBalances !== 'undefined' && cache) {
+          const savedPositions = cache.positions[supportedProduct.name].savedPositions
           const balances: Token[] = await supportedProduct.getBalances(
             account,
             library,
             cache,
             activeNetwork,
-            savedTokens
+            savedPositions.map((position) => position.position as Token)
           )
           setFetchedPositions(
             balances.map((balance) => {
@@ -193,9 +193,16 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
           )
         } else if (
           supportedProduct.positionsType == 'liquity' &&
-          typeof supportedProduct.getPositions !== 'undefined'
+          typeof supportedProduct.getPositions !== 'undefined' &&
+          cache
         ) {
-          const positions: LiquityPosition[] = await supportedProduct.getPositions(account, library, activeNetwork)
+          const savedPositions = cache.positions[supportedProduct.name].savedPositions
+          const positions: LiquityPosition[] = await supportedProduct.getPositions(
+            account,
+            library,
+            activeNetwork,
+            savedPositions.map((position) => position.position as LiquityPosition)
+          )
           setFetchedPositions(
             positions.map((balance) => {
               return { type: 'liquity', position: balance }

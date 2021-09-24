@@ -5,8 +5,8 @@ import { Contract } from '@ethersproject/contracts'
 export type NetworkCache = {
   name: string
   chainId: number
-  tokens: any
-  positions: any
+  positions: { [key: string]: { savedPositions: Position[]; positionsInitialized: boolean } }
+  positionNames: { [key: string]: { positionNames: { [key: string]: string }; positionNamesInitialized: boolean } }
 }
 
 export type ClaimDetails = { id: string; cooldown: string; canWithdraw: boolean; amount: BigNumber }

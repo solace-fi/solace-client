@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react'
 import { GAS_LIMIT, NUM_BLOCKS_PER_DAY, ZERO } from '../constants'
 import { useContracts } from '../context/ContractsManager'
 import { useWallet } from '../context/WalletManager'
-import { LiquityPosition, Policy, StringToStringMapping, Token } from '../constants/types'
+import { LiquityPosition, Policy, Position, StringToStringMapping, Token } from '../constants/types'
 import { useCachedData } from '../context/CachedDataManager'
 import { useNetwork } from '../context/NetworkManager'
 import { getPositions } from '../products/positionGetters/liquity/getPositions'
@@ -46,7 +46,7 @@ export const useAppraisePosition = (policy: Policy | undefined): BigNumber => {
       if (!policy || !library || !account || !tokenPositionData.dataInitialized) return
       try {
         const product = getProtocolByName(policy.productName)
-        const cache = tokenPositionData.storedTokenAndPositionData.find((dataset) => dataset.name == activeNetwork.name)
+        const cache = tokenPositionData.storedPositionData.find((dataset) => dataset.name == activeNetwork.name)
 
         // if product is not found or token cache is not found, don't do anything
         if (!product || !cache) return
@@ -60,16 +60,22 @@ export const useAppraisePosition = (policy: Policy | undefined): BigNumber => {
         if (supportedProduct.positionsType == 'erc20') {
           const tokensToAppraise: Token[] = []
           policy.positionNames.forEach(async (name) => {
-            const tokenToAppraise: Token | undefined = cache.tokens[supportedProduct.name].savedTokens.find(
-              (token: Token) => token.underlying.symbol == name
+            const positionToAppraise: Position | undefined = cache.positions[supportedProduct.name].savedPositions.find(
+              (position: Position) => (position.position as Token).underlying.symbol == name
             )
-            if (!tokenToAppraise) return
-            tokensToAppraise.push(tokenToAppraise)
+            if (!positionToAppraise) return
+            tokensToAppraise.push(positionToAppraise.position as Token)
           })
           const balances: BigNumber[] = await supportedProduct.getAppraisals(tokensToAppraise, activeNetwork.chainId)
           setAppraisal(balances.reduce((pv, cv) => pv.add(cv), ZERO))
         } else if (supportedProduct.positionsType == 'liquity') {
-          const liquityPositions = await getPositions(account, library, activeNetwork)
+          const positionsToAppraise: Position[] = cache.positions[supportedProduct.name].savedPositions
+          const liquityPositions = await getPositions(
+            account,
+            library,
+            activeNetwork,
+            positionsToAppraise.map((position) => position.position as LiquityPosition)
+          )
           const formattedPositions = liquityPositions.map((pos: LiquityPosition) => {
             return { address: pos.positionAddress, balance: pos.amount }
           })
