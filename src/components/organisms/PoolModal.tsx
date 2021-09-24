@@ -69,11 +69,11 @@ import { useNativeTokenBalance, useUserWalletLpBalance, useDepositedLpBalance } 
 import { useScpBalance } from '../../hooks/useBalance'
 import { useTokenAllowance } from '../../hooks/useTokenAllowance'
 import { useCooldown } from '../../hooks/useVault'
+import { useGasConfig } from '../../hooks/useFetchGasPrice'
 
 /* import utils */
 import getPermitNFTSignature from '../../utils/signature'
 import { hasApproval } from '../../utils'
-import { getGasConfig } from '../../utils/gas'
 import { fixed, filteredAmount, getUnit, truncateBalance } from '../../utils/formatting'
 import { getTimeFromMillis, timeToDate } from '../../utils/time'
 
@@ -94,7 +94,7 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
   const { errors } = useGeneral()
   const { vault, cpFarm, lpFarm, lpToken } = useContracts()
   const { activeNetwork, currencyDecimals, chainId } = useNetwork()
-  const { account, library, activeWalletConnector } = useWallet()
+  const { account, library } = useWallet()
   const [amount, setAmount] = useState<string>('')
   const [isStaking, setIsStaking] = useState<boolean>(false)
   const cpUserStakeValue = useUserStakedValue(cpFarm, account)
@@ -105,10 +105,7 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
   const depositedLpTokenInfo = useDepositedLpBalance()
   const { addLocalTransactions, reload, gasPrices } = useCachedData()
   const [selectedGasOption, setSelectedGasOption] = useState<GasFeeOption | undefined>(gasPrices.selected)
-  const gasConfig = useMemo(
-    () => getGasConfig(activeWalletConnector, activeNetwork, selectedGasOption ? selectedGasOption.value : null),
-    [activeWalletConnector, activeNetwork, selectedGasOption]
-  )
+  const { gasConfig } = useGasConfig(selectedGasOption ? selectedGasOption.value : null)
   const [maxSelected, setMaxSelected] = useState<boolean>(false)
   const [modalLoading, setModalLoading] = useState<boolean>(false)
   const [contractForAllowance, setContractForAllowance] = useState<Contract | null>(null)

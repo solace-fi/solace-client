@@ -25,6 +25,7 @@ type Contracts = {
   lpAppraisor?: Contract | null
   claimsEscrow?: Contract | null
   policyManager?: Contract | null
+  riskManager?: Contract | null
   products: ProductContract[]
   contractSources: ContractSources[]
   selectedProtocol: Contract | undefined
@@ -45,6 +46,7 @@ const ContractsContext = createContext<Contracts>({
   lpAppraisor: undefined,
   claimsEscrow: undefined,
   policyManager: undefined,
+  riskManager: undefined,
   products: [],
   contractSources: [],
   selectedProtocol: undefined,
@@ -69,6 +71,7 @@ const ContractsProvider: React.FC = (props) => {
   const weth = useGetContract(keyContracts.weth)
   const claimsEscrow = useGetContract(keyContracts.claimsEscrow)
   const policyManager = useGetContract(keyContracts.policyManager)
+  const riskManager = useGetContract(keyContracts.riskManager)
   const lpAppraisor = useGetContract(keyContracts.lpAppraisor)
   const products = useGetProductContracts()
 
@@ -102,6 +105,7 @@ const ContractsProvider: React.FC = (props) => {
       lpAppraisor,
       claimsEscrow,
       policyManager,
+      riskManager,
       products,
       contractSources,
       selectedProtocol,
@@ -121,6 +125,7 @@ const ContractsProvider: React.FC = (props) => {
       lpAppraisor,
       claimsEscrow,
       policyManager,
+      riskManager,
       products,
       contractSources,
       selectedProtocol,

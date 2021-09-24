@@ -48,11 +48,11 @@ import { ClaimDetails } from '../../constants/types'
 /* import hooks */
 import { useGetClaimsDetails } from '../../hooks/useClaimsEscrow'
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'
+import { useGasConfig } from '../../hooks/useFetchGasPrice'
 
 /* import utils */
 import { truncateBalance } from '../../utils/formatting'
 import { timeToDate } from '../../utils/time'
-import { getGasConfig } from '../../utils/gas'
 
 export const MyClaims: React.FC = () => {
   /*************************************************************************************
@@ -62,16 +62,12 @@ export const MyClaims: React.FC = () => {
   *************************************************************************************/
   const { errors } = useGeneral()
   const { claimsEscrow } = useContracts()
-  const { account, activeWalletConnector } = useWallet()
+  const { account } = useWallet()
   const { activeNetwork, currencyDecimals } = useNetwork()
   const { addLocalTransactions, reload, gasPrices } = useCachedData()
   const { makeTxToast } = useToasts()
   const claimsDetails = useGetClaimsDetails(account)
-  const gasConfig = useMemo(() => getGasConfig(activeWalletConnector, activeNetwork, gasPrices.selected?.value), [
-    activeWalletConnector,
-    activeNetwork,
-    gasPrices.selected?.value,
-  ])
+  const { gasConfig } = useGasConfig(gasPrices.selected?.value)
   const [openClaims, setOpenClaims] = useState<boolean>(true)
   const { width } = useWindowDimensions()
 

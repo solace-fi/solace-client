@@ -38,6 +38,11 @@ export type LpTokenInfo = {
   value: BigNumber
 }
 
+export type Position = {
+  type: PositionsType
+  position: Token | LiquityPosition
+}
+
 export type Token = {
   token: {
     address: string
@@ -55,6 +60,17 @@ export type Token = {
   }
   eth: {
     balance: BigNumber
+  }
+}
+
+export type LiquityPosition = {
+  positionName: string
+  positionAddress: string
+  amount: BigNumber
+  associatedToken: {
+    address: string
+    name: string
+    symbol: string
   }
 }
 
@@ -87,21 +103,25 @@ export type GasPriceResult = {
   suggestBaseFee?: number
 }
 
+export type PositionsType = 'erc20' | 'liquity' | 'other'
+
 export type StringToStringMapping = { [key: string]: string }
 
 export type SupportedProduct = {
   name: ProductName
-  positionsType: 'erc20' | 'liquity' | 'other'
+  positionsType: PositionsType
   productLink?: string
 
+  getAppraisals: (tokens: any[], chainId: number) => Promise<BigNumber[]>
   getTokens?: (provider: any, activeNetwork: NetworkConfig) => Promise<Token[]>
-  getBalances: (
+  getBalances?: (
     user: string,
     provider: any,
     cache: NetworkCache,
     activeNetwork: NetworkConfig,
     tokens: Token[]
   ) => Promise<Token[]>
+  getPositions?: any
 }
 
 export type ProductContract = {

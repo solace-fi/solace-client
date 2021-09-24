@@ -24,7 +24,7 @@
   *************************************************************************************/
 
 /* import react */
-import React, { useEffect, useState, useCallback } from 'react'
+import React, { useEffect, useState, useCallback, useMemo } from 'react'
 
 /* import packages */
 import { SetForm, useForm, useStep } from 'react-hooks-helper'
@@ -38,7 +38,7 @@ import { useNetwork } from '../../context/NetworkManager'
 
 /* import constants */
 import { MAX_MOBILE_SCREEN_WIDTH } from '../../constants'
-import { Token } from '../../constants/types'
+import { LiquityPosition, Position, Token } from '../../constants/types'
 
 /* import components */
 import { ProtocolStep } from './ProtocolStep'
@@ -146,6 +146,19 @@ export const MultiStepForm = () => {
   const { width } = useWindowDimensions()
   const props = { formData, setForm, navigation }
   const [showAssetsModal, setShowAssetsModal] = useState<boolean>(false)
+  const formattedAssets = useMemo(
+    () =>
+      positions.map((pos: Position) => {
+        if (pos.type == 'erc20')
+          return { name: (pos.position as Token).underlying.name, address: (pos.position as Token).underlying.address }
+        else
+          return {
+            name: (pos.position as LiquityPosition).positionName,
+            address: (pos.position as LiquityPosition).positionAddress,
+          }
+      }),
+    [positions]
+  )
   const maxPositionsToDisplay = 4
 
   /*************************************************************************************
@@ -153,6 +166,20 @@ export const MultiStepForm = () => {
   Local functions
 
   *************************************************************************************/
+
+  const closeModal = useCallback(() => {
+    setShowAssetsModal(false)
+  }, [])
+
+  const resetForm = () => {
+    navigation.go(0)
+    setForm({
+      target: {
+        name: 'positions',
+        value: [],
+      },
+    })
+  }
 
   const getForm = () => {
     switch (step.id) {
@@ -163,13 +190,9 @@ export const MultiStepForm = () => {
       case 'coverage':
         return <CoverageStep {...props} />
       default:
-        return <ConfirmStep {...props} />
+        return <ConfirmStep {...props} resetForm={resetForm} />
     }
   }
-
-  const closeModal = useCallback(() => {
-    setShowAssetsModal(false)
-  }, [])
 
   /*************************************************************************************
 
@@ -178,15 +201,7 @@ export const MultiStepForm = () => {
   *************************************************************************************/
 
   useEffect(() => {
-    if (Number(StepNumber[step.id]) == 2 || Number(StepNumber[step.id]) == 1) {
-      navigation.go(0)
-    }
-    setForm({
-      target: {
-        name: 'positions',
-        value: [],
-      },
-    })
+    resetForm()
   }, [account, chainId])
 
   /*************************************************************************************
@@ -200,7 +215,7 @@ export const MultiStepForm = () => {
       <AssetsModal
         closeModal={closeModal}
         isOpen={showAssetsModal}
-        assets={positions}
+        assets={formattedAssets}
         modalTitle={'Selected Positions'}
       />
       {width > MAX_MOBILE_SCREEN_WIDTH ? (
@@ -266,7 +281,7 @@ export const MultiStepForm = () => {
                   </Text>
                 </BoxItem>
                 <BoxItem>
-                  <Button onClick={() => navigation.go(0)}>Change</Button>
+                  <Button onClick={() => resetForm()}>Change</Button>
                 </BoxItem>
               </Box>
               {Number(StepNumber[step.id]) == 1 && (
@@ -280,16 +295,31 @@ export const MultiStepForm = () => {
                 <Box purple>
                   <BoxItem>
                     <FlexRow>
-                      {positions.slice(0, maxPositionsToDisplay).map((position: Token) => (
-                        <DeFiAsset key={position.underlying.address}>
-                          <DeFiAssetImage mr={5}>
-                            <img
-                              src={`https://assets.solace.fi/${position.underlying.address.toLowerCase()}`}
-                              alt={position.underlying.name}
-                            />
-                          </DeFiAssetImage>
-                        </DeFiAsset>
-                      ))}
+                      {positions.slice(0, maxPositionsToDisplay).map((position: Position) => {
+                        if (position.type == 'erc20') {
+                          return (
+                            <DeFiAsset key={(position.position as Token).underlying.address}>
+                              <DeFiAssetImage mr={5}>
+                                <img
+                                  src={`https://assets.solace.fi/${(position.position as Token).underlying.address.toLowerCase()}`}
+                                  alt={(position.position as Token).underlying.name}
+                                />
+                              </DeFiAssetImage>
+                            </DeFiAsset>
+                          )
+                        } else if (position.type == 'liquity') {
+                          return (
+                            <DeFiAsset key={(position.position as LiquityPosition).positionAddress}>
+                              <DeFiAssetImage mr={5}>
+                                <img
+                                  src={`https://assets.solace.fi/${(position.position as LiquityPosition).positionAddress.toLowerCase()}`}
+                                  alt={(position.position as LiquityPosition).positionName}
+                                />
+                              </DeFiAssetImage>
+                            </DeFiAsset>
+                          )
+                        }
+                      })}
                       {positions.length > maxPositionsToDisplay && <StyledDots size={20} />}
                     </FlexRow>
                   </BoxItem>
@@ -334,7 +364,7 @@ export const MultiStepForm = () => {
                   </FormCol>
                 </FormRow>
                 <ButtonWrapper>
-                  <Button widthP={100} onClick={() => navigation.go(0)}>
+                  <Button widthP={100} onClick={() => resetForm()}>
                     Change
                   </Button>
                 </ButtonWrapper>

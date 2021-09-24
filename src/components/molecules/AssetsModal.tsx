@@ -23,7 +23,7 @@ import { Table, TableRow, TableBody, TableData } from '../atoms/Table'
 type AssetsModalProps = {
   isOpen: boolean
   closeModal: () => void
-  assets: any[]
+  assets: { name: string; address: string }[]
   modalTitle: string
 }
 
@@ -43,23 +43,19 @@ export const AssetsModal: React.FC<AssetsModalProps> = ({ closeModal, isOpen, as
   Render
 
   *************************************************************************************/
-
   return (
     <Modal handleClose={handleClose} isOpen={isOpen} modalTitle={modalTitle} disableCloseButton={false}>
       <Scrollable>
         <Table textAlignCenter style={{ borderSpacing: '0px 7px' }}>
           <TableBody>
             {assets.map((asset) => (
-              <TableRow key={asset.underlying.address}>
+              <TableRow key={asset.address}>
                 <TableData>
                   <DeFiAssetImage borderless width={45} height={45}>
-                    <img
-                      src={`https://assets.solace.fi/${asset.underlying.address.toLowerCase()}`}
-                      alt={asset.underlying.name}
-                    />
+                    <img src={`https://assets.solace.fi/${asset.address.toLowerCase()}`} alt={asset.name} />
                   </DeFiAssetImage>
                 </TableData>
-                <TableData>{asset.underlying.name}</TableData>
+                <TableData>{asset.name}</TableData>
               </TableRow>
             ))}
           </TableBody>

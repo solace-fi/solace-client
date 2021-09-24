@@ -47,7 +47,7 @@ const kmumap: any = {
   '0x3e0437898a5667a4769b1ca5a34aab1ae7e81377': '0xd46ba6d942050d489dbd938a2c909a5d5039a161',
 }
 
-const getMainNetworkTokenAddress = (address: string, chainId: number): string => {
+export const getMainNetworkTokenAddress = (address: string, chainId: number): string => {
   if (chainId == 42) {
     return kmumap[address.toLowerCase()]
   }

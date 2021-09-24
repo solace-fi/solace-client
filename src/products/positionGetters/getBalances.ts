@@ -41,11 +41,11 @@ const queryBalance = async (user: string, tokenContract: Contract) => {
   return await withBackoffRetries(async () => tokenContract.balanceOf(user))
 }
 
-const queryNativeTokenBalance = async (
+export const queryNativeTokenBalance = async (
   token: any,
   chainId: number,
   getMainNetworkTokenAddress?: (address: string, chainId: number) => string
-) => {
+): Promise<BigNumber> => {
   if (equalsIgnoreCase(token.address, ETH)) return BigNumber.from(token.balance)
   let address = token.address
   if (getMainNetworkTokenAddress) {

@@ -30,7 +30,7 @@ import { BigNumber } from 'ethers'
 /* import constants */
 import { DAYS_PER_YEAR, GAS_LIMIT, NUM_BLOCKS_PER_DAY, ZERO } from '../../constants'
 import { TransactionCondition, FunctionName, Unit } from '../../constants/enums'
-import { LocalTx, Token } from '../../constants/types'
+import { LiquityPosition, LocalTx, Position, Token } from '../../constants/types'
 
 /* import managers */
 import { useContracts } from '../../context/ContractsManager'
@@ -52,12 +52,12 @@ import { FlexCol, FlexRow } from '../../components/atoms/Layout'
 import { StyledTooltip } from '../../components/molecules/Tooltip'
 
 /* import hooks */
-import { useGetQuote, useGetMaxCoverPerUser } from '../../hooks/usePolicy'
+import { useGetQuote, useGetMaxCoverPerPolicy } from '../../hooks/usePolicy'
+import { useGasConfig } from '../../hooks/useFetchGasPrice'
 
 /* import utils */
 import { accurateMultiply, encodeAddresses, filteredAmount } from '../../utils/formatting'
 import { getDateStringWithMonthName, getDateExtended } from '../../utils/time'
-import { getGasConfig } from '../../utils/gas'
 
 export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigation }) => {
   /*************************************************************************************
@@ -67,25 +67,24 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
   *************************************************************************************/
   const { errors } = useGeneral()
   const { positions, coverAmount, timePeriod, loading } = formData
-  const maxCoverPerUser = useGetMaxCoverPerUser() // in eth
+  const maxCoverPerPolicy = useGetMaxCoverPerPolicy() // in eth
   const quote = useGetQuote(coverAmount, timePeriod)
-  const { account, activeWalletConnector } = useWallet()
+  const { account } = useWallet()
   const { addLocalTransactions, reload, gasPrices } = useCachedData()
   const { selectedProtocol } = useContracts()
   const { makeTxToast } = useToasts()
   const { activeNetwork, currencyDecimals } = useNetwork()
-  const gasConfig = useMemo(() => getGasConfig(activeWalletConnector, activeNetwork, gasPrices.selected?.value), [
-    activeWalletConnector,
-    activeNetwork,
-    gasPrices.selected?.value,
-  ])
-  const maxCoverPerUserInWei = useMemo(() => {
-    return parseUnits(maxCoverPerUser, currencyDecimals)
-  }, [maxCoverPerUser, currencyDecimals])
+  const { gasConfig } = useGasConfig(gasPrices.selected?.value)
+  const maxCoverPerPolicyInWei = useMemo(() => {
+    return parseUnits(maxCoverPerPolicy, currencyDecimals)
+  }, [maxCoverPerPolicy, currencyDecimals])
 
   // positionAmount: BigNumber = wei but displayable, position.eth.balance: BigNumber = wei
   const positionAmount: BigNumber = useMemo(() => {
-    const totalBalance = positions.reduce((pv: BigNumber, cv: Token) => pv.add(cv.eth.balance), ZERO)
+    const totalBalance = positions.reduce((pv: BigNumber, cv: Position) => {
+      if (cv.type == 'erc20') return pv.add((cv.position as Token).eth.balance)
+      if (cv.type == 'liquity') return pv.add((cv.position as LiquityPosition).amount)
+    }, ZERO)
     return BigNumber.from(accurateMultiply(formatUnits(totalBalance, currencyDecimals), currencyDecimals))
   }, [positions, currencyDecimals])
 
@@ -95,7 +94,7 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
 
   *************************************************************************************/
   const [inputCoverage, setInputCoverage] = useState<string>('')
-  const [coveredAssets, setCoveredAssets] = useState<string>(maxCoverPerUser)
+  const [coveredAssets, setCoveredAssets] = useState<string>(maxCoverPerPolicy)
 
   /*************************************************************************************
 
@@ -192,7 +191,7 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
     const filtered = input.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1')
 
     // if number is greater than the max cover per user, do not update
-    if (parseFloat(filtered) > parseFloat(maxCoverPerUser)) return
+    if (parseFloat(filtered) > parseFloat(maxCoverPerPolicy)) return
 
     // if number has more than max decimal places, do not update
     if (filtered.includes('.') && filtered.split('.')[1]?.length > currencyDecimals) return
@@ -219,7 +218,7 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
   }
 
   const setMaxCover = () => {
-    const adjustedCoverAmount = maxCoverPerUserInWei.toString()
+    const adjustedCoverAmount = maxCoverPerPolicyInWei.toString()
     handleCoverageChange(adjustedCoverAmount, false)
   }
 
@@ -231,7 +230,7 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
 
   useEffect(() => {
     setMaxCover()
-  }, [maxCoverPerUser])
+  }, [maxCoverPerPolicy])
 
   useEffect(() => {
     setCoveredAssets(formatUnits(BigNumber.from(coverAmount), currencyDecimals))
@@ -274,7 +273,7 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
           </FormCol>
           <FormCol>
             <Heading3 high_em textAlignRight>
-              {maxCoverPerUser} {activeNetwork.nativeCurrency.symbol}
+              {maxCoverPerPolicy} {activeNetwork.nativeCurrency.symbol}
             </Heading3>
           </FormCol>
         </FormRow>
@@ -310,7 +309,7 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
               value={coverAmount}
               onChange={(e) => handleCoverageChange(e.target.value)}
               min={1}
-              max={maxCoverPerUserInWei.toString()}
+              max={maxCoverPerPolicyInWei.toString()}
             />
           </div>
           <br />

@@ -20,7 +20,7 @@
   *************************************************************************************/
 
 /* import react */
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 
 /* import packages */
 import { formatUnits, parseUnits } from '@ethersproject/units'
@@ -53,10 +53,10 @@ import { useSolaceBalance } from '../../hooks/useBalance'
 import { usePolicyGetter } from '../../hooks/useGetter'
 import { useGetTotalValueLocked } from '../../hooks/useFarm'
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'
+import { useGasConfig } from '../../hooks/useFetchGasPrice'
 
 /* import utils */
 import { fixed, floatUnits, truncateBalance } from '../../utils/formatting'
-import { getGasConfig } from '../../utils/gas'
 
 export const Statistics: React.FC = () => {
   /*************************************************************************************
@@ -65,7 +65,7 @@ export const Statistics: React.FC = () => {
 
   *************************************************************************************/
   const { errors } = useGeneral()
-  const { account, initialized, activeWalletConnector } = useWallet()
+  const { account, initialized } = useWallet()
   const { activeNetwork, currencyDecimals } = useNetwork()
   const { master } = useContracts()
   const { makeTxToast } = useToasts()
@@ -76,11 +76,7 @@ export const Statistics: React.FC = () => {
   const { allPolicies } = usePolicyGetter(true, latestBlock, tokenPositionData, version)
   const totalValueLocked = useGetTotalValueLocked()
   const { width } = useWindowDimensions()
-  const gasConfig = useMemo(() => getGasConfig(activeWalletConnector, activeNetwork, gasPrices.selected?.value), [
-    activeWalletConnector,
-    activeNetwork,
-    gasPrices.selected,
-  ])
+  const { gasConfig } = useGasConfig(gasPrices.selected?.value)
   /*************************************************************************************
 
   useState hooks

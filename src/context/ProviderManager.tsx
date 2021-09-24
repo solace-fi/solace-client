@@ -10,8 +10,6 @@ import { Modal } from '../components/molecules/Modal'
 import { FormRow } from '../components/atoms/Form'
 import { capitalizeFirstLetter } from '../utils/formatting'
 
-import { getPositions } from '../products/positionGetters/liquity/getTokens'
-
 /*
 
 This Manager initializes the Web3 provider and the JSON-RPC provider.
@@ -46,7 +44,7 @@ export function useProvider(): ProviderContextType {
 
 const ProviderManager: React.FC = ({ children }) => {
   const { networks, activeNetwork, findNetworkByChainId, findNetworkByName, changeNetwork } = useNetwork()
-  const { connector, library } = useWallet()
+  const { connector } = useWallet()
   const [networkModal, setNetworkModal] = useState<boolean>(false)
 
   const openModal = useCallback(() => {
@@ -69,10 +67,6 @@ const ProviderManager: React.FC = ({ children }) => {
       })
     }
   }, [connector, changeNetwork, findNetworkByChainId])
-
-  useEffect(() => {
-    getPositions(library, activeNetwork)
-  }, [])
 
   const switchNetwork = useCallback(
     async (networkName: string) => {

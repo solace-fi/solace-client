@@ -21,7 +21,11 @@ import { Heading1, Heading3 } from '../../components/atoms/Typography'
 import { HeroContainer } from '../../components/atoms/Layout'
 import { formProps } from './MultiStepForm'
 
-export const ConfirmStep: React.FC<formProps> = ({ navigation }) => {
+interface ConfirmStepProp extends formProps {
+  resetForm: () => void
+}
+
+export const ConfirmStep: React.FC<ConfirmStepProp> = ({ resetForm }) => {
   /*************************************************************************************
 
   Render
@@ -38,7 +42,12 @@ export const ConfirmStep: React.FC<formProps> = ({ navigation }) => {
           <StyledNavLink to="/">
             <Button secondary>Go to Dashboard</Button>
           </StyledNavLink>
-          <Button secondary onClick={() => navigation.go(0)}>
+          <Button
+            secondary
+            onClick={() => {
+              resetForm()
+            }}
+          >
             Start New Quote
           </Button>
         </TableDataGroup>

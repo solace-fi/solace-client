@@ -41,7 +41,7 @@ export const useCacheTokens = () => {
     return storedTokenAndPositionData
   }, [])
 
-  const getAllTokensAndPositionsforChain = useCallback(
+  const getAllTokensforChain = useCallback(
     async (data: NetworkCache[], _activeNetwork: NetworkConfig, _library: any) => {
       if (running.current || _library == undefined || _activeNetwork.chainId == undefined) return
       setDataInitialized(false)
@@ -57,7 +57,7 @@ export const useCacheTokens = () => {
       const supportedProducts = _activeNetwork.cache.supportedProducts
       let changeOccurred = false
 
-      // for every supported product in this network, initialize the tokens and positions
+      // for every supported product in this network, initialize the tokens, if any
       await Promise.all(
         supportedProducts.map(async (supportedProduct: SupportedProduct) => {
           const productName = supportedProduct.name
@@ -76,6 +76,7 @@ export const useCacheTokens = () => {
               (names: any, token: any) => ({ ...names, [token.token.address.toLowerCase()]: token.underlying.symbol }),
               {}
             )
+            console.log(productName, positionNames)
             const initializedPositions = {
               ...newCache.positions[productName],
               positionNames: positionNames,
@@ -103,7 +104,7 @@ export const useCacheTokens = () => {
 
   useEffect(() => {
     const data = setStoredData()
-    getAllTokensAndPositionsforChain(data, activeNetwork, library)
+    getAllTokensforChain(data, activeNetwork, library)
   }, [activeNetwork])
 
   return { dataInitialized, storedTokenAndPositionData }
