@@ -82,7 +82,6 @@ const CachedDataProvider: React.FC = (props) => {
     false,
     latestBlock,
     { dataInitialized, storedPositionData },
-    version,
     account
   )
   const [historyModal, setHistoryModal] = useState<boolean>(false)
@@ -136,7 +135,7 @@ const CachedDataProvider: React.FC = (props) => {
           {
             type: SystemNotice.LOSS_EVENT_DETECTED,
             metadata: `${totalNumLossEvents} loss event${
-              totalNumLossEvents > 0 && 's'
+              totalNumLossEvents > 1 && 's'
             } detected in total, view your policies for details`,
             uniqueId: `${SystemNotice.LOSS_EVENT_DETECTED}`,
           },
@@ -145,7 +144,7 @@ const CachedDataProvider: React.FC = (props) => {
         removeNotices([SystemNotice.LOSS_EVENT_DETECTED])
       }
     }
-  }, [policiesLoading, latestBlock])
+  }, [policiesLoading, userPolicies])
 
   const value = useMemo<CachedData>(
     () => ({

@@ -5,7 +5,7 @@ import { PolicyState } from '../constants/enums'
 import { Policy, NetworkCache } from '../constants/types'
 import { BigNumber } from 'ethers'
 import { useContracts } from '../context/ContractsManager'
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { useNetwork } from '../context/NetworkManager'
 import { getClaimAssessment } from '../utils/paclas'
 
@@ -13,7 +13,6 @@ export const usePolicyGetter = (
   getAll: boolean,
   latestBlock: number,
   data: { dataInitialized: boolean; storedPositionData: NetworkCache[] },
-  version: number,
   policyHolder?: string,
   product?: string
 ) => {
@@ -24,7 +23,6 @@ export const usePolicyGetter = (
   const [allPolicies, setAllPolicies] = useState<Policy[]>([])
   const [policiesLoading, setPoliciesLoading] = useState<boolean>(true)
   const [canGetClaimAssessments, setCanGetClaimAssessments] = useState<boolean>(true)
-  const mounting = useRef(true)
 
   const setCanGetAssessments = (toggle: boolean) => {
     setCanGetClaimAssessments(toggle)
@@ -131,32 +129,59 @@ export const usePolicyGetter = (
   }
 
   useEffect(() => {
+    const loadOnBoot = async () => {
+      await getPolicies(policyHolder)
+      setPoliciesLoading(false)
+    }
+    if (policyHolder == undefined || getAll) return
+    setPoliciesLoading(true)
+
+    if (!data.dataInitialized) return
+    loadOnBoot()
+
+    const getUserPolicies = async (id: any) => {
+      const owner = await policyManager?.getPolicyholder(id)
+      if (owner === policyHolder) {
+        await getPolicies(policyHolder)
+      }
+    }
+
+    policyManager?.on('Transfer', async (from, to) => {
+      if (from == policyHolder || to == policyHolder) {
+        console.log(from, to)
+        await getPolicies(policyHolder)
+      }
+    })
+
+    policyManager?.on('PolicyUpdated', async (id) => {
+      await getUserPolicies(id)
+    })
+
+    return () => {
+      policyManager?.removeAllListeners()
+    }
+  }, [policyHolder, data.dataInitialized])
+
+  useEffect(() => {
     const loadOverTime = async () => {
       await getPolicies()
     }
     if (policyHolder !== undefined || !getAll) return
-
     loadOverTime()
   }, [latestBlock])
 
   useEffect(() => {
-    const loadOnBoot = async () => {
-      await getPolicies(policyHolder)
-      setPoliciesLoading(false)
-      mounting.current = false
+    const getClaimAssessments = async () => {
+      const claimAssessments = await Promise.all(
+        userPolicies.map(async (policy) => getClaimAssessment(String(policy.policyId), chainId))
+      )
+      const policiesWithClaimAssessments = userPolicies.map((policy, i) => {
+        return { ...policy, claimAssessment: claimAssessments[i] }
+      })
+      setUserPolicies(policiesWithClaimAssessments)
     }
-    setPoliciesLoading(true)
-    if (policyHolder == undefined || getAll || !data.dataInitialized) return
-    loadOnBoot()
-  }, [policyHolder, activeNetwork, data.dataInitialized])
-
-  useEffect(() => {
-    const loadOverTime = async () => {
-      await getPolicies(policyHolder)
-    }
-    if (policyHolder == undefined || mounting.current || getAll || !data.dataInitialized) return
-
-    loadOverTime()
+    if (userPolicies.length <= 0 || policiesLoading || !canGetClaimAssessments) return
+    getClaimAssessments()
   }, [latestBlock])
 
   return { policiesLoading, userPolicies, allPolicies, setCanGetAssessments }
