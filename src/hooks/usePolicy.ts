@@ -57,20 +57,17 @@ export const useAppraisePosition = (policy: Policy | undefined): BigNumber => {
         const erc20Balances: BigNumber[] = await supportedProduct.getAppraisals(tokensToAppraise, activeNetwork.chainId)
         return erc20Balances
       case 'liquity':
-        const positionsToAppraise: Position[] = cache.positions[supportedProduct.name].savedPositions
-        const liquityPositions = await getPositions(
-          account,
-          library,
-          activeNetwork,
-          positionsToAppraise.map((position) => position.position as LiquityPosition)
-        )
-        const formattedPositions = liquityPositions.map((pos: LiquityPosition) => {
-          return { address: pos.positionAddress, balance: pos.amount }
+        const positionsToAppraise: LiquityPosition[] = []
+        policy.positionNames.forEach(async (name) => {
+          const positionToAppraise: Position | undefined = cache.positions[supportedProduct.name].savedPositions.find(
+            (position: Position) => (position.position as LiquityPosition).positionName == name
+          )
+          if (!positionToAppraise) return
+          positionsToAppraise.push(positionToAppraise.position as LiquityPosition)
         })
-        const liquityBalances: BigNumber[] = await supportedProduct.getAppraisals(
-          formattedPositions,
-          activeNetwork.chainId
-        )
+        const liquityPositions = await getPositions(account, library, activeNetwork, positionsToAppraise)
+        const liquityBalances: BigNumber[] = liquityPositions.map((pos) => pos.nativeAmount)
+
         return liquityBalances
       case 'other':
       default:

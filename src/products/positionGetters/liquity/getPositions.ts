@@ -2,6 +2,7 @@ import { BigNumber } from 'ethers'
 import { LiquityPosition, NetworkConfig } from '../../../constants/types'
 import { getContract } from '../../../utils'
 import { Contract } from '@ethersproject/contracts'
+import { getAppraisals } from './getAppraisals'
 
 const ITroveManagerAbi = [
   {
@@ -122,47 +123,64 @@ export const getPositions = async (
   activeNetwork: NetworkConfig,
   savedLiquityPositions: LiquityPosition[]
 ): Promise<LiquityPosition[]> => {
-  const troveManagerContract = getTroveContract(provider, activeNetwork.chainId)
+  const positions: LiquityPosition[] = []
 
+  const trovePositionData = savedLiquityPositions.filter((pos) => pos.positionName == 'Trove')[0]
   const lqtyStakingPositionData = savedLiquityPositions.filter((pos) => pos.positionName == 'Staking Pool')[0]
   const stabilityPoolPositionData = savedLiquityPositions.filter((pos) => pos.positionName == 'Stability Pool')[0]
 
-  const lqtyStakingAddr = lqtyStakingPositionData.positionAddress
-  const stabilityPoolAddr = stabilityPoolPositionData.positionAddress
-
-  const lqtyStakingContract = getContract(lqtyStakingAddr, ILQTYStakingAbi, provider)
-  const stabilityPoolContract = getContract(stabilityPoolAddr, IStabilityPoolAbi, provider)
-
-  const [, coll, , status, ,] = await troveManagerContract.functions.Troves(user)
-  const stabilityPoolPosition = await stabilityPoolContract.functions.getCompoundedLUSDDeposit(user)
-  const lqtyStakes = await lqtyStakingContract.functions.stakes(user)
-
-  let positions: LiquityPosition[] = [
-    {
-      positionName: 'Stability Pool',
-      positionAddress: stabilityPoolAddr,
-      amount: stabilityPoolPosition[0],
-      associatedToken: { address: stabilityPoolPositionData.associatedToken.address, name: 'LUSD', symbol: 'LUSD' },
-    },
-    {
-      positionName: 'Staking Pool',
-      positionAddress: lqtyStakingAddr,
-      amount: lqtyStakes[0],
-      associatedToken: { address: lqtyStakingPositionData.associatedToken.address, name: 'LQTY', symbol: 'LQTY' },
-    },
-  ]
-
-  if (status.eq(BigNumber.from(1))) {
-    positions = [
-      {
+  if (trovePositionData) {
+    const troveManagerContract = getTroveContract(provider, activeNetwork.chainId)
+    const [, coll, , status, ,] = await troveManagerContract.functions.Troves(user)
+    if (status.eq(BigNumber.from(1))) {
+      const troveAppraisalToNativeToken = await getAppraisals(
+        [{ address: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE', balance: coll }],
+        activeNetwork.chainId
+      )
+      positions.push({
         positionName: 'Trove',
         positionAddress: troveManagerContract.address,
         amount: coll,
+        nativeAmount: troveAppraisalToNativeToken[0],
         associatedToken: { address: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE', name: 'Ether', symbol: 'ETH' },
-      },
-      ...positions,
-    ]
+      })
+    }
   }
+
+  if (lqtyStakingPositionData) {
+    const lqtyStakingAddr = lqtyStakingPositionData.positionAddress
+    const lqtyStakingContract = getContract(lqtyStakingAddr, ILQTYStakingAbi, provider)
+    const lqtyStakes = await lqtyStakingContract.functions.stakes(user)
+    const stakingPoolAppraisalToNativeToken = await getAppraisals(
+      [{ address: lqtyStakingPositionData.associatedToken.address, balance: lqtyStakes[0] }],
+      activeNetwork.chainId
+    )
+    positions.push({
+      positionName: 'Staking Pool',
+      positionAddress: lqtyStakingAddr,
+      amount: lqtyStakes[0],
+      nativeAmount: stakingPoolAppraisalToNativeToken[0],
+      associatedToken: { address: lqtyStakingPositionData.associatedToken.address, name: 'LQTY', symbol: 'LQTY' },
+    })
+  }
+
+  if (stabilityPoolPositionData) {
+    const stabilityPoolAddr = stabilityPoolPositionData.positionAddress
+    const stabilityPoolContract = getContract(stabilityPoolAddr, IStabilityPoolAbi, provider)
+    const stabilityPoolPosition = await stabilityPoolContract.functions.getCompoundedLUSDDeposit(user)
+    const stabilityPoolAppraisalToNativeToken = await getAppraisals(
+      [{ address: stabilityPoolPositionData.associatedToken.address, balance: stabilityPoolPosition[0] }],
+      activeNetwork.chainId
+    )
+    positions.push({
+      positionName: 'Stability Pool',
+      positionAddress: stabilityPoolAddr,
+      amount: stabilityPoolPosition[0],
+      nativeAmount: stabilityPoolAppraisalToNativeToken[0],
+      associatedToken: { address: stabilityPoolPositionData.associatedToken.address, name: 'LUSD', symbol: 'LUSD' },
+    })
+  }
+
   return positions
 }
 

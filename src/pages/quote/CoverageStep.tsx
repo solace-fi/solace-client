@@ -86,7 +86,7 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
         case 'erc20':
           return pv.add((cv.position as Token).eth.balance)
         case 'liquity':
-          return pv.add((cv.position as LiquityPosition).amount)
+          return pv.add((cv.position as LiquityPosition).nativeAmount)
         case 'other':
         default:
           ZERO
@@ -125,8 +125,17 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
         coverAmount,
         NUM_BLOCKS_PER_DAY * parseInt(timePeriod),
         encodeAddresses(
-          positions.reduce((pv: string[], cv: Token) => {
-            pv.push(cv.token.address)
+          positions.reduce((pv: string[], cv: Position) => {
+            switch (cv.type) {
+              case 'erc20':
+                pv.push((cv.position as Token).token.address)
+                break
+              case 'liquity':
+                pv.push((cv.position as LiquityPosition).positionAddress)
+                break
+              case 'other':
+              default:
+            }
             return pv
           }, [])
         ),
@@ -198,14 +207,17 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
     // allow only numbers and decimals
     const filtered = input.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1')
 
-    // if number is greater than the max cover per user, do not update
-    if (parseUnits(filtered, currencyDecimals).gt(maxCoverPerPolicyInWei)) return
+    // if filtered is only "0." or "." or '', filtered becomes '0.0'
+    const formatted = filtered == '0.' || filtered == '.' || filtered == '' ? '0.0' : filtered
 
     // if number has more than max decimal places, do not update
     if (filtered.includes('.') && filtered.split('.')[1]?.length > currencyDecimals) return
 
+    // if number is greater than the max cover per user, do not update
+    if (parseUnits(formatted, currencyDecimals).gt(maxCoverPerPolicyInWei)) return
+
     setInputCoverage(filtered)
-    setCoverage(accurateMultiply(filtered, currencyDecimals))
+    setCoverage(accurateMultiply(formatted, currencyDecimals))
   }
 
   // coverAmount in wei
@@ -385,11 +397,7 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
         </FormRow>
         <ButtonWrapper>
           {!loading ? (
-            <Button
-              widthP={100}
-              onClick={() => buyPolicy()}
-              disabled={errors.length > 0 || !inputCoverage || inputCoverage == '.'}
-            >
+            <Button widthP={100} onClick={() => buyPolicy()} disabled={errors.length > 0 || coveredAssets == '0.0'}>
               Buy
             </Button>
           ) : (

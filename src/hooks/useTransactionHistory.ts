@@ -60,13 +60,15 @@ export const useTransactionDetails = (): { txHistory: any; amounts: string[] } =
         if (!topics || topics.length <= 0) return '0'
         return topics[topics.length - 1]
       case FunctionName.WITHDRAW_CLAIMS_PAYOUT:
+      case FunctionName.BUY_POLICY:
         if (!topics || topics.length <= 0) return '0'
         return topics[1]
-      case FunctionName.BUY_POLICY:
       case FunctionName.EXTEND_POLICY_PERIOD:
       case FunctionName.UPDATE_POLICY:
       case FunctionName.UPDATE_POLICY_AMOUNT:
       case FunctionName.CANCEL_POLICY:
+        if (!topics || topics.length <= 0) return '0'
+        return topics[1]
       case FunctionName.DEPOSIT_CP:
       case FunctionName.WITHDRAW_CP:
       case FunctionName.WITHDRAW_REWARDS:

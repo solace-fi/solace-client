@@ -71,7 +71,7 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
 
   *************************************************************************************/
 
-  const [asyncLoading, setAsyncLoading] = useState<boolean>(false)
+  const [asyncLoading, setAsyncLoading] = useState<boolean>(true)
   const [inputCoverage, setInputCoverage] = useState<string>('1')
   const [newCoverage, setNewCoverage] = useState<string>('1')
   const [extendedTime, setExtendedTime] = useState<string>('0')
@@ -84,7 +84,7 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
   *************************************************************************************/
 
   const { errors } = useGeneral()
-  const { selectedProtocol } = useContracts()
+  const { selectedProtocol, riskManager } = useContracts()
   const { addLocalTransactions, reload, gasPrices } = useCachedData()
   const { makeTxToast } = useToasts()
   const policyPrice = useGetPolicyPrice(selectedPolicy ? selectedPolicy.policyId : 0)
@@ -113,6 +113,7 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
     return parseUnits(maxCoverPerPolicy, currencyDecimals)
   }, [maxCoverPerPolicy, currencyDecimals])
   const appraisal = useAppraisePosition(selectedPolicy)
+  const [coveredAssets, setCoveredAssets] = useState<string>(currentCoverAmount)
   const mounting = useRef(true)
 
   /*************************************************************************************
@@ -123,12 +124,12 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
 
   const updatePolicy = async () => {
     setModalLoading(true)
-    if (!selectedProtocol || !selectedPolicy) return
+    if (!selectedProtocol || !selectedPolicy || !riskManager) return
     const txType = FunctionName.UPDATE_POLICY
-    const price = await selectedProtocol.price()
+    const params = await riskManager.productRiskParams(selectedProtocol.address)
     try {
       const newPremium = BigNumber.from(newCoverage)
-        .mul(price)
+        .mul(params.price)
         .mul(selectedPolicy.expirationBlock + NUM_BLOCKS_PER_DAY * parseInt(extendedTime) - latestBlock)
         .div(String(Math.pow(10, 12)))
       const tx = await selectedProtocol.updatePolicy(
@@ -156,11 +157,11 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
 
   const updateCoverAmount = async () => {
     setModalLoading(true)
-    if (!selectedProtocol || !selectedPolicy) return
+    if (!selectedProtocol || !selectedPolicy || !riskManager) return
     const txType = FunctionName.UPDATE_POLICY_AMOUNT
-    const price = await selectedProtocol.price()
+    const params = await riskManager.productRiskParams(selectedProtocol.address)
     const newPremium = BigNumber.from(newCoverage)
-      .mul(price)
+      .mul(params.price)
       .mul(selectedPolicy.expirationBlock - latestBlock)
       .div(String(Math.pow(10, 12)))
     try {
@@ -266,11 +267,14 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
     // allow only numbers and decimals
     const filtered = input.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1')
 
-    // if number is greater than the max cover per user, do not update
-    if (parseUnits(filtered, currencyDecimals).gt(maxCoverPerPolicyInWei)) return
+    // if filtered is only "0." or "." or '', filtered becomes '0.0'
+    const formatted = filtered == '0.' || filtered == '.' || filtered == '' ? '0.0' : filtered
 
     // if number has more than max decimal places, do not update
     if (filtered.includes('.') && filtered.split('.')[1]?.length > currencyDecimals) return
+
+    // if number is greater than the max cover per user, do not update
+    if (parseUnits(formatted, currencyDecimals).gt(maxCoverPerPolicyInWei)) return
 
     setNewCoverage(accurateMultiply(filtered, currencyDecimals)) // set new amount in wei
     setInputCoverage(filtered) // set new amount in eth
@@ -335,6 +339,10 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
   useEffect(() => {
     setMaxCover()
   }, [maxCoverPerPolicy])
+
+  useEffect(() => {
+    setCoveredAssets(formatUnits(BigNumber.from(newCoverage), currencyDecimals))
+  }, [newCoverage, currencyDecimals])
 
   /*************************************************************************************
 
@@ -411,7 +419,7 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
                       {!asyncLoading ? (
                         <Button
                           widthP={100}
-                          disabled={errors.length > 0 || !inputCoverage || inputCoverage == '.'}
+                          disabled={errors.length > 0 || coveredAssets == '0.0'}
                           onClick={handleFunc}
                         >
                           Update Policy

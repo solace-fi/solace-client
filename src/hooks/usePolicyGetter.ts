@@ -148,7 +148,6 @@ export const usePolicyGetter = (
 
     policyManager?.on('Transfer', async (from, to) => {
       if (from == policyHolder || to == policyHolder) {
-        console.log(from, to)
         await getPolicies(policyHolder)
       }
     })

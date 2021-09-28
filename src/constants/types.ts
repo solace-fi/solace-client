@@ -82,6 +82,7 @@ export type LiquityPosition = {
   positionName: string
   positionAddress: string
   amount: BigNumber
+  nativeAmount: BigNumber
   associatedToken: {
     address: string
     name: string

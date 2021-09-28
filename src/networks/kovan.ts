@@ -10,10 +10,10 @@ import claimsEscrowABI from '../constants/abi/contracts/ClaimsEscrow.sol/ClaimsE
 import lpTokenArtifact from '../../node_modules/@uniswap/v3-periphery/artifacts/contracts/NonfungiblePositionManager.sol/NonfungiblePositionManager.json'
 import polMagABI from '../constants/abi/contracts/PolicyManager.sol/PolicyManager.json'
 import lpAppraisorABI from '../constants/abi/contracts/LpAppraisor.sol/LpAppraisor.json'
-import riskManagerABI from './temp_data/RiskManagerAbi.json'
+import riskManagerABI from '../constants/abi/contracts/RiskManager.sol/RiskManager.json'
 
-import aaveABI from './temp_data/AaveProductAbi.json'
-import waaveABI from './temp_data/WaaveProductAbi.json'
+import aaveABI from '../constants/abi/contracts/products/AaveV2Product.sol/AaveV2Product.json'
+import waaveABI from '../constants/abi/contracts/products/WaaveProduct.sol/WaaveProduct.json'
 
 import { ProductName, Unit } from '../constants/enums'
 
