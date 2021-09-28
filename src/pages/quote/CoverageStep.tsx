@@ -122,14 +122,14 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
     try {
       const tx = await selectedProtocol.buyPolicy(
         account,
+        coverAmount,
+        NUM_BLOCKS_PER_DAY * parseInt(timePeriod),
         encodeAddresses(
           positions.reduce((pv: string[], cv: Token) => {
             pv.push(cv.token.address)
             return pv
           }, [])
         ),
-        coverAmount,
-        NUM_BLOCKS_PER_DAY * parseInt(timePeriod),
         {
           value: parseUnits(quote, currencyDecimals),
           ...gasConfig,
