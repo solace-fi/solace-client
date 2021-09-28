@@ -10,9 +10,11 @@ import claimsEscrowABI from '../constants/abi/contracts/ClaimsEscrow.sol/ClaimsE
 import lpTokenArtifact from '../../node_modules/@uniswap/v3-periphery/artifacts/contracts/NonfungiblePositionManager.sol/NonfungiblePositionManager.json'
 import polMagABI from '../constants/abi/contracts/PolicyManager.sol/PolicyManager.json'
 import lpAppraisorABI from '../constants/abi/contracts/LpAppraisor.sol/LpAppraisor.json'
+import riskManagerABI from './temp_data/RiskManagerAbi.json'
 
-import compAbi from '../constants/abi/contracts/products/CompoundProductRinkeby.sol/CompoundProductRinkeby.json'
-import waaveAbi from '../constants/abi/contracts/products/WaaveProduct.sol/WaaveProduct.json'
+import liquityProductABI from './temp_data/LiquityProductAbi.json'
+import compABI from './temp_data/CompoundProductRinkebyAbi.json'
+import waaveABI from './temp_data/WaaveProductAbi.json'
 
 import { ProductName, Unit } from '../constants/enums'
 
@@ -22,6 +24,7 @@ import { hexValue } from '@ethersproject/bytes'
 import { ALCHEMY_API_KEY } from '../constants'
 import { CompoundProduct } from '../products/compound'
 import { WaaveProduct } from '../products/waave'
+import { LiquityProduct } from '../products/liquity'
 
 /*
 
@@ -99,24 +102,33 @@ export const RinkebyNetwork: NetworkConfig = {
         addr: String(process.env.REACT_APP_RINKEBY_LPAPPRAISOR_ADDR),
         abi: lpAppraisorABI,
       },
+      riskManager: {
+        addr: String(process.env.REACT_APP_RINKEBY_RISK_MANAGER_ADDR),
+        abi: riskManagerABI,
+      },
     },
     productContracts: {
       [ProductName.COMPOUND]: {
         addr: String(process.env.REACT_APP_RINKEBY_COMPOUND_PRODUCT_ADDR),
-        abi: compAbi,
+        abi: compABI,
       },
       [ProductName.WAAVE]: {
         addr: String(process.env.REACT_APP_RINKEBY_WAAVE_PRODUCT_ADDR),
-        abi: waaveAbi,
+        abi: waaveABI,
+      },
+      [ProductName.LIQUITY]: {
+        addr: String(process.env.REACT_APP_RINKEBY_LIQUITY_PRODUCT_ADDR),
+        abi: liquityProductABI,
       },
     },
     productsRev: {
       [String(process.env.REACT_APP_RINKEBY_COMPOUND_PRODUCT_ADDR)]: ProductName.COMPOUND,
       [String(process.env.REACT_APP_RINKEBY_WAAVE_PRODUCT_ADDR)]: ProductName.WAAVE,
+      [String(process.env.REACT_APP_RINKEBY_LIQUITY_PRODUCT_ADDR)]: ProductName.LIQUITY,
     },
   },
   cache: {
-    supportedProducts: [CompoundProduct, WaaveProduct],
+    supportedProducts: [CompoundProduct, WaaveProduct, LiquityProduct],
   },
   metamaskChain: {
     chainId: hexValue(4),

@@ -21,13 +21,12 @@
   *************************************************************************************/
 
 /* import react */
-import React, { Fragment, useCallback, useEffect, useState, useMemo, useRef } from 'react'
+import React, { Fragment, useCallback, useEffect, useState, useRef } from 'react'
 
 /* import packages */
 import { formatUnits } from '@ethersproject/units'
 
 /* import managers */
-import { useWallet } from '../../context/WalletManager'
 import { useCachedData } from '../../context/CachedDataManager'
 import { useToasts } from '../../context/NotificationsManager'
 import { useContracts } from '../../context/ContractsManager'
@@ -53,11 +52,11 @@ import { Policy, ClaimAssessment } from '../../constants/types'
 import { useGetCooldownPeriod } from '../../hooks/useClaimsEscrow'
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'
 import { useAppraisePosition } from '../../hooks/usePolicy'
+import { useGasConfig } from '../../hooks/useFetchGasPrice'
 
 /* import utils */
 import { truncateBalance } from '../../utils/formatting'
 import { timeToDateText } from '../../utils/time'
-import { getGasConfig } from '../../utils/gas'
 import { getClaimAssessment } from '../../utils/paclas'
 
 interface ClaimModalProps {
@@ -87,15 +86,10 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
   const { addLocalTransactions, reload, gasPrices, userPolicyData } = useCachedData()
   const { selectedProtocol } = useContracts()
   const { makeTxToast } = useToasts()
-  const { activeWalletConnector } = useWallet()
   const { errors } = useGeneral()
   const { activeNetwork, currencyDecimals, chainId } = useNetwork()
   const { width } = useWindowDimensions()
-  const gasConfig = useMemo(() => getGasConfig(activeWalletConnector, activeNetwork, gasPrices.selected?.value), [
-    activeWalletConnector,
-    activeNetwork,
-    gasPrices.selected?.value,
-  ])
+  const { gasConfig } = useGasConfig(gasPrices.selected?.value)
   const appraisal = useAppraisePosition(selectedPolicy)
   const mounting = useRef(true)
 

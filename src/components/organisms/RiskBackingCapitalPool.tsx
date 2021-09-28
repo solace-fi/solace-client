@@ -100,7 +100,7 @@ export const RiskBackingCapitalPool: React.FC<RiskBackingCapitalPoolProps> = ({ 
             <TableRow>
               {account ? (
                 <TableData h3 high_em width={100}>
-                  {truncateBalance(parseFloat(userVaultAssets), 2)}
+                  {truncateBalance(userVaultAssets, 2)}
                 </TableData>
               ) : null}
               <TableData h3 high_em width={100}>
@@ -142,7 +142,7 @@ export const RiskBackingCapitalPool: React.FC<RiskBackingCapitalPoolProps> = ({ 
             <FormRow>
               <FormCol>Your Assets:</FormCol>
               <FormCol h2 high_em>
-                {truncateBalance(parseFloat(userVaultAssets), 2)}
+                {truncateBalance(userVaultAssets, 2)}
               </FormCol>
             </FormRow>
           )}

@@ -1,0 +1,145 @@
+[
+  {
+    "inputs": [
+      { "indexed": false, "internalType": "address", "name": "product", "type": "address" },
+      { "indexed": false, "internalType": "uint32", "name": "weight", "type": "uint32" },
+      { "indexed": false, "internalType": "uint24", "name": "price", "type": "uint24" },
+      { "indexed": false, "internalType": "uint16", "name": "divisor", "type": "uint16" }
+    ],
+    "name": "ProductParamsSet",
+    "type": "event"
+  },
+  {
+    "inputs": [
+      { "internalType": "address", "name": "product_", "type": "address" },
+      { "internalType": "uint32", "name": "weight_", "type": "uint32" },
+      { "internalType": "uint24", "name": "price_", "type": "uint24" },
+      { "internalType": "uint16", "name": "divisor_", "type": "uint16" }
+    ],
+    "name": "addProduct",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "address", "name": "product", "type": "address" },
+      { "internalType": "uint256", "name": "currentCover", "type": "uint256" },
+      { "internalType": "uint256", "name": "newCover", "type": "uint256" }
+    ],
+    "name": "assessRisk",
+    "outputs": [
+      { "internalType": "bool", "name": "acceptable", "type": "bool" },
+      { "internalType": "uint24", "name": "price", "type": "uint24" }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "maxCover",
+    "outputs": [{ "internalType": "uint256", "name": "cover", "type": "uint256" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [{ "internalType": "address", "name": "prod", "type": "address" }],
+    "name": "maxCoverPerPolicy",
+    "outputs": [{ "internalType": "uint256", "name": "cover", "type": "uint256" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [{ "internalType": "address", "name": "prod", "type": "address" }],
+    "name": "maxCoverPerProduct",
+    "outputs": [{ "internalType": "uint256", "name": "cover", "type": "uint256" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "minCapitalRequirement",
+    "outputs": [{ "internalType": "uint256", "name": "mcr", "type": "uint256" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "numProducts",
+    "outputs": [{ "internalType": "uint256", "name": "count", "type": "uint256" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "partialReservesFactor",
+    "outputs": [{ "internalType": "uint16", "name": "factor", "type": "uint16" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [{ "internalType": "uint256", "name": "index", "type": "uint256" }],
+    "name": "product",
+    "outputs": [{ "internalType": "address", "name": "prod", "type": "address" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [{ "internalType": "address", "name": "prod", "type": "address" }],
+    "name": "productIsActive",
+    "outputs": [{ "internalType": "bool", "name": "status", "type": "bool" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [{ "internalType": "address", "name": "prod", "type": "address" }],
+    "name": "productRiskParams",
+    "outputs": [
+      { "internalType": "uint32", "name": "weight", "type": "uint32" },
+      { "internalType": "uint24", "name": "price", "type": "uint24" },
+      { "internalType": "uint16", "name": "divisor", "type": "uint16" }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [{ "internalType": "address", "name": "product_", "type": "address" }],
+    "name": "removeProduct",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [{ "internalType": "address", "name": "prod", "type": "address" }],
+    "name": "sellableCoverPerProduct",
+    "outputs": [{ "internalType": "uint256", "name": "cover", "type": "uint256" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [{ "internalType": "uint16", "name": "partialReservesFactor_", "type": "uint16" }],
+    "name": "setPartialReservesFactor",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "address[]", "name": "products_", "type": "address[]" },
+      { "internalType": "uint32[]", "name": "weights_", "type": "uint32[]" },
+      { "internalType": "uint24[]", "name": "prices_", "type": "uint24[]" },
+      { "internalType": "uint16[]", "name": "divisors_", "type": "uint16[]" }
+    ],
+    "name": "setProductParams",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "weightSum",
+    "outputs": [{ "internalType": "uint32", "name": "sum", "type": "uint32" }],
+    "stateMutability": "view",
+    "type": "function"
+  }
+]

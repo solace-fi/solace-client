@@ -10,9 +10,10 @@ import claimsEscrowABI from '../constants/abi/contracts/ClaimsEscrow.sol/ClaimsE
 import lpTokenArtifact from '../../node_modules/@uniswap/v3-periphery/artifacts/contracts/NonfungiblePositionManager.sol/NonfungiblePositionManager.json'
 import polMagABI from '../constants/abi/contracts/PolicyManager.sol/PolicyManager.json'
 import lpAppraisorABI from '../constants/abi/contracts/LpAppraisor.sol/LpAppraisor.json'
+import riskManagerABI from './temp_data/RiskManagerAbi.json'
 
-import aaveAbi from '../constants/abi/contracts/products/AaveV2Product.sol/AaveV2Product.json'
-import waaveAbi from '../constants/abi/contracts/products/WaaveProduct.sol/WaaveProduct.json'
+import aaveABI from './temp_data/AaveProductAbi.json'
+import waaveABI from './temp_data/WaaveProductAbi.json'
 
 import { ProductName, Unit } from '../constants/enums'
 
@@ -98,15 +99,19 @@ export const KovanNetwork: NetworkConfig = {
         addr: String(process.env.REACT_APP_KOVAN_LPAPPRAISOR_ADDR),
         abi: lpAppraisorABI,
       },
+      riskManager: {
+        addr: String(process.env.REACT_APP_KOVAN_RISK_MANAGER_ADDR),
+        abi: riskManagerABI,
+      },
     },
     productContracts: {
       [ProductName.AAVE]: {
         addr: String(process.env.REACT_APP_KOVAN_AAVE_PRODUCT_ADDR),
-        abi: aaveAbi,
+        abi: aaveABI,
       },
       [ProductName.WAAVE]: {
         addr: String(process.env.REACT_APP_KOVAN_WAAVE_PRODUCT_ADDR),
-        abi: waaveAbi,
+        abi: waaveABI,
       },
     },
     productsRev: {

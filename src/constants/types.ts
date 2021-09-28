@@ -5,11 +5,26 @@ import { Contract } from '@ethersproject/contracts'
 export type NetworkCache = {
   name: string
   chainId: number
-  tokens: any
-  positions: any
+  positions: PositionsCache
+  positionNames: PositionNamesCache
 }
 
+export type PositionsCache = { [key: string]: PositionsCacheValue }
+
+export type PositionNamesCache = {
+  [key: string]: PositionNamesCacheValue
+}
+
+export type PositionsCacheValue = { savedPositions: Position[]; positionsInitialized: boolean }
+
+export type PositionNamesCacheValue = { positionNames: { [key: string]: string }; positionNamesInitialized: boolean }
+
 export type ClaimDetails = { id: string; cooldown: string; canWithdraw: boolean; amount: BigNumber }
+
+export type BasicData = {
+  address: string
+  name: string
+}
 
 export type Policy = {
   policyId: number
@@ -38,6 +53,11 @@ export type LpTokenInfo = {
   value: BigNumber
 }
 
+export type Position = {
+  type: PositionsType
+  position: Token | LiquityPosition
+}
+
 export type Token = {
   token: {
     address: string
@@ -55,6 +75,17 @@ export type Token = {
   }
   eth: {
     balance: BigNumber
+  }
+}
+
+export type LiquityPosition = {
+  positionName: string
+  positionAddress: string
+  amount: BigNumber
+  associatedToken: {
+    address: string
+    name: string
+    symbol: string
   }
 }
 
@@ -87,19 +118,25 @@ export type GasPriceResult = {
   suggestBaseFee?: number
 }
 
+export type PositionsType = 'erc20' | 'liquity' | 'other'
+
 export type StringToStringMapping = { [key: string]: string }
 
 export type SupportedProduct = {
   name: ProductName
+  positionsType: PositionsType
   productLink?: string
-  getTokens: (provider: any, activeNetwork: NetworkConfig) => Promise<Token[]>
-  getBalances: (
+
+  getAppraisals: (tokens: any[], chainId: number) => Promise<BigNumber[]>
+  getTokens?: (provider: any, activeNetwork: NetworkConfig) => Promise<Token[]>
+  getBalances?: (
     user: string,
     provider: any,
     cache: NetworkCache,
     activeNetwork: NetworkConfig,
     tokens: Token[]
   ) => Promise<Token[]>
+  getPositions?: any
 }
 
 export type ProductContract = {

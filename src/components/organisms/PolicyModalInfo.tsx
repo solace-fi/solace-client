@@ -31,7 +31,7 @@ import { useCachedData } from '../../context/CachedDataManager'
 import { useWallet } from '../../context/WalletManager'
 
 /* import constants */
-import { Policy, Token } from '../../constants/types'
+import { Policy, Token, Position, SupportedProduct, NetworkCache, BasicData } from '../../constants/types'
 import { MAX_MOBILE_SCREEN_WIDTH, ZERO } from '../../constants'
 
 /* import components */
@@ -53,6 +53,7 @@ import { useWindowDimensions } from '../../hooks/useWindowDimensions'
 /* import utils */
 import { getDaysLeft } from '../../utils/time'
 import { truncateBalance } from '../../utils/formatting'
+import { getTroveContract } from '../../products/positionGetters/liquity/getPositions'
 
 interface PolicyModalInfoProps {
   appraisal: BigNumber
@@ -68,10 +69,10 @@ export const PolicyModalInfo: React.FC<PolicyModalInfoProps> = ({ appraisal, sel
   *************************************************************************************/
   const { activeNetwork, currencyDecimals } = useNetwork()
   const { width } = useWindowDimensions()
-  const { account } = useWallet()
+  const { account, library } = useWallet()
   const { tokenPositionData } = useCachedData()
   const [showAssetsModal, setShowAssetsModal] = useState<boolean>(false)
-  const [tokens, setTokens] = useState<any[]>([])
+  const [assets, setAssets] = useState<BasicData[]>([])
   const maxPositionsOnDisplay = 4
 
   /*************************************************************************************
@@ -80,18 +81,53 @@ export const PolicyModalInfo: React.FC<PolicyModalInfoProps> = ({ appraisal, sel
 
   *************************************************************************************/
 
-  const getTokens = async () => {
-    const cache = tokenPositionData.storedTokenAndPositionData.find((dataset) => dataset.name == activeNetwork.name)
+  const getAssets = async () => {
+    const cache = tokenPositionData.storedPositionData.find((dataset) => dataset.name == activeNetwork.name)
     if (!selectedPolicy || !cache || !account) return
     const supportedProduct = activeNetwork.cache.supportedProducts.find(
       (product) => product.name == selectedPolicy.productName
     )
     if (!supportedProduct) return
-    const savedTokens = cache.tokens[supportedProduct.name].savedTokens
-    const balances: Token[] = savedTokens.filter((savedToken: Token) =>
-      selectedPolicy.positionDescription.includes(savedToken.token.address.slice(2).toLowerCase())
-    )
-    setTokens(balances)
+    const foundPositions = await handleFilterPositions(supportedProduct, cache, selectedPolicy)
+    setAssets(foundPositions)
+  }
+
+  const handleFilterPositions = async (
+    supportedProduct: SupportedProduct,
+    _cache: NetworkCache,
+    _selectedPolicy: Policy
+  ): Promise<BasicData[]> => {
+    let res: BasicData[] = []
+    switch (supportedProduct.positionsType) {
+      case 'erc20':
+        const savedPositions: Position[] = _cache.positions[supportedProduct.name].savedPositions
+        const filteredPositions: Position[] = savedPositions.filter((savedPosition: Position) =>
+          _selectedPolicy.positionDescription.includes(
+            (savedPosition.position as Token).token.address.slice(2).toLowerCase()
+          )
+        )
+        res = filteredPositions.map((filteredPosition: Position) => {
+          return {
+            name: (filteredPosition.position as Token).underlying.name,
+            address: (filteredPosition.position as Token).underlying.address,
+          }
+        })
+        break
+      case 'liquity':
+        const troveManagerContract = getTroveContract(library, activeNetwork.chainId)
+        const stabilityPoolAddr: string = await troveManagerContract.stabilityPool()
+        const lqtyStakingAddr: string = await troveManagerContract.lqtyStaking()
+        const foundPositions = [
+          { address: troveManagerContract.address, name: 'Trove' },
+          { address: stabilityPoolAddr, name: 'Stability Pool' },
+          { address: lqtyStakingAddr, name: 'Staking Pool' },
+        ].filter((pos: any) => _selectedPolicy.positionDescription.includes(pos.address.slice(2).toLowerCase()))
+        res = foundPositions
+        break
+      case 'other':
+      default:
+    }
+    return res
   }
 
   const closeModal = useCallback(() => {
@@ -105,7 +141,7 @@ export const PolicyModalInfo: React.FC<PolicyModalInfoProps> = ({ appraisal, sel
   *************************************************************************************/
 
   useEffect(() => {
-    getTokens()
+    getAssets()
   }, [selectedPolicy])
 
   /*************************************************************************************
@@ -116,7 +152,7 @@ export const PolicyModalInfo: React.FC<PolicyModalInfoProps> = ({ appraisal, sel
 
   return (
     <Fragment>
-      <AssetsModal closeModal={closeModal} isOpen={showAssetsModal} assets={tokens} modalTitle={'Covered Assets'} />
+      <AssetsModal closeModal={closeModal} isOpen={showAssetsModal} assets={assets} modalTitle={'Covered Assets'} />
       {width > MAX_MOBILE_SCREEN_WIDTH ? (
         <Box transparent pl={10} pr={10} pt={20} pb={20}>
           <BoxItem>

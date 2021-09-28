@@ -20,13 +20,14 @@
   *************************************************************************************/
 
 /* import react */
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 
 /* import packages */
 import { formatUnits, parseUnits } from '@ethersproject/units'
+import { BigNumber } from 'ethers'
 
 /* import constants */
-import { GAS_LIMIT, MAX_MOBILE_SCREEN_WIDTH } from '../../constants'
+import { GAS_LIMIT, MAX_MOBILE_SCREEN_WIDTH, ZERO } from '../../constants'
 import { TransactionCondition, FunctionName, Unit, PolicyState } from '../../constants/enums'
 
 /* import managers */
@@ -50,13 +51,13 @@ import { StyledTooltip } from '../molecules/Tooltip'
 import { useCapitalPoolSize } from '../../hooks/useVault'
 import { useTotalPendingRewards } from '../../hooks/useRewards'
 import { useSolaceBalance } from '../../hooks/useBalance'
-import { usePolicyGetter } from '../../hooks/useGetter'
+import { usePolicyGetter } from '../../hooks/usePolicyGetter'
 import { useGetTotalValueLocked } from '../../hooks/useFarm'
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'
+import { useGasConfig } from '../../hooks/useFetchGasPrice'
 
 /* import utils */
 import { fixed, floatUnits, truncateBalance } from '../../utils/formatting'
-import { getGasConfig } from '../../utils/gas'
 
 export const Statistics: React.FC = () => {
   /*************************************************************************************
@@ -65,7 +66,7 @@ export const Statistics: React.FC = () => {
 
   *************************************************************************************/
   const { errors } = useGeneral()
-  const { account, initialized, activeWalletConnector } = useWallet()
+  const { account, initialized } = useWallet()
   const { activeNetwork, currencyDecimals } = useNetwork()
   const { master } = useContracts()
   const { makeTxToast } = useToasts()
@@ -76,17 +77,13 @@ export const Statistics: React.FC = () => {
   const { allPolicies } = usePolicyGetter(true, latestBlock, tokenPositionData, version)
   const totalValueLocked = useGetTotalValueLocked()
   const { width } = useWindowDimensions()
-  const gasConfig = useMemo(() => getGasConfig(activeWalletConnector, activeNetwork, gasPrices.selected?.value), [
-    activeWalletConnector,
-    activeNetwork,
-    gasPrices.selected,
-  ])
+  const { gasConfig } = useGasConfig(gasPrices.selected?.value)
   /*************************************************************************************
 
   useState hooks
 
   *************************************************************************************/
-  const [totalActiveCoverAmount, setTotalActiveCoverAmount] = useState<number | string>('-')
+  const [totalActiveCoverAmount, setTotalActiveCoverAmount] = useState<string>('-')
   const [totalActivePolicies, setTotalActivePolicies] = useState<number | string>('-')
 
   /*************************************************************************************
@@ -139,16 +136,16 @@ export const Statistics: React.FC = () => {
     try {
       const fetchPolicies = async () => {
         const activePolicies = allPolicies.filter(({ status }) => status === PolicyState.ACTIVE)
-        let activeCoverAmount = 0
+        const activeCoverAmount: BigNumber = ZERO
         activePolicies.forEach(({ coverAmount }) => {
           try {
-            activeCoverAmount += parseFloat(coverAmount)
+            activeCoverAmount.add(coverAmount)
           } catch (e) {
             console.log(e)
           }
         })
 
-        setTotalActiveCoverAmount(activeCoverAmount)
+        setTotalActiveCoverAmount(formatUnits(activeCoverAmount, currencyDecimals))
         setTotalActivePolicies(activePolicies.length)
       }
       fetchPolicies()
@@ -174,7 +171,7 @@ export const Statistics: React.FC = () => {
                   My Balance <StyledTooltip id={'solace'} tip={'Number of SOLACE tokens in your wallet'} />
                 </BoxItemTitle>
                 <Text h2 high_em>
-                  {`${truncateBalance(parseFloat(solaceBalance), 1)} `}
+                  {`${truncateBalance(solaceBalance, 1)} `}
                   <TextSpan h4>SOLACE</TextSpan>
                 </Text>
               </BoxItem>
@@ -188,7 +185,7 @@ export const Statistics: React.FC = () => {
                   />
                 </BoxItemTitle>
                 <Text h2 high_em>
-                  {`${truncateBalance(parseFloat(totalUserRewards), 1)} `}
+                  {`${truncateBalance(totalUserRewards, 1)} `}
                   <TextSpan h4>SOLACE</TextSpan>
                 </Text>
               </BoxItem>
@@ -220,7 +217,7 @@ export const Statistics: React.FC = () => {
                 Total Value Locked <StyledTooltip id={'tvl'} tip={'Current amount of funds locked into the pools'} />{' '}
               </BoxItemTitle>
               <Text h2 nowrap high_em>
-                {`${truncateBalance(parseFloat(totalValueLocked), 1)} `}
+                {`${truncateBalance(totalValueLocked, 1)} `}
                 <TextSpan h4>{activeNetwork.nativeCurrency.symbol}</TextSpan>
               </Text>
             </BoxItem>
@@ -229,12 +226,7 @@ export const Statistics: React.FC = () => {
                 Active Cover Amount <StyledTooltip id={'aca'} tip={'Current amount of coverage in use'} />
               </BoxItemTitle>
               <Text h2 nowrap high_em>
-                {totalActiveCoverAmount !== '-'
-                  ? `${truncateBalance(
-                      parseFloat(formatUnits(totalActiveCoverAmount.toString(), currencyDecimals)),
-                      2
-                    )} `
-                  : `${totalActiveCoverAmount} `}
+                {totalActiveCoverAmount !== '-' ? `${truncateBalance(totalActiveCoverAmount, 2)} ` : `- `}
                 <TextSpan h4>{activeNetwork.nativeCurrency.symbol}</TextSpan>
               </Text>
             </BoxItem>
@@ -256,7 +248,7 @@ export const Statistics: React.FC = () => {
                   <FormCol>My Balance</FormCol>
                   <FormCol>
                     <Text h2 high_em>
-                      {`${truncateBalance(parseFloat(solaceBalance), 1)} `}
+                      {`${truncateBalance(solaceBalance, 1)} `}
                       <TextSpan h4>SOLACE</TextSpan>
                     </Text>
                   </FormCol>
@@ -265,7 +257,7 @@ export const Statistics: React.FC = () => {
                   <FormCol>My Rewards</FormCol>
                   <FormCol>
                     <Text h2 high_em>
-                      {`${truncateBalance(parseFloat(totalUserRewards), 1)} `}
+                      {`${truncateBalance(totalUserRewards, 1)} `}
                       <TextSpan h4>SOLACE</TextSpan>
                     </Text>
                   </FormCol>
@@ -297,7 +289,7 @@ export const Statistics: React.FC = () => {
                   <FormCol>Total Value Locked</FormCol>
                   <FormCol>
                     <Text h2 nowrap high_em>
-                      {`${truncateBalance(parseFloat(totalValueLocked), 1)} `}
+                      {`${truncateBalance(totalValueLocked, 1)} `}
                       <TextSpan h4>{activeNetwork.nativeCurrency.symbol}</TextSpan>
                     </Text>
                   </FormCol>
@@ -306,12 +298,7 @@ export const Statistics: React.FC = () => {
                   <FormCol>Active Cover Amount</FormCol>
                   <FormCol>
                     <Text h2 nowrap high_em>
-                      {totalActiveCoverAmount !== '-'
-                        ? `${truncateBalance(
-                            parseFloat(formatUnits(totalActiveCoverAmount.toString(), currencyDecimals)),
-                            2
-                          )} `
-                        : `${totalActiveCoverAmount} `}
+                      {totalActiveCoverAmount !== '-' ? `${truncateBalance(totalActiveCoverAmount, 2)} ` : `- `}
                       <TextSpan h4>{activeNetwork.nativeCurrency.symbol}</TextSpan>
                     </Text>
                   </FormCol>

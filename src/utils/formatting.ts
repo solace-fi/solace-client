@@ -14,7 +14,7 @@ export const fixed = (n: number | string, decimals = 1): number => {
 
 export const truncateBalance = (value: number | string, decimals = 6): string => {
   if (typeof value == 'number' && value == 0) return '0'
-  if (typeof value == 'string' && parseFloat(value) == 0) return '0'
+  if (typeof value == 'string' && BigNumber.from(value.replace('.', '')).eq('0')) return '0'
   const str = value.toString()
   const decimalIndex = str.indexOf('.')
   if (decimalIndex == -1) {
@@ -31,12 +31,12 @@ export const truncateBalance = (value: number | string, decimals = 6): string =>
 export const accurateMultiply = (value: number | string, decimals: number): string => {
   let result = typeof value == 'number' ? value.toString() : value
   const decimalIndex = result.indexOf('.')
-  if (result.indexOf('.') != result.lastIndexOf('.')) return result
   if (decimalIndex == -1) {
     const range = rangeFrom0(decimals)
     range.forEach(() => (result += '0'))
     return result
   }
+  if (result.indexOf('.') != result.lastIndexOf('.')) return result
   const currentNumDecimalPlaces = result.length - decimalIndex - 1
   const decimalPlacesToAdd = decimals - currentNumDecimalPlaces
   result = result.substr(0, decimalIndex).concat(result.substr(decimalIndex + 1, result.length))

@@ -3,13 +3,13 @@ import { useLocalStorage } from 'react-use-storage'
 import { useWallet } from './WalletManager'
 
 import { LocalTx, Policy, NetworkCache, GasFeeListState } from '../constants/types'
-import { usePolicyGetter } from '../hooks/useGetter'
+import { usePolicyGetter } from '../hooks/usePolicyGetter'
 import { useReload } from '../hooks/useReload'
 import { useInterval } from '../hooks/useInterval'
 
 import { useFetchGasPrice } from '../hooks/useFetchGasPrice'
 import { useGetLatestBlockNumber } from '../hooks/useGetLatestBlockNumber'
-import { useCacheTokens } from '../hooks/useCacheTokens'
+import { useCachePositions } from '../hooks/useCachePositions'
 
 import { TransactionHistoryModal } from '../components/organisms/TransactionHistoryModal'
 import { useNetwork } from './NetworkManager'
@@ -34,7 +34,7 @@ type CachedData = {
     userPolicies: Policy[]
     setCanGetAssessments: (toggle: boolean) => void
   }
-  tokenPositionData: { dataInitialized: boolean; storedTokenAndPositionData: NetworkCache[] }
+  tokenPositionData: { dataInitialized: boolean; storedPositionData: NetworkCache[] }
   showHistoryModal: boolean
   version: number
   dataVersion: number
@@ -53,7 +53,7 @@ const CachedDataContext = createContext<CachedData>({
     userPolicies: [],
     setCanGetAssessments: () => undefined,
   },
-  tokenPositionData: { dataInitialized: false, storedTokenAndPositionData: [] },
+  tokenPositionData: { dataInitialized: false, storedPositionData: [] },
   showHistoryModal: false,
   version: 0,
   dataVersion: 0,
@@ -76,12 +76,12 @@ const CachedDataProvider: React.FC = (props) => {
   const [dataReload, dataVersion] = useReload()
   const gasPrices = useFetchGasPrice()
   const latestBlock = useGetLatestBlockNumber(dataVersion)
-  const { dataInitialized, storedTokenAndPositionData } = useCacheTokens()
+  const { dataInitialized, storedPositionData } = useCachePositions()
   const { addNotices, removeNotices } = useGeneral()
   const { policiesLoading, userPolicies, setCanGetAssessments } = usePolicyGetter(
     false,
     latestBlock,
-    { dataInitialized, storedTokenAndPositionData },
+    { dataInitialized, storedPositionData },
     version,
     account
   )
@@ -151,7 +151,7 @@ const CachedDataProvider: React.FC = (props) => {
     () => ({
       localTransactions: localTxs,
       userPolicyData: { policiesLoading, userPolicies, setCanGetAssessments },
-      tokenPositionData: { dataInitialized, storedTokenAndPositionData },
+      tokenPositionData: { dataInitialized, storedPositionData },
       showHistoryModal: historyModal,
       version,
       dataVersion,
@@ -167,7 +167,7 @@ const CachedDataProvider: React.FC = (props) => {
       addLocalTransactions,
       deleteLocalTransactions,
       dataInitialized,
-      storedTokenAndPositionData,
+      storedPositionData,
       version,
       dataVersion,
       latestBlock,

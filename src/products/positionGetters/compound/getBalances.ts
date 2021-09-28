@@ -44,7 +44,7 @@ const rmumap: any = {
   '0xddea378a6ddc8afec82c36e9b0078826bf9e68b6': '0xe41d2489571d322189246dafa5ebde1f4699f498',
 }
 
-const getMainNetworkTokenAddress = (address: string, chainId: number): string => {
+export const getMainNetworkTokenAddress = (address: string, chainId: number): string => {
   if (chainId == 4) {
     return rmumap[address.toLowerCase()]
   }

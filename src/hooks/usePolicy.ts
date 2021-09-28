@@ -5,9 +5,11 @@ import { useEffect, useState } from 'react'
 import { GAS_LIMIT, NUM_BLOCKS_PER_DAY, ZERO } from '../constants'
 import { useContracts } from '../context/ContractsManager'
 import { useWallet } from '../context/WalletManager'
-import { Policy, StringToStringMapping, Token } from '../constants/types'
+import { LiquityPosition, Policy, Position, StringToStringMapping, SupportedProduct, Token } from '../constants/types'
 import { useCachedData } from '../context/CachedDataManager'
 import { useNetwork } from '../context/NetworkManager'
+import { getPositions } from '../products/positionGetters/liquity/getPositions'
+import { useGasConfig } from './useFetchGasPrice'
 
 export const useGetPolicyPrice = (policyId: number): string => {
   const [policyPrice, setPolicyPrice] = useState<string>('')
@@ -39,37 +41,59 @@ export const useAppraisePosition = (policy: Policy | undefined): BigNumber => {
   const { latestBlock, tokenPositionData } = useCachedData()
   const [appraisal, setAppraisal] = useState<BigNumber>(ZERO)
 
+  const handlePositionBalances = async (supportedProduct: SupportedProduct): Promise<BigNumber[]> => {
+    const cache = tokenPositionData.storedPositionData.find((dataset) => dataset.name == activeNetwork.name)
+    if (!account || !library || !cache || !policy) return []
+    switch (supportedProduct.positionsType) {
+      case 'erc20':
+        const tokensToAppraise: Token[] = []
+        policy.positionNames.forEach(async (name) => {
+          const positionToAppraise: Position | undefined = cache.positions[supportedProduct.name].savedPositions.find(
+            (position: Position) => (position.position as Token).underlying.symbol == name
+          )
+          if (!positionToAppraise) return
+          tokensToAppraise.push(positionToAppraise.position as Token)
+        })
+        const erc20Balances: BigNumber[] = await supportedProduct.getAppraisals(tokensToAppraise, activeNetwork.chainId)
+        return erc20Balances
+      case 'liquity':
+        const positionsToAppraise: Position[] = cache.positions[supportedProduct.name].savedPositions
+        const liquityPositions = await getPositions(
+          account,
+          library,
+          activeNetwork,
+          positionsToAppraise.map((position) => position.position as LiquityPosition)
+        )
+        const formattedPositions = liquityPositions.map((pos: LiquityPosition) => {
+          return { address: pos.positionAddress, balance: pos.amount }
+        })
+        const liquityBalances: BigNumber[] = await supportedProduct.getAppraisals(
+          formattedPositions,
+          activeNetwork.chainId
+        )
+        return liquityBalances
+      case 'other':
+      default:
+        return []
+    }
+  }
+
   useEffect(() => {
     const getAppraisal = async () => {
-      if (!policy || !library || !account || !tokenPositionData.dataInitialized) return
+      if (!policy || !tokenPositionData.dataInitialized) return
       try {
         const product = getProtocolByName(policy.productName)
-        const cache = tokenPositionData.storedTokenAndPositionData.find((dataset) => dataset.name == activeNetwork.name)
 
         // if product is not found or token cache is not found, don't do anything
-        if (!product || !cache) return
+        if (!product) return
         const supportedProduct = activeNetwork.cache.supportedProducts.find(
           (product) => product.name == policy.productName
         )
         if (!supportedProduct) return
 
-        // grab the user balances for the supported product
-        const tokensToAppraise: Token[] = []
-        policy.positionNames.forEach(async (name) => {
-          const tokenToAppraise: Token | undefined = cache.tokens[supportedProduct.name].savedTokens.find(
-            (token: Token) => token.underlying.symbol == name
-          )
-          if (!tokenToAppraise) return
-          tokensToAppraise.push(tokenToAppraise)
-        })
-        const balances: Token[] = await supportedProduct.getBalances(
-          account,
-          library,
-          cache,
-          activeNetwork,
-          tokensToAppraise
-        )
-        setAppraisal(balances.reduce((pv, cv) => pv.add(cv.eth.balance), ZERO))
+        // grab the user balances for the supported product, then sum them up
+        const balances = await handlePositionBalances(supportedProduct)
+        setAppraisal(balances.reduce((pv, cv) => pv.add(cv), ZERO))
       } catch (err) {
         console.log('AppraisePosition', err)
       }
@@ -85,44 +109,56 @@ export const useAppraisePosition = (policy: Policy | undefined): BigNumber => {
   return appraisal
 }
 
-export const useGetMaxCoverPerUser = (): string => {
-  const [maxCoverPerUser, setMaxCoverPerUser] = useState<string>('0')
-  const { selectedProtocol } = useContracts()
+export const useGetMaxCoverPerPolicy = (): string => {
+  const [maxCoverPerPolicy, setMaxCoverPerPolicy] = useState<string>('0')
+  const { selectedProtocol, riskManager } = useContracts()
   const { currencyDecimals } = useNetwork()
+  const { gasPrices } = useCachedData()
+  const { gasConfig } = useGasConfig(gasPrices.selected?.value)
 
-  const getMaxCoverPerUser = async () => {
-    if (!selectedProtocol) return
+  const getMaxCoverPerPolicy = async () => {
+    if (!selectedProtocol || !riskManager) return
     try {
-      const maxCover = await selectedProtocol.maxCoverPerUser()
-      const formattedMaxCover = formatUnits(maxCover, currencyDecimals)
-      setMaxCoverPerUser(formattedMaxCover)
+      // TODO: entire correct gas params
+      const maxCoverPerPolicy = await riskManager.maxCoverPerPolicy(selectedProtocol.address, {
+        ...gasConfig,
+        gasLimit: GAS_LIMIT,
+      })
+      const formattedMaxCover = formatUnits(maxCoverPerPolicy, currencyDecimals)
+      setMaxCoverPerPolicy(formattedMaxCover)
     } catch (err) {
-      console.log('getMaxCoverPerUser', err)
+      console.log('getMaxCoverPerPolicy', err)
     }
   }
 
   useEffect(() => {
-    getMaxCoverPerUser()
-  }, [selectedProtocol])
+    getMaxCoverPerPolicy()
+  }, [selectedProtocol, riskManager])
 
-  return maxCoverPerUser
+  return maxCoverPerPolicy
 }
 
 export const useGetYearlyCosts = (): StringToStringMapping => {
   const [yearlyCosts, setYearlyCosts] = useState<StringToStringMapping>({})
-  const { products, getProtocolByName } = useContracts()
+  const { products, getProtocolByName, riskManager } = useContracts()
   const { currencyDecimals } = useNetwork()
+  const { gasPrices } = useCachedData()
+  const { gasConfig } = useGasConfig(gasPrices.selected?.value)
 
   const getYearlyCosts = async () => {
     try {
-      if (!products) return
+      if (!products || !riskManager) return
       const newYearlyCosts: StringToStringMapping = {}
       await Promise.all(
         products.map(async (productContract) => {
           const product = getProtocolByName(productContract.name)
           if (product) {
-            const fetchedPrice = await product.price()
-            newYearlyCosts[productContract.name] = formatUnits(fetchedPrice, currencyDecimals)
+            // TODO: entire correct gas params
+            const params = await riskManager.productRiskParams(product.address, {
+              ...gasConfig,
+              gasLimit: GAS_LIMIT,
+            })
+            // newYearlyCosts[productContract.name] = formatUnits(fetchedPrice, currencyDecimals)
           } else {
             newYearlyCosts[productContract.name] = '0'
           }
@@ -136,27 +172,32 @@ export const useGetYearlyCosts = (): StringToStringMapping => {
 
   useEffect(() => {
     getYearlyCosts()
-  }, [products])
+  }, [products, riskManager])
 
   return yearlyCosts
 }
 
 export const useGetAvailableCoverages = (): StringToStringMapping => {
   const [availableCoverages, setAvailableCoverages] = useState<StringToStringMapping>({})
-  const { products, getProtocolByName } = useContracts()
+  const { products, getProtocolByName, riskManager } = useContracts()
   const { currencyDecimals } = useNetwork()
+  const { gasPrices } = useCachedData()
+  const { gasConfig } = useGasConfig(gasPrices.selected?.value)
 
   const getAvailableCoverages = async () => {
     try {
-      if (!products) return
+      if (!products || !riskManager) return
       const newAvailableCoverages: StringToStringMapping = {}
       await Promise.all(
         products.map(async (productContract) => {
           const product = getProtocolByName(productContract.name)
           if (product) {
-            const maxCoverAmount = await product.maxCoverAmount()
-            const activeCoverAmount = await product.activeCoverAmount()
-            const coverage = formatUnits(maxCoverAmount.sub(activeCoverAmount), currencyDecimals)
+            // TODO: entire correct gas params
+            const sellableCoverPerProduct = await riskManager.sellableCoverPerProduct(product.address, {
+              ...gasConfig,
+              gasLimit: GAS_LIMIT,
+            })
+            const coverage = formatUnits(sellableCoverPerProduct, currencyDecimals)
             newAvailableCoverages[productContract.name] = coverage
           } else {
             newAvailableCoverages[productContract.name] = '0'
@@ -171,7 +212,7 @@ export const useGetAvailableCoverages = (): StringToStringMapping => {
 
   useEffect(() => {
     getAvailableCoverages()
-  }, [products])
+  }, [products, riskManager])
 
   return availableCoverages
 }

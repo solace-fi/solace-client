@@ -30,7 +30,6 @@ import { BigNumber } from 'ethers'
 /* import managers */
 import { useCachedData } from '../../context/CachedDataManager'
 import { useToasts } from '../../context/NotificationsManager'
-import { useWallet } from '../../context/WalletManager'
 import { useContracts } from '../../context/ContractsManager'
 import { useNetwork } from '../../context/NetworkManager'
 import { useGeneral } from '../../context/GeneralProvider'
@@ -51,12 +50,12 @@ import { FunctionName, TransactionCondition, Unit } from '../../constants/enums'
 import { LocalTx, Policy } from '../../constants/types'
 
 /* import hooks */
-import { useAppraisePosition, useGetMaxCoverPerUser, useGetPolicyPrice } from '../../hooks/usePolicy'
+import { useAppraisePosition, useGetMaxCoverPerPolicy, useGetPolicyPrice } from '../../hooks/usePolicy'
+import { useGasConfig } from '../../hooks/useFetchGasPrice'
 
 /* import utils */
 import { accurateMultiply, filteredAmount } from '../../utils/formatting'
 import { getDaysLeft, getExpiration } from '../../utils/time'
-import { getGasConfig } from '../../utils/gas'
 
 interface ManageModalProps {
   closeModal: () => void
@@ -86,17 +85,12 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
 
   const { errors } = useGeneral()
   const { selectedProtocol } = useContracts()
-  const { activeWalletConnector } = useWallet()
   const { addLocalTransactions, reload, gasPrices } = useCachedData()
   const { makeTxToast } = useToasts()
   const policyPrice = useGetPolicyPrice(selectedPolicy ? selectedPolicy.policyId : 0)
-  const maxCoverPerUser = useGetMaxCoverPerUser()
+  const maxCoverPerPolicy = useGetMaxCoverPerPolicy()
   const { activeNetwork, currencyDecimals } = useNetwork()
-  const gasConfig = useMemo(() => getGasConfig(activeWalletConnector, activeNetwork, gasPrices.selected?.value), [
-    activeWalletConnector,
-    activeNetwork,
-    gasPrices.selected?.value,
-  ])
+  const { gasConfig } = useGasConfig(gasPrices.selected?.value)
   const daysLeft = useMemo(() => getDaysLeft(selectedPolicy ? selectedPolicy.expirationBlock : 0, latestBlock), [
     latestBlock,
     selectedPolicy,
@@ -115,9 +109,9 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
         .div(String(Math.pow(10, 12))),
     [blocksLeft, currentCoverAmount, paidprice]
   )
-  const maxCoverPerUserInWei = useMemo(() => {
-    return parseUnits(maxCoverPerUser, currencyDecimals)
-  }, [maxCoverPerUser, currencyDecimals])
+  const maxCoverPerPolicyInWei = useMemo(() => {
+    return parseUnits(maxCoverPerPolicy, currencyDecimals)
+  }, [maxCoverPerPolicy, currencyDecimals])
   const appraisal = useAppraisePosition(selectedPolicy)
   const mounting = useRef(true)
 
@@ -273,7 +267,7 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
     const filtered = input.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1')
 
     // if number is greater than the max cover per user, do not update
-    if (parseFloat(filtered) > parseFloat(maxCoverPerUser)) return
+    if (parseUnits(filtered, currencyDecimals).gt(maxCoverPerPolicyInWei)) return
 
     // if number has more than max decimal places, do not update
     if (filtered.includes('.') && filtered.split('.')[1]?.length > currencyDecimals) return
@@ -314,7 +308,7 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
   }
 
   const setMaxCover = () => {
-    const adjustedCoverAmount = maxCoverPerUserInWei.toString()
+    const adjustedCoverAmount = maxCoverPerPolicyInWei.toString()
     handleCoverageChange(adjustedCoverAmount, false)
   }
 
@@ -340,7 +334,7 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
 
   useEffect(() => {
     setMaxCover()
-  }, [maxCoverPerUser])
+  }, [maxCoverPerPolicy])
 
   /*************************************************************************************
 
@@ -387,7 +381,7 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
                       value={newCoverage}
                       onChange={(e) => handleCoverageChange(e.target.value)}
                       min={1}
-                      max={maxCoverPerUserInWei.toString()}
+                      max={maxCoverPerPolicyInWei.toString()}
                     />
                   </div>
                 </div>

@@ -45,7 +45,6 @@ export function useProvider(): ProviderContextType {
 const ProviderManager: React.FC = ({ children }) => {
   const { networks, activeNetwork, findNetworkByChainId, findNetworkByName, changeNetwork } = useNetwork()
   const { connector } = useWallet()
-
   const [networkModal, setNetworkModal] = useState<boolean>(false)
 
   const openModal = useCallback(() => {

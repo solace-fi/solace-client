@@ -3,6 +3,8 @@ import { fetchGasPrice } from '../utils/explorer'
 import { GasFeeListState } from '../constants/types'
 import { useCachedData } from '../context/CachedDataManager'
 import { useNetwork } from '../context/NetworkManager'
+import { getGasValue } from '../utils/formatting'
+import { useWallet } from '../context/WalletManager'
 
 export const useFetchGasPrice = (): GasFeeListState => {
   const { activeNetwork, chainId } = useNetwork()
@@ -57,4 +59,30 @@ export const useFetchGasPrice = (): GasFeeListState => {
   }, [version, chainId, latestBlock])
 
   return state
+}
+
+export const useGasConfig = (gasValue: any): any => {
+  const { activeWalletConnector } = useWallet()
+  const { activeNetwork } = useNetwork()
+  const [gasConfig, setGasConfig] = useState<any>({})
+
+  useEffect(() => {
+    const getGasConfig = () => {
+      if (!activeWalletConnector || !gasValue) {
+        setGasConfig({})
+        return
+      }
+      if (activeWalletConnector.supportedTxTypes.includes(2) && activeNetwork.supportedTxTypes.includes(2))
+        setGasConfig({
+          maxFeePerGas: getGasValue(gasValue),
+          type: 2,
+        })
+      setGasConfig({
+        gasPrice: getGasValue(gasValue),
+      })
+    }
+    getGasConfig()
+  }, [activeWalletConnector, activeNetwork, gasValue])
+
+  return { gasConfig }
 }
