@@ -18,10 +18,11 @@
   *************************************************************************************/
 
 /* import react */
-import React, { Fragment, useMemo, useState } from 'react'
+import React, { Fragment, useState } from 'react'
 
 /* import packages */
 import { formatUnits } from '@ethersproject/units'
+import { BigNumber } from 'ethers'
 
 /* import managers */
 import { useWallet } from '../../context/WalletManager'
@@ -77,7 +78,7 @@ export const MyClaims: React.FC = () => {
 
   *************************************************************************************/
 
-  const withdrawPayout = async (_claimId: any) => {
+  const withdrawPayout = async (_claimId: string) => {
     if (!claimsEscrow || !_claimId) return
     const txType = FunctionName.WITHDRAW_CLAIMS_PAYOUT
     try {
@@ -142,7 +143,7 @@ export const MyClaims: React.FC = () => {
                       <BoxItem>
                         <BoxItemTitle t4>Amount</BoxItemTitle>
                         <Text h4 high_em>
-                          {parseFloat(formatUnits(claim.amount, currencyDecimals)) >= 1
+                          {BigNumber.from(formatUnits(claim.amount, currencyDecimals)).gte('1')
                             ? truncateBalance(
                                 formatUnits(claim.amount, currencyDecimals),
                                 width > MAX_MOBILE_SCREEN_WIDTH ? currencyDecimals : 2

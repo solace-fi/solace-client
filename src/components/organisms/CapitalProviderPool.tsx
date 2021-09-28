@@ -109,27 +109,27 @@ export const CapitalProviderPool: React.FC<CapitalProviderPoolProps> = ({ openMo
             <TableRow>
               {account ? (
                 <TableData h3 high_em width={100}>
-                  {truncateBalance(parseFloat(cpUserStakeValue), 2)}
+                  {truncateBalance(cpUserStakeValue, 2)}
                 </TableData>
               ) : null}
               <TableData h3 high_em>
-                {truncateBalance(parseFloat(cpPoolValue), 2)}
+                {truncateBalance(cpPoolValue, 2)}
               </TableData>
               <TableData h3 high_em width={100}>
                 {CP_ROI}
               </TableData>
               {account ? (
                 <TableData h3 high_em>
-                  {truncateBalance(parseFloat(cpUserRewards), 2)}
+                  {truncateBalance(cpUserRewards, 2)}
                 </TableData>
               ) : null}
               {account ? (
                 <TableData h3 high_em>
-                  {truncateBalance(parseFloat(cpUserRewardsPerDay), 2)}
+                  {truncateBalance(cpUserRewardsPerDay, 2)}
                 </TableData>
               ) : null}
               <TableData h3 high_em>
-                {truncateBalance(parseFloat(cpRewardsPerDay), 2)}
+                {truncateBalance(cpRewardsPerDay, 2)}
               </TableData>
               {account ? (
                 <TableData textAlignRight>
@@ -155,14 +155,14 @@ export const CapitalProviderPool: React.FC<CapitalProviderPoolProps> = ({ openMo
             <FormRow>
               <FormCol>Your Stake:</FormCol>
               <FormCol h2 high_em>
-                {truncateBalance(parseFloat(cpUserStakeValue), 2)}
+                {truncateBalance(cpUserStakeValue, 2)}
               </FormCol>
             </FormRow>
           )}
           <FormRow>
             <FormCol>Total Assets:</FormCol>
             <FormCol h2 high_em>
-              {truncateBalance(parseFloat(cpPoolValue), 2)}
+              {truncateBalance(cpPoolValue, 2)}
             </FormCol>
           </FormRow>
           <FormRow>
@@ -176,13 +176,13 @@ export const CapitalProviderPool: React.FC<CapitalProviderPoolProps> = ({ openMo
               <FormRow>
                 <FormCol>My Rewards:</FormCol>
                 <FormCol h2 high_em>
-                  {truncateBalance(parseFloat(cpUserRewards), 2)}
+                  {truncateBalance(cpUserRewards, 2)}
                 </FormCol>
               </FormRow>
               <FormRow>
                 <FormCol>My Daily Rewards:</FormCol>
                 <FormCol h2 high_em>
-                  {truncateBalance(parseFloat(cpUserRewardsPerDay), 2)}
+                  {truncateBalance(cpUserRewardsPerDay, 2)}
                 </FormCol>
               </FormRow>
             </>
@@ -190,7 +190,7 @@ export const CapitalProviderPool: React.FC<CapitalProviderPoolProps> = ({ openMo
           <FormRow>
             <FormCol>Daily Rewards:</FormCol>
             <FormCol h2 high_em>
-              {truncateBalance(parseFloat(cpRewardsPerDay), 2)}
+              {truncateBalance(cpRewardsPerDay, 2)}
             </FormCol>
           </FormRow>
           {account && (

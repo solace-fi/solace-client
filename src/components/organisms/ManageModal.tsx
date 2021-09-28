@@ -267,7 +267,7 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
     const filtered = input.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1')
 
     // if number is greater than the max cover per user, do not update
-    if (parseFloat(filtered) > parseFloat(maxCoverPerPolicy)) return
+    if (parseUnits(filtered, currencyDecimals).gt(maxCoverPerPolicyInWei)) return
 
     // if number has more than max decimal places, do not update
     if (filtered.includes('.') && filtered.split('.')[1]?.length > currencyDecimals) return

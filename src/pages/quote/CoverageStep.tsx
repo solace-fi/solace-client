@@ -92,6 +92,7 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
           ZERO
       }
     }, ZERO)
+    if (totalBalance.eq(ZERO)) return ZERO
     return BigNumber.from(accurateMultiply(formatUnits(totalBalance, currencyDecimals), currencyDecimals))
   }, [positions, currencyDecimals])
 
@@ -198,7 +199,7 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
     const filtered = input.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1')
 
     // if number is greater than the max cover per user, do not update
-    if (parseFloat(filtered) > parseFloat(maxCoverPerPolicy)) return
+    if (parseUnits(filtered, currencyDecimals).gt(maxCoverPerPolicyInWei)) return
 
     // if number has more than max decimal places, do not update
     if (filtered.includes('.') && filtered.split('.')[1]?.length > currencyDecimals) return
