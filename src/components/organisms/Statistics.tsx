@@ -69,11 +69,11 @@ export const Statistics: React.FC = () => {
   const { activeNetwork, currencyDecimals } = useNetwork()
   const { master } = useContracts()
   const { makeTxToast } = useToasts()
-  const { addLocalTransactions, reload, gasPrices, tokenPositionData, latestBlock, version } = useCachedData()
+  const { addLocalTransactions, reload, gasPrices, tokenPositionData, latestBlock } = useCachedData()
   const capitalPoolSize = useCapitalPoolSize()
   const solaceBalance = useSolaceBalance()
   const totalUserRewards = useTotalPendingRewards()
-  const { allPolicies } = usePolicyGetter(true, latestBlock, tokenPositionData, version)
+  const { allPolicies } = usePolicyGetter(true, latestBlock, tokenPositionData)
   const totalValueLocked = useGetTotalValueLocked()
   const { width } = useWindowDimensions()
   const gasConfig = useMemo(() => getGasConfig(activeWalletConnector, activeNetwork, gasPrices.selected?.value), [

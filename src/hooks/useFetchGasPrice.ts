@@ -6,7 +6,7 @@ import { useNetwork } from '../context/NetworkManager'
 
 export const useFetchGasPrice = (): GasFeeListState => {
   const { activeNetwork, chainId } = useNetwork()
-  const { version, latestBlock } = useCachedData()
+  const { latestBlock } = useCachedData()
 
   const [state, setState] = useState<GasFeeListState>({
     options: [],
@@ -54,7 +54,7 @@ export const useFetchGasPrice = (): GasFeeListState => {
         })
     }
     fetchGasPrices()
-  }, [version, chainId, latestBlock])
+  }, [chainId, latestBlock])
 
   return state
 }
