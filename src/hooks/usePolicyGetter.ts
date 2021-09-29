@@ -141,9 +141,7 @@ export const usePolicyGetter = (
 
     const getUserPolicies = async (id: any) => {
       const owner = await policyManager?.getPolicyholder(id)
-      if (owner === policyHolder) {
-        await getPolicies(policyHolder)
-      }
+      if (owner === policyHolder) await getPolicies(policyHolder)
     }
 
     policyManager?.on('Transfer', async (from, to) => {

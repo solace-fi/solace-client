@@ -326,7 +326,7 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
     const load = async () => {
       if (!selectedPolicy || !isOpen) return
       setAsyncLoading(true)
-      if (BigNumber.from(currentCoverAmount).lte(ZERO) || appraisal.lte(ZERO)) return
+      if (BigNumber.from(currentCoverAmount).lte(ZERO)) return
       if (mounting.current) {
         handleCoverageChange(currentCoverAmount)
         mounting.current = false
@@ -334,11 +334,7 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
       setAsyncLoading(false)
     }
     load()
-  }, [isOpen, selectedPolicy, currentCoverAmount, appraisal])
-
-  useEffect(() => {
-    setMaxCover()
-  }, [maxCoverPerPolicy])
+  }, [isOpen, selectedPolicy, currentCoverAmount])
 
   useEffect(() => {
     setCoveredAssets(formatUnits(BigNumber.from(newCoverage), currencyDecimals))

@@ -44,7 +44,6 @@ export const KovanNetwork: NetworkConfig = {
     apiUrl: 'https://api-kovan.etherscan.io',
     excludedContractAddrs: [
       String(process.env.REACT_APP_KOVAN_UNISWAP_LPTOKEN_ADDR),
-      String(process.env.REACT_APP_KOVAN_WAAVE_PRODUCT_ADDR),
       String(process.env.REACT_APP_KOVAN_LPFARM_ADDR),
       String(process.env.REACT_APP_KOVAN_SOLACE_ADDR),
     ],

@@ -38,7 +38,6 @@ import { UserImage } from '../atoms/User'
 import { WalletConnectButton } from '../molecules/WalletConnectButton'
 import { TransactionHistoryButton } from '../molecules/TransactionHistoryButton'
 import { NetworkConnectButton } from '../molecules/NetworkConnectButton'
-import { ThemeButton } from '../molecules/ThemeButton'
 
 /* import hooks */
 import { useNativeTokenBalance } from '../../hooks/useBalance'

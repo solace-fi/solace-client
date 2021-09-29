@@ -54,8 +54,17 @@ export const useAppraisePosition = (policy: Policy | undefined): BigNumber => {
           if (!positionToAppraise) return
           tokensToAppraise.push(positionToAppraise.position as Token)
         })
-        const erc20Balances: BigNumber[] = await supportedProduct.getAppraisals(tokensToAppraise, activeNetwork.chainId)
-        return erc20Balances
+        if (typeof supportedProduct.getBalances !== 'undefined') {
+          const erc20Tokens: Token[] = await supportedProduct.getBalances(
+            account,
+            library,
+            cache,
+            activeNetwork,
+            tokensToAppraise
+          )
+          return erc20Tokens.map((t) => t.eth.balance)
+        }
+        return []
       case 'liquity':
         const positionsToAppraise: LiquityPosition[] = []
         policy.positionNames.forEach(async (name) => {
@@ -116,7 +125,6 @@ export const useGetMaxCoverPerPolicy = (): string => {
   const getMaxCoverPerPolicy = async () => {
     if (!selectedProtocol || !riskManager) return
     try {
-      // TODO: entire correct gas params
       const maxCoverPerPolicy = await riskManager.maxCoverPerPolicy(selectedProtocol.address, {
         ...gasConfig,
         gasLimit: GAS_LIMIT,
@@ -150,12 +158,11 @@ export const useGetYearlyCosts = (): StringToStringMapping => {
         products.map(async (productContract) => {
           const product = getProtocolByName(productContract.name)
           if (product) {
-            // TODO: entire correct gas params
             const params = await riskManager.productRiskParams(product.address, {
               ...gasConfig,
               gasLimit: GAS_LIMIT,
             })
-            // newYearlyCosts[productContract.name] = formatUnits(fetchedPrice, currencyDecimals)
+            newYearlyCosts[productContract.name] = formatUnits(params.price, currencyDecimals)
           } else {
             newYearlyCosts[productContract.name] = '0'
           }

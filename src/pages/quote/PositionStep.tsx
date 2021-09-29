@@ -249,8 +249,7 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
   useEffect(() => {
     const getProductLink = () => {
       const supportedProduct = activeNetwork.cache.supportedProducts.find((product) => product.name == protocol.name)
-      if (!supportedProduct) return
-      if (supportedProduct.productLink) setProductLink(supportedProduct.productLink)
+      if (supportedProduct && supportedProduct.productLink) setProductLink(supportedProduct.productLink)
     }
     getProductLink()
   }, [])

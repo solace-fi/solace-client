@@ -43,7 +43,7 @@ const queryBalance = async (user: string, tokenContract: Contract) => {
 }
 
 export const queryNativeTokenBalance = async (
-  token: any,
+  token: any, // { balance: BigNumber, address: string }
   chainId: number,
   getMainNetworkTokenAddress?: (address: string, chainId: number) => string
 ): Promise<BigNumber> => {

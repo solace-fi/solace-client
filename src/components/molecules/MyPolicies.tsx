@@ -88,9 +88,7 @@ export const MyPolicies: React.FC<MyPoliciesProps> = ({ openClaimModal, openMana
   *************************************************************************************/
   return (
     <Fragment>
-      {userPolicyData.policiesLoading ? (
-        <Loader />
-      ) : userPolicyData.userPolicies.length > 0 ? (
+      {userPolicyData.userPolicies.length > 0 ? (
         width > MAX_TABLET_SCREEN_WIDTH ? (
           <Table textAlignCenter style={{ borderSpacing: '0px 7px' }}>
             <TableHead sticky>

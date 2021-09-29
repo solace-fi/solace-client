@@ -135,7 +135,7 @@ const CachedDataProvider: React.FC = (props) => {
           {
             type: SystemNotice.LOSS_EVENT_DETECTED,
             metadata: `${totalNumLossEvents} loss event${
-              totalNumLossEvents > 1 && 's'
+              totalNumLossEvents > 1 ? 's' : ''
             } detected in total, view your policies for details`,
             uniqueId: `${SystemNotice.LOSS_EVENT_DETECTED}`,
           },
