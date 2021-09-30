@@ -63,7 +63,9 @@ export const usePolicyGetter = (
     try {
       if (policyHolder) {
         policies.sort((a: any, b: any) => b.policyId - a.policyId) // newest first
-        const matchingCache = data.storedPositionData.find((dataset) => dataset.name == activeNetwork.name)
+        const matchingCache: NetworkCache | undefined = data.storedPositionData.find(
+          (dataset) => dataset.name == activeNetwork.name
+        )
         policies.forEach((policy: Policy) => {
           const productPosition =
             matchingCache?.positionNames[activeNetwork.config.productsRev[policy.productAddress] ?? '']
@@ -134,7 +136,9 @@ export const usePolicyGetter = (
     if (!belongsToUser) return
     const blockNumber = await library.getBlockNumber()
     const updatedPolicy = await queryPolicy(id, blockNumber)
-    const matchingCache = data.storedPositionData.find((dataset) => dataset.name == activeNetwork.name)
+    const matchingCache: NetworkCache | undefined = data.storedPositionData.find(
+      (dataset) => dataset.name == activeNetwork.name
+    )
     const productPosition =
       matchingCache?.positionNames[activeNetwork.config.productsRev[updatedPolicy.productAddress] ?? '']
     if (productPosition) {
