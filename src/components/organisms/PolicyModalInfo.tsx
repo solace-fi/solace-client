@@ -31,7 +31,15 @@ import { useCachedData } from '../../context/CachedDataManager'
 import { useWallet } from '../../context/WalletManager'
 
 /* import constants */
-import { Policy, Token, Position, SupportedProduct, NetworkCache, BasicData } from '../../constants/types'
+import {
+  Policy,
+  Token,
+  Position,
+  SupportedProduct,
+  NetworkCache,
+  BasicData,
+  LiquityPosition,
+} from '../../constants/types'
 import { MAX_MOBILE_SCREEN_WIDTH, ZERO } from '../../constants'
 
 /* import components */
@@ -53,7 +61,6 @@ import { useWindowDimensions } from '../../hooks/useWindowDimensions'
 /* import utils */
 import { getDaysLeft } from '../../utils/time'
 import { truncateBalance } from '../../utils/formatting'
-import { getTroveContract } from '../../products/positionGetters/liquity/getPositions'
 
 interface PolicyModalInfoProps {
   appraisal: BigNumber
@@ -69,7 +76,7 @@ export const PolicyModalInfo: React.FC<PolicyModalInfoProps> = ({ appraisal, sel
   *************************************************************************************/
   const { activeNetwork, currencyDecimals } = useNetwork()
   const { width } = useWindowDimensions()
-  const { account, library } = useWallet()
+  const { account } = useWallet()
   const { tokenPositionData } = useCachedData()
   const [showAssetsModal, setShowAssetsModal] = useState<boolean>(false)
   const [assets, setAssets] = useState<BasicData[]>([])
@@ -98,9 +105,9 @@ export const PolicyModalInfo: React.FC<PolicyModalInfoProps> = ({ appraisal, sel
     _selectedPolicy: Policy
   ): Promise<BasicData[]> => {
     let res: BasicData[] = []
+    const savedPositions: Position[] = _cache.positions[supportedProduct.name].savedPositions
     switch (supportedProduct.positionsType) {
       case 'erc20':
-        const savedPositions: Position[] = _cache.positions[supportedProduct.name].savedPositions
         const filteredPositions: Position[] = savedPositions.filter((savedPosition: Position) =>
           _selectedPolicy.positionDescription.includes(
             (savedPosition.position as Token).token.address.slice(2).toLowerCase()
@@ -114,15 +121,14 @@ export const PolicyModalInfo: React.FC<PolicyModalInfoProps> = ({ appraisal, sel
         })
         break
       case 'liquity':
-        const troveManagerContract = getTroveContract(library, activeNetwork.chainId)
-        const stabilityPoolAddr: string = await troveManagerContract.stabilityPool()
-        const lqtyStakingAddr: string = await troveManagerContract.lqtyStaking()
-        const foundPositions = [
-          { address: troveManagerContract.address, name: 'Trove' },
-          { address: stabilityPoolAddr, name: 'Stability Pool' },
-          { address: lqtyStakingAddr, name: 'Staking Pool' },
-        ].filter((pos: any) => _selectedPolicy.positionDescription.includes(pos.address.slice(2).toLowerCase()))
-        res = foundPositions
+        res = savedPositions
+          .map((pos) => {
+            return {
+              name: (pos.position as LiquityPosition).positionName,
+              address: (pos.position as LiquityPosition).positionAddress,
+            }
+          })
+          .filter((pos: any) => _selectedPolicy.positionDescription.includes(pos.address.slice(2).toLowerCase()))
         break
       case 'other':
       default:
@@ -306,9 +312,9 @@ export const PolicyModalInfo: React.FC<PolicyModalInfoProps> = ({ appraisal, sel
                 </DeFiAsset>
               </FlexCol>
             </FlexRow>
-            <FlexRow>
+            <FlexRow style={{ justifyContent: 'center' }}>
               {selectedPolicy?.positionNames.slice(0, maxPositionsOnDisplay).map((name: string) => (
-                <FlexCol style={{ alignItems: 'center' }} key={name}>
+                <FlexCol key={name}>
                   <DeFiAssetImage borderless width={45} height={45}>
                     <img src={`https://assets.solace.fi/${name.toLowerCase()}`} alt={name} />
                   </DeFiAssetImage>
@@ -320,10 +326,10 @@ export const PolicyModalInfo: React.FC<PolicyModalInfoProps> = ({ appraisal, sel
             </FlexRow>
           </FlexCol>
         )}
-        {selectedPolicy?.positionNames && selectedPolicy?.positionNames.length > maxPositionsOnDisplay && (
+        {selectedPolicy?.positionNames && (
           <ButtonWrapper style={{ width: '100%' }}>
             <Button widthP={100} onClick={() => setShowAssetsModal(true)}>
-              View all covered assets
+              View your covered positions
             </Button>
           </ButtonWrapper>
         )}

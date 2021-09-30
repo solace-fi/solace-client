@@ -68,15 +68,20 @@ export const useGasConfig = (gasValue: any): any => {
 
   useEffect(() => {
     const getGasConfig = () => {
-      if (!activeWalletConnector || !gasValue) {
+      // null check and testnet check
+      if (!activeWalletConnector || !gasValue || activeNetwork.isTestnet) {
         setGasConfig({})
         return
       }
+
+      // type 2 transaction
       if (activeWalletConnector.supportedTxTypes.includes(2) && activeNetwork.supportedTxTypes.includes(2))
         setGasConfig({
           maxFeePerGas: getGasValue(gasValue),
           type: 2,
         })
+
+      // type 1 transaction
       setGasConfig({
         gasPrice: getGasValue(gasValue),
       })

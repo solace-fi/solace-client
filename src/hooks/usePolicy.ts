@@ -9,7 +9,7 @@ import { LiquityPosition, Policy, Position, StringToStringMapping, SupportedProd
 import { useCachedData } from '../context/CachedDataManager'
 import { useNetwork } from '../context/NetworkManager'
 import { getPositions } from '../products/positionGetters/liquity/getPositions'
-import { useGasConfig } from './useFetchGasPrice'
+import { useGasConfig } from './useGas'
 
 export const useGetPolicyPrice = (policyId: number): string => {
   const [policyPrice, setPolicyPrice] = useState<string>('')
@@ -54,23 +54,29 @@ export const useAppraisePosition = (policy: Policy | undefined): BigNumber => {
           if (!positionToAppraise) return
           tokensToAppraise.push(positionToAppraise.position as Token)
         })
-        const erc20Balances: BigNumber[] = await supportedProduct.getAppraisals(tokensToAppraise, activeNetwork.chainId)
-        return erc20Balances
+        if (typeof supportedProduct.getBalances !== 'undefined') {
+          const erc20Tokens: Token[] = await supportedProduct.getBalances(
+            account,
+            library,
+            cache,
+            activeNetwork,
+            tokensToAppraise
+          )
+          return erc20Tokens.map((t) => t.eth.balance)
+        }
+        return []
       case 'liquity':
-        const positionsToAppraise: Position[] = cache.positions[supportedProduct.name].savedPositions
-        const liquityPositions = await getPositions(
-          account,
-          library,
-          activeNetwork,
-          positionsToAppraise.map((position) => position.position as LiquityPosition)
-        )
-        const formattedPositions = liquityPositions.map((pos: LiquityPosition) => {
-          return { address: pos.positionAddress, balance: pos.amount }
+        const positionsToAppraise: LiquityPosition[] = []
+        policy.positionNames.forEach(async (name) => {
+          const positionToAppraise: Position | undefined = cache.positions[supportedProduct.name].savedPositions.find(
+            (position: Position) => (position.position as LiquityPosition).positionName == name
+          )
+          if (!positionToAppraise) return
+          positionsToAppraise.push(positionToAppraise.position as LiquityPosition)
         })
-        const liquityBalances: BigNumber[] = await supportedProduct.getAppraisals(
-          formattedPositions,
-          activeNetwork.chainId
-        )
+        const liquityPositions = await getPositions(account, library, activeNetwork, positionsToAppraise)
+        const liquityBalances: BigNumber[] = liquityPositions.map((pos) => pos.nativeAmount)
+
         return liquityBalances
       case 'other':
       default:
@@ -119,7 +125,6 @@ export const useGetMaxCoverPerPolicy = (): string => {
   const getMaxCoverPerPolicy = async () => {
     if (!selectedProtocol || !riskManager) return
     try {
-      // TODO: entire correct gas params
       const maxCoverPerPolicy = await riskManager.maxCoverPerPolicy(selectedProtocol.address, {
         ...gasConfig,
         gasLimit: GAS_LIMIT,
@@ -153,12 +158,11 @@ export const useGetYearlyCosts = (): StringToStringMapping => {
         products.map(async (productContract) => {
           const product = getProtocolByName(productContract.name)
           if (product) {
-            // TODO: entire correct gas params
             const params = await riskManager.productRiskParams(product.address, {
               ...gasConfig,
               gasLimit: GAS_LIMIT,
             })
-            // newYearlyCosts[productContract.name] = formatUnits(fetchedPrice, currencyDecimals)
+            newYearlyCosts[productContract.name] = formatUnits(params.price, currencyDecimals)
           } else {
             newYearlyCosts[productContract.name] = '0'
           }

@@ -54,7 +54,7 @@ import { useSolaceBalance } from '../../hooks/useBalance'
 import { usePolicyGetter } from '../../hooks/usePolicyGetter'
 import { useGetTotalValueLocked } from '../../hooks/useFarm'
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'
-import { useGasConfig } from '../../hooks/useFetchGasPrice'
+import { useGasConfig } from '../../hooks/useGas'
 
 /* import utils */
 import { fixed, floatUnits, truncateBalance } from '../../utils/formatting'
@@ -136,15 +136,7 @@ export const Statistics: React.FC = () => {
     try {
       const fetchPolicies = async () => {
         const activePolicies = allPolicies.filter(({ status }) => status === PolicyState.ACTIVE)
-        const activeCoverAmount: BigNumber = ZERO
-        activePolicies.forEach(({ coverAmount }) => {
-          try {
-            activeCoverAmount.add(coverAmount)
-          } catch (e) {
-            console.log(e)
-          }
-        })
-
+        const activeCoverAmount = activePolicies.reduce((pv, cv) => pv.add(cv.coverAmount), ZERO)
         setTotalActiveCoverAmount(formatUnits(activeCoverAmount, currencyDecimals))
         setTotalActivePolicies(activePolicies.length)
       }

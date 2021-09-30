@@ -98,6 +98,7 @@ const generateTokensData = async (
 export const getTokens = async (provider: any, activeNetwork: NetworkConfig): Promise<Token[]> => {
   if (!provider) return []
   let allTokens: Token[] = []
+  if (NETWORKS_CONFIG[String(activeNetwork.chainId)] == undefined) return []
   await Promise.all(
     NETWORKS_CONFIG[String(activeNetwork.chainId)].map((marketConfig: Market) =>
       generateTokensData(

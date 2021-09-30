@@ -52,7 +52,7 @@ import { Policy, ClaimAssessment } from '../../constants/types'
 import { useGetCooldownPeriod } from '../../hooks/useClaimsEscrow'
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'
 import { useAppraisePosition } from '../../hooks/usePolicy'
-import { useGasConfig } from '../../hooks/useFetchGasPrice'
+import { useGasConfig } from '../../hooks/useGas'
 
 /* import utils */
 import { truncateBalance } from '../../utils/formatting'
@@ -72,7 +72,7 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
     useState hooks
 
   *************************************************************************************/
-  const [modalLoading, setModalLoading] = useState<boolean>(false)
+  const [modalLoading, setModalLoading] = useState<boolean>(true)
   const [claimSubmitted, setClaimSubmitted] = useState<boolean>(false)
   const [assessment, setAssessment] = useState<ClaimAssessment | undefined>(undefined)
 
@@ -153,8 +153,8 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
   useEffect(() => {
     const loadOnBoot = async () => {
       if (!selectedPolicy || !isOpen) return
-      userPolicyData.setCanGetAssessments(false)
       setModalLoading(true)
+      userPolicyData.setCanGetAssessments(false)
       const assessment = await getClaimAssessment(String(selectedPolicy.policyId), chainId)
       setAssessment(assessment)
       setModalLoading(false)

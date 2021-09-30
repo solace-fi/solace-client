@@ -5,6 +5,7 @@ import { withBackoffRetries } from '../../utils/time'
 import { rangeFrom0, bnCmp } from '../../utils/numeric'
 import { BigNumber } from 'ethers'
 import axios from 'axios'
+import { ZERO } from '../../constants'
 
 const ETH = '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee'
 
@@ -42,11 +43,12 @@ const queryBalance = async (user: string, tokenContract: Contract) => {
 }
 
 export const queryNativeTokenBalance = async (
-  token: any,
+  token: any, // { balance: BigNumber, address: string }
   chainId: number,
   getMainNetworkTokenAddress?: (address: string, chainId: number) => string
 ): Promise<BigNumber> => {
   if (equalsIgnoreCase(token.address, ETH)) return BigNumber.from(token.balance)
+  if (BigNumber.from(token.balance).eq(ZERO)) return ZERO
   let address = token.address
   if (getMainNetworkTokenAddress) {
     address = getMainNetworkTokenAddress(token.address, chainId)

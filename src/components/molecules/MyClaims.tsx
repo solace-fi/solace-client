@@ -49,10 +49,10 @@ import { ClaimDetails } from '../../constants/types'
 /* import hooks */
 import { useGetClaimsDetails } from '../../hooks/useClaimsEscrow'
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'
-import { useGasConfig } from '../../hooks/useFetchGasPrice'
+import { useGasConfig } from '../../hooks/useGas'
 
 /* import utils */
-import { truncateBalance } from '../../utils/formatting'
+import { accurateMultiply, truncateBalance } from '../../utils/formatting'
 import { timeToDate } from '../../utils/time'
 
 export const MyClaims: React.FC = () => {
@@ -143,7 +143,7 @@ export const MyClaims: React.FC = () => {
                       <BoxItem>
                         <BoxItemTitle t4>Amount</BoxItemTitle>
                         <Text h4 high_em>
-                          {BigNumber.from(formatUnits(claim.amount, currencyDecimals)).gte('1')
+                          {BigNumber.from(claim.amount).gte(accurateMultiply(1, currencyDecimals))
                             ? truncateBalance(
                                 formatUnits(claim.amount, currencyDecimals),
                                 width > MAX_MOBILE_SCREEN_WIDTH ? currencyDecimals : 2

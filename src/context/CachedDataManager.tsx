@@ -7,7 +7,7 @@ import { usePolicyGetter } from '../hooks/usePolicyGetter'
 import { useReload } from '../hooks/useReload'
 import { useInterval } from '../hooks/useInterval'
 
-import { useFetchGasPrice } from '../hooks/useFetchGasPrice'
+import { useFetchGasPrice } from '../hooks/useGas'
 import { useGetLatestBlockNumber } from '../hooks/useGetLatestBlockNumber'
 import { useCachePositions } from '../hooks/useCachePositions'
 
@@ -135,7 +135,7 @@ const CachedDataProvider: React.FC = (props) => {
           {
             type: SystemNotice.LOSS_EVENT_DETECTED,
             metadata: `${totalNumLossEvents} loss event${
-              totalNumLossEvents > 1 && 's'
+              totalNumLossEvents > 1 ? 's' : ''
             } detected in total, view your policies for details`,
             uniqueId: `${SystemNotice.LOSS_EVENT_DETECTED}`,
           },

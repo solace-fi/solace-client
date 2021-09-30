@@ -42,7 +42,9 @@ export const accurateMultiply = (value: number | string, decimals: number): stri
   result = result.substr(0, decimalIndex).concat(result.substr(decimalIndex + 1, result.length))
   const range = rangeFrom0(decimalPlacesToAdd)
   range.forEach(() => (result += '0'))
-  return result.replace(/^0+/, '')
+  const finalRes = result.replace(/^0+/, '')
+  if (finalRes == '') return result
+  return finalRes
 }
 
 export const fixedTokenPositionBalance = (token: TokenInfo): number => {

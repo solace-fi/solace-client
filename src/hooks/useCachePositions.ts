@@ -147,6 +147,7 @@ export const useCachePositions = () => {
             positionAddress: troveManagerContract.address,
             positionName: 'Trove',
             amount: ZERO,
+            nativeAmount: ZERO,
             associatedToken: {
               address: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE',
               name: 'Ether',
@@ -157,12 +158,14 @@ export const useCachePositions = () => {
             positionAddress: stabilityPoolAddr,
             positionName: 'Stability Pool',
             amount: ZERO,
+            nativeAmount: ZERO,
             associatedToken: { address: lusdTokenAddr, name: 'LUSD', symbol: 'LUSD' },
           },
           {
             positionAddress: lqtyStakingAddr,
             positionName: 'Staking Pool',
             amount: ZERO,
+            nativeAmount: ZERO,
             associatedToken: { address: lqtyTokenAddr, name: 'LQTY', symbol: 'LQTY' },
           },
         ]

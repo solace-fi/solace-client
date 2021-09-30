@@ -73,7 +73,7 @@ export const useCooldown = () => {
   const [cooldownMin, setCooldownMin] = useState<number>(0)
   const [cooldownMax, setCooldownMax] = useState<number>(0)
   const [cooldownStart, setCooldownStart] = useState<number>(0)
-  const { latestBlock } = useCachedData()
+  const { version } = useCachedData()
   const gettingCooldown = useRef(true)
 
   useEffect(() => {
@@ -81,19 +81,19 @@ export const useCooldown = () => {
       if (!vault || !account) return
       try {
         gettingCooldown.current = true
-        const _cooldownStart: number = await vault.cooldownStart(account)
         const _cooldownMin: number = await vault.cooldownMin()
         const _cooldownMax: number = await vault.cooldownMax()
-        setCooldownStart(_cooldownStart * 1000)
+        const _cooldownStart: number = await vault.cooldownStart(account)
         setCooldownMin(_cooldownMin * 1000)
         setCooldownMax(_cooldownMax * 1000)
+        setCooldownStart(_cooldownStart * 1000)
         gettingCooldown.current = false
       } catch (err) {
         console.log('error getCooldown ', err)
       }
     }
     getCooldown()
-  }, [vault, account])
+  }, [vault, account, version])
 
   useEffect(() => {
     const calculateTime = () => {
@@ -106,9 +106,9 @@ export const useCooldown = () => {
         setCooldownStarted(false)
       }
     }
-    if (gettingCooldown) return
+    if (gettingCooldown.current) return
     calculateTime()
-  }, [latestBlock])
+  }, [cooldownStart])
 
   return { cooldownStarted, timeWaited, cooldownMin, cooldownMax, canWithdrawEth }
 }

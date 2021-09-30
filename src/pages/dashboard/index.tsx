@@ -39,6 +39,7 @@ import { StyledTooltip } from '../../components/molecules/Tooltip'
 import { Accordion } from '../../components/atoms/Accordion/Accordion'
 import { StyledArrowDropDownCircle } from '../../components/atoms/Icon'
 import { Button } from '../../components/atoms/Button'
+import { Loader } from '../../components/atoms/Loader'
 
 function Dashboard(): any {
   /*************************************************************************************
@@ -154,7 +155,7 @@ function Dashboard(): any {
                 {openPolicies ? 'Hide Policies' : 'Show Policies'}
               </Button>
             </Heading1>
-            {!showManageModal && !showClaimModal && (
+            {!userPolicyData.policiesLoading ? (
               <Accordion isOpen={openPolicies}>
                 <MyPolicies
                   latestBlock={latestBlock}
@@ -162,6 +163,8 @@ function Dashboard(): any {
                   openManageModal={openManageModal}
                 />
               </Accordion>
+            ) : (
+              <Loader />
             )}
           </Content>
           {!showManageModal && !showClaimModal && <MyClaims />}

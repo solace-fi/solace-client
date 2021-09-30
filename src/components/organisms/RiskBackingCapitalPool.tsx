@@ -88,12 +88,6 @@ export const RiskBackingCapitalPool: React.FC<RiskBackingCapitalPoolProps> = ({ 
               <TableHeader width={100}>Total Assets</TableHeader>
               <TableHeader width={100}>ROI (1Y)</TableHeader>
               {account ? <TableHeader width={130}>Your Vault Share</TableHeader> : null}
-              {account && (
-                <Fragment>
-                  <TableHeader width={100}></TableHeader>
-                  <TableHeader width={150}></TableHeader>
-                </Fragment>
-              )}
             </TableRow>
           </TableHead>
           <TableBody>
@@ -112,15 +106,9 @@ export const RiskBackingCapitalPool: React.FC<RiskBackingCapitalPoolProps> = ({ 
               {account ? (
                 <TableData h3 high_em width={130}>{`${truncateBalance(userVaultShare, 2)}%`}</TableData>
               ) : null}
-              {account && (
-                <Fragment>
-                  <TableData width={100}></TableData>
-                  <TableData width={150}></TableData>
-                </Fragment>
-              )}
               {account ? (
                 <TableData textAlignRight>
-                  <TableDataGroup width={200}>
+                  <TableDataGroup width={200} style={{ float: 'right' }}>
                     <Button disabled={errors.length > 0} onClick={() => openModal(FunctionName.DEPOSIT_ETH, 'Deposit')}>
                       Deposit
                     </Button>
