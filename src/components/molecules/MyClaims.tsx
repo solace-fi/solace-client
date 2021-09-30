@@ -49,7 +49,7 @@ import { ClaimDetails } from '../../constants/types'
 /* import hooks */
 import { useGetClaimsDetails } from '../../hooks/useClaimsEscrow'
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'
-import { useGasConfig } from '../../hooks/useFetchGasPrice'
+import { useGasConfig } from '../../hooks/useGas'
 
 /* import utils */
 import { accurateMultiply, truncateBalance } from '../../utils/formatting'

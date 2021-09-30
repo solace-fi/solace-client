@@ -7,7 +7,7 @@ import { usePolicyGetter } from '../hooks/usePolicyGetter'
 import { useReload } from '../hooks/useReload'
 import { useInterval } from '../hooks/useInterval'
 
-import { useFetchGasPrice } from '../hooks/useFetchGasPrice'
+import { useFetchGasPrice } from '../hooks/useGas'
 import { useGetLatestBlockNumber } from '../hooks/useGetLatestBlockNumber'
 import { useCachePositions } from '../hooks/useCachePositions'
 

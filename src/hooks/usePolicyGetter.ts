@@ -166,23 +166,23 @@ export const usePolicyGetter = (
     if (policyHolder == undefined || getAll) return
     setPoliciesLoading(true)
 
-    if (!data.dataInitialized) return
+    if (!data.dataInitialized || !policyManager) return
     loadOnBoot()
 
-    policyManager?.on('Transfer', async (from, to) => {
+    policyManager.on('Transfer', async (from, to) => {
       if (from == policyHolder || to == policyHolder) {
         await getPolicies(policyHolder)
       }
     })
 
-    policyManager?.on('PolicyUpdated', async (id) => {
+    policyManager.on('PolicyUpdated', async (id) => {
       await getUpdatedUserPolicy(id)
     })
 
     return () => {
-      policyManager?.removeAllListeners()
+      policyManager.removeAllListeners()
     }
-  }, [policyHolder, data.dataInitialized])
+  }, [policyHolder, data.dataInitialized, policyManager])
 
   useEffect(() => {
     const loadOverTime = async () => {

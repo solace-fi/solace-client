@@ -9,7 +9,7 @@ import { LiquityPosition, Policy, Position, StringToStringMapping, SupportedProd
 import { useCachedData } from '../context/CachedDataManager'
 import { useNetwork } from '../context/NetworkManager'
 import { getPositions } from '../products/positionGetters/liquity/getPositions'
-import { useGasConfig } from './useFetchGasPrice'
+import { useGasConfig } from './useGas'
 
 export const useGetPolicyPrice = (policyId: number): string => {
   const [policyPrice, setPolicyPrice] = useState<string>('')

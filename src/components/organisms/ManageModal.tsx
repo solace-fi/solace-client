@@ -51,7 +51,7 @@ import { LocalTx, Policy } from '../../constants/types'
 
 /* import hooks */
 import { useAppraisePosition, useGetMaxCoverPerPolicy, useGetPolicyPrice } from '../../hooks/usePolicy'
-import { useGasConfig } from '../../hooks/useFetchGasPrice'
+import { useGasConfig } from '../../hooks/useGas'
 
 /* import utils */
 import { accurateMultiply, filteredAmount } from '../../utils/formatting'

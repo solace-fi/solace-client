@@ -69,7 +69,7 @@ import { useNativeTokenBalance, useUserWalletLpBalance, useDepositedLpBalance } 
 import { useScpBalance } from '../../hooks/useBalance'
 import { useTokenAllowance } from '../../hooks/useTokenAllowance'
 import { useCooldown } from '../../hooks/useVault'
-import { useGasConfig } from '../../hooks/useFetchGasPrice'
+import { useGasConfig } from '../../hooks/useGas'
 
 /* import utils */
 import getPermitNFTSignature from '../../utils/signature'
@@ -131,7 +131,7 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
       const localTx = {
         hash: tx.hash,
         type: txType,
-        value: truncateBalance(amount),
+        value: 'Starting Withdrawal Cooldown',
         status: TransactionCondition.PENDING,
         unit: getUnit(func, activeNetwork),
       }
@@ -150,7 +150,7 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
       const localTx = {
         hash: tx.hash,
         type: txType,
-        value: truncateBalance(amount),
+        value: 'Stopping Withdrawal Cooldown',
         status: TransactionCondition.PENDING,
         unit: getUnit(func, activeNetwork),
       }
