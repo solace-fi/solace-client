@@ -35,7 +35,6 @@ import { PolicyState } from '../../constants/enums'
 /* import components */
 import { Table, TableBody, TableHead, TableRow, TableHeader, TableData, TableDataGroup } from '../atoms/Table'
 import { Button, ButtonWrapper } from '../atoms/Button'
-import { Loader } from '../atoms/Loader'
 import { Heading2, Heading3, Text } from '../atoms/Typography'
 import { FlexCol, FlexRow } from '../atoms/Layout'
 import { Card, CardContainer } from '../atoms/Card'

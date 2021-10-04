@@ -4,8 +4,9 @@
 
     import react
     import components
+    import constants
 
-    AssetsModal function
+    OptionsModal function
       custom hooks
       Render
 
@@ -17,18 +18,20 @@ import React, { useCallback } from 'react'
 /* import components */
 import { Modal } from '../molecules/Modal'
 import { Scrollable } from '../atoms/Layout'
-import { DeFiAssetImage } from '../atoms/DeFiAsset'
 import { Table, TableRow, TableBody, TableData } from '../atoms/Table'
-import { BasicData } from '../../constants/types'
+import { Button } from '../atoms/Button'
 
-type AssetsModalProps = {
+/* import constants */
+import { Option } from '../../constants/types'
+
+type OptionsModalProps = {
   isOpen: boolean
   closeModal: () => void
-  assets: BasicData[]
+  options: Option[]
   modalTitle: string
 }
 
-export const AssetsModal: React.FC<AssetsModalProps> = ({ closeModal, isOpen, assets, modalTitle }) => {
+export const OptionsModal: React.FC<OptionsModalProps> = ({ closeModal, isOpen, options, modalTitle }) => {
   /*************************************************************************************
 
   custom hooks
@@ -49,14 +52,15 @@ export const AssetsModal: React.FC<AssetsModalProps> = ({ closeModal, isOpen, as
       <Scrollable>
         <Table textAlignCenter style={{ borderSpacing: '0px 7px' }}>
           <TableBody>
-            {assets.map((asset) => (
-              <TableRow key={asset.address}>
+            {options.map((option) => (
+              <TableRow key={option.id}>
+                <TableData>{option.id}</TableData>
+                <TableData>{option.rewardAmount}</TableData>
+                <TableData>{option.strikePrice}</TableData>
+                <TableData>{option.expiry}</TableData>
                 <TableData>
-                  <DeFiAssetImage borderless width={45} height={45}>
-                    <img src={`https://assets.solace.fi/${asset.address.toLowerCase()}`} alt={asset.name} />
-                  </DeFiAssetImage>
+                  <Button>Exercise Option</Button>
                 </TableData>
-                <TableData>{asset.name}</TableData>
               </TableRow>
             ))}
           </TableBody>

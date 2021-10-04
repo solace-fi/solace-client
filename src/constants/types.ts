@@ -26,6 +26,13 @@ export type BasicData = {
   name: string
 }
 
+export type Option = {
+  id: number
+  rewardAmount: BigNumber
+  strikePrice: BigNumber
+  expiry: BigNumber
+}
+
 export type Policy = {
   policyId: number
   policyHolder: string

@@ -15,7 +15,7 @@ export const lightTheme = {
   },
   accordion: {
     color: 'auto',
-    bg_color: 'auto',
+    bg_color: 'rgba(0, 0, 0, 0.1)',
   },
   box: {
     bg_color_1: 'rgba(0, 255, 209, 0.3)',
@@ -95,7 +95,7 @@ export const darkTheme = {
   },
   accordion: {
     color: 'auto',
-    bg_color: 'auto',
+    bg_color: 'rgba(0, 0, 0, 0.1)',
   },
   box: {
     bg_color_1: 'rgba(37, 52, 97, .4)',

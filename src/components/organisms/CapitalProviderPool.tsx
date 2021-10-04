@@ -74,9 +74,9 @@ export const CapitalProviderPool: React.FC<CapitalProviderPoolProps> = ({ openMo
   return (
     <Content>
       <Heading1>
-        Solace Capital Provider Farm{' '}
+        Options Mining Pool{' '}
         <StyledTooltip
-          id={'cp-farm'}
+          id={'options-pool'}
           tip={'Deposit SCP tokens here to earn rewards'}
           link={'https://docs.solace.fi/docs/user-guides/capital-provider/cp-role-guide'}
         />{' '}

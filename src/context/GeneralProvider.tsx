@@ -5,7 +5,7 @@ import { lightTheme, darkTheme } from '../styles/themes'
 import { Error, SystemNotice } from '../constants/enums'
 import { ErrorData, SystemNoticeData } from '../constants/types'
 
-import { LinksModal } from '../components/molecules/LinksModal'
+import { LinksModal } from '../components/organisms/LinksModal'
 import { useWindowDimensions } from '../hooks/useWindowDimensions'
 import { MAX_MOBILE_SCREEN_WIDTH } from '../constants'
 

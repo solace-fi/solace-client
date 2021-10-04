@@ -55,7 +55,7 @@ import { Heading2, Text } from '../../components/atoms/Typography'
 import { StyledTooltip } from '../../components/molecules/Tooltip'
 import { FlexRow } from '../../components/atoms/Layout'
 import { StyledDots } from '../../components/atoms/Icon'
-import { AssetsModal } from '../../components/molecules/AssetsModal'
+import { AssetsModal } from '../../components/organisms/AssetsModal'
 /* import hooks */
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'
 
