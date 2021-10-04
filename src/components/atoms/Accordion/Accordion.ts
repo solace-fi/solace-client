@@ -1,7 +1,5 @@
 import styled from 'styled-components'
 
-import { CustomScrollbar } from '../Layout'
-
 type AccordionProps = {
   isOpen: boolean
   noscroll?: boolean
@@ -13,9 +11,5 @@ export const Accordion = styled.div<AccordionProps>`
   color: ${({ theme }) => theme.accordion.color}};
   background-color: ${({ theme }) => theme.accordion.bg_color}};
   overflow-y: hidden;
-  ${(props) =>
-    props.noscroll
-      ? null
-      : `overflow-y: scroll;
-    ${CustomScrollbar};`}
+  ${(props) => (props.noscroll ? null : `overflow-y: auto`)}
 `

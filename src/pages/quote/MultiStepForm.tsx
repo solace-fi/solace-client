@@ -303,7 +303,7 @@ export const MultiStepForm = () => {
                 </Box>
               )}
               {Number(StepNumber[step.id]) == 2 && positions.length > 0 && (
-                <Box purple>
+                <Box color2>
                   <BoxItem>
                     <FlexRow>
                       {positions.slice(0, maxPositionsToDisplay).map((position: Position) => {
@@ -349,7 +349,7 @@ export const MultiStepForm = () => {
           ) : (
             //mobile version
             <CardContainer m={20}>
-              <Card blue>
+              <Card color1>
                 <FormRow>
                   <FormCol>
                     <DeFiAssetImage mr={10}>
@@ -388,7 +388,7 @@ export const MultiStepForm = () => {
                 </Card>
               )}
               {Number(StepNumber[step.id]) == 2 && positions.length > 0 && (
-                <Card purple>
+                <Card color2>
                   <FlexRow>
                     {positions.slice(0, maxPositionsToDisplay).map((position: Token) => (
                       <DeFiAssetImage mr={5} key={position.underlying.address}>

@@ -249,8 +249,12 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
   *************************************************************************************/
 
   useEffect(() => {
-    setMaxCover()
-  }, [maxCoverPerPolicy])
+    if (positionAmount.lte(maxCoverPerPolicyInWei)) {
+      handleCoverageChange(positionAmount.toString())
+    } else {
+      setMaxCover()
+    }
+  }, [maxCoverPerPolicyInWei])
 
   useEffect(() => {
     setCoveredAssets(formatUnits(BigNumber.from(coverAmount), currencyDecimals))

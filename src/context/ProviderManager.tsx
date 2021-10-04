@@ -112,7 +112,7 @@ const ProviderManager: React.FC = ({ children }) => {
   return (
     <ProviderContext.Provider value={value}>
       <Modal handleClose={closeModal} isOpen={networkModal} modalTitle={'Connect a network'} disableCloseButton={false}>
-        <Card purple p={10} mb={20}>
+        <Card color2 p={10} mb={20}>
           <Text textAlignCenter>When connected, ensure that the </Text>
           <Text textAlignCenter>network on your wallet matches </Text>
           <Text textAlignCenter>the network on this app. </Text>
@@ -129,7 +129,7 @@ const ProviderManager: React.FC = ({ children }) => {
               key={network.name}
               onClick={() => switchNetwork(network.name)}
               glow={network.name == activeNetwork.name}
-              blue={network.name == activeNetwork.name}
+              color1={network.name == activeNetwork.name}
               style={{ display: 'flex', justifyContent: 'center' }}
             >
               <FormRow mb={0}>

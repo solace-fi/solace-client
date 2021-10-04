@@ -53,7 +53,7 @@ export const TokenPositionCard: React.FC<TokenPositionCardProps> = ({
   return (
     <PositionCard
       key={token.underlying.address}
-      blue={isSelected}
+      color1={isSelected}
       glow={isSelected}
       fade={isActive}
       onClick={

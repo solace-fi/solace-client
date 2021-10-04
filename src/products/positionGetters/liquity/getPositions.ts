@@ -151,34 +151,38 @@ export const getPositions = async (
     const lqtyStakingAddr = lqtyStakingPositionData.positionAddress
     const lqtyStakingContract = getContract(lqtyStakingAddr, ILQTYStakingAbi, provider)
     const lqtyStakes = await lqtyStakingContract.functions.stakes(user)
-    const stakingPoolAppraisalToNativeToken = await getAppraisals(
-      [{ address: lqtyStakingPositionData.associatedToken.address, balance: lqtyStakes[0] }],
-      activeNetwork.chainId
-    )
-    positions.push({
-      positionName: 'Staking Pool',
-      positionAddress: lqtyStakingAddr,
-      amount: lqtyStakes[0],
-      nativeAmount: stakingPoolAppraisalToNativeToken[0],
-      associatedToken: { address: lqtyStakingPositionData.associatedToken.address, name: 'LQTY', symbol: 'LQTY' },
-    })
+    if (lqtyStakes[0].gt(0)) {
+      const stakingPoolAppraisalToNativeToken = await getAppraisals(
+        [{ address: lqtyStakingPositionData.associatedToken.address, balance: lqtyStakes[0] }],
+        activeNetwork.chainId
+      )
+      positions.push({
+        positionName: 'Staking Pool',
+        positionAddress: lqtyStakingAddr,
+        amount: lqtyStakes[0],
+        nativeAmount: stakingPoolAppraisalToNativeToken[0],
+        associatedToken: { address: lqtyStakingPositionData.associatedToken.address, name: 'LQTY', symbol: 'LQTY' },
+      })
+    }
   }
 
   if (stabilityPoolPositionData) {
     const stabilityPoolAddr = stabilityPoolPositionData.positionAddress
     const stabilityPoolContract = getContract(stabilityPoolAddr, IStabilityPoolAbi, provider)
     const stabilityPoolPosition = await stabilityPoolContract.functions.getCompoundedLUSDDeposit(user)
-    const stabilityPoolAppraisalToNativeToken = await getAppraisals(
-      [{ address: stabilityPoolPositionData.associatedToken.address, balance: stabilityPoolPosition[0] }],
-      activeNetwork.chainId
-    )
-    positions.push({
-      positionName: 'Stability Pool',
-      positionAddress: stabilityPoolAddr,
-      amount: stabilityPoolPosition[0],
-      nativeAmount: stabilityPoolAppraisalToNativeToken[0],
-      associatedToken: { address: stabilityPoolPositionData.associatedToken.address, name: 'LUSD', symbol: 'LUSD' },
-    })
+    if (stabilityPoolPosition[0].gt(0)) {
+      const stabilityPoolAppraisalToNativeToken = await getAppraisals(
+        [{ address: stabilityPoolPositionData.associatedToken.address, balance: stabilityPoolPosition[0] }],
+        activeNetwork.chainId
+      )
+      positions.push({
+        positionName: 'Stability Pool',
+        positionAddress: stabilityPoolAddr,
+        amount: stabilityPoolPosition[0],
+        nativeAmount: stabilityPoolAppraisalToNativeToken[0],
+        associatedToken: { address: stabilityPoolPositionData.associatedToken.address, name: 'LUSD', symbol: 'LUSD' },
+      })
+    }
   }
 
   return positions

@@ -8,7 +8,6 @@ import { useWallet } from '../context/WalletManager'
 import { LiquityPosition, Policy, Position, StringToStringMapping, SupportedProduct, Token } from '../constants/types'
 import { useCachedData } from '../context/CachedDataManager'
 import { useNetwork } from '../context/NetworkManager'
-import { getPositions } from '../products/positionGetters/liquity/getPositions'
 import { useGasConfig } from './useGas'
 
 export const useGetPolicyPrice = (policyId: number): string => {
@@ -74,10 +73,17 @@ export const useAppraisePosition = (policy: Policy | undefined): BigNumber => {
           if (!positionToAppraise) return
           positionsToAppraise.push(positionToAppraise.position as LiquityPosition)
         })
-        const liquityPositions = await getPositions(account, library, activeNetwork, positionsToAppraise)
-        const liquityBalances: BigNumber[] = liquityPositions.map((pos) => pos.nativeAmount)
-
-        return liquityBalances
+        if (typeof supportedProduct.getPositions !== 'undefined') {
+          const liquityPositions = await supportedProduct.getPositions(
+            account,
+            library,
+            activeNetwork,
+            positionsToAppraise
+          )
+          const liquityBalances: BigNumber[] = liquityPositions.map((pos: LiquityPosition) => pos.nativeAmount)
+          return liquityBalances
+        }
+        return []
       case 'other':
       default:
         return []

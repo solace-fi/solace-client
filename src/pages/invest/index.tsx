@@ -22,7 +22,7 @@ import { useNetwork } from '../../context/NetworkManager'
 
 /* import components */
 import { PoolModal } from '../../components/organisms/PoolModal'
-import { RiskBackingCapitalPool } from '../../components/organisms/RiskBackingCapitalPool'
+import { RiskBackingCapitalPool } from '../../components/organisms/UnderwritingPool'
 import { CapitalProviderPool } from '../../components/organisms/CapitalProviderPool'
 import { LiquidityPool } from '../../components/organisms/LiquidityPool'
 import { HeroContainer } from '../../components/atoms/Layout'

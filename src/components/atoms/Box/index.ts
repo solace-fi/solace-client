@@ -5,9 +5,10 @@ import { GeneralElementProps, GeneralElementCss } from '../../generalInterfaces'
 import { MAX_TABLET_SCREEN_WIDTH, MOBILE_SCREEN_MARGIN } from '../../../constants'
 
 interface BoxProps {
-  purple?: boolean
-  green?: boolean
-  navy?: boolean
+  color1?: boolean
+  color2?: boolean
+  success?: boolean
+  info?: boolean
   transparent?: boolean
   outlined?: boolean
   glow?: boolean
@@ -20,12 +21,13 @@ interface SmallBoxProps {
 }
 
 const BoxCss = css<GeneralElementProps & BoxProps>`
-  background-color: ${({ theme }) => theme.box.bg_color};
+  background-color: ${({ theme }) => theme.box.bg_color_1};
   ${(props) => props.transparent && 'background-color: rgba(0, 0, 0, 0);'}
   ${(props) => props.outlined && BoxOutline}
-  ${(props) => props.purple && `background-color: ${props.theme.box.purple};`}
-  ${(props) => props.green && `background-color: ${props.theme.box.green};`}
-  ${(props) => props.navy && `background-color: ${props.theme.box.navy};`}
+  ${(props) => props.color1 && `background-color: ${props.theme.box.bg_color_1};`}
+  ${(props) => props.color2 && `background-color: ${props.theme.box.bg_color_2};`}
+  ${(props) => props.success && `background-color: ${props.theme.box.success};`}
+  ${(props) => props.info && `background-color: ${props.theme.box.info};`}
   ${(props) => props.glow && `box-shadow: ${props.theme.box.glow};`}
   ${(props) => props.shadow && `box-shadow: ${props.theme.box.shadow};`}
   ${GeneralElementCss}

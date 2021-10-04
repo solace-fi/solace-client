@@ -93,7 +93,7 @@ export const WalletModal: React.FC<WalletModalProps> = ({ closeModal, isOpen }) 
             key={wallet.id}
             onClick={() => connectWallet(wallet.id)}
             glow={wallet.id == activeWalletConnector?.id}
-            blue={wallet.id == activeWalletConnector?.id}
+            color1={wallet.id == activeWalletConnector?.id}
             style={{ display: 'flex', justifyContent: 'center' }}
           >
             <FormRow mb={0}>

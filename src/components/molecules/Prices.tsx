@@ -77,22 +77,22 @@ export const Prices: React.FC = () => {
   *************************************************************************************/
   return (
     <Price>
-      <SmallBox pl={10} navy>
+      <SmallBox pl={10} info>
         <Heading4 high_em autoAlign nowrap>
           SOLACE
         </Heading4>
-        <SmallBox ml={10} navy>
-          <Heading4 autoAlign green>
+        <SmallBox ml={10} info>
+          <Heading4 autoAlign success>
             {`$${pairPrice}`}
           </Heading4>
         </SmallBox>
       </SmallBox>
-      <SmallBox pl={10} navy>
+      <SmallBox pl={10} info>
         <Heading4 high_em autoAlign nowrap>
           {nativeToken}
         </Heading4>
-        <SmallBox ml={10} navy>
-          <Heading4 autoAlign green>
+        <SmallBox ml={10} info>
+          <Heading4 autoAlign success>
             ${coinPrice ? coinPrice : '-'}
           </Heading4>
         </SmallBox>

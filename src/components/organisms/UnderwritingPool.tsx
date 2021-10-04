@@ -17,7 +17,7 @@
   *************************************************************************************/
 
 /* import react */
-import React, { Fragment } from 'react'
+import React from 'react'
 
 /* import packages */
 import { parseUnits } from '@ethersproject/units'
@@ -74,10 +74,10 @@ export const RiskBackingCapitalPool: React.FC<RiskBackingCapitalPoolProps> = ({ 
   return (
     <Content>
       <Heading1>
-        ETH Risk backing Capital Pool{' '}
+        Underwriting Pool{' '}
         <StyledTooltip
-          id={'risk-backing-cp'}
-          tip={'Provide capital here for Solace to issue payouts and receive SCP tokens'}
+          id={'underwriting-pool'}
+          tip={'Provide capital here for Solace to underwrite the risks and fulfill claims for policies'}
         />{' '}
       </Heading1>
       {width > MAX_TABLET_SCREEN_WIDTH ? (

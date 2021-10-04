@@ -545,7 +545,7 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
     <RadioCircle style={{ justifyContent: 'center' }}>
       <RadioCircleInput type="checkbox" checked={isStaking} onChange={(e) => setIsStaking(e.target.checked)} />
       <RadioCircleFigure />
-      <div>Automatically stake</div>
+      <div>Earn Solace token options as a reward</div>
     </RadioCircle>
   )
 
@@ -668,7 +668,7 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
             ) : func == FunctionName.WITHDRAW_ETH ? (
               <>
                 {canWithdrawEth && (
-                  <Box green glow mt={20} mb={20}>
+                  <Box success glow mt={20} mb={20}>
                     <Heading3 autoAlign high_em>
                       You can withdraw now!
                     </Heading3>
@@ -681,7 +681,7 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
                     </Heading3>
                   </Box>
                 )}
-                <Box navy>
+                <Box info>
                   <BoxItem>
                     <BoxItemTitle h4 textAlignCenter>
                       Min Cooldown
@@ -695,7 +695,7 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
                       <BoxItemTitle h4 textAlignCenter>
                         Time waited
                       </BoxItemTitle>
-                      <Text4 textAlignCenter high_em green={canWithdrawEth}>
+                      <Text4 textAlignCenter high_em success={canWithdrawEth}>
                         {timeToDate(timeWaited)}
                       </Text4>
                     </BoxItem>

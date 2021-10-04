@@ -129,10 +129,10 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
 
   const handleFetchPositions = async (supportedProduct: SupportedProduct, cache: NetworkCache): Promise<Position[]> => {
     if (!account || !library) return []
+    const savedPositions = cache.positions[supportedProduct.name].savedPositions
     switch (supportedProduct.positionsType) {
       case 'erc20':
         if (typeof supportedProduct.getBalances !== 'undefined') {
-          const savedPositions = cache.positions[supportedProduct.name].savedPositions
           const balances: Token[] = await supportedProduct.getBalances(
             account,
             library,
@@ -147,7 +147,6 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
         return []
       case 'liquity':
         if (typeof supportedProduct.getPositions !== 'undefined') {
-          const savedPositions = cache.positions[supportedProduct.name].savedPositions
           const positions: LiquityPosition[] = await supportedProduct.getPositions(
             account,
             library,
@@ -355,7 +354,7 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
                     return (
                       <PositionCard
                         key={(position.position as LiquityPosition).positionAddress}
-                        blue={selectedPositions.some(
+                        color1={selectedPositions.some(
                           (selectedPosition) =>
                             (selectedPosition.position as LiquityPosition).positionAddress ==
                             (position.position as LiquityPosition).positionAddress

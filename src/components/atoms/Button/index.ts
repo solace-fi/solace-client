@@ -51,7 +51,7 @@ export const ButtonBaseCss = css<ButtonProps & GeneralElementProps>`
       : props.inconspicuous
       ? `color: ${props.theme.typography.med_emphasis}; background-color: #111212; opacity: 1; border: none; &:hover { background-color: #161717; }`
       : `color: ${props.theme.button.text_color}; background-color: rgba(0, 0, 0, 0); &:hover { color: ${props.theme.button.secondary_text_color}; background-color: ${props.theme.button.hover_color}; }`};
-  ${(props) => props.glow && `box-shadow: ${props.theme.button.green_glow};`}
+  ${(props) => props.glow && `box-shadow: ${props.theme.button.glow};`}
   ${Text4Css}
 `
 

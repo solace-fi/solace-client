@@ -63,11 +63,11 @@ export const UserAccount: React.FC = () => {
     <>
       {account && (
         <>
-          <SmallBox pl={10} navy>
+          <SmallBox pl={10} info>
             <Heading4 high_em autoAlign nowrap>
               {balance ? `${fixed(balance, 3)} ${activeNetwork.nativeCurrency.symbol}` : ''}
             </Heading4>
-            <SmallBox ml={10} navy>
+            <SmallBox ml={10} info>
               <Heading4 high_em autoAlign>
                 {shortenAddress(account)}
               </Heading4>{' '}

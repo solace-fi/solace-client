@@ -29,7 +29,7 @@ export const ModalContainer = styled.div<ModalProps>`
   background: ${({ theme }) => theme.modal.bg_color};
   z-index: 2;
   ${(props) => (props.isOpen ? 'display: flex;' : 'display: none;')}
-  overflow-y: scroll;
+  overflow-y: auto;
 `
 
 export const ModalBase = styled.div<ModalProps>`

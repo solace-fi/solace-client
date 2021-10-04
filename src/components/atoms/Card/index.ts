@@ -9,8 +9,8 @@ interface CardProps extends ClickProps, GeneralElementProps {
   transparent?: boolean
   canHover?: boolean
   fade?: boolean
-  blue?: boolean
-  purple?: boolean
+  color1?: boolean
+  color2?: boolean
   glow?: boolean
 }
 
@@ -21,9 +21,9 @@ interface CardContainerProps extends GeneralElementProps {
 const CardCss = css<CardProps>`
   border-radius: 10px;
   padding: 24px;
-  background-color: ${({ theme }) => theme.card.bg_color};
-  ${(props) => props.blue && `background-color: ${props.theme.card.blue};`}
-  ${(props) => props.purple && `background-color:${props.theme.card.purple};`}
+  background-color: ${({ theme }) => theme.card.bg_color_0};
+  ${(props) => props.color1 && `background-color: ${props.theme.card.bg_color_1};`}
+  ${(props) => props.color2 && `background-color:${props.theme.card.bg_color_2};`}
   ${(props) => props.transparent && `background-color: rgba(255, 255, 255, 0);`}
   ${(props) => props.fade && `background-color: ${props.theme.card.fade};`}
   ${(props) =>

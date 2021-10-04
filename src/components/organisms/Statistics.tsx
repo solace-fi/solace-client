@@ -194,7 +194,7 @@ export const Statistics: React.FC = () => {
               </BoxItem>
             </Box>
           )}
-          <Box purple>
+          <Box color2>
             <BoxItem>
               <BoxItemTitle h4>
                 Capital Pool Size <StyledTooltip id={'cps'} tip={'Current amount of capital in the vault'} />
@@ -235,7 +235,7 @@ export const Statistics: React.FC = () => {
         <>
           {initialized && account ? (
             <CardContainer m={20}>
-              <Card blue>
+              <Card color1>
                 <FormRow>
                   <FormCol>My Balance</FormCol>
                   <FormCol>
@@ -264,7 +264,7 @@ export const Statistics: React.FC = () => {
                   </Button>
                 </ButtonWrapper>
               </Card>
-              <Card purple>
+              <Card color2>
                 <FormRow>
                   <FormCol>Capital Pool Size</FormCol>
                   <FormCol>

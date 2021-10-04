@@ -218,7 +218,7 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
                 </Heading4>
               </SmallBox>
               {claimSubmitted ? (
-                <Box purple mt={20} mb={20}>
+                <Box color2 mt={20} mb={20}>
                   <Heading2 high_em autoAlign>
                     Claim has been validated and payout submitted to the escrow.
                   </Heading2>

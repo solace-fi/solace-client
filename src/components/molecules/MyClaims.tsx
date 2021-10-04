@@ -133,7 +133,7 @@ export const MyClaims: React.FC = () => {
               {claimsDetails.map((claim: ClaimDetails) => {
                 return (
                   <Card key={claim.id}>
-                    <Box pt={20} pb={20} glow={claim.canWithdraw} green={claim.canWithdraw}>
+                    <Box pt={20} pb={20} glow={claim.canWithdraw} success={claim.canWithdraw}>
                       <BoxItem>
                         <BoxItemTitle t4>ID</BoxItemTitle>
                         <Text h4 high_em>

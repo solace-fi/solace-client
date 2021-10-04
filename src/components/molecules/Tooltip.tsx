@@ -80,7 +80,7 @@ export const StyledTooltip: React.FC<StyledTooltipProps> = ({ id, tip, link }) =
                   {tip}
                 </Text>
                 <br />
-                <Text green textAlignRight style={{ marginTop: '1px' }}>
+                <Text success textAlignRight style={{ marginTop: '1px' }}>
                   Learn more <StyledLinkExternal size={20} />
                 </Text>
               </a>
