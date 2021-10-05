@@ -49,7 +49,7 @@ export const AssetsModal: React.FC<AssetsModalProps> = ({ closeModal, isOpen, as
   *************************************************************************************/
   return (
     <Modal handleClose={handleClose} isOpen={isOpen} modalTitle={modalTitle} disableCloseButton={false}>
-      <Scrollable>
+      <Scrollable style={{ padding: '0 10px 0 10px' }}>
         <Table textAlignCenter style={{ borderSpacing: '0px 7px' }}>
           <TableBody>
             {assets.map((asset) => (

@@ -129,7 +129,7 @@ export const MyClaims: React.FC = () => {
             </Button>
           </Heading1>
           <Accordion isOpen={openClaims}>
-            <CardContainer cardsPerRow={2}>
+            <CardContainer cardsPerRow={2} p={10}>
               {claimsDetails.map((claim: ClaimDetails) => {
                 return (
                   <Card key={claim.id}>

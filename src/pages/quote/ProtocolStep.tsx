@@ -43,7 +43,7 @@ import { Search } from '../../components/atoms/Input'
 import { DeFiAsset, DeFiAssetImage, ProtocolTitle } from '../../components/atoms/DeFiAsset'
 import { Card, CardContainer } from '../../components/atoms/Card'
 import { FormRow, FormCol } from '../../components/atoms/Form'
-import { Content } from '../../components/atoms/Layout'
+import { Scrollable } from '../../components/atoms/Layout'
 import { Heading2 } from '../../components/atoms/Typography'
 
 /* import hooks */
@@ -129,18 +129,81 @@ export const ProtocolStep: React.FC<formProps> = ({ setForm, navigation }) => {
       <ActionsContainer>
         <Search type="search" placeholder="Search" onChange={(e) => handleSearch(e.target.value)} />
       </ActionsContainer>
-      <Content>
+      <Fragment>
         {width > MAX_MOBILE_SCREEN_WIDTH ? (
-          <Table canHover>
-            <TableHead>
-              <TableRow>
-                <TableHeader>Protocol</TableHeader>
-                <TableHeader>Yearly Cost</TableHeader>
-                <TableHeader>Coverage Available</TableHeader>
-                <TableHeader></TableHeader>
-              </TableRow>
-            </TableHead>
-            <TableBody>
+          <Scrollable style={{ padding: '0 10px 0 10px' }}>
+            <Table canHover style={{ borderSpacing: '0px 7px' }}>
+              <TableHead sticky>
+                <TableRow>
+                  <TableHeader>Protocol</TableHeader>
+                  <TableHeader>Yearly Cost</TableHeader>
+                  <TableHeader>Coverage Available</TableHeader>
+                  <TableHeader></TableHeader>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {products
+                  .map((product) => {
+                    return product.name
+                  })
+                  .filter((protocol: string) => protocol.toLowerCase().includes(searchValue.toLowerCase()))
+                  .map((protocol: string) => {
+                    return (
+                      <TableRow
+                        key={protocol}
+                        onClick={
+                          errors.length > 0
+                            ? undefined
+                            : () =>
+                                handleChange({
+                                  name: protocol,
+                                  availableCoverage: handleAvailableCoverage(protocol),
+                                  yearlyCost:
+                                    parseFloat(yearlyCosts[protocol] ?? '0') *
+                                    Math.pow(10, 6) *
+                                    NUM_BLOCKS_PER_DAY *
+                                    DAYS_PER_YEAR,
+                                })
+                        }
+                        style={{ cursor: 'pointer' }}
+                      >
+                        <TableData>
+                          <DeFiAsset>
+                            <DeFiAssetImage mr={10}>
+                              <img src={`https://assets.solace.fi/${protocol.toLowerCase()}`} alt={protocol} />
+                            </DeFiAssetImage>
+                            <ProtocolTitle high_em h3>
+                              {protocol}
+                            </ProtocolTitle>
+                          </DeFiAsset>
+                        </TableData>
+                        <TableData high_em>
+                          {fixed(
+                            parseFloat(yearlyCosts[protocol] ?? '0') *
+                              Math.pow(10, 6) *
+                              NUM_BLOCKS_PER_DAY *
+                              DAYS_PER_YEAR *
+                              100,
+                            2
+                          )}
+                          %
+                        </TableData>
+                        <TableData high_em>
+                          {handleAvailableCoverage(protocol)} {activeNetwork.nativeCurrency.symbol}
+                        </TableData>
+                        <TableData textAlignRight>
+                          <Button disabled={errors.length > 0}>Select</Button>
+                        </TableData>
+                      </TableRow>
+                    )
+                  })}
+              </TableBody>
+            </Table>
+          </Scrollable>
+        ) : (
+          // mobile version
+          <Scrollable maxMobileHeight={65}>
+            <CardContainer cardsPerRow={2}>
               {products
                 .map((product) => {
                   return product.name
@@ -148,7 +211,7 @@ export const ProtocolStep: React.FC<formProps> = ({ setForm, navigation }) => {
                 .filter((protocol: string) => protocol.toLowerCase().includes(searchValue.toLowerCase()))
                 .map((protocol: string) => {
                   return (
-                    <TableRow
+                    <Card
                       key={protocol}
                       onClick={
                         errors.length > 0
@@ -164,107 +227,48 @@ export const ProtocolStep: React.FC<formProps> = ({ setForm, navigation }) => {
                                   DAYS_PER_YEAR,
                               })
                       }
-                      style={{ cursor: 'pointer' }}
                     >
-                      <TableData>
-                        <DeFiAsset>
+                      <FormRow>
+                        <FormCol>
                           <DeFiAssetImage mr={10}>
                             <img src={`https://assets.solace.fi/${protocol.toLowerCase()}`} alt={protocol} />
                           </DeFiAssetImage>
-                          <ProtocolTitle high_em h3>
-                            {protocol}
-                          </ProtocolTitle>
-                        </DeFiAsset>
-                      </TableData>
-                      <TableData high_em>
-                        {fixed(
-                          parseFloat(yearlyCosts[protocol] ?? '0') *
-                            Math.pow(10, 6) *
-                            NUM_BLOCKS_PER_DAY *
-                            DAYS_PER_YEAR *
-                            100,
-                          2
-                        )}
-                        %
-                      </TableData>
-                      <TableData high_em>
-                        {handleAvailableCoverage(protocol)} {activeNetwork.nativeCurrency.symbol}
-                      </TableData>
-                      <TableData textAlignRight>
-                        <Button disabled={errors.length > 0}>Select</Button>
-                      </TableData>
-                    </TableRow>
-                  )
-                })}
-            </TableBody>
-          </Table>
-        ) : (
-          // mobile version
-          <CardContainer cardsPerRow={2}>
-            {products
-              .map((product) => {
-                return product.name
-              })
-              .filter((protocol: string) => protocol.toLowerCase().includes(searchValue.toLowerCase()))
-              .map((protocol: string) => {
-                return (
-                  <Card
-                    key={protocol}
-                    onClick={
-                      errors.length > 0
-                        ? undefined
-                        : () =>
-                            handleChange({
-                              name: protocol,
-                              availableCoverage: handleAvailableCoverage(protocol),
-                              yearlyCost:
-                                parseFloat(yearlyCosts[protocol] ?? '0') *
+                        </FormCol>
+                        <FormCol style={{ display: 'flex', alignItems: 'center' }}>
+                          <Heading2 high_em>{protocol}</Heading2>
+                        </FormCol>
+                      </FormRow>
+                      <FormRow>
+                        <FormCol>Yearly Cost</FormCol>
+                        <FormCol>
+                          <Heading2 high_em>
+                            {fixed(
+                              parseFloat(yearlyCosts[protocol] ?? '0') *
                                 Math.pow(10, 6) *
                                 NUM_BLOCKS_PER_DAY *
-                                DAYS_PER_YEAR,
-                            })
-                    }
-                  >
-                    <FormRow>
-                      <FormCol>
-                        <DeFiAssetImage mr={10}>
-                          <img src={`https://assets.solace.fi/${protocol.toLowerCase()}`} alt={protocol} />
-                        </DeFiAssetImage>
-                      </FormCol>
-                      <FormCol style={{ display: 'flex', alignItems: 'center' }}>
-                        <Heading2 high_em>{protocol}</Heading2>
-                      </FormCol>
-                    </FormRow>
-                    <FormRow>
-                      <FormCol>Yearly Cost</FormCol>
-                      <FormCol>
-                        <Heading2 high_em>
-                          {fixed(
-                            parseFloat(yearlyCosts[protocol] ?? '0') *
-                              Math.pow(10, 6) *
-                              NUM_BLOCKS_PER_DAY *
-                              DAYS_PER_YEAR *
-                              100,
-                            2
-                          )}
-                          %
-                        </Heading2>
-                      </FormCol>
-                    </FormRow>
-                    <FormRow>
-                      <FormCol>Coverage Available</FormCol>
-                      <FormCol>
-                        <Heading2 high_em>
-                          {handleAvailableCoverage(protocol)} {activeNetwork.nativeCurrency.symbol}
-                        </Heading2>
-                      </FormCol>
-                    </FormRow>
-                  </Card>
-                )
-              })}
-          </CardContainer>
+                                DAYS_PER_YEAR *
+                                100,
+                              2
+                            )}
+                            %
+                          </Heading2>
+                        </FormCol>
+                      </FormRow>
+                      <FormRow>
+                        <FormCol>Coverage Available</FormCol>
+                        <FormCol>
+                          <Heading2 high_em>
+                            {handleAvailableCoverage(protocol)} {activeNetwork.nativeCurrency.symbol}
+                          </Heading2>
+                        </FormCol>
+                      </FormRow>
+                    </Card>
+                  )
+                })}
+            </CardContainer>
+          </Scrollable>
         )}
-      </Content>
+      </Fragment>
     </Fragment>
   )
 }

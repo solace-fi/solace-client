@@ -12,17 +12,16 @@ import { Text3Css } from '../Typography'
 interface ScrollableProps {
   maxDesktopHeight?: number
   maxMobileHeight?: number
-  nopadding?: boolean
 }
 
 export const Scrollable = styled.div<ScrollableProps>`
   max-height: ${(props) => (props.maxDesktopHeight ? props.maxDesktopHeight : `60`)}vh;
   overflow-y: auto;
-  ${(props) => (props.nopadding ? null : `padding: 10px;`)}
+  padding: 10px;
   background-color: rgba(0, 0, 0, 0.1);
 
   @media screen and (max-width: ${MAX_MOBILE_SCREEN_WIDTH}px) {
-    max-height: ${(props) => (props.maxMobileHeight ? props.maxMobileHeight : `85`)}vh;
+    max-height: ${(props) => (props.maxMobileHeight ? props.maxMobileHeight : `75`)}vh;
   }
 `
 
@@ -127,7 +126,7 @@ export const FooterComponent = styled.div`
 `
 
 export const Content = styled.div`
-  padding: 30px 0;
+  padding: 15px 0;
 
   @media screen and (max-width: ${MAX_TABLET_SCREEN_WIDTH}px) {
     padding: 30px ${MOBILE_SCREEN_MARGIN}px;

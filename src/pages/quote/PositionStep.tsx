@@ -41,7 +41,7 @@ import {
   PositionCardName,
 } from '../../components/atoms/DeFiAsset'
 import { Loader } from '../../components/atoms/Loader'
-import { Content, Scrollable, HeroContainer } from '../../components/atoms/Layout'
+import { Scrollable, HeroContainer } from '../../components/atoms/Layout'
 import { Heading1, TextSpan } from '../../components/atoms/Typography'
 import { ManageModal } from '../../components/organisms/ManageModal'
 
@@ -320,7 +320,7 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
         </HeroContainer>
       )}
       {!loading && !userPolicyData.policiesLoading ? (
-        <Content>
+        <Fragment>
           {selectablePositions.length > 0 && (
             <ButtonWrapper style={{ marginTop: '0' }} isColumn={width <= MAX_MOBILE_SCREEN_WIDTH}>
               <Button widthP={100} secondary onClick={() => toggleSelectAll()}>
@@ -466,7 +466,7 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
               </CardContainer>
             </Scrollable>
           )}
-        </Content>
+        </Fragment>
       ) : (
         <Loader />
       )}

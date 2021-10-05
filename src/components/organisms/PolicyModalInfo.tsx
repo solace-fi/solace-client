@@ -158,7 +158,12 @@ export const PolicyModalInfo: React.FC<PolicyModalInfoProps> = ({ appraisal, sel
 
   return (
     <Fragment>
-      <AssetsModal closeModal={closeModal} isOpen={showAssetsModal} assets={assets} modalTitle={'Covered Assets'} />
+      <AssetsModal
+        closeModal={closeModal}
+        isOpen={showAssetsModal}
+        assets={assets}
+        modalTitle={`Covered Assets (${assets.length})`}
+      />
       {width > MAX_MOBILE_SCREEN_WIDTH ? (
         <Box transparent pl={10} pr={10} pt={20} pb={20}>
           <BoxItem>

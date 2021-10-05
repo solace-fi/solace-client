@@ -79,7 +79,7 @@ export const TransactionHistoryModal: React.FC<TransactionHistoryModalProps> = (
   *************************************************************************************/
   return (
     <Modal handleClose={handleClose} isOpen={isOpen} modalTitle={'Recent Transactions'} disableCloseButton={false}>
-      <Scrollable nopadding>
+      <Scrollable style={{ padding: '0 10px 0 10px' }}>
         <Table textAlignCenter style={{ borderSpacing: '0px 7px' }}>
           <TableHead sticky>
             <TableRow>

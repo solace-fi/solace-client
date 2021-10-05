@@ -156,7 +156,7 @@ function Dashboard(): any {
               </Button>
             </Heading1>
             {!userPolicyData.policiesLoading ? (
-              <Accordion nopadding isOpen={openPolicies}>
+              <Accordion isOpen={openPolicies} style={{ padding: '0 10px 0 10px' }}>
                 <MyPolicies
                   latestBlock={latestBlock}
                   openClaimModal={openClaimModal}
