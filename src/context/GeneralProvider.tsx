@@ -12,7 +12,7 @@ import { MAX_MOBILE_SCREEN_WIDTH } from '../constants'
 type GeneralContextType = {
   appTheme: 'light' | 'dark'
   selectedTheme: 'light' | 'dark' | undefined
-  toggleTheme: () => void
+  toggleTheme: (theme: string) => void
   notices: string[]
   errors: string[]
   addNotices: (noticesToAdd: SystemNoticeData[]) => void
@@ -110,13 +110,13 @@ const GeneralProvider: React.FC = (props) => {
     })
   }, [])
 
-  function toggleTheme() {
-    if (selectedTheme === 'light') {
-      setSelectedTheme('dark')
-    } else if (selectedTheme === 'dark') {
-      removeSelectedTheme()
-    } else {
+  function toggleTheme(theme: string) {
+    if (theme === 'light') {
       setSelectedTheme('light')
+    } else if (theme === 'dark') {
+      setSelectedTheme('dark')
+    } else {
+      removeSelectedTheme()
     }
   }
 

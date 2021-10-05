@@ -66,7 +66,7 @@ export const FlexCol = styled.div<GeneralElementProps>`
 export const Layout = styled.div`
   display: flex;
   min-height: 100vh;
-  padding: 30px 30px 40px 30px;
+  padding: 30px;
 
   @media screen and (max-width: ${MAX_NAVBAR_SCREEN_WIDTH}px) {
     padding: 90px 0 60px 0;

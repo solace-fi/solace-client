@@ -33,7 +33,7 @@ import { FunctionName } from '../../constants/enums'
 
 /* import components */
 import { Content } from '../atoms/Layout'
-import { Heading1 } from '../atoms/Typography'
+import { Heading1, Text } from '../atoms/Typography'
 import { Table, TableHead, TableRow, TableHeader, TableBody, TableData, TableDataGroup } from '../atoms/Table'
 import { Button, ButtonWrapper } from '../atoms/Button'
 import { Card } from '../atoms/Card'
@@ -75,11 +75,14 @@ export const RiskBackingCapitalPool: React.FC<RiskBackingCapitalPoolProps> = ({ 
     <Content>
       <Heading1>
         Underwriting Pool{' '}
-        <StyledTooltip
+        {/* <StyledTooltip
           id={'underwriting-pool'}
           tip={'Provide capital here for Solace to underwrite the risks and fulfill claims for policies'}
-        />{' '}
+        />{' '} */}
       </Heading1>
+      <Text t4 pb={10}>
+        This pool allows Solace to back risks and fulfill claims for policies
+      </Text>
       {width > MAX_TABLET_SCREEN_WIDTH ? (
         <Table isHighlight textAlignCenter>
           <TableHead>

@@ -25,7 +25,7 @@ import { useGeneral } from '../../context/GeneralProvider'
 
 /* import components */
 import { Content } from '../atoms/Layout'
-import { Heading1 } from '../atoms/Typography'
+import { Heading1, Text } from '../atoms/Typography'
 import { Table, TableHead, TableRow, TableHeader, TableBody, TableData, TableDataGroup } from '../atoms/Table'
 import { Button, ButtonWrapper } from '../atoms/Button'
 import { Card } from '../atoms/Card'
@@ -75,12 +75,15 @@ export const CapitalProviderPool: React.FC<CapitalProviderPoolProps> = ({ openMo
     <Content>
       <Heading1>
         Options Mining Pool{' '}
-        <StyledTooltip
+        {/* <StyledTooltip
           id={'options-pool'}
           tip={'Deposit SCP tokens here to earn rewards'}
           link={'https://docs.solace.fi/docs/user-guides/capital-provider/cp-role-guide'}
-        />{' '}
+        />{' '} */}
       </Heading1>
+      <Text t4 pb={10}>
+        This pool rewards capital providers with options
+      </Text>
       {width > MAX_TABLET_SCREEN_WIDTH ? (
         <Table isHighlight textAlignCenter>
           <TableHead>

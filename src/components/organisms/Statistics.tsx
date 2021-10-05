@@ -158,7 +158,7 @@ export const Statistics: React.FC = () => {
         <BoxRow>
           {initialized && account ? (
             <Box>
-              <BoxItem>
+              {/* <BoxItem>
                 <BoxItemTitle h4>
                   My Balance <StyledTooltip id={'solace'} tip={'Number of SOLACE tokens in your wallet'} />
                 </BoxItemTitle>
@@ -166,10 +166,10 @@ export const Statistics: React.FC = () => {
                   {`${truncateBalance(solaceBalance, 1)} `}
                   <TextSpan h4>SOLACE</TextSpan>
                 </Text>
-              </BoxItem>
+              </BoxItem> */}
               <BoxItem>
                 <BoxItemTitle h4>
-                  My Rewards{' '}
+                  My Unclaimed Rewards{' '}
                   <StyledTooltip
                     id={'rewards'}
                     tip={'Total amount of your unclaimed rewards'}
@@ -183,7 +183,7 @@ export const Statistics: React.FC = () => {
               </BoxItem>
               <BoxItem>
                 <Button disabled={errors.length > 0 || fixed(totalUserRewards, 6) <= 0} onClick={claimRewards}>
-                  Claim
+                  Claim Option
                 </Button>
               </BoxItem>
             </Box>
@@ -236,7 +236,7 @@ export const Statistics: React.FC = () => {
           {initialized && account ? (
             <CardContainer m={20}>
               <Card color1>
-                <FormRow>
+                {/* <FormRow>
                   <FormCol>My Balance</FormCol>
                   <FormCol>
                     <Text h2 high_em>
@@ -244,9 +244,9 @@ export const Statistics: React.FC = () => {
                       <TextSpan h4>SOLACE</TextSpan>
                     </Text>
                   </FormCol>
-                </FormRow>
+                </FormRow> */}
                 <FormRow>
-                  <FormCol>My Rewards</FormCol>
+                  <FormCol>My Unclaimed Rewards</FormCol>
                   <FormCol>
                     <Text h2 high_em>
                       {`${truncateBalance(totalUserRewards, 1)} `}
@@ -260,7 +260,7 @@ export const Statistics: React.FC = () => {
                     disabled={errors.length > 0 || fixed(totalUserRewards, 6) <= 0}
                     onClick={claimRewards}
                   >
-                    Claim
+                    Claim Option
                   </Button>
                 </ButtonWrapper>
               </Card>

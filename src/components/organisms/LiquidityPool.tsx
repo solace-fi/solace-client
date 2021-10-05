@@ -35,7 +35,7 @@ import { LP_ROI, MAX_TABLET_SCREEN_WIDTH } from '../../constants'
 
 /* import components */
 import { Content } from '../atoms/Layout'
-import { Heading1 } from '../atoms/Typography'
+import { Heading1, Text } from '../atoms/Typography'
 import { Table, TableHead, TableRow, TableHeader, TableBody, TableData, TableDataGroup } from '../atoms/Table'
 import { Button, ButtonWrapper } from '../atoms/Button'
 import { FormRow, FormCol } from '../atoms/Form'
@@ -85,12 +85,15 @@ export const LiquidityPool: React.FC<LiquidityPoolProps> = ({ openModal }) => {
     <Content>
       <Heading1>
         SOLACE Liquidity Pool{' '}
-        <StyledTooltip
+        {/* <StyledTooltip
           id={'lp-farm'}
           tip={'Deposit Uniswap V3 SOLACE-ETH LP tokens here to earn rewards'}
           link={'https://docs.solace.fi/docs/user-guides/liquidity-provider/lp-role-guide'}
-        />
+        /> */}
       </Heading1>
+      <Text t4 pb={10}>
+        Manage your Uniswap V3 SOLACE-ETH LP tokens in this pool and earn rewards
+      </Text>
       {width > MAX_TABLET_SCREEN_WIDTH ? (
         <Table isHighlight textAlignCenter>
           <TableHead>

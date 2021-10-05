@@ -38,7 +38,7 @@ import { Box, BoxItem, BoxItemTitle } from '../atoms/Box'
 import { Button, ButtonWrapper } from '../atoms/Button'
 import { Heading1, Text } from '../atoms/Typography'
 import { Content } from '../atoms/Layout'
-import { StyledArrowDropDownCircle } from '../../components/atoms/Icon'
+import { StyledArrowDropDown } from '../../components/atoms/Icon'
 import { Accordion } from '../atoms/Accordion/Accordion'
 
 /* import constants */
@@ -73,10 +73,7 @@ export const MyOptions: React.FC = () => {
           <Heading1>
             Your Options
             <Button style={{ float: 'right' }} onClick={() => setOpenOptions(!openOptions)}>
-              <StyledArrowDropDownCircle
-                style={{ transform: openOptions ? 'rotate(180deg)' : 'rotate(0deg)' }}
-                size={30}
-              />
+              <StyledArrowDropDown style={{ transform: openOptions ? 'rotate(180deg)' : 'rotate(0deg)' }} size={20} />
               {openOptions ? 'Hide Options' : 'Show Options'}
             </Button>
           </Heading1>

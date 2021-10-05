@@ -198,8 +198,9 @@ export const GeneralTextCss = css<GeneralTextProps>`
   ${TextStyleCss}
 `
 
-export const Text = styled.div<GeneralTextProps>`
+export const Text = styled.div<GeneralTextProps & GeneralElementProps>`
   ${GeneralTextCss}
+  ${GeneralElementCss}
 `
 
 export const TextSpan = styled.span<GeneralTextProps & GeneralElementProps>`

@@ -38,7 +38,7 @@ import { Box, BoxItem, BoxItemTitle } from '../atoms/Box'
 import { Button, ButtonWrapper } from '../atoms/Button'
 import { Heading1, Text } from '../atoms/Typography'
 import { Content } from '../atoms/Layout'
-import { StyledArrowDropDownCircle } from '../../components/atoms/Icon'
+import { StyledArrowDropDown } from '../../components/atoms/Icon'
 import { Accordion } from '../atoms/Accordion/Accordion'
 
 /* import constants */
@@ -121,13 +121,13 @@ export const MyClaims: React.FC = () => {
           <Heading1>
             Your Claims
             <Button style={{ float: 'right' }} onClick={() => setOpenClaims(!openClaims)}>
-              <StyledArrowDropDownCircle
-                style={{ transform: openClaims ? 'rotate(180deg)' : 'rotate(0deg)' }}
-                size={30}
-              />
+              <StyledArrowDropDown style={{ transform: openClaims ? 'rotate(180deg)' : 'rotate(0deg)' }} size={20} />
               {openClaims ? 'Hide Claims' : 'Show Claims'}
             </Button>
           </Heading1>
+          <Text t4 pb={10}>
+            View details on your claims or start withdrawing payout
+          </Text>
           <Accordion isOpen={openClaims}>
             <CardContainer cardsPerRow={2} p={10}>
               {claimsDetails.map((claim: ClaimDetails) => {
