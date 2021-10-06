@@ -138,7 +138,7 @@ function Dashboard(): any {
             selectedPolicy={selectedPolicy}
           />
           <Content>
-            <Heading1>
+            <Heading1 mb={0}>
               Your Policies{' '}
               <StyledTooltip
                 id={'user-policies'}

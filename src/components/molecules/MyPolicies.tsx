@@ -119,7 +119,7 @@ export const MyPolicies: React.FC<MyPoliciesProps> = ({ openClaimModal, openMana
                           <FlexCol>
                             <FlexRow>
                               {policy.positionNames.slice(0, 8).map((name) => (
-                                <DeFiAssetImage borderless key={name} width={25} height={25}>
+                                <DeFiAssetImage noborder key={name} width={25} height={25}>
                                   <img src={`https://assets.solace.fi/${name.toLowerCase()}`} alt={name} />
                                 </DeFiAssetImage>
                               ))}
@@ -187,7 +187,7 @@ export const MyPolicies: React.FC<MyPoliciesProps> = ({ openClaimModal, openMana
                         <FlexCol>
                           <FlexRow>
                             {policy.positionNames.slice(0, 4).map((name) => (
-                              <DeFiAssetImage borderless key={name} width={35} height={35}>
+                              <DeFiAssetImage noborder key={name} width={35} height={35}>
                                 <img src={`https://assets.solace.fi/${name.toLowerCase()}`} alt={name} />
                               </DeFiAssetImage>
                             ))}

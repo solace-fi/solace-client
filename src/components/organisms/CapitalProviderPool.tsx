@@ -73,7 +73,7 @@ export const CapitalProviderPool: React.FC<CapitalProviderPoolProps> = ({ openMo
 
   return (
     <Content>
-      <Heading1>
+      <Heading1 mb={0}>
         Options Mining Pool{' '}
         {/* <StyledTooltip
           id={'options-pool'}

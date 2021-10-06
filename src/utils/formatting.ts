@@ -124,6 +124,7 @@ export const formatTransactionContent = (
   amount: string,
   activeNetwork: NetworkConfig
 ): string => {
+  if (amount == '') return 'N/A'
   const unit = getUnit(function_name, activeNetwork)
   switch (function_name) {
     case FunctionName.WITHDRAW_CLAIMS_PAYOUT:

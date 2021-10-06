@@ -26,6 +26,8 @@ import { CompoundProduct } from '../products/compound'
 import { WaaveProduct } from '../products/waave'
 import { LiquityProduct } from '../products/liquity'
 
+import EthereumLogo from '../resources/svg/networks/ethereum-logo.svg'
+
 /*
 
 When adding new products, please add into productContracts, functions, and cache
@@ -36,6 +38,7 @@ export const RinkebyNetwork: NetworkConfig = {
   name: 'rinkeby',
   chainId: 4,
   isTestnet: true,
+  logo: EthereumLogo,
   supportedTxTypes: [0, 2],
   nativeCurrency: { symbol: Unit.ETH, decimals: 18 },
   rpc: { httpsUrl: `https://eth-rinkeby.alchemyapi.io/v2/${ALCHEMY_API_KEY}`, pollingInterval: 12_000 },

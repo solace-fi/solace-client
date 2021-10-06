@@ -55,7 +55,7 @@ export const AssetsModal: React.FC<AssetsModalProps> = ({ closeModal, isOpen, as
             {assets.map((asset) => (
               <TableRow key={asset.address}>
                 <TableData>
-                  <DeFiAssetImage borderless width={45} height={45}>
+                  <DeFiAssetImage noborder width={45} height={45}>
                     <img src={`https://assets.solace.fi/${asset.address.toLowerCase()}`} alt={asset.name} />
                   </DeFiAssetImage>
                 </TableData>

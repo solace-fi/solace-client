@@ -17,6 +17,7 @@ interface BoxProps {
 
 interface SmallBoxProps {
   error?: boolean
+  canHover?: boolean
   collapse?: boolean
 }
 
@@ -107,6 +108,7 @@ export const SmallBox = styled.div<BoxProps & SmallBoxProps & GeneralElementProp
   transition: all 200ms ease;
   ${BoxCss}
   ${(props) => props.error && `border-color: ${props.theme.box.smallbox_border_color};`}
+  ${(props) => props.canHover && `&:hover { filter: brightness(1.5); }`}
 `
 
 export const BoxItem = styled.div`

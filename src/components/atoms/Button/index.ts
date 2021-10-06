@@ -4,10 +4,11 @@ import { Text4Css } from '../Typography'
 
 export interface ButtonProps extends ClickProps {
   secondary?: boolean
-  inconspicuous?: boolean
   glow?: boolean
   hidden?: boolean
   noradius?: boolean
+  noborder?: boolean
+  nohover?: boolean
 }
 
 interface ButtonWrapperProps {
@@ -30,7 +31,7 @@ export const ButtonBaseCss = css<ButtonProps & GeneralElementProps>`
   align-items: center;
   justify-content: center;
   outline: none;
-  border: 1px solid ${({ theme }) => theme.button.border_color};
+  border: ${(props) => (!props.noborder ? `1px solid ${props.theme.button.border_color}` : 'none')};
   ${(props) => !props.noradius && `border-radius: 10px;`}
   font-weight: 600;
   text-align: center;
@@ -47,10 +48,13 @@ export const ButtonBaseCss = css<ButtonProps & GeneralElementProps>`
     props.disabled
       ? `color: ${props.theme.button.text_color}; background-color: rgba(0, 0, 0, 0); opacity: 0.5; transform: scale(.9);`
       : props.secondary
-      ? `color: ${props.theme.button.secondary_text_color}; background-color: ${props.theme.button.hover_color}; &:hover { opacity: 0.8; }`
-      : props.inconspicuous
-      ? `color: ${props.theme.typography.med_emphasis}; background-color: #111212; opacity: 1; border: none; &:hover { background-color: #161717; }`
-      : `color: ${props.theme.button.text_color}; background-color: rgba(0, 0, 0, 0); &:hover { color: ${props.theme.button.secondary_text_color}; background-color: ${props.theme.button.hover_color}; }`};
+      ? `color: ${props.theme.button.secondary_text_color}; background-color: ${
+          props.theme.button.hover_color
+        }; &:hover { ${!props.nohover && `opacity: 0.8;`} }`
+      : `color: ${props.theme.button.text_color}; background-color: rgba(0, 0, 0, 0); &:hover { ${
+          !props.nohover &&
+          `color: ${props.theme.button.secondary_text_color}; background-color: ${props.theme.button.hover_color};`
+        } }`};
   ${(props) => props.glow && `box-shadow: ${props.theme.button.glow};`}
   ${Text4Css}
 `

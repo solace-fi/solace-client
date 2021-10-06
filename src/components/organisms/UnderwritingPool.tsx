@@ -73,7 +73,7 @@ export const RiskBackingCapitalPool: React.FC<RiskBackingCapitalPoolProps> = ({ 
 
   return (
     <Content>
-      <Heading1>
+      <Heading1 mb={0}>
         Underwriting Pool{' '}
         {/* <StyledTooltip
           id={'underwriting-pool'}

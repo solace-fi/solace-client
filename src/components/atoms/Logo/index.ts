@@ -7,13 +7,14 @@ export const LogoBase = styled.a<GeneralElementProps>`
   width: 114px;
   text-decoration: none;
   transition: all 200ms ease;
+  color: ${({ theme }) => theme.typography.med_emphasis};
   img {
     width: 100%;
     height: 100%;
     object-fit: cover;
   }
   :hover {
-    transform: scale(1.1);
+    color: ${({ theme }) => theme.typography.high_emphasis};
   }
   ${GeneralElementCss}
 `

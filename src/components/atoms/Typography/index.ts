@@ -20,7 +20,7 @@ export interface TextAlignProps {
   textAlignRight?: boolean
 }
 
-export interface TextStyleProps {
+export interface TextStyleProps extends GeneralElementProps {
   nowrap?: boolean
   outlined?: boolean
   autoAlignVertical?: boolean
@@ -190,6 +190,7 @@ export const TextStyleCss = css<TextStyleProps>`
   ${(props) => props.success && `color: ${props.theme.typography.success};`}
   ${(props) => props.error && `color: ${props.theme.typography.error};`}
   ${(props) => props.warning && `color: ${props.theme.typography.warning};`}
+  ${GeneralElementCss}
 `
 
 export const GeneralTextCss = css<GeneralTextProps>`

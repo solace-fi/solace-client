@@ -171,6 +171,7 @@ export type NetworkConfig = {
   name: string
   chainId: number
   isTestnet: boolean
+  logo: string
   supportedTxTypes: number[]
   nativeCurrency: {
     symbol: Unit

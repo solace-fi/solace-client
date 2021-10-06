@@ -49,8 +49,7 @@ export const PageHeader: React.FC = () => {
     <>
       {width > MAX_MOBILE_SCREEN_WIDTH && (
         <FlexEndHeader>
-          {width > MAX_TABLET_SCREEN_WIDTH && <Prices />}
-          <Account />
+          <UserAccount />
         </FlexEndHeader>
       )}
     </>

@@ -83,7 +83,7 @@ export const LiquidityPool: React.FC<LiquidityPoolProps> = ({ openModal }) => {
 
   return (
     <Content>
-      <Heading1>
+      <Heading1 mb={0}>
         SOLACE Liquidity Pool{' '}
         {/* <StyledTooltip
           id={'lp-farm'}

@@ -5,7 +5,7 @@ export const Switch = styled.div`
   position: relative;
   margin: 10px auto;
   height: 40px;
-  width: 135px;
+  width: 90px;
   background-color: rgba(0, 0, 0, 0.1);
   border-radius: 10px;
 `

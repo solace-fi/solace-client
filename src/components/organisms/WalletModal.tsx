@@ -82,7 +82,13 @@ export const WalletModal: React.FC<WalletModalProps> = ({ closeModal, isOpen }) 
 
   *************************************************************************************/
   return (
-    <Modal handleClose={handleClose} isOpen={isOpen} modalTitle={'Connect a wallet'} disableCloseButton={false}>
+    <Modal
+      zIndex={3}
+      handleClose={handleClose}
+      isOpen={isOpen}
+      modalTitle={'Connect a wallet'}
+      disableCloseButton={false}
+    >
       <Scrollable maxMobileHeight={60}>
         <CardContainer cardsPerRow={2}>
           {SUPPORTED_WALLETS.map((wallet) => (

@@ -36,8 +36,7 @@ export const SidebarTextCss = css`
   transition: all 0.2s;
   &:hover,
   &.is-active {
-    opacity: 1;
-    transform: scale(1.1);
+    color: ${({ theme }) => theme.typography.high_emphasis};
   }
 
   @media screen and (max-width: ${MAX_MOBILE_SCREEN_WIDTH}px) {

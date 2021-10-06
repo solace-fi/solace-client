@@ -118,7 +118,7 @@ export const MyClaims: React.FC = () => {
     <Fragment>
       {claimsDetails.length > 0 && (
         <Content>
-          <Heading1>
+          <Heading1 mb={0}>
             Your Claims
             <Button style={{ float: 'right' }} onClick={() => setOpenClaims(!openClaims)}>
               <StyledArrowDropDown style={{ transform: openClaims ? 'rotate(180deg)' : 'rotate(0deg)' }} size={20} />

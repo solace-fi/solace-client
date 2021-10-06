@@ -395,7 +395,7 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
                           </PositionCardText>
                         )}
                         <DeFiAssetImage
-                          borderless
+                          noborder
                           style={{
                             opacity: userHasActiveProductPosition(
                               protocol.name,

@@ -51,7 +51,7 @@ export const WalletConnectButton: React.FC<GeneralElementProps> = ({ ...props })
     <>
       <Button width={width >= MAX_MOBILE_SCREEN_WIDTH ? undefined : 50} onClick={() => openWalletModal()} {...props}>
         <StyledWallet size={30} />
-        {width >= MAX_MOBILE_SCREEN_WIDTH && (isActive ? 'Switch Wallet' : 'Connect Wallet')}
+        {isActive ? 'Switch Wallet' : 'Connect Wallet'}
       </Button>
     </>
   )

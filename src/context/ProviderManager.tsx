@@ -111,7 +111,13 @@ const ProviderManager: React.FC = ({ children }) => {
   )
   return (
     <ProviderContext.Provider value={value}>
-      <Modal handleClose={closeModal} isOpen={networkModal} modalTitle={'Connect a network'} disableCloseButton={false}>
+      <Modal
+        zIndex={3}
+        handleClose={closeModal}
+        isOpen={networkModal}
+        modalTitle={'Connect a network'}
+        disableCloseButton={false}
+      >
         <Card color2 p={10} mb={20}>
           <Text textAlignCenter>When connected, ensure that the </Text>
           <Text textAlignCenter>network on your wallet matches </Text>

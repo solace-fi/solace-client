@@ -71,7 +71,7 @@ export const TokenPositionCard: React.FC<TokenPositionCardProps> = ({
       }
     >
       {isActive && <PositionCardText style={{ opacity: '.8' }}>This position is already covered</PositionCardText>}
-      <DeFiAssetImage borderless style={{ opacity: isActive ? '.5' : '1' }}>
+      <DeFiAssetImage noborder style={{ opacity: isActive ? '.5' : '1' }}>
         <img src={`https://assets.solace.fi/${token.underlying.address.toLowerCase()}`} alt={token.underlying.name} />
       </DeFiAssetImage>
       <PositionCardName high_em style={{ opacity: isActive ? '.5' : '1' }}>

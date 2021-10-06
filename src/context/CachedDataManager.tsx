@@ -15,6 +15,7 @@ import { TransactionHistoryModal } from '../components/organisms/TransactionHist
 import { useNetwork } from './NetworkManager'
 import { PolicyState, SystemNotice } from '../constants/enums'
 import { useGeneral } from './GeneralProvider'
+import { AccountModal } from '../components/organisms/AccountModal'
 
 /*
 
@@ -179,7 +180,8 @@ const CachedDataProvider: React.FC = (props) => {
 
   return (
     <CachedDataContext.Provider value={value}>
-      <TransactionHistoryModal closeModal={closeModal} isOpen={historyModal} />
+      <AccountModal closeModal={closeModal} isOpen={historyModal} />
+      {/* <TransactionHistoryModal closeModal={closeModal} isOpen={historyModal} /> */}
       {props.children}
     </CachedDataContext.Provider>
   )

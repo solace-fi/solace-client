@@ -35,19 +35,15 @@ const GeneralContext = createContext<GeneralContextType>({
   openModal: () => undefined,
 })
 
-const mqlDark = window.matchMedia('(prefers-color-scheme: dark)')
-const defaultTheme = mqlDark.matches ? 'dark' : 'light'
-
 export function useGeneral(): GeneralContextType {
   return useContext<GeneralContextType>(GeneralContext)
 }
 
 const GeneralProvider: React.FC = (props) => {
-  const [osColorScheme, setOsColorScheme] = useState<'light' | 'dark'>(defaultTheme)
   const [selectedTheme, setSelectedTheme, removeSelectedTheme] = useLocalStorage<'light' | 'dark' | undefined>(
     'sol_data_theme'
   )
-  const appTheme: 'light' | 'dark' = selectedTheme || osColorScheme
+  const appTheme: 'light' | 'dark' = selectedTheme ?? 'light'
   const theme = appTheme == 'light' ? lightTheme : darkTheme
   const [notices, setNotices] = useState<string[]>([])
   const [errors, setErrors] = useState<string[]>([])
@@ -102,21 +98,11 @@ const GeneralProvider: React.FC = (props) => {
     setErrors(updatedErrors)
   }, [])
 
-  useEffect(() => {
-    setOsColorScheme(defaultTheme)
-
-    mqlDark.addEventListener('change', (e) => {
-      setOsColorScheme(e.matches ? 'dark' : 'light')
-    })
-  }, [])
-
   function toggleTheme(theme: string) {
     if (theme === 'light') {
-      setSelectedTheme('light')
+      removeSelectedTheme()
     } else if (theme === 'dark') {
       setSelectedTheme('dark')
-    } else {
-      removeSelectedTheme()
     }
   }
 

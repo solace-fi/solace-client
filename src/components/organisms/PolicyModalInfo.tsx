@@ -289,7 +289,7 @@ export const PolicyModalInfo: React.FC<PolicyModalInfoProps> = ({ appraisal, sel
               <FlexRow>
                 {selectedPolicy?.positionNames.slice(0, maxPositionsOnDisplay).map((name: string) => (
                   <FlexCol style={{ alignItems: 'center' }} key={name}>
-                    <DeFiAssetImage borderless width={45} height={45}>
+                    <DeFiAssetImage noborder width={45} height={45}>
                       <img src={`https://assets.solace.fi/${name.toLowerCase()}`} alt={name} />
                     </DeFiAssetImage>
                   </FlexCol>
@@ -320,7 +320,7 @@ export const PolicyModalInfo: React.FC<PolicyModalInfoProps> = ({ appraisal, sel
             <FlexRow style={{ justifyContent: 'center' }}>
               {selectedPolicy?.positionNames.slice(0, maxPositionsOnDisplay).map((name: string) => (
                 <FlexCol key={name}>
-                  <DeFiAssetImage borderless width={45} height={45}>
+                  <DeFiAssetImage noborder width={45} height={45}>
                     <img src={`https://assets.solace.fi/${name.toLowerCase()}`} alt={name} />
                   </DeFiAssetImage>
                 </FlexCol>

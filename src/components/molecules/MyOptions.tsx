@@ -70,7 +70,7 @@ export const MyOptions: React.FC = () => {
     <Fragment>
       {options.length > 0 && (
         <Content>
-          <Heading1>
+          <Heading1 mb={0}>
             Your Options
             <Button style={{ float: 'right' }} onClick={() => setOpenOptions(!openOptions)}>
               <StyledArrowDropDown style={{ transform: openOptions ? 'rotate(180deg)' : 'rotate(0deg)' }} size={20} />

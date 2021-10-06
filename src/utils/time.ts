@@ -14,7 +14,7 @@ export function timeAgo(someDateInThePast: number): string {
   if ((difference % 1000) * 3600 > 0) {
     if (Math.floor((difference / 1000 / 60) % 60) > 0) {
       const s = Math.floor((difference / 1000 / 60) % 60) == 1 ? '' : 's'
-      result = `${Math.floor((difference / 1000 / 60) % 60)} minute${s} `
+      result = `${Math.floor((difference / 1000 / 60) % 60)} min${s} `
     }
   }
 
@@ -22,7 +22,7 @@ export function timeAgo(someDateInThePast: number): string {
   if ((difference % 1000) * 3600 * 60 > 0) {
     if (Math.floor((difference / 1000 / 60 / 60) % 24) > 0) {
       const s = Math.floor((difference / 1000 / 60 / 60) % 24) == 1 ? '' : 's'
-      result = `${Math.floor((difference / 1000 / 60 / 60) % 24)} hour${s}${result == '' ? '' : ','} ` + result
+      result = `${Math.floor((difference / 1000 / 60 / 60) % 24)} hr${s}${result == '' ? '' : ','} ` + result
     }
   }
 

@@ -43,7 +43,8 @@ import { NetworkConnectButton } from '../molecules/NetworkConnectButton'
 import { useNativeTokenBalance } from '../../hooks/useBalance'
 
 /* import utils */
-import { shortenAddress, fixed } from '../../utils/formatting'
+import { shortenAddress, fixed, capitalizeFirstLetter } from '../../utils/formatting'
+import { Button } from '../atoms/Button'
 
 export const UserAccount: React.FC = () => {
   /*************************************************************************************
@@ -54,31 +55,41 @@ export const UserAccount: React.FC = () => {
   const { account } = useWallet()
   const balance = useNativeTokenBalance()
   const { activeNetwork } = useNetwork()
+  const { openHistoryModal } = useCachedData()
   /*************************************************************************************
 
   Render
   
   *************************************************************************************/
   return (
-    <>
-      {account && (
-        <>
-          <SmallBox pl={10} info>
+    <Button p={0} noborder nohover onClick={() => openHistoryModal()}>
+      <SmallBox pl={10} m={0} info canHover>
+        <Heading4 high_em autoAlign nowrap>
+          {capitalizeFirstLetter(activeNetwork.name)}
+        </Heading4>
+        {account ? (
+          <SmallBox pl={10} ml={10} info>
             <Heading4 high_em autoAlign nowrap>
               {balance ? `${fixed(balance, 3)} ${activeNetwork.nativeCurrency.symbol}` : ''}
             </Heading4>
             <SmallBox ml={10} info>
               <Heading4 high_em autoAlign>
                 {shortenAddress(account)}
-              </Heading4>{' '}
+              </Heading4>
               <UserImage pt={4} pb={4} pl={10}>
                 <img src={makeBlockie(account)} alt={'account'} />
               </UserImage>
             </SmallBox>
           </SmallBox>
-        </>
-      )}
-    </>
+        ) : (
+          <SmallBox ml={10} info>
+            <Heading4 high_em autoAlign nowrap>
+              Not connected
+            </Heading4>
+          </SmallBox>
+        )}
+      </SmallBox>
+    </Button>
   )
 }
 

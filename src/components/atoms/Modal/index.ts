@@ -9,6 +9,7 @@ export interface ModalProps {
   isOpen: boolean
   modalTitle: string
   disableCloseButton: boolean
+  zIndex?: number
 }
 
 export interface ModalButtonProps extends ClickProps {
@@ -27,7 +28,7 @@ export const ModalContainer = styled.div<ModalProps>`
   width: 100vw;
   height: 100vh;
   background: ${({ theme }) => theme.modal.bg_color};
-  z-index: 2;
+  z-index: ${(props) => (props.zIndex ? props.zIndex : '2')};
   ${(props) => (props.isOpen ? 'display: flex;' : 'display: none;')}
   overflow-y: auto;
 `
