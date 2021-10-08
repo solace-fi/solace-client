@@ -36,7 +36,7 @@ import { useGeneral } from '../../context/GeneralProvider'
 import { CardContainer, Card } from '../atoms/Card'
 import { Box, BoxItem, BoxItemTitle } from '../atoms/Box'
 import { Button, ButtonWrapper } from '../atoms/Button'
-import { Heading1, Text } from '../atoms/Typography'
+import { Text } from '../atoms/Typography'
 import { Content } from '../atoms/Layout'
 import { StyledArrowDropDown } from '../../components/atoms/Icon'
 import { Accordion } from '../atoms/Accordion/Accordion'
@@ -70,13 +70,13 @@ export const MyOptions: React.FC = () => {
     <Fragment>
       {options.length > 0 && (
         <Content>
-          <Heading1 mb={0}>
+          <Text t1 bold mb={0}>
             Your Options
             <Button style={{ float: 'right' }} onClick={() => setOpenOptions(!openOptions)}>
               <StyledArrowDropDown style={{ transform: openOptions ? 'rotate(180deg)' : 'rotate(0deg)' }} size={20} />
               {openOptions ? 'Hide Options' : 'Show Options'}
             </Button>
-          </Heading1>
+          </Text>
           <Accordion isOpen={openOptions}>
             <CardContainer cardsPerRow={2} p={10}>
               {options.map((option: Option) => {
@@ -85,27 +85,19 @@ export const MyOptions: React.FC = () => {
                     <Box pt={20} pb={20} success>
                       <BoxItem>
                         <BoxItemTitle t4>ID</BoxItemTitle>
-                        <Text h4 high_em>
-                          {option.id}
-                        </Text>
+                        <Text t4>{option.id}</Text>
                       </BoxItem>
                       <BoxItem>
                         <BoxItemTitle t4>Reward Amount</BoxItemTitle>
-                        <Text h4 high_em>
-                          {option.rewardAmount}
-                        </Text>
+                        <Text t4>{option.rewardAmount}</Text>
                       </BoxItem>
                       <BoxItem>
                         <BoxItemTitle t4>Strike Price</BoxItemTitle>
-                        <Text h4 high_em>
-                          {option.strikePrice}
-                        </Text>
+                        <Text t4>{option.strikePrice}</Text>
                       </BoxItem>
                       <BoxItem>
                         <BoxItemTitle t4>Expiry</BoxItemTitle>
-                        <Text h4 high_em>
-                          {option.expiry}
-                        </Text>
+                        <Text t4>{option.expiry}</Text>
                       </BoxItem>
                     </Box>
                     <ButtonWrapper mb={0} mt={20}>

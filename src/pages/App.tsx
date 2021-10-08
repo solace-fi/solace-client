@@ -4,6 +4,7 @@
 
     import react
     import packages
+    import managers
     import pages
     import components
 
@@ -17,7 +18,10 @@ import React, { Fragment } from 'react'
 /* import packages */
 import { Route, Switch, useLocation } from 'react-router-dom'
 
+/* import managers */
+
 /* import pages */
+import About from './about'
 import Dashboard from './dashboard'
 import Invest from './invest'
 import Quote from './quote'
@@ -35,26 +39,28 @@ export default function App(): any {
 
   return (
     <Fragment>
-      <GlobalStyle />
-      <TopNavbar location={location} />
+      <GlobalStyle location={location} />
+      <TopNavbar />
       <Footer />
       <Layout>
         <ContentContainer>
           <SideNavContent>
-            <SideNavbar location={location} />
+            <SideNavbar />
           </SideNavContent>
           <LayoutContent>
             <PageHeader />
             <LayoutContentWithLoader>
-              {location.pathname !== '/quote' && <Statistics />}
+              {location.pathname !== '/quote' && location.pathname !== '/' && <Statistics />}
               <Switch>
-                <Route exact path="/" component={Dashboard} />
+                <Route exact path="/" component={About} />
+                <Route exact path="/dashboard" component={Dashboard} />
                 <Route exact path="/invest" component={Invest} />
                 <Route exact path="/quote" component={Quote} />
                 <Route exact path="/govern" component={Govern} />
               </Switch>
             </LayoutContentWithLoader>
           </LayoutContent>
+          {location.pathname == '/' && <SideNavContent />}
         </ContentContainer>
       </Layout>
     </Fragment>

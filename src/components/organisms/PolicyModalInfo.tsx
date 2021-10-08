@@ -48,7 +48,7 @@ import { FormCol, FormRow } from '../atoms/Form'
 import { FlexCol, FlexRow, HeroContainer } from '../atoms/Layout'
 import { DeFiAsset, DeFiAssetImage } from '../atoms/DeFiAsset'
 import { Loader } from '../atoms/Loader'
-import { Heading3, Text, TextSpan } from '../atoms/Typography'
+import { Text, TextSpan } from '../atoms/Typography'
 import { Card } from '../atoms/Card'
 import { StyledTooltip } from '../molecules/Tooltip'
 import { Button, ButtonWrapper } from '../atoms/Button'
@@ -167,27 +167,25 @@ export const PolicyModalInfo: React.FC<PolicyModalInfoProps> = ({ appraisal, sel
       {width > MAX_MOBILE_SCREEN_WIDTH ? (
         <Box transparent pl={10} pr={10} pt={20} pb={20}>
           <BoxItem>
-            <BoxItemTitle h3 high_em>
-              Policy ID
-            </BoxItemTitle>
-            <Text h2 nowrap high_em>
+            <BoxItemTitle t3>Policy ID</BoxItemTitle>
+            <Text t2 nowrap>
               {selectedPolicy?.policyId}
             </Text>
           </BoxItem>
           <BoxItem>
-            <BoxItemTitle h3 high_em>
+            <BoxItemTitle t3>
               Days to expiration{' '}
               <StyledTooltip id={'days-to-expiration'} tip={'Number of days left until this policy expires'} />
             </BoxItemTitle>
-            <Text h2 nowrap high_em>
+            <Text t2 nowrap>
               {getDaysLeft(selectedPolicy ? selectedPolicy.expirationBlock : 0, latestBlock)}
             </Text>
           </BoxItem>
           <BoxItem>
-            <BoxItemTitle h3 high_em>
+            <BoxItemTitle t3>
               Cover Amount <StyledTooltip id={'covered-amount'} tip={'The amount you are covered on this policy'} />
             </BoxItemTitle>
-            <Text h2 nowrap high_em>
+            <Text t2 nowrap>
               {selectedPolicy?.coverAmount
                 ? truncateBalance(formatUnits(selectedPolicy.coverAmount, currencyDecimals))
                 : 0}{' '}
@@ -195,10 +193,10 @@ export const PolicyModalInfo: React.FC<PolicyModalInfoProps> = ({ appraisal, sel
             </Text>
           </BoxItem>
           <BoxItem>
-            <BoxItemTitle h3 high_em>
+            <BoxItemTitle t3>
               Position Amount <StyledTooltip id={'position-amount'} tip={'The amount of this asset you own'} />
             </BoxItemTitle>
-            <Text h2 nowrap high_em>
+            <Text t2 nowrap>
               {appraisal.gt(ZERO) ? (
                 `${truncateBalance(formatUnits(appraisal, currencyDecimals) || 0)} ${
                   activeNetwork.nativeCurrency.symbol
@@ -214,49 +212,43 @@ export const PolicyModalInfo: React.FC<PolicyModalInfoProps> = ({ appraisal, sel
         <Card transparent>
           <FormRow mb={10}>
             <FormCol>
-              <Text t4 high_em>
-                Policy ID:
-              </Text>
+              <Text t4>Policy ID:</Text>
             </FormCol>
             <FormCol>
-              <Heading3 high_em>{selectedPolicy?.policyId}</Heading3>
+              <Text bold t3>
+                {selectedPolicy?.policyId}
+              </Text>
             </FormCol>
           </FormRow>
           <FormRow mb={10}>
             <FormCol>
-              <Text t4 high_em>
-                Days to expiration:
-              </Text>
+              <Text t4>Days to expiration:</Text>
             </FormCol>
             <FormCol>
-              <Heading3 high_em>
+              <Text bold t3>
                 {getDaysLeft(selectedPolicy ? selectedPolicy.expirationBlock : 0, latestBlock)}
-              </Heading3>
+              </Text>
             </FormCol>
           </FormRow>
           <FormRow mb={10}>
             <FormCol>
-              <Text t4 high_em>
-                Cover Amount:
-              </Text>
+              <Text t4>Cover Amount:</Text>
             </FormCol>
             <FormCol>
-              <Heading3 high_em>
+              <Text bold t3>
                 {selectedPolicy?.coverAmount
                   ? truncateBalance(formatUnits(selectedPolicy.coverAmount, currencyDecimals))
                   : 0}{' '}
                 {activeNetwork.nativeCurrency.symbol}
-              </Heading3>
+              </Text>
             </FormCol>
           </FormRow>
           <FormRow mb={10}>
             <FormCol>
-              <Text t4 high_em>
-                Position Amount:
-              </Text>
+              <Text t4>Position Amount:</Text>
             </FormCol>
             <FormCol>
-              <Heading3 high_em>
+              <Text bold t3>
                 {appraisal.gt(ZERO) ? (
                   `${truncateBalance(formatUnits(appraisal, currencyDecimals) || 0)} ${
                     activeNetwork.nativeCurrency.symbol
@@ -264,7 +256,7 @@ export const PolicyModalInfo: React.FC<PolicyModalInfoProps> = ({ appraisal, sel
                 ) : (
                   <Loader width={10} height={10} />
                 )}{' '}
-              </Heading3>
+              </Text>
             </FormCol>
           </FormRow>
         </Card>
@@ -280,9 +272,7 @@ export const PolicyModalInfo: React.FC<PolicyModalInfoProps> = ({ appraisal, sel
                     alt={selectedPolicy?.productName}
                   />
                 </DeFiAssetImage>
-                <TextSpan h2 high_em>
-                  {selectedPolicy?.productName}
-                </TextSpan>
+                <TextSpan t2>{selectedPolicy?.productName}</TextSpan>
               </DeFiAsset>
             </FormCol>
             <FormCol style={{ margin: 'auto' }}>
@@ -311,9 +301,7 @@ export const PolicyModalInfo: React.FC<PolicyModalInfoProps> = ({ appraisal, sel
                       alt={selectedPolicy?.productName}
                     />
                   </DeFiAssetImage>
-                  <TextSpan h2 high_em>
-                    {selectedPolicy?.productName}
-                  </TextSpan>
+                  <TextSpan t2>{selectedPolicy?.productName}</TextSpan>
                 </DeFiAsset>
               </FlexCol>
             </FlexRow>

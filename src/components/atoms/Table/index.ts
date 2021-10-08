@@ -29,6 +29,10 @@ export const Table = styled.table<TableProps>`
 
 export const TableRow = styled.tr<TableProps>`
   ${(props) => props.isHighlight && `background-color: ${props.theme.table.highlight_bg_color};`}
+  th,
+  td {
+    ${GeneralTextCss}
+  }
 `
 
 export const TableBody = styled.tbody``
@@ -41,6 +45,9 @@ export const TableHead = styled.thead<TableHeadProps>`
     transform: translateY(-7px);
     top: 7px;
     background-color: ${props.theme.table.head_bg_color};
+    th {
+      padding-top: 20px;
+    }
   `};
 `
 

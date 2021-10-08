@@ -27,7 +27,7 @@ import {
   StyledWork,
 } from '../atoms/Icon'
 import { Card, CardContainer } from '../atoms/Card'
-import { Heading4 } from '../atoms/Typography'
+import { Text } from '../atoms/Typography'
 import { Scrollable } from '../atoms/Layout'
 import { FormRow } from '../atoms/Form'
 import { ModalCell } from '../atoms/Modal'
@@ -70,7 +70,7 @@ export const LinksModal: React.FC<LinksModalProps> = ({ closeModal, isOpen }) =>
                   <StyledDocuments size={30} />
                 </ModalCell>
                 <ModalCell p={10}>
-                  <Heading4 high_em>Docs</Heading4>
+                  <Text t4>Docs</Text>
                 </ModalCell>
               </FormRow>
             </Card>
@@ -87,7 +87,7 @@ export const LinksModal: React.FC<LinksModalProps> = ({ closeModal, isOpen }) =>
                   <StyledDocumentText size={30} />
                 </ModalCell>
                 <ModalCell p={10}>
-                  <Heading4 high_em>Whitepaper</Heading4>
+                  <Text t4>Whitepaper</Text>
                 </ModalCell>
               </FormRow>
             </Card>
@@ -104,7 +104,7 @@ export const LinksModal: React.FC<LinksModalProps> = ({ closeModal, isOpen }) =>
                   <StyledWork size={30} />
                 </ModalCell>
                 <ModalCell p={10}>
-                  <Heading4 high_em>Jobs</Heading4>
+                  <Text t4>Jobs</Text>
                 </ModalCell>
               </FormRow>
             </Card>
@@ -121,7 +121,7 @@ export const LinksModal: React.FC<LinksModalProps> = ({ closeModal, isOpen }) =>
                   <StyledDiscord size={30} />
                 </ModalCell>
                 <ModalCell p={10}>
-                  <Heading4 high_em>Discord</Heading4>
+                  <Text t4>Discord</Text>
                 </ModalCell>
               </FormRow>
             </Card>
@@ -138,7 +138,7 @@ export const LinksModal: React.FC<LinksModalProps> = ({ closeModal, isOpen }) =>
                   <StyledTwitter size={30} />
                 </ModalCell>
                 <ModalCell p={10}>
-                  <Heading4 high_em>Twitter</Heading4>
+                  <Text t4>Twitter</Text>
                 </ModalCell>
               </FormRow>
             </Card>
@@ -155,7 +155,7 @@ export const LinksModal: React.FC<LinksModalProps> = ({ closeModal, isOpen }) =>
                   <StyledGithub size={30} />
                 </ModalCell>
                 <ModalCell p={10}>
-                  <Heading4 high_em>GitHub</Heading4>
+                  <Text t4>GitHub</Text>
                 </ModalCell>
               </FormRow>
             </Card>
@@ -172,7 +172,7 @@ export const LinksModal: React.FC<LinksModalProps> = ({ closeModal, isOpen }) =>
                   <StyledMedium size={30} />
                 </ModalCell>
                 <ModalCell p={10}>
-                  <Heading4 high_em>Medium</Heading4>
+                  <Text t4>Medium</Text>
                 </ModalCell>
               </FormRow>
             </Card>

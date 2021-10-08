@@ -29,7 +29,7 @@ import { Policy } from '../../constants/types'
 
 /* import components */
 import { HeroContainer, Content } from '../../components/atoms/Layout'
-import { Heading1, Text } from '../../components/atoms/Typography'
+import { Text } from '../../components/atoms/Typography'
 import { ManageModal } from '../../components/organisms/ManageModal'
 import { ClaimModal } from '../../components/organisms/ClaimModal'
 import { MyPolicies } from '../../components/molecules/MyPolicies'
@@ -121,7 +121,9 @@ function Dashboard(): any {
     <Fragment>
       {!account ? (
         <HeroContainer>
-          <Heading1 textAlignCenter>Please connect wallet to view dashboard</Heading1>
+          <Text bold t1 textAlignCenter>
+            Please connect wallet to view dashboard
+          </Text>
         </HeroContainer>
       ) : (
         <Fragment>
@@ -138,7 +140,7 @@ function Dashboard(): any {
             selectedPolicy={selectedPolicy}
           />
           <Content>
-            <Heading1 mb={0}>
+            <Text bold t1 mb={0}>
               Your Policies{' '}
               <StyledTooltip
                 id={'user-policies'}
@@ -152,7 +154,7 @@ function Dashboard(): any {
                 />
                 {openPolicies ? 'Hide Policies' : 'Show Policies'}
               </Button>
-            </Heading1>
+            </Text>
             <Text t4 pb={10}>
               Make changes to your existing policies or submit claims
             </Text>
@@ -168,7 +170,7 @@ function Dashboard(): any {
               <Loader />
             )}
           </Content>
-          {!showManageModal && !showClaimModal && <MyClaims />}
+          <MyClaims />
           <MyInvestments />
         </Fragment>
       )}

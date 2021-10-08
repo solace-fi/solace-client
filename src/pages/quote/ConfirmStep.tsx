@@ -17,7 +17,7 @@ import React from 'react'
 import { StyledNavLink } from '../../components/atoms/Link'
 import { Button } from '../../components/atoms/Button'
 import { TableDataGroup } from '../../components/atoms/Table'
-import { Heading1, Heading3 } from '../../components/atoms/Typography'
+import { Text } from '../../components/atoms/Typography'
 import { HeroContainer } from '../../components/atoms/Layout'
 import { formProps } from './MultiStepForm'
 
@@ -34,12 +34,18 @@ export const ConfirmStep: React.FC<ConfirmStepProp> = ({ resetForm }) => {
 
   return (
     <HeroContainer>
-      <Heading1 textAlignCenter>Transaction Submitted!</Heading1>
-      <Heading1 textAlignCenter>Your Solace coverage is on the way!</Heading1>
-      <Heading3 textAlignCenter>You can manage your policies on the dashboard or start a new one.</Heading3>
+      <Text t1 textAlignCenter mb={20}>
+        Transaction Submitted!
+      </Text>
+      <Text t1 textAlignCenter mb={10}>
+        Your Solace coverage is on the way!
+      </Text>
+      <Text t3 textAlignCenter>
+        You can manage your policies on the dashboard or start a new one.
+      </Text>
       <div style={{ marginTop: '24px' }}>
         <TableDataGroup>
-          <StyledNavLink to="/">
+          <StyledNavLink to="/dashboard">
             <Button secondary>Go to Dashboard</Button>
           </StyledNavLink>
           <Button

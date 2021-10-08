@@ -3,7 +3,14 @@ import styled, { css } from 'styled-components'
 import { Text4Css } from '../Typography'
 
 export interface ButtonProps extends ClickProps {
+  analogical?: boolean
+  light?: boolean
+  dark?: boolean
   secondary?: boolean
+  info?: boolean
+  success?: boolean
+  error?: boolean
+  warning?: boolean
   glow?: boolean
   hidden?: boolean
   noradius?: boolean
@@ -31,9 +38,14 @@ export const ButtonBaseCss = css<ButtonProps & GeneralElementProps>`
   align-items: center;
   justify-content: center;
   outline: none;
-  border: ${(props) => (!props.noborder ? `1px solid ${props.theme.button.border_color}` : 'none')};
+  border: 1px solid ${(props) => props.theme.typography.contrastText};
+  ${(props) => props.analogical && `border: 1px solid ${props.theme.typography.analogicalText};`}
+  ${(props) => props.light && `border: 1px solid ${props.theme.typography.lightText};`}
+  ${(props) => props.dark && `border: 1px solid ${props.theme.typography.darkText};`}
+  ${(props) => props.noborder && `border: none;`}
+
   ${(props) => !props.noradius && `border-radius: 10px;`}
-  font-weight: 600;
+  font-weight: 500;
   text-align: center;
   transition: all 0.2s, color 0.2s;
   cursor: pointer;
@@ -44,14 +56,48 @@ export const ButtonBaseCss = css<ButtonProps & GeneralElementProps>`
   ${(props) => props.width == undefined && 'min-width: 90px;'}
   ${(props) => props.height == undefined && 'min-height: 34px;'}
   visibility: ${(props) => (props.hidden ? 'hidden;' : 'visible;')};
+  color: ${({ theme }) => theme.typography.contrastText};
+
   ${(props) =>
     props.disabled
-      ? `color: ${props.theme.button.text_color}; background-color: rgba(0, 0, 0, 0); opacity: 0.5; transform: scale(.9);`
+      ? `color: ${
+          props.light
+            ? props.theme.typography.lightText
+            : props.dark
+            ? props.theme.typography.darkText
+            : props.analogical
+            ? props.theme.typography.analogicalText
+            : props.info
+            ? props.theme.typography.infoText
+            : props.success
+            ? props.theme.typography.successText
+            : props.warning
+            ? props.theme.typography.warningText
+            : props.error
+            ? props.theme.typography.errorText
+            : props.theme.typography.contrastText
+        }; background-color: rgba(0, 0, 0, 0); opacity: 0.5; transform: scale(.9);`
       : props.secondary
       ? `color: ${props.theme.button.secondary_text_color}; background-color: ${
           props.theme.button.hover_color
         }; &:hover { ${!props.nohover && `opacity: 0.8;`} }`
-      : `color: ${props.theme.button.text_color}; background-color: rgba(0, 0, 0, 0); &:hover { ${
+      : `color: ${
+          props.light
+            ? props.theme.typography.lightText
+            : props.dark
+            ? props.theme.typography.darkText
+            : props.analogical
+            ? props.theme.typography.analogicalText
+            : props.info
+            ? props.theme.typography.infoText
+            : props.success
+            ? props.theme.typography.successText
+            : props.warning
+            ? props.theme.typography.warningText
+            : props.error
+            ? props.theme.typography.errorText
+            : props.theme.typography.contrastText
+        }; background-color: rgba(0, 0, 0, 0); &:hover { ${
           !props.nohover &&
           `color: ${props.theme.button.secondary_text_color}; background-color: ${props.theme.button.hover_color};`
         } }`};
@@ -69,8 +115,8 @@ export const NavButton = styled.button`
   display: block;
   position: absolute;
   right: 10px;
-  top: 10px;
-  min-height: 40px;
+  top: 8px;
+  min-height: 30px;
   min-width: 70px;
 `
 

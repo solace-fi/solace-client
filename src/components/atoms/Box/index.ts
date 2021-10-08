@@ -22,13 +22,13 @@ interface SmallBoxProps {
 }
 
 const BoxCss = css<GeneralElementProps & BoxProps>`
-  background-color: ${({ theme }) => theme.box.bg_color_1};
-  ${(props) => props.transparent && 'background-color: rgba(0, 0, 0, 0);'}
+  background: ${({ theme }) => theme.box.bg_color_1};
+  ${(props) => props.transparent && 'background: rgba(0, 0, 0, 0);'}
   ${(props) => props.outlined && BoxOutline}
-  ${(props) => props.color1 && `background-color: ${props.theme.box.bg_color_1};`}
-  ${(props) => props.color2 && `background-color: ${props.theme.box.bg_color_2};`}
-  ${(props) => props.success && `background-color: ${props.theme.box.success};`}
-  ${(props) => props.info && `background-color: ${props.theme.box.info};`}
+  ${(props) => props.color1 && `background: ${props.theme.box.bg_color_1};`}
+  ${(props) => props.color2 && `background: ${props.theme.box.bg_color_2};`}
+  ${(props) => props.success && `background: ${props.theme.box.success};`}
+  ${(props) => props.info && `background: ${props.theme.box.info};`}
   ${(props) => props.glow && `box-shadow: ${props.theme.box.glow};`}
   ${(props) => props.shadow && `box-shadow: ${props.theme.box.shadow};`}
   ${GeneralElementCss}
@@ -107,7 +107,7 @@ export const SmallBox = styled.div<BoxProps & SmallBoxProps & GeneralElementProp
   ${(props) => (props.collapse ? `transform: scaleY(0); height: 0;` : `transform: scaleY(1);`)}
   transition: all 200ms ease;
   ${BoxCss}
-  ${(props) => props.error && `border-color: ${props.theme.box.smallbox_border_color};`}
+  ${(props) => props.error && `border-color: ${props.theme.typography.errorText};`}
   ${(props) => props.canHover && `&:hover { filter: brightness(1.5); }`}
 `
 

@@ -8,7 +8,7 @@ interface TopNavProps {
 }
 
 export const TopNav = styled.div<TopNavProps>`
-  ${(props) => (props.isOpen == false ? 'max-height: 4rem;' : 'max-height: 8rem;')}
+  ${(props) => (props.isOpen == false ? 'max-height: 2.5rem;' : 'max-height: 5rem;')}
   position: fixed;
   overflow: hidden;
   background-color: rgba(0, 0, 0, 0.92);
@@ -23,41 +23,41 @@ export const TopNav = styled.div<TopNavProps>`
   }
 
   @media screen and (max-width: ${MAX_MOBILE_SCREEN_WIDTH}px) {
-    ${(props) => (props.isOpen == false ? 'max-height: 4rem;' : 'max-height: 100vh;')}
+    ${(props) => (props.isOpen == false ? 'max-height: 2.5rem;' : 'max-height: 100vh;')}
     text-align: center;
   }
 `
 
-export const SidebarTextCss = css`
-  font-weight: 600;
-  font-size: 16px;
-  color: ${({ theme }) => theme.typography.med_emphasis};
+export const SidebarTextCss = css<GeneralTextProps>`
+  font-weight: 500;
+  font-size: 14px;
+  color: ${({ theme }) => `${theme.typography.contrastText}`};
   text-decoration: none;
   transition: all 0.2s;
   &:hover,
   &.is-active {
-    color: ${({ theme }) => theme.typography.high_emphasis};
+    font-weight: 600;
   }
 
   @media screen and (max-width: ${MAX_MOBILE_SCREEN_WIDTH}px) {
     padding: 20px 0;
   }
+  ${GeneralTextCss}
 `
 
-export const SidebarText = styled.div`
+export const SidebarText = styled.div<GeneralTextProps>`
   ${SidebarTextCss}
 `
 
 export const SidebarItem = styled(NavLink)<GeneralTextProps>`
   ${SidebarTextCss}
-  ${GeneralTextCss}
 `
 
 export const ItemText = styled.li`
   display: flex;
   justify-content: start;
   align-items: center;
-  padding: 8px 0px 8px 16px;
+  padding: 4px 0;
   list-style: none;
   height: 30px;
 `

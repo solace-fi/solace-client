@@ -25,7 +25,7 @@ import { useGeneral } from '../../context/GeneralProvider'
 
 /* import components */
 import { Content } from '../atoms/Layout'
-import { Heading1, Text } from '../atoms/Typography'
+import { Text } from '../atoms/Typography'
 import { Table, TableHead, TableRow, TableHeader, TableBody, TableData, TableDataGroup } from '../atoms/Table'
 import { Button, ButtonWrapper } from '../atoms/Button'
 import { Card } from '../atoms/Card'
@@ -73,14 +73,14 @@ export const CapitalProviderPool: React.FC<CapitalProviderPoolProps> = ({ openMo
 
   return (
     <Content>
-      <Heading1 mb={0}>
+      <Text bold t1 mb={0}>
         Options Mining Pool{' '}
         {/* <StyledTooltip
           id={'options-pool'}
           tip={'Deposit SCP tokens here to earn rewards'}
           link={'https://docs.solace.fi/docs/user-guides/capital-provider/cp-role-guide'}
         />{' '} */}
-      </Heading1>
+      </Text>
       <Text t4 pb={10}>
         This pool rewards capital providers with options
       </Text>
@@ -109,38 +109,31 @@ export const CapitalProviderPool: React.FC<CapitalProviderPoolProps> = ({ openMo
             </TableRow>
           </TableHead>
           <TableBody>
-            <TableRow>
+            <TableRow light>
               {account ? (
-                <TableData h3 high_em width={100}>
+                <TableData t3 width={100}>
                   {truncateBalance(cpUserStakeValue, 2)}
                 </TableData>
               ) : null}
-              <TableData h3 high_em>
-                {truncateBalance(cpPoolValue, 2)}
-              </TableData>
-              <TableData h3 high_em width={100}>
+              <TableData t3>{truncateBalance(cpPoolValue, 2)}</TableData>
+              <TableData t3 width={100}>
                 {CP_ROI}
               </TableData>
-              {account ? (
-                <TableData h3 high_em>
-                  {truncateBalance(cpUserRewards, 2)}
-                </TableData>
-              ) : null}
-              {account ? (
-                <TableData h3 high_em>
-                  {truncateBalance(cpUserRewardsPerDay, 2)}
-                </TableData>
-              ) : null}
-              <TableData h3 high_em>
-                {truncateBalance(cpRewardsPerDay, 2)}
-              </TableData>
+              {account ? <TableData t3>{truncateBalance(cpUserRewards, 2)}</TableData> : null}
+              {account ? <TableData t3>{truncateBalance(cpUserRewardsPerDay, 2)}</TableData> : null}
+              <TableData t3>{truncateBalance(cpRewardsPerDay, 2)}</TableData>
               {account ? (
                 <TableData textAlignRight>
                   <TableDataGroup width={200}>
-                    <Button disabled={errors.length > 0} onClick={() => openModal(FunctionName.DEPOSIT_CP, 'Deposit')}>
+                    <Button
+                      light
+                      disabled={errors.length > 0}
+                      onClick={() => openModal(FunctionName.DEPOSIT_CP, 'Deposit')}
+                    >
                       Deposit
                     </Button>
                     <Button
+                      light
                       disabled={errors.length > 0}
                       onClick={() => openModal(FunctionName.WITHDRAW_CP, 'Withdraw')}
                     >
@@ -157,44 +150,32 @@ export const CapitalProviderPool: React.FC<CapitalProviderPoolProps> = ({ openMo
           {account && (
             <FormRow>
               <FormCol>Your Stake:</FormCol>
-              <FormCol h2 high_em>
-                {truncateBalance(cpUserStakeValue, 2)}
-              </FormCol>
+              <FormCol t2>{truncateBalance(cpUserStakeValue, 2)}</FormCol>
             </FormRow>
           )}
           <FormRow>
             <FormCol>Total Assets:</FormCol>
-            <FormCol h2 high_em>
-              {truncateBalance(cpPoolValue, 2)}
-            </FormCol>
+            <FormCol t2>{truncateBalance(cpPoolValue, 2)}</FormCol>
           </FormRow>
           <FormRow>
             <FormCol>ROI:</FormCol>
-            <FormCol h2 high_em>
-              {CP_ROI}
-            </FormCol>
+            <FormCol t2>{CP_ROI}</FormCol>
           </FormRow>
           {account && (
             <>
               <FormRow>
                 <FormCol>My Rewards:</FormCol>
-                <FormCol h2 high_em>
-                  {truncateBalance(cpUserRewards, 2)}
-                </FormCol>
+                <FormCol t2>{truncateBalance(cpUserRewards, 2)}</FormCol>
               </FormRow>
               <FormRow>
                 <FormCol>My Daily Rewards:</FormCol>
-                <FormCol h2 high_em>
-                  {truncateBalance(cpUserRewardsPerDay, 2)}
-                </FormCol>
+                <FormCol t2>{truncateBalance(cpUserRewardsPerDay, 2)}</FormCol>
               </FormRow>
             </>
           )}
           <FormRow>
             <FormCol>Daily Rewards:</FormCol>
-            <FormCol h2 high_em>
-              {truncateBalance(cpRewardsPerDay, 2)}
-            </FormCol>
+            <FormCol t2>{truncateBalance(cpRewardsPerDay, 2)}</FormCol>
           </FormRow>
           {account && (
             <ButtonWrapper isColumn>

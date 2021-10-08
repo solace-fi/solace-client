@@ -36,7 +36,7 @@ import { useGeneral } from '../../context/GeneralProvider'
 /* import components */
 import { Modal } from '../molecules/Modal'
 import { FormRow, FormCol } from '../atoms/Form'
-import { Heading4, Heading2, Text4 } from '../atoms/Typography'
+import { Text } from '../atoms/Typography'
 import { PolicyModalInfo } from './PolicyModalInfo'
 import { Loader } from '../atoms/Loader'
 import { SmallBox, Box } from '../atoms/Box'
@@ -188,23 +188,23 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
             <Fragment>
               <FormRow mb={0}>
                 <FormCol>
-                  <Text4 autoAlign nowrap>
+                  <Text t4 autoAlign nowrap>
                     {width > MAX_MOBILE_SCREEN_WIDTH ? 'By submitting a claim, you receive' : null}
-                  </Text4>
+                  </Text>
                 </FormCol>
                 <FormCol></FormCol>
               </FormRow>
               <FormRow mb={0}>
                 <FormCol>
-                  <Text4 autoAlign nowrap>
+                  <Text t4 autoAlign nowrap>
                     {width > MAX_MOBILE_SCREEN_WIDTH ? 'pre-exploit assets value equal to' : 'Receiving'}
-                  </Text4>
+                  </Text>
                 </FormCol>
                 <FormCol>
-                  <Heading2 autoAlign high_em>
+                  <Text bold t2 autoAlign>
                     {truncateBalance(formatUnits(assessment.amountOut || 0, currencyDecimals))}{' '}
                     {activeNetwork.nativeCurrency.symbol}
-                  </Heading2>
+                  </Text>
                 </FormCol>
               </FormRow>
               <SmallBox
@@ -213,15 +213,15 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
                 mt={!assessment.lossEventDetected ? 10 : 0}
                 collapse={assessment.lossEventDetected}
               >
-                <Heading4 error={!assessment.lossEventDetected} textAlignCenter>
+                <Text t4 bold error={!assessment.lossEventDetected} textAlignCenter>
                   No loss event detected, unable to submit claims yet.
-                </Heading4>
+                </Text>
               </SmallBox>
               {claimSubmitted ? (
                 <Box color2 mt={20} mb={20}>
-                  <Heading2 high_em autoAlign>
+                  <Text bold t2 autoAlign>
                     Claim has been validated and payout submitted to the escrow.
-                  </Heading2>
+                  </Text>
                 </Box>
               ) : (
                 <ButtonWrapper>
@@ -235,17 +235,15 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
                 </ButtonWrapper>
               )}
               <SmallBox style={{ justifyContent: 'center' }} transparent>
-                <Heading4 warning textAlignCenter>
+                <Text t4 bold warning textAlignCenter>
                   Please wait for the cooldown period to elapse before withdrawing your payout.
-                </Heading4>
+                </Text>
               </SmallBox>
-              <Table isHighlight>
+              <Table isHighlight light>
                 <TableBody>
                   <TableRow>
-                    <TableData t2 high_em>
-                      Current Cooldown Period
-                    </TableData>
-                    <TableData h2 high_em textAlignRight>
+                    <TableData t2>Current Cooldown Period</TableData>
+                    <TableData t2 textAlignRight>
                       {timeToDateText(parseInt(cooldown) * 1000)}
                     </TableData>
                   </TableRow>
@@ -254,9 +252,9 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
             </Fragment>
           ) : (
             <Box transparent mt={20} mb={20}>
-              <Heading2 high_em autoAlign error>
+              <Text bold t2 autoAlign error>
                 Claim assessment data not found.
-              </Heading2>
+              </Text>
             </Box>
           )
         ) : (

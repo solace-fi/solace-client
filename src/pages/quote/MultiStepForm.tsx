@@ -35,6 +35,7 @@ import 'react-circular-progressbar/dist/styles.css'
 /* import context */
 import { useWallet } from '../../context/WalletManager'
 import { useNetwork } from '../../context/NetworkManager'
+import { useGeneral } from '../../context/GeneralProvider'
 
 /* import constants */
 import { MAX_MOBILE_SCREEN_WIDTH } from '../../constants'
@@ -51,7 +52,7 @@ import { Box, BoxItem, BoxRow } from '../../components/atoms/Box'
 import { Button, ButtonWrapper } from '../../components/atoms/Button'
 import { Card, CardContainer } from '../../components/atoms/Card'
 import { FormRow, FormCol } from '../../components/atoms/Form'
-import { Heading2, Text } from '../../components/atoms/Typography'
+import { Text } from '../../components/atoms/Typography'
 import { StyledTooltip } from '../../components/molecules/Tooltip'
 import { FlexRow } from '../../components/atoms/Layout'
 import { StyledDots } from '../../components/atoms/Icon'
@@ -143,6 +144,7 @@ export const MultiStepForm = () => {
   })
   const { account } = useWallet()
   const { activeNetwork, chainId } = useNetwork()
+  const { appTheme } = useGeneral()
   const { width } = useWindowDimensions()
   const props = { formData, setForm, navigation }
   const [showAssetsModal, setShowAssetsModal] = useState<boolean>(false)
@@ -250,15 +252,15 @@ export const MultiStepForm = () => {
                 strokeWidth={4}
                 styles={buildStyles({
                   textSize: '24px',
-                  textColor: 'white',
-                  trailColor: 'rgba(255,255,255,0.1)',
-                  pathColor: `rgb(255,255,255)`,
+                  textColor: appTheme == 'light' ? 'rgb(94, 94, 94)' : 'rgb(255,255,255)',
+                  trailColor: appTheme == 'light' ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.1)',
+                  pathColor: appTheme == 'light' ? 'rgb(94, 94, 94)' : 'rgb(255,255,255)',
                 })}
               />
             </div>
           </FormCol>
           <FormCol>
-            <Text high_em h2 style={{ marginBottom: '10px' }}>
+            <Text t2 style={{ marginBottom: '10px' }}>
               {StepSections[Number(StepNumber[step.id])].name}
             </Text>
             <Text t4>{StepSections[Number(StepNumber[step.id])].description}</Text>
@@ -275,30 +277,32 @@ export const MultiStepForm = () => {
                     <DeFiAssetImage mr={10}>
                       <img src={`https://assets.solace.fi/${protocol.name.toLowerCase()}`} alt={protocol.name} />
                     </DeFiAssetImage>
-                    <ProtocolTitle high_em h3>
+                    <ProtocolTitle t3 light>
                       {protocol.name}
                     </ProtocolTitle>
                   </DeFiAsset>
                 </BoxItem>
                 <BoxItem>
-                  <Text t3 high_em>
+                  <Text t3 light>
                     {fixed(protocol.yearlyCost * 100, 2)}% <StyledTooltip id={'yearly-cost'} tip={'Yearly Cost'} />
                   </Text>
                 </BoxItem>
                 <BoxItem>
-                  <Text t3 high_em>
+                  <Text t3 light>
                     {protocol.availableCoverage} {activeNetwork.nativeCurrency.symbol}{' '}
                     <StyledTooltip id={'available-coverage'} tip={'Available Coverage'} />
                   </Text>
                 </BoxItem>
                 <BoxItem>
-                  <Button onClick={() => resetForm()}>Change</Button>
+                  <Button light onClick={() => resetForm()}>
+                    Change
+                  </Button>
                 </BoxItem>
               </Box>
               {Number(StepNumber[step.id]) == 1 && (
                 <Box transparent outlined>
                   <BoxItem>
-                    <Text high_em>{loading ? 'Loading Your Positions...' : 'Select Position Below'}</Text>
+                    <Text>{loading ? 'Loading Your Positions...' : 'Select Position Below'}</Text>
                   </BoxItem>
                 </Box>
               )}
@@ -336,12 +340,16 @@ export const MultiStepForm = () => {
                   </BoxItem>
                   {positions.length > maxPositionsToDisplay && (
                     <BoxItem>
-                      <Button onClick={() => setShowAssetsModal(true)}>View all assets</Button>
+                      <Button light onClick={() => setShowAssetsModal(true)}>
+                        View all assets
+                      </Button>
                     </BoxItem>
                   )}
 
                   <BoxItem>
-                    <Button onClick={() => navigation.go(1)}>Change</Button>
+                    <Button light onClick={() => navigation.go(1)}>
+                      Change
+                    </Button>
                   </BoxItem>
                 </Box>
               )}
@@ -357,25 +365,29 @@ export const MultiStepForm = () => {
                     </DeFiAssetImage>
                   </FormCol>
                   <FormCol style={{ display: 'flex', alignItems: 'center' }}>
-                    <Heading2 high_em>{protocol.name}</Heading2>
+                    <Text bold t2 light>
+                      {protocol.name}
+                    </Text>
                   </FormCol>
                 </FormRow>
                 <FormRow>
-                  <FormCol>Yearly Cost</FormCol>
+                  <FormCol light>Yearly Cost</FormCol>
                   <FormCol>
-                    <Heading2 high_em>{fixed(protocol.yearlyCost * 100, 2)}%</Heading2>
+                    <Text bold t2 light>
+                      {fixed(protocol.yearlyCost * 100, 2)}%
+                    </Text>
                   </FormCol>
                 </FormRow>
                 <FormRow>
-                  <FormCol>Available Coverage</FormCol>
+                  <FormCol light>Available Coverage</FormCol>
                   <FormCol>
-                    <Heading2 high_em>
+                    <Text bold t2 light>
                       {protocol.availableCoverage} {activeNetwork.nativeCurrency.symbol}
-                    </Heading2>
+                    </Text>
                   </FormCol>
                 </FormRow>
                 <ButtonWrapper>
-                  <Button widthP={100} onClick={() => resetForm()}>
+                  <Button light widthP={100} onClick={() => resetForm()}>
                     Change
                   </Button>
                 </ButtonWrapper>
@@ -402,12 +414,12 @@ export const MultiStepForm = () => {
                   </FlexRow>
                   <ButtonWrapper isColumn>
                     {positions.length > maxPositionsToDisplay && (
-                      <Button widthP={100} onClick={() => setShowAssetsModal(true)}>
+                      <Button light widthP={100} onClick={() => setShowAssetsModal(true)}>
                         View all assets
                       </Button>
                     )}
 
-                    <Button widthP={100} onClick={() => navigation.go(1)}>
+                    <Button light widthP={100} onClick={() => navigation.go(1)}>
                       Change
                     </Button>
                   </ButtonWrapper>

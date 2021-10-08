@@ -40,7 +40,7 @@ export const TransactionHistoryButton: React.FC<GeneralElementProps> = ({ ...pro
 
   *************************************************************************************/
 
-  const { localTransactions, openHistoryModal } = useCachedData()
+  const { localTransactions, openAccountModal } = useCachedData()
   const { width } = useWindowDimensions()
 
   /*************************************************************************************
@@ -53,7 +53,7 @@ export const TransactionHistoryButton: React.FC<GeneralElementProps> = ({ ...pro
       <Button
         {...props}
         width={width >= MAX_MOBILE_SCREEN_WIDTH ? undefined : 50}
-        onClick={() => openHistoryModal()}
+        onClick={() => openAccountModal()}
         secondary={localTransactions.length > 0}
       >
         <StyledHistory size={30} />

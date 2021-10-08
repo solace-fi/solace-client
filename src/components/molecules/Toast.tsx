@@ -97,17 +97,17 @@ export const NotificationToast: React.FC<NotificationToastProps> = ({ message, c
   *************************************************************************************/
   return (
     <ToastWrapper>
-      <FlexedToastMessage>
+      <FlexedToastMessage light>
         {message}: Transaction {getStateFromCondition(condition)}
       </FlexedToastMessage>
-      <FlexedToastMessage>
+      <FlexedToastMessage light>
         {txHash && (
           <HyperLink
             href={getExplorerItemUrl(activeNetwork.explorer.url, txHash, ExplorerscanApi.TX)}
             target="_blank"
             rel="noopener noreferrer"
           >
-            <Button>Check on {activeNetwork.explorer.name}</Button>
+            <Button light>Check on {activeNetwork.explorer.name}</Button>
           </HyperLink>
         )}
         {condition == TransactionCondition.PENDING ? (

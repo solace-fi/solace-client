@@ -3,11 +3,6 @@ import { GeneralElementProps, GeneralElementCss } from '../../generalInterfaces'
 import { MAX_MOBILE_SCREEN_WIDTH } from '../../../constants'
 
 export interface TextFontProps {
-  h1?: boolean
-  h2?: boolean
-  h3?: boolean
-  h4?: boolean
-
   t1?: boolean
   t2?: boolean
   t3?: boolean
@@ -22,17 +17,20 @@ export interface TextAlignProps {
 
 export interface TextStyleProps extends GeneralElementProps {
   nowrap?: boolean
+  mont?: boolean
+  lineHeight?: number
+  analogical?: boolean
+  light?: boolean
+  dark?: boolean
   outlined?: boolean
   autoAlignVertical?: boolean
   autoAlignHorizontal?: boolean
   autoAlign?: boolean
   bold?: boolean
+  info?: boolean
   success?: boolean
   error?: boolean
   warning?: boolean
-  high_em?: boolean
-  med_em?: boolean
-  low_em?: boolean
 }
 
 export interface GeneralTextProps extends TextFontProps, TextAlignProps, TextStyleProps {}
@@ -67,34 +65,6 @@ const Font4 = css`
   @media screen and (max-width: ${MAX_MOBILE_SCREEN_WIDTH}px) {
     font-size: 12px;
   }
-`
-
-const HeadingCss = css`
-  font-weight: bold;
-  line-height: 1.4;
-`
-
-const Heading1Css = css`
-  ${HeadingCss}
-  ${Font1}
-  margin: 20px 0;
-  color: ${({ theme }) => theme.typography.high_emphasis};
-`
-const Heading2Css = css`
-  ${HeadingCss}
-  ${Font2}
-`
-
-const Heading3Css = css`
-  ${HeadingCss}
-  ${Font3}
-  margin: 0;
-`
-
-const Heading4Css = css`
-  ${HeadingCss}
-  ${Font4}
-  margin: 0;
 `
 
 const AlignCenterCss = css`
@@ -159,10 +129,7 @@ export const Text4Css = css`
 `
 
 export const TextFontCss = css<TextFontProps>`
-  ${(props) => props.h1 && Heading1Css}
-  ${(props) => props.h2 && Heading2Css}
-  ${(props) => props.h3 && Heading3Css}
-  ${(props) => props.h4 && Heading4Css}
+  ${Text3Css}
   ${(props) => props.t1 && Text1Css}
   ${(props) => props.t2 && Text2Css}
   ${(props) => props.t3 && Text3Css}
@@ -177,19 +144,25 @@ export const TextAlignCss = css<TextAlignProps>`
 
 export const TextStyleCss = css<TextStyleProps>`
   ${(props) => props.nowrap && NoWrapCss}
+  ${(props) => props.mont && `font-family: 'Montserrat', sans-serif;`}
   ${(props) => props.outlined && TextOutlineCss}
   ${(props) => props.autoAlign && AlignAutoCss}
   ${(props) => props.autoAlignVertical && AlignVerticalCss}
   ${(props) => props.autoAlignHorizontal && AlignHorizontalCss}
   ${(props) => props.bold && 'font-weight: 600;'}
+  ${(props) => props.lineHeight && `line-height: ${props.lineHeight};`}
 
-  ${(props) => props.low_em && `color: ${props.theme.typography.low_emphasis};`}
-  ${(props) => props.med_em && `color: ${props.theme.typography.med_emphasis};`}
-  ${(props) => props.high_em && `color: ${props.theme.typography.high_emphasis};`}
+  ${(props) =>
+    props.analogical
+      ? `color: ${props.theme.typography.analogicalText};`
+      : `color: ${props.theme.typography.contrastText};`}
+  ${(props) => props.info && `color: ${props.theme.typography.infoText};`}
+  ${(props) => props.success && `color: ${props.theme.typography.successText};`}
+  ${(props) => props.error && `color: ${props.theme.typography.errorText};`}
+  ${(props) => props.warning && `color: ${props.theme.typography.warningText};`}
+  ${(props) => props.light && `color: ${props.theme.typography.lightText};`}
+  ${(props) => props.dark && `color: ${props.theme.typography.darkText};`}
 
-  ${(props) => props.success && `color: ${props.theme.typography.success};`}
-  ${(props) => props.error && `color: ${props.theme.typography.error};`}
-  ${(props) => props.warning && `color: ${props.theme.typography.warning};`}
   ${GeneralElementCss}
 `
 
@@ -207,52 +180,4 @@ export const Text = styled.div<GeneralTextProps & GeneralElementProps>`
 export const TextSpan = styled.span<GeneralTextProps & GeneralElementProps>`
   ${GeneralTextCss}
   ${GeneralElementCss}
-`
-
-export const Text1 = styled.div<TextAlignProps & TextStyleProps>`
-  ${Text1Css}
-  ${TextAlignCss}
-  ${TextStyleCss}
-`
-
-export const Text2 = styled.div<TextAlignProps & TextStyleProps>`
-  ${Text2Css}
-  ${TextAlignCss}
-  ${TextStyleCss}
-`
-
-export const Text3 = styled.div<TextAlignProps & TextStyleProps>`
-  ${Text3Css}
-  ${TextAlignCss}
-  ${TextStyleCss}
-`
-
-export const Text4 = styled.div<TextAlignProps & TextStyleProps>`
-  ${Text4Css}
-  ${TextAlignCss}
-  ${TextStyleCss}
-`
-
-export const Heading1 = styled.div<TextAlignProps & TextStyleProps>`
-  ${Heading1Css}
-  ${TextAlignCss}
-  ${TextStyleCss}
-`
-
-export const Heading2 = styled.div<TextAlignProps & TextStyleProps>`
-  ${Heading2Css}
-  ${TextAlignCss}
-  ${TextStyleCss}
-`
-
-export const Heading3 = styled.div<TextAlignProps & TextStyleProps>`
-  ${Heading3Css}
-  ${TextAlignCss}
-  ${TextStyleCss}
-`
-
-export const Heading4 = styled.div<TextAlignProps & TextStyleProps>`
-  ${Heading4Css}
-  ${TextAlignCss}
-  ${TextStyleCss}
 `

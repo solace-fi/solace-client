@@ -3,7 +3,7 @@ import styled from 'styled-components'
 export const FlexEndHeader = styled.div`
   display: flex;
   align-content: center;
-  padding-bottom: 20px;
+  padding: 0 20px 20px 20px;
   justify-content: flex-end;
 `
 

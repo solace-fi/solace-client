@@ -9,11 +9,11 @@ const RadioInputCss = css`
 `
 
 export const RadioElement = styled.div`
-  border: 1px solid ${({ theme }) => theme.button.border_color};
+  border: 1px solid ${({ theme }) => theme.button.circle_color};
   border-radius: 10px;
   padding: 10px 16px;
   text-align: center;
-  color: #fff;
+  color: ${(props) => props.theme.radio.circle_color};
   background-color: rgba(0, 0, 0, 0);
   cursor: pointer;
 
@@ -59,7 +59,7 @@ export const RadioCircleFigure = styled.div`
   width: 20px;
   height: 20px;
   border-radius: 100%;
-  border: 1px solid #fff;
+  border: 1px solid ${(props) => props.theme.radio.circle_color};
 `
 
 export const RadioCircleInput = styled.input`
@@ -72,7 +72,7 @@ export const RadioCircleInput = styled.input`
         border-radius: 100%;
         width: 100%;
         height: 100%;
-        background-color: #fff;
+        background-color: ${(props) => props.theme.radio.checked_circle_color};
       }
     }
   }

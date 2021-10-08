@@ -19,8 +19,9 @@ export const Loader = styled.div<HeightAndWidthProps>`
     width: ${(props) => (props.width ? `${props.width}px` : '64px')};
     height: ${(props) => (props.height ? `${props.height}px` : '64px')};
     border-radius: 50%;
-    border: 6px solid #fff;
-    border-color: #fff transparent #fff transparent;
+    border: 6px solid ${(props) => props.theme.typography.contrastText};
+    border-color: ${(props) => props.theme.typography.contrastText} transparent
+      ${(props) => props.theme.typography.contrastText} transparent;
     animation: ${rotate} 1.2s linear infinite;
   }
 `

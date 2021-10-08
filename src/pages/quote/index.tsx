@@ -20,7 +20,7 @@ import { useWallet } from '../../context/WalletManager'
 
 /* import components */
 import { MultiStepForm } from './MultiStepForm'
-import { Heading1 } from '../../components/atoms/Typography'
+import { Text } from '../../components/atoms/Typography'
 import { WalletConnectButton } from '../../components/molecules/WalletConnectButton'
 import { HeroContainer } from '../../components/atoms/Layout'
 
@@ -40,7 +40,9 @@ function Quote(): any {
 
   return !isActive || !account ? (
     <HeroContainer>
-      <Heading1 textAlignCenter>Please connect your wallet to buy quotes</Heading1>
+      <Text t1 textAlignCenter>
+        Please connect your wallet to buy quotes
+      </Text>
       <WalletConnectButton />
     </HeroContainer>
   ) : (

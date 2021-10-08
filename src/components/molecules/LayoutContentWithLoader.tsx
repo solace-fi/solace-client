@@ -3,7 +3,8 @@
     Table of Contents:
 
     import react
-    import manager
+    import packages
+    import managers
     import components
 
     LayoutContentWithLoader function
@@ -16,6 +17,9 @@
 /* import react */
 import React, { Fragment, useEffect, useState } from 'react'
 
+/* import packages */
+import { useLocation } from 'react-router'
+
 /* import managers */
 import { useWallet } from '../../context/WalletManager'
 
@@ -26,6 +30,7 @@ import { HeroContainer } from '../atoms/Layout'
 export const LayoutContentWithLoader: React.FC = ({ children }) => {
   /* custom hooks */
   const { initialized } = useWallet()
+  const location = useLocation()
 
   /* useState hooks */
   const [loader, setLoader] = useState<boolean>(false)
@@ -38,7 +43,7 @@ export const LayoutContentWithLoader: React.FC = ({ children }) => {
   /* render */
   return (
     <Fragment>
-      {loader ? (
+      {loader || location.pathname == '/' ? (
         children
       ) : (
         <HeroContainer>

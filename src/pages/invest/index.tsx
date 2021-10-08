@@ -26,7 +26,7 @@ import { RiskBackingCapitalPool } from '../../components/organisms/UnderwritingP
 import { CapitalProviderPool } from '../../components/organisms/CapitalProviderPool'
 import { LiquidityPool } from '../../components/organisms/LiquidityPool'
 import { HeroContainer } from '../../components/atoms/Layout'
-import { Heading1 } from '../../components/atoms/Typography'
+import { Text } from '../../components/atoms/Typography'
 
 /* import constants */
 import { FunctionName } from '../../constants/enums'
@@ -72,7 +72,9 @@ function Invest(): any {
       <RiskBackingCapitalPool openModal={openModal} />
       {chainId == 1 ? (
         <HeroContainer>
-          <Heading1 textAlignCenter>More pools coming soon!</Heading1>
+          <Text t1 textAlignCenter>
+            More pools coming soon!
+          </Text>
         </HeroContainer>
       ) : (
         <>

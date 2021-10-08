@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState, useCallback } from 'react'
+import React, { createContext, useContext, useState, useCallback } from 'react'
 import { useLocalStorage } from 'react-use-storage'
 import { ThemeProvider } from 'styled-components'
 import { lightTheme, darkTheme } from '../styles/themes'
@@ -11,8 +11,7 @@ import { MAX_MOBILE_SCREEN_WIDTH } from '../constants'
 
 type GeneralContextType = {
   appTheme: 'light' | 'dark'
-  selectedTheme: 'light' | 'dark' | undefined
-  toggleTheme: (theme: string) => void
+  toggleTheme: () => void
   notices: string[]
   errors: string[]
   addNotices: (noticesToAdd: SystemNoticeData[]) => void
@@ -24,7 +23,6 @@ type GeneralContextType = {
 
 const GeneralContext = createContext<GeneralContextType>({
   appTheme: 'light',
-  selectedTheme: undefined,
   toggleTheme: () => undefined,
   notices: [],
   errors: [],
@@ -98,17 +96,16 @@ const GeneralProvider: React.FC = (props) => {
     setErrors(updatedErrors)
   }, [])
 
-  function toggleTheme(theme: string) {
-    if (theme === 'light') {
-      removeSelectedTheme()
-    } else if (theme === 'dark') {
+  function toggleTheme() {
+    if (appTheme === 'light') {
       setSelectedTheme('dark')
+    } else if (appTheme === 'dark') {
+      removeSelectedTheme()
     }
   }
 
   const value: GeneralContextType = {
     appTheme,
-    selectedTheme,
     toggleTheme,
     notices,
     errors,

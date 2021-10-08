@@ -11,7 +11,6 @@ import { useFetchGasPrice } from '../hooks/useGas'
 import { useGetLatestBlockNumber } from '../hooks/useGetLatestBlockNumber'
 import { useCachePositions } from '../hooks/useCachePositions'
 
-import { TransactionHistoryModal } from '../components/organisms/TransactionHistoryModal'
 import { useNetwork } from './NetworkManager'
 import { PolicyState, SystemNotice } from '../constants/enums'
 import { useGeneral } from './GeneralProvider'
@@ -36,14 +35,14 @@ type CachedData = {
     setCanGetAssessments: (toggle: boolean) => void
   }
   tokenPositionData: { dataInitialized: boolean; storedPositionData: NetworkCache[] }
-  showHistoryModal: boolean
+  showAccountModal: boolean
   version: number
   dataVersion: number
   gasPrices: GasFeeListState
   latestBlock: number
   addLocalTransactions: (txToAdd: LocalTx) => void
   deleteLocalTransactions: (txsToDelete: []) => void
-  openHistoryModal: () => void
+  openAccountModal: () => void
   reload: () => void
 }
 
@@ -55,7 +54,7 @@ const CachedDataContext = createContext<CachedData>({
     setCanGetAssessments: () => undefined,
   },
   tokenPositionData: { dataInitialized: false, storedPositionData: [] },
-  showHistoryModal: false,
+  showAccountModal: false,
   version: 0,
   dataVersion: 0,
   gasPrices: {
@@ -65,7 +64,7 @@ const CachedDataContext = createContext<CachedData>({
   latestBlock: 0,
   addLocalTransactions: () => undefined,
   deleteLocalTransactions: () => undefined,
-  openHistoryModal: () => undefined,
+  openAccountModal: () => undefined,
   reload: () => undefined,
 })
 
@@ -85,16 +84,16 @@ const CachedDataProvider: React.FC = (props) => {
     { dataInitialized, storedPositionData },
     account
   )
-  const [historyModal, setHistoryModal] = useState<boolean>(false)
+  const [accountModal, setAccountModal] = useState<boolean>(false)
 
   const openModal = useCallback(() => {
     document.body.style.overflowY = 'hidden'
-    setHistoryModal(true)
+    setAccountModal(true)
   }, [])
 
   const closeModal = useCallback(() => {
     document.body.style.overflowY = 'scroll'
-    setHistoryModal(false)
+    setAccountModal(false)
   }, [])
 
   const addLocalTransactions = (txToAdd: LocalTx) => {
@@ -152,14 +151,14 @@ const CachedDataProvider: React.FC = (props) => {
       localTransactions: localTxs,
       userPolicyData: { policiesLoading, userPolicies, setCanGetAssessments },
       tokenPositionData: { dataInitialized, storedPositionData },
-      showHistoryModal: historyModal,
+      showAccountModal: accountModal,
       version,
       dataVersion,
       gasPrices,
       latestBlock,
       addLocalTransactions,
       deleteLocalTransactions,
-      openHistoryModal: openModal,
+      openAccountModal: openModal,
       reload,
     }),
     [
@@ -180,8 +179,7 @@ const CachedDataProvider: React.FC = (props) => {
 
   return (
     <CachedDataContext.Provider value={value}>
-      <AccountModal closeModal={closeModal} isOpen={historyModal} />
-      {/* <TransactionHistoryModal closeModal={closeModal} isOpen={historyModal} /> */}
+      <AccountModal closeModal={closeModal} isOpen={accountModal} />
       {props.children}
     </CachedDataContext.Provider>
   )

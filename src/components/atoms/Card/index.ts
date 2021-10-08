@@ -21,11 +21,11 @@ interface CardContainerProps extends GeneralElementProps {
 const CardCss = css<CardProps>`
   border-radius: 10px;
   padding: 24px;
-  background-color: ${({ theme }) => theme.card.bg_color_0};
-  ${(props) => props.color1 && `background-color: ${props.theme.card.bg_color_1};`}
-  ${(props) => props.color2 && `background-color:${props.theme.card.bg_color_2};`}
-  ${(props) => props.transparent && `background-color: rgba(255, 255, 255, 0);`}
-  ${(props) => props.fade && `background-color: ${props.theme.card.fade};`}
+  background: ${({ theme }) => theme.card.bg_color_0};
+  ${(props) => props.color1 && `background: ${props.theme.card.bg_color_1};`}
+  ${(props) => props.color2 && `background:${props.theme.card.bg_color_2};`}
+  ${(props) => props.transparent && `background: rgba(255, 255, 255, 0);`}
+  ${(props) => props.fade && `background: ${props.theme.card.fade};`}
   ${(props) =>
     props.canHover &&
     `cursor: pointer; &:hover { background-color: ${props.theme.card.hover_color}; transition: background-color 200ms linear; }`}

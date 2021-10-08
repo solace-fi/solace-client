@@ -159,16 +159,16 @@ export const Statistics: React.FC = () => {
           {initialized && account ? (
             <Box>
               {/* <BoxItem>
-                <BoxItemTitle h4>
+                <BoxItemTitle t4>
                   My Balance <StyledTooltip id={'solace'} tip={'Number of SOLACE tokens in your wallet'} />
                 </BoxItemTitle>
-                <Text h2 high_em>
+                <Text t2>
                   {`${truncateBalance(solaceBalance, 1)} `}
-                  <TextSpan h4>SOLACE</TextSpan>
+                  <TextSpan t4>SOLACE</TextSpan>
                 </Text>
               </BoxItem> */}
               <BoxItem>
-                <BoxItemTitle h4>
+                <BoxItemTitle t4 light bold>
                   My Unclaimed Rewards{' '}
                   <StyledTooltip
                     id={'rewards'}
@@ -176,13 +176,15 @@ export const Statistics: React.FC = () => {
                     link={'https://docs.solace.fi/docs/user-guides/earn-rewards'}
                   />
                 </BoxItemTitle>
-                <Text h2 high_em>
+                <Text t2 light bold>
                   {`${truncateBalance(totalUserRewards, 1)} `}
-                  <TextSpan h4>SOLACE</TextSpan>
+                  <TextSpan t4 light bold>
+                    SOLACE
+                  </TextSpan>
                 </Text>
               </BoxItem>
               <BoxItem>
-                <Button disabled={errors.length > 0 || fixed(totalUserRewards, 6) <= 0} onClick={claimRewards}>
+                <Button light disabled={errors.length > 0 || fixed(totalUserRewards, 6) <= 0} onClick={claimRewards}>
                   Claim Option
                 </Button>
               </BoxItem>
@@ -190,41 +192,49 @@ export const Statistics: React.FC = () => {
           ) : (
             <Box>
               <BoxItem>
-                <WalletConnectButton />
+                <WalletConnectButton light />
               </BoxItem>
             </Box>
           )}
           <Box color2>
             <BoxItem>
-              <BoxItemTitle h4>
+              <BoxItemTitle t4 light bold>
                 Capital Pool Size <StyledTooltip id={'cps'} tip={'Current amount of capital in the vault'} />
               </BoxItemTitle>
-              <Text h2 nowrap high_em>
+              <Text t2 nowrap light bold>
                 {`${truncateBalance(floatUnits(parseUnits(capitalPoolSize, currencyDecimals), currencyDecimals), 1)} `}
-                <TextSpan h4>{activeNetwork.nativeCurrency.symbol}</TextSpan>
+                <TextSpan t4 light bold>
+                  {activeNetwork.nativeCurrency.symbol}
+                </TextSpan>
               </Text>
             </BoxItem>
             <BoxItem>
-              <BoxItemTitle h4>
+              <BoxItemTitle t4 light bold>
                 Total Value Locked <StyledTooltip id={'tvl'} tip={'Current amount of funds locked into the pools'} />{' '}
               </BoxItemTitle>
-              <Text h2 nowrap high_em>
+              <Text t2 nowrap light bold>
                 {`${truncateBalance(totalValueLocked, 1)} `}
-                <TextSpan h4>{activeNetwork.nativeCurrency.symbol}</TextSpan>
+                <TextSpan t4 light bold>
+                  {activeNetwork.nativeCurrency.symbol}
+                </TextSpan>
               </Text>
             </BoxItem>
             <BoxItem>
-              <BoxItemTitle h4>
+              <BoxItemTitle t4 light bold>
                 Active Cover Amount <StyledTooltip id={'aca'} tip={'Current amount of coverage in use'} />
               </BoxItemTitle>
-              <Text h2 nowrap high_em>
+              <Text t2 nowrap light bold>
                 {totalActiveCoverAmount !== '-' ? `${truncateBalance(totalActiveCoverAmount, 2)} ` : `- `}
-                <TextSpan h4>{activeNetwork.nativeCurrency.symbol}</TextSpan>
+                <TextSpan t4 light bold>
+                  {activeNetwork.nativeCurrency.symbol}
+                </TextSpan>
               </Text>
             </BoxItem>
             <BoxItem>
-              <BoxItemTitle h4>Total Active Policies</BoxItemTitle>
-              <Text h2 nowrap high_em>
+              <BoxItemTitle t4 light bold>
+                Total Active Policies
+              </BoxItemTitle>
+              <Text t2 nowrap light bold>
                 {totalActivePolicies}
               </Text>
             </BoxItem>
@@ -239,23 +249,26 @@ export const Statistics: React.FC = () => {
                 {/* <FormRow>
                   <FormCol>My Balance</FormCol>
                   <FormCol>
-                    <Text h2 high_em>
+                    <Text t2>
                       {`${truncateBalance(solaceBalance, 1)} `}
-                      <TextSpan h4>SOLACE</TextSpan>
+                      <TextSpan t4>SOLACE</TextSpan>
                     </Text>
                   </FormCol>
                 </FormRow> */}
                 <FormRow>
-                  <FormCol>My Unclaimed Rewards</FormCol>
+                  <FormCol light>My Unclaimed Rewards</FormCol>
                   <FormCol>
-                    <Text h2 high_em>
+                    <Text t2 light>
                       {`${truncateBalance(totalUserRewards, 1)} `}
-                      <TextSpan h4>SOLACE</TextSpan>
+                      <TextSpan t4 light>
+                        SOLACE
+                      </TextSpan>
                     </Text>
                   </FormCol>
                 </FormRow>
                 <ButtonWrapper>
                   <Button
+                    light
                     widthP={100}
                     disabled={errors.length > 0 || fixed(totalUserRewards, 6) <= 0}
                     onClick={claimRewards}
@@ -266,39 +279,45 @@ export const Statistics: React.FC = () => {
               </Card>
               <Card color2>
                 <FormRow>
-                  <FormCol>Capital Pool Size</FormCol>
+                  <FormCol light>Capital Pool Size</FormCol>
                   <FormCol>
-                    <Text h2 nowrap high_em>
+                    <Text t2 nowrap light>
                       {`${truncateBalance(
                         floatUnits(parseUnits(capitalPoolSize, currencyDecimals), currencyDecimals),
                         1
                       )} `}
-                      <TextSpan h4>{activeNetwork.nativeCurrency.symbol}</TextSpan>
+                      <TextSpan t4 light>
+                        {activeNetwork.nativeCurrency.symbol}
+                      </TextSpan>
                     </Text>
                   </FormCol>
                 </FormRow>
                 <FormRow>
-                  <FormCol>Total Value Locked</FormCol>
+                  <FormCol light>Total Value Locked</FormCol>
                   <FormCol>
-                    <Text h2 nowrap high_em>
+                    <Text t2 nowrap light>
                       {`${truncateBalance(totalValueLocked, 1)} `}
-                      <TextSpan h4>{activeNetwork.nativeCurrency.symbol}</TextSpan>
+                      <TextSpan t4 light>
+                        {activeNetwork.nativeCurrency.symbol}
+                      </TextSpan>
                     </Text>
                   </FormCol>
                 </FormRow>
                 <FormRow>
-                  <FormCol>Active Cover Amount</FormCol>
+                  <FormCol light>Active Cover Amount</FormCol>
                   <FormCol>
-                    <Text h2 nowrap high_em>
+                    <Text t2 nowrap light>
                       {totalActiveCoverAmount !== '-' ? `${truncateBalance(totalActiveCoverAmount, 2)} ` : `- `}
-                      <TextSpan h4>{activeNetwork.nativeCurrency.symbol}</TextSpan>
+                      <TextSpan t4 light>
+                        {activeNetwork.nativeCurrency.symbol}
+                      </TextSpan>
                     </Text>
                   </FormCol>
                 </FormRow>
                 <FormRow>
-                  <FormCol>Total Active Policies</FormCol>
+                  <FormCol light>Total Active Policies</FormCol>
                   <FormCol>
-                    <Text h2 nowrap high_em>
+                    <Text t2 nowrap light>
                       {totalActivePolicies}
                     </Text>
                   </FormCol>
@@ -308,7 +327,7 @@ export const Statistics: React.FC = () => {
           ) : (
             <Box>
               <BoxItem>
-                <WalletConnectButton />
+                <WalletConnectButton light />
               </BoxItem>
             </Box>
           )}

@@ -23,7 +23,7 @@ import { useWallet } from '../../context/WalletManager'
 /* import components */
 import { Card, CardContainer } from '../atoms/Card'
 import { ModalCell } from '../atoms/Modal'
-import { Heading4 } from '../atoms/Typography'
+import { Text } from '../atoms/Typography'
 import { Modal } from '../molecules/Modal'
 import { FormRow } from '../atoms/Form'
 import { Button, ButtonWrapper } from '../atoms/Button'
@@ -109,7 +109,9 @@ export const WalletModal: React.FC<WalletModalProps> = ({ closeModal, isOpen }) 
                   <img src={wallet.logo} alt={wallet.name} height={32} />
                 </ModalCell>
                 <ModalCell p={10}>
-                  <Heading4 high_em>{wallet.name}</Heading4>
+                  <Text t4 bold>
+                    {wallet.name}
+                  </Text>
                 </ModalCell>
               </FormRow>
             </Card>

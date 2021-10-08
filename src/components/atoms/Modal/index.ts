@@ -38,7 +38,7 @@ export const ModalBase = styled.div<ModalProps>`
   border-radius: 10px;
   padding: 24px;
   background-color: ${({ theme }) => theme.modal.base_color};
-  box-shadow: ${({ theme }) => theme.modal.glow};
+  border: none;
   opacity: 0;
   ${(props) =>
     props.isOpen &&

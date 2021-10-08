@@ -21,7 +21,7 @@
   *************************************************************************************/
 
 /* import react */
-import React, { Fragment } from 'react'
+import React from 'react'
 
 /* import packages */
 import makeBlockie from 'ethereum-blockies-base64'
@@ -32,21 +32,20 @@ import { useCachedData } from '../../context/CachedDataManager'
 import { useNetwork } from '../../context/NetworkManager'
 
 /* import components */
-import { Heading4 } from '../atoms/Typography'
+import { Text } from '../atoms/Typography'
 import { SmallBox } from '../atoms/Box'
 import { UserImage } from '../atoms/User'
-import { WalletConnectButton } from '../molecules/WalletConnectButton'
-import { TransactionHistoryButton } from '../molecules/TransactionHistoryButton'
-import { NetworkConnectButton } from '../molecules/NetworkConnectButton'
 
 /* import hooks */
 import { useNativeTokenBalance } from '../../hooks/useBalance'
 
 /* import utils */
 import { shortenAddress, fixed, capitalizeFirstLetter } from '../../utils/formatting'
-import { Button } from '../atoms/Button'
+import { Button, ButtonProps } from '../atoms/Button'
+import { FlexCol, FlexRow } from '../atoms/Layout'
+import { StyledNetworkChart, StyledWallet } from '../atoms/Icon'
 
-export const UserAccount: React.FC = () => {
+export const UserAccount: React.FC<ButtonProps> = (props) => {
   /*************************************************************************************
 
   custom hooks
@@ -55,52 +54,58 @@ export const UserAccount: React.FC = () => {
   const { account } = useWallet()
   const balance = useNativeTokenBalance()
   const { activeNetwork } = useNetwork()
-  const { openHistoryModal } = useCachedData()
+  const { openAccountModal } = useCachedData()
+
   /*************************************************************************************
 
   Render
   
   *************************************************************************************/
   return (
-    <Button p={0} noborder nohover onClick={() => openHistoryModal()}>
-      <SmallBox pl={10} m={0} info canHover>
-        <Heading4 high_em autoAlign nowrap>
+    <Button nohover noborder onClick={() => openAccountModal()} style={{ fontWeight: 500 }} {...props}>
+      <FlexRow>
+        <StyledNetworkChart size={25} style={{ margin: 'auto' }} />
+        <Text t4 nowrap autoAlign {...props}>
           {capitalizeFirstLetter(activeNetwork.name)}
-        </Heading4>
-        {account ? (
-          <SmallBox pl={10} ml={10} info>
-            <Heading4 high_em autoAlign nowrap>
+        </Text>
+      </FlexRow>
+      {account ? (
+        <FlexRow>
+          <FlexCol style={{ justifyContent: 'space-around' }} ml={10}>
+            <Text textAlignRight t4 {...props}>
+              {shortenAddress(account)}
+            </Text>
+            <Text textAlignRight t4 bold nowrap {...props}>
               {balance ? `${fixed(balance, 3)} ${activeNetwork.nativeCurrency.symbol}` : ''}
-            </Heading4>
-            <SmallBox ml={10} info>
-              <Heading4 high_em autoAlign>
-                {shortenAddress(account)}
-              </Heading4>
-              <UserImage pt={4} pb={4} pl={10}>
-                <img src={makeBlockie(account)} alt={'account'} />
-              </UserImage>
-            </SmallBox>
-          </SmallBox>
-        ) : (
-          <SmallBox ml={10} info>
-            <Heading4 high_em autoAlign nowrap>
-              Not connected
-            </Heading4>
-          </SmallBox>
-        )}
-      </SmallBox>
+            </Text>
+          </FlexCol>
+          <FlexCol>
+            <UserImage secureCircle p={2} ml={10}>
+              <img src={makeBlockie(account)} alt={'account'} />
+            </UserImage>
+          </FlexCol>
+        </FlexRow>
+      ) : (
+        <SmallBox ml={5} transparent outlined>
+          <Text t4 autoAlign nowrap {...props}>
+            Not connected
+          </Text>
+        </SmallBox>
+      )}
     </Button>
   )
 }
 
-export const Account: React.FC = () => {
+export const SidebarAccount: React.FC<ButtonProps> = (props) => {
   /*************************************************************************************
 
   custom hooks
 
   *************************************************************************************/
-  const { localTransactions } = useCachedData()
+  const { activeNetwork } = useNetwork()
   const { account } = useWallet()
+  const balance = useNativeTokenBalance()
+  const { openAccountModal } = useCachedData()
 
   /*************************************************************************************
 
@@ -109,19 +114,43 @@ export const Account: React.FC = () => {
   *************************************************************************************/
 
   return (
-    <Fragment>
-      <UserAccount />
-      <SmallBox p={0} transparent>
-        <NetworkConnectButton pl={10} pr={10} />
-      </SmallBox>
-      <SmallBox p={0} transparent>
-        <WalletConnectButton pl={10} pr={10} />
-      </SmallBox>
-      {account && (
-        <SmallBox p={0} transparent glow={localTransactions.length > 0}>
-          <TransactionHistoryButton pl={10} pr={10} />
-        </SmallBox>
-      )}
-    </Fragment>
+    <Button noborder nohover mt={15} p={0} onClick={() => openAccountModal()} {...props}>
+      <FlexCol>
+        {account ? (
+          <FlexRow>
+            <FlexCol>
+              <UserImage pt={4} pb={4} pr={10}>
+                <img style={{ borderRadius: '10px' }} src={makeBlockie(account)} alt={'account'} />
+              </UserImage>
+            </FlexCol>
+            <FlexCol style={{ justifyContent: 'space-around' }}>
+              <Text textAlignLeft t4 {...props}>
+                {shortenAddress(account)}
+              </Text>
+              <Text textAlignLeft t4 bold nowrap {...props}>
+                {balance ? `${fixed(balance, 3)} ${activeNetwork.nativeCurrency.symbol}` : ''}
+              </Text>
+            </FlexCol>
+          </FlexRow>
+        ) : (
+          <FlexRow>
+            <FlexCol>
+              <StyledWallet size={25} />
+            </FlexCol>
+            <FlexCol style={{ justifyContent: 'space-around' }}>
+              <Text textAlignLeft t4 {...props}>
+                Not Connected
+              </Text>
+            </FlexCol>
+          </FlexRow>
+        )}
+        <FlexRow mt={10}>
+          <StyledNetworkChart size={25} />
+          <Text t4 nowrap mt={5} {...props}>
+            {capitalizeFirstLetter(activeNetwork.name)}
+          </Text>
+        </FlexRow>
+      </FlexCol>
+    </Button>
   )
 }

@@ -35,7 +35,7 @@ import { LP_ROI, MAX_TABLET_SCREEN_WIDTH } from '../../constants'
 
 /* import components */
 import { Content } from '../atoms/Layout'
-import { Heading1, Text } from '../atoms/Typography'
+import { Text } from '../atoms/Typography'
 import { Table, TableHead, TableRow, TableHeader, TableBody, TableData, TableDataGroup } from '../atoms/Table'
 import { Button, ButtonWrapper } from '../atoms/Button'
 import { FormRow, FormCol } from '../atoms/Form'
@@ -83,14 +83,14 @@ export const LiquidityPool: React.FC<LiquidityPoolProps> = ({ openModal }) => {
 
   return (
     <Content>
-      <Heading1 mb={0}>
+      <Text bold t1 mb={0}>
         SOLACE Liquidity Pool{' '}
         {/* <StyledTooltip
           id={'lp-farm'}
           tip={'Deposit Uniswap V3 SOLACE-ETH LP tokens here to earn rewards'}
           link={'https://docs.solace.fi/docs/user-guides/liquidity-provider/lp-role-guide'}
         /> */}
-      </Heading1>
+      </Text>
       <Text t4 pb={10}>
         Manage your Uniswap V3 SOLACE-ETH LP tokens in this pool and earn rewards
       </Text>
@@ -120,7 +120,7 @@ export const LiquidityPool: React.FC<LiquidityPoolProps> = ({ openModal }) => {
             </TableRow>
           </TableHead>
           <TableBody>
-            <TableRow>
+            <TableRow light>
               {/* {account ? (
                 <TableData width={100}>
                   {truncateBalance(
@@ -130,39 +130,29 @@ export const LiquidityPool: React.FC<LiquidityPoolProps> = ({ openModal }) => {
                 </TableData>
               ) : null} */}
               {account ? (
-                <TableData h3 high_em width={100}>
+                <TableData t3 width={100}>
                   {truncateBalance(lpUserStakeValue, 2)}
                 </TableData>
               ) : null}
-              <TableData h3 high_em>
-                {truncateBalance(lpPoolValue, 2)}
-              </TableData>
-              <TableData h3 high_em width={100}>
+              <TableData t3>{truncateBalance(lpPoolValue, 2)}</TableData>
+              <TableData t3 width={100}>
                 {LP_ROI}
               </TableData>
-              {account ? (
-                <TableData h3 high_em>
-                  {truncateBalance(lpUserRewards, 2)}
-                </TableData>
-              ) : null}
-              {account ? (
-                <TableData h3 high_em>
-                  {truncateBalance(lpUserRewardsPerDay, 2)}
-                </TableData>
-              ) : null}
-              <TableData h3 high_em>
-                {truncateBalance(lpRewardsPerDay, 2)}
-              </TableData>
+              {account ? <TableData t3>{truncateBalance(lpUserRewards, 2)}</TableData> : null}
+              {account ? <TableData t3>{truncateBalance(lpUserRewardsPerDay, 2)}</TableData> : null}
+              <TableData t3>{truncateBalance(lpRewardsPerDay, 2)}</TableData>
               {account ? (
                 <TableData textAlignRight>
                   <TableDataGroup width={200}>
                     <Button
+                      light
                       disabled={errors.length > 0}
                       onClick={() => openModal(FunctionName.DEPOSIT_SIGNED, 'Deposit')}
                     >
                       Deposit
                     </Button>
                     <Button
+                      light
                       disabled={errors.length > 0}
                       onClick={() => openModal(FunctionName.WITHDRAW_LP, 'Withdraw')}
                     >
@@ -179,44 +169,32 @@ export const LiquidityPool: React.FC<LiquidityPoolProps> = ({ openModal }) => {
           {account && (
             <FormRow>
               <FormCol>Your Stake:</FormCol>
-              <FormCol h2 high_em>
-                {truncateBalance(lpUserStakeValue, 2)}
-              </FormCol>
+              <FormCol t2>{truncateBalance(lpUserStakeValue, 2)}</FormCol>
             </FormRow>
           )}
           <FormRow>
             <FormCol>Total Assets:</FormCol>
-            <FormCol h2 high_em>
-              {truncateBalance(lpPoolValue, 2)}
-            </FormCol>
+            <FormCol t2>{truncateBalance(lpPoolValue, 2)}</FormCol>
           </FormRow>
           <FormRow>
             <FormCol>ROI:</FormCol>
-            <FormCol h2 high_em>
-              {LP_ROI}
-            </FormCol>
+            <FormCol t2>{LP_ROI}</FormCol>
           </FormRow>
           {account && (
             <>
               <FormRow>
                 <FormCol>My Rewards:</FormCol>
-                <FormCol h2 high_em>
-                  {truncateBalance(lpUserRewards, 2)}
-                </FormCol>
+                <FormCol t2>{truncateBalance(lpUserRewards, 2)}</FormCol>
               </FormRow>
               <FormRow>
                 <FormCol>My Daily Rewards:</FormCol>
-                <FormCol h2 high_em>
-                  {truncateBalance(lpUserRewardsPerDay, 2)}
-                </FormCol>
+                <FormCol t2>{truncateBalance(lpUserRewardsPerDay, 2)}</FormCol>
               </FormRow>
             </>
           )}
           <FormRow>
             <FormCol>Daily Rewards:</FormCol>
-            <FormCol h2 high_em>
-              {truncateBalance(lpRewardsPerDay, 2)}
-            </FormCol>
+            <FormCol t2>{truncateBalance(lpRewardsPerDay, 2)}</FormCol>
           </FormRow>
           {account && (
             <ButtonWrapper isColumn>

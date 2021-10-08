@@ -58,7 +58,7 @@ import { Button, ButtonWrapper } from '../atoms/Button'
 import { Loader } from '../atoms/Loader'
 import { Card } from '../atoms/Card'
 import { Box, BoxItem, BoxItemTitle } from '../atoms/Box'
-import { Heading3, Text4 } from '../atoms/Typography'
+import { Text } from '../atoms/Typography'
 import { NftPosition } from '../molecules/NftPosition'
 import { StyledSelect } from '../molecules/Select'
 import { GeneralElementProps } from '../generalInterfaces'
@@ -91,7 +91,7 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
 
   *************************************************************************************/
 
-  const { errors } = useGeneral()
+  const { errors, appTheme } = useGeneral()
   const { vault, cpFarm, lpFarm, lpToken } = useContracts()
   const { activeNetwork, currencyDecimals, chainId } = useNetwork()
   const { account, library } = useWallet()
@@ -545,7 +545,7 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
     <RadioCircle style={{ justifyContent: 'center' }}>
       <RadioCircleInput type="checkbox" checked={isStaking} onChange={(e) => setIsStaking(e.target.checked)} />
       <RadioCircleFigure />
-      <div>Earn Solace token options as a reward</div>
+      <Text info={appTheme == 'light'}>Earn Solace token options as a reward</Text>
     </RadioCircle>
   )
 
@@ -560,9 +560,7 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
       <Fragment>
         {func == FunctionName.DEPOSIT_SIGNED || func == FunctionName.WITHDRAW_LP ? (
           <ModalRow style={{ display: 'block' }}>
-            <ModalCell t2 high_em>
-              {getUnit(func, activeNetwork)}
-            </ModalCell>
+            <ModalCell t2>{getUnit(func, activeNetwork)}</ModalCell>
             <ModalCell style={{ display: 'block' }}>
               <StyledSelect
                 value={nftSelection}
@@ -579,9 +577,7 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
           </ModalRow>
         ) : (
           <ModalRow>
-            <ModalCell t2 high_em>
-              {getUnit(func, activeNetwork)}
-            </ModalCell>
+            <ModalCell t2>{getUnit(func, activeNetwork)}</ModalCell>
             <ModalCell>
               <Input
                 widthP={100}
@@ -669,44 +665,44 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
               <>
                 {canWithdrawEth && (
                   <Box success glow mt={20} mb={20}>
-                    <Heading3 autoAlign high_em>
+                    <Text t3 bold autoAlign>
                       You can withdraw now!
-                    </Heading3>
+                    </Text>
                   </Box>
                 )}
                 {cooldownStarted && timeWaited < cooldownMin && (
                   <Box mt={20} mb={20}>
-                    <Heading3 autoAlign high_em>
+                    <Text t3 bold autoAlign>
                       Cooldown Elapsing...
-                    </Heading3>
+                    </Text>
                   </Box>
                 )}
                 <Box info>
                   <BoxItem>
-                    <BoxItemTitle h4 textAlignCenter>
+                    <BoxItemTitle t4 textAlignCenter>
                       Min Cooldown
                     </BoxItemTitle>
-                    <Text4 textAlignCenter high_em>
+                    <Text t4 textAlignCenter>
                       {getTimeFromMillis(cooldownMin)}
-                    </Text4>
+                    </Text>
                   </BoxItem>
                   {cooldownStarted && (
                     <BoxItem>
-                      <BoxItemTitle h4 textAlignCenter>
+                      <BoxItemTitle t4 textAlignCenter>
                         Time waited
                       </BoxItemTitle>
-                      <Text4 textAlignCenter high_em success={canWithdrawEth}>
+                      <Text t4 textAlignCenter success={canWithdrawEth}>
                         {timeToDate(timeWaited)}
-                      </Text4>
+                      </Text>
                     </BoxItem>
                   )}
                   <BoxItem>
-                    <BoxItemTitle h4 textAlignCenter>
+                    <BoxItemTitle t4 textAlignCenter>
                       Max Cooldown
                     </BoxItemTitle>
-                    <Text4 textAlignCenter high_em>
+                    <Text t4 textAlignCenter>
                       {getTimeFromMillis(cooldownMax)}
-                    </Text4>
+                    </Text>
                   </BoxItem>
                 </Box>
                 {!canWithdrawEth && (

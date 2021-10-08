@@ -33,7 +33,7 @@ import { FunctionName } from '../../constants/enums'
 
 /* import components */
 import { Content } from '../atoms/Layout'
-import { Heading1, Text } from '../atoms/Typography'
+import { Text } from '../atoms/Typography'
 import { Table, TableHead, TableRow, TableHeader, TableBody, TableData, TableDataGroup } from '../atoms/Table'
 import { Button, ButtonWrapper } from '../atoms/Button'
 import { Card } from '../atoms/Card'
@@ -73,13 +73,13 @@ export const RiskBackingCapitalPool: React.FC<RiskBackingCapitalPoolProps> = ({ 
 
   return (
     <Content>
-      <Heading1 mb={0}>
+      <Text bold t1 mb={0}>
         Underwriting Pool{' '}
         {/* <StyledTooltip
           id={'underwriting-pool'}
           tip={'Provide capital here for Solace to underwrite the risks and fulfill claims for policies'}
         />{' '} */}
-      </Heading1>
+      </Text>
       <Text t4 pb={10}>
         This pool allows Solace to back risks and fulfill claims for policies
       </Text>
@@ -94,28 +94,31 @@ export const RiskBackingCapitalPool: React.FC<RiskBackingCapitalPoolProps> = ({ 
             </TableRow>
           </TableHead>
           <TableBody>
-            <TableRow>
+            <TableRow light>
               {account ? (
-                <TableData h3 high_em width={100}>
+                <TableData t3 width={100}>
                   {truncateBalance(userVaultAssets, 2)}
                 </TableData>
               ) : null}
-              <TableData h3 high_em width={100}>
+              <TableData t3 width={100}>
                 {truncateBalance(floatUnits(parseUnits(capitalPoolSize, currencyDecimals), currencyDecimals), 2)}
               </TableData>
-              <TableData h3 high_em width={100}>
+              <TableData t3 width={100}>
                 {CP_ROI}
               </TableData>
-              {account ? (
-                <TableData h3 high_em width={130}>{`${truncateBalance(userVaultShare, 2)}%`}</TableData>
-              ) : null}
+              {account ? <TableData t3 width={130}>{`${truncateBalance(userVaultShare, 2)}%`}</TableData> : null}
               {account ? (
                 <TableData textAlignRight>
                   <TableDataGroup width={200} style={{ float: 'right' }}>
-                    <Button disabled={errors.length > 0} onClick={() => openModal(FunctionName.DEPOSIT_ETH, 'Deposit')}>
+                    <Button
+                      light
+                      disabled={errors.length > 0}
+                      onClick={() => openModal(FunctionName.DEPOSIT_ETH, 'Deposit')}
+                    >
                       Deposit
                     </Button>
                     <Button
+                      light
                       disabled={errors.length > 0}
                       onClick={() => openModal(FunctionName.WITHDRAW_ETH, 'Withdraw')}
                     >
@@ -132,26 +135,22 @@ export const RiskBackingCapitalPool: React.FC<RiskBackingCapitalPoolProps> = ({ 
           {account && (
             <FormRow>
               <FormCol>Your Assets:</FormCol>
-              <FormCol h2 high_em>
-                {truncateBalance(userVaultAssets, 2)}
-              </FormCol>
+              <FormCol t2>{truncateBalance(userVaultAssets, 2)}</FormCol>
             </FormRow>
           )}
           <FormRow>
             <FormCol>Total Assets:</FormCol>
-            <FormCol h2 high_em>
+            <FormCol t2>
               {truncateBalance(floatUnits(parseUnits(capitalPoolSize, currencyDecimals), currencyDecimals), 2)}
             </FormCol>
           </FormRow>
           <FormRow>
             <FormCol>ROI:</FormCol>
-            <FormCol h2 high_em>
-              {CP_ROI}
-            </FormCol>
+            <FormCol t2>{CP_ROI}</FormCol>
           </FormRow>
           <FormRow>
             <FormCol>Your Vault Share:</FormCol>
-            <FormCol h2 high_em>{`${truncateBalance(userVaultShare, 2)}%`}</FormCol>
+            <FormCol t2>{`${truncateBalance(userVaultShare, 2)}%`}</FormCol>
           </FormRow>
           <ButtonWrapper isColumn>
             <Button

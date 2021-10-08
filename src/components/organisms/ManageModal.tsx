@@ -37,7 +37,7 @@ import { useGeneral } from '../../context/GeneralProvider'
 /* import components */
 import { Modal } from '../molecules/Modal'
 import { FormRow, FormCol } from '../atoms/Form'
-import { Heading2, Text4 } from '../atoms/Typography'
+import { Text } from '../atoms/Typography'
 import { PolicyModalInfo } from './PolicyModalInfo'
 import { Input, StyledSlider } from '../../components/atoms/Input'
 import { Button, ButtonWrapper } from '../atoms/Button'
@@ -353,11 +353,13 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
         {!modalLoading ? (
           <Fragment>
             <div style={{ textAlign: 'center' }}>
-              <Heading2 high_em>Update Policy</Heading2>
+              <Text bold t2>
+                Update Policy
+              </Text>
               <FlexCol style={{ justifyContent: 'center', marginTop: '20px' }}>
                 <div style={{ width: '100%' }}>
                   <div style={{ textAlign: 'center', padding: '5px' }}>
-                    <Text4>Edit Coverage</Text4>
+                    <Text t4>Edit Coverage</Text>
                     <Input
                       mt={5}
                       mb={20}
@@ -391,7 +393,7 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
                 </div>
                 <div style={{ width: '100%' }}>
                   <div style={{ textAlign: 'center', padding: '5px' }}>
-                    <Text4>Add days</Text4>
+                    <Text t4>Add days</Text>
                     <Input
                       mt={5}
                       mb={20}
@@ -410,7 +412,7 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
                       min="0"
                       max={DAYS_PER_YEAR - daysLeft}
                     />
-                    <Text4 high_em>New expiration: {getExpiration(daysLeft + parseFloat(extendedTime || '0'))}</Text4>
+                    <Text t4>New expiration: {getExpiration(daysLeft + parseFloat(extendedTime || '0'))}</Text>
                     <ButtonWrapper>
                       {!asyncLoading ? (
                         <Button
@@ -429,13 +431,15 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
               </FlexCol>
             </div>
             <div style={{ textAlign: 'center' }}>
-              <Heading2 high_em>Cancel Policy</Heading2>
+              <Text bold t2>
+                Cancel Policy
+              </Text>
               <FlexCol mt={20}>
                 <FormRow mb={10}>
                   <FormCol>
-                    <Text4 high_em>
+                    <Text t4>
                       Refund amount: {formatUnits(refundAmount, currencyDecimals)} {activeNetwork.nativeCurrency.symbol}
-                    </Text4>
+                    </Text>
                   </FormCol>
                 </FormRow>
                 <FormCol></FormCol>

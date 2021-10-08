@@ -42,7 +42,7 @@ import {
 } from '../../components/atoms/DeFiAsset'
 import { Loader } from '../../components/atoms/Loader'
 import { Scrollable, HeroContainer } from '../../components/atoms/Layout'
-import { Heading1, TextSpan } from '../../components/atoms/Typography'
+import { Text, TextSpan } from '../../components/atoms/Typography'
 import { ManageModal } from '../../components/organisms/ManageModal'
 
 /* import constants */
@@ -311,7 +311,9 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
       />
       {fetchedPositions.length == 0 && !loading && !userPolicyData.policiesLoading && (
         <HeroContainer>
-          <Heading1 textAlignCenter>You do not own any positions on this protocol.</Heading1>
+          <Text t1 textAlignCenter>
+            You do not own any positions on this protocol.
+          </Text>
           {productLink && (
             <HyperLink href={productLink} target="_blank" rel="noopener noreferrer" style={{ color: 'white' }}>
               <Button secondary>Click here to start positions on {protocol.name}</Button>
@@ -411,7 +413,6 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
                           />
                         </DeFiAssetImage>
                         <PositionCardName
-                          high_em
                           style={{
                             opacity: userHasActiveProductPosition(
                               protocol.name,
@@ -425,7 +426,6 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
                         </PositionCardName>
                         <PositionCardText
                           t1
-                          high_em
                           style={{
                             opacity: userHasActiveProductPosition(
                               protocol.name,

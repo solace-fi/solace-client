@@ -97,18 +97,18 @@ export const TransactionHistoryModal: React.FC<TransactionHistoryModalProps> = (
           <TableBody>
             {localTransactions.map((pendingtx: any) => (
               <TableRow isHighlight key={pendingtx.hash}>
-                <TableData high_em pt={5} pb={5} t4>
+                <TableData pt={5} pb={5} t4>
                   {pendingtx.type}
                 </TableData>
                 {width > MAX_TABLET_SCREEN_WIDTH && (
                   <>
-                    <TableData high_em pt={5} pb={5} t4>{`${pendingtx.value} ${pendingtx.unit}`}</TableData>
-                    <TableData high_em pt={5} pb={5} t4>
+                    <TableData pt={5} pb={5} t4>{`${pendingtx.value} ${pendingtx.unit}`}</TableData>
+                    <TableData pt={5} pb={5} t4>
                       {timeAgo(Number(Date.now()) * 1000)}
                     </TableData>
                   </>
                 )}
-                <TableData high_em pt={5} pb={5} t4>
+                <TableData pt={5} pb={5} t4>
                   <HyperLink
                     href={getExplorerItemUrl(activeNetwork.explorer.url, pendingtx.hash, ExplorerscanApi.TX)}
                     target="_blank"
@@ -118,7 +118,7 @@ export const TransactionHistoryModal: React.FC<TransactionHistoryModalProps> = (
                   </HyperLink>
                 </TableData>
                 {width > MAX_TABLET_SCREEN_WIDTH && (
-                  <TableData high_em pt={5} pb={5} t4>
+                  <TableData pt={5} pb={5} t4>
                     <Text>{pendingtx.status}</Text>
                   </TableData>
                 )}
@@ -129,7 +129,6 @@ export const TransactionHistoryModal: React.FC<TransactionHistoryModalProps> = (
                 <TableRow key={tx.hash}>
                   <TableData
                     t4
-                    high_em
                     error={tx.txreceipt_status != '1'}
                     pt={5}
                     pb={5}
@@ -144,10 +143,10 @@ export const TransactionHistoryModal: React.FC<TransactionHistoryModalProps> = (
                   </TableData>
                   {width > MAX_TABLET_SCREEN_WIDTH && (
                     <>
-                      <TableData high_em pt={5} pb={5} t4>
+                      <TableData pt={5} pb={5} t4>
                         {amounts.length > 0 && <Text error={tx.txreceipt_status != '1'}>{amounts[i]}</Text>}
                       </TableData>
-                      <TableData high_em pt={5} pb={5} t4>
+                      <TableData pt={5} pb={5} t4>
                         {amounts.length > 0 && (
                           <Text error={tx.txreceipt_status != '1'}>{timeAgo(Number(tx.timeStamp) * 1000)}</Text>
                         )}
@@ -155,7 +154,6 @@ export const TransactionHistoryModal: React.FC<TransactionHistoryModalProps> = (
                     </>
                   )}
                   <TableData
-                    high_em
                     t4
                     pt={5}
                     pb={5}
@@ -173,7 +171,7 @@ export const TransactionHistoryModal: React.FC<TransactionHistoryModalProps> = (
                     )}
                   </TableData>
                   {width > MAX_TABLET_SCREEN_WIDTH && (
-                    <TableData high_em pt={5} pb={5} t4>
+                    <TableData pt={5} pb={5} t4>
                       {amounts.length > 0 && (
                         <Text error={tx.txreceipt_status != '1'}>
                           {tx.txreceipt_status == '1' ? 'Complete' : 'Failed'}

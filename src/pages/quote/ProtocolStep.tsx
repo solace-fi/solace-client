@@ -44,7 +44,7 @@ import { DeFiAsset, DeFiAssetImage, ProtocolTitle } from '../../components/atoms
 import { Card, CardContainer } from '../../components/atoms/Card'
 import { FormRow, FormCol } from '../../components/atoms/Form'
 import { Scrollable } from '../../components/atoms/Layout'
-import { Heading2 } from '../../components/atoms/Typography'
+import { Text } from '../../components/atoms/Typography'
 
 /* import hooks */
 import { useGetAvailableCoverages, useGetYearlyCosts } from '../../hooks/usePolicy'
@@ -172,12 +172,10 @@ export const ProtocolStep: React.FC<formProps> = ({ setForm, navigation }) => {
                             <DeFiAssetImage mr={10}>
                               <img src={`https://assets.solace.fi/${protocol.toLowerCase()}`} alt={protocol} />
                             </DeFiAssetImage>
-                            <ProtocolTitle high_em h3>
-                              {protocol}
-                            </ProtocolTitle>
+                            <ProtocolTitle t3>{protocol}</ProtocolTitle>
                           </DeFiAsset>
                         </TableData>
-                        <TableData high_em>
+                        <TableData>
                           {fixed(
                             parseFloat(yearlyCosts[protocol] ?? '0') *
                               Math.pow(10, 6) *
@@ -188,7 +186,7 @@ export const ProtocolStep: React.FC<formProps> = ({ setForm, navigation }) => {
                           )}
                           %
                         </TableData>
-                        <TableData high_em>
+                        <TableData>
                           {handleAvailableCoverage(protocol)} {activeNetwork.nativeCurrency.symbol}
                         </TableData>
                         <TableData textAlignRight>
@@ -235,13 +233,15 @@ export const ProtocolStep: React.FC<formProps> = ({ setForm, navigation }) => {
                           </DeFiAssetImage>
                         </FormCol>
                         <FormCol style={{ display: 'flex', alignItems: 'center' }}>
-                          <Heading2 high_em>{protocol}</Heading2>
+                          <Text bold t2>
+                            {protocol}
+                          </Text>
                         </FormCol>
                       </FormRow>
                       <FormRow>
                         <FormCol>Yearly Cost</FormCol>
                         <FormCol>
-                          <Heading2 high_em>
+                          <Text bold t2>
                             {fixed(
                               parseFloat(yearlyCosts[protocol] ?? '0') *
                                 Math.pow(10, 6) *
@@ -251,15 +251,15 @@ export const ProtocolStep: React.FC<formProps> = ({ setForm, navigation }) => {
                               2
                             )}
                             %
-                          </Heading2>
+                          </Text>
                         </FormCol>
                       </FormRow>
                       <FormRow>
                         <FormCol>Coverage Available</FormCol>
                         <FormCol>
-                          <Heading2 high_em>
+                          <Text bold t2>
                             {handleAvailableCoverage(protocol)} {activeNetwork.nativeCurrency.symbol}
-                          </Heading2>
+                          </Text>
                         </FormCol>
                       </FormRow>
                     </Card>

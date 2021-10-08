@@ -29,7 +29,7 @@ import { useNetwork } from '../../context/NetworkManager'
 
 /* import components */
 import { Content } from '../atoms/Layout'
-import { Heading1 } from '../atoms/Typography'
+import { Text } from '../atoms/Typography'
 import { CardContainer, InvestmentCard, CardHeader, CardTitle, CardBlock } from '../atoms/Card'
 
 /* import constants */
@@ -69,24 +69,26 @@ export const MyInvestments: React.FC = () => {
 
   return (
     <Content>
-      <Heading1>Your Investments</Heading1>
+      <Text t1 bold>
+        Your Investments
+      </Text>
       <CardContainer>
         <InvestmentCard>
           <CardHeader>
             <CardTitle t4>Capital Pool</CardTitle>
-            <CardTitle h3 nowrap high_em>
+            <CardTitle t3 nowrap>
               {account ? truncateBalance(cpUserStakeValue, 2) : 0} {activeNetwork.nativeCurrency.symbol}
             </CardTitle>
           </CardHeader>
           <CardBlock>
             <CardTitle t4>Daily Earnings</CardTitle>
-            <CardTitle h3 nowrap high_em>
+            <CardTitle t3 nowrap>
               {account ? truncateBalance(cpUserRewardsPerDay, 2) : 0} {Unit.SOLACE}
             </CardTitle>
           </CardBlock>
           <CardBlock>
             <CardTitle t4>Total Earnings</CardTitle>
-            <CardTitle h3 nowrap high_em>
+            <CardTitle t3 nowrap>
               {account ? truncateBalance(cpUserRewards, 2) : 0} {Unit.SOLACE}
             </CardTitle>
           </CardBlock>
@@ -94,7 +96,7 @@ export const MyInvestments: React.FC = () => {
         <InvestmentCard>
           <CardHeader>
             <CardTitle t4>Liquidity Pool</CardTitle>
-            <CardTitle h3 nowrap high_em>
+            <CardTitle t3 nowrap>
               {/* {account
                 ? truncateBalance(
                     formatUnits(depositedLpTokenInfo.reduce((a, b) => a.add(b.value), ZERO).toString(), currencyDecimals),
@@ -107,13 +109,13 @@ export const MyInvestments: React.FC = () => {
           </CardHeader>
           <CardBlock>
             <CardTitle t4>Daily Earnings</CardTitle>
-            <CardTitle h3 nowrap high_em>
+            <CardTitle t3 nowrap>
               {account ? truncateBalance(lpUserRewardsPerDay, 2) : 0} {Unit.SOLACE}
             </CardTitle>
           </CardBlock>
           <CardBlock>
             <CardTitle t4>Total Earnings</CardTitle>
-            <CardTitle h3 nowrap high_em>
+            <CardTitle t3 nowrap>
               {account ? truncateBalance(lpUserRewards, 2) : 0} {Unit.SOLACE}
             </CardTitle>
           </CardBlock>

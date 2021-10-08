@@ -6,7 +6,6 @@
     import managers
     import constants
     import components
-    import hooks
 
     styled components
 
@@ -20,27 +19,22 @@
 import React from 'react'
 
 /* import managers */
-import { useWallet } from '../../context/WalletManager'
+import { useGeneral } from '../../context/GeneralProvider'
 
 /* import constants */
-import { MAX_MOBILE_SCREEN_WIDTH } from '../../constants'
 
 /* import components */
 import { Button, ButtonProps } from '../atoms/Button'
-import { StyledWallet } from '../atoms/Icon'
+import { StyledSun, StyledMoon } from '../atoms/Icon'
 import { GeneralElementProps } from '../generalInterfaces'
 
-/* import hooks */
-import { useWindowDimensions } from '../../hooks/useWindowDimensions'
-
-export const WalletConnectButton: React.FC<GeneralElementProps & ButtonProps> = ({ ...props }) => {
+export const ThemeButton: React.FC<GeneralElementProps & ButtonProps> = ({ ...props }) => {
   /*************************************************************************************
 
     custom hooks
 
   *************************************************************************************/
-  const { isActive, openWalletModal } = useWallet()
-  const { width } = useWindowDimensions()
+  const { appTheme, toggleTheme } = useGeneral()
 
   /*************************************************************************************
 
@@ -49,9 +43,8 @@ export const WalletConnectButton: React.FC<GeneralElementProps & ButtonProps> = 
   *************************************************************************************/
   return (
     <>
-      <Button width={width >= MAX_MOBILE_SCREEN_WIDTH ? undefined : 50} onClick={() => openWalletModal()} {...props}>
-        <StyledWallet size={30} />
-        {isActive ? 'Switch Wallet' : 'Connect Wallet'}
+      <Button widthP={100} nohover noborder onClick={() => toggleTheme()} {...props}>
+        {appTheme == 'light' ? <StyledSun size={30} /> : <StyledMoon size={30} />}
       </Button>
     </>
   )

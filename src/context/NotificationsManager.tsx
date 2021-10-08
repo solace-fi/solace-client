@@ -32,7 +32,7 @@ const ToastsContext = createContext<ToastSystem>({
 const txSuccess = {
   autoClose: 10000,
   type: toast.TYPE.SUCCESS,
-  position: toast.POSITION.BOTTOM_LEFT,
+  position: toast.POSITION.BOTTOM_RIGHT,
   closeOnClick: false,
   closeButton: true,
   className: 'success-toast',
@@ -41,7 +41,7 @@ const txSuccess = {
 const txError = {
   autoClose: 10000,
   type: toast.TYPE.ERROR,
-  position: toast.POSITION.BOTTOM_LEFT,
+  position: toast.POSITION.BOTTOM_RIGHT,
   closeOnClick: true,
   closeButton: true,
   className: 'error-toast',
@@ -49,7 +49,7 @@ const txError = {
 
 const appNotice: any = {
   type: toast.TYPE.INFO,
-  position: toast.POSITION.BOTTOM_LEFT,
+  position: toast.POSITION.BOTTOM_RIGHT,
   autoClose: false,
   closeOnClick: true,
   closeButton: true,
@@ -58,7 +58,7 @@ const appNotice: any = {
 
 const appError: any = {
   type: toast.TYPE.ERROR,
-  position: toast.POSITION.BOTTOM_LEFT,
+  position: toast.POSITION.BOTTOM_RIGHT,
   autoClose: false,
   closeOnClick: true,
   closeButton: true,
@@ -111,7 +111,7 @@ const ToastsProvider: React.FC = (props) => {
             toastId: txHash,
             type: toast.TYPE.INFO,
             autoClose: false,
-            position: toast.POSITION.BOTTOM_LEFT,
+            position: toast.POSITION.BOTTOM_RIGHT,
             closeOnClick: false,
             closeButton: true,
             className: 'info-toast',

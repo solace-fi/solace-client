@@ -33,7 +33,7 @@ export const TokenPositionCard: React.FC<TokenPositionCardProps> = ({
   handleSelect,
   userHasActiveProductPosition,
 }) => {
-  const { errors } = useGeneral()
+  const { appTheme, errors } = useGeneral()
   const { width } = useWindowDimensions()
 
   const token: Token = useMemo(() => position.position as Token, [position.position])
@@ -49,6 +49,7 @@ export const TokenPositionCard: React.FC<TokenPositionCardProps> = ({
     token,
     userHasActiveProductPosition,
   ])
+  const lightText = (isSelected || isActive) && appTheme == 'light'
 
   return (
     <PositionCard
@@ -70,26 +71,36 @@ export const TokenPositionCard: React.FC<TokenPositionCardProps> = ({
           : () => handleSelect(position)
       }
     >
-      {isActive && <PositionCardText style={{ opacity: '.8' }}>This position is already covered</PositionCardText>}
+      {isActive && (
+        <PositionCardText style={{ opacity: '.8' }} light={lightText}>
+          This position is already covered
+        </PositionCardText>
+      )}
       <DeFiAssetImage noborder style={{ opacity: isActive ? '.5' : '1' }}>
         <img src={`https://assets.solace.fi/${token.underlying.address.toLowerCase()}`} alt={token.underlying.name} />
       </DeFiAssetImage>
-      <PositionCardName high_em style={{ opacity: isActive ? '.5' : '1' }}>
+      <PositionCardName style={{ opacity: isActive ? '.5' : '1' }} light={lightText}>
         {token.underlying.name}
       </PositionCardName>
-      <PositionCardText t1 high_em style={{ opacity: isActive ? '.5' : '1' }}>
+      <PositionCardText t1 style={{ opacity: isActive ? '.5' : '1' }} light={lightText}>
         {truncateBalance(fixedTokenPositionBalance(token.underlying))}{' '}
-        <TextSpan style={{ fontSize: '12px' }}>{token.underlying.symbol}</TextSpan>
+        <TextSpan style={{ fontSize: '12px' }} light={lightText}>
+          {token.underlying.symbol}
+        </TextSpan>
       </PositionCardText>
-      <PositionCardText t3 style={{ opacity: isActive ? '.5' : '1' }}>
+      <PositionCardText t3 style={{ opacity: isActive ? '.5' : '1' }} light={lightText}>
         {truncateBalance(fixedTokenPositionBalance(token.token))}{' '}
-        <TextSpan style={{ fontSize: '12px' }}>{token.underlying.symbol}</TextSpan>
+        <TextSpan style={{ fontSize: '12px' }} light={lightText}>
+          {token.underlying.symbol}
+        </TextSpan>
       </PositionCardText>
       <PositionCardButton>
         {isActive ? (
-          <Button widthP={width > MAX_MOBILE_SCREEN_WIDTH ? undefined : 100}>Manage</Button>
+          <Button widthP={width > MAX_MOBILE_SCREEN_WIDTH ? undefined : 100} light={lightText}>
+            Manage
+          </Button>
         ) : (
-          <Button widthP={width > MAX_MOBILE_SCREEN_WIDTH ? undefined : 100}>
+          <Button widthP={width > MAX_MOBILE_SCREEN_WIDTH ? undefined : 100} light={lightText}>
             {isSelected ? 'Deselect' : 'Select'}
           </Button>
         )}

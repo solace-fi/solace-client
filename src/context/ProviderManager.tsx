@@ -5,7 +5,7 @@ import { MetamaskConnector } from '../wallet/wallet-connectors/MetaMask'
 
 import { Card, CardContainer } from '../components/atoms/Card'
 import { ModalCell } from '../components/atoms/Modal'
-import { Heading4, Text } from '../components/atoms/Typography'
+import { Text } from '../components/atoms/Typography'
 import { Modal } from '../components/molecules/Modal'
 import { FormRow } from '../components/atoms/Form'
 import { capitalizeFirstLetter } from '../utils/formatting'
@@ -140,7 +140,9 @@ const ProviderManager: React.FC = ({ children }) => {
             >
               <FormRow mb={0}>
                 <ModalCell p={10}>
-                  <Heading4>{capitalizeFirstLetter(network.name)}</Heading4>
+                  <Text t4 bold>
+                    {capitalizeFirstLetter(network.name)}
+                  </Text>
                 </ModalCell>
               </FormRow>
             </Card>

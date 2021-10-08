@@ -36,7 +36,7 @@ import { useGeneral } from '../../context/GeneralProvider'
 import { CardContainer, Card } from '../atoms/Card'
 import { Box, BoxItem, BoxItemTitle } from '../atoms/Box'
 import { Button, ButtonWrapper } from '../atoms/Button'
-import { Heading1, Text } from '../atoms/Typography'
+import { Text } from '../atoms/Typography'
 import { Content } from '../atoms/Layout'
 import { StyledArrowDropDown } from '../../components/atoms/Icon'
 import { Accordion } from '../atoms/Accordion/Accordion'
@@ -118,13 +118,13 @@ export const MyClaims: React.FC = () => {
     <Fragment>
       {claimsDetails.length > 0 && (
         <Content>
-          <Heading1 mb={0}>
+          <Text t1 bold mb={0}>
             Your Claims
             <Button style={{ float: 'right' }} onClick={() => setOpenClaims(!openClaims)}>
               <StyledArrowDropDown style={{ transform: openClaims ? 'rotate(180deg)' : 'rotate(0deg)' }} size={20} />
               {openClaims ? 'Hide Claims' : 'Show Claims'}
             </Button>
-          </Heading1>
+          </Text>
           <Text t4 pb={10}>
             View details on your claims or start withdrawing payout
           </Text>
@@ -135,14 +135,18 @@ export const MyClaims: React.FC = () => {
                   <Card key={claim.id}>
                     <Box pt={20} pb={20} glow={claim.canWithdraw} success={claim.canWithdraw}>
                       <BoxItem>
-                        <BoxItemTitle t4>ID</BoxItemTitle>
-                        <Text h4 high_em>
+                        <BoxItemTitle t4 light>
+                          ID
+                        </BoxItemTitle>
+                        <Text t3 light>
                           {claim.id}
                         </Text>
                       </BoxItem>
                       <BoxItem>
-                        <BoxItemTitle t4>Amount</BoxItemTitle>
-                        <Text h4 high_em>
+                        <BoxItemTitle t4 light>
+                          Amount
+                        </BoxItemTitle>
+                        <Text t3 light>
                           {BigNumber.from(claim.amount).gte(accurateMultiply(1, currencyDecimals))
                             ? truncateBalance(
                                 formatUnits(claim.amount, currencyDecimals),
@@ -156,8 +160,10 @@ export const MyClaims: React.FC = () => {
                         </Text>
                       </BoxItem>
                       <BoxItem>
-                        <BoxItemTitle t4>Payout Status</BoxItemTitle>
-                        <Text h4 high_em>
+                        <BoxItemTitle t4 light>
+                          Payout Status
+                        </BoxItemTitle>
+                        <Text t3 light>
                           {claim.canWithdraw
                             ? 'Available'
                             : `${claim.cooldown == '0' ? '-' : timeToDate(parseInt(claim.cooldown) * 1000)} left`}

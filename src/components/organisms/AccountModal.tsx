@@ -40,7 +40,7 @@ import { Scrollable } from '../atoms/Layout'
 import { HyperLink } from '../atoms/Link'
 import { Loader } from '../atoms/Loader'
 import { Table, TableHead, TableHeader, TableRow, TableBody, TableData } from '../atoms/Table'
-import { Heading2, Text, Text2 } from '../atoms/Typography'
+import { Text } from '../atoms/Typography'
 import { WalletConnectButton } from '../molecules/WalletConnectButton'
 import { NetworkConnectButton } from '../molecules/NetworkConnectButton'
 import { Card, CardContainer } from '../atoms/Card'
@@ -94,35 +94,35 @@ export const AccountModal: React.FC<AccountModalProps> = ({ closeModal, isOpen }
         <Card color1>
           <FormRow>
             <FormCol>
-              <Text2>
+              <Text light>
                 Network
                 <UserImage style={{ display: 'inline-flex', verticalAlign: 'bottom' }}>
                   <img src={activeNetwork.logo} alt={activeNetwork.name} height={32} />
                 </UserImage>
-              </Text2>
+              </Text>
             </FormCol>
             <FormCol>
-              <Heading2 high_em nowrap>
+              <Text light t2 bold nowrap>
                 {capitalizeFirstLetter(activeNetwork.name)}
-              </Heading2>
+              </Text>
             </FormCol>
           </FormRow>
-          <NetworkConnectButton widthP={100} />
+          <NetworkConnectButton widthP={100} light />
         </Card>
         <Card color2>
           <FormRow>
             <FormCol>
-              <Text2>
+              <Text light>
                 Wallet{' '}
                 {activeWalletConnector && (
                   <UserImage style={{ display: 'inline-flex', verticalAlign: 'bottom' }}>
                     <img src={activeWalletConnector.logo} alt={activeWalletConnector.name} height={32} />
                   </UserImage>
                 )}{' '}
-              </Text2>
+              </Text>
             </FormCol>
             <FormCol>
-              <Heading2 high_em nowrap>
+              <Text light t2 bold nowrap>
                 {account ? shortenAddress(account) : 'Not Connected'}
                 {account && (
                   <>
@@ -131,17 +131,17 @@ export const AccountModal: React.FC<AccountModalProps> = ({ closeModal, isOpen }
                     </UserImage>
                   </>
                 )}
-              </Heading2>
+              </Text>
             </FormCol>
           </FormRow>
-          <WalletConnectButton widthP={100} />
+          <WalletConnectButton widthP={100} light />
         </Card>
       </CardContainer>
       {account && (
         <>
-          <Heading2 mb={10} high_em>
+          <Text t2 bold mb={10}>
             Recent Transactions
-          </Heading2>
+          </Text>
           <Scrollable style={{ padding: '0 10px 0 10px' }} maxDesktopHeight={30}>
             <Table textAlignCenter style={{ borderSpacing: '0px 7px' }}>
               <TableHead sticky>
@@ -160,18 +160,18 @@ export const AccountModal: React.FC<AccountModalProps> = ({ closeModal, isOpen }
               <TableBody>
                 {localTransactions.map((pendingtx: any) => (
                   <TableRow isHighlight key={pendingtx.hash}>
-                    <TableData high_em pt={5} pb={5} t4>
+                    <TableData pt={5} pb={5} t4>
                       {pendingtx.type}
                     </TableData>
                     {width > MAX_TABLET_SCREEN_WIDTH && (
                       <>
-                        <TableData high_em pt={5} pb={5} t4>{`${pendingtx.value} ${pendingtx.unit}`}</TableData>
-                        <TableData high_em pt={5} pb={5} t4>
+                        <TableData pt={5} pb={5} t4>{`${pendingtx.value} ${pendingtx.unit}`}</TableData>
+                        <TableData pt={5} pb={5} t4>
                           {timeAgo(Number(Date.now()) * 1000)}
                         </TableData>
                       </>
                     )}
-                    <TableData high_em pt={5} pb={5} t4>
+                    <TableData pt={5} pb={5} t4>
                       <HyperLink
                         href={getExplorerItemUrl(activeNetwork.explorer.url, pendingtx.hash, ExplorerscanApi.TX)}
                         target="_blank"
@@ -181,7 +181,7 @@ export const AccountModal: React.FC<AccountModalProps> = ({ closeModal, isOpen }
                       </HyperLink>
                     </TableData>
                     {width > MAX_TABLET_SCREEN_WIDTH && (
-                      <TableData high_em pt={5} pb={5} t4>
+                      <TableData pt={5} pb={5} t4>
                         <Text>{pendingtx.status}</Text>
                       </TableData>
                     )}
@@ -192,7 +192,6 @@ export const AccountModal: React.FC<AccountModalProps> = ({ closeModal, isOpen }
                     <TableRow key={tx.hash}>
                       <TableData
                         t4
-                        high_em
                         error={tx.txreceipt_status != '1'}
                         pt={5}
                         pb={5}
@@ -207,10 +206,10 @@ export const AccountModal: React.FC<AccountModalProps> = ({ closeModal, isOpen }
                       </TableData>
                       {width > MAX_TABLET_SCREEN_WIDTH && (
                         <>
-                          <TableData high_em pt={5} pb={5} t4>
+                          <TableData pt={5} pb={5} t4>
                             {amounts.length > 0 && <Text error={tx.txreceipt_status != '1'}>{amounts[i]}</Text>}
                           </TableData>
-                          <TableData high_em pt={5} pb={5} t4>
+                          <TableData pt={5} pb={5} t4>
                             {amounts.length > 0 && (
                               <Text error={tx.txreceipt_status != '1'}>{timeAgo(Number(tx.timeStamp) * 1000)}</Text>
                             )}
@@ -218,7 +217,6 @@ export const AccountModal: React.FC<AccountModalProps> = ({ closeModal, isOpen }
                         </>
                       )}
                       <TableData
-                        high_em
                         t4
                         pt={5}
                         pb={5}
@@ -236,7 +234,7 @@ export const AccountModal: React.FC<AccountModalProps> = ({ closeModal, isOpen }
                         )}
                       </TableData>
                       {width > MAX_TABLET_SCREEN_WIDTH && (
-                        <TableData high_em pt={5} pb={5} t4>
+                        <TableData pt={5} pb={5} t4>
                           {amounts.length > 0 && (
                             <Text error={tx.txreceipt_status != '1'}>
                               {tx.txreceipt_status == '1' ? 'Complete' : 'Failed'}

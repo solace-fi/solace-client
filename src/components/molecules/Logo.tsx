@@ -19,17 +19,28 @@ import { LogoBase } from '../atoms/Logo'
 import { GeneralElementProps } from '../generalInterfaces'
 
 /* import resources */
-import logo from '../../resources/solace.png'
+import coloredLogo from '../../resources/svg/solace-logo-color.svg'
+import whiteLogo from '../../resources/svg/solace-logo-white.svg'
+import { StyledNavLink } from '../atoms/Link'
 
-export const Logo: React.FC<GeneralElementProps> = ({ ...props }) => {
+interface LogoProps {
+  location: any
+}
+
+export const Logo: React.FC<GeneralElementProps & LogoProps> = ({ ...props }) => {
   /*************************************************************************************
 
     Render
 
   *************************************************************************************/
   return (
-    <LogoBase href={`https://solace.fi/`} target="_blank" rel="noopener noreferrer" {...props}>
-      <img src={logo} alt="Solace | Decentralized Coverage Protocol" />
-    </LogoBase>
+    <StyledNavLink to="/">
+      <LogoBase {...props}>
+        <img
+          src={props.location.pathname !== '/' ? coloredLogo : whiteLogo}
+          alt="Solace | Decentralized Coverage Protocol"
+        />
+      </LogoBase>
+    </StyledNavLink>
   )
 }

@@ -25,13 +25,13 @@ import { useProvider } from '../../context/ProviderManager'
 /* import constants */
 
 /* import components */
-import { Button } from '../atoms/Button'
+import { Button, ButtonProps } from '../atoms/Button'
 import { StyledNetworkChart } from '../atoms/Icon'
 import { GeneralElementProps } from '../generalInterfaces'
 
 /* import hooks */
 
-export const NetworkConnectButton: React.FC<GeneralElementProps> = ({ ...props }) => {
+export const NetworkConnectButton: React.FC<GeneralElementProps & ButtonProps> = ({ ...props }) => {
   /*************************************************************************************
 
     custom hooks

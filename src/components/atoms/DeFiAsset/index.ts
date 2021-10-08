@@ -1,9 +1,11 @@
 import styled from 'styled-components'
 import { GeneralTextProps, GeneralTextCss } from '../Typography'
 import { HeightAndWidthProps, HeightAndWidthCss, MarginProps, MarginCss } from '../../generalInterfaces'
+import { SecureCircleCss } from '../User'
 
 interface DeFiAssetProps extends HeightAndWidthProps, MarginProps {
   noborder?: boolean
+  secured?: boolean
 }
 
 export const DeFiAsset = styled.div`
@@ -18,7 +20,8 @@ export const DeFiAssetImage = styled.div<DeFiAssetProps>`
   ${(props) => !props.width && 'width: 40px;'}
   ${(props) => !props.height && 'height: 40px;'}
   overflow: hidden;
-  ${(props) => !props.noborder && `border: 4px solid #fff; border-radius: 100%;`}
+  ${(props) =>
+    !props.noborder ? (props.secured ? SecureCircleCss : `border: 4px solid #fff; border-radius: 100%;`) : null}
   img {
     width: 100%;
     height: 100%;

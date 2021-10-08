@@ -76,7 +76,7 @@ export const StyledTooltip: React.FC<StyledTooltipProps> = ({ id, tip, link }) =
                 rel="noopener noreferrer"
                 style={{ textDecoration: 'none', color: '#fff' }}
               >
-                <Text high_em h4>
+                <Text t4 light>
                   {tip}
                 </Text>
                 <br />
@@ -85,7 +85,7 @@ export const StyledTooltip: React.FC<StyledTooltipProps> = ({ id, tip, link }) =
                 </Text>
               </a>
             ) : (
-              <Text high_em h4>
+              <Text t4 light>
                 {tip}
               </Text>
             )}

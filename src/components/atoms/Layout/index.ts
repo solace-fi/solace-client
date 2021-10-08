@@ -6,12 +6,17 @@ import {
   MAX_MOBILE_SCREEN_WIDTH,
 } from '../../../constants'
 import styled, { createGlobalStyle, keyframes } from 'styled-components'
-import { GeneralElementProps, GeneralElementCss, HeightAndWidthProps } from '../../generalInterfaces'
+import { GeneralElementProps, GeneralElementCss, HeightAndWidthProps, HeightAndWidthCss } from '../../generalInterfaces'
 import { Text3Css } from '../Typography'
+import gradientBackground from '../../../resources/svg/solace-gradient-background.svg'
 
 interface ScrollableProps {
   maxDesktopHeight?: number
   maxMobileHeight?: number
+}
+
+interface LayoutProps {
+  location: any
 }
 
 export const Scrollable = styled.div<ScrollableProps>`
@@ -37,15 +42,16 @@ const movingGradient = keyframes`
 }
 `
 
-export const GlobalStyle = createGlobalStyle`
+export const GlobalStyle = createGlobalStyle<LayoutProps>`
   body{
     margin: 0;
-    font-family: 'PT Sans',Arial,sans-serif;
+    font-family: 'Open Sans', sans-serif;
     line-height: 1.4;
-    color: ${({ theme }) => theme.typography.med_emphasis};
+    color: ${({ theme }) => `${theme.typography.contrastText}`};
     background: ${({ theme }) => theme.body.bg_color};
+    ${(props) => props.location.pathname == '/' && `background: url(${gradientBackground});`}
     background-attachment: fixed;
-    background-size: 120% 120%;
+    background-size: cover;
     animation: ${movingGradient} 30s ease infinite;
     ${Text3Css}
   }
@@ -71,6 +77,10 @@ export const Layout = styled.div`
   @media screen and (max-width: ${MAX_NAVBAR_SCREEN_WIDTH}px) {
     padding: 90px 0 60px 0;
   }
+`
+
+export const HorizRule = styled.hr<LayoutProps>`
+  ${(props) => props.location.pathname == '/' && `color: ${props.theme.typography.lightText} !important;`}
 `
 
 export const ContentContainer = styled.div`
@@ -106,7 +116,8 @@ export const LayoutContent = styled.div<HeightAndWidthProps>`
 export const HeroContainer = styled(FlexCol)<HeightAndWidthProps>`
   align-items: center;
   justify-content: center;
-  height: ${(props) => (props.height ? props.height : '400')}px;
+  height: 400px;
+  ${HeightAndWidthCss}
 `
 
 export const FooterComponent = styled.div`

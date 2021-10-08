@@ -3,6 +3,7 @@
     Table of Contents:
 
     import react
+    import packages
     import components
     import constants
     import hooks
@@ -20,14 +21,16 @@
 /* import react */
 import React from 'react'
 
+/* import packages */
+import { useLocation } from 'react-router'
+
 /* import components */
 import { FooterComponent } from '../atoms/Layout'
 import { CenteredHeader, FlexEndHeader } from '../atoms/Header'
-import { Account, UserAccount } from './Account'
-import { Prices } from '../molecules/Prices'
+import { UserAccount } from './Account'
 
 /* import constants */
-import { MAX_TABLET_SCREEN_WIDTH, MAX_MOBILE_SCREEN_WIDTH } from '../../constants'
+import { MAX_TABLET_SCREEN_WIDTH, MAX_MOBILE_SCREEN_WIDTH, MAX_NAVBAR_SCREEN_WIDTH } from '../../constants'
 
 /* import hooks */
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'
@@ -39,6 +42,7 @@ export const PageHeader: React.FC = () => {
 
   *************************************************************************************/
   const { width } = useWindowDimensions()
+  const location = useLocation()
 
   /*************************************************************************************
 
@@ -47,10 +51,8 @@ export const PageHeader: React.FC = () => {
   *************************************************************************************/
   return (
     <>
-      {width > MAX_MOBILE_SCREEN_WIDTH && (
-        <FlexEndHeader>
-          <UserAccount />
-        </FlexEndHeader>
+      {width > MAX_MOBILE_SCREEN_WIDTH && width <= MAX_NAVBAR_SCREEN_WIDTH && (
+        <FlexEndHeader>{<UserAccount light={location.pathname == '/'} />}</FlexEndHeader>
       )}
     </>
   )
@@ -74,7 +76,7 @@ export const Footer: React.FC = () => {
       {width < MAX_MOBILE_SCREEN_WIDTH && (
         <FooterComponent>
           <CenteredHeader>
-            <UserAccount />
+            <UserAccount light />
           </CenteredHeader>
         </FooterComponent>
       )}
