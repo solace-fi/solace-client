@@ -49,7 +49,7 @@ export const TokenPositionCard: React.FC<TokenPositionCardProps> = ({
     token,
     userHasActiveProductPosition,
   ])
-  const lightText = (isSelected || isActive) && appTheme == 'light'
+  const lightText = isSelected || isActive
 
   return (
     <PositionCard
@@ -100,7 +100,7 @@ export const TokenPositionCard: React.FC<TokenPositionCardProps> = ({
             Manage
           </Button>
         ) : (
-          <Button widthP={width > MAX_MOBILE_SCREEN_WIDTH ? undefined : 100} light={lightText}>
+          <Button widthP={width > MAX_MOBILE_SCREEN_WIDTH ? undefined : 100} light={lightText} info>
             {isSelected ? 'Deselect' : 'Select'}
           </Button>
         )}

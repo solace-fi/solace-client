@@ -57,29 +57,3 @@ export const PageHeader: React.FC = () => {
     </>
   )
 }
-
-export const Footer: React.FC = () => {
-  /*************************************************************************************
-
-      custom hooks
-
-  *************************************************************************************/
-  const { width } = useWindowDimensions()
-
-  /*************************************************************************************
-    
-          Render
-    
-  *************************************************************************************/
-  return (
-    <>
-      {width < MAX_MOBILE_SCREEN_WIDTH && (
-        <FooterComponent>
-          <CenteredHeader>
-            <UserAccount light />
-          </CenteredHeader>
-        </FooterComponent>
-      )}
-    </>
-  )
-}

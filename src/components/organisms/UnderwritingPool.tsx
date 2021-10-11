@@ -131,6 +131,7 @@ export const RiskBackingCapitalPool: React.FC<RiskBackingCapitalPoolProps> = ({ 
           </TableBody>
         </Table>
       ) : (
+        // mobile version
         <Card>
           {account && (
             <FormRow>

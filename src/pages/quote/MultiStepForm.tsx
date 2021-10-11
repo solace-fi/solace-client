@@ -243,6 +243,7 @@ export const MultiStepForm = () => {
           </StepsProgress>
         </StepsContainer>
       ) : (
+        // mobile version
         <FormRow mb={0} mt={20} ml={30} mr={30} style={{ justifyContent: 'center' }}>
           <FormCol>
             <div style={{ width: 100, height: 100 }}>
@@ -310,30 +311,14 @@ export const MultiStepForm = () => {
                 <Box color2>
                   <BoxItem>
                     <FlexRow>
-                      {positions.slice(0, maxPositionsToDisplay).map((position: Position) => {
-                        if (position.type == 'erc20')
-                          return (
-                            <DeFiAsset key={(position.position as Token).underlying.address}>
-                              <DeFiAssetImage mr={5}>
-                                <img
-                                  src={`https://assets.solace.fi/${(position.position as Token).underlying.address.toLowerCase()}`}
-                                  alt={(position.position as Token).underlying.name}
-                                />
-                              </DeFiAssetImage>
-                            </DeFiAsset>
-                          )
-
-                        if (position.type == 'liquity')
-                          return (
-                            <DeFiAsset key={(position.position as LiquityPosition).positionAddress}>
-                              <DeFiAssetImage mr={5}>
-                                <img
-                                  src={`https://assets.solace.fi/${(position.position as LiquityPosition).positionAddress.toLowerCase()}`}
-                                  alt={(position.position as LiquityPosition).positionName}
-                                />
-                              </DeFiAssetImage>
-                            </DeFiAsset>
-                          )
+                      {formattedAssets.slice(0, maxPositionsToDisplay).map((data) => {
+                        return (
+                          <DeFiAsset key={data.address}>
+                            <DeFiAssetImage mr={5} key={data.address}>
+                              <img src={`https://assets.solace.fi/${data.address.toLowerCase()}`} alt={data.name} />
+                            </DeFiAssetImage>
+                          </DeFiAsset>
+                        )
                       })}
                       {positions.length > maxPositionsToDisplay && <StyledDots size={20} />}
                     </FlexRow>
@@ -402,14 +387,13 @@ export const MultiStepForm = () => {
               {Number(StepNumber[step.id]) == 2 && positions.length > 0 && (
                 <Card color2>
                   <FlexRow>
-                    {positions.slice(0, maxPositionsToDisplay).map((position: Token) => (
-                      <DeFiAssetImage mr={5} key={position.underlying.address}>
-                        <img
-                          src={`https://assets.solace.fi/${position.underlying.address.toLowerCase()}`}
-                          alt={position.underlying.name}
-                        />
-                      </DeFiAssetImage>
-                    ))}
+                    {formattedAssets.slice(0, maxPositionsToDisplay).map((data) => {
+                      return (
+                        <DeFiAssetImage mr={5} key={data.address}>
+                          <img src={`https://assets.solace.fi/${data.address.toLowerCase()}`} alt={data.name} />
+                        </DeFiAssetImage>
+                      )
+                    })}
                     {positions.length > maxPositionsToDisplay && <StyledDots size={20} />}
                   </FlexRow>
                   <ButtonWrapper isColumn>
@@ -418,7 +402,6 @@ export const MultiStepForm = () => {
                         View all assets
                       </Button>
                     )}
-
                     <Button light widthP={100} onClick={() => navigation.go(1)}>
                       Change
                     </Button>

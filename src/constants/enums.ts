@@ -47,7 +47,7 @@ export enum ExplorerscanApi {
 export enum Unit {
   ETH = 'ETH',
   MATIC = 'MATIC',
-  SCP = 'Solace CP Token',
+  SCP = 'CP Token',
   SOLACE = 'SOLACE',
   LP = 'LP Token',
   ID = 'ID',

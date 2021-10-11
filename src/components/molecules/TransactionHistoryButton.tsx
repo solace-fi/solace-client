@@ -52,12 +52,12 @@ export const TransactionHistoryButton: React.FC<GeneralElementProps> = ({ ...pro
     <>
       <Button
         {...props}
-        width={width >= MAX_MOBILE_SCREEN_WIDTH ? undefined : 50}
+        width={width > MAX_MOBILE_SCREEN_WIDTH ? undefined : 50}
         onClick={() => openAccountModal()}
         secondary={localTransactions.length > 0}
       >
         <StyledHistory size={30} />
-        {localTransactions.length > 0 ? localTransactions.length : width >= MAX_MOBILE_SCREEN_WIDTH && 'History'}
+        {localTransactions.length > 0 ? localTransactions.length : width > MAX_MOBILE_SCREEN_WIDTH && 'History'}
       </Button>
     </>
   )

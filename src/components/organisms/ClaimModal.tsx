@@ -186,14 +186,16 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
         {!modalLoading ? (
           assessment ? (
             <Fragment>
-              <FormRow mb={0}>
-                <FormCol>
-                  <Text t4 autoAlign nowrap>
-                    {width > MAX_MOBILE_SCREEN_WIDTH ? 'By submitting a claim, you receive' : null}
-                  </Text>
-                </FormCol>
-                <FormCol></FormCol>
-              </FormRow>
+              {width > MAX_MOBILE_SCREEN_WIDTH && (
+                <FormRow mb={0}>
+                  <FormCol>
+                    <Text t4 autoAlign nowrap>
+                      By submitting a claim, you receive
+                    </Text>
+                  </FormCol>
+                  <FormCol></FormCol>
+                </FormRow>
+              )}
               <FormRow mb={0}>
                 <FormCol>
                   <Text t4 autoAlign nowrap>

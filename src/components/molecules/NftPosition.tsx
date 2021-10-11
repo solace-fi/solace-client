@@ -89,6 +89,7 @@ export const NftPosition: React.FC<NftPositionProps> = ({ tokenId }) => {
               <img src={image} style={{ width: '80%' }} />
             </ScaledContainer>
           ) : (
+            // mobile version
             <img src={image} style={{ width: '80%' }} />
           )}
         </Tilt>

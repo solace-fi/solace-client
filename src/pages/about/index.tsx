@@ -10,8 +10,8 @@ import whiteLogo from '../../resources/svg/solace-logo-white.svg'
 import polygonLogo from '../../resources/svg/grants/polygon-logo-white.svg'
 import nearLogo from '../../resources/svg/grants/near-logo-white.svg'
 import aaveLogo from '../../resources/svg/grants/aave-logo-white.svg'
-import { FormCol, FormRow } from '../../components/atoms/Form'
 import { MAX_MOBILE_SCREEN_WIDTH } from '../../constants'
+import { StyledNavLink } from '../../components/atoms/Link'
 
 function About(): any {
   const { width } = useWindowDimensions()
@@ -30,14 +30,18 @@ function About(): any {
               policies available to liquidity providers and other protocols.
             </Text>
             <ButtonWrapper mt={70} mb={90}>
-              <Button light width={200} style={{ padding: '15px 50px', borderRadius: '55px' }}>
-                Buy Cover
-              </Button>
-              <Button light width={200} style={{ padding: '15px 50px', borderRadius: '55px' }}>
-                <TextSpan nowrap style={{ color: 'inherit' }}>
-                  Underwrite Risk
-                </TextSpan>
-              </Button>
+              <StyledNavLink to="/quote">
+                <Button light width={200} style={{ padding: '15px 50px', borderRadius: '55px' }}>
+                  Buy Cover
+                </Button>
+              </StyledNavLink>
+              <StyledNavLink to="/invest">
+                <Button light width={200} style={{ padding: '15px 50px', borderRadius: '55px' }}>
+                  <TextSpan nowrap style={{ color: 'inherit' }}>
+                    Underwrite Risk
+                  </TextSpan>
+                </Button>
+              </StyledNavLink>
             </ButtonWrapper>
             <div>
               <Text light mont textAlignCenter style={{ fontSize: '24px' }} mb={10}>
@@ -81,6 +85,7 @@ function About(): any {
           </HeroContainer>
         </>
       ) : (
+        //mobile version
         <>
           <HeroContainer style={{ height: '100vh', marginTop: 'max(320px, 15%)' }}>
             <img
@@ -103,16 +108,20 @@ function About(): any {
               policies available to liquidity providers and other protocols.
             </Text>
             <ButtonWrapper mt={70} mb={90}>
-              <Button light width={150} style={{ padding: '15px 50px', borderRadius: '55px' }}>
-                <TextSpan light nowrap>
-                  Buy Cover
-                </TextSpan>
-              </Button>
-              <Button light width={150} style={{ padding: '15px 50px', borderRadius: '55px' }}>
-                <TextSpan light nowrap>
-                  Underwrite Risk
-                </TextSpan>
-              </Button>
+              <StyledNavLink to="/quote">
+                <Button light width={150} style={{ padding: '15px 50px', borderRadius: '55px' }}>
+                  <TextSpan light nowrap>
+                    Buy Cover
+                  </TextSpan>
+                </Button>
+              </StyledNavLink>
+              <StyledNavLink to="/invest">
+                <Button light width={150} style={{ padding: '15px 50px', borderRadius: '55px' }}>
+                  <TextSpan light nowrap>
+                    Underwrite Risk
+                  </TextSpan>
+                </Button>
+              </StyledNavLink>
             </ButtonWrapper>
             <div>
               <Text light mont textAlignCenter style={{ fontSize: '24px' }} mb={10}>

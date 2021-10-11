@@ -175,6 +175,7 @@ export const MyClaims: React.FC = () => {
                         widthP={100}
                         onClick={() => withdrawPayout(claim.id)}
                         disabled={!claim.canWithdraw || errors.length > 0}
+                        info
                       >
                         Withdraw Payout
                       </Button>

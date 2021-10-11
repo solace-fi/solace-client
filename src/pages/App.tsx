@@ -29,7 +29,6 @@ import Govern from './govern'
 
 /* import components */
 import { SideNavbar, TopNavbar } from '../components/organisms/Navbar'
-import { Footer, PageHeader } from '../components/organisms/Header'
 import { GlobalStyle, Layout, ContentContainer, LayoutContent, SideNavContent } from '../components/atoms/Layout'
 import { LayoutContentWithLoader } from '../components/molecules/LayoutContentWithLoader'
 import { Statistics } from '../components/organisms/Statistics'
@@ -41,14 +40,12 @@ export default function App(): any {
     <Fragment>
       <GlobalStyle location={location} />
       <TopNavbar />
-      <Footer />
       <Layout>
         <ContentContainer>
           <SideNavContent>
             <SideNavbar />
           </SideNavContent>
           <LayoutContent>
-            <PageHeader />
             <LayoutContentWithLoader>
               {location.pathname !== '/quote' && location.pathname !== '/' && <Statistics />}
               <Switch>

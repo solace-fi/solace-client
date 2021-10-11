@@ -160,10 +160,13 @@ export const MyPolicies: React.FC<MyPoliciesProps> = ({ openClaimModal, openMana
                             glow={policy.claimAssessment && policy.claimAssessment.lossEventDetected}
                             secondary={policy.claimAssessment && policy.claimAssessment.lossEventDetected}
                             onClick={() => openClaimModal(policy)}
+                            info
                           >
                             Claim
                           </Button>
-                          <Button onClick={() => openManageModal(policy)}>Manage</Button>
+                          <Button onClick={() => openManageModal(policy)} info>
+                            Manage
+                          </Button>
                         </TableDataGroup>
                       )}
                     </TableData>
@@ -236,10 +239,10 @@ export const MyPolicies: React.FC<MyPoliciesProps> = ({ openClaimModal, openMana
                   </FormRow>
                   {policy.status === PolicyState.ACTIVE && (
                     <ButtonWrapper isColumn>
-                      <Button widthP={100} onClick={() => openClaimModal(policy)}>
+                      <Button widthP={100} onClick={() => openClaimModal(policy)} info>
                         Claim
                       </Button>
-                      <Button widthP={100} onClick={() => openManageModal(policy)}>
+                      <Button widthP={100} onClick={() => openManageModal(policy)} info>
                         Manage
                       </Button>
                     </ButtonWrapper>

@@ -291,6 +291,7 @@ export const PolicyModalInfo: React.FC<PolicyModalInfoProps> = ({ appraisal, sel
             </FormCol>
           </FlexRow>
         ) : (
+          // mobile version
           <FlexCol>
             <FlexRow style={{ justifyContent: 'center' }} mt={10} mb={10}>
               <FlexCol>

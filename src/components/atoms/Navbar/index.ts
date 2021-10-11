@@ -8,7 +8,7 @@ interface TopNavProps {
 }
 
 export const TopNav = styled.div<TopNavProps>`
-  ${(props) => (props.isOpen == false ? 'max-height: 2.5rem;' : 'max-height: 5rem;')}
+  ${(props) => (props.isOpen == false ? 'max-height: 2.5rem;' : 'max-height: 100vh;')}
   position: fixed;
   overflow: hidden;
   background-color: rgba(0, 0, 0, 0.92);
@@ -36,6 +36,7 @@ export const SidebarTextCss = css<GeneralTextProps>`
   transition: all 0.2s;
   &:hover,
   &.is-active {
+    opacity: 1 !important;
     font-weight: 600;
   }
 

@@ -23,7 +23,7 @@ export const Scrollable = styled.div<ScrollableProps>`
   max-height: ${(props) => (props.maxDesktopHeight ? props.maxDesktopHeight : `60`)}vh;
   overflow-y: auto;
   padding: 10px;
-  background-color: rgba(0, 0, 0, 0.1);
+  background-color: ${(props) => props.theme.accordion.bg_color};
 
   @media screen and (max-width: ${MAX_MOBILE_SCREEN_WIDTH}px) {
     max-height: ${(props) => (props.maxMobileHeight ? props.maxMobileHeight : `75`)}vh;
@@ -96,7 +96,7 @@ export const ContentContainer = styled.div`
 export const SideNavContent = styled.div<HeightAndWidthProps>`
   padding: 20px;
   align-content: start;
-  min-width: ${(props) => ((props.width ? props.width : 10) / 100) * MAX_WIDTH}px;
+  min-width: ${(props) => ((props.width ? props.width : 12) / 100) * MAX_WIDTH}px;
 
   @media screen and (max-width: ${MAX_NAVBAR_SCREEN_WIDTH}px) {
     display: none;

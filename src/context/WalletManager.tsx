@@ -37,6 +37,7 @@ export type ContextWallet = {
   connecting?: WalletConnector
   isActive: boolean
   account?: string
+  name?: string
   library?: any
   connector?: AbstractConnector
   activeWalletConnector?: WalletConnector
@@ -51,6 +52,7 @@ const WalletContext = createContext<ContextWallet>({
   connecting: undefined,
   isActive: false,
   account: undefined,
+  name: undefined,
   library: undefined,
   connector: undefined,
   activeWalletConnector: undefined,
@@ -73,6 +75,7 @@ const WalletProvider: React.FC = (props) => {
   connectingRef.current = connecting
   const [walletModal, setWalletModal] = useState<boolean>(false)
   const { addErrors, removeErrors } = useGeneral()
+  const [name, setName] = useState<string | undefined>(undefined)
   const ethProvider = useMemo(() => new JsonRpcProvider(activeNetwork.rpc.httpsUrl), [activeNetwork])
 
   const date = Date.now()
@@ -193,12 +196,25 @@ const WalletProvider: React.FC = (props) => {
     })()
   }, [web3React])
 
+  useEffect(() => {
+    if (!web3React.account || !web3React.library) return
+    const checkForENS = async () => {
+      const name = await web3React.library.lookupAddress(web3React.account)
+      if (!name) return
+      const address = await web3React.library.resolveName(name)
+      if (!address) return
+      if (address == web3React.account) setName(name)
+    }
+    checkForENS()
+  }, [web3React.account, web3React.library])
+
   const value = useMemo<ContextWallet>(
     () => ({
       initialized,
       connecting,
       isActive: web3React.active,
       account: web3React.account ?? undefined,
+      name,
       library: web3React.account ? web3React.library : ethProvider,
       connector: web3React.connector,
       activeWalletConnector: activeConnector,

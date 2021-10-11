@@ -44,7 +44,7 @@ import { HorizRule } from '../atoms/Layout'
 
 /* import hooks */
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'
-import { SidebarAccount } from './Account'
+import { UserAccount } from './Account'
 
 export const SideNavbar: React.FC = () => {
   const location = useLocation()
@@ -57,49 +57,49 @@ export const SideNavbar: React.FC = () => {
 
   return (
     // <nav>
-    <div style={{ position: 'fixed', overflow: 'auto', top: '0', bottom: '0' }}>
+    <div style={{ position: 'fixed', overflow: 'auto', top: '0', bottom: '0', display: 'flex' }}>
       <div
         style={{
           padding: '40px 5px 0px 5px',
           display: 'flex',
           flexDirection: 'column',
-          minHeight: `calc(110vh - calc(${window.screen.height}px - ${window.innerHeight}px))`,
         }}
       >
-        <Logo location={location} mb={20} />
-        <SidebarAccount light={location.pathname == '/'} />
+        <Logo location={location} mb={35} />
+        <UserAccount light={location.pathname == '/'} />
         <ItemList>
           <HorizRule location={location} />
           <ItemText>
             <SidebarItem to={'/dashboard'}>
-              <Text bold={location.pathname == '/dashboard'} light={location.pathname == '/'}>
+              <Text info={location.pathname == '/dashboard'} light={location.pathname == '/'}>
                 Dashboard
               </Text>
             </SidebarItem>
           </ItemText>
           <ItemText>
             <SidebarItem to={'/quote'}>
-              <Text bold={location.pathname == '/quote'} light={location.pathname == '/'}>
+              <Text info={location.pathname == '/quote'} light={location.pathname == '/'}>
                 Buy Cover
               </Text>
             </SidebarItem>
           </ItemText>
           <ItemText>
             <SidebarItem to={'/invest'}>
-              <Text bold={location.pathname == '/invest'} light={location.pathname == '/'}>
+              <Text info={location.pathname == '/invest'} light={location.pathname == '/'}>
                 Invest
               </Text>
             </SidebarItem>
           </ItemText>
           <ItemText>
             <SidebarItem to={'/govern'}>
-              <Text bold={location.pathname == '/govern'} light={location.pathname == '/'}>
+              <Text info={location.pathname == '/govern'} light={location.pathname == '/'}>
                 Govern
               </Text>
             </SidebarItem>
           </ItemText>
         </ItemList>
-        <ItemList style={{ marginTop: 'auto', marginBottom: '0' }}>
+        <div style={{ flex: '1 1' }}></div>
+        <ItemList>
           <ItemText>
             <HyperLink
               href={'https://docs.solace.fi/'}
@@ -150,7 +150,7 @@ export const SideNavbar: React.FC = () => {
               rel="noopener noreferrer"
               style={{ lineHeight: '0' }}
             >
-              <SidebarText light={location.pathname == '/'}>
+              <SidebarText style={{ opacity: '0.8' }} light={location.pathname == '/'}>
                 <StyledDiscord size={20} />
               </SidebarText>
             </HyperLink>
@@ -160,7 +160,7 @@ export const SideNavbar: React.FC = () => {
               rel="noopener noreferrer"
               style={{ lineHeight: '0' }}
             >
-              <SidebarText light={location.pathname == '/'}>
+              <SidebarText style={{ opacity: '0.8' }} light={location.pathname == '/'}>
                 <StyledTwitter size={20} />
               </SidebarText>
             </HyperLink>
@@ -170,7 +170,7 @@ export const SideNavbar: React.FC = () => {
               rel="noopener noreferrer"
               style={{ lineHeight: '0' }}
             >
-              <SidebarText light={location.pathname == '/'}>
+              <SidebarText style={{ opacity: '0.8' }} light={location.pathname == '/'}>
                 <StyledGithub size={20} />
               </SidebarText>
             </HyperLink>
@@ -180,7 +180,7 @@ export const SideNavbar: React.FC = () => {
               rel="noopener noreferrer"
               style={{ lineHeight: '0' }}
             >
-              <SidebarText light={location.pathname == '/'}>
+              <SidebarText style={{ opacity: '0.8' }} light={location.pathname == '/'}>
                 <StyledMedium size={20} />
               </SidebarText>
             </HyperLink>
@@ -201,7 +201,7 @@ export const TopNavbar: React.FC = () => {
 
   *************************************************************************************/
   const { width } = useWindowDimensions()
-  const { openModal } = useGeneral()
+  // const { openModal } = useGeneral()
   const [isOpen, setIsOpen] = useState<boolean>(false)
   const location = useLocation()
 
@@ -212,15 +212,14 @@ export const TopNavbar: React.FC = () => {
   *************************************************************************************/
 
   useEffect(() => {
-    document.addEventListener('scroll', function (e) {
-      setIsOpen(false)
-    })
-
-    return () => {
-      document.removeEventListener('scroll', function (e) {
-        setIsOpen(false)
-      })
-    }
+    // document.addEventListener('scroll', function (e) {
+    //   setIsOpen(false)
+    // })
+    // return () => {
+    //   document.removeEventListener('scroll', function (e) {
+    //     setIsOpen(false)
+    //   })
+    // }
   }, [])
 
   /*************************************************************************************
@@ -230,7 +229,7 @@ export const TopNavbar: React.FC = () => {
   *************************************************************************************/
 
   return (
-    <TopNav isOpen={isOpen}>
+    <TopNav isOpen={isOpen} style={{ overflowY: isOpen ? 'auto' : 'hidden' }}>
       <Logo location={location} pl={10} />
       <ItemList>
         <SidebarItem onClick={() => setIsOpen(!isOpen)} to={'/dashboard'}>
@@ -253,15 +252,180 @@ export const TopNavbar: React.FC = () => {
             Govern
           </Text>
         </SidebarItem>
-        {width <= MAX_MOBILE_SCREEN_WIDTH && (
-          <>
-            <ThemeButton light />
-            <Button light mt={20} ml={20} mr={20} onClick={() => openModal()}>
-              Community Links
-            </Button>
-          </>
-        )}
       </ItemList>
+      <hr />
+      {width > MAX_MOBILE_SCREEN_WIDTH ? (
+        <ul
+          style={{
+            width: '100%',
+            padding: '0',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '15px',
+            justifyContent: 'center',
+          }}
+        >
+          <UserAccount light={location.pathname == '/'} />
+          <ItemList>
+            <ItemText>
+              <HyperLink
+                href={'https://docs.solace.fi/'}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ lineHeight: '0' }}
+              >
+                <SidebarText>
+                  <TextSpan t4 light>
+                    Docs
+                  </TextSpan>
+                </SidebarText>
+              </HyperLink>
+            </ItemText>
+            <ItemText>
+              <HyperLink
+                href={'https://whitepaper.solace.fi/'}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ lineHeight: '0' }}
+              >
+                <SidebarText>
+                  <TextSpan t4 light>
+                    Whitepaper
+                  </TextSpan>
+                </SidebarText>
+              </HyperLink>
+            </ItemText>
+            <ItemText>
+              <HyperLink
+                href={'https://angel.co/company/solace-fi/jobs'}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ lineHeight: '0' }}
+              >
+                <SidebarText>
+                  <TextSpan t4 light>
+                    Jobs
+                  </TextSpan>
+                </SidebarText>
+              </HyperLink>
+            </ItemText>
+            <ItemText>
+              <HyperLink
+                href={'https://discord.gg/7v8qsyepfu'}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ lineHeight: '0' }}
+              >
+                <SidebarText light>
+                  <StyledDiscord size={20} />
+                </SidebarText>
+              </HyperLink>
+            </ItemText>
+            <ItemText>
+              <HyperLink
+                href={'https://twitter.com/solacefi'}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ lineHeight: '0' }}
+              >
+                <SidebarText light>
+                  <StyledTwitter size={20} />
+                </SidebarText>
+              </HyperLink>
+            </ItemText>
+            <ItemText>
+              <HyperLink
+                href={'https://github.com/solace-fi'}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ lineHeight: '0' }}
+              >
+                <SidebarText light>
+                  <StyledGithub size={20} />
+                </SidebarText>
+              </HyperLink>
+            </ItemText>
+            <ItemText>
+              <HyperLink
+                href={'https://medium.com/solace-fi'}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ lineHeight: '0' }}
+              >
+                <SidebarText light>
+                  <StyledMedium size={20} />
+                </SidebarText>
+              </HyperLink>
+            </ItemText>
+          </ItemList>
+          <ThemeButton light />
+        </ul>
+      ) : (
+        // mobile version
+        <>
+          <UserAccount light={location.pathname == '/'} />
+          <ItemText style={{ padding: '10px', justifyContent: 'space-evenly' }}>
+            <SidebarItem to={'https://docs.solace.fi/'}>
+              <TextSpan t4 light>
+                Docs
+              </TextSpan>
+            </SidebarItem>
+            <SidebarItem to={'https://whitepaper.solace.fi/'}>
+              <TextSpan t4 light>
+                Whitepaper
+              </TextSpan>
+            </SidebarItem>
+            <SidebarItem to={'https://angel.co/company/solace-fi/jobs'}>
+              <TextSpan t4 light>
+                Jobs
+              </TextSpan>
+            </SidebarItem>
+          </ItemText>
+          <ItemText style={{ padding: '0', justifyContent: 'space-evenly' }}>
+            <HyperLink
+              href={'https://discord.gg/7v8qsyepfu'}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ lineHeight: '0' }}
+            >
+              <SidebarText light>
+                <StyledDiscord size={20} />
+              </SidebarText>
+            </HyperLink>
+            <HyperLink
+              href={'https://twitter.com/solacefi'}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ lineHeight: '0' }}
+            >
+              <SidebarText light>
+                <StyledTwitter size={20} />
+              </SidebarText>
+            </HyperLink>
+            <HyperLink
+              href={'https://github.com/solace-fi'}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ lineHeight: '0' }}
+            >
+              <SidebarText light>
+                <StyledGithub size={20} />
+              </SidebarText>
+            </HyperLink>
+            <HyperLink
+              href={'https://medium.com/solace-fi'}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ lineHeight: '0' }}
+            >
+              <SidebarText light>
+                <StyledMedium size={20} />
+              </SidebarText>
+            </HyperLink>
+          </ItemText>
+          <ThemeButton pt={20} light />
+        </>
+      )}
       <NavButton light onClick={() => setIsOpen(!isOpen)}>
         <StyledMenu size={40} />
       </NavButton>

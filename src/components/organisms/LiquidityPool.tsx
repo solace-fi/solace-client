@@ -165,6 +165,7 @@ export const LiquidityPool: React.FC<LiquidityPoolProps> = ({ openModal }) => {
           </TableBody>
         </Table>
       ) : (
+        // mobile version
         <Card>
           {account && (
             <FormRow>

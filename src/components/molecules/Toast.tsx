@@ -57,7 +57,7 @@ export const AppToast: React.FC<AppToastProps> = ({ message, icon }) => {
   return (
     <ToastWrapper>
       {icon}
-      <FlexedToastMessage>{message}</FlexedToastMessage>
+      <FlexedToastMessage light>{message}</FlexedToastMessage>
     </ToastWrapper>
   )
 }

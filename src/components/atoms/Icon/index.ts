@@ -19,6 +19,7 @@ import { Medium } from '@styled-icons/boxicons-logos/Medium'
 import { Documents } from '@styled-icons/ionicons-sharp/Documents'
 import { DocumentText } from '@styled-icons/typicons/DocumentText'
 import { Work } from '@styled-icons/material/Work'
+import { Copy } from '@styled-icons/boxicons-regular/Copy'
 
 export const StyledIconCss = css`
   margin: auto;
@@ -65,6 +66,8 @@ export const StyledMoon = styled(DarkMode)``
 export const StyledTheme = styled(DarkTheme)``
 
 export const StyledArrowDropDown = styled(ArrowDropDown)``
+
+export const StyledCopy = styled(Copy)``
 
 export const StyledLinkExternal = styled(LinkExternal)``
 

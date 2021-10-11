@@ -146,6 +146,7 @@ export const CapitalProviderPool: React.FC<CapitalProviderPoolProps> = ({ openMo
           </TableBody>
         </Table>
       ) : (
+        // mobile version
         <Card>
           {account && (
             <FormRow>

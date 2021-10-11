@@ -42,6 +42,11 @@ export const ButtonBaseCss = css<ButtonProps & GeneralElementProps>`
   ${(props) => props.analogical && `border: 1px solid ${props.theme.typography.analogicalText};`}
   ${(props) => props.light && `border: 1px solid ${props.theme.typography.lightText};`}
   ${(props) => props.dark && `border: 1px solid ${props.theme.typography.darkText};`}
+  ${(props) => props.success && `border: 1px solid ${props.theme.typography.successText};`}
+  ${(props) => props.info && `border: 1px solid ${props.theme.typography.infoText};`}
+  ${(props) => props.warning && `border: 1px solid ${props.theme.typography.warningText};`}
+  ${(props) => props.error && `border: 1px solid ${props.theme.typography.errorText};`}
+
   ${(props) => props.noborder && `border: none;`}
 
   ${(props) => !props.noradius && `border-radius: 10px;`}
@@ -78,8 +83,30 @@ export const ButtonBaseCss = css<ButtonProps & GeneralElementProps>`
             : props.theme.typography.contrastText
         }; background-color: rgba(0, 0, 0, 0); opacity: 0.5; transform: scale(.9);`
       : props.secondary
-      ? `color: ${props.theme.button.secondary_text_color}; background-color: ${
-          props.theme.button.hover_color
+      ? `color: ${
+          props.light
+            ? props.theme.typography.darkText
+            : props.dark || props.info || props.success || props.warning || props.error
+            ? props.theme.typography.lightText
+            : props.analogical
+            ? props.theme.typography.contrastText
+            : props.theme.typography.analogicalText
+        }; background-color: ${
+          props.light
+            ? props.theme.typography.lightText
+            : props.dark
+            ? props.theme.typography.darkText
+            : props.analogical
+            ? props.theme.typography.analogicalText
+            : props.info
+            ? props.theme.typography.infoText
+            : props.success
+            ? props.theme.typography.successText
+            : props.warning
+            ? props.theme.typography.warningText
+            : props.error
+            ? props.theme.typography.errorText
+            : props.theme.typography.contrastText
         }; &:hover { ${!props.nohover && `opacity: 0.8;`} }`
       : `color: ${
           props.light
@@ -99,7 +126,31 @@ export const ButtonBaseCss = css<ButtonProps & GeneralElementProps>`
             : props.theme.typography.contrastText
         }; background-color: rgba(0, 0, 0, 0); &:hover { ${
           !props.nohover &&
-          `color: ${props.theme.button.secondary_text_color}; background-color: ${props.theme.button.hover_color};`
+          `color: ${
+            props.light
+              ? props.theme.typography.darkText
+              : props.dark || props.info || props.success || props.warning || props.error
+              ? props.theme.typography.lightText
+              : props.analogical
+              ? props.theme.typography.contrastText
+              : props.theme.typography.analogicalText
+          }; background-color: ${
+            props.light
+              ? props.theme.typography.lightText
+              : props.dark
+              ? props.theme.typography.darkText
+              : props.analogical
+              ? props.theme.typography.analogicalText
+              : props.info
+              ? props.theme.typography.infoText
+              : props.success
+              ? props.theme.typography.successText
+              : props.warning
+              ? props.theme.typography.warningText
+              : props.error
+              ? props.theme.typography.errorText
+              : props.theme.typography.contrastText
+          };`
         } }`};
   ${(props) => props.glow && `box-shadow: ${props.theme.button.glow};`}
   ${Text4Css}

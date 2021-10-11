@@ -447,9 +447,11 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
                             protocol.name,
                             (position.position as LiquityPosition).positionName
                           ) ? (
-                            <Button widthP={width > MAX_MOBILE_SCREEN_WIDTH ? undefined : 100}>Manage</Button>
+                            <Button widthP={width > MAX_MOBILE_SCREEN_WIDTH ? undefined : 100} info>
+                              Manage
+                            </Button>
                           ) : (
-                            <Button widthP={width > MAX_MOBILE_SCREEN_WIDTH ? undefined : 100}>
+                            <Button widthP={width > MAX_MOBILE_SCREEN_WIDTH ? undefined : 100} info>
                               {selectedPositions.some(
                                 (selectedPosition) =>
                                   (selectedPosition.position as LiquityPosition).positionAddress ==
