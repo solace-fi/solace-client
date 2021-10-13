@@ -40,7 +40,7 @@ import {
   BasicData,
   LiquityPosition,
 } from '../../constants/types'
-import { MAX_MOBILE_SCREEN_WIDTH, ZERO } from '../../constants'
+import { END_BREAKPOINT_3, ZERO } from '../../constants'
 
 /* import components */
 import { Box, BoxItem, BoxItemTitle } from '../atoms/Box'
@@ -164,7 +164,7 @@ export const PolicyModalInfo: React.FC<PolicyModalInfoProps> = ({ appraisal, sel
         assets={assets}
         modalTitle={`Covered Assets (${assets.length})`}
       />
-      {width > MAX_MOBILE_SCREEN_WIDTH ? (
+      {width > END_BREAKPOINT_3 ? (
         <Box transparent pl={10} pr={10} pt={20} pb={20}>
           <BoxItem>
             <BoxItemTitle t3>Policy ID</BoxItemTitle>
@@ -261,8 +261,8 @@ export const PolicyModalInfo: React.FC<PolicyModalInfoProps> = ({ appraisal, sel
           </FormRow>
         </Card>
       )}
-      <HeroContainer height={width > MAX_MOBILE_SCREEN_WIDTH ? 150 : 200}>
-        {width > MAX_MOBILE_SCREEN_WIDTH ? (
+      <HeroContainer height={width > END_BREAKPOINT_3 ? 150 : 200}>
+        {width > END_BREAKPOINT_3 ? (
           <FlexRow>
             <FormCol>
               <DeFiAsset style={{ flexDirection: 'column' }}>

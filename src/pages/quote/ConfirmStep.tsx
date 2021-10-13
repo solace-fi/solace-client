@@ -46,10 +46,13 @@ export const ConfirmStep: React.FC<ConfirmStepProp> = ({ resetForm }) => {
       <div style={{ marginTop: '24px' }}>
         <TableDataGroup>
           <StyledNavLink to="/dashboard">
-            <Button secondary>Go to Dashboard</Button>
+            <Button secondary info>
+              Go to Dashboard
+            </Button>
           </StyledNavLink>
           <Button
             secondary
+            info
             onClick={() => {
               resetForm()
             }}

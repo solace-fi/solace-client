@@ -79,7 +79,7 @@ function Invest(): any {
       ) : (
         <>
           <CapitalProviderPool openModal={openModal} />
-          <LiquidityPool openModal={openModal} />
+          {/* <LiquidityPool openModal={openModal} /> */}
         </>
       )}
     </Fragment>

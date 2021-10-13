@@ -27,7 +27,7 @@ import { formatUnits, parseUnits } from '@ethersproject/units'
 import { BigNumber } from 'ethers'
 
 /* import constants */
-import { GAS_LIMIT, MAX_MOBILE_SCREEN_WIDTH, ZERO } from '../../constants'
+import { GAS_LIMIT, END_BREAKPOINT_3, ZERO } from '../../constants'
 import { TransactionCondition, FunctionName, Unit, PolicyState } from '../../constants/enums'
 
 /* import managers */
@@ -154,7 +154,7 @@ export const Statistics: React.FC = () => {
 
   return (
     <>
-      {width > MAX_MOBILE_SCREEN_WIDTH ? (
+      {width > END_BREAKPOINT_3 ? (
         <BoxRow>
           {initialized && account ? (
             <Box>

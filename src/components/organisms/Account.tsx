@@ -106,3 +106,41 @@ export const UserAccount: React.FC<ButtonProps & GeneralElementProps> = (props) 
     </Button>
   )
 }
+
+export const MiniUserAccount: React.FC<ButtonProps & GeneralElementProps> = (props) => {
+  /*************************************************************************************
+
+  custom hooks
+
+  *************************************************************************************/
+  const { appTheme } = useGeneral()
+  const location = useLocation()
+  const { account } = useWallet()
+  const { openAccountModal } = useCachedData()
+
+  /*************************************************************************************
+
+  Render
+  
+  *************************************************************************************/
+
+  return (
+    <Button noborder nohover p={0} onClick={() => openAccountModal()} {...props}>
+      <FlexCol
+        style={{
+          backgroundColor: location.pathname == '/' || appTheme == 'dark' ? 'rgba(0, 0, 0, 0.1)' : 'rgb(242, 242, 242)',
+          borderRadius: '10px',
+          padding: '5px',
+        }}
+      >
+        <UserImage style={{ width: '30px', height: '30px' }}>
+          {account ? (
+            <img style={{ borderRadius: '10px' }} src={makeBlockie(account)} alt={'account'} />
+          ) : (
+            <StyledWallet size={30} />
+          )}
+        </UserImage>
+      </FlexCol>
+    </Button>
+  )
+}

@@ -31,7 +31,7 @@ import { useGeneral } from '../../context/GeneralProvider'
 
 /* import constants */
 import { FunctionName } from '../../constants/enums'
-import { LP_ROI, MAX_TABLET_SCREEN_WIDTH } from '../../constants'
+import { LP_ROI, END_BREAKPOINT_6 } from '../../constants'
 
 /* import components */
 import { Content } from '../atoms/Layout'
@@ -94,7 +94,7 @@ export const LiquidityPool: React.FC<LiquidityPoolProps> = ({ openModal }) => {
       <Text t4 pb={10}>
         Manage your Uniswap V3 SOLACE-ETH LP tokens in this pool and earn rewards
       </Text>
-      {width > MAX_TABLET_SCREEN_WIDTH ? (
+      {width > END_BREAKPOINT_6 ? (
         <Table isHighlight textAlignCenter>
           <TableHead>
             <TableRow>
@@ -165,7 +165,7 @@ export const LiquidityPool: React.FC<LiquidityPoolProps> = ({ openModal }) => {
           </TableBody>
         </Table>
       ) : (
-        // mobile version
+        // tablet version
         <Card>
           {account && (
             <FormRow>

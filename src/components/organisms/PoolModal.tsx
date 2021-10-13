@@ -607,6 +607,7 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
                   setAmount(calculateMaxEth().toString())
                   setMaxSelected(true)
                 }}
+                info
               >
                 MAX
               </Button>
@@ -656,6 +657,7 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
                       errors.length > 0
                     }
                     onClick={handleCallbackFunc}
+                    info
                   >
                     Confirm
                   </Button>
@@ -743,6 +745,7 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
                   hidden={modalLoading}
                   disabled={(isAppropriateAmount() ? false : true) || errors.length > 0}
                   onClick={handleCallbackFunc}
+                  info
                 >
                   Confirm
                 </Button>

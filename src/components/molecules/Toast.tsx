@@ -111,7 +111,7 @@ export const NotificationToast: React.FC<NotificationToastProps> = ({ message, c
           </HyperLink>
         )}
         {condition == TransactionCondition.PENDING ? (
-          <Loader width={10} height={10} />
+          <Loader width={10} height={10} style={{ color: 'rgb(250, 250, 250)' }} />
         ) : condition == TransactionCondition.SUCCESS ? (
           <StyledCheckmark size={30} />
         ) : (

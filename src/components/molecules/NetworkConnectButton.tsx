@@ -10,7 +10,7 @@
 
     styled components
 
-    WalletConnectButton function
+    NetworkConnectButton function
       custom hooks
       Render
 

@@ -28,7 +28,7 @@ import styled from 'styled-components'
 import useDebounce from '@rooks/use-debounce'
 
 /* import constants */
-import { DAYS_PER_YEAR, NUM_BLOCKS_PER_DAY, MAX_MOBILE_SCREEN_WIDTH } from '../../constants'
+import { DAYS_PER_YEAR, NUM_BLOCKS_PER_DAY, END_BREAKPOINT_3 } from '../../constants'
 
 /* import context */
 import { useContracts } from '../../context/ContractsManager'
@@ -66,7 +66,7 @@ const ActionsContainer = styled.div`
     width: 300px;
   }
 
-  @media screen and (max-width: ${MAX_MOBILE_SCREEN_WIDTH}px) {
+  @media screen and (max-width: ${END_BREAKPOINT_3}px) {
     justify-content: center;
   }
 `
@@ -130,7 +130,7 @@ export const ProtocolStep: React.FC<formProps> = ({ setForm, navigation }) => {
         <Search type="search" placeholder="Search" onChange={(e) => handleSearch(e.target.value)} />
       </ActionsContainer>
       <Fragment>
-        {width > MAX_MOBILE_SCREEN_WIDTH ? (
+        {width > END_BREAKPOINT_3 ? (
           <Scrollable style={{ padding: '0 10px 0 10px' }}>
             <Table canHover style={{ borderSpacing: '0px 7px' }}>
               <TableHead sticky>

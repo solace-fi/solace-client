@@ -29,7 +29,7 @@ import { useNetwork } from '../../context/NetworkManager'
 
 /* import constants */
 import { Policy } from '../../constants/types'
-import { MAX_TABLET_SCREEN_WIDTH } from '../../constants'
+import { END_BREAKPOINT_5 } from '../../constants'
 import { PolicyState } from '../../constants/enums'
 
 /* import components */
@@ -88,7 +88,7 @@ export const MyPolicies: React.FC<MyPoliciesProps> = ({ openClaimModal, openMana
   return (
     <Fragment>
       {userPolicyData.userPolicies.length > 0 ? (
-        width > MAX_TABLET_SCREEN_WIDTH ? (
+        width > END_BREAKPOINT_5 ? (
           <Table textAlignCenter style={{ borderSpacing: '0px 7px' }}>
             <TableHead sticky>
               <TableRow>
@@ -176,7 +176,7 @@ export const MyPolicies: React.FC<MyPoliciesProps> = ({ openClaimModal, openMana
             </TableBody>
           </Table>
         ) : (
-          // mobile version
+          // laptop version
           <CardContainer cardsPerRow={3} p={10}>
             {userPolicyData.userPolicies.map((policy) => {
               return (
@@ -209,7 +209,7 @@ export const MyPolicies: React.FC<MyPoliciesProps> = ({ openClaimModal, openMana
                   <FormRow mb={10}>
                     <FormCol>ID:</FormCol>
                     <FormCol>
-                      <Text t3>{policy.policyId}</Text>
+                      <Text t2>{policy.policyId}</Text>
                     </FormCol>
                   </FormRow>
                   <FormRow mb={10}>

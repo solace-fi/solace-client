@@ -280,7 +280,7 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
             </Text>
           </FormCol>
           <FormCol>
-            <Text bold t2 textAlignRight>
+            <Text bold t2 textAlignRight info>
               {formatUnits(positionAmount, currencyDecimals)} {activeNetwork.nativeCurrency.symbol}
             </Text>
           </FormCol>
@@ -296,7 +296,7 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
             </Text>
           </FormCol>
           <FormCol>
-            <Text t3 textAlignRight>
+            <Text t3 textAlignRight info>
               {maxCoverPerPolicy} {activeNetwork.nativeCurrency.symbol}
             </Text>
           </FormCol>
@@ -314,6 +314,7 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
                 type="text"
                 value={inputCoverage}
                 onChange={(e) => handleInputCoverage(filteredAmount(e.target.value, inputCoverage))}
+                info
               />
               <Button
                 disabled={errors.length > 0}
@@ -325,6 +326,7 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
                 width={79}
                 height={30}
                 onClick={() => setMaxCover()}
+                info
               >
                 MAX
               </Button>
@@ -350,6 +352,7 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
                 value={timePeriod}
                 onChange={(e) => filteredTime(e.target.value)}
                 maxLength={3}
+                info
               />
             </div>
             <StyledSlider
@@ -367,7 +370,7 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
           </FormCol>
           <FormCol>
             <FlexRow>
-              <Text t4 bold>
+              <Text t4 bold info>
                 {coveredAssets} {activeNetwork.nativeCurrency.symbol}
               </Text>
             </FlexRow>
@@ -379,11 +382,11 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
           </FormCol>
           <FormCol>
             <Text t4>
-              <TextSpan nowrap pl={5} pr={5}>
+              <TextSpan nowrap pl={5} pr={5} info>
                 {getDateStringWithMonthName(new Date(Date.now()))}
               </TextSpan>{' '}
-              -{' '}
-              <TextSpan pl={5} pr={5}>
+              <TextSpan info>-</TextSpan>{' '}
+              <TextSpan pl={5} pr={5} info>
                 {getDateStringWithMonthName(getDateExtended(parseFloat(timePeriod || '1')))}
               </TextSpan>
             </Text>
@@ -394,14 +397,19 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
             <Text t4>Quote</Text>
           </FormCol>
           <FormCol>
-            <Text t4 bold>
+            <Text t4 bold info>
               {quote} {activeNetwork.nativeCurrency.symbol}
             </Text>
           </FormCol>
         </FormRow>
         <ButtonWrapper>
           {!loading ? (
-            <Button widthP={100} onClick={() => buyPolicy()} disabled={errors.length > 0 || coveredAssets == '0.0'}>
+            <Button
+              widthP={100}
+              onClick={() => buyPolicy()}
+              disabled={errors.length > 0 || coveredAssets == '0.0'}
+              info
+            >
               Buy
             </Button>
           ) : (

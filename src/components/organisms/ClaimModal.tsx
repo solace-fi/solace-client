@@ -45,7 +45,7 @@ import { Table, TableBody, TableRow, TableData } from '../atoms/Table'
 
 /* import constants */
 import { FunctionName, TransactionCondition, Unit } from '../../constants/enums'
-import { GAS_LIMIT, MAX_MOBILE_SCREEN_WIDTH } from '../../constants'
+import { GAS_LIMIT, END_BREAKPOINT_3 } from '../../constants'
 import { Policy, ClaimAssessment } from '../../constants/types'
 
 /* import hooks */
@@ -58,6 +58,7 @@ import { useGasConfig } from '../../hooks/useGas'
 import { truncateBalance } from '../../utils/formatting'
 import { timeToDateText } from '../../utils/time'
 import { getClaimAssessment } from '../../utils/paclas'
+import { HyperLink } from '../atoms/Link'
 
 interface ClaimModalProps {
   closeModal: () => void
@@ -186,7 +187,7 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
         {!modalLoading ? (
           assessment ? (
             <Fragment>
-              {width > MAX_MOBILE_SCREEN_WIDTH && (
+              {width > END_BREAKPOINT_3 && (
                 <FormRow mb={0}>
                   <FormCol>
                     <Text t4 autoAlign nowrap>
@@ -199,7 +200,7 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
               <FormRow mb={0}>
                 <FormCol>
                   <Text t4 autoAlign nowrap>
-                    {width > MAX_MOBILE_SCREEN_WIDTH ? 'pre-exploit assets value equal to' : 'Receiving'}
+                    {width > END_BREAKPOINT_3 ? 'pre-exploit assets value equal to' : 'Receiving'}
                   </Text>
                 </FormCol>
                 <FormCol>
@@ -209,6 +210,27 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
                   </Text>
                 </FormCol>
               </FormRow>
+              <SmallBox style={{ justifyContent: 'center' }} transparent mt={10}>
+                <Text t4 bold warning textAlignCenter>
+                  Please wait for the cooldown period to elapse before withdrawing your payout.
+                </Text>
+              </SmallBox>
+              <Table isHighlight light>
+                <TableBody>
+                  <TableRow>
+                    <TableData>
+                      <Text t2 light>
+                        Current Cooldown Period
+                      </Text>
+                    </TableData>
+                    <TableData textAlignRight>
+                      <Text t2 light>
+                        {timeToDateText(parseInt(cooldown) * 1000)}
+                      </Text>
+                    </TableData>
+                  </TableRow>
+                </TableBody>
+              </Table>
               <SmallBox
                 style={{ justifyContent: 'center' }}
                 transparent
@@ -226,31 +248,27 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
                   </Text>
                 </Box>
               ) : (
-                <ButtonWrapper>
+                <ButtonWrapper isColumn={width < END_BREAKPOINT_3}>
                   <Button
                     widthP={100}
                     disabled={errors.length > 0 || !assessment.lossEventDetected}
                     onClick={() => submitClaim()}
+                    info
                   >
                     Submit Claim
                   </Button>
+                  <HyperLink
+                    href={'https://docs.solace.fi'}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{ width: '100%' }}
+                  >
+                    <Button widthP={100} disabled={errors.length > 0 || !assessment.lossEventDetected} info>
+                      Dispute Claim
+                    </Button>
+                  </HyperLink>
                 </ButtonWrapper>
               )}
-              <SmallBox style={{ justifyContent: 'center' }} transparent>
-                <Text t4 bold warning textAlignCenter>
-                  Please wait for the cooldown period to elapse before withdrawing your payout.
-                </Text>
-              </SmallBox>
-              <Table isHighlight light>
-                <TableBody>
-                  <TableRow>
-                    <TableData t2>Current Cooldown Period</TableData>
-                    <TableData t2 textAlignRight>
-                      {timeToDateText(parseInt(cooldown) * 1000)}
-                    </TableData>
-                  </TableRow>
-                </TableBody>
-              </Table>
             </Fragment>
           ) : (
             <Box transparent mt={20} mb={20}>

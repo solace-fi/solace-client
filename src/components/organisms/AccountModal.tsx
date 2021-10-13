@@ -24,7 +24,7 @@ import React, { useCallback } from 'react'
 import makeBlockie from 'ethereum-blockies-base64'
 
 /* import constants */
-import { MAX_TABLET_SCREEN_WIDTH, MAX_MOBILE_SCREEN_WIDTH } from '../../constants'
+import { END_BREAKPOINT_5, END_BREAKPOINT_3 } from '../../constants'
 import { ExplorerscanApi } from '../../constants/enums'
 
 /* import managers */
@@ -94,7 +94,7 @@ export const AccountModal: React.FC<AccountModalProps> = ({ closeModal, isOpen }
   *************************************************************************************/
   return (
     <Modal handleClose={handleClose} isOpen={isOpen} modalTitle={'Account'} disableCloseButton={false}>
-      <CardContainer cardsPerRow={1} mb={10}>
+      <CardContainer cardsPerRow={2} mb={10}>
         {account && activeWalletConnector && (
           <Card color1>
             <FormRow style={{ justifyContent: 'center' }} m={0}>
@@ -108,7 +108,7 @@ export const AccountModal: React.FC<AccountModalProps> = ({ closeModal, isOpen }
             <FormRow mb={5}>
               <Input widthP={100} readOnly value={account} light textAlignCenter />
             </FormRow>
-            <ButtonWrapper mt={15} mb={5} isColumn={width < MAX_MOBILE_SCREEN_WIDTH}>
+            <ButtonWrapper mt={15} mb={5} isColumn={width <= END_BREAKPOINT_3}>
               <CopyButton toCopy={account} />
               <HyperLink
                 href={getExplorerItemUrl(activeNetwork.explorer.url, account, ExplorerscanApi.ADDRESS)}
@@ -116,7 +116,7 @@ export const AccountModal: React.FC<AccountModalProps> = ({ closeModal, isOpen }
                 rel="noopener noreferrer"
                 style={{ width: '100%' }}
               >
-                <Button widthP={100} light>
+                <Button widthP={100} light style={{ whiteSpace: 'nowrap' }}>
                   View on {activeNetwork.explorer.name}
                 </Button>
               </HyperLink>
@@ -138,7 +138,7 @@ export const AccountModal: React.FC<AccountModalProps> = ({ closeModal, isOpen }
               </Text>
             </BoxItem>
           </Box>
-          <ButtonWrapper mt={15} mb={5} isColumn={width < MAX_MOBILE_SCREEN_WIDTH}>
+          <ButtonWrapper mt={20} mb={5} isColumn={width <= END_BREAKPOINT_3}>
             <WalletConnectButton widthP={100} light />
             <NetworkConnectButton widthP={100} light />
           </ButtonWrapper>
@@ -154,7 +154,7 @@ export const AccountModal: React.FC<AccountModalProps> = ({ closeModal, isOpen }
               <TableHead sticky>
                 <TableRow>
                   <TableHeader>Type</TableHeader>
-                  {width > MAX_TABLET_SCREEN_WIDTH && (
+                  {width > END_BREAKPOINT_5 && (
                     <>
                       <TableHeader>Content</TableHeader>
                       <TableHeader>Time</TableHeader>
@@ -169,7 +169,7 @@ export const AccountModal: React.FC<AccountModalProps> = ({ closeModal, isOpen }
                     <TableData pt={5} pb={5} t4>
                       {pendingtx.type}
                     </TableData>
-                    {width > MAX_TABLET_SCREEN_WIDTH && (
+                    {width > END_BREAKPOINT_5 && (
                       <>
                         <TableData pt={5} pb={5} t4>{`${pendingtx.value} ${pendingtx.unit}`}</TableData>
                         <TableData pt={5} pb={5} t4>
@@ -195,8 +195,8 @@ export const AccountModal: React.FC<AccountModalProps> = ({ closeModal, isOpen }
                         t4
                         pt={5}
                         pb={5}
-                        pl={width <= MAX_MOBILE_SCREEN_WIDTH ? 0 : undefined}
-                        pr={width <= MAX_MOBILE_SCREEN_WIDTH ? 0 : undefined}
+                        pl={width <= END_BREAKPOINT_3 ? 0 : undefined}
+                        pr={width <= END_BREAKPOINT_3 ? 0 : undefined}
                       >
                         {amounts.length > 0 ? (
                           <Text error={tx.txreceipt_status != '1'}>
@@ -206,7 +206,7 @@ export const AccountModal: React.FC<AccountModalProps> = ({ closeModal, isOpen }
                           <Loader width={10} height={10} />
                         )}
                       </TableData>
-                      {width > MAX_TABLET_SCREEN_WIDTH && (
+                      {width > END_BREAKPOINT_5 && (
                         <>
                           <TableData pt={5} pb={5} t4>
                             {amounts.length > 0 && tx.txreceipt_status == '1' && <Text>{amounts[i]}</Text>}
@@ -223,8 +223,8 @@ export const AccountModal: React.FC<AccountModalProps> = ({ closeModal, isOpen }
                         t4
                         pt={5}
                         pb={5}
-                        pl={width <= MAX_MOBILE_SCREEN_WIDTH ? 0 : undefined}
-                        pr={width <= MAX_MOBILE_SCREEN_WIDTH ? 0 : undefined}
+                        pl={width <= END_BREAKPOINT_3 ? 0 : undefined}
+                        pr={width <= END_BREAKPOINT_3 ? 0 : undefined}
                       >
                         {amounts.length > 0 && (
                           <HyperLink

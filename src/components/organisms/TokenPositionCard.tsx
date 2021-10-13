@@ -8,7 +8,7 @@ import { TextSpan } from '../atoms/Typography'
 import { useGeneral } from '../../context/GeneralProvider'
 
 import { Position, Token, Policy } from '../../constants/types'
-import { MAX_MOBILE_SCREEN_WIDTH } from '../../constants'
+import { END_BREAKPOINT_3 } from '../../constants'
 
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'
 
@@ -96,12 +96,16 @@ export const TokenPositionCard: React.FC<TokenPositionCardProps> = ({
       </PositionCardText>
       <PositionCardButton>
         {isActive ? (
-          <Button widthP={width > MAX_MOBILE_SCREEN_WIDTH ? undefined : 100} light={lightText}>
+          <Button widthP={width > END_BREAKPOINT_3 ? undefined : 100} light>
             Manage
           </Button>
+        ) : isSelected ? (
+          <Button widthP={width > END_BREAKPOINT_3 ? undefined : 100} light>
+            {'Deselect'}
+          </Button>
         ) : (
-          <Button widthP={width > MAX_MOBILE_SCREEN_WIDTH ? undefined : 100} light={lightText} info>
-            {isSelected ? 'Deselect' : 'Select'}
+          <Button widthP={width > END_BREAKPOINT_3 ? undefined : 100} info>
+            {'Select'}
           </Button>
         )}
       </PositionCardButton>

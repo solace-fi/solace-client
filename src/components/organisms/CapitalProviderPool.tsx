@@ -33,7 +33,7 @@ import { FormRow, FormCol } from '../atoms/Form'
 import { StyledTooltip } from '../molecules/Tooltip'
 
 /* import constants */
-import { CP_ROI, MAX_TABLET_SCREEN_WIDTH } from '../../constants'
+import { CP_ROI, END_BREAKPOINT_6 } from '../../constants'
 import { FunctionName } from '../../constants/enums'
 
 /* import hooks */
@@ -84,7 +84,7 @@ export const CapitalProviderPool: React.FC<CapitalProviderPoolProps> = ({ openMo
       <Text t4 pb={10}>
         This pool rewards capital providers with options
       </Text>
-      {width > MAX_TABLET_SCREEN_WIDTH ? (
+      {width > END_BREAKPOINT_6 ? (
         <Table isHighlight textAlignCenter>
           <TableHead>
             <TableRow>
@@ -146,7 +146,7 @@ export const CapitalProviderPool: React.FC<CapitalProviderPoolProps> = ({ openMo
           </TableBody>
         </Table>
       ) : (
-        // mobile version
+        // tablet version
         <Card>
           {account && (
             <FormRow>

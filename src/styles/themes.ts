@@ -141,7 +141,7 @@ export const darkTheme = {
   },
   radio: {
     checked_color: '#fff',
-    checked_bg_color: 'rgba(255, 255, 255, 0.4)',
+    checked_bg_color: 'rgb(95, 93, 249)',
     checked_circle_color: 'rgb(250, 250, 250)',
     circle_color: 'rgb(250, 250, 250)',
   },

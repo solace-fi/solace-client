@@ -109,7 +109,7 @@ export const WalletModal: React.FC<WalletModalProps> = ({ closeModal, isOpen }) 
                   <img src={wallet.logo} alt={wallet.name} height={32} />
                 </ModalCell>
                 <ModalCell p={10}>
-                  <Text t4 bold>
+                  <Text t4 bold light={wallet.id == activeWalletConnector?.id}>
                     {wallet.name}
                   </Text>
                 </ModalCell>

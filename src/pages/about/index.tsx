@@ -10,7 +10,7 @@ import whiteLogo from '../../resources/svg/solace-logo-white.svg'
 import polygonLogo from '../../resources/svg/grants/polygon-logo-white.svg'
 import nearLogo from '../../resources/svg/grants/near-logo-white.svg'
 import aaveLogo from '../../resources/svg/grants/aave-logo-white.svg'
-import { MAX_MOBILE_SCREEN_WIDTH } from '../../constants'
+import { END_BREAKPOINT_3 } from '../../constants'
 import { StyledNavLink } from '../../components/atoms/Link'
 
 function About(): any {
@@ -18,7 +18,7 @@ function About(): any {
 
   return (
     <>
-      {width > MAX_MOBILE_SCREEN_WIDTH ? (
+      {width > END_BREAKPOINT_3 ? (
         <>
           <HeroContainer style={{ height: '100vh' }}>
             <img src={whiteLogo} style={{ marginLeft: '70px' }} />
@@ -142,7 +142,7 @@ function About(): any {
               style={{
                 position: 'absolute',
                 border: '10px solid #FFF',
-                padding: '45vw',
+                padding: '30vw',
                 boxSizing: 'border-box',
                 borderRadius: '50%',
                 filter:

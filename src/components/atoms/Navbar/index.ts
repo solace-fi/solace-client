@@ -1,6 +1,6 @@
 import { NavLink } from 'react-router-dom'
 import styled, { css } from 'styled-components'
-import { MAX_NAVBAR_SCREEN_WIDTH, MAX_MOBILE_SCREEN_WIDTH } from '../../../constants'
+import { END_BREAKPOINT_NAVBAR, END_BREAKPOINT_3 } from '../../../constants'
 import { GeneralTextProps, GeneralTextCss } from '../Typography'
 
 interface TopNavProps {
@@ -16,13 +16,13 @@ export const TopNav = styled.div<TopNavProps>`
   padding: 10px 0;
   transition: 200ms ease;
 
-  @media screen and (max-width: ${MAX_NAVBAR_SCREEN_WIDTH}px) {
+  @media screen and (max-width: ${END_BREAKPOINT_NAVBAR}px) {
     display: block;
     width: 100%;
     z-index: 1;
   }
 
-  @media screen and (max-width: ${MAX_MOBILE_SCREEN_WIDTH}px) {
+  @media screen and (max-width: ${END_BREAKPOINT_3}px) {
     ${(props) => (props.isOpen == false ? 'max-height: 2.5rem;' : 'max-height: 100vh;')}
     text-align: center;
   }
@@ -40,9 +40,6 @@ export const SidebarTextCss = css<GeneralTextProps>`
     font-weight: 600;
   }
 
-  @media screen and (max-width: ${MAX_MOBILE_SCREEN_WIDTH}px) {
-    padding: 20px 0;
-  }
   ${GeneralTextCss}
 `
 
@@ -67,12 +64,12 @@ export const ItemList = styled.ul`
   width: 100%;
   padding: 0;
 
-  @media screen and (max-width: ${MAX_NAVBAR_SCREEN_WIDTH}px) {
+  @media screen and (max-width: ${END_BREAKPOINT_NAVBAR}px) {
     display: flex;
     justify-content: space-evenly;
   }
 
-  @media screen and (max-width: ${MAX_MOBILE_SCREEN_WIDTH}px) {
+  @media screen and (max-width: ${END_BREAKPOINT_3}px) {
     flex-direction: column;
   }
 `

@@ -379,6 +379,7 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
                       width={79}
                       height={30}
                       onClick={() => setMaxCover()}
+                      info
                     >
                       MAX
                     </Button>
@@ -419,6 +420,7 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
                           widthP={100}
                           disabled={errors.length > 0 || coveredAssets == '0.0'}
                           onClick={handleFunc}
+                          info
                         >
                           Update Policy
                         </Button>
@@ -445,7 +447,7 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
                 <FormCol></FormCol>
                 <ButtonWrapper>
                   {policyPrice !== '' ? (
-                    <Button widthP={100} disabled={errors.length > 0} onClick={() => cancelPolicy()}>
+                    <Button widthP={100} disabled={errors.length > 0} onClick={() => cancelPolicy()} info>
                       Cancel Policy
                     </Button>
                   ) : (

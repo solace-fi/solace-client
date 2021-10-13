@@ -38,7 +38,7 @@ import { useNetwork } from '../../context/NetworkManager'
 import { useGeneral } from '../../context/GeneralProvider'
 
 /* import constants */
-import { MAX_MOBILE_SCREEN_WIDTH } from '../../constants'
+import { END_BREAKPOINT_3 } from '../../constants'
 import { BasicData, LiquityPosition, Position, Token } from '../../constants/types'
 
 /* import components */
@@ -231,7 +231,7 @@ export const MultiStepForm = () => {
         assets={formattedAssets}
         modalTitle={'Selected Positions'}
       />
-      {width > MAX_MOBILE_SCREEN_WIDTH ? (
+      {width > END_BREAKPOINT_3 ? (
         <StepsContainer step={Number(StepNumber[step.id]) + 1}>
           <StepsWrapper>
             {StepSections.map((section) => (
@@ -255,7 +255,7 @@ export const MultiStepForm = () => {
                   textSize: '24px',
                   textColor: appTheme == 'light' ? 'rgb(94, 94, 94)' : 'rgb(255,255,255)',
                   trailColor: appTheme == 'light' ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.1)',
-                  pathColor: appTheme == 'light' ? 'rgb(94, 94, 94)' : 'rgb(255,255,255)',
+                  pathColor: appTheme == 'light' ? 'rgb(95, 93, 249)' : 'rgb(255,255,255)',
                 })}
               />
             </div>
@@ -270,7 +270,7 @@ export const MultiStepForm = () => {
       )}
       {Number(StepNumber[step.id]) !== 0 && Number(StepNumber[step.id]) !== 3 && (
         <>
-          {width > MAX_MOBILE_SCREEN_WIDTH ? (
+          {width > END_BREAKPOINT_3 ? (
             <BoxRow>
               <Box>
                 <BoxItem>

@@ -48,7 +48,7 @@ import { ManageModal } from '../../components/organisms/ManageModal'
 /* import constants */
 import { PolicyState } from '../../constants/enums'
 import { LiquityPosition, NetworkCache, Policy, Position, SupportedProduct, Token } from '../../constants/types'
-import { MAX_MOBILE_SCREEN_WIDTH } from '../../constants'
+import { END_BREAKPOINT_3 } from '../../constants'
 
 /* import hooks */
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'
@@ -324,13 +324,13 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
       {!loading && !userPolicyData.policiesLoading ? (
         <Fragment>
           {selectablePositions.length > 0 && (
-            <ButtonWrapper style={{ marginTop: '0' }} isColumn={width <= MAX_MOBILE_SCREEN_WIDTH}>
+            <ButtonWrapper style={{ marginTop: '0' }} isColumn={width <= END_BREAKPOINT_3}>
               <Button widthP={100} secondary onClick={() => toggleSelectAll()}>
                 {selectedPositions.length == selectablePositions.length
                   ? `Deselect All (${selectablePositions.length} available)`
                   : `Select All (${selectablePositions.length} available)`}
               </Button>
-              <Button disabled={selectedPositions.length == 0} widthP={100} onClick={handleChange}>
+              <Button disabled={selectedPositions.length == 0} widthP={100} onClick={handleChange} info>
                 Proceed to next page
               </Button>
             </ButtonWrapper>
@@ -339,6 +339,17 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
             <Scrollable maxMobileHeight={65}>
               <CardContainer>
                 {fetchedPositions.map((position: Position) => {
+                  const isActive = userHasActiveProductPosition(
+                    protocol.name,
+                    (position.position as LiquityPosition).positionName
+                  )
+                  const isSelected = selectedPositions.some(
+                    (selectedPosition) =>
+                      (selectedPosition.position as LiquityPosition).positionAddress ==
+                      (position.position as LiquityPosition).positionAddress
+                  )
+                  const lightText = isSelected || isActive
+
                   if (position.type == 'erc20')
                     return (
                       <TokenPositionCard
@@ -356,27 +367,13 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
                     return (
                       <PositionCard
                         key={(position.position as LiquityPosition).positionAddress}
-                        color1={selectedPositions.some(
-                          (selectedPosition) =>
-                            (selectedPosition.position as LiquityPosition).positionAddress ==
-                            (position.position as LiquityPosition).positionAddress
-                        )}
-                        glow={selectedPositions.some(
-                          (selectedPosition) =>
-                            (selectedPosition.position as LiquityPosition).positionAddress ==
-                            (position.position as LiquityPosition).positionAddress
-                        )}
-                        fade={userHasActiveProductPosition(
-                          protocol.name,
-                          (position.position as LiquityPosition).positionName
-                        )}
+                        color1={isSelected}
+                        glow={isSelected}
+                        fade={isActive}
                         onClick={
                           errors.length > 0
                             ? undefined
-                            : userHasActiveProductPosition(
-                                protocol.name,
-                                (position.position as LiquityPosition).positionName
-                              )
+                            : isActive
                             ? () =>
                                 openManageModal(
                                   userPolicyData.userPolicies.filter(
@@ -388,23 +385,15 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
                             : () => handleSelect(position)
                         }
                       >
-                        {userHasActiveProductPosition(
-                          protocol.name,
-                          (position.position as LiquityPosition).positionName
-                        ) && (
-                          <PositionCardText style={{ opacity: '.8' }}>
+                        {isActive && (
+                          <PositionCardText style={{ opacity: '.8' }} light={lightText}>
                             This position is already covered
                           </PositionCardText>
                         )}
                         <DeFiAssetImage
                           noborder
                           style={{
-                            opacity: userHasActiveProductPosition(
-                              protocol.name,
-                              (position.position as LiquityPosition).positionName
-                            )
-                              ? '.5'
-                              : '1',
+                            opacity: isActive ? '.5' : '1',
                           }}
                         >
                           <img
@@ -414,51 +403,38 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
                         </DeFiAssetImage>
                         <PositionCardName
                           style={{
-                            opacity: userHasActiveProductPosition(
-                              protocol.name,
-                              (position.position as LiquityPosition).positionName
-                            )
-                              ? '.5'
-                              : '1',
+                            opacity: isActive ? '.5' : '1',
                           }}
+                          light={lightText}
                         >
                           {(position.position as LiquityPosition).positionName}
                         </PositionCardName>
                         <PositionCardText
                           t1
                           style={{
-                            opacity: userHasActiveProductPosition(
-                              protocol.name,
-                              (position.position as LiquityPosition).positionName
-                            )
-                              ? '.5'
-                              : '1',
+                            opacity: isActive ? '.5' : '1',
                           }}
+                          light={lightText}
                         >
                           {truncateBalance(
                             fixedPositionBalance((position.position as LiquityPosition).amount.toString(), 18)
                           )}{' '}
-                          <TextSpan style={{ fontSize: '12px' }}>
+                          <TextSpan style={{ fontSize: '12px' }} light={lightText}>
                             {(position.position as LiquityPosition).associatedToken.symbol}
                           </TextSpan>
                         </PositionCardText>
                         <PositionCardButton>
-                          {userHasActiveProductPosition(
-                            protocol.name,
-                            (position.position as LiquityPosition).positionName
-                          ) ? (
-                            <Button widthP={width > MAX_MOBILE_SCREEN_WIDTH ? undefined : 100} info>
+                          {isActive ? (
+                            <Button widthP={width > END_BREAKPOINT_3 ? undefined : 100} light>
                               Manage
                             </Button>
+                          ) : isSelected ? (
+                            <Button widthP={width > END_BREAKPOINT_3 ? undefined : 100} light>
+                              {'Deselect'}
+                            </Button>
                           ) : (
-                            <Button widthP={width > MAX_MOBILE_SCREEN_WIDTH ? undefined : 100} info>
-                              {selectedPositions.some(
-                                (selectedPosition) =>
-                                  (selectedPosition.position as LiquityPosition).positionAddress ==
-                                  (position.position as LiquityPosition).positionAddress
-                              )
-                                ? 'Deselect'
-                                : 'Select'}
+                            <Button widthP={width > END_BREAKPOINT_3 ? undefined : 100} info>
+                              {'Select'}
                             </Button>
                           )}
                         </PositionCardButton>

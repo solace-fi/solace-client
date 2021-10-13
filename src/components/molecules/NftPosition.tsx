@@ -32,7 +32,7 @@ import { useContracts } from '../../context/ContractsManager'
 import { Loader } from '../atoms/Loader'
 
 /* import constants */
-import { MAX_MOBILE_SCREEN_WIDTH, ZERO } from '../../constants'
+import { END_BREAKPOINT_3, ZERO } from '../../constants'
 
 /* import hooks */
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'
@@ -84,7 +84,7 @@ export const NftPosition: React.FC<NftPositionProps> = ({ tokenId }) => {
     <>
       {image ? (
         <Tilt style={{ textAlign: 'center' }}>
-          {width > MAX_MOBILE_SCREEN_WIDTH ? (
+          {width > END_BREAKPOINT_3 ? (
             <ScaledContainer>
               <img src={image} style={{ width: '80%' }} />
             </ScaledContainer>

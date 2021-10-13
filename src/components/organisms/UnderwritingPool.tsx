@@ -28,7 +28,7 @@ import { useNetwork } from '../../context/NetworkManager'
 import { useGeneral } from '../../context/GeneralProvider'
 
 /* import constants */
-import { CP_ROI, MAX_TABLET_SCREEN_WIDTH } from '../../constants'
+import { CP_ROI, END_BREAKPOINT_6 } from '../../constants'
 import { FunctionName } from '../../constants/enums'
 
 /* import components */
@@ -83,7 +83,7 @@ export const RiskBackingCapitalPool: React.FC<RiskBackingCapitalPoolProps> = ({ 
       <Text t4 pb={10}>
         This pool allows Solace to back risks and fulfill claims for policies
       </Text>
-      {width > MAX_TABLET_SCREEN_WIDTH ? (
+      {width > END_BREAKPOINT_6 ? (
         <Table isHighlight textAlignCenter>
           <TableHead>
             <TableRow>
@@ -131,7 +131,7 @@ export const RiskBackingCapitalPool: React.FC<RiskBackingCapitalPoolProps> = ({ 
           </TableBody>
         </Table>
       ) : (
-        // mobile version
+        // tablet version
         <Card>
           {account && (
             <FormRow>

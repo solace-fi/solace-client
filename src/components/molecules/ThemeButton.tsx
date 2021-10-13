@@ -9,7 +9,7 @@
 
     styled components
 
-    WalletConnectButton function
+    ThemeButton function
       custom hooks
       Render
 
