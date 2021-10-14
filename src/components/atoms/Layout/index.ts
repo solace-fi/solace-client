@@ -1,4 +1,4 @@
-import { END_BREAKPOINT_NAVBAR, MAX_WIDTH, END_BREAKPOINT_5, END_BREAKPOINT_3 } from '../../../constants'
+import { BKPT_NAVBAR, MAX_WIDTH, BKPT_5, BKPT_3 } from '../../../constants'
 import styled, { createGlobalStyle, keyframes } from 'styled-components'
 import { GeneralElementProps, GeneralElementCss, HeightAndWidthProps, HeightAndWidthCss } from '../../generalInterfaces'
 import { Text3Css } from '../Typography'
@@ -19,7 +19,7 @@ export const Scrollable = styled.div<ScrollableProps>`
   padding: 10px;
   background-color: ${(props) => props.theme.accordion.bg_color};
 
-  @media screen and (max-width: ${END_BREAKPOINT_3}px) {
+  @media screen and (max-width: ${BKPT_3}px) {
     max-height: ${(props) => (props.maxMobileHeight ? props.maxMobileHeight : `75`)}vh;
   }
 `
@@ -68,7 +68,7 @@ export const Layout = styled.div`
   min-height: 100vh;
   padding: 30px;
 
-  @media screen and (max-width: ${END_BREAKPOINT_NAVBAR}px) {
+  @media screen and (max-width: ${BKPT_NAVBAR}px) {
     padding: 90px 0 60px 0;
   }
 `
@@ -83,7 +83,7 @@ export const ContentContainer = styled.div`
   width: 100%;
   max-width: ${MAX_WIDTH}px;
 
-  @media screen and (max-width: ${END_BREAKPOINT_NAVBAR}px) {
+  @media screen and (max-width: ${BKPT_NAVBAR}px) {
     justify-content: center;
   }
 `
@@ -92,11 +92,11 @@ export const SideNavContent = styled.div<HeightAndWidthProps>`
   align-content: start;
   min-width: ${(props) => ((props.width ? props.width : 12) / 100) * MAX_WIDTH}px;
 
-  @media screen and (max-width: ${END_BREAKPOINT_3}px) {
+  @media screen and (max-width: ${BKPT_3}px) {
     min-width: ${(props) => ((props.width ? props.width : 4) / 100) * MAX_WIDTH}px;
   }
 
-  @media screen and (max-width: ${END_BREAKPOINT_NAVBAR}px) {
+  @media screen and (max-width: ${BKPT_NAVBAR}px) {
     display: none;
   }
 `
@@ -106,7 +106,7 @@ export const LayoutContent = styled.div<HeightAndWidthProps>`
   ${(props) => (props.width ? `width: ${(props.width / 100) * MAX_WIDTH}px;` : 'width: 100%;')}
   padding: 20px;
 
-  @media screen and (max-width: ${END_BREAKPOINT_5}px) {
+  @media screen and (max-width: ${BKPT_5}px) {
     padding: 0px;
   }
 `
@@ -121,7 +121,7 @@ export const HeroContainer = styled(FlexCol)<HeightAndWidthProps>`
 export const Content = styled.div`
   padding: 15px 0;
 
-  @media screen and (max-width: ${END_BREAKPOINT_5}px) {
+  @media screen and (max-width: ${BKPT_5}px) {
     padding: 30px 20px;
   }
 `

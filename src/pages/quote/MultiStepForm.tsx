@@ -38,7 +38,7 @@ import { useNetwork } from '../../context/NetworkManager'
 import { useGeneral } from '../../context/GeneralProvider'
 
 /* import constants */
-import { END_BREAKPOINT_3 } from '../../constants'
+import { BKPT_3 } from '../../constants'
 import { BasicData, LiquityPosition, Position, Token } from '../../constants/types'
 
 /* import components */
@@ -231,7 +231,7 @@ export const MultiStepForm = () => {
         assets={formattedAssets}
         modalTitle={'Selected Positions'}
       />
-      {width > END_BREAKPOINT_3 ? (
+      {width > BKPT_3 ? (
         <StepsContainer step={Number(StepNumber[step.id]) + 1}>
           <StepsWrapper>
             {StepSections.map((section) => (
@@ -270,7 +270,7 @@ export const MultiStepForm = () => {
       )}
       {Number(StepNumber[step.id]) !== 0 && Number(StepNumber[step.id]) !== 3 && (
         <>
-          {width > END_BREAKPOINT_3 ? (
+          {width > BKPT_3 ? (
             <BoxRow>
               <Box>
                 <BoxItem>
@@ -320,7 +320,9 @@ export const MultiStepForm = () => {
                           </DeFiAsset>
                         )
                       })}
-                      {positions.length > maxPositionsToDisplay && <StyledDots size={20} />}
+                      {positions.length > maxPositionsToDisplay && (
+                        <StyledDots size={20} style={{ color: 'rgb(250, 250, 250)' }} />
+                      )}
                     </FlexRow>
                   </BoxItem>
                   {positions.length > maxPositionsToDisplay && (
@@ -394,7 +396,9 @@ export const MultiStepForm = () => {
                         </DeFiAssetImage>
                       )
                     })}
-                    {positions.length > maxPositionsToDisplay && <StyledDots size={20} />}
+                    {positions.length > maxPositionsToDisplay && (
+                      <StyledDots size={20} style={{ color: 'rgb(250, 250, 250)' }} />
+                    )}
                   </FlexRow>
                   <ButtonWrapper isColumn>
                     {positions.length > maxPositionsToDisplay && (

@@ -3,7 +3,7 @@ import { Contract } from '@ethersproject/contracts'
 import { ZERO } from '../../../constants'
 import { NetworkConfig, Token } from '../../../constants/types'
 import ierc20Json from '../_contracts/IERC20Metadata.json'
-import { AaveProtocolDataProviderFactory } from './contracts/AaveProtocolDataProviderFactory'
+import { AaveProtocolDataProviderFactory } from './_contracts/AaveProtocolDataProviderFactory'
 import { withBackoffRetries } from '../../../utils/time'
 import { equalsIgnoreCase } from '../../../utils'
 

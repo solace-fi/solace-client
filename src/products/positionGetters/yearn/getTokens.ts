@@ -5,104 +5,25 @@ import { ZERO } from '../../../constants'
 import ierc20Json from '../_contracts/IERC20Metadata.json'
 import { capitalizeFirstLetter } from '../../../utils/formatting'
 import { withBackoffRetries } from '../../../utils/time'
+import { vaultAbi, yregistryAbi } from './_contracts/yearnAbis'
+import { BigNumber } from 'ethers'
 
-const yregistryAbi = [
-  {
-    inputs: [{ internalType: 'address', name: '_vault', type: 'address' }],
-    name: 'getVaultInfo',
-    outputs: [
-      { internalType: 'address', name: 'controller', type: 'address' },
-      { internalType: 'address', name: 'token', type: 'address' },
-      { internalType: 'address', name: 'strategy', type: 'address' },
-      { internalType: 'bool', name: 'isWrapped', type: 'bool' },
-      { internalType: 'bool', name: 'isDelegated', type: 'bool' },
-    ],
-    stateMutability: 'view',
-    type: 'function',
-  },
-  {
-    inputs: [],
-    name: 'getVaults',
-    outputs: [{ internalType: 'address[]', name: '', type: 'address[]' }],
-    stateMutability: 'view',
-    type: 'function',
-  },
-]
-const vaultAbi = [
-  {
-    inputs: [{ internalType: 'address', name: 'user', type: 'address' }],
-    name: 'balanceOf',
-    outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
-    stateMutability: 'view',
-    type: 'function',
-  },
-  {
-    inputs: [{ internalType: 'uint256', name: '_amount', type: 'uint256' }],
-    name: 'deposit',
-    outputs: [],
-    stateMutability: 'nonpayable',
-    type: 'function',
-  },
-  {
-    inputs: [],
-    name: 'getPricePerFullShare',
-    outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
-    stateMutability: 'view',
-    type: 'function',
-  },
-  {
-    inputs: [],
-    name: 'symbol',
-    outputs: [{ internalType: 'string', name: '', type: 'string' }],
-    stateMutability: 'view',
-    type: 'function',
-  },
-  {
-    inputs: [],
-    name: 'token',
-    outputs: [{ internalType: 'address', name: '', type: 'address' }],
-    stateMutability: 'view',
-    type: 'function',
-  },
-  {
-    inputs: [{ internalType: 'uint256', name: '_shares', type: 'uint256' }],
-    name: 'withdraw',
-    outputs: [],
-    stateMutability: 'nonpayable',
-    type: 'function',
-  },
-  {
-    constant: true,
-    inputs: [],
-    name: 'name',
-    outputs: [{ internalType: 'string', name: '', type: 'string' }],
-    payable: false,
-    stateMutability: 'view',
-    type: 'function',
-  },
-  {
-    constant: true,
-    inputs: [],
-    name: 'decimals',
-    outputs: [{ internalType: 'uint8', name: '', type: 'uint8' }],
-    payable: false,
-    stateMutability: 'view',
-    type: 'function',
-  },
-]
-
-const yRegistryAddress = '0x3eE41C098f9666ed2eA246f4D2558010e59d63A0'
+const yRegistryAddress = '0x50c1a2eA0a861A967D9d0FFE2AE4012c2E053804'
 
 export const getTokens = async (provider: any, activeNetwork: NetworkConfig): Promise<Token[]> => {
   // TODO: reduce the ~1000 requests down
   if (!provider) return []
   const yregistry = getContract(yRegistryAddress, yregistryAbi, provider)
-  const vaultAddrs = await yregistry.getVaults()
-  const vaultInfos: any = await Promise.all(vaultAddrs.map((addr: any) => yregistry.getVaultInfo(addr)))
+  const bigNumTokens = await yregistry.numTokens()
+  const numTokens = bigNumTokens.toNumber()
+  const tokenCount = rangeFrom0(numTokens)
+
+  const uTokenAddrs = await Promise.all(tokenCount.map((i) => yregistry.tokens(BigNumber.from(tokenCount[i]))))
+  const vaultAddrs = await Promise.all(uTokenAddrs.map((token) => yregistry.latestVault(token)))
 
   const [vaultContracts, uTokenContracts] = await Promise.all([
     Promise.all(vaultAddrs.map((addr: any) => getContract(addr, vaultAbi, provider))),
-    Promise.all(vaultInfos.map((info: any) => getContract(info.token, ierc20Json.abi, provider))),
+    Promise.all(uTokenAddrs.map((addr: any) => getContract(addr, ierc20Json.abi, provider))),
   ])
 
   const [vNames, vSymbols, vDecimals, uNames, uSymbols, uDecimals] = await Promise.all([
@@ -124,7 +45,7 @@ export const getTokens = async (provider: any, activeNetwork: NetworkConfig): Pr
         balance: ZERO,
       },
       underlying: {
-        address: vaultInfos[i].token,
+        address: uTokenAddrs[i],
         name: uNames[i],
         symbol: uSymbols[i],
         decimals: uDecimals[i],
@@ -135,6 +56,12 @@ export const getTokens = async (provider: any, activeNetwork: NetworkConfig): Pr
       },
     }
   })
+  // console.table([
+  //   tokens.map((t) => t.token.name),
+  //   tokens.map((t) => t.token.address),
+  //   tokens.map((t) => t.underlying.name),
+  //   tokens.map((t) => t.underlying.address),
+  // ])
   return tokens
 }
 

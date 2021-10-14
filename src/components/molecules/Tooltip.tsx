@@ -23,7 +23,7 @@ import styled, { css } from 'styled-components'
 import { useLocation } from 'react-router'
 
 /* import constants */
-import { END_BREAKPOINT_3 } from '../../constants'
+import { BKPT_3 } from '../../constants'
 
 /* import components */
 import { StyledInfo, StyledLinkExternal } from '../atoms/Icon'
@@ -64,7 +64,7 @@ export const StyledNavTooltip: React.FC<StyledTooltipProps> = ({ id, tip, childr
 
   return (
     <>
-      {width <= END_BREAKPOINT_3 ? (
+      {width <= BKPT_3 ? (
         <>
           <div data-for={id} data-tip={tip} style={{ padding: '4px 0' }}>
             {children}
@@ -103,7 +103,7 @@ export const StyledTooltip: React.FC<StyledTooltipProps> = ({ id, tip, link }) =
   *************************************************************************************/
   return (
     <>
-      {width > END_BREAKPOINT_3 ? (
+      {width > BKPT_3 ? (
         <>
           <a data-for={id} data-tip={tip}>
             <StyledInfo size={20} />

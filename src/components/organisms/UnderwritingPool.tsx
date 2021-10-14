@@ -28,7 +28,7 @@ import { useNetwork } from '../../context/NetworkManager'
 import { useGeneral } from '../../context/GeneralProvider'
 
 /* import constants */
-import { CP_ROI, END_BREAKPOINT_6 } from '../../constants'
+import { CP_ROI, BKPT_6 } from '../../constants'
 import { FunctionName } from '../../constants/enums'
 
 /* import components */
@@ -83,7 +83,7 @@ export const RiskBackingCapitalPool: React.FC<RiskBackingCapitalPoolProps> = ({ 
       <Text t4 pb={10}>
         This pool allows Solace to back risks and fulfill claims for policies
       </Text>
-      {width > END_BREAKPOINT_6 ? (
+      {width > BKPT_6 ? (
         <Table isHighlight textAlignCenter>
           <TableHead>
             <TableRow>
@@ -132,32 +132,37 @@ export const RiskBackingCapitalPool: React.FC<RiskBackingCapitalPoolProps> = ({ 
         </Table>
       ) : (
         // tablet version
-        <Card>
+        <Card isHighlight>
           {account && (
             <FormRow>
-              <FormCol>Your Assets:</FormCol>
-              <FormCol t2>{truncateBalance(userVaultAssets, 2)}</FormCol>
+              <FormCol light>Your Assets:</FormCol>
+              <FormCol light t2>
+                {truncateBalance(userVaultAssets, 2)}
+              </FormCol>
             </FormRow>
           )}
           <FormRow>
-            <FormCol>Total Assets:</FormCol>
-            <FormCol t2>
+            <FormCol light>Total Assets:</FormCol>
+            <FormCol light t2>
               {truncateBalance(floatUnits(parseUnits(capitalPoolSize, currencyDecimals), currencyDecimals), 2)}
             </FormCol>
           </FormRow>
           <FormRow>
-            <FormCol>ROI:</FormCol>
-            <FormCol t2>{CP_ROI}</FormCol>
+            <FormCol light>ROI:</FormCol>
+            <FormCol light t2>
+              {CP_ROI}
+            </FormCol>
           </FormRow>
           <FormRow>
-            <FormCol>Your Vault Share:</FormCol>
-            <FormCol t2>{`${truncateBalance(userVaultShare, 2)}%`}</FormCol>
+            <FormCol light>Your Vault Share:</FormCol>
+            <FormCol light t2>{`${truncateBalance(userVaultShare, 2)}%`}</FormCol>
           </FormRow>
           <ButtonWrapper isColumn>
             <Button
               widthP={100}
               disabled={errors.length > 0}
               onClick={() => openModal(FunctionName.DEPOSIT_ETH, 'Deposit')}
+              light
             >
               Deposit
             </Button>
@@ -165,6 +170,7 @@ export const RiskBackingCapitalPool: React.FC<RiskBackingCapitalPoolProps> = ({ 
               widthP={100}
               disabled={errors.length > 0}
               onClick={() => openModal(FunctionName.WITHDRAW_ETH, 'Withdraw')}
+              light
             >
               Withdraw
             </Button>

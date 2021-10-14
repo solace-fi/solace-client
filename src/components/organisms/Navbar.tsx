@@ -29,7 +29,7 @@ import { useLocation } from 'react-router'
 import { useGeneral } from '../../context/GeneralProvider'
 
 /* import constants */
-import { END_BREAKPOINT_3 } from '../../constants'
+import { BKPT_3 } from '../../constants'
 
 /* import components */
 import { SidebarItem, TopNav, ItemText, ItemList, SidebarText } from '../atoms/Navbar'
@@ -68,8 +68,8 @@ export const SideNavbar: React.FC<SideNavbarProps> = ({ isMobile }) => {
   const { width } = useWindowDimensions()
 
   const miniNavbarMarginSet = {
-    marginLeft: width <= END_BREAKPOINT_3 ? 'auto' : 'unset',
-    marginRight: width <= END_BREAKPOINT_3 ? 'auto' : 'unset',
+    marginLeft: width <= BKPT_3 ? 'auto' : 'unset',
+    marginRight: width <= BKPT_3 ? 'auto' : 'unset',
   }
   const lightText = location.pathname == '/' || !!isMobile
 
@@ -97,7 +97,7 @@ export const SideNavbar: React.FC<SideNavbarProps> = ({ isMobile }) => {
           flexDirection: 'column',
         }}
       >
-        {width > END_BREAKPOINT_3 ? (
+        {width > BKPT_3 ? (
           <>
             <Logo location={location} mb={35} />
             <UserAccount light={location.pathname == '/'} />
@@ -116,7 +116,7 @@ export const SideNavbar: React.FC<SideNavbarProps> = ({ isMobile }) => {
             <ItemText>
               <SidebarItem to={'/dashboard'} style={miniNavbarMarginSet}>
                 <Text info={location.pathname == '/dashboard'} light={lightText}>
-                  {width > END_BREAKPOINT_3 ? 'Dashboard' : <StyledDashboard size={30} />}
+                  {width > BKPT_3 ? 'Dashboard' : <StyledDashboard size={30} />}
                 </Text>
               </SidebarItem>
             </ItemText>
@@ -125,7 +125,7 @@ export const SideNavbar: React.FC<SideNavbarProps> = ({ isMobile }) => {
             <ItemText>
               <SidebarItem to={'/quote'} style={miniNavbarMarginSet}>
                 <Text info={location.pathname == '/quote'} light={lightText}>
-                  {width > END_BREAKPOINT_3 ? 'Buy Cover' : <StyledFileShield size={30} />}
+                  {width > BKPT_3 ? 'Buy Cover' : <StyledFileShield size={30} />}
                 </Text>
               </SidebarItem>
             </ItemText>
@@ -134,7 +134,7 @@ export const SideNavbar: React.FC<SideNavbarProps> = ({ isMobile }) => {
             <ItemText>
               <SidebarItem to={'/invest'} style={miniNavbarMarginSet}>
                 <Text info={location.pathname == '/invest'} light={lightText}>
-                  {width > END_BREAKPOINT_3 ? 'Invest' : <StyledCoinStack size={30} />}
+                  {width > BKPT_3 ? 'Invest' : <StyledCoinStack size={30} />}
                 </Text>
               </SidebarItem>
             </ItemText>
@@ -143,7 +143,7 @@ export const SideNavbar: React.FC<SideNavbarProps> = ({ isMobile }) => {
             <ItemText>
               <SidebarItem to={'/govern'} style={miniNavbarMarginSet}>
                 <Text info={location.pathname == '/govern'} light={lightText}>
-                  {width > END_BREAKPOINT_3 ? 'Govern' : <StyledCommunity size={30} />}
+                  {width > BKPT_3 ? 'Govern' : <StyledCommunity size={30} />}
                 </Text>
               </SidebarItem>
             </ItemText>
@@ -161,7 +161,7 @@ export const SideNavbar: React.FC<SideNavbarProps> = ({ isMobile }) => {
               >
                 <SidebarText>
                   <TextSpan t4 light={lightText}>
-                    {width > END_BREAKPOINT_3 ? 'Docs' : <StyledDocuments size={30} />}
+                    {width > BKPT_3 ? 'Docs' : <StyledDocuments size={30} />}
                   </TextSpan>
                 </SidebarText>
               </HyperLink>
@@ -177,7 +177,7 @@ export const SideNavbar: React.FC<SideNavbarProps> = ({ isMobile }) => {
               >
                 <SidebarText>
                   <TextSpan t4 light={lightText}>
-                    {width > END_BREAKPOINT_3 ? 'Whitepaper' : <StyledDocumentText size={30} />}
+                    {width > BKPT_3 ? 'Whitepaper' : <StyledDocumentText size={30} />}
                   </TextSpan>
                 </SidebarText>
               </HyperLink>
@@ -193,14 +193,14 @@ export const SideNavbar: React.FC<SideNavbarProps> = ({ isMobile }) => {
               >
                 <SidebarText>
                   <TextSpan t4 light={lightText}>
-                    {width > END_BREAKPOINT_3 ? 'Jobs' : <StyledWork size={30} />}
+                    {width > BKPT_3 ? 'Jobs' : <StyledWork size={30} />}
                   </TextSpan>
                 </SidebarText>
               </HyperLink>
             </ItemText>
           </StyledNavTooltip>
           <HorizRule location={location} />
-          {width > END_BREAKPOINT_3 ? (
+          {width > BKPT_3 ? (
             <ItemText style={{ padding: '4px 0', justifyContent: 'space-between' }}>
               <HyperLink
                 href={'https://discord.gg/7v8qsyepfu'}

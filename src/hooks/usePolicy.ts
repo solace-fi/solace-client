@@ -41,7 +41,7 @@ export const useAppraisePosition = (policy: Policy | undefined): BigNumber => {
   const [appraisal, setAppraisal] = useState<BigNumber>(ZERO)
 
   const handlePositionBalances = async (supportedProduct: SupportedProduct): Promise<BigNumber[]> => {
-    const cache = tokenPositionData.storedPositionData.find((dataset) => dataset.name == activeNetwork.name)
+    const cache = tokenPositionData.storedPositionData.find((dataset) => dataset.chainId == activeNetwork.chainId)
     if (!account || !library || !cache || !policy) return []
     switch (supportedProduct.positionsType) {
       case 'erc20':
@@ -57,7 +57,6 @@ export const useAppraisePosition = (policy: Policy | undefined): BigNumber => {
           const erc20Tokens: Token[] = await supportedProduct.getBalances(
             account,
             library,
-            cache,
             activeNetwork,
             tokensToAppraise
           )

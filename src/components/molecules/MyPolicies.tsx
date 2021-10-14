@@ -29,7 +29,7 @@ import { useNetwork } from '../../context/NetworkManager'
 
 /* import constants */
 import { Policy } from '../../constants/types'
-import { END_BREAKPOINT_5 } from '../../constants'
+import { BKPT_5 } from '../../constants'
 import { PolicyState } from '../../constants/enums'
 
 /* import components */
@@ -88,7 +88,7 @@ export const MyPolicies: React.FC<MyPoliciesProps> = ({ openClaimModal, openMana
   return (
     <Fragment>
       {userPolicyData.userPolicies.length > 0 ? (
-        width > END_BREAKPOINT_5 ? (
+        width > BKPT_5 ? (
           <Table textAlignCenter style={{ borderSpacing: '0px 7px' }}>
             <TableHead sticky>
               <TableRow>

@@ -10,7 +10,7 @@ import whiteLogo from '../../resources/svg/solace-logo-white.svg'
 import polygonLogo from '../../resources/svg/grants/polygon-logo-white.svg'
 import nearLogo from '../../resources/svg/grants/near-logo-white.svg'
 import aaveLogo from '../../resources/svg/grants/aave-logo-white.svg'
-import { END_BREAKPOINT_3 } from '../../constants'
+import { BKPT_3 } from '../../constants'
 import { StyledNavLink } from '../../components/atoms/Link'
 
 function About(): any {
@@ -18,7 +18,7 @@ function About(): any {
 
   return (
     <>
-      {width > END_BREAKPOINT_3 ? (
+      {width > BKPT_3 ? (
         <>
           <HeroContainer style={{ height: '100vh' }}>
             <img src={whiteLogo} style={{ marginLeft: '70px' }} />

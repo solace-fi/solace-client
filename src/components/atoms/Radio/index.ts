@@ -1,5 +1,5 @@
 import styled, { css } from 'styled-components'
-import { END_BREAKPOINT_3 } from '../../../constants'
+import { BKPT_3 } from '../../../constants'
 import { GeneralElementProps, GeneralElementCss } from '../../generalInterfaces'
 
 const RadioInputCss = css`
@@ -38,7 +38,7 @@ export const RadioGroup = styled.div<GeneralElementProps>`
   gap: 20px;
   margin-top: 40px;
 
-  @media screen and (max-width: ${END_BREAKPOINT_3}px) {
+  @media screen and (max-width: ${BKPT_3}px) {
     grid-template-columns: none;
   }
 

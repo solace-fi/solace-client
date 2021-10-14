@@ -17,6 +17,8 @@ import { WalletModal } from '../components/organisms/WalletModal'
 import { useNetwork } from './NetworkManager'
 import { MetamaskConnector } from '../wallet/wallet-connectors/MetaMask'
 import { useGeneral } from './GeneralProvider'
+// import { getTokens } from '../products/positionGetters/yearn/getTokens'
+// import { getBalances } from '../products/positionGetters/yearn/getBalances'
 /*
 
 This Manager keeps track of the user's wallet and details, including the wallet type and account, 
@@ -98,7 +100,7 @@ const WalletProvider: React.FC = (props) => {
   }, [])
 
   const changeWallet = useCallback((walletConnector: WalletConnector) => {
-    // there were cases where changing wallets without changing the network does not give the correct balance in that network
+    // there were cases where changing wallets without changing the network does not pull data correctly in that network
     setSelectedProvider(walletConnector.id)
     window.location.reload()
   }, [])
@@ -199,6 +201,8 @@ const WalletProvider: React.FC = (props) => {
   useEffect(() => {
     if (!web3React.account || !web3React.library) return
     const checkForENS = async () => {
+      const network = await web3React.library.getNetwork()
+      if (!network.ensAddress) return
       const name = await web3React.library.lookupAddress(web3React.account)
       if (!name) return
       const address = await web3React.library.resolveName(name)
@@ -207,6 +211,23 @@ const WalletProvider: React.FC = (props) => {
     }
     checkForENS()
   }, [web3React.account, web3React.library])
+
+  // useEffect(() => {
+  //   const yearn = async () => {
+  //     const provider = new JsonRpcProvider(
+  //       `https://eth-mainnet.alchemyapi.io/v2/${String(process.env.REACT_APP_ALCHEMY_API_KEY)}`
+  //     )
+  //     const cachedTokens = await getTokens(provider, activeNetwork)
+  //     const balances = await getBalances(
+  //       '0x5550519d3DeD948884EA0337E3524c24955115D2',
+  //       provider,
+  //       activeNetwork,
+  //       cachedTokens
+  //     )
+  //     console.log(balances)
+  //   }
+  //   yearn()
+  // }, [])
 
   const value = useMemo<ContextWallet>(
     () => ({

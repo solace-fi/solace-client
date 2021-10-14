@@ -137,13 +137,7 @@ export type SupportedProduct = {
 
   getAppraisals: (tokens: any[], chainId: number) => Promise<BigNumber[]>
   getTokens?: (provider: any, activeNetwork: NetworkConfig) => Promise<Token[]>
-  getBalances?: (
-    user: string,
-    provider: any,
-    cache: NetworkCache,
-    activeNetwork: NetworkConfig,
-    tokens: Token[]
-  ) => Promise<Token[]>
+  getBalances?: (user: string, provider: any, activeNetwork: NetworkConfig, tokens: Token[]) => Promise<Token[]>
   getPositions?: any
 }
 

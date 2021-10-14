@@ -193,7 +193,8 @@ export const getTroveContract = (provider: any, chainId: number): Contract => {
   if (chainId == 4) {
     TROVE_MANAGER_ADDRESS = String(process.env.REACT_APP_RINKEBY_LIQUITY_TROVE_MANAGER_ADDR)
   }
-  return getContract(TROVE_MANAGER_ADDRESS, ITroveManagerAbi, provider)
+  const contract = getContract(TROVE_MANAGER_ADDRESS, ITroveManagerAbi, provider)
+  return contract
 }
 
 // rinkeby => mainnet underlying token map

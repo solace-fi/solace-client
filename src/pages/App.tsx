@@ -34,7 +34,7 @@ import { LayoutContentWithLoader } from '../components/molecules/LayoutContentWi
 import { Statistics } from '../components/organisms/Statistics'
 
 /* import constants */
-import { END_BREAKPOINT_5 } from '../constants'
+import { BKPT_5 } from '../constants'
 
 /* import hooks */
 import { useWindowDimensions } from '../hooks/useWindowDimensions'
@@ -64,7 +64,7 @@ export default function App(): any {
               </Switch>
             </LayoutContentWithLoader>
           </LayoutContent>
-          {location.pathname == '/' && width > END_BREAKPOINT_5 && <SideNavContent />}
+          {location.pathname == '/' && width > BKPT_5 && <SideNavContent />}
         </ContentContainer>
       </Layout>
     </Fragment>

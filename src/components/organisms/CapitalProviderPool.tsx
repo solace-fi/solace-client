@@ -33,7 +33,7 @@ import { FormRow, FormCol } from '../atoms/Form'
 import { StyledTooltip } from '../molecules/Tooltip'
 
 /* import constants */
-import { CP_ROI, END_BREAKPOINT_6 } from '../../constants'
+import { CP_ROI, BKPT_6 } from '../../constants'
 import { FunctionName } from '../../constants/enums'
 
 /* import hooks */
@@ -84,7 +84,7 @@ export const CapitalProviderPool: React.FC<CapitalProviderPoolProps> = ({ openMo
       <Text t4 pb={10}>
         This pool rewards capital providers with options
       </Text>
-      {width > END_BREAKPOINT_6 ? (
+      {width > BKPT_6 ? (
         <Table isHighlight textAlignCenter>
           <TableHead>
             <TableRow>
@@ -147,36 +147,48 @@ export const CapitalProviderPool: React.FC<CapitalProviderPoolProps> = ({ openMo
         </Table>
       ) : (
         // tablet version
-        <Card>
+        <Card isHighlight>
           {account && (
             <FormRow>
-              <FormCol>Your Stake:</FormCol>
-              <FormCol t2>{truncateBalance(cpUserStakeValue, 2)}</FormCol>
+              <FormCol light>Your Stake:</FormCol>
+              <FormCol light t2>
+                {truncateBalance(cpUserStakeValue, 2)}
+              </FormCol>
             </FormRow>
           )}
           <FormRow>
-            <FormCol>Total Assets:</FormCol>
-            <FormCol t2>{truncateBalance(cpPoolValue, 2)}</FormCol>
+            <FormCol light>Total Assets:</FormCol>
+            <FormCol light t2>
+              {truncateBalance(cpPoolValue, 2)}
+            </FormCol>
           </FormRow>
           <FormRow>
-            <FormCol>ROI:</FormCol>
-            <FormCol t2>{CP_ROI}</FormCol>
+            <FormCol light>ROI:</FormCol>
+            <FormCol light t2>
+              {CP_ROI}
+            </FormCol>
           </FormRow>
           {account && (
             <>
               <FormRow>
-                <FormCol>My Rewards:</FormCol>
-                <FormCol t2>{truncateBalance(cpUserRewards, 2)}</FormCol>
+                <FormCol light>My Rewards:</FormCol>
+                <FormCol light t2>
+                  {truncateBalance(cpUserRewards, 2)}
+                </FormCol>
               </FormRow>
               <FormRow>
-                <FormCol>My Daily Rewards:</FormCol>
-                <FormCol t2>{truncateBalance(cpUserRewardsPerDay, 2)}</FormCol>
+                <FormCol light>My Daily Rewards:</FormCol>
+                <FormCol light t2>
+                  {truncateBalance(cpUserRewardsPerDay, 2)}
+                </FormCol>
               </FormRow>
             </>
           )}
           <FormRow>
-            <FormCol>Daily Rewards:</FormCol>
-            <FormCol t2>{truncateBalance(cpRewardsPerDay, 2)}</FormCol>
+            <FormCol light>Daily Rewards:</FormCol>
+            <FormCol light t2>
+              {truncateBalance(cpRewardsPerDay, 2)}
+            </FormCol>
           </FormRow>
           {account && (
             <ButtonWrapper isColumn>
@@ -184,6 +196,7 @@ export const CapitalProviderPool: React.FC<CapitalProviderPoolProps> = ({ openMo
                 widthP={100}
                 disabled={errors.length > 0}
                 onClick={() => openModal(FunctionName.DEPOSIT_CP, 'Deposit')}
+                light
               >
                 Deposit
               </Button>
@@ -191,6 +204,7 @@ export const CapitalProviderPool: React.FC<CapitalProviderPoolProps> = ({ openMo
                 widthP={100}
                 disabled={errors.length > 0}
                 onClick={() => openModal(FunctionName.WITHDRAW_CP, 'Withdraw')}
+                light
               >
                 Withdraw
               </Button>

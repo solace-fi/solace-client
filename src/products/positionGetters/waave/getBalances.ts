@@ -1,4 +1,4 @@
-import { NetworkCache, NetworkConfig, Token } from '../../../constants/types'
+import { NetworkConfig, Token } from '../../../constants/types'
 import { rangeFrom0 } from '../../../utils/numeric'
 import { Contract } from '@ethersproject/contracts'
 import { addNativeTokenBalances, getProductTokenBalances } from '../getBalances'
@@ -9,7 +9,6 @@ import waaveTokenAbi from '../../../constants/abi/contracts/interface/Waave/IWaT
 export const getBalances = async (
   user: string,
   provider: any,
-  cache: NetworkCache,
   activeNetwork: NetworkConfig,
   tokens: Token[]
 ): Promise<Token[]> => {
@@ -27,7 +26,12 @@ export const getBalances = async (
   )
 
   // get native token balances
-  const tokenBalances = await addNativeTokenBalances(balances, indices, cache.chainId, getMainNetworkTokenAddress)
+  const tokenBalances = await addNativeTokenBalances(
+    balances,
+    indices,
+    activeNetwork.chainId,
+    getMainNetworkTokenAddress
+  )
   return tokenBalances
 }
 

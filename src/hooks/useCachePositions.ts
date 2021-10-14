@@ -19,7 +19,7 @@ import { getTroveContract } from '../products/positionGetters/liquity/getPositio
 import { ZERO } from '../constants'
 
 export const useCachePositions = () => {
-  const { library } = useWallet()
+  const { library, initialized } = useWallet()
   const { activeNetwork, networks, findNetworkByChainId } = useNetwork()
   const [storedPositionData, setStoredPositionData] = useSessionStorage<NetworkCache[]>('sol_position_data', [])
   const running = useRef(false)
@@ -81,7 +81,7 @@ export const useCachePositions = () => {
               supportedProduct,
               newCache,
               library,
-              activeNetwork
+              _activeNetwork
             )
             newCache.positions[productName] = initializedPositions
             newCache.positionNames[productName] = initializedPositionNames
@@ -137,11 +137,11 @@ export const useCachePositions = () => {
           break
         } else break
       case 'liquity':
-        const troveManagerContract = getTroveContract(library, activeNetwork.chainId)
-        const stabilityPoolAddr: string = await troveManagerContract.stabilityPool()
-        const lqtyStakingAddr: string = await troveManagerContract.lqtyStaking()
-        const lusdTokenAddr: string = await troveManagerContract.lusdToken()
-        const lqtyTokenAddr: string = await troveManagerContract.lqtyToken()
+        const troveManagerContract = getTroveContract(library, _activeNetwork.chainId)
+        const stabilityPoolAddr = await troveManagerContract.stabilityPool()
+        const lqtyStakingAddr = await troveManagerContract.lqtyStaking()
+        const lusdTokenAddr = await troveManagerContract.lusdToken()
+        const lqtyTokenAddr = await troveManagerContract.lqtyToken()
         const liquityPositions: LiquityPosition[] = [
           {
             positionAddress: troveManagerContract.address,
@@ -197,9 +197,14 @@ export const useCachePositions = () => {
   }
 
   useEffect(() => {
+    if (!initialized) {
+      console.log('web3React not initialized, no init needed')
+      return
+    }
+    // do not run the functions if web3React is not initialized
     const data = setStoredData()
     getAllPositionsforChain(data, activeNetwork, library)
-  }, [activeNetwork])
+  }, [activeNetwork, initialized])
 
   return { dataInitialized, storedPositionData }
 }

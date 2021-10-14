@@ -27,7 +27,7 @@ import { formatUnits, parseUnits } from '@ethersproject/units'
 import { BigNumber } from 'ethers'
 
 /* import constants */
-import { GAS_LIMIT, END_BREAKPOINT_3, ZERO } from '../../constants'
+import { GAS_LIMIT, BKPT_3, ZERO } from '../../constants'
 import { TransactionCondition, FunctionName, Unit, PolicyState } from '../../constants/enums'
 
 /* import managers */
@@ -152,9 +152,55 @@ export const Statistics: React.FC = () => {
 
   *************************************************************************************/
 
+  const GlobalBox: React.FC = () => (
+    <Box color2>
+      <BoxItem>
+        <BoxItemTitle t4 light bold>
+          Capital Pool Size <StyledTooltip id={'cps'} tip={'Current amount of capital in the vault'} />
+        </BoxItemTitle>
+        <Text t2 nowrap light bold>
+          {`${truncateBalance(floatUnits(parseUnits(capitalPoolSize, currencyDecimals), currencyDecimals), 1)} `}
+          <TextSpan t4 light bold>
+            {activeNetwork.nativeCurrency.symbol}
+          </TextSpan>
+        </Text>
+      </BoxItem>
+      <BoxItem>
+        <BoxItemTitle t4 light bold>
+          Total Value Locked <StyledTooltip id={'tvl'} tip={'Current amount of funds locked into the pools'} />{' '}
+        </BoxItemTitle>
+        <Text t2 nowrap light bold>
+          {`${truncateBalance(totalValueLocked, 1)} `}
+          <TextSpan t4 light bold>
+            {activeNetwork.nativeCurrency.symbol}
+          </TextSpan>
+        </Text>
+      </BoxItem>
+      <BoxItem>
+        <BoxItemTitle t4 light bold>
+          Active Cover Amount <StyledTooltip id={'aca'} tip={'Current amount of coverage in use'} />
+        </BoxItemTitle>
+        <Text t2 nowrap light bold>
+          {totalActiveCoverAmount !== '-' ? `${truncateBalance(totalActiveCoverAmount, 2)} ` : `- `}
+          <TextSpan t4 light bold>
+            {activeNetwork.nativeCurrency.symbol}
+          </TextSpan>
+        </Text>
+      </BoxItem>
+      <BoxItem>
+        <BoxItemTitle t4 light bold>
+          Total Active Policies
+        </BoxItemTitle>
+        <Text t2 nowrap light bold>
+          {totalActivePolicies}
+        </Text>
+      </BoxItem>
+    </Box>
+  )
+
   return (
     <>
-      {width > END_BREAKPOINT_3 ? (
+      {width > BKPT_3 ? (
         <BoxRow>
           {initialized && account ? (
             <Box>
@@ -196,49 +242,7 @@ export const Statistics: React.FC = () => {
               </BoxItem>
             </Box>
           )}
-          <Box color2>
-            <BoxItem>
-              <BoxItemTitle t4 light bold>
-                Capital Pool Size <StyledTooltip id={'cps'} tip={'Current amount of capital in the vault'} />
-              </BoxItemTitle>
-              <Text t2 nowrap light bold>
-                {`${truncateBalance(floatUnits(parseUnits(capitalPoolSize, currencyDecimals), currencyDecimals), 1)} `}
-                <TextSpan t4 light bold>
-                  {activeNetwork.nativeCurrency.symbol}
-                </TextSpan>
-              </Text>
-            </BoxItem>
-            <BoxItem>
-              <BoxItemTitle t4 light bold>
-                Total Value Locked <StyledTooltip id={'tvl'} tip={'Current amount of funds locked into the pools'} />{' '}
-              </BoxItemTitle>
-              <Text t2 nowrap light bold>
-                {`${truncateBalance(totalValueLocked, 1)} `}
-                <TextSpan t4 light bold>
-                  {activeNetwork.nativeCurrency.symbol}
-                </TextSpan>
-              </Text>
-            </BoxItem>
-            <BoxItem>
-              <BoxItemTitle t4 light bold>
-                Active Cover Amount <StyledTooltip id={'aca'} tip={'Current amount of coverage in use'} />
-              </BoxItemTitle>
-              <Text t2 nowrap light bold>
-                {totalActiveCoverAmount !== '-' ? `${truncateBalance(totalActiveCoverAmount, 2)} ` : `- `}
-                <TextSpan t4 light bold>
-                  {activeNetwork.nativeCurrency.symbol}
-                </TextSpan>
-              </Text>
-            </BoxItem>
-            <BoxItem>
-              <BoxItemTitle t4 light bold>
-                Total Active Policies
-              </BoxItemTitle>
-              <Text t2 nowrap light bold>
-                {totalActivePolicies}
-              </Text>
-            </BoxItem>
-          </Box>
+          <GlobalBox />
         </BoxRow>
       ) : (
         // mobile version
@@ -325,11 +329,14 @@ export const Statistics: React.FC = () => {
               </Card>
             </CardContainer>
           ) : (
-            <Box>
-              <BoxItem>
-                <WalletConnectButton light />
-              </BoxItem>
-            </Box>
+            <BoxRow>
+              <Box>
+                <BoxItem>
+                  <WalletConnectButton light />
+                </BoxItem>
+              </Box>
+              <GlobalBox />
+            </BoxRow>
           )}
         </>
       )}

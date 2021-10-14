@@ -31,7 +31,7 @@ import { useGeneral } from '../../context/GeneralProvider'
 
 /* import constants */
 import { FunctionName } from '../../constants/enums'
-import { LP_ROI, END_BREAKPOINT_6 } from '../../constants'
+import { LP_ROI, BKPT_6 } from '../../constants'
 
 /* import components */
 import { Content } from '../atoms/Layout'
@@ -94,7 +94,7 @@ export const LiquidityPool: React.FC<LiquidityPoolProps> = ({ openModal }) => {
       <Text t4 pb={10}>
         Manage your Uniswap V3 SOLACE-ETH LP tokens in this pool and earn rewards
       </Text>
-      {width > END_BREAKPOINT_6 ? (
+      {width > BKPT_6 ? (
         <Table isHighlight textAlignCenter>
           <TableHead>
             <TableRow>
@@ -166,36 +166,48 @@ export const LiquidityPool: React.FC<LiquidityPoolProps> = ({ openModal }) => {
         </Table>
       ) : (
         // tablet version
-        <Card>
+        <Card isHighlight>
           {account && (
             <FormRow>
-              <FormCol>Your Stake:</FormCol>
-              <FormCol t2>{truncateBalance(lpUserStakeValue, 2)}</FormCol>
+              <FormCol light>Your Stake:</FormCol>
+              <FormCol light t2>
+                {truncateBalance(lpUserStakeValue, 2)}
+              </FormCol>
             </FormRow>
           )}
           <FormRow>
-            <FormCol>Total Assets:</FormCol>
-            <FormCol t2>{truncateBalance(lpPoolValue, 2)}</FormCol>
+            <FormCol light>Total Assets:</FormCol>
+            <FormCol light t2>
+              {truncateBalance(lpPoolValue, 2)}
+            </FormCol>
           </FormRow>
           <FormRow>
-            <FormCol>ROI:</FormCol>
-            <FormCol t2>{LP_ROI}</FormCol>
+            <FormCol light>ROI:</FormCol>
+            <FormCol light t2>
+              {LP_ROI}
+            </FormCol>
           </FormRow>
           {account && (
             <>
               <FormRow>
-                <FormCol>My Rewards:</FormCol>
-                <FormCol t2>{truncateBalance(lpUserRewards, 2)}</FormCol>
+                <FormCol light>My Rewards:</FormCol>
+                <FormCol light t2>
+                  {truncateBalance(lpUserRewards, 2)}
+                </FormCol>
               </FormRow>
               <FormRow>
-                <FormCol>My Daily Rewards:</FormCol>
-                <FormCol t2>{truncateBalance(lpUserRewardsPerDay, 2)}</FormCol>
+                <FormCol light>My Daily Rewards:</FormCol>
+                <FormCol light t2>
+                  {truncateBalance(lpUserRewardsPerDay, 2)}
+                </FormCol>
               </FormRow>
             </>
           )}
           <FormRow>
-            <FormCol>Daily Rewards:</FormCol>
-            <FormCol t2>{truncateBalance(lpRewardsPerDay, 2)}</FormCol>
+            <FormCol light>Daily Rewards:</FormCol>
+            <FormCol light t2>
+              {truncateBalance(lpRewardsPerDay, 2)}
+            </FormCol>
           </FormRow>
           {account && (
             <ButtonWrapper isColumn>
@@ -203,6 +215,7 @@ export const LiquidityPool: React.FC<LiquidityPoolProps> = ({ openModal }) => {
                 widthP={100}
                 disabled={errors.length > 0}
                 onClick={() => openModal(FunctionName.DEPOSIT_SIGNED, 'Deposit')}
+                light
               >
                 Deposit
               </Button>
@@ -210,6 +223,7 @@ export const LiquidityPool: React.FC<LiquidityPoolProps> = ({ openModal }) => {
                 widthP={100}
                 disabled={errors.length > 0}
                 onClick={() => openModal(FunctionName.WITHDRAW_LP, 'Withdraw')}
+                light
               >
                 Withdraw
               </Button>

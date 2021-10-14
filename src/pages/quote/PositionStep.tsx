@@ -48,7 +48,7 @@ import { ManageModal } from '../../components/organisms/ManageModal'
 /* import constants */
 import { PolicyState } from '../../constants/enums'
 import { LiquityPosition, NetworkCache, Policy, Position, SupportedProduct, Token } from '../../constants/types'
-import { END_BREAKPOINT_3 } from '../../constants'
+import { BKPT_3 } from '../../constants'
 
 /* import hooks */
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'
@@ -136,7 +136,6 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
           const balances: Token[] = await supportedProduct.getBalances(
             account,
             library,
-            cache,
             activeNetwork,
             savedPositions.map((position) => position.position as Token)
           )
@@ -324,7 +323,7 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
       {!loading && !userPolicyData.policiesLoading ? (
         <Fragment>
           {selectablePositions.length > 0 && (
-            <ButtonWrapper style={{ marginTop: '0' }} isColumn={width <= END_BREAKPOINT_3}>
+            <ButtonWrapper style={{ marginTop: '0' }} isColumn={width <= BKPT_3}>
               <Button widthP={100} secondary onClick={() => toggleSelectAll()}>
                 {selectedPositions.length == selectablePositions.length
                   ? `Deselect All (${selectablePositions.length} available)`
@@ -425,15 +424,15 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
                         </PositionCardText>
                         <PositionCardButton>
                           {isActive ? (
-                            <Button widthP={width > END_BREAKPOINT_3 ? undefined : 100} light>
+                            <Button widthP={width > BKPT_3 ? undefined : 100} light>
                               Manage
                             </Button>
                           ) : isSelected ? (
-                            <Button widthP={width > END_BREAKPOINT_3 ? undefined : 100} light>
+                            <Button widthP={width > BKPT_3 ? undefined : 100} light>
                               {'Deselect'}
                             </Button>
                           ) : (
-                            <Button widthP={width > END_BREAKPOINT_3 ? undefined : 100} info>
+                            <Button widthP={width > BKPT_3 ? undefined : 100} info>
                               {'Select'}
                             </Button>
                           )}

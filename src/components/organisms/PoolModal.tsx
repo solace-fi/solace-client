@@ -639,6 +639,7 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
                         widthP={100}
                         disabled={(isAppropriateAmount() ? false : true) || errors.length > 0}
                         onClick={() => approve()}
+                        info
                       >
                         Approve
                       </Button>

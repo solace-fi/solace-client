@@ -43,7 +43,7 @@ import { Accordion } from '../atoms/Accordion/Accordion'
 
 /* import constants */
 import { FunctionName, TransactionCondition, Unit } from '../../constants/enums'
-import { GAS_LIMIT, END_BREAKPOINT_3 } from '../../constants'
+import { GAS_LIMIT, BKPT_3 } from '../../constants'
 import { ClaimDetails } from '../../constants/types'
 
 /* import hooks */
@@ -150,11 +150,11 @@ export const MyClaims: React.FC = () => {
                           {BigNumber.from(claim.amount).gte(accurateMultiply(1, currencyDecimals))
                             ? truncateBalance(
                                 formatUnits(claim.amount, currencyDecimals),
-                                width > END_BREAKPOINT_3 ? currencyDecimals : 2
+                                width > BKPT_3 ? currencyDecimals : 2
                               )
                             : truncateBalance(
                                 formatUnits(claim.amount, currencyDecimals),
-                                width > END_BREAKPOINT_3 ? currencyDecimals : 6
+                                width > BKPT_3 ? currencyDecimals : 6
                               )}{' '}
                           {activeNetwork.nativeCurrency.symbol}
                         </Text>

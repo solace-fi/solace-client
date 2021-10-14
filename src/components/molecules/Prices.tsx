@@ -28,7 +28,7 @@ import { useCoingeckoPrice } from '@usedapp/coingecko'
 import { useNetwork } from '../../context/NetworkManager'
 
 /* import constants */
-import { END_BREAKPOINT_5 } from '../../constants'
+import { BKPT_5 } from '../../constants'
 import { Unit } from '../../constants/enums'
 
 /* import components */
@@ -49,7 +49,7 @@ const Price = styled.div`
   align-content: center;
   flex-grow: 1;
 
-  @media screen and (max-width: ${END_BREAKPOINT_5}px) {
+  @media screen and (max-width: ${BKPT_5}px) {
     justify-content: space-evenly;
   }
 `

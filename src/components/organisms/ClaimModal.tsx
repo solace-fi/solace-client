@@ -45,7 +45,7 @@ import { Table, TableBody, TableRow, TableData } from '../atoms/Table'
 
 /* import constants */
 import { FunctionName, TransactionCondition, Unit } from '../../constants/enums'
-import { GAS_LIMIT, END_BREAKPOINT_3 } from '../../constants'
+import { GAS_LIMIT, BKPT_3 } from '../../constants'
 import { Policy, ClaimAssessment } from '../../constants/types'
 
 /* import hooks */
@@ -187,7 +187,7 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
         {!modalLoading ? (
           assessment ? (
             <Fragment>
-              {width > END_BREAKPOINT_3 && (
+              {width > BKPT_3 && (
                 <FormRow mb={0}>
                   <FormCol>
                     <Text t4 autoAlign nowrap>
@@ -200,7 +200,7 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
               <FormRow mb={0}>
                 <FormCol>
                   <Text t4 autoAlign nowrap>
-                    {width > END_BREAKPOINT_3 ? 'pre-exploit assets value equal to' : 'Receiving'}
+                    {width > BKPT_3 ? 'pre-exploit assets value equal to' : 'Receiving'}
                   </Text>
                 </FormCol>
                 <FormCol>
@@ -248,7 +248,7 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
                   </Text>
                 </Box>
               ) : (
-                <ButtonWrapper isColumn={width < END_BREAKPOINT_3}>
+                <ButtonWrapper isColumn={width < BKPT_3}>
                   <Button
                     widthP={100}
                     disabled={errors.length > 0 || !assessment.lossEventDetected}
