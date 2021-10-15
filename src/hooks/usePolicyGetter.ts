@@ -12,7 +12,7 @@ import { getClaimAssessment } from '../utils/paclas'
 export const usePolicyGetter = (
   getAll: boolean,
   latestBlock: number,
-  data: { dataInitialized: boolean; storedPositionData: NetworkCache[] },
+  data: { dataInitialized: boolean; storedPosData: NetworkCache[] },
   policyHolder?: string,
   product?: string
 ) => {
@@ -63,16 +63,14 @@ export const usePolicyGetter = (
     try {
       if (policyHolder) {
         policies.sort((a: any, b: any) => b.policyId - a.policyId) // newest first
-        const matchingCache: NetworkCache | undefined = data.storedPositionData.find(
-          (dataset) => dataset.name == activeNetwork.name
-        )
+        const matchingCache = data.storedPosData.find((dataset) => dataset.chainId == activeNetwork.chainId)
         policies.forEach((policy: Policy) => {
           const productPosition =
             matchingCache?.positionNames[activeNetwork.config.productsRev[policy.productAddress] ?? '']
           if (productPosition) {
-            Object.keys(productPosition.positionNames).forEach((key) => {
-              if (policy.positionDescription.includes(key.slice(2))) {
-                policy.positionNames.push(productPosition.positionNames[key])
+            Object.keys(productPosition.positionNames).forEach((tokenAddress) => {
+              if (policy.positionDescription.includes(tokenAddress.slice(2))) {
+                policy.positionNames = [...policy.positionNames, ...productPosition.positionNames[tokenAddress]]
               }
             })
           }
@@ -130,15 +128,13 @@ export const usePolicyGetter = (
     if (!belongsToUser) return
     const blockNumber = await library.getBlockNumber()
     const updatedPolicy = await queryPolicy(id, blockNumber)
-    const matchingCache: NetworkCache | undefined = data.storedPositionData.find(
-      (dataset) => dataset.name == activeNetwork.name
-    )
+    const matchingCache = data.storedPosData.find((dataset) => dataset.chainId == activeNetwork.chainId)
     const productPosition =
       matchingCache?.positionNames[activeNetwork.config.productsRev[updatedPolicy.productAddress] ?? '']
     if (productPosition) {
-      Object.keys(productPosition.positionNames).forEach((key) => {
-        if (updatedPolicy.positionDescription.includes(key.slice(2))) {
-          updatedPolicy.positionNames.push(productPosition.positionNames[key])
+      Object.keys(productPosition.positionNames).forEach((tokenAddress) => {
+        if (updatedPolicy.positionDescription.includes(tokenAddress.slice(2))) {
+          updatedPolicy.positionNames = [...updatedPolicy.positionNames, ...productPosition.positionNames[tokenAddress]]
         }
       })
     }

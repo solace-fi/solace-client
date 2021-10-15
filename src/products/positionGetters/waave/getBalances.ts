@@ -20,7 +20,7 @@ export const getBalances = async (
   const exchangeRates = await Promise.all(contracts.map((contract) => queryExchangeRate(contract)))
   indices.forEach(
     (i) =>
-      (balances[i].underlying.balance = balances[i].token.balance
+      (balances[i].underlying[0].balance = balances[i].token.balance
         .mul(exchangeRates[i])
         .div(String(getNonHumanValue(1, balances[i].token.decimals))))
   )

@@ -2,7 +2,7 @@ import { BigNumber } from 'ethers'
 import { LiquityPosition, NetworkConfig } from '../../../constants/types'
 import { getContract } from '../../../utils'
 import { Contract } from '@ethersproject/contracts'
-import { getAppraisals } from './getAppraisals'
+import { queryNativeTokenBalance } from '../getBalances'
 
 const ITroveManagerAbi = [
   {
@@ -195,6 +195,15 @@ export const getTroveContract = (provider: any, chainId: number): Contract => {
   }
   const contract = getContract(TROVE_MANAGER_ADDRESS, ITroveManagerAbi, provider)
   return contract
+}
+
+export const getAppraisals = async (tokens: any[], chainId: number): Promise<BigNumber[]> => {
+  const appraisals: BigNumber[] = []
+  for (const i in tokens) {
+    const appraisal = await queryNativeTokenBalance(tokens[i], chainId, getMainNetworkTokenAddress)
+    appraisals.push(appraisal)
+  }
+  return appraisals
 }
 
 // rinkeby => mainnet underlying token map

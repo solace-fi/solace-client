@@ -34,7 +34,7 @@ type CachedData = {
     userPolicies: Policy[]
     setCanGetAssessments: (toggle: boolean) => void
   }
-  tokenPositionData: { dataInitialized: boolean; storedPositionData: NetworkCache[] }
+  tokenPosData: { dataInitialized: boolean; storedPosData: NetworkCache[] }
   showAccountModal: boolean
   version: number
   dataVersion: number
@@ -53,7 +53,7 @@ const CachedDataContext = createContext<CachedData>({
     userPolicies: [],
     setCanGetAssessments: () => undefined,
   },
-  tokenPositionData: { dataInitialized: false, storedPositionData: [] },
+  tokenPosData: { dataInitialized: false, storedPosData: [] },
   showAccountModal: false,
   version: 0,
   dataVersion: 0,
@@ -76,12 +76,12 @@ const CachedDataProvider: React.FC = (props) => {
   const [dataReload, dataVersion] = useReload()
   const gasPrices = useFetchGasPrice()
   const latestBlock = useGetLatestBlockNumber(dataVersion)
-  const { dataInitialized, storedPositionData } = useCachePositions()
+  const { dataInitialized, storedPosData } = useCachePositions()
   const { addNotices, removeNotices } = useGeneral()
   const { policiesLoading, userPolicies, setCanGetAssessments } = usePolicyGetter(
     false,
     latestBlock,
-    { dataInitialized, storedPositionData },
+    { dataInitialized, storedPosData },
     account
   )
   const [accountModal, setAccountModal] = useState<boolean>(false)
@@ -150,7 +150,7 @@ const CachedDataProvider: React.FC = (props) => {
     () => ({
       localTransactions: localTxs,
       userPolicyData: { policiesLoading, userPolicies, setCanGetAssessments },
-      tokenPositionData: { dataInitialized, storedPositionData },
+      tokenPosData: { dataInitialized, storedPosData },
       showAccountModal: accountModal,
       version,
       dataVersion,
@@ -166,7 +166,7 @@ const CachedDataProvider: React.FC = (props) => {
       addLocalTransactions,
       deleteLocalTransactions,
       dataInitialized,
-      storedPositionData,
+      storedPosData,
       version,
       dataVersion,
       latestBlock,

@@ -5,7 +5,15 @@ import { useEffect, useState } from 'react'
 import { GAS_LIMIT, NUM_BLOCKS_PER_DAY, ZERO } from '../constants'
 import { useContracts } from '../context/ContractsManager'
 import { useWallet } from '../context/WalletManager'
-import { LiquityPosition, Policy, Position, StringToStringMapping, SupportedProduct, Token } from '../constants/types'
+import {
+  LiquityPosition,
+  Policy,
+  Position,
+  StringToStringMapping,
+  SupportedProduct,
+  Token,
+  TokenData,
+} from '../constants/types'
 import { useCachedData } from '../context/CachedDataManager'
 import { useNetwork } from '../context/NetworkManager'
 import { useGasConfig } from './useGas'
@@ -37,18 +45,20 @@ export const useAppraisePosition = (policy: Policy | undefined): BigNumber => {
   const { activeNetwork } = useNetwork()
   const { account, library } = useWallet()
   const { getProtocolByName } = useContracts()
-  const { latestBlock, tokenPositionData } = useCachedData()
+  const { latestBlock, tokenPosData } = useCachedData()
   const [appraisal, setAppraisal] = useState<BigNumber>(ZERO)
 
   const handlePositionBalances = async (supportedProduct: SupportedProduct): Promise<BigNumber[]> => {
-    const cache = tokenPositionData.storedPositionData.find((dataset) => dataset.chainId == activeNetwork.chainId)
-    if (!account || !library || !cache || !policy) return []
+    const matchingCache = tokenPosData.storedPosData.find((dataset) => dataset.chainId == activeNetwork.chainId)
+    if (!account || !library || !matchingCache || !policy) return []
     switch (supportedProduct.positionsType) {
       case 'erc20':
         const tokensToAppraise: Token[] = []
         policy.positionNames.forEach(async (name) => {
-          const positionToAppraise: Position | undefined = cache.positions[supportedProduct.name].savedPositions.find(
-            (position: Position) => (position.position as Token).underlying.symbol == name
+          const positionToAppraise = matchingCache.positions[
+            supportedProduct.name
+          ].savedPositions.find((position: Position) =>
+            (position.position as Token).underlying.find((tokenData: TokenData) => tokenData.symbol == name)
           )
           if (!positionToAppraise) return
           tokensToAppraise.push(positionToAppraise.position as Token)
@@ -66,7 +76,7 @@ export const useAppraisePosition = (policy: Policy | undefined): BigNumber => {
       case 'liquity':
         const positionsToAppraise: LiquityPosition[] = []
         policy.positionNames.forEach(async (name) => {
-          const positionToAppraise: Position | undefined = cache.positions[supportedProduct.name].savedPositions.find(
+          const positionToAppraise = matchingCache.positions[supportedProduct.name].savedPositions.find(
             (position: Position) => (position.position as LiquityPosition).positionName == name
           )
           if (!positionToAppraise) return
@@ -91,7 +101,7 @@ export const useAppraisePosition = (policy: Policy | undefined): BigNumber => {
 
   useEffect(() => {
     const getAppraisal = async () => {
-      if (!policy || !tokenPositionData.dataInitialized) return
+      if (!policy || !tokenPosData.dataInitialized) return
       try {
         const product = getProtocolByName(policy.productName)
 
@@ -110,7 +120,7 @@ export const useAppraisePosition = (policy: Policy | undefined): BigNumber => {
       }
     }
     getAppraisal()
-  }, [policy?.policyId, account, tokenPositionData.dataInitialized, latestBlock])
+  }, [policy?.policyId, account, tokenPosData.dataInitialized, latestBlock])
 
   useEffect(() => {
     // if policy id changes, reset appraisal to 0 to enable loading icon on frontend

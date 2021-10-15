@@ -8,11 +8,12 @@ import { withBackoffRetries } from '../../../utils/time'
 import { vaultAbi, yregistryAbi } from './_contracts/yearnAbis'
 import { BigNumber } from 'ethers'
 
-const yRegistryAddress = '0x50c1a2eA0a861A967D9d0FFE2AE4012c2E053804'
-
 export const getTokens = async (provider: any, activeNetwork: NetworkConfig): Promise<Token[]> => {
   // TODO: reduce the ~1000 requests down
   if (!provider) return []
+  // const yRegistryAddress = await provider.resolveName('v2.registry.ychad.eth')
+  const yRegistryAddress = '0x50c1a2eA0a861A967D9d0FFE2AE4012c2E053804'
+  if (!yRegistryAddress) return []
   const yregistry = getContract(yRegistryAddress, yregistryAbi, provider)
   const bigNumTokens = await yregistry.numTokens()
   const numTokens = bigNumTokens.toNumber()
@@ -44,24 +45,20 @@ export const getTokens = async (provider: any, activeNetwork: NetworkConfig): Pr
         decimals: vDecimals[i],
         balance: ZERO,
       },
-      underlying: {
-        address: uTokenAddrs[i],
-        name: uNames[i],
-        symbol: uSymbols[i],
-        decimals: uDecimals[i],
-        balance: ZERO,
-      },
+      underlying: [
+        {
+          address: uTokenAddrs[i],
+          name: uNames[i],
+          symbol: uSymbols[i],
+          decimals: uDecimals[i],
+          balance: ZERO,
+        },
+      ],
       eth: {
         balance: ZERO,
       },
     }
   })
-  // console.table([
-  //   tokens.map((t) => t.token.name),
-  //   tokens.map((t) => t.token.address),
-  //   tokens.map((t) => t.underlying.name),
-  //   tokens.map((t) => t.underlying.address),
-  // ])
   return tokens
 }
 

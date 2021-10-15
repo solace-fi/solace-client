@@ -47,7 +47,15 @@ import { ManageModal } from '../../components/organisms/ManageModal'
 
 /* import constants */
 import { PolicyState } from '../../constants/enums'
-import { LiquityPosition, NetworkCache, Policy, Position, SupportedProduct, Token } from '../../constants/types'
+import {
+  LiquityPosition,
+  NetworkCache,
+  Policy,
+  Position,
+  SupportedProduct,
+  Token,
+  TokenData,
+} from '../../constants/types'
 import { BKPT_3 } from '../../constants'
 
 /* import hooks */
@@ -71,7 +79,7 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
   const { account, library } = useWallet()
   const { activeNetwork, findNetworkByChainId, chainId } = useNetwork()
   const { setSelectedProtocolByName } = useContracts()
-  const { userPolicyData, latestBlock, tokenPositionData } = useCachedData()
+  const { userPolicyData, latestBlock, tokenPosData } = useCachedData()
   const { width } = useWindowDimensions()
 
   /*************************************************************************************
@@ -113,8 +121,7 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
     switch (positionToSelect.type) {
       case 'erc20':
         const erc20Eq =
-          (selectedPosition.position as Token).underlying.address ==
-          (positionToSelect.position as Token).underlying.address
+          (selectedPosition.position as Token).token.address == (positionToSelect.position as Token).token.address
         return erc20Eq
       case 'liquity':
         const liquityEq =
@@ -194,13 +201,13 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
   }
 
   const getUserPositions = async () => {
-    if (!tokenPositionData.dataInitialized || !chainId) return
+    if (!tokenPosData.dataInitialized || !chainId) return
     if (findNetworkByChainId(chainId)) {
       try {
         const supportedProduct = activeNetwork.cache.supportedProducts.find((product) => product.name == protocol.name)
-        const cache = tokenPositionData.storedPositionData.find((dataset) => dataset.name == activeNetwork.name)
-        if (!supportedProduct || !cache) return
-        const _fetchedPositions = await handleFetchPositions(supportedProduct, cache)
+        const matchingCache = tokenPosData.storedPosData.find((dataset) => dataset.chainId == activeNetwork.chainId)
+        if (!supportedProduct || !matchingCache) return
+        const _fetchedPositions = await handleFetchPositions(supportedProduct, matchingCache)
         setFetchedPositions(_fetchedPositions)
         setForm({
           target: {
@@ -222,6 +229,13 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
         policy.status === PolicyState.ACTIVE
       )
         return true
+    }
+    return false
+  }
+
+  const checkUserPositionsForAllUnderlying = (protocolName: string, underlying: TokenData[]) => {
+    for (let i = 0; i < underlying.length; i++) {
+      if (userHasActiveProductPosition(protocolName, underlying[i].symbol)) return true
     }
     return false
   }
@@ -268,7 +282,7 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
 
   useEffect(() => {
     const loadOverTime = async () => {
-      if (canLoadOverTime.current && tokenPositionData.dataInitialized) {
+      if (canLoadOverTime.current && tokenPosData.dataInitialized) {
         await getUserPositions()
       }
     }
@@ -278,10 +292,10 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
   useEffect(() => {
     setSelectablePositions(
       fetchedPositions.filter((position: Position) => {
-        let positionStr = ''
+        let positionStr: string | TokenData[] = ''
         switch (position.type) {
           case 'erc20':
-            positionStr = (position.position as Token).underlying.symbol
+            positionStr = (position.position as Token).underlying
             break
           case 'liquity':
             positionStr = (position.position as LiquityPosition).positionName
@@ -289,7 +303,8 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
           case 'other':
           default:
         }
-        return !userHasActiveProductPosition(protocol.name, positionStr)
+        if (typeof positionStr == 'string') return !userHasActiveProductPosition(protocol.name, positionStr)
+        return !checkUserPositionsForAllUnderlying(protocol.name, positionStr)
       })
     )
   }, [fetchedPositions, protocol.name])
@@ -337,7 +352,7 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
           {fetchedPositions.length > 0 && (
             <Scrollable maxMobileHeight={65}>
               <CardContainer>
-                {fetchedPositions.map((position: Position) => {
+                {fetchedPositions.map((position: Position, i) => {
                   const isActive = userHasActiveProductPosition(
                     protocol.name,
                     (position.position as LiquityPosition).positionName
@@ -352,14 +367,14 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
                   if (position.type == 'erc20')
                     return (
                       <TokenPositionCard
-                        key={(position.position as Token).underlying.address}
+                        key={i}
                         position={position}
                         protocolName={protocol.name}
                         selectedPositions={selectedPositions}
                         userPolicies={userPolicyData.userPolicies}
                         openManageModal={openManageModal}
                         handleSelect={handleSelect}
-                        userHasActiveProductPosition={userHasActiveProductPosition}
+                        checkUserPositionsForAllUnderlying={checkUserPositionsForAllUnderlying}
                       />
                     )
                   if (position.type == 'liquity')

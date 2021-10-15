@@ -49,13 +49,15 @@ export const getTokens = async (provider: any, activeNetwork: NetworkConfig): Pr
         decimals: watokenDecimals[i],
         balance: ZERO,
       },
-      underlying: {
-        address: utokenAddresses[i],
-        name: utokenNames[i],
-        symbol: utokenSymbols[i],
-        decimals: utokenDecimals[i],
-        balance: ZERO,
-      },
+      underlying: [
+        {
+          address: utokenAddresses[i],
+          name: utokenNames[i],
+          symbol: utokenSymbols[i],
+          decimals: utokenDecimals[i],
+          balance: ZERO,
+        },
+      ],
       eth: {
         balance: ZERO,
       },

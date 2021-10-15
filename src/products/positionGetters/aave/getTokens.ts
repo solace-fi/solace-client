@@ -74,13 +74,15 @@ const generateTokensData = async (
           decimals: config.decimals.toNumber(),
           balance: ZERO,
         },
-        underlying: {
-          address: token.tokenAddress,
-          name: tokenName,
-          symbol: token.symbol,
-          decimals: config.decimals.toNumber(),
-          balance: ZERO,
-        },
+        underlying: [
+          {
+            address: token.tokenAddress,
+            name: tokenName,
+            symbol: token.symbol,
+            decimals: config.decimals.toNumber(),
+            balance: ZERO,
+          },
+        ],
         eth: {
           balance: ZERO,
         },

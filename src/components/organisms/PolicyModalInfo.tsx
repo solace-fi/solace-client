@@ -77,7 +77,7 @@ export const PolicyModalInfo: React.FC<PolicyModalInfoProps> = ({ appraisal, sel
   const { activeNetwork, currencyDecimals } = useNetwork()
   const { width } = useWindowDimensions()
   const { account } = useWallet()
-  const { tokenPositionData } = useCachedData()
+  const { tokenPosData } = useCachedData()
   const [showAssetsModal, setShowAssetsModal] = useState<boolean>(false)
   const [assets, setAssets] = useState<BasicData[]>([])
   const maxPositionsOnDisplay = 4
@@ -89,13 +89,13 @@ export const PolicyModalInfo: React.FC<PolicyModalInfoProps> = ({ appraisal, sel
   *************************************************************************************/
 
   const getAssets = async () => {
-    const cache = tokenPositionData.storedPositionData.find((dataset) => dataset.name == activeNetwork.name)
-    if (!selectedPolicy || !cache || !account) return
+    const matchingCache = tokenPosData.storedPosData.find((dataset) => dataset.chainId == activeNetwork.chainId)
+    if (!selectedPolicy || !matchingCache || !account) return
     const supportedProduct = activeNetwork.cache.supportedProducts.find(
       (product) => product.name == selectedPolicy.productName
     )
     if (!supportedProduct) return
-    const foundPositions = await handleFilterPositions(supportedProduct, cache, selectedPolicy)
+    const foundPositions = await handleFilterPositions(supportedProduct, matchingCache, selectedPolicy)
     setAssets(foundPositions)
   }
 
@@ -113,12 +113,15 @@ export const PolicyModalInfo: React.FC<PolicyModalInfoProps> = ({ appraisal, sel
             (savedPosition.position as Token).token.address.slice(2).toLowerCase()
           )
         )
-        res = filteredPositions.map((filteredPosition: Position) => {
-          return {
-            name: (filteredPosition.position as Token).underlying.name,
-            address: (filteredPosition.position as Token).underlying.address,
+        for (let i = 0; i < filteredPositions.length; i++) {
+          const curUnderlying = (filteredPositions[i].position as Token).underlying
+          for (let j = 0; j < curUnderlying.length; j++) {
+            res.push({
+              name: curUnderlying[j].name,
+              address: curUnderlying[j].address,
+            })
           }
-        })
+        }
         break
       case 'liquity':
         res = savedPositions
@@ -126,6 +129,21 @@ export const PolicyModalInfo: React.FC<PolicyModalInfoProps> = ({ appraisal, sel
             return {
               name: (pos.position as LiquityPosition).positionName,
               address: (pos.position as LiquityPosition).positionAddress,
+            }
+          })
+          .filter((pos: any) => _selectedPolicy.positionDescription.includes(pos.address.slice(2).toLowerCase()))
+        break
+      case 'curveLpErc20':
+        const filteredCurvePositions: Position[] = savedPositions.filter((savedPosition: Position) =>
+          _selectedPolicy.positionDescription.includes(
+            (savedPosition.position as Token).token.address.slice(2).toLowerCase()
+          )
+        )
+        res = filteredCurvePositions
+          .map((filteredPosition: Position) => {
+            return {
+              name: (filteredPosition.position as Token).token.name,
+              address: (filteredPosition.position as Token).token.address,
             }
           })
           .filter((pos: any) => _selectedPolicy.positionDescription.includes(pos.address.slice(2).toLowerCase()))

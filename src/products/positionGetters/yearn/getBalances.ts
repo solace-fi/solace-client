@@ -24,12 +24,12 @@ export const getBalances = async (
 
   indices.forEach(
     (i) =>
-      (balances[i].underlying.balance = balances[i].token.balance
+      (balances[i].underlying[0].balance = balances[i].token.balance
         .mul(pricesPerShare[i])
         .div(String(getNonHumanValue(1, decimals[i]))))
   )
 
-  // // get native token balances
+  // get native token balances
   const tokenBalances = await addNativeTokenBalances(balances, indices, activeNetwork.chainId)
   return tokenBalances
 }

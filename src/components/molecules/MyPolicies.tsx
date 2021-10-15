@@ -157,7 +157,6 @@ export const MyPolicies: React.FC<MyPoliciesProps> = ({ openClaimModal, openMana
                       {policy.status === PolicyState.ACTIVE && (
                         <TableDataGroup>
                           <Button
-                            glow={policy.claimAssessment && policy.claimAssessment.lossEventDetected}
                             secondary={policy.claimAssessment && policy.claimAssessment.lossEventDetected}
                             onClick={() => openClaimModal(policy)}
                             info
@@ -239,7 +238,12 @@ export const MyPolicies: React.FC<MyPoliciesProps> = ({ openClaimModal, openMana
                   </FormRow>
                   {policy.status === PolicyState.ACTIVE && (
                     <ButtonWrapper isColumn>
-                      <Button widthP={100} onClick={() => openClaimModal(policy)} info>
+                      <Button
+                        widthP={100}
+                        onClick={() => openClaimModal(policy)}
+                        secondary={policy.claimAssessment && policy.claimAssessment.lossEventDetected}
+                        info
+                      >
                         Claim
                       </Button>
                       <Button widthP={100} onClick={() => openManageModal(policy)} info>

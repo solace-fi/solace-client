@@ -148,30 +148,31 @@ export const MultiStepForm = () => {
   const { width } = useWindowDimensions()
   const props = { formData, setForm, navigation }
   const [showAssetsModal, setShowAssetsModal] = useState<boolean>(false)
-  const formattedAssets: BasicData[] = useMemo(
-    () =>
-      positions.map((pos: Position) => {
-        switch (pos.type) {
-          case 'erc20':
-            return {
-              name: (pos.position as Token).underlying.name,
-              address: (pos.position as Token).underlying.address,
-            }
-          case 'liquity':
-            return {
-              name: (pos.position as LiquityPosition).positionName,
-              address: (pos.position as LiquityPosition).positionAddress,
-            }
-          case 'other':
-          default:
-            return {
-              name: '',
-              address: '',
-            }
-        }
-      }),
-    [positions]
-  )
+  const formattedAssets: BasicData[] = useMemo(() => {
+    const res: BasicData[] = []
+    for (let i = 0; i < positions.length; i++) {
+      const pos: Position = positions[i]
+      switch (pos.type) {
+        case 'erc20':
+          for (let i = 0; i < (pos.position as Token).underlying.length; i++) {
+            res.push({
+              name: (pos.position as Token).underlying[i].name,
+              address: (pos.position as Token).underlying[i].address,
+            })
+          }
+          break
+        case 'liquity':
+          res.push({
+            name: (pos.position as LiquityPosition).positionName,
+            address: (pos.position as LiquityPosition).positionAddress,
+          })
+          break
+        case 'other':
+        default:
+      }
+    }
+    return res
+  }, [positions])
   const maxPositionsToDisplay = 4
 
   /*************************************************************************************

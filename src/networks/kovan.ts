@@ -18,9 +18,8 @@ import waaveABI from '../constants/abi/contracts/products/WaaveProduct.sol/Waave
 import { ProductName, Unit } from '../constants/enums'
 
 import { NetworkConfig } from '../constants/types'
-import { ETHERSCAN_API_KEY } from '../constants'
+import { ETHERSCAN_API_KEY, ALCHEMY_API_KEY } from '../constants'
 import { hexValue } from '@ethersproject/bytes'
-import { ALCHEMY_API_KEY } from '../constants'
 import { AaveProduct } from '../products/aave'
 import { WaaveProduct } from '../products/waave'
 

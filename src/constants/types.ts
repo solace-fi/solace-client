@@ -3,21 +3,20 @@ import { PolicyState, ProductName, TransactionCondition, Unit, SystemNotice, Err
 import { Contract } from '@ethersproject/contracts'
 
 export type NetworkCache = {
-  name: string
   chainId: number
   positions: PositionsCache
   positionNames: PositionNamesCache
 }
 
-export type PositionsCache = { [key: string]: PositionsCacheValue }
+export type PositionsCache = { [key: string]: PositionsCacheValue } // [supported product name]: Position[]
 
 export type PositionNamesCache = {
-  [key: string]: PositionNamesCacheValue
+  [key: string]: PositionNamesCacheValue // [supported product name]: PositionNamesCacheValue
 }
 
-export type PositionsCacheValue = { savedPositions: Position[]; positionsInitialized: boolean }
+export type PositionsCacheValue = { savedPositions: Position[]; init: boolean }
 
-export type PositionNamesCacheValue = { positionNames: { [key: string]: string }; positionNamesInitialized: boolean }
+export type PositionNamesCacheValue = { positionNames: { [key: string]: string[] }; init: boolean } // [token.token.address]: {underlying addresses}[]
 
 export type ClaimDetails = { id: string; cooldown: string; canWithdraw: boolean; amount: BigNumber }
 
@@ -65,21 +64,17 @@ export type Position = {
   position: Token | LiquityPosition
 }
 
+export type TokenData = {
+  address: string
+  name: string
+  symbol: string
+  decimals: number
+  balance: BigNumber
+}
+
 export type Token = {
-  token: {
-    address: string
-    name: string
-    symbol: string
-    decimals: number
-    balance: BigNumber
-  }
-  underlying: {
-    address: string
-    name: string
-    symbol: string
-    decimals: number
-    balance: BigNumber
-  }
+  token: TokenData
+  underlying: TokenData[]
   eth: {
     balance: BigNumber
   }
@@ -126,7 +121,7 @@ export type GasPriceResult = {
   suggestBaseFee?: number
 }
 
-export type PositionsType = 'erc20' | 'liquity' | 'other'
+export type PositionsType = 'erc20' | 'liquity' | 'curveLpErc20' | 'other'
 
 export type StringToStringMapping = { [key: string]: string }
 
@@ -135,7 +130,6 @@ export type SupportedProduct = {
   positionsType: PositionsType
   productLink?: string
 
-  getAppraisals: (tokens: any[], chainId: number) => Promise<BigNumber[]>
   getTokens?: (provider: any, activeNetwork: NetworkConfig) => Promise<Token[]>
   getBalances?: (user: string, provider: any, activeNetwork: NetworkConfig, tokens: Token[]) => Promise<Token[]>
   getPositions?: any

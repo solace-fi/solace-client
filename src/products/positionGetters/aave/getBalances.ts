@@ -11,10 +11,9 @@ export const getBalances = async (
 ): Promise<Token[]> => {
   // get atoken balances
   const balances: Token[] = await getProductTokenBalances(user, ierc20Json.abi, tokens, provider)
-
   //get utoken balances
   const indices = rangeFrom0(balances.length)
-  indices.forEach((i) => (balances[i].underlying.balance = balances[i].token.balance))
+  indices.forEach((i) => (balances[i].underlying[0].balance = balances[i].token.balance))
 
   //get native token balances
   const tokenBalances = await addNativeTokenBalances(
@@ -23,6 +22,7 @@ export const getBalances = async (
     activeNetwork.chainId,
     getMainNetworkTokenAddress
   )
+  console.log(tokenBalances)
   return tokenBalances
 }
 

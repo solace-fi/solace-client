@@ -30,9 +30,19 @@ export const addNativeTokenBalances = async (
   chainId: number,
   getMainNetworkTokenAddress?: (address: string, chainId: number) => string
 ): Promise<Token[]> => {
-  const ethAmounts = await Promise.all(
-    balances.map((balance) => queryNativeTokenBalance(balance.underlying, chainId, getMainNetworkTokenAddress))
-  )
+  const ethAmounts: BigNumber[] = []
+  for (let i = 0; i < balances.length; i++) {
+    let standingEthAmount = ZERO
+    for (let j = 0; j < balances[i].underlying.length; j++) {
+      const fetchedAmount = await queryNativeTokenBalance(
+        balances[i].underlying[j],
+        chainId,
+        getMainNetworkTokenAddress
+      )
+      standingEthAmount = standingEthAmount.add(fetchedAmount)
+    }
+    ethAmounts.push(standingEthAmount)
+  }
   indices.forEach((i) => (balances[i].eth.balance = ethAmounts[i]))
   if (balances.length > 1) balances.sort((balanceA, balanceB) => bnCmp(balanceA.eth.balance, balanceB.eth.balance))
   return balances

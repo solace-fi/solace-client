@@ -51,8 +51,8 @@ export const useUserVaultDetails = () => {
         const userShare = totalSupply.gt(ZERO)
           ? floatUnits(userAssets.mul(100), currencyDecimals) / floatUnits(totalSupply, currencyDecimals)
           : 0
-        const formattedAssets = formatUnits(userAssets, currencyDecimals)
-        setUserVaultAssets(formattedAssets)
+        const formattedUserAssets = formatUnits(userAssets, currencyDecimals)
+        setUserVaultAssets(formattedUserAssets)
         setUserVaultShare(userShare.toString())
       } catch (err) {
         console.log('error getUserVaultShare ', err)
