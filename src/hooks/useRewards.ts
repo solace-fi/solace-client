@@ -3,48 +3,52 @@ import { useContracts } from '../context/ContractsManager'
 import { useWallet } from '../context/WalletManager'
 import { usePoolStakedValue, useUserStakedValue } from './useFarm'
 import { formatUnits, parseUnits } from '@ethersproject/units'
-import { NUM_BLOCKS_PER_DAY, ZERO } from '../constants'
+import { NUM_SECONDS_PER_DAY, ZERO } from '../constants'
 import { Contract } from '@ethersproject/contracts'
 import { floatUnits } from '../utils/formatting'
 import { useCachedData } from '../context/CachedDataManager'
 import { useNetwork } from '../context/NetworkManager'
 
-const useMasterValues = (farmId: number) => {
-  const { master } = useContracts()
+const useFarmControllerValues = (farmId: number) => {
+  const { farmController } = useContracts()
   const { latestBlock } = useCachedData()
-  const [masterValues, setMasterValues] = useState({ allocPoints: ZERO, totalAllocPoints: ZERO, solacePerBlock: ZERO })
+  const [farmControllerValues, setFarmControllerValues] = useState({
+    allocPoints: ZERO,
+    totalAllocPoints: ZERO,
+    rewardPerSecond: ZERO,
+  })
 
   useEffect(() => {
-    const getMasterValues = async () => {
-      if (!master) return
+    const getFarmControllerValues = async () => {
+      if (!farmController) return
       try {
-        const allocPoints = await master.allocPoints(farmId)
-        const totalAllocPoints = await master.totalAllocPoints()
-        const solacePerBlock = await master.solacePerBlock()
-        setMasterValues({ allocPoints, totalAllocPoints, solacePerBlock })
+        const allocPoints = await farmController.allocPoints(farmId)
+        const totalAllocPoints = await farmController.totalAllocPoints()
+        const rewardPerSecond = await farmController.rewardPerSecond()
+        setFarmControllerValues({ allocPoints, totalAllocPoints, rewardPerSecond })
       } catch (err) {
-        console.log('getMasterValues', err)
+        console.log('getFarmControllerValues', err)
       }
     }
-    getMasterValues()
-  }, [farmId, master, latestBlock])
-  return masterValues
+    getFarmControllerValues()
+  }, [farmId, farmController, latestBlock])
+  return farmControllerValues
 }
 
 export const useRewardsPerDay = (farmId: number): string => {
-  const { allocPoints, totalAllocPoints, solacePerBlock } = useMasterValues(farmId)
+  const { allocPoints, totalAllocPoints, rewardPerSecond } = useFarmControllerValues(farmId)
   const { currencyDecimals } = useNetwork()
 
   return useMemo(() => {
     const rewards = totalAllocPoints.gt(ZERO)
-      ? (floatUnits(solacePerBlock, currencyDecimals) *
-          NUM_BLOCKS_PER_DAY *
+      ? (floatUnits(rewardPerSecond, currencyDecimals) *
+          NUM_SECONDS_PER_DAY *
           floatUnits(allocPoints, currencyDecimals)) /
         floatUnits(totalAllocPoints, currencyDecimals)
       : 0
     const formattedRewards = rewards.toString()
     return formattedRewards
-  }, [allocPoints, totalAllocPoints, solacePerBlock, currencyDecimals])
+  }, [allocPoints, totalAllocPoints, rewardPerSecond, currencyDecimals])
 }
 
 export const useUserRewardsPerDay = (
@@ -55,7 +59,7 @@ export const useUserRewardsPerDay = (
   const { currencyDecimals } = useNetwork()
   const poolStakedValue = parseUnits(usePoolStakedValue(farm), currencyDecimals)
   const userStakedValue = parseUnits(useUserStakedValue(farm, account), currencyDecimals)
-  const { allocPoints, totalAllocPoints, solacePerBlock } = useMasterValues(farmId)
+  const { allocPoints, totalAllocPoints, rewardPerSecond } = useFarmControllerValues(farmId)
 
   return useMemo(() => {
     const allocPercentage = totalAllocPoints.gt(ZERO)
@@ -64,14 +68,15 @@ export const useUserRewardsPerDay = (
     const poolPercentage = poolStakedValue.gt(ZERO)
       ? floatUnits(userStakedValue, currencyDecimals) / floatUnits(poolStakedValue, currencyDecimals)
       : 0
-    const rewards = floatUnits(solacePerBlock, currencyDecimals) * allocPercentage * poolPercentage
+    const rewards =
+      floatUnits(rewardPerSecond, currencyDecimals) * NUM_SECONDS_PER_DAY * allocPercentage * poolPercentage
     const formattedRewards = rewards.toString()
     return formattedRewards
-  }, [allocPoints, totalAllocPoints, solacePerBlock, poolStakedValue, userStakedValue])
+  }, [allocPoints, totalAllocPoints, rewardPerSecond, poolStakedValue, userStakedValue])
 }
 
 export const useUserPendingRewards = (farm: Contract | null | undefined): string => {
-  const { master } = useContracts()
+  const { farmController } = useContracts()
   const { latestBlock } = useCachedData()
   const { account } = useWallet()
   const { currencyDecimals } = useNetwork()
@@ -79,9 +84,9 @@ export const useUserPendingRewards = (farm: Contract | null | undefined): string
 
   useEffect(() => {
     const getUserPendingRewards = async () => {
-      if (!farm || !master || !account) return
+      if (!farm || !farmController || !account) return
       try {
-        const farms = await master.numFarms()
+        const farms = await farmController.numFarms()
         if (farms.isZero()) return
         const pendingReward = await farm.pendingRewards(account)
         const formattedPendingReward = formatUnits(pendingReward, currencyDecimals)
@@ -91,7 +96,7 @@ export const useUserPendingRewards = (farm: Contract | null | undefined): string
       }
     }
     getUserPendingRewards()
-  }, [account, farm, master, latestBlock, currencyDecimals])
+  }, [account, farm, farmController, latestBlock, currencyDecimals])
 
   return userRewards
 }

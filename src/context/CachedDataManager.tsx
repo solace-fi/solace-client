@@ -34,7 +34,10 @@ type CachedData = {
     userPolicies: Policy[]
     setCanGetAssessments: (toggle: boolean) => void
   }
-  tokenPosData: { dataInitialized: boolean; storedPosData: NetworkCache[] }
+  tokenPosData: {
+    dataInitialized: boolean
+    storedPosData: NetworkCache[]
+  }
   showAccountModal: boolean
   version: number
   dataVersion: number
@@ -53,7 +56,10 @@ const CachedDataContext = createContext<CachedData>({
     userPolicies: [],
     setCanGetAssessments: () => undefined,
   },
-  tokenPosData: { dataInitialized: false, storedPosData: [] },
+  tokenPosData: {
+    dataInitialized: false,
+    storedPosData: [],
+  },
   showAccountModal: false,
   version: 0,
   dataVersion: 0,

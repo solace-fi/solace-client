@@ -57,7 +57,7 @@ export const useAppraisePosition = (policy: Policy | undefined): BigNumber => {
         policy.positionNames.forEach(async (name) => {
           const positionToAppraise = matchingCache.positions[
             supportedProduct.name
-          ].savedPositions.find((position: Position) =>
+          ].positions.find((position: Position) =>
             (position.position as Token).underlying.find((tokenData: TokenData) => tokenData.symbol == name)
           )
           if (!positionToAppraise) return
@@ -76,7 +76,7 @@ export const useAppraisePosition = (policy: Policy | undefined): BigNumber => {
       case 'liquity':
         const positionsToAppraise: LiquityPosition[] = []
         policy.positionNames.forEach(async (name) => {
-          const positionToAppraise = matchingCache.positions[supportedProduct.name].savedPositions.find(
+          const positionToAppraise = matchingCache.positions[supportedProduct.name].positions.find(
             (position: Position) => (position.position as LiquityPosition).positionName == name
           )
           if (!positionToAppraise) return

@@ -12,7 +12,10 @@ import { getClaimAssessment } from '../utils/paclas'
 export const usePolicyGetter = (
   getAll: boolean,
   latestBlock: number,
-  data: { dataInitialized: boolean; storedPosData: NetworkCache[] },
+  data: {
+    dataInitialized: boolean
+    storedPosData: NetworkCache[]
+  },
   policyHolder?: string,
   product?: string
 ) => {
@@ -32,26 +35,16 @@ export const usePolicyGetter = (
   const getUserPolicies = async (policyHolder: string): Promise<Policy[]> => {
     if (!policyManager || !library) return []
     const blockNumber = await library.getBlockNumber()
-    const policyIds: BigNumber[] = await policyManager.listPolicies(policyHolder).catch((err: any) => {
-      console.log(err)
-      return []
-    })
+    const policyIds: BigNumber[] = await policyManager.listTokensOfOwner(policyHolder)
     const policies = await Promise.all(policyIds.map((policyId: BigNumber) => queryPolicy(policyId, blockNumber)))
     return policies
   }
 
   const getAllPolicies = async (): Promise<Policy[]> => {
     if (!policyManager || !library) return []
-    const [blockNumber, totalSupply] = await Promise.all([
-      library.getBlockNumber(),
-      policyManager.totalSupply().catch((err: any) => {
-        console.log(err)
-        return 0
-      }),
-    ])
-    const indices = rangeFrom0(totalSupply)
-    const policyIds = await Promise.all(indices.map((index) => policyManager.tokenByIndex(index)))
-    const policies = await Promise.all(policyIds.map((policyId: number) => queryPolicy(policyId, blockNumber)))
+    const blockNumber = await library.getBlockNumber()
+    const policyIds: BigNumber[] = await policyManager.listTokens()
+    const policies = await Promise.all(policyIds.map((policyId: BigNumber) => queryPolicy(policyId, blockNumber)))
     return policies
   }
 
@@ -64,9 +57,8 @@ export const usePolicyGetter = (
       if (policyHolder) {
         policies.sort((a: any, b: any) => b.policyId - a.policyId) // newest first
         const matchingCache = data.storedPosData.find((dataset) => dataset.chainId == activeNetwork.chainId)
-        policies.forEach((policy: Policy) => {
-          const productPosition =
-            matchingCache?.positionNames[activeNetwork.config.productsRev[policy.productAddress] ?? '']
+        policies.forEach(async (policy: Policy) => {
+          const productPosition = matchingCache?.positionNames[activeNetwork.config.productsRev[policy.productAddress]]
           if (productPosition) {
             Object.keys(productPosition.positionNames).forEach((tokenAddress) => {
               if (policy.positionDescription.includes(tokenAddress.slice(2))) {
@@ -103,7 +95,8 @@ export const usePolicyGetter = (
     }
     if (!policyManager) return returnError
     try {
-      const policy = await withBackoffRetries(async () => policyManager.getPolicyInfo(policyId))
+      // const policy = await withBackoffRetries(async () => policyManager.getPolicyInfo(policyId))
+      const policy = await policyManager.getPolicyInfo(policyId)
       return {
         policyId: Number(policyId),
         policyHolder: policy.policyholder,
@@ -129,8 +122,7 @@ export const usePolicyGetter = (
     const blockNumber = await library.getBlockNumber()
     const updatedPolicy = await queryPolicy(id, blockNumber)
     const matchingCache = data.storedPosData.find((dataset) => dataset.chainId == activeNetwork.chainId)
-    const productPosition =
-      matchingCache?.positionNames[activeNetwork.config.productsRev[updatedPolicy.productAddress] ?? '']
+    const productPosition = matchingCache?.positionNames[activeNetwork.config.productsRev[updatedPolicy.productAddress]]
     if (productPosition) {
       Object.keys(productPosition.positionNames).forEach((tokenAddress) => {
         if (updatedPolicy.positionDescription.includes(tokenAddress.slice(2))) {

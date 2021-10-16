@@ -19,7 +19,7 @@ import { getTroveContract } from '../products/positionGetters/liquity/getPositio
 import { ZERO } from '../constants'
 
 export const useCachePositions = () => {
-  const { library, initialized } = useWallet()
+  const { library, account } = useWallet()
   const { activeNetwork, networks, findNetworkByChainId } = useNetwork()
   const [storedPosData, setStoredPosData] = useSessionStorage<NetworkCache[]>('sol_position_data', [])
   const running = useRef(false)
@@ -36,7 +36,7 @@ export const useCachePositions = () => {
         const cachedPositionNames: PositionNamesCache = {}
 
         supportedProducts.forEach((name: ProductName) => {
-          cachedPositions[name] = { savedPositions: [], init: false }
+          cachedPositions[name] = { positions: [], init: false }
           cachedPositionNames[name] = { positionNames: {}, init: false }
         })
 
@@ -53,7 +53,7 @@ export const useCachePositions = () => {
   }, [storedPosData, setStoredPosData])
 
   const getAllPositionsforChain = useCallback(
-    async (data: NetworkCache[], _activeNetwork: NetworkConfig, _library: any) => {
+    async (data: NetworkCache[], _activeNetwork: NetworkConfig, _library: any, _account: string) => {
       if (running.current || _library == undefined || _activeNetwork.chainId == undefined) return
       setDataInitialized(false)
       running.current = true
@@ -75,8 +75,9 @@ export const useCachePositions = () => {
             const { initializedPositions, initializedPositionNames } = await handleInitPositions(
               supportedProduct,
               newCache,
-              library,
-              _activeNetwork
+              _library,
+              _activeNetwork,
+              _account
             )
             newCache.positions[supportedProduct.name] = initializedPositions
             newCache.positionNames[supportedProduct.name] = initializedPositionNames
@@ -99,44 +100,23 @@ export const useCachePositions = () => {
     []
   )
 
-  const initSupportedProductForChain = async (supportedProduct: SupportedProduct) => {
-    const cache = storedPosData.find((dataset) => dataset.chainId == activeNetwork.chainId)
-    if (!cache) return
-    if (!cache.positions[supportedProduct.name].init && !cache.positionNames[supportedProduct.name].init) {
-      setDataInitialized(false)
-      const { initializedPositions, initializedPositionNames } = await handleInitPositions(
-        supportedProduct,
-        cache,
-        library,
-        activeNetwork
-      )
-      cache.positions[supportedProduct.name] = initializedPositions
-      cache.positionNames[supportedProduct.name] = initializedPositionNames
-
-      const editedData = storedPosData.filter((data) => data.chainId != cache.chainId)
-      const newData = [...editedData, cache]
-      setStoredPosData(newData)
-      console.log('initSupportedProductForChain: position init completed')
-      setDataInitialized(true)
-    }
-  }
-
   // return initializedPositions and initializedPositionNames
   const handleInitPositions = async (
     supportedProduct: SupportedProduct,
     newCache: NetworkCache,
     _library: any,
-    _activeNetwork: NetworkConfig
+    _activeNetwork: NetworkConfig,
+    _account: string
   ): Promise<{ initializedPositions: PositionsCacheValue; initializedPositionNames: PositionNamesCacheValue }> => {
     let _initializedPositions: PositionsCacheValue = {
-      savedPositions: [],
+      positions: [],
       init: false,
     }
     let _initializedPositionNames: any = null
     switch (supportedProduct.positionsType) {
       case 'erc20':
         if (typeof supportedProduct.getTokens !== 'undefined') {
-          const tokens: Token[] = await supportedProduct.getTokens(_library, _activeNetwork)
+          const tokens: Token[] = await supportedProduct.getTokens(_library, _activeNetwork, { _account })
           const positionNames: PositionNamesCacheValue = {
             positionNames: tokens.reduce(
               (names: any, token: Token) => ({
@@ -149,7 +129,7 @@ export const useCachePositions = () => {
           }
           _initializedPositions = {
             ...newCache.positions[supportedProduct.name],
-            savedPositions: tokens.map((token) => {
+            positions: tokens.map((token) => {
               return { type: 'erc20', position: token }
             }) as Position[],
             init: true,
@@ -202,37 +182,13 @@ export const useCachePositions = () => {
         }
         _initializedPositions = {
           ...newCache.positions[supportedProduct.name],
-          savedPositions: liquityPositions.map((liquityPos) => {
+          positions: liquityPositions.map((liquityPos) => {
             return { type: 'liquity', position: liquityPos }
           }) as Position[],
           init: true,
         }
         _initializedPositionNames = positionNames
         break
-      case 'curveLpErc20':
-        if (typeof supportedProduct.getTokens !== 'undefined') {
-          const tokens: Token[] = await supportedProduct.getTokens(_library, _activeNetwork)
-
-          const positionNames: PositionNamesCacheValue = {
-            positionNames: tokens.reduce(
-              (names: any, token: Token) => ({
-                ...names,
-                [token.token.address.toLowerCase()]: [token.token.symbol],
-              }),
-              {}
-            ),
-            init: true,
-          }
-          _initializedPositions = {
-            ...newCache.positions[supportedProduct.name],
-            savedPositions: tokens.map((token) => {
-              return { type: 'curveLpErc20', position: token }
-            }) as Position[],
-            init: true,
-          }
-          _initializedPositionNames = positionNames
-          break
-        } else break
       case 'other':
       default:
     }
@@ -242,14 +198,14 @@ export const useCachePositions = () => {
   }
 
   useEffect(() => {
-    if (!initialized) {
-      console.log('useCachePositions: web3React not initialized, no init needed')
+    if (!account) {
+      console.log('useCachePositions: no account found, no init needed')
       return
     }
     // do not run the functions if web3React is not initialized
     const data = setStoredData()
-    getAllPositionsforChain(data, activeNetwork, library)
-  }, [activeNetwork, initialized])
+    getAllPositionsforChain(data, activeNetwork, library, account)
+  }, [activeNetwork, account])
 
   return { dataInitialized, storedPosData }
 }

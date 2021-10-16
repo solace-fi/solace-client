@@ -2,21 +2,43 @@ import { BigNumber } from 'ethers'
 import { PolicyState, ProductName, TransactionCondition, Unit, SystemNotice, Error } from '../constants/enums'
 import { Contract } from '@ethersproject/contracts'
 
+/*
+
+networkCache = {
+  chainId: number
+  positions: {
+    [key: string]: {   // supported product name
+      positions: Position[]
+      init: boolean 
+    }
+  }
+  positionNames: {
+    [key: string]: {   // supported product name
+      positionNames: { 
+        [key: string]: string[] // [token.token.address]: underlying symbols[]
+      }
+      init: boolean 
+    }
+  }
+}
+
+*/
+
 export type NetworkCache = {
   chainId: number
   positions: PositionsCache
   positionNames: PositionNamesCache
 }
 
-export type PositionsCache = { [key: string]: PositionsCacheValue } // [supported product name]: Position[]
+export type PositionsCache = { [key: string]: PositionsCacheValue }
 
 export type PositionNamesCache = {
-  [key: string]: PositionNamesCacheValue // [supported product name]: PositionNamesCacheValue
+  [key: string]: PositionNamesCacheValue
 }
 
-export type PositionsCacheValue = { savedPositions: Position[]; init: boolean }
+export type PositionsCacheValue = { positions: Position[]; init: boolean }
 
-export type PositionNamesCacheValue = { positionNames: { [key: string]: string[] }; init: boolean } // [token.token.address]: {underlying addresses}[]
+export type PositionNamesCacheValue = { positionNames: { [key: string]: string[] }; init: boolean }
 
 export type ClaimDetails = { id: string; cooldown: string; canWithdraw: boolean; amount: BigNumber }
 
@@ -26,7 +48,7 @@ export type BasicData = {
 }
 
 export type Option = {
-  id: number
+  id: BigNumber
   rewardAmount: BigNumber
   strikePrice: BigNumber
   expiry: BigNumber
@@ -121,7 +143,7 @@ export type GasPriceResult = {
   suggestBaseFee?: number
 }
 
-export type PositionsType = 'erc20' | 'liquity' | 'curveLpErc20' | 'other'
+export type PositionsType = 'erc20' | 'liquity' | 'other'
 
 export type StringToStringMapping = { [key: string]: string }
 
@@ -130,7 +152,7 @@ export type SupportedProduct = {
   positionsType: PositionsType
   productLink?: string
 
-  getTokens?: (provider: any, activeNetwork: NetworkConfig) => Promise<Token[]>
+  getTokens?: (provider: any, activeNetwork: NetworkConfig, metadata?: any) => Promise<Token[]>
   getBalances?: (user: string, provider: any, activeNetwork: NetworkConfig, tokens: Token[]) => Promise<Token[]>
   getPositions?: any
 }

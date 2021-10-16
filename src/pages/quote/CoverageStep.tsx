@@ -242,6 +242,14 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
     handleCoverageChange(adjustedCoverAmount, false)
   }
 
+  const setPositionCover = () => {
+    if (positionAmount.lte(maxCoverPerPolicyInWei)) {
+      handleCoverageChange(positionAmount.toString())
+    } else {
+      setMaxCover()
+    }
+  }
+
   /*************************************************************************************
 
   useEffect hooks
@@ -249,11 +257,7 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
   *************************************************************************************/
 
   useEffect(() => {
-    if (positionAmount.lte(maxCoverPerPolicyInWei)) {
-      handleCoverageChange(positionAmount.toString())
-    } else {
-      setMaxCover()
-    }
+    setPositionCover()
   }, [maxCoverPerPolicyInWei])
 
   useEffect(() => {
@@ -321,15 +325,31 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
                 ml={10}
                 pt={4}
                 pb={4}
-                pl={8}
-                pr={8}
-                width={79}
+                pl={2}
+                pr={2}
+                width={150}
                 height={30}
-                onClick={() => setMaxCover()}
+                onClick={() => setPositionCover()}
                 info
               >
-                MAX
+                Cover up to position
               </Button>
+              {maxCoverPerPolicyInWei.gt(positionAmount) && (
+                <Button
+                  disabled={errors.length > 0}
+                  ml={10}
+                  pt={4}
+                  pb={4}
+                  pl={8}
+                  pr={8}
+                  width={79}
+                  height={30}
+                  onClick={() => setMaxCover()}
+                  info
+                >
+                  MAX
+                </Button>
+              )}
             </div>
             <StyledSlider
               value={coverAmount}

@@ -13,7 +13,7 @@ export const useGetClaimsDetails = (claimant: string | undefined): ClaimDetails[
     const getClaimDetails = async () => {
       if (!claimsEscrow || !claimant) return
       try {
-        const claimIds: BigNumber[] = await claimsEscrow.listClaims(claimant)
+        const claimIds: BigNumber[] = await claimsEscrow.listTokensOfOwner(claimant)
         const claimsDetails = await Promise.all(
           claimIds.map(async (claimId) => {
             const [cooldown, canWithdraw, claim] = await Promise.all([

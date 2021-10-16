@@ -13,7 +13,7 @@ import comptrollerJson from './contracts/IComptroller.json'
 const eth = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
 let cEth = '0x4Ddc2D193948926D02f9B1fE9e1daa0718270ED5'
 
-export const getTokens = async (provider: any, activeNetwork: NetworkConfig): Promise<Token[]> => {
+export const getTokens = async (provider: any, activeNetwork: NetworkConfig, metadata?: any): Promise<Token[]> => {
   let ctokenAddresses: string[] = []
   if (activeNetwork.chainId == 4) {
     cEth = '0xd6801a1DfFCd0a410336Ef88DeF4320D6DF1883e'

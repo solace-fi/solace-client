@@ -8,7 +8,7 @@ import { withBackoffRetries } from '../../../utils/time'
 import { vaultAbi, yregistryAbi } from './_contracts/yearnAbis'
 import { BigNumber } from 'ethers'
 
-export const getTokens = async (provider: any, activeNetwork: NetworkConfig): Promise<Token[]> => {
+export const getTokens = async (provider: any, activeNetwork: NetworkConfig, metadata?: any): Promise<Token[]> => {
   // TODO: reduce the ~1000 requests down
   if (!provider) return []
   // const yRegistryAddress = await provider.resolveName('v2.registry.ychad.eth')

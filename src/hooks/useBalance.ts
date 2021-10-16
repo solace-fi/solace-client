@@ -71,7 +71,7 @@ export const useScpBalance = (): string => {
 
 export const useSolaceBalance = (): string => {
   const { solace } = useContracts()
-  const { activeNetwork } = useNetwork()
+  const { currencyDecimals } = useNetwork()
   const { account } = useWallet()
   const [solaceBalance, setSolaceBalance] = useState<string>('0')
 
@@ -79,7 +79,7 @@ export const useSolaceBalance = (): string => {
     if (!solace) return
     try {
       const balance = await solace.balanceOf(account)
-      const formattedBalance = formatUnits(balance, activeNetwork.nativeCurrency.decimals)
+      const formattedBalance = formatUnits(balance, currencyDecimals)
       setSolaceBalance(formattedBalance)
     } catch (err) {
       console.log('getSolaceBalance', err)

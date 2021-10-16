@@ -17,8 +17,8 @@ import { WalletModal } from '../components/organisms/WalletModal'
 import { useNetwork } from './NetworkManager'
 import { MetamaskConnector } from '../wallet/wallet-connectors/MetaMask'
 import { useGeneral } from './GeneralProvider'
-// import { getTokens } from '../products/positionGetters/curve/getTokens'
-// import { getBalances } from '../products/positionGetters/curve/getBalances'
+// import { getTokens } from '../products/positionGetters/uniswapV2/getTokens'
+// import { getBalances } from '../products/positionGetters/uniswapV2/getBalances'
 /*
 
 This Manager keeps track of the user's wallet and details, including the wallet type and account, 
@@ -213,20 +213,17 @@ const WalletProvider: React.FC = (props) => {
   }, [web3React.account, web3React.library])
 
   // useEffect(() => {
-  //   const curve = async () => {
+  //   const testMainnet = async () => {
   //     const provider = new JsonRpcProvider(
   //       `https://eth-mainnet.alchemyapi.io/v2/${String(process.env.REACT_APP_ALCHEMY_API_KEY)}`
   //     )
-  //     const cachedTokens = await getTokens(provider, activeNetwork)
-  //     const balances = await getBalances(
-  //       '0x0004d2a2f9a823c1a585fde6514a17ff695e0001',
-  //       provider,
-  //       activeNetwork,
-  //       cachedTokens
-  //     )
-  //     console.log('curve balances', balances)
+  //     const user = '0x0606f5be68e91ac742bde480e1f62a7969a3bd6a'
+  //     // const user = '0x7777778e53b99c72c369e71ab040099c9e1f9bda'
+  //     const cachedTokens = await getTokens(provider, activeNetwork, { user })
+  //     const balances = await getBalances(user, provider, activeNetwork, cachedTokens)
+  //     console.log('fetched balances', balances)
   //   }
-  //   curve()
+  //   testMainnet()
   // }, [])
 
   const value = useMemo<ContextWallet>(

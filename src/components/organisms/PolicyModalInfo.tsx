@@ -89,12 +89,13 @@ export const PolicyModalInfo: React.FC<PolicyModalInfoProps> = ({ appraisal, sel
   *************************************************************************************/
 
   const getAssets = async () => {
-    const matchingCache = tokenPosData.storedPosData.find((dataset) => dataset.chainId == activeNetwork.chainId)
-    if (!selectedPolicy || !matchingCache || !account) return
+    if (!selectedPolicy || !account) return
     const supportedProduct = activeNetwork.cache.supportedProducts.find(
       (product) => product.name == selectedPolicy.productName
     )
     if (!supportedProduct) return
+    const matchingCache = tokenPosData.storedPosData.find((dataset) => dataset.chainId == activeNetwork.chainId)
+    if (!matchingCache) return
     const foundPositions = await handleFilterPositions(supportedProduct, matchingCache, selectedPolicy)
     setAssets(foundPositions)
   }
@@ -105,7 +106,7 @@ export const PolicyModalInfo: React.FC<PolicyModalInfoProps> = ({ appraisal, sel
     _selectedPolicy: Policy
   ): Promise<BasicData[]> => {
     let res: BasicData[] = []
-    const savedPositions: Position[] = _cache.positions[supportedProduct.name].savedPositions
+    const savedPositions: Position[] = _cache.positions[supportedProduct.name].positions
     switch (supportedProduct.positionsType) {
       case 'erc20':
         const filteredPositions: Position[] = savedPositions.filter((savedPosition: Position) =>
@@ -129,21 +130,6 @@ export const PolicyModalInfo: React.FC<PolicyModalInfoProps> = ({ appraisal, sel
             return {
               name: (pos.position as LiquityPosition).positionName,
               address: (pos.position as LiquityPosition).positionAddress,
-            }
-          })
-          .filter((pos: any) => _selectedPolicy.positionDescription.includes(pos.address.slice(2).toLowerCase()))
-        break
-      case 'curveLpErc20':
-        const filteredCurvePositions: Position[] = savedPositions.filter((savedPosition: Position) =>
-          _selectedPolicy.positionDescription.includes(
-            (savedPosition.position as Token).token.address.slice(2).toLowerCase()
-          )
-        )
-        res = filteredCurvePositions
-          .map((filteredPosition: Position) => {
-            return {
-              name: (filteredPosition.position as Token).token.name,
-              address: (filteredPosition.position as Token).token.address,
             }
           })
           .filter((pos: any) => _selectedPolicy.positionDescription.includes(pos.address.slice(2).toLowerCase()))

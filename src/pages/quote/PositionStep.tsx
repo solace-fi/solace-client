@@ -136,7 +136,7 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
 
   const handleFetchPositions = async (supportedProduct: SupportedProduct, cache: NetworkCache): Promise<Position[]> => {
     if (!account || !library) return []
-    const savedPositions = cache.positions[supportedProduct.name].savedPositions
+    const savedPositions = cache.positions[supportedProduct.name].positions
     switch (supportedProduct.positionsType) {
       case 'erc20':
         if (typeof supportedProduct.getBalances !== 'undefined') {

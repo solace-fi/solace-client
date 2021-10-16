@@ -13,7 +13,8 @@ the web application mainly reads the contracts.
 */
 
 type Contracts = {
-  master?: Contract | null
+  farmController?: Contract | null
+  optionsFarming?: Contract | null
   vault?: Contract | null
   treasury?: Contract | null
   solace?: Contract | null
@@ -34,7 +35,8 @@ type Contracts = {
 }
 
 const ContractsContext = createContext<Contracts>({
-  master: undefined,
+  farmController: undefined,
+  optionsFarming: undefined,
   vault: undefined,
   treasury: undefined,
   solace: undefined,
@@ -60,7 +62,8 @@ const ContractsProvider: React.FC = (props) => {
   const contractSources = useContractArray()
   const keyContracts = useMemo(() => activeNetwork.config.keyContracts, [activeNetwork])
 
-  const master = useGetContract(keyContracts.master)
+  const farmController = useGetContract(keyContracts.farmController)
+  const optionsFarming = useGetContract(keyContracts.optionsFarming)
   const vault = useGetContract(keyContracts.vault)
   const treasury = useGetContract(keyContracts.treasury)
   const solace = useGetContract(keyContracts.solace)
@@ -93,7 +96,8 @@ const ContractsProvider: React.FC = (props) => {
 
   const value = useMemo<Contracts>(
     () => ({
-      master,
+      farmController,
+      optionsFarming,
       vault,
       treasury,
       solace,
@@ -113,7 +117,8 @@ const ContractsProvider: React.FC = (props) => {
       setSelectedProtocolByName,
     }),
     [
-      master,
+      farmController,
+      optionsFarming,
       vault,
       treasury,
       solace,

@@ -68,7 +68,7 @@ export const Statistics: React.FC = () => {
   const { errors } = useGeneral()
   const { account, initialized } = useWallet()
   const { activeNetwork, currencyDecimals } = useNetwork()
-  const { master } = useContracts()
+  const { farmController } = useContracts()
   const { makeTxToast } = useToasts()
   const { addLocalTransactions, reload, gasPrices, tokenPosData, latestBlock } = useCachedData()
   const capitalPoolSize = useCapitalPoolSize()
@@ -92,10 +92,10 @@ export const Statistics: React.FC = () => {
 
   *************************************************************************************/
   const claimRewards = async () => {
-    if (!master) return
+    if (!farmController) return
     const txType = FunctionName.WITHDRAW_REWARDS
     try {
-      const tx = await master.withdrawRewards({
+      const tx = await farmController.farmOptionMulti({
         ...gasConfig,
         gasLimit: GAS_LIMIT,
       })

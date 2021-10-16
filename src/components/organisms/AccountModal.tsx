@@ -94,7 +94,7 @@ export const AccountModal: React.FC<AccountModalProps> = ({ closeModal, isOpen }
   *************************************************************************************/
   return (
     <Modal handleClose={handleClose} isOpen={isOpen} modalTitle={'Account'} disableCloseButton={false}>
-      <CardContainer cardsPerRow={2} mb={10}>
+      <CardContainer cardsPerRow={account ? 2 : 1} mb={10}>
         {account && activeWalletConnector && (
           <Card color1>
             <FormRow style={{ justifyContent: 'center' }} m={0}>
