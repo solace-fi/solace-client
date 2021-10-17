@@ -1,5 +1,13 @@
 import { BigNumber } from 'ethers'
-import { PolicyState, ProductName, TransactionCondition, Unit, SystemNotice, Error } from '../constants/enums'
+import {
+  PolicyState,
+  ProductName,
+  TransactionCondition,
+  Unit,
+  SystemNotice,
+  Error,
+  PositionType,
+} from '../constants/enums'
 import { Contract } from '@ethersproject/contracts'
 
 /*
@@ -148,7 +156,7 @@ export type GasPriceResult = {
   suggestBaseFee?: number
 }
 
-export type PositionsType = 'erc20' | 'liquity' | 'other'
+export type PositionsType = PositionType
 
 export type StringToStringMapping = { [key: string]: string }
 

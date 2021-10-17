@@ -5,18 +5,11 @@ import { useEffect, useState } from 'react'
 import { GAS_LIMIT, NUM_BLOCKS_PER_DAY, ZERO } from '../constants'
 import { useContracts } from '../context/ContractsManager'
 import { useWallet } from '../context/WalletManager'
-import {
-  LiquityPosition,
-  Policy,
-  Position,
-  StringToStringMapping,
-  SupportedProduct,
-  Token,
-  TokenData,
-} from '../constants/types'
+import { LiquityPosition, Policy, Position, StringToStringMapping, SupportedProduct, Token } from '../constants/types'
 import { useCachedData } from '../context/CachedDataManager'
 import { useNetwork } from '../context/NetworkManager'
 import { useGasConfig } from './useGas'
+import { PositionType } from '../constants/enums'
 
 export const useGetPolicyPrice = (policyId: number): string => {
   const [policyPrice, setPolicyPrice] = useState<string>('')
@@ -52,7 +45,7 @@ export const useAppraisePolicyPosition = (policy: Policy | undefined): BigNumber
     const matchingCache = tokenPosData.storedPosData.find((dataset) => dataset.chainId == activeNetwork.chainId)
     if (!account || !library || !matchingCache || !policy) return []
     switch (supportedProduct.positionsType) {
-      case 'erc20':
+      case PositionType.TOKEN:
         const tokensToAppraise: Token[] = []
 
         // loop names because we want the only positions included in the policy
@@ -76,7 +69,7 @@ export const useAppraisePolicyPosition = (policy: Policy | undefined): BigNumber
           return erc20Tokens.map((t) => t.eth.balance)
         }
         return []
-      case 'liquity':
+      case PositionType.LQTY:
         const positionsToAppraise: LiquityPosition[] = []
         policy.positionNames.forEach(async (name) => {
           const positionToAppraise = matchingCache.positionsCache[supportedProduct.name].positions.find(
@@ -96,7 +89,7 @@ export const useAppraisePolicyPosition = (policy: Policy | undefined): BigNumber
           return liquityBalances
         }
         return []
-      case 'other':
+      case PositionType.OTHER:
       default:
         return []
     }
@@ -214,7 +207,6 @@ export const useGetAvailableCoverages = (): StringToStringMapping => {
         products.map(async (productContract) => {
           const product = getProtocolByName(productContract.name)
           if (product) {
-            // TODO: entire correct gas params
             const sellableCoverPerProduct = await riskManager.sellableCoverPerProduct(product.address, {
               ...gasConfig,
               gasLimit: GAS_LIMIT,

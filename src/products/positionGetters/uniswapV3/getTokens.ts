@@ -45,14 +45,14 @@ export const getTokens = async (provider: any, activeNetwork: NetworkConfig, met
       const token0Contract = getContract(token0, ierc20Json.abi, provider)
       const token1Contract = getContract(token1, ierc20Json.abi, provider)
 
-      const name0 = await token0Contract.name()
-      const name1 = await token1Contract.name()
-
-      const symbol0 = await token0Contract.symbol()
-      const symbol1 = await token1Contract.symbol()
-
-      const decimals0 = await token0Contract.decimals()
-      const decimals1 = await token1Contract.decimals()
+      const [name0, symbol0, decimals0, name1, symbol1, decimals1] = await Promise.all([
+        token0Contract.name(),
+        token0Contract.symbol(),
+        token0Contract.decimals(),
+        token1Contract.name(),
+        token1Contract.symbol(),
+        token1Contract.decimals(),
+      ])
 
       const token: Token = {
         token: {

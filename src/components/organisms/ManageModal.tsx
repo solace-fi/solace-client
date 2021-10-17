@@ -316,6 +316,14 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
     handleCoverageChange(adjustedCoverAmount, false)
   }
 
+  const setPositionCover = () => {
+    if (appraisal.lte(maxCoverPerPolicyInWei)) {
+      handleCoverageChange(appraisal.toString())
+    } else {
+      setMaxCover()
+    }
+  }
+
   /*************************************************************************************
 
     useEffect hooks
@@ -369,6 +377,22 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
                       value={inputCoverage}
                       onChange={(e) => handleInputCoverage(filteredAmount(e.target.value, inputCoverage))}
                     />
+                    {maxCoverPerPolicyInWei.gt(appraisal) && (
+                      <Button
+                        disabled={errors.length > 0}
+                        ml={10}
+                        pt={4}
+                        pb={4}
+                        pl={2}
+                        pr={2}
+                        width={120}
+                        height={30}
+                        onClick={() => setPositionCover()}
+                        info
+                      >
+                        Cover to position
+                      </Button>
+                    )}
                     <Button
                       disabled={errors.length > 0}
                       ml={10}

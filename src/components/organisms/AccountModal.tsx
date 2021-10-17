@@ -100,7 +100,7 @@ export const AccountModal: React.FC<AccountModalProps> = ({ closeModal, isOpen }
             <FormRow style={{ justifyContent: 'center' }} m={0}>
               <Text t2 bold light>
                 <UserImage width={30} height={30} pr={5} style={{ display: 'inline-flex', verticalAlign: 'bottom' }}>
-                  <img src={makeBlockie(account)} alt={'account'} />
+                  <img style={{ borderRadius: '10px' }} src={makeBlockie(account)} alt={'account'} />
                 </UserImage>
                 {name ?? shortenAddress(account)}
               </Text>

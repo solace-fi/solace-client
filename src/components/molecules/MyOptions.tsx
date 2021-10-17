@@ -133,7 +133,7 @@ export const MyOptions: React.FC = () => {
         </Button>
       </Text>
       <Text t4 pb={10}>
-        Options are special tokens that allow you to obtain SOLACE at a discount. Obtain options as a reward from
+        Options are special tokens that allow you to obtain SOLACE at a discount. You may claim options as a reward from
         staking in the Options Farming Pool.
       </Text>
       <Accordion isOpen={openOptions}>
@@ -210,7 +210,7 @@ export const MyOptions: React.FC = () => {
           </CardContainer>
         ) : (
           <Text t2 textAlignCenter>
-            You do not own any options.
+            Options will be available when the SOLACE token is deployed.
           </Text>
         )}
       </Accordion>

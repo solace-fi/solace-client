@@ -14,7 +14,7 @@ import { useWallet } from '../context/WalletManager'
 import { useNetwork } from '../context/NetworkManager'
 import { useSessionStorage } from 'react-use-storage'
 import { NetworkCache } from '../constants/types'
-import { ProductName } from '../constants/enums'
+import { PositionType, ProductName } from '../constants/enums'
 import { getTroveContract } from '../products/positionGetters/liquity/getPositions'
 import { ETHERSCAN_API_KEY, ZERO } from '../constants'
 
@@ -28,23 +28,37 @@ export const useCachePositions = () => {
   const setStoredData = useCallback(() => {
     // on mount, if stored data exists in session already, return that data, else return newly made data
     if (storedPosData.length == 0) {
-      const unsetPositionData: NetworkCache[] = []
-      networks.forEach((network) => {
-        const supportedProducts = network.cache.supportedProducts.map((product: SupportedProduct) => product.name)
+      // const unsetPositionData: NetworkCache[] = []
+      // networks.forEach((network) => {
+      //   const supportedProducts = network.cache.supportedProducts.map((product: SupportedProduct) => product.name)
 
+      //   const cachedPositions: PositionsCache = {}
+      //   const cachedPositionNames: PositionNamesCache = {}
+
+      //   supportedProducts.forEach((name: ProductName) => {
+      //     cachedPositions[name] = { positions: [], init: false }
+      //     cachedPositionNames[name] = { positionNames: {}, underlyingPositionNames: {}, init: false }
+      //   })
+
+      //   unsetPositionData.push({
+      //     chainId: network.chainId,
+      //     positionsCache: cachedPositions,
+      //     positionNamesCache: cachedPositionNames,
+      //   })
+      // })
+      const unsetPositionData = networks.map((network) => {
+        const supportedProducts = network.cache.supportedProducts.map((product: SupportedProduct) => product.name)
         const cachedPositions: PositionsCache = {}
         const cachedPositionNames: PositionNamesCache = {}
-
         supportedProducts.forEach((name: ProductName) => {
           cachedPositions[name] = { positions: [], init: false }
           cachedPositionNames[name] = { positionNames: {}, underlyingPositionNames: {}, init: false }
         })
-
-        unsetPositionData.push({
+        return {
           chainId: network.chainId,
           positionsCache: cachedPositions,
           positionNamesCache: cachedPositionNames,
-        })
+        }
       })
       setStoredPosData(unsetPositionData)
       return unsetPositionData
@@ -134,13 +148,13 @@ export const useCachePositions = () => {
       init: false,
     }
     switch (supportedProduct.positionsType) {
-      case 'erc20':
+      case PositionType.TOKEN:
         if (typeof supportedProduct.getTokens !== 'undefined') {
           const tokens: Token[] = await supportedProduct.getTokens(_library, _activeNetwork, metadata)
           _initializedPositions = {
             ...newCache.positionsCache[supportedProduct.name],
             positions: tokens.map((token) => {
-              return { type: 'erc20', position: token }
+              return { type: PositionType.TOKEN, position: token }
             }) as Position[],
             init: true,
           }
@@ -163,7 +177,7 @@ export const useCachePositions = () => {
           }
           break
         } else break
-      case 'liquity':
+      case PositionType.LQTY:
         const troveManagerContract = getTroveContract(library, _activeNetwork.chainId)
         const stabilityPoolAddr = await troveManagerContract.stabilityPool()
         const lqtyStakingAddr = await troveManagerContract.lqtyStaking()
@@ -199,7 +213,7 @@ export const useCachePositions = () => {
         _initializedPositions = {
           ...newCache.positionsCache[supportedProduct.name],
           positions: liquityPositions.map((liquityPos) => {
-            return { type: 'liquity', position: liquityPos }
+            return { type: PositionType.LQTY, position: liquityPos }
           }) as Position[],
           init: true,
         }
@@ -221,7 +235,7 @@ export const useCachePositions = () => {
           init: true,
         }
         break
-      case 'other':
+      case PositionType.OTHER:
       default:
     }
     const initializedPositions: PositionsCacheValue = _initializedPositions

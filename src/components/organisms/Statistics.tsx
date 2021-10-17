@@ -229,11 +229,11 @@ export const Statistics: React.FC = () => {
                   </TextSpan>
                 </Text>
               </BoxItem>
-              <BoxItem>
+              {/* <BoxItem>
                 <Button light disabled={errors.length > 0 || fixed(totalUserRewards, 6) <= 0} onClick={claimRewards}>
                   Claim Options
                 </Button>
-              </BoxItem>
+              </BoxItem> */}
             </Box>
           ) : (
             <Box>
@@ -270,7 +270,7 @@ export const Statistics: React.FC = () => {
                     </Text>
                   </FormCol>
                 </FormRow>
-                <ButtonWrapper>
+                {/* <ButtonWrapper>
                   <Button
                     light
                     widthP={100}
@@ -279,7 +279,7 @@ export const Statistics: React.FC = () => {
                   >
                     Claim Options
                   </Button>
-                </ButtonWrapper>
+                </ButtonWrapper> */}
               </Card>
               <Card color2>
                 <FormRow>

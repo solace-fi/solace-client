@@ -41,6 +41,7 @@ import {
   LiquityPosition,
 } from '../../constants/types'
 import { BKPT_3, ZERO } from '../../constants'
+import { PositionType } from '../../constants/enums'
 
 /* import components */
 import { Box, BoxItem, BoxItemTitle } from '../atoms/Box'
@@ -108,23 +109,20 @@ export const PolicyModalInfo: React.FC<PolicyModalInfoProps> = ({ appraisal, sel
     let res: BasicData[] = []
     const savedPositions: Position[] = _cache.positionsCache[supportedProduct.name].positions
     switch (supportedProduct.positionsType) {
-      case 'erc20':
+      case PositionType.TOKEN:
         const filteredPositions: Position[] = savedPositions.filter((savedPosition: Position) =>
           _selectedPolicy.positionDescription.includes(
             (savedPosition.position as Token).token.address.slice(2).toLowerCase()
           )
         )
         for (let i = 0; i < filteredPositions.length; i++) {
-          // const curUnderlying = (filteredPositions[i].position as Token).underlying
-          // for (let j = 0; j < curUnderlying.length; j++) {
           res.push({
             name: (filteredPositions[i].position as Token).token.name,
             address: (filteredPositions[i].position as Token).token.address,
           })
-          // }
         }
         break
-      case 'liquity':
+      case PositionType.LQTY:
         res = savedPositions
           .map((pos) => {
             return {
@@ -134,7 +132,7 @@ export const PolicyModalInfo: React.FC<PolicyModalInfoProps> = ({ appraisal, sel
           })
           .filter((pos: any) => _selectedPolicy.positionDescription.includes(pos.address.slice(2).toLowerCase()))
         break
-      case 'other':
+      case PositionType.OTHER:
       default:
     }
     return res

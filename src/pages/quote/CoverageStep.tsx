@@ -29,7 +29,7 @@ import { BigNumber } from 'ethers'
 
 /* import constants */
 import { DAYS_PER_YEAR, GAS_LIMIT, NUM_BLOCKS_PER_DAY, ZERO } from '../../constants'
-import { TransactionCondition, FunctionName, Unit } from '../../constants/enums'
+import { TransactionCondition, FunctionName, Unit, PositionType } from '../../constants/enums'
 import { LiquityPosition, LocalTx, Position, Token } from '../../constants/types'
 
 /* import managers */
@@ -83,11 +83,11 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
   const positionAmount: BigNumber = useMemo(() => {
     const totalBalance = positions.reduce((pv: BigNumber, cv: Position) => {
       switch (cv.type) {
-        case 'erc20':
+        case PositionType.TOKEN:
           return pv.add((cv.position as Token).eth.balance)
-        case 'liquity':
+        case PositionType.LQTY:
           return pv.add((cv.position as LiquityPosition).nativeAmount)
-        case 'other':
+        case PositionType.OTHER:
         default:
           ZERO
       }
@@ -127,13 +127,13 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
         encodeAddresses(
           positions.reduce((pv: string[], cv: Position) => {
             switch (cv.type) {
-              case 'erc20':
+              case PositionType.TOKEN:
                 pv.push((cv.position as Token).token.address)
                 break
-              case 'liquity':
+              case PositionType.LQTY:
                 pv.push((cv.position as LiquityPosition).positionAddress)
                 break
-              case 'other':
+              case PositionType.OTHER:
               default:
             }
             return pv

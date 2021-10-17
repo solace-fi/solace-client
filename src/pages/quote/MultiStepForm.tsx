@@ -40,6 +40,7 @@ import { useGeneral } from '../../context/GeneralProvider'
 /* import constants */
 import { BKPT_3 } from '../../constants'
 import { BasicData, LiquityPosition, Position, Token } from '../../constants/types'
+import { PositionType } from '../../constants/enums'
 
 /* import components */
 import { ProtocolStep } from './ProtocolStep'
@@ -153,7 +154,7 @@ export const MultiStepForm = () => {
     for (let i = 0; i < positions.length; i++) {
       const pos: Position = positions[i]
       switch (pos.type) {
-        case 'erc20':
+        case PositionType.TOKEN:
           // for (let i = 0; i < (pos.position as Token).underlying.length; i++) {
           res.push({
             name: (pos.position as Token).token.name,
@@ -161,13 +162,13 @@ export const MultiStepForm = () => {
           })
           // }
           break
-        case 'liquity':
+        case PositionType.LQTY:
           res.push({
             name: (pos.position as LiquityPosition).positionName,
             address: (pos.position as LiquityPosition).positionAddress,
           })
           break
-        case 'other':
+        case PositionType.OTHER:
         default:
       }
     }

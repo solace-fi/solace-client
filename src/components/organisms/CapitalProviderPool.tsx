@@ -85,7 +85,7 @@ export const CapitalProviderPool: React.FC<CapitalProviderPoolProps> = ({ openMo
       <Text t4 pb={10}>
         This pool rewards capital providers with options
       </Text>
-      {width > BKPT_7 ? (
+      {width > BKPT_6 ? (
         <Table isHighlight textAlignCenter>
           <TableHead>
             <TableRow>
@@ -119,7 +119,7 @@ export const CapitalProviderPool: React.FC<CapitalProviderPoolProps> = ({ openMo
               <TableData t3>{truncateBalance(cpRewardsPerDay, 2)}</TableData>
               {account ? (
                 <TableData textAlignRight>
-                  <TableDataGroup width={350}>
+                  <TableDataGroup width={200} style={{ float: 'right' }}>
                     <Button
                       light
                       disabled={errors.length > 0}
@@ -134,86 +134,87 @@ export const CapitalProviderPool: React.FC<CapitalProviderPoolProps> = ({ openMo
                     >
                       Withdraw
                     </Button>
-                    <Button light disabled={errors.length > 0} style={{ whiteSpace: 'nowrap' }}>
+                    {/* <Button light disabled={errors.length > 0} style={{ whiteSpace: 'nowrap' }}>
                       Claim Option
-                    </Button>
+                    </Button> */}
                   </TableDataGroup>
                 </TableData>
               ) : null}
             </TableRow>
           </TableBody>
         </Table>
-      ) : width > BKPT_6 ? (
-        <Card isHighlight>
-          <Box transparent>
-            {account && (
-              <BoxItem>
-                <BoxItemTitle light>Your Stake</BoxItemTitle>
-                <Text light t2>
-                  {truncateBalance(cpUserStakeValue, 2)}
-                </Text>
-              </BoxItem>
-            )}
-            <BoxItem>
-              <BoxItemTitle light>Total Assets</BoxItemTitle>
-              <Text light t2>
-                {truncateBalance(cpPoolValue, 2)}
-              </Text>
-            </BoxItem>
-            <BoxItem>
-              <BoxItemTitle light>ROI</BoxItemTitle>
-              <Text light t2>
-                {CP_ROI}
-              </Text>
-            </BoxItem>
-            {account && (
-              <>
-                <BoxItem>
-                  <BoxItemTitle light>My Rewards</BoxItemTitle>
-                  <Text light t2>
-                    {truncateBalance(cpUserRewards, 2)}
-                  </Text>
-                </BoxItem>
-                <BoxItem>
-                  <BoxItemTitle light>My Daily Rewards</BoxItemTitle>
-                  <Text light t2>
-                    {truncateBalance(cpUserRewardsPerDay, 2)}
-                  </Text>
-                </BoxItem>
-              </>
-            )}
-            <BoxItem>
-              <BoxItemTitle light>Daily Rewards</BoxItemTitle>
-              <Text light t2>
-                {truncateBalance(cpRewardsPerDay, 2)}
-              </Text>
-            </BoxItem>
-          </Box>
-          {account && (
-            <ButtonWrapper>
-              <Button
-                widthP={100}
-                disabled={errors.length > 0}
-                onClick={() => openModal(FunctionName.DEPOSIT_CP, 'Deposit')}
-                light
-              >
-                Deposit
-              </Button>
-              <Button
-                widthP={100}
-                disabled={errors.length > 0}
-                onClick={() => openModal(FunctionName.WITHDRAW_CP, 'Withdraw')}
-                light
-              >
-                Withdraw
-              </Button>
-              <Button light widthP={100} disabled={errors.length > 0}>
-                Claim Option
-              </Button>
-            </ButtonWrapper>
-          )}
-        </Card>
       ) : (
+        // ) : width > BKPT_6 ? (
+        //   <Card isHighlight>
+        //     <Box transparent>
+        //       {account && (
+        //         <BoxItem>
+        //           <BoxItemTitle light>Your Stake</BoxItemTitle>
+        //           <Text light t2>
+        //             {truncateBalance(cpUserStakeValue, 2)}
+        //           </Text>
+        //         </BoxItem>
+        //       )}
+        //       <BoxItem>
+        //         <BoxItemTitle light>Total Assets</BoxItemTitle>
+        //         <Text light t2>
+        //           {truncateBalance(cpPoolValue, 2)}
+        //         </Text>
+        //       </BoxItem>
+        //       <BoxItem>
+        //         <BoxItemTitle light>ROI</BoxItemTitle>
+        //         <Text light t2>
+        //           {CP_ROI}
+        //         </Text>
+        //       </BoxItem>
+        //       {account && (
+        //         <>
+        //           <BoxItem>
+        //             <BoxItemTitle light>My Rewards</BoxItemTitle>
+        //             <Text light t2>
+        //               {truncateBalance(cpUserRewards, 2)}
+        //             </Text>
+        //           </BoxItem>
+        //           <BoxItem>
+        //             <BoxItemTitle light>My Daily Rewards</BoxItemTitle>
+        //             <Text light t2>
+        //               {truncateBalance(cpUserRewardsPerDay, 2)}
+        //             </Text>
+        //           </BoxItem>
+        //         </>
+        //       )}
+        //       <BoxItem>
+        //         <BoxItemTitle light>Daily Rewards</BoxItemTitle>
+        //         <Text light t2>
+        //           {truncateBalance(cpRewardsPerDay, 2)}
+        //         </Text>
+        //       </BoxItem>
+        //     </Box>
+        //     {account && (
+        //       <ButtonWrapper>
+        //         <Button
+        //           widthP={100}
+        //           disabled={errors.length > 0}
+        //           onClick={() => openModal(FunctionName.DEPOSIT_CP, 'Deposit')}
+        //           light
+        //         >
+        //           Deposit
+        //         </Button>
+        //         <Button
+        //           widthP={100}
+        //           disabled={errors.length > 0}
+        //           onClick={() => openModal(FunctionName.WITHDRAW_CP, 'Withdraw')}
+        //           light
+        //         >
+        //           Withdraw
+        //         </Button>
+        //         {/* <Button light widthP={100} disabled={errors.length > 0}>
+        //           Claim Option
+        //         </Button> */}
+        //       </ButtonWrapper>
+        //     )}
+        //   </Card>
+
         // tablet version
         <Card isHighlight>
           {account && (
@@ -276,9 +277,9 @@ export const CapitalProviderPool: React.FC<CapitalProviderPoolProps> = ({ openMo
               >
                 Withdraw
               </Button>
-              <Button light widthP={100} disabled={errors.length > 0}>
+              {/* <Button light widthP={100} disabled={errors.length > 0}>
                 Claim Option
-              </Button>
+              </Button> */}
             </ButtonWrapper>
           )}
         </Card>

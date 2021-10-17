@@ -46,7 +46,7 @@ import { Text, TextSpan } from '../../components/atoms/Typography'
 import { ManageModal } from '../../components/organisms/ManageModal'
 
 /* import constants */
-import { PolicyState } from '../../constants/enums'
+import { PolicyState, PositionType } from '../../constants/enums'
 import {
   LiquityPosition,
   NetworkCache,
@@ -119,16 +119,16 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
 
   const handlePositionAddressFind = (selectedPosition: Position, positionToSelect: Position) => {
     switch (positionToSelect.type) {
-      case 'erc20':
+      case PositionType.TOKEN:
         const erc20Eq =
           (selectedPosition.position as Token).token.address == (positionToSelect.position as Token).token.address
         return erc20Eq
-      case 'liquity':
+      case PositionType.LQTY:
         const liquityEq =
           (selectedPosition.position as LiquityPosition).positionAddress ==
           (positionToSelect.position as LiquityPosition).positionAddress
         return liquityEq
-      case 'other':
+      case PositionType.OTHER:
       default:
         return true
     }
@@ -138,7 +138,7 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
     if (!account || !library) return []
     const savedPositions = cache.positionsCache[supportedProduct.name].positions
     switch (supportedProduct.positionsType) {
-      case 'erc20':
+      case PositionType.TOKEN:
         if (typeof supportedProduct.getBalances !== 'undefined') {
           const balances: Token[] = await supportedProduct.getBalances(
             account,
@@ -147,11 +147,11 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
             savedPositions.map((position) => position.position as Token)
           )
           return balances.map((balance) => {
-            return { type: 'erc20', position: balance }
+            return { type: PositionType.TOKEN, position: balance }
           })
         }
         return []
-      case 'liquity':
+      case PositionType.LQTY:
         if (typeof supportedProduct.getPositions !== 'undefined') {
           const positions: LiquityPosition[] = await supportedProduct.getPositions(
             account,
@@ -160,11 +160,11 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
             savedPositions.map((position) => position.position as LiquityPosition)
           )
           return positions.map((balance) => {
-            return { type: 'liquity', position: balance }
+            return { type: PositionType.LQTY, position: balance }
           })
         }
         return []
-      case 'other':
+      case PositionType.OTHER:
       default:
         return []
     }
@@ -289,13 +289,13 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
       fetchedPositions.filter((position: Position) => {
         let addr = ''
         switch (position.type) {
-          case 'erc20':
+          case PositionType.TOKEN:
             addr = (position.position as Token).token.address
             break
-          case 'liquity':
+          case PositionType.LQTY:
             addr = (position.position as LiquityPosition).positionAddress
             break
-          case 'other':
+          case PositionType.OTHER:
           default:
         }
         return !userHasActiveProductPosition(protocol.name, addr)
@@ -347,7 +347,7 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
             <Scrollable maxMobileHeight={65}>
               <CardContainer>
                 {fetchedPositions.map((position: Position, i) => {
-                  if (position.type == 'erc20') {
+                  if (position.type == PositionType.TOKEN) {
                     return (
                       <TokenPositionCard
                         key={i}
@@ -361,7 +361,7 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
                       />
                     )
                   }
-                  if (position.type == 'liquity') {
+                  if (position.type == PositionType.LQTY) {
                     const isActive = userHasActiveProductPosition(
                       protocol.name,
                       (position.position as LiquityPosition).positionAddress

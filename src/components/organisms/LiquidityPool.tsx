@@ -143,7 +143,7 @@ export const LiquidityPool: React.FC<LiquidityPoolProps> = ({ openModal }) => {
               <TableData t3>{truncateBalance(lpRewardsPerDay, 2)}</TableData>
               {account ? (
                 <TableData textAlignRight>
-                  <TableDataGroup width={200}>
+                  <TableDataGroup width={200} style={{ float: 'right' }}>
                     <Button
                       light
                       disabled={errors.length > 0}

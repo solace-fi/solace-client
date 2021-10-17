@@ -1,11 +1,11 @@
-import { ProductName } from '../constants/enums'
+import { PositionType, ProductName } from '../constants/enums'
 import { SupportedProduct } from '../constants/types'
 import { getBalances } from './positionGetters/waave/getBalances'
 import { getTokens } from './positionGetters/waave/getTokens'
 
 export const WaaveProduct: SupportedProduct = {
   name: ProductName.WAAVE,
-  positionsType: 'erc20',
+  positionsType: PositionType.TOKEN,
   getTokens,
   getBalances,
 }
