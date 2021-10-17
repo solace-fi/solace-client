@@ -41,7 +41,7 @@ export const useGetPolicyPrice = (policyId: number): string => {
   return policyPrice
 }
 
-export const useAppraisePosition = (policy: Policy | undefined): BigNumber => {
+export const useAppraisePolicyPosition = (policy: Policy | undefined): BigNumber => {
   const { activeNetwork } = useNetwork()
   const { account, library } = useWallet()
   const { getProtocolByName } = useContracts()
@@ -54,13 +54,16 @@ export const useAppraisePosition = (policy: Policy | undefined): BigNumber => {
     switch (supportedProduct.positionsType) {
       case 'erc20':
         const tokensToAppraise: Token[] = []
+
+        // loop names because we want the only positions included in the policy
         policy.positionNames.forEach(async (name) => {
-          const positionToAppraise = matchingCache.positions[
-            supportedProduct.name
-          ].positions.find((position: Position) =>
-            (position.position as Token).underlying.find((tokenData: TokenData) => tokenData.symbol == name)
+          // find the position in the cache using the name
+          const positionToAppraise = matchingCache.positionsCache[supportedProduct.name].positions.find(
+            (position: Position) => (position.position as Token).token.symbol == name
           )
           if (!positionToAppraise) return
+
+          // add position into array of other positions to get balances of
           tokensToAppraise.push(positionToAppraise.position as Token)
         })
         if (typeof supportedProduct.getBalances !== 'undefined') {
@@ -76,7 +79,7 @@ export const useAppraisePosition = (policy: Policy | undefined): BigNumber => {
       case 'liquity':
         const positionsToAppraise: LiquityPosition[] = []
         policy.positionNames.forEach(async (name) => {
-          const positionToAppraise = matchingCache.positions[supportedProduct.name].positions.find(
+          const positionToAppraise = matchingCache.positionsCache[supportedProduct.name].positions.find(
             (position: Position) => (position.position as LiquityPosition).positionName == name
           )
           if (!positionToAppraise) return

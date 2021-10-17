@@ -28,6 +28,8 @@ export const BKPT_5 = 1232
 
 export const BKPT_6 = 1370
 
+export const BKPT_7 = 1640
+
 export const POW_NINE = 1000000000
 
 export const CP_ROI = '150.5%'

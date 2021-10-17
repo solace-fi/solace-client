@@ -86,7 +86,7 @@ export const darkTheme = {
     analogicalText: 'rgb(94, 94, 94)', // text color that is relatively the same as the general theme
     lightText: 'rgb(250, 250, 250)',
     darkText: 'rgb(94, 94, 94)',
-    infoText: 'rgb(95, 93, 249)',
+    infoText: 'rgb(212, 120, 216)',
     errorText: 'rgb(240, 77, 66)',
     warningText: 'rgb(245, 221, 83)',
     successText: 'rgb(0, 255, 209)',
@@ -131,8 +131,8 @@ export const darkTheme = {
     color: '#fff',
     border_color: 'rgba(255, 255, 255, 0.4)',
     bg_color: 'rgba(255, 255, 255, 0.04)',
-    slider_color: '#fff',
-    slider_node_color: '#fff',
+    slider_color: 'rgb(212, 120, 216)',
+    slider_node_color: 'rgb(212, 120, 216)',
   },
   modal: {
     bg_color: 'rgba(20, 19, 51, 0.9)',
@@ -141,12 +141,12 @@ export const darkTheme = {
   },
   radio: {
     checked_color: '#fff',
-    checked_bg_color: 'rgb(95, 93, 249)',
-    checked_circle_color: 'rgb(250, 250, 250)',
-    circle_color: 'rgb(250, 250, 250)',
+    checked_bg_color: 'rgb(212, 120, 216)',
+    checked_circle_color: 'rgb(212, 120, 216)',
+    circle_color: 'rgb(212, 120, 216)',
   },
   table: {
-    highlight_bg_color: 'rgba(72, 130, 148, .5)',
+    highlight_bg_color: 'rgb(87, 124, 156)',
     hover_color: 'rgba(255, 255, 255, 0.2)',
     cell_bg_color: 'rgba(255, 255, 255, 0.05)',
     head_bg_color: 'rgba(38, 38, 38, 1)',

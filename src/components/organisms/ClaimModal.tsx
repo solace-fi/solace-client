@@ -51,7 +51,7 @@ import { Policy, ClaimAssessment } from '../../constants/types'
 /* import hooks */
 import { useGetCooldownPeriod } from '../../hooks/useClaimsEscrow'
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'
-import { useAppraisePosition } from '../../hooks/usePolicy'
+import { useAppraisePolicyPosition } from '../../hooks/usePolicy'
 import { useGasConfig } from '../../hooks/useGas'
 
 /* import utils */
@@ -91,7 +91,7 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
   const { activeNetwork, currencyDecimals, chainId } = useNetwork()
   const { width } = useWindowDimensions()
   const { gasConfig } = useGasConfig(gasPrices.selected?.value)
-  const appraisal = useAppraisePosition(selectedPolicy)
+  const appraisal = useAppraisePolicyPosition(selectedPolicy)
   const mounting = useRef(true)
 
   /*************************************************************************************

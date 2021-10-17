@@ -26,8 +26,8 @@ networkCache = {
 
 export type NetworkCache = {
   chainId: number
-  positions: PositionsCache
-  positionNames: PositionNamesCache
+  positionsCache: PositionsCache
+  positionNamesCache: PositionNamesCache
 }
 
 export type PositionsCache = { [key: string]: PositionsCacheValue }
@@ -38,7 +38,11 @@ export type PositionNamesCache = {
 
 export type PositionsCacheValue = { positions: Position[]; init: boolean }
 
-export type PositionNamesCacheValue = { positionNames: { [key: string]: string[] }; init: boolean }
+export type PositionNamesCacheValue = {
+  positionNames: { [key: string]: string }
+  underlyingPositionNames: { [key: string]: string[] }
+  init: boolean
+}
 
 export type ClaimDetails = { id: string; cooldown: string; canWithdraw: boolean; amount: BigNumber }
 
@@ -61,6 +65,7 @@ export type Policy = {
   productName: string
   positionDescription: string
   positionNames: string[]
+  underlyingPositionNames: string[]
   expirationBlock: number
   coverAmount: string
   price: string

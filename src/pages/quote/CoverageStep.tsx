@@ -320,36 +320,36 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
                 onChange={(e) => handleInputCoverage(filteredAmount(e.target.value, inputCoverage))}
                 info
               />
-              <Button
-                disabled={errors.length > 0}
-                ml={10}
-                pt={4}
-                pb={4}
-                pl={2}
-                pr={2}
-                width={150}
-                height={30}
-                onClick={() => setPositionCover()}
-                info
-              >
-                Cover up to position
-              </Button>
               {maxCoverPerPolicyInWei.gt(positionAmount) && (
                 <Button
                   disabled={errors.length > 0}
                   ml={10}
                   pt={4}
                   pb={4}
-                  pl={8}
-                  pr={8}
-                  width={79}
+                  pl={2}
+                  pr={2}
+                  width={120}
                   height={30}
-                  onClick={() => setMaxCover()}
+                  onClick={() => setPositionCover()}
                   info
                 >
-                  MAX
+                  Cover to position
                 </Button>
               )}
+              <Button
+                disabled={errors.length > 0}
+                ml={10}
+                pt={4}
+                pb={4}
+                pl={8}
+                pr={8}
+                width={70}
+                height={30}
+                onClick={() => setMaxCover()}
+                info
+              >
+                MAX
+              </Button>
             </div>
             <StyledSlider
               value={coverAmount}

@@ -682,28 +682,28 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
                 )}
                 <Box info>
                   <BoxItem>
-                    <BoxItemTitle t4 textAlignCenter>
+                    <BoxItemTitle t4 textAlignCenter light>
                       Min Cooldown
                     </BoxItemTitle>
-                    <Text t4 textAlignCenter>
+                    <Text t4 textAlignCenter light>
                       {getTimeFromMillis(cooldownMin)}
                     </Text>
                   </BoxItem>
                   {cooldownStarted && (
                     <BoxItem>
-                      <BoxItemTitle t4 textAlignCenter>
+                      <BoxItemTitle t4 textAlignCenter light>
                         Time waited
                       </BoxItemTitle>
-                      <Text t4 textAlignCenter success={canWithdrawEth}>
+                      <Text t4 textAlignCenter success={canWithdrawEth} light={!canWithdrawEth}>
                         {timeToDate(timeWaited)}
                       </Text>
                     </BoxItem>
                   )}
                   <BoxItem>
-                    <BoxItemTitle t4 textAlignCenter>
+                    <BoxItemTitle t4 textAlignCenter light>
                       Max Cooldown
                     </BoxItemTitle>
-                    <Text t4 textAlignCenter>
+                    <Text t4 textAlignCenter light>
                       {getTimeFromMillis(cooldownMax)}
                     </Text>
                   </BoxItem>
@@ -715,6 +715,7 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
                       hidden={modalLoading}
                       disabled={errors.length > 0}
                       onClick={handleCallbackFunc}
+                      info
                     >
                       {!cooldownStarted
                         ? 'Start cooldown'
@@ -733,6 +734,7 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
                       hidden={modalLoading}
                       disabled={(isAppropriateAmount() ? false : true) || errors.length > 0}
                       onClick={handleCallbackFunc}
+                      info
                     >
                       Withdraw
                     </Button>

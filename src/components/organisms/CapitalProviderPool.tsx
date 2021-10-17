@@ -31,9 +31,10 @@ import { Button, ButtonWrapper } from '../atoms/Button'
 import { Card } from '../atoms/Card'
 import { FormRow, FormCol } from '../atoms/Form'
 import { StyledTooltip } from '../molecules/Tooltip'
+import { Box, BoxItem, BoxItemTitle } from '../atoms/Box'
 
 /* import constants */
-import { CP_ROI, BKPT_6 } from '../../constants'
+import { CP_ROI, BKPT_4, BKPT_6, BKPT_7 } from '../../constants'
 import { FunctionName } from '../../constants/enums'
 
 /* import hooks */
@@ -73,8 +74,8 @@ export const CapitalProviderPool: React.FC<CapitalProviderPoolProps> = ({ openMo
 
   return (
     <Content>
-      <Text bold t1 mb={0}>
-        Options Mining Pool{' '}
+      <Text bold t1 mb={0} info>
+        Options Farming Pool{' '}
         {/* <StyledTooltip
           id={'options-pool'}
           tip={'Deposit SCP tokens here to earn rewards'}
@@ -84,13 +85,13 @@ export const CapitalProviderPool: React.FC<CapitalProviderPoolProps> = ({ openMo
       <Text t4 pb={10}>
         This pool rewards capital providers with options
       </Text>
-      {width > BKPT_6 ? (
+      {width > BKPT_7 ? (
         <Table isHighlight textAlignCenter>
           <TableHead>
             <TableRow>
-              {account ? <TableHeader width={100}>Your Stake</TableHeader> : null}
+              {account ? <TableHeader>Your Stake</TableHeader> : null}
               <TableHeader>Total Assets</TableHeader>
-              <TableHeader width={100}>ROI (1Y)</TableHeader>
+              {/* <TableHeader>ROI (1Y)</TableHeader> */}
               {account ? (
                 <TableHeader>
                   My Rewards <StyledTooltip id={'cp-rewards'} tip={'Amount of your unclaimed rewards from this pool'} />
@@ -110,21 +111,15 @@ export const CapitalProviderPool: React.FC<CapitalProviderPoolProps> = ({ openMo
           </TableHead>
           <TableBody>
             <TableRow light>
-              {account ? (
-                <TableData t3 width={100}>
-                  {truncateBalance(cpUserStakeValue, 2)}
-                </TableData>
-              ) : null}
+              {account ? <TableData t3>{truncateBalance(cpUserStakeValue, 2)}</TableData> : null}
               <TableData t3>{truncateBalance(cpPoolValue, 2)}</TableData>
-              <TableData t3 width={100}>
-                {CP_ROI}
-              </TableData>
+              {/* <TableData t3>{CP_ROI}</TableData> */}
               {account ? <TableData t3>{truncateBalance(cpUserRewards, 2)}</TableData> : null}
               {account ? <TableData t3>{truncateBalance(cpUserRewardsPerDay, 2)}</TableData> : null}
               <TableData t3>{truncateBalance(cpRewardsPerDay, 2)}</TableData>
               {account ? (
                 <TableData textAlignRight>
-                  <TableDataGroup width={200}>
+                  <TableDataGroup width={350}>
                     <Button
                       light
                       disabled={errors.length > 0}
@@ -139,12 +134,85 @@ export const CapitalProviderPool: React.FC<CapitalProviderPoolProps> = ({ openMo
                     >
                       Withdraw
                     </Button>
+                    <Button light disabled={errors.length > 0} style={{ whiteSpace: 'nowrap' }}>
+                      Claim Option
+                    </Button>
                   </TableDataGroup>
                 </TableData>
               ) : null}
             </TableRow>
           </TableBody>
         </Table>
+      ) : width > BKPT_6 ? (
+        <Card isHighlight>
+          <Box transparent>
+            {account && (
+              <BoxItem>
+                <BoxItemTitle light>Your Stake</BoxItemTitle>
+                <Text light t2>
+                  {truncateBalance(cpUserStakeValue, 2)}
+                </Text>
+              </BoxItem>
+            )}
+            <BoxItem>
+              <BoxItemTitle light>Total Assets</BoxItemTitle>
+              <Text light t2>
+                {truncateBalance(cpPoolValue, 2)}
+              </Text>
+            </BoxItem>
+            <BoxItem>
+              <BoxItemTitle light>ROI</BoxItemTitle>
+              <Text light t2>
+                {CP_ROI}
+              </Text>
+            </BoxItem>
+            {account && (
+              <>
+                <BoxItem>
+                  <BoxItemTitle light>My Rewards</BoxItemTitle>
+                  <Text light t2>
+                    {truncateBalance(cpUserRewards, 2)}
+                  </Text>
+                </BoxItem>
+                <BoxItem>
+                  <BoxItemTitle light>My Daily Rewards</BoxItemTitle>
+                  <Text light t2>
+                    {truncateBalance(cpUserRewardsPerDay, 2)}
+                  </Text>
+                </BoxItem>
+              </>
+            )}
+            <BoxItem>
+              <BoxItemTitle light>Daily Rewards</BoxItemTitle>
+              <Text light t2>
+                {truncateBalance(cpRewardsPerDay, 2)}
+              </Text>
+            </BoxItem>
+          </Box>
+          {account && (
+            <ButtonWrapper>
+              <Button
+                widthP={100}
+                disabled={errors.length > 0}
+                onClick={() => openModal(FunctionName.DEPOSIT_CP, 'Deposit')}
+                light
+              >
+                Deposit
+              </Button>
+              <Button
+                widthP={100}
+                disabled={errors.length > 0}
+                onClick={() => openModal(FunctionName.WITHDRAW_CP, 'Withdraw')}
+                light
+              >
+                Withdraw
+              </Button>
+              <Button light widthP={100} disabled={errors.length > 0}>
+                Claim Option
+              </Button>
+            </ButtonWrapper>
+          )}
+        </Card>
       ) : (
         // tablet version
         <Card isHighlight>
@@ -191,7 +259,7 @@ export const CapitalProviderPool: React.FC<CapitalProviderPoolProps> = ({ openMo
             </FormCol>
           </FormRow>
           {account && (
-            <ButtonWrapper isColumn>
+            <ButtonWrapper isColumn={width <= BKPT_4}>
               <Button
                 widthP={100}
                 disabled={errors.length > 0}
@@ -207,6 +275,9 @@ export const CapitalProviderPool: React.FC<CapitalProviderPoolProps> = ({ openMo
                 light
               >
                 Withdraw
+              </Button>
+              <Button light widthP={100} disabled={errors.length > 0}>
+                Claim Option
               </Button>
             </ButtonWrapper>
           )}

@@ -28,7 +28,7 @@ import { useNetwork } from '../../context/NetworkManager'
 import { useGeneral } from '../../context/GeneralProvider'
 
 /* import constants */
-import { CP_ROI, BKPT_6 } from '../../constants'
+import { CP_ROI, BKPT_4, BKPT_6 } from '../../constants'
 import { FunctionName } from '../../constants/enums'
 
 /* import components */
@@ -38,7 +38,6 @@ import { Table, TableHead, TableRow, TableHeader, TableBody, TableData, TableDat
 import { Button, ButtonWrapper } from '../atoms/Button'
 import { Card } from '../atoms/Card'
 import { FormRow, FormCol } from '../atoms/Form'
-import { StyledTooltip } from '../molecules/Tooltip'
 
 /* import hooks */
 import { useCapitalPoolSize, useUserVaultDetails } from '../../hooks/useVault'
@@ -73,7 +72,7 @@ export const RiskBackingCapitalPool: React.FC<RiskBackingCapitalPoolProps> = ({ 
 
   return (
     <Content>
-      <Text bold t1 mb={0}>
+      <Text bold t1 mb={0} info>
         Underwriting Pool{' '}
         {/* <StyledTooltip
           id={'underwriting-pool'}
@@ -89,7 +88,7 @@ export const RiskBackingCapitalPool: React.FC<RiskBackingCapitalPoolProps> = ({ 
             <TableRow>
               {account ? <TableHeader width={100}>Your Assets</TableHeader> : null}
               <TableHeader width={100}>Total Assets</TableHeader>
-              <TableHeader width={100}>ROI (1Y)</TableHeader>
+              {/* <TableHeader width={100}>ROI (1Y)</TableHeader> */}
               {account ? <TableHeader width={130}>Your Vault Share</TableHeader> : null}
             </TableRow>
           </TableHead>
@@ -103,9 +102,9 @@ export const RiskBackingCapitalPool: React.FC<RiskBackingCapitalPoolProps> = ({ 
               <TableData t3 width={100}>
                 {truncateBalance(floatUnits(parseUnits(capitalPoolSize, currencyDecimals), currencyDecimals), 2)}
               </TableData>
-              <TableData t3 width={100}>
+              {/* <TableData t3 width={100}>
                 {CP_ROI}
-              </TableData>
+              </TableData> */}
               {account ? <TableData t3 width={130}>{`${truncateBalance(userVaultShare, 2)}%`}</TableData> : null}
               {account ? (
                 <TableData textAlignRight>
@@ -157,7 +156,7 @@ export const RiskBackingCapitalPool: React.FC<RiskBackingCapitalPoolProps> = ({ 
             <FormCol light>Your Vault Share:</FormCol>
             <FormCol light t2>{`${truncateBalance(userVaultShare, 2)}%`}</FormCol>
           </FormRow>
-          <ButtonWrapper isColumn>
+          <ButtonWrapper isColumn={width <= BKPT_4}>
             <Button
               widthP={100}
               disabled={errors.length > 0}

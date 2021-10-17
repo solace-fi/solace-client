@@ -154,12 +154,12 @@ export const MultiStepForm = () => {
       const pos: Position = positions[i]
       switch (pos.type) {
         case 'erc20':
-          for (let i = 0; i < (pos.position as Token).underlying.length; i++) {
-            res.push({
-              name: (pos.position as Token).underlying[i].name,
-              address: (pos.position as Token).underlying[i].address,
-            })
-          }
+          // for (let i = 0; i < (pos.position as Token).underlying.length; i++) {
+          res.push({
+            name: (pos.position as Token).token.name,
+            address: (pos.position as Token).token.address,
+          })
+          // }
           break
         case 'liquity':
           res.push({
@@ -326,18 +326,15 @@ export const MultiStepForm = () => {
                       )}
                     </FlexRow>
                   </BoxItem>
-                  {positions.length > maxPositionsToDisplay && (
-                    <BoxItem>
-                      <Button light onClick={() => setShowAssetsModal(true)}>
-                        View all assets
-                      </Button>
-                    </BoxItem>
-                  )}
-
                   <BoxItem>
-                    <Button light onClick={() => navigation.go(1)}>
-                      Change
-                    </Button>
+                    <ButtonWrapper>
+                      <Button light onClick={() => setShowAssetsModal(true)}>
+                        View assets
+                      </Button>
+                      <Button light onClick={() => navigation.go(1)}>
+                        Change
+                      </Button>
+                    </ButtonWrapper>
                   </BoxItem>
                 </Box>
               )}
@@ -402,11 +399,9 @@ export const MultiStepForm = () => {
                     )}
                   </FlexRow>
                   <ButtonWrapper isColumn>
-                    {positions.length > maxPositionsToDisplay && (
-                      <Button light widthP={100} onClick={() => setShowAssetsModal(true)}>
-                        View all assets
-                      </Button>
-                    )}
+                    <Button light widthP={100} onClick={() => setShowAssetsModal(true)}>
+                      View all assets
+                    </Button>
                     <Button light widthP={100} onClick={() => navigation.go(1)}>
                       Change
                     </Button>

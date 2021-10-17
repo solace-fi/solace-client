@@ -31,7 +31,7 @@ import { useGeneral } from '../../context/GeneralProvider'
 
 /* import constants */
 import { FunctionName } from '../../constants/enums'
-import { LP_ROI, BKPT_6 } from '../../constants'
+import { LP_ROI, BKPT_4, BKPT_6 } from '../../constants'
 
 /* import components */
 import { Content } from '../atoms/Layout'
@@ -83,7 +83,7 @@ export const LiquidityPool: React.FC<LiquidityPoolProps> = ({ openModal }) => {
 
   return (
     <Content>
-      <Text bold t1 mb={0}>
+      <Text bold t1 mb={0} info>
         SOLACE Liquidity Pool{' '}
         {/* <StyledTooltip
           id={'lp-farm'}
@@ -100,7 +100,7 @@ export const LiquidityPool: React.FC<LiquidityPoolProps> = ({ openModal }) => {
             <TableRow>
               {account ? <TableHeader width={100}>Your Stake</TableHeader> : null}
               <TableHeader>Total Assets</TableHeader>
-              <TableHeader width={100}>ROI (1Y)</TableHeader>
+              {/* <TableHeader width={100}>ROI (1Y)</TableHeader> */}
               {account ? (
                 <TableHeader>
                   {' '}
@@ -135,9 +135,9 @@ export const LiquidityPool: React.FC<LiquidityPoolProps> = ({ openModal }) => {
                 </TableData>
               ) : null}
               <TableData t3>{truncateBalance(lpPoolValue, 2)}</TableData>
-              <TableData t3 width={100}>
+              {/* <TableData t3 width={100}>
                 {LP_ROI}
-              </TableData>
+              </TableData> */}
               {account ? <TableData t3>{truncateBalance(lpUserRewards, 2)}</TableData> : null}
               {account ? <TableData t3>{truncateBalance(lpUserRewardsPerDay, 2)}</TableData> : null}
               <TableData t3>{truncateBalance(lpRewardsPerDay, 2)}</TableData>
@@ -210,7 +210,7 @@ export const LiquidityPool: React.FC<LiquidityPoolProps> = ({ openModal }) => {
             </FormCol>
           </FormRow>
           {account && (
-            <ButtonWrapper isColumn>
+            <ButtonWrapper isColumn={width <= BKPT_4}>
               <Button
                 widthP={100}
                 disabled={errors.length > 0}

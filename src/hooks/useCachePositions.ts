@@ -16,7 +16,7 @@ import { useSessionStorage } from 'react-use-storage'
 import { NetworkCache } from '../constants/types'
 import { ProductName } from '../constants/enums'
 import { getTroveContract } from '../products/positionGetters/liquity/getPositions'
-import { ZERO } from '../constants'
+import { ETHERSCAN_API_KEY, ZERO } from '../constants'
 
 export const useCachePositions = () => {
   const { library, account } = useWallet()
@@ -37,13 +37,13 @@ export const useCachePositions = () => {
 
         supportedProducts.forEach((name: ProductName) => {
           cachedPositions[name] = { positions: [], init: false }
-          cachedPositionNames[name] = { positionNames: {}, init: false }
+          cachedPositionNames[name] = { positionNames: {}, underlyingPositionNames: {}, init: false }
         })
 
         unsetPositionData.push({
           chainId: network.chainId,
-          positions: cachedPositions,
-          positionNames: cachedPositionNames,
+          positionsCache: cachedPositions,
+          positionNamesCache: cachedPositionNames,
         })
       })
       setStoredPosData(unsetPositionData)
@@ -69,18 +69,34 @@ export const useCachePositions = () => {
 
       // for every supported product in this network, initialize the positions, if any
       const supportedProducts = _activeNetwork.cache.supportedProducts
+
+      const url = `${
+        activeNetwork.explorer.apiUrl
+      }/api?module=account&action=tokentx&address=${_account}&startblock=0&endblock=latest&apikey=${String(
+        ETHERSCAN_API_KEY
+      )}`
+      const touchedAddresses = await fetch(url)
+        .then((res) => res.json())
+        .then((result) => result.result)
+        .then((result) => {
+          if (result != 'Max rate limit reached') return result
+          return []
+        })
       await Promise.all(
         supportedProducts.map(async (supportedProduct: SupportedProduct) => {
-          if (!newCache.positions[supportedProduct.name].init && !newCache.positionNames[supportedProduct.name].init) {
+          if (
+            !newCache.positionsCache[supportedProduct.name].init &&
+            !newCache.positionNamesCache[supportedProduct.name].init
+          ) {
             const { initializedPositions, initializedPositionNames } = await handleInitPositions(
               supportedProduct,
               newCache,
               _library,
               _activeNetwork,
-              _account
+              { user: _account, transferHistory: touchedAddresses }
             )
-            newCache.positions[supportedProduct.name] = initializedPositions
-            newCache.positionNames[supportedProduct.name] = initializedPositionNames
+            newCache.positionsCache[supportedProduct.name] = initializedPositions
+            newCache.positionNamesCache[supportedProduct.name] = initializedPositionNames
             changeOccurred = true
           }
         })
@@ -106,19 +122,37 @@ export const useCachePositions = () => {
     newCache: NetworkCache,
     _library: any,
     _activeNetwork: NetworkConfig,
-    _account: string
+    metadata?: any
   ): Promise<{ initializedPositions: PositionsCacheValue; initializedPositionNames: PositionNamesCacheValue }> => {
     let _initializedPositions: PositionsCacheValue = {
       positions: [],
       init: false,
     }
-    let _initializedPositionNames: any = null
+    let _initializedPositionNames: PositionNamesCacheValue = {
+      positionNames: {},
+      underlyingPositionNames: {},
+      init: false,
+    }
     switch (supportedProduct.positionsType) {
       case 'erc20':
         if (typeof supportedProduct.getTokens !== 'undefined') {
-          const tokens: Token[] = await supportedProduct.getTokens(_library, _activeNetwork, { _account })
-          const positionNames: PositionNamesCacheValue = {
+          const tokens: Token[] = await supportedProduct.getTokens(_library, _activeNetwork, metadata)
+          _initializedPositions = {
+            ...newCache.positionsCache[supportedProduct.name],
+            positions: tokens.map((token) => {
+              return { type: 'erc20', position: token }
+            }) as Position[],
+            init: true,
+          }
+          _initializedPositionNames = {
             positionNames: tokens.reduce(
+              (names: any, token: Token) => ({
+                ...names,
+                [token.token.address.toLowerCase()]: token.token.symbol,
+              }),
+              {}
+            ),
+            underlyingPositionNames: tokens.reduce(
               (names: any, token: Token) => ({
                 ...names,
                 [token.token.address.toLowerCase()]: token.underlying.map((underlyingToken) => underlyingToken.symbol),
@@ -127,14 +161,6 @@ export const useCachePositions = () => {
             ),
             init: true,
           }
-          _initializedPositions = {
-            ...newCache.positions[supportedProduct.name],
-            positions: tokens.map((token) => {
-              return { type: 'erc20', position: token }
-            }) as Position[],
-            init: true,
-          }
-          _initializedPositionNames = positionNames
           break
         } else break
       case 'liquity':
@@ -170,24 +196,30 @@ export const useCachePositions = () => {
             associatedToken: { address: lqtyTokenAddr, name: 'LQTY', symbol: 'LQTY' },
           },
         ]
-        const positionNames: PositionNamesCacheValue = {
-          positionNames: liquityPositions.reduce(
-            (names: any, liquityPos: LiquityPosition) => ({
-              ...names,
-              [liquityPos.positionAddress.toLowerCase()]: [liquityPos.positionName],
-            }),
-            {}
-          ),
-          init: true,
-        }
         _initializedPositions = {
-          ...newCache.positions[supportedProduct.name],
+          ...newCache.positionsCache[supportedProduct.name],
           positions: liquityPositions.map((liquityPos) => {
             return { type: 'liquity', position: liquityPos }
           }) as Position[],
           init: true,
         }
-        _initializedPositionNames = positionNames
+        _initializedPositionNames = {
+          positionNames: liquityPositions.reduce(
+            (names: any, liquityPos: LiquityPosition) => ({
+              ...names,
+              [liquityPos.positionAddress.toLowerCase()]: liquityPos.positionName,
+            }),
+            {}
+          ),
+          underlyingPositionNames: liquityPositions.reduce(
+            (names: any, liquityPos: LiquityPosition) => ({
+              ...names,
+              [liquityPos.positionAddress.toLowerCase()]: [liquityPos.associatedToken.name],
+            }),
+            {}
+          ),
+          init: true,
+        }
         break
       case 'other':
       default:

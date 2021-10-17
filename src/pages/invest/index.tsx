@@ -27,6 +27,7 @@ import { CapitalProviderPool } from '../../components/organisms/CapitalProviderP
 import { LiquidityPool } from '../../components/organisms/LiquidityPool'
 import { HeroContainer } from '../../components/atoms/Layout'
 import { Text } from '../../components/atoms/Typography'
+import { MyOptions } from '../../components/molecules/MyOptions'
 
 /* import constants */
 import { FunctionName } from '../../constants/enums'
@@ -82,6 +83,7 @@ function Invest(): any {
           {/* <LiquidityPool openModal={openModal} /> */}
         </>
       )}
+      <MyOptions />
     </Fragment>
   )
 }

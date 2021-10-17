@@ -124,90 +124,96 @@ export const MyOptions: React.FC = () => {
   *************************************************************************************/
 
   return (
-    <Fragment>
-      {optionsDetails.length > 0 && (
-        <Content>
-          <Text t1 bold mb={0}>
-            Your Options
-            <Button style={{ float: 'right' }} onClick={() => setOpenOptions(!openOptions)}>
-              <StyledArrowDropDown style={{ transform: openOptions ? 'rotate(180deg)' : 'rotate(0deg)' }} size={20} />
-              {openOptions ? 'Hide Options' : 'Show Options'}
-            </Button>
+    <Content>
+      <Text t1 bold mb={0}>
+        Your Options
+        <Button style={{ float: 'right' }} onClick={() => setOpenOptions(!openOptions)}>
+          <StyledArrowDropDown style={{ transform: openOptions ? 'rotate(180deg)' : 'rotate(0deg)' }} size={20} />
+          {openOptions ? 'Hide Options' : 'Show Options'}
+        </Button>
+      </Text>
+      <Text t4 pb={10}>
+        Options are special tokens that allow you to obtain SOLACE at a discount. Obtain options as a reward from
+        staking in the Options Farming Pool.
+      </Text>
+      <Accordion isOpen={openOptions}>
+        {optionsDetails.length > 0 ? (
+          <CardContainer cardsPerRow={2} p={10}>
+            {optionsDetails.map((option: Option) => {
+              return (
+                <Card key={option.id.toString()}>
+                  <Box pt={20} pb={20} success>
+                    <BoxItem>
+                      <BoxItemTitle t4 light>
+                        ID
+                      </BoxItemTitle>
+                      <Text t4 light>
+                        {option.id}
+                      </Text>
+                    </BoxItem>
+                    <BoxItem>
+                      <BoxItemTitle t4 light>
+                        Reward Amount
+                      </BoxItemTitle>
+                      <Text t4 light>
+                        {BigNumber.from(option.rewardAmount).gte(accurateMultiply(1, currencyDecimals))
+                          ? truncateBalance(
+                              formatUnits(option.rewardAmount, currencyDecimals),
+                              width > BKPT_3 ? currencyDecimals : 2
+                            )
+                          : truncateBalance(
+                              formatUnits(option.rewardAmount, currencyDecimals),
+                              width > BKPT_3 ? currencyDecimals : 6
+                            )}{' '}
+                        SOLACE
+                      </Text>
+                    </BoxItem>
+                    <BoxItem>
+                      <BoxItemTitle t4 light>
+                        Strike Price
+                      </BoxItemTitle>
+                      <Text t4 light>
+                        {BigNumber.from(option.strikePrice).gte(accurateMultiply(1, currencyDecimals))
+                          ? truncateBalance(
+                              formatUnits(option.strikePrice, currencyDecimals),
+                              width > BKPT_3 ? currencyDecimals : 2
+                            )
+                          : truncateBalance(
+                              formatUnits(option.strikePrice, currencyDecimals),
+                              width > BKPT_3 ? currencyDecimals : 6
+                            )}{' '}
+                        {activeNetwork.nativeCurrency}
+                      </Text>
+                    </BoxItem>
+                    <BoxItem>
+                      <BoxItemTitle t4 light>
+                        Expiry
+                      </BoxItemTitle>
+                      <Text t4 light>
+                        {option.expiry}
+                      </Text>
+                    </BoxItem>
+                  </Box>
+                  <ButtonWrapper mb={0} mt={20}>
+                    <Button
+                      widthP={100}
+                      onClick={() => exerciseOption(option.id.toString())}
+                      info
+                      disabled={errors.length > 0 || latestBlockTimestamp > option.expiry.toNumber()}
+                    >
+                      Exercise Option
+                    </Button>
+                  </ButtonWrapper>
+                </Card>
+              )
+            })}
+          </CardContainer>
+        ) : (
+          <Text t2 textAlignCenter>
+            You do not own any options.
           </Text>
-          <Accordion isOpen={openOptions}>
-            <CardContainer cardsPerRow={2} p={10}>
-              {optionsDetails.map((option: Option) => {
-                return (
-                  <Card key={option.id.toString()}>
-                    <Box pt={20} pb={20} success>
-                      <BoxItem>
-                        <BoxItemTitle t4 light>
-                          ID
-                        </BoxItemTitle>
-                        <Text t4 light>
-                          {option.id}
-                        </Text>
-                      </BoxItem>
-                      <BoxItem>
-                        <BoxItemTitle t4 light>
-                          Reward Amount
-                        </BoxItemTitle>
-                        <Text t4 light>
-                          {BigNumber.from(option.rewardAmount).gte(accurateMultiply(1, currencyDecimals))
-                            ? truncateBalance(
-                                formatUnits(option.rewardAmount, currencyDecimals),
-                                width > BKPT_3 ? currencyDecimals : 2
-                              )
-                            : truncateBalance(
-                                formatUnits(option.rewardAmount, currencyDecimals),
-                                width > BKPT_3 ? currencyDecimals : 6
-                              )}{' '}
-                          SOLACE
-                        </Text>
-                      </BoxItem>
-                      <BoxItem>
-                        <BoxItemTitle t4 light>
-                          Strike Price
-                        </BoxItemTitle>
-                        <Text t4 light>
-                          {BigNumber.from(option.strikePrice).gte(accurateMultiply(1, currencyDecimals))
-                            ? truncateBalance(
-                                formatUnits(option.strikePrice, currencyDecimals),
-                                width > BKPT_3 ? currencyDecimals : 2
-                              )
-                            : truncateBalance(
-                                formatUnits(option.strikePrice, currencyDecimals),
-                                width > BKPT_3 ? currencyDecimals : 6
-                              )}{' '}
-                          {activeNetwork.nativeCurrency}
-                        </Text>
-                      </BoxItem>
-                      <BoxItem>
-                        <BoxItemTitle t4 light>
-                          Expiry
-                        </BoxItemTitle>
-                        <Text t4 light>
-                          {option.expiry}
-                        </Text>
-                      </BoxItem>
-                    </Box>
-                    <ButtonWrapper mb={0} mt={20}>
-                      <Button
-                        widthP={100}
-                        onClick={() => exerciseOption(option.id.toString())}
-                        info
-                        disabled={errors.length > 0 || latestBlockTimestamp > option.expiry.toNumber()}
-                      >
-                        Exercise Option
-                      </Button>
-                    </ButtonWrapper>
-                  </Card>
-                )
-              })}
-            </CardContainer>
-          </Accordion>
-        </Content>
-      )}
-    </Fragment>
+        )}
+      </Accordion>
+    </Content>
   )
 }

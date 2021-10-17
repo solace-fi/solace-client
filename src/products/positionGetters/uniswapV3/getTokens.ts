@@ -4,26 +4,88 @@ import ierc20Json from '../_contracts/IERC20Metadata.json'
 import { getContract } from '../../../utils'
 import { ZERO } from '../../../constants'
 
+import factoryAbi from './_contracts/IUniswapV3Factory.json'
+import lpTokenAbi from './_contracts/IUniswapLpToken.json'
+import positionManagerAbi from '../../../../node_modules/@uniswap/v3-periphery/artifacts/contracts/NonfungiblePositionManager.sol/NonfungiblePositionManager.json'
+import { listTokensOfOwner } from '../../../utils/token'
+import { BigNumber } from 'ethers'
+
 export const getTokens = async (provider: any, activeNetwork: NetworkConfig, metadata?: any): Promise<Token[]> => {
   const tokens: Token[] = []
   if (!metadata.user) return []
-  const url = `https://api.etherscan.io/api?module=account&action=tokennfttx&address=${
-    metadata.user
-  }&startblock=0&endblock=latest&apikey=${String(ETHERSCAN_API_KEY)}`
 
-  const touchedUniV3Addresses = await fetch(url)
-    .then((res) => res.json())
-    .then((result) => result.result)
-    .then((result) => {
-      if (result != 'Max rate limit reached')
-        return result.filter((r: any) => r.tokenSymbol == 'UNI-V3-POS').map((r: any) => r.contractAddress)
-      return []
-    })
+  const UNISWAPV3_FACTORY_ADDR = '0x1F98431c8aD98523631AE4a59f267346ea31F984'
+  const UNISWAPV3_POSITION_MANAGER_ADDR = '0xC36442b4a4522E871399CD717aBDD847Ab11FE88'
 
-  const uniqueUniV3Addresses = touchedUniV3Addresses.filter(
-    (item: string, index: number) => touchedUniV3Addresses.indexOf(item) == index
-  )
+  const factoryContract = getContract(UNISWAPV3_FACTORY_ADDR, factoryAbi, provider)
+  const positionManager = getContract(UNISWAPV3_POSITION_MANAGER_ADDR, positionManagerAbi.abi, provider)
 
-  console.log(uniqueUniV3Addresses)
-  return []
+  const tokenIds = await listTokensOfOwner(positionManager, metadata.user)
+
+  const positions = await Promise.all(tokenIds.map((id) => positionManager.positions(id)))
+
+  console.log('numIds', tokenIds, 'numPositions', positions)
+
+  for (let i = 0; i < positions.length; i++) {
+    const liquidity = positions[i].liquidity
+    if (liquidity.gt(ZERO)) {
+      const token0 = positions[i].token0
+      const token1 = positions[i].token1
+      const fee = positions[i].fee
+      const tokensOwed0 = positions[i].tokensOwed0
+      const tokensOwed1 = positions[i].tokensOwed1
+
+      const tickLower: number = positions[i].tickLower
+      const tickUpper: number = positions[i].tickUpper
+
+      console.log(token0, token1, fee, liquidity, tickLower, tickUpper)
+
+      const poolAddress = await factoryContract.getPool(token0, token1, fee)
+
+      const token0Contract = getContract(token0, ierc20Json.abi, provider)
+      const token1Contract = getContract(token1, ierc20Json.abi, provider)
+
+      const name0 = await token0Contract.name()
+      const name1 = await token1Contract.name()
+
+      const symbol0 = await token0Contract.symbol()
+      const symbol1 = await token1Contract.symbol()
+
+      const decimals0 = await token0Contract.decimals()
+      const decimals1 = await token1Contract.decimals()
+
+      const token: Token = {
+        token: {
+          address: poolAddress,
+          name: `#${tokenIds[i]} - ${name0}/${name1}`,
+          symbol: `UNI-V3-POS`,
+          decimals: 18,
+          balance: liquidity,
+        },
+        underlying: [
+          {
+            address: token0,
+            name: name0,
+            symbol: symbol0,
+            decimals: decimals0,
+            balance: BigNumber.from(tickLower),
+          },
+          {
+            address: token1,
+            name: name1,
+            symbol: symbol1,
+            decimals: decimals1,
+            balance: BigNumber.from(tickUpper),
+          },
+        ],
+        eth: {
+          balance: ZERO,
+        },
+      }
+
+      tokens.push(token)
+    }
+  }
+
+  return tokens
 }

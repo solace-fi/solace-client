@@ -136,7 +136,7 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
 
   const handleFetchPositions = async (supportedProduct: SupportedProduct, cache: NetworkCache): Promise<Position[]> => {
     if (!account || !library) return []
-    const savedPositions = cache.positions[supportedProduct.name].positions
+    const savedPositions = cache.positionsCache[supportedProduct.name].positions
     switch (supportedProduct.positionsType) {
       case 'erc20':
         if (typeof supportedProduct.getBalances !== 'undefined') {
@@ -221,21 +221,16 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
     }
   }
 
-  const userHasActiveProductPosition = (product: string, position: string): boolean => {
+  const userHasActiveProductPosition = (product: string, address: string): boolean => {
+    const addr = address.startsWith('0x') ? address.slice(2).toLowerCase() : address.toLowerCase()
+
     for (const policy of userPolicyData.userPolicies) {
       if (
         product === policy.productName &&
-        policy.positionNames.includes(position) &&
+        policy.positionDescription.includes(addr) &&
         policy.status === PolicyState.ACTIVE
       )
         return true
-    }
-    return false
-  }
-
-  const checkUserPositionsForAllUnderlying = (protocolName: string, underlying: TokenData[]) => {
-    for (let i = 0; i < underlying.length; i++) {
-      if (userHasActiveProductPosition(protocolName, underlying[i].symbol)) return true
     }
     return false
   }
@@ -292,19 +287,18 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
   useEffect(() => {
     setSelectablePositions(
       fetchedPositions.filter((position: Position) => {
-        let positionStr: string | TokenData[] = ''
+        let addr = ''
         switch (position.type) {
           case 'erc20':
-            positionStr = (position.position as Token).underlying
+            addr = (position.position as Token).token.address
             break
           case 'liquity':
-            positionStr = (position.position as LiquityPosition).positionName
+            addr = (position.position as LiquityPosition).positionAddress
             break
           case 'other':
           default:
         }
-        if (typeof positionStr == 'string') return !userHasActiveProductPosition(protocol.name, positionStr)
-        return !checkUserPositionsForAllUnderlying(protocol.name, positionStr)
+        return !userHasActiveProductPosition(protocol.name, addr)
       })
     )
   }, [fetchedPositions, protocol.name])
@@ -353,18 +347,7 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
             <Scrollable maxMobileHeight={65}>
               <CardContainer>
                 {fetchedPositions.map((position: Position, i) => {
-                  const isActive = userHasActiveProductPosition(
-                    protocol.name,
-                    (position.position as LiquityPosition).positionName
-                  )
-                  const isSelected = selectedPositions.some(
-                    (selectedPosition) =>
-                      (selectedPosition.position as LiquityPosition).positionAddress ==
-                      (position.position as LiquityPosition).positionAddress
-                  )
-                  const lightText = isSelected || isActive
-
-                  if (position.type == 'erc20')
+                  if (position.type == 'erc20') {
                     return (
                       <TokenPositionCard
                         key={i}
@@ -374,10 +357,21 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
                         userPolicies={userPolicyData.userPolicies}
                         openManageModal={openManageModal}
                         handleSelect={handleSelect}
-                        checkUserPositionsForAllUnderlying={checkUserPositionsForAllUnderlying}
+                        userHasActiveProductPosition={userHasActiveProductPosition}
                       />
                     )
-                  if (position.type == 'liquity')
+                  }
+                  if (position.type == 'liquity') {
+                    const isActive = userHasActiveProductPosition(
+                      protocol.name,
+                      (position.position as LiquityPosition).positionAddress
+                    )
+                    const isSelected = selectedPositions.some(
+                      (selectedPosition) =>
+                        (selectedPosition.position as LiquityPosition).positionAddress ==
+                        (position.position as LiquityPosition).positionAddress
+                    )
+                    const lightText = isSelected || isActive
                     return (
                       <PositionCard
                         key={(position.position as LiquityPosition).positionAddress}
@@ -393,7 +387,9 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
                                   userPolicyData.userPolicies.filter(
                                     (policy) =>
                                       policy.productName == protocol.name &&
-                                      policy.positionNames.includes((position.position as LiquityPosition).positionName)
+                                      policy.positionDescription.includes(
+                                        (position.position as LiquityPosition).positionAddress
+                                      )
                                   )[0]
                                 )
                             : () => handleSelect(position)
@@ -454,6 +450,7 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
                         </PositionCardButton>
                       </PositionCard>
                     )
+                  }
                 })}
               </CardContainer>
             </Scrollable>

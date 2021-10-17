@@ -231,7 +231,7 @@ export const Statistics: React.FC = () => {
               </BoxItem>
               <BoxItem>
                 <Button light disabled={errors.length > 0 || fixed(totalUserRewards, 6) <= 0} onClick={claimRewards}>
-                  Claim Option
+                  Claim Options
                 </Button>
               </BoxItem>
             </Box>
@@ -277,7 +277,7 @@ export const Statistics: React.FC = () => {
                     disabled={errors.length > 0 || fixed(totalUserRewards, 6) <= 0}
                     onClick={claimRewards}
                   >
-                    Claim Option
+                    Claim Options
                   </Button>
                 </ButtonWrapper>
               </Card>

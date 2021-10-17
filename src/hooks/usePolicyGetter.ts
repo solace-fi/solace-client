@@ -58,11 +58,19 @@ export const usePolicyGetter = (
         policies.sort((a: any, b: any) => b.policyId - a.policyId) // newest first
         const matchingCache = data.storedPosData.find((dataset) => dataset.chainId == activeNetwork.chainId)
         policies.forEach(async (policy: Policy) => {
-          const productPosition = matchingCache?.positionNames[activeNetwork.config.productsRev[policy.productAddress]]
+          const productPosition =
+            matchingCache?.positionNamesCache[activeNetwork.config.productsRev[policy.productAddress]]
           if (productPosition) {
             Object.keys(productPosition.positionNames).forEach((tokenAddress) => {
               if (policy.positionDescription.includes(tokenAddress.slice(2))) {
-                policy.positionNames = [...policy.positionNames, ...productPosition.positionNames[tokenAddress]]
+                policy.positionNames = [...policy.positionNames, productPosition.positionNames[tokenAddress]]
+                const newUnderlyingPositionNames = [
+                  ...policy.underlyingPositionNames,
+                  ...productPosition.underlyingPositionNames[tokenAddress],
+                ]
+                policy.underlyingPositionNames = newUnderlyingPositionNames.filter(
+                  (item: string, index: number) => newUnderlyingPositionNames.indexOf(item) == index
+                )
               }
             })
           }
@@ -88,6 +96,7 @@ export const usePolicyGetter = (
       productName: '',
       positionDescription: '',
       positionNames: [],
+      underlyingPositionNames: [],
       expirationBlock: 0,
       coverAmount: '',
       price: '',
@@ -104,6 +113,7 @@ export const usePolicyGetter = (
         productName: activeNetwork.config.productsRev[policy.product] ?? '',
         positionDescription: policy.positionDescription,
         positionNames: [],
+        underlyingPositionNames: [],
         expirationBlock: policy.expirationBlock,
         coverAmount: policy.coverAmount.toString(),
         price: policy.price.toString(),
@@ -122,11 +132,19 @@ export const usePolicyGetter = (
     const blockNumber = await library.getBlockNumber()
     const updatedPolicy = await queryPolicy(id, blockNumber)
     const matchingCache = data.storedPosData.find((dataset) => dataset.chainId == activeNetwork.chainId)
-    const productPosition = matchingCache?.positionNames[activeNetwork.config.productsRev[updatedPolicy.productAddress]]
+    const productPosition =
+      matchingCache?.positionNamesCache[activeNetwork.config.productsRev[updatedPolicy.productAddress]]
     if (productPosition) {
       Object.keys(productPosition.positionNames).forEach((tokenAddress) => {
         if (updatedPolicy.positionDescription.includes(tokenAddress.slice(2))) {
-          updatedPolicy.positionNames = [...updatedPolicy.positionNames, ...productPosition.positionNames[tokenAddress]]
+          updatedPolicy.positionNames = [...updatedPolicy.positionNames, productPosition.positionNames[tokenAddress]]
+          const newUnderlyingPositionNames = [
+            ...updatedPolicy.underlyingPositionNames,
+            ...productPosition.underlyingPositionNames[tokenAddress],
+          ]
+          updatedPolicy.underlyingPositionNames = newUnderlyingPositionNames.filter(
+            (item: string, index: number) => newUnderlyingPositionNames.indexOf(item) == index
+          )
         }
       })
     }

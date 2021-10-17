@@ -22,7 +22,6 @@ export const getBalances = async (
     activeNetwork.chainId,
     getMainNetworkTokenAddress
   )
-  console.log(tokenBalances)
   return tokenBalances
 }
 

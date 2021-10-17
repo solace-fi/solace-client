@@ -4,73 +4,26 @@ import ierc20Json from '../_contracts/IERC20Metadata.json'
 import { getContract } from '../../../utils'
 import { ZERO } from '../../../constants'
 
-import uniV2FactoryAbi from './_contracts/IUniV2Factory.json'
-import uniLPTokenAbi from './_contracts/IUniLPToken.json'
+import sushiLPTokenAbi from './_contracts/ISushiLPToken.json'
 
-import { ApolloClient, InMemoryCache, ApolloProvider, useQuery, gql } from '@apollo/client'
+// const SushiV2Factory_ADDR = '0xC0AEe478e3658e2610c5F7A4A2E1777cE9e4f2Ac'
+// import sushiV2FactoryAbi from './_contracts/ISushiV2Factory.json'
 
 export const getTokens = async (provider: any, activeNetwork: NetworkConfig, metadata?: any): Promise<Token[]> => {
-  // const uniV2FactoryAddress = '0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f'
-  // const uniV2Contract = getContract(uniV2FactoryAddress, uniV2FactoryAbi, provider)
-
   const tokens: Token[] = []
 
   if (!metadata.user || !metadata.transferHistory) return []
 
-  const touchedUniV2Addresses = metadata.transferHistory
-    .filter((r: any) => r.tokenName == 'Uniswap V2')
+  const touchedSushiAddresses = metadata.transferHistory
+    .filter((r: any) => r.tokenName == 'SushiSwap LP Token')
     .map((r: any) => r.contractAddress)
 
-  const uniqueUniV2Addresses = touchedUniV2Addresses.filter(
-    (item: string, index: number) => touchedUniV2Addresses.indexOf(item) == index
+  const uniqueSushiAddresses = touchedSushiAddresses.filter(
+    (item: string, index: number) => touchedSushiAddresses.indexOf(item) == index
   )
 
-  // const client = new ApolloClient({
-  //   uri: 'https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v2',
-  //   cache: new InMemoryCache(),
-  // })
-
-  // let _lastID = ''
-  // let length = 1000
-  // let uniswapV2: any = []
-
-  // while (length >= 1000) {
-  //   await client
-  //     .query({
-  //       query: gql`
-  //         query pairs($lastID: String) {
-  //           pairs(first: 1000, where: { id_gt: $lastID }) {
-  //             id
-  //             token0 {
-  //               id
-  //               name
-  //               symbol
-  //               decimals
-  //             }
-  //             token1 {
-  //               id
-  //               name
-  //               symbol
-  //               decimals
-  //             }
-  //           }
-  //         }
-  //       `,
-  //       variables: {
-  //         lastID: _lastID,
-  //       },
-  //     })
-  //     .then((result) => {
-  //       length = result.data.pairs.length
-  //       _lastID = result.data.pairs[result.data.pairs.length - 1].id
-  //       uniswapV2 = [...uniswapV2, ...result.data.pairs]
-  //     })
-  // }
-
-  // console.log('query completed:', uniswapV2, uniswapV2.length)
-
-  for (let i = 0; i < uniqueUniV2Addresses.length; i++) {
-    const lpPairContract = getContract(uniqueUniV2Addresses[i], uniLPTokenAbi, provider)
+  for (let i = 0; i < uniqueSushiAddresses.length; i++) {
+    const lpPairContract = getContract(uniqueSushiAddresses[i], sushiLPTokenAbi, provider)
 
     const balance = await lpPairContract.balanceOf(metadata.user)
     if (balance.gt(ZERO)) {
@@ -95,7 +48,7 @@ export const getTokens = async (provider: any, activeNetwork: NetworkConfig, met
 
       const token = {
         token: {
-          address: uniqueUniV2Addresses[i],
+          address: uniqueSushiAddresses[i],
           name: pairName,
           symbol: pairSymbol,
           decimals: pairDecimals,

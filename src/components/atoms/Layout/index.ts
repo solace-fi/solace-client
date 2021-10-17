@@ -119,7 +119,7 @@ export const HeroContainer = styled(FlexCol)<HeightAndWidthProps>`
 `
 
 export const Content = styled.div`
-  padding: 15px 0;
+  padding: 20px 0;
 
   @media screen and (max-width: ${BKPT_5}px) {
     padding: 30px 20px;

@@ -116,19 +116,19 @@ export const MyClaims: React.FC = () => {
 
   return (
     <Fragment>
-      {claimsDetails.length > 0 && (
-        <Content>
-          <Text t1 bold mb={0}>
-            Your Claims
-            <Button style={{ float: 'right' }} onClick={() => setOpenClaims(!openClaims)}>
-              <StyledArrowDropDown style={{ transform: openClaims ? 'rotate(180deg)' : 'rotate(0deg)' }} size={20} />
-              {openClaims ? 'Hide Claims' : 'Show Claims'}
-            </Button>
-          </Text>
-          <Text t4 pb={10}>
-            View details on your claims or start withdrawing payout
-          </Text>
-          <Accordion isOpen={openClaims}>
+      <Content>
+        <Text t1 bold mb={0}>
+          Your Claims
+          <Button style={{ float: 'right' }} onClick={() => setOpenClaims(!openClaims)}>
+            <StyledArrowDropDown style={{ transform: openClaims ? 'rotate(180deg)' : 'rotate(0deg)' }} size={20} />
+            {openClaims ? 'Hide Claims' : 'Show Claims'}
+          </Button>
+        </Text>
+        <Text t4 pb={10}>
+          View details on your claims or start withdrawing payout
+        </Text>
+        <Accordion isOpen={openClaims}>
+          {claimsDetails.length > 0 ? (
             <CardContainer cardsPerRow={2} p={10}>
               {claimsDetails.map((claim: ClaimDetails) => {
                 return (
@@ -184,9 +184,13 @@ export const MyClaims: React.FC = () => {
                 )
               })}
             </CardContainer>
-          </Accordion>
-        </Content>
-      )}
+          ) : (
+            <Text t2 textAlignCenter>
+              You do not have any claims.
+            </Text>
+          )}
+        </Accordion>
+      </Content>
     </Fragment>
   )
 }

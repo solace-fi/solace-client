@@ -50,7 +50,7 @@ import { FunctionName, TransactionCondition, Unit } from '../../constants/enums'
 import { LocalTx, Policy } from '../../constants/types'
 
 /* import hooks */
-import { useAppraisePosition, useGetMaxCoverPerPolicy, useGetPolicyPrice } from '../../hooks/usePolicy'
+import { useAppraisePolicyPosition, useGetMaxCoverPerPolicy, useGetPolicyPrice } from '../../hooks/usePolicy'
 import { useGasConfig } from '../../hooks/useGas'
 
 /* import utils */
@@ -112,7 +112,7 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
   const maxCoverPerPolicyInWei = useMemo(() => {
     return parseUnits(maxCoverPerPolicy, currencyDecimals)
   }, [maxCoverPerPolicy, currencyDecimals])
-  const appraisal = useAppraisePosition(selectedPolicy)
+  const appraisal = useAppraisePolicyPosition(selectedPolicy)
   const [coveredAssets, setCoveredAssets] = useState<string>(currentCoverAmount)
   const mounting = useRef(true)
 

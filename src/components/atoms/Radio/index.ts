@@ -9,7 +9,7 @@ const RadioInputCss = css`
 `
 
 export const RadioElement = styled.div`
-  border: 1px solid ${({ theme }) => theme.button.circle_color};
+  border: 1px solid ${({ theme }) => theme.radio.circle_color};
   border-radius: 10px;
   padding: 10px 16px;
   text-align: center;

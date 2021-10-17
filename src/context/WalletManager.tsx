@@ -17,8 +17,9 @@ import { WalletModal } from '../components/organisms/WalletModal'
 import { useNetwork } from './NetworkManager'
 import { MetamaskConnector } from '../wallet/wallet-connectors/MetaMask'
 import { useGeneral } from './GeneralProvider'
-// import { getTokens } from '../products/positionGetters/uniswapV2/getTokens'
-// import { getBalances } from '../products/positionGetters/uniswapV2/getBalances'
+// import { getTokens } from '../products/positionGetters/sushiswap/getTokens'
+// import { getBalances } from '../products/positionGetters/sushiswap/getBalances'
+import { ETHERSCAN_API_KEY } from '../constants'
 /*
 
 This Manager keeps track of the user's wallet and details, including the wallet type and account, 
@@ -217,9 +218,23 @@ const WalletProvider: React.FC = (props) => {
   //     const provider = new JsonRpcProvider(
   //       `https://eth-mainnet.alchemyapi.io/v2/${String(process.env.REACT_APP_ALCHEMY_API_KEY)}`
   //     )
-  //     const user = '0x0606f5be68e91ac742bde480e1f62a7969a3bd6a'
-  //     // const user = '0x7777778e53b99c72c369e71ab040099c9e1f9bda'
-  //     const cachedTokens = await getTokens(provider, activeNetwork, { user })
+  //     const sushiU = '0xC04F63Ea1E2E2FFEACAde7839E0596E2B886f6A4'
+  //     const curveU = '0x7777778e53b99c72c369e71ab040099c9e1f9bda'
+  //     const uniV2U = '0xC04F63Ea1E2E2FFEACAde7839E0596E2B886f6A4'
+  //     const uniV3U = '0xb2fb9ce348e279bf420d8b14647388c6f9547852'
+  //     const user = sushiU
+  //     const url = `https://api.etherscan.io/api?module=account&action=tokentx&address=${user}&startblock=0&endblock=latest&apikey=${String(
+  //       ETHERSCAN_API_KEY
+  //     )}`
+  //     const transferHistory = await fetch(url)
+  //       .then((res) => res.json())
+  //       .then((result) => result.result)
+  //       .then((result) => {
+  //         if (result != 'Max rate limit reached') return result
+  //         return []
+  //       })
+  //     const cachedTokens = await getTokens(provider, activeNetwork, { user, transferHistory })
+  //     console.log('cached tokens', cachedTokens)
   //     const balances = await getBalances(user, provider, activeNetwork, cachedTokens)
   //     console.log('fetched balances', balances)
   //   }

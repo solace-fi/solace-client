@@ -106,7 +106,7 @@ export const PolicyModalInfo: React.FC<PolicyModalInfoProps> = ({ appraisal, sel
     _selectedPolicy: Policy
   ): Promise<BasicData[]> => {
     let res: BasicData[] = []
-    const savedPositions: Position[] = _cache.positions[supportedProduct.name].positions
+    const savedPositions: Position[] = _cache.positionsCache[supportedProduct.name].positions
     switch (supportedProduct.positionsType) {
       case 'erc20':
         const filteredPositions: Position[] = savedPositions.filter((savedPosition: Position) =>
@@ -115,13 +115,13 @@ export const PolicyModalInfo: React.FC<PolicyModalInfoProps> = ({ appraisal, sel
           )
         )
         for (let i = 0; i < filteredPositions.length; i++) {
-          const curUnderlying = (filteredPositions[i].position as Token).underlying
-          for (let j = 0; j < curUnderlying.length; j++) {
-            res.push({
-              name: curUnderlying[j].name,
-              address: curUnderlying[j].address,
-            })
-          }
+          // const curUnderlying = (filteredPositions[i].position as Token).underlying
+          // for (let j = 0; j < curUnderlying.length; j++) {
+          res.push({
+            name: (filteredPositions[i].position as Token).token.name,
+            address: (filteredPositions[i].position as Token).token.address,
+          })
+          // }
         }
         break
       case 'liquity':
