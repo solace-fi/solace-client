@@ -22,6 +22,7 @@ import React, { Fragment } from 'react'
 
 /* import packages */
 import { formatUnits } from '@ethersproject/units'
+import { Block } from '@ethersproject/contracts/node_modules/@ethersproject/abstract-provider'
 
 /* import managers */
 import { useCachedData } from '../../context/CachedDataManager'
@@ -40,6 +41,7 @@ import { FlexCol, FlexRow } from '../atoms/Layout'
 import { Card, CardContainer } from '../atoms/Card'
 import { FormRow, FormCol } from '../atoms/Form'
 import { DeFiAssetImage } from '../atoms/DeFiAsset'
+import { StyledDots } from '../atoms/Icon'
 
 /* import hooks */
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'
@@ -47,12 +49,11 @@ import { useWindowDimensions } from '../../hooks/useWindowDimensions'
 /* import utils */
 import { truncateBalance } from '../../utils/formatting'
 import { getDaysLeft, getExpiration } from '../../utils/time'
-import { StyledDots } from '../atoms/Icon'
 
 interface MyPoliciesProps {
   openClaimModal: any
   openManageModal: any
-  latestBlock: number
+  latestBlock: Block | undefined
 }
 
 export const MyPolicies: React.FC<MyPoliciesProps> = ({ openClaimModal, openManageModal, latestBlock }) => {
@@ -71,13 +72,16 @@ export const MyPolicies: React.FC<MyPoliciesProps> = ({ openClaimModal, openMana
 
   *************************************************************************************/
   const calculatePolicyExpirationDate = (expirationBlock: number): string => {
-    if (latestBlock == 0) return 'Fetching...'
-    const daysLeft = getDaysLeft(expirationBlock, latestBlock)
+    if (!latestBlock) return 'Fetching...'
+    const daysLeft = getDaysLeft(expirationBlock, latestBlock.number)
     return getExpiration(daysLeft)
   }
 
   const shouldWarnUser = (policy: Policy): boolean => {
-    return policy.status === PolicyState.ACTIVE && getDaysLeft(policy.expirationBlock, latestBlock) <= 1
+    return (
+      policy.status === PolicyState.ACTIVE &&
+      getDaysLeft(policy.expirationBlock, latestBlock ? latestBlock.number : 0) <= 1
+    )
   }
 
   /*************************************************************************************

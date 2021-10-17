@@ -109,12 +109,8 @@ export const MyOptions: React.FC = () => {
   }
 
   useEffect(() => {
-    const getLatestBlockTimestamp = async () => {
-      const block = await library.getBlock(latestBlock)
-      setLatestBlockTimestamp(block.timestamp)
-    }
-    if (!library || latestBlock == 0) return
-    getLatestBlockTimestamp()
+    if (!library || !latestBlock) return
+    setLatestBlockTimestamp(latestBlock.timestamp)
   }, [latestBlock, library])
 
   /*************************************************************************************

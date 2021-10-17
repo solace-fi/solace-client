@@ -1,6 +1,7 @@
 import React, { useMemo, useContext, createContext, useEffect, useState, useCallback } from 'react'
 import { useLocalStorage } from 'react-use-storage'
 import { useWallet } from './WalletManager'
+import { Block } from '@ethersproject/contracts/node_modules/@ethersproject/abstract-provider'
 
 import { LocalTx, Policy, NetworkCache, GasFeeListState } from '../constants/types'
 import { usePolicyGetter } from '../hooks/usePolicyGetter'
@@ -8,7 +9,7 @@ import { useReload } from '../hooks/useReload'
 import { useInterval } from '../hooks/useInterval'
 
 import { useFetchGasPrice } from '../hooks/useGas'
-import { useGetLatestBlockNumber } from '../hooks/useGetLatestBlockNumber'
+import { useGetLatestBlock } from '../hooks/useGetLatestBlock'
 import { useCachePositions } from '../hooks/useCachePositions'
 
 import { useNetwork } from './NetworkManager'
@@ -42,7 +43,7 @@ type CachedData = {
   version: number
   dataVersion: number
   gasPrices: GasFeeListState
-  latestBlock: number
+  latestBlock: Block | undefined
   addLocalTransactions: (txToAdd: LocalTx) => void
   deleteLocalTransactions: (txsToDelete: []) => void
   openAccountModal: () => void
@@ -67,7 +68,7 @@ const CachedDataContext = createContext<CachedData>({
     options: [],
     loading: true,
   },
-  latestBlock: 0,
+  latestBlock: undefined,
   addLocalTransactions: () => undefined,
   deleteLocalTransactions: () => undefined,
   openAccountModal: () => undefined,
@@ -81,7 +82,7 @@ const CachedDataProvider: React.FC = (props) => {
   const [reload, version] = useReload()
   const [dataReload, dataVersion] = useReload()
   const gasPrices = useFetchGasPrice()
-  const latestBlock = useGetLatestBlockNumber(dataVersion)
+  const latestBlock = useGetLatestBlock()
   const { dataInitialized, storedPosData } = useCachePositions()
   const { addNotices, removeNotices } = useGeneral()
   const { policiesLoading, userPolicies, setCanGetAssessments } = usePolicyGetter(
@@ -108,9 +109,9 @@ const CachedDataProvider: React.FC = (props) => {
 
   const deleteLocalTransactions = (txsToDelete: LocalTx[]) => {
     if (txsToDelete.length == 0) return
-    const formattedTxsToDelete = txsToDelete.map((tx) => tx.hash)
+    const formattedTxsToDelete = txsToDelete.map((tx) => tx.hash.toLowerCase())
     const passedLocalTxs = localTxs.filter(
-      (tx: LocalTx) => !formattedTxsToDelete.includes(tx.hash) && tx.status !== 'Complete'
+      (tx: LocalTx) => !formattedTxsToDelete.includes(tx.hash.toLowerCase()) && tx.status !== 'Complete'
     )
     setLocalTxs(passedLocalTxs)
   }

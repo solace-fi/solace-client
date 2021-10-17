@@ -132,7 +132,7 @@ export const useUserWalletLpBalance = (): LpTokenInfo[] => {
   useEffect(() => {
     if (!lpToken || !account) return
     getLpBalance()
-    lpToken?.on('Transfer', (from, to) => {
+    lpToken.on('Transfer', (from, to) => {
       if (from == account || to == account) {
         getLpBalance()
       }

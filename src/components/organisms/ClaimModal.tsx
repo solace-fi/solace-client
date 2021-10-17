@@ -25,6 +25,7 @@ import React, { Fragment, useCallback, useEffect, useState, useRef } from 'react
 
 /* import packages */
 import { formatUnits } from '@ethersproject/units'
+import { Block } from '@ethersproject/contracts/node_modules/@ethersproject/abstract-provider'
 
 /* import managers */
 import { useCachedData } from '../../context/CachedDataManager'
@@ -42,6 +43,7 @@ import { Loader } from '../atoms/Loader'
 import { SmallBox, Box } from '../atoms/Box'
 import { Button, ButtonWrapper } from '../atoms/Button'
 import { Table, TableBody, TableRow, TableData } from '../atoms/Table'
+import { HyperLink } from '../atoms/Link'
 
 /* import constants */
 import { FunctionName, TransactionCondition, Unit } from '../../constants/enums'
@@ -58,12 +60,11 @@ import { useGasConfig } from '../../hooks/useGas'
 import { truncateBalance } from '../../utils/formatting'
 import { timeToDateText } from '../../utils/time'
 import { getClaimAssessment } from '../../utils/paclas'
-import { HyperLink } from '../atoms/Link'
 
 interface ClaimModalProps {
   closeModal: () => void
   isOpen: boolean
-  latestBlock: number
+  latestBlock: Block | undefined
   selectedPolicy: Policy | undefined
 }
 

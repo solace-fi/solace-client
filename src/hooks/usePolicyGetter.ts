@@ -8,10 +8,11 @@ import { useContracts } from '../context/ContractsManager'
 import { useState, useEffect, useRef } from 'react'
 import { useNetwork } from '../context/NetworkManager'
 import { getClaimAssessment } from '../utils/paclas'
+import { Block } from '@ethersproject/contracts/node_modules/@ethersproject/abstract-provider'
 
 export const usePolicyGetter = (
   getAll: boolean,
-  latestBlock: number,
+  latestBlock: Block | undefined,
   data: {
     dataInitialized: boolean
     storedPosData: NetworkCache[]

@@ -24,6 +24,7 @@ import React, { Fragment, useCallback, useState, useEffect } from 'react'
 /* import packages */
 import { formatUnits } from '@ethersproject/units'
 import { BigNumber } from 'ethers'
+import { Block } from '@ethersproject/contracts/node_modules/@ethersproject/abstract-provider'
 
 /* import managers */
 import { useNetwork } from '../../context/NetworkManager'
@@ -66,7 +67,7 @@ import { truncateBalance } from '../../utils/formatting'
 interface PolicyModalInfoProps {
   appraisal: BigNumber
   selectedPolicy: Policy | undefined
-  latestBlock: number
+  latestBlock: Block | undefined
 }
 
 export const PolicyModalInfo: React.FC<PolicyModalInfoProps> = ({ appraisal, selectedPolicy, latestBlock }) => {
@@ -180,7 +181,7 @@ export const PolicyModalInfo: React.FC<PolicyModalInfoProps> = ({ appraisal, sel
               <StyledTooltip id={'days-to-expiration'} tip={'Number of days left until this policy expires'} />
             </BoxItemTitle>
             <Text t2 nowrap>
-              {getDaysLeft(selectedPolicy ? selectedPolicy.expirationBlock : 0, latestBlock)}
+              {getDaysLeft(selectedPolicy ? selectedPolicy.expirationBlock : 0, latestBlock ? latestBlock.number : 0)}
             </Text>
           </BoxItem>
           <BoxItem>
@@ -228,7 +229,7 @@ export const PolicyModalInfo: React.FC<PolicyModalInfoProps> = ({ appraisal, sel
             </FormCol>
             <FormCol>
               <Text bold t3>
-                {getDaysLeft(selectedPolicy ? selectedPolicy.expirationBlock : 0, latestBlock)}
+                {getDaysLeft(selectedPolicy ? selectedPolicy.expirationBlock : 0, latestBlock ? latestBlock.number : 0)}
               </Text>
             </FormCol>
           </FormRow>

@@ -26,6 +26,7 @@ import React, { Fragment, useState, useEffect, useMemo, useCallback, useRef } fr
 /* import packages */
 import { parseUnits, formatUnits } from '@ethersproject/units'
 import { BigNumber } from 'ethers'
+import { Block } from '@ethersproject/contracts/node_modules/@ethersproject/abstract-provider'
 
 /* import managers */
 import { useCachedData } from '../../context/CachedDataManager'
@@ -61,7 +62,7 @@ interface ManageModalProps {
   closeModal: () => void
   isOpen: boolean
   selectedPolicy: Policy | undefined
-  latestBlock: number
+  latestBlock: Block | undefined
 }
 
 export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, selectedPolicy, latestBlock }) => {
@@ -91,14 +92,14 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
   const maxCoverPerPolicy = useGetMaxCoverPerPolicy()
   const { activeNetwork, currencyDecimals } = useNetwork()
   const { gasConfig } = useGasConfig(gasPrices.selected?.value)
-  const daysLeft = useMemo(() => getDaysLeft(selectedPolicy ? selectedPolicy.expirationBlock : 0, latestBlock), [
-    latestBlock,
-    selectedPolicy,
-  ])
-  const blocksLeft = useMemo(() => BigNumber.from(selectedPolicy ? selectedPolicy.expirationBlock : 0 - latestBlock), [
-    latestBlock,
-    selectedPolicy,
-  ])
+  const daysLeft = useMemo(
+    () => getDaysLeft(selectedPolicy ? selectedPolicy.expirationBlock : 0, latestBlock ? latestBlock.number : 0),
+    [latestBlock, selectedPolicy]
+  )
+  const blocksLeft = useMemo(
+    () => BigNumber.from(selectedPolicy ? selectedPolicy.expirationBlock : 0 - (latestBlock ? latestBlock.number : 0)),
+    [latestBlock, selectedPolicy]
+  )
   const currentCoverAmount = useMemo(() => (selectedPolicy ? selectedPolicy.coverAmount : '0'), [selectedPolicy])
   const paidprice = useMemo(() => BigNumber.from(policyPrice || '0'), [policyPrice])
   const refundAmount = useMemo(
@@ -130,7 +131,11 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
     try {
       const newPremium = BigNumber.from(newCoverage)
         .mul(params.price)
-        .mul(selectedPolicy.expirationBlock + NUM_BLOCKS_PER_DAY * parseInt(extendedTime) - latestBlock)
+        .mul(
+          selectedPolicy.expirationBlock +
+            NUM_BLOCKS_PER_DAY * parseInt(extendedTime) -
+            (latestBlock ? latestBlock.number : 0)
+        )
         .div(String(Math.pow(10, 12)))
       const tx = await selectedProtocol.updatePolicy(
         selectedPolicy.policyId,
@@ -162,7 +167,7 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
     const params = await riskManager.productRiskParams(selectedProtocol.address)
     const newPremium = BigNumber.from(newCoverage)
       .mul(params.price)
-      .mul(selectedPolicy.expirationBlock - latestBlock)
+      .mul(selectedPolicy.expirationBlock - (latestBlock ? latestBlock.number : 0))
       .div(String(Math.pow(10, 12)))
     try {
       const tx = await selectedProtocol.updateCoverAmount(selectedPolicy.policyId, newCoverage, {
@@ -284,7 +289,8 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
     const filtered = input.replace(/[^0-9]*/g, '')
     if (
       parseFloat(filtered) <=
-        DAYS_PER_YEAR - getDaysLeft(selectedPolicy ? selectedPolicy.expirationBlock : 0, latestBlock) ||
+        DAYS_PER_YEAR -
+          getDaysLeft(selectedPolicy ? selectedPolicy.expirationBlock : 0, latestBlock ? latestBlock.number : 0) ||
       filtered == ''
     ) {
       setExtendedTime(filtered)
