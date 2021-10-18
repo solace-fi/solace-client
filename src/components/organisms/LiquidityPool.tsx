@@ -62,7 +62,7 @@ export const LiquidityPool: React.FC<LiquidityPoolProps> = ({ openModal }) => {
 
   *************************************************************************************/
 
-  const { errors } = useGeneral()
+  const { haveErrors } = useGeneral()
   const { account } = useWallet()
   const { lpFarm } = useContracts()
   const { width } = useWindowDimensions()
@@ -146,16 +146,12 @@ export const LiquidityPool: React.FC<LiquidityPoolProps> = ({ openModal }) => {
                   <TableDataGroup width={200} style={{ float: 'right' }}>
                     <Button
                       light
-                      disabled={errors.length > 0}
+                      disabled={haveErrors}
                       onClick={() => openModal(FunctionName.DEPOSIT_SIGNED, 'Deposit')}
                     >
                       Deposit
                     </Button>
-                    <Button
-                      light
-                      disabled={errors.length > 0}
-                      onClick={() => openModal(FunctionName.WITHDRAW_LP, 'Withdraw')}
-                    >
+                    <Button light disabled={haveErrors} onClick={() => openModal(FunctionName.WITHDRAW_LP, 'Withdraw')}>
                       Withdraw
                     </Button>
                   </TableDataGroup>
@@ -213,7 +209,7 @@ export const LiquidityPool: React.FC<LiquidityPoolProps> = ({ openModal }) => {
             <ButtonWrapper isColumn={width <= BKPT_4}>
               <Button
                 widthP={100}
-                disabled={errors.length > 0}
+                disabled={haveErrors}
                 onClick={() => openModal(FunctionName.DEPOSIT_SIGNED, 'Deposit')}
                 light
               >
@@ -221,7 +217,7 @@ export const LiquidityPool: React.FC<LiquidityPoolProps> = ({ openModal }) => {
               </Button>
               <Button
                 widthP={100}
-                disabled={errors.length > 0}
+                disabled={haveErrors}
                 onClick={() => openModal(FunctionName.WITHDRAW_LP, 'Withdraw')}
                 light
               >

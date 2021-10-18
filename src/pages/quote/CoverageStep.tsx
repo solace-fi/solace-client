@@ -28,7 +28,7 @@ import { formatUnits, parseUnits } from 'ethers/lib/utils'
 import { BigNumber } from 'ethers'
 
 /* import constants */
-import { DAYS_PER_YEAR, GAS_LIMIT, NUM_BLOCKS_PER_DAY, ZERO } from '../../constants'
+import { BKPT_4, DAYS_PER_YEAR, GAS_LIMIT, NUM_BLOCKS_PER_DAY, ZERO } from '../../constants'
 import { TransactionCondition, FunctionName, Unit, PositionType } from '../../constants/enums'
 import { LiquityPosition, LocalTx, Position, Token } from '../../constants/types'
 
@@ -54,6 +54,7 @@ import { StyledTooltip } from '../../components/molecules/Tooltip'
 /* import hooks */
 import { useGetQuote, useGetMaxCoverPerPolicy } from '../../hooks/usePolicy'
 import { useGasConfig } from '../../hooks/useGas'
+import { useWindowDimensions } from '../../hooks/useWindowDimensions'
 
 /* import utils */
 import { accurateMultiply, encodeAddresses, filteredAmount } from '../../utils/formatting'
@@ -65,7 +66,7 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
   custom hooks
 
   *************************************************************************************/
-  const { errors } = useGeneral()
+  const { haveErrors } = useGeneral()
   const { positions, coverAmount, timePeriod, loading } = formData
   const maxCoverPerPolicy = useGetMaxCoverPerPolicy() // in eth
   const quote = useGetQuote(coverAmount, timePeriod)
@@ -78,6 +79,7 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
   const maxCoverPerPolicyInWei = useMemo(() => {
     return parseUnits(maxCoverPerPolicy, currencyDecimals)
   }, [maxCoverPerPolicy, currencyDecimals])
+  const { width } = useWindowDimensions()
 
   // positionAmount: BigNumber = wei but displayable, position.eth.balance: BigNumber = wei
   const positionAmount: BigNumber = useMemo(() => {
@@ -270,8 +272,33 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
 
   *************************************************************************************/
 
+  const TermsCard = () => (
+    <Card transparent>
+      <FormRow>
+        <Text t3 bold>
+          Terms and conditions
+        </Text>
+      </FormRow>
+      <FormRow mb={0}>
+        <FormCol>
+          <Text t4>
+            <b>Events covered:</b>
+            <ul>
+              <li>Contract bugs</li>
+              <li>Economic attacks, including oracle failures</li>
+              <li>Governance attacks</li>
+            </ul>
+            This coverage is not a contract of insurance. Coverage is provided on a discretionary basis with Solace
+            protocol and the decentralized governance has the final say on which claims are paid.
+          </Text>
+        </FormCol>
+      </FormRow>
+    </Card>
+  )
+
   return (
     <CardContainer cardsPerRow={2}>
+      {width <= BKPT_4 && <TermsCard />}
       <Card>
         <FormRow mb={5}>
           <FormCol>
@@ -322,7 +349,7 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
               />
               {maxCoverPerPolicyInWei.gt(positionAmount) && (
                 <Button
-                  disabled={errors.length > 0}
+                  disabled={haveErrors}
                   ml={10}
                   pt={4}
                   pb={4}
@@ -337,7 +364,7 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
                 </Button>
               )}
               <Button
-                disabled={errors.length > 0}
+                disabled={haveErrors}
                 ml={10}
                 pt={4}
                 pb={4}
@@ -424,12 +451,7 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
         </FormRow>
         <ButtonWrapper>
           {!loading ? (
-            <Button
-              widthP={100}
-              onClick={() => buyPolicy()}
-              disabled={errors.length > 0 || coveredAssets == '0.0'}
-              info
-            >
+            <Button widthP={100} onClick={() => buyPolicy()} disabled={haveErrors || coveredAssets == '0.0'} info>
               Buy
             </Button>
           ) : (
@@ -437,27 +459,7 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
           )}
         </ButtonWrapper>
       </Card>
-      <Card transparent>
-        <FormRow>
-          <Text t3 bold>
-            Terms and conditions
-          </Text>
-        </FormRow>
-        <FormRow mb={0}>
-          <FormCol>
-            <Text t4>
-              <b>Events covered:</b>
-              <ul>
-                <li>Contract bugs</li>
-                <li>Economic attacks, including oracle failures</li>
-                <li>Governance attacks</li>
-              </ul>
-              This coverage is not a contract of insurance. Coverage is provided on a discretionary basis with Solace
-              protocol and the decentralized governance has the final say on which claims are paid.
-            </Text>
-          </FormCol>
-        </FormRow>
-      </Card>
+      {width > BKPT_4 && <TermsCard />}
     </CardContainer>
   )
 }

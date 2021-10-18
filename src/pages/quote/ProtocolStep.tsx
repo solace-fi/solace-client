@@ -81,7 +81,7 @@ export const ProtocolStep: React.FC<formProps> = ({ setForm, navigation }) => {
   const availableCoverages = useGetAvailableCoverages()
   const yearlyCosts = useGetYearlyCosts()
   const { products, setSelectedProtocolByName } = useContracts()
-  const { errors } = useGeneral()
+  const { haveErrors } = useGeneral()
   const { width } = useWindowDimensions()
   const { activeNetwork } = useNetwork()
 
@@ -152,7 +152,7 @@ export const ProtocolStep: React.FC<formProps> = ({ setForm, navigation }) => {
                       <TableRow
                         key={protocol}
                         onClick={
-                          errors.length > 0
+                          haveErrors
                             ? undefined
                             : () =>
                                 handleChange({
@@ -190,7 +190,7 @@ export const ProtocolStep: React.FC<formProps> = ({ setForm, navigation }) => {
                           {handleAvailableCoverage(protocol)} {activeNetwork.nativeCurrency.symbol}
                         </TableData>
                         <TableData textAlignRight>
-                          <Button disabled={errors.length > 0} info>
+                          <Button disabled={haveErrors} info>
                             Select
                           </Button>
                         </TableData>
@@ -214,7 +214,7 @@ export const ProtocolStep: React.FC<formProps> = ({ setForm, navigation }) => {
                     <Card
                       key={protocol}
                       onClick={
-                        errors.length > 0
+                        haveErrors
                           ? undefined
                           : () =>
                               handleChange({

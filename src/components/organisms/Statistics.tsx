@@ -65,7 +65,7 @@ export const Statistics: React.FC = () => {
   custom hooks
 
   *************************************************************************************/
-  const { errors } = useGeneral()
+  const { haveErrors } = useGeneral()
   const { account, initialized } = useWallet()
   const { activeNetwork, currencyDecimals } = useNetwork()
   const { farmController } = useContracts()
@@ -230,7 +230,7 @@ export const Statistics: React.FC = () => {
                 </Text>
               </BoxItem>
               {/* <BoxItem>
-                <Button light disabled={errors.length > 0 || fixed(totalUserRewards, 6) <= 0} onClick={claimRewards}>
+                <Button light disabled={haveErrors || fixed(totalUserRewards, 6) <= 0} onClick={claimRewards}>
                   Claim Options
                 </Button>
               </BoxItem> */}
@@ -274,7 +274,7 @@ export const Statistics: React.FC = () => {
                   <Button
                     light
                     widthP={100}
-                    disabled={errors.length > 0 || fixed(totalUserRewards, 6) <= 0}
+                    disabled={haveErrors || fixed(totalUserRewards, 6) <= 0}
                     onClick={claimRewards}
                   >
                     Claim Options

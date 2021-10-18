@@ -88,7 +88,7 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
   const { addLocalTransactions, reload, gasPrices, userPolicyData } = useCachedData()
   const { selectedProtocol } = useContracts()
   const { makeTxToast } = useToasts()
-  const { errors } = useGeneral()
+  const { haveErrors } = useGeneral()
   const { activeNetwork, currencyDecimals, chainId } = useNetwork()
   const { width } = useWindowDimensions()
   const { gasConfig } = useGasConfig(gasPrices.selected?.value)
@@ -252,7 +252,7 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
                 <ButtonWrapper isColumn={width < BKPT_3}>
                   <Button
                     widthP={100}
-                    disabled={errors.length > 0 || !assessment.lossEventDetected}
+                    disabled={haveErrors || !assessment.lossEventDetected}
                     onClick={() => submitClaim()}
                     info
                   >
@@ -264,7 +264,7 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
                     rel="noopener noreferrer"
                     style={{ width: '100%' }}
                   >
-                    <Button widthP={100} disabled={errors.length > 0 || !assessment.lossEventDetected} info>
+                    <Button widthP={100} disabled={haveErrors || !assessment.lossEventDetected} info>
                       Dispute Claim
                     </Button>
                   </HyperLink>

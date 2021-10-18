@@ -61,7 +61,7 @@ export const MyClaims: React.FC = () => {
     custom hooks
 
   *************************************************************************************/
-  const { errors } = useGeneral()
+  const { haveErrors } = useGeneral()
   const { claimsEscrow } = useContracts()
   const { account } = useWallet()
   const { activeNetwork, currencyDecimals } = useNetwork()
@@ -174,7 +174,7 @@ export const MyClaims: React.FC = () => {
                       <Button
                         widthP={100}
                         onClick={() => withdrawPayout(claim.id)}
-                        disabled={!claim.canWithdraw || errors.length > 0}
+                        disabled={!claim.canWithdraw || haveErrors}
                         info
                       >
                         Withdraw Payout

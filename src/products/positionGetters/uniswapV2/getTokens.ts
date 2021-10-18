@@ -35,7 +35,7 @@ export const getTokens = async (provider: any, activeNetwork: NetworkConfig, met
   )
 
   const client = new ApolloClient({
-    uri: 'https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v2',
+    uri: 'https://api.thegraph.com/subgraphs/name/ianlapham/uniswapv2',
     cache: new InMemoryCache(),
   })
 

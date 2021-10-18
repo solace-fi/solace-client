@@ -56,7 +56,7 @@ export const CapitalProviderPool: React.FC<CapitalProviderPoolProps> = ({ openMo
 
   *************************************************************************************/
 
-  const { errors } = useGeneral()
+  const { haveErrors } = useGeneral()
   const { account } = useWallet()
   const { width } = useWindowDimensions()
   const { cpFarm } = useContracts()
@@ -120,21 +120,13 @@ export const CapitalProviderPool: React.FC<CapitalProviderPoolProps> = ({ openMo
               {account ? (
                 <TableData textAlignRight>
                   <TableDataGroup width={200} style={{ float: 'right' }}>
-                    <Button
-                      light
-                      disabled={errors.length > 0}
-                      onClick={() => openModal(FunctionName.DEPOSIT_CP, 'Deposit')}
-                    >
+                    <Button light disabled={haveErrors} onClick={() => openModal(FunctionName.DEPOSIT_CP, 'Deposit')}>
                       Deposit
                     </Button>
-                    <Button
-                      light
-                      disabled={errors.length > 0}
-                      onClick={() => openModal(FunctionName.WITHDRAW_CP, 'Withdraw')}
-                    >
+                    <Button light disabled={haveErrors} onClick={() => openModal(FunctionName.WITHDRAW_CP, 'Withdraw')}>
                       Withdraw
                     </Button>
-                    {/* <Button light disabled={errors.length > 0} style={{ whiteSpace: 'nowrap' }}>
+                    {/* <Button light disabled={haveErrors} style={{ whiteSpace: 'nowrap' }}>
                       Claim Option
                     </Button> */}
                   </TableDataGroup>
@@ -194,7 +186,7 @@ export const CapitalProviderPool: React.FC<CapitalProviderPoolProps> = ({ openMo
         //       <ButtonWrapper>
         //         <Button
         //           widthP={100}
-        //           disabled={errors.length > 0}
+        //           disabled={haveErrors}
         //           onClick={() => openModal(FunctionName.DEPOSIT_CP, 'Deposit')}
         //           light
         //         >
@@ -202,13 +194,13 @@ export const CapitalProviderPool: React.FC<CapitalProviderPoolProps> = ({ openMo
         //         </Button>
         //         <Button
         //           widthP={100}
-        //           disabled={errors.length > 0}
+        //           disabled={haveErrors}
         //           onClick={() => openModal(FunctionName.WITHDRAW_CP, 'Withdraw')}
         //           light
         //         >
         //           Withdraw
         //         </Button>
-        //         {/* <Button light widthP={100} disabled={errors.length > 0}>
+        //         {/* <Button light widthP={100} disabled={haveErrors}>
         //           Claim Option
         //         </Button> */}
         //       </ButtonWrapper>
@@ -263,7 +255,7 @@ export const CapitalProviderPool: React.FC<CapitalProviderPoolProps> = ({ openMo
             <ButtonWrapper isColumn={width <= BKPT_4}>
               <Button
                 widthP={100}
-                disabled={errors.length > 0}
+                disabled={haveErrors}
                 onClick={() => openModal(FunctionName.DEPOSIT_CP, 'Deposit')}
                 light
               >
@@ -271,13 +263,13 @@ export const CapitalProviderPool: React.FC<CapitalProviderPoolProps> = ({ openMo
               </Button>
               <Button
                 widthP={100}
-                disabled={errors.length > 0}
+                disabled={haveErrors}
                 onClick={() => openModal(FunctionName.WITHDRAW_CP, 'Withdraw')}
                 light
               >
                 Withdraw
               </Button>
-              {/* <Button light widthP={100} disabled={errors.length > 0}>
+              {/* <Button light widthP={100} disabled={haveErrors}>
                 Claim Option
               </Button> */}
             </ButtonWrapper>

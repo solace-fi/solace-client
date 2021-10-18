@@ -6,7 +6,7 @@
   import hooks
   import utils
 
-  TokenPositionCard
+  NftPositionCard
     hooks
 
 */
@@ -25,14 +25,15 @@ import { Position, Token, Policy, TokenData } from '../../constants/types'
 import { PositionCard } from '../atoms/Card'
 import { PositionCardButton, PositionCardText, DeFiAssetImage, PositionCardName } from '../atoms/DeFiAsset'
 import { Button } from '../atoms/Button'
-import { TextSpan } from '../atoms/Typography'
+import { NftPosition } from '../molecules/NftPosition'
+
 /* import hooks */
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'
 
 /* import utils */
 import { fixedTokenPositionBalance, truncateBalance } from '../../utils/formatting'
 
-interface TokenPositionCardProps {
+interface NftPositionCardProps {
   position: Position
   protocolName: string
   selectedPositions: Position[]
@@ -42,7 +43,7 @@ interface TokenPositionCardProps {
   userHasActiveProductPosition: (product: string, address: string) => boolean
 }
 
-export const TokenPositionCard: React.FC<TokenPositionCardProps> = ({
+export const NftPositionCard: React.FC<NftPositionCardProps> = ({
   position,
   protocolName,
   selectedPositions,
@@ -100,9 +101,7 @@ export const TokenPositionCard: React.FC<TokenPositionCardProps> = ({
           This position is already covered
         </PositionCardText>
       )}
-      <DeFiAssetImage noborder style={{ opacity: isActive ? '.5' : '1' }} key={token.token.address}>
-        <img src={`https://assets.solace.fi/${token.token.address.toLowerCase()}`} alt={token.token.name} />
-      </DeFiAssetImage>
+      <NftPosition tokenId={token.metadata.tokenId} />
       <PositionCardName bold style={{ opacity: isActive ? '.5' : '1' }} light={lightText}>
         {token.token.name}
       </PositionCardName>
@@ -114,7 +113,7 @@ export const TokenPositionCard: React.FC<TokenPositionCardProps> = ({
           })}
         </PositionCardName>
       )}
-      {token.underlying.map((underlyingToken: TokenData, i) => (
+      {/* {token.underlying.map((underlyingToken: TokenData, i) => (
         <PositionCardText t2 style={{ opacity: isActive ? '.5' : '1' }} light={lightText} key={i}>
           {truncateBalance(fixedTokenPositionBalance(underlyingToken))}{' '}
           <TextSpan style={{ fontSize: '12px' }} light={lightText}>
@@ -127,7 +126,7 @@ export const TokenPositionCard: React.FC<TokenPositionCardProps> = ({
         <TextSpan style={{ fontSize: '12px' }} light={lightText}>
           {token.token.symbol}
         </TextSpan>
-      </PositionCardText>
+      </PositionCardText> */}
       <PositionCardButton>
         {isActive ? (
           <Button widthP={width > BKPT_3 ? undefined : 100} light>

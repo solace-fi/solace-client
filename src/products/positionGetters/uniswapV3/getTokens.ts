@@ -10,10 +10,67 @@ import positionManagerAbi from '../../../../node_modules/@uniswap/v3-periphery/a
 import { listTokensOfOwner } from '../../../utils/token'
 import { BigNumber } from 'ethers'
 
+import { ApolloClient, InMemoryCache, ApolloProvider, useQuery, gql } from '@apollo/client'
+
 export const getTokens = async (provider: any, activeNetwork: NetworkConfig, metadata?: any): Promise<Token[]> => {
   const tokens: Token[] = []
   if (!provider) return []
   if (!metadata.user) return []
+
+  /*
+
+  APOLLO RETRIEVAL
+
+  */
+
+  // const client = new ApolloClient({
+  //   uri: 'https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v3',
+  //   cache: new InMemoryCache(),
+  // })
+
+  // const apolloData = await client.query({
+  //   query: gql`
+  //     query pairs($user: String!) {
+  //       positions(where: { owner_contains: $user }) {
+  //         id
+  //         owner
+  //         tickLower {
+  //           tickIdx
+  //         }
+  //         tickUpper {
+  //           tickIdx
+  //         }
+  //         token0 {
+  //           name
+  //           id
+  //           symbol
+  //           decimals
+  //         }
+  //         token1 {
+  //           name
+  //           id
+  //           symbol
+  //           decimals
+  //         }
+  //         pool {
+  //           id
+  //         }
+  //         liquidity
+  //       }
+  //     }
+  //   `,
+  //   variables: {
+  //     user: metadata.user.toLowerCase(),
+  //   },
+  // })
+
+  // console.log(apolloData)
+
+  /*
+
+  MANUAL RETRIEVAL
+
+  */
 
   const UNISWAPV3_FACTORY_ADDR = '0x1F98431c8aD98523631AE4a59f267346ea31F984'
   const UNISWAPV3_POSITION_MANAGER_ADDR = '0xC36442b4a4522E871399CD717aBDD847Ab11FE88'
@@ -25,63 +82,66 @@ export const getTokens = async (provider: any, activeNetwork: NetworkConfig, met
 
   const positions = await Promise.all(tokenIds.map((id) => positionManager.positions(id)))
 
-  for (let i = 0; i < positions.length; i++) {
-    const liquidity = positions[i].liquidity
-    if (liquidity.gt(ZERO)) {
-      const token0 = positions[i].token0
-      const token1 = positions[i].token1
-      const fee = positions[i].fee
+  const positionsWithLiquidity = positions.filter((p) => p.liquidity.gt(ZERO))
 
-      const tickLower: number = positions[i].tickLower
-      const tickUpper: number = positions[i].tickUpper
+  for (let i = 0; i < positionsWithLiquidity.length; i++) {
+    const token0 = positionsWithLiquidity[i].token0
+    const token1 = positionsWithLiquidity[i].token1
+    const fee = positionsWithLiquidity[i].fee
 
-      // console.log(token0, token1, fee, liquidity, tickLower, tickUpper)
+    const tickLower: number = positionsWithLiquidity[i].tickLower
+    const tickUpper: number = positionsWithLiquidity[i].tickUpper
 
-      const poolAddress = await factoryContract.getPool(token0, token1, fee)
+    console.log(token0, token1, fee, positionsWithLiquidity[i].liquidity, tickLower, tickUpper)
 
-      const token0Contract = getContract(token0, ierc20Json.abi, provider)
-      const token1Contract = getContract(token1, ierc20Json.abi, provider)
+    const poolAddress = await factoryContract.getPool(token0, token1, fee)
 
-      const [name0, symbol0, decimals0, name1, symbol1, decimals1] = await Promise.all([
-        token0Contract.name(),
-        token0Contract.symbol(),
-        token0Contract.decimals(),
-        token1Contract.name(),
-        token1Contract.symbol(),
-        token1Contract.decimals(),
-      ])
+    const token0Contract = getContract(token0, ierc20Json.abi, provider)
+    const token1Contract = getContract(token1, ierc20Json.abi, provider)
 
-      const token: Token = {
-        token: {
-          address: poolAddress,
-          name: `#${tokenIds[i]} - ${name0}/${name1}`,
-          symbol: `UNI-V3-POS`,
-          decimals: 18,
-          balance: liquidity,
+    const [name0, symbol0, decimals0, name1, symbol1, decimals1] = await Promise.all([
+      token0Contract.name(),
+      token0Contract.symbol(),
+      token0Contract.decimals(),
+      token1Contract.name(),
+      token1Contract.symbol(),
+      token1Contract.decimals(),
+    ])
+
+    const token: Token = {
+      token: {
+        address: poolAddress,
+        name: `#${tokenIds[i]} - ${name0}/${name1}`,
+        symbol: `UNI-V3-POS`,
+        decimals: 18,
+        balance: positionsWithLiquidity[i].liquidity,
+      },
+      underlying: [
+        {
+          address: token0,
+          name: name0,
+          symbol: symbol0,
+          decimals: decimals0,
+          balance: BigNumber.from(tickLower),
         },
-        underlying: [
-          {
-            address: token0,
-            name: name0,
-            symbol: symbol0,
-            decimals: decimals0,
-            balance: BigNumber.from(tickLower),
-          },
-          {
-            address: token1,
-            name: name1,
-            symbol: symbol1,
-            decimals: decimals1,
-            balance: BigNumber.from(tickUpper),
-          },
-        ],
-        eth: {
-          balance: ZERO,
+        {
+          address: token1,
+          name: name1,
+          symbol: symbol1,
+          decimals: decimals1,
+          balance: BigNumber.from(tickUpper),
         },
-      }
-
-      tokens.push(token)
+      ],
+      eth: {
+        balance: ZERO,
+      },
+      metadata: {
+        tokenType: 'nft',
+        tokenId: tokenIds[i],
+      },
     }
+
+    tokens.push(token)
   }
 
   return tokens

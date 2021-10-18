@@ -22,7 +22,7 @@ export const BKPT_2 = 770
 
 export const BKPT_3 = 900
 
-export const BKPT_4 = 1000
+export const BKPT_4 = 1060
 
 export const BKPT_5 = 1232
 

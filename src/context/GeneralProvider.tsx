@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useCallback } from 'react'
+import React, { createContext, useContext, useState, useCallback, useRef } from 'react'
 import { useLocalStorage } from 'react-use-storage'
 import { ThemeProvider } from 'styled-components'
 import { lightTheme, darkTheme } from '../styles/themes'
@@ -10,6 +10,7 @@ type GeneralContextType = {
   toggleTheme: () => void
   notices: string[]
   errors: string[]
+  haveErrors: boolean
   addNotices: (noticesToAdd: SystemNoticeData[]) => void
   removeNotices: (noticesToRemove: SystemNotice[]) => void
   addErrors: (errorsToAdd: ErrorData[]) => void
@@ -21,6 +22,7 @@ const GeneralContext = createContext<GeneralContextType>({
   toggleTheme: () => undefined,
   notices: [],
   errors: [],
+  haveErrors: false,
   addNotices: () => undefined,
   removeNotices: () => undefined,
   addErrors: () => undefined,
@@ -39,6 +41,7 @@ const GeneralProvider: React.FC = (props) => {
   const theme = appTheme == 'light' ? lightTheme : darkTheme
   const [notices, setNotices] = useState<string[]>([])
   const [errors, setErrors] = useState<string[]>([])
+  const haveErrors = useRef(errors.length > 0)
 
   const addNotices = useCallback((noticesToAdd: SystemNoticeData[]) => {
     if (noticesToAdd.length == 0) return
@@ -93,6 +96,7 @@ const GeneralProvider: React.FC = (props) => {
     toggleTheme,
     notices,
     errors,
+    haveErrors: haveErrors.current,
     addNotices,
     removeNotices,
     addErrors,

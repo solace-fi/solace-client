@@ -91,7 +91,7 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
 
   *************************************************************************************/
 
-  const { errors, appTheme } = useGeneral()
+  const { haveErrors, appTheme } = useGeneral()
   const { vault, cpFarm, lpFarm, lpToken } = useContracts()
   const { activeNetwork, currencyDecimals, chainId } = useNetwork()
   const { account, library } = useWallet()
@@ -602,7 +602,7 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
             </ModalCell>
             <ModalCell t3>
               <Button
-                disabled={errors.length > 0}
+                disabled={haveErrors}
                 onClick={() => {
                   setAmount(calculateMaxEth().toString())
                   setMaxSelected(true)
@@ -637,7 +637,7 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
                     <ButtonWrapper>
                       <Button
                         widthP={100}
-                        disabled={(isAppropriateAmount() ? false : true) || errors.length > 0}
+                        disabled={(isAppropriateAmount() ? false : true) || haveErrors}
                         onClick={() => approve()}
                         info
                       >
@@ -655,7 +655,7 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
                         tokenAllowance,
                         amount && amount != '.' ? parseUnits(amount, currencyDecimals).toString() : '0'
                       ) ||
-                      errors.length > 0
+                      haveErrors
                     }
                     onClick={handleCallbackFunc}
                     info
@@ -710,13 +710,7 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
                 </Box>
                 {!canWithdrawEth && (
                   <ButtonWrapper>
-                    <Button
-                      widthP={100}
-                      hidden={modalLoading}
-                      disabled={errors.length > 0}
-                      onClick={handleCallbackFunc}
-                      info
-                    >
+                    <Button widthP={100} hidden={modalLoading} disabled={haveErrors} onClick={handleCallbackFunc} info>
                       {!cooldownStarted
                         ? 'Start cooldown'
                         : timeWaited < cooldownMin
@@ -732,7 +726,7 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
                     <Button
                       widthP={100}
                       hidden={modalLoading}
-                      disabled={(isAppropriateAmount() ? false : true) || errors.length > 0}
+                      disabled={(isAppropriateAmount() ? false : true) || haveErrors}
                       onClick={handleCallbackFunc}
                       info
                     >
@@ -746,7 +740,7 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
                 <Button
                   widthP={100}
                   hidden={modalLoading}
-                  disabled={(isAppropriateAmount() ? false : true) || errors.length > 0}
+                  disabled={(isAppropriateAmount() ? false : true) || haveErrors}
                   onClick={handleCallbackFunc}
                   info
                 >

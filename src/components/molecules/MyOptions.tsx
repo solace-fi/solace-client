@@ -60,7 +60,7 @@ export const MyOptions: React.FC = () => {
     custom hooks
 
   *************************************************************************************/
-  const { errors } = useGeneral()
+  const { haveErrors } = useGeneral()
   const { account, library } = useWallet()
   const { optionsFarming } = useContracts()
   const { addLocalTransactions, reload, gasPrices, latestBlock } = useCachedData()
@@ -195,7 +195,7 @@ export const MyOptions: React.FC = () => {
                       widthP={100}
                       onClick={() => exerciseOption(option.id.toString())}
                       info
-                      disabled={errors.length > 0 || latestBlockTimestamp > option.expiry.toNumber()}
+                      disabled={haveErrors || latestBlockTimestamp > option.expiry.toNumber()}
                     >
                       Exercise Option
                     </Button>

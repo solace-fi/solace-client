@@ -57,7 +57,7 @@ export const RiskBackingCapitalPool: React.FC<RiskBackingCapitalPoolProps> = ({ 
 
   *************************************************************************************/
 
-  const { errors } = useGeneral()
+  const { haveErrors } = useGeneral()
   const { account } = useWallet()
   const { userVaultAssets, userVaultShare } = useUserVaultDetails()
   const capitalPoolSize = useCapitalPoolSize()
@@ -109,16 +109,12 @@ export const RiskBackingCapitalPool: React.FC<RiskBackingCapitalPoolProps> = ({ 
               {account ? (
                 <TableData textAlignRight>
                   <TableDataGroup width={200} style={{ float: 'right' }}>
-                    <Button
-                      light
-                      disabled={errors.length > 0}
-                      onClick={() => openModal(FunctionName.DEPOSIT_ETH, 'Deposit')}
-                    >
+                    <Button light disabled={haveErrors} onClick={() => openModal(FunctionName.DEPOSIT_ETH, 'Deposit')}>
                       Deposit
                     </Button>
                     <Button
                       light
-                      disabled={errors.length > 0}
+                      disabled={haveErrors}
                       onClick={() => openModal(FunctionName.WITHDRAW_ETH, 'Withdraw')}
                     >
                       Withdraw
@@ -159,7 +155,7 @@ export const RiskBackingCapitalPool: React.FC<RiskBackingCapitalPoolProps> = ({ 
           <ButtonWrapper isColumn={width <= BKPT_4}>
             <Button
               widthP={100}
-              disabled={errors.length > 0}
+              disabled={haveErrors}
               onClick={() => openModal(FunctionName.DEPOSIT_ETH, 'Deposit')}
               light
             >
@@ -167,7 +163,7 @@ export const RiskBackingCapitalPool: React.FC<RiskBackingCapitalPoolProps> = ({ 
             </Button>
             <Button
               widthP={100}
-              disabled={errors.length > 0}
+              disabled={haveErrors}
               onClick={() => openModal(FunctionName.WITHDRAW_ETH, 'Withdraw')}
               light
             >

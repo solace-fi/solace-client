@@ -44,6 +44,9 @@ import { Loader } from '../../components/atoms/Loader'
 import { Scrollable, HeroContainer } from '../../components/atoms/Layout'
 import { Text, TextSpan } from '../../components/atoms/Typography'
 import { ManageModal } from '../../components/organisms/ManageModal'
+import { HyperLink } from '../../components/atoms/Link'
+import { TokenPositionCard } from '../../components/organisms/TokenPositionCard'
+import { NftPositionCard } from '../../components/organisms/NftPositionCard'
 
 /* import constants */
 import { PolicyState, PositionType } from '../../constants/enums'
@@ -63,8 +66,6 @@ import { useWindowDimensions } from '../../hooks/useWindowDimensions'
 
 /* import utils */
 import { fixedPositionBalance, truncateBalance } from '../../utils/formatting'
-import { HyperLink } from '../../components/atoms/Link'
-import { TokenPositionCard } from '../../components/organisms/TokenPositionCard'
 
 export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigation }) => {
   const { protocol, loading, positions } = formData
@@ -75,7 +76,7 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
 
   *************************************************************************************/
 
-  const { errors } = useGeneral()
+  const { haveErrors } = useGeneral()
   const { account, library } = useWallet()
   const { activeNetwork, findNetworkByChainId, chainId } = useNetwork()
   const { setSelectedProtocolByName } = useContracts()
@@ -348,6 +349,20 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
               <CardContainer>
                 {fetchedPositions.map((position: Position, i) => {
                   if (position.type == PositionType.TOKEN) {
+                    if ((position.position as Token).metadata.tokenType == 'nft') {
+                      return (
+                        <NftPositionCard
+                          key={i}
+                          position={position}
+                          protocolName={protocol.name}
+                          selectedPositions={selectedPositions}
+                          userPolicies={userPolicyData.userPolicies}
+                          openManageModal={openManageModal}
+                          handleSelect={handleSelect}
+                          userHasActiveProductPosition={userHasActiveProductPosition}
+                        />
+                      )
+                    }
                     return (
                       <TokenPositionCard
                         key={i}
@@ -379,7 +394,7 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
                         glow={isSelected}
                         fade={isActive}
                         onClick={
-                          errors.length > 0
+                          haveErrors
                             ? undefined
                             : isActive
                             ? () =>

@@ -84,7 +84,7 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
 
   *************************************************************************************/
 
-  const { errors } = useGeneral()
+  const { haveErrors } = useGeneral()
   const { selectedProtocol, riskManager } = useContracts()
   const { addLocalTransactions, reload, gasPrices } = useCachedData()
   const { makeTxToast } = useToasts()
@@ -385,7 +385,7 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
                     />
                     {maxCoverPerPolicyInWei.gt(appraisal) && (
                       <Button
-                        disabled={errors.length > 0}
+                        disabled={haveErrors}
                         ml={10}
                         pt={4}
                         pb={4}
@@ -400,7 +400,7 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
                       </Button>
                     )}
                     <Button
-                      disabled={errors.length > 0}
+                      disabled={haveErrors}
                       ml={10}
                       pt={4}
                       pb={4}
@@ -446,12 +446,7 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
                     <Text t4>New expiration: {getExpiration(daysLeft + parseFloat(extendedTime || '0'))}</Text>
                     <ButtonWrapper>
                       {!asyncLoading ? (
-                        <Button
-                          widthP={100}
-                          disabled={errors.length > 0 || coveredAssets == '0.0'}
-                          onClick={handleFunc}
-                          info
-                        >
+                        <Button widthP={100} disabled={haveErrors || coveredAssets == '0.0'} onClick={handleFunc} info>
                           Update Policy
                         </Button>
                       ) : (
@@ -477,7 +472,7 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
                 <FormCol></FormCol>
                 <ButtonWrapper>
                   {policyPrice !== '' ? (
-                    <Button widthP={100} disabled={errors.length > 0} onClick={() => cancelPolicy()} info>
+                    <Button widthP={100} disabled={haveErrors} onClick={() => cancelPolicy()} info>
                       Cancel Policy
                     </Button>
                   ) : (

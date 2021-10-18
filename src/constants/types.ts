@@ -113,6 +113,7 @@ export type Token = {
   eth: {
     balance: BigNumber
   }
+  metadata?: any
 }
 
 export type LiquityPosition = {

@@ -2,7 +2,7 @@ import styled, { css } from 'styled-components'
 import { GeneralElementCss, GeneralElementProps } from '../../generalInterfaces'
 import { ClickProps } from '../Button'
 import { FlexCol } from '../Layout'
-import { BKPT_3 } from '../../../constants'
+import { BKPT_3, BKPT_4 } from '../../../constants'
 import { GeneralTextProps, GeneralTextCss } from '../Typography'
 
 interface CardProps extends ClickProps, GeneralElementProps {
@@ -42,7 +42,7 @@ export const CardContainer = styled.div<CardContainerProps & GeneralTextProps>`
   ${GeneralTextCss}
   ${GeneralElementCss}
 
-  @media screen and (max-width: 1060px) {
+  @media screen and (max-width: ${BKPT_4}px) {
     grid-template-columns: repeat(${(props) => (props.cardsPerRow ? props.cardsPerRow - 1 : '2')}, 1fr);
   }
 
