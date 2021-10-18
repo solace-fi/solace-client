@@ -17,7 +17,7 @@
   *************************************************************************************/
 
 /* import react */
-import React, { Fragment, useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 
 /* import packages */
 import { formatUnits } from '@ethersproject/units'

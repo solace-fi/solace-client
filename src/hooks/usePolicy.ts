@@ -48,7 +48,7 @@ export const useAppraisePolicyPosition = (policy: Policy | undefined): BigNumber
       case PositionType.TOKEN:
         const tokensToAppraise: Token[] = []
 
-        // loop names because we want the only positions included in the policy
+        // loop names because we want the only positions included in the policy, not positions cached on boot
         policy.positionNames.forEach(async (name) => {
           // find the position in the cache using the name
           const positionToAppraise = matchingCache.positionsCache[supportedProduct.name].positions.find(

@@ -59,8 +59,8 @@ export const usePolicyGetter = (
         policies.sort((a: any, b: any) => b.policyId - a.policyId) // newest first
         const matchingCache = data.storedPosData.find((dataset) => dataset.chainId == activeNetwork.chainId)
         policies.forEach(async (policy: Policy) => {
-          const productPosition =
-            matchingCache?.positionNamesCache[activeNetwork.config.productsRev[policy.productAddress]]
+          const supportedProductName = activeNetwork.config.productsRev[policy.productAddress]
+          const productPosition = matchingCache?.positionNamesCache[supportedProductName]
           if (productPosition) {
             Object.keys(productPosition.positionNames).forEach((tokenAddress) => {
               if (policy.positionDescription.includes(tokenAddress.slice(2))) {

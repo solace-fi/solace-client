@@ -37,12 +37,16 @@ Run using the following react command from the client directory
 
     src/
     |___components/
+        |___atoms/
+        |___molecules/
+        |___organisms/
     |___networks/
     |___constants/
     |   |____abi/
     |___context/
+    |   |____GeneralManager
     |   |____ContractsManager
-    |   |____NotificationssManager
+    |   |____NotificationsManager
     |   |____ProviderManager
     |   |____UserDataManager
     |   |____WalletManager
@@ -54,6 +58,7 @@ Run using the following react command from the client directory
     |   |____govern/
     |   |____invest/
     |   |____quote/
+    |   |____about/
     |   |____App
     |___resources/
     |___products/

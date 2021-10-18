@@ -5,6 +5,13 @@ import { lightTheme, darkTheme } from '../styles/themes'
 import { Error, SystemNotice } from '../constants/enums'
 import { ErrorData, SystemNoticeData } from '../constants/types'
 
+/*
+
+This manager stored any data that should be made available 
+not just to all parts of the app, but for all the other Managers as well.
+
+*/
+
 type GeneralContextType = {
   appTheme: 'light' | 'dark'
   toggleTheme: () => void
