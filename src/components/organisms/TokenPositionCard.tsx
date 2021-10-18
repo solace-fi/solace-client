@@ -26,6 +26,7 @@ import { PositionCard } from '../atoms/Card'
 import { PositionCardButton, PositionCardText, DeFiAssetImage, PositionCardName } from '../atoms/DeFiAsset'
 import { Button } from '../atoms/Button'
 import { TextSpan } from '../atoms/Typography'
+
 /* import hooks */
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'
 

@@ -12,10 +12,9 @@
 
     styled components
 
-    ProtocolStep function
-      custom hooks
-      useState hooks
-      Local functions
+    ProtocolStep
+      hooks
+      local functions
       Render
 
   *************************************************************************************/
@@ -74,7 +73,7 @@ const ActionsContainer = styled.div`
 export const ProtocolStep: React.FC<formProps> = ({ setForm, navigation }) => {
   /*************************************************************************************
 
-  custom hooks
+  hooks
 
   *************************************************************************************/
 
@@ -84,17 +83,11 @@ export const ProtocolStep: React.FC<formProps> = ({ setForm, navigation }) => {
   const { haveErrors } = useGeneral()
   const { width } = useWindowDimensions()
   const { activeNetwork } = useNetwork()
-
-  /*************************************************************************************
-
-  useState hooks
-
-  *************************************************************************************/
   const [searchValue, setSearchValue] = useState<string>('')
 
   /*************************************************************************************
 
-  Local functions
+  local functions
 
   *************************************************************************************/
 
@@ -117,12 +110,6 @@ export const ProtocolStep: React.FC<formProps> = ({ setForm, navigation }) => {
     if (!availableCoverages[protocol]) return '0'
     return truncateBalance(availableCoverages[protocol], 2)
   }
-
-  /*************************************************************************************
-
-  Render
-
-  *************************************************************************************/
 
   return (
     <Fragment>

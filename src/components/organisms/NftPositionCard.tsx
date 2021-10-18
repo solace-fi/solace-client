@@ -74,7 +74,7 @@ export const NftPositionCard: React.FC<NftPositionCardProps> = ({
     token,
     userHasActiveProductPosition,
   ])
-  const lightText = isSelected || isActive
+  const lightText = useMemo(() => isSelected || isActive, [isSelected, isActive])
 
   return (
     <PositionCard

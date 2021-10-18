@@ -10,10 +10,9 @@
     import hooks
     import utils
 
-    MyOptions function
-      custom hooks
+    MyOptions
+      hooks
       contract functions
-      Render
 
   *************************************************************************************/
 
@@ -57,7 +56,7 @@ import { accurateMultiply, truncateBalance } from '../../utils/formatting'
 export const MyOptions: React.FC = () => {
   /*************************************************************************************
 
-    custom hooks
+    hooks
 
   *************************************************************************************/
   const { haveErrors } = useGeneral()
@@ -112,12 +111,6 @@ export const MyOptions: React.FC = () => {
     if (!library || !latestBlock) return
     setLatestBlockTimestamp(latestBlock.timestamp)
   }, [latestBlock, library])
-
-  /*************************************************************************************
-
-    Render
-
-  *************************************************************************************/
 
   return (
     <Content>

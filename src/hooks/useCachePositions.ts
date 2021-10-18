@@ -15,7 +15,7 @@ import { useNetwork } from '../context/NetworkManager'
 import { useSessionStorage } from 'react-use-storage'
 import { NetworkCache } from '../constants/types'
 import { PositionType, ProductName } from '../constants/enums'
-import { getTroveContract } from '../products/positionGetters/liquity/getPositions'
+import { getTroveContract } from '../products/liquity/positionGetter/getPositions'
 import { ETHERSCAN_API_KEY, ZERO } from '../constants'
 
 export const useCachePositions = () => {

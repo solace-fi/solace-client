@@ -9,14 +9,13 @@
     import hooks
     import utils
 
-    UserAccount function
+    UserAccount
       custom hooks
       local functions
-      Render
-    Account function
-      custom hooks
+      
+    Account
+      hooks
       local functions
-      Render
 
   *************************************************************************************/
 
@@ -50,7 +49,7 @@ import { shortenAddress, fixed, capitalizeFirstLetter } from '../../utils/format
 export const UserAccount: React.FC<ButtonProps & GeneralElementProps> = (props) => {
   /*************************************************************************************
 
-  custom hooks
+  hooks
 
   *************************************************************************************/
   const { appTheme } = useGeneral()
@@ -58,12 +57,6 @@ export const UserAccount: React.FC<ButtonProps & GeneralElementProps> = (props) 
   const { activeNetwork } = useNetwork()
   const { account, name } = useWallet()
   const { openAccountModal } = useCachedData()
-
-  /*************************************************************************************
-
-  Render
-  
-  *************************************************************************************/
 
   return (
     <Button noborder nohover p={0} onClick={() => openAccountModal()} {...props}>
@@ -110,19 +103,13 @@ export const UserAccount: React.FC<ButtonProps & GeneralElementProps> = (props) 
 export const MiniUserAccount: React.FC<ButtonProps & GeneralElementProps> = (props) => {
   /*************************************************************************************
 
-  custom hooks
+  hooks
 
   *************************************************************************************/
   const { appTheme } = useGeneral()
   const location = useLocation()
   const { account } = useWallet()
   const { openAccountModal } = useCachedData()
-
-  /*************************************************************************************
-
-  Render
-  
-  *************************************************************************************/
 
   return (
     <Button noborder nohover p={0} onClick={() => openAccountModal()} {...props}>

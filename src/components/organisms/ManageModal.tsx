@@ -10,11 +10,10 @@
     import hooks
     import utils
 
-    ManageModal function
-      useState hooks
-      custom hooks
-      Contract functions
-      Local functions
+    ManageModal
+      hooks
+      contract functions
+      local functions
       useEffect hooks
       Render
 
@@ -68,7 +67,7 @@ interface ManageModalProps {
 export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, selectedPolicy, latestBlock }) => {
   /*************************************************************************************
 
-    useState hooks
+    hooks
 
   *************************************************************************************/
 
@@ -77,12 +76,6 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
   const [newCoverage, setNewCoverage] = useState<string>('1')
   const [extendedTime, setExtendedTime] = useState<string>('0')
   const [modalLoading, setModalLoading] = useState<boolean>(false)
-
-  /*************************************************************************************
-
-    custom hooks
-
-  *************************************************************************************/
 
   const { haveErrors } = useGeneral()
   const { selectedProtocol, riskManager } = useContracts()
@@ -237,7 +230,7 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
 
   /*************************************************************************************
 
-    Local functions
+    local functions
 
   *************************************************************************************/
 
@@ -353,12 +346,6 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
   useEffect(() => {
     setCoveredAssets(formatUnits(BigNumber.from(newCoverage), currencyDecimals))
   }, [newCoverage, currencyDecimals])
-
-  /*************************************************************************************
-
-    Render
-
-  *************************************************************************************/
 
   return (
     <Modal isOpen={isOpen} handleClose={handleClose} modalTitle={'Policy Management'} disableCloseButton={modalLoading}>

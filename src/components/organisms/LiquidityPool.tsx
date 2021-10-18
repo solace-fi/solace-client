@@ -10,9 +10,9 @@
     import hooks
     import utils
 
-    LiquidityPool function
-      custom hooks
-      Local functions
+    LiquidityPool
+      hooks
+      local functions
       Render
 
   *************************************************************************************/
@@ -58,7 +58,7 @@ interface LiquidityPoolProps {
 export const LiquidityPool: React.FC<LiquidityPoolProps> = ({ openModal }) => {
   /*************************************************************************************
 
-  custom hooks
+  hooks
 
   *************************************************************************************/
 
@@ -74,12 +74,6 @@ export const LiquidityPool: React.FC<LiquidityPoolProps> = ({ openModal }) => {
   const lpPoolValue = usePoolStakedValue(lpFarm)
   const lpUserStakeValue = useUserStakedValue(lpFarm, account)
   // const depositedLpTokenInfo = useDepositedLpBalance()
-
-  /*************************************************************************************
-
-  Render
-
-  *************************************************************************************/
 
   return (
     <Content>

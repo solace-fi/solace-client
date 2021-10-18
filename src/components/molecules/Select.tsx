@@ -1,5 +1,23 @@
+/*************************************************************************************
+
+    Table of Contents:
+
+    import react
+    import packages
+    import context
+
+    StyledSelect
+      hooks
+
+  *************************************************************************************/
+
+/* import react */
 import React from 'react'
+
+/* import packages */
 import Select from 'react-select'
+
+/* import context */
 import { useGeneral } from '../../context/GeneralProvider'
 
 interface StyledSelectProps {
@@ -15,6 +33,11 @@ interface StyledSelectProps {
 }
 
 export const StyledSelect: React.FC<StyledSelectProps> = ({ value, onChange, options }) => {
+  /*
+
+  hooks
+
+  */
   const { appTheme } = useGeneral()
 
   return (

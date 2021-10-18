@@ -11,9 +11,8 @@
 
     styled components
 
-    Prices function
-      custom hooks
-      Render
+    Prices
+      hooks
 
   *************************************************************************************/
 
@@ -62,7 +61,7 @@ const unitToNameMap: any = {
 export const Prices: React.FC = () => {
   /*************************************************************************************
 
-  custom hooks
+  hooks
 
   *************************************************************************************/
   const { activeNetwork } = useNetwork()
@@ -70,11 +69,6 @@ export const Prices: React.FC = () => {
   const nativeToken = activeNetwork.nativeCurrency.symbol
   const coinPrice = useCoingeckoPrice(unitToNameMap[nativeToken], 'usd')
 
-  /*************************************************************************************
-
-  Render
-
-  *************************************************************************************/
   return (
     <Price>
       <SmallBox pl={10} info>

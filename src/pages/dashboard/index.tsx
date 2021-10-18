@@ -7,12 +7,10 @@
     import constants
     import components
 
-    Dashboard function
-      useState hooks
-      custom hooks
+    Dashboard 
+      hooks
       local functions
       useEffect hooks
-      Render
 
   *************************************************************************************/
 
@@ -45,7 +43,7 @@ import { MyOptions } from '../../components/molecules/MyOptions'
 function Dashboard(): any {
   /*************************************************************************************
 
-    useState hooks
+    hooks
 
   *************************************************************************************/
 
@@ -53,12 +51,6 @@ function Dashboard(): any {
   const [showManageModal, setShowManageModal] = useState<boolean>(false)
   const [openPolicies, setOpenPolicies] = useState<boolean>(true)
   const [selectedPolicy, setSelectedPolicy] = useState<Policy | undefined>(undefined)
-
-  /*************************************************************************************
-
-    custom hooks
-
-  *************************************************************************************/
 
   const { setSelectedProtocolByName } = useContracts()
   const { latestBlock, userPolicyData } = useCachedData()
@@ -111,12 +103,6 @@ function Dashboard(): any {
       }
     }
   }, [userPolicyData.userPolicies])
-
-  /*************************************************************************************
-
-    Render
-
-  *************************************************************************************/
 
   return (
     <Fragment>

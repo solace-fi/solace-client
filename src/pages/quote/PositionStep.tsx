@@ -10,13 +10,10 @@
     import hooks
     import utils
 
-    PositionStep function
-      custom hooks
-      useState hooks
-      useRef variables
-      Local functions
+    PositionStep
+      hooks
+      local functions
       useEffect hooks
-      Render
 
   *************************************************************************************/
 
@@ -72,7 +69,7 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
 
   /*************************************************************************************
 
-  custom hooks
+  hooks
 
   *************************************************************************************/
 
@@ -82,29 +79,17 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
   const { setSelectedProtocolByName } = useContracts()
   const { userPolicyData, latestBlock, tokenPosData } = useCachedData()
   const { width } = useWindowDimensions()
-
-  /*************************************************************************************
-
-  useState hooks
-
-  *************************************************************************************/
   const [showManageModal, setShowManageModal] = useState<boolean>(false)
   const [selectedPolicy, setSelectedPolicy] = useState<Policy | undefined>(undefined)
   const [selectablePositions, setSelectablePositions] = useState<Position[]>([])
   const [selectedPositions, setSelectedPositions] = useState<Position[]>(positions)
   const [fetchedPositions, setFetchedPositions] = useState<Position[]>([])
   const [productLink, setProductLink] = useState<string | undefined>(undefined)
-
-  /*************************************************************************************
-
-  useRef variables
-
-  *************************************************************************************/
   const canLoadOverTime = useRef(false)
 
   /*************************************************************************************
 
-  Local functions
+  local functions
 
   *************************************************************************************/
 
@@ -303,12 +288,6 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
       })
     )
   }, [fetchedPositions, protocol.name])
-
-  /*************************************************************************************
-
-  Render
-
-  *************************************************************************************/
 
   return (
     <Fragment>

@@ -6,8 +6,8 @@
     import components
     import constants
 
-    AssetsModal function
-      custom hooks
+    AssetsModal
+      local functions
       Render
 
   *************************************************************************************/
@@ -15,14 +15,14 @@
 /* import react */
 import React, { useCallback } from 'react'
 
+/* import constants */
+import { BasicData } from '../../constants/types'
+
 /* import components */
 import { Modal } from '../molecules/Modal'
 import { Scrollable } from '../atoms/Layout'
 import { DeFiAssetImage } from '../atoms/DeFiAsset'
 import { Table, TableRow, TableBody, TableData } from '../atoms/Table'
-
-/* import constants */
-import { BasicData } from '../../constants/types'
 
 type AssetsModalProps = {
   isOpen: boolean
@@ -34,7 +34,7 @@ type AssetsModalProps = {
 export const AssetsModal: React.FC<AssetsModalProps> = ({ closeModal, isOpen, assets, modalTitle }) => {
   /*************************************************************************************
 
-  custom hooks
+  local functions
 
   *************************************************************************************/
 
@@ -42,11 +42,6 @@ export const AssetsModal: React.FC<AssetsModalProps> = ({ closeModal, isOpen, as
     closeModal()
   }, [closeModal])
 
-  /*************************************************************************************
-
-  Render
-
-  *************************************************************************************/
   return (
     <Modal handleClose={handleClose} isOpen={isOpen} modalTitle={modalTitle} disableCloseButton={false}>
       <Scrollable style={{ padding: '0 10px 0 10px' }}>

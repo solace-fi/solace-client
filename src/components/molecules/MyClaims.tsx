@@ -10,7 +10,7 @@
     import hooks
     import utils
 
-    MyClaims function
+    MyClaims
       custom hooks
       contract functions
       Render

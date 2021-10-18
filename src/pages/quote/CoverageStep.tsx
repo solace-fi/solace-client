@@ -10,13 +10,11 @@
     import hooks
     import utils
 
-    CoverageStep function
-      custom hooks
-      useState hooks
-      Contract functions
-      Local functions
+    CoverageStep
+      hooks
+      contract functions
+      local functions
       useEffect hooks
-      Render
 
   *************************************************************************************/
 
@@ -63,7 +61,7 @@ import { getDateStringWithMonthName, getDateExtended } from '../../utils/time'
 export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigation }) => {
   /*************************************************************************************
 
-  custom hooks
+  hooks
 
   *************************************************************************************/
   const { haveErrors } = useGeneral()
@@ -98,17 +96,12 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
     return BigNumber.from(accurateMultiply(formatUnits(totalBalance, currencyDecimals), currencyDecimals))
   }, [positions, currencyDecimals])
 
-  /*************************************************************************************
-
-  useState hooks
-
-  *************************************************************************************/
   const [inputCoverage, setInputCoverage] = useState<string>('')
   const [coveredAssets, setCoveredAssets] = useState<string>(maxCoverPerPolicy)
 
   /*************************************************************************************
 
-  Contract functions
+  contract functions
 
   *************************************************************************************/
 
@@ -185,7 +178,7 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
 
   /*************************************************************************************
 
-  Local functions
+  local functions
 
   *************************************************************************************/
 
@@ -265,12 +258,6 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
   useEffect(() => {
     setCoveredAssets(formatUnits(BigNumber.from(coverAmount), currencyDecimals))
   }, [coverAmount, currencyDecimals])
-
-  /*************************************************************************************
-
-  Render
-
-  *************************************************************************************/
 
   const TermsCard = () => (
     <Card transparent>

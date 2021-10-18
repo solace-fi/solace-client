@@ -10,12 +10,10 @@
     import hooks
     import utils
 
-    Statistics function
-      custom hooks
-      useState hooks
-      Contract functions
+    Statistics
+      hooks
+      contract functions
       useEffect hooks
-      Render
 
   *************************************************************************************/
 
@@ -62,7 +60,7 @@ import { fixed, floatUnits, truncateBalance } from '../../utils/formatting'
 export const Statistics: React.FC = () => {
   /*************************************************************************************
 
-  custom hooks
+  hooks
 
   *************************************************************************************/
   const { haveErrors } = useGeneral()
@@ -78,17 +76,13 @@ export const Statistics: React.FC = () => {
   const totalValueLocked = useGetTotalValueLocked()
   const { width } = useWindowDimensions()
   const { gasConfig } = useGasConfig(gasPrices.selected?.value)
-  /*************************************************************************************
 
-  useState hooks
-
-  *************************************************************************************/
   const [totalActiveCoverAmount, setTotalActiveCoverAmount] = useState<string>('-')
   const [totalActivePolicies, setTotalActivePolicies] = useState<number | string>('-')
 
   /*************************************************************************************
 
-  Contract functions
+  contract functions
 
   *************************************************************************************/
   const claimRewards = async () => {
@@ -145,12 +139,6 @@ export const Statistics: React.FC = () => {
       console.log(err)
     }
   }, [allPolicies])
-
-  /*************************************************************************************
-
-  Render
-
-  *************************************************************************************/
 
   const GlobalBox: React.FC = () => (
     <Box color2>

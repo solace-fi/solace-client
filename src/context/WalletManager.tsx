@@ -17,17 +17,17 @@ import { WalletModal } from '../components/organisms/WalletModal'
 import { useNetwork } from './NetworkManager'
 import { MetamaskConnector } from '../wallet/wallet-connectors/MetaMask'
 import { useGeneral } from './GeneralProvider'
-import { getTokens as gT0 } from '../products/positionGetters/sushiswap/getTokens'
-import { getTokens as gT1 } from '../products/positionGetters/yearn/getTokens'
-import { getTokens as gT2 } from '../products/positionGetters/curve/getTokens'
-import { getTokens as gT3 } from '../products/positionGetters/uniswapV2/getTokens'
-import { getTokens as gT4 } from '../products/positionGetters/uniswapV3/getTokens'
+import { getTokens as gT0 } from '../products/sushiswap/positionGetter/getTokens'
+import { getTokens as gT1 } from '../products/yearn/positionGetter/getTokens'
+import { getTokens as gT2 } from '../products/curve/positionGetter/getTokens'
+import { getTokens as gT3 } from '../products/uniswapV2/positionGetter/getTokens'
+import { getTokens as gT4 } from '../products/uniswapV3/positionGetter/getTokens'
 
-import { getBalances as gB0 } from '../products/positionGetters/sushiswap/getBalances'
-import { getBalances as gB1 } from '../products/positionGetters/yearn/getBalances'
-import { getBalances as gB2 } from '../products/positionGetters/curve/getBalances'
-import { getBalances as gB3 } from '../products/positionGetters/uniswapV2/getBalances'
-import { getBalances as gB4 } from '../products/positionGetters/uniswapV3/getBalances'
+import { getBalances as gB0 } from '../products/sushiswap/positionGetter/getBalances'
+import { getBalances as gB1 } from '../products/yearn/positionGetter/getBalances'
+import { getBalances as gB2 } from '../products/curve/positionGetter/getBalances'
+import { getBalances as gB3 } from '../products/uniswapV2/positionGetter/getBalances'
+import { getBalances as gB4 } from '../products/uniswapV3/positionGetter/getBalances'
 
 import { ETHERSCAN_API_KEY } from '../constants'
 /*
@@ -244,21 +244,21 @@ const WalletProvider: React.FC = (props) => {
           if (result != 'Max rate limit reached') return result
           return []
         })
-      // const cachedTokens0 = await gT0(provider, activeNetwork, { user, transferHistory })
-      // const cachedTokens1 = await gT1(provider, activeNetwork, { user, transferHistory })
-      // const cachedTokens2 = await gT2(provider, activeNetwork, { user, transferHistory })
-      // const cachedTokens3 = await gT3(provider, activeNetwork, { user, transferHistory })
+      const cachedTokens0 = await gT0(provider, activeNetwork, { user, transferHistory })
+      const cachedTokens1 = await gT1(provider, activeNetwork, { user, transferHistory })
+      const cachedTokens2 = await gT2(provider, activeNetwork, { user, transferHistory })
+      const cachedTokens3 = await gT3(provider, activeNetwork, { user, transferHistory })
       const cachedTokens4 = await gT4(provider, activeNetwork, { user, transferHistory })
       console.log(cachedTokens4)
-      // const balances = await gB0(user, provider, activeNetwork, cachedTokens0)
-      // const balances = await gB1(user, provider, activeNetwork, cachedTokens1)
-      // const balances = await gB2(user, provider, activeNetwork, cachedTokens2)
-      // const balances = await gB3(user, provider, activeNetwork, cachedTokens3)
+      await gB0(user, provider, activeNetwork, cachedTokens0)
+      await gB1(user, provider, activeNetwork, cachedTokens1)
+      await gB2(user, provider, activeNetwork, cachedTokens2)
+      await gB3(user, provider, activeNetwork, cachedTokens3)
+      await gB4(user, provider, activeNetwork, cachedTokens4)
       // console.log(balances)
-      // const balances = await gB4(user, provider, activeNetwork, cachedTokens4)
       // console.log('fetched balances', balances)
     }
-    testMainnet()
+    // testMainnet()
   }, [])
 
   const value = useMemo<ContextWallet>(

@@ -10,10 +10,9 @@
     import hooks
     import utils
 
-    MyPolicies function
-      custom hooks
-      Local functions
-      Render
+    MyPolicies
+      hooks
+      local functions
 
   *************************************************************************************/
 
@@ -59,7 +58,7 @@ interface MyPoliciesProps {
 export const MyPolicies: React.FC<MyPoliciesProps> = ({ openClaimModal, openManageModal, latestBlock }) => {
   /*************************************************************************************
 
-    custom hooks
+    hooks
 
   *************************************************************************************/
   const { userPolicyData } = useCachedData()
@@ -68,7 +67,7 @@ export const MyPolicies: React.FC<MyPoliciesProps> = ({ openClaimModal, openMana
 
   /*************************************************************************************
 
-    Local functions
+    local functions
 
   *************************************************************************************/
   const calculatePolicyExpirationDate = (expirationBlock: number): string => {
@@ -84,11 +83,6 @@ export const MyPolicies: React.FC<MyPoliciesProps> = ({ openClaimModal, openMana
     )
   }
 
-  /*************************************************************************************
-
-    Render
-
-  *************************************************************************************/
   return (
     <Fragment>
       {userPolicyData.userPolicies.length > 0 ? (

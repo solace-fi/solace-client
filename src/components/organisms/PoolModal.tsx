@@ -10,13 +10,12 @@
     import hooks
     import utils
 
-    PoolModal function
-      custom hooks
+    PoolModal
+      hooks
       contract functions
       local functions
       useEffect hooks
       functional components
-      Render
 
   *************************************************************************************/
 
@@ -87,23 +86,26 @@ interface PoolModalProps {
 export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, closeModal }) => {
   /*************************************************************************************
 
-  custom hooks
+  hooks
 
   *************************************************************************************/
 
   const { haveErrors, appTheme } = useGeneral()
   const { vault, cpFarm, lpFarm, lpToken } = useContracts()
   const { activeNetwork, currencyDecimals, chainId } = useNetwork()
+  const { addLocalTransactions, reload, gasPrices } = useCachedData()
   const { account, library } = useWallet()
-  const [amount, setAmount] = useState<string>('')
-  const [isStaking, setIsStaking] = useState<boolean>(false)
   const cpUserStakeValue = useUserStakedValue(cpFarm, account)
   const lpUserStakeValue = useUserStakedValue(lpFarm, account)
   const nativeTokenBalance = useNativeTokenBalance()
   const scpBalance = useScpBalance()
   const userLpTokenInfo = useUserWalletLpBalance()
   const depositedLpTokenInfo = useDepositedLpBalance()
-  const { addLocalTransactions, reload, gasPrices } = useCachedData()
+  const { makeTxToast } = useToasts()
+  const { cooldownStarted, timeWaited, cooldownMin, cooldownMax, canWithdrawEth } = useCooldown()
+
+  const [amount, setAmount] = useState<string>('')
+  const [isStaking, setIsStaking] = useState<boolean>(false)
   const [selectedGasOption, setSelectedGasOption] = useState<GasFeeOption | undefined>(gasPrices.selected)
   const { gasConfig } = useGasConfig(selectedGasOption ? selectedGasOption.value : null)
   const [maxSelected, setMaxSelected] = useState<boolean>(false)
@@ -111,8 +113,6 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
   const [contractForAllowance, setContractForAllowance] = useState<Contract | null>(null)
   const [spenderAddress, setSpenderAddress] = useState<string | null>(null)
   const tokenAllowance = useTokenAllowance(contractForAllowance, spenderAddress)
-  const { makeTxToast } = useToasts()
-  const { cooldownStarted, timeWaited, cooldownMin, cooldownMax, canWithdrawEth } = useCooldown()
   const [nftId, setNftId] = useState<BN>(ZERO)
   const [nftSelection, setNftSelection] = useState<{ value: string; label: string }>({ value: '', label: '' })
 
@@ -548,12 +548,6 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
       <Text info={appTheme == 'light'}>Earn Solace token options as a reward</Text>
     </RadioCircle>
   )
-
-  /*************************************************************************************
-
-  Render
-
-  *************************************************************************************/
 
   return (
     <Modal isOpen={isOpen} handleClose={handleClose} modalTitle={modalTitle} disableCloseButton={modalLoading}>

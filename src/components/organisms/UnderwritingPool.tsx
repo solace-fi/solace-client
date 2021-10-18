@@ -10,9 +10,8 @@
     import hooks
     import utils
 
-    RiskBackingCapitalPool function
-      custom hooks
-      Render
+    UnderwritingPool
+      hooks
 
   *************************************************************************************/
 
@@ -46,14 +45,14 @@ import { useWindowDimensions } from '../../hooks/useWindowDimensions'
 /* import utils */
 import { floatUnits, truncateBalance } from '../../utils/formatting'
 
-interface RiskBackingCapitalPoolProps {
+interface UnderwritingPoolProps {
   openModal: (func: FunctionName, modalTitle: string) => void
 }
 
-export const RiskBackingCapitalPool: React.FC<RiskBackingCapitalPoolProps> = ({ openModal }) => {
+export const UnderwritingPool: React.FC<UnderwritingPoolProps> = ({ openModal }) => {
   /*************************************************************************************
 
-  custom hooks
+  hooks
 
   *************************************************************************************/
 
@@ -63,12 +62,6 @@ export const RiskBackingCapitalPool: React.FC<RiskBackingCapitalPoolProps> = ({ 
   const capitalPoolSize = useCapitalPoolSize()
   const { width } = useWindowDimensions()
   const { currencyDecimals } = useNetwork()
-
-  /*************************************************************************************
-
-  Render
-
-  *************************************************************************************/
 
   return (
     <Content>

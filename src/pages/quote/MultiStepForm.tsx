@@ -15,11 +15,10 @@
     variables
     styled components
 
-    MultiStepForm function
-      custom hooks
-      Local functions
+    MultiStepForm
+      hooks
+      local functions
       useEffect hooks
-      Render
 
   *************************************************************************************/
 
@@ -58,6 +57,7 @@ import { StyledTooltip } from '../../components/molecules/Tooltip'
 import { FlexRow } from '../../components/atoms/Layout'
 import { StyledDots } from '../../components/atoms/Icon'
 import { AssetsModal } from '../../components/organisms/AssetsModal'
+
 /* import hooks */
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'
 
@@ -134,7 +134,7 @@ const FormContent = styled.div`
 export const MultiStepForm = () => {
   /*************************************************************************************
 
-  custom hooks
+  hooks
 
   *************************************************************************************/
   const [formData, setForm] = useForm(defaultData)
@@ -178,7 +178,7 @@ export const MultiStepForm = () => {
 
   /*************************************************************************************
 
-  Local functions
+  local functions
 
   *************************************************************************************/
 
@@ -218,12 +218,6 @@ export const MultiStepForm = () => {
   useEffect(() => {
     resetForm()
   }, [account, chainId])
-
-  /*************************************************************************************
-
-  Render
-
-  *************************************************************************************/
 
   return (
     <FormContent>

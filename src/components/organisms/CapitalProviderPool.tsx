@@ -9,9 +9,8 @@
     import hooks
     import utils
 
-    CapitalProviderPool function
-      custom hooks
-      Render
+    CapitalProviderPool
+      hooks
 
   *************************************************************************************/
 
@@ -52,7 +51,7 @@ interface CapitalProviderPoolProps {
 export const CapitalProviderPool: React.FC<CapitalProviderPoolProps> = ({ openModal }) => {
   /*************************************************************************************
 
-    custom hooks
+    hooks
 
   *************************************************************************************/
 
@@ -65,12 +64,6 @@ export const CapitalProviderPool: React.FC<CapitalProviderPoolProps> = ({ openMo
   const cpUserRewardsPerDay = useUserRewardsPerDay(1, cpFarm, account)
   const cpUserRewards = useUserPendingRewards(cpFarm)
   const cpPoolValue = usePoolStakedValue(cpFarm)
-
-  /*************************************************************************************
-
-    Render
-
-  *************************************************************************************/
 
   return (
     <Content>

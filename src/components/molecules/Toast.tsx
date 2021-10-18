@@ -8,12 +8,11 @@
     import components
     import utils
 
-    AppToast function
-      Render
-    NotificationToast function
+    AppToast
+      
+    NotificationToast
       custom hooks
       local functions
-      Render
 
   *************************************************************************************/
 
@@ -49,11 +48,6 @@ interface NotificationToastProps {
 }
 
 export const AppToast: React.FC<AppToastProps> = ({ message, icon }) => {
-  /*************************************************************************************
-
-    Render
-
-  *************************************************************************************/
   return (
     <ToastWrapper>
       {icon}
@@ -90,11 +84,6 @@ export const NotificationToast: React.FC<NotificationToastProps> = ({ message, c
     }
   }
 
-  /*************************************************************************************
-
-    Render
-
-  *************************************************************************************/
   return (
     <ToastWrapper>
       <FlexedToastMessage light>

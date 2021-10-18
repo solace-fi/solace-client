@@ -6,9 +6,10 @@
     import managers
     import components
 
-    Modal function
+    Modal
       Render
-    ModalCloseButton function
+
+    ModalCloseButton
       Render
 
   *************************************************************************************/

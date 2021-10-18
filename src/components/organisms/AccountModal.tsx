@@ -10,10 +10,9 @@
     import hooks
     import utils
 
-    TransactionHistoryModal function
-      custom hooks
+    AccountModal function
+      hooks
       local functions
-      Render
 
   *************************************************************************************/
 
@@ -47,6 +46,8 @@ import { Card, CardContainer } from '../atoms/Card'
 import { FormRow } from '../atoms/Form'
 import { UserImage } from '../atoms/User'
 import { Input } from '../atoms/Input'
+import { Box, BoxItem, BoxItemTitle } from '../atoms/Box'
+import { CopyButton } from '../molecules/CopyButton'
 
 /* import hooks */
 import { useTransactionDetails } from '../../hooks/useTransactionHistory'
@@ -57,8 +58,6 @@ import { getExplorerItemUrl } from '../../utils/explorer'
 import { capitalizeFirstLetter, shortenAddress } from '../../utils/formatting'
 import { timeAgo } from '../../utils/time'
 import { decodeInput } from '../../utils/decoder'
-import { Box, BoxItem, BoxItemTitle } from '../atoms/Box'
-import { CopyButton } from '../molecules/CopyButton'
 
 interface AccountModalProps {
   closeModal: () => void
@@ -68,7 +67,7 @@ interface AccountModalProps {
 export const AccountModal: React.FC<AccountModalProps> = ({ closeModal, isOpen }) => {
   /*************************************************************************************
 
-  custom hooks
+  hooks
 
   *************************************************************************************/
 
@@ -87,11 +86,6 @@ export const AccountModal: React.FC<AccountModalProps> = ({ closeModal, isOpen }
     closeModal()
   }, [closeModal])
 
-  /************************************************************************************* 
-    
-  Render
-
-  *************************************************************************************/
   return (
     <Modal handleClose={handleClose} isOpen={isOpen} modalTitle={'Account'} disableCloseButton={false}>
       <CardContainer cardsPerRow={account ? 2 : 1} mb={10}>

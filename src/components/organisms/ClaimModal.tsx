@@ -10,13 +10,11 @@
     import hooks
     import utils
 
-    ClaimModal function
-      useState hooks
-      custom hooks
+    ClaimModal
+      hooks
       contract functions
       local functions
       useEffect hooks
-      Render
 
   *************************************************************************************/
 
@@ -71,19 +69,12 @@ interface ClaimModalProps {
 export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, closeModal, latestBlock }) => {
   /*************************************************************************************
 
-    useState hooks
+    hooks
 
   *************************************************************************************/
   const [modalLoading, setModalLoading] = useState<boolean>(true)
   const [claimSubmitted, setClaimSubmitted] = useState<boolean>(false)
   const [assessment, setAssessment] = useState<ClaimAssessment | undefined>(undefined)
-
-  /*************************************************************************************
-
-    custom hooks
-
-  *************************************************************************************/
-
   const cooldown = useGetCooldownPeriod()
   const { addLocalTransactions, reload, gasPrices, userPolicyData } = useCachedData()
   const { selectedProtocol } = useContracts()
@@ -97,7 +88,7 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
 
   /*************************************************************************************
 
-    Contract functions
+    contract functions
 
   *************************************************************************************/
 
@@ -174,12 +165,6 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
     }
     loadOverTime()
   }, [selectedPolicy])
-
-  /*************************************************************************************
-
-    Render
-
-  *************************************************************************************/
 
   return (
     <Modal isOpen={isOpen} handleClose={handleClose} modalTitle={'Policy Claim'} disableCloseButton={modalLoading}>

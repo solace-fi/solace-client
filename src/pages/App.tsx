@@ -7,8 +7,10 @@
     import managers
     import pages
     import components
+    import constants
+    import hooks
 
-    App function
+    App
 
   *************************************************************************************/
 

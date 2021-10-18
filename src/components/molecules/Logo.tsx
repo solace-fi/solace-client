@@ -6,7 +6,7 @@
     import components
     import resources
 
-    Logo function
+    Logo
       Render
 
   *************************************************************************************/

@@ -10,11 +10,10 @@
     import hooks
     import utils
 
-    PolicyModalInfo function
-      custom hooks
+    PolicyModalInfo
+      hooks
       local functions
       useEffect hooks
-      Render
 
   *************************************************************************************/
 
@@ -73,7 +72,7 @@ interface PolicyModalInfoProps {
 export const PolicyModalInfo: React.FC<PolicyModalInfoProps> = ({ appraisal, selectedPolicy, latestBlock }) => {
   /*************************************************************************************
 
-    custom hooks
+    hooks
 
   *************************************************************************************/
   const { activeNetwork, currencyDecimals } = useNetwork()
@@ -152,12 +151,6 @@ export const PolicyModalInfo: React.FC<PolicyModalInfoProps> = ({ appraisal, sel
   useEffect(() => {
     getAssets()
   }, [selectedPolicy])
-
-  /*************************************************************************************
-
-    Render
-
-  *************************************************************************************/
 
   return (
     <Fragment>

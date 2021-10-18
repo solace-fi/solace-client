@@ -9,18 +9,17 @@
     import components
     import hooks
 
-    SideNavbar function
-      Render
+    SideNavbar
+      hooks
 
-    TopNavbar function
-      custom hooks
+    TopNavbar
+      hooks
       useEffect hooks
-      Render
 
   *************************************************************************************/
 
 /* import react */
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 
 /* import packages */
 import { useLocation } from 'react-router'
@@ -53,31 +52,31 @@ import { Text, TextSpan } from '../atoms/Typography'
 import { HyperLink } from '../atoms/Link'
 import { ThemeButton } from '../molecules/ThemeButton'
 import { HorizRule } from '../atoms/Layout'
+import { MiniUserAccount, UserAccount } from './Account'
+import { StyledNavTooltip } from '../molecules/Tooltip'
 
 /* import hooks */
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'
-import { MiniUserAccount, UserAccount } from './Account'
-import { StyledNavTooltip } from '../molecules/Tooltip'
 
 interface SideNavbarProps {
   isMobile?: Boolean
 }
 
 export const SideNavbar: React.FC<SideNavbarProps> = ({ isMobile }) => {
+  /*
+
+  hooks
+
+  */
   const location = useLocation()
   const { width } = useWindowDimensions()
-
-  const miniNavbarMarginSet = {
-    marginLeft: width <= BKPT_3 ? 'auto' : 'unset',
-    marginRight: width <= BKPT_3 ? 'auto' : 'unset',
-  }
-  const lightText = location.pathname == '/' || !!isMobile
-
-  /*************************************************************************************
-
-    Render
-
-  *************************************************************************************/
+  const miniNavbarMarginSet = useMemo(() => {
+    return {
+      marginLeft: width <= BKPT_3 ? 'auto' : 'unset',
+      marginRight: width <= BKPT_3 ? 'auto' : 'unset',
+    }
+  }, [width])
+  const lightText = useMemo(() => location.pathname == '/' || !!isMobile, [isMobile, location])
 
   return (
     <div

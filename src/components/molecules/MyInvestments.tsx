@@ -10,9 +10,8 @@
     import hooks
     import utils
 
-    MyInvestments function
-      custom hooks
-      Render
+    MyInvestments
+      hooks
 
   *************************************************************************************/
 
@@ -47,7 +46,7 @@ import { truncateBalance } from '../../utils/formatting'
 export const MyInvestments: React.FC = () => {
   /*************************************************************************************
 
-    custom hooks
+    hooks
 
   *************************************************************************************/
   const { account } = useWallet()
@@ -60,12 +59,6 @@ export const MyInvestments: React.FC = () => {
   // const depositedLpTokenInfo = useDepositedLpBalance()
   const cpUserRewardsPerDay = useUserRewardsPerDay(1, cpFarm, account)
   const lpUserRewardsPerDay = useUserRewardsPerDay(2, lpFarm, account)
-
-  /*************************************************************************************
-
-    Render
-
-  *************************************************************************************/
 
   return (
     <Content>

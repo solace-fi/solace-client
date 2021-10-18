@@ -9,11 +9,10 @@
     import constants
     import hooks
 
-    ScaledContainer component
-    NftPosition function
-      custom hooks
-      useEffect hook
-      Render
+    ScaledContainer
+
+    NftPosition
+      hooks
 
   *************************************************************************************/
 
@@ -51,18 +50,13 @@ const ScaledContainer = styled.div`
 export const NftPosition: React.FC<NftPositionProps> = ({ tokenId }) => {
   /*************************************************************************************
 
-  custom hooks
+  hooks
 
   *************************************************************************************/
   const { width } = useWindowDimensions()
   const { lpToken } = useContracts()
   const [image, setImage] = useState<any>(null)
 
-  /*************************************************************************************
-
-  useEffect hooks
-
-  *************************************************************************************/
   useEffect(() => {
     const getUri = async () => {
       if (!lpToken || tokenId.eq(ZERO)) return
@@ -73,12 +67,6 @@ export const NftPosition: React.FC<NftPositionProps> = ({ tokenId }) => {
     }
     getUri()
   }, [lpToken, tokenId])
-
-  /*************************************************************************************
-
-  Render
-  
-  *************************************************************************************/
 
   return (
     <>

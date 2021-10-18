@@ -8,9 +8,16 @@
     import components
     import hooks
 
-    StyledTooltip function
-      custom hooks
-      Render
+    CustomTooltipCss
+
+    CustomTooltip
+
+    CustomNavbarTooltip
+
+    StyledNavTooltip
+
+    StyledTooltip
+      hooks
 
   *************************************************************************************/
 
@@ -92,15 +99,11 @@ export const StyledNavTooltip: React.FC<StyledTooltipProps> = ({ id, tip, childr
 export const StyledTooltip: React.FC<StyledTooltipProps> = ({ id, tip, link }) => {
   /*************************************************************************************
 
-  custom hooks
+  hooks
 
   *************************************************************************************/
   const { width } = useWindowDimensions()
-  /*************************************************************************************
 
-  render
-
-  *************************************************************************************/
   return (
     <>
       {width > BKPT_3 ? (

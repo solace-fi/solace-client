@@ -1,13 +1,31 @@
+/*************************************************************************************
+
+    Table of Contents:
+
+    import react
+    import components
+    import hooks
+
+    CopyButton
+      hooks
+
+  *************************************************************************************/
+
 import React from 'react'
-import useCopyClipboard from '../../hooks/useCopyToClipboard'
 import { Button } from '../atoms/Button'
 import { StyledCheckmark, StyledCopy } from '../atoms/Icon'
+import useCopyClipboard from '../../hooks/useCopyToClipboard'
 
 interface CopyProps {
   toCopy: string
 }
 
 export const CopyButton: React.FC<CopyProps> = (props) => {
+  /*
+
+  hooks
+
+  */
   const [isCopied, setCopied] = useCopyClipboard()
 
   return (

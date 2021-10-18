@@ -8,11 +8,8 @@
     import components
     import hooks
 
-    styled components
-
-    NetworkConnectButton function
-      custom hooks
-      Render
+    NetworkConnectButton
+      hooks
 
   *************************************************************************************/
 
@@ -34,16 +31,11 @@ import { GeneralElementProps } from '../generalInterfaces'
 export const NetworkConnectButton: React.FC<GeneralElementProps & ButtonProps> = ({ ...props }) => {
   /*************************************************************************************
 
-    custom hooks
+    hooks
 
   *************************************************************************************/
   const { openNetworkModal } = useProvider()
 
-  /*************************************************************************************
-
-    Render
-
-  *************************************************************************************/
   return (
     <>
       <Button onClick={() => openNetworkModal()} {...props} style={{ whiteSpace: 'nowrap' }}>
