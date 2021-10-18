@@ -60,7 +60,9 @@ import curveRegistryAbi from './_contracts/ICurveRegistry.json'
 // ]
 
 export const getTokens = async (provider: any, activeNetwork: NetworkConfig, metadata?: any): Promise<Token[]> => {
-  if (!metadata.user || !metadata.transferHistory) return []
+  // if (!metadata.user || !metadata.transferHistory) return []
+
+  if (!provider) return []
 
   const client = new ApolloClient({
     uri: 'https://api.thegraph.com/subgraphs/name/curvefi/curve',

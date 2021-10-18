@@ -12,6 +12,7 @@ import { BigNumber } from 'ethers'
 
 export const getTokens = async (provider: any, activeNetwork: NetworkConfig, metadata?: any): Promise<Token[]> => {
   const tokens: Token[] = []
+  if (!provider) return []
   if (!metadata.user) return []
 
   const UNISWAPV3_FACTORY_ADDR = '0x1F98431c8aD98523631AE4a59f267346ea31F984'
@@ -34,7 +35,7 @@ export const getTokens = async (provider: any, activeNetwork: NetworkConfig, met
       const tickLower: number = positions[i].tickLower
       const tickUpper: number = positions[i].tickUpper
 
-      console.log(token0, token1, fee, liquidity, tickLower, tickUpper)
+      // console.log(token0, token1, fee, liquidity, tickLower, tickUpper)
 
       const poolAddress = await factoryContract.getPool(token0, token1, fee)
 

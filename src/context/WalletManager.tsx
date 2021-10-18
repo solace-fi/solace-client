@@ -17,8 +17,18 @@ import { WalletModal } from '../components/organisms/WalletModal'
 import { useNetwork } from './NetworkManager'
 import { MetamaskConnector } from '../wallet/wallet-connectors/MetaMask'
 import { useGeneral } from './GeneralProvider'
-import { getTokens } from '../products/positionGetters/sushiswap/getTokens'
-import { getBalances } from '../products/positionGetters/sushiswap/getBalances'
+import { getTokens as gT0 } from '../products/positionGetters/sushiswap/getTokens'
+import { getTokens as gT1 } from '../products/positionGetters/yearn/getTokens'
+import { getTokens as gT2 } from '../products/positionGetters/curve/getTokens'
+import { getTokens as gT3 } from '../products/positionGetters/uniswapV2/getTokens'
+import { getTokens as gT4 } from '../products/positionGetters/uniswapV3/getTokens'
+
+import { getBalances as gB0 } from '../products/positionGetters/sushiswap/getBalances'
+import { getBalances as gB1 } from '../products/positionGetters/yearn/getBalances'
+import { getBalances as gB2 } from '../products/positionGetters/curve/getBalances'
+import { getBalances as gB3 } from '../products/positionGetters/uniswapV2/getBalances'
+import { getBalances as gB4 } from '../products/positionGetters/uniswapV3/getBalances'
+
 import { ETHERSCAN_API_KEY } from '../constants'
 /*
 
@@ -219,7 +229,6 @@ const WalletProvider: React.FC = (props) => {
         `https://eth-mainnet.alchemyapi.io/v2/${String(process.env.REACT_APP_ALCHEMY_API_KEY)}`
       )
       const sushiU = '0xC04F63Ea1E2E2FFEACAde7839E0596E2B886f6A4'
-      const curveU = '0x7777778e53b99c72c369e71ab040099c9e1f9bda'
       const curveU2 = '0x53C40473DcdFd927C4201cCFE24E314a7D7C3584'
       const uniV2U = '0xC04F63Ea1E2E2FFEACAde7839E0596E2B886f6A4'
       const uniV3U = '0xb2fb9ce348e279bf420d8b14647388c6f9547852'
@@ -235,10 +244,22 @@ const WalletProvider: React.FC = (props) => {
           if (result != 'Max rate limit reached') return result
           return []
         })
-      const cachedTokens = await getTokens(provider, activeNetwork, { user, transferHistory })
-      console.log('cached tokens', cachedTokens)
-      const balances = await getBalances(user, provider, activeNetwork, cachedTokens)
-      console.log('fetched balances', balances)
+      const cachedTokens0 = await gT0(provider, activeNetwork, { user, transferHistory })
+      const cachedTokens1 = await gT1(provider, activeNetwork, { user, transferHistory })
+      const cachedTokens2 = await gT2(provider, activeNetwork, { user, transferHistory })
+      const cachedTokens3 = await gT3(provider, activeNetwork, { user, transferHistory })
+      const cachedTokens4 = await gT4(provider, activeNetwork, { user, transferHistory })
+      console.log('sushiswap', cachedTokens0)
+      console.log('yearn', cachedTokens1)
+      console.log('curve', cachedTokens2)
+      console.log('uniswapV2', cachedTokens3)
+      console.log('uniswapV3', cachedTokens4)
+      // const balances = await gB0(user, provider, activeNetwork, cachedTokens0)
+      // const balances = await gB1(user, provider, activeNetwork, cachedTokens1)
+      // const balances = await gB2(user, provider, activeNetwork, cachedTokens2)
+      // const balances = await gB3(user, provider, activeNetwork, cachedTokens3)
+      // const balances = await gB4(user, provider, activeNetwork, cachedTokens4)
+      // console.log('fetched balances', balances)
     }
     // testMainnet()
   }, [])

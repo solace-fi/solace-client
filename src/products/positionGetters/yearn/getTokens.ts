@@ -12,7 +12,8 @@ import { ApolloClient, InMemoryCache, ApolloProvider, useQuery, gql } from '@apo
 
 export const getTokens = async (provider: any, activeNetwork: NetworkConfig, metadata?: any): Promise<Token[]> => {
   // TODO: reduce the ~1000 requests down
-  if (!provider || !metadata.user) return []
+  if (!provider) return []
+  if (!metadata.user) return []
   // const yRegistryAddress = await provider.resolveName('v2.registry.ychad.eth')
   const yRegistryAddress = '0x50c1a2eA0a861A967D9d0FFE2AE4012c2E053804'
   if (!yRegistryAddress) return []
