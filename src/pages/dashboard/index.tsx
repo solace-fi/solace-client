@@ -40,6 +40,7 @@ import { Accordion } from '../../components/atoms/Accordion/Accordion'
 import { StyledArrowDropDown } from '../../components/atoms/Icon'
 import { Button } from '../../components/atoms/Button'
 import { Loader } from '../../components/atoms/Loader'
+import { MyOptions } from '../../components/molecules/MyOptions'
 
 function Dashboard(): any {
   /*************************************************************************************
@@ -172,6 +173,7 @@ function Dashboard(): any {
           </Content>
           <MyClaims />
           <MyInvestments />
+          <MyOptions />
         </Fragment>
       )}
     </Fragment>

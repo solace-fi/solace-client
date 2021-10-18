@@ -5,11 +5,12 @@ import { addNativeTokenBalances, getProductTokenBalances } from '../getBalances'
 import { getNonHumanValue } from '../../../utils/formatting'
 import ierc20Json from '../_contracts/IERC20Metadata.json'
 import { vaultAbi } from './_contracts/yearnAbis'
-import { getContract } from '../../../utils'
+import { equalsIgnoreCase, getContract } from '../../../utils'
 
 import { BigNumber } from 'ethers'
 import { withBackoffRetries } from '../../../utils/time'
 import axios from 'axios'
+import { ZERO } from '../../../constants'
 
 import curveRegistryAbi from '../curve/_contracts/ICurveRegistry.json'
 import curveAddressProviderAbi from '../curve/_contracts/ICurveAddressProvider.json'
@@ -49,33 +50,28 @@ export const getBalances = async (
     if (balances[i].token.symbol.startsWith('yvCurve')) {
       const curvePoolAddr = await curveRegistryContract.get_pool_from_lp_token(balances[i].underlying[0].address)
       const underlyingTokens = await curveRegistryContract.get_underlying_coins(curvePoolAddr)
-
-      const url = `https://api.1inch.exchange/v3.0/1/quote?fromTokenAddress=${
-        underlyingTokens[0]
-      }&toTokenAddress=${ETH}&amount=${balances[i].underlying[0].balance.toString()}`
-      try {
-        const res = await withBackoffRetries(async () => axios.get(url))
-        const ethAmount: BigNumber = BigNumber.from(res.data.toTokenAmount)
-        balances[i].eth.balance = ethAmount
-      } catch (e) {
-        console.log(e)
-      }
+      balances[i].eth.balance = await getNativeTokenBalance(underlyingTokens[0], balances[i])
     } else {
-      const url = `https://api.1inch.exchange/v3.0/1/quote?fromTokenAddress=${
-        balances[i].underlying[0].address
-      }&toTokenAddress=${ETH}&amount=${balances[i].underlying[0].balance.toString()}`
-      try {
-        const res = await withBackoffRetries(async () => axios.get(url))
-        const ethAmount: BigNumber = BigNumber.from(res.data.toTokenAmount)
-        balances[i].eth.balance = ethAmount
-      } catch (e) {
-        console.log(e)
-      }
+      balances[i].eth.balance = await getNativeTokenBalance(balances[i].underlying[0].address, balances[i])
     }
   }
-
-  // get native token balances
-  // const tokenBalances = await addNativeTokenBalances(balances, indices, activeNetwork.chainId)
-  // return tokenBalances
   return balances
+}
+
+const getNativeTokenBalance = async (underlyingAddress: string, token: Token): Promise<BigNumber> => {
+  if (!equalsIgnoreCase(underlyingAddress, ETH)) {
+    const url = `https://api.1inch.exchange/v3.0/1/quote?fromTokenAddress=${underlyingAddress}&toTokenAddress=${ETH}&amount=${token.underlying[0].balance
+      .div(String(getNonHumanValue(1, token.token.decimals - token.underlying[0].decimals)))
+      .toString()}`
+    try {
+      const res = await withBackoffRetries(async () => axios.get(url))
+      const ethAmount: BigNumber = BigNumber.from(res.data.toTokenAmount)
+      return ethAmount
+    } catch (e) {
+      console.log(e)
+      return ZERO
+    }
+  } else {
+    return token.underlying[0].balance
+  }
 }

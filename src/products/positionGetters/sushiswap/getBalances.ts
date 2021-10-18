@@ -10,7 +10,7 @@ export const getBalances = async (
   activeNetwork: NetworkConfig,
   tokens: Token[]
 ): Promise<Token[]> => {
-  const balances: Token[] = await getProductTokenBalances(user, ierc20Json.abi, tokens, provider)
+  const balances: Token[] = tokens
 
   for (let i = 0; i < balances.length; i++) {
     const token0Contract = getContract(balances[i].underlying[0].address, ierc20Json.abi, provider)

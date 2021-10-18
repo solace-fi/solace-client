@@ -52,7 +52,7 @@ export const getTokens = async (provider: any, activeNetwork: NetworkConfig, met
           name: pairName,
           symbol: pairSymbol,
           decimals: pairDecimals,
-          balance: ZERO,
+          balance: balance,
         },
         underlying: [
           {

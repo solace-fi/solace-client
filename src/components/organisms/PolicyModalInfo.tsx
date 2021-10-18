@@ -81,7 +81,7 @@ export const PolicyModalInfo: React.FC<PolicyModalInfoProps> = ({ appraisal, sel
   const { account } = useWallet()
   const { tokenPosData } = useCachedData()
   const [showAssetsModal, setShowAssetsModal] = useState<boolean>(false)
-  const [assets, setAssets] = useState<BasicData[]>([])
+  const [formattedAssets, setFormattedAssets] = useState<BasicData[]>([])
   const maxPositionsOnDisplay = 4
 
   /*************************************************************************************
@@ -99,7 +99,7 @@ export const PolicyModalInfo: React.FC<PolicyModalInfoProps> = ({ appraisal, sel
     const matchingCache = tokenPosData.storedPosData.find((dataset) => dataset.chainId == activeNetwork.chainId)
     if (!matchingCache) return
     const foundPositions = await handleFilterPositions(supportedProduct, matchingCache, selectedPolicy)
-    setAssets(foundPositions)
+    setFormattedAssets(foundPositions)
   }
 
   const handleFilterPositions = async (
@@ -164,8 +164,8 @@ export const PolicyModalInfo: React.FC<PolicyModalInfoProps> = ({ appraisal, sel
       <AssetsModal
         closeModal={closeModal}
         isOpen={showAssetsModal}
-        assets={assets}
-        modalTitle={`Covered Assets (${assets.length})`}
+        assets={formattedAssets}
+        modalTitle={`Covered Assets (${formattedAssets.length})`}
       />
       {width > BKPT_3 ? (
         <Box transparent pl={10} pr={10} pt={20} pb={20}>

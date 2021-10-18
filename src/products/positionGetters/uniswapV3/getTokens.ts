@@ -24,16 +24,12 @@ export const getTokens = async (provider: any, activeNetwork: NetworkConfig, met
 
   const positions = await Promise.all(tokenIds.map((id) => positionManager.positions(id)))
 
-  console.log('numIds', tokenIds, 'numPositions', positions)
-
   for (let i = 0; i < positions.length; i++) {
     const liquidity = positions[i].liquidity
     if (liquidity.gt(ZERO)) {
       const token0 = positions[i].token0
       const token1 = positions[i].token1
       const fee = positions[i].fee
-      const tokensOwed0 = positions[i].tokensOwed0
-      const tokensOwed1 = positions[i].tokensOwed1
 
       const tickLower: number = positions[i].tickLower
       const tickUpper: number = positions[i].tickUpper
