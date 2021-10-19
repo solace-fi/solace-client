@@ -5,7 +5,7 @@ import { MetamaskConnector } from '../wallet/wallet-connectors/MetaMask'
 
 import { Card, CardContainer } from '../components/atoms/Card'
 import { ModalCell } from '../components/atoms/Modal'
-import { Heading4, Text } from '../components/atoms/Typography'
+import { Text } from '../components/atoms/Typography'
 import { Modal } from '../components/molecules/Modal'
 import { FormRow } from '../components/atoms/Form'
 import { capitalizeFirstLetter } from '../utils/formatting'
@@ -111,11 +111,23 @@ const ProviderManager: React.FC = ({ children }) => {
   )
   return (
     <ProviderContext.Provider value={value}>
-      <Modal handleClose={closeModal} isOpen={networkModal} modalTitle={'Connect a network'} disableCloseButton={false}>
-        <Card purple p={10} mb={20}>
-          <Text textAlignCenter>When connected, ensure that the </Text>
-          <Text textAlignCenter>network on your wallet matches </Text>
-          <Text textAlignCenter>the network on this app. </Text>
+      <Modal
+        zIndex={3}
+        handleClose={closeModal}
+        isOpen={networkModal}
+        modalTitle={'Connect a network'}
+        disableCloseButton={false}
+      >
+        <Card color2 p={10} mb={20}>
+          <Text light textAlignCenter>
+            When connected, ensure that the{' '}
+          </Text>
+          <Text light textAlignCenter>
+            network on your wallet matches{' '}
+          </Text>
+          <Text light textAlignCenter>
+            the network on this app.{' '}
+          </Text>
         </Card>
 
         <CardContainer cardsPerRow={1}>
@@ -129,12 +141,14 @@ const ProviderManager: React.FC = ({ children }) => {
               key={network.name}
               onClick={() => switchNetwork(network.name)}
               glow={network.name == activeNetwork.name}
-              blue={network.name == activeNetwork.name}
+              color1={network.name == activeNetwork.name}
               style={{ display: 'flex', justifyContent: 'center' }}
             >
               <FormRow mb={0}>
                 <ModalCell p={10}>
-                  <Heading4>{capitalizeFirstLetter(network.name)}</Heading4>
+                  <Text t4 bold light={network.name == activeNetwork.name}>
+                    {capitalizeFirstLetter(network.name)}
+                  </Text>
                 </ModalCell>
               </FormRow>
             </Card>

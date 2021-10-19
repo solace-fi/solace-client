@@ -1,5 +1,23 @@
+/*************************************************************************************
+
+    Table of Contents:
+
+    import react
+    import packages
+    import context
+
+    StyledSelect
+      hooks
+
+  *************************************************************************************/
+
+/* import react */
 import React from 'react'
+
+/* import packages */
 import Select from 'react-select'
+
+/* import context */
 import { useGeneral } from '../../context/GeneralProvider'
 
 interface StyledSelectProps {
@@ -15,6 +33,11 @@ interface StyledSelectProps {
 }
 
 export const StyledSelect: React.FC<StyledSelectProps> = ({ value, onChange, options }) => {
+  /*
+
+  hooks
+
+  */
   const { appTheme } = useGeneral()
 
   return (
@@ -23,32 +46,30 @@ export const StyledSelect: React.FC<StyledSelectProps> = ({ value, onChange, opt
       onChange={onChange}
       options={options}
       styles={{
+        dropdownIndicator: (provided, state) => ({
+          ...provided,
+          color: 'rgb(250, 250, 250)',
+        }),
         singleValue: (provided, state) => ({
           ...provided,
-          color: appTheme == 'light' ? 'black' : 'white',
+          color: 'rgb(250, 250, 250)',
         }),
         control: (provided, state) => ({
           ...provided,
-          backgroundColor: appTheme == 'light' ? 'white' : 'rgb(37, 52, 97)',
-          color: 'white',
+          backgroundColor: appTheme == 'light' ? 'rgb(95, 93, 249)' : 'rgb(20, 19, 51)',
+          color: 'rgb(250, 250, 250)',
           borderColor: 'transparent',
         }),
         option: (provided, state) => ({
           ...provided,
           backgroundColor: state.isFocused
             ? appTheme == 'light'
-              ? 'white'
-              : 'rgba(11,12,15, 1)'
+              ? 'rgb(95, 93, 249)'
+              : 'rgb(20, 19, 51)'
             : appTheme == 'light'
             ? 'white'
-            : 'rgba(20, 22, 30, 1)',
-          color: state.isFocused
-            ? appTheme == 'light'
-              ? '#3a2d40'
-              : '#00ffd1'
-            : appTheme == 'light'
-            ? '#7c7c7c'
-            : 'white',
+            : 'rgb(37, 52, 97)',
+          color: state.isFocused ? 'rgb(250, 250, 250)' : appTheme == 'light' ? 'rgb(94, 94, 94)' : 'white',
         }),
         menuList: (base) => ({
           ...base,

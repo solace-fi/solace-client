@@ -9,9 +9,8 @@
     import hooks
     import utils
 
-    CapitalProviderPool function
-      custom hooks
-      Render
+    CapitalProviderPool
+      hooks
 
   *************************************************************************************/
 
@@ -25,15 +24,16 @@ import { useGeneral } from '../../context/GeneralProvider'
 
 /* import components */
 import { Content } from '../atoms/Layout'
-import { Heading1 } from '../atoms/Typography'
+import { Text } from '../atoms/Typography'
 import { Table, TableHead, TableRow, TableHeader, TableBody, TableData, TableDataGroup } from '../atoms/Table'
 import { Button, ButtonWrapper } from '../atoms/Button'
 import { Card } from '../atoms/Card'
 import { FormRow, FormCol } from '../atoms/Form'
 import { StyledTooltip } from '../molecules/Tooltip'
+import { Box, BoxItem, BoxItemTitle } from '../atoms/Box'
 
 /* import constants */
-import { CP_ROI, MAX_TABLET_SCREEN_WIDTH } from '../../constants'
+import { CP_ROI, BKPT_4, BKPT_6, BKPT_7 } from '../../constants'
 import { FunctionName } from '../../constants/enums'
 
 /* import hooks */
@@ -51,11 +51,11 @@ interface CapitalProviderPoolProps {
 export const CapitalProviderPool: React.FC<CapitalProviderPoolProps> = ({ openModal }) => {
   /*************************************************************************************
 
-    custom hooks
+    hooks
 
   *************************************************************************************/
 
-  const { errors } = useGeneral()
+  const { haveErrors } = useGeneral()
   const { account } = useWallet()
   const { width } = useWindowDimensions()
   const { cpFarm } = useContracts()
@@ -65,29 +65,26 @@ export const CapitalProviderPool: React.FC<CapitalProviderPoolProps> = ({ openMo
   const cpUserRewards = useUserPendingRewards(cpFarm)
   const cpPoolValue = usePoolStakedValue(cpFarm)
 
-  /*************************************************************************************
-
-    Render
-
-  *************************************************************************************/
-
   return (
     <Content>
-      <Heading1>
-        Solace Capital Provider Farm{' '}
-        <StyledTooltip
-          id={'cp-farm'}
+      <Text bold t1 mb={0} info>
+        Options Farming Pool{' '}
+        {/* <StyledTooltip
+          id={'options-pool'}
           tip={'Deposit SCP tokens here to earn rewards'}
           link={'https://docs.solace.fi/docs/user-guides/capital-provider/cp-role-guide'}
-        />{' '}
-      </Heading1>
-      {width > MAX_TABLET_SCREEN_WIDTH ? (
+        />{' '} */}
+      </Text>
+      <Text t4 pb={10}>
+        This pool rewards capital providers with options
+      </Text>
+      {width > BKPT_6 ? (
         <Table isHighlight textAlignCenter>
           <TableHead>
             <TableRow>
-              {account ? <TableHeader width={100}>Your Stake</TableHeader> : null}
+              {account ? <TableHeader>Your Stake</TableHeader> : null}
               <TableHeader>Total Assets</TableHeader>
-              <TableHeader width={100}>ROI (1Y)</TableHeader>
+              {/* <TableHeader>ROI (1Y)</TableHeader> */}
               {account ? (
                 <TableHeader>
                   My Rewards <StyledTooltip id={'cp-rewards'} tip={'Amount of your unclaimed rewards from this pool'} />
@@ -106,43 +103,25 @@ export const CapitalProviderPool: React.FC<CapitalProviderPoolProps> = ({ openMo
             </TableRow>
           </TableHead>
           <TableBody>
-            <TableRow>
-              {account ? (
-                <TableData h3 high_em width={100}>
-                  {truncateBalance(cpUserStakeValue, 2)}
-                </TableData>
-              ) : null}
-              <TableData h3 high_em>
-                {truncateBalance(cpPoolValue, 2)}
-              </TableData>
-              <TableData h3 high_em width={100}>
-                {CP_ROI}
-              </TableData>
-              {account ? (
-                <TableData h3 high_em>
-                  {truncateBalance(cpUserRewards, 2)}
-                </TableData>
-              ) : null}
-              {account ? (
-                <TableData h3 high_em>
-                  {truncateBalance(cpUserRewardsPerDay, 2)}
-                </TableData>
-              ) : null}
-              <TableData h3 high_em>
-                {truncateBalance(cpRewardsPerDay, 2)}
-              </TableData>
+            <TableRow light>
+              {account ? <TableData t3>{truncateBalance(cpUserStakeValue, 2)}</TableData> : null}
+              <TableData t3>{truncateBalance(cpPoolValue, 2)}</TableData>
+              {/* <TableData t3>{CP_ROI}</TableData> */}
+              {account ? <TableData t3>{truncateBalance(cpUserRewards, 2)}</TableData> : null}
+              {account ? <TableData t3>{truncateBalance(cpUserRewardsPerDay, 2)}</TableData> : null}
+              <TableData t3>{truncateBalance(cpRewardsPerDay, 2)}</TableData>
               {account ? (
                 <TableData textAlignRight>
-                  <TableDataGroup width={200}>
-                    <Button disabled={errors.length > 0} onClick={() => openModal(FunctionName.DEPOSIT_CP, 'Deposit')}>
+                  <TableDataGroup width={200} style={{ float: 'right' }}>
+                    <Button light disabled={haveErrors} onClick={() => openModal(FunctionName.DEPOSIT_CP, 'Deposit')}>
                       Deposit
                     </Button>
-                    <Button
-                      disabled={errors.length > 0}
-                      onClick={() => openModal(FunctionName.WITHDRAW_CP, 'Withdraw')}
-                    >
+                    <Button light disabled={haveErrors} onClick={() => openModal(FunctionName.WITHDRAW_CP, 'Withdraw')}>
                       Withdraw
                     </Button>
+                    {/* <Button light disabled={haveErrors} style={{ whiteSpace: 'nowrap' }}>
+                      Claim Option
+                    </Button> */}
                   </TableDataGroup>
                 </TableData>
               ) : null}
@@ -150,65 +129,142 @@ export const CapitalProviderPool: React.FC<CapitalProviderPoolProps> = ({ openMo
           </TableBody>
         </Table>
       ) : (
-        <Card>
+        // ) : width > BKPT_6 ? (
+        //   <Card isHighlight>
+        //     <Box transparent>
+        //       {account && (
+        //         <BoxItem>
+        //           <BoxItemTitle light>Your Stake</BoxItemTitle>
+        //           <Text light t2>
+        //             {truncateBalance(cpUserStakeValue, 2)}
+        //           </Text>
+        //         </BoxItem>
+        //       )}
+        //       <BoxItem>
+        //         <BoxItemTitle light>Total Assets</BoxItemTitle>
+        //         <Text light t2>
+        //           {truncateBalance(cpPoolValue, 2)}
+        //         </Text>
+        //       </BoxItem>
+        //       <BoxItem>
+        //         <BoxItemTitle light>ROI</BoxItemTitle>
+        //         <Text light t2>
+        //           {CP_ROI}
+        //         </Text>
+        //       </BoxItem>
+        //       {account && (
+        //         <>
+        //           <BoxItem>
+        //             <BoxItemTitle light>My Rewards</BoxItemTitle>
+        //             <Text light t2>
+        //               {truncateBalance(cpUserRewards, 2)}
+        //             </Text>
+        //           </BoxItem>
+        //           <BoxItem>
+        //             <BoxItemTitle light>My Daily Rewards</BoxItemTitle>
+        //             <Text light t2>
+        //               {truncateBalance(cpUserRewardsPerDay, 2)}
+        //             </Text>
+        //           </BoxItem>
+        //         </>
+        //       )}
+        //       <BoxItem>
+        //         <BoxItemTitle light>Daily Rewards</BoxItemTitle>
+        //         <Text light t2>
+        //           {truncateBalance(cpRewardsPerDay, 2)}
+        //         </Text>
+        //       </BoxItem>
+        //     </Box>
+        //     {account && (
+        //       <ButtonWrapper>
+        //         <Button
+        //           widthP={100}
+        //           disabled={haveErrors}
+        //           onClick={() => openModal(FunctionName.DEPOSIT_CP, 'Deposit')}
+        //           light
+        //         >
+        //           Deposit
+        //         </Button>
+        //         <Button
+        //           widthP={100}
+        //           disabled={haveErrors}
+        //           onClick={() => openModal(FunctionName.WITHDRAW_CP, 'Withdraw')}
+        //           light
+        //         >
+        //           Withdraw
+        //         </Button>
+        //         {/* <Button light widthP={100} disabled={haveErrors}>
+        //           Claim Option
+        //         </Button> */}
+        //       </ButtonWrapper>
+        //     )}
+        //   </Card>
+
+        // tablet version
+        <Card isHighlight>
           {account && (
             <FormRow>
-              <FormCol>Your Stake:</FormCol>
-              <FormCol h2 high_em>
+              <FormCol light>Your Stake:</FormCol>
+              <FormCol light t2>
                 {truncateBalance(cpUserStakeValue, 2)}
               </FormCol>
             </FormRow>
           )}
           <FormRow>
-            <FormCol>Total Assets:</FormCol>
-            <FormCol h2 high_em>
+            <FormCol light>Total Assets:</FormCol>
+            <FormCol light t2>
               {truncateBalance(cpPoolValue, 2)}
             </FormCol>
           </FormRow>
           <FormRow>
-            <FormCol>ROI:</FormCol>
-            <FormCol h2 high_em>
+            <FormCol light>ROI:</FormCol>
+            <FormCol light t2>
               {CP_ROI}
             </FormCol>
           </FormRow>
           {account && (
             <>
               <FormRow>
-                <FormCol>My Rewards:</FormCol>
-                <FormCol h2 high_em>
+                <FormCol light>My Rewards:</FormCol>
+                <FormCol light t2>
                   {truncateBalance(cpUserRewards, 2)}
                 </FormCol>
               </FormRow>
               <FormRow>
-                <FormCol>My Daily Rewards:</FormCol>
-                <FormCol h2 high_em>
+                <FormCol light>My Daily Rewards:</FormCol>
+                <FormCol light t2>
                   {truncateBalance(cpUserRewardsPerDay, 2)}
                 </FormCol>
               </FormRow>
             </>
           )}
           <FormRow>
-            <FormCol>Daily Rewards:</FormCol>
-            <FormCol h2 high_em>
+            <FormCol light>Daily Rewards:</FormCol>
+            <FormCol light t2>
               {truncateBalance(cpRewardsPerDay, 2)}
             </FormCol>
           </FormRow>
           {account && (
-            <ButtonWrapper isColumn>
+            <ButtonWrapper isColumn={width <= BKPT_4}>
               <Button
                 widthP={100}
-                disabled={errors.length > 0}
+                disabled={haveErrors}
                 onClick={() => openModal(FunctionName.DEPOSIT_CP, 'Deposit')}
+                light
               >
                 Deposit
               </Button>
               <Button
                 widthP={100}
-                disabled={errors.length > 0}
+                disabled={haveErrors}
                 onClick={() => openModal(FunctionName.WITHDRAW_CP, 'Withdraw')}
+                light
               >
                 Withdraw
               </Button>
+              {/* <Button light widthP={100} disabled={haveErrors}>
+                Claim Option
+              </Button> */}
             </ButtonWrapper>
           )}
         </Card>

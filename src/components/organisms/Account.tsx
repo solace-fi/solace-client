@@ -9,108 +9,125 @@
     import hooks
     import utils
 
-    UserAccount function
+    UserAccount
       custom hooks
       local functions
-      Render
-    Account function
-      custom hooks
+      
+    Account
+      hooks
       local functions
-      Render
 
   *************************************************************************************/
 
 /* import react */
-import React, { Fragment } from 'react'
+import React from 'react'
 
 /* import packages */
 import makeBlockie from 'ethereum-blockies-base64'
+import { useLocation } from 'react-router'
 
 /* import managers */
 import { useWallet } from '../../context/WalletManager'
 import { useCachedData } from '../../context/CachedDataManager'
 import { useNetwork } from '../../context/NetworkManager'
+import { useGeneral } from '../../context/GeneralProvider'
 
 /* import components */
-import { Heading4 } from '../atoms/Typography'
-import { SmallBox } from '../atoms/Box'
+import { Text } from '../atoms/Typography'
 import { UserImage } from '../atoms/User'
-import { WalletConnectButton } from '../molecules/WalletConnectButton'
-import { TransactionHistoryButton } from '../molecules/TransactionHistoryButton'
-import { NetworkConnectButton } from '../molecules/NetworkConnectButton'
+import { Button, ButtonProps } from '../atoms/Button'
+import { FlexCol, FlexRow } from '../atoms/Layout'
+import { StyledNetworkChart, StyledWallet } from '../atoms/Icon'
+import { GeneralElementProps } from '../generalInterfaces'
 
 /* import hooks */
 import { useNativeTokenBalance } from '../../hooks/useBalance'
 
 /* import utils */
-import { shortenAddress, fixed } from '../../utils/formatting'
+import { shortenAddress, fixed, capitalizeFirstLetter } from '../../utils/formatting'
 
-export const UserAccount: React.FC = () => {
+export const UserAccount: React.FC<ButtonProps & GeneralElementProps> = (props) => {
   /*************************************************************************************
 
-  custom hooks
+  hooks
 
   *************************************************************************************/
-  const { account } = useWallet()
-  const balance = useNativeTokenBalance()
+  const { appTheme } = useGeneral()
+  const location = useLocation()
   const { activeNetwork } = useNetwork()
-  /*************************************************************************************
+  const { account, name } = useWallet()
+  const { openAccountModal } = useCachedData()
 
-  Render
-  
-  *************************************************************************************/
   return (
-    <>
-      {account && (
-        <>
-          <SmallBox pl={10} navy>
-            <Heading4 high_em autoAlign nowrap>
-              {balance ? `${fixed(balance, 3)} ${activeNetwork.nativeCurrency.symbol}` : ''}
-            </Heading4>
-            <SmallBox ml={10} navy>
-              <Heading4 high_em autoAlign>
-                {shortenAddress(account)}
-              </Heading4>{' '}
-              <UserImage pt={4} pb={4} pl={10}>
-                <img src={makeBlockie(account)} alt={'account'} />
-              </UserImage>
-            </SmallBox>
-          </SmallBox>
-        </>
-      )}
-    </>
+    <Button noborder nohover p={0} onClick={() => openAccountModal()} {...props}>
+      <FlexCol
+        style={{
+          backgroundColor: location.pathname == '/' || appTheme == 'dark' ? 'rgba(0, 0, 0, 0.1)' : 'rgb(242, 242, 242)',
+          borderRadius: '10px',
+          padding: '5px',
+        }}
+      >
+        <FlexRow>
+          <FlexCol>
+            <UserImage pt={4} pb={4} pr={10}>
+              {account ? (
+                <img style={{ borderRadius: '10px' }} src={makeBlockie(account)} alt={'account'} />
+              ) : (
+                <StyledWallet size={40} />
+              )}
+            </UserImage>
+          </FlexCol>
+          <FlexCol style={{ justifyContent: 'space-around' }}>
+            {account ? (
+              <Text textAlignLeft t4 {...props}>
+                {name ?? shortenAddress(account)}
+              </Text>
+            ) : (
+              <Text textAlignLeft t4 {...props}>
+                Not Connected
+              </Text>
+            )}
+            <FlexRow>
+              <StyledNetworkChart size={25} />
+              <Text t4 nowrap mt={5} {...props}>
+                {capitalizeFirstLetter(activeNetwork.name)}
+              </Text>
+            </FlexRow>
+          </FlexCol>
+        </FlexRow>
+      </FlexCol>
+    </Button>
   )
 }
 
-export const Account: React.FC = () => {
+export const MiniUserAccount: React.FC<ButtonProps & GeneralElementProps> = (props) => {
   /*************************************************************************************
 
-  custom hooks
+  hooks
 
   *************************************************************************************/
-  const { localTransactions } = useCachedData()
+  const { appTheme } = useGeneral()
+  const location = useLocation()
   const { account } = useWallet()
-
-  /*************************************************************************************
-
-  Render
-  
-  *************************************************************************************/
+  const { openAccountModal } = useCachedData()
 
   return (
-    <Fragment>
-      <UserAccount />
-      <SmallBox p={0} transparent>
-        <NetworkConnectButton pl={10} pr={10} />
-      </SmallBox>
-      <SmallBox p={0} transparent>
-        <WalletConnectButton pl={10} pr={10} />
-      </SmallBox>
-      {account && (
-        <SmallBox p={0} transparent glow={localTransactions.length > 0}>
-          <TransactionHistoryButton pl={10} pr={10} />
-        </SmallBox>
-      )}
-    </Fragment>
+    <Button noborder nohover p={0} onClick={() => openAccountModal()} {...props}>
+      <FlexCol
+        style={{
+          backgroundColor: location.pathname == '/' || appTheme == 'dark' ? 'rgba(0, 0, 0, 0.1)' : 'rgb(242, 242, 242)',
+          borderRadius: '10px',
+          padding: '5px',
+        }}
+      >
+        <UserImage style={{ width: '30px', height: '30px' }}>
+          {account ? (
+            <img style={{ borderRadius: '10px' }} src={makeBlockie(account)} alt={'account'} />
+          ) : (
+            <StyledWallet size={30} />
+          )}
+        </UserImage>
+      </FlexCol>
+    </Button>
   )
 }

@@ -63,4 +63,5 @@ export const Search = styled.input`
 
 export const StyledSlider = styled(Slider)`
   background-color: ${({ theme }) => theme.input.slider_color} !important;
+  color: ${({ theme }) => theme.input.slider_node_color} !important;
 `

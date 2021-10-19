@@ -2,16 +2,17 @@ import styled, { css } from 'styled-components'
 import { GeneralElementCss, GeneralElementProps } from '../../generalInterfaces'
 import { ClickProps } from '../Button'
 import { FlexCol } from '../Layout'
-import { MAX_MOBILE_SCREEN_WIDTH } from '../../../constants'
+import { BKPT_3, BKPT_4 } from '../../../constants'
 import { GeneralTextProps, GeneralTextCss } from '../Typography'
 
 interface CardProps extends ClickProps, GeneralElementProps {
   transparent?: boolean
   canHover?: boolean
   fade?: boolean
-  blue?: boolean
-  purple?: boolean
+  color1?: boolean
+  color2?: boolean
   glow?: boolean
+  isHighlight?: boolean
 }
 
 interface CardContainerProps extends GeneralElementProps {
@@ -21,11 +22,13 @@ interface CardContainerProps extends GeneralElementProps {
 const CardCss = css<CardProps>`
   border-radius: 10px;
   padding: 24px;
-  background-color: ${({ theme }) => theme.card.bg_color};
-  ${(props) => props.blue && `background-color: ${props.theme.card.blue};`}
-  ${(props) => props.purple && `background-color:${props.theme.card.purple};`}
-  ${(props) => props.transparent && `background-color: rgba(255, 255, 255, 0);`}
-  ${(props) => props.fade && `background-color: ${props.theme.card.fade};`}
+  background: ${({ theme }) => theme.card.bg_color_0};
+  ${(props) => props.color1 && `background: ${props.theme.card.bg_color_1};`}
+  ${(props) => props.color2 && `background: ${props.theme.card.bg_color_2};`}
+  ${(props) => props.isHighlight && `background: ${props.theme.table.highlight_bg_color};`}}
+
+  ${(props) => props.transparent && `background: rgba(255, 255, 255, 0);`}
+  ${(props) => props.fade && `background: ${props.theme.card.fade};`}
   ${(props) =>
     props.canHover &&
     `cursor: pointer; &:hover { background-color: ${props.theme.card.hover_color}; transition: background-color 200ms linear; }`}
@@ -39,11 +42,11 @@ export const CardContainer = styled.div<CardContainerProps & GeneralTextProps>`
   ${GeneralTextCss}
   ${GeneralElementCss}
 
-  @media screen and (max-width: 900px) {
+  @media screen and (max-width: ${BKPT_4}px) {
     grid-template-columns: repeat(${(props) => (props.cardsPerRow ? props.cardsPerRow - 1 : '2')}, 1fr);
   }
 
-  @media screen and (max-width: ${MAX_MOBILE_SCREEN_WIDTH}px) {
+  @media screen and (max-width: ${BKPT_3}px) {
     grid-template-columns: repeat(${(props) => (props.cardsPerRow ? props.cardsPerRow - 2 : '1')}, 1fr);
   }
 `

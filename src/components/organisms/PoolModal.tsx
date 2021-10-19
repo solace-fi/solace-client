@@ -10,13 +10,12 @@
     import hooks
     import utils
 
-    PoolModal function
-      custom hooks
+    PoolModal
+      hooks
       contract functions
       local functions
       useEffect hooks
       functional components
-      Render
 
   *************************************************************************************/
 
@@ -58,7 +57,7 @@ import { Button, ButtonWrapper } from '../atoms/Button'
 import { Loader } from '../atoms/Loader'
 import { Card } from '../atoms/Card'
 import { Box, BoxItem, BoxItemTitle } from '../atoms/Box'
-import { Heading3, Text4 } from '../atoms/Typography'
+import { Text } from '../atoms/Typography'
 import { NftPosition } from '../molecules/NftPosition'
 import { StyledSelect } from '../molecules/Select'
 import { GeneralElementProps } from '../generalInterfaces'
@@ -87,23 +86,26 @@ interface PoolModalProps {
 export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, closeModal }) => {
   /*************************************************************************************
 
-  custom hooks
+  hooks
 
   *************************************************************************************/
 
-  const { errors } = useGeneral()
+  const { haveErrors, appTheme } = useGeneral()
   const { vault, cpFarm, lpFarm, lpToken } = useContracts()
   const { activeNetwork, currencyDecimals, chainId } = useNetwork()
+  const { addLocalTransactions, reload, gasPrices } = useCachedData()
   const { account, library } = useWallet()
-  const [amount, setAmount] = useState<string>('')
-  const [isStaking, setIsStaking] = useState<boolean>(false)
   const cpUserStakeValue = useUserStakedValue(cpFarm, account)
   const lpUserStakeValue = useUserStakedValue(lpFarm, account)
   const nativeTokenBalance = useNativeTokenBalance()
   const scpBalance = useScpBalance()
   const userLpTokenInfo = useUserWalletLpBalance()
   const depositedLpTokenInfo = useDepositedLpBalance()
-  const { addLocalTransactions, reload, gasPrices } = useCachedData()
+  const { makeTxToast } = useToasts()
+  const { cooldownStarted, timeWaited, cooldownMin, cooldownMax, canWithdrawEth } = useCooldown()
+
+  const [amount, setAmount] = useState<string>('')
+  const [isStaking, setIsStaking] = useState<boolean>(false)
   const [selectedGasOption, setSelectedGasOption] = useState<GasFeeOption | undefined>(gasPrices.selected)
   const { gasConfig } = useGasConfig(selectedGasOption ? selectedGasOption.value : null)
   const [maxSelected, setMaxSelected] = useState<boolean>(false)
@@ -111,8 +113,6 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
   const [contractForAllowance, setContractForAllowance] = useState<Contract | null>(null)
   const [spenderAddress, setSpenderAddress] = useState<string | null>(null)
   const tokenAllowance = useTokenAllowance(contractForAllowance, spenderAddress)
-  const { makeTxToast } = useToasts()
-  const { cooldownStarted, timeWaited, cooldownMin, cooldownMax, canWithdrawEth } = useCooldown()
   const [nftId, setNftId] = useState<BN>(ZERO)
   const [nftSelection, setNftSelection] = useState<{ value: string; label: string }>({ value: '', label: '' })
 
@@ -545,24 +545,16 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
     <RadioCircle style={{ justifyContent: 'center' }}>
       <RadioCircleInput type="checkbox" checked={isStaking} onChange={(e) => setIsStaking(e.target.checked)} />
       <RadioCircleFigure />
-      <div>Automatically stake</div>
+      <Text info={appTheme == 'light'}>Earn Solace token options as a reward</Text>
     </RadioCircle>
   )
-
-  /*************************************************************************************
-
-  Render
-
-  *************************************************************************************/
 
   return (
     <Modal isOpen={isOpen} handleClose={handleClose} modalTitle={modalTitle} disableCloseButton={modalLoading}>
       <Fragment>
         {func == FunctionName.DEPOSIT_SIGNED || func == FunctionName.WITHDRAW_LP ? (
           <ModalRow style={{ display: 'block' }}>
-            <ModalCell t2 high_em>
-              {getUnit(func, activeNetwork)}
-            </ModalCell>
+            <ModalCell t2>{getUnit(func, activeNetwork)}</ModalCell>
             <ModalCell style={{ display: 'block' }}>
               <StyledSelect
                 value={nftSelection}
@@ -579,9 +571,7 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
           </ModalRow>
         ) : (
           <ModalRow>
-            <ModalCell t2 high_em>
-              {getUnit(func, activeNetwork)}
-            </ModalCell>
+            <ModalCell t2>{getUnit(func, activeNetwork)}</ModalCell>
             <ModalCell>
               <Input
                 widthP={100}
@@ -606,11 +596,12 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
             </ModalCell>
             <ModalCell t3>
               <Button
-                disabled={errors.length > 0}
+                disabled={haveErrors}
                 onClick={() => {
                   setAmount(calculateMaxEth().toString())
                   setMaxSelected(true)
                 }}
+                info
               >
                 MAX
               </Button>
@@ -640,8 +631,9 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
                     <ButtonWrapper>
                       <Button
                         widthP={100}
-                        disabled={(isAppropriateAmount() ? false : true) || errors.length > 0}
+                        disabled={(isAppropriateAmount() ? false : true) || haveErrors}
                         onClick={() => approve()}
+                        info
                       >
                         Approve
                       </Button>
@@ -657,9 +649,10 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
                         tokenAllowance,
                         amount && amount != '.' ? parseUnits(amount, currencyDecimals).toString() : '0'
                       ) ||
-                      errors.length > 0
+                      haveErrors
                     }
                     onClick={handleCallbackFunc}
+                    info
                   >
                     Confirm
                   </Button>
@@ -668,55 +661,50 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
             ) : func == FunctionName.WITHDRAW_ETH ? (
               <>
                 {canWithdrawEth && (
-                  <Box green glow mt={20} mb={20}>
-                    <Heading3 autoAlign high_em>
+                  <Box success glow mt={20} mb={20}>
+                    <Text t3 bold autoAlign>
                       You can withdraw now!
-                    </Heading3>
+                    </Text>
                   </Box>
                 )}
                 {cooldownStarted && timeWaited < cooldownMin && (
                   <Box mt={20} mb={20}>
-                    <Heading3 autoAlign high_em>
+                    <Text t3 bold autoAlign>
                       Cooldown Elapsing...
-                    </Heading3>
+                    </Text>
                   </Box>
                 )}
-                <Box navy>
+                <Box info>
                   <BoxItem>
-                    <BoxItemTitle h4 textAlignCenter>
+                    <BoxItemTitle t4 textAlignCenter light>
                       Min Cooldown
                     </BoxItemTitle>
-                    <Text4 textAlignCenter high_em>
+                    <Text t4 textAlignCenter light>
                       {getTimeFromMillis(cooldownMin)}
-                    </Text4>
+                    </Text>
                   </BoxItem>
                   {cooldownStarted && (
                     <BoxItem>
-                      <BoxItemTitle h4 textAlignCenter>
+                      <BoxItemTitle t4 textAlignCenter light>
                         Time waited
                       </BoxItemTitle>
-                      <Text4 textAlignCenter high_em green={canWithdrawEth}>
+                      <Text t4 textAlignCenter success={canWithdrawEth} light={!canWithdrawEth}>
                         {timeToDate(timeWaited)}
-                      </Text4>
+                      </Text>
                     </BoxItem>
                   )}
                   <BoxItem>
-                    <BoxItemTitle h4 textAlignCenter>
+                    <BoxItemTitle t4 textAlignCenter light>
                       Max Cooldown
                     </BoxItemTitle>
-                    <Text4 textAlignCenter high_em>
+                    <Text t4 textAlignCenter light>
                       {getTimeFromMillis(cooldownMax)}
-                    </Text4>
+                    </Text>
                   </BoxItem>
                 </Box>
                 {!canWithdrawEth && (
                   <ButtonWrapper>
-                    <Button
-                      widthP={100}
-                      hidden={modalLoading}
-                      disabled={errors.length > 0}
-                      onClick={handleCallbackFunc}
-                    >
+                    <Button widthP={100} hidden={modalLoading} disabled={haveErrors} onClick={handleCallbackFunc} info>
                       {!cooldownStarted
                         ? 'Start cooldown'
                         : timeWaited < cooldownMin
@@ -732,8 +720,9 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
                     <Button
                       widthP={100}
                       hidden={modalLoading}
-                      disabled={(isAppropriateAmount() ? false : true) || errors.length > 0}
+                      disabled={(isAppropriateAmount() ? false : true) || haveErrors}
                       onClick={handleCallbackFunc}
+                      info
                     >
                       Withdraw
                     </Button>
@@ -745,8 +734,9 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
                 <Button
                   widthP={100}
                   hidden={modalLoading}
-                  disabled={(isAppropriateAmount() ? false : true) || errors.length > 0}
+                  disabled={(isAppropriateAmount() ? false : true) || haveErrors}
                   onClick={handleCallbackFunc}
+                  info
                 >
                   Confirm
                 </Button>

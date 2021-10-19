@@ -3,18 +3,19 @@
     Table of Contents:
 
     import react
-    import manager
+    import packages
+    import managers
     import components
 
-    LayoutContentWithLoader function
-      custom hooks
-      useState hooks
-      useEffect hooks
-      Render
+    LayoutContentWithLoader
+      hooks
 
   *************************************************************************************/
 /* import react */
 import React, { Fragment, useEffect, useState } from 'react'
+
+/* import packages */
+import { useLocation } from 'react-router'
 
 /* import managers */
 import { useWallet } from '../../context/WalletManager'
@@ -24,21 +25,17 @@ import { Loader } from '../atoms/Loader'
 import { HeroContainer } from '../atoms/Layout'
 
 export const LayoutContentWithLoader: React.FC = ({ children }) => {
-  /* custom hooks */
+  /* hooks */
   const { initialized } = useWallet()
-
-  /* useState hooks */
+  const location = useLocation()
   const [loader, setLoader] = useState<boolean>(false)
-
-  /* useEffecthooks */
   useEffect(() => {
     setLoader(initialized)
   }, [initialized])
 
-  /* render */
   return (
     <Fragment>
-      {loader ? (
+      {loader || location.pathname == '/' ? (
         children
       ) : (
         <HeroContainer>

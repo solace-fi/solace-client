@@ -9,11 +9,10 @@
     import constants
     import hooks
 
-    ScaledContainer component
-    NftPosition function
-      custom hooks
-      useEffect hook
-      Render
+    ScaledContainer
+
+    NftPosition
+      hooks
 
   *************************************************************************************/
 
@@ -32,7 +31,7 @@ import { useContracts } from '../../context/ContractsManager'
 import { Loader } from '../atoms/Loader'
 
 /* import constants */
-import { MAX_MOBILE_SCREEN_WIDTH, ZERO } from '../../constants'
+import { BKPT_3, ZERO } from '../../constants'
 
 /* import hooks */
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'
@@ -51,18 +50,13 @@ const ScaledContainer = styled.div`
 export const NftPosition: React.FC<NftPositionProps> = ({ tokenId }) => {
   /*************************************************************************************
 
-  custom hooks
+  hooks
 
   *************************************************************************************/
   const { width } = useWindowDimensions()
   const { lpToken } = useContracts()
   const [image, setImage] = useState<any>(null)
 
-  /*************************************************************************************
-
-  useEffect hooks
-
-  *************************************************************************************/
   useEffect(() => {
     const getUri = async () => {
       if (!lpToken || tokenId.eq(ZERO)) return
@@ -74,21 +68,16 @@ export const NftPosition: React.FC<NftPositionProps> = ({ tokenId }) => {
     getUri()
   }, [lpToken, tokenId])
 
-  /*************************************************************************************
-
-  Render
-  
-  *************************************************************************************/
-
   return (
     <>
       {image ? (
         <Tilt style={{ textAlign: 'center' }}>
-          {width > MAX_MOBILE_SCREEN_WIDTH ? (
+          {width > BKPT_3 ? (
             <ScaledContainer>
               <img src={image} style={{ width: '80%' }} />
             </ScaledContainer>
           ) : (
+            // mobile version
             <img src={image} style={{ width: '80%' }} />
           )}
         </Tilt>

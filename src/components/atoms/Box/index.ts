@@ -2,12 +2,13 @@ import styled, { css } from 'styled-components'
 import { Box as RebassBox } from 'rebass/styled-components'
 import { GeneralTextProps, GeneralTextCss } from '../Typography'
 import { GeneralElementProps, GeneralElementCss } from '../../generalInterfaces'
-import { MAX_TABLET_SCREEN_WIDTH, MOBILE_SCREEN_MARGIN } from '../../../constants'
+import { BKPT_5 } from '../../../constants'
 
 interface BoxProps {
-  purple?: boolean
-  green?: boolean
-  navy?: boolean
+  color1?: boolean
+  color2?: boolean
+  success?: boolean
+  info?: boolean
   transparent?: boolean
   outlined?: boolean
   glow?: boolean
@@ -16,16 +17,18 @@ interface BoxProps {
 
 interface SmallBoxProps {
   error?: boolean
+  canHover?: boolean
   collapse?: boolean
 }
 
 const BoxCss = css<GeneralElementProps & BoxProps>`
-  background-color: ${({ theme }) => theme.box.bg_color};
-  ${(props) => props.transparent && 'background-color: rgba(0, 0, 0, 0);'}
+  background: ${({ theme }) => theme.box.bg_color_1};
+  ${(props) => props.transparent && 'background: rgba(0, 0, 0, 0);'}
   ${(props) => props.outlined && BoxOutline}
-  ${(props) => props.purple && `background-color: ${props.theme.box.purple};`}
-  ${(props) => props.green && `background-color: ${props.theme.box.green};`}
-  ${(props) => props.navy && `background-color: ${props.theme.box.navy};`}
+  ${(props) => props.color1 && `background: ${props.theme.box.bg_color_1};`}
+  ${(props) => props.color2 && `background: ${props.theme.box.bg_color_2};`}
+  ${(props) => props.success && `background: ${props.theme.box.success};`}
+  ${(props) => props.info && `background: ${props.theme.box.info};`}
   ${(props) => props.glow && `box-shadow: ${props.theme.box.glow};`}
   ${(props) => props.shadow && `box-shadow: ${props.theme.box.shadow};`}
   ${GeneralElementCss}
@@ -51,9 +54,9 @@ export const BoxRow = styled(BoxBase)`
   padding: 20px 0;
   justify-content: space-between;
 
-  @media screen and (max-width: ${MAX_TABLET_SCREEN_WIDTH}px) {
+  @media screen and (max-width: ${BKPT_5}px) {
     flex-direction: column;
-    padding: 20px ${MOBILE_SCREEN_MARGIN}px;
+    padding: 20px;
     gap: 10px;
   }
 `
@@ -77,7 +80,7 @@ export const Box = styled(BoxRow)<BoxProps & GeneralElementProps>`
       : `padding: 24px 15px;`}
   ${BoxCss}
 
-  @media screen and (max-width: ${MAX_TABLET_SCREEN_WIDTH}px) {
+  @media screen and (max-width: ${BKPT_5}px) {
     flex-direction: row;
   }
 `
@@ -104,7 +107,8 @@ export const SmallBox = styled.div<BoxProps & SmallBoxProps & GeneralElementProp
   ${(props) => (props.collapse ? `transform: scaleY(0); height: 0;` : `transform: scaleY(1);`)}
   transition: all 200ms ease;
   ${BoxCss}
-  ${(props) => props.error && `border-color: ${props.theme.box.smallbox_border_color};`}
+  ${(props) => props.error && `border-color: ${props.theme.typography.errorText};`}
+  ${(props) => props.canHover && `&:hover { filter: brightness(1.5); }`}
 `
 
 export const BoxItem = styled.div`

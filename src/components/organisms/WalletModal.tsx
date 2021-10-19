@@ -7,10 +7,9 @@
     import components
     import wallets
 
-    WalletModal function
-      custom hooks
+    WalletModal
+      hooks
       local functions
-      Render
 
   *************************************************************************************/
 
@@ -23,14 +22,15 @@ import { useWallet } from '../../context/WalletManager'
 /* import components */
 import { Card, CardContainer } from '../atoms/Card'
 import { ModalCell } from '../atoms/Modal'
-import { Heading4 } from '../atoms/Typography'
+import { Text } from '../atoms/Typography'
 import { Modal } from '../molecules/Modal'
 import { FormRow } from '../atoms/Form'
 import { Button, ButtonWrapper } from '../atoms/Button'
+import { Scrollable } from '../atoms/Layout'
+import { LedgerDerivationPathModal } from './LedgerDerivationPathModal'
 
 /* import wallets */
 import { SUPPORTED_WALLETS } from '../../wallet/'
-import { LedgerDerivationPathModal } from './LedgerDerivationPathModal'
 
 interface WalletModalProps {
   closeModal: () => void
@@ -48,7 +48,7 @@ const InitialState: ConnectWalletModalState = {
 export const WalletModal: React.FC<WalletModalProps> = ({ closeModal, isOpen }) => {
   /************************************************************************************* 
     
-  custom hooks
+  hooks
 
   *************************************************************************************/
   const { changeWallet, disconnect, activeWalletConnector } = useWallet()
@@ -75,38 +75,44 @@ export const WalletModal: React.FC<WalletModalProps> = ({ closeModal, isOpen }) 
 
     await changeWallet(foundWalletConnector)
   }, [])
-  /************************************************************************************* 
-    
-  Render
 
-  *************************************************************************************/
   return (
-    <Modal handleClose={handleClose} isOpen={isOpen} modalTitle={'Connect a wallet'} disableCloseButton={false}>
-      <CardContainer cardsPerRow={2}>
-        {SUPPORTED_WALLETS.map((wallet) => (
-          <Card
-            canHover
-            pt={5}
-            pb={5}
-            pl={30}
-            pr={30}
-            key={wallet.id}
-            onClick={() => connectWallet(wallet.id)}
-            glow={wallet.id == activeWalletConnector?.id}
-            blue={wallet.id == activeWalletConnector?.id}
-            style={{ display: 'flex', justifyContent: 'center' }}
-          >
-            <FormRow mb={0}>
-              <ModalCell p={10}>
-                <img src={wallet.logo} alt={wallet.name} height={32} />
-              </ModalCell>
-              <ModalCell p={10}>
-                <Heading4 high_em>{wallet.name}</Heading4>
-              </ModalCell>
-            </FormRow>
-          </Card>
-        ))}
-      </CardContainer>
+    <Modal
+      zIndex={3}
+      handleClose={handleClose}
+      isOpen={isOpen}
+      modalTitle={'Connect a wallet'}
+      disableCloseButton={false}
+    >
+      <Scrollable maxMobileHeight={60}>
+        <CardContainer cardsPerRow={2}>
+          {SUPPORTED_WALLETS.map((wallet) => (
+            <Card
+              canHover
+              pt={5}
+              pb={5}
+              pl={30}
+              pr={30}
+              key={wallet.id}
+              onClick={() => connectWallet(wallet.id)}
+              glow={wallet.id == activeWalletConnector?.id}
+              color1={wallet.id == activeWalletConnector?.id}
+              style={{ display: 'flex', justifyContent: 'center' }}
+            >
+              <FormRow mb={0}>
+                <ModalCell p={10}>
+                  <img src={wallet.logo} alt={wallet.name} height={32} />
+                </ModalCell>
+                <ModalCell p={10}>
+                  <Text t4 bold light={wallet.id == activeWalletConnector?.id}>
+                    {wallet.name}
+                  </Text>
+                </ModalCell>
+              </FormRow>
+            </Card>
+          ))}
+        </CardContainer>
+      </Scrollable>
       {activeWalletConnector && (
         <ButtonWrapper>
           <Button widthP={100} onClick={() => disconnect()}>

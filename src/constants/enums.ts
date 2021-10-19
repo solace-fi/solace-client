@@ -36,6 +36,10 @@ export enum FunctionName {
   MULTI_CALL = 'Multicall',
   START_COOLDOWN = 'StartCooldown',
   STOP_COOLDOWN = 'StopCooldown',
+
+  // TODO: include in transaction history retrieval
+  EXERCISE_OPTION = 'ExerciseOption',
+  FARM_OPTION_MULTI = 'FarmOptionMulti',
 }
 
 export enum ExplorerscanApi {
@@ -47,7 +51,7 @@ export enum ExplorerscanApi {
 export enum Unit {
   ETH = 'ETH',
   MATIC = 'MATIC',
-  SCP = 'Solace CP Token',
+  SCP = 'CP Token',
   SOLACE = 'SOLACE',
   LP = 'LP Token',
   ID = 'ID',
@@ -60,8 +64,19 @@ export enum PolicyState {
 }
 
 export enum ProductName {
-  COMPOUND = 'Compound',
   AAVE = 'Aave',
-  WAAVE = 'Waave',
+  COMPOUND = 'Compound',
+  CURVE = 'Curve',
   LIQUITY = 'Liquity',
+  SUSHISWAP = 'Sushiswap',
+  UNISWAP_V2 = 'UniswapV2',
+  UNISWAP_V3 = 'UniswapV3',
+  WAAVE = 'Waave',
+  YEARN = 'Yearn',
+}
+
+export enum PositionType {
+  TOKEN = 'token',
+  LQTY = 'liquity',
+  OTHER = 'other',
 }

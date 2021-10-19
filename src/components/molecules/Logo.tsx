@@ -6,7 +6,7 @@
     import components
     import resources
 
-    Logo function
+    Logo
       Render
 
   *************************************************************************************/
@@ -17,19 +17,50 @@ import React from 'react'
 /* import components */
 import { LogoBase } from '../atoms/Logo'
 import { GeneralElementProps } from '../generalInterfaces'
+import { StyledNavLink } from '../atoms/Link'
 
 /* import resources */
-import logo from '../../resources/solace.png'
+import coloredLogo from '../../resources/svg/solace-logo-color.svg'
+import whiteLogo from '../../resources/svg/solace-logo-white.svg'
+import coloredCircle from '../../resources/svg/solace-circle-color.svg'
+import whiteCircle from '../../resources/svg/solace-circle-white.svg'
 
-export const Logo: React.FC<GeneralElementProps> = ({ ...props }) => {
+interface LogoProps {
+  location: any
+}
+
+export const Logo: React.FC<GeneralElementProps & LogoProps> = ({ ...props }) => {
   /*************************************************************************************
 
     Render
 
   *************************************************************************************/
   return (
-    <LogoBase href={`https://solace.fi/`} target="_blank" rel="noopener noreferrer" {...props}>
-      <img src={logo} alt="Solace | Decentralized Coverage Protocol" />
-    </LogoBase>
+    <StyledNavLink to="/">
+      <LogoBase {...props}>
+        <img
+          src={props.location.pathname !== '/' ? coloredLogo : whiteLogo}
+          alt="Solace | Decentralized Coverage Protocol"
+        />
+      </LogoBase>
+    </StyledNavLink>
+  )
+}
+
+export const MiniLogo: React.FC<GeneralElementProps & LogoProps> = ({ ...props }) => {
+  /*************************************************************************************
+
+    Render
+
+  *************************************************************************************/
+  return (
+    <StyledNavLink to="/" style={{ margin: 'auto' }}>
+      <LogoBase {...props} width={40}>
+        <img
+          src={props.location.pathname !== '/' ? coloredCircle : whiteCircle}
+          alt="Solace | Decentralized Coverage Protocol"
+        />
+      </LogoBase>
+    </StyledNavLink>
   )
 }

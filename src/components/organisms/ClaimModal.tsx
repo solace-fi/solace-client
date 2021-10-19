@@ -10,13 +10,11 @@
     import hooks
     import utils
 
-    ClaimModal function
-      useState hooks
-      custom hooks
+    ClaimModal
+      hooks
       contract functions
       local functions
       useEffect hooks
-      Render
 
   *************************************************************************************/
 
@@ -25,6 +23,7 @@ import React, { Fragment, useCallback, useEffect, useState, useRef } from 'react
 
 /* import packages */
 import { formatUnits } from '@ethersproject/units'
+import { Block } from '@ethersproject/contracts/node_modules/@ethersproject/abstract-provider'
 
 /* import managers */
 import { useCachedData } from '../../context/CachedDataManager'
@@ -36,22 +35,23 @@ import { useGeneral } from '../../context/GeneralProvider'
 /* import components */
 import { Modal } from '../molecules/Modal'
 import { FormRow, FormCol } from '../atoms/Form'
-import { Heading4, Heading2, Text4 } from '../atoms/Typography'
+import { Text } from '../atoms/Typography'
 import { PolicyModalInfo } from './PolicyModalInfo'
 import { Loader } from '../atoms/Loader'
 import { SmallBox, Box } from '../atoms/Box'
 import { Button, ButtonWrapper } from '../atoms/Button'
 import { Table, TableBody, TableRow, TableData } from '../atoms/Table'
+import { HyperLink } from '../atoms/Link'
 
 /* import constants */
 import { FunctionName, TransactionCondition, Unit } from '../../constants/enums'
-import { GAS_LIMIT, MAX_MOBILE_SCREEN_WIDTH } from '../../constants'
+import { GAS_LIMIT, BKPT_3 } from '../../constants'
 import { Policy, ClaimAssessment } from '../../constants/types'
 
 /* import hooks */
 import { useGetCooldownPeriod } from '../../hooks/useClaimsEscrow'
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'
-import { useAppraisePosition } from '../../hooks/usePolicy'
+import { useAppraisePolicyPosition } from '../../hooks/usePolicy'
 import { useGasConfig } from '../../hooks/useGas'
 
 /* import utils */
@@ -62,40 +62,33 @@ import { getClaimAssessment } from '../../utils/paclas'
 interface ClaimModalProps {
   closeModal: () => void
   isOpen: boolean
-  latestBlock: number
+  latestBlock: Block | undefined
   selectedPolicy: Policy | undefined
 }
 
 export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, closeModal, latestBlock }) => {
   /*************************************************************************************
 
-    useState hooks
+    hooks
 
   *************************************************************************************/
   const [modalLoading, setModalLoading] = useState<boolean>(true)
   const [claimSubmitted, setClaimSubmitted] = useState<boolean>(false)
   const [assessment, setAssessment] = useState<ClaimAssessment | undefined>(undefined)
-
-  /*************************************************************************************
-
-    custom hooks
-
-  *************************************************************************************/
-
   const cooldown = useGetCooldownPeriod()
   const { addLocalTransactions, reload, gasPrices, userPolicyData } = useCachedData()
   const { selectedProtocol } = useContracts()
   const { makeTxToast } = useToasts()
-  const { errors } = useGeneral()
+  const { haveErrors } = useGeneral()
   const { activeNetwork, currencyDecimals, chainId } = useNetwork()
   const { width } = useWindowDimensions()
   const { gasConfig } = useGasConfig(gasPrices.selected?.value)
-  const appraisal = useAppraisePosition(selectedPolicy)
+  const appraisal = useAppraisePolicyPosition(selectedPolicy)
   const mounting = useRef(true)
 
   /*************************************************************************************
 
-    Contract functions
+    contract functions
 
   *************************************************************************************/
 
@@ -173,12 +166,6 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
     loadOverTime()
   }, [selectedPolicy])
 
-  /*************************************************************************************
-
-    Render
-
-  *************************************************************************************/
-
   return (
     <Modal isOpen={isOpen} handleClose={handleClose} modalTitle={'Policy Claim'} disableCloseButton={modalLoading}>
       <Fragment>
@@ -186,77 +173,94 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
         {!modalLoading ? (
           assessment ? (
             <Fragment>
+              {width > BKPT_3 && (
+                <FormRow mb={0}>
+                  <FormCol>
+                    <Text t4 autoAlign nowrap>
+                      By submitting a claim, you receive
+                    </Text>
+                  </FormCol>
+                  <FormCol></FormCol>
+                </FormRow>
+              )}
               <FormRow mb={0}>
                 <FormCol>
-                  <Text4 autoAlign nowrap>
-                    {width > MAX_MOBILE_SCREEN_WIDTH ? 'By submitting a claim, you receive' : null}
-                  </Text4>
-                </FormCol>
-                <FormCol></FormCol>
-              </FormRow>
-              <FormRow mb={0}>
-                <FormCol>
-                  <Text4 autoAlign nowrap>
-                    {width > MAX_MOBILE_SCREEN_WIDTH ? 'pre-exploit assets value equal to' : 'Receiving'}
-                  </Text4>
+                  <Text t4 autoAlign nowrap>
+                    {width > BKPT_3 ? 'pre-exploit assets value equal to' : 'Receiving'}
+                  </Text>
                 </FormCol>
                 <FormCol>
-                  <Heading2 autoAlign high_em>
+                  <Text bold t2 autoAlign>
                     {truncateBalance(formatUnits(assessment.amountOut || 0, currencyDecimals))}{' '}
                     {activeNetwork.nativeCurrency.symbol}
-                  </Heading2>
+                  </Text>
                 </FormCol>
               </FormRow>
+              <SmallBox style={{ justifyContent: 'center' }} transparent mt={10}>
+                <Text t4 bold warning textAlignCenter>
+                  Please wait for the cooldown period to elapse before withdrawing your payout.
+                </Text>
+              </SmallBox>
+              <Table isHighlight light>
+                <TableBody>
+                  <TableRow>
+                    <TableData>
+                      <Text t2 light>
+                        Current Cooldown Period
+                      </Text>
+                    </TableData>
+                    <TableData textAlignRight>
+                      <Text t2 light>
+                        {timeToDateText(parseInt(cooldown) * 1000)}
+                      </Text>
+                    </TableData>
+                  </TableRow>
+                </TableBody>
+              </Table>
               <SmallBox
                 style={{ justifyContent: 'center' }}
                 transparent
                 mt={!assessment.lossEventDetected ? 10 : 0}
                 collapse={assessment.lossEventDetected}
               >
-                <Heading4 error={!assessment.lossEventDetected} textAlignCenter>
+                <Text t4 bold error={!assessment.lossEventDetected} textAlignCenter>
                   No loss event detected, unable to submit claims yet.
-                </Heading4>
+                </Text>
               </SmallBox>
               {claimSubmitted ? (
-                <Box purple mt={20} mb={20}>
-                  <Heading2 high_em autoAlign>
+                <Box color2 mt={20} mb={20}>
+                  <Text bold t2 autoAlign>
                     Claim has been validated and payout submitted to the escrow.
-                  </Heading2>
+                  </Text>
                 </Box>
               ) : (
-                <ButtonWrapper>
+                <ButtonWrapper isColumn={width < BKPT_3}>
                   <Button
                     widthP={100}
-                    disabled={errors.length > 0 || !assessment.lossEventDetected}
+                    disabled={haveErrors || !assessment.lossEventDetected}
                     onClick={() => submitClaim()}
+                    info
                   >
                     Submit Claim
                   </Button>
+                  <HyperLink
+                    href={'https://docs.solace.fi'}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{ width: '100%' }}
+                  >
+                    <Button widthP={100} disabled={haveErrors || !assessment.lossEventDetected} info>
+                      Dispute Claim
+                    </Button>
+                  </HyperLink>
                 </ButtonWrapper>
               )}
-              <SmallBox style={{ justifyContent: 'center' }} transparent>
-                <Heading4 warning textAlignCenter>
-                  Please wait for the cooldown period to elapse before withdrawing your payout.
-                </Heading4>
-              </SmallBox>
-              <Table isHighlight>
-                <TableBody>
-                  <TableRow>
-                    <TableData t2 high_em>
-                      Current Cooldown Period
-                    </TableData>
-                    <TableData h2 high_em textAlignRight>
-                      {timeToDateText(parseInt(cooldown) * 1000)}
-                    </TableData>
-                  </TableRow>
-                </TableBody>
-              </Table>
             </Fragment>
           ) : (
             <Box transparent mt={20} mb={20}>
-              <Heading2 high_em autoAlign error>
+              <Text bold t2 autoAlign error>
                 Claim assessment data not found.
-              </Heading2>
+              </Text>
             </Box>
           )
         ) : (

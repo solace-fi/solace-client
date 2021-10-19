@@ -4,14 +4,12 @@
 
     import react
     import managers
+    import constants
     import components
-    import utils
+    import hooks
 
-    styled components
-
-    WalletConnectButton function
-      custom hooks
-      Render
+    NetworkConnectButton
+      hooks
 
   *************************************************************************************/
 
@@ -19,36 +17,30 @@
 import React from 'react'
 
 /* import managers */
-import { useNetwork } from '../../context/NetworkManager'
 import { useProvider } from '../../context/ProviderManager'
 
+/* import constants */
+
 /* import components */
-import { Button } from '../atoms/Button'
+import { Button, ButtonProps } from '../atoms/Button'
 import { StyledNetworkChart } from '../atoms/Icon'
 import { GeneralElementProps } from '../generalInterfaces'
 
-/* import utils */
-import { capitalizeFirstLetter } from '../../utils/formatting'
+/* import hooks */
 
-export const NetworkConnectButton: React.FC<GeneralElementProps> = ({ ...props }) => {
+export const NetworkConnectButton: React.FC<GeneralElementProps & ButtonProps> = ({ ...props }) => {
   /*************************************************************************************
 
-    custom hooks
+    hooks
 
   *************************************************************************************/
-  const { activeNetwork } = useNetwork()
   const { openNetworkModal } = useProvider()
 
-  /*************************************************************************************
-
-    Render
-
-  *************************************************************************************/
   return (
     <>
-      <Button onClick={() => openNetworkModal()} {...props}>
+      <Button onClick={() => openNetworkModal()} {...props} style={{ whiteSpace: 'nowrap' }}>
         <StyledNetworkChart size={30} />
-        {capitalizeFirstLetter(activeNetwork.name)}
+        Switch Network
       </Button>
     </>
   )

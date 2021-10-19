@@ -11,9 +11,8 @@
 
     styled components
 
-    Prices function
-      custom hooks
-      Render
+    Prices
+      hooks
 
   *************************************************************************************/
 
@@ -28,12 +27,12 @@ import { useCoingeckoPrice } from '@usedapp/coingecko'
 import { useNetwork } from '../../context/NetworkManager'
 
 /* import constants */
-import { MAX_TABLET_SCREEN_WIDTH } from '../../constants'
+import { BKPT_5 } from '../../constants'
 import { Unit } from '../../constants/enums'
 
 /* import components */
 import { SmallBox } from '../atoms/Box'
-import { Heading4 } from '../atoms/Typography'
+import { Text } from '../atoms/Typography'
 
 /* import hooks */
 import { usePairPrice } from '../../hooks/usePair'
@@ -49,7 +48,7 @@ const Price = styled.div`
   align-content: center;
   flex-grow: 1;
 
-  @media screen and (max-width: ${MAX_TABLET_SCREEN_WIDTH}px) {
+  @media screen and (max-width: ${BKPT_5}px) {
     justify-content: space-evenly;
   }
 `
@@ -62,7 +61,7 @@ const unitToNameMap: any = {
 export const Prices: React.FC = () => {
   /*************************************************************************************
 
-  custom hooks
+  hooks
 
   *************************************************************************************/
   const { activeNetwork } = useNetwork()
@@ -70,31 +69,26 @@ export const Prices: React.FC = () => {
   const nativeToken = activeNetwork.nativeCurrency.symbol
   const coinPrice = useCoingeckoPrice(unitToNameMap[nativeToken], 'usd')
 
-  /*************************************************************************************
-
-  Render
-
-  *************************************************************************************/
   return (
     <Price>
-      <SmallBox pl={10} navy>
-        <Heading4 high_em autoAlign nowrap>
+      <SmallBox pl={10} info>
+        <Text t4 bold autoAlign nowrap>
           SOLACE
-        </Heading4>
-        <SmallBox ml={10} navy>
-          <Heading4 autoAlign green>
+        </Text>
+        <SmallBox ml={10} info>
+          <Text t4 bold autoAlign success>
             {`$${pairPrice}`}
-          </Heading4>
+          </Text>
         </SmallBox>
       </SmallBox>
-      <SmallBox pl={10} navy>
-        <Heading4 high_em autoAlign nowrap>
+      <SmallBox pl={10} info>
+        <Text t4 bold autoAlign nowrap>
           {nativeToken}
-        </Heading4>
-        <SmallBox ml={10} navy>
-          <Heading4 autoAlign green>
+        </Text>
+        <SmallBox ml={10} info>
+          <Text t4 bold autoAlign success>
             ${coinPrice ? coinPrice : '-'}
-          </Heading4>
+          </Text>
         </SmallBox>
       </SmallBox>
     </Price>

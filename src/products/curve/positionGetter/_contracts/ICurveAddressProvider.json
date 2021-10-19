@@ -1,0 +1,24 @@
+{
+  "_format": "hh-sol-artifact-1",
+  "contractName": "ICurveAddressProvider",
+  "sourceName": "contracts/interface/Curve/ICurveAddressProvider.sol",
+  "abi": [
+    {
+      "inputs": [],
+      "name": "get_registry",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "registry",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    }
+  ],
+  "bytecode": "0x",
+  "deployedBytecode": "0x",
+  "linkReferences": {},
+  "deployedLinkReferences": {}
+}

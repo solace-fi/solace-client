@@ -10,9 +10,8 @@
     import hooks
     import utils
 
-    MyInvestments function
-      custom hooks
-      Render
+    MyInvestments
+      hooks
 
   *************************************************************************************/
 
@@ -29,7 +28,7 @@ import { useNetwork } from '../../context/NetworkManager'
 
 /* import components */
 import { Content } from '../atoms/Layout'
-import { Heading1 } from '../atoms/Typography'
+import { Text } from '../atoms/Typography'
 import { CardContainer, InvestmentCard, CardHeader, CardTitle, CardBlock } from '../atoms/Card'
 
 /* import constants */
@@ -47,7 +46,7 @@ import { truncateBalance } from '../../utils/formatting'
 export const MyInvestments: React.FC = () => {
   /*************************************************************************************
 
-    custom hooks
+    hooks
 
   *************************************************************************************/
   const { account } = useWallet()
@@ -61,63 +60,59 @@ export const MyInvestments: React.FC = () => {
   const cpUserRewardsPerDay = useUserRewardsPerDay(1, cpFarm, account)
   const lpUserRewardsPerDay = useUserRewardsPerDay(2, lpFarm, account)
 
-  /*************************************************************************************
-
-    Render
-
-  *************************************************************************************/
-
   return (
     <Content>
-      <Heading1>Your Investments</Heading1>
+      <Text t1 bold>
+        Your Investments
+      </Text>
       <CardContainer>
         <InvestmentCard>
           <CardHeader>
-            <CardTitle t4>Capital Pool</CardTitle>
-            <CardTitle h3 nowrap high_em>
+            <CardTitle t4>Options Farming Pool</CardTitle>
+            <CardTitle t3 nowrap>
               {account ? truncateBalance(cpUserStakeValue, 2) : 0} {activeNetwork.nativeCurrency.symbol}
             </CardTitle>
           </CardHeader>
           <CardBlock>
             <CardTitle t4>Daily Earnings</CardTitle>
-            <CardTitle h3 nowrap high_em>
+            <CardTitle t3 nowrap>
               {account ? truncateBalance(cpUserRewardsPerDay, 2) : 0} {Unit.SOLACE}
             </CardTitle>
           </CardBlock>
           <CardBlock>
             <CardTitle t4>Total Earnings</CardTitle>
-            <CardTitle h3 nowrap high_em>
+            <CardTitle t3 nowrap>
               {account ? truncateBalance(cpUserRewards, 2) : 0} {Unit.SOLACE}
             </CardTitle>
           </CardBlock>
         </InvestmentCard>
-        <InvestmentCard>
+        {/* <InvestmentCard>
           <CardHeader>
             <CardTitle t4>Liquidity Pool</CardTitle>
-            <CardTitle h3 nowrap high_em>
-              {/* {account
+            <CardTitle t3 nowrap>
+              {account
                 ? truncateBalance(
                     formatUnits(depositedLpTokenInfo.reduce((a, b) => a.add(b.value), ZERO).toString(), currencyDecimals),
                     2
                   )
                 : 0}{' '}
-              {Unit.SOLACE} */}
+              {Unit.SOLACE}
               {account ? truncateBalance(lpUserStakeValue, 2) : 0} {Unit.SOLACE}
             </CardTitle>
           </CardHeader>
           <CardBlock>
             <CardTitle t4>Daily Earnings</CardTitle>
-            <CardTitle h3 nowrap high_em>
+            <CardTitle t3 nowrap>
               {account ? truncateBalance(lpUserRewardsPerDay, 2) : 0} {Unit.SOLACE}
             </CardTitle>
           </CardBlock>
           <CardBlock>
             <CardTitle t4>Total Earnings</CardTitle>
-            <CardTitle h3 nowrap high_em>
+            <CardTitle t3 nowrap>
               {account ? truncateBalance(lpUserRewards, 2) : 0} {Unit.SOLACE}
             </CardTitle>
           </CardBlock>
-        </InvestmentCard>
+        </InvestmentCard> */}
       </CardContainer>
     </Content>
   )

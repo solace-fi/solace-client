@@ -7,9 +7,9 @@
     import components
     import wallet
 
-    LedgerDerivationPathModal function
-      custom hooks
-      Local functions
+    LedgerDerivationPathModal
+      hooks
+      local functions
       Render
 
   *************************************************************************************/
@@ -48,7 +48,7 @@ const LEDGER_DERIVATION_PATHS = [
 export const LedgerDerivationPathModal: React.FC<LedgerDerivationPathModalProps> = ({ closeModal, isOpen }) => {
   /*************************************************************************************
 
-  custom hooks
+  hooks
 
   *************************************************************************************/
   const { connect } = useWallet()
@@ -81,11 +81,6 @@ export const LedgerDerivationPathModal: React.FC<LedgerDerivationPathModalProps>
     console.log('successfully connected ledger wallet')
   }
 
-  /*************************************************************************************
-
-  render
-
-  *************************************************************************************/
   return (
     <Modal
       handleClose={handleClose}
@@ -97,7 +92,9 @@ export const LedgerDerivationPathModal: React.FC<LedgerDerivationPathModalProps>
         <StyledSelect value={derivationPath} onChange={handleSelect} options={LEDGER_DERIVATION_PATHS} />
       </ModalRow>
       <ButtonWrapper>
-        <Button onClick={() => handleConnect()}>Connect</Button>
+        <Button onClick={() => handleConnect()} info>
+          Connect
+        </Button>
       </ButtonWrapper>
     </Modal>
   )

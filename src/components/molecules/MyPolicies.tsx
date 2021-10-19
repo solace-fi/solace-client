@@ -10,10 +10,9 @@
     import hooks
     import utils
 
-    MyPolicies function
-      custom hooks
-      Local functions
-      Render
+    MyPolicies
+      hooks
+      local functions
 
   *************************************************************************************/
 
@@ -22,6 +21,7 @@ import React, { Fragment } from 'react'
 
 /* import packages */
 import { formatUnits } from '@ethersproject/units'
+import { Block } from '@ethersproject/contracts/node_modules/@ethersproject/abstract-provider'
 
 /* import managers */
 import { useCachedData } from '../../context/CachedDataManager'
@@ -29,18 +29,18 @@ import { useNetwork } from '../../context/NetworkManager'
 
 /* import constants */
 import { Policy } from '../../constants/types'
-import { MAX_TABLET_SCREEN_WIDTH } from '../../constants'
+import { BKPT_5 } from '../../constants'
 import { PolicyState } from '../../constants/enums'
 
 /* import components */
 import { Table, TableBody, TableHead, TableRow, TableHeader, TableData, TableDataGroup } from '../atoms/Table'
 import { Button, ButtonWrapper } from '../atoms/Button'
-import { Loader } from '../atoms/Loader'
-import { Heading2, Heading3, Text } from '../atoms/Typography'
+import { Text } from '../atoms/Typography'
 import { FlexCol, FlexRow } from '../atoms/Layout'
 import { Card, CardContainer } from '../atoms/Card'
 import { FormRow, FormCol } from '../atoms/Form'
 import { DeFiAssetImage } from '../atoms/DeFiAsset'
+import { StyledDots } from '../atoms/Icon'
 
 /* import hooks */
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'
@@ -48,18 +48,17 @@ import { useWindowDimensions } from '../../hooks/useWindowDimensions'
 /* import utils */
 import { truncateBalance } from '../../utils/formatting'
 import { getDaysLeft, getExpiration } from '../../utils/time'
-import { StyledDots } from '../atoms/Icon'
 
 interface MyPoliciesProps {
   openClaimModal: any
   openManageModal: any
-  latestBlock: number
+  latestBlock: Block | undefined
 }
 
 export const MyPolicies: React.FC<MyPoliciesProps> = ({ openClaimModal, openManageModal, latestBlock }) => {
   /*************************************************************************************
 
-    custom hooks
+    hooks
 
   *************************************************************************************/
   const { userPolicyData } = useCachedData()
@@ -68,28 +67,26 @@ export const MyPolicies: React.FC<MyPoliciesProps> = ({ openClaimModal, openMana
 
   /*************************************************************************************
 
-    Local functions
+    local functions
 
   *************************************************************************************/
   const calculatePolicyExpirationDate = (expirationBlock: number): string => {
-    if (latestBlock == 0) return 'Fetching...'
-    const daysLeft = getDaysLeft(expirationBlock, latestBlock)
+    if (!latestBlock) return 'Fetching...'
+    const daysLeft = getDaysLeft(expirationBlock, latestBlock.number)
     return getExpiration(daysLeft)
   }
 
   const shouldWarnUser = (policy: Policy): boolean => {
-    return policy.status === PolicyState.ACTIVE && getDaysLeft(policy.expirationBlock, latestBlock) <= 1
+    return (
+      policy.status === PolicyState.ACTIVE &&
+      getDaysLeft(policy.expirationBlock, latestBlock ? latestBlock.number : 0) <= 1
+    )
   }
 
-  /*************************************************************************************
-
-    Render
-
-  *************************************************************************************/
   return (
     <Fragment>
       {userPolicyData.userPolicies.length > 0 ? (
-        width > MAX_TABLET_SCREEN_WIDTH ? (
+        width > BKPT_5 ? (
           <Table textAlignCenter style={{ borderSpacing: '0px 7px' }}>
             <TableHead sticky>
               <TableRow>
@@ -105,13 +102,15 @@ export const MyPolicies: React.FC<MyPoliciesProps> = ({ openClaimModal, openMana
               {userPolicyData.userPolicies.map((policy) => {
                 return (
                   <TableRow key={policy.policyId}>
-                    <TableData h2 high_em>
-                      {policy.policyId}
+                    <TableData>
+                      <Text t2 warning={shouldWarnUser(policy)}>
+                        {policy.policyId}
+                      </Text>
                     </TableData>
-                    <TableData h2 high_em>
+                    <TableData>
                       {
                         <FlexRow>
-                          <DeFiAssetImage>
+                          <DeFiAssetImage secured>
                             <img
                               src={`https://assets.solace.fi/${policy.productName.toLowerCase()}`}
                               alt={policy.productName}
@@ -120,14 +119,14 @@ export const MyPolicies: React.FC<MyPoliciesProps> = ({ openClaimModal, openMana
                           <FlexCol>
                             <FlexRow>
                               {policy.positionNames.slice(0, 8).map((name) => (
-                                <DeFiAssetImage borderless key={name} width={25} height={25}>
+                                <DeFiAssetImage key={name} width={25} height={25} secured>
                                   <img src={`https://assets.solace.fi/${name.toLowerCase()}`} alt={name} />
                                 </DeFiAssetImage>
                               ))}
                               {policy.positionNames.length > 8 && <StyledDots size={20} />}
                             </FlexRow>
                             <FlexRow>
-                              <Text t4 autoAlign high_em>
+                              <Text t4 autoAlign warning={shouldWarnUser(policy)}>
                                 {policy.productName}
                               </Text>
                             </FlexRow>
@@ -135,33 +134,36 @@ export const MyPolicies: React.FC<MyPoliciesProps> = ({ openClaimModal, openMana
                         </FlexRow>
                       }
                     </TableData>
-                    <TableData
-                      h2
-                      high_em
-                      error={policy.status === PolicyState.EXPIRED}
-                      warning={shouldWarnUser(policy)}
-                    >
-                      {policy.status}
+                    <TableData>
+                      <Text t2 error={policy.status === PolicyState.EXPIRED} warning={shouldWarnUser(policy)}>
+                        {policy.status}
+                      </Text>
                     </TableData>
-                    <TableData h2 high_em warning={shouldWarnUser(policy)}>
-                      {calculatePolicyExpirationDate(policy.expirationBlock)}
+                    <TableData>
+                      <Text t2 warning={shouldWarnUser(policy)}>
+                        {calculatePolicyExpirationDate(policy.expirationBlock)}
+                      </Text>
                     </TableData>
-                    <TableData h2 high_em>
-                      {policy.coverAmount ? truncateBalance(formatUnits(policy.coverAmount, currencyDecimals), 2) : 0}{' '}
-                      {activeNetwork.nativeCurrency.symbol}
+                    <TableData>
+                      <Text t2 warning={shouldWarnUser(policy)}>
+                        {policy.coverAmount ? truncateBalance(formatUnits(policy.coverAmount, currencyDecimals), 2) : 0}{' '}
+                        {activeNetwork.nativeCurrency.symbol}
+                      </Text>
                     </TableData>
 
                     <TableData textAlignRight>
                       {policy.status === PolicyState.ACTIVE && (
                         <TableDataGroup>
                           <Button
-                            glow={policy.claimAssessment && policy.claimAssessment.lossEventDetected}
                             secondary={policy.claimAssessment && policy.claimAssessment.lossEventDetected}
                             onClick={() => openClaimModal(policy)}
+                            info
                           >
                             Claim
                           </Button>
-                          <Button onClick={() => openManageModal(policy)}>Manage</Button>
+                          <Button onClick={() => openManageModal(policy)} info>
+                            Manage
+                          </Button>
                         </TableDataGroup>
                       )}
                     </TableData>
@@ -171,15 +173,15 @@ export const MyPolicies: React.FC<MyPoliciesProps> = ({ openClaimModal, openMana
             </TableBody>
           </Table>
         ) : (
-          // mobile version
-          <CardContainer cardsPerRow={3}>
+          // laptop version
+          <CardContainer cardsPerRow={3} p={10}>
             {userPolicyData.userPolicies.map((policy) => {
               return (
                 <Card key={policy.policyId}>
                   <FlexCol style={{ alignItems: 'center' }}>
                     <FormRow>
                       <FlexRow>
-                        <DeFiAssetImage>
+                        <DeFiAssetImage secured>
                           <img
                             src={`https://assets.solace.fi/${policy.productName.toLowerCase()}`}
                             alt={policy.productName}
@@ -188,7 +190,7 @@ export const MyPolicies: React.FC<MyPoliciesProps> = ({ openClaimModal, openMana
                         <FlexCol>
                           <FlexRow>
                             {policy.positionNames.slice(0, 4).map((name) => (
-                              <DeFiAssetImage borderless key={name} width={35} height={35}>
+                              <DeFiAssetImage key={name} width={35} height={35} secured>
                                 <img src={`https://assets.solace.fi/${name.toLowerCase()}`} alt={name} />
                               </DeFiAssetImage>
                             ))}
@@ -198,46 +200,51 @@ export const MyPolicies: React.FC<MyPoliciesProps> = ({ openClaimModal, openMana
                       </FlexRow>
                     </FormRow>
                     <FormRow style={{ display: 'flex', alignItems: 'center' }}>
-                      <Heading2 high_em>{policy.productName}</Heading2>
+                      <Text t2>{policy.productName}</Text>
                     </FormRow>
                   </FlexCol>
                   <FormRow mb={10}>
                     <FormCol>ID:</FormCol>
                     <FormCol>
-                      <Heading3>{policy.policyId}</Heading3>
+                      <Text t2>{policy.policyId}</Text>
                     </FormCol>
                   </FormRow>
                   <FormRow mb={10}>
                     <FormCol>Status:</FormCol>
                     <FormCol>
-                      <Heading2 high_em error={policy.status === PolicyState.EXPIRED} warning={shouldWarnUser(policy)}>
+                      <Text t2 error={policy.status === PolicyState.EXPIRED} warning={shouldWarnUser(policy)}>
                         {policy.status}
-                      </Heading2>
+                      </Text>
                     </FormCol>
                   </FormRow>
                   <FormRow mb={10}>
                     <FormCol>Expiration Date:</FormCol>
                     <FormCol>
-                      <Heading2 high_em warning={shouldWarnUser(policy)}>
+                      <Text t2 warning={shouldWarnUser(policy)}>
                         {calculatePolicyExpirationDate(policy.expirationBlock)}
-                      </Heading2>
+                      </Text>
                     </FormCol>
                   </FormRow>
                   <FormRow mb={10}>
                     <FormCol>Covered Amount:</FormCol>
                     <FormCol>
-                      <Heading2 high_em>
+                      <Text t2>
                         {policy.coverAmount ? truncateBalance(formatUnits(policy.coverAmount, currencyDecimals), 2) : 0}{' '}
                         {activeNetwork.nativeCurrency.symbol}
-                      </Heading2>
+                      </Text>
                     </FormCol>
                   </FormRow>
                   {policy.status === PolicyState.ACTIVE && (
                     <ButtonWrapper isColumn>
-                      <Button widthP={100} onClick={() => openClaimModal(policy)}>
+                      <Button
+                        widthP={100}
+                        onClick={() => openClaimModal(policy)}
+                        secondary={policy.claimAssessment && policy.claimAssessment.lossEventDetected}
+                        info
+                      >
                         Claim
                       </Button>
-                      <Button widthP={100} onClick={() => openManageModal(policy)}>
+                      <Button widthP={100} onClick={() => openManageModal(policy)} info>
                         Manage
                       </Button>
                     </ButtonWrapper>
@@ -248,7 +255,9 @@ export const MyPolicies: React.FC<MyPoliciesProps> = ({ openClaimModal, openMana
           </CardContainer>
         )
       ) : (
-        <Heading2 textAlignCenter>You do not own any policies.</Heading2>
+        <Text t2 textAlignCenter>
+          You do not own any policies.
+        </Text>
       )}
     </Fragment>
   )

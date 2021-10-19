@@ -1,7 +1,7 @@
 import styled, { css, keyframes } from 'styled-components'
 import { ClickProps } from '../Button'
 import { GeneralTextProps, GeneralTextCss } from '../Typography'
-import { MAX_MOBILE_SCREEN_WIDTH } from '../../../constants'
+import { BKPT_3 } from '../../../constants'
 import { GeneralElementProps, GeneralElementCss } from '../../generalInterfaces'
 
 export interface ModalProps {
@@ -9,6 +9,7 @@ export interface ModalProps {
   isOpen: boolean
   modalTitle: string
   disableCloseButton: boolean
+  zIndex?: number
 }
 
 export interface ModalButtonProps extends ClickProps {
@@ -27,9 +28,9 @@ export const ModalContainer = styled.div<ModalProps>`
   width: 100vw;
   height: 100vh;
   background: ${({ theme }) => theme.modal.bg_color};
-  z-index: 2;
+  z-index: ${(props) => (props.zIndex ? props.zIndex : '2')};
   ${(props) => (props.isOpen ? 'display: flex;' : 'display: none;')}
-  overflow-y: scroll;
+  overflow-y: auto;
 `
 
 export const ModalBase = styled.div<ModalProps>`
@@ -37,7 +38,7 @@ export const ModalBase = styled.div<ModalProps>`
   border-radius: 10px;
   padding: 24px;
   background-color: ${({ theme }) => theme.modal.base_color};
-  box-shadow: ${({ theme }) => theme.modal.glow};
+  border: none;
   opacity: 0;
   ${(props) =>
     props.isOpen &&
@@ -45,7 +46,7 @@ export const ModalBase = styled.div<ModalProps>`
       animation: ${FadeInAnimation} 300ms ease-in-out normal forwards;
     `}
 
-  @media screen and (max-width: ${MAX_MOBILE_SCREEN_WIDTH}px) {
+  @media screen and (max-width: ${BKPT_3}px) {
     width: 100%;
   }
 `
@@ -73,7 +74,7 @@ export const ModalRow = styled.div<GeneralElementProps>`
   justify-content: space-around;
   ${GeneralElementCss}
 
-  @media screen and (max-width: ${MAX_MOBILE_SCREEN_WIDTH}px) {
+  @media screen and (max-width: ${BKPT_3}px) {
     flex-direction: column;
     align-items: center;
   }

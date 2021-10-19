@@ -1,6 +1,7 @@
 import React, { useMemo, useContext, createContext, useEffect, useState, useCallback } from 'react'
 import { useLocalStorage } from 'react-use-storage'
 import { useWallet } from './WalletManager'
+import { Block } from '@ethersproject/contracts/node_modules/@ethersproject/abstract-provider'
 
 import { LocalTx, Policy, NetworkCache, GasFeeListState } from '../constants/types'
 import { usePolicyGetter } from '../hooks/usePolicyGetter'
@@ -8,22 +9,21 @@ import { useReload } from '../hooks/useReload'
 import { useInterval } from '../hooks/useInterval'
 
 import { useFetchGasPrice } from '../hooks/useGas'
-import { useGetLatestBlockNumber } from '../hooks/useGetLatestBlockNumber'
+import { useGetLatestBlock } from '../hooks/useGetLatestBlock'
 import { useCachePositions } from '../hooks/useCachePositions'
 
-import { TransactionHistoryModal } from '../components/organisms/TransactionHistoryModal'
 import { useNetwork } from './NetworkManager'
 import { PolicyState, SystemNotice } from '../constants/enums'
 import { useGeneral } from './GeneralProvider'
+import { AccountModal } from '../components/organisms/AccountModal'
 
 /*
 
 This manager caches data such as the user's pending transactions, policies, token and position data.
 
-Currently, the reload and dataReload features take place in this manager as well. These features are called and
-read by components and hooks across the app to stay in sync with each other. The main difference is that reload
-should be called manually, such as when the user sends a transaction, and dataReload is called on an interval and
-updates the app at a fixed rate with the user's input.
+Currently, the reload feature takes place in this manager as well, this feature is called and
+read by components and hooks across the app to stay in sync with each other. This reload feature
+should be called manually, such as when the user sends a transaction.
 
 */
 
@@ -34,15 +34,17 @@ type CachedData = {
     userPolicies: Policy[]
     setCanGetAssessments: (toggle: boolean) => void
   }
-  tokenPositionData: { dataInitialized: boolean; storedPositionData: NetworkCache[] }
-  showHistoryModal: boolean
+  tokenPosData: {
+    dataInitialized: boolean
+    storedPosData: NetworkCache[]
+  }
+  showAccountModal: boolean
   version: number
-  dataVersion: number
   gasPrices: GasFeeListState
-  latestBlock: number
+  latestBlock: Block | undefined
   addLocalTransactions: (txToAdd: LocalTx) => void
   deleteLocalTransactions: (txsToDelete: []) => void
-  openHistoryModal: () => void
+  openAccountModal: () => void
   reload: () => void
 }
 
@@ -53,18 +55,20 @@ const CachedDataContext = createContext<CachedData>({
     userPolicies: [],
     setCanGetAssessments: () => undefined,
   },
-  tokenPositionData: { dataInitialized: false, storedPositionData: [] },
-  showHistoryModal: false,
+  tokenPosData: {
+    dataInitialized: false,
+    storedPosData: [],
+  },
+  showAccountModal: false,
   version: 0,
-  dataVersion: 0,
   gasPrices: {
     options: [],
     loading: true,
   },
-  latestBlock: 0,
+  latestBlock: undefined,
   addLocalTransactions: () => undefined,
   deleteLocalTransactions: () => undefined,
-  openHistoryModal: () => undefined,
+  openAccountModal: () => undefined,
   reload: () => undefined,
 })
 
@@ -73,27 +77,26 @@ const CachedDataProvider: React.FC = (props) => {
   const { chainId } = useNetwork()
   const [localTxs, setLocalTxs] = useLocalStorage<LocalTx[]>('solace_loc_txs', [])
   const [reload, version] = useReload()
-  const [dataReload, dataVersion] = useReload()
   const gasPrices = useFetchGasPrice()
-  const latestBlock = useGetLatestBlockNumber(dataVersion)
-  const { dataInitialized, storedPositionData } = useCachePositions()
+  const latestBlock = useGetLatestBlock()
+  const { dataInitialized, storedPosData } = useCachePositions()
   const { addNotices, removeNotices } = useGeneral()
   const { policiesLoading, userPolicies, setCanGetAssessments } = usePolicyGetter(
     false,
     latestBlock,
-    { dataInitialized, storedPositionData },
+    { dataInitialized, storedPosData },
     account
   )
-  const [historyModal, setHistoryModal] = useState<boolean>(false)
+  const [accountModal, setAccountModal] = useState<boolean>(false)
 
   const openModal = useCallback(() => {
     document.body.style.overflowY = 'hidden'
-    setHistoryModal(true)
+    setAccountModal(true)
   }, [])
 
   const closeModal = useCallback(() => {
     document.body.style.overflowY = 'scroll'
-    setHistoryModal(false)
+    setAccountModal(false)
   }, [])
 
   const addLocalTransactions = (txToAdd: LocalTx) => {
@@ -102,16 +105,12 @@ const CachedDataProvider: React.FC = (props) => {
 
   const deleteLocalTransactions = (txsToDelete: LocalTx[]) => {
     if (txsToDelete.length == 0) return
-    const formattedTxsToDelete = txsToDelete.map((tx) => tx.hash)
+    const formattedTxsToDelete = txsToDelete.map((tx) => tx.hash.toLowerCase())
     const passedLocalTxs = localTxs.filter(
-      (tx: LocalTx) => !formattedTxsToDelete.includes(tx.hash) && tx.status !== 'Complete'
+      (tx: LocalTx) => !formattedTxsToDelete.includes(tx.hash.toLowerCase()) && tx.status !== 'Complete'
     )
     setLocalTxs(passedLocalTxs)
   }
-
-  useInterval(() => {
-    dataReload()
-  }, 3500)
 
   useEffect(() => {
     const clearLocalTransactions = () => {
@@ -150,15 +149,14 @@ const CachedDataProvider: React.FC = (props) => {
     () => ({
       localTransactions: localTxs,
       userPolicyData: { policiesLoading, userPolicies, setCanGetAssessments },
-      tokenPositionData: { dataInitialized, storedPositionData },
-      showHistoryModal: historyModal,
+      tokenPosData: { dataInitialized, storedPosData },
+      showAccountModal: accountModal,
       version,
-      dataVersion,
       gasPrices,
       latestBlock,
       addLocalTransactions,
       deleteLocalTransactions,
-      openHistoryModal: openModal,
+      openAccountModal: openModal,
       reload,
     }),
     [
@@ -166,9 +164,8 @@ const CachedDataProvider: React.FC = (props) => {
       addLocalTransactions,
       deleteLocalTransactions,
       dataInitialized,
-      storedPositionData,
+      storedPosData,
       version,
-      dataVersion,
       latestBlock,
       gasPrices,
       policiesLoading,
@@ -179,7 +176,7 @@ const CachedDataProvider: React.FC = (props) => {
 
   return (
     <CachedDataContext.Provider value={value}>
-      <TransactionHistoryModal closeModal={closeModal} isOpen={historyModal} />
+      <AccountModal closeModal={closeModal} isOpen={accountModal} />
       {props.children}
     </CachedDataContext.Provider>
   )

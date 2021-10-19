@@ -14,7 +14,7 @@ export function timeAgo(someDateInThePast: number): string {
   if ((difference % 1000) * 3600 > 0) {
     if (Math.floor((difference / 1000 / 60) % 60) > 0) {
       const s = Math.floor((difference / 1000 / 60) % 60) == 1 ? '' : 's'
-      result = `${Math.floor((difference / 1000 / 60) % 60)} minute${s} `
+      result = `${Math.floor((difference / 1000 / 60) % 60)} min${s} `
     }
   }
 
@@ -22,7 +22,7 @@ export function timeAgo(someDateInThePast: number): string {
   if ((difference % 1000) * 3600 * 60 > 0) {
     if (Math.floor((difference / 1000 / 60 / 60) % 24) > 0) {
       const s = Math.floor((difference / 1000 / 60 / 60) % 24) == 1 ? '' : 's'
-      result = `${Math.floor((difference / 1000 / 60 / 60) % 24)} hour${s}${result == '' ? '' : ','} ` + result
+      result = `${Math.floor((difference / 1000 / 60 / 60) % 24)} hr${s}${result == '' ? '' : ','} ` + result
     }
   }
 
@@ -131,8 +131,8 @@ export const getTimeFromMillis = (millis: number): string => {
   return `${days}d${hours > 0 ? ` ${hours}h` : ''}${minutes > 0 ? ` ${minutes}m` : ''}`
 }
 
-export const getDaysLeft = (expirationBlock: number, latestBlock: number): number => {
-  return Math.floor((expirationBlock - latestBlock) / NUM_BLOCKS_PER_DAY)
+export const getDaysLeft = (expirationBlock: number, latestBlockNumber: number): number => {
+  return Math.floor((expirationBlock - latestBlockNumber) / NUM_BLOCKS_PER_DAY)
 }
 
 export const getDateStringWithMonthName = (date: Date): string => {

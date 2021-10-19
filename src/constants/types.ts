@@ -1,12 +1,41 @@
 import { BigNumber } from 'ethers'
-import { PolicyState, ProductName, TransactionCondition, Unit, SystemNotice, Error } from '../constants/enums'
+import {
+  PolicyState,
+  ProductName,
+  TransactionCondition,
+  Unit,
+  SystemNotice,
+  Error,
+  PositionType,
+} from '../constants/enums'
 import { Contract } from '@ethersproject/contracts'
 
-export type NetworkCache = {
-  name: string
+/*
+
+networkCache = {
   chainId: number
-  positions: PositionsCache
-  positionNames: PositionNamesCache
+  positions: {
+    [key: string]: {   // supported product name
+      positions: Position[]
+      init: boolean 
+    }
+  }
+  positionNames: {
+    [key: string]: {   // supported product name
+      positionNames: { 
+        [key: string]: string[] // [token.token.address]: underlying symbols[]
+      }
+      init: boolean 
+    }
+  }
+}
+
+*/
+
+export type NetworkCache = {
+  chainId: number
+  positionsCache: PositionsCache
+  positionNamesCache: PositionNamesCache
 }
 
 export type PositionsCache = { [key: string]: PositionsCacheValue }
@@ -15,15 +44,26 @@ export type PositionNamesCache = {
   [key: string]: PositionNamesCacheValue
 }
 
-export type PositionsCacheValue = { savedPositions: Position[]; positionsInitialized: boolean }
+export type PositionsCacheValue = { positions: Position[]; init: boolean }
 
-export type PositionNamesCacheValue = { positionNames: { [key: string]: string }; positionNamesInitialized: boolean }
+export type PositionNamesCacheValue = {
+  positionNames: { [key: string]: string }
+  underlyingPositionNames: { [key: string]: string[] }
+  init: boolean
+}
 
 export type ClaimDetails = { id: string; cooldown: string; canWithdraw: boolean; amount: BigNumber }
 
 export type BasicData = {
   address: string
   name: string
+}
+
+export type Option = {
+  id: BigNumber
+  rewardAmount: BigNumber
+  strikePrice: BigNumber
+  expiry: BigNumber
 }
 
 export type Policy = {
@@ -33,6 +73,7 @@ export type Policy = {
   productName: string
   positionDescription: string
   positionNames: string[]
+  underlyingPositionNames: string[]
   expirationBlock: number
   coverAmount: string
   price: string
@@ -58,24 +99,21 @@ export type Position = {
   position: Token | LiquityPosition
 }
 
+export type TokenData = {
+  address: string
+  name: string
+  symbol: string
+  decimals: number
+  balance: BigNumber
+}
+
 export type Token = {
-  token: {
-    address: string
-    name: string
-    symbol: string
-    decimals: number
-    balance: BigNumber
-  }
-  underlying: {
-    address: string
-    name: string
-    symbol: string
-    decimals: number
-    balance: BigNumber
-  }
+  token: TokenData
+  underlying: TokenData[]
   eth: {
     balance: BigNumber
   }
+  metadata?: any
 }
 
 export type LiquityPosition = {
@@ -119,7 +157,7 @@ export type GasPriceResult = {
   suggestBaseFee?: number
 }
 
-export type PositionsType = 'erc20' | 'liquity' | 'other'
+export type PositionsType = PositionType
 
 export type StringToStringMapping = { [key: string]: string }
 
@@ -128,15 +166,8 @@ export type SupportedProduct = {
   positionsType: PositionsType
   productLink?: string
 
-  getAppraisals: (tokens: any[], chainId: number) => Promise<BigNumber[]>
-  getTokens?: (provider: any, activeNetwork: NetworkConfig) => Promise<Token[]>
-  getBalances?: (
-    user: string,
-    provider: any,
-    cache: NetworkCache,
-    activeNetwork: NetworkConfig,
-    tokens: Token[]
-  ) => Promise<Token[]>
+  getTokens?: (provider: any, activeNetwork: NetworkConfig, metadata?: any) => Promise<Token[]>
+  getBalances?: (user: string, provider: any, activeNetwork: NetworkConfig, tokens: Token[]) => Promise<Token[]>
   getPositions?: any
 }
 
@@ -164,6 +195,7 @@ export type NetworkConfig = {
   name: string
   chainId: number
   isTestnet: boolean
+  logo: string
   supportedTxTypes: number[]
   nativeCurrency: {
     symbol: Unit

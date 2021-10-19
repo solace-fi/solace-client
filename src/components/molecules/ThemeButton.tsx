@@ -6,13 +6,9 @@
     import managers
     import constants
     import components
-    import hooks
 
-    styled components
-
-    WalletConnectButton function
-      custom hooks
-      Render
+    ThemeButton function
+      hooks
 
   *************************************************************************************/
 
@@ -26,39 +22,21 @@ import { useGeneral } from '../../context/GeneralProvider'
 
 /* import components */
 import { Button, ButtonProps } from '../atoms/Button'
-import { StyledTheme, StyledSun, StyledMoon } from '../atoms/Icon'
+import { StyledSun, StyledMoon } from '../atoms/Icon'
 import { GeneralElementProps } from '../generalInterfaces'
-
-/* import hooks */
-import { useWindowDimensions } from '../../hooks/useWindowDimensions'
-import { MAX_MOBILE_SCREEN_WIDTH } from '../../constants'
 
 export const ThemeButton: React.FC<GeneralElementProps & ButtonProps> = ({ ...props }) => {
   /*************************************************************************************
 
-    custom hooks
+    hooks
 
   *************************************************************************************/
-  const { selectedTheme, toggleTheme } = useGeneral()
-  const { width } = useWindowDimensions()
+  const { appTheme, toggleTheme } = useGeneral()
 
-  /*************************************************************************************
-
-    Render
-
-  *************************************************************************************/
   return (
     <>
-      <Button onClick={() => toggleTheme()} {...props}>
-        {selectedTheme == 'light' ? (
-          <StyledSun size={30} />
-        ) : selectedTheme == 'dark' ? (
-          <StyledMoon size={30} />
-        ) : (
-          <StyledTheme size={30} />
-        )}
-        {selectedTheme == 'light' ? 'Light' : selectedTheme == 'dark' ? 'Dark' : 'Auto'}
-        {width > MAX_MOBILE_SCREEN_WIDTH && ` Theme`}
+      <Button widthP={100} nohover noborder onClick={() => toggleTheme()} {...props}>
+        {appTheme == 'light' ? <StyledSun size={30} /> : <StyledMoon size={30} />}
       </Button>
     </>
   )

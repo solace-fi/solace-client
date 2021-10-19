@@ -1,11 +1,11 @@
-import masterABI from '../constants/abi/contracts/Master.sol/Master.json'
+import farmControllerABI from '../constants/abi/contracts/FarmController.sol/FarmController.json'
+import optionsFarmingABI from '../constants/abi/contracts/OptionsFarming.sol/OptionsFarming.json'
 import registryABI from '../constants/abi/contracts/Registry.sol/Registry.json'
 import solaceABI from '../constants/abi/contracts/SOLACE.sol/SOLACE.json'
 import wethABI from '../constants/abi/contracts/WETH9.sol/WETH9.json'
 import treasuryABI from '../constants/abi/contracts/Treasury.sol/Treasury.json'
 import vaultABI from '../constants/abi/contracts/Vault.sol/Vault.json'
 import cpFarmABI from '../constants/abi/contracts/CpFarm.sol/CpFarm.json'
-import lpFarmABI from '../constants/abi/contracts/SolaceEthLpFarm.sol/SolaceEthLpFarm.json'
 import claimsEscrowABI from '../constants/abi/contracts/ClaimsEscrow.sol/ClaimsEscrow.json'
 import lpTokenArtifact from '../../node_modules/@uniswap/v3-periphery/artifacts/contracts/NonfungiblePositionManager.sol/NonfungiblePositionManager.json'
 import polMagABI from '../constants/abi/contracts/PolicyManager.sol/PolicyManager.json'
@@ -18,11 +18,12 @@ import waaveABI from '../constants/abi/contracts/products/WaaveProduct.sol/Waave
 import { ProductName, Unit } from '../constants/enums'
 
 import { NetworkConfig } from '../constants/types'
-import { ETHERSCAN_API_KEY } from '../constants'
+import { ETHERSCAN_API_KEY, ALCHEMY_API_KEY } from '../constants'
 import { hexValue } from '@ethersproject/bytes'
-import { ALCHEMY_API_KEY } from '../constants'
 import { AaveProduct } from '../products/aave'
 import { WaaveProduct } from '../products/waave'
+
+import EthereumLogo from '../resources/svg/networks/ethereum-logo.svg'
 
 /*
 
@@ -34,6 +35,7 @@ export const KovanNetwork: NetworkConfig = {
   name: 'kovan',
   chainId: 42,
   isTestnet: true,
+  logo: EthereumLogo,
   supportedTxTypes: [0, 2],
   nativeCurrency: { symbol: Unit.ETH, decimals: 18 },
   rpc: { httpsUrl: `https://eth-kovan.alchemyapi.io/v2/${ALCHEMY_API_KEY}`, pollingInterval: 12_000 },
@@ -50,9 +52,13 @@ export const KovanNetwork: NetworkConfig = {
   },
   config: {
     keyContracts: {
-      master: {
-        addr: String(process.env.REACT_APP_KOVAN_MASTER_ADDR),
-        abi: masterABI,
+      farmController: {
+        addr: String(process.env.REACT_APP_KOVAN_FARM_CONTROLLER_ADDR),
+        abi: farmControllerABI,
+      },
+      optionsFarming: {
+        addr: String(process.env.REACT_APP_KOVAN_OPTIONS_FARMING_ADDR),
+        abi: optionsFarmingABI,
       },
       vault: {
         addr: String(process.env.REACT_APP_KOVAN_VAULT_ADDR),
@@ -72,7 +78,7 @@ export const KovanNetwork: NetworkConfig = {
       },
       lpFarm: {
         addr: String(process.env.REACT_APP_KOVAN_LPFARM_ADDR),
-        abi: lpFarmABI,
+        abi: null,
       },
       registry: {
         addr: String(process.env.REACT_APP_KOVAN_REGISTRY_ADDR),

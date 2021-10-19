@@ -12,20 +12,25 @@ import { useNetwork } from '../context/NetworkManager'
 export const useFetchTxHistoryByAddress = (): any => {
   const { account } = useWallet()
   const { activeNetwork } = useNetwork()
-  const { deleteLocalTransactions, dataVersion } = useCachedData()
+  const { deleteLocalTransactions, latestBlock } = useCachedData()
   const [txHistory, setTxHistory] = useState<any>([])
   const { contractSources } = useContracts()
 
   const fetchTxHistoryByAddress = async (account: string) => {
     await fetchExplorerTxHistoryByAddress(activeNetwork.explorer.apiUrl, account, contractSources).then((result) => {
-      deleteLocalTransactions(result.txList)
-      setTxHistory(result.txList.slice(0, 30))
+      if (result.status == '1') {
+        const contractAddrs = contractSources.map((contract) => contract.addr)
+        const txList = result.result.filter((tx: any) => contractAddrs.includes(tx.to.toLowerCase()))
+        deleteLocalTransactions(txList)
+        setTxHistory(txList.slice(0, 30))
+      }
     })
   }
 
   useEffect(() => {
-    account ? fetchTxHistoryByAddress(account) : setTxHistory([])
-  }, [account, contractSources, dataVersion])
+    if (!latestBlock || !account) return
+    fetchTxHistoryByAddress(account)
+  }, [latestBlock, account])
 
   return txHistory
 }
@@ -43,10 +48,10 @@ export const useTransactionDetails = (): { txHistory: any; amounts: string[] } =
     provider: Web3Provider | Provider
   ): Promise<string> => {
     const receipt = await provider.getTransactionReceipt(tx.hash)
-    if (!receipt) return '0'
-    if (receipt.status == 0) return '0'
+    if (!receipt) return ''
+    if (receipt.status == 0) return ''
     const logs = receipt.logs
-    if (!logs || logs.length <= 0) return '0'
+    if (!logs || logs.length <= 0) return ''
     const topics = logs[logs.length - 1].topics
 
     switch (function_name) {
@@ -57,17 +62,17 @@ export const useTransactionDetails = (): { txHistory: any; amounts: string[] } =
       case FunctionName.WITHDRAW_ETH:
         return logs[0].data
       case FunctionName.SUBMIT_CLAIM:
-        if (!topics || topics.length <= 0) return '0'
+        if (!topics || topics.length <= 0) return ''
         return topics[topics.length - 1]
       case FunctionName.WITHDRAW_CLAIMS_PAYOUT:
       case FunctionName.BUY_POLICY:
-        if (!topics || topics.length <= 0) return '0'
+        if (!topics || topics.length <= 0) return ''
         return topics[1]
       case FunctionName.EXTEND_POLICY_PERIOD:
       case FunctionName.UPDATE_POLICY:
       case FunctionName.UPDATE_POLICY_AMOUNT:
       case FunctionName.CANCEL_POLICY:
-        if (!topics || topics.length <= 0) return '0'
+        if (!topics || topics.length <= 0) return ''
         return topics[1]
       case FunctionName.DEPOSIT_CP:
       case FunctionName.WITHDRAW_CP:
@@ -76,11 +81,11 @@ export const useTransactionDetails = (): { txHistory: any; amounts: string[] } =
       case FunctionName.WITHDRAW_LP:
       case FunctionName.APPROVE:
         const data = logs[logs.length - 1].data
-        if (!data) return '0'
+        if (!data) return ''
         return logs[logs.length - 1].data
       case FunctionName.MULTI_CALL:
       default:
-        if (!topics || topics.length <= 0) return '0'
+        if (!topics || topics.length <= 0) return ''
         return topics[1]
     }
   }
