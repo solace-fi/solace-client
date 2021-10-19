@@ -1,3 +1,4 @@
+/*  core contract abi */
 import farmControllerABI from '../constants/abi/contracts/FarmController.sol/FarmController.json'
 import optionsFarmingABI from '../constants/abi/contracts/OptionsFarming.sol/OptionsFarming.json'
 import registryABI from '../constants/abi/contracts/Registry.sol/Registry.json'
@@ -12,17 +13,18 @@ import polMagABI from '../constants/abi/contracts/PolicyManager.sol/PolicyManage
 import lpAppraisorABI from '../constants/abi/contracts/LpAppraisor.sol/LpAppraisor.json'
 import riskManagerABI from '../constants/abi/contracts/RiskManager.sol/RiskManager.json'
 
+/* product contract abi */
 import aaveABI from '../constants/abi/contracts/products/AaveV2Product.sol/AaveV2Product.json'
 import waaveABI from '../constants/abi/contracts/products/WaaveProduct.sol/WaaveProduct.json'
 
-import { ProductName, Unit } from '../constants/enums'
-
-import { NetworkConfig } from '../constants/types'
-import { ETHERSCAN_API_KEY, ALCHEMY_API_KEY } from '../constants'
-import { hexValue } from '@ethersproject/bytes'
+/* product objects */
 import { AaveProduct } from '../products/aave'
 import { WaaveProduct } from '../products/waave'
 
+import { ProductName, Unit } from '../constants/enums'
+import { NetworkConfig } from '../constants/types'
+import { ETHERSCAN_API_KEY, ALCHEMY_API_KEY } from '../constants'
+import { hexValue } from '@ethersproject/bytes'
 import EthereumLogo from '../resources/svg/networks/ethereum-logo.svg'
 
 /*

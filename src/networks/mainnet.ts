@@ -1,3 +1,17 @@
+import farmControllerABI from '../constants/abi/contracts/FarmController.sol/FarmController.json'
+import optionsFarmingABI from '../constants/abi/contracts/OptionsFarming.sol/OptionsFarming.json'
+import registryABI from '../constants/abi/contracts/Registry.sol/Registry.json'
+import solaceABI from '../constants/abi/contracts/SOLACE.sol/SOLACE.json'
+import wethABI from '../constants/abi/contracts/WETH9.sol/WETH9.json'
+import treasuryABI from '../constants/abi/contracts/Treasury.sol/Treasury.json'
+import vaultABI from '../constants/abi/contracts/Vault.sol/Vault.json'
+import cpFarmABI from '../constants/abi/contracts/CpFarm.sol/CpFarm.json'
+import claimsEscrowABI from '../constants/abi/contracts/ClaimsEscrow.sol/ClaimsEscrow.json'
+import lpTokenArtifact from '../../node_modules/@uniswap/v3-periphery/artifacts/contracts/NonfungiblePositionManager.sol/NonfungiblePositionManager.json'
+import polMagABI from '../constants/abi/contracts/PolicyManager.sol/PolicyManager.json'
+import lpAppraisorABI from '../constants/abi/contracts/LpAppraisor.sol/LpAppraisor.json'
+import riskManagerABI from '../constants/abi/contracts/RiskManager.sol/RiskManager.json'
+
 import EthereumLogo from '../resources/svg/networks/ethereum-logo.svg'
 import { ETHERSCAN_API_KEY, ALCHEMY_API_KEY } from '../constants'
 import { ProductName, Unit } from '../constants/enums'
@@ -18,7 +32,10 @@ export const MainNetwork = {
     apiUrl: 'https://api.etherscan.io',
     excludedContractAddrs: [],
   },
-  config: {},
+  config: {
+    keyContracts: {},
+    productContracts: {},
+  },
   cache: {},
   metamaskChain: {
     chainId: hexValue(1),

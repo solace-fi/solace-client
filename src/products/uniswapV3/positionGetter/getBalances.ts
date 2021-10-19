@@ -267,11 +267,11 @@ export const getBalances = async (
     const amount1InStablecoin = price_Of_TokenB_Stablecoin.quote(position.amount1)
 
     const totalAmountInStablecoin = amount0InStablecoin.add(amount1InStablecoin)
-    const humanUCSDAmount = totalAmountInStablecoin.toFixed(chainStablecoin.decimals, { groupSeparator: ',' })
+    const humanStableCoinAmount = totalAmountInStablecoin.toFixed(chainStablecoin.decimals, { groupSeparator: ',' })
 
     const url = `https://api.1inch.exchange/v3.0/1/quote?fromTokenAddress=${
       chainStablecoin.address
-    }&toTokenAddress=${ETH}&amount=${accurateMultiply(humanUCSDAmount, chainStablecoin.decimals)}`
+    }&toTokenAddress=${ETH}&amount=${accurateMultiply(humanStableCoinAmount, chainStablecoin.decimals)}`
     const res = await withBackoffRetries(async () => axios.get(url))
     tokens[i].eth.balance = BigNumber.from(res.data.toTokenAmount)
   }
