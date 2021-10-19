@@ -7,7 +7,7 @@ import { ZERO } from '../../../constants'
 import uniV2FactoryAbi from './_contracts/IUniV2Factory.json'
 import uniLPTokenAbi from './_contracts/IUniLPToken.json'
 
-import { ApolloClient, InMemoryCache, ApolloProvider, useQuery, gql } from '@apollo/client'
+import { ApolloClient, InMemoryCache, gql } from '@apollo/client'
 
 export const getTokens = async (provider: any, activeNetwork: NetworkConfig, metadata?: any): Promise<Token[]> => {
   // const uniV2FactoryAddress = '0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f'

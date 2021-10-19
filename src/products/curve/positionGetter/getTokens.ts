@@ -8,7 +8,7 @@ import { ADDRESS_ZERO, ZERO } from '../../../constants'
 import { AddressZero } from '@ethersproject/constants'
 import { ETHERSCAN_API_KEY } from '../../../constants'
 
-import { ApolloClient, InMemoryCache, ApolloProvider, useQuery, gql } from '@apollo/client'
+import { ApolloClient, InMemoryCache, gql } from '@apollo/client'
 
 import curveAddressProviderAbi from './_contracts/ICurveAddressProvider.json'
 import curveRegistryAbi from './_contracts/ICurveRegistry.json'

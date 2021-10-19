@@ -9,7 +9,7 @@ import positionManagerAbi from '../../../../node_modules/@uniswap/v3-periphery/a
 import { listTokensOfOwner } from '../../../utils/token'
 import { BigNumber } from 'ethers'
 
-import { ApolloClient, InMemoryCache, ApolloProvider, useQuery, gql } from '@apollo/client'
+import { ApolloClient, InMemoryCache, gql } from '@apollo/client'
 
 export const getTokens = async (provider: any, activeNetwork: NetworkConfig, metadata?: any): Promise<Token[]> => {
   const tokens: Token[] = []

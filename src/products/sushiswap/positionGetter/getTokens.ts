@@ -6,7 +6,7 @@ import { ZERO } from '../../../constants'
 
 import sushiLPTokenAbi from './_contracts/ISushiLPToken.json'
 
-import { ApolloClient, InMemoryCache, ApolloProvider, useQuery, gql } from '@apollo/client'
+import { ApolloClient, InMemoryCache, gql } from '@apollo/client'
 
 // const SushiV2Factory_ADDR = '0xC0AEe478e3658e2610c5F7A4A2E1777cE9e4f2Ac'
 // import sushiV2FactoryAbi from './_contracts/ISushiV2Factory.json'

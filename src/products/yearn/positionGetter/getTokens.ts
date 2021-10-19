@@ -8,7 +8,7 @@ import { withBackoffRetries } from '../../../utils/time'
 import { vaultAbi, yregistryAbi } from './_contracts/yearnAbis'
 import { BigNumber } from 'ethers'
 
-import { ApolloClient, InMemoryCache, ApolloProvider, useQuery, gql } from '@apollo/client'
+import { ApolloClient, InMemoryCache, gql } from '@apollo/client'
 
 export const getTokens = async (provider: any, activeNetwork: NetworkConfig, metadata?: any): Promise<Token[]> => {
   // TODO: reduce the ~1000 requests down
