@@ -37,6 +37,9 @@ import { Text } from '../atoms/Typography'
 /* import utils */
 import { getExplorerItemUrl } from '../../utils/explorer'
 
+/* import resources */
+import quantstampPdf from '../../resources/pdf/Solace-Quantstamp-Report.pdf'
+
 interface AppToastProps {
   message: string
   icon: any
@@ -74,7 +77,18 @@ export const AuditToast: React.FC = () => {
             {' '}
             Hacken
           </HyperLink>{' '}
-          and Quantstamp. However, it is still experimental software.
+          and{' '}
+          <HyperLink
+            href={quantstampPdf}
+            target="_blank"
+            rel="noopener noreferrer"
+            underline
+            style={{ color: 'rgb(250, 250, 250)' }}
+          >
+            {' '}
+            Quantstamp
+          </HyperLink>
+          . However, it is still experimental software.
         </Text>
       </FlexedToastMessage>
     </ToastWrapper>

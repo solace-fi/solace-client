@@ -207,11 +207,11 @@ export const Statistics: React.FC = () => {
               <BoxItem>
                 <BoxItemTitle t4 light bold>
                   My Unclaimed Rewards{' '}
-                  {/* <StyledTooltip
+                  <StyledTooltip
                     id={'rewards'}
-                    tip={'Total amount of your unclaimed rewards'}
-                    link={'https://docs.solace.fi/docs/user-guides/earn-rewards'}
-                  /> */}
+                    tip={'You’ll be able to claim the rewards soon, once $SOLACE token is publicly released'}
+                    // link={'https://docs.solace.fi/docs/user-guides/earn-rewards'}
+                  />
                 </BoxItemTitle>
                 <Text t2 light bold>
                   {`${truncateBalance(totalUserRewards, 1)} `}

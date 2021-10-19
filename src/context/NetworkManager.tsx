@@ -72,7 +72,7 @@ const NetworksProvider: React.FC = (props) => {
       if (connector && !(connector instanceof MetamaskConnector)) window.location.reload()
 
       // there were cases where changing networks with the same wallet does not pull data correctly
-      // if (connector) window.location.reload() <- uncomment if there's too many errors going on
+      if (connector) window.location.reload() // <- uncomment if there's too many errors going on
     }
 
     return network

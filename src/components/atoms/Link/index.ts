@@ -1,7 +1,9 @@
 import { Link } from 'react-router-dom'
 import styled, { css } from 'styled-components'
+import { GeneralElementCss, GeneralElementProps } from '../../generalInterfaces'
+import { GeneralTextProps, GeneralTextCss } from '../Typography'
 
-interface LinkProps {
+interface LinkProps extends GeneralElementProps, GeneralTextProps {
   underline?: boolean
 }
 
@@ -13,6 +15,8 @@ const LinkCss = css<LinkProps>`
   &.is-active {
     opacity: 1;
   }
+  ${GeneralElementCss}
+  ${GeneralTextCss}
 `
 
 export const HyperLink = styled.a<LinkProps>`

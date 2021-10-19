@@ -73,7 +73,7 @@ export const UnderwritingPool: React.FC<UnderwritingPoolProps> = ({ openModal })
         />{' '} */}
       </Text>
       <Text t4 pb={10}>
-        This pool allows Solace to back risks and fulfill claims for policies
+        This capital is utilized to back the risk of coverage policies and earns revenue from policy sales.
       </Text>
       {width > BKPT_6 ? (
         <Table isHighlight textAlignCenter>
@@ -135,34 +135,38 @@ export const UnderwritingPool: React.FC<UnderwritingPoolProps> = ({ openModal })
               {truncateBalance(floatUnits(parseUnits(capitalPoolSize, currencyDecimals), currencyDecimals), 2)}
             </FormCol>
           </FormRow>
-          <FormRow>
+          {/* <FormRow>
             <FormCol light>ROI:</FormCol>
             <FormCol light t2>
               {CP_ROI}
             </FormCol>
-          </FormRow>
-          <FormRow>
-            <FormCol light>My Vault Share:</FormCol>
-            <FormCol light t2>{`${truncateBalance(userVaultShare, 2)}%`}</FormCol>
-          </FormRow>
-          <ButtonWrapper isColumn={width <= BKPT_4}>
-            <Button
-              widthP={100}
-              disabled={haveErrors}
-              onClick={() => openModal(FunctionName.DEPOSIT_ETH, 'Deposit')}
-              light
-            >
-              Deposit
-            </Button>
-            <Button
-              widthP={100}
-              disabled={haveErrors}
-              onClick={() => openModal(FunctionName.WITHDRAW_ETH, 'Withdraw')}
-              light
-            >
-              Withdraw
-            </Button>
-          </ButtonWrapper>
+          </FormRow> */}
+          {account && (
+            <FormRow>
+              <FormCol light>My Vault Share:</FormCol>
+              <FormCol light t2>{`${truncateBalance(userVaultShare, 2)}%`}</FormCol>
+            </FormRow>
+          )}
+          {account && (
+            <ButtonWrapper isColumn={width <= BKPT_4}>
+              <Button
+                widthP={100}
+                disabled={haveErrors}
+                onClick={() => openModal(FunctionName.DEPOSIT_ETH, 'Deposit')}
+                light
+              >
+                Deposit
+              </Button>
+              <Button
+                widthP={100}
+                disabled={haveErrors}
+                onClick={() => openModal(FunctionName.WITHDRAW_ETH, 'Withdraw')}
+                light
+              >
+                Withdraw
+              </Button>
+            </ButtonWrapper>
+          )}
         </Card>
       )}
     </Content>

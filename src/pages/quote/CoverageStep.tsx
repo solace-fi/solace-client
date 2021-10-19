@@ -524,10 +524,10 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
         </FormRow>
         <FormRow mb={5}>
           <FormCol>
-            <Text t4>Quote</Text>
+            <Text t2>Premium</Text>
           </FormCol>
           <FormCol>
-            <Text t4 bold info>
+            <Text t2 bold info>
               {quote} {activeNetwork.nativeCurrency.symbol}
             </Text>
           </FormCol>

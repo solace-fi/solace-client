@@ -320,13 +320,13 @@ export const PolicyModalInfo: React.FC<PolicyModalInfoProps> = ({ appraisal, sel
             </FlexRow>
           </FlexCol>
         )}
-        {selectedPolicy?.positionNames && (
+        {/* {selectedPolicy?.positionNames && (
           <ButtonWrapper style={{ width: '100%' }}>
             <Button widthP={100} onClick={() => setShowAssetsModal(true)}>
               View your covered positions
             </Button>
           </ButtonWrapper>
-        )}
+        )} */}
       </HeroContainer>
       <HorizRule style={{ marginBottom: '20px' }} />
     </Fragment>

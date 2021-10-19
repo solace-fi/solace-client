@@ -122,8 +122,8 @@ export const MyOptions: React.FC = () => {
         </Button>
       </Text>
       <Text t4 pb={10}>
-        Options are special tokens for purchasing SOLACE at a discount. Claim options as a reward from staking in the
-        Options Farming Pool.
+        Options are special tokens granting you the right to purchase $SOLACE at a discount. You can earn $SOLACE
+        options by underwriting coverage and staking in the Options Farming Pool.
       </Text>
       <Accordion isOpen={openOptions}>
         {optionsDetails.length > 0 ? (

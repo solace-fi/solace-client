@@ -26,6 +26,7 @@ import { useLocation } from 'react-router'
 
 /* import managers */
 import { useGeneral } from '../../context/GeneralProvider'
+import { useToasts } from '../../context/NotificationsManager'
 
 /* import constants */
 import { BKPT_3, BKPT_NAVBAR } from '../../constants'
@@ -51,16 +52,17 @@ import {
 import { Text, TextSpan } from '../atoms/Typography'
 import { HyperLink } from '../atoms/Link'
 import { ThemeButton } from '../molecules/ThemeButton'
-import { HorizRule } from '../atoms/Layout'
+import { FlexCol, FlexRow, HorizRule } from '../atoms/Layout'
 import { MiniUserAccount, UserAccount } from './Account'
 import { StyledNavTooltip } from '../molecules/Tooltip'
-import { StaticMessage } from '../atoms/Message'
+
+import AlchemyBadgeLight from '../../resources/svg/alchemy-badge-light.svg'
+import AlchemyBadgeDark from '../../resources/svg/alchemy-badge-dark.svg'
 
 /* import hooks */
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'
 import { SystemNotice } from '../../constants/enums'
 import { AuditToast } from '../molecules/Toast'
-import { useToasts } from '../../context/NotificationsManager'
 
 interface SideNavbarProps {
   isMobile?: Boolean
@@ -72,6 +74,7 @@ export const SideNavbar: React.FC<SideNavbarProps> = ({ isMobile }) => {
   hooks
 
   */
+  const { appTheme } = useGeneral()
   const location = useLocation()
   const { width } = useWindowDimensions()
   const miniNavbarMarginSet = useMemo(() => {
@@ -310,6 +313,20 @@ export const SideNavbar: React.FC<SideNavbarProps> = ({ isMobile }) => {
           <StyledNavTooltip id={'theme-nav'} tip={'Change Theme'}>
             <ThemeButton light={lightText} width={0} />
           </StyledNavTooltip>
+          {width > BKPT_3 && (
+            <>
+              {appTheme == 'light' && (
+                <FlexRow style={{ justifyContent: 'center' }}>
+                  <img src={AlchemyBadgeLight} style={{ width: '145px' }} />
+                </FlexRow>
+              )}
+              {appTheme == 'dark' && (
+                <FlexRow style={{ justifyContent: 'center' }}>
+                  <img src={AlchemyBadgeDark} style={{ width: '145px' }} />
+                </FlexRow>
+              )}
+            </>
+          )}
         </ItemList>
       </div>
     </div>

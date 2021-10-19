@@ -325,9 +325,9 @@ export const MultiStepForm = () => {
                   </BoxItem>
                   <BoxItem>
                     <ButtonWrapper>
-                      <Button light onClick={() => setShowAssetsModal(true)}>
+                      {/* <Button light onClick={() => setShowAssetsModal(true)}>
                         View assets
-                      </Button>
+                      </Button> */}
                       <Button light onClick={() => navigation.go(1)}>
                         Change
                       </Button>
