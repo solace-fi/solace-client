@@ -7,16 +7,21 @@ import { withBackoffRetries } from '../../../utils/time'
 import { BigNumber } from 'ethers'
 import { TickMath, Position, Pool, Route } from '@uniswap/v3-sdk'
 import { Token, Price, CurrencyAmount } from '@uniswap/sdk-core'
+import UniV3FactoryAbi from './_contracts/IUniswapV3Factory.json'
 
-import { ZERO } from '../../../constants'
+import { ADDRESS_ZERO, ZERO } from '../../../constants'
 import axios from 'axios'
 import JSBI from 'jsbi'
 
 import { ApolloClient, InMemoryCache, gql } from '@apollo/client'
+import { getContract } from '../../../utils'
+
+const UniV3FactoryAddr = '0x1F98431c8aD98523631AE4a59f267346ea31F984'
 
 const ETH = '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee'
+const WETH = '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2'
 
-const USDCToken = new Token(1, '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48', 6) // mainnet usdc
+const WETHToken = new Token(1, '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2', 18, 'WETH', 'Wrapped Ether') // mainnet eth
 
 const client = new ApolloClient({
   uri: 'https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v3',
@@ -29,7 +34,10 @@ export const getBalances = async (
   activeNetwork: NetworkConfig,
   tokens: _Token[]
 ): Promise<_Token[]> => {
-  const chainStablecoin = stablecoinForChain[activeNetwork.chainId]
+  const nativeToken = tokenForChain[activeNetwork.chainId]
+  console.log(nativeToken, activeNetwork.chainId)
+
+  const uniV3FactoryContract = getContract(UniV3FactoryAddr, UniV3FactoryAbi, provider)
 
   for (let i = 0; i < tokens.length; i++) {
     const _tokenA = tokens[i].underlying[0]
@@ -43,28 +51,32 @@ export const getBalances = async (
     const L_Of_TokenA_And_TokenB = JSBI.BigInt(tokens[i].metadata.positionLiquidity)
     const poolL_Of_TokenA_And_TokenB = JSBI.BigInt(tokens[i].metadata.poolLiquidity)
 
-    const amountOut = computeStableCoinAmountOut[activeNetwork.chainId]
-    const stablecoin = amountOut.currency
+    let price_Of_TokenA_NativeToken = undefined
+    let price_Of_TokenB_NativeToken = undefined
 
-    let pool_TokenA_Stablecoin = undefined // if tokenA is same stablecoin, leave undefined
-    let pool_TokenB_Stablecoin = undefined // if tokenB is same stablecoin, leave undefined
+    if (tokenA.address != nativeToken.address) {
+      const [
+        poolAddr_tokenA_And_Native_500,
+        poolAddr_tokenA_And_Native_3000,
+        poolAddr_tokenA_And_Native_10000,
+      ] = await Promise.all([
+        uniV3FactoryContract.getPool(tokenA.address.toLowerCase(), nativeToken.address, 500),
+        uniV3FactoryContract.getPool(tokenA.address.toLowerCase(), nativeToken.address, 3000),
+        uniV3FactoryContract.getPool(tokenA.address.toLowerCase(), nativeToken.address, 10000),
+      ])
 
-    let pools_Of_Stablecoin_And_TokenA = [] // discovered pools where token0 is stablecoin and token1 is tokenA
-    let pools_Of_Stablecoin_And_TokenB = [] // discovered pools where token
+      const legitPoolAddr_tokenA_And_Native =
+        poolAddr_tokenA_And_Native_500 != ADDRESS_ZERO
+          ? poolAddr_tokenA_And_Native_500
+          : poolAddr_tokenA_And_Native_3000 != ADDRESS_ZERO
+          ? poolAddr_tokenA_And_Native_3000
+          : poolAddr_tokenA_And_Native_10000
 
-    let price_Of_TokenA_Stablecoin = undefined
-    let price_Of_TokenB_Stablecoin = undefined
-
-    // search for pools where token0 is the stablecoin and token1 is tokenB
-    // if tokenB is a mapped stablecoin, do not query for pools where token0 is also the mapped stablecoin, they shouldn't exist
-    if (tokenB.wrapped.equals(stablecoin)) {
-      price_Of_TokenB_Stablecoin = new Price(stablecoin, stablecoin, '1', '1')
-    } else {
-      const poolsWhereToken0IsStablecoin = await client
+      const pool = await client
         .query({
           query: gql`
-            query pools($tokenStablecoin: String!) {
-              pools(first: 1000, where: { token0: $tokenStablecoin }, orderBy: volumeUSD, orderDirection: desc) {
+            query pools($poolAddr: String!) {
+              pools(where: { id: $poolAddr }) {
                 token0 {
                   id
                   decimals
@@ -83,84 +95,54 @@ export const getBalances = async (
             }
           `,
           variables: {
-            tokenStablecoin: chainStablecoin.address.toLowerCase(),
+            poolAddr: legitPoolAddr_tokenA_And_Native.toLowerCase(),
           },
         })
-        .then((result) => result.data.pools)
-      pools_Of_Stablecoin_And_TokenB = poolsWhereToken0IsStablecoin.filter(
-        (p: any) => p.token1.id.toLowerCase() == tokenB.address.toLowerCase()
+        .then((result) => result.data.pools[0])
+
+      const pool_Of_TokenA_NativeToken = new Pool(
+        tokenA,
+        nativeToken,
+        parseInt(pool.feeTier),
+        TickMath.getSqrtRatioAtTick(parseInt(pool.tick)),
+        JSBI.BigInt(pool.liquidity),
+        parseInt(pool.tick)
       )
-
-      // if a pool of the stablecoin and the tokenB is not found where token0 is the stablecoin, search for pool where token0 is tokenB and token1 is the stablecoin
-      if (pools_Of_Stablecoin_And_TokenB.length == 0) {
-        const poolsWhereToken1IsStablecoin = await client
-          .query({
-            query: gql`
-              query pools($tokenStablecoin: String!) {
-                pools(first: 1000, where: { token1: $tokenStablecoin }, orderBy: volumeUSD, orderDirection: desc) {
-                  token0 {
-                    id
-                    decimals
-                    name
-                  }
-                  token1 {
-                    id
-                    decimals
-                    name
-                  }
-                  liquidity
-                  tick
-                  sqrtPrice
-                  feeTier
-                }
-              }
-            `,
-            variables: {
-              tokenStablecoin: chainStablecoin.address.toLowerCase(),
-            },
-          })
-          .then((result) => result.data.pools)
-        pools_Of_Stablecoin_And_TokenB = poolsWhereToken1IsStablecoin.filter(
-          (p: any) => p.token0.id.toLowerCase() == tokenB.address.toLowerCase()
-        )
-      }
-
-      // plug resulting pool in here after queries
-      pool_TokenB_Stablecoin = pools_Of_Stablecoin_And_TokenB[0]
-
-      // create pool
-      const pool_Of_TokenB_Stablecoin = new Pool(
-        tokenB,
-        chainStablecoin,
-        parseInt(pool_TokenB_Stablecoin.feeTier),
-        TickMath.getSqrtRatioAtTick(parseInt(pool_TokenB_Stablecoin.tick)),
-        JSBI.BigInt(pool_TokenB_Stablecoin.liquidity),
-        parseInt(pool_TokenB_Stablecoin.tick)
+      const route_Of_TokenA_NativeToken = new Route([pool_Of_TokenA_NativeToken], tokenA, nativeToken)
+      const midPriceTokenA_NativeToken = route_Of_TokenA_NativeToken.midPrice
+      price_Of_TokenA_NativeToken = new Price(
+        tokenA,
+        nativeToken,
+        midPriceTokenA_NativeToken.denominator,
+        midPriceTokenA_NativeToken.numerator
       )
-
-      // create route from pool
-      const route_Of_TokenB_Stablecoin = new Route([pool_Of_TokenB_Stablecoin], tokenB, chainStablecoin)
-      const midPriceTokenB_Stablecoin = route_Of_TokenB_Stablecoin.midPrice
-
-      // create price from route
-      price_Of_TokenB_Stablecoin = new Price(
-        tokenB,
-        chainStablecoin,
-        midPriceTokenB_Stablecoin.denominator,
-        midPriceTokenB_Stablecoin.numerator
-      )
+    } else {
+      price_Of_TokenA_NativeToken = new Price(nativeToken, nativeToken, '1', '1')
     }
 
-    // search for pools where token0 is the stablecoin and token1 is tokenA
-    // if tokenA is a mapped stablecoin, do not query for pools where token0 is also the mapped stablecoin, they shouldn't exist
-    if (tokenA.wrapped.equals(stablecoin)) {
-      price_Of_TokenA_Stablecoin = new Price(stablecoin, stablecoin, '1', '1')
-    } else {
-      const poolsWhereToken0IsStablecoin = await client
+    if (tokenB.address != nativeToken.address) {
+      const [
+        poolAddr_tokenB_And_Native_500,
+        poolAddr_tokenB_And_Native_3000,
+        poolAddr_tokenB_And_Native_10000,
+      ] = await Promise.all([
+        uniV3FactoryContract.getPool(tokenB.address.toLowerCase(), nativeToken.address, 500),
+        uniV3FactoryContract.getPool(tokenB.address.toLowerCase(), nativeToken.address, 3000),
+        uniV3FactoryContract.getPool(tokenB.address.toLowerCase(), nativeToken.address, 10000),
+      ])
+
+      const legitPoolAddr_tokenB_And_Native =
+        poolAddr_tokenB_And_Native_500 != ADDRESS_ZERO
+          ? poolAddr_tokenB_And_Native_500
+          : poolAddr_tokenB_And_Native_3000 != ADDRESS_ZERO
+          ? poolAddr_tokenB_And_Native_3000
+          : poolAddr_tokenB_And_Native_10000
+
+      const pool = await client
         .query({
           query: gql`
-            query pools($tokenStablecoin: String!) {
-              pools(first: 1000, where: { token0: $tokenStablecoin }, orderBy: volumeUSD, orderDirection: desc) {
+            query pools($poolAddr: String!) {
+              pools(where: { id: $poolAddr }) {
                 token0 {
                   id
                   decimals
@@ -179,72 +161,29 @@ export const getBalances = async (
             }
           `,
           variables: {
-            tokenStablecoin: chainStablecoin.address.toLowerCase(),
+            poolAddr: legitPoolAddr_tokenB_And_Native.toLowerCase(),
           },
         })
-        .then((result) => result.data.pools)
-      pools_Of_Stablecoin_And_TokenA = poolsWhereToken0IsStablecoin.filter(
-        (p: any) => p.token1.id.toLowerCase() == tokenA.address.toLowerCase()
+        .then((result) => result.data.pools[0])
+
+      const pool_Of_TokenB_NativeToken = new Pool(
+        tokenB,
+        nativeToken,
+        parseInt(pool.feeTier),
+        TickMath.getSqrtRatioAtTick(parseInt(pool.tick)),
+        JSBI.BigInt(pool.liquidity),
+        parseInt(pool.tick)
       )
-
-      // if a pool of the stablecoin and the tokenA is not found where token0 is the stablecoin, search for pool where token0 is tokenA and token1 is the stablecoin
-      if (pools_Of_Stablecoin_And_TokenA.length == 0) {
-        const poolsWhereToken1IsStablecoin = await client
-          .query({
-            query: gql`
-              query pools($tokenStablecoin: String!) {
-                pools(first: 1000, where: { token1: $tokenStablecoin }, orderBy: volumeUSD, orderDirection: desc) {
-                  token0 {
-                    id
-                    decimals
-                    name
-                  }
-                  token1 {
-                    id
-                    decimals
-                    name
-                  }
-                  liquidity
-                  tick
-                  sqrtPrice
-                  feeTier
-                }
-              }
-            `,
-            variables: {
-              tokenStablecoin: chainStablecoin.address.toLowerCase(),
-            },
-          })
-          .then((result) => result.data.pools)
-        pools_Of_Stablecoin_And_TokenA = poolsWhereToken1IsStablecoin.filter(
-          (p: any) => p.token0.id.toLowerCase() == tokenA.address.toLowerCase()
-        )
-      }
-
-      // plug resulting pool in here after queries
-      pool_TokenA_Stablecoin = pools_Of_Stablecoin_And_TokenA[0]
-
-      // create pool
-      const pool_Of_TokenA_Stablecoin = new Pool(
-        tokenA,
-        chainStablecoin,
-        parseInt(pool_TokenA_Stablecoin.feeTier),
-        TickMath.getSqrtRatioAtTick(parseInt(pool_TokenA_Stablecoin.tick)),
-        JSBI.BigInt(pool_TokenA_Stablecoin.liquidity),
-        parseInt(pool_TokenA_Stablecoin.tick)
+      const route_Of_TokenB_NativeToken = new Route([pool_Of_TokenB_NativeToken], tokenB, nativeToken)
+      const midPriceTokenB_NativeToken = route_Of_TokenB_NativeToken.midPrice
+      price_Of_TokenB_NativeToken = new Price(
+        tokenB,
+        nativeToken,
+        midPriceTokenB_NativeToken.denominator,
+        midPriceTokenB_NativeToken.numerator
       )
-
-      // create route from pool
-      const route_Of_TokenA_Stablecoin = new Route([pool_Of_TokenA_Stablecoin], tokenA, chainStablecoin)
-      const midPriceTokenA_Stablecoin = route_Of_TokenA_Stablecoin.midPrice
-
-      // create price from route
-      price_Of_TokenA_Stablecoin = new Price(
-        tokenA,
-        chainStablecoin,
-        midPriceTokenA_Stablecoin.denominator,
-        midPriceTokenA_Stablecoin.numerator
-      )
+    } else {
+      price_Of_TokenB_NativeToken = new Price(nativeToken, nativeToken, '1', '1')
     }
 
     const pool_Of_TokenA_And_TokenB = new Pool(
@@ -263,25 +202,21 @@ export const getBalances = async (
       tickUpper: parseInt(tokens[i].metadata.tickUpper),
     })
 
-    const amount0InStablecoin = price_Of_TokenA_Stablecoin.quote(position.amount0)
-    const amount1InStablecoin = price_Of_TokenB_Stablecoin.quote(position.amount1)
+    const amount0InNativeToken = price_Of_TokenA_NativeToken.quote(position.amount0)
+    const amount1InNativeToken = price_Of_TokenB_NativeToken.quote(position.amount1)
 
-    const totalAmountInStablecoin = amount0InStablecoin.add(amount1InStablecoin)
-    const humanStableCoinAmount = totalAmountInStablecoin.toFixed(chainStablecoin.decimals, { groupSeparator: ',' })
+    const totalAmountInNativeToken = amount0InNativeToken.add(amount1InNativeToken)
+    const convertedNativeTokenAmount = totalAmountInNativeToken.toFixed(nativeToken.decimals)
 
-    const url = `https://api.1inch.exchange/v3.0/1/quote?fromTokenAddress=${
-      chainStablecoin.address
-    }&toTokenAddress=${ETH}&amount=${accurateMultiply(humanStableCoinAmount, chainStablecoin.decimals)}`
-    const res = await withBackoffRetries(async () => axios.get(url))
-    tokens[i].eth.balance = BigNumber.from(res.data.toTokenAmount)
+    tokens[i].eth.balance = BigNumber.from(accurateMultiply(convertedNativeTokenAmount, nativeToken.decimals))
   }
   return tokens
 }
 
-export const stablecoinForChain: { [chainId: number]: Token } = {
-  [1]: USDCToken,
+export const tokenForChain: { [chainId: number]: Token } = {
+  [1]: WETHToken,
 }
 
-export const computeStableCoinAmountOut: { [chainId: number]: CurrencyAmount<Token> } = {
-  [1]: CurrencyAmount.fromRawAmount(USDCToken, 100_000e6),
-}
+// export const computeNativeTokenAmountOut: { [chainId: number]: CurrencyAmount<Token> } = {
+//   [1]: CurrencyAmount.fromRawAmount(USDCToken, 100_000e6),
+// }

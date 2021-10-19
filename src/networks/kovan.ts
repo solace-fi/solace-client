@@ -1,3 +1,9 @@
+import { ProductName, Unit } from '../constants/enums'
+import { NetworkConfig } from '../constants/types'
+import { ETHERSCAN_API_KEY, ALCHEMY_API_KEY } from '../constants'
+import { hexValue } from '@ethersproject/bytes'
+import EthereumLogo from '../resources/svg/networks/ethereum-logo.svg'
+
 /*  core contract abi */
 import farmControllerABI from '../constants/abi/contracts/FarmController.sol/FarmController.json'
 import optionsFarmingABI from '../constants/abi/contracts/OptionsFarming.sol/OptionsFarming.json'
@@ -20,12 +26,6 @@ import waaveABI from '../constants/abi/contracts/products/WaaveProduct.sol/Waave
 /* product objects */
 import { AaveProduct } from '../products/aave'
 import { WaaveProduct } from '../products/waave'
-
-import { ProductName, Unit } from '../constants/enums'
-import { NetworkConfig } from '../constants/types'
-import { ETHERSCAN_API_KEY, ALCHEMY_API_KEY } from '../constants'
-import { hexValue } from '@ethersproject/bytes'
-import EthereumLogo from '../resources/svg/networks/ethereum-logo.svg'
 
 /*
 
@@ -139,6 +139,6 @@ export const KovanNetwork: NetworkConfig = {
   walletConfig: {
     portisId: String(process.env.REACT_APP_PORTIS_ID),
     trezorEmail: '',
-    trezorAppUrl: 'https://polygon.solace.fi/',
+    trezorAppUrl: String(process.env.REACT_APP_WEBSITE_LINK),
   },
 }
