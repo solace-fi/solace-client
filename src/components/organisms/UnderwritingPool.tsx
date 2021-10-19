@@ -73,16 +73,16 @@ export const UnderwritingPool: React.FC<UnderwritingPoolProps> = ({ openModal })
         />{' '} */}
       </Text>
       <Text t4 pb={10}>
-        This pool allows Solace to back risks and fulfill claims for policies
+        This capital is utilized to back the risk of coverage policies and earns revenue from policy sales.
       </Text>
       {width > BKPT_6 ? (
         <Table isHighlight textAlignCenter>
           <TableHead>
             <TableRow>
-              {account ? <TableHeader width={100}>Your Assets</TableHeader> : null}
+              {account ? <TableHeader width={100}>My Assets</TableHeader> : null}
               <TableHeader width={100}>Total Assets</TableHeader>
               {/* <TableHeader width={100}>ROI (1Y)</TableHeader> */}
-              {account ? <TableHeader width={130}>Your Vault Share</TableHeader> : null}
+              {account ? <TableHeader width={130}>My Vault Share</TableHeader> : null}
             </TableRow>
           </TableHead>
           <TableBody>
@@ -123,7 +123,7 @@ export const UnderwritingPool: React.FC<UnderwritingPoolProps> = ({ openModal })
         <Card isHighlight>
           {account && (
             <FormRow>
-              <FormCol light>Your Assets:</FormCol>
+              <FormCol light>My Assets:</FormCol>
               <FormCol light t2>
                 {truncateBalance(userVaultAssets, 2)}
               </FormCol>
@@ -135,34 +135,38 @@ export const UnderwritingPool: React.FC<UnderwritingPoolProps> = ({ openModal })
               {truncateBalance(floatUnits(parseUnits(capitalPoolSize, currencyDecimals), currencyDecimals), 2)}
             </FormCol>
           </FormRow>
-          <FormRow>
+          {/* <FormRow>
             <FormCol light>ROI:</FormCol>
             <FormCol light t2>
               {CP_ROI}
             </FormCol>
-          </FormRow>
-          <FormRow>
-            <FormCol light>Your Vault Share:</FormCol>
-            <FormCol light t2>{`${truncateBalance(userVaultShare, 2)}%`}</FormCol>
-          </FormRow>
-          <ButtonWrapper isColumn={width <= BKPT_4}>
-            <Button
-              widthP={100}
-              disabled={haveErrors}
-              onClick={() => openModal(FunctionName.DEPOSIT_ETH, 'Deposit')}
-              light
-            >
-              Deposit
-            </Button>
-            <Button
-              widthP={100}
-              disabled={haveErrors}
-              onClick={() => openModal(FunctionName.WITHDRAW_ETH, 'Withdraw')}
-              light
-            >
-              Withdraw
-            </Button>
-          </ButtonWrapper>
+          </FormRow> */}
+          {account && (
+            <FormRow>
+              <FormCol light>My Vault Share:</FormCol>
+              <FormCol light t2>{`${truncateBalance(userVaultShare, 2)}%`}</FormCol>
+            </FormRow>
+          )}
+          {account && (
+            <ButtonWrapper isColumn={width <= BKPT_4}>
+              <Button
+                widthP={100}
+                disabled={haveErrors}
+                onClick={() => openModal(FunctionName.DEPOSIT_ETH, 'Deposit')}
+                light
+              >
+                Deposit
+              </Button>
+              <Button
+                widthP={100}
+                disabled={haveErrors}
+                onClick={() => openModal(FunctionName.WITHDRAW_ETH, 'Withdraw')}
+                light
+              >
+                Withdraw
+              </Button>
+            </ButtonWrapper>
+          )}
         </Card>
       )}
     </Content>

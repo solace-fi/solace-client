@@ -1,3 +1,10 @@
+import { ProductName, Unit } from '../constants/enums'
+import { NetworkConfig } from '../constants/types'
+import { ETHERSCAN_API_KEY, ALCHEMY_API_KEY } from '../constants'
+import { hexValue } from '@ethersproject/bytes'
+import EthereumLogo from '../resources/svg/networks/ethereum-logo.svg'
+
+/*  core contract abi */
 import farmControllerABI from '../constants/abi/contracts/FarmController.sol/FarmController.json'
 import optionsFarmingABI from '../constants/abi/contracts/OptionsFarming.sol/OptionsFarming.json'
 import registryABI from '../constants/abi/contracts/Registry.sol/Registry.json'
@@ -12,20 +19,15 @@ import polMagABI from '../constants/abi/contracts/PolicyManager.sol/PolicyManage
 import lpAppraisorABI from '../constants/abi/contracts/LpAppraisor.sol/LpAppraisor.json'
 import riskManagerABI from '../constants/abi/contracts/RiskManager.sol/RiskManager.json'
 
+/* product contract abi */
 import liquityProductABI from '../constants/abi/contracts/products/LiquityProduct.sol/LiquityProduct.json'
 import compABI from '../constants/abi/contracts/products/CompoundProductRinkeby.sol/CompoundProductRinkeby.json'
 import waaveABI from '../constants/abi/contracts/products/WaaveProduct.sol/WaaveProduct.json'
 
-import { ProductName, Unit } from '../constants/enums'
-
-import { NetworkConfig } from '../constants/types'
-import { ETHERSCAN_API_KEY, ALCHEMY_API_KEY } from '../constants'
-import { hexValue } from '@ethersproject/bytes'
+/* product objects */
 import { CompoundProduct } from '../products/compound'
 import { WaaveProduct } from '../products/waave'
 import { LiquityProduct } from '../products/liquity'
-
-import EthereumLogo from '../resources/svg/networks/ethereum-logo.svg'
 
 /*
 
@@ -144,6 +146,6 @@ export const RinkebyNetwork: NetworkConfig = {
   walletConfig: {
     portisId: String(process.env.REACT_APP_PORTIS_ID),
     trezorEmail: '',
-    trezorAppUrl: 'https://polygon.solace.fi/',
+    trezorAppUrl: String(process.env.REACT_APP_WEBSITE_LINK),
   },
 }

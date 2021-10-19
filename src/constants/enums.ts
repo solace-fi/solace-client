@@ -15,6 +15,7 @@ export enum Error {
 
 export enum SystemNotice {
   LOSS_EVENT_DETECTED = 'LED',
+  AUDIT_NOTICE = 'AN',
 }
 
 export enum FunctionName {

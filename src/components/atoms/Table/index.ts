@@ -72,6 +72,9 @@ export const TableData = styled.td<TableProps>`
   &:last-child {
     border-radius: 0 10px 10px 0;
   }
+  &:first-child:last-child {
+    border-radius: 10px;
+  }
   overflow: hidden;
   text-overflow: ellipsis;
   ${GeneralTextCss}

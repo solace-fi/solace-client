@@ -542,7 +542,7 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
   )
 
   const AutoStakeOption: React.FC = () => (
-    <RadioCircle style={{ justifyContent: 'center' }}>
+    <RadioCircle style={{ justifyContent: 'center', marginTop: '10px' }}>
       <RadioCircleInput type="checkbox" checked={isStaking} onChange={(e) => setIsStaking(e.target.checked)} />
       <RadioCircleFigure />
       <Text info={appTheme == 'light'}>Earn Solace token options as a reward</Text>
@@ -618,7 +618,20 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
           </div>
         )}
         <GasRadioGroup mb={20} />
-        {func == FunctionName.DEPOSIT_ETH && <AutoStakeOption />}
+        {func == FunctionName.DEPOSIT_ETH && (
+          <>
+            <Text textAlignCenter t4 warning>
+              Disclaimer: The underwriting pool backs the risk of coverage policies,
+            </Text>
+            <Text textAlignCenter t4 warning>
+              so in case one of the covered protocols get exploited,
+            </Text>
+            <Text textAlignCenter t4 warning>
+              the claims will be paid out from this source of funds.
+            </Text>
+            <AutoStakeOption />
+          </>
+        )}
         {!modalLoading ? (
           <Fragment>
             {func == FunctionName.DEPOSIT_CP ? (

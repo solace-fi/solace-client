@@ -45,11 +45,10 @@ function About(): any {
           <HeroContainer style={{ height: '100vh' }}>
             <img src={whiteLogo} style={{ marginLeft: '70px' }} />
             <Text light mont mt={30} style={{ fontSize: '36px', lineHeight: '2' }}>
-              Calmingly Safe. Cleverly Innovative.
+              Safe. Secure. Simple.
             </Text>
             <Text light t4 textAlignCenter style={{ lineHeight: '1.8', width: '500px', fontSize: '18px' }}>
-              Solace advances risk management of decentralized financial products by efficiently making coverage
-              policies available to liquidity providers and other protocols.
+              We’re here to protect your funds, so you don’t have to stress about getting rekt anymore.
             </Text>
             <ButtonWrapper mt={70} mb={90}>
               <StyledNavLink to="/quote">
@@ -115,19 +114,15 @@ function About(): any {
               style={{ marginLeft: '50px', width: '250px', height: '250px', marginBottom: 'max(100px, 15%)' }}
             />
             <Text textAlignCenter light mont mt={30} style={{ fontSize: '18px' }}>
-              Calmingly Safe. Cleverly Innovative.
+              Safe. Secure. Simple.
             </Text>
-            {/* <Text textAlignCenter light mont style={{ fontSize: '18px', lineHeight: '2' }}>
-              Cleverly Innovative.
-            </Text> */}
             <Text
               light
               t4
               textAlignCenter
               style={{ lineHeight: '1.8', width: '300px', fontSize: '18px', marginTop: '300px' }}
             >
-              Solace advances risk management of decentralized financial products by efficiently making coverage
-              policies available to liquidity providers and other protocols.
+              We’re here to protect your funds, so you don’t have to stress about getting rekt anymore.
             </Text>
             <ButtonWrapper mt={70} mb={90}>
               <StyledNavLink to="/quote">

@@ -43,6 +43,7 @@ import { useWindowDimensions } from '../../hooks/useWindowDimensions'
 
 /* import utils */
 import { truncateBalance } from '../../utils/formatting'
+import { HyperLink } from '../atoms/Link'
 
 interface CapitalProviderPoolProps {
   openModal: (func: FunctionName, modalTitle: string) => void
@@ -76,29 +77,42 @@ export const CapitalProviderPool: React.FC<CapitalProviderPoolProps> = ({ openMo
         />{' '} */}
       </Text>
       <Text t4 pb={10}>
-        This pool rewards capital providers with options
+        This pool rewards coverage underwriters with $SOLACE token call options.
+        <HyperLink
+          t4
+          href={'https://medium.com/solace-fi/solace-options-rewards-d4bd64902b4'}
+          target="_blank"
+          rel="noopener noreferrer"
+          info
+        >
+          {' '}
+          More information here.
+        </HyperLink>
       </Text>
       {width > BKPT_6 ? (
         <Table isHighlight textAlignCenter>
           <TableHead>
             <TableRow>
-              {account ? <TableHeader>Your Stake</TableHeader> : null}
+              {account ? <TableHeader>My Stake</TableHeader> : null}
               <TableHeader>Total Assets</TableHeader>
               {/* <TableHeader>ROI (1Y)</TableHeader> */}
               {account ? (
                 <TableHeader>
-                  My Rewards <StyledTooltip id={'cp-rewards'} tip={'Amount of your unclaimed rewards from this pool'} />
+                  My Rewards
+                  {/* <StyledTooltip id={'cp-rewards'} tip={'Amount of your unclaimed rewards from this pool'} /> */}
                 </TableHeader>
               ) : null}
               {account ? (
                 <TableHeader>
-                  My Daily Rewards{' '}
-                  <StyledTooltip id={'my-daily-cp-rewards'} tip={'Amount of rewards you earn from this pool per day'} />
+                  My Daily Rewards
+                  {/* {' '}
+                  <StyledTooltip id={'my-daily-cp-rewards'} tip={'Amount of rewards you earn from this pool per day'} /> */}
                 </TableHeader>
               ) : null}
               <TableHeader>
-                Daily Rewards{' '}
-                <StyledTooltip id={'daily-cp-rewards'} tip={'Total amount of rewards for this pool per day'} />
+                Daily Rewards
+                {/* {' '}
+                <StyledTooltip id={'daily-cp-rewards'} tip={'Total amount of rewards for this pool per day'} /> */}
               </TableHeader>
             </TableRow>
           </TableHead>
@@ -204,7 +218,7 @@ export const CapitalProviderPool: React.FC<CapitalProviderPoolProps> = ({ openMo
         <Card isHighlight>
           {account && (
             <FormRow>
-              <FormCol light>Your Stake:</FormCol>
+              <FormCol light>My Stake:</FormCol>
               <FormCol light t2>
                 {truncateBalance(cpUserStakeValue, 2)}
               </FormCol>

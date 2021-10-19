@@ -145,3 +145,16 @@ export const Content = styled.div`
     padding: 30px 20px;
   }
 `
+
+export const Footer = styled.div`
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  background-color: rgba(0, 0, 0, 0.9);
+  text-align: center;
+  display: block;
+  overflow: hidden;
+  padding: 10px 0;
+  z-index: 1;
+`

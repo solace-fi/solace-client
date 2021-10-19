@@ -128,12 +128,13 @@ function Dashboard(): any {
           />
           <Content>
             <Text bold t1 mb={0}>
-              Your Policies{' '}
+              My Policies
+              {/* {' '}
               <StyledTooltip
                 id={'user-policies'}
                 tip={'A policy indicates the coverage for your positions on a protocol.'}
                 link={`https://docs.solace.fi/docs/user-guides/buy-cover`}
-              />
+              /> */}
               <Button style={{ float: 'right' }} onClick={() => setOpenPolicies(!openPolicies)}>
                 <StyledArrowDropDown
                   style={{ transform: openPolicies ? 'rotate(180deg)' : 'rotate(0deg)' }}

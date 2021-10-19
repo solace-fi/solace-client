@@ -1,10 +1,13 @@
 import React, { createContext, useCallback, useContext, useMemo } from 'react'
 import { useLocalStorage } from 'react-use-storage'
 import { NetworkConfig } from '../constants/types'
-import { KovanNetwork } from '../networks/kovan'
-import { RinkebyNetwork } from '../networks/rinkeby'
 import { AbstractConnector } from '@web3-react/abstract-connector'
 import { MetamaskConnector } from '../wallet/wallet-connectors/MetaMask'
+
+/* networks */
+import { MainNetwork } from '../networks/mainnet'
+import { KovanNetwork } from '../networks/kovan'
+import { RinkebyNetwork } from '../networks/rinkeby'
 
 /*
 
@@ -12,7 +15,7 @@ This manager keeps track of the current network and other important information.
 
 */
 
-export const networks: NetworkConfig[] = [RinkebyNetwork, KovanNetwork]
+export const networks: NetworkConfig[] = [MainNetwork, RinkebyNetwork, KovanNetwork]
 
 type NetworkContext = {
   activeNetwork: NetworkConfig
@@ -36,7 +39,6 @@ const NetworkContext = createContext<NetworkContext>({
 
 const NetworksProvider: React.FC = (props) => {
   const [lastNetwork, setLastNetwork] = useLocalStorage<string | undefined>('solace_net')
-
   const activeNetwork = useMemo(() => {
     let network: NetworkConfig | undefined
 
@@ -67,10 +69,10 @@ const NetworksProvider: React.FC = (props) => {
       setLastNetwork(network.name.toLowerCase())
 
       // there were cases where changing networks with the same wallet (not metamask) does not pull data correctly
-      // if (connector && !(connector instanceof MetamaskConnector)) window.location.reload()
+      if (connector && !(connector instanceof MetamaskConnector)) window.location.reload()
 
       // there were cases where changing networks with the same wallet does not pull data correctly
-      if (connector) window.location.reload()
+      if (connector) window.location.reload() // <- uncomment if there's too many errors going on
     }
 
     return network

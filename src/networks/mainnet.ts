@@ -1,3 +1,10 @@
+import EthereumLogo from '../resources/svg/networks/ethereum-logo.svg'
+import { ETHERSCAN_API_KEY, ALCHEMY_API_KEY } from '../constants'
+import { ProductName, Unit } from '../constants/enums'
+import { hexValue } from '@ethersproject/bytes'
+import { NetworkConfig } from '../constants/types'
+
+/* core contract abi */
 import farmControllerABI from '../constants/abi/contracts/FarmController.sol/FarmController.json'
 import optionsFarmingABI from '../constants/abi/contracts/OptionsFarming.sol/OptionsFarming.json'
 import registryABI from '../constants/abi/contracts/Registry.sol/Registry.json'
@@ -12,12 +19,17 @@ import polMagABI from '../constants/abi/contracts/PolicyManager.sol/PolicyManage
 import lpAppraisorABI from '../constants/abi/contracts/LpAppraisor.sol/LpAppraisor.json'
 import riskManagerABI from '../constants/abi/contracts/RiskManager.sol/RiskManager.json'
 
-import EthereumLogo from '../resources/svg/networks/ethereum-logo.svg'
-import { ETHERSCAN_API_KEY, ALCHEMY_API_KEY } from '../constants'
-import { ProductName, Unit } from '../constants/enums'
-import { hexValue } from '@ethersproject/bytes'
+/* product contract abi */
 
-export const MainNetwork = {
+/* product objects */
+
+/*
+
+When adding new products, please add into productContracts, functions, and cache
+
+*/
+
+export const MainNetwork: NetworkConfig = {
   name: 'mainnet',
   chainId: 1,
   isTestnet: false,
@@ -33,10 +45,70 @@ export const MainNetwork = {
     excludedContractAddrs: [],
   },
   config: {
-    keyContracts: {},
+    keyContracts: {
+      farmController: {
+        addr: String(process.env.REACT_APP_MAINNET_FARM_CONTROLLER_ADDR),
+        abi: farmControllerABI,
+      },
+      optionsFarming: {
+        addr: String(process.env.REACT_APP_MAINNET_OPTIONS_FARMING_ADDR),
+        abi: optionsFarmingABI,
+      },
+      vault: {
+        addr: String(process.env.REACT_APP_MAINNET_VAULT_ADDR),
+        abi: vaultABI,
+      },
+      treasury: {
+        addr: String(process.env.REACT_APP_MAINNET_TREASURY_ADDR),
+        abi: treasuryABI,
+      },
+      solace: {
+        addr: String(process.env.REACT_APP_MAINNET_SOLACE_ADDR),
+        abi: solaceABI,
+      },
+      cpFarm: {
+        addr: String(process.env.REACT_APP_MAINNET_CPFARM_ADDR),
+        abi: cpFarmABI,
+      },
+      lpFarm: {
+        addr: String(process.env.REACT_APP_MAINNET_LPFARM_ADDR),
+        abi: null,
+      },
+      registry: {
+        addr: String(process.env.REACT_APP_MAINNET_REGISTRY_ADDR),
+        abi: registryABI,
+      },
+      lpToken: {
+        addr: String(process.env.REACT_APP_MAINNET_UNISWAP_LPTOKEN_ADDR),
+        abi: lpTokenArtifact.abi,
+      },
+      weth: {
+        addr: String(process.env.REACT_APP_MAINNET_WETH_ADDR),
+        abi: wethABI,
+      },
+      claimsEscrow: {
+        addr: String(process.env.REACT_APP_MAINNET_CLAIMS_ESCROW_ADDR),
+        abi: claimsEscrowABI,
+      },
+      policyManager: {
+        addr: String(process.env.REACT_APP_MAINNET_POLICY_MANAGER_ADDR),
+        abi: polMagABI,
+      },
+      lpAppraisor: {
+        addr: String(process.env.REACT_APP_MAINNET_LPAPPRAISOR_ADDR),
+        abi: lpAppraisorABI,
+      },
+      riskManager: {
+        addr: String(process.env.REACT_APP_MAINNET_RISK_MANAGER_ADDR),
+        abi: riskManagerABI,
+      },
+    },
     productContracts: {},
+    productsRev: {},
   },
-  cache: {},
+  cache: {
+    supportedProducts: [],
+  },
   metamaskChain: {
     chainId: hexValue(1),
     chainName: 'Ethereum Mainnet',
@@ -47,6 +119,6 @@ export const MainNetwork = {
   walletConfig: {
     portisId: String(process.env.REACT_APP_PORTIS_ID),
     trezorEmail: '',
-    trezorAppUrl: 'https://polygon.solace.fi/',
+    trezorAppUrl: String(process.env.REACT_APP_WEBSITE_LINK),
   },
 }

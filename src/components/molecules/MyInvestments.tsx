@@ -63,7 +63,7 @@ export const MyInvestments: React.FC = () => {
   return (
     <Content>
       <Text t1 bold>
-        Your Investments
+        My Investments
       </Text>
       <CardContainer>
         <InvestmentCard>

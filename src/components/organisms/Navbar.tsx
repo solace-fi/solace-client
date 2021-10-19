@@ -26,6 +26,7 @@ import { useLocation } from 'react-router'
 
 /* import managers */
 import { useGeneral } from '../../context/GeneralProvider'
+import { useToasts } from '../../context/NotificationsManager'
 
 /* import constants */
 import { BKPT_3, BKPT_NAVBAR } from '../../constants'
@@ -51,13 +52,17 @@ import {
 import { Text, TextSpan } from '../atoms/Typography'
 import { HyperLink } from '../atoms/Link'
 import { ThemeButton } from '../molecules/ThemeButton'
-import { HorizRule } from '../atoms/Layout'
+import { FlexCol, FlexRow, HorizRule } from '../atoms/Layout'
 import { MiniUserAccount, UserAccount } from './Account'
 import { StyledNavTooltip } from '../molecules/Tooltip'
-import { StaticMessage } from '../atoms/Message'
+
+import AlchemyBadgeLight from '../../resources/svg/alchemy-badge-light.svg'
+import AlchemyBadgeDark from '../../resources/svg/alchemy-badge-dark.svg'
 
 /* import hooks */
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'
+import { SystemNotice } from '../../constants/enums'
+import { AuditToast } from '../molecules/Toast'
 
 interface SideNavbarProps {
   isMobile?: Boolean
@@ -69,6 +74,7 @@ export const SideNavbar: React.FC<SideNavbarProps> = ({ isMobile }) => {
   hooks
 
   */
+  const { appTheme } = useGeneral()
   const location = useLocation()
   const { width } = useWindowDimensions()
   const miniNavbarMarginSet = useMemo(() => {
@@ -307,6 +313,20 @@ export const SideNavbar: React.FC<SideNavbarProps> = ({ isMobile }) => {
           <StyledNavTooltip id={'theme-nav'} tip={'Change Theme'}>
             <ThemeButton light={lightText} width={0} />
           </StyledNavTooltip>
+          {width > BKPT_3 && (
+            <>
+              {appTheme == 'light' && (
+                <FlexRow style={{ justifyContent: 'center' }}>
+                  <img src={AlchemyBadgeLight} style={{ width: '145px' }} />
+                </FlexRow>
+              )}
+              {appTheme == 'dark' && (
+                <FlexRow style={{ justifyContent: 'center' }}>
+                  <img src={AlchemyBadgeDark} style={{ width: '145px' }} />
+                </FlexRow>
+              )}
+            </>
+          )}
         </ItemList>
       </div>
     </div>
@@ -319,10 +339,9 @@ export const TopNavbar: React.FC = () => {
   custom hooks
 
   *************************************************************************************/
-  const { width } = useWindowDimensions()
-  // const { openModal } = useGeneral()
   const [isOpen, setIsOpen] = useState<boolean>(false)
   const location = useLocation()
+  const { toastSettings, makeAppToast } = useToasts()
 
   /*************************************************************************************
 
@@ -331,15 +350,20 @@ export const TopNavbar: React.FC = () => {
   *************************************************************************************/
 
   useEffect(() => {
-    // document.addEventListener('scroll', function (e) {
-    //   setIsOpen(false)
-    // })
-    // return () => {
-    //   document.removeEventListener('scroll', function (e) {
-    //     setIsOpen(false)
-    //   })
-    // }
-  }, [])
+    if (location && location.pathname && location.pathname != '/') {
+      makeAppToast(
+        {
+          type: SystemNotice.AUDIT_NOTICE,
+          metadata: 'Audited',
+          uniqueId: `${SystemNotice.AUDIT_NOTICE}`,
+        },
+        SystemNotice.AUDIT_NOTICE,
+        <AuditToast />,
+        toastSettings.appNotice,
+        true
+      )
+    }
+  }, [location])
 
   /*************************************************************************************
 
@@ -348,131 +372,101 @@ export const TopNavbar: React.FC = () => {
   *************************************************************************************/
 
   return (
-    <>
-      {width > BKPT_NAVBAR && (
-        <StaticMessage t4>
-          solace.fi{' '}
-          <HyperLink
-            href={'https://hacken.io/audits/#solace'}
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{ color: 'rgb(255, 132, 61)' }}
-          >
-            {' '}
-            was audited
-          </HyperLink>
-          . However, it is still experimental software. Please be careful using it.
-        </StaticMessage>
-      )}
-      <TopNav isOpen={isOpen}>
-        <Logo location={location} pl={10} />
-        <ItemList>
-          <StaticMessage t4 style={{ position: 'unset' }}>
-            solace.fi{' '}
-            <HyperLink
-              href={'https://hacken.io/audits/#solace'}
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{ color: 'rgb(255, 132, 61)' }}
-            >
-              {' '}
-              was audited
-            </HyperLink>
-            . However, it is still experimental software. Please be careful using it.
-          </StaticMessage>
-          <SidebarItem onClick={() => setIsOpen(!isOpen)} to={'/dashboard'} style={{ padding: '20px 0' }}>
-            <Text light bold={location.pathname == '/dashboard'}>
-              Dashboard
-            </Text>
+    <TopNav isOpen={isOpen}>
+      <Logo location={location} pl={10} />
+      <ItemList>
+        <SidebarItem onClick={() => setIsOpen(!isOpen)} to={'/dashboard'} style={{ padding: '20px 0' }}>
+          <Text light bold={location.pathname == '/dashboard'}>
+            Dashboard
+          </Text>
+        </SidebarItem>
+        <SidebarItem onClick={() => setIsOpen(!isOpen)} to={'/quote'} style={{ padding: '20px 0' }}>
+          <Text light bold={location.pathname == '/quote'}>
+            Buy Cover
+          </Text>
+        </SidebarItem>
+        <SidebarItem onClick={() => setIsOpen(!isOpen)} to={'/invest'} style={{ padding: '20px 0' }}>
+          <Text light bold={location.pathname == '/invest'}>
+            Invest
+          </Text>
+        </SidebarItem>
+        <SidebarItem onClick={() => setIsOpen(!isOpen)} to={'/govern'} style={{ padding: '20px 0' }}>
+          <Text light bold={location.pathname == '/govern'}>
+            Govern
+          </Text>
+        </SidebarItem>
+      </ItemList>
+      <HorizRule />
+      <UserAccount light={location.pathname == '/'} />
+      <ItemList>
+        <ItemText style={{ padding: '10px', justifyContent: 'center' }}>
+          <SidebarItem to={'https://docs.solace.fi/'}>
+            <TextSpan t4 light>
+              Docs
+            </TextSpan>
           </SidebarItem>
-          <SidebarItem onClick={() => setIsOpen(!isOpen)} to={'/quote'} style={{ padding: '20px 0' }}>
-            <Text light bold={location.pathname == '/quote'}>
-              Buy Cover
-            </Text>
-          </SidebarItem>
-          <SidebarItem onClick={() => setIsOpen(!isOpen)} to={'/invest'} style={{ padding: '20px 0' }}>
-            <Text light bold={location.pathname == '/invest'}>
-              Invest
-            </Text>
-          </SidebarItem>
-          <SidebarItem onClick={() => setIsOpen(!isOpen)} to={'/govern'} style={{ padding: '20px 0' }}>
-            <Text light bold={location.pathname == '/govern'}>
-              Govern
-            </Text>
-          </SidebarItem>
-        </ItemList>
-        <HorizRule />
-        <UserAccount light={location.pathname == '/'} />
-        <ItemList>
-          <ItemText style={{ padding: '10px', justifyContent: 'center' }}>
-            <SidebarItem to={'https://docs.solace.fi/'}>
-              <TextSpan t4 light>
-                Docs
-              </TextSpan>
-            </SidebarItem>
-          </ItemText>
-          <ItemText style={{ padding: '10px', justifyContent: 'center' }}>
-            <SidebarItem to={'https://whitepaper.solace.fi/'}>
-              <TextSpan t4 light>
-                Whitepaper
-              </TextSpan>
-            </SidebarItem>
-          </ItemText>
-          <ItemText style={{ padding: '10px', justifyContent: 'center' }}>
-            <SidebarItem to={'https://angel.co/company/solace-fi/jobs'}>
-              <TextSpan t4 light>
-                Jobs
-              </TextSpan>
-            </SidebarItem>
-          </ItemText>
-        </ItemList>
-        <ItemText style={{ padding: '0', justifyContent: 'center', gap: '60px' }}>
-          <HyperLink
-            href={'https://discord.gg/7v8qsyepfu'}
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{ lineHeight: '0' }}
-          >
-            <SidebarText light>
-              <StyledDiscord size={20} />
-            </SidebarText>
-          </HyperLink>
-          <HyperLink
-            href={'https://twitter.com/solacefi'}
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{ lineHeight: '0' }}
-          >
-            <SidebarText light>
-              <StyledTwitter size={20} />
-            </SidebarText>
-          </HyperLink>
-          <HyperLink
-            href={'https://github.com/solace-fi'}
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{ lineHeight: '0' }}
-          >
-            <SidebarText light>
-              <StyledGithub size={20} />
-            </SidebarText>
-          </HyperLink>
-          <HyperLink
-            href={'https://medium.com/solace-fi'}
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{ lineHeight: '0' }}
-          >
-            <SidebarText light>
-              <StyledMedium size={20} />
-            </SidebarText>
-          </HyperLink>
         </ItemText>
-        <ThemeButton pt={10} light />
-        <NavButton light onClick={() => setIsOpen(!isOpen)}>
-          <StyledMenu size={40} />
-        </NavButton>
-      </TopNav>
-    </>
+        <ItemText style={{ padding: '10px', justifyContent: 'center' }}>
+          <SidebarItem to={'https://whitepaper.solace.fi/'}>
+            <TextSpan t4 light>
+              Whitepaper
+            </TextSpan>
+          </SidebarItem>
+        </ItemText>
+        <ItemText style={{ padding: '10px', justifyContent: 'center' }}>
+          <SidebarItem to={'https://angel.co/company/solace-fi/jobs'}>
+            <TextSpan t4 light>
+              Jobs
+            </TextSpan>
+          </SidebarItem>
+        </ItemText>
+      </ItemList>
+      <ItemText style={{ padding: '0', justifyContent: 'center', gap: '60px' }}>
+        <HyperLink
+          href={'https://discord.gg/7v8qsyepfu'}
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{ lineHeight: '0' }}
+        >
+          <SidebarText light>
+            <StyledDiscord size={20} />
+          </SidebarText>
+        </HyperLink>
+        <HyperLink
+          href={'https://twitter.com/solacefi'}
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{ lineHeight: '0' }}
+        >
+          <SidebarText light>
+            <StyledTwitter size={20} />
+          </SidebarText>
+        </HyperLink>
+        <HyperLink
+          href={'https://github.com/solace-fi'}
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{ lineHeight: '0' }}
+        >
+          <SidebarText light>
+            <StyledGithub size={20} />
+          </SidebarText>
+        </HyperLink>
+        <HyperLink
+          href={'https://medium.com/solace-fi'}
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{ lineHeight: '0' }}
+        >
+          <SidebarText light>
+            <StyledMedium size={20} />
+          </SidebarText>
+        </HyperLink>
+      </ItemText>
+      <ThemeButton pt={10} light />
+      <NavButton light onClick={() => setIsOpen(!isOpen)}>
+        <StyledMenu size={40} />
+      </NavButton>
+    </TopNav>
   )
 }

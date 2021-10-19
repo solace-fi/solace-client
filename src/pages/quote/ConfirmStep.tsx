@@ -34,7 +34,7 @@ export const ConfirmStep: React.FC<ConfirmStepProp> = ({ resetForm }) => {
         Your Solace coverage is on the way!
       </Text>
       <Text t3 textAlignCenter>
-        You can manage your policies on the dashboard or start a new one.
+        View and manage policies on the dashboard or start a new one.
       </Text>
       <div style={{ marginTop: '24px' }}>
         <TableDataGroup>

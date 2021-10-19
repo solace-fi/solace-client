@@ -34,7 +34,8 @@ function Govern(): any {
           }
           target="_blank"
           rel="noopener noreferrer"
-          style={{ color: 'green' }}
+          info
+          t2
         >
           here
         </HyperLink>{' '}

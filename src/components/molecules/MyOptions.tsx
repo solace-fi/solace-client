@@ -115,15 +115,15 @@ export const MyOptions: React.FC = () => {
   return (
     <Content>
       <Text t1 bold mb={0}>
-        Your Options
+        My Options
         <Button style={{ float: 'right' }} onClick={() => setOpenOptions(!openOptions)}>
           <StyledArrowDropDown style={{ transform: openOptions ? 'rotate(180deg)' : 'rotate(0deg)' }} size={20} />
           {openOptions ? 'Hide Options' : 'Show Options'}
         </Button>
       </Text>
       <Text t4 pb={10}>
-        Options are special tokens that allow you to obtain SOLACE at a discount. You may claim options as a reward from
-        staking in the Options Farming Pool.
+        Options are special tokens granting you the right to purchase $SOLACE at a discount. You can earn $SOLACE
+        options by underwriting coverage and staking in the Options Farming Pool.
       </Text>
       <Accordion isOpen={openOptions}>
         {optionsDetails.length > 0 ? (
