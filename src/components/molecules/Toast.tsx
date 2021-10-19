@@ -30,7 +30,7 @@ import { TransactionCondition } from '../../constants/enums'
 import { Loader } from '../atoms/Loader'
 import { HyperLink } from '../atoms/Link'
 import { Button } from '../atoms/Button'
-import { ToastWrapper, FlexedToastMessage } from '../atoms/Toast'
+import { ToastWrapper, FlexedToastMessage } from '../atoms/Message'
 import { StyledCheckmark, StyledWarning } from '../atoms/Icon'
 
 /* import utils */

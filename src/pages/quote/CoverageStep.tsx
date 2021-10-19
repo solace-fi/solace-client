@@ -24,6 +24,7 @@ import React, { useEffect, useMemo, useState } from 'react'
 /* import packages */
 import { formatUnits, parseUnits } from 'ethers/lib/utils'
 import { BigNumber } from 'ethers'
+import { useLocation } from 'react-router'
 
 /* import constants */
 import { BKPT_4, DAYS_PER_YEAR, GAS_LIMIT, NUM_BLOCKS_PER_DAY, ZERO } from '../../constants'
@@ -46,7 +47,7 @@ import { Card, CardContainer } from '../../components/atoms/Card'
 import { Text, TextSpan } from '../../components/atoms/Typography'
 import { Input, StyledSlider } from '../../components/atoms/Input'
 import { Loader } from '../../components/atoms/Loader'
-import { FlexCol, FlexRow } from '../../components/atoms/Layout'
+import { FlexCol, FlexRow, HorizRule } from '../../components/atoms/Layout'
 import { StyledTooltip } from '../../components/molecules/Tooltip'
 
 /* import hooks */
@@ -319,7 +320,7 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
             </Text>
           </FormCol>
         </FormRow>
-        <hr style={{ marginBottom: '10px' }} />
+        <HorizRule style={{ marginBottom: '10px' }} />
         <FlexCol mb={20} style={{ padding: '10px 30px' }}>
           <div style={{ textAlign: 'center' }}>
             <Text t3>Coverage Amount</Text>
@@ -397,7 +398,7 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
             />
           </div>
         </FlexCol>
-        <hr style={{ marginBottom: '20px' }} />
+        <HorizRule style={{ marginBottom: '20px' }} />
         <FormRow mb={5}>
           <FormCol>
             <Text t4>Covered Assets</Text>

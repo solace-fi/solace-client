@@ -8,7 +8,6 @@ interface TopNavProps {
 }
 
 export const TopNav = styled.div<TopNavProps>`
-  ${(props) => (props.isOpen == false ? 'max-height: 2.5rem;' : 'max-height: 100vh;')}
   position: fixed;
   overflow: hidden;
   background-color: rgba(0, 0, 0, 0.92);
@@ -23,7 +22,7 @@ export const TopNav = styled.div<TopNavProps>`
   }
 
   @media screen and (max-width: ${BKPT_3}px) {
-    ${(props) => (props.isOpen == false ? 'max-height: 2.5rem;' : 'max-height: 100vh;')}
+    ${(props) => (props.isOpen == false ? 'max-height: 4.5rem;' : 'max-height: 100vh;')}
     text-align: center;
   }
 `

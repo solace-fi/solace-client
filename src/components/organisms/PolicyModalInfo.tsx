@@ -24,6 +24,7 @@ import React, { Fragment, useCallback, useState, useEffect } from 'react'
 import { formatUnits } from '@ethersproject/units'
 import { BigNumber } from 'ethers'
 import { Block } from '@ethersproject/contracts/node_modules/@ethersproject/abstract-provider'
+import { useLocation } from 'react-router'
 
 /* import managers */
 import { useNetwork } from '../../context/NetworkManager'
@@ -46,7 +47,7 @@ import { PositionType } from '../../constants/enums'
 /* import components */
 import { Box, BoxItem, BoxItemTitle } from '../atoms/Box'
 import { FormCol, FormRow } from '../atoms/Form'
-import { FlexCol, FlexRow, HeroContainer } from '../atoms/Layout'
+import { FlexCol, FlexRow, HeroContainer, HorizRule } from '../atoms/Layout'
 import { DeFiAsset, DeFiAssetImage } from '../atoms/DeFiAsset'
 import { Loader } from '../atoms/Loader'
 import { Text, TextSpan } from '../atoms/Typography'
@@ -324,7 +325,7 @@ export const PolicyModalInfo: React.FC<PolicyModalInfoProps> = ({ appraisal, sel
           </ButtonWrapper>
         )}
       </HeroContainer>
-      <hr style={{ marginBottom: '20px' }} />
+      <HorizRule style={{ marginBottom: '20px' }} />
     </Fragment>
   )
 }

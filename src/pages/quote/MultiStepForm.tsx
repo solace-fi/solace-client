@@ -299,7 +299,7 @@ export const MultiStepForm = () => {
               {Number(StepNumber[step.id]) == 1 && (
                 <Box transparent outlined>
                   <BoxItem>
-                    <Text>{loading ? 'Loading Your Positions...' : 'Select Position Below'}</Text>
+                    <Text>{loading ? 'Loading Positions...' : 'Select Positions Below'}</Text>
                   </BoxItem>
                 </Box>
               )}
@@ -375,7 +375,7 @@ export const MultiStepForm = () => {
               {Number(StepNumber[step.id]) == 1 && (
                 <Card transparent p={0}>
                   <Box transparent outlined>
-                    <BoxItem>{loading ? 'Loading Your Positions...' : 'Select Position Below'}</BoxItem>
+                    <BoxItem>{loading ? 'Loading Positions...' : 'Select Positions Below'}</BoxItem>
                   </Box>
                 </Card>
               )}

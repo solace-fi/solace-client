@@ -14,6 +14,7 @@ import { ZERO } from '../../../constants'
 
 import curveRegistryAbi from '../../curve/positionGetter/_contracts/ICurveRegistry.json'
 import curveAddressProviderAbi from '../../curve/positionGetter/_contracts/ICurveAddressProvider.json'
+import curvePoolAbi from '../../curve/positionGetter/_contracts/ICurvePool.json'
 
 const CURVE_ADDRRESS_PROVIDER_ADDR = '0x0000000022D53366457F9d5E68Ec105046FC4383'
 
@@ -49,8 +50,20 @@ export const getBalances = async (
   for (let i = 0; i < balances.length; i++) {
     if (balances[i].token.symbol.startsWith('yvCurve')) {
       const curvePoolAddr = await curveRegistryContract.get_pool_from_lp_token(balances[i].underlying[0].address)
+      const poolContract = getContract(curvePoolAddr, curvePoolAbi, provider)
+
+      const uBalance = await poolContract.calc_withdraw_one_coin(balances[i].underlying[0].balance, 0)
+
       const underlyingTokens = await curveRegistryContract.get_underlying_coins(curvePoolAddr)
-      balances[i].eth.balance = await getNativeTokenBalance(underlyingTokens[0], balances[i])
+
+      const url = `https://api.1inch.exchange/v3.0/1/quote?fromTokenAddress=${underlyingTokens[0].address}&toTokenAddress=${ETH}&amount=${uBalance}`
+      try {
+        const res = await withBackoffRetries(async () => axios.get(url))
+        const ethAmount: BigNumber = BigNumber.from(res.data.toTokenAmount)
+        balances[i].eth.balance = ethAmount
+      } catch (e) {
+        console.log(e)
+      }
     } else {
       balances[i].eth.balance = await getNativeTokenBalance(balances[i].underlying[0].address, balances[i])
     }

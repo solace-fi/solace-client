@@ -328,7 +328,8 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
               <CardContainer>
                 {fetchedPositions.map((position: Position, i) => {
                   if (position.type == PositionType.TOKEN) {
-                    if ((position.position as Token).metadata.tokenType == 'nft') {
+                    const metadata = (position.position as Token).metadata
+                    if (metadata && metadata.tokenType && metadata.tokenType == 'nft') {
                       return (
                         <NftPositionCard
                           key={i}

@@ -2,7 +2,6 @@ import { BKPT_NAVBAR, MAX_WIDTH, BKPT_5, BKPT_3 } from '../../../constants'
 import styled, { createGlobalStyle, keyframes } from 'styled-components'
 import { GeneralElementProps, GeneralElementCss, HeightAndWidthProps, HeightAndWidthCss } from '../../generalInterfaces'
 import { Text3Css } from '../Typography'
-import gradientBackground from '../../../resources/svg/solace-gradient-background.svg'
 
 interface ScrollableProps {
   maxDesktopHeight?: number
@@ -10,7 +9,7 @@ interface ScrollableProps {
 }
 
 interface LayoutProps {
-  location: any
+  location?: any
 }
 
 export const Scrollable = styled.div<ScrollableProps>`
@@ -22,6 +21,7 @@ export const Scrollable = styled.div<ScrollableProps>`
   @media screen and (max-width: ${BKPT_3}px) {
     max-height: ${(props) => (props.maxMobileHeight ? props.maxMobileHeight : `75`)}vh;
   }
+  border-radius: 10px;
 `
 
 const movingGradient = keyframes`
@@ -43,7 +43,20 @@ export const GlobalStyle = createGlobalStyle<LayoutProps>`
     line-height: 1.4;
     color: ${({ theme }) => `${theme.typography.contrastText}`};
     background: ${({ theme }) => theme.body.bg_color};
-    ${(props) => props.location.pathname == '/' && `background: url(${gradientBackground});`}
+    ${(props) =>
+      props.location.pathname == '/' &&
+      `background: radial-gradient(ellipse 120% 150% at 60% 0,
+      rgba(212,120,216,1) 10%,
+      rgba(212,120,216,0) 50%),
+  radial-gradient(ellipse 50% 150% at 40% 100%,
+      rgba(243,211,126,1) 20%,
+      rgba(243,211,126,0) 80%),
+  radial-gradient(ellipse 50% 200% at 100% 50%,
+      rgba(95,93,249,1) 10%,
+      rgba(95,93,249,0) 90%),
+  radial-gradient(ellipse 100% 200% at 0 100%,
+      rgba(240,77,66,1) 10%,
+      rgba(240,77,66,0) 100%);`}
     background-attachment: fixed;
     background-size: cover;
     animation: ${movingGradient} 30s ease infinite;
@@ -74,7 +87,14 @@ export const Layout = styled.div`
 `
 
 export const HorizRule = styled.hr<LayoutProps>`
-  ${(props) => props.location.pathname == '/' && `color: ${props.theme.typography.lightText} !important;`}
+  border: none;
+  ${(props) => `color: ${props.theme.typography.contrastText};`}
+  height: 1px;
+  ${(props) => `background-color: ${props.theme.typography.contrastText};`}
+  ${(props) =>
+    props.location &&
+    props.location.pathname == '/' &&
+    `background-color: ${props.theme.typography.lightText} !important;`}
 `
 
 export const ContentContainer = styled.div`

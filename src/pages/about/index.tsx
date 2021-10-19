@@ -17,7 +17,7 @@
 import React from 'react'
 
 /* import constants */
-import { BKPT_3 } from '../../constants'
+import { BKPT_1, BKPT_3, BKPT_NAVBAR } from '../../constants'
 
 /* import components */
 import { Button, ButtonWrapper } from '../../components/atoms/Button'
@@ -164,7 +164,7 @@ function About(): any {
               style={{
                 position: 'absolute',
                 border: '10px solid #FFF',
-                padding: '30vw',
+                padding: width > BKPT_NAVBAR ? '30vw' : width > BKPT_1 ? '40vw' : '45vw',
                 boxSizing: 'border-box',
                 borderRadius: '50%',
                 filter:

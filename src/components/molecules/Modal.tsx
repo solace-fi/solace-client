@@ -3,6 +3,7 @@
     Table of Contents:
 
     import react
+    import packages
     import managers
     import components
 
@@ -24,6 +25,7 @@ import { useGeneral } from '../../context/GeneralProvider'
 import { Text } from '../atoms/Typography'
 import { ModalContainer, ModalBase, ModalClose, ModalHeader } from '../atoms/Modal'
 import { ModalProps, ModalButtonProps } from '../atoms/Modal'
+import { HorizRule } from '../atoms/Layout'
 
 export const Modal: React.FC<ModalProps> = ({ children, ...props }) => {
   /*************************************************************************************
@@ -40,7 +42,7 @@ export const Modal: React.FC<ModalProps> = ({ children, ...props }) => {
           </Text>
           <ModalCloseButton hidden={props.disableCloseButton} onClick={() => props.handleClose()} />
         </ModalHeader>
-        <hr style={{ marginBottom: '20px' }} />
+        <HorizRule style={{ marginBottom: '20px' }} />
         <Fragment>{children}</Fragment>
       </ModalBase>
     </ModalContainer>
