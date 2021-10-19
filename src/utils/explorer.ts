@@ -1,6 +1,8 @@
 import { ETHERSCAN_API_KEY } from '../constants'
 import { ExplorerscanApi } from '../constants/enums'
 import { ContractSources, GasPriceResult } from '../constants/types'
+import { withBackoffRetries } from './time'
+
 const STRINGIFIED_ETHERSCAN_API_KEY = String(ETHERSCAN_API_KEY)
 
 export const getExplorerItemUrl = (explorer: string, address: string, api: ExplorerscanApi): string => {
@@ -22,7 +24,9 @@ export async function fetchExplorerTxHistoryByAddress(
 }
 
 export async function fetchGasPrice(explorer: string, chainId: number): Promise<GasPriceResult> {
-  return fetch(`${explorer}/api?module=gastracker&action=gasoracle&apikey=${STRINGIFIED_ETHERSCAN_API_KEY}`)
+  return await withBackoffRetries(async () =>
+    fetch(`${explorer}/api?module=gastracker&action=gasoracle&apikey=${STRINGIFIED_ETHERSCAN_API_KEY}`)
+  )
     .then((result) => result.json())
     .then((result) => result.result)
     .then((result) => {

@@ -30,6 +30,7 @@ import { getBalances as gB3 } from '../products/uniswapV2/positionGetter/getBala
 import { getBalances as gB4 } from '../products/uniswapV3/positionGetter/getBalances'
 
 import { ETHERSCAN_API_KEY } from '../constants'
+import { withBackoffRetries } from '../utils/time'
 /*
 
 This Manager keeps track of the user's wallet and details, including the wallet type and account, 
@@ -237,7 +238,7 @@ const WalletProvider: React.FC = (props) => {
       const url = `https://api.etherscan.io/api?module=account&action=tokentx&address=${user}&startblock=0&endblock=latest&apikey=${String(
         ETHERSCAN_API_KEY
       )}`
-      const transferHistory = await fetch(url)
+      const transferHistory = await withBackoffRetries(async () => fetch(url))
         .then((res) => res.json())
         .then((result) => result.result)
         .then((result) => {

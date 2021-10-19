@@ -16,12 +16,28 @@ import cpFarmABI from '../constants/abi/contracts/CpFarm.sol/CpFarm.json'
 import claimsEscrowABI from '../constants/abi/contracts/ClaimsEscrow.sol/ClaimsEscrow.json'
 import lpTokenArtifact from '../../node_modules/@uniswap/v3-periphery/artifacts/contracts/NonfungiblePositionManager.sol/NonfungiblePositionManager.json'
 import polMagABI from '../constants/abi/contracts/PolicyManager.sol/PolicyManager.json'
-import lpAppraisorABI from '../constants/abi/contracts/LpAppraisor.sol/LpAppraisor.json'
 import riskManagerABI from '../constants/abi/contracts/RiskManager.sol/RiskManager.json'
 
 /* product contract abi */
 
+import aaveABI from '../constants/abi/contracts/products/AaveV2Product.sol/AaveV2Product.json'
+import compABI from '../constants/abi/contracts/products/CompoundProduct.sol/CompoundProduct.json'
+import curveABI from '../constants/abi/contracts/products/CurveProduct.sol/CurveProduct.json'
+import liquityABI from '../constants/abi/contracts/products/LiquityProduct.sol/LiquityProduct.json'
+import sushiABI from '../constants/abi/contracts/products/SushiswapProduct.sol/SushiswapProduct.json'
+import uniV2ABI from '../constants/abi/contracts/products/UniswapV2Product.sol/UniswapV2Product.json'
+import uniV3ABI from '../constants/abi/contracts/products/UniswapV3Product.sol/UniswapV3Product.json'
+import yearnABI from '../constants/abi/contracts/products/YearnV2Product.sol/YearnV2Product.json'
+
 /* product objects */
+import { AaveProduct } from '../products/aave'
+import { CompoundProduct } from '../products/compound'
+import { LiquityProduct } from '../products/liquity'
+import { YearnProduct } from '../products/yearn'
+import { CurveProduct } from '../products/curve'
+import { UniswapV2Product } from '../products/uniswapV2'
+import { UniswapV3Product } from '../products/uniswapV3'
+import { SushiswapProduct } from '../products/sushiswap'
 
 /*
 
@@ -96,18 +112,69 @@ export const MainNetwork: NetworkConfig = {
       },
       lpAppraisor: {
         addr: String(process.env.REACT_APP_MAINNET_LPAPPRAISOR_ADDR),
-        abi: lpAppraisorABI,
+        abi: null,
       },
       riskManager: {
         addr: String(process.env.REACT_APP_MAINNET_RISK_MANAGER_ADDR),
         abi: riskManagerABI,
       },
     },
-    productContracts: {},
-    productsRev: {},
+    productContracts: {
+      [ProductName.AAVE]: {
+        addr: String(process.env.REACT_APP_MAINNET_AAVE_PRODUCT_ADDR),
+        abi: aaveABI,
+      },
+      [ProductName.COMPOUND]: {
+        addr: String(process.env.REACT_APP_MAINNET_COMPOUND_PRODUCT_ADDR),
+        abi: compABI,
+      },
+      [ProductName.CURVE]: {
+        addr: String(process.env.REACT_APP_MAINNET_CURVE_PRODUCT_ADDR),
+        abi: curveABI,
+      },
+      [ProductName.LIQUITY]: {
+        addr: String(process.env.REACT_APP_MAINNET_LIQUITY_PRODUCT_ADDR),
+        abi: liquityABI,
+      },
+      [ProductName.SUSHISWAP]: {
+        addr: String(process.env.REACT_APP_MAINNET_SUSHISWAP_PRODUCT_ADDR),
+        abi: sushiABI,
+      },
+      [ProductName.UNISWAP_V2]: {
+        addr: String(process.env.REACT_APP_MAINNET_UNISWAPV2_PRODUCT_ADDR),
+        abi: uniV2ABI,
+      },
+      [ProductName.UNISWAP_V3]: {
+        addr: String(process.env.REACT_APP_MAINNET_UNISWAPV3_PRODUCT_ADDR),
+        abi: uniV3ABI,
+      },
+      [ProductName.YEARN]: {
+        addr: String(process.env.REACT_APP_MAINNET_YEARN_PRODUCT_ADDR),
+        abi: yearnABI,
+      },
+    },
+    productsRev: {
+      [String(process.env.REACT_APP_MAINNET_AAVE_PRODUCT_ADDR)]: ProductName.AAVE,
+      [String(process.env.REACT_APP_MAINNET_COMPOUND_PRODUCT_ADDR)]: ProductName.COMPOUND,
+      [String(process.env.REACT_APP_MAINNET_CURVE_PRODUCT_ADDR)]: ProductName.CURVE,
+      [String(process.env.REACT_APP_MAINNET_LIQUITY_PRODUCT_ADDR)]: ProductName.LIQUITY,
+      [String(process.env.REACT_APP_MAINNET_SUSHISWAP_PRODUCT_ADDR)]: ProductName.SUSHISWAP,
+      [String(process.env.REACT_APP_MAINNET_UNISWAPV2_PRODUCT_ADDR)]: ProductName.UNISWAP_V2,
+      [String(process.env.REACT_APP_MAINNET_UNISWAPV3_PRODUCT_ADDR)]: ProductName.UNISWAP_V3,
+      [String(process.env.REACT_APP_MAINNET_YEARN_PRODUCT_ADDR)]: ProductName.YEARN,
+    },
   },
   cache: {
-    supportedProducts: [],
+    supportedProducts: [
+      AaveProduct,
+      CompoundProduct,
+      LiquityProduct,
+      YearnProduct,
+      CurveProduct,
+      UniswapV2Product,
+      UniswapV3Product,
+      SushiswapProduct,
+    ],
   },
   metamaskChain: {
     chainId: hexValue(1),

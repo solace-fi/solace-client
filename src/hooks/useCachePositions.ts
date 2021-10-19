@@ -17,6 +17,7 @@ import { NetworkCache } from '../constants/types'
 import { PositionType, ProductName } from '../constants/enums'
 import { getTroveContract } from '../products/liquity/positionGetter/getPositions'
 import { ETHERSCAN_API_KEY, ZERO } from '../constants'
+import { withBackoffRetries } from '../utils/time'
 
 export const useCachePositions = () => {
   const { library, account } = useWallet()
@@ -28,24 +29,6 @@ export const useCachePositions = () => {
   const setStoredData = useCallback(() => {
     // on mount, if stored data exists in session already, return that data, else return newly made data
     if (storedPosData.length == 0) {
-      // const unsetPositionData: NetworkCache[] = []
-      // networks.forEach((network) => {
-      //   const supportedProducts = network.cache.supportedProducts.map((product: SupportedProduct) => product.name)
-
-      //   const cachedPositions: PositionsCache = {}
-      //   const cachedPositionNames: PositionNamesCache = {}
-
-      //   supportedProducts.forEach((name: ProductName) => {
-      //     cachedPositions[name] = { positions: [], init: false }
-      //     cachedPositionNames[name] = { positionNames: {}, underlyingPositionNames: {}, init: false }
-      //   })
-
-      //   unsetPositionData.push({
-      //     chainId: network.chainId,
-      //     positionsCache: cachedPositions,
-      //     positionNamesCache: cachedPositionNames,
-      //   })
-      // })
       const unsetPositionData = networks.map((network) => {
         const supportedProducts = network.cache.supportedProducts.map((product: SupportedProduct) => product.name)
         const cachedPositions: PositionsCache = {}
@@ -89,7 +72,7 @@ export const useCachePositions = () => {
       }/api?module=account&action=tokentx&address=${_account}&startblock=0&endblock=latest&apikey=${String(
         ETHERSCAN_API_KEY
       )}`
-      const touchedAddresses = await fetch(url)
+      const touchedAddresses = await withBackoffRetries(async () => fetch(url))
         .then((res) => res.json())
         .then((result) => result.result)
         .then((result) => {

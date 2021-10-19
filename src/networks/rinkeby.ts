@@ -16,7 +16,6 @@ import cpFarmABI from '../constants/abi/contracts/CpFarm.sol/CpFarm.json'
 import claimsEscrowABI from '../constants/abi/contracts/ClaimsEscrow.sol/ClaimsEscrow.json'
 import lpTokenArtifact from '../../node_modules/@uniswap/v3-periphery/artifacts/contracts/NonfungiblePositionManager.sol/NonfungiblePositionManager.json'
 import polMagABI from '../constants/abi/contracts/PolicyManager.sol/PolicyManager.json'
-import lpAppraisorABI from '../constants/abi/contracts/LpAppraisor.sol/LpAppraisor.json'
 import riskManagerABI from '../constants/abi/contracts/RiskManager.sol/RiskManager.json'
 
 /* product contract abi */
@@ -106,7 +105,7 @@ export const RinkebyNetwork: NetworkConfig = {
       },
       lpAppraisor: {
         addr: String(process.env.REACT_APP_RINKEBY_LPAPPRAISOR_ADDR),
-        abi: lpAppraisorABI,
+        abi: null,
       },
       riskManager: {
         addr: String(process.env.REACT_APP_RINKEBY_RISK_MANAGER_ADDR),
