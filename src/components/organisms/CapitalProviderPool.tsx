@@ -43,6 +43,7 @@ import { useWindowDimensions } from '../../hooks/useWindowDimensions'
 
 /* import utils */
 import { truncateBalance } from '../../utils/formatting'
+import { HyperLink } from '../atoms/Link'
 
 interface CapitalProviderPoolProps {
   openModal: (func: FunctionName, modalTitle: string) => void
@@ -76,7 +77,17 @@ export const CapitalProviderPool: React.FC<CapitalProviderPoolProps> = ({ openMo
         />{' '} */}
       </Text>
       <Text t4 pb={10}>
-        This pool rewards capital providers with options
+        This pool rewards coverage underwriters with $SOLACE token call options.
+        <HyperLink
+          t4
+          href={'https://medium.com/solace-fi/solace-options-rewards-d4bd64902b4'}
+          target="_blank"
+          rel="noopener noreferrer"
+          info
+        >
+          {' '}
+          More information here.
+        </HyperLink>
       </Text>
       {width > BKPT_6 ? (
         <Table isHighlight textAlignCenter>
