@@ -281,13 +281,15 @@ export const MultiStepForm = () => {
                 </BoxItem>
                 <BoxItem>
                   <Text t3 light>
-                    {fixed(protocol.yearlyCost * 100, 2)}% <StyledTooltip id={'yearly-cost'} tip={'Yearly Cost'} />
+                    {fixed(protocol.yearlyCost * 100, 2)}%
+                    {/* <StyledTooltip id={'yearly-cost'} tip={'Yearly Cost'} /> */}
                   </Text>
                 </BoxItem>
                 <BoxItem>
                   <Text t3 light>
-                    {protocol.availableCoverage} {activeNetwork.nativeCurrency.symbol}{' '}
-                    <StyledTooltip id={'available-coverage'} tip={'Available Coverage'} />
+                    {protocol.availableCoverage} {activeNetwork.nativeCurrency.symbol}
+                    {/* {' '}
+                    <StyledTooltip id={'available-coverage'} tip={'Available Coverage'} /> */}
                   </Text>
                 </BoxItem>
                 <BoxItem>

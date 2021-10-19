@@ -97,19 +97,21 @@ export const LiquidityPool: React.FC<LiquidityPoolProps> = ({ openModal }) => {
               {/* <TableHeader width={100}>ROI (1Y)</TableHeader> */}
               {account ? (
                 <TableHeader>
-                  {' '}
-                  My Rewards <StyledTooltip id={'lp-rewards'} tip={'Amount of your unclaimed rewards from this pool'} />
+                  My Rewards
+                  {/* <StyledTooltip id={'lp-rewards'} tip={'Amount of your unclaimed rewards from this pool'} /> */}
                 </TableHeader>
               ) : null}
               {account ? (
                 <TableHeader>
-                  My Daily Rewards{' '}
-                  <StyledTooltip id={'my-daily-lp-rewards'} tip={'Amount of rewards you earn from this pool per day'} />
+                  My Daily Rewards
+                  {/* {' '}
+                  <StyledTooltip id={'my-daily-lp-rewards'} tip={'Amount of rewards you earn from this pool per day'} /> */}
                 </TableHeader>
               ) : null}
               <TableHeader>
-                Daily Rewards{' '}
-                <StyledTooltip id={'daily-lp-rewards'} tip={'Total amount of rewards for this pool per day'} />
+                Daily Rewards
+                {/* {' '}
+                <StyledTooltip id={'daily-lp-rewards'} tip={'Total amount of rewards for this pool per day'} /> */}
               </TableHeader>
             </TableRow>
           </TableHead>
@@ -159,7 +161,7 @@ export const LiquidityPool: React.FC<LiquidityPoolProps> = ({ openModal }) => {
         <Card isHighlight>
           {account && (
             <FormRow>
-              <FormCol light>Your Stake:</FormCol>
+              <FormCol light>My Stake:</FormCol>
               <FormCol light t2>
                 {truncateBalance(lpUserStakeValue, 2)}
               </FormCol>

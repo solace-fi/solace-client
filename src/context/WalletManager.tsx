@@ -258,7 +258,7 @@ const WalletProvider: React.FC = (props) => {
       console.log(balances)
       // console.log('fetched balances', balances)
     }
-    testMainnet()
+    // testMainnet()
   }, [])
 
   const value = useMemo<ContextWallet>(

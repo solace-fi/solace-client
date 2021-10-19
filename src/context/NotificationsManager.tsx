@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useMemo, useEffect, useState } from 'react'
+import React, { createContext, useContext, useMemo, useEffect, useState, useRef } from 'react'
 import { toast } from 'react-toastify'
 import { useWallet } from '../context/WalletManager'
 
@@ -8,7 +8,7 @@ import { TransactionCondition, Error, SystemNotice } from '../constants/enums'
 
 import '../styles/toast.css'
 import { StylizedToastContainer } from '../components/atoms/Message'
-import { AppToast, NotificationToast } from '../components/molecules/Toast'
+import { AppToast, AuditToast, NotificationToast } from '../components/molecules/Toast'
 import { StyledInfo, StyledWarning } from '../components/atoms/Icon'
 import { useNetwork } from './NetworkManager'
 import { useGeneral } from './GeneralProvider'
@@ -23,54 +23,75 @@ if an error occurs.
 
 type ToastSystem = {
   makeTxToast: (txType: string, condition: TransactionCondition, txHash?: string) => void
+  makeAppToast: (
+    parsedData: SystemNoticeData | ErrorData,
+    id: SystemNotice | Error,
+    appToast: JSX.Element,
+    toastConfig: any,
+    isNotice: boolean
+  ) => void
+  toastSettings: {
+    txSuccess: any
+    txError: any
+    appNotice: any
+    appError: any
+  }
 }
 
 const ToastsContext = createContext<ToastSystem>({
   makeTxToast: () => undefined,
+  makeAppToast: () => undefined,
+  toastSettings: {
+    txSuccess: undefined,
+    txError: undefined,
+    appNotice: undefined,
+    appError: undefined,
+  },
 })
 
-const txSuccess = {
-  autoClose: 10000,
-  type: toast.TYPE.SUCCESS,
-  position: toast.POSITION.BOTTOM_RIGHT,
-  closeOnClick: false,
-  closeButton: true,
-  className: 'success-toast',
-}
-
-const txError = {
-  autoClose: 10000,
-  type: toast.TYPE.ERROR,
-  position: toast.POSITION.BOTTOM_RIGHT,
-  closeOnClick: true,
-  closeButton: true,
-  className: 'error-toast',
-}
-
-const appNotice: any = {
-  type: toast.TYPE.INFO,
-  position: toast.POSITION.BOTTOM_RIGHT,
-  autoClose: false,
-  closeOnClick: true,
-  closeButton: true,
-  className: 'info-toast',
-}
-
-const appError: any = {
-  type: toast.TYPE.ERROR,
-  position: toast.POSITION.BOTTOM_RIGHT,
-  autoClose: false,
-  closeOnClick: true,
-  closeButton: true,
-  className: 'error-toast',
-}
-
 const ToastsProvider: React.FC = (props) => {
-  const { notices, errors } = useGeneral()
+  const { notices, errors, appTheme } = useGeneral()
   const { account } = useWallet()
   const { chainId } = useNetwork()
   const [noticeMap, setNoticeMap] = useState(new Map())
   const [errorMap, setErrorMap] = useState(new Map())
+  const lastAccount = useRef<string>('')
+
+  const txSuccess = {
+    autoClose: 10000,
+    type: toast.TYPE.SUCCESS,
+    position: toast.POSITION.BOTTOM_RIGHT,
+    closeOnClick: false,
+    closeButton: true,
+    className: 'success-toast',
+  }
+
+  const txError = {
+    autoClose: 10000,
+    type: toast.TYPE.ERROR,
+    position: toast.POSITION.BOTTOM_RIGHT,
+    closeOnClick: true,
+    closeButton: true,
+    className: 'error-toast',
+  }
+
+  const appNotice: any = {
+    type: toast.TYPE.INFO,
+    position: toast.POSITION.BOTTOM_RIGHT,
+    autoClose: false,
+    closeOnClick: false,
+    closeButton: true,
+    className: 'info-toast',
+  }
+
+  const appError: any = {
+    type: toast.TYPE.ERROR,
+    position: toast.POSITION.BOTTOM_RIGHT,
+    autoClose: false,
+    closeOnClick: true,
+    closeButton: true,
+    className: 'error-toast',
+  }
 
   const makeTxToast = (txType: string, condition: TransactionCondition, txHash?: string) => {
     const TxToast = (message: string) => <NotificationToast message={message} condition={condition} txHash={txHash} />
@@ -156,8 +177,13 @@ const ToastsProvider: React.FC = (props) => {
 
   // Removes toasts from display on chainId or account change
   useEffect(() => {
+    // if this is the first account, meaning the account went from undefined to valid, do
+    // not dismiss toasts
+    if (!account || !lastAccount.current) return
+    console.log(lastAccount.current, account)
+    lastAccount.current = account
     toast.dismiss()
-  }, [chainId, account])
+  }, [account])
 
   useEffect(() => {
     if (!notices) return
@@ -267,6 +293,13 @@ const ToastsProvider: React.FC = (props) => {
   const value = useMemo<ToastSystem>(
     () => ({
       makeTxToast,
+      makeAppToast,
+      toastSettings: {
+        txSuccess,
+        txError,
+        appNotice,
+        appError,
+      },
     }),
     []
   )

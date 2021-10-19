@@ -171,8 +171,9 @@ export const PolicyModalInfo: React.FC<PolicyModalInfoProps> = ({ appraisal, sel
           </BoxItem>
           <BoxItem>
             <BoxItemTitle t3>
-              Days to expiration{' '}
-              <StyledTooltip id={'days-to-expiration'} tip={'Number of days left until this policy expires'} />
+              Days to expiration
+              {/* {' '}
+              <StyledTooltip id={'days-to-expiration'} tip={'Number of days left until this policy expires'} /> */}
             </BoxItemTitle>
             <Text t2 nowrap>
               {getDaysLeft(selectedPolicy ? selectedPolicy.expirationBlock : 0, latestBlock ? latestBlock.number : 0)}
@@ -180,7 +181,8 @@ export const PolicyModalInfo: React.FC<PolicyModalInfoProps> = ({ appraisal, sel
           </BoxItem>
           <BoxItem>
             <BoxItemTitle t3>
-              Cover Amount <StyledTooltip id={'covered-amount'} tip={'The amount you are covered on this policy'} />
+              Cover Amount
+              {/* <StyledTooltip id={'covered-amount'} tip={'The amount you are covered on this policy'} /> */}
             </BoxItemTitle>
             <Text t2 nowrap>
               {selectedPolicy?.coverAmount
@@ -191,7 +193,8 @@ export const PolicyModalInfo: React.FC<PolicyModalInfoProps> = ({ appraisal, sel
           </BoxItem>
           <BoxItem>
             <BoxItemTitle t3>
-              Position Amount <StyledTooltip id={'position-amount'} tip={'The amount of this asset you own'} />
+              Position Amount
+              {/* <StyledTooltip id={'position-amount'} tip={'The amount of this asset you own'} /> */}
             </BoxItemTitle>
             <Text t2 nowrap>
               {appraisal.gt(ZERO) ? (

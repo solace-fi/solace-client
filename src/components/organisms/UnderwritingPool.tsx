@@ -79,10 +79,10 @@ export const UnderwritingPool: React.FC<UnderwritingPoolProps> = ({ openModal })
         <Table isHighlight textAlignCenter>
           <TableHead>
             <TableRow>
-              {account ? <TableHeader width={100}>Your Assets</TableHeader> : null}
+              {account ? <TableHeader width={100}>My Assets</TableHeader> : null}
               <TableHeader width={100}>Total Assets</TableHeader>
               {/* <TableHeader width={100}>ROI (1Y)</TableHeader> */}
-              {account ? <TableHeader width={130}>Your Vault Share</TableHeader> : null}
+              {account ? <TableHeader width={130}>My Vault Share</TableHeader> : null}
             </TableRow>
           </TableHead>
           <TableBody>
@@ -123,7 +123,7 @@ export const UnderwritingPool: React.FC<UnderwritingPoolProps> = ({ openModal })
         <Card isHighlight>
           {account && (
             <FormRow>
-              <FormCol light>Your Assets:</FormCol>
+              <FormCol light>My Assets:</FormCol>
               <FormCol light t2>
                 {truncateBalance(userVaultAssets, 2)}
               </FormCol>
@@ -142,7 +142,7 @@ export const UnderwritingPool: React.FC<UnderwritingPoolProps> = ({ openModal })
             </FormCol>
           </FormRow>
           <FormRow>
-            <FormCol light>Your Vault Share:</FormCol>
+            <FormCol light>My Vault Share:</FormCol>
             <FormCol light t2>{`${truncateBalance(userVaultShare, 2)}%`}</FormCol>
           </FormRow>
           <ButtonWrapper isColumn={width <= BKPT_4}>

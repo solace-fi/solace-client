@@ -144,7 +144,8 @@ export const Statistics: React.FC = () => {
     <Box color2>
       <BoxItem>
         <BoxItemTitle t4 light bold>
-          Capital Pool Size <StyledTooltip id={'cps'} tip={'Current amount of capital in the vault'} />
+          Underwriting Pool Size
+          {/* <StyledTooltip id={'cps'} tip={'Current amount of capital in the vault'} /> */}
         </BoxItemTitle>
         <Text t2 nowrap light bold>
           {`${truncateBalance(floatUnits(parseUnits(capitalPoolSize, currencyDecimals), currencyDecimals), 1)} `}
@@ -155,7 +156,8 @@ export const Statistics: React.FC = () => {
       </BoxItem>
       <BoxItem>
         <BoxItemTitle t4 light bold>
-          Total Value Locked <StyledTooltip id={'tvl'} tip={'Current amount of funds locked into the pools'} />{' '}
+          Total Value Locked
+          {/* <StyledTooltip id={'tvl'} tip={'Current amount of funds locked into the pools'} />{' '} */}
         </BoxItemTitle>
         <Text t2 nowrap light bold>
           {`${truncateBalance(totalValueLocked, 1)} `}
@@ -166,7 +168,8 @@ export const Statistics: React.FC = () => {
       </BoxItem>
       <BoxItem>
         <BoxItemTitle t4 light bold>
-          Active Cover Amount <StyledTooltip id={'aca'} tip={'Current amount of coverage in use'} />
+          Active Cover Amount
+          {/* <StyledTooltip id={'aca'} tip={'Current amount of coverage in use'} /> */}
         </BoxItemTitle>
         <Text t2 nowrap light bold>
           {totalActiveCoverAmount !== '-' ? `${truncateBalance(totalActiveCoverAmount, 2)} ` : `- `}
@@ -204,11 +207,11 @@ export const Statistics: React.FC = () => {
               <BoxItem>
                 <BoxItemTitle t4 light bold>
                   My Unclaimed Rewards{' '}
-                  <StyledTooltip
+                  {/* <StyledTooltip
                     id={'rewards'}
                     tip={'Total amount of your unclaimed rewards'}
                     link={'https://docs.solace.fi/docs/user-guides/earn-rewards'}
-                  />
+                  /> */}
                 </BoxItemTitle>
                 <Text t2 light bold>
                   {`${truncateBalance(totalUserRewards, 1)} `}

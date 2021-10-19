@@ -69,10 +69,10 @@ const NetworksProvider: React.FC = (props) => {
       setLastNetwork(network.name.toLowerCase())
 
       // there were cases where changing networks with the same wallet (not metamask) does not pull data correctly
-      // if (connector && !(connector instanceof MetamaskConnector)) window.location.reload()
+      if (connector && !(connector instanceof MetamaskConnector)) window.location.reload()
 
       // there were cases where changing networks with the same wallet does not pull data correctly
-      if (connector) window.location.reload()
+      // if (connector) window.location.reload() <- uncomment if there's too many errors going on
     }
 
     return network

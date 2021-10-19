@@ -31,7 +31,8 @@ import { Loader } from '../atoms/Loader'
 import { HyperLink } from '../atoms/Link'
 import { Button } from '../atoms/Button'
 import { ToastWrapper, FlexedToastMessage } from '../atoms/Message'
-import { StyledCheckmark, StyledWarning } from '../atoms/Icon'
+import { StyledCheckmark, StyledWarning, StyledInfo } from '../atoms/Icon'
+import { Text } from '../atoms/Typography'
 
 /* import utils */
 import { getExplorerItemUrl } from '../../utils/explorer'
@@ -52,6 +53,30 @@ export const AppToast: React.FC<AppToastProps> = ({ message, icon }) => {
     <ToastWrapper>
       {icon}
       <FlexedToastMessage light>{message}</FlexedToastMessage>
+    </ToastWrapper>
+  )
+}
+
+export const AuditToast: React.FC = () => {
+  return (
+    <ToastWrapper>
+      <StyledInfo size={30} />
+      <FlexedToastMessage>
+        <Text light>
+          solace.fi has been audited by{' '}
+          <HyperLink
+            href={'https://hacken.io/audits/#solace'}
+            target="_blank"
+            rel="noopener noreferrer"
+            underline
+            style={{ color: 'rgb(250, 250, 250)' }}
+          >
+            {' '}
+            Hacken
+          </HyperLink>{' '}
+          and Quantstamp. However, it is still experimental software.
+        </Text>
+      </FlexedToastMessage>
     </ToastWrapper>
   )
 }
