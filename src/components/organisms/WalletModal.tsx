@@ -7,10 +7,9 @@
     import components
     import wallets
 
-    WalletModal function
-      custom hooks
+    WalletModal
+      hooks
       local functions
-      Render
 
   *************************************************************************************/
 
@@ -28,10 +27,10 @@ import { Modal } from '../molecules/Modal'
 import { FormRow } from '../atoms/Form'
 import { Button, ButtonWrapper } from '../atoms/Button'
 import { Scrollable } from '../atoms/Layout'
+import { LedgerDerivationPathModal } from './LedgerDerivationPathModal'
 
 /* import wallets */
 import { SUPPORTED_WALLETS } from '../../wallet/'
-import { LedgerDerivationPathModal } from './LedgerDerivationPathModal'
 
 interface WalletModalProps {
   closeModal: () => void
@@ -49,7 +48,7 @@ const InitialState: ConnectWalletModalState = {
 export const WalletModal: React.FC<WalletModalProps> = ({ closeModal, isOpen }) => {
   /************************************************************************************* 
     
-  custom hooks
+  hooks
 
   *************************************************************************************/
   const { changeWallet, disconnect, activeWalletConnector } = useWallet()
@@ -76,11 +75,7 @@ export const WalletModal: React.FC<WalletModalProps> = ({ closeModal, isOpen }) 
 
     await changeWallet(foundWalletConnector)
   }, [])
-  /************************************************************************************* 
-    
-  Render
 
-  *************************************************************************************/
   return (
     <Modal
       zIndex={3}
@@ -109,7 +104,7 @@ export const WalletModal: React.FC<WalletModalProps> = ({ closeModal, isOpen }) 
                   <img src={wallet.logo} alt={wallet.name} height={32} />
                 </ModalCell>
                 <ModalCell p={10}>
-                  <Text t4 bold>
+                  <Text t4 bold light={wallet.id == activeWalletConnector?.id}>
                     {wallet.name}
                   </Text>
                 </ModalCell>

@@ -13,8 +13,8 @@ export const SecureCircleCss = css`
 `
 
 export const UserImage = styled.div<GeneralElementProps & UserImageProps>`
-  width: 30px;
-  height: 30px;
+  width: 40px;
+  height: 40px;
   ${(props) => props.secureCircle && SecureCircleCss}
   img {
     border-radius: 50%;

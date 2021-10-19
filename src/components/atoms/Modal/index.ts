@@ -1,7 +1,7 @@
 import styled, { css, keyframes } from 'styled-components'
 import { ClickProps } from '../Button'
 import { GeneralTextProps, GeneralTextCss } from '../Typography'
-import { MAX_MOBILE_SCREEN_WIDTH } from '../../../constants'
+import { BKPT_3 } from '../../../constants'
 import { GeneralElementProps, GeneralElementCss } from '../../generalInterfaces'
 
 export interface ModalProps {
@@ -46,7 +46,7 @@ export const ModalBase = styled.div<ModalProps>`
       animation: ${FadeInAnimation} 300ms ease-in-out normal forwards;
     `}
 
-  @media screen and (max-width: ${MAX_MOBILE_SCREEN_WIDTH}px) {
+  @media screen and (max-width: ${BKPT_3}px) {
     width: 100%;
   }
 `
@@ -74,7 +74,7 @@ export const ModalRow = styled.div<GeneralElementProps>`
   justify-content: space-around;
   ${GeneralElementCss}
 
-  @media screen and (max-width: ${MAX_MOBILE_SCREEN_WIDTH}px) {
+  @media screen and (max-width: ${BKPT_3}px) {
     flex-direction: column;
     align-items: center;
   }

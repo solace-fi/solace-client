@@ -1,14 +1,7 @@
-import {
-  MAX_NAVBAR_SCREEN_WIDTH,
-  MAX_WIDTH,
-  MAX_TABLET_SCREEN_WIDTH,
-  MOBILE_SCREEN_MARGIN,
-  MAX_MOBILE_SCREEN_WIDTH,
-} from '../../../constants'
+import { BKPT_NAVBAR, MAX_WIDTH, BKPT_5, BKPT_3 } from '../../../constants'
 import styled, { createGlobalStyle, keyframes } from 'styled-components'
 import { GeneralElementProps, GeneralElementCss, HeightAndWidthProps, HeightAndWidthCss } from '../../generalInterfaces'
 import { Text3Css } from '../Typography'
-import gradientBackground from '../../../resources/svg/solace-gradient-background.svg'
 
 interface ScrollableProps {
   maxDesktopHeight?: number
@@ -16,18 +9,19 @@ interface ScrollableProps {
 }
 
 interface LayoutProps {
-  location: any
+  location?: any
 }
 
 export const Scrollable = styled.div<ScrollableProps>`
   max-height: ${(props) => (props.maxDesktopHeight ? props.maxDesktopHeight : `60`)}vh;
   overflow-y: auto;
   padding: 10px;
-  background-color: rgba(0, 0, 0, 0.1);
+  background-color: ${(props) => props.theme.accordion.bg_color};
 
-  @media screen and (max-width: ${MAX_MOBILE_SCREEN_WIDTH}px) {
+  @media screen and (max-width: ${BKPT_3}px) {
     max-height: ${(props) => (props.maxMobileHeight ? props.maxMobileHeight : `75`)}vh;
   }
+  border-radius: 10px;
 `
 
 const movingGradient = keyframes`
@@ -49,7 +43,20 @@ export const GlobalStyle = createGlobalStyle<LayoutProps>`
     line-height: 1.4;
     color: ${({ theme }) => `${theme.typography.contrastText}`};
     background: ${({ theme }) => theme.body.bg_color};
-    ${(props) => props.location.pathname == '/' && `background: url(${gradientBackground});`}
+    ${(props) =>
+      props.location.pathname == '/' &&
+      `background: radial-gradient(ellipse 120% 150% at 60% 0,
+      rgba(212,120,216,1) 10%,
+      rgba(212,120,216,0) 50%),
+  radial-gradient(ellipse 50% 150% at 40% 100%,
+      rgba(243,211,126,1) 20%,
+      rgba(243,211,126,0) 80%),
+  radial-gradient(ellipse 50% 200% at 100% 50%,
+      rgba(95,93,249,1) 10%,
+      rgba(95,93,249,0) 90%),
+  radial-gradient(ellipse 100% 200% at 0 100%,
+      rgba(240,77,66,1) 10%,
+      rgba(240,77,66,0) 100%);`}
     background-attachment: fixed;
     background-size: cover;
     animation: ${movingGradient} 30s ease infinite;
@@ -74,13 +81,20 @@ export const Layout = styled.div`
   min-height: 100vh;
   padding: 30px;
 
-  @media screen and (max-width: ${MAX_NAVBAR_SCREEN_WIDTH}px) {
+  @media screen and (max-width: ${BKPT_NAVBAR}px) {
     padding: 90px 0 60px 0;
   }
 `
 
 export const HorizRule = styled.hr<LayoutProps>`
-  ${(props) => props.location.pathname == '/' && `color: ${props.theme.typography.lightText} !important;`}
+  border: none;
+  ${(props) => `color: ${props.theme.typography.contrastText};`}
+  height: 1px;
+  ${(props) => `background-color: ${props.theme.typography.contrastText};`}
+  ${(props) =>
+    props.location &&
+    props.location.pathname == '/' &&
+    `background-color: ${props.theme.typography.lightText} !important;`}
 `
 
 export const ContentContainer = styled.div`
@@ -89,16 +103,20 @@ export const ContentContainer = styled.div`
   width: 100%;
   max-width: ${MAX_WIDTH}px;
 
-  @media screen and (max-width: ${MAX_NAVBAR_SCREEN_WIDTH}px) {
+  @media screen and (max-width: ${BKPT_NAVBAR}px) {
     justify-content: center;
   }
 `
 export const SideNavContent = styled.div<HeightAndWidthProps>`
   padding: 20px;
   align-content: start;
-  min-width: ${(props) => ((props.width ? props.width : 10) / 100) * MAX_WIDTH}px;
+  min-width: ${(props) => ((props.width ? props.width : 12) / 100) * MAX_WIDTH}px;
 
-  @media screen and (max-width: ${MAX_NAVBAR_SCREEN_WIDTH}px) {
+  @media screen and (max-width: ${BKPT_3}px) {
+    min-width: ${(props) => ((props.width ? props.width : 4) / 100) * MAX_WIDTH}px;
+  }
+
+  @media screen and (max-width: ${BKPT_NAVBAR}px) {
     display: none;
   }
 `
@@ -108,7 +126,7 @@ export const LayoutContent = styled.div<HeightAndWidthProps>`
   ${(props) => (props.width ? `width: ${(props.width / 100) * MAX_WIDTH}px;` : 'width: 100%;')}
   padding: 20px;
 
-  @media screen and (max-width: ${MAX_TABLET_SCREEN_WIDTH}px) {
+  @media screen and (max-width: ${BKPT_5}px) {
     padding: 0px;
   }
 `
@@ -120,26 +138,10 @@ export const HeroContainer = styled(FlexCol)<HeightAndWidthProps>`
   ${HeightAndWidthCss}
 `
 
-export const FooterComponent = styled.div`
-  position: fixed;
-  left: 0;
-  bottom: 0;
-  width: 100%;
-  background-color: rgba(0, 0, 0, 0.92);
-  text-align: center;
-  overflow: hidden;
-  display: block;
-  z-index: 1;
-
-  @media screen and (max-width: ${MAX_MOBILE_SCREEN_WIDTH}px) {
-    padding: 10px 0;
-  }
-`
-
 export const Content = styled.div`
-  padding: 15px 0;
+  padding: 20px 0;
 
-  @media screen and (max-width: ${MAX_TABLET_SCREEN_WIDTH}px) {
-    padding: 30px ${MOBILE_SCREEN_MARGIN}px;
+  @media screen and (max-width: ${BKPT_5}px) {
+    padding: 30px 20px;
   }
 `

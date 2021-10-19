@@ -131,8 +131,8 @@ export const getTimeFromMillis = (millis: number): string => {
   return `${days}d${hours > 0 ? ` ${hours}h` : ''}${minutes > 0 ? ` ${minutes}m` : ''}`
 }
 
-export const getDaysLeft = (expirationBlock: number, latestBlock: number): number => {
-  return Math.floor((expirationBlock - latestBlock) / NUM_BLOCKS_PER_DAY)
+export const getDaysLeft = (expirationBlock: number, latestBlockNumber: number): number => {
+  return Math.floor((expirationBlock - latestBlockNumber) / NUM_BLOCKS_PER_DAY)
 }
 
 export const getDateStringWithMonthName = (date: Date): string => {

@@ -8,9 +8,16 @@
     import components
     import hooks
 
-    StyledTooltip function
-      custom hooks
-      Render
+    CustomTooltipCss
+
+    CustomTooltip
+
+    CustomNavbarTooltip
+
+    StyledNavTooltip
+
+    StyledTooltip
+      hooks
 
   *************************************************************************************/
 
@@ -19,10 +26,11 @@ import React from 'react'
 
 /* import packages */
 import ReactTooltip from 'react-tooltip'
-import styled from 'styled-components'
+import styled, { css } from 'styled-components'
+import { useLocation } from 'react-router'
 
 /* import constants */
-import { MAX_MOBILE_SCREEN_WIDTH } from '../../constants'
+import { BKPT_3 } from '../../constants'
 
 /* import components */
 import { StyledInfo, StyledLinkExternal } from '../atoms/Icon'
@@ -37,11 +45,10 @@ type StyledTooltipProps = {
   link?: string
 }
 
-const CustomTooltip = styled(ReactTooltip)`
+const CustomTooltipCss = css`
   max-width: 350px;
   font-size: 14px !important;
   pointer-events: auto !important;
-  background-color: ${({ theme }) => theme.tooltip.bg_color} !important;
   cursor: pointer;
   &:hover {
     visibility: visible !important;
@@ -49,21 +56,57 @@ const CustomTooltip = styled(ReactTooltip)`
   }
 `
 
+const CustomTooltip = styled(ReactTooltip)`
+  background-color: ${({ theme }) => theme.tooltip.bg_color} !important;
+  ${CustomTooltipCss}
+`
+
+const CustomNavbarTooltip = styled(ReactTooltip)`
+  ${CustomTooltipCss}
+`
+
+export const StyledNavTooltip: React.FC<StyledTooltipProps> = ({ id, tip, children }) => {
+  const { width } = useWindowDimensions()
+  const location = useLocation()
+
+  return (
+    <>
+      {width <= BKPT_3 ? (
+        <>
+          <div data-for={id} data-tip={tip} style={{ padding: '4px 0' }}>
+            {children}
+          </div>
+          <CustomNavbarTooltip
+            id={id}
+            delayShow={100}
+            delayHide={100}
+            effect="solid"
+            place="right"
+            backgroundColor={location.pathname == '/' ? 'rgba(0, 0, 0, 0.4)' : 'rgba(25, 29, 36, 1)'}
+          >
+            <Text t4 light>
+              {tip}
+            </Text>
+          </CustomNavbarTooltip>
+        </>
+      ) : (
+        children
+      )}
+    </>
+  )
+}
+
 export const StyledTooltip: React.FC<StyledTooltipProps> = ({ id, tip, link }) => {
   /*************************************************************************************
 
-  custom hooks
+  hooks
 
   *************************************************************************************/
   const { width } = useWindowDimensions()
-  /*************************************************************************************
 
-  render
-
-  *************************************************************************************/
   return (
     <>
-      {width > MAX_MOBILE_SCREEN_WIDTH ? (
+      {width > BKPT_3 ? (
         <>
           <a data-for={id} data-tip={tip}>
             <StyledInfo size={20} />

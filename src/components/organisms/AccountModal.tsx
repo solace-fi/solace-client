@@ -10,10 +10,9 @@
     import hooks
     import utils
 
-    TransactionHistoryModal function
-      custom hooks
+    AccountModal function
+      hooks
       local functions
-      Render
 
   *************************************************************************************/
 
@@ -24,7 +23,7 @@ import React, { useCallback } from 'react'
 import makeBlockie from 'ethereum-blockies-base64'
 
 /* import constants */
-import { MAX_TABLET_SCREEN_WIDTH, MAX_MOBILE_SCREEN_WIDTH } from '../../constants'
+import { BKPT_5, BKPT_3 } from '../../constants'
 import { ExplorerscanApi } from '../../constants/enums'
 
 /* import managers */
@@ -35,7 +34,7 @@ import { useWallet } from '../../context/WalletManager'
 
 /* import components */
 import { Modal } from '../molecules/Modal'
-import { Button } from '../atoms/Button'
+import { Button, ButtonWrapper } from '../atoms/Button'
 import { Scrollable } from '../atoms/Layout'
 import { HyperLink } from '../atoms/Link'
 import { Loader } from '../atoms/Loader'
@@ -44,8 +43,11 @@ import { Text } from '../atoms/Typography'
 import { WalletConnectButton } from '../molecules/WalletConnectButton'
 import { NetworkConnectButton } from '../molecules/NetworkConnectButton'
 import { Card, CardContainer } from '../atoms/Card'
-import { FormCol, FormRow } from '../atoms/Form'
+import { FormRow } from '../atoms/Form'
 import { UserImage } from '../atoms/User'
+import { Input } from '../atoms/Input'
+import { Box, BoxItem, BoxItemTitle } from '../atoms/Box'
+import { CopyButton } from '../molecules/CopyButton'
 
 /* import hooks */
 import { useTransactionDetails } from '../../hooks/useTransactionHistory'
@@ -65,14 +67,14 @@ interface AccountModalProps {
 export const AccountModal: React.FC<AccountModalProps> = ({ closeModal, isOpen }) => {
   /*************************************************************************************
 
-  custom hooks
+  hooks
 
   *************************************************************************************/
 
   const { activeNetwork } = useNetwork()
   const { localTransactions } = useCachedData()
   const { contractSources } = useContracts()
-  const { account, activeWalletConnector } = useWallet()
+  const { account, activeWalletConnector, name } = useWallet()
   const { width } = useWindowDimensions()
   const { txHistory, amounts } = useTransactionDetails()
   /************************************************************************************* 
@@ -83,58 +85,57 @@ export const AccountModal: React.FC<AccountModalProps> = ({ closeModal, isOpen }
   const handleClose = useCallback(() => {
     closeModal()
   }, [closeModal])
-  /************************************************************************************* 
-    
-  Render
 
-  *************************************************************************************/
   return (
     <Modal handleClose={handleClose} isOpen={isOpen} modalTitle={'Account'} disableCloseButton={false}>
-      <CardContainer cardsPerRow={2} mb={10}>
-        <Card color1>
-          <FormRow>
-            <FormCol>
-              <Text light>
-                Network
-                <UserImage style={{ display: 'inline-flex', verticalAlign: 'bottom' }}>
-                  <img src={activeNetwork.logo} alt={activeNetwork.name} height={32} />
+      <CardContainer cardsPerRow={account ? 2 : 1} mb={10}>
+        {account && activeWalletConnector && (
+          <Card color1>
+            <FormRow style={{ justifyContent: 'center' }} m={0}>
+              <Text t2 bold light>
+                <UserImage width={30} height={30} pr={5} style={{ display: 'inline-flex', verticalAlign: 'bottom' }}>
+                  <img style={{ borderRadius: '10px' }} src={makeBlockie(account)} alt={'account'} />
                 </UserImage>
+                {name ?? shortenAddress(account)}
               </Text>
-            </FormCol>
-            <FormCol>
+            </FormRow>
+            <FormRow mb={5}>
+              <Input widthP={100} readOnly value={account} light textAlignCenter />
+            </FormRow>
+            <ButtonWrapper mt={15} mb={5} isColumn={width <= BKPT_3}>
+              <CopyButton toCopy={account} />
+              <HyperLink
+                href={getExplorerItemUrl(activeNetwork.explorer.url, account, ExplorerscanApi.ADDRESS)}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ width: '100%' }}
+              >
+                <Button widthP={100} light style={{ whiteSpace: 'nowrap' }}>
+                  View on {activeNetwork.explorer.name}
+                </Button>
+              </HyperLink>
+            </ButtonWrapper>
+          </Card>
+        )}
+        <Card color2>
+          <Box transparent p={0}>
+            <BoxItem>
+              <BoxItemTitle light>Wallet</BoxItemTitle>
+              <Text light t2 bold nowrap>
+                {activeWalletConnector ? activeWalletConnector.name : 'Not Connected'}
+              </Text>
+            </BoxItem>
+            <BoxItem>
+              <BoxItemTitle light>Network</BoxItemTitle>
               <Text light t2 bold nowrap>
                 {capitalizeFirstLetter(activeNetwork.name)}
               </Text>
-            </FormCol>
-          </FormRow>
-          <NetworkConnectButton widthP={100} light />
-        </Card>
-        <Card color2>
-          <FormRow>
-            <FormCol>
-              <Text light>
-                Wallet{' '}
-                {activeWalletConnector && (
-                  <UserImage style={{ display: 'inline-flex', verticalAlign: 'bottom' }}>
-                    <img src={activeWalletConnector.logo} alt={activeWalletConnector.name} height={32} />
-                  </UserImage>
-                )}{' '}
-              </Text>
-            </FormCol>
-            <FormCol>
-              <Text light t2 bold nowrap>
-                {account ? shortenAddress(account) : 'Not Connected'}
-                {account && (
-                  <>
-                    <UserImage pl={5} style={{ display: 'inline-flex', verticalAlign: 'bottom' }}>
-                      <img src={makeBlockie(account)} alt={'account'} />
-                    </UserImage>
-                  </>
-                )}
-              </Text>
-            </FormCol>
-          </FormRow>
-          <WalletConnectButton widthP={100} light />
+            </BoxItem>
+          </Box>
+          <ButtonWrapper mt={20} mb={5} isColumn={width <= BKPT_3}>
+            <WalletConnectButton widthP={100} light />
+            <NetworkConnectButton widthP={100} light />
+          </ButtonWrapper>
         </Card>
       </CardContainer>
       {account && (
@@ -147,23 +148,28 @@ export const AccountModal: React.FC<AccountModalProps> = ({ closeModal, isOpen }
               <TableHead sticky>
                 <TableRow>
                   <TableHeader>Type</TableHeader>
-                  {width > MAX_TABLET_SCREEN_WIDTH && (
+                  {width > BKPT_5 && (
                     <>
                       <TableHeader>Content</TableHeader>
                       <TableHeader>Time</TableHeader>
                     </>
                   )}
                   <TableHeader>Hash</TableHeader>
-                  {width > MAX_TABLET_SCREEN_WIDTH && <TableHeader>Status</TableHeader>}
                 </TableRow>
               </TableHead>
               <TableBody>
                 {localTransactions.map((pendingtx: any) => (
                   <TableRow isHighlight key={pendingtx.hash}>
-                    <TableData pt={5} pb={5} t4>
+                    <TableData
+                      pl={width <= BKPT_3 ? 0 : undefined}
+                      pr={width <= BKPT_3 ? 0 : undefined}
+                      pt={5}
+                      pb={5}
+                      t4
+                    >
                       {pendingtx.type}
                     </TableData>
-                    {width > MAX_TABLET_SCREEN_WIDTH && (
+                    {width > BKPT_5 && (
                       <>
                         <TableData pt={5} pb={5} t4>{`${pendingtx.value} ${pendingtx.unit}`}</TableData>
                         <TableData pt={5} pb={5} t4>
@@ -171,7 +177,13 @@ export const AccountModal: React.FC<AccountModalProps> = ({ closeModal, isOpen }
                         </TableData>
                       </>
                     )}
-                    <TableData pt={5} pb={5} t4>
+                    <TableData
+                      pt={5}
+                      pb={5}
+                      t4
+                      pl={width <= BKPT_3 ? 0 : undefined}
+                      pr={width <= BKPT_3 ? 0 : undefined}
+                    >
                       <HyperLink
                         href={getExplorerItemUrl(activeNetwork.explorer.url, pendingtx.hash, ExplorerscanApi.TX)}
                         target="_blank"
@@ -180,11 +192,6 @@ export const AccountModal: React.FC<AccountModalProps> = ({ closeModal, isOpen }
                         <Button>{shortenAddress(pendingtx.hash)} </Button>
                       </HyperLink>
                     </TableData>
-                    {width > MAX_TABLET_SCREEN_WIDTH && (
-                      <TableData pt={5} pb={5} t4>
-                        <Text>{pendingtx.status}</Text>
-                      </TableData>
-                    )}
                   </TableRow>
                 ))}
                 {txHistory &&
@@ -192,22 +199,24 @@ export const AccountModal: React.FC<AccountModalProps> = ({ closeModal, isOpen }
                     <TableRow key={tx.hash}>
                       <TableData
                         t4
-                        error={tx.txreceipt_status != '1'}
                         pt={5}
                         pb={5}
-                        pl={width <= MAX_MOBILE_SCREEN_WIDTH ? 0 : undefined}
-                        pr={width <= MAX_MOBILE_SCREEN_WIDTH ? 0 : undefined}
+                        pl={width <= BKPT_3 ? 0 : undefined}
+                        pr={width <= BKPT_3 ? 0 : undefined}
                       >
                         {amounts.length > 0 ? (
-                          decodeInput(tx, contractSources).function_name
+                          <Text error={tx.txreceipt_status != '1'}>
+                            {decodeInput(tx, contractSources).function_name}
+                          </Text>
                         ) : (
                           <Loader width={10} height={10} />
                         )}
                       </TableData>
-                      {width > MAX_TABLET_SCREEN_WIDTH && (
+                      {width > BKPT_5 && (
                         <>
                           <TableData pt={5} pb={5} t4>
-                            {amounts.length > 0 && <Text error={tx.txreceipt_status != '1'}>{amounts[i]}</Text>}
+                            {amounts.length > 0 && tx.txreceipt_status == '1' && <Text>{amounts[i]}</Text>}
+                            {amounts.length > 0 && tx.txreceipt_status != '1' && <Text error>Transaction Failed</Text>}
                           </TableData>
                           <TableData pt={5} pb={5} t4>
                             {amounts.length > 0 && (
@@ -220,8 +229,8 @@ export const AccountModal: React.FC<AccountModalProps> = ({ closeModal, isOpen }
                         t4
                         pt={5}
                         pb={5}
-                        pl={width <= MAX_MOBILE_SCREEN_WIDTH ? 0 : undefined}
-                        pr={width <= MAX_MOBILE_SCREEN_WIDTH ? 0 : undefined}
+                        pl={width <= BKPT_3 ? 0 : undefined}
+                        pr={width <= BKPT_3 ? 0 : undefined}
                       >
                         {amounts.length > 0 && (
                           <HyperLink
@@ -233,15 +242,6 @@ export const AccountModal: React.FC<AccountModalProps> = ({ closeModal, isOpen }
                           </HyperLink>
                         )}
                       </TableData>
-                      {width > MAX_TABLET_SCREEN_WIDTH && (
-                        <TableData pt={5} pb={5} t4>
-                          {amounts.length > 0 && (
-                            <Text error={tx.txreceipt_status != '1'}>
-                              {tx.txreceipt_status == '1' ? 'Complete' : 'Failed'}
-                            </Text>
-                          )}
-                        </TableData>
-                      )}
                     </TableRow>
                   ))}
               </TableBody>

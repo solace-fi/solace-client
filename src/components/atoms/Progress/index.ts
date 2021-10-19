@@ -11,6 +11,7 @@ export const StepsContainer = styled(FlexCol)<ProgressProps>`
     `
   ${Step} {
     &:nth-child(2) {
+      color: ${props.theme.progress.step_completed_color};
       opacity: 1;
     }
   }
@@ -25,6 +26,7 @@ export const StepsContainer = styled(FlexCol)<ProgressProps>`
   ${Step} {
     &:nth-child(2),
     &:nth-child(3) {
+      color: ${props.theme.progress.step_completed_color};
       opacity: 1;
     }
   }
@@ -40,6 +42,7 @@ export const StepsContainer = styled(FlexCol)<ProgressProps>`
     &:nth-child(2),
     &:nth-child(3),
     &:nth-child(4) {
+      color: ${props.theme.progress.step_completed_color};
       opacity: 1;
     }
   }
@@ -60,14 +63,17 @@ export const StepsWrapper = styled.div`
 
 export const Step = styled.div`
   position: relative;
+  font-weight: 600;
   display: flex;
   justify-content: center;
   width: 25%;
   padding: 8px 16px 16px;
+  color: ${({ theme }) => theme.progress.step_color};
   opacity: 0.5;
   text-align: center;
 
   &:first-child {
+    color: ${({ theme }) => theme.progress.step_completed_color};
     opacity: 1;
   }
 
@@ -79,7 +85,7 @@ export const Step = styled.div`
     border-radius: 1px;
     width: 1px;
     height: 10px;
-    background-color: ${({ theme }) => theme.progress.step_bg_color};
+    background-color: ${({ theme }) => theme.progress.step_completed_color};
   }
 
   &:last-child {
@@ -91,7 +97,7 @@ export const Step = styled.div`
       border-radius: 1px;
       width: 1px;
       height: 10px;
-      background-color: ${({ theme }) => theme.progress.step_bg_color};
+      background-color: ${({ theme }) => theme.progress.step_completed_color};
     }
   }
 `

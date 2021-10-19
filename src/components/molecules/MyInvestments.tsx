@@ -10,9 +10,8 @@
     import hooks
     import utils
 
-    MyInvestments function
-      custom hooks
-      Render
+    MyInvestments
+      hooks
 
   *************************************************************************************/
 
@@ -47,7 +46,7 @@ import { truncateBalance } from '../../utils/formatting'
 export const MyInvestments: React.FC = () => {
   /*************************************************************************************
 
-    custom hooks
+    hooks
 
   *************************************************************************************/
   const { account } = useWallet()
@@ -61,12 +60,6 @@ export const MyInvestments: React.FC = () => {
   const cpUserRewardsPerDay = useUserRewardsPerDay(1, cpFarm, account)
   const lpUserRewardsPerDay = useUserRewardsPerDay(2, lpFarm, account)
 
-  /*************************************************************************************
-
-    Render
-
-  *************************************************************************************/
-
   return (
     <Content>
       <Text t1 bold>
@@ -75,7 +68,7 @@ export const MyInvestments: React.FC = () => {
       <CardContainer>
         <InvestmentCard>
           <CardHeader>
-            <CardTitle t4>Capital Pool</CardTitle>
+            <CardTitle t4>Options Farming Pool</CardTitle>
             <CardTitle t3 nowrap>
               {account ? truncateBalance(cpUserStakeValue, 2) : 0} {activeNetwork.nativeCurrency.symbol}
             </CardTitle>
@@ -93,17 +86,17 @@ export const MyInvestments: React.FC = () => {
             </CardTitle>
           </CardBlock>
         </InvestmentCard>
-        <InvestmentCard>
+        {/* <InvestmentCard>
           <CardHeader>
             <CardTitle t4>Liquidity Pool</CardTitle>
             <CardTitle t3 nowrap>
-              {/* {account
+              {account
                 ? truncateBalance(
                     formatUnits(depositedLpTokenInfo.reduce((a, b) => a.add(b.value), ZERO).toString(), currencyDecimals),
                     2
                   )
                 : 0}{' '}
-              {Unit.SOLACE} */}
+              {Unit.SOLACE}
               {account ? truncateBalance(lpUserStakeValue, 2) : 0} {Unit.SOLACE}
             </CardTitle>
           </CardHeader>
@@ -119,7 +112,7 @@ export const MyInvestments: React.FC = () => {
               {account ? truncateBalance(lpUserRewards, 2) : 0} {Unit.SOLACE}
             </CardTitle>
           </CardBlock>
-        </InvestmentCard>
+        </InvestmentCard> */}
       </CardContainer>
     </Content>
   )

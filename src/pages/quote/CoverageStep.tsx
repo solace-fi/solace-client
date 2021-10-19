@@ -10,13 +10,11 @@
     import hooks
     import utils
 
-    CoverageStep function
-      custom hooks
-      useState hooks
-      Contract functions
-      Local functions
+    CoverageStep
+      hooks
+      contract functions
+      local functions
       useEffect hooks
-      Render
 
   *************************************************************************************/
 
@@ -26,10 +24,11 @@ import React, { useEffect, useMemo, useState } from 'react'
 /* import packages */
 import { formatUnits, parseUnits } from 'ethers/lib/utils'
 import { BigNumber } from 'ethers'
+import { useLocation } from 'react-router'
 
 /* import constants */
-import { DAYS_PER_YEAR, GAS_LIMIT, NUM_BLOCKS_PER_DAY, ZERO } from '../../constants'
-import { TransactionCondition, FunctionName, Unit } from '../../constants/enums'
+import { BKPT_4, DAYS_PER_YEAR, GAS_LIMIT, NUM_BLOCKS_PER_DAY, ZERO } from '../../constants'
+import { TransactionCondition, FunctionName, Unit, PositionType } from '../../constants/enums'
 import { LiquityPosition, LocalTx, Position, Token } from '../../constants/types'
 
 /* import managers */
@@ -48,12 +47,13 @@ import { Card, CardContainer } from '../../components/atoms/Card'
 import { Text, TextSpan } from '../../components/atoms/Typography'
 import { Input, StyledSlider } from '../../components/atoms/Input'
 import { Loader } from '../../components/atoms/Loader'
-import { FlexCol, FlexRow } from '../../components/atoms/Layout'
+import { FlexCol, FlexRow, HorizRule } from '../../components/atoms/Layout'
 import { StyledTooltip } from '../../components/molecules/Tooltip'
 
 /* import hooks */
 import { useGetQuote, useGetMaxCoverPerPolicy } from '../../hooks/usePolicy'
 import { useGasConfig } from '../../hooks/useGas'
+import { useWindowDimensions } from '../../hooks/useWindowDimensions'
 
 /* import utils */
 import { accurateMultiply, encodeAddresses, filteredAmount } from '../../utils/formatting'
@@ -62,10 +62,10 @@ import { getDateStringWithMonthName, getDateExtended } from '../../utils/time'
 export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigation }) => {
   /*************************************************************************************
 
-  custom hooks
+  hooks
 
   *************************************************************************************/
-  const { errors } = useGeneral()
+  const { haveErrors } = useGeneral()
   const { positions, coverAmount, timePeriod, loading } = formData
   const maxCoverPerPolicy = useGetMaxCoverPerPolicy() // in eth
   const quote = useGetQuote(coverAmount, timePeriod)
@@ -78,16 +78,17 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
   const maxCoverPerPolicyInWei = useMemo(() => {
     return parseUnits(maxCoverPerPolicy, currencyDecimals)
   }, [maxCoverPerPolicy, currencyDecimals])
+  const { width } = useWindowDimensions()
 
   // positionAmount: BigNumber = wei but displayable, position.eth.balance: BigNumber = wei
   const positionAmount: BigNumber = useMemo(() => {
     const totalBalance = positions.reduce((pv: BigNumber, cv: Position) => {
       switch (cv.type) {
-        case 'erc20':
+        case PositionType.TOKEN:
           return pv.add((cv.position as Token).eth.balance)
-        case 'liquity':
+        case PositionType.LQTY:
           return pv.add((cv.position as LiquityPosition).nativeAmount)
-        case 'other':
+        case PositionType.OTHER:
         default:
           ZERO
       }
@@ -96,17 +97,12 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
     return BigNumber.from(accurateMultiply(formatUnits(totalBalance, currencyDecimals), currencyDecimals))
   }, [positions, currencyDecimals])
 
-  /*************************************************************************************
-
-  useState hooks
-
-  *************************************************************************************/
   const [inputCoverage, setInputCoverage] = useState<string>('')
   const [coveredAssets, setCoveredAssets] = useState<string>(maxCoverPerPolicy)
 
   /*************************************************************************************
 
-  Contract functions
+  contract functions
 
   *************************************************************************************/
 
@@ -127,13 +123,13 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
         encodeAddresses(
           positions.reduce((pv: string[], cv: Position) => {
             switch (cv.type) {
-              case 'erc20':
+              case PositionType.TOKEN:
                 pv.push((cv.position as Token).token.address)
                 break
-              case 'liquity':
+              case PositionType.LQTY:
                 pv.push((cv.position as LiquityPosition).positionAddress)
                 break
-              case 'other':
+              case PositionType.OTHER:
               default:
             }
             return pv
@@ -183,7 +179,7 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
 
   /*************************************************************************************
 
-  Local functions
+  local functions
 
   *************************************************************************************/
 
@@ -242,6 +238,14 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
     handleCoverageChange(adjustedCoverAmount, false)
   }
 
+  const setPositionCover = () => {
+    if (positionAmount.lte(maxCoverPerPolicyInWei)) {
+      handleCoverageChange(positionAmount.toString())
+    } else {
+      setMaxCover()
+    }
+  }
+
   /*************************************************************************************
 
   useEffect hooks
@@ -249,25 +253,40 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
   *************************************************************************************/
 
   useEffect(() => {
-    if (positionAmount.lte(maxCoverPerPolicyInWei)) {
-      handleCoverageChange(positionAmount.toString())
-    } else {
-      setMaxCover()
-    }
+    setPositionCover()
   }, [maxCoverPerPolicyInWei])
 
   useEffect(() => {
     setCoveredAssets(formatUnits(BigNumber.from(coverAmount), currencyDecimals))
   }, [coverAmount, currencyDecimals])
 
-  /*************************************************************************************
-
-  Render
-
-  *************************************************************************************/
+  const TermsCard = () => (
+    <Card transparent>
+      <FormRow>
+        <Text t3 bold>
+          Terms and conditions
+        </Text>
+      </FormRow>
+      <FormRow mb={0}>
+        <FormCol>
+          <Text t4>
+            <b>Events covered:</b>
+            <ul>
+              <li>Contract bugs</li>
+              <li>Economic attacks, including oracle failures</li>
+              <li>Governance attacks</li>
+            </ul>
+            This coverage is not a contract of insurance. Coverage is provided on a discretionary basis with Solace
+            protocol and the decentralized governance has the final say on which claims are paid.
+          </Text>
+        </FormCol>
+      </FormRow>
+    </Card>
+  )
 
   return (
     <CardContainer cardsPerRow={2}>
+      {width <= BKPT_4 && <TermsCard />}
       <Card>
         <FormRow mb={5}>
           <FormCol>
@@ -280,7 +299,7 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
             </Text>
           </FormCol>
           <FormCol>
-            <Text bold t2 textAlignRight>
+            <Text bold t2 textAlignRight info>
               {formatUnits(positionAmount, currencyDecimals)} {activeNetwork.nativeCurrency.symbol}
             </Text>
           </FormCol>
@@ -296,12 +315,12 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
             </Text>
           </FormCol>
           <FormCol>
-            <Text t3 textAlignRight>
+            <Text t3 textAlignRight info>
               {maxCoverPerPolicy} {activeNetwork.nativeCurrency.symbol}
             </Text>
           </FormCol>
         </FormRow>
-        <hr style={{ marginBottom: '10px' }} />
+        <HorizRule style={{ marginBottom: '10px' }} />
         <FlexCol mb={20} style={{ padding: '10px 30px' }}>
           <div style={{ textAlign: 'center' }}>
             <Text t3>Coverage Amount</Text>
@@ -314,17 +333,35 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
                 type="text"
                 value={inputCoverage}
                 onChange={(e) => handleInputCoverage(filteredAmount(e.target.value, inputCoverage))}
+                info
               />
+              {maxCoverPerPolicyInWei.gt(positionAmount) && (
+                <Button
+                  disabled={haveErrors}
+                  ml={10}
+                  pt={4}
+                  pb={4}
+                  pl={2}
+                  pr={2}
+                  width={120}
+                  height={30}
+                  onClick={() => setPositionCover()}
+                  info
+                >
+                  Cover to position
+                </Button>
+              )}
               <Button
-                disabled={errors.length > 0}
+                disabled={haveErrors}
                 ml={10}
                 pt={4}
                 pb={4}
                 pl={8}
                 pr={8}
-                width={79}
+                width={70}
                 height={30}
                 onClick={() => setMaxCover()}
+                info
               >
                 MAX
               </Button>
@@ -350,6 +387,7 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
                 value={timePeriod}
                 onChange={(e) => filteredTime(e.target.value)}
                 maxLength={3}
+                info
               />
             </div>
             <StyledSlider
@@ -360,14 +398,14 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
             />
           </div>
         </FlexCol>
-        <hr style={{ marginBottom: '20px' }} />
+        <HorizRule style={{ marginBottom: '20px' }} />
         <FormRow mb={5}>
           <FormCol>
             <Text t4>Covered Assets</Text>
           </FormCol>
           <FormCol>
             <FlexRow>
-              <Text t4 bold>
+              <Text t4 bold info>
                 {coveredAssets} {activeNetwork.nativeCurrency.symbol}
               </Text>
             </FlexRow>
@@ -379,11 +417,11 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
           </FormCol>
           <FormCol>
             <Text t4>
-              <TextSpan nowrap pl={5} pr={5}>
+              <TextSpan nowrap pl={5} pr={5} info>
                 {getDateStringWithMonthName(new Date(Date.now()))}
               </TextSpan>{' '}
-              -{' '}
-              <TextSpan pl={5} pr={5}>
+              <TextSpan info>-</TextSpan>{' '}
+              <TextSpan pl={5} pr={5} info>
                 {getDateStringWithMonthName(getDateExtended(parseFloat(timePeriod || '1')))}
               </TextSpan>
             </Text>
@@ -394,14 +432,14 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
             <Text t4>Quote</Text>
           </FormCol>
           <FormCol>
-            <Text t4 bold>
+            <Text t4 bold info>
               {quote} {activeNetwork.nativeCurrency.symbol}
             </Text>
           </FormCol>
         </FormRow>
         <ButtonWrapper>
           {!loading ? (
-            <Button widthP={100} onClick={() => buyPolicy()} disabled={errors.length > 0 || coveredAssets == '0.0'}>
+            <Button widthP={100} onClick={() => buyPolicy()} disabled={haveErrors || coveredAssets == '0.0'} info>
               Buy
             </Button>
           ) : (
@@ -409,27 +447,7 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
           )}
         </ButtonWrapper>
       </Card>
-      <Card transparent>
-        <FormRow>
-          <Text t3 bold>
-            Terms and conditions
-          </Text>
-        </FormRow>
-        <FormRow mb={0}>
-          <FormCol>
-            <Text t4>
-              <b>Events covered:</b>
-              <ul>
-                <li>Contract bugs</li>
-                <li>Economic attacks, including oracle failures</li>
-                <li>Governance attacks</li>
-              </ul>
-              This coverage is not a contract of insurance. Coverage is provided on a discretionary basis with Solace
-              protocol and the decentralized governance has the final say on which claims are paid.
-            </Text>
-          </FormCol>
-        </FormRow>
-      </Card>
+      {width > BKPT_4 && <TermsCard />}
     </CardContainer>
   )
 }

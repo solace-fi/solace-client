@@ -7,10 +7,9 @@
     import components
     import constants
 
-    Invest function
-      custom hooks
+    Invest 
+      hooks
       Local functions
-      Render
 
   *************************************************************************************/
 
@@ -22,11 +21,12 @@ import { useNetwork } from '../../context/NetworkManager'
 
 /* import components */
 import { PoolModal } from '../../components/organisms/PoolModal'
-import { RiskBackingCapitalPool } from '../../components/organisms/UnderwritingPool'
+import { UnderwritingPool } from '../../components/organisms/UnderwritingPool'
 import { CapitalProviderPool } from '../../components/organisms/CapitalProviderPool'
 import { LiquidityPool } from '../../components/organisms/LiquidityPool'
 import { HeroContainer } from '../../components/atoms/Layout'
 import { Text } from '../../components/atoms/Typography'
+import { MyOptions } from '../../components/molecules/MyOptions'
 
 /* import constants */
 import { FunctionName } from '../../constants/enums'
@@ -34,7 +34,7 @@ import { FunctionName } from '../../constants/enums'
 function Invest(): any {
   /*************************************************************************************
 
-  custom hooks
+  hooks
 
   *************************************************************************************/
   const { chainId } = useNetwork()
@@ -60,16 +60,10 @@ function Invest(): any {
     document.body.style.overflowY = 'scroll'
   }, [])
 
-  /*************************************************************************************
-
-  Render
-
-  *************************************************************************************/
-
   return (
     <Fragment>
       <PoolModal isOpen={showPoolModal} modalTitle={modalTitle} func={func} closeModal={closeModal} />
-      <RiskBackingCapitalPool openModal={openModal} />
+      <UnderwritingPool openModal={openModal} />
       {chainId == 1 ? (
         <HeroContainer>
           <Text t1 textAlignCenter>
@@ -79,9 +73,10 @@ function Invest(): any {
       ) : (
         <>
           <CapitalProviderPool openModal={openModal} />
-          <LiquidityPool openModal={openModal} />
+          {/* <LiquidityPool openModal={openModal} /> */}
         </>
       )}
+      <MyOptions />
     </Fragment>
   )
 }

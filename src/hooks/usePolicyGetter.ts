@@ -8,11 +8,15 @@ import { useContracts } from '../context/ContractsManager'
 import { useState, useEffect, useRef } from 'react'
 import { useNetwork } from '../context/NetworkManager'
 import { getClaimAssessment } from '../utils/paclas'
+import { Block } from '@ethersproject/contracts/node_modules/@ethersproject/abstract-provider'
 
 export const usePolicyGetter = (
   getAll: boolean,
-  latestBlock: number,
-  data: { dataInitialized: boolean; storedPositionData: NetworkCache[] },
+  latestBlock: Block | undefined,
+  data: {
+    dataInitialized: boolean
+    storedPosData: NetworkCache[]
+  },
   policyHolder?: string,
   product?: string
 ) => {
@@ -32,26 +36,16 @@ export const usePolicyGetter = (
   const getUserPolicies = async (policyHolder: string): Promise<Policy[]> => {
     if (!policyManager || !library) return []
     const blockNumber = await library.getBlockNumber()
-    const policyIds: BigNumber[] = await policyManager.listPolicies(policyHolder).catch((err: any) => {
-      console.log(err)
-      return []
-    })
+    const policyIds: BigNumber[] = await policyManager.listTokensOfOwner(policyHolder)
     const policies = await Promise.all(policyIds.map((policyId: BigNumber) => queryPolicy(policyId, blockNumber)))
     return policies
   }
 
   const getAllPolicies = async (): Promise<Policy[]> => {
     if (!policyManager || !library) return []
-    const [blockNumber, totalSupply] = await Promise.all([
-      library.getBlockNumber(),
-      policyManager.totalSupply().catch((err: any) => {
-        console.log(err)
-        return 0
-      }),
-    ])
-    const indices = rangeFrom0(totalSupply)
-    const policyIds = await Promise.all(indices.map((index) => policyManager.tokenByIndex(index)))
-    const policies = await Promise.all(policyIds.map((policyId: number) => queryPolicy(policyId, blockNumber)))
+    const blockNumber = await library.getBlockNumber()
+    const policyIds: BigNumber[] = await policyManager.listTokens()
+    const policies = await Promise.all(policyIds.map((policyId: BigNumber) => queryPolicy(policyId, blockNumber)))
     return policies
   }
 
@@ -63,16 +57,21 @@ export const usePolicyGetter = (
     try {
       if (policyHolder) {
         policies.sort((a: any, b: any) => b.policyId - a.policyId) // newest first
-        const matchingCache: NetworkCache | undefined = data.storedPositionData.find(
-          (dataset) => dataset.name == activeNetwork.name
-        )
-        policies.forEach((policy: Policy) => {
-          const productPosition =
-            matchingCache?.positionNames[activeNetwork.config.productsRev[policy.productAddress] ?? '']
+        const matchingCache = data.storedPosData.find((dataset) => dataset.chainId == activeNetwork.chainId)
+        policies.forEach(async (policy: Policy) => {
+          const supportedProductName = activeNetwork.config.productsRev[policy.productAddress]
+          const productPosition = matchingCache?.positionNamesCache[supportedProductName]
           if (productPosition) {
-            Object.keys(productPosition.positionNames).forEach((key) => {
-              if (policy.positionDescription.includes(key.slice(2))) {
-                policy.positionNames.push(productPosition.positionNames[key])
+            Object.keys(productPosition.positionNames).forEach((tokenAddress) => {
+              if (policy.positionDescription.includes(tokenAddress.slice(2))) {
+                policy.positionNames = [...policy.positionNames, productPosition.positionNames[tokenAddress]]
+                const newUnderlyingPositionNames = [
+                  ...policy.underlyingPositionNames,
+                  ...productPosition.underlyingPositionNames[tokenAddress],
+                ]
+                policy.underlyingPositionNames = newUnderlyingPositionNames.filter(
+                  (item: string, index: number) => newUnderlyingPositionNames.indexOf(item) == index
+                )
               }
             })
           }
@@ -98,6 +97,7 @@ export const usePolicyGetter = (
       productName: '',
       positionDescription: '',
       positionNames: [],
+      underlyingPositionNames: [],
       expirationBlock: 0,
       coverAmount: '',
       price: '',
@@ -105,7 +105,8 @@ export const usePolicyGetter = (
     }
     if (!policyManager) return returnError
     try {
-      const policy = await withBackoffRetries(async () => policyManager.getPolicyInfo(policyId))
+      // const policy = await withBackoffRetries(async () => policyManager.getPolicyInfo(policyId))
+      const policy = await policyManager.getPolicyInfo(policyId)
       return {
         policyId: Number(policyId),
         policyHolder: policy.policyholder,
@@ -113,6 +114,7 @@ export const usePolicyGetter = (
         productName: activeNetwork.config.productsRev[policy.product] ?? '',
         positionDescription: policy.positionDescription,
         positionNames: [],
+        underlyingPositionNames: [],
         expirationBlock: policy.expirationBlock,
         coverAmount: policy.coverAmount.toString(),
         price: policy.price.toString(),
@@ -130,15 +132,20 @@ export const usePolicyGetter = (
     if (!belongsToUser) return
     const blockNumber = await library.getBlockNumber()
     const updatedPolicy = await queryPolicy(id, blockNumber)
-    const matchingCache: NetworkCache | undefined = data.storedPositionData.find(
-      (dataset) => dataset.name == activeNetwork.name
-    )
+    const matchingCache = data.storedPosData.find((dataset) => dataset.chainId == activeNetwork.chainId)
     const productPosition =
-      matchingCache?.positionNames[activeNetwork.config.productsRev[updatedPolicy.productAddress] ?? '']
+      matchingCache?.positionNamesCache[activeNetwork.config.productsRev[updatedPolicy.productAddress]]
     if (productPosition) {
-      Object.keys(productPosition.positionNames).forEach((key) => {
-        if (updatedPolicy.positionDescription.includes(key.slice(2))) {
-          updatedPolicy.positionNames.push(productPosition.positionNames[key])
+      Object.keys(productPosition.positionNames).forEach((tokenAddress) => {
+        if (updatedPolicy.positionDescription.includes(tokenAddress.slice(2))) {
+          updatedPolicy.positionNames = [...updatedPolicy.positionNames, productPosition.positionNames[tokenAddress]]
+          const newUnderlyingPositionNames = [
+            ...updatedPolicy.underlyingPositionNames,
+            ...productPosition.underlyingPositionNames[tokenAddress],
+          ]
+          updatedPolicy.underlyingPositionNames = newUnderlyingPositionNames.filter(
+            (item: string, index: number) => newUnderlyingPositionNames.indexOf(item) == index
+          )
         }
       })
     }

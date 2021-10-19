@@ -5,8 +5,7 @@
     import react
     import components
 
-    ConfirmStep function
-      Render
+    ConfirmStep
 
   *************************************************************************************/
 
@@ -26,12 +25,6 @@ interface ConfirmStepProp extends formProps {
 }
 
 export const ConfirmStep: React.FC<ConfirmStepProp> = ({ resetForm }) => {
-  /*************************************************************************************
-
-  Render
-
-  *************************************************************************************/
-
   return (
     <HeroContainer>
       <Text t1 textAlignCenter mb={20}>
@@ -46,10 +39,13 @@ export const ConfirmStep: React.FC<ConfirmStepProp> = ({ resetForm }) => {
       <div style={{ marginTop: '24px' }}>
         <TableDataGroup>
           <StyledNavLink to="/dashboard">
-            <Button secondary>Go to Dashboard</Button>
+            <Button secondary info>
+              Go to Dashboard
+            </Button>
           </StyledNavLink>
           <Button
             secondary
+            info
             onClick={() => {
               resetForm()
             }}

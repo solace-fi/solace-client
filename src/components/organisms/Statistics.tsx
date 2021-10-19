@@ -10,12 +10,10 @@
     import hooks
     import utils
 
-    Statistics function
-      custom hooks
-      useState hooks
-      Contract functions
+    Statistics
+      hooks
+      contract functions
       useEffect hooks
-      Render
 
   *************************************************************************************/
 
@@ -27,7 +25,7 @@ import { formatUnits, parseUnits } from '@ethersproject/units'
 import { BigNumber } from 'ethers'
 
 /* import constants */
-import { GAS_LIMIT, MAX_MOBILE_SCREEN_WIDTH, ZERO } from '../../constants'
+import { GAS_LIMIT, BKPT_3, ZERO } from '../../constants'
 import { TransactionCondition, FunctionName, Unit, PolicyState } from '../../constants/enums'
 
 /* import managers */
@@ -62,40 +60,36 @@ import { fixed, floatUnits, truncateBalance } from '../../utils/formatting'
 export const Statistics: React.FC = () => {
   /*************************************************************************************
 
-  custom hooks
+  hooks
 
   *************************************************************************************/
-  const { errors } = useGeneral()
+  const { haveErrors } = useGeneral()
   const { account, initialized } = useWallet()
   const { activeNetwork, currencyDecimals } = useNetwork()
-  const { master } = useContracts()
+  const { farmController } = useContracts()
   const { makeTxToast } = useToasts()
-  const { addLocalTransactions, reload, gasPrices, tokenPositionData, latestBlock } = useCachedData()
+  const { addLocalTransactions, reload, gasPrices, tokenPosData, latestBlock } = useCachedData()
   const capitalPoolSize = useCapitalPoolSize()
   const solaceBalance = useSolaceBalance()
   const totalUserRewards = useTotalPendingRewards()
-  const { allPolicies } = usePolicyGetter(true, latestBlock, tokenPositionData)
+  const { allPolicies } = usePolicyGetter(true, latestBlock, tokenPosData)
   const totalValueLocked = useGetTotalValueLocked()
   const { width } = useWindowDimensions()
   const { gasConfig } = useGasConfig(gasPrices.selected?.value)
-  /*************************************************************************************
 
-  useState hooks
-
-  *************************************************************************************/
   const [totalActiveCoverAmount, setTotalActiveCoverAmount] = useState<string>('-')
   const [totalActivePolicies, setTotalActivePolicies] = useState<number | string>('-')
 
   /*************************************************************************************
 
-  Contract functions
+  contract functions
 
   *************************************************************************************/
   const claimRewards = async () => {
-    if (!master) return
+    if (!farmController) return
     const txType = FunctionName.WITHDRAW_REWARDS
     try {
-      const tx = await master.withdrawRewards({
+      const tx = await farmController.farmOptionMulti({
         ...gasConfig,
         gasLimit: GAS_LIMIT,
       })
@@ -146,15 +140,55 @@ export const Statistics: React.FC = () => {
     }
   }, [allPolicies])
 
-  /*************************************************************************************
-
-  Render
-
-  *************************************************************************************/
+  const GlobalBox: React.FC = () => (
+    <Box color2>
+      <BoxItem>
+        <BoxItemTitle t4 light bold>
+          Capital Pool Size <StyledTooltip id={'cps'} tip={'Current amount of capital in the vault'} />
+        </BoxItemTitle>
+        <Text t2 nowrap light bold>
+          {`${truncateBalance(floatUnits(parseUnits(capitalPoolSize, currencyDecimals), currencyDecimals), 1)} `}
+          <TextSpan t4 light bold>
+            {activeNetwork.nativeCurrency.symbol}
+          </TextSpan>
+        </Text>
+      </BoxItem>
+      <BoxItem>
+        <BoxItemTitle t4 light bold>
+          Total Value Locked <StyledTooltip id={'tvl'} tip={'Current amount of funds locked into the pools'} />{' '}
+        </BoxItemTitle>
+        <Text t2 nowrap light bold>
+          {`${truncateBalance(totalValueLocked, 1)} `}
+          <TextSpan t4 light bold>
+            {activeNetwork.nativeCurrency.symbol}
+          </TextSpan>
+        </Text>
+      </BoxItem>
+      <BoxItem>
+        <BoxItemTitle t4 light bold>
+          Active Cover Amount <StyledTooltip id={'aca'} tip={'Current amount of coverage in use'} />
+        </BoxItemTitle>
+        <Text t2 nowrap light bold>
+          {totalActiveCoverAmount !== '-' ? `${truncateBalance(totalActiveCoverAmount, 2)} ` : `- `}
+          <TextSpan t4 light bold>
+            {activeNetwork.nativeCurrency.symbol}
+          </TextSpan>
+        </Text>
+      </BoxItem>
+      <BoxItem>
+        <BoxItemTitle t4 light bold>
+          Total Active Policies
+        </BoxItemTitle>
+        <Text t2 nowrap light bold>
+          {totalActivePolicies}
+        </Text>
+      </BoxItem>
+    </Box>
+  )
 
   return (
     <>
-      {width > MAX_MOBILE_SCREEN_WIDTH ? (
+      {width > BKPT_3 ? (
         <BoxRow>
           {initialized && account ? (
             <Box>
@@ -183,11 +217,11 @@ export const Statistics: React.FC = () => {
                   </TextSpan>
                 </Text>
               </BoxItem>
-              <BoxItem>
-                <Button light disabled={errors.length > 0 || fixed(totalUserRewards, 6) <= 0} onClick={claimRewards}>
-                  Claim Option
+              {/* <BoxItem>
+                <Button light disabled={haveErrors || fixed(totalUserRewards, 6) <= 0} onClick={claimRewards}>
+                  Claim Options
                 </Button>
-              </BoxItem>
+              </BoxItem> */}
             </Box>
           ) : (
             <Box>
@@ -196,49 +230,7 @@ export const Statistics: React.FC = () => {
               </BoxItem>
             </Box>
           )}
-          <Box color2>
-            <BoxItem>
-              <BoxItemTitle t4 light bold>
-                Capital Pool Size <StyledTooltip id={'cps'} tip={'Current amount of capital in the vault'} />
-              </BoxItemTitle>
-              <Text t2 nowrap light bold>
-                {`${truncateBalance(floatUnits(parseUnits(capitalPoolSize, currencyDecimals), currencyDecimals), 1)} `}
-                <TextSpan t4 light bold>
-                  {activeNetwork.nativeCurrency.symbol}
-                </TextSpan>
-              </Text>
-            </BoxItem>
-            <BoxItem>
-              <BoxItemTitle t4 light bold>
-                Total Value Locked <StyledTooltip id={'tvl'} tip={'Current amount of funds locked into the pools'} />{' '}
-              </BoxItemTitle>
-              <Text t2 nowrap light bold>
-                {`${truncateBalance(totalValueLocked, 1)} `}
-                <TextSpan t4 light bold>
-                  {activeNetwork.nativeCurrency.symbol}
-                </TextSpan>
-              </Text>
-            </BoxItem>
-            <BoxItem>
-              <BoxItemTitle t4 light bold>
-                Active Cover Amount <StyledTooltip id={'aca'} tip={'Current amount of coverage in use'} />
-              </BoxItemTitle>
-              <Text t2 nowrap light bold>
-                {totalActiveCoverAmount !== '-' ? `${truncateBalance(totalActiveCoverAmount, 2)} ` : `- `}
-                <TextSpan t4 light bold>
-                  {activeNetwork.nativeCurrency.symbol}
-                </TextSpan>
-              </Text>
-            </BoxItem>
-            <BoxItem>
-              <BoxItemTitle t4 light bold>
-                Total Active Policies
-              </BoxItemTitle>
-              <Text t2 nowrap light bold>
-                {totalActivePolicies}
-              </Text>
-            </BoxItem>
-          </Box>
+          <GlobalBox />
         </BoxRow>
       ) : (
         // mobile version
@@ -266,16 +258,16 @@ export const Statistics: React.FC = () => {
                     </Text>
                   </FormCol>
                 </FormRow>
-                <ButtonWrapper>
+                {/* <ButtonWrapper>
                   <Button
                     light
                     widthP={100}
-                    disabled={errors.length > 0 || fixed(totalUserRewards, 6) <= 0}
+                    disabled={haveErrors || fixed(totalUserRewards, 6) <= 0}
                     onClick={claimRewards}
                   >
-                    Claim Option
+                    Claim Options
                   </Button>
-                </ButtonWrapper>
+                </ButtonWrapper> */}
               </Card>
               <Card color2>
                 <FormRow>
@@ -325,11 +317,14 @@ export const Statistics: React.FC = () => {
               </Card>
             </CardContainer>
           ) : (
-            <Box>
-              <BoxItem>
-                <WalletConnectButton light />
-              </BoxItem>
-            </Box>
+            <BoxRow>
+              <Box>
+                <BoxItem>
+                  <WalletConnectButton light />
+                </BoxItem>
+              </Box>
+              <GlobalBox />
+            </BoxRow>
           )}
         </>
       )}

@@ -1,24 +1,27 @@
-import React, { createContext, useContext, useState, useCallback } from 'react'
+import React, { createContext, useContext, useState, useCallback, useRef } from 'react'
 import { useLocalStorage } from 'react-use-storage'
 import { ThemeProvider } from 'styled-components'
 import { lightTheme, darkTheme } from '../styles/themes'
 import { Error, SystemNotice } from '../constants/enums'
 import { ErrorData, SystemNoticeData } from '../constants/types'
 
-import { LinksModal } from '../components/organisms/LinksModal'
-import { useWindowDimensions } from '../hooks/useWindowDimensions'
-import { MAX_MOBILE_SCREEN_WIDTH } from '../constants'
+/*
+
+This manager stored any data that should be made available 
+not just to all parts of the app, but for all the other Managers as well.
+
+*/
 
 type GeneralContextType = {
   appTheme: 'light' | 'dark'
   toggleTheme: () => void
   notices: string[]
   errors: string[]
+  haveErrors: boolean
   addNotices: (noticesToAdd: SystemNoticeData[]) => void
   removeNotices: (noticesToRemove: SystemNotice[]) => void
   addErrors: (errorsToAdd: ErrorData[]) => void
   removeErrors: (errorsToRemove: Error[]) => void
-  openModal: () => void
 }
 
 const GeneralContext = createContext<GeneralContextType>({
@@ -26,11 +29,11 @@ const GeneralContext = createContext<GeneralContextType>({
   toggleTheme: () => undefined,
   notices: [],
   errors: [],
+  haveErrors: false,
   addNotices: () => undefined,
   removeNotices: () => undefined,
   addErrors: () => undefined,
   removeErrors: () => undefined,
-  openModal: () => undefined,
 })
 
 export function useGeneral(): GeneralContextType {
@@ -45,16 +48,7 @@ const GeneralProvider: React.FC = (props) => {
   const theme = appTheme == 'light' ? lightTheme : darkTheme
   const [notices, setNotices] = useState<string[]>([])
   const [errors, setErrors] = useState<string[]>([])
-  const { width } = useWindowDimensions()
-  const [showLinksModal, setShowLinksModal] = useState<boolean>(false)
-
-  const openModal = useCallback(() => {
-    setShowLinksModal(true)
-  }, [])
-
-  const closeModal = useCallback(() => {
-    setShowLinksModal(false)
-  }, [])
+  const haveErrors = useRef(errors.length > 0)
 
   const addNotices = useCallback((noticesToAdd: SystemNoticeData[]) => {
     if (noticesToAdd.length == 0) return
@@ -109,19 +103,16 @@ const GeneralProvider: React.FC = (props) => {
     toggleTheme,
     notices,
     errors,
+    haveErrors: haveErrors.current,
     addNotices,
     removeNotices,
     addErrors,
     removeErrors,
-    openModal,
   }
 
   return (
     <GeneralContext.Provider value={value}>
-      <ThemeProvider theme={theme}>
-        <LinksModal isOpen={showLinksModal && width <= MAX_MOBILE_SCREEN_WIDTH} closeModal={() => closeModal()} />
-        {props.children}
-      </ThemeProvider>
+      <ThemeProvider theme={theme}>{props.children}</ThemeProvider>
     </GeneralContext.Provider>
   )
 }

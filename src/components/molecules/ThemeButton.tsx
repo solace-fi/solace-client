@@ -7,11 +7,8 @@
     import constants
     import components
 
-    styled components
-
-    WalletConnectButton function
-      custom hooks
-      Render
+    ThemeButton function
+      hooks
 
   *************************************************************************************/
 
@@ -31,16 +28,11 @@ import { GeneralElementProps } from '../generalInterfaces'
 export const ThemeButton: React.FC<GeneralElementProps & ButtonProps> = ({ ...props }) => {
   /*************************************************************************************
 
-    custom hooks
+    hooks
 
   *************************************************************************************/
   const { appTheme, toggleTheme } = useGeneral()
 
-  /*************************************************************************************
-
-    Render
-
-  *************************************************************************************/
   return (
     <>
       <Button widthP={100} nohover noborder onClick={() => toggleTheme()} {...props}>

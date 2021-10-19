@@ -6,9 +6,8 @@
     import managers
     import components
 
-    Quote function
-      custom hooks
-      Render
+    Quote
+      hooks
 
   *************************************************************************************/
 
@@ -27,23 +26,17 @@ import { HeroContainer } from '../../components/atoms/Layout'
 function Quote(): any {
   /*************************************************************************************
     
-  custom hooks
+  hooks
 
   *************************************************************************************/
   const { isActive, account } = useWallet()
-
-  /************************************************************************************** 
-      
-  Render
-
-  *************************************************************************************/
 
   return !isActive || !account ? (
     <HeroContainer>
       <Text t1 textAlignCenter>
         Please connect your wallet to buy quotes
       </Text>
-      <WalletConnectButton />
+      <WalletConnectButton info />
     </HeroContainer>
   ) : (
     <MultiStepForm />

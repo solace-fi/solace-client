@@ -12,10 +12,9 @@
 
     styled components
 
-    ProtocolStep function
-      custom hooks
-      useState hooks
-      Local functions
+    ProtocolStep
+      hooks
+      local functions
       Render
 
   *************************************************************************************/
@@ -28,7 +27,7 @@ import styled from 'styled-components'
 import useDebounce from '@rooks/use-debounce'
 
 /* import constants */
-import { DAYS_PER_YEAR, NUM_BLOCKS_PER_DAY, MAX_MOBILE_SCREEN_WIDTH } from '../../constants'
+import { DAYS_PER_YEAR, NUM_BLOCKS_PER_DAY, BKPT_3 } from '../../constants'
 
 /* import context */
 import { useContracts } from '../../context/ContractsManager'
@@ -66,7 +65,7 @@ const ActionsContainer = styled.div`
     width: 300px;
   }
 
-  @media screen and (max-width: ${MAX_MOBILE_SCREEN_WIDTH}px) {
+  @media screen and (max-width: ${BKPT_3}px) {
     justify-content: center;
   }
 `
@@ -74,27 +73,21 @@ const ActionsContainer = styled.div`
 export const ProtocolStep: React.FC<formProps> = ({ setForm, navigation }) => {
   /*************************************************************************************
 
-  custom hooks
+  hooks
 
   *************************************************************************************/
 
   const availableCoverages = useGetAvailableCoverages()
   const yearlyCosts = useGetYearlyCosts()
   const { products, setSelectedProtocolByName } = useContracts()
-  const { errors } = useGeneral()
+  const { haveErrors } = useGeneral()
   const { width } = useWindowDimensions()
   const { activeNetwork } = useNetwork()
-
-  /*************************************************************************************
-
-  useState hooks
-
-  *************************************************************************************/
   const [searchValue, setSearchValue] = useState<string>('')
 
   /*************************************************************************************
 
-  Local functions
+  local functions
 
   *************************************************************************************/
 
@@ -118,19 +111,13 @@ export const ProtocolStep: React.FC<formProps> = ({ setForm, navigation }) => {
     return truncateBalance(availableCoverages[protocol], 2)
   }
 
-  /*************************************************************************************
-
-  Render
-
-  *************************************************************************************/
-
   return (
     <Fragment>
       <ActionsContainer>
         <Search type="search" placeholder="Search" onChange={(e) => handleSearch(e.target.value)} />
       </ActionsContainer>
       <Fragment>
-        {width > MAX_MOBILE_SCREEN_WIDTH ? (
+        {width > BKPT_3 ? (
           <Scrollable style={{ padding: '0 10px 0 10px' }}>
             <Table canHover style={{ borderSpacing: '0px 7px' }}>
               <TableHead sticky>
@@ -152,7 +139,7 @@ export const ProtocolStep: React.FC<formProps> = ({ setForm, navigation }) => {
                       <TableRow
                         key={protocol}
                         onClick={
-                          errors.length > 0
+                          haveErrors
                             ? undefined
                             : () =>
                                 handleChange({
@@ -190,7 +177,9 @@ export const ProtocolStep: React.FC<formProps> = ({ setForm, navigation }) => {
                           {handleAvailableCoverage(protocol)} {activeNetwork.nativeCurrency.symbol}
                         </TableData>
                         <TableData textAlignRight>
-                          <Button disabled={errors.length > 0}>Select</Button>
+                          <Button disabled={haveErrors} info>
+                            Select
+                          </Button>
                         </TableData>
                       </TableRow>
                     )
@@ -212,7 +201,7 @@ export const ProtocolStep: React.FC<formProps> = ({ setForm, navigation }) => {
                     <Card
                       key={protocol}
                       onClick={
-                        errors.length > 0
+                        haveErrors
                           ? undefined
                           : () =>
                               handleChange({

@@ -7,11 +7,8 @@
     import managers
     import components
 
-    LayoutContentWithLoader function
-      custom hooks
-      useState hooks
-      useEffect hooks
-      Render
+    LayoutContentWithLoader
+      hooks
 
   *************************************************************************************/
 /* import react */
@@ -28,19 +25,14 @@ import { Loader } from '../atoms/Loader'
 import { HeroContainer } from '../atoms/Layout'
 
 export const LayoutContentWithLoader: React.FC = ({ children }) => {
-  /* custom hooks */
+  /* hooks */
   const { initialized } = useWallet()
   const location = useLocation()
-
-  /* useState hooks */
   const [loader, setLoader] = useState<boolean>(false)
-
-  /* useEffecthooks */
   useEffect(() => {
     setLoader(initialized)
   }, [initialized])
 
-  /* render */
   return (
     <Fragment>
       {loader || location.pathname == '/' ? (

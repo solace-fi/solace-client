@@ -44,15 +44,14 @@ export const useUserVaultDetails = () => {
       if (!vault || !account) return
       try {
         const totalSupply = await vault.totalSupply()
-        const userInfo = cpFarm ? await cpFarm.userInfo(account) : { value: ZERO }
-        const value = userInfo.value
+        const userStaked = cpFarm ? await cpFarm.userStaked(account) : ZERO
         const cpBalance = parseUnits(scpBalance, currencyDecimals)
-        const userAssets = cpBalance.add(value)
+        const userAssets = cpBalance.add(userStaked)
         const userShare = totalSupply.gt(ZERO)
           ? floatUnits(userAssets.mul(100), currencyDecimals) / floatUnits(totalSupply, currencyDecimals)
           : 0
-        const formattedAssets = formatUnits(userAssets, currencyDecimals)
-        setUserVaultAssets(formattedAssets)
+        const formattedUserAssets = formatUnits(userAssets, currencyDecimals)
+        setUserVaultAssets(formattedUserAssets)
         setUserVaultShare(userShare.toString())
       } catch (err) {
         console.log('error getUserVaultShare ', err)

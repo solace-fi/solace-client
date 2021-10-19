@@ -7,8 +7,10 @@
     import managers
     import pages
     import components
+    import constants
+    import hooks
 
-    App function
+    App
 
   *************************************************************************************/
 
@@ -29,26 +31,30 @@ import Govern from './govern'
 
 /* import components */
 import { SideNavbar, TopNavbar } from '../components/organisms/Navbar'
-import { Footer, PageHeader } from '../components/organisms/Header'
 import { GlobalStyle, Layout, ContentContainer, LayoutContent, SideNavContent } from '../components/atoms/Layout'
 import { LayoutContentWithLoader } from '../components/molecules/LayoutContentWithLoader'
 import { Statistics } from '../components/organisms/Statistics'
 
+/* import constants */
+import { BKPT_5 } from '../constants'
+
+/* import hooks */
+import { useWindowDimensions } from '../hooks/useWindowDimensions'
+
 export default function App(): any {
   const location = useLocation()
+  const { width } = useWindowDimensions()
 
   return (
     <Fragment>
       <GlobalStyle location={location} />
       <TopNavbar />
-      <Footer />
       <Layout>
         <ContentContainer>
           <SideNavContent>
             <SideNavbar />
           </SideNavContent>
           <LayoutContent>
-            <PageHeader />
             <LayoutContentWithLoader>
               {location.pathname !== '/quote' && location.pathname !== '/' && <Statistics />}
               <Switch>
@@ -60,7 +66,7 @@ export default function App(): any {
               </Switch>
             </LayoutContentWithLoader>
           </LayoutContent>
-          {location.pathname == '/' && <SideNavContent />}
+          {location.pathname == '/' && width > BKPT_5 && <SideNavContent />}
         </ContentContainer>
       </Layout>
     </Fragment>

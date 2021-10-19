@@ -8,11 +8,8 @@
     import components
     import hooks
 
-    styled components
-
-    WalletConnectButton function
-      custom hooks
-      Render
+    NetworkConnectButton
+      hooks
 
   *************************************************************************************/
 
@@ -34,19 +31,14 @@ import { GeneralElementProps } from '../generalInterfaces'
 export const NetworkConnectButton: React.FC<GeneralElementProps & ButtonProps> = ({ ...props }) => {
   /*************************************************************************************
 
-    custom hooks
+    hooks
 
   *************************************************************************************/
   const { openNetworkModal } = useProvider()
 
-  /*************************************************************************************
-
-    Render
-
-  *************************************************************************************/
   return (
     <>
-      <Button onClick={() => openNetworkModal()} {...props}>
+      <Button onClick={() => openNetworkModal()} {...props} style={{ whiteSpace: 'nowrap' }}>
         <StyledNetworkChart size={30} />
         Switch Network
       </Button>

@@ -10,11 +10,10 @@
     import hooks
     import utils
 
-    ManageModal function
-      useState hooks
-      custom hooks
-      Contract functions
-      Local functions
+    ManageModal
+      hooks
+      contract functions
+      local functions
       useEffect hooks
       Render
 
@@ -26,6 +25,7 @@ import React, { Fragment, useState, useEffect, useMemo, useCallback, useRef } fr
 /* import packages */
 import { parseUnits, formatUnits } from '@ethersproject/units'
 import { BigNumber } from 'ethers'
+import { Block } from '@ethersproject/contracts/node_modules/@ethersproject/abstract-provider'
 
 /* import managers */
 import { useCachedData } from '../../context/CachedDataManager'
@@ -50,7 +50,7 @@ import { FunctionName, TransactionCondition, Unit } from '../../constants/enums'
 import { LocalTx, Policy } from '../../constants/types'
 
 /* import hooks */
-import { useAppraisePosition, useGetMaxCoverPerPolicy, useGetPolicyPrice } from '../../hooks/usePolicy'
+import { useAppraisePolicyPosition, useGetMaxCoverPerPolicy, useGetPolicyPrice } from '../../hooks/usePolicy'
 import { useGasConfig } from '../../hooks/useGas'
 
 /* import utils */
@@ -61,13 +61,13 @@ interface ManageModalProps {
   closeModal: () => void
   isOpen: boolean
   selectedPolicy: Policy | undefined
-  latestBlock: number
+  latestBlock: Block | undefined
 }
 
 export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, selectedPolicy, latestBlock }) => {
   /*************************************************************************************
 
-    useState hooks
+    hooks
 
   *************************************************************************************/
 
@@ -77,13 +77,7 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
   const [extendedTime, setExtendedTime] = useState<string>('0')
   const [modalLoading, setModalLoading] = useState<boolean>(false)
 
-  /*************************************************************************************
-
-    custom hooks
-
-  *************************************************************************************/
-
-  const { errors } = useGeneral()
+  const { haveErrors } = useGeneral()
   const { selectedProtocol, riskManager } = useContracts()
   const { addLocalTransactions, reload, gasPrices } = useCachedData()
   const { makeTxToast } = useToasts()
@@ -91,14 +85,14 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
   const maxCoverPerPolicy = useGetMaxCoverPerPolicy()
   const { activeNetwork, currencyDecimals } = useNetwork()
   const { gasConfig } = useGasConfig(gasPrices.selected?.value)
-  const daysLeft = useMemo(() => getDaysLeft(selectedPolicy ? selectedPolicy.expirationBlock : 0, latestBlock), [
-    latestBlock,
-    selectedPolicy,
-  ])
-  const blocksLeft = useMemo(() => BigNumber.from(selectedPolicy ? selectedPolicy.expirationBlock : 0 - latestBlock), [
-    latestBlock,
-    selectedPolicy,
-  ])
+  const daysLeft = useMemo(
+    () => getDaysLeft(selectedPolicy ? selectedPolicy.expirationBlock : 0, latestBlock ? latestBlock.number : 0),
+    [latestBlock, selectedPolicy]
+  )
+  const blocksLeft = useMemo(
+    () => BigNumber.from(selectedPolicy ? selectedPolicy.expirationBlock : 0 - (latestBlock ? latestBlock.number : 0)),
+    [latestBlock, selectedPolicy]
+  )
   const currentCoverAmount = useMemo(() => (selectedPolicy ? selectedPolicy.coverAmount : '0'), [selectedPolicy])
   const paidprice = useMemo(() => BigNumber.from(policyPrice || '0'), [policyPrice])
   const refundAmount = useMemo(
@@ -112,7 +106,7 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
   const maxCoverPerPolicyInWei = useMemo(() => {
     return parseUnits(maxCoverPerPolicy, currencyDecimals)
   }, [maxCoverPerPolicy, currencyDecimals])
-  const appraisal = useAppraisePosition(selectedPolicy)
+  const appraisal = useAppraisePolicyPosition(selectedPolicy)
   const [coveredAssets, setCoveredAssets] = useState<string>(currentCoverAmount)
   const mounting = useRef(true)
 
@@ -130,7 +124,11 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
     try {
       const newPremium = BigNumber.from(newCoverage)
         .mul(params.price)
-        .mul(selectedPolicy.expirationBlock + NUM_BLOCKS_PER_DAY * parseInt(extendedTime) - latestBlock)
+        .mul(
+          selectedPolicy.expirationBlock +
+            NUM_BLOCKS_PER_DAY * parseInt(extendedTime) -
+            (latestBlock ? latestBlock.number : 0)
+        )
         .div(String(Math.pow(10, 12)))
       const tx = await selectedProtocol.updatePolicy(
         selectedPolicy.policyId,
@@ -162,7 +160,7 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
     const params = await riskManager.productRiskParams(selectedProtocol.address)
     const newPremium = BigNumber.from(newCoverage)
       .mul(params.price)
-      .mul(selectedPolicy.expirationBlock - latestBlock)
+      .mul(selectedPolicy.expirationBlock - (latestBlock ? latestBlock.number : 0))
       .div(String(Math.pow(10, 12)))
     try {
       const tx = await selectedProtocol.updateCoverAmount(selectedPolicy.policyId, newCoverage, {
@@ -232,7 +230,7 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
 
   /*************************************************************************************
 
-    Local functions
+    local functions
 
   *************************************************************************************/
 
@@ -284,7 +282,8 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
     const filtered = input.replace(/[^0-9]*/g, '')
     if (
       parseFloat(filtered) <=
-        DAYS_PER_YEAR - getDaysLeft(selectedPolicy ? selectedPolicy.expirationBlock : 0, latestBlock) ||
+        DAYS_PER_YEAR -
+          getDaysLeft(selectedPolicy ? selectedPolicy.expirationBlock : 0, latestBlock ? latestBlock.number : 0) ||
       filtered == ''
     ) {
       setExtendedTime(filtered)
@@ -316,6 +315,14 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
     handleCoverageChange(adjustedCoverAmount, false)
   }
 
+  const setPositionCover = () => {
+    if (appraisal.lte(maxCoverPerPolicyInWei)) {
+      handleCoverageChange(appraisal.toString())
+    } else {
+      setMaxCover()
+    }
+  }
+
   /*************************************************************************************
 
     useEffect hooks
@@ -340,12 +347,6 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
     setCoveredAssets(formatUnits(BigNumber.from(newCoverage), currencyDecimals))
   }, [newCoverage, currencyDecimals])
 
-  /*************************************************************************************
-
-    Render
-
-  *************************************************************************************/
-
   return (
     <Modal isOpen={isOpen} handleClose={handleClose} modalTitle={'Policy Management'} disableCloseButton={modalLoading}>
       <Fragment>
@@ -369,8 +370,24 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
                       value={inputCoverage}
                       onChange={(e) => handleInputCoverage(filteredAmount(e.target.value, inputCoverage))}
                     />
+                    {maxCoverPerPolicyInWei.gt(appraisal) && (
+                      <Button
+                        disabled={haveErrors}
+                        ml={10}
+                        pt={4}
+                        pb={4}
+                        pl={2}
+                        pr={2}
+                        width={120}
+                        height={30}
+                        onClick={() => setPositionCover()}
+                        info
+                      >
+                        Cover to position
+                      </Button>
+                    )}
                     <Button
-                      disabled={errors.length > 0}
+                      disabled={haveErrors}
                       ml={10}
                       pt={4}
                       pb={4}
@@ -379,6 +396,7 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
                       width={79}
                       height={30}
                       onClick={() => setMaxCover()}
+                      info
                     >
                       MAX
                     </Button>
@@ -415,11 +433,7 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
                     <Text t4>New expiration: {getExpiration(daysLeft + parseFloat(extendedTime || '0'))}</Text>
                     <ButtonWrapper>
                       {!asyncLoading ? (
-                        <Button
-                          widthP={100}
-                          disabled={errors.length > 0 || coveredAssets == '0.0'}
-                          onClick={handleFunc}
-                        >
+                        <Button widthP={100} disabled={haveErrors || coveredAssets == '0.0'} onClick={handleFunc} info>
                           Update Policy
                         </Button>
                       ) : (
@@ -445,7 +459,7 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
                 <FormCol></FormCol>
                 <ButtonWrapper>
                   {policyPrice !== '' ? (
-                    <Button widthP={100} disabled={errors.length > 0} onClick={() => cancelPolicy()}>
+                    <Button widthP={100} disabled={haveErrors} onClick={() => cancelPolicy()} info>
                       Cancel Policy
                     </Button>
                   ) : (

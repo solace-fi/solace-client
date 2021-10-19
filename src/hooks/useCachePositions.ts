@@ -14,47 +14,60 @@ import { useWallet } from '../context/WalletManager'
 import { useNetwork } from '../context/NetworkManager'
 import { useSessionStorage } from 'react-use-storage'
 import { NetworkCache } from '../constants/types'
-import { ProductName } from '../constants/enums'
-import { getTroveContract } from '../products/positionGetters/liquity/getPositions'
-import { ZERO } from '../constants'
+import { PositionType, ProductName } from '../constants/enums'
+import { getTroveContract } from '../products/liquity/positionGetter/getPositions'
+import { ETHERSCAN_API_KEY, ZERO } from '../constants'
 
 export const useCachePositions = () => {
-  const { library } = useWallet()
+  const { library, account } = useWallet()
   const { activeNetwork, networks, findNetworkByChainId } = useNetwork()
-  const [storedPositionData, setStoredPositionData] = useSessionStorage<NetworkCache[]>('sol_position_data', [])
+  const [storedPosData, setStoredPosData] = useSessionStorage<NetworkCache[]>('sol_position_data', [])
   const running = useRef(false)
   const [dataInitialized, setDataInitialized] = useState<boolean>(false)
 
   const setStoredData = useCallback(() => {
     // on mount, if stored data exists in session already, return that data, else return newly made data
-    if (storedPositionData.length == 0) {
-      const unsetPositionData: NetworkCache[] = []
-      networks.forEach((network) => {
-        const supportedProducts = network.cache.supportedProducts.map((product: SupportedProduct) => product.name)
+    if (storedPosData.length == 0) {
+      // const unsetPositionData: NetworkCache[] = []
+      // networks.forEach((network) => {
+      //   const supportedProducts = network.cache.supportedProducts.map((product: SupportedProduct) => product.name)
 
+      //   const cachedPositions: PositionsCache = {}
+      //   const cachedPositionNames: PositionNamesCache = {}
+
+      //   supportedProducts.forEach((name: ProductName) => {
+      //     cachedPositions[name] = { positions: [], init: false }
+      //     cachedPositionNames[name] = { positionNames: {}, underlyingPositionNames: {}, init: false }
+      //   })
+
+      //   unsetPositionData.push({
+      //     chainId: network.chainId,
+      //     positionsCache: cachedPositions,
+      //     positionNamesCache: cachedPositionNames,
+      //   })
+      // })
+      const unsetPositionData = networks.map((network) => {
+        const supportedProducts = network.cache.supportedProducts.map((product: SupportedProduct) => product.name)
         const cachedPositions: PositionsCache = {}
         const cachedPositionNames: PositionNamesCache = {}
-
         supportedProducts.forEach((name: ProductName) => {
-          cachedPositions[name] = { savedPositions: [], positionsInitialized: false }
-          cachedPositionNames[name] = { positionNames: {}, positionNamesInitialized: false }
+          cachedPositions[name] = { positions: [], init: false }
+          cachedPositionNames[name] = { positionNames: {}, underlyingPositionNames: {}, init: false }
         })
-
-        unsetPositionData.push({
-          name: network.name,
+        return {
           chainId: network.chainId,
-          positions: cachedPositions,
-          positionNames: cachedPositionNames,
-        })
+          positionsCache: cachedPositions,
+          positionNamesCache: cachedPositionNames,
+        }
       })
-      setStoredPositionData(unsetPositionData)
+      setStoredPosData(unsetPositionData)
       return unsetPositionData
     }
-    return storedPositionData
-  }, [])
+    return storedPosData
+  }, [storedPosData, setStoredPosData])
 
   const getAllPositionsforChain = useCallback(
-    async (data: NetworkCache[], _activeNetwork: NetworkConfig, _library: any) => {
+    async (data: NetworkCache[], _activeNetwork: NetworkConfig, _library: any, _account: string) => {
       if (running.current || _library == undefined || _activeNetwork.chainId == undefined) return
       setDataInitialized(false)
       running.current = true
@@ -64,37 +77,51 @@ export const useCachePositions = () => {
       }
 
       // given the input data, find the dataset from that data appropriate to the current network
-      const newCache = data.find((dataset) => dataset.name == _activeNetwork.name)
+      const newCache = data.find((dataset) => dataset.chainId == _activeNetwork.chainId)
       if (!newCache) return
-      const supportedProducts = _activeNetwork.cache.supportedProducts
       let changeOccurred = false
 
       // for every supported product in this network, initialize the positions, if any
+      const supportedProducts = _activeNetwork.cache.supportedProducts
+
+      const url = `${
+        activeNetwork.explorer.apiUrl
+      }/api?module=account&action=tokentx&address=${_account}&startblock=0&endblock=latest&apikey=${String(
+        ETHERSCAN_API_KEY
+      )}`
+      const touchedAddresses = await fetch(url)
+        .then((res) => res.json())
+        .then((result) => result.result)
+        .then((result) => {
+          if (result != 'Max rate limit reached') return result
+          return []
+        })
       await Promise.all(
         supportedProducts.map(async (supportedProduct: SupportedProduct) => {
-          const productName = supportedProduct.name
           if (
-            !newCache.positions[productName].positionsInitialized &&
-            !newCache.positionNames[productName].positionNamesInitialized
+            !newCache.positionsCache[supportedProduct.name].init &&
+            !newCache.positionNamesCache[supportedProduct.name].init
           ) {
             const { initializedPositions, initializedPositionNames } = await handleInitPositions(
               supportedProduct,
               newCache,
-              library,
-              activeNetwork
+              _library,
+              _activeNetwork,
+              { user: _account, transferHistory: touchedAddresses }
             )
-            newCache.positions[productName] = initializedPositions
-            newCache.positionNames[productName] = initializedPositionNames
+            newCache.positionsCache[supportedProduct.name] = initializedPositions
+            newCache.positionNamesCache[supportedProduct.name] = initializedPositionNames
             changeOccurred = true
           }
         })
       )
+
       if (!changeOccurred) {
         console.log('useCachePositions: no position init needed')
       } else {
-        const editedData = data.filter((data) => data.name != newCache.name)
+        const editedData = data.filter((data) => data.chainId != newCache.chainId)
         const newData = [...editedData, newCache]
-        setStoredPositionData(newData)
+        setStoredPosData(newData)
         console.log('useCachePositions: position init completed')
       }
       setDataInitialized(true)
@@ -108,40 +135,54 @@ export const useCachePositions = () => {
     supportedProduct: SupportedProduct,
     newCache: NetworkCache,
     _library: any,
-    _activeNetwork: NetworkConfig
-  ) => {
-    let initializedPositions: PositionsCacheValue = {
-      savedPositions: [],
-      positionsInitialized: false,
+    _activeNetwork: NetworkConfig,
+    metadata?: any
+  ): Promise<{ initializedPositions: PositionsCacheValue; initializedPositionNames: PositionNamesCacheValue }> => {
+    let _initializedPositions: PositionsCacheValue = {
+      positions: [],
+      init: false,
     }
-    let _positionNames: any = null
+    let _initializedPositionNames: PositionNamesCacheValue = {
+      positionNames: {},
+      underlyingPositionNames: {},
+      init: false,
+    }
     switch (supportedProduct.positionsType) {
-      case 'erc20':
+      case PositionType.TOKEN:
         if (typeof supportedProduct.getTokens !== 'undefined') {
-          const tokens: Token[] = await supportedProduct.getTokens(_library, _activeNetwork)
-          initializedPositions = {
-            ...newCache.positions[supportedProduct.name],
-            savedPositions: tokens.map((token) => {
-              return { type: 'erc20', position: token }
+          const tokens: Token[] = await supportedProduct.getTokens(_library, _activeNetwork, metadata)
+          _initializedPositions = {
+            ...newCache.positionsCache[supportedProduct.name],
+            positions: tokens.map((token) => {
+              return { type: PositionType.TOKEN, position: token }
             }) as Position[],
-            positionsInitialized: true,
+            init: true,
           }
-          const positionNames = tokens.reduce(
-            (names: any, token: Token) => ({
-              ...names,
-              [token.token.address.toLowerCase()]: token.underlying.symbol,
-            }),
-            {}
-          )
-          _positionNames = positionNames
+          _initializedPositionNames = {
+            positionNames: tokens.reduce(
+              (names: any, token: Token) => ({
+                ...names,
+                [token.token.address.toLowerCase()]: token.token.symbol,
+              }),
+              {}
+            ),
+            underlyingPositionNames: tokens.reduce(
+              (names: any, token: Token) => ({
+                ...names,
+                [token.token.address.toLowerCase()]: token.underlying.map((underlyingToken) => underlyingToken.symbol),
+              }),
+              {}
+            ),
+            init: true,
+          }
           break
         } else break
-      case 'liquity':
-        const troveManagerContract = getTroveContract(library, activeNetwork.chainId)
-        const stabilityPoolAddr: string = await troveManagerContract.stabilityPool()
-        const lqtyStakingAddr: string = await troveManagerContract.lqtyStaking()
-        const lusdTokenAddr: string = await troveManagerContract.lusdToken()
-        const lqtyTokenAddr: string = await troveManagerContract.lqtyToken()
+      case PositionType.LQTY:
+        const troveManagerContract = getTroveContract(library, _activeNetwork.chainId)
+        const stabilityPoolAddr = await troveManagerContract.stabilityPool()
+        const lqtyStakingAddr = await troveManagerContract.lqtyStaking()
+        const lusdTokenAddr = await troveManagerContract.lusdToken()
+        const lqtyTokenAddr = await troveManagerContract.lqtyToken()
         const liquityPositions: LiquityPosition[] = [
           {
             positionAddress: troveManagerContract.address,
@@ -169,37 +210,48 @@ export const useCachePositions = () => {
             associatedToken: { address: lqtyTokenAddr, name: 'LQTY', symbol: 'LQTY' },
           },
         ]
-        initializedPositions = {
-          ...newCache.positions[supportedProduct.name],
-          savedPositions: liquityPositions.map((liquityPos) => {
-            return { type: 'liquity', position: liquityPos }
+        _initializedPositions = {
+          ...newCache.positionsCache[supportedProduct.name],
+          positions: liquityPositions.map((liquityPos) => {
+            return { type: PositionType.LQTY, position: liquityPos }
           }) as Position[],
-          positionsInitialized: true,
+          init: true,
         }
-        const positionNames = liquityPositions.reduce(
-          (names: any, liquityPos: LiquityPosition) => ({
-            ...names,
-            [liquityPos.positionAddress.toLowerCase()]: liquityPos.positionName,
-          }),
-          {}
-        )
-        _positionNames = positionNames
+        _initializedPositionNames = {
+          positionNames: liquityPositions.reduce(
+            (names: any, liquityPos: LiquityPosition) => ({
+              ...names,
+              [liquityPos.positionAddress.toLowerCase()]: liquityPos.positionName,
+            }),
+            {}
+          ),
+          underlyingPositionNames: liquityPositions.reduce(
+            (names: any, liquityPos: LiquityPosition) => ({
+              ...names,
+              [liquityPos.positionAddress.toLowerCase()]: [liquityPos.associatedToken.name],
+            }),
+            {}
+          ),
+          init: true,
+        }
         break
-      case 'other':
+      case PositionType.OTHER:
       default:
     }
-    const initializedPositionNames: PositionNamesCacheValue = {
-      ...newCache.positionNames[supportedProduct.name],
-      positionNames: _positionNames,
-      positionNamesInitialized: true,
-    }
+    const initializedPositions: PositionsCacheValue = _initializedPositions
+    const initializedPositionNames: PositionNamesCacheValue = _initializedPositionNames
     return { initializedPositions, initializedPositionNames }
   }
 
   useEffect(() => {
+    if (!account) {
+      console.log('useCachePositions: no account found, no init needed')
+      return
+    }
+    // do not run the functions if web3React is not initialized
     const data = setStoredData()
-    getAllPositionsforChain(data, activeNetwork, library)
-  }, [activeNetwork])
+    getAllPositionsforChain(data, activeNetwork, library, account)
+  }, [activeNetwork, account])
 
-  return { dataInitialized, storedPositionData }
+  return { dataInitialized, storedPosData }
 }

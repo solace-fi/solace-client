@@ -119,9 +119,15 @@ const ProviderManager: React.FC = ({ children }) => {
         disableCloseButton={false}
       >
         <Card color2 p={10} mb={20}>
-          <Text textAlignCenter>When connected, ensure that the </Text>
-          <Text textAlignCenter>network on your wallet matches </Text>
-          <Text textAlignCenter>the network on this app. </Text>
+          <Text light textAlignCenter>
+            When connected, ensure that the{' '}
+          </Text>
+          <Text light textAlignCenter>
+            network on your wallet matches{' '}
+          </Text>
+          <Text light textAlignCenter>
+            the network on this app.{' '}
+          </Text>
         </Card>
 
         <CardContainer cardsPerRow={1}>
@@ -140,7 +146,7 @@ const ProviderManager: React.FC = ({ children }) => {
             >
               <FormRow mb={0}>
                 <ModalCell p={10}>
-                  <Text t4 bold>
+                  <Text t4 bold light={network.name == activeNetwork.name}>
                     {capitalizeFirstLetter(network.name)}
                   </Text>
                 </ModalCell>

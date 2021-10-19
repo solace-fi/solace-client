@@ -37,7 +37,6 @@ export const ProtocolTitle = styled.div<GeneralTextProps>`
 
 export const PositionCardName = styled.div<GeneralTextProps>`
   margin-top: 6px;
-  font-weight: 600;
   text-align: center;
   ${GeneralTextCss}
 `

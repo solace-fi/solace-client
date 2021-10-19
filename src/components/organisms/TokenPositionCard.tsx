@@ -1,17 +1,36 @@
+/*
+
+  import react
+  import managers
+  import constants
+  import hooks
+  import utils
+
+  TokenPositionCard
+    hooks
+
+*/
+
+/* import react */
 import React, { useMemo } from 'react'
 
+/* import managers */
+import { useGeneral } from '../../context/GeneralProvider'
+
+/* import constants */
+import { BKPT_3 } from '../../constants'
+import { Position, Token, Policy, TokenData } from '../../constants/types'
+
+/* import components */
 import { PositionCard } from '../atoms/Card'
 import { PositionCardButton, PositionCardText, DeFiAssetImage, PositionCardName } from '../atoms/DeFiAsset'
 import { Button } from '../atoms/Button'
 import { TextSpan } from '../atoms/Typography'
 
-import { useGeneral } from '../../context/GeneralProvider'
-
-import { Position, Token, Policy } from '../../constants/types'
-import { MAX_MOBILE_SCREEN_WIDTH } from '../../constants'
-
+/* import hooks */
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'
 
+/* import utils */
 import { fixedTokenPositionBalance, truncateBalance } from '../../utils/formatting'
 
 interface TokenPositionCardProps {
@@ -21,7 +40,7 @@ interface TokenPositionCardProps {
   userPolicies: Policy[]
   openManageModal: (policy: Policy) => Promise<void>
   handleSelect: (position: Position) => void
-  userHasActiveProductPosition: (product: string, position: string) => boolean
+  userHasActiveProductPosition: (product: string, address: string) => boolean
 }
 
 export const TokenPositionCard: React.FC<TokenPositionCardProps> = ({
@@ -33,39 +52,45 @@ export const TokenPositionCard: React.FC<TokenPositionCardProps> = ({
   handleSelect,
   userHasActiveProductPosition,
 }) => {
-  const { appTheme, errors } = useGeneral()
+  /*
+
+    hooks
+
+  */
+
+  const { haveErrors } = useGeneral()
   const { width } = useWindowDimensions()
 
   const token: Token = useMemo(() => position.position as Token, [position.position])
   const isSelected = useMemo(
     () =>
       selectedPositions.some(
-        (selectedPosition) => (selectedPosition.position as Token).underlying.address == token.underlying.address
+        (selectedPosition) => (selectedPosition.position as Token).token.address == token.token.address
       ),
     [selectedPositions, token]
   )
-  const isActive = useMemo(() => userHasActiveProductPosition(protocolName, token.underlying.symbol), [
+  const isActive = useMemo(() => userHasActiveProductPosition(protocolName, token.token.address), [
     protocolName,
     token,
     userHasActiveProductPosition,
   ])
-  const lightText = (isSelected || isActive) && appTheme == 'light'
+  const lightText = isSelected || isActive
 
   return (
     <PositionCard
-      key={token.underlying.address}
+      key={token.token.address}
       color1={isSelected}
       glow={isSelected}
       fade={isActive}
       onClick={
-        errors.length > 0
+        haveErrors
           ? undefined
           : isActive
           ? () =>
               openManageModal(
                 userPolicies.filter(
                   (policy) =>
-                    policy.productName == protocolName && policy.positionNames.includes(token.underlying.symbol)
+                    policy.productName == protocolName && policy.positionDescription.includes(token.token.address)
                 )[0]
               )
           : () => handleSelect(position)
@@ -76,32 +101,46 @@ export const TokenPositionCard: React.FC<TokenPositionCardProps> = ({
           This position is already covered
         </PositionCardText>
       )}
-      <DeFiAssetImage noborder style={{ opacity: isActive ? '.5' : '1' }}>
-        <img src={`https://assets.solace.fi/${token.underlying.address.toLowerCase()}`} alt={token.underlying.name} />
+      <DeFiAssetImage noborder style={{ opacity: isActive ? '.5' : '1' }} key={token.token.address}>
+        <img src={`https://assets.solace.fi/${token.token.address.toLowerCase()}`} alt={token.token.name} />
       </DeFiAssetImage>
-      <PositionCardName style={{ opacity: isActive ? '.5' : '1' }} light={lightText}>
-        {token.underlying.name}
+      <PositionCardName bold style={{ opacity: isActive ? '.5' : '1' }} light={lightText}>
+        {token.token.name}
       </PositionCardName>
-      <PositionCardText t1 style={{ opacity: isActive ? '.5' : '1' }} light={lightText}>
-        {truncateBalance(fixedTokenPositionBalance(token.underlying))}{' '}
-        <TextSpan style={{ fontSize: '12px' }} light={lightText}>
-          {token.underlying.symbol}
-        </TextSpan>
-      </PositionCardText>
+      {!(token.underlying.length == 1 && token.underlying[0].name == token.token.name) && (
+        <PositionCardName style={{ opacity: isActive ? '.5' : '1' }} light={lightText}>
+          {token.underlying.map((underlyingToken: TokenData, i) => {
+            if (i + 1 < token.underlying.length) return `${underlyingToken.name} - `
+            return `${underlyingToken.name}`
+          })}
+        </PositionCardName>
+      )}
+      {token.underlying.map((underlyingToken: TokenData, i) => (
+        <PositionCardText t2 style={{ opacity: isActive ? '.5' : '1' }} light={lightText} key={i}>
+          {truncateBalance(fixedTokenPositionBalance(underlyingToken))}{' '}
+          <TextSpan style={{ fontSize: '12px' }} light={lightText}>
+            {underlyingToken.symbol}
+          </TextSpan>
+        </PositionCardText>
+      ))}
       <PositionCardText t3 style={{ opacity: isActive ? '.5' : '1' }} light={lightText}>
         {truncateBalance(fixedTokenPositionBalance(token.token))}{' '}
         <TextSpan style={{ fontSize: '12px' }} light={lightText}>
-          {token.underlying.symbol}
+          {token.token.symbol}
         </TextSpan>
       </PositionCardText>
       <PositionCardButton>
         {isActive ? (
-          <Button widthP={width > MAX_MOBILE_SCREEN_WIDTH ? undefined : 100} light={lightText}>
+          <Button widthP={width > BKPT_3 ? undefined : 100} light>
             Manage
           </Button>
+        ) : isSelected ? (
+          <Button widthP={width > BKPT_3 ? undefined : 100} light>
+            {'Deselect'}
+          </Button>
         ) : (
-          <Button widthP={width > MAX_MOBILE_SCREEN_WIDTH ? undefined : 100} light={lightText}>
-            {isSelected ? 'Deselect' : 'Select'}
+          <Button widthP={width > BKPT_3 ? undefined : 100} info>
+            {'Select'}
           </Button>
         )}
       </PositionCardButton>
