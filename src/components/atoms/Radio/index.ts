@@ -1,5 +1,5 @@
 import styled, { css } from 'styled-components'
-import { END_BREAKPOINT_3 } from '../../../constants'
+import { BKPT_3 } from '../../../constants'
 import { GeneralElementProps, GeneralElementCss } from '../../generalInterfaces'
 
 const RadioInputCss = css`
@@ -9,7 +9,7 @@ const RadioInputCss = css`
 `
 
 export const RadioElement = styled.div`
-  border: 1px solid ${({ theme }) => theme.button.circle_color};
+  border: 1px solid ${({ theme }) => theme.radio.circle_color};
   border-radius: 10px;
   padding: 10px 16px;
   text-align: center;
@@ -38,7 +38,7 @@ export const RadioGroup = styled.div<GeneralElementProps>`
   gap: 20px;
   margin-top: 40px;
 
-  @media screen and (max-width: ${END_BREAKPOINT_3}px) {
+  @media screen and (max-width: ${BKPT_3}px) {
     grid-template-columns: none;
   }
 

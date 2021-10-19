@@ -16,18 +16,8 @@ export async function fetchExplorerTxHistoryByAddress(
     `${explorer}/api?module=account&action=txlist&address=${address}&startblock=0&endblock=latest&page=1&offset=4500&sort=desc&apikey=${STRINGIFIED_ETHERSCAN_API_KEY}`
   )
     .then((result) => result.json())
-    .then((result) => result.result)
     .then((result) => {
-      const contractAddrs = contractSources.map((contract) => {
-        return contract.addr
-      })
-      const filteredResult =
-        result !== 'Max rate limit reached'
-          ? result.filter((tx: any) => contractAddrs.includes(tx.to.toLowerCase()))
-          : []
-      return {
-        txList: filteredResult,
-      }
+      return result
     })
 }
 

@@ -12,20 +12,25 @@ import { useNetwork } from '../context/NetworkManager'
 export const useFetchTxHistoryByAddress = (): any => {
   const { account } = useWallet()
   const { activeNetwork } = useNetwork()
-  const { deleteLocalTransactions, dataVersion } = useCachedData()
+  const { deleteLocalTransactions, latestBlock } = useCachedData()
   const [txHistory, setTxHistory] = useState<any>([])
   const { contractSources } = useContracts()
 
   const fetchTxHistoryByAddress = async (account: string) => {
     await fetchExplorerTxHistoryByAddress(activeNetwork.explorer.apiUrl, account, contractSources).then((result) => {
-      deleteLocalTransactions(result.txList)
-      setTxHistory(result.txList.slice(0, 30))
+      if (result.status == '1') {
+        const contractAddrs = contractSources.map((contract) => contract.addr)
+        const txList = result.result.filter((tx: any) => contractAddrs.includes(tx.to.toLowerCase()))
+        deleteLocalTransactions(txList)
+        setTxHistory(txList.slice(0, 30))
+      }
     })
   }
 
   useEffect(() => {
-    account ? fetchTxHistoryByAddress(account) : setTxHistory([])
-  }, [account, contractSources, dataVersion])
+    if (!latestBlock || !account) return
+    fetchTxHistoryByAddress(account)
+  }, [latestBlock, account])
 
   return txHistory
 }

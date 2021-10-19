@@ -1,24 +1,46 @@
+/*************************************************************************************
+
+    Table of Contents:
+
+    import react
+    import constants
+    import components
+    import resources
+    import hooks
+
+    About
+      hooks
+
+  *************************************************************************************/
+
+/* import react */
 import React from 'react'
 
+/* import constants */
+import { BKPT_1, BKPT_3, BKPT_NAVBAR } from '../../constants'
+
+/* import components */
 import { Button, ButtonWrapper } from '../../components/atoms/Button'
 import { FlexRow, HeroContainer } from '../../components/atoms/Layout'
 import { Text, TextSpan } from '../../components/atoms/Typography'
+import { StyledNavLink } from '../../components/atoms/Link'
 
-import { useWindowDimensions } from '../../hooks/useWindowDimensions'
+/* import resources */
 import whiteLogo from '../../resources/svg/solace-logo-white.svg'
-
 import polygonLogo from '../../resources/svg/grants/polygon-logo-white.svg'
 import nearLogo from '../../resources/svg/grants/near-logo-white.svg'
 import aaveLogo from '../../resources/svg/grants/aave-logo-white.svg'
-import { END_BREAKPOINT_3 } from '../../constants'
-import { StyledNavLink } from '../../components/atoms/Link'
+
+/* import hooks */
+import { useWindowDimensions } from '../../hooks/useWindowDimensions'
 
 function About(): any {
+  /* hooks */
   const { width } = useWindowDimensions()
 
   return (
     <>
-      {width > END_BREAKPOINT_3 ? (
+      {width > BKPT_3 ? (
         <>
           <HeroContainer style={{ height: '100vh' }}>
             <img src={whiteLogo} style={{ marginLeft: '70px' }} />
@@ -142,7 +164,7 @@ function About(): any {
               style={{
                 position: 'absolute',
                 border: '10px solid #FFF',
-                padding: '30vw',
+                padding: width > BKPT_NAVBAR ? '30vw' : width > BKPT_1 ? '40vw' : '45vw',
                 boxSizing: 'border-box',
                 borderRadius: '50%',
                 filter:

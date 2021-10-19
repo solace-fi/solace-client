@@ -15,11 +15,10 @@
     variables
     styled components
 
-    MultiStepForm function
-      custom hooks
-      Local functions
+    MultiStepForm
+      hooks
+      local functions
       useEffect hooks
-      Render
 
   *************************************************************************************/
 
@@ -38,8 +37,9 @@ import { useNetwork } from '../../context/NetworkManager'
 import { useGeneral } from '../../context/GeneralProvider'
 
 /* import constants */
-import { END_BREAKPOINT_3 } from '../../constants'
+import { BKPT_3 } from '../../constants'
 import { BasicData, LiquityPosition, Position, Token } from '../../constants/types'
+import { PositionType } from '../../constants/enums'
 
 /* import components */
 import { ProtocolStep } from './ProtocolStep'
@@ -57,6 +57,7 @@ import { StyledTooltip } from '../../components/molecules/Tooltip'
 import { FlexRow } from '../../components/atoms/Layout'
 import { StyledDots } from '../../components/atoms/Icon'
 import { AssetsModal } from '../../components/organisms/AssetsModal'
+
 /* import hooks */
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'
 
@@ -133,7 +134,7 @@ const FormContent = styled.div`
 export const MultiStepForm = () => {
   /*************************************************************************************
 
-  custom hooks
+  hooks
 
   *************************************************************************************/
   const [formData, setForm] = useForm(defaultData)
@@ -148,35 +149,36 @@ export const MultiStepForm = () => {
   const { width } = useWindowDimensions()
   const props = { formData, setForm, navigation }
   const [showAssetsModal, setShowAssetsModal] = useState<boolean>(false)
-  const formattedAssets: BasicData[] = useMemo(
-    () =>
-      positions.map((pos: Position) => {
-        switch (pos.type) {
-          case 'erc20':
-            return {
-              name: (pos.position as Token).underlying.name,
-              address: (pos.position as Token).underlying.address,
-            }
-          case 'liquity':
-            return {
-              name: (pos.position as LiquityPosition).positionName,
-              address: (pos.position as LiquityPosition).positionAddress,
-            }
-          case 'other':
-          default:
-            return {
-              name: '',
-              address: '',
-            }
-        }
-      }),
-    [positions]
-  )
+  const formattedAssets: BasicData[] = useMemo(() => {
+    const res: BasicData[] = []
+    for (let i = 0; i < positions.length; i++) {
+      const pos: Position = positions[i]
+      switch (pos.type) {
+        case PositionType.TOKEN:
+          // for (let i = 0; i < (pos.position as Token).underlying.length; i++) {
+          res.push({
+            name: (pos.position as Token).token.name,
+            address: (pos.position as Token).token.address,
+          })
+          // }
+          break
+        case PositionType.LQTY:
+          res.push({
+            name: (pos.position as LiquityPosition).positionName,
+            address: (pos.position as LiquityPosition).positionAddress,
+          })
+          break
+        case PositionType.OTHER:
+        default:
+      }
+    }
+    return res
+  }, [positions])
   const maxPositionsToDisplay = 4
 
   /*************************************************************************************
 
-  Local functions
+  local functions
 
   *************************************************************************************/
 
@@ -217,12 +219,6 @@ export const MultiStepForm = () => {
     resetForm()
   }, [account, chainId])
 
-  /*************************************************************************************
-
-  Render
-
-  *************************************************************************************/
-
   return (
     <FormContent>
       <AssetsModal
@@ -231,7 +227,7 @@ export const MultiStepForm = () => {
         assets={formattedAssets}
         modalTitle={'Selected Positions'}
       />
-      {width > END_BREAKPOINT_3 ? (
+      {width > BKPT_3 ? (
         <StepsContainer step={Number(StepNumber[step.id]) + 1}>
           <StepsWrapper>
             {StepSections.map((section) => (
@@ -270,7 +266,7 @@ export const MultiStepForm = () => {
       )}
       {Number(StepNumber[step.id]) !== 0 && Number(StepNumber[step.id]) !== 3 && (
         <>
-          {width > END_BREAKPOINT_3 ? (
+          {width > BKPT_3 ? (
             <BoxRow>
               <Box>
                 <BoxItem>
@@ -303,7 +299,7 @@ export const MultiStepForm = () => {
               {Number(StepNumber[step.id]) == 1 && (
                 <Box transparent outlined>
                   <BoxItem>
-                    <Text>{loading ? 'Loading Your Positions...' : 'Select Position Below'}</Text>
+                    <Text>{loading ? 'Loading Positions...' : 'Select Positions Below'}</Text>
                   </BoxItem>
                 </Box>
               )}
@@ -320,21 +316,20 @@ export const MultiStepForm = () => {
                           </DeFiAsset>
                         )
                       })}
-                      {positions.length > maxPositionsToDisplay && <StyledDots size={20} />}
+                      {positions.length > maxPositionsToDisplay && (
+                        <StyledDots size={20} style={{ color: 'rgb(250, 250, 250)' }} />
+                      )}
                     </FlexRow>
                   </BoxItem>
-                  {positions.length > maxPositionsToDisplay && (
-                    <BoxItem>
-                      <Button light onClick={() => setShowAssetsModal(true)}>
-                        View all assets
-                      </Button>
-                    </BoxItem>
-                  )}
-
                   <BoxItem>
-                    <Button light onClick={() => navigation.go(1)}>
-                      Change
-                    </Button>
+                    <ButtonWrapper>
+                      <Button light onClick={() => setShowAssetsModal(true)}>
+                        View assets
+                      </Button>
+                      <Button light onClick={() => navigation.go(1)}>
+                        Change
+                      </Button>
+                    </ButtonWrapper>
                   </BoxItem>
                 </Box>
               )}
@@ -380,7 +375,7 @@ export const MultiStepForm = () => {
               {Number(StepNumber[step.id]) == 1 && (
                 <Card transparent p={0}>
                   <Box transparent outlined>
-                    <BoxItem>{loading ? 'Loading Your Positions...' : 'Select Position Below'}</BoxItem>
+                    <BoxItem>{loading ? 'Loading Positions...' : 'Select Positions Below'}</BoxItem>
                   </Box>
                 </Card>
               )}
@@ -394,14 +389,14 @@ export const MultiStepForm = () => {
                         </DeFiAssetImage>
                       )
                     })}
-                    {positions.length > maxPositionsToDisplay && <StyledDots size={20} />}
+                    {positions.length > maxPositionsToDisplay && (
+                      <StyledDots size={20} style={{ color: 'rgb(250, 250, 250)' }} />
+                    )}
                   </FlexRow>
                   <ButtonWrapper isColumn>
-                    {positions.length > maxPositionsToDisplay && (
-                      <Button light widthP={100} onClick={() => setShowAssetsModal(true)}>
-                        View all assets
-                      </Button>
-                    )}
+                    <Button light widthP={100} onClick={() => setShowAssetsModal(true)}>
+                      View all assets
+                    </Button>
                     <Button light widthP={100} onClick={() => navigation.go(1)}>
                       Change
                     </Button>

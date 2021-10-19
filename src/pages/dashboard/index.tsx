@@ -7,12 +7,10 @@
     import constants
     import components
 
-    Dashboard function
-      useState hooks
-      custom hooks
+    Dashboard 
+      hooks
       local functions
       useEffect hooks
-      Render
 
   *************************************************************************************/
 
@@ -40,11 +38,12 @@ import { Accordion } from '../../components/atoms/Accordion/Accordion'
 import { StyledArrowDropDown } from '../../components/atoms/Icon'
 import { Button } from '../../components/atoms/Button'
 import { Loader } from '../../components/atoms/Loader'
+import { MyOptions } from '../../components/molecules/MyOptions'
 
 function Dashboard(): any {
   /*************************************************************************************
 
-    useState hooks
+    hooks
 
   *************************************************************************************/
 
@@ -52,12 +51,6 @@ function Dashboard(): any {
   const [showManageModal, setShowManageModal] = useState<boolean>(false)
   const [openPolicies, setOpenPolicies] = useState<boolean>(true)
   const [selectedPolicy, setSelectedPolicy] = useState<Policy | undefined>(undefined)
-
-  /*************************************************************************************
-
-    custom hooks
-
-  *************************************************************************************/
 
   const { setSelectedProtocolByName } = useContracts()
   const { latestBlock, userPolicyData } = useCachedData()
@@ -110,12 +103,6 @@ function Dashboard(): any {
       }
     }
   }, [userPolicyData.userPolicies])
-
-  /*************************************************************************************
-
-    Render
-
-  *************************************************************************************/
 
   return (
     <Fragment>
@@ -172,6 +159,7 @@ function Dashboard(): any {
           </Content>
           <MyClaims />
           <MyInvestments />
+          <MyOptions />
         </Fragment>
       )}
     </Fragment>

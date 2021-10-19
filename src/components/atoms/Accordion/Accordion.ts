@@ -12,4 +12,5 @@ export const Accordion = styled.div<AccordionProps>`
   background-color: ${({ theme }) => theme.accordion.bg_color}};
   overflow-y: hidden;
   ${(props) => (props.noscroll ? null : `overflow-y: auto;`)}
+  border-radius: 10px;
 `

@@ -8,9 +8,16 @@
     import components
     import hooks
 
-    StyledTooltip function
-      custom hooks
-      Render
+    CustomTooltipCss
+
+    CustomTooltip
+
+    CustomNavbarTooltip
+
+    StyledNavTooltip
+
+    StyledTooltip
+      hooks
 
   *************************************************************************************/
 
@@ -23,7 +30,7 @@ import styled, { css } from 'styled-components'
 import { useLocation } from 'react-router'
 
 /* import constants */
-import { END_BREAKPOINT_3 } from '../../constants'
+import { BKPT_3 } from '../../constants'
 
 /* import components */
 import { StyledInfo, StyledLinkExternal } from '../atoms/Icon'
@@ -64,7 +71,7 @@ export const StyledNavTooltip: React.FC<StyledTooltipProps> = ({ id, tip, childr
 
   return (
     <>
-      {width <= END_BREAKPOINT_3 ? (
+      {width <= BKPT_3 ? (
         <>
           <div data-for={id} data-tip={tip} style={{ padding: '4px 0' }}>
             {children}
@@ -92,18 +99,14 @@ export const StyledNavTooltip: React.FC<StyledTooltipProps> = ({ id, tip, childr
 export const StyledTooltip: React.FC<StyledTooltipProps> = ({ id, tip, link }) => {
   /*************************************************************************************
 
-  custom hooks
+  hooks
 
   *************************************************************************************/
   const { width } = useWindowDimensions()
-  /*************************************************************************************
 
-  render
-
-  *************************************************************************************/
   return (
     <>
-      {width > END_BREAKPOINT_3 ? (
+      {width > BKPT_3 ? (
         <>
           <a data-for={id} data-tip={tip}>
             <StyledInfo size={20} />

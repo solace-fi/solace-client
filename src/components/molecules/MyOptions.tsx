@@ -10,15 +10,14 @@
     import hooks
     import utils
 
-    MyOptions function
-      custom hooks
+    MyOptions
+      hooks
       contract functions
-      Render
 
   *************************************************************************************/
 
 /* import react */
-import React, { Fragment, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 
 /* import packages */
 import { formatUnits } from '@ethersproject/units'
@@ -43,16 +42,34 @@ import { Accordion } from '../atoms/Accordion/Accordion'
 
 /* import constants */
 import { Option } from '../../constants/types'
+import { GAS_LIMIT, BKPT_3 } from '../../constants'
+import { FunctionName, TransactionCondition, Unit } from '../../constants/enums'
+
+/* import hooks */
+import { useOptionsDetails } from '../../hooks/useOptionsFarming'
+import { useWindowDimensions } from '../../hooks/useWindowDimensions'
+import { useGasConfig } from '../../hooks/useGas'
+
+/* import utils */
+import { accurateMultiply, truncateBalance } from '../../utils/formatting'
 
 export const MyOptions: React.FC = () => {
   /*************************************************************************************
 
-    custom hooks
+    hooks
 
   *************************************************************************************/
+  const { haveErrors } = useGeneral()
+  const { account, library } = useWallet()
+  const { optionsFarming } = useContracts()
+  const { addLocalTransactions, reload, gasPrices, latestBlock } = useCachedData()
+  const { makeTxToast } = useToasts()
+  const { gasConfig } = useGasConfig(gasPrices.selected?.value)
+  const { activeNetwork, currencyDecimals } = useNetwork()
   const [openOptions, setOpenOptions] = useState<boolean>(true)
-
-  const options: Option[] = []
+  const optionsDetails = useOptionsDetails(account)
+  const { width } = useWindowDimensions()
+  const [latestBlockTimestamp, setLatestBlockTimestamp] = useState<number>(0)
 
   /*************************************************************************************
 
@@ -60,56 +77,132 @@ export const MyOptions: React.FC = () => {
 
   *************************************************************************************/
 
-  /*************************************************************************************
+  const exerciseOption = async (_optionId: string) => {
+    if (!optionsFarming || !_optionId) return
+    const txType = FunctionName.WITHDRAW_CLAIMS_PAYOUT
+    try {
+      const tx = await optionsFarming.exerciseOption(_optionId, {
+        ...gasConfig,
+        gasLimit: GAS_LIMIT,
+      })
+      const txHash = tx.hash
+      const localTx = {
+        hash: txHash,
+        type: txType,
+        value: String(_optionId),
+        status: TransactionCondition.PENDING,
+        unit: Unit.ID,
+      }
+      addLocalTransactions(localTx)
+      reload()
+      makeTxToast(txType, TransactionCondition.PENDING, txHash)
+      await tx.wait().then((receipt: any) => {
+        const status = receipt.status ? TransactionCondition.SUCCESS : TransactionCondition.FAILURE
+        makeTxToast(txType, status, txHash)
+        reload()
+      })
+    } catch (err) {
+      makeTxToast(txType, TransactionCondition.CANCELLED)
+      reload()
+    }
+  }
 
-    Render
-
-  *************************************************************************************/
+  useEffect(() => {
+    if (!library || !latestBlock) return
+    setLatestBlockTimestamp(latestBlock.timestamp)
+  }, [latestBlock, library])
 
   return (
-    <Fragment>
-      {options.length > 0 && (
-        <Content>
-          <Text t1 bold mb={0}>
-            Your Options
-            <Button style={{ float: 'right' }} onClick={() => setOpenOptions(!openOptions)}>
-              <StyledArrowDropDown style={{ transform: openOptions ? 'rotate(180deg)' : 'rotate(0deg)' }} size={20} />
-              {openOptions ? 'Hide Options' : 'Show Options'}
-            </Button>
+    <Content>
+      <Text t1 bold mb={0}>
+        Your Options
+        <Button style={{ float: 'right' }} onClick={() => setOpenOptions(!openOptions)}>
+          <StyledArrowDropDown style={{ transform: openOptions ? 'rotate(180deg)' : 'rotate(0deg)' }} size={20} />
+          {openOptions ? 'Hide Options' : 'Show Options'}
+        </Button>
+      </Text>
+      <Text t4 pb={10}>
+        Options are special tokens that allow you to obtain SOLACE at a discount. You may claim options as a reward from
+        staking in the Options Farming Pool.
+      </Text>
+      <Accordion isOpen={openOptions}>
+        {optionsDetails.length > 0 ? (
+          <CardContainer cardsPerRow={2} p={10}>
+            {optionsDetails.map((option: Option) => {
+              return (
+                <Card key={option.id.toString()}>
+                  <Box pt={20} pb={20} success>
+                    <BoxItem>
+                      <BoxItemTitle t4 light>
+                        ID
+                      </BoxItemTitle>
+                      <Text t4 light>
+                        {option.id}
+                      </Text>
+                    </BoxItem>
+                    <BoxItem>
+                      <BoxItemTitle t4 light>
+                        Reward Amount
+                      </BoxItemTitle>
+                      <Text t4 light>
+                        {BigNumber.from(option.rewardAmount).gte(accurateMultiply(1, currencyDecimals))
+                          ? truncateBalance(
+                              formatUnits(option.rewardAmount, currencyDecimals),
+                              width > BKPT_3 ? currencyDecimals : 2
+                            )
+                          : truncateBalance(
+                              formatUnits(option.rewardAmount, currencyDecimals),
+                              width > BKPT_3 ? currencyDecimals : 6
+                            )}{' '}
+                        SOLACE
+                      </Text>
+                    </BoxItem>
+                    <BoxItem>
+                      <BoxItemTitle t4 light>
+                        Strike Price
+                      </BoxItemTitle>
+                      <Text t4 light>
+                        {BigNumber.from(option.strikePrice).gte(accurateMultiply(1, currencyDecimals))
+                          ? truncateBalance(
+                              formatUnits(option.strikePrice, currencyDecimals),
+                              width > BKPT_3 ? currencyDecimals : 2
+                            )
+                          : truncateBalance(
+                              formatUnits(option.strikePrice, currencyDecimals),
+                              width > BKPT_3 ? currencyDecimals : 6
+                            )}{' '}
+                        {activeNetwork.nativeCurrency}
+                      </Text>
+                    </BoxItem>
+                    <BoxItem>
+                      <BoxItemTitle t4 light>
+                        Expiry
+                      </BoxItemTitle>
+                      <Text t4 light>
+                        {option.expiry}
+                      </Text>
+                    </BoxItem>
+                  </Box>
+                  <ButtonWrapper mb={0} mt={20}>
+                    <Button
+                      widthP={100}
+                      onClick={() => exerciseOption(option.id.toString())}
+                      info
+                      disabled={haveErrors || latestBlockTimestamp > option.expiry.toNumber()}
+                    >
+                      Exercise Option
+                    </Button>
+                  </ButtonWrapper>
+                </Card>
+              )
+            })}
+          </CardContainer>
+        ) : (
+          <Text t2 textAlignCenter>
+            Options will be available when the SOLACE token is deployed.
           </Text>
-          <Accordion isOpen={openOptions}>
-            <CardContainer cardsPerRow={2} p={10}>
-              {options.map((option: Option) => {
-                return (
-                  <Card key={option.id}>
-                    <Box pt={20} pb={20} success>
-                      <BoxItem>
-                        <BoxItemTitle t4>ID</BoxItemTitle>
-                        <Text t4>{option.id}</Text>
-                      </BoxItem>
-                      <BoxItem>
-                        <BoxItemTitle t4>Reward Amount</BoxItemTitle>
-                        <Text t4>{option.rewardAmount}</Text>
-                      </BoxItem>
-                      <BoxItem>
-                        <BoxItemTitle t4>Strike Price</BoxItemTitle>
-                        <Text t4>{option.strikePrice}</Text>
-                      </BoxItem>
-                      <BoxItem>
-                        <BoxItemTitle t4>Expiry</BoxItemTitle>
-                        <Text t4>{option.expiry}</Text>
-                      </BoxItem>
-                    </Box>
-                    <ButtonWrapper mb={0} mt={20}>
-                      <Button widthP={100}>Exercise Option</Button>
-                    </ButtonWrapper>
-                  </Card>
-                )
-              })}
-            </CardContainer>
-          </Accordion>
-        </Content>
-      )}
-    </Fragment>
+        )}
+      </Accordion>
+    </Content>
   )
 }

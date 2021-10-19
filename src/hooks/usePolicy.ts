@@ -9,6 +9,7 @@ import { LiquityPosition, Policy, Position, StringToStringMapping, SupportedProd
 import { useCachedData } from '../context/CachedDataManager'
 import { useNetwork } from '../context/NetworkManager'
 import { useGasConfig } from './useGas'
+import { PositionType } from '../constants/enums'
 
 export const useGetPolicyPrice = (policyId: number): string => {
   const [policyPrice, setPolicyPrice] = useState<string>('')
@@ -33,41 +34,45 @@ export const useGetPolicyPrice = (policyId: number): string => {
   return policyPrice
 }
 
-export const useAppraisePosition = (policy: Policy | undefined): BigNumber => {
+export const useAppraisePolicyPosition = (policy: Policy | undefined): BigNumber => {
   const { activeNetwork } = useNetwork()
   const { account, library } = useWallet()
   const { getProtocolByName } = useContracts()
-  const { latestBlock, tokenPositionData } = useCachedData()
+  const { latestBlock, tokenPosData } = useCachedData()
   const [appraisal, setAppraisal] = useState<BigNumber>(ZERO)
 
   const handlePositionBalances = async (supportedProduct: SupportedProduct): Promise<BigNumber[]> => {
-    const cache = tokenPositionData.storedPositionData.find((dataset) => dataset.name == activeNetwork.name)
-    if (!account || !library || !cache || !policy) return []
+    const matchingCache = tokenPosData.storedPosData.find((dataset) => dataset.chainId == activeNetwork.chainId)
+    if (!account || !library || !matchingCache || !policy) return []
     switch (supportedProduct.positionsType) {
-      case 'erc20':
+      case PositionType.TOKEN:
         const tokensToAppraise: Token[] = []
+
+        // loop names because we want the only positions included in the policy, not positions cached on boot
         policy.positionNames.forEach(async (name) => {
-          const positionToAppraise: Position | undefined = cache.positions[supportedProduct.name].savedPositions.find(
-            (position: Position) => (position.position as Token).underlying.symbol == name
+          // find the position in the cache using the name
+          const positionToAppraise = matchingCache.positionsCache[supportedProduct.name].positions.find(
+            (position: Position) => (position.position as Token).token.symbol == name
           )
           if (!positionToAppraise) return
+
+          // add position into array of other positions to get balances of
           tokensToAppraise.push(positionToAppraise.position as Token)
         })
         if (typeof supportedProduct.getBalances !== 'undefined') {
           const erc20Tokens: Token[] = await supportedProduct.getBalances(
             account,
             library,
-            cache,
             activeNetwork,
             tokensToAppraise
           )
           return erc20Tokens.map((t) => t.eth.balance)
         }
         return []
-      case 'liquity':
+      case PositionType.LQTY:
         const positionsToAppraise: LiquityPosition[] = []
         policy.positionNames.forEach(async (name) => {
-          const positionToAppraise: Position | undefined = cache.positions[supportedProduct.name].savedPositions.find(
+          const positionToAppraise = matchingCache.positionsCache[supportedProduct.name].positions.find(
             (position: Position) => (position.position as LiquityPosition).positionName == name
           )
           if (!positionToAppraise) return
@@ -84,7 +89,7 @@ export const useAppraisePosition = (policy: Policy | undefined): BigNumber => {
           return liquityBalances
         }
         return []
-      case 'other':
+      case PositionType.OTHER:
       default:
         return []
     }
@@ -92,7 +97,7 @@ export const useAppraisePosition = (policy: Policy | undefined): BigNumber => {
 
   useEffect(() => {
     const getAppraisal = async () => {
-      if (!policy || !tokenPositionData.dataInitialized) return
+      if (!policy || !tokenPosData.dataInitialized) return
       try {
         const product = getProtocolByName(policy.productName)
 
@@ -111,7 +116,7 @@ export const useAppraisePosition = (policy: Policy | undefined): BigNumber => {
       }
     }
     getAppraisal()
-  }, [policy?.policyId, account, tokenPositionData.dataInitialized, latestBlock])
+  }, [policy?.policyId, account, tokenPosData.dataInitialized, latestBlock])
 
   useEffect(() => {
     // if policy id changes, reset appraisal to 0 to enable loading icon on frontend
@@ -202,7 +207,6 @@ export const useGetAvailableCoverages = (): StringToStringMapping => {
         products.map(async (productContract) => {
           const product = getProtocolByName(productContract.name)
           if (product) {
-            // TODO: entire correct gas params
             const sellableCoverPerProduct = await riskManager.sellableCoverPerProduct(product.address, {
               ...gasConfig,
               gasLimit: GAS_LIMIT,

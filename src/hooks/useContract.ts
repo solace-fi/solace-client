@@ -10,8 +10,10 @@ export function useGetContract(source: ContractSources | undefined, hasSigner = 
 
   return useMemo(() => {
     if (!source || !library) return null
+    if (!source.addr || !source.abi) return null
     try {
-      return getContract(source.addr, source.abi, library, hasSigner && account ? account : undefined)
+      const contract = getContract(source.addr, source.abi, library, hasSigner && account ? account : undefined)
+      return contract
     } catch (error) {
       console.error('Failed to get contract', error)
       return null

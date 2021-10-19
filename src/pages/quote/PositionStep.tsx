@@ -10,13 +10,10 @@
     import hooks
     import utils
 
-    PositionStep function
-      custom hooks
-      useState hooks
-      useRef variables
-      Local functions
+    PositionStep
+      hooks
+      local functions
       useEffect hooks
-      Render
 
   *************************************************************************************/
 
@@ -44,58 +41,55 @@ import { Loader } from '../../components/atoms/Loader'
 import { Scrollable, HeroContainer } from '../../components/atoms/Layout'
 import { Text, TextSpan } from '../../components/atoms/Typography'
 import { ManageModal } from '../../components/organisms/ManageModal'
+import { HyperLink } from '../../components/atoms/Link'
+import { TokenPositionCard } from '../../components/organisms/TokenPositionCard'
+import { NftPositionCard } from '../../components/organisms/NftPositionCard'
 
 /* import constants */
-import { PolicyState } from '../../constants/enums'
-import { LiquityPosition, NetworkCache, Policy, Position, SupportedProduct, Token } from '../../constants/types'
-import { END_BREAKPOINT_3 } from '../../constants'
+import { PolicyState, PositionType } from '../../constants/enums'
+import {
+  LiquityPosition,
+  NetworkCache,
+  Policy,
+  Position,
+  SupportedProduct,
+  Token,
+  TokenData,
+} from '../../constants/types'
+import { BKPT_3 } from '../../constants'
 
 /* import hooks */
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'
 
 /* import utils */
 import { fixedPositionBalance, truncateBalance } from '../../utils/formatting'
-import { HyperLink } from '../../components/atoms/Link'
-import { TokenPositionCard } from '../../components/organisms/TokenPositionCard'
 
 export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigation }) => {
   const { protocol, loading, positions } = formData
 
   /*************************************************************************************
 
-  custom hooks
+  hooks
 
   *************************************************************************************/
 
-  const { errors } = useGeneral()
+  const { haveErrors } = useGeneral()
   const { account, library } = useWallet()
   const { activeNetwork, findNetworkByChainId, chainId } = useNetwork()
   const { setSelectedProtocolByName } = useContracts()
-  const { userPolicyData, latestBlock, tokenPositionData } = useCachedData()
+  const { userPolicyData, latestBlock, tokenPosData } = useCachedData()
   const { width } = useWindowDimensions()
-
-  /*************************************************************************************
-
-  useState hooks
-
-  *************************************************************************************/
   const [showManageModal, setShowManageModal] = useState<boolean>(false)
   const [selectedPolicy, setSelectedPolicy] = useState<Policy | undefined>(undefined)
   const [selectablePositions, setSelectablePositions] = useState<Position[]>([])
   const [selectedPositions, setSelectedPositions] = useState<Position[]>(positions)
   const [fetchedPositions, setFetchedPositions] = useState<Position[]>([])
   const [productLink, setProductLink] = useState<string | undefined>(undefined)
-
-  /*************************************************************************************
-
-  useRef variables
-
-  *************************************************************************************/
   const canLoadOverTime = useRef(false)
 
   /*************************************************************************************
 
-  Local functions
+  local functions
 
   *************************************************************************************/
 
@@ -111,17 +105,16 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
 
   const handlePositionAddressFind = (selectedPosition: Position, positionToSelect: Position) => {
     switch (positionToSelect.type) {
-      case 'erc20':
+      case PositionType.TOKEN:
         const erc20Eq =
-          (selectedPosition.position as Token).underlying.address ==
-          (positionToSelect.position as Token).underlying.address
+          (selectedPosition.position as Token).token.address == (positionToSelect.position as Token).token.address
         return erc20Eq
-      case 'liquity':
+      case PositionType.LQTY:
         const liquityEq =
           (selectedPosition.position as LiquityPosition).positionAddress ==
           (positionToSelect.position as LiquityPosition).positionAddress
         return liquityEq
-      case 'other':
+      case PositionType.OTHER:
       default:
         return true
     }
@@ -129,23 +122,22 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
 
   const handleFetchPositions = async (supportedProduct: SupportedProduct, cache: NetworkCache): Promise<Position[]> => {
     if (!account || !library) return []
-    const savedPositions = cache.positions[supportedProduct.name].savedPositions
+    const savedPositions = cache.positionsCache[supportedProduct.name].positions
     switch (supportedProduct.positionsType) {
-      case 'erc20':
+      case PositionType.TOKEN:
         if (typeof supportedProduct.getBalances !== 'undefined') {
           const balances: Token[] = await supportedProduct.getBalances(
             account,
             library,
-            cache,
             activeNetwork,
             savedPositions.map((position) => position.position as Token)
           )
           return balances.map((balance) => {
-            return { type: 'erc20', position: balance }
+            return { type: PositionType.TOKEN, position: balance }
           })
         }
         return []
-      case 'liquity':
+      case PositionType.LQTY:
         if (typeof supportedProduct.getPositions !== 'undefined') {
           const positions: LiquityPosition[] = await supportedProduct.getPositions(
             account,
@@ -154,11 +146,11 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
             savedPositions.map((position) => position.position as LiquityPosition)
           )
           return positions.map((balance) => {
-            return { type: 'liquity', position: balance }
+            return { type: PositionType.LQTY, position: balance }
           })
         }
         return []
-      case 'other':
+      case PositionType.OTHER:
       default:
         return []
     }
@@ -195,13 +187,13 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
   }
 
   const getUserPositions = async () => {
-    if (!tokenPositionData.dataInitialized || !chainId) return
+    if (!tokenPosData.dataInitialized || !chainId) return
     if (findNetworkByChainId(chainId)) {
       try {
         const supportedProduct = activeNetwork.cache.supportedProducts.find((product) => product.name == protocol.name)
-        const cache = tokenPositionData.storedPositionData.find((dataset) => dataset.name == activeNetwork.name)
-        if (!supportedProduct || !cache) return
-        const _fetchedPositions = await handleFetchPositions(supportedProduct, cache)
+        const matchingCache = tokenPosData.storedPosData.find((dataset) => dataset.chainId == activeNetwork.chainId)
+        if (!supportedProduct || !matchingCache) return
+        const _fetchedPositions = await handleFetchPositions(supportedProduct, matchingCache)
         setFetchedPositions(_fetchedPositions)
         setForm({
           target: {
@@ -215,11 +207,13 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
     }
   }
 
-  const userHasActiveProductPosition = (product: string, position: string): boolean => {
+  const userHasActiveProductPosition = (product: string, address: string): boolean => {
+    const addr = address.startsWith('0x') ? address.slice(2).toLowerCase() : address.toLowerCase()
+
     for (const policy of userPolicyData.userPolicies) {
       if (
         product === policy.productName &&
-        policy.positionNames.includes(position) &&
+        policy.positionDescription.includes(addr) &&
         policy.status === PolicyState.ACTIVE
       )
         return true
@@ -269,7 +263,7 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
 
   useEffect(() => {
     const loadOverTime = async () => {
-      if (canLoadOverTime.current && tokenPositionData.dataInitialized) {
+      if (canLoadOverTime.current && tokenPosData.dataInitialized) {
         await getUserPositions()
       }
     }
@@ -279,27 +273,21 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
   useEffect(() => {
     setSelectablePositions(
       fetchedPositions.filter((position: Position) => {
-        let positionStr = ''
+        let addr = ''
         switch (position.type) {
-          case 'erc20':
-            positionStr = (position.position as Token).underlying.symbol
+          case PositionType.TOKEN:
+            addr = (position.position as Token).token.address
             break
-          case 'liquity':
-            positionStr = (position.position as LiquityPosition).positionName
+          case PositionType.LQTY:
+            addr = (position.position as LiquityPosition).positionAddress
             break
-          case 'other':
+          case PositionType.OTHER:
           default:
         }
-        return !userHasActiveProductPosition(protocol.name, positionStr)
+        return !userHasActiveProductPosition(protocol.name, addr)
       })
     )
   }, [fetchedPositions, protocol.name])
-
-  /*************************************************************************************
-
-  Render
-
-  *************************************************************************************/
 
   return (
     <Fragment>
@@ -324,7 +312,7 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
       {!loading && !userPolicyData.policiesLoading ? (
         <Fragment>
           {selectablePositions.length > 0 && (
-            <ButtonWrapper style={{ marginTop: '0' }} isColumn={width <= END_BREAKPOINT_3}>
+            <ButtonWrapper style={{ marginTop: '0' }} isColumn={width <= BKPT_3}>
               <Button widthP={100} secondary onClick={() => toggleSelectAll()}>
                 {selectedPositions.length == selectablePositions.length
                   ? `Deselect All (${selectablePositions.length} available)`
@@ -338,22 +326,26 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
           {fetchedPositions.length > 0 && (
             <Scrollable maxMobileHeight={65}>
               <CardContainer>
-                {fetchedPositions.map((position: Position) => {
-                  const isActive = userHasActiveProductPosition(
-                    protocol.name,
-                    (position.position as LiquityPosition).positionName
-                  )
-                  const isSelected = selectedPositions.some(
-                    (selectedPosition) =>
-                      (selectedPosition.position as LiquityPosition).positionAddress ==
-                      (position.position as LiquityPosition).positionAddress
-                  )
-                  const lightText = isSelected || isActive
-
-                  if (position.type == 'erc20')
+                {fetchedPositions.map((position: Position, i) => {
+                  if (position.type == PositionType.TOKEN) {
+                    const metadata = (position.position as Token).metadata
+                    if (metadata && metadata.tokenType && metadata.tokenType == 'nft') {
+                      return (
+                        <NftPositionCard
+                          key={i}
+                          position={position}
+                          protocolName={protocol.name}
+                          selectedPositions={selectedPositions}
+                          userPolicies={userPolicyData.userPolicies}
+                          openManageModal={openManageModal}
+                          handleSelect={handleSelect}
+                          userHasActiveProductPosition={userHasActiveProductPosition}
+                        />
+                      )
+                    }
                     return (
                       <TokenPositionCard
-                        key={(position.position as Token).underlying.address}
+                        key={i}
                         position={position}
                         protocolName={protocol.name}
                         selectedPositions={selectedPositions}
@@ -363,7 +355,18 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
                         userHasActiveProductPosition={userHasActiveProductPosition}
                       />
                     )
-                  if (position.type == 'liquity')
+                  }
+                  if (position.type == PositionType.LQTY) {
+                    const isActive = userHasActiveProductPosition(
+                      protocol.name,
+                      (position.position as LiquityPosition).positionAddress
+                    )
+                    const isSelected = selectedPositions.some(
+                      (selectedPosition) =>
+                        (selectedPosition.position as LiquityPosition).positionAddress ==
+                        (position.position as LiquityPosition).positionAddress
+                    )
+                    const lightText = isSelected || isActive
                     return (
                       <PositionCard
                         key={(position.position as LiquityPosition).positionAddress}
@@ -371,7 +374,7 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
                         glow={isSelected}
                         fade={isActive}
                         onClick={
-                          errors.length > 0
+                          haveErrors
                             ? undefined
                             : isActive
                             ? () =>
@@ -379,7 +382,9 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
                                   userPolicyData.userPolicies.filter(
                                     (policy) =>
                                       policy.productName == protocol.name &&
-                                      policy.positionNames.includes((position.position as LiquityPosition).positionName)
+                                      policy.positionDescription.includes(
+                                        (position.position as LiquityPosition).positionAddress
+                                      )
                                   )[0]
                                 )
                             : () => handleSelect(position)
@@ -425,21 +430,22 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
                         </PositionCardText>
                         <PositionCardButton>
                           {isActive ? (
-                            <Button widthP={width > END_BREAKPOINT_3 ? undefined : 100} light>
+                            <Button widthP={width > BKPT_3 ? undefined : 100} light>
                               Manage
                             </Button>
                           ) : isSelected ? (
-                            <Button widthP={width > END_BREAKPOINT_3 ? undefined : 100} light>
+                            <Button widthP={width > BKPT_3 ? undefined : 100} light>
                               {'Deselect'}
                             </Button>
                           ) : (
-                            <Button widthP={width > END_BREAKPOINT_3 ? undefined : 100} info>
+                            <Button widthP={width > BKPT_3 ? undefined : 100} info>
                               {'Select'}
                             </Button>
                           )}
                         </PositionCardButton>
                       </PositionCard>
                     )
+                  }
                 })}
               </CardContainer>
             </Scrollable>

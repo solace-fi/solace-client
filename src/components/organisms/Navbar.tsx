@@ -9,18 +9,17 @@
     import components
     import hooks
 
-    SideNavbar function
-      Render
+    SideNavbar
+      hooks
 
-    TopNavbar function
-      custom hooks
+    TopNavbar
+      hooks
       useEffect hooks
-      Render
 
   *************************************************************************************/
 
 /* import react */
-import React, { useEffect, useState } from 'react'
+import React, { Fragment, useEffect, useMemo, useState } from 'react'
 
 /* import packages */
 import { useLocation } from 'react-router'
@@ -29,7 +28,7 @@ import { useLocation } from 'react-router'
 import { useGeneral } from '../../context/GeneralProvider'
 
 /* import constants */
-import { END_BREAKPOINT_3 } from '../../constants'
+import { BKPT_3, BKPT_NAVBAR } from '../../constants'
 
 /* import components */
 import { SidebarItem, TopNav, ItemText, ItemList, SidebarText } from '../atoms/Navbar'
@@ -53,31 +52,32 @@ import { Text, TextSpan } from '../atoms/Typography'
 import { HyperLink } from '../atoms/Link'
 import { ThemeButton } from '../molecules/ThemeButton'
 import { HorizRule } from '../atoms/Layout'
+import { MiniUserAccount, UserAccount } from './Account'
+import { StyledNavTooltip } from '../molecules/Tooltip'
+import { StaticMessage } from '../atoms/Message'
 
 /* import hooks */
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'
-import { MiniUserAccount, UserAccount } from './Account'
-import { StyledNavTooltip } from '../molecules/Tooltip'
 
 interface SideNavbarProps {
   isMobile?: Boolean
 }
 
 export const SideNavbar: React.FC<SideNavbarProps> = ({ isMobile }) => {
+  /*
+
+  hooks
+
+  */
   const location = useLocation()
   const { width } = useWindowDimensions()
-
-  const miniNavbarMarginSet = {
-    marginLeft: width <= END_BREAKPOINT_3 ? 'auto' : 'unset',
-    marginRight: width <= END_BREAKPOINT_3 ? 'auto' : 'unset',
-  }
-  const lightText = location.pathname == '/' || !!isMobile
-
-  /*************************************************************************************
-
-    Render
-
-  *************************************************************************************/
+  const miniNavbarMarginSet = useMemo(() => {
+    return {
+      marginLeft: width <= BKPT_3 ? 'auto' : 'unset',
+      marginRight: width <= BKPT_3 ? 'auto' : 'unset',
+    }
+  }, [width])
+  const lightText = useMemo(() => location.pathname == '/' || !!isMobile, [isMobile, location])
 
   return (
     <div
@@ -97,7 +97,7 @@ export const SideNavbar: React.FC<SideNavbarProps> = ({ isMobile }) => {
           flexDirection: 'column',
         }}
       >
-        {width > END_BREAKPOINT_3 ? (
+        {width > BKPT_3 ? (
           <>
             <Logo location={location} mb={35} />
             <UserAccount light={location.pathname == '/'} />
@@ -116,7 +116,7 @@ export const SideNavbar: React.FC<SideNavbarProps> = ({ isMobile }) => {
             <ItemText>
               <SidebarItem to={'/dashboard'} style={miniNavbarMarginSet}>
                 <Text info={location.pathname == '/dashboard'} light={lightText}>
-                  {width > END_BREAKPOINT_3 ? 'Dashboard' : <StyledDashboard size={30} />}
+                  {width > BKPT_3 ? 'Dashboard' : <StyledDashboard size={30} />}
                 </Text>
               </SidebarItem>
             </ItemText>
@@ -125,7 +125,7 @@ export const SideNavbar: React.FC<SideNavbarProps> = ({ isMobile }) => {
             <ItemText>
               <SidebarItem to={'/quote'} style={miniNavbarMarginSet}>
                 <Text info={location.pathname == '/quote'} light={lightText}>
-                  {width > END_BREAKPOINT_3 ? 'Buy Cover' : <StyledFileShield size={30} />}
+                  {width > BKPT_3 ? 'Buy Cover' : <StyledFileShield size={30} />}
                 </Text>
               </SidebarItem>
             </ItemText>
@@ -134,7 +134,7 @@ export const SideNavbar: React.FC<SideNavbarProps> = ({ isMobile }) => {
             <ItemText>
               <SidebarItem to={'/invest'} style={miniNavbarMarginSet}>
                 <Text info={location.pathname == '/invest'} light={lightText}>
-                  {width > END_BREAKPOINT_3 ? 'Invest' : <StyledCoinStack size={30} />}
+                  {width > BKPT_3 ? 'Invest' : <StyledCoinStack size={30} />}
                 </Text>
               </SidebarItem>
             </ItemText>
@@ -143,7 +143,7 @@ export const SideNavbar: React.FC<SideNavbarProps> = ({ isMobile }) => {
             <ItemText>
               <SidebarItem to={'/govern'} style={miniNavbarMarginSet}>
                 <Text info={location.pathname == '/govern'} light={lightText}>
-                  {width > END_BREAKPOINT_3 ? 'Govern' : <StyledCommunity size={30} />}
+                  {width > BKPT_3 ? 'Govern' : <StyledCommunity size={30} />}
                 </Text>
               </SidebarItem>
             </ItemText>
@@ -161,7 +161,7 @@ export const SideNavbar: React.FC<SideNavbarProps> = ({ isMobile }) => {
               >
                 <SidebarText>
                   <TextSpan t4 light={lightText}>
-                    {width > END_BREAKPOINT_3 ? 'Docs' : <StyledDocuments size={30} />}
+                    {width > BKPT_3 ? 'Docs' : <StyledDocuments size={30} />}
                   </TextSpan>
                 </SidebarText>
               </HyperLink>
@@ -177,7 +177,7 @@ export const SideNavbar: React.FC<SideNavbarProps> = ({ isMobile }) => {
               >
                 <SidebarText>
                   <TextSpan t4 light={lightText}>
-                    {width > END_BREAKPOINT_3 ? 'Whitepaper' : <StyledDocumentText size={30} />}
+                    {width > BKPT_3 ? 'Whitepaper' : <StyledDocumentText size={30} />}
                   </TextSpan>
                 </SidebarText>
               </HyperLink>
@@ -193,14 +193,14 @@ export const SideNavbar: React.FC<SideNavbarProps> = ({ isMobile }) => {
               >
                 <SidebarText>
                   <TextSpan t4 light={lightText}>
-                    {width > END_BREAKPOINT_3 ? 'Jobs' : <StyledWork size={30} />}
+                    {width > BKPT_3 ? 'Jobs' : <StyledWork size={30} />}
                   </TextSpan>
                 </SidebarText>
               </HyperLink>
             </ItemText>
           </StyledNavTooltip>
           <HorizRule location={location} />
-          {width > END_BREAKPOINT_3 ? (
+          {width > BKPT_3 ? (
             <ItemText style={{ padding: '4px 0', justifyContent: 'space-between' }}>
               <HyperLink
                 href={'https://discord.gg/7v8qsyepfu'}
@@ -348,101 +348,131 @@ export const TopNavbar: React.FC = () => {
   *************************************************************************************/
 
   return (
-    <TopNav isOpen={isOpen}>
-      <Logo location={location} pl={10} />
-      <ItemList>
-        <SidebarItem onClick={() => setIsOpen(!isOpen)} to={'/dashboard'} style={{ padding: '20px 0' }}>
-          <Text light bold={location.pathname == '/dashboard'}>
-            Dashboard
-          </Text>
-        </SidebarItem>
-        <SidebarItem onClick={() => setIsOpen(!isOpen)} to={'/quote'} style={{ padding: '20px 0' }}>
-          <Text light bold={location.pathname == '/quote'}>
-            Buy Cover
-          </Text>
-        </SidebarItem>
-        <SidebarItem onClick={() => setIsOpen(!isOpen)} to={'/invest'} style={{ padding: '20px 0' }}>
-          <Text light bold={location.pathname == '/invest'}>
-            Invest
-          </Text>
-        </SidebarItem>
-        <SidebarItem onClick={() => setIsOpen(!isOpen)} to={'/govern'} style={{ padding: '20px 0' }}>
-          <Text light bold={location.pathname == '/govern'}>
-            Govern
-          </Text>
-        </SidebarItem>
-      </ItemList>
-      <hr />
-      <UserAccount light={location.pathname == '/'} />
-      <ItemList>
-        <ItemText style={{ padding: '10px', justifyContent: 'center' }}>
-          <SidebarItem to={'https://docs.solace.fi/'}>
-            <TextSpan t4 light>
-              Docs
-            </TextSpan>
+    <>
+      {width > BKPT_NAVBAR && (
+        <StaticMessage t4>
+          solace.fi{' '}
+          <HyperLink
+            href={'https://hacken.io/audits/#solace'}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ color: 'rgb(255, 132, 61)' }}
+          >
+            {' '}
+            was audited
+          </HyperLink>
+          . However, it is still experimental software. Please be careful using it.
+        </StaticMessage>
+      )}
+      <TopNav isOpen={isOpen}>
+        <Logo location={location} pl={10} />
+        <ItemList>
+          <StaticMessage t4 style={{ position: 'unset' }}>
+            solace.fi{' '}
+            <HyperLink
+              href={'https://hacken.io/audits/#solace'}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ color: 'rgb(255, 132, 61)' }}
+            >
+              {' '}
+              was audited
+            </HyperLink>
+            . However, it is still experimental software. Please be careful using it.
+          </StaticMessage>
+          <SidebarItem onClick={() => setIsOpen(!isOpen)} to={'/dashboard'} style={{ padding: '20px 0' }}>
+            <Text light bold={location.pathname == '/dashboard'}>
+              Dashboard
+            </Text>
           </SidebarItem>
-        </ItemText>
-        <ItemText style={{ padding: '10px', justifyContent: 'center' }}>
-          <SidebarItem to={'https://whitepaper.solace.fi/'}>
-            <TextSpan t4 light>
-              Whitepaper
-            </TextSpan>
+          <SidebarItem onClick={() => setIsOpen(!isOpen)} to={'/quote'} style={{ padding: '20px 0' }}>
+            <Text light bold={location.pathname == '/quote'}>
+              Buy Cover
+            </Text>
           </SidebarItem>
-        </ItemText>
-        <ItemText style={{ padding: '10px', justifyContent: 'center' }}>
-          <SidebarItem to={'https://angel.co/company/solace-fi/jobs'}>
-            <TextSpan t4 light>
-              Jobs
-            </TextSpan>
+          <SidebarItem onClick={() => setIsOpen(!isOpen)} to={'/invest'} style={{ padding: '20px 0' }}>
+            <Text light bold={location.pathname == '/invest'}>
+              Invest
+            </Text>
           </SidebarItem>
+          <SidebarItem onClick={() => setIsOpen(!isOpen)} to={'/govern'} style={{ padding: '20px 0' }}>
+            <Text light bold={location.pathname == '/govern'}>
+              Govern
+            </Text>
+          </SidebarItem>
+        </ItemList>
+        <HorizRule />
+        <UserAccount light={location.pathname == '/'} />
+        <ItemList>
+          <ItemText style={{ padding: '10px', justifyContent: 'center' }}>
+            <SidebarItem to={'https://docs.solace.fi/'}>
+              <TextSpan t4 light>
+                Docs
+              </TextSpan>
+            </SidebarItem>
+          </ItemText>
+          <ItemText style={{ padding: '10px', justifyContent: 'center' }}>
+            <SidebarItem to={'https://whitepaper.solace.fi/'}>
+              <TextSpan t4 light>
+                Whitepaper
+              </TextSpan>
+            </SidebarItem>
+          </ItemText>
+          <ItemText style={{ padding: '10px', justifyContent: 'center' }}>
+            <SidebarItem to={'https://angel.co/company/solace-fi/jobs'}>
+              <TextSpan t4 light>
+                Jobs
+              </TextSpan>
+            </SidebarItem>
+          </ItemText>
+        </ItemList>
+        <ItemText style={{ padding: '0', justifyContent: 'center', gap: '60px' }}>
+          <HyperLink
+            href={'https://discord.gg/7v8qsyepfu'}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ lineHeight: '0' }}
+          >
+            <SidebarText light>
+              <StyledDiscord size={20} />
+            </SidebarText>
+          </HyperLink>
+          <HyperLink
+            href={'https://twitter.com/solacefi'}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ lineHeight: '0' }}
+          >
+            <SidebarText light>
+              <StyledTwitter size={20} />
+            </SidebarText>
+          </HyperLink>
+          <HyperLink
+            href={'https://github.com/solace-fi'}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ lineHeight: '0' }}
+          >
+            <SidebarText light>
+              <StyledGithub size={20} />
+            </SidebarText>
+          </HyperLink>
+          <HyperLink
+            href={'https://medium.com/solace-fi'}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ lineHeight: '0' }}
+          >
+            <SidebarText light>
+              <StyledMedium size={20} />
+            </SidebarText>
+          </HyperLink>
         </ItemText>
-      </ItemList>
-      <ItemText style={{ padding: '0', justifyContent: 'center', gap: '60px' }}>
-        <HyperLink
-          href={'https://discord.gg/7v8qsyepfu'}
-          target="_blank"
-          rel="noopener noreferrer"
-          style={{ lineHeight: '0' }}
-        >
-          <SidebarText light>
-            <StyledDiscord size={20} />
-          </SidebarText>
-        </HyperLink>
-        <HyperLink
-          href={'https://twitter.com/solacefi'}
-          target="_blank"
-          rel="noopener noreferrer"
-          style={{ lineHeight: '0' }}
-        >
-          <SidebarText light>
-            <StyledTwitter size={20} />
-          </SidebarText>
-        </HyperLink>
-        <HyperLink
-          href={'https://github.com/solace-fi'}
-          target="_blank"
-          rel="noopener noreferrer"
-          style={{ lineHeight: '0' }}
-        >
-          <SidebarText light>
-            <StyledGithub size={20} />
-          </SidebarText>
-        </HyperLink>
-        <HyperLink
-          href={'https://medium.com/solace-fi'}
-          target="_blank"
-          rel="noopener noreferrer"
-          style={{ lineHeight: '0' }}
-        >
-          <SidebarText light>
-            <StyledMedium size={20} />
-          </SidebarText>
-        </HyperLink>
-      </ItemText>
-      <ThemeButton pt={10} light />
-      <NavButton light onClick={() => setIsOpen(!isOpen)}>
-        <StyledMenu size={40} />
-      </NavButton>
-    </TopNav>
+        <ThemeButton pt={10} light />
+        <NavButton light onClick={() => setIsOpen(!isOpen)}>
+          <StyledMenu size={40} />
+        </NavButton>
+      </TopNav>
+    </>
   )
 }

@@ -1,6 +1,6 @@
 import styled, { css } from 'styled-components'
 import { GeneralElementProps, GeneralElementCss } from '../../generalInterfaces'
-import { END_BREAKPOINT_3 } from '../../../constants'
+import { BKPT_3 } from '../../../constants'
 
 export interface TextFontProps {
   t1?: boolean
@@ -38,7 +38,7 @@ export interface GeneralTextProps extends TextFontProps, TextAlignProps, TextSty
 const Font1 = css`
   font-size: 24px;
 
-  @media screen and (max-width: ${END_BREAKPOINT_3}px) {
+  @media screen and (max-width: ${BKPT_3}px) {
     font-size: 22px;
   }
 `
@@ -46,7 +46,7 @@ const Font1 = css`
 const Font2 = css`
   font-size: 20px;
 
-  @media screen and (max-width: ${END_BREAKPOINT_3}px) {
+  @media screen and (max-width: ${BKPT_3}px) {
     font-size: 18px;
   }
 `
@@ -54,7 +54,7 @@ const Font2 = css`
 const Font3 = css`
   font-size: 16px;
 
-  @media screen and (max-width: ${END_BREAKPOINT_3}px) {
+  @media screen and (max-width: ${BKPT_3}px) {
     font-size: 14px;
   }
 `
@@ -62,7 +62,7 @@ const Font3 = css`
 const Font4 = css`
   font-size: 14px;
 
-  @media screen and (max-width: ${END_BREAKPOINT_3}px) {
+  @media screen and (max-width: ${BKPT_3}px) {
     font-size: 12px;
   }
 `

@@ -10,10 +10,9 @@
     import hooks
     import utils
 
-    MyPolicies function
-      custom hooks
-      Local functions
-      Render
+    MyPolicies
+      hooks
+      local functions
 
   *************************************************************************************/
 
@@ -22,6 +21,7 @@ import React, { Fragment } from 'react'
 
 /* import packages */
 import { formatUnits } from '@ethersproject/units'
+import { Block } from '@ethersproject/contracts/node_modules/@ethersproject/abstract-provider'
 
 /* import managers */
 import { useCachedData } from '../../context/CachedDataManager'
@@ -29,7 +29,7 @@ import { useNetwork } from '../../context/NetworkManager'
 
 /* import constants */
 import { Policy } from '../../constants/types'
-import { END_BREAKPOINT_5 } from '../../constants'
+import { BKPT_5 } from '../../constants'
 import { PolicyState } from '../../constants/enums'
 
 /* import components */
@@ -40,6 +40,7 @@ import { FlexCol, FlexRow } from '../atoms/Layout'
 import { Card, CardContainer } from '../atoms/Card'
 import { FormRow, FormCol } from '../atoms/Form'
 import { DeFiAssetImage } from '../atoms/DeFiAsset'
+import { StyledDots } from '../atoms/Icon'
 
 /* import hooks */
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'
@@ -47,18 +48,17 @@ import { useWindowDimensions } from '../../hooks/useWindowDimensions'
 /* import utils */
 import { truncateBalance } from '../../utils/formatting'
 import { getDaysLeft, getExpiration } from '../../utils/time'
-import { StyledDots } from '../atoms/Icon'
 
 interface MyPoliciesProps {
   openClaimModal: any
   openManageModal: any
-  latestBlock: number
+  latestBlock: Block | undefined
 }
 
 export const MyPolicies: React.FC<MyPoliciesProps> = ({ openClaimModal, openManageModal, latestBlock }) => {
   /*************************************************************************************
 
-    custom hooks
+    hooks
 
   *************************************************************************************/
   const { userPolicyData } = useCachedData()
@@ -67,28 +67,26 @@ export const MyPolicies: React.FC<MyPoliciesProps> = ({ openClaimModal, openMana
 
   /*************************************************************************************
 
-    Local functions
+    local functions
 
   *************************************************************************************/
   const calculatePolicyExpirationDate = (expirationBlock: number): string => {
-    if (latestBlock == 0) return 'Fetching...'
-    const daysLeft = getDaysLeft(expirationBlock, latestBlock)
+    if (!latestBlock) return 'Fetching...'
+    const daysLeft = getDaysLeft(expirationBlock, latestBlock.number)
     return getExpiration(daysLeft)
   }
 
   const shouldWarnUser = (policy: Policy): boolean => {
-    return policy.status === PolicyState.ACTIVE && getDaysLeft(policy.expirationBlock, latestBlock) <= 1
+    return (
+      policy.status === PolicyState.ACTIVE &&
+      getDaysLeft(policy.expirationBlock, latestBlock ? latestBlock.number : 0) <= 1
+    )
   }
 
-  /*************************************************************************************
-
-    Render
-
-  *************************************************************************************/
   return (
     <Fragment>
       {userPolicyData.userPolicies.length > 0 ? (
-        width > END_BREAKPOINT_5 ? (
+        width > BKPT_5 ? (
           <Table textAlignCenter style={{ borderSpacing: '0px 7px' }}>
             <TableHead sticky>
               <TableRow>
@@ -157,7 +155,6 @@ export const MyPolicies: React.FC<MyPoliciesProps> = ({ openClaimModal, openMana
                       {policy.status === PolicyState.ACTIVE && (
                         <TableDataGroup>
                           <Button
-                            glow={policy.claimAssessment && policy.claimAssessment.lossEventDetected}
                             secondary={policy.claimAssessment && policy.claimAssessment.lossEventDetected}
                             onClick={() => openClaimModal(policy)}
                             info
@@ -239,7 +236,12 @@ export const MyPolicies: React.FC<MyPoliciesProps> = ({ openClaimModal, openMana
                   </FormRow>
                   {policy.status === PolicyState.ACTIVE && (
                     <ButtonWrapper isColumn>
-                      <Button widthP={100} onClick={() => openClaimModal(policy)} info>
+                      <Button
+                        widthP={100}
+                        onClick={() => openClaimModal(policy)}
+                        secondary={policy.claimAssessment && policy.claimAssessment.lossEventDetected}
+                        info
+                      >
                         Claim
                       </Button>
                       <Button widthP={100} onClick={() => openManageModal(policy)} info>

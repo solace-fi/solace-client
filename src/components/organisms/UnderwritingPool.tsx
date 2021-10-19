@@ -10,9 +10,8 @@
     import hooks
     import utils
 
-    RiskBackingCapitalPool function
-      custom hooks
-      Render
+    UnderwritingPool
+      hooks
 
   *************************************************************************************/
 
@@ -28,7 +27,7 @@ import { useNetwork } from '../../context/NetworkManager'
 import { useGeneral } from '../../context/GeneralProvider'
 
 /* import constants */
-import { CP_ROI, END_BREAKPOINT_6 } from '../../constants'
+import { CP_ROI, BKPT_4, BKPT_6 } from '../../constants'
 import { FunctionName } from '../../constants/enums'
 
 /* import components */
@@ -38,7 +37,6 @@ import { Table, TableHead, TableRow, TableHeader, TableBody, TableData, TableDat
 import { Button, ButtonWrapper } from '../atoms/Button'
 import { Card } from '../atoms/Card'
 import { FormRow, FormCol } from '../atoms/Form'
-import { StyledTooltip } from '../molecules/Tooltip'
 
 /* import hooks */
 import { useCapitalPoolSize, useUserVaultDetails } from '../../hooks/useVault'
@@ -47,33 +45,27 @@ import { useWindowDimensions } from '../../hooks/useWindowDimensions'
 /* import utils */
 import { floatUnits, truncateBalance } from '../../utils/formatting'
 
-interface RiskBackingCapitalPoolProps {
+interface UnderwritingPoolProps {
   openModal: (func: FunctionName, modalTitle: string) => void
 }
 
-export const RiskBackingCapitalPool: React.FC<RiskBackingCapitalPoolProps> = ({ openModal }) => {
+export const UnderwritingPool: React.FC<UnderwritingPoolProps> = ({ openModal }) => {
   /*************************************************************************************
 
-  custom hooks
+  hooks
 
   *************************************************************************************/
 
-  const { errors } = useGeneral()
+  const { haveErrors } = useGeneral()
   const { account } = useWallet()
   const { userVaultAssets, userVaultShare } = useUserVaultDetails()
   const capitalPoolSize = useCapitalPoolSize()
   const { width } = useWindowDimensions()
   const { currencyDecimals } = useNetwork()
 
-  /*************************************************************************************
-
-  Render
-
-  *************************************************************************************/
-
   return (
     <Content>
-      <Text bold t1 mb={0}>
+      <Text bold t1 mb={0} info>
         Underwriting Pool{' '}
         {/* <StyledTooltip
           id={'underwriting-pool'}
@@ -83,13 +75,13 @@ export const RiskBackingCapitalPool: React.FC<RiskBackingCapitalPoolProps> = ({ 
       <Text t4 pb={10}>
         This pool allows Solace to back risks and fulfill claims for policies
       </Text>
-      {width > END_BREAKPOINT_6 ? (
+      {width > BKPT_6 ? (
         <Table isHighlight textAlignCenter>
           <TableHead>
             <TableRow>
               {account ? <TableHeader width={100}>Your Assets</TableHeader> : null}
               <TableHeader width={100}>Total Assets</TableHeader>
-              <TableHeader width={100}>ROI (1Y)</TableHeader>
+              {/* <TableHeader width={100}>ROI (1Y)</TableHeader> */}
               {account ? <TableHeader width={130}>Your Vault Share</TableHeader> : null}
             </TableRow>
           </TableHead>
@@ -103,23 +95,19 @@ export const RiskBackingCapitalPool: React.FC<RiskBackingCapitalPoolProps> = ({ 
               <TableData t3 width={100}>
                 {truncateBalance(floatUnits(parseUnits(capitalPoolSize, currencyDecimals), currencyDecimals), 2)}
               </TableData>
-              <TableData t3 width={100}>
+              {/* <TableData t3 width={100}>
                 {CP_ROI}
-              </TableData>
+              </TableData> */}
               {account ? <TableData t3 width={130}>{`${truncateBalance(userVaultShare, 2)}%`}</TableData> : null}
               {account ? (
                 <TableData textAlignRight>
                   <TableDataGroup width={200} style={{ float: 'right' }}>
-                    <Button
-                      light
-                      disabled={errors.length > 0}
-                      onClick={() => openModal(FunctionName.DEPOSIT_ETH, 'Deposit')}
-                    >
+                    <Button light disabled={haveErrors} onClick={() => openModal(FunctionName.DEPOSIT_ETH, 'Deposit')}>
                       Deposit
                     </Button>
                     <Button
                       light
-                      disabled={errors.length > 0}
+                      disabled={haveErrors}
                       onClick={() => openModal(FunctionName.WITHDRAW_ETH, 'Withdraw')}
                     >
                       Withdraw
@@ -132,39 +120,45 @@ export const RiskBackingCapitalPool: React.FC<RiskBackingCapitalPoolProps> = ({ 
         </Table>
       ) : (
         // tablet version
-        <Card>
+        <Card isHighlight>
           {account && (
             <FormRow>
-              <FormCol>Your Assets:</FormCol>
-              <FormCol t2>{truncateBalance(userVaultAssets, 2)}</FormCol>
+              <FormCol light>Your Assets:</FormCol>
+              <FormCol light t2>
+                {truncateBalance(userVaultAssets, 2)}
+              </FormCol>
             </FormRow>
           )}
           <FormRow>
-            <FormCol>Total Assets:</FormCol>
-            <FormCol t2>
+            <FormCol light>Total Assets:</FormCol>
+            <FormCol light t2>
               {truncateBalance(floatUnits(parseUnits(capitalPoolSize, currencyDecimals), currencyDecimals), 2)}
             </FormCol>
           </FormRow>
           <FormRow>
-            <FormCol>ROI:</FormCol>
-            <FormCol t2>{CP_ROI}</FormCol>
+            <FormCol light>ROI:</FormCol>
+            <FormCol light t2>
+              {CP_ROI}
+            </FormCol>
           </FormRow>
           <FormRow>
-            <FormCol>Your Vault Share:</FormCol>
-            <FormCol t2>{`${truncateBalance(userVaultShare, 2)}%`}</FormCol>
+            <FormCol light>Your Vault Share:</FormCol>
+            <FormCol light t2>{`${truncateBalance(userVaultShare, 2)}%`}</FormCol>
           </FormRow>
-          <ButtonWrapper isColumn>
+          <ButtonWrapper isColumn={width <= BKPT_4}>
             <Button
               widthP={100}
-              disabled={errors.length > 0}
+              disabled={haveErrors}
               onClick={() => openModal(FunctionName.DEPOSIT_ETH, 'Deposit')}
+              light
             >
               Deposit
             </Button>
             <Button
               widthP={100}
-              disabled={errors.length > 0}
+              disabled={haveErrors}
               onClick={() => openModal(FunctionName.WITHDRAW_ETH, 'Withdraw')}
+              light
             >
               Withdraw
             </Button>

@@ -1,4 +1,18 @@
+/*************************************************************************************
+
+    Table of Contents:
+
+    import react
+    import components
+
+    Govern
+
+  *************************************************************************************/
+
+/* import react */
 import React from 'react'
+
+/* import components */
 import { HeroContainer } from '../../components/atoms/Layout'
 import { HyperLink } from '../../components/atoms/Link'
 import { Text } from '../../components/atoms/Typography'

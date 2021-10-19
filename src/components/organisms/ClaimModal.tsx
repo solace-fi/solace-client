@@ -10,13 +10,11 @@
     import hooks
     import utils
 
-    ClaimModal function
-      useState hooks
-      custom hooks
+    ClaimModal
+      hooks
       contract functions
       local functions
       useEffect hooks
-      Render
 
   *************************************************************************************/
 
@@ -25,6 +23,7 @@ import React, { Fragment, useCallback, useEffect, useState, useRef } from 'react
 
 /* import packages */
 import { formatUnits } from '@ethersproject/units'
+import { Block } from '@ethersproject/contracts/node_modules/@ethersproject/abstract-provider'
 
 /* import managers */
 import { useCachedData } from '../../context/CachedDataManager'
@@ -42,61 +41,54 @@ import { Loader } from '../atoms/Loader'
 import { SmallBox, Box } from '../atoms/Box'
 import { Button, ButtonWrapper } from '../atoms/Button'
 import { Table, TableBody, TableRow, TableData } from '../atoms/Table'
+import { HyperLink } from '../atoms/Link'
 
 /* import constants */
 import { FunctionName, TransactionCondition, Unit } from '../../constants/enums'
-import { GAS_LIMIT, END_BREAKPOINT_3 } from '../../constants'
+import { GAS_LIMIT, BKPT_3 } from '../../constants'
 import { Policy, ClaimAssessment } from '../../constants/types'
 
 /* import hooks */
 import { useGetCooldownPeriod } from '../../hooks/useClaimsEscrow'
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'
-import { useAppraisePosition } from '../../hooks/usePolicy'
+import { useAppraisePolicyPosition } from '../../hooks/usePolicy'
 import { useGasConfig } from '../../hooks/useGas'
 
 /* import utils */
 import { truncateBalance } from '../../utils/formatting'
 import { timeToDateText } from '../../utils/time'
 import { getClaimAssessment } from '../../utils/paclas'
-import { HyperLink } from '../atoms/Link'
 
 interface ClaimModalProps {
   closeModal: () => void
   isOpen: boolean
-  latestBlock: number
+  latestBlock: Block | undefined
   selectedPolicy: Policy | undefined
 }
 
 export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, closeModal, latestBlock }) => {
   /*************************************************************************************
 
-    useState hooks
+    hooks
 
   *************************************************************************************/
   const [modalLoading, setModalLoading] = useState<boolean>(true)
   const [claimSubmitted, setClaimSubmitted] = useState<boolean>(false)
   const [assessment, setAssessment] = useState<ClaimAssessment | undefined>(undefined)
-
-  /*************************************************************************************
-
-    custom hooks
-
-  *************************************************************************************/
-
   const cooldown = useGetCooldownPeriod()
   const { addLocalTransactions, reload, gasPrices, userPolicyData } = useCachedData()
   const { selectedProtocol } = useContracts()
   const { makeTxToast } = useToasts()
-  const { errors } = useGeneral()
+  const { haveErrors } = useGeneral()
   const { activeNetwork, currencyDecimals, chainId } = useNetwork()
   const { width } = useWindowDimensions()
   const { gasConfig } = useGasConfig(gasPrices.selected?.value)
-  const appraisal = useAppraisePosition(selectedPolicy)
+  const appraisal = useAppraisePolicyPosition(selectedPolicy)
   const mounting = useRef(true)
 
   /*************************************************************************************
 
-    Contract functions
+    contract functions
 
   *************************************************************************************/
 
@@ -174,12 +166,6 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
     loadOverTime()
   }, [selectedPolicy])
 
-  /*************************************************************************************
-
-    Render
-
-  *************************************************************************************/
-
   return (
     <Modal isOpen={isOpen} handleClose={handleClose} modalTitle={'Policy Claim'} disableCloseButton={modalLoading}>
       <Fragment>
@@ -187,7 +173,7 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
         {!modalLoading ? (
           assessment ? (
             <Fragment>
-              {width > END_BREAKPOINT_3 && (
+              {width > BKPT_3 && (
                 <FormRow mb={0}>
                   <FormCol>
                     <Text t4 autoAlign nowrap>
@@ -200,7 +186,7 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
               <FormRow mb={0}>
                 <FormCol>
                   <Text t4 autoAlign nowrap>
-                    {width > END_BREAKPOINT_3 ? 'pre-exploit assets value equal to' : 'Receiving'}
+                    {width > BKPT_3 ? 'pre-exploit assets value equal to' : 'Receiving'}
                   </Text>
                 </FormCol>
                 <FormCol>
@@ -248,10 +234,10 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
                   </Text>
                 </Box>
               ) : (
-                <ButtonWrapper isColumn={width < END_BREAKPOINT_3}>
+                <ButtonWrapper isColumn={width < BKPT_3}>
                   <Button
                     widthP={100}
-                    disabled={errors.length > 0 || !assessment.lossEventDetected}
+                    disabled={haveErrors || !assessment.lossEventDetected}
                     onClick={() => submitClaim()}
                     info
                   >
@@ -263,7 +249,7 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
                     rel="noopener noreferrer"
                     style={{ width: '100%' }}
                   >
-                    <Button widthP={100} disabled={errors.length > 0 || !assessment.lossEventDetected} info>
+                    <Button widthP={100} disabled={haveErrors || !assessment.lossEventDetected} info>
                       Dispute Claim
                     </Button>
                   </HyperLink>

@@ -6,13 +6,9 @@
     import managers
     import constants
     import components
-    import hooks
 
-    styled components
-
-    WalletConnectButton function
-      custom hooks
-      Render
+    WalletConnectButton
+      hooks
 
   *************************************************************************************/
 
@@ -34,16 +30,11 @@ import { GeneralElementProps } from '../generalInterfaces'
 export const WalletConnectButton: React.FC<GeneralElementProps & ButtonProps> = ({ ...props }) => {
   /*************************************************************************************
 
-    custom hooks
+   hooks
 
   *************************************************************************************/
   const { isActive, openWalletModal } = useWallet()
 
-  /*************************************************************************************
-
-    Render
-
-  *************************************************************************************/
   return (
     <>
       <Button onClick={() => openWalletModal()} {...props}>

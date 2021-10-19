@@ -8,12 +8,11 @@
     import components
     import utils
 
-    AppToast function
-      Render
-    NotificationToast function
+    AppToast
+      
+    NotificationToast
       custom hooks
       local functions
-      Render
 
   *************************************************************************************/
 
@@ -31,7 +30,7 @@ import { TransactionCondition } from '../../constants/enums'
 import { Loader } from '../atoms/Loader'
 import { HyperLink } from '../atoms/Link'
 import { Button } from '../atoms/Button'
-import { ToastWrapper, FlexedToastMessage } from '../atoms/Toast'
+import { ToastWrapper, FlexedToastMessage } from '../atoms/Message'
 import { StyledCheckmark, StyledWarning } from '../atoms/Icon'
 
 /* import utils */
@@ -49,11 +48,6 @@ interface NotificationToastProps {
 }
 
 export const AppToast: React.FC<AppToastProps> = ({ message, icon }) => {
-  /*************************************************************************************
-
-    Render
-
-  *************************************************************************************/
   return (
     <ToastWrapper>
       {icon}
@@ -90,11 +84,6 @@ export const NotificationToast: React.FC<NotificationToastProps> = ({ message, c
     }
   }
 
-  /*************************************************************************************
-
-    Render
-
-  *************************************************************************************/
   return (
     <ToastWrapper>
       <FlexedToastMessage light>
@@ -111,7 +100,7 @@ export const NotificationToast: React.FC<NotificationToastProps> = ({ message, c
           </HyperLink>
         )}
         {condition == TransactionCondition.PENDING ? (
-          <Loader width={10} height={10} style={{ color: 'rgb(250, 250, 250)' }} />
+          <Loader width={10} height={10} isLight />
         ) : condition == TransactionCondition.SUCCESS ? (
           <StyledCheckmark size={30} />
         ) : (

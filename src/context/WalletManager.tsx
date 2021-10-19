@@ -17,6 +17,19 @@ import { WalletModal } from '../components/organisms/WalletModal'
 import { useNetwork } from './NetworkManager'
 import { MetamaskConnector } from '../wallet/wallet-connectors/MetaMask'
 import { useGeneral } from './GeneralProvider'
+import { getTokens as gT0 } from '../products/sushiswap/positionGetter/getTokens'
+import { getTokens as gT1 } from '../products/yearn/positionGetter/getTokens'
+import { getTokens as gT2 } from '../products/curve/positionGetter/getTokens'
+import { getTokens as gT3 } from '../products/uniswapV2/positionGetter/getTokens'
+import { getTokens as gT4 } from '../products/uniswapV3/positionGetter/getTokens'
+
+import { getBalances as gB0 } from '../products/sushiswap/positionGetter/getBalances'
+import { getBalances as gB1 } from '../products/yearn/positionGetter/getBalances'
+import { getBalances as gB2 } from '../products/curve/positionGetter/getBalances'
+import { getBalances as gB3 } from '../products/uniswapV2/positionGetter/getBalances'
+import { getBalances as gB4 } from '../products/uniswapV3/positionGetter/getBalances'
+
+import { ETHERSCAN_API_KEY } from '../constants'
 /*
 
 This Manager keeps track of the user's wallet and details, including the wallet type and account, 
@@ -98,7 +111,7 @@ const WalletProvider: React.FC = (props) => {
   }, [])
 
   const changeWallet = useCallback((walletConnector: WalletConnector) => {
-    // there were cases where changing wallets without changing the network does not give the correct balance in that network
+    // there were cases where changing wallets without changing the network does not pull data correctly in that network
     setSelectedProvider(walletConnector.id)
     window.location.reload()
   }, [])
@@ -199,6 +212,8 @@ const WalletProvider: React.FC = (props) => {
   useEffect(() => {
     if (!web3React.account || !web3React.library) return
     const checkForENS = async () => {
+      const network = await web3React.library.getNetwork()
+      if (!network.ensAddress) return
       const name = await web3React.library.lookupAddress(web3React.account)
       if (!name) return
       const address = await web3React.library.resolveName(name)
@@ -207,6 +222,44 @@ const WalletProvider: React.FC = (props) => {
     }
     checkForENS()
   }, [web3React.account, web3React.library])
+
+  useEffect(() => {
+    const testMainnet = async () => {
+      const provider = new JsonRpcProvider(
+        `https://eth-mainnet.alchemyapi.io/v2/${String(process.env.REACT_APP_ALCHEMY_API_KEY)}`
+      )
+      const sushiU = '0xC04F63Ea1E2E2FFEACAde7839E0596E2B886f6A4'
+      const curveU2 = '0x53C40473DcdFd927C4201cCFE24E314a7D7C3584'
+      const uniV2U = '0xC04F63Ea1E2E2FFEACAde7839E0596E2B886f6A4'
+      const uniV3U = '0xC04F63Ea1E2E2FFEACAde7839E0596E2B886f6A4'
+      const yearnU = '0x2b5989Dd16eA2a11053F35B8c08b1E313C4E5cbB'
+      const user = uniV3U
+      const url = `https://api.etherscan.io/api?module=account&action=tokentx&address=${user}&startblock=0&endblock=latest&apikey=${String(
+        ETHERSCAN_API_KEY
+      )}`
+      const transferHistory = await fetch(url)
+        .then((res) => res.json())
+        .then((result) => result.result)
+        .then((result) => {
+          if (result != 'Max rate limit reached') return result
+          return []
+        })
+      // const cachedTokens0 = await gT0(provider, activeNetwork, { user, transferHistory })
+      // const cachedTokens1 = await gT1(provider, activeNetwork, { user, transferHistory })
+      // const cachedTokens2 = await gT2(provider, activeNetwork, { user, transferHistory })
+      // const cachedTokens3 = await gT3(provider, activeNetwork, { user, transferHistory })
+      // const cachedTokens4 = await gT4(provider, activeNetwork, { user, transferHistory })
+      // console.log(cachedTokens4)
+      //const balances = await gB0(user, provider, activeNetwork, cachedTokens0)
+      //const balances = await gB1(user, provider, activeNetwork, cachedTokens1)
+      // const balances = await gB2(user, provider, activeNetwork, cachedTokens2)
+      //const balances = await gB3(user, provider, activeNetwork, cachedTokens3)
+      // const balances = await gB4(user, provider, activeNetwork, cachedTokens4)
+      // console.log(balances)
+      // console.log('fetched balances', balances)
+    }
+    testMainnet()
+  }, [])
 
   const value = useMemo<ContextWallet>(
     () => ({
