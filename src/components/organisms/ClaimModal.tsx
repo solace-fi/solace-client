@@ -148,7 +148,10 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
       if (!selectedPolicy || !isOpen) return
       setModalLoading(true)
       userPolicyData.setCanGetAssessments(false)
-      const assessment = await getClaimAssessment(String(selectedPolicy.policyId), chainId)
+      const assessment = await getClaimAssessment(String(selectedPolicy.policyId), chainId).catch((err) => {
+        console.log(err)
+        return undefined
+      })
       setAssessment(assessment)
       setModalLoading(false)
       mounting.current = false
@@ -160,7 +163,10 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
     const loadOverTime = async () => {
       if (!selectedPolicy || !isOpen || mounting.current) return
       userPolicyData.setCanGetAssessments(false)
-      const assessment = await getClaimAssessment(String(selectedPolicy.policyId), chainId)
+      const assessment = await getClaimAssessment(String(selectedPolicy.policyId), chainId).catch((err) => {
+        console.log(err)
+        return undefined
+      })
       setAssessment(assessment)
     }
     loadOverTime()
