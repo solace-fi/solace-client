@@ -82,7 +82,7 @@ export const getTokens = async (provider: any, activeNetwork: NetworkConfig, met
       }
     }
 
-    const token = {
+    const token: Token = {
       token: {
         address: apolloData.pools[i].lpToken.address,
         name: apolloData.pools[i].name,
@@ -97,6 +97,7 @@ export const getTokens = async (provider: any, activeNetwork: NetworkConfig, met
       metadata: {
         lpTokenName: apolloData.pools[i].lpToken.name,
       },
+      tokenType: 'token',
     }
     tokens.push(token)
   }

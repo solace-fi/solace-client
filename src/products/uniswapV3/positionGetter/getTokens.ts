@@ -110,8 +110,8 @@ export const getTokens = async (provider: any, activeNetwork: NetworkConfig, met
       eth: {
         balance: ZERO,
       },
+      tokenType: 'nft',
       metadata: {
-        tokenType: 'nft',
         tokenId: lpTokenId,
         tickLower: apolloData[i].tickLower.tickIdx,
         tickUpper: apolloData[i].tickUpper.tickIdx,

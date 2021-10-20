@@ -76,7 +76,7 @@ export const CapitalProviderPool: React.FC<CapitalProviderPoolProps> = ({ openMo
           link={'https://docs.solace.fi/docs/user-guides/capital-provider/cp-role-guide'}
         />{' '} */}
       </Text>
-      <Text t4 pb={10}>
+      <Text t4 pt={10} pb={10}>
         This pool rewards coverage underwriters with $SOLACE token call options.
         <HyperLink
           t4

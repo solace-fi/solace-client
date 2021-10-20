@@ -53,7 +53,7 @@ export const getTokens = async (provider: any, activeNetwork: NetworkConfig, met
   // assemble results
   const indices = rangeFrom0(ctokenAddresses.length)
   const tokens = indices.map((i) => {
-    return {
+    const _token: Token = {
       token: {
         address: ctokenAddresses[i],
         name: ctokenNames[i],
@@ -73,7 +73,9 @@ export const getTokens = async (provider: any, activeNetwork: NetworkConfig, met
       eth: {
         balance: ZERO,
       },
+      tokenType: 'token',
     }
+    return _token
   })
   return tokens
 }

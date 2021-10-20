@@ -1,4 +1,4 @@
-import { providers } from 'ethers'
+import { providers, utils } from 'ethers'
 import { Contract } from '@ethersproject/contracts'
 import { ZERO } from '../../../constants'
 import { NetworkConfig, Token } from '../../../constants/types'
@@ -60,13 +60,11 @@ const generateTokensData = async (
     const [tokens, aTokens] = await Promise.all([helperContract.getAllReservesTokens(), helperContract.getAllATokens()])
     const promises = tokens.map(async (token, index) => {
       const [config] = await Promise.all([helperContract.getReserveConfigurationData(token.tokenAddress)])
-
       const aToken = aTokens[index]
       const aTokenContract = new Contract(aToken.tokenAddress, ierc20Json.abi, provider)
       const tokenContract = new Contract(token.tokenAddress, ierc20Json.abi, provider)
       const [aTokenName, tokenName] = await Promise.all([queryTokenName(aTokenContract), queryTokenName(tokenContract)])
-
-      return {
+      const _token: Token = {
         token: {
           address: aToken.tokenAddress,
           name: aTokenName,
@@ -86,7 +84,9 @@ const generateTokensData = async (
         eth: {
           balance: ZERO,
         },
+        tokenType: 'token',
       }
+      return _token
     })
 
     const result = await Promise.all(promises)
@@ -117,4 +117,6 @@ export const getTokens = async (provider: any, activeNetwork: NetworkConfig, met
 const queryTokenName = async (tokenContract: any) => {
   if (equalsIgnoreCase(tokenContract.address, eth)) return 'Ether'
   return await withBackoffRetries(async () => tokenContract.name())
+    .catch((res) => utils.parseBytes32String(res))
+    .catch((res) => 'Unreadable')
 }

@@ -182,7 +182,7 @@ export const getTokens = async (provider: any, activeNetwork: NetworkConfig, met
   ])
   const indices = rangeFrom0(vaultAddrs.length)
   indices.forEach((i) => {
-    tokens.push({
+    const token: Token = {
       token: {
         address: vaultAddrs[i],
         name: capitalizeFirstLetter(vNames[i]),
@@ -202,7 +202,9 @@ export const getTokens = async (provider: any, activeNetwork: NetworkConfig, met
       eth: {
         balance: ZERO,
       },
-    })
+      tokenType: 'token',
+    }
+    tokens.push(token)
   })
 
   return tokens
