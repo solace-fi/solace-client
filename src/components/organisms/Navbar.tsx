@@ -400,7 +400,7 @@ export const TopNavbar: React.FC = () => {
       <UserAccount light={location.pathname == '/'} />
       <ItemList>
         <ItemText style={{ padding: '10px', justifyContent: 'center' }}>
-          <HyperLink href={'https://github.com/solace-fi'} target="_blank" rel="noopener noreferrer">
+          <HyperLink href={'https://docs.solace.fi/'} target="_blank" rel="noopener noreferrer">
             <TextSpan t4 light>
               Docs
             </TextSpan>
