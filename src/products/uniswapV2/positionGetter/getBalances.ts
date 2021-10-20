@@ -2,6 +2,7 @@ import { NetworkConfig, Token } from '../../../constants/types'
 import { getProductTokenBalances, queryNativeTokenBalance } from '../../getBalances'
 import ierc20Json from '../../_contracts/IERC20Metadata.json'
 import { getContract } from '../../../utils'
+import { queryBalance } from '../../../utils/contract'
 import { ZERO } from '../../../constants'
 
 export const getBalances = async (
@@ -16,13 +17,13 @@ export const getBalances = async (
     const token0Contract = getContract(balances[i].underlying[0].address, ierc20Json.abi, provider)
     const token1Contract = getContract(balances[i].underlying[1].address, ierc20Json.abi, provider)
 
-    const bal0 = await token0Contract.balanceOf(balances[i].token.address)
-    const bal1 = await token1Contract.balanceOf(balances[i].token.address)
+    const bal0 = await queryBalance(token0Contract, balances[i].token.address)
+    const bal1 = await queryBalance(token1Contract, balances[i].token.address)
 
     const lpTokenContract = getContract(balances[i].token.address, ierc20Json.abi, provider)
 
     const totalSupply = await lpTokenContract.totalSupply()
-    const liquidity = await lpTokenContract.balanceOf(balances[i].token.address)
+    const liquidity = await queryBalance(lpTokenContract, balances[i].token.address)
 
     const adjustedLiquidity = liquidity.add(balances[i].token.balance)
 

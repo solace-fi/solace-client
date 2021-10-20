@@ -360,7 +360,7 @@ export const TopNavbar: React.FC = () => {
   *************************************************************************************/
 
   useEffect(() => {
-    if (location && location.pathname && location.pathname != '/') {
+    if (location && location.pathname && location.pathname != '/' && location.pathname != '/terms') {
       makeAppToast(
         {
           type: SystemNotice.AUDIT_NOTICE,

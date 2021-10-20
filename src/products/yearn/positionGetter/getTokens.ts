@@ -1,12 +1,13 @@
 import { NetworkConfig, Token } from '../../../constants/types'
 import { getContract } from '../../../utils'
+import { queryBalance, queryDecimals, queryName, querySymbol } from '../../../utils/contract'
 import { numberify, rangeFrom0 } from '../../../utils/numeric'
 import { ZERO } from '../../../constants'
 import ierc20Json from '../../_contracts/IERC20Metadata.json'
 import { capitalizeFirstLetter } from '../../../utils/formatting'
 import { withBackoffRetries } from '../../../utils/time'
 import { vaultAbi, yregistryAbi } from './_contracts/yearnAbis'
-import { BigNumber } from 'ethers'
+import { BigNumber, utils } from 'ethers'
 
 import { ApolloClient, InMemoryCache, gql } from '@apollo/client'
 
@@ -115,17 +116,17 @@ export const getTokens = async (provider: any, activeNetwork: NetworkConfig, met
   // for (let i = 0; i < vaultContracts.length; i++) {
   //   const vaultContract = vaultContracts[i]
 
-  //   const balance = await vaultContract.balanceOf(metadata.user)
+  //   const balance = await queryBalance(vaultContract, metadata.user)
 
   //   if (balance.gt(ZERO)) {
   //     const uTokenContract = uTokenContracts[i]
 
-  //     const vName = await vaultContract.name()
-  //     const vSymbol = await vaultContract.symbol()
-  //     const vDecimals = await vaultContract.decimals()
-  //     const uName = await uTokenContract.name()
-  //     const uSymbol = await uTokenContract.symbol()
-  //     const uDecimals = await uTokenContract.decimals()
+  //     const vName = await queryName(vaultContract)
+  //     const vSymbol = await querySymbol(vaultContract)
+  //     const vDecimals = await queryDecimals(vaultContract)
+  //     const uName = await queryName(uTokenContract)
+  //     const uSymbol = await querySymbol(uTokenContract)
+  //     const uDecimals = await queryDecimals(uTokenContract)
 
   //     const token = {
   //       token: {
@@ -173,12 +174,12 @@ export const getTokens = async (provider: any, activeNetwork: NetworkConfig, met
   ])
 
   const [vNames, vSymbols, vDecimals, uNames, uSymbols, uDecimals] = await Promise.all([
-    Promise.all(vaultContracts.map((contract: any) => queryTokenName(contract))),
-    Promise.all(vaultContracts.map((contract: any) => queryTokenSymbol(contract))),
-    Promise.all(vaultContracts.map((contract: any) => queryTokenDecimals(contract))),
-    Promise.all(uTokenContracts.map((contract: any) => queryTokenName(contract))),
-    Promise.all(uTokenContracts.map((contract: any) => queryTokenSymbol(contract))),
-    Promise.all(uTokenContracts.map((contract: any) => queryTokenDecimals(contract))),
+    Promise.all(vaultContracts.map(queryName)),
+    Promise.all(vaultContracts.map(querySymbol)),
+    Promise.all(vaultContracts.map(queryDecimals)),
+    Promise.all(uTokenContracts.map(queryName)),
+    Promise.all(uTokenContracts.map(querySymbol)),
+    Promise.all(uTokenContracts.map(queryDecimals)),
   ])
   const indices = rangeFrom0(vaultAddrs.length)
   indices.forEach((i) => {
@@ -208,16 +209,4 @@ export const getTokens = async (provider: any, activeNetwork: NetworkConfig, met
   })
 
   return tokens
-}
-
-const queryTokenName = async (tokenContract: any) => {
-  return await withBackoffRetries(async () => tokenContract.name())
-}
-
-const queryTokenSymbol = async (tokenContract: any) => {
-  return await withBackoffRetries(async () => tokenContract.symbol())
-}
-
-const queryTokenDecimals = async (tokenContract: any) => {
-  return await withBackoffRetries(async () => tokenContract.decimals().then(numberify))
 }

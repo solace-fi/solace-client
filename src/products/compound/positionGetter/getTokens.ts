@@ -9,6 +9,7 @@ import { equalsIgnoreCase } from '../../../utils'
 import { withBackoffRetries } from '../../../utils/time'
 import { numberify, rangeFrom0 } from '../../../utils/numeric'
 import comptrollerJson from './_contracts/IComptroller.json'
+import { queryName, querySymbol, queryDecimals, queryUnderLying as _queryUnderlying } from '../../../utils/contract'
 
 const eth = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
 let cEth = '0x4Ddc2D193948926D02f9B1fE9e1daa0718270ED5'
@@ -45,10 +46,10 @@ export const getTokens = async (provider: any, activeNetwork: NetworkConfig, met
   const [ctokenNames, ctokenSymbols, ctokenDecimals, utokenNames, utokenSymbols, utokenDecimals] = await Promise.all([
     Promise.all(ctokenContracts.map((contract: any) => queryTokenName(contract, provider))),
     Promise.all(ctokenContracts.map((contract: any) => queryTokenSymbol(contract, provider))),
-    Promise.all(ctokenContracts.map(queryTokenDecimals)),
+    Promise.all(ctokenContracts.map(queryDecimals)),
     Promise.all(utokenContracts.map((contract: any) => queryTokenName(contract, provider))),
     Promise.all(utokenContracts.map((contract: any) => queryTokenSymbol(contract, provider))),
-    Promise.all(utokenContracts.map(queryTokenDecimals)),
+    Promise.all(utokenContracts.map(queryDecimals)),
   ])
   // assemble results
   const indices = rangeFrom0(ctokenAddresses.length)
@@ -82,30 +83,25 @@ export const getTokens = async (provider: any, activeNetwork: NetworkConfig, met
 
 const queryUnderLying = async (ctokenContract: any) => {
   if (equalsIgnoreCase(ctokenContract.address, cEth)) return eth
-  return await withBackoffRetries(async () => ctokenContract.underlying())
+  return _queryUnderlying(ctokenContract)
 }
 
-const queryTokenName = async (tokenContract: any, provider: any) => {
+const queryTokenName = async (tokenContract: Contract, provider: any) => {
   if (equalsIgnoreCase(tokenContract.address, eth)) return 'Ether'
   try {
-    return await withBackoffRetries(async () => tokenContract.name())
+    return await withBackoffRetries(async () => queryName(tokenContract))
   } catch (e) {
     const tokenContractAlt = new Contract(tokenContract.address, ierc20altJson.abi, provider)
-    return await withBackoffRetries(async () => tokenContractAlt.name().then(utils.parseBytes32String))
+    return await withBackoffRetries(async () => queryName(tokenContractAlt))
   }
 }
 
 const queryTokenSymbol = async (tokenContract: any, provider: any) => {
   if (equalsIgnoreCase(tokenContract.address, eth)) return 'ETH'
   try {
-    return await withBackoffRetries(async () => tokenContract.symbol())
+    return await withBackoffRetries(async () => querySymbol(tokenContract))
   } catch (e) {
     const tokenContractAlt = new Contract(tokenContract.address, ierc20altJson.abi, provider)
-    return await withBackoffRetries(async () => tokenContractAlt.symbol().then(utils.parseBytes32String))
+    return await withBackoffRetries(async () => querySymbol(tokenContractAlt))
   }
-}
-
-const queryTokenDecimals = async (tokenContract: any) => {
-  if (equalsIgnoreCase(tokenContract.address, eth)) return 18
-  return await withBackoffRetries(async () => tokenContract.decimals().then(numberify))
 }

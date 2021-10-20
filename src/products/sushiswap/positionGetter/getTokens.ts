@@ -3,6 +3,8 @@ import { ETHERSCAN_API_KEY } from '../../../constants'
 import ierc20Json from '../../_contracts/IERC20Metadata.json'
 import { getContract } from '../../../utils'
 import { ZERO } from '../../../constants'
+import { numberify } from '../../../utils/numeric'
+import { queryBalance, queryDecimals } from '../../../utils/contract'
 
 import sushiLPTokenAbi from './_contracts/ISushiLPToken.json'
 
@@ -37,6 +39,7 @@ export const getTokens = async (provider: any, activeNetwork: NetworkConfig, met
       query pairs($addrs: [String]) {
         pairs(where: { id_in: $addrs }) {
           id
+          name
           token0 {
             id
             name
@@ -59,12 +62,14 @@ export const getTokens = async (provider: any, activeNetwork: NetworkConfig, met
 
   for (let i = 0; i < apolloData.data.pairs.length; i++) {
     const pair = apolloData.data.pairs[i]
+    const lpTokenContract = getContract(pair.id, ierc20Json.abi, provider)
+    const decimals = await queryDecimals(lpTokenContract)
     const token: Token = {
       token: {
         address: pair.id.toLowerCase(),
-        name: `${pair.token0.symbol}/${pair.token1.symbol}`,
+        name: pair.name,
         symbol: 'SLP',
-        decimals: 0,
+        decimals: decimals,
         balance: ZERO,
       },
       underlying: [
@@ -103,11 +108,11 @@ export const getTokens = async (provider: any, activeNetwork: NetworkConfig, met
   // for (let i = 0; i < uniqueSushiAddresses.length; i++) {
   //   const lpPairContract = getContract(uniqueSushiAddresses[i], sushiLPTokenAbi, provider)
 
-  //   const balance = await lpPairContract.balanceOf(metadata.user)
+  //   const balance = await queryBalance(lpPairContract, metadata.user)
   //   if (balance.gt(ZERO)) {
-  //     const pairName: string = await lpPairContract.name()
-  //     const pairSymbol: string = await lpPairContract.symbol()
-  //     const pairDecimals: number = await lpPairContract.decimals()
+  //     const pairName: string = await queryName(lpPairContract)
+  //     const pairSymbol: string = await querySymbol(lpPairContract)
+  //     const pairDecimals: number = await queryDecimals(lpPairContract)
 
   //     const token0 = await lpPairContract.token0()
   //     const token1 = await lpPairContract.token1()
@@ -116,12 +121,12 @@ export const getTokens = async (provider: any, activeNetwork: NetworkConfig, met
   //     const token1Contract = getContract(token1, ierc20Json.abi, provider)
 
   //     const [name0, symbol0, decimals0, name1, symbol1, decimals1] = await Promise.all([
-  //       await token0Contract.name(),
-  //       await token0Contract.symbol(),
-  //       await token0Contract.decimals(),
-  //       await token1Contract.name(),
-  //       await token1Contract.symbol(),
-  //       await token1Contract.decimals(),
+  //       await queryName(token0Contract),
+  //       await querySymbol(token0Contract),
+  //       await queryDecimals(token0Contract),
+  //       await queryName(token1Contract),
+  //       await querySymbol(token1Contract),
+  //       await queryDecimals(token1Contract),
   //     ])
 
   //     const token = {

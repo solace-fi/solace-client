@@ -15,6 +15,7 @@ import { ZERO } from '../../../constants'
 import curveRegistryAbi from '../../curve/positionGetter/_contracts/ICurveRegistry.json'
 import curveAddressProviderAbi from '../../curve/positionGetter/_contracts/ICurveAddressProvider.json'
 import curvePoolAbi from '../../curve/positionGetter/_contracts/ICurvePool.json'
+import { queryDecimals } from '../../../utils/contract'
 
 const CURVE_ADDRRESS_PROVIDER_ADDR = '0x0000000022D53366457F9d5E68Ec105046FC4383'
 
@@ -33,7 +34,7 @@ export const getBalances = async (
   const vaultContracts = balances.map((balance) => new Contract(balance.token.address, vaultAbi, provider))
   const [pricesPerShare, decimals] = await Promise.all([
     Promise.all(vaultContracts.map((contract: any) => contract.pricePerShare())),
-    Promise.all(vaultContracts.map((contract: any) => contract.decimals())),
+    Promise.all(vaultContracts.map(queryDecimals)),
   ])
 
   indices.forEach((i) => {

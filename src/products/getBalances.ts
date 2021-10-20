@@ -6,6 +6,7 @@ import { rangeFrom0, bnCmp } from '../utils/numeric'
 import { BigNumber } from 'ethers'
 import axios from 'axios'
 import { ZERO } from '../constants'
+import { queryBalance } from '../utils/contract'
 
 const ETH = '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee'
 
@@ -17,7 +18,7 @@ export const getProductTokenBalances = async (
 ): Promise<Token[]> => {
   if (tokens.length == 0) return []
   const contracts = tokens.map((token) => new Contract(token.token.address, abi, provider))
-  const queriedBalances = await Promise.all(contracts.map((contract) => queryBalance(user, contract)))
+  const queriedBalances = await Promise.all(contracts.map((contract) => queryBalance(contract, user)))
   const indices = rangeFrom0(tokens.length)
   indices.forEach((i) => (tokens[i].token.balance = queriedBalances[i]))
   const balances: Token[] = tokens.filter((token) => token.token.balance.gt(0))
@@ -46,10 +47,6 @@ export const addNativeTokenBalances = async (
   indices.forEach((i) => (balances[i].eth.balance = ethAmounts[i]))
   if (balances.length > 1) balances.sort((balanceA, balanceB) => bnCmp(balanceA.eth.balance, balanceB.eth.balance))
   return balances
-}
-
-const queryBalance = async (user: string, tokenContract: Contract) => {
-  return await withBackoffRetries(async () => tokenContract.balanceOf(user))
 }
 
 export const queryNativeTokenBalance = async (

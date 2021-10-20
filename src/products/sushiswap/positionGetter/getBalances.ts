@@ -13,6 +13,7 @@ import ierc20Json from '../../_contracts/IERC20Metadata.json'
 import { getAmounts_MasterChefStakingPool } from './getFarmAmounts/MasterChefStakingFarm'
 
 import { ApolloClient, InMemoryCache, gql } from '@apollo/client'
+import { queryBalance } from '../../../utils/contract'
 
 export const getBalances = async (
   user: string,
@@ -54,7 +55,7 @@ export const getBalances = async (
   */
 
   const lpTokenContracts = balances.map((token) => getContract(token.token.address, ierc20Json.abi, provider))
-  const queriedBalances = await Promise.all(lpTokenContracts.map((contract) => contract.balanceOf(user)))
+  const queriedBalances = await Promise.all(lpTokenContracts.map((contract) => queryBalance(contract, user)))
   indices.forEach((i) => (balances[i].token.balance = queriedBalances[i].add(additionalTokenBalances[i])))
 
   for (let i = 0; i < balances.length; i++) {
@@ -62,11 +63,13 @@ export const getBalances = async (
       const token0Contract = getContract(balances[i].underlying[0].address, ierc20Json.abi, provider)
       const token1Contract = getContract(balances[i].underlying[1].address, ierc20Json.abi, provider)
 
-      const bal0 = await withBackoffRetries(async () => token0Contract.balanceOf(balances[i].token.address))
-      const bal1 = await withBackoffRetries(async () => token1Contract.balanceOf(balances[i].token.address))
+      const bal0 = await withBackoffRetries(async () => queryBalance(token0Contract, balances[i].token.address))
+      const bal1 = await withBackoffRetries(async () => queryBalance(token1Contract, balances[i].token.address))
 
       const totalSupply = await lpTokenContracts[i].totalSupply()
-      const liquidity = await withBackoffRetries(async () => lpTokenContracts[i].balanceOf(balances[i].token.address))
+      const liquidity = await withBackoffRetries(async () =>
+        queryBalance(lpTokenContracts[i], balances[i].token.address)
+      )
 
       const adjustedLiquidity = liquidity.add(balances[i].token.balance)
 

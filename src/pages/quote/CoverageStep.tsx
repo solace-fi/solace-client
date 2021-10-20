@@ -269,7 +269,6 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
 
   return (
     <CardContainer cardsPerRow={2}>
-      {width <= BKPT_4 && <TermsCard />}
       <Card style={{ height: 'fit-content' }}>
         <FormRow mb={5}>
           <FormCol>
@@ -414,7 +413,9 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
         </FormRow>
         <FormRow mb={5}>
           <FormCol>
-            <Text t2>Premium</Text>
+            <Text t2 bold>
+              Premium
+            </Text>
           </FormCol>
           <FormCol>
             <Text t2 bold info>
@@ -432,7 +433,7 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
           )}
         </ButtonWrapper>
       </Card>
-      {width > BKPT_4 && <TermsCard />}
+      <Card transparent />
     </CardContainer>
   )
 }

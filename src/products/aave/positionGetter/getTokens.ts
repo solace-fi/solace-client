@@ -6,6 +6,7 @@ import ierc20Json from '../../_contracts/IERC20Metadata.json'
 import { AaveProtocolDataProviderFactory } from './_contracts/AaveProtocolDataProviderFactory'
 import { withBackoffRetries } from '../../../utils/time'
 import { equalsIgnoreCase } from '../../../utils'
+import { queryName } from '../../../utils/contract'
 
 const KEY = process.env.REACT_APP_ALCHEMY_API_KEY
 if (KEY === '') throw new Error('ENV ALCHEMY KEY not configured')
@@ -114,9 +115,7 @@ export const getTokens = async (provider: any, activeNetwork: NetworkConfig, met
   return allTokens
 }
 
-const queryTokenName = async (tokenContract: any) => {
+const queryTokenName = async (tokenContract: Contract) => {
   if (equalsIgnoreCase(tokenContract.address, eth)) return 'Ether'
-  return await withBackoffRetries(async () => tokenContract.name())
-    .catch((res) => utils.parseBytes32String(res))
-    .catch((res) => 'Unreadable')
+  return await queryName(tokenContract)
 }

@@ -6,7 +6,7 @@ import { ETHERSCAN_API_KEY, ZERO } from '../../../constants'
 import factoryAbi from './_contracts/IUniswapV3Factory.json'
 import lpTokenAbi from './_contracts/IUniswapLpToken.json'
 import positionManagerAbi from '../../../../node_modules/@uniswap/v3-periphery/artifacts/contracts/NonfungiblePositionManager.sol/NonfungiblePositionManager.json'
-import { listTokensOfOwner } from '../../../utils/token'
+import { listTokensOfOwner } from '../../../utils/contract'
 import { BigNumber } from 'ethers'
 
 import { ApolloClient, InMemoryCache, gql } from '@apollo/client'
@@ -160,12 +160,12 @@ export const getTokens = async (provider: any, activeNetwork: NetworkConfig, met
   //   const token1Contract = getContract(token1, ierc20Json.abi, provider)
 
   //   const [name0, symbol0, decimals0, name1, symbol1, decimals1] = await Promise.all([
-  //     token0Contract.name(),
-  //     token0Contract.symbol(),
-  //     token0Contract.decimals(),
-  //     token1Contract.name(),
-  //     token1Contract.symbol(),
-  //     token1Contract.decimals(),
+  //     queryName(token0Contract),
+  //     querySymbol(token0Contract),
+  //     queryDecimals(token0Contract),
+  //     queryName(token1Contract),
+  //     querySymbol(token1Contract),
+  //     queryDecimals(token1Contract),
   //   ])
 
   //   console.log(positionsWithLiquidity[i])
