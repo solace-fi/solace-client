@@ -66,7 +66,7 @@ export const getTokens = async (provider: any, activeNetwork: NetworkConfig, met
 
   for (let i = 0; i < apolloData.data.pairs.length; i++) {
     const pair = apolloData.data.pairs[i]
-    const token = {
+    const token: Token = {
       token: {
         address: pair.id,
         name: `${pair.token0.symbol}/${pair.token1.symbol}`,
@@ -93,6 +93,7 @@ export const getTokens = async (provider: any, activeNetwork: NetworkConfig, met
       eth: {
         balance: ZERO,
       },
+      tokenType: 'token',
     }
     tokens.push(token)
   }

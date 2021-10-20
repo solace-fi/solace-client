@@ -66,7 +66,7 @@ const generateTokensData = async (
       const tokenContract = new Contract(token.tokenAddress, ierc20Json.abi, provider)
       const [aTokenName, tokenName] = await Promise.all([queryTokenName(aTokenContract), queryTokenName(tokenContract)])
 
-      return {
+      const _token: Token = {
         token: {
           address: aToken.tokenAddress,
           name: aTokenName,
@@ -86,7 +86,9 @@ const generateTokensData = async (
         eth: {
           balance: ZERO,
         },
+        tokenType: 'token',
       }
+      return _token
     })
 
     const result = await Promise.all(promises)

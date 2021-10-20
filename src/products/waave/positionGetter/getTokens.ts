@@ -41,7 +41,7 @@ export const getTokens = async (provider: any, activeNetwork: NetworkConfig, met
 
   const indices = rangeFrom0(waaveTokenAddresses.length)
   const tokens = indices.map((i) => {
-    return {
+    const token: Token = {
       token: {
         address: waaveTokenAddresses[i],
         name: watokenNames[i],
@@ -61,7 +61,9 @@ export const getTokens = async (provider: any, activeNetwork: NetworkConfig, met
       eth: {
         balance: ZERO,
       },
+      tokenType: 'token',
     }
+    return token
   })
   return tokens
 }
