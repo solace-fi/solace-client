@@ -31,8 +31,6 @@ export const getBalances = async (
     THEGRAPH_API_KEY
   )}/subgraphs/id/0x4bb4c1b0745ef7b4642feeccd0740dec417ca0a0-1`
 
-  console.log(GRAPH_URL)
-
   const client = new ApolloClient({
     uri: GRAPH_URL,
     cache: new InMemoryCache(),
