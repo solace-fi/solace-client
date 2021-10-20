@@ -72,7 +72,7 @@ export const UnderwritingPool: React.FC<UnderwritingPoolProps> = ({ openModal })
           tip={'Provide capital here for Solace to underwrite the risks and fulfill claims for policies'}
         />{' '} */}
       </Text>
-      <Text t4 pb={10}>
+      <Text t4 pt={10} pb={10}>
         This capital is utilized to back the risk of coverage policies and earns revenue from policy sales.
       </Text>
       {width > BKPT_6 ? (

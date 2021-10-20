@@ -12,7 +12,7 @@ export const DEADLINE = constants.MaxUint256
 
 export const ZERO = constants.Zero
 export const ADDRESS_ZERO = constants.AddressZero
-export const GAS_LIMIT = 200000
+export const GAS_LIMIT = 800000
 export const MAX_WIDTH = 1340 // max width that the app can expand up to
 
 export const BKPT_1 = 380

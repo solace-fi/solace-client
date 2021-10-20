@@ -85,7 +85,7 @@ export const LiquidityPool: React.FC<LiquidityPoolProps> = ({ openModal }) => {
           link={'https://docs.solace.fi/docs/user-guides/liquidity-provider/lp-role-guide'}
         /> */}
       </Text>
-      <Text t4 pb={10}>
+      <Text t4 pt={10} pb={10}>
         Manage your Uniswap V3 SOLACE-ETH LP tokens in this pool and earn rewards
       </Text>
       {width > BKPT_6 ? (
