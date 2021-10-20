@@ -23,7 +23,6 @@ export const getBalances = async (
 
     const totalSupply = await lpTokenContract.totalSupply()
     const liquidity = await lpTokenContract.balanceOf(balances[i].token.address)
-    console.log(liquidity, totalSupply)
 
     const adjustedLiquidity = liquidity.add(balances[i].token.balance)
 

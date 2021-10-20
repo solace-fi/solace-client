@@ -113,7 +113,7 @@ export type Token = {
   eth: {
     balance: BigNumber
   }
-  tokenType: 'token' | 'nft' | 'farm' // different types of token positions call for different ui appearances
+  tokenType: 'token' | 'nft' // different types of token positions call for different ui appearances
   metadata?: any
 }
 

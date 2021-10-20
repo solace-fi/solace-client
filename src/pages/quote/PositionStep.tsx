@@ -276,11 +276,7 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
         let addr = ''
         switch (position.type) {
           case PositionType.TOKEN:
-            if ((position.position as Token).tokenType == 'farm') {
-              addr = (position.position as Token).metadata.lpPoolAddress
-            } else {
-              addr = (position.position as Token).token.address
-            }
+            addr = (position.position as Token).token.address
             break
           case PositionType.LQTY:
             addr = (position.position as LiquityPosition).positionAddress
