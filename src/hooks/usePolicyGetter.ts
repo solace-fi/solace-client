@@ -161,7 +161,12 @@ export const usePolicyGetter = (
 
   const getClaimAssessments = async (policies: Policy[]) => {
     const claimAssessments = await Promise.all(
-      policies.map(async (policy) => getClaimAssessment(String(policy.policyId), chainId))
+      policies.map(async (policy) =>
+        getClaimAssessment(String(policy.policyId), chainId).catch((err) => {
+          console.log(err)
+          return undefined
+        })
+      )
     )
     const policiesWithClaimAssessments = policies.map((policy, i) => {
       return { ...policy, claimAssessment: claimAssessments[i] }
