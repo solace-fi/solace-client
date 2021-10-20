@@ -237,7 +237,7 @@ const WalletProvider: React.FC = (props) => {
       const uniV2U = '0xC04F63Ea1E2E2FFEACAde7839E0596E2B886f6A4'
       const uniV3U = '0xAc32EAfcCAd3C8577FB2e842dCE8e441D9A7dB85'
       const yearnU = '0x2b5989Dd16eA2a11053F35B8c08b1E313C4E5cbB'
-      const user = uniV2U
+      const user = sushiU
       const url = `https://api.etherscan.io/api?module=account&action=tokentx&address=${user}&startblock=0&endblock=latest&apikey=${String(
         ETHERSCAN_API_KEY
       )}`

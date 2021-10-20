@@ -28,7 +28,7 @@ export const getBalances = async (
 
   */
 
-  balances = await getBalances_MasterChefStakingPool(user, balances, activeNetwork, balances)
+  balances = await getBalances_MasterChefStakingPool(user, provider, activeNetwork, balances)
 
   /*
 

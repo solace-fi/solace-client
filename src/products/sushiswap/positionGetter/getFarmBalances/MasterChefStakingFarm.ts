@@ -35,21 +35,27 @@ export const getBalances_MasterChefStakingPool = async (
     provider
   )
 
-  const apolloData = await client.query({
-    query: gql`
-      query pools($lpAddrs: [String]) {
-        pools(where: { pair_in: $lpAddrs }) {
-          id
-          pair
+  const apolloData = await client
+    .query({
+      query: gql`
+        query pools($lpAddrs: [String]) {
+          pools(where: { pair_in: $lpAddrs }) {
+            id
+            pair
+          }
         }
-      }
-    `,
-    variables: {
-      lpAddrs: tokens.map((t) => t.token.address.toLowerCase()),
-    },
-  })
+      `,
+      variables: {
+        lpAddrs: tokens.map((t) => t.token.address.toLowerCase()),
+      },
+    })
+    .then((res) => res.data.pools)
+    .catch((e) => {
+      console.log(`apollo fetch at getBalances_MasterChefStakingPool failed`, e)
+      return []
+    })
 
-  const pools = apolloData.data.pools
+  const pools = apolloData
 
   for (let i = 0; i < balances.length; i++) {
     const matchingPool = pools.find((pool: any) => pool.pair.toLowerCase() == balances[i].token.address.toLowerCase())
