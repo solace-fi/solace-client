@@ -10,7 +10,7 @@ import { BigNumber } from 'ethers'
 import { withBackoffRetries } from '../../../utils/time'
 import axios from 'axios'
 import ierc20Json from '../../_contracts/IERC20Metadata.json'
-import { getBalances_MasterChefStakingPool } from './getFarmBalances/MasterChefStakingFarm'
+import { getAmounts_MasterChefStakingPool } from './getFarmAmounts/MasterChefStakingFarm'
 
 import { ApolloClient, InMemoryCache, gql } from '@apollo/client'
 
@@ -20,7 +20,10 @@ export const getBalances = async (
   activeNetwork: NetworkConfig,
   tokens: Token[]
 ): Promise<Token[]> => {
-  let balances: Token[] = tokens
+  if (tokens.length == 0) return []
+
+  const balances: Token[] = tokens
+  const indices = rangeFrom0(balances.length)
 
   /*
 
@@ -28,7 +31,21 @@ export const getBalances = async (
 
   */
 
-  balances = await getBalances_MasterChefStakingPool(user, provider, activeNetwork, balances)
+  const additionalTokenBalances: BigNumber[] = []
+  indices.forEach((i) => (additionalTokenBalances[i] = ZERO))
+
+  const farmAmounts: BigNumber[][] = await Promise.all([
+    getAmounts_MasterChefStakingPool(user, provider, activeNetwork, balances),
+  ])
+
+  for (let i = 0; i < balances.length; i++) {
+    let newBalance = ZERO
+    for (let j = 0; j < farmAmounts[i].length; j++) {
+      const a = farmAmounts[i][j]
+      newBalance = a.add(newBalance)
+    }
+    additionalTokenBalances[i] = newBalance
+  }
 
   /*
 
@@ -38,8 +55,7 @@ export const getBalances = async (
 
   const lpTokenContracts = balances.map((token) => getContract(token.token.address, ierc20Json.abi, provider))
   const queriedBalances = await Promise.all(lpTokenContracts.map((contract) => contract.balanceOf(user)))
-  const indices = rangeFrom0(balances.length)
-  indices.forEach((i) => (balances[i].token.balance = balances[i].token.balance.add(queriedBalances[i])))
+  indices.forEach((i) => (balances[i].token.balance = queriedBalances[i].add(additionalTokenBalances[i])))
 
   for (let i = 0; i < balances.length; i++) {
     if (balances[i].token.balance.gt(ZERO)) {

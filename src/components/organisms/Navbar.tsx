@@ -48,6 +48,7 @@ import {
   StyledDocuments,
   StyledDocumentText,
   StyledWork,
+  StyledLockFile,
 } from '../atoms/Icon'
 import { Text, TextSpan } from '../atoms/Typography'
 import { HyperLink } from '../atoms/Link'
@@ -203,6 +204,15 @@ export const SideNavbar: React.FC<SideNavbarProps> = ({ isMobile }) => {
                   </TextSpan>
                 </SidebarText>
               </HyperLink>
+            </ItemText>
+          </StyledNavTooltip>
+          <StyledNavTooltip id={'terms-nav'} tip={'Terms & Conditions'}>
+            <ItemText>
+              <SidebarItem to={'/terms'} style={{ ...miniNavbarMarginSet }}>
+                <TextSpan t4 light={lightText}>
+                  {width > BKPT_3 ? 'Terms & Conditions' : <StyledLockFile size={30} />}
+                </TextSpan>
+              </SidebarItem>
             </ItemText>
           </StyledNavTooltip>
           <HorizRule location={location} />
@@ -419,6 +429,13 @@ export const TopNavbar: React.FC = () => {
               Jobs
             </TextSpan>
           </HyperLink>
+        </ItemText>
+        <ItemText style={{ padding: '10px', justifyContent: 'center' }}>
+          <SidebarItem to={'/terms'}>
+            <TextSpan t4 light>
+              Terms &amp; Conditions
+            </TextSpan>
+          </SidebarItem>
         </ItemText>
       </ItemList>
       <ItemText style={{ padding: '0', justifyContent: 'center', gap: '60px' }}>

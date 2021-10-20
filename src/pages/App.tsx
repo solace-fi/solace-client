@@ -28,6 +28,7 @@ import Dashboard from './dashboard'
 import Invest from './invest'
 import Quote from './quote'
 import Govern from './govern'
+import Terms from './terms'
 
 /* import components */
 import { SideNavbar, TopNavbar } from '../components/organisms/Navbar'
@@ -56,13 +57,16 @@ export default function App(): any {
           </SideNavContent>
           <LayoutContent>
             <LayoutContentWithLoader>
-              {location.pathname !== '/quote' && location.pathname !== '/' && <Statistics />}
+              {location.pathname !== '/quote' && location.pathname !== '/terms' && location.pathname !== '/' && (
+                <Statistics />
+              )}
               <Switch>
                 <Route exact path="/" component={About} />
                 <Route exact path="/dashboard" component={Dashboard} />
                 <Route exact path="/invest" component={Invest} />
                 <Route exact path="/quote" component={Quote} />
                 <Route exact path="/govern" component={Govern} />
+                <Route exact path="/terms" component={Terms} />
               </Switch>
             </LayoutContentWithLoader>
           </LayoutContent>

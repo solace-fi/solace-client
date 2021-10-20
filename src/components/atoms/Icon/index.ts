@@ -24,6 +24,7 @@ import { Dashboard } from '@styled-icons/material/Dashboard'
 import { FileShield } from '@styled-icons/remix-fill/FileShield'
 import { CoinStack } from '@styled-icons/boxicons-solid/CoinStack'
 import { PeopleCommunity } from '@styled-icons/fluentui-system-filled/PeopleCommunity'
+import { FileEarmarkLock2Fill } from '@styled-icons/bootstrap/FileEarmarkLock2Fill'
 
 export const StyledIconCss = css`
   margin: auto;
@@ -82,6 +83,8 @@ export const StyledArrowDropDown = styled(ArrowDropDown)``
 export const StyledCopy = styled(Copy)``
 
 export const StyledLinkExternal = styled(LinkExternal)``
+
+export const StyledLockFile = styled(FileEarmarkLock2Fill)``
 
 export const StyledMenu = styled(Menu)`
   ${StyledIconCss}
