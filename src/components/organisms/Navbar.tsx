@@ -400,25 +400,25 @@ export const TopNavbar: React.FC = () => {
       <UserAccount light={location.pathname == '/'} />
       <ItemList>
         <ItemText style={{ padding: '10px', justifyContent: 'center' }}>
-          <SidebarItem to={'https://docs.solace.fi/'}>
+          <HyperLink href={'https://github.com/solace-fi'} target="_blank" rel="noopener noreferrer">
             <TextSpan t4 light>
               Docs
             </TextSpan>
-          </SidebarItem>
+          </HyperLink>
         </ItemText>
         <ItemText style={{ padding: '10px', justifyContent: 'center' }}>
-          <SidebarItem to={'https://whitepaper.solace.fi/'}>
+          <HyperLink href={'https://whitepaper.solace.fi/'} target="_blank" rel="noopener noreferrer">
             <TextSpan t4 light>
               Whitepaper
             </TextSpan>
-          </SidebarItem>
+          </HyperLink>
         </ItemText>
         <ItemText style={{ padding: '10px', justifyContent: 'center' }}>
-          <SidebarItem to={'https://angel.co/company/solace-fi/jobs'}>
+          <HyperLink href={'https://angel.co/company/solace-fi/jobs'} target="_blank" rel="noopener noreferrer">
             <TextSpan t4 light>
               Jobs
             </TextSpan>
-          </SidebarItem>
+          </HyperLink>
         </ItemText>
       </ItemList>
       <ItemText style={{ padding: '0', justifyContent: 'center', gap: '60px' }}>
