@@ -43,7 +43,7 @@ export const getTokens = async (provider: any, activeNetwork: NetworkConfig, met
   const tokens = indices.map((i) => {
     const token: Token = {
       token: {
-        address: waaveTokenAddresses[i],
+        address: waaveTokenAddresses[i].toLowerCase(),
         name: watokenNames[i],
         symbol: watokenSymbols[i],
         decimals: watokenDecimals[i],
@@ -51,7 +51,7 @@ export const getTokens = async (provider: any, activeNetwork: NetworkConfig, met
       },
       underlying: [
         {
-          address: utokenAddresses[i],
+          address: utokenAddresses[i].toLowerCase(),
           name: utokenNames[i],
           symbol: utokenSymbols[i],
           decimals: utokenDecimals[i],

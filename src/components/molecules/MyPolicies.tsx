@@ -48,6 +48,7 @@ import { useWindowDimensions } from '../../hooks/useWindowDimensions'
 /* import utils */
 import { truncateBalance } from '../../utils/formatting'
 import { getDaysLeft, getExpiration } from '../../utils/time'
+import { Loader } from '../atoms/Loader'
 
 interface MyPoliciesProps {
   openClaimModal: any
@@ -118,6 +119,7 @@ export const MyPolicies: React.FC<MyPoliciesProps> = ({ openClaimModal, openMana
                           </DeFiAssetImage>
                           <FlexCol>
                             <FlexRow>
+                              {policy.positionNames.length == 0 && <Loader width={10} height={10} />}
                               {policy.positionNames.slice(0, 8).map((name) => (
                                 <DeFiAssetImage key={name} width={25} height={25} secured>
                                   <img src={`https://assets.solace.fi/${name.toLowerCase()}`} alt={name} />
@@ -189,6 +191,7 @@ export const MyPolicies: React.FC<MyPoliciesProps> = ({ openClaimModal, openMana
                         </DeFiAssetImage>
                         <FlexCol>
                           <FlexRow>
+                            {policy.positionNames.length == 0 && <Loader width={10} height={10} />}
                             {policy.positionNames.slice(0, 4).map((name) => (
                               <DeFiAssetImage key={name} width={35} height={35} secured>
                                 <img src={`https://assets.solace.fi/${name.toLowerCase()}`} alt={name} />

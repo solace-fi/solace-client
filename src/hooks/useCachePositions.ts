@@ -133,7 +133,10 @@ export const useCachePositions = () => {
     switch (supportedProduct.positionsType) {
       case PositionType.TOKEN:
         if (typeof supportedProduct.getTokens !== 'undefined') {
-          const tokens: Token[] = await supportedProduct.getTokens(_library, _activeNetwork, metadata)
+          const tokens: Token[] = await supportedProduct.getTokens(_library, _activeNetwork, metadata).catch((err) => {
+            console.log(`useCachePositions: getTokens() for ${supportedProduct.name} product failed`, err)
+            return []
+          })
           _initializedPositions = {
             ...newCache.positionsCache[supportedProduct.name],
             positions: tokens.map((token) => {
@@ -162,12 +165,25 @@ export const useCachePositions = () => {
         } else break
       case PositionType.LQTY:
         const troveManagerContract = getTroveContract(library, _activeNetwork.chainId)
-        const stabilityPoolAddr = await troveManagerContract.stabilityPool()
-        const lqtyStakingAddr = await troveManagerContract.lqtyStaking()
-        const lusdTokenAddr = await troveManagerContract.lusdToken()
-        const lqtyTokenAddr = await troveManagerContract.lqtyToken()
-        const liquityPositions: LiquityPosition[] = [
-          {
+        const stabilityPoolAddr = await troveManagerContract.stabilityPool().catch((e: any) => {
+          console.log(`useCachePositions: troveManagerContract.stabilityPool() failed`, e)
+          return ''
+        })
+        const lqtyStakingAddr = await troveManagerContract.lqtyStaking().catch((e: any) => {
+          console.log(`useCachePositions: troveManagerContract.lqtyStaking() failed`, e)
+          return ''
+        })
+        const lusdTokenAddr = await troveManagerContract.lusdToken().catch((e: any) => {
+          console.log(`useCachePositions: troveManagerContract.lusdToken() failed`, e)
+          return ''
+        })
+        const lqtyTokenAddr = await troveManagerContract.lqtyToken().catch((e: any) => {
+          console.log(`useCachePositions: troveManagerContract.lqtyToken() failed`, e)
+          return ''
+        })
+        const liquityPositions: LiquityPosition[] = []
+        if (troveManagerContract.address) {
+          liquityPositions.push({
             positionAddress: troveManagerContract.address,
             positionName: 'Trove',
             amount: ZERO,
@@ -177,22 +193,26 @@ export const useCachePositions = () => {
               name: 'Ether',
               symbol: 'ETH',
             },
-          },
-          {
+          })
+        }
+        if (stabilityPoolAddr && lusdTokenAddr) {
+          liquityPositions.push({
             positionAddress: stabilityPoolAddr,
             positionName: 'Stability Pool',
             amount: ZERO,
             nativeAmount: ZERO,
             associatedToken: { address: lusdTokenAddr, name: 'LUSD', symbol: 'LUSD' },
-          },
-          {
+          })
+        }
+        if (lqtyStakingAddr && lqtyTokenAddr) {
+          liquityPositions.push({
             positionAddress: lqtyStakingAddr,
             positionName: 'Staking Pool',
             amount: ZERO,
             nativeAmount: ZERO,
             associatedToken: { address: lqtyTokenAddr, name: 'LQTY', symbol: 'LQTY' },
-          },
-        ]
+          })
+        }
         _initializedPositions = {
           ...newCache.positionsCache[supportedProduct.name],
           positions: liquityPositions.map((liquityPos) => {

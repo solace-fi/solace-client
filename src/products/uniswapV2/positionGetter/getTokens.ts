@@ -68,7 +68,7 @@ export const getTokens = async (provider: any, activeNetwork: NetworkConfig, met
     const pair = apolloData.data.pairs[i]
     const token: Token = {
       token: {
-        address: pair.id,
+        address: pair.id.toLowerCase(),
         name: `${pair.token0.symbol}/${pair.token1.symbol}`,
         symbol: 'UNI-V2',
         decimals: 0,
@@ -76,14 +76,14 @@ export const getTokens = async (provider: any, activeNetwork: NetworkConfig, met
       },
       underlying: [
         {
-          address: pair.token0.id,
+          address: pair.token0.id.toLowerCase(),
           name: pair.token0.name,
           symbol: pair.token0.symbol,
           decimals: parseInt(pair.token0.decimals),
           balance: ZERO,
         },
         {
-          address: pair.token1.id,
+          address: pair.token1.id.toLowerCase(),
           name: pair.token1.name,
           symbol: pair.token1.symbol,
           decimals: parseInt(pair.token1.decimals),

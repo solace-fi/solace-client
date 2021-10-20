@@ -28,6 +28,7 @@ export const usePolicyGetter = (
   const [policiesLoading, setPoliciesLoading] = useState<boolean>(true)
   const canGetClaimAssessments = useRef(true)
   const userPoliciesRef = useRef(userPolicies)
+  const firstLoading = useRef(true)
 
   const setCanGetAssessments = (toggle: boolean) => {
     canGetClaimAssessments.current = toggle
@@ -180,9 +181,12 @@ export const usePolicyGetter = (
       setPoliciesLoading(false)
     }
     if (policyHolder == undefined || getAll) return
-    setPoliciesLoading(true)
+    if (firstLoading.current) {
+      setPoliciesLoading(true)
+      firstLoading.current = false
+    }
 
-    if (!data.dataInitialized || !policyManager) return
+    if (!policyManager) return
     loadOnBoot()
 
     policyManager.on('Transfer', async (from, to) => {
@@ -200,6 +204,7 @@ export const usePolicyGetter = (
     }
   }, [policyHolder, data.dataInitialized, policyManager])
 
+  /* fetch all policies per block */
   useEffect(() => {
     const loadOverTime = async () => {
       await getPolicies()
@@ -213,6 +218,7 @@ export const usePolicyGetter = (
     userPoliciesRef.current = userPolicies
   }, [userPolicies])
 
+  /* fetch claim assessments for user policies per block */
   useEffect(() => {
     if (userPolicies.length <= 0 || policiesLoading || !canGetClaimAssessments.current) return
     getClaimAssessments(userPolicies)

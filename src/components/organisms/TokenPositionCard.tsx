@@ -86,13 +86,14 @@ export const TokenPositionCard: React.FC<TokenPositionCardProps> = ({
         haveErrors
           ? undefined
           : isActive
-          ? () =>
+          ? () => {
               openManageModal(
                 userPolicies.filter(
                   (policy) =>
                     policy.productName == protocolName && policy.positionDescription.includes(token.token.address)
                 )[0]
               )
+            }
           : () => handleSelect(position)
       }
     >

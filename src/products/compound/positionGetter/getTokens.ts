@@ -55,7 +55,7 @@ export const getTokens = async (provider: any, activeNetwork: NetworkConfig, met
   const tokens = indices.map((i) => {
     const _token: Token = {
       token: {
-        address: ctokenAddresses[i],
+        address: ctokenAddresses[i].toLowerCase(),
         name: ctokenNames[i],
         symbol: ctokenSymbols[i],
         decimals: ctokenDecimals[i],
@@ -63,7 +63,7 @@ export const getTokens = async (provider: any, activeNetwork: NetworkConfig, met
       },
       underlying: [
         {
-          address: utokenAddresses[i],
+          address: utokenAddresses[i].toLowerCase(),
           name: utokenNames[i],
           symbol: utokenSymbols[i],
           decimals: utokenDecimals[i],

@@ -10,6 +10,7 @@ import { BigNumber } from 'ethers'
 import { withBackoffRetries } from '../../../utils/time'
 import axios from 'axios'
 import ierc20Json from '../../_contracts/IERC20Metadata.json'
+import { getBalances_MasterChefStakingPool } from './getFarmBalances/MasterChefStakingFarm'
 
 import { ApolloClient, InMemoryCache, gql } from '@apollo/client'
 
@@ -19,7 +20,7 @@ export const getBalances = async (
   activeNetwork: NetworkConfig,
   tokens: Token[]
 ): Promise<Token[]> => {
-  const balances: Token[] = tokens
+  let balances: Token[] = tokens
 
   /*
 
@@ -27,72 +28,7 @@ export const getBalances = async (
 
   */
 
-  // const GRAPH_URL = `https://gateway.thegraph.com/api/${String(
-  //   THEGRAPH_API_KEY
-  // )}/subgraphs/id/0x4bb4c1b0745ef7b4642feeccd0740dec417ca0a0-1`
-
-  // const client = new ApolloClient({
-  //   uri: GRAPH_URL,
-  //   cache: new InMemoryCache(),
-  // })
-
-  // const masterChefStakingContract = getContract(
-  //   '0xc2edad668740f1aa35e4d8f227fb8e17dca888cd',
-  //   masterchefStakingPoolABI,
-  //   provider
-  // )
-
-  // const apolloData = await client.query({
-  //   query: gql`
-  //     query pools($lpAddrs: [String]) {
-  //       pools(where: { pair_in: $lpAddrs }) {
-  //         id
-  //         pair
-  //       }
-  //     }
-  //   `,
-  //   variables: {
-  //     lpAddrs: tokens.map((t) => t.token.address.toLowerCase()),
-  //   },
-  // })
-
-  // const pools = apolloData.data.pools
-
-  // for (let i = 0; i < balances.length; i++) {
-  //   const matchingPool = pools.find((pool: any) => pool.pair.toLowerCase() == balances[i].token.address.toLowerCase())
-
-  //   if (matchingPool) {
-  //     // check staking contract for balances
-  //     const userInfo = await masterChefStakingContract.userInfo(
-  //       BigNumber.from(matchingPool.id),
-  //       balances[i].metadata.user
-  //     )
-
-  //     const amount = userInfo.amount
-  //     balances[i].token.balance = balances[i].token.balance.add(amount)
-
-  //     // if (amount.gt(ZERO)) {
-  //     //   const farmToken: Token = {
-  //     //     token: {
-  //     //       address: '0xc2edad668740f1aa35e4d8f227fb8e17dca888cd',
-  //     //       name: `MasterChef LP Staking Pool (${balances[i].underlying[0].symbol}/${balances[i].underlying[1].symbol})`,
-  //     //       symbol: 'SLP',
-  //     //       decimals: balances[i].token.decimals,
-  //     //       balance: amount,
-  //     //     },
-  //     //     underlying: balances[i].underlying,
-  //     //     eth: {
-  //     //       balance: ZERO,
-  //     //     },
-  //     //     tokenType: 'token',
-  //     //     metadata: {
-  //     //       lpTokenAddress: balances[i].token.address,
-  //     //     },
-  //     //   }
-  //     //   farmTokensToAdd.push(farmToken)
-  //     // }
-  //   }
-  // }
+  balances = await getBalances_MasterChefStakingPool(user, balances, activeNetwork, balances)
 
   /*
 

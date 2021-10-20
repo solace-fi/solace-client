@@ -120,8 +120,8 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
     setModalLoading(true)
     if (!selectedProtocol || !selectedPolicy || !riskManager) return
     const txType = FunctionName.UPDATE_POLICY
-    const params = await riskManager.productRiskParams(selectedProtocol.address)
     try {
+      const params = await riskManager.productRiskParams(selectedProtocol.address)
       const newPremium = BigNumber.from(newCoverage)
         .mul(params.price)
         .mul(
@@ -157,12 +157,12 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
     setModalLoading(true)
     if (!selectedProtocol || !selectedPolicy || !riskManager) return
     const txType = FunctionName.UPDATE_POLICY_AMOUNT
-    const params = await riskManager.productRiskParams(selectedProtocol.address)
-    const newPremium = BigNumber.from(newCoverage)
-      .mul(params.price)
-      .mul(selectedPolicy.expirationBlock - (latestBlock ? latestBlock.number : 0))
-      .div(String(Math.pow(10, 12)))
     try {
+      const params = await riskManager.productRiskParams(selectedProtocol.address)
+      const newPremium = BigNumber.from(newCoverage)
+        .mul(params.price)
+        .mul(selectedPolicy.expirationBlock - (latestBlock ? latestBlock.number : 0))
+        .div(String(Math.pow(10, 12)))
       const tx = await selectedProtocol.updateCoverAmount(selectedPolicy.policyId, newCoverage, {
         value: newPremium,
         ...gasConfig,

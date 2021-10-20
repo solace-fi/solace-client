@@ -66,7 +66,7 @@ const generateTokensData = async (
       const [aTokenName, tokenName] = await Promise.all([queryTokenName(aTokenContract), queryTokenName(tokenContract)])
       const _token: Token = {
         token: {
-          address: aToken.tokenAddress,
+          address: aToken.tokenAddress.toLowerCase(),
           name: aTokenName,
           symbol: aToken ? aToken.symbol : '',
           decimals: config.decimals.toNumber(),
@@ -74,7 +74,7 @@ const generateTokensData = async (
         },
         underlying: [
           {
-            address: token.tokenAddress,
+            address: token.tokenAddress.toLowerCase(),
             name: tokenName,
             symbol: token.symbol,
             decimals: config.decimals.toNumber(),

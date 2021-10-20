@@ -85,7 +85,7 @@ export const getTokens = async (provider: any, activeNetwork: NetworkConfig, met
 
     const token: Token = {
       token: {
-        address: poolAddress,
+        address: poolAddress.toLowerCase(),
         name: `#${lpTokenId} - ${token0Name}/${token1Name}`,
         symbol: `UNI-V3-POS`,
         decimals: 18,
@@ -93,14 +93,14 @@ export const getTokens = async (provider: any, activeNetwork: NetworkConfig, met
       },
       underlying: [
         {
-          address: token0Addr,
+          address: token0Addr.toLowerCase(),
           name: token0Name,
           symbol: token0Symbol,
           decimals: parseInt(token0Decimals),
           balance: ZERO,
         },
         {
-          address: token1Addr,
+          address: token1Addr.toLowerCase(),
           name: token1Name,
           symbol: token1Symbol,
           decimals: parseInt(token1Decimals),

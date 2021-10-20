@@ -184,7 +184,7 @@ export const getTokens = async (provider: any, activeNetwork: NetworkConfig, met
   indices.forEach((i) => {
     const token: Token = {
       token: {
-        address: vaultAddrs[i],
+        address: vaultAddrs[i].toLowerCase(),
         name: capitalizeFirstLetter(vNames[i]),
         symbol: vSymbols[i],
         decimals: vDecimals[i],
@@ -192,7 +192,7 @@ export const getTokens = async (provider: any, activeNetwork: NetworkConfig, met
       },
       underlying: [
         {
-          address: uTokenAddrs[i],
+          address: uTokenAddrs[i].toLowerCase(),
           name: uNames[i],
           symbol: uSymbols[i],
           decimals: uDecimals[i],

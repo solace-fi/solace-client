@@ -73,7 +73,7 @@ export const getTokens = async (provider: any, activeNetwork: NetworkConfig, met
       const address = apolloData.pools[i].underlyingCoins[j].token.address
       if (!(name == '' && address == AddressZero)) {
         underlyingTokens.push({
-          address: apolloData.pools[i].underlyingCoins[j].token.address,
+          address: apolloData.pools[i].underlyingCoins[j].token.address.toLowerCase(),
           name: name,
           symbol: symbol,
           decimals: decimals,
@@ -84,7 +84,7 @@ export const getTokens = async (provider: any, activeNetwork: NetworkConfig, met
 
     const token: Token = {
       token: {
-        address: apolloData.pools[i].lpToken.address,
+        address: apolloData.pools[i].lpToken.address.toLowerCase(),
         name: apolloData.pools[i].name,
         symbol: apolloData.pools[i].lpToken.symbol,
         decimals: parseInt(apolloData.pools[i].lpToken.decimals),
