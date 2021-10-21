@@ -60,20 +60,24 @@ export const getTokens = async (provider: any, activeNetwork: NetworkConfig, met
       `,
     })
     .then((result) => {
-      return result.data
+      return result.data.pools
+    })
+    .catch((e) => {
+      console.log('apollo fetch at curve.getTokens failed', e)
+      return []
     })
 
-  for (let i = 0; i < apolloData.pools.length; i++) {
+  for (let i = 0; i < apolloData.length; i++) {
     const underlyingTokens = []
 
-    for (let j = 0; j < apolloData.pools[i].underlyingCoins.length; j++) {
-      const name = apolloData.pools[i].underlyingCoins[j].token.name
-      const symbol = apolloData.pools[i].underlyingCoins[j].token.symbol
-      const decimals = apolloData.pools[i].underlyingCoins[j].token.decimals
-      const address = apolloData.pools[i].underlyingCoins[j].token.address
+    for (let j = 0; j < apolloData[i].underlyingCoins.length; j++) {
+      const name = apolloData[i].underlyingCoins[j].token.name
+      const symbol = apolloData[i].underlyingCoins[j].token.symbol
+      const decimals = apolloData[i].underlyingCoins[j].token.decimals
+      const address = apolloData[i].underlyingCoins[j].token.address
       if (!(name == '' && address == AddressZero)) {
         underlyingTokens.push({
-          address: apolloData.pools[i].underlyingCoins[j].token.address.toLowerCase(),
+          address: apolloData[i].underlyingCoins[j].token.address.toLowerCase(),
           name: name,
           symbol: symbol,
           decimals: decimals,
@@ -84,10 +88,10 @@ export const getTokens = async (provider: any, activeNetwork: NetworkConfig, met
 
     const token: Token = {
       token: {
-        address: apolloData.pools[i].lpToken.address.toLowerCase(),
-        name: apolloData.pools[i].name,
-        symbol: apolloData.pools[i].lpToken.symbol,
-        decimals: parseInt(apolloData.pools[i].lpToken.decimals),
+        address: apolloData[i].lpToken.address.toLowerCase(),
+        name: apolloData[i].name,
+        symbol: apolloData[i].lpToken.symbol,
+        decimals: parseInt(apolloData[i].lpToken.decimals),
         balance: ZERO,
       },
       underlying: underlyingTokens,
@@ -95,7 +99,7 @@ export const getTokens = async (provider: any, activeNetwork: NetworkConfig, met
         balance: ZERO,
       },
       metadata: {
-        lpTokenName: apolloData.pools[i].lpToken.name,
+        lpTokenName: apolloData[i].lpToken.name,
       },
       tokenType: 'token',
     }

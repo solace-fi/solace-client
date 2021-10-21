@@ -64,7 +64,10 @@ const generateTokensData = async (
       const aToken = aTokens[index]
       const aTokenContract = new Contract(aToken.tokenAddress, ierc20Json.abi, provider)
       const tokenContract = new Contract(token.tokenAddress, ierc20Json.abi, provider)
-      const [aTokenName, tokenName] = await Promise.all([queryTokenName(aTokenContract), queryTokenName(tokenContract)])
+      const [aTokenName, tokenName] = await Promise.all([
+        queryTokenName(aTokenContract, provider),
+        queryTokenName(tokenContract, provider),
+      ])
       const _token: Token = {
         token: {
           address: aToken.tokenAddress.toLowerCase(),
@@ -115,7 +118,7 @@ export const getTokens = async (provider: any, activeNetwork: NetworkConfig, met
   return allTokens
 }
 
-const queryTokenName = async (tokenContract: Contract) => {
+const queryTokenName = async (tokenContract: Contract, provider: any) => {
   if (equalsIgnoreCase(tokenContract.address, eth)) return 'Ether'
-  return await queryName(tokenContract)
+  return await queryName(tokenContract, provider)
 }

@@ -2,7 +2,7 @@ import { NetworkConfig, Token } from '../../../constants/types'
 import { ETHERSCAN_API_KEY } from '../../../constants'
 import ierc20Json from '../../_contracts/IERC20Metadata.json'
 import { getContract } from '../../../utils'
-import { queryBalance } from '../../../utils/contract'
+import { queryBalance, queryDecimals, queryName } from '../../../utils/contract'
 import { ZERO } from '../../../constants'
 
 import uniV2FactoryAbi from './_contracts/IUniV2Factory.json'
@@ -36,43 +36,52 @@ export const getTokens = async (provider: any, activeNetwork: NetworkConfig, met
   )
 
   const client = new ApolloClient({
-    uri: 'https://api.thegraph.com/subgraphs/name/ianlapham/uniswapv2',
+    uri: 'https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v2',
     cache: new InMemoryCache(),
   })
 
-  const apolloData = await client.query({
-    query: gql`
-      query pairs($addrs: [String]) {
-        pairs(where: { id_in: $addrs }) {
-          id
-          token0 {
+  const apolloData = await client
+    .query({
+      query: gql`
+        query pairs($addrs: [String]) {
+          pairs(where: { id_in: $addrs }) {
             id
-            name
-            symbol
-            decimals
-          }
-          token1 {
-            id
-            name
-            symbol
-            decimals
+            token0 {
+              id
+              name
+              symbol
+              decimals
+            }
+            token1 {
+              id
+              name
+              symbol
+              decimals
+            }
           }
         }
-      }
-    `,
-    variables: {
-      addrs: uniqueAddresses.map((addr: string) => addr.toLowerCase()),
-    },
-  })
+      `,
+      variables: {
+        addrs: uniqueAddresses.map((addr: string) => addr.toLowerCase()),
+      },
+    })
+    .then((res) => res.data.pairs)
+    .catch((e) => {
+      console.log('apollo fetch at uniswapV2.getTokens failed', e)
+      return []
+    })
 
-  for (let i = 0; i < apolloData.data.pairs.length; i++) {
-    const pair = apolloData.data.pairs[i]
+  for (let i = 0; i < apolloData.length; i++) {
+    const pair = apolloData[i]
+    const lpTokenContract = getContract(pair.id, ierc20Json.abi, provider)
+    const name = await queryName(lpTokenContract, provider)
+    const decimals = await queryDecimals(lpTokenContract)
     const token: Token = {
       token: {
         address: pair.id.toLowerCase(),
-        name: `${pair.token0.symbol}/${pair.token1.symbol}`,
+        name: name,
         symbol: 'UNI-V2',
-        decimals: 0,
+        decimals: decimals,
         balance: ZERO,
       },
       underlying: [
@@ -110,8 +119,8 @@ export const getTokens = async (provider: any, activeNetwork: NetworkConfig, met
 
   //   const balance = await queryBalance(lpPairContract, metadata.user)
   //   if (balance.gt(ZERO)) {
-  //     const pairName: string = await queryName(lpPairContract)
-  //     const pairSymbol: string = await querySymbol(lpPairContract)
+  //     const pairName: string = await queryName(lpPairContract, provider)
+  //     const pairSymbol: string = await querySymbol(lpPairContract, provider)
   //     const pairDecimals: number = await queryDecimals(lpPairContract)
 
   //     const token0 = await lpPairContract.token0()
@@ -121,11 +130,11 @@ export const getTokens = async (provider: any, activeNetwork: NetworkConfig, met
   //     const token1Contract = getContract(token1, ierc20Json.abi, provider)
 
   //     const [name0, symbol0, decimals0, name1, symbol1, decimals1] = await Promise.all([
-  //       await queryName(token0Contract),
-  //       await querySymbol(token0Contract),
+  //       await queryName(token0Contract, provider),
+  //       await querySymbol(token0Contract, provider),
   //       await queryDecimals(token0Contract),
-  //       await queryName(token1Contract),
-  //       await querySymbol(token1Contract),
+  //       await queryName(token1Contract, provider),
+  //       await querySymbol(token1Contract, provider),
   //       await queryDecimals(token1Contract),
   //     ])
 

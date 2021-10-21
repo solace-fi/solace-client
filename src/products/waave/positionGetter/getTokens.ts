@@ -32,11 +32,11 @@ export const getTokens = async (provider: any, activeNetwork: NetworkConfig, met
     utokenSymbols,
     utokenDecimals,
   ] = await Promise.all([
-    Promise.all(waaveTokenContracts.map((contract: any) => queryName(contract))),
-    Promise.all(waaveTokenContracts.map((contract: any) => querySymbol(contract))),
+    Promise.all(waaveTokenContracts.map((contract: any) => queryName(contract, provider))),
+    Promise.all(waaveTokenContracts.map((contract: any) => querySymbol(contract, provider))),
     Promise.all(waaveTokenContracts.map(queryDecimals)),
-    Promise.all(utokenContracts.map((contract: any) => queryName(contract))),
-    Promise.all(utokenContracts.map((contract: any) => querySymbol(contract))),
+    Promise.all(utokenContracts.map((contract: any) => queryName(contract, provider))),
+    Promise.all(utokenContracts.map((contract: any) => querySymbol(contract, provider))),
     Promise.all(utokenContracts.map(queryDecimals)),
   ])
 

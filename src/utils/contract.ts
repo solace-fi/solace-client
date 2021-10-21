@@ -1,8 +1,9 @@
 import { BigNumber as BN, utils } from 'ethers'
 import { Contract } from '@ethersproject/contracts'
 import { rangeFrom0, numberify } from './numeric'
-import { equalsIgnoreCase } from '.'
+import { equalsIgnoreCase, getContract } from '.'
 import { withBackoffRetries } from './time'
+import ierc20Alt from '../products/_contracts/IERC20MetadataAlt.json'
 
 const eth = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
 
@@ -10,23 +11,24 @@ export const queryBalance = async (tokenContract: Contract, user: string): Promi
   return await withBackoffRetries(async () => tokenContract.balanceOf(user))
 }
 
-export const queryName = async (tokenContract: Contract): Promise<string> => {
+export const queryName = async (tokenContract: Contract, provider: any): Promise<string> => {
   if (equalsIgnoreCase(tokenContract.address, eth)) return 'Ether'
-  return await withBackoffRetries(async () => tokenContract.name())
-    .catch((res) => utils.parseBytes32String(res))
-    .catch((e) => {
-      console.log(`queryName`, tokenContract.address, e)
-      return 'UnreadableName'
-    })
+  try {
+    return await withBackoffRetries(async () => tokenContract.name())
+  } catch (e) {
+    const tokenContractAlt = getContract(tokenContract.address, ierc20Alt.abi, provider)
+    return await withBackoffRetries(async () => tokenContractAlt.name()).then(utils.parseBytes32String)
+  }
 }
-export const querySymbol = async (tokenContract: Contract): Promise<string> => {
+
+export const querySymbol = async (tokenContract: Contract, provider: any): Promise<string> => {
   if (equalsIgnoreCase(tokenContract.address, eth)) return 'ETH'
-  return await withBackoffRetries(async () => tokenContract.symbol())
-    .catch((res) => utils.parseBytes32String(res))
-    .catch((e) => {
-      console.log(`querySymbol`, tokenContract.address, e)
-      return 'UnreadableSymbol'
-    })
+  try {
+    return await withBackoffRetries(async () => tokenContract.symbol())
+  } catch (e) {
+    const tokenContractAlt = getContract(tokenContract.address, ierc20Alt.abi, provider)
+    return await withBackoffRetries(async () => tokenContractAlt.symbol()).then(utils.parseBytes32String)
+  }
 }
 
 export const queryDecimals = async (tokenContract: Contract): Promise<number> => {

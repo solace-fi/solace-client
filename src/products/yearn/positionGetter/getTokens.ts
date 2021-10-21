@@ -121,11 +121,11 @@ export const getTokens = async (provider: any, activeNetwork: NetworkConfig, met
   //   if (balance.gt(ZERO)) {
   //     const uTokenContract = uTokenContracts[i]
 
-  //     const vName = await queryName(vaultContract)
-  //     const vSymbol = await querySymbol(vaultContract)
+  //     const vName = await queryName(vaultContract, provider)
+  //     const vSymbol = await querySymbol(vaultContract, provider)
   //     const vDecimals = await queryDecimals(vaultContract)
-  //     const uName = await queryName(uTokenContract)
-  //     const uSymbol = await querySymbol(uTokenContract)
+  //     const uName = await queryName(uTokenContract, provider)
+  //     const uSymbol = await querySymbol(uTokenContract, provider)
   //     const uDecimals = await queryDecimals(uTokenContract)
 
   //     const token = {
@@ -161,12 +161,27 @@ export const getTokens = async (provider: any, activeNetwork: NetworkConfig, met
   */
 
   const yregistry = getContract(yRegistryAddress, yregistryAbi, provider)
-  const bigNumTokens = await yregistry.numTokens()
+  const bigNumTokens = await yregistry.numTokens().catch((e: any) => {
+    console.log('registry.numTokens() for Yearn failed', e)
+    return ZERO
+  })
   const numTokens = bigNumTokens.toNumber()
   const tokenCount = rangeFrom0(numTokens)
 
-  const uTokenAddrs = await Promise.all(tokenCount.map((i) => yregistry.tokens(BigNumber.from(tokenCount[i]))))
-  const vaultAddrs = await Promise.all(uTokenAddrs.map((token) => yregistry.latestVault(token)))
+  const uTokenAddrs = await Promise.all(
+    tokenCount.map((i) =>
+      yregistry.tokens(BigNumber.from(tokenCount[i])).catch((e: any) => {
+        console.log('registry.tokens() for Yearn failed', e)
+      })
+    )
+  )
+  const vaultAddrs = await Promise.all(
+    uTokenAddrs.map((token) =>
+      yregistry.latestVault(token).catch((e: any) => {
+        console.log('registry.latestVault() for Yearn failed', e)
+      })
+    )
+  )
 
   const [vaultContracts, uTokenContracts] = await Promise.all([
     Promise.all(vaultAddrs.map((addr: any) => getContract(addr, vaultAbi, provider))),
@@ -181,6 +196,7 @@ export const getTokens = async (provider: any, activeNetwork: NetworkConfig, met
     Promise.all(uTokenContracts.map(querySymbol)),
     Promise.all(uTokenContracts.map(queryDecimals)),
   ])
+
   const indices = rangeFrom0(vaultAddrs.length)
   indices.forEach((i) => {
     const token: Token = {
@@ -207,6 +223,5 @@ export const getTokens = async (provider: any, activeNetwork: NetworkConfig, met
     }
     tokens.push(token)
   })
-
   return tokens
 }

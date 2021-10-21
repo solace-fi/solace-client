@@ -68,6 +68,10 @@ export const getTokens = async (provider: any, activeNetwork: NetworkConfig, met
       },
     })
     .then((result) => result.data.positions.filter((p: any) => BigNumber.from(p.liquidity).gt(ZERO)))
+    .catch((e) => {
+      console.log('apollo fetch at uniswapV3.getTokens failed', e)
+      return []
+    })
 
   for (let i = 0; i < apolloData.length; i++) {
     const token0Addr = apolloData[i].token0.id
@@ -160,11 +164,11 @@ export const getTokens = async (provider: any, activeNetwork: NetworkConfig, met
   //   const token1Contract = getContract(token1, ierc20Json.abi, provider)
 
   //   const [name0, symbol0, decimals0, name1, symbol1, decimals1] = await Promise.all([
-  //     queryName(token0Contract),
-  //     querySymbol(token0Contract),
+  //     queryName(token0Contract, provider),
+  //     querySymbol(token0Contract, provider),
   //     queryDecimals(token0Contract),
-  //     queryName(token1Contract),
-  //     querySymbol(token1Contract),
+  //     queryName(token1Contract, provider),
+  //     querySymbol(token1Contract, provider),
   //     queryDecimals(token1Contract),
   //   ])
 
