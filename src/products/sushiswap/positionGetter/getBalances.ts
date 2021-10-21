@@ -41,8 +41,8 @@ export const getBalances = async (
 
   for (let i = 0; i < balances.length; i++) {
     let newBalance = ZERO
-    for (let j = 0; j < farmAmounts[i].length; j++) {
-      const a = farmAmounts[i][j]
+    for (let j = 0; j < farmAmounts.length; j++) {
+      const a = farmAmounts[j][i]
       newBalance = a.add(newBalance)
     }
     additionalTokenBalances[i] = newBalance

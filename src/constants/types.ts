@@ -151,10 +151,9 @@ export type GasFeeOption = {
 }
 
 export type GasPriceResult = {
-  veryFast: number
   fast: number
-  average: number
-  safeLow: number
+  proposed: number
+  safe: number
   suggestBaseFee?: number
 }
 

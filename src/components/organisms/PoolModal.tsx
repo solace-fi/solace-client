@@ -640,7 +640,7 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
             <Text textAlignCenter t4 warning>
               the claims will be paid out from this source of funds.
             </Text> */}
-            <Text textAlignCenter t4 warning width={270}>
+            <Text textAlignCenter t4 warning width={270} style={{ margin: 'auto' }}>
               Disclaimer: The underwriting pool backs the risk of coverage policies, so in case one of the covered
               protocols get exploited, the claims will be paid out from this source of funds.
             </Text>
