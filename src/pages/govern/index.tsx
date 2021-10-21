@@ -19,7 +19,7 @@ import { Text } from '../../components/atoms/Typography'
 
 function Govern(): any {
   return (
-    <HeroContainer>
+    <HeroContainer p={10}>
       <Text t1 textAlignCenter mb={20}>
         Solace is currently running a Launch DAO.
       </Text>

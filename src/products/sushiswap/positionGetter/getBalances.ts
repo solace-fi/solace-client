@@ -10,7 +10,7 @@ import { BigNumber } from 'ethers'
 import { withBackoffRetries } from '../../../utils/time'
 import axios from 'axios'
 import ierc20Json from '../../_contracts/IERC20Metadata.json'
-import { getAmounts_MasterChefStakingPool } from './getFarmAmounts/MasterChefStakingFarm'
+import { getAmounts_MasterChefStakingPool } from './getStakes/MasterChefStakingFarm'
 
 import { ApolloClient, InMemoryCache, gql } from '@apollo/client'
 import { queryBalance } from '../../../utils/contract'
