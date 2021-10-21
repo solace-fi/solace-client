@@ -143,7 +143,7 @@ function Dashboard(): any {
                 {openPolicies ? 'Hide Policies' : 'Show Policies'}
               </Button>
             </Text>
-            <Text t4 pb={10}>
+            <Text t4 pt={10} pb={10}>
               Make changes to your existing policies or submit claims
             </Text>
             {!userPolicyData.policiesLoading ? (

@@ -84,6 +84,7 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
   const { width } = useWindowDimensions()
   const { gasConfig } = useGasConfig(gasPrices.selected?.value)
   const appraisal = useAppraisePolicyPosition(selectedPolicy)
+  const [canCloseOnLoading, setCanCloseOnLoading] = useState<boolean>(false)
   const mounting = useRef(true)
 
   /*************************************************************************************
@@ -103,7 +104,13 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
         gasLimit: GAS_LIMIT,
       })
       const txHash = tx.hash
-      const localTx = { hash: txHash, type: txType, value: '0', status: TransactionCondition.PENDING, unit: Unit.ID }
+      const localTx = {
+        hash: txHash,
+        type: txType,
+        value: `Policy #${selectedPolicy.policyId}`,
+        status: TransactionCondition.PENDING,
+        unit: Unit.ID,
+      }
       addLocalTransactions(localTx)
       reload()
       makeTxToast(txType, TransactionCondition.PENDING, txHash)
@@ -132,6 +139,7 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
     setClaimSubmitted(false)
     setModalLoading(false)
     setAssessment(undefined)
+    setCanCloseOnLoading(false)
     userPolicyData.setCanGetAssessments(true)
     mounting.current = true
     closeModal()
@@ -146,6 +154,7 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
   useEffect(() => {
     const loadOnBoot = async () => {
       if (!selectedPolicy || !isOpen) return
+      setCanCloseOnLoading(true)
       setModalLoading(true)
       userPolicyData.setCanGetAssessments(false)
       const assessment = await getClaimAssessment(String(selectedPolicy.policyId), chainId).catch((err) => {
@@ -154,6 +163,7 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
       })
       setAssessment(assessment)
       setModalLoading(false)
+      setCanCloseOnLoading(false)
       mounting.current = false
     }
     loadOnBoot()
@@ -173,7 +183,12 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
   }, [selectedPolicy])
 
   return (
-    <Modal isOpen={isOpen} handleClose={handleClose} modalTitle={'Policy Claim'} disableCloseButton={modalLoading}>
+    <Modal
+      isOpen={isOpen}
+      handleClose={handleClose}
+      modalTitle={'Policy Claim'}
+      disableCloseButton={modalLoading && !canCloseOnLoading}
+    >
       <Fragment>
         <PolicyModalInfo selectedPolicy={selectedPolicy} latestBlock={latestBlock} appraisal={appraisal} />
         {!modalLoading ? (

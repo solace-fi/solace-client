@@ -202,7 +202,7 @@ export const usePolicyGetter = (
     return () => {
       policyManager.removeAllListeners()
     }
-  }, [policyHolder, policyManager])
+  }, [policyHolder, data.dataInitialized, policyManager])
 
   /* fetch all policies per block */
   useEffect(() => {

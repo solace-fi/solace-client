@@ -20,7 +20,7 @@
   *************************************************************************************/
 
 /* import react */
-import React, { useState, Fragment, useEffect, useCallback, useMemo } from 'react'
+import React, { useState, Fragment, useEffect, useCallback } from 'react'
 
 /* import packages */
 import { formatUnits, parseUnits } from '@ethersproject/units'
@@ -110,6 +110,7 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
   const { gasConfig } = useGasConfig(selectedGasOption ? selectedGasOption.value : null)
   const [maxSelected, setMaxSelected] = useState<boolean>(false)
   const [modalLoading, setModalLoading] = useState<boolean>(false)
+  const [canCloseOnLoading, setCanCloseOnLoading] = useState<boolean>(false)
   const [contractForAllowance, setContractForAllowance] = useState<Contract | null>(null)
   const [spenderAddress, setSpenderAddress] = useState<string | null>(null)
   const tokenAllowance = useTokenAllowance(contractForAllowance, spenderAddress)
@@ -173,7 +174,7 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
       const localTx = {
         hash: tx.hash,
         type: txType,
-        value: truncateBalance(amount),
+        value: `${truncateBalance(amount)} ${getUnit(func, activeNetwork)}`,
         status: TransactionCondition.PENDING,
         unit: getUnit(func, activeNetwork),
       }
@@ -196,7 +197,7 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
       const localTx = {
         hash: tx.hash,
         type: txType,
-        value: truncateBalance(amount),
+        value: `${truncateBalance(amount)} ${getUnit(func, activeNetwork)}`,
         status: TransactionCondition.PENDING,
         unit: getUnit(func, activeNetwork),
       }
@@ -214,11 +215,13 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
       const approval = await vault.approve(cpFarm.address, parseUnits(amount, currencyDecimals))
       const approvalHash = approval.hash
       makeTxToast(FunctionName.APPROVE, TransactionCondition.PENDING, approvalHash)
+      setCanCloseOnLoading(true)
       await approval.wait().then((receipt: any) => {
         const status = receipt.status ? TransactionCondition.SUCCESS : TransactionCondition.FAILURE
         makeTxToast(FunctionName.APPROVE, status, approvalHash)
         reload()
       })
+      setCanCloseOnLoading(false)
       setModalLoading(false)
     } catch (err) {
       handleContractCallError('approve', err, txType)
@@ -237,7 +240,7 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
       const localTx = {
         hash: tx.hash,
         type: txType,
-        value: truncateBalance(amount),
+        value: `${truncateBalance(amount)} ${getUnit(func, activeNetwork)}`,
         status: TransactionCondition.PENDING,
         unit: getUnit(func, activeNetwork),
       }
@@ -259,7 +262,7 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
       const localTx = {
         hash: tx.hash,
         type: txType,
-        value: truncateBalance(amount),
+        value: `${truncateBalance(amount)} ${getUnit(func, activeNetwork)}`,
         status: TransactionCondition.PENDING,
         unit: getUnit(func, activeNetwork),
       }
@@ -281,7 +284,7 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
       const localTx = {
         hash: tx.hash,
         type: txType,
-        value: truncateBalance(amount),
+        value: `${truncateBalance(amount)} ${getUnit(func, activeNetwork)}`,
         status: TransactionCondition.PENDING,
         unit: getUnit(func, activeNetwork),
       }
@@ -450,6 +453,7 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
     setIsStaking(false)
     setMaxSelected(false)
     setModalLoading(false)
+    setCanCloseOnLoading(false)
     setNftId(ZERO)
     setNftSelection({ value: '', label: '' })
     closeModal()
@@ -550,7 +554,12 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
   )
 
   return (
-    <Modal isOpen={isOpen} handleClose={handleClose} modalTitle={modalTitle} disableCloseButton={modalLoading}>
+    <Modal
+      isOpen={isOpen}
+      handleClose={handleClose}
+      modalTitle={modalTitle}
+      disableCloseButton={modalLoading && !canCloseOnLoading}
+    >
       <Fragment>
         {func == FunctionName.DEPOSIT_SIGNED || func == FunctionName.WITHDRAW_LP ? (
           <ModalRow style={{ display: 'block' }}>

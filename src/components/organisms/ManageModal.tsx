@@ -143,7 +143,7 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
       const localTx = {
         hash: tx.hash,
         type: txType,
-        value: '0',
+        value: `Policy #${selectedPolicy.policyId}`,
         status: TransactionCondition.PENDING,
         unit: activeNetwork.nativeCurrency.symbol,
       }
@@ -171,7 +171,7 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
       const localTx = {
         hash: tx.hash,
         type: txType,
-        value: '0',
+        value: `Policy #${selectedPolicy.policyId}`,
         status: TransactionCondition.PENDING,
         unit: Unit.ID,
       }
@@ -199,7 +199,13 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
           gasLimit: GAS_LIMIT,
         }
       )
-      const localTx = { hash: tx.hash, type: txType, value: '0', status: TransactionCondition.PENDING, unit: Unit.ID }
+      const localTx = {
+        hash: tx.hash,
+        type: txType,
+        value: `Policy #${selectedPolicy}`,
+        status: TransactionCondition.PENDING,
+        unit: Unit.ID,
+      }
       await handleToast(tx, localTx)
     } catch (err) {
       handleContractCallError('extendPolicy:', err, txType)
@@ -218,7 +224,7 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
       const localTx = {
         hash: tx.hash,
         type: txType,
-        value: String(selectedPolicy.policyId),
+        value: `Policy #${selectedPolicy.policyId}`,
         status: TransactionCondition.PENDING,
         unit: Unit.ID,
       }
