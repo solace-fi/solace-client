@@ -10,7 +10,7 @@ import { BigNumber } from 'ethers'
 import { withBackoffRetries } from '../../../utils/time'
 import axios from 'axios'
 import ierc20Json from '../../_contracts/IERC20Metadata.json'
-import { getAmounts_MasterChefStakingPool } from './getFarmAmounts/MasterChefStakingFarm'
+import { getAmounts_MasterChefStakingPool } from './getStakes/MasterChefStakingFarm'
 
 import { ApolloClient, InMemoryCache, gql } from '@apollo/client'
 import { queryBalance } from '../../../utils/contract'
@@ -41,8 +41,8 @@ export const getBalances = async (
 
   for (let i = 0; i < balances.length; i++) {
     let newBalance = ZERO
-    for (let j = 0; j < farmAmounts[i].length; j++) {
-      const a = farmAmounts[i][j]
+    for (let j = 0; j < farmAmounts.length; j++) {
+      const a = farmAmounts[j][i]
       newBalance = a.add(newBalance)
     }
     additionalTokenBalances[i] = newBalance

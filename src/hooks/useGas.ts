@@ -21,24 +21,19 @@ export const useFetchGasPrice = (): GasFeeListState => {
         .then((result) => {
           const options = [
             {
-              key: 'safeLow',
+              key: 'low',
               name: 'Slow',
-              value: result.safeLow != NaN ? result.safeLow : state.options[0].value,
+              value: result.safe != NaN ? result.safe : state.options[0].value,
             },
             {
               key: 'average',
               name: 'Standard',
-              value: result.average != NaN ? result.average : state.options[1].value,
+              value: result.proposed != NaN ? result.proposed : state.options[1].value,
             },
             {
               key: 'fast',
               name: 'Fast',
               value: result.fast != NaN ? result.fast : state.options[2].value,
-            },
-            {
-              key: 'fastest',
-              name: 'Very fast',
-              value: result.veryFast != NaN ? result.veryFast : state.options[3].value,
             },
           ]
           setState({

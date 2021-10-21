@@ -234,6 +234,7 @@ const WalletProvider: React.FC = (props) => {
       const aaveU = '0x11BB97923209Df97E8c9839E1e394798cb0C0336'
       const sushiU = '0x55f4b291E26d2143721C7EBeB1C44660A9A5Eb5E'
       const curveU2 = '0x53C40473DcdFd927C4201cCFE24E314a7D7C3584'
+      const curveU3 = '0xfcb85d4139123b1ec6746d1c487a2201045b9f72'
       const uniV2U = '0xC04F63Ea1E2E2FFEACAde7839E0596E2B886f6A4'
       const uniV3U = '0xAc32EAfcCAd3C8577FB2e842dCE8e441D9A7dB85'
       const yearnU = '0x2b5989Dd16eA2a11053F35B8c08b1E313C4E5cbB'

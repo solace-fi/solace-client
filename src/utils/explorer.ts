@@ -31,10 +31,9 @@ export async function fetchGasPrice(explorer: string, chainId: number): Promise<
     .then((result) => result.result)
     .then((result) => {
       const fetchedResult: GasPriceResult = {
-        veryFast: Number(result.FastGasPrice),
-        fast: Number(result.ProposeGasPrice),
-        average: Math.round((Number(result.ProposeGasPrice) + Number(result.SafeGasPrice)) / 2),
-        safeLow: Number(result.SafeGasPrice),
+        fast: Number(result.FastGasPrice),
+        proposed: Number(result.ProposeGasPrice),
+        safe: Number(result.SafeGasPrice),
       }
       if (chainId == 1) fetchedResult.suggestBaseFee = Number(result.suggestBaseFee)
       return fetchedResult

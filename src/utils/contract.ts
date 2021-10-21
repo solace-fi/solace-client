@@ -4,11 +4,15 @@ import { rangeFrom0, numberify } from './numeric'
 import { equalsIgnoreCase, getContract } from '.'
 import { withBackoffRetries } from './time'
 import ierc20Alt from '../products/_contracts/IERC20MetadataAlt.json'
+import { ZERO } from '../constants'
 
 const eth = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
 
 export const queryBalance = async (tokenContract: Contract, user: string): Promise<BN> => {
-  return await withBackoffRetries(async () => tokenContract.balanceOf(user))
+  return await withBackoffRetries(async () => tokenContract.balanceOf(user)).catch((e) => {
+    console.log('queryBalance', tokenContract.address, 'for', user, e)
+    return ZERO
+  })
 }
 
 export const queryName = async (tokenContract: Contract, provider: any): Promise<string> => {

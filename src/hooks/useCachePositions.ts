@@ -248,7 +248,7 @@ export const useCachePositions = () => {
 
   useEffect(() => {
     if (!account) {
-      console.log('useCachePositions: no account found, no init needed')
+      console.log('useCachePositions: no account found, no init needed yet')
       return
     }
     // do not run the functions if web3React is not initialized

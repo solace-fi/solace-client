@@ -164,7 +164,7 @@ export const usePolicyGetter = (
     const claimAssessments = await Promise.all(
       policies.map(async (policy) =>
         getClaimAssessment(String(policy.policyId), chainId).catch((err) => {
-          console.log(err)
+          console.log(`usePolicyGetter: cannot get claim assessment from paclas`, err)
           return undefined
         })
       )
