@@ -6,7 +6,7 @@ import { formatUnits } from '@ethersproject/units'
 import { BigNumber } from 'ethers'
 import { LpTokenInfo } from '../constants/types'
 import { rangeFrom0 } from '../utils/numeric'
-import { listTokensOfOwner } from '../utils/token'
+import { listTokensOfOwner, queryBalance } from '../utils/contract'
 import { useNetwork } from '../context/NetworkManager'
 
 export const useNativeTokenBalance = (): string => {
@@ -44,7 +44,7 @@ export const useScpBalance = (): string => {
   const getScpBalance = async () => {
     if (!vault || !account) return
     try {
-      const balance = await vault.balanceOf(account)
+      const balance = await queryBalance(vault, account)
       const formattedBalance = formatUnits(balance, activeNetwork.nativeCurrency.decimals)
       setScpBalance(formattedBalance)
     } catch (err) {
@@ -76,9 +76,9 @@ export const useSolaceBalance = (): string => {
   const [solaceBalance, setSolaceBalance] = useState<string>('0')
 
   const getSolaceBalance = async () => {
-    if (!solace) return
+    if (!solace || !account) return
     try {
-      const balance = await solace.balanceOf(account)
+      const balance = await queryBalance(solace, account)
       const formattedBalance = formatUnits(balance, currencyDecimals)
       setSolaceBalance(formattedBalance)
     } catch (err) {

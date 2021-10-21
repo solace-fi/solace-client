@@ -120,8 +120,8 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
     setModalLoading(true)
     if (!selectedProtocol || !selectedPolicy || !riskManager) return
     const txType = FunctionName.UPDATE_POLICY
-    const params = await riskManager.productRiskParams(selectedProtocol.address)
     try {
+      const params = await riskManager.productRiskParams(selectedProtocol.address)
       const newPremium = BigNumber.from(newCoverage)
         .mul(params.price)
         .mul(
@@ -143,7 +143,7 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
       const localTx = {
         hash: tx.hash,
         type: txType,
-        value: '0',
+        value: `Policy #${selectedPolicy.policyId}`,
         status: TransactionCondition.PENDING,
         unit: activeNetwork.nativeCurrency.symbol,
       }
@@ -157,12 +157,12 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
     setModalLoading(true)
     if (!selectedProtocol || !selectedPolicy || !riskManager) return
     const txType = FunctionName.UPDATE_POLICY_AMOUNT
-    const params = await riskManager.productRiskParams(selectedProtocol.address)
-    const newPremium = BigNumber.from(newCoverage)
-      .mul(params.price)
-      .mul(selectedPolicy.expirationBlock - (latestBlock ? latestBlock.number : 0))
-      .div(String(Math.pow(10, 12)))
     try {
+      const params = await riskManager.productRiskParams(selectedProtocol.address)
+      const newPremium = BigNumber.from(newCoverage)
+        .mul(params.price)
+        .mul(selectedPolicy.expirationBlock - (latestBlock ? latestBlock.number : 0))
+        .div(String(Math.pow(10, 12)))
       const tx = await selectedProtocol.updateCoverAmount(selectedPolicy.policyId, newCoverage, {
         value: newPremium,
         ...gasConfig,
@@ -171,7 +171,7 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
       const localTx = {
         hash: tx.hash,
         type: txType,
-        value: '0',
+        value: `Policy #${selectedPolicy.policyId}`,
         status: TransactionCondition.PENDING,
         unit: Unit.ID,
       }
@@ -199,7 +199,13 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
           gasLimit: GAS_LIMIT,
         }
       )
-      const localTx = { hash: tx.hash, type: txType, value: '0', status: TransactionCondition.PENDING, unit: Unit.ID }
+      const localTx = {
+        hash: tx.hash,
+        type: txType,
+        value: `Policy #${selectedPolicy}`,
+        status: TransactionCondition.PENDING,
+        unit: Unit.ID,
+      }
       await handleToast(tx, localTx)
     } catch (err) {
       handleContractCallError('extendPolicy:', err, txType)
@@ -218,7 +224,7 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
       const localTx = {
         hash: tx.hash,
         type: txType,
-        value: String(selectedPolicy.policyId),
+        value: `Policy #${selectedPolicy.policyId}`,
         status: TransactionCondition.PENDING,
         unit: Unit.ID,
       }

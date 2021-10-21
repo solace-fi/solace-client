@@ -98,15 +98,15 @@ export const PolicyModalInfo: React.FC<PolicyModalInfoProps> = ({ appraisal, sel
     if (!supportedProduct) return
     const matchingCache = tokenPosData.storedPosData.find((dataset) => dataset.chainId == activeNetwork.chainId)
     if (!matchingCache) return
-    const foundPositions = await handleFilterPositions(supportedProduct, matchingCache, selectedPolicy)
+    const foundPositions = handleFilterPositions(supportedProduct, matchingCache, selectedPolicy)
     setFormattedAssets(foundPositions)
   }
 
-  const handleFilterPositions = async (
+  const handleFilterPositions = (
     supportedProduct: SupportedProduct,
     _cache: NetworkCache,
     _selectedPolicy: Policy
-  ): Promise<BasicData[]> => {
+  ): BasicData[] => {
     let res: BasicData[] = []
     const savedPositions: Position[] = _cache.positionsCache[supportedProduct.name].positions
     switch (supportedProduct.positionsType) {
@@ -277,6 +277,7 @@ export const PolicyModalInfo: React.FC<PolicyModalInfoProps> = ({ appraisal, sel
             </FormCol>
             <FormCol style={{ margin: 'auto' }}>
               <FlexRow>
+                {selectedPolicy?.positionNames.length == 0 && <Loader width={10} height={10} />}
                 {selectedPolicy?.positionNames.slice(0, maxPositionsOnDisplay).map((name: string) => (
                   <FlexCol style={{ alignItems: 'center' }} key={name}>
                     <DeFiAssetImage noborder width={45} height={45}>
@@ -307,6 +308,7 @@ export const PolicyModalInfo: React.FC<PolicyModalInfoProps> = ({ appraisal, sel
               </FlexCol>
             </FlexRow>
             <FlexRow style={{ justifyContent: 'center' }}>
+              {selectedPolicy?.positionNames.length == 0 && <Loader width={10} height={10} />}
               {selectedPolicy?.positionNames.slice(0, maxPositionsOnDisplay).map((name: string) => (
                 <FlexCol key={name}>
                   <DeFiAssetImage noborder width={45} height={45}>

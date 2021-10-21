@@ -97,7 +97,7 @@ export const Statistics: React.FC = () => {
       const localTx = {
         hash: txHash,
         type: txType,
-        value: truncateBalance(totalUserRewards),
+        value: `${truncateBalance(totalUserRewards)} ${Unit.SOLACE}`,
         status: TransactionCondition.PENDING,
         unit: Unit.SOLACE,
       }

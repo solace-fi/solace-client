@@ -65,7 +65,7 @@ export const MyInvestments: React.FC = () => {
       <Text t1 bold>
         My Investments
       </Text>
-      <CardContainer>
+      <CardContainer style={{ overflowX: 'auto' }}>
         <InvestmentCard>
           <CardHeader>
             <CardTitle t4>Options Farming Pool</CardTitle>

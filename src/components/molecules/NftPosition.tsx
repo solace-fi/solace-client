@@ -60,10 +60,14 @@ export const NftPosition: React.FC<NftPositionProps> = ({ tokenId }) => {
   useEffect(() => {
     const getUri = async () => {
       if (!lpToken || tokenId.eq(ZERO)) return
-      const uri = await lpToken.tokenURI(tokenId)
-      const newUri = uri.replace('data:application/json;base64,', '')
-      const json = JSON.parse(atob(newUri))
-      setImage(json.image)
+      await lpToken
+        .tokenURI(tokenId)
+        .then((uri: string) => {
+          const newUri = uri.replace('data:application/json;base64,', '')
+          const json = JSON.parse(atob(newUri))
+          setImage(json.image)
+        })
+        .catch((err: any) => console.log(err))
     }
     getUri()
   }, [lpToken, tokenId])

@@ -21,6 +21,12 @@ interface SmallBoxProps {
   collapse?: boolean
 }
 
+const BoxOutline = css`
+  border-width: 1px;
+  border-style: solid;
+  border-color: ${({ theme }) => theme.box.border_color};
+`
+
 const BoxCss = css<GeneralElementProps & BoxProps>`
   background: ${({ theme }) => theme.box.bg_color_1};
   ${(props) => props.transparent && 'background: rgba(0, 0, 0, 0);'}
@@ -59,12 +65,6 @@ export const BoxRow = styled(BoxBase)`
     padding: 20px;
     gap: 10px;
   }
-`
-
-const BoxOutline = css`
-  border-width: 1px;
-  border-style: solid;
-  border-color: ${({ theme }) => theme.box.border_color};
 `
 
 export const Box = styled(BoxRow)<BoxProps & GeneralElementProps>`

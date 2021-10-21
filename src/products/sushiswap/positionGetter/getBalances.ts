@@ -10,8 +10,10 @@ import { BigNumber } from 'ethers'
 import { withBackoffRetries } from '../../../utils/time'
 import axios from 'axios'
 import ierc20Json from '../../_contracts/IERC20Metadata.json'
+import { getAmounts_MasterChefStakingPool } from './getStakes/MasterChefStakingFarm'
 
 import { ApolloClient, InMemoryCache, gql } from '@apollo/client'
+import { queryBalance } from '../../../utils/contract'
 
 export const getBalances = async (
   user: string,
@@ -19,7 +21,10 @@ export const getBalances = async (
   activeNetwork: NetworkConfig,
   tokens: Token[]
 ): Promise<Token[]> => {
+  if (tokens.length == 0) return []
+
   const balances: Token[] = tokens
+  const indices = rangeFrom0(balances.length)
 
   /*
 
@@ -27,72 +32,21 @@ export const getBalances = async (
 
   */
 
-  // const GRAPH_URL = `https://gateway.thegraph.com/api/${String(
-  //   THEGRAPH_API_KEY
-  // )}/subgraphs/id/0x4bb4c1b0745ef7b4642feeccd0740dec417ca0a0-1`
+  const additionalTokenBalances: BigNumber[] = []
+  indices.forEach((i) => (additionalTokenBalances[i] = ZERO))
 
-  // const client = new ApolloClient({
-  //   uri: GRAPH_URL,
-  //   cache: new InMemoryCache(),
-  // })
+  const farmAmounts: BigNumber[][] = await Promise.all([
+    getAmounts_MasterChefStakingPool(user, provider, activeNetwork, balances),
+  ])
 
-  // const masterChefStakingContract = getContract(
-  //   '0xc2edad668740f1aa35e4d8f227fb8e17dca888cd',
-  //   masterchefStakingPoolABI,
-  //   provider
-  // )
-
-  // const apolloData = await client.query({
-  //   query: gql`
-  //     query pools($lpAddrs: [String]) {
-  //       pools(where: { pair_in: $lpAddrs }) {
-  //         id
-  //         pair
-  //       }
-  //     }
-  //   `,
-  //   variables: {
-  //     lpAddrs: tokens.map((t) => t.token.address.toLowerCase()),
-  //   },
-  // })
-
-  // const pools = apolloData.data.pools
-
-  // for (let i = 0; i < balances.length; i++) {
-  //   const matchingPool = pools.find((pool: any) => pool.pair.toLowerCase() == balances[i].token.address.toLowerCase())
-
-  //   if (matchingPool) {
-  //     // check staking contract for balances
-  //     const userInfo = await masterChefStakingContract.userInfo(
-  //       BigNumber.from(matchingPool.id),
-  //       balances[i].metadata.user
-  //     )
-
-  //     const amount = userInfo.amount
-  //     balances[i].token.balance = balances[i].token.balance.add(amount)
-
-  //     // if (amount.gt(ZERO)) {
-  //     //   const farmToken: Token = {
-  //     //     token: {
-  //     //       address: '0xc2edad668740f1aa35e4d8f227fb8e17dca888cd',
-  //     //       name: `MasterChef LP Staking Pool (${balances[i].underlying[0].symbol}/${balances[i].underlying[1].symbol})`,
-  //     //       symbol: 'SLP',
-  //     //       decimals: balances[i].token.decimals,
-  //     //       balance: amount,
-  //     //     },
-  //     //     underlying: balances[i].underlying,
-  //     //     eth: {
-  //     //       balance: ZERO,
-  //     //     },
-  //     //     tokenType: 'token',
-  //     //     metadata: {
-  //     //       lpTokenAddress: balances[i].token.address,
-  //     //     },
-  //     //   }
-  //     //   farmTokensToAdd.push(farmToken)
-  //     // }
-  //   }
-  // }
+  for (let i = 0; i < balances.length; i++) {
+    let newBalance = ZERO
+    for (let j = 0; j < farmAmounts.length; j++) {
+      const a = farmAmounts[j][i]
+      newBalance = a.add(newBalance)
+    }
+    additionalTokenBalances[i] = newBalance
+  }
 
   /*
 
@@ -101,20 +55,21 @@ export const getBalances = async (
   */
 
   const lpTokenContracts = balances.map((token) => getContract(token.token.address, ierc20Json.abi, provider))
-  const queriedBalances = await Promise.all(lpTokenContracts.map((contract) => contract.balanceOf(user)))
-  const indices = rangeFrom0(balances.length)
-  indices.forEach((i) => (balances[i].token.balance = balances[i].token.balance.add(queriedBalances[i])))
+  const queriedBalances = await Promise.all(lpTokenContracts.map((contract) => queryBalance(contract, user)))
+  indices.forEach((i) => (balances[i].token.balance = queriedBalances[i].add(additionalTokenBalances[i])))
 
   for (let i = 0; i < balances.length; i++) {
     if (balances[i].token.balance.gt(ZERO)) {
       const token0Contract = getContract(balances[i].underlying[0].address, ierc20Json.abi, provider)
       const token1Contract = getContract(balances[i].underlying[1].address, ierc20Json.abi, provider)
 
-      const bal0 = await withBackoffRetries(async () => token0Contract.balanceOf(balances[i].token.address))
-      const bal1 = await withBackoffRetries(async () => token1Contract.balanceOf(balances[i].token.address))
+      const bal0 = await withBackoffRetries(async () => queryBalance(token0Contract, balances[i].token.address))
+      const bal1 = await withBackoffRetries(async () => queryBalance(token1Contract, balances[i].token.address))
 
       const totalSupply = await lpTokenContracts[i].totalSupply()
-      const liquidity = await withBackoffRetries(async () => lpTokenContracts[i].balanceOf(balances[i].token.address))
+      const liquidity = await withBackoffRetries(async () =>
+        queryBalance(lpTokenContracts[i], balances[i].token.address)
+      )
 
       const adjustedLiquidity = liquidity.add(balances[i].token.balance)
 

@@ -86,6 +86,7 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
   const [fetchedPositions, setFetchedPositions] = useState<Position[]>([])
   const [productLink, setProductLink] = useState<string | undefined>(undefined)
   const canLoadOverTime = useRef(false)
+  const canFetchPositions = useRef(true)
 
   /*************************************************************************************
 
@@ -126,12 +127,17 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
     switch (supportedProduct.positionsType) {
       case PositionType.TOKEN:
         if (typeof supportedProduct.getBalances !== 'undefined') {
-          const balances: Token[] = await supportedProduct.getBalances(
-            account,
-            library,
-            activeNetwork,
-            savedPositions.map((position) => position.position as Token)
-          )
+          const balances: Token[] = await supportedProduct
+            .getBalances(
+              account,
+              library,
+              activeNetwork,
+              savedPositions.map((position) => position.position as Token)
+            )
+            .catch((e) => {
+              console.log(`PositionStep: getBalances() for ${supportedProduct.name} failed`, e)
+              return []
+            })
           return balances.map((balance) => {
             return { type: PositionType.TOKEN, position: balance }
           })
@@ -139,12 +145,17 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
         return []
       case PositionType.LQTY:
         if (typeof supportedProduct.getPositions !== 'undefined') {
-          const positions: LiquityPosition[] = await supportedProduct.getPositions(
-            account,
-            library,
-            activeNetwork,
-            savedPositions.map((position) => position.position as LiquityPosition)
-          )
+          const positions: LiquityPosition[] = await supportedProduct
+            .getPositions(
+              account,
+              library,
+              activeNetwork,
+              savedPositions.map((position) => position.position as LiquityPosition)
+            )
+            .catch((e: any) => {
+              console.log(`PositionStep: getPositions() for ${supportedProduct.name} failed`, e)
+              return []
+            })
           return positions.map((balance) => {
             return { type: PositionType.LQTY, position: balance }
           })
@@ -187,13 +198,15 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
   }
 
   const getUserPositions = async () => {
-    if (!tokenPosData.dataInitialized || !chainId) return
+    if (!tokenPosData.dataInitialized || !chainId || !canFetchPositions.current) return
+    canFetchPositions.current = false
     if (findNetworkByChainId(chainId)) {
       try {
         const supportedProduct = activeNetwork.cache.supportedProducts.find((product) => product.name == protocol.name)
         const matchingCache = tokenPosData.storedPosData.find((dataset) => dataset.chainId == activeNetwork.chainId)
         if (!supportedProduct || !matchingCache) return
         const _fetchedPositions = await handleFetchPositions(supportedProduct, matchingCache)
+        canFetchPositions.current = true
         setFetchedPositions(_fetchedPositions)
         setForm({
           target: {
@@ -202,6 +215,7 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
           },
         })
       } catch (err) {
+        canFetchPositions.current = true
         console.log(err)
       }
     }
@@ -263,12 +277,12 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
 
   useEffect(() => {
     const loadOverTime = async () => {
-      if (canLoadOverTime.current && tokenPosData.dataInitialized) {
+      if (canLoadOverTime.current) {
         await getUserPositions()
       }
     }
     loadOverTime()
-  }, [latestBlock])
+  }, [latestBlock, tokenPosData.dataInitialized])
 
   useEffect(() => {
     setSelectablePositions(

@@ -89,7 +89,7 @@ export const MyOptions: React.FC = () => {
       const localTx = {
         hash: txHash,
         type: txType,
-        value: String(_optionId),
+        value: `Option #${String(_optionId)}`,
         status: TransactionCondition.PENDING,
         unit: Unit.ID,
       }
@@ -121,7 +121,7 @@ export const MyOptions: React.FC = () => {
           {openOptions ? 'Hide Options' : 'Show Options'}
         </Button>
       </Text>
-      <Text t4 pb={10}>
+      <Text t4 pt={10} pb={10}>
         Options are special tokens granting you the right to purchase $SOLACE at a discount. You can earn $SOLACE
         options by underwriting coverage and staking in the Options Farming Pool.
       </Text>

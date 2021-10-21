@@ -86,13 +86,14 @@ export const TokenPositionCard: React.FC<TokenPositionCardProps> = ({
         haveErrors
           ? undefined
           : isActive
-          ? () =>
+          ? () => {
               openManageModal(
                 userPolicies.filter(
                   (policy) =>
                     policy.productName == protocolName && policy.positionDescription.includes(token.token.address)
                 )[0]
               )
+            }
           : () => handleSelect(position)
       }
     >
@@ -115,20 +116,20 @@ export const TokenPositionCard: React.FC<TokenPositionCardProps> = ({
           })}
         </PositionCardName>
       )}
-      {token.underlying.map((underlyingToken: TokenData, i) => (
-        <PositionCardText t2 style={{ opacity: isActive ? '.5' : '1' }} light={lightText} key={i}>
-          {truncateBalance(fixedTokenPositionBalance(underlyingToken))}{' '}
-          <TextSpan style={{ fontSize: '12px' }} light={lightText}>
-            {underlyingToken.symbol}
-          </TextSpan>
-        </PositionCardText>
-      ))}
-      <PositionCardText t3 style={{ opacity: isActive ? '.5' : '1' }} light={lightText}>
+      <PositionCardText t2 style={{ opacity: isActive ? '.5' : '1' }} light={lightText}>
         {truncateBalance(fixedTokenPositionBalance(token.token))}{' '}
         <TextSpan style={{ fontSize: '12px' }} light={lightText}>
           {token.token.symbol}
         </TextSpan>
       </PositionCardText>
+      {/* {token.underlying.map((underlyingToken: TokenData, i) => (
+        <PositionCardText t3 style={{ opacity: isActive ? '.5' : '1' }} light={lightText} key={i}>
+          {truncateBalance(fixedTokenPositionBalance(underlyingToken))}{' '}
+          <TextSpan style={{ fontSize: '12px' }} light={lightText}>
+            {underlyingToken.symbol}
+          </TextSpan>
+        </PositionCardText>
+      ))} */}
       <PositionCardButton>
         {isActive ? (
           <Button widthP={width > BKPT_3 ? undefined : 100} light>

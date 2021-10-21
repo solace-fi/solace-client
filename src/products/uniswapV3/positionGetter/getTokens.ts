@@ -6,7 +6,7 @@ import { ETHERSCAN_API_KEY, ZERO } from '../../../constants'
 import factoryAbi from './_contracts/IUniswapV3Factory.json'
 import lpTokenAbi from './_contracts/IUniswapLpToken.json'
 import positionManagerAbi from '../../../../node_modules/@uniswap/v3-periphery/artifacts/contracts/NonfungiblePositionManager.sol/NonfungiblePositionManager.json'
-import { listTokensOfOwner } from '../../../utils/token'
+import { listTokensOfOwner } from '../../../utils/contract'
 import { BigNumber } from 'ethers'
 
 import { ApolloClient, InMemoryCache, gql } from '@apollo/client'
@@ -68,6 +68,10 @@ export const getTokens = async (provider: any, activeNetwork: NetworkConfig, met
       },
     })
     .then((result) => result.data.positions.filter((p: any) => BigNumber.from(p.liquidity).gt(ZERO)))
+    .catch((e) => {
+      console.log('apollo fetch at uniswapV3.getTokens failed', e)
+      return []
+    })
 
   for (let i = 0; i < apolloData.length; i++) {
     const token0Addr = apolloData[i].token0.id
@@ -85,7 +89,7 @@ export const getTokens = async (provider: any, activeNetwork: NetworkConfig, met
 
     const token: Token = {
       token: {
-        address: poolAddress,
+        address: poolAddress.toLowerCase(),
         name: `#${lpTokenId} - ${token0Name}/${token1Name}`,
         symbol: `UNI-V3-POS`,
         decimals: 18,
@@ -93,14 +97,14 @@ export const getTokens = async (provider: any, activeNetwork: NetworkConfig, met
       },
       underlying: [
         {
-          address: token0Addr,
+          address: token0Addr.toLowerCase(),
           name: token0Name,
           symbol: token0Symbol,
           decimals: parseInt(token0Decimals),
           balance: ZERO,
         },
         {
-          address: token1Addr,
+          address: token1Addr.toLowerCase(),
           name: token1Name,
           symbol: token1Symbol,
           decimals: parseInt(token1Decimals),
@@ -160,12 +164,12 @@ export const getTokens = async (provider: any, activeNetwork: NetworkConfig, met
   //   const token1Contract = getContract(token1, ierc20Json.abi, provider)
 
   //   const [name0, symbol0, decimals0, name1, symbol1, decimals1] = await Promise.all([
-  //     token0Contract.name(),
-  //     token0Contract.symbol(),
-  //     token0Contract.decimals(),
-  //     token1Contract.name(),
-  //     token1Contract.symbol(),
-  //     token1Contract.decimals(),
+  //     queryName(token0Contract, provider),
+  //     querySymbol(token0Contract, provider),
+  //     queryDecimals(token0Contract),
+  //     queryName(token1Contract, provider),
+  //     querySymbol(token1Contract, provider),
+  //     queryDecimals(token1Contract),
   //   ])
 
   //   console.log(positionsWithLiquidity[i])

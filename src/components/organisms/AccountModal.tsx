@@ -171,7 +171,7 @@ export const AccountModal: React.FC<AccountModalProps> = ({ closeModal, isOpen }
                     </TableData>
                     {width > BKPT_5 && (
                       <>
-                        <TableData pt={5} pb={5} t4>{`${pendingtx.value} ${pendingtx.unit}`}</TableData>
+                        <TableData pt={5} pb={5} t4>{`${pendingtx.value}`}</TableData>
                         <TableData pt={5} pb={5} t4>
                           {timeAgo(Number(Date.now()) * 1000)}
                         </TableData>

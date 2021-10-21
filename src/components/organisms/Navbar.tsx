@@ -48,6 +48,7 @@ import {
   StyledDocuments,
   StyledDocumentText,
   StyledWork,
+  StyledLockFile,
 } from '../atoms/Icon'
 import { Text, TextSpan } from '../atoms/Typography'
 import { HyperLink } from '../atoms/Link'
@@ -205,6 +206,15 @@ export const SideNavbar: React.FC<SideNavbarProps> = ({ isMobile }) => {
               </HyperLink>
             </ItemText>
           </StyledNavTooltip>
+          <StyledNavTooltip id={'terms-nav'} tip={'Terms & Conditions'}>
+            <ItemText>
+              <SidebarItem to={'/terms'} style={{ ...miniNavbarMarginSet }}>
+                <TextSpan t4 light={lightText}>
+                  {width > BKPT_3 ? 'Terms & Conditions' : <StyledLockFile size={30} />}
+                </TextSpan>
+              </SidebarItem>
+            </ItemText>
+          </StyledNavTooltip>
           <HorizRule location={location} />
           {width > BKPT_3 ? (
             <ItemText style={{ padding: '4px 0', justifyContent: 'space-between' }}>
@@ -343,6 +353,16 @@ export const TopNavbar: React.FC = () => {
   const location = useLocation()
   const { toastSettings, makeAppToast } = useToasts()
 
+  const handleIsOpen = (toggle: boolean) => {
+    if (!toggle) {
+      const topNavbar = document.getElementById('top-nav')
+      if (topNavbar) {
+        topNavbar.scrollTop = 0
+      }
+    }
+    setIsOpen(toggle)
+  }
+
   /*************************************************************************************
 
   useEffect hooks
@@ -350,7 +370,7 @@ export const TopNavbar: React.FC = () => {
   *************************************************************************************/
 
   useEffect(() => {
-    if (location && location.pathname && location.pathname != '/') {
+    if (location && location.pathname && location.pathname != '/' && location.pathname != '/terms') {
       makeAppToast(
         {
           type: SystemNotice.AUDIT_NOTICE,
@@ -365,32 +385,26 @@ export const TopNavbar: React.FC = () => {
     }
   }, [location])
 
-  /*************************************************************************************
-
-  Render
-
-  *************************************************************************************/
-
   return (
-    <TopNav isOpen={isOpen}>
+    <TopNav id="top-nav" isOpen={isOpen} style={{ overflowY: isOpen ? 'auto' : 'hidden' }}>
       <Logo location={location} pl={10} />
       <ItemList>
-        <SidebarItem onClick={() => setIsOpen(!isOpen)} to={'/dashboard'} style={{ padding: '20px 0' }}>
+        <SidebarItem onClick={() => handleIsOpen(!isOpen)} to={'/dashboard'} style={{ padding: '20px 0' }}>
           <Text light bold={location.pathname == '/dashboard'}>
             Dashboard
           </Text>
         </SidebarItem>
-        <SidebarItem onClick={() => setIsOpen(!isOpen)} to={'/quote'} style={{ padding: '20px 0' }}>
+        <SidebarItem onClick={() => handleIsOpen(!isOpen)} to={'/quote'} style={{ padding: '20px 0' }}>
           <Text light bold={location.pathname == '/quote'}>
             Buy Cover
           </Text>
         </SidebarItem>
-        <SidebarItem onClick={() => setIsOpen(!isOpen)} to={'/invest'} style={{ padding: '20px 0' }}>
+        <SidebarItem onClick={() => handleIsOpen(!isOpen)} to={'/invest'} style={{ padding: '20px 0' }}>
           <Text light bold={location.pathname == '/invest'}>
             Invest
           </Text>
         </SidebarItem>
-        <SidebarItem onClick={() => setIsOpen(!isOpen)} to={'/govern'} style={{ padding: '20px 0' }}>
+        <SidebarItem onClick={() => handleIsOpen(!isOpen)} to={'/govern'} style={{ padding: '20px 0' }}>
           <Text light bold={location.pathname == '/govern'}>
             Govern
           </Text>
@@ -419,6 +433,13 @@ export const TopNavbar: React.FC = () => {
               Jobs
             </TextSpan>
           </HyperLink>
+        </ItemText>
+        <ItemText style={{ padding: '10px', justifyContent: 'center' }}>
+          <SidebarItem onClick={() => handleIsOpen(!isOpen)} to={'/terms'}>
+            <TextSpan t4 light>
+              Terms &amp; Conditions
+            </TextSpan>
+          </SidebarItem>
         </ItemText>
       </ItemList>
       <ItemText style={{ padding: '0', justifyContent: 'center', gap: '60px' }}>
@@ -463,8 +484,8 @@ export const TopNavbar: React.FC = () => {
           </SidebarText>
         </HyperLink>
       </ItemText>
-      <ThemeButton pt={10} light />
-      <NavButton light onClick={() => setIsOpen(!isOpen)}>
+      <ThemeButton pt={10} pb={10} light />
+      <NavButton light onClick={() => handleIsOpen(!isOpen)}>
         <StyledMenu size={40} />
       </NavButton>
     </TopNav>

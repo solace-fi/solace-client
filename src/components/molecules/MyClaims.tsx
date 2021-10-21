@@ -90,7 +90,7 @@ export const MyClaims: React.FC = () => {
       const localTx = {
         hash: txHash,
         type: txType,
-        value: String(_claimId),
+        value: `Claim #${String(_claimId)}`,
         status: TransactionCondition.PENDING,
         unit: Unit.ID,
       }
@@ -123,7 +123,7 @@ export const MyClaims: React.FC = () => {
           {openClaims ? 'Hide Claims' : 'Show Claims'}
         </Button>
       </Text>
-      <Text t4 pb={10}>
+      <Text t4 pt={10} pb={10}>
         View details on claims or start withdrawing payout
       </Text>
       <Accordion isOpen={openClaims}>

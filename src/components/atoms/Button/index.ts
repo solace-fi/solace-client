@@ -2,6 +2,11 @@ import { GeneralElementProps, GeneralElementCss, MarginProps, MarginCss } from '
 import styled, { css } from 'styled-components'
 import { Text4Css } from '../Typography'
 
+export interface ClickProps {
+  onClick?: any
+  disabled?: boolean
+}
+
 export interface ButtonProps extends ClickProps {
   analogical?: boolean
   light?: boolean
@@ -21,11 +26,6 @@ export interface ButtonProps extends ClickProps {
 interface ButtonWrapperProps {
   isRow?: boolean
   isColumn?: boolean
-}
-
-export interface ClickProps {
-  onClick?: any
-  disabled?: boolean
 }
 
 export const ButtonWrapperCss = css<ButtonWrapperProps>`
