@@ -18,6 +18,7 @@ import { PositionType, ProductName } from '../constants/enums'
 import { getTroveContract } from '../products/liquity/positionGetter/getPositions'
 import { ETHERSCAN_API_KEY, ZERO } from '../constants'
 import { withBackoffRetries } from '../utils/time'
+import { fetchTransferEventsOfUser } from '../utils/explorer'
 
 export const useCachePositions = () => {
   const { library, account } = useWallet()
@@ -67,18 +68,7 @@ export const useCachePositions = () => {
       // for every supported product in this network, initialize the positions, if any
       const supportedProducts = _activeNetwork.cache.supportedProducts
 
-      const url = `${
-        activeNetwork.explorer.apiUrl
-      }/api?module=account&action=tokentx&address=${_account}&startblock=0&endblock=latest&apikey=${String(
-        ETHERSCAN_API_KEY
-      )}`
-      const touchedAddresses = await withBackoffRetries(async () => fetch(url))
-        .then((res) => res.json())
-        .then((result) => result.result)
-        .then((result) => {
-          if (result != 'Max rate limit reached') return result
-          return []
-        })
+      const touchedAddresses = await fetchTransferEventsOfUser(activeNetwork.explorer.apiUrl, _account)
       await Promise.all(
         supportedProducts.map(async (supportedProduct: SupportedProduct) => {
           if (
@@ -133,7 +123,11 @@ export const useCachePositions = () => {
     switch (supportedProduct.positionsType) {
       case PositionType.TOKEN:
         if (typeof supportedProduct.getTokens !== 'undefined') {
-          const tokens: Token[] = await supportedProduct.getTokens(_library, _activeNetwork, metadata).catch((err) => {
+          const tokens: Token[] = await supportedProduct.getTokens[_activeNetwork.chainId](
+            _library,
+            _activeNetwork,
+            metadata
+          ).catch((err) => {
             console.log(`useCachePositions: getTokens() for ${supportedProduct.name} product failed`, err)
             return []
           })

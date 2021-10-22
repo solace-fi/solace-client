@@ -60,12 +60,15 @@ export const useAppraisePolicyPosition = (policy: Policy | undefined): BigNumber
           tokensToAppraise.push(positionToAppraise.position as Token)
         })
         if (typeof supportedProduct.getBalances !== 'undefined') {
-          const erc20Tokens: Token[] = await supportedProduct
-            .getBalances(account, library, activeNetwork, tokensToAppraise)
-            .catch((e) => {
-              console.log(`usePolicy: getBalances() for ${supportedProduct.name} failed`, e)
-              return []
-            })
+          const erc20Tokens: Token[] = await supportedProduct.getBalances[activeNetwork.chainId](
+            account,
+            library,
+            activeNetwork,
+            tokensToAppraise
+          ).catch((e) => {
+            console.log(`usePolicy: getBalances() for ${supportedProduct.name} failed`, e)
+            return []
+          })
           return erc20Tokens.map((t) => t.eth.balance)
         }
         return []
@@ -79,12 +82,15 @@ export const useAppraisePolicyPosition = (policy: Policy | undefined): BigNumber
           positionsToAppraise.push(positionToAppraise.position as LiquityPosition)
         })
         if (typeof supportedProduct.getPositions !== 'undefined') {
-          const liquityPositions = await supportedProduct
-            .getPositions(account, library, activeNetwork, positionsToAppraise)
-            .catch((e: any) => {
-              console.log(`usePolicy: getPositions() for ${supportedProduct.name} failed`, e)
-              return []
-            })
+          const liquityPositions = await supportedProduct.getPositions[activeNetwork.chainId](
+            account,
+            library,
+            activeNetwork,
+            positionsToAppraise
+          ).catch((e: any) => {
+            console.log(`usePolicy: getPositions() for ${supportedProduct.name} failed`, e)
+            return []
+          })
           const liquityBalances: BigNumber[] = liquityPositions.map((pos: LiquityPosition) => pos.nativeAmount)
           return liquityBalances
         }
@@ -131,15 +137,12 @@ export const useGetMaxCoverPerPolicy = (): string => {
   const { selectedProtocol, riskManager } = useContracts()
   const { currencyDecimals } = useNetwork()
   const { gasPrices } = useCachedData()
-  const { gasConfig } = useGasConfig(gasPrices.selected?.value)
+  // const { gasConfig } = useGasConfig(gasPrices.selected?.value)
 
   const getMaxCoverPerPolicy = async () => {
     if (!selectedProtocol || !riskManager) return
     try {
-      const maxCoverPerPolicy = await riskManager.maxCoverPerPolicy(selectedProtocol.address, {
-        ...gasConfig,
-        gasLimit: GAS_LIMIT,
-      })
+      const maxCoverPerPolicy = await riskManager.maxCoverPerPolicy(selectedProtocol.address)
       const formattedMaxCover = formatUnits(maxCoverPerPolicy, currencyDecimals)
       setMaxCoverPerPolicy(formattedMaxCover)
     } catch (err) {

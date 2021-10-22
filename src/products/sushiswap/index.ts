@@ -7,6 +7,13 @@ export const SushiswapProduct: SupportedProduct = {
   name: ProductName.SUSHISWAP,
   positionsType: PositionType.TOKEN,
   productLink: 'https://app.sushi.com/pool',
-  getTokens,
-  getBalances,
+  supportedSubProducts: {
+    [1]: ['MasterChefV2'],
+  },
+  getTokens: {
+    [1]: getTokens,
+  },
+  getBalances: {
+    [1]: getBalances,
+  },
 }

@@ -13,9 +13,11 @@ import curveAddressProviderAbi from './_contracts/ICurveAddressProvider.json'
 import curveGaugeAbi from './_contracts/ICurveGauge.json'
 import curveRegistryAbi from './_contracts/ICurveRegistry.json'
 import curvePoolAbi from './_contracts/ICurvePool.json'
+import curveFactoryPoolAbi from './_contracts/ICurveFactoryPool.json'
 import { ADDRESS_ZERO, ZERO } from '../../../constants'
 import { queryBalance } from '../../../utils/contract'
 import { getAmounts_CurveGauge } from './getStakes/CurveGauge'
+import { get1InchPrice } from '../../../utils/api'
 
 const ETH = '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee'
 
@@ -54,19 +56,7 @@ export const getBalances = async (
     additionalTokenBalances[i] = newBalance
   }
 
-  // for (let i = 0; i < farmAmounts.length; i++) {
-  //   let newBalance = ZERO
-  //   for (let j = 0; j < farmAmounts[i].length; j++) {
-  //     const a = farmAmounts[i][j]
-  //     newBalance = a.add(newBalance)
-  //   }
-  //   additionalTokenBalances[j] = newBalance
-  // }
-
   for (let i = 0; i < balances.length; i++) {
-    // const poolAddr = await curveRegistryContract.get_pool_from_lp_token(balances[i].token.address)
-    // console.log(balances[i].token.address, 'pool addr', poolAddr)
-
     const lpTokenContract = getContract(balances[i].token.address, ierc20Json.abi, provider)
     const queriedBalance = await queryBalance(lpTokenContract, user)
 
@@ -74,16 +64,19 @@ export const getBalances = async (
 
     if (balances[i].token.balance.gt(ZERO)) {
       const poolContract = getContract(balances[i].metadata.poolAddr, curvePoolAbi, provider)
-      const uBalance = await poolContract.calc_withdraw_one_coin(balances[i].token.balance, 0).catch((e: any) => {
-        console.log('getBalances calc_withdraw_one_coin failed', e)
-        return ZERO
-      })
+      const factoryPoolContract = getContract(balances[i].metadata.poolAddr, curveFactoryPoolAbi, provider)
+      const uBalance = balances[i].metadata.isFactory
+        ? await factoryPoolContract.calc_withdraw_one_coin(balances[i].token.balance, 0)
+        : await poolContract.calc_withdraw_one_coin(balances[i].token.balance, 0)
       balances[i].underlying[0].balance = uBalance
 
       if (!equalsIgnoreCase(balances[i].underlying[0].address, ETH)) {
-        const url = `https://api.1inch.exchange/v3.0/1/quote?fromTokenAddress=${balances[i].underlying[0].address}&toTokenAddress=${ETH}&amount=${balances[i].underlying[0].balance}`
         try {
-          const res = await withBackoffRetries(async () => axios.get(url))
+          const res = await get1InchPrice(
+            balances[i].underlying[0].address,
+            ETH,
+            balances[i].underlying[0].balance.toString()
+          )
           const ethAmount: BigNumber = BigNumber.from(res.data.toTokenAmount)
           balances[i].eth.balance = ethAmount
         } catch (e) {

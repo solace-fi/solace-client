@@ -57,7 +57,7 @@ import { useGasConfig } from '../../hooks/useGas'
 /* import utils */
 import { truncateBalance } from '../../utils/formatting'
 import { timeToDateText } from '../../utils/time'
-import { getClaimAssessment } from '../../utils/paclas'
+import { getClaimAssessment } from '../../utils/api'
 
 interface ClaimModalProps {
   closeModal: () => void

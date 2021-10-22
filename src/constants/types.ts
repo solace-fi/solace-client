@@ -165,13 +165,22 @@ export type SupportedProduct = {
   name: ProductName
   positionsType: PositionsType
   productLink?: string
-  // stakingPools: {
-  //   [key: number]: string[]
-  // }
+  supportedSubProducts?: {
+    [key: number]: string[] // array of farm or other pool positions for a product supported on different chains
+  }
 
-  getTokens?: (provider: any, activeNetwork: NetworkConfig, metadata?: any) => Promise<Token[]>
-  getBalances?: (user: string, provider: any, activeNetwork: NetworkConfig, tokens: Token[]) => Promise<Token[]>
-  getPositions?: any
+  // getTokens?: (provider: any, activeNetwork: NetworkConfig, metadata?: any) => Promise<Token[]>
+  // getBalances?: (user: string, provider: any, activeNetwork: NetworkConfig, tokens: Token[]) => Promise<Token[]>
+  // getPositions?: any
+  getTokens?: {
+    [key: number]: (provider: any, activeNetwork: NetworkConfig, metadata?: any) => Promise<Token[]>
+  }
+  getBalances?: {
+    [key: number]: (user: string, provider: any, activeNetwork: NetworkConfig, tokens: Token[]) => Promise<Token[]>
+  }
+  getPositions?: {
+    [key: number]: any
+  }
 }
 
 export type ProductContract = {

@@ -127,17 +127,15 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
     switch (supportedProduct.positionsType) {
       case PositionType.TOKEN:
         if (typeof supportedProduct.getBalances !== 'undefined') {
-          const balances: Token[] = await supportedProduct
-            .getBalances(
-              account,
-              library,
-              activeNetwork,
-              savedPositions.map((position) => position.position as Token)
-            )
-            .catch((e) => {
-              console.log(`PositionStep: getBalances() for ${supportedProduct.name} failed`, e)
-              return []
-            })
+          const balances: Token[] = await supportedProduct.getBalances[activeNetwork.chainId](
+            account,
+            library,
+            activeNetwork,
+            savedPositions.map((position) => position.position as Token)
+          ).catch((e) => {
+            console.log(`PositionStep: getBalances() for ${supportedProduct.name} failed`, e)
+            return []
+          })
           return balances.map((balance) => {
             return { type: PositionType.TOKEN, position: balance }
           })
@@ -145,17 +143,15 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
         return []
       case PositionType.LQTY:
         if (typeof supportedProduct.getPositions !== 'undefined') {
-          const positions: LiquityPosition[] = await supportedProduct
-            .getPositions(
-              account,
-              library,
-              activeNetwork,
-              savedPositions.map((position) => position.position as LiquityPosition)
-            )
-            .catch((e: any) => {
-              console.log(`PositionStep: getPositions() for ${supportedProduct.name} failed`, e)
-              return []
-            })
+          const positions: LiquityPosition[] = await supportedProduct.getPositions[activeNetwork.chainId](
+            account,
+            library,
+            activeNetwork,
+            savedPositions.map((position) => position.position as LiquityPosition)
+          ).catch((e: any) => {
+            console.log(`PositionStep: getPositions() for ${supportedProduct.name} failed`, e)
+            return []
+          })
           return positions.map((balance) => {
             return { type: PositionType.LQTY, position: balance }
           })

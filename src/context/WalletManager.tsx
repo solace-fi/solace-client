@@ -235,10 +235,11 @@ const WalletProvider: React.FC = (props) => {
       const sushiU = '0x55f4b291E26d2143721C7EBeB1C44660A9A5Eb5E'
       const curveU2 = '0x53C40473DcdFd927C4201cCFE24E314a7D7C3584'
       const curveU3 = '0xfcb85d4139123b1ec6746d1c487a2201045b9f72'
+      const curveU4 = '0x18C64fAf2DF0286E1520B2F0F2d3841bcF865116'
       const uniV2U = '0xC04F63Ea1E2E2FFEACAde7839E0596E2B886f6A4'
       const uniV3U = '0xAc32EAfcCAd3C8577FB2e842dCE8e441D9A7dB85'
       const yearnU = '0x2b5989Dd16eA2a11053F35B8c08b1E313C4E5cbB'
-      const user = sushiU
+      const user = curveU4
       const url = `https://api.etherscan.io/api?module=account&action=tokentx&address=${user}&startblock=0&endblock=latest&apikey=${String(
         ETHERSCAN_API_KEY
       )}`
@@ -249,16 +250,16 @@ const WalletProvider: React.FC = (props) => {
           if (result != 'Max rate limit reached') return result
           return []
         })
-      const cachedTokens = await gT0(provider, activeNetwork, { user, transferHistory })
+      // const cachedTokens = await gT0(provider, activeNetwork, { user, transferHistory })
       // const cachedTokens = await gT1(provider, activeNetwork, { user, transferHistory })
-      // const cachedTokens = await gT2(provider, activeNetwork, { user, transferHistory })
+      const cachedTokens = await gT2(provider, activeNetwork, { user, transferHistory })
       // const cachedTokens = await gT3(provider, activeNetwork, { user, transferHistory })
       // const cachedTokens = await gT4(provider, activeNetwork, { user, transferHistory })
       // const cachedTokens = await gT5(provider, activeNetwork, { user, transferHistory })
       console.log(cachedTokens)
-      const balances = await gB0(user, provider, activeNetwork, cachedTokens)
+      // const balances = await gB0(user, provider, activeNetwork, cachedTokens)
       //const balances = await gB1(user, provider, activeNetwork, cachedTokens)
-      // const balances = await gB2(user, provider, activeNetwork, cachedTokens)
+      const balances = await gB2(user, provider, activeNetwork, cachedTokens)
       //const balances = await gB3(user, provider, activeNetwork, cachedTokens)
       // const balances = await gB4(user, provider, activeNetwork, cachedTokens)
       // const balances = await gB5(user, provider, activeNetwork, cachedTokens)

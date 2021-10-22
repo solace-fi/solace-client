@@ -7,7 +7,7 @@ import { BigNumber } from 'ethers'
 import { useContracts } from '../context/ContractsManager'
 import { useState, useEffect, useRef } from 'react'
 import { useNetwork } from '../context/NetworkManager'
-import { getClaimAssessment } from '../utils/paclas'
+import { getClaimAssessment } from '../utils/api'
 import { Block } from '@ethersproject/contracts/node_modules/@ethersproject/abstract-provider'
 
 export const usePolicyGetter = (
@@ -78,7 +78,7 @@ export const usePolicyGetter = (
           }
         })
         if (canGetClaimAssessments.current) {
-          await getClaimAssessments(policies)
+          await fetchClaimAssessments(policies)
         } else {
           setUserPolicies(policies)
         }
@@ -151,7 +151,12 @@ export const usePolicyGetter = (
       })
     }
     if (canGetClaimAssessments.current) {
-      const assessment = await getClaimAssessment(String(updatedPolicy.policyId), activeNetwork.chainId)
+      const assessment = await getClaimAssessment(String(updatedPolicy.policyId), activeNetwork.chainId).catch(
+        (err) => {
+          console.log(err)
+          return undefined
+        }
+      )
       updatedPolicy.claimAssessment = assessment
     }
     const updatedPolicies = userPoliciesRef.current.map((oldPolicy) =>
@@ -160,11 +165,11 @@ export const usePolicyGetter = (
     setUserPolicies(updatedPolicies)
   }
 
-  const getClaimAssessments = async (policies: Policy[]) => {
+  const fetchClaimAssessments = async (policies: Policy[]) => {
     const claimAssessments = await Promise.all(
       policies.map(async (policy) =>
         getClaimAssessment(String(policy.policyId), chainId).catch((err) => {
-          console.log(`usePolicyGetter: cannot get claim assessment from paclas`, err)
+          console.log(err)
           return undefined
         })
       )
@@ -221,7 +226,7 @@ export const usePolicyGetter = (
   /* fetch claim assessments for user policies per block */
   useEffect(() => {
     if (userPolicies.length <= 0 || policiesLoading || !canGetClaimAssessments.current) return
-    getClaimAssessments(userPolicies)
+    fetchClaimAssessments(userPolicies)
   }, [latestBlock])
 
   return { policiesLoading, userPolicies, allPolicies, setCanGetAssessments }
