@@ -136,8 +136,6 @@ export const useGetMaxCoverPerPolicy = (): string => {
   const [maxCoverPerPolicy, setMaxCoverPerPolicy] = useState<string>('0')
   const { selectedProtocol, riskManager } = useContracts()
   const { currencyDecimals } = useNetwork()
-  const { gasPrices } = useCachedData()
-  // const { gasConfig } = useGasConfig(gasPrices.selected?.value)
 
   const getMaxCoverPerPolicy = async () => {
     if (!selectedProtocol || !riskManager) return
@@ -161,8 +159,6 @@ export const useGetYearlyCosts = (): StringToStringMapping => {
   const [yearlyCosts, setYearlyCosts] = useState<StringToStringMapping>({})
   const { products, getProtocolByName, riskManager } = useContracts()
   const { currencyDecimals } = useNetwork()
-  const { gasPrices } = useCachedData()
-  const { gasConfig } = useGasConfig(gasPrices.selected?.value)
 
   const getYearlyCosts = async () => {
     try {
@@ -172,10 +168,7 @@ export const useGetYearlyCosts = (): StringToStringMapping => {
         products.map(async (productContract) => {
           const product = getProtocolByName(productContract.name)
           if (product) {
-            const params = await riskManager.productRiskParams(product.address, {
-              ...gasConfig,
-              gasLimit: GAS_LIMIT,
-            })
+            const params = await riskManager.productRiskParams(product.address)
             newYearlyCosts[productContract.name] = formatUnits(params.price, currencyDecimals)
           } else {
             newYearlyCosts[productContract.name] = '0'
@@ -199,8 +192,6 @@ export const useGetAvailableCoverages = (): StringToStringMapping => {
   const [availableCoverages, setAvailableCoverages] = useState<StringToStringMapping>({})
   const { products, getProtocolByName, riskManager } = useContracts()
   const { currencyDecimals } = useNetwork()
-  const { gasPrices } = useCachedData()
-  const { gasConfig } = useGasConfig(gasPrices.selected?.value)
 
   const getAvailableCoverages = async () => {
     try {
@@ -210,10 +201,7 @@ export const useGetAvailableCoverages = (): StringToStringMapping => {
         products.map(async (productContract) => {
           const product = getProtocolByName(productContract.name)
           if (product) {
-            const sellableCoverPerProduct = await riskManager.sellableCoverPerProduct(product.address, {
-              ...gasConfig,
-              gasLimit: GAS_LIMIT,
-            })
+            const sellableCoverPerProduct = await riskManager.sellableCoverPerProduct(product.address)
             const coverage = formatUnits(sellableCoverPerProduct, currencyDecimals)
             newAvailableCoverages[productContract.name] = coverage
           } else {

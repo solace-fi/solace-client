@@ -21,16 +21,11 @@ interface SmallBoxProps {
   collapse?: boolean
 }
 
-const BoxOutline = css`
-  border-width: 1px;
-  border-style: solid;
-  border-color: ${({ theme }) => theme.box.border_color};
-`
-
 const BoxCss = css<GeneralElementProps & BoxProps>`
   background: ${({ theme }) => theme.box.bg_color_1};
   ${(props) => props.transparent && 'background: rgba(0, 0, 0, 0);'}
-  ${(props) => props.outlined && BoxOutline}
+  ${(props) =>
+    props.outlined && `border-width: 1px; border-style: solid; border-color: ${props.theme.box.border_color};`}
   ${(props) => props.color1 && `background: ${props.theme.box.bg_color_1};`}
   ${(props) => props.color2 && `background: ${props.theme.box.bg_color_2};`}
   ${(props) => props.success && `background: ${props.theme.box.success};`}

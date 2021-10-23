@@ -26,7 +26,7 @@ import { BigNumber } from 'ethers'
 /* import managers */
 import { useWallet } from '../../context/WalletManager'
 import { useCachedData } from '../../context/CachedDataManager'
-import { useToasts } from '../../context/NotificationsManager'
+import { useNotifications } from '../../context/NotificationsManager'
 import { useContracts } from '../../context/ContractsManager'
 import { useNetwork } from '../../context/NetworkManager'
 import { useGeneral } from '../../context/GeneralProvider'
@@ -63,7 +63,7 @@ export const MyOptions: React.FC = () => {
   const { account, library } = useWallet()
   const { optionsFarming } = useContracts()
   const { addLocalTransactions, reload, gasPrices, latestBlock } = useCachedData()
-  const { makeTxToast } = useToasts()
+  const { makeTxToast } = useNotifications()
   const { gasConfig } = useGasConfig(gasPrices.selected?.value)
   const { activeNetwork, currencyDecimals } = useNetwork()
   const [openOptions, setOpenOptions] = useState<boolean>(true)

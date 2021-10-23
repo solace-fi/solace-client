@@ -31,7 +31,7 @@ import { TransactionCondition, FunctionName, Unit, PolicyState } from '../../con
 /* import managers */
 import { useWallet } from '../../context/WalletManager'
 import { useContracts } from '../../context/ContractsManager'
-import { useToasts } from '../../context/NotificationsManager'
+import { useNotifications } from '../../context/NotificationsManager'
 import { useCachedData } from '../../context/CachedDataManager'
 import { useNetwork } from '../../context/NetworkManager'
 import { useGeneral } from '../../context/GeneralProvider'
@@ -67,7 +67,7 @@ export const Statistics: React.FC = () => {
   const { account, initialized } = useWallet()
   const { activeNetwork, currencyDecimals } = useNetwork()
   const { farmController } = useContracts()
-  const { makeTxToast } = useToasts()
+  const { makeTxToast } = useNotifications()
   const { addLocalTransactions, reload, gasPrices, tokenPosData, latestBlock } = useCachedData()
   const capitalPoolSize = useCapitalPoolSize()
   const solaceBalance = useSolaceBalance()

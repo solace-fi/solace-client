@@ -28,7 +28,7 @@ import { BigNumber as BN } from 'ethers'
 import { Contract } from '@ethersproject/contracts'
 
 /* import managers */
-import { useToasts } from '../../context/NotificationsManager'
+import { useNotifications } from '../../context/NotificationsManager'
 import { useCachedData } from '../../context/CachedDataManager'
 import { useContracts } from '../../context/ContractsManager'
 import { useWallet } from '../../context/WalletManager'
@@ -101,7 +101,7 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
   const scpBalance = useScpBalance()
   const userLpTokenInfo = useUserWalletLpBalance()
   const depositedLpTokenInfo = useDepositedLpBalance()
-  const { makeTxToast } = useToasts()
+  const { makeTxToast } = useNotifications()
   const { cooldownStarted, timeWaited, cooldownMin, cooldownMax, canWithdrawEth } = useCooldown()
 
   const [amount, setAmount] = useState<string>('')
@@ -525,18 +525,18 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
       <RadioGroup m={0}>
         {!gasPrices.loading ? (
           gasPrices.options.map((option: GasFeeOption) => (
-            <RadioLabel key={option.key}>
+            <RadioElement key={option.key}>
               <RadioInput
                 type="radio"
                 value={option.value}
                 checked={selectedGasOption == option}
                 onChange={() => handleSelectChange(option)}
               />
-              <RadioElement>
+              <RadioLabel>
                 <div>{option.name}</div>
                 <div>{option.value}</div>
-              </RadioElement>
-            </RadioLabel>
+              </RadioLabel>
+            </RadioElement>
           ))
         ) : (
           <Loader />
@@ -631,15 +631,6 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
         <GasRadioGroup mb={20} />
         {func == FunctionName.DEPOSIT_ETH && (
           <>
-            {/* <Text textAlignCenter t4 warning>
-              Disclaimer: The underwriting pool backs the risk of coverage policies,
-            </Text>
-            <Text textAlignCenter t4 warning>
-              so in case one of the covered protocols get exploited,
-            </Text>
-            <Text textAlignCenter t4 warning>
-              the claims will be paid out from this source of funds.
-            </Text> */}
             <Text textAlignCenter t4 warning width={270} style={{ margin: 'auto' }}>
               Disclaimer: The underwriting pool backs the risk of coverage policies, so in case one of the covered
               protocols get exploited, the claims will be paid out from this source of funds.

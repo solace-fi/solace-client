@@ -313,7 +313,7 @@ const ToastsProvider: React.FC = (props) => {
 }
 
 // To get access to this Manager, import this into your component or hook
-export function useToasts(): ToastSystem {
+export function useNotifications(): ToastSystem {
   return useContext(ToastsContext)
 }
 
