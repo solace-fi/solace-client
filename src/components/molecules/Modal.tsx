@@ -2,7 +2,6 @@
 
     Table of Contents:
 
-    import react
     import packages
     import managers
     import components
@@ -15,7 +14,7 @@
 
   *************************************************************************************/
 
-/* import react */
+/* import packages */
 import React, { Fragment } from 'react'
 
 /* import managers */

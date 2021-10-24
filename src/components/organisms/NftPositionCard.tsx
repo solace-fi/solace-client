@@ -1,6 +1,6 @@
 /*
 
-  import react
+  import packages
   import managers
   import constants
   import hooks
@@ -11,7 +11,7 @@
 
 */
 
-/* import react */
+/* import packages */
 import React, { useMemo } from 'react'
 
 /* import managers */

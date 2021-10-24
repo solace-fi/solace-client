@@ -2,7 +2,6 @@
 
     Table of Contents:
 
-    import react
     import packages
     import managers
     import components
@@ -19,10 +18,8 @@
 
   *************************************************************************************/
 
-/* import react */
-import React from 'react'
-
 /* import packages */
+import React from 'react'
 import makeBlockie from 'ethereum-blockies-base64'
 import { useLocation } from 'react-router'
 

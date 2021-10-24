@@ -2,18 +2,17 @@
 
     Table of Contents:
 
-    import react
+    import packages
     import components
 
-    Govern
+    Terms
 
   *************************************************************************************/
 
-/* import react */
+/* import packages */
 import React from 'react'
 
 /* import components */
-import { HeroContainer } from '../../components/atoms/Layout'
 import { TermsText } from '../../components/molecules/Terms'
 
 function Terms(): any {

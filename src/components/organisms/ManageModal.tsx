@@ -2,7 +2,6 @@
 
     Table of Contents:
 
-    import react
     import packages
     import managers
     import components
@@ -19,10 +18,8 @@
 
   *************************************************************************************/
 
-/* import react */
-import React, { Fragment, useState, useEffect, useMemo, useCallback, useRef } from 'react'
-
 /* import packages */
+import React, { Fragment, useState, useEffect, useMemo, useCallback, useRef } from 'react'
 import { parseUnits, formatUnits } from '@ethersproject/units'
 import { BigNumber } from 'ethers'
 import { Block } from '@ethersproject/contracts/node_modules/@ethersproject/abstract-provider'

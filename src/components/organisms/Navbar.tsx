@@ -2,7 +2,6 @@
 
     Table of Contents:
 
-    import react
     import packages
     import managers
     import constants
@@ -18,10 +17,8 @@
 
   *************************************************************************************/
 
-/* import react */
-import React, { Fragment, useEffect, useMemo, useState } from 'react'
-
 /* import packages */
+import React, { Fragment, useEffect, useMemo, useState } from 'react'
 import { useLocation } from 'react-router'
 
 /* import managers */

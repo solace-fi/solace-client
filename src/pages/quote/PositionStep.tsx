@@ -2,7 +2,7 @@
 
     Table of Contents:
 
-    import react
+    import packages
     import managers
     import config
     import components
@@ -17,7 +17,7 @@
 
   *************************************************************************************/
 
-/* import react */
+/* import packages */
 import React, { Fragment, useCallback, useEffect, useRef, useState } from 'react'
 
 /* import managers */

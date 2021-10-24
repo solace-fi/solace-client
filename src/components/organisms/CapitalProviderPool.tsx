@@ -2,7 +2,7 @@
 
     Table of Contents:
 
-    import react
+    import packages
     import managers
     import components
     import constants
@@ -14,7 +14,7 @@
 
   *************************************************************************************/
 
-/* import react */
+/* import packages */
 import React from 'react'
 
 /* import managers */
@@ -30,10 +30,10 @@ import { Button, ButtonWrapper } from '../atoms/Button'
 import { Card } from '../atoms/Card'
 import { FormRow, FormCol } from '../atoms/Form'
 import { StyledTooltip } from '../molecules/Tooltip'
-import { Box, BoxItem, BoxItemTitle } from '../atoms/Box'
+import { HyperLink } from '../atoms/Link'
 
 /* import constants */
-import { CP_ROI, BKPT_4, BKPT_6, BKPT_7 } from '../../constants'
+import { CP_ROI, BKPT_4, BKPT_6 } from '../../constants'
 import { FunctionName } from '../../constants/enums'
 
 /* import hooks */
@@ -43,7 +43,6 @@ import { useWindowDimensions } from '../../hooks/useWindowDimensions'
 
 /* import utils */
 import { truncateBalance } from '../../utils/formatting'
-import { HyperLink } from '../atoms/Link'
 
 interface CapitalProviderPoolProps {
   openModal: (func: FunctionName, modalTitle: string) => void

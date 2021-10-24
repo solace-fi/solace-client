@@ -1,7 +1,22 @@
+/*************************************************************************************
+
+    Table of Contents:
+
+    import packages
+    import constants
+    import components
+
+    GasRadioGroup
+
+  *************************************************************************************/
+
+/* import packages */
 import React from 'react'
 
+/* import constants */
 import { GasFeeListState, GasFeeOption } from '../../constants/types'
 
+/* import components */
 import { GeneralElementProps } from '../generalInterfaces'
 import { Card } from '../atoms/Card'
 import { RadioGroup, RadioElement, RadioInput, RadioLabel } from '../atoms/Radio'

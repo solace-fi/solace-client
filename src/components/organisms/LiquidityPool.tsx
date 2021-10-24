@@ -2,7 +2,6 @@
 
     Table of Contents:
 
-    import react
     import packages
     import managers
     import constants
@@ -17,10 +16,8 @@
 
   *************************************************************************************/
 
-/* import react */
-import React from 'react'
-
 /* import packages */
+import React from 'react'
 import { formatUnits } from '@ethersproject/units'
 
 /* import managers */

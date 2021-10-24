@@ -2,7 +2,6 @@
 
     Table of Contents:
 
-    import react
     import packages
     import managers
     import constants
@@ -19,10 +18,8 @@
 
   *************************************************************************************/
 
-/* import react */
-import React, { useState, Fragment, useEffect, useCallback } from 'react'
-
 /* import packages */
+import React, { useState, Fragment, useEffect, useCallback } from 'react'
 import { formatUnits, parseUnits } from '@ethersproject/units'
 import { BigNumber as BN } from 'ethers'
 import { Contract } from '@ethersproject/contracts'

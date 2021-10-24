@@ -2,7 +2,7 @@
 
     Table of Contents:
 
-    import react
+    import packages
     import managers
     import components
     import wallets
@@ -13,7 +13,7 @@
 
   *************************************************************************************/
 
-/* import react */
+/* import packages */
 import React, { useCallback, useState } from 'react'
 
 /* import managers */

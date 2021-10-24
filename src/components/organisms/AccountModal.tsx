@@ -2,7 +2,6 @@
 
     Table of Contents:
 
-    import react
     import packages
     import constants
     import managers
@@ -16,10 +15,8 @@
 
   *************************************************************************************/
 
-/* import react */
-import React, { useCallback } from 'react'
-
 /* import packages */
+import React, { useCallback } from 'react'
 import makeBlockie from 'ethereum-blockies-base64'
 
 /* import constants */

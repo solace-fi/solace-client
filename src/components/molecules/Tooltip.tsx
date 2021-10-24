@@ -2,7 +2,6 @@
 
     Table of Contents:
 
-    import react
     import packages
     import constants
     import components
@@ -21,10 +20,8 @@
 
   *************************************************************************************/
 
-/* import react */
-import React from 'react'
-
 /* import packages */
+import React from 'react'
 import ReactTooltip from 'react-tooltip'
 import styled, { css } from 'styled-components'
 import { useLocation } from 'react-router'

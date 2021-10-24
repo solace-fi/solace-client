@@ -2,7 +2,6 @@
 
     Table of Contents:
 
-    import react
     import packages
     import constants
     import managers
@@ -17,10 +16,8 @@
 
   *************************************************************************************/
 
-/* import react */
-import React, { useEffect, useState } from 'react'
-
 /* import packages */
+import React, { useEffect, useState } from 'react'
 import { formatUnits, parseUnits } from '@ethersproject/units'
 import { BigNumber } from 'ethers'
 
