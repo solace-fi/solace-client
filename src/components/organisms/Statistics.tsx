@@ -52,7 +52,7 @@ import { useWindowDimensions } from '../../hooks/useWindowDimensions'
 import { useGasConfig } from '../../hooks/useGas'
 
 /* import utils */
-import { fixed, floatUnits, truncateBalance } from '../../utils/formatting'
+import { truncateBalance } from '../../utils/formatting'
 
 export const Statistics: React.FC = () => {
   /*************************************************************************************
@@ -145,7 +145,7 @@ export const Statistics: React.FC = () => {
           {/* <StyledTooltip id={'cps'} tip={'Current amount of capital in the vault'} /> */}
         </BoxItemTitle>
         <Text t2 nowrap light bold>
-          {`${truncateBalance(floatUnits(parseUnits(capitalPoolSize, currencyDecimals), currencyDecimals), 1)} `}
+          {`${truncateBalance(capitalPoolSize, 1)} `}
           <TextSpan t4 light bold>
             {activeNetwork.nativeCurrency.symbol}
           </TextSpan>
@@ -274,10 +274,7 @@ export const Statistics: React.FC = () => {
                   <FormCol light>Capital Pool Size</FormCol>
                   <FormCol>
                     <Text t2 nowrap light>
-                      {`${truncateBalance(
-                        floatUnits(parseUnits(capitalPoolSize, currencyDecimals), currencyDecimals),
-                        1
-                      )} `}
+                      {`${truncateBalance(capitalPoolSize, 1)} `}
                       <TextSpan t4 light>
                         {activeNetwork.nativeCurrency.symbol}
                       </TextSpan>

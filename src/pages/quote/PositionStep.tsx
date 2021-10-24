@@ -18,7 +18,7 @@
   *************************************************************************************/
 
 /* import packages */
-import React, { Fragment, useCallback, useEffect, useRef, useState } from 'react'
+import React, { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 /* import managers */
 import { useWallet } from '../../context/WalletManager'
@@ -47,15 +47,7 @@ import { NftPositionCard } from '../../components/organisms/NftPositionCard'
 
 /* import constants */
 import { PolicyState, PositionType } from '../../constants/enums'
-import {
-  LiquityPosition,
-  NetworkCache,
-  Policy,
-  Position,
-  SupportedProduct,
-  Token,
-  TokenData,
-} from '../../constants/types'
+import { LiquityPosition, NetworkCache, Policy, Position, SupportedProduct, Token } from '../../constants/types'
 import { BKPT_3 } from '../../constants'
 
 /* import hooks */
@@ -63,6 +55,8 @@ import { useWindowDimensions } from '../../hooks/useWindowDimensions'
 
 /* import utils */
 import { fixedPositionBalance, truncateBalance } from '../../utils/formatting'
+import { Box, BoxItem, BoxItemTitle } from '../../components/atoms/Box'
+import { StyledInfo } from '../../components/atoms/Icon'
 
 export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigation }) => {
   const { protocol, loading, positions } = formData
@@ -87,6 +81,11 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
   const [productLink, setProductLink] = useState<string | undefined>(undefined)
   const canLoadOverTime = useRef(false)
   const canFetchPositions = useRef(true)
+
+  const supportedProduct = useMemo(
+    () => activeNetwork.cache.supportedProducts.find((product) => product.name == protocol.name),
+    [activeNetwork.cache.supportedProducts, protocol.name]
+  )
 
   /*************************************************************************************
 
@@ -198,7 +197,6 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
     canFetchPositions.current = false
     if (findNetworkByChainId(chainId)) {
       try {
-        const supportedProduct = activeNetwork.cache.supportedProducts.find((product) => product.name == protocol.name)
         const matchingCache = tokenPosData.storedPosData.find((dataset) => dataset.chainId == activeNetwork.chainId)
         if (!supportedProduct || !matchingCache) return
         const _fetchedPositions = await handleFetchPositions(supportedProduct, matchingCache)
@@ -251,7 +249,6 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
 
   useEffect(() => {
     const getProductLink = () => {
-      const supportedProduct = activeNetwork.cache.supportedProducts.find((product) => product.name == protocol.name)
       if (supportedProduct && supportedProduct.productLink) setProductLink(supportedProduct.productLink)
     }
     getProductLink()
@@ -464,6 +461,26 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
       ) : (
         <Loader />
       )}
+      {supportedProduct &&
+        supportedProduct.supportedSubProducts &&
+        supportedProduct.supportedSubProducts[activeNetwork.chainId] &&
+        supportedProduct.supportedSubProducts[activeNetwork.chainId].length > 0 && (
+          <Box color2>
+            <BoxItem style={{ textAlign: 'center' }}>
+              <TextSpan light>
+                <StyledInfo size={30} />
+              </TextSpan>
+              <BoxItemTitle mt={5} light>
+                Positions are also fetched from:
+              </BoxItemTitle>
+              {supportedProduct.supportedSubProducts[activeNetwork.chainId].map((name) => (
+                <Text light key={name} t4 bold>
+                  {name}
+                </Text>
+              ))}
+            </BoxItem>
+          </Box>
+        )}
     </Fragment>
   )
 }

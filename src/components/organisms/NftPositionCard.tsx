@@ -134,11 +134,11 @@ export const NftPositionCard: React.FC<NftPositionCardProps> = ({
           </Button>
         ) : isSelected ? (
           <Button widthP={width > BKPT_3 ? undefined : 100} light>
-            {'Deselect'}
+            Deselect
           </Button>
         ) : (
           <Button widthP={width > BKPT_3 ? undefined : 100} info>
-            {'Select'}
+            Select
           </Button>
         )}
       </PositionCardButton>

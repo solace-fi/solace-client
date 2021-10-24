@@ -44,7 +44,6 @@ import { Modal } from '../molecules/Modal'
 import { RadioCircle, RadioCircleFigure, RadioCircleInput } from '../atoms/Radio'
 import { Button, ButtonWrapper } from '../atoms/Button'
 import { Loader } from '../atoms/Loader'
-import { Box, BoxItem, BoxItemTitle } from '../atoms/Box'
 import { Text } from '../atoms/Typography'
 import { NftPosition } from '../molecules/NftPosition'
 import { StyledSelect } from '../molecules/Select'
@@ -64,7 +63,6 @@ import { useLpFarm } from '../../hooks/useLpFarm'
 /* import utils */
 import { hasApproval } from '../../utils'
 import { fixed, filteredAmount, getUnit, truncateBalance } from '../../utils/formatting'
-import { getTimeFromMillis, timeToDate } from '../../utils/time'
 
 interface PoolModalProps {
   modalTitle: string
@@ -127,18 +125,14 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
   const callStartCooldown = async () => {
     setModalLoading(true)
     await startCooldown()
-      .then((res) => {
-        if (res.tx && res.localTx) handleToast(res.tx, res.localTx)
-      })
+      .then((res) => handleToast(res.tx, res.localTx))
       .catch((err) => handleContractCallError('callStartCooldown', err, FunctionName.START_COOLDOWN))
   }
 
   const callStopCooldown = async () => {
     setModalLoading(true)
     await stopCooldown()
-      .then((res) => {
-        if (res.tx && res.localTx) handleToast(res.tx, res.localTx)
-      })
+      .then((res) => handleToast(res.tx, res.localTx))
       .catch((err) => handleContractCallError('callStopCooldown', err, FunctionName.STOP_COOLDOWN))
   }
 
@@ -149,9 +143,7 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
       `${truncateBalance(amount)} ${getUnit(func, activeNetwork)}`,
       gasConfig
     )
-      .then((res) => {
-        if (res.tx && res.localTx) handleToast(res.tx, res.localTx)
-      })
+      .then((res) => handleToast(res.tx, res.localTx))
       .catch((err) => handleContractCallError('callDeposit', err, FunctionName.DEPOSIT_ETH))
   }
 
@@ -163,9 +155,7 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
         `${truncateBalance(amount)} ${getUnit(func, activeNetwork)}`,
         gasConfig
       )
-      .then((res) => {
-        if (res.tx && res.localTx) handleToast(res.tx, res.localTx)
-      })
+      .then((res) => handleToast(res.tx, res.localTx))
       .catch((err) => handleContractCallError('callDepositEth', err, FunctionName.DEPOSIT_ETH))
   }
 
@@ -197,9 +187,7 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
         `${truncateBalance(amount)} ${getUnit(func, activeNetwork)}`,
         gasConfig
       )
-      .then((res) => {
-        if (res.tx && res.localTx) handleToast(res.tx, res.localTx)
-      })
+      .then((res) => handleToast(res.tx, res.localTx))
       .catch((err) => handleContractCallError('callDepositCp', err, FunctionName.DEPOSIT_CP))
   }
 
@@ -211,9 +199,7 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
       `${truncateBalance(amount)} ${getUnit(func, activeNetwork)}`,
       gasConfig
     )
-      .then((res) => {
-        if (res.tx && res.localTx) handleToast(res.tx, res.localTx)
-      })
+      .then((res) => handleToast(res.tx, res.localTx))
       .catch((err) => handleContractCallError('callWithdrawEth', err, FunctionName.WITHDRAW_ETH))
   }
 
@@ -225,27 +211,21 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
         `${truncateBalance(amount)} ${getUnit(func, activeNetwork)}`,
         gasConfig
       )
-      .then((res) => {
-        if (res.tx && res.localTx) handleToast(res.tx, res.localTx)
-      })
+      .then((res) => handleToast(res.tx, res.localTx))
       .catch((err) => handleContractCallError('callWithdrawCp', err, FunctionName.WITHDRAW_CP))
   }
 
   const callDepositLp = async () => {
     setModalLoading(true)
     await depositLp(nftId)
-      .then((res) => {
-        if (res.tx && res.localTx) handleToast(res.tx, res.localTx)
-      })
+      .then((res) => handleToast(res.tx, res.localTx))
       .catch((err) => handleContractCallError('callDepositLp', err, FunctionName.DEPOSIT_SIGNED))
   }
 
   const callWithdrawLp = async () => {
     setModalLoading(true)
     await withdrawLp(nftId)
-      .then((res) => {
-        if (res.tx && res.localTx) handleToast(res.tx, res.localTx)
-      })
+      .then((res) => handleToast(res.tx, res.localTx))
       .catch((err) => handleContractCallError('callWithdrawLp', err, FunctionName.WITHDRAW_LP))
   }
 
@@ -255,7 +235,8 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
 
   *************************************************************************************/
 
-  const handleToast = async (tx: any, localTx: LocalTx) => {
+  const handleToast = async (tx: any, localTx: LocalTx | null) => {
+    if (!tx || !localTx) return
     handleClose()
     addLocalTransactions(localTx)
     reload()
@@ -448,7 +429,7 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
                   }))}
                 />
                 <div style={{ position: 'absolute', top: '77%' }}>
-                  Available: {func ? truncateBalance(formatUnits(getAssetBalanceByFunc(), currencyDecimals), 6) : 0}
+                  Available: {func ? truncateBalance(formatUnits(getAssetBalanceByFunc(), currencyDecimals)) : 0}
                 </div>
               </ModalCell>
             </ModalRow>
@@ -482,7 +463,7 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
                 value={amount}
               />
               <div style={{ position: 'absolute', top: '70%' }}>
-                Available: {func ? truncateBalance(formatUnits(getAssetBalanceByFunc(), currencyDecimals), 6) : 0}
+                Available: {func ? truncateBalance(formatUnits(getAssetBalanceByFunc(), currencyDecimals)) : 0}
               </div>
             </ModalCell>
             <ModalCell t3>

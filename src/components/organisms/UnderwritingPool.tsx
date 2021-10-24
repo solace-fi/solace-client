@@ -40,7 +40,7 @@ import { useCapitalPoolSize, useUserVaultDetails } from '../../hooks/useVault'
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'
 
 /* import utils */
-import { floatUnits, truncateBalance } from '../../utils/formatting'
+import { truncateBalance } from '../../utils/formatting'
 
 interface UnderwritingPoolProps {
   openModal: (func: FunctionName, modalTitle: string) => void
@@ -90,7 +90,7 @@ export const UnderwritingPool: React.FC<UnderwritingPoolProps> = ({ openModal })
                 </TableData>
               ) : null}
               <TableData t3 width={100}>
-                {truncateBalance(floatUnits(parseUnits(capitalPoolSize, currencyDecimals), currencyDecimals), 2)}
+                {truncateBalance(capitalPoolSize, 2)}
               </TableData>
               <TableData t3 width={100}>
                 N/A
@@ -129,7 +129,7 @@ export const UnderwritingPool: React.FC<UnderwritingPoolProps> = ({ openModal })
           <FormRow>
             <FormCol light>Total Assets:</FormCol>
             <FormCol light t2>
-              {truncateBalance(floatUnits(parseUnits(capitalPoolSize, currencyDecimals), currencyDecimals), 2)}
+              {truncateBalance(capitalPoolSize, 2)}
             </FormCol>
           </FormRow>
           <FormRow>
