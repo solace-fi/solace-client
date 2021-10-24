@@ -161,7 +161,7 @@ export const CapitalProviderPool: React.FC<CapitalProviderPoolProps> = ({ openMo
           <FormRow>
             <FormCol light>ROI:</FormCol>
             <FormCol light t2>
-              {CP_ROI}
+              N/A
             </FormCol>
           </FormRow>
           {account && (

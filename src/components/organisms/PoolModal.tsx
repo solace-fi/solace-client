@@ -41,15 +41,7 @@ import { GasFeeOption, LocalTx, LpTokenInfo } from '../../constants/types'
 import { Input } from '../atoms/Input'
 import { ModalRow, ModalCell } from '../atoms/Modal'
 import { Modal } from '../molecules/Modal'
-import {
-  RadioElement,
-  RadioInput,
-  RadioGroup,
-  RadioLabel,
-  RadioCircle,
-  RadioCircleFigure,
-  RadioCircleInput,
-} from '../atoms/Radio'
+import { RadioCircle, RadioCircleFigure, RadioCircleInput } from '../atoms/Radio'
 import { Button, ButtonWrapper } from '../atoms/Button'
 import { Loader } from '../atoms/Loader'
 import { Box, BoxItem, BoxItemTitle } from '../atoms/Box'
@@ -57,6 +49,7 @@ import { Text } from '../atoms/Typography'
 import { NftPosition } from '../molecules/NftPosition'
 import { StyledSelect } from '../molecules/Select'
 import { GasRadioGroup } from '../molecules/GasRadioGroup'
+import { PoolModalCooldown } from '../molecules/PoolModalCooldown'
 
 /* import hooks */
 import { useUserStakedValue } from '../../hooks/useFarm'
@@ -331,9 +324,18 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
       }
     }
     if (func == FunctionName.WITHDRAW_ETH) {
-      if (!cooldownStarted) await callStartCooldown()
-      if (canWithdrawEth) await callWithdrawEth()
-      if (cooldownMax < timeWaited || timeWaited < cooldownMin) await callStopCooldown()
+      if (!cooldownStarted) {
+        await callStartCooldown()
+        return
+      }
+      if (canWithdrawEth) {
+        await callWithdrawEth()
+        return
+      }
+      if (cooldownMax < timeWaited || timeWaited < cooldownMin) {
+        await callStopCooldown()
+        return
+      }
     }
     if (func == FunctionName.DEPOSIT_CP) await callDepositCp()
     if (func == FunctionName.WITHDRAW_CP) await callWithdrawCp()
@@ -552,76 +554,18 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
                 </ButtonWrapper>
               </Fragment>
             ) : func == FunctionName.WITHDRAW_ETH ? (
-              <>
-                {canWithdrawEth && (
-                  <Box success glow mt={20} mb={20}>
-                    <Text t3 bold autoAlign>
-                      You can withdraw now!
-                    </Text>
-                  </Box>
-                )}
-                {cooldownStarted && timeWaited < cooldownMin && (
-                  <Box mt={20} mb={20}>
-                    <Text t3 bold autoAlign>
-                      Cooldown Elapsing...
-                    </Text>
-                  </Box>
-                )}
-                <Box info>
-                  <BoxItem>
-                    <BoxItemTitle t4 textAlignCenter light>
-                      Min Cooldown
-                    </BoxItemTitle>
-                    <Text t4 textAlignCenter light>
-                      {getTimeFromMillis(cooldownMin)}
-                    </Text>
-                  </BoxItem>
-                  {cooldownStarted && (
-                    <BoxItem>
-                      <BoxItemTitle t4 textAlignCenter light>
-                        Time waited
-                      </BoxItemTitle>
-                      <Text t4 textAlignCenter success={canWithdrawEth} light={!canWithdrawEth}>
-                        {timeToDate(timeWaited)}
-                      </Text>
-                    </BoxItem>
-                  )}
-                  <BoxItem>
-                    <BoxItemTitle t4 textAlignCenter light>
-                      Max Cooldown
-                    </BoxItemTitle>
-                    <Text t4 textAlignCenter light>
-                      {getTimeFromMillis(cooldownMax)}
-                    </Text>
-                  </BoxItem>
-                </Box>
-                {!canWithdrawEth && (
-                  <ButtonWrapper>
-                    <Button widthP={100} hidden={modalLoading} disabled={haveErrors} onClick={handleCallbackFunc} info>
-                      {!cooldownStarted
-                        ? 'Start cooldown'
-                        : timeWaited < cooldownMin
-                        ? 'Stop cooldown'
-                        : cooldownMax < timeWaited
-                        ? 'Restart cooldown'
-                        : 'Unknown error'}
-                    </Button>
-                  </ButtonWrapper>
-                )}
-                {canWithdrawEth && (
-                  <ButtonWrapper>
-                    <Button
-                      widthP={100}
-                      hidden={modalLoading}
-                      disabled={(isAppropriateAmount() ? false : true) || haveErrors}
-                      onClick={handleCallbackFunc}
-                      info
-                    >
-                      Withdraw
-                    </Button>
-                  </ButtonWrapper>
-                )}
-              </>
+              <PoolModalCooldown
+                isAppropriateAmount={isAppropriateAmount() ? false : true}
+                handleCallbackFunc={handleCallbackFunc}
+                modalLoading={modalLoading}
+                cd={{
+                  cooldownStarted,
+                  timeWaited,
+                  cooldownMin,
+                  cooldownMax,
+                  canWithdrawEth,
+                }}
+              />
             ) : (
               <ButtonWrapper>
                 <Button
