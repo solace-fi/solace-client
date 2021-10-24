@@ -149,7 +149,6 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
         type: txType,
         value: 'Purchasing...',
         status: TransactionCondition.PENDING,
-        unit: Unit.ID,
       }
       setForm({
         target: {

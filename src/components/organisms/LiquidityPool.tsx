@@ -94,7 +94,7 @@ export const LiquidityPool: React.FC<LiquidityPoolProps> = ({ openModal }) => {
             <TableRow>
               {account ? <TableHeader width={100}>Your Stake</TableHeader> : null}
               <TableHeader>Total Assets</TableHeader>
-              {/* <TableHeader width={100}>ROI (1Y)</TableHeader> */}
+              <TableHeader width={100}>ROI (1Y)</TableHeader>
               {account ? (
                 <TableHeader>
                   My Rewards
@@ -131,9 +131,9 @@ export const LiquidityPool: React.FC<LiquidityPoolProps> = ({ openModal }) => {
                 </TableData>
               ) : null}
               <TableData t3>{truncateBalance(lpPoolValue, 2)}</TableData>
-              {/* <TableData t3 width={100}>
-                {LP_ROI}
-              </TableData> */}
+              <TableData t3 width={100}>
+                N?A
+              </TableData>
               {account ? <TableData t3>{truncateBalance(lpUserRewards, 2)}</TableData> : null}
               {account ? <TableData t3>{truncateBalance(lpUserRewardsPerDay, 2)}</TableData> : null}
               <TableData t3>{truncateBalance(lpRewardsPerDay, 2)}</TableData>
@@ -176,7 +176,7 @@ export const LiquidityPool: React.FC<LiquidityPoolProps> = ({ openModal }) => {
           <FormRow>
             <FormCol light>ROI:</FormCol>
             <FormCol light t2>
-              {LP_ROI}
+              N/A
             </FormCol>
           </FormRow>
           {account && (

@@ -89,12 +89,12 @@ export const shortenAddress = (input: string): string => {
 }
 
 // get unit based on function name
-export const getUnit = (function_name: string, activeNetwork: NetworkConfig): Unit => {
+export const getUnit = (function_name: string, activeNetwork?: NetworkConfig): Unit => {
   switch (function_name) {
     case FunctionName.DEPOSIT_ETH:
     case FunctionName.WITHDRAW_ETH:
     case FunctionName.APPROVE:
-      return activeNetwork.nativeCurrency.symbol
+      return activeNetwork ? activeNetwork.nativeCurrency.symbol : Unit._
     case FunctionName.DEPOSIT_CP:
     case FunctionName.WITHDRAW_CP:
       return Unit.SCP

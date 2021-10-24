@@ -3,10 +3,13 @@ import { useContracts } from '../context/ContractsManager'
 import { useState, useEffect, useRef } from 'react'
 import { useWallet } from '../context/WalletManager'
 import { floatUnits } from '../utils/formatting'
-import { ZERO } from '../constants'
+import { GAS_LIMIT, ZERO } from '../constants'
 import { useCachedData } from '../context/CachedDataManager'
 import { useScpBalance } from './useBalance'
 import { useNetwork } from '../context/NetworkManager'
+import { FunctionName, TransactionCondition } from '../constants/enums'
+import { LocalTx } from '../constants/types'
+import { BigNumber } from 'ethers'
 
 export const useCapitalPoolSize = (): string => {
   const { vault } = useContracts()
@@ -75,6 +78,48 @@ export const useCooldown = () => {
   const { version } = useCachedData()
   const gettingCooldown = useRef(true)
 
+  const startCooldown = async (): Promise<
+    | {
+        tx: null
+        localTx: null
+      }
+    | {
+        tx: any
+        localTx: LocalTx
+      }
+  > => {
+    if (!vault) return { tx: null, localTx: null }
+    const tx = await vault.startCooldown()
+    const localTx: LocalTx = {
+      hash: tx.hash,
+      type: FunctionName.START_COOLDOWN,
+      value: 'Starting Withdrawal Cooldown',
+      status: TransactionCondition.PENDING,
+    }
+    return { tx, localTx }
+  }
+
+  const stopCooldown = async (): Promise<
+    | {
+        tx: null
+        localTx: null
+      }
+    | {
+        tx: any
+        localTx: LocalTx
+      }
+  > => {
+    if (!vault) return { tx: null, localTx: null }
+    const tx = await vault.stopCooldown()
+    const localTx: LocalTx = {
+      hash: tx.hash,
+      type: FunctionName.STOP_COOLDOWN,
+      value: 'Stopping Withdrawal Cooldown',
+      status: TransactionCondition.PENDING,
+    }
+    return { tx, localTx }
+  }
+
   useEffect(() => {
     const getCooldown = async () => {
       if (!vault || !account) return
@@ -109,5 +154,79 @@ export const useCooldown = () => {
     calculateTime()
   }, [cooldownStart])
 
-  return { cooldownStarted, timeWaited, cooldownMin, cooldownMax, canWithdrawEth }
+  return {
+    cooldownStarted,
+    timeWaited,
+    cooldownMin,
+    cooldownMax,
+    canWithdrawEth,
+    startCooldown,
+    stopCooldown,
+  }
+}
+
+export const useVault = () => {
+  const { vault } = useContracts()
+
+  const depositEth = async (
+    parsedAmount: BigNumber,
+    txVal: string,
+    gasConfig: any
+  ): Promise<
+    | {
+        tx: null
+        localTx: null
+      }
+    | {
+        tx: any
+        localTx: LocalTx
+      }
+  > => {
+    if (!vault) return { tx: null, localTx: null }
+    const tx = await vault.depositEth({
+      value: parsedAmount,
+      ...gasConfig,
+      gasLimit: GAS_LIMIT,
+    })
+    const localTx = {
+      hash: tx.hash,
+      type: FunctionName.DEPOSIT_ETH,
+      value: txVal,
+      status: TransactionCondition.PENDING,
+    }
+    return { tx, localTx }
+  }
+
+  const withdrawEth = async (
+    parsedAmount: BigNumber,
+    txVal: string,
+    gasConfig: any
+  ): Promise<
+    | {
+        tx: null
+        localTx: null
+      }
+    | {
+        tx: any
+        localTx: LocalTx
+      }
+  > => {
+    if (!vault) return { tx: null, localTx: null }
+    const tx = await vault.withdrawEth(parsedAmount, {
+      ...gasConfig,
+      gasLimit: GAS_LIMIT,
+    })
+    const localTx = {
+      hash: tx.hash,
+      type: FunctionName.WITHDRAW_ETH,
+      value: txVal,
+      status: TransactionCondition.PENDING,
+    }
+    return { tx, localTx }
+  }
+
+  return {
+    depositEth,
+    withdrawEth,
+  }
 }

@@ -17,7 +17,6 @@
 import React, { useState, Fragment, useCallback } from 'react'
 
 /* import context */
-import { useNetwork } from '../../context/NetworkManager'
 
 /* import components */
 import { PoolModal } from '../../components/organisms/PoolModal'
@@ -37,7 +36,6 @@ function Invest(): any {
   hooks
 
   *************************************************************************************/
-  const { chainId } = useNetwork()
   const [func, setFunc] = useState<FunctionName>(FunctionName.DEPOSIT_ETH)
   const [modalTitle, setModalTitle] = useState<string>('')
   const [showPoolModal, setShowPoolModal] = useState<boolean>(false)

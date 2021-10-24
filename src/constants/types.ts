@@ -195,7 +195,6 @@ export type LocalTx = {
   type: string
   value: string
   status: TransactionCondition
-  unit: Unit
 }
 
 export type NetworkConfig = {

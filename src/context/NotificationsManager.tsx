@@ -50,9 +50,8 @@ const ToastsContext = createContext<ToastSystem>({
 })
 
 const ToastsProvider: React.FC = (props) => {
-  const { notices, errors, appTheme } = useGeneral()
+  const { notices, errors } = useGeneral()
   const { account } = useWallet()
-  const { chainId } = useNetwork()
   const [noticeMap, setNoticeMap] = useState(new Map())
   const [errorMap, setErrorMap] = useState(new Map())
   const lastAccount = useRef<string>('')

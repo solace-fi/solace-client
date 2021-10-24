@@ -81,7 +81,7 @@ export const UnderwritingPool: React.FC<UnderwritingPoolProps> = ({ openModal })
             <TableRow>
               {account ? <TableHeader width={100}>My Assets</TableHeader> : null}
               <TableHeader width={100}>Total Assets</TableHeader>
-              {/* <TableHeader width={100}>ROI (1Y)</TableHeader> */}
+              <TableHeader width={100}>ROI (1Y)</TableHeader>
               {account ? <TableHeader width={130}>My Vault Share</TableHeader> : null}
             </TableRow>
           </TableHead>
@@ -95,9 +95,9 @@ export const UnderwritingPool: React.FC<UnderwritingPoolProps> = ({ openModal })
               <TableData t3 width={100}>
                 {truncateBalance(floatUnits(parseUnits(capitalPoolSize, currencyDecimals), currencyDecimals), 2)}
               </TableData>
-              {/* <TableData t3 width={100}>
-                {CP_ROI}
-              </TableData> */}
+              <TableData t3 width={100}>
+                N/A
+              </TableData>
               {account ? <TableData t3 width={130}>{`${truncateBalance(userVaultShare, 2)}%`}</TableData> : null}
               {account ? (
                 <TableData textAlignRight>
@@ -135,12 +135,12 @@ export const UnderwritingPool: React.FC<UnderwritingPoolProps> = ({ openModal })
               {truncateBalance(floatUnits(parseUnits(capitalPoolSize, currencyDecimals), currencyDecimals), 2)}
             </FormCol>
           </FormRow>
-          {/* <FormRow>
+          <FormRow>
             <FormCol light>ROI:</FormCol>
             <FormCol light t2>
-              {CP_ROI}
+              N/A
             </FormCol>
-          </FormRow> */}
+          </FormRow>
           {account && (
             <FormRow>
               <FormCol light>My Vault Share:</FormCol>
