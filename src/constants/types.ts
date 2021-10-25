@@ -89,7 +89,7 @@ export type TokenInfo = {
   balance: BigNumber
 }
 
-export type LpTokenInfo = {
+export type NftTokenInfo = {
   id: BigNumber
   value: BigNumber
 }

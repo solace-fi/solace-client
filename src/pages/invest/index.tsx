@@ -26,6 +26,7 @@ import { LiquidityPool } from '../../components/organisms/LiquidityPool'
 import { HeroContainer } from '../../components/atoms/Layout'
 import { Text } from '../../components/atoms/Typography'
 import { MyOptions } from '../../components/molecules/MyOptions'
+import { SptPool } from '../../components/organisms/SptPool'
 
 /* import constants */
 import { FunctionName } from '../../constants/enums'
@@ -63,6 +64,7 @@ function Invest(): any {
       <PoolModal isOpen={showPoolModal} modalTitle={modalTitle} func={func} closeModal={closeModal} />
       <UnderwritingPool openModal={openModal} />
       <CapitalProviderPool openModal={openModal} />
+      <SptPool openModal={openModal} />
       {/* <LiquidityPool openModal={openModal} /> */}
       <MyOptions />
     </Fragment>

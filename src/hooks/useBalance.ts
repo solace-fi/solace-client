@@ -4,7 +4,7 @@ import { useCachedData } from '../context/CachedDataManager'
 import { useState, useEffect, useRef } from 'react'
 import { formatUnits } from '@ethersproject/units'
 import { BigNumber } from 'ethers'
-import { LpTokenInfo } from '../constants/types'
+import { NftTokenInfo } from '../constants/types'
 import { rangeFrom0 } from '../utils/numeric'
 import { listTokensOfOwner, queryBalance } from '../utils/contract'
 import { useNetwork } from '../context/NetworkManager'
@@ -103,10 +103,10 @@ export const useSolaceBalance = (): string => {
   return solaceBalance
 }
 
-export const useUserWalletLpBalance = (): LpTokenInfo[] => {
+export const useUserWalletLpBalance = (): NftTokenInfo[] => {
   const { lpToken, lpFarm, lpAppraisor } = useContracts()
   const { account } = useWallet()
-  const [userLpTokenInfo, setUserLpTokenInfo] = useState<LpTokenInfo[]>([])
+  const [userNftTokenInfo, setUserNftTokenInfo] = useState<NftTokenInfo[]>([])
 
   const getLpBalance = async () => {
     if (!lpToken || !account || !lpFarm || !lpAppraisor) return
@@ -115,15 +115,15 @@ export const useUserWalletLpBalance = (): LpTokenInfo[] => {
       const userLpTokenValues = await Promise.all(userLpTokenIds.map(async (id) => await lpAppraisor.appraise(id)))
       const _token0 = await lpFarm.token0()
       const _token1 = await lpFarm.token1()
-      const userLpTokenInfo: LpTokenInfo[] = []
+      const userNftTokenInfo: NftTokenInfo[] = []
       for (let i = 0; i < userLpTokenIds.length; i++) {
         const lpTokenData = await lpToken.positions(userLpTokenIds[i])
         const { token0, token1 } = lpTokenData
         if (_token0 == token0 && _token1 == token1) {
-          userLpTokenInfo.push({ id: userLpTokenIds[i], value: userLpTokenValues[i] })
+          userNftTokenInfo.push({ id: userLpTokenIds[i], value: userLpTokenValues[i] })
         }
       }
-      setUserLpTokenInfo(userLpTokenInfo)
+      setUserNftTokenInfo(userNftTokenInfo)
     } catch (err) {
       console.log('useUserWalletLpBalance', err)
     }
@@ -143,26 +143,23 @@ export const useUserWalletLpBalance = (): LpTokenInfo[] => {
     }
   }, [account, lpToken])
 
-  return userLpTokenInfo
+  return userNftTokenInfo
 }
 
-export const useDepositedLpBalance = (): LpTokenInfo[] => {
+export const useDepositedLpBalance = (): NftTokenInfo[] => {
   const { lpToken, lpFarm, lpAppraisor } = useContracts()
   const { account } = useWallet()
-  const [depositedLpTokenInfo, setFarmLpTokenInfo] = useState<LpTokenInfo[]>([])
+  const [depositedNftTokenInfo, setFarmNftTokenInfo] = useState<NftTokenInfo[]>([])
 
   const getLpBalance = async () => {
     if (!lpToken || !account || !lpFarm || !lpAppraisor) return
     try {
-      const countDepositedLpTokens = await lpFarm.countDeposited(account)
-      const indices = rangeFrom0(countDepositedLpTokens)
       const listOfDepositedLpTokens: [BigNumber[], BigNumber[]] = await lpFarm.listDeposited(account)
-      const depositedLpTokenInfo: LpTokenInfo[] = await Promise.all(
-        indices.map((i) => {
-          return { id: listOfDepositedLpTokens[0][i], value: listOfDepositedLpTokens[1][i] }
-        })
-      )
-      setFarmLpTokenInfo(depositedLpTokenInfo)
+      const indices = rangeFrom0(listOfDepositedLpTokens.length)
+      const depositedNftTokenInfo: NftTokenInfo[] = indices.map((i) => {
+        return { id: listOfDepositedLpTokens[0][i], value: listOfDepositedLpTokens[1][i] }
+      })
+      setFarmNftTokenInfo(depositedNftTokenInfo)
     } catch (err) {
       console.log('useUserDepositedLpBalance', err)
     }
@@ -182,5 +179,55 @@ export const useDepositedLpBalance = (): LpTokenInfo[] => {
     }
   }, [account, lpToken])
 
-  return depositedLpTokenInfo
+  return depositedNftTokenInfo
+}
+
+export const useUserWalletPolicies = (): NftTokenInfo[] => {
+  const { policyManager } = useContracts()
+  const { userPolicyData } = useCachedData()
+  const [userNftTokenInfo, setUserNftTokenInfo] = useState<NftTokenInfo[]>([])
+
+  const getUserWalletPolicies = async () => {
+    if (!policyManager) return
+    const userPolicies = userPolicyData.userPolicies
+    const infos = await Promise.all(userPolicies.map((p) => policyManager.getPolicyInfo(p.policyId)))
+    const userNftTokenInfo: NftTokenInfo[] = []
+    for (let i = 0; i < userPolicies.length; i++) {
+      userNftTokenInfo.push({
+        id: BigNumber.from(userPolicies[i].policyId),
+        value: BigNumber.from(userPolicies[i].coverAmount).mul(infos[i].price),
+      })
+    }
+    setUserNftTokenInfo(userNftTokenInfo)
+  }
+
+  useEffect(() => {
+    if (userPolicyData.policiesLoading) return
+    getUserWalletPolicies()
+  }, [userPolicyData])
+
+  return userNftTokenInfo
+}
+
+export const useDepositedPolicies = (): NftTokenInfo[] => {
+  const { sptFarm } = useContracts()
+  const { account } = useWallet()
+  const { userPolicyData } = useCachedData()
+  const [depositedNftTokenInfo, setFarmNftTokenInfo] = useState<NftTokenInfo[]>([])
+  const getDepositedPolicies = async () => {
+    if (!sptFarm || !account) return
+    const listOfDepositedLpTokens: [BigNumber[], BigNumber[]] = await sptFarm.listDeposited(account)
+    const indices = rangeFrom0(listOfDepositedLpTokens.length)
+    const depositedNftTokenInfo: NftTokenInfo[] = indices.map((i) => {
+      return { id: listOfDepositedLpTokens[0][i], value: listOfDepositedLpTokens[1][i] }
+    })
+    setFarmNftTokenInfo(depositedNftTokenInfo)
+  }
+
+  useEffect(() => {
+    if (userPolicyData.policiesLoading) return
+    getDepositedPolicies()
+  }, [userPolicyData])
+
+  return depositedNftTokenInfo
 }

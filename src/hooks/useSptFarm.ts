@@ -5,14 +5,14 @@ import { LocalTx } from '../constants/types'
 import { useContracts } from '../context/ContractsManager'
 import { useNetwork } from '../context/NetworkManager'
 import { useWallet } from '../context/WalletManager'
-import getPermitNFTSignature from '../utils/signature'
+import { getPermitErc721EnhancedSignature } from '../utils/signature'
 
-export const useLpFarm = () => {
-  const { lpFarm, lpToken } = useContracts()
+export const useSptFarm = () => {
+  const { sptFarm, policyManager } = useContracts()
   const { account, library } = useWallet()
   const { chainId } = useNetwork()
 
-  const depositLp = async (
+  const depositPolicy = async (
     nftId: BigNumber,
     gasConfig: any
   ): Promise<
@@ -25,22 +25,30 @@ export const useLpFarm = () => {
         localTx: LocalTx
       }
   > => {
-    if (!lpToken || !lpFarm || !nftId || !chainId || !account || !library) return { tx: null, localTx: null }
-    const { v, r, s } = await getPermitNFTSignature(account, chainId, library, lpToken, lpFarm.address, nftId, DEADLINE)
-    const tx = await lpFarm.depositLpSigned(account, nftId, DEADLINE, v, r, s, {
+    if (!sptFarm || !policyManager || !nftId || !chainId || !account || !library) return { tx: null, localTx: null }
+    const { v, r, s } = await getPermitErc721EnhancedSignature(
+      account,
+      chainId,
+      library,
+      policyManager,
+      sptFarm.address,
+      nftId,
+      DEADLINE
+    )
+    const tx = await sptFarm.depositPolicySigned(account, nftId, DEADLINE, v, r, s, {
       ...gasConfig,
       gasLimit: GAS_LIMIT,
     })
     const localTx = {
       hash: tx.hash,
-      type: FunctionName.DEPOSIT_LP_SIGNED,
+      type: FunctionName.DEPOSIT_POLICY_SIGNED,
       value: `#${nftId.toString()}`,
       status: TransactionCondition.PENDING,
     }
     return { tx, localTx }
   }
 
-  const withdrawLp = async (
+  const withdrawPolicy = async (
     nftId: BigNumber,
     gasConfig: any
   ): Promise<
@@ -53,19 +61,19 @@ export const useLpFarm = () => {
         localTx: LocalTx
       }
   > => {
-    if (!lpFarm) return { tx: null, localTx: null }
-    const tx = await lpFarm.withdrawLp(nftId, {
+    if (!sptFarm) return { tx: null, localTx: null }
+    const tx = await sptFarm.withdrawPolicy(nftId, {
       ...gasConfig,
       gasLimit: GAS_LIMIT,
     })
     const localTx = {
       hash: tx.hash,
-      type: FunctionName.WITHDRAW_LP,
+      type: FunctionName.WITHDRAW_POLICY,
       value: `#${nftId.toString()}`,
       status: TransactionCondition.PENDING,
     }
     return { tx, localTx }
   }
 
-  return { depositLp, withdrawLp }
+  return { depositPolicy, withdrawPolicy }
 }

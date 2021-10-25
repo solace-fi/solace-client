@@ -19,7 +19,7 @@
   *************************************************************************************/
 
 /* import packages */
-import React, { useState, Fragment, useEffect, useCallback } from 'react'
+import React, { useState, Fragment, useEffect, useCallback, useMemo } from 'react'
 import { formatUnits, parseUnits } from '@ethersproject/units'
 import { BigNumber as BN } from 'ethers'
 import { Contract } from '@ethersproject/contracts'
@@ -35,7 +35,7 @@ import { useGeneral } from '../../context/GeneralProvider'
 /* import constants */
 import { ZERO, GAS_LIMIT, POW_NINE } from '../../constants'
 import { FunctionName, TransactionCondition } from '../../constants/enums'
-import { GasFeeOption, LocalTx, LpTokenInfo } from '../../constants/types'
+import { GasFeeOption, LocalTx, NftTokenInfo } from '../../constants/types'
 
 /* import components */
 import { Input } from '../atoms/Input'
@@ -52,13 +52,20 @@ import { PoolModalCooldown } from '../molecules/PoolModalCooldown'
 
 /* import hooks */
 import { useUserStakedValue } from '../../hooks/useFarm'
-import { useNativeTokenBalance, useUserWalletLpBalance, useDepositedLpBalance } from '../../hooks/useBalance'
+import {
+  useNativeTokenBalance,
+  useUserWalletLpBalance,
+  useDepositedLpBalance,
+  useUserWalletPolicies,
+  useDepositedPolicies,
+} from '../../hooks/useBalance'
 import { useScpBalance } from '../../hooks/useBalance'
 import { useTokenAllowance } from '../../hooks/useTokenAllowance'
 import { useCooldown, useVault } from '../../hooks/useVault'
 import { useGasConfig } from '../../hooks/useGas'
 import { useCpFarm } from '../../hooks/useCpFarm'
 import { useLpFarm } from '../../hooks/useLpFarm'
+import { useSptFarm } from '../../hooks/useSptFarm'
 
 /* import utils */
 import { hasApproval } from '../../utils'
@@ -79,16 +86,61 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
   *************************************************************************************/
 
   const { haveErrors, appTheme } = useGeneral()
-  const { vault, cpFarm, lpFarm } = useContracts()
+  const { vault, cpFarm, lpFarm, sptFarm } = useContracts()
   const { activeNetwork, currencyDecimals } = useNetwork()
   const { addLocalTransactions, reload, gasPrices } = useCachedData()
   const { account } = useWallet()
   const cpUserStakeValue = useUserStakedValue(cpFarm, account)
   const lpUserStakeValue = useUserStakedValue(lpFarm, account)
+  const sptUserStakeValue = useUserStakedValue(sptFarm, account)
   const nativeTokenBalance = useNativeTokenBalance()
   const scpBalance = useScpBalance()
+
   const userLpTokenInfo = useUserWalletLpBalance()
   const depositedLpTokenInfo = useDepositedLpBalance()
+  const userPolicyTokenInfo = useUserWalletPolicies()
+  const depositedUserPolicyTokenInfo = useDepositedPolicies()
+
+  const userNftTokenInfo = useMemo(() => {
+    let res: NftTokenInfo[] = []
+    switch (func) {
+      case FunctionName.DEPOSIT_LP_SIGNED:
+      case FunctionName.WITHDRAW_LP:
+        res = userLpTokenInfo
+        break
+      case FunctionName.DEPOSIT_POLICY_SIGNED:
+      case FunctionName.WITHDRAW_POLICY:
+      default:
+        res = userPolicyTokenInfo
+    }
+    return res
+  }, [func, userLpTokenInfo, userPolicyTokenInfo])
+  const depositedNftTokenInfo = useMemo(() => {
+    let res: NftTokenInfo[] = []
+    switch (func) {
+      case FunctionName.DEPOSIT_LP_SIGNED:
+      case FunctionName.WITHDRAW_LP:
+        res = depositedLpTokenInfo
+        break
+      case FunctionName.DEPOSIT_POLICY_SIGNED:
+      case FunctionName.WITHDRAW_POLICY:
+      default:
+        res = depositedUserPolicyTokenInfo
+    }
+    return res
+  }, [func, depositedLpTokenInfo, depositedUserPolicyTokenInfo])
+  const funcIsForNft = useMemo(() => {
+    switch (func) {
+      case FunctionName.DEPOSIT_LP_SIGNED:
+      case FunctionName.WITHDRAW_LP:
+      case FunctionName.DEPOSIT_POLICY_SIGNED:
+      case FunctionName.WITHDRAW_POLICY:
+        return true
+      default:
+        return false
+    }
+  }, [func])
+
   const { makeTxToast } = useNotifications()
   const {
     cooldownStarted,
@@ -102,6 +154,7 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
   const { depositEth, withdrawEth } = useVault()
   const cpFarmFunctions = useCpFarm()
   const { depositLp, withdrawLp } = useLpFarm()
+  const { depositPolicy, withdrawPolicy } = useSptFarm()
 
   const [amount, setAmount] = useState<string>('')
   const [isStaking, setIsStaking] = useState<boolean>(false)
@@ -217,16 +270,30 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
 
   const callDepositLp = async () => {
     setModalLoading(true)
-    await depositLp(nftId)
+    await depositLp(nftId, gasConfig)
       .then((res) => handleToast(res.tx, res.localTx))
-      .catch((err) => handleContractCallError('callDepositLp', err, FunctionName.DEPOSIT_SIGNED))
+      .catch((err) => handleContractCallError('callDepositLp', err, FunctionName.DEPOSIT_LP_SIGNED))
   }
 
   const callWithdrawLp = async () => {
     setModalLoading(true)
-    await withdrawLp(nftId)
+    await withdrawLp(nftId, gasConfig)
       .then((res) => handleToast(res.tx, res.localTx))
       .catch((err) => handleContractCallError('callWithdrawLp', err, FunctionName.WITHDRAW_LP))
+  }
+
+  const callDepositPolicy = async () => {
+    setModalLoading(true)
+    await depositPolicy(nftId, gasConfig)
+      .then((res) => handleToast(res.tx, res.localTx))
+      .catch((err) => handleContractCallError('callDepositPolicy', err, FunctionName.DEPOSIT_POLICY_SIGNED))
+  }
+
+  const callWithdrawPolicy = async () => {
+    setModalLoading(true)
+    await withdrawPolicy(nftId, gasConfig)
+      .then((res) => handleToast(res.tx, res.localTx))
+      .catch((err) => handleContractCallError('callWithdrawPolicy', err, FunctionName.WITHDRAW_POLICY))
   }
 
   /*************************************************************************************
@@ -269,19 +336,23 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
         return parseUnits(scpBalance, currencyDecimals)
       case FunctionName.WITHDRAW_CP:
         return parseUnits(cpUserStakeValue, currencyDecimals)
-      case FunctionName.DEPOSIT_SIGNED:
-        return userLpTokenInfo.reduce((a, b) => a.add(b.value), ZERO)
+      case FunctionName.DEPOSIT_LP_SIGNED:
+      case FunctionName.DEPOSIT_POLICY_SIGNED:
+        return userNftTokenInfo.reduce((a, b) => a.add(b.value), ZERO)
       case FunctionName.WITHDRAW_LP:
-        // return depositedLpTokenInfo.reduce((a, b) => a.add(b.value), ZERO)
+        // return depositedNftTokenInfo.reduce((a, b) => a.add(b.value), ZERO)
         return parseUnits(lpUserStakeValue, currencyDecimals)
+      case FunctionName.WITHDRAW_POLICY:
+        return parseUnits(sptUserStakeValue, currencyDecimals)
+
       default:
         return BN.from('999999999999999999999999999999999999')
     }
   }
 
-  const getAssetTokensByFunc = (): LpTokenInfo[] => {
-    if (func == FunctionName.DEPOSIT_SIGNED) return userLpTokenInfo
-    if (func == FunctionName.WITHDRAW_LP) return depositedLpTokenInfo
+  const getAssetTokensByFunc = (): NftTokenInfo[] => {
+    if (func == FunctionName.DEPOSIT_LP_SIGNED || func == FunctionName.DEPOSIT_POLICY_SIGNED) return userNftTokenInfo
+    if (func == FunctionName.WITHDRAW_LP || func == FunctionName.WITHDRAW_POLICY) return depositedNftTokenInfo
     return []
   }
 
@@ -320,8 +391,10 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
     }
     if (func == FunctionName.DEPOSIT_CP) await callDepositCp()
     if (func == FunctionName.WITHDRAW_CP) await callWithdrawCp()
-    if (func == FunctionName.DEPOSIT_SIGNED) await callDepositLp()
+    if (func == FunctionName.DEPOSIT_LP_SIGNED) await callDepositLp()
     if (func == FunctionName.WITHDRAW_LP) await callWithdrawLp()
+    if (func == FunctionName.DEPOSIT_POLICY_SIGNED) await callDepositPolicy()
+    if (func == FunctionName.WITHDRAW_POLICY) await callWithdrawPolicy()
   }
 
   const handleClose = useCallback(() => {
@@ -365,31 +438,34 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
     if (isOpen && vault && cpFarm?.address) {
       setContractForAllowance(vault)
       setSpenderAddress(cpFarm?.address)
-      if (func == FunctionName.DEPOSIT_SIGNED) {
-        if (userLpTokenInfo.length > 0) {
-          setNftId(userLpTokenInfo[0].id)
-          setAmount(formatUnits(userLpTokenInfo[0].value, currencyDecimals))
+      if (func == FunctionName.DEPOSIT_LP_SIGNED || func == FunctionName.DEPOSIT_POLICY_SIGNED) {
+        if (userNftTokenInfo.length > 0) {
+          setNftId(userNftTokenInfo[0].id)
+          setAmount(formatUnits(userNftTokenInfo[0].value, currencyDecimals))
           setNftSelection({
-            value: `${userLpTokenInfo[0].id.toString()}`,
-            label: `#${userLpTokenInfo[0].id.toString()} - ${formatUnits(userLpTokenInfo[0].value, currencyDecimals)}`,
+            value: `${userNftTokenInfo[0].id.toString()}`,
+            label: `#${userNftTokenInfo[0].id.toString()} - ${formatUnits(
+              userNftTokenInfo[0].value,
+              currencyDecimals
+            )}`,
           })
         }
       }
-      if (func == FunctionName.WITHDRAW_LP) {
-        if (depositedLpTokenInfo.length > 0) {
-          setNftId(depositedLpTokenInfo[0].id)
-          setAmount(formatUnits(depositedLpTokenInfo[0].value, currencyDecimals))
+      if (func == FunctionName.WITHDRAW_LP || func == FunctionName.WITHDRAW_POLICY) {
+        if (depositedNftTokenInfo.length > 0) {
+          setNftId(depositedNftTokenInfo[0].id)
+          setAmount(formatUnits(depositedNftTokenInfo[0].value, currencyDecimals))
           setNftSelection({
-            value: `${depositedLpTokenInfo[0].id.toString()}`,
-            label: `#${depositedLpTokenInfo[0].id.toString()} - ${formatUnits(
-              depositedLpTokenInfo[0].value,
+            value: `${depositedNftTokenInfo[0].id.toString()}`,
+            label: `#${depositedNftTokenInfo[0].id.toString()} - ${formatUnits(
+              depositedNftTokenInfo[0].value,
               currencyDecimals
             )}`,
           })
         }
       }
     }
-  }, [isOpen, cpFarm?.address, vault, userLpTokenInfo, depositedLpTokenInfo, func, currencyDecimals])
+  }, [isOpen, cpFarm?.address, vault, userNftTokenInfo, depositedNftTokenInfo, func, currencyDecimals])
 
   /*************************************************************************************
 
@@ -415,7 +491,7 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
       disableCloseButton={modalLoading && !canCloseOnLoading}
     >
       <Fragment>
-        {func == FunctionName.DEPOSIT_SIGNED || func == FunctionName.WITHDRAW_LP ? (
+        {funcIsForNft ? (
           <>
             <ModalRow style={{ display: 'block' }}>
               <ModalCell t2>{getUnit(func, activeNetwork)}</ModalCell>
@@ -434,11 +510,12 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
               </ModalCell>
             </ModalRow>
             <div style={{ marginBottom: '20px' }}>
-              {getAssetTokensByFunc().length == 0 ? null : (
+              {getAssetTokensByFunc().length > 0 &&
+              (func == FunctionName.DEPOSIT_LP_SIGNED || func == FunctionName.WITHDRAW_LP) ? (
                 <ModalCell style={{ justifyContent: 'center' }} p={0}>
                   <NftPosition tokenId={nftId} />
                 </ModalCell>
-              )}
+              ) : null}
             </div>
           </>
         ) : (

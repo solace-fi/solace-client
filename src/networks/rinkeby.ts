@@ -13,6 +13,7 @@ import wethABI from '../constants/abi/contracts/WETH9.sol/WETH9.json'
 import treasuryABI from '../constants/abi/contracts/Treasury.sol/Treasury.json'
 import vaultABI from '../constants/abi/contracts/Vault.sol/Vault.json'
 import cpFarmABI from '../constants/abi/contracts/CpFarm.sol/CpFarm.json'
+import sptFarmABI from '../constants/abi/contracts/SptFarm.sol/SptFarm.json'
 import claimsEscrowABI from '../constants/abi/contracts/ClaimsEscrow.sol/ClaimsEscrow.json'
 import lpTokenArtifact from '../../node_modules/@uniswap/v3-periphery/artifacts/contracts/NonfungiblePositionManager.sol/NonfungiblePositionManager.json'
 import polMagABI from '../constants/abi/contracts/PolicyManager.sol/PolicyManager.json'
@@ -82,6 +83,10 @@ export const RinkebyNetwork: NetworkConfig = {
       lpFarm: {
         addr: String(process.env.REACT_APP_RINKEBY_LPFARM_ADDR),
         abi: null,
+      },
+      sptFarm: {
+        addr: String(process.env.REACT_APP_RINKEBY_SPTFARM_ADDR),
+        abi: sptFarmABI,
       },
       registry: {
         addr: String(process.env.REACT_APP_RINKEBY_REGISTRY_ADDR),

@@ -79,7 +79,7 @@ export const useTransactionDetails = (): { txHistory: any; amounts: string[] } =
       case FunctionName.DEPOSIT_CP:
       case FunctionName.WITHDRAW_CP:
       case FunctionName.WITHDRAW_REWARDS:
-      case FunctionName.DEPOSIT_SIGNED:
+      case FunctionName.DEPOSIT_LP_SIGNED:
       case FunctionName.WITHDRAW_LP:
       case FunctionName.APPROVE:
         const data = logs[logs.length - 1].data
