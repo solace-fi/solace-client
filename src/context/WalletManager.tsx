@@ -236,10 +236,11 @@ const WalletProvider: React.FC = (props) => {
       const curveU2 = '0x53C40473DcdFd927C4201cCFE24E314a7D7C3584'
       const curveU3 = '0xfcb85d4139123b1ec6746d1c487a2201045b9f72'
       const curveU4 = '0x18C64fAf2DF0286E1520B2F0F2d3841bcF865116'
+      const curveU5 = '0xbF7D65D769E82E7B862df338223263ba33F72623'
       const uniV2U = '0xC04F63Ea1E2E2FFEACAde7839E0596E2B886f6A4'
       const uniV3U = '0xAc32EAfcCAd3C8577FB2e842dCE8e441D9A7dB85'
       const yearnU = '0x2b5989Dd16eA2a11053F35B8c08b1E313C4E5cbB'
-      const user = curveU4
+      const user = curveU5
       const url = `https://api.etherscan.io/api?module=account&action=tokentx&address=${user}&startblock=0&endblock=latest&apikey=${String(
         ETHERSCAN_API_KEY
       )}`

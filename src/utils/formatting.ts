@@ -32,7 +32,7 @@ export const truncateBalance = (value: number | string, decimals = 6): string =>
   return numberAbbreviate(truncatedStr)
 }
 
-export const numberAbbreviate = (value: number | string, decimals = 1): string => {
+export const numberAbbreviate = (value: number | string, decimals = 2): string => {
   if (typeof value == 'number' && value == 0) return '0'
   if (typeof value == 'string' && BigNumber.from(value.replace('.', '')).eq('0')) return '0'
   const str = value.toString()

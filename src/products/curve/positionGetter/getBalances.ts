@@ -23,6 +23,15 @@ const ETH = '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee'
 
 // const CURVE_ADDRRESS_PROVIDER_ADDR = '0x0000000022D53366457F9d5E68Ec105046FC4383'
 
+const v1Pools = [
+  '0x79a8c46dea5ada233abaffd40f3a0a2b1e5a4f27', // busd
+  '0xa2b47e3d5c44877cca798226b7b8118f9bfb7a56', // compound
+  '0x06364f10b501e868329afbc005b3492902d6c763', // pax
+  '0xa5407eae9ba41422680e2e00537571bcc53efbfd', // susd
+  '0x52ea46506b9cc5ef470c5bf89f17dc28bb35d85c', // usdt
+  '0x45f783cce6b7ff23b2ab2d70e416cdb7d6055f51', // y
+]
+
 export const getBalances = async (
   user: string,
   provider: any,
@@ -56,37 +65,45 @@ export const getBalances = async (
     additionalTokenBalances[i] = newBalance
   }
 
-  for (let i = 0; i < balances.length; i++) {
-    const lpTokenContract = getContract(balances[i].token.address, ierc20Json.abi, provider)
-    const queriedBalance = await queryBalance(lpTokenContract, user)
+  const queriedBalances = await Promise.all(
+    balances.map((b) => queryBalance(getContract(b.token.address, ierc20Json.abi, provider), user))
+  )
 
-    balances[i].token.balance = queriedBalance.add(additionalTokenBalances[i])
+  indices.forEach((i) => (balances[i].token.balance = queriedBalances[i].add(additionalTokenBalances[i])))
 
-    if (balances[i].token.balance.gt(ZERO)) {
-      const poolContract = getContract(balances[i].metadata.poolAddr, curvePoolAbi, provider)
-      const factoryPoolContract = getContract(balances[i].metadata.poolAddr, curveFactoryPoolAbi, provider)
-      const uBalance = balances[i].metadata.isFactory
-        ? await factoryPoolContract.calc_withdraw_one_coin(balances[i].token.balance, 0)
-        : await poolContract.calc_withdraw_one_coin(balances[i].token.balance, 0)
-      balances[i].underlying[0].balance = uBalance
-
-      if (!equalsIgnoreCase(balances[i].underlying[0].address, ETH)) {
-        try {
-          const res = await get1InchPrice(
-            balances[i].underlying[0].address,
-            ETH,
-            balances[i].underlying[0].balance.toString()
-          )
-          const ethAmount: BigNumber = BigNumber.from(res.data.toTokenAmount)
-          balances[i].eth.balance = ethAmount
-        } catch (e) {
-          console.log(e)
+  const uBalances = await Promise.all(
+    balances.map(async (b) => {
+      if (b.token.balance.gt(ZERO)) {
+        const poolContract = getContract(b.metadata.poolAddr, curvePoolAbi, provider)
+        const factoryPoolContract = getContract(b.metadata.poolAddr, curveFactoryPoolAbi, provider)
+        if (v1Pools.includes(poolContract.address)) {
+          return b.token.balance
+        } else {
+          const uBalance = b.metadata.isFactory
+            ? await factoryPoolContract.calc_withdraw_one_coin(b.token.balance, 0)
+            : await poolContract.calc_withdraw_one_coin(b.token.balance, 0)
+          return uBalance
         }
       } else {
-        balances[i].eth.balance = balances[i].underlying[0].balance
+        return ZERO
       }
-    }
-  }
+    })
+  )
+
+  indices.forEach((i) => (balances[i].underlying[0].balance = uBalances[i]))
+
+  const nativeBalances = await Promise.all(
+    balances.map(async (b) => {
+      if (b.token.balance.gt(ZERO) && !equalsIgnoreCase(b.underlying[0].address, ETH)) {
+        const res = await get1InchPrice(b.underlying[0].address, ETH, b.underlying[0].balance.toString())
+        return BigNumber.from(res.data.toTokenAmount)
+      } else {
+        return ZERO
+      }
+    })
+  )
+
+  indices.forEach((i) => (balances[i].eth.balance = nativeBalances[i]))
 
   return balances.filter((b) => b.token.balance.gt(ZERO))
 }
