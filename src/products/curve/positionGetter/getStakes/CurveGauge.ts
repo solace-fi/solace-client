@@ -16,12 +16,14 @@ export const getAmounts_CurveGauge = async (
   const amounts: BigNumber[] = []
   for (let i = 0; i < tokens.length; i++) {
     let totalGaugeDeposit = ZERO
-    for (let j = 0; j < tokens[i].metadata.gauges.length; j++) {
-      const gauge = tokens[i].metadata.gauges[j]
-      if (gauge.address != ADDRESS_ZERO) {
-        const gaugeContract = getContract(gauge.address, curveGaugeAbi, provider)
-        const balance = await queryBalance(gaugeContract, user)
-        totalGaugeDeposit = totalGaugeDeposit.add(balance)
+    if (tokens[i].metadata.gauges) {
+      for (let j = 0; j < tokens[i].metadata.gauges.length; j++) {
+        const gauge = tokens[i].metadata.gauges[j]
+        if (gauge.address != ADDRESS_ZERO) {
+          const gaugeContract = getContract(gauge.address, curveGaugeAbi, provider)
+          const balance = await queryBalance(gaugeContract, user)
+          totalGaugeDeposit = totalGaugeDeposit.add(balance)
+        }
       }
     }
     amounts.push(totalGaugeDeposit)

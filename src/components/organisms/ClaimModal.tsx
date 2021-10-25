@@ -2,7 +2,6 @@
 
     Table of Contents:
 
-    import react
     import packages
     import managers
     import components
@@ -18,16 +17,14 @@
 
   *************************************************************************************/
 
-/* import react */
-import React, { Fragment, useCallback, useEffect, useState, useRef } from 'react'
-
 /* import packages */
+import React, { Fragment, useCallback, useEffect, useState, useRef } from 'react'
 import { formatUnits } from '@ethersproject/units'
 import { Block } from '@ethersproject/contracts/node_modules/@ethersproject/abstract-provider'
 
 /* import managers */
 import { useCachedData } from '../../context/CachedDataManager'
-import { useToasts } from '../../context/NotificationsManager'
+import { useNotifications } from '../../context/NotificationsManager'
 import { useContracts } from '../../context/ContractsManager'
 import { useNetwork } from '../../context/NetworkManager'
 import { useGeneral } from '../../context/GeneralProvider'
@@ -57,7 +54,7 @@ import { useGasConfig } from '../../hooks/useGas'
 /* import utils */
 import { truncateBalance } from '../../utils/formatting'
 import { timeToDateText } from '../../utils/time'
-import { getClaimAssessment } from '../../utils/paclas'
+import { getClaimAssessment } from '../../utils/api'
 
 interface ClaimModalProps {
   closeModal: () => void
@@ -78,7 +75,7 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
   const cooldown = useGetCooldownPeriod()
   const { addLocalTransactions, reload, gasPrices, userPolicyData } = useCachedData()
   const { selectedProtocol } = useContracts()
-  const { makeTxToast } = useToasts()
+  const { makeTxToast } = useNotifications()
   const { haveErrors } = useGeneral()
   const { activeNetwork, currencyDecimals, chainId } = useNetwork()
   const { width } = useWindowDimensions()

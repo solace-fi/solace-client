@@ -2,7 +2,7 @@
 
     Table of Contents:
 
-    import react
+    import packages
     import components
     import constants
 
@@ -12,7 +12,7 @@
 
   *************************************************************************************/
 
-/* import react */
+/* import packages */
 import React, { useCallback } from 'react'
 
 /* import constants */

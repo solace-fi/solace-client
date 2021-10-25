@@ -2,7 +2,6 @@
 
     Table of Contents:
 
-    import react
     import packages
     import constants
     import context
@@ -19,10 +18,8 @@
 
   *************************************************************************************/
 
-/* import react */
-import React, { Fragment, useState } from 'react'
-
 /* import packages */
+import React, { Fragment, useState } from 'react'
 import styled from 'styled-components'
 import useDebounce from '@rooks/use-debounce'
 

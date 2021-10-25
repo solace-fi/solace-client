@@ -2,7 +2,6 @@
 
     Table of Contents:
 
-    import react
     import packages
     import managers
     import constants
@@ -16,10 +15,8 @@
 
   *************************************************************************************/
 
-/* import react */
-import React, { Fragment } from 'react'
-
 /* import packages */
+import React, { Fragment } from 'react'
 import { formatUnits } from '@ethersproject/units'
 import { Block } from '@ethersproject/contracts/node_modules/@ethersproject/abstract-provider'
 

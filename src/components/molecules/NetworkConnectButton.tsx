@@ -2,7 +2,7 @@
 
     Table of Contents:
 
-    import react
+    import packages
     import managers
     import constants
     import components
@@ -13,7 +13,7 @@
 
   *************************************************************************************/
 
-/* import react */
+/* import packages */
 import React from 'react'
 
 /* import managers */

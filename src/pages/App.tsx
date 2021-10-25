@@ -2,7 +2,6 @@
 
     Table of Contents:
 
-    import react
     import packages
     import managers
     import pages
@@ -14,10 +13,8 @@
 
   *************************************************************************************/
 
-/* import react */
-import React, { Fragment } from 'react'
-
 /* import packages */
+import React, { Fragment } from 'react'
 import { Route, Switch, useLocation } from 'react-router-dom'
 
 /* import managers */

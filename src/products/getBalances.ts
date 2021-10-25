@@ -1,12 +1,11 @@
 import { Token } from '../constants/types'
 import { Contract } from '@ethersproject/contracts'
 import { equalsIgnoreCase } from '../utils'
-import { withBackoffRetries } from '../utils/time'
 import { rangeFrom0, bnCmp } from '../utils/numeric'
 import { BigNumber } from 'ethers'
-import axios from 'axios'
 import { ZERO } from '../constants'
 import { queryBalance } from '../utils/contract'
+import { get1InchPrice } from '../utils/api'
 
 const ETH = '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee'
 
@@ -60,7 +59,6 @@ export const queryNativeTokenBalance = async (
   if (getMainNetworkTokenAddress) {
     address = getMainNetworkTokenAddress(token.address, chainId)
   }
-  const url = `https://api.1inch.exchange/v3.0/1/quote?fromTokenAddress=${address}&toTokenAddress=${ETH}&amount=${token.balance.toString()}`
-  const res = await withBackoffRetries(async () => axios.get(url))
+  const res = await get1InchPrice(address, ETH, token.balance.toString())
   return BigNumber.from(res.data.toTokenAmount)
 }

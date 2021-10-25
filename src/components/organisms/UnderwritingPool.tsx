@@ -2,7 +2,6 @@
 
     Table of Contents:
 
-    import react
     import packages
     import managers
     import constants
@@ -15,10 +14,8 @@
 
   *************************************************************************************/
 
-/* import react */
-import React from 'react'
-
 /* import packages */
+import React from 'react'
 import { parseUnits } from '@ethersproject/units'
 
 /* import managers */
@@ -43,7 +40,7 @@ import { useCapitalPoolSize, useUserVaultDetails } from '../../hooks/useVault'
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'
 
 /* import utils */
-import { floatUnits, truncateBalance } from '../../utils/formatting'
+import { truncateBalance } from '../../utils/formatting'
 
 interface UnderwritingPoolProps {
   openModal: (func: FunctionName, modalTitle: string) => void
@@ -81,7 +78,7 @@ export const UnderwritingPool: React.FC<UnderwritingPoolProps> = ({ openModal })
             <TableRow>
               {account ? <TableHeader width={100}>My Assets</TableHeader> : null}
               <TableHeader width={100}>Total Assets</TableHeader>
-              {/* <TableHeader width={100}>ROI (1Y)</TableHeader> */}
+              <TableHeader width={100}>ROI (1Y)</TableHeader>
               {account ? <TableHeader width={130}>My Vault Share</TableHeader> : null}
             </TableRow>
           </TableHead>
@@ -93,11 +90,11 @@ export const UnderwritingPool: React.FC<UnderwritingPoolProps> = ({ openModal })
                 </TableData>
               ) : null}
               <TableData t3 width={100}>
-                {truncateBalance(floatUnits(parseUnits(capitalPoolSize, currencyDecimals), currencyDecimals), 2)}
+                {truncateBalance(capitalPoolSize, 2)}
               </TableData>
-              {/* <TableData t3 width={100}>
-                {CP_ROI}
-              </TableData> */}
+              <TableData t3 width={100}>
+                N/A
+              </TableData>
               {account ? <TableData t3 width={130}>{`${truncateBalance(userVaultShare, 2)}%`}</TableData> : null}
               {account ? (
                 <TableData textAlignRight>
@@ -132,15 +129,15 @@ export const UnderwritingPool: React.FC<UnderwritingPoolProps> = ({ openModal })
           <FormRow>
             <FormCol light>Total Assets:</FormCol>
             <FormCol light t2>
-              {truncateBalance(floatUnits(parseUnits(capitalPoolSize, currencyDecimals), currencyDecimals), 2)}
+              {truncateBalance(capitalPoolSize, 2)}
             </FormCol>
           </FormRow>
-          {/* <FormRow>
+          <FormRow>
             <FormCol light>ROI:</FormCol>
             <FormCol light t2>
-              {CP_ROI}
+              N/A
             </FormCol>
-          </FormRow> */}
+          </FormRow>
           {account && (
             <FormRow>
               <FormCol light>My Vault Share:</FormCol>

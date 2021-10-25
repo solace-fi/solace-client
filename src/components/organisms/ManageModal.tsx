@@ -2,7 +2,6 @@
 
     Table of Contents:
 
-    import react
     import packages
     import managers
     import components
@@ -19,17 +18,15 @@
 
   *************************************************************************************/
 
-/* import react */
-import React, { Fragment, useState, useEffect, useMemo, useCallback, useRef } from 'react'
-
 /* import packages */
+import React, { Fragment, useState, useEffect, useMemo, useCallback, useRef } from 'react'
 import { parseUnits, formatUnits } from '@ethersproject/units'
 import { BigNumber } from 'ethers'
 import { Block } from '@ethersproject/contracts/node_modules/@ethersproject/abstract-provider'
 
 /* import managers */
 import { useCachedData } from '../../context/CachedDataManager'
-import { useToasts } from '../../context/NotificationsManager'
+import { useNotifications } from '../../context/NotificationsManager'
 import { useContracts } from '../../context/ContractsManager'
 import { useNetwork } from '../../context/NetworkManager'
 import { useGeneral } from '../../context/GeneralProvider'
@@ -80,7 +77,7 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
   const { haveErrors } = useGeneral()
   const { selectedProtocol, riskManager } = useContracts()
   const { addLocalTransactions, reload, gasPrices } = useCachedData()
-  const { makeTxToast } = useToasts()
+  const { makeTxToast } = useNotifications()
   const policyPrice = useGetPolicyPrice(selectedPolicy ? selectedPolicy.policyId : 0)
   const maxCoverPerPolicy = useGetMaxCoverPerPolicy()
   const { activeNetwork, currencyDecimals } = useNetwork()

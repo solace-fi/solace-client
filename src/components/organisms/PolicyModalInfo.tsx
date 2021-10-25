@@ -2,7 +2,6 @@
 
     Table of Contents:
 
-    import react
     import packages
     import managers
     import constants
@@ -17,14 +16,11 @@
 
   *************************************************************************************/
 
-/* import react */
-import React, { Fragment, useCallback, useState, useEffect } from 'react'
-
 /* import packages */
+import React, { Fragment, useCallback, useState, useEffect } from 'react'
 import { formatUnits } from '@ethersproject/units'
 import { BigNumber } from 'ethers'
 import { Block } from '@ethersproject/contracts/node_modules/@ethersproject/abstract-provider'
-import { useLocation } from 'react-router'
 
 /* import managers */
 import { useNetwork } from '../../context/NetworkManager'

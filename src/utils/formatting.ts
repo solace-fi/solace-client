@@ -17,15 +17,43 @@ export const truncateBalance = (value: number | string, decimals = 6): string =>
   if (typeof value == 'string' && BigNumber.from(value.replace('.', '')).eq('0')) return '0'
   const str = value.toString()
   const decimalIndex = str.indexOf('.')
+
+  // if is nonzero whole number
   if (decimalIndex == -1) {
-    return str
+    return numberAbbreviate(str)
   }
+
+  // if is nonzero number with decimals
   const cutoffIndex = decimalIndex + decimals
   const truncatedStr = str.substring(0, cutoffIndex + 1)
   if (parseFloat(truncatedStr) == 0) {
     return `< ${truncatedStr.slice(0, -1) + '1'}`
   }
-  return truncatedStr
+  return numberAbbreviate(truncatedStr)
+}
+
+export const numberAbbreviate = (value: number | string, decimals = 2): string => {
+  if (typeof value == 'number' && value == 0) return '0'
+  if (typeof value == 'string' && BigNumber.from(value.replace('.', '')).eq('0')) return '0'
+  const str = value.toString()
+  const decimalIndex = str.indexOf('.')
+  let wholeNumber = str
+  if (decimalIndex != -1) {
+    wholeNumber = str.substring(0, decimalIndex)
+  }
+  if (wholeNumber.length <= 3) return str
+
+  const abbreviations: any = {
+    [2]: 'K',
+    [3]: 'M',
+    [4]: 'B',
+    [5]: 'T',
+  }
+  const abbrev = abbreviations[Math.ceil(wholeNumber.length / 3)]
+  const cutoff = wholeNumber.length % 3 == 0 ? 3 : wholeNumber.length % 3
+  const a = wholeNumber.substring(0, cutoff)
+  const b = wholeNumber.substring(cutoff, cutoff + decimals)
+  return `${a}.${b}${abbrev}`
 }
 
 export const accurateMultiply = (value: number | string, decimals: number): string => {
@@ -89,12 +117,12 @@ export const shortenAddress = (input: string): string => {
 }
 
 // get unit based on function name
-export const getUnit = (function_name: string, activeNetwork: NetworkConfig): Unit => {
+export const getUnit = (function_name: string, activeNetwork?: NetworkConfig): Unit => {
   switch (function_name) {
     case FunctionName.DEPOSIT_ETH:
     case FunctionName.WITHDRAW_ETH:
     case FunctionName.APPROVE:
-      return activeNetwork.nativeCurrency.symbol
+      return activeNetwork ? activeNetwork.nativeCurrency.symbol : Unit._
     case FunctionName.DEPOSIT_CP:
     case FunctionName.WITHDRAW_CP:
       return Unit.SCP

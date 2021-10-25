@@ -2,7 +2,6 @@
 
     Table of Contents:
 
-    import react
     import packages
     import managers
     import constants
@@ -18,15 +17,13 @@
 
   *************************************************************************************/
 
-/* import react */
-import React, { Fragment, useEffect, useMemo, useState } from 'react'
-
 /* import packages */
+import React, { Fragment, useEffect, useMemo, useState } from 'react'
 import { useLocation } from 'react-router'
 
 /* import managers */
 import { useGeneral } from '../../context/GeneralProvider'
-import { useToasts } from '../../context/NotificationsManager'
+import { useNotifications } from '../../context/NotificationsManager'
 
 /* import constants */
 import { BKPT_3, BKPT_NAVBAR } from '../../constants'
@@ -65,11 +62,7 @@ import { useWindowDimensions } from '../../hooks/useWindowDimensions'
 import { SystemNotice } from '../../constants/enums'
 import { AuditToast } from '../molecules/Toast'
 
-interface SideNavbarProps {
-  isMobile?: Boolean
-}
-
-export const SideNavbar: React.FC<SideNavbarProps> = ({ isMobile }) => {
+export const SideNavbar: React.FC = () => {
   /*
 
   hooks
@@ -84,7 +77,7 @@ export const SideNavbar: React.FC<SideNavbarProps> = ({ isMobile }) => {
       marginRight: width <= BKPT_3 ? 'auto' : 'unset',
     }
   }, [width])
-  const lightText = useMemo(() => location.pathname == '/' || !!isMobile, [isMobile, location])
+  const lightText = useMemo(() => location.pathname == '/', [location])
 
   return (
     <div
@@ -94,12 +87,12 @@ export const SideNavbar: React.FC<SideNavbarProps> = ({ isMobile }) => {
         top: '0',
         bottom: '0',
         display: 'flex',
-        background: !!isMobile ? 'black' : 'transparent',
+        background: 'transparent',
       }}
     >
       <div
         style={{
-          padding: !!isMobile ? '10px 25px 0px 25px' : '40px 5px 0px 5px',
+          padding: '40px 5px 0px 5px',
           display: 'flex',
           flexDirection: 'column',
         }}
@@ -351,7 +344,7 @@ export const TopNavbar: React.FC = () => {
   *************************************************************************************/
   const [isOpen, setIsOpen] = useState<boolean>(false)
   const location = useLocation()
-  const { toastSettings, makeAppToast } = useToasts()
+  const { toastSettings, makeAppToast } = useNotifications()
 
   const handleIsOpen = (toggle: boolean) => {
     if (!toggle) {

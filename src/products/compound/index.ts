@@ -7,6 +7,12 @@ export const CompoundProduct: SupportedProduct = {
   name: ProductName.COMPOUND,
   positionsType: PositionType.TOKEN,
   productLink: 'https://app.compound.finance',
-  getTokens,
-  getBalances,
+  getTokens: {
+    [1]: getTokens,
+    [4]: getTokens,
+  },
+  getBalances: {
+    [1]: getBalances,
+    [4]: getBalances,
+  },
 }

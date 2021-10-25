@@ -2,7 +2,6 @@
 
     Table of Contents:
 
-    import react
     import packages
     import constants
     import managers
@@ -17,10 +16,8 @@
 
   *************************************************************************************/
 
-/* import react */
-import React, { useEffect, useState } from 'react'
-
 /* import packages */
+import React, { useEffect, useState } from 'react'
 import { formatUnits, parseUnits } from '@ethersproject/units'
 import { BigNumber } from 'ethers'
 
@@ -31,7 +28,7 @@ import { TransactionCondition, FunctionName, Unit, PolicyState } from '../../con
 /* import managers */
 import { useWallet } from '../../context/WalletManager'
 import { useContracts } from '../../context/ContractsManager'
-import { useToasts } from '../../context/NotificationsManager'
+import { useNotifications } from '../../context/NotificationsManager'
 import { useCachedData } from '../../context/CachedDataManager'
 import { useNetwork } from '../../context/NetworkManager'
 import { useGeneral } from '../../context/GeneralProvider'
@@ -55,7 +52,7 @@ import { useWindowDimensions } from '../../hooks/useWindowDimensions'
 import { useGasConfig } from '../../hooks/useGas'
 
 /* import utils */
-import { fixed, floatUnits, truncateBalance } from '../../utils/formatting'
+import { truncateBalance } from '../../utils/formatting'
 
 export const Statistics: React.FC = () => {
   /*************************************************************************************
@@ -67,7 +64,7 @@ export const Statistics: React.FC = () => {
   const { account, initialized } = useWallet()
   const { activeNetwork, currencyDecimals } = useNetwork()
   const { farmController } = useContracts()
-  const { makeTxToast } = useToasts()
+  const { makeTxToast } = useNotifications()
   const { addLocalTransactions, reload, gasPrices, tokenPosData, latestBlock } = useCachedData()
   const capitalPoolSize = useCapitalPoolSize()
   const solaceBalance = useSolaceBalance()
@@ -148,7 +145,7 @@ export const Statistics: React.FC = () => {
           {/* <StyledTooltip id={'cps'} tip={'Current amount of capital in the vault'} /> */}
         </BoxItemTitle>
         <Text t2 nowrap light bold>
-          {`${truncateBalance(floatUnits(parseUnits(capitalPoolSize, currencyDecimals), currencyDecimals), 1)} `}
+          {`${truncateBalance(capitalPoolSize, 1)} `}
           <TextSpan t4 light bold>
             {activeNetwork.nativeCurrency.symbol}
           </TextSpan>
@@ -277,10 +274,7 @@ export const Statistics: React.FC = () => {
                   <FormCol light>Capital Pool Size</FormCol>
                   <FormCol>
                     <Text t2 nowrap light>
-                      {`${truncateBalance(
-                        floatUnits(parseUnits(capitalPoolSize, currencyDecimals), currencyDecimals),
-                        1
-                      )} `}
+                      {`${truncateBalance(capitalPoolSize, 1)} `}
                       <TextSpan t4 light>
                         {activeNetwork.nativeCurrency.symbol}
                       </TextSpan>

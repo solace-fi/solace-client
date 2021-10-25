@@ -2,7 +2,6 @@
 
     Table of Contents:
 
-    import react
     import packages
     import managers
     import components
@@ -17,17 +16,15 @@
 
   *************************************************************************************/
 
-/* import react */
-import React, { useState } from 'react'
-
 /* import packages */
+import React, { useState } from 'react'
 import { formatUnits } from '@ethersproject/units'
 import { BigNumber } from 'ethers'
 
 /* import managers */
 import { useWallet } from '../../context/WalletManager'
 import { useCachedData } from '../../context/CachedDataManager'
-import { useToasts } from '../../context/NotificationsManager'
+import { useNotifications } from '../../context/NotificationsManager'
 import { useContracts } from '../../context/ContractsManager'
 import { useNetwork } from '../../context/NetworkManager'
 import { useGeneral } from '../../context/GeneralProvider'
@@ -66,7 +63,7 @@ export const MyClaims: React.FC = () => {
   const { account } = useWallet()
   const { activeNetwork, currencyDecimals } = useNetwork()
   const { addLocalTransactions, reload, gasPrices } = useCachedData()
-  const { makeTxToast } = useToasts()
+  const { makeTxToast } = useNotifications()
   const claimsDetails = useGetClaimsDetails(account)
   const { gasConfig } = useGasConfig(gasPrices.selected?.value)
   const [openClaims, setOpenClaims] = useState<boolean>(true)

@@ -2,7 +2,6 @@
 
     Table of Contents:
 
-    import react
     import packages
     import context
     import constants
@@ -22,10 +21,8 @@
 
   *************************************************************************************/
 
-/* import react */
-import React, { useEffect, useState, useCallback, useMemo } from 'react'
-
 /* import packages */
+import React, { useEffect, useState, useCallback, useMemo } from 'react'
 import { SetForm, useForm, useStep } from 'react-hooks-helper'
 import styled from 'styled-components'
 import { CircularProgressbar, buildStyles } from 'react-circular-progressbar'

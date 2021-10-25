@@ -8,14 +8,13 @@ import { vaultAbi } from './_contracts/yearnAbis'
 import { equalsIgnoreCase, getContract } from '../../../utils'
 
 import { BigNumber } from 'ethers'
-import { withBackoffRetries } from '../../../utils/time'
-import axios from 'axios'
 import { ZERO } from '../../../constants'
 
 import curveRegistryAbi from '../../curve/positionGetter/_contracts/ICurveRegistry.json'
 import curveAddressProviderAbi from '../../curve/positionGetter/_contracts/ICurveAddressProvider.json'
 import curvePoolAbi from '../../curve/positionGetter/_contracts/ICurvePool.json'
 import { queryDecimals } from '../../../utils/contract'
+import { get1InchPrice } from '../../../utils/api'
 
 const CURVE_ADDRRESS_PROVIDER_ADDR = '0x0000000022D53366457F9d5E68Ec105046FC4383'
 
@@ -57,9 +56,8 @@ export const getBalances = async (
 
       const underlyingTokens = await curveRegistryContract.get_underlying_coins(curvePoolAddr)
 
-      const url = `https://api.1inch.exchange/v3.0/1/quote?fromTokenAddress=${underlyingTokens[0].address}&toTokenAddress=${ETH}&amount=${uBalance}`
       try {
-        const res = await withBackoffRetries(async () => axios.get(url))
+        const res = await get1InchPrice(underlyingTokens[0].address, ETH, uBalance.toString())
         const ethAmount: BigNumber = BigNumber.from(res.data.toTokenAmount)
         balances[i].eth.balance = ethAmount
       } catch (e) {
@@ -74,11 +72,14 @@ export const getBalances = async (
 
 const getNativeTokenBalance = async (underlyingAddress: string, token: Token): Promise<BigNumber> => {
   if (!equalsIgnoreCase(underlyingAddress, ETH)) {
-    const url = `https://api.1inch.exchange/v3.0/1/quote?fromTokenAddress=${underlyingAddress}&toTokenAddress=${ETH}&amount=${token.underlying[0].balance
-      .div(String(getNonHumanValue(1, token.token.decimals - token.underlying[0].decimals)))
-      .toString()}`
     try {
-      const res = await withBackoffRetries(async () => axios.get(url))
+      const res = await get1InchPrice(
+        underlyingAddress,
+        ETH,
+        token.underlying[0].balance
+          .div(String(getNonHumanValue(1, token.token.decimals - token.underlying[0].decimals)))
+          .toString()
+      )
       const ethAmount: BigNumber = BigNumber.from(res.data.toTokenAmount)
       return ethAmount
     } catch (e) {

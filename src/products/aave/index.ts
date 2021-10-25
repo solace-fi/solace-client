@@ -7,6 +7,12 @@ export const AaveProduct: SupportedProduct = {
   name: ProductName.AAVE,
   positionsType: PositionType.TOKEN,
   productLink: 'https://app.aave.com/markets',
-  getTokens,
-  getBalances,
+  getTokens: {
+    [1]: getTokens,
+    [42]: getTokens,
+  },
+  getBalances: {
+    [1]: getBalances,
+    [42]: getBalances,
+  },
 }

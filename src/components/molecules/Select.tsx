@@ -2,7 +2,6 @@
 
     Table of Contents:
 
-    import react
     import packages
     import context
 
@@ -11,10 +10,8 @@
 
   *************************************************************************************/
 
-/* import react */
-import React from 'react'
-
 /* import packages */
+import React from 'react'
 import Select from 'react-select'
 
 /* import context */

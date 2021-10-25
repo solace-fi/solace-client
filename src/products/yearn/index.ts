@@ -7,6 +7,10 @@ export const YearnProduct: SupportedProduct = {
   name: ProductName.YEARN,
   positionsType: PositionType.TOKEN,
   productLink: 'https://yearn.finance/vaults',
-  getTokens,
-  getBalances,
+  getTokens: {
+    [1]: getTokens,
+  },
+  getBalances: {
+    [1]: getBalances,
+  },
 }

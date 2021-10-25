@@ -50,9 +50,8 @@ const ToastsContext = createContext<ToastSystem>({
 })
 
 const ToastsProvider: React.FC = (props) => {
-  const { notices, errors, appTheme } = useGeneral()
+  const { notices, errors } = useGeneral()
   const { account } = useWallet()
-  const { chainId } = useNetwork()
   const [noticeMap, setNoticeMap] = useState(new Map())
   const [errorMap, setErrorMap] = useState(new Map())
   const lastAccount = useRef<string>('')
@@ -313,7 +312,7 @@ const ToastsProvider: React.FC = (props) => {
 }
 
 // To get access to this Manager, import this into your component or hook
-export function useToasts(): ToastSystem {
+export function useNotifications(): ToastSystem {
   return useContext(ToastsContext)
 }
 

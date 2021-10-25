@@ -7,6 +7,10 @@ export const UniswapV2Product: SupportedProduct = {
   name: ProductName.UNISWAP_V2,
   positionsType: PositionType.TOKEN,
   productLink: 'https://app.uniswap.org/#/pool/v2',
-  getTokens,
-  getBalances,
+  getTokens: {
+    [1]: getTokens,
+  },
+  getBalances: {
+    [1]: getBalances,
+  },
 }

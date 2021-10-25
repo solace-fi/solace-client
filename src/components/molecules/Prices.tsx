@@ -2,7 +2,6 @@
 
     Table of Contents:
 
-    import react
     import packages
     import context
     import constants
@@ -16,10 +15,8 @@
 
   *************************************************************************************/
 
-/* import react */
-import React from 'react'
-
 /* import packages */
+import React from 'react'
 import styled from 'styled-components'
 import { useCoingeckoPrice } from '@usedapp/coingecko'
 

@@ -2,14 +2,14 @@
 
     Table of Contents:
 
-    import react
+    import packages
     import components
 
     ConfirmStep
 
   *************************************************************************************/
 
-/* import react */
+/* import packages */
 import React from 'react'
 
 /* import components */

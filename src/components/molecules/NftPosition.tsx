@@ -2,7 +2,6 @@
 
     Table of Contents:
 
-    import react
     import packages
     import managers
     import components
@@ -16,10 +15,8 @@
 
   *************************************************************************************/
 
-/* import react */
-import React, { useEffect, useState } from 'react'
-
 /* import packages */
+import React, { useEffect, useState } from 'react'
 import styled from 'styled-components'
 import { BigNumber } from 'ethers'
 import Tilt from 'react-parallax-tilt'

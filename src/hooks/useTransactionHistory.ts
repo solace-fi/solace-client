@@ -17,14 +17,16 @@ export const useFetchTxHistoryByAddress = (): any => {
   const { contractSources } = useContracts()
 
   const fetchTxHistoryByAddress = async (account: string) => {
-    await fetchExplorerTxHistoryByAddress(activeNetwork.explorer.apiUrl, account, contractSources).then((result) => {
-      if (result.status == '1') {
-        const contractAddrs = contractSources.map((contract) => contract.addr)
-        const txList = result.result.filter((tx: any) => contractAddrs.includes(tx.to.toLowerCase()))
-        deleteLocalTransactions(txList)
-        setTxHistory(txList.slice(0, 30))
-      }
-    })
+    await fetchExplorerTxHistoryByAddress(activeNetwork.explorer.apiUrl, account, contractSources)
+      .then((result) => {
+        if (result.status == '1') {
+          const contractAddrs = contractSources.map((contract) => contract.addr)
+          const txList = result.result.filter((tx: any) => contractAddrs.includes(tx.to.toLowerCase()))
+          deleteLocalTransactions(txList)
+          setTxHistory(txList.slice(0, 30))
+        }
+      })
+      .catch((err) => console.log(err))
   }
 
   useEffect(() => {

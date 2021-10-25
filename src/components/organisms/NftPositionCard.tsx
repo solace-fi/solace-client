@@ -1,6 +1,6 @@
 /*
 
-  import react
+  import packages
   import managers
   import constants
   import hooks
@@ -11,7 +11,7 @@
 
 */
 
-/* import react */
+/* import packages */
 import React, { useMemo } from 'react'
 
 /* import managers */
@@ -134,11 +134,11 @@ export const NftPositionCard: React.FC<NftPositionCardProps> = ({
           </Button>
         ) : isSelected ? (
           <Button widthP={width > BKPT_3 ? undefined : 100} light>
-            {'Deselect'}
+            Deselect
           </Button>
         ) : (
           <Button widthP={width > BKPT_3 ? undefined : 100} info>
-            {'Select'}
+            Select
           </Button>
         )}
       </PositionCardButton>

@@ -39,3 +39,19 @@ export async function fetchGasPrice(explorer: string, chainId: number): Promise<
       return fetchedResult
     })
 }
+
+export async function fetchTransferEventsOfUser(explorer: string, user: string): Promise<GasPriceResult> {
+  return await withBackoffRetries(async () =>
+    fetch(
+      `${explorer}/api?module=account&action=tokentx&address=${user}&startblock=0&endblock=latest&apikey=${String(
+        ETHERSCAN_API_KEY
+      )}`
+    )
+  )
+    .then((res) => res.json())
+    .then((result) => result.result)
+    .then((result) => {
+      if (result != 'Max rate limit reached') return result
+      return []
+    })
+}

@@ -5,5 +5,8 @@ import { getPositions } from './positionGetter/getPositions'
 export const LiquityProduct: SupportedProduct = {
   name: ProductName.LIQUITY,
   positionsType: PositionType.LQTY,
-  getPositions,
+  getPositions: {
+    [1]: getPositions,
+    [4]: getPositions,
+  },
 }

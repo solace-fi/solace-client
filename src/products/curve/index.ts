@@ -7,6 +7,13 @@ export const CurveProduct: SupportedProduct = {
   name: ProductName.CURVE,
   positionsType: PositionType.TOKEN,
   productLink: 'https://curve.fi/',
-  getTokens,
-  getBalances,
+  supportedSubProducts: {
+    [1]: ['Factory Pools', 'Gauge Deposits'],
+  },
+  getTokens: {
+    [1]: getTokens,
+  },
+  getBalances: {
+    [1]: getBalances,
+  },
 }

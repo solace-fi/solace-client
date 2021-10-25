@@ -95,7 +95,7 @@ export type LpTokenInfo = {
 }
 
 export type Position = {
-  type: PositionsType
+  type: PositionType
   position: Token | LiquityPosition
 }
 
@@ -157,21 +157,25 @@ export type GasPriceResult = {
   suggestBaseFee?: number
 }
 
-export type PositionsType = PositionType
-
 export type StringToStringMapping = { [key: string]: string }
 
 export type SupportedProduct = {
   name: ProductName
-  positionsType: PositionsType
+  positionsType: PositionType
   productLink?: string
-  // stakingPools: {
-  //   [key: number]: string[]
-  // }
+  supportedSubProducts?: {
+    [key: number]: string[] // array of farm or other pool positions for a product supported on different chains
+  }
 
-  getTokens?: (provider: any, activeNetwork: NetworkConfig, metadata?: any) => Promise<Token[]>
-  getBalances?: (user: string, provider: any, activeNetwork: NetworkConfig, tokens: Token[]) => Promise<Token[]>
-  getPositions?: any
+  getTokens?: {
+    [key: number]: (provider: any, activeNetwork: NetworkConfig, metadata?: any) => Promise<Token[]>
+  }
+  getBalances?: {
+    [key: number]: (user: string, provider: any, activeNetwork: NetworkConfig, tokens: Token[]) => Promise<Token[]>
+  }
+  getPositions?: {
+    [key: number]: any
+  }
 }
 
 export type ProductContract = {
@@ -191,7 +195,6 @@ export type LocalTx = {
   type: string
   value: string
   status: TransactionCondition
-  unit: Unit
 }
 
 export type NetworkConfig = {
@@ -269,69 +272,3 @@ export type SystemNoticeData = {
   metadata: string
   uniqueId: string
 }
-
-/*
-export type l0 = {
-  [key: string]: l1
-}
-
-export type l1 = {
-  [key: string]: l2
-}
-
-export type l2 = {
-  getTokens: string
-  getBalances: string
-}
-
-const sushi1: l2 = {
-  getTokens: 'sushi1t',
-  getBalances: 'sushi1b',
-}
-
-const comp4: l2 = {
-  getTokens: 'comp4t',
-  getBalances: 'comp4b',
-}
-
-const curve1: l2 = {
-  getTokens: 'curve1t',
-  getBalances: 'curve1b',
-}
-
-const sushi1337: l2 = {
-  getTokens: 'sushi1337t',
-  getBalances: 'sushi1337b',
-}
-
-const comp1: l2 = {
-  getTokens: 'comp1t',
-  getBalances: 'comp1b',
-}
-
-const curve1337: l2 = {
-  getTokens: 'curve1337t',
-  getBalances: 'curve1337b',
-}
-
-const p1: l1 = {
-  ['sushi']: sushi1,
-  ['comp']: comp1,
-  ['curve']: curve1,
-}
-
-const p4: l1 = {
-  ['comp']: comp4,
-}
-
-const p1337: l1 = {
-  ['sushi']: sushi1337,
-  ['curve']: curve1337,
-}
-
-const networks: l0 = {
-  [1]: p1,
-  [4]: p4,
-  [1337]: p1337,
-}
-*/

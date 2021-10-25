@@ -2,7 +2,6 @@
 
     Table of Contents:
 
-    import react
     import packages
     import constants
     import managers
@@ -18,24 +17,21 @@
 
   *************************************************************************************/
 
-/* import react */
-import React, { useEffect, useMemo, useState } from 'react'
-
 /* import packages */
+import React, { useEffect, useMemo, useState } from 'react'
 import { formatUnits, parseUnits } from 'ethers/lib/utils'
 import { BigNumber } from 'ethers'
-import { useLocation } from 'react-router'
 
 /* import constants */
-import { BKPT_4, DAYS_PER_YEAR, GAS_LIMIT, NUM_BLOCKS_PER_DAY, ZERO } from '../../constants'
-import { TransactionCondition, FunctionName, Unit, PositionType } from '../../constants/enums'
+import { DAYS_PER_YEAR, GAS_LIMIT, NUM_BLOCKS_PER_DAY, ZERO } from '../../constants'
+import { TransactionCondition, FunctionName, PositionType } from '../../constants/enums'
 import { LiquityPosition, LocalTx, Position, Token } from '../../constants/types'
 
 /* import managers */
 import { useContracts } from '../../context/ContractsManager'
 import { useWallet } from '../../context/WalletManager'
 import { useCachedData } from '../../context/CachedDataManager'
-import { useToasts } from '../../context/NotificationsManager'
+import { useNotifications } from '../../context/NotificationsManager'
 import { useNetwork } from '../../context/NetworkManager'
 import { useGeneral } from '../../context/GeneralProvider'
 
@@ -73,7 +69,7 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
   const { account } = useWallet()
   const { addLocalTransactions, reload, gasPrices } = useCachedData()
   const { selectedProtocol } = useContracts()
-  const { makeTxToast } = useToasts()
+  const { makeTxToast } = useNotifications()
   const { activeNetwork, currencyDecimals } = useNetwork()
   const { gasConfig } = useGasConfig(gasPrices.selected?.value)
   const maxCoverPerPolicyInWei = useMemo(() => {
@@ -149,7 +145,6 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
         type: txType,
         value: 'Purchasing...',
         status: TransactionCondition.PENDING,
-        unit: Unit.ID,
       }
       setForm({
         target: {

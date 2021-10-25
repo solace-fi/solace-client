@@ -13,13 +13,24 @@ import curveAddressProviderAbi from './_contracts/ICurveAddressProvider.json'
 import curveGaugeAbi from './_contracts/ICurveGauge.json'
 import curveRegistryAbi from './_contracts/ICurveRegistry.json'
 import curvePoolAbi from './_contracts/ICurvePool.json'
+import curveFactoryPoolAbi from './_contracts/ICurveFactoryPool.json'
 import { ADDRESS_ZERO, ZERO } from '../../../constants'
 import { queryBalance } from '../../../utils/contract'
 import { getAmounts_CurveGauge } from './getStakes/CurveGauge'
+import { get1InchPrice } from '../../../utils/api'
 
 const ETH = '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee'
 
 // const CURVE_ADDRRESS_PROVIDER_ADDR = '0x0000000022D53366457F9d5E68Ec105046FC4383'
+
+const v1Pools = [
+  '0x79a8c46dea5ada233abaffd40f3a0a2b1e5a4f27', // busd
+  '0xa2b47e3d5c44877cca798226b7b8118f9bfb7a56', // compound
+  '0x06364f10b501e868329afbc005b3492902d6c763', // pax
+  '0xa5407eae9ba41422680e2e00537571bcc53efbfd', // susd
+  '0x52ea46506b9cc5ef470c5bf89f17dc28bb35d85c', // usdt
+  '0x45f783cce6b7ff23b2ab2d70e416cdb7d6055f51', // y
+]
 
 export const getBalances = async (
   user: string,
@@ -54,46 +65,45 @@ export const getBalances = async (
     additionalTokenBalances[i] = newBalance
   }
 
-  // for (let i = 0; i < farmAmounts.length; i++) {
-  //   let newBalance = ZERO
-  //   for (let j = 0; j < farmAmounts[i].length; j++) {
-  //     const a = farmAmounts[i][j]
-  //     newBalance = a.add(newBalance)
-  //   }
-  //   additionalTokenBalances[j] = newBalance
-  // }
+  const queriedBalances = await Promise.all(
+    balances.map((b) => queryBalance(getContract(b.token.address, ierc20Json.abi, provider), user))
+  )
 
-  for (let i = 0; i < balances.length; i++) {
-    // const poolAddr = await curveRegistryContract.get_pool_from_lp_token(balances[i].token.address)
-    // console.log(balances[i].token.address, 'pool addr', poolAddr)
+  indices.forEach((i) => (balances[i].token.balance = queriedBalances[i].add(additionalTokenBalances[i])))
 
-    const lpTokenContract = getContract(balances[i].token.address, ierc20Json.abi, provider)
-    const queriedBalance = await queryBalance(lpTokenContract, user)
-
-    balances[i].token.balance = queriedBalance.add(additionalTokenBalances[i])
-
-    if (balances[i].token.balance.gt(ZERO)) {
-      const poolContract = getContract(balances[i].metadata.poolAddr, curvePoolAbi, provider)
-      const uBalance = await poolContract.calc_withdraw_one_coin(balances[i].token.balance, 0).catch((e: any) => {
-        console.log('getBalances calc_withdraw_one_coin failed', e)
-        return ZERO
-      })
-      balances[i].underlying[0].balance = uBalance
-
-      if (!equalsIgnoreCase(balances[i].underlying[0].address, ETH)) {
-        const url = `https://api.1inch.exchange/v3.0/1/quote?fromTokenAddress=${balances[i].underlying[0].address}&toTokenAddress=${ETH}&amount=${balances[i].underlying[0].balance}`
-        try {
-          const res = await withBackoffRetries(async () => axios.get(url))
-          const ethAmount: BigNumber = BigNumber.from(res.data.toTokenAmount)
-          balances[i].eth.balance = ethAmount
-        } catch (e) {
-          console.log(e)
+  const uBalances = await Promise.all(
+    balances.map(async (b) => {
+      if (b.token.balance.gt(ZERO)) {
+        const poolContract = getContract(b.metadata.poolAddr, curvePoolAbi, provider)
+        const factoryPoolContract = getContract(b.metadata.poolAddr, curveFactoryPoolAbi, provider)
+        if (v1Pools.includes(poolContract.address)) {
+          return b.token.balance
+        } else {
+          const uBalance = b.metadata.isFactory
+            ? await factoryPoolContract.calc_withdraw_one_coin(b.token.balance, 0)
+            : await poolContract.calc_withdraw_one_coin(b.token.balance, 0)
+          return uBalance
         }
       } else {
-        balances[i].eth.balance = balances[i].underlying[0].balance
+        return ZERO
       }
-    }
-  }
+    })
+  )
+
+  indices.forEach((i) => (balances[i].underlying[0].balance = uBalances[i]))
+
+  const nativeBalances = await Promise.all(
+    balances.map(async (b) => {
+      if (b.token.balance.gt(ZERO) && !equalsIgnoreCase(b.underlying[0].address, ETH)) {
+        const res = await get1InchPrice(b.underlying[0].address, ETH, b.underlying[0].balance.toString())
+        return BigNumber.from(res.data.toTokenAmount)
+      } else {
+        return ZERO
+      }
+    })
+  )
+
+  indices.forEach((i) => (balances[i].eth.balance = nativeBalances[i]))
 
   return balances.filter((b) => b.token.balance.gt(ZERO))
 }

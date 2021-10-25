@@ -2,7 +2,6 @@
 
     Table of Contents:
 
-    import react
     import packages
     import managers
     import components
@@ -11,10 +10,9 @@
       hooks
 
   *************************************************************************************/
-/* import react */
-import React, { Fragment, useEffect, useState } from 'react'
 
 /* import packages */
+import React, { Fragment, useEffect, useState } from 'react'
 import { useLocation } from 'react-router'
 
 /* import managers */
