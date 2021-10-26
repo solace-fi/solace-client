@@ -11,6 +11,7 @@
 
     MyPolicies
       hooks
+      contract functions
       local functions
 
   *************************************************************************************/
@@ -24,11 +25,12 @@ import { BigNumber } from 'ethers'
 /* import managers */
 import { useCachedData } from '../../context/CachedDataManager'
 import { useNetwork } from '../../context/NetworkManager'
+import { useNotifications } from '../../context/NotificationsManager'
 
 /* import constants */
-import { Policy } from '../../constants/types'
+import { LocalTx, Policy } from '../../constants/types'
 import { BKPT_5 } from '../../constants'
-import { PolicyState } from '../../constants/enums'
+import { FunctionName, PolicyState, TransactionCondition } from '../../constants/enums'
 
 /* import components */
 import { Table, TableBody, TableHead, TableRow, TableHeader, TableData, TableDataGroup } from '../atoms/Table'
@@ -44,6 +46,8 @@ import { SmallBox } from '../atoms/Box'
 
 /* import hooks */
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'
+import { useSptFarm } from '../../hooks/useSptFarm'
+import { useGasConfig } from '../../hooks/useGas'
 
 /* import utils */
 import { truncateBalance } from '../../utils/formatting'
@@ -67,15 +71,54 @@ export const MyPolicies: React.FC<MyPoliciesProps> = ({
     hooks
 
   *************************************************************************************/
-  const { userPolicyData } = useCachedData()
+  const { addLocalTransactions, reload, gasPrices, userPolicyData } = useCachedData()
+  const { makeTxToast } = useNotifications()
   const { width } = useWindowDimensions()
   const { activeNetwork, currencyDecimals } = useNetwork()
+  const { depositPolicy, withdrawPolicy } = useSptFarm()
+  const { gasConfig } = useGasConfig(gasPrices.selected?.value)
+
+  /*************************************************************************************
+
+    contract functions
+
+  *************************************************************************************/
+  const callDepositPolicy = async (policyId: number) => {
+    await depositPolicy(BigNumber.from(policyId), gasConfig)
+      .then((res) => handleToast(res.tx, res.localTx))
+      .catch((err) => handleContractCallError('callDepositPolicy', err, FunctionName.DEPOSIT_POLICY_SIGNED))
+  }
+
+  const callWithdrawPolicy = async (policyId: number) => {
+    await withdrawPolicy(BigNumber.from(policyId), gasConfig)
+      .then((res) => handleToast(res.tx, res.localTx))
+      .catch((err) => handleContractCallError('callWithdrawPolicy', err, FunctionName.WITHDRAW_POLICY))
+  }
 
   /*************************************************************************************
 
     local functions
 
   *************************************************************************************/
+
+  const handleToast = async (tx: any, localTx: LocalTx | null) => {
+    if (!tx || !localTx) return
+    addLocalTransactions(localTx)
+    reload()
+    makeTxToast(localTx.type, TransactionCondition.PENDING, localTx.hash)
+    await tx.wait().then((receipt: any) => {
+      const status = receipt.status ? TransactionCondition.SUCCESS : TransactionCondition.FAILURE
+      makeTxToast(localTx.type, status, localTx.hash)
+      reload()
+    })
+  }
+
+  const handleContractCallError = (functionName: string, err: any, txType: FunctionName) => {
+    console.log(functionName, err)
+    makeTxToast(txType, TransactionCondition.CANCELLED)
+    reload()
+  }
+
   const calculatePolicyExpirationDate = (expirationBlock: number): string => {
     if (!latestBlock) return 'Fetching...'
     const daysLeft = getDaysLeft(expirationBlock, latestBlock.number)
@@ -106,6 +149,7 @@ export const MyPolicies: React.FC<MyPoliciesProps> = ({
             </TableHead>
             <TableBody>
               {userPolicyData.userPolicies.map((policy) => {
+                const isStaked = depositedPolicyIds.includes(policy.policyId)
                 return (
                   <TableRow key={policy.policyId}>
                     <TableData>
@@ -145,7 +189,7 @@ export const MyPolicies: React.FC<MyPoliciesProps> = ({
                       <Text t2 error={policy.status === PolicyState.EXPIRED} warning={shouldWarnUser(policy)}>
                         {policy.status}
                       </Text>
-                      {depositedPolicyIds.includes(policy.policyId) && (
+                      {isStaked && (
                         <SmallBox style={{ justifyContent: 'center' }}>
                           <TextSpan light>Staked</TextSpan>
                         </SmallBox>
@@ -175,6 +219,14 @@ export const MyPolicies: React.FC<MyPoliciesProps> = ({
                           <Button onClick={() => openManageModal(policy)} info>
                             Manage
                           </Button>
+                          <Button
+                            onClick={() =>
+                              isStaked ? callWithdrawPolicy(policy.policyId) : callDepositPolicy(policy.policyId)
+                            }
+                            info
+                          >
+                            {isStaked ? `Unstake` : `Stake`}
+                          </Button>
                         </TableDataGroup>
                       )}
                     </TableData>
@@ -187,6 +239,7 @@ export const MyPolicies: React.FC<MyPoliciesProps> = ({
           // laptop version
           <CardContainer cardsPerRow={3} p={10}>
             {userPolicyData.userPolicies.map((policy) => {
+              const isStaked = depositedPolicyIds.includes(policy.policyId)
               return (
                 <Card key={policy.policyId}>
                   <FlexCol style={{ alignItems: 'center' }}>
@@ -202,7 +255,7 @@ export const MyPolicies: React.FC<MyPoliciesProps> = ({
                           <FlexRow>
                             {policy.positionNames.length == 0 && <Loader width={10} height={10} />}
                             {policy.positionNames.slice(0, 4).map((name) => (
-                              <DeFiAssetImage key={name} width={35} height={35} secured>
+                              <DeFiAssetImage key={name} width={25} height={25} secured>
                                 <img src={`https://assets.solace.fi/${name.toLowerCase()}`} alt={name} />
                               </DeFiAssetImage>
                             ))}
@@ -211,9 +264,12 @@ export const MyPolicies: React.FC<MyPoliciesProps> = ({
                         </FlexCol>
                       </FlexRow>
                     </FormRow>
-                    <FormRow style={{ display: 'flex', alignItems: 'center' }}>
+                    <FlexCol style={{ display: 'flex', alignItems: 'center' }}>
                       <Text t2>{policy.productName}</Text>
-                    </FormRow>
+                      <SmallBox style={{ justifyContent: 'center', visibility: isStaked ? 'unset' : 'hidden' }}>
+                        <TextSpan light>Staked</TextSpan>
+                      </SmallBox>
+                    </FlexCol>
                   </FlexCol>
                   <FormRow mb={10}>
                     <FormCol>ID:</FormCol>
@@ -258,6 +314,15 @@ export const MyPolicies: React.FC<MyPoliciesProps> = ({
                       </Button>
                       <Button widthP={100} onClick={() => openManageModal(policy)} info>
                         Manage
+                      </Button>
+                      <Button
+                        widthP={100}
+                        onClick={() =>
+                          isStaked ? callWithdrawPolicy(policy.policyId) : callDepositPolicy(policy.policyId)
+                        }
+                        info
+                      >
+                        {isStaked ? `Unstake` : `Stake`}
                       </Button>
                     </ButtonWrapper>
                   )}

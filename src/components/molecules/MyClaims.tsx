@@ -121,7 +121,7 @@ export const MyClaims: React.FC = () => {
         </Button>
       </Text>
       <Text t4 pt={10} pb={10}>
-        View details on claims or start withdrawing payout
+        View details on claims or start withdrawing payout.
       </Text>
       <Accordion isOpen={openClaims}>
         {claimsDetails.length > 0 ? (

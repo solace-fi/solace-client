@@ -17,14 +17,13 @@
 import React, { useState, Fragment, useCallback } from 'react'
 
 /* import context */
+import { useNetwork } from '../../context/NetworkManager'
 
 /* import components */
 import { PoolModal } from '../../components/organisms/PoolModal'
 import { UnderwritingPool } from '../../components/organisms/UnderwritingPool'
 import { CapitalProviderPool } from '../../components/organisms/CapitalProviderPool'
 import { LiquidityPool } from '../../components/organisms/LiquidityPool'
-import { HeroContainer } from '../../components/atoms/Layout'
-import { Text } from '../../components/atoms/Typography'
 import { MyOptions } from '../../components/molecules/MyOptions'
 import { SptPool } from '../../components/organisms/SptPool'
 
@@ -37,6 +36,7 @@ function Invest(): any {
   hooks
 
   *************************************************************************************/
+  const { activeNetwork } = useNetwork()
   const [func, setFunc] = useState<FunctionName>(FunctionName.DEPOSIT_ETH)
   const [modalTitle, setModalTitle] = useState<string>('')
   const [showPoolModal, setShowPoolModal] = useState<boolean>(false)
@@ -64,7 +64,7 @@ function Invest(): any {
       <PoolModal isOpen={showPoolModal} modalTitle={modalTitle} func={func} closeModal={closeModal} />
       <UnderwritingPool openModal={openModal} />
       <CapitalProviderPool openModal={openModal} />
-      <SptPool openModal={openModal} />
+      {activeNetwork.chainId != 1 && <SptPool openModal={openModal} />}
       {/* <LiquidityPool openModal={openModal} /> */}
       <MyOptions />
     </Fragment>

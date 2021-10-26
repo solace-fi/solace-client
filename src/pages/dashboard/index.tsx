@@ -158,7 +158,8 @@ function Dashboard(): any {
               </Button>
             </Text>
             <Text t4 pt={10} pb={10}>
-              Make changes to your existing policies or submit claims
+              Make changes to your existing policies or submit claims. You can stake your policies to earn $SOLACE token
+              call options.
             </Text>
             {!userPolicyData.policiesLoading ? (
               <Accordion isOpen={openPolicies} style={{ padding: '0 10px 0 10px' }}>
