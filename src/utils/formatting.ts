@@ -53,6 +53,9 @@ export const numberAbbreviate = (value: number | string, decimals = 2): string =
   const cutoff = wholeNumber.length % 3 == 0 ? 3 : wholeNumber.length % 3
   const a = wholeNumber.substring(0, cutoff)
   const b = wholeNumber.substring(cutoff, cutoff + decimals)
+  if (!abbrev) {
+    return `${a}.${b}e${wholeNumber.length - cutoff}`
+  }
   return `${a}.${b}${abbrev}`
 }
 
@@ -134,7 +137,6 @@ export const getUnit = (function_name: string, activeNetwork?: NetworkConfig): U
       return Unit.LP
     case FunctionName.DEPOSIT_POLICY_SIGNED:
     case FunctionName.WITHDRAW_POLICY:
-      return Unit.POLICY
     case FunctionName.WITHDRAW_CLAIMS_PAYOUT:
     case FunctionName.BUY_POLICY:
     case FunctionName.CANCEL_POLICY:
@@ -166,6 +168,8 @@ export const formatTransactionContent = (
     case FunctionName.UPDATE_POLICY_AMOUNT:
     case FunctionName.CANCEL_POLICY:
     case FunctionName.SUBMIT_CLAIM:
+    case FunctionName.DEPOSIT_POLICY_SIGNED:
+    case FunctionName.WITHDRAW_POLICY:
       return `Policy ${unit} ${BigNumber.from(amount)}`
     case FunctionName.WITHDRAW_ETH:
       return `${truncateBalance(formatUnits(BigNumber.from(amount), activeNetwork.nativeCurrency.decimals))} ${unit}`

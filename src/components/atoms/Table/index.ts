@@ -7,6 +7,7 @@ interface TableProps extends GeneralTextProps, GeneralElementProps {
   isHighlight?: boolean
   canHover?: boolean
   headers?: string[]
+  fade?: boolean
 }
 
 interface TableHeadProps {
@@ -24,7 +25,8 @@ export const Table = styled.table<TableProps>`
   ${(props) =>
     props.canHover &&
     `tr { &:hover { td { background-color: ${props.theme.table.hover_color}; transition: background-color 200ms linear;} } }`}
-  ${GeneralElementCss}
+    ${(props) => props.fade && `opacity: 0.5;`}
+    ${GeneralElementCss}
 `
 
 export const TableRow = styled.tr<TableProps>`

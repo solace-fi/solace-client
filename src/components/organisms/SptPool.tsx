@@ -74,7 +74,7 @@ export const SptPool: React.FC<SptPoolProps> = ({ openModal }) => {
   return (
     <Content>
       <Text bold t1 mb={0} info>
-        SOLACE Policy Token Pool
+        Policy Whirlpool
       </Text>
       <Text t4 pt={10} pb={10}>
         Stake your policies here and earn even more rewards.

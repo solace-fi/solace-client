@@ -105,11 +105,9 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
     let res: NftTokenInfo[] = []
     switch (func) {
       case FunctionName.DEPOSIT_LP_SIGNED:
-      case FunctionName.WITHDRAW_LP:
         res = userLpTokenInfo
         break
       case FunctionName.DEPOSIT_POLICY_SIGNED:
-      case FunctionName.WITHDRAW_POLICY:
       default:
         res = userPolicyTokenInfo
     }
@@ -118,11 +116,9 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
   const depositedNftTokenInfo = useMemo(() => {
     let res: NftTokenInfo[] = []
     switch (func) {
-      case FunctionName.DEPOSIT_LP_SIGNED:
       case FunctionName.WITHDRAW_LP:
         res = depositedLpTokenInfo
         break
-      case FunctionName.DEPOSIT_POLICY_SIGNED:
       case FunctionName.WITHDRAW_POLICY:
       default:
         res = depositedUserPolicyTokenInfo

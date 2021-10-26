@@ -44,6 +44,8 @@ import { ManageModal } from '../../components/organisms/ManageModal'
 import { HyperLink } from '../../components/atoms/Link'
 import { TokenPositionCard } from '../../components/organisms/TokenPositionCard'
 import { NftPositionCard } from '../../components/organisms/NftPositionCard'
+import { Box, BoxItem, BoxItemTitle } from '../../components/atoms/Box'
+import { StyledInfo } from '../../components/atoms/Icon'
 
 /* import constants */
 import { PolicyState, PositionType } from '../../constants/enums'
@@ -52,11 +54,10 @@ import { BKPT_3 } from '../../constants'
 
 /* import hooks */
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'
+import { useDepositedPolicies } from '../../hooks/useBalance'
 
 /* import utils */
 import { fixedPositionBalance, truncateBalance } from '../../utils/formatting'
-import { Box, BoxItem, BoxItemTitle } from '../../components/atoms/Box'
-import { StyledInfo } from '../../components/atoms/Icon'
 
 export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigation }) => {
   const { protocol, loading, positions } = formData
@@ -86,7 +87,14 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
     () => activeNetwork.cache.supportedProducts.find((product) => product.name == protocol.name),
     [activeNetwork.cache.supportedProducts, protocol.name]
   )
-
+  const depositedPolicyTokenInfo = useDepositedPolicies()
+  const depositedPolicyIds = useMemo(() => depositedPolicyTokenInfo.map((i) => i.id.toNumber()), [
+    depositedPolicyTokenInfo,
+  ])
+  const isPolicyStaked = useMemo(() => depositedPolicyIds.includes(selectedPolicy ? selectedPolicy.policyId : 0), [
+    depositedPolicyIds,
+    selectedPolicy,
+  ])
   /*************************************************************************************
 
   local functions
@@ -303,6 +311,7 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
         isOpen={showManageModal}
         latestBlock={latestBlock}
         closeModal={closeModal}
+        isPolicyStaked={isPolicyStaked}
       />
       {fetchedPositions.length == 0 && !loading && !userPolicyData.policiesLoading && (
         <HeroContainer>

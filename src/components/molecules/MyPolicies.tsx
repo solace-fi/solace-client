@@ -19,6 +19,7 @@
 import React, { Fragment } from 'react'
 import { formatUnits } from '@ethersproject/units'
 import { Block } from '@ethersproject/contracts/node_modules/@ethersproject/abstract-provider'
+import { BigNumber } from 'ethers'
 
 /* import managers */
 import { useCachedData } from '../../context/CachedDataManager'
@@ -32,12 +33,14 @@ import { PolicyState } from '../../constants/enums'
 /* import components */
 import { Table, TableBody, TableHead, TableRow, TableHeader, TableData, TableDataGroup } from '../atoms/Table'
 import { Button, ButtonWrapper } from '../atoms/Button'
-import { Text } from '../atoms/Typography'
+import { Text, TextSpan } from '../atoms/Typography'
 import { FlexCol, FlexRow } from '../atoms/Layout'
 import { Card, CardContainer } from '../atoms/Card'
 import { FormRow, FormCol } from '../atoms/Form'
 import { DeFiAssetImage } from '../atoms/DeFiAsset'
 import { StyledDots } from '../atoms/Icon'
+import { Loader } from '../atoms/Loader'
+import { SmallBox } from '../atoms/Box'
 
 /* import hooks */
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'
@@ -45,15 +48,20 @@ import { useWindowDimensions } from '../../hooks/useWindowDimensions'
 /* import utils */
 import { truncateBalance } from '../../utils/formatting'
 import { getDaysLeft, getExpiration } from '../../utils/time'
-import { Loader } from '../atoms/Loader'
 
 interface MyPoliciesProps {
   openClaimModal: any
   openManageModal: any
   latestBlock: Block | undefined
+  depositedPolicyIds: number[]
 }
 
-export const MyPolicies: React.FC<MyPoliciesProps> = ({ openClaimModal, openManageModal, latestBlock }) => {
+export const MyPolicies: React.FC<MyPoliciesProps> = ({
+  openClaimModal,
+  openManageModal,
+  latestBlock,
+  depositedPolicyIds,
+}) => {
   /*************************************************************************************
 
     hooks
@@ -92,7 +100,7 @@ export const MyPolicies: React.FC<MyPoliciesProps> = ({ openClaimModal, openMana
                 <TableHeader t3>Coverage</TableHeader>
                 <TableHeader t3>Status</TableHeader>
                 <TableHeader t3>Expiration Date</TableHeader>
-                <TableHeader t3>Covered Amount </TableHeader>
+                <TableHeader t3>Covered Amount</TableHeader>
                 <TableHeader t3></TableHeader>
               </TableRow>
             </TableHead>
@@ -137,6 +145,11 @@ export const MyPolicies: React.FC<MyPoliciesProps> = ({ openClaimModal, openMana
                       <Text t2 error={policy.status === PolicyState.EXPIRED} warning={shouldWarnUser(policy)}>
                         {policy.status}
                       </Text>
+                      {depositedPolicyIds.includes(policy.policyId) && (
+                        <SmallBox style={{ justifyContent: 'center' }}>
+                          <TextSpan light>Staked</TextSpan>
+                        </SmallBox>
+                      )}
                     </TableData>
                     <TableData>
                       <Text t2 warning={shouldWarnUser(policy)}>
@@ -149,7 +162,6 @@ export const MyPolicies: React.FC<MyPoliciesProps> = ({ openClaimModal, openMana
                         {activeNetwork.nativeCurrency.symbol}
                       </Text>
                     </TableData>
-
                     <TableData textAlignRight>
                       {policy.status === PolicyState.ACTIVE && (
                         <TableDataGroup>

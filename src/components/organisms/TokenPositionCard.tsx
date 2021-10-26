@@ -75,7 +75,6 @@ export const TokenPositionCard: React.FC<TokenPositionCardProps> = ({
     userHasActiveProductPosition,
   ])
   const lightText = isSelected || isActive
-
   return (
     <PositionCard
       key={token.token.address}

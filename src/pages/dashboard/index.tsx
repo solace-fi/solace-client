@@ -6,6 +6,7 @@
     import managers
     import constants
     import components
+    import hooks
 
     Dashboard 
       hooks
@@ -15,7 +16,7 @@
   *************************************************************************************/
 
 /* import packages */
-import React, { Fragment, useState, useCallback, useEffect } from 'react'
+import React, { Fragment, useState, useCallback, useEffect, useMemo } from 'react'
 
 /* import managers */
 import { useContracts } from '../../context/ContractsManager'
@@ -40,6 +41,9 @@ import { Button } from '../../components/atoms/Button'
 import { Loader } from '../../components/atoms/Loader'
 import { MyOptions } from '../../components/molecules/MyOptions'
 
+/* import hooks */
+import { useDepositedPolicies } from '../../hooks/useBalance'
+
 function Dashboard(): any {
   /*************************************************************************************
 
@@ -55,6 +59,14 @@ function Dashboard(): any {
   const { setSelectedProtocolByName } = useContracts()
   const { latestBlock, userPolicyData } = useCachedData()
   const { account } = useWallet()
+  const depositedPolicyTokenInfo = useDepositedPolicies()
+  const depositedPolicyIds = useMemo(() => depositedPolicyTokenInfo.map((i) => i.id.toNumber()), [
+    depositedPolicyTokenInfo,
+  ])
+  const isPolicyStaked = useMemo(() => depositedPolicyIds.includes(selectedPolicy ? selectedPolicy.policyId : 0), [
+    depositedPolicyIds,
+    selectedPolicy,
+  ])
 
   /*************************************************************************************
 
@@ -119,12 +131,14 @@ function Dashboard(): any {
             isOpen={showManageModal}
             latestBlock={latestBlock}
             selectedPolicy={selectedPolicy}
+            isPolicyStaked={isPolicyStaked}
           />
           <ClaimModal
             closeModal={closeModal}
             isOpen={showClaimModal}
             latestBlock={latestBlock}
             selectedPolicy={selectedPolicy}
+            isPolicyStaked={isPolicyStaked}
           />
           <Content>
             <Text bold t1 mb={0}>
@@ -152,6 +166,7 @@ function Dashboard(): any {
                   latestBlock={latestBlock}
                   openClaimModal={openClaimModal}
                   openManageModal={openManageModal}
+                  depositedPolicyIds={depositedPolicyIds}
                 />
               </Accordion>
             ) : (
