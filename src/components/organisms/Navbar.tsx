@@ -186,7 +186,7 @@ export const SideNavbar: React.FC = () => {
           <StyledNavTooltip id={'jobs-nav'} tip={'Jobs'}>
             <ItemText>
               <HyperLink
-                href={'https://angel.co/company/solace-fi/jobs'}
+                href={'https://www.notion.so/Solace-16cc777c403a46c8a2ffaba68008fcd9'}
                 target="_blank"
                 rel="noopener noreferrer"
                 style={{ ...miniNavbarMarginSet }}
@@ -421,7 +421,11 @@ export const TopNavbar: React.FC = () => {
           </HyperLink>
         </ItemText>
         <ItemText style={{ padding: '10px', justifyContent: 'center' }}>
-          <HyperLink href={'https://angel.co/company/solace-fi/jobs'} target="_blank" rel="noopener noreferrer">
+          <HyperLink
+            href={'https://www.notion.so/Solace-16cc777c403a46c8a2ffaba68008fcd9'}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
             <TextSpan t4 light>
               Jobs
             </TextSpan>
