@@ -63,6 +63,7 @@ import { useLpFarm } from '../../hooks/useLpFarm'
 /* import utils */
 import { hasApproval } from '../../utils'
 import { fixed, filteredAmount, getUnit, truncateBalance } from '../../utils/formatting'
+import { timeToDateText } from '../../utils/time'
 
 interface PoolModalProps {
   modalTitle: string
@@ -488,7 +489,11 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
         />
         {func == FunctionName.DEPOSIT_ETH && (
           <>
-            <Text textAlignCenter t4 warning width={270} style={{ margin: 'auto' }}>
+            <Text t4 bold info textAlignCenter width={270} style={{ margin: '7px auto' }}>
+              Note: Once you deposit into this pool, you cannot withdraw from it for at least{' '}
+              {timeToDateText(cooldownMin)}. This is to avoid economic exploit of underwriters not paying out claims.
+            </Text>
+            <Text textAlignCenter t4 warning width={270} style={{ margin: '7px auto' }}>
               Disclaimer: The underwriting pool backs the risk of coverage policies, so in case one of the covered
               protocols get exploited, the claims will be paid out from this source of funds.
             </Text>
