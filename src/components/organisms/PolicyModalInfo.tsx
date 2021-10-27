@@ -58,7 +58,7 @@ import { useWindowDimensions } from '../../hooks/useWindowDimensions'
 
 /* import utils */
 import { getDaysLeft } from '../../utils/time'
-import { truncateBalance } from '../../utils/formatting'
+import { trim0x, truncateBalance } from '../../utils/formatting'
 
 interface PolicyModalInfoProps {
   appraisal: BigNumber
@@ -108,9 +108,7 @@ export const PolicyModalInfo: React.FC<PolicyModalInfoProps> = ({ appraisal, sel
     switch (supportedProduct.positionsType) {
       case PositionType.TOKEN:
         const filteredPositions: Position[] = savedPositions.filter((savedPosition: Position) =>
-          _selectedPolicy.positionDescription.includes(
-            (savedPosition.position as Token).token.address.slice(2).toLowerCase()
-          )
+          _selectedPolicy.positionDescription.includes(trim0x((savedPosition.position as Token).token.address))
         )
         for (let i = 0; i < filteredPositions.length; i++) {
           res.push({
@@ -127,7 +125,7 @@ export const PolicyModalInfo: React.FC<PolicyModalInfoProps> = ({ appraisal, sel
               address: (pos.position as LiquityPosition).positionAddress,
             }
           })
-          .filter((pos: any) => _selectedPolicy.positionDescription.includes(pos.address.slice(2).toLowerCase()))
+          .filter((pos: any) => _selectedPolicy.positionDescription.includes(trim0x(pos.address)))
         break
       case PositionType.OTHER:
       default:

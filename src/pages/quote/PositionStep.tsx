@@ -57,7 +57,7 @@ import { useWindowDimensions } from '../../hooks/useWindowDimensions'
 import { useDepositedPolicies } from '../../hooks/useBalance'
 
 /* import utils */
-import { fixedPositionBalance, truncateBalance } from '../../utils/formatting'
+import { fixedPositionBalance, truncateBalance, trim0x } from '../../utils/formatting'
 
 export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigation }) => {
   const { protocol, loading, positions } = formData
@@ -224,12 +224,10 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
   }
 
   const userHasActiveProductPosition = (product: string, address: string): boolean => {
-    const addr = address.startsWith('0x') ? address.slice(2).toLowerCase() : address.toLowerCase()
-
     for (const policy of userPolicyData.userPolicies) {
       if (
         product === policy.productName &&
-        policy.positionDescription.includes(addr) &&
+        policy.positionDescription.includes(trim0x(address)) &&
         policy.status === PolicyState.ACTIVE
       )
         return true
@@ -383,6 +381,13 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
                         (position.position as LiquityPosition).positionAddress
                     )
                     const lightText = isSelected || isActive
+                    const foundPositions = userPolicyData.userPolicies.filter(
+                      (policy) =>
+                        policy.productName == protocol.name &&
+                        policy.positionDescription.includes(
+                          trim0x((position.position as LiquityPosition).positionAddress)
+                        )
+                    )[0]
                     return (
                       <PositionCard
                         key={(position.position as LiquityPosition).positionAddress}
@@ -393,16 +398,7 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
                           haveErrors
                             ? undefined
                             : isActive
-                            ? () =>
-                                openManageModal(
-                                  userPolicyData.userPolicies.filter(
-                                    (policy) =>
-                                      policy.productName == protocol.name &&
-                                      policy.positionDescription.includes(
-                                        (position.position as LiquityPosition).positionAddress
-                                      )
-                                  )[0]
-                                )
+                            ? () => openManageModal(foundPositions)
                             : () => handleSelect(position)
                         }
                       >

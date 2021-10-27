@@ -369,10 +369,7 @@ export const ManageModal: React.FC<ManageModalProps> = ({
       if (!selectedPolicy || !isOpen) return
       setAsyncLoading(true)
       if (BigNumber.from(currentCoverAmount).lte(ZERO)) return
-      if (mounting.current) {
-        handleCoverageChange(currentCoverAmount)
-        mounting.current = false
-      }
+      handleCoverageChange(currentCoverAmount)
       setAsyncLoading(false)
     }
     load()

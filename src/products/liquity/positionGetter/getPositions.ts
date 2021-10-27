@@ -139,7 +139,7 @@ export const getPositions = async (
       )
       positions.push({
         positionName: 'Trove',
-        positionAddress: troveManagerContract.address,
+        positionAddress: trovePositionData.positionAddress,
         amount: coll,
         nativeAmount: troveAppraisalToNativeToken[0],
         associatedToken: { address: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE', name: 'Ether', symbol: 'ETH' },
@@ -184,7 +184,6 @@ export const getPositions = async (
       })
     }
   }
-
   return positions
 }
 

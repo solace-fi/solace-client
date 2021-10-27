@@ -31,7 +31,7 @@ import { TextSpan } from '../atoms/Typography'
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'
 
 /* import utils */
-import { fixedTokenPositionBalance, truncateBalance } from '../../utils/formatting'
+import { fixedTokenPositionBalance, truncateBalance, trim0x } from '../../utils/formatting'
 
 interface TokenPositionCardProps {
   position: Position
@@ -75,6 +75,9 @@ export const TokenPositionCard: React.FC<TokenPositionCardProps> = ({
     userHasActiveProductPosition,
   ])
   const lightText = isSelected || isActive
+  const foundPositions = userPolicies.filter(
+    (policy) => policy.productName == protocolName && policy.positionDescription.includes(trim0x(token.token.address))
+  )[0]
   return (
     <PositionCard
       key={token.token.address}
@@ -86,12 +89,7 @@ export const TokenPositionCard: React.FC<TokenPositionCardProps> = ({
           ? undefined
           : isActive
           ? () => {
-              openManageModal(
-                userPolicies.filter(
-                  (policy) =>
-                    policy.productName == protocolName && policy.positionDescription.includes(token.token.address)
-                )[0]
-              )
+              openManageModal(foundPositions)
             }
           : () => handleSelect(position)
       }

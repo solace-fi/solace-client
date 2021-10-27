@@ -103,9 +103,7 @@ export const getHumanValue = (value?: BigNumber, decimals = 0): BigNumber | unde
   return value?.div(getExponentValue(decimals))
 }
 
-export const floatUnits = (value: BigNumber, decimals: number): number => {
-  return parseFloat(formatUnits(value, decimals))
-}
+export const floatUnits = (value: BigNumber, decimals: number): number => parseFloat(formatUnits(value, decimals))
 
 // used for correctly user amount input before processing
 export const filteredAmount = (input: string, amount: string): string => {
@@ -115,9 +113,8 @@ export const filteredAmount = (input: string, amount: string): string => {
 }
 
 // truncate strings, mostly addresses
-export const shortenAddress = (input: string): string => {
-  return `${input.substring(0, 6)}...${input.substring(input.length - 4, input.length)}`
-}
+export const shortenAddress = (input: string): string =>
+  `${input.substring(0, 6)}...${input.substring(input.length - 4, input.length)}`
 
 // get unit based on function name
 export const getUnit = (function_name: string, activeNetwork?: NetworkConfig): Unit => {
@@ -193,9 +190,7 @@ export const formatTransactionContent = (
   }
 }
 
-export const capitalizeFirstLetter = (str: string): string => {
-  return str.charAt(0).toUpperCase().concat(str.slice(1))
-}
+export const capitalizeFirstLetter = (str: string): string => str.charAt(0).toUpperCase().concat(str.slice(1))
 
 export function encodeAddresses(addresses: string[]): string {
   let encoded = '0x'
@@ -209,3 +204,6 @@ export function encodeAddresses(addresses: string[]): string {
   }
   return encoded
 }
+
+export const trim0x = (address: string): string =>
+  address.startsWith('0x') ? address.slice(2).toLowerCase() : address.toLowerCase()

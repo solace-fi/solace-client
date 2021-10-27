@@ -1,5 +1,3 @@
-import { withBackoffRetries } from '../utils/time'
-import { rangeFrom0 } from '../utils/numeric'
 import { useWallet } from '../context/WalletManager'
 import { PolicyState } from '../constants/enums'
 import { Policy, NetworkCache } from '../constants/types'
@@ -9,6 +7,7 @@ import { useState, useEffect, useRef } from 'react'
 import { useNetwork } from '../context/NetworkManager'
 import { getClaimAssessment } from '../utils/api'
 import { Block } from '@ethersproject/contracts/node_modules/@ethersproject/abstract-provider'
+import { trim0x } from '../utils/formatting'
 
 export const usePolicyGetter = (
   getAll: boolean,
@@ -19,7 +18,12 @@ export const usePolicyGetter = (
   },
   policyHolder?: string,
   product?: string
-) => {
+): {
+  policiesLoading: boolean
+  userPolicies: Policy[]
+  allPolicies: Policy[]
+  setCanGetAssessments: (toggle: boolean) => void
+} => {
   const { library } = useWallet()
   const { activeNetwork, findNetworkByChainId, chainId } = useNetwork()
   const { policyManager, sptFarm } = useContracts()
@@ -68,7 +72,7 @@ export const usePolicyGetter = (
           const productPosition = matchingCache?.positionNamesCache[supportedProductName]
           if (productPosition) {
             Object.keys(productPosition.positionNames).forEach((tokenAddress) => {
-              if (policy.positionDescription.includes(tokenAddress.slice(2))) {
+              if (policy.positionDescription.includes(trim0x(tokenAddress))) {
                 policy.positionNames = [...policy.positionNames, productPosition.positionNames[tokenAddress]]
                 const newUnderlyingPositionNames = [
                   ...policy.underlyingPositionNames,
@@ -141,7 +145,7 @@ export const usePolicyGetter = (
       matchingCache?.positionNamesCache[activeNetwork.config.productsRev[updatedPolicy.productAddress]]
     if (productPosition) {
       Object.keys(productPosition.positionNames).forEach((tokenAddress) => {
-        if (updatedPolicy.positionDescription.includes(tokenAddress.slice(2))) {
+        if (updatedPolicy.positionDescription.includes(trim0x(tokenAddress))) {
           updatedPolicy.positionNames = [...updatedPolicy.positionNames, productPosition.positionNames[tokenAddress]]
           const newUnderlyingPositionNames = [
             ...updatedPolicy.underlyingPositionNames,
