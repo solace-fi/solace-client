@@ -18,7 +18,7 @@
 /* import packages */
 import React from 'react'
 import styled from 'styled-components'
-import { useCoingeckoPrice } from '@usedapp/coingecko'
+// import { useCoingeckoPrice } from '@usedapp/coingecko'
 
 /* import context */
 import { useNetwork } from '../../context/NetworkManager'
@@ -64,11 +64,11 @@ export const Prices: React.FC = () => {
   const { activeNetwork } = useNetwork()
   const pairPrice = usePairPrice()
   const nativeToken = activeNetwork.nativeCurrency.symbol
-  const coinPrice = useCoingeckoPrice(unitToNameMap[nativeToken], 'usd')
+  // const coinPrice = useCoingeckoPrice(unitToNameMap[nativeToken], 'usd')
 
   return (
     <Price>
-      <SmallBox pl={10} info>
+      {/* <SmallBox pl={10} info>
         <Text t4 bold autoAlign nowrap>
           SOLACE
         </Text>
@@ -87,7 +87,7 @@ export const Prices: React.FC = () => {
             ${coinPrice ? coinPrice : '-'}
           </Text>
         </SmallBox>
-      </SmallBox>
+      </SmallBox> */}
     </Price>
   )
 }
