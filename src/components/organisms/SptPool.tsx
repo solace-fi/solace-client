@@ -92,14 +92,6 @@ export const SptPool: React.FC<SptPoolProps> = ({ openModal }) => {
           </TableHead>
           <TableBody>
             <TableRow light>
-              {/* {account ? (
-                <TableData width={100}>
-                  {truncateBalance(
-                    formatUnits(depositedNftTokenInfo.reduce((a, b) => a.add(b.value), ZERO).toString(), currencyDecimals),
-                    2
-                  )}
-                </TableData>
-              ) : null} */}
               {account ? (
                 <TableData t3 width={100}>
                   {truncateBalance(sptUserStakeValue, 2)}

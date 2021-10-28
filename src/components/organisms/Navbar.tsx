@@ -183,7 +183,7 @@ export const SideNavbar: React.FC = () => {
               </HyperLink>
             </ItemText>
           </StyledNavTooltip>
-          <StyledNavTooltip id={'jobs-nav'} tip={'Jobs'}>
+          <StyledNavTooltip id={'jobs-nav'} tip={`We\'re hiring!`}>
             <ItemText>
               <HyperLink
                 href={'https://www.notion.so/Solace-16cc777c403a46c8a2ffaba68008fcd9'}
@@ -192,8 +192,8 @@ export const SideNavbar: React.FC = () => {
                 style={{ ...miniNavbarMarginSet }}
               >
                 <SidebarText>
-                  <TextSpan t4 light={lightText}>
-                    {width > BKPT_3 ? 'Jobs' : <StyledWork size={30} />}
+                  <TextSpan t4 light={lightText} bold>
+                    {width > BKPT_3 ? `We\'re hiring!` : <StyledWork size={30} />}
                   </TextSpan>
                 </SidebarText>
               </HyperLink>
@@ -426,8 +426,8 @@ export const TopNavbar: React.FC = () => {
             target="_blank"
             rel="noopener noreferrer"
           >
-            <TextSpan t4 light>
-              Jobs
+            <TextSpan t4 light bold>
+              We&apos;re hiring!
             </TextSpan>
           </HyperLink>
         </ItemText>
