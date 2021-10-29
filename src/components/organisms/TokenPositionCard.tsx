@@ -32,6 +32,7 @@ import { useWindowDimensions } from '../../hooks/useWindowDimensions'
 
 /* import utils */
 import { fixedTokenPositionBalance, truncateBalance, trim0x } from '../../utils/formatting'
+import { userHasActiveProductPosition } from '../../utils/policy'
 
 interface TokenPositionCardProps {
   position: Position
@@ -40,7 +41,6 @@ interface TokenPositionCardProps {
   userPolicies: Policy[]
   openManageModal: (policy: Policy) => Promise<void>
   handleSelect: (position: Position) => void
-  userHasActiveProductPosition: (product: string, address: string) => boolean
 }
 
 export const TokenPositionCard: React.FC<TokenPositionCardProps> = ({
@@ -50,7 +50,6 @@ export const TokenPositionCard: React.FC<TokenPositionCardProps> = ({
   userPolicies,
   openManageModal,
   handleSelect,
-  userHasActiveProductPosition,
 }) => {
   /*
 
@@ -69,13 +68,13 @@ export const TokenPositionCard: React.FC<TokenPositionCardProps> = ({
       ),
     [selectedPositions, token]
   )
-  const isActive = useMemo(() => userHasActiveProductPosition(protocolName, token.token.address), [
+  const isActive = useMemo(() => userHasActiveProductPosition(userPolicies, protocolName, token.token.address), [
     protocolName,
     token,
-    userHasActiveProductPosition,
+    userPolicies,
   ])
   const lightText = isSelected || isActive
-  const foundPositions = userPolicies.filter(
+  const foundPosition = userPolicies.filter(
     (policy) => policy.productName == protocolName && policy.positionDescription.includes(trim0x(token.token.address))
   )[0]
   return (
@@ -89,7 +88,7 @@ export const TokenPositionCard: React.FC<TokenPositionCardProps> = ({
           ? undefined
           : isActive
           ? () => {
-              openManageModal(foundPositions)
+              openManageModal(foundPosition)
             }
           : () => handleSelect(position)
       }

@@ -480,6 +480,125 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
     </RadioCircle>
   )
 
+  const Erc721InputPanel: React.FC = () => (
+    <>
+      <ModalRow style={{ display: 'block' }}>
+        <ModalCell t2>{getUnit(func, activeNetwork)}</ModalCell>
+        <ModalCell style={{ display: 'block' }}>
+          <StyledSelect
+            value={nftSelection}
+            onChange={handleNft}
+            options={getAssetTokensByFunc().map((token) => ({
+              value: `${token.id.toString()}`,
+              label: `#${token.id.toString()} - ${formatUnits(token.value, currencyDecimals)}`,
+            }))}
+          />
+          <div style={{ position: 'absolute', top: '77%' }}>
+            Available: {func ? truncateBalance(formatUnits(getAssetBalanceByFunc(), currencyDecimals)) : 0}
+          </div>
+        </ModalCell>
+      </ModalRow>
+      <div style={{ marginBottom: '20px' }}>
+        {getAssetTokensByFunc().length > 0 &&
+        (func == FunctionName.DEPOSIT_LP_SIGNED || func == FunctionName.WITHDRAW_LP) ? (
+          <ModalCell style={{ justifyContent: 'center' }} p={0}>
+            <NftPosition tokenId={nftId} />
+          </ModalCell>
+        ) : null}
+      </div>
+    </>
+  )
+
+  const Erc20InputPanel: React.FC = () => (
+    <ModalRow>
+      <ModalCell t2>{getUnit(func, activeNetwork)}</ModalCell>
+      <ModalCell>
+        <Input
+          widthP={100}
+          t3
+          textAlignRight
+          type="text"
+          autoComplete="off"
+          autoCorrect="off"
+          inputMode="decimal"
+          placeholder="0.0"
+          minLength={1}
+          maxLength={79}
+          onChange={(e) => {
+            setAmount(filteredAmount(e.target.value, amount))
+            setMaxSelected(false)
+          }}
+          value={amount}
+        />
+        <div style={{ position: 'absolute', top: '70%' }}>
+          Available: {func ? truncateBalance(formatUnits(getAssetBalanceByFunc(), currencyDecimals)) : 0}
+        </div>
+      </ModalCell>
+      <ModalCell t3>
+        <Button
+          disabled={haveErrors}
+          onClick={() => {
+            setAmount(calculateMaxEth().toString())
+            setMaxSelected(true)
+          }}
+          info
+        >
+          MAX
+        </Button>
+      </ModalCell>
+    </ModalRow>
+  )
+
+  const UnderwritingForeword: React.FC = () => (
+    <>
+      <Text t4 bold info textAlignCenter width={270} style={{ margin: '7px auto' }}>
+        Note: Once you deposit into this pool, you cannot withdraw from it for at least {timeToDateText(cooldownMin)}.
+        This is to avoid economic exploit of underwriters not paying out claims.
+      </Text>
+      <Text textAlignCenter t4 warning width={270} style={{ margin: '7px auto' }}>
+        Disclaimer: The underwriting pool backs the risk of coverage policies, so in case one of the covered protocols
+        get exploited, the claims will be paid out from this source of funds.
+      </Text>
+      <AutoStakeOption />
+    </>
+  )
+
+  const CpApprovalButtonGroup: React.FC = () => (
+    <Fragment>
+      {!hasApproval(tokenAllowance, amount && amount != '.' ? parseUnits(amount, currencyDecimals).toString() : '0') &&
+        tokenAllowance != '' && (
+          <ButtonWrapper>
+            <Button
+              widthP={100}
+              disabled={(isAppropriateAmount() ? false : true) || haveErrors}
+              onClick={() => approve()}
+              info
+            >
+              Approve
+            </Button>
+          </ButtonWrapper>
+        )}
+      <ButtonWrapper>
+        <Button
+          widthP={100}
+          hidden={modalLoading}
+          disabled={
+            (isAppropriateAmount() ? false : true) ||
+            !hasApproval(
+              tokenAllowance,
+              amount && amount != '.' ? parseUnits(amount, currencyDecimals).toString() : '0'
+            ) ||
+            haveErrors
+          }
+          onClick={handleCallbackFunc}
+          info
+        >
+          Confirm
+        </Button>
+      </ButtonWrapper>
+    </Fragment>
+  )
+
   return (
     <Modal
       isOpen={isOpen}
@@ -488,130 +607,18 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
       disableCloseButton={modalLoading && !canCloseOnLoading}
     >
       <Fragment>
-        {funcIsForNft ? (
-          <>
-            <ModalRow style={{ display: 'block' }}>
-              <ModalCell t2>{getUnit(func, activeNetwork)}</ModalCell>
-              <ModalCell style={{ display: 'block' }}>
-                <StyledSelect
-                  value={nftSelection}
-                  onChange={handleNft}
-                  options={getAssetTokensByFunc().map((token) => ({
-                    value: `${token.id.toString()}`,
-                    label: `#${token.id.toString()} - ${formatUnits(token.value, currencyDecimals)}`,
-                  }))}
-                />
-                <div style={{ position: 'absolute', top: '77%' }}>
-                  Available: {func ? truncateBalance(formatUnits(getAssetBalanceByFunc(), currencyDecimals)) : 0}
-                </div>
-              </ModalCell>
-            </ModalRow>
-            <div style={{ marginBottom: '20px' }}>
-              {getAssetTokensByFunc().length > 0 &&
-              (func == FunctionName.DEPOSIT_LP_SIGNED || func == FunctionName.WITHDRAW_LP) ? (
-                <ModalCell style={{ justifyContent: 'center' }} p={0}>
-                  <NftPosition tokenId={nftId} />
-                </ModalCell>
-              ) : null}
-            </div>
-          </>
-        ) : (
-          <ModalRow>
-            <ModalCell t2>{getUnit(func, activeNetwork)}</ModalCell>
-            <ModalCell>
-              <Input
-                widthP={100}
-                t3
-                textAlignRight
-                type="text"
-                autoComplete="off"
-                autoCorrect="off"
-                inputMode="decimal"
-                placeholder="0.0"
-                minLength={1}
-                maxLength={79}
-                onChange={(e) => {
-                  setAmount(filteredAmount(e.target.value, amount))
-                  setMaxSelected(false)
-                }}
-                value={amount}
-              />
-              <div style={{ position: 'absolute', top: '70%' }}>
-                Available: {func ? truncateBalance(formatUnits(getAssetBalanceByFunc(), currencyDecimals)) : 0}
-              </div>
-            </ModalCell>
-            <ModalCell t3>
-              <Button
-                disabled={haveErrors}
-                onClick={() => {
-                  setAmount(calculateMaxEth().toString())
-                  setMaxSelected(true)
-                }}
-                info
-              >
-                MAX
-              </Button>
-            </ModalCell>
-          </ModalRow>
-        )}
+        {funcIsForNft ? <Erc721InputPanel /> : <Erc20InputPanel />}
         <GasRadioGroup
           gasPrices={gasPrices}
           selectedGasOption={selectedGasOption}
           handleSelectChange={handleSelectChange}
           mb={20}
         />
-        {func == FunctionName.DEPOSIT_ETH && (
-          <>
-            <Text t4 bold info textAlignCenter width={270} style={{ margin: '7px auto' }}>
-              Note: Once you deposit into this pool, you cannot withdraw from it for at least{' '}
-              {timeToDateText(cooldownMin)}. This is to avoid economic exploit of underwriters not paying out claims.
-            </Text>
-            <Text textAlignCenter t4 warning width={270} style={{ margin: '7px auto' }}>
-              Disclaimer: The underwriting pool backs the risk of coverage policies, so in case one of the covered
-              protocols get exploited, the claims will be paid out from this source of funds.
-            </Text>
-            <AutoStakeOption />
-          </>
-        )}
+        {func == FunctionName.DEPOSIT_ETH && <UnderwritingForeword />}
         {!modalLoading ? (
           <Fragment>
             {func == FunctionName.DEPOSIT_CP ? (
-              <Fragment>
-                {!hasApproval(
-                  tokenAllowance,
-                  amount && amount != '.' ? parseUnits(amount, currencyDecimals).toString() : '0'
-                ) &&
-                  tokenAllowance != '' && (
-                    <ButtonWrapper>
-                      <Button
-                        widthP={100}
-                        disabled={(isAppropriateAmount() ? false : true) || haveErrors}
-                        onClick={() => approve()}
-                        info
-                      >
-                        Approve
-                      </Button>
-                    </ButtonWrapper>
-                  )}
-                <ButtonWrapper>
-                  <Button
-                    widthP={100}
-                    hidden={modalLoading}
-                    disabled={
-                      (isAppropriateAmount() ? false : true) ||
-                      !hasApproval(
-                        tokenAllowance,
-                        amount && amount != '.' ? parseUnits(amount, currencyDecimals).toString() : '0'
-                      ) ||
-                      haveErrors
-                    }
-                    onClick={handleCallbackFunc}
-                    info
-                  >
-                    Confirm
-                  </Button>
-                </ButtonWrapper>
-              </Fragment>
+              <CpApprovalButtonGroup />
             ) : func == FunctionName.WITHDRAW_ETH ? (
               <PoolModalCooldown
                 isAppropriateAmount={isAppropriateAmount() ? false : true}

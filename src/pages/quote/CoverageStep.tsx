@@ -36,7 +36,6 @@ import { useNetwork } from '../../context/NetworkManager'
 import { useGeneral } from '../../context/GeneralProvider'
 
 /* import components */
-import { TermsText } from '../../components/molecules/Terms'
 import { FormRow, FormCol } from '../../components/atoms/Form'
 import { Button, ButtonWrapper } from '../../components/atoms/Button'
 import { formProps } from './MultiStepForm'
@@ -255,12 +254,6 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
   useEffect(() => {
     setCoveredAssets(formatUnits(BigNumber.from(coverAmount), currencyDecimals))
   }, [coverAmount, currencyDecimals])
-
-  const TermsCard = () => (
-    <Card transparent>
-      <TermsText />
-    </Card>
-  )
 
   return (
     <CardContainer cardsPerRow={2}>

@@ -47,6 +47,7 @@ export const TableHead = styled.thead<TableHeadProps>`
     transform: translateY(-7px);
     top: 7px;
     background-color: ${props.theme.table.head_bg_color};
+    z-index: 1;
     th {
       padding-top: 20px;
     }

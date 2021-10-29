@@ -114,7 +114,6 @@ export const ManageModal: React.FC<ManageModalProps> = ({
   const appraisal = useAppraisePolicyPosition(selectedPolicy)
   const { withdrawPolicy } = useSptFarm()
   const [coveredAssets, setCoveredAssets] = useState<string>(currentCoverAmount)
-  const mounting = useRef(true)
   const [canCloseOnLoading, setCanCloseOnLoading] = useState<boolean>(false)
 
   /*************************************************************************************

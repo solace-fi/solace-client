@@ -32,6 +32,7 @@ import { useWindowDimensions } from '../../hooks/useWindowDimensions'
 
 /* import utils */
 import { trim0x } from '../../utils/formatting'
+import { userHasActiveProductPosition } from '../../utils/policy'
 
 interface NftPositionCardProps {
   position: Position
@@ -40,7 +41,6 @@ interface NftPositionCardProps {
   userPolicies: Policy[]
   openManageModal: (policy: Policy) => Promise<void>
   handleSelect: (position: Position) => void
-  userHasActiveProductPosition: (product: string, address: string) => boolean
 }
 
 export const NftPositionCard: React.FC<NftPositionCardProps> = ({
@@ -50,7 +50,6 @@ export const NftPositionCard: React.FC<NftPositionCardProps> = ({
   userPolicies,
   openManageModal,
   handleSelect,
-  userHasActiveProductPosition,
 }) => {
   /*
 
@@ -69,10 +68,10 @@ export const NftPositionCard: React.FC<NftPositionCardProps> = ({
       ),
     [selectedPositions, token]
   )
-  const isActive = useMemo(() => userHasActiveProductPosition(protocolName, token.token.address), [
+  const isActive = useMemo(() => userHasActiveProductPosition(userPolicies, protocolName, token.token.address), [
     protocolName,
     token,
-    userHasActiveProductPosition,
+    userPolicies,
   ])
   const lightText = useMemo(() => isSelected || isActive, [isSelected, isActive])
 
