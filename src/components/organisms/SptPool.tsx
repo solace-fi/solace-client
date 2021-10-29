@@ -17,7 +17,6 @@
 
 /* import packages */
 import React from 'react'
-import { formatUnits } from '@ethersproject/units'
 
 /* import managers */
 import { useContracts } from '../../context/ContractsManager'
@@ -27,7 +26,7 @@ import { useGeneral } from '../../context/GeneralProvider'
 
 /* import constants */
 import { FunctionName } from '../../constants/enums'
-import { LP_ROI, BKPT_4, BKPT_6 } from '../../constants'
+import { BKPT_4, BKPT_6 } from '../../constants'
 
 /* import components */
 import { Content } from '../atoms/Layout'
@@ -41,7 +40,6 @@ import { StyledTooltip } from '../molecules/Tooltip'
 /* import hooks */
 import { useRewardsPerDay, useUserPendingRewards, useUserRewardsPerDay } from '../../hooks/useRewards'
 import { useUserStakedValue, usePoolStakedValue } from '../../hooks/useFarm'
-import { useDepositedLpBalance } from '../../hooks/useBalance'
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'
 
 /* import utils */
@@ -62,7 +60,6 @@ export const SptPool: React.FC<SptPoolProps> = ({ openModal }) => {
   const { account } = useWallet()
   const { sptFarm } = useContracts()
   const { width } = useWindowDimensions()
-  const { currencyDecimals } = useNetwork()
 
   const sptRewardsPerDay = useRewardsPerDay(3)
   const sptUserRewardsPerDay = useUserRewardsPerDay(3, sptFarm, account)

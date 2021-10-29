@@ -216,18 +216,6 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
     }
   }
 
-  // const userHasActiveProductPosition = (product: string, address: string): boolean => {
-  //   for (const policy of userPolicyData.userPolicies) {
-  //     if (
-  //       product === policy.productName &&
-  //       policy.positionDescription.includes(trim0x(address)) &&
-  //       policy.status === PolicyState.ACTIVE
-  //     )
-  //       return true
-  //   }
-  //   return false
-  // }
-
   const openManageModal = async (policy: Policy) => {
     setShowManageModal((prev) => !prev)
     setSelectedProtocolByName(policy.productName)

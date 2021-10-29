@@ -31,7 +31,7 @@ export const useLpFarm = () => {
       ...gasConfig,
       gasLimit: GAS_LIMIT,
     })
-    const localTx = {
+    const localTx: LocalTx = {
       hash: tx.hash,
       type: FunctionName.DEPOSIT_LP_SIGNED,
       value: `#${nftId.toString()}`,
@@ -58,7 +58,7 @@ export const useLpFarm = () => {
       ...gasConfig,
       gasLimit: GAS_LIMIT,
     })
-    const localTx = {
+    const localTx: LocalTx = {
       hash: tx.hash,
       type: FunctionName.WITHDRAW_LP,
       value: `#${nftId.toString()}`,

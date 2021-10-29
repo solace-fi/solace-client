@@ -39,7 +39,7 @@ export const useSptFarm = () => {
       ...gasConfig,
       gasLimit: GAS_LIMIT,
     })
-    const localTx = {
+    const localTx: LocalTx = {
       hash: tx.hash,
       type: FunctionName.DEPOSIT_POLICY_SIGNED,
       value: `#${nftId.toString()}`,
@@ -66,7 +66,7 @@ export const useSptFarm = () => {
       ...gasConfig,
       gasLimit: GAS_LIMIT,
     })
-    const localTx = {
+    const localTx: LocalTx = {
       hash: tx.hash,
       type: FunctionName.WITHDRAW_POLICY,
       value: `#${nftId.toString()}`,

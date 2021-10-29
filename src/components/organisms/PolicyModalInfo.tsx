@@ -144,6 +144,7 @@ export const PolicyModalInfo: React.FC<PolicyModalInfoProps> = ({ appraisal, sel
   *************************************************************************************/
 
   useEffect(() => {
+    // assets modal not in use
     getAssets()
   }, [selectedPolicy])
 

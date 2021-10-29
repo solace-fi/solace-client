@@ -8,9 +8,8 @@ import { TransactionCondition, Error, SystemNotice } from '../constants/enums'
 
 import '../styles/toast.css'
 import { StylizedToastContainer } from '../components/atoms/Message'
-import { AppToast, AuditToast, NotificationToast } from '../components/molecules/Toast'
+import { AppToast, NotificationToast } from '../components/molecules/Toast'
 import { StyledInfo, StyledWarning } from '../components/atoms/Icon'
-import { useNetwork } from './NetworkManager'
 import { useGeneral } from './GeneralProvider'
 import { ErrorData, SystemNoticeData } from '../constants/types'
 

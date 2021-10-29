@@ -38,7 +38,7 @@ import { StyledArrowDropDown } from '../../components/atoms/Icon'
 import { Accordion } from '../atoms/Accordion/Accordion'
 
 /* import constants */
-import { Option } from '../../constants/types'
+import { Option, LocalTx } from '../../constants/types'
 import { GAS_LIMIT, BKPT_3 } from '../../constants'
 import { FunctionName, TransactionCondition, Unit } from '../../constants/enums'
 
@@ -57,16 +57,14 @@ export const MyOptions: React.FC = () => {
 
   *************************************************************************************/
   const { haveErrors } = useGeneral()
-  const { account, library } = useWallet()
-  const { optionsFarming } = useContracts()
-  const { addLocalTransactions, reload, gasPrices, latestBlock } = useCachedData()
+  const { account } = useWallet()
+  const { addLocalTransactions, reload, gasPrices } = useCachedData()
   const { makeTxToast } = useNotifications()
   const { gasConfig } = useGasConfig(gasPrices.selected?.value)
   const { activeNetwork, currencyDecimals } = useNetwork()
   const [openOptions, setOpenOptions] = useState<boolean>(true)
-  const optionsDetails = useOptionsDetails(account)
+  const { optionsDetails, latestBlockTimestamp, exerciseOption } = useOptionsDetails(account)
   const { width } = useWindowDimensions()
-  const [latestBlockTimestamp, setLatestBlockTimestamp] = useState<number>(0)
 
   /*************************************************************************************
 
@@ -74,40 +72,29 @@ export const MyOptions: React.FC = () => {
 
   *************************************************************************************/
 
-  const exerciseOption = async (_optionId: string) => {
-    if (!optionsFarming || !_optionId) return
-    const txType = FunctionName.WITHDRAW_CLAIMS_PAYOUT
-    try {
-      const tx = await optionsFarming.exerciseOption(_optionId, {
-        ...gasConfig,
-        gasLimit: GAS_LIMIT,
-      })
-      const txHash = tx.hash
-      const localTx = {
-        hash: txHash,
-        type: txType,
-        value: `Option #${String(_optionId)}`,
-        status: TransactionCondition.PENDING,
-        unit: Unit.ID,
-      }
-      addLocalTransactions(localTx)
-      reload()
-      makeTxToast(txType, TransactionCondition.PENDING, txHash)
-      await tx.wait().then((receipt: any) => {
-        const status = receipt.status ? TransactionCondition.SUCCESS : TransactionCondition.FAILURE
-        makeTxToast(txType, status, txHash)
-        reload()
-      })
-    } catch (err) {
-      makeTxToast(txType, TransactionCondition.CANCELLED)
-      reload()
-    }
+  const callExerciseOption = async (_optionId: string) => {
+    await exerciseOption(_optionId, gasConfig)
+      .then((res) => handleToast(res.tx, res.localTx))
+      .catch((err) => handleContractCallError('callExerciseOption', err, FunctionName.EXERCISE_OPTION))
   }
 
-  useEffect(() => {
-    if (!library || !latestBlock) return
-    setLatestBlockTimestamp(latestBlock.timestamp)
-  }, [latestBlock, library])
+  const handleToast = async (tx: any, localTx: LocalTx | null) => {
+    if (!tx || !localTx) return
+    addLocalTransactions(localTx)
+    reload()
+    makeTxToast(localTx.type, TransactionCondition.PENDING, localTx.hash)
+    await tx.wait().then((receipt: any) => {
+      const status = receipt.status ? TransactionCondition.SUCCESS : TransactionCondition.FAILURE
+      makeTxToast(localTx.type, status, localTx.hash)
+      reload()
+    })
+  }
+
+  const handleContractCallError = (functionName: string, err: any, txType: FunctionName) => {
+    console.log(functionName, err)
+    makeTxToast(txType, TransactionCondition.CANCELLED)
+    reload()
+  }
 
   return (
     <Content>
@@ -183,7 +170,7 @@ export const MyOptions: React.FC = () => {
                   <ButtonWrapper mb={0} mt={20}>
                     <Button
                       widthP={100}
-                      onClick={() => exerciseOption(option.id.toString())}
+                      onClick={() => callExerciseOption(option.id.toString())}
                       info
                       disabled={haveErrors || latestBlockTimestamp > option.expiry.toNumber()}
                     >

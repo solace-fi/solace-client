@@ -43,7 +43,7 @@ import { FlexCol } from '../atoms/Layout'
 
 /* import constants */
 import { DAYS_PER_YEAR, NUM_BLOCKS_PER_DAY, GAS_LIMIT, ZERO } from '../../constants'
-import { FunctionName, TransactionCondition, Unit } from '../../constants/enums'
+import { FunctionName, TransactionCondition } from '../../constants/enums'
 import { LocalTx, Policy } from '../../constants/types'
 
 /* import hooks */
@@ -81,14 +81,20 @@ export const ManageModal: React.FC<ManageModalProps> = ({
   const [newCoverage, setNewCoverage] = useState<string>('1')
   const [extendedTime, setExtendedTime] = useState<string>('0')
   const [modalLoading, setModalLoading] = useState<boolean>(false)
+  const [canCloseOnLoading, setCanCloseOnLoading] = useState<boolean>(false)
 
   const { haveErrors } = useGeneral()
+  const { activeNetwork, currencyDecimals } = useNetwork()
   const { selectedProtocol, riskManager } = useContracts()
   const { addLocalTransactions, reload, gasPrices } = useCachedData()
   const { makeTxToast } = useNotifications()
-  const policyPrice = useGetPolicyPrice(selectedPolicy ? selectedPolicy.policyId : 0)
   const maxCoverPerPolicy = useGetMaxCoverPerPolicy()
-  const { activeNetwork, currencyDecimals } = useNetwork()
+  const maxCoverPerPolicyInWei = useMemo(() => parseUnits(maxCoverPerPolicy, currencyDecimals), [
+    maxCoverPerPolicy,
+    currencyDecimals,
+  ])
+  const { withdrawPolicy } = useSptFarm()
+
   const { gasConfig } = useGasConfig(gasPrices.selected?.value)
   const daysLeft = useMemo(
     () => getDaysLeft(selectedPolicy ? selectedPolicy.expirationBlock : 0, latestBlock ? latestBlock.number : 0),
@@ -98,8 +104,9 @@ export const ManageModal: React.FC<ManageModalProps> = ({
     () => BigNumber.from(selectedPolicy ? selectedPolicy.expirationBlock : 0 - (latestBlock ? latestBlock.number : 0)),
     [latestBlock, selectedPolicy]
   )
-  const currentCoverAmount = useMemo(() => (selectedPolicy ? selectedPolicy.coverAmount : '0'), [selectedPolicy])
+  const policyPrice = useGetPolicyPrice(selectedPolicy ? selectedPolicy.policyId : 0)
   const paidprice = useMemo(() => BigNumber.from(policyPrice || '0'), [policyPrice])
+  const currentCoverAmount = useMemo(() => (selectedPolicy ? selectedPolicy.coverAmount : '0'), [selectedPolicy])
   const refundAmount = useMemo(
     () =>
       blocksLeft
@@ -108,13 +115,9 @@ export const ManageModal: React.FC<ManageModalProps> = ({
         .div(String(Math.pow(10, 12))),
     [blocksLeft, currentCoverAmount, paidprice]
   )
-  const maxCoverPerPolicyInWei = useMemo(() => {
-    return parseUnits(maxCoverPerPolicy, currencyDecimals)
-  }, [maxCoverPerPolicy, currencyDecimals])
+
   const appraisal = useAppraisePolicyPosition(selectedPolicy)
-  const { withdrawPolicy } = useSptFarm()
   const [coveredAssets, setCoveredAssets] = useState<string>(currentCoverAmount)
-  const [canCloseOnLoading, setCanCloseOnLoading] = useState<boolean>(false)
 
   /*************************************************************************************
 
@@ -146,12 +149,11 @@ export const ManageModal: React.FC<ManageModalProps> = ({
           gasLimit: GAS_LIMIT,
         }
       )
-      const localTx = {
+      const localTx: LocalTx = {
         hash: tx.hash,
         type: txType,
         value: `Policy #${selectedPolicy.policyId}`,
         status: TransactionCondition.PENDING,
-        unit: activeNetwork.nativeCurrency.symbol,
       }
       await handleToast(tx, localTx)
     } catch (err) {
@@ -174,12 +176,11 @@ export const ManageModal: React.FC<ManageModalProps> = ({
         ...gasConfig,
         gasLimit: GAS_LIMIT,
       })
-      const localTx = {
+      const localTx: LocalTx = {
         hash: tx.hash,
         type: txType,
         value: `Policy #${selectedPolicy.policyId}`,
         status: TransactionCondition.PENDING,
-        unit: Unit.ID,
       }
       await handleToast(tx, localTx)
     } catch (err) {
@@ -205,12 +206,11 @@ export const ManageModal: React.FC<ManageModalProps> = ({
           gasLimit: GAS_LIMIT,
         }
       )
-      const localTx = {
+      const localTx: LocalTx = {
         hash: tx.hash,
         type: txType,
         value: `Policy #${selectedPolicy}`,
         status: TransactionCondition.PENDING,
-        unit: Unit.ID,
       }
       await handleToast(tx, localTx)
     } catch (err) {
@@ -227,12 +227,11 @@ export const ManageModal: React.FC<ManageModalProps> = ({
         ...gasConfig,
         gasLimit: GAS_LIMIT,
       })
-      const localTx = {
+      const localTx: LocalTx = {
         hash: tx.hash,
         type: txType,
         value: `Policy #${selectedPolicy.policyId}`,
         status: TransactionCondition.PENDING,
-        unit: Unit.ID,
       }
       await handleToast(tx, localTx)
     } catch (err) {

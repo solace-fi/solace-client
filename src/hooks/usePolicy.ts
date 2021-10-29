@@ -8,7 +8,6 @@ import { useWallet } from '../context/WalletManager'
 import { LiquityPosition, Policy, Position, StringToStringMapping, SupportedProduct, Token } from '../constants/types'
 import { useCachedData } from '../context/CachedDataManager'
 import { useNetwork } from '../context/NetworkManager'
-import { useGasConfig } from './useGas'
 import { PositionType } from '../constants/enums'
 
 export const useGetPolicyPrice = (policyId: number): string => {

@@ -49,7 +49,6 @@ import { StyledTooltip } from '../../components/molecules/Tooltip'
 /* import hooks */
 import { useGetQuote, useGetMaxCoverPerPolicy } from '../../hooks/usePolicy'
 import { useGasConfig } from '../../hooks/useGas'
-import { useWindowDimensions } from '../../hooks/useWindowDimensions'
 
 /* import utils */
 import { accurateMultiply, encodeAddresses, filteredAmount } from '../../utils/formatting'
@@ -71,10 +70,10 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
   const { makeTxToast } = useNotifications()
   const { activeNetwork, currencyDecimals } = useNetwork()
   const { gasConfig } = useGasConfig(gasPrices.selected?.value)
-  const maxCoverPerPolicyInWei = useMemo(() => {
-    return parseUnits(maxCoverPerPolicy, currencyDecimals)
-  }, [maxCoverPerPolicy, currencyDecimals])
-  const { width } = useWindowDimensions()
+  const maxCoverPerPolicyInWei = useMemo(() => parseUnits(maxCoverPerPolicy, currencyDecimals), [
+    maxCoverPerPolicy,
+    currencyDecimals,
+  ])
 
   // positionAmount: BigNumber = wei but displayable, position.eth.balance: BigNumber = wei
   const positionAmount: BigNumber = useMemo(() => {

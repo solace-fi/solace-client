@@ -27,7 +27,7 @@ export const useCpFarm = () => {
       ...gasConfig,
       gasLimit: GAS_LIMIT,
     })
-    const localTx = {
+    const localTx: LocalTx = {
       hash: tx.hash,
       type: FunctionName.DEPOSIT_ETH,
       value: txVal,
@@ -55,7 +55,7 @@ export const useCpFarm = () => {
       ...gasConfig,
       gasLimit: GAS_LIMIT,
     })
-    const localTx = {
+    const localTx: LocalTx = {
       hash: tx.hash,
       type: FunctionName.DEPOSIT_CP,
       value: txVal,
@@ -83,7 +83,7 @@ export const useCpFarm = () => {
       ...gasConfig,
       gasLimit: GAS_LIMIT,
     })
-    const localTx = {
+    const localTx: LocalTx = {
       hash: tx.hash,
       type: FunctionName.WITHDRAW_CP,
       value: txVal,

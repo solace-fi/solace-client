@@ -118,14 +118,6 @@ export const TokenPositionCard: React.FC<TokenPositionCardProps> = ({
           {token.token.symbol}
         </TextSpan>
       </PositionCardText>
-      {/* {token.underlying.map((underlyingToken: TokenData, i) => (
-        <PositionCardText t3 style={{ opacity: isActive ? '.5' : '1' }} light={lightText} key={i}>
-          {truncateBalance(fixedTokenPositionBalance(underlyingToken))}{' '}
-          <TextSpan style={{ fontSize: '12px' }} light={lightText}>
-            {underlyingToken.symbol}
-          </TextSpan>
-        </PositionCardText>
-      ))} */}
       <PositionCardButton>
         {isActive ? (
           <Button widthP={width > BKPT_3 ? undefined : 100} light>

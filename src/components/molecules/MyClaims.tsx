@@ -41,7 +41,7 @@ import { Accordion } from '../atoms/Accordion/Accordion'
 /* import constants */
 import { FunctionName, TransactionCondition, Unit } from '../../constants/enums'
 import { GAS_LIMIT, BKPT_3 } from '../../constants'
-import { ClaimDetails } from '../../constants/types'
+import { ClaimDetails, LocalTx } from '../../constants/types'
 
 /* import hooks */
 import { useGetClaimsDetails } from '../../hooks/useClaimsEscrow'
@@ -84,12 +84,11 @@ export const MyClaims: React.FC = () => {
         gasLimit: GAS_LIMIT,
       })
       const txHash = tx.hash
-      const localTx = {
+      const localTx: LocalTx = {
         hash: txHash,
         type: txType,
         value: `Claim #${String(_claimId)}`,
         status: TransactionCondition.PENDING,
-        unit: Unit.ID,
       }
       addLocalTransactions(localTx)
       reload()

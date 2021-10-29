@@ -28,7 +28,7 @@ import { useNetwork } from '../../context/NetworkManager'
 import { useNotifications } from '../../context/NotificationsManager'
 
 /* import constants */
-import { LocalTx, Policy } from '../../constants/types'
+import { LocalTx } from '../../constants/types'
 import { BKPT_5 } from '../../constants'
 import { FunctionName, PolicyState, TransactionCondition } from '../../constants/enums'
 
@@ -51,7 +51,7 @@ import { useGasConfig } from '../../hooks/useGas'
 
 /* import utils */
 import { truncateBalance } from '../../utils/formatting'
-import { getDaysLeft, getExpiration } from '../../utils/time'
+import { calculatePolicyExpirationDate, shouldWarnUser } from '../../utils/policy'
 
 interface MyPoliciesProps {
   openClaimModal: any
@@ -119,19 +119,6 @@ export const MyPolicies: React.FC<MyPoliciesProps> = ({
     reload()
   }
 
-  const calculatePolicyExpirationDate = (expirationBlock: number): string => {
-    if (!latestBlock) return 'Fetching...'
-    const daysLeft = getDaysLeft(expirationBlock, latestBlock.number)
-    return getExpiration(daysLeft)
-  }
-
-  const shouldWarnUser = (policy: Policy): boolean => {
-    return (
-      policy.status === PolicyState.ACTIVE &&
-      getDaysLeft(policy.expirationBlock, latestBlock ? latestBlock.number : 0) <= 1
-    )
-  }
-
   return (
     <Fragment>
       {userPolicyData.userPolicies.length > 0 ? (
@@ -153,7 +140,7 @@ export const MyPolicies: React.FC<MyPoliciesProps> = ({
                 return (
                   <TableRow key={policy.policyId}>
                     <TableData>
-                      <Text t2 warning={shouldWarnUser(policy)}>
+                      <Text t2 warning={shouldWarnUser(latestBlock, policy)}>
                         {policy.policyId}
                       </Text>
                     </TableData>
@@ -177,7 +164,7 @@ export const MyPolicies: React.FC<MyPoliciesProps> = ({
                               {policy.positionNames.length > 8 && <StyledDots size={20} />}
                             </FlexRow>
                             <FlexRow>
-                              <Text t4 autoAlign warning={shouldWarnUser(policy)}>
+                              <Text t4 autoAlign warning={shouldWarnUser(latestBlock, policy)}>
                                 {policy.productName}
                               </Text>
                             </FlexRow>
@@ -186,7 +173,11 @@ export const MyPolicies: React.FC<MyPoliciesProps> = ({
                       }
                     </TableData>
                     <TableData>
-                      <Text t2 error={policy.status === PolicyState.EXPIRED} warning={shouldWarnUser(policy)}>
+                      <Text
+                        t2
+                        error={policy.status === PolicyState.EXPIRED}
+                        warning={shouldWarnUser(latestBlock, policy)}
+                      >
                         {policy.status}
                       </Text>
                       {isStaked && (
@@ -196,12 +187,12 @@ export const MyPolicies: React.FC<MyPoliciesProps> = ({
                       )}
                     </TableData>
                     <TableData>
-                      <Text t2 warning={shouldWarnUser(policy)}>
-                        {calculatePolicyExpirationDate(policy.expirationBlock)}
+                      <Text t2 warning={shouldWarnUser(latestBlock, policy)}>
+                        {calculatePolicyExpirationDate(latestBlock, policy.expirationBlock)}
                       </Text>
                     </TableData>
                     <TableData>
-                      <Text t2 warning={shouldWarnUser(policy)}>
+                      <Text t2 warning={shouldWarnUser(latestBlock, policy)}>
                         {policy.coverAmount ? truncateBalance(formatUnits(policy.coverAmount, currencyDecimals), 2) : 0}{' '}
                         {activeNetwork.nativeCurrency.symbol}
                       </Text>
@@ -280,7 +271,11 @@ export const MyPolicies: React.FC<MyPoliciesProps> = ({
                   <FormRow mb={10}>
                     <FormCol>Status:</FormCol>
                     <FormCol>
-                      <Text t2 error={policy.status === PolicyState.EXPIRED} warning={shouldWarnUser(policy)}>
+                      <Text
+                        t2
+                        error={policy.status === PolicyState.EXPIRED}
+                        warning={shouldWarnUser(latestBlock, policy)}
+                      >
                         {policy.status}
                       </Text>
                     </FormCol>
@@ -288,8 +283,8 @@ export const MyPolicies: React.FC<MyPoliciesProps> = ({
                   <FormRow mb={10}>
                     <FormCol>Expiration Date:</FormCol>
                     <FormCol>
-                      <Text t2 warning={shouldWarnUser(policy)}>
-                        {calculatePolicyExpirationDate(policy.expirationBlock)}
+                      <Text t2 warning={shouldWarnUser(latestBlock, policy)}>
+                        {calculatePolicyExpirationDate(latestBlock, policy.expirationBlock)}
                       </Text>
                     </FormCol>
                   </FormRow>

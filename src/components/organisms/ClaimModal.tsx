@@ -111,12 +111,11 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({
         gasLimit: GAS_LIMIT,
       })
       const txHash = tx.hash
-      const localTx = {
+      const localTx: LocalTx = {
         hash: txHash,
         type: txType,
         value: `Policy #${selectedPolicy.policyId}`,
         status: TransactionCondition.PENDING,
-        unit: Unit.ID,
       }
       await handleToast(tx, localTx)
     } catch (err) {

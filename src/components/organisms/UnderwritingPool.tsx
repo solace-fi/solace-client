@@ -58,7 +58,6 @@ export const UnderwritingPool: React.FC<UnderwritingPoolProps> = ({ openModal })
   const { userVaultAssets, userVaultShare } = useUserVaultDetails()
   const capitalPoolSize = useCapitalPoolSize()
   const { width } = useWindowDimensions()
-  const { currencyDecimals } = useNetwork()
 
   return (
     <Content>

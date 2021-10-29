@@ -5,7 +5,6 @@
     import packages
     import managers
     import components
-    import hooks
     import utils
 
     UserAccount
@@ -37,11 +36,8 @@ import { FlexCol, FlexRow } from '../atoms/Layout'
 import { StyledNetworkChart, StyledWallet } from '../atoms/Icon'
 import { GeneralElementProps } from '../generalInterfaces'
 
-/* import hooks */
-import { useNativeTokenBalance } from '../../hooks/useBalance'
-
 /* import utils */
-import { shortenAddress, fixed, capitalizeFirstLetter } from '../../utils/formatting'
+import { shortenAddress, capitalizeFirstLetter } from '../../utils/formatting'
 
 export const UserAccount: React.FC<ButtonProps & GeneralElementProps> = (props) => {
   /*************************************************************************************

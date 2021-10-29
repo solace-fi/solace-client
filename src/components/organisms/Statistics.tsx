@@ -53,6 +53,7 @@ import { useGasConfig } from '../../hooks/useGas'
 
 /* import utils */
 import { truncateBalance } from '../../utils/formatting'
+import { LocalTx } from '../../constants/types'
 
 export const Statistics: React.FC = () => {
   /*************************************************************************************
@@ -91,12 +92,11 @@ export const Statistics: React.FC = () => {
         gasLimit: GAS_LIMIT,
       })
       const txHash = tx.hash
-      const localTx = {
+      const localTx: LocalTx = {
         hash: txHash,
         type: txType,
         value: `${truncateBalance(totalUserRewards)} ${Unit.SOLACE}`,
         status: TransactionCondition.PENDING,
-        unit: Unit.SOLACE,
       }
       addLocalTransactions(localTx)
       makeTxToast(txType, TransactionCondition.PENDING, txHash)

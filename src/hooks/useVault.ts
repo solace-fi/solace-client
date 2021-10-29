@@ -188,7 +188,7 @@ export const useVault = () => {
       ...gasConfig,
       gasLimit: GAS_LIMIT,
     })
-    const localTx = {
+    const localTx: LocalTx = {
       hash: tx.hash,
       type: FunctionName.DEPOSIT_ETH,
       value: txVal,
@@ -216,7 +216,7 @@ export const useVault = () => {
       ...gasConfig,
       gasLimit: GAS_LIMIT,
     })
-    const localTx = {
+    const localTx: LocalTx = {
       hash: tx.hash,
       type: FunctionName.WITHDRAW_ETH,
       value: txVal,

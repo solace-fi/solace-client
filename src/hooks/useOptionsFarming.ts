@@ -1,13 +1,46 @@
 import { BigNumber } from 'ethers'
 import { useEffect, useState } from 'react'
-import { Option } from '../constants/types'
+import { LocalTx, Option } from '../constants/types'
 import { useCachedData } from '../context/CachedDataManager'
 import { useContracts } from '../context/ContractsManager'
+import { useWallet } from '../context/WalletManager'
+import { FunctionName, TransactionCondition } from '../constants/enums'
+import { GAS_LIMIT } from '../constants'
 
-export const useOptionsDetails = (optionHolder: string | undefined): Option[] => {
+export const useOptionsDetails = (optionHolder: string | undefined) => {
   const { optionsFarming } = useContracts()
   const [optionsDetails, setOptionsDetails] = useState<Option[]>([])
   const { latestBlock } = useCachedData()
+  const { library } = useWallet()
+  const [latestBlockTimestamp, setLatestBlockTimestamp] = useState<number>(0)
+
+  const exerciseOption = async (
+    _optionId: string,
+    gasConfig: any
+  ): Promise<
+    | {
+        tx: null
+        localTx: null
+      }
+    | {
+        tx: any
+        localTx: LocalTx
+      }
+  > => {
+    if (!optionsFarming || !_optionId) return { tx: null, localTx: null }
+    const tx = await optionsFarming.exerciseOption(_optionId, {
+      ...gasConfig,
+      gasLimit: GAS_LIMIT,
+    })
+    const txHash = tx.hash
+    const localTx: LocalTx = {
+      hash: txHash,
+      type: FunctionName.EXERCISE_OPTION,
+      value: `Option #${String(_optionId)}`,
+      status: TransactionCondition.PENDING,
+    }
+    return { tx, localTx }
+  }
 
   useEffect(() => {
     const getOptionDetails = async () => {
@@ -30,5 +63,10 @@ export const useOptionsDetails = (optionHolder: string | undefined): Option[] =>
     getOptionDetails()
   }, [optionsFarming, optionHolder, latestBlock])
 
-  return optionsDetails
+  useEffect(() => {
+    if (!library || !latestBlock) return
+    setLatestBlockTimestamp(latestBlock.timestamp)
+  }, [latestBlock, library])
+
+  return { optionsDetails, latestBlockTimestamp, exerciseOption }
 }
