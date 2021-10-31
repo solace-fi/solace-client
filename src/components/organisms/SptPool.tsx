@@ -46,7 +46,7 @@ import { useWindowDimensions } from '../../hooks/useWindowDimensions'
 import { truncateBalance } from '../../utils/formatting'
 
 interface SptPoolProps {
-  openModal: (func: FunctionName, modalTitle: string) => void
+  openModal: (func: FunctionName, modalTitle: string, farmName: string) => void
 }
 
 export const SptPool: React.FC<SptPoolProps> = ({ openModal }) => {
@@ -107,14 +107,14 @@ export const SptPool: React.FC<SptPoolProps> = ({ openModal }) => {
                     <Button
                       light
                       disabled={haveErrors}
-                      onClick={() => openModal(FunctionName.DEPOSIT_POLICY_SIGNED, 'Deposit')}
+                      onClick={() => openModal(FunctionName.DEPOSIT_POLICY_SIGNED, 'Deposit', 'spt')}
                     >
                       Deposit
                     </Button>
                     <Button
                       light
                       disabled={haveErrors}
-                      onClick={() => openModal(FunctionName.WITHDRAW_POLICY, 'Withdraw')}
+                      onClick={() => openModal(FunctionName.WITHDRAW_POLICY, 'Withdraw', 'spt')}
                     >
                       Withdraw
                     </Button>
@@ -174,7 +174,7 @@ export const SptPool: React.FC<SptPoolProps> = ({ openModal }) => {
               <Button
                 widthP={100}
                 disabled={haveErrors}
-                onClick={() => openModal(FunctionName.DEPOSIT_POLICY_SIGNED, 'Deposit')}
+                onClick={() => openModal(FunctionName.DEPOSIT_POLICY_SIGNED, 'Deposit', 'spt')}
                 light
               >
                 Deposit
@@ -182,7 +182,7 @@ export const SptPool: React.FC<SptPoolProps> = ({ openModal }) => {
               <Button
                 widthP={100}
                 disabled={haveErrors}
-                onClick={() => openModal(FunctionName.WITHDRAW_POLICY, 'Withdraw')}
+                onClick={() => openModal(FunctionName.WITHDRAW_POLICY, 'Withdraw', 'spt')}
                 light
               >
                 Withdraw

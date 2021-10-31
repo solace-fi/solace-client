@@ -45,7 +45,7 @@ import { useWindowDimensions } from '../../hooks/useWindowDimensions'
 import { truncateBalance } from '../../utils/formatting'
 
 interface CapitalProviderPoolProps {
-  openModal: (func: FunctionName, modalTitle: string) => void
+  openModal: (func: FunctionName, modalTitle: string, farmName: string) => void
 }
 
 export const CapitalProviderPool: React.FC<CapitalProviderPoolProps> = ({ openModal }) => {
@@ -126,10 +126,18 @@ export const CapitalProviderPool: React.FC<CapitalProviderPoolProps> = ({ openMo
               {account ? (
                 <TableData textAlignRight>
                   <TableDataGroup width={200} style={{ float: 'right' }}>
-                    <Button light disabled={haveErrors} onClick={() => openModal(FunctionName.DEPOSIT_CP, 'Deposit')}>
+                    <Button
+                      light
+                      disabled={haveErrors}
+                      onClick={() => openModal(FunctionName.DEPOSIT_CP, 'Deposit', 'cp')}
+                    >
                       Deposit
                     </Button>
-                    <Button light disabled={haveErrors} onClick={() => openModal(FunctionName.WITHDRAW_CP, 'Withdraw')}>
+                    <Button
+                      light
+                      disabled={haveErrors}
+                      onClick={() => openModal(FunctionName.WITHDRAW_CP, 'Withdraw', 'cp')}
+                    >
                       Withdraw
                     </Button>
                     {/* <Button light disabled={haveErrors} style={{ whiteSpace: 'nowrap' }}>
@@ -191,7 +199,7 @@ export const CapitalProviderPool: React.FC<CapitalProviderPoolProps> = ({ openMo
               <Button
                 widthP={100}
                 disabled={haveErrors}
-                onClick={() => openModal(FunctionName.DEPOSIT_CP, 'Deposit')}
+                onClick={() => openModal(FunctionName.DEPOSIT_CP, 'Deposit', 'cp')}
                 light
               >
                 Deposit
@@ -199,7 +207,7 @@ export const CapitalProviderPool: React.FC<CapitalProviderPoolProps> = ({ openMo
               <Button
                 widthP={100}
                 disabled={haveErrors}
-                onClick={() => openModal(FunctionName.WITHDRAW_CP, 'Withdraw')}
+                onClick={() => openModal(FunctionName.WITHDRAW_CP, 'Withdraw', 'cp')}
                 light
               >
                 Withdraw

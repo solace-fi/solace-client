@@ -21,7 +21,7 @@
 /* import packages */
 import React, { useState, Fragment, useEffect, useCallback, useMemo } from 'react'
 import { formatUnits, parseUnits } from '@ethersproject/units'
-import { BigNumber as BN } from 'ethers'
+import { BigNumber } from 'ethers'
 import { Contract } from '@ethersproject/contracts'
 
 /* import managers */
@@ -163,7 +163,7 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
   const [contractForAllowance, setContractForAllowance] = useState<Contract | null>(null)
   const [spenderAddress, setSpenderAddress] = useState<string | null>(null)
   const tokenAllowance = useTokenAllowance(contractForAllowance, spenderAddress)
-  const [nftId, setNftId] = useState<BN>(ZERO)
+  const [nftId, setNftId] = useState<BigNumber>(ZERO)
   const [nftSelection, setNftSelection] = useState<{ value: string; label: string }>({ value: '', label: '' })
 
   /*************************************************************************************
@@ -324,7 +324,7 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
     return getAssetBalanceByFunc().gte(parseUnits(amount, currencyDecimals))
   }
 
-  const getAssetBalanceByFunc = (): BN => {
+  const getAssetBalanceByFunc = (): BigNumber => {
     switch (func) {
       case FunctionName.DEPOSIT_ETH:
         return parseUnits(nativeTokenBalance, currencyDecimals)
@@ -343,7 +343,7 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
         return parseUnits(sptUserStakeValue, currencyDecimals)
 
       default:
-        return BN.from('999999999999999999999999999999999999')
+        return BigNumber.from('999999999999999999999999999999999999')
     }
   }
 
@@ -408,7 +408,7 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
 
   const handleNft = (target: { value: string; label: string }) => {
     const info = target.label.split(' - ')
-    setNftId(BN.from(target.value))
+    setNftId(BigNumber.from(target.value))
     setAmount(info[1])
     setNftSelection(target)
   }

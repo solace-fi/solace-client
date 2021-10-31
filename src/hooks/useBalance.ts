@@ -227,6 +227,7 @@ export const useDepositedPolicies = (): NftTokenInfo[] => {
   const { account } = useWallet()
   const { userPolicyData } = useCachedData()
   const [depositedNftTokenInfo, setFarmNftTokenInfo] = useState<NftTokenInfo[]>([])
+
   const getDepositedPolicies = async () => {
     if (!sptFarm || !account) return
     const listOfDepositedLpTokens: [BigNumber[], BigNumber[]] = await sptFarm.listDeposited(account)

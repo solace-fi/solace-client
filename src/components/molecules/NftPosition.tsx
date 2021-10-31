@@ -71,7 +71,7 @@ export const NftPosition: React.FC<NftPositionProps> = ({ tokenId }) => {
 
   return (
     <>
-      {image ? (
+      {tokenId.eq(ZERO) ? null : image ? (
         <Tilt style={{ textAlign: 'center' }}>
           {width > BKPT_3 ? (
             <ScaledContainer>

@@ -49,7 +49,7 @@ import { useWindowDimensions } from '../../hooks/useWindowDimensions'
 import { truncateBalance } from '../../utils/formatting'
 
 interface LiquidityPoolProps {
-  openModal: (func: FunctionName, modalTitle: string) => void
+  openModal: (func: FunctionName, modalTitle: string, farmName: string) => void
 }
 
 export const LiquidityPool: React.FC<LiquidityPoolProps> = ({ openModal }) => {
@@ -140,11 +140,15 @@ export const LiquidityPool: React.FC<LiquidityPoolProps> = ({ openModal }) => {
                     <Button
                       light
                       disabled={haveErrors}
-                      onClick={() => openModal(FunctionName.DEPOSIT_LP_SIGNED, 'Deposit')}
+                      onClick={() => openModal(FunctionName.DEPOSIT_LP_SIGNED, 'Deposit', 'lp')}
                     >
                       Deposit
                     </Button>
-                    <Button light disabled={haveErrors} onClick={() => openModal(FunctionName.WITHDRAW_LP, 'Withdraw')}>
+                    <Button
+                      light
+                      disabled={haveErrors}
+                      onClick={() => openModal(FunctionName.WITHDRAW_LP, 'Withdraw', 'lp')}
+                    >
                       Withdraw
                     </Button>
                   </TableDataGroup>
@@ -203,7 +207,7 @@ export const LiquidityPool: React.FC<LiquidityPoolProps> = ({ openModal }) => {
               <Button
                 widthP={100}
                 disabled={haveErrors}
-                onClick={() => openModal(FunctionName.DEPOSIT_LP_SIGNED, 'Deposit')}
+                onClick={() => openModal(FunctionName.DEPOSIT_LP_SIGNED, 'Deposit', 'lp')}
                 light
               >
                 Deposit
@@ -211,7 +215,7 @@ export const LiquidityPool: React.FC<LiquidityPoolProps> = ({ openModal }) => {
               <Button
                 widthP={100}
                 disabled={haveErrors}
-                onClick={() => openModal(FunctionName.WITHDRAW_LP, 'Withdraw')}
+                onClick={() => openModal(FunctionName.WITHDRAW_LP, 'Withdraw', 'lp')}
                 light
               >
                 Withdraw

@@ -51,7 +51,7 @@ import { Card } from '../atoms/Card'
 import { StyledTooltip } from '../molecules/Tooltip'
 import { Button, ButtonWrapper } from '../atoms/Button'
 import { StyledDots } from '../atoms/Icon'
-import { AssetsModal } from './AssetsModal'
+import { AssetsModal } from '../_unused/AssetsModal'
 
 /* import hooks */
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'
