@@ -42,13 +42,13 @@ import { Loader } from '../atoms/Loader'
 import { FlexCol } from '../atoms/Layout'
 
 /* import constants */
-import { DAYS_PER_YEAR, NUM_BLOCKS_PER_DAY, GAS_LIMIT, ZERO } from '../../constants'
+import { DAYS_PER_YEAR, NUM_BLOCKS_PER_DAY, ZERO } from '../../constants'
 import { FunctionName, TransactionCondition } from '../../constants/enums'
 import { LocalTx, Policy } from '../../constants/types'
 
 /* import hooks */
 import { useAppraisePolicyPosition, useGetMaxCoverPerPolicy, useGetPolicyPrice } from '../../hooks/usePolicy'
-import { useGasConfig } from '../../hooks/useGas'
+import { useGetFunctionGas } from '../../hooks/useGas'
 import { useSptFarm } from '../../hooks/useSptFarm'
 
 /* import utils */
@@ -95,7 +95,8 @@ export const ManageModal: React.FC<ManageModalProps> = ({
   ])
   const { withdrawPolicy } = useSptFarm()
 
-  const { gasConfig } = useGasConfig(gasPrices.selected?.value)
+  const { getGasConfig } = useGetFunctionGas()
+  const gasConfig = useMemo(() => getGasConfig(gasPrices.selected?.value), [gasPrices, getGasConfig])
   const daysLeft = useMemo(
     () => getDaysLeft(selectedPolicy ? selectedPolicy.expirationBlock : 0, latestBlock ? latestBlock.number : 0),
     [latestBlock, selectedPolicy]
@@ -146,7 +147,7 @@ export const ManageModal: React.FC<ManageModalProps> = ({
         {
           value: newPremium,
           ...gasConfig,
-          gasLimit: GAS_LIMIT,
+          gasLimit: 230032,
         }
       )
       const localTx: LocalTx = {
@@ -174,7 +175,7 @@ export const ManageModal: React.FC<ManageModalProps> = ({
       const tx = await selectedProtocol.updateCoverAmount(selectedPolicy.policyId, newCoverage, {
         value: newPremium,
         ...gasConfig,
-        gasLimit: GAS_LIMIT,
+        gasLimit: 224602,
       })
       const localTx: LocalTx = {
         hash: tx.hash,
@@ -203,7 +204,7 @@ export const ManageModal: React.FC<ManageModalProps> = ({
         {
           value: newPremium,
           ...gasConfig,
-          gasLimit: GAS_LIMIT,
+          gasLimit: 158884,
         }
       )
       const localTx: LocalTx = {
@@ -225,7 +226,7 @@ export const ManageModal: React.FC<ManageModalProps> = ({
     try {
       const tx = await selectedProtocol.cancelPolicy(selectedPolicy.policyId, {
         ...gasConfig,
-        gasLimit: GAS_LIMIT,
+        gasLimit: 208993,
       })
       const localTx: LocalTx = {
         hash: tx.hash,

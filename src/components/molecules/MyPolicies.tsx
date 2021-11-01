@@ -17,7 +17,7 @@
   *************************************************************************************/
 
 /* import packages */
-import React, { Fragment } from 'react'
+import React, { Fragment, useMemo } from 'react'
 import { formatUnits } from '@ethersproject/units'
 import { Block } from '@ethersproject/contracts/node_modules/@ethersproject/abstract-provider'
 import { BigNumber } from 'ethers'
@@ -47,7 +47,7 @@ import { SmallBox } from '../atoms/Box'
 /* import hooks */
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'
 import { useSptFarm } from '../../hooks/useSptFarm'
-import { useGasConfig } from '../../hooks/useGas'
+import { useGetFunctionGas } from '../../hooks/useGas'
 
 /* import utils */
 import { truncateBalance } from '../../utils/formatting'
@@ -75,9 +75,9 @@ export const MyPolicies: React.FC<MyPoliciesProps> = ({
   const { makeTxToast } = useNotifications()
   const { width } = useWindowDimensions()
   const { activeNetwork, currencyDecimals } = useNetwork()
-  const { depositPolicy, withdrawPolicy } = useSptFarm()
-  const { gasConfig } = useGasConfig(gasPrices.selected?.value)
-
+  const { depositPolicy, withdrawPolicy, depositPolicyMulti, withdrawPolicyMulti } = useSptFarm()
+  const { getGasConfig } = useGetFunctionGas()
+  const gasConfig = useMemo(() => getGasConfig(gasPrices.selected?.value), [gasPrices, getGasConfig])
   /*************************************************************************************
 
     contract functions
@@ -93,6 +93,24 @@ export const MyPolicies: React.FC<MyPoliciesProps> = ({
     await withdrawPolicy(BigNumber.from(policyId), gasConfig)
       .then((res) => handleToast(res.tx, res.localTx))
       .catch((err) => handleContractCallError('callWithdrawPolicy', err, FunctionName.WITHDRAW_POLICY))
+  }
+
+  const callDepositPolicyMulti = async (policyIds: number[]) => {
+    await depositPolicyMulti(
+      policyIds.map((id) => BigNumber.from(id)),
+      gasConfig
+    )
+      .then((res) => handleToast(res.tx, res.localTx))
+      .catch((err) => handleContractCallError('callDepositPolicyMulti', err, FunctionName.DEPOSIT_POLICY_SIGNED_MULTI))
+  }
+
+  const callWithdrawPolicyMulti = async (policyIds: number[]) => {
+    await withdrawPolicyMulti(
+      policyIds.map((id) => BigNumber.from(id)),
+      gasConfig
+    )
+      .then((res) => handleToast(res.tx, res.localTx))
+      .catch((err) => handleContractCallError('callWithdrawPolicyMulti', err, FunctionName.WITHDRAW_POLICY_MULTI))
   }
 
   /*************************************************************************************

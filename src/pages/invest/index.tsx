@@ -17,7 +17,6 @@
 import React, { useState, Fragment, useCallback } from 'react'
 
 /* import context */
-import { useNetwork } from '../../context/NetworkManager'
 
 /* import components */
 import { PoolModal } from '../../components/_unused/PoolModal'
@@ -37,7 +36,6 @@ function Invest(): any {
   hooks
 
   *************************************************************************************/
-  const { activeNetwork } = useNetwork()
   const [func, setFunc] = useState<FunctionName>(FunctionName.DEPOSIT_ETH)
   const [modalTitle, setModalTitle] = useState<string>('')
   const [showPoolModal, setShowPoolModal] = useState<boolean>(false)
@@ -74,7 +72,7 @@ function Invest(): any {
       />
       <UnderwritingPool openModal={openModal} />
       <CapitalProviderPool openModal={openModal} />
-      {activeNetwork.chainId != 1 && <SptPool openModal={openModal} />}
+      <SptPool openModal={openModal} />
       {/* <LiquidityPool openModal={openModal} /> */}
       <MyOptions />
     </Fragment>

@@ -232,10 +232,7 @@ export const useGetQuote = (coverAmount: string | null, days: string): string =>
     try {
       const positionsQuote: BigNumber = await selectedProtocol.getQuote(
         coverAmount,
-        BigNumber.from(NUM_BLOCKS_PER_DAY * parseInt(days)),
-        {
-          gasLimit: GAS_LIMIT,
-        }
+        BigNumber.from(NUM_BLOCKS_PER_DAY * parseInt(days))
       )
       const formattedQuote = formatUnits(positionsQuote, currencyDecimals)
       setQuote(formattedQuote)

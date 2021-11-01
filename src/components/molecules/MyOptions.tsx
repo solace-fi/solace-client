@@ -16,15 +16,13 @@
   *************************************************************************************/
 
 /* import packages */
-import React, { useEffect, useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import { formatUnits } from '@ethersproject/units'
 import { BigNumber } from 'ethers'
 
 /* import managers */
-import { useWallet } from '../../context/WalletManager'
 import { useCachedData } from '../../context/CachedDataManager'
 import { useNotifications } from '../../context/NotificationsManager'
-import { useContracts } from '../../context/ContractsManager'
 import { useNetwork } from '../../context/NetworkManager'
 import { useGeneral } from '../../context/GeneralProvider'
 
@@ -39,13 +37,13 @@ import { Accordion } from '../atoms/Accordion/Accordion'
 
 /* import constants */
 import { Option, LocalTx } from '../../constants/types'
-import { GAS_LIMIT, BKPT_3 } from '../../constants'
-import { FunctionName, TransactionCondition, Unit } from '../../constants/enums'
+import { BKPT_3 } from '../../constants'
+import { FunctionName, TransactionCondition } from '../../constants/enums'
 
 /* import hooks */
 import { useOptionsDetails } from '../../hooks/useOptionsFarming'
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'
-import { useGasConfig } from '../../hooks/useGas'
+import { useGetFunctionGas } from '../../hooks/useGas'
 
 /* import utils */
 import { accurateMultiply, truncateBalance } from '../../utils/formatting'
@@ -57,13 +55,13 @@ export const MyOptions: React.FC = () => {
 
   *************************************************************************************/
   const { haveErrors } = useGeneral()
-  const { account } = useWallet()
   const { addLocalTransactions, reload, gasPrices } = useCachedData()
   const { makeTxToast } = useNotifications()
-  const { gasConfig } = useGasConfig(gasPrices.selected?.value)
+  const { getGasConfig } = useGetFunctionGas()
+  const gasConfig = useMemo(() => getGasConfig(gasPrices.selected?.value), [gasPrices, getGasConfig])
   const { activeNetwork, currencyDecimals } = useNetwork()
   const [openOptions, setOpenOptions] = useState<boolean>(true)
-  const { optionsDetails, latestBlockTimestamp, exerciseOption } = useOptionsDetails(account)
+  const { optionsDetails, latestBlockTimestamp, exerciseOption } = useOptionsDetails()
   const { width } = useWindowDimensions()
 
   /*************************************************************************************

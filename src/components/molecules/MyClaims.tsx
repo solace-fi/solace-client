@@ -17,7 +17,7 @@
   *************************************************************************************/
 
 /* import packages */
-import React, { useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import { formatUnits } from '@ethersproject/units'
 import { BigNumber } from 'ethers'
 
@@ -39,14 +39,14 @@ import { StyledArrowDropDown } from '../../components/atoms/Icon'
 import { Accordion } from '../atoms/Accordion/Accordion'
 
 /* import constants */
-import { FunctionName, TransactionCondition, Unit } from '../../constants/enums'
-import { GAS_LIMIT, BKPT_3 } from '../../constants'
+import { FunctionName, TransactionCondition } from '../../constants/enums'
+import { BKPT_3 } from '../../constants'
 import { ClaimDetails, LocalTx } from '../../constants/types'
 
 /* import hooks */
 import { useGetClaimsDetails } from '../../hooks/useClaimsEscrow'
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'
-import { useGasConfig } from '../../hooks/useGas'
+import { useGetFunctionGas } from '../../hooks/useGas'
 
 /* import utils */
 import { accurateMultiply, truncateBalance } from '../../utils/formatting'
@@ -65,7 +65,8 @@ export const MyClaims: React.FC = () => {
   const { addLocalTransactions, reload, gasPrices } = useCachedData()
   const { makeTxToast } = useNotifications()
   const claimsDetails = useGetClaimsDetails(account)
-  const { gasConfig } = useGasConfig(gasPrices.selected?.value)
+  const { getGasConfig } = useGetFunctionGas()
+  const gasConfig = useMemo(() => getGasConfig(gasPrices.selected?.value), [gasPrices, getGasConfig])
   const [openClaims, setOpenClaims] = useState<boolean>(true)
   const { width } = useWindowDimensions()
 
@@ -81,7 +82,7 @@ export const MyClaims: React.FC = () => {
     try {
       const tx = await claimsEscrow.withdrawClaimsPayout(_claimId, {
         ...gasConfig,
-        gasLimit: GAS_LIMIT,
+        gasLimit: 150000,
       })
       const txHash = tx.hash
       const localTx: LocalTx = {

@@ -62,7 +62,7 @@ import {
 import { useScpBalance } from '../../hooks/useBalance'
 import { useTokenAllowance } from '../../hooks/useTokenAllowance'
 import { useCooldown, useVault } from '../../hooks/useVault'
-import { useGasConfig } from '../../hooks/useGas'
+import { useGetFunctionGas } from '../../hooks/useGas'
 import { useCpFarm } from '../../hooks/useCpFarm'
 import { useLpFarm } from '../../hooks/useLpFarm'
 import { useSptFarm } from '../../hooks/useSptFarm'
@@ -152,11 +152,15 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
   const cpFarmFunctions = useCpFarm()
   const { depositLp, withdrawLp } = useLpFarm()
   const { depositPolicy, withdrawPolicy } = useSptFarm()
+  const { getGasConfig } = useGetFunctionGas()
 
   const [amount, setAmount] = useState<string>('')
   const [isStaking, setIsStaking] = useState<boolean>(false)
   const [selectedGasOption, setSelectedGasOption] = useState<GasFeeOption | undefined>(gasPrices.selected)
-  const { gasConfig } = useGasConfig(selectedGasOption ? selectedGasOption.value : null)
+  const gasConfig = useMemo(() => getGasConfig(selectedGasOption ? selectedGasOption.value : null), [
+    selectedGasOption,
+    getGasConfig,
+  ])
   const [maxSelected, setMaxSelected] = useState<boolean>(false)
   const [modalLoading, setModalLoading] = useState<boolean>(false)
   const [canCloseOnLoading, setCanCloseOnLoading] = useState<boolean>(false)

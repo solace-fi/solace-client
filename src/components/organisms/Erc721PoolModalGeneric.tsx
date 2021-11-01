@@ -221,7 +221,7 @@ export const Erc721PoolModalGeneric: React.FC<PoolModalProps & Erc721PoolModalGe
       if (func == depositFunc.name) bootNft(userNftTokenInfo)
       if (func == withdrawFunc.name) bootNft(depositedNftTokenInfo)
     }
-  }, [isOpen, func, currencyDecimals, depositedNftTokenInfo, userNftTokenInfo])
+  }, [isOpen, func, currencyDecimals])
 
   return (
     <Modal isOpen={isOpen} handleClose={handleClose} modalTitle={modalTitle} disableCloseButton={modalLoading}>

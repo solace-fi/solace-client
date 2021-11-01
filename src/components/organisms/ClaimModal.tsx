@@ -18,7 +18,7 @@
   *************************************************************************************/
 
 /* import packages */
-import React, { Fragment, useCallback, useEffect, useState, useRef } from 'react'
+import React, { Fragment, useCallback, useEffect, useState, useRef, useMemo } from 'react'
 import { formatUnits } from '@ethersproject/units'
 import { Block } from '@ethersproject/contracts/node_modules/@ethersproject/abstract-provider'
 import { BigNumber } from 'ethers'
@@ -42,15 +42,15 @@ import { Table, TableBody, TableRow, TableData } from '../atoms/Table'
 import { HyperLink } from '../atoms/Link'
 
 /* import constants */
-import { FunctionName, TransactionCondition, Unit } from '../../constants/enums'
-import { GAS_LIMIT, BKPT_3 } from '../../constants'
+import { FunctionName, TransactionCondition } from '../../constants/enums'
+import { BKPT_3 } from '../../constants'
 import { Policy, ClaimAssessment, LocalTx } from '../../constants/types'
 
 /* import hooks */
 import { useGetCooldownPeriod } from '../../hooks/useClaimsEscrow'
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'
 import { useAppraisePolicyPosition } from '../../hooks/usePolicy'
-import { useGasConfig } from '../../hooks/useGas'
+import { useGetFunctionGas } from '../../hooks/useGas'
 import { useSptFarm } from '../../hooks/useSptFarm'
 
 /* import utils */
@@ -89,7 +89,8 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({
   const { activeNetwork, currencyDecimals, chainId } = useNetwork()
   const { withdrawPolicy } = useSptFarm()
   const { width } = useWindowDimensions()
-  const { gasConfig } = useGasConfig(gasPrices.selected?.value)
+  const { getGasConfig, getGasLimit } = useGetFunctionGas()
+  const gasConfig = useMemo(() => getGasConfig(gasPrices.selected?.value), [gasPrices, getGasConfig])
   const appraisal = useAppraisePolicyPosition(selectedPolicy)
   const [canCloseOnLoading, setCanCloseOnLoading] = useState<boolean>(false)
   const mounting = useRef(true)
@@ -108,7 +109,7 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({
     try {
       const tx = await selectedProtocol.submitClaim(selectedPolicy.policyId, amountOut, deadline, signature, {
         ...gasConfig,
-        gasLimit: GAS_LIMIT,
+        gasLimit: getGasLimit(selectedPolicy.productName, txType),
       })
       const txHash = tx.hash
       const localTx: LocalTx = {

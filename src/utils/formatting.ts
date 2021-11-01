@@ -14,8 +14,45 @@ export const fixed = (n: number | string, decimals = 1): number => {
 
 export const truncateBalance = (value: number | string, decimals = 6): string => {
   if (typeof value == 'number' && value == 0) return '0'
-  if (typeof value == 'string' && BigNumber.from(value.replace('.', '')).eq('0')) return '0'
-  const str = value.toString()
+  if (typeof value == 'string') {
+    const pureNumberStr = value.replace('.', '').split('e')[0]
+    if (BigNumber.from(pureNumberStr).eq('0')) {
+      return '0'
+    }
+  }
+  let str = value.toString()
+
+  // if string is in scientific notation, for example (1.2345e3, or 1.2345e-5)
+  if (str.includes('e')) {
+    // get number left of 'e'
+    const n = str.split('e')[0]
+
+    // get number right of 'e'
+    const exponent = str.split('e')[1]
+
+    // remove decimal in advance
+    const temp = n.replace('.', '')
+    let zeros = ''
+    if (exponent.includes('-')) {
+      // if exponent has negative sign, it must be negative
+      const range = rangeFrom0(parseInt(exponent.slice(1)) - 1)
+      range.forEach(() => (zeros += '0'))
+      str = '0.'.concat(zeros).concat(temp) // add abs(exponent) - 1 zeros to the left of temp
+    } else {
+      // if exponent does not have negative sign, it must be positive
+      if (n.split('.')[1].length > parseInt(exponent)) {
+        // if length of decimal places in string surpasses exponent, must insert decimal point inside
+        const decimalIndex = n.indexOf('.')
+        const newDecimalIndex = decimalIndex + parseInt(exponent)
+        str = temp.substring(0, newDecimalIndex).concat('.').concat(temp.substring(newDecimalIndex, temp.length))
+      } else {
+        // if length of decimal places in string does not surpass exponent, simply append zeros
+        const range = rangeFrom0(parseInt(exponent) - n.split('.')[1].length)
+        range.forEach(() => (zeros += '0'))
+        str = temp.concat(zeros)
+      }
+    }
+  }
   const decimalIndex = str.indexOf('.')
 
   // if is nonzero whole number

@@ -20,7 +20,7 @@
   *************************************************************************************/
 
 /* import packages */
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useMemo } from 'react'
 import { BigNumber } from 'ethers'
 import { formatUnits, parseUnits } from '@ethersproject/units'
 
@@ -46,7 +46,7 @@ import { Button } from '../atoms/Button'
 import { StyledSelect } from '../molecules/Select'
 
 /* import hooks */
-import { useGasConfig } from '../../hooks/useGas'
+import { useGetFunctionGas } from '../../hooks/useGas'
 
 /* import utils */
 import { fixed, filteredAmount } from '../../utils/formatting'
@@ -174,8 +174,11 @@ export const usePoolModal = () => {
   const { addLocalTransactions, reload, gasPrices } = useCachedData()
   const { makeTxToast } = useNotifications()
   const [selectedGasOption, setSelectedGasOption] = useState<GasFeeOption | undefined>(gasPrices.selected)
-  const { gasConfig } = useGasConfig(selectedGasOption ? selectedGasOption.value : null)
-
+  const { getGasConfig } = useGetFunctionGas()
+  const gasConfig = useMemo(() => getGasConfig(selectedGasOption ? selectedGasOption.value : null), [
+    selectedGasOption,
+    getGasConfig,
+  ])
   const [amount, setAmount] = useState<string>('')
   const [maxSelected, setMaxSelected] = useState<boolean>(false)
 

@@ -5,13 +5,12 @@ import { useCachedData } from '../context/CachedDataManager'
 import { useContracts } from '../context/ContractsManager'
 import { useWallet } from '../context/WalletManager'
 import { FunctionName, TransactionCondition } from '../constants/enums'
-import { GAS_LIMIT } from '../constants'
 
-export const useOptionsDetails = (optionHolder: string | undefined) => {
+export const useOptionsDetails = () => {
   const { optionsFarming } = useContracts()
   const [optionsDetails, setOptionsDetails] = useState<Option[]>([])
   const { latestBlock } = useCachedData()
-  const { library } = useWallet()
+  const { account, library } = useWallet()
   const [latestBlockTimestamp, setLatestBlockTimestamp] = useState<number>(0)
 
   const exerciseOption = async (
@@ -30,7 +29,7 @@ export const useOptionsDetails = (optionHolder: string | undefined) => {
     if (!optionsFarming || !_optionId) return { tx: null, localTx: null }
     const tx = await optionsFarming.exerciseOption(_optionId, {
       ...gasConfig,
-      gasLimit: GAS_LIMIT,
+      gasLimit: 161379,
     })
     const txHash = tx.hash
     const localTx: LocalTx = {
@@ -44,9 +43,9 @@ export const useOptionsDetails = (optionHolder: string | undefined) => {
 
   useEffect(() => {
     const getOptionDetails = async () => {
-      if (!optionsFarming || !optionHolder) return
+      if (!optionsFarming || !account) return
       try {
-        const optionIds: BigNumber[] = await optionsFarming.listTokensOfOwner(optionHolder)
+        const optionIds: BigNumber[] = await optionsFarming.listTokensOfOwner(account)
         const optionsFields = await Promise.all(optionIds.map(async (optionId) => optionsFarming.getOption(optionId)))
         const options: Option[] = []
         for (let i = 0; i < optionsFields.length; i++) {
@@ -61,7 +60,7 @@ export const useOptionsDetails = (optionHolder: string | undefined) => {
       }
     }
     getOptionDetails()
-  }, [optionsFarming, optionHolder, latestBlock])
+  }, [optionsFarming, account, latestBlock])
 
   useEffect(() => {
     if (!library || !latestBlock) return

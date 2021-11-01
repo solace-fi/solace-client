@@ -23,7 +23,7 @@ import { formatUnits, parseUnits } from 'ethers/lib/utils'
 import { BigNumber } from 'ethers'
 
 /* import constants */
-import { DAYS_PER_YEAR, GAS_LIMIT, NUM_BLOCKS_PER_DAY, ZERO } from '../../constants'
+import { DAYS_PER_YEAR, NUM_BLOCKS_PER_DAY, ZERO } from '../../constants'
 import { TransactionCondition, FunctionName, PositionType } from '../../constants/enums'
 import { LiquityPosition, LocalTx, Position, Token } from '../../constants/types'
 
@@ -48,7 +48,7 @@ import { StyledTooltip } from '../../components/molecules/Tooltip'
 
 /* import hooks */
 import { useGetQuote, useGetMaxCoverPerPolicy } from '../../hooks/usePolicy'
-import { useGasConfig } from '../../hooks/useGas'
+import { useGetFunctionGas } from '../../hooks/useGas'
 
 /* import utils */
 import { accurateMultiply, encodeAddresses, filteredAmount } from '../../utils/formatting'
@@ -61,7 +61,7 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
 
   *************************************************************************************/
   const { haveErrors } = useGeneral()
-  const { positions, coverAmount, timePeriod, loading } = formData
+  const { protocol, positions, coverAmount, timePeriod, loading } = formData
   const maxCoverPerPolicy = useGetMaxCoverPerPolicy() // in eth
   const quote = useGetQuote(coverAmount, timePeriod)
   const { account } = useWallet()
@@ -69,7 +69,8 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
   const { selectedProtocol } = useContracts()
   const { makeTxToast } = useNotifications()
   const { activeNetwork, currencyDecimals } = useNetwork()
-  const { gasConfig } = useGasConfig(gasPrices.selected?.value)
+  const { getGasConfig, getGasLimit } = useGetFunctionGas()
+  const gasConfig = useMemo(() => getGasConfig(gasPrices.selected?.value), [gasPrices, getGasConfig])
   const maxCoverPerPolicyInWei = useMemo(() => parseUnits(maxCoverPerPolicy, currencyDecimals), [
     maxCoverPerPolicy,
     currencyDecimals,
@@ -102,13 +103,13 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
   *************************************************************************************/
 
   const buyPolicy = async () => {
+    if (!selectedProtocol) return
     setForm({
       target: {
         name: 'loading',
         value: true,
       },
     })
-    if (!selectedProtocol) return
     const txType = FunctionName.BUY_POLICY
     try {
       const tx = await selectedProtocol.buyPolicy(
@@ -133,7 +134,7 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
         {
           value: parseUnits(quote, currencyDecimals),
           ...gasConfig,
-          gasLimit: GAS_LIMIT,
+          gasLimit: getGasLimit(protocol.name, txType),
         }
       )
       navigation.next()

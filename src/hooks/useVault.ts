@@ -186,7 +186,7 @@ export const useVault = () => {
     const tx = await vault.depositEth({
       value: parsedAmount,
       ...gasConfig,
-      gasLimit: GAS_LIMIT,
+      gasLimit: 126777,
     })
     const localTx: LocalTx = {
       hash: tx.hash,
@@ -214,7 +214,7 @@ export const useVault = () => {
     if (!vault) return { tx: null, localTx: null }
     const tx = await vault.withdrawEth(parsedAmount, {
       ...gasConfig,
-      gasLimit: GAS_LIMIT,
+      gasLimit: 123823,
     })
     const localTx: LocalTx = {
       hash: tx.hash,

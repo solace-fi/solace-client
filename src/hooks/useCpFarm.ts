@@ -25,7 +25,7 @@ export const useCpFarm = () => {
     const tx = await cpFarm.depositEth({
       value: parsedAmount,
       ...gasConfig,
-      gasLimit: GAS_LIMIT,
+      gasLimit: 243022,
     })
     const localTx: LocalTx = {
       hash: tx.hash,
@@ -53,7 +53,7 @@ export const useCpFarm = () => {
     if (!cpFarm) return { tx: null, localTx: null }
     const tx = await cpFarm.depositCp(parsedAmount, {
       ...gasConfig,
-      gasLimit: GAS_LIMIT,
+      gasLimit: 122683,
     })
     const localTx: LocalTx = {
       hash: tx.hash,
@@ -81,7 +81,7 @@ export const useCpFarm = () => {
     if (!cpFarm) return { tx: null, localTx: null }
     const tx = await cpFarm.withdrawCp(parsedAmount, {
       ...gasConfig,
-      gasLimit: GAS_LIMIT,
+      gasLimit: 189538,
     })
     const localTx: LocalTx = {
       hash: tx.hash,

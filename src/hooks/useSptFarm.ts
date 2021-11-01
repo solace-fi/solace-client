@@ -37,12 +37,58 @@ export const useSptFarm = () => {
     )
     const tx = await sptFarm.depositPolicySigned(account, nftId, DEADLINE, v, r, s, {
       ...gasConfig,
-      gasLimit: GAS_LIMIT,
+      gasLimit: 499230,
     })
     const localTx: LocalTx = {
       hash: tx.hash,
       type: FunctionName.DEPOSIT_POLICY_SIGNED,
       value: `#${nftId.toString()}`,
+      status: TransactionCondition.PENDING,
+    }
+    return { tx, localTx }
+  }
+
+  const depositPolicyMulti = async (
+    nftIds: BigNumber[],
+    gasConfig: any
+  ): Promise<
+    | {
+        tx: null
+        localTx: null
+      }
+    | {
+        tx: any
+        localTx: LocalTx
+      }
+  > => {
+    if (!sptFarm || !policyManager || !nftIds || !chainId || !account || !library) return { tx: null, localTx: null }
+    const signatures = await Promise.all(
+      nftIds.map(
+        async (nftId) =>
+          await getPermitErc721EnhancedSignature(
+            account,
+            chainId,
+            library,
+            policyManager,
+            sptFarm.address,
+            nftId,
+            DEADLINE
+          )
+      )
+    )
+    const vArr = signatures.map((s) => s.v)
+    const rArr = signatures.map((s) => s.r)
+    const sArr = signatures.map((s) => s.s)
+    const depositors = nftIds.map((id) => account)
+    const deadlines = nftIds.map((id) => DEADLINE)
+    const tx = await sptFarm.depositPolicySignedMulti(depositors, nftIds, deadlines, vArr, rArr, sArr, {
+      ...gasConfig,
+      gasLimit: 990486,
+    })
+    const localTx: LocalTx = {
+      hash: tx.hash,
+      type: FunctionName.DEPOSIT_POLICY_SIGNED_MULTI,
+      value: `${nftIds.length} policies`,
       status: TransactionCondition.PENDING,
     }
     return { tx, localTx }
@@ -64,7 +110,7 @@ export const useSptFarm = () => {
     if (!sptFarm) return { tx: null, localTx: null }
     const tx = await sptFarm.withdrawPolicy(nftId, {
       ...gasConfig,
-      gasLimit: GAS_LIMIT,
+      gasLimit: 264795,
     })
     const localTx: LocalTx = {
       hash: tx.hash,
@@ -75,5 +121,32 @@ export const useSptFarm = () => {
     return { tx, localTx }
   }
 
-  return { depositPolicy, withdrawPolicy }
+  const withdrawPolicyMulti = async (
+    nftIds: BigNumber[],
+    gasConfig: any
+  ): Promise<
+    | {
+        tx: null
+        localTx: null
+      }
+    | {
+        tx: any
+        localTx: LocalTx
+      }
+  > => {
+    if (!sptFarm) return { tx: null, localTx: null }
+    const tx = await sptFarm.withdrawPolicy(nftIds, {
+      ...gasConfig,
+      gasLimit: 271693,
+    })
+    const localTx: LocalTx = {
+      hash: tx.hash,
+      type: FunctionName.WITHDRAW_POLICY_MULTI,
+      value: `${nftIds.length} policies`,
+      status: TransactionCondition.PENDING,
+    }
+    return { tx, localTx }
+  }
+
+  return { depositPolicy, withdrawPolicy, depositPolicyMulti, withdrawPolicyMulti }
 }

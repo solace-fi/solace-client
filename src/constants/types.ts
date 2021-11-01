@@ -163,6 +163,13 @@ export type SupportedProduct = {
   name: ProductName
   positionsType: PositionType
   productLink?: string
+  gasLimits?: {
+    // network chain Id
+    [key: number]: {
+      // mapping of FunctionName to gas limit number
+      [key: string]: number
+    }
+  }
   supportedSubProducts?: {
     [key: number]: string[] // array of farm or other pool positions for a product supported on different chains
   }

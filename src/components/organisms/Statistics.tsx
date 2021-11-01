@@ -17,7 +17,7 @@
   *************************************************************************************/
 
 /* import packages */
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useMemo } from 'react'
 import { formatUnits, parseUnits } from '@ethersproject/units'
 import { BigNumber } from 'ethers'
 
@@ -49,7 +49,7 @@ import { useSolaceBalance } from '../../hooks/useBalance'
 import { usePolicyGetter } from '../../hooks/usePolicyGetter'
 import { useGetTotalValueLocked } from '../../hooks/useFarm'
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'
-import { useGasConfig } from '../../hooks/useGas'
+import { useGetFunctionGas } from '../../hooks/useGas'
 
 /* import utils */
 import { truncateBalance } from '../../utils/formatting'
@@ -73,8 +73,8 @@ export const Statistics: React.FC = () => {
   const { allPolicies } = usePolicyGetter(true, latestBlock, tokenPosData)
   const totalValueLocked = useGetTotalValueLocked()
   const { width } = useWindowDimensions()
-  const { gasConfig } = useGasConfig(gasPrices.selected?.value)
-
+  const { getGasConfig } = useGetFunctionGas()
+  const gasConfig = useMemo(() => getGasConfig(gasPrices.selected?.value), [gasPrices, getGasConfig])
   const [totalActiveCoverAmount, setTotalActiveCoverAmount] = useState<string>('-')
   const [totalActivePolicies, setTotalActivePolicies] = useState<number | string>('-')
 
@@ -89,7 +89,7 @@ export const Statistics: React.FC = () => {
     try {
       const tx = await farmController.farmOptionMulti({
         ...gasConfig,
-        gasLimit: GAS_LIMIT,
+        gasLimit: 834261,
       })
       const txHash = tx.hash
       const localTx: LocalTx = {
