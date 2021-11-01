@@ -116,6 +116,9 @@ export const PoolModalCooldown: React.FC<PoolModalCooldownProps> = ({
           >
             Withdraw
           </Button>
+          <Button widthP={100} hidden={modalLoading} onClick={handleCallbackFunc} info>
+            Stop Cooldown
+          </Button>
         </ButtonWrapper>
       )}
     </>
