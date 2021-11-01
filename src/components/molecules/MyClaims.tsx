@@ -166,7 +166,7 @@ export const MyClaims: React.FC = () => {
                       </Text>
                     </BoxItem>
                   </Box>
-                  <ButtonWrapper mb={0} mt={20}>
+                  <ButtonWrapper pb={0} pt={20}>
                     <Button
                       widthP={100}
                       onClick={() => withdrawPayout(claim.id)}

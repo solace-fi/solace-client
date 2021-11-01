@@ -393,9 +393,9 @@ export const MultiStepForm = () => {
                     )}
                   </FlexRow>
                   <ButtonWrapper isColumn>
-                    <Button light widthP={100} onClick={() => setShowAssetsModal(true)}>
+                    {/* <Button light widthP={100} onClick={() => setShowAssetsModal(true)}>
                       View all assets
-                    </Button>
+                    </Button> */}
                     <Button light widthP={100} onClick={() => navigation.go(1)}>
                       Change
                     </Button>

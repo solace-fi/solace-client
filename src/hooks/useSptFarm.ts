@@ -1,5 +1,5 @@
 import { BigNumber } from 'ethers'
-import { DEADLINE, GAS_LIMIT } from '../constants'
+import { DEADLINE } from '../constants'
 import { FunctionName, TransactionCondition } from '../constants/enums'
 import { LocalTx } from '../constants/types'
 import { useContracts } from '../context/ContractsManager'
@@ -83,7 +83,7 @@ export const useSptFarm = () => {
     const deadlines = nftIds.map((id) => DEADLINE)
     const tx = await sptFarm.depositPolicySignedMulti(depositors, nftIds, deadlines, vArr, rArr, sArr, {
       ...gasConfig,
-      gasLimit: 990486,
+      gasLimit: 330162 * nftIds.length,
     })
     const localTx: LocalTx = {
       hash: tx.hash,
@@ -135,9 +135,9 @@ export const useSptFarm = () => {
       }
   > => {
     if (!sptFarm) return { tx: null, localTx: null }
-    const tx = await sptFarm.withdrawPolicy(nftIds, {
+    const tx = await sptFarm.withdrawPolicyMulti(nftIds, {
       ...gasConfig,
-      gasLimit: 271693,
+      gasLimit: 135846 * nftIds.length,
     })
     const localTx: LocalTx = {
       hash: tx.hash,

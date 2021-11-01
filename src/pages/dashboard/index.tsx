@@ -27,18 +27,13 @@ import { useCachedData } from '../../context/CachedDataManager'
 import { Policy } from '../../constants/types'
 
 /* import components */
-import { HeroContainer, Content } from '../../components/atoms/Layout'
+import { HeroContainer } from '../../components/atoms/Layout'
 import { Text } from '../../components/atoms/Typography'
 import { ManageModal } from '../../components/organisms/ManageModal'
 import { ClaimModal } from '../../components/organisms/ClaimModal'
 import { MyPolicies } from '../../components/molecules/MyPolicies'
 import { MyClaims } from '../../components/molecules/MyClaims'
 import { MyInvestments } from '../../components/molecules/MyInvestments'
-import { StyledTooltip } from '../../components/molecules/Tooltip'
-import { Accordion } from '../../components/atoms/Accordion/Accordion'
-import { StyledArrowDropDown } from '../../components/atoms/Icon'
-import { Button } from '../../components/atoms/Button'
-import { Loader } from '../../components/atoms/Loader'
 import { MyOptions } from '../../components/molecules/MyOptions'
 
 /* import hooks */
@@ -140,40 +135,14 @@ function Dashboard(): any {
             selectedPolicy={selectedPolicy}
             isPolicyStaked={isPolicyStaked}
           />
-          <Content>
-            <Text bold t1 mb={0}>
-              My Policies
-              {/* {' '}
-              <StyledTooltip
-                id={'user-policies'}
-                tip={'A policy indicates the coverage for your positions on a protocol.'}
-                link={`https://docs.solace.fi/docs/user-guides/buy-cover`}
-              /> */}
-              <Button style={{ float: 'right' }} onClick={() => setOpenPolicies(!openPolicies)}>
-                <StyledArrowDropDown
-                  style={{ transform: openPolicies ? 'rotate(180deg)' : 'rotate(0deg)' }}
-                  size={20}
-                />
-                {openPolicies ? 'Hide Policies' : 'Show Policies'}
-              </Button>
-            </Text>
-            <Text t4 pt={10} pb={10}>
-              Make changes to your existing policies or submit claims. You can stake your policies to earn $SOLACE token
-              call options.
-            </Text>
-            {!userPolicyData.policiesLoading ? (
-              <Accordion isOpen={openPolicies} style={{ padding: '0 10px 0 10px' }}>
-                <MyPolicies
-                  latestBlock={latestBlock}
-                  openClaimModal={openClaimModal}
-                  openManageModal={openManageModal}
-                  depositedPolicyIds={depositedPolicyIds}
-                />
-              </Accordion>
-            ) : (
-              <Loader />
-            )}
-          </Content>
+          <MyPolicies
+            latestBlock={latestBlock}
+            openClaimModal={openClaimModal}
+            openManageModal={openManageModal}
+            depositedPolicyIds={depositedPolicyIds}
+            isOpen={openPolicies}
+            setOpen={setOpenPolicies}
+          />
           <MyClaims />
           <MyInvestments />
           <MyOptions />

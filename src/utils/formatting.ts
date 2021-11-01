@@ -222,6 +222,10 @@ export const formatTransactionContent = (
       return `Withdrawal cooldown started`
     case FunctionName.STOP_COOLDOWN:
       return `Withdrawal cooldown stopped`
+    case FunctionName.DEPOSIT_POLICY_SIGNED_MULTI:
+      return `Deposited multiple policies`
+    case FunctionName.WITHDRAW_POLICY_MULTI:
+      return `Withdrew multiple policies`
     default:
       return `${amount} ${unit}`
   }

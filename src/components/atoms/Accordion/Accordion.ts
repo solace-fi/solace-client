@@ -13,4 +13,5 @@ export const Accordion = styled.div<AccordionProps>`
   overflow-y: hidden;
   ${(props) => (props.noscroll ? null : `overflow-y: auto;`)}
   border-radius: 10px;
+  position: relative;
 `

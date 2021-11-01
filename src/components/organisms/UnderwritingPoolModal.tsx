@@ -283,14 +283,14 @@ export const UnderwritingPoolModal: React.FC<PoolModalProps> = ({ modalTitle, fu
         <>
           {canWithdrawEth && (
             <Box success glow mt={20} mb={20}>
-              <Text t3 bold autoAlign>
+              <Text t3 bold autoAlign light>
                 You can withdraw now!
               </Text>
             </Box>
           )}
           {cooldownStarted && timeWaited < cooldownMin && (
-            <Box mt={20} mb={20}>
-              <Text t3 bold autoAlign>
+            <Box color2 mt={20} mb={20}>
+              <Text t3 bold autoAlign light>
                 Cooldown Elapsing...
               </Text>
             </Box>
