@@ -38,8 +38,8 @@ import { Button, ButtonWrapper } from '../atoms/Button'
 import { Loader } from '../atoms/Loader'
 import { Text } from '../atoms/Typography'
 import { GasRadioGroup } from '../molecules/GasRadioGroup'
-import { PoolModalCooldown } from '../molecules/PoolModalCooldown'
 import { Erc20InputPanel, PoolModalProps, usePoolModal } from './PoolModalRouter'
+import { Box, BoxItem, BoxItemTitle } from '../atoms/Box'
 
 /* import hooks */
 import { useNativeTokenBalance } from '../../hooks/useBalance'
@@ -49,7 +49,7 @@ import { useCpFarm } from '../../hooks/useCpFarm'
 
 /* import utils */
 import { filteredAmount, getUnit, truncateBalance } from '../../utils/formatting'
-import { timeToDateText } from '../../utils/time'
+import { timeToDateText, getTimeFromMillis, timeToDate } from '../../utils/time'
 
 export const UnderwritingPoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, closeModal }) => {
   /*************************************************************************************
@@ -280,18 +280,79 @@ export const UnderwritingPoolModal: React.FC<PoolModalProps> = ({ modalTitle, fu
       {modalLoading ? (
         <Loader />
       ) : func == FunctionName.WITHDRAW_ETH ? (
-        <PoolModalCooldown
-          isAppropriateAmount={isAppropriateAmount(amount, getAssetBalanceByFunc()) ? false : true}
-          handleCallbackFunc={handleCallbackFunc}
-          modalLoading={modalLoading}
-          cd={{
-            cooldownStarted,
-            timeWaited,
-            cooldownMin,
-            cooldownMax,
-            canWithdrawEth,
-          }}
-        />
+        <>
+          {canWithdrawEth && (
+            <Box success glow mt={20} mb={20}>
+              <Text t3 bold autoAlign>
+                You can withdraw now!
+              </Text>
+            </Box>
+          )}
+          {cooldownStarted && timeWaited < cooldownMin && (
+            <Box mt={20} mb={20}>
+              <Text t3 bold autoAlign>
+                Cooldown Elapsing...
+              </Text>
+            </Box>
+          )}
+          <Box info>
+            <BoxItem>
+              <BoxItemTitle t4 textAlignCenter light>
+                Min Cooldown
+              </BoxItemTitle>
+              <Text t4 textAlignCenter light>
+                {getTimeFromMillis(cooldownMin)}
+              </Text>
+            </BoxItem>
+            {cooldownStarted && (
+              <BoxItem>
+                <BoxItemTitle t4 textAlignCenter light>
+                  Time waited
+                </BoxItemTitle>
+                <Text t4 textAlignCenter success={canWithdrawEth} light={!canWithdrawEth}>
+                  {timeToDate(timeWaited)}
+                </Text>
+              </BoxItem>
+            )}
+            <BoxItem>
+              <BoxItemTitle t4 textAlignCenter light>
+                Max Cooldown
+              </BoxItemTitle>
+              <Text t4 textAlignCenter light>
+                {getTimeFromMillis(cooldownMax)}
+              </Text>
+            </BoxItem>
+          </Box>
+          {!canWithdrawEth && (
+            <ButtonWrapper>
+              <Button widthP={100} hidden={modalLoading} disabled={haveErrors} onClick={handleCallbackFunc} info>
+                {!cooldownStarted
+                  ? 'Start cooldown'
+                  : timeWaited < cooldownMin
+                  ? 'Stop cooldown'
+                  : cooldownMax < timeWaited
+                  ? 'Restart cooldown'
+                  : 'Unknown error'}
+              </Button>
+            </ButtonWrapper>
+          )}
+          {canWithdrawEth && (
+            <ButtonWrapper>
+              <Button
+                widthP={100}
+                hidden={modalLoading}
+                disabled={isAppropriateAmount(amount, getAssetBalanceByFunc()) || haveErrors}
+                onClick={handleCallbackFunc}
+                info
+              >
+                Withdraw
+              </Button>
+              <Button widthP={100} hidden={modalLoading} onClick={callStopCooldown} info>
+                Stop Cooldown
+              </Button>
+            </ButtonWrapper>
+          )}
+        </>
       ) : (
         <ButtonWrapper>
           <Button

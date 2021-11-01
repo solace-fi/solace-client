@@ -48,7 +48,7 @@ import { Text } from '../atoms/Typography'
 import { NftPosition } from '../molecules/NftPosition'
 import { StyledSelect } from '../molecules/Select'
 import { GasRadioGroup } from '../molecules/GasRadioGroup'
-import { PoolModalCooldown } from '../molecules/PoolModalCooldown'
+import { PoolModalCooldown } from './PoolModalCooldown'
 
 /* import hooks */
 import { useUserStakedValue } from '../../hooks/useFarm'
