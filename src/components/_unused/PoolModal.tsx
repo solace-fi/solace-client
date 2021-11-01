@@ -48,7 +48,7 @@ import { Text } from '../atoms/Typography'
 import { NftPosition } from '../molecules/NftPosition'
 import { StyledSelect } from '../molecules/Select'
 import { GasRadioGroup } from '../molecules/GasRadioGroup'
-import { PoolModalCooldown } from './PoolModalCooldown'
+import { Box, BoxItem, BoxItemTitle } from '../atoms/Box'
 
 /* import hooks */
 import { useUserStakedValue } from '../../hooks/useFarm'
@@ -70,7 +70,7 @@ import { useSptFarm } from '../../hooks/useSptFarm'
 /* import utils */
 import { hasApproval } from '../../utils'
 import { fixed, filteredAmount, getUnit, truncateBalance } from '../../utils/formatting'
-import { timeToDateText } from '../../utils/time'
+import { timeToDateText, getTimeFromMillis, timeToDate } from '../../utils/time'
 
 interface PoolModalProps {
   modalTitle: string
@@ -618,24 +618,97 @@ export const PoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, 
           handleSelectChange={handleSelectChange}
           mb={20}
         />
-        {func == FunctionName.DEPOSIT_ETH && <UnderwritingForeword />}
+        {func == FunctionName.DEPOSIT_ETH && (
+          <>
+            <Text t4 bold info textAlignCenter width={270} style={{ margin: '7px auto' }}>
+              Note: Once you deposit into this pool, you cannot withdraw from it for at least{' '}
+              {timeToDateText(cooldownMin)}. This is to avoid economic exploit of underwriters not paying out claims.
+            </Text>
+            <Text textAlignCenter t4 warning width={270} style={{ margin: '7px auto' }}>
+              Disclaimer: The underwriting pool backs the risk of coverage policies, so in case one of the covered
+              protocols get exploited, the claims will be paid out from this source of funds.
+            </Text>
+            <AutoStakeOption />
+          </>
+        )}
         {!modalLoading ? (
           <Fragment>
             {func == FunctionName.DEPOSIT_CP ? (
               <CpApprovalButtonGroup />
             ) : func == FunctionName.WITHDRAW_ETH ? (
-              <PoolModalCooldown
-                isAppropriateAmount={isAppropriateAmount() ? false : true}
-                handleCallbackFunc={handleCallbackFunc}
-                modalLoading={modalLoading}
-                cd={{
-                  cooldownStarted,
-                  timeWaited,
-                  cooldownMin,
-                  cooldownMax,
-                  canWithdrawEth,
-                }}
-              />
+              <>
+                {canWithdrawEth && (
+                  <Box success glow mt={20} mb={20}>
+                    <Text t3 bold autoAlign>
+                      You can withdraw now!
+                    </Text>
+                  </Box>
+                )}
+                {cooldownStarted && timeWaited < cooldownMin && (
+                  <Box mt={20} mb={20}>
+                    <Text t3 bold autoAlign>
+                      Cooldown Elapsing...
+                    </Text>
+                  </Box>
+                )}
+                <Box info>
+                  <BoxItem>
+                    <BoxItemTitle t4 textAlignCenter light>
+                      Min Cooldown
+                    </BoxItemTitle>
+                    <Text t4 textAlignCenter light>
+                      {getTimeFromMillis(cooldownMin)}
+                    </Text>
+                  </BoxItem>
+                  {cooldownStarted && (
+                    <BoxItem>
+                      <BoxItemTitle t4 textAlignCenter light>
+                        Time waited
+                      </BoxItemTitle>
+                      <Text t4 textAlignCenter success={canWithdrawEth} light={!canWithdrawEth}>
+                        {timeToDate(timeWaited)}
+                      </Text>
+                    </BoxItem>
+                  )}
+                  <BoxItem>
+                    <BoxItemTitle t4 textAlignCenter light>
+                      Max Cooldown
+                    </BoxItemTitle>
+                    <Text t4 textAlignCenter light>
+                      {getTimeFromMillis(cooldownMax)}
+                    </Text>
+                  </BoxItem>
+                </Box>
+                {!canWithdrawEth && (
+                  <ButtonWrapper>
+                    <Button widthP={100} hidden={modalLoading} disabled={haveErrors} onClick={handleCallbackFunc} info>
+                      {!cooldownStarted
+                        ? 'Start cooldown'
+                        : timeWaited < cooldownMin
+                        ? 'Stop cooldown'
+                        : cooldownMax < timeWaited
+                        ? 'Restart cooldown'
+                        : 'Unknown error'}
+                    </Button>
+                  </ButtonWrapper>
+                )}
+                {canWithdrawEth && (
+                  <ButtonWrapper>
+                    <Button
+                      widthP={100}
+                      hidden={modalLoading}
+                      disabled={(isAppropriateAmount() ? false : true) || haveErrors}
+                      onClick={handleCallbackFunc}
+                      info
+                    >
+                      Withdraw
+                    </Button>
+                    <Button widthP={100} hidden={modalLoading} onClick={callStopCooldown} info>
+                      Stop Cooldown
+                    </Button>
+                  </ButtonWrapper>
+                )}
+              </>
             ) : (
               <ButtonWrapper>
                 <Button
