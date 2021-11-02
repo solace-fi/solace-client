@@ -360,7 +360,7 @@ export const UnderwritingPoolModal: React.FC<PoolModalProps> = ({ modalTitle, fu
                 Withdraw
               </Button>
               <Button widthP={100} hidden={modalLoading} onClick={callStopCooldown} info>
-                Stop Cooldown
+                Stop Thaw
               </Button>
             </ButtonWrapper>
           )}
