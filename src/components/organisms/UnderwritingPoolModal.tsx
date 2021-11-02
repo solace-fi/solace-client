@@ -258,7 +258,7 @@ export const UnderwritingPoolModal: React.FC<PoolModalProps> = ({ modalTitle, fu
 
   const CooldownForword: React.FC = () => (
     <Text t4 bold textAlignCenter width={270} style={{ margin: '7px auto' }}>
-      You cannot deposit or withdraw CP tokens via the Options Farming Pool during a thaw.
+      Note: You will not be able to deposit or withdraw CP tokens via the Options Farming Pool during a thaw.
     </Text>
   )
 
@@ -310,7 +310,7 @@ export const UnderwritingPoolModal: React.FC<PoolModalProps> = ({ modalTitle, fu
           <Box info>
             <BoxItem>
               <BoxItemTitle t4 textAlignCenter light>
-                Min Thaw Period
+                Minimum Thaw Period
               </BoxItemTitle>
               <Text t4 textAlignCenter light>
                 {getTimeFromMillis(cooldownMin)}
@@ -328,7 +328,7 @@ export const UnderwritingPoolModal: React.FC<PoolModalProps> = ({ modalTitle, fu
             )}
             <BoxItem>
               <BoxItemTitle t4 textAlignCenter light>
-                Max Thaw Period
+                Maximum Thaw Period
               </BoxItemTitle>
               <Text t4 textAlignCenter light>
                 {getTimeFromMillis(cooldownMax)}

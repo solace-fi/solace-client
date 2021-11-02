@@ -168,7 +168,7 @@ export const useCooldown = () => {
 export const useVault = () => {
   const { vault } = useContracts()
   const { account } = useWallet()
-  const [canTransfer, setCanTransfer] = useState<boolean>(false)
+  const [canTransfer, setCanTransfer] = useState<boolean>(true)
 
   const depositEth = async (
     parsedAmount: BigNumber,
