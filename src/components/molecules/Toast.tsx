@@ -28,7 +28,7 @@ import { TransactionCondition } from '../../constants/enums'
 
 /* import components */
 import { Loader } from '../atoms/Loader'
-import { HyperLink } from '../atoms/Link'
+import { StyledLink } from '../atoms/Link'
 import { Button } from '../atoms/Button'
 import { ToastWrapper, FlexedToastMessage } from '../atoms/Message'
 import { StyledCheckmark, StyledWarning, StyledInfo } from '../atoms/Icon'
@@ -36,6 +36,7 @@ import { Text } from '../atoms/Typography'
 
 /* import utils */
 import { getExplorerItemUrl } from '../../utils/explorer'
+import { handleClickExternalLink } from '../../utils/link'
 
 /* import resources */
 import quantstampPdf from '../../resources/pdf/Solace-Quantstamp-Report.pdf'
@@ -67,27 +68,27 @@ export const AuditToast: React.FC = () => {
       <FlexedToastMessage>
         <Text light>
           solace.fi has been audited by{' '}
-          <HyperLink
+          <StyledLink
+            target={'_blank'}
+            rel={'noopener noreferrer'}
             href={'https://hacken.io/audits/#solace'}
-            target="_blank"
-            rel="noopener noreferrer"
-            underline
-            style={{ color: 'rgb(250, 250, 250)' }}
+            style={{ color: 'rgb(250, 250, 250)', textDecoration: 'underline' }}
+            onClick={handleClickExternalLink}
           >
             {' '}
             Hacken
-          </HyperLink>{' '}
+          </StyledLink>{' '}
           and{' '}
-          <HyperLink
+          <StyledLink
             href={quantstampPdf}
             target="_blank"
             rel="noopener noreferrer"
-            underline
-            style={{ color: 'rgb(250, 250, 250)' }}
+            style={{ color: 'rgb(250, 250, 250)', textDecoration: 'underline' }}
+            onClick={handleClickExternalLink}
           >
             {' '}
             Quantstamp
-          </HyperLink>
+          </StyledLink>
           . However, it is still experimental software.
         </Text>
       </FlexedToastMessage>
@@ -130,13 +131,14 @@ export const NotificationToast: React.FC<NotificationToastProps> = ({ message, c
       </FlexedToastMessage>
       <FlexedToastMessage light>
         {txHash && (
-          <HyperLink
+          <StyledLink
             href={getExplorerItemUrl(activeNetwork.explorer.url, txHash, ExplorerscanApi.TX)}
             target="_blank"
             rel="noopener noreferrer"
+            onClick={handleClickExternalLink}
           >
             <Button light>Check on {activeNetwork.explorer.name}</Button>
-          </HyperLink>
+          </StyledLink>
         )}
         {condition == TransactionCondition.PENDING ? (
           <Loader width={10} height={10} isLight />

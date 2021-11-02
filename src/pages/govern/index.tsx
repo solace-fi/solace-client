@@ -4,6 +4,7 @@
 
     import packages
     import components
+    import utils
 
     Govern
 
@@ -14,8 +15,11 @@ import React from 'react'
 
 /* import components */
 import { HeroContainer } from '../../components/atoms/Layout'
-import { HyperLink } from '../../components/atoms/Link'
+import { StyledLink } from '../../components/atoms/Link'
 import { Text } from '../../components/atoms/Typography'
+
+/* import utils */
+import { handleClickExternalLink } from '../../utils/link'
 
 function Govern(): any {
   return (
@@ -28,7 +32,8 @@ function Govern(): any {
       </Text>
       <Text t2 textAlignCenter>
         See our Medium blog post{' '}
-        <HyperLink
+        <StyledLink
+          onClick={handleClickExternalLink}
           href={
             'https://medium.com/solace-fi/solace-forms-a-launch-dao-to-deliver-its-defi-coverage-products-5137199369c2'
           }
@@ -38,7 +43,7 @@ function Govern(): any {
           t2
         >
           here
-        </HyperLink>{' '}
+        </StyledLink>{' '}
         to learn more about our approach to governance.
       </Text>
     </HeroContainer>

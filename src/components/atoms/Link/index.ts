@@ -3,14 +3,11 @@ import styled, { css } from 'styled-components'
 import { GeneralElementCss, GeneralElementProps } from '../../generalInterfaces'
 import { GeneralTextProps, GeneralTextCss } from '../Typography'
 
-interface LinkProps extends GeneralElementProps, GeneralTextProps {
-  underline?: boolean
-}
+export interface LinkProps extends GeneralElementProps, GeneralTextProps {}
 
 const LinkCss = css<LinkProps>`
   text-decoration: none;
   transition: opacity 0.2s;
-  ${(props) => props.underline && 'text-decoration: underline;'}
   &:hover,
   &.is-active {
     opacity: 1;
@@ -19,7 +16,7 @@ const LinkCss = css<LinkProps>`
   ${GeneralTextCss}
 `
 
-export const HyperLink = styled.a<LinkProps>`
+export const StyledLink = styled.a<LinkProps>`
   ${LinkCss}
 `
 

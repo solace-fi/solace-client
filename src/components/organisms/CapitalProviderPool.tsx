@@ -30,7 +30,7 @@ import { Button, ButtonWrapper } from '../atoms/Button'
 import { Card } from '../atoms/Card'
 import { FormRow, FormCol } from '../atoms/Form'
 import { StyledTooltip } from '../molecules/Tooltip'
-import { HyperLink } from '../atoms/Link'
+import { StyledLink } from '../atoms/Link'
 
 /* import constants */
 import { CP_ROI, BKPT_4, BKPT_6 } from '../../constants'
@@ -43,6 +43,7 @@ import { useWindowDimensions } from '../../hooks/useWindowDimensions'
 
 /* import utils */
 import { truncateBalance } from '../../utils/formatting'
+import { handleClickExternalLink } from '../../utils/link'
 
 interface CapitalProviderPoolProps {
   openModal: (func: FunctionName, modalTitle: string, farmName: string) => void
@@ -77,16 +78,17 @@ export const CapitalProviderPool: React.FC<CapitalProviderPoolProps> = ({ openMo
       </Text>
       <Text t4 pt={10} pb={10}>
         This pool rewards coverage underwriters with $SOLACE token call options.
-        <HyperLink
+        <StyledLink
           t4
           href={'https://medium.com/solace-fi/solace-options-rewards-d4bd64902b4'}
           target="_blank"
           rel="noopener noreferrer"
+          onClick={handleClickExternalLink}
           info
         >
           {' '}
           More information here.
-        </HyperLink>
+        </StyledLink>
       </Text>
       {width > BKPT_6 ? (
         <Table isHighlight textAlignCenter>

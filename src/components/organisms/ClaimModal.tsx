@@ -39,7 +39,7 @@ import { Loader } from '../atoms/Loader'
 import { SmallBox, Box } from '../atoms/Box'
 import { Button, ButtonWrapper } from '../atoms/Button'
 import { Table, TableBody, TableRow, TableData } from '../atoms/Table'
-import { HyperLink } from '../atoms/Link'
+import { StyledLink } from '../atoms/Link'
 
 /* import constants */
 import { FunctionName, TransactionCondition } from '../../constants/enums'
@@ -57,6 +57,7 @@ import { useSptFarm } from '../../hooks/useSptFarm'
 import { truncateBalance } from '../../utils/formatting'
 import { timeToDateText } from '../../utils/time'
 import { getClaimAssessment } from '../../utils/api'
+import { handleClickExternalLink } from '../../utils/link'
 
 interface ClaimModalProps {
   closeModal: () => void
@@ -301,16 +302,17 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({
                   >
                     Submit Claim
                   </Button>
-                  <HyperLink
+                  <StyledLink
                     href={'https://docs.solace.fi'}
                     target="_blank"
                     rel="noopener noreferrer"
                     style={{ width: '100%' }}
+                    onClick={handleClickExternalLink}
                   >
                     <Button widthP={100} disabled={haveErrors || !assessment.lossEventDetected} info>
                       Dispute Claim
                     </Button>
-                  </HyperLink>
+                  </StyledLink>
                 </ButtonWrapper>
               )}
             </Fragment>

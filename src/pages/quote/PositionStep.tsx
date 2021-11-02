@@ -34,7 +34,7 @@ import { Loader } from '../../components/atoms/Loader'
 import { Scrollable, HeroContainer } from '../../components/atoms/Layout'
 import { Text, TextSpan } from '../../components/atoms/Typography'
 import { ManageModal } from '../../components/organisms/ManageModal'
-import { HyperLink } from '../../components/atoms/Link'
+import { StyledLink } from '../../components/atoms/Link'
 import { TokenPositionCard } from '../../components/organisms/TokenPositionCard'
 import { NftPositionCard } from '../../components/organisms/NftPositionCard'
 import { Box, BoxItem, BoxItemTitle } from '../../components/atoms/Box'
@@ -52,6 +52,7 @@ import { useDepositedPolicies } from '../../hooks/useBalance'
 
 /* import utils */
 import { userHasActiveProductPosition } from '../../utils/policy'
+import { handleClickExternalLink } from '../../utils/link'
 
 export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigation }) => {
   const { protocol, loading, positions } = formData
@@ -312,9 +313,15 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
             You do not own any positions on this protocol.
           </Text>
           {productLink && (
-            <HyperLink href={productLink} target="_blank" rel="noopener noreferrer" style={{ color: 'white' }}>
+            <StyledLink
+              onClick={handleClickExternalLink}
+              href={productLink}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ color: 'white' }}
+            >
               <Button secondary>Click here to start positions on {protocol.name}</Button>
-            </HyperLink>
+            </StyledLink>
           )}
         </HeroContainer>
       )}

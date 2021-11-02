@@ -33,7 +33,7 @@ import { useWallet } from '../../context/WalletManager'
 import { Modal } from '../molecules/Modal'
 import { Button, ButtonWrapper } from '../atoms/Button'
 import { Scrollable } from '../atoms/Layout'
-import { HyperLink } from '../atoms/Link'
+import { StyledLink } from '../atoms/Link'
 import { Loader } from '../atoms/Loader'
 import { Table, TableHead, TableHeader, TableRow, TableBody, TableData } from '../atoms/Table'
 import { Text } from '../atoms/Typography'
@@ -55,6 +55,7 @@ import { getExplorerItemUrl } from '../../utils/explorer'
 import { capitalizeFirstLetter, shortenAddress } from '../../utils/formatting'
 import { timeAgo } from '../../utils/time'
 import { decodeInput } from '../../utils/decoder'
+import { handleClickExternalLink } from '../../utils/link'
 
 interface AccountModalProps {
   closeModal: () => void
@@ -101,7 +102,8 @@ export const AccountModal: React.FC<AccountModalProps> = ({ closeModal, isOpen }
             </FormRow>
             <ButtonWrapper pt={15} pb={5} isColumn={width <= BKPT_3}>
               <CopyButton toCopy={account} />
-              <HyperLink
+              <StyledLink
+                onClick={handleClickExternalLink}
                 href={getExplorerItemUrl(activeNetwork.explorer.url, account, ExplorerscanApi.ADDRESS)}
                 target="_blank"
                 rel="noopener noreferrer"
@@ -110,7 +112,7 @@ export const AccountModal: React.FC<AccountModalProps> = ({ closeModal, isOpen }
                 <Button widthP={100} light style={{ whiteSpace: 'nowrap' }}>
                   View on {activeNetwork.explorer.name}
                 </Button>
-              </HyperLink>
+              </StyledLink>
             </ButtonWrapper>
           </Card>
         )}
@@ -181,13 +183,14 @@ export const AccountModal: React.FC<AccountModalProps> = ({ closeModal, isOpen }
                       pl={width <= BKPT_3 ? 0 : undefined}
                       pr={width <= BKPT_3 ? 0 : undefined}
                     >
-                      <HyperLink
+                      <StyledLink
+                        onClick={handleClickExternalLink}
                         href={getExplorerItemUrl(activeNetwork.explorer.url, pendingtx.hash, ExplorerscanApi.TX)}
                         target="_blank"
                         rel="noopener noreferrer"
                       >
                         <Button>{shortenAddress(pendingtx.hash)} </Button>
-                      </HyperLink>
+                      </StyledLink>
                     </TableData>
                   </TableRow>
                 ))}
@@ -230,13 +233,14 @@ export const AccountModal: React.FC<AccountModalProps> = ({ closeModal, isOpen }
                         pr={width <= BKPT_3 ? 0 : undefined}
                       >
                         {amounts.length > 0 && (
-                          <HyperLink
+                          <StyledLink
+                            onClick={handleClickExternalLink}
                             href={getExplorerItemUrl(activeNetwork.explorer.url, tx.hash, ExplorerscanApi.TX)}
                             target="_blank"
                             rel="noopener noreferrer"
                           >
                             <Button>{shortenAddress(tx.hash)} </Button>
-                          </HyperLink>
+                          </StyledLink>
                         )}
                       </TableData>
                     </TableRow>
