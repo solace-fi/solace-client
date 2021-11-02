@@ -3,7 +3,7 @@ import { useContracts } from '../context/ContractsManager'
 import { useState, useEffect, useRef } from 'react'
 import { useWallet } from '../context/WalletManager'
 import { floatUnits } from '../utils/formatting'
-import { GAS_LIMIT, ZERO } from '../constants'
+import { ZERO } from '../constants'
 import { useCachedData } from '../context/CachedDataManager'
 import { useScpBalance } from './useBalance'
 import { useNetwork } from '../context/NetworkManager'
@@ -167,6 +167,8 @@ export const useCooldown = () => {
 
 export const useVault = () => {
   const { vault } = useContracts()
+  const { account } = useWallet()
+  const [canTransfer, setCanTransfer] = useState<boolean>(false)
 
   const depositEth = async (
     parsedAmount: BigNumber,
@@ -225,7 +227,17 @@ export const useVault = () => {
     return { tx, localTx }
   }
 
+  useEffect(() => {
+    const canTransfer = async () => {
+      if (!vault || !account) return
+      const canTransfer = await vault.canTransfer(account)
+      setCanTransfer(canTransfer)
+    }
+    canTransfer()
+  }, [vault, account])
+
   return {
+    canTransfer,
     depositEth,
     withdrawEth,
   }

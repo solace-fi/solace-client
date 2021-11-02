@@ -32,8 +32,8 @@ import { Box, BoxItem, BoxItemTitle } from '../atoms/Box'
 import { Button, ButtonWrapper } from '../atoms/Button'
 import { Text } from '../atoms/Typography'
 import { Content } from '../atoms/Layout'
-import { StyledArrowDropDown } from '../../components/atoms/Icon'
-import { Accordion } from '../atoms/Accordion/Accordion'
+import { StyledArrowDropDown } from '../atoms/Icon'
+import { Accordion } from '../atoms/Accordion'
 
 /* import constants */
 import { Option, LocalTx } from '../../constants/types'

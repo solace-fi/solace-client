@@ -17,7 +17,7 @@
   *************************************************************************************/
 
 /* import packages */
-import React, { Fragment, useMemo } from 'react'
+import React, { useMemo } from 'react'
 import { formatUnits } from '@ethersproject/units'
 import { Block } from '@ethersproject/contracts/node_modules/@ethersproject/abstract-provider'
 import { BigNumber } from 'ethers'
@@ -29,7 +29,7 @@ import { useNotifications } from '../../context/NotificationsManager'
 
 /* import constants */
 import { LocalTx } from '../../constants/types'
-import { BKPT_5 } from '../../constants'
+import { BKPT_3, BKPT_5 } from '../../constants'
 import { FunctionName, PolicyState, TransactionCondition } from '../../constants/enums'
 
 /* import components */
@@ -43,9 +43,8 @@ import { DeFiAssetImage } from '../atoms/DeFiAsset'
 import { StyledDots } from '../atoms/Icon'
 import { Loader } from '../atoms/Loader'
 import { SmallBox } from '../atoms/Box'
-import { Accordion } from '../atoms/Accordion/Accordion'
-import { StyledTooltip } from '../../components/molecules/Tooltip'
-import { StyledArrowDropDown } from '../../components/atoms/Icon'
+import { Accordion } from '../atoms/Accordion'
+import { StyledArrowDropDown } from '../atoms/Icon'
 
 /* import hooks */
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'
@@ -162,12 +161,6 @@ export const MyPolicies: React.FC<MyPoliciesProps> = ({
     <Content>
       <Text bold t1 mb={0}>
         My Policies
-        {/* {' '}
-              <StyledTooltip
-                id={'user-policies'}
-                tip={'A policy indicates the coverage for your positions on a protocol.'}
-                link={`https://docs.solace.fi/docs/user-guides/buy-cover`}
-              /> */}
         <Button style={{ float: 'right' }} onClick={() => setOpen(!isOpen)}>
           <StyledArrowDropDown style={{ transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)' }} size={20} />
           {isOpen ? 'Hide Policies' : 'Show Policies'}
@@ -180,7 +173,10 @@ export const MyPolicies: React.FC<MyPoliciesProps> = ({
       {!userPolicyData.policiesLoading ? (
         <Accordion isOpen={isOpen} style={{ padding: '0 10px 0 10px' }}>
           {!(width > BKPT_5) && (
-            <ButtonWrapper isColumn style={{ position: 'sticky', top: '0', backgroundColor: 'inherit', zIndex: 1 }}>
+            <ButtonWrapper
+              isColumn={!(width > BKPT_3)}
+              style={{ position: 'sticky', top: '0', backgroundColor: 'inherit', zIndex: 1 }}
+            >
               <Button
                 widthP={100}
                 disabled={policyIdsToStake.length < 2}

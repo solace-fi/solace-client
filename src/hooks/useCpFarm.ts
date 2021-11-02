@@ -1,6 +1,5 @@
 import { BigNumber } from 'ethers'
 import { useContracts } from '../context/ContractsManager'
-import { GAS_LIMIT } from '../constants'
 import { FunctionName, TransactionCondition } from '../constants/enums'
 import { LocalTx } from '../constants/types'
 

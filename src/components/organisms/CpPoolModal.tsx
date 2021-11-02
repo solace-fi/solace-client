@@ -41,16 +41,18 @@ import { Button, ButtonWrapper } from '../atoms/Button'
 import { Loader } from '../atoms/Loader'
 import { GasRadioGroup } from '../molecules/GasRadioGroup'
 import { Erc20InputPanel, PoolModalProps, usePoolModal } from './PoolModalRouter'
+import { Text } from '../atoms/Typography'
 
 /* import hooks */
 import { useUserStakedValue } from '../../hooks/useFarm'
 import { useScpBalance } from '../../hooks/useBalance'
 import { useTokenAllowance } from '../../hooks/useTokenAllowance'
 import { useCpFarm } from '../../hooks/useCpFarm'
+import { useVault } from '../../hooks/useVault'
 
 /* import utils */
 import { hasApproval } from '../../utils'
-import { filteredAmount, getUnit, truncateBalance } from '../../utils/formatting'
+import { getUnit, truncateBalance } from '../../utils/formatting'
 
 export const CpPoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, closeModal }) => {
   /*************************************************************************************
@@ -84,6 +86,7 @@ export const CpPoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen
   } = usePoolModal()
 
   const { makeTxToast } = useNotifications()
+  const { canTransfer } = useVault()
   const cpFarmFunctions = useCpFarm()
 
   const [modalLoading, setModalLoading] = useState<boolean>(false)
@@ -224,6 +227,11 @@ export const CpPoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen
         handleSelectChange={handleSelectChange}
         mb={20}
       />
+      {!canTransfer && (
+        <Text t4 bold textAlignCenter width={270} style={{ margin: '7px auto' }}>
+          You cannot interact with this pool during a cooldown.
+        </Text>
+      )}
       {modalLoading ? (
         <Loader />
       ) : func == FunctionName.DEPOSIT_CP ? (
@@ -254,7 +262,8 @@ export const CpPoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen
                   tokenAllowance,
                   amount && amount != '.' ? parseUnits(amount, currencyDecimals).toString() : '0'
                 ) ||
-                haveErrors
+                haveErrors ||
+                !canTransfer
               }
               onClick={handleCallbackFunc}
               info
@@ -268,7 +277,9 @@ export const CpPoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen
           <Button
             widthP={100}
             hidden={modalLoading}
-            disabled={(isAppropriateAmount(amount, getAssetBalanceByFunc()) ? false : true) || haveErrors}
+            disabled={
+              (isAppropriateAmount(amount, getAssetBalanceByFunc()) ? false : true) || haveErrors || !canTransfer
+            }
             onClick={handleCallbackFunc}
             info
           >

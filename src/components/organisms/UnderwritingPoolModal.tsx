@@ -48,7 +48,7 @@ import { useCooldown, useVault } from '../../hooks/useVault'
 import { useCpFarm } from '../../hooks/useCpFarm'
 
 /* import utils */
-import { filteredAmount, getUnit, truncateBalance } from '../../utils/formatting'
+import { getUnit, truncateBalance } from '../../utils/formatting'
 import { timeToDateText, getTimeFromMillis, timeToDate } from '../../utils/time'
 
 export const UnderwritingPoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, closeModal }) => {
@@ -72,7 +72,7 @@ export const UnderwritingPoolModal: React.FC<PoolModalProps> = ({ modalTitle, fu
     startCooldown,
     stopCooldown,
   } = useCooldown()
-  const { depositEth, withdrawEth } = useVault()
+  const { canTransfer, depositEth, withdrawEth } = useVault()
   const cpFarmFunctions = useCpFarm()
   const {
     gasConfig,
@@ -245,8 +245,8 @@ export const UnderwritingPoolModal: React.FC<PoolModalProps> = ({ modalTitle, fu
   const UnderwritingForeword: React.FC = () => (
     <>
       <Text t4 bold textAlignCenter width={270} style={{ margin: '7px auto' }}>
-        Note: Once you deposit into this pool, you cannot withdraw from it for at least {timeToDateText(cooldownMin)}.
-        This is to avoid economic exploit of underwriters not paying out claims.
+        Once you deposit into this pool, you cannot withdraw from it for at least {timeToDateText(cooldownMin)}. This is
+        to avoid economic exploit of underwriters not paying out claims.
       </Text>
       <Text textAlignCenter t4 warning width={270} style={{ margin: '7px auto' }}>
         Disclaimer: The underwriting pool backs the risk of coverage policies, so in case one of the covered protocols
@@ -254,6 +254,12 @@ export const UnderwritingPoolModal: React.FC<PoolModalProps> = ({ modalTitle, fu
       </Text>
       <AutoStakeOption />
     </>
+  )
+
+  const CooldownForword: React.FC = () => (
+    <Text t4 bold textAlignCenter width={270} style={{ margin: '7px auto' }}>
+      During the elapse of a cooldown, you cannot deposit or withdraw CP tokens via the Options Farming Pool.
+    </Text>
   )
 
   return (
@@ -277,10 +283,16 @@ export const UnderwritingPoolModal: React.FC<PoolModalProps> = ({ modalTitle, fu
         mb={20}
       />
       {func == FunctionName.DEPOSIT_ETH && <UnderwritingForeword />}
+      {isStaking && !canTransfer && (
+        <Text t4 bold textAlignCenter width={270} style={{ margin: '7px auto' }} warning>
+          Staking during a cooldown period will reset the cooldown.
+        </Text>
+      )}
       {modalLoading ? (
         <Loader />
       ) : func == FunctionName.WITHDRAW_ETH ? (
         <>
+          <CooldownForword />
           {canWithdrawEth && (
             <Box success glow mt={20} mb={20}>
               <Text t3 bold autoAlign light>
