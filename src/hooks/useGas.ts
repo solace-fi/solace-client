@@ -76,7 +76,7 @@ export const useGetFunctionGas = () => {
           type: 2,
         }
 
-      // type 1 transaction
+      // legacy type 0 transaction
       return {
         gasPrice: getGasValue(gasValue),
       }
