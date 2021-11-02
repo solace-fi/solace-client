@@ -244,7 +244,7 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({
               </FormRow>
               <SmallBox style={{ justifyContent: 'center' }} transparent mt={10}>
                 <Text t4 bold warning textAlignCenter fade={isPolicyStaked}>
-                  Please wait for the cooldown period to elapse before withdrawing your payout.
+                  Please wait for the review period to elapse before withdrawing your payout.
                 </Text>
               </SmallBox>
               <Table isHighlight light fade={isPolicyStaked}>
@@ -252,7 +252,7 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({
                   <TableRow>
                     <TableData>
                       <Text t2 light>
-                        Current Cooldown Period
+                        Current Review Period
                       </Text>
                     </TableData>
                     <TableData textAlignRight>

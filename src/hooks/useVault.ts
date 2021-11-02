@@ -93,7 +93,7 @@ export const useCooldown = () => {
     const localTx: LocalTx = {
       hash: tx.hash,
       type: FunctionName.START_COOLDOWN,
-      value: 'Starting Withdrawal Cooldown',
+      value: 'Starting Thaw',
       status: TransactionCondition.PENDING,
     }
     return { tx, localTx }
@@ -114,7 +114,7 @@ export const useCooldown = () => {
     const localTx: LocalTx = {
       hash: tx.hash,
       type: FunctionName.STOP_COOLDOWN,
-      value: 'Stopping Withdrawal Cooldown',
+      value: 'Stopping Thaw',
       status: TransactionCondition.PENDING,
     }
     return { tx, localTx }

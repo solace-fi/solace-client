@@ -258,7 +258,7 @@ export const UnderwritingPoolModal: React.FC<PoolModalProps> = ({ modalTitle, fu
 
   const CooldownForword: React.FC = () => (
     <Text t4 bold textAlignCenter width={270} style={{ margin: '7px auto' }}>
-      During the elapse of a cooldown, you cannot deposit or withdraw CP tokens via the Options Farming Pool.
+      You cannot deposit or withdraw CP tokens via the Options Farming Pool during a thaw.
     </Text>
   )
 
@@ -285,7 +285,7 @@ export const UnderwritingPoolModal: React.FC<PoolModalProps> = ({ modalTitle, fu
       {func == FunctionName.DEPOSIT_ETH && <UnderwritingForeword />}
       {isStaking && !canTransfer && (
         <Text t4 bold textAlignCenter width={270} style={{ margin: '7px auto' }} warning>
-          Staking during a cooldown period will reset the cooldown.
+          Staking during a thaw will stop the thaw.
         </Text>
       )}
       {modalLoading ? (
@@ -301,16 +301,16 @@ export const UnderwritingPoolModal: React.FC<PoolModalProps> = ({ modalTitle, fu
             </Box>
           )}
           {cooldownStarted && timeWaited < cooldownMin && (
-            <Box color2 mt={20} mb={20}>
+            <Box color1 mt={20} mb={20}>
               <Text t3 bold autoAlign light>
-                Cooldown Elapsing...
+                Thaw Elapsing...
               </Text>
             </Box>
           )}
           <Box info>
             <BoxItem>
               <BoxItemTitle t4 textAlignCenter light>
-                Min Cooldown
+                Min Thaw Period
               </BoxItemTitle>
               <Text t4 textAlignCenter light>
                 {getTimeFromMillis(cooldownMin)}
@@ -328,7 +328,7 @@ export const UnderwritingPoolModal: React.FC<PoolModalProps> = ({ modalTitle, fu
             )}
             <BoxItem>
               <BoxItemTitle t4 textAlignCenter light>
-                Max Cooldown
+                Max Thaw Period
               </BoxItemTitle>
               <Text t4 textAlignCenter light>
                 {getTimeFromMillis(cooldownMax)}
@@ -339,11 +339,11 @@ export const UnderwritingPoolModal: React.FC<PoolModalProps> = ({ modalTitle, fu
             <ButtonWrapper>
               <Button widthP={100} hidden={modalLoading} disabled={haveErrors} onClick={handleCallbackFunc} info>
                 {!cooldownStarted
-                  ? 'Start cooldown'
+                  ? 'Start thaw'
                   : timeWaited < cooldownMin
-                  ? 'Stop cooldown'
+                  ? 'Stop thaw'
                   : cooldownMax < timeWaited
-                  ? 'Restart cooldown'
+                  ? 'Restart thaw'
                   : 'Unknown error'}
               </Button>
             </ButtonWrapper>

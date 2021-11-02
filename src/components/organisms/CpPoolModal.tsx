@@ -229,7 +229,7 @@ export const CpPoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen
       />
       {!canTransfer && (
         <Text t4 bold textAlignCenter width={270} style={{ margin: '7px auto' }}>
-          You cannot interact with this pool during a cooldown.
+          You cannot interact with this pool during a thaw.
         </Text>
       )}
       {modalLoading ? (
