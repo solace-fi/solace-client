@@ -19,7 +19,6 @@ import { StyledLink } from '../../components/atoms/Link'
 import { Text } from '../../components/atoms/Typography'
 
 /* import utils */
-import { handleClickExternalLink } from '../../utils/link'
 
 function Govern(): any {
   return (
@@ -33,7 +32,6 @@ function Govern(): any {
       <Text t2 textAlignCenter>
         See our Medium blog post{' '}
         <StyledLink
-          onClick={handleClickExternalLink}
           href={
             'https://medium.com/solace-fi/solace-forms-a-launch-dao-to-deliver-its-defi-coverage-products-5137199369c2'
           }

@@ -1,6 +1,3 @@
-import React from 'react'
-import ReactGA from 'react-ga'
-
 const EXPLORER_HOSTNAMES: { [hostname: string]: true } = {
   'etherscan.io': true,
   'ropsten.etherscan.io': true,
@@ -11,25 +8,6 @@ const EXPLORER_HOSTNAMES: { [hostname: string]: true } = {
   'kovan-optimistic.etherscan.io': true,
   'rinkeby-explorer.arbitrum.io': true,
   'arbiscan.io': true,
-}
-
-export function handleClickExternalLink(event: React.MouseEvent<HTMLAnchorElement>): void {
-  const { target, href } = event.currentTarget
-
-  const anonymizedHref = anonymizeLink(href)
-
-  // don't prevent default, don't redirect if it's a new tab
-  if (target === '_blank' || event.ctrlKey || event.metaKey) {
-    ReactGA.outboundLink({ label: anonymizedHref }, () => {
-      console.debug('Fired outbound link event', anonymizedHref)
-    })
-  } else {
-    event.preventDefault()
-    // send a ReactGA event and then trigger a location change
-    ReactGA.outboundLink({ label: anonymizedHref }, () => {
-      window.location.href = anonymizedHref
-    })
-  }
 }
 
 /**

@@ -57,7 +57,6 @@ import { useSptFarm } from '../../hooks/useSptFarm'
 import { truncateBalance } from '../../utils/formatting'
 import { timeToDateText } from '../../utils/time'
 import { getClaimAssessment } from '../../utils/api'
-import { handleClickExternalLink } from '../../utils/link'
 
 interface ClaimModalProps {
   closeModal: () => void
@@ -307,7 +306,6 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({
                     target="_blank"
                     rel="noopener noreferrer"
                     style={{ width: '100%' }}
-                    onClick={handleClickExternalLink}
                   >
                     <Button widthP={100} disabled={haveErrors || !assessment.lossEventDetected} info>
                       Dispute Claim

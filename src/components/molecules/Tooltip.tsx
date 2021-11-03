@@ -38,7 +38,6 @@ import { Text } from '../atoms/Typography'
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'
 
 /* import utils */
-import { handleClickExternalLink } from '../../utils/link'
 
 type StyledTooltipProps = {
   id: string
@@ -119,7 +118,6 @@ export const StyledTooltip: React.FC<StyledTooltipProps> = ({ id, tip, link }) =
                 target="_blank"
                 rel="noopener noreferrer"
                 style={{ textDecoration: 'none', color: '#fff' }}
-                onClick={handleClickExternalLink}
               >
                 <Text t4 light>
                   {tip}

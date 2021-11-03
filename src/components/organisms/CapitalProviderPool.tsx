@@ -43,7 +43,6 @@ import { useWindowDimensions } from '../../hooks/useWindowDimensions'
 
 /* import utils */
 import { truncateBalance } from '../../utils/formatting'
-import { handleClickExternalLink } from '../../utils/link'
 
 interface CapitalProviderPoolProps {
   openModal: (func: FunctionName, modalTitle: string, farmName: string) => void
@@ -83,7 +82,6 @@ export const CapitalProviderPool: React.FC<CapitalProviderPoolProps> = ({ openMo
           href={'https://medium.com/solace-fi/solace-options-rewards-d4bd64902b4'}
           target="_blank"
           rel="noopener noreferrer"
-          onClick={handleClickExternalLink}
           info
         >
           {' '}

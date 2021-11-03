@@ -52,7 +52,6 @@ import { useDepositedPolicies } from '../../hooks/useBalance'
 
 /* import utils */
 import { userHasActiveProductPosition } from '../../utils/policy'
-import { handleClickExternalLink } from '../../utils/link'
 
 export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigation }) => {
   const { protocol, loading, positions } = formData
@@ -313,13 +312,7 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
             You do not own any positions on this protocol.
           </Text>
           {productLink && (
-            <StyledLink
-              onClick={handleClickExternalLink}
-              href={productLink}
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{ color: 'white' }}
-            >
+            <StyledLink href={productLink} target="_blank" rel="noopener noreferrer" style={{ color: 'white' }}>
               <Button secondary>Click here to start positions on {protocol.name}</Button>
             </StyledLink>
           )}

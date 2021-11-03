@@ -62,7 +62,6 @@ import { AuditToast } from '../molecules/Toast'
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'
 
 /* import utils */
-import { handleClickExternalLink } from '../../utils/link'
 
 /* import resources */
 import AlchemyBadgeLight from '../../resources/svg/alchemy-badge-light.svg'
@@ -160,7 +159,6 @@ export const SideNavbar: React.FC = () => {
           <StyledNavTooltip id={'docs-nav'} tip={'Docs'}>
             <ItemText>
               <StyledLink
-                onClick={handleClickExternalLink}
                 href={'https://docs.solace.fi/'}
                 target="_blank"
                 rel="noopener noreferrer"
@@ -177,7 +175,6 @@ export const SideNavbar: React.FC = () => {
           <StyledNavTooltip id={'whitepaper-nav'} tip={'Whitepaper'}>
             <ItemText>
               <StyledLink
-                onClick={handleClickExternalLink}
                 href={'https://whitepaper.solace.fi/'}
                 target="_blank"
                 rel="noopener noreferrer"
@@ -194,7 +191,6 @@ export const SideNavbar: React.FC = () => {
           <StyledNavTooltip id={'jobs-nav'} tip={`We\'re hiring!`}>
             <ItemText>
               <StyledLink
-                onClick={handleClickExternalLink}
                 href={'https://www.notion.so/Solace-16cc777c403a46c8a2ffaba68008fcd9'}
                 target="_blank"
                 rel="noopener noreferrer"
@@ -221,7 +217,6 @@ export const SideNavbar: React.FC = () => {
           {width > BKPT_3 ? (
             <ItemText style={{ padding: '4px 0', justifyContent: 'space-between' }}>
               <StyledLink
-                onClick={handleClickExternalLink}
                 href={'https://discord.gg/7v8qsyepfu'}
                 target="_blank"
                 rel="noopener noreferrer"
@@ -232,7 +227,6 @@ export const SideNavbar: React.FC = () => {
                 </SidebarText>
               </StyledLink>
               <StyledLink
-                onClick={handleClickExternalLink}
                 href={'https://twitter.com/solacefi'}
                 target="_blank"
                 rel="noopener noreferrer"
@@ -243,7 +237,6 @@ export const SideNavbar: React.FC = () => {
                 </SidebarText>
               </StyledLink>
               <StyledLink
-                onClick={handleClickExternalLink}
                 href={'https://github.com/solace-fi'}
                 target="_blank"
                 rel="noopener noreferrer"
@@ -254,7 +247,6 @@ export const SideNavbar: React.FC = () => {
                 </SidebarText>
               </StyledLink>
               <StyledLink
-                onClick={handleClickExternalLink}
                 href={'https://medium.com/solace-fi'}
                 target="_blank"
                 rel="noopener noreferrer"
@@ -270,7 +262,6 @@ export const SideNavbar: React.FC = () => {
               <StyledNavTooltip id={'discord-nav'} tip={'Discord'}>
                 <ItemText>
                   <StyledLink
-                    onClick={handleClickExternalLink}
                     href={'https://discord.gg/7v8qsyepfu'}
                     target="_blank"
                     rel="noopener noreferrer"
@@ -285,7 +276,6 @@ export const SideNavbar: React.FC = () => {
               <StyledNavTooltip id={'twitter-nav'} tip={'Twitter'}>
                 <ItemText>
                   <StyledLink
-                    onClick={handleClickExternalLink}
                     href={'https://twitter.com/solacefi'}
                     target="_blank"
                     rel="noopener noreferrer"
@@ -300,7 +290,6 @@ export const SideNavbar: React.FC = () => {
               <StyledNavTooltip id={'github-nav'} tip={'GitHub'}>
                 <ItemText>
                   <StyledLink
-                    onClick={handleClickExternalLink}
                     href={'https://github.com/solace-fi'}
                     target="_blank"
                     rel="noopener noreferrer"
@@ -315,7 +304,6 @@ export const SideNavbar: React.FC = () => {
               <StyledNavTooltip id={'medium-nav'} tip={'Medium'}>
                 <ItemText>
                   <StyledLink
-                    onClick={handleClickExternalLink}
                     href={'https://medium.com/solace-fi'}
                     target="_blank"
                     rel="noopener noreferrer"
@@ -424,24 +412,14 @@ export const TopNavbar: React.FC = () => {
       <UserAccount light={location.pathname == '/'} />
       <ItemList>
         <ItemText style={{ padding: '10px', justifyContent: 'center' }}>
-          <StyledLink
-            onClick={handleClickExternalLink}
-            href={'https://docs.solace.fi/'}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
+          <StyledLink href={'https://docs.solace.fi/'} target="_blank" rel="noopener noreferrer">
             <TextSpan t4 light>
               Docs
             </TextSpan>
           </StyledLink>
         </ItemText>
         <ItemText style={{ padding: '10px', justifyContent: 'center' }}>
-          <StyledLink
-            onClick={handleClickExternalLink}
-            href={'https://whitepaper.solace.fi/'}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
+          <StyledLink href={'https://whitepaper.solace.fi/'} target="_blank" rel="noopener noreferrer">
             <TextSpan t4 light>
               Whitepaper
             </TextSpan>
@@ -449,7 +427,6 @@ export const TopNavbar: React.FC = () => {
         </ItemText>
         <ItemText style={{ padding: '10px', justifyContent: 'center' }}>
           <StyledLink
-            onClick={handleClickExternalLink}
             href={'https://www.notion.so/Solace-16cc777c403a46c8a2ffaba68008fcd9'}
             target="_blank"
             rel="noopener noreferrer"
@@ -469,7 +446,6 @@ export const TopNavbar: React.FC = () => {
       </ItemList>
       <ItemText style={{ padding: '0', justifyContent: 'center', gap: '60px' }}>
         <StyledLink
-          onClick={handleClickExternalLink}
           href={'https://discord.gg/7v8qsyepfu'}
           target="_blank"
           rel="noopener noreferrer"
@@ -480,7 +456,6 @@ export const TopNavbar: React.FC = () => {
           </SidebarText>
         </StyledLink>
         <StyledLink
-          onClick={handleClickExternalLink}
           href={'https://twitter.com/solacefi'}
           target="_blank"
           rel="noopener noreferrer"
@@ -491,7 +466,6 @@ export const TopNavbar: React.FC = () => {
           </SidebarText>
         </StyledLink>
         <StyledLink
-          onClick={handleClickExternalLink}
           href={'https://github.com/solace-fi'}
           target="_blank"
           rel="noopener noreferrer"
@@ -502,7 +476,6 @@ export const TopNavbar: React.FC = () => {
           </SidebarText>
         </StyledLink>
         <StyledLink
-          onClick={handleClickExternalLink}
           href={'https://medium.com/solace-fi'}
           target="_blank"
           rel="noopener noreferrer"

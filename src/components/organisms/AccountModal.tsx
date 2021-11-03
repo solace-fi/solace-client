@@ -55,7 +55,6 @@ import { getExplorerItemUrl } from '../../utils/explorer'
 import { capitalizeFirstLetter, shortenAddress } from '../../utils/formatting'
 import { timeAgo } from '../../utils/time'
 import { decodeInput } from '../../utils/decoder'
-import { handleClickExternalLink } from '../../utils/link'
 
 interface AccountModalProps {
   closeModal: () => void
@@ -103,7 +102,6 @@ export const AccountModal: React.FC<AccountModalProps> = ({ closeModal, isOpen }
             <ButtonWrapper pt={15} pb={5} isColumn={width <= BKPT_3}>
               <CopyButton toCopy={account} />
               <StyledLink
-                onClick={handleClickExternalLink}
                 href={getExplorerItemUrl(activeNetwork.explorer.url, account, ExplorerscanApi.ADDRESS)}
                 target="_blank"
                 rel="noopener noreferrer"
@@ -184,7 +182,6 @@ export const AccountModal: React.FC<AccountModalProps> = ({ closeModal, isOpen }
                       pr={width <= BKPT_3 ? 0 : undefined}
                     >
                       <StyledLink
-                        onClick={handleClickExternalLink}
                         href={getExplorerItemUrl(activeNetwork.explorer.url, pendingtx.hash, ExplorerscanApi.TX)}
                         target="_blank"
                         rel="noopener noreferrer"
@@ -234,7 +231,6 @@ export const AccountModal: React.FC<AccountModalProps> = ({ closeModal, isOpen }
                       >
                         {amounts.length > 0 && (
                           <StyledLink
-                            onClick={handleClickExternalLink}
                             href={getExplorerItemUrl(activeNetwork.explorer.url, tx.hash, ExplorerscanApi.TX)}
                             target="_blank"
                             rel="noopener noreferrer"

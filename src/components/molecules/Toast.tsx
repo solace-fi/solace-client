@@ -36,7 +36,6 @@ import { Text } from '../atoms/Typography'
 
 /* import utils */
 import { getExplorerItemUrl } from '../../utils/explorer'
-import { handleClickExternalLink } from '../../utils/link'
 
 /* import resources */
 import quantstampPdf from '../../resources/pdf/Solace-Quantstamp-Report.pdf'
@@ -73,7 +72,6 @@ export const AuditToast: React.FC = () => {
             rel={'noopener noreferrer'}
             href={'https://hacken.io/audits/#solace'}
             style={{ color: 'rgb(250, 250, 250)', textDecoration: 'underline' }}
-            onClick={handleClickExternalLink}
           >
             {' '}
             Hacken
@@ -84,7 +82,6 @@ export const AuditToast: React.FC = () => {
             target="_blank"
             rel="noopener noreferrer"
             style={{ color: 'rgb(250, 250, 250)', textDecoration: 'underline' }}
-            onClick={handleClickExternalLink}
           >
             {' '}
             Quantstamp
@@ -135,7 +132,6 @@ export const NotificationToast: React.FC<NotificationToastProps> = ({ message, c
             href={getExplorerItemUrl(activeNetwork.explorer.url, txHash, ExplorerscanApi.TX)}
             target="_blank"
             rel="noopener noreferrer"
-            onClick={handleClickExternalLink}
           >
             <Button light>Check on {activeNetwork.explorer.name}</Button>
           </StyledLink>
