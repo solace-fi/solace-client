@@ -1,22 +1,23 @@
-import ReactGA from 'react-ga'
-import { isMobile } from '../utils/userAgent'
+import { useEffect } from 'react'
+import { useLocation } from 'react-router-dom'
 
-const GOOGLE_ANALYTICS_ID: string | undefined = process.env.REACT_APP_GOOGLE_ANALYTICS_ID
-if (typeof GOOGLE_ANALYTICS_ID === 'string') {
-  ReactGA.initialize(GOOGLE_ANALYTICS_ID, {
-    gaOptions: {
-      storage: 'none',
-      storeGac: false,
-    },
+export const GoogleAnalyticsReporter = (): null => {
+  const location = useLocation()
+
+  useEffect(() => {
+    if (typeof window == 'undefined') return
+    window.gtag('config', String(process.env.REACT_APP_GOOGLE_ANALYTICS_ID), {
+      page_title: location.pathname,
+      page_path: location.pathname,
+    })
+  }, [location])
+  return null
+}
+
+export const gtagEvent = (ACTION: string, category: string, label: string, value: string): void => {
+  window.gtag('event', ACTION, {
+    event_category: category,
+    event_label: label,
+    value: value,
   })
-  ReactGA.set({
-    anonymizeIp: true,
-    customBrowserType: !isMobile
-      ? 'desktop'
-      : 'web3' in window || 'ethereum' in window
-      ? 'mobileWeb3'
-      : 'mobileRegular',
-  })
-} else {
-  ReactGA.initialize('test', { testMode: true, debug: true })
 }

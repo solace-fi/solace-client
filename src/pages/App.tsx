@@ -39,7 +39,7 @@ import { BKPT_5 } from '../constants'
 /* import hooks */
 import { useWindowDimensions } from '../hooks/useWindowDimensions'
 
-import GoogleAnalyticsReporter from '../analytics/GoogleAnalyticsReporter'
+import { GoogleAnalyticsReporter } from '../analytics'
 
 export default function App(): any {
   const location = useLocation()
@@ -47,7 +47,7 @@ export default function App(): any {
 
   return (
     <Fragment>
-      <Route component={GoogleAnalyticsReporter} />
+      <GoogleAnalyticsReporter />
       <GlobalStyle location={location} />
       <TopNavbar />
       <Layout>
