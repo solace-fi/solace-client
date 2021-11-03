@@ -28,7 +28,7 @@ export const ModalContainer = styled.div<ModalProps>`
   width: 100vw;
   height: 100vh;
   background: ${({ theme }) => theme.modal.bg_color};
-  z-index: ${(props) => (props.zIndex ? props.zIndex : '2')};
+  z-index: ${(props) => (props.zIndex ? props.zIndex : '3')};
   ${(props) => (props.isOpen ? 'display: flex;' : 'display: none;')}
   overflow-y: auto;
 `

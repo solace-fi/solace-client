@@ -353,7 +353,7 @@ export const UnderwritingPoolModal: React.FC<PoolModalProps> = ({ modalTitle, fu
               <Button
                 widthP={100}
                 hidden={modalLoading}
-                disabled={isAppropriateAmount(amount, getAssetBalanceByFunc()) || haveErrors}
+                disabled={(isAppropriateAmount(amount, getAssetBalanceByFunc()) ? false : true) || haveErrors}
                 onClick={handleCallbackFunc}
                 info
               >

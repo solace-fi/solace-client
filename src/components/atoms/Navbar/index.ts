@@ -18,7 +18,7 @@ export const TopNav = styled.div<TopNavProps>`
   @media screen and (max-width: ${BKPT_NAVBAR}px) {
     display: block;
     width: 100%;
-    z-index: 1;
+    z-index: 2;
   }
 
   @media screen and (max-width: ${BKPT_3}px) {

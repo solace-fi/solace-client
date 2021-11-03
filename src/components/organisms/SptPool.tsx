@@ -35,6 +35,7 @@ import { Table, TableHead, TableRow, TableHeader, TableBody, TableData, TableDat
 import { Button, ButtonWrapper } from '../atoms/Button'
 import { FormRow, FormCol } from '../atoms/Form'
 import { Card } from '../atoms/Card'
+import { HyperLink } from '../atoms/Link'
 import { StyledTooltip } from '../molecules/Tooltip'
 
 /* import hooks */
@@ -74,6 +75,16 @@ export const SptPool: React.FC<SptPoolProps> = ({ openModal }) => {
       </Text>
       <Text t4 pt={10} pb={10}>
         Stake your policies here and earn even more rewards.
+        <HyperLink
+          t4
+          href={'https://medium.com/solace-fi/dear-policyholder-these-rewards-are-for-you-153ff190058'}
+          target="_blank"
+          rel="noopener noreferrer"
+          info
+        >
+          {' '}
+          More information here.
+        </HyperLink>
       </Text>
       {width > BKPT_6 ? (
         <Table isHighlight textAlignCenter>

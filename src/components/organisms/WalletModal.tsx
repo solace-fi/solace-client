@@ -78,7 +78,7 @@ export const WalletModal: React.FC<WalletModalProps> = ({ closeModal, isOpen }) 
 
   return (
     <Modal
-      zIndex={3}
+      zIndex={4}
       handleClose={handleClose}
       isOpen={isOpen}
       modalTitle={'Connect a wallet'}

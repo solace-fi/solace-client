@@ -112,7 +112,7 @@ const ProviderManager: React.FC = ({ children }) => {
   return (
     <ProviderContext.Provider value={value}>
       <Modal
-        zIndex={3}
+        zIndex={4}
         handleClose={closeModal}
         isOpen={networkModal}
         modalTitle={'Connect a network'}

@@ -124,7 +124,7 @@ export const Erc20InputPanel: React.FC<Erc20InputPanelProps> = ({
         <div style={{ position: 'absolute', top: '70%' }}>Available: {availableBalance}</div>
       </ModalCell>
       <ModalCell t3>
-        <Button disabled={haveErrors} onClick={() => setMax()} info>
+        <Button disabled={haveErrors} onClick={setMax} info>
           MAX
         </Button>
       </ModalCell>
