@@ -90,7 +90,7 @@ export const UnderwritingPool: React.FC<UnderwritingPoolProps> = ({ openModal })
               <TableData t3 width={100}>
                 N/A
               </TableData>
-              {account ? <TableData t3 width={130}>{`${truncateBalance(userVaultShare, 2)} %`}</TableData> : null}
+              {account ? <TableData t3 width={130}>{`${truncateBalance(userVaultShare, 2)}%`}</TableData> : null}
               {account ? (
                 <TableData textAlignRight>
                   <TableDataGroup width={200} style={{ float: 'right' }}>

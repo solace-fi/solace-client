@@ -36,7 +36,7 @@ export const useNativeTokenBalance = (): string => {
 }
 
 export const useScpBalance = (): string => {
-  const { vault, cpFarm } = useContracts()
+  const { vault } = useContracts()
   const { activeNetwork } = useNetwork()
   const { account } = useWallet()
   const [scpBalance, setScpBalance] = useState<string>('0')
@@ -54,7 +54,7 @@ export const useScpBalance = (): string => {
   }
 
   useEffect(() => {
-    if (!vault || !cpFarm || !account) return
+    if (!vault || !account) return
     getScpBalance()
     vault.on('Transfer', (from, to) => {
       if (from == account || to == account) {
@@ -62,29 +62,10 @@ export const useScpBalance = (): string => {
       }
     })
 
-    cpFarm.on('EthDeposited', (from, to) => {
-      if (from == account || to == account) {
-        getScpBalance()
-      }
-    })
-
-    cpFarm.on('CpDeposited', (from, to) => {
-      if (from == account || to == account) {
-        getScpBalance()
-      }
-    })
-
-    cpFarm.on('CpWithdrawn', (from, to) => {
-      if (from == account || to == account) {
-        getScpBalance()
-      }
-    })
-
     return () => {
       vault.removeAllListeners()
-      cpFarm.removeAllListeners()
     }
-  }, [account, vault, cpFarm, version])
+  }, [account, vault, version])
 
   return scpBalance
 }

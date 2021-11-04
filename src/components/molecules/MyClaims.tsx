@@ -48,7 +48,7 @@ import { useGetFunctionGas } from '../../hooks/useGas'
 
 /* import utils */
 import { accurateMultiply, truncateBalance } from '../../utils/formatting'
-import { timeToDate } from '../../utils/time'
+import { getTimeFromMillis } from '../../utils/time'
 
 export const MyClaims: React.FC = () => {
   /*************************************************************************************
@@ -118,6 +118,7 @@ export const MyClaims: React.FC = () => {
         {claimsDetails.length > 0 ? (
           <CardContainer cardsPerRow={2} p={10}>
             {claimsDetails.map((claim: ClaimDetails) => {
+              const formattedBalance = formatUnits(claim.amount, currencyDecimals)
               return (
                 <Card key={claim.id}>
                   <Box pt={20} pb={20} glow={claim.canWithdraw} success={claim.canWithdraw}>
@@ -135,14 +136,8 @@ export const MyClaims: React.FC = () => {
                       </BoxItemTitle>
                       <Text t3 light>
                         {BigNumber.from(claim.amount).gte(accurateMultiply(1, currencyDecimals))
-                          ? truncateBalance(
-                              formatUnits(claim.amount, currencyDecimals),
-                              width > BKPT_3 ? currencyDecimals : 2
-                            )
-                          : truncateBalance(
-                              formatUnits(claim.amount, currencyDecimals),
-                              width > BKPT_3 ? currencyDecimals : 6
-                            )}{' '}
+                          ? truncateBalance(formattedBalance, width > BKPT_3 ? currencyDecimals : 2)
+                          : truncateBalance(formattedBalance, width > BKPT_3 ? currencyDecimals : 6)}{' '}
                         {activeNetwork.nativeCurrency.symbol}
                       </Text>
                     </BoxItem>
@@ -153,7 +148,7 @@ export const MyClaims: React.FC = () => {
                       <Text t3 light>
                         {claim.canWithdraw
                           ? 'Available'
-                          : `${claim.cooldown == '0' ? '-' : timeToDate(parseInt(claim.cooldown) * 1000)} left`}
+                          : `${claim.cooldown == '0' ? '-' : getTimeFromMillis(parseInt(claim.cooldown) * 1000)} left`}
                       </Text>
                     </BoxItem>
                   </Box>

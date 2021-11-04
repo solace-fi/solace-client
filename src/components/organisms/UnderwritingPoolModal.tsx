@@ -53,7 +53,7 @@ import { useWindowDimensions } from '../../hooks/useWindowDimensions'
 
 /* import utils */
 import { getUnit, truncateBalance } from '../../utils/formatting'
-import { getLongtimeFromMillis, getTimeFromMillis, timeToDate } from '../../utils/time'
+import { getLongtimeFromMillis, getTimeFromMillis } from '../../utils/time'
 
 export const UnderwritingPoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, closeModal }) => {
   /*************************************************************************************
@@ -147,7 +147,6 @@ export const UnderwritingPoolModal: React.FC<PoolModalProps> = ({ modalTitle, fu
 
   const callWithdrawEth = async () => {
     setModalLoading(true)
-    if (!canWithdrawEth) return
     await withdrawEth(
       parseUnits(amount, currencyDecimals),
       `${truncateBalance(amount)} ${getUnit(func, activeNetwork)}`,
@@ -333,7 +332,7 @@ export const UnderwritingPoolModal: React.FC<PoolModalProps> = ({ modalTitle, fu
                   Time waited
                 </BoxItemTitle>
                 <Text t4 textAlignCenter success={canWithdrawEth} light={!canWithdrawEth}>
-                  {timeToDate(timeWaited)}
+                  {getTimeFromMillis(timeWaited)}
                 </Text>
               </BoxItem>
             )}

@@ -37,49 +37,20 @@ export function timeAgo(someDateInThePast: number): string {
   return result + ' ago'
 }
 
-export function timeToDate(millis: number): string {
-  const date = new Date(millis)
-  let str = ''
-  const days = date.getUTCDate() - 1
-  const hours = date.getUTCHours()
-  const minutes = date.getUTCMinutes()
-
-  if (days > 0) {
-    str += days + 'd'
-  }
-
-  if (hours > 0) {
-    if (days > 0) {
-      str += ' '
-    }
-    str += hours + 'hr'
-  }
-
-  if (hours > 0) {
-    str += ' '
-  }
-  str += minutes + 'm'
-
-  return str
-}
-
-const getTimesFromSeconds = (seconds: number) => {
-  const days = parseInt((seconds / 86400).toString()) // 86400 seconds in 1 day
+const getTimesFromSeconds = (millis: number) => {
+  let seconds = parseInt((millis / 1000).toString())
+  const days = parseInt((seconds / 86400).toString())
   seconds = seconds % 86400
-  // 3- Extract hours:
-  const hours = parseInt((seconds / 3600).toString()) // 3,600 seconds in 1 hour
-  seconds = seconds % 3600 // seconds remaining after extracting hours
-  // 4- Extract minutes:
-  const minutes = parseInt((seconds / 60).toString()) // 60 seconds in 1 minute
-  // 5- Keep only seconds not extracted to minutes:
+  const hours = parseInt((seconds / 3600).toString())
+  seconds = seconds % 3600
+  const minutes = parseInt((seconds / 60).toString())
   seconds = seconds % 60
 
   return { days, hours, minutes, seconds }
 }
 
 export function getLongtimeFromMillis(millis: number): string {
-  const _seconds = parseInt((millis / 1000).toString())
-  const { days, hours, minutes } = getTimesFromSeconds(_seconds)
+  const { days, hours, minutes } = getTimesFromSeconds(millis)
 
   return `${days > 0 ? `${days} day${days > 1 ? 's' : ''}` : ''}${hours > 0 ? ' ' : ''}${
     hours > 0 ? `${hours} hour${hours > 1 ? 's' : ''}` : ''
@@ -87,10 +58,11 @@ export function getLongtimeFromMillis(millis: number): string {
 }
 
 export const getTimeFromMillis = (millis: number): string => {
-  const _seconds = parseInt((millis / 1000).toString())
-  const { days, hours, minutes } = getTimesFromSeconds(_seconds)
+  const { days, hours, minutes } = getTimesFromSeconds(millis)
 
-  return `${days}d${hours > 0 ? ` ${hours}h` : ''}${minutes > 0 ? ` ${minutes}m` : ''}`
+  return `${days > 0 ? `${days}d` : ''}${hours > 0 ? ' ' : ''}${hours > 0 ? `${hours}h` : ''}${minutes > 0 ? ' ' : ''}${
+    minutes > 0 ? `${minutes}m` : ''
+  }`
 }
 
 export const getDaysLeft = (expirationBlock: number, latestBlockNumber: number): number => {
