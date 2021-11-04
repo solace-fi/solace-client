@@ -39,7 +39,7 @@ export const Modal: React.FC<ModalProps> = ({ children, ...props }) => {
           <Text t2 bold>
             {props.modalTitle}
           </Text>
-          <ModalCloseButton hidden={props.disableCloseButton} onClick={() => props.handleClose()} />
+          <ModalCloseButton hidden={props.disableCloseButton} onClick={props.handleClose} />
         </ModalHeader>
         <HorizRule style={{ marginBottom: '20px' }} />
         <Fragment>{children}</Fragment>

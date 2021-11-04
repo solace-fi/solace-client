@@ -317,7 +317,7 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
                   pr={2}
                   width={120}
                   height={30}
-                  onClick={() => setPositionCover()}
+                  onClick={setPositionCover}
                   info
                 >
                   Cover to position
@@ -332,7 +332,7 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
                 pr={8}
                 width={70}
                 height={30}
-                onClick={() => setMaxCover()}
+                onClick={setMaxCover}
                 info
               >
                 MAX
@@ -413,7 +413,7 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
         </FormRow>
         <ButtonWrapper>
           {!loading ? (
-            <Button widthP={100} onClick={() => buyPolicy()} disabled={haveErrors || coveredAssets == '0.0'} info>
+            <Button widthP={100} onClick={buyPolicy} disabled={haveErrors || coveredAssets == '0.0'} info>
               Buy
             </Button>
           ) : (

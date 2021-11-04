@@ -115,7 +115,7 @@ export const WalletModal: React.FC<WalletModalProps> = ({ closeModal, isOpen }) 
       </Scrollable>
       {activeWalletConnector && (
         <ButtonWrapper>
-          <Button widthP={100} onClick={() => disconnect()}>
+          <Button widthP={100} onClick={disconnect}>
             Disconnect Wallet
           </Button>
         </ButtonWrapper>

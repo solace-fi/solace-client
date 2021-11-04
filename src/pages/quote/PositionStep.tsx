@@ -322,7 +322,7 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
         <Fragment>
           {selectablePositions.length > 0 && (
             <ButtonWrapper pt={0} isColumn={width <= BKPT_3}>
-              <Button widthP={100} secondary onClick={() => toggleSelectAll()}>
+              <Button widthP={100} secondary onClick={toggleSelectAll}>
                 {selectedPositions.length == selectablePositions.length
                   ? `Deselect All (${selectablePositions.length} available)`
                   : `Select All (${selectablePositions.length} available)`}

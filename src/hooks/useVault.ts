@@ -75,7 +75,7 @@ export const useCooldown = () => {
   const [cooldownMin, setCooldownMin] = useState<number>(0)
   const [cooldownMax, setCooldownMax] = useState<number>(0)
   const [cooldownStart, setCooldownStart] = useState<number>(0)
-  const { version } = useCachedData()
+  const { version, latestBlock } = useCachedData()
   const gettingCooldown = useRef(true)
 
   const startCooldown = async (): Promise<
@@ -152,7 +152,7 @@ export const useCooldown = () => {
     }
     if (gettingCooldown.current) return
     calculateTime()
-  }, [cooldownStart])
+  }, [cooldownStart, latestBlock])
 
   return {
     cooldownStarted,

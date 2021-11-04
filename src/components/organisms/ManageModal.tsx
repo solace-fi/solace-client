@@ -14,7 +14,6 @@
       contract functions
       local functions
       useEffect hooks
-      Render
 
   *************************************************************************************/
 
@@ -395,7 +394,7 @@ export const ManageModal: React.FC<ManageModalProps> = ({
                   Please unstake this policy from the SPT pool to make changes
                 </Text>
                 <ButtonWrapper>
-                  <Button widthP={100} disabled={haveErrors} onClick={() => callWithdrawPolicy()} info>
+                  <Button widthP={100} disabled={haveErrors} onClick={callWithdrawPolicy} info>
                     Unstake
                   </Button>
                 </ButtonWrapper>
@@ -429,7 +428,7 @@ export const ManageModal: React.FC<ManageModalProps> = ({
                             pr={2}
                             width={120}
                             height={30}
-                            onClick={() => setPositionCover()}
+                            onClick={setPositionCover}
                             info
                           >
                             Cover to position
@@ -444,7 +443,7 @@ export const ManageModal: React.FC<ManageModalProps> = ({
                           pr={8}
                           width={79}
                           height={30}
-                          onClick={() => setMaxCover()}
+                          onClick={setMaxCover}
                           info
                         >
                           MAX
@@ -514,7 +513,7 @@ export const ManageModal: React.FC<ManageModalProps> = ({
                     <FormCol></FormCol>
                     <ButtonWrapper>
                       {policyPrice !== '' ? (
-                        <Button widthP={100} disabled={haveErrors} onClick={() => cancelPolicy()} info>
+                        <Button widthP={100} disabled={haveErrors} onClick={cancelPolicy} info>
                           Cancel Policy
                         </Button>
                       ) : (

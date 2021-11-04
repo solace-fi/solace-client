@@ -38,7 +38,7 @@ export const NetworkConnectButton: React.FC<GeneralElementProps & ButtonProps> =
 
   return (
     <>
-      <Button onClick={() => openNetworkModal()} {...props} style={{ whiteSpace: 'nowrap' }}>
+      <Button onClick={openNetworkModal} {...props} style={{ whiteSpace: 'nowrap' }}>
         <StyledNetworkChart size={30} />
         Switch Network
       </Button>

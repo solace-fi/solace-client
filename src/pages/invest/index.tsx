@@ -19,7 +19,6 @@ import React, { useState, Fragment, useCallback } from 'react'
 /* import context */
 
 /* import components */
-import { PoolModal } from '../../components/_unused/PoolModal'
 import { UnderwritingPool } from '../../components/organisms/UnderwritingPool'
 import { CapitalProviderPool } from '../../components/organisms/CapitalProviderPool'
 import { LiquidityPool } from '../../components/organisms/LiquidityPool'

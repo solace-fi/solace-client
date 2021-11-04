@@ -286,7 +286,7 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({
                     Please unstake this policy from the SPT pool to submit a claim
                   </Text>
                   <ButtonWrapper>
-                    <Button widthP={100} disabled={haveErrors} onClick={() => callWithdrawPolicy()} info>
+                    <Button widthP={100} disabled={haveErrors} onClick={callWithdrawPolicy} info>
                       Unstake
                     </Button>
                   </ButtonWrapper>
@@ -296,7 +296,7 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({
                   <Button
                     widthP={100}
                     disabled={haveErrors || !assessment.lossEventDetected}
-                    onClick={() => submitClaim()}
+                    onClick={submitClaim}
                     info
                   >
                     Submit Claim

@@ -51,7 +51,7 @@ import { Card } from '../atoms/Card'
 import { StyledTooltip } from '../molecules/Tooltip'
 import { Button, ButtonWrapper } from '../atoms/Button'
 import { StyledDots } from '../atoms/Icon'
-import { AssetsModal } from '../_unused/AssetsModal'
+import { AssetsModal } from './AssetsModal'
 
 /* import hooks */
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'
@@ -78,7 +78,7 @@ export const PolicyModalInfo: React.FC<PolicyModalInfoProps> = ({ appraisal, sel
   const { tokenPosData } = useCachedData()
   const [showAssetsModal, setShowAssetsModal] = useState<boolean>(false)
   const [formattedAssets, setFormattedAssets] = useState<BasicData[]>([])
-  const maxPositionsOnDisplay = 4
+  const MaxPositionsToDisplay = 4
 
   /*************************************************************************************
 
@@ -273,14 +273,14 @@ export const PolicyModalInfo: React.FC<PolicyModalInfoProps> = ({ appraisal, sel
             <FormCol style={{ margin: 'auto' }}>
               <FlexRow>
                 {selectedPolicy?.positionNames.length == 0 && <Loader width={10} height={10} />}
-                {selectedPolicy?.positionNames.slice(0, maxPositionsOnDisplay).map((name: string) => (
+                {selectedPolicy?.positionNames.slice(0, MaxPositionsToDisplay).map((name: string) => (
                   <FlexCol style={{ alignItems: 'center' }} key={name}>
                     <DeFiAssetImage noborder width={45} height={45}>
                       <img src={`https://assets.solace.fi/${name.toLowerCase()}`} alt={name} />
                     </DeFiAssetImage>
                   </FlexCol>
                 ))}
-                {selectedPolicy?.positionNames && selectedPolicy?.positionNames.length > maxPositionsOnDisplay && (
+                {selectedPolicy?.positionNames && selectedPolicy?.positionNames.length > MaxPositionsToDisplay && (
                   <StyledDots size={40} />
                 )}
               </FlexRow>
@@ -304,26 +304,26 @@ export const PolicyModalInfo: React.FC<PolicyModalInfoProps> = ({ appraisal, sel
             </FlexRow>
             <FlexRow style={{ justifyContent: 'center' }}>
               {selectedPolicy?.positionNames.length == 0 && <Loader width={10} height={10} />}
-              {selectedPolicy?.positionNames.slice(0, maxPositionsOnDisplay).map((name: string) => (
+              {selectedPolicy?.positionNames.slice(0, MaxPositionsToDisplay).map((name: string) => (
                 <FlexCol key={name}>
                   <DeFiAssetImage noborder width={45} height={45}>
                     <img src={`https://assets.solace.fi/${name.toLowerCase()}`} alt={name} />
                   </DeFiAssetImage>
                 </FlexCol>
               ))}
-              {selectedPolicy?.positionNames && selectedPolicy?.positionNames.length > maxPositionsOnDisplay && (
+              {selectedPolicy?.positionNames && selectedPolicy?.positionNames.length > MaxPositionsToDisplay && (
                 <StyledDots size={40} />
               )}
             </FlexRow>
           </FlexCol>
         )}
-        {/* {selectedPolicy?.positionNames && (
+        {selectedPolicy?.positionNames && selectedPolicy?.positionNames.length > MaxPositionsToDisplay && (
           <ButtonWrapper style={{ width: '100%' }}>
             <Button widthP={100} onClick={() => setShowAssetsModal(true)}>
               View your covered positions
             </Button>
           </ButtonWrapper>
-        )} */}
+        )}
       </HeroContainer>
       <HorizRule style={{ marginBottom: '20px' }} />
     </Fragment>

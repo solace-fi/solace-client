@@ -245,7 +245,7 @@ export const CpPoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen
                 <Button
                   widthP={100}
                   disabled={(isAppropriateAmount(amount, getAssetBalanceByFunc()) ? false : true) || haveErrors}
-                  onClick={() => approve()}
+                  onClick={approve}
                   info
                 >
                   Approve
