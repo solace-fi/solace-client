@@ -31,6 +31,7 @@ export interface TextStyleProps extends GeneralElementProps {
   success?: boolean
   error?: boolean
   warning?: boolean
+  fade?: boolean
 }
 
 export interface GeneralTextProps extends TextFontProps, TextAlignProps, TextStyleProps {}
@@ -162,6 +163,7 @@ export const TextStyleCss = css<TextStyleProps>`
   ${(props) => props.warning && `color: ${props.theme.typography.warningText};`}
   ${(props) => props.light && `color: ${props.theme.typography.lightText};`}
   ${(props) => props.dark && `color: ${props.theme.typography.darkText};`}
+  ${(props) => props.fade && `opacity: 0.5;`}
 
   ${GeneralElementCss}
 `

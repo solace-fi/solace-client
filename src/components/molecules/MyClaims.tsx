@@ -10,19 +10,17 @@
     import utils
 
     MyClaims
-      custom hooks
+      hooks
       contract functions
-      Render
 
   *************************************************************************************/
 
 /* import packages */
-import React, { useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import { formatUnits } from '@ethersproject/units'
 import { BigNumber } from 'ethers'
 
 /* import managers */
-import { useWallet } from '../../context/WalletManager'
 import { useCachedData } from '../../context/CachedDataManager'
 import { useNotifications } from '../../context/NotificationsManager'
 import { useContracts } from '../../context/ContractsManager'
@@ -35,37 +33,37 @@ import { Box, BoxItem, BoxItemTitle } from '../atoms/Box'
 import { Button, ButtonWrapper } from '../atoms/Button'
 import { Text } from '../atoms/Typography'
 import { Content } from '../atoms/Layout'
-import { StyledArrowDropDown } from '../../components/atoms/Icon'
-import { Accordion } from '../atoms/Accordion/Accordion'
+import { StyledArrowDropDown } from '../atoms/Icon'
+import { Accordion } from '../atoms/Accordion'
 
 /* import constants */
-import { FunctionName, TransactionCondition, Unit } from '../../constants/enums'
-import { GAS_LIMIT, BKPT_3 } from '../../constants'
-import { ClaimDetails } from '../../constants/types'
+import { FunctionName, TransactionCondition } from '../../constants/enums'
+import { BKPT_3 } from '../../constants'
+import { ClaimDetails, LocalTx } from '../../constants/types'
 
 /* import hooks */
 import { useGetClaimsDetails } from '../../hooks/useClaimsEscrow'
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'
-import { useGasConfig } from '../../hooks/useGas'
+import { useGetFunctionGas } from '../../hooks/useGas'
 
 /* import utils */
 import { accurateMultiply, truncateBalance } from '../../utils/formatting'
-import { timeToDate } from '../../utils/time'
+import { getTimeFromMillis } from '../../utils/time'
 
 export const MyClaims: React.FC = () => {
   /*************************************************************************************
 
-    custom hooks
+    hooks
 
   *************************************************************************************/
   const { haveErrors } = useGeneral()
   const { claimsEscrow } = useContracts()
-  const { account } = useWallet()
   const { activeNetwork, currencyDecimals } = useNetwork()
-  const { addLocalTransactions, reload, gasPrices } = useCachedData()
+  const { addLocalTransactions, reload } = useCachedData()
   const { makeTxToast } = useNotifications()
-  const claimsDetails = useGetClaimsDetails(account)
-  const { gasConfig } = useGasConfig(gasPrices.selected?.value)
+  const claimsDetails = useGetClaimsDetails()
+  const { getAutoGasConfig } = useGetFunctionGas()
+  const gasConfig = useMemo(() => getAutoGasConfig(), [getAutoGasConfig])
   const [openClaims, setOpenClaims] = useState<boolean>(true)
   const { width } = useWindowDimensions()
 
@@ -81,15 +79,14 @@ export const MyClaims: React.FC = () => {
     try {
       const tx = await claimsEscrow.withdrawClaimsPayout(_claimId, {
         ...gasConfig,
-        gasLimit: GAS_LIMIT,
+        gasLimit: 150000,
       })
       const txHash = tx.hash
-      const localTx = {
+      const localTx: LocalTx = {
         hash: txHash,
         type: txType,
         value: `Claim #${String(_claimId)}`,
         status: TransactionCondition.PENDING,
-        unit: Unit.ID,
       }
       addLocalTransactions(localTx)
       reload()
@@ -105,12 +102,6 @@ export const MyClaims: React.FC = () => {
     }
   }
 
-  /*************************************************************************************
-
-    Render
-
-  *************************************************************************************/
-
   return (
     <Content>
       <Text t1 bold mb={0}>
@@ -121,12 +112,13 @@ export const MyClaims: React.FC = () => {
         </Button>
       </Text>
       <Text t4 pt={10} pb={10}>
-        View details on claims or start withdrawing payout
+        View details on claims or start withdrawing payout.
       </Text>
       <Accordion isOpen={openClaims}>
         {claimsDetails.length > 0 ? (
           <CardContainer cardsPerRow={2} p={10}>
             {claimsDetails.map((claim: ClaimDetails) => {
+              const formattedBalance = formatUnits(claim.amount, currencyDecimals)
               return (
                 <Card key={claim.id}>
                   <Box pt={20} pb={20} glow={claim.canWithdraw} success={claim.canWithdraw}>
@@ -144,14 +136,8 @@ export const MyClaims: React.FC = () => {
                       </BoxItemTitle>
                       <Text t3 light>
                         {BigNumber.from(claim.amount).gte(accurateMultiply(1, currencyDecimals))
-                          ? truncateBalance(
-                              formatUnits(claim.amount, currencyDecimals),
-                              width > BKPT_3 ? currencyDecimals : 2
-                            )
-                          : truncateBalance(
-                              formatUnits(claim.amount, currencyDecimals),
-                              width > BKPT_3 ? currencyDecimals : 6
-                            )}{' '}
+                          ? truncateBalance(formattedBalance, width > BKPT_3 ? currencyDecimals : 2)
+                          : truncateBalance(formattedBalance, width > BKPT_3 ? currencyDecimals : 6)}{' '}
                         {activeNetwork.nativeCurrency.symbol}
                       </Text>
                     </BoxItem>
@@ -162,11 +148,11 @@ export const MyClaims: React.FC = () => {
                       <Text t3 light>
                         {claim.canWithdraw
                           ? 'Available'
-                          : `${claim.cooldown == '0' ? '-' : timeToDate(parseInt(claim.cooldown) * 1000)} left`}
+                          : `${claim.cooldown == '0' ? '-' : getTimeFromMillis(parseInt(claim.cooldown) * 1000)} left`}
                       </Text>
                     </BoxItem>
                   </Box>
-                  <ButtonWrapper mb={0} mt={20}>
+                  <ButtonWrapper pb={0} pt={20}>
                     <Button
                       widthP={100}
                       onClick={() => withdrawPayout(claim.id)}

@@ -1,8 +1,7 @@
 import { BigNumber } from 'ethers'
 import { useContracts } from '../context/ContractsManager'
-import { GAS_LIMIT } from '../constants'
 import { FunctionName, TransactionCondition } from '../constants/enums'
-import { LocalTx } from '../constants/types'
+import { GasConfiguration, LocalTx } from '../constants/types'
 
 export const useCpFarm = () => {
   const { cpFarm } = useContracts()
@@ -10,7 +9,7 @@ export const useCpFarm = () => {
   const depositEth = async (
     parsedAmount: BigNumber,
     txVal: string,
-    gasConfig: any
+    gasConfig: GasConfiguration
   ): Promise<
     | {
         tx: null
@@ -25,9 +24,9 @@ export const useCpFarm = () => {
     const tx = await cpFarm.depositEth({
       value: parsedAmount,
       ...gasConfig,
-      gasLimit: GAS_LIMIT,
+      gasLimit: 243022,
     })
-    const localTx = {
+    const localTx: LocalTx = {
       hash: tx.hash,
       type: FunctionName.DEPOSIT_ETH,
       value: txVal,
@@ -39,7 +38,7 @@ export const useCpFarm = () => {
   const depositCp = async (
     parsedAmount: BigNumber,
     txVal: string,
-    gasConfig: any
+    gasConfig: GasConfiguration
   ): Promise<
     | {
         tx: null
@@ -53,9 +52,9 @@ export const useCpFarm = () => {
     if (!cpFarm) return { tx: null, localTx: null }
     const tx = await cpFarm.depositCp(parsedAmount, {
       ...gasConfig,
-      gasLimit: GAS_LIMIT,
+      gasLimit: 189538,
     })
-    const localTx = {
+    const localTx: LocalTx = {
       hash: tx.hash,
       type: FunctionName.DEPOSIT_CP,
       value: txVal,
@@ -67,7 +66,7 @@ export const useCpFarm = () => {
   const withdrawCp = async (
     parsedAmount: BigNumber,
     txVal: string,
-    gasConfig: any
+    gasConfig: GasConfiguration
   ): Promise<
     | {
         tx: null
@@ -81,9 +80,9 @@ export const useCpFarm = () => {
     if (!cpFarm) return { tx: null, localTx: null }
     const tx = await cpFarm.withdrawCp(parsedAmount, {
       ...gasConfig,
-      gasLimit: GAS_LIMIT,
+      gasLimit: 189538,
     })
-    const localTx = {
+    const localTx: LocalTx = {
       hash: tx.hash,
       type: FunctionName.WITHDRAW_CP,
       value: txVal,

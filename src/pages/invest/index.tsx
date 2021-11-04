@@ -9,7 +9,7 @@
 
     Invest 
       hooks
-      Local functions
+      local functions
 
   *************************************************************************************/
 
@@ -19,16 +19,15 @@ import React, { useState, Fragment, useCallback } from 'react'
 /* import context */
 
 /* import components */
-import { PoolModal } from '../../components/organisms/PoolModal'
 import { UnderwritingPool } from '../../components/organisms/UnderwritingPool'
 import { CapitalProviderPool } from '../../components/organisms/CapitalProviderPool'
 import { LiquidityPool } from '../../components/organisms/LiquidityPool'
-import { HeroContainer } from '../../components/atoms/Layout'
-import { Text } from '../../components/atoms/Typography'
 import { MyOptions } from '../../components/molecules/MyOptions'
+import { SptPool } from '../../components/organisms/SptPool'
 
 /* import constants */
 import { FunctionName } from '../../constants/enums'
+import { PoolModalRouter } from '../../components/organisms/PoolModalRouter'
 
 function Invest(): any {
   /*************************************************************************************
@@ -39,6 +38,7 @@ function Invest(): any {
   const [func, setFunc] = useState<FunctionName>(FunctionName.DEPOSIT_ETH)
   const [modalTitle, setModalTitle] = useState<string>('')
   const [showPoolModal, setShowPoolModal] = useState<boolean>(false)
+  const [farmName, setFarmName] = useState<string>('uw')
 
   /*************************************************************************************
 
@@ -46,11 +46,12 @@ function Invest(): any {
 
   *************************************************************************************/
 
-  const openModal = (func: FunctionName, modalTitle: string) => {
-    setShowPoolModal((prev) => !prev)
+  const openModal = (func: FunctionName, modalTitle: string, farmName: string) => {
     document.body.style.overflowY = 'hidden'
     setModalTitle(modalTitle)
     setFunc(func)
+    setFarmName(farmName)
+    setShowPoolModal((prev) => !prev)
   }
 
   const closeModal = useCallback(() => {
@@ -60,9 +61,16 @@ function Invest(): any {
 
   return (
     <Fragment>
-      <PoolModal isOpen={showPoolModal} modalTitle={modalTitle} func={func} closeModal={closeModal} />
+      <PoolModalRouter
+        isOpen={showPoolModal}
+        modalTitle={modalTitle}
+        func={func}
+        closeModal={closeModal}
+        farmName={farmName}
+      />
       <UnderwritingPool openModal={openModal} />
       <CapitalProviderPool openModal={openModal} />
+      <SptPool openModal={openModal} />
       {/* <LiquidityPool openModal={openModal} /> */}
       <MyOptions />
     </Fragment>

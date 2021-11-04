@@ -37,7 +37,7 @@ export const WalletConnectButton: React.FC<GeneralElementProps & ButtonProps> = 
 
   return (
     <>
-      <Button onClick={() => openWalletModal()} {...props}>
+      <Button onClick={openWalletModal} {...props}>
         <StyledWallet size={30} />
         {isActive ? 'Switch Wallet' : 'Connect Wallet'}
       </Button>

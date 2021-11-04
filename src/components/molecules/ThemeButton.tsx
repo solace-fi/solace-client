@@ -35,7 +35,7 @@ export const ThemeButton: React.FC<GeneralElementProps & ButtonProps> = ({ ...pr
 
   return (
     <>
-      <Button widthP={100} nohover noborder onClick={() => toggleTheme()} {...props}>
+      <Button widthP={100} nohover noborder onClick={toggleTheme} {...props}>
         {appTheme == 'light' ? <StyledSun size={30} /> : <StyledMoon size={30} />}
       </Button>
     </>

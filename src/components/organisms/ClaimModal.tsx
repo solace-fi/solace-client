@@ -18,9 +18,10 @@
   *************************************************************************************/
 
 /* import packages */
-import React, { Fragment, useCallback, useEffect, useState, useRef } from 'react'
+import React, { Fragment, useCallback, useEffect, useState, useRef, useMemo } from 'react'
 import { formatUnits } from '@ethersproject/units'
 import { Block } from '@ethersproject/contracts/node_modules/@ethersproject/abstract-provider'
+import { BigNumber } from 'ethers'
 
 /* import managers */
 import { useCachedData } from '../../context/CachedDataManager'
@@ -30,7 +31,7 @@ import { useNetwork } from '../../context/NetworkManager'
 import { useGeneral } from '../../context/GeneralProvider'
 
 /* import components */
-import { Modal } from '../molecules/Modal'
+import { Modal, ModalAddendum } from '../molecules/Modal'
 import { FormRow, FormCol } from '../atoms/Form'
 import { Text } from '../atoms/Typography'
 import { PolicyModalInfo } from './PolicyModalInfo'
@@ -39,31 +40,41 @@ import { SmallBox, Box } from '../atoms/Box'
 import { Button, ButtonWrapper } from '../atoms/Button'
 import { Table, TableBody, TableRow, TableData } from '../atoms/Table'
 import { HyperLink } from '../atoms/Link'
+import { StyledLinkExternal } from '../atoms/Icon'
 
 /* import constants */
-import { FunctionName, TransactionCondition, Unit } from '../../constants/enums'
-import { GAS_LIMIT, BKPT_3 } from '../../constants'
-import { Policy, ClaimAssessment } from '../../constants/types'
+import { FunctionName, TransactionCondition, ExplorerscanApi } from '../../constants/enums'
+import { BKPT_3 } from '../../constants'
+import { Policy, ClaimAssessment, LocalTx } from '../../constants/types'
 
 /* import hooks */
 import { useGetCooldownPeriod } from '../../hooks/useClaimsEscrow'
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'
 import { useAppraisePolicyPosition } from '../../hooks/usePolicy'
-import { useGasConfig } from '../../hooks/useGas'
+import { useGetFunctionGas } from '../../hooks/useGas'
+import { useSptFarm } from '../../hooks/useSptFarm'
 
 /* import utils */
 import { truncateBalance } from '../../utils/formatting'
-import { timeToDateText } from '../../utils/time'
+import { getLongtimeFromMillis } from '../../utils/time'
 import { getClaimAssessment } from '../../utils/api'
+import { getExplorerItemUrl } from '../../utils/explorer'
 
 interface ClaimModalProps {
   closeModal: () => void
   isOpen: boolean
   latestBlock: Block | undefined
   selectedPolicy: Policy | undefined
+  isPolicyStaked: boolean
 }
 
-export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, closeModal, latestBlock }) => {
+export const ClaimModal: React.FC<ClaimModalProps> = ({
+  isOpen,
+  selectedPolicy,
+  closeModal,
+  latestBlock,
+  isPolicyStaked,
+}) => {
   /*************************************************************************************
 
     hooks
@@ -73,13 +84,15 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
   const [claimSubmitted, setClaimSubmitted] = useState<boolean>(false)
   const [assessment, setAssessment] = useState<ClaimAssessment | undefined>(undefined)
   const cooldown = useGetCooldownPeriod()
-  const { addLocalTransactions, reload, gasPrices, userPolicyData } = useCachedData()
+  const { addLocalTransactions, reload, userPolicyData } = useCachedData()
   const { selectedProtocol } = useContracts()
   const { makeTxToast } = useNotifications()
   const { haveErrors } = useGeneral()
   const { activeNetwork, currencyDecimals, chainId } = useNetwork()
+  const { withdrawPolicy } = useSptFarm()
   const { width } = useWindowDimensions()
-  const { gasConfig } = useGasConfig(gasPrices.selected?.value)
+  const { getAutoGasConfig, getGasLimit } = useGetFunctionGas()
+  const gasConfig = useMemo(() => getAutoGasConfig(), [getAutoGasConfig])
   const appraisal = useAppraisePolicyPosition(selectedPolicy)
   const [canCloseOnLoading, setCanCloseOnLoading] = useState<boolean>(false)
   const mounting = useRef(true)
@@ -91,39 +104,34 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
   *************************************************************************************/
 
   const submitClaim = async () => {
-    setModalLoading(true)
     if (!selectedProtocol || !assessment || !selectedPolicy) return
+    setModalLoading(true)
     const { amountOut, deadline, signature } = assessment
     const txType = FunctionName.SUBMIT_CLAIM
     try {
       const tx = await selectedProtocol.submitClaim(selectedPolicy.policyId, amountOut, deadline, signature, {
         ...gasConfig,
-        gasLimit: GAS_LIMIT,
+        gasLimit: getGasLimit(selectedPolicy.productName, txType),
       })
       const txHash = tx.hash
-      const localTx = {
+      const localTx: LocalTx = {
         hash: txHash,
         type: txType,
         value: `Policy #${selectedPolicy.policyId}`,
         status: TransactionCondition.PENDING,
-        unit: Unit.ID,
       }
-      addLocalTransactions(localTx)
-      reload()
-      makeTxToast(txType, TransactionCondition.PENDING, txHash)
-      await tx.wait().then((receipt: any) => {
-        const status = receipt.status ? TransactionCondition.SUCCESS : TransactionCondition.FAILURE
-        if (receipt.status) setClaimSubmitted(true)
-        makeTxToast(txType, status, txHash)
-        reload()
-      })
-      setModalLoading(false)
+      await handleToast(tx, localTx)
     } catch (err) {
-      console.log('submitClaim:', err)
-      makeTxToast(txType, TransactionCondition.CANCELLED)
-      setModalLoading(false)
-      reload()
+      handleContractCallError('submitClaim:', err, txType)
     }
+  }
+
+  const callWithdrawPolicy = async () => {
+    if (!selectedPolicy) return
+    setModalLoading(true)
+    await withdrawPolicy(BigNumber.from(selectedPolicy.policyId), gasConfig)
+      .then((res) => handleToast(res.tx, res.localTx))
+      .catch((err) => handleContractCallError('callWithdrawPolicy', err, FunctionName.WITHDRAW_POLICY))
   }
 
   /*************************************************************************************
@@ -131,6 +139,28 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
   local functions
 
   *************************************************************************************/
+
+  const handleToast = async (tx: any, localTx: LocalTx | null) => {
+    if (!tx || !localTx) return
+    addLocalTransactions(localTx)
+    reload()
+    makeTxToast(localTx.type, TransactionCondition.PENDING, localTx.hash)
+    setCanCloseOnLoading(true)
+    await tx.wait().then((receipt: any) => {
+      const status = receipt.status ? TransactionCondition.SUCCESS : TransactionCondition.FAILURE
+      makeTxToast(localTx.type, status, localTx.hash)
+      setCanCloseOnLoading(false)
+      setModalLoading(false)
+      reload()
+    })
+  }
+
+  const handleContractCallError = (functionName: string, err: any, txType: FunctionName) => {
+    console.log(functionName, err)
+    makeTxToast(txType, TransactionCondition.CANCELLED)
+    setModalLoading(false)
+    reload()
+  }
 
   const handleClose = useCallback(() => {
     setClaimSubmitted(false)
@@ -215,21 +245,21 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
                 </FormCol>
               </FormRow>
               <SmallBox style={{ justifyContent: 'center' }} transparent mt={10}>
-                <Text t4 bold warning textAlignCenter>
-                  Please wait for the cooldown period to elapse before withdrawing your payout.
+                <Text t4 bold warning textAlignCenter fade={isPolicyStaked}>
+                  Please wait for the review period to elapse before withdrawing your payout.
                 </Text>
               </SmallBox>
-              <Table isHighlight light>
+              <Table isHighlight light fade={isPolicyStaked}>
                 <TableBody>
                   <TableRow>
                     <TableData>
                       <Text t2 light>
-                        Current Cooldown Period
+                        Current Review Period
                       </Text>
                     </TableData>
                     <TableData textAlignRight>
                       <Text t2 light>
-                        {timeToDateText(parseInt(cooldown) * 1000)}
+                        {getLongtimeFromMillis(parseInt(cooldown) * 1000)}
                       </Text>
                     </TableData>
                   </TableRow>
@@ -239,9 +269,10 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
                 style={{ justifyContent: 'center' }}
                 transparent
                 mt={!assessment.lossEventDetected ? 10 : 0}
+                mb={!assessment.lossEventDetected ? 10 : 0}
                 collapse={assessment.lossEventDetected}
               >
-                <Text t4 bold error={!assessment.lossEventDetected} textAlignCenter>
+                <Text t4 bold error={!assessment.lossEventDetected} textAlignCenter fade={isPolicyStaked}>
                   No loss event detected, unable to submit claims yet.
                 </Text>
               </SmallBox>
@@ -251,12 +282,23 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
                     Claim has been validated and payout submitted to the escrow.
                   </Text>
                 </Box>
+              ) : isPolicyStaked ? (
+                <div>
+                  <Text bold t2 textAlignCenter info>
+                    Please unstake this policy from the SPT pool to submit a claim
+                  </Text>
+                  <ButtonWrapper>
+                    <Button widthP={100} disabled={haveErrors} onClick={callWithdrawPolicy} info>
+                      Unstake
+                    </Button>
+                  </ButtonWrapper>
+                </div>
               ) : (
-                <ButtonWrapper isColumn={width < BKPT_3}>
+                <ButtonWrapper isColumn={width <= BKPT_3}>
                   <Button
                     widthP={100}
                     disabled={haveErrors || !assessment.lossEventDetected}
-                    onClick={() => submitClaim()}
+                    onClick={submitClaim}
                     info
                   >
                     Submit Claim
@@ -283,6 +325,19 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
           )
         ) : (
           <Loader />
+        )}
+        {selectedProtocol && (
+          <ModalAddendum>
+            <HyperLink
+              href={getExplorerItemUrl(activeNetwork.explorer.url, selectedProtocol.address, ExplorerscanApi.ADDRESS)}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <Button>
+                Source Contract <StyledLinkExternal size={20} />
+              </Button>
+            </HyperLink>
+          </ModalAddendum>
         )}
       </Fragment>
     </Modal>

@@ -89,7 +89,7 @@ export type TokenInfo = {
   balance: BigNumber
 }
 
-export type LpTokenInfo = {
+export type NftTokenInfo = {
   id: BigNumber
   value: BigNumber
 }
@@ -157,12 +157,36 @@ export type GasPriceResult = {
   suggestBaseFee?: number
 }
 
+export type GasConfiguration =
+  | {
+      maxFeePerGas?: undefined
+      type?: undefined
+      gasPrice?: undefined
+    }
+  | {
+      maxFeePerGas: number
+      type: number
+      gasPrice?: undefined
+    }
+  | {
+      gasPrice: number
+      maxFeePerGas?: undefined
+      type?: undefined
+    }
+
 export type StringToStringMapping = { [key: string]: string }
 
 export type SupportedProduct = {
   name: ProductName
   positionsType: PositionType
   productLink?: string
+  gasLimits?: {
+    // network chain Id
+    [key: number]: {
+      // mapping of FunctionName to gas limit number
+      [key: string]: number
+    }
+  }
   supportedSubProducts?: {
     [key: number]: string[] // array of farm or other pool positions for a product supported on different chains
   }

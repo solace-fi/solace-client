@@ -3,12 +3,12 @@ import { useContracts } from '../context/ContractsManager'
 import { useState, useEffect, useRef } from 'react'
 import { useWallet } from '../context/WalletManager'
 import { floatUnits } from '../utils/formatting'
-import { GAS_LIMIT, ZERO } from '../constants'
+import { ZERO } from '../constants'
 import { useCachedData } from '../context/CachedDataManager'
 import { useScpBalance } from './useBalance'
 import { useNetwork } from '../context/NetworkManager'
 import { FunctionName, TransactionCondition } from '../constants/enums'
-import { LocalTx } from '../constants/types'
+import { GasConfiguration, LocalTx } from '../constants/types'
 import { BigNumber } from 'ethers'
 
 export const useCapitalPoolSize = (): string => {
@@ -75,7 +75,7 @@ export const useCooldown = () => {
   const [cooldownMin, setCooldownMin] = useState<number>(0)
   const [cooldownMax, setCooldownMax] = useState<number>(0)
   const [cooldownStart, setCooldownStart] = useState<number>(0)
-  const { version } = useCachedData()
+  const { version, latestBlock } = useCachedData()
   const gettingCooldown = useRef(true)
 
   const startCooldown = async (): Promise<
@@ -93,7 +93,7 @@ export const useCooldown = () => {
     const localTx: LocalTx = {
       hash: tx.hash,
       type: FunctionName.START_COOLDOWN,
-      value: 'Starting Withdrawal Cooldown',
+      value: 'Starting Thaw',
       status: TransactionCondition.PENDING,
     }
     return { tx, localTx }
@@ -114,7 +114,7 @@ export const useCooldown = () => {
     const localTx: LocalTx = {
       hash: tx.hash,
       type: FunctionName.STOP_COOLDOWN,
-      value: 'Stopping Withdrawal Cooldown',
+      value: 'Stopping Thaw',
       status: TransactionCondition.PENDING,
     }
     return { tx, localTx }
@@ -128,10 +128,10 @@ export const useCooldown = () => {
         const _cooldownMin: number = await vault.cooldownMin()
         const _cooldownMax: number = await vault.cooldownMax()
         const _cooldownStart: number = await vault.cooldownStart(account)
+        gettingCooldown.current = false
         setCooldownMin(_cooldownMin * 1000)
         setCooldownMax(_cooldownMax * 1000)
         setCooldownStart(_cooldownStart * 1000)
-        gettingCooldown.current = false
       } catch (err) {
         console.log('error getCooldown ', err)
       }
@@ -152,7 +152,7 @@ export const useCooldown = () => {
     }
     if (gettingCooldown.current) return
     calculateTime()
-  }, [cooldownStart])
+  }, [cooldownStart, latestBlock])
 
   return {
     cooldownStarted,
@@ -167,11 +167,14 @@ export const useCooldown = () => {
 
 export const useVault = () => {
   const { vault } = useContracts()
+  const { version } = useCachedData()
+  const { account } = useWallet()
+  const [canTransfer, setCanTransfer] = useState<boolean>(true)
 
   const depositEth = async (
     parsedAmount: BigNumber,
     txVal: string,
-    gasConfig: any
+    gasConfig: GasConfiguration
   ): Promise<
     | {
         tx: null
@@ -186,9 +189,9 @@ export const useVault = () => {
     const tx = await vault.depositEth({
       value: parsedAmount,
       ...gasConfig,
-      gasLimit: GAS_LIMIT,
+      gasLimit: 126777,
     })
-    const localTx = {
+    const localTx: LocalTx = {
       hash: tx.hash,
       type: FunctionName.DEPOSIT_ETH,
       value: txVal,
@@ -200,7 +203,7 @@ export const useVault = () => {
   const withdrawEth = async (
     parsedAmount: BigNumber,
     txVal: string,
-    gasConfig: any
+    gasConfig: GasConfiguration
   ): Promise<
     | {
         tx: null
@@ -214,9 +217,9 @@ export const useVault = () => {
     if (!vault) return { tx: null, localTx: null }
     const tx = await vault.withdrawEth(parsedAmount, {
       ...gasConfig,
-      gasLimit: GAS_LIMIT,
+      gasLimit: 123823,
     })
-    const localTx = {
+    const localTx: LocalTx = {
       hash: tx.hash,
       type: FunctionName.WITHDRAW_ETH,
       value: txVal,
@@ -225,8 +228,19 @@ export const useVault = () => {
     return { tx, localTx }
   }
 
+  useEffect(() => {
+    const canTransfer = async () => {
+      if (!vault || !account) return
+      const canTransfer = await vault.canTransfer(account)
+      setCanTransfer(canTransfer)
+    }
+    canTransfer()
+  }, [vault, account, version])
+
   return {
+    canTransfer,
     depositEth,
     withdrawEth,
+    vault,
   }
 }

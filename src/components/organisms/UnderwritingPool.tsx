@@ -43,7 +43,7 @@ import { useWindowDimensions } from '../../hooks/useWindowDimensions'
 import { truncateBalance } from '../../utils/formatting'
 
 interface UnderwritingPoolProps {
-  openModal: (func: FunctionName, modalTitle: string) => void
+  openModal: (func: FunctionName, modalTitle: string, farmName: string) => void
 }
 
 export const UnderwritingPool: React.FC<UnderwritingPoolProps> = ({ openModal }) => {
@@ -58,16 +58,11 @@ export const UnderwritingPool: React.FC<UnderwritingPoolProps> = ({ openModal })
   const { userVaultAssets, userVaultShare } = useUserVaultDetails()
   const capitalPoolSize = useCapitalPoolSize()
   const { width } = useWindowDimensions()
-  const { currencyDecimals } = useNetwork()
 
   return (
     <Content>
       <Text bold t1 mb={0} info>
-        Underwriting Pool{' '}
-        {/* <StyledTooltip
-          id={'underwriting-pool'}
-          tip={'Provide capital here for Solace to underwrite the risks and fulfill claims for policies'}
-        />{' '} */}
+        Underwriting Pool
       </Text>
       <Text t4 pt={10} pb={10}>
         This capital is utilized to back the risk of coverage policies and earns revenue from policy sales.
@@ -99,13 +94,17 @@ export const UnderwritingPool: React.FC<UnderwritingPoolProps> = ({ openModal })
               {account ? (
                 <TableData textAlignRight>
                   <TableDataGroup width={200} style={{ float: 'right' }}>
-                    <Button light disabled={haveErrors} onClick={() => openModal(FunctionName.DEPOSIT_ETH, 'Deposit')}>
+                    <Button
+                      light
+                      disabled={haveErrors}
+                      onClick={() => openModal(FunctionName.DEPOSIT_ETH, 'Deposit', 'uw')}
+                    >
                       Deposit
                     </Button>
                     <Button
                       light
                       disabled={haveErrors}
-                      onClick={() => openModal(FunctionName.WITHDRAW_ETH, 'Withdraw')}
+                      onClick={() => openModal(FunctionName.WITHDRAW_ETH, 'Withdraw', 'uw')}
                     >
                       Withdraw
                     </Button>
@@ -149,7 +148,7 @@ export const UnderwritingPool: React.FC<UnderwritingPoolProps> = ({ openModal })
               <Button
                 widthP={100}
                 disabled={haveErrors}
-                onClick={() => openModal(FunctionName.DEPOSIT_ETH, 'Deposit')}
+                onClick={() => openModal(FunctionName.DEPOSIT_ETH, 'Deposit', 'uw')}
                 light
               >
                 Deposit
@@ -157,7 +156,7 @@ export const UnderwritingPool: React.FC<UnderwritingPoolProps> = ({ openModal })
               <Button
                 widthP={100}
                 disabled={haveErrors}
-                onClick={() => openModal(FunctionName.WITHDRAW_ETH, 'Withdraw')}
+                onClick={() => openModal(FunctionName.WITHDRAW_ETH, 'Withdraw', 'uw')}
                 light
               >
                 Withdraw

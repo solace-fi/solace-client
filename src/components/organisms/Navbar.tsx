@@ -51,7 +51,7 @@ import { Text, TextSpan } from '../atoms/Typography'
 import { HyperLink } from '../atoms/Link'
 import { ThemeButton } from '../molecules/ThemeButton'
 import { FlexCol, FlexRow, HorizRule } from '../atoms/Layout'
-import { MiniUserAccount, UserAccount } from './Account'
+import { MiniUserAccount, UserAccount } from '../molecules/Account'
 import { StyledNavTooltip } from '../molecules/Tooltip'
 
 import AlchemyBadgeLight from '../../resources/svg/alchemy-badge-light.svg'

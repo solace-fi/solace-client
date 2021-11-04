@@ -25,18 +25,11 @@ import { useWallet } from '../../context/WalletManager'
 import { useContracts } from '../../context/ContractsManager'
 import { useCachedData } from '../../context/CachedDataManager'
 import { useNetwork } from '../../context/NetworkManager'
-import { useGeneral } from '../../context/GeneralProvider'
 
 /* import components */
 import { Button, ButtonWrapper } from '../../components/atoms/Button'
 import { formProps } from './MultiStepForm'
-import { CardContainer, PositionCard } from '../../components/atoms/Card'
-import {
-  PositionCardButton,
-  PositionCardText,
-  DeFiAssetImage,
-  PositionCardName,
-} from '../../components/atoms/DeFiAsset'
+import { CardContainer } from '../../components/atoms/Card'
 import { Loader } from '../../components/atoms/Loader'
 import { Scrollable, HeroContainer } from '../../components/atoms/Layout'
 import { Text, TextSpan } from '../../components/atoms/Typography'
@@ -44,19 +37,21 @@ import { ManageModal } from '../../components/organisms/ManageModal'
 import { HyperLink } from '../../components/atoms/Link'
 import { TokenPositionCard } from '../../components/organisms/TokenPositionCard'
 import { NftPositionCard } from '../../components/organisms/NftPositionCard'
+import { Box, BoxItem, BoxItemTitle } from '../../components/atoms/Box'
+import { StyledInfo } from '../../components/atoms/Icon'
+import { LiquityPositionCard } from '../../components/organisms/LiquityPositionCard'
 
 /* import constants */
-import { PolicyState, PositionType } from '../../constants/enums'
+import { PositionType } from '../../constants/enums'
 import { LiquityPosition, NetworkCache, Policy, Position, SupportedProduct, Token } from '../../constants/types'
 import { BKPT_3 } from '../../constants'
 
 /* import hooks */
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'
+import { useDepositedPolicies } from '../../hooks/useBalance'
 
 /* import utils */
-import { fixedPositionBalance, truncateBalance } from '../../utils/formatting'
-import { Box, BoxItem, BoxItemTitle } from '../../components/atoms/Box'
-import { StyledInfo } from '../../components/atoms/Icon'
+import { userHasActiveProductPosition } from '../../utils/policy'
 
 export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigation }) => {
   const { protocol, loading, positions } = formData
@@ -67,7 +62,6 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
 
   *************************************************************************************/
 
-  const { haveErrors } = useGeneral()
   const { account, library } = useWallet()
   const { activeNetwork, findNetworkByChainId, chainId } = useNetwork()
   const { setSelectedProtocolByName } = useContracts()
@@ -86,7 +80,14 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
     () => activeNetwork.cache.supportedProducts.find((product) => product.name == protocol.name),
     [activeNetwork.cache.supportedProducts, protocol.name]
   )
-
+  const depositedPolicyTokenInfo = useDepositedPolicies()
+  const depositedPolicyIds = useMemo(() => depositedPolicyTokenInfo.map((i) => i.id.toNumber()), [
+    depositedPolicyTokenInfo,
+  ])
+  const isPolicyStaked = useMemo(() => depositedPolicyIds.includes(selectedPolicy ? selectedPolicy.policyId : 0), [
+    depositedPolicyIds,
+    selectedPolicy,
+  ])
   /*************************************************************************************
 
   local functions
@@ -215,20 +216,6 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
     }
   }
 
-  const userHasActiveProductPosition = (product: string, address: string): boolean => {
-    const addr = address.startsWith('0x') ? address.slice(2).toLowerCase() : address.toLowerCase()
-
-    for (const policy of userPolicyData.userPolicies) {
-      if (
-        product === policy.productName &&
-        policy.positionDescription.includes(addr) &&
-        policy.status === PolicyState.ACTIVE
-      )
-        return true
-    }
-    return false
-  }
-
   const openManageModal = async (policy: Policy) => {
     setShowManageModal((prev) => !prev)
     setSelectedProtocolByName(policy.productName)
@@ -238,6 +225,7 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
 
   const closeModal = useCallback(() => {
     setShowManageModal(false)
+    setSelectedPolicy(undefined)
     document.body.style.overflowY = 'scroll'
   }, [])
 
@@ -291,10 +279,23 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
           case PositionType.OTHER:
           default:
         }
-        return !userHasActiveProductPosition(protocol.name, addr)
+        return !userHasActiveProductPosition(userPolicyData.userPolicies, protocol.name, addr)
       })
     )
   }, [fetchedPositions, protocol.name])
+
+  // if a policy is displayed on modal, always get latest policy
+  useEffect(() => {
+    if (selectedPolicy) {
+      const matchingPolicy = userPolicyData.userPolicies.find(
+        (policy: Policy) => policy.policyId == selectedPolicy.policyId
+      )
+      if (!matchingPolicy) return
+      if (JSON.stringify(matchingPolicy) !== JSON.stringify(selectedPolicy)) {
+        setSelectedPolicy(matchingPolicy)
+      }
+    }
+  }, [userPolicyData.userPolicies])
 
   return (
     <Fragment>
@@ -303,6 +304,7 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
         isOpen={showManageModal}
         latestBlock={latestBlock}
         closeModal={closeModal}
+        isPolicyStaked={isPolicyStaked}
       />
       {fetchedPositions.length == 0 && !loading && !userPolicyData.policiesLoading && (
         <HeroContainer>
@@ -319,8 +321,8 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
       {!loading && !userPolicyData.policiesLoading ? (
         <Fragment>
           {selectablePositions.length > 0 && (
-            <ButtonWrapper style={{ marginTop: '0' }} isColumn={width <= BKPT_3}>
-              <Button widthP={100} secondary onClick={() => toggleSelectAll()}>
+            <ButtonWrapper pt={0} isColumn={width <= BKPT_3}>
+              <Button widthP={100} secondary onClick={toggleSelectAll}>
                 {selectedPositions.length == selectablePositions.length
                   ? `Deselect All (${selectablePositions.length} available)`
                   : `Select All (${selectablePositions.length} available)`}
@@ -346,7 +348,6 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
                           userPolicies={userPolicyData.userPolicies}
                           openManageModal={openManageModal}
                           handleSelect={handleSelect}
-                          userHasActiveProductPosition={userHasActiveProductPosition}
                         />
                       )
                     }
@@ -359,98 +360,20 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
                         userPolicies={userPolicyData.userPolicies}
                         openManageModal={openManageModal}
                         handleSelect={handleSelect}
-                        userHasActiveProductPosition={userHasActiveProductPosition}
                       />
                     )
                   }
                   if (position.type == PositionType.LQTY) {
-                    const isActive = userHasActiveProductPosition(
-                      protocol.name,
-                      (position.position as LiquityPosition).positionAddress
-                    )
-                    const isSelected = selectedPositions.some(
-                      (selectedPosition) =>
-                        (selectedPosition.position as LiquityPosition).positionAddress ==
-                        (position.position as LiquityPosition).positionAddress
-                    )
-                    const lightText = isSelected || isActive
                     return (
-                      <PositionCard
-                        key={(position.position as LiquityPosition).positionAddress}
-                        color1={isSelected}
-                        glow={isSelected}
-                        fade={isActive}
-                        onClick={
-                          haveErrors
-                            ? undefined
-                            : isActive
-                            ? () =>
-                                openManageModal(
-                                  userPolicyData.userPolicies.filter(
-                                    (policy) =>
-                                      policy.productName == protocol.name &&
-                                      policy.positionDescription.includes(
-                                        (position.position as LiquityPosition).positionAddress
-                                      )
-                                  )[0]
-                                )
-                            : () => handleSelect(position)
-                        }
-                      >
-                        {isActive && (
-                          <PositionCardText style={{ opacity: '.8' }} light={lightText}>
-                            This position is already covered
-                          </PositionCardText>
-                        )}
-                        <DeFiAssetImage
-                          noborder
-                          style={{
-                            opacity: isActive ? '.5' : '1',
-                          }}
-                        >
-                          <img
-                            src={`https://assets.solace.fi/${(position.position as LiquityPosition).positionAddress.toLowerCase()}`}
-                            alt={(position.position as LiquityPosition).positionName}
-                          />
-                        </DeFiAssetImage>
-                        <PositionCardName
-                          style={{
-                            opacity: isActive ? '.5' : '1',
-                          }}
-                          light={lightText}
-                        >
-                          {(position.position as LiquityPosition).positionName}
-                        </PositionCardName>
-                        <PositionCardText
-                          t1
-                          style={{
-                            opacity: isActive ? '.5' : '1',
-                          }}
-                          light={lightText}
-                        >
-                          {truncateBalance(
-                            fixedPositionBalance((position.position as LiquityPosition).amount.toString(), 18)
-                          )}{' '}
-                          <TextSpan style={{ fontSize: '12px' }} light={lightText}>
-                            {(position.position as LiquityPosition).associatedToken.symbol}
-                          </TextSpan>
-                        </PositionCardText>
-                        <PositionCardButton>
-                          {isActive ? (
-                            <Button widthP={width > BKPT_3 ? undefined : 100} light>
-                              Manage
-                            </Button>
-                          ) : isSelected ? (
-                            <Button widthP={width > BKPT_3 ? undefined : 100} light>
-                              {'Deselect'}
-                            </Button>
-                          ) : (
-                            <Button widthP={width > BKPT_3 ? undefined : 100} info>
-                              {'Select'}
-                            </Button>
-                          )}
-                        </PositionCardButton>
-                      </PositionCard>
+                      <LiquityPositionCard
+                        key={i}
+                        position={position}
+                        protocolName={protocol.name}
+                        selectedPositions={selectedPositions}
+                        userPolicies={userPolicyData.userPolicies}
+                        openManageModal={openManageModal}
+                        handleSelect={handleSelect}
+                      />
                     )
                   }
                 })}

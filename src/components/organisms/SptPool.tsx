@@ -9,26 +9,23 @@
     import hooks
     import utils
 
-    LiquidityPool
+    SptPool
       hooks
       local functions
-      Render
 
   *************************************************************************************/
 
 /* import packages */
 import React from 'react'
-import { formatUnits } from '@ethersproject/units'
 
 /* import managers */
 import { useContracts } from '../../context/ContractsManager'
 import { useWallet } from '../../context/WalletManager'
-import { useNetwork } from '../../context/NetworkManager'
 import { useGeneral } from '../../context/GeneralProvider'
 
 /* import constants */
 import { FunctionName } from '../../constants/enums'
-import { LP_ROI, BKPT_4, BKPT_6 } from '../../constants'
+import { BKPT_4, BKPT_6 } from '../../constants'
 
 /* import components */
 import { Content } from '../atoms/Layout'
@@ -37,21 +34,21 @@ import { Table, TableHead, TableRow, TableHeader, TableBody, TableData, TableDat
 import { Button, ButtonWrapper } from '../atoms/Button'
 import { FormRow, FormCol } from '../atoms/Form'
 import { Card } from '../atoms/Card'
+import { HyperLink } from '../atoms/Link'
 
 /* import hooks */
 import { useRewardsPerDay, useUserPendingRewards, useUserRewardsPerDay } from '../../hooks/useRewards'
 import { useUserStakedValue, usePoolStakedValue } from '../../hooks/useFarm'
-import { useDepositedLpBalance } from '../../hooks/useBalance'
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'
 
 /* import utils */
 import { truncateBalance } from '../../utils/formatting'
 
-interface LiquidityPoolProps {
+interface SptPoolProps {
   openModal: (func: FunctionName, modalTitle: string, farmName: string) => void
 }
 
-export const LiquidityPool: React.FC<LiquidityPoolProps> = ({ openModal }) => {
+export const SptPool: React.FC<SptPoolProps> = ({ openModal }) => {
   /*************************************************************************************
 
   hooks
@@ -60,24 +57,32 @@ export const LiquidityPool: React.FC<LiquidityPoolProps> = ({ openModal }) => {
 
   const { haveErrors } = useGeneral()
   const { account } = useWallet()
-  const { lpFarm } = useContracts()
+  const { sptFarm } = useContracts()
   const { width } = useWindowDimensions()
-  const { currencyDecimals } = useNetwork()
 
-  const lpRewardsPerDay = useRewardsPerDay(2)
-  const lpUserRewardsPerDay = useUserRewardsPerDay(2, lpFarm)
-  const lpUserRewards = useUserPendingRewards(lpFarm)
-  const lpPoolValue = usePoolStakedValue(lpFarm)
-  const lpUserStakeValue = useUserStakedValue(lpFarm)
-  // const depositedNftTokenInfo = useDepositedLpBalance()
+  const sptRewardsPerDay = useRewardsPerDay(3)
+  const sptUserRewardsPerDay = useUserRewardsPerDay(3, sptFarm)
+  const sptUserRewards = useUserPendingRewards(sptFarm)
+  const sptPoolValue = usePoolStakedValue(sptFarm)
+  const sptUserStakeValue = useUserStakedValue(sptFarm)
 
   return (
     <Content>
       <Text bold t1 mb={0} info>
-        SOLACE Liquidity Pool
+        Policy Whirlpool
       </Text>
       <Text t4 pt={10} pb={10}>
-        Manage your Uniswap V3 SOLACE-ETH LP tokens in this pool and earn rewards
+        Stake your policies here and earn even more rewards.
+        <HyperLink
+          t4
+          href={'https://medium.com/solace-fi/dear-policyholder-these-rewards-are-for-you-153ff190058'}
+          target="_blank"
+          rel="noopener noreferrer"
+          info
+        >
+          {' '}
+          More information here.
+        </HyperLink>
       </Text>
       {width > BKPT_6 ? (
         <Table isHighlight textAlignCenter>
@@ -93,40 +98,32 @@ export const LiquidityPool: React.FC<LiquidityPoolProps> = ({ openModal }) => {
           </TableHead>
           <TableBody>
             <TableRow light>
-              {/* {account ? (
-                <TableData width={100}>
-                  {truncateBalance(
-                    formatUnits(depositedNftTokenInfo.reduce((a, b) => a.add(b.value), ZERO).toString(), currencyDecimals),
-                    2
-                  )}
-                </TableData>
-              ) : null} */}
               {account ? (
                 <TableData t3 width={100}>
-                  {truncateBalance(lpUserStakeValue, 2)}
+                  {truncateBalance(sptUserStakeValue, 2)}
                 </TableData>
               ) : null}
-              <TableData t3>{truncateBalance(lpPoolValue, 2)}</TableData>
+              <TableData t3>{truncateBalance(sptPoolValue, 2)}</TableData>
               <TableData t3 width={100}>
-                N?A
+                N/A
               </TableData>
-              {account ? <TableData t3>{truncateBalance(lpUserRewards, 2)}</TableData> : null}
-              {account ? <TableData t3>{truncateBalance(lpUserRewardsPerDay, 2)}</TableData> : null}
-              <TableData t3>{truncateBalance(lpRewardsPerDay, 2)}</TableData>
+              {account ? <TableData t3>{truncateBalance(sptUserRewards, 2)}</TableData> : null}
+              {account ? <TableData t3>{truncateBalance(sptUserRewardsPerDay, 2)}</TableData> : null}
+              <TableData t3>{truncateBalance(sptRewardsPerDay, 2)}</TableData>
               {account ? (
                 <TableData textAlignRight>
                   <TableDataGroup width={200} style={{ float: 'right' }}>
                     <Button
                       light
                       disabled={haveErrors}
-                      onClick={() => openModal(FunctionName.DEPOSIT_LP_SIGNED, 'Deposit', 'lp')}
+                      onClick={() => openModal(FunctionName.DEPOSIT_POLICY_SIGNED, 'Deposit', 'spt')}
                     >
                       Deposit
                     </Button>
                     <Button
                       light
                       disabled={haveErrors}
-                      onClick={() => openModal(FunctionName.WITHDRAW_LP, 'Withdraw', 'lp')}
+                      onClick={() => openModal(FunctionName.WITHDRAW_POLICY, 'Withdraw', 'spt')}
                     >
                       Withdraw
                     </Button>
@@ -143,14 +140,14 @@ export const LiquidityPool: React.FC<LiquidityPoolProps> = ({ openModal }) => {
             <FormRow>
               <FormCol light>My Stake:</FormCol>
               <FormCol light t2>
-                {truncateBalance(lpUserStakeValue, 2)}
+                {truncateBalance(sptUserStakeValue, 2)}
               </FormCol>
             </FormRow>
           )}
           <FormRow>
             <FormCol light>Total Assets:</FormCol>
             <FormCol light t2>
-              {truncateBalance(lpPoolValue, 2)}
+              {truncateBalance(sptPoolValue, 2)}
             </FormCol>
           </FormRow>
           <FormRow>
@@ -164,13 +161,13 @@ export const LiquidityPool: React.FC<LiquidityPoolProps> = ({ openModal }) => {
               <FormRow>
                 <FormCol light>My Rewards:</FormCol>
                 <FormCol light t2>
-                  {truncateBalance(lpUserRewards, 2)}
+                  {truncateBalance(sptUserRewards, 2)}
                 </FormCol>
               </FormRow>
               <FormRow>
                 <FormCol light>My Daily Rewards:</FormCol>
                 <FormCol light t2>
-                  {truncateBalance(lpUserRewardsPerDay, 2)}
+                  {truncateBalance(sptUserRewardsPerDay, 2)}
                 </FormCol>
               </FormRow>
             </>
@@ -178,7 +175,7 @@ export const LiquidityPool: React.FC<LiquidityPoolProps> = ({ openModal }) => {
           <FormRow>
             <FormCol light>Daily Rewards:</FormCol>
             <FormCol light t2>
-              {truncateBalance(lpRewardsPerDay, 2)}
+              {truncateBalance(sptRewardsPerDay, 2)}
             </FormCol>
           </FormRow>
           {account && (
@@ -186,7 +183,7 @@ export const LiquidityPool: React.FC<LiquidityPoolProps> = ({ openModal }) => {
               <Button
                 widthP={100}
                 disabled={haveErrors}
-                onClick={() => openModal(FunctionName.DEPOSIT_LP_SIGNED, 'Deposit', 'lp')}
+                onClick={() => openModal(FunctionName.DEPOSIT_POLICY_SIGNED, 'Deposit', 'spt')}
                 light
               >
                 Deposit
@@ -194,7 +191,7 @@ export const LiquidityPool: React.FC<LiquidityPoolProps> = ({ openModal }) => {
               <Button
                 widthP={100}
                 disabled={haveErrors}
-                onClick={() => openModal(FunctionName.WITHDRAW_LP, 'Withdraw', 'lp')}
+                onClick={() => openModal(FunctionName.WITHDRAW_POLICY, 'Withdraw', 'spt')}
                 light
               >
                 Withdraw

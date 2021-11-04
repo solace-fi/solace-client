@@ -17,12 +17,12 @@
   *************************************************************************************/
 
 /* import packages */
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useMemo } from 'react'
 import { formatUnits, parseUnits } from '@ethersproject/units'
 import { BigNumber } from 'ethers'
 
 /* import constants */
-import { GAS_LIMIT, BKPT_3, ZERO } from '../../constants'
+import { BKPT_3, ZERO } from '../../constants'
 import { TransactionCondition, FunctionName, Unit, PolicyState } from '../../constants/enums'
 
 /* import managers */
@@ -49,10 +49,11 @@ import { useSolaceBalance } from '../../hooks/useBalance'
 import { usePolicyGetter } from '../../hooks/usePolicyGetter'
 import { useGetTotalValueLocked } from '../../hooks/useFarm'
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'
-import { useGasConfig } from '../../hooks/useGas'
+import { useGetFunctionGas } from '../../hooks/useGas'
 
 /* import utils */
 import { truncateBalance } from '../../utils/formatting'
+import { LocalTx } from '../../constants/types'
 
 export const Statistics: React.FC = () => {
   /*************************************************************************************
@@ -65,15 +66,15 @@ export const Statistics: React.FC = () => {
   const { activeNetwork, currencyDecimals } = useNetwork()
   const { farmController } = useContracts()
   const { makeTxToast } = useNotifications()
-  const { addLocalTransactions, reload, gasPrices, tokenPosData, latestBlock } = useCachedData()
+  const { addLocalTransactions, reload, tokenPosData, latestBlock } = useCachedData()
   const capitalPoolSize = useCapitalPoolSize()
   const solaceBalance = useSolaceBalance()
   const totalUserRewards = useTotalPendingRewards()
   const { allPolicies } = usePolicyGetter(true, latestBlock, tokenPosData)
   const totalValueLocked = useGetTotalValueLocked()
   const { width } = useWindowDimensions()
-  const { gasConfig } = useGasConfig(gasPrices.selected?.value)
-
+  const { getAutoGasConfig } = useGetFunctionGas()
+  const gasConfig = useMemo(() => getAutoGasConfig(), [getAutoGasConfig])
   const [totalActiveCoverAmount, setTotalActiveCoverAmount] = useState<string>('-')
   const [totalActivePolicies, setTotalActivePolicies] = useState<number | string>('-')
 
@@ -88,15 +89,14 @@ export const Statistics: React.FC = () => {
     try {
       const tx = await farmController.farmOptionMulti({
         ...gasConfig,
-        gasLimit: GAS_LIMIT,
+        gasLimit: 834261,
       })
       const txHash = tx.hash
-      const localTx = {
+      const localTx: LocalTx = {
         hash: txHash,
         type: txType,
         value: `${truncateBalance(totalUserRewards)} ${Unit.SOLACE}`,
         status: TransactionCondition.PENDING,
-        unit: Unit.SOLACE,
       }
       addLocalTransactions(localTx)
       makeTxToast(txType, TransactionCondition.PENDING, txHash)
@@ -142,7 +142,6 @@ export const Statistics: React.FC = () => {
       <BoxItem>
         <BoxItemTitle t4 light bold>
           Underwriting Pool Size
-          {/* <StyledTooltip id={'cps'} tip={'Current amount of capital in the vault'} /> */}
         </BoxItemTitle>
         <Text t2 nowrap light bold>
           {`${truncateBalance(capitalPoolSize, 1)} `}
@@ -154,7 +153,6 @@ export const Statistics: React.FC = () => {
       <BoxItem>
         <BoxItemTitle t4 light bold>
           Total Value Locked
-          {/* <StyledTooltip id={'tvl'} tip={'Current amount of funds locked into the pools'} />{' '} */}
         </BoxItemTitle>
         <Text t2 nowrap light bold>
           {`${truncateBalance(totalValueLocked, 1)} `}
@@ -166,7 +164,6 @@ export const Statistics: React.FC = () => {
       <BoxItem>
         <BoxItemTitle t4 light bold>
           Active Cover Amount
-          {/* <StyledTooltip id={'aca'} tip={'Current amount of coverage in use'} /> */}
         </BoxItemTitle>
         <Text t2 nowrap light bold>
           {totalActiveCoverAmount !== '-' ? `${truncateBalance(totalActiveCoverAmount, 2)} ` : `- `}
@@ -194,7 +191,7 @@ export const Statistics: React.FC = () => {
             <Box>
               {/* <BoxItem>
                 <BoxItemTitle t4>
-                  My Balance <StyledTooltip id={'solace'} tip={'Number of SOLACE tokens in your wallet'} />
+                  My Balance
                 </BoxItemTitle>
                 <Text t2>
                   {`${truncateBalance(solaceBalance, 1)} `}

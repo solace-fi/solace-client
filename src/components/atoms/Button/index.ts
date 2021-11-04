@@ -1,4 +1,4 @@
-import { GeneralElementProps, GeneralElementCss, MarginProps, MarginCss } from '../../generalInterfaces'
+import { GeneralElementProps, GeneralElementCss, PaddingProps, PaddingCss } from '../../generalInterfaces'
 import styled, { css } from 'styled-components'
 import { Text4Css } from '../Typography'
 
@@ -171,12 +171,12 @@ export const NavButton = styled.button`
   min-width: 70px;
 `
 
-export const ButtonWrapper = styled.div<MarginProps & ButtonWrapperProps>`
+export const ButtonWrapper = styled.div<PaddingProps & ButtonWrapperProps>`
   display: flex;
   align-items: center;
   justify-content: center;
-  margin: 20px 0;
+  padding: 20px 0;
   gap: 10px;
-  ${MarginCss}
+  ${PaddingCss}
   ${ButtonWrapperCss}
 `

@@ -43,13 +43,7 @@ export const ConfirmStep: React.FC<ConfirmStepProp> = ({ resetForm }) => {
               Go to Dashboard
             </Button>
           </StyledNavLink>
-          <Button
-            secondary
-            info
-            onClick={() => {
-              resetForm()
-            }}
-          >
+          <Button secondary info onClick={resetForm}>
             Start New Quote
           </Button>
         </TableDataGroup>

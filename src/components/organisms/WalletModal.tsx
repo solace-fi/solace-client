@@ -78,7 +78,7 @@ export const WalletModal: React.FC<WalletModalProps> = ({ closeModal, isOpen }) 
 
   return (
     <Modal
-      zIndex={3}
+      zIndex={4}
       handleClose={handleClose}
       isOpen={isOpen}
       modalTitle={'Connect a wallet'}
@@ -115,7 +115,7 @@ export const WalletModal: React.FC<WalletModalProps> = ({ closeModal, isOpen }) 
       </Scrollable>
       {activeWalletConnector && (
         <ButtonWrapper>
-          <Button widthP={100} onClick={() => disconnect()}>
+          <Button widthP={100} onClick={disconnect}>
             Disconnect Wallet
           </Button>
         </ButtonWrapper>

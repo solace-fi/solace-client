@@ -1,7 +1,7 @@
 import { BigNumber } from 'ethers'
-import { DEADLINE } from '../constants'
+import { DEADLINE, GAS_LIMIT } from '../constants'
 import { FunctionName, TransactionCondition } from '../constants/enums'
-import { LocalTx } from '../constants/types'
+import { GasConfiguration, LocalTx } from '../constants/types'
 import { useContracts } from '../context/ContractsManager'
 import { useNetwork } from '../context/NetworkManager'
 import { useWallet } from '../context/WalletManager'
@@ -13,7 +13,8 @@ export const useLpFarm = () => {
   const { chainId } = useNetwork()
 
   const depositLp = async (
-    nftId: BigNumber
+    nftId: BigNumber,
+    gasConfig: GasConfiguration
   ): Promise<
     | {
         tx: null
@@ -26,10 +27,13 @@ export const useLpFarm = () => {
   > => {
     if (!lpToken || !lpFarm || !nftId || !chainId || !account || !library) return { tx: null, localTx: null }
     const { v, r, s } = await getPermitNFTSignature(account, chainId, library, lpToken, lpFarm.address, nftId, DEADLINE)
-    const tx = await lpFarm.depositLpSigned(account, nftId, DEADLINE, v, r, s)
-    const localTx = {
+    const tx = await lpFarm.depositLpSigned(account, nftId, DEADLINE, v, r, s, {
+      ...gasConfig,
+      gasLimit: GAS_LIMIT,
+    })
+    const localTx: LocalTx = {
       hash: tx.hash,
-      type: FunctionName.DEPOSIT_SIGNED,
+      type: FunctionName.DEPOSIT_LP_SIGNED,
       value: `#${nftId.toString()}`,
       status: TransactionCondition.PENDING,
     }
@@ -37,7 +41,8 @@ export const useLpFarm = () => {
   }
 
   const withdrawLp = async (
-    nftId: BigNumber
+    nftId: BigNumber,
+    gasConfig: GasConfiguration
   ): Promise<
     | {
         tx: null
@@ -49,8 +54,11 @@ export const useLpFarm = () => {
       }
   > => {
     if (!lpFarm) return { tx: null, localTx: null }
-    const tx = await lpFarm.withdrawLp(nftId)
-    const localTx = {
+    const tx = await lpFarm.withdrawLp(nftId, {
+      ...gasConfig,
+      gasLimit: GAS_LIMIT,
+    })
+    const localTx: LocalTx = {
       hash: tx.hash,
       type: FunctionName.WITHDRAW_LP,
       value: `#${nftId.toString()}`,

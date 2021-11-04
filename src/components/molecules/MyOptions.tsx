@@ -16,15 +16,13 @@
   *************************************************************************************/
 
 /* import packages */
-import React, { useEffect, useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import { formatUnits } from '@ethersproject/units'
 import { BigNumber } from 'ethers'
 
 /* import managers */
-import { useWallet } from '../../context/WalletManager'
 import { useCachedData } from '../../context/CachedDataManager'
 import { useNotifications } from '../../context/NotificationsManager'
-import { useContracts } from '../../context/ContractsManager'
 import { useNetwork } from '../../context/NetworkManager'
 import { useGeneral } from '../../context/GeneralProvider'
 
@@ -34,18 +32,18 @@ import { Box, BoxItem, BoxItemTitle } from '../atoms/Box'
 import { Button, ButtonWrapper } from '../atoms/Button'
 import { Text } from '../atoms/Typography'
 import { Content } from '../atoms/Layout'
-import { StyledArrowDropDown } from '../../components/atoms/Icon'
-import { Accordion } from '../atoms/Accordion/Accordion'
+import { StyledArrowDropDown } from '../atoms/Icon'
+import { Accordion } from '../atoms/Accordion'
 
 /* import constants */
-import { Option } from '../../constants/types'
-import { GAS_LIMIT, BKPT_3 } from '../../constants'
-import { FunctionName, TransactionCondition, Unit } from '../../constants/enums'
+import { Option, LocalTx } from '../../constants/types'
+import { BKPT_3 } from '../../constants'
+import { FunctionName, TransactionCondition } from '../../constants/enums'
 
 /* import hooks */
 import { useOptionsDetails } from '../../hooks/useOptionsFarming'
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'
-import { useGasConfig } from '../../hooks/useGas'
+import { useGetFunctionGas } from '../../hooks/useGas'
 
 /* import utils */
 import { accurateMultiply, truncateBalance } from '../../utils/formatting'
@@ -57,16 +55,14 @@ export const MyOptions: React.FC = () => {
 
   *************************************************************************************/
   const { haveErrors } = useGeneral()
-  const { account, library } = useWallet()
-  const { optionsFarming } = useContracts()
-  const { addLocalTransactions, reload, gasPrices, latestBlock } = useCachedData()
+  const { addLocalTransactions, reload } = useCachedData()
   const { makeTxToast } = useNotifications()
-  const { gasConfig } = useGasConfig(gasPrices.selected?.value)
+  const { getAutoGasConfig } = useGetFunctionGas()
+  const gasConfig = useMemo(() => getAutoGasConfig(), [getAutoGasConfig])
   const { activeNetwork, currencyDecimals } = useNetwork()
   const [openOptions, setOpenOptions] = useState<boolean>(true)
-  const optionsDetails = useOptionsDetails(account)
+  const { optionsDetails, latestBlockTimestamp, exerciseOption } = useOptionsDetails()
   const { width } = useWindowDimensions()
-  const [latestBlockTimestamp, setLatestBlockTimestamp] = useState<number>(0)
 
   /*************************************************************************************
 
@@ -74,40 +70,29 @@ export const MyOptions: React.FC = () => {
 
   *************************************************************************************/
 
-  const exerciseOption = async (_optionId: string) => {
-    if (!optionsFarming || !_optionId) return
-    const txType = FunctionName.WITHDRAW_CLAIMS_PAYOUT
-    try {
-      const tx = await optionsFarming.exerciseOption(_optionId, {
-        ...gasConfig,
-        gasLimit: GAS_LIMIT,
-      })
-      const txHash = tx.hash
-      const localTx = {
-        hash: txHash,
-        type: txType,
-        value: `Option #${String(_optionId)}`,
-        status: TransactionCondition.PENDING,
-        unit: Unit.ID,
-      }
-      addLocalTransactions(localTx)
-      reload()
-      makeTxToast(txType, TransactionCondition.PENDING, txHash)
-      await tx.wait().then((receipt: any) => {
-        const status = receipt.status ? TransactionCondition.SUCCESS : TransactionCondition.FAILURE
-        makeTxToast(txType, status, txHash)
-        reload()
-      })
-    } catch (err) {
-      makeTxToast(txType, TransactionCondition.CANCELLED)
-      reload()
-    }
+  const callExerciseOption = async (_optionId: string) => {
+    await exerciseOption(_optionId, gasConfig)
+      .then((res) => handleToast(res.tx, res.localTx))
+      .catch((err) => handleContractCallError('callExerciseOption', err, FunctionName.EXERCISE_OPTION))
   }
 
-  useEffect(() => {
-    if (!library || !latestBlock) return
-    setLatestBlockTimestamp(latestBlock.timestamp)
-  }, [latestBlock, library])
+  const handleToast = async (tx: any, localTx: LocalTx | null) => {
+    if (!tx || !localTx) return
+    addLocalTransactions(localTx)
+    reload()
+    makeTxToast(localTx.type, TransactionCondition.PENDING, localTx.hash)
+    await tx.wait().then((receipt: any) => {
+      const status = receipt.status ? TransactionCondition.SUCCESS : TransactionCondition.FAILURE
+      makeTxToast(localTx.type, status, localTx.hash)
+      reload()
+    })
+  }
+
+  const handleContractCallError = (functionName: string, err: any, txType: FunctionName) => {
+    console.log(functionName, err)
+    makeTxToast(txType, TransactionCondition.CANCELLED)
+    reload()
+  }
 
   return (
     <Content>
@@ -180,10 +165,10 @@ export const MyOptions: React.FC = () => {
                       </Text>
                     </BoxItem>
                   </Box>
-                  <ButtonWrapper mb={0} mt={20}>
+                  <ButtonWrapper pb={0} pt={20}>
                     <Button
                       widthP={100}
-                      onClick={() => exerciseOption(option.id.toString())}
+                      onClick={() => callExerciseOption(option.id.toString())}
                       info
                       disabled={haveErrors || latestBlockTimestamp > option.expiry.toNumber()}
                     >

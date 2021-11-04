@@ -92,7 +92,7 @@ export const LedgerDerivationPathModal: React.FC<LedgerDerivationPathModalProps>
         <StyledSelect value={derivationPath} onChange={handleSelect} options={LEDGER_DERIVATION_PATHS} />
       </ModalRow>
       <ButtonWrapper>
-        <Button onClick={() => handleConnect()} info>
+        <Button onClick={handleConnect} info>
           Connect
         </Button>
       </ButtonWrapper>

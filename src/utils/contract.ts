@@ -1,4 +1,4 @@
-import { BigNumber as BN, utils } from 'ethers'
+import { BigNumber, utils } from 'ethers'
 import { Contract } from '@ethersproject/contracts'
 import { rangeFrom0, numberify } from './numeric'
 import { equalsIgnoreCase, getContract } from '.'
@@ -8,7 +8,7 @@ import { ZERO } from '../constants'
 
 const eth = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
 
-export const queryBalance = async (tokenContract: Contract, user: string): Promise<BN> => {
+export const queryBalance = async (tokenContract: Contract, user: string): Promise<BigNumber> => {
   return await withBackoffRetries(async () => tokenContract.balanceOf(user)).catch((e) => {
     console.log('queryBalance', tokenContract.address, 'for', user, e)
     return ZERO
@@ -51,13 +51,13 @@ export const queryUnderLying = async (tokenContract: Contract): Promise<string> 
 }
 
 export const sortTokens = (tokenA: string, tokenB: string): [string, string] => {
-  return BN.from(tokenA).lt(BN.from(tokenB)) ? [tokenA, tokenB] : [tokenB, tokenA]
+  return BigNumber.from(tokenA).lt(BigNumber.from(tokenB)) ? [tokenA, tokenB] : [tokenB, tokenA]
 }
 
-export const listTokensOfOwner = async (token: Contract, account: string): Promise<BN[]> => {
-  const numTokensOfOwner: BN = await queryBalance(token, account)
+export const listTokensOfOwner = async (token: Contract, account: string): Promise<BigNumber[]> => {
+  const numTokensOfOwner: BigNumber = await queryBalance(token, account)
   const indices = rangeFrom0(numTokensOfOwner.toNumber())
-  const tokenIds: BN[] = await Promise.all(
+  const tokenIds: BigNumber[] = await Promise.all(
     indices.map(async (index: number) => await token.tokenOfOwnerByIndex(account, index))
   )
   return tokenIds

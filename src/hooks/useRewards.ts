@@ -56,14 +56,10 @@ export const useRewardsPerDay = (farmId: number): string => {
   }, [allocPoints, totalAllocPoints, rewardPerSecond, currencyDecimals])
 }
 
-export const useUserRewardsPerDay = (
-  farmId: number,
-  farm: Contract | null | undefined,
-  account: string | undefined
-): string => {
+export const useUserRewardsPerDay = (farmId: number, farm: Contract | null | undefined): string => {
   const { currencyDecimals } = useNetwork()
   const poolStakedValue = parseUnits(usePoolStakedValue(farm), currencyDecimals)
-  const userStakedValue = parseUnits(useUserStakedValue(farm, account), currencyDecimals)
+  const userStakedValue = parseUnits(useUserStakedValue(farm), currencyDecimals)
   const { allocPoints, totalAllocPoints, rewardPerSecond } = useFarmControllerValues(farmId)
 
   return useMemo(() => {

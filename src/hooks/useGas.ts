@@ -1,10 +1,12 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { fetchGasPrice } from '../utils/explorer'
-import { GasFeeListState } from '../constants/types'
+import { GasConfiguration, GasFeeListState } from '../constants/types'
 import { useCachedData } from '../context/CachedDataManager'
 import { useNetwork } from '../context/NetworkManager'
 import { getGasValue } from '../utils/formatting'
 import { useWallet } from '../context/WalletManager'
+import { FunctionName } from '../constants/enums'
+import { GAS_LIMIT } from '../constants'
 
 export const useFetchGasPrice = (): GasFeeListState => {
   const { activeNetwork, chainId } = useNetwork()
@@ -56,33 +58,50 @@ export const useFetchGasPrice = (): GasFeeListState => {
   return state
 }
 
-export const useGasConfig = (gasValue: any): any => {
-  const { activeWalletConnector } = useWallet()
+export const useGetFunctionGas = () => {
   const { activeNetwork } = useNetwork()
-  const [gasConfig, setGasConfig] = useState<any>({})
+  const { activeWalletConnector } = useWallet()
+  const { gasPrices } = useCachedData()
 
-  useEffect(() => {
-    const getGasConfig = () => {
+  const getGasConfig = useCallback(
+    (_gasValue: number | undefined): GasConfiguration => {
       // null check and testnet check
-      if (!activeWalletConnector || !gasValue || activeNetwork.isTestnet) {
-        setGasConfig({})
-        return
+      const gasValue = _gasValue ?? gasPrices.selected?.value
+
+      if (!activeWalletConnector || activeNetwork.isTestnet || !gasValue) {
+        return {}
       }
 
       // type 2 transaction
       if (activeWalletConnector.supportedTxTypes.includes(2) && activeNetwork.supportedTxTypes.includes(2))
-        setGasConfig({
+        return {
           maxFeePerGas: getGasValue(gasValue),
           type: 2,
-        })
+        }
 
-      // type 1 transaction
-      setGasConfig({
+      // legacy type 0 transaction
+      return {
         gasPrice: getGasValue(gasValue),
-      })
-    }
-    getGasConfig()
-  }, [activeWalletConnector, activeNetwork, gasValue])
+      }
+    },
+    [activeNetwork, activeWalletConnector, gasPrices]
+  )
 
-  return { gasConfig }
+  const getAutoGasConfig = useCallback((): GasConfiguration => getGasConfig(undefined), [getGasConfig])
+
+  const getGasLimit = useCallback(
+    (productName: string, txType: FunctionName): number => {
+      let callingGasLimit = GAS_LIMIT
+      const supportedProduct = activeNetwork.cache.supportedProducts.find((p) => p.name == productName)
+      if (supportedProduct) {
+        const gasLimits = supportedProduct.gasLimits
+        if (gasLimits && gasLimits[activeNetwork.chainId] && gasLimits[activeNetwork.chainId][txType])
+          callingGasLimit = gasLimits[activeNetwork.chainId][txType]
+      }
+      return callingGasLimit
+    },
+    [activeNetwork]
+  )
+
+  return { getGasConfig, getAutoGasConfig, getGasLimit }
 }

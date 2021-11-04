@@ -24,7 +24,7 @@ export enum FunctionName {
   CANCEL_POLICY = 'CancelPolicy',
   DEPOSIT_ETH = 'DepositEth',
   DEPOSIT_CP = 'DepositCp',
-  DEPOSIT_SIGNED = 'DepositLpSigned',
+  DEPOSIT_LP_SIGNED = 'DepositLpSigned',
   EXTEND_POLICY_PERIOD = 'ExtendPolicy',
   UPDATE_POLICY_AMOUNT = 'UpdateCoverAmount',
   UPDATE_POLICY = 'UpdatePolicy',
@@ -37,6 +37,10 @@ export enum FunctionName {
   MULTI_CALL = 'Multicall',
   START_COOLDOWN = 'StartCooldown',
   STOP_COOLDOWN = 'StopCooldown',
+  DEPOSIT_POLICY_SIGNED = 'DepositPolicySigned',
+  DEPOSIT_POLICY_SIGNED_MULTI = 'DepositPolicySignedMulti',
+  WITHDRAW_POLICY = 'WithdrawPolicy',
+  WITHDRAW_POLICY_MULTI = 'WithdrawPolicyMulti',
 
   // TODO: include in transaction history retrieval
   EXERCISE_OPTION = 'ExerciseOption',
@@ -56,6 +60,7 @@ export enum Unit {
   SOLACE = 'SOLACE',
   LP = 'LP Token',
   ID = 'ID',
+  POLICY = 'Policy',
   _ = 'Unknown',
 }
 

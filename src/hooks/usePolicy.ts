@@ -2,13 +2,12 @@ import useDebounce from '@rooks/use-debounce'
 import { BigNumber } from 'ethers'
 import { formatUnits } from '@ethersproject/units'
 import { useEffect, useState } from 'react'
-import { GAS_LIMIT, NUM_BLOCKS_PER_DAY, ZERO } from '../constants'
+import { NUM_BLOCKS_PER_DAY, ZERO } from '../constants'
 import { useContracts } from '../context/ContractsManager'
 import { useWallet } from '../context/WalletManager'
 import { LiquityPosition, Policy, Position, StringToStringMapping, SupportedProduct, Token } from '../constants/types'
 import { useCachedData } from '../context/CachedDataManager'
 import { useNetwork } from '../context/NetworkManager'
-import { useGasConfig } from './useGas'
 import { PositionType } from '../constants/enums'
 
 export const useGetPolicyPrice = (policyId: number): string => {
@@ -233,10 +232,7 @@ export const useGetQuote = (coverAmount: string | null, days: string): string =>
     try {
       const positionsQuote: BigNumber = await selectedProtocol.getQuote(
         coverAmount,
-        BigNumber.from(NUM_BLOCKS_PER_DAY * parseInt(days)),
-        {
-          gasLimit: GAS_LIMIT,
-        }
+        BigNumber.from(NUM_BLOCKS_PER_DAY * parseInt(days))
       )
       const formattedQuote = formatUnits(positionsQuote, currencyDecimals)
       setQuote(formattedQuote)

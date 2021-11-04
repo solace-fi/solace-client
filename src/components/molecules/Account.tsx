@@ -5,11 +5,10 @@
     import packages
     import managers
     import components
-    import hooks
     import utils
 
     UserAccount
-      custom hooks
+      hooks
       local functions
       
     Account
@@ -37,11 +36,8 @@ import { FlexCol, FlexRow } from '../atoms/Layout'
 import { StyledNetworkChart, StyledWallet } from '../atoms/Icon'
 import { GeneralElementProps } from '../generalInterfaces'
 
-/* import hooks */
-import { useNativeTokenBalance } from '../../hooks/useBalance'
-
 /* import utils */
-import { shortenAddress, fixed, capitalizeFirstLetter } from '../../utils/formatting'
+import { shortenAddress, capitalizeFirstLetter } from '../../utils/formatting'
 
 export const UserAccount: React.FC<ButtonProps & GeneralElementProps> = (props) => {
   /*************************************************************************************
@@ -56,7 +52,7 @@ export const UserAccount: React.FC<ButtonProps & GeneralElementProps> = (props) 
   const { openAccountModal } = useCachedData()
 
   return (
-    <Button noborder nohover p={0} onClick={() => openAccountModal()} {...props}>
+    <Button noborder nohover p={0} onClick={openAccountModal} {...props}>
       <FlexCol
         style={{
           backgroundColor: location.pathname == '/' || appTheme == 'dark' ? 'rgba(0, 0, 0, 0.1)' : 'rgb(242, 242, 242)',
@@ -109,7 +105,7 @@ export const MiniUserAccount: React.FC<ButtonProps & GeneralElementProps> = (pro
   const { openAccountModal } = useCachedData()
 
   return (
-    <Button noborder nohover p={0} onClick={() => openAccountModal()} {...props}>
+    <Button noborder nohover p={0} onClick={openAccountModal} {...props}>
       <FlexCol
         style={{
           backgroundColor: location.pathname == '/' || appTheme == 'dark' ? 'rgba(0, 0, 0, 0.1)' : 'rgb(242, 242, 242)',

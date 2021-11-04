@@ -50,7 +50,7 @@ function About(): any {
             <Text light t4 textAlignCenter style={{ lineHeight: '1.8', width: '500px', fontSize: '18px' }}>
               We’re here to protect your funds, so you don’t have to stress about getting rekt anymore.
             </Text>
-            <ButtonWrapper mt={70} mb={90}>
+            <ButtonWrapper pt={70} pb={90}>
               <StyledNavLink to="/quote">
                 <Button light width={200} style={{ padding: '15px 50px', borderRadius: '55px' }}>
                   Buy Cover
@@ -124,7 +124,7 @@ function About(): any {
             >
               We’re here to protect your funds, so you don’t have to stress about getting rekt anymore.
             </Text>
-            <ButtonWrapper mt={70} mb={90}>
+            <ButtonWrapper pt={70} pb={90}>
               <StyledNavLink to="/quote">
                 <Button light width={150} style={{ padding: '15px 50px', borderRadius: '55px' }}>
                   <TextSpan light nowrap>

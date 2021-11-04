@@ -23,7 +23,7 @@ import { formatUnits, parseUnits } from 'ethers/lib/utils'
 import { BigNumber } from 'ethers'
 
 /* import constants */
-import { DAYS_PER_YEAR, GAS_LIMIT, NUM_BLOCKS_PER_DAY, ZERO } from '../../constants'
+import { DAYS_PER_YEAR, NUM_BLOCKS_PER_DAY, ZERO } from '../../constants'
 import { TransactionCondition, FunctionName, PositionType } from '../../constants/enums'
 import { LiquityPosition, LocalTx, Position, Token } from '../../constants/types'
 
@@ -36,7 +36,6 @@ import { useNetwork } from '../../context/NetworkManager'
 import { useGeneral } from '../../context/GeneralProvider'
 
 /* import components */
-import { TermsText } from '../../components/molecules/Terms'
 import { FormRow, FormCol } from '../../components/atoms/Form'
 import { Button, ButtonWrapper } from '../../components/atoms/Button'
 import { formProps } from './MultiStepForm'
@@ -45,12 +44,10 @@ import { Text, TextSpan } from '../../components/atoms/Typography'
 import { Input, StyledSlider } from '../../components/atoms/Input'
 import { Loader } from '../../components/atoms/Loader'
 import { FlexCol, FlexRow, HorizRule } from '../../components/atoms/Layout'
-import { StyledTooltip } from '../../components/molecules/Tooltip'
 
 /* import hooks */
 import { useGetQuote, useGetMaxCoverPerPolicy } from '../../hooks/usePolicy'
-import { useGasConfig } from '../../hooks/useGas'
-import { useWindowDimensions } from '../../hooks/useWindowDimensions'
+import { useGetFunctionGas } from '../../hooks/useGas'
 
 /* import utils */
 import { accurateMultiply, encodeAddresses, filteredAmount } from '../../utils/formatting'
@@ -63,19 +60,20 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
 
   *************************************************************************************/
   const { haveErrors } = useGeneral()
-  const { positions, coverAmount, timePeriod, loading } = formData
+  const { protocol, positions, coverAmount, timePeriod, loading } = formData
   const maxCoverPerPolicy = useGetMaxCoverPerPolicy() // in eth
   const quote = useGetQuote(coverAmount, timePeriod)
   const { account } = useWallet()
-  const { addLocalTransactions, reload, gasPrices } = useCachedData()
+  const { addLocalTransactions, reload } = useCachedData()
   const { selectedProtocol } = useContracts()
   const { makeTxToast } = useNotifications()
   const { activeNetwork, currencyDecimals } = useNetwork()
-  const { gasConfig } = useGasConfig(gasPrices.selected?.value)
-  const maxCoverPerPolicyInWei = useMemo(() => {
-    return parseUnits(maxCoverPerPolicy, currencyDecimals)
-  }, [maxCoverPerPolicy, currencyDecimals])
-  const { width } = useWindowDimensions()
+  const { getAutoGasConfig, getGasLimit } = useGetFunctionGas()
+  const gasConfig = useMemo(() => getAutoGasConfig(), [getAutoGasConfig])
+  const maxCoverPerPolicyInWei = useMemo(() => parseUnits(maxCoverPerPolicy, currencyDecimals), [
+    maxCoverPerPolicy,
+    currencyDecimals,
+  ])
 
   // positionAmount: BigNumber = wei but displayable, position.eth.balance: BigNumber = wei
   const positionAmount: BigNumber = useMemo(() => {
@@ -104,13 +102,13 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
   *************************************************************************************/
 
   const buyPolicy = async () => {
+    if (!selectedProtocol) return
     setForm({
       target: {
         name: 'loading',
         value: true,
       },
     })
-    if (!selectedProtocol) return
     const txType = FunctionName.BUY_POLICY
     try {
       const tx = await selectedProtocol.buyPolicy(
@@ -135,7 +133,7 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
         {
           value: parseUnits(quote, currencyDecimals),
           ...gasConfig,
-          gasLimit: GAS_LIMIT,
+          gasLimit: getGasLimit(protocol.name, txType),
         }
       )
       navigation.next()
@@ -256,12 +254,6 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
     setCoveredAssets(formatUnits(BigNumber.from(coverAmount), currencyDecimals))
   }, [coverAmount, currencyDecimals])
 
-  const TermsCard = () => (
-    <Card transparent>
-      <TermsText />
-    </Card>
-  )
-
   return (
     <CardContainer cardsPerRow={2}>
       <Card style={{ height: 'fit-content' }}>
@@ -269,11 +261,6 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
           <FormCol>
             <Text bold t2>
               Total Assets
-              {/* {' '}
-              <StyledTooltip
-                id={`total-assets`}
-                tip={`The sum of amounts from your chosen positions denominated in ${activeNetwork.nativeCurrency.symbol}`}
-              /> */}
             </Text>
           </FormCol>
           <FormCol>
@@ -284,14 +271,7 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
         </FormRow>
         <FormRow mb={15}>
           <FormCol>
-            <Text t3>
-              Max Coverage
-              {/* {' '}
-              <StyledTooltip
-                id={`max-coverage`}
-                tip={`Each policy can only cover up to a certain amount based on the size of the capital pool and active cover`}
-              /> */}
-            </Text>
+            <Text t3>Max Coverage</Text>
           </FormCol>
           <FormCol>
             <Text t3 textAlignRight info>
@@ -299,7 +279,7 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
             </Text>
           </FormCol>
         </FormRow>
-        <HorizRule style={{ marginBottom: '10px' }} />
+        <HorizRule mb={10} />
         <FlexCol mb={20} style={{ padding: '10px 30px' }}>
           <div style={{ textAlign: 'center' }}>
             <Text t3>Coverage Amount</Text>
@@ -324,7 +304,7 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
                   pr={2}
                   width={120}
                   height={30}
-                  onClick={() => setPositionCover()}
+                  onClick={setPositionCover}
                   info
                 >
                   Cover to position
@@ -339,7 +319,7 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
                 pr={8}
                 width={70}
                 height={30}
-                onClick={() => setMaxCover()}
+                onClick={setMaxCover}
                 info
               >
                 MAX
@@ -377,7 +357,7 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
             />
           </div>
         </FlexCol>
-        <HorizRule style={{ marginBottom: '20px' }} />
+        <HorizRule mb={20} />
         <FormRow mb={5}>
           <FormCol>
             <Text t4>Covered Assets</Text>
@@ -420,7 +400,7 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
         </FormRow>
         <ButtonWrapper>
           {!loading ? (
-            <Button widthP={100} onClick={() => buyPolicy()} disabled={haveErrors || coveredAssets == '0.0'} info>
+            <Button widthP={100} onClick={buyPolicy} disabled={haveErrors || coveredAssets == '0.0'} info>
               Buy
             </Button>
           ) : (

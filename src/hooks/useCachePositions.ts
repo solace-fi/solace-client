@@ -16,8 +16,7 @@ import { useSessionStorage } from 'react-use-storage'
 import { NetworkCache } from '../constants/types'
 import { PositionType, ProductName } from '../constants/enums'
 import { getTroveContract } from '../products/liquity/positionGetter/getPositions'
-import { ETHERSCAN_API_KEY, ZERO } from '../constants'
-import { withBackoffRetries } from '../utils/time'
+import { ZERO } from '../constants'
 import { fetchTransferEventsOfUser } from '../utils/explorer'
 
 export const useCachePositions = () => {
@@ -178,7 +177,7 @@ export const useCachePositions = () => {
         const liquityPositions: LiquityPosition[] = []
         if (troveManagerContract.address) {
           liquityPositions.push({
-            positionAddress: troveManagerContract.address,
+            positionAddress: troveManagerContract.address.toLowerCase(),
             positionName: 'Trove',
             amount: ZERO,
             nativeAmount: ZERO,
@@ -191,7 +190,7 @@ export const useCachePositions = () => {
         }
         if (stabilityPoolAddr && lusdTokenAddr) {
           liquityPositions.push({
-            positionAddress: stabilityPoolAddr,
+            positionAddress: stabilityPoolAddr.toLowerCase(),
             positionName: 'Stability Pool',
             amount: ZERO,
             nativeAmount: ZERO,
@@ -200,7 +199,7 @@ export const useCachePositions = () => {
         }
         if (lqtyStakingAddr && lqtyTokenAddr) {
           liquityPositions.push({
-            positionAddress: lqtyStakingAddr,
+            positionAddress: lqtyStakingAddr.toLowerCase(),
             positionName: 'Staking Pool',
             amount: ZERO,
             nativeAmount: ZERO,

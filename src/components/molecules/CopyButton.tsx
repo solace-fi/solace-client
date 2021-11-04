@@ -11,9 +11,14 @@
 
   *************************************************************************************/
 
+/* import packages */
 import React from 'react'
+
+/* import components */
 import { Button } from '../atoms/Button'
 import { StyledCheckmark, StyledCopy } from '../atoms/Icon'
+
+/* import hooks */
 import useCopyClipboard from '../../hooks/useCopyToClipboard'
 
 interface CopyProps {

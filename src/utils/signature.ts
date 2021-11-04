@@ -1,6 +1,7 @@
-import { BigNumberish, constants, Signature, Contract } from 'ethers'
+import { BigNumberish, constants, Signature, Contract, BigNumber } from 'ethers'
 import { splitSignature } from 'ethers/lib/utils'
 
+// should be used on Uniswap V3 NFTs
 export default async function getPermitNFTSignature(
   account: string,
   chainId: number,
@@ -49,6 +50,53 @@ export default async function getPermitNFTSignature(
         spender,
         tokenId,
         nonce,
+        deadline,
+      }
+    )
+  )
+}
+
+// should be used on Solace NFTs
+export async function getPermitErc721EnhancedSignature(
+  account: string,
+  chainId: number,
+  library: any,
+  contract: Contract, // ClaimsEscrow, OptionsFarming, or PolicyManager
+  spender: string,
+  tokenID: BigNumberish,
+  deadline: BigNumberish = constants.MaxUint256,
+  nonce: BigNumberish = constants.MaxUint256 // optional override. leave empty to use correct nonce
+): Promise<Signature> {
+  // get nonce if not given
+  let nonceBN = BigNumber.from(nonce)
+  if (nonceBN.eq(constants.MaxUint256)) {
+    nonceBN = await contract.nonces(tokenID)
+  }
+  // get other vars
+  const [name, version] = await Promise.all([contract.name(), '1'])
+  // split v, r, s
+  return splitSignature(
+    // sign message
+    await library.getSigner(account)._signTypedData(
+      {
+        name,
+        version,
+        chainId,
+        verifyingContract: contract.address,
+      },
+      {
+        Permit: [
+          { name: 'spender', type: 'address' },
+          { name: 'tokenID', type: 'uint256' },
+          { name: 'nonce', type: 'uint256' },
+          { name: 'deadline', type: 'uint256' },
+        ],
+      },
+      {
+        owner: account,
+        spender,
+        tokenID,
+        nonce: nonceBN,
         deadline,
       }
     )

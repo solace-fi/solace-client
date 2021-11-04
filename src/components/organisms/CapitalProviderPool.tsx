@@ -29,11 +29,10 @@ import { Table, TableHead, TableRow, TableHeader, TableBody, TableData, TableDat
 import { Button, ButtonWrapper } from '../atoms/Button'
 import { Card } from '../atoms/Card'
 import { FormRow, FormCol } from '../atoms/Form'
-import { StyledTooltip } from '../molecules/Tooltip'
 import { HyperLink } from '../atoms/Link'
 
 /* import constants */
-import { CP_ROI, BKPT_4, BKPT_6 } from '../../constants'
+import { BKPT_4, BKPT_6 } from '../../constants'
 import { FunctionName } from '../../constants/enums'
 
 /* import hooks */
@@ -45,7 +44,7 @@ import { useWindowDimensions } from '../../hooks/useWindowDimensions'
 import { truncateBalance } from '../../utils/formatting'
 
 interface CapitalProviderPoolProps {
-  openModal: (func: FunctionName, modalTitle: string) => void
+  openModal: (func: FunctionName, modalTitle: string, farmName: string) => void
 }
 
 export const CapitalProviderPool: React.FC<CapitalProviderPoolProps> = ({ openModal }) => {
@@ -59,21 +58,16 @@ export const CapitalProviderPool: React.FC<CapitalProviderPoolProps> = ({ openMo
   const { account } = useWallet()
   const { width } = useWindowDimensions()
   const { cpFarm } = useContracts()
-  const cpUserStakeValue = useUserStakedValue(cpFarm, account)
+  const cpUserStakeValue = useUserStakedValue(cpFarm)
   const cpRewardsPerDay = useRewardsPerDay(1)
-  const cpUserRewardsPerDay = useUserRewardsPerDay(1, cpFarm, account)
+  const cpUserRewardsPerDay = useUserRewardsPerDay(1, cpFarm)
   const cpUserRewards = useUserPendingRewards(cpFarm)
   const cpPoolValue = usePoolStakedValue(cpFarm)
 
   return (
     <Content>
       <Text bold t1 mb={0} info>
-        Options Farming Pool{' '}
-        {/* <StyledTooltip
-          id={'options-pool'}
-          tip={'Deposit SCP tokens here to earn rewards'}
-          link={'https://docs.solace.fi/docs/user-guides/capital-provider/cp-role-guide'}
-        />{' '} */}
+        Options Farming Pool
       </Text>
       <Text t4 pt={10} pb={10}>
         This pool rewards coverage underwriters with $SOLACE token call options.
@@ -95,24 +89,9 @@ export const CapitalProviderPool: React.FC<CapitalProviderPoolProps> = ({ openMo
               {account ? <TableHeader>My Stake</TableHeader> : null}
               <TableHeader>Total Assets</TableHeader>
               <TableHeader>ROI (1Y)</TableHeader>
-              {account ? (
-                <TableHeader>
-                  My Rewards
-                  {/* <StyledTooltip id={'cp-rewards'} tip={'Amount of your unclaimed rewards from this pool'} /> */}
-                </TableHeader>
-              ) : null}
-              {account ? (
-                <TableHeader>
-                  My Daily Rewards
-                  {/* {' '}
-                  <StyledTooltip id={'my-daily-cp-rewards'} tip={'Amount of rewards you earn from this pool per day'} /> */}
-                </TableHeader>
-              ) : null}
-              <TableHeader>
-                Daily Rewards
-                {/* {' '}
-                <StyledTooltip id={'daily-cp-rewards'} tip={'Total amount of rewards for this pool per day'} /> */}
-              </TableHeader>
+              {account ? <TableHeader>My Rewards</TableHeader> : null}
+              {account ? <TableHeader>My Daily Rewards</TableHeader> : null}
+              <TableHeader>Daily Rewards</TableHeader>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -126,10 +105,18 @@ export const CapitalProviderPool: React.FC<CapitalProviderPoolProps> = ({ openMo
               {account ? (
                 <TableData textAlignRight>
                   <TableDataGroup width={200} style={{ float: 'right' }}>
-                    <Button light disabled={haveErrors} onClick={() => openModal(FunctionName.DEPOSIT_CP, 'Deposit')}>
+                    <Button
+                      light
+                      disabled={haveErrors}
+                      onClick={() => openModal(FunctionName.DEPOSIT_CP, 'Deposit', 'cp')}
+                    >
                       Deposit
                     </Button>
-                    <Button light disabled={haveErrors} onClick={() => openModal(FunctionName.WITHDRAW_CP, 'Withdraw')}>
+                    <Button
+                      light
+                      disabled={haveErrors}
+                      onClick={() => openModal(FunctionName.WITHDRAW_CP, 'Withdraw', 'cp')}
+                    >
                       Withdraw
                     </Button>
                     {/* <Button light disabled={haveErrors} style={{ whiteSpace: 'nowrap' }}>
@@ -191,7 +178,7 @@ export const CapitalProviderPool: React.FC<CapitalProviderPoolProps> = ({ openMo
               <Button
                 widthP={100}
                 disabled={haveErrors}
-                onClick={() => openModal(FunctionName.DEPOSIT_CP, 'Deposit')}
+                onClick={() => openModal(FunctionName.DEPOSIT_CP, 'Deposit', 'cp')}
                 light
               >
                 Deposit
@@ -199,7 +186,7 @@ export const CapitalProviderPool: React.FC<CapitalProviderPoolProps> = ({ openMo
               <Button
                 widthP={100}
                 disabled={haveErrors}
-                onClick={() => openModal(FunctionName.WITHDRAW_CP, 'Withdraw')}
+                onClick={() => openModal(FunctionName.WITHDRAW_CP, 'Withdraw', 'cp')}
                 light
               >
                 Withdraw

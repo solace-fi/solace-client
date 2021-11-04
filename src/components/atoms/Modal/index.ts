@@ -28,13 +28,14 @@ export const ModalContainer = styled.div<ModalProps>`
   width: 100vw;
   height: 100vh;
   background: ${({ theme }) => theme.modal.bg_color};
-  z-index: ${(props) => (props.zIndex ? props.zIndex : '2')};
+  z-index: ${(props) => (props.zIndex ? props.zIndex : '3')};
   ${(props) => (props.isOpen ? 'display: flex;' : 'display: none;')}
   overflow-y: auto;
 `
 
 export const ModalBase = styled.div<ModalProps>`
   margin: auto;
+  position: relative;
   border-radius: 10px;
   padding: 24px;
   background-color: ${({ theme }) => theme.modal.base_color};
@@ -66,6 +67,13 @@ export const ModalHeader = styled.div`
   align-items: center;
   justify-content: space-between;
   margin-bottom: 20px;
+`
+
+export const ModalFooter = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 20px;
 `
 
 export const ModalRow = styled.div<GeneralElementProps>`

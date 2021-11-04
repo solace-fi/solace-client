@@ -31,7 +31,8 @@ import { TextSpan } from '../atoms/Typography'
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'
 
 /* import utils */
-import { fixedTokenPositionBalance, truncateBalance } from '../../utils/formatting'
+import { fixedTokenPositionBalance, truncateBalance, trim0x } from '../../utils/formatting'
+import { userHasActiveProductPosition } from '../../utils/policy'
 
 interface TokenPositionCardProps {
   position: Position
@@ -40,7 +41,6 @@ interface TokenPositionCardProps {
   userPolicies: Policy[]
   openManageModal: (policy: Policy) => Promise<void>
   handleSelect: (position: Position) => void
-  userHasActiveProductPosition: (product: string, address: string) => boolean
 }
 
 export const TokenPositionCard: React.FC<TokenPositionCardProps> = ({
@@ -50,7 +50,6 @@ export const TokenPositionCard: React.FC<TokenPositionCardProps> = ({
   userPolicies,
   openManageModal,
   handleSelect,
-  userHasActiveProductPosition,
 }) => {
   /*
 
@@ -69,13 +68,15 @@ export const TokenPositionCard: React.FC<TokenPositionCardProps> = ({
       ),
     [selectedPositions, token]
   )
-  const isActive = useMemo(() => userHasActiveProductPosition(protocolName, token.token.address), [
+  const isActive = useMemo(() => userHasActiveProductPosition(userPolicies, protocolName, token.token.address), [
     protocolName,
     token,
-    userHasActiveProductPosition,
+    userPolicies,
   ])
   const lightText = isSelected || isActive
-
+  const foundPosition = userPolicies.filter(
+    (policy) => policy.productName == protocolName && policy.positionDescription.includes(trim0x(token.token.address))
+  )[0]
   return (
     <PositionCard
       key={token.token.address}
@@ -87,12 +88,7 @@ export const TokenPositionCard: React.FC<TokenPositionCardProps> = ({
           ? undefined
           : isActive
           ? () => {
-              openManageModal(
-                userPolicies.filter(
-                  (policy) =>
-                    policy.productName == protocolName && policy.positionDescription.includes(token.token.address)
-                )[0]
-              )
+              openManageModal(foundPosition)
             }
           : () => handleSelect(position)
       }
@@ -122,14 +118,6 @@ export const TokenPositionCard: React.FC<TokenPositionCardProps> = ({
           {token.token.symbol}
         </TextSpan>
       </PositionCardText>
-      {/* {token.underlying.map((underlyingToken: TokenData, i) => (
-        <PositionCardText t3 style={{ opacity: isActive ? '.5' : '1' }} light={lightText} key={i}>
-          {truncateBalance(fixedTokenPositionBalance(underlyingToken))}{' '}
-          <TextSpan style={{ fontSize: '12px' }} light={lightText}>
-            {underlyingToken.symbol}
-          </TextSpan>
-        </PositionCardText>
-      ))} */}
       <PositionCardButton>
         {isActive ? (
           <Button widthP={width > BKPT_3 ? undefined : 100} light>
@@ -137,11 +125,11 @@ export const TokenPositionCard: React.FC<TokenPositionCardProps> = ({
           </Button>
         ) : isSelected ? (
           <Button widthP={width > BKPT_3 ? undefined : 100} light>
-            {'Deselect'}
+            Deselect
           </Button>
         ) : (
           <Button widthP={width > BKPT_3 ? undefined : 100} info>
-            {'Select'}
+            Select
           </Button>
         )}
       </PositionCardButton>

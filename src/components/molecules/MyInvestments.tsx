@@ -51,11 +51,11 @@ export const MyInvestments: React.FC = () => {
   const { cpFarm, lpFarm } = useContracts()
   const cpUserRewards = useUserPendingRewards(cpFarm)
   const lpUserRewards = useUserPendingRewards(lpFarm)
-  const cpUserStakeValue = useUserStakedValue(cpFarm, account)
-  const lpUserStakeValue = useUserStakedValue(lpFarm, account)
-  // const depositedLpTokenInfo = useDepositedLpBalance()
-  const cpUserRewardsPerDay = useUserRewardsPerDay(1, cpFarm, account)
-  const lpUserRewardsPerDay = useUserRewardsPerDay(2, lpFarm, account)
+  const cpUserStakeValue = useUserStakedValue(cpFarm)
+  const lpUserStakeValue = useUserStakedValue(lpFarm)
+  // const depositedNftTokenInfo = useDepositedLpBalance()
+  const cpUserRewardsPerDay = useUserRewardsPerDay(1, cpFarm)
+  const lpUserRewardsPerDay = useUserRewardsPerDay(2, lpFarm)
 
   return (
     <Content>
@@ -89,7 +89,7 @@ export const MyInvestments: React.FC = () => {
             <CardTitle t3 nowrap>
               {account
                 ? truncateBalance(
-                    formatUnits(depositedLpTokenInfo.reduce((a, b) => a.add(b.value), ZERO).toString(), currencyDecimals),
+                    formatUnits(depositedNftTokenInfo.reduce((a, b) => a.add(b.value), ZERO).toString(), currencyDecimals),
                     2
                   )
                 : 0}{' '}

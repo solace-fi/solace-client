@@ -1,5 +1,3 @@
-import { withBackoffRetries } from '../utils/time'
-import { rangeFrom0 } from '../utils/numeric'
 import { useWallet } from '../context/WalletManager'
 import { PolicyState } from '../constants/enums'
 import { Policy, NetworkCache } from '../constants/types'
@@ -9,6 +7,7 @@ import { useState, useEffect, useRef } from 'react'
 import { useNetwork } from '../context/NetworkManager'
 import { getClaimAssessment } from '../utils/api'
 import { Block } from '@ethersproject/contracts/node_modules/@ethersproject/abstract-provider'
+import { trim0x } from '../utils/formatting'
 
 export const usePolicyGetter = (
   getAll: boolean,
@@ -19,10 +18,15 @@ export const usePolicyGetter = (
   },
   policyHolder?: string,
   product?: string
-) => {
+): {
+  policiesLoading: boolean
+  userPolicies: Policy[]
+  allPolicies: Policy[]
+  setCanGetAssessments: (toggle: boolean) => void
+} => {
   const { library } = useWallet()
   const { activeNetwork, findNetworkByChainId, chainId } = useNetwork()
-  const { policyManager } = useContracts()
+  const { policyManager, sptFarm } = useContracts()
   const [userPolicies, setUserPolicies] = useState<Policy[]>([])
   const [allPolicies, setAllPolicies] = useState<Policy[]>([])
   const [policiesLoading, setPoliciesLoading] = useState<boolean>(true)
@@ -35,10 +39,14 @@ export const usePolicyGetter = (
   }
 
   const getUserPolicies = async (policyHolder: string): Promise<Policy[]> => {
-    if (!policyManager || !library) return []
-    const blockNumber = await library.getBlockNumber()
-    const policyIds: BigNumber[] = await policyManager.listTokensOfOwner(policyHolder)
-    const policies = await Promise.all(policyIds.map((policyId: BigNumber) => queryPolicy(policyId, blockNumber)))
+    if (!policyManager || !library || !sptFarm) return []
+    const [stakedPolicyIds, policyIds, blockNumber] = await Promise.all([
+      sptFarm.listDeposited(policyHolder),
+      policyManager.listTokensOfOwner(policyHolder),
+      library.getBlockNumber(),
+    ])
+    const totalPolicyIds = [...policyIds, ...stakedPolicyIds[0]]
+    const policies = await Promise.all(totalPolicyIds.map((policyId: BigNumber) => queryPolicy(policyId, blockNumber)))
     return policies
   }
 
@@ -64,7 +72,7 @@ export const usePolicyGetter = (
           const productPosition = matchingCache?.positionNamesCache[supportedProductName]
           if (productPosition) {
             Object.keys(productPosition.positionNames).forEach((tokenAddress) => {
-              if (policy.positionDescription.includes(tokenAddress.slice(2))) {
+              if (policy.positionDescription.includes(trim0x(tokenAddress))) {
                 policy.positionNames = [...policy.positionNames, productPosition.positionNames[tokenAddress]]
                 const newUnderlyingPositionNames = [
                   ...policy.underlyingPositionNames,
@@ -106,7 +114,6 @@ export const usePolicyGetter = (
     }
     if (!policyManager) return returnError
     try {
-      // const policy = await withBackoffRetries(async () => policyManager.getPolicyInfo(policyId))
       const policy = await policyManager.getPolicyInfo(policyId)
       return {
         policyId: Number(policyId),
@@ -138,7 +145,7 @@ export const usePolicyGetter = (
       matchingCache?.positionNamesCache[activeNetwork.config.productsRev[updatedPolicy.productAddress]]
     if (productPosition) {
       Object.keys(productPosition.positionNames).forEach((tokenAddress) => {
-        if (updatedPolicy.positionDescription.includes(tokenAddress.slice(2))) {
+        if (updatedPolicy.positionDescription.includes(trim0x(tokenAddress))) {
           updatedPolicy.positionNames = [...updatedPolicy.positionNames, productPosition.positionNames[tokenAddress]]
           const newUnderlyingPositionNames = [
             ...updatedPolicy.underlyingPositionNames,
@@ -191,7 +198,7 @@ export const usePolicyGetter = (
       firstLoading.current = false
     }
 
-    if (!policyManager) return
+    if (!policyManager || !sptFarm) return
     loadOnBoot()
 
     policyManager.on('Transfer', async (from, to) => {
@@ -204,10 +211,23 @@ export const usePolicyGetter = (
       await getUpdatedUserPolicy(id)
     })
 
+    sptFarm.on('PolicyDeposited', async (from, to) => {
+      if (from == policyHolder || to == policyHolder) {
+        await getPolicies(policyHolder)
+      }
+    })
+
+    sptFarm.on('PolicyWithdrawn', async (from, to) => {
+      if (from == policyHolder || to == policyHolder) {
+        await getPolicies(policyHolder)
+      }
+    })
+
     return () => {
       policyManager.removeAllListeners()
+      sptFarm.removeAllListeners()
     }
-  }, [policyHolder, data.dataInitialized, policyManager])
+  }, [policyHolder, data.dataInitialized, policyManager, sptFarm])
 
   /* fetch all policies per block */
   useEffect(() => {
