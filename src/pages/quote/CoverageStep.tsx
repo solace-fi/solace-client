@@ -279,7 +279,7 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
             </Text>
           </FormCol>
         </FormRow>
-        <HorizRule style={{ marginBottom: '10px' }} />
+        <HorizRule mb={10} />
         <FlexCol mb={20} style={{ padding: '10px 30px' }}>
           <div style={{ textAlign: 'center' }}>
             <Text t3>Coverage Amount</Text>
@@ -357,7 +357,7 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
             />
           </div>
         </FlexCol>
-        <HorizRule style={{ marginBottom: '20px' }} />
+        <HorizRule mb={20} />
         <FormRow mb={5}>
           <FormCol>
             <Text t4>Covered Assets</Text>

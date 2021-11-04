@@ -86,7 +86,8 @@ export const Layout = styled.div`
   }
 `
 
-export const HorizRule = styled.hr<LayoutProps>`
+export const HorizRule = styled.hr<LayoutProps & GeneralElementProps>`
+  ${GeneralElementCss}
   border: none;
   ${(props) => `color: ${props.theme.typography.contrastText};`}
   height: 1px;

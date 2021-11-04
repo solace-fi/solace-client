@@ -31,17 +31,18 @@ import { useNetwork } from '../../context/NetworkManager'
 import { useGeneral } from '../../context/GeneralProvider'
 
 /* import constants */
-import { FunctionName, TransactionCondition } from '../../constants/enums'
+import { FunctionName, TransactionCondition, ExplorerscanApi } from '../../constants/enums'
 import { LocalTx } from '../../constants/types'
 
 /* import components */
-import { Modal } from '../molecules/Modal'
+import { Modal, ModalAddendum } from '../molecules/Modal'
 import { Button, ButtonWrapper } from '../atoms/Button'
 import { Loader } from '../atoms/Loader'
 import { GasRadioGroup } from '../molecules/GasRadioGroup'
 import { Erc20InputPanel, PoolModalProps, usePoolModal } from './PoolModalRouter'
 import { Text } from '../atoms/Typography'
-
+import { StyledLinkExternal } from '../atoms/Icon'
+import { HyperLink } from '../atoms/Link'
 /* import hooks */
 import { useUserStakedValue } from '../../hooks/useFarm'
 import { useScpBalance } from '../../hooks/useBalance'
@@ -52,6 +53,7 @@ import { useVault } from '../../hooks/useVault'
 /* import utils */
 import { hasApproval } from '../../utils'
 import { getUnit, truncateBalance } from '../../utils/formatting'
+import { getExplorerItemUrl } from '../../utils/explorer'
 
 export const CpPoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, closeModal }) => {
   /*************************************************************************************
@@ -273,6 +275,19 @@ export const CpPoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen
             Confirm
           </Button>
         </ButtonWrapper>
+      )}
+      {cpFarm && (
+        <ModalAddendum>
+          <HyperLink
+            href={getExplorerItemUrl(activeNetwork.explorer.url, cpFarm.address, ExplorerscanApi.ADDRESS)}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <Button>
+              Source Contract <StyledLinkExternal size={20} />
+            </Button>
+          </HyperLink>
+        </ModalAddendum>
       )}
     </Modal>
   )

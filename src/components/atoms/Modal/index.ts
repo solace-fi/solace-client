@@ -69,6 +69,13 @@ export const ModalHeader = styled.div`
   margin-bottom: 20px;
 `
 
+export const ModalFooter = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 20px;
+`
+
 export const ModalRow = styled.div<GeneralElementProps>`
   display: flex;
   margin-bottom: 20px;

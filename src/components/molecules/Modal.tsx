@@ -7,10 +7,10 @@
     import components
 
     Modal
-      Render
+
+    ModalAddendum
 
     ModalCloseButton
-      Render
 
   *************************************************************************************/
 
@@ -22,16 +22,11 @@ import { useGeneral } from '../../context/GeneralProvider'
 
 /* import components */
 import { Text } from '../atoms/Typography'
-import { ModalContainer, ModalBase, ModalClose, ModalHeader } from '../atoms/Modal'
+import { ModalContainer, ModalBase, ModalClose, ModalHeader, ModalFooter } from '../atoms/Modal'
 import { ModalProps, ModalButtonProps } from '../atoms/Modal'
 import { HorizRule } from '../atoms/Layout'
 
 export const Modal: React.FC<ModalProps> = ({ children, ...props }) => {
-  /*************************************************************************************
-
-    Render
-
-  *************************************************************************************/
   return (
     <ModalContainer {...props}>
       <ModalBase {...props}>
@@ -41,20 +36,25 @@ export const Modal: React.FC<ModalProps> = ({ children, ...props }) => {
           </Text>
           <ModalCloseButton hidden={props.disableCloseButton} onClick={props.handleClose} />
         </ModalHeader>
-        <HorizRule style={{ marginBottom: '20px' }} />
+        <HorizRule mb={20} />
         <Fragment>{children}</Fragment>
       </ModalBase>
     </ModalContainer>
   )
 }
 
+export const ModalAddendum: React.FC = (props) => {
+  return (
+    <>
+      <HorizRule mt={20} />
+      <ModalFooter>{props.children}</ModalFooter>
+    </>
+  )
+}
+
 export const ModalCloseButton: React.FC<ModalButtonProps> = ({ onClick, hidden }) => {
   const { appTheme } = useGeneral()
-  /*************************************************************************************
 
-    Render
-
-  *************************************************************************************/
   return (
     <ModalClose onClick={onClick} hidden={hidden}>
       <svg width="20" height="19" viewBox="0 0 20 19" fill="none" xmlns="http://www.w3.org/2000/svg">

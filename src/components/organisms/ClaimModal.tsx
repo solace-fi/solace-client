@@ -31,7 +31,7 @@ import { useNetwork } from '../../context/NetworkManager'
 import { useGeneral } from '../../context/GeneralProvider'
 
 /* import components */
-import { Modal } from '../molecules/Modal'
+import { Modal, ModalAddendum } from '../molecules/Modal'
 import { FormRow, FormCol } from '../atoms/Form'
 import { Text } from '../atoms/Typography'
 import { PolicyModalInfo } from './PolicyModalInfo'
@@ -40,9 +40,10 @@ import { SmallBox, Box } from '../atoms/Box'
 import { Button, ButtonWrapper } from '../atoms/Button'
 import { Table, TableBody, TableRow, TableData } from '../atoms/Table'
 import { HyperLink } from '../atoms/Link'
+import { StyledLinkExternal } from '../atoms/Icon'
 
 /* import constants */
-import { FunctionName, TransactionCondition } from '../../constants/enums'
+import { FunctionName, TransactionCondition, ExplorerscanApi } from '../../constants/enums'
 import { BKPT_3 } from '../../constants'
 import { Policy, ClaimAssessment, LocalTx } from '../../constants/types'
 
@@ -57,6 +58,7 @@ import { useSptFarm } from '../../hooks/useSptFarm'
 import { truncateBalance } from '../../utils/formatting'
 import { getLongtimeFromMillis } from '../../utils/time'
 import { getClaimAssessment } from '../../utils/api'
+import { getExplorerItemUrl } from '../../utils/explorer'
 
 interface ClaimModalProps {
   closeModal: () => void
@@ -323,6 +325,19 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({
           )
         ) : (
           <Loader />
+        )}
+        {selectedProtocol && (
+          <ModalAddendum>
+            <HyperLink
+              href={getExplorerItemUrl(activeNetwork.explorer.url, selectedProtocol.address, ExplorerscanApi.ADDRESS)}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <Button>
+                Source Contract <StyledLinkExternal size={20} />
+              </Button>
+            </HyperLink>
+          </ModalAddendum>
         )}
       </Fragment>
     </Modal>

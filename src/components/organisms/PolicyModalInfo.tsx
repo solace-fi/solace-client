@@ -314,7 +314,7 @@ export const PolicyModalInfo: React.FC<PolicyModalInfoProps> = ({ appraisal, sel
           </ButtonWrapper>
         )}
       </HeroContainer>
-      <HorizRule style={{ marginBottom: '20px' }} />
+      <HorizRule mb={20} />
     </Fragment>
   )
 }

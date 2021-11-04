@@ -29,21 +29,24 @@ import { useGeneral } from '../../context/GeneralProvider'
 
 /* import constants */
 import { ZERO } from '../../constants'
-import { FunctionName } from '../../constants/enums'
+import { ExplorerscanApi, FunctionName } from '../../constants/enums'
 import { GasConfiguration, LocalTx, NftTokenInfo } from '../../constants/types'
 
 /* import components */
-import { Modal } from '../molecules/Modal'
+import { Modal, ModalAddendum } from '../molecules/Modal'
 import { Button, ButtonWrapper } from '../atoms/Button'
 import { Loader } from '../atoms/Loader'
 import { GasRadioGroup } from '../molecules/GasRadioGroup'
 import { Erc721InputPanel, PoolModalProps, usePoolModal } from './PoolModalRouter'
+import { HyperLink } from '../atoms/Link'
+import { StyledLinkExternal } from '../atoms/Icon'
 
 /* import hooks */
 import { useUserStakedValue } from '../../hooks/useFarm'
 
 /* import utils */
 import { getUnit, truncateBalance } from '../../utils/formatting'
+import { getExplorerItemUrl } from '../../utils/explorer'
 
 interface Erc721PoolModalGenericProps {
   farmContract: Contract | null | undefined
@@ -250,6 +253,19 @@ export const Erc721PoolModalGeneric: React.FC<PoolModalProps & Erc721PoolModalGe
             Confirm
           </Button>
         </ButtonWrapper>
+      )}
+      {farmContract && (
+        <ModalAddendum>
+          <HyperLink
+            href={getExplorerItemUrl(activeNetwork.explorer.url, farmContract.address, ExplorerscanApi.ADDRESS)}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <Button>
+              Source Contract <StyledLinkExternal size={20} />
+            </Button>
+          </HyperLink>
+        </ModalAddendum>
       )}
     </Modal>
   )

@@ -28,12 +28,12 @@ import { useNetwork } from '../../context/NetworkManager'
 import { useGeneral } from '../../context/GeneralProvider'
 
 /* import constants */
-import { FunctionName, Unit } from '../../constants/enums'
+import { ExplorerscanApi, FunctionName, Unit } from '../../constants/enums'
 import { LocalTx } from '../../constants/types'
 import { BKPT_3 } from '../../constants'
 
 /* import components */
-import { Modal } from '../molecules/Modal'
+import { Modal, ModalAddendum } from '../molecules/Modal'
 import { RadioCircle, RadioCircleFigure, RadioCircleInput } from '../atoms/Radio'
 import { Button, ButtonWrapper } from '../atoms/Button'
 import { Loader } from '../atoms/Loader'
@@ -43,6 +43,8 @@ import { PoolModalProps, usePoolModal } from './PoolModalRouter'
 import { Box, BoxItem, BoxItemTitle } from '../atoms/Box'
 import { Input } from '../atoms/Input'
 import { ModalRow, ModalCell } from '../atoms/Modal'
+import { StyledLinkExternal } from '../atoms/Icon'
+import { HyperLink } from '../atoms/Link'
 
 /* import hooks */
 import { useNativeTokenBalance } from '../../hooks/useBalance'
@@ -54,6 +56,7 @@ import { useWindowDimensions } from '../../hooks/useWindowDimensions'
 /* import utils */
 import { getUnit, truncateBalance } from '../../utils/formatting'
 import { getLongtimeFromMillis, getTimeFromMillis } from '../../utils/time'
+import { getExplorerItemUrl } from '../../utils/explorer'
 
 export const UnderwritingPoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, closeModal }) => {
   /*************************************************************************************
@@ -76,7 +79,7 @@ export const UnderwritingPoolModal: React.FC<PoolModalProps> = ({ modalTitle, fu
     startCooldown,
     stopCooldown,
   } = useCooldown()
-  const { canTransfer, depositEth, withdrawEth } = useVault()
+  const { canTransfer, vault, depositEth, withdrawEth } = useVault()
   const cpFarmFunctions = useCpFarm()
   const {
     gasConfig,
@@ -401,6 +404,19 @@ export const UnderwritingPoolModal: React.FC<PoolModalProps> = ({ modalTitle, fu
             Confirm
           </Button>
         </ButtonWrapper>
+      )}
+      {vault && (
+        <ModalAddendum>
+          <HyperLink
+            href={getExplorerItemUrl(activeNetwork.explorer.url, vault.address, ExplorerscanApi.ADDRESS)}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <Button>
+              Source Contract <StyledLinkExternal size={20} />
+            </Button>
+          </HyperLink>
+        </ModalAddendum>
       )}
     </Modal>
   )
