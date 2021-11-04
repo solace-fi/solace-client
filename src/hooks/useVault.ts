@@ -8,7 +8,7 @@ import { useCachedData } from '../context/CachedDataManager'
 import { useScpBalance } from './useBalance'
 import { useNetwork } from '../context/NetworkManager'
 import { FunctionName, TransactionCondition } from '../constants/enums'
-import { LocalTx } from '../constants/types'
+import { GasConfiguration, LocalTx } from '../constants/types'
 import { BigNumber } from 'ethers'
 
 export const useCapitalPoolSize = (): string => {
@@ -128,10 +128,10 @@ export const useCooldown = () => {
         const _cooldownMin: number = await vault.cooldownMin()
         const _cooldownMax: number = await vault.cooldownMax()
         const _cooldownStart: number = await vault.cooldownStart(account)
+        gettingCooldown.current = false
         setCooldownMin(_cooldownMin * 1000)
         setCooldownMax(_cooldownMax * 1000)
         setCooldownStart(_cooldownStart * 1000)
-        gettingCooldown.current = false
       } catch (err) {
         console.log('error getCooldown ', err)
       }
@@ -167,13 +167,14 @@ export const useCooldown = () => {
 
 export const useVault = () => {
   const { vault } = useContracts()
+  const { version } = useCachedData()
   const { account } = useWallet()
   const [canTransfer, setCanTransfer] = useState<boolean>(true)
 
   const depositEth = async (
     parsedAmount: BigNumber,
     txVal: string,
-    gasConfig: any
+    gasConfig: GasConfiguration
   ): Promise<
     | {
         tx: null
@@ -202,7 +203,7 @@ export const useVault = () => {
   const withdrawEth = async (
     parsedAmount: BigNumber,
     txVal: string,
-    gasConfig: any
+    gasConfig: GasConfiguration
   ): Promise<
     | {
         tx: null
@@ -234,7 +235,7 @@ export const useVault = () => {
       setCanTransfer(canTransfer)
     }
     canTransfer()
-  }, [vault, account])
+  }, [vault, account, version])
 
   return {
     canTransfer,

@@ -18,7 +18,7 @@
   *************************************************************************************/
 
 /* import packages */
-import React, { useState, Fragment, useEffect, useCallback } from 'react'
+import React, { useState, Fragment, useEffect, useCallback, useMemo } from 'react'
 import { formatUnits, parseUnits } from '@ethersproject/units'
 import { BigNumber } from 'ethers'
 import { Contract } from '@ethersproject/contracts'
@@ -27,7 +27,6 @@ import { Contract } from '@ethersproject/contracts'
 import { useNotifications } from '../../context/NotificationsManager'
 import { useCachedData } from '../../context/CachedDataManager'
 import { useContracts } from '../../context/ContractsManager'
-import { useWallet } from '../../context/WalletManager'
 import { useNetwork } from '../../context/NetworkManager'
 import { useGeneral } from '../../context/GeneralProvider'
 
@@ -65,8 +64,7 @@ export const CpPoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen
   const { activeNetwork, currencyDecimals } = useNetwork()
   const { vault, cpFarm } = useContracts()
   const { reload } = useCachedData()
-  const { account } = useWallet()
-  const cpUserStakeValue = useUserStakedValue(cpFarm, account)
+  const cpUserStakeValue = useUserStakedValue(cpFarm)
   const scpBalance = useScpBalance()
   const {
     gasConfig,
@@ -94,6 +92,11 @@ export const CpPoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen
   const [contractForAllowance, setContractForAllowance] = useState<Contract | null>(null)
   const [spenderAddress, setSpenderAddress] = useState<string | null>(null)
   const tokenAllowance = useTokenAllowance(contractForAllowance, spenderAddress)
+  const approval = useMemo(
+    () => hasApproval(tokenAllowance, amount && amount != '.' ? parseUnits(amount, currencyDecimals).toString() : '0'),
+    [amount, currencyDecimals, tokenAllowance]
+  )
+  const [isAcceptableAmount, setIsAcceptableAmount] = useState<boolean>(false)
 
   /*************************************************************************************
 
@@ -162,8 +165,8 @@ export const CpPoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen
     setModalLoading(false)
   }
 
-  const getAssetBalanceByFunc = (): BigNumber => {
-    switch (func) {
+  const getAssetBalanceByFunc = (f: FunctionName): BigNumber => {
+    switch (f) {
       case FunctionName.DEPOSIT_CP:
         return parseUnits(scpBalance, currencyDecimals)
       case FunctionName.WITHDRAW_CP:
@@ -173,11 +176,10 @@ export const CpPoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen
   }
 
   const _setMax = () => {
-    setMax(getAssetBalanceByFunc(), func)
+    setMax(getAssetBalanceByFunc(func), func)
   }
 
   const handleCallbackFunc = async () => {
-    if (!func) return
     if (func == FunctionName.DEPOSIT_CP) await callDepositCp()
     if (func == FunctionName.WITHDRAW_CP) await callWithdrawCp()
   }
@@ -197,8 +199,12 @@ export const CpPoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen
   *************************************************************************************/
 
   useEffect(() => {
-    if (maxSelected) setAmount(calculateMaxEth(getAssetBalanceByFunc(), func).toString())
+    if (maxSelected) setAmount(calculateMaxEth(getAssetBalanceByFunc(func), func).toString())
   }, [handleSelectChange])
+
+  useEffect(() => {
+    setIsAcceptableAmount(isAppropriateAmount(amount, getAssetBalanceByFunc(func)))
+  }, [amount, func])
 
   useEffect(() => {
     if (isOpen && vault && cpFarm?.address) {
@@ -216,7 +222,7 @@ export const CpPoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen
     >
       <Erc20InputPanel
         unit={getUnit(func, activeNetwork)}
-        availableBalance={func ? truncateBalance(formatUnits(getAssetBalanceByFunc(), currencyDecimals)) : '0'}
+        availableBalance={truncateBalance(formatUnits(getAssetBalanceByFunc(func), currencyDecimals))}
         amount={amount}
         handleInputChange={handleInputChange}
         setMax={_setMax}
@@ -236,35 +242,18 @@ export const CpPoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen
         <Loader />
       ) : func == FunctionName.DEPOSIT_CP ? (
         <Fragment>
-          {!hasApproval(
-            tokenAllowance,
-            amount && amount != '.' ? parseUnits(amount, currencyDecimals).toString() : '0'
-          ) &&
-            tokenAllowance != '' && (
-              <ButtonWrapper>
-                <Button
-                  widthP={100}
-                  disabled={(isAppropriateAmount(amount, getAssetBalanceByFunc()) ? false : true) || haveErrors}
-                  onClick={approve}
-                  info
-                >
-                  Approve
-                </Button>
-              </ButtonWrapper>
-            )}
+          {!approval && tokenAllowance != '' && (
+            <ButtonWrapper>
+              <Button widthP={100} disabled={!isAcceptableAmount || haveErrors} onClick={approve} info>
+                Approve
+              </Button>
+            </ButtonWrapper>
+          )}
           <ButtonWrapper>
             <Button
               widthP={100}
               hidden={modalLoading}
-              disabled={
-                (isAppropriateAmount(amount, getAssetBalanceByFunc()) ? false : true) ||
-                !hasApproval(
-                  tokenAllowance,
-                  amount && amount != '.' ? parseUnits(amount, currencyDecimals).toString() : '0'
-                ) ||
-                haveErrors ||
-                !canTransfer
-              }
+              disabled={!isAcceptableAmount || !approval || haveErrors || !canTransfer}
               onClick={handleCallbackFunc}
               info
             >
@@ -277,9 +266,7 @@ export const CpPoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen
           <Button
             widthP={100}
             hidden={modalLoading}
-            disabled={
-              (isAppropriateAmount(amount, getAssetBalanceByFunc()) ? false : true) || haveErrors || !canTransfer
-            }
+            disabled={!isAcceptableAmount || haveErrors || !canTransfer}
             onClick={handleCallbackFunc}
             info
           >

@@ -61,7 +61,6 @@ function Invest(): any {
 
   return (
     <Fragment>
-      {/* <PoolModal isOpen={showPoolModal} modalTitle={modalTitle} func={func} closeModal={closeModal} /> */}
       <PoolModalRouter
         isOpen={showPoolModal}
         modalTitle={modalTitle}

@@ -50,7 +50,6 @@ import { Button, ButtonWrapper } from '../../components/atoms/Button'
 import { Card, CardContainer } from '../../components/atoms/Card'
 import { FormRow, FormCol } from '../../components/atoms/Form'
 import { Text } from '../../components/atoms/Typography'
-import { StyledTooltip } from '../../components/molecules/Tooltip'
 import { FlexRow } from '../../components/atoms/Layout'
 import { StyledDots } from '../../components/atoms/Icon'
 import { AssetsModal } from '../../components/organisms/AssetsModal'
@@ -279,14 +278,11 @@ export const MultiStepForm = () => {
                 <BoxItem>
                   <Text t3 light>
                     {fixed(protocol.yearlyCost * 100, 2)}%
-                    {/* <StyledTooltip id={'yearly-cost'} tip={'Yearly Cost'} /> */}
                   </Text>
                 </BoxItem>
                 <BoxItem>
                   <Text t3 light>
                     {protocol.availableCoverage} {activeNetwork.nativeCurrency.symbol}
-                    {/* {' '}
-                    <StyledTooltip id={'available-coverage'} tip={'Available Coverage'} /> */}
                   </Text>
                 </BoxItem>
                 <BoxItem>

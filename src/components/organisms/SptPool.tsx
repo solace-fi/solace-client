@@ -21,7 +21,6 @@ import React from 'react'
 /* import managers */
 import { useContracts } from '../../context/ContractsManager'
 import { useWallet } from '../../context/WalletManager'
-import { useNetwork } from '../../context/NetworkManager'
 import { useGeneral } from '../../context/GeneralProvider'
 
 /* import constants */
@@ -36,7 +35,6 @@ import { Button, ButtonWrapper } from '../atoms/Button'
 import { FormRow, FormCol } from '../atoms/Form'
 import { Card } from '../atoms/Card'
 import { HyperLink } from '../atoms/Link'
-import { StyledTooltip } from '../molecules/Tooltip'
 
 /* import hooks */
 import { useRewardsPerDay, useUserPendingRewards, useUserRewardsPerDay } from '../../hooks/useRewards'
@@ -63,10 +61,10 @@ export const SptPool: React.FC<SptPoolProps> = ({ openModal }) => {
   const { width } = useWindowDimensions()
 
   const sptRewardsPerDay = useRewardsPerDay(3)
-  const sptUserRewardsPerDay = useUserRewardsPerDay(3, sptFarm, account)
+  const sptUserRewardsPerDay = useUserRewardsPerDay(3, sptFarm)
   const sptUserRewards = useUserPendingRewards(sptFarm)
   const sptPoolValue = usePoolStakedValue(sptFarm)
-  const sptUserStakeValue = useUserStakedValue(sptFarm, account)
+  const sptUserStakeValue = useUserStakedValue(sptFarm)
 
   return (
     <Content>

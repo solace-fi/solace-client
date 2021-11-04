@@ -66,15 +66,15 @@ export const Statistics: React.FC = () => {
   const { activeNetwork, currencyDecimals } = useNetwork()
   const { farmController } = useContracts()
   const { makeTxToast } = useNotifications()
-  const { addLocalTransactions, reload, gasPrices, tokenPosData, latestBlock } = useCachedData()
+  const { addLocalTransactions, reload, tokenPosData, latestBlock } = useCachedData()
   const capitalPoolSize = useCapitalPoolSize()
   const solaceBalance = useSolaceBalance()
   const totalUserRewards = useTotalPendingRewards()
   const { allPolicies } = usePolicyGetter(true, latestBlock, tokenPosData)
   const totalValueLocked = useGetTotalValueLocked()
   const { width } = useWindowDimensions()
-  const { getGasConfig } = useGetFunctionGas()
-  const gasConfig = useMemo(() => getGasConfig(gasPrices.selected?.value), [gasPrices, getGasConfig])
+  const { getAutoGasConfig } = useGetFunctionGas()
+  const gasConfig = useMemo(() => getAutoGasConfig(), [getAutoGasConfig])
   const [totalActiveCoverAmount, setTotalActiveCoverAmount] = useState<string>('-')
   const [totalActivePolicies, setTotalActivePolicies] = useState<number | string>('-')
 
@@ -142,7 +142,6 @@ export const Statistics: React.FC = () => {
       <BoxItem>
         <BoxItemTitle t4 light bold>
           Underwriting Pool Size
-          {/* <StyledTooltip id={'cps'} tip={'Current amount of capital in the vault'} /> */}
         </BoxItemTitle>
         <Text t2 nowrap light bold>
           {`${truncateBalance(capitalPoolSize, 1)} `}
@@ -154,7 +153,6 @@ export const Statistics: React.FC = () => {
       <BoxItem>
         <BoxItemTitle t4 light bold>
           Total Value Locked
-          {/* <StyledTooltip id={'tvl'} tip={'Current amount of funds locked into the pools'} />{' '} */}
         </BoxItemTitle>
         <Text t2 nowrap light bold>
           {`${truncateBalance(totalValueLocked, 1)} `}
@@ -166,7 +164,6 @@ export const Statistics: React.FC = () => {
       <BoxItem>
         <BoxItemTitle t4 light bold>
           Active Cover Amount
-          {/* <StyledTooltip id={'aca'} tip={'Current amount of coverage in use'} /> */}
         </BoxItemTitle>
         <Text t2 nowrap light bold>
           {totalActiveCoverAmount !== '-' ? `${truncateBalance(totalActiveCoverAmount, 2)} ` : `- `}
@@ -194,7 +191,7 @@ export const Statistics: React.FC = () => {
             <Box>
               {/* <BoxItem>
                 <BoxItemTitle t4>
-                  My Balance <StyledTooltip id={'solace'} tip={'Number of SOLACE tokens in your wallet'} />
+                  My Balance
                 </BoxItemTitle>
                 <Text t2>
                   {`${truncateBalance(solaceBalance, 1)} `}

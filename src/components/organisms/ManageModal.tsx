@@ -85,7 +85,7 @@ export const ManageModal: React.FC<ManageModalProps> = ({
   const { haveErrors } = useGeneral()
   const { activeNetwork, currencyDecimals } = useNetwork()
   const { selectedProtocol, riskManager } = useContracts()
-  const { addLocalTransactions, reload, gasPrices } = useCachedData()
+  const { addLocalTransactions, reload } = useCachedData()
   const { makeTxToast } = useNotifications()
   const maxCoverPerPolicy = useGetMaxCoverPerPolicy()
   const maxCoverPerPolicyInWei = useMemo(() => parseUnits(maxCoverPerPolicy, currencyDecimals), [
@@ -94,8 +94,8 @@ export const ManageModal: React.FC<ManageModalProps> = ({
   ])
   const { withdrawPolicy } = useSptFarm()
 
-  const { getGasConfig } = useGetFunctionGas()
-  const gasConfig = useMemo(() => getGasConfig(gasPrices.selected?.value), [gasPrices, getGasConfig])
+  const { getAutoGasConfig } = useGetFunctionGas()
+  const gasConfig = useMemo(() => getAutoGasConfig(), [getAutoGasConfig])
   const daysLeft = useMemo(
     () => getDaysLeft(selectedPolicy ? selectedPolicy.expirationBlock : 0, latestBlock ? latestBlock.number : 0),
     [latestBlock, selectedPolicy]

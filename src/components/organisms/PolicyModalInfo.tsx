@@ -48,7 +48,6 @@ import { DeFiAsset, DeFiAssetImage } from '../atoms/DeFiAsset'
 import { Loader } from '../atoms/Loader'
 import { Text, TextSpan } from '../atoms/Typography'
 import { Card } from '../atoms/Card'
-import { StyledTooltip } from '../molecules/Tooltip'
 import { Button, ButtonWrapper } from '../atoms/Button'
 import { StyledDots } from '../atoms/Icon'
 import { AssetsModal } from './AssetsModal'
@@ -165,20 +164,13 @@ export const PolicyModalInfo: React.FC<PolicyModalInfoProps> = ({ appraisal, sel
             </Text>
           </BoxItem>
           <BoxItem>
-            <BoxItemTitle t3>
-              Days to expiration
-              {/* {' '}
-              <StyledTooltip id={'days-to-expiration'} tip={'Number of days left until this policy expires'} /> */}
-            </BoxItemTitle>
+            <BoxItemTitle t3>Days to expiration</BoxItemTitle>
             <Text t2 nowrap>
               {getDaysLeft(selectedPolicy ? selectedPolicy.expirationBlock : 0, latestBlock ? latestBlock.number : 0)}
             </Text>
           </BoxItem>
           <BoxItem>
-            <BoxItemTitle t3>
-              Cover Amount
-              {/* <StyledTooltip id={'covered-amount'} tip={'The amount you are covered on this policy'} /> */}
-            </BoxItemTitle>
+            <BoxItemTitle t3>Cover Amount</BoxItemTitle>
             <Text t2 nowrap>
               {selectedPolicy?.coverAmount
                 ? truncateBalance(formatUnits(selectedPolicy.coverAmount, currencyDecimals))
@@ -187,10 +179,7 @@ export const PolicyModalInfo: React.FC<PolicyModalInfoProps> = ({ appraisal, sel
             </Text>
           </BoxItem>
           <BoxItem>
-            <BoxItemTitle t3>
-              Position Amount
-              {/* <StyledTooltip id={'position-amount'} tip={'The amount of this asset you own'} /> */}
-            </BoxItemTitle>
+            <BoxItemTitle t3>Position Amount</BoxItemTitle>
             <Text t2 nowrap>
               {appraisal.gt(ZERO) ? (
                 `${truncateBalance(formatUnits(appraisal, currencyDecimals) || 0)} ${

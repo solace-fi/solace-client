@@ -55,10 +55,10 @@ export const MyOptions: React.FC = () => {
 
   *************************************************************************************/
   const { haveErrors } = useGeneral()
-  const { addLocalTransactions, reload, gasPrices } = useCachedData()
+  const { addLocalTransactions, reload } = useCachedData()
   const { makeTxToast } = useNotifications()
-  const { getGasConfig } = useGetFunctionGas()
-  const gasConfig = useMemo(() => getGasConfig(gasPrices.selected?.value), [gasPrices, getGasConfig])
+  const { getAutoGasConfig } = useGetFunctionGas()
+  const gasConfig = useMemo(() => getAutoGasConfig(), [getAutoGasConfig])
   const { activeNetwork, currencyDecimals } = useNetwork()
   const [openOptions, setOpenOptions] = useState<boolean>(true)
   const { optionsDetails, latestBlockTimestamp, exerciseOption } = useOptionsDetails()

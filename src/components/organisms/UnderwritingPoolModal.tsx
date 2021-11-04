@@ -19,7 +19,7 @@
   *************************************************************************************/
 
 /* import packages */
-import React, { useState, Fragment, useEffect, useCallback } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { formatUnits, parseUnits } from '@ethersproject/units'
 import { BigNumber } from 'ethers'
 
@@ -28,8 +28,9 @@ import { useNetwork } from '../../context/NetworkManager'
 import { useGeneral } from '../../context/GeneralProvider'
 
 /* import constants */
-import { FunctionName } from '../../constants/enums'
+import { FunctionName, Unit } from '../../constants/enums'
 import { LocalTx } from '../../constants/types'
+import { BKPT_3 } from '../../constants'
 
 /* import components */
 import { Modal } from '../molecules/Modal'
@@ -38,18 +39,21 @@ import { Button, ButtonWrapper } from '../atoms/Button'
 import { Loader } from '../atoms/Loader'
 import { Text } from '../atoms/Typography'
 import { GasRadioGroup } from '../molecules/GasRadioGroup'
-import { Erc20InputPanel, PoolModalProps, usePoolModal } from './PoolModalRouter'
+import { PoolModalProps, usePoolModal } from './PoolModalRouter'
 import { Box, BoxItem, BoxItemTitle } from '../atoms/Box'
+import { Input } from '../atoms/Input'
+import { ModalRow, ModalCell } from '../atoms/Modal'
 
 /* import hooks */
 import { useNativeTokenBalance } from '../../hooks/useBalance'
 import { useScpBalance } from '../../hooks/useBalance'
 import { useCooldown, useVault } from '../../hooks/useVault'
 import { useCpFarm } from '../../hooks/useCpFarm'
+import { useWindowDimensions } from '../../hooks/useWindowDimensions'
 
 /* import utils */
 import { getUnit, truncateBalance } from '../../utils/formatting'
-import { timeToDateText, getTimeFromMillis, timeToDate } from '../../utils/time'
+import { getLongtimeFromMillis, getTimeFromMillis, timeToDate } from '../../utils/time'
 
 export const UnderwritingPoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, closeModal }) => {
   /*************************************************************************************
@@ -91,9 +95,12 @@ export const UnderwritingPoolModal: React.FC<PoolModalProps> = ({ modalTitle, fu
     resetAmount,
   } = usePoolModal()
 
+  const { width } = useWindowDimensions()
   const [modalLoading, setModalLoading] = useState<boolean>(false)
   const [canCloseOnLoading, setCanCloseOnLoading] = useState<boolean>(false)
   const [isStaking, setIsStaking] = useState<boolean>(false)
+
+  const [isAcceptableAmount, setIsAcceptableAmount] = useState<boolean>(false)
 
   /*************************************************************************************
 
@@ -167,8 +174,8 @@ export const UnderwritingPoolModal: React.FC<PoolModalProps> = ({ modalTitle, fu
     setModalLoading(false)
   }
 
-  const getAssetBalanceByFunc = (): BigNumber => {
-    switch (func) {
+  const getAssetBalanceByFunc = (f: FunctionName): BigNumber => {
+    switch (f) {
       case FunctionName.DEPOSIT_ETH:
         return parseUnits(nativeTokenBalance, currencyDecimals)
       case FunctionName.WITHDRAW_ETH:
@@ -178,33 +185,7 @@ export const UnderwritingPoolModal: React.FC<PoolModalProps> = ({ modalTitle, fu
   }
 
   const _setMax = () => {
-    setMax(getAssetBalanceByFunc(), func)
-  }
-
-  const handleCallbackFunc = async () => {
-    if (!func) return
-
-    if (func == FunctionName.DEPOSIT_ETH) {
-      if (isStaking) {
-        await callDepositEth()
-      } else {
-        await callDeposit()
-      }
-    }
-    if (func == FunctionName.WITHDRAW_ETH) {
-      if (!cooldownStarted) {
-        await callStartCooldown()
-        return
-      }
-      if (canWithdrawEth) {
-        await callWithdrawEth()
-        return
-      }
-      if (cooldownMax < timeWaited || timeWaited < cooldownMin) {
-        await callStopCooldown()
-        return
-      }
-    }
+    setMax(getAssetBalanceByFunc(func), func)
   }
 
   const handleClose = useCallback(() => {
@@ -223,8 +204,12 @@ export const UnderwritingPoolModal: React.FC<PoolModalProps> = ({ modalTitle, fu
   *************************************************************************************/
 
   useEffect(() => {
-    if (maxSelected) setAmount(calculateMaxEth(getAssetBalanceByFunc(), func).toString())
+    if (maxSelected) setAmount(calculateMaxEth(getAssetBalanceByFunc(func), func).toString())
   }, [handleSelectChange])
+
+  useEffect(() => {
+    setIsAcceptableAmount(isAppropriateAmount(amount, getAssetBalanceByFunc(func)))
+  }, [amount, func])
 
   /*************************************************************************************
 
@@ -245,21 +230,32 @@ export const UnderwritingPoolModal: React.FC<PoolModalProps> = ({ modalTitle, fu
   const UnderwritingForeword: React.FC = () => (
     <>
       <Text t4 bold textAlignCenter width={270} style={{ margin: '7px auto' }}>
-        Once you deposit into this pool, you cannot withdraw from it for at least {timeToDateText(cooldownMin)}. This is
-        to avoid economic exploit of underwriters not paying out claims.
+        Once you deposit into this pool, you cannot withdraw from it for at least {getLongtimeFromMillis(cooldownMin)}.
+        This is to avoid economic exploit of underwriters not paying out claims.
       </Text>
-      <Text textAlignCenter t4 warning width={270} style={{ margin: '7px auto' }}>
+      <Text textAlignCenter t4 width={270} style={{ margin: '7px auto' }}>
         Disclaimer: The underwriting pool backs the risk of coverage policies, so in case one of the covered protocols
-        get exploited, the claims will be paid out from this source of funds.
+        gets exploited, the claims will be paid out from this source of funds.
       </Text>
+      {!isStaking && !canTransfer && (
+        <Text t4 bold textAlignCenter width={270} style={{ margin: '7px auto' }} warning>
+          Depositing into this pool during a thaw will stop the thaw, but auto-staking will not.
+        </Text>
+      )}
       <AutoStakeOption />
     </>
   )
 
   const CooldownForword: React.FC = () => (
-    <Text t4 bold textAlignCenter width={270} style={{ margin: '7px auto' }}>
-      Note: You will not be able to deposit or withdraw CP tokens via the Options Farming Pool during a thaw.
-    </Text>
+    <>
+      <Text textAlignCenter t4 bold width={270} style={{ margin: '7px auto' }}>
+        You won&apos;t be able to deposit or withdraw CP tokens via the Options Farming Pool during a thaw.
+      </Text>
+      <Text textAlignCenter t4 bold width={270} style={{ margin: '7px auto' }}>
+        If you stop the thaw between {getLongtimeFromMillis(cooldownMin)} and {getLongtimeFromMillis(cooldownMax)}, you
+        will need to restart the thaw if you wish to withdraw again.
+      </Text>
+    </>
   )
 
   return (
@@ -269,13 +265,33 @@ export const UnderwritingPoolModal: React.FC<PoolModalProps> = ({ modalTitle, fu
       modalTitle={modalTitle}
       disableCloseButton={modalLoading && !canCloseOnLoading}
     >
-      <Erc20InputPanel
-        unit={getUnit(func, activeNetwork)}
-        availableBalance={func ? truncateBalance(formatUnits(getAssetBalanceByFunc(), currencyDecimals)) : '0'}
-        amount={amount}
-        handleInputChange={handleInputChange}
-        setMax={_setMax}
-      />
+      <ModalRow>
+        <ModalCell t2>{func == FunctionName.DEPOSIT_ETH ? activeNetwork.nativeCurrency.symbol : Unit.SCP}</ModalCell>
+        <ModalCell>
+          <Input
+            widthP={100}
+            t3
+            textAlignRight
+            type="text"
+            autoComplete="off"
+            autoCorrect="off"
+            inputMode="decimal"
+            placeholder="0.0"
+            minLength={1}
+            maxLength={79}
+            onChange={(e) => handleInputChange(e.target.value)}
+            value={amount}
+          />
+          <div style={{ position: 'absolute', top: '70%' }}>
+            Available: {truncateBalance(formatUnits(getAssetBalanceByFunc(func), currencyDecimals))}
+          </div>
+        </ModalCell>
+        <ModalCell t3>
+          <Button disabled={haveErrors} onClick={_setMax} info>
+            MAX
+          </Button>
+        </ModalCell>
+      </ModalRow>
       <GasRadioGroup
         gasPrices={gasPrices}
         selectedGasOption={selectedGasOption}
@@ -283,11 +299,6 @@ export const UnderwritingPoolModal: React.FC<PoolModalProps> = ({ modalTitle, fu
         mb={20}
       />
       {func == FunctionName.DEPOSIT_ETH && <UnderwritingForeword />}
-      {isStaking && !canTransfer && (
-        <Text t4 bold textAlignCenter width={270} style={{ margin: '7px auto' }} warning>
-          Staking during a thaw will stop the thaw.
-        </Text>
-      )}
       {modalLoading ? (
         <Loader />
       ) : func == FunctionName.WITHDRAW_ETH ? (
@@ -335,26 +346,13 @@ export const UnderwritingPoolModal: React.FC<PoolModalProps> = ({ modalTitle, fu
               </Text>
             </BoxItem>
           </Box>
-          {!canWithdrawEth && (
-            <ButtonWrapper>
-              <Button widthP={100} hidden={modalLoading} disabled={haveErrors} onClick={handleCallbackFunc} info>
-                {!cooldownStarted
-                  ? 'Start thaw'
-                  : timeWaited < cooldownMin
-                  ? 'Stop thaw'
-                  : cooldownMax < timeWaited
-                  ? 'Restart thaw'
-                  : 'Unknown error'}
-              </Button>
-            </ButtonWrapper>
-          )}
-          {canWithdrawEth && (
-            <ButtonWrapper>
+          {canWithdrawEth ? (
+            <ButtonWrapper isColumn={width <= BKPT_3}>
               <Button
                 widthP={100}
                 hidden={modalLoading}
-                disabled={(isAppropriateAmount(amount, getAssetBalanceByFunc()) ? false : true) || haveErrors}
-                onClick={handleCallbackFunc}
+                disabled={!isAcceptableAmount || haveErrors}
+                onClick={callWithdrawEth}
                 info
               >
                 Withdraw
@@ -363,6 +361,33 @@ export const UnderwritingPoolModal: React.FC<PoolModalProps> = ({ modalTitle, fu
                 Stop Thaw
               </Button>
             </ButtonWrapper>
+          ) : (
+            <>
+              {getAssetBalanceByFunc(func).isZero() && (
+                <Text t4 bold textAlignCenter width={270} style={{ margin: '7px auto' }} warning>
+                  You are trying to start a thaw without any CP tokens in your wallet. Please withdraw them from the
+                  Options Farming Pool first.
+                </Text>
+              )}
+              <ButtonWrapper>
+                {!cooldownStarted && (
+                  <Button
+                    widthP={100}
+                    hidden={modalLoading}
+                    disabled={haveErrors || getAssetBalanceByFunc(func).isZero()}
+                    onClick={callStartCooldown}
+                    info
+                  >
+                    Start Thaw
+                  </Button>
+                )}
+                {cooldownStarted && (cooldownMax < timeWaited || timeWaited < cooldownMin) && (
+                  <Button widthP={100} hidden={modalLoading} disabled={haveErrors} onClick={callStopCooldown} info>
+                    Stop Thaw
+                  </Button>
+                )}
+              </ButtonWrapper>
+            </>
           )}
         </>
       ) : (
@@ -370,8 +395,8 @@ export const UnderwritingPoolModal: React.FC<PoolModalProps> = ({ modalTitle, fu
           <Button
             widthP={100}
             hidden={modalLoading}
-            disabled={(isAppropriateAmount(amount, getAssetBalanceByFunc()) ? false : true) || haveErrors}
-            onClick={handleCallbackFunc}
+            disabled={!isAcceptableAmount || haveErrors}
+            onClick={isStaking ? callDepositEth : callDeposit}
             info
           >
             Confirm

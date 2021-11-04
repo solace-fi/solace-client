@@ -55,7 +55,7 @@ import { useSptFarm } from '../../hooks/useSptFarm'
 
 /* import utils */
 import { truncateBalance } from '../../utils/formatting'
-import { timeToDateText } from '../../utils/time'
+import { getLongtimeFromMillis } from '../../utils/time'
 import { getClaimAssessment } from '../../utils/api'
 
 interface ClaimModalProps {
@@ -82,15 +82,15 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({
   const [claimSubmitted, setClaimSubmitted] = useState<boolean>(false)
   const [assessment, setAssessment] = useState<ClaimAssessment | undefined>(undefined)
   const cooldown = useGetCooldownPeriod()
-  const { addLocalTransactions, reload, gasPrices, userPolicyData } = useCachedData()
+  const { addLocalTransactions, reload, userPolicyData } = useCachedData()
   const { selectedProtocol } = useContracts()
   const { makeTxToast } = useNotifications()
   const { haveErrors } = useGeneral()
   const { activeNetwork, currencyDecimals, chainId } = useNetwork()
   const { withdrawPolicy } = useSptFarm()
   const { width } = useWindowDimensions()
-  const { getGasConfig, getGasLimit } = useGetFunctionGas()
-  const gasConfig = useMemo(() => getGasConfig(gasPrices.selected?.value), [gasPrices, getGasConfig])
+  const { getAutoGasConfig, getGasLimit } = useGetFunctionGas()
+  const gasConfig = useMemo(() => getAutoGasConfig(), [getAutoGasConfig])
   const appraisal = useAppraisePolicyPosition(selectedPolicy)
   const [canCloseOnLoading, setCanCloseOnLoading] = useState<boolean>(false)
   const mounting = useRef(true)
@@ -257,7 +257,7 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({
                     </TableData>
                     <TableData textAlignRight>
                       <Text t2 light>
-                        {timeToDateText(parseInt(cooldown) * 1000)}
+                        {getLongtimeFromMillis(parseInt(cooldown) * 1000)}
                       </Text>
                     </TableData>
                   </TableRow>
@@ -292,7 +292,7 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({
                   </ButtonWrapper>
                 </div>
               ) : (
-                <ButtonWrapper isColumn={width < BKPT_3}>
+                <ButtonWrapper isColumn={width <= BKPT_3}>
                   <Button
                     widthP={100}
                     disabled={haveErrors || !assessment.lossEventDetected}

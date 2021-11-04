@@ -21,7 +21,6 @@ import { formatUnits } from '@ethersproject/units'
 import { BigNumber } from 'ethers'
 
 /* import managers */
-import { useWallet } from '../../context/WalletManager'
 import { useCachedData } from '../../context/CachedDataManager'
 import { useNotifications } from '../../context/NotificationsManager'
 import { useContracts } from '../../context/ContractsManager'
@@ -59,13 +58,12 @@ export const MyClaims: React.FC = () => {
   *************************************************************************************/
   const { haveErrors } = useGeneral()
   const { claimsEscrow } = useContracts()
-  const { account } = useWallet()
   const { activeNetwork, currencyDecimals } = useNetwork()
-  const { addLocalTransactions, reload, gasPrices } = useCachedData()
+  const { addLocalTransactions, reload } = useCachedData()
   const { makeTxToast } = useNotifications()
-  const claimsDetails = useGetClaimsDetails(account)
-  const { getGasConfig } = useGetFunctionGas()
-  const gasConfig = useMemo(() => getGasConfig(gasPrices.selected?.value), [gasPrices, getGasConfig])
+  const claimsDetails = useGetClaimsDetails()
+  const { getAutoGasConfig } = useGetFunctionGas()
+  const gasConfig = useMemo(() => getAutoGasConfig(), [getAutoGasConfig])
   const [openClaims, setOpenClaims] = useState<boolean>(true)
   const { width } = useWindowDimensions()
 

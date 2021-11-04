@@ -175,7 +175,7 @@ export const usePoolModal = () => {
   const { makeTxToast } = useNotifications()
   const [selectedGasOption, setSelectedGasOption] = useState<GasFeeOption | undefined>(gasPrices.selected)
   const { getGasConfig } = useGetFunctionGas()
-  const gasConfig = useMemo(() => getGasConfig(selectedGasOption ? selectedGasOption.value : null), [
+  const gasConfig = useMemo(() => getGasConfig(selectedGasOption ? selectedGasOption.value : undefined), [
     selectedGasOption,
     getGasConfig,
   ])

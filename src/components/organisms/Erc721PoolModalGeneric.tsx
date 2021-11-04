@@ -24,14 +24,13 @@ import { BigNumber } from 'ethers'
 import { Contract } from '@ethersproject/contracts'
 
 /* import managers */
-import { useWallet } from '../../context/WalletManager'
 import { useNetwork } from '../../context/NetworkManager'
 import { useGeneral } from '../../context/GeneralProvider'
 
 /* import constants */
 import { ZERO } from '../../constants'
 import { FunctionName } from '../../constants/enums'
-import { LocalTx, NftTokenInfo } from '../../constants/types'
+import { GasConfiguration, LocalTx, NftTokenInfo } from '../../constants/types'
 
 /* import components */
 import { Modal } from '../molecules/Modal'
@@ -52,7 +51,7 @@ interface Erc721PoolModalGenericProps {
     name: FunctionName
     func: (
       nftId: BigNumber,
-      gasConfig: any
+      gasConfig: GasConfiguration
     ) => Promise<
       | {
           tx: null
@@ -68,7 +67,7 @@ interface Erc721PoolModalGenericProps {
     name: FunctionName
     func: (
       nftId: BigNumber,
-      gasConfig: any
+      gasConfig: GasConfiguration
     ) => Promise<
       | {
           tx: null
@@ -103,8 +102,7 @@ export const Erc721PoolModalGeneric: React.FC<PoolModalProps & Erc721PoolModalGe
 
   const { haveErrors } = useGeneral()
   const { activeNetwork, currencyDecimals } = useNetwork()
-  const { account } = useWallet()
-  const userStakeValue = useUserStakedValue(farmContract, account)
+  const userStakeValue = useUserStakedValue(farmContract)
   const {
     gasConfig,
     gasPrices,
@@ -159,8 +157,8 @@ export const Erc721PoolModalGeneric: React.FC<PoolModalProps & Erc721PoolModalGe
     setModalLoading(false)
   }
 
-  const getAssetBalanceByFunc = (): BigNumber => {
-    switch (func) {
+  const getAssetBalanceByFunc = (f: FunctionName): BigNumber => {
+    switch (f) {
       case depositFunc.name:
         return userNftTokenInfo.reduce((a, b) => a.add(b.value), ZERO)
       case withdrawFunc.name:
@@ -176,7 +174,6 @@ export const Erc721PoolModalGeneric: React.FC<PoolModalProps & Erc721PoolModalGe
   }
 
   const handleCallbackFunc = async () => {
-    if (!func) return
     if (func == depositFunc.name) await callDeposit()
     if (func == withdrawFunc.name) await callWithdraw()
   }
@@ -228,7 +225,7 @@ export const Erc721PoolModalGeneric: React.FC<PoolModalProps & Erc721PoolModalGe
       <Erc721InputPanel
         unit={getUnit(func, activeNetwork)}
         assetTokens={getAssetTokensByFunc()}
-        availableBalance={func ? truncateBalance(formatUnits(getAssetBalanceByFunc(), currencyDecimals)) : '0'}
+        availableBalance={truncateBalance(formatUnits(getAssetBalanceByFunc(func), currencyDecimals))}
         nftSelection={nftSelection}
         handleNft={handleNft}
         nftId={nftId}

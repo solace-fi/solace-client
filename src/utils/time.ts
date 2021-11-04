@@ -37,58 +37,6 @@ export function timeAgo(someDateInThePast: number): string {
   return result + ' ago'
 }
 
-export function timeToDateText(millis: number): string {
-  const date = new Date(millis)
-  let str = ''
-  const days = date.getUTCDate() - 1
-  const hours = date.getUTCHours()
-  const minutes = date.getUTCMinutes()
-  const seconds = date.getUTCSeconds()
-
-  if (days > 0) {
-    if (days > 1) {
-      str += days + ' days'
-    } else {
-      str += days + ' day'
-    }
-  }
-
-  if (hours > 0) {
-    if (days > 0) {
-      str += ', '
-    }
-    if (hours > 1) {
-      str += hours + ' hours'
-    } else {
-      str += hours + ' hour'
-    }
-  }
-
-  if (minutes > 0) {
-    if (hours > 0) {
-      str += ', '
-    }
-    if (minutes > 1) {
-      str += minutes + ' minutes'
-    } else {
-      str += minutes + ' minute'
-    }
-  }
-
-  if (seconds > 0) {
-    if (minutes > 0) {
-      str += ', '
-    }
-    if (seconds > 1) {
-      str += seconds + ' seconds'
-    } else {
-      str += seconds + ' second'
-    }
-  }
-
-  return str
-}
-
 export function timeToDate(millis: number): string {
   const date = new Date(millis)
   let str = ''
@@ -115,10 +63,7 @@ export function timeToDate(millis: number): string {
   return str
 }
 
-export const getTimeFromMillis = (millis: number): string => {
-  // 1- Convert to seconds:
-  let seconds = parseInt((millis / 1000).toString())
-  // 2- Extract days:
+const getTimesFromSeconds = (seconds: number) => {
   const days = parseInt((seconds / 86400).toString()) // 86400 seconds in 1 day
   seconds = seconds % 86400
   // 3- Extract hours:
@@ -128,6 +73,23 @@ export const getTimeFromMillis = (millis: number): string => {
   const minutes = parseInt((seconds / 60).toString()) // 60 seconds in 1 minute
   // 5- Keep only seconds not extracted to minutes:
   seconds = seconds % 60
+
+  return { days, hours, minutes, seconds }
+}
+
+export function getLongtimeFromMillis(millis: number): string {
+  const _seconds = parseInt((millis / 1000).toString())
+  const { days, hours, minutes } = getTimesFromSeconds(_seconds)
+
+  return `${days > 0 ? `${days} day${days > 1 ? 's' : ''}` : ''}${hours > 0 ? ' ' : ''}${
+    hours > 0 ? `${hours} hour${hours > 1 ? 's' : ''}` : ''
+  }${minutes > 0 ? ' ' : ''}${minutes > 0 ? `${minutes} minute${minutes > 1 ? 's' : ''}` : ''}`
+}
+
+export const getTimeFromMillis = (millis: number): string => {
+  const _seconds = parseInt((millis / 1000).toString())
+  const { days, hours, minutes } = getTimesFromSeconds(_seconds)
+
   return `${days}d${hours > 0 ? ` ${hours}h` : ''}${minutes > 0 ? ` ${minutes}m` : ''}`
 }
 

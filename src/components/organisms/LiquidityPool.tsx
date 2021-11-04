@@ -37,7 +37,6 @@ import { Table, TableHead, TableRow, TableHeader, TableBody, TableData, TableDat
 import { Button, ButtonWrapper } from '../atoms/Button'
 import { FormRow, FormCol } from '../atoms/Form'
 import { Card } from '../atoms/Card'
-import { StyledTooltip } from '../molecules/Tooltip'
 
 /* import hooks */
 import { useRewardsPerDay, useUserPendingRewards, useUserRewardsPerDay } from '../../hooks/useRewards'
@@ -66,21 +65,16 @@ export const LiquidityPool: React.FC<LiquidityPoolProps> = ({ openModal }) => {
   const { currencyDecimals } = useNetwork()
 
   const lpRewardsPerDay = useRewardsPerDay(2)
-  const lpUserRewardsPerDay = useUserRewardsPerDay(2, lpFarm, account)
+  const lpUserRewardsPerDay = useUserRewardsPerDay(2, lpFarm)
   const lpUserRewards = useUserPendingRewards(lpFarm)
   const lpPoolValue = usePoolStakedValue(lpFarm)
-  const lpUserStakeValue = useUserStakedValue(lpFarm, account)
+  const lpUserStakeValue = useUserStakedValue(lpFarm)
   // const depositedNftTokenInfo = useDepositedLpBalance()
 
   return (
     <Content>
       <Text bold t1 mb={0} info>
-        SOLACE Liquidity Pool{' '}
-        {/* <StyledTooltip
-          id={'lp-farm'}
-          tip={'Deposit Uniswap V3 SOLACE-ETH LP tokens here to earn rewards'}
-          link={'https://docs.solace.fi/docs/user-guides/liquidity-provider/lp-role-guide'}
-        /> */}
+        SOLACE Liquidity Pool
       </Text>
       <Text t4 pt={10} pb={10}>
         Manage your Uniswap V3 SOLACE-ETH LP tokens in this pool and earn rewards
@@ -92,24 +86,9 @@ export const LiquidityPool: React.FC<LiquidityPoolProps> = ({ openModal }) => {
               {account ? <TableHeader width={100}>Your Stake</TableHeader> : null}
               <TableHeader>Total Assets</TableHeader>
               <TableHeader width={100}>ROI (1Y)</TableHeader>
-              {account ? (
-                <TableHeader>
-                  My Rewards
-                  {/* <StyledTooltip id={'lp-rewards'} tip={'Amount of your unclaimed rewards from this pool'} /> */}
-                </TableHeader>
-              ) : null}
-              {account ? (
-                <TableHeader>
-                  My Daily Rewards
-                  {/* {' '}
-                  <StyledTooltip id={'my-daily-lp-rewards'} tip={'Amount of rewards you earn from this pool per day'} /> */}
-                </TableHeader>
-              ) : null}
-              <TableHeader>
-                Daily Rewards
-                {/* {' '}
-                <StyledTooltip id={'daily-lp-rewards'} tip={'Total amount of rewards for this pool per day'} /> */}
-              </TableHeader>
+              {account ? <TableHeader>My Rewards</TableHeader> : null}
+              {account ? <TableHeader>My Daily Rewards</TableHeader> : null}
+              <TableHeader>Daily Rewards</TableHeader>
             </TableRow>
           </TableHead>
           <TableBody>
