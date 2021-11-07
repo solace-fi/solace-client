@@ -119,6 +119,9 @@ export const MyClaims: React.FC = () => {
           <CardContainer cardsPerRow={2} p={10}>
             {claimsDetails.map((claim: ClaimDetails) => {
               const formattedBalance = formatUnits(claim.amount, currencyDecimals)
+              const isGreaterThanOrEqualTo1 = BigNumber.from(claim.amount).gte(accurateMultiply(1, currencyDecimals))
+              const customDecimals = isGreaterThanOrEqualTo1 ? 2 : 6
+              const remainingCooldown = getTimeFromMillis(parseInt(claim.cooldown) * 1000)
               return (
                 <Card key={claim.id}>
                   <Box pt={20} pb={20} glow={claim.canWithdraw} success={claim.canWithdraw}>
@@ -135,9 +138,7 @@ export const MyClaims: React.FC = () => {
                         Amount
                       </BoxItemTitle>
                       <Text t3 light>
-                        {BigNumber.from(claim.amount).gte(accurateMultiply(1, currencyDecimals))
-                          ? truncateBalance(formattedBalance, width > BKPT_3 ? currencyDecimals : 2)
-                          : truncateBalance(formattedBalance, width > BKPT_3 ? currencyDecimals : 6)}{' '}
+                        {truncateBalance(formattedBalance, width > BKPT_3 ? currencyDecimals : customDecimals)}{' '}
                         {activeNetwork.nativeCurrency.symbol}
                       </Text>
                     </BoxItem>
@@ -146,9 +147,7 @@ export const MyClaims: React.FC = () => {
                         Payout Status
                       </BoxItemTitle>
                       <Text t3 light>
-                        {claim.canWithdraw
-                          ? 'Available'
-                          : `${claim.cooldown == '0' ? '-' : getTimeFromMillis(parseInt(claim.cooldown) * 1000)} left`}
+                        {claim.canWithdraw ? 'Available' : `${remainingCooldown} left`}
                       </Text>
                     </BoxItem>
                   </Box>

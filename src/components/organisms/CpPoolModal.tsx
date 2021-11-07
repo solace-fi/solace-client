@@ -213,7 +213,7 @@ export const CpPoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen
       setContractForAllowance(vault)
       setSpenderAddress(cpFarm?.address)
     }
-  }, [isOpen, cpFarm?.address, vault, func, currencyDecimals])
+  }, [isOpen, cpFarm?.address, vault])
 
   return (
     <Modal
@@ -244,7 +244,7 @@ export const CpPoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen
         <Loader />
       ) : func == FunctionName.DEPOSIT_CP ? (
         <Fragment>
-          {!approval && tokenAllowance != '' && (
+          {!approval && (
             <ButtonWrapper>
               <Button widthP={100} disabled={!isAcceptableAmount || haveErrors} onClick={approve} info>
                 Approve

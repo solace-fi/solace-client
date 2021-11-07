@@ -122,9 +122,7 @@ export const WalletModal: React.FC<WalletModalProps> = ({ closeModal, isOpen }) 
       )}
       <LedgerDerivationPathModal
         isOpen={state.showLedgerModal}
-        closeModal={() => {
-          setState({ showLedgerModal: false })
-        }}
+        closeModal={() => setState({ showLedgerModal: false })}
       />
     </Modal>
   )

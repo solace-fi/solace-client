@@ -17,7 +17,7 @@
   *************************************************************************************/
 
 /* import packages */
-import React, { Fragment, useCallback, useState, useEffect } from 'react'
+import React, { Fragment, useCallback, useState, useEffect, useMemo } from 'react'
 import { formatUnits } from '@ethersproject/units'
 import { BigNumber } from 'ethers'
 import { Block } from '@ethersproject/contracts/node_modules/@ethersproject/abstract-provider'
@@ -77,6 +77,10 @@ export const PolicyModalInfo: React.FC<PolicyModalInfoProps> = ({ appraisal, sel
   const { tokenPosData } = useCachedData()
   const [showAssetsModal, setShowAssetsModal] = useState<boolean>(false)
   const [formattedAssets, setFormattedAssets] = useState<BasicData[]>([])
+  const daysLeft = useMemo(
+    () => getDaysLeft(selectedPolicy ? selectedPolicy.expirationBlock : 0, latestBlock ? latestBlock.number : 0),
+    [latestBlock, selectedPolicy]
+  )
   const MaxPositionsToDisplay = 4
 
   /*************************************************************************************
@@ -166,7 +170,7 @@ export const PolicyModalInfo: React.FC<PolicyModalInfoProps> = ({ appraisal, sel
           <BoxItem>
             <BoxItemTitle t3>Days to expiration</BoxItemTitle>
             <Text t2 nowrap>
-              {getDaysLeft(selectedPolicy ? selectedPolicy.expirationBlock : 0, latestBlock ? latestBlock.number : 0)}
+              {daysLeft}
             </Text>
           </BoxItem>
           <BoxItem>
@@ -210,7 +214,7 @@ export const PolicyModalInfo: React.FC<PolicyModalInfoProps> = ({ appraisal, sel
             </FormCol>
             <FormCol>
               <Text bold t3>
-                {getDaysLeft(selectedPolicy ? selectedPolicy.expirationBlock : 0, latestBlock ? latestBlock.number : 0)}
+                {daysLeft}
               </Text>
             </FormCol>
           </FormRow>

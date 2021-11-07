@@ -171,14 +171,15 @@ export const getUnit = (function_name: string, activeNetwork?: NetworkConfig): U
       return Unit.LP
     case FunctionName.DEPOSIT_POLICY_SIGNED:
     case FunctionName.WITHDRAW_POLICY:
-    case FunctionName.WITHDRAW_CLAIMS_PAYOUT:
     case FunctionName.BUY_POLICY:
     case FunctionName.CANCEL_POLICY:
     case FunctionName.EXTEND_POLICY_PERIOD:
     case FunctionName.UPDATE_POLICY_AMOUNT:
     case FunctionName.UPDATE_POLICY:
     case FunctionName.SUBMIT_CLAIM:
-      return Unit.ID
+      return Unit.POLICY
+    case FunctionName.WITHDRAW_CLAIMS_PAYOUT:
+      return Unit.CLAIM
     case FunctionName.START_COOLDOWN:
     case FunctionName.STOP_COOLDOWN:
     default:
@@ -195,7 +196,6 @@ export const formatTransactionContent = (
   const unit = getUnit(function_name, activeNetwork)
   switch (function_name) {
     case FunctionName.WITHDRAW_CLAIMS_PAYOUT:
-      return `Claim ${unit} ${BigNumber.from(amount)}`
     case FunctionName.BUY_POLICY:
     case FunctionName.EXTEND_POLICY_PERIOD:
     case FunctionName.UPDATE_POLICY:
@@ -204,7 +204,7 @@ export const formatTransactionContent = (
     case FunctionName.SUBMIT_CLAIM:
     case FunctionName.DEPOSIT_POLICY_SIGNED:
     case FunctionName.WITHDRAW_POLICY:
-      return `Policy ${unit} ${BigNumber.from(amount)}`
+      return `${unit} #${BigNumber.from(amount)}`
     case FunctionName.WITHDRAW_ETH:
       return `${truncateBalance(formatUnits(BigNumber.from(amount), activeNetwork.nativeCurrency.decimals))} ${unit}`
     case FunctionName.WITHDRAW_LP:
@@ -223,9 +223,8 @@ export const formatTransactionContent = (
     case FunctionName.STOP_COOLDOWN:
       return `Thaw stopped`
     case FunctionName.DEPOSIT_POLICY_SIGNED_MULTI:
-      return `Deposited multiple policies`
     case FunctionName.WITHDRAW_POLICY_MULTI:
-      return `Withdrew multiple policies`
+      return `Multiple policies`
     default:
       return `${amount} ${unit}`
   }

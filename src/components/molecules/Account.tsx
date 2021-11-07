@@ -18,7 +18,7 @@
   *************************************************************************************/
 
 /* import packages */
-import React from 'react'
+import React, { useMemo } from 'react'
 import makeBlockie from 'ethereum-blockies-base64'
 import { useLocation } from 'react-router'
 
@@ -50,12 +50,16 @@ export const UserAccount: React.FC<ButtonProps & GeneralElementProps> = (props) 
   const { activeNetwork } = useNetwork()
   const { account, name } = useWallet()
   const { openAccountModal } = useCachedData()
+  const bgColor = useMemo(
+    () => (location.pathname == '/' || appTheme == 'dark' ? 'rgba(0, 0, 0, 0.1)' : 'rgb(242, 242, 242)'),
+    [appTheme, location.pathname]
+  )
 
   return (
     <Button noborder nohover p={0} onClick={openAccountModal} {...props}>
       <FlexCol
         style={{
-          backgroundColor: location.pathname == '/' || appTheme == 'dark' ? 'rgba(0, 0, 0, 0.1)' : 'rgb(242, 242, 242)',
+          backgroundColor: bgColor,
           borderRadius: '10px',
           padding: '5px',
         }}
@@ -103,12 +107,16 @@ export const MiniUserAccount: React.FC<ButtonProps & GeneralElementProps> = (pro
   const location = useLocation()
   const { account } = useWallet()
   const { openAccountModal } = useCachedData()
+  const bgColor = useMemo(
+    () => (location.pathname == '/' || appTheme == 'dark' ? 'rgba(0, 0, 0, 0.1)' : 'rgb(242, 242, 242)'),
+    [appTheme, location.pathname]
+  )
 
   return (
     <Button noborder nohover p={0} onClick={openAccountModal} {...props}>
       <FlexCol
         style={{
-          backgroundColor: location.pathname == '/' || appTheme == 'dark' ? 'rgba(0, 0, 0, 0.1)' : 'rgb(242, 242, 242)',
+          backgroundColor: bgColor,
           borderRadius: '10px',
           padding: '5px',
         }}

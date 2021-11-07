@@ -6,7 +6,7 @@ import { useCachedData } from '../context/CachedDataManager'
 export const useTokenAllowance = (tokenContract: Contract | null, spender: string | null): string => {
   const { library, account } = useWallet()
   const { version } = useCachedData()
-  const [allowance, setAllowance] = useState<string>('')
+  const [allowance, setAllowance] = useState<string>('0')
 
   const checkAllowance = async () => {
     try {

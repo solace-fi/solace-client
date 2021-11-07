@@ -76,7 +76,7 @@ export const Statistics: React.FC = () => {
   const { getAutoGasConfig } = useGetFunctionGas()
   const gasConfig = useMemo(() => getAutoGasConfig(), [getAutoGasConfig])
   const [totalActiveCoverAmount, setTotalActiveCoverAmount] = useState<string>('-')
-  const [totalActivePolicies, setTotalActivePolicies] = useState<number | string>('-')
+  const [totalActivePolicies, setTotalActivePolicies] = useState<string>('-')
 
   /*************************************************************************************
 
@@ -129,7 +129,7 @@ export const Statistics: React.FC = () => {
         const activePolicies = allPolicies.filter(({ status }) => status === PolicyState.ACTIVE)
         const activeCoverAmount = activePolicies.reduce((pv, cv) => pv.add(cv.coverAmount), ZERO)
         setTotalActiveCoverAmount(formatUnits(activeCoverAmount, currencyDecimals))
-        setTotalActivePolicies(activePolicies.length)
+        setTotalActivePolicies(activePolicies.length.toString())
       }
       fetchPolicies()
     } catch (err) {
@@ -166,7 +166,9 @@ export const Statistics: React.FC = () => {
           Active Cover Amount
         </BoxItemTitle>
         <Text t2 nowrap light bold>
-          {totalActiveCoverAmount !== '-' ? `${truncateBalance(totalActiveCoverAmount, 2)} ` : `- `}
+          {totalActiveCoverAmount !== '-'
+            ? `${truncateBalance(totalActiveCoverAmount, 2)} `
+            : `${totalActiveCoverAmount} `}
           <TextSpan t4 light bold>
             {activeNetwork.nativeCurrency.symbol}
           </TextSpan>
@@ -293,7 +295,9 @@ export const Statistics: React.FC = () => {
                   <FormCol light>Active Cover Amount</FormCol>
                   <FormCol>
                     <Text t2 nowrap light>
-                      {totalActiveCoverAmount !== '-' ? `${truncateBalance(totalActiveCoverAmount, 2)} ` : `- `}
+                      {totalActiveCoverAmount !== '-'
+                        ? `${truncateBalance(totalActiveCoverAmount, 2)} `
+                        : `${totalActiveCoverAmount} `}
                       <TextSpan t4 light>
                         {activeNetwork.nativeCurrency.symbol}
                       </TextSpan>

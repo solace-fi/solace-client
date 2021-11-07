@@ -12,7 +12,7 @@
 */
 
 /* import packages */
-import React from 'react'
+import React, { useMemo } from 'react'
 
 /* import managers */
 import { useGeneral } from '../../context/GeneralProvider'
@@ -63,26 +63,21 @@ export const LiquityPositionCard: React.FC<LiquityPositionCardProps> = ({
   */
   const { haveErrors } = useGeneral()
   const { width } = useWindowDimensions()
-  const isActive = userHasActiveProductPosition(
-    userPolicies,
-    protocolName,
-    (position.position as LiquityPosition).positionAddress
-  )
+  const liquityPosition = useMemo(() => position.position as LiquityPosition, [position.position])
+  const isActive = userHasActiveProductPosition(userPolicies, protocolName, liquityPosition.positionAddress)
   const isSelected = selectedPositions.some(
     (selectedPosition) =>
-      (selectedPosition.position as LiquityPosition).positionAddress ==
-      (position.position as LiquityPosition).positionAddress
+      (selectedPosition.position as LiquityPosition).positionAddress == liquityPosition.positionAddress
   )
   const lightText = isSelected || isActive
   const foundPosition = userPolicies.filter(
     (policy) =>
-      policy.productName == protocolName &&
-      policy.positionDescription.includes(trim0x((position.position as LiquityPosition).positionAddress))
+      policy.productName == protocolName && policy.positionDescription.includes(trim0x(liquityPosition.positionAddress))
   )[0]
 
   return (
     <PositionCard
-      key={(position.position as LiquityPosition).positionAddress}
+      key={liquityPosition.positionAddress}
       color1={isSelected}
       glow={isSelected}
       fade={isActive}
@@ -100,8 +95,8 @@ export const LiquityPositionCard: React.FC<LiquityPositionCardProps> = ({
         }}
       >
         <img
-          src={`https://assets.solace.fi/${(position.position as LiquityPosition).positionAddress.toLowerCase()}`}
-          alt={(position.position as LiquityPosition).positionName}
+          src={`https://assets.solace.fi/${liquityPosition.positionAddress.toLowerCase()}`}
+          alt={liquityPosition.positionName}
         />
       </DeFiAssetImage>
       <PositionCardName
@@ -110,7 +105,7 @@ export const LiquityPositionCard: React.FC<LiquityPositionCardProps> = ({
         }}
         light={lightText}
       >
-        {(position.position as LiquityPosition).positionName}
+        {liquityPosition.positionName}
       </PositionCardName>
       <PositionCardText
         t1
@@ -119,9 +114,9 @@ export const LiquityPositionCard: React.FC<LiquityPositionCardProps> = ({
         }}
         light={lightText}
       >
-        {truncateBalance(fixedPositionBalance((position.position as LiquityPosition).amount.toString(), 18))}{' '}
+        {truncateBalance(fixedPositionBalance(liquityPosition.amount.toString(), 18))}{' '}
         <TextSpan style={{ fontSize: '12px' }} light={lightText}>
-          {(position.position as LiquityPosition).associatedToken.symbol}
+          {liquityPosition.associatedToken.symbol}
         </TextSpan>
       </PositionCardText>
       <PositionCardButton>
@@ -131,11 +126,11 @@ export const LiquityPositionCard: React.FC<LiquityPositionCardProps> = ({
           </Button>
         ) : isSelected ? (
           <Button widthP={width > BKPT_3 ? undefined : 100} light>
-            {'Deselect'}
+            Deselect
           </Button>
         ) : (
           <Button widthP={width > BKPT_3 ? undefined : 100} info>
-            {'Select'}
+            Select
           </Button>
         )}
       </PositionCardButton>

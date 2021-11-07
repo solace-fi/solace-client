@@ -281,9 +281,7 @@ export const MyPolicies: React.FC<MyPoliciesProps> = ({
                         </TableData>
                         <TableData>
                           <Text t2 warning={isWarned}>
-                            {policy.coverAmount
-                              ? truncateBalance(formatUnits(policy.coverAmount, currencyDecimals), 2)
-                              : 0}{' '}
+                            {truncateBalance(formatUnits(policy.coverAmount, currencyDecimals), 2)}{' '}
                             {activeNetwork.nativeCurrency.symbol}
                           </Text>
                         </TableData>
