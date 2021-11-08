@@ -1,6 +1,6 @@
 import { NavLink } from 'react-router-dom'
 import styled, { css } from 'styled-components'
-import { BKPT_NAVBAR, BKPT_3 } from '../../../constants'
+import { BKPT_NAVBAR, BKPT_3, Z_TOPNAV } from '../../../constants'
 import { GeneralTextProps, GeneralTextCss } from '../Typography'
 
 interface TopNavProps {
@@ -18,7 +18,7 @@ export const TopNav = styled.div<TopNavProps>`
   @media screen and (max-width: ${BKPT_NAVBAR}px) {
     display: block;
     width: 100%;
-    z-index: 2;
+    z-index: ${Z_TOPNAV};
   }
 
   @media screen and (max-width: ${BKPT_3}px) {

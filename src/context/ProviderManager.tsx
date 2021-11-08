@@ -8,6 +8,9 @@ import { ModalCell } from '../components/atoms/Modal'
 import { Text } from '../components/atoms/Typography'
 import { Modal } from '../components/molecules/Modal'
 import { FormRow } from '../components/atoms/Form'
+
+import { Z_MODAL } from '../constants'
+
 import { capitalizeFirstLetter } from '../utils/formatting'
 
 /*
@@ -112,7 +115,7 @@ const ProviderManager: React.FC = ({ children }) => {
   return (
     <ProviderContext.Provider value={value}>
       <Modal
-        zIndex={4}
+        zIndex={Z_MODAL + 1}
         handleClose={closeModal}
         isOpen={networkModal}
         modalTitle={'Connect a network'}

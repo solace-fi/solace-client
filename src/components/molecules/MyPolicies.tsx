@@ -170,31 +170,28 @@ export const MyPolicies: React.FC<MyPoliciesProps> = ({
         Make changes to your existing policies or submit claims. You can stake your policies to earn $SOLACE token call
         options.
       </Text>
+      {!(width > BKPT_5) && userPolicyData.userPolicies.length > 0 && isOpen && (
+        <ButtonWrapper isColumn={!(width > BKPT_3)}>
+          <Button
+            widthP={100}
+            disabled={policyIdsToStake.length < 2}
+            onClick={callDepositPolicyMulti}
+            secondary={!(policyIdsToStake.length < 2)}
+          >
+            Stake all
+          </Button>
+          <Button
+            widthP={100}
+            disabled={policyIdsToUnstake.length < 2}
+            onClick={callWithdrawPolicyMulti}
+            secondary={!(policyIdsToUnstake.length < 2)}
+          >
+            Unstake all
+          </Button>
+        </ButtonWrapper>
+      )}
       {!userPolicyData.policiesLoading ? (
         <Accordion isOpen={isOpen} style={{ padding: '0 10px 0 10px' }}>
-          {!(width > BKPT_5) && userPolicyData.userPolicies.length > 0 && (
-            <ButtonWrapper
-              isColumn={!(width > BKPT_3)}
-              style={{ position: 'sticky', top: '0', backgroundColor: 'inherit', zIndex: 1 }}
-            >
-              <Button
-                widthP={100}
-                disabled={policyIdsToStake.length < 2}
-                onClick={callDepositPolicyMulti}
-                secondary={!(policyIdsToStake.length < 2)}
-              >
-                Stake all
-              </Button>
-              <Button
-                widthP={100}
-                disabled={policyIdsToUnstake.length < 2}
-                onClick={callWithdrawPolicyMulti}
-                secondary={!(policyIdsToUnstake.length < 2)}
-              >
-                Unstake all
-              </Button>
-            </ButtonWrapper>
-          )}
           {userPolicyData.userPolicies.length > 0 ? (
             width > BKPT_5 ? (
               <Table textAlignCenter style={{ borderSpacing: '0px 7px' }}>

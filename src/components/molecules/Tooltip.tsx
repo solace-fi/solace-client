@@ -27,7 +27,7 @@ import styled, { css } from 'styled-components'
 import { useLocation } from 'react-router'
 
 /* import constants */
-import { BKPT_3 } from '../../constants'
+import { BKPT_3, Z_TOOLTIP } from '../../constants'
 
 /* import components */
 import { StyledInfo, StyledLinkExternal } from '../atoms/Icon'
@@ -47,6 +47,7 @@ const CustomTooltipCss = css`
   font-size: 14px !important;
   pointer-events: auto !important;
   cursor: pointer;
+  z-index: ${Z_TOOLTIP};
   &:hover {
     visibility: visible !important;
     opacity: 1 !important;
