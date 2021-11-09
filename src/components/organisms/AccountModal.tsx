@@ -99,7 +99,7 @@ export const AccountModal: React.FC<AccountModalProps> = ({ closeModal, isOpen }
             <FormRow mb={5}>
               <Input widthP={100} readOnly value={account} light textAlignCenter />
             </FormRow>
-            <ButtonWrapper pt={15} pb={5} isColumn={width <= BKPT_3}>
+            <ButtonWrapper pt={10} pb={5} isColumn={width <= BKPT_3}>
               <CopyButton toCopy={account} />
               <HyperLink
                 href={getExplorerItemUrl(activeNetwork.explorer.url, account, ExplorerscanApi.ADDRESS)}
