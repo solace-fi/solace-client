@@ -4,8 +4,10 @@ import { useState, useEffect } from 'react'
 import { useCachedData } from '../context/CachedDataManager'
 import { useContracts } from '../context/ContractsManager'
 import { useNetwork } from '../context/NetworkManager'
+import { useWallet } from '../context/WalletManager'
 
-export const useUserStakedValue = (farm: Contract | null | undefined, account: string | undefined): string => {
+export const useUserStakedValue = (farm: Contract | null | undefined): string => {
+  const { account } = useWallet()
   const { currencyDecimals } = useNetwork()
   const { version } = useCachedData()
   const [userStakedValue, setUserStakedValue] = useState<string>('0')

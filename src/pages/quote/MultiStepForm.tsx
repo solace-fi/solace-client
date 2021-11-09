@@ -50,10 +50,9 @@ import { Button, ButtonWrapper } from '../../components/atoms/Button'
 import { Card, CardContainer } from '../../components/atoms/Card'
 import { FormRow, FormCol } from '../../components/atoms/Form'
 import { Text } from '../../components/atoms/Typography'
-import { StyledTooltip } from '../../components/molecules/Tooltip'
 import { FlexRow } from '../../components/atoms/Layout'
 import { StyledDots } from '../../components/atoms/Icon'
-import { AssetsModal } from '../../components/_unused/AssetsModal'
+import { AssetsModal } from '../../components/organisms/AssetsModal'
 
 /* import hooks */
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'
@@ -279,18 +278,15 @@ export const MultiStepForm = () => {
                 <BoxItem>
                   <Text t3 light>
                     {fixed(protocol.yearlyCost * 100, 2)}%
-                    {/* <StyledTooltip id={'yearly-cost'} tip={'Yearly Cost'} /> */}
                   </Text>
                 </BoxItem>
                 <BoxItem>
                   <Text t3 light>
                     {protocol.availableCoverage} {activeNetwork.nativeCurrency.symbol}
-                    {/* {' '}
-                    <StyledTooltip id={'available-coverage'} tip={'Available Coverage'} /> */}
                   </Text>
                 </BoxItem>
                 <BoxItem>
-                  <Button light onClick={() => resetForm()}>
+                  <Button light onClick={resetForm}>
                     Change
                   </Button>
                 </BoxItem>
@@ -322,9 +318,11 @@ export const MultiStepForm = () => {
                   </BoxItem>
                   <BoxItem>
                     <ButtonWrapper>
-                      {/* <Button light onClick={() => setShowAssetsModal(true)}>
-                        View assets
-                      </Button> */}
+                      {positions.length > maxPositionsToDisplay && (
+                        <Button light onClick={() => setShowAssetsModal(true)}>
+                          View assets
+                        </Button>
+                      )}
                       <Button light onClick={() => navigation.go(1)}>
                         Change
                       </Button>
@@ -366,7 +364,7 @@ export const MultiStepForm = () => {
                   </FormCol>
                 </FormRow>
                 <ButtonWrapper>
-                  <Button light widthP={100} onClick={() => resetForm()}>
+                  <Button light widthP={100} onClick={resetForm}>
                     Change
                   </Button>
                 </ButtonWrapper>
@@ -393,9 +391,11 @@ export const MultiStepForm = () => {
                     )}
                   </FlexRow>
                   <ButtonWrapper isColumn>
-                    {/* <Button light widthP={100} onClick={() => setShowAssetsModal(true)}>
-                      View all assets
-                    </Button> */}
+                    {positions.length > maxPositionsToDisplay && (
+                      <Button light widthP={100} onClick={() => setShowAssetsModal(true)}>
+                        View all assets
+                      </Button>
+                    )}
                     <Button light widthP={100} onClick={() => navigation.go(1)}>
                       Change
                     </Button>

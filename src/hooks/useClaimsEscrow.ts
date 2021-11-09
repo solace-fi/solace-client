@@ -3,17 +3,19 @@ import { useContracts } from '../context/ContractsManager'
 import { ClaimDetails } from '../constants/types'
 import { useEffect, useState } from 'react'
 import { useCachedData } from '../context/CachedDataManager'
+import { useWallet } from '../context/WalletManager'
 
-export const useGetClaimsDetails = (claimant: string | undefined): ClaimDetails[] => {
+export const useGetClaimsDetails = (): ClaimDetails[] => {
+  const { account } = useWallet()
   const { claimsEscrow } = useContracts()
   const [claimsDetails, setClaimsDetails] = useState<ClaimDetails[]>([])
   const { latestBlock } = useCachedData()
 
   useEffect(() => {
     const getClaimDetails = async () => {
-      if (!claimsEscrow || !claimant) return
+      if (!claimsEscrow || !account) return
       try {
-        const claimIds: BigNumber[] = await claimsEscrow.listTokensOfOwner(claimant)
+        const claimIds: BigNumber[] = await claimsEscrow.listTokensOfOwner(account)
         const claimsDetails = await Promise.all(
           claimIds.map(async (claimId) => {
             const [cooldown, canWithdraw, claim] = await Promise.all([
@@ -32,7 +34,7 @@ export const useGetClaimsDetails = (claimant: string | undefined): ClaimDetails[
       }
     }
     getClaimDetails()
-  }, [claimsEscrow, claimant, latestBlock])
+  }, [claimsEscrow, account, latestBlock])
 
   return claimsDetails
 }

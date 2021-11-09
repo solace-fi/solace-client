@@ -14,12 +14,11 @@
       contract functions
       local functions
       useEffect hooks
-      Render
 
   *************************************************************************************/
 
 /* import packages */
-import React, { Fragment, useState, useEffect, useMemo, useCallback, useRef } from 'react'
+import React, { Fragment, useState, useEffect, useMemo, useCallback } from 'react'
 import { parseUnits, formatUnits } from '@ethersproject/units'
 import { BigNumber } from 'ethers'
 import { Block } from '@ethersproject/contracts/node_modules/@ethersproject/abstract-provider'
@@ -32,7 +31,7 @@ import { useNetwork } from '../../context/NetworkManager'
 import { useGeneral } from '../../context/GeneralProvider'
 
 /* import components */
-import { Modal } from '../molecules/Modal'
+import { Modal, ModalAddendum } from '../molecules/Modal'
 import { FormRow, FormCol } from '../atoms/Form'
 import { Text } from '../atoms/Typography'
 import { PolicyModalInfo } from './PolicyModalInfo'
@@ -40,10 +39,12 @@ import { Input, StyledSlider } from '../../components/atoms/Input'
 import { Button, ButtonWrapper } from '../atoms/Button'
 import { Loader } from '../atoms/Loader'
 import { FlexCol } from '../atoms/Layout'
+import { HyperLink } from '../atoms/Link'
+import { StyledLinkExternal } from '../atoms/Icon'
 
 /* import constants */
 import { DAYS_PER_YEAR, NUM_BLOCKS_PER_DAY, ZERO } from '../../constants'
-import { FunctionName, TransactionCondition } from '../../constants/enums'
+import { FunctionName, TransactionCondition, ExplorerscanApi } from '../../constants/enums'
 import { LocalTx, Policy } from '../../constants/types'
 
 /* import hooks */
@@ -54,6 +55,7 @@ import { useSptFarm } from '../../hooks/useSptFarm'
 /* import utils */
 import { accurateMultiply, filteredAmount } from '../../utils/formatting'
 import { getDaysLeft, getExpiration } from '../../utils/time'
+import { getExplorerItemUrl } from '../../utils/explorer'
 
 interface ManageModalProps {
   closeModal: () => void
@@ -86,7 +88,7 @@ export const ManageModal: React.FC<ManageModalProps> = ({
   const { haveErrors } = useGeneral()
   const { activeNetwork, currencyDecimals } = useNetwork()
   const { selectedProtocol, riskManager } = useContracts()
-  const { addLocalTransactions, reload, gasPrices } = useCachedData()
+  const { addLocalTransactions, reload } = useCachedData()
   const { makeTxToast } = useNotifications()
   const maxCoverPerPolicy = useGetMaxCoverPerPolicy()
   const maxCoverPerPolicyInWei = useMemo(() => parseUnits(maxCoverPerPolicy, currencyDecimals), [
@@ -95,8 +97,8 @@ export const ManageModal: React.FC<ManageModalProps> = ({
   ])
   const { withdrawPolicy } = useSptFarm()
 
-  const { getGasConfig } = useGetFunctionGas()
-  const gasConfig = useMemo(() => getGasConfig(gasPrices.selected?.value), [gasPrices, getGasConfig])
+  const { getAutoGasConfig } = useGetFunctionGas()
+  const gasConfig = useMemo(() => getAutoGasConfig(), [getAutoGasConfig])
   const daysLeft = useMemo(
     () => getDaysLeft(selectedPolicy ? selectedPolicy.expirationBlock : 0, latestBlock ? latestBlock.number : 0),
     [latestBlock, selectedPolicy]
@@ -395,7 +397,7 @@ export const ManageModal: React.FC<ManageModalProps> = ({
                   Please unstake this policy from the SPT pool to make changes
                 </Text>
                 <ButtonWrapper>
-                  <Button widthP={100} disabled={haveErrors} onClick={() => callWithdrawPolicy()} info>
+                  <Button widthP={100} disabled={haveErrors} onClick={callWithdrawPolicy} info>
                     Unstake
                   </Button>
                 </ButtonWrapper>
@@ -429,7 +431,7 @@ export const ManageModal: React.FC<ManageModalProps> = ({
                             pr={2}
                             width={120}
                             height={30}
-                            onClick={() => setPositionCover()}
+                            onClick={setPositionCover}
                             info
                           >
                             Cover to position
@@ -444,7 +446,7 @@ export const ManageModal: React.FC<ManageModalProps> = ({
                           pr={8}
                           width={79}
                           height={30}
-                          onClick={() => setMaxCover()}
+                          onClick={setMaxCover}
                           info
                         >
                           MAX
@@ -514,7 +516,7 @@ export const ManageModal: React.FC<ManageModalProps> = ({
                     <FormCol></FormCol>
                     <ButtonWrapper>
                       {policyPrice !== '' ? (
-                        <Button widthP={100} disabled={haveErrors} onClick={() => cancelPolicy()} info>
+                        <Button widthP={100} disabled={haveErrors} onClick={cancelPolicy} info>
                           Cancel Policy
                         </Button>
                       ) : (
@@ -528,6 +530,19 @@ export const ManageModal: React.FC<ManageModalProps> = ({
           </Fragment>
         ) : (
           <Loader />
+        )}
+        {selectedProtocol && (
+          <ModalAddendum>
+            <HyperLink
+              href={getExplorerItemUrl(activeNetwork.explorer.url, selectedProtocol.address, ExplorerscanApi.ADDRESS)}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <Button>
+                Source Contract <StyledLinkExternal size={20} />
+              </Button>
+            </HyperLink>
+          </ModalAddendum>
         )}
       </Fragment>
     </Modal>

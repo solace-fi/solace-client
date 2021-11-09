@@ -1,7 +1,7 @@
 import { BigNumber } from 'ethers'
 import { DEADLINE } from '../constants'
 import { FunctionName, TransactionCondition } from '../constants/enums'
-import { LocalTx } from '../constants/types'
+import { GasConfiguration, LocalTx } from '../constants/types'
 import { useContracts } from '../context/ContractsManager'
 import { useNetwork } from '../context/NetworkManager'
 import { useWallet } from '../context/WalletManager'
@@ -14,7 +14,7 @@ export const useSptFarm = () => {
 
   const depositPolicy = async (
     nftId: BigNumber,
-    gasConfig: any
+    gasConfig: GasConfiguration
   ): Promise<
     | {
         tx: null
@@ -50,7 +50,7 @@ export const useSptFarm = () => {
 
   const depositPolicyMulti = async (
     nftIds: BigNumber[],
-    gasConfig: any
+    gasConfig: GasConfiguration
   ): Promise<
     | {
         tx: null
@@ -96,7 +96,7 @@ export const useSptFarm = () => {
 
   const withdrawPolicy = async (
     nftId: BigNumber,
-    gasConfig: any
+    gasConfig: GasConfiguration
   ): Promise<
     | {
         tx: null
@@ -123,7 +123,7 @@ export const useSptFarm = () => {
 
   const withdrawPolicyMulti = async (
     nftIds: BigNumber[],
-    gasConfig: any
+    gasConfig: GasConfiguration
   ): Promise<
     | {
         tx: null

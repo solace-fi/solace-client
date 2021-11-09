@@ -62,11 +62,7 @@ export const UnderwritingPool: React.FC<UnderwritingPoolProps> = ({ openModal })
   return (
     <Content>
       <Text bold t1 mb={0} info>
-        Underwriting Pool{' '}
-        {/* <StyledTooltip
-          id={'underwriting-pool'}
-          tip={'Provide capital here for Solace to underwrite the risks and fulfill claims for policies'}
-        />{' '} */}
+        Underwriting Pool
       </Text>
       <Text t4 pt={10} pb={10}>
         This capital is utilized to back the risk of coverage policies and earns revenue from policy sales.
@@ -94,7 +90,7 @@ export const UnderwritingPool: React.FC<UnderwritingPoolProps> = ({ openModal })
               <TableData t3 width={100}>
                 N/A
               </TableData>
-              {account ? <TableData t3 width={130}>{`${truncateBalance(userVaultShare, 2)} %`}</TableData> : null}
+              {account ? <TableData t3 width={130}>{`${truncateBalance(userVaultShare, 2)}%`}</TableData> : null}
               {account ? (
                 <TableData textAlignRight>
                   <TableDataGroup width={200} style={{ float: 'right' }}>

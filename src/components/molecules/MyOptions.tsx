@@ -55,10 +55,10 @@ export const MyOptions: React.FC = () => {
 
   *************************************************************************************/
   const { haveErrors } = useGeneral()
-  const { addLocalTransactions, reload, gasPrices } = useCachedData()
+  const { addLocalTransactions, reload } = useCachedData()
   const { makeTxToast } = useNotifications()
-  const { getGasConfig } = useGetFunctionGas()
-  const gasConfig = useMemo(() => getGasConfig(gasPrices.selected?.value), [gasPrices, getGasConfig])
+  const { getAutoGasConfig } = useGetFunctionGas()
+  const gasConfig = useMemo(() => getAutoGasConfig(), [getAutoGasConfig])
   const { activeNetwork, currencyDecimals } = useNetwork()
   const [openOptions, setOpenOptions] = useState<boolean>(true)
   const { optionsDetails, latestBlockTimestamp, exerciseOption } = useOptionsDetails()
@@ -111,6 +111,18 @@ export const MyOptions: React.FC = () => {
         {optionsDetails.length > 0 ? (
           <CardContainer cardsPerRow={2} p={10}>
             {optionsDetails.map((option: Option) => {
+              const formattedBalance = formatUnits(option.rewardAmount, currencyDecimals)
+              const isBalanceGreaterThanOrEqualTo1 = BigNumber.from(option.rewardAmount).gte(
+                accurateMultiply(1, currencyDecimals)
+              )
+              const customBalanceDecimals = isBalanceGreaterThanOrEqualTo1 ? 2 : 6
+
+              const formattedPrice = formatUnits(option.strikePrice, currencyDecimals)
+              const isPriceGreaterThanOrEqualTo1 = BigNumber.from(option.strikePrice).gte(
+                accurateMultiply(1, currencyDecimals)
+              )
+              const customPriceDecimals = isPriceGreaterThanOrEqualTo1 ? 2 : 6
+              const isExpired = latestBlockTimestamp > option.expiry.toNumber()
               return (
                 <Card key={option.id.toString()}>
                   <Box pt={20} pb={20} success>
@@ -127,15 +139,7 @@ export const MyOptions: React.FC = () => {
                         Reward Amount
                       </BoxItemTitle>
                       <Text t4 light>
-                        {BigNumber.from(option.rewardAmount).gte(accurateMultiply(1, currencyDecimals))
-                          ? truncateBalance(
-                              formatUnits(option.rewardAmount, currencyDecimals),
-                              width > BKPT_3 ? currencyDecimals : 2
-                            )
-                          : truncateBalance(
-                              formatUnits(option.rewardAmount, currencyDecimals),
-                              width > BKPT_3 ? currencyDecimals : 6
-                            )}{' '}
+                        {truncateBalance(formattedBalance, width > BKPT_3 ? currencyDecimals : customBalanceDecimals)}{' '}
                         SOLACE
                       </Text>
                     </BoxItem>
@@ -144,15 +148,7 @@ export const MyOptions: React.FC = () => {
                         Strike Price
                       </BoxItemTitle>
                       <Text t4 light>
-                        {BigNumber.from(option.strikePrice).gte(accurateMultiply(1, currencyDecimals))
-                          ? truncateBalance(
-                              formatUnits(option.strikePrice, currencyDecimals),
-                              width > BKPT_3 ? currencyDecimals : 2
-                            )
-                          : truncateBalance(
-                              formatUnits(option.strikePrice, currencyDecimals),
-                              width > BKPT_3 ? currencyDecimals : 6
-                            )}{' '}
+                        {truncateBalance(formattedPrice, width > BKPT_3 ? currencyDecimals : customPriceDecimals)}{' '}
                         {activeNetwork.nativeCurrency}
                       </Text>
                     </BoxItem>
@@ -170,7 +166,7 @@ export const MyOptions: React.FC = () => {
                       widthP={100}
                       onClick={() => callExerciseOption(option.id.toString())}
                       info
-                      disabled={haveErrors || latestBlockTimestamp > option.expiry.toNumber()}
+                      disabled={haveErrors || isExpired}
                     >
                       Exercise Option
                     </Button>

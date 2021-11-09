@@ -40,6 +40,7 @@ export const useScpBalance = (): string => {
   const { activeNetwork } = useNetwork()
   const { account } = useWallet()
   const [scpBalance, setScpBalance] = useState<string>('0')
+  const { version } = useCachedData()
 
   const getScpBalance = async () => {
     if (!vault || !account) return
@@ -64,7 +65,7 @@ export const useScpBalance = (): string => {
     return () => {
       vault.removeAllListeners()
     }
-  }, [account, vault])
+  }, [account, vault, version])
 
   return scpBalance
 }

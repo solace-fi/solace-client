@@ -1,6 +1,6 @@
 import { BigNumber } from 'ethers'
 import { useEffect, useState } from 'react'
-import { LocalTx, Option } from '../constants/types'
+import { GasConfiguration, LocalTx, Option } from '../constants/types'
 import { useCachedData } from '../context/CachedDataManager'
 import { useContracts } from '../context/ContractsManager'
 import { useWallet } from '../context/WalletManager'
@@ -15,7 +15,7 @@ export const useOptionsDetails = () => {
 
   const exerciseOption = async (
     _optionId: string,
-    gasConfig: any
+    gasConfig: GasConfiguration
   ): Promise<
     | {
         tx: null

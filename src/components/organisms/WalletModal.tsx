@@ -5,6 +5,7 @@
     import packages
     import managers
     import components
+    import constants
     import wallets
 
     WalletModal
@@ -28,6 +29,9 @@ import { FormRow } from '../atoms/Form'
 import { Button, ButtonWrapper } from '../atoms/Button'
 import { Scrollable } from '../atoms/Layout'
 import { LedgerDerivationPathModal } from './LedgerDerivationPathModal'
+
+/* import constants */
+import { Z_MODAL } from '../../constants'
 
 /* import wallets */
 import { SUPPORTED_WALLETS } from '../../wallet/'
@@ -78,7 +82,7 @@ export const WalletModal: React.FC<WalletModalProps> = ({ closeModal, isOpen }) 
 
   return (
     <Modal
-      zIndex={3}
+      zIndex={Z_MODAL + 1}
       handleClose={handleClose}
       isOpen={isOpen}
       modalTitle={'Connect a wallet'}
@@ -115,16 +119,14 @@ export const WalletModal: React.FC<WalletModalProps> = ({ closeModal, isOpen }) 
       </Scrollable>
       {activeWalletConnector && (
         <ButtonWrapper>
-          <Button widthP={100} onClick={() => disconnect()}>
+          <Button widthP={100} onClick={disconnect}>
             Disconnect Wallet
           </Button>
         </ButtonWrapper>
       )}
       <LedgerDerivationPathModal
         isOpen={state.showLedgerModal}
-        closeModal={() => {
-          setState({ showLedgerModal: false })
-        }}
+        closeModal={() => setState({ showLedgerModal: false })}
       />
     </Modal>
   )

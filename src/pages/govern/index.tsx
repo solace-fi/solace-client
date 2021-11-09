@@ -15,7 +15,7 @@ import React from 'react'
 
 /* import components */
 import { HeroContainer } from '../../components/atoms/Layout'
-import { StyledLink } from '../../components/atoms/Link'
+import { HyperLink } from '../../components/atoms/Link'
 import { Text } from '../../components/atoms/Typography'
 
 /* import utils */
@@ -31,7 +31,7 @@ function Govern(): any {
       </Text>
       <Text t2 textAlignCenter>
         See our Medium blog post{' '}
-        <StyledLink
+        <HyperLink
           href={
             'https://medium.com/solace-fi/solace-forms-a-launch-dao-to-deliver-its-defi-coverage-products-5137199369c2'
           }
@@ -41,7 +41,7 @@ function Govern(): any {
           t2
         >
           here
-        </StyledLink>{' '}
+        </HyperLink>{' '}
         to learn more about our approach to governance.
       </Text>
     </HeroContainer>

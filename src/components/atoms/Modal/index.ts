@@ -1,7 +1,7 @@
 import styled, { css, keyframes } from 'styled-components'
 import { ClickProps } from '../Button'
 import { GeneralTextProps, GeneralTextCss } from '../Typography'
-import { BKPT_3 } from '../../../constants'
+import { BKPT_3, Z_MODAL } from '../../../constants'
 import { GeneralElementProps, GeneralElementCss } from '../../generalInterfaces'
 
 export interface ModalProps {
@@ -28,7 +28,7 @@ export const ModalContainer = styled.div<ModalProps>`
   width: 100vw;
   height: 100vh;
   background: ${({ theme }) => theme.modal.bg_color};
-  z-index: ${(props) => (props.zIndex ? props.zIndex : '2')};
+  z-index: ${(props) => (props.zIndex ? props.zIndex : `${Z_MODAL}`)};
   ${(props) => (props.isOpen ? 'display: flex;' : 'display: none;')}
   overflow-y: auto;
 `
@@ -67,6 +67,13 @@ export const ModalHeader = styled.div`
   align-items: center;
   justify-content: space-between;
   margin-bottom: 20px;
+`
+
+export const ModalFooter = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 20px;
 `
 
 export const ModalRow = styled.div<GeneralElementProps>`

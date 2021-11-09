@@ -21,7 +21,6 @@ import React from 'react'
 /* import managers */
 import { useContracts } from '../../context/ContractsManager'
 import { useWallet } from '../../context/WalletManager'
-import { useNetwork } from '../../context/NetworkManager'
 import { useGeneral } from '../../context/GeneralProvider'
 
 /* import constants */
@@ -35,7 +34,7 @@ import { Table, TableHead, TableRow, TableHeader, TableBody, TableData, TableDat
 import { Button, ButtonWrapper } from '../atoms/Button'
 import { FormRow, FormCol } from '../atoms/Form'
 import { Card } from '../atoms/Card'
-import { StyledTooltip } from '../molecules/Tooltip'
+import { HyperLink } from '../atoms/Link'
 
 /* import hooks */
 import { useRewardsPerDay, useUserPendingRewards, useUserRewardsPerDay } from '../../hooks/useRewards'
@@ -62,10 +61,10 @@ export const SptPool: React.FC<SptPoolProps> = ({ openModal }) => {
   const { width } = useWindowDimensions()
 
   const sptRewardsPerDay = useRewardsPerDay(3)
-  const sptUserRewardsPerDay = useUserRewardsPerDay(3, sptFarm, account)
+  const sptUserRewardsPerDay = useUserRewardsPerDay(3, sptFarm)
   const sptUserRewards = useUserPendingRewards(sptFarm)
   const sptPoolValue = usePoolStakedValue(sptFarm)
-  const sptUserStakeValue = useUserStakedValue(sptFarm, account)
+  const sptUserStakeValue = useUserStakedValue(sptFarm)
 
   return (
     <Content>
@@ -74,6 +73,16 @@ export const SptPool: React.FC<SptPoolProps> = ({ openModal }) => {
       </Text>
       <Text t4 pt={10} pb={10}>
         Stake your policies here and earn even more rewards.
+        <HyperLink
+          t4
+          href={'https://medium.com/solace-fi/dear-policyholder-these-rewards-are-for-you-153ff190058'}
+          target="_blank"
+          rel="noopener noreferrer"
+          info
+        >
+          {' '}
+          More information here.
+        </HyperLink>
       </Text>
       {width > BKPT_6 ? (
         <Table isHighlight textAlignCenter>

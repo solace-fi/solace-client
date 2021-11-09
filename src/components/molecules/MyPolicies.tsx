@@ -77,13 +77,13 @@ export const MyPolicies: React.FC<MyPoliciesProps> = ({
     hooks
 
   *************************************************************************************/
-  const { addLocalTransactions, reload, gasPrices, userPolicyData } = useCachedData()
+  const { addLocalTransactions, reload, userPolicyData } = useCachedData()
   const { makeTxToast } = useNotifications()
   const { width } = useWindowDimensions()
   const { activeNetwork, currencyDecimals } = useNetwork()
   const { depositPolicy, withdrawPolicy, depositPolicyMulti, withdrawPolicyMulti } = useSptFarm()
-  const { getGasConfig } = useGetFunctionGas()
-  const gasConfig = useMemo(() => getGasConfig(gasPrices.selected?.value), [gasPrices, getGasConfig])
+  const { getAutoGasConfig } = useGetFunctionGas()
+  const gasConfig = useMemo(() => getAutoGasConfig(), [getAutoGasConfig])
   const policyIdsToStake = useMemo(
     () =>
       userPolicyData.userPolicies
@@ -170,31 +170,28 @@ export const MyPolicies: React.FC<MyPoliciesProps> = ({
         Make changes to your existing policies or submit claims. You can stake your policies to earn $SOLACE token call
         options.
       </Text>
+      {!(width > BKPT_5) && userPolicyData.userPolicies.length > 0 && isOpen && (
+        <ButtonWrapper isColumn={!(width > BKPT_3)}>
+          <Button
+            widthP={100}
+            disabled={policyIdsToStake.length < 2}
+            onClick={callDepositPolicyMulti}
+            secondary={!(policyIdsToStake.length < 2)}
+          >
+            Stake all
+          </Button>
+          <Button
+            widthP={100}
+            disabled={policyIdsToUnstake.length < 2}
+            onClick={callWithdrawPolicyMulti}
+            secondary={!(policyIdsToUnstake.length < 2)}
+          >
+            Unstake all
+          </Button>
+        </ButtonWrapper>
+      )}
       {!userPolicyData.policiesLoading ? (
         <Accordion isOpen={isOpen} style={{ padding: '0 10px 0 10px' }}>
-          {!(width > BKPT_5) && (
-            <ButtonWrapper
-              isColumn={!(width > BKPT_3)}
-              style={{ position: 'sticky', top: '0', backgroundColor: 'inherit', zIndex: 1 }}
-            >
-              <Button
-                widthP={100}
-                disabled={policyIdsToStake.length < 2}
-                onClick={callDepositPolicyMulti}
-                secondary={!(policyIdsToStake.length < 2)}
-              >
-                Stake all
-              </Button>
-              <Button
-                widthP={100}
-                disabled={policyIdsToUnstake.length < 2}
-                onClick={callWithdrawPolicyMulti}
-                secondary={!(policyIdsToUnstake.length < 2)}
-              >
-                Unstake all
-              </Button>
-            </ButtonWrapper>
-          )}
           {userPolicyData.userPolicies.length > 0 ? (
             width > BKPT_5 ? (
               <Table textAlignCenter style={{ borderSpacing: '0px 7px' }}>
@@ -228,10 +225,11 @@ export const MyPolicies: React.FC<MyPoliciesProps> = ({
                 <TableBody>
                   {userPolicyData.userPolicies.map((policy) => {
                     const isStaked = depositedPolicyIds.includes(policy.policyId)
+                    const isWarned = shouldWarnUser(latestBlock, policy)
                     return (
                       <TableRow key={policy.policyId}>
                         <TableData>
-                          <Text t2 warning={shouldWarnUser(latestBlock, policy)}>
+                          <Text t2 warning={isWarned}>
                             {policy.policyId}
                           </Text>
                         </TableData>
@@ -255,7 +253,7 @@ export const MyPolicies: React.FC<MyPoliciesProps> = ({
                                   {policy.positionNames.length > 8 && <StyledDots size={20} />}
                                 </FlexRow>
                                 <FlexRow>
-                                  <Text t4 autoAlign warning={shouldWarnUser(latestBlock, policy)}>
+                                  <Text t4 autoAlign warning={isWarned}>
                                     {policy.productName}
                                   </Text>
                                 </FlexRow>
@@ -264,11 +262,7 @@ export const MyPolicies: React.FC<MyPoliciesProps> = ({
                           }
                         </TableData>
                         <TableData>
-                          <Text
-                            t2
-                            error={policy.status === PolicyState.EXPIRED}
-                            warning={shouldWarnUser(latestBlock, policy)}
-                          >
+                          <Text t2 error={policy.status === PolicyState.EXPIRED} warning={isWarned}>
                             {policy.status}
                           </Text>
                           {isStaked && (
@@ -278,15 +272,13 @@ export const MyPolicies: React.FC<MyPoliciesProps> = ({
                           )}
                         </TableData>
                         <TableData>
-                          <Text t2 warning={shouldWarnUser(latestBlock, policy)}>
+                          <Text t2 warning={isWarned}>
                             {calculatePolicyExpirationDate(latestBlock, policy.expirationBlock)}
                           </Text>
                         </TableData>
                         <TableData>
-                          <Text t2 warning={shouldWarnUser(latestBlock, policy)}>
-                            {policy.coverAmount
-                              ? truncateBalance(formatUnits(policy.coverAmount, currencyDecimals), 2)
-                              : 0}{' '}
+                          <Text t2 warning={isWarned}>
+                            {truncateBalance(formatUnits(policy.coverAmount, currencyDecimals), 2)}{' '}
                             {activeNetwork.nativeCurrency.symbol}
                           </Text>
                         </TableData>
@@ -324,6 +316,7 @@ export const MyPolicies: React.FC<MyPoliciesProps> = ({
               <CardContainer cardsPerRow={3} p={10}>
                 {userPolicyData.userPolicies.map((policy) => {
                   const isStaked = depositedPolicyIds.includes(policy.policyId)
+                  const isWarned = shouldWarnUser(latestBlock, policy)
                   return (
                     <Card key={policy.policyId}>
                       <FlexCol style={{ alignItems: 'center' }}>
@@ -364,11 +357,7 @@ export const MyPolicies: React.FC<MyPoliciesProps> = ({
                       <FormRow mb={10}>
                         <FormCol>Status:</FormCol>
                         <FormCol>
-                          <Text
-                            t2
-                            error={policy.status === PolicyState.EXPIRED}
-                            warning={shouldWarnUser(latestBlock, policy)}
-                          >
+                          <Text t2 error={policy.status === PolicyState.EXPIRED} warning={isWarned}>
                             {policy.status}
                           </Text>
                         </FormCol>
@@ -376,7 +365,7 @@ export const MyPolicies: React.FC<MyPoliciesProps> = ({
                       <FormRow mb={10}>
                         <FormCol>Expiration Date:</FormCol>
                         <FormCol>
-                          <Text t2 warning={shouldWarnUser(latestBlock, policy)}>
+                          <Text t2 warning={isWarned}>
                             {calculatePolicyExpirationDate(latestBlock, policy.expirationBlock)}
                           </Text>
                         </FormCol>

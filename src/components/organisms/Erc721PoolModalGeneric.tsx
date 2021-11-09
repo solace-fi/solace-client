@@ -24,27 +24,29 @@ import { BigNumber } from 'ethers'
 import { Contract } from '@ethersproject/contracts'
 
 /* import managers */
-import { useWallet } from '../../context/WalletManager'
 import { useNetwork } from '../../context/NetworkManager'
 import { useGeneral } from '../../context/GeneralProvider'
 
 /* import constants */
 import { ZERO } from '../../constants'
-import { FunctionName } from '../../constants/enums'
-import { LocalTx, NftTokenInfo } from '../../constants/types'
+import { ExplorerscanApi, FunctionName } from '../../constants/enums'
+import { GasConfiguration, LocalTx, NftTokenInfo } from '../../constants/types'
 
 /* import components */
-import { Modal } from '../molecules/Modal'
+import { Modal, ModalAddendum } from '../molecules/Modal'
 import { Button, ButtonWrapper } from '../atoms/Button'
 import { Loader } from '../atoms/Loader'
 import { GasRadioGroup } from '../molecules/GasRadioGroup'
 import { Erc721InputPanel, PoolModalProps, usePoolModal } from './PoolModalRouter'
+import { HyperLink } from '../atoms/Link'
+import { StyledLinkExternal } from '../atoms/Icon'
 
 /* import hooks */
 import { useUserStakedValue } from '../../hooks/useFarm'
 
 /* import utils */
 import { getUnit, truncateBalance } from '../../utils/formatting'
+import { getExplorerItemUrl } from '../../utils/explorer'
 
 interface Erc721PoolModalGenericProps {
   farmContract: Contract | null | undefined
@@ -52,7 +54,7 @@ interface Erc721PoolModalGenericProps {
     name: FunctionName
     func: (
       nftId: BigNumber,
-      gasConfig: any
+      gasConfig: GasConfiguration
     ) => Promise<
       | {
           tx: null
@@ -68,7 +70,7 @@ interface Erc721PoolModalGenericProps {
     name: FunctionName
     func: (
       nftId: BigNumber,
-      gasConfig: any
+      gasConfig: GasConfiguration
     ) => Promise<
       | {
           tx: null
@@ -103,8 +105,7 @@ export const Erc721PoolModalGeneric: React.FC<PoolModalProps & Erc721PoolModalGe
 
   const { haveErrors } = useGeneral()
   const { activeNetwork, currencyDecimals } = useNetwork()
-  const { account } = useWallet()
-  const userStakeValue = useUserStakedValue(farmContract, account)
+  const userStakeValue = useUserStakedValue(farmContract)
   const {
     gasConfig,
     gasPrices,
@@ -159,8 +160,8 @@ export const Erc721PoolModalGeneric: React.FC<PoolModalProps & Erc721PoolModalGe
     setModalLoading(false)
   }
 
-  const getAssetBalanceByFunc = (): BigNumber => {
-    switch (func) {
+  const getAssetBalanceByFunc = (f: FunctionName): BigNumber => {
+    switch (f) {
       case depositFunc.name:
         return userNftTokenInfo.reduce((a, b) => a.add(b.value), ZERO)
       case withdrawFunc.name:
@@ -176,7 +177,6 @@ export const Erc721PoolModalGeneric: React.FC<PoolModalProps & Erc721PoolModalGe
   }
 
   const handleCallbackFunc = async () => {
-    if (!func) return
     if (func == depositFunc.name) await callDeposit()
     if (func == withdrawFunc.name) await callWithdraw()
   }
@@ -228,7 +228,7 @@ export const Erc721PoolModalGeneric: React.FC<PoolModalProps & Erc721PoolModalGe
       <Erc721InputPanel
         unit={getUnit(func, activeNetwork)}
         assetTokens={getAssetTokensByFunc()}
-        availableBalance={func ? truncateBalance(formatUnits(getAssetBalanceByFunc(), currencyDecimals)) : '0'}
+        availableBalance={truncateBalance(formatUnits(getAssetBalanceByFunc(func), currencyDecimals))}
         nftSelection={nftSelection}
         handleNft={handleNft}
         nftId={nftId}
@@ -253,6 +253,19 @@ export const Erc721PoolModalGeneric: React.FC<PoolModalProps & Erc721PoolModalGe
             Confirm
           </Button>
         </ButtonWrapper>
+      )}
+      {farmContract && (
+        <ModalAddendum>
+          <HyperLink
+            href={getExplorerItemUrl(activeNetwork.explorer.url, farmContract.address, ExplorerscanApi.ADDRESS)}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <Button>
+              Source Contract <StyledLinkExternal size={20} />
+            </Button>
+          </HyperLink>
+        </ModalAddendum>
       )}
     </Modal>
   )

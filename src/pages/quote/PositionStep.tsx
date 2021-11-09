@@ -34,7 +34,7 @@ import { Loader } from '../../components/atoms/Loader'
 import { Scrollable, HeroContainer } from '../../components/atoms/Layout'
 import { Text, TextSpan } from '../../components/atoms/Typography'
 import { ManageModal } from '../../components/organisms/ManageModal'
-import { StyledLink } from '../../components/atoms/Link'
+import { HyperLink } from '../../components/atoms/Link'
 import { TokenPositionCard } from '../../components/organisms/TokenPositionCard'
 import { NftPositionCard } from '../../components/organisms/NftPositionCard'
 import { Box, BoxItem, BoxItemTitle } from '../../components/atoms/Box'
@@ -312,9 +312,9 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
             You do not own any positions on this protocol.
           </Text>
           {productLink && (
-            <StyledLink href={productLink} target="_blank" rel="noopener noreferrer" style={{ color: 'white' }}>
+            <HyperLink href={productLink} target="_blank" rel="noopener noreferrer" style={{ color: 'white' }}>
               <Button secondary>Click here to start positions on {protocol.name}</Button>
-            </StyledLink>
+            </HyperLink>
           )}
         </HeroContainer>
       )}
@@ -322,7 +322,7 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
         <Fragment>
           {selectablePositions.length > 0 && (
             <ButtonWrapper pt={0} isColumn={width <= BKPT_3}>
-              <Button widthP={100} secondary onClick={() => toggleSelectAll()}>
+              <Button widthP={100} secondary onClick={toggleSelectAll}>
                 {selectedPositions.length == selectablePositions.length
                   ? `Deselect All (${selectablePositions.length} available)`
                   : `Select All (${selectablePositions.length} available)`}

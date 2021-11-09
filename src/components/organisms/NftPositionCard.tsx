@@ -74,6 +74,14 @@ export const NftPositionCard: React.FC<NftPositionCardProps> = ({
     userPolicies,
   ])
   const lightText = useMemo(() => isSelected || isActive, [isSelected, isActive])
+  const foundPosition = useMemo(
+    () =>
+      userPolicies.filter(
+        (policy) =>
+          policy.productName == protocolName && policy.positionDescription.includes(trim0x(token.token.address))
+      )[0],
+    [protocolName, token.token.address, userPolicies]
+  )
 
   return (
     <PositionCard
@@ -81,20 +89,7 @@ export const NftPositionCard: React.FC<NftPositionCardProps> = ({
       color1={isSelected}
       glow={isSelected}
       fade={isActive}
-      onClick={
-        haveErrors
-          ? undefined
-          : isActive
-          ? () =>
-              openManageModal(
-                userPolicies.filter(
-                  (policy) =>
-                    policy.productName == protocolName &&
-                    policy.positionDescription.includes(trim0x(token.token.address))
-                )[0]
-              )
-          : () => handleSelect(position)
-      }
+      onClick={haveErrors ? undefined : isActive ? () => openManageModal(foundPosition) : () => handleSelect(position)}
     >
       {isActive && (
         <PositionCardText style={{ opacity: '.8' }} light={lightText}>

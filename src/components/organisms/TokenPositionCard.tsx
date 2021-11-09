@@ -83,15 +83,7 @@ export const TokenPositionCard: React.FC<TokenPositionCardProps> = ({
       color1={isSelected}
       glow={isSelected}
       fade={isActive}
-      onClick={
-        haveErrors
-          ? undefined
-          : isActive
-          ? () => {
-              openManageModal(foundPosition)
-            }
-          : () => handleSelect(position)
-      }
+      onClick={haveErrors ? undefined : isActive ? () => openManageModal(foundPosition) : () => handleSelect(position)}
     >
       {isActive && (
         <PositionCardText style={{ opacity: '.8' }} light={lightText}>
@@ -125,11 +117,11 @@ export const TokenPositionCard: React.FC<TokenPositionCardProps> = ({
           </Button>
         ) : isSelected ? (
           <Button widthP={width > BKPT_3 ? undefined : 100} light>
-            {'Deselect'}
+            Deselect
           </Button>
         ) : (
           <Button widthP={width > BKPT_3 ? undefined : 100} info>
-            {'Select'}
+            Select
           </Button>
         )}
       </PositionCardButton>

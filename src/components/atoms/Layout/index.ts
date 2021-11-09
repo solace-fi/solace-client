@@ -1,4 +1,4 @@
-import { BKPT_NAVBAR, MAX_WIDTH, BKPT_5, BKPT_3 } from '../../../constants'
+import { BKPT_NAVBAR, MAX_WIDTH, BKPT_5, BKPT_3, Z_FOOTER } from '../../../constants'
 import styled, { createGlobalStyle, keyframes } from 'styled-components'
 import { GeneralElementProps, GeneralElementCss, HeightAndWidthProps, HeightAndWidthCss } from '../../generalInterfaces'
 import { Text3Css } from '../Typography'
@@ -86,7 +86,8 @@ export const Layout = styled.div`
   }
 `
 
-export const HorizRule = styled.hr<LayoutProps>`
+export const HorizRule = styled.hr<LayoutProps & GeneralElementProps>`
+  ${GeneralElementCss}
   border: none;
   ${(props) => `color: ${props.theme.typography.contrastText};`}
   height: 1px;
@@ -157,5 +158,5 @@ export const Footer = styled.div`
   display: block;
   overflow: hidden;
   padding: 10px 0;
-  z-index: 1;
+  z-index: ${Z_FOOTER};
 `

@@ -31,7 +31,7 @@ import { useNetwork } from '../../context/NetworkManager'
 import { useGeneral } from '../../context/GeneralProvider'
 
 /* import components */
-import { Modal } from '../molecules/Modal'
+import { Modal, ModalAddendum } from '../molecules/Modal'
 import { FormRow, FormCol } from '../atoms/Form'
 import { Text } from '../atoms/Typography'
 import { PolicyModalInfo } from './PolicyModalInfo'
@@ -39,10 +39,11 @@ import { Loader } from '../atoms/Loader'
 import { SmallBox, Box } from '../atoms/Box'
 import { Button, ButtonWrapper } from '../atoms/Button'
 import { Table, TableBody, TableRow, TableData } from '../atoms/Table'
-import { StyledLink } from '../atoms/Link'
+import { HyperLink } from '../atoms/Link'
+import { StyledLinkExternal } from '../atoms/Icon'
 
 /* import constants */
-import { FunctionName, TransactionCondition } from '../../constants/enums'
+import { FunctionName, TransactionCondition, ExplorerscanApi } from '../../constants/enums'
 import { BKPT_3 } from '../../constants'
 import { Policy, ClaimAssessment, LocalTx } from '../../constants/types'
 
@@ -55,8 +56,9 @@ import { useSptFarm } from '../../hooks/useSptFarm'
 
 /* import utils */
 import { truncateBalance } from '../../utils/formatting'
-import { timeToDateText } from '../../utils/time'
+import { getLongtimeFromMillis } from '../../utils/time'
 import { getClaimAssessment } from '../../utils/api'
+import { getExplorerItemUrl } from '../../utils/explorer'
 
 interface ClaimModalProps {
   closeModal: () => void
@@ -82,15 +84,15 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({
   const [claimSubmitted, setClaimSubmitted] = useState<boolean>(false)
   const [assessment, setAssessment] = useState<ClaimAssessment | undefined>(undefined)
   const cooldown = useGetCooldownPeriod()
-  const { addLocalTransactions, reload, gasPrices, userPolicyData } = useCachedData()
+  const { addLocalTransactions, reload, userPolicyData } = useCachedData()
   const { selectedProtocol } = useContracts()
   const { makeTxToast } = useNotifications()
   const { haveErrors } = useGeneral()
   const { activeNetwork, currencyDecimals, chainId } = useNetwork()
   const { withdrawPolicy } = useSptFarm()
   const { width } = useWindowDimensions()
-  const { getGasConfig, getGasLimit } = useGetFunctionGas()
-  const gasConfig = useMemo(() => getGasConfig(gasPrices.selected?.value), [gasPrices, getGasConfig])
+  const { getAutoGasConfig, getGasLimit } = useGetFunctionGas()
+  const gasConfig = useMemo(() => getAutoGasConfig(), [getAutoGasConfig])
   const appraisal = useAppraisePolicyPosition(selectedPolicy)
   const [canCloseOnLoading, setCanCloseOnLoading] = useState<boolean>(false)
   const mounting = useRef(true)
@@ -257,7 +259,7 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({
                     </TableData>
                     <TableData textAlignRight>
                       <Text t2 light>
-                        {timeToDateText(parseInt(cooldown) * 1000)}
+                        {getLongtimeFromMillis(parseInt(cooldown) * 1000)}
                       </Text>
                     </TableData>
                   </TableRow>
@@ -286,22 +288,22 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({
                     Please unstake this policy from the SPT pool to submit a claim
                   </Text>
                   <ButtonWrapper>
-                    <Button widthP={100} disabled={haveErrors} onClick={() => callWithdrawPolicy()} info>
+                    <Button widthP={100} disabled={haveErrors} onClick={callWithdrawPolicy} info>
                       Unstake
                     </Button>
                   </ButtonWrapper>
                 </div>
               ) : (
-                <ButtonWrapper isColumn={width < BKPT_3}>
+                <ButtonWrapper isColumn={width <= BKPT_3}>
                   <Button
                     widthP={100}
                     disabled={haveErrors || !assessment.lossEventDetected}
-                    onClick={() => submitClaim()}
+                    onClick={submitClaim}
                     info
                   >
                     Submit Claim
                   </Button>
-                  <StyledLink
+                  <HyperLink
                     href={'https://docs.solace.fi'}
                     target="_blank"
                     rel="noopener noreferrer"
@@ -310,7 +312,7 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({
                     <Button widthP={100} disabled={haveErrors || !assessment.lossEventDetected} info>
                       Dispute Claim
                     </Button>
-                  </StyledLink>
+                  </HyperLink>
                 </ButtonWrapper>
               )}
             </Fragment>
@@ -323,6 +325,19 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({
           )
         ) : (
           <Loader />
+        )}
+        {selectedProtocol && (
+          <ModalAddendum>
+            <HyperLink
+              href={getExplorerItemUrl(activeNetwork.explorer.url, selectedProtocol.address, ExplorerscanApi.ADDRESS)}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <Button>
+                Source Contract <StyledLinkExternal size={20} />
+              </Button>
+            </HyperLink>
+          </ModalAddendum>
         )}
       </Fragment>
     </Modal>

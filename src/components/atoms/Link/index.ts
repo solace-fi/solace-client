@@ -16,7 +16,7 @@ const LinkCss = css<LinkProps>`
   ${GeneralTextCss}
 `
 
-export const StyledLink = styled.a<LinkProps>`
+export const HyperLink = styled.a<LinkProps>`
   ${LinkCss}
 `
 

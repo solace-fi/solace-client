@@ -44,7 +44,6 @@ import { Text, TextSpan } from '../../components/atoms/Typography'
 import { Input, StyledSlider } from '../../components/atoms/Input'
 import { Loader } from '../../components/atoms/Loader'
 import { FlexCol, FlexRow, HorizRule } from '../../components/atoms/Layout'
-import { StyledTooltip } from '../../components/molecules/Tooltip'
 
 /* import hooks */
 import { useGetQuote, useGetMaxCoverPerPolicy } from '../../hooks/usePolicy'
@@ -65,12 +64,12 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
   const maxCoverPerPolicy = useGetMaxCoverPerPolicy() // in eth
   const quote = useGetQuote(coverAmount, timePeriod)
   const { account } = useWallet()
-  const { addLocalTransactions, reload, gasPrices } = useCachedData()
+  const { addLocalTransactions, reload } = useCachedData()
   const { selectedProtocol } = useContracts()
   const { makeTxToast } = useNotifications()
   const { activeNetwork, currencyDecimals } = useNetwork()
-  const { getGasConfig, getGasLimit } = useGetFunctionGas()
-  const gasConfig = useMemo(() => getGasConfig(gasPrices.selected?.value), [gasPrices, getGasConfig])
+  const { getAutoGasConfig, getGasLimit } = useGetFunctionGas()
+  const gasConfig = useMemo(() => getAutoGasConfig(), [getAutoGasConfig])
   const maxCoverPerPolicyInWei = useMemo(() => parseUnits(maxCoverPerPolicy, currencyDecimals), [
     maxCoverPerPolicy,
     currencyDecimals,
@@ -262,11 +261,6 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
           <FormCol>
             <Text bold t2>
               Total Assets
-              {/* {' '}
-              <StyledTooltip
-                id={`total-assets`}
-                tip={`The sum of amounts from your chosen positions denominated in ${activeNetwork.nativeCurrency.symbol}`}
-              /> */}
             </Text>
           </FormCol>
           <FormCol>
@@ -277,14 +271,7 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
         </FormRow>
         <FormRow mb={15}>
           <FormCol>
-            <Text t3>
-              Max Coverage
-              {/* {' '}
-              <StyledTooltip
-                id={`max-coverage`}
-                tip={`Each policy can only cover up to a certain amount based on the size of the capital pool and active cover`}
-              /> */}
-            </Text>
+            <Text t3>Max Coverage</Text>
           </FormCol>
           <FormCol>
             <Text t3 textAlignRight info>
@@ -292,7 +279,7 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
             </Text>
           </FormCol>
         </FormRow>
-        <HorizRule style={{ marginBottom: '10px' }} />
+        <HorizRule mb={10} />
         <FlexCol mb={20} style={{ padding: '10px 30px' }}>
           <div style={{ textAlign: 'center' }}>
             <Text t3>Coverage Amount</Text>
@@ -317,7 +304,7 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
                   pr={2}
                   width={120}
                   height={30}
-                  onClick={() => setPositionCover()}
+                  onClick={setPositionCover}
                   info
                 >
                   Cover to position
@@ -332,7 +319,7 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
                 pr={8}
                 width={70}
                 height={30}
-                onClick={() => setMaxCover()}
+                onClick={setMaxCover}
                 info
               >
                 MAX
@@ -370,7 +357,7 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
             />
           </div>
         </FlexCol>
-        <HorizRule style={{ marginBottom: '20px' }} />
+        <HorizRule mb={20} />
         <FormRow mb={5}>
           <FormCol>
             <Text t4>Covered Assets</Text>
@@ -413,7 +400,7 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
         </FormRow>
         <ButtonWrapper>
           {!loading ? (
-            <Button widthP={100} onClick={() => buyPolicy()} disabled={haveErrors || coveredAssets == '0.0'} info>
+            <Button widthP={100} onClick={buyPolicy} disabled={haveErrors || coveredAssets == '0.0'} info>
               Buy
             </Button>
           ) : (

@@ -17,7 +17,7 @@
   *************************************************************************************/
 
 /* import packages */
-import React, { Fragment, useCallback, useState, useEffect } from 'react'
+import React, { Fragment, useCallback, useState, useEffect, useMemo } from 'react'
 import { formatUnits } from '@ethersproject/units'
 import { BigNumber } from 'ethers'
 import { Block } from '@ethersproject/contracts/node_modules/@ethersproject/abstract-provider'
@@ -48,10 +48,9 @@ import { DeFiAsset, DeFiAssetImage } from '../atoms/DeFiAsset'
 import { Loader } from '../atoms/Loader'
 import { Text, TextSpan } from '../atoms/Typography'
 import { Card } from '../atoms/Card'
-import { StyledTooltip } from '../molecules/Tooltip'
 import { Button, ButtonWrapper } from '../atoms/Button'
 import { StyledDots } from '../atoms/Icon'
-import { AssetsModal } from '../_unused/AssetsModal'
+import { AssetsModal } from './AssetsModal'
 
 /* import hooks */
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'
@@ -78,7 +77,11 @@ export const PolicyModalInfo: React.FC<PolicyModalInfoProps> = ({ appraisal, sel
   const { tokenPosData } = useCachedData()
   const [showAssetsModal, setShowAssetsModal] = useState<boolean>(false)
   const [formattedAssets, setFormattedAssets] = useState<BasicData[]>([])
-  const maxPositionsOnDisplay = 4
+  const daysLeft = useMemo(
+    () => getDaysLeft(selectedPolicy ? selectedPolicy.expirationBlock : 0, latestBlock ? latestBlock.number : 0),
+    [latestBlock, selectedPolicy]
+  )
+  const MaxPositionsToDisplay = 4
 
   /*************************************************************************************
 
@@ -165,20 +168,13 @@ export const PolicyModalInfo: React.FC<PolicyModalInfoProps> = ({ appraisal, sel
             </Text>
           </BoxItem>
           <BoxItem>
-            <BoxItemTitle t3>
-              Days to expiration
-              {/* {' '}
-              <StyledTooltip id={'days-to-expiration'} tip={'Number of days left until this policy expires'} /> */}
-            </BoxItemTitle>
+            <BoxItemTitle t3>Days to expiration</BoxItemTitle>
             <Text t2 nowrap>
-              {getDaysLeft(selectedPolicy ? selectedPolicy.expirationBlock : 0, latestBlock ? latestBlock.number : 0)}
+              {daysLeft}
             </Text>
           </BoxItem>
           <BoxItem>
-            <BoxItemTitle t3>
-              Cover Amount
-              {/* <StyledTooltip id={'covered-amount'} tip={'The amount you are covered on this policy'} /> */}
-            </BoxItemTitle>
+            <BoxItemTitle t3>Cover Amount</BoxItemTitle>
             <Text t2 nowrap>
               {selectedPolicy?.coverAmount
                 ? truncateBalance(formatUnits(selectedPolicy.coverAmount, currencyDecimals))
@@ -187,10 +183,7 @@ export const PolicyModalInfo: React.FC<PolicyModalInfoProps> = ({ appraisal, sel
             </Text>
           </BoxItem>
           <BoxItem>
-            <BoxItemTitle t3>
-              Position Amount
-              {/* <StyledTooltip id={'position-amount'} tip={'The amount of this asset you own'} /> */}
-            </BoxItemTitle>
+            <BoxItemTitle t3>Position Amount</BoxItemTitle>
             <Text t2 nowrap>
               {appraisal.gt(ZERO) ? (
                 `${truncateBalance(formatUnits(appraisal, currencyDecimals) || 0)} ${
@@ -221,7 +214,7 @@ export const PolicyModalInfo: React.FC<PolicyModalInfoProps> = ({ appraisal, sel
             </FormCol>
             <FormCol>
               <Text bold t3>
-                {getDaysLeft(selectedPolicy ? selectedPolicy.expirationBlock : 0, latestBlock ? latestBlock.number : 0)}
+                {daysLeft}
               </Text>
             </FormCol>
           </FormRow>
@@ -273,14 +266,14 @@ export const PolicyModalInfo: React.FC<PolicyModalInfoProps> = ({ appraisal, sel
             <FormCol style={{ margin: 'auto' }}>
               <FlexRow>
                 {selectedPolicy?.positionNames.length == 0 && <Loader width={10} height={10} />}
-                {selectedPolicy?.positionNames.slice(0, maxPositionsOnDisplay).map((name: string) => (
+                {selectedPolicy?.positionNames.slice(0, MaxPositionsToDisplay).map((name: string) => (
                   <FlexCol style={{ alignItems: 'center' }} key={name}>
                     <DeFiAssetImage noborder width={45} height={45}>
                       <img src={`https://assets.solace.fi/${name.toLowerCase()}`} alt={name} />
                     </DeFiAssetImage>
                   </FlexCol>
                 ))}
-                {selectedPolicy?.positionNames && selectedPolicy?.positionNames.length > maxPositionsOnDisplay && (
+                {selectedPolicy?.positionNames && selectedPolicy?.positionNames.length > MaxPositionsToDisplay && (
                   <StyledDots size={40} />
                 )}
               </FlexRow>
@@ -304,28 +297,28 @@ export const PolicyModalInfo: React.FC<PolicyModalInfoProps> = ({ appraisal, sel
             </FlexRow>
             <FlexRow style={{ justifyContent: 'center' }}>
               {selectedPolicy?.positionNames.length == 0 && <Loader width={10} height={10} />}
-              {selectedPolicy?.positionNames.slice(0, maxPositionsOnDisplay).map((name: string) => (
+              {selectedPolicy?.positionNames.slice(0, MaxPositionsToDisplay).map((name: string) => (
                 <FlexCol key={name}>
                   <DeFiAssetImage noborder width={45} height={45}>
                     <img src={`https://assets.solace.fi/${name.toLowerCase()}`} alt={name} />
                   </DeFiAssetImage>
                 </FlexCol>
               ))}
-              {selectedPolicy?.positionNames && selectedPolicy?.positionNames.length > maxPositionsOnDisplay && (
+              {selectedPolicy?.positionNames && selectedPolicy?.positionNames.length > MaxPositionsToDisplay && (
                 <StyledDots size={40} />
               )}
             </FlexRow>
           </FlexCol>
         )}
-        {/* {selectedPolicy?.positionNames && (
+        {selectedPolicy?.positionNames && selectedPolicy?.positionNames.length > MaxPositionsToDisplay && (
           <ButtonWrapper style={{ width: '100%' }}>
             <Button widthP={100} onClick={() => setShowAssetsModal(true)}>
               View your covered positions
             </Button>
           </ButtonWrapper>
-        )} */}
+        )}
       </HeroContainer>
-      <HorizRule style={{ marginBottom: '20px' }} />
+      <HorizRule mb={20} />
     </Fragment>
   )
 }

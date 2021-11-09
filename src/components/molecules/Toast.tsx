@@ -28,7 +28,7 @@ import { TransactionCondition } from '../../constants/enums'
 
 /* import components */
 import { Loader } from '../atoms/Loader'
-import { StyledLink } from '../atoms/Link'
+import { HyperLink } from '../atoms/Link'
 import { Button } from '../atoms/Button'
 import { ToastWrapper, FlexedToastMessage } from '../atoms/Message'
 import { StyledCheckmark, StyledWarning, StyledInfo } from '../atoms/Icon'
@@ -67,7 +67,7 @@ export const AuditToast: React.FC = () => {
       <FlexedToastMessage>
         <Text light>
           solace.fi has been audited by{' '}
-          <StyledLink
+          <HyperLink
             target={'_blank'}
             rel={'noopener noreferrer'}
             href={'https://hacken.io/audits/#solace'}
@@ -75,9 +75,9 @@ export const AuditToast: React.FC = () => {
           >
             {' '}
             Hacken
-          </StyledLink>{' '}
+          </HyperLink>{' '}
           and{' '}
-          <StyledLink
+          <HyperLink
             href={quantstampPdf}
             target="_blank"
             rel="noopener noreferrer"
@@ -85,7 +85,7 @@ export const AuditToast: React.FC = () => {
           >
             {' '}
             Quantstamp
-          </StyledLink>
+          </HyperLink>
           . However, it is still experimental software.
         </Text>
       </FlexedToastMessage>
@@ -128,13 +128,13 @@ export const NotificationToast: React.FC<NotificationToastProps> = ({ message, c
       </FlexedToastMessage>
       <FlexedToastMessage light>
         {txHash && (
-          <StyledLink
+          <HyperLink
             href={getExplorerItemUrl(activeNetwork.explorer.url, txHash, ExplorerscanApi.TX)}
             target="_blank"
             rel="noopener noreferrer"
           >
             <Button light>Check on {activeNetwork.explorer.name}</Button>
-          </StyledLink>
+          </HyperLink>
         )}
         {condition == TransactionCondition.PENDING ? (
           <Loader width={10} height={10} isLight />

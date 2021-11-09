@@ -124,7 +124,7 @@ export const Erc20InputPanel: React.FC<Erc20InputPanelProps> = ({
         <div style={{ position: 'absolute', top: '70%' }}>Available: {availableBalance}</div>
       </ModalCell>
       <ModalCell t3>
-        <Button disabled={haveErrors} onClick={() => setMax()} info>
+        <Button disabled={haveErrors} onClick={setMax} info>
           MAX
         </Button>
       </ModalCell>
@@ -175,7 +175,7 @@ export const usePoolModal = () => {
   const { makeTxToast } = useNotifications()
   const [selectedGasOption, setSelectedGasOption] = useState<GasFeeOption | undefined>(gasPrices.selected)
   const { getGasConfig } = useGetFunctionGas()
-  const gasConfig = useMemo(() => getGasConfig(selectedGasOption ? selectedGasOption.value : null), [
+  const gasConfig = useMemo(() => getGasConfig(selectedGasOption ? selectedGasOption.value : undefined), [
     selectedGasOption,
     getGasConfig,
   ])

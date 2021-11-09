@@ -33,7 +33,7 @@ import { useWallet } from '../../context/WalletManager'
 import { Modal } from '../molecules/Modal'
 import { Button, ButtonWrapper } from '../atoms/Button'
 import { Scrollable } from '../atoms/Layout'
-import { StyledLink } from '../atoms/Link'
+import { HyperLink } from '../atoms/Link'
 import { Loader } from '../atoms/Loader'
 import { Table, TableHead, TableHeader, TableRow, TableBody, TableData } from '../atoms/Table'
 import { Text } from '../atoms/Typography'
@@ -101,7 +101,7 @@ export const AccountModal: React.FC<AccountModalProps> = ({ closeModal, isOpen }
             </FormRow>
             <ButtonWrapper pt={15} pb={5} isColumn={width <= BKPT_3}>
               <CopyButton toCopy={account} />
-              <StyledLink
+              <HyperLink
                 href={getExplorerItemUrl(activeNetwork.explorer.url, account, ExplorerscanApi.ADDRESS)}
                 target="_blank"
                 rel="noopener noreferrer"
@@ -110,7 +110,7 @@ export const AccountModal: React.FC<AccountModalProps> = ({ closeModal, isOpen }
                 <Button widthP={100} light style={{ whiteSpace: 'nowrap' }}>
                   View on {activeNetwork.explorer.name}
                 </Button>
-              </StyledLink>
+              </HyperLink>
             </ButtonWrapper>
           </Card>
         )}
@@ -181,13 +181,13 @@ export const AccountModal: React.FC<AccountModalProps> = ({ closeModal, isOpen }
                       pl={width <= BKPT_3 ? 0 : undefined}
                       pr={width <= BKPT_3 ? 0 : undefined}
                     >
-                      <StyledLink
+                      <HyperLink
                         href={getExplorerItemUrl(activeNetwork.explorer.url, pendingtx.hash, ExplorerscanApi.TX)}
                         target="_blank"
                         rel="noopener noreferrer"
                       >
                         <Button>{shortenAddress(pendingtx.hash)} </Button>
-                      </StyledLink>
+                      </HyperLink>
                     </TableData>
                   </TableRow>
                 ))}
@@ -230,13 +230,13 @@ export const AccountModal: React.FC<AccountModalProps> = ({ closeModal, isOpen }
                         pr={width <= BKPT_3 ? 0 : undefined}
                       >
                         {amounts.length > 0 && (
-                          <StyledLink
+                          <HyperLink
                             href={getExplorerItemUrl(activeNetwork.explorer.url, tx.hash, ExplorerscanApi.TX)}
                             target="_blank"
                             rel="noopener noreferrer"
                           >
                             <Button>{shortenAddress(tx.hash)} </Button>
-                          </StyledLink>
+                          </HyperLink>
                         )}
                       </TableData>
                     </TableRow>

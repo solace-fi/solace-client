@@ -51,7 +51,7 @@ import {
   StyledLockFile,
 } from '../atoms/Icon'
 import { Text, TextSpan } from '../atoms/Typography'
-import { StyledLink } from '../atoms/Link'
+import { HyperLink } from '../atoms/Link'
 import { ThemeButton } from '../molecules/ThemeButton'
 import { FlexCol, FlexRow, HorizRule } from '../atoms/Layout'
 import { MiniUserAccount, UserAccount } from '../molecules/Account'
@@ -158,7 +158,7 @@ export const SideNavbar: React.FC = () => {
         <ItemList>
           <StyledNavTooltip id={'docs-nav'} tip={'Docs'}>
             <ItemText>
-              <StyledLink
+              <HyperLink
                 href={'https://docs.solace.fi/'}
                 target="_blank"
                 rel="noopener noreferrer"
@@ -169,12 +169,12 @@ export const SideNavbar: React.FC = () => {
                     {width > BKPT_3 ? 'Docs' : <StyledDocuments size={30} />}
                   </TextSpan>
                 </SidebarText>
-              </StyledLink>
+              </HyperLink>
             </ItemText>
           </StyledNavTooltip>
           <StyledNavTooltip id={'whitepaper-nav'} tip={'Whitepaper'}>
             <ItemText>
-              <StyledLink
+              <HyperLink
                 href={'https://whitepaper.solace.fi/'}
                 target="_blank"
                 rel="noopener noreferrer"
@@ -185,12 +185,12 @@ export const SideNavbar: React.FC = () => {
                     {width > BKPT_3 ? 'Whitepaper' : <StyledDocumentText size={30} />}
                   </TextSpan>
                 </SidebarText>
-              </StyledLink>
+              </HyperLink>
             </ItemText>
           </StyledNavTooltip>
           <StyledNavTooltip id={'jobs-nav'} tip={`We\'re hiring!`}>
             <ItemText>
-              <StyledLink
+              <HyperLink
                 href={'https://www.notion.so/Solace-16cc777c403a46c8a2ffaba68008fcd9'}
                 target="_blank"
                 rel="noopener noreferrer"
@@ -201,7 +201,7 @@ export const SideNavbar: React.FC = () => {
                     {width > BKPT_3 ? `We\'re hiring!` : <StyledWork size={30} />}
                   </TextSpan>
                 </SidebarText>
-              </StyledLink>
+              </HyperLink>
             </ItemText>
           </StyledNavTooltip>
           <StyledNavTooltip id={'terms-nav'} tip={'Terms & Conditions'}>
@@ -216,7 +216,7 @@ export const SideNavbar: React.FC = () => {
           <HorizRule location={location} />
           {width > BKPT_3 ? (
             <ItemText style={{ padding: '4px 0', justifyContent: 'space-between' }}>
-              <StyledLink
+              <HyperLink
                 href={'https://discord.gg/7v8qsyepfu'}
                 target="_blank"
                 rel="noopener noreferrer"
@@ -225,8 +225,8 @@ export const SideNavbar: React.FC = () => {
                 <SidebarText style={{ opacity: '0.8' }} light={location.pathname == '/'}>
                   <StyledDiscord size={20} />
                 </SidebarText>
-              </StyledLink>
-              <StyledLink
+              </HyperLink>
+              <HyperLink
                 href={'https://twitter.com/solacefi'}
                 target="_blank"
                 rel="noopener noreferrer"
@@ -235,8 +235,8 @@ export const SideNavbar: React.FC = () => {
                 <SidebarText style={{ opacity: '0.8' }} light={location.pathname == '/'}>
                   <StyledTwitter size={20} />
                 </SidebarText>
-              </StyledLink>
-              <StyledLink
+              </HyperLink>
+              <HyperLink
                 href={'https://github.com/solace-fi'}
                 target="_blank"
                 rel="noopener noreferrer"
@@ -245,8 +245,8 @@ export const SideNavbar: React.FC = () => {
                 <SidebarText style={{ opacity: '0.8' }} light={location.pathname == '/'}>
                   <StyledGithub size={20} />
                 </SidebarText>
-              </StyledLink>
-              <StyledLink
+              </HyperLink>
+              <HyperLink
                 href={'https://medium.com/solace-fi'}
                 target="_blank"
                 rel="noopener noreferrer"
@@ -255,13 +255,13 @@ export const SideNavbar: React.FC = () => {
                 <SidebarText style={{ opacity: '0.8' }} light={location.pathname == '/'}>
                   <StyledMedium size={20} />
                 </SidebarText>
-              </StyledLink>
+              </HyperLink>
             </ItemText>
           ) : (
             <ItemList>
               <StyledNavTooltip id={'discord-nav'} tip={'Discord'}>
                 <ItemText>
-                  <StyledLink
+                  <HyperLink
                     href={'https://discord.gg/7v8qsyepfu'}
                     target="_blank"
                     rel="noopener noreferrer"
@@ -270,12 +270,12 @@ export const SideNavbar: React.FC = () => {
                     <SidebarText style={{ opacity: '0.8' }} light={lightText}>
                       <StyledDiscord size={20} />
                     </SidebarText>
-                  </StyledLink>
+                  </HyperLink>
                 </ItemText>
               </StyledNavTooltip>
               <StyledNavTooltip id={'twitter-nav'} tip={'Twitter'}>
                 <ItemText>
-                  <StyledLink
+                  <HyperLink
                     href={'https://twitter.com/solacefi'}
                     target="_blank"
                     rel="noopener noreferrer"
@@ -284,12 +284,12 @@ export const SideNavbar: React.FC = () => {
                     <SidebarText style={{ opacity: '0.8' }} light={lightText}>
                       <StyledTwitter size={20} />
                     </SidebarText>
-                  </StyledLink>
+                  </HyperLink>
                 </ItemText>
               </StyledNavTooltip>
               <StyledNavTooltip id={'github-nav'} tip={'GitHub'}>
                 <ItemText>
-                  <StyledLink
+                  <HyperLink
                     href={'https://github.com/solace-fi'}
                     target="_blank"
                     rel="noopener noreferrer"
@@ -298,12 +298,12 @@ export const SideNavbar: React.FC = () => {
                     <SidebarText style={{ opacity: '0.8' }} light={lightText}>
                       <StyledGithub size={20} />
                     </SidebarText>
-                  </StyledLink>
+                  </HyperLink>
                 </ItemText>
               </StyledNavTooltip>
               <StyledNavTooltip id={'medium-nav'} tip={'Medium'}>
                 <ItemText>
-                  <StyledLink
+                  <HyperLink
                     href={'https://medium.com/solace-fi'}
                     target="_blank"
                     rel="noopener noreferrer"
@@ -312,7 +312,7 @@ export const SideNavbar: React.FC = () => {
                     <SidebarText style={{ opacity: '0.8' }} light={lightText}>
                       <StyledMedium size={20} />
                     </SidebarText>
-                  </StyledLink>
+                  </HyperLink>
                 </ItemText>
               </StyledNavTooltip>
             </ItemList>
@@ -412,21 +412,21 @@ export const TopNavbar: React.FC = () => {
       <UserAccount light={location.pathname == '/'} />
       <ItemList>
         <ItemText style={{ padding: '10px', justifyContent: 'center' }}>
-          <StyledLink href={'https://docs.solace.fi/'} target="_blank" rel="noopener noreferrer">
+          <HyperLink href={'https://docs.solace.fi/'} target="_blank" rel="noopener noreferrer">
             <TextSpan t4 light>
               Docs
             </TextSpan>
-          </StyledLink>
+          </HyperLink>
         </ItemText>
         <ItemText style={{ padding: '10px', justifyContent: 'center' }}>
-          <StyledLink href={'https://whitepaper.solace.fi/'} target="_blank" rel="noopener noreferrer">
+          <HyperLink href={'https://whitepaper.solace.fi/'} target="_blank" rel="noopener noreferrer">
             <TextSpan t4 light>
               Whitepaper
             </TextSpan>
-          </StyledLink>
+          </HyperLink>
         </ItemText>
         <ItemText style={{ padding: '10px', justifyContent: 'center' }}>
-          <StyledLink
+          <HyperLink
             href={'https://www.notion.so/Solace-16cc777c403a46c8a2ffaba68008fcd9'}
             target="_blank"
             rel="noopener noreferrer"
@@ -434,7 +434,7 @@ export const TopNavbar: React.FC = () => {
             <TextSpan t4 light bold>
               We&apos;re hiring!
             </TextSpan>
-          </StyledLink>
+          </HyperLink>
         </ItemText>
         <ItemText style={{ padding: '10px', justifyContent: 'center' }}>
           <SidebarItem onClick={() => handleIsOpen(!isOpen)} to={'/terms'}>
@@ -445,7 +445,7 @@ export const TopNavbar: React.FC = () => {
         </ItemText>
       </ItemList>
       <ItemText style={{ padding: '0', justifyContent: 'center', gap: '60px' }}>
-        <StyledLink
+        <HyperLink
           href={'https://discord.gg/7v8qsyepfu'}
           target="_blank"
           rel="noopener noreferrer"
@@ -454,8 +454,8 @@ export const TopNavbar: React.FC = () => {
           <SidebarText light>
             <StyledDiscord size={20} />
           </SidebarText>
-        </StyledLink>
-        <StyledLink
+        </HyperLink>
+        <HyperLink
           href={'https://twitter.com/solacefi'}
           target="_blank"
           rel="noopener noreferrer"
@@ -464,8 +464,8 @@ export const TopNavbar: React.FC = () => {
           <SidebarText light>
             <StyledTwitter size={20} />
           </SidebarText>
-        </StyledLink>
-        <StyledLink
+        </HyperLink>
+        <HyperLink
           href={'https://github.com/solace-fi'}
           target="_blank"
           rel="noopener noreferrer"
@@ -474,8 +474,8 @@ export const TopNavbar: React.FC = () => {
           <SidebarText light>
             <StyledGithub size={20} />
           </SidebarText>
-        </StyledLink>
-        <StyledLink
+        </HyperLink>
+        <HyperLink
           href={'https://medium.com/solace-fi'}
           target="_blank"
           rel="noopener noreferrer"
@@ -484,7 +484,7 @@ export const TopNavbar: React.FC = () => {
           <SidebarText light>
             <StyledMedium size={20} />
           </SidebarText>
-        </StyledLink>
+        </HyperLink>
       </ItemText>
       <ThemeButton pt={10} pb={10} light />
       <NavButton light onClick={() => handleIsOpen(!isOpen)}>

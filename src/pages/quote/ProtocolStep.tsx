@@ -88,8 +88,13 @@ export const ProtocolStep: React.FC<formProps> = ({ setForm, navigation }) => {
 
   *************************************************************************************/
 
-  const handleChange = (selectedProtocol: any) => {
-    setSelectedProtocolByName(selectedProtocol.name)
+  const handleChange = (selectedProtocolName: string) => {
+    const selectedProtocol = {
+      name: selectedProtocolName,
+      availableCoverage: handleAvailableCoverage(selectedProtocolName),
+      yearlyCost: getAdjustedYearlyCost(yearlyCosts[selectedProtocolName]),
+    }
+    setSelectedProtocolByName(selectedProtocolName)
     setForm({
       target: {
         name: 'protocol',
@@ -103,10 +108,10 @@ export const ProtocolStep: React.FC<formProps> = ({ setForm, navigation }) => {
     setSearchValue(searchValue)
   }, 300)
 
-  const handleAvailableCoverage = (protocol: string) => {
-    if (!availableCoverages[protocol]) return '0'
-    return truncateBalance(availableCoverages[protocol], 2)
-  }
+  const handleAvailableCoverage = (protocol: string) => truncateBalance(availableCoverages[protocol] ?? '0', 2)
+
+  const getAdjustedYearlyCost = (yearlyCost: string) =>
+    parseFloat(yearlyCost ?? '0') * Math.pow(10, 6) * NUM_BLOCKS_PER_DAY * DAYS_PER_YEAR
 
   return (
     <Fragment>
@@ -135,20 +140,7 @@ export const ProtocolStep: React.FC<formProps> = ({ setForm, navigation }) => {
                     return (
                       <TableRow
                         key={protocol}
-                        onClick={
-                          haveErrors
-                            ? undefined
-                            : () =>
-                                handleChange({
-                                  name: protocol,
-                                  availableCoverage: handleAvailableCoverage(protocol),
-                                  yearlyCost:
-                                    parseFloat(yearlyCosts[protocol] ?? '0') *
-                                    Math.pow(10, 6) *
-                                    NUM_BLOCKS_PER_DAY *
-                                    DAYS_PER_YEAR,
-                                })
-                        }
+                        onClick={haveErrors ? undefined : () => handleChange(protocol)}
                         style={{ cursor: 'pointer' }}
                       >
                         <TableData>
@@ -159,17 +151,7 @@ export const ProtocolStep: React.FC<formProps> = ({ setForm, navigation }) => {
                             <ProtocolTitle t3>{protocol}</ProtocolTitle>
                           </DeFiAsset>
                         </TableData>
-                        <TableData>
-                          {fixed(
-                            parseFloat(yearlyCosts[protocol] ?? '0') *
-                              Math.pow(10, 6) *
-                              NUM_BLOCKS_PER_DAY *
-                              DAYS_PER_YEAR *
-                              100,
-                            2
-                          )}
-                          %
-                        </TableData>
+                        <TableData>{fixed(getAdjustedYearlyCost(yearlyCosts[protocol]) * 100, 2)}%</TableData>
                         <TableData>
                           {handleAvailableCoverage(protocol)} {activeNetwork.nativeCurrency.symbol}
                         </TableData>
@@ -195,23 +177,7 @@ export const ProtocolStep: React.FC<formProps> = ({ setForm, navigation }) => {
                 .filter((protocol: string) => protocol.toLowerCase().includes(searchValue.toLowerCase()))
                 .map((protocol: string) => {
                   return (
-                    <Card
-                      key={protocol}
-                      onClick={
-                        haveErrors
-                          ? undefined
-                          : () =>
-                              handleChange({
-                                name: protocol,
-                                availableCoverage: handleAvailableCoverage(protocol),
-                                yearlyCost:
-                                  parseFloat(yearlyCosts[protocol] ?? '0') *
-                                  Math.pow(10, 6) *
-                                  NUM_BLOCKS_PER_DAY *
-                                  DAYS_PER_YEAR,
-                              })
-                      }
-                    >
+                    <Card key={protocol} onClick={haveErrors ? undefined : () => handleChange(protocol)}>
                       <FormRow>
                         <FormCol>
                           <DeFiAssetImage mr={10}>
@@ -228,15 +194,7 @@ export const ProtocolStep: React.FC<formProps> = ({ setForm, navigation }) => {
                         <FormCol>Yearly Cost</FormCol>
                         <FormCol>
                           <Text bold t2>
-                            {fixed(
-                              parseFloat(yearlyCosts[protocol] ?? '0') *
-                                Math.pow(10, 6) *
-                                NUM_BLOCKS_PER_DAY *
-                                DAYS_PER_YEAR *
-                                100,
-                              2
-                            )}
-                            %
+                            {fixed(getAdjustedYearlyCost(yearlyCosts[protocol]) * 100, 2)}%
                           </Text>
                         </FormCol>
                       </FormRow>

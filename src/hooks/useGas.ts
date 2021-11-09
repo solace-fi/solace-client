@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { fetchGasPrice } from '../utils/explorer'
-import { GasFeeListState } from '../constants/types'
+import { GasConfiguration, GasFeeListState } from '../constants/types'
 import { useCachedData } from '../context/CachedDataManager'
 import { useNetwork } from '../context/NetworkManager'
 import { getGasValue } from '../utils/formatting'
@@ -61,11 +61,14 @@ export const useFetchGasPrice = (): GasFeeListState => {
 export const useGetFunctionGas = () => {
   const { activeNetwork } = useNetwork()
   const { activeWalletConnector } = useWallet()
+  const { gasPrices } = useCachedData()
 
   const getGasConfig = useCallback(
-    (gasValue: any) => {
+    (_gasValue: number | undefined): GasConfiguration => {
       // null check and testnet check
-      if (!activeWalletConnector || !gasValue || activeNetwork.isTestnet) {
+      const gasValue = _gasValue ?? gasPrices.selected?.value
+
+      if (!activeWalletConnector || activeNetwork.isTestnet || !gasValue) {
         return {}
       }
 
@@ -81,8 +84,10 @@ export const useGetFunctionGas = () => {
         gasPrice: getGasValue(gasValue),
       }
     },
-    [activeNetwork, activeWalletConnector]
+    [activeNetwork, activeWalletConnector, gasPrices]
   )
+
+  const getAutoGasConfig = useCallback((): GasConfiguration => getGasConfig(undefined), [getGasConfig])
 
   const getGasLimit = useCallback(
     (productName: string, txType: FunctionName): number => {
@@ -98,5 +103,5 @@ export const useGetFunctionGas = () => {
     [activeNetwork]
   )
 
-  return { getGasConfig, getGasLimit }
+  return { getGasConfig, getAutoGasConfig, getGasLimit }
 }
