@@ -52,7 +52,7 @@ import { useWindowDimensions } from '../../hooks/useWindowDimensions'
 import { useGetFunctionGas } from '../../hooks/useGas'
 
 /* import utils */
-import { truncateBalance } from '../../utils/formatting'
+import { truncateBalance, fixed } from '../../utils/formatting'
 import { LocalTx } from '../../constants/types'
 
 export const Statistics: React.FC = () => {
@@ -214,11 +214,11 @@ export const Statistics: React.FC = () => {
                   </TextSpan>
                 </Text>
               </BoxItem>
-              {/* <BoxItem>
+              <BoxItem>
                 <Button light disabled={haveErrors || fixed(totalUserRewards, 6) <= 0} onClick={claimRewards}>
                   Claim Options
                 </Button>
-              </BoxItem> */}
+              </BoxItem>
             </Box>
           ) : (
             <Box>
@@ -255,7 +255,7 @@ export const Statistics: React.FC = () => {
                     </Text>
                   </FormCol>
                 </FormRow>
-                {/* <ButtonWrapper>
+                <ButtonWrapper>
                   <Button
                     light
                     widthP={100}
@@ -264,7 +264,7 @@ export const Statistics: React.FC = () => {
                   >
                     Claim Options
                   </Button>
-                </ButtonWrapper> */}
+                </ButtonWrapper>
               </Card>
               <Card color2>
                 <FormRow>
