@@ -50,7 +50,6 @@ import { LocalTx, Policy } from '../../constants/types'
 /* import hooks */
 import { useAppraisePolicyPosition, useGetMaxCoverPerPolicy, useGetPolicyPrice } from '../../hooks/usePolicy'
 import { useGetFunctionGas } from '../../hooks/useGas'
-import { useSptFarm } from '../../hooks/useSptFarm'
 
 /* import utils */
 import { accurateMultiply, filteredAmount } from '../../utils/formatting'
@@ -62,16 +61,9 @@ interface ManageModalProps {
   isOpen: boolean
   selectedPolicy: Policy | undefined
   latestBlock: Block | undefined
-  isPolicyStaked: boolean
 }
 
-export const ManageModal: React.FC<ManageModalProps> = ({
-  isOpen,
-  closeModal,
-  selectedPolicy,
-  latestBlock,
-  isPolicyStaked,
-}) => {
+export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, selectedPolicy, latestBlock }) => {
   /*************************************************************************************
 
     hooks
@@ -95,7 +87,6 @@ export const ManageModal: React.FC<ManageModalProps> = ({
     maxCoverPerPolicy,
     currencyDecimals,
   ])
-  const { withdrawPolicy } = useSptFarm()
 
   const { getAutoGasConfig } = useGetFunctionGas()
   const gasConfig = useMemo(() => getAutoGasConfig(), [getAutoGasConfig])
@@ -242,27 +233,6 @@ export const ManageModal: React.FC<ManageModalProps> = ({
     }
   }
 
-  const callWithdrawPolicy = async () => {
-    if (!selectedPolicy) return
-    setModalLoading(true)
-    await withdrawPolicy(BigNumber.from(selectedPolicy.policyId), gasConfig)
-      .then(async (res) => {
-        if (!res.tx || !res.localTx) return
-        addLocalTransactions(res.localTx)
-        reload()
-        makeTxToast(res.localTx.type, TransactionCondition.PENDING, res.localTx.hash)
-        setCanCloseOnLoading(true)
-        await res.tx.wait().then((receipt: any) => {
-          const status = receipt.status ? TransactionCondition.SUCCESS : TransactionCondition.FAILURE
-          makeTxToast(res.localTx.type, status, res.localTx.hash)
-          reload()
-        })
-        setCanCloseOnLoading(false)
-        setModalLoading(false)
-      })
-      .catch((err) => handleContractCallError('callWithdrawPolicy', err, FunctionName.WITHDRAW_POLICY))
-  }
-
   /*************************************************************************************
 
     local functions
@@ -391,142 +361,121 @@ export const ManageModal: React.FC<ManageModalProps> = ({
         <PolicyModalInfo selectedPolicy={selectedPolicy} latestBlock={latestBlock} appraisal={appraisal} />
         {!modalLoading ? (
           <Fragment>
-            {isPolicyStaked ? (
-              <div>
-                <Text bold t2 textAlignCenter info>
-                  Please unstake this policy from the SPT pool to make changes
-                </Text>
-                <ButtonWrapper>
-                  <Button widthP={100} disabled={haveErrors} onClick={callWithdrawPolicy} info>
-                    Unstake
-                  </Button>
-                </ButtonWrapper>
-              </div>
-            ) : (
-              <>
-                <div style={{ textAlign: 'center' }}>
-                  <Text bold t2>
-                    Update Policy
-                  </Text>
-                  <FlexCol style={{ justifyContent: 'center', marginTop: '20px' }}>
-                    <div style={{ width: '100%' }}>
-                      <div style={{ textAlign: 'center', padding: '5px' }}>
-                        <Text t4>Edit Coverage</Text>
-                        <Input
-                          mt={5}
-                          mb={20}
-                          textAlignCenter
-                          disabled={asyncLoading}
-                          type="text"
-                          value={inputCoverage}
-                          onChange={(e) => handleInputCoverage(filteredAmount(e.target.value, inputCoverage))}
-                        />
-                        {maxCoverPerPolicyInWei.gt(appraisal) && (
-                          <Button
-                            disabled={haveErrors}
-                            ml={10}
-                            pt={4}
-                            pb={4}
-                            pl={2}
-                            pr={2}
-                            width={120}
-                            height={30}
-                            onClick={setPositionCover}
-                            info
-                          >
-                            Cover to position
-                          </Button>
-                        )}
-                        <Button
-                          disabled={haveErrors}
-                          ml={10}
-                          pt={4}
-                          pb={4}
-                          pl={8}
-                          pr={8}
-                          width={79}
-                          height={30}
-                          onClick={setMaxCover}
-                          info
-                        >
-                          MAX
-                        </Button>
-                        <StyledSlider
-                          disabled={asyncLoading}
-                          value={newCoverage}
-                          onChange={(e) => handleCoverageChange(e.target.value)}
-                          min={1}
-                          max={maxCoverPerPolicyInWei.toString()}
-                        />
-                      </div>
-                    </div>
-                    <div style={{ width: '100%' }}>
-                      <div style={{ textAlign: 'center', padding: '5px' }}>
-                        <Text t4>Add days</Text>
-                        <Input
-                          mt={5}
-                          mb={20}
-                          textAlignCenter
-                          disabled={asyncLoading}
-                          type="text"
-                          pattern="[0-9]+"
-                          value={extendedTime}
-                          onChange={(e) => filteredTime(e.target.value)}
-                          maxLength={3}
-                        />
-                        <StyledSlider
-                          disabled={asyncLoading}
-                          value={extendedTime == '' ? '0' : extendedTime}
-                          onChange={(e) => setExtendedTime(e.target.value)}
-                          min="0"
-                          max={DAYS_PER_YEAR - daysLeft}
-                        />
-                        <Text t4>New expiration: {getExpiration(daysLeft + parseFloat(extendedTime || '0'))}</Text>
-                        <ButtonWrapper>
-                          {!asyncLoading ? (
-                            <Button
-                              widthP={100}
-                              disabled={haveErrors || coveredAssets == '0.0'}
-                              onClick={handleFunc}
-                              info
-                            >
-                              Update Policy
-                            </Button>
-                          ) : (
-                            <Loader width={10} height={10} />
-                          )}
-                        </ButtonWrapper>
-                      </div>
-                    </div>
-                  </FlexCol>
+            <div style={{ textAlign: 'center' }}>
+              <Text bold t2>
+                Update Policy
+              </Text>
+              <FlexCol style={{ justifyContent: 'center', marginTop: '20px' }}>
+                <div style={{ width: '100%' }}>
+                  <div style={{ textAlign: 'center', padding: '5px' }}>
+                    <Text t4>Edit Coverage</Text>
+                    <Input
+                      mt={5}
+                      mb={20}
+                      textAlignCenter
+                      disabled={asyncLoading}
+                      type="text"
+                      value={inputCoverage}
+                      onChange={(e) => handleInputCoverage(filteredAmount(e.target.value, inputCoverage))}
+                    />
+                    {maxCoverPerPolicyInWei.gt(appraisal) && (
+                      <Button
+                        disabled={haveErrors}
+                        ml={10}
+                        pt={4}
+                        pb={4}
+                        pl={2}
+                        pr={2}
+                        width={120}
+                        height={30}
+                        onClick={setPositionCover}
+                        info
+                      >
+                        Cover to position
+                      </Button>
+                    )}
+                    <Button
+                      disabled={haveErrors}
+                      ml={10}
+                      pt={4}
+                      pb={4}
+                      pl={8}
+                      pr={8}
+                      width={79}
+                      height={30}
+                      onClick={setMaxCover}
+                      info
+                    >
+                      MAX
+                    </Button>
+                    <StyledSlider
+                      disabled={asyncLoading}
+                      value={newCoverage}
+                      onChange={(e) => handleCoverageChange(e.target.value)}
+                      min={1}
+                      max={maxCoverPerPolicyInWei.toString()}
+                    />
+                  </div>
                 </div>
-                <div style={{ textAlign: 'center' }}>
-                  <Text bold t2>
-                    Cancel Policy
-                  </Text>
-                  <FlexCol mt={20}>
-                    <FormRow mb={10}>
-                      <FormCol>
-                        <Text t4>
-                          Refund amount: {formatUnits(refundAmount, currencyDecimals)}{' '}
-                          {activeNetwork.nativeCurrency.symbol}
-                        </Text>
-                      </FormCol>
-                    </FormRow>
-                    <FormCol></FormCol>
+                <div style={{ width: '100%' }}>
+                  <div style={{ textAlign: 'center', padding: '5px' }}>
+                    <Text t4>Add days</Text>
+                    <Input
+                      mt={5}
+                      mb={20}
+                      textAlignCenter
+                      disabled={asyncLoading}
+                      type="text"
+                      pattern="[0-9]+"
+                      value={extendedTime}
+                      onChange={(e) => filteredTime(e.target.value)}
+                      maxLength={3}
+                    />
+                    <StyledSlider
+                      disabled={asyncLoading}
+                      value={extendedTime == '' ? '0' : extendedTime}
+                      onChange={(e) => setExtendedTime(e.target.value)}
+                      min="0"
+                      max={DAYS_PER_YEAR - daysLeft}
+                    />
+                    <Text t4>New expiration: {getExpiration(daysLeft + parseFloat(extendedTime || '0'))}</Text>
                     <ButtonWrapper>
-                      {policyPrice !== '' ? (
-                        <Button widthP={100} disabled={haveErrors} onClick={cancelPolicy} info>
-                          Cancel Policy
+                      {!asyncLoading ? (
+                        <Button widthP={100} disabled={haveErrors || coveredAssets == '0.0'} onClick={handleFunc} info>
+                          Update Policy
                         </Button>
                       ) : (
                         <Loader width={10} height={10} />
                       )}
                     </ButtonWrapper>
-                  </FlexCol>
+                  </div>
                 </div>
-              </>
-            )}
+              </FlexCol>
+            </div>
+            <div style={{ textAlign: 'center' }}>
+              <Text bold t2>
+                Cancel Policy
+              </Text>
+              <FlexCol mt={20}>
+                <FormRow mb={10}>
+                  <FormCol>
+                    <Text t4>
+                      Refund amount: {formatUnits(refundAmount, currencyDecimals)} {activeNetwork.nativeCurrency.symbol}
+                    </Text>
+                  </FormCol>
+                </FormRow>
+                <FormCol></FormCol>
+                <ButtonWrapper>
+                  {policyPrice !== '' ? (
+                    <Button widthP={100} disabled={haveErrors} onClick={cancelPolicy} info>
+                      Cancel Policy
+                    </Button>
+                  ) : (
+                    <Loader width={10} height={10} />
+                  )}
+                </ButtonWrapper>
+              </FlexCol>
+            </div>
           </Fragment>
         ) : (
           <Loader />

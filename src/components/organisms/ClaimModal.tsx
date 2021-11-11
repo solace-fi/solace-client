@@ -52,7 +52,6 @@ import { useGetCooldownPeriod } from '../../hooks/useClaimsEscrow'
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'
 import { useAppraisePolicyPosition } from '../../hooks/usePolicy'
 import { useGetFunctionGas } from '../../hooks/useGas'
-import { useSptFarm } from '../../hooks/useSptFarm'
 
 /* import utils */
 import { truncateBalance } from '../../utils/formatting'
@@ -65,16 +64,9 @@ interface ClaimModalProps {
   isOpen: boolean
   latestBlock: Block | undefined
   selectedPolicy: Policy | undefined
-  isPolicyStaked: boolean
 }
 
-export const ClaimModal: React.FC<ClaimModalProps> = ({
-  isOpen,
-  selectedPolicy,
-  closeModal,
-  latestBlock,
-  isPolicyStaked,
-}) => {
+export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, closeModal, latestBlock }) => {
   /*************************************************************************************
 
     hooks
@@ -89,7 +81,6 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({
   const { makeTxToast } = useNotifications()
   const { haveErrors } = useGeneral()
   const { activeNetwork, currencyDecimals, chainId } = useNetwork()
-  const { withdrawPolicy } = useSptFarm()
   const { width } = useWindowDimensions()
   const { getAutoGasConfig, getGasLimit } = useGetFunctionGas()
   const gasConfig = useMemo(() => getAutoGasConfig(), [getAutoGasConfig])
@@ -124,14 +115,6 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({
     } catch (err) {
       handleContractCallError('submitClaim:', err, txType)
     }
-  }
-
-  const callWithdrawPolicy = async () => {
-    if (!selectedPolicy) return
-    setModalLoading(true)
-    await withdrawPolicy(BigNumber.from(selectedPolicy.policyId), gasConfig)
-      .then((res) => handleToast(res.tx, res.localTx))
-      .catch((err) => handleContractCallError('callWithdrawPolicy', err, FunctionName.WITHDRAW_POLICY))
   }
 
   /*************************************************************************************
@@ -245,11 +228,11 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({
                 </FormCol>
               </FormRow>
               <SmallBox style={{ justifyContent: 'center' }} transparent mt={10}>
-                <Text t4 bold warning textAlignCenter fade={isPolicyStaked}>
+                <Text t4 bold warning textAlignCenter>
                   Please wait for the review period to elapse before withdrawing your payout.
                 </Text>
               </SmallBox>
-              <Table isHighlight light fade={isPolicyStaked}>
+              <Table isHighlight light>
                 <TableBody>
                   <TableRow>
                     <TableData>
@@ -272,7 +255,7 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({
                 mb={!assessment.lossEventDetected ? 10 : 0}
                 collapse={assessment.lossEventDetected}
               >
-                <Text t4 bold error={!assessment.lossEventDetected} textAlignCenter fade={isPolicyStaked}>
+                <Text t4 bold error={!assessment.lossEventDetected} textAlignCenter>
                   No loss event detected, unable to submit claims yet.
                 </Text>
               </SmallBox>
@@ -282,17 +265,6 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({
                     Claim has been validated and payout submitted to the escrow.
                   </Text>
                 </Box>
-              ) : isPolicyStaked ? (
-                <div>
-                  <Text bold t2 textAlignCenter info>
-                    Please unstake this policy from the SPT pool to submit a claim
-                  </Text>
-                  <ButtonWrapper>
-                    <Button widthP={100} disabled={haveErrors} onClick={callWithdrawPolicy} info>
-                      Unstake
-                    </Button>
-                  </ButtonWrapper>
-                </div>
               ) : (
                 <ButtonWrapper isColumn={width <= BKPT_3}>
                   <Button

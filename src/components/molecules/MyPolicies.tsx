@@ -11,7 +11,6 @@
 
     MyPolicies
       hooks
-      contract functions
       local functions
 
   *************************************************************************************/
@@ -48,7 +47,6 @@ import { StyledArrowDropDown } from '../atoms/Icon'
 
 /* import hooks */
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'
-import { useSptFarm } from '../../hooks/useSptFarm'
 import { useGetFunctionGas } from '../../hooks/useGas'
 
 /* import utils */
@@ -59,7 +57,6 @@ interface MyPoliciesProps {
   openClaimModal: any
   openManageModal: any
   latestBlock: Block | undefined
-  depositedPolicyIds: number[]
   isOpen: boolean
   setOpen: any
 }
@@ -68,7 +65,6 @@ export const MyPolicies: React.FC<MyPoliciesProps> = ({
   openClaimModal,
   openManageModal,
   latestBlock,
-  depositedPolicyIds,
   isOpen,
   setOpen,
 }) => {
@@ -81,57 +77,8 @@ export const MyPolicies: React.FC<MyPoliciesProps> = ({
   const { makeTxToast } = useNotifications()
   const { width } = useWindowDimensions()
   const { activeNetwork, currencyDecimals } = useNetwork()
-  const { depositPolicy, withdrawPolicy, depositPolicyMulti, withdrawPolicyMulti } = useSptFarm()
   const { getAutoGasConfig } = useGetFunctionGas()
   const gasConfig = useMemo(() => getAutoGasConfig(), [getAutoGasConfig])
-  const policyIdsToStake = useMemo(
-    () =>
-      userPolicyData.userPolicies
-        .filter((p) => !depositedPolicyIds.includes(p.policyId) && p.status == PolicyState.ACTIVE)
-        .map((p) => p.policyId),
-    [depositedPolicyIds, userPolicyData.userPolicies]
-  )
-  const policyIdsToUnstake = useMemo(
-    () =>
-      userPolicyData.userPolicies
-        .filter((p) => depositedPolicyIds.includes(p.policyId) && p.status == PolicyState.ACTIVE)
-        .map((p) => p.policyId),
-    [depositedPolicyIds, userPolicyData.userPolicies]
-  )
-  /*************************************************************************************
-
-    contract functions
-
-  *************************************************************************************/
-  const callDepositPolicy = async (policyId: number) => {
-    await depositPolicy(BigNumber.from(policyId), gasConfig)
-      .then((res) => handleToast(res.tx, res.localTx))
-      .catch((err) => handleContractCallError('callDepositPolicy', err, FunctionName.DEPOSIT_POLICY_SIGNED))
-  }
-
-  const callWithdrawPolicy = async (policyId: number) => {
-    await withdrawPolicy(BigNumber.from(policyId), gasConfig)
-      .then((res) => handleToast(res.tx, res.localTx))
-      .catch((err) => handleContractCallError('callWithdrawPolicy', err, FunctionName.WITHDRAW_POLICY))
-  }
-
-  const callDepositPolicyMulti = async () => {
-    await depositPolicyMulti(
-      policyIdsToStake.map((id) => BigNumber.from(id)),
-      gasConfig
-    )
-      .then((res) => handleToast(res.tx, res.localTx))
-      .catch((err) => handleContractCallError('callDepositPolicyMulti', err, FunctionName.DEPOSIT_POLICY_SIGNED_MULTI))
-  }
-
-  const callWithdrawPolicyMulti = async () => {
-    await withdrawPolicyMulti(
-      policyIdsToUnstake.map((id) => BigNumber.from(id)),
-      gasConfig
-    )
-      .then((res) => handleToast(res.tx, res.localTx))
-      .catch((err) => handleContractCallError('callWithdrawPolicyMulti', err, FunctionName.WITHDRAW_POLICY_MULTI))
-  }
 
   /*************************************************************************************
 
@@ -167,29 +114,8 @@ export const MyPolicies: React.FC<MyPoliciesProps> = ({
         </Button>
       </Text>
       <Text t4 pt={10} pb={10}>
-        Make changes to your existing policies or submit claims. You can stake your policies to earn $SOLACE token call
-        options.
+        Make changes to your existing policies or submit claims.
       </Text>
-      {!(width > BKPT_5) && userPolicyData.userPolicies.length > 0 && isOpen && (
-        <ButtonWrapper isColumn={!(width > BKPT_3)}>
-          <Button
-            widthP={100}
-            disabled={policyIdsToStake.length < 2}
-            onClick={callDepositPolicyMulti}
-            secondary={!(policyIdsToStake.length < 2)}
-          >
-            Stake all
-          </Button>
-          <Button
-            widthP={100}
-            disabled={policyIdsToUnstake.length < 2}
-            onClick={callWithdrawPolicyMulti}
-            secondary={!(policyIdsToUnstake.length < 2)}
-          >
-            Unstake all
-          </Button>
-        </ButtonWrapper>
-      )}
       {!userPolicyData.policiesLoading ? (
         <Accordion isOpen={isOpen} style={{ padding: '0 10px 0 10px' }}>
           {userPolicyData.userPolicies.length > 0 ? (
@@ -202,29 +128,11 @@ export const MyPolicies: React.FC<MyPoliciesProps> = ({
                     <TableHeader t3>Status</TableHeader>
                     <TableHeader t3>Expiration Date</TableHeader>
                     <TableHeader t3>Covered Amount</TableHeader>
-                    <TableHeader t3>
-                      <TableDataGroup>
-                        <Button
-                          disabled={policyIdsToStake.length < 2}
-                          onClick={callDepositPolicyMulti}
-                          secondary={!(policyIdsToStake.length < 2)}
-                        >
-                          Stake all
-                        </Button>
-                        <Button
-                          disabled={policyIdsToUnstake.length < 2}
-                          onClick={callWithdrawPolicyMulti}
-                          secondary={!(policyIdsToUnstake.length < 2)}
-                        >
-                          Unstake all
-                        </Button>
-                      </TableDataGroup>
-                    </TableHeader>
+                    <TableHeader t3></TableHeader>
                   </TableRow>
                 </TableHead>
                 <TableBody>
                   {userPolicyData.userPolicies.map((policy) => {
-                    const isStaked = depositedPolicyIds.includes(policy.policyId)
                     const isWarned = shouldWarnUser(latestBlock, policy)
                     return (
                       <TableRow key={policy.policyId}>
@@ -265,11 +173,6 @@ export const MyPolicies: React.FC<MyPoliciesProps> = ({
                           <Text t2 error={policy.status === PolicyState.EXPIRED} warning={isWarned}>
                             {policy.status}
                           </Text>
-                          {isStaked && (
-                            <SmallBox style={{ justifyContent: 'center' }}>
-                              <TextSpan light>Staked</TextSpan>
-                            </SmallBox>
-                          )}
                         </TableData>
                         <TableData>
                           <Text t2 warning={isWarned}>
@@ -295,14 +198,6 @@ export const MyPolicies: React.FC<MyPoliciesProps> = ({
                               <Button onClick={() => openManageModal(policy)} info>
                                 Manage
                               </Button>
-                              <Button
-                                onClick={() =>
-                                  isStaked ? callWithdrawPolicy(policy.policyId) : callDepositPolicy(policy.policyId)
-                                }
-                                info
-                              >
-                                {isStaked ? `Unstake` : `Stake`}
-                              </Button>
                             </TableDataGroup>
                           )}
                         </TableData>
@@ -315,7 +210,6 @@ export const MyPolicies: React.FC<MyPoliciesProps> = ({
               // laptop version
               <CardContainer cardsPerRow={3} p={10}>
                 {userPolicyData.userPolicies.map((policy) => {
-                  const isStaked = depositedPolicyIds.includes(policy.policyId)
                   const isWarned = shouldWarnUser(latestBlock, policy)
                   return (
                     <Card key={policy.policyId}>
@@ -343,9 +237,6 @@ export const MyPolicies: React.FC<MyPoliciesProps> = ({
                         </FormRow>
                         <FlexCol style={{ display: 'flex', alignItems: 'center' }}>
                           <Text t2>{policy.productName}</Text>
-                          <SmallBox style={{ justifyContent: 'center', visibility: isStaked ? 'unset' : 'hidden' }}>
-                            <TextSpan light>Staked</TextSpan>
-                          </SmallBox>
                         </FlexCol>
                       </FlexCol>
                       <FormRow mb={10}>
@@ -393,15 +284,6 @@ export const MyPolicies: React.FC<MyPoliciesProps> = ({
                           </Button>
                           <Button widthP={100} onClick={() => openManageModal(policy)} info>
                             Manage
-                          </Button>
-                          <Button
-                            widthP={100}
-                            onClick={() =>
-                              isStaked ? callWithdrawPolicy(policy.policyId) : callDepositPolicy(policy.policyId)
-                            }
-                            info
-                          >
-                            {isStaked ? `Unstake` : `Stake`}
                           </Button>
                         </ButtonWrapper>
                       )}

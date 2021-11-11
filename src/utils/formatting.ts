@@ -169,8 +169,6 @@ export const getUnit = (function_name: string, activeNetwork?: NetworkConfig): U
     case FunctionName.WITHDRAW_LP:
     case FunctionName.MULTI_CALL:
       return Unit.LP
-    case FunctionName.DEPOSIT_POLICY_SIGNED:
-    case FunctionName.WITHDRAW_POLICY:
     case FunctionName.BUY_POLICY:
     case FunctionName.CANCEL_POLICY:
     case FunctionName.EXTEND_POLICY_PERIOD:
@@ -202,8 +200,6 @@ export const formatTransactionContent = (
     case FunctionName.UPDATE_POLICY_AMOUNT:
     case FunctionName.CANCEL_POLICY:
     case FunctionName.SUBMIT_CLAIM:
-    case FunctionName.DEPOSIT_POLICY_SIGNED:
-    case FunctionName.WITHDRAW_POLICY:
       return `${unit} #${BigNumber.from(amount)}`
     case FunctionName.WITHDRAW_ETH:
       return `${truncateBalance(formatUnits(BigNumber.from(amount), activeNetwork.nativeCurrency.decimals))} ${unit}`
@@ -222,9 +218,6 @@ export const formatTransactionContent = (
       return `Thaw started`
     case FunctionName.STOP_COOLDOWN:
       return `Thaw stopped`
-    case FunctionName.DEPOSIT_POLICY_SIGNED_MULTI:
-    case FunctionName.WITHDRAW_POLICY_MULTI:
-      return `Multiple policies`
     default:
       return `${amount} ${unit}`
   }

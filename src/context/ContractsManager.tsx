@@ -20,7 +20,6 @@ type Contracts = {
   solace?: Contract | null
   cpFarm?: Contract | null
   lpFarm?: Contract | null
-  sptFarm?: Contract | null
   registry?: Contract | null
   lpToken?: Contract | null
   weth?: Contract | null
@@ -43,7 +42,6 @@ const ContractsContext = createContext<Contracts>({
   solace: undefined,
   cpFarm: undefined,
   lpFarm: undefined,
-  sptFarm: undefined,
   registry: undefined,
   lpToken: undefined,
   weth: undefined,
@@ -71,7 +69,6 @@ const ContractsProvider: React.FC = (props) => {
   const solace = useGetContract(keyContracts.solace)
   const cpFarm = useGetContract(keyContracts.cpFarm)
   const lpFarm = useGetContract(keyContracts.lpFarm)
-  const sptFarm = useGetContract(keyContracts.sptFarm)
   const registry = useGetContract(keyContracts.registry)
   const lpToken = useGetContract(keyContracts.lpToken)
   const weth = useGetContract(keyContracts.weth)
@@ -106,7 +103,6 @@ const ContractsProvider: React.FC = (props) => {
       solace,
       cpFarm,
       lpFarm,
-      sptFarm,
       registry,
       lpToken,
       weth,
@@ -128,7 +124,6 @@ const ContractsProvider: React.FC = (props) => {
       solace,
       cpFarm,
       lpFarm,
-      sptFarm,
       registry,
       lpToken,
       weth,

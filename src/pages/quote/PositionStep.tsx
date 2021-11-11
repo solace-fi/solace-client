@@ -48,7 +48,6 @@ import { BKPT_3 } from '../../constants'
 
 /* import hooks */
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'
-import { useDepositedPolicies } from '../../hooks/useBalance'
 
 /* import utils */
 import { userHasActiveProductPosition } from '../../utils/policy'
@@ -80,14 +79,6 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
     () => activeNetwork.cache.supportedProducts.find((product) => product.name == protocol.name),
     [activeNetwork.cache.supportedProducts, protocol.name]
   )
-  const depositedPolicyTokenInfo = useDepositedPolicies()
-  const depositedPolicyIds = useMemo(() => depositedPolicyTokenInfo.map((i) => i.id.toNumber()), [
-    depositedPolicyTokenInfo,
-  ])
-  const isPolicyStaked = useMemo(() => depositedPolicyIds.includes(selectedPolicy ? selectedPolicy.policyId : 0), [
-    depositedPolicyIds,
-    selectedPolicy,
-  ])
   /*************************************************************************************
 
   local functions
@@ -304,7 +295,6 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
         isOpen={showManageModal}
         latestBlock={latestBlock}
         closeModal={closeModal}
-        isPolicyStaked={isPolicyStaked}
       />
       {fetchedPositions.length == 0 && !loading && !userPolicyData.policiesLoading && (
         <HeroContainer>

@@ -26,7 +26,7 @@ export const usePolicyGetter = (
 } => {
   const { library } = useWallet()
   const { activeNetwork, findNetworkByChainId, chainId } = useNetwork()
-  const { policyManager, sptFarm } = useContracts()
+  const { policyManager } = useContracts()
   const [userPolicies, setUserPolicies] = useState<Policy[]>([])
   const [allPolicies, setAllPolicies] = useState<Policy[]>([])
   const [policiesLoading, setPoliciesLoading] = useState<boolean>(true)
@@ -39,13 +39,12 @@ export const usePolicyGetter = (
   }
 
   const getUserPolicies = async (policyHolder: string): Promise<Policy[]> => {
-    if (!policyManager || !library || !sptFarm) return []
-    const [stakedPolicyIds, policyIds, blockNumber] = await Promise.all([
-      sptFarm.listDeposited(policyHolder),
+    if (!policyManager || !library) return []
+    const [policyIds, blockNumber] = await Promise.all([
       policyManager.listTokensOfOwner(policyHolder),
       library.getBlockNumber(),
     ])
-    const totalPolicyIds = [...policyIds, ...stakedPolicyIds[0]]
+    const totalPolicyIds: BigNumber[] = policyIds
     const policies = await Promise.all(totalPolicyIds.map((policyId: BigNumber) => queryPolicy(policyId, blockNumber)))
     return policies
   }
@@ -198,7 +197,7 @@ export const usePolicyGetter = (
       firstLoading.current = false
     }
 
-    if (!policyManager || !sptFarm) return
+    if (!policyManager) return
     loadOnBoot()
 
     policyManager.on('Transfer', async (from, to) => {
@@ -211,23 +210,10 @@ export const usePolicyGetter = (
       await getUpdatedUserPolicy(id)
     })
 
-    sptFarm.on('PolicyDeposited', async (from, to) => {
-      if (from == policyHolder || to == policyHolder) {
-        await getPolicies(policyHolder)
-      }
-    })
-
-    sptFarm.on('PolicyWithdrawn', async (from, to) => {
-      if (from == policyHolder || to == policyHolder) {
-        await getPolicies(policyHolder)
-      }
-    })
-
     return () => {
       policyManager.removeAllListeners()
-      sptFarm.removeAllListeners()
     }
-  }, [policyHolder, data.dataInitialized, policyManager, sptFarm])
+  }, [policyHolder, data.dataInitialized, policyManager])
 
   /* fetch all policies per block */
   useEffect(() => {

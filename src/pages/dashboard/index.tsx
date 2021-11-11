@@ -37,7 +37,6 @@ import { MyInvestments } from '../../components/molecules/MyInvestments'
 import { MyOptions } from '../../components/molecules/MyOptions'
 
 /* import hooks */
-import { useDepositedPolicies } from '../../hooks/useBalance'
 
 function Dashboard(): any {
   /*************************************************************************************
@@ -54,14 +53,6 @@ function Dashboard(): any {
   const { setSelectedProtocolByName } = useContracts()
   const { latestBlock, userPolicyData } = useCachedData()
   const { account } = useWallet()
-  const depositedPolicyTokenInfo = useDepositedPolicies()
-  const depositedPolicyIds = useMemo(() => depositedPolicyTokenInfo.map((i) => i.id.toNumber()), [
-    depositedPolicyTokenInfo,
-  ])
-  const isPolicyStaked = useMemo(() => depositedPolicyIds.includes(selectedPolicy ? selectedPolicy.policyId : 0), [
-    depositedPolicyIds,
-    selectedPolicy,
-  ])
 
   /*************************************************************************************
 
@@ -126,20 +117,17 @@ function Dashboard(): any {
             isOpen={showManageModal}
             latestBlock={latestBlock}
             selectedPolicy={selectedPolicy}
-            isPolicyStaked={isPolicyStaked}
           />
           <ClaimModal
             closeModal={closeModal}
             isOpen={showClaimModal}
             latestBlock={latestBlock}
             selectedPolicy={selectedPolicy}
-            isPolicyStaked={isPolicyStaked}
           />
           <MyPolicies
             latestBlock={latestBlock}
             openClaimModal={openClaimModal}
             openManageModal={openManageModal}
-            depositedPolicyIds={depositedPolicyIds}
             isOpen={openPolicies}
             setOpen={setOpenPolicies}
           />

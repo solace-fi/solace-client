@@ -38,7 +38,6 @@ import { GasFeeOption, LocalTx, NftTokenInfo } from '../../constants/types'
 /* import components */
 import { CpPoolModal } from './CpPoolModal'
 import { LpPoolModal } from './LpPoolModal'
-import { SptPoolModal } from './SptPoolModal'
 import { UnderwritingPoolModal } from './UnderwritingPoolModal'
 import { Input } from '../atoms/Input'
 import { ModalRow, ModalCell } from '../atoms/Modal'
@@ -87,7 +86,6 @@ export const PoolModalRouter: React.FC<PoolModalRouterProps> = ({ modalTitle, fu
   const modals: { [key: string]: JSX.Element } = {
     ['uw']: <UnderwritingPoolModal isOpen={isOpen} modalTitle={modalTitle} func={func} closeModal={closeModal} />,
     ['cp']: <CpPoolModal isOpen={isOpen} modalTitle={modalTitle} func={func} closeModal={closeModal} />,
-    ['spt']: <SptPoolModal isOpen={isOpen} modalTitle={modalTitle} func={func} closeModal={closeModal} />,
     ['lp']: <LpPoolModal isOpen={isOpen} modalTitle={modalTitle} func={func} closeModal={closeModal} />,
   }
 

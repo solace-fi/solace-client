@@ -23,7 +23,6 @@ import { UnderwritingPool } from '../../components/organisms/UnderwritingPool'
 import { CapitalProviderPool } from '../../components/organisms/CapitalProviderPool'
 import { LiquidityPool } from '../../components/organisms/LiquidityPool'
 import { MyOptions } from '../../components/molecules/MyOptions'
-import { SptPool } from '../../components/organisms/SptPool'
 
 /* import constants */
 import { FunctionName } from '../../constants/enums'
@@ -70,7 +69,6 @@ function Invest(): any {
       />
       <UnderwritingPool openModal={openModal} />
       <CapitalProviderPool openModal={openModal} />
-      <SptPool openModal={openModal} />
       {/* <LiquidityPool openModal={openModal} /> */}
       <MyOptions />
     </Fragment>
