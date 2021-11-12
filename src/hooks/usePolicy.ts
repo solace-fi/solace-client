@@ -44,6 +44,7 @@ export const useAppraisePolicyPosition = (policy: Policy | undefined): BigNumber
     // const matchingCache = tokenPosData.storedPosData.find((dataset) => dataset.chainId == activeNetwork.chainId)
     const matchingCache = await tokenPosData.getCache(supportedProduct)
     if (!account || !library || !matchingCache || !policy) return []
+    const cachedPositions = matchingCache.positionsCache[supportedProduct.name].positions
     switch (supportedProduct.positionsType) {
       case PositionType.TOKEN:
         const tokensToAppraise: Token[] = []
@@ -51,7 +52,7 @@ export const useAppraisePolicyPosition = (policy: Policy | undefined): BigNumber
         // loop names because we want the only positions included in the policy, not positions cached on boot
         policy.positionNames.forEach(async (name) => {
           // find the position in the cache using the name
-          const positionToAppraise = matchingCache.positionsCache[supportedProduct.name].positions.find(
+          const positionToAppraise = cachedPositions.find(
             (position: Position) => (position.position as Token).token.symbol == name
           )
           if (!positionToAppraise) return
@@ -75,7 +76,7 @@ export const useAppraisePolicyPosition = (policy: Policy | undefined): BigNumber
       case PositionType.LQTY:
         const positionsToAppraise: LiquityPosition[] = []
         policy.positionNames.forEach(async (name) => {
-          const positionToAppraise = matchingCache.positionsCache[supportedProduct.name].positions.find(
+          const positionToAppraise = cachedPositions.find(
             (position: Position) => (position.position as LiquityPosition).positionName == name
           )
           if (!positionToAppraise) return

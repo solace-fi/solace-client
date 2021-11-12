@@ -72,6 +72,7 @@ export type Policy = {
   productAddress: string
   productName: string
   positionDescription: string
+  positionAddrs: string[]
   positionNames: string[]
   underlyingPositionNames: string[]
   expirationBlock: number

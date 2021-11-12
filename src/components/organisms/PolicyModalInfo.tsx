@@ -74,7 +74,6 @@ export const PolicyModalInfo: React.FC<PolicyModalInfoProps> = ({ appraisal, sel
   const { activeNetwork, currencyDecimals } = useNetwork()
   const { width } = useWindowDimensions()
   const { account } = useWallet()
-  const { tokenPosData } = useCachedData()
   const [showAssetsModal, setShowAssetsModal] = useState<boolean>(false)
   const [formattedAssets, setFormattedAssets] = useState<BasicData[]>([])
   const daysLeft = useMemo(
@@ -91,48 +90,17 @@ export const PolicyModalInfo: React.FC<PolicyModalInfoProps> = ({ appraisal, sel
 
   const getAssets = async () => {
     if (!selectedPolicy || !account) return
-    const supportedProduct = activeNetwork.cache.supportedProducts.find(
-      (product) => product.name == selectedPolicy.productName
-    )
-    if (!supportedProduct) return
-    // const matchingCache = tokenPosData.storedPosData.find((dataset) => dataset.chainId == activeNetwork.chainId)
-    // if (!matchingCache) return
-    const matchingCache = await tokenPosData.getCache(supportedProduct)
-    const foundPositions = handleFilterPositions(supportedProduct, matchingCache, selectedPolicy)
+    const foundPositions = handleFilterPositions(selectedPolicy)
     setFormattedAssets(foundPositions)
   }
 
-  const handleFilterPositions = (
-    supportedProduct: SupportedProduct,
-    _cache: NetworkCache,
-    _selectedPolicy: Policy
-  ): BasicData[] => {
-    let res: BasicData[] = []
-    const savedPositions: Position[] = _cache.positionsCache[supportedProduct.name].positions
-    switch (supportedProduct.positionsType) {
-      case PositionType.TOKEN:
-        const filteredPositions: Position[] = savedPositions.filter((savedPosition: Position) =>
-          _selectedPolicy.positionDescription.includes(trim0x((savedPosition.position as Token).token.address))
-        )
-        for (let i = 0; i < filteredPositions.length; i++) {
-          res.push({
-            name: (filteredPositions[i].position as Token).token.name,
-            address: (filteredPositions[i].position as Token).token.address,
-          })
-        }
-        break
-      case PositionType.LQTY:
-        res = savedPositions
-          .map((pos) => {
-            return {
-              name: (pos.position as LiquityPosition).positionName,
-              address: (pos.position as LiquityPosition).positionAddress,
-            }
-          })
-          .filter((pos: any) => _selectedPolicy.positionDescription.includes(trim0x(pos.address)))
-        break
-      case PositionType.OTHER:
-      default:
+  const handleFilterPositions = (_selectedPolicy: Policy): BasicData[] => {
+    const res: BasicData[] = []
+    for (let i = 0; i < _selectedPolicy.positionAddrs.length; i++) {
+      res.push({
+        name: _selectedPolicy.positionNames[i],
+        address: _selectedPolicy.positionAddrs[i],
+      })
     }
     return res
   }
