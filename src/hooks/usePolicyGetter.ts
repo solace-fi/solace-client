@@ -1,6 +1,6 @@
 import { useWallet } from '../context/WalletManager'
 import { PolicyState } from '../constants/enums'
-import { Policy, NetworkCache } from '../constants/types'
+import { Policy, NetworkCache, SupportedProduct } from '../constants/types'
 import { BigNumber } from 'ethers'
 import { useContracts } from '../context/ContractsManager'
 import { useState, useEffect, useRef } from 'react'
@@ -15,6 +15,7 @@ export const usePolicyGetter = (
   data: {
     dataInitialized: boolean
     storedPosData: NetworkCache[]
+    getCache: (supportedProduct: SupportedProduct) => Promise<NetworkCache>
   },
   policyHolder?: string,
   product?: string
@@ -45,7 +46,9 @@ export const usePolicyGetter = (
       library.getBlockNumber(),
     ])
     const totalPolicyIds: BigNumber[] = policyIds
-    const policies = await Promise.all(totalPolicyIds.map((policyId: BigNumber) => queryPolicy(policyId, blockNumber)))
+    const policies = await Promise.all(
+      totalPolicyIds.map((policyId: BigNumber) => queryPolicy(policyId, blockNumber, policyHolder))
+    )
     return policies
   }
 
@@ -66,29 +69,39 @@ export const usePolicyGetter = (
       if (policyHolder) {
         policies.sort((a: any, b: any) => b.policyId - a.policyId) // newest first
         const matchingCache = data.storedPosData.find((dataset) => dataset.chainId == activeNetwork.chainId)
-        policies.forEach(async (policy: Policy) => {
-          const supportedProductName = activeNetwork.config.productsRev[policy.productAddress]
-          const productPosition = matchingCache?.positionNamesCache[supportedProductName]
-          if (productPosition) {
-            Object.keys(productPosition.positionNames).forEach((tokenAddress) => {
-              if (policy.positionDescription.includes(trim0x(tokenAddress))) {
-                policy.positionNames = [...policy.positionNames, productPosition.positionNames[tokenAddress]]
-                const newUnderlyingPositionNames = [
-                  ...policy.underlyingPositionNames,
-                  ...productPosition.underlyingPositionNames[tokenAddress],
-                ]
-                policy.underlyingPositionNames = newUnderlyingPositionNames.filter(
-                  (item: string, index: number) => newUnderlyingPositionNames.indexOf(item) == index
-                )
-              }
-            })
+        await new Promise(() => {
+          policies.forEach(async (policy: Policy) => {
+            const supportedProductName = activeNetwork.config.productsRev[policy.productAddress]
+            const supportedProduct = activeNetwork.cache.supportedProducts.find(
+              (product) => product.name == supportedProductName
+            )
+            if (supportedProduct) {
+              const matchingCache = await data.getCache(supportedProduct)
+              console.log('should be finished before fetchClaims')
+              const productPosition = matchingCache.positionNamesCache[supportedProductName]
+              Object.keys(productPosition.positionNames).forEach((tokenAddress) => {
+                if (policy.positionDescription.includes(trim0x(tokenAddress))) {
+                  policy.positionNames = [...policy.positionNames, productPosition.positionNames[tokenAddress]]
+                  const newUnderlyingPositionNames = [
+                    ...policy.underlyingPositionNames,
+                    ...productPosition.underlyingPositionNames[tokenAddress],
+                  ]
+                  policy.underlyingPositionNames = newUnderlyingPositionNames.filter(
+                    (item: string, index: number) => newUnderlyingPositionNames.indexOf(item) == index
+                  )
+                }
+              })
+            }
+          })
+        }).then(async () => {
+          console.log('claim')
+          if (canGetClaimAssessments.current) {
+            await fetchClaimAssessments(policies)
+          } else {
+            setUserPolicies(policies)
           }
         })
-        if (canGetClaimAssessments.current) {
-          await fetchClaimAssessments(policies)
-        } else {
-          setUserPolicies(policies)
-        }
+        setUserPolicies(policies)
       } else {
         setAllPolicies(policies)
       }
@@ -97,7 +110,12 @@ export const usePolicyGetter = (
     }
   }
 
-  const queryPolicy = async (policyId: BigNumber | number, blockNumber: number): Promise<Policy> => {
+  // query policy, and if policyHodler is provided, init positionNames and claimAssessment as well
+  const queryPolicy = async (
+    policyId: BigNumber | number,
+    blockNumber: number,
+    policyHolder?: string
+  ): Promise<Policy> => {
     const returnError = {
       policyId: 0,
       policyHolder: '',
@@ -114,19 +132,52 @@ export const usePolicyGetter = (
     if (!policyManager) return returnError
     try {
       const policy = await policyManager.getPolicyInfo(policyId)
+      const supportedProductName = activeNetwork.config.productsRev[policy.policy]
+      const supportedProduct = activeNetwork.cache.supportedProducts.find(
+        (product) => product.name == supportedProductName
+      )
+      if (!supportedProduct) return returnError
+      let positionNames: string[] = []
+      let underlyingPositionNames: string[] = []
+      let claimAssessment = undefined
+      if (policyHolder) {
+        const [cache, _claimAssessment] = await Promise.all([
+          data.getCache(supportedProduct),
+          canGetClaimAssessments.current
+            ? getClaimAssessment(String(policy.policyId), chainId).catch((err) => {
+                console.log(err)
+                return undefined
+              })
+            : undefined,
+        ])
+        const productPosition = cache.positionNamesCache[supportedProductName]
+        Object.keys(productPosition.positionNames).forEach((tokenAddress) => {
+          if (policy.positionDescription.includes(trim0x(tokenAddress))) {
+            positionNames = [...positionNames, productPosition.positionNames[tokenAddress]]
+            const newUnderlyingPositionNames = [
+              ...underlyingPositionNames,
+              ...productPosition.underlyingPositionNames[tokenAddress],
+            ]
+            underlyingPositionNames = newUnderlyingPositionNames.filter(
+              (item: string, index: number) => newUnderlyingPositionNames.indexOf(item) == index
+            )
+          }
+        })
+        claimAssessment = _claimAssessment
+      }
       return {
         policyId: Number(policyId),
         policyHolder: policy.policyholder,
         productAddress: policy.product,
         productName: activeNetwork.config.productsRev[policy.product] ?? '',
         positionDescription: policy.positionDescription,
-        positionNames: [],
-        underlyingPositionNames: [],
+        positionNames,
+        underlyingPositionNames,
         expirationBlock: policy.expirationBlock,
         coverAmount: policy.coverAmount.toString(),
         price: policy.price.toString(),
         status: policy.expirationBlock < blockNumber ? PolicyState.EXPIRED : PolicyState.ACTIVE,
-        claimAssessment: undefined,
+        claimAssessment,
       }
     } catch (err) {
       console.log(err)
@@ -139,10 +190,15 @@ export const usePolicyGetter = (
     if (!belongsToUser) return
     const blockNumber = await library.getBlockNumber()
     const updatedPolicy = await queryPolicy(id, blockNumber)
-    const matchingCache = data.storedPosData.find((dataset) => dataset.chainId == activeNetwork.chainId)
-    const productPosition =
-      matchingCache?.positionNamesCache[activeNetwork.config.productsRev[updatedPolicy.productAddress]]
-    if (productPosition) {
+    // const matchingCache = data.storedPosData.find((dataset) => dataset.chainId == activeNetwork.chainId)
+    const supportedProductName = activeNetwork.config.productsRev[updatedPolicy.productAddress]
+    const supportedProduct = activeNetwork.cache.supportedProducts.find(
+      (product) => product.name == supportedProductName
+    )
+    if (supportedProduct) {
+      const matchingCache = await data.getCache(supportedProduct)
+      const productPosition =
+        matchingCache.positionNamesCache[activeNetwork.config.productsRev[updatedPolicy.productAddress]]
       Object.keys(productPosition.positionNames).forEach((tokenAddress) => {
         if (updatedPolicy.positionDescription.includes(trim0x(tokenAddress))) {
           updatedPolicy.positionNames = [...updatedPolicy.positionNames, productPosition.positionNames[tokenAddress]]
@@ -186,6 +242,7 @@ export const usePolicyGetter = (
     setUserPolicies(policiesWithClaimAssessments)
   }
 
+  // load on change of account or network
   useEffect(() => {
     const loadOnBoot = async () => {
       await getPolicies(policyHolder)

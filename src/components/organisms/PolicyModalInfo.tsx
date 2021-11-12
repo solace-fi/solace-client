@@ -95,8 +95,9 @@ export const PolicyModalInfo: React.FC<PolicyModalInfoProps> = ({ appraisal, sel
       (product) => product.name == selectedPolicy.productName
     )
     if (!supportedProduct) return
-    const matchingCache = tokenPosData.storedPosData.find((dataset) => dataset.chainId == activeNetwork.chainId)
-    if (!matchingCache) return
+    // const matchingCache = tokenPosData.storedPosData.find((dataset) => dataset.chainId == activeNetwork.chainId)
+    // if (!matchingCache) return
+    const matchingCache = await tokenPosData.getCache(supportedProduct)
     const foundPositions = handleFilterPositions(supportedProduct, matchingCache, selectedPolicy)
     setFormattedAssets(foundPositions)
   }

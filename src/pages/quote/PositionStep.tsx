@@ -189,8 +189,9 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
     canFetchPositions.current = false
     if (findNetworkByChainId(chainId)) {
       try {
-        const matchingCache = tokenPosData.storedPosData.find((dataset) => dataset.chainId == activeNetwork.chainId)
-        if (!supportedProduct || !matchingCache) return
+        // const matchingCache = tokenPosData.storedPosData.find((dataset) => dataset.chainId == activeNetwork.chainId)
+        if (!supportedProduct) return
+        const matchingCache = await tokenPosData.getCache(supportedProduct)
         const _fetchedPositions = await handleFetchPositions(supportedProduct, matchingCache)
         canFetchPositions.current = true
         setFetchedPositions(_fetchedPositions)

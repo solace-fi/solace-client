@@ -41,7 +41,8 @@ export const useAppraisePolicyPosition = (policy: Policy | undefined): BigNumber
   const [appraisal, setAppraisal] = useState<BigNumber>(ZERO)
 
   const handlePositionBalances = async (supportedProduct: SupportedProduct): Promise<BigNumber[]> => {
-    const matchingCache = tokenPosData.storedPosData.find((dataset) => dataset.chainId == activeNetwork.chainId)
+    // const matchingCache = tokenPosData.storedPosData.find((dataset) => dataset.chainId == activeNetwork.chainId)
+    const matchingCache = await tokenPosData.getCache(supportedProduct)
     if (!account || !library || !matchingCache || !policy) return []
     switch (supportedProduct.positionsType) {
       case PositionType.TOKEN:

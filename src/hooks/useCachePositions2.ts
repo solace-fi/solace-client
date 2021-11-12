@@ -21,87 +21,11 @@ import { fetchTransferEventsOfUser } from '../utils/explorer'
 
 export const useCachePositions = () => {
   const { library, account } = useWallet()
-  const { activeNetwork, networks, findNetworkByChainId } = useNetwork()
+  const { activeNetwork } = useNetwork()
   const [storedPosData, setStoredPosData] = useSessionStorage<NetworkCache[]>('sol_position_data', [])
   const [transferHistory, setTransferHistory] = useState<any>([])
   const running = useRef(false)
   const [dataInitialized, setDataInitialized] = useState<boolean>(false)
-
-  const setStoredData = useCallback(() => {
-    // on mount, if stored data exists in session already, return that data, else return newly made data
-    if (storedPosData.length == 0) {
-      const unsetPositionData = networks.map((network) => {
-        const supportedProducts = network.cache.supportedProducts.map((product: SupportedProduct) => product.name)
-        const cachedPositions: PositionsCache = {}
-        const cachedPositionNames: PositionNamesCache = {}
-        supportedProducts.forEach((name: ProductName) => {
-          cachedPositions[name] = { positions: [], init: false }
-          cachedPositionNames[name] = { positionNames: {}, underlyingPositionNames: {}, init: false }
-        })
-        return {
-          chainId: network.chainId,
-          positionsCache: cachedPositions,
-          positionNamesCache: cachedPositionNames,
-        }
-      })
-      setStoredPosData(unsetPositionData)
-      return unsetPositionData
-    }
-    return storedPosData
-  }, [storedPosData, setStoredPosData])
-
-  const getAllPositionsforChain = useCallback(
-    async (data: NetworkCache[], _activeNetwork: NetworkConfig, _library: any, _account: string) => {
-      if (running.current || _library == undefined || _activeNetwork.chainId == undefined) return
-      setDataInitialized(false)
-      running.current = true
-      if (!findNetworkByChainId(_activeNetwork.chainId)) {
-        running.current = false
-        return
-      }
-
-      // given the input data, find the dataset from that data appropriate to the current network
-      const newCache = data.find((dataset) => dataset.chainId == _activeNetwork.chainId)
-      if (!newCache) return
-      let changeOccurred = false
-
-      // for every supported product in this network, initialize the positions, if any
-      const supportedProducts = _activeNetwork.cache.supportedProducts
-
-      const transferHistory = await fetchTransferEventsOfUser(activeNetwork.explorer.apiUrl, _account)
-      await Promise.all(
-        supportedProducts.map(async (supportedProduct: SupportedProduct) => {
-          if (
-            !newCache.positionsCache[supportedProduct.name].init &&
-            !newCache.positionNamesCache[supportedProduct.name].init
-          ) {
-            const { initializedPositions, initializedPositionNames } = await handleInitPositions(
-              supportedProduct,
-              newCache,
-              _library,
-              _activeNetwork,
-              { user: _account, transferHistory }
-            )
-            newCache.positionsCache[supportedProduct.name] = initializedPositions
-            newCache.positionNamesCache[supportedProduct.name] = initializedPositionNames
-            changeOccurred = true
-          }
-        })
-      )
-
-      if (!changeOccurred) {
-        console.log('useCachePositions: no position init needed')
-      } else {
-        const editedData = data.filter((data) => data.chainId != newCache.chainId)
-        const newData = [...editedData, newCache]
-        setStoredPosData(newData)
-        console.log('useCachePositions: position init completed')
-      }
-      setDataInitialized(true)
-      running.current = false
-    },
-    []
-  )
 
   // return initializedPositions and initializedPositionNames
   const handleInitPositions = async (
@@ -266,47 +190,51 @@ export const useCachePositions = () => {
 
   // returns the networkCache if its positions and names are initialized, return it with them being initialized otherwise
   const getCache = useCallback(
-    async (supportedProduct: SupportedProduct): Promise<NetworkCache> => {
+    async (supportedProducts: SupportedProduct[]): Promise<NetworkCache> => {
+      let changeOccurred = false
       const networkCache = initNetwork(activeNetwork)
-      if (
-        !networkCache.positionsCache[supportedProduct.name].init &&
-        !networkCache.positionNamesCache[supportedProduct.name].init
-      ) {
-        const { initializedPositions, initializedPositionNames } = await handleInitPositions(
-          supportedProduct,
-          networkCache,
-          library,
-          activeNetwork,
-          { user: account, transferHistory }
-        )
-        networkCache.positionsCache[supportedProduct.name] = initializedPositions
-        networkCache.positionNamesCache[supportedProduct.name] = initializedPositionNames
+      if (running.current) return networkCache
+      setDataInitialized(false)
+      running.current = true
+      await Promise.all(
+        supportedProducts.map(async (supportedProduct: SupportedProduct) => {
+          if (
+            !networkCache.positionsCache[supportedProduct.name].init &&
+            !networkCache.positionNamesCache[supportedProduct.name].init
+          ) {
+            const { initializedPositions, initializedPositionNames } = await handleInitPositions(
+              supportedProduct,
+              networkCache,
+              library,
+              activeNetwork,
+              { user: account, transferHistory }
+            )
+            networkCache.positionsCache[supportedProduct.name] = initializedPositions
+            networkCache.positionNamesCache[supportedProduct.name] = initializedPositionNames
+            changeOccurred = true
+          }
+        })
+      )
+
+      if (!changeOccurred) {
+        console.log('useCachePositions2: no position init needed')
+      } else {
         const editedData = storedPosData.filter((data) => data.chainId != networkCache.chainId)
         const newData = [...editedData, networkCache]
         setStoredPosData(newData)
-        console.log(`getCache: position init completed for ${supportedProduct.name}`)
-      } else {
-        console.log(`getCache: no position init needed for ${supportedProduct.name}`)
+        console.log('useCachePositions2: position init completed')
       }
+      running.current = false
+      setDataInitialized(true)
       return networkCache
     },
-    [account, activeNetwork, handleInitPositions, initNetwork, library, storedPosData, transferHistory]
+    [account, activeNetwork, library, storedPosData, transferHistory]
   )
-
-  // useEffect(() => {
-  //   if (!account) {
-  //     console.log('useCachePositions: no account found, no init needed yet')
-  //     return
-  //   }
-  //   // do not run the functions if web3React is not initialized
-  //   const data = setStoredData()
-  //   getAllPositionsforChain(data, activeNetwork, library, account)
-  // }, [activeNetwork, account])
 
   useEffect(() => {
     const getTransfers = async () => {
       if (!account) {
-        console.log('useCachePositions: no account found, no init needed yet')
+        console.log('useCachePositions2: no account found, no init needed yet')
         return
       }
       const transferHistory = await fetchTransferEventsOfUser(activeNetwork.explorer.apiUrl, account)
