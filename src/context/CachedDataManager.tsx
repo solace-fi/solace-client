@@ -6,7 +6,6 @@ import { Block } from '@ethersproject/contracts/node_modules/@ethersproject/abst
 import { LocalTx, Policy, NetworkCache, GasFeeListState } from '../constants/types'
 import { usePolicyGetter } from '../hooks/usePolicyGetter'
 import { useReload } from '../hooks/useReload'
-import { useInterval } from '../hooks/useInterval'
 
 import { useFetchGasPrice } from '../hooks/useGas'
 import { useGetLatestBlock } from '../hooks/useGetLatestBlock'
@@ -79,12 +78,12 @@ const CachedDataProvider: React.FC = (props) => {
   const [reload, version] = useReload()
   const gasPrices = useFetchGasPrice()
   const latestBlock = useGetLatestBlock()
-  const { dataInitialized, storedPosData } = useCachePositions()
+  const cachePositions = useCachePositions()
   const { addNotices, removeNotices } = useGeneral()
   const { policiesLoading, userPolicies, setCanGetAssessments } = usePolicyGetter(
     false,
     latestBlock,
-    { dataInitialized, storedPosData },
+    cachePositions,
     account
   )
   const [accountModal, setAccountModal] = useState<boolean>(false)
@@ -149,7 +148,7 @@ const CachedDataProvider: React.FC = (props) => {
     () => ({
       localTransactions: localTxs,
       userPolicyData: { policiesLoading, userPolicies, setCanGetAssessments },
-      tokenPosData: { dataInitialized, storedPosData },
+      tokenPosData: cachePositions,
       showAccountModal: accountModal,
       version,
       gasPrices,
@@ -163,8 +162,7 @@ const CachedDataProvider: React.FC = (props) => {
       localTxs,
       addLocalTransactions,
       deleteLocalTransactions,
-      dataInitialized,
-      storedPosData,
+      cachePositions,
       version,
       latestBlock,
       gasPrices,

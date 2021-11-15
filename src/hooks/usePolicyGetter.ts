@@ -12,7 +12,7 @@ import { trim0x } from '../utils/formatting'
 export const usePolicyGetter = (
   getAll: boolean,
   latestBlock: Block | undefined,
-  data: {
+  tokenPosData: {
     dataInitialized: boolean
     storedPosData: NetworkCache[]
   },
@@ -134,7 +134,7 @@ export const usePolicyGetter = (
   }
 
   const getEditedPolicy = (policy: Policy): Policy => {
-    const matchingCache = data.storedPosData.find((dataset) => dataset.chainId == activeNetwork.chainId)
+    const matchingCache = tokenPosData.storedPosData.find((dataset) => dataset.chainId == activeNetwork.chainId)
     const supportedProductName = activeNetwork.config.productsRev[policy.productAddress]
     const productPosition = matchingCache?.positionNamesCache[supportedProductName]
     if (productPosition) {
@@ -197,7 +197,7 @@ export const usePolicyGetter = (
     return () => {
       policyManager.removeAllListeners()
     }
-  }, [policyHolder, data.dataInitialized, policyManager])
+  }, [policyHolder, tokenPosData.dataInitialized, policyManager])
 
   /* fetch all policies per block */
   useEffect(() => {
