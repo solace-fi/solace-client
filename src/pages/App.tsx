@@ -39,12 +39,15 @@ import { BKPT_5 } from '../constants'
 /* import hooks */
 import { useWindowDimensions } from '../hooks/useWindowDimensions'
 
+import { AnalyticsReporter } from '../analytics'
+
 export default function App(): any {
   const location = useLocation()
   const { width } = useWindowDimensions()
 
   return (
     <Fragment>
+      <AnalyticsReporter />
       <GlobalStyle location={location} />
       <TopNavbar />
       <Layout>

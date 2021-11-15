@@ -6,6 +6,7 @@
     import managers
     import constants
     import components
+    import resources
     import hooks
 
     SideNavbar
@@ -27,6 +28,7 @@ import { useNotifications } from '../../context/NotificationsManager'
 
 /* import constants */
 import { BKPT_3, BKPT_NAVBAR } from '../../constants'
+import { SystemNotice } from '../../constants/enums'
 
 /* import components */
 import { SidebarItem, TopNav, ItemText, ItemList, SidebarText } from '../atoms/Navbar'
@@ -53,14 +55,15 @@ import { ThemeButton } from '../molecules/ThemeButton'
 import { FlexCol, FlexRow, HorizRule } from '../atoms/Layout'
 import { MiniUserAccount, UserAccount } from '../molecules/Account'
 import { StyledNavTooltip } from '../molecules/Tooltip'
+import { AuditToast } from '../molecules/Toast'
+
+/* import resources */
 
 import AlchemyBadgeLight from '../../resources/svg/alchemy-badge-light.svg'
 import AlchemyBadgeDark from '../../resources/svg/alchemy-badge-dark.svg'
 
 /* import hooks */
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'
-import { SystemNotice } from '../../constants/enums'
-import { AuditToast } from '../molecules/Toast'
 
 export const SideNavbar: React.FC = () => {
   /*
