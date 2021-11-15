@@ -71,8 +71,7 @@ export const AuditToast: React.FC = () => {
             href={'https://hacken.io/audits/#solace'}
             target="_blank"
             rel="noopener noreferrer"
-            underline
-            style={{ color: 'rgb(250, 250, 250)' }}
+            style={{ color: 'rgb(250, 250, 250)', textDecoration: 'underline' }}
           >
             {' '}
             Hacken
@@ -82,8 +81,7 @@ export const AuditToast: React.FC = () => {
             href={quantstampPdf}
             target="_blank"
             rel="noopener noreferrer"
-            underline
-            style={{ color: 'rgb(250, 250, 250)' }}
+            style={{ color: 'rgb(250, 250, 250)', textDecoration: 'underline' }}
           >
             {' '}
             Quantstamp

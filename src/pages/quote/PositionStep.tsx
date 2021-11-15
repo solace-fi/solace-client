@@ -112,9 +112,10 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
     }
   }
 
-  const handleFetchPositions = async (supportedProduct: SupportedProduct, cache: NetworkCache): Promise<Position[]> => {
-    if (!account || !library) return []
-    const savedPositions = cache.positionsCache[supportedProduct.name].positions
+  const handleFetchPositions = async (supportedProduct: SupportedProduct): Promise<Position[]> => {
+    const matchingCache = tokenPosData.storedPosData.find((dataset) => dataset.chainId == activeNetwork.chainId)
+    if (!account || !library || !matchingCache) return []
+    const savedPositions = matchingCache.positionsCache[supportedProduct.name].positions
     switch (supportedProduct.positionsType) {
       case PositionType.TOKEN:
         if (typeof supportedProduct.getBalances !== 'undefined') {
@@ -189,10 +190,8 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
     canFetchPositions.current = false
     if (findNetworkByChainId(chainId)) {
       try {
-        // const matchingCache = tokenPosData.storedPosData.find((dataset) => dataset.chainId == activeNetwork.chainId)
         if (!supportedProduct) return
-        const matchingCache = await tokenPosData.getCache(supportedProduct)
-        const _fetchedPositions = await handleFetchPositions(supportedProduct, matchingCache)
+        const _fetchedPositions = await handleFetchPositions(supportedProduct)
         canFetchPositions.current = true
         setFetchedPositions(_fetchedPositions)
         setForm({
