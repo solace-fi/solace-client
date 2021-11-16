@@ -27,8 +27,9 @@ export const useGetPolicyPrice = (policyId: number): string => {
   }
 
   useEffect(() => {
+    if (userPolicyData.policiesLoading) return
     getPrice()
-  }, [selectedProtocol, policyId, userPolicyData.userPolicies])
+  }, [selectedProtocol, policyId, userPolicyData.policiesLoading])
 
   return policyPrice
 }
@@ -37,12 +38,11 @@ export const useAppraisePolicyPosition = (policy: Policy | undefined): BigNumber
   const { activeNetwork } = useNetwork()
   const { account, library } = useWallet()
   const { getProtocolByName } = useContracts()
-  const { latestBlock, tokenPosData } = useCachedData()
+  const { latestBlock, tokenPosData, userPolicyData } = useCachedData()
   const [appraisal, setAppraisal] = useState<BigNumber>(ZERO)
 
   const handlePositionBalances = async (supportedProduct: SupportedProduct): Promise<BigNumber[]> => {
-    // const matchingCache = tokenPosData.storedPosData.find((dataset) => dataset.chainId == activeNetwork.chainId)
-    const matchingCache = await tokenPosData.getCache(supportedProduct)
+    const matchingCache = await tokenPosData.handleGetCache(supportedProduct)
     if (!account || !library || !matchingCache || !policy) return []
     const cachedPositions = matchingCache.positionsCache[supportedProduct.name].positions
     switch (supportedProduct.positionsType) {
@@ -104,7 +104,7 @@ export const useAppraisePolicyPosition = (policy: Policy | undefined): BigNumber
 
   useEffect(() => {
     const getAppraisal = async () => {
-      if (!policy || !tokenPosData.dataInitialized) return
+      if (!policy || userPolicyData.policiesLoading) return
       try {
         const product = getProtocolByName(policy.productName)
 
@@ -123,7 +123,7 @@ export const useAppraisePolicyPosition = (policy: Policy | undefined): BigNumber
       }
     }
     getAppraisal()
-  }, [policy?.policyId, account, tokenPosData.dataInitialized, latestBlock])
+  }, [policy?.policyId, account, userPolicyData.policiesLoading, latestBlock])
 
   useEffect(() => {
     // if policy id changes, reset appraisal to 0 to enable loading icon on frontend

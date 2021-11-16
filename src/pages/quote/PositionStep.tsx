@@ -113,7 +113,7 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
   }
 
   const handleFetchPositions = async (supportedProduct: SupportedProduct): Promise<Position[]> => {
-    const matchingCache = tokenPosData.storedPosData.find((dataset) => dataset.chainId == activeNetwork.chainId)
+    const matchingCache = await tokenPosData.handleGetCache(supportedProduct)
     if (!account || !library || !matchingCache) return []
     const savedPositions = matchingCache.positionsCache[supportedProduct.name].positions
     switch (supportedProduct.positionsType) {
@@ -186,7 +186,7 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
   }
 
   const getUserPositions = async () => {
-    if (!tokenPosData.dataInitialized || !chainId || !canFetchPositions.current) return
+    if (tokenPosData.batchFetching || !chainId || !canFetchPositions.current) return
     canFetchPositions.current = false
     if (findNetworkByChainId(chainId)) {
       try {
@@ -254,7 +254,7 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
       }
     }
     loadOverTime()
-  }, [latestBlock, tokenPosData.dataInitialized])
+  }, [latestBlock, tokenPosData.batchFetching])
 
   useEffect(() => {
     setSelectablePositions(

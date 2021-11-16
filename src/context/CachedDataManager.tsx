@@ -34,9 +34,11 @@ type CachedData = {
     setCanGetAssessments: (toggle: boolean) => void
   }
   tokenPosData: {
-    dataInitialized: boolean
+    batchFetching: boolean
+    fetching: boolean
     storedPosData: NetworkCache[]
-    getCache: (supportedProduct: SupportedProduct) => Promise<NetworkCache>
+    handleGetCache: (supportedProduct: SupportedProduct) => Promise<NetworkCache | undefined>
+    getCacheForPolicies: (supportedProducts: SupportedProduct[]) => Promise<NetworkCache>
   }
   showAccountModal: boolean
   version: number
@@ -56,9 +58,11 @@ const CachedDataContext = createContext<CachedData>({
     setCanGetAssessments: () => undefined,
   },
   tokenPosData: {
-    dataInitialized: false,
+    batchFetching: false,
+    fetching: false,
     storedPosData: [],
-    getCache: () => Promise.reject(),
+    handleGetCache: () => Promise.reject(),
+    getCacheForPolicies: () => Promise.reject(),
   },
   showAccountModal: false,
   version: 0,
