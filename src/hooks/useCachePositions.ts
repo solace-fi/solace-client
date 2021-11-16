@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import {
   LiquityPosition,
   NetworkConfig,
@@ -14,7 +14,7 @@ import { useWallet } from '../context/WalletManager'
 import { useNetwork } from '../context/NetworkManager'
 import { useSessionStorage } from 'react-use-storage'
 import { NetworkCache } from '../constants/types'
-import { PositionType, ProductName } from '../constants/enums'
+import { PositionType } from '../constants/enums'
 import { getTroveContract } from '../products/liquity/positionGetter/getPositions'
 import { ZERO } from '../constants'
 import { fetchTransferEventsOfUser } from '../utils/explorer'
@@ -35,12 +35,10 @@ export const useCachePositions = () => {
     ): Promise<{ initializedPositions: PositionsCacheValue; initializedPositionNames: PositionNamesCacheValue }> => {
       let _initializedPositions: PositionsCacheValue = {
         positions: [],
-        init: false,
       }
       let _initializedPositionNames: PositionNamesCacheValue = {
         positionNames: {},
         underlyingPositionNames: {},
-        init: false,
       }
       switch (supportedProduct.positionsType) {
         case PositionType.TOKEN:
@@ -57,7 +55,6 @@ export const useCachePositions = () => {
               positions: tokens.map((token) => {
                 return { type: PositionType.TOKEN, position: token }
               }) as Position[],
-              init: true,
             }
             _initializedPositionNames = {
               positionNames: tokens.reduce(
@@ -76,7 +73,6 @@ export const useCachePositions = () => {
                 }),
                 {}
               ),
-              init: true,
             }
             break
           } else break
@@ -135,7 +131,6 @@ export const useCachePositions = () => {
             positions: liquityPositions.map((liquityPos) => {
               return { type: PositionType.LQTY, position: liquityPos }
             }) as Position[],
-            init: true,
           }
           _initializedPositionNames = {
             positionNames: liquityPositions.reduce(
@@ -152,7 +147,6 @@ export const useCachePositions = () => {
               }),
               {}
             ),
-            init: true,
           }
           break
         case PositionType.OTHER:
@@ -171,13 +165,8 @@ export const useCachePositions = () => {
       // if a network cache with this network id exists already, do not init network again
       const existingNetworkCache = storedPosData.find((data) => data.chainId == network.chainId)
       if (existingNetworkCache) return existingNetworkCache
-      const supportedProducts = network.cache.supportedProducts.map((product: SupportedProduct) => product.name)
       const cachedPositions: PositionsCache = {}
       const cachedPositionNames: PositionNamesCache = {}
-      supportedProducts.forEach((name: ProductName) => {
-        cachedPositions[name] = { positions: [], init: false }
-        cachedPositionNames[name] = { positionNames: {}, underlyingPositionNames: {}, init: false }
-      })
       const networkCache: NetworkCache = {
         chainId: network.chainId,
         positionsCache: cachedPositions,
@@ -193,8 +182,8 @@ export const useCachePositions = () => {
     async (supportedProduct: SupportedProduct): Promise<NetworkCache> => {
       const networkCache = initNetwork(activeNetwork)
       if (
-        !networkCache.positionsCache[supportedProduct.name].init &&
-        !networkCache.positionNamesCache[supportedProduct.name].init
+        !networkCache.positionsCache[supportedProduct.name] &&
+        !networkCache.positionNamesCache[supportedProduct.name]
       ) {
         console.log(`getCache: no position found for ${supportedProduct.name}, calling init`)
         const { initializedPositions, initializedPositionNames } = await handleInitPositions(
@@ -221,7 +210,7 @@ export const useCachePositions = () => {
       setBatchFetching(true)
       await Promise.all(
         supportedProducts.map(async (product) => {
-          if (!networkCache.positionsCache[product.name].init && !networkCache.positionNamesCache[product.name].init) {
+          if (!networkCache.positionsCache[product.name] && !networkCache.positionNamesCache[product.name]) {
             const { initializedPositions, initializedPositionNames } = await handleInitPositions(product, networkCache)
             networkCache.positionsCache[product.name] = initializedPositions
             networkCache.positionNamesCache[product.name] = initializedPositionNames
