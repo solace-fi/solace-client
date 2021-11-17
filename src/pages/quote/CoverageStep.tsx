@@ -255,160 +255,157 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
   }, [coverAmount, currencyDecimals])
 
   return (
-    <CardContainer cardsPerRow={2}>
-      <Card style={{ height: 'fit-content' }}>
-        <FormRow mb={5}>
-          <FormCol>
-            <Text bold t2>
-              Total Assets
-            </Text>
-          </FormCol>
-          <FormCol>
-            <Text bold t2 textAlignRight info>
-              {formatUnits(positionAmount, currencyDecimals)} {activeNetwork.nativeCurrency.symbol}
-            </Text>
-          </FormCol>
-        </FormRow>
-        <FormRow mb={15}>
-          <FormCol>
-            <Text t3>Max Coverage</Text>
-          </FormCol>
-          <FormCol>
-            <Text t3 textAlignRight info>
-              {maxCoverPerPolicy} {activeNetwork.nativeCurrency.symbol}
-            </Text>
-          </FormCol>
-        </FormRow>
-        <HorizRule mb={10} />
-        <FlexCol mb={20} style={{ padding: '10px 30px' }}>
-          <div style={{ textAlign: 'center' }}>
-            <Text t3>Coverage Amount</Text>
-            <Text t4>How much do you want to cover?</Text>
-            <div style={{ marginBottom: '20px' }}>
-              <Input
-                mt={20}
-                mb={5}
-                textAlignCenter
-                type="text"
-                value={inputCoverage}
-                onChange={(e) => handleInputCoverage(filteredAmount(e.target.value, inputCoverage))}
-                info
-              />
-              {maxCoverPerPolicyInWei.gt(positionAmount) && (
-                <Button
-                  disabled={haveErrors}
-                  ml={10}
-                  pt={4}
-                  pb={4}
-                  pl={2}
-                  pr={2}
-                  width={120}
-                  height={30}
-                  onClick={setPositionCover}
-                  info
-                >
-                  Cover to position
-                </Button>
-              )}
+    <Card style={{ margin: 'auto' }}>
+      <FormRow mb={5}>
+        <FormCol>
+          <Text bold t2>
+            Total Assets
+          </Text>
+        </FormCol>
+        <FormCol>
+          <Text bold t2 textAlignRight info>
+            {formatUnits(positionAmount, currencyDecimals)} {activeNetwork.nativeCurrency.symbol}
+          </Text>
+        </FormCol>
+      </FormRow>
+      <FormRow mb={15}>
+        <FormCol>
+          <Text t3>Max Coverage</Text>
+        </FormCol>
+        <FormCol>
+          <Text t3 textAlignRight info>
+            {maxCoverPerPolicy} {activeNetwork.nativeCurrency.symbol}
+          </Text>
+        </FormCol>
+      </FormRow>
+      <HorizRule mb={10} />
+      <FlexCol mb={20} style={{ padding: '10px 30px' }}>
+        <div style={{ textAlign: 'center' }}>
+          <Text t3>Coverage Amount</Text>
+          <Text t4>How much do you want to cover?</Text>
+          <div style={{ marginBottom: '20px' }}>
+            <Input
+              mt={20}
+              mb={5}
+              textAlignCenter
+              type="text"
+              value={inputCoverage}
+              onChange={(e) => handleInputCoverage(filteredAmount(e.target.value, inputCoverage))}
+              info
+            />
+            {maxCoverPerPolicyInWei.gt(positionAmount) && (
               <Button
                 disabled={haveErrors}
                 ml={10}
                 pt={4}
                 pb={4}
-                pl={8}
-                pr={8}
-                width={70}
+                pl={2}
+                pr={2}
+                width={120}
                 height={30}
-                onClick={setMaxCover}
+                onClick={setPositionCover}
                 info
               >
-                MAX
+                Cover to position
               </Button>
-            </div>
-            <StyledSlider
-              value={coverAmount}
-              onChange={(e) => handleCoverageChange(e.target.value)}
-              min={1}
-              max={maxCoverPerPolicyInWei.toString()}
-            />
-          </div>
-          <br />
-          <div style={{ textAlign: 'center' }}>
-            <Text t3>Coverage Period</Text>
-            <Text t4>How many days should the coverage last?</Text>
-            <div style={{ marginBottom: '20px' }}>
-              <Input
-                mt={20}
-                mb={5}
-                textAlignCenter
-                type="text"
-                pattern="[0-9]+"
-                value={timePeriod}
-                onChange={(e) => filteredTime(e.target.value)}
-                maxLength={3}
-                info
-              />
-            </div>
-            <StyledSlider
-              value={timePeriod == '' ? '1' : timePeriod}
-              onChange={(e) => setTime(e.target.value)}
-              min="1"
-              max={DAYS_PER_YEAR}
-            />
-          </div>
-        </FlexCol>
-        <HorizRule mb={20} />
-        <FormRow mb={5}>
-          <FormCol>
-            <Text t4>Covered Assets</Text>
-          </FormCol>
-          <FormCol>
-            <FlexRow>
-              <Text t4 bold info>
-                {coveredAssets} {activeNetwork.nativeCurrency.symbol}
-              </Text>
-            </FlexRow>
-          </FormCol>
-        </FormRow>
-        <FormRow mb={5}>
-          <FormCol>
-            <Text t4>Covered Period</Text>
-          </FormCol>
-          <FormCol>
-            <Text t4>
-              <TextSpan nowrap pl={5} pr={5} info>
-                {getDateStringWithMonthName(new Date(Date.now()))}
-              </TextSpan>{' '}
-              <TextSpan info>-</TextSpan>{' '}
-              <TextSpan pl={5} pr={5} info>
-                {getDateStringWithMonthName(getDateExtended(parseFloat(timePeriod || '1')))}
-              </TextSpan>
-            </Text>
-          </FormCol>
-        </FormRow>
-        <FormRow mb={5}>
-          <FormCol>
-            <Text t2 bold>
-              Premium
-            </Text>
-          </FormCol>
-          <FormCol>
-            <Text t2 bold info>
-              {quote} {activeNetwork.nativeCurrency.symbol}
-            </Text>
-          </FormCol>
-        </FormRow>
-        <ButtonWrapper>
-          {!loading ? (
-            <Button widthP={100} onClick={buyPolicy} disabled={haveErrors || coveredAssets == '0.0'} info>
-              Buy
+            )}
+            <Button
+              disabled={haveErrors}
+              ml={10}
+              pt={4}
+              pb={4}
+              pl={8}
+              pr={8}
+              width={70}
+              height={30}
+              onClick={setMaxCover}
+              info
+            >
+              MAX
             </Button>
-          ) : (
-            <Loader />
-          )}
-        </ButtonWrapper>
-      </Card>
-      <Card transparent />
-    </CardContainer>
+          </div>
+          <StyledSlider
+            value={coverAmount}
+            onChange={(e) => handleCoverageChange(e.target.value)}
+            min={1}
+            max={maxCoverPerPolicyInWei.toString()}
+          />
+        </div>
+        <br />
+        <div style={{ textAlign: 'center' }}>
+          <Text t3>Coverage Period</Text>
+          <Text t4>How many days should the coverage last?</Text>
+          <div style={{ marginBottom: '20px' }}>
+            <Input
+              mt={20}
+              mb={5}
+              textAlignCenter
+              type="text"
+              pattern="[0-9]+"
+              value={timePeriod}
+              onChange={(e) => filteredTime(e.target.value)}
+              maxLength={3}
+              info
+            />
+          </div>
+          <StyledSlider
+            value={timePeriod == '' ? '1' : timePeriod}
+            onChange={(e) => setTime(e.target.value)}
+            min="1"
+            max={DAYS_PER_YEAR}
+          />
+        </div>
+      </FlexCol>
+      <HorizRule mb={20} />
+      <FormRow mb={5}>
+        <FormCol>
+          <Text t4>Covered Assets</Text>
+        </FormCol>
+        <FormCol>
+          <FlexRow>
+            <Text t4 bold info>
+              {coveredAssets} {activeNetwork.nativeCurrency.symbol}
+            </Text>
+          </FlexRow>
+        </FormCol>
+      </FormRow>
+      <FormRow mb={5}>
+        <FormCol>
+          <Text t4>Covered Period</Text>
+        </FormCol>
+        <FormCol>
+          <Text t4>
+            <TextSpan nowrap pl={5} pr={5} info>
+              {getDateStringWithMonthName(new Date(Date.now()))}
+            </TextSpan>{' '}
+            <TextSpan info>-</TextSpan>{' '}
+            <TextSpan pl={5} pr={5} info>
+              {getDateStringWithMonthName(getDateExtended(parseFloat(timePeriod || '1')))}
+            </TextSpan>
+          </Text>
+        </FormCol>
+      </FormRow>
+      <FormRow mb={5}>
+        <FormCol>
+          <Text t2 bold>
+            Premium
+          </Text>
+        </FormCol>
+        <FormCol>
+          <Text t2 bold info>
+            {quote} {activeNetwork.nativeCurrency.symbol}
+          </Text>
+        </FormCol>
+      </FormRow>
+      <ButtonWrapper>
+        {!loading ? (
+          <Button widthP={100} onClick={buyPolicy} disabled={haveErrors || coveredAssets == '0.0'} info>
+            Buy
+          </Button>
+        ) : (
+          <Loader />
+        )}
+      </ButtonWrapper>
+    </Card>
   )
 }

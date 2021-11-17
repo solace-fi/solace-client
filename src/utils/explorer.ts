@@ -40,7 +40,7 @@ export async function fetchGasPrice(explorer: string, chainId: number): Promise<
     })
 }
 
-export async function fetchTransferEventsOfUser(explorer: string, user: string): Promise<GasPriceResult> {
+export async function fetchTransferEventsOfUser(explorer: string, user: string): Promise<any> {
   return await withBackoffRetries(async () =>
     fetch(
       `${explorer}/api?module=account&action=tokentx&address=${user}&startblock=0&endblock=latest&apikey=${String(

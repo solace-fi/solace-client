@@ -17,7 +17,6 @@ networkCache = {
   positions: {
     [key: string]: {   // supported product name
       positions: Position[]
-      init: boolean 
     }
   }
   positionNames: {
@@ -25,7 +24,6 @@ networkCache = {
       positionNames: { 
         [key: string]: string[] // [token.token.address]: underlying symbols[]
       }
-      init: boolean 
     }
   }
 }
@@ -44,12 +42,11 @@ export type PositionNamesCache = {
   [key: string]: PositionNamesCacheValue
 }
 
-export type PositionsCacheValue = { positions: Position[]; init: boolean }
+export type PositionsCacheValue = { positions: Position[] }
 
 export type PositionNamesCacheValue = {
   positionNames: { [key: string]: string }
   underlyingPositionNames: { [key: string]: string[] }
-  init: boolean
 }
 
 export type ClaimDetails = { id: string; cooldown: string; canWithdraw: boolean; amount: BigNumber }

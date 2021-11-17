@@ -3,7 +3,7 @@ import { useLocalStorage } from 'react-use-storage'
 import { useWallet } from './WalletManager'
 import { Block } from '@ethersproject/contracts/node_modules/@ethersproject/abstract-provider'
 
-import { LocalTx, Policy, NetworkCache, GasFeeListState } from '../constants/types'
+import { LocalTx, Policy, NetworkCache, GasFeeListState, SupportedProduct } from '../constants/types'
 import { usePolicyGetter } from '../hooks/usePolicyGetter'
 import { useReload } from '../hooks/useReload'
 
@@ -34,8 +34,11 @@ type CachedData = {
     setCanGetAssessments: (toggle: boolean) => void
   }
   tokenPosData: {
-    dataInitialized: boolean
+    batchFetching: boolean
+    fetching: boolean
     storedPosData: NetworkCache[]
+    handleGetCache: (supportedProduct: SupportedProduct) => Promise<NetworkCache | undefined>
+    getCacheForPolicies: (supportedProducts: SupportedProduct[]) => Promise<NetworkCache>
   }
   showAccountModal: boolean
   version: number
@@ -55,8 +58,11 @@ const CachedDataContext = createContext<CachedData>({
     setCanGetAssessments: () => undefined,
   },
   tokenPosData: {
-    dataInitialized: false,
+    batchFetching: false,
+    fetching: false,
     storedPosData: [],
+    handleGetCache: () => Promise.reject(),
+    getCacheForPolicies: () => Promise.reject(),
   },
   showAccountModal: false,
   version: 0,
@@ -78,6 +84,7 @@ const CachedDataProvider: React.FC = (props) => {
   const [reload, version] = useReload()
   const gasPrices = useFetchGasPrice()
   const latestBlock = useGetLatestBlock()
+
   const cachePositions = useCachePositions()
   const { addNotices, removeNotices } = useGeneral()
   const { policiesLoading, userPolicies, setCanGetAssessments } = usePolicyGetter(

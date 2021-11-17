@@ -100,7 +100,7 @@ function Dashboard(): any {
         setPolicy(matchingPolicy)
       }
     }
-  }, [userPolicyData.userPolicies])
+  }, [selectedPolicy, userPolicyData.userPolicies])
 
   return (
     <Fragment>

@@ -1,6 +1,6 @@
 import { useWallet } from '../context/WalletManager'
 import { PolicyState } from '../constants/enums'
-import { Policy, NetworkCache } from '../constants/types'
+import { Policy, NetworkCache, SupportedProduct, PositionNamesCacheValue } from '../constants/types'
 import { BigNumber } from 'ethers'
 import { useContracts } from '../context/ContractsManager'
 import { useState, useEffect, useRef } from 'react'
@@ -13,8 +13,11 @@ export const usePolicyGetter = (
   getAll: boolean,
   latestBlock: Block | undefined,
   tokenPosData: {
-    dataInitialized: boolean
+    batchFetching: boolean
+    fetching: boolean
     storedPosData: NetworkCache[]
+    handleGetCache: (supportedProduct: SupportedProduct) => Promise<NetworkCache | undefined>
+    getCacheForPolicies: (supportedProducts: SupportedProduct[]) => Promise<NetworkCache>
   },
   policyHolder?: string
 ): {
@@ -35,42 +38,6 @@ export const usePolicyGetter = (
 
   const setCanGetAssessments = (toggle: boolean) => {
     canGetClaimAssessments.current = toggle
-  }
-
-  const getUserPolicies = async (policyHolder: string): Promise<Policy[]> => {
-    if (!policyManager || !library) return []
-    const [policyIds, blockNumber] = await Promise.all([
-      policyManager.listTokensOfOwner(policyHolder),
-      library.getBlockNumber(),
-    ])
-    const totalPolicyIds: BigNumber[] = policyIds
-    const policies = await Promise.all(totalPolicyIds.map((policyId: BigNumber) => queryPolicy(policyId, blockNumber)))
-    return policies
-  }
-
-  const getAllPolicies = async (): Promise<Policy[]> => {
-    if (!policyManager || !library) return []
-    const blockNumber = await library.getBlockNumber()
-    const policyIds: BigNumber[] = await policyManager.listTokens()
-    const policies = await Promise.all(policyIds.map((policyId: BigNumber) => queryPolicy(policyId, blockNumber)))
-    return policies
-  }
-
-  const getPolicies = async (policyHolder?: string) => {
-    if (!findNetworkByChainId(chainId) || !library) return
-    let policies = await (policyHolder ? getUserPolicies(policyHolder) : getAllPolicies())
-    policies = policies.filter((policy: any) => policy.policyId >= 0 && policy.productName != '')
-    try {
-      if (policyHolder) {
-        policies.sort((a: any, b: any) => b.policyId - a.policyId) // newest first
-        policies = policies.map((policy) => getEditedPolicy(policy))
-        canGetClaimAssessments.current ? await fetchClaimAssessments(policies) : setUserPolicies(policies)
-      } else {
-        setAllPolicies(policies)
-      }
-    } catch (err) {
-      console.log(err)
-    }
   }
 
   const queryPolicy = async (policyId: BigNumber | number, blockNumber: number): Promise<Policy> => {
@@ -112,31 +79,7 @@ export const usePolicyGetter = (
     }
   }
 
-  const getUpdatedUserPolicy = async (id: any) => {
-    const belongsToUser = userPoliciesRef.current.find((policy) => policy.policyId == id)
-    if (!belongsToUser) return
-    const blockNumber = await library.getBlockNumber()
-    let updatedPolicy = await queryPolicy(id, blockNumber)
-    updatedPolicy = getEditedPolicy(updatedPolicy)
-    if (canGetClaimAssessments.current) {
-      const assessment = await getClaimAssessment(String(updatedPolicy.policyId), activeNetwork.chainId).catch(
-        (err) => {
-          console.log(err)
-          return undefined
-        }
-      )
-      updatedPolicy.claimAssessment = assessment
-    }
-    const updatedPolicies = userPoliciesRef.current.map((oldPolicy) =>
-      oldPolicy.policyId == updatedPolicy.policyId ? updatedPolicy : oldPolicy
-    )
-    setUserPolicies(updatedPolicies)
-  }
-
-  const getEditedPolicy = (policy: Policy): Policy => {
-    const matchingCache = tokenPosData.storedPosData.find((dataset) => dataset.chainId == activeNetwork.chainId)
-    const supportedProductName = activeNetwork.config.productsRev[policy.productAddress]
-    const productPosition = matchingCache?.positionNamesCache[supportedProductName]
+  const getPolicyPositions = (productPosition: PositionNamesCacheValue | undefined, policy: Policy) => {
     if (productPosition) {
       Object.keys(productPosition.positionNames).forEach((tokenAddress) => {
         if (policy.positionDescription.includes(trim0x(tokenAddress))) {
@@ -155,6 +98,97 @@ export const usePolicyGetter = (
     return policy
   }
 
+  const getEditedPolicy = async (policy: Policy): Promise<Policy> => {
+    const supportedProductName = activeNetwork.config.productsRev[policy.productAddress]
+    const supportedProduct = activeNetwork.cache.supportedProducts.find(
+      (product) => product.name == supportedProductName
+    )
+    if (!supportedProduct) return policy
+    const matchingCache = await tokenPosData.handleGetCache(supportedProduct)
+    const productPosition = matchingCache?.positionNamesCache[supportedProductName]
+    return getPolicyPositions(productPosition, policy)
+  }
+
+  const getUserPolicies = async (policyHolder: string): Promise<Policy[]> => {
+    if (!policyManager || !library) return []
+    const [policyIds, blockNumber] = await Promise.all([
+      policyManager.listTokensOfOwner(policyHolder),
+      library.getBlockNumber(),
+    ])
+    const totalPolicyIds: BigNumber[] = policyIds
+    const policies = await Promise.all(totalPolicyIds.map((policyId: BigNumber) => queryPolicy(policyId, blockNumber)))
+    return policies
+  }
+
+  const getAllPolicies = async (): Promise<Policy[]> => {
+    if (!policyManager || !library) return []
+    const blockNumber = await library.getBlockNumber()
+    const policyIds: BigNumber[] = await policyManager.listTokens()
+    const policies = await Promise.all(policyIds.map((policyId: BigNumber) => queryPolicy(policyId, blockNumber)))
+    return policies
+  }
+
+  const getPolicies = async (policyHolder?: string) => {
+    if (!findNetworkByChainId(chainId) || !library) return
+    let policies = await (policyHolder ? getUserPolicies(policyHolder) : getAllPolicies())
+    policies = policies.filter((policy: any) => policy.policyId >= 0 && policy.productName != '')
+    try {
+      if (policyHolder) {
+        policies.sort((a: any, b: any) => b.policyId - a.policyId) // newest first
+        setUserPolicies(policies)
+        setPoliciesLoading(false)
+
+        const supportedProductNames = new Map()
+        const supportedProducts: SupportedProduct[] = []
+        for (let i = 0; i < policies.length; i++) {
+          const supportedProductName = activeNetwork.config.productsRev[policies[i].productAddress]
+          const supportedProduct = activeNetwork.cache.supportedProducts.find(
+            (product) => product.name == supportedProductName
+          )
+          if (supportedProduct && supportedProductNames.get(supportedProduct.name) != true) {
+            supportedProductNames.set(supportedProduct.name, true)
+            supportedProducts.push(supportedProduct)
+          }
+        }
+
+        const newCache = await tokenPosData.getCacheForPolicies(supportedProducts)
+
+        for (let i = 0; i < policies.length; i++) {
+          const supportedProductName = activeNetwork.config.productsRev[policies[i].productAddress]
+          const productPosition = newCache?.positionNamesCache[supportedProductName]
+          policies[i] = getPolicyPositions(productPosition, policies[i])
+        }
+        setUserPolicies(policies)
+        if (canGetClaimAssessments.current) await fetchClaimAssessments(policies)
+      } else {
+        setAllPolicies(policies)
+      }
+    } catch (err) {
+      console.log(err)
+    }
+  }
+
+  const getUpdatedUserPolicy = async (id: any) => {
+    const belongsToUser = userPoliciesRef.current.find((policy) => policy.policyId == id)
+    if (!belongsToUser) return
+    const blockNumber = await library.getBlockNumber()
+    let updatedPolicy = await queryPolicy(id, blockNumber)
+    updatedPolicy = await getEditedPolicy(updatedPolicy)
+    if (canGetClaimAssessments.current) {
+      const assessment = await getClaimAssessment(String(updatedPolicy.policyId), activeNetwork.chainId).catch(
+        (err) => {
+          console.log(err)
+          return undefined
+        }
+      )
+      updatedPolicy.claimAssessment = assessment
+    }
+    const updatedPolicies = userPoliciesRef.current.map((oldPolicy) =>
+      oldPolicy.policyId == updatedPolicy.policyId ? updatedPolicy : oldPolicy
+    )
+    setUserPolicies(updatedPolicies)
+  }
+
   const fetchClaimAssessments = async (policies: Policy[]) => {
     const claimAssessments = await Promise.all(
       policies.map(async (policy) =>
@@ -170,10 +204,10 @@ export const usePolicyGetter = (
     setUserPolicies(policiesWithClaimAssessments)
   }
 
+  // load on change of account or network
   useEffect(() => {
     const loadOnBoot = async () => {
       await getPolicies(policyHolder)
-      setPoliciesLoading(false)
     }
     if (policyHolder == undefined || getAll) return
     if (firstLoading.current) {
@@ -197,7 +231,7 @@ export const usePolicyGetter = (
     return () => {
       policyManager.removeAllListeners()
     }
-  }, [policyHolder, tokenPosData.dataInitialized, policyManager])
+  }, [policyHolder, policyManager])
 
   /* fetch all policies per block */
   useEffect(() => {
@@ -212,12 +246,6 @@ export const usePolicyGetter = (
     if (policyHolder == undefined || getAll) return
     userPoliciesRef.current = userPolicies
   }, [userPolicies])
-
-  /* fetch claim assessments for user policies per block */
-  useEffect(() => {
-    if (userPolicies.length <= 0 || policiesLoading || !canGetClaimAssessments.current) return
-    fetchClaimAssessments(userPolicies)
-  }, [latestBlock])
 
   return { policiesLoading, userPolicies, allPolicies, setCanGetAssessments }
 }

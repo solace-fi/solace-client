@@ -112,9 +112,9 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
     }
   }
 
-  const handleFetchPositions = async (supportedProduct: SupportedProduct): Promise<Position[]> => {
-    const matchingCache = tokenPosData.storedPosData.find((dataset) => dataset.chainId == activeNetwork.chainId)
-    if (!account || !library || !matchingCache) return []
+  const handleFetchPositions = async (supportedProduct: SupportedProduct): Promise<Position[] | undefined> => {
+    const matchingCache = await tokenPosData.handleGetCache(supportedProduct)
+    if (!account || !library || !matchingCache) return undefined
     const savedPositions = matchingCache.positionsCache[supportedProduct.name].positions
     switch (supportedProduct.positionsType) {
       case PositionType.TOKEN:
@@ -186,20 +186,22 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
   }
 
   const getUserPositions = async () => {
-    if (!tokenPosData.dataInitialized || !chainId || !canFetchPositions.current) return
+    if (!chainId || !canFetchPositions.current) return
     canFetchPositions.current = false
     if (findNetworkByChainId(chainId)) {
       try {
         if (!supportedProduct) return
         const _fetchedPositions = await handleFetchPositions(supportedProduct)
         canFetchPositions.current = true
-        setFetchedPositions(_fetchedPositions)
-        setForm({
-          target: {
-            name: 'loading',
-            value: false,
-          },
-        })
+        if (_fetchedPositions != undefined) {
+          setFetchedPositions(_fetchedPositions)
+          setForm({
+            target: {
+              name: 'loading',
+              value: false,
+            },
+          })
+        }
       } catch (err) {
         canFetchPositions.current = true
         console.log(err)
@@ -249,12 +251,12 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
 
   useEffect(() => {
     const loadOverTime = async () => {
-      if (canLoadOverTime.current) {
+      if (canLoadOverTime.current || !tokenPosData.batchFetching || !tokenPosData.fetching) {
         await getUserPositions()
       }
     }
     loadOverTime()
-  }, [latestBlock, tokenPosData.dataInitialized])
+  }, [latestBlock, tokenPosData.batchFetching, tokenPosData.fetching])
 
   useEffect(() => {
     setSelectablePositions(
@@ -296,7 +298,7 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
         latestBlock={latestBlock}
         closeModal={closeModal}
       />
-      {fetchedPositions.length == 0 && !loading && !userPolicyData.policiesLoading && (
+      {fetchedPositions.length == 0 && !loading && (
         <HeroContainer>
           <Text t1 textAlignCenter>
             You do not own any positions on this protocol.
@@ -308,7 +310,7 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
           )}
         </HeroContainer>
       )}
-      {!loading && !userPolicyData.policiesLoading ? (
+      {!loading ? (
         <Fragment>
           {selectablePositions.length > 0 && (
             <ButtonWrapper pt={0} isColumn={width <= BKPT_3}>
