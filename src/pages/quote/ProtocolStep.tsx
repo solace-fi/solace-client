@@ -148,43 +148,15 @@ export const ProtocolStep: React.FC<formProps> = ({ setForm, navigation }) => {
                         style={{ cursor: 'pointer' }}
                       >
                         <TableData>
-                          {/* <DeFiAsset>
-                            <DeFiAssetImage mr={10}>
-                              <img src={`https://assets.solace.fi/${protocol.toLowerCase()}`} alt={protocol} />
-                            </DeFiAssetImage>
-                            <ProtocolTitle t3>{protocol}</ProtocolTitle>
-                          </DeFiAsset> */}
-                          <FlexRow>
+                          <DeFiAsset>
                             <DeFiAssetImage mr={10}>
                               <img
                                 src={`https://assets.solace.fi/${protocol.name.toLowerCase()}`}
                                 alt={protocol.name}
                               />
                             </DeFiAssetImage>
-                            <FlexCol style={{ justifyContent: 'center' }}>
-                              <FlexRow>
-                                <Text t3>{protocol.name}</Text>
-                              </FlexRow>
-                              {protocol.contract && (
-                                <FlexRow>
-                                  <HyperLink
-                                    href={getExplorerItemUrl(
-                                      activeNetwork.explorer.url,
-                                      protocol.contract.address,
-                                      ExplorerscanApi.ADDRESS
-                                    )}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    style={{ textDecoration: 'underline' }}
-                                  >
-                                    <Text t4 nowrap>
-                                      View Contract <StyledLinkExternal size={15} />
-                                    </Text>
-                                  </HyperLink>
-                                </FlexRow>
-                              )}
-                            </FlexCol>
-                          </FlexRow>
+                            <ProtocolTitle t3>{protocol.name}</ProtocolTitle>
+                          </DeFiAsset>
                         </TableData>
                         <TableData>{fixed(getAdjustedYearlyCost(yearlyCosts[protocol.name]) * 100, 2)}%</TableData>
                         <TableData>
