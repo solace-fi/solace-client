@@ -35,7 +35,6 @@ type CachedData = {
   }
   tokenPosData: {
     batchFetching: boolean
-    fetching: boolean
     storedPosData: NetworkCache[]
     handleGetCache: (supportedProduct: SupportedProduct) => Promise<NetworkCache | undefined>
     getCacheForPolicies: (supportedProducts: SupportedProduct[]) => Promise<NetworkCache>
@@ -59,7 +58,6 @@ const CachedDataContext = createContext<CachedData>({
   },
   tokenPosData: {
     batchFetching: false,
-    fetching: false,
     storedPosData: [],
     handleGetCache: () => Promise.reject(),
     getCacheForPolicies: () => Promise.reject(),

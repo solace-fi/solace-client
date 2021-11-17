@@ -251,12 +251,12 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
 
   useEffect(() => {
     const loadOverTime = async () => {
-      if (canLoadOverTime.current || !tokenPosData.batchFetching || !tokenPosData.fetching) {
+      if (canLoadOverTime.current || !tokenPosData.batchFetching) {
         await getUserPositions()
       }
     }
     loadOverTime()
-  }, [latestBlock, tokenPosData.batchFetching, tokenPosData.fetching])
+  }, [latestBlock, tokenPosData.batchFetching])
 
   useEffect(() => {
     setSelectablePositions(

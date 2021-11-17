@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, useRef } from 'react'
 import {
   LiquityPosition,
   NetworkConfig,
@@ -25,7 +25,7 @@ export const useCachePositions = () => {
   const [storedPosData, setStoredPosData] = useSessionStorage<NetworkCache[]>('sol_position_data', [])
   const [transferHistory, setTransferHistory] = useState<any>([])
   const [batchFetching, setBatchFetching] = useState<boolean>(false)
-  const [fetching, setFetching] = useState<boolean>(false)
+  const fetching = useRef<boolean>(false)
 
   // return initializedPositions and initializedPositionNames
   const handleInitPositions = useCallback(
@@ -179,43 +179,23 @@ export const useCachePositions = () => {
   )
 
   const getCache = useCallback(
-    async (supportedProduct: SupportedProduct): Promise<NetworkCache> => {
+    async (supportedProducts: SupportedProduct[], reserved?: boolean): Promise<NetworkCache> => {
       const networkCache = initNetwork(activeNetwork)
-      if (
-        !networkCache.positionsCache[supportedProduct.name] &&
-        !networkCache.positionNamesCache[supportedProduct.name]
-      ) {
-        console.log(`getCache: no position found for ${supportedProduct.name}, calling init`)
-        const { initializedPositions, initializedPositionNames } = await handleInitPositions(
-          supportedProduct,
-          networkCache
-        )
-        networkCache.positionsCache[supportedProduct.name] = initializedPositions
-        networkCache.positionNamesCache[supportedProduct.name] = initializedPositionNames
-        const editedData = storedPosData.filter((data) => data.chainId != networkCache.chainId)
-        const newData = [...editedData, networkCache]
-        setStoredPosData(newData)
-        console.log(`getCache: position init completed for ${supportedProduct.name}`)
-      } else {
-        console.log(`getCache: no position init needed for ${supportedProduct.name}`)
-      }
-      return networkCache
-    },
-    [activeNetwork, storedPosData, handleInitPositions, initNetwork, setStoredPosData]
-  )
-
-  const getCacheForPolicies = useCallback(
-    async (supportedProducts: SupportedProduct[]): Promise<NetworkCache> => {
-      const networkCache = initNetwork(activeNetwork)
-      setBatchFetching(true)
+      if (reserved) setBatchFetching(true)
       let changeOccurred = false
       await Promise.all(
-        supportedProducts.map(async (product) => {
-          if (!networkCache.positionsCache[product.name] && !networkCache.positionNamesCache[product.name]) {
-            console.log(`getCacheForPolicies: no position found for ${product.name}, calling init`)
-            const { initializedPositions, initializedPositionNames } = await handleInitPositions(product, networkCache)
-            networkCache.positionsCache[product.name] = initializedPositions
-            networkCache.positionNamesCache[product.name] = initializedPositionNames
+        supportedProducts.map(async (supportedProduct) => {
+          if (
+            !networkCache.positionsCache[supportedProduct.name] &&
+            !networkCache.positionNamesCache[supportedProduct.name]
+          ) {
+            console.log(`getCache: no position found for ${supportedProduct.name}, calling init`)
+            const { initializedPositions, initializedPositionNames } = await handleInitPositions(
+              supportedProduct,
+              networkCache
+            )
+            networkCache.positionsCache[supportedProduct.name] = initializedPositions
+            networkCache.positionNamesCache[supportedProduct.name] = initializedPositionNames
             changeOccurred = true
           }
         })
@@ -225,25 +205,28 @@ export const useCachePositions = () => {
         const newData = [...editedData, networkCache]
         setStoredPosData(newData)
       }
-      setBatchFetching(false)
+      if (reserved) setBatchFetching(false)
       return networkCache
     },
-    [activeNetwork, handleInitPositions, initNetwork, setStoredPosData, storedPosData]
+    [activeNetwork, storedPosData, handleInitPositions, initNetwork, setStoredPosData]
   )
 
-  /* 
-    This function should be called by policy-related functions, and the balance-getter functions. If this function is being called
-    by policy-related functions, balance-getter functions cannot successfully call the function.
-  */
+  const getCacheForPolicies = useCallback(
+    async (supportedProducts: SupportedProduct[]): Promise<NetworkCache> => {
+      return await getCache(supportedProducts, true)
+    },
+    [getCache]
+  )
+
   const handleGetCache = useCallback(
     async (supportedProduct: SupportedProduct): Promise<NetworkCache | undefined> => {
-      if (fetching || batchFetching) return undefined
-      setFetching(true)
-      const cache = await getCache(supportedProduct)
-      setFetching(false)
+      if (fetching.current || batchFetching) return undefined
+      fetching.current = true
+      const cache = await getCache([supportedProduct])
+      fetching.current = false
       return cache
     },
-    [fetching, batchFetching, getCache]
+    [fetching.current, batchFetching, getCache]
   )
 
   useEffect(() => {
@@ -258,5 +241,5 @@ export const useCachePositions = () => {
     getTransfers()
   }, [account, activeNetwork.explorer.apiUrl])
 
-  return { batchFetching, fetching, storedPosData, handleGetCache, getCacheForPolicies }
+  return { batchFetching, storedPosData, handleGetCache, getCacheForPolicies }
 }

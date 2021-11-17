@@ -14,7 +14,6 @@ export const usePolicyGetter = (
   latestBlock: Block | undefined,
   tokenPosData: {
     batchFetching: boolean
-    fetching: boolean
     storedPosData: NetworkCache[]
     handleGetCache: (supportedProduct: SupportedProduct) => Promise<NetworkCache | undefined>
     getCacheForPolicies: (supportedProducts: SupportedProduct[]) => Promise<NetworkCache>
