@@ -153,14 +153,14 @@ export const MyPolicies: React.FC<MyPoliciesProps> = ({
                               <FlexRow>
                                 {policy.positionNames.length == 0 && <Loader width={10} height={10} />}
                                 {policy.positionNames.slice(0, 8).map((name) => (
-                                  <DeFiAssetImage key={name} width={25} height={25} secured>
+                                  <DeFiAssetImage key={name} width={25} height={25} ml={1}>
                                     <img src={`https://assets.solace.fi/${name.toLowerCase()}`} alt={name} />
                                   </DeFiAssetImage>
                                 ))}
                                 {policy.positionNames.length > 8 && <StyledDots size={20} />}
                               </FlexRow>
                               <FlexRow>
-                                <Text t4 autoAlign warning={isWarned}>
+                                <Text t4 warning={isWarned}>
                                   {policy.productName}
                                 </Text>
                               </FlexRow>

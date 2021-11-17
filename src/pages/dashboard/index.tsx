@@ -91,7 +91,7 @@ function Dashboard(): any {
 
   // if a policy is displayed on modal, always get latest policy
   useEffect(() => {
-    if (selectedPolicy && !userPolicyData.policiesLoading) {
+    if (selectedPolicy) {
       const matchingPolicy = userPolicyData.userPolicies.find(
         (policy: Policy) => policy.policyId == selectedPolicy.policyId
       )
@@ -100,7 +100,7 @@ function Dashboard(): any {
         setPolicy(matchingPolicy)
       }
     }
-  }, [userPolicyData.policiesLoading])
+  }, [selectedPolicy, userPolicyData.userPolicies])
 
   return (
     <Fragment>

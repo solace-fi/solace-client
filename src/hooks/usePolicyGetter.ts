@@ -247,11 +247,5 @@ export const usePolicyGetter = (
     userPoliciesRef.current = userPolicies
   }, [userPolicies])
 
-  /* fetch claim assessments for user policies per block */
-  // useEffect(() => {
-  //   if (userPolicies.length <= 0 || policiesLoading || !canGetClaimAssessments.current || getAll) return
-  //   fetchClaimAssessments(userPolicies)
-  // }, [latestBlock])
-
   return { policiesLoading, userPolicies, allPolicies, setCanGetAssessments }
 }

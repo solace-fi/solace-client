@@ -13,6 +13,7 @@ import curveAddressProviderAbi from './_contracts/ICurveAddressProvider.json'
 import curveGaugeAbi from './_contracts/ICurveGauge.json'
 import curveRegistryAbi from './_contracts/ICurveRegistry.json'
 import curvePoolAbi from './_contracts/ICurvePool.json'
+import curvePoolAltAbi from './_contracts/ICurvePoolAlt.json'
 import curveFactoryPoolAbi from './_contracts/ICurveFactoryPool.json'
 import { ADDRESS_ZERO, ZERO } from '../../../constants'
 import { queryBalance } from '../../../utils/contract'
@@ -81,7 +82,11 @@ export const getBalances = async (
         } else {
           const uBalance = b.metadata.isFactory
             ? await factoryPoolContract.calc_withdraw_one_coin(b.token.balance, 0)
-            : await poolContract.calc_withdraw_one_coin(b.token.balance, 0)
+            : await poolContract.calc_withdraw_one_coin(b.token.balance, 0).catch(async () => {
+                const poolAltContract = getContract(b.metadata.poolAddr, curvePoolAltAbi, provider)
+                const uBalanceAlt = await poolAltContract.calc_withdraw_one_coin(b.token.balance, 0)
+                return uBalanceAlt
+              })
           return uBalance
         }
       } else {

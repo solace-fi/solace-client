@@ -208,18 +208,23 @@ export const useCachePositions = () => {
     async (supportedProducts: SupportedProduct[]): Promise<NetworkCache> => {
       const networkCache = initNetwork(activeNetwork)
       setBatchFetching(true)
+      let changeOccurred = false
       await Promise.all(
         supportedProducts.map(async (product) => {
           if (!networkCache.positionsCache[product.name] && !networkCache.positionNamesCache[product.name]) {
+            console.log(`getCacheForPolicies: no position found for ${product.name}, calling init`)
             const { initializedPositions, initializedPositionNames } = await handleInitPositions(product, networkCache)
             networkCache.positionsCache[product.name] = initializedPositions
             networkCache.positionNamesCache[product.name] = initializedPositionNames
+            changeOccurred = true
           }
         })
       )
-      const editedData = storedPosData.filter((data) => data.chainId != networkCache.chainId)
-      const newData = [...editedData, networkCache]
-      setStoredPosData(newData)
+      if (changeOccurred) {
+        const editedData = storedPosData.filter((data) => data.chainId != networkCache.chainId)
+        const newData = [...editedData, networkCache]
+        setStoredPosData(newData)
+      }
       setBatchFetching(false)
       return networkCache
     },
