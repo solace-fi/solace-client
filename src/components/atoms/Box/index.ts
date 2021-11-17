@@ -9,6 +9,8 @@ interface BoxProps {
   color2?: boolean
   success?: boolean
   info?: boolean
+  warning?: boolean
+  error?: boolean
   transparent?: boolean
   outlined?: boolean
   glow?: boolean
@@ -30,6 +32,8 @@ const BoxCss = css<GeneralElementProps & BoxProps>`
   ${(props) => props.color2 && `background: ${props.theme.box.bg_color_2};`}
   ${(props) => props.success && `background: ${props.theme.box.success};`}
   ${(props) => props.info && `background: ${props.theme.box.info};`}
+  ${(props) => props.warning && `background: ${props.theme.box.warning};`}
+  ${(props) => props.error && `background: ${props.theme.box.error};`}
   ${(props) => props.glow && `box-shadow: ${props.theme.box.glow};`}
   ${(props) => props.shadow && `box-shadow: ${props.theme.box.shadow};`}
   ${GeneralElementCss}

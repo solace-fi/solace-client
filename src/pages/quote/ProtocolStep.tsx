@@ -25,6 +25,8 @@ import useDebounce from '@rooks/use-debounce'
 
 /* import constants */
 import { DAYS_PER_YEAR, NUM_BLOCKS_PER_DAY, BKPT_3 } from '../../constants'
+import { ProductContract } from '../../constants/types'
+import { ExplorerscanApi } from '../../constants/enums'
 
 /* import context */
 import { useContracts } from '../../context/ContractsManager'
@@ -39,8 +41,10 @@ import { Search } from '../../components/atoms/Input'
 import { DeFiAsset, DeFiAssetImage, ProtocolTitle } from '../../components/atoms/DeFiAsset'
 import { Card, CardContainer } from '../../components/atoms/Card'
 import { FormRow, FormCol } from '../../components/atoms/Form'
-import { Scrollable } from '../../components/atoms/Layout'
+import { FlexCol, FlexRow, Scrollable } from '../../components/atoms/Layout'
 import { Text } from '../../components/atoms/Typography'
+import { HyperLink } from '../../components/atoms/Link'
+import { StyledLinkExternal } from '../../components/atoms/Icon'
 
 /* import hooks */
 import { useGetAvailableCoverages, useGetYearlyCosts } from '../../hooks/usePolicy'
@@ -48,6 +52,7 @@ import { useWindowDimensions } from '../../hooks/useWindowDimensions'
 
 /* import utils */
 import { fixed, truncateBalance } from '../../utils/formatting'
+import { getExplorerItemUrl } from '../../utils/explorer'
 
 /*************************************************************************************
 
@@ -132,28 +137,58 @@ export const ProtocolStep: React.FC<formProps> = ({ setForm, navigation }) => {
               </TableHead>
               <TableBody>
                 {products
-                  .map((product) => {
-                    return product.name
-                  })
-                  .filter((protocol: string) => protocol.toLowerCase().includes(searchValue.toLowerCase()))
-                  .map((protocol: string) => {
+                  .filter((protocol: ProductContract) =>
+                    protocol.name.toLowerCase().includes(searchValue.toLowerCase())
+                  )
+                  .map((protocol: ProductContract) => {
                     return (
                       <TableRow
-                        key={protocol}
-                        onClick={haveErrors ? undefined : () => handleChange(protocol)}
+                        key={protocol.name}
+                        onClick={haveErrors ? undefined : () => handleChange(protocol.name)}
                         style={{ cursor: 'pointer' }}
                       >
                         <TableData>
-                          <DeFiAsset>
+                          {/* <DeFiAsset>
                             <DeFiAssetImage mr={10}>
                               <img src={`https://assets.solace.fi/${protocol.toLowerCase()}`} alt={protocol} />
                             </DeFiAssetImage>
                             <ProtocolTitle t3>{protocol}</ProtocolTitle>
-                          </DeFiAsset>
+                          </DeFiAsset> */}
+                          <FlexRow>
+                            <DeFiAssetImage mr={10}>
+                              <img
+                                src={`https://assets.solace.fi/${protocol.name.toLowerCase()}`}
+                                alt={protocol.name}
+                              />
+                            </DeFiAssetImage>
+                            <FlexCol style={{ justifyContent: 'center' }}>
+                              <FlexRow>
+                                <Text t3>{protocol.name}</Text>
+                              </FlexRow>
+                              {protocol.contract && (
+                                <FlexRow>
+                                  <HyperLink
+                                    href={getExplorerItemUrl(
+                                      activeNetwork.explorer.url,
+                                      protocol.contract.address,
+                                      ExplorerscanApi.ADDRESS
+                                    )}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    style={{ textDecoration: 'underline' }}
+                                  >
+                                    <Text t4 nowrap>
+                                      View Contract <StyledLinkExternal size={15} />
+                                    </Text>
+                                  </HyperLink>
+                                </FlexRow>
+                              )}
+                            </FlexCol>
+                          </FlexRow>
                         </TableData>
-                        <TableData>{fixed(getAdjustedYearlyCost(yearlyCosts[protocol]) * 100, 2)}%</TableData>
+                        <TableData>{fixed(getAdjustedYearlyCost(yearlyCosts[protocol.name]) * 100, 2)}%</TableData>
                         <TableData>
-                          {handleAvailableCoverage(protocol)} {activeNetwork.nativeCurrency.symbol}
+                          {handleAvailableCoverage(protocol.name)} {activeNetwork.nativeCurrency.symbol}
                         </TableData>
                         <TableData textAlignRight>
                           <Button disabled={haveErrors} info>
@@ -171,22 +206,19 @@ export const ProtocolStep: React.FC<formProps> = ({ setForm, navigation }) => {
           <Scrollable maxMobileHeight={65}>
             <CardContainer cardsPerRow={2}>
               {products
-                .map((product) => {
-                  return product.name
-                })
-                .filter((protocol: string) => protocol.toLowerCase().includes(searchValue.toLowerCase()))
-                .map((protocol: string) => {
+                .filter((protocol: ProductContract) => protocol.name.toLowerCase().includes(searchValue.toLowerCase()))
+                .map((protocol: ProductContract) => {
                   return (
-                    <Card key={protocol} onClick={haveErrors ? undefined : () => handleChange(protocol)}>
+                    <Card key={protocol.name} onClick={haveErrors ? undefined : () => handleChange(protocol.name)}>
                       <FormRow>
                         <FormCol>
                           <DeFiAssetImage mr={10}>
-                            <img src={`https://assets.solace.fi/${protocol.toLowerCase()}`} alt={protocol} />
+                            <img src={`https://assets.solace.fi/${protocol.name.toLowerCase()}`} alt={protocol.name} />
                           </DeFiAssetImage>
                         </FormCol>
                         <FormCol style={{ display: 'flex', alignItems: 'center' }}>
                           <Text bold t2>
-                            {protocol}
+                            {protocol.name}
                           </Text>
                         </FormCol>
                       </FormRow>
@@ -194,7 +226,7 @@ export const ProtocolStep: React.FC<formProps> = ({ setForm, navigation }) => {
                         <FormCol>Yearly Cost</FormCol>
                         <FormCol>
                           <Text bold t2>
-                            {fixed(getAdjustedYearlyCost(yearlyCosts[protocol]) * 100, 2)}%
+                            {fixed(getAdjustedYearlyCost(yearlyCosts[protocol.name]) * 100, 2)}%
                           </Text>
                         </FormCol>
                       </FormRow>
@@ -202,7 +234,7 @@ export const ProtocolStep: React.FC<formProps> = ({ setForm, navigation }) => {
                         <FormCol>Coverage Available</FormCol>
                         <FormCol>
                           <Text bold t2>
-                            {handleAvailableCoverage(protocol)} {activeNetwork.nativeCurrency.symbol}
+                            {handleAvailableCoverage(protocol.name)} {activeNetwork.nativeCurrency.symbol}
                           </Text>
                         </FormCol>
                       </FormRow>

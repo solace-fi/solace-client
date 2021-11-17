@@ -14,7 +14,6 @@ not just to all parts of the app, but for all the other Managers as well.
 
 type GeneralContextType = {
   appTheme: 'light' | 'dark'
-  themeData: any
   toggleTheme: () => void
   notices: string[]
   errors: string[]
@@ -27,7 +26,6 @@ type GeneralContextType = {
 
 const GeneralContext = createContext<GeneralContextType>({
   appTheme: 'light',
-  themeData: undefined,
   toggleTheme: () => undefined,
   notices: [],
   errors: [],
@@ -102,7 +100,6 @@ const GeneralProvider: React.FC = (props) => {
 
   const value: GeneralContextType = {
     appTheme,
-    themeData: theme,
     toggleTheme,
     notices,
     errors,

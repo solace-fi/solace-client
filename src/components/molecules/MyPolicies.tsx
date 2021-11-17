@@ -153,7 +153,7 @@ export const MyPolicies: React.FC<MyPoliciesProps> = ({
                               <FlexRow>
                                 {policy.positionNames.length == 0 && <Loader width={10} height={10} />}
                                 {policy.positionNames.slice(0, 8).map((name) => (
-                                  <DeFiAssetImage key={name} width={25} height={25} ml={1}>
+                                  <DeFiAssetImage key={name} width={30} height={30} ml={1} noborder>
                                     <img src={`https://assets.solace.fi/${name.toLowerCase()}`} alt={name} />
                                   </DeFiAssetImage>
                                 ))}

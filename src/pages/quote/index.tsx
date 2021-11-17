@@ -33,8 +33,8 @@ function Quote(): any {
 
   return !isActive || !account ? (
     <HeroContainer>
-      <Text t1 textAlignCenter>
-        Please connect your wallet to buy quotes
+      <Text bold t1 textAlignCenter>
+        Please connect your wallet to buy coverage
       </Text>
       <WalletConnectButton info />
     </HeroContainer>
