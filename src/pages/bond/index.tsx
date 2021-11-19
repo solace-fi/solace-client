@@ -32,6 +32,7 @@ import { ExplorerscanApi } from '../../constants/enums'
 import { useContracts } from '../../context/ContractsManager'
 import { useGeneral } from '../../context/GeneralProvider'
 import { useNetwork } from '../../context/NetworkManager'
+import { useCachedData } from '../../context/CachedDataManager'
 
 /* import components */
 import { Button } from '../../components/atoms/Button'
@@ -44,6 +45,7 @@ import { FlexCol, FlexRow, Scrollable } from '../../components/atoms/Layout'
 import { Text } from '../../components/atoms/Typography'
 import { HyperLink } from '../../components/atoms/Link'
 import { StyledLinkExternal } from '../../components/atoms/Icon'
+import { BondModal } from '../../components/organisms/BondModal'
 
 /* import hooks */
 import { useGetAvailableCoverages, useGetYearlyCosts } from '../../hooks/usePolicy'
@@ -56,9 +58,12 @@ import { getExplorerItemUrl } from '../../utils/explorer'
 function Bond(): any {
   const { haveErrors } = useGeneral()
   const { width } = useWindowDimensions()
+  const { latestBlock } = useCachedData()
+  const [showBondModal, setShowBondModal] = useState<boolean>(false)
 
   return (
     <Fragment>
+      <BondModal closeModal={() => setShowBondModal(false)} isOpen={showBondModal} latestBlock={latestBlock} />
       {width > BKPT_3 ? (
         <Scrollable style={{ padding: '0 10px 0 10px' }}>
           <Table canHover style={{ borderSpacing: '0px 7px' }}>
@@ -72,18 +77,18 @@ function Bond(): any {
               </TableRow>
             </TableHead>
             <TableBody>
-              <TableRow>
+              <TableRow onClick={haveErrors ? undefined : () => setShowBondModal(true)} style={{ cursor: 'pointer' }}>
                 <TableData>
                   <FlexRow>
                     <DeFiAssetImage mr={10}></DeFiAssetImage>
                     <FlexCol style={{ justifyContent: 'center' }}>
-                      <FlexRow></FlexRow>
+                      <FlexRow>T</FlexRow>
                     </FlexCol>
                   </FlexRow>
                 </TableData>
-                <TableData></TableData>
-                <TableData></TableData>
-                <TableData></TableData>
+                <TableData>x</TableData>
+                <TableData>y</TableData>
+                <TableData>z</TableData>
                 <TableData textAlignRight>
                   <Button disabled={haveErrors} info>
                     Bond
@@ -97,23 +102,37 @@ function Bond(): any {
         // mobile version
         <Scrollable maxMobileHeight={65}>
           <CardContainer cardsPerRow={2}>
-            <Card>
+            <Card onClick={haveErrors ? undefined : () => setShowBondModal(true)}>
               <FormRow>
-                <FormCol></FormCol>
+                <FormCol>Bond</FormCol>
                 <FormCol style={{ display: 'flex', alignItems: 'center' }}>
-                  <Text bold t2></Text>
+                  <Text bold t2>
+                    T
+                  </Text>
                 </FormCol>
               </FormRow>
               <FormRow>
-                <FormCol></FormCol>
+                <FormCol>Price</FormCol>
                 <FormCol>
-                  <Text bold t2></Text>
+                  <Text bold t2>
+                    x
+                  </Text>
                 </FormCol>
               </FormRow>
               <FormRow>
-                <FormCol></FormCol>
+                <FormCol>ROI</FormCol>
                 <FormCol>
-                  <Text bold t2></Text>
+                  <Text bold t2>
+                    y
+                  </Text>
+                </FormCol>
+              </FormRow>
+              <FormRow>
+                <FormCol>Purchased</FormCol>
+                <FormCol>
+                  <Text bold t2>
+                    z
+                  </Text>
                 </FormCol>
               </FormRow>
             </Card>

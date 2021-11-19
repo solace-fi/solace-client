@@ -50,14 +50,24 @@ function Stake(): any {
       ) : (
         <Content>
           <FlexCol>
-            <Card style={{ justifyContent: 'center', margin: 'auto' }}>
-              <div style={{ justifyContent: 'space-around', display: 'flex', position: 'relative' }}>
-                <ModalCell pt={5} pb={10} onClick={() => setIsStaking(true)} style={{ cursor: 'pointer' }}>
+            <Card style={{ margin: 'auto' }}>
+              <div style={{ gridTemplateColumns: '1fr 1fr', display: 'grid', position: 'relative' }}>
+                <ModalCell
+                  pt={5}
+                  pb={10}
+                  onClick={() => setIsStaking(true)}
+                  style={{ cursor: 'pointer', justifyContent: 'center' }}
+                >
                   <Text t1 info={isStaking}>
                     Stake
                   </Text>
                 </ModalCell>
-                <ModalCell pt={5} pb={10} onClick={() => setIsStaking(false)} style={{ cursor: 'pointer' }}>
+                <ModalCell
+                  pt={5}
+                  pb={10}
+                  onClick={() => setIsStaking(false)}
+                  style={{ cursor: 'pointer', justifyContent: 'center' }}
+                >
                   <Text t1 info={!isStaking}>
                     Unstake
                   </Text>

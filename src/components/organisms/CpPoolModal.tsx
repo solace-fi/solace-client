@@ -43,6 +43,7 @@ import { Erc20InputPanel, PoolModalProps, usePoolModal } from './PoolModalRouter
 import { Text } from '../atoms/Typography'
 import { StyledLinkExternal } from '../atoms/Icon'
 import { HyperLink } from '../atoms/Link'
+
 /* import hooks */
 import { useUserStakedValue } from '../../hooks/useFarm'
 import { useScpBalance } from '../../hooks/useBalance'

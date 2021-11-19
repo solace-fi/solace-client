@@ -4,12 +4,15 @@ import { GeneralTextProps, GeneralTextCss } from '../Typography'
 import { BKPT_3, Z_MODAL } from '../../../constants'
 import { GeneralElementProps, GeneralElementCss } from '../../generalInterfaces'
 
-export interface ModalProps {
-  handleClose: () => void
+interface BaseModalProps {
+  zIndex?: number
   isOpen: boolean
+}
+
+export interface ModalProps extends BaseModalProps {
+  handleClose: () => void
   modalTitle: string
   disableCloseButton: boolean
-  zIndex?: number
 }
 
 export interface ModalButtonProps extends ClickProps {
@@ -21,7 +24,7 @@ const FadeInAnimation = keyframes`
   to { opacity: 1; }
 `
 
-export const ModalContainer = styled.div<ModalProps>`
+export const ModalContainer = styled.div<BaseModalProps>`
   position: fixed;
   top: 0;
   left: 0;
@@ -33,7 +36,7 @@ export const ModalContainer = styled.div<ModalProps>`
   overflow-y: auto;
 `
 
-export const ModalBase = styled.div<ModalProps>`
+export const ModalBase = styled.div<BaseModalProps>`
   margin: auto;
   position: relative;
   border-radius: 10px;
