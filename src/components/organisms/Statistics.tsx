@@ -225,7 +225,7 @@ export const Statistics: React.FC = () => {
           ) : (
             <Box>
               <BoxItem>
-                <WalletConnectButton light />
+                <WalletConnectButton light welcome />
               </BoxItem>
             </Box>
           )}
@@ -318,7 +318,7 @@ export const Statistics: React.FC = () => {
             <BoxRow>
               <Box>
                 <BoxItem>
-                  <WalletConnectButton light />
+                  <WalletConnectButton light welcome />
                 </BoxItem>
               </Box>
               <GlobalBox />

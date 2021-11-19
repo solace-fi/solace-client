@@ -160,3 +160,11 @@ export const Footer = styled.div`
   padding: 10px 0;
   z-index: ${Z_FOOTER};
 `
+
+export const MultiTabIndicator = styled.hr`
+  position: absolute;
+  width: 50%;
+  top: 30px;
+  border-color: ${({ theme }) => theme.typography.infoText};
+  transition: all 200ms ease;
+`

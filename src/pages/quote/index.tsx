@@ -36,7 +36,7 @@ function Quote(): any {
       <Text bold t1 textAlignCenter>
         Please connect your wallet to buy coverage
       </Text>
-      <WalletConnectButton info />
+      <WalletConnectButton info welcome secondary />
     </HeroContainer>
   ) : (
     <MultiStepForm />

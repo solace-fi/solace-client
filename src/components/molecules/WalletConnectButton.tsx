@@ -27,7 +27,13 @@ import { GeneralElementProps } from '../generalInterfaces'
 
 /* import hooks */
 
-export const WalletConnectButton: React.FC<GeneralElementProps & ButtonProps> = ({ ...props }) => {
+interface WalletConnectButtonProps {
+  welcome?: boolean
+}
+
+export const WalletConnectButton: React.FC<GeneralElementProps & ButtonProps & WalletConnectButtonProps> = ({
+  ...props
+}) => {
   /*************************************************************************************
 
    hooks
@@ -37,10 +43,16 @@ export const WalletConnectButton: React.FC<GeneralElementProps & ButtonProps> = 
 
   return (
     <>
-      <Button onClick={openWalletModal} {...props}>
-        <StyledWallet size={30} />
-        {isActive ? 'Switch Wallet' : 'Connect Wallet'}
-      </Button>
+      {props.welcome ? (
+        <Button {...props} style={{ padding: '15px 50px', borderRadius: '55px' }} onClick={openWalletModal}>
+          Connect Wallet
+        </Button>
+      ) : (
+        <Button onClick={openWalletModal} {...props}>
+          <StyledWallet size={30} />
+          {isActive ? 'Switch Wallet' : 'Connect Wallet'}
+        </Button>
+      )}
     </>
   )
 }

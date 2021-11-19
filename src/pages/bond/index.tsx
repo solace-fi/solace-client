@@ -58,12 +58,11 @@ import { getExplorerItemUrl } from '../../utils/explorer'
 function Bond(): any {
   const { haveErrors } = useGeneral()
   const { width } = useWindowDimensions()
-  const { latestBlock } = useCachedData()
   const [showBondModal, setShowBondModal] = useState<boolean>(false)
 
   return (
     <Fragment>
-      <BondModal closeModal={() => setShowBondModal(false)} isOpen={showBondModal} latestBlock={latestBlock} />
+      <BondModal closeModal={() => setShowBondModal(false)} isOpen={showBondModal} />
       {width > BKPT_3 ? (
         <Scrollable style={{ padding: '0 10px 0 10px' }}>
           <Table canHover style={{ borderSpacing: '0px 7px' }}>

@@ -110,7 +110,7 @@ function Dashboard(): any {
           <Text bold t1 textAlignCenter>
             Please connect wallet to view dashboard
           </Text>
-          <WalletConnectButton info />
+          <WalletConnectButton info welcome secondary />
         </HeroContainer>
       ) : (
         <Fragment>
