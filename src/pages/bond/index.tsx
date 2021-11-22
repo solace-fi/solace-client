@@ -19,55 +19,64 @@
   *************************************************************************************/
 
 /* import packages */
-import React, { Fragment, useState } from 'react'
-import styled from 'styled-components'
-import useDebounce from '@rooks/use-debounce'
+import React, { Fragment, useEffect, useState } from 'react'
 
 /* import constants */
-import { DAYS_PER_YEAR, NUM_BLOCKS_PER_DAY, BKPT_3 } from '../../constants'
-import { ProductContract } from '../../constants/types'
-import { ExplorerscanApi } from '../../constants/enums'
+import { BKPT_4 } from '../../constants'
+import { BondTellerDetails } from '../../constants/types'
 
 /* import context */
-import { useContracts } from '../../context/ContractsManager'
 import { useGeneral } from '../../context/GeneralProvider'
-import { useNetwork } from '../../context/NetworkManager'
-import { useCachedData } from '../../context/CachedDataManager'
 
 /* import components */
 import { Button } from '../../components/atoms/Button'
 import { Table, TableData, TableHead, TableHeader, TableRow, TableBody } from '../../components/atoms/Table'
-import { Search } from '../../components/atoms/Input'
-import { DeFiAsset, DeFiAssetImage, ProtocolTitle } from '../../components/atoms/DeFiAsset'
+import { DeFiAssetImage } from '../../components/atoms/DeFiAsset'
 import { Card, CardContainer } from '../../components/atoms/Card'
 import { FormRow, FormCol } from '../../components/atoms/Form'
 import { FlexCol, FlexRow, Scrollable } from '../../components/atoms/Layout'
 import { Text } from '../../components/atoms/Typography'
-import { HyperLink } from '../../components/atoms/Link'
-import { StyledLinkExternal } from '../../components/atoms/Icon'
 import { BondModal } from '../../components/organisms/BondModal'
 
 /* import hooks */
-import { useGetAvailableCoverages, useGetYearlyCosts } from '../../hooks/usePolicy'
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'
 
 /* import utils */
-import { fixed, truncateBalance } from '../../utils/formatting'
-import { getExplorerItemUrl } from '../../utils/explorer'
+import { useBondTellerDetails } from '../../hooks/useBondTeller'
 
 function Bond(): any {
   const { haveErrors } = useGeneral()
   const { width } = useWindowDimensions()
+  const tellerDetails = useBondTellerDetails()
   const [showBondModal, setShowBondModal] = useState<boolean>(false)
+  const [selectedBondDetail, setSelectedBondDetail] = useState<BondTellerDetails | undefined>(undefined)
+
+  const openModal = (toggle: boolean, selectedBond?: BondTellerDetails) => {
+    if (selectedBond) setSelectedBondDetail(selectedBond)
+    setShowBondModal(toggle)
+  }
+
+  useEffect(() => {
+    if (selectedBondDetail) {
+      const matchingBond = tellerDetails.find(
+        (tellerDetail) =>
+          tellerDetail.tellerData.teller.contract.address.toLowerCase() ==
+          selectedBondDetail.tellerData.teller.contract.address.toLowerCase()
+      )
+      if (!matchingBond) return
+      setSelectedBondDetail(matchingBond)
+    }
+  }, [selectedBondDetail, tellerDetails])
 
   return (
     <Fragment>
-      <BondModal closeModal={() => setShowBondModal(false)} isOpen={showBondModal} />
-      {width > BKPT_3 ? (
+      <BondModal closeModal={() => openModal(false)} isOpen={showBondModal} selectedBondDetail={selectedBondDetail} />
+      {width > BKPT_4 ? (
         <Scrollable style={{ padding: '0 10px 0 10px' }}>
           <Table canHover style={{ borderSpacing: '0px 7px' }}>
             <TableHead sticky>
               <TableRow>
+                <TableHeader></TableHeader>
                 <TableHeader>Bond</TableHeader>
                 <TableHeader>Price</TableHeader>
                 <TableHeader>ROI</TableHeader>
@@ -76,24 +85,50 @@ function Bond(): any {
               </TableRow>
             </TableHead>
             <TableBody>
-              <TableRow onClick={haveErrors ? undefined : () => setShowBondModal(true)} style={{ cursor: 'pointer' }}>
-                <TableData>
-                  <FlexRow>
-                    <DeFiAssetImage mr={10}></DeFiAssetImage>
-                    <FlexCol style={{ justifyContent: 'center' }}>
-                      <FlexRow>T</FlexRow>
-                    </FlexCol>
-                  </FlexRow>
-                </TableData>
-                <TableData>x</TableData>
-                <TableData>y</TableData>
-                <TableData>z</TableData>
-                <TableData textAlignRight>
-                  <Button disabled={haveErrors} info>
-                    Bond
-                  </Button>
-                </TableData>
-              </TableRow>
+              {tellerDetails.map((tellerDetail, i) => (
+                <TableRow
+                  key={i}
+                  onClick={haveErrors ? undefined : () => openModal(true, tellerDetail)}
+                  style={{ cursor: 'pointer' }}
+                >
+                  <TableData>
+                    <FlexRow>
+                      {tellerDetail.principalData.token0 && tellerDetail.principalData.token1 ? (
+                        <>
+                          <DeFiAssetImage mr={5}>
+                            <img
+                              src={`https://assets.solace.fi/${tellerDetail.principalData.token0.toLowerCase()}`}
+                              alt={tellerDetail.principalData.token0.toLowerCase()}
+                            />
+                          </DeFiAssetImage>
+                          <DeFiAssetImage>
+                            <img
+                              src={`https://assets.solace.fi/${tellerDetail.principalData.token1.toLowerCase()}`}
+                              alt={tellerDetail.principalData.token1.toLowerCase()}
+                            />
+                          </DeFiAssetImage>
+                        </>
+                      ) : (
+                        <DeFiAssetImage>
+                          <img
+                            src={`https://assets.solace.fi/${tellerDetail.principalData.principal.address.toLowerCase()}`}
+                            alt={tellerDetail.tellerData.teller.name}
+                          />
+                        </DeFiAssetImage>
+                      )}
+                    </FlexRow>
+                  </TableData>
+                  <TableData>{tellerDetail.tellerData.teller.name}</TableData>
+                  <TableData>{tellerDetail.tellerData.bondPrice.toString()}</TableData>
+                  <TableData>y</TableData>
+                  <TableData>z</TableData>
+                  <TableData textAlignRight>
+                    <Button disabled={haveErrors} info>
+                      Bond
+                    </Button>
+                  </TableData>
+                </TableRow>
+              ))}
             </TableBody>
           </Table>
         </Scrollable>
@@ -101,40 +136,66 @@ function Bond(): any {
         // mobile version
         <Scrollable maxMobileHeight={65}>
           <CardContainer cardsPerRow={2}>
-            <Card onClick={haveErrors ? undefined : () => setShowBondModal(true)}>
-              <FormRow>
-                <FormCol>Bond</FormCol>
-                <FormCol style={{ display: 'flex', alignItems: 'center' }}>
-                  <Text bold t2>
-                    T
-                  </Text>
-                </FormCol>
-              </FormRow>
-              <FormRow>
-                <FormCol>Price</FormCol>
-                <FormCol>
-                  <Text bold t2>
-                    x
-                  </Text>
-                </FormCol>
-              </FormRow>
-              <FormRow>
-                <FormCol>ROI</FormCol>
-                <FormCol>
-                  <Text bold t2>
-                    y
-                  </Text>
-                </FormCol>
-              </FormRow>
-              <FormRow>
-                <FormCol>Purchased</FormCol>
-                <FormCol>
-                  <Text bold t2>
-                    z
-                  </Text>
-                </FormCol>
-              </FormRow>
-            </Card>
+            {tellerDetails.map((tellerDetail, i) => (
+              <Card key={i} onClick={haveErrors ? undefined : () => openModal(true, tellerDetail)}>
+                <FlexCol style={{ alignItems: 'center' }}>
+                  <FormRow>
+                    <FlexRow>
+                      {tellerDetail.principalData.token0 && tellerDetail.principalData.token1 ? (
+                        <>
+                          <DeFiAssetImage mr={10}>
+                            <img
+                              src={`https://assets.solace.fi/${tellerDetail.principalData.token0.toLowerCase()}`}
+                              alt={tellerDetail.principalData.token0.toLowerCase()}
+                            />
+                          </DeFiAssetImage>
+                          <DeFiAssetImage mr={10}>
+                            <img
+                              src={`https://assets.solace.fi/${tellerDetail.principalData.token1.toLowerCase()}`}
+                              alt={tellerDetail.principalData.token1.toLowerCase()}
+                            />
+                          </DeFiAssetImage>
+                        </>
+                      ) : (
+                        <DeFiAssetImage mr={10}>
+                          <img
+                            src={`https://assets.solace.fi/${tellerDetail.principalData.principal.address.toLowerCase()}`}
+                            alt={tellerDetail.tellerData.teller.name}
+                          />
+                        </DeFiAssetImage>
+                      )}
+                    </FlexRow>
+                  </FormRow>
+                  <FlexCol style={{ display: 'flex', alignItems: 'center' }}>
+                    <Text t2>{tellerDetail.tellerData.teller.name}</Text>
+                  </FlexCol>
+                </FlexCol>
+                <FormRow>
+                  <FormCol>Price</FormCol>
+                  <FormCol>
+                    <Text bold t2>
+                      {tellerDetail.tellerData.bondPrice.toString()}
+                    </Text>
+                  </FormCol>
+                </FormRow>
+                <FormRow>
+                  <FormCol>ROI</FormCol>
+                  <FormCol>
+                    <Text bold t2>
+                      y
+                    </Text>
+                  </FormCol>
+                </FormRow>
+                <FormRow>
+                  <FormCol>Purchased</FormCol>
+                  <FormCol>
+                    <Text bold t2>
+                      z
+                    </Text>
+                  </FormCol>
+                </FormRow>
+              </Card>
+            ))}
           </CardContainer>
         </Scrollable>
       )}

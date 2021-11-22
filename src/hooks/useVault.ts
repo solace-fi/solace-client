@@ -8,7 +8,7 @@ import { useCachedData } from '../context/CachedDataManager'
 import { useScpBalance } from './useBalance'
 import { useNetwork } from '../context/NetworkManager'
 import { FunctionName, TransactionCondition } from '../constants/enums'
-import { GasConfiguration, LocalTx } from '../constants/types'
+import { GasConfiguration, LocalTx, TxResult } from '../constants/types'
 import { BigNumber } from 'ethers'
 
 export const useCapitalPoolSize = (): string => {
@@ -78,16 +78,7 @@ export const useCooldown = () => {
   const { version, latestBlock } = useCachedData()
   const gettingCooldown = useRef(true)
 
-  const startCooldown = async (): Promise<
-    | {
-        tx: null
-        localTx: null
-      }
-    | {
-        tx: any
-        localTx: LocalTx
-      }
-  > => {
+  const startCooldown = async (): Promise<TxResult> => {
     if (!vault) return { tx: null, localTx: null }
     const tx = await vault.startCooldown()
     const localTx: LocalTx = {
@@ -99,16 +90,7 @@ export const useCooldown = () => {
     return { tx, localTx }
   }
 
-  const stopCooldown = async (): Promise<
-    | {
-        tx: null
-        localTx: null
-      }
-    | {
-        tx: any
-        localTx: LocalTx
-      }
-  > => {
+  const stopCooldown = async (): Promise<TxResult> => {
     if (!vault) return { tx: null, localTx: null }
     const tx = await vault.stopCooldown()
     const localTx: LocalTx = {
@@ -171,20 +153,7 @@ export const useVault = () => {
   const { account } = useWallet()
   const [canTransfer, setCanTransfer] = useState<boolean>(true)
 
-  const depositEth = async (
-    parsedAmount: BigNumber,
-    txVal: string,
-    gasConfig: GasConfiguration
-  ): Promise<
-    | {
-        tx: null
-        localTx: null
-      }
-    | {
-        tx: any
-        localTx: LocalTx
-      }
-  > => {
+  const depositEth = async (parsedAmount: BigNumber, txVal: string, gasConfig: GasConfiguration): Promise<TxResult> => {
     if (!vault) return { tx: null, localTx: null }
     const tx = await vault.depositEth({
       value: parsedAmount,
@@ -204,16 +173,7 @@ export const useVault = () => {
     parsedAmount: BigNumber,
     txVal: string,
     gasConfig: GasConfiguration
-  ): Promise<
-    | {
-        tx: null
-        localTx: null
-      }
-    | {
-        tx: any
-        localTx: LocalTx
-      }
-  > => {
+  ): Promise<TxResult> => {
     if (!vault) return { tx: null, localTx: null }
     const tx = await vault.withdrawEth(parsedAmount, {
       ...gasConfig,

@@ -1,25 +1,12 @@
 import { BigNumber } from 'ethers'
 import { useContracts } from '../context/ContractsManager'
 import { FunctionName, TransactionCondition } from '../constants/enums'
-import { GasConfiguration, LocalTx } from '../constants/types'
+import { GasConfiguration, LocalTx, TxResult } from '../constants/types'
 
 export const useCpFarm = () => {
   const { cpFarm } = useContracts()
 
-  const depositEth = async (
-    parsedAmount: BigNumber,
-    txVal: string,
-    gasConfig: GasConfiguration
-  ): Promise<
-    | {
-        tx: null
-        localTx: null
-      }
-    | {
-        tx: any
-        localTx: LocalTx
-      }
-  > => {
+  const depositEth = async (parsedAmount: BigNumber, txVal: string, gasConfig: GasConfiguration): Promise<TxResult> => {
     if (!cpFarm) return { tx: null, localTx: null }
     const tx = await cpFarm.depositEth({
       value: parsedAmount,
@@ -35,20 +22,7 @@ export const useCpFarm = () => {
     return { tx, localTx }
   }
 
-  const depositCp = async (
-    parsedAmount: BigNumber,
-    txVal: string,
-    gasConfig: GasConfiguration
-  ): Promise<
-    | {
-        tx: null
-        localTx: null
-      }
-    | {
-        tx: any
-        localTx: LocalTx
-      }
-  > => {
+  const depositCp = async (parsedAmount: BigNumber, txVal: string, gasConfig: GasConfiguration): Promise<TxResult> => {
     if (!cpFarm) return { tx: null, localTx: null }
     const tx = await cpFarm.depositCp(parsedAmount, {
       ...gasConfig,
@@ -63,20 +37,7 @@ export const useCpFarm = () => {
     return { tx, localTx }
   }
 
-  const withdrawCp = async (
-    parsedAmount: BigNumber,
-    txVal: string,
-    gasConfig: GasConfiguration
-  ): Promise<
-    | {
-        tx: null
-        localTx: null
-      }
-    | {
-        tx: any
-        localTx: LocalTx
-      }
-  > => {
+  const withdrawCp = async (parsedAmount: BigNumber, txVal: string, gasConfig: GasConfiguration): Promise<TxResult> => {
     if (!cpFarm) return { tx: null, localTx: null }
     const tx = await cpFarm.withdrawCp(parsedAmount, {
       ...gasConfig,

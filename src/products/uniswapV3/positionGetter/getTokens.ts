@@ -1,5 +1,5 @@
 import { NetworkConfig, Token } from '../../../constants/types'
-import ierc20Json from '../../_contracts/IERC20Metadata.json'
+import ierc20Json from '../../../constants/metadata/IERC20Metadata.json'
 import { getContract } from '../../../utils'
 import { ETHERSCAN_API_KEY, ZERO } from '../../../constants'
 

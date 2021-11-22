@@ -44,6 +44,7 @@ import { FunctionName, TransactionCondition } from '../../constants/enums'
 import { useOptionsDetails } from '../../hooks/useOptionsFarming'
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'
 import { useGetFunctionGas } from '../../hooks/useGas'
+import { useInputAmount } from '../../hooks/useInputAmount'
 
 /* import utils */
 import { accurateMultiply, truncateBalance } from '../../utils/formatting'
@@ -55,14 +56,13 @@ export const MyOptions: React.FC = () => {
 
   *************************************************************************************/
   const { haveErrors } = useGeneral()
-  const { addLocalTransactions, reload } = useCachedData()
-  const { makeTxToast } = useNotifications()
   const { getAutoGasConfig } = useGetFunctionGas()
   const gasConfig = useMemo(() => getAutoGasConfig(), [getAutoGasConfig])
   const { activeNetwork, currencyDecimals } = useNetwork()
   const [openOptions, setOpenOptions] = useState<boolean>(true)
   const { optionsDetails, latestBlockTimestamp, exerciseOption } = useOptionsDetails()
   const { width } = useWindowDimensions()
+  const { handleToast, handleContractCallError } = useInputAmount()
 
   /*************************************************************************************
 
@@ -74,24 +74,6 @@ export const MyOptions: React.FC = () => {
     await exerciseOption(_optionId, gasConfig)
       .then((res) => handleToast(res.tx, res.localTx))
       .catch((err) => handleContractCallError('callExerciseOption', err, FunctionName.EXERCISE_OPTION))
-  }
-
-  const handleToast = async (tx: any, localTx: LocalTx | null) => {
-    if (!tx || !localTx) return
-    addLocalTransactions(localTx)
-    reload()
-    makeTxToast(localTx.type, TransactionCondition.PENDING, localTx.hash)
-    await tx.wait().then((receipt: any) => {
-      const status = receipt.status ? TransactionCondition.SUCCESS : TransactionCondition.FAILURE
-      makeTxToast(localTx.type, status, localTx.hash)
-      reload()
-    })
-  }
-
-  const handleContractCallError = (functionName: string, err: any, txType: FunctionName) => {
-    console.log(functionName, err)
-    makeTxToast(txType, TransactionCondition.CANCELLED)
-    reload()
   }
 
   return (

@@ -1,8 +1,13 @@
 import React, { createContext, useCallback, useContext, useMemo, useState } from 'react'
 import { Contract } from '@ethersproject/contracts'
 
-import { useContractArray, useGetContract, useGetProductContracts } from '../hooks/useContract'
-import { ContractSources, ProductContract } from '../constants/types'
+import {
+  useContractArray,
+  useGetBondTellerContracts,
+  useGetContract,
+  useGetProductContracts,
+} from '../hooks/useContract'
+import { BondTellerContract, ContractSources, ProductContract } from '../constants/types'
 import { useNetwork } from './NetworkManager'
 
 /*
@@ -18,6 +23,7 @@ type Contracts = {
   vault?: Contract | null
   treasury?: Contract | null
   solace?: Contract | null
+  xSolace?: Contract | null
   cpFarm?: Contract | null
   lpFarm?: Contract | null
   registry?: Contract | null
@@ -28,6 +34,7 @@ type Contracts = {
   policyManager?: Contract | null
   riskManager?: Contract | null
   products: ProductContract[]
+  tellers: BondTellerContract[]
   contractSources: ContractSources[]
   selectedProtocol: Contract | undefined
   getProtocolByName: (productName: string) => Contract | undefined
@@ -40,6 +47,7 @@ const ContractsContext = createContext<Contracts>({
   vault: undefined,
   treasury: undefined,
   solace: undefined,
+  xSolace: undefined,
   cpFarm: undefined,
   lpFarm: undefined,
   registry: undefined,
@@ -50,6 +58,7 @@ const ContractsContext = createContext<Contracts>({
   policyManager: undefined,
   riskManager: undefined,
   products: [],
+  tellers: [],
   contractSources: [],
   selectedProtocol: undefined,
   getProtocolByName: () => undefined,
@@ -67,6 +76,7 @@ const ContractsProvider: React.FC = (props) => {
   const vault = useGetContract(keyContracts.vault)
   const treasury = useGetContract(keyContracts.treasury)
   const solace = useGetContract(keyContracts.solace)
+  const xSolace = useGetContract(keyContracts.xSolace)
   const cpFarm = useGetContract(keyContracts.cpFarm)
   const lpFarm = useGetContract(keyContracts.lpFarm)
   const registry = useGetContract(keyContracts.registry)
@@ -77,6 +87,7 @@ const ContractsProvider: React.FC = (props) => {
   const riskManager = useGetContract(keyContracts.riskManager)
   const lpAppraisor = useGetContract(keyContracts.lpAppraisor)
   const products = useGetProductContracts()
+  const tellers = useGetBondTellerContracts()
 
   const getProtocolByName = useCallback(
     (productName: string): Contract | undefined => {
@@ -101,6 +112,7 @@ const ContractsProvider: React.FC = (props) => {
       vault,
       treasury,
       solace,
+      xSolace,
       cpFarm,
       lpFarm,
       registry,
@@ -111,6 +123,7 @@ const ContractsProvider: React.FC = (props) => {
       policyManager,
       riskManager,
       products,
+      tellers,
       contractSources,
       selectedProtocol,
       getProtocolByName,
@@ -122,6 +135,7 @@ const ContractsProvider: React.FC = (props) => {
       vault,
       treasury,
       solace,
+      xSolace,
       cpFarm,
       lpFarm,
       registry,
@@ -132,6 +146,7 @@ const ContractsProvider: React.FC = (props) => {
       policyManager,
       riskManager,
       products,
+      tellers,
       contractSources,
       selectedProtocol,
       setSelectedProtocolByName,

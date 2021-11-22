@@ -120,13 +120,11 @@ export const KovanNetwork: NetworkConfig = {
         abi: waaveABI,
       },
     },
-    productsRev: {
-      [String(process.env.REACT_APP_KOVAN_AAVE_PRODUCT_ADDR)]: ProductName.AAVE,
-      [String(process.env.REACT_APP_KOVAN_WAAVE_PRODUCT_ADDR)]: ProductName.WAAVE,
-    },
+    bondTellerContracts: {},
   },
   cache: {
     supportedProducts: [AaveProduct, WaaveProduct],
+    tellerToTokenMapping: {},
   },
   metamaskChain: {
     chainId: hexValue(42),

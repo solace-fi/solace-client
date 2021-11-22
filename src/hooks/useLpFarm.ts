@@ -1,7 +1,7 @@
 import { BigNumber } from 'ethers'
 import { DEADLINE, GAS_LIMIT } from '../constants'
 import { FunctionName, TransactionCondition } from '../constants/enums'
-import { GasConfiguration, LocalTx } from '../constants/types'
+import { GasConfiguration, LocalTx, TxResult } from '../constants/types'
 import { useContracts } from '../context/ContractsManager'
 import { useNetwork } from '../context/NetworkManager'
 import { useWallet } from '../context/WalletManager'
@@ -12,19 +12,7 @@ export const useLpFarm = () => {
   const { account, library } = useWallet()
   const { chainId } = useNetwork()
 
-  const depositLp = async (
-    nftId: BigNumber,
-    gasConfig: GasConfiguration
-  ): Promise<
-    | {
-        tx: null
-        localTx: null
-      }
-    | {
-        tx: any
-        localTx: LocalTx
-      }
-  > => {
+  const depositLp = async (nftId: BigNumber, gasConfig: GasConfiguration): Promise<TxResult> => {
     if (!lpToken || !lpFarm || !nftId || !chainId || !account || !library) return { tx: null, localTx: null }
     const { v, r, s } = await getPermitNFTSignature(account, chainId, library, lpToken, lpFarm.address, nftId, DEADLINE)
     const tx = await lpFarm.depositLpSigned(account, nftId, DEADLINE, v, r, s, {
@@ -40,19 +28,7 @@ export const useLpFarm = () => {
     return { tx, localTx }
   }
 
-  const withdrawLp = async (
-    nftId: BigNumber,
-    gasConfig: GasConfiguration
-  ): Promise<
-    | {
-        tx: null
-        localTx: null
-      }
-    | {
-        tx: any
-        localTx: LocalTx
-      }
-  > => {
+  const withdrawLp = async (nftId: BigNumber, gasConfig: GasConfiguration): Promise<TxResult> => {
     if (!lpFarm) return { tx: null, localTx: null }
     const tx = await lpFarm.withdrawLp(nftId, {
       ...gasConfig,

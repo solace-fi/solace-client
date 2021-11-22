@@ -9,6 +9,7 @@ export const NUM_BLOCKS_PER_DAY = 6450
 export const NUM_DAYS_PER_MONTH = 30
 export const DAYS_PER_YEAR = 365
 export const DEADLINE = constants.MaxUint256
+export const MAX_APPROVAL_AMOUNT = constants.MaxUint256
 
 export const ZERO = constants.Zero
 export const ADDRESS_ZERO = constants.AddressZero

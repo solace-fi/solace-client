@@ -30,19 +30,20 @@ import { useGeneral } from '../../context/GeneralProvider'
 /* import constants */
 import { ZERO } from '../../constants'
 import { ExplorerscanApi, FunctionName } from '../../constants/enums'
-import { GasConfiguration, LocalTx, NftTokenInfo } from '../../constants/types'
+import { GasConfiguration, LocalTx, NftTokenInfo, TxResult } from '../../constants/types'
 
 /* import components */
 import { Modal, ModalAddendum } from '../molecules/Modal'
 import { Button, ButtonWrapper } from '../atoms/Button'
 import { Loader } from '../atoms/Loader'
 import { GasRadioGroup } from '../molecules/GasRadioGroup'
-import { Erc721InputPanel, PoolModalProps, usePoolModal } from './PoolModalRouter'
+import { Erc721InputPanel, PoolModalProps } from './PoolModalRouter'
 import { HyperLink } from '../atoms/Link'
 import { StyledLinkExternal } from '../atoms/Icon'
 
 /* import hooks */
 import { useUserStakedValue } from '../../hooks/useFarm'
+import { useInputAmount } from '../../hooks/useInputAmount'
 
 /* import utils */
 import { getUnit, truncateBalance } from '../../utils/formatting'
@@ -52,35 +53,11 @@ interface Erc721PoolModalGenericProps {
   farmContract: Contract | null | undefined
   depositFunc: {
     name: FunctionName
-    func: (
-      nftId: BigNumber,
-      gasConfig: GasConfiguration
-    ) => Promise<
-      | {
-          tx: null
-          localTx: null
-        }
-      | {
-          tx: any
-          localTx: LocalTx
-        }
-    >
+    func: (nftId: BigNumber, gasConfig: GasConfiguration) => Promise<TxResult>
   }
   withdrawFunc: {
     name: FunctionName
-    func: (
-      nftId: BigNumber,
-      gasConfig: GasConfiguration
-    ) => Promise<
-      | {
-          tx: null
-          localTx: null
-        }
-      | {
-          tx: any
-          localTx: LocalTx
-        }
-    >
+    func: (nftId: BigNumber, gasConfig: GasConfiguration) => Promise<TxResult>
   }
   userNftTokenInfo: NftTokenInfo[]
   depositedNftTokenInfo: NftTokenInfo[]
@@ -110,10 +87,10 @@ export const Erc721PoolModalGeneric: React.FC<PoolModalProps & Erc721PoolModalGe
     gasConfig,
     gasPrices,
     selectedGasOption,
-    handleSelectChange,
+    handleSelectGasChange,
     handleToast,
     handleContractCallError,
-  } = usePoolModal()
+  } = useInputAmount()
 
   const [modalLoading, setModalLoading] = useState<boolean>(false)
   const [nftId, setNftId] = useState<BigNumber>(ZERO)
@@ -150,7 +127,6 @@ export const Erc721PoolModalGeneric: React.FC<PoolModalProps & Erc721PoolModalGe
   *************************************************************************************/
 
   const _handleToast = async (tx: any, localTx: LocalTx | null) => {
-    if (!tx || !localTx) return
     handleClose()
     await handleToast(tx, localTx)
   }
@@ -182,7 +158,7 @@ export const Erc721PoolModalGeneric: React.FC<PoolModalProps & Erc721PoolModalGe
   }
 
   const handleClose = useCallback(() => {
-    handleSelectChange(gasPrices.selected)
+    handleSelectGasChange(gasPrices.selected)
     setModalLoading(false)
     handleNft({ value: '0', label: '' })
     canSetSelection.current = true
@@ -236,7 +212,7 @@ export const Erc721PoolModalGeneric: React.FC<PoolModalProps & Erc721PoolModalGe
       <GasRadioGroup
         gasPrices={gasPrices}
         selectedGasOption={selectedGasOption}
-        handleSelectChange={handleSelectChange}
+        handleSelectGasChange={handleSelectGasChange}
         mb={20}
       />
       {modalLoading ? (

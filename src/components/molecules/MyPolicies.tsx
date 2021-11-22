@@ -24,30 +24,26 @@ import { BigNumber } from 'ethers'
 /* import managers */
 import { useCachedData } from '../../context/CachedDataManager'
 import { useNetwork } from '../../context/NetworkManager'
-import { useNotifications } from '../../context/NotificationsManager'
 
 /* import constants */
-import { LocalTx } from '../../constants/types'
-import { BKPT_3, BKPT_5 } from '../../constants'
-import { FunctionName, PolicyState, TransactionCondition } from '../../constants/enums'
+import { BKPT_5 } from '../../constants'
+import { PolicyState } from '../../constants/enums'
 
 /* import components */
 import { Table, TableBody, TableHead, TableRow, TableHeader, TableData, TableDataGroup } from '../atoms/Table'
 import { Button, ButtonWrapper } from '../atoms/Button'
-import { Text, TextSpan } from '../atoms/Typography'
+import { Text } from '../atoms/Typography'
 import { FlexCol, FlexRow, Content } from '../atoms/Layout'
 import { Card, CardContainer } from '../atoms/Card'
 import { FormRow, FormCol } from '../atoms/Form'
 import { DeFiAssetImage } from '../atoms/DeFiAsset'
 import { StyledDots } from '../atoms/Icon'
 import { Loader } from '../atoms/Loader'
-import { SmallBox } from '../atoms/Box'
 import { Accordion } from '../atoms/Accordion'
 import { StyledArrowDropDown } from '../atoms/Icon'
 
 /* import hooks */
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'
-import { useGetFunctionGas } from '../../hooks/useGas'
 
 /* import utils */
 import { truncateBalance } from '../../utils/formatting'
@@ -73,36 +69,9 @@ export const MyPolicies: React.FC<MyPoliciesProps> = ({
     hooks
 
   *************************************************************************************/
-  const { addLocalTransactions, reload, userPolicyData } = useCachedData()
-  const { makeTxToast } = useNotifications()
+  const { userPolicyData } = useCachedData()
   const { width } = useWindowDimensions()
   const { activeNetwork, currencyDecimals } = useNetwork()
-  const { getAutoGasConfig } = useGetFunctionGas()
-  const gasConfig = useMemo(() => getAutoGasConfig(), [getAutoGasConfig])
-
-  /*************************************************************************************
-
-    local functions
-
-  *************************************************************************************/
-
-  const handleToast = async (tx: any, localTx: LocalTx | null) => {
-    if (!tx || !localTx) return
-    addLocalTransactions(localTx)
-    reload()
-    makeTxToast(localTx.type, TransactionCondition.PENDING, localTx.hash)
-    await tx.wait().then((receipt: any) => {
-      const status = receipt.status ? TransactionCondition.SUCCESS : TransactionCondition.FAILURE
-      makeTxToast(localTx.type, status, localTx.hash)
-      reload()
-    })
-  }
-
-  const handleContractCallError = (functionName: string, err: any, txType: FunctionName) => {
-    console.log(functionName, err)
-    makeTxToast(txType, TransactionCondition.CANCELLED)
-    reload()
-  }
 
   return (
     <Content>

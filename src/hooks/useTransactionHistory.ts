@@ -60,6 +60,11 @@ export const useTransactionDetails = (): { txHistory: any; amounts: string[] } =
       case FunctionName.DEPOSIT_ETH:
         // same method name between vault and CpFarm
         if (receipt.to.toLowerCase() === activeNetwork.config.keyContracts.vault.addr.toLowerCase()) return logs[0].data
+        // same method name between vault and bond teller
+        if (activeNetwork.cache.tellerToTokenMapping[receipt.to.toLowerCase()]) {
+          const edTopics = logs[logs.length - 2].topics
+          return edTopics[edTopics.length - 1]
+        }
         return logs[logs.length - 1].data
       case FunctionName.WITHDRAW_ETH:
         return logs[0].data
@@ -85,6 +90,11 @@ export const useTransactionDetails = (): { txHistory: any; amounts: string[] } =
         const data = logs[logs.length - 1].data
         if (!data) return ''
         return logs[logs.length - 1].data
+      case FunctionName.BOND_DEPOSIT_ERC20:
+      case FunctionName.BOND_DEPOSIT_WETH:
+      case FunctionName.BOND_REDEEM:
+        const edTopics = logs[logs.length - 2].topics
+        return edTopics[edTopics.length - 1]
       case FunctionName.MULTI_CALL:
       default:
         if (!topics || topics.length <= 0) return ''

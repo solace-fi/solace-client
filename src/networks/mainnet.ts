@@ -157,16 +157,7 @@ export const MainNetwork: NetworkConfig = {
         abi: yearnABI,
       },
     },
-    productsRev: {
-      [String(process.env.REACT_APP_MAINNET_AAVE_PRODUCT_ADDR)]: ProductName.AAVE,
-      [String(process.env.REACT_APP_MAINNET_COMPOUND_PRODUCT_ADDR)]: ProductName.COMPOUND,
-      [String(process.env.REACT_APP_MAINNET_CURVE_PRODUCT_ADDR)]: ProductName.CURVE,
-      [String(process.env.REACT_APP_MAINNET_LIQUITY_PRODUCT_ADDR)]: ProductName.LIQUITY,
-      [String(process.env.REACT_APP_MAINNET_SUSHISWAP_PRODUCT_ADDR)]: ProductName.SUSHISWAP,
-      [String(process.env.REACT_APP_MAINNET_UNISWAPV2_PRODUCT_ADDR)]: ProductName.UNISWAP_V2,
-      [String(process.env.REACT_APP_MAINNET_UNISWAPV3_PRODUCT_ADDR)]: ProductName.UNISWAP_V3,
-      [String(process.env.REACT_APP_MAINNET_YEARN_PRODUCT_ADDR)]: ProductName.YEARN,
-    },
+    bondTellerContracts: {},
   },
   cache: {
     supportedProducts: [
@@ -179,6 +170,7 @@ export const MainNetwork: NetworkConfig = {
       UniswapV3Product,
       SushiswapProduct,
     ],
+    tellerToTokenMapping: {},
   },
   metamaskChain: {
     chainId: hexValue(1),

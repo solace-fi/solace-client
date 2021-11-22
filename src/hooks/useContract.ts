@@ -2,8 +2,11 @@ import { useWallet } from '../context/WalletManager'
 import { useMemo } from 'react'
 import { getContract } from '../utils'
 import { Contract } from '@ethersproject/contracts'
-import { ContractSources, ProductContract, SupportedProduct } from '../constants/types'
+import { BondTellerContract, ContractSources, ProductContract, SupportedProduct } from '../constants/types'
 import { useNetwork } from '../context/NetworkManager'
+
+import bondTellerErc20Abi from '../constants/abi/contracts/BondTellerErc20.sol/BondTellerErc20.json'
+import bondTellerEthAbi from '../constants/abi/contracts/BondTellerEth.sol/BondTellerEth.json'
 
 export function useGetContract(source: ContractSources | undefined, hasSigner = true): Contract | null {
   const { library, account } = useWallet()
@@ -48,11 +51,43 @@ export function useGetProductContracts(): ProductContract[] {
   }, [library, account, activeNetwork])
 }
 
+export function useGetBondTellerContracts(): BondTellerContract[] {
+  const { library, account } = useWallet()
+  const { activeNetwork } = useNetwork()
+
+  return useMemo(() => {
+    const config = activeNetwork.config
+    const cache = activeNetwork.cache
+    if (!library) return []
+    const bondTellerContracts: BondTellerContract[] = []
+    Object.keys(config.bondTellerContracts).forEach((key) => {
+      const bondTellerContractAddr = config.bondTellerContracts[key]
+      const isBondTellerErc20 = cache.tellerToTokenMapping[bondTellerContractAddr].isBondTellerErc20
+      const isLp = cache.tellerToTokenMapping[bondTellerContractAddr].isLp
+      const name = key
+      const contract = getContract(
+        bondTellerContractAddr,
+        isBondTellerErc20 ? bondTellerErc20Abi : bondTellerEthAbi,
+        library,
+        account ? account : undefined
+      )
+      bondTellerContracts.push({
+        name,
+        contract,
+        isBondTellerErc20,
+        isLp,
+      })
+    })
+    return bondTellerContracts
+  }, [library, account, activeNetwork])
+}
+
 export function useContractArray(): ContractSources[] {
   const { activeNetwork } = useNetwork()
 
   return useMemo(() => {
     const config = activeNetwork.config
+    const cache = activeNetwork.cache
     const contractSources: ContractSources[] = []
     const excludedContractAddrs = activeNetwork.explorer.excludedContractAddrs
 
@@ -69,6 +104,15 @@ export function useContractArray(): ContractSources[] {
         contractSources.push({
           addr: config.productContracts[key].addr.toLowerCase(),
           abi: config.productContracts[key].abi,
+        })
+      }
+    })
+    Object.keys(config.bondTellerContracts).forEach((key) => {
+      if (!excludedContractAddrs.includes(config.bondTellerContracts[key])) {
+        const isBondTellerErc20 = cache.tellerToTokenMapping[config.bondTellerContracts[key]].isBondTellerErc20
+        contractSources.push({
+          addr: config.bondTellerContracts[key].toLowerCase(),
+          abi: isBondTellerErc20 ? bondTellerErc20Abi : bondTellerEthAbi,
         })
       }
     })

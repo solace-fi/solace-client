@@ -164,7 +164,10 @@ export const getUnit = (function_name: string, activeNetwork?: NetworkConfig): U
     case FunctionName.WITHDRAW_CP:
       return Unit.SCP
     case FunctionName.WITHDRAW_REWARDS:
+    case FunctionName.STAKE:
       return Unit.SOLACE
+    case FunctionName.UNSTAKE:
+      return Unit.X_SOLACE
     case FunctionName.DEPOSIT_LP_SIGNED:
     case FunctionName.WITHDRAW_LP:
     case FunctionName.MULTI_CALL:
@@ -178,6 +181,10 @@ export const getUnit = (function_name: string, activeNetwork?: NetworkConfig): U
       return Unit.POLICY
     case FunctionName.WITHDRAW_CLAIMS_PAYOUT:
       return Unit.CLAIM
+    case FunctionName.BOND_DEPOSIT_ERC20:
+    case FunctionName.BOND_DEPOSIT_WETH:
+    case FunctionName.BOND_REDEEM:
+      return Unit.BOND
     case FunctionName.START_COOLDOWN:
     case FunctionName.STOP_COOLDOWN:
     default:
@@ -210,6 +217,8 @@ export const formatTransactionContent = (
     case FunctionName.WITHDRAW_CP:
     case FunctionName.WITHDRAW_REWARDS:
     case FunctionName.APPROVE:
+    case FunctionName.STAKE:
+    case FunctionName.UNSTAKE:
       return `${truncateBalance(formatUnits(BigNumber.from(amount), activeNetwork.nativeCurrency.decimals))} ${unit}`
     case FunctionName.DEPOSIT_LP_SIGNED:
     case FunctionName.WITHDRAW_LP:

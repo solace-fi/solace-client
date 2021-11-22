@@ -57,11 +57,15 @@ export const usePolicyGetter = (
     if (!policyManager) return returnError
     try {
       const policy = await policyManager.getPolicyInfo(policyId)
+      let productName = ''
+      if (!getAll && policyHolder) {
+        productName = getProductNameFromAddress(policy.product)
+      }
       return {
         policyId: Number(policyId),
         policyHolder: policy.policyholder,
         productAddress: policy.product,
-        productName: activeNetwork.config.productsRev[policy.product] ?? '',
+        productName: productName,
         positionDescription: policy.positionDescription,
         positionAddrs: [],
         positionNames: [],
@@ -98,7 +102,7 @@ export const usePolicyGetter = (
   }
 
   const getEditedPolicy = async (policy: Policy): Promise<Policy> => {
-    const supportedProductName = activeNetwork.config.productsRev[policy.productAddress]
+    const supportedProductName = getProductNameFromAddress(policy.productAddress)
     const supportedProduct = activeNetwork.cache.supportedProducts.find(
       (product) => product.name == supportedProductName
     )
@@ -139,10 +143,16 @@ export const usePolicyGetter = (
 
         const supportedProductNames = new Map()
         const supportedProducts: SupportedProduct[] = []
+        const supportedProductNamesArray: string[] = []
+
         for (let i = 0; i < policies.length; i++) {
-          const supportedProductName = activeNetwork.config.productsRev[policies[i].productAddress]
+          const supportedProductName = getProductNameFromAddress(policies[i].productAddress)
+          supportedProductNamesArray.push(supportedProductName)
+        }
+
+        for (let i = 0; i < policies.length; i++) {
           const supportedProduct = activeNetwork.cache.supportedProducts.find(
-            (product) => product.name == supportedProductName
+            (product) => product.name == supportedProductNamesArray[i]
           )
           if (supportedProduct && supportedProductNames.get(supportedProduct.name) != true) {
             supportedProductNames.set(supportedProduct.name, true)
@@ -153,8 +163,7 @@ export const usePolicyGetter = (
         const newCache = await tokenPosData.getCacheForPolicies(supportedProducts)
 
         for (let i = 0; i < policies.length; i++) {
-          const supportedProductName = activeNetwork.config.productsRev[policies[i].productAddress]
-          const productPosition = newCache?.positionNamesCache[supportedProductName]
+          const productPosition = newCache?.positionNamesCache[supportedProductNamesArray[i]]
           policies[i] = getPolicyPositions(productPosition, policies[i])
         }
         setUserPolicies(policies)
@@ -173,6 +182,7 @@ export const usePolicyGetter = (
     const blockNumber = await library.getBlockNumber()
     let updatedPolicy = await queryPolicy(id, blockNumber)
     updatedPolicy = await getEditedPolicy(updatedPolicy)
+
     if (canGetClaimAssessments.current) {
       const assessment = await getClaimAssessment(String(updatedPolicy.policyId), activeNetwork.chainId).catch(
         (err) => {
@@ -201,6 +211,17 @@ export const usePolicyGetter = (
       return { ...policy, claimAssessment: claimAssessments[i] }
     })
     setUserPolicies(policiesWithClaimAssessments)
+  }
+
+  const getProductNameFromAddress = (addr: string): string => {
+    let res = ''
+    Object.keys(activeNetwork.config.productContracts).every((name) => {
+      if (activeNetwork.config.productContracts[name].addr.toLowerCase() == addr.toLowerCase()) {
+        res = name
+        return
+      }
+    })
+    return res
   }
 
   // load on change of account or network

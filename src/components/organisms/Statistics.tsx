@@ -68,7 +68,7 @@ export const Statistics: React.FC = () => {
   const { makeTxToast } = useNotifications()
   const { addLocalTransactions, reload, tokenPosData, latestBlock } = useCachedData()
   const capitalPoolSize = useCapitalPoolSize()
-  const solaceBalance = useSolaceBalance()
+  const { solaceBalance } = useSolaceBalance()
   const totalUserRewards = useTotalPendingRewards()
   const { allPolicies } = usePolicyGetter(true, latestBlock, tokenPosData)
   const totalValueLocked = useGetTotalValueLocked()

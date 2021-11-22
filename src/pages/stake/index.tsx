@@ -5,6 +5,7 @@
     import packages
     import managers
     import components
+    import hooks
 
     Stake 
       hooks
@@ -12,10 +13,17 @@
 */
 
 /* import packages */
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
+import { parseUnits } from '@ethersproject/units'
+import { BigNumber } from 'ethers'
 
 /* import managers */
 import { useWallet } from '../../context/WalletManager'
+import { useNetwork } from '../../context/NetworkManager'
+import { useGeneral } from '../../context/GeneralProvider'
+
+/* import constants */
+import { FunctionName } from '../../constants/enums'
 
 /* import components */
 import { Button, ButtonWrapper } from '../../components/atoms/Button'
@@ -28,6 +36,14 @@ import { Text } from '../../components/atoms/Typography'
 import { HeroContainer, MultiTabIndicator } from '../../components/atoms/Layout'
 import { WalletConnectButton } from '../../components/molecules/WalletConnectButton'
 
+/* import hooks */
+import { useSolaceBalance, useXSolaceBalance } from '../../hooks/useBalance'
+import { useXSolace } from '../../hooks/useXSolace'
+import { useInputAmount } from '../../hooks/useInputAmount'
+
+/* import utils */
+import { getUnit, truncateBalance } from '../../utils/formatting'
+
 function Stake(): any {
   /*************************************************************************************
 
@@ -35,8 +51,61 @@ function Stake(): any {
 
   *************************************************************************************/
 
+  const { haveErrors } = useGeneral()
   const [isStaking, setIsStaking] = useState<boolean>(true)
+  const { solaceBalance } = useSolaceBalance()
+  const xSolaceBalance = useXSolaceBalance()
+  const {
+    gasConfig,
+    amount,
+    isAppropriateAmount,
+    handleToast,
+    handleContractCallError,
+    handleInputChange,
+    setMax,
+    resetAmount,
+  } = useInputAmount()
+  const { stake, unstake } = useXSolace()
   const { account } = useWallet()
+  const { currencyDecimals } = useNetwork()
+
+  const [isAcceptableAmount, setIsAcceptableAmount] = useState<boolean>(false)
+
+  const callStakeSigned = async () => {
+    await stake(
+      parseUnits(amount, currencyDecimals),
+      `${truncateBalance(amount)} ${getUnit(FunctionName.STAKE)}`,
+      gasConfig
+    )
+      .then((res) => handleToast(res.tx, res.localTx))
+      .catch((err) => handleContractCallError('callStakeSigned', err, FunctionName.STAKE))
+  }
+
+  const callUnstake = async () => {
+    await unstake(
+      parseUnits(amount, currencyDecimals),
+      `${truncateBalance(amount)} ${getUnit(FunctionName.UNSTAKE)}`,
+      gasConfig
+    )
+      .then((res) => handleToast(res.tx, res.localTx))
+      .catch((err) => handleContractCallError('callUnstake', err, FunctionName.UNSTAKE))
+  }
+
+  const getAssetBalanceByFunc = (): BigNumber => {
+    return isStaking ? parseUnits(solaceBalance, currencyDecimals) : parseUnits(xSolaceBalance, currencyDecimals)
+  }
+
+  const _setMax = () => {
+    setMax(getAssetBalanceByFunc(), currencyDecimals)
+  }
+
+  useEffect(() => {
+    setIsAcceptableAmount(isAppropriateAmount(amount, currencyDecimals, getAssetBalanceByFunc()))
+  }, [amount, isStaking])
+
+  useEffect(() => {
+    resetAmount()
+  }, [isStaking])
 
   return (
     <>
@@ -91,8 +160,10 @@ function Stake(): any {
                   placeholder="0.0"
                   textAlignCenter
                   type="text"
+                  onChange={(e) => handleInputChange(e.target.value)}
+                  value={amount}
                 />
-                <Button ml={10} pt={4} pb={4} pl={8} pr={8} width={70} height={30}>
+                <Button ml={10} pt={4} pb={4} pl={8} pr={8} width={70} height={30} onClick={_setMax}>
                   MAX
                 </Button>
               </div>
@@ -101,7 +172,7 @@ function Stake(): any {
                   <Text>Unstaked Balance</Text>
                 </FormCol>
                 <FormCol>
-                  <Text info>0.01 SOLACE</Text>
+                  <Text info>{solaceBalance} SOLACE</Text>
                 </FormCol>
               </FormRow>
               <FormRow mb={10}>
@@ -110,7 +181,7 @@ function Stake(): any {
                 </FormCol>
                 <FormCol>
                   <Text info nowrap>
-                    0.01 xSOLACE
+                    {xSolaceBalance} xSOLACE
                   </Text>
                 </FormCol>
               </FormRow>
@@ -146,7 +217,12 @@ function Stake(): any {
                 </FormCol>
               </FormRow>
               <ButtonWrapper>
-                <Button widthP={100} info>
+                <Button
+                  widthP={100}
+                  info
+                  disabled={!isAcceptableAmount || haveErrors}
+                  onClick={isStaking ? callStakeSigned : callUnstake}
+                >
                   {isStaking ? 'Stake' : 'Unstake'}
                 </Button>
               </ButtonWrapper>

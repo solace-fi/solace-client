@@ -70,11 +70,12 @@ export const useScpBalance = (): string => {
   return scpBalance
 }
 
-export const useSolaceBalance = (): string => {
+export const useSolaceBalance = () => {
   const { solace } = useContracts()
   const { currencyDecimals } = useNetwork()
   const { account } = useWallet()
   const [solaceBalance, setSolaceBalance] = useState<string>('0')
+  const [tokenData, setTokenData] = useState<any>({ name: '', decimals: 0, symbol: '' })
 
   const getSolaceBalance = async () => {
     if (!solace || !account) return
@@ -86,6 +87,15 @@ export const useSolaceBalance = (): string => {
       console.log('getSolaceBalance', err)
     }
   }
+
+  useEffect(() => {
+    if (!solace) return
+    const fetchTokenData = async () => {
+      const [name, decimals, symbol] = await Promise.all([solace.name(), solace.decimals(), solace.symbol()])
+      setTokenData({ name, decimals, symbol })
+    }
+    fetchTokenData()
+  }, [solace])
 
   useEffect(() => {
     if (!solace || !account) return
@@ -101,7 +111,51 @@ export const useSolaceBalance = (): string => {
     }
   }, [account, solace])
 
-  return solaceBalance
+  return { solaceBalance, tokenData }
+}
+
+export const useXSolaceBalance = () => {
+  const { xSolace } = useContracts()
+  const { currencyDecimals } = useNetwork()
+  const { account } = useWallet()
+  const [xSolaceBalance, setXSolaceBalance] = useState<string>('0')
+  const [tokenData, setTokenData] = useState<any>({ name: '', decimals: 0, symbol: '' })
+
+  const getXSolaceBalance = async () => {
+    if (!xSolace || !account) return
+    try {
+      const balance = await queryBalance(xSolace, account)
+      const formattedBalance = formatUnits(balance, currencyDecimals)
+      setXSolaceBalance(formattedBalance)
+    } catch (err) {
+      console.log('getXSolaceBalance', err)
+    }
+  }
+
+  useEffect(() => {
+    if (!xSolace) return
+    const fetchTokenData = async () => {
+      const [name, decimals, symbol] = await Promise.all([xSolace.name(), xSolace.decimals(), xSolace.symbol()])
+      setTokenData({ name, decimals, symbol })
+    }
+    fetchTokenData()
+  }, [xSolace])
+
+  useEffect(() => {
+    if (!xSolace || !account) return
+    getXSolaceBalance()
+    xSolace.on('Transfer', (from, to) => {
+      if (from == account || to == account) {
+        getXSolaceBalance()
+      }
+    })
+
+    return () => {
+      xSolace.removeAllListeners()
+    }
+  }, [account, xSolace])
+
+  return { xSolaceBalance, tokenData }
 }
 
 export const useUserWalletLpBalance = (): NftTokenInfo[] => {

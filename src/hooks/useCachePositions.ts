@@ -204,6 +204,9 @@ export const useCachePositions = () => {
         const editedData = storedPosData.filter((data) => data.chainId != networkCache.chainId)
         const newData = [...editedData, networkCache]
         setStoredPosData(newData)
+        console.log(`getCache: change occurred, init completed`)
+      } else {
+        console.log(`getCache: no init needed`)
       }
       if (reserved) setBatchFetching(false)
       return networkCache
@@ -226,7 +229,7 @@ export const useCachePositions = () => {
       fetching.current = false
       return cache
     },
-    [fetching.current, batchFetching, getCache]
+    [batchFetching, getCache]
   )
 
   useEffect(() => {

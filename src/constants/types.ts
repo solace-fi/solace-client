@@ -127,6 +127,35 @@ export type LiquityPosition = {
   }
 }
 
+export type BondToken = {
+  id: BigNumber
+  payoutToken: string
+  payoutAmount: BigNumber
+  pricePaid: BigNumber
+  maturation: BigNumber
+}
+
+export type BondTellerDetails = {
+  tellerData: {
+    teller: BondTellerContract
+    bondPrice: string
+    vestingTermInSeconds: number
+    capacity: BigNumber
+    maxPayout: BigNumber
+    stakeFeeBps: BigNumber
+  }
+  principalData: {
+    principal: Contract
+    principalProps: {
+      symbol: string
+      decimals: number
+      name: string
+    }
+    token0?: string
+    token1?: string
+  }
+}
+
 export type ClaimAssessment = {
   lossEventDetected: boolean
   amountOut: string
@@ -201,8 +230,15 @@ export type SupportedProduct = {
 }
 
 export type ProductContract = {
-  name: ProductName
-  contract?: Contract
+  name: string
+  contract: Contract
+}
+
+export type BondTellerContract = {
+  name: string
+  contract: Contract
+  isBondTellerErc20: boolean
+  isLp: boolean
 }
 
 export type ContractSources = { addr: string; abi: any }
@@ -217,6 +253,11 @@ export type LocalTx = {
   type: string
   value: string
   status: TransactionCondition
+}
+
+export type TxResult = {
+  tx: any | null
+  localTx: LocalTx | null
 }
 
 export type NetworkConfig = {
@@ -241,18 +282,13 @@ export type NetworkConfig = {
     excludedContractAddrs: string[]
   }
   config: {
-    keyContracts: {
-      [key: string]: ContractSources
-    }
-    productContracts: {
-      [key: string]: ContractSources
-    }
-    productsRev: {
-      [key: string]: ProductName
-    }
+    keyContracts: { [key: string]: ContractSources }
+    productContracts: { [key: string]: ContractSources }
+    bondTellerContracts: { [key: string]: string }
   }
   cache: {
     supportedProducts: SupportedProduct[]
+    tellerToTokenMapping: { [key: string]: { addr: string; isBondTellerErc20: boolean; isLp: boolean } }
   }
   metamaskChain?: MetamaskAddEthereumChain
   walletConfig: any

@@ -133,6 +133,24 @@ export const SideNavbar: React.FC = () => {
               </SidebarItem>
             </ItemText>
           </StyledNavTooltip>
+          <StyledNavTooltip id={'stake-nav'} tip={'Stake'}>
+            <ItemText>
+              <SidebarItem to={'/stake'} style={miniNavbarMarginSet}>
+                <Text info={location.pathname == '/stake'} light={lightText}>
+                  {width > BKPT_3 ? 'Stake' : <StyledCoinStack size={30} />}
+                </Text>
+              </SidebarItem>
+            </ItemText>
+          </StyledNavTooltip>
+          <StyledNavTooltip id={'bond-nav'} tip={'Bond'}>
+            <ItemText>
+              <SidebarItem to={'/bond'} style={miniNavbarMarginSet}>
+                <Text info={location.pathname == '/bond'} light={lightText}>
+                  {width > BKPT_3 ? 'Bond' : <StyledCoinStack size={30} />}
+                </Text>
+              </SidebarItem>
+            </ItemText>
+          </StyledNavTooltip>
           <StyledNavTooltip id={'invest-nav'} tip={'Invest'}>
             <ItemText>
               <SidebarItem to={'/invest'} style={miniNavbarMarginSet}>
@@ -393,6 +411,16 @@ export const TopNavbar: React.FC = () => {
         <SidebarItem onClick={() => handleIsOpen(!isOpen)} to={'/quote'} style={{ padding: '20px 0' }}>
           <Text light bold={location.pathname == '/quote'}>
             Buy Cover
+          </Text>
+        </SidebarItem>
+        <SidebarItem onClick={() => handleIsOpen(!isOpen)} to={'/stake'} style={{ padding: '20px 0' }}>
+          <Text light bold={location.pathname == '/stake'}>
+            Stake
+          </Text>
+        </SidebarItem>
+        <SidebarItem onClick={() => handleIsOpen(!isOpen)} to={'/bond'} style={{ padding: '20px 0' }}>
+          <Text light bold={location.pathname == '/bond'}>
+            Bond
           </Text>
         </SidebarItem>
         <SidebarItem onClick={() => handleIsOpen(!isOpen)} to={'/invest'} style={{ padding: '20px 0' }}>
