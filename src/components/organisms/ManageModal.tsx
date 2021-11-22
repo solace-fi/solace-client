@@ -75,7 +75,6 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
   const [newCoverage, setNewCoverage] = useState<string>('1')
   const [extendedTime, setExtendedTime] = useState<string>('0')
   const [modalLoading, setModalLoading] = useState<boolean>(false)
-  const [canCloseOnLoading, setCanCloseOnLoading] = useState<boolean>(false)
 
   const { haveErrors } = useGeneral()
   const { activeNetwork, currencyDecimals } = useNetwork()
@@ -351,12 +350,7 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
   }, [newCoverage, currencyDecimals])
 
   return (
-    <Modal
-      isOpen={isOpen}
-      handleClose={handleClose}
-      modalTitle={'Policy Management'}
-      disableCloseButton={modalLoading && !canCloseOnLoading}
-    >
+    <Modal isOpen={isOpen} handleClose={handleClose} modalTitle={'Policy Management'} disableCloseButton={modalLoading}>
       <Fragment>
         <PolicyModalInfo selectedPolicy={selectedPolicy} latestBlock={latestBlock} appraisal={appraisal} />
         {!modalLoading ? (

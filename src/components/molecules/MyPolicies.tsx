@@ -16,10 +16,9 @@
   *************************************************************************************/
 
 /* import packages */
-import React, { useMemo } from 'react'
+import React from 'react'
 import { formatUnits } from '@ethersproject/units'
 import { Block } from '@ethersproject/contracts/node_modules/@ethersproject/abstract-provider'
-import { BigNumber } from 'ethers'
 
 /* import managers */
 import { useCachedData } from '../../context/CachedDataManager'
