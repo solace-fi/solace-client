@@ -5,6 +5,7 @@ import { useCachedData } from '../context/CachedDataManager'
 import { useContracts } from '../context/ContractsManager'
 import { useWallet } from '../context/WalletManager'
 import { FunctionName, TransactionCondition } from '../constants/enums'
+import { FunctionGasLimits } from '../constants/mappings'
 
 export const useOptionsDetails = () => {
   const { optionsFarming } = useContracts()
@@ -17,7 +18,7 @@ export const useOptionsDetails = () => {
     if (!optionsFarming || !_optionId) return { tx: null, localTx: null }
     const tx = await optionsFarming.exerciseOption(_optionId, {
       ...gasConfig,
-      gasLimit: 161379,
+      gasLimit: FunctionGasLimits['optionsFarming.exerciseOption'],
     })
     const txHash = tx.hash
     const localTx: LocalTx = {

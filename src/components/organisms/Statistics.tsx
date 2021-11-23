@@ -54,6 +54,7 @@ import { useGetFunctionGas } from '../../hooks/useGas'
 /* import utils */
 import { truncateBalance } from '../../utils/formatting'
 import { LocalTx } from '../../constants/types'
+import { FunctionGasLimits } from '../../constants/mappings'
 
 export const Statistics: React.FC = () => {
   /*************************************************************************************
@@ -89,7 +90,7 @@ export const Statistics: React.FC = () => {
     try {
       const tx = await farmController.farmOptionMulti({
         ...gasConfig,
-        gasLimit: 834261,
+        gasLimit: FunctionGasLimits['farmController.farmOptionMulti'],
       })
       const txHash = tx.hash
       const localTx: LocalTx = {

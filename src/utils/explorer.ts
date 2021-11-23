@@ -25,7 +25,9 @@ export async function fetchExplorerTxHistoryByAddress(
 
 export async function fetchGasPrice(activeNetwork: NetworkConfig): Promise<GasPriceResult> {
   return await withBackoffRetries(async () =>
-    fetch(`${activeNetwork.explorer}/api?module=gastracker&action=gasoracle&apikey=${STRINGIFIED_ETHERSCAN_API_KEY}`)
+    fetch(
+      `${activeNetwork.explorer.apiUrl}/api?module=gastracker&action=gasoracle&apikey=${STRINGIFIED_ETHERSCAN_API_KEY}`
+    )
   )
     .then((result) => result.json())
     .then((result) => result.result)

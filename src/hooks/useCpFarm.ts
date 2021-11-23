@@ -2,6 +2,7 @@ import { BigNumber } from 'ethers'
 import { useContracts } from '../context/ContractsManager'
 import { FunctionName, TransactionCondition } from '../constants/enums'
 import { GasConfiguration, LocalTx, TxResult } from '../constants/types'
+import { FunctionGasLimits } from '../constants/mappings'
 
 export const useCpFarm = () => {
   const { cpFarm } = useContracts()
@@ -11,7 +12,7 @@ export const useCpFarm = () => {
     const tx = await cpFarm.depositEth({
       value: parsedAmount,
       ...gasConfig,
-      gasLimit: 243022,
+      gasLimit: FunctionGasLimits['cpFarm.depositEth'],
     })
     const localTx: LocalTx = {
       hash: tx.hash,
@@ -26,7 +27,7 @@ export const useCpFarm = () => {
     if (!cpFarm) return { tx: null, localTx: null }
     const tx = await cpFarm.depositCp(parsedAmount, {
       ...gasConfig,
-      gasLimit: 189538,
+      gasLimit: FunctionGasLimits['cpFarm.depositCp'],
     })
     const localTx: LocalTx = {
       hash: tx.hash,
@@ -41,7 +42,7 @@ export const useCpFarm = () => {
     if (!cpFarm) return { tx: null, localTx: null }
     const tx = await cpFarm.withdrawCp(parsedAmount, {
       ...gasConfig,
-      gasLimit: 189538,
+      gasLimit: FunctionGasLimits['cpFarm.withdrawCp'],
     })
     const localTx: LocalTx = {
       hash: tx.hash,

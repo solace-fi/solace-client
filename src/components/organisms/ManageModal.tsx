@@ -46,6 +46,7 @@ import { StyledLinkExternal } from '../atoms/Icon'
 import { DAYS_PER_YEAR, NUM_BLOCKS_PER_DAY, ZERO } from '../../constants'
 import { FunctionName, TransactionCondition, ExplorerscanApi } from '../../constants/enums'
 import { LocalTx, Policy } from '../../constants/types'
+import { FunctionGasLimits } from '../../constants/mappings'
 
 /* import hooks */
 import { useAppraisePolicyPosition, useGetMaxCoverPerPolicy, useGetPolicyPrice } from '../../hooks/usePolicy'
@@ -139,7 +140,7 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
         {
           value: newPremium,
           ...gasConfig,
-          gasLimit: 230032,
+          gasLimit: FunctionGasLimits['selectedProtocol.updatePolicy'],
         }
       )
       const localTx: LocalTx = {
@@ -167,7 +168,7 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
       const tx = await selectedProtocol.updateCoverAmount(selectedPolicy.policyId, newCoverage, {
         value: newPremium,
         ...gasConfig,
-        gasLimit: 224602,
+        gasLimit: FunctionGasLimits['selectedProtocol.updateCoverAmount'],
       })
       const localTx: LocalTx = {
         hash: tx.hash,
@@ -196,7 +197,7 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
         {
           value: newPremium,
           ...gasConfig,
-          gasLimit: 158884,
+          gasLimit: FunctionGasLimits['selectedProtocol.extendPolicy'],
         }
       )
       const localTx: LocalTx = {
@@ -218,7 +219,7 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
     try {
       const tx = await selectedProtocol.cancelPolicy(selectedPolicy.policyId, {
         ...gasConfig,
-        gasLimit: 208993,
+        gasLimit: FunctionGasLimits['selectedProtocol.cancelPolicy'],
       })
       const localTx: LocalTx = {
         hash: tx.hash,

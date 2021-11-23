@@ -9,7 +9,7 @@ import sushiswapLpAbi from '../constants/metadata/ISushiswapMetadataAlt.json'
 import weth9 from '../constants/abi/contracts/WETH9.sol/WETH9.json'
 import { useWallet } from '../context/WalletManager'
 import { formatUnits } from '@ethersproject/units'
-import { GAS_LIMIT } from '../constants'
+import { FunctionGasLimits } from '../constants/mappings'
 import { FunctionName, TransactionCondition } from '../constants/enums'
 import { queryDecimals, queryName, querySymbol } from '../utils/contract'
 import { useCachedData } from '../context/CachedDataManager'
@@ -29,13 +29,13 @@ export const useBondTeller = (selectedBondDetail: BondTellerDetails | undefined)
       func == FunctionName.BOND_DEPOSIT_ERC20
         ? await selectedBondDetail.tellerData.teller.contract.deposit(parsedAmount, minAmountOut, recipient, stake, {
             ...gasConfig,
-            gasLimit: GAS_LIMIT,
+            gasLimit: FunctionGasLimits['tellerErc20.deposit'],
           })
         : func == FunctionName.DEPOSIT_ETH
         ? await selectedBondDetail.tellerData.teller.contract.depositEth(minAmountOut, recipient, stake, {
             value: parsedAmount,
             ...gasConfig,
-            gasLimit: GAS_LIMIT,
+            gasLimit: FunctionGasLimits['tellerEth.depositEth'],
           })
         : await selectedBondDetail.tellerData.teller.contract.depositWeth(
             parsedAmount,
@@ -44,7 +44,7 @@ export const useBondTeller = (selectedBondDetail: BondTellerDetails | undefined)
             stake,
             {
               ...gasConfig,
-              gasLimit: GAS_LIMIT,
+              gasLimit: FunctionGasLimits['tellerEth.depositWeth'],
             }
           )
     const localTx: LocalTx = {
@@ -61,7 +61,7 @@ export const useBondTeller = (selectedBondDetail: BondTellerDetails | undefined)
     console.log(bondId)
     const tx = await selectedBondDetail.tellerData.teller.contract.redeem(bondId, {
       ...gasConfig,
-      gasLimit: GAS_LIMIT,
+      gasLimit: FunctionGasLimits['teller.redeem'],
     })
     const localTx: LocalTx = {
       hash: tx.hash,

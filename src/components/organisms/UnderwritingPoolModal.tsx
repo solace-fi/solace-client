@@ -91,10 +91,8 @@ export const UnderwritingPoolModal: React.FC<PoolModalProps> = ({ modalTitle, fu
     isAppropriateAmount,
     handleToast,
     handleContractCallError,
-    calculateMaxAmount,
     handleInputChange,
     setMax,
-    setAmount,
     resetAmount,
   } = useInputAmount()
 
@@ -186,7 +184,7 @@ export const UnderwritingPoolModal: React.FC<PoolModalProps> = ({ modalTitle, fu
   }
 
   const _setMax = () => {
-    setMax(getAssetBalanceByFunc(func), currencyDecimals, func)
+    setMax(getAssetBalanceByFunc(func), currencyDecimals, func, 'vault')
   }
 
   const handleClose = useCallback(() => {
@@ -205,7 +203,7 @@ export const UnderwritingPoolModal: React.FC<PoolModalProps> = ({ modalTitle, fu
   *************************************************************************************/
 
   useEffect(() => {
-    if (maxSelected) setAmount(calculateMaxAmount(getAssetBalanceByFunc(func), currencyDecimals, func).toString())
+    if (maxSelected) _setMax()
   }, [handleSelectGasChange])
 
   useEffect(() => {

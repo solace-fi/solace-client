@@ -10,6 +10,7 @@ import { useNetwork } from '../context/NetworkManager'
 import { FunctionName, TransactionCondition } from '../constants/enums'
 import { GasConfiguration, LocalTx, TxResult } from '../constants/types'
 import { BigNumber } from 'ethers'
+import { FunctionGasLimits } from '../constants/mappings'
 
 export const useCapitalPoolSize = (): string => {
   const { vault } = useContracts()
@@ -158,7 +159,7 @@ export const useVault = () => {
     const tx = await vault.depositEth({
       value: parsedAmount,
       ...gasConfig,
-      gasLimit: 126777,
+      gasLimit: FunctionGasLimits['vault.depositEth'],
     })
     const localTx: LocalTx = {
       hash: tx.hash,
@@ -177,7 +178,7 @@ export const useVault = () => {
     if (!vault) return { tx: null, localTx: null }
     const tx = await vault.withdrawEth(parsedAmount, {
       ...gasConfig,
-      gasLimit: 123823,
+      gasLimit: FunctionGasLimits['vault.withdrawEth'],
     })
     const localTx: LocalTx = {
       hash: tx.hash,

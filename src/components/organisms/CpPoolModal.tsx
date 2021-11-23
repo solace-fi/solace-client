@@ -80,10 +80,8 @@ export const CpPoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen
     isAppropriateAmount,
     handleToast,
     handleContractCallError,
-    calculateMaxAmount,
     handleInputChange,
     setMax,
-    setAmount,
     resetAmount,
   } = useInputAmount()
 
@@ -179,7 +177,7 @@ export const CpPoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen
   }
 
   const _setMax = () => {
-    setMax(getAssetBalanceByFunc(func), currencyDecimals, func)
+    setMax(getAssetBalanceByFunc(func), currencyDecimals, func, 'cpFarm')
   }
 
   const handleCallbackFunc = async () => {
@@ -202,7 +200,7 @@ export const CpPoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen
   *************************************************************************************/
 
   useEffect(() => {
-    if (maxSelected) setAmount(calculateMaxAmount(getAssetBalanceByFunc(func), currencyDecimals, func).toString())
+    if (maxSelected) _setMax()
   }, [handleSelectGasChange])
 
   useEffect(() => {

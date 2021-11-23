@@ -3,16 +3,16 @@ import { BigNumber } from 'ethers'
 import { formatUnits, parseUnits } from '@ethersproject/units'
 
 import { useNotifications } from '../context/NotificationsManager'
-import { useNetwork } from '../context/NetworkManager'
 import { useCachedData } from '../context/CachedDataManager'
 
-import { GAS_LIMIT, POW_NINE, ZERO } from '../constants'
+import { POW_NINE, ZERO } from '../constants'
 import { FunctionName, TransactionCondition } from '../constants/enums'
 import { GasFeeOption, LocalTx } from '../constants/types'
 
 import { useGetFunctionGas } from './useGas'
 
 import { fixed, filteredAmount } from '../utils/formatting'
+import { getNameToFunctionGasLimit } from '../constants/mappings'
 
 export const useInputAmount = () => {
   const { addLocalTransactions, reload, gasPrices } = useCachedData()
@@ -51,10 +51,10 @@ export const useInputAmount = () => {
     reload()
   }
 
-  const calculateMaxAmount = (balance: BigNumber, amountDecimals: number, func?: FunctionName) => {
+  const calculateMaxAmount = (balance: BigNumber, amountDecimals: number, func?: FunctionName, funcCond?: string) => {
     const bal = formatUnits(balance, amountDecimals)
-    if (!func || func !== FunctionName.DEPOSIT_ETH || !selectedGasOption) return bal
-    const gasInEth = (GAS_LIMIT / POW_NINE) * selectedGasOption.value
+    if (func !== FunctionName.DEPOSIT_ETH || !selectedGasOption) return bal
+    const gasInEth = (getNameToFunctionGasLimit(func, funcCond) / POW_NINE) * selectedGasOption.value
     return Math.max(fixed(fixed(bal, 6) - fixed(gasInEth, 6), 6), 0)
   }
 
@@ -63,8 +63,8 @@ export const useInputAmount = () => {
     setMaxSelected(false)
   }
 
-  const setMax = (balance: BigNumber, balanceDecimals: number, func?: FunctionName) => {
-    setAmount(calculateMaxAmount(balance, balanceDecimals, func).toString())
+  const setMax = (balance: BigNumber, balanceDecimals: number, func?: FunctionName, funcCond?: string) => {
+    setAmount(calculateMaxAmount(balance, balanceDecimals, func, funcCond).toString())
     setMaxSelected(true)
   }
 

@@ -3,9 +3,10 @@ import { useNetwork } from '../context/NetworkManager'
 import { useWallet } from '../context/WalletManager'
 import { GasConfiguration, LocalTx, TxResult } from '../constants/types'
 import { BigNumber } from 'ethers'
-import { DEADLINE, GAS_LIMIT } from '../constants'
+import { DEADLINE } from '../constants'
 import { FunctionName, TransactionCondition } from '../constants/enums'
 import { getXSolaceStakeSignature } from '../utils/signature'
+import { FunctionGasLimits } from '../constants/mappings'
 
 export const useXSolace = () => {
   const { solace, xSolace } = useContracts()
@@ -17,7 +18,7 @@ export const useXSolace = () => {
     const { v, r, s } = await getXSolaceStakeSignature(account, chainId, library, solace, xSolace, parsedAmount)
     const tx = await xSolace.stakeSigned(account, parsedAmount, DEADLINE, v, r, s, {
       ...gasConfig,
-      gasLimit: GAS_LIMIT,
+      gasLimit: FunctionGasLimits['xSolace.stakeSigned'],
     })
     const localTx: LocalTx = {
       hash: tx.hash,
@@ -32,7 +33,7 @@ export const useXSolace = () => {
     if (!xSolace) return { tx: null, localTx: null }
     const tx = await xSolace.unstake(parsedAmount, {
       ...gasConfig,
-      gasLimit: GAS_LIMIT,
+      gasLimit: FunctionGasLimits['xSolace.unstake'],
     })
     const localTx: LocalTx = {
       hash: tx.hash,
