@@ -24,21 +24,11 @@ import { Block } from '@ethersproject/contracts/node_modules/@ethersproject/abst
 
 /* import managers */
 import { useNetwork } from '../../context/NetworkManager'
-import { useCachedData } from '../../context/CachedDataManager'
 import { useWallet } from '../../context/WalletManager'
 
 /* import constants */
-import {
-  Policy,
-  Token,
-  Position,
-  SupportedProduct,
-  NetworkCache,
-  BasicData,
-  LiquityPosition,
-} from '../../constants/types'
+import { Policy, BasicData } from '../../constants/types'
 import { BKPT_3, ZERO } from '../../constants'
-import { PositionType } from '../../constants/enums'
 
 /* import components */
 import { Box, BoxItem, BoxItemTitle } from '../atoms/Box'
@@ -57,7 +47,7 @@ import { useWindowDimensions } from '../../hooks/useWindowDimensions'
 
 /* import utils */
 import { getDaysLeft } from '../../utils/time'
-import { trim0x, truncateBalance } from '../../utils/formatting'
+import { truncateBalance } from '../../utils/formatting'
 
 interface PolicyModalInfoProps {
   appraisal: BigNumber
