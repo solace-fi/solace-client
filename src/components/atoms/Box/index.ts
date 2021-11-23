@@ -18,7 +18,10 @@ interface BoxProps {
 }
 
 interface SmallBoxProps {
-  error?: boolean
+  successBorder?: boolean
+  infoBorder?: boolean
+  warningBorder?: boolean
+  errorBorder?: boolean
   canHover?: boolean
   collapse?: boolean
 }
@@ -103,10 +106,14 @@ export const SmallBox = styled.div<BoxProps & SmallBoxProps & GeneralElementProp
       ? null
       : `margin: 0 5px 0 5px;`}
   border-radius: 10px;
-  ${(props) => (props.collapse ? `transform: scaleY(0); height: 0;` : `transform: scaleY(1);`)}
+  max-height: ${(props) => (props.collapse ? '0vh' : '100vh')};
+  transform: ${(props) => (props.collapse ? 'scaleY(0)' : 'scaleY(1)')};
   transition: all 200ms ease;
   ${BoxCss}
-  ${(props) => props.error && `border-color: ${props.theme.typography.errorText};`}
+  ${(props) => props.successBorder && `border-color: ${props.theme.typography.successText};`}
+  ${(props) => props.infoBorder && `border-color: ${props.theme.typography.infoText};`}
+  ${(props) => props.warningBorder && `border-color: ${props.theme.typography.warningText};`}
+  ${(props) => props.errorBorder && `border-color: ${props.theme.typography.errorText};`}
   ${(props) => props.canHover && `&:hover { filter: brightness(1.5); }`}
 `
 

@@ -6,7 +6,6 @@
     import managers
     import constants
     import components
-    import hooks
     import utils
 
     PoolModalRouter
@@ -15,25 +14,22 @@
 
     Erc721InputPanel
 
-    useInputAmount
+    CheckboxOption
 
   *************************************************************************************/
 
 /* import packages */
-import React, { useEffect, useState, useMemo } from 'react'
+import React from 'react'
 import { BigNumber } from 'ethers'
-import { formatUnits, parseUnits } from '@ethersproject/units'
+import { formatUnits } from '@ethersproject/units'
 
 /* import managers */
-import { useNotifications } from '../../context/NotificationsManager'
 import { useGeneral } from '../../context/GeneralProvider'
 import { useNetwork } from '../../context/NetworkManager'
-import { useCachedData } from '../../context/CachedDataManager'
 
 /* import constants */
-import { GAS_LIMIT, POW_NINE, ZERO } from '../../constants'
-import { FunctionName, TransactionCondition, Unit } from '../../constants/enums'
-import { GasFeeOption, LocalTx, NftTokenInfo } from '../../constants/types'
+import { FunctionName, Unit } from '../../constants/enums'
+import { NftTokenInfo } from '../../constants/types'
 
 /* import components */
 import { CpPoolModal } from './CpPoolModal'
@@ -43,12 +39,11 @@ import { Input } from '../atoms/Input'
 import { ModalRow, ModalCell } from '../atoms/Modal'
 import { Button } from '../atoms/Button'
 import { StyledSelect } from '../molecules/Select'
-
-/* import hooks */
-import { useGetFunctionGas } from '../../hooks/useGas'
+import { RadioCircle, RadioCircleFigure, RadioCircleInput } from '../atoms/Radio'
+import { Text } from '../atoms/Typography'
 
 /* import utils */
-import { fixed, filteredAmount } from '../../utils/formatting'
+import { GeneralElementProps } from '../generalInterfaces'
 
 export interface PoolModalProps {
   modalTitle: string
@@ -80,6 +75,12 @@ interface Erc721InputPanelProps {
   nftSelection: { value: string; label: string }
   handleNft: (target: { value: string; label: string }) => void
   nftId: BigNumber
+}
+
+interface CheckboxProps {
+  isChecked: boolean
+  setChecked: any
+  text: string
 }
 
 export const PoolModalRouter: React.FC<PoolModalRouterProps> = ({ modalTitle, func, isOpen, closeModal, farmName }) => {
@@ -166,3 +167,18 @@ export const Erc721InputPanel: React.FC<Erc721InputPanelProps> = ({
     </>
   )
 }
+
+export const CheckboxOption: React.FC<CheckboxProps & GeneralElementProps> = ({
+  isChecked,
+  setChecked,
+  text,
+  ...props
+}) => (
+  <RadioCircle style={{ justifyContent: 'center' }} {...props}>
+    <RadioCircleInput type="checkbox" checked={isChecked} onChange={(e) => setChecked(e.target.checked)} />
+    <RadioCircleFigure />
+    <Text info textAlignCenter t3>
+      {text}
+    </Text>
+  </RadioCircle>
+)

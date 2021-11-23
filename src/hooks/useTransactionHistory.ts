@@ -66,6 +66,8 @@ export const useTransactionDetails = (): { txHistory: any; amounts: string[] } =
           return edTopics[edTopics.length - 1]
         }
         return logs[logs.length - 1].data
+      case FunctionName.STAKE:
+      case FunctionName.UNSTAKE:
       case FunctionName.WITHDRAW_ETH:
         return logs[0].data
       case FunctionName.SUBMIT_CLAIM:

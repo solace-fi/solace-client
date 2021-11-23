@@ -288,7 +288,9 @@ export type NetworkConfig = {
   }
   cache: {
     supportedProducts: SupportedProduct[]
-    tellerToTokenMapping: { [key: string]: { addr: string; isBondTellerErc20: boolean; isLp: boolean } }
+    tellerToTokenMapping: {
+      [key: string]: { addr: string; isBondTellerErc20: boolean; isLp: boolean }
+    }
   }
   metamaskChain?: MetamaskAddEthereumChain
   walletConfig: any

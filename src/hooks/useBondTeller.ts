@@ -15,30 +15,41 @@ import { queryDecimals, queryName, querySymbol } from '../utils/contract'
 import { useCachedData } from '../context/CachedDataManager'
 
 export const useBondTeller = (selectedBondDetail: BondTellerDetails | undefined) => {
-  const { account } = useWallet()
-
   const deposit = async (
     parsedAmount: BigNumber,
     minAmountOut: BigNumber,
+    recipient: string,
+    stake: boolean,
     txVal: string,
+    func: FunctionName,
     gasConfig: GasConfiguration
   ): Promise<TxResult> => {
     if (!selectedBondDetail) return { tx: null, localTx: null }
-    const tx = selectedBondDetail.tellerData.teller.isBondTellerErc20
-      ? await selectedBondDetail.tellerData.teller.contract.deposit(parsedAmount, minAmountOut, account, false, {
-          ...gasConfig,
-          gasLimit: GAS_LIMIT,
-        })
-      : await selectedBondDetail.tellerData.teller.contract.depositEth(minAmountOut, account, false, {
-          value: parsedAmount,
-          ...gasConfig,
-          gasLimit: GAS_LIMIT,
-        })
+    const tx =
+      func == FunctionName.BOND_DEPOSIT_ERC20
+        ? await selectedBondDetail.tellerData.teller.contract.deposit(parsedAmount, minAmountOut, recipient, stake, {
+            ...gasConfig,
+            gasLimit: GAS_LIMIT,
+          })
+        : func == FunctionName.DEPOSIT_ETH
+        ? await selectedBondDetail.tellerData.teller.contract.depositEth(minAmountOut, recipient, stake, {
+            value: parsedAmount,
+            ...gasConfig,
+            gasLimit: GAS_LIMIT,
+          })
+        : await selectedBondDetail.tellerData.teller.contract.depositWeth(
+            parsedAmount,
+            minAmountOut,
+            recipient,
+            stake,
+            {
+              ...gasConfig,
+              gasLimit: GAS_LIMIT,
+            }
+          )
     const localTx: LocalTx = {
       hash: tx.hash,
-      type: selectedBondDetail.tellerData.teller.isBondTellerErc20
-        ? FunctionName.BOND_DEPOSIT_ERC20
-        : FunctionName.DEPOSIT_ETH,
+      type: func,
       value: txVal,
       status: TransactionCondition.PENDING,
     }

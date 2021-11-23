@@ -1,10 +1,10 @@
-import React, { useCallback, useState, useMemo, useEffect } from 'react'
-import { Block } from '@ethersproject/contracts/node_modules/@ethersproject/abstract-provider'
+import React, { useCallback, useState, useMemo, useEffect, useRef } from 'react'
 import { Contract } from '@ethersproject/contracts'
 import { formatUnits, parseUnits } from '@ethersproject/units'
 import useDebounce from '@rooks/use-debounce'
 
 import { BondTellerDetails, BondToken, LocalTx } from '../../constants/types'
+import { MAX_BPS } from '../../constants'
 
 import { useWallet } from '../../context/WalletManager'
 import { useNetwork } from '../../context/NetworkManager'
@@ -17,6 +17,7 @@ import { Text } from '../atoms/Typography'
 import { Button, ButtonWrapper } from '../atoms/Button'
 import { FormCol, FormRow } from '../../components/atoms/Form'
 import { Input } from '../../components/atoms/Input'
+import { DeFiAssetImage } from '../../components/atoms/DeFiAsset'
 
 import { useInputAmount } from '../../hooks/useInputAmount'
 import { useTokenAllowance } from '../../hooks/useTokenAllowance'
@@ -32,10 +33,15 @@ import { useCachedData } from '../../context/CachedDataManager'
 import { useNotifications } from '../../context/NotificationsManager'
 import { useNativeTokenBalance } from '../../hooks/useBalance'
 import { useBondTeller } from '../../hooks/useBondTeller'
-import { accurateMultiply, truncateBalance } from '../../utils/formatting'
+import { accurateMultiply, shortenAddress, truncateBalance } from '../../utils/formatting'
 import { Card, CardContainer } from '../atoms/Card'
 import { Loader } from '../atoms/Loader'
 import { useContracts } from '../../context/ContractsManager'
+import { CheckboxOption } from './PoolModalRouter'
+import { FlexRow } from '../../components/atoms/Layout'
+import { SmallBox } from '../atoms/Box'
+import { StyledGear, StyledGraphDown, StyledSendPlane } from '../atoms/Icon'
+import { BondSettingsModal } from './BondSettingsModal'
 
 interface BondModalProps {
   closeModal: () => void
@@ -51,25 +57,36 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
   const { makeTxToast } = useNotifications()
   const { solace, xSolace } = useContracts()
 
-  const [modalLoading, setModalLoading] = useState<boolean>(false)
-  const [isBonding, setIsBonding] = useState<boolean>(true)
-  const [contractForAllowance, setContractForAllowance] = useState<Contract | null>(null)
-  const [spenderAddress, setSpenderAddress] = useState<string | null>(null)
-  const [maxPayout, setMaxPayout] = useState<BigNumber>(ZERO)
-  const [timestamp, setTimestamp] = useState<number>(0)
-  const [func, setFunc] = useState<FunctionName>(FunctionName.DEPOSIT_ETH)
-  const [isAcceptableAmount, setIsAcceptableAmount] = useState<boolean>(false)
-  const [principalBalance, setPrincipalBalance] = useState<string>('0')
-  const [calculatedAmountIn, setCalculatedAmountIn] = useState<BigNumber>(ZERO)
-  const [calculatedAmountOut, setCalculatedAmountOut] = useState<BigNumber>(ZERO)
   const [canCloseOnLoading, setCanCloseOnLoading] = useState<boolean>(false)
-  const [vestingTermInMillis, setVestingTermInMillis] = useState<number>(0)
-  const [ownedBondTokens, setOwnedBondTokens] = useState<BondToken[]>([])
+  const [modalLoading, setModalLoading] = useState<boolean>(false)
+  const [showBondSettingsModal, setShowBondSettingsModal] = useState<boolean>(false)
 
-  const tokenAllowance = useTokenAllowance(contractForAllowance, spenderAddress)
+  const [bondRecipient, setBondRecipient] = useState<string | undefined>(undefined)
+  const [calculatedAmountIn, setCalculatedAmountIn] = useState<BigNumber | undefined>(ZERO)
+  const [calculatedAmountIn_X, setCalculatedAmountIn_X] = useState<BigNumber | undefined>(ZERO)
+  const [calculatedAmountOut, setCalculatedAmountOut] = useState<BigNumber | undefined>(ZERO)
+  const [calculatedAmountOut_X, setCalculatedAmountOut_X] = useState<BigNumber | undefined>(ZERO)
+  const [contractForAllowance, setContractForAllowance] = useState<Contract | null>(null)
+  const [func, setFunc] = useState<FunctionName>(FunctionName.BOND_DEPOSIT_WETH)
+  const [isAcceptableAmount, setIsAcceptableAmount] = useState<boolean>(false)
+  const [isBondTellerErc20, setIsBondTellerErc20] = useState<boolean>(false)
+  const [isBonding, setIsBonding] = useState<boolean>(true)
+  const [isStaking, setIsStaking] = useState<boolean>(false)
+  const [ownedBondTokens, setOwnedBondTokens] = useState<BondToken[]>([])
+  const [principalBalance, setPrincipalBalance] = useState<string>('0')
+  const [shouldUseNativeToken, setShouldUseNativeToken] = useState<boolean>(false)
+  const [slippagePrct, setSlippagePrct] = useState<string>('.5')
+  const [spenderAddress, setSpenderAddress] = useState<string | null>(null)
+
+  const [timestamp, setTimestamp] = useState<number>(0)
+  const [vestingTermInMillis, setVestingTermInMillis] = useState<number>(0)
+  const [maxPayout, setMaxPayout] = useState<BigNumber>(ZERO)
+  const [maxPayout_X, setMaxPayout_X] = useState<BigNumber>(ZERO)
+
   const solaceBalanceData = useSolaceBalance()
   const xSolaceBalanceData = useXSolaceBalance()
   const nativeTokenBalance = useNativeTokenBalance()
+  const tokenAllowance = useTokenAllowance(contractForAllowance, spenderAddress)
   const { deposit, redeem } = useBondTeller(selectedBondDetail)
   const {
     gasConfig,
@@ -114,13 +131,24 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
     }
   }
 
-  const callDepositBond = async () => {
-    if (!selectedBondDetail?.principalData.principal || !library) return
+  const callDepositBond = async (stake: boolean) => {
+    if (!selectedBondDetail || !library || !calculatedAmountOut || !calculatedAmountOut_X || !bondRecipient) return
     setModalLoading(true)
     const decimals: number = await queryDecimals(selectedBondDetail.principalData.principal)
     const symbol: string = await querySymbol(selectedBondDetail.principalData.principal, library)
-    const minAmountOut = calculatedAmountOut.mul('95').div('100')
-    await deposit(parseUnits(amount, decimals), minAmountOut, `${truncateBalance(amount)} ${symbol}`, gasConfig)
+    await calculateAmountOut(amount, stake)
+    const slippageInt = parseInt(accurateMultiply(slippagePrct, 2))
+    const calcAOut = stake ? calculatedAmountOut_X : calculatedAmountOut
+    const minAmountOut = calcAOut.mul(BigNumber.from(MAX_BPS - slippageInt)).div(BigNumber.from(MAX_BPS))
+    await deposit(
+      parseUnits(amount, decimals),
+      minAmountOut,
+      bondRecipient,
+      stake,
+      `${truncateBalance(amount)} ${symbol}`,
+      func,
+      gasConfig
+    )
       .then((res) => _handleToast(res.tx, res.localTx))
       .catch((err) => _handleContractCallError('callDepositBond', err, func))
   }
@@ -161,50 +189,113 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
   }
 
   const handleClose = useCallback(() => {
-    setContractForAllowance(null)
-    setSpenderAddress(null)
-    resetAmount()
-    setPrincipalBalance('0')
+    setBondRecipient(account)
+    setCalculatedAmountIn(ZERO)
+    setCalculatedAmountIn_X(ZERO)
     setCalculatedAmountOut(ZERO)
+    setCalculatedAmountOut_X(ZERO)
+    setContractForAllowance(null)
+    setFunc(FunctionName.BOND_DEPOSIT_WETH)
     setIsAcceptableAmount(false)
-    setModalLoading(false)
+    setIsBondTellerErc20(false)
     setIsBonding(true)
+    setIsStaking(false)
+    setOwnedBondTokens([])
+    setPrincipalBalance('0')
+    setShouldUseNativeToken(false)
+    setSlippagePrct('.5')
+    setSpenderAddress(null)
+
+    setModalLoading(false)
+    resetAmount()
     closeModal()
   }, [closeModal])
 
   const _setMax = () => {
-    if (selectedBondDetail) {
+    if (selectedBondDetail && calculatedAmountIn && calculatedAmountIn_X) {
+      const calcAIn = isStaking ? calculatedAmountIn_X : calculatedAmountIn
       setMax(
-        getAssetBalanceByFunc(func).gt(calculatedAmountIn) ? calculatedAmountIn : getAssetBalanceByFunc(func),
+        getAssetBalanceByFunc(func).gt(calcAIn) ? calcAIn : getAssetBalanceByFunc(func),
         selectedBondDetail.principalData.principalProps.decimals,
         func
       )
     }
   }
 
-  const calculateAmountOut = useDebounce(async (_amount: string) => {
-    if (selectedBondDetail && _amount) {
-      const calculatedAmountOut: BigNumber = await selectedBondDetail.tellerData.teller.contract.calculateAmountOut(
-        accurateMultiply(_amount, selectedBondDetail.principalData.principalProps.decimals),
-        false
-      )
-      setCalculatedAmountOut(calculatedAmountOut)
-    }
-    if (!_amount) {
-      setCalculatedAmountOut(ZERO)
-    }
-  }, 300)
+  const _calculateAmountOut = useDebounce(
+    async (_amount: string, stake: boolean) => calculateAmountOut(_amount, stake),
+    300
+  )
 
-  const calculateAmountIn = async () => {
-    if (selectedBondDetail) {
-      const calculatedAmountIn: BigNumber = await selectedBondDetail.tellerData.teller.contract.calculateAmountIn(
-        selectedBondDetail.tellerData.maxPayout
-          .mul(BigNumber.from(10000).sub(selectedBondDetail.tellerData.stakeFeeBps))
-          .div(BigNumber.from(10000)),
-        false
-      )
-      setCalculatedAmountIn(calculatedAmountIn)
+  const calculateAmountOut = async (_amount: string, stake: boolean): Promise<BigNumber | undefined> => {
+    if (selectedBondDetail && _amount) {
+      let _calculatedAmountOut: BigNumber | undefined = ZERO
+      let _calculatedAmountOut_X: BigNumber | undefined = ZERO
+      try {
+        const aO: BigNumber = await selectedBondDetail.tellerData.teller.contract.calculateAmountOut(
+          accurateMultiply(_amount, selectedBondDetail.principalData.principalProps.decimals),
+          false
+        )
+        _calculatedAmountOut = aO
+      } catch (e) {
+        _calculatedAmountOut = undefined
+      }
+      setCalculatedAmountOut(_calculatedAmountOut)
+      try {
+        const aO_X: BigNumber = await selectedBondDetail.tellerData.teller.contract.calculateAmountOut(
+          accurateMultiply(_amount, selectedBondDetail.principalData.principalProps.decimals),
+          true
+        )
+        _calculatedAmountOut_X = aO_X
+      } catch (e) {
+        _calculatedAmountOut_X = undefined
+      }
+      setCalculatedAmountOut_X(_calculatedAmountOut_X)
+      return stake ? _calculatedAmountOut_X : _calculatedAmountOut
     }
+    setCalculatedAmountOut(ZERO)
+    setCalculatedAmountOut_X(ZERO)
+    return ZERO
+  }
+
+  const calculateAmountIn = async (stake: boolean): Promise<BigNumber | undefined> => {
+    if (selectedBondDetail && xSolace) {
+      const maxPayout = selectedBondDetail.tellerData.maxPayout
+      const maxPayout_X = await xSolace.solaceToXSolace(selectedBondDetail.tellerData.maxPayout)
+      setMaxPayout(maxPayout)
+      setMaxPayout_X(maxPayout_X)
+
+      let _calculatedAmountIn: BigNumber | undefined = ZERO
+      let _calculatedAmountIn_X: BigNumber | undefined = ZERO
+      try {
+        const aI: BigNumber = await selectedBondDetail.tellerData.teller.contract.calculateAmountIn(
+          maxPayout
+            .mul(BigNumber.from(MAX_BPS).sub(selectedBondDetail.tellerData.stakeFeeBps))
+            .div(BigNumber.from(MAX_BPS)),
+          false
+        )
+        _calculatedAmountIn = aI
+      } catch (e) {
+        _calculatedAmountIn = undefined
+      }
+      setCalculatedAmountIn(_calculatedAmountIn)
+      try {
+        const aI_X: BigNumber = await selectedBondDetail.tellerData.teller.contract.calculateAmountIn(
+          maxPayout_X
+            .mul(BigNumber.from(MAX_BPS).sub(selectedBondDetail.tellerData.stakeFeeBps))
+            .div(BigNumber.from(MAX_BPS)),
+          true
+        )
+        _calculatedAmountIn_X = aI_X
+      } catch (e) {
+        _calculatedAmountIn_X = undefined
+      }
+      setCalculatedAmountIn_X(_calculatedAmountIn_X)
+      return stake ? _calculatedAmountIn_X : _calculatedAmountIn
+    }
+    setCalculatedAmountIn(ZERO)
+    setCalculatedAmountIn_X(ZERO)
+    return ZERO
   }
 
   useEffect(() => {
@@ -212,9 +303,6 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
       if (isOpen && selectedBondDetail && account && solace && xSolace) {
         const principalBal = await queryBalance(selectedBondDetail.principalData.principal, account)
         const principalDecimals = await queryDecimals(selectedBondDetail.principalData.principal)
-        const tempFunc = selectedBondDetail.tellerData.teller.isBondTellerErc20
-          ? FunctionName.BOND_DEPOSIT_ERC20
-          : FunctionName.DEPOSIT_ETH
         const ownedTokenIds: BigNumber[] = await selectedBondDetail.tellerData.teller.contract.listTokensOfOwner(
           account
         )
@@ -236,18 +324,31 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
             maturation: ownedBondData[idx].maturation,
           }
         })
-        setOwnedBondTokens(ownedBonds)
+        setOwnedBondTokens(ownedBonds.sort((a, b) => b.id.toNumber() - a.id.toNumber()))
         setVestingTermInMillis(selectedBondDetail.tellerData.vestingTermInSeconds * 1000)
         setPrincipalBalance(formatUnits(principalBal, principalDecimals))
-        setMaxPayout(selectedBondDetail.tellerData.maxPayout)
         setContractForAllowance(selectedBondDetail.principalData.principal)
         setSpenderAddress(selectedBondDetail.tellerData.teller.contract.address)
-        setFunc(tempFunc)
-        calculateAmountIn()
       }
     }
     getBondData()
   }, [selectedBondDetail, account, isOpen])
+
+  useEffect(() => {
+    const getTellerType = async () => {
+      if (selectedBondDetail) {
+        const isBondTellerErc20 = selectedBondDetail.tellerData.teller.isBondTellerErc20
+        const tempFunc = isBondTellerErc20 ? FunctionName.BOND_DEPOSIT_ERC20 : FunctionName.BOND_DEPOSIT_WETH
+        setIsBondTellerErc20(isBondTellerErc20)
+        setFunc(tempFunc)
+      }
+    }
+    getTellerType()
+  }, [selectedBondDetail?.tellerData.teller.isBondTellerErc20, isOpen])
+
+  useEffect(() => {
+    calculateAmountIn(isStaking)
+  }, [isStaking, selectedBondDetail, xSolace])
 
   useEffect(() => {
     if (selectedBondDetail) {
@@ -258,9 +359,9 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
           getAssetBalanceByFunc(func)
         )
       )
-      calculateAmountOut(amount)
     }
-  }, [amount])
+    _calculateAmountOut(amount, isStaking)
+  }, [amount, isStaking, selectedBondDetail])
 
   useEffect(() => {
     resetAmount()
@@ -271,13 +372,60 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
     setTimestamp(latestBlock.timestamp)
   }, [latestBlock])
 
+  useEffect(() => {
+    setBondRecipient(account)
+  }, [account])
+
+  useEffect(() => {
+    if (isBondTellerErc20) return
+    setFunc(func == FunctionName.DEPOSIT_ETH ? FunctionName.BOND_DEPOSIT_WETH : FunctionName.DEPOSIT_ETH)
+  }, [shouldUseNativeToken])
+
   return (
     <ModalContainer isOpen={isOpen}>
       <ModalBase isOpen={isOpen}>
+        <BondSettingsModal
+          bondRecipient={bondRecipient}
+          setBondRecipient={setBondRecipient}
+          slippagePrct={slippagePrct}
+          setSlippagePrct={setSlippagePrct}
+          isOpen={showBondSettingsModal}
+          modalTitle={`Bond Settings`}
+          handleClose={() => setShowBondSettingsModal(false)}
+          shouldUseNativeToken={shouldUseNativeToken}
+          setShouldUseNativeToken={setShouldUseNativeToken}
+          isBondTellerErc20={isBondTellerErc20}
+          selectedBondDetail={selectedBondDetail}
+        />
         <ModalHeader>
-          <Text t2 bold>
-            Token
-          </Text>
+          <FlexRow style={{ position: 'relative' }}>
+            <StyledGear size={25} style={{ cursor: 'pointer' }} onClick={() => setShowBondSettingsModal(true)} />
+          </FlexRow>
+          <FlexRow style={{ justifyContent: 'center' }}>
+            {selectedBondDetail?.principalData.token0 && selectedBondDetail?.principalData.token1 ? (
+              <>
+                <DeFiAssetImage mr={5} noborder>
+                  <img
+                    src={`https://assets.solace.fi/${selectedBondDetail?.principalData.token0.toLowerCase()}`}
+                    alt={selectedBondDetail?.principalData.token0.toLowerCase()}
+                  />
+                </DeFiAssetImage>
+                <DeFiAssetImage noborder>
+                  <img
+                    src={`https://assets.solace.fi/${selectedBondDetail?.principalData.token1.toLowerCase()}`}
+                    alt={selectedBondDetail?.principalData.token1.toLowerCase()}
+                  />
+                </DeFiAssetImage>
+              </>
+            ) : (
+              <DeFiAssetImage noborder>
+                <img
+                  src={`https://assets.solace.fi/${selectedBondDetail?.principalData.principal.address.toLowerCase()}`}
+                  alt={selectedBondDetail?.tellerData.teller.name}
+                />
+              </DeFiAssetImage>
+            )}
+          </FlexRow>
           <ModalCloseButton hidden={modalLoading && !canCloseOnLoading} onClick={handleClose} />
         </ModalHeader>
         <div style={{ gridTemplateColumns: '1fr 1fr', display: 'grid', position: 'relative' }}>
@@ -351,7 +499,8 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
               </FormCol>
               <FormCol>
                 <Text info bold>
-                  {principalBalance} {selectedBondDetail?.tellerData.teller.name}
+                  {formatUnits(getAssetBalanceByFunc(func), currencyDecimals)}{' '}
+                  {selectedBondDetail?.tellerData.teller.name.substring(func == FunctionName.DEPOSIT_ETH ? 1 : 0)}
                 </Text>
               </FormCol>
             </FormRow>
@@ -361,22 +510,58 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
               </FormCol>
               <FormCol>
                 <Text info nowrap bold>
-                  {formatUnits(calculatedAmountOut, solaceBalanceData.tokenData.decimals)}{' '}
-                  {solaceBalanceData.tokenData.symbol}
+                  {calculatedAmountOut
+                    ? `${formatUnits(calculatedAmountOut, solaceBalanceData.tokenData.decimals)} ${
+                        solaceBalanceData.tokenData.symbol
+                      }`
+                    : `-`}
                 </Text>
               </FormCol>
             </FormRow>
+            <SmallBox transparent collapse={!isStaking} m={0} p={0} style={{ justifyContent: 'right' }}>
+              <FormRow mb={10}>
+                <FormCol></FormCol>
+                <FormCol>
+                  <Text t4 nowrap>
+                    {'( '}
+                    {calculatedAmountOut_X
+                      ? `${formatUnits(calculatedAmountOut_X, xSolaceBalanceData.tokenData.decimals)} ${
+                          xSolaceBalanceData.tokenData.symbol
+                        }`
+                      : `-`}
+                    {' )'}
+                  </Text>
+                </FormCol>
+              </FormRow>
+            </SmallBox>
             <FormRow mb={10}>
               <FormCol>
                 <Text>MAX You Can Buy</Text>
               </FormCol>
               <FormCol>
                 <Text info nowrap>
-                  {formatUnits(maxPayout, solaceBalanceData.tokenData.decimals)} {solaceBalanceData.tokenData.symbol}
+                  {`${formatUnits(maxPayout, solaceBalanceData.tokenData.decimals)} ${
+                    solaceBalanceData.tokenData.symbol
+                  }
+                  `}
                 </Text>
               </FormCol>
             </FormRow>
-            <FormRow mt={10} mb={10}>
+            <SmallBox transparent collapse={!isStaking} m={0} p={0} style={{ justifyContent: 'right' }}>
+              <FormRow mb={10}>
+                <FormCol></FormCol>
+                <FormCol>
+                  <Text t4 nowrap>
+                    {'( '}
+                    {`${formatUnits(maxPayout_X, xSolaceBalanceData.tokenData.decimals)} ${
+                      xSolaceBalanceData.tokenData.symbol
+                    }`}
+                    {' )'}
+                  </Text>
+                </FormCol>
+              </FormRow>
+            </SmallBox>
+            <FormRow mb={10}>
               <FormCol>
                 <Text>Vesting Term</Text>
               </FormCol>
@@ -394,74 +579,84 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
           (modalLoading ? (
             <Loader />
           ) : (
-            <Button widthP={100} info disabled={!isAcceptableAmount || haveErrors} onClick={callDepositBond}>
-              Bond
-            </Button>
+            <>
+              <CheckboxOption isChecked={isStaking} setChecked={setIsStaking} text={'Autostake'} />
+
+              <ButtonWrapper isColumn>
+                <Button
+                  widthP={100}
+                  info
+                  disabled={!isAcceptableAmount || haveErrors}
+                  onClick={() => callDepositBond(isStaking)}
+                >
+                  Bond
+                </Button>
+                <FlexRow>
+                  <StyledGraphDown size={15} />
+                  <Text t4 ml={5}>
+                    {slippagePrct}%
+                  </Text>
+                  {bondRecipient && (
+                    <FlexRow ml={10}>
+                      <StyledSendPlane size={15} />
+                      <Text t4 ml={5}>
+                        {shortenAddress(bondRecipient)}
+                      </Text>
+                    </FlexRow>
+                  )}
+                </FlexRow>
+              </ButtonWrapper>
+            </>
           ))}
         {!isBonding && (
-          <>
-            <FormRow mt={20} mb={10}>
-              <FormCol>
-                <Text>Vesting Term</Text>
-              </FormCol>
-              <FormCol>
-                <Text info nowrap>
-                  {getLongtimeFromMillis(vestingTermInMillis)}
-                </Text>
-              </FormCol>
-            </FormRow>
-            <Scrollable maxMobileHeight={65} maxDesktopHeight={40}>
-              {ownedBondTokens.length > 0 ? (
-                <CardContainer cardsPerRow={1}>
-                  {ownedBondTokens.map((token) => {
-                    return (
-                      <Card key={token.id.toString()}>
-                        <FormRow>
-                          <FormCol>ID</FormCol>
-                          <FormCol>{token.id.toString()}</FormCol>
+          <Scrollable maxMobileHeight={45} maxDesktopHeight={30} mt={20}>
+            {ownedBondTokens.length > 0 ? (
+              <CardContainer cardsPerRow={1}>
+                {ownedBondTokens.map((token) => {
+                  return (
+                    <Card p={15} key={token.id.toString()}>
+                      <FormRow mb={10}>
+                        <FormCol>ID</FormCol>
+                        <FormCol>{token.id.toString()}</FormCol>
+                      </FormRow>
+                      <FormRow mb={10}>
+                        <FormCol>Paid Price</FormCol>
+                        <FormCol>
+                          {formatUnits(token.pricePaid, selectedBondDetail?.principalData.principalProps.decimals)}{' '}
+                          {selectedBondDetail?.principalData.principalProps.symbol}
+                        </FormCol>
+                      </FormRow>
+                      <FormRow mb={10}>
+                        <FormCol>Payout</FormCol>
+                        <FormCol>
+                          {formatUnits(token.payoutAmount, solaceBalanceData.tokenData.decimals)} {token.payoutToken}
+                        </FormCol>
+                      </FormRow>
+                      {token.maturation.toNumber() > timestamp ? (
+                        <FormRow mb={10}>
+                          <FormCol>Time Until Fully Vested</FormCol>
+                          <FormCol>{getTimeFromMillis((token.maturation.toNumber() - timestamp) * 1000)}</FormCol>
                         </FormRow>
-                        <FormRow>
-                          <FormCol>Paid Price</FormCol>
-                          <FormCol>
-                            {formatUnits(token.pricePaid, selectedBondDetail?.principalData.principalProps.decimals)}{' '}
-                            {selectedBondDetail?.principalData.principalProps.symbol}
-                          </FormCol>
-                        </FormRow>
-                        <FormRow>
-                          <FormCol>Payout</FormCol>
-                          <FormCol>
-                            {formatUnits(token.payoutAmount, solaceBalanceData.tokenData.decimals)} {token.payoutToken}
-                          </FormCol>
-                        </FormRow>
-                        {token.maturation.toNumber() > timestamp ? (
-                          <FormRow>
-                            <FormCol>Time Until Fully Vested</FormCol>
-                            <FormCol>{getTimeFromMillis((token.maturation.toNumber() - timestamp) * 1000)}</FormCol>
-                          </FormRow>
-                        ) : (
-                          <Text textAlignCenter success>
-                            Your vesting period has passed.
+                      ) : (
+                        <>
+                          <Text textAlignCenter success mb={10}>
+                            Fully Vested
                           </Text>
-                        )}
-                        <ButtonWrapper isColumn>
                           <Button widthP={100} info disabled={haveErrors} onClick={() => callRedeemBond(token.id)}>
                             Claim
                           </Button>
-                          <Button widthP={100} info disabled={haveErrors}>
-                            Claim and Autostake
-                          </Button>
-                        </ButtonWrapper>
-                      </Card>
-                    )
-                  })}
-                </CardContainer>
-              ) : (
-                <Text t2 textAlignCenter>
-                  You do not have any bond tokens.
-                </Text>
-              )}
-            </Scrollable>
-          </>
+                        </>
+                      )}
+                    </Card>
+                  )
+                })}
+              </CardContainer>
+            ) : (
+              <Text t2 textAlignCenter>
+                You do not have any bond tokens.
+              </Text>
+            )}
+          </Scrollable>
         )}
       </ModalBase>
     </ModalContainer>

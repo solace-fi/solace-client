@@ -7,10 +7,10 @@ import { getGasValue } from '../utils/formatting'
 import { useWallet } from '../context/WalletManager'
 import { FunctionName } from '../constants/enums'
 import { GAS_LIMIT } from '../constants'
+import { Block } from '@ethersproject/contracts/node_modules/@ethersproject/abstract-provider'
 
-export const useFetchGasPrice = (): GasFeeListState => {
+export const useFetchGasPrice = (latestBlock: Block | undefined): GasFeeListState => {
   const { activeNetwork, chainId } = useNetwork()
-  const { latestBlock } = useCachedData()
 
   const [state, setState] = useState<GasFeeListState>({
     options: [],
@@ -19,7 +19,7 @@ export const useFetchGasPrice = (): GasFeeListState => {
 
   useEffect(() => {
     const fetchGasPrices = async () => {
-      await fetchGasPrice(activeNetwork.explorer.apiUrl, chainId)
+      await fetchGasPrice(activeNetwork)
         .then((result) => {
           const options = [
             {
@@ -89,7 +89,7 @@ export const useGetFunctionGas = () => {
 
   const getAutoGasConfig = useCallback((): GasConfiguration => getGasConfig(undefined), [getGasConfig])
 
-  const getGasLimit = useCallback(
+  const getGasLimitForTransaction = useCallback(
     (productName: string, txType: FunctionName): number => {
       let callingGasLimit = GAS_LIMIT
       const supportedProduct = activeNetwork.cache.supportedProducts.find((p) => p.name == productName)
@@ -103,5 +103,5 @@ export const useGetFunctionGas = () => {
     [activeNetwork]
   )
 
-  return { getGasConfig, getAutoGasConfig, getGasLimit }
+  return { getGasConfig, getAutoGasConfig, getGasLimitForTransaction }
 }

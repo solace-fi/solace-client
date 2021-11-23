@@ -34,12 +34,11 @@ import { BKPT_3 } from '../../constants'
 
 /* import components */
 import { Modal, ModalAddendum } from '../molecules/Modal'
-import { RadioCircle, RadioCircleFigure, RadioCircleInput } from '../atoms/Radio'
 import { Button, ButtonWrapper } from '../atoms/Button'
 import { Loader } from '../atoms/Loader'
 import { Text } from '../atoms/Typography'
 import { GasRadioGroup } from '../molecules/GasRadioGroup'
-import { PoolModalProps } from './PoolModalRouter'
+import { CheckboxOption, PoolModalProps } from './PoolModalRouter'
 import { Box, BoxItem, BoxItemTitle } from '../atoms/Box'
 import { Input } from '../atoms/Input'
 import { ModalRow, ModalCell } from '../atoms/Modal'
@@ -219,16 +218,6 @@ export const UnderwritingPoolModal: React.FC<PoolModalProps> = ({ modalTitle, fu
 
   *************************************************************************************/
 
-  const AutoStakeOption: React.FC = () => (
-    <RadioCircle style={{ justifyContent: 'center', marginTop: '10px' }}>
-      <RadioCircleInput type="checkbox" checked={isStaking} onChange={(e) => setIsStaking(e.target.checked)} />
-      <RadioCircleFigure />
-      <Text info textAlignCenter t3>
-        Auto-Stake for token options as reward
-      </Text>
-    </RadioCircle>
-  )
-
   const UnderwritingForeword: React.FC = () => (
     <>
       <Text t4 bold textAlignCenter width={270} style={{ margin: '7px auto' }}>
@@ -244,7 +233,7 @@ export const UnderwritingPoolModal: React.FC<PoolModalProps> = ({ modalTitle, fu
           Depositing into this pool during a thaw will stop the thaw, but auto-staking will not.
         </Text>
       )}
-      <AutoStakeOption />
+      <CheckboxOption isChecked={isStaking} setChecked={setIsStaking} text={'Autostake for token options as reward'} />
     </>
   )
 

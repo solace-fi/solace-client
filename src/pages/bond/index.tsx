@@ -43,6 +43,7 @@ import { useWindowDimensions } from '../../hooks/useWindowDimensions'
 
 /* import utils */
 import { useBondTellerDetails } from '../../hooks/useBondTeller'
+import { Loader } from '../../components/atoms/Loader'
 
 function Bond(): any {
   const { haveErrors } = useGeneral()
@@ -71,133 +72,137 @@ function Bond(): any {
   return (
     <Fragment>
       <BondModal closeModal={() => openModal(false)} isOpen={showBondModal} selectedBondDetail={selectedBondDetail} />
-      {width > BKPT_4 ? (
-        <Scrollable style={{ padding: '0 10px 0 10px' }}>
-          <Table canHover style={{ borderSpacing: '0px 7px' }}>
-            <TableHead sticky>
-              <TableRow>
-                <TableHeader></TableHeader>
-                <TableHeader>Bond</TableHeader>
-                <TableHeader>Price</TableHeader>
-                <TableHeader>ROI</TableHeader>
-                <TableHeader>Purchased</TableHeader>
-                <TableHeader></TableHeader>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {tellerDetails.map((tellerDetail, i) => (
-                <TableRow
-                  key={i}
-                  onClick={haveErrors ? undefined : () => openModal(true, tellerDetail)}
-                  style={{ cursor: 'pointer' }}
-                >
-                  <TableData>
-                    <FlexRow>
-                      {tellerDetail.principalData.token0 && tellerDetail.principalData.token1 ? (
-                        <>
-                          <DeFiAssetImage mr={5}>
-                            <img
-                              src={`https://assets.solace.fi/${tellerDetail.principalData.token0.toLowerCase()}`}
-                              alt={tellerDetail.principalData.token0.toLowerCase()}
-                            />
-                          </DeFiAssetImage>
-                          <DeFiAssetImage>
-                            <img
-                              src={`https://assets.solace.fi/${tellerDetail.principalData.token1.toLowerCase()}`}
-                              alt={tellerDetail.principalData.token1.toLowerCase()}
-                            />
-                          </DeFiAssetImage>
-                        </>
-                      ) : (
-                        <DeFiAssetImage>
-                          <img
-                            src={`https://assets.solace.fi/${tellerDetail.principalData.principal.address.toLowerCase()}`}
-                            alt={tellerDetail.tellerData.teller.name}
-                          />
-                        </DeFiAssetImage>
-                      )}
-                    </FlexRow>
-                  </TableData>
-                  <TableData>{tellerDetail.tellerData.teller.name}</TableData>
-                  <TableData>{tellerDetail.tellerData.bondPrice.toString()}</TableData>
-                  <TableData>y</TableData>
-                  <TableData>z</TableData>
-                  <TableData textAlignRight>
-                    <Button disabled={haveErrors} info>
-                      Bond
-                    </Button>
-                  </TableData>
+      {tellerDetails.length > 0 ? (
+        width > BKPT_4 ? (
+          <Scrollable style={{ padding: '0 10px 0 10px' }}>
+            <Table canHover style={{ borderSpacing: '0px 7px' }}>
+              <TableHead sticky>
+                <TableRow>
+                  <TableHeader></TableHeader>
+                  <TableHeader>Bond</TableHeader>
+                  <TableHeader>Price Per SOLACE</TableHeader>
+                  {/* <TableHeader>ROI</TableHeader>
+                  <TableHeader>Purchased</TableHeader> */}
+                  <TableHeader></TableHeader>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </Scrollable>
-      ) : (
-        // mobile version
-        <Scrollable maxMobileHeight={65}>
-          <CardContainer cardsPerRow={2}>
-            {tellerDetails.map((tellerDetail, i) => (
-              <Card key={i} onClick={haveErrors ? undefined : () => openModal(true, tellerDetail)}>
-                <FlexCol style={{ alignItems: 'center' }}>
-                  <FormRow>
-                    <FlexRow>
-                      {tellerDetail.principalData.token0 && tellerDetail.principalData.token1 ? (
-                        <>
-                          <DeFiAssetImage mr={10}>
+              </TableHead>
+              <TableBody>
+                {tellerDetails.map((tellerDetail, i) => (
+                  <TableRow
+                    key={i}
+                    onClick={haveErrors ? undefined : () => openModal(true, tellerDetail)}
+                    style={{ cursor: 'pointer' }}
+                  >
+                    <TableData>
+                      <FlexRow style={{ justifyContent: 'center' }}>
+                        {tellerDetail.principalData.token0 && tellerDetail.principalData.token1 ? (
+                          <>
+                            <DeFiAssetImage mr={5} noborder>
+                              <img
+                                src={`https://assets.solace.fi/${tellerDetail.principalData.token0.toLowerCase()}`}
+                                alt={tellerDetail.principalData.token0.toLowerCase()}
+                              />
+                            </DeFiAssetImage>
+                            <DeFiAssetImage noborder>
+                              <img
+                                src={`https://assets.solace.fi/${tellerDetail.principalData.token1.toLowerCase()}`}
+                                alt={tellerDetail.principalData.token1.toLowerCase()}
+                              />
+                            </DeFiAssetImage>
+                          </>
+                        ) : (
+                          <DeFiAssetImage noborder>
                             <img
-                              src={`https://assets.solace.fi/${tellerDetail.principalData.token0.toLowerCase()}`}
-                              alt={tellerDetail.principalData.token0.toLowerCase()}
+                              src={`https://assets.solace.fi/${tellerDetail.principalData.principal.address.toLowerCase()}`}
+                              alt={tellerDetail.tellerData.teller.name}
                             />
                           </DeFiAssetImage>
-                          <DeFiAssetImage mr={10}>
+                        )}
+                      </FlexRow>
+                    </TableData>
+                    <TableData>{tellerDetail.tellerData.teller.name}</TableData>
+                    <TableData>{tellerDetail.tellerData.bondPrice.toString()}</TableData>
+                    {/* <TableData>y</TableData>
+                    <TableData>z</TableData> */}
+                    <TableData textAlignRight>
+                      <Button disabled={haveErrors} info>
+                        Bond
+                      </Button>
+                    </TableData>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </Scrollable>
+        ) : (
+          // mobile version
+          <Scrollable maxMobileHeight={65}>
+            <CardContainer cardsPerRow={2}>
+              {tellerDetails.map((tellerDetail, i) => (
+                <Card key={i} onClick={haveErrors ? undefined : () => openModal(true, tellerDetail)}>
+                  <FlexCol style={{ alignItems: 'center' }}>
+                    <FormRow>
+                      <FlexRow>
+                        {tellerDetail.principalData.token0 && tellerDetail.principalData.token1 ? (
+                          <>
+                            <DeFiAssetImage mr={10} noborder>
+                              <img
+                                src={`https://assets.solace.fi/${tellerDetail.principalData.token0.toLowerCase()}`}
+                                alt={tellerDetail.principalData.token0.toLowerCase()}
+                              />
+                            </DeFiAssetImage>
+                            <DeFiAssetImage mr={10} noborder>
+                              <img
+                                src={`https://assets.solace.fi/${tellerDetail.principalData.token1.toLowerCase()}`}
+                                alt={tellerDetail.principalData.token1.toLowerCase()}
+                              />
+                            </DeFiAssetImage>
+                          </>
+                        ) : (
+                          <DeFiAssetImage mr={10} noborder>
                             <img
-                              src={`https://assets.solace.fi/${tellerDetail.principalData.token1.toLowerCase()}`}
-                              alt={tellerDetail.principalData.token1.toLowerCase()}
+                              src={`https://assets.solace.fi/${tellerDetail.principalData.principal.address.toLowerCase()}`}
+                              alt={tellerDetail.tellerData.teller.name}
                             />
                           </DeFiAssetImage>
-                        </>
-                      ) : (
-                        <DeFiAssetImage mr={10}>
-                          <img
-                            src={`https://assets.solace.fi/${tellerDetail.principalData.principal.address.toLowerCase()}`}
-                            alt={tellerDetail.tellerData.teller.name}
-                          />
-                        </DeFiAssetImage>
-                      )}
-                    </FlexRow>
-                  </FormRow>
-                  <FlexCol style={{ display: 'flex', alignItems: 'center' }}>
-                    <Text t2>{tellerDetail.tellerData.teller.name}</Text>
+                        )}
+                      </FlexRow>
+                    </FormRow>
+                    <FlexCol style={{ display: 'flex', alignItems: 'center' }}>
+                      <Text t2>{tellerDetail.tellerData.teller.name}</Text>
+                    </FlexCol>
                   </FlexCol>
-                </FlexCol>
-                <FormRow>
-                  <FormCol>Price</FormCol>
-                  <FormCol>
-                    <Text bold t2>
-                      {tellerDetail.tellerData.bondPrice.toString()}
-                    </Text>
-                  </FormCol>
-                </FormRow>
-                <FormRow>
-                  <FormCol>ROI</FormCol>
-                  <FormCol>
-                    <Text bold t2>
-                      y
-                    </Text>
-                  </FormCol>
-                </FormRow>
-                <FormRow>
-                  <FormCol>Purchased</FormCol>
-                  <FormCol>
-                    <Text bold t2>
-                      z
-                    </Text>
-                  </FormCol>
-                </FormRow>
-              </Card>
-            ))}
-          </CardContainer>
-        </Scrollable>
+                  <FormRow>
+                    <FormCol>Price Per SOLACE</FormCol>
+                    <FormCol>
+                      <Text bold t2>
+                        {tellerDetail.tellerData.bondPrice.toString()}
+                      </Text>
+                    </FormCol>
+                  </FormRow>
+                  {/* <FormRow>
+                    <FormCol>ROI</FormCol>
+                    <FormCol>
+                      <Text bold t2>
+                        ROI = (marketPrice - bondPrice) / (bondPrice)
+                      </Text>
+                    </FormCol>
+                  </FormRow>
+                  <FormRow>
+                    <FormCol>Purchased</FormCol>
+                    <FormCol>
+                      <Text bold t2>
+                        z
+                      </Text>
+                    </FormCol>
+                  </FormRow> */}
+                </Card>
+              ))}
+            </CardContainer>
+          </Scrollable>
+        )
+      ) : (
+        <Loader />
       )}
     </Fragment>
   )

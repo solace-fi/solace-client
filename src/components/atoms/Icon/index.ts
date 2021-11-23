@@ -25,6 +25,9 @@ import { FileShield } from '@styled-icons/remix-fill/FileShield'
 import { CoinStack } from '@styled-icons/boxicons-solid/CoinStack'
 import { PeopleCommunity } from '@styled-icons/fluentui-system-filled/PeopleCommunity'
 import { FileEarmarkLock2Fill } from '@styled-icons/bootstrap/FileEarmarkLock2Fill'
+import { Gear } from '@styled-icons/octicons/Gear'
+import { GraphDown } from '@styled-icons/bootstrap/GraphDown'
+import { SendPlane } from '@styled-icons/remix-fill/SendPlane'
 
 export const StyledIconCss = css`
   margin: auto;
@@ -97,3 +100,9 @@ export const StyledCheckmark = styled(Checkmark)`
 export const StyledWarning = styled(Warning)`
   ${StyledIconCss}
 `
+
+export const StyledGear = styled(Gear)``
+
+export const StyledGraphDown = styled(GraphDown)``
+
+export const StyledSendPlane = styled(SendPlane)``

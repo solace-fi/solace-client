@@ -35,7 +35,9 @@ When adding new products, please add into productContracts, functions, and cache
 
 */
 
-const tellerToTokenMapping: { [key: string]: { addr: string; isBondTellerErc20: boolean; isLp: boolean } } = {
+const tellerToTokenMapping: {
+  [key: string]: { addr: string; isBondTellerErc20: boolean; isLp: boolean }
+} = {
   [String(process.env.REACT_APP_RINKEBY_DAI_TELLER_ADDR)]: {
     addr: '0x5592ec0cfb4dbc12d3ab100b257153436a1f0fea',
     isBondTellerErc20: true,

@@ -207,6 +207,9 @@ export const formatTransactionContent = (
     case FunctionName.UPDATE_POLICY_AMOUNT:
     case FunctionName.CANCEL_POLICY:
     case FunctionName.SUBMIT_CLAIM:
+    case FunctionName.BOND_DEPOSIT_ERC20:
+    case FunctionName.BOND_DEPOSIT_WETH:
+    case FunctionName.BOND_REDEEM:
       return `${unit} #${BigNumber.from(amount)}`
     case FunctionName.WITHDRAW_ETH:
       return `${truncateBalance(formatUnits(BigNumber.from(amount), activeNetwork.nativeCurrency.decimals))} ${unit}`

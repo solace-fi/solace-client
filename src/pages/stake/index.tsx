@@ -54,7 +54,7 @@ function Stake(): any {
   const { haveErrors } = useGeneral()
   const [isStaking, setIsStaking] = useState<boolean>(true)
   const { solaceBalance } = useSolaceBalance()
-  const xSolaceBalance = useXSolaceBalance()
+  const { xSolaceBalance } = useXSolaceBalance()
   const {
     gasConfig,
     amount,

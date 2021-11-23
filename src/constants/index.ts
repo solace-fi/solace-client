@@ -49,6 +49,7 @@ export const LP_ROI = '6.0%'
 export const MIN_RETRY_DELAY = 1000
 export const RETRY_BACKOFF_FACTOR = 2
 export const MAX_RETRY_DELAY = 10000
+export const MAX_BPS = 10000
 
 export const POLLING_INTERVAL = 12000
 

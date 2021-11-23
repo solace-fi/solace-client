@@ -82,7 +82,7 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
   const { haveErrors } = useGeneral()
   const { activeNetwork, currencyDecimals, chainId } = useNetwork()
   const { width } = useWindowDimensions()
-  const { getAutoGasConfig, getGasLimit } = useGetFunctionGas()
+  const { getAutoGasConfig, getGasLimitForTransaction } = useGetFunctionGas()
   const gasConfig = useMemo(() => getAutoGasConfig(), [getAutoGasConfig])
   const appraisal = useAppraisePolicyPosition(selectedPolicy)
   const [canCloseOnLoading, setCanCloseOnLoading] = useState<boolean>(false)
@@ -102,7 +102,7 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
     try {
       const tx = await selectedProtocol.submitClaim(selectedPolicy.policyId, amountOut, deadline, signature, {
         ...gasConfig,
-        gasLimit: getGasLimit(selectedPolicy.productName, txType),
+        gasLimit: getGasLimitForTransaction(selectedPolicy.productName, txType),
       })
       const txHash = tx.hash
       const localTx: LocalTx = {
