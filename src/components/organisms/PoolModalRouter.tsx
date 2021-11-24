@@ -159,7 +159,7 @@ export const Erc721InputPanel: React.FC<Erc721InputPanelProps> = ({
       </ModalRow>
       <div style={{ marginBottom: '20px' }}>
         {/* {assetTokens.length > 0 && (
-          <ModalCell style={{ justifyContent: 'center' }} p={0}>
+          <ModalCell jc={'center'} p={0}>
             <NftPosition tokenId={nftId} />
           </ModalCell>
         )} */}
@@ -174,7 +174,7 @@ export const CheckboxOption: React.FC<CheckboxProps & GeneralElementProps> = ({
   text,
   ...props
 }) => (
-  <RadioCircle style={{ justifyContent: 'center' }} {...props}>
+  <RadioCircle {...props}>
     <RadioCircleInput type="checkbox" checked={isChecked} onChange={(e) => setChecked(e.target.checked)} />
     <RadioCircleFigure />
     <Text info textAlignCenter t3>

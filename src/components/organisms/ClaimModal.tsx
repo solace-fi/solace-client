@@ -227,7 +227,7 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
                   </Text>
                 </FormCol>
               </FormRow>
-              <SmallBox style={{ justifyContent: 'center' }} transparent mt={10}>
+              <SmallBox jc={'center'} transparent mt={10}>
                 <Text t4 bold warning textAlignCenter>
                   Please wait for the review period to elapse before withdrawing your payout.
                 </Text>
@@ -249,7 +249,7 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
                 </TableBody>
               </Table>
               <SmallBox
-                style={{ justifyContent: 'center' }}
+                jc={'center'}
                 transparent
                 mt={!assessment.lossEventDetected ? 10 : 0}
                 mb={!assessment.lossEventDetected ? 10 : 0}

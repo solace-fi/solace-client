@@ -94,6 +94,7 @@ export enum PositionType {
 export enum BondName {
   DAI = 'DAI',
   SOLACE_DAI_SLP = 'SOLACE-DAI SLP',
+  ETH = 'ETH',
   WETH = 'WETH',
   SOLACE_ETH_SLP = 'SOLACE-ETH SLP',
   USDC = 'USDC',

@@ -6,9 +6,8 @@ import { Text } from '../atoms/Typography'
 import { parseUnits } from '@ethersproject/units'
 import { BigNumber } from 'ethers'
 import { Button, ButtonWrapper } from '../atoms/Button'
-import { FlexRow, FlexCol } from '../atoms/Layout'
+import { FlexCol } from '../atoms/Layout'
 import { MAX_BPS } from '../../constants'
-import { CheckboxOption } from './PoolModalRouter'
 import { BondTellerDetails } from '../../constants/types'
 
 interface BondSettingsModalProps extends ModalProps {
@@ -16,9 +15,6 @@ interface BondSettingsModalProps extends ModalProps {
   setBondRecipient: any
   slippagePrct: string
   setSlippagePrct: any
-  shouldUseNativeToken: boolean
-  setShouldUseNativeToken: any
-  isBondTellerErc20: boolean
   selectedBondDetail?: BondTellerDetails
 }
 
@@ -29,15 +25,10 @@ export const BondSettingsModal: React.FC<BondSettingsModalProps> = ({
   setSlippagePrct,
   isOpen,
   modalTitle,
-  shouldUseNativeToken,
-  setShouldUseNativeToken,
-  isBondTellerErc20,
   handleClose,
-  selectedBondDetail,
 }) => {
   const [slippage, setSlippage] = useState<string>(slippagePrct)
   const [recipient, setRecipient] = useState<string | undefined>(bondRecipient)
-  const [useNative, setUseNative] = useState<boolean>(shouldUseNativeToken)
 
   const handleInputSlippage = (input: string) => {
     // allow only numbers and decimals
@@ -57,14 +48,12 @@ export const BondSettingsModal: React.FC<BondSettingsModalProps> = ({
   const closeModal = () => {
     setSlippage(slippagePrct)
     setRecipient(bondRecipient)
-    setUseNative(shouldUseNativeToken)
     handleClose()
   }
 
   const applyChanges = () => {
     setSlippagePrct(slippage)
     setBondRecipient(recipient)
-    setShouldUseNativeToken(useNative)
     handleClose()
   }
 
@@ -75,10 +64,6 @@ export const BondSettingsModal: React.FC<BondSettingsModalProps> = ({
   useEffect(() => {
     setRecipient(bondRecipient)
   }, [bondRecipient])
-
-  useEffect(() => {
-    setUseNative(shouldUseNativeToken)
-  }, [shouldUseNativeToken])
 
   return (
     <Modal isOpen={isOpen} modalTitle={modalTitle} handleClose={closeModal}>
@@ -94,18 +79,6 @@ export const BondSettingsModal: React.FC<BondSettingsModalProps> = ({
             <Input info bold type="string" value={recipient ?? ''} onChange={(e) => setRecipient(e.target.value)} />
             <Text textAlignCenter t4 mb={30}>
               Choose recipient address. By default, this is your currently connected address.
-            </Text>
-          </>
-        )}
-        {!isBondTellerErc20 && selectedBondDetail && (
-          <>
-            <CheckboxOption
-              isChecked={useNative}
-              setChecked={setUseNative}
-              text={`Deposit ${selectedBondDetail.tellerData.teller.name.substring(1)}`}
-            />
-            <Text textAlignCenter t4 mb={30}>
-              Toggle between depositing native network token and its wrapped token
             </Text>
           </>
         )}

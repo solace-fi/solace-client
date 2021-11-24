@@ -164,7 +164,7 @@ export const RinkebyNetwork: NetworkConfig = {
     bondTellerContracts: {
       [BondName.DAI]: String(process.env.REACT_APP_RINKEBY_DAI_TELLER_ADDR),
       [BondName.SOLACE_DAI_SLP]: String(process.env.REACT_APP_RINKEBY_SOLACE_DAI_SLP_TELLER_ADDR),
-      [BondName.WETH]: String(process.env.REACT_APP_RINKEBY_ETH_TELLER_ADDR),
+      [BondName.ETH]: String(process.env.REACT_APP_RINKEBY_ETH_TELLER_ADDR),
       [BondName.SOLACE_ETH_SLP]: String(process.env.REACT_APP_RINKEBY_SOLACE_ETH_SLP_TELLER_ADDR),
       [BondName.USDC]: String(process.env.REACT_APP_RINKEBY_USDC_TELLER_ADDR),
       [BondName.SOLACE_USDC_SLP]: String(process.env.REACT_APP_RINKEBY_SOLACE_USDC_SLP_TELLER_ADDR),

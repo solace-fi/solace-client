@@ -101,7 +101,7 @@ function Bond(): any {
                     style={{ cursor: 'pointer' }}
                   >
                     <TableData>
-                      <FlexRow style={{ justifyContent: 'center' }}>
+                      <FlexRow jc={'center'}>
                         {tellerDetail.principalData ? (
                           tellerDetail.principalData.token0 && tellerDetail.principalData.token1 ? (
                             <>

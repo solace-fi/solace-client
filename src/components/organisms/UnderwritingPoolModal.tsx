@@ -229,7 +229,12 @@ export const UnderwritingPoolModal: React.FC<PoolModalProps> = ({ modalTitle, fu
           Depositing into this pool during a thaw will stop the thaw, but auto-staking will not.
         </Text>
       )}
-      <CheckboxOption isChecked={isStaking} setChecked={setIsStaking} text={'Autostake for token options as reward'} />
+      <CheckboxOption
+        jc={'center'}
+        isChecked={isStaking}
+        setChecked={setIsStaking}
+        text={'Autostake for token options as reward'}
+      />
     </>
   )
 

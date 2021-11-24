@@ -144,7 +144,8 @@ function Stake(): any {
                   pl={0}
                   pr={0}
                   onClick={() => setIsStaking(true)}
-                  style={{ cursor: 'pointer', justifyContent: 'center' }}
+                  jc={'center'}
+                  style={{ cursor: 'pointer' }}
                 >
                   <Text t1 info={isStaking}>
                     Stake
@@ -156,7 +157,8 @@ function Stake(): any {
                   pl={0}
                   pr={0}
                   onClick={() => setIsStaking(false)}
-                  style={{ cursor: 'pointer', justifyContent: 'center' }}
+                  jc={'center'}
+                  style={{ cursor: 'pointer' }}
                 >
                   <Text t1 info={!isStaking}>
                     Unstake

@@ -115,8 +115,8 @@ export const CpPoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen
   *************************************************************************************/
 
   const approve = async () => {
-    setModalLoading(true)
     if (!cpFarm || !vault) return
+    setModalLoading(true)
     try {
       const tx = await vault.approve(cpFarm.address, parseUnits(amount, currencyDecimals))
       const txHash = tx.hash

@@ -145,8 +145,8 @@ export const floatUnits = (value: BigNumber, decimals: number): number => parseF
 // used for correctly user amount input before processing
 export const filteredAmount = (input: string, amount: string): string => {
   if (!amount && input == '.') input = '.'
-  const filteredAmount = input.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1')
-  return filteredAmount
+  const filtered = input.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1')
+  return filtered
 }
 
 // truncate strings, mostly addresses

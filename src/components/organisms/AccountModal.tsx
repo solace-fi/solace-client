@@ -88,7 +88,7 @@ export const AccountModal: React.FC<AccountModalProps> = ({ closeModal, isOpen }
       <CardContainer cardsPerRow={account ? 2 : 1} mb={10}>
         {account && activeWalletConnector && (
           <Card color1>
-            <FormRow style={{ justifyContent: 'center' }} m={0}>
+            <FormRow jc={'center'} m={0}>
               <Text t2 bold light>
                 <UserImage width={30} height={30} pr={5} style={{ display: 'inline-flex', verticalAlign: 'bottom' }}>
                   <img style={{ borderRadius: '10px' }} src={makeBlockie(account)} alt={'account'} />

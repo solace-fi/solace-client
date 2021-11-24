@@ -236,7 +236,7 @@ export const MultiStepForm = () => {
         </StepsContainer>
       ) : (
         // mobile version
-        <FormRow mb={0} mt={20} ml={30} mr={30} style={{ justifyContent: 'center' }}>
+        <FormRow mb={0} mt={20} ml={30} mr={30} jc={'center'}>
           <FormCol>
             <div style={{ width: 100, height: 100 }}>
               <CircularProgressbar

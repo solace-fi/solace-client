@@ -145,7 +145,8 @@ const ProviderManager: React.FC = ({ children }) => {
               onClick={() => switchNetwork(network.name)}
               glow={network.name == activeNetwork.name}
               color1={network.name == activeNetwork.name}
-              style={{ display: 'flex', justifyContent: 'center' }}
+              jc={'center'}
+              style={{ display: 'flex' }}
             >
               <FormRow mb={0}>
                 <ModalCell p={10}>

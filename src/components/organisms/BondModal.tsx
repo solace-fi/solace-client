@@ -41,7 +41,7 @@ import { useContracts } from '../../context/ContractsManager'
 import { WalletConnectButton } from '../molecules/WalletConnectButton'
 import { ModalContainer, ModalBase, ModalHeader, ModalCell } from '../atoms/Modal'
 import { ModalCloseButton } from '../molecules/Modal'
-import { Content, FlexCol, HorizRule, MultiTabIndicator, Scrollable } from '../atoms/Layout'
+import { Content, FlexCol, HeroContainer, HorizRule, MultiTabIndicator, Scrollable } from '../atoms/Layout'
 import { Text } from '../atoms/Typography'
 import { Button, ButtonWrapper } from '../atoms/Button'
 import { FormCol, FormRow } from '../../components/atoms/Form'
@@ -82,7 +82,7 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
   */
   const { haveErrors } = useGeneral()
   const { account, library } = useWallet()
-  const { currencyDecimals } = useNetwork()
+  const { activeNetwork, currencyDecimals } = useNetwork()
   const { reload, latestBlock } = useCachedData()
   const { makeTxToast } = useNotifications()
   const { solace, xSolace } = useContracts()
@@ -97,15 +97,15 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
   const [calculatedAmountOut, setCalculatedAmountOut] = useState<BigNumber | undefined>(ZERO)
   const [calculatedAmountOut_X, setCalculatedAmountOut_X] = useState<BigNumber | undefined>(ZERO)
   const [contractForAllowance, setContractForAllowance] = useState<Contract | null>(null)
-  const [func, setFunc] = useState<FunctionName>(FunctionName.BOND_DEPOSIT_WETH)
+  const [func, setFunc] = useState<FunctionName>(FunctionName.DEPOSIT_ETH)
   const [isAcceptableAmount, setIsAcceptableAmount] = useState<boolean>(false)
   const [isBondTellerErc20, setIsBondTellerErc20] = useState<boolean>(false)
   const [isBonding, setIsBonding] = useState<boolean>(true)
   const [isStaking, setIsStaking] = useState<boolean>(false)
   const [ownedBondTokens, setOwnedBondTokens] = useState<BondToken[]>([])
   const [principalBalance, setPrincipalBalance] = useState<string>('0')
-  const [shouldUseNativeToken, setShouldUseNativeToken] = useState<boolean>(false)
-  const [slippagePrct, setSlippagePrct] = useState<string>('.5')
+  const [shouldUseNativeToken, setShouldUseNativeToken] = useState<boolean>(true)
+  const [slippagePrct, setSlippagePrct] = useState<string>('0.5')
   const [spenderAddress, setSpenderAddress] = useState<string | null>(null)
 
   const [timestamp, setTimestamp] = useState<number>(0)
@@ -152,6 +152,7 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
 
   const approve = async () => {
     if (!selectedBondDetail?.principalData?.principal) return
+    setModalLoading(true)
     try {
       const tx = await selectedBondDetail.principalData.principal.approve(
         selectedBondDetail.tellerData.teller.contract.address,
@@ -229,15 +230,15 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
     setCalculatedAmountOut(ZERO)
     setCalculatedAmountOut_X(ZERO)
     setContractForAllowance(null)
-    setFunc(FunctionName.BOND_DEPOSIT_WETH)
+    setFunc(FunctionName.DEPOSIT_ETH)
     setIsAcceptableAmount(false)
     setIsBondTellerErc20(false)
     setIsBonding(true)
     setIsStaking(false)
     setOwnedBondTokens([])
     setPrincipalBalance('0')
-    setShouldUseNativeToken(false)
-    setSlippagePrct('.5')
+    setShouldUseNativeToken(true)
+    setSlippagePrct('0.5')
     setSpenderAddress(null)
 
     setModalLoading(false)
@@ -380,7 +381,7 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
     const getTellerType = async () => {
       if (!selectedBondDetail) return
       const isBondTellerErc20 = selectedBondDetail.tellerData.teller.isBondTellerErc20
-      const tempFunc = isBondTellerErc20 ? FunctionName.BOND_DEPOSIT_ERC20 : FunctionName.BOND_DEPOSIT_WETH
+      const tempFunc = isBondTellerErc20 ? FunctionName.BOND_DEPOSIT_ERC20 : FunctionName.DEPOSIT_ETH
       setIsBondTellerErc20(isBondTellerErc20)
       setFunc(tempFunc)
     }
@@ -431,9 +432,6 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
           isOpen={showBondSettingsModal}
           modalTitle={`Bond Settings`}
           handleClose={() => setShowBondSettingsModal(false)}
-          shouldUseNativeToken={shouldUseNativeToken}
-          setShouldUseNativeToken={setShouldUseNativeToken}
-          isBondTellerErc20={isBondTellerErc20}
           selectedBondDetail={selectedBondDetail}
         />
         <ModalHeader style={{ position: 'relative', marginTop: '20px' }}>
@@ -463,7 +461,7 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
                 <DeFiAssetImage noborder>
                   <img
                     src={`https://assets.solace.fi/${selectedBondDetail.principalData.principal.address.toLowerCase()}`}
-                    alt={selectedBondDetail?.tellerData.teller.name}
+                    alt={selectedBondDetail?.principalData.principalProps.symbol}
                   />
                 </DeFiAssetImage>
               ))}
@@ -487,7 +485,8 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
             pl={0}
             pr={0}
             onClick={() => setIsBonding(true)}
-            style={{ cursor: 'pointer', justifyContent: 'center' }}
+            jc={'center'}
+            style={{ cursor: 'pointer' }}
           >
             <Text t1 info={isBonding}>
               Bond
@@ -499,7 +498,8 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
             pl={0}
             pr={0}
             onClick={() => setIsBonding(false)}
-            style={{ cursor: 'pointer', justifyContent: 'center' }}
+            jc={'center'}
+            style={{ cursor: 'pointer' }}
           >
             <Text t1 info={!isBonding}>
               Redeem
@@ -526,20 +526,26 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
                 MAX
               </Button>
             </div>
-          ) : (
+          ) : modalLoading ? (
             <Content>
-              <Text textAlignCenter bold>
-                First time bonding?
-              </Text>
-              <Text textAlignCenter t4>
-                Please approve Solace DAO to use your token for bonding.
-              </Text>
-              <ButtonWrapper>
-                <Button info secondary onClick={approve}>
-                  Sign
-                </Button>
-              </ButtonWrapper>
+              <Loader />
             </Content>
+          ) : (
+            <>
+              <Content>
+                <Text textAlignCenter bold>
+                  First time bonding?
+                </Text>
+                <Text textAlignCenter t4>
+                  Please approve Solace DAO to use your token for bonding.
+                </Text>
+                <ButtonWrapper>
+                  <Button info secondary onClick={approve}>
+                    Sign
+                  </Button>
+                </ButtonWrapper>
+              </Content>
+            </>
           )
         ) : null}
         {isBonding && (
@@ -553,7 +559,9 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
                   <FormCol>
                     <Text info textAlignRight bold>
                       {formatUnits(assetBalance, selectedBondDetail?.principalData?.principalProps.decimals)}{' '}
-                      {selectedBondDetail?.tellerData.teller.name.substring(func == FunctionName.DEPOSIT_ETH ? 1 : 0)}
+                      {func == FunctionName.DEPOSIT_ETH
+                        ? activeNetwork.nativeCurrency.symbol
+                        : selectedBondDetail?.principalData?.principalProps?.symbol}
                     </Text>
                   </FormCol>
                 </FormRow>
@@ -571,7 +579,7 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
                     </Text>
                   </FormCol>
                 </FormRow>
-                <FormRow mb={30} style={{ justifyContent: 'right' }}>
+                <FormRow mb={30} jc={'right'}>
                   <SmallBox transparent collapse={!isStaking} m={0} p={0}>
                     <FormRow mb={10}>
                       <FormCol></FormCol>
@@ -605,7 +613,7 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
                 </Text>
               </FormCol>
             </FormRow>
-            {/* <SmallBox transparent collapse={!isStaking} m={0} p={0} style={{ justifyContent: 'right' }}>
+            {/* <SmallBox transparent collapse={!isStaking} m={0} p={0} jc={'right}>
               <FormRow mb={10}>
                 <FormCol></FormCol>
                 <FormCol>
@@ -638,7 +646,23 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
             <Loader />
           ) : (
             <FlexCol mt={20}>
-              <CheckboxOption isChecked={isStaking} setChecked={setIsStaking} text={'Autostake and receive xSOLACE'} />
+              <FlexCol style={{ margin: 'auto' }}>
+                {!isBondTellerErc20 && selectedBondDetail && (
+                  <>
+                    <CheckboxOption
+                      mb={10}
+                      isChecked={!shouldUseNativeToken}
+                      setChecked={() => setShouldUseNativeToken(!shouldUseNativeToken)}
+                      text={`Deposit ${selectedBondDetail.principalData?.principalProps.name} instead`}
+                    />
+                  </>
+                )}
+                <CheckboxOption
+                  isChecked={isStaking}
+                  setChecked={setIsStaking}
+                  text={'Autostake and receive xSOLACE'}
+                />
+              </FlexCol>
               <ButtonWrapper isColumn>
                 <Button
                   widthP={100}
@@ -665,9 +689,10 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
               </ButtonWrapper>
             </FlexCol>
           ))}
-        {!isBonding && account && (
-          <Scrollable maxMobileHeight={45} maxDesktopHeight={35} mt={20}>
-            {ownedBondTokens.length > 0 ? (
+        {!isBonding &&
+          account &&
+          (ownedBondTokens.length > 0 ? (
+            <Scrollable maxMobileHeight={45} maxDesktopHeight={45} mt={20}>
               <CardContainer cardsPerRow={1}>
                 {ownedBondTokens.map((token) => {
                   return (
@@ -717,13 +742,14 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
                   )
                 })}
               </CardContainer>
-            ) : (
+            </Scrollable>
+          ) : (
+            <HeroContainer>
               <Text t2 textAlignCenter>
                 You do not have any bond tokens.
               </Text>
-            )}
-          </Scrollable>
-        )}
+            </HeroContainer>
+          ))}
       </ModalBase>
     </ModalContainer>
   )
