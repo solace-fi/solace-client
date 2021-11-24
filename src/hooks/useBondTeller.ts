@@ -80,12 +80,14 @@ export const useBondTeller = (selectedBondDetail: BondTellerDetails | undefined)
   return { deposit, redeem }
 }
 
-export const useBondTellerDetails = (): BondTellerDetails[] => {
+export const useBondTellerDetails = (): { tellerDetails: BondTellerDetails[]; mounting: boolean } => {
   const { library, account } = useWallet()
   const { latestBlock, version } = useCachedData()
   const { tellers } = useContracts()
   const [tellerDataset, setTellerDataset] = useState<BondTellerData[]>([])
   const [principalDataset, setPrincipalDataset] = useState<BondPrincipalData[]>([])
+  const [mounting, setMounting] = useState<boolean>(true)
+
   const tellerDetails: BondTellerDetails[] = useMemo(
     () =>
       tellerDataset.map((tellerData, i) => {
@@ -117,6 +119,7 @@ export const useBondTellerDetails = (): BondTellerDetails[] => {
           }
         })
       )
+      setMounting(false)
       setTellerDataset(data)
     } catch (e) {
       console.log('getBondTellerData', e)
@@ -165,6 +168,10 @@ export const useBondTellerDetails = (): BondTellerDetails[] => {
   }, [account, tellerDataset])
 
   useEffect(() => {
+    setMounting(true)
+  }, [tellers])
+
+  useEffect(() => {
     getBondTellerData()
   }, [getBondTellerData])
 
@@ -172,5 +179,5 @@ export const useBondTellerDetails = (): BondTellerDetails[] => {
     getBondPrincipalData()
   }, [getBondPrincipalData])
 
-  return tellerDetails
+  return { tellerDetails, mounting }
 }

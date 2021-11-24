@@ -7,7 +7,7 @@ export const lightTheme = {
     infoText: 'rgb(95, 93, 249)',
     errorText: 'rgb(255, 12, 28)',
     warningText: 'rgb(187, 136, 0)',
-    successText: 'rgb(38, 97, 57)',
+    successText: 'rgb(40, 167, 69)',
   },
   body: {
     bg_color: '#fff',

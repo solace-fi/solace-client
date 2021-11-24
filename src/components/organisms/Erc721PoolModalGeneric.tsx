@@ -18,7 +18,7 @@
   *************************************************************************************/
 
 /* import packages */
-import React, { useState, useEffect, useCallback, useRef } from 'react'
+import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react'
 import { formatUnits, parseUnits } from '@ethersproject/units'
 import { BigNumber } from 'ethers'
 import { Contract } from '@ethersproject/contracts'
@@ -82,6 +82,10 @@ export const Erc721PoolModalGeneric: React.FC<PoolModalProps & Erc721PoolModalGe
 
   const { haveErrors } = useGeneral()
   const { activeNetwork, currencyDecimals } = useNetwork()
+  const [modalLoading, setModalLoading] = useState<boolean>(false)
+  const [nftId, setNftId] = useState<BigNumber>(ZERO)
+  const [nftSelection, setNftSelection] = useState<{ value: string; label: string }>({ value: '', label: '' })
+  const canSetSelection = useRef(true)
   const userStakeValue = useUserStakedValue(farmContract)
   const {
     gasConfig,
@@ -91,12 +95,15 @@ export const Erc721PoolModalGeneric: React.FC<PoolModalProps & Erc721PoolModalGe
     handleToast,
     handleContractCallError,
   } = useInputAmount()
-
-  const [modalLoading, setModalLoading] = useState<boolean>(false)
-  const [nftId, setNftId] = useState<BigNumber>(ZERO)
-  const [nftSelection, setNftSelection] = useState<{ value: string; label: string }>({ value: '', label: '' })
-
-  const canSetSelection = useRef(true)
+  const assetBalance = useMemo(() => {
+    switch (func) {
+      case depositFunc.name:
+        return userNftTokenInfo.reduce((a, b) => a.add(b.value), ZERO)
+      case withdrawFunc.name:
+      default:
+        return parseUnits(userStakeValue, currencyDecimals)
+    }
+  }, [currencyDecimals, depositFunc.name, func, userNftTokenInfo, userStakeValue, withdrawFunc.name])
 
   /*************************************************************************************
 
@@ -134,16 +141,6 @@ export const Erc721PoolModalGeneric: React.FC<PoolModalProps & Erc721PoolModalGe
   const _handleContractCallError = (functionName: string, err: any, txType: FunctionName) => {
     handleContractCallError(functionName, err, txType)
     setModalLoading(false)
-  }
-
-  const getAssetBalanceByFunc = (f: FunctionName): BigNumber => {
-    switch (f) {
-      case depositFunc.name:
-        return userNftTokenInfo.reduce((a, b) => a.add(b.value), ZERO)
-      case withdrawFunc.name:
-      default:
-        return parseUnits(userStakeValue, currencyDecimals)
-    }
   }
 
   const getAssetTokensByFunc = (): NftTokenInfo[] => {
@@ -204,7 +201,7 @@ export const Erc721PoolModalGeneric: React.FC<PoolModalProps & Erc721PoolModalGe
       <Erc721InputPanel
         unit={getUnit(func, activeNetwork)}
         assetTokens={getAssetTokensByFunc()}
-        availableBalance={truncateBalance(formatUnits(getAssetBalanceByFunc(func), currencyDecimals))}
+        availableBalance={truncateBalance(formatUnits(assetBalance, currencyDecimals))}
         nftSelection={nftSelection}
         handleNft={handleNft}
         nftId={nftId}

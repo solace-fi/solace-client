@@ -7,11 +7,8 @@
     import context
     import components
     import hooks
-    import utils
 
-    styled components
-
-    ProtocolStep
+    Bond
       hooks
       local functions
       Render
@@ -20,6 +17,7 @@
 
 /* import packages */
 import React, { Fragment, useEffect, useState } from 'react'
+import { formatUnits } from '@ethersproject/units'
 
 /* import constants */
 import { BKPT_4 } from '../../constants'
@@ -34,22 +32,25 @@ import { Table, TableData, TableHead, TableHeader, TableRow, TableBody } from '.
 import { DeFiAssetImage } from '../../components/atoms/DeFiAsset'
 import { Card, CardContainer } from '../../components/atoms/Card'
 import { FormRow, FormCol } from '../../components/atoms/Form'
-import { FlexCol, FlexRow, Scrollable } from '../../components/atoms/Layout'
+import { FlexCol, FlexRow, HeroContainer, Scrollable } from '../../components/atoms/Layout'
 import { Text } from '../../components/atoms/Typography'
 import { BondModal } from '../../components/organisms/BondModal'
+import { Loader } from '../../components/atoms/Loader'
 
 /* import hooks */
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'
-
-/* import utils */
 import { useBondTellerDetails } from '../../hooks/useBondTeller'
-import { Loader } from '../../components/atoms/Loader'
-import { formatUnits } from '@ethersproject/units'
 
 function Bond(): any {
+  /*
+
+  hooks
+
+  */
+
   const { haveErrors } = useGeneral()
   const { width } = useWindowDimensions()
-  const tellerDetails = useBondTellerDetails()
+  const { tellerDetails, mounting } = useBondTellerDetails()
   const [showBondModal, setShowBondModal] = useState<boolean>(false)
   const [selectedBondDetail, setSelectedBondDetail] = useState<BondTellerDetails | undefined>(undefined)
 
@@ -57,6 +58,12 @@ function Bond(): any {
     if (selectedBond) setSelectedBondDetail(selectedBond)
     setShowBondModal(toggle)
   }
+
+  /*
+
+  useEffect hooks
+
+  */
 
   useEffect(() => {
     if (!selectedBondDetail) return
@@ -72,7 +79,9 @@ function Bond(): any {
   return (
     <Fragment>
       <BondModal closeModal={() => openModal(false)} isOpen={showBondModal} selectedBondDetail={selectedBondDetail} />
-      {tellerDetails.length > 0 ? (
+      {mounting ? (
+        <Loader />
+      ) : tellerDetails.length > 0 ? (
         width > BKPT_4 ? (
           <Scrollable style={{ padding: '0 10px 0 10px' }}>
             <Table canHover style={{ borderSpacing: '0px 7px' }}>
@@ -81,8 +90,6 @@ function Bond(): any {
                   <TableHeader></TableHeader>
                   <TableHeader>Bond</TableHeader>
                   <TableHeader>Price Per SOLACE</TableHeader>
-                  {/* <TableHeader>ROI</TableHeader>
-                  <TableHeader>Purchased</TableHeader> */}
                   <TableHeader></TableHeader>
                 </TableRow>
               </TableHead>
@@ -131,8 +138,6 @@ function Bond(): any {
                         tellerDetail.principalData?.principalProps.decimals
                       )}
                     </TableData>
-                    {/* <TableData>y</TableData>
-                    <TableData>z</TableData> */}
                     <TableData textAlignRight>
                       <Button disabled={haveErrors} info>
                         Bond
@@ -196,29 +201,17 @@ function Bond(): any {
                       </Text>
                     </FormCol>
                   </FormRow>
-                  {/* <FormRow>
-                    <FormCol>ROI</FormCol>
-                    <FormCol>
-                      <Text bold t2>
-                        ROI = (marketPrice - bondPrice) / (bondPrice)
-                      </Text>
-                    </FormCol>
-                  </FormRow>
-                  <FormRow>
-                    <FormCol>Purchased</FormCol>
-                    <FormCol>
-                      <Text bold t2>
-                        z
-                      </Text>
-                    </FormCol>
-                  </FormRow> */}
                 </Card>
               ))}
             </CardContainer>
           </Scrollable>
         )
       ) : (
-        <Loader />
+        <HeroContainer>
+          <Text t1 textAlignCenter mb={20}>
+            No bonds found.
+          </Text>
+        </HeroContainer>
       )}
     </Fragment>
   )

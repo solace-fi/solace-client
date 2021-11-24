@@ -8,18 +8,17 @@
     import hooks
 
     Stake 
-      hooks
+      custom hooks
+      useEffect hooks
 
 */
 
 /* import packages */
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 import { parseUnits } from '@ethersproject/units'
-import { BigNumber } from 'ethers'
 
 /* import managers */
 import { useWallet } from '../../context/WalletManager'
-import { useNetwork } from '../../context/NetworkManager'
 import { useGeneral } from '../../context/GeneralProvider'
 
 /* import constants */
@@ -48,7 +47,7 @@ import { getUnit, truncateBalance } from '../../utils/formatting'
 function Stake(): any {
   /*************************************************************************************
 
-    hooks
+    custom hooks
 
   *************************************************************************************/
 
@@ -69,14 +68,26 @@ function Stake(): any {
   const { stake, unstake } = useXSolace()
   const { userShare, xSolacePerSolace, solacePerXSolace } = useXSolaceDetails()
   const { account } = useWallet()
-  const { currencyDecimals } = useNetwork()
   const [convertStoX, setConvertStoX] = useState<boolean>(true)
 
   const [isAcceptableAmount, setIsAcceptableAmount] = useState<boolean>(false)
 
+  const assetBalance = useMemo(
+    () =>
+      isStaking
+        ? parseUnits(solaceBalanceData.solaceBalance, solaceBalanceData.tokenData.decimals)
+        : parseUnits(xSolaceBalanceData.xSolaceBalance, xSolaceBalanceData.tokenData.decimals),
+    [isStaking, solaceBalanceData, xSolaceBalanceData]
+  )
+
+  const assetDecimals = useMemo(
+    () => (isStaking ? solaceBalanceData.tokenData.decimals : xSolaceBalanceData.tokenData.decimals),
+    [isStaking, solaceBalanceData, xSolaceBalanceData]
+  )
+
   const callStakeSigned = async () => {
     await stake(
-      parseUnits(amount, currencyDecimals),
+      parseUnits(amount, solaceBalanceData.tokenData.decimals),
       `${truncateBalance(amount)} ${getUnit(FunctionName.STAKE)}`,
       gasConfig
     )
@@ -86,7 +97,7 @@ function Stake(): any {
 
   const callUnstake = async () => {
     await unstake(
-      parseUnits(amount, currencyDecimals),
+      parseUnits(amount, xSolaceBalanceData.tokenData.decimals),
       `${truncateBalance(amount)} ${getUnit(FunctionName.UNSTAKE)}`,
       gasConfig
     )
@@ -94,19 +105,19 @@ function Stake(): any {
       .catch((err) => handleContractCallError('callUnstake', err, FunctionName.UNSTAKE))
   }
 
-  const getAssetBalanceByFunc = (): BigNumber => {
-    return isStaking
-      ? parseUnits(solaceBalanceData.solaceBalance, currencyDecimals)
-      : parseUnits(xSolaceBalanceData.xSolaceBalance, currencyDecimals)
+  const _setMax = () => {
+    setMax(assetBalance, assetDecimals)
   }
 
-  const _setMax = () => {
-    setMax(getAssetBalanceByFunc(), currencyDecimals)
-  }
+  /*
+
+  useEffect hooks
+
+  */
 
   useEffect(() => {
-    setIsAcceptableAmount(isAppropriateAmount(amount, currencyDecimals, getAssetBalanceByFunc()))
-  }, [amount, isStaking])
+    setIsAcceptableAmount(isAppropriateAmount(amount, assetDecimals, assetBalance))
+  }, [amount, isStaking, assetBalance, assetDecimals])
 
   useEffect(() => {
     resetAmount()
@@ -166,7 +177,7 @@ function Stake(): any {
                   onChange={(e) => handleInputChange(e.target.value)}
                   value={amount}
                 />
-                <Button ml={10} pt={4} pb={4} pl={8} pr={8} width={70} height={30} onClick={_setMax}>
+                <Button info ml={10} pt={4} pb={4} pl={8} pr={8} width={70} height={30} onClick={_setMax}>
                   MAX
                 </Button>
               </FlexRow>

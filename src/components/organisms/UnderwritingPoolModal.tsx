@@ -19,7 +19,7 @@
   *************************************************************************************/
 
 /* import packages */
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useState, useEffect, useCallback, useMemo } from 'react'
 import { formatUnits, parseUnits } from '@ethersproject/units'
 import { BigNumber } from 'ethers'
 
@@ -67,9 +67,14 @@ export const UnderwritingPoolModal: React.FC<PoolModalProps> = ({ modalTitle, fu
 
   const { haveErrors } = useGeneral()
   const { activeNetwork, currencyDecimals } = useNetwork()
+
+  const [modalLoading, setModalLoading] = useState<boolean>(false)
+  const [canCloseOnLoading, setCanCloseOnLoading] = useState<boolean>(false)
+  const [isStaking, setIsStaking] = useState<boolean>(false)
+  const [isAcceptableAmount, setIsAcceptableAmount] = useState<boolean>(false)
+
   const nativeTokenBalance = useNativeTokenBalance()
   const scpBalance = useScpBalance()
-
   const {
     cooldownStarted,
     timeWaited,
@@ -95,13 +100,16 @@ export const UnderwritingPoolModal: React.FC<PoolModalProps> = ({ modalTitle, fu
     setMax,
     resetAmount,
   } = useInputAmount()
-
   const { width } = useWindowDimensions()
-  const [modalLoading, setModalLoading] = useState<boolean>(false)
-  const [canCloseOnLoading, setCanCloseOnLoading] = useState<boolean>(false)
-  const [isStaking, setIsStaking] = useState<boolean>(false)
-
-  const [isAcceptableAmount, setIsAcceptableAmount] = useState<boolean>(false)
+  const assetBalance = useMemo(() => {
+    switch (func) {
+      case FunctionName.DEPOSIT_ETH:
+        return parseUnits(nativeTokenBalance, currencyDecimals)
+      case FunctionName.WITHDRAW_ETH:
+      default:
+        return parseUnits(scpBalance, currencyDecimals)
+    }
+  }, [currencyDecimals, func, nativeTokenBalance, scpBalance])
 
   /*************************************************************************************
 
@@ -173,18 +181,8 @@ export const UnderwritingPoolModal: React.FC<PoolModalProps> = ({ modalTitle, fu
     setModalLoading(false)
   }
 
-  const getAssetBalanceByFunc = (f: FunctionName): BigNumber => {
-    switch (f) {
-      case FunctionName.DEPOSIT_ETH:
-        return parseUnits(nativeTokenBalance, currencyDecimals)
-      case FunctionName.WITHDRAW_ETH:
-      default:
-        return parseUnits(scpBalance, currencyDecimals)
-    }
-  }
-
   const _setMax = () => {
-    setMax(getAssetBalanceByFunc(func), currencyDecimals, func, 'vault')
+    setMax(assetBalance, currencyDecimals, func, 'vault')
   }
 
   const handleClose = useCallback(() => {
@@ -207,8 +205,8 @@ export const UnderwritingPoolModal: React.FC<PoolModalProps> = ({ modalTitle, fu
   }, [handleSelectGasChange])
 
   useEffect(() => {
-    setIsAcceptableAmount(isAppropriateAmount(amount, currencyDecimals, getAssetBalanceByFunc(func)))
-  }, [amount, func])
+    setIsAcceptableAmount(isAppropriateAmount(amount, currencyDecimals, assetBalance))
+  }, [amount, assetBalance])
 
   /*************************************************************************************
 
@@ -272,7 +270,7 @@ export const UnderwritingPoolModal: React.FC<PoolModalProps> = ({ modalTitle, fu
             value={amount}
           />
           <div style={{ position: 'absolute', top: '70%' }}>
-            Available: {truncateBalance(formatUnits(getAssetBalanceByFunc(func), currencyDecimals))}
+            Available: {truncateBalance(formatUnits(assetBalance, currencyDecimals))}
           </div>
         </ModalCell>
         <ModalCell t3>
@@ -352,7 +350,7 @@ export const UnderwritingPoolModal: React.FC<PoolModalProps> = ({ modalTitle, fu
             </ButtonWrapper>
           ) : (
             <>
-              {getAssetBalanceByFunc(func).isZero() && (
+              {assetBalance.isZero() && (
                 <Text t4 bold textAlignCenter width={270} style={{ margin: '7px auto' }} warning>
                   You are trying to start a thaw without any CP tokens in your wallet. Please withdraw them from the
                   Options Farming Pool first.
@@ -363,7 +361,7 @@ export const UnderwritingPoolModal: React.FC<PoolModalProps> = ({ modalTitle, fu
                   <Button
                     widthP={100}
                     hidden={modalLoading}
-                    disabled={haveErrors || getAssetBalanceByFunc(func).isZero()}
+                    disabled={haveErrors || assetBalance.isZero()}
                     onClick={callStartCooldown}
                     info
                   >

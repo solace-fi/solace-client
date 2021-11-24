@@ -1,14 +1,43 @@
-import React, { useCallback, useState, useMemo, useEffect, useRef } from 'react'
+/*************************************************************************************
+
+    Table of Contents:
+
+    import packages
+    import constants
+    import managers
+    import components
+    import hooks
+    import utils
+
+    BondModal
+      custom hooks
+      contract functions
+      local functions
+      useEffect hooks
+
+  *************************************************************************************/
+
+/* import packages */
+import React, { useCallback, useState, useMemo, useEffect } from 'react'
 import { Contract } from '@ethersproject/contracts'
 import { formatUnits, parseUnits } from '@ethersproject/units'
 import useDebounce from '@rooks/use-debounce'
+import { BigNumber } from 'ethers'
 
+/* import constants */
 import { BondTellerDetails, BondToken, LocalTx } from '../../constants/types'
-import { BKPT_3, MAX_BPS } from '../../constants'
+import { BKPT_3, MAX_BPS, MAX_APPROVAL_AMOUNT, ZERO } from '../../constants'
+import { FunctionName, TransactionCondition } from '../../constants/enums'
 
+/* import managers */
 import { useWallet } from '../../context/WalletManager'
 import { useNetwork } from '../../context/NetworkManager'
+import { useGeneral } from '../../context/GeneralProvider'
+import { useCachedData } from '../../context/CachedDataManager'
+import { useNotifications } from '../../context/NotificationsManager'
+import { useContracts } from '../../context/ContractsManager'
 
+/* import components */
 import { WalletConnectButton } from '../molecules/WalletConnectButton'
 import { ModalContainer, ModalBase, ModalHeader, ModalCell } from '../atoms/Modal'
 import { ModalCloseButton } from '../molecules/Modal'
@@ -18,31 +47,26 @@ import { Button, ButtonWrapper } from '../atoms/Button'
 import { FormCol, FormRow } from '../../components/atoms/Form'
 import { Input } from '../../components/atoms/Input'
 import { DeFiAssetImage } from '../../components/atoms/DeFiAsset'
-
-import { useInputAmount } from '../../hooks/useInputAmount'
-import { useTokenAllowance } from '../../hooks/useTokenAllowance'
-
-import { getLongtimeFromMillis, getTimeFromMillis } from '../../utils/time'
-import { queryBalance, queryDecimals, querySymbol } from '../../utils/contract'
-import { BigNumber } from 'ethers'
-import { MAX_APPROVAL_AMOUNT, ZERO } from '../../constants'
-import { useSolaceBalance, useXSolaceBalance } from '../../hooks/useBalance'
-import { useGeneral } from '../../context/GeneralProvider'
-import { FunctionName, TransactionCondition } from '../../constants/enums'
-import { useCachedData } from '../../context/CachedDataManager'
-import { useNotifications } from '../../context/NotificationsManager'
-import { useNativeTokenBalance } from '../../hooks/useBalance'
-import { useBondTeller } from '../../hooks/useBondTeller'
-import { accurateMultiply, shortenAddress, truncateBalance } from '../../utils/formatting'
 import { Card, CardContainer } from '../atoms/Card'
 import { Loader } from '../atoms/Loader'
-import { useContracts } from '../../context/ContractsManager'
 import { CheckboxOption } from './PoolModalRouter'
 import { FlexRow } from '../../components/atoms/Layout'
 import { SmallBox } from '../atoms/Box'
 import { StyledGear, StyledGraphDown, StyledSendPlane } from '../atoms/Icon'
 import { BondSettingsModal } from './BondSettingsModal'
+
+/* import hooks */
+import { useInputAmount } from '../../hooks/useInputAmount'
+import { useTokenAllowance } from '../../hooks/useTokenAllowance'
+import { useSolaceBalance, useXSolaceBalance } from '../../hooks/useBalance'
+import { useNativeTokenBalance } from '../../hooks/useBalance'
+import { useBondTeller } from '../../hooks/useBondTeller'
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'
+
+/* import utils */
+import { getLongtimeFromMillis, getTimeFromMillis } from '../../utils/time'
+import { queryBalance } from '../../utils/contract'
+import { accurateMultiply, shortenAddress, truncateBalance } from '../../utils/formatting'
 
 interface BondModalProps {
   closeModal: () => void
@@ -51,6 +75,11 @@ interface BondModalProps {
 }
 
 export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, selectedBondDetail }) => {
+  /* 
+  
+  custom hooks 
+  
+  */
   const { haveErrors } = useGeneral()
   const { account, library } = useWallet()
   const { currencyDecimals } = useNetwork()
@@ -302,6 +331,12 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
     return ZERO
   }
 
+  /* 
+  
+  useEffect hooks
+  
+  */
+
   useEffect(() => {
     const getBondData = async () => {
       if (!selectedBondDetail?.principalData) return
@@ -365,7 +400,7 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
     setIsAcceptableAmount(
       isAppropriateAmount(amount, selectedBondDetail.principalData.principalProps.decimals, assetBalance)
     )
-  }, [selectedBondDetail?.principalData, func, amount])
+  }, [selectedBondDetail?.principalData, assetBalance, amount])
 
   useEffect(() => {
     resetAmount()
@@ -487,7 +522,7 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
                 onChange={(e) => handleInputChange(e.target.value)}
                 value={amount}
               />
-              <Button ml={10} pt={4} pb={4} pl={8} pr={8} width={70} height={30} onClick={_setMax}>
+              <Button info ml={10} pt={4} pb={4} pl={8} pr={8} width={70} height={30} onClick={_setMax}>
                 MAX
               </Button>
             </div>
@@ -511,18 +546,18 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
           <>
             {account && approval && (
               <>
-                <FormRow mt={20} mb={10}>
+                <FormRow mt={40} mb={10}>
                   <FormCol>
                     <Text bold>My Balance</Text>
                   </FormCol>
                   <FormCol>
                     <Text info textAlignRight bold>
-                      {formatUnits(assetBalance, currencyDecimals)}{' '}
+                      {formatUnits(assetBalance, selectedBondDetail?.principalData?.principalProps.decimals)}{' '}
                       {selectedBondDetail?.tellerData.teller.name.substring(func == FunctionName.DEPOSIT_ETH ? 1 : 0)}
                     </Text>
                   </FormCol>
                 </FormRow>
-                <FormRow mb={10}>
+                <FormRow mb={5}>
                   <FormCol>
                     <Text bold>You Will Get</Text>
                   </FormCol>
@@ -536,24 +571,26 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
                     </Text>
                   </FormCol>
                 </FormRow>
+                <FormRow mb={30} style={{ justifyContent: 'right' }}>
+                  <SmallBox transparent collapse={!isStaking} m={0} p={0}>
+                    <FormRow mb={10}>
+                      <FormCol></FormCol>
+                      <FormCol>
+                        <Text t4 textAlignRight>
+                          {'( '}
+                          {calculatedAmountOut_X
+                            ? `${formatUnits(calculatedAmountOut_X, xSolaceBalanceData.tokenData.decimals)} ${
+                                xSolaceBalanceData.tokenData.symbol
+                              }`
+                            : `-`}
+                          {' )'}
+                        </Text>
+                      </FormCol>
+                    </FormRow>
+                  </SmallBox>
+                </FormRow>
               </>
             )}
-            <SmallBox transparent collapse={!isStaking} m={0} p={0} style={{ justifyContent: 'right' }}>
-              <FormRow mb={10}>
-                <FormCol></FormCol>
-                <FormCol>
-                  <Text t4 textAlignRight>
-                    {'( '}
-                    {calculatedAmountOut_X
-                      ? `${formatUnits(calculatedAmountOut_X, xSolaceBalanceData.tokenData.decimals)} ${
-                          xSolaceBalanceData.tokenData.symbol
-                        }`
-                      : `-`}
-                    {' )'}
-                  </Text>
-                </FormCol>
-              </FormRow>
-            </SmallBox>
             <HorizRule />
             <FormRow mt={20} mb={10}>
               <FormCol>
@@ -636,19 +673,29 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
                   return (
                     <Card p={15} key={token.id.toString()}>
                       <FormRow mb={10}>
-                        <FormCol>ID</FormCol>
+                        <FormCol>
+                          <Text>ID</Text>
+                        </FormCol>
                         <FormCol>{token.id.toString()}</FormCol>
                       </FormRow>
                       <FormRow mb={10}>
-                        <FormCol>Paid Price</FormCol>
                         <FormCol>
-                          {formatUnits(token.pricePaid, selectedBondDetail?.principalData?.principalProps.decimals)}
+                          <Text>Paid Price</Text>
+                        </FormCol>
+                        <FormCol>
+                          <Text textAlignRight>
+                            {formatUnits(token.pricePaid, selectedBondDetail?.principalData?.principalProps.decimals)}
+                          </Text>
                         </FormCol>
                       </FormRow>
                       <FormRow mb={10}>
-                        <FormCol>Payout</FormCol>
                         <FormCol>
-                          {formatUnits(token.payoutAmount, solaceBalanceData.tokenData.decimals)} {token.payoutToken}
+                          <Text>Payout</Text>
+                        </FormCol>
+                        <FormCol>
+                          <Text textAlignRight>
+                            {formatUnits(token.payoutAmount, solaceBalanceData.tokenData.decimals)} {token.payoutToken}
+                          </Text>
                         </FormCol>
                       </FormRow>
                       {token.maturation.toNumber() > timestamp ? (
