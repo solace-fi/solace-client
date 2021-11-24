@@ -5,7 +5,7 @@ interface LoaderProps {
   isLight?: boolean
 }
 
-const rotate = keyframes`
+export const rotate = keyframes`
   0% {
     transform: rotate(0deg);
   }

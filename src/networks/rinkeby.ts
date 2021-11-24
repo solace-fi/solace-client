@@ -1,4 +1,4 @@
-import { BondName, FunctionName, ProductName, Unit } from '../constants/enums'
+import { BondName, ProductName, Unit } from '../constants/enums'
 import { NetworkConfig } from '../constants/types'
 import { ETHERSCAN_API_KEY, ALCHEMY_API_KEY } from '../constants'
 import { hexValue } from '@ethersproject/bytes'
@@ -10,7 +10,6 @@ import optionsFarmingABI from '../constants/abi/contracts/OptionsFarming.sol/Opt
 import registryABI from '../constants/abi/contracts/Registry.sol/Registry.json'
 import solaceABI from '../constants/abi/contracts/SOLACE.sol/SOLACE.json'
 import xSolaceABI from '../constants/abi/contracts/xSOLACE.sol/xSOLACE.json'
-import wethABI from '../constants/abi/contracts/WETH9.sol/WETH9.json'
 import treasuryABI from '../constants/abi/contracts/Treasury.sol/Treasury.json'
 import vaultABI from '../constants/abi/contracts/Vault.sol/Vault.json'
 import cpFarmABI from '../constants/abi/contracts/CpFarm.sol/CpFarm.json'
@@ -130,10 +129,6 @@ export const RinkebyNetwork: NetworkConfig = {
       lpToken: {
         addr: String(process.env.REACT_APP_RINKEBY_UNISWAP_LPTOKEN_ADDR),
         abi: lpTokenArtifact.abi,
-      },
-      weth: {
-        addr: String(process.env.REACT_APP_RINKEBY_WETH_ADDR),
-        abi: wethABI,
       },
       claimsEscrow: {
         addr: String(process.env.REACT_APP_RINKEBY_CLAIMS_ESCROW_ADDR),

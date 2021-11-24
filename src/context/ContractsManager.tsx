@@ -28,7 +28,6 @@ type Contracts = {
   lpFarm?: Contract | null
   registry?: Contract | null
   lpToken?: Contract | null
-  weth?: Contract | null
   lpAppraisor?: Contract | null
   claimsEscrow?: Contract | null
   policyManager?: Contract | null
@@ -52,7 +51,6 @@ const ContractsContext = createContext<Contracts>({
   lpFarm: undefined,
   registry: undefined,
   lpToken: undefined,
-  weth: undefined,
   lpAppraisor: undefined,
   claimsEscrow: undefined,
   policyManager: undefined,
@@ -81,7 +79,6 @@ const ContractsProvider: React.FC = (props) => {
   const lpFarm = useGetContract(keyContracts.lpFarm)
   const registry = useGetContract(keyContracts.registry)
   const lpToken = useGetContract(keyContracts.lpToken)
-  const weth = useGetContract(keyContracts.weth)
   const claimsEscrow = useGetContract(keyContracts.claimsEscrow)
   const policyManager = useGetContract(keyContracts.policyManager)
   const riskManager = useGetContract(keyContracts.riskManager)
@@ -117,7 +114,6 @@ const ContractsProvider: React.FC = (props) => {
       lpFarm,
       registry,
       lpToken,
-      weth,
       lpAppraisor,
       claimsEscrow,
       policyManager,
@@ -140,7 +136,6 @@ const ContractsProvider: React.FC = (props) => {
       lpFarm,
       registry,
       lpToken,
-      weth,
       lpAppraisor,
       claimsEscrow,
       policyManager,

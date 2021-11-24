@@ -28,7 +28,7 @@ import { FileEarmarkLock2Fill } from '@styled-icons/bootstrap/FileEarmarkLock2Fi
 import { Gear } from '@styled-icons/octicons/Gear'
 import { GraphDown } from '@styled-icons/bootstrap/GraphDown'
 import { SendPlane } from '@styled-icons/remix-fill/SendPlane'
-
+import { Refresh } from '@styled-icons/boxicons-regular/Refresh'
 export const StyledIconCss = css`
   margin: auto;
   display: block;
@@ -106,3 +106,5 @@ export const StyledGear = styled(Gear)``
 export const StyledGraphDown = styled(GraphDown)``
 
 export const StyledSendPlane = styled(SendPlane)``
+
+export const StyledRefresh = styled(Refresh)``

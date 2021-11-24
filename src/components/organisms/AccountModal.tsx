@@ -202,9 +202,7 @@ export const AccountModal: React.FC<AccountModalProps> = ({ closeModal, isOpen }
                         pr={width <= BKPT_3 ? 0 : undefined}
                       >
                         {amounts.length > 0 ? (
-                          <Text error={tx.txreceipt_status != '1'}>
-                            {decodeInput(tx, contractSources).function_name}
-                          </Text>
+                          <Text error={tx.txreceipt_status != '1'}>{decodeInput(tx, contractSources)}</Text>
                         ) : (
                           <Loader width={10} height={10} />
                         )}

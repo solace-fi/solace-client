@@ -44,6 +44,7 @@ import { useWindowDimensions } from '../../hooks/useWindowDimensions'
 /* import utils */
 import { useBondTellerDetails } from '../../hooks/useBondTeller'
 import { Loader } from '../../components/atoms/Loader'
+import { formatUnits } from '@ethersproject/units'
 
 function Bond(): any {
   const { haveErrors } = useGeneral()
@@ -58,15 +59,14 @@ function Bond(): any {
   }
 
   useEffect(() => {
-    if (selectedBondDetail) {
-      const matchingBond = tellerDetails.find(
-        (tellerDetail) =>
-          tellerDetail.tellerData.teller.contract.address.toLowerCase() ==
-          selectedBondDetail.tellerData.teller.contract.address.toLowerCase()
-      )
-      if (!matchingBond) return
-      setSelectedBondDetail(matchingBond)
-    }
+    if (!selectedBondDetail) return
+    const matchingBond = tellerDetails.find(
+      (tellerDetail) =>
+        tellerDetail.tellerData.teller.contract.address.toLowerCase() ==
+        selectedBondDetail.tellerData.teller.contract.address.toLowerCase()
+    )
+    if (!matchingBond) return
+    setSelectedBondDetail(matchingBond)
   }, [selectedBondDetail, tellerDetails])
 
   return (
@@ -95,33 +95,42 @@ function Bond(): any {
                   >
                     <TableData>
                       <FlexRow style={{ justifyContent: 'center' }}>
-                        {tellerDetail.principalData.token0 && tellerDetail.principalData.token1 ? (
-                          <>
-                            <DeFiAssetImage mr={5} noborder>
-                              <img
-                                src={`https://assets.solace.fi/${tellerDetail.principalData.token0.toLowerCase()}`}
-                                alt={tellerDetail.principalData.token0.toLowerCase()}
-                              />
-                            </DeFiAssetImage>
+                        {tellerDetail.principalData ? (
+                          tellerDetail.principalData.token0 && tellerDetail.principalData.token1 ? (
+                            <>
+                              <DeFiAssetImage mr={5} noborder>
+                                <img
+                                  src={`https://assets.solace.fi/${tellerDetail.principalData.token0.toLowerCase()}`}
+                                  alt={tellerDetail.principalData.token0.toLowerCase()}
+                                />
+                              </DeFiAssetImage>
+                              <DeFiAssetImage noborder>
+                                <img
+                                  src={`https://assets.solace.fi/${tellerDetail.principalData.token1.toLowerCase()}`}
+                                  alt={tellerDetail.principalData.token1.toLowerCase()}
+                                />
+                              </DeFiAssetImage>
+                            </>
+                          ) : (
                             <DeFiAssetImage noborder>
                               <img
-                                src={`https://assets.solace.fi/${tellerDetail.principalData.token1.toLowerCase()}`}
-                                alt={tellerDetail.principalData.token1.toLowerCase()}
+                                src={`https://assets.solace.fi/${tellerDetail.principalData?.principal.address.toLowerCase()}`}
+                                alt={tellerDetail.tellerData.teller.name}
                               />
                             </DeFiAssetImage>
-                          </>
+                          )
                         ) : (
-                          <DeFiAssetImage noborder>
-                            <img
-                              src={`https://assets.solace.fi/${tellerDetail.principalData.principal.address.toLowerCase()}`}
-                              alt={tellerDetail.tellerData.teller.name}
-                            />
-                          </DeFiAssetImage>
+                          <Loader height={10} width={10} />
                         )}
                       </FlexRow>
                     </TableData>
                     <TableData>{tellerDetail.tellerData.teller.name}</TableData>
-                    <TableData>{tellerDetail.tellerData.bondPrice.toString()}</TableData>
+                    <TableData>
+                      {formatUnits(
+                        tellerDetail.tellerData.bondPrice,
+                        tellerDetail.principalData?.principalProps.decimals
+                      )}
+                    </TableData>
                     {/* <TableData>y</TableData>
                     <TableData>z</TableData> */}
                     <TableData textAlignRight>
@@ -143,28 +152,32 @@ function Bond(): any {
                   <FlexCol style={{ alignItems: 'center' }}>
                     <FormRow>
                       <FlexRow>
-                        {tellerDetail.principalData.token0 && tellerDetail.principalData.token1 ? (
-                          <>
+                        {tellerDetail.principalData ? (
+                          tellerDetail.principalData.token0 && tellerDetail.principalData.token1 ? (
+                            <>
+                              <DeFiAssetImage mr={10} noborder>
+                                <img
+                                  src={`https://assets.solace.fi/${tellerDetail.principalData.token0.toLowerCase()}`}
+                                  alt={tellerDetail.principalData.token0.toLowerCase()}
+                                />
+                              </DeFiAssetImage>
+                              <DeFiAssetImage mr={10} noborder>
+                                <img
+                                  src={`https://assets.solace.fi/${tellerDetail.principalData.token1.toLowerCase()}`}
+                                  alt={tellerDetail.principalData.token1.toLowerCase()}
+                                />
+                              </DeFiAssetImage>
+                            </>
+                          ) : (
                             <DeFiAssetImage mr={10} noborder>
                               <img
-                                src={`https://assets.solace.fi/${tellerDetail.principalData.token0.toLowerCase()}`}
-                                alt={tellerDetail.principalData.token0.toLowerCase()}
+                                src={`https://assets.solace.fi/${tellerDetail.principalData.principal.address.toLowerCase()}`}
+                                alt={tellerDetail.tellerData.teller.name}
                               />
                             </DeFiAssetImage>
-                            <DeFiAssetImage mr={10} noborder>
-                              <img
-                                src={`https://assets.solace.fi/${tellerDetail.principalData.token1.toLowerCase()}`}
-                                alt={tellerDetail.principalData.token1.toLowerCase()}
-                              />
-                            </DeFiAssetImage>
-                          </>
+                          )
                         ) : (
-                          <DeFiAssetImage mr={10} noborder>
-                            <img
-                              src={`https://assets.solace.fi/${tellerDetail.principalData.principal.address.toLowerCase()}`}
-                              alt={tellerDetail.tellerData.teller.name}
-                            />
-                          </DeFiAssetImage>
+                          <Loader height={10} width={10} />
                         )}
                       </FlexRow>
                     </FormRow>
@@ -176,7 +189,10 @@ function Bond(): any {
                     <FormCol>Price Per SOLACE</FormCol>
                     <FormCol>
                       <Text bold t2>
-                        {tellerDetail.tellerData.bondPrice.toString()}
+                        {formatUnits(
+                          tellerDetail.tellerData.bondPrice,
+                          tellerDetail.principalData?.principalProps.decimals
+                        )}
                       </Text>
                     </FormCol>
                   </FormRow>

@@ -4,7 +4,7 @@ import { formatUnits, parseUnits } from '@ethersproject/units'
 import useDebounce from '@rooks/use-debounce'
 
 import { BondTellerDetails, BondToken, LocalTx } from '../../constants/types'
-import { MAX_BPS } from '../../constants'
+import { BKPT_3, MAX_BPS } from '../../constants'
 
 import { useWallet } from '../../context/WalletManager'
 import { useNetwork } from '../../context/NetworkManager'
@@ -12,7 +12,7 @@ import { useNetwork } from '../../context/NetworkManager'
 import { WalletConnectButton } from '../molecules/WalletConnectButton'
 import { ModalContainer, ModalBase, ModalHeader, ModalCell } from '../atoms/Modal'
 import { ModalCloseButton } from '../molecules/Modal'
-import { Content, MultiTabIndicator, Scrollable } from '../atoms/Layout'
+import { Content, FlexCol, HorizRule, MultiTabIndicator, Scrollable } from '../atoms/Layout'
 import { Text } from '../atoms/Typography'
 import { Button, ButtonWrapper } from '../atoms/Button'
 import { FormCol, FormRow } from '../../components/atoms/Form'
@@ -42,6 +42,7 @@ import { FlexRow } from '../../components/atoms/Layout'
 import { SmallBox } from '../atoms/Box'
 import { StyledGear, StyledGraphDown, StyledSendPlane } from '../atoms/Icon'
 import { BondSettingsModal } from './BondSettingsModal'
+import { useWindowDimensions } from '../../hooks/useWindowDimensions'
 
 interface BondModalProps {
   closeModal: () => void
@@ -88,6 +89,7 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
   const nativeTokenBalance = useNativeTokenBalance()
   const tokenAllowance = useTokenAllowance(contractForAllowance, spenderAddress)
   const { deposit, redeem } = useBondTeller(selectedBondDetail)
+  const { width } = useWindowDimensions()
   const {
     gasConfig,
     amount,
@@ -103,6 +105,16 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
     spenderAddress,
     tokenAllowance,
   ])
+  const assetBalance = useMemo(() => {
+    switch (func) {
+      case FunctionName.BOND_DEPOSIT_ERC20:
+      case FunctionName.BOND_DEPOSIT_WETH:
+        return parseUnits(principalBalance, selectedBondDetail?.principalData?.principalProps.decimals)
+      case FunctionName.DEPOSIT_ETH:
+      default:
+        return parseUnits(nativeTokenBalance, currencyDecimals)
+    }
+  }, [func, nativeTokenBalance, principalBalance, selectedBondDetail])
   /*************************************************************************************
 
   contract functions
@@ -110,7 +122,7 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
   *************************************************************************************/
 
   const approve = async () => {
-    if (!selectedBondDetail?.principalData.principal) return
+    if (!selectedBondDetail?.principalData?.principal) return
     try {
       const tx = await selectedBondDetail.principalData.principal.approve(
         selectedBondDetail.tellerData.teller.contract.address,
@@ -132,20 +144,24 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
   }
 
   const callDepositBond = async (stake: boolean) => {
-    if (!selectedBondDetail || !library || !calculatedAmountOut || !calculatedAmountOut_X || !bondRecipient) return
-    setModalLoading(true)
-    const decimals: number = await queryDecimals(selectedBondDetail.principalData.principal)
-    const symbol: string = await querySymbol(selectedBondDetail.principalData.principal, library)
-    await calculateAmountOut(amount, stake)
+    if (
+      !selectedBondDetail?.principalData ||
+      !library ||
+      !calculatedAmountOut ||
+      !calculatedAmountOut_X ||
+      !bondRecipient
+    )
+      return
+    setModalLoading(true) // await calculateAmountOut(amount, stake)
     const slippageInt = parseInt(accurateMultiply(slippagePrct, 2))
     const calcAOut = stake ? calculatedAmountOut_X : calculatedAmountOut
     const minAmountOut = calcAOut.mul(BigNumber.from(MAX_BPS - slippageInt)).div(BigNumber.from(MAX_BPS))
     await deposit(
-      parseUnits(amount, decimals),
+      parseUnits(amount, selectedBondDetail.principalData.principalProps.decimals),
       minAmountOut,
       bondRecipient,
       stake,
-      `${truncateBalance(amount)} ${symbol}`,
+      `${truncateBalance(amount)} ${selectedBondDetail.principalData.principalProps.decimals}`,
       func,
       gasConfig
     )
@@ -177,17 +193,6 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
     setModalLoading(false)
   }
 
-  const getAssetBalanceByFunc = (f: FunctionName): BigNumber => {
-    switch (f) {
-      case FunctionName.BOND_DEPOSIT_ERC20:
-      case FunctionName.BOND_DEPOSIT_WETH:
-        return parseUnits(principalBalance, selectedBondDetail?.principalData.principalProps.decimals)
-      case FunctionName.DEPOSIT_ETH:
-      default:
-        return parseUnits(nativeTokenBalance, currencyDecimals)
-    }
-  }
-
   const handleClose = useCallback(() => {
     setBondRecipient(account)
     setCalculatedAmountIn(ZERO)
@@ -212,14 +217,13 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
   }, [closeModal])
 
   const _setMax = () => {
-    if (selectedBondDetail && calculatedAmountIn && calculatedAmountIn_X) {
-      const calcAIn = isStaking ? calculatedAmountIn_X : calculatedAmountIn
-      setMax(
-        getAssetBalanceByFunc(func).gt(calcAIn) ? calcAIn : getAssetBalanceByFunc(func),
-        selectedBondDetail.principalData.principalProps.decimals,
-        func
-      )
-    }
+    if (!selectedBondDetail?.principalData || !calculatedAmountIn || !calculatedAmountIn_X) return
+    const calcAIn = isStaking ? calculatedAmountIn_X : calculatedAmountIn
+    setMax(
+      assetBalance.gt(calcAIn) ? calcAIn : assetBalance,
+      selectedBondDetail.principalData.principalProps.decimals,
+      func
+    )
   }
 
   const _calculateAmountOut = useDebounce(
@@ -228,7 +232,7 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
   )
 
   const calculateAmountOut = async (_amount: string, stake: boolean): Promise<BigNumber | undefined> => {
-    if (selectedBondDetail && _amount) {
+    if (selectedBondDetail?.principalData && _amount) {
       let _calculatedAmountOut: BigNumber | undefined = ZERO
       let _calculatedAmountOut_X: BigNumber | undefined = ZERO
       try {
@@ -300,68 +304,68 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
 
   useEffect(() => {
     const getBondData = async () => {
-      if (isOpen && selectedBondDetail && account && solace && xSolace) {
-        const principalBal = await queryBalance(selectedBondDetail.principalData.principal, account)
-        const principalDecimals = await queryDecimals(selectedBondDetail.principalData.principal)
-        const ownedTokenIds: BigNumber[] = await selectedBondDetail.tellerData.teller.contract.listTokensOfOwner(
-          account
-        )
-        const ownedBondData = await Promise.all(
-          ownedTokenIds.map(async (id) => await selectedBondDetail.tellerData.teller.contract.bonds(id))
-        )
-        const ownedBonds: BondToken[] = ownedTokenIds.map((id, idx) => {
-          const payoutToken: string =
-            ownedBondData[idx].payoutToken == solace.address
-              ? solaceBalanceData.tokenData.symbol
-              : ownedBondData[idx].payoutToken == xSolace.address
-              ? xSolaceBalanceData.tokenData.symbol
-              : ''
-          return {
-            id,
-            payoutToken,
-            payoutAmount: ownedBondData[idx].payoutAmount,
-            pricePaid: ownedBondData[idx].pricePaid,
-            maturation: ownedBondData[idx].maturation,
-          }
-        })
-        setOwnedBondTokens(ownedBonds.sort((a, b) => b.id.toNumber() - a.id.toNumber()))
-        setVestingTermInMillis(selectedBondDetail.tellerData.vestingTermInSeconds * 1000)
-        setPrincipalBalance(formatUnits(principalBal, principalDecimals))
-        setContractForAllowance(selectedBondDetail.principalData.principal)
-        setSpenderAddress(selectedBondDetail.tellerData.teller.contract.address)
-      }
+      if (!selectedBondDetail?.principalData) return
+      setVestingTermInMillis(selectedBondDetail.tellerData.vestingTermInSeconds.toNumber() * 1000)
+      setContractForAllowance(selectedBondDetail.principalData.principal)
+      setSpenderAddress(selectedBondDetail.tellerData.teller.contract.address)
     }
     getBondData()
   }, [selectedBondDetail, account, isOpen])
 
   useEffect(() => {
+    const getUserBondData = async () => {
+      if (!selectedBondDetail?.principalData || !account || !solace || !xSolace || !isOpen) return
+      const principalBal = await queryBalance(selectedBondDetail.principalData.principal, account)
+      const ownedTokenIds: BigNumber[] = await selectedBondDetail.tellerData.teller.contract.listTokensOfOwner(account)
+      const ownedBondData = await Promise.all(
+        ownedTokenIds.map(async (id) => await selectedBondDetail.tellerData.teller.contract.bonds(id))
+      )
+      const ownedBonds: BondToken[] = ownedTokenIds.map((id, idx) => {
+        const payoutToken: string =
+          ownedBondData[idx].payoutToken == solace.address
+            ? solaceBalanceData.tokenData.symbol
+            : ownedBondData[idx].payoutToken == xSolace.address
+            ? xSolaceBalanceData.tokenData.symbol
+            : ''
+        return {
+          id,
+          payoutToken,
+          payoutAmount: ownedBondData[idx].payoutAmount,
+          pricePaid: ownedBondData[idx].pricePaid,
+          maturation: ownedBondData[idx].maturation,
+        }
+      })
+      setPrincipalBalance(formatUnits(principalBal, selectedBondDetail.principalData.principalProps.decimals))
+      setOwnedBondTokens(ownedBonds.sort((a, b) => a.id.toNumber() - b.id.toNumber()))
+    }
+    getUserBondData()
+  }, [account, isOpen, selectedBondDetail])
+
+  useEffect(() => {
     const getTellerType = async () => {
-      if (selectedBondDetail) {
-        const isBondTellerErc20 = selectedBondDetail.tellerData.teller.isBondTellerErc20
-        const tempFunc = isBondTellerErc20 ? FunctionName.BOND_DEPOSIT_ERC20 : FunctionName.BOND_DEPOSIT_WETH
-        setIsBondTellerErc20(isBondTellerErc20)
-        setFunc(tempFunc)
-      }
+      if (!selectedBondDetail) return
+      const isBondTellerErc20 = selectedBondDetail.tellerData.teller.isBondTellerErc20
+      const tempFunc = isBondTellerErc20 ? FunctionName.BOND_DEPOSIT_ERC20 : FunctionName.BOND_DEPOSIT_WETH
+      setIsBondTellerErc20(isBondTellerErc20)
+      setFunc(tempFunc)
     }
     getTellerType()
   }, [selectedBondDetail?.tellerData.teller.isBondTellerErc20, isOpen])
 
   useEffect(() => {
     calculateAmountIn(isStaking)
-  }, [isStaking, selectedBondDetail, xSolace])
+  }, [selectedBondDetail, isStaking, xSolace])
 
   useEffect(() => {
-    if (selectedBondDetail) {
-      setIsAcceptableAmount(
-        isAppropriateAmount(
-          amount,
-          selectedBondDetail.principalData.principalProps.decimals,
-          getAssetBalanceByFunc(func)
-        )
-      )
-    }
     _calculateAmountOut(amount, isStaking)
-  }, [amount, isStaking, selectedBondDetail])
+  }, [selectedBondDetail, isStaking, amount])
+
+  useEffect(() => {
+    if (!selectedBondDetail?.principalData) return
+    setIsAcceptableAmount(
+      isAppropriateAmount(amount, selectedBondDetail.principalData.principalProps.decimals, assetBalance)
+    )
+  }, [selectedBondDetail?.principalData, func, amount])
 
   useEffect(() => {
     resetAmount()
@@ -378,7 +382,7 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
 
   useEffect(() => {
     if (isBondTellerErc20) return
-    setFunc(func == FunctionName.DEPOSIT_ETH ? FunctionName.BOND_DEPOSIT_WETH : FunctionName.DEPOSIT_ETH)
+    setFunc(shouldUseNativeToken ? FunctionName.DEPOSIT_ETH : FunctionName.BOND_DEPOSIT_WETH)
   }, [shouldUseNativeToken])
 
   return (
@@ -397,38 +401,50 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
           isBondTellerErc20={isBondTellerErc20}
           selectedBondDetail={selectedBondDetail}
         />
-        <ModalHeader>
-          <FlexRow style={{ position: 'relative' }}>
-            <StyledGear size={25} style={{ cursor: 'pointer' }} onClick={() => setShowBondSettingsModal(true)} />
-          </FlexRow>
-          <FlexRow style={{ justifyContent: 'center' }}>
-            {selectedBondDetail?.principalData.token0 && selectedBondDetail?.principalData.token1 ? (
-              <>
-                <DeFiAssetImage mr={5} noborder>
-                  <img
-                    src={`https://assets.solace.fi/${selectedBondDetail?.principalData.token0.toLowerCase()}`}
-                    alt={selectedBondDetail?.principalData.token0.toLowerCase()}
-                  />
-                </DeFiAssetImage>
+        <ModalHeader style={{ position: 'relative', marginTop: '20px' }}>
+          {approval && (
+            <FlexRow style={{ cursor: 'pointer', position: 'absolute', left: '0', bottom: '-10px' }}>
+              <StyledGear size={25} onClick={() => setShowBondSettingsModal(true)} />
+            </FlexRow>
+          )}
+          <FlexRow style={{ position: 'absolute', left: '50%', transform: 'translate(-50%)' }}>
+            {selectedBondDetail?.principalData &&
+              (selectedBondDetail.principalData.token0 && selectedBondDetail.principalData.token1 ? (
+                <>
+                  <DeFiAssetImage mr={5} noborder>
+                    <img
+                      src={`https://assets.solace.fi/${selectedBondDetail.principalData.token0.toLowerCase()}`}
+                      alt={selectedBondDetail?.principalData.token0.toLowerCase()}
+                    />
+                  </DeFiAssetImage>
+                  <DeFiAssetImage noborder>
+                    <img
+                      src={`https://assets.solace.fi/${selectedBondDetail.principalData.token1.toLowerCase()}`}
+                      alt={selectedBondDetail?.principalData.token1.toLowerCase()}
+                    />
+                  </DeFiAssetImage>
+                </>
+              ) : (
                 <DeFiAssetImage noborder>
                   <img
-                    src={`https://assets.solace.fi/${selectedBondDetail?.principalData.token1.toLowerCase()}`}
-                    alt={selectedBondDetail?.principalData.token1.toLowerCase()}
+                    src={`https://assets.solace.fi/${selectedBondDetail.principalData.principal.address.toLowerCase()}`}
+                    alt={selectedBondDetail?.tellerData.teller.name}
                   />
                 </DeFiAssetImage>
-              </>
-            ) : (
-              <DeFiAssetImage noborder>
-                <img
-                  src={`https://assets.solace.fi/${selectedBondDetail?.principalData.principal.address.toLowerCase()}`}
-                  alt={selectedBondDetail?.tellerData.teller.name}
-                />
-              </DeFiAssetImage>
-            )}
+              ))}
           </FlexRow>
-          <ModalCloseButton hidden={modalLoading && !canCloseOnLoading} onClick={handleClose} />
+          <FlexRow style={{ position: 'absolute', right: '0', bottom: '-10px' }}>
+            <ModalCloseButton hidden={modalLoading && !canCloseOnLoading} onClick={handleClose} />
+          </FlexRow>
         </ModalHeader>
-        <div style={{ gridTemplateColumns: '1fr 1fr', display: 'grid', position: 'relative' }}>
+        <div
+          style={{
+            gridTemplateColumns: '1fr 1fr',
+            display: 'grid',
+            position: 'relative',
+            width: width > BKPT_3 ? '500px' : undefined,
+          }}
+        >
           <MultiTabIndicator style={{ left: isBonding ? '0' : '50%' }} />
           <ModalCell
             pt={5}
@@ -493,36 +509,40 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
         ) : null}
         {isBonding && (
           <>
-            <FormRow mt={20} mb={10}>
-              <FormCol>
-                <Text bold>Your Balance</Text>
-              </FormCol>
-              <FormCol>
-                <Text info bold>
-                  {formatUnits(getAssetBalanceByFunc(func), currencyDecimals)}{' '}
-                  {selectedBondDetail?.tellerData.teller.name.substring(func == FunctionName.DEPOSIT_ETH ? 1 : 0)}
-                </Text>
-              </FormCol>
-            </FormRow>
-            <FormRow mb={10}>
-              <FormCol>
-                <Text bold>You Will Get</Text>
-              </FormCol>
-              <FormCol>
-                <Text info nowrap bold>
-                  {calculatedAmountOut
-                    ? `${formatUnits(calculatedAmountOut, solaceBalanceData.tokenData.decimals)} ${
-                        solaceBalanceData.tokenData.symbol
-                      }`
-                    : `-`}
-                </Text>
-              </FormCol>
-            </FormRow>
+            {account && approval && (
+              <>
+                <FormRow mt={20} mb={10}>
+                  <FormCol>
+                    <Text bold>My Balance</Text>
+                  </FormCol>
+                  <FormCol>
+                    <Text info textAlignRight bold>
+                      {formatUnits(assetBalance, currencyDecimals)}{' '}
+                      {selectedBondDetail?.tellerData.teller.name.substring(func == FunctionName.DEPOSIT_ETH ? 1 : 0)}
+                    </Text>
+                  </FormCol>
+                </FormRow>
+                <FormRow mb={10}>
+                  <FormCol>
+                    <Text bold>You Will Get</Text>
+                  </FormCol>
+                  <FormCol>
+                    <Text info textAlignRight bold>
+                      {calculatedAmountOut
+                        ? `${formatUnits(calculatedAmountOut, solaceBalanceData.tokenData.decimals)} ${
+                            solaceBalanceData.tokenData.symbol
+                          }`
+                        : `-`}
+                    </Text>
+                  </FormCol>
+                </FormRow>
+              </>
+            )}
             <SmallBox transparent collapse={!isStaking} m={0} p={0} style={{ justifyContent: 'right' }}>
               <FormRow mb={10}>
                 <FormCol></FormCol>
                 <FormCol>
-                  <Text t4 nowrap>
+                  <Text t4 textAlignRight>
                     {'( '}
                     {calculatedAmountOut_X
                       ? `${formatUnits(calculatedAmountOut_X, xSolaceBalanceData.tokenData.decimals)} ${
@@ -534,12 +554,13 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
                 </FormCol>
               </FormRow>
             </SmallBox>
-            <FormRow mb={10}>
+            <HorizRule />
+            <FormRow mt={20} mb={10}>
               <FormCol>
-                <Text>MAX You Can Buy</Text>
+                <Text t4>MAX You Can Buy</Text>
               </FormCol>
               <FormCol>
-                <Text info nowrap>
+                <Text t4 info textAlignRight>
                   {`${formatUnits(maxPayout, solaceBalanceData.tokenData.decimals)} ${
                     solaceBalanceData.tokenData.symbol
                   }
@@ -547,11 +568,11 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
                 </Text>
               </FormCol>
             </FormRow>
-            <SmallBox transparent collapse={!isStaking} m={0} p={0} style={{ justifyContent: 'right' }}>
+            {/* <SmallBox transparent collapse={!isStaking} m={0} p={0} style={{ justifyContent: 'right' }}>
               <FormRow mb={10}>
                 <FormCol></FormCol>
                 <FormCol>
-                  <Text t4 nowrap>
+                  <Text t4 textAlignRight>
                     {'( '}
                     {`${formatUnits(maxPayout_X, xSolaceBalanceData.tokenData.decimals)} ${
                       xSolaceBalanceData.tokenData.symbol
@@ -560,13 +581,13 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
                   </Text>
                 </FormCol>
               </FormRow>
-            </SmallBox>
-            <FormRow mb={10}>
+            </SmallBox> */}
+            <FormRow>
               <FormCol>
-                <Text>Vesting Term</Text>
+                <Text t4>Vesting Term</Text>
               </FormCol>
               <FormCol>
-                <Text info nowrap>
+                <Text t4 info textAlignRight>
                   {getLongtimeFromMillis(vestingTermInMillis)}
                 </Text>
               </FormCol>
@@ -579,9 +600,8 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
           (modalLoading ? (
             <Loader />
           ) : (
-            <>
-              <CheckboxOption isChecked={isStaking} setChecked={setIsStaking} text={'Autostake'} />
-
+            <FlexCol mt={20}>
+              <CheckboxOption isChecked={isStaking} setChecked={setIsStaking} text={'Autostake and receive xSOLACE'} />
               <ButtonWrapper isColumn>
                 <Button
                   widthP={100}
@@ -606,10 +626,10 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
                   )}
                 </FlexRow>
               </ButtonWrapper>
-            </>
+            </FlexCol>
           ))}
-        {!isBonding && (
-          <Scrollable maxMobileHeight={45} maxDesktopHeight={30} mt={20}>
+        {!isBonding && account && (
+          <Scrollable maxMobileHeight={45} maxDesktopHeight={35} mt={20}>
             {ownedBondTokens.length > 0 ? (
               <CardContainer cardsPerRow={1}>
                 {ownedBondTokens.map((token) => {
@@ -622,8 +642,7 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
                       <FormRow mb={10}>
                         <FormCol>Paid Price</FormCol>
                         <FormCol>
-                          {formatUnits(token.pricePaid, selectedBondDetail?.principalData.principalProps.decimals)}{' '}
-                          {selectedBondDetail?.principalData.principalProps.symbol}
+                          {formatUnits(token.pricePaid, selectedBondDetail?.principalData?.principalProps.decimals)}
                         </FormCol>
                       </FormRow>
                       <FormRow mb={10}>

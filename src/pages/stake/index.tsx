@@ -30,15 +30,16 @@ import { Button, ButtonWrapper } from '../../components/atoms/Button'
 import { Card } from '../../components/atoms/Card'
 import { FormCol, FormRow } from '../../components/atoms/Form'
 import { Input } from '../../components/atoms/Input'
-import { Content, FlexCol, HorizRule } from '../../components/atoms/Layout'
+import { Content, FlexCol, FlexRow, HorizRule } from '../../components/atoms/Layout'
 import { ModalCell } from '../../components/atoms/Modal'
 import { Text } from '../../components/atoms/Typography'
 import { HeroContainer, MultiTabIndicator } from '../../components/atoms/Layout'
 import { WalletConnectButton } from '../../components/molecules/WalletConnectButton'
+import { StyledRefresh } from '../../components/atoms/Icon'
 
 /* import hooks */
 import { useSolaceBalance, useXSolaceBalance } from '../../hooks/useBalance'
-import { useXSolace } from '../../hooks/useXSolace'
+import { useXSolace, useXSolaceDetails } from '../../hooks/useXSolace'
 import { useInputAmount } from '../../hooks/useInputAmount'
 
 /* import utils */
@@ -53,8 +54,8 @@ function Stake(): any {
 
   const { haveErrors } = useGeneral()
   const [isStaking, setIsStaking] = useState<boolean>(true)
-  const { solaceBalance } = useSolaceBalance()
-  const { xSolaceBalance } = useXSolaceBalance()
+  const solaceBalanceData = useSolaceBalance()
+  const xSolaceBalanceData = useXSolaceBalance()
   const {
     gasConfig,
     amount,
@@ -66,8 +67,10 @@ function Stake(): any {
     resetAmount,
   } = useInputAmount()
   const { stake, unstake } = useXSolace()
+  const { userShare, xSolacePerSolace, solacePerXSolace } = useXSolaceDetails()
   const { account } = useWallet()
   const { currencyDecimals } = useNetwork()
+  const [convertStoX, setConvertStoX] = useState<boolean>(true)
 
   const [isAcceptableAmount, setIsAcceptableAmount] = useState<boolean>(false)
 
@@ -92,7 +95,9 @@ function Stake(): any {
   }
 
   const getAssetBalanceByFunc = (): BigNumber => {
-    return isStaking ? parseUnits(solaceBalance, currencyDecimals) : parseUnits(xSolaceBalance, currencyDecimals)
+    return isStaking
+      ? parseUnits(solaceBalanceData.solaceBalance, currencyDecimals)
+      : parseUnits(xSolaceBalanceData.xSolaceBalance, currencyDecimals)
   }
 
   const _setMax = () => {
@@ -147,11 +152,9 @@ function Stake(): any {
                   </Text>
                 </ModalCell>
               </div>
-              <div style={{ textAlign: 'center' }}>
+              <FlexRow style={{ textAlign: 'center', marginTop: '20px', marginBottom: '10px' }}>
                 <Input
-                  width={200}
-                  mt={20}
-                  mb={5}
+                  widthP={100}
                   minLength={1}
                   maxLength={79}
                   autoComplete="off"
@@ -166,56 +169,58 @@ function Stake(): any {
                 <Button ml={10} pt={4} pb={4} pl={8} pr={8} width={70} height={30} onClick={_setMax}>
                   MAX
                 </Button>
-              </div>
-              <FormRow mt={20} mb={10}>
+              </FlexRow>
+              <FormRow mt={40} mb={10}>
                 <FormCol>
-                  <Text>Unstaked Balance</Text>
+                  <Text t4={!isStaking} fade={!isStaking}>
+                    Unstaked Balance
+                  </Text>
                 </FormCol>
                 <FormCol>
-                  <Text info>{solaceBalance} SOLACE</Text>
+                  <Text textAlignRight info t4={!isStaking} fade={!isStaking}>
+                    {solaceBalanceData.solaceBalance} {solaceBalanceData.tokenData.symbol}
+                  </Text>
                 </FormCol>
               </FormRow>
-              <FormRow mb={10}>
+              <FormRow mb={30}>
                 <FormCol>
-                  <Text>Staked Balance</Text>
+                  <Text t4={isStaking} fade={isStaking}>
+                    Staked Balance
+                  </Text>
                 </FormCol>
                 <FormCol>
-                  <Text info nowrap>
-                    {xSolaceBalance} xSOLACE
+                  <Text textAlignRight info t4={isStaking} fade={isStaking}>
+                    {xSolaceBalanceData.xSolaceBalance} {xSolaceBalanceData.tokenData.symbol}
                   </Text>
                 </FormCol>
               </FormRow>
               <HorizRule />
-              <FormRow>
+              {account && (
+                <FormRow mt={20} mb={10}>
+                  <FormCol>
+                    <Text t4>My xSolace Pool Share</Text>
+                  </FormCol>
+                  <FormCol>
+                    <Text t4>{userShare}%</Text>
+                  </FormCol>
+                </FormRow>
+              )}
+              <FormRow mt={10} mb={10}>
                 <FormCol>
-                  <Text bold>Next Reward Amount</Text>
+                  <Button onClick={() => setConvertStoX(!convertStoX)}>
+                    Conversion
+                    <StyledRefresh size={30} style={{ cursor: 'pointer' }} />
+                  </Button>
                 </FormCol>
                 <FormCol>
-                  <Text bold info nowrap>
-                    0.02 xSOLACE
+                  <Text t4 pr={5}>
+                    {convertStoX
+                      ? `1 ${solaceBalanceData.tokenData.symbol} = ${xSolacePerSolace} ${xSolaceBalanceData.tokenData.symbol}`
+                      : `1 ${xSolaceBalanceData.tokenData.symbol} = ${solacePerXSolace} ${solaceBalanceData.tokenData.symbol}`}
                   </Text>
                 </FormCol>
               </FormRow>
-              <FormRow>
-                <FormCol>
-                  <Text bold>Next Reward Yield</Text>
-                </FormCol>
-                <FormCol>
-                  <Text bold info nowrap>
-                    35%
-                  </Text>
-                </FormCol>
-              </FormRow>
-              <FormRow>
-                <FormCol>
-                  <Text bold>ROI (5-Day Rate)</Text>
-                </FormCol>
-                <FormCol>
-                  <Text bold info nowrap>
-                    75%
-                  </Text>
-                </FormCol>
-              </FormRow>
+
               <ButtonWrapper>
                 <Button
                   widthP={100}

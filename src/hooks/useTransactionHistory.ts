@@ -48,41 +48,42 @@ export const useTransactionDetails = (): { txHistory: any; amounts: string[] } =
     function_name: string,
     tx: any,
     provider: Web3Provider | Provider
-  ): Promise<string> => {
+  ): Promise<{ data: string; toAddr?: string }> => {
     const receipt = await provider.getTransactionReceipt(tx.hash)
-    if (!receipt) return ''
-    if (receipt.status == 0) return ''
+    if (!receipt) return { data: '' }
+    if (receipt.status == 0) return { data: '' }
     const logs = receipt.logs
-    if (!logs || logs.length <= 0) return ''
+    if (!logs || logs.length <= 0) return { data: '' }
     const topics = logs[logs.length - 1].topics
 
     switch (function_name) {
       case FunctionName.DEPOSIT_ETH:
         // same method name between vault and CpFarm
-        if (receipt.to.toLowerCase() === activeNetwork.config.keyContracts.vault.addr.toLowerCase()) return logs[0].data
+        if (receipt.to.toLowerCase() === activeNetwork.config.keyContracts.vault.addr.toLowerCase())
+          return { data: logs[0].data, toAddr: receipt.to }
         // same method name between vault and bond teller
-        if (activeNetwork.cache.tellerToTokenMapping[receipt.to.toLowerCase()]) {
+        if (activeNetwork.cache.tellerToTokenMapping[receipt.to]) {
           const edTopics = logs[logs.length - 2].topics
-          return edTopics[edTopics.length - 1]
+          return { data: edTopics[edTopics.length - 1], toAddr: receipt.to }
         }
-        return logs[logs.length - 1].data
+        return { data: logs[logs.length - 1].data, toAddr: receipt.to }
       case FunctionName.STAKE:
       case FunctionName.UNSTAKE:
       case FunctionName.WITHDRAW_ETH:
-        return logs[0].data
+        return { data: logs[0].data }
       case FunctionName.SUBMIT_CLAIM:
-        if (!topics || topics.length <= 0) return ''
-        return topics[topics.length - 1]
+        if (!topics || topics.length <= 0) return { data: '' }
+        return { data: topics[topics.length - 1] }
       case FunctionName.WITHDRAW_CLAIMS_PAYOUT:
       case FunctionName.BUY_POLICY:
-        if (!topics || topics.length <= 0) return ''
-        return topics[1]
+        if (!topics || topics.length <= 0) return { data: '' }
+        return { data: topics[1] }
       case FunctionName.EXTEND_POLICY_PERIOD:
       case FunctionName.UPDATE_POLICY:
       case FunctionName.UPDATE_POLICY_AMOUNT:
       case FunctionName.CANCEL_POLICY:
-        if (!topics || topics.length <= 0) return ''
-        return topics[1]
+        if (!topics || topics.length <= 0) return { data: '' }
+        return { data: topics[1] }
       case FunctionName.DEPOSIT_CP:
       case FunctionName.WITHDRAW_CP:
       case FunctionName.WITHDRAW_REWARDS:
@@ -90,17 +91,17 @@ export const useTransactionDetails = (): { txHistory: any; amounts: string[] } =
       case FunctionName.WITHDRAW_LP:
       case FunctionName.APPROVE:
         const data = logs[logs.length - 1].data
-        if (!data) return ''
-        return logs[logs.length - 1].data
+        if (!data) return { data: '' }
+        return { data }
       case FunctionName.BOND_DEPOSIT_ERC20:
       case FunctionName.BOND_DEPOSIT_WETH:
       case FunctionName.BOND_REDEEM:
         const edTopics = logs[logs.length - 2].topics
-        return edTopics[edTopics.length - 1]
+        return { data: edTopics[edTopics.length - 1] }
       case FunctionName.MULTI_CALL:
       default:
-        if (!topics || topics.length <= 0) return ''
-        return topics[1]
+        if (!topics || topics.length <= 0) return { data: '' }
+        return { data: topics[1] }
     }
   }
 
@@ -109,12 +110,12 @@ export const useTransactionDetails = (): { txHistory: any; amounts: string[] } =
       const currentAmounts = []
       for (let tx_i = 0; tx_i < txHistory.length; tx_i++) {
         // console.log(txHistory[tx_i].hash)
-        const function_name = decodeInput(txHistory[tx_i], contractSources).function_name
+        const function_name = decodeInput(txHistory[tx_i], contractSources)
         if (!function_name) {
           currentAmounts.push('N/A')
         } else {
-          const amount: string = await getTransactionAmount(function_name, txHistory[tx_i], library)
-          currentAmounts.push(`${formatTransactionContent(function_name, amount, activeNetwork)}`)
+          const txData = await getTransactionAmount(function_name, txHistory[tx_i], library)
+          currentAmounts.push(`${formatTransactionContent(function_name, activeNetwork, txData.data, txData.toAddr)}`)
         }
       }
       setAmounts(currentAmounts)

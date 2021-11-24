@@ -1,6 +1,6 @@
+import { useState, useEffect, useRef } from 'react'
 import { formatUnits, parseUnits } from '@ethersproject/units'
 import { useContracts } from '../context/ContractsManager'
-import { useState, useEffect, useRef } from 'react'
 import { useWallet } from '../context/WalletManager'
 import { floatUnits } from '../utils/formatting'
 import { ZERO } from '../constants'
@@ -44,7 +44,7 @@ export const useUserVaultDetails = () => {
   const { currencyDecimals } = useNetwork()
 
   useEffect(() => {
-    const getUserVaultDetails = async () => {
+    const getUserVaultShare = async () => {
       if (!vault || !account) return
       try {
         const totalSupply = await vault.totalSupply()
@@ -61,7 +61,7 @@ export const useUserVaultDetails = () => {
         console.log('error getUserVaultShare ', err)
       }
     }
-    getUserVaultDetails()
+    getUserVaultShare()
   }, [vault, cpFarm, scpBalance, account])
 
   return { userVaultAssets, userVaultShare }

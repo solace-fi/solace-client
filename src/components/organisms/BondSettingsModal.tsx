@@ -85,14 +85,14 @@ export const BondSettingsModal: React.FC<BondSettingsModalProps> = ({
       <FlexCol>
         <Text bold>Slippage Tolerance %</Text>
         <Input info bold type="string" value={slippage} onChange={(e) => handleInputSlippage(e.target.value)} />
-        <Text textAlignCenter t4 mb={20}>
+        <Text textAlignCenter t4 mb={30}>
           Transaction may revert if price changes by more than slippage %
         </Text>
         {bondRecipient && (
           <>
             <Text bold>Recipient Address</Text>
             <Input info bold type="string" value={recipient ?? ''} onChange={(e) => setRecipient(e.target.value)} />
-            <Text textAlignCenter t4 mb={20}>
+            <Text textAlignCenter t4 mb={30}>
               Choose recipient address. By default, this is your currently connected address.
             </Text>
           </>
@@ -104,13 +104,16 @@ export const BondSettingsModal: React.FC<BondSettingsModalProps> = ({
               setChecked={setUseNative}
               text={`Deposit ${selectedBondDetail.tellerData.teller.name.substring(1)}`}
             />
-            <Text textAlignCenter t4 mb={20}>
+            <Text textAlignCenter t4 mb={30}>
               Toggle between depositing native network token and its wrapped token
             </Text>
           </>
         )}
+        <Text t4 warning textAlignCenter width={270} style={{ margin: '0 auto' }}>
+          Changes to these settings will be reset when reopening the bond popup window.
+        </Text>
       </FlexCol>
-      <ButtonWrapper>
+      <ButtonWrapper isColumn>
         <Button widthP={100} info onClick={applyChanges}>
           Apply Changes
         </Button>

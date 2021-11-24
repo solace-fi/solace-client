@@ -1,6 +1,13 @@
 import { BigNumber } from 'ethers'
-import { useEffect, useState } from 'react'
-import { BondTellerDetails, GasConfiguration, LocalTx, TxResult } from '../constants/types'
+import { useCallback, useEffect, useState, useMemo } from 'react'
+import {
+  BondPrincipalData,
+  BondTellerData,
+  BondTellerDetails,
+  GasConfiguration,
+  LocalTx,
+  TxResult,
+} from '../constants/types'
 import { useContracts } from '../context/ContractsManager'
 import { getContract } from '../utils'
 
@@ -8,7 +15,6 @@ import ierc20Json from '../constants/metadata/IERC20Metadata.json'
 import sushiswapLpAbi from '../constants/metadata/ISushiswapMetadataAlt.json'
 import weth9 from '../constants/abi/contracts/WETH9.sol/WETH9.json'
 import { useWallet } from '../context/WalletManager'
-import { formatUnits } from '@ethersproject/units'
 import { FunctionGasLimits } from '../constants/mappings'
 import { FunctionName, TransactionCondition } from '../constants/enums'
 import { queryDecimals, queryName, querySymbol } from '../utils/contract'
@@ -58,7 +64,6 @@ export const useBondTeller = (selectedBondDetail: BondTellerDetails | undefined)
 
   const redeem = async (bondId: BigNumber, txVal: string, gasConfig: GasConfiguration): Promise<TxResult> => {
     if (!selectedBondDetail) return { tx: null, localTx: null }
-    console.log(bondId)
     const tx = await selectedBondDetail.tellerData.teller.contract.redeem(bondId, {
       ...gasConfig,
       gasLimit: FunctionGasLimits['teller.redeem'],
@@ -75,74 +80,97 @@ export const useBondTeller = (selectedBondDetail: BondTellerDetails | undefined)
   return { deposit, redeem }
 }
 
-export const useBondTellerDetails = () => {
+export const useBondTellerDetails = (): BondTellerDetails[] => {
   const { library, account } = useWallet()
   const { latestBlock, version } = useCachedData()
   const { tellers } = useContracts()
-  const [tellerDetails, setTellerDetails] = useState<BondTellerDetails[]>([])
+  const [tellerDataset, setTellerDataset] = useState<BondTellerData[]>([])
+  const [principalDataset, setPrincipalDataset] = useState<BondPrincipalData[]>([])
+  const tellerDetails: BondTellerDetails[] = useMemo(
+    () =>
+      tellerDataset.map((tellerData, i) => {
+        return { tellerData, principalData: principalDataset[i] ?? undefined }
+      }),
+    [principalDataset, tellerDataset]
+  )
+
+  const getBondTellerData = useCallback(async () => {
+    try {
+      const data: BondTellerData[] = await Promise.all(
+        tellers.map(async (teller) => {
+          const [principalAddr, bondPrice, vestingTermInSeconds, capacity, maxPayout, stakeFeeBps] = await Promise.all([
+            teller.contract.principal(),
+            teller.contract.bondPrice(),
+            teller.contract.vestingTerm(),
+            teller.contract.capacity(),
+            teller.contract.maxPayout(),
+            teller.contract.stakeFeeBps(),
+          ])
+          return {
+            teller,
+            principalAddr,
+            bondPrice,
+            vestingTermInSeconds,
+            capacity,
+            maxPayout,
+            stakeFeeBps,
+          }
+        })
+      )
+      setTellerDataset(data)
+    } catch (e) {
+      console.log('getBondTellerData', e)
+    }
+  }, [tellers, latestBlock, version])
+
+  const getBondPrincipalData = useCallback(async () => {
+    if (!library) return
+    try {
+      const data: BondPrincipalData[] = await Promise.all(
+        tellerDataset.map(async (t) => {
+          const principalContract = getContract(
+            t.principalAddr,
+            t.teller.isLp ? sushiswapLpAbi : t.teller.isBondTellerErc20 ? ierc20Json.abi : weth9,
+            library,
+            account ?? undefined
+          )
+          const [decimals, name, symbol] = await Promise.all([
+            queryDecimals(principalContract),
+            queryName(principalContract, library),
+            querySymbol(principalContract, library),
+          ])
+          let lpData = {}
+          if (t.teller.isLp) {
+            const [token0, token1] = await Promise.all([principalContract.token0(), principalContract.token1()])
+            lpData = {
+              token0,
+              token1,
+            }
+          }
+          return {
+            principal: principalContract,
+            principalProps: {
+              symbol,
+              decimals,
+              name,
+            },
+            ...lpData,
+          }
+        })
+      )
+      setPrincipalDataset(data)
+    } catch (e) {
+      console.log('getBondTellerData', e)
+    }
+  }, [account, tellerDataset])
 
   useEffect(() => {
-    const getBondTellerDetails = async () => {
-      if (!library) return
-      try {
-        const tellerDetails = await Promise.all(
-          tellers.map(async (teller) => {
-            const [principal, bondPrice, vestingTermInSeconds, capacity, maxPayout, stakeFeeBps] = await Promise.all([
-              teller.contract.principal(),
-              teller.contract.bondPrice(),
-              teller.contract.vestingTerm(),
-              teller.contract.capacity(),
-              teller.contract.maxPayout(),
-              teller.contract.stakeFeeBps(),
-            ])
-            const principalContract = getContract(
-              principal,
-              teller.isLp ? sushiswapLpAbi : teller.isBondTellerErc20 ? ierc20Json.abi : weth9,
-              library,
-              account ?? undefined
-            )
-            const [decimals, name, symbol] = await Promise.all([
-              queryDecimals(principalContract),
-              queryName(principalContract, library),
-              querySymbol(principalContract, library),
-            ])
-            let lpData = {}
-            if (teller.isLp) {
-              const [token0, token1] = await Promise.all([principalContract.token0(), principalContract.token1()])
-              lpData = {
-                token0,
-                token1,
-              }
-            }
-            const tellerDetail: BondTellerDetails = {
-              tellerData: {
-                teller,
-                bondPrice: formatUnits(bondPrice, decimals),
-                vestingTermInSeconds: vestingTermInSeconds.toNumber(),
-                capacity,
-                maxPayout,
-                stakeFeeBps,
-              },
-              principalData: {
-                principal: principalContract,
-                principalProps: {
-                  symbol,
-                  decimals,
-                  name,
-                },
-                ...lpData,
-              },
-            }
-            return tellerDetail
-          })
-        )
-        setTellerDetails(tellerDetails)
-      } catch (err) {
-        console.log('getBondTellerDetails', err)
-      }
-    }
-    getBondTellerDetails()
-  }, [tellers, account, latestBlock, version])
+    getBondTellerData()
+  }, [getBondTellerData])
+
+  useEffect(() => {
+    getBondPrincipalData()
+  }, [getBondPrincipalData])
 
   return tellerDetails
 }

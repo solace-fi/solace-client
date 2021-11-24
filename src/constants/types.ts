@@ -136,24 +136,29 @@ export type BondToken = {
 }
 
 export type BondTellerDetails = {
-  tellerData: {
-    teller: BondTellerContract
-    bondPrice: string
-    vestingTermInSeconds: number
-    capacity: BigNumber
-    maxPayout: BigNumber
-    stakeFeeBps: BigNumber
+  tellerData: BondTellerData
+  principalData?: BondPrincipalData
+}
+
+export type BondTellerData = {
+  teller: BondTellerContract
+  principalAddr: string
+  bondPrice: BigNumber
+  vestingTermInSeconds: BigNumber
+  capacity: BigNumber
+  maxPayout: BigNumber
+  stakeFeeBps: BigNumber
+}
+
+export type BondPrincipalData = {
+  principal: Contract
+  principalProps: {
+    symbol: string
+    decimals: number
+    name: string
   }
-  principalData: {
-    principal: Contract
-    principalProps: {
-      symbol: string
-      decimals: number
-      name: string
-    }
-    token0?: string
-    token1?: string
-  }
+  token0?: string
+  token1?: string
 }
 
 export type ClaimAssessment = {

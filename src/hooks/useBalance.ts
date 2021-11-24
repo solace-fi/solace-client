@@ -6,7 +6,7 @@ import { formatUnits } from '@ethersproject/units'
 import { BigNumber } from 'ethers'
 import { NftTokenInfo } from '../constants/types'
 import { rangeFrom0 } from '../utils/numeric'
-import { listTokensOfOwner, queryBalance } from '../utils/contract'
+import { listTokensOfOwner, queryBalance, queryDecimals, queryName, querySymbol } from '../utils/contract'
 import { useNetwork } from '../context/NetworkManager'
 
 export const useNativeTokenBalance = (): string => {
@@ -73,7 +73,7 @@ export const useScpBalance = (): string => {
 export const useSolaceBalance = () => {
   const { solace } = useContracts()
   const { currencyDecimals } = useNetwork()
-  const { account } = useWallet()
+  const { account, library } = useWallet()
   const [solaceBalance, setSolaceBalance] = useState<string>('0')
   const [tokenData, setTokenData] = useState<any>({ name: '', decimals: 0, symbol: '' })
 
@@ -91,11 +91,15 @@ export const useSolaceBalance = () => {
   useEffect(() => {
     if (!solace) return
     const fetchTokenData = async () => {
-      const [name, decimals, symbol] = await Promise.all([solace.name(), solace.decimals(), solace.symbol()])
+      const [name, decimals, symbol] = await Promise.all([
+        queryName(solace, library),
+        queryDecimals(solace),
+        querySymbol(solace, library),
+      ])
       setTokenData({ name, decimals, symbol })
     }
     fetchTokenData()
-  }, [solace])
+  }, [solace, library])
 
   useEffect(() => {
     if (!solace || !account) return
@@ -117,7 +121,7 @@ export const useSolaceBalance = () => {
 export const useXSolaceBalance = () => {
   const { xSolace } = useContracts()
   const { currencyDecimals } = useNetwork()
-  const { account } = useWallet()
+  const { account, library } = useWallet()
   const [xSolaceBalance, setXSolaceBalance] = useState<string>('0')
   const [tokenData, setTokenData] = useState<any>({ name: '', decimals: 0, symbol: '' })
 
@@ -135,11 +139,15 @@ export const useXSolaceBalance = () => {
   useEffect(() => {
     if (!xSolace) return
     const fetchTokenData = async () => {
-      const [name, decimals, symbol] = await Promise.all([xSolace.name(), xSolace.decimals(), xSolace.symbol()])
+      const [name, decimals, symbol] = await Promise.all([
+        queryName(xSolace, library),
+        queryDecimals(xSolace),
+        querySymbol(xSolace, library),
+      ])
       setTokenData({ name, decimals, symbol })
     }
     fetchTokenData()
-  }, [xSolace])
+  }, [xSolace, library])
 
   useEffect(() => {
     if (!xSolace || !account) return

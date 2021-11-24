@@ -92,14 +92,13 @@ function Dashboard(): any {
 
   // if a policy is displayed on modal, always get latest policy
   useEffect(() => {
-    if (selectedPolicy) {
-      const matchingPolicy = userPolicyData.userPolicies.find(
-        (policy: Policy) => policy.policyId == selectedPolicy.policyId
-      )
-      if (!matchingPolicy) return
-      if (JSON.stringify(matchingPolicy) !== JSON.stringify(selectedPolicy)) {
-        setPolicy(matchingPolicy)
-      }
+    if (!selectedPolicy) return
+    const matchingPolicy = userPolicyData.userPolicies.find(
+      (policy: Policy) => policy.policyId == selectedPolicy.policyId
+    )
+    if (!matchingPolicy) return
+    if (JSON.stringify(matchingPolicy) !== JSON.stringify(selectedPolicy)) {
+      setPolicy(matchingPolicy)
     }
   }, [selectedPolicy, userPolicyData.userPolicies])
 

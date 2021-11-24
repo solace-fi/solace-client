@@ -9,7 +9,6 @@ import farmControllerABI from '../constants/abi/contracts/FarmController.sol/Far
 import optionsFarmingABI from '../constants/abi/contracts/OptionsFarming.sol/OptionsFarming.json'
 import registryABI from '../constants/abi/contracts/Registry.sol/Registry.json'
 import solaceABI from '../constants/abi/contracts/SOLACE.sol/SOLACE.json'
-import wethABI from '../constants/abi/contracts/WETH9.sol/WETH9.json'
 import treasuryABI from '../constants/abi/contracts/Treasury.sol/Treasury.json'
 import vaultABI from '../constants/abi/contracts/Vault.sol/Vault.json'
 import cpFarmABI from '../constants/abi/contracts/CpFarm.sol/CpFarm.json'
@@ -88,10 +87,6 @@ export const KovanNetwork: NetworkConfig = {
       lpToken: {
         addr: String(process.env.REACT_APP_KOVAN_UNISWAP_LPTOKEN_ADDR),
         abi: lpTokenArtifact.abi,
-      },
-      weth: {
-        addr: String(process.env.REACT_APP_KOVAN_WETH_ADDR),
-        abi: wethABI,
       },
       claimsEscrow: {
         addr: String(process.env.REACT_APP_KOVAN_CLAIMS_ESCROW_ADDR),
