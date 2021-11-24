@@ -121,7 +121,7 @@ function Bond(): any {
                           ) : (
                             <DeFiAssetImage noborder>
                               <img
-                                src={`https://assets.solace.fi/${tellerDetail.principalData?.principal.address.toLowerCase()}`}
+                                src={`https://assets.solace.fi/${tellerDetail.principalData.principalProps.name.toLowerCase()}`}
                                 alt={tellerDetail.tellerData.teller.name}
                               />
                             </DeFiAssetImage>
@@ -176,7 +176,7 @@ function Bond(): any {
                           ) : (
                             <DeFiAssetImage mr={10} noborder>
                               <img
-                                src={`https://assets.solace.fi/${tellerDetail.principalData.principal.address.toLowerCase()}`}
+                                src={`https://assets.solace.fi/${tellerDetail.principalData.principalProps.name.toLowerCase()}`}
                                 alt={tellerDetail.tellerData.teller.name}
                               />
                             </DeFiAssetImage>

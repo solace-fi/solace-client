@@ -1,4 +1,4 @@
-import { ProductName, Unit } from '../constants/enums'
+import { BondName, ProductName, Unit } from '../constants/enums'
 import { NetworkConfig } from '../constants/types'
 import { ETHERSCAN_API_KEY, ALCHEMY_API_KEY } from '../constants'
 import { hexValue } from '@ethersproject/bytes'
@@ -9,6 +9,7 @@ import farmControllerABI from '../constants/abi/contracts/FarmController.sol/Far
 import optionsFarmingABI from '../constants/abi/contracts/OptionsFarming.sol/OptionsFarming.json'
 import registryABI from '../constants/abi/contracts/Registry.sol/Registry.json'
 import solaceABI from '../constants/abi/contracts/SOLACE.sol/SOLACE.json'
+import xSolaceABI from '../constants/abi/contracts/xSOLACE.sol/xSOLACE.json'
 import treasuryABI from '../constants/abi/contracts/Treasury.sol/Treasury.json'
 import vaultABI from '../constants/abi/contracts/Vault.sol/Vault.json'
 import cpFarmABI from '../constants/abi/contracts/CpFarm.sol/CpFarm.json'
@@ -30,6 +31,46 @@ import { WaaveProduct } from '../products/waave'
 When adding new products, please add into productContracts, functions, and cache
 
 */
+
+const tellerToTokenMapping: {
+  [key: string]: { addr: string; isBondTellerErc20: boolean; isLp: boolean }
+} = {
+  [String(process.env.REACT_APP_KOVAN_DAI_TELLER_ADDR)]: {
+    addr: '0xc56010e957c325b140f182b4fbee61c2fb95fdb3',
+    isBondTellerErc20: true,
+    isLp: false,
+  },
+  [String(process.env.REACT_APP_KOVAN_SOLACE_DAI_SLP_TELLER_ADDR)]: {
+    addr: '0x836c25e0fe4edc95443a88b6694d7e3be37d98bd',
+    isBondTellerErc20: true,
+    isLp: true,
+  },
+  [String(process.env.REACT_APP_KOVAN_ETH_TELLER_ADDR)]: {
+    addr: '0xd0a1e359811322d97991e03f863a0c30c2cf029c',
+    isBondTellerErc20: false,
+    isLp: false,
+  },
+  [String(process.env.REACT_APP_KOVAN_SOLACE_ETH_SLP_TELLER_ADDR)]: {
+    addr: '0x64844b869abb2f310442a692bd1cc84b393b2777',
+    isBondTellerErc20: true,
+    isLp: true,
+  },
+  [String(process.env.REACT_APP_KOVAN_USDC_TELLER_ADDR)]: {
+    addr: '0xefd4e002d58a66e9ea53f9ebf0583aecc6e183f0',
+    isBondTellerErc20: true,
+    isLp: false,
+  },
+  [String(process.env.REACT_APP_KOVAN_SOLACE_USDC_SLP_TELLER_ADDR)]: {
+    addr: '0x13465d2d66be93764b33577c73fc2411917fe9e4',
+    isBondTellerErc20: true,
+    isLp: true,
+  },
+  [String(process.env.REACT_APP_KOVAN_SCP_TELLER_ADDR)]: {
+    addr: '0x501acee83a6f269b77c167c6701843d454e2efa0',
+    isBondTellerErc20: true,
+    isLp: false,
+  },
+}
 
 export const KovanNetwork: NetworkConfig = {
   name: 'kovan',
@@ -71,6 +112,10 @@ export const KovanNetwork: NetworkConfig = {
       solace: {
         addr: String(process.env.REACT_APP_KOVAN_SOLACE_ADDR),
         abi: solaceABI,
+      },
+      xSolace: {
+        addr: String(process.env.REACT_APP_KOVAN_XSOLACE_ADDR),
+        abi: xSolaceABI,
       },
       cpFarm: {
         addr: String(process.env.REACT_APP_KOVAN_CPFARM_ADDR),
@@ -115,11 +160,19 @@ export const KovanNetwork: NetworkConfig = {
         abi: waaveABI,
       },
     },
-    bondTellerContracts: {},
+    bondTellerContracts: {
+      [BondName.DAI]: String(process.env.REACT_APP_KOVAN_DAI_TELLER_ADDR),
+      [BondName.SOLACE_DAI_SLP]: String(process.env.REACT_APP_KOVAN_SOLACE_DAI_SLP_TELLER_ADDR),
+      [BondName.ETH]: String(process.env.REACT_APP_KOVAN_ETH_TELLER_ADDR),
+      [BondName.SOLACE_ETH_SLP]: String(process.env.REACT_APP_KOVAN_SOLACE_ETH_SLP_TELLER_ADDR),
+      [BondName.USDC]: String(process.env.REACT_APP_KOVAN_USDC_TELLER_ADDR),
+      [BondName.SOLACE_USDC_SLP]: String(process.env.REACT_APP_KOVAN_SOLACE_USDC_SLP_TELLER_ADDR),
+      [BondName.SCP]: String(process.env.REACT_APP_KOVAN_SCP_TELLER_ADDR),
+    },
   },
   cache: {
     supportedProducts: [AaveProduct, WaaveProduct],
-    tellerToTokenMapping: {},
+    tellerToTokenMapping,
   },
   metamaskChain: {
     chainId: hexValue(42),

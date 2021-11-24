@@ -1,5 +1,5 @@
 import { fetchExplorerTxHistoryByAddress } from '../utils/explorer'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useCachedData } from '../context/CachedDataManager'
 import { useWallet } from '../context/WalletManager'
 import { FunctionName } from '../constants/enums'
@@ -15,8 +15,10 @@ export const useFetchTxHistoryByAddress = (): any => {
   const { deleteLocalTransactions, latestBlock } = useCachedData()
   const [txHistory, setTxHistory] = useState<any>([])
   const { contractSources } = useContracts()
+  const running = useRef(false)
 
   const fetchTxHistoryByAddress = async (account: string) => {
+    running.current = true
     await fetchExplorerTxHistoryByAddress(activeNetwork.explorer.apiUrl, account, contractSources)
       .then((result) => {
         if (result.status == '1') {
@@ -27,10 +29,11 @@ export const useFetchTxHistoryByAddress = (): any => {
         }
       })
       .catch((err) => console.log(err))
+    running.current = false
   }
 
   useEffect(() => {
-    if (!latestBlock || !account) return
+    if (!latestBlock || !account || !running.current) return
     fetchTxHistoryByAddress(account)
   }, [latestBlock, account])
 

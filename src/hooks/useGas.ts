@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { fetchGasPrice } from '../utils/explorer'
 import { GasConfiguration, GasFeeListState } from '../constants/types'
 import { useCachedData } from '../context/CachedDataManager'
@@ -11,6 +11,7 @@ import { Block } from '@ethersproject/contracts/node_modules/@ethersproject/abst
 
 export const useFetchGasPrice = (latestBlock: Block | undefined): GasFeeListState => {
   const { activeNetwork, chainId } = useNetwork()
+  const running = useRef(false)
 
   const [state, setState] = useState<GasFeeListState>({
     options: [],
@@ -19,6 +20,7 @@ export const useFetchGasPrice = (latestBlock: Block | undefined): GasFeeListStat
 
   useEffect(() => {
     const fetchGasPrices = async () => {
+      running.current = true
       await fetchGasPrice(activeNetwork)
         .then((result) => {
           const options = [
@@ -51,7 +53,10 @@ export const useFetchGasPrice = (latestBlock: Block | undefined): GasFeeListStat
             loading: false,
           })
         })
+      running.current = false
     }
+    console.log(latestBlock)
+    if (!latestBlock || running.current) return
     fetchGasPrices()
   }, [chainId, latestBlock])
 

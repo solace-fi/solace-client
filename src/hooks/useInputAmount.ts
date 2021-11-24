@@ -4,6 +4,7 @@ import { formatUnits, parseUnits } from '@ethersproject/units'
 
 import { useNotifications } from '../context/NotificationsManager'
 import { useCachedData } from '../context/CachedDataManager'
+import { useNetwork } from '../context/NetworkManager'
 
 import { POW_NINE, ZERO } from '../constants'
 import { FunctionName, TransactionCondition } from '../constants/enums'
@@ -15,6 +16,7 @@ import { fixed, filteredAmount } from '../utils/formatting'
 import { getNameToFunctionGasLimit } from '../constants/mappings'
 
 export const useInputAmount = () => {
+  const { currencyDecimals } = useNetwork()
   const { addLocalTransactions, reload, gasPrices } = useCachedData()
   const { makeTxToast } = useNotifications()
   const [selectedGasOption, setSelectedGasOption] = useState<GasFeeOption | undefined>(gasPrices.selected)
@@ -53,18 +55,21 @@ export const useInputAmount = () => {
 
   const calculateMaxAmount = (balance: BigNumber, amountDecimals: number, func?: FunctionName, funcCond?: string) => {
     const bal = formatUnits(balance, amountDecimals)
-    if (func !== FunctionName.DEPOSIT_ETH || !selectedGasOption) return bal
+    if (func !== FunctionName.DEPOSIT_ETH || !selectedGasOption?.value) return bal
     const gasInEth = (getNameToFunctionGasLimit(func, funcCond) / POW_NINE) * selectedGasOption.value
     return Math.max(fixed(fixed(bal, 6) - fixed(gasInEth, 6), 6), 0)
   }
 
-  const handleInputChange = (input: string) => {
-    setAmount(filteredAmount(input, amount))
+  const handleInputChange = (input: string, maxDecimals?: number) => {
+    const filtered = filteredAmount(input, amount)
+    if (filtered.includes('.') && filtered.split('.')[1]?.length > (maxDecimals ?? currencyDecimals)) return
+    setAmount(filtered)
     setMaxSelected(false)
   }
 
   const setMax = (balance: BigNumber, balanceDecimals: number, func?: FunctionName, funcCond?: string) => {
-    setAmount(calculateMaxAmount(balance, balanceDecimals, func, funcCond).toString())
+    const calculatedMaxAmount = calculateMaxAmount(balance, balanceDecimals, func, funcCond)
+    setAmount(calculatedMaxAmount.toString())
     setMaxSelected(true)
   }
 

@@ -460,7 +460,7 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
               ) : (
                 <DeFiAssetImage noborder>
                   <img
-                    src={`https://assets.solace.fi/${selectedBondDetail.principalData.principal.address.toLowerCase()}`}
+                    src={`https://assets.solace.fi/${selectedBondDetail.principalData.principalProps.name.toLowerCase()}`}
                     alt={selectedBondDetail?.principalData.principalProps.symbol}
                   />
                 </DeFiAssetImage>
@@ -519,7 +519,14 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
                 placeholder="0.0"
                 textAlignCenter
                 type="text"
-                onChange={(e) => handleInputChange(e.target.value)}
+                onChange={(e) =>
+                  handleInputChange(
+                    e.target.value,
+                    func == FunctionName.DEPOSIT_ETH
+                      ? currencyDecimals
+                      : selectedBondDetail?.principalData?.principalProps.decimals
+                  )
+                }
                 value={amount}
               />
               <Button info ml={10} pt={4} pb={4} pl={8} pr={8} width={70} height={30} onClick={_setMax}>

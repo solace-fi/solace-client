@@ -67,6 +67,11 @@ const tellerToTokenMapping: {
     isBondTellerErc20: true,
     isLp: true,
   },
+  [String(process.env.REACT_APP_RINKEBY_SCP_TELLER_ADDR)]: {
+    addr: '0x501acee83a6f269b77c167c6701843d454e2efa0',
+    isBondTellerErc20: true,
+    isLp: false,
+  },
 }
 
 export const RinkebyNetwork: NetworkConfig = {
@@ -168,6 +173,7 @@ export const RinkebyNetwork: NetworkConfig = {
       [BondName.SOLACE_ETH_SLP]: String(process.env.REACT_APP_RINKEBY_SOLACE_ETH_SLP_TELLER_ADDR),
       [BondName.USDC]: String(process.env.REACT_APP_RINKEBY_USDC_TELLER_ADDR),
       [BondName.SOLACE_USDC_SLP]: String(process.env.REACT_APP_RINKEBY_SOLACE_USDC_SLP_TELLER_ADDR),
+      [BondName.SCP]: String(process.env.REACT_APP_RINKEBY_SCP_TELLER_ADDR),
     },
   },
   cache: {

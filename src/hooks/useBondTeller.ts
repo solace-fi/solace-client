@@ -108,7 +108,7 @@ export const useBondTellerDetails = (): { tellerDetails: BondTellerDetails[]; mo
             teller.contract.maxPayout(),
             teller.contract.stakeFeeBps(),
           ])
-          return {
+          const d = {
             teller,
             principalAddr,
             bondPrice,
@@ -117,6 +117,7 @@ export const useBondTellerDetails = (): { tellerDetails: BondTellerDetails[]; mo
             maxPayout,
             stakeFeeBps,
           }
+          return d
         })
       )
       setMounting(false)
