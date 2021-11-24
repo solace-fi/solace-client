@@ -1,3 +1,4 @@
+import { useCallback } from 'react'
 import { useContracts } from '../context/ContractsManager'
 import { useWallet } from '../context/WalletManager'
 import { useCachedData } from '../context/CachedDataManager'
@@ -72,21 +73,20 @@ export const useScpBalance = (): string => {
 
 export const useSolaceBalance = () => {
   const { solace } = useContracts()
-  const { currencyDecimals } = useNetwork()
   const { account, library } = useWallet()
   const [solaceBalance, setSolaceBalance] = useState<string>('0')
   const [tokenData, setTokenData] = useState<any>({ name: '', decimals: 0, symbol: '' })
 
-  const getSolaceBalance = async () => {
+  const getSolaceBalance = useCallback(async () => {
     if (!solace || !account) return
     try {
       const balance = await queryBalance(solace, account)
-      const formattedBalance = formatUnits(balance, currencyDecimals)
+      const formattedBalance = formatUnits(balance, tokenData.decimals)
       setSolaceBalance(formattedBalance)
     } catch (err) {
       console.log('getSolaceBalance', err)
     }
-  }
+  }, [account, solace, tokenData.decimals])
 
   useEffect(() => {
     if (!solace) return
@@ -113,28 +113,27 @@ export const useSolaceBalance = () => {
     return () => {
       solace.removeAllListeners()
     }
-  }, [account, solace])
+  }, [account, solace, getSolaceBalance])
 
   return { solaceBalance, tokenData }
 }
 
 export const useXSolaceBalance = () => {
   const { xSolace } = useContracts()
-  const { currencyDecimals } = useNetwork()
   const { account, library } = useWallet()
   const [xSolaceBalance, setXSolaceBalance] = useState<string>('0')
   const [tokenData, setTokenData] = useState<any>({ name: '', decimals: 0, symbol: '' })
 
-  const getXSolaceBalance = async () => {
+  const getXSolaceBalance = useCallback(async () => {
     if (!xSolace || !account) return
     try {
       const balance = await queryBalance(xSolace, account)
-      const formattedBalance = formatUnits(balance, currencyDecimals)
+      const formattedBalance = formatUnits(balance, tokenData.decimals)
       setXSolaceBalance(formattedBalance)
     } catch (err) {
       console.log('getXSolaceBalance', err)
     }
-  }
+  }, [account, tokenData.decimals, xSolace])
 
   useEffect(() => {
     if (!xSolace) return
@@ -161,7 +160,7 @@ export const useXSolaceBalance = () => {
     return () => {
       xSolace.removeAllListeners()
     }
-  }, [account, xSolace])
+  }, [account, xSolace, getXSolaceBalance])
 
   return { xSolaceBalance, tokenData }
 }

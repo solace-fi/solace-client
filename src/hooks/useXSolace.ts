@@ -72,27 +72,27 @@ export const useXSolaceDetails = () => {
     } catch (err) {
       console.log('error getXSolaceUserPoolShare ', err)
     }
-  }, [xSolace, xSolaceBalData.xSolaceBalance])
+  }, [xSolace, xSolaceBalData])
 
   const getXSolacePerSolace = useCallback(async () => {
     if (!xSolace) return
     try {
       const amount = await xSolace.solaceToXSolace(parseUnits('1', solaceBalData.tokenData.decimals))
-      setXSolacePerSolace(formatUnits(amount, xSolaceBalData.tokenData.decimals).toString())
+      setXSolacePerSolace(formatUnits(amount, xSolaceBalData.tokenData.decimals))
     } catch (err) {
       console.log('error getXSolacePerSolace ', err)
     }
-  }, [xSolace, solaceBalData])
+  }, [xSolace, solaceBalData, xSolaceBalData])
 
   const getSolacePerXSolace = useCallback(async () => {
     if (!xSolace) return
     try {
       const amount = await xSolace.xSolaceToSolace(parseUnits('1', xSolaceBalData.tokenData.decimals))
-      setSolacePerXSolace(formatUnits(amount, solaceBalData.tokenData.decimals).toString())
+      setSolacePerXSolace(formatUnits(amount, solaceBalData.tokenData.decimals))
     } catch (err) {
       console.log('error getSolacePerXSolace ', err)
     }
-  }, [xSolace, xSolaceBalData])
+  }, [xSolace, solaceBalData, xSolaceBalData])
 
   useEffect(() => {
     getXSolaceUserPoolShare()
