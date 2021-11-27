@@ -187,7 +187,9 @@ function Bond(): any {
                       </FlexRow>
                     </FormRow>
                     <FlexCol style={{ display: 'flex', alignItems: 'center' }}>
-                      <Text t2>{tellerDetail.tellerData.teller.name}</Text>
+                      <Text t2 mb={20}>
+                        {tellerDetail.tellerData.teller.name}
+                      </Text>
                     </FlexCol>
                   </FlexCol>
                   <FormRow>

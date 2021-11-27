@@ -55,7 +55,6 @@ export const useFetchGasPrice = (latestBlock: Block | undefined): GasFeeListStat
         })
       running.current = false
     }
-    console.log(latestBlock)
     if (!latestBlock || running.current) return
     fetchGasPrices()
   }, [chainId, latestBlock])
