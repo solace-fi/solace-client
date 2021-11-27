@@ -45,7 +45,7 @@ import { StyledTooltip } from '../molecules/Tooltip'
 /* import hooks */
 import { useCapitalPoolSize } from '../../hooks/useVault'
 import { useTotalPendingRewards } from '../../hooks/useRewards'
-import { useSolaceBalance } from '../../hooks/useBalance'
+import { useSolaceBalance, useXSolaceBalance } from '../../hooks/useBalance'
 import { usePolicyGetter } from '../../hooks/usePolicyGetter'
 import { useGetTotalValueLocked } from '../../hooks/useFarm'
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'
@@ -69,7 +69,8 @@ export const Statistics: React.FC = () => {
   const { makeTxToast } = useNotifications()
   const { addLocalTransactions, reload, tokenPosData, latestBlock } = useCachedData()
   const capitalPoolSize = useCapitalPoolSize()
-  const { solaceBalance } = useSolaceBalance()
+  const solaceBalanceData = useSolaceBalance()
+  const xSolaceBalanceData = useXSolaceBalance()
   const totalUserRewards = useTotalPendingRewards()
   const { allPolicies } = usePolicyGetter(true, latestBlock, tokenPosData)
   const totalValueLocked = useGetTotalValueLocked()
@@ -141,7 +142,7 @@ export const Statistics: React.FC = () => {
   const GlobalBox: React.FC = () => (
     <Box color2>
       <BoxItem>
-        <BoxItemTitle t4 light bold>
+        <BoxItemTitle t4 light>
           Underwriting Pool Size
         </BoxItemTitle>
         <Text t2 nowrap light bold>
@@ -152,7 +153,7 @@ export const Statistics: React.FC = () => {
         </Text>
       </BoxItem>
       <BoxItem>
-        <BoxItemTitle t4 light bold>
+        <BoxItemTitle t4 light>
           Total Value Locked
         </BoxItemTitle>
         <Text t2 nowrap light bold>
@@ -163,7 +164,7 @@ export const Statistics: React.FC = () => {
         </Text>
       </BoxItem>
       <BoxItem>
-        <BoxItemTitle t4 light bold>
+        <BoxItemTitle t4 light>
           Active Cover Amount
         </BoxItemTitle>
         <Text t2 nowrap light bold>
@@ -176,7 +177,7 @@ export const Statistics: React.FC = () => {
         </Text>
       </BoxItem>
       <BoxItem>
-        <BoxItemTitle t4 light bold>
+        <BoxItemTitle t4 light>
           Total Active Policies
         </BoxItemTitle>
         <Text t2 nowrap light bold>
@@ -192,16 +193,29 @@ export const Statistics: React.FC = () => {
         <BoxRow>
           {initialized && account ? (
             <Box>
-              {/* <BoxItem>
-                <BoxItemTitle t4>
-                  My Balance
-                </BoxItemTitle>
-                <Text t2>
-                  {`${truncateBalance(solaceBalance, 1)} `}
-                  <TextSpan t4>SOLACE</TextSpan>
-                </Text>
-              </BoxItem> */}
               <BoxItem>
+                <BoxItemTitle t4 light>
+                  My SOLACE Balance
+                </BoxItemTitle>
+                <Text t2 light bold>
+                  {`${truncateBalance(solaceBalanceData.solaceBalance, 1)} `}
+                  <TextSpan t4 light bold>
+                    {solaceBalanceData.tokenData.symbol}
+                  </TextSpan>
+                </Text>
+              </BoxItem>
+              <BoxItem>
+                <BoxItemTitle t4 light>
+                  My Staked Balance
+                </BoxItemTitle>
+                <Text t2 light bold>
+                  {`${truncateBalance(xSolaceBalanceData.xSolaceBalance, 1)} `}
+                  <TextSpan t4 light bold>
+                    {xSolaceBalanceData.tokenData.symbol}
+                  </TextSpan>
+                </Text>
+              </BoxItem>
+              {/* <BoxItem>
                 <BoxItemTitle t4 light bold>
                   My Unclaimed Rewards{' '}
                   <StyledTooltip
@@ -216,7 +230,7 @@ export const Statistics: React.FC = () => {
                     SOLACE
                   </TextSpan>
                 </Text>
-              </BoxItem>
+              </BoxItem> */}
               {/* <BoxItem>
                 <Button light disabled={haveErrors || fixed(totalUserRewards, 6) <= 0} onClick={claimRewards}>
                   Claim Options
@@ -238,16 +252,29 @@ export const Statistics: React.FC = () => {
           {initialized && account ? (
             <CardContainer m={20}>
               <Card color1>
-                {/* <FormRow>
-                  <FormCol>My Balance</FormCol>
+                <FormRow>
+                  <FormCol light>My SOLACE Balance</FormCol>
                   <FormCol>
-                    <Text t2>
-                      {`${truncateBalance(solaceBalance, 1)} `}
-                      <TextSpan t4>SOLACE</TextSpan>
+                    <Text t2 light>
+                      {`${truncateBalance(solaceBalanceData.solaceBalance, 1)} `}
+                      <TextSpan t4 light>
+                        {solaceBalanceData.tokenData.symbol}
+                      </TextSpan>
                     </Text>
                   </FormCol>
-                </FormRow> */}
+                </FormRow>
                 <FormRow>
+                  <FormCol light>My Staked Balance</FormCol>
+                  <FormCol>
+                    <Text t2 light>
+                      {`${truncateBalance(xSolaceBalanceData.xSolaceBalance, 1)} `}
+                      <TextSpan t4 light>
+                        {xSolaceBalanceData.tokenData.symbol}
+                      </TextSpan>
+                    </Text>
+                  </FormCol>
+                </FormRow>
+                {/* <FormRow>
                   <FormCol light>My Unclaimed Rewards</FormCol>
                   <FormCol>
                     <Text t2 light>
@@ -257,7 +284,7 @@ export const Statistics: React.FC = () => {
                       </TextSpan>
                     </Text>
                   </FormCol>
-                </FormRow>
+                </FormRow> */}
                 {/* <ButtonWrapper>
                   <Button
                     light
