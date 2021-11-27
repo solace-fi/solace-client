@@ -682,7 +682,7 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
                 <FlexRow>
                   <StyledGraphDown size={15} />
                   <Text t4 ml={5}>
-                    {slippagePrct}%
+                    {parseInt(accurateMultiply(slippagePrct, 2)) / 100}%
                   </Text>
                   {bondRecipient && (
                     <FlexRow ml={10}>

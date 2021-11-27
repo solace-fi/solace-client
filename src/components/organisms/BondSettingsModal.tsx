@@ -9,6 +9,7 @@ import { Button, ButtonWrapper } from '../atoms/Button'
 import { FlexCol } from '../atoms/Layout'
 import { MAX_BPS } from '../../constants'
 import { BondTellerDetails } from '../../constants/types'
+import { isAddress } from '../../utils'
 
 interface BondSettingsModalProps extends ModalProps {
   bondRecipient: string | undefined
@@ -53,7 +54,7 @@ export const BondSettingsModal: React.FC<BondSettingsModalProps> = ({
 
   const applyChanges = () => {
     setSlippagePrct(slippage)
-    setBondRecipient(recipient)
+    setBondRecipient(recipient?.substring(0, 2) !== '0x' ? '0x' + recipient : recipient)
     handleClose()
   }
 
@@ -87,7 +88,7 @@ export const BondSettingsModal: React.FC<BondSettingsModalProps> = ({
         </Text>
       </FlexCol>
       <ButtonWrapper isColumn>
-        <Button widthP={100} info onClick={applyChanges}>
+        <Button widthP={100} info onClick={applyChanges} disabled={!isAddress(recipient)}>
           Apply Changes
         </Button>
       </ButtonWrapper>
