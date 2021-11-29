@@ -23,6 +23,7 @@ import { floatUnits } from '../utils/formatting'
 import sushiSwapLpAltABI from '../constants/metadata/ISushiswapMetadataAlt.json'
 import { Token, Pair } from '@sushiswap/sdk'
 import { useCoingeckoPrice } from '@usedapp/coingecko'
+import { getCoingeckoTokenPrice } from '../utils/api'
 
 export const useNativeTokenBalance = (): string => {
   const { account, library } = useWallet()
@@ -265,7 +266,7 @@ export const useUnderWritingPoolBalance = () => {
   const [underwritingPoolBalance, setUnderwritingPoolBalance] = useState<number>(0)
   const getPairPrice = useGetPairPrice()
 
-  const currency = useMemo(() => {
+  const platform = useMemo(() => {
     switch (activeNetwork.nativeCurrency.symbol) {
       case Unit.ETH:
         return 'ethereum'
@@ -274,7 +275,7 @@ export const useUnderWritingPoolBalance = () => {
         return 'matic'
     }
   }, [activeNetwork.nativeCurrency.symbol])
-  const coinGeckoPrice = useCoingeckoPrice(currency, 'usd')
+  const coinGeckoNativeTokenPrice = useCoingeckoPrice(platform, 'usd')
 
   useEffect(() => {
     const getBalance = async () => {
@@ -320,7 +321,13 @@ export const useUnderWritingPoolBalance = () => {
             const multiplied = poolShare * (price0 * totalReserve0 + price1 * totalReserve1)
             return multiplied
           } else {
-            const price = await getPairPrice(principalContracts[i])
+            let price = await getPairPrice(principalContracts[i])
+            if (price == -1) {
+              // TODO: if the pair price call fails to fetch USDC price for token, call coingecko to fetch usd price for token
+              const coinGeckoTokenPrice = await getCoingeckoTokenPrice(principalContracts[i].address, 'usd', platform)
+              console.log(coinGeckoTokenPrice)
+              price = parseFloat(coinGeckoTokenPrice ?? '0')
+            }
             const principalDecimals = await principalContracts[i].decimals()
             const formattedBalance = floatUnits(balances[i], principalDecimals)
             const balanceMultipliedByPrice = price * formattedBalance
@@ -330,9 +337,9 @@ export const useUnderWritingPoolBalance = () => {
       )
 
       // add USDC of native balance
-      if (coinGeckoPrice) {
+      if (coinGeckoNativeTokenPrice) {
         const formattedBalance = floatUnits(ethBalance, currencyDecimals)
-        const balanceMultipliedByPrice = parseFloat(coinGeckoPrice) * formattedBalance
+        const balanceMultipliedByPrice = parseFloat(coinGeckoNativeTokenPrice) * formattedBalance
         usdcBalances.push(balanceMultipliedByPrice)
       }
 
@@ -340,7 +347,7 @@ export const useUnderWritingPoolBalance = () => {
       setUnderwritingPoolBalance(usdcTotalBalance)
     }
     getBalance()
-  }, [tellers, library, bondDepo, coinGeckoPrice])
+  }, [tellers, library, bondDepo, coinGeckoNativeTokenPrice])
 
   return { underwritingPoolBalance }
 }

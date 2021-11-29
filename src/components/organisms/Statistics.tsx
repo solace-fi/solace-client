@@ -69,12 +69,12 @@ export const Statistics: React.FC = () => {
   const { farmController, solace } = useContracts()
   const { makeTxToast } = useNotifications()
   const { addLocalTransactions, reload, tokenPosData, latestBlock } = useCachedData()
-  const capitalPoolSize = useCapitalPoolSize()
+  // const capitalPoolSize = useCapitalPoolSize()
   const solaceBalanceData = useSolaceBalance()
   const xSolaceBalanceData = useXSolaceBalance()
   const totalUserRewards = useTotalPendingRewards()
   const { allPolicies } = usePolicyGetter(true, latestBlock, tokenPosData)
-  const totalValueLocked = useGetTotalValueLocked()
+  // const totalValueLocked = useGetTotalValueLocked()
   const { width } = useWindowDimensions()
   const { getAutoGasConfig } = useGetFunctionGas()
   const gasConfig = useMemo(() => getAutoGasConfig(), [getAutoGasConfig])
@@ -152,14 +152,14 @@ export const Statistics: React.FC = () => {
           {`$${pairPrice} `}
         </Text>
       </BoxItem>
-      {/* <BoxItem>
+      <BoxItem>
         <BoxItemTitle t4 light>
           Underwriting Pool Size
         </BoxItemTitle>
         <Text t2 nowrap light bold>
           {`$${truncateBalance(underwritingPoolBalance, 2)}`}
         </Text>
-      </BoxItem> */}
+      </BoxItem>
       <BoxItem>
         <BoxItemTitle t4 light>
           Active Cover Amount
@@ -305,14 +305,14 @@ export const Statistics: React.FC = () => {
                     </Text>
                   </FormCol>
                 </FormRow>
-                {/* <FormRow>
+                <FormRow>
                   <FormCol light>Underwriting Pool Size</FormCol>
                   <FormCol>
                     <Text t2 nowrap light>
                       {`$${truncateBalance(underwritingPoolBalance, 2)}`}
                     </Text>
                   </FormCol>
-                </FormRow> */}
+                </FormRow>
                 <FormRow>
                   <FormCol light>Active Cover Amount</FormCol>
                   <FormCol>

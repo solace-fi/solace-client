@@ -64,8 +64,8 @@ export const useGetPairPrice = () => {
         return token0ReadableAmount / token1ReadableAmount
       }
     } catch (err) {
-      console.log('getPairPrice', err, token.address)
-      return 0
+      console.log(`getPairPrice, cannot retrieve for ${token.address}`, err)
+      return -1
     }
   }
 
