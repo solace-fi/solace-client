@@ -182,7 +182,7 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
       !bondRecipient
     )
       return
-    setModalLoading(true) // await calculateAmountOut(amount, stake)
+    setModalLoading(true)
     const slippageInt = parseInt(accurateMultiply(slippagePrct, 2))
     const calcAOut = stake ? calculatedAmountOut_X : calculatedAmountOut
     const minAmountOut = calcAOut.mul(BigNumber.from(MAX_BPS - slippageInt)).div(BigNumber.from(MAX_BPS))
@@ -302,9 +302,10 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
       let _calculatedAmountIn: BigNumber | undefined = ZERO
       let _calculatedAmountIn_X: BigNumber | undefined = ZERO
       try {
+        // not including bond fee to remain below maxPayout
         const aI: BigNumber = await selectedBondDetail.tellerData.teller.contract.calculateAmountIn(
           maxPayout
-            .mul(BigNumber.from(MAX_BPS).sub(selectedBondDetail.tellerData.stakeFeeBps))
+            .mul(BigNumber.from(MAX_BPS).sub(selectedBondDetail.tellerData.bondFeeBps))
             .div(BigNumber.from(MAX_BPS)),
           false
         )
@@ -314,9 +315,10 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
       }
       setCalculatedAmountIn(_calculatedAmountIn)
       try {
+        // not including bond fee to remain below maxPayout
         const aI_X: BigNumber = await selectedBondDetail.tellerData.teller.contract.calculateAmountIn(
           maxPayout_X
-            .mul(BigNumber.from(MAX_BPS).sub(selectedBondDetail.tellerData.stakeFeeBps))
+            .mul(BigNumber.from(MAX_BPS).sub(selectedBondDetail.tellerData.bondFeeBps))
             .div(BigNumber.from(MAX_BPS)),
           true
         )
@@ -341,7 +343,7 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
   useEffect(() => {
     const getBondData = async () => {
       if (!selectedBondDetail?.principalData) return
-      setVestingTermInMillis(selectedBondDetail.tellerData.vestingTermInSeconds.toNumber() * 1000)
+      setVestingTermInMillis(selectedBondDetail.tellerData.vestingTermInSeconds * 1000)
       setContractForAllowance(selectedBondDetail.principalData.principal)
       setSpenderAddress(selectedBondDetail.tellerData.teller.contract.address)
     }

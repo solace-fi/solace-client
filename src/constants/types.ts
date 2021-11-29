@@ -144,10 +144,10 @@ export type BondTellerData = {
   teller: BondTellerContract
   principalAddr: string
   bondPrice: BigNumber
-  vestingTermInSeconds: BigNumber
+  vestingTermInSeconds: number
   capacity: BigNumber
   maxPayout: BigNumber
-  stakeFeeBps: BigNumber
+  bondFeeBps: BigNumber
 }
 
 export type BondPrincipalData = {
@@ -244,6 +244,7 @@ export type BondTellerContract = {
   contract: Contract
   isBondTellerErc20: boolean
   isLp: boolean
+  underlyingAddr: string
 }
 
 export type ContractSources = { addr: string; abi: any }

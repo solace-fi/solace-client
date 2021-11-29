@@ -100,4 +100,6 @@ export enum BondName {
   USDC = 'USDC',
   SOLACE_USDC_SLP = 'SOLACE-USDC SLP',
   SCP = 'SCP',
+  WBTC = 'WBTC',
+  USDT = 'USDT',
 }

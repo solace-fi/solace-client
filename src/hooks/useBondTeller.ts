@@ -15,7 +15,7 @@ import ierc20Json from '../constants/metadata/IERC20Metadata.json'
 import sushiswapLpAbi from '../constants/metadata/ISushiswapMetadataAlt.json'
 import weth9 from '../constants/abi/contracts/WETH9.sol/WETH9.json'
 import { useWallet } from '../context/WalletManager'
-import { FunctionGasLimits } from '../constants/mappings'
+import { FunctionGasLimits } from '../constants/mappings/gasMapping'
 import { FunctionName, TransactionCondition } from '../constants/enums'
 import { queryDecimals, queryName, querySymbol } from '../utils/contract'
 import { useCachedData } from '../context/CachedDataManager'
@@ -100,13 +100,13 @@ export const useBondTellerDetails = (): { tellerDetails: BondTellerDetails[]; mo
     try {
       const data: BondTellerData[] = await Promise.all(
         tellers.map(async (teller) => {
-          const [principalAddr, bondPrice, vestingTermInSeconds, capacity, maxPayout, stakeFeeBps] = await Promise.all([
+          const [principalAddr, bondPrice, vestingTermInSeconds, capacity, maxPayout, bondFeeBps] = await Promise.all([
             teller.contract.principal(),
             teller.contract.bondPrice(),
             teller.contract.vestingTerm(),
             teller.contract.capacity(),
             teller.contract.maxPayout(),
-            teller.contract.stakeFeeBps(),
+            teller.contract.bondFeeBps(),
           ])
           const d = {
             teller,
@@ -115,7 +115,7 @@ export const useBondTellerDetails = (): { tellerDetails: BondTellerDetails[]; mo
             vestingTermInSeconds,
             capacity,
             maxPayout,
-            stakeFeeBps,
+            bondFeeBps,
           }
           return d
         })

@@ -47,7 +47,7 @@ import { ModalCell } from '../atoms/Modal'
 import { BKPT_3, DAYS_PER_YEAR, NUM_BLOCKS_PER_DAY, ZERO } from '../../constants'
 import { FunctionName, TransactionCondition, ExplorerscanApi } from '../../constants/enums'
 import { LocalTx, Policy } from '../../constants/types'
-import { FunctionGasLimits } from '../../constants/mappings'
+import { FunctionGasLimits } from '../../constants/mappings/gasMapping'
 
 /* import hooks */
 import { useAppraisePolicyPosition, useGetMaxCoverPerPolicy, useGetPolicyPrice } from '../../hooks/usePolicy'

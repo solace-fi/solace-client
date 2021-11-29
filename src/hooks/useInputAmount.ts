@@ -13,7 +13,7 @@ import { GasFeeOption, LocalTx } from '../constants/types'
 import { useGetFunctionGas } from './useGas'
 
 import { fixed, filteredAmount } from '../utils/formatting'
-import { getNameToFunctionGasLimit } from '../constants/mappings'
+import { getNameToFunctionGasLimit } from '../constants/mappings/gasMapping'
 
 export const useInputAmount = () => {
   const { currencyDecimals } = useNetwork()

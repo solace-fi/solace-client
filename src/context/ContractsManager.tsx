@@ -29,6 +29,7 @@ type Contracts = {
   registry?: Contract | null
   lpToken?: Contract | null
   lpAppraisor?: Contract | null
+  bondDepo?: Contract | null
   claimsEscrow?: Contract | null
   policyManager?: Contract | null
   riskManager?: Contract | null
@@ -52,6 +53,7 @@ const ContractsContext = createContext<Contracts>({
   registry: undefined,
   lpToken: undefined,
   lpAppraisor: undefined,
+  bondDepo: undefined,
   claimsEscrow: undefined,
   policyManager: undefined,
   riskManager: undefined,
@@ -83,6 +85,7 @@ const ContractsProvider: React.FC = (props) => {
   const policyManager = useGetContract(keyContracts.policyManager)
   const riskManager = useGetContract(keyContracts.riskManager)
   const lpAppraisor = useGetContract(keyContracts.lpAppraisor)
+  const bondDepo = useGetContract(keyContracts.bondDepo)
   const products = useGetProductContracts()
   const tellers = useGetBondTellerContracts()
 
@@ -115,6 +118,7 @@ const ContractsProvider: React.FC = (props) => {
       registry,
       lpToken,
       lpAppraisor,
+      bondDepo,
       claimsEscrow,
       policyManager,
       riskManager,
@@ -137,6 +141,7 @@ const ContractsProvider: React.FC = (props) => {
       registry,
       lpToken,
       lpAppraisor,
+      bondDepo,
       claimsEscrow,
       policyManager,
       riskManager,

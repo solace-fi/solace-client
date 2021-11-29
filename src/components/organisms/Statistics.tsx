@@ -24,6 +24,8 @@ import { BigNumber } from 'ethers'
 /* import constants */
 import { BKPT_3, ZERO } from '../../constants'
 import { TransactionCondition, FunctionName, Unit, PolicyState } from '../../constants/enums'
+import { LocalTx } from '../../constants/types'
+import { FunctionGasLimits } from '../../constants/mappings/gasMapping'
 
 /* import managers */
 import { useWallet } from '../../context/WalletManager'
@@ -45,16 +47,15 @@ import { StyledTooltip } from '../molecules/Tooltip'
 /* import hooks */
 import { useCapitalPoolSize } from '../../hooks/useVault'
 import { useTotalPendingRewards } from '../../hooks/useRewards'
-import { useSolaceBalance, useXSolaceBalance } from '../../hooks/useBalance'
+import { useSolaceBalance, useUnderWritingPoolBalance, useXSolaceBalance } from '../../hooks/useBalance'
 import { usePolicyGetter } from '../../hooks/usePolicyGetter'
 import { useGetTotalValueLocked } from '../../hooks/useFarm'
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'
 import { useGetFunctionGas } from '../../hooks/useGas'
+import { usePairPrice } from '../../hooks/usePair'
 
 /* import utils */
 import { truncateBalance } from '../../utils/formatting'
-import { LocalTx } from '../../constants/types'
-import { FunctionGasLimits } from '../../constants/mappings'
 
 export const Statistics: React.FC = () => {
   /*************************************************************************************
@@ -65,7 +66,7 @@ export const Statistics: React.FC = () => {
   const { haveErrors } = useGeneral()
   const { account, initialized } = useWallet()
   const { activeNetwork, currencyDecimals } = useNetwork()
-  const { farmController } = useContracts()
+  const { farmController, solace } = useContracts()
   const { makeTxToast } = useNotifications()
   const { addLocalTransactions, reload, tokenPosData, latestBlock } = useCachedData()
   const capitalPoolSize = useCapitalPoolSize()
@@ -79,6 +80,8 @@ export const Statistics: React.FC = () => {
   const gasConfig = useMemo(() => getAutoGasConfig(), [getAutoGasConfig])
   const [totalActiveCoverAmount, setTotalActiveCoverAmount] = useState<string>('-')
   const [totalActivePolicies, setTotalActivePolicies] = useState<string>('-')
+  const { pairPrice } = usePairPrice(solace)
+  const { underwritingPoolBalance } = useUnderWritingPoolBalance()
 
   /*************************************************************************************
 
@@ -143,24 +146,18 @@ export const Statistics: React.FC = () => {
     <Box color2>
       <BoxItem>
         <BoxItemTitle t4 light>
-          Underwriting Pool Size
+          SOLACE Price
         </BoxItemTitle>
         <Text t2 nowrap light bold>
-          {`${truncateBalance(capitalPoolSize, 1)} `}
-          <TextSpan t4 light bold>
-            {activeNetwork.nativeCurrency.symbol}
-          </TextSpan>
+          {`$${pairPrice} `}
         </Text>
       </BoxItem>
       <BoxItem>
         <BoxItemTitle t4 light>
-          Total Value Locked
+          Underwriting Pool Size
         </BoxItemTitle>
         <Text t2 nowrap light bold>
-          {`${truncateBalance(totalValueLocked, 1)} `}
-          <TextSpan t4 light bold>
-            {activeNetwork.nativeCurrency.symbol}
-          </TextSpan>
+          {`$${truncateBalance(underwritingPoolBalance, 2)}`}
         </Text>
       </BoxItem>
       <BoxItem>
@@ -298,10 +295,10 @@ export const Statistics: React.FC = () => {
               </Card>
               <Card color2>
                 <FormRow>
-                  <FormCol light>Capital Pool Size</FormCol>
+                  <FormCol light>SOLACE Price</FormCol>
                   <FormCol>
                     <Text t2 nowrap light>
-                      {`${truncateBalance(capitalPoolSize, 1)} `}
+                      {`$${pairPrice} `}
                       <TextSpan t4 light>
                         {activeNetwork.nativeCurrency.symbol}
                       </TextSpan>
@@ -309,13 +306,10 @@ export const Statistics: React.FC = () => {
                   </FormCol>
                 </FormRow>
                 <FormRow>
-                  <FormCol light>Total Value Locked</FormCol>
+                  <FormCol light>Underwriting Pool Size</FormCol>
                   <FormCol>
                     <Text t2 nowrap light>
-                      {`${truncateBalance(totalValueLocked, 1)} `}
-                      <TextSpan t4 light>
-                        {activeNetwork.nativeCurrency.symbol}
-                      </TextSpan>
+                      {`$${truncateBalance(underwritingPoolBalance, 2)}`}
                     </Text>
                   </FormCol>
                 </FormRow>

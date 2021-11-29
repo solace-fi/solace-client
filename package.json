@@ -9,6 +9,7 @@
     "@rebass/forms": "^4.0.6",
     "@reduxjs/toolkit": "^1.6.1",
     "@rooks/use-debounce": "^4.11.2",
+    "@sushiswap/sdk": "^5.0.0-canary.108",
     "@testing-library/jest-dom": "^5.14.1",
     "@testing-library/react": "^11.2.7",
     "@testing-library/user-event": "^12.8.3",

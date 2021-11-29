@@ -17,6 +17,7 @@ import claimsEscrowABI from '../constants/abi/contracts/ClaimsEscrow.sol/ClaimsE
 import lpTokenArtifact from '../../node_modules/@uniswap/v3-periphery/artifacts/contracts/NonfungiblePositionManager.sol/NonfungiblePositionManager.json'
 import polMagABI from '../constants/abi/contracts/PolicyManager.sol/PolicyManager.json'
 import riskManagerABI from '../constants/abi/contracts/RiskManager.sol/RiskManager.json'
+import bondDepoABI from '../constants/abi/contracts/BondDepository.sol/BondDepository.json'
 
 /* product contract abi */
 import liquityProductABI from '../constants/abi/contracts/products/LiquityProduct.sol/LiquityProduct.json'
@@ -42,20 +43,10 @@ const tellerToTokenMapping: {
     isBondTellerErc20: true,
     isLp: false,
   },
-  [String(process.env.REACT_APP_RINKEBY_SOLACE_DAI_SLP_TELLER_ADDR)]: {
-    addr: '0xf57fec00d4712e68fb0bceac77a2841edd7a155e',
-    isBondTellerErc20: true,
-    isLp: true,
-  },
   [String(process.env.REACT_APP_RINKEBY_ETH_TELLER_ADDR)]: {
     addr: '0xc778417e063141139fce010982780140aa0cd5ab',
     isBondTellerErc20: false,
     isLp: false,
-  },
-  [String(process.env.REACT_APP_RINKEBY_SOLACE_ETH_SLP_TELLER_ADDR)]: {
-    addr: '0x66844fbeb515f3da46c6129fe911f0cb436ba2e0',
-    isBondTellerErc20: true,
-    isLp: true,
   },
   [String(process.env.REACT_APP_RINKEBY_USDC_TELLER_ADDR)]: {
     addr: '0x4dbcdf9b62e891a7cec5a2568c3f4faf9e8abe2b',
@@ -72,6 +63,26 @@ const tellerToTokenMapping: {
     isBondTellerErc20: true,
     isLp: false,
   },
+  [String(process.env.REACT_APP_RINKEBY_WBTC_TELLER_ADDR)]: {
+    addr: '0x20fb9cddbca5a5eb468c76010aec6ed4eacc037f',
+    isBondTellerErc20: true,
+    isLp: false,
+  },
+  [String(process.env.REACT_APP_RINKEBY_USDT_TELLER_ADDR)]: {
+    addr: '0xd9ba894e0097f8cc2bbc9d24d308b98e36dc6d02',
+    isBondTellerErc20: true,
+    isLp: false,
+  },
+  // [String(process.env.REACT_APP_RINKEBY_SOLACE_ETH_SLP_TELLER_ADDR)]: {
+  //   addr: '0x66844fbeb515f3da46c6129fe911f0cb436ba2e0',
+  //   isBondTellerErc20: true,
+  //   isLp: true,
+  // },
+  // [String(process.env.REACT_APP_RINKEBY_SOLACE_DAI_SLP_TELLER_ADDR)]: {
+  //   addr: '0xf57fec00d4712e68fb0bceac77a2841edd7a155e',
+  //   isBondTellerErc20: true,
+  //   isLp: true,
+  // },
 }
 
 export const RinkebyNetwork: NetworkConfig = {
@@ -151,6 +162,10 @@ export const RinkebyNetwork: NetworkConfig = {
         addr: String(process.env.REACT_APP_RINKEBY_RISK_MANAGER_ADDR),
         abi: riskManagerABI,
       },
+      bondDepo: {
+        addr: String(process.env.REACT_APP_RINKEBY_BOND_DEPO_ADDR),
+        abi: bondDepoABI,
+      },
     },
     productContracts: {
       [ProductName.COMPOUND]: {
@@ -168,12 +183,14 @@ export const RinkebyNetwork: NetworkConfig = {
     },
     bondTellerContracts: {
       [BondName.DAI]: String(process.env.REACT_APP_RINKEBY_DAI_TELLER_ADDR),
-      [BondName.SOLACE_DAI_SLP]: String(process.env.REACT_APP_RINKEBY_SOLACE_DAI_SLP_TELLER_ADDR),
+      // [BondName.SOLACE_DAI_SLP]: String(process.env.REACT_APP_RINKEBY_SOLACE_DAI_SLP_TELLER_ADDR),
       [BondName.ETH]: String(process.env.REACT_APP_RINKEBY_ETH_TELLER_ADDR),
-      [BondName.SOLACE_ETH_SLP]: String(process.env.REACT_APP_RINKEBY_SOLACE_ETH_SLP_TELLER_ADDR),
+      // [BondName.SOLACE_ETH_SLP]: String(process.env.REACT_APP_RINKEBY_SOLACE_ETH_SLP_TELLER_ADDR),
       [BondName.USDC]: String(process.env.REACT_APP_RINKEBY_USDC_TELLER_ADDR),
       [BondName.SOLACE_USDC_SLP]: String(process.env.REACT_APP_RINKEBY_SOLACE_USDC_SLP_TELLER_ADDR),
       [BondName.SCP]: String(process.env.REACT_APP_RINKEBY_SCP_TELLER_ADDR),
+      [BondName.WBTC]: String(process.env.REACT_APP_RINKEBY_WBTC_TELLER_ADDR),
+      [BondName.USDT]: String(process.env.REACT_APP_RINKEBY_USDT_TELLER_ADDR),
     },
   },
   cache: {

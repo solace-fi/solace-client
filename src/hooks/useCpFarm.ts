@@ -2,7 +2,7 @@ import { BigNumber } from 'ethers'
 import { useContracts } from '../context/ContractsManager'
 import { FunctionName, TransactionCondition } from '../constants/enums'
 import { GasConfiguration, LocalTx, TxResult } from '../constants/types'
-import { FunctionGasLimits } from '../constants/mappings'
+import { FunctionGasLimits } from '../constants/mappings/gasMapping'
 
 export const useCpFarm = () => {
   const { cpFarm } = useContracts()

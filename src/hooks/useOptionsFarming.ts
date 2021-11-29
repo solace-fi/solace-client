@@ -5,7 +5,7 @@ import { useCachedData } from '../context/CachedDataManager'
 import { useContracts } from '../context/ContractsManager'
 import { useWallet } from '../context/WalletManager'
 import { FunctionName, TransactionCondition } from '../constants/enums'
-import { FunctionGasLimits } from '../constants/mappings'
+import { FunctionGasLimits } from '../constants/mappings/gasMapping'
 
 export const useOptionsDetails = () => {
   const { optionsFarming } = useContracts()

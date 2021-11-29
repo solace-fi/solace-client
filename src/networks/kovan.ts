@@ -17,6 +17,7 @@ import claimsEscrowABI from '../constants/abi/contracts/ClaimsEscrow.sol/ClaimsE
 import lpTokenArtifact from '../../node_modules/@uniswap/v3-periphery/artifacts/contracts/NonfungiblePositionManager.sol/NonfungiblePositionManager.json'
 import polMagABI from '../constants/abi/contracts/PolicyManager.sol/PolicyManager.json'
 import riskManagerABI from '../constants/abi/contracts/RiskManager.sol/RiskManager.json'
+import bondDepoABI from '../constants/abi/contracts/BondDepository.sol/BondDepository.json'
 
 /* product contract abi */
 import aaveABI from '../constants/abi/contracts/products/AaveV2Product.sol/AaveV2Product.json'
@@ -40,20 +41,10 @@ const tellerToTokenMapping: {
     isBondTellerErc20: true,
     isLp: false,
   },
-  [String(process.env.REACT_APP_KOVAN_SOLACE_DAI_SLP_TELLER_ADDR)]: {
-    addr: '0x836c25e0fe4edc95443a88b6694d7e3be37d98bd',
-    isBondTellerErc20: true,
-    isLp: true,
-  },
   [String(process.env.REACT_APP_KOVAN_ETH_TELLER_ADDR)]: {
     addr: '0xd0a1e359811322d97991e03f863a0c30c2cf029c',
     isBondTellerErc20: false,
     isLp: false,
-  },
-  [String(process.env.REACT_APP_KOVAN_SOLACE_ETH_SLP_TELLER_ADDR)]: {
-    addr: '0x64844b869abb2f310442a692bd1cc84b393b2777',
-    isBondTellerErc20: true,
-    isLp: true,
   },
   [String(process.env.REACT_APP_KOVAN_USDC_TELLER_ADDR)]: {
     addr: '0xefd4e002d58a66e9ea53f9ebf0583aecc6e183f0',
@@ -70,6 +61,26 @@ const tellerToTokenMapping: {
     isBondTellerErc20: true,
     isLp: false,
   },
+  [String(process.env.REACT_APP_KOVAN_WBTC_TELLER_ADDR)]: {
+    addr: '0x1063bf969f8d3d7296a2a94274d3df9202da2a3a',
+    isBondTellerErc20: true,
+    isLp: false,
+  },
+  [String(process.env.REACT_APP_KOVAN_USDT_TELLER_ADDR)]: {
+    addr: '0xaea2b0f4763c8ffc33a4c454cd08f803b02b6b53',
+    isBondTellerErc20: true,
+    isLp: false,
+  },
+  // [String(process.env.REACT_APP_KOVAN_SOLACE_ETH_SLP_TELLER_ADDR)]: {
+  //   addr: '0x64844b869abb2f310442a692bd1cc84b393b2777',
+  //   isBondTellerErc20: true,
+  //   isLp: true,
+  // },
+  // [String(process.env.REACT_APP_KOVAN_SOLACE_DAI_SLP_TELLER_ADDR)]: {
+  //   addr: '0x836c25e0fe4edc95443a88b6694d7e3be37d98bd',
+  //   isBondTellerErc20: true,
+  //   isLp: true,
+  // },
 }
 
 export const KovanNetwork: NetworkConfig = {
@@ -149,6 +160,10 @@ export const KovanNetwork: NetworkConfig = {
         addr: String(process.env.REACT_APP_KOVAN_RISK_MANAGER_ADDR),
         abi: riskManagerABI,
       },
+      bondDepo: {
+        addr: String(process.env.REACT_APP_KOVAN_BOND_DEPO_ADDR),
+        abi: bondDepoABI,
+      },
     },
     productContracts: {
       [ProductName.AAVE]: {
@@ -162,12 +177,14 @@ export const KovanNetwork: NetworkConfig = {
     },
     bondTellerContracts: {
       [BondName.DAI]: String(process.env.REACT_APP_KOVAN_DAI_TELLER_ADDR),
-      [BondName.SOLACE_DAI_SLP]: String(process.env.REACT_APP_KOVAN_SOLACE_DAI_SLP_TELLER_ADDR),
+      // [BondName.SOLACE_DAI_SLP]: String(process.env.REACT_APP_KOVAN_SOLACE_DAI_SLP_TELLER_ADDR),
       [BondName.ETH]: String(process.env.REACT_APP_KOVAN_ETH_TELLER_ADDR),
-      [BondName.SOLACE_ETH_SLP]: String(process.env.REACT_APP_KOVAN_SOLACE_ETH_SLP_TELLER_ADDR),
+      // [BondName.SOLACE_ETH_SLP]: String(process.env.REACT_APP_KOVAN_SOLACE_ETH_SLP_TELLER_ADDR),
       [BondName.USDC]: String(process.env.REACT_APP_KOVAN_USDC_TELLER_ADDR),
       [BondName.SOLACE_USDC_SLP]: String(process.env.REACT_APP_KOVAN_SOLACE_USDC_SLP_TELLER_ADDR),
       [BondName.SCP]: String(process.env.REACT_APP_KOVAN_SCP_TELLER_ADDR),
+      [BondName.WBTC]: String(process.env.REACT_APP_KOVAN_WBTC_TELLER_ADDR),
+      [BondName.USDT]: String(process.env.REACT_APP_KOVAN_USDT_TELLER_ADDR),
     },
   },
   cache: {

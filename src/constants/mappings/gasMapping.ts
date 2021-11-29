@@ -1,4 +1,4 @@
-import { FunctionName } from './enums'
+import { FunctionName } from '../enums'
 
 export const FunctionGasLimits: { [key: string]: number } = {
   ['claimsEscrow.withdrawClaimsPayout']: 150000,

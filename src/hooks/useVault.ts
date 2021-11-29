@@ -10,7 +10,7 @@ import { useNetwork } from '../context/NetworkManager'
 import { FunctionName, TransactionCondition } from '../constants/enums'
 import { GasConfiguration, LocalTx, TxResult } from '../constants/types'
 import { BigNumber } from 'ethers'
-import { FunctionGasLimits } from '../constants/mappings'
+import { FunctionGasLimits } from '../constants/mappings/gasMapping'
 
 export const useCapitalPoolSize = (): string => {
   const { vault } = useContracts()
