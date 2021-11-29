@@ -105,7 +105,7 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
   const [ownedBondTokens, setOwnedBondTokens] = useState<BondToken[]>([])
   const [principalBalance, setPrincipalBalance] = useState<string>('0')
   const [shouldUseNativeToken, setShouldUseNativeToken] = useState<boolean>(true)
-  const [slippagePrct, setSlippagePrct] = useState<string>('0.5')
+  const [slippagePrct, setSlippagePrct] = useState<string>('20')
   const [spenderAddress, setSpenderAddress] = useState<string | null>(null)
 
   const [timestamp, setTimestamp] = useState<number>(0)
@@ -437,7 +437,7 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
           selectedBondDetail={selectedBondDetail}
         />
         <ModalHeader style={{ position: 'relative', marginTop: '20px' }}>
-          {approval && (
+          {(approval || func == FunctionName.DEPOSIT_ETH) && (
             <FlexRow style={{ cursor: 'pointer', position: 'absolute', left: '0', bottom: '-10px' }}>
               <StyledGear size={25} onClick={() => setShowBondSettingsModal(true)} />
             </FlexRow>
@@ -513,7 +513,7 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
             <WalletConnectButton info welcome secondary />
           </ButtonWrapper>
         ) : isBonding ? (
-          approval ? (
+          approval || func == FunctionName.DEPOSIT_ETH ? (
             <div style={{ textAlign: 'center', display: 'grid', gridTemplateColumns: '1fr 80px', marginTop: '20px' }}>
               <Input
                 autoComplete="off"
@@ -553,13 +553,24 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
                     Sign
                   </Button>
                 </ButtonWrapper>
+                {func == FunctionName.BOND_DEPOSIT_WETH && selectedBondDetail && (
+                  <FlexCol style={{ margin: 'auto' }}>
+                    <CheckboxOption
+                      jc={'center'}
+                      mb={10}
+                      isChecked={!shouldUseNativeToken}
+                      setChecked={() => setShouldUseNativeToken(!shouldUseNativeToken)}
+                      text={`Deposit ${selectedBondDetail.principalData?.principalProps.name} instead`}
+                    />
+                  </FlexCol>
+                )}
               </Content>
             </>
           )
         ) : null}
         {isBonding && (
           <>
-            {account && approval && (
+            {account && (approval || func == FunctionName.DEPOSIT_ETH) && (
               <>
                 <FormRow mt={40} mb={10}>
                   <FormCol>
@@ -650,7 +661,7 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
         )}
         {account &&
           isBonding &&
-          approval &&
+          (approval || func == FunctionName.DEPOSIT_ETH) &&
           (modalLoading ? (
             <Loader />
           ) : (

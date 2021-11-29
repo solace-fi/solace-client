@@ -23,7 +23,9 @@ export function usePairPrice(token: Contract | null | undefined) {
     if (!token || !latestBlock) return
     const start = async () => {
       const price = await getPairPrice(token)
-      setPairPrice(truncateBalance(price, 2))
+      if (price > 0) {
+        setPairPrice(truncateBalance(price, 2))
+      }
     }
     start()
   }, [token, chainId, library, latestBlock])

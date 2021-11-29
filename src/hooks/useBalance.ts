@@ -263,7 +263,8 @@ export const useUnderWritingPoolBalance = () => {
   const { activeNetwork, chainId, currencyDecimals } = useNetwork()
   const { tellers, bondDepo } = useContracts()
   const { library } = useWallet()
-  const [underwritingPoolBalance, setUnderwritingPoolBalance] = useState<number>(0)
+  const { latestBlock } = useCachedData()
+  const [underwritingPoolBalance, setUnderwritingPoolBalance] = useState<string>('-')
   const getPairPrice = useGetPairPrice()
 
   const platform = useMemo(() => {
@@ -325,7 +326,6 @@ export const useUnderWritingPoolBalance = () => {
             if (price == -1) {
               // TODO: if the pair price call fails to fetch USDC price for token, call coingecko to fetch usd price for token
               const coinGeckoTokenPrice = await getCoingeckoTokenPrice(principalContracts[i].address, 'usd', platform)
-              console.log(coinGeckoTokenPrice)
               price = parseFloat(coinGeckoTokenPrice ?? '0')
             }
             const principalDecimals = await principalContracts[i].decimals()
@@ -344,10 +344,10 @@ export const useUnderWritingPoolBalance = () => {
       }
 
       const usdcTotalBalance = usdcBalances.reduce((pv, cv) => pv + cv, 0)
-      setUnderwritingPoolBalance(usdcTotalBalance)
+      setUnderwritingPoolBalance(usdcTotalBalance.toString())
     }
     getBalance()
-  }, [tellers, library, bondDepo, coinGeckoNativeTokenPrice])
+  }, [tellers, library, bondDepo, coinGeckoNativeTokenPrice, latestBlock])
 
   return { underwritingPoolBalance }
 }

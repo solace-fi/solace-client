@@ -40,6 +40,7 @@ import { Loader } from '../../components/atoms/Loader'
 /* import hooks */
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'
 import { useBondTellerDetails } from '../../hooks/useBondTeller'
+import { HyperLink } from '../../components/atoms/Link'
 
 function Bond(): any {
   /*
@@ -79,6 +80,19 @@ function Bond(): any {
   return (
     <Fragment>
       <BondModal closeModal={() => openModal(false)} isOpen={showBondModal} selectedBondDetail={selectedBondDetail} />
+      <Text t4 pt={10} pb={10}>
+        You can bond by selling your assets for SOLACE at a discounted price.
+        <HyperLink
+          t4
+          href={'https://medium.com/solace-fi/bonds-staking-and-other-ways-to-get-solace-99e71ed3cf2'}
+          target="_blank"
+          rel="noopener noreferrer"
+          info
+        >
+          {' '}
+          More information on bonding here.
+        </HyperLink>
+      </Text>
       {mounting ? (
         <Loader />
       ) : tellerDetails.length > 0 ? (

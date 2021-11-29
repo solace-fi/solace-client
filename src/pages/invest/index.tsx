@@ -72,16 +72,16 @@ function Invest(): any {
         closeModal={closeModal}
         farmName={farmName}
       />
-      {/* <Content>
+      <Content>
         <Box warning pt={10} pb={10} pl={15} pr={15}>
           <TextSpan light textAlignLeft>
             <StyledInfo size={30} />
           </TextSpan>
           <Text light bold style={{ margin: '0 auto' }}>
-            This page will be deprecated soon. Users should withdraw their funds, claim and exercise their options.
+            This page will be deprecated soon. Users should withdraw their funds.
           </Text>
         </Box>
-      </Content> */}
+      </Content>
       <UnderwritingPool openModal={openModal} />
       <CapitalProviderPool openModal={openModal} />
       {/* <LiquidityPool openModal={openModal} /> */}

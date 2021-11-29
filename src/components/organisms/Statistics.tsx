@@ -22,7 +22,7 @@ import { formatUnits, parseUnits } from '@ethersproject/units'
 import { BigNumber } from 'ethers'
 
 /* import constants */
-import { BKPT_3, ZERO } from '../../constants'
+import { BKPT_3, BKPT_5, ZERO } from '../../constants'
 import { TransactionCondition, FunctionName, Unit, PolicyState } from '../../constants/enums'
 import { LocalTx } from '../../constants/types'
 import { FunctionGasLimits } from '../../constants/mappings/gasMapping'
@@ -56,6 +56,8 @@ import { usePairPrice } from '../../hooks/usePair'
 
 /* import utils */
 import { truncateBalance } from '../../utils/formatting'
+import { HyperLink } from '../atoms/Link'
+import { USDC_ADDRESS } from '../../constants/mappings/tokenAddressMapping'
 
 export const Statistics: React.FC = () => {
   /*************************************************************************************
@@ -65,7 +67,7 @@ export const Statistics: React.FC = () => {
   *************************************************************************************/
   const { haveErrors } = useGeneral()
   const { account, initialized } = useWallet()
-  const { activeNetwork, currencyDecimals } = useNetwork()
+  const { activeNetwork, currencyDecimals, chainId } = useNetwork()
   const { farmController, solace } = useContracts()
   const { makeTxToast } = useNotifications()
   const { addLocalTransactions, reload, tokenPosData, latestBlock } = useCachedData()
@@ -146,6 +148,21 @@ export const Statistics: React.FC = () => {
     <Box color2>
       <BoxItem>
         <BoxItemTitle t4 light>
+          SOLACE Token
+        </BoxItemTitle>
+        <HyperLink
+          href={`https://app.sushi.com/add/${USDC_ADDRESS[chainId]}/${solace ? solace.address : null}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{ width: '100%' }}
+        >
+          <Button widthP={100} light style={{ whiteSpace: 'nowrap' }} p={0}>
+            Sushiswap
+          </Button>
+        </HyperLink>
+      </BoxItem>
+      <BoxItem>
+        <BoxItemTitle t4 light>
           SOLACE Price
         </BoxItemTitle>
         <Text t2 nowrap light bold>
@@ -157,7 +174,7 @@ export const Statistics: React.FC = () => {
           Underwriting Pool Size
         </BoxItemTitle>
         <Text t2 nowrap light bold>
-          {`$${truncateBalance(underwritingPoolBalance, 2)}`}
+          {underwritingPoolBalance == '-' ? '$-' : `$${truncateBalance(underwritingPoolBalance, 2)}`}
         </Text>
       </BoxItem>
       <BoxItem>
@@ -189,7 +206,7 @@ export const Statistics: React.FC = () => {
       {width > BKPT_3 ? (
         <BoxRow>
           {initialized && account ? (
-            <Box>
+            <Box widthP={width > BKPT_5 ? 50 : undefined}>
               <BoxItem>
                 <BoxItemTitle t4 light>
                   My SOLACE Balance
@@ -295,13 +312,25 @@ export const Statistics: React.FC = () => {
               </Card>
               <Card color2>
                 <FormRow>
+                  <FormCol light>SOLACE Token</FormCol>
+                  <FormCol>
+                    <HyperLink
+                      href={`https://app.sushi.com/add/${USDC_ADDRESS[chainId]}/${solace ? solace.address : null}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{ width: '100%' }}
+                    >
+                      <Button widthP={100} light style={{ whiteSpace: 'nowrap' }} p={0}>
+                        Sushiswap
+                      </Button>
+                    </HyperLink>
+                  </FormCol>
+                </FormRow>
+                <FormRow>
                   <FormCol light>SOLACE Price</FormCol>
                   <FormCol>
                     <Text t2 nowrap light>
-                      {`$${pairPrice} `}
-                      <TextSpan t4 light>
-                        {activeNetwork.nativeCurrency.symbol}
-                      </TextSpan>
+                      {`$${pairPrice}`}
                     </Text>
                   </FormCol>
                 </FormRow>
@@ -309,7 +338,7 @@ export const Statistics: React.FC = () => {
                   <FormCol light>Underwriting Pool Size</FormCol>
                   <FormCol>
                     <Text t2 nowrap light>
-                      {`$${truncateBalance(underwritingPoolBalance, 2)}`}
+                      {underwritingPoolBalance == '-' ? '$-' : `$${truncateBalance(underwritingPoolBalance, 2)}`}
                     </Text>
                   </FormCol>
                 </FormRow>

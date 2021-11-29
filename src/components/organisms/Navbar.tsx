@@ -188,7 +188,7 @@ export const SideNavbar: React.FC = () => {
               </HyperLink>
             </ItemText>
           </StyledNavTooltip>
-          <StyledNavTooltip id={'whitepaper-nav'} tip={'Whitepaper'}>
+          {/* <StyledNavTooltip id={'whitepaper-nav'} tip={'Whitepaper'}>
             <ItemText>
               <HyperLink
                 href={'https://whitepaper.solace.fi/'}
@@ -203,7 +203,7 @@ export const SideNavbar: React.FC = () => {
                 </SidebarText>
               </HyperLink>
             </ItemText>
-          </StyledNavTooltip>
+          </StyledNavTooltip> */}
           <StyledNavTooltip id={'jobs-nav'} tip={`We\'re hiring!`}>
             <ItemText>
               <HyperLink
@@ -444,13 +444,13 @@ export const TopNavbar: React.FC = () => {
             </TextSpan>
           </HyperLink>
         </ItemText>
-        <ItemText jc={'center'} style={{ padding: '10px' }}>
+        {/* <ItemText jc={'center'} style={{ padding: '10px' }}>
           <HyperLink href={'https://whitepaper.solace.fi/'} target="_blank" rel="noopener noreferrer">
             <TextSpan t4 light>
               Whitepaper
             </TextSpan>
           </HyperLink>
-        </ItemText>
+        </ItemText> */}
         <ItemText jc={'center'} style={{ padding: '10px' }}>
           <HyperLink
             href={'https://www.notion.so/Solace-16cc777c403a46c8a2ffaba68008fcd9'}
