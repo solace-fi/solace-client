@@ -24,6 +24,7 @@ import sushiSwapLpAltABI from '../constants/metadata/ISushiswapMetadataAlt.json'
 import { Token, Pair } from '@sushiswap/sdk'
 import { useCoingeckoPrice } from '@usedapp/coingecko'
 import { getCoingeckoTokenPrice } from '../utils/api'
+import SafeServiceClient from '@gnosis.pm/safe-service-client'
 
 export const useNativeTokenBalance = (): string => {
   const { account, library } = useWallet()
@@ -279,82 +280,15 @@ export const useUnderWritingPoolBalance = () => {
   const coinGeckoNativeTokenPrice = useCoingeckoPrice(platform, 'usd')
 
   useEffect(() => {
-    const getBalance = async () => {
-      if (!bondDepo || !library) return
-      const principalContracts = tellers.map((t) =>
-        getContract(
-          t.underlyingAddr,
-          t.isLp ? sushiswapLpAbi : t.isBondTellerErc20 ? ierc20Json.abi : weth9,
-          library,
-          undefined
-        )
-      )
+    const getGnosisBalance = async () => {
+      if (!bondDepo) return
+      const safeService = new SafeServiceClient('https://safe-transaction.gnosis.io')
       const multiSig = await bondDepo.underwritingPool()
-      const balances: BigNumber[] = await Promise.all(principalContracts.map((c) => queryBalance(c, multiSig)))
-      const ethBalance = await library.getBalance(multiSig)
-      balances.push(ethBalance)
-      const usdcBalances: number[] = await Promise.all(
-        tellers.map(async (t, i) => {
-          if (t.isLp) {
-            const [token0, token1] = await Promise.all([principalContracts[i].token0(), principalContracts[i].token1()])
-            const token0Contract = getContract(token0, ierc20Json.abi, library)
-            const token1Contract = getContract(token1, ierc20Json.abi, library)
-
-            const [decimals0, decimals1, totalSupply, principalDecimals] = await Promise.all([
-              withBackoffRetries(async () => queryDecimals(token0Contract)),
-              withBackoffRetries(async () => queryDecimals(token1Contract)),
-              principalContracts[i].totalSupply(),
-              queryDecimals(principalContracts[i]),
-            ])
-            const poolShare = totalSupply.gt(ZERO)
-              ? floatUnits(balances[i], principalDecimals) / floatUnits(totalSupply, principalDecimals)
-              : 0
-            let price0 = await getPairPrice(token0Contract)
-            let price1 = await getPairPrice(token1Contract)
-
-            if (price0 == -1) {
-              const coinGeckoTokenPrice = await getCoingeckoTokenPrice(token0Contract.address, 'usd', platform)
-              price0 = parseFloat(coinGeckoTokenPrice ?? '0')
-            }
-            if (price1 == -1) {
-              const coinGeckoTokenPrice = await getCoingeckoTokenPrice(token1Contract.address, 'usd', platform)
-              price1 = parseFloat(coinGeckoTokenPrice ?? '0')
-            }
-
-            const TOKEN0 = new Token(chainId, token0, decimals0)
-            const TOKEN1 = new Token(chainId, token1, decimals1)
-            const pairAddr = await Pair.getAddress(TOKEN0, TOKEN1)
-            const pairPoolContract = getContract(pairAddr, sushiSwapLpAltABI, library)
-            const reserves = await pairPoolContract.getReserves()
-            const totalReserve0 = floatUnits(reserves._reserve0, decimals0)
-            const totalReserve1 = floatUnits(reserves._reserve1, decimals1)
-            const multiplied = poolShare * (price0 * totalReserve0 + price1 * totalReserve1)
-            return multiplied
-          } else {
-            let price = await getPairPrice(principalContracts[i])
-            if (price == -1) {
-              const coinGeckoTokenPrice = await getCoingeckoTokenPrice(principalContracts[i].address, 'usd', platform)
-              price = parseFloat(coinGeckoTokenPrice ?? '0')
-            }
-            const principalDecimals = await principalContracts[i].decimals()
-            const formattedBalance = floatUnits(balances[i], principalDecimals)
-            const balanceMultipliedByPrice = price * formattedBalance
-            return balanceMultipliedByPrice
-          }
-        })
-      )
-
-      // add USDC of native balance
-      if (coinGeckoNativeTokenPrice) {
-        const formattedBalance = floatUnits(ethBalance, currencyDecimals)
-        const balanceMultipliedByPrice = parseFloat(coinGeckoNativeTokenPrice) * formattedBalance
-        usdcBalances.push(balanceMultipliedByPrice)
-      }
-
-      const usdcTotalBalance = usdcBalances.reduce((pv, cv) => pv + cv, 0)
+      const usdBalances = await safeService.getUsdBalances(multiSig)
+      const usdcTotalBalance = usdBalances.reduce((pv, cv) => pv + parseFloat(cv.fiatBalance), 0)
       setUnderwritingPoolBalance(usdcTotalBalance.toString())
     }
-    getBalance()
+    getGnosisBalance()
   }, [tellers, library, bondDepo, coinGeckoNativeTokenPrice, latestBlock])
 
   return { underwritingPoolBalance }
