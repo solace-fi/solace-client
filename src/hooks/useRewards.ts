@@ -8,7 +8,6 @@ import { Contract } from '@ethersproject/contracts'
 import { floatUnits } from '../utils/formatting'
 import { useCachedData } from '../context/CachedDataManager'
 import { useNetwork } from '../context/NetworkManager'
-import { BigNumber } from 'ethers'
 
 const useFarmControllerValues = (farmId: number) => {
   const { farmController } = useContracts()
@@ -47,10 +46,6 @@ export const useRewardsPerDay = (farmId: number): string => {
           floatUnits(allocPoints, currencyDecimals)) /
         floatUnits(totalAllocPoints, currencyDecimals)
       : 0
-    // const rewards = totalAllocPoints.gt(ZERO)
-    //   ? floatUnits(rewardPerSecond.mul(BigNumber.from(NUM_SECONDS_PER_DAY)).mul(allocPoints), currencyDecimals) /
-    //     floatUnits(totalAllocPoints, currencyDecimals)
-    //   : 0
     const formattedRewards = rewards.toString()
     return formattedRewards
   }, [allocPoints, totalAllocPoints, rewardPerSecond, currencyDecimals])
@@ -71,16 +66,6 @@ export const useUserRewardsPerDay = (farmId: number, farm: Contract | null | und
       : 0
     const rewards =
       floatUnits(rewardPerSecond, currencyDecimals) * NUM_SECONDS_PER_DAY * allocPercentage * poolPercentage
-    // let rewards = 0
-    // if (totalAllocPoints.gt(ZERO) && poolStakedValue.gt(ZERO)) {
-    //   rewards =
-    //     floatUnits(rewardPerSecond, currencyDecimals) *
-    //     NUM_SECONDS_PER_DAY *
-    //     floatUnits(allocPoints, currencyDecimals) *
-    //     floatUnits(userStakedValue, currencyDecimals)
-    //   rewards /= floatUnits(totalAllocPoints, currencyDecimals)
-    //   rewards /= floatUnits(poolStakedValue, currencyDecimals)
-    // }
     const formattedRewards = rewards.toString()
     return formattedRewards
   }, [allocPoints, totalAllocPoints, rewardPerSecond, poolStakedValue, userStakedValue])

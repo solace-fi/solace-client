@@ -44,7 +44,7 @@ export const useGetPairPrice = () => {
   }
 
   const getPairPrice = async (token: Contract): Promise<number> => {
-    if (!library) return 0
+    if (!library) return -1
     if (token.address.toLowerCase() == USDC_ADDRESS[chainId].toLowerCase() ?? USDC_ADDRESS[1].toLowerCase()) return 1
     try {
       const decimals = await queryDecimals(token)

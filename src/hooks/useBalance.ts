@@ -309,8 +309,17 @@ export const useUnderWritingPoolBalance = () => {
             const poolShare = totalSupply.gt(ZERO)
               ? floatUnits(balances[i], principalDecimals) / floatUnits(totalSupply, principalDecimals)
               : 0
-            const price0 = await getPairPrice(token0Contract)
-            const price1 = await getPairPrice(token1Contract)
+            let price0 = await getPairPrice(token0Contract)
+            let price1 = await getPairPrice(token1Contract)
+
+            if (price0 == -1) {
+              const coinGeckoTokenPrice = await getCoingeckoTokenPrice(token0Contract.address, 'usd', platform)
+              price0 = parseFloat(coinGeckoTokenPrice ?? '0')
+            }
+            if (price1 == -1) {
+              const coinGeckoTokenPrice = await getCoingeckoTokenPrice(token1Contract.address, 'usd', platform)
+              price1 = parseFloat(coinGeckoTokenPrice ?? '0')
+            }
 
             const TOKEN0 = new Token(chainId, token0, decimals0)
             const TOKEN1 = new Token(chainId, token1, decimals1)
@@ -324,7 +333,6 @@ export const useUnderWritingPoolBalance = () => {
           } else {
             let price = await getPairPrice(principalContracts[i])
             if (price == -1) {
-              // TODO: if the pair price call fails to fetch USDC price for token, call coingecko to fetch usd price for token
               const coinGeckoTokenPrice = await getCoingeckoTokenPrice(principalContracts[i].address, 'usd', platform)
               price = parseFloat(coinGeckoTokenPrice ?? '0')
             }
