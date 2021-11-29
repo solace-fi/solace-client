@@ -39,16 +39,18 @@ import { Modal, ModalAddendum } from '../molecules/Modal'
 import { Button, ButtonWrapper } from '../atoms/Button'
 import { Loader } from '../atoms/Loader'
 import { GasRadioGroup } from '../molecules/GasRadioGroup'
-import { Erc20InputPanel, PoolModalProps, usePoolModal } from './PoolModalRouter'
+import { Erc20InputPanel, PoolModalProps } from './PoolModalRouter'
 import { Text } from '../atoms/Typography'
 import { StyledLinkExternal } from '../atoms/Icon'
 import { HyperLink } from '../atoms/Link'
+
 /* import hooks */
 import { useUserStakedValue } from '../../hooks/useFarm'
 import { useScpBalance } from '../../hooks/useBalance'
 import { useTokenAllowance } from '../../hooks/useTokenAllowance'
 import { useCpFarm } from '../../hooks/useCpFarm'
 import { useVault } from '../../hooks/useVault'
+import { useInputAmount } from '../../hooks/useInputAmount'
 
 /* import utils */
 import { hasApproval } from '../../utils'
@@ -66,6 +68,16 @@ export const CpPoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen
   const { activeNetwork, currencyDecimals } = useNetwork()
   const { vault, cpFarm } = useContracts()
   const { reload } = useCachedData()
+  const { makeTxToast } = useNotifications()
+  const [modalLoading, setModalLoading] = useState<boolean>(false)
+  const [canCloseOnLoading, setCanCloseOnLoading] = useState<boolean>(false)
+  const [contractForAllowance, setContractForAllowance] = useState<Contract | null>(null)
+  const [spenderAddress, setSpenderAddress] = useState<string | null>(null)
+  const tokenAllowance = useTokenAllowance(contractForAllowance, spenderAddress)
+  const [isAcceptableAmount, setIsAcceptableAmount] = useState<boolean>(false)
+
+  const { canTransfer } = useVault()
+  const cpFarmFunctions = useCpFarm()
   const cpUserStakeValue = useUserStakedValue(cpFarm)
   const scpBalance = useScpBalance()
   const {
@@ -74,31 +86,27 @@ export const CpPoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen
     selectedGasOption,
     amount,
     maxSelected,
-    handleSelectChange,
+    handleSelectGasChange,
     isAppropriateAmount,
     handleToast,
     handleContractCallError,
-    calculateMaxEth,
     handleInputChange,
     setMax,
-    setAmount,
     resetAmount,
-  } = usePoolModal()
-
-  const { makeTxToast } = useNotifications()
-  const { canTransfer } = useVault()
-  const cpFarmFunctions = useCpFarm()
-
-  const [modalLoading, setModalLoading] = useState<boolean>(false)
-  const [canCloseOnLoading, setCanCloseOnLoading] = useState<boolean>(false)
-  const [contractForAllowance, setContractForAllowance] = useState<Contract | null>(null)
-  const [spenderAddress, setSpenderAddress] = useState<string | null>(null)
-  const tokenAllowance = useTokenAllowance(contractForAllowance, spenderAddress)
+  } = useInputAmount()
   const approval = useMemo(
     () => hasApproval(tokenAllowance, amount && amount != '.' ? parseUnits(amount, currencyDecimals).toString() : '0'),
     [amount, currencyDecimals, tokenAllowance]
   )
-  const [isAcceptableAmount, setIsAcceptableAmount] = useState<boolean>(false)
+  const assetBalance = useMemo(() => {
+    switch (func) {
+      case FunctionName.DEPOSIT_CP:
+        return parseUnits(scpBalance, currencyDecimals)
+      case FunctionName.WITHDRAW_CP:
+      default:
+        return parseUnits(cpUserStakeValue, currencyDecimals)
+    }
+  }, [cpUserStakeValue, currencyDecimals, func, scpBalance])
 
   /*************************************************************************************
 
@@ -107,8 +115,8 @@ export const CpPoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen
   *************************************************************************************/
 
   const approve = async () => {
-    setModalLoading(true)
     if (!cpFarm || !vault) return
+    setModalLoading(true)
     try {
       const tx = await vault.approve(cpFarm.address, parseUnits(amount, currencyDecimals))
       const txHash = tx.hash
@@ -157,7 +165,6 @@ export const CpPoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen
   *************************************************************************************/
 
   const _handleToast = async (tx: any, localTx: LocalTx | null) => {
-    if (!tx || !localTx) return
     handleClose()
     await handleToast(tx, localTx)
   }
@@ -167,18 +174,8 @@ export const CpPoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen
     setModalLoading(false)
   }
 
-  const getAssetBalanceByFunc = (f: FunctionName): BigNumber => {
-    switch (f) {
-      case FunctionName.DEPOSIT_CP:
-        return parseUnits(scpBalance, currencyDecimals)
-      case FunctionName.WITHDRAW_CP:
-      default:
-        return parseUnits(cpUserStakeValue, currencyDecimals)
-    }
-  }
-
   const _setMax = () => {
-    setMax(getAssetBalanceByFunc(func), func)
+    setMax(assetBalance, currencyDecimals, func, 'cpFarm')
   }
 
   const handleCallbackFunc = async () => {
@@ -188,7 +185,7 @@ export const CpPoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen
 
   const handleClose = useCallback(() => {
     resetAmount()
-    handleSelectChange(gasPrices.selected)
+    handleSelectGasChange(gasPrices.selected)
     setModalLoading(false)
     setCanCloseOnLoading(false)
     closeModal()
@@ -201,12 +198,12 @@ export const CpPoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen
   *************************************************************************************/
 
   useEffect(() => {
-    if (maxSelected) setAmount(calculateMaxEth(getAssetBalanceByFunc(func), func).toString())
-  }, [handleSelectChange])
+    if (maxSelected) _setMax()
+  }, [handleSelectGasChange])
 
   useEffect(() => {
-    setIsAcceptableAmount(isAppropriateAmount(amount, getAssetBalanceByFunc(func)))
-  }, [amount, func])
+    setIsAcceptableAmount(isAppropriateAmount(amount, currencyDecimals, assetBalance))
+  }, [amount, assetBalance, assetBalance])
 
   useEffect(() => {
     if (isOpen && vault && cpFarm?.address) {
@@ -224,7 +221,7 @@ export const CpPoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen
     >
       <Erc20InputPanel
         unit={getUnit(func, activeNetwork)}
-        availableBalance={truncateBalance(formatUnits(getAssetBalanceByFunc(func), currencyDecimals))}
+        availableBalance={truncateBalance(formatUnits(assetBalance, currencyDecimals))}
         amount={amount}
         handleInputChange={handleInputChange}
         setMax={_setMax}
@@ -232,7 +229,7 @@ export const CpPoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen
       <GasRadioGroup
         gasPrices={gasPrices}
         selectedGasOption={selectedGasOption}
-        handleSelectChange={handleSelectChange}
+        handleSelectGasChange={handleSelectGasChange}
         mb={20}
       />
       {!canTransfer && (

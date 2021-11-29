@@ -241,7 +241,7 @@ export const PolicyModalInfo: React.FC<PolicyModalInfoProps> = ({ appraisal, sel
         ) : (
           // mobile version
           <FlexCol>
-            <FlexRow style={{ justifyContent: 'center' }} mt={10} mb={10}>
+            <FlexRow jc={'center'} mt={10} mb={10}>
               <FlexCol>
                 <DeFiAsset style={{ flexDirection: 'column' }}>
                   <DeFiAssetImage width={60} height={60}>
@@ -254,7 +254,7 @@ export const PolicyModalInfo: React.FC<PolicyModalInfoProps> = ({ appraisal, sel
                 </DeFiAsset>
               </FlexCol>
             </FlexRow>
-            <FlexRow style={{ justifyContent: 'center' }}>
+            <FlexRow jc={'center'}>
               {selectedPolicy?.positionNames.length == 0 && <Loader width={10} height={10} />}
               {selectedPolicy?.positionNames.slice(0, MaxPositionsToDisplay).map((name: string) => (
                 <FlexCol key={name}>

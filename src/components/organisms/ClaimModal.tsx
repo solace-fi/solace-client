@@ -82,7 +82,7 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
   const { haveErrors } = useGeneral()
   const { activeNetwork, currencyDecimals, chainId } = useNetwork()
   const { width } = useWindowDimensions()
-  const { getAutoGasConfig, getGasLimit } = useGetFunctionGas()
+  const { getAutoGasConfig, getGasLimitForTransaction } = useGetFunctionGas()
   const gasConfig = useMemo(() => getAutoGasConfig(), [getAutoGasConfig])
   const appraisal = useAppraisePolicyPosition(selectedPolicy)
   const [canCloseOnLoading, setCanCloseOnLoading] = useState<boolean>(false)
@@ -102,7 +102,7 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
     try {
       const tx = await selectedProtocol.submitClaim(selectedPolicy.policyId, amountOut, deadline, signature, {
         ...gasConfig,
-        gasLimit: getGasLimit(selectedPolicy.productName, txType),
+        gasLimit: getGasLimitForTransaction(selectedPolicy.productName, txType),
       })
       const txHash = tx.hash
       const localTx: LocalTx = {
@@ -227,7 +227,7 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
                   </Text>
                 </FormCol>
               </FormRow>
-              <SmallBox style={{ justifyContent: 'center' }} transparent mt={10}>
+              <SmallBox jc={'center'} transparent mt={10}>
                 <Text t4 bold warning textAlignCenter>
                   Please wait for the review period to elapse before withdrawing your payout.
                 </Text>
@@ -249,7 +249,7 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
                 </TableBody>
               </Table>
               <SmallBox
-                style={{ justifyContent: 'center' }}
+                jc={'center'}
                 transparent
                 mt={!assessment.lossEventDetected ? 10 : 0}
                 mb={!assessment.lossEventDetected ? 10 : 0}

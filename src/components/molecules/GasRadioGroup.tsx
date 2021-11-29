@@ -25,13 +25,13 @@ import { Loader } from '../atoms/Loader'
 interface GasRadioGroupProps {
   gasPrices: GasFeeListState
   selectedGasOption: GasFeeOption | undefined
-  handleSelectChange: (option: GasFeeOption) => void
+  handleSelectGasChange: (option: GasFeeOption) => void
 }
 
 export const GasRadioGroup: React.FC<GasRadioGroupProps & GeneralElementProps> = ({
   gasPrices,
   selectedGasOption,
-  handleSelectChange,
+  handleSelectGasChange,
   ...props
 }) => (
   <Card {...props}>
@@ -43,7 +43,7 @@ export const GasRadioGroup: React.FC<GasRadioGroupProps & GeneralElementProps> =
               type="radio"
               value={option.value}
               checked={selectedGasOption == option}
-              onChange={() => handleSelectChange(option)}
+              onChange={() => handleSelectGasChange(option)}
             />
             <RadioLabel>
               <div>{option.name}</div>

@@ -74,7 +74,7 @@ export const UserAccount: React.FC<ButtonProps & GeneralElementProps> = (props) 
               )}
             </UserImage>
           </FlexCol>
-          <FlexCol style={{ justifyContent: 'space-around' }}>
+          <FlexCol jc={'space-around'}>
             {account ? (
               <Text textAlignLeft t4 {...props}>
                 {name ?? shortenAddress(account)}

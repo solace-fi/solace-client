@@ -94,13 +94,13 @@ export const UnderwritingPool: React.FC<UnderwritingPoolProps> = ({ openModal })
               {account ? (
                 <TableData textAlignRight>
                   <TableDataGroup width={200} style={{ float: 'right' }}>
-                    <Button
+                    {/* <Button
                       light
                       disabled={haveErrors}
                       onClick={() => openModal(FunctionName.DEPOSIT_ETH, 'Deposit', 'uw')}
                     >
                       Deposit
-                    </Button>
+                    </Button> */}
                     <Button
                       light
                       disabled={haveErrors}
@@ -145,14 +145,14 @@ export const UnderwritingPool: React.FC<UnderwritingPoolProps> = ({ openModal })
           )}
           {account && (
             <ButtonWrapper isColumn={width <= BKPT_4}>
-              <Button
+              {/* <Button
                 widthP={100}
                 disabled={haveErrors}
                 onClick={() => openModal(FunctionName.DEPOSIT_ETH, 'Deposit', 'uw')}
                 light
               >
                 Deposit
-              </Button>
+              </Button> */}
               <Button
                 widthP={100}
                 disabled={haveErrors}

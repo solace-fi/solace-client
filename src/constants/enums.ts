@@ -41,6 +41,12 @@ export enum FunctionName {
   // TODO: include in transaction history retrieval
   EXERCISE_OPTION = 'ExerciseOption',
   FARM_OPTION_MULTI = 'FarmOptionMulti',
+
+  STAKE = 'StakeSigned',
+  UNSTAKE = 'Unstake',
+  BOND_DEPOSIT_WETH = 'DepositWeth',
+  BOND_DEPOSIT_ERC20 = 'Deposit',
+  BOND_REDEEM = 'Redeem',
 }
 
 export enum ExplorerscanApi {
@@ -54,9 +60,11 @@ export enum Unit {
   MATIC = 'MATIC',
   SCP = 'CP Token',
   SOLACE = 'SOLACE',
+  X_SOLACE = 'xSolace',
   LP = 'LP Token',
   POLICY = 'Policy',
   CLAIM = 'Claim',
+  BOND = 'Bond',
   _ = 'Unknown',
 }
 
@@ -81,4 +89,17 @@ export enum PositionType {
   TOKEN = 'token',
   LQTY = 'liquity',
   OTHER = 'other',
+}
+
+export enum BondName {
+  DAI = 'DAI',
+  SOLACE_DAI_SLP = 'SOLACE-DAI SLP',
+  ETH = 'ETH',
+  WETH = 'WETH',
+  SOLACE_ETH_SLP = 'SOLACE-ETH SLP',
+  USDC = 'USDC',
+  SOLACE_USDC_SLP = 'SOLACE-USDC SLP',
+  SCP = 'SCP',
+  WBTC = 'WBTC',
+  USDT = 'USDT',
 }

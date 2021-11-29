@@ -1,6 +1,6 @@
 import EthereumLogo from '../resources/svg/networks/ethereum-logo.svg'
 import { ETHERSCAN_API_KEY, ALCHEMY_API_KEY } from '../constants'
-import { ProductName, Unit } from '../constants/enums'
+import { BondName, ProductName, Unit } from '../constants/enums'
 import { hexValue } from '@ethersproject/bytes'
 import { NetworkConfig } from '../constants/types'
 
@@ -9,7 +9,7 @@ import farmControllerABI from '../constants/abi/contracts/FarmController.sol/Far
 import optionsFarmingABI from '../constants/abi/contracts/OptionsFarming.sol/OptionsFarming.json'
 import registryABI from '../constants/abi/contracts/Registry.sol/Registry.json'
 import solaceABI from '../constants/abi/contracts/SOLACE.sol/SOLACE.json'
-import wethABI from '../constants/abi/contracts/WETH9.sol/WETH9.json'
+import xSolaceABI from '../constants/abi/contracts/xSOLACE.sol/xSOLACE.json'
 import treasuryABI from '../constants/abi/contracts/Treasury.sol/Treasury.json'
 import vaultABI from '../constants/abi/contracts/Vault.sol/Vault.json'
 import cpFarmABI from '../constants/abi/contracts/CpFarm.sol/CpFarm.json'
@@ -17,6 +17,7 @@ import claimsEscrowABI from '../constants/abi/contracts/ClaimsEscrow.sol/ClaimsE
 import lpTokenArtifact from '../../node_modules/@uniswap/v3-periphery/artifacts/contracts/NonfungiblePositionManager.sol/NonfungiblePositionManager.json'
 import polMagABI from '../constants/abi/contracts/PolicyManager.sol/PolicyManager.json'
 import riskManagerABI from '../constants/abi/contracts/RiskManager.sol/RiskManager.json'
+import bondDepoABI from '../constants/abi/contracts/BondDepository.sol/BondDepository.json'
 
 /* product contract abi */
 
@@ -44,6 +45,46 @@ import { SushiswapProduct } from '../products/sushiswap'
 When adding new products, please add into productContracts, functions, and cache
 
 */
+
+const tellerToTokenMapping: {
+  [key: string]: { addr: string; isBondTellerErc20: boolean; isLp: boolean }
+} = {
+  [String(process.env.REACT_APP_MAINNET_DAI_TELLER_ADDR)]: {
+    addr: '0x6b175474e89094c44da98b954eedeac495271d0f',
+    isBondTellerErc20: true,
+    isLp: false,
+  },
+  [String(process.env.REACT_APP_MAINNET_ETH_TELLER_ADDR)]: {
+    addr: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
+    isBondTellerErc20: false,
+    isLp: false,
+  },
+  [String(process.env.REACT_APP_MAINNET_USDC_TELLER_ADDR)]: {
+    addr: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
+    isBondTellerErc20: true,
+    isLp: false,
+  },
+  [String(process.env.REACT_APP_MAINNET_SOLACE_USDC_SLP_TELLER_ADDR)]: {
+    addr: '0x9c051f8a6648a51ef324d30c235da74d060153ac',
+    isBondTellerErc20: true,
+    isLp: true,
+  },
+  [String(process.env.REACT_APP_MAINNET_SCP_TELLER_ADDR)]: {
+    addr: '0x501acee83a6f269b77c167c6701843d454e2efa0',
+    isBondTellerErc20: true,
+    isLp: false,
+  },
+  [String(process.env.REACT_APP_MAINNET_WBTC_TELLER_ADDR)]: {
+    addr: '0x2260fac5e5542a773aa44fbcfedf7c193bc2c599',
+    isBondTellerErc20: true,
+    isLp: false,
+  },
+  [String(process.env.REACT_APP_MAINNET_USDT_TELLER_ADDR)]: {
+    addr: '0xdac17f958d2ee523a2206206994597c13d831ec7',
+    isBondTellerErc20: true,
+    isLp: false,
+  },
+}
 
 export const MainNetwork: NetworkConfig = {
   name: 'mainnet',
@@ -86,6 +127,10 @@ export const MainNetwork: NetworkConfig = {
         addr: String(process.env.REACT_APP_MAINNET_SOLACE_ADDR),
         abi: solaceABI,
       },
+      xSolace: {
+        addr: String(process.env.REACT_APP_MAINNET_XSOLACE_ADDR),
+        abi: xSolaceABI,
+      },
       cpFarm: {
         addr: String(process.env.REACT_APP_MAINNET_CPFARM_ADDR),
         abi: cpFarmABI,
@@ -102,10 +147,6 @@ export const MainNetwork: NetworkConfig = {
         addr: String(process.env.REACT_APP_MAINNET_UNISWAP_LPTOKEN_ADDR),
         abi: lpTokenArtifact.abi,
       },
-      weth: {
-        addr: String(process.env.REACT_APP_MAINNET_WETH_ADDR),
-        abi: wethABI,
-      },
       claimsEscrow: {
         addr: String(process.env.REACT_APP_MAINNET_CLAIMS_ESCROW_ADDR),
         abi: claimsEscrowABI,
@@ -121,6 +162,10 @@ export const MainNetwork: NetworkConfig = {
       riskManager: {
         addr: String(process.env.REACT_APP_MAINNET_RISK_MANAGER_ADDR),
         abi: riskManagerABI,
+      },
+      bondDepo: {
+        addr: String(process.env.REACT_APP_MAINNET_BOND_DEPO_ADDR),
+        abi: bondDepoABI,
       },
     },
     productContracts: {
@@ -157,15 +202,14 @@ export const MainNetwork: NetworkConfig = {
         abi: yearnABI,
       },
     },
-    productsRev: {
-      [String(process.env.REACT_APP_MAINNET_AAVE_PRODUCT_ADDR)]: ProductName.AAVE,
-      [String(process.env.REACT_APP_MAINNET_COMPOUND_PRODUCT_ADDR)]: ProductName.COMPOUND,
-      [String(process.env.REACT_APP_MAINNET_CURVE_PRODUCT_ADDR)]: ProductName.CURVE,
-      [String(process.env.REACT_APP_MAINNET_LIQUITY_PRODUCT_ADDR)]: ProductName.LIQUITY,
-      [String(process.env.REACT_APP_MAINNET_SUSHISWAP_PRODUCT_ADDR)]: ProductName.SUSHISWAP,
-      [String(process.env.REACT_APP_MAINNET_UNISWAPV2_PRODUCT_ADDR)]: ProductName.UNISWAP_V2,
-      [String(process.env.REACT_APP_MAINNET_UNISWAPV3_PRODUCT_ADDR)]: ProductName.UNISWAP_V3,
-      [String(process.env.REACT_APP_MAINNET_YEARN_PRODUCT_ADDR)]: ProductName.YEARN,
+    bondTellerContracts: {
+      [BondName.DAI]: String(process.env.REACT_APP_MAINNET_DAI_TELLER_ADDR),
+      [BondName.ETH]: String(process.env.REACT_APP_MAINNET_ETH_TELLER_ADDR),
+      [BondName.USDC]: String(process.env.REACT_APP_MAINNET_USDC_TELLER_ADDR),
+      [BondName.SOLACE_USDC_SLP]: String(process.env.REACT_APP_MAINNET_SOLACE_USDC_SLP_TELLER_ADDR),
+      [BondName.SCP]: String(process.env.REACT_APP_MAINNET_SCP_TELLER_ADDR),
+      [BondName.WBTC]: String(process.env.REACT_APP_MAINNET_WBTC_TELLER_ADDR),
+      [BondName.USDT]: String(process.env.REACT_APP_MAINNET_USDT_TELLER_ADDR),
     },
   },
   cache: {
@@ -179,6 +223,7 @@ export const MainNetwork: NetworkConfig = {
       UniswapV3Product,
       SushiswapProduct,
     ],
+    tellerToTokenMapping,
   },
   metamaskChain: {
     chainId: hexValue(1),

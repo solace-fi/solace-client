@@ -1,10 +1,11 @@
 import { BigNumber } from 'ethers'
 import { useEffect, useState } from 'react'
-import { GasConfiguration, LocalTx, Option } from '../constants/types'
+import { GasConfiguration, LocalTx, Option, TxResult } from '../constants/types'
 import { useCachedData } from '../context/CachedDataManager'
 import { useContracts } from '../context/ContractsManager'
 import { useWallet } from '../context/WalletManager'
 import { FunctionName, TransactionCondition } from '../constants/enums'
+import { FunctionGasLimits } from '../constants/mappings/gasMapping'
 
 export const useOptionsDetails = () => {
   const { optionsFarming } = useContracts()
@@ -13,23 +14,11 @@ export const useOptionsDetails = () => {
   const { account, library } = useWallet()
   const [latestBlockTimestamp, setLatestBlockTimestamp] = useState<number>(0)
 
-  const exerciseOption = async (
-    _optionId: string,
-    gasConfig: GasConfiguration
-  ): Promise<
-    | {
-        tx: null
-        localTx: null
-      }
-    | {
-        tx: any
-        localTx: LocalTx
-      }
-  > => {
+  const exerciseOption = async (_optionId: string, gasConfig: GasConfiguration): Promise<TxResult> => {
     if (!optionsFarming || !_optionId) return { tx: null, localTx: null }
     const tx = await optionsFarming.exerciseOption(_optionId, {
       ...gasConfig,
-      gasLimit: 161379,
+      gasLimit: FunctionGasLimits['optionsFarming.exerciseOption'],
     })
     const txHash = tx.hash
     const localTx: LocalTx = {

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { fetchGasPrice } from '../utils/explorer'
 import { GasConfiguration, GasFeeListState } from '../constants/types'
 import { useCachedData } from '../context/CachedDataManager'
@@ -7,10 +7,11 @@ import { getGasValue } from '../utils/formatting'
 import { useWallet } from '../context/WalletManager'
 import { FunctionName } from '../constants/enums'
 import { GAS_LIMIT } from '../constants'
+import { Block } from '@ethersproject/contracts/node_modules/@ethersproject/abstract-provider'
 
-export const useFetchGasPrice = (): GasFeeListState => {
+export const useFetchGasPrice = (latestBlock: Block | undefined): GasFeeListState => {
   const { activeNetwork, chainId } = useNetwork()
-  const { latestBlock } = useCachedData()
+  const running = useRef(false)
 
   const [state, setState] = useState<GasFeeListState>({
     options: [],
@@ -19,7 +20,8 @@ export const useFetchGasPrice = (): GasFeeListState => {
 
   useEffect(() => {
     const fetchGasPrices = async () => {
-      await fetchGasPrice(activeNetwork.explorer.apiUrl, chainId)
+      running.current = true
+      await fetchGasPrice(activeNetwork)
         .then((result) => {
           const options = [
             {
@@ -51,7 +53,9 @@ export const useFetchGasPrice = (): GasFeeListState => {
             loading: false,
           })
         })
+      running.current = false
     }
+    if (!latestBlock || running.current) return
     fetchGasPrices()
   }, [chainId, latestBlock])
 
@@ -89,7 +93,7 @@ export const useGetFunctionGas = () => {
 
   const getAutoGasConfig = useCallback((): GasConfiguration => getGasConfig(undefined), [getGasConfig])
 
-  const getGasLimit = useCallback(
+  const getGasLimitForTransaction = useCallback(
     (productName: string, txType: FunctionName): number => {
       let callingGasLimit = GAS_LIMIT
       const supportedProduct = activeNetwork.cache.supportedProducts.find((p) => p.name == productName)
@@ -103,5 +107,5 @@ export const useGetFunctionGas = () => {
     [activeNetwork]
   )
 
-  return { getGasConfig, getAutoGasConfig, getGasLimit }
+  return { getGasConfig, getAutoGasConfig, getGasLimitForTransaction }
 }

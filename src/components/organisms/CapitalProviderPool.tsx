@@ -105,13 +105,13 @@ export const CapitalProviderPool: React.FC<CapitalProviderPoolProps> = ({ openMo
               {account ? (
                 <TableData textAlignRight>
                   <TableDataGroup width={200} style={{ float: 'right' }}>
-                    <Button
+                    {/* <Button
                       light
                       disabled={haveErrors}
                       onClick={() => openModal(FunctionName.DEPOSIT_CP, 'Deposit', 'cp')}
                     >
                       Deposit
-                    </Button>
+                    </Button> */}
                     <Button
                       light
                       disabled={haveErrors}
@@ -175,14 +175,14 @@ export const CapitalProviderPool: React.FC<CapitalProviderPoolProps> = ({ openMo
           </FormRow>
           {account && (
             <ButtonWrapper isColumn={width <= BKPT_4}>
-              <Button
+              {/* <Button
                 widthP={100}
                 disabled={haveErrors}
                 onClick={() => openModal(FunctionName.DEPOSIT_CP, 'Deposit', 'cp')}
                 light
               >
                 Deposit
-              </Button>
+              </Button> */}
               <Button
                 widthP={100}
                 disabled={haveErrors}

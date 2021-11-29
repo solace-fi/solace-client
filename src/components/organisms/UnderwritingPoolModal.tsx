@@ -19,7 +19,7 @@
   *************************************************************************************/
 
 /* import packages */
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useState, useEffect, useCallback, useMemo } from 'react'
 import { formatUnits, parseUnits } from '@ethersproject/units'
 import { BigNumber } from 'ethers'
 
@@ -34,12 +34,11 @@ import { BKPT_3 } from '../../constants'
 
 /* import components */
 import { Modal, ModalAddendum } from '../molecules/Modal'
-import { RadioCircle, RadioCircleFigure, RadioCircleInput } from '../atoms/Radio'
 import { Button, ButtonWrapper } from '../atoms/Button'
 import { Loader } from '../atoms/Loader'
 import { Text } from '../atoms/Typography'
 import { GasRadioGroup } from '../molecules/GasRadioGroup'
-import { PoolModalProps, usePoolModal } from './PoolModalRouter'
+import { CheckboxOption, PoolModalProps } from './PoolModalRouter'
 import { Box, BoxItem, BoxItemTitle } from '../atoms/Box'
 import { Input } from '../atoms/Input'
 import { ModalRow, ModalCell } from '../atoms/Modal'
@@ -52,6 +51,7 @@ import { useScpBalance } from '../../hooks/useBalance'
 import { useCooldown, useVault } from '../../hooks/useVault'
 import { useCpFarm } from '../../hooks/useCpFarm'
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'
+import { useInputAmount } from '../../hooks/useInputAmount'
 
 /* import utils */
 import { getUnit, truncateBalance } from '../../utils/formatting'
@@ -67,9 +67,14 @@ export const UnderwritingPoolModal: React.FC<PoolModalProps> = ({ modalTitle, fu
 
   const { haveErrors } = useGeneral()
   const { activeNetwork, currencyDecimals } = useNetwork()
+
+  const [modalLoading, setModalLoading] = useState<boolean>(false)
+  const [canCloseOnLoading, setCanCloseOnLoading] = useState<boolean>(false)
+  const [isStaking, setIsStaking] = useState<boolean>(false)
+  const [isAcceptableAmount, setIsAcceptableAmount] = useState<boolean>(false)
+
   const nativeTokenBalance = useNativeTokenBalance()
   const scpBalance = useScpBalance()
-
   const {
     cooldownStarted,
     timeWaited,
@@ -87,23 +92,24 @@ export const UnderwritingPoolModal: React.FC<PoolModalProps> = ({ modalTitle, fu
     selectedGasOption,
     amount,
     maxSelected,
-    handleSelectChange,
+    handleSelectGasChange,
     isAppropriateAmount,
     handleToast,
     handleContractCallError,
-    calculateMaxEth,
     handleInputChange,
     setMax,
-    setAmount,
     resetAmount,
-  } = usePoolModal()
-
+  } = useInputAmount()
   const { width } = useWindowDimensions()
-  const [modalLoading, setModalLoading] = useState<boolean>(false)
-  const [canCloseOnLoading, setCanCloseOnLoading] = useState<boolean>(false)
-  const [isStaking, setIsStaking] = useState<boolean>(false)
-
-  const [isAcceptableAmount, setIsAcceptableAmount] = useState<boolean>(false)
+  const assetBalance = useMemo(() => {
+    switch (func) {
+      case FunctionName.DEPOSIT_ETH:
+        return parseUnits(nativeTokenBalance, currencyDecimals)
+      case FunctionName.WITHDRAW_ETH:
+      default:
+        return parseUnits(scpBalance, currencyDecimals)
+    }
+  }, [currencyDecimals, func, nativeTokenBalance, scpBalance])
 
   /*************************************************************************************
 
@@ -166,7 +172,6 @@ export const UnderwritingPoolModal: React.FC<PoolModalProps> = ({ modalTitle, fu
   *************************************************************************************/
 
   const _handleToast = async (tx: any, localTx: LocalTx | null) => {
-    if (!tx || !localTx) return
     handleClose()
     await handleToast(tx, localTx)
   }
@@ -176,23 +181,13 @@ export const UnderwritingPoolModal: React.FC<PoolModalProps> = ({ modalTitle, fu
     setModalLoading(false)
   }
 
-  const getAssetBalanceByFunc = (f: FunctionName): BigNumber => {
-    switch (f) {
-      case FunctionName.DEPOSIT_ETH:
-        return parseUnits(nativeTokenBalance, currencyDecimals)
-      case FunctionName.WITHDRAW_ETH:
-      default:
-        return parseUnits(scpBalance, currencyDecimals)
-    }
-  }
-
   const _setMax = () => {
-    setMax(getAssetBalanceByFunc(func), func)
+    setMax(assetBalance, currencyDecimals, func, 'vault')
   }
 
   const handleClose = useCallback(() => {
     resetAmount()
-    handleSelectChange(gasPrices.selected)
+    handleSelectGasChange(gasPrices.selected)
     setIsStaking(false)
     setModalLoading(false)
     setCanCloseOnLoading(false)
@@ -206,28 +201,18 @@ export const UnderwritingPoolModal: React.FC<PoolModalProps> = ({ modalTitle, fu
   *************************************************************************************/
 
   useEffect(() => {
-    if (maxSelected) setAmount(calculateMaxEth(getAssetBalanceByFunc(func), func).toString())
-  }, [handleSelectChange])
+    if (maxSelected) _setMax()
+  }, [handleSelectGasChange])
 
   useEffect(() => {
-    setIsAcceptableAmount(isAppropriateAmount(amount, getAssetBalanceByFunc(func)))
-  }, [amount, func])
+    setIsAcceptableAmount(isAppropriateAmount(amount, currencyDecimals, assetBalance))
+  }, [amount, assetBalance])
 
   /*************************************************************************************
 
     functional components
 
   *************************************************************************************/
-
-  const AutoStakeOption: React.FC = () => (
-    <RadioCircle style={{ justifyContent: 'center', marginTop: '10px' }}>
-      <RadioCircleInput type="checkbox" checked={isStaking} onChange={(e) => setIsStaking(e.target.checked)} />
-      <RadioCircleFigure />
-      <Text info textAlignCenter t3>
-        Auto-Stake for token options as reward
-      </Text>
-    </RadioCircle>
-  )
 
   const UnderwritingForeword: React.FC = () => (
     <>
@@ -244,7 +229,12 @@ export const UnderwritingPoolModal: React.FC<PoolModalProps> = ({ modalTitle, fu
           Depositing into this pool during a thaw will stop the thaw, but auto-staking will not.
         </Text>
       )}
-      <AutoStakeOption />
+      <CheckboxOption
+        jc={'center'}
+        isChecked={isStaking}
+        setChecked={setIsStaking}
+        text={'Autostake for token options as reward'}
+      />
     </>
   )
 
@@ -285,7 +275,7 @@ export const UnderwritingPoolModal: React.FC<PoolModalProps> = ({ modalTitle, fu
             value={amount}
           />
           <div style={{ position: 'absolute', top: '70%' }}>
-            Available: {truncateBalance(formatUnits(getAssetBalanceByFunc(func), currencyDecimals))}
+            Available: {truncateBalance(formatUnits(assetBalance, currencyDecimals))}
           </div>
         </ModalCell>
         <ModalCell t3>
@@ -297,7 +287,7 @@ export const UnderwritingPoolModal: React.FC<PoolModalProps> = ({ modalTitle, fu
       <GasRadioGroup
         gasPrices={gasPrices}
         selectedGasOption={selectedGasOption}
-        handleSelectChange={handleSelectChange}
+        handleSelectGasChange={handleSelectGasChange}
         mb={20}
       />
       {func == FunctionName.DEPOSIT_ETH && <UnderwritingForeword />}
@@ -365,7 +355,7 @@ export const UnderwritingPoolModal: React.FC<PoolModalProps> = ({ modalTitle, fu
             </ButtonWrapper>
           ) : (
             <>
-              {getAssetBalanceByFunc(func).isZero() && (
+              {assetBalance.isZero() && (
                 <Text t4 bold textAlignCenter width={270} style={{ margin: '7px auto' }} warning>
                   You are trying to start a thaw without any CP tokens in your wallet. Please withdraw them from the
                   Options Farming Pool first.
@@ -376,7 +366,7 @@ export const UnderwritingPoolModal: React.FC<PoolModalProps> = ({ modalTitle, fu
                   <Button
                     widthP={100}
                     hidden={modalLoading}
-                    disabled={haveErrors || getAssetBalanceByFunc(func).isZero()}
+                    disabled={haveErrors || assetBalance.isZero()}
                     onClick={callStartCooldown}
                     info
                   >

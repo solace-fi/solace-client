@@ -23,6 +23,8 @@ import { Route, Switch, useLocation } from 'react-router-dom'
 import About from './about'
 import Dashboard from './dashboard'
 import Invest from './invest'
+import Stake from './stake'
+import Bond from './bond'
 import Quote from './quote'
 import Govern from './govern'
 import Terms from './terms'
@@ -64,6 +66,8 @@ export default function App(): any {
                 <Route exact path="/" component={About} />
                 <Route exact path="/dashboard" component={Dashboard} />
                 <Route exact path="/invest" component={Invest} />
+                <Route exact path="/stake" component={Stake} />
+                <Route exact path="/bond" component={Bond} />
                 <Route exact path="/quote" component={Quote} />
                 <Route exact path="/govern" component={Govern} />
                 <Route exact path="/terms" component={Terms} />

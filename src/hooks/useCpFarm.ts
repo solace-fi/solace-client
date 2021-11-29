@@ -1,30 +1,18 @@
 import { BigNumber } from 'ethers'
 import { useContracts } from '../context/ContractsManager'
 import { FunctionName, TransactionCondition } from '../constants/enums'
-import { GasConfiguration, LocalTx } from '../constants/types'
+import { GasConfiguration, LocalTx, TxResult } from '../constants/types'
+import { FunctionGasLimits } from '../constants/mappings/gasMapping'
 
 export const useCpFarm = () => {
   const { cpFarm } = useContracts()
 
-  const depositEth = async (
-    parsedAmount: BigNumber,
-    txVal: string,
-    gasConfig: GasConfiguration
-  ): Promise<
-    | {
-        tx: null
-        localTx: null
-      }
-    | {
-        tx: any
-        localTx: LocalTx
-      }
-  > => {
+  const depositEth = async (parsedAmount: BigNumber, txVal: string, gasConfig: GasConfiguration): Promise<TxResult> => {
     if (!cpFarm) return { tx: null, localTx: null }
     const tx = await cpFarm.depositEth({
       value: parsedAmount,
       ...gasConfig,
-      gasLimit: 243022,
+      gasLimit: FunctionGasLimits['cpFarm.depositEth'],
     })
     const localTx: LocalTx = {
       hash: tx.hash,
@@ -35,24 +23,11 @@ export const useCpFarm = () => {
     return { tx, localTx }
   }
 
-  const depositCp = async (
-    parsedAmount: BigNumber,
-    txVal: string,
-    gasConfig: GasConfiguration
-  ): Promise<
-    | {
-        tx: null
-        localTx: null
-      }
-    | {
-        tx: any
-        localTx: LocalTx
-      }
-  > => {
+  const depositCp = async (parsedAmount: BigNumber, txVal: string, gasConfig: GasConfiguration): Promise<TxResult> => {
     if (!cpFarm) return { tx: null, localTx: null }
     const tx = await cpFarm.depositCp(parsedAmount, {
       ...gasConfig,
-      gasLimit: 189538,
+      gasLimit: FunctionGasLimits['cpFarm.depositCp'],
     })
     const localTx: LocalTx = {
       hash: tx.hash,
@@ -63,24 +38,11 @@ export const useCpFarm = () => {
     return { tx, localTx }
   }
 
-  const withdrawCp = async (
-    parsedAmount: BigNumber,
-    txVal: string,
-    gasConfig: GasConfiguration
-  ): Promise<
-    | {
-        tx: null
-        localTx: null
-      }
-    | {
-        tx: any
-        localTx: LocalTx
-      }
-  > => {
+  const withdrawCp = async (parsedAmount: BigNumber, txVal: string, gasConfig: GasConfiguration): Promise<TxResult> => {
     if (!cpFarm) return { tx: null, localTx: null }
     const tx = await cpFarm.withdrawCp(parsedAmount, {
       ...gasConfig,
-      gasLimit: 189538,
+      gasLimit: FunctionGasLimits['cpFarm.withdrawCp'],
     })
     const localTx: LocalTx = {
       hash: tx.hash,

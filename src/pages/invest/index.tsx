@@ -27,6 +27,11 @@ import { MyOptions } from '../../components/molecules/MyOptions'
 /* import constants */
 import { FunctionName } from '../../constants/enums'
 import { PoolModalRouter } from '../../components/organisms/PoolModalRouter'
+import { Box, BoxItem } from '../../components/atoms/Box'
+import { TextSpan, Text } from '../../components/atoms/Typography'
+import { StyledInfo } from '../../components/atoms/Icon'
+import { FormRow, FormCol } from '../../components/atoms/Form'
+import { Content, FlexRow } from '../../components/atoms/Layout'
 
 function Invest(): any {
   /*************************************************************************************
@@ -67,6 +72,16 @@ function Invest(): any {
         closeModal={closeModal}
         farmName={farmName}
       />
+      <Content>
+        <Box warning pt={10} pb={10} pl={15} pr={15}>
+          <TextSpan light textAlignLeft>
+            <StyledInfo size={30} />
+          </TextSpan>
+          <Text light bold style={{ margin: '0 auto' }}>
+            This page will be deprecated soon. Users should withdraw their funds.
+          </Text>
+        </Box>
+      </Content>
       <UnderwritingPool openModal={openModal} />
       <CapitalProviderPool openModal={openModal} />
       {/* <LiquidityPool openModal={openModal} /> */}

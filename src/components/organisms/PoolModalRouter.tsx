@@ -6,7 +6,6 @@
     import managers
     import constants
     import components
-    import hooks
     import utils
 
     PoolModalRouter
@@ -15,25 +14,22 @@
 
     Erc721InputPanel
 
-    usePoolModal
+    CheckboxOption
 
   *************************************************************************************/
 
 /* import packages */
-import React, { useEffect, useState, useMemo } from 'react'
+import React from 'react'
 import { BigNumber } from 'ethers'
-import { formatUnits, parseUnits } from '@ethersproject/units'
+import { formatUnits } from '@ethersproject/units'
 
 /* import managers */
-import { useNotifications } from '../../context/NotificationsManager'
 import { useGeneral } from '../../context/GeneralProvider'
 import { useNetwork } from '../../context/NetworkManager'
-import { useCachedData } from '../../context/CachedDataManager'
 
 /* import constants */
-import { GAS_LIMIT, POW_NINE, ZERO } from '../../constants'
-import { FunctionName, TransactionCondition, Unit } from '../../constants/enums'
-import { GasFeeOption, LocalTx, NftTokenInfo } from '../../constants/types'
+import { FunctionName, Unit } from '../../constants/enums'
+import { NftTokenInfo } from '../../constants/types'
 
 /* import components */
 import { CpPoolModal } from './CpPoolModal'
@@ -43,12 +39,11 @@ import { Input } from '../atoms/Input'
 import { ModalRow, ModalCell } from '../atoms/Modal'
 import { Button } from '../atoms/Button'
 import { StyledSelect } from '../molecules/Select'
-
-/* import hooks */
-import { useGetFunctionGas } from '../../hooks/useGas'
+import { RadioCircle, RadioCircleFigure, RadioCircleInput } from '../atoms/Radio'
+import { Text } from '../atoms/Typography'
 
 /* import utils */
-import { fixed, filteredAmount } from '../../utils/formatting'
+import { GeneralElementProps } from '../generalInterfaces'
 
 export interface PoolModalProps {
   modalTitle: string
@@ -80,6 +75,12 @@ interface Erc721InputPanelProps {
   nftSelection: { value: string; label: string }
   handleNft: (target: { value: string; label: string }) => void
   nftId: BigNumber
+}
+
+interface CheckboxProps {
+  isChecked: boolean
+  setChecked: any
+  text: string
 }
 
 export const PoolModalRouter: React.FC<PoolModalRouterProps> = ({ modalTitle, func, isOpen, closeModal, farmName }) => {
@@ -158,7 +159,7 @@ export const Erc721InputPanel: React.FC<Erc721InputPanelProps> = ({
       </ModalRow>
       <div style={{ marginBottom: '20px' }}>
         {/* {assetTokens.length > 0 && (
-          <ModalCell style={{ justifyContent: 'center' }} p={0}>
+          <ModalCell jc={'center'} p={0}>
             <NftPosition tokenId={nftId} />
           </ModalCell>
         )} */}
@@ -167,84 +168,17 @@ export const Erc721InputPanel: React.FC<Erc721InputPanelProps> = ({
   )
 }
 
-export const usePoolModal = () => {
-  const { currencyDecimals } = useNetwork()
-  const { addLocalTransactions, reload, gasPrices } = useCachedData()
-  const { makeTxToast } = useNotifications()
-  const [selectedGasOption, setSelectedGasOption] = useState<GasFeeOption | undefined>(gasPrices.selected)
-  const { getGasConfig } = useGetFunctionGas()
-  const gasConfig = useMemo(() => getGasConfig(selectedGasOption ? selectedGasOption.value : undefined), [
-    selectedGasOption,
-    getGasConfig,
-  ])
-  const [amount, setAmount] = useState<string>('')
-  const [maxSelected, setMaxSelected] = useState<boolean>(false)
-
-  const isAppropriateAmount = (amount: string, assetBalance: BigNumber): boolean => {
-    if (!amount || amount == '.' || parseUnits(amount, currencyDecimals).lte(ZERO)) return false
-    return assetBalance.gte(parseUnits(amount, currencyDecimals))
-  }
-
-  const handleSelectChange = (option: GasFeeOption | undefined) => setSelectedGasOption(option)
-
-  const handleToast = async (tx: any, localTx: LocalTx) => {
-    addLocalTransactions(localTx)
-    reload()
-    makeTxToast(localTx.type, TransactionCondition.PENDING, localTx.hash)
-    await tx.wait().then((receipt: any) => {
-      const status = receipt.status ? TransactionCondition.SUCCESS : TransactionCondition.FAILURE
-      makeTxToast(localTx.type, status, localTx.hash)
-      reload()
-    })
-  }
-
-  const handleContractCallError = (functionName: string, err: any, txType: FunctionName) => {
-    console.log(functionName, err)
-    makeTxToast(txType, TransactionCondition.CANCELLED)
-    reload()
-  }
-
-  const calculateMaxEth = (balance: BigNumber, func: FunctionName) => {
-    const bal = formatUnits(balance, currencyDecimals)
-    if (func !== FunctionName.DEPOSIT_ETH || !selectedGasOption) return bal
-    const gasInEth = (GAS_LIMIT / POW_NINE) * selectedGasOption.value
-    return Math.max(fixed(fixed(bal, 6) - fixed(gasInEth, 6), 6), 0)
-  }
-
-  const handleInputChange = (input: string) => {
-    setAmount(filteredAmount(input, amount))
-    setMaxSelected(false)
-  }
-
-  const setMax = (balance: BigNumber, func: FunctionName) => {
-    setAmount(calculateMaxEth(balance, func).toString())
-    setMaxSelected(true)
-  }
-
-  const resetAmount = () => {
-    setAmount('')
-    setMaxSelected(false)
-  }
-
-  useEffect(() => {
-    if (!gasPrices.selected) return
-    handleSelectChange(gasPrices.selected)
-  }, [gasPrices])
-
-  return {
-    gasConfig,
-    gasPrices,
-    selectedGasOption,
-    amount,
-    maxSelected,
-    handleSelectChange,
-    isAppropriateAmount,
-    handleToast,
-    handleContractCallError,
-    calculateMaxEth,
-    handleInputChange,
-    setMax,
-    setAmount,
-    resetAmount,
-  }
-}
+export const CheckboxOption: React.FC<CheckboxProps & GeneralElementProps> = ({
+  isChecked,
+  setChecked,
+  text,
+  ...props
+}) => (
+  <RadioCircle {...props}>
+    <RadioCircleInput type="checkbox" checked={isChecked} onChange={(e) => setChecked(e.target.checked)} />
+    <RadioCircleFigure />
+    <Text info textAlignCenter t3>
+      {text}
+    </Text>
+  </RadioCircle>
+)

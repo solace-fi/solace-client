@@ -80,8 +80,8 @@ const CachedDataProvider: React.FC = (props) => {
   const { chainId } = useNetwork()
   const [localTxs, setLocalTxs] = useLocalStorage<LocalTx[]>('solace_loc_txs', [])
   const [reload, version] = useReload()
-  const gasPrices = useFetchGasPrice()
   const latestBlock = useGetLatestBlock()
+  const gasPrices = useFetchGasPrice(latestBlock)
 
   const cachePositions = useCachePositions()
   const { addNotices, removeNotices } = useGeneral()

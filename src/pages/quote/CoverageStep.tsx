@@ -39,7 +39,7 @@ import { useGeneral } from '../../context/GeneralProvider'
 import { FormRow, FormCol } from '../../components/atoms/Form'
 import { Button, ButtonWrapper } from '../../components/atoms/Button'
 import { formProps } from './MultiStepForm'
-import { Card, CardContainer } from '../../components/atoms/Card'
+import { Card } from '../../components/atoms/Card'
 import { Text, TextSpan } from '../../components/atoms/Typography'
 import { Input, StyledSlider } from '../../components/atoms/Input'
 import { Loader } from '../../components/atoms/Loader'
@@ -68,7 +68,7 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
   const { selectedProtocol } = useContracts()
   const { makeTxToast } = useNotifications()
   const { activeNetwork, currencyDecimals } = useNetwork()
-  const { getAutoGasConfig, getGasLimit } = useGetFunctionGas()
+  const { getAutoGasConfig, getGasLimitForTransaction } = useGetFunctionGas()
   const gasConfig = useMemo(() => getAutoGasConfig(), [getAutoGasConfig])
   const maxCoverPerPolicyInWei = useMemo(() => parseUnits(maxCoverPerPolicy, currencyDecimals), [
     maxCoverPerPolicy,
@@ -133,7 +133,7 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
         {
           value: parseUnits(quote, currencyDecimals),
           ...gasConfig,
-          gasLimit: getGasLimit(protocol.name, txType),
+          gasLimit: getGasLimitForTransaction(protocol.name, txType),
         }
       )
       navigation.next()

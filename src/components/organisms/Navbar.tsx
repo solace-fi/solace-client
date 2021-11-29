@@ -133,6 +133,24 @@ export const SideNavbar: React.FC = () => {
               </SidebarItem>
             </ItemText>
           </StyledNavTooltip>
+          <StyledNavTooltip id={'stake-nav'} tip={'Stake'}>
+            <ItemText>
+              <SidebarItem to={'/stake'} style={miniNavbarMarginSet}>
+                <Text info={location.pathname == '/stake'} light={lightText}>
+                  {width > BKPT_3 ? 'Stake' : <StyledCoinStack size={30} />}
+                </Text>
+              </SidebarItem>
+            </ItemText>
+          </StyledNavTooltip>
+          <StyledNavTooltip id={'bond-nav'} tip={'Bond'}>
+            <ItemText>
+              <SidebarItem to={'/bond'} style={miniNavbarMarginSet}>
+                <Text info={location.pathname == '/bond'} light={lightText}>
+                  {width > BKPT_3 ? 'Bond' : <StyledCoinStack size={30} />}
+                </Text>
+              </SidebarItem>
+            </ItemText>
+          </StyledNavTooltip>
           <StyledNavTooltip id={'invest-nav'} tip={'Invest'}>
             <ItemText>
               <SidebarItem to={'/invest'} style={miniNavbarMarginSet}>
@@ -170,7 +188,7 @@ export const SideNavbar: React.FC = () => {
               </HyperLink>
             </ItemText>
           </StyledNavTooltip>
-          <StyledNavTooltip id={'whitepaper-nav'} tip={'Whitepaper'}>
+          {/* <StyledNavTooltip id={'whitepaper-nav'} tip={'Whitepaper'}>
             <ItemText>
               <HyperLink
                 href={'https://whitepaper.solace.fi/'}
@@ -185,7 +203,7 @@ export const SideNavbar: React.FC = () => {
                 </SidebarText>
               </HyperLink>
             </ItemText>
-          </StyledNavTooltip>
+          </StyledNavTooltip> */}
           <StyledNavTooltip id={'jobs-nav'} tip={`We\'re hiring!`}>
             <ItemText>
               <HyperLink
@@ -213,7 +231,7 @@ export const SideNavbar: React.FC = () => {
           </StyledNavTooltip>
           <HorizRule location={location} />
           {width > BKPT_3 ? (
-            <ItemText style={{ padding: '4px 0', justifyContent: 'space-between' }}>
+            <ItemText jc={'space-between'} style={{ padding: '4px 0' }}>
               <HyperLink
                 href={'https://discord.gg/7v8qsyepfu'}
                 target="_blank"
@@ -322,12 +340,12 @@ export const SideNavbar: React.FC = () => {
           {width > BKPT_3 && (
             <>
               {appTheme == 'light' && (
-                <FlexRow style={{ justifyContent: 'center' }}>
+                <FlexRow jc={'center'}>
                   <img src={AlchemyBadgeLight} style={{ width: '145px' }} />
                 </FlexRow>
               )}
               {appTheme == 'dark' && (
-                <FlexRow style={{ justifyContent: 'center' }}>
+                <FlexRow jc={'center'}>
                   <img src={AlchemyBadgeDark} style={{ width: '145px' }} />
                 </FlexRow>
               )}
@@ -395,6 +413,16 @@ export const TopNavbar: React.FC = () => {
             Buy Cover
           </Text>
         </SidebarItem>
+        <SidebarItem onClick={() => handleIsOpen(!isOpen)} to={'/stake'} style={{ padding: '20px 0' }}>
+          <Text light bold={location.pathname == '/stake'}>
+            Stake
+          </Text>
+        </SidebarItem>
+        <SidebarItem onClick={() => handleIsOpen(!isOpen)} to={'/bond'} style={{ padding: '20px 0' }}>
+          <Text light bold={location.pathname == '/bond'}>
+            Bond
+          </Text>
+        </SidebarItem>
         <SidebarItem onClick={() => handleIsOpen(!isOpen)} to={'/invest'} style={{ padding: '20px 0' }}>
           <Text light bold={location.pathname == '/invest'}>
             Invest
@@ -409,21 +437,21 @@ export const TopNavbar: React.FC = () => {
       <HorizRule />
       <UserAccount light={location.pathname == '/'} />
       <ItemList>
-        <ItemText style={{ padding: '10px', justifyContent: 'center' }}>
+        <ItemText jc={'center'} style={{ padding: '10px' }}>
           <HyperLink href={'https://docs.solace.fi/'} target="_blank" rel="noopener noreferrer">
             <TextSpan t4 light>
               Docs
             </TextSpan>
           </HyperLink>
         </ItemText>
-        <ItemText style={{ padding: '10px', justifyContent: 'center' }}>
+        {/* <ItemText jc={'center'} style={{ padding: '10px' }}>
           <HyperLink href={'https://whitepaper.solace.fi/'} target="_blank" rel="noopener noreferrer">
             <TextSpan t4 light>
               Whitepaper
             </TextSpan>
           </HyperLink>
-        </ItemText>
-        <ItemText style={{ padding: '10px', justifyContent: 'center' }}>
+        </ItemText> */}
+        <ItemText jc={'center'} style={{ padding: '10px' }}>
           <HyperLink
             href={'https://www.notion.so/Solace-16cc777c403a46c8a2ffaba68008fcd9'}
             target="_blank"
@@ -434,7 +462,7 @@ export const TopNavbar: React.FC = () => {
             </TextSpan>
           </HyperLink>
         </ItemText>
-        <ItemText style={{ padding: '10px', justifyContent: 'center' }}>
+        <ItemText jc={'center'} style={{ padding: '10px' }}>
           <SidebarItem onClick={() => handleIsOpen(!isOpen)} to={'/terms'}>
             <TextSpan t4 light>
               Terms &amp; Conditions
@@ -442,7 +470,7 @@ export const TopNavbar: React.FC = () => {
           </SidebarItem>
         </ItemText>
       </ItemList>
-      <ItemText style={{ padding: '0', justifyContent: 'center', gap: '60px' }}>
+      <ItemText jc={'center'} style={{ padding: '0', gap: '60px' }}>
         <HyperLink
           href={'https://discord.gg/7v8qsyepfu'}
           target="_blank"

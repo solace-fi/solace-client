@@ -101,7 +101,8 @@ export const WalletModal: React.FC<WalletModalProps> = ({ closeModal, isOpen }) 
               onClick={() => connectWallet(wallet.id)}
               glow={wallet.id == activeWalletConnector?.id}
               color1={wallet.id == activeWalletConnector?.id}
-              style={{ display: 'flex', justifyContent: 'center' }}
+              jc={'center'}
+              style={{ display: 'flex' }}
             >
               <FormRow mb={0}>
                 <ModalCell p={10}>

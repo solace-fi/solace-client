@@ -8,20 +8,10 @@ const getInterface = (toAddress: string, contractSources: ContractSources[]): et
   return new ethers.utils.Interface(matchingContract.abi)
 }
 
-export const decodeInput = (
-  tx: any,
-  contractSources: ContractSources[]
-): {
-  function_name: string | null
-} => {
+export const decodeInput = (tx: any, contractSources: ContractSources[]): string | null => {
   const inter = getInterface(tx.to, contractSources)
-  if (!inter)
-    return {
-      function_name: null,
-    }
+  if (!inter) return null
   const decodedInput = inter.parseTransaction({ data: tx.input, value: tx.value })
   const function_name = capitalizeFirstLetter(decodedInput.name)
-  return {
-    function_name,
-  }
+  return function_name
 }

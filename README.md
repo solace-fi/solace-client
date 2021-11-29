@@ -14,22 +14,17 @@ Start with src/index, it's the entry point.
 
 Note: This project was originally developed alongside the Hardhat framework.
 
-Install dependencies
+After you clone the core directory, you must clone this client directory inside because client is dependent on core.
+
+Install dependencies on both core and client directory
 
     npm install
 
-Run the following commands from the core directory
+Run the following command from the core directory to fetch contract ABIs
 
     npx hardhat compile
-    npx hardhat node
 
-In a different terminal, run the following commands from the core directory
-
-    npx hardhat run --network localhost scripts/deploy.ts
-
-After the deploy script is ran, copy the contract addresses into the appropriate network file at client/src/config. Be sure that the name of the contract matches the name of the object within the config file.
-
-Run using the following react command from the client directory
+Run the following react command from the client directory to start the app
 
     npm start
 

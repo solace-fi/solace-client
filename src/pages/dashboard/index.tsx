@@ -16,7 +16,7 @@
   *************************************************************************************/
 
 /* import packages */
-import React, { Fragment, useState, useCallback, useEffect, useMemo } from 'react'
+import React, { Fragment, useState, useCallback, useEffect } from 'react'
 
 /* import managers */
 import { useContracts } from '../../context/ContractsManager'
@@ -35,6 +35,7 @@ import { MyPolicies } from '../../components/molecules/MyPolicies'
 import { MyClaims } from '../../components/molecules/MyClaims'
 import { MyInvestments } from '../../components/molecules/MyInvestments'
 import { MyOptions } from '../../components/molecules/MyOptions'
+import { WalletConnectButton } from '../../components/molecules/WalletConnectButton'
 
 /* import hooks */
 
@@ -91,14 +92,13 @@ function Dashboard(): any {
 
   // if a policy is displayed on modal, always get latest policy
   useEffect(() => {
-    if (selectedPolicy) {
-      const matchingPolicy = userPolicyData.userPolicies.find(
-        (policy: Policy) => policy.policyId == selectedPolicy.policyId
-      )
-      if (!matchingPolicy) return
-      if (JSON.stringify(matchingPolicy) !== JSON.stringify(selectedPolicy)) {
-        setPolicy(matchingPolicy)
-      }
+    if (!selectedPolicy) return
+    const matchingPolicy = userPolicyData.userPolicies.find(
+      (policy: Policy) => policy.policyId == selectedPolicy.policyId
+    )
+    if (!matchingPolicy) return
+    if (JSON.stringify(matchingPolicy) !== JSON.stringify(selectedPolicy)) {
+      setPolicy(matchingPolicy)
     }
   }, [selectedPolicy, userPolicyData.userPolicies])
 
@@ -109,6 +109,7 @@ function Dashboard(): any {
           <Text bold t1 textAlignCenter>
             Please connect wallet to view dashboard
           </Text>
+          <WalletConnectButton info welcome secondary />
         </HeroContainer>
       ) : (
         <Fragment>

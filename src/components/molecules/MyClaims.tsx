@@ -40,6 +40,7 @@ import { Accordion } from '../atoms/Accordion'
 import { FunctionName, TransactionCondition } from '../../constants/enums'
 import { BKPT_3 } from '../../constants'
 import { ClaimDetails, LocalTx } from '../../constants/types'
+import { FunctionGasLimits } from '../../constants/mappings/gasMapping'
 
 /* import hooks */
 import { useGetClaimsDetails } from '../../hooks/useClaimsEscrow'
@@ -79,7 +80,7 @@ export const MyClaims: React.FC = () => {
     try {
       const tx = await claimsEscrow.withdrawClaimsPayout(_claimId, {
         ...gasConfig,
-        gasLimit: 150000,
+        gasLimit: FunctionGasLimits['claimsEscrow.withdrawClaimsPayout'],
       })
       const txHash = tx.hash
       const localTx: LocalTx = {

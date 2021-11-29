@@ -16,3 +16,25 @@ export const get1InchPrice = async (fromAddress: string, toAddress: string, amou
     )
   )
 }
+
+const fetchCoingeckoTokenPrice = (fetchFunction: any) => async (contract: string, quote: string, platform: string) => {
+  try {
+    const addr = contract.toLowerCase()
+    const quoteId = quote.toLowerCase()
+    const platformId = platform.toLowerCase()
+    const url = `https://api.coingecko.com/api/v3/simple/token_price/${platformId}?contract_addresses=${contract}&vs_currencies=${quoteId}`
+    const data = await fetchFunction(url, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+    const result = await data.json()
+    const price = result[addr][quoteId]
+    return price ? price + '' : undefined
+  } catch (_) {
+    return undefined
+  }
+}
+
+export const getCoingeckoTokenPrice = fetchCoingeckoTokenPrice(typeof window !== 'undefined' && window.fetch)

@@ -145,8 +145,8 @@ export const floatUnits = (value: BigNumber, decimals: number): number => parseF
 // used for correctly user amount input before processing
 export const filteredAmount = (input: string, amount: string): string => {
   if (!amount && input == '.') input = '.'
-  const filteredAmount = input.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1')
-  return filteredAmount
+  const filtered = input.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1')
+  return filtered
 }
 
 // truncate strings, mostly addresses
@@ -164,7 +164,10 @@ export const getUnit = (function_name: string, activeNetwork?: NetworkConfig): U
     case FunctionName.WITHDRAW_CP:
       return Unit.SCP
     case FunctionName.WITHDRAW_REWARDS:
+    case FunctionName.STAKE:
       return Unit.SOLACE
+    case FunctionName.UNSTAKE:
+      return Unit.X_SOLACE
     case FunctionName.DEPOSIT_LP_SIGNED:
     case FunctionName.WITHDRAW_LP:
     case FunctionName.MULTI_CALL:
@@ -178,6 +181,10 @@ export const getUnit = (function_name: string, activeNetwork?: NetworkConfig): U
       return Unit.POLICY
     case FunctionName.WITHDRAW_CLAIMS_PAYOUT:
       return Unit.CLAIM
+    case FunctionName.BOND_DEPOSIT_ERC20:
+    case FunctionName.BOND_DEPOSIT_WETH:
+    case FunctionName.BOND_REDEEM:
+      return Unit.BOND
     case FunctionName.START_COOLDOWN:
     case FunctionName.STOP_COOLDOWN:
     default:
@@ -187,8 +194,9 @@ export const getUnit = (function_name: string, activeNetwork?: NetworkConfig): U
 
 export const formatTransactionContent = (
   function_name: string,
+  activeNetwork: NetworkConfig,
   amount: string,
-  activeNetwork: NetworkConfig
+  toAddr?: string
 ): string => {
   if (amount == '') return 'N/A'
   const unit = getUnit(function_name, activeNetwork)
@@ -200,16 +208,24 @@ export const formatTransactionContent = (
     case FunctionName.UPDATE_POLICY_AMOUNT:
     case FunctionName.CANCEL_POLICY:
     case FunctionName.SUBMIT_CLAIM:
+    case FunctionName.BOND_DEPOSIT_ERC20:
+    case FunctionName.BOND_DEPOSIT_WETH:
+    case FunctionName.BOND_REDEEM:
       return `${unit} #${BigNumber.from(amount)}`
-    case FunctionName.WITHDRAW_ETH:
-      return `${truncateBalance(formatUnits(BigNumber.from(amount), activeNetwork.nativeCurrency.decimals))} ${unit}`
     case FunctionName.WITHDRAW_LP:
       return `#${BigNumber.from(amount)} ${Unit.LP}`
     case FunctionName.DEPOSIT_ETH:
+      if (toAddr && activeNetwork.cache.tellerToTokenMapping[toAddr]) {
+        return `Bond #${BigNumber.from(amount)}`
+      }
+      return `${truncateBalance(formatUnits(BigNumber.from(amount), activeNetwork.nativeCurrency.decimals))} ${unit}`
     case FunctionName.DEPOSIT_CP:
     case FunctionName.WITHDRAW_CP:
     case FunctionName.WITHDRAW_REWARDS:
     case FunctionName.APPROVE:
+    case FunctionName.STAKE:
+    case FunctionName.UNSTAKE:
+    case FunctionName.WITHDRAW_ETH:
       return `${truncateBalance(formatUnits(BigNumber.from(amount), activeNetwork.nativeCurrency.decimals))} ${unit}`
     case FunctionName.DEPOSIT_LP_SIGNED:
     case FunctionName.WITHDRAW_LP:

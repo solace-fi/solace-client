@@ -9,7 +9,7 @@ import masterchefStakingPoolABI from './_contracts/IMasterChefStakingPool.json'
 import { BigNumber } from 'ethers'
 import { withBackoffRetries } from '../../../utils/time'
 import axios from 'axios'
-import ierc20Json from '../../_contracts/IERC20Metadata.json'
+import ierc20Json from '../../../constants/metadata/IERC20Metadata.json'
 import { getAmounts_MasterChefStakingPool } from './getStakes/MasterChefStakingFarm'
 
 import { ApolloClient, InMemoryCache, gql } from '@apollo/client'

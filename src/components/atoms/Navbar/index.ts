@@ -1,6 +1,7 @@
 import { NavLink } from 'react-router-dom'
 import styled, { css } from 'styled-components'
 import { BKPT_NAVBAR, BKPT_3, Z_TOPNAV } from '../../../constants'
+import { GeneralElementCss } from '../../generalInterfaces'
 import { GeneralTextProps, GeneralTextCss } from '../Typography'
 
 interface TopNavProps {
@@ -50,13 +51,14 @@ export const SidebarItem = styled(NavLink)<GeneralTextProps>`
   ${SidebarTextCss}
 `
 
-export const ItemText = styled.li`
+export const ItemText = styled.li<GeneralTextProps>`
   display: flex;
   justify-content: start;
   align-items: center;
   padding: 4px 0;
   list-style: none;
   height: 30px;
+  ${GeneralElementCss}
 `
 
 export const ItemList = styled.ul`

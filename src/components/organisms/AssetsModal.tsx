@@ -8,7 +8,6 @@
 
     AssetsModal
       local functions
-      Render
 
   *************************************************************************************/
 
@@ -51,7 +50,7 @@ export const AssetsModal: React.FC<AssetsModalProps> = ({ closeModal, isOpen, as
               <TableRow key={asset.address}>
                 <TableData>
                   <DeFiAssetImage noborder width={45} height={45}>
-                    <img src={`https://assets.solace.fi/${asset.address.toLowerCase()}`} alt={asset.name} />
+                    <img src={`https://assets.solace.fi/${asset.name.toLowerCase()}`} alt={asset.name} />
                   </DeFiAssetImage>
                 </TableData>
                 <TableData>{asset.name}</TableData>

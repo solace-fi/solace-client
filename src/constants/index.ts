@@ -9,6 +9,7 @@ export const NUM_BLOCKS_PER_DAY = 6450
 export const NUM_DAYS_PER_MONTH = 30
 export const DAYS_PER_YEAR = 365
 export const DEADLINE = constants.MaxUint256
+export const MAX_APPROVAL_AMOUNT = constants.MaxUint256
 
 export const ZERO = constants.Zero
 export const ADDRESS_ZERO = constants.AddressZero
@@ -48,6 +49,7 @@ export const LP_ROI = '6.0%'
 export const MIN_RETRY_DELAY = 1000
 export const RETRY_BACKOFF_FACTOR = 2
 export const MAX_RETRY_DELAY = 10000
+export const MAX_BPS = 10000
 
 export const POLLING_INTERVAL = 12000
 
