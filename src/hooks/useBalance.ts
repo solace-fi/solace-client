@@ -1,4 +1,4 @@
-import { useCallback } from 'react'
+import { useCallback, useMemo } from 'react'
 import { useContracts } from '../context/ContractsManager'
 import { useWallet } from '../context/WalletManager'
 import { useCachedData } from '../context/CachedDataManager'
@@ -9,6 +9,7 @@ import { NftTokenInfo } from '../constants/types'
 import { rangeFrom0 } from '../utils/numeric'
 import { listTokensOfOwner, queryBalance, queryDecimals, queryName, querySymbol } from '../utils/contract'
 import { useNetwork } from '../context/NetworkManager'
+import { Unit } from '../constants/enums'
 
 import ierc20Json from '../constants/metadata/IERC20Metadata.json'
 import sushiswapLpAbi from '../constants/metadata/ISushiswapMetadataAlt.json'
@@ -21,6 +22,7 @@ import { floatUnits } from '../utils/formatting'
 
 import sushiSwapLpAltABI from '../constants/metadata/ISushiswapMetadataAlt.json'
 import { Token, Pair } from '@sushiswap/sdk'
+import { useCoingeckoPrice } from '@usedapp/coingecko'
 
 export const useNativeTokenBalance = (): string => {
   const { account, library } = useWallet()
@@ -257,11 +259,22 @@ export const useDepositedLpBalance = (): NftTokenInfo[] => {
 }
 
 export const useUnderWritingPoolBalance = () => {
-  const { chainId } = useNetwork()
+  const { activeNetwork, chainId, currencyDecimals } = useNetwork()
   const { tellers, bondDepo } = useContracts()
   const { library } = useWallet()
   const [underwritingPoolBalance, setUnderwritingPoolBalance] = useState<number>(0)
   const getPairPrice = useGetPairPrice()
+
+  const currency = useMemo(() => {
+    switch (activeNetwork.nativeCurrency.symbol) {
+      case Unit.ETH:
+        return 'ethereum'
+      case Unit.MATIC:
+      default:
+        return 'matic'
+    }
+  }, [activeNetwork.nativeCurrency.symbol])
+  const coinGeckoPrice = useCoingeckoPrice(currency, 'usd')
 
   useEffect(() => {
     const getBalance = async () => {
@@ -276,6 +289,8 @@ export const useUnderWritingPoolBalance = () => {
       )
       const multiSig = await bondDepo.underwritingPool()
       const balances: BigNumber[] = await Promise.all(principalContracts.map((c) => queryBalance(c, multiSig)))
+      const ethBalance = await library.getBalance(multiSig)
+      balances.push(ethBalance)
       const usdcBalances: number[] = await Promise.all(
         tellers.map(async (t, i) => {
           if (t.isLp) {
@@ -313,11 +328,19 @@ export const useUnderWritingPoolBalance = () => {
           }
         })
       )
+
+      // add USDC of native balance
+      if (coinGeckoPrice) {
+        const formattedBalance = floatUnits(ethBalance, currencyDecimals)
+        const balanceMultipliedByPrice = parseFloat(coinGeckoPrice) * formattedBalance
+        usdcBalances.push(balanceMultipliedByPrice)
+      }
+
       const usdcTotalBalance = usdcBalances.reduce((pv, cv) => pv + cv, 0)
       setUnderwritingPoolBalance(usdcTotalBalance)
     }
     getBalance()
-  }, [tellers, library, bondDepo])
+  }, [tellers, library, bondDepo, coinGeckoPrice])
 
   return { underwritingPoolBalance }
 }

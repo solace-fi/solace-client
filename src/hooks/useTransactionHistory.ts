@@ -33,7 +33,7 @@ export const useFetchTxHistoryByAddress = (): any => {
   }
 
   useEffect(() => {
-    if (!latestBlock || !account || !running.current) return
+    if (!latestBlock || !account || running.current) return
     fetchTxHistoryByAddress(account)
   }, [latestBlock, account])
 
