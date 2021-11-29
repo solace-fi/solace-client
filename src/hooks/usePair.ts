@@ -55,10 +55,12 @@ export const useGetPairPrice = () => {
       if (tokens[0].toLowerCase() == token.address.toLowerCase()) {
         const token0ReadableAmount = floatUnits(reserves._reserve0, decimals)
         const token1ReadableAmount = floatUnits(reserves._reserve1, 6)
+        if (token0ReadableAmount == 0 || token1ReadableAmount == 0) return 0
         return token1ReadableAmount / token0ReadableAmount
       } else {
         const token0ReadableAmount = floatUnits(reserves._reserve0, 6)
         const token1ReadableAmount = floatUnits(reserves._reserve1, decimals)
+        if (token0ReadableAmount == 0 || token1ReadableAmount == 0) return 0
         return token0ReadableAmount / token1ReadableAmount
       }
     } catch (err) {

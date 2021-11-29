@@ -265,7 +265,7 @@ export const useUnderWritingPoolBalance = () => {
 
   useEffect(() => {
     const getBalance = async () => {
-      if (!bondDepo) return
+      if (!bondDepo || !library) return
       const principalContracts = tellers.map((t) =>
         getContract(
           t.underlyingAddr,
@@ -317,7 +317,7 @@ export const useUnderWritingPoolBalance = () => {
       setUnderwritingPoolBalance(usdcTotalBalance)
     }
     getBalance()
-  }, [tellers, library])
+  }, [tellers, library, bondDepo])
 
   return { underwritingPoolBalance }
 }
