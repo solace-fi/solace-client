@@ -50,6 +50,7 @@ const getTimesFromSeconds = (millis: number) => {
 }
 
 export function getLongtimeFromMillis(millis: number): string {
+  if (millis == 0) return '0'
   const { days, hours, minutes } = getTimesFromSeconds(millis)
 
   return `${days > 0 ? `${days} day${days > 1 ? 's' : ''}` : ''}${hours > 0 ? ' ' : ''}${
@@ -58,6 +59,7 @@ export function getLongtimeFromMillis(millis: number): string {
 }
 
 export const getTimeFromMillis = (millis: number): string => {
+  if (millis == 0) return '0'
   const { days, hours, minutes } = getTimesFromSeconds(millis)
 
   return `${days > 0 ? `${days}d` : ''}${hours > 0 ? ' ' : ''}${hours > 0 ? `${hours}h` : ''}${minutes > 0 ? ' ' : ''}${
