@@ -5,8 +5,8 @@ import {
   BondTellerData,
   BondTellerDetails,
   GasConfiguration,
-  LocalTx,
   TxResult,
+  LocalTx,
 } from '../constants/types'
 import { useContracts } from '../context/ContractsManager'
 import { getContract } from '../utils'

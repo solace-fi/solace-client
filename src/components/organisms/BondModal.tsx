@@ -65,8 +65,8 @@ import { useWindowDimensions } from '../../hooks/useWindowDimensions'
 
 /* import utils */
 import { getLongtimeFromMillis, getTimeFromMillis } from '../../utils/time'
-import { queryBalance } from '../../utils/contract'
 import { accurateMultiply, shortenAddress, truncateBalance } from '../../utils/formatting'
+import { queryBalance } from '../../utils/contract'
 
 interface BondModalProps {
   closeModal: () => void
@@ -81,7 +81,7 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
   
   */
   const { haveErrors } = useGeneral()
-  const { account, library } = useWallet()
+  const { account } = useWallet()
   const { activeNetwork, currencyDecimals } = useNetwork()
   const { reload, latestBlock } = useCachedData()
   const { makeTxToast } = useNotifications()
@@ -111,8 +111,9 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
   const [timestamp, setTimestamp] = useState<number>(0)
   const [vestingTermInMillis, setVestingTermInMillis] = useState<number>(0)
   const [maxPayout, setMaxPayout] = useState<BigNumber>(ZERO)
-  const [maxPayout_X, setMaxPayout_X] = useState<BigNumber>(ZERO)
-
+  const pncplDecimals = useMemo(() => selectedBondDetail?.principalData?.principalProps.decimals, [
+    selectedBondDetail?.principalData?.principalProps.decimals,
+  ])
   const solaceBalanceData = useSolaceBalance()
   const xSolaceBalanceData = useXSolaceBalance()
   const nativeTokenBalance = useNativeTokenBalance()
@@ -138,12 +139,12 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
     switch (func) {
       case FunctionName.BOND_DEPOSIT_ERC20:
       case FunctionName.BOND_DEPOSIT_WETH:
-        return parseUnits(principalBalance, selectedBondDetail?.principalData?.principalProps.decimals)
+        return parseUnits(principalBalance, pncplDecimals)
       case FunctionName.DEPOSIT_ETH:
       default:
         return parseUnits(nativeTokenBalance, currencyDecimals)
     }
-  }, [func, nativeTokenBalance, principalBalance, selectedBondDetail])
+  }, [func, nativeTokenBalance, principalBalance, pncplDecimals])
   /*************************************************************************************
 
   contract functions
@@ -151,13 +152,11 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
   *************************************************************************************/
 
   const approve = async () => {
-    if (!selectedBondDetail?.principalData?.principal) return
+    const pncpl = selectedBondDetail?.principalData?.principal
+    if (!pncpl || !selectedBondDetail) return
     setModalLoading(true)
     try {
-      const tx = await selectedBondDetail.principalData.principal.approve(
-        selectedBondDetail.tellerData.teller.contract.address,
-        MAX_APPROVAL_AMOUNT
-      )
+      const tx = await pncpl.approve(selectedBondDetail.tellerData.teller.contract.address, MAX_APPROVAL_AMOUNT)
       const txHash = tx.hash
       setCanCloseOnLoading(true)
       makeTxToast(FunctionName.APPROVE, TransactionCondition.PENDING, txHash)
@@ -174,24 +173,17 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
   }
 
   const callDepositBond = async (stake: boolean) => {
-    if (
-      !selectedBondDetail?.principalData ||
-      !library ||
-      !calculatedAmountOut ||
-      !calculatedAmountOut_X ||
-      !bondRecipient
-    )
-      return
+    if (!pncplDecimals || !calculatedAmountOut || !calculatedAmountOut_X || !bondRecipient) return
     setModalLoading(true)
     const slippageInt = parseInt(accurateMultiply(slippagePrct, 2))
     const calcAOut = stake ? calculatedAmountOut_X : calculatedAmountOut
     const minAmountOut = calcAOut.mul(BigNumber.from(MAX_BPS - slippageInt)).div(BigNumber.from(MAX_BPS))
     await deposit(
-      parseUnits(amount, selectedBondDetail.principalData.principalProps.decimals),
+      parseUnits(amount, pncplDecimals),
       minAmountOut,
       bondRecipient,
       stake,
-      `${truncateBalance(amount)} ${selectedBondDetail.principalData.principalProps.decimals}`,
+      `${truncateBalance(amount)} ${pncplDecimals}`,
       func,
       gasConfig
     )
@@ -247,66 +239,51 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
   }, [closeModal])
 
   const _setMax = () => {
-    if (!selectedBondDetail?.principalData || !calculatedAmountIn || !calculatedAmountIn_X) return
+    if (!pncplDecimals || !calculatedAmountIn || !calculatedAmountIn_X) return
     const calcAIn = isStaking ? calculatedAmountIn_X : calculatedAmountIn
-    setMax(
-      assetBalance.gt(calcAIn) ? calcAIn : assetBalance,
-      selectedBondDetail.principalData.principalProps.decimals,
-      func
-    )
+    setMax(assetBalance.gt(calcAIn) ? calcAIn : assetBalance, pncplDecimals, func)
   }
 
-  const _calculateAmountOut = useDebounce(
-    async (_amount: string, stake: boolean) => calculateAmountOut(_amount, stake),
-    300
-  )
-
-  const calculateAmountOut = async (_amount: string, stake: boolean): Promise<BigNumber | undefined> => {
-    if (selectedBondDetail?.principalData && _amount) {
+  const calculateAmountOut = async (_amount: string): Promise<void> => {
+    if (selectedBondDetail && pncplDecimals && _amount) {
       let _calculatedAmountOut: BigNumber | undefined = ZERO
       let _calculatedAmountOut_X: BigNumber | undefined = ZERO
+      const tellerContract = selectedBondDetail.tellerData.teller.contract
       try {
-        const aO: BigNumber = await selectedBondDetail.tellerData.teller.contract.calculateAmountOut(
-          accurateMultiply(_amount, selectedBondDetail.principalData.principalProps.decimals),
-          false
-        )
+        const aO: BigNumber = await tellerContract.calculateAmountOut(accurateMultiply(_amount, pncplDecimals), false)
         _calculatedAmountOut = aO
       } catch (e) {
         _calculatedAmountOut = undefined
       }
       setCalculatedAmountOut(_calculatedAmountOut)
       try {
-        const aO_X: BigNumber = await selectedBondDetail.tellerData.teller.contract.calculateAmountOut(
-          accurateMultiply(_amount, selectedBondDetail.principalData.principalProps.decimals),
-          true
-        )
+        const aO_X: BigNumber = await tellerContract.calculateAmountOut(accurateMultiply(_amount, pncplDecimals), true)
         _calculatedAmountOut_X = aO_X
       } catch (e) {
         _calculatedAmountOut_X = undefined
       }
       setCalculatedAmountOut_X(_calculatedAmountOut_X)
-      return stake ? _calculatedAmountOut_X : _calculatedAmountOut
+    } else {
+      setCalculatedAmountOut(ZERO)
+      setCalculatedAmountOut_X(ZERO)
     }
-    setCalculatedAmountOut(ZERO)
-    setCalculatedAmountOut_X(ZERO)
-    return ZERO
   }
 
-  const calculateAmountIn = async (stake: boolean): Promise<BigNumber | undefined> => {
+  const calculateAmountIn = async (): Promise<void> => {
     if (selectedBondDetail && xSolace) {
       const maxPayout = selectedBondDetail.tellerData.maxPayout
       const maxPayout_X = await xSolace.solaceToXSolace(selectedBondDetail.tellerData.maxPayout)
       setMaxPayout(maxPayout)
-      setMaxPayout_X(maxPayout_X)
 
       let _calculatedAmountIn: BigNumber | undefined = ZERO
       let _calculatedAmountIn_X: BigNumber | undefined = ZERO
+      const tellerContract = selectedBondDetail.tellerData.teller.contract
+      const bondFeeBps = selectedBondDetail.tellerData.bondFeeBps
+
       try {
         // not including bond fee to remain below maxPayout
-        const aI: BigNumber = await selectedBondDetail.tellerData.teller.contract.calculateAmountIn(
-          maxPayout
-            .mul(BigNumber.from(MAX_BPS).sub(selectedBondDetail.tellerData.bondFeeBps))
-            .div(BigNumber.from(MAX_BPS)),
+        const aI: BigNumber = await tellerContract.calculateAmountIn(
+          maxPayout.mul(BigNumber.from(MAX_BPS).sub(bondFeeBps)).div(BigNumber.from(MAX_BPS)),
           false
         )
         _calculatedAmountIn = aI
@@ -316,10 +293,8 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
       setCalculatedAmountIn(_calculatedAmountIn)
       try {
         // not including bond fee to remain below maxPayout
-        const aI_X: BigNumber = await selectedBondDetail.tellerData.teller.contract.calculateAmountIn(
-          maxPayout_X
-            .mul(BigNumber.from(MAX_BPS).sub(selectedBondDetail.tellerData.bondFeeBps))
-            .div(BigNumber.from(MAX_BPS)),
+        const aI_X: BigNumber = await tellerContract.calculateAmountIn(
+          maxPayout_X.mul(BigNumber.from(MAX_BPS).sub(bondFeeBps)).div(BigNumber.from(MAX_BPS)),
           true
         )
         _calculatedAmountIn_X = aI_X
@@ -327,11 +302,10 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
         _calculatedAmountIn_X = undefined
       }
       setCalculatedAmountIn_X(_calculatedAmountIn_X)
-      return stake ? _calculatedAmountIn_X : _calculatedAmountIn
+    } else {
+      setCalculatedAmountIn(ZERO)
+      setCalculatedAmountIn_X(ZERO)
     }
-    setCalculatedAmountIn(ZERO)
-    setCalculatedAmountIn_X(ZERO)
-    return ZERO
   }
 
   /* 
@@ -339,6 +313,8 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
   useEffect hooks
   
   */
+
+  const _calculateAmountOut = useDebounce(async (_amount: string) => calculateAmountOut(_amount), 300)
 
   useEffect(() => {
     const getBondData = async () => {
@@ -391,19 +367,17 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
   }, [selectedBondDetail?.tellerData.teller.isBondTellerErc20, isOpen])
 
   useEffect(() => {
-    calculateAmountIn(isStaking)
-  }, [selectedBondDetail, isStaking, xSolace])
+    calculateAmountIn()
+  }, [selectedBondDetail, xSolace])
 
   useEffect(() => {
-    _calculateAmountOut(amount, isStaking)
-  }, [selectedBondDetail, isStaking, amount])
+    _calculateAmountOut(amount)
+  }, [selectedBondDetail, amount])
 
   useEffect(() => {
-    if (!selectedBondDetail?.principalData) return
-    setIsAcceptableAmount(
-      isAppropriateAmount(amount, selectedBondDetail.principalData.principalProps.decimals, assetBalance)
-    )
-  }, [selectedBondDetail?.principalData, assetBalance, amount])
+    if (!pncplDecimals) return
+    setIsAcceptableAmount(isAppropriateAmount(amount, pncplDecimals, assetBalance))
+  }, [pncplDecimals, assetBalance, amount])
 
   useEffect(() => {
     resetAmount()
@@ -522,12 +496,7 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
                 textAlignCenter
                 type="text"
                 onChange={(e) =>
-                  handleInputChange(
-                    e.target.value,
-                    func == FunctionName.DEPOSIT_ETH
-                      ? currencyDecimals
-                      : selectedBondDetail?.principalData?.principalProps.decimals
-                  )
+                  handleInputChange(e.target.value, func == FunctionName.DEPOSIT_ETH ? currencyDecimals : pncplDecimals)
                 }
                 value={amount}
               />
@@ -578,7 +547,7 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
                   </FormCol>
                   <FormCol>
                     <Text info textAlignRight bold>
-                      {formatUnits(assetBalance, selectedBondDetail?.principalData?.principalProps.decimals)}{' '}
+                      {formatUnits(assetBalance, pncplDecimals)}{' '}
                       {func == FunctionName.DEPOSIT_ETH
                         ? activeNetwork.nativeCurrency.symbol
                         : selectedBondDetail?.principalData?.principalProps?.symbol}
@@ -633,20 +602,6 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
                 </Text>
               </FormCol>
             </FormRow>
-            {/* <SmallBox transparent collapse={!isStaking} m={0} p={0} jc={'right}>
-              <FormRow mb={10}>
-                <FormCol></FormCol>
-                <FormCol>
-                  <Text t4 textAlignRight>
-                    {'( '}
-                    {`${formatUnits(maxPayout_X, xSolaceBalanceData.tokenData.decimals)} ${
-                      xSolaceBalanceData.tokenData.symbol
-                    }`}
-                    {' )'}
-                  </Text>
-                </FormCol>
-              </FormRow>
-            </SmallBox> */}
             <FormRow>
               <FormCol>
                 <Text t4>Vesting Term</Text>
@@ -667,13 +622,15 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
           ) : (
             <FlexCol mt={20}>
               <FlexCol style={{ margin: 'auto' }}>
-                {!isBondTellerErc20 && selectedBondDetail && (
+                {!isBondTellerErc20 && (
                   <>
                     <CheckboxOption
                       mb={10}
                       isChecked={!shouldUseNativeToken}
                       setChecked={() => setShouldUseNativeToken(!shouldUseNativeToken)}
-                      text={`Deposit ${selectedBondDetail.principalData?.principalProps.name} instead`}
+                      text={`Deposit ${
+                        selectedBondDetail?.principalData?.principalProps.name ?? 'wrapped token'
+                      } instead`}
                     />
                   </>
                 )}
@@ -714,53 +671,49 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
           (ownedBondTokens.length > 0 ? (
             <Scrollable maxMobileHeight={45} maxDesktopHeight={45} mt={20}>
               <CardContainer cardsPerRow={1}>
-                {ownedBondTokens.map((token) => {
-                  return (
-                    <Card p={15} key={token.id.toString()}>
+                {ownedBondTokens.map((token) => (
+                  <Card p={15} key={token.id.toString()}>
+                    <FormRow mb={10}>
+                      <FormCol>
+                        <Text>ID</Text>
+                      </FormCol>
+                      <FormCol>{token.id.toString()}</FormCol>
+                    </FormRow>
+                    <FormRow mb={10}>
+                      <FormCol>
+                        <Text>Paid Price</Text>
+                      </FormCol>
+                      <FormCol>
+                        <Text textAlignRight>{formatUnits(token.pricePaid, pncplDecimals)}</Text>
+                      </FormCol>
+                    </FormRow>
+                    <FormRow mb={10}>
+                      <FormCol>
+                        <Text>Payout</Text>
+                      </FormCol>
+                      <FormCol>
+                        <Text textAlignRight>
+                          {formatUnits(token.payoutAmount, solaceBalanceData.tokenData.decimals)} {token.payoutToken}
+                        </Text>
+                      </FormCol>
+                    </FormRow>
+                    {token.maturation.toNumber() > timestamp ? (
                       <FormRow mb={10}>
-                        <FormCol>
-                          <Text>ID</Text>
-                        </FormCol>
-                        <FormCol>{token.id.toString()}</FormCol>
+                        <FormCol>Time Until Fully Vested</FormCol>
+                        <FormCol>{getTimeFromMillis((token.maturation.toNumber() - timestamp) * 1000)}</FormCol>
                       </FormRow>
-                      <FormRow mb={10}>
-                        <FormCol>
-                          <Text>Paid Price</Text>
-                        </FormCol>
-                        <FormCol>
-                          <Text textAlignRight>
-                            {formatUnits(token.pricePaid, selectedBondDetail?.principalData?.principalProps.decimals)}
-                          </Text>
-                        </FormCol>
-                      </FormRow>
-                      <FormRow mb={10}>
-                        <FormCol>
-                          <Text>Payout</Text>
-                        </FormCol>
-                        <FormCol>
-                          <Text textAlignRight>
-                            {formatUnits(token.payoutAmount, solaceBalanceData.tokenData.decimals)} {token.payoutToken}
-                          </Text>
-                        </FormCol>
-                      </FormRow>
-                      {token.maturation.toNumber() > timestamp ? (
-                        <FormRow mb={10}>
-                          <FormCol>Time Until Fully Vested</FormCol>
-                          <FormCol>{getTimeFromMillis((token.maturation.toNumber() - timestamp) * 1000)}</FormCol>
-                        </FormRow>
-                      ) : (
-                        <>
-                          <Text textAlignCenter success mb={10}>
-                            Fully Vested
-                          </Text>
-                          <Button widthP={100} info disabled={haveErrors} onClick={() => callRedeemBond(token.id)}>
-                            Claim
-                          </Button>
-                        </>
-                      )}
-                    </Card>
-                  )
-                })}
+                    ) : (
+                      <>
+                        <Text textAlignCenter success mb={10}>
+                          Fully Vested
+                        </Text>
+                        <Button widthP={100} info disabled={haveErrors} onClick={() => callRedeemBond(token.id)}>
+                          Claim
+                        </Button>
+                      </>
+                    )}
+                  </Card>
+                ))}
               </CardContainer>
             </Scrollable>
           ) : (

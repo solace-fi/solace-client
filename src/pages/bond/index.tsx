@@ -135,7 +135,7 @@ function Bond(): any {
                           ) : (
                             <DeFiAssetImage noborder>
                               <img
-                                src={`https://assets.solace.fi/${tellerDetail.principalData.principalProps.name.toLowerCase()}`}
+                                src={`https://assets.solace.fi/${tellerDetail.tellerData.principalAddr.toLowerCase()}`}
                                 alt={tellerDetail.tellerData.teller.name}
                               />
                             </DeFiAssetImage>
