@@ -31,12 +31,6 @@ type CachedData = {
     userPolicies: Policy[]
     setCanGetAssessments: (toggle: boolean) => void
   }
-  tokenPosData: {
-    batchFetching: boolean
-    storedPosData: NetworkCache[]
-    handleGetCache: (supportedProduct: SupportedProduct) => Promise<NetworkCache | undefined>
-    getCacheForPolicies: (supportedProducts: SupportedProduct[]) => Promise<NetworkCache>
-  }
   showAccountModal: boolean
   version: number
   gasPrices: GasFeeListState
@@ -52,12 +46,6 @@ const CachedDataContext = createContext<CachedData>({
     policiesLoading: false,
     userPolicies: [],
     setCanGetAssessments: () => undefined,
-  },
-  tokenPosData: {
-    batchFetching: false,
-    storedPosData: [],
-    handleGetCache: () => Promise.reject(),
-    getCacheForPolicies: () => Promise.reject(),
   },
   showAccountModal: false,
   version: 0,
@@ -77,10 +65,8 @@ const CachedDataProvider: React.FC = (props) => {
   const [localTxs, setLocalTxs] = useLocalStorage<LocalTx[]>('solace_loc_txs', [])
   const [reload, version] = useReload()
   const gasPrices = useFetchGasPrice()
-
-  const cachePositions = useCachePositions()
   const { addNotices, removeNotices } = useGeneral()
-  const { policiesLoading, userPolicies, setCanGetAssessments } = usePolicyGetter(false, cachePositions, account)
+  const { policiesLoading, userPolicies, setCanGetAssessments } = usePolicyGetter(false, account)
   const [accountModal, setAccountModal] = useState<boolean>(false)
 
   const openModal = useCallback(() => {
@@ -143,7 +129,6 @@ const CachedDataProvider: React.FC = (props) => {
     () => ({
       localTransactions: localTxs,
       userPolicyData: { policiesLoading, userPolicies, setCanGetAssessments },
-      tokenPosData: cachePositions,
       showAccountModal: accountModal,
       version,
       gasPrices,
@@ -156,7 +141,6 @@ const CachedDataProvider: React.FC = (props) => {
       localTxs,
       addLocalTransactions,
       deleteLocalTransactions,
-      cachePositions,
       version,
       gasPrices,
       policiesLoading,

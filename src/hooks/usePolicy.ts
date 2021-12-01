@@ -39,8 +39,8 @@ export const useAppraisePolicyPosition = (policy: Policy | undefined): BigNumber
   const { activeNetwork } = useNetwork()
   const { account, library } = useWallet()
   const { getProtocolByName } = useContracts()
-  const { tokenPosData, userPolicyData } = useCachedData()
-  const { latestBlock } = useProvider()
+  const { userPolicyData } = useCachedData()
+  const { tokenPosData, latestBlock } = useProvider()
   const [appraisal, setAppraisal] = useState<BigNumber>(ZERO)
 
   const handlePositionBalances = async (supportedProduct: SupportedProduct): Promise<BigNumber[]> => {

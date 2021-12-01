@@ -26,6 +26,7 @@ import { BKPT_3, BKPT_5, ZERO } from '../../constants'
 import { TransactionCondition, FunctionName, Unit, PolicyState } from '../../constants/enums'
 import { LocalTx } from '../../constants/types'
 import { FunctionGasLimits } from '../../constants/mappings/gasMapping'
+import { USDC_ADDRESS } from '../../constants/mappings/tokenAddressMapping'
 
 /* import managers */
 import { useWallet } from '../../context/WalletManager'
@@ -37,12 +38,13 @@ import { useGeneral } from '../../context/GeneralProvider'
 
 /* import components */
 import { BoxRow, Box, BoxItem, BoxItemTitle } from '../atoms/Box'
-import { Button, ButtonWrapper } from '../atoms/Button'
+import { Button } from '../atoms/Button'
 import { Text, TextSpan } from '../atoms/Typography'
 import { WalletConnectButton } from '../molecules/WalletConnectButton'
 import { FormRow, FormCol } from '../atoms/Form'
 import { Card, CardContainer } from '../atoms/Card'
 import { StyledTooltip } from '../molecules/Tooltip'
+import { HyperLink } from '../atoms/Link'
 
 /* import hooks */
 import { useCapitalPoolSize } from '../../hooks/useVault'
@@ -56,8 +58,6 @@ import { usePairPrice } from '../../hooks/usePair'
 
 /* import utils */
 import { truncateBalance } from '../../utils/formatting'
-import { HyperLink } from '../atoms/Link'
-import { USDC_ADDRESS } from '../../constants/mappings/tokenAddressMapping'
 
 export const Statistics: React.FC = () => {
   /*************************************************************************************
@@ -70,12 +70,12 @@ export const Statistics: React.FC = () => {
   const { activeNetwork, currencyDecimals, chainId } = useNetwork()
   const { farmController, solace } = useContracts()
   const { makeTxToast } = useNotifications()
-  const { addLocalTransactions, reload, tokenPosData } = useCachedData()
+  const { addLocalTransactions, reload } = useCachedData()
   // const capitalPoolSize = useCapitalPoolSize()
   const solaceBalanceData = useSolaceBalance()
   const xSolaceBalanceData = useXSolaceBalance()
   const totalUserRewards = useTotalPendingRewards()
-  const { allPolicies } = usePolicyGetter(true, tokenPosData)
+  const { allPolicies } = usePolicyGetter(true)
   // const totalValueLocked = useGetTotalValueLocked()
   const { width } = useWindowDimensions()
   const { getAutoGasConfig } = useGetFunctionGas()

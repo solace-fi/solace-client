@@ -1,6 +1,6 @@
 import { useWallet } from '../context/WalletManager'
 import { PolicyState } from '../constants/enums'
-import { Policy, NetworkCache, SupportedProduct, PositionNamesCacheValue } from '../constants/types'
+import { Policy, SupportedProduct, PositionNamesCacheValue } from '../constants/types'
 import { BigNumber } from 'ethers'
 import { useContracts } from '../context/ContractsManager'
 import { useState, useEffect, useRef } from 'react'
@@ -11,12 +11,6 @@ import { useProvider } from '../context/ProviderManager'
 
 export const usePolicyGetter = (
   getAll: boolean,
-  tokenPosData: {
-    batchFetching: boolean
-    storedPosData: NetworkCache[]
-    handleGetCache: (supportedProduct: SupportedProduct) => Promise<NetworkCache | undefined>
-    getCacheForPolicies: (supportedProducts: SupportedProduct[]) => Promise<NetworkCache>
-  },
   policyHolder?: string
 ): {
   policiesLoading: boolean
@@ -25,7 +19,7 @@ export const usePolicyGetter = (
   setCanGetAssessments: (toggle: boolean) => void
 } => {
   const { library } = useWallet()
-  const { latestBlock } = useProvider()
+  const { latestBlock, tokenPosData } = useProvider()
   const { activeNetwork, findNetworkByChainId, chainId } = useNetwork()
   const { policyManager } = useContracts()
   const [userPolicies, setUserPolicies] = useState<Policy[]>([])
@@ -250,7 +244,7 @@ export const usePolicyGetter = (
     return () => {
       policyManager.removeAllListeners()
     }
-  }, [policyHolder, policyManager])
+  }, [policyHolder, policyManager, getUpdatedUserPolicy])
 
   /* fetch all policies per block */
   useEffect(() => {

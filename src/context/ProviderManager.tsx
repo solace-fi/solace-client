@@ -14,6 +14,8 @@ import { Z_MODAL } from '../constants'
 
 import { capitalizeFirstLetter } from '../utils/formatting'
 import { useGetLatestBlock } from '../hooks/useGetLatestBlock'
+import { NetworkCache, SupportedProduct } from '../constants/types'
+import { useCachePositions } from '../hooks/useCachePositions'
 
 /*
 
@@ -35,11 +37,23 @@ and write to the blockchain.
 type ProviderContextType = {
   openNetworkModal: () => void
   latestBlock: Block | undefined
+  tokenPosData: {
+    batchFetching: boolean
+    storedPosData: NetworkCache[]
+    handleGetCache: (supportedProduct: SupportedProduct) => Promise<NetworkCache | undefined>
+    getCacheForPolicies: (supportedProducts: SupportedProduct[]) => Promise<NetworkCache>
+  }
 }
 
 const InitialContextValue: ProviderContextType = {
   openNetworkModal: () => undefined,
   latestBlock: undefined,
+  tokenPosData: {
+    batchFetching: false,
+    storedPosData: [],
+    handleGetCache: () => Promise.reject(),
+    getCacheForPolicies: () => Promise.reject(),
+  },
 }
 
 const ProviderContext = React.createContext<ProviderContextType>(InitialContextValue)
@@ -53,6 +67,7 @@ const ProviderManager: React.FC = ({ children }) => {
   const { networks, activeNetwork, findNetworkByChainId, findNetworkByName, changeNetwork } = useNetwork()
   const { connector } = useWallet()
   const latestBlock = useGetLatestBlock()
+  const cachePositions = useCachePositions()
   const [networkModal, setNetworkModal] = useState<boolean>(false)
 
   const openModal = useCallback(() => {
@@ -115,8 +130,9 @@ const ProviderManager: React.FC = ({ children }) => {
     () => ({
       openNetworkModal: openModal,
       latestBlock,
+      tokenPosData: cachePositions,
     }),
-    [openModal, latestBlock]
+    [openModal, latestBlock, cachePositions]
   )
   return (
     <ProviderContext.Provider value={value}>
