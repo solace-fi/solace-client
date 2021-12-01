@@ -1,16 +1,16 @@
 import { BigNumber } from 'ethers'
 import { useEffect, useState } from 'react'
 import { GasConfiguration, LocalTx, Option, TxResult } from '../constants/types'
-import { useCachedData } from '../context/CachedDataManager'
 import { useContracts } from '../context/ContractsManager'
 import { useWallet } from '../context/WalletManager'
 import { FunctionName, TransactionCondition } from '../constants/enums'
 import { FunctionGasLimits } from '../constants/mappings/gasMapping'
+import { useProvider } from '../context/ProviderManager'
 
 export const useOptionsDetails = () => {
   const { optionsFarming } = useContracts()
   const [optionsDetails, setOptionsDetails] = useState<Option[]>([])
-  const { latestBlock } = useCachedData()
+  const { latestBlock } = useProvider()
   const { account, library } = useWallet()
   const [latestBlockTimestamp, setLatestBlockTimestamp] = useState<number>(0)
 

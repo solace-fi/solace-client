@@ -22,6 +22,7 @@ import React, { Fragment, useState, useCallback, useEffect } from 'react'
 import { useContracts } from '../../context/ContractsManager'
 import { useWallet } from '../../context/WalletManager'
 import { useCachedData } from '../../context/CachedDataManager'
+import { useProvider } from '../../context/ProviderManager'
 
 /* import constants */
 import { Policy } from '../../constants/types'
@@ -52,7 +53,8 @@ function Dashboard(): any {
   const [selectedPolicy, setSelectedPolicy] = useState<Policy | undefined>(undefined)
 
   const { setSelectedProtocolByName } = useContracts()
-  const { latestBlock, userPolicyData } = useCachedData()
+  const { userPolicyData } = useCachedData()
+  const { latestBlock } = useProvider()
   const { account } = useWallet()
 
   /*************************************************************************************

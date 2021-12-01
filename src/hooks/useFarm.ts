@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useCachedData } from '../context/CachedDataManager'
 import { useContracts } from '../context/ContractsManager'
 import { useNetwork } from '../context/NetworkManager'
+import { useProvider } from '../context/ProviderManager'
 import { useWallet } from '../context/WalletManager'
 
 export const useUserStakedValue = (farm: Contract | null | undefined): string => {
@@ -31,7 +32,7 @@ export const useUserStakedValue = (farm: Contract | null | undefined): string =>
 
 export const usePoolStakedValue = (farm: Contract | null | undefined): string => {
   const [poolValue, setPoolValue] = useState<string>('0')
-  const { latestBlock } = useCachedData()
+  const { latestBlock } = useProvider()
   const { currencyDecimals } = useNetwork()
 
   useEffect(() => {

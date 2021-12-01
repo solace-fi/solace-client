@@ -1,15 +1,15 @@
+import { useEffect, useState } from 'react'
 import { BigNumber } from 'ethers'
 import { useContracts } from '../context/ContractsManager'
 import { ClaimDetails } from '../constants/types'
-import { useEffect, useState } from 'react'
-import { useCachedData } from '../context/CachedDataManager'
 import { useWallet } from '../context/WalletManager'
+import { useProvider } from '../context/ProviderManager'
 
 export const useGetClaimsDetails = (): ClaimDetails[] => {
   const { account } = useWallet()
   const { claimsEscrow } = useContracts()
   const [claimsDetails, setClaimsDetails] = useState<ClaimDetails[]>([])
-  const { latestBlock } = useCachedData()
+  const { latestBlock } = useProvider()
 
   useEffect(() => {
     const getClaimDetails = async () => {

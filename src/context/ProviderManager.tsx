@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react'
 import { useNetwork } from './NetworkManager'
 import { useWallet } from './WalletManager'
 import { MetamaskConnector } from '../wallet/wallet-connectors/MetaMask'
+import { Block } from '@ethersproject/contracts/node_modules/@ethersproject/abstract-provider'
 
 import { Card, CardContainer } from '../components/atoms/Card'
 import { ModalCell } from '../components/atoms/Modal'
@@ -12,6 +13,7 @@ import { FormRow } from '../components/atoms/Form'
 import { Z_MODAL } from '../constants'
 
 import { capitalizeFirstLetter } from '../utils/formatting'
+import { useGetLatestBlock } from '../hooks/useGetLatestBlock'
 
 /*
 
@@ -32,10 +34,12 @@ and write to the blockchain.
 
 type ProviderContextType = {
   openNetworkModal: () => void
+  latestBlock: Block | undefined
 }
 
 const InitialContextValue: ProviderContextType = {
   openNetworkModal: () => undefined,
+  latestBlock: undefined,
 }
 
 const ProviderContext = React.createContext<ProviderContextType>(InitialContextValue)
@@ -48,6 +52,7 @@ export function useProvider(): ProviderContextType {
 const ProviderManager: React.FC = ({ children }) => {
   const { networks, activeNetwork, findNetworkByChainId, findNetworkByName, changeNetwork } = useNetwork()
   const { connector } = useWallet()
+  const latestBlock = useGetLatestBlock()
   const [networkModal, setNetworkModal] = useState<boolean>(false)
 
   const openModal = useCallback(() => {
@@ -109,8 +114,9 @@ const ProviderManager: React.FC = ({ children }) => {
   const value = React.useMemo(
     () => ({
       openNetworkModal: openModal,
+      latestBlock,
     }),
-    [openModal]
+    [openModal, latestBlock]
   )
   return (
     <ProviderContext.Provider value={value}>

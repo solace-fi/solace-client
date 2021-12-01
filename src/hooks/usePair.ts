@@ -1,22 +1,21 @@
-import { useEffect, useState, useCallback } from 'react'
-import { ChainId, Token, Pair, AddressMap } from '@sushiswap/sdk'
+import { useEffect, useState } from 'react'
+import { Token, Pair } from '@sushiswap/sdk'
 
 import { useNetwork } from '../context/NetworkManager'
-import { useContracts } from '../context/ContractsManager'
-import { accurateMultiply, floatUnits, truncateBalance } from '../utils/formatting'
+import { floatUnits, truncateBalance } from '../utils/formatting'
 import { queryDecimals } from '../utils/contract'
 import { Contract } from '@ethersproject/contracts'
 import { getContract } from '../utils'
 import sushiSwapLpAltABI from '../constants/metadata/ISushiswapMetadataAlt.json'
 import { useWallet } from '../context/WalletManager'
-import { useCachedData } from '../context/CachedDataManager'
 import { USDC_ADDRESS, WETH9_ADDRESS } from '../constants/mappings/tokenAddressMapping'
+import { useProvider } from '../context/ProviderManager'
 
 export function usePairPrice(token: Contract | null | undefined) {
   const [pairPrice, setPairPrice] = useState<string>('-')
   const { library } = useWallet()
   const { chainId } = useNetwork()
-  const { latestBlock } = useCachedData()
+  const { latestBlock } = useProvider()
   const getPairPrice = useGetPairPrice()
 
   useEffect(() => {

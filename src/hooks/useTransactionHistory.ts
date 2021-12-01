@@ -8,11 +8,13 @@ import { decodeInput } from '../utils/decoder'
 import { formatTransactionContent } from '../utils/formatting'
 import { useContracts } from '../context/ContractsManager'
 import { useNetwork } from '../context/NetworkManager'
+import { useProvider } from '../context/ProviderManager'
 
 export const useFetchTxHistoryByAddress = (): any => {
   const { account } = useWallet()
   const { activeNetwork } = useNetwork()
-  const { deleteLocalTransactions, latestBlock } = useCachedData()
+  const { deleteLocalTransactions } = useCachedData()
+  const { latestBlock } = useProvider()
   const [txHistory, setTxHistory] = useState<any>([])
   const { contractSources } = useContracts()
   const running = useRef(false)

@@ -12,7 +12,7 @@ export const fixed = (n: number | string, decimals = 1): number => {
   return Math.floor(n * Math.pow(10, decimals)) / Math.pow(10, decimals)
 }
 
-export const truncateBalance = (value: number | string, decimals = 6): string => {
+export const truncateBalance = (value: number | string, decimals = 6, abbrev = true): string => {
   if (typeof value == 'number' && value == 0) return '0'
   if (typeof value == 'string') {
     const pureNumberStr = value.replace('.', '').split('e')[0]
@@ -57,7 +57,8 @@ export const truncateBalance = (value: number | string, decimals = 6): string =>
 
   // if is nonzero whole number
   if (decimalIndex == -1) {
-    return numberAbbreviate(str)
+    if (abbrev) return numberAbbreviate(str)
+    return str
   }
 
   // if is nonzero number with decimals
@@ -66,7 +67,8 @@ export const truncateBalance = (value: number | string, decimals = 6): string =>
   if (parseFloat(truncatedStr) == 0) {
     return `< ${truncatedStr.slice(0, -1) + '1'}`
   }
-  return numberAbbreviate(truncatedStr)
+  if (abbrev) return numberAbbreviate(truncatedStr)
+  return truncatedStr
 }
 
 export const numberAbbreviate = (value: number | string, decimals = 2): string => {

@@ -9,6 +9,7 @@ import { LiquityPosition, Policy, Position, StringToStringMapping, SupportedProd
 import { useCachedData } from '../context/CachedDataManager'
 import { useNetwork } from '../context/NetworkManager'
 import { PositionType } from '../constants/enums'
+import { useProvider } from '../context/ProviderManager'
 
 export const useGetPolicyPrice = (policyId: number): string => {
   const [policyPrice, setPolicyPrice] = useState<string>('')
@@ -38,7 +39,8 @@ export const useAppraisePolicyPosition = (policy: Policy | undefined): BigNumber
   const { activeNetwork } = useNetwork()
   const { account, library } = useWallet()
   const { getProtocolByName } = useContracts()
-  const { latestBlock, tokenPosData, userPolicyData } = useCachedData()
+  const { tokenPosData, userPolicyData } = useCachedData()
+  const { latestBlock } = useProvider()
   const [appraisal, setAppraisal] = useState<BigNumber>(ZERO)
 
   const handlePositionBalances = async (supportedProduct: SupportedProduct): Promise<BigNumber[]> => {

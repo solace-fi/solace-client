@@ -11,11 +11,12 @@ import { FunctionName, TransactionCondition } from '../constants/enums'
 import { GasConfiguration, LocalTx, TxResult } from '../constants/types'
 import { BigNumber } from 'ethers'
 import { FunctionGasLimits } from '../constants/mappings/gasMapping'
+import { useProvider } from '../context/ProviderManager'
 
 export const useCapitalPoolSize = (): string => {
   const { vault } = useContracts()
   const { currencyDecimals } = useNetwork()
-  const { latestBlock } = useCachedData()
+  const { latestBlock } = useProvider()
   const [capitalPoolSize, setCapitalPoolSize] = useState<string>('0')
 
   useEffect(() => {
@@ -76,7 +77,8 @@ export const useCooldown = () => {
   const [cooldownMin, setCooldownMin] = useState<number>(0)
   const [cooldownMax, setCooldownMax] = useState<number>(0)
   const [cooldownStart, setCooldownStart] = useState<number>(0)
-  const { version, latestBlock } = useCachedData()
+  const { version } = useCachedData()
+  const { latestBlock } = useProvider()
   const gettingCooldown = useRef(true)
 
   const startCooldown = async (): Promise<TxResult> => {

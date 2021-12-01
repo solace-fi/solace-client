@@ -27,11 +27,11 @@ import { MyOptions } from '../../components/molecules/MyOptions'
 /* import constants */
 import { FunctionName } from '../../constants/enums'
 import { PoolModalRouter } from '../../components/organisms/PoolModalRouter'
-import { Box, BoxItem } from '../../components/atoms/Box'
+import { Box } from '../../components/atoms/Box'
 import { TextSpan, Text } from '../../components/atoms/Typography'
 import { StyledInfo } from '../../components/atoms/Icon'
-import { FormRow, FormCol } from '../../components/atoms/Form'
-import { Content, FlexRow } from '../../components/atoms/Layout'
+import { Content } from '../../components/atoms/Layout'
+import { OptionsWindow } from '../../components/organisms/OptionsWindow'
 
 function Invest(): any {
   /*************************************************************************************
@@ -81,6 +81,9 @@ function Invest(): any {
             This page will be deprecated soon. Users should withdraw their funds.
           </Text>
         </Box>
+      </Content>
+      <Content>
+        <OptionsWindow />
       </Content>
       <UnderwritingPool openModal={openModal} />
       <CapitalProviderPool openModal={openModal} />

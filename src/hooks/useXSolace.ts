@@ -12,6 +12,7 @@ import { useSolaceBalance, useXSolaceBalance } from './useBalance'
 import { floatUnits } from '../utils/formatting'
 import { useCachedData } from '../context/CachedDataManager'
 import { parseUnits, formatUnits } from '@ethersproject/units'
+import { useProvider } from '../context/ProviderManager'
 
 export const useXSolace = () => {
   const { solace, xSolace } = useContracts()
@@ -54,7 +55,8 @@ export const useXSolace = () => {
 
 export const useXSolaceDetails = () => {
   const { xSolace } = useContracts()
-  const { latestBlock, version } = useCachedData()
+  const { version } = useCachedData()
+  const { latestBlock } = useProvider()
   const solaceBalData = useSolaceBalance()
   const xSolaceBalData = useXSolaceBalance()
   const [userShare, setUserShare] = useState<string>('0')

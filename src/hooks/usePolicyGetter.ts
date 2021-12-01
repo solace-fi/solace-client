@@ -6,12 +6,11 @@ import { useContracts } from '../context/ContractsManager'
 import { useState, useEffect, useRef } from 'react'
 import { useNetwork } from '../context/NetworkManager'
 import { getClaimAssessment } from '../utils/api'
-import { Block } from '@ethersproject/contracts/node_modules/@ethersproject/abstract-provider'
 import { trim0x } from '../utils/formatting'
+import { useProvider } from '../context/ProviderManager'
 
 export const usePolicyGetter = (
   getAll: boolean,
-  latestBlock: Block | undefined,
   tokenPosData: {
     batchFetching: boolean
     storedPosData: NetworkCache[]
@@ -26,6 +25,7 @@ export const usePolicyGetter = (
   setCanGetAssessments: (toggle: boolean) => void
 } => {
   const { library } = useWallet()
+  const { latestBlock } = useProvider()
   const { activeNetwork, findNetworkByChainId, chainId } = useNetwork()
   const { policyManager } = useContracts()
   const [userPolicies, setUserPolicies] = useState<Policy[]>([])
@@ -134,9 +134,9 @@ export const usePolicyGetter = (
   const getPolicies = async (policyHolder?: string) => {
     if (!findNetworkByChainId(chainId) || !library) return
     let policies = await (policyHolder ? getUserPolicies(policyHolder) : getAllPolicies())
-    policies = policies.filter((policy: any) => policy.policyId >= 0 && policy.productName != '')
     try {
       if (policyHolder) {
+        policies = policies.filter((policy: any) => policy.productName != '')
         policies.sort((a: any, b: any) => b.policyId - a.policyId) // newest first
         setUserPolicies(policies)
         setPoliciesLoading(false)
@@ -214,14 +214,13 @@ export const usePolicyGetter = (
   }
 
   const getProductNameFromAddress = (addr: string): string => {
-    let res = ''
-    Object.keys(activeNetwork.config.productContracts).every((name) => {
-      if (activeNetwork.config.productContracts[name].addr.toLowerCase() == addr.toLowerCase()) {
-        res = name
-        return
+    const productNames = Object.keys(activeNetwork.config.productContracts)
+    for (let i = 0; i < Object.keys(activeNetwork.config.productContracts).length; i++) {
+      if (activeNetwork.config.productContracts[productNames[i]].addr.toLowerCase() == addr.toLowerCase()) {
+        return productNames[i]
       }
-    })
-    return res
+    }
+    return ''
   }
 
   // load on change of account or network

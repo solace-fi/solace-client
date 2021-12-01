@@ -19,6 +19,7 @@ import { FunctionGasLimits } from '../constants/mappings/gasMapping'
 import { FunctionName, TransactionCondition } from '../constants/enums'
 import { queryDecimals, queryName, querySymbol } from '../utils/contract'
 import { useCachedData } from '../context/CachedDataManager'
+import { useProvider } from '../context/ProviderManager'
 
 export const useBondTeller = (selectedBondDetail: BondTellerDetails | undefined) => {
   const deposit = async (
@@ -82,7 +83,8 @@ export const useBondTeller = (selectedBondDetail: BondTellerDetails | undefined)
 
 export const useBondTellerDetails = (): { tellerDetails: BondTellerDetails[]; mounting: boolean } => {
   const { library, account } = useWallet()
-  const { latestBlock, version } = useCachedData()
+  const { version } = useCachedData()
+  const { latestBlock } = useProvider()
   const { tellers } = useContracts()
   const [tellerDataset, setTellerDataset] = useState<BondTellerData[]>([])
   const [principalDataset, setPrincipalDataset] = useState<BondPrincipalData[]>([])

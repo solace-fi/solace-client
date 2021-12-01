@@ -36,6 +36,7 @@ import { useGeneral } from '../../context/GeneralProvider'
 import { useCachedData } from '../../context/CachedDataManager'
 import { useNotifications } from '../../context/NotificationsManager'
 import { useContracts } from '../../context/ContractsManager'
+import { useProvider } from '../../context/ProviderManager'
 
 /* import components */
 import { WalletConnectButton } from '../molecules/WalletConnectButton'
@@ -83,7 +84,8 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
   const { haveErrors } = useGeneral()
   const { account } = useWallet()
   const { activeNetwork, currencyDecimals } = useNetwork()
-  const { reload, latestBlock } = useCachedData()
+  const { reload } = useCachedData()
+  const { latestBlock } = useProvider()
   const { makeTxToast } = useNotifications()
   const { solace, xSolace } = useContracts()
 
