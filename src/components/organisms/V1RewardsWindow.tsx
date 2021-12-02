@@ -42,7 +42,7 @@ import { getContract, hasApproval, isAddress } from '../../utils'
 export const V1RewardsWindow: React.FC = () => {
   const { haveErrors } = useGeneral()
   const { keyContracts } = useContracts()
-  const { farmRewards, solace, xSolace } = useMemo(() => keyContracts, [keyContracts])
+  const { farmRewards, xSolace } = useMemo(() => keyContracts, [keyContracts])
   const { latestBlock } = useProvider()
   const { library, account } = useWallet()
   const { chainId, currencyDecimals } = useNetwork()
@@ -101,14 +101,13 @@ export const V1RewardsWindow: React.FC = () => {
     [amount, tokenAllowance, userStablecoinDecimals]
   )
 
-  const vestingStartString = useMemo(() => {
-    const date = new Date(parseInt(vestingStart.toString()) * 1000)
-    return getDateStringWithMonthName(new Date(date.setDate(date.getDate() + 1)))
-  }, [vestingStart])
-  const vestingEndString = useMemo(() => {
-    const date = new Date(parseInt(vestingEnd.toString()) * 1000)
-    return getDateStringWithMonthName(new Date(date.setDate(date.getDate() + 1)))
-  }, [vestingEnd])
+  const vestingStartString = useMemo(
+    () => getDateStringWithMonthName(new Date(parseInt(vestingStart.toString()) * 1000)),
+    [vestingStart]
+  )
+  const vestingEndString = useMemo(() => getDateStringWithMonthName(new Date(parseInt(vestingEnd.toString()) * 1000)), [
+    vestingEnd,
+  ])
 
   /*
 
@@ -296,7 +295,8 @@ export const V1RewardsWindow: React.FC = () => {
           Instructions
         </Text>
         <Text t4 mb={10} autoAlignHorizontal>
-          - Starting on {vestingStartString}, Your earned SOLACE tokens are automatically staked and vested.
+          - Starting on {vestingStart.gt(ZERO) ? vestingStartString : `-`}, Your earned SOLACE tokens are automatically
+          staked and vested.
         </Text>
         <Text t4 mb={10} autoAlignHorizontal>
           - Pay stablecoins to receive your token rewards in xSOLACE at $0.03 per SOLACE.
@@ -416,13 +416,13 @@ export const V1RewardsWindow: React.FC = () => {
         <FormRow mb={10}>
           <FormCol t4>Start of Vesting Term</FormCol>
           <FormCol t4 textAlignRight>
-            {vestingStartString}
+            {vestingStart.gt(ZERO) ? vestingStartString : `-`}
           </FormCol>
         </FormRow>
         <FormRow>
           <FormCol t4>End of Vesting Term</FormCol>
           <FormCol t4 textAlignRight>
-            {vestingEndString}
+            {vestingEnd.gt(ZERO) ? vestingEndString : `-`}
           </FormCol>
         </FormRow>
         {buttonLoading ? (
