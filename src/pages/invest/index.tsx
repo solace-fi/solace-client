@@ -78,7 +78,7 @@ function Invest(): any {
             <StyledInfo size={30} />
           </TextSpan>
           <Text light bold style={{ margin: '0 auto' }}>
-            This page will be deprecated soon. Users should withdraw their funds.
+            This page will be deprecated soon. Users should withdraw their funds from the pools below.
           </Text>
         </Box>
       </Content>

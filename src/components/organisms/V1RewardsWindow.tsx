@@ -341,14 +341,14 @@ export const V1RewardsWindow: React.FC = () => {
             {stablecoinPayment.label}
           </FormCol>
         </FormRow>
-        <FormRow mb={10}>
+        <FormRow mb={20}>
           <FormCol bold>You will get</FormCol>
           <FormCol bold textAlignRight info>
             {calculatedAmountOut ? `${truncateBalance(formatUnits(calculatedAmountOut, 18), 18, false)} xSOLACE` : `-`}
           </FormCol>
         </FormRow>
         <HorizRule />
-        <FormRow mb={0}>
+        <FormRow mt={20} mb={0}>
           <FormCol bold>Amount you can redeem now</FormCol>
           <FormCol bold textAlignRight info>
             {truncateBalance(formatUnits(purchaseableVestedXSolace, currencyDecimals), 4, false)} xSOLACE
