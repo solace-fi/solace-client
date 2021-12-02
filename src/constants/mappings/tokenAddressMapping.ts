@@ -35,3 +35,7 @@ export const DAI_ADDRESS: AddressMap = {
   [ChainId.RINKEBY]: '0x5592EC0cfb4dbc12D3aB100b257153436a1f0FEa',
   [ChainId.KOVAN]: '0xC56010E957c325b140f182b4FBEE61C2Fb95FDb3',
 }
+
+export const FRAX_ADDRESS: AddressMap = {
+  [ChainId.MAINNET]: '0x853d955acef822db058eb8505911ed77f175b99e',
+}

@@ -106,7 +106,7 @@ export const useAppraisePolicyPosition = (policy: Policy | undefined): BigNumber
 
   useEffect(() => {
     const getAppraisal = async () => {
-      if (!policy || userPolicyData.policiesLoading) return
+      if (!policy || userPolicyData.policiesLoading || !latestBlock) return
       try {
         const product = getProtocolByName(policy.productName)
 

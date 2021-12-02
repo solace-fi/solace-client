@@ -230,7 +230,10 @@ export const usePolicyGetter = (
 
     if (!policyManager) return
     loadOnBoot()
+  }, [policyHolder, policyManager])
 
+  useEffect(() => {
+    if (!policyManager || !policyHolder) return
     policyManager.on('Transfer', async (from, to) => {
       if (from == policyHolder || to == policyHolder) {
         await getPolicies(policyHolder)
@@ -244,7 +247,7 @@ export const usePolicyGetter = (
     return () => {
       policyManager.removeAllListeners()
     }
-  }, [policyHolder, policyManager, getUpdatedUserPolicy])
+  }, [policyHolder, policyManager, tokenPosData])
 
   /* fetch all policies per block */
   useEffect(() => {
