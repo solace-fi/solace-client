@@ -88,7 +88,7 @@ function Invest(): any {
       <UnderwritingPool openModal={openModal} />
       <CapitalProviderPool openModal={openModal} />
       {/* <LiquidityPool openModal={openModal} /> */}
-      <MyOptions />
+      {/* <MyOptions /> */}
     </Fragment>
   )
 }

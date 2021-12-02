@@ -156,10 +156,9 @@ export const ButtonBaseCss = css<ButtonProps & GeneralElementProps>`
   ${Text4Css}
 `
 
-export const Button = styled.button<ButtonProps & GeneralElementProps & GeneralTextProps>`
+export const Button = styled.button<ButtonProps & GeneralElementProps>`
   ${ButtonBaseCss}
   ${GeneralElementCss}
-  ${GeneralTextCss}
 `
 
 export const NavButton = styled.button`

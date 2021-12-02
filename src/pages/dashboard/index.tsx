@@ -135,8 +135,8 @@ function Dashboard(): any {
             setOpen={setOpenPolicies}
           />
           <MyClaims />
-          <MyInvestments />
-          <MyOptions />
+          {/* <MyInvestments />
+          <MyOptions /> */}
         </Fragment>
       )}
     </Fragment>

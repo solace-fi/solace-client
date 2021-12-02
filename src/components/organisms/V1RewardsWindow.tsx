@@ -295,11 +295,11 @@ export const V1RewardsWindow: React.FC = () => {
           Instructions
         </Text>
         <Text t4 mb={10} autoAlignHorizontal>
-          - Starting on {vestingStart.gt(ZERO) ? vestingStartString : `-`}, Your earned SOLACE tokens are automatically
+          - Starting on {vestingStart.gt(ZERO) ? vestingStartString : `-`}, your earned SOLACE tokens are automatically
           staked and vested.
         </Text>
         <Text t4 mb={10} autoAlignHorizontal>
-          - Pay stablecoins to receive your token rewards in xSOLACE at $0.03 per SOLACE.
+          - Pay stablecoins to receive your token rewards in xSOLACE.
         </Text>
         <Text t4 mb={10} autoAlignHorizontal>
           - Vested tokens unlock linearly over 6 months.
