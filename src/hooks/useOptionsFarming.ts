@@ -1,5 +1,5 @@
 import { BigNumber } from 'ethers'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import { GasConfiguration, LocalTx, Option, TxResult } from '../constants/types'
 import { useContracts } from '../context/ContractsManager'
 import { useWallet } from '../context/WalletManager'
@@ -8,7 +8,8 @@ import { FunctionGasLimits } from '../constants/mappings/gasMapping'
 import { useProvider } from '../context/ProviderManager'
 
 export const useOptionsDetails = () => {
-  const { optionsFarming } = useContracts()
+  const { keyContracts } = useContracts()
+  const { optionsFarming } = useMemo(() => keyContracts, [keyContracts])
   const [optionsDetails, setOptionsDetails] = useState<Option[]>([])
   const { latestBlock } = useProvider()
   const { account, library } = useWallet()

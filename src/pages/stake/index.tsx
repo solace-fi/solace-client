@@ -20,6 +20,7 @@ import { parseUnits } from '@ethersproject/units'
 /* import managers */
 import { useWallet } from '../../context/WalletManager'
 import { useGeneral } from '../../context/GeneralProvider'
+import { useContracts } from '../../context/ContractsManager'
 
 /* import constants */
 import { FunctionName } from '../../constants/enums'
@@ -40,6 +41,7 @@ import { StyledRefresh } from '../../components/atoms/Icon'
 import { useSolaceBalance, useXSolaceBalance } from '../../hooks/useBalance'
 import { useStakingApy, useXSolace, useXSolaceDetails } from '../../hooks/useXSolace'
 import { useInputAmount } from '../../hooks/useInputAmount'
+import { useReadToken } from '../../hooks/useToken'
 
 /* import utils */
 import { getUnit, truncateBalance } from '../../utils/formatting'
@@ -52,9 +54,13 @@ function Stake(): any {
   *************************************************************************************/
 
   const { haveErrors } = useGeneral()
+  const { keyContracts } = useContracts()
+  const { solace, xSolace } = useMemo(() => keyContracts, [keyContracts])
   const [isStaking, setIsStaking] = useState<boolean>(true)
-  const solaceBalanceData = useSolaceBalance()
-  const xSolaceBalanceData = useXSolaceBalance()
+  const solaceBalance = useSolaceBalance()
+  const xSolaceBalance = useXSolaceBalance()
+  const readSolaceToken = useReadToken(solace)
+  const readXSolaceToken = useReadToken(xSolace)
   const {
     gasConfig,
     amount,
@@ -76,19 +82,20 @@ function Stake(): any {
   const assetBalance = useMemo(
     () =>
       isStaking
-        ? parseUnits(solaceBalanceData.solaceBalance, solaceBalanceData.tokenData.decimals)
-        : parseUnits(xSolaceBalanceData.xSolaceBalance, xSolaceBalanceData.tokenData.decimals),
-    [isStaking, solaceBalanceData, xSolaceBalanceData]
+        ? parseUnits(solaceBalance, readSolaceToken.decimals)
+        : parseUnits(xSolaceBalance, readXSolaceToken.decimals),
+    [isStaking, solaceBalance, xSolaceBalance, readSolaceToken, readXSolaceToken]
   )
 
-  const assetDecimals = useMemo(
-    () => (isStaking ? solaceBalanceData.tokenData.decimals : xSolaceBalanceData.tokenData.decimals),
-    [isStaking, solaceBalanceData, xSolaceBalanceData]
-  )
+  const assetDecimals = useMemo(() => (isStaking ? readSolaceToken.decimals : readXSolaceToken.decimals), [
+    isStaking,
+    readSolaceToken.decimals,
+    readXSolaceToken.decimals,
+  ])
 
   const callStakeSigned = async () => {
     await stake(
-      parseUnits(amount, solaceBalanceData.tokenData.decimals),
+      parseUnits(amount, readSolaceToken.decimals),
       `${truncateBalance(amount)} ${getUnit(FunctionName.STAKE)}`,
       gasConfig
     )
@@ -98,7 +105,7 @@ function Stake(): any {
 
   const callUnstake = async () => {
     await unstake(
-      parseUnits(amount, xSolaceBalanceData.tokenData.decimals),
+      parseUnits(amount, readXSolaceToken.decimals),
       `${truncateBalance(amount)} ${getUnit(FunctionName.UNSTAKE)}`,
       gasConfig
     )
@@ -204,7 +211,7 @@ function Stake(): any {
                 </FormCol>
                 <FormCol>
                   <Text textAlignRight info t4={!isStaking} fade={!isStaking}>
-                    {solaceBalanceData.solaceBalance} {solaceBalanceData.tokenData.symbol}
+                    {solaceBalance} {readSolaceToken.symbol}
                   </Text>
                 </FormCol>
               </FormRow>
@@ -216,7 +223,7 @@ function Stake(): any {
                 </FormCol>
                 <FormCol>
                   <Text textAlignRight info t4={isStaking} fade={isStaking}>
-                    {xSolaceBalanceData.xSolaceBalance} {xSolaceBalanceData.tokenData.symbol}
+                    {xSolaceBalance} {readXSolaceToken.symbol}
                   </Text>
                 </FormCol>
               </FormRow>
@@ -241,8 +248,8 @@ function Stake(): any {
                 <FormCol>
                   <Text t4 pr={5}>
                     {convertStoX
-                      ? `1 ${solaceBalanceData.tokenData.symbol} = ${xSolacePerSolace} ${xSolaceBalanceData.tokenData.symbol}`
-                      : `1 ${xSolaceBalanceData.tokenData.symbol} = ${solacePerXSolace} ${solaceBalanceData.tokenData.symbol}`}
+                      ? `1 ${readSolaceToken.symbol} = ${xSolacePerSolace} ${readXSolaceToken.symbol}`
+                      : `1 ${readXSolaceToken.symbol} = ${solacePerXSolace} ${readSolaceToken.symbol}`}
                   </Text>
                 </FormCol>
               </FormRow>

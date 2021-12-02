@@ -15,7 +15,7 @@
   *************************************************************************************/
 
 /* import packages */
-import React from 'react'
+import React, { useMemo } from 'react'
 
 /* import managers */
 import { useContracts } from '../../context/ContractsManager'
@@ -40,7 +40,8 @@ export const LpPoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen
 
   *************************************************************************************/
 
-  const { lpFarm } = useContracts()
+  const { keyContracts } = useContracts()
+  const { lpFarm } = useMemo(() => keyContracts, [keyContracts])
   const userLpTokenInfo = useUserWalletLpBalance()
   const depositedLpTokenInfo = useDepositedLpBalance()
   const { depositLp, withdrawLp } = useLpFarm()

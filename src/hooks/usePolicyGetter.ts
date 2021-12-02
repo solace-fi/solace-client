@@ -3,7 +3,7 @@ import { PolicyState } from '../constants/enums'
 import { Policy, SupportedProduct, PositionNamesCacheValue } from '../constants/types'
 import { BigNumber } from 'ethers'
 import { useContracts } from '../context/ContractsManager'
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useMemo } from 'react'
 import { useNetwork } from '../context/NetworkManager'
 import { getClaimAssessment } from '../utils/api'
 import { trim0x } from '../utils/formatting'
@@ -21,7 +21,8 @@ export const usePolicyGetter = (
   const { library } = useWallet()
   const { latestBlock, tokenPosData } = useProvider()
   const { activeNetwork, findNetworkByChainId, chainId } = useNetwork()
-  const { policyManager } = useContracts()
+  const { keyContracts } = useContracts()
+  const { policyManager } = useMemo(() => keyContracts, [keyContracts])
   const [userPolicies, setUserPolicies] = useState<Policy[]>([])
   const [allPolicies, setAllPolicies] = useState<Policy[]>([])
   const [policiesLoading, setPoliciesLoading] = useState<boolean>(true)

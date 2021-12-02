@@ -1,6 +1,6 @@
 import { Contract } from '@ethersproject/contracts'
 import { formatUnits, parseUnits } from '@ethersproject/units'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useCachedData } from '../context/CachedDataManager'
 import { useContracts } from '../context/ContractsManager'
 import { useNetwork } from '../context/NetworkManager'
@@ -54,7 +54,8 @@ export const usePoolStakedValue = (farm: Contract | null | undefined): string =>
 
 export const useGetTotalValueLocked = (): string => {
   const { currencyDecimals } = useNetwork()
-  const { cpFarm, lpFarm } = useContracts()
+  const { keyContracts } = useContracts()
+  const { cpFarm, lpFarm } = useMemo(() => keyContracts, [keyContracts])
   const [totalValueLocked, setTotalValueLocked] = useState<string>('0')
   const cpPoolValue = usePoolStakedValue(cpFarm)
   const lpPoolValue = usePoolStakedValue(lpFarm)

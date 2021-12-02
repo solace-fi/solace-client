@@ -10,7 +10,8 @@ import { useNetwork } from '../context/NetworkManager'
 import { useProvider } from '../context/ProviderManager'
 
 const useFarmControllerValues = (farmId: number) => {
-  const { farmController } = useContracts()
+  const { keyContracts } = useContracts()
+  const { farmController } = useMemo(() => keyContracts, [keyContracts])
   const { latestBlock } = useProvider()
   const [farmControllerValues, setFarmControllerValues] = useState({
     allocPoints: ZERO,
@@ -72,7 +73,8 @@ export const useUserRewardsPerDay = (farmId: number, farm: Contract | null | und
 }
 
 export const useUserPendingRewards = (farm: Contract | null | undefined): string => {
-  const { farmController } = useContracts()
+  const { keyContracts } = useContracts()
+  const { farmController } = useMemo(() => keyContracts, [keyContracts])
   const { latestBlock } = useProvider()
   const { account } = useWallet()
   const { currencyDecimals } = useNetwork()
@@ -98,7 +100,8 @@ export const useUserPendingRewards = (farm: Contract | null | undefined): string
 }
 
 export const useTotalPendingRewards = (): string => {
-  const { farmController } = useContracts()
+  const { keyContracts } = useContracts()
+  const { farmController } = useMemo(() => keyContracts, [keyContracts])
   const { currencyDecimals } = useNetwork()
   const { account } = useWallet()
   const [totalPendingRewards, setTotalPendingRewards] = useState<string>('0')

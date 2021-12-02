@@ -79,11 +79,14 @@ export type Policy = {
   claimAssessment?: ClaimAssessment
 }
 
-export type TokenInfo = {
+export type ReadToken = {
   address: string
   name: string
   symbol: string
   decimals: number
+}
+
+export type TokenInfo = ReadToken & {
   balance: BigNumber
 }
 

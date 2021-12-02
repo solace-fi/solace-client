@@ -38,4 +38,6 @@ export const DAI_ADDRESS: AddressMap = {
 
 export const FRAX_ADDRESS: AddressMap = {
   [ChainId.MAINNET]: '0x853d955acef822db058eb8505911ed77f175b99e',
+  [ChainId.RINKEBY]: '0x86E5B6485e28E52a0dEEd28Cc10772FeB9c4C400',
+  [ChainId.KOVAN]: '0x58B23b32a9774153E1E344762751aDfdca2764DD',
 }

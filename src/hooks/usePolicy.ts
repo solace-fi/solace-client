@@ -1,7 +1,7 @@
 import useDebounce from '@rooks/use-debounce'
 import { BigNumber } from 'ethers'
 import { formatUnits } from '@ethersproject/units'
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { NUM_BLOCKS_PER_DAY, ZERO } from '../constants'
 import { useContracts } from '../context/ContractsManager'
 import { useWallet } from '../context/WalletManager'
@@ -137,7 +137,8 @@ export const useAppraisePolicyPosition = (policy: Policy | undefined): BigNumber
 
 export const useGetMaxCoverPerPolicy = (): string => {
   const [maxCoverPerPolicy, setMaxCoverPerPolicy] = useState<string>('0')
-  const { selectedProtocol, riskManager } = useContracts()
+  const { selectedProtocol, keyContracts } = useContracts()
+  const { riskManager } = useMemo(() => keyContracts, [keyContracts])
   const { currencyDecimals } = useNetwork()
 
   const getMaxCoverPerPolicy = async () => {
@@ -160,7 +161,8 @@ export const useGetMaxCoverPerPolicy = (): string => {
 
 export const useGetYearlyCosts = (): StringToStringMapping => {
   const [yearlyCosts, setYearlyCosts] = useState<StringToStringMapping>({})
-  const { products, getProtocolByName, riskManager } = useContracts()
+  const { products, getProtocolByName, keyContracts } = useContracts()
+  const { riskManager } = useMemo(() => keyContracts, [keyContracts])
   const { currencyDecimals } = useNetwork()
 
   const getYearlyCosts = async () => {
@@ -193,7 +195,8 @@ export const useGetYearlyCosts = (): StringToStringMapping => {
 
 export const useGetAvailableCoverages = (): StringToStringMapping => {
   const [availableCoverages, setAvailableCoverages] = useState<StringToStringMapping>({})
-  const { products, getProtocolByName, riskManager } = useContracts()
+  const { products, getProtocolByName, keyContracts } = useContracts()
+  const { riskManager } = useMemo(() => keyContracts, [keyContracts])
   const { currencyDecimals } = useNetwork()
 
   const getAvailableCoverages = async () => {

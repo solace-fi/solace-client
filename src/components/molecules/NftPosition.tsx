@@ -16,7 +16,7 @@
   *************************************************************************************/
 
 /* import packages */
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useMemo } from 'react'
 import styled from 'styled-components'
 import { BigNumber } from 'ethers'
 import Tilt from 'react-parallax-tilt'
@@ -51,7 +51,8 @@ export const NftPosition: React.FC<NftPositionProps> = ({ tokenId }) => {
 
   *************************************************************************************/
   const { width } = useWindowDimensions()
-  const { lpToken } = useContracts()
+  const { keyContracts } = useContracts()
+  const { lpToken } = useMemo(() => keyContracts, [keyContracts])
   const [image, setImage] = useState<any>(null)
 
   useEffect(() => {

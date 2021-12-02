@@ -17,7 +17,7 @@
   *************************************************************************************/
 
 /* import packages */
-import React from 'react'
+import React, { useMemo } from 'react'
 import { formatUnits } from '@ethersproject/units'
 
 /* import managers */
@@ -60,7 +60,8 @@ export const LiquidityPool: React.FC<LiquidityPoolProps> = ({ openModal }) => {
 
   const { haveErrors } = useGeneral()
   const { account } = useWallet()
-  const { lpFarm } = useContracts()
+  const { keyContracts } = useContracts()
+  const { lpFarm } = useMemo(() => keyContracts, [keyContracts])
   const { width } = useWindowDimensions()
   const { currencyDecimals } = useNetwork()
 

@@ -18,23 +18,25 @@ the web application mainly reads the contracts.
 */
 
 type Contracts = {
-  farmController?: Contract | null
-  optionsFarming?: Contract | null
-  farmRewards?: Contract | null
-  vault?: Contract | null
-  treasury?: Contract | null
-  solace?: Contract | null
-  xSolace?: Contract | null
-  cpFarm?: Contract | null
-  lpFarm?: Contract | null
-  sptFarm?: Contract | null
-  registry?: Contract | null
-  lpToken?: Contract | null
-  lpAppraisor?: Contract | null
-  bondDepo?: Contract | null
-  claimsEscrow?: Contract | null
-  policyManager?: Contract | null
-  riskManager?: Contract | null
+  keyContracts: {
+    farmController?: Contract | null
+    optionsFarming?: Contract | null
+    farmRewards?: Contract | null
+    vault?: Contract | null
+    treasury?: Contract | null
+    solace?: Contract | null
+    xSolace?: Contract | null
+    cpFarm?: Contract | null
+    lpFarm?: Contract | null
+    sptFarm?: Contract | null
+    registry?: Contract | null
+    lpToken?: Contract | null
+    lpAppraisor?: Contract | null
+    bondDepo?: Contract | null
+    claimsEscrow?: Contract | null
+    policyManager?: Contract | null
+    riskManager?: Contract | null
+  }
   products: ProductContract[]
   tellers: BondTellerContract[]
   contractSources: ContractSources[]
@@ -44,23 +46,25 @@ type Contracts = {
 }
 
 const ContractsContext = createContext<Contracts>({
-  farmController: undefined,
-  optionsFarming: undefined,
-  farmRewards: undefined,
-  vault: undefined,
-  treasury: undefined,
-  solace: undefined,
-  xSolace: undefined,
-  cpFarm: undefined,
-  lpFarm: undefined,
-  sptFarm: undefined,
-  registry: undefined,
-  lpToken: undefined,
-  lpAppraisor: undefined,
-  bondDepo: undefined,
-  claimsEscrow: undefined,
-  policyManager: undefined,
-  riskManager: undefined,
+  keyContracts: {
+    farmController: undefined,
+    optionsFarming: undefined,
+    farmRewards: undefined,
+    vault: undefined,
+    treasury: undefined,
+    solace: undefined,
+    xSolace: undefined,
+    cpFarm: undefined,
+    lpFarm: undefined,
+    sptFarm: undefined,
+    registry: undefined,
+    lpToken: undefined,
+    lpAppraisor: undefined,
+    bondDepo: undefined,
+    claimsEscrow: undefined,
+    policyManager: undefined,
+    riskManager: undefined,
+  },
   products: [],
   tellers: [],
   contractSources: [],
@@ -113,23 +117,25 @@ const ContractsProvider: React.FC = (props) => {
 
   const value = useMemo<Contracts>(
     () => ({
-      farmController,
-      optionsFarming,
-      farmRewards,
-      vault,
-      treasury,
-      solace,
-      xSolace,
-      cpFarm,
-      lpFarm,
-      sptFarm,
-      registry,
-      lpToken,
-      lpAppraisor,
-      bondDepo,
-      claimsEscrow,
-      policyManager,
-      riskManager,
+      keyContracts: {
+        farmController,
+        optionsFarming,
+        farmRewards,
+        vault,
+        treasury,
+        solace,
+        xSolace,
+        cpFarm,
+        lpFarm,
+        sptFarm,
+        registry,
+        lpToken,
+        lpAppraisor,
+        bondDepo,
+        claimsEscrow,
+        policyManager,
+        riskManager,
+      },
       products,
       tellers,
       contractSources,

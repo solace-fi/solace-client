@@ -58,8 +58,7 @@ import { BondSettingsModal } from './BondSettingsModal'
 
 /* import hooks */
 import { useInputAmount } from '../../hooks/useInputAmount'
-import { useTokenAllowance } from '../../hooks/useTokenAllowance'
-import { useSolaceBalance, useXSolaceBalance } from '../../hooks/useBalance'
+import { useReadToken, useTokenAllowance } from '../../hooks/useToken'
 import { useNativeTokenBalance } from '../../hooks/useBalance'
 import { useBondTeller } from '../../hooks/useBondTeller'
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'
@@ -87,7 +86,8 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
   const { reload } = useCachedData()
   const { latestBlock } = useProvider()
   const { makeTxToast } = useNotifications()
-  const { solace, xSolace } = useContracts()
+  const { keyContracts } = useContracts()
+  const { solace, xSolace } = useMemo(() => keyContracts, [keyContracts])
 
   const [canCloseOnLoading, setCanCloseOnLoading] = useState<boolean>(false)
   const [modalLoading, setModalLoading] = useState<boolean>(false)
@@ -114,8 +114,8 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
   const pncplDecimals = useMemo(() => selectedBondDetail?.principalData?.principalProps.decimals, [
     selectedBondDetail?.principalData?.principalProps.decimals,
   ])
-  const solaceBalanceData = useSolaceBalance()
-  const xSolaceBalanceData = useXSolaceBalance()
+  const readSolaceToken = useReadToken(solace)
+  const readXSolaceToken = useReadToken(xSolace)
   const nativeTokenBalance = useNativeTokenBalance()
   const [contractForAllowance, setContractForAllowance] = useState<Contract | null>(null)
   const [spenderAddress, setSpenderAddress] = useState<string | null>(null)
@@ -331,7 +331,7 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
 
   useEffect(() => {
     const getUserBondData = async () => {
-      if (!selectedBondDetail?.principalData || !account || !solace || !xSolace || !isOpen) return
+      if (!selectedBondDetail?.principalData || !account || !isOpen) return
       const principalBal = await queryBalance(selectedBondDetail.principalData.principal, account)
       const ownedTokenIds: BigNumber[] = await selectedBondDetail.tellerData.teller.contract.listTokensOfOwner(account)
       const ownedBondData = await Promise.all(
@@ -339,10 +339,10 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
       )
       const ownedBonds: BondToken[] = ownedTokenIds.map((id, idx) => {
         const payoutToken: string =
-          ownedBondData[idx].payoutToken == solace.address
-            ? solaceBalanceData.tokenData.symbol
-            : ownedBondData[idx].payoutToken == xSolace.address
-            ? xSolaceBalanceData.tokenData.symbol
+          ownedBondData[idx].payoutToken == readSolaceToken.address
+            ? readSolaceToken.symbol
+            : ownedBondData[idx].payoutToken == readXSolaceToken.address
+            ? readXSolaceToken.symbol
             : ''
         return {
           id,
@@ -356,7 +356,7 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
       setOwnedBondTokens(ownedBonds.sort((a, b) => a.id.toNumber() - b.id.toNumber()))
     }
     getUserBondData()
-  }, [account, isOpen, selectedBondDetail])
+  }, [account, isOpen, selectedBondDetail, readSolaceToken, readXSolaceToken])
 
   useEffect(() => {
     const getTellerType = async () => {
@@ -564,9 +564,7 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
                   <FormCol>
                     <Text info textAlignRight bold>
                       {calculatedAmountOut
-                        ? `${formatUnits(calculatedAmountOut, solaceBalanceData.tokenData.decimals)} ${
-                            solaceBalanceData.tokenData.symbol
-                          }`
+                        ? `${formatUnits(calculatedAmountOut, readSolaceToken.decimals)} ${readSolaceToken.symbol}`
                         : `-`}
                     </Text>
                   </FormCol>
@@ -579,8 +577,8 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
                         <Text t4 textAlignRight>
                           {'( '}
                           {calculatedAmountOut_X
-                            ? `${formatUnits(calculatedAmountOut_X, xSolaceBalanceData.tokenData.decimals)} ${
-                                xSolaceBalanceData.tokenData.symbol
+                            ? `${formatUnits(calculatedAmountOut_X, readXSolaceToken.decimals)} ${
+                                readXSolaceToken.symbol
                               }`
                             : `-`}
                           {' )'}
@@ -598,9 +596,7 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
               </FormCol>
               <FormCol>
                 <Text t4 info textAlignRight>
-                  {`${formatUnits(maxPayout, solaceBalanceData.tokenData.decimals)} ${
-                    solaceBalanceData.tokenData.symbol
-                  }
+                  {`${formatUnits(maxPayout, readSolaceToken.decimals)} ${readSolaceToken.symbol}
                   `}
                 </Text>
               </FormCol>
@@ -696,7 +692,7 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
                       </FormCol>
                       <FormCol>
                         <Text textAlignRight>
-                          {formatUnits(token.payoutAmount, solaceBalanceData.tokenData.decimals)} {token.payoutToken}
+                          {`${formatUnits(token.payoutAmount, readSolaceToken.decimals)} ${token.payoutToken}`}
                         </Text>
                       </FormCol>
                     </FormRow>

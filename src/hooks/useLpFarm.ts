@@ -1,4 +1,5 @@
 import { BigNumber } from 'ethers'
+import { useMemo } from 'react'
 import { DEADLINE, GAS_LIMIT } from '../constants'
 import { FunctionName, TransactionCondition } from '../constants/enums'
 import { GasConfiguration, LocalTx, TxResult } from '../constants/types'
@@ -8,7 +9,8 @@ import { useWallet } from '../context/WalletManager'
 import getPermitNFTSignature from '../utils/signature'
 
 export const useLpFarm = () => {
-  const { lpFarm, lpToken } = useContracts()
+  const { keyContracts } = useContracts()
+  const { lpFarm, lpToken } = useMemo(() => keyContracts, [keyContracts])
   const { account, library } = useWallet()
   const { chainId } = useNetwork()
 

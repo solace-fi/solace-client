@@ -15,7 +15,7 @@
   *************************************************************************************/
 
 /* import packages */
-import React from 'react'
+import React, { useMemo } from 'react'
 
 /* import managers */
 import { useContracts } from '../../context/ContractsManager'
@@ -57,7 +57,8 @@ export const CapitalProviderPool: React.FC<CapitalProviderPoolProps> = ({ openMo
   const { haveErrors } = useGeneral()
   const { account } = useWallet()
   const { width } = useWindowDimensions()
-  const { cpFarm } = useContracts()
+  const { keyContracts } = useContracts()
+  const { cpFarm } = useMemo(() => keyContracts, [keyContracts])
   const cpUserStakeValue = useUserStakedValue(cpFarm)
   const cpRewardsPerDay = useRewardsPerDay(1)
   const cpUserRewardsPerDay = useUserRewardsPerDay(1, cpFarm)

@@ -15,8 +15,9 @@ import { useCachedData } from '../../context/CachedDataManager'
 import { FunctionName, TransactionCondition } from '../../constants/enums'
 import { LocalTx } from '../../constants/types'
 import { USDC_ADDRESS, USDT_ADDRESS, DAI_ADDRESS, FRAX_ADDRESS } from '../../constants/mappings/tokenAddressMapping'
-import { BKPT_5, DEADLINE, GAS_LIMIT, ZERO } from '../../constants'
+import { BKPT_5, ZERO } from '../../constants'
 import IERC20 from '../../constants/metadata/IERC20Metadata.json'
+import { FunctionGasLimits } from '../../constants/mappings/gasMapping'
 
 import { Button, ButtonWrapper } from '../atoms/Button'
 import { Card } from '../atoms/Card'
@@ -30,18 +31,18 @@ import { FormRow, FormCol } from '../atoms/Form'
 import { Loader } from '../atoms/Loader'
 
 import { useInputAmount } from '../../hooks/useInputAmount'
-import { useTokenAllowance } from '../../hooks/useTokenAllowance'
+import { useTokenAllowance } from '../../hooks/useToken'
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'
 
 import { getDateStringWithMonthName } from '../../utils/time'
-import { getPermitErc20Signature } from '../../utils/signature'
 import { queryBalance, queryDecimals } from '../../utils/contract'
 import { truncateBalance } from '../../utils/formatting'
 import { getContract, hasApproval, isAddress } from '../../utils'
 
 export const V1RewardsWindow: React.FC = () => {
   const { haveErrors } = useGeneral()
-  const { farmRewards, xSolace } = useContracts()
+  const { keyContracts } = useContracts()
+  const { farmRewards, solace, xSolace } = useMemo(() => keyContracts, [keyContracts])
   const { latestBlock } = useProvider()
   const { library, account } = useWallet()
   const { chainId, currencyDecimals } = useNetwork()
@@ -97,7 +98,7 @@ export const V1RewardsWindow: React.FC = () => {
         tokenAllowance,
         amount && amount != '.' ? parseUnits(amount, userStablecoinDecimals).toString() : '0'
       ),
-    [amount, currencyDecimals, tokenAllowance]
+    [amount, tokenAllowance, userStablecoinDecimals]
   )
 
   const vestingStartString = useMemo(() => {
@@ -116,9 +117,9 @@ export const V1RewardsWindow: React.FC = () => {
   */
 
   const approve = async () => {
+    if (!farmRewards || !account || !isAddress(stablecoinPayment.value) || !library) return
+    const stablecoinContract = getContract(stablecoinPayment.value, IERC20.abi, library, account)
     try {
-      if (!farmRewards || !account || !isAddress(stablecoinPayment.value) || !library) return
-      const stablecoinContract = getContract(stablecoinPayment.value, IERC20.abi, library, account)
       const tx = await stablecoinContract.approve(farmRewards.address, parseUnits(amount, userStablecoinDecimals))
       const txHash = tx.hash
       setButtonLoading(true)
@@ -140,7 +141,7 @@ export const V1RewardsWindow: React.FC = () => {
       const stablecoinContract = getContract(stablecoinPayment.value, IERC20.abi, library, account)
       const tx = await farmRewards.redeem(stablecoinContract.address, parseUnits(amount, userStablecoinDecimals), {
         ...gasConfig,
-        gasLimit: GAS_LIMIT,
+        gasLimit: FunctionGasLimits['farmRewards.redeem'],
       })
       const localTx: LocalTx = {
         hash: tx.hash,
@@ -189,7 +190,7 @@ export const V1RewardsWindow: React.FC = () => {
   }, 300)
 
   const _checkAmount = useDebounce(async () => {
-    if (!farmRewards || !isAddress(stablecoinPayment.value)) return
+    if (!farmRewards || !isAddress(stablecoinPayment.value) || buttonLoading) return
     setButtonLoading(true)
     try {
       const calculatedAmountOut = await farmRewards.calculateAmountOut(
@@ -347,7 +348,39 @@ export const V1RewardsWindow: React.FC = () => {
           </FormCol>
         </FormRow>
         <HorizRule />
-        <FormRow mt={20} mb={0}>
+        <FormRow mb={0}>
+          <FormCol bold>Amount you can redeem now</FormCol>
+          <FormCol bold textAlignRight info>
+            {truncateBalance(formatUnits(purchaseableVestedXSolace, currencyDecimals), 4, false)} xSOLACE
+          </FormCol>
+        </FormRow>
+        <FormRow mb={10}>
+          <FormCol></FormCol>
+          <FormCol>
+            <Text t4 textAlignRight>
+              {'( '}
+              {truncateBalance(formatUnits(purchaseableVestedSolace, currencyDecimals), 4, false)} SOLACE
+              {' )'}
+            </Text>
+          </FormCol>
+        </FormRow>
+        <FormRow mb={0}>
+          <FormCol bold>Amount already redeemed</FormCol>
+          <FormCol bold textAlignRight info>
+            {truncateBalance(formatUnits(redeemedXSolaceRewards, currencyDecimals), 4, false)} xSOLACE
+          </FormCol>
+        </FormRow>
+        <FormRow mb={10}>
+          <FormCol></FormCol>
+          <FormCol>
+            <Text t4 textAlignRight>
+              {'( '}
+              {truncateBalance(formatUnits(redeemedSolaceRewards, currencyDecimals), 4, false)} SOLACE
+              {' )'}
+            </Text>
+          </FormCol>
+        </FormRow>
+        <FormRow mb={0}>
           <FormCol bold>Your total earned amount</FormCol>
           <FormCol bold textAlignRight info>
             {truncateBalance(formatUnits(totalEarnedXSolaceRewards, currencyDecimals), 4, false)} xSOLACE
@@ -375,38 +408,6 @@ export const V1RewardsWindow: React.FC = () => {
             <Text t4 textAlignRight>
               {'( '}
               {truncateBalance(formatUnits(unredeemedSolaceRewards, currencyDecimals), 4, false)} SOLACE
-              {' )'}
-            </Text>
-          </FormCol>
-        </FormRow>
-        <FormRow mb={0}>
-          <FormCol bold>Amount already redeemed</FormCol>
-          <FormCol bold textAlignRight info>
-            {truncateBalance(formatUnits(redeemedXSolaceRewards, currencyDecimals), 4, false)} xSOLACE
-          </FormCol>
-        </FormRow>
-        <FormRow mb={10}>
-          <FormCol></FormCol>
-          <FormCol>
-            <Text t4 textAlignRight>
-              {'( '}
-              {truncateBalance(formatUnits(redeemedSolaceRewards, currencyDecimals), 4, false)} SOLACE
-              {' )'}
-            </Text>
-          </FormCol>
-        </FormRow>
-        <FormRow mb={0}>
-          <FormCol bold>Amount you can redeem now</FormCol>
-          <FormCol bold textAlignRight info>
-            {truncateBalance(formatUnits(purchaseableVestedXSolace, currencyDecimals), 4, false)} xSOLACE
-          </FormCol>
-        </FormRow>
-        <FormRow mb={10}>
-          <FormCol></FormCol>
-          <FormCol>
-            <Text t4 textAlignRight>
-              {'( '}
-              {truncateBalance(formatUnits(purchaseableVestedSolace, currencyDecimals), 4, false)} SOLACE
               {' )'}
             </Text>
           </FormCol>

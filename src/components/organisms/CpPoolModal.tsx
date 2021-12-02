@@ -47,7 +47,7 @@ import { HyperLink } from '../atoms/Link'
 /* import hooks */
 import { useUserStakedValue } from '../../hooks/useFarm'
 import { useScpBalance } from '../../hooks/useBalance'
-import { useTokenAllowance } from '../../hooks/useTokenAllowance'
+import { useTokenAllowance } from '../../hooks/useToken'
 import { useCpFarm } from '../../hooks/useCpFarm'
 import { useVault } from '../../hooks/useVault'
 import { useInputAmount } from '../../hooks/useInputAmount'
@@ -66,7 +66,8 @@ export const CpPoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen
 
   const { haveErrors } = useGeneral()
   const { activeNetwork, currencyDecimals } = useNetwork()
-  const { vault, cpFarm } = useContracts()
+  const { keyContracts } = useContracts()
+  const { cpFarm, vault } = useMemo(() => keyContracts, [keyContracts])
   const { reload } = useCachedData()
   const { makeTxToast } = useNotifications()
   const [modalLoading, setModalLoading] = useState<boolean>(false)

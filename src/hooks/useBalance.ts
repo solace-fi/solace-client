@@ -7,7 +7,7 @@ import { formatUnits } from '@ethersproject/units'
 import { BigNumber } from 'ethers'
 import { NftTokenInfo } from '../constants/types'
 import { rangeFrom0 } from '../utils/numeric'
-import { listTokensOfOwner, queryBalance, queryDecimals, queryName, querySymbol } from '../utils/contract'
+import { listTokensOfOwner, queryBalance, queryDecimals } from '../utils/contract'
 import { useNetwork } from '../context/NetworkManager'
 import { Unit } from '../constants/enums'
 
@@ -25,6 +25,7 @@ import { useCoingeckoPrice } from '@usedapp/coingecko'
 import { getCoingeckoTokenPrice } from '../utils/api'
 // import SafeServiceClient from '@gnosis.pm/safe-service-client'
 import { useProvider } from '../context/ProviderManager'
+import { useReadToken } from './useToken'
 
 export const useNativeTokenBalance = (): string => {
   const { account, library } = useWallet()
@@ -53,7 +54,8 @@ export const useNativeTokenBalance = (): string => {
 }
 
 export const useScpBalance = (): string => {
-  const { vault } = useContracts()
+  const { keyContracts } = useContracts()
+  const { vault } = useMemo(() => keyContracts, [keyContracts])
   const { activeNetwork } = useNetwork()
   const { account } = useWallet()
   const [scpBalance, setScpBalance] = useState<string>('0')
@@ -87,36 +89,24 @@ export const useScpBalance = (): string => {
   return scpBalance
 }
 
-export const useSolaceBalance = () => {
-  const { solace } = useContracts()
-  const { account, library } = useWallet()
+export const useSolaceBalance = (): string => {
+  const { keyContracts } = useContracts()
+  const { solace } = useMemo(() => keyContracts, [keyContracts])
+  const { account } = useWallet()
   const { version } = useCachedData()
   const [solaceBalance, setSolaceBalance] = useState<string>('0')
-  const [tokenData, setTokenData] = useState<any>({ name: '', decimals: 0, symbol: '' })
+  const readToken = useReadToken(solace)
 
   const getSolaceBalance = useCallback(async () => {
     if (!solace || !account) return
     try {
       const balance = await queryBalance(solace, account)
-      const formattedBalance = formatUnits(balance, tokenData.decimals)
+      const formattedBalance = formatUnits(balance, readToken.decimals)
       setSolaceBalance(formattedBalance)
     } catch (err) {
       console.log('getSolaceBalance', err)
     }
-  }, [account, solace, tokenData.decimals])
-
-  useEffect(() => {
-    if (!solace) return
-    const fetchTokenData = async () => {
-      const [name, decimals, symbol] = await Promise.all([
-        queryName(solace, library),
-        queryDecimals(solace),
-        querySymbol(solace, library),
-      ])
-      setTokenData({ name, decimals, symbol })
-    }
-    fetchTokenData()
-  }, [solace, library])
+  }, [account, solace, readToken])
 
   useEffect(() => {
     if (!solace || !account) return
@@ -132,39 +122,27 @@ export const useSolaceBalance = () => {
     }
   }, [account, solace, getSolaceBalance, version])
 
-  return { solaceBalance, tokenData }
+  return solaceBalance
 }
 
 export const useXSolaceBalance = () => {
-  const { xSolace } = useContracts()
-  const { account, library } = useWallet()
+  const { keyContracts } = useContracts()
+  const { xSolace } = useMemo(() => keyContracts, [keyContracts])
+  const { account } = useWallet()
   const { version } = useCachedData()
   const [xSolaceBalance, setXSolaceBalance] = useState<string>('0')
-  const [tokenData, setTokenData] = useState<any>({ name: '', decimals: 0, symbol: '' })
+  const readToken = useReadToken(xSolace)
 
   const getXSolaceBalance = useCallback(async () => {
     if (!xSolace || !account) return
     try {
       const balance = await queryBalance(xSolace, account)
-      const formattedBalance = formatUnits(balance, tokenData.decimals)
+      const formattedBalance = formatUnits(balance, readToken.decimals)
       setXSolaceBalance(formattedBalance)
     } catch (err) {
       console.log('getXSolaceBalance', err)
     }
-  }, [account, tokenData.decimals, xSolace])
-
-  useEffect(() => {
-    if (!xSolace) return
-    const fetchTokenData = async () => {
-      const [name, decimals, symbol] = await Promise.all([
-        queryName(xSolace, library),
-        queryDecimals(xSolace),
-        querySymbol(xSolace, library),
-      ])
-      setTokenData({ name, decimals, symbol })
-    }
-    fetchTokenData()
-  }, [xSolace, library])
+  }, [account, xSolace, readToken])
 
   useEffect(() => {
     if (!xSolace || !account) return
@@ -180,11 +158,12 @@ export const useXSolaceBalance = () => {
     }
   }, [account, xSolace, getXSolaceBalance, version])
 
-  return { xSolaceBalance, tokenData }
+  return xSolaceBalance
 }
 
 export const useUserWalletLpBalance = (): NftTokenInfo[] => {
-  const { lpToken, lpFarm, lpAppraisor } = useContracts()
+  const { keyContracts } = useContracts()
+  const { lpToken, lpFarm, lpAppraisor } = useMemo(() => keyContracts, [keyContracts])
   const { account } = useWallet()
   const [userNftTokenInfo, setUserNftTokenInfo] = useState<NftTokenInfo[]>([])
 
@@ -219,7 +198,7 @@ export const useUserWalletLpBalance = (): NftTokenInfo[] => {
     })
 
     return () => {
-      lpToken?.removeAllListeners()
+      lpToken.removeAllListeners()
     }
   }, [account, lpToken])
 
@@ -227,7 +206,8 @@ export const useUserWalletLpBalance = (): NftTokenInfo[] => {
 }
 
 export const useDepositedLpBalance = (): NftTokenInfo[] => {
-  const { lpToken, lpFarm, lpAppraisor } = useContracts()
+  const { keyContracts } = useContracts()
+  const { lpToken, lpFarm, lpAppraisor } = useMemo(() => keyContracts, [keyContracts])
   const { account } = useWallet()
   const [depositedNftTokenInfo, setFarmNftTokenInfo] = useState<NftTokenInfo[]>([])
 
@@ -255,7 +235,7 @@ export const useDepositedLpBalance = (): NftTokenInfo[] => {
     })
 
     return () => {
-      lpToken?.removeAllListeners()
+      lpToken.removeAllListeners()
     }
   }, [account, lpToken])
 
@@ -264,7 +244,8 @@ export const useDepositedLpBalance = (): NftTokenInfo[] => {
 
 export const useUnderWritingPoolBalance = () => {
   const { activeNetwork, chainId, currencyDecimals } = useNetwork()
-  const { tellers, bondDepo, solace } = useContracts()
+  const { tellers, keyContracts } = useContracts()
+  const { bondDepo, solace } = useMemo(() => keyContracts, [keyContracts])
   const { library } = useWallet()
   const { latestBlock } = useProvider()
   const [underwritingPoolBalance, setUnderwritingPoolBalance] = useState<string>('-')

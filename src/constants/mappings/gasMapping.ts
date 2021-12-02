@@ -19,6 +19,7 @@ export const FunctionGasLimits: { [key: string]: number } = {
   ['vault.withdrawEth']: 123823,
   ['xSolace.stakeSigned']: 143344,
   ['xSolace.unstake']: 113443,
+  ['farmRewards.redeem']: 206305,
 }
 
 export const getNameToFunctionGasLimit = (functionName: FunctionName, cond?: string): number => {
