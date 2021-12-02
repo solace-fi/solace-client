@@ -110,10 +110,16 @@ export const SmallBox = styled.div<BoxProps & SmallBoxProps & GeneralElementProp
   transform: ${(props) => (props.collapse ? 'scaleY(0)' : 'scaleY(1)')};
   transition: all 200ms ease;
   ${BoxCss}
-  ${(props) => props.successBorder && `border-color: ${props.theme.typography.successText};`}
-  ${(props) => props.infoBorder && `border-color: ${props.theme.typography.infoText};`}
-  ${(props) => props.warningBorder && `border-color: ${props.theme.typography.warningText};`}
-  ${(props) => props.errorBorder && `border-color: ${props.theme.typography.errorText};`}
+  ${(props) =>
+    props.successBorder &&
+    `border-width: 1px; border-style: solid; border-color: ${props.theme.typography.successText};`}
+  ${(props) =>
+    props.infoBorder && `border-width: 1px; border-style: solid; border-color: ${props.theme.typography.infoText};`}
+  ${(props) =>
+    props.warningBorder &&
+    `border-width: 1px; border-style: solid; border-color: ${props.theme.typography.warningText};`}
+  ${(props) =>
+    props.errorBorder && `border-width: 1px; border-style: solid; border-color: ${props.theme.typography.errorText};`}
   ${(props) => props.canHover && `&:hover { filter: brightness(1.5); }`}
 `
 

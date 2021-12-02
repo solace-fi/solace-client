@@ -8,16 +8,6 @@
       },
       {
         "internalType": "address",
-        "name": "farmController_",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "solace_",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
         "name": "xsolace_",
         "type": "address"
       },
@@ -25,6 +15,11 @@
         "internalType": "address",
         "name": "receiver_",
         "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "solacePerXSolace_",
+        "type": "uint256"
       }
     ],
     "stateMutability": "nonpayable",
@@ -97,11 +92,156 @@
       },
       {
         "internalType": "uint256",
+        "name": "amountOut",
+        "type": "uint256"
+      }
+    ],
+    "name": "calculateAmountIn",
+    "outputs": [
+      {
+        "internalType": "uint256",
         "name": "amountIn",
         "type": "uint256"
       }
     ],
-    "name": "deposit",
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "tokenIn",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "amountIn",
+        "type": "uint256"
+      }
+    ],
+    "name": "calculateAmountOut",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "amountOut",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "name": "farmedRewards",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "governance",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "governanceIsLocked",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "lockGovernance",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "pendingGovernance",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      }
+    ],
+    "name": "purchaseableVestedXSolace",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "receiver",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "tokenIn",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "amountIn",
+        "type": "uint256"
+      }
+    ],
+    "name": "redeem",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -144,66 +284,7 @@
         "type": "bytes32"
       }
     ],
-    "name": "depositSigned",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "expiry",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "farmController",
-    "outputs": [
-      {
-        "internalType": "contract IFarmController",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "governance",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "governanceIsLocked",
-    "outputs": [
-      {
-        "internalType": "bool",
-        "name": "",
-        "type": "bool"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "lockGovernance",
+    "name": "redeemSigned",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -216,40 +297,12 @@
         "type": "address"
       }
     ],
-    "name": "options",
+    "name": "redeemedRewards",
     "outputs": [
       {
         "internalType": "uint256",
-        "name": "purchasedSolace",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "stakedXSolace",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "redeemedXSolace",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "startTime",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "pendingGovernance",
-    "outputs": [
-      {
-        "internalType": "address",
         "name": "",
-        "type": "address"
+        "type": "uint256"
       }
     ],
     "stateMutability": "view",
@@ -257,45 +310,13 @@
   },
   {
     "inputs": [
-      {
-        "internalType": "address",
-        "name": "user",
-        "type": "address"
-      }
-    ],
-    "name": "purchasableSolace",
-    "outputs": [
       {
         "internalType": "uint256",
         "name": "amount",
         "type": "uint256"
       }
     ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "receiver",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "depositor",
-        "type": "address"
-      }
-    ],
-    "name": "redeemRewards",
+    "name": "returnXSolace",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -303,25 +324,17 @@
   {
     "inputs": [
       {
-        "internalType": "address",
-        "name": "user",
-        "type": "address"
-      }
-    ],
-    "name": "redeemableRewards",
-    "outputs": [
+        "internalType": "address[]",
+        "name": "farmers",
+        "type": "address[]"
+      },
       {
-        "internalType": "uint256",
-        "name": "amount",
-        "type": "uint256"
+        "internalType": "uint256[]",
+        "name": "rewards",
+        "type": "uint256[]"
       }
     ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "returnSolace",
+    "name": "setFarmedRewards",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -354,12 +367,12 @@
   },
   {
     "inputs": [],
-    "name": "solace",
+    "name": "solacePerXSolace",
     "outputs": [
       {
-        "internalType": "address",
+        "internalType": "uint256",
         "name": "",
-        "type": "address"
+        "type": "uint256"
       }
     ],
     "stateMutability": "view",
@@ -399,7 +412,20 @@
   },
   {
     "inputs": [],
-    "name": "vestingTerm",
+    "name": "vestingEnd",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "vestingStart",
     "outputs": [
       {
         "internalType": "uint256",

@@ -38,7 +38,7 @@ import { StyledRefresh } from '../../components/atoms/Icon'
 
 /* import hooks */
 import { useSolaceBalance, useXSolaceBalance } from '../../hooks/useBalance'
-import { useXSolace, useXSolaceDetails } from '../../hooks/useXSolace'
+import { useStakingApy, useXSolace, useXSolaceDetails } from '../../hooks/useXSolace'
 import { useInputAmount } from '../../hooks/useInputAmount'
 
 /* import utils */
@@ -66,6 +66,7 @@ function Stake(): any {
     resetAmount,
   } = useInputAmount()
   const { stake, unstake } = useXSolace()
+  const { stakingApy } = useStakingApy()
   const { userShare, xSolacePerSolace, solacePerXSolace } = useXSolaceDetails()
   const { account } = useWallet()
   const [convertStoX, setConvertStoX] = useState<boolean>(true)
@@ -165,6 +166,18 @@ function Stake(): any {
                   </Text>
                 </ModalCell>
               </div>
+              <FormRow mt={20} mb={10}>
+                <FormCol>
+                  <Text bold t2>
+                    APY
+                  </Text>
+                </FormCol>
+                <FormCol>
+                  <Text bold t2 textAlignRight info>
+                    {stakingApy}
+                  </Text>
+                </FormCol>
+              </FormRow>
               <FlexRow style={{ textAlign: 'center', marginTop: '20px', marginBottom: '10px' }}>
                 <Input
                   widthP={100}

@@ -6,10 +6,10 @@ import { GasConfiguration, LocalTx, TxResult } from '../constants/types'
 import { BigNumber } from 'ethers'
 import { DEADLINE, ZERO } from '../constants'
 import { FunctionName, TransactionCondition } from '../constants/enums'
-import { getXSolaceStakeSignature } from '../utils/signature'
+import { getPermitErc20Signature } from '../utils/signature'
 import { FunctionGasLimits } from '../constants/mappings/gasMapping'
 import { useSolaceBalance, useXSolaceBalance } from './useBalance'
-import { floatUnits } from '../utils/formatting'
+import { floatUnits, truncateBalance } from '../utils/formatting'
 import { useCachedData } from '../context/CachedDataManager'
 import { parseUnits, formatUnits } from '@ethersproject/units'
 import { useProvider } from '../context/ProviderManager'
@@ -21,7 +21,7 @@ export const useXSolace = () => {
 
   const stake = async (parsedAmount: BigNumber, txVal: string, gasConfig: GasConfiguration) => {
     if (!solace || !xSolace || !account) return { tx: null, localTx: null }
-    const { v, r, s } = await getXSolaceStakeSignature(account, chainId, library, solace, xSolace, parsedAmount)
+    const { v, r, s } = await getPermitErc20Signature(account, chainId, library, xSolace.address, solace, parsedAmount)
     const tx = await xSolace.stakeSigned(account, parsedAmount, DEADLINE, v, r, s, {
       ...gasConfig,
       gasLimit: FunctionGasLimits['xSolace.stakeSigned'],
@@ -103,4 +103,29 @@ export const useXSolaceDetails = () => {
   }, [latestBlock, version, getXSolaceUserPoolShare, getSolacePerXSolace, getXSolacePerSolace])
 
   return { userShare, xSolacePerSolace, solacePerXSolace }
+}
+
+export const useStakingApy = () => {
+  const { latestBlock } = useProvider()
+  const [stakingApy, setStakingApy] = useState<string>('-%')
+  const { xSolace } = useContracts()
+
+  const getStakingAPY = useCallback(async () => {
+    if (!latestBlock || !xSolace) return
+    try {
+      const amount = await xSolace.solaceToXSolace(parseUnits('1', 18))
+      const apy = (1 / parseFloat(formatUnits(amount, 18)) - 1) * 100
+      const formattedApy = `${truncateBalance(apy, 2, false)}%`
+      setStakingApy(formattedApy)
+    } catch (err) {
+      console.log('error getStakingAPY ', err)
+    }
+  }, [xSolace, latestBlock])
+
+  useEffect(() => {
+    if (!latestBlock) return
+    getStakingAPY()
+  }, [latestBlock, getStakingAPY])
+
+  return { stakingApy }
 }

@@ -90,6 +90,7 @@ export const useScpBalance = (): string => {
 export const useSolaceBalance = () => {
   const { solace } = useContracts()
   const { account, library } = useWallet()
+  const { version } = useCachedData()
   const [solaceBalance, setSolaceBalance] = useState<string>('0')
   const [tokenData, setTokenData] = useState<any>({ name: '', decimals: 0, symbol: '' })
 
@@ -129,7 +130,7 @@ export const useSolaceBalance = () => {
     return () => {
       solace.removeAllListeners()
     }
-  }, [account, solace, getSolaceBalance])
+  }, [account, solace, getSolaceBalance, version])
 
   return { solaceBalance, tokenData }
 }
@@ -137,6 +138,7 @@ export const useSolaceBalance = () => {
 export const useXSolaceBalance = () => {
   const { xSolace } = useContracts()
   const { account, library } = useWallet()
+  const { version } = useCachedData()
   const [xSolaceBalance, setXSolaceBalance] = useState<string>('0')
   const [tokenData, setTokenData] = useState<any>({ name: '', decimals: 0, symbol: '' })
 
@@ -176,7 +178,7 @@ export const useXSolaceBalance = () => {
     return () => {
       xSolace.removeAllListeners()
     }
-  }, [account, xSolace, getXSolaceBalance])
+  }, [account, xSolace, getXSolaceBalance, version])
 
   return { xSolaceBalance, tokenData }
 }

@@ -98,7 +98,6 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
   const [calculatedAmountIn_X, setCalculatedAmountIn_X] = useState<BigNumber | undefined>(ZERO)
   const [calculatedAmountOut, setCalculatedAmountOut] = useState<BigNumber | undefined>(ZERO)
   const [calculatedAmountOut_X, setCalculatedAmountOut_X] = useState<BigNumber | undefined>(ZERO)
-  const [contractForAllowance, setContractForAllowance] = useState<Contract | null>(null)
   const [func, setFunc] = useState<FunctionName>(FunctionName.DEPOSIT_ETH)
   const [isAcceptableAmount, setIsAcceptableAmount] = useState<boolean>(false)
   const [isBondTellerErc20, setIsBondTellerErc20] = useState<boolean>(false)
@@ -108,7 +107,6 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
   const [principalBalance, setPrincipalBalance] = useState<string>('0')
   const [shouldUseNativeToken, setShouldUseNativeToken] = useState<boolean>(true)
   const [slippagePrct, setSlippagePrct] = useState<string>('20')
-  const [spenderAddress, setSpenderAddress] = useState<string | null>(null)
 
   const [timestamp, setTimestamp] = useState<number>(0)
   const [vestingTermInMillis, setVestingTermInMillis] = useState<number>(0)
@@ -119,7 +117,10 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
   const solaceBalanceData = useSolaceBalance()
   const xSolaceBalanceData = useXSolaceBalance()
   const nativeTokenBalance = useNativeTokenBalance()
+  const [contractForAllowance, setContractForAllowance] = useState<Contract | null>(null)
+  const [spenderAddress, setSpenderAddress] = useState<string | null>(null)
   const tokenAllowance = useTokenAllowance(contractForAllowance, spenderAddress)
+
   const { deposit, redeem } = useBondTeller(selectedBondDetail)
   const { width } = useWindowDimensions()
   const {

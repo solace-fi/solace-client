@@ -48,8 +48,7 @@ export enum FunctionName {
   BOND_DEPOSIT_ERC20 = 'Deposit',
   BOND_REDEEM = 'Redeem',
 
-  REWARDS_DEPOSIT = 'DepositSigned',
-  REWARDS_REDEEM = 'RedeemRewards',
+  REWARDS_REDEEM = 'Redeem',
 }
 
 export enum ExplorerscanApi {

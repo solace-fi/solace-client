@@ -33,7 +33,7 @@ export const SidebarTextCss = css<GeneralTextProps>`
   font-size: 14px;
   color: ${({ theme }) => `${theme.typography.contrastText}`};
   text-decoration: none;
-  transition: all 0.2s;
+  transition: all 0.2s ease;
   &:hover,
   &.is-active {
     opacity: 1 !important;
@@ -58,7 +58,7 @@ export const ItemText = styled.li<GeneralTextProps>`
   padding: 4px 0;
   list-style: none;
   height: 30px;
-  ${GeneralElementCss}
+  ${GeneralTextCss}
 `
 
 export const ItemList = styled.ul`

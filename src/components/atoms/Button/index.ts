@@ -1,6 +1,6 @@
 import { GeneralElementProps, GeneralElementCss, PaddingProps, PaddingCss } from '../../generalInterfaces'
 import styled, { css } from 'styled-components'
-import { Text4Css } from '../Typography'
+import { GeneralTextProps, GeneralTextCss, Text4Css } from '../Typography'
 
 export interface ClickProps {
   onClick?: any
@@ -156,9 +156,10 @@ export const ButtonBaseCss = css<ButtonProps & GeneralElementProps>`
   ${Text4Css}
 `
 
-export const Button = styled.button<ButtonProps & GeneralElementProps>`
+export const Button = styled.button<ButtonProps & GeneralElementProps & GeneralTextProps>`
   ${ButtonBaseCss}
   ${GeneralElementCss}
+  ${GeneralTextCss}
 `
 
 export const NavButton = styled.button`

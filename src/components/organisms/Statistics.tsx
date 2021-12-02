@@ -55,6 +55,7 @@ import { useGetTotalValueLocked } from '../../hooks/useFarm'
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'
 import { useGetFunctionGas } from '../../hooks/useGas'
 import { usePairPrice } from '../../hooks/usePair'
+import { useStakingApy } from '../../hooks/useXSolace'
 
 /* import utils */
 import { truncateBalance } from '../../utils/formatting'
@@ -71,6 +72,7 @@ export const Statistics: React.FC = () => {
   const { farmController, solace } = useContracts()
   const { makeTxToast } = useNotifications()
   const { addLocalTransactions, reload } = useCachedData()
+  const { stakingApy } = useStakingApy()
   // const capitalPoolSize = useCapitalPoolSize()
   const solaceBalanceData = useSolaceBalance()
   const xSolaceBalanceData = useXSolaceBalance()
@@ -148,23 +150,18 @@ export const Statistics: React.FC = () => {
     <Box color2>
       <BoxItem>
         <BoxItemTitle t4 light>
-          SOLACE Token
-        </BoxItemTitle>
-        <HyperLink
-          href={`https://app.sushi.com/add/${USDC_ADDRESS[chainId]}/${solace ? solace.address : null}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          style={{ width: '100%' }}
-        >
-          <Button widthP={100} light style={{ whiteSpace: 'nowrap' }} p={0}>
-            Sushiswap
-          </Button>
-        </HyperLink>
-      </BoxItem>
-      <BoxItem>
-        <BoxItemTitle t4 light>
-          SOLACE Price
-        </BoxItemTitle>
+          SOLACE{' '}
+          <HyperLink
+            href={`https://app.sushi.com/add/${USDC_ADDRESS[chainId]}/${solace ? solace.address : null}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ width: '100%' }}
+          >
+            <Button analogical style={{ whiteSpace: 'nowrap', minWidth: 'unset', minHeight: 'unset' }} p={4}>
+              buy on sushi
+            </Button>
+          </HyperLink>
+        </BoxItemTitle>{' '}
         <Text t2 nowrap light bold>
           {`$${pairPrice} `}
         </Text>
@@ -206,7 +203,7 @@ export const Statistics: React.FC = () => {
       {width > BKPT_3 ? (
         <BoxRow>
           {initialized && account ? (
-            <Box widthP={width > BKPT_5 ? 50 : undefined}>
+            <Box>
               <BoxItem>
                 <BoxItemTitle t4 light>
                   My SOLACE Balance
@@ -227,6 +224,14 @@ export const Statistics: React.FC = () => {
                   <TextSpan t4 light bold>
                     {xSolaceBalanceData.tokenData.symbol}
                   </TextSpan>
+                </Text>
+              </BoxItem>
+              <BoxItem>
+                <BoxItemTitle t4 light>
+                  Staking APY
+                </BoxItemTitle>
+                <Text t2 light bold>
+                  {stakingApy}
                 </Text>
               </BoxItem>
               {/* <BoxItem>
@@ -288,6 +293,14 @@ export const Statistics: React.FC = () => {
                     </Text>
                   </FormCol>
                 </FormRow>
+                <FormRow>
+                  <FormCol light>Staking APY</FormCol>
+                  <FormCol>
+                    <Text t2 light>
+                      {stakingApy}
+                    </Text>
+                  </FormCol>
+                </FormRow>
                 {/* <FormRow>
                   <FormCol light>My Unclaimed Rewards</FormCol>
                   <FormCol>
@@ -312,22 +325,19 @@ export const Statistics: React.FC = () => {
               </Card>
               <Card color2>
                 <FormRow>
-                  <FormCol light>SOLACE Token</FormCol>
-                  <FormCol>
+                  <FormCol light>
+                    SOLACE{' '}
                     <HyperLink
                       href={`https://app.sushi.com/add/${USDC_ADDRESS[chainId]}/${solace ? solace.address : null}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       style={{ width: '100%' }}
                     >
-                      <Button widthP={100} light style={{ whiteSpace: 'nowrap' }} p={0}>
-                        Sushiswap
+                      <Button analogical style={{ whiteSpace: 'nowrap', minWidth: 'unset', minHeight: 'unset' }} p={4}>
+                        buy on sushi
                       </Button>
                     </HyperLink>
                   </FormCol>
-                </FormRow>
-                <FormRow>
-                  <FormCol light>SOLACE Price</FormCol>
                   <FormCol>
                     <Text t2 nowrap light>
                       {`$${pairPrice}`}

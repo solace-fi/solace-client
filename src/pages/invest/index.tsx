@@ -31,7 +31,7 @@ import { Box } from '../../components/atoms/Box'
 import { TextSpan, Text } from '../../components/atoms/Typography'
 import { StyledInfo } from '../../components/atoms/Icon'
 import { Content } from '../../components/atoms/Layout'
-import { OptionsWindow } from '../../components/organisms/OptionsWindow'
+import { V1RewardsWindow } from '../../components/organisms/V1RewardsWindow'
 
 function Invest(): any {
   /*************************************************************************************
@@ -83,7 +83,7 @@ function Invest(): any {
         </Box>
       </Content>
       <Content>
-        <OptionsWindow />
+        <V1RewardsWindow />
       </Content>
       <UnderwritingPool openModal={openModal} />
       <CapitalProviderPool openModal={openModal} />
