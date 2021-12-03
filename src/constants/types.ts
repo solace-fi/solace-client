@@ -140,7 +140,7 @@ export type BondToken = {
 
 export type BondTellerDetails = {
   tellerData: BondTellerData
-  principalData?: BondPrincipalData
+  principalData: BondPrincipalData
 }
 
 export type BondTellerData = {

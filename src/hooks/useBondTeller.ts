@@ -1,13 +1,6 @@
 import { BigNumber } from 'ethers'
 import { useCallback, useEffect, useState, useMemo } from 'react'
-import {
-  BondPrincipalData,
-  BondTellerData,
-  BondTellerDetails,
-  GasConfiguration,
-  TxResult,
-  LocalTx,
-} from '../constants/types'
+import { BondTellerDetails, GasConfiguration, TxResult, LocalTx } from '../constants/types'
 import { useContracts } from '../context/ContractsManager'
 import { getContract } from '../utils'
 
@@ -25,6 +18,8 @@ import { useNetwork } from '../context/NetworkManager'
 import { Unit } from '../constants/enums'
 import { getCoingeckoTokenPrice } from '../utils/api'
 import { floatUnits } from '../utils/formatting'
+import { BondToken } from '../constants/types'
+import { useReadToken } from '../hooks/useToken'
 
 export const useBondTeller = (selectedBondDetail: BondTellerDetails | undefined) => {
   const deposit = async (
@@ -194,4 +189,36 @@ export const useBondTellerDetails = (): { tellerDetails: BondTellerDetails[]; mo
   }, [getBondTellerDetails])
 
   return { tellerDetails, mounting }
+}
+
+export const useUserBondData = () => {
+  const { keyContracts } = useContracts()
+  const { solace, xSolace } = useMemo(() => keyContracts, [keyContracts])
+  const readSolaceToken = useReadToken(solace)
+  const readXSolaceToken = useReadToken(xSolace)
+
+  const getUserBondData = async (selectedBondDetail: BondTellerDetails, account: string) => {
+    const ownedTokenIds: BigNumber[] = await selectedBondDetail.tellerData.teller.contract.listTokensOfOwner(account)
+    const ownedBondData = await Promise.all(
+      ownedTokenIds.map(async (id) => await selectedBondDetail.tellerData.teller.contract.bonds(id))
+    )
+    const ownedBonds: BondToken[] = ownedTokenIds.map((id, idx) => {
+      const payoutToken: string =
+        ownedBondData[idx].payoutToken == readSolaceToken.address
+          ? readSolaceToken.symbol
+          : ownedBondData[idx].payoutToken == readXSolaceToken.address
+          ? readXSolaceToken.symbol
+          : ''
+      return {
+        id,
+        payoutToken,
+        payoutAmount: ownedBondData[idx].payoutAmount,
+        pricePaid: ownedBondData[idx].pricePaid,
+        maturation: ownedBondData[idx].maturation,
+      }
+    })
+    return ownedBonds
+  }
+
+  return { getUserBondData }
 }

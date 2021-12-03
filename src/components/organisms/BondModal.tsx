@@ -60,7 +60,7 @@ import { BondSettingsModal } from './BondSettingsModal'
 import { useInputAmount } from '../../hooks/useInputAmount'
 import { useReadToken, useTokenAllowance } from '../../hooks/useToken'
 import { useNativeTokenBalance } from '../../hooks/useBalance'
-import { useBondTeller } from '../../hooks/useBondTeller'
+import { useBondTeller, useUserBondData } from '../../hooks/useBondTeller'
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'
 
 /* import utils */
@@ -112,8 +112,8 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
   const [timestamp, setTimestamp] = useState<number>(0)
   const [vestingTermInMillis, setVestingTermInMillis] = useState<number>(0)
   const [maxPayout, setMaxPayout] = useState<BigNumber>(ZERO)
-  const pncplDecimals = useMemo(() => selectedBondDetail?.principalData?.principalProps.decimals, [
-    selectedBondDetail?.principalData?.principalProps.decimals,
+  const pncplDecimals = useMemo(() => selectedBondDetail?.principalData.principalProps.decimals, [
+    selectedBondDetail?.principalData.principalProps.decimals,
   ])
   const readSolaceToken = useReadToken(solace)
   const readXSolaceToken = useReadToken(xSolace)
@@ -124,6 +124,7 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
 
   const { deposit, redeem } = useBondTeller(selectedBondDetail)
   const { width } = useWindowDimensions()
+  const { getUserBondData } = useUserBondData()
   const {
     gasConfig,
     amount,
@@ -156,7 +157,7 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
   *************************************************************************************/
 
   const approve = async () => {
-    const pncpl = selectedBondDetail?.principalData?.principal
+    const pncpl = selectedBondDetail?.principalData.principal
     if (!pncpl || !selectedBondDetail) return
     setModalLoading(true)
     try {
@@ -333,32 +334,14 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
   }, [selectedBondDetail, account, isOpen])
 
   useEffect(() => {
-    const getUserBondData = async () => {
+    const getUserBonds = async () => {
       if (!selectedBondDetail?.principalData || !account || !isOpen) return
       const principalBal = await queryBalance(selectedBondDetail.principalData.principal, account)
-      const ownedTokenIds: BigNumber[] = await selectedBondDetail.tellerData.teller.contract.listTokensOfOwner(account)
-      const ownedBondData = await Promise.all(
-        ownedTokenIds.map(async (id) => await selectedBondDetail.tellerData.teller.contract.bonds(id))
-      )
-      const ownedBonds: BondToken[] = ownedTokenIds.map((id, idx) => {
-        const payoutToken: string =
-          ownedBondData[idx].payoutToken == readSolaceToken.address
-            ? readSolaceToken.symbol
-            : ownedBondData[idx].payoutToken == readXSolaceToken.address
-            ? readXSolaceToken.symbol
-            : ''
-        return {
-          id,
-          payoutToken,
-          payoutAmount: ownedBondData[idx].payoutAmount,
-          pricePaid: ownedBondData[idx].pricePaid,
-          maturation: ownedBondData[idx].maturation,
-        }
-      })
+      const ownedBonds = await getUserBondData(selectedBondDetail, account)
       setPrincipalBalance(formatUnits(principalBal, selectedBondDetail.principalData.principalProps.decimals))
       setOwnedBondTokens(ownedBonds.sort((a, b) => a.id.toNumber() - b.id.toNumber()))
     }
-    getUserBondData()
+    getUserBonds()
   }, [account, isOpen, selectedBondDetail, readSolaceToken, readXSolaceToken])
 
   useEffect(() => {
@@ -546,7 +529,7 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
                       mb={10}
                       isChecked={!shouldUseNativeToken}
                       setChecked={() => setShouldUseNativeToken(!shouldUseNativeToken)}
-                      text={`Deposit ${selectedBondDetail.principalData?.principalProps.name} instead`}
+                      text={`Deposit ${selectedBondDetail.principalData.principalProps.name} instead`}
                     />
                   </FlexCol>
                 )}
@@ -567,7 +550,7 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
                       {formatUnits(assetBalance, pncplDecimals)}{' '}
                       {func == FunctionName.DEPOSIT_ETH
                         ? activeNetwork.nativeCurrency.symbol
-                        : selectedBondDetail?.principalData?.principalProps?.symbol}
+                        : selectedBondDetail?.principalData.principalProps?.symbol}
                     </Text>
                   </FormCol>
                 </FormRow>
@@ -654,7 +637,7 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
                       isChecked={!shouldUseNativeToken}
                       setChecked={() => setShouldUseNativeToken(!shouldUseNativeToken)}
                       text={`Deposit ${
-                        selectedBondDetail?.principalData?.principalProps.name ?? 'wrapped token'
+                        selectedBondDetail?.principalData.principalProps.name ?? 'wrapped token'
                       } instead`}
                     />
                   </>
