@@ -249,7 +249,7 @@ export const useUnderWritingPoolBalance = () => {
   const { library } = useWallet()
   const { latestBlock } = useProvider()
   const [underwritingPoolBalance, setUnderwritingPoolBalance] = useState<string>('-')
-  const getPairPrice = useGetPairPrice()
+  const { getPairPrice } = useGetPairPrice()
 
   const platform = useMemo(() => {
     switch (activeNetwork.nativeCurrency.symbol) {

@@ -100,6 +100,7 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
   const [calculatedAmountOut_X, setCalculatedAmountOut_X] = useState<BigNumber | undefined>(ZERO)
   const [func, setFunc] = useState<FunctionName>(FunctionName.DEPOSIT_ETH)
   const [isAcceptableAmount, setIsAcceptableAmount] = useState<boolean>(false)
+  const [canMax, setCanMax] = useState<boolean>(true)
   const [isBondTellerErc20, setIsBondTellerErc20] = useState<boolean>(false)
   const [isBonding, setIsBonding] = useState<boolean>(true)
   const [isStaking, setIsStaking] = useState<boolean>(false)
@@ -273,6 +274,7 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
   }
 
   const calculateAmountIn = async (): Promise<void> => {
+    setCanMax(false)
     if (selectedBondDetail && xSolace) {
       const maxPayout = selectedBondDetail.tellerData.maxPayout
       const maxPayout_X = await xSolace.solaceToXSolace(selectedBondDetail.tellerData.maxPayout)
@@ -309,6 +311,7 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
       setCalculatedAmountIn(ZERO)
       setCalculatedAmountIn_X(ZERO)
     }
+    setCanMax(true)
   }
 
   /* 
@@ -503,7 +506,18 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
                 }
                 value={amount}
               />
-              <Button info ml={10} pt={4} pb={4} pl={8} pr={8} width={70} height={30} onClick={_setMax}>
+              <Button
+                info
+                ml={10}
+                pt={4}
+                pb={4}
+                pl={8}
+                pr={8}
+                width={70}
+                height={30}
+                onClick={_setMax}
+                disabled={!canMax}
+              >
                 MAX
               </Button>
             </div>
@@ -601,7 +615,7 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
                 </Text>
               </FormCol>
             </FormRow>
-            <FormRow>
+            <FormRow mb={10}>
               <FormCol>
                 <Text t4>Vesting Term</Text>
               </FormCol>
@@ -611,6 +625,18 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
                 </Text>
               </FormCol>
             </FormRow>
+            {selectedBondDetail?.tellerData.bondFeeBps && (
+              <FormRow>
+                <FormCol>
+                  <Text t4>Bond Fee</Text>
+                </FormCol>
+                <FormCol>
+                  <Text t4 info textAlignRight>
+                    {parseInt(selectedBondDetail?.tellerData.bondFeeBps.toString()) / 100}%
+                  </Text>
+                </FormCol>
+              </FormRow>
+            )}
           </>
         )}
         {account &&

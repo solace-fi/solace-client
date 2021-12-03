@@ -147,6 +147,7 @@ export type BondTellerData = {
   teller: BondTellerContract
   principalAddr: string
   bondPrice: BigNumber
+  usdBondPrice: number
   vestingTermInSeconds: number
   capacity: BigNumber
   maxPayout: BigNumber
