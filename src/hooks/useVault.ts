@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useMemo } from 'react'
 import { formatUnits, parseUnits } from '@ethersproject/units'
 import { useContracts } from '../context/ContractsManager'
 import { useWallet } from '../context/WalletManager'
@@ -11,11 +11,13 @@ import { FunctionName, TransactionCondition } from '../constants/enums'
 import { GasConfiguration, LocalTx, TxResult } from '../constants/types'
 import { BigNumber } from 'ethers'
 import { FunctionGasLimits } from '../constants/mappings/gasMapping'
+import { useProvider } from '../context/ProviderManager'
 
 export const useCapitalPoolSize = (): string => {
-  const { vault } = useContracts()
+  const { keyContracts } = useContracts()
+  const { vault } = useMemo(() => keyContracts, [keyContracts])
   const { currencyDecimals } = useNetwork()
-  const { latestBlock } = useCachedData()
+  const { latestBlock } = useProvider()
   const [capitalPoolSize, setCapitalPoolSize] = useState<string>('0')
 
   useEffect(() => {
@@ -40,7 +42,8 @@ export const useUserVaultDetails = () => {
   const [userVaultShare, setUserVaultShare] = useState<string>('0')
   const scpBalance = useScpBalance()
   const { account } = useWallet()
-  const { vault, cpFarm } = useContracts()
+  const { keyContracts } = useContracts()
+  const { vault, cpFarm } = useMemo(() => keyContracts, [keyContracts])
   const { currencyDecimals } = useNetwork()
 
   useEffect(() => {
@@ -68,7 +71,8 @@ export const useUserVaultDetails = () => {
 }
 
 export const useCooldown = () => {
-  const { vault } = useContracts()
+  const { keyContracts } = useContracts()
+  const { vault } = useMemo(() => keyContracts, [keyContracts])
   const { account } = useWallet()
   const [cooldownStarted, setCooldownStarted] = useState<boolean>(false)
   const [timeWaited, setTimeWaited] = useState<number>(0)
@@ -76,7 +80,8 @@ export const useCooldown = () => {
   const [cooldownMin, setCooldownMin] = useState<number>(0)
   const [cooldownMax, setCooldownMax] = useState<number>(0)
   const [cooldownStart, setCooldownStart] = useState<number>(0)
-  const { version, latestBlock } = useCachedData()
+  const { version } = useCachedData()
+  const { latestBlock } = useProvider()
   const gettingCooldown = useRef(true)
 
   const startCooldown = async (): Promise<TxResult> => {
@@ -149,7 +154,8 @@ export const useCooldown = () => {
 }
 
 export const useVault = () => {
-  const { vault } = useContracts()
+  const { keyContracts } = useContracts()
+  const { vault } = useMemo(() => keyContracts, [keyContracts])
   const { version } = useCachedData()
   const { account } = useWallet()
   const [canTransfer, setCanTransfer] = useState<boolean>(true)

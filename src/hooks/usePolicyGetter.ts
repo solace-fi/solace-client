@@ -1,23 +1,16 @@
 import { useWallet } from '../context/WalletManager'
 import { PolicyState } from '../constants/enums'
-import { Policy, NetworkCache, SupportedProduct, PositionNamesCacheValue } from '../constants/types'
+import { Policy, SupportedProduct, PositionNamesCacheValue } from '../constants/types'
 import { BigNumber } from 'ethers'
 import { useContracts } from '../context/ContractsManager'
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useMemo } from 'react'
 import { useNetwork } from '../context/NetworkManager'
 import { getClaimAssessment } from '../utils/api'
-import { Block } from '@ethersproject/contracts/node_modules/@ethersproject/abstract-provider'
 import { trim0x } from '../utils/formatting'
+import { useProvider } from '../context/ProviderManager'
 
 export const usePolicyGetter = (
   getAll: boolean,
-  latestBlock: Block | undefined,
-  tokenPosData: {
-    batchFetching: boolean
-    storedPosData: NetworkCache[]
-    handleGetCache: (supportedProduct: SupportedProduct) => Promise<NetworkCache | undefined>
-    getCacheForPolicies: (supportedProducts: SupportedProduct[]) => Promise<NetworkCache>
-  },
   policyHolder?: string
 ): {
   policiesLoading: boolean
@@ -26,8 +19,10 @@ export const usePolicyGetter = (
   setCanGetAssessments: (toggle: boolean) => void
 } => {
   const { library } = useWallet()
+  const { latestBlock, tokenPosData } = useProvider()
   const { activeNetwork, findNetworkByChainId, chainId } = useNetwork()
-  const { policyManager } = useContracts()
+  const { keyContracts } = useContracts()
+  const { policyManager } = useMemo(() => keyContracts, [keyContracts])
   const [userPolicies, setUserPolicies] = useState<Policy[]>([])
   const [allPolicies, setAllPolicies] = useState<Policy[]>([])
   const [policiesLoading, setPoliciesLoading] = useState<boolean>(true)
@@ -134,9 +129,9 @@ export const usePolicyGetter = (
   const getPolicies = async (policyHolder?: string) => {
     if (!findNetworkByChainId(chainId) || !library) return
     let policies = await (policyHolder ? getUserPolicies(policyHolder) : getAllPolicies())
-    policies = policies.filter((policy: any) => policy.policyId >= 0 && policy.productName != '')
     try {
       if (policyHolder) {
+        policies = policies.filter((policy: any) => policy.productName != '')
         policies.sort((a: any, b: any) => b.policyId - a.policyId) // newest first
         setUserPolicies(policies)
         setPoliciesLoading(false)
@@ -214,14 +209,13 @@ export const usePolicyGetter = (
   }
 
   const getProductNameFromAddress = (addr: string): string => {
-    let res = ''
-    Object.keys(activeNetwork.config.productContracts).every((name) => {
-      if (activeNetwork.config.productContracts[name].addr.toLowerCase() == addr.toLowerCase()) {
-        res = name
-        return
+    const productNames = Object.keys(activeNetwork.config.productContracts)
+    for (let i = 0; i < Object.keys(activeNetwork.config.productContracts).length; i++) {
+      if (activeNetwork.config.productContracts[productNames[i]].addr.toLowerCase() == addr.toLowerCase()) {
+        return productNames[i]
       }
-    })
-    return res
+    }
+    return ''
   }
 
   // load on change of account or network
@@ -237,7 +231,10 @@ export const usePolicyGetter = (
 
     if (!policyManager) return
     loadOnBoot()
+  }, [policyHolder, policyManager])
 
+  useEffect(() => {
+    if (!policyManager || !policyHolder) return
     policyManager.on('Transfer', async (from, to) => {
       if (from == policyHolder || to == policyHolder) {
         await getPolicies(policyHolder)
@@ -251,7 +248,7 @@ export const usePolicyGetter = (
     return () => {
       policyManager.removeAllListeners()
     }
-  }, [policyHolder, policyManager])
+  }, [policyHolder, policyManager, tokenPosData])
 
   /* fetch all policies per block */
   useEffect(() => {

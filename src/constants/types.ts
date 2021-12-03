@@ -79,11 +79,14 @@ export type Policy = {
   claimAssessment?: ClaimAssessment
 }
 
-export type TokenInfo = {
+export type ReadToken = {
   address: string
   name: string
   symbol: string
   decimals: number
+}
+
+export type TokenInfo = ReadToken & {
   balance: BigNumber
 }
 
@@ -137,13 +140,14 @@ export type BondToken = {
 
 export type BondTellerDetails = {
   tellerData: BondTellerData
-  principalData?: BondPrincipalData
+  principalData: BondPrincipalData
 }
 
 export type BondTellerData = {
   teller: BondTellerContract
   principalAddr: string
   bondPrice: BigNumber
+  usdBondPrice: number
   vestingTermInSeconds: number
   capacity: BigNumber
   maxPayout: BigNumber

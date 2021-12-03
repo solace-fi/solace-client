@@ -15,7 +15,7 @@
   *************************************************************************************/
 
 /* import packages */
-import React from 'react'
+import React, { useMemo } from 'react'
 import { formatUnits } from '@ethersproject/units'
 
 /* import managers */
@@ -48,7 +48,8 @@ export const MyInvestments: React.FC = () => {
   *************************************************************************************/
   const { account } = useWallet()
   const { activeNetwork } = useNetwork()
-  const { cpFarm, lpFarm } = useContracts()
+  const { keyContracts } = useContracts()
+  const { cpFarm, lpFarm } = useMemo(() => keyContracts, [keyContracts])
   const cpUserRewards = useUserPendingRewards(cpFarm)
   const lpUserRewards = useUserPendingRewards(lpFarm)
   const cpUserStakeValue = useUserStakedValue(cpFarm)

@@ -103,13 +103,12 @@ export async function getPermitErc721EnhancedSignature(
   )
 }
 
-// staking
-export async function getXSolaceStakeSignature(
+export async function getPermitErc20Signature(
   account: string,
   chainId: number,
   library: any,
-  solace: Contract,
-  xsolace: Contract,
+  spender: string,
+  token: Contract,
   amount: BigNumberish,
   deadline: BigNumberish = constants.MaxUint256,
   nonce: BigNumberish = constants.MaxUint256 // optional override. leave empty to use correct nonce
@@ -117,10 +116,10 @@ export async function getXSolaceStakeSignature(
   // get nonce if not given
   let nonceBN = BigNumber.from(nonce)
   if (nonceBN.eq(constants.MaxUint256)) {
-    nonceBN = await solace.nonces(account)
+    nonceBN = await token.nonces(account)
   }
   // get other vars
-  const [name, version] = await Promise.all([solace.name(), '1'])
+  const [name, version] = await Promise.all([token.name(), '1'])
   // split v, r, s
   return splitSignature(
     // sign message
@@ -129,7 +128,7 @@ export async function getXSolaceStakeSignature(
         name,
         version,
         chainId,
-        verifyingContract: solace.address,
+        verifyingContract: token.address,
       },
       {
         Permit: [
@@ -142,54 +141,7 @@ export async function getXSolaceStakeSignature(
       },
       {
         owner: account,
-        spender: xsolace.address,
-        value: amount,
-        nonce: nonceBN,
-        deadline: deadline,
-      }
-    )
-  )
-}
-
-export async function getBondTellerDepositSignature(
-  account: string,
-  chainId: number,
-  library: any,
-  teller: Contract,
-  principal: Contract,
-  amount: BigNumberish,
-  deadline: BigNumberish = constants.MaxUint256,
-  nonce: BigNumberish = constants.MaxUint256 // optional override. leave empty to use correct nonce
-): Promise<Signature> {
-  // get nonce if not given
-  let nonceBN = BigNumber.from(nonce)
-  if (nonceBN.eq(constants.MaxUint256)) {
-    nonceBN = await principal.nonces(account)
-  }
-  // get other vars
-  const [name, version] = await Promise.all([principal.name(), '1'])
-  // split v, r, s
-  return splitSignature(
-    // sign message
-    await library.getSigner(account)._signTypedData(
-      {
-        name,
-        version,
-        chainId,
-        verifyingContract: principal.address,
-      },
-      {
-        Permit: [
-          { name: 'owner', type: 'address' },
-          { name: 'spender', type: 'address' },
-          { name: 'value', type: 'uint256' },
-          { name: 'nonce', type: 'uint256' },
-          { name: 'deadline', type: 'uint256' },
-        ],
-      },
-      {
-        owner: account,
-        spender: teller.address,
+        spender: spender,
         value: amount,
         nonce: nonceBN,
         deadline: deadline,

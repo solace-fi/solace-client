@@ -82,7 +82,8 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
 
   const { haveErrors } = useGeneral()
   const { activeNetwork, currencyDecimals } = useNetwork()
-  const { selectedProtocol, riskManager } = useContracts()
+  const { selectedProtocol, keyContracts } = useContracts()
+  const { riskManager } = useMemo(() => keyContracts, [keyContracts])
   const { addLocalTransactions, reload } = useCachedData()
   const { makeTxToast } = useNotifications()
   const maxCoverPerPolicy = useGetMaxCoverPerPolicy()

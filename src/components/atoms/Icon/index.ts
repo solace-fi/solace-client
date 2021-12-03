@@ -29,6 +29,8 @@ import { Gear } from '@styled-icons/octicons/Gear'
 import { GraphDown } from '@styled-icons/bootstrap/GraphDown'
 import { SendPlane } from '@styled-icons/remix-fill/SendPlane'
 import { Refresh } from '@styled-icons/boxicons-regular/Refresh'
+import { ReceiptMoney } from '@styled-icons/fluentui-system-filled/ReceiptMoney'
+
 export const StyledIconCss = css`
   margin: auto;
   display: block;
@@ -54,6 +56,8 @@ export const StyledDots = styled(DotsHorizontalRounded)`
 export const StyledInfo = styled(Info)``
 
 export const StyledDashboard = styled(Dashboard)``
+
+export const StyledReceiptMoney = styled(ReceiptMoney)``
 
 export const StyledFileShield = styled(FileShield)``
 

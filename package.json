@@ -6,6 +6,7 @@
     "@alch/alchemy-web3": "^1.1.3",
     "@apollo/client": "^3.4.16",
     "@ethersproject/providers": "^5.4.4",
+    "@gnosis.pm/safe-service-client": "^1.0.1",
     "@rebass/forms": "^4.0.6",
     "@reduxjs/toolkit": "^1.6.1",
     "@rooks/use-debounce": "^4.11.2",

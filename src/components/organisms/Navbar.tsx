@@ -48,6 +48,7 @@ import {
   StyledDocumentText,
   StyledWork,
   StyledLockFile,
+  StyledReceiptMoney,
 } from '../atoms/Icon'
 import { Text, TextSpan } from '../atoms/Typography'
 import { HyperLink } from '../atoms/Link'
@@ -146,7 +147,7 @@ export const SideNavbar: React.FC = () => {
             <ItemText>
               <SidebarItem to={'/bond'} style={miniNavbarMarginSet}>
                 <Text info={location.pathname == '/bond'} light={lightText}>
-                  {width > BKPT_3 ? 'Bond' : <StyledCoinStack size={30} />}
+                  {width > BKPT_3 ? 'Bond' : <StyledReceiptMoney size={30} />}
                 </Text>
               </SidebarItem>
             </ItemText>

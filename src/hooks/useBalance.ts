@@ -7,7 +7,7 @@ import { formatUnits } from '@ethersproject/units'
 import { BigNumber } from 'ethers'
 import { NftTokenInfo } from '../constants/types'
 import { rangeFrom0 } from '../utils/numeric'
-import { listTokensOfOwner, queryBalance, queryDecimals, queryName, querySymbol } from '../utils/contract'
+import { listTokensOfOwner, queryBalance, queryDecimals } from '../utils/contract'
 import { useNetwork } from '../context/NetworkManager'
 import { Unit } from '../constants/enums'
 
@@ -20,10 +20,12 @@ import { ZERO } from '../constants'
 import { useGetPairPrice } from './usePair'
 import { floatUnits } from '../utils/formatting'
 
-import sushiSwapLpAltABI from '../constants/metadata/ISushiswapMetadataAlt.json'
 import { Token, Pair } from '@sushiswap/sdk'
 import { useCoingeckoPrice } from '@usedapp/coingecko'
 import { getCoingeckoTokenPrice } from '../utils/api'
+// import SafeServiceClient from '@gnosis.pm/safe-service-client'
+import { useProvider } from '../context/ProviderManager'
+import { useReadToken } from './useToken'
 
 export const useNativeTokenBalance = (): string => {
   const { account, library } = useWallet()
@@ -52,7 +54,8 @@ export const useNativeTokenBalance = (): string => {
 }
 
 export const useScpBalance = (): string => {
-  const { vault } = useContracts()
+  const { keyContracts } = useContracts()
+  const { vault } = useMemo(() => keyContracts, [keyContracts])
   const { activeNetwork } = useNetwork()
   const { account } = useWallet()
   const [scpBalance, setScpBalance] = useState<string>('0')
@@ -86,35 +89,24 @@ export const useScpBalance = (): string => {
   return scpBalance
 }
 
-export const useSolaceBalance = () => {
-  const { solace } = useContracts()
-  const { account, library } = useWallet()
+export const useSolaceBalance = (): string => {
+  const { keyContracts } = useContracts()
+  const { solace } = useMemo(() => keyContracts, [keyContracts])
+  const { account } = useWallet()
+  const { version } = useCachedData()
   const [solaceBalance, setSolaceBalance] = useState<string>('0')
-  const [tokenData, setTokenData] = useState<any>({ name: '', decimals: 0, symbol: '' })
+  const readToken = useReadToken(solace)
 
   const getSolaceBalance = useCallback(async () => {
     if (!solace || !account) return
     try {
       const balance = await queryBalance(solace, account)
-      const formattedBalance = formatUnits(balance, tokenData.decimals)
+      const formattedBalance = formatUnits(balance, readToken.decimals)
       setSolaceBalance(formattedBalance)
     } catch (err) {
       console.log('getSolaceBalance', err)
     }
-  }, [account, solace, tokenData.decimals])
-
-  useEffect(() => {
-    if (!solace) return
-    const fetchTokenData = async () => {
-      const [name, decimals, symbol] = await Promise.all([
-        queryName(solace, library),
-        queryDecimals(solace),
-        querySymbol(solace, library),
-      ])
-      setTokenData({ name, decimals, symbol })
-    }
-    fetchTokenData()
-  }, [solace, library])
+  }, [account, solace, readToken])
 
   useEffect(() => {
     if (!solace || !account) return
@@ -128,40 +120,29 @@ export const useSolaceBalance = () => {
     return () => {
       solace.removeAllListeners()
     }
-  }, [account, solace, getSolaceBalance])
+  }, [account, solace, getSolaceBalance, version])
 
-  return { solaceBalance, tokenData }
+  return solaceBalance
 }
 
 export const useXSolaceBalance = () => {
-  const { xSolace } = useContracts()
-  const { account, library } = useWallet()
+  const { keyContracts } = useContracts()
+  const { xSolace } = useMemo(() => keyContracts, [keyContracts])
+  const { account } = useWallet()
+  const { version } = useCachedData()
   const [xSolaceBalance, setXSolaceBalance] = useState<string>('0')
-  const [tokenData, setTokenData] = useState<any>({ name: '', decimals: 0, symbol: '' })
+  const readToken = useReadToken(xSolace)
 
   const getXSolaceBalance = useCallback(async () => {
     if (!xSolace || !account) return
     try {
       const balance = await queryBalance(xSolace, account)
-      const formattedBalance = formatUnits(balance, tokenData.decimals)
+      const formattedBalance = formatUnits(balance, readToken.decimals)
       setXSolaceBalance(formattedBalance)
     } catch (err) {
       console.log('getXSolaceBalance', err)
     }
-  }, [account, tokenData.decimals, xSolace])
-
-  useEffect(() => {
-    if (!xSolace) return
-    const fetchTokenData = async () => {
-      const [name, decimals, symbol] = await Promise.all([
-        queryName(xSolace, library),
-        queryDecimals(xSolace),
-        querySymbol(xSolace, library),
-      ])
-      setTokenData({ name, decimals, symbol })
-    }
-    fetchTokenData()
-  }, [xSolace, library])
+  }, [account, xSolace, readToken])
 
   useEffect(() => {
     if (!xSolace || !account) return
@@ -175,13 +156,14 @@ export const useXSolaceBalance = () => {
     return () => {
       xSolace.removeAllListeners()
     }
-  }, [account, xSolace, getXSolaceBalance])
+  }, [account, xSolace, getXSolaceBalance, version])
 
-  return { xSolaceBalance, tokenData }
+  return xSolaceBalance
 }
 
 export const useUserWalletLpBalance = (): NftTokenInfo[] => {
-  const { lpToken, lpFarm, lpAppraisor } = useContracts()
+  const { keyContracts } = useContracts()
+  const { lpToken, lpFarm, lpAppraisor } = useMemo(() => keyContracts, [keyContracts])
   const { account } = useWallet()
   const [userNftTokenInfo, setUserNftTokenInfo] = useState<NftTokenInfo[]>([])
 
@@ -216,7 +198,7 @@ export const useUserWalletLpBalance = (): NftTokenInfo[] => {
     })
 
     return () => {
-      lpToken?.removeAllListeners()
+      lpToken.removeAllListeners()
     }
   }, [account, lpToken])
 
@@ -224,7 +206,8 @@ export const useUserWalletLpBalance = (): NftTokenInfo[] => {
 }
 
 export const useDepositedLpBalance = (): NftTokenInfo[] => {
-  const { lpToken, lpFarm, lpAppraisor } = useContracts()
+  const { keyContracts } = useContracts()
+  const { lpToken, lpFarm, lpAppraisor } = useMemo(() => keyContracts, [keyContracts])
   const { account } = useWallet()
   const [depositedNftTokenInfo, setFarmNftTokenInfo] = useState<NftTokenInfo[]>([])
 
@@ -252,7 +235,7 @@ export const useDepositedLpBalance = (): NftTokenInfo[] => {
     })
 
     return () => {
-      lpToken?.removeAllListeners()
+      lpToken.removeAllListeners()
     }
   }, [account, lpToken])
 
@@ -261,11 +244,12 @@ export const useDepositedLpBalance = (): NftTokenInfo[] => {
 
 export const useUnderWritingPoolBalance = () => {
   const { activeNetwork, chainId, currencyDecimals } = useNetwork()
-  const { tellers, bondDepo } = useContracts()
+  const { tellers, keyContracts } = useContracts()
+  const { bondDepo, solace } = useMemo(() => keyContracts, [keyContracts])
   const { library } = useWallet()
-  const { latestBlock } = useCachedData()
+  const { latestBlock } = useProvider()
   const [underwritingPoolBalance, setUnderwritingPoolBalance] = useState<string>('-')
-  const getPairPrice = useGetPairPrice()
+  const { getPairPrice } = useGetPairPrice()
 
   const platform = useMemo(() => {
     switch (activeNetwork.nativeCurrency.symbol) {
@@ -279,8 +263,10 @@ export const useUnderWritingPoolBalance = () => {
   const coinGeckoNativeTokenPrice = useCoingeckoPrice(platform, 'usd')
 
   useEffect(() => {
-    const getBalance = async () => {
-      if (!bondDepo || !library) return
+    const getGnosisBalance = async () => {
+      if (!bondDepo || !solace) return
+      const multiSig = await bondDepo.underwritingPool()
+      if (!library) return
       const principalContracts = tellers.map((t) =>
         getContract(
           t.underlyingAddr,
@@ -289,10 +275,8 @@ export const useUnderWritingPoolBalance = () => {
           undefined
         )
       )
-      const multiSig = await bondDepo.underwritingPool()
+      principalContracts.push(solace)
       const balances: BigNumber[] = await Promise.all(principalContracts.map((c) => queryBalance(c, multiSig)))
-      const ethBalance = await library.getBalance(multiSig)
-      balances.push(ethBalance)
       const usdcBalances: number[] = await Promise.all(
         tellers.map(async (t, i) => {
           if (t.isLp) {
@@ -324,7 +308,7 @@ export const useUnderWritingPoolBalance = () => {
             const TOKEN0 = new Token(chainId, token0, decimals0)
             const TOKEN1 = new Token(chainId, token1, decimals1)
             const pairAddr = await Pair.getAddress(TOKEN0, TOKEN1)
-            const pairPoolContract = getContract(pairAddr, sushiSwapLpAltABI, library)
+            const pairPoolContract = getContract(pairAddr, sushiswapLpAbi, library)
             const reserves = await pairPoolContract.getReserves()
             const totalReserve0 = floatUnits(reserves._reserve0, decimals0)
             const totalReserve1 = floatUnits(reserves._reserve1, decimals1)
@@ -344,17 +328,35 @@ export const useUnderWritingPoolBalance = () => {
         })
       )
 
-      // add USDC of native balance
+      // add USDC of native ETH balance
       if (coinGeckoNativeTokenPrice) {
+        const ethBalance = await library.getBalance(multiSig)
         const formattedBalance = floatUnits(ethBalance, currencyDecimals)
         const balanceMultipliedByPrice = parseFloat(coinGeckoNativeTokenPrice) * formattedBalance
         usdcBalances.push(balanceMultipliedByPrice)
       }
 
+      // add USDC for solace
+      const solacePrice = await getPairPrice(solace)
+      const multiSigSolaceBalance = await queryBalance(solace, multiSig)
+      const principalDecimals = await solace.decimals()
+      const formattedBalance = floatUnits(multiSigSolaceBalance, principalDecimals)
+      const balanceMultipliedByPrice = solacePrice * formattedBalance
+      usdcBalances.push(balanceMultipliedByPrice)
+
       const usdcTotalBalance = usdcBalances.reduce((pv, cv) => pv + cv, 0)
       setUnderwritingPoolBalance(usdcTotalBalance.toString())
+      try {
+        // const safeService = new SafeServiceClient('https://safe-transaction.gnosis.io')
+        // const usdBalances = await safeService.getUsdBalances(multiSig)
+        // const usdcTotalBalance = usdBalances.reduce((pv, cv) => pv + parseFloat(cv.fiatBalance), 0)
+        // console.log(usdcTotalBalance)
+        // setUnderwritingPoolBalance(usdcTotalBalance.toString())
+      } catch (e) {
+        // console.log('getGnosisBalance, pulling balances using pairPrice', e)
+      }
     }
-    getBalance()
+    getGnosisBalance()
   }, [tellers, library, bondDepo, coinGeckoNativeTokenPrice, latestBlock])
 
   return { underwritingPoolBalance }

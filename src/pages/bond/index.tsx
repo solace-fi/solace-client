@@ -16,8 +16,7 @@
   *************************************************************************************/
 
 /* import packages */
-import React, { Fragment, useEffect, useState } from 'react'
-import { formatUnits } from '@ethersproject/units'
+import React, { Fragment, useEffect, useMemo, useState } from 'react'
 
 /* import constants */
 import { BKPT_4 } from '../../constants'
@@ -25,6 +24,7 @@ import { BondTellerDetails } from '../../constants/types'
 
 /* import context */
 import { useGeneral } from '../../context/GeneralProvider'
+import { useContracts } from '../../context/ContractsManager'
 
 /* import components */
 import { Button } from '../../components/atoms/Button'
@@ -36,11 +36,15 @@ import { FlexCol, FlexRow, HeroContainer, Scrollable } from '../../components/at
 import { Text } from '../../components/atoms/Typography'
 import { BondModal } from '../../components/organisms/BondModal'
 import { Loader } from '../../components/atoms/Loader'
+import { HyperLink } from '../../components/atoms/Link'
 
 /* import hooks */
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'
 import { useBondTellerDetails } from '../../hooks/useBondTeller'
-import { HyperLink } from '../../components/atoms/Link'
+import { usePairPrice } from '../../hooks/usePair'
+
+/* import utils */
+import { truncateBalance } from '../../utils/formatting'
 
 function Bond(): any {
   /*
@@ -48,12 +52,20 @@ function Bond(): any {
   hooks
 
   */
-
   const { haveErrors } = useGeneral()
-  const { width } = useWindowDimensions()
-  const { tellerDetails, mounting } = useBondTellerDetails()
+  const { keyContracts } = useContracts()
+  const { solace } = useMemo(() => keyContracts, [keyContracts])
   const [showBondModal, setShowBondModal] = useState<boolean>(false)
   const [selectedBondDetail, setSelectedBondDetail] = useState<BondTellerDetails | undefined>(undefined)
+  const { width } = useWindowDimensions()
+  const { tellerDetails, mounting } = useBondTellerDetails()
+  const currentTellerDetails = useMemo(() => tellerDetails, [tellerDetails])
+
+  /*
+
+  local functions
+
+  */
 
   const openModal = (toggle: boolean, selectedBond?: BondTellerDetails) => {
     if (selectedBond) setSelectedBondDetail(selectedBond)
@@ -68,14 +80,14 @@ function Bond(): any {
 
   useEffect(() => {
     if (!selectedBondDetail) return
-    const matchingBond = tellerDetails.find(
+    const matchingBond = currentTellerDetails.find(
       (tellerDetail) =>
         tellerDetail.tellerData.teller.contract.address.toLowerCase() ==
         selectedBondDetail.tellerData.teller.contract.address.toLowerCase()
     )
     if (!matchingBond) return
     setSelectedBondDetail(matchingBond)
-  }, [selectedBondDetail, tellerDetails])
+  }, [selectedBondDetail, currentTellerDetails])
 
   return (
     <Fragment>
@@ -95,7 +107,7 @@ function Bond(): any {
       </Text>
       {mounting ? (
         <Loader />
-      ) : tellerDetails.length > 0 ? (
+      ) : currentTellerDetails.length > 0 ? (
         width > BKPT_4 ? (
           <Scrollable style={{ padding: '0 10px 0 10px' }}>
             <Table canHover style={{ borderSpacing: '0px 7px' }}>
@@ -108,7 +120,7 @@ function Bond(): any {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {tellerDetails.map((tellerDetail, i) => (
+                {currentTellerDetails.map((tellerDetail, i) => (
                   <TableRow
                     key={i}
                     onClick={haveErrors ? undefined : () => openModal(true, tellerDetail)}
@@ -135,7 +147,7 @@ function Bond(): any {
                           ) : (
                             <DeFiAssetImage noborder>
                               <img
-                                src={`https://assets.solace.fi/${tellerDetail.principalData.principalProps.name.toLowerCase()}`}
+                                src={`https://assets.solace.fi/${tellerDetail.tellerData.principalAddr.toLowerCase()}`}
                                 alt={tellerDetail.tellerData.teller.name}
                               />
                             </DeFiAssetImage>
@@ -147,10 +159,11 @@ function Bond(): any {
                     </TableData>
                     <TableData>{tellerDetail.tellerData.teller.name}</TableData>
                     <TableData>
-                      {formatUnits(
-                        tellerDetail.tellerData.bondPrice,
-                        tellerDetail.principalData?.principalProps.decimals
-                      )}
+                      <Text fade={tellerDetail.tellerData.usdBondPrice <= 0}>
+                        {tellerDetail.tellerData.usdBondPrice > 0
+                          ? `$${truncateBalance(tellerDetail.tellerData.usdBondPrice, 4)}`
+                          : `USD price not found`}
+                      </Text>
                     </TableData>
                     <TableData textAlignRight>
                       <Button disabled={haveErrors} info>
@@ -166,7 +179,7 @@ function Bond(): any {
           // mobile version
           <Scrollable maxMobileHeight={65}>
             <CardContainer cardsPerRow={2}>
-              {tellerDetails.map((tellerDetail, i) => (
+              {currentTellerDetails.map((tellerDetail, i) => (
                 <Card key={i} onClick={haveErrors ? undefined : () => openModal(true, tellerDetail)}>
                   <FlexCol style={{ alignItems: 'center' }}>
                     <FormRow>
@@ -209,11 +222,10 @@ function Bond(): any {
                   <FormRow>
                     <FormCol>Price Per SOLACE</FormCol>
                     <FormCol>
-                      <Text bold t2>
-                        {formatUnits(
-                          tellerDetail.tellerData.bondPrice,
-                          tellerDetail.principalData?.principalProps.decimals
-                        )}
+                      <Text bold t2 fade={tellerDetail.tellerData.usdBondPrice <= 0}>
+                        {tellerDetail.tellerData.usdBondPrice > 0
+                          ? `$${truncateBalance(tellerDetail.tellerData.usdBondPrice, 4)}`
+                          : `USD price not found`}
                       </Text>
                     </FormCol>
                   </FormRow>

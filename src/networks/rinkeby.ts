@@ -6,6 +6,7 @@ import EthereumLogo from '../resources/svg/networks/ethereum-logo.svg'
 
 /*  core contract abi */
 import farmControllerABI from '../constants/abi/contracts/FarmController.sol/FarmController.json'
+import farmRewardsABI from '../constants/metadata/FarmRewards.json'
 import optionsFarmingABI from '../constants/abi/contracts/OptionsFarming.sol/OptionsFarming.json'
 import registryABI from '../constants/abi/contracts/Registry.sol/Registry.json'
 import solaceABI from '../constants/abi/contracts/SOLACE.sol/SOLACE.json'
@@ -13,6 +14,7 @@ import xSolaceABI from '../constants/abi/contracts/xSOLACE.sol/xSOLACE.json'
 import treasuryABI from '../constants/abi/contracts/Treasury.sol/Treasury.json'
 import vaultABI from '../constants/abi/contracts/Vault.sol/Vault.json'
 import cpFarmABI from '../constants/abi/contracts/CpFarm.sol/CpFarm.json'
+import sptFarmABI from '../constants/abi/contracts/SptFarm.sol/SptFarm.json'
 import claimsEscrowABI from '../constants/abi/contracts/ClaimsEscrow.sol/ClaimsEscrow.json'
 import lpTokenArtifact from '../../node_modules/@uniswap/v3-periphery/artifacts/contracts/NonfungiblePositionManager.sol/NonfungiblePositionManager.json'
 import polMagABI from '../constants/abi/contracts/PolicyManager.sol/PolicyManager.json'
@@ -110,6 +112,10 @@ export const RinkebyNetwork: NetworkConfig = {
         addr: String(process.env.REACT_APP_RINKEBY_FARM_CONTROLLER_ADDR),
         abi: farmControllerABI,
       },
+      farmRewards: {
+        addr: String(process.env.REACT_APP_RINKEBY_FARM_REWARDS_ADDR),
+        abi: farmRewardsABI,
+      },
       optionsFarming: {
         addr: String(process.env.REACT_APP_RINKEBY_OPTIONS_FARMING_ADDR),
         abi: optionsFarmingABI,
@@ -137,6 +143,10 @@ export const RinkebyNetwork: NetworkConfig = {
       lpFarm: {
         addr: String(process.env.REACT_APP_RINKEBY_LPFARM_ADDR),
         abi: null,
+      },
+      sptFarm: {
+        addr: String(process.env.REACT_APP_RINKEBY_SPTFARM_ADDR),
+        abi: sptFarmABI,
       },
       registry: {
         addr: String(process.env.REACT_APP_RINKEBY_REGISTRY_ADDR),

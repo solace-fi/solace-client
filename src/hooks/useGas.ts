@@ -7,10 +7,11 @@ import { getGasValue } from '../utils/formatting'
 import { useWallet } from '../context/WalletManager'
 import { FunctionName } from '../constants/enums'
 import { GAS_LIMIT } from '../constants'
-import { Block } from '@ethersproject/contracts/node_modules/@ethersproject/abstract-provider'
+import { useProvider } from '../context/ProviderManager'
 
-export const useFetchGasPrice = (latestBlock: Block | undefined): GasFeeListState => {
+export const useFetchGasPrice = (): GasFeeListState => {
   const { activeNetwork, chainId } = useNetwork()
+  const { latestBlock } = useProvider()
   const running = useRef(false)
 
   const [state, setState] = useState<GasFeeListState>({

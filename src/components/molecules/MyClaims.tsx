@@ -58,7 +58,8 @@ export const MyClaims: React.FC = () => {
 
   *************************************************************************************/
   const { haveErrors } = useGeneral()
-  const { claimsEscrow } = useContracts()
+  const { keyContracts } = useContracts()
+  const { claimsEscrow } = useMemo(() => keyContracts, [keyContracts])
   const { activeNetwork, currencyDecimals } = useNetwork()
   const { addLocalTransactions, reload } = useCachedData()
   const { makeTxToast } = useNotifications()

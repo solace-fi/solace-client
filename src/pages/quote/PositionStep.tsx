@@ -25,6 +25,7 @@ import { useWallet } from '../../context/WalletManager'
 import { useContracts } from '../../context/ContractsManager'
 import { useCachedData } from '../../context/CachedDataManager'
 import { useNetwork } from '../../context/NetworkManager'
+import { useProvider } from '../../context/ProviderManager'
 
 /* import components */
 import { Button, ButtonWrapper } from '../../components/atoms/Button'
@@ -43,7 +44,7 @@ import { LiquityPositionCard } from '../../components/organisms/LiquityPositionC
 
 /* import constants */
 import { PositionType } from '../../constants/enums'
-import { LiquityPosition, NetworkCache, Policy, Position, SupportedProduct, Token } from '../../constants/types'
+import { LiquityPosition, Policy, Position, SupportedProduct, Token } from '../../constants/types'
 import { BKPT_3 } from '../../constants'
 
 /* import hooks */
@@ -64,7 +65,8 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
   const { account, library } = useWallet()
   const { activeNetwork, findNetworkByChainId, chainId } = useNetwork()
   const { setSelectedProtocolByName } = useContracts()
-  const { userPolicyData, latestBlock, tokenPosData } = useCachedData()
+  const { userPolicyData } = useCachedData()
+  const { latestBlock, tokenPosData } = useProvider()
   const { width } = useWindowDimensions()
   const [showManageModal, setShowManageModal] = useState<boolean>(false)
   const [selectedPolicy, setSelectedPolicy] = useState<Policy | undefined>(undefined)

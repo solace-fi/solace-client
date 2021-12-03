@@ -3,9 +3,11 @@ import { useContracts } from '../context/ContractsManager'
 import { FunctionName, TransactionCondition } from '../constants/enums'
 import { GasConfiguration, LocalTx, TxResult } from '../constants/types'
 import { FunctionGasLimits } from '../constants/mappings/gasMapping'
+import { useMemo } from 'react'
 
 export const useCpFarm = () => {
-  const { cpFarm } = useContracts()
+  const { keyContracts } = useContracts()
+  const { cpFarm } = useMemo(() => keyContracts, [keyContracts])
 
   const depositEth = async (parsedAmount: BigNumber, txVal: string, gasConfig: GasConfiguration): Promise<TxResult> => {
     if (!cpFarm) return { tx: null, localTx: null }

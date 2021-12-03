@@ -18,21 +18,25 @@ the web application mainly reads the contracts.
 */
 
 type Contracts = {
-  farmController?: Contract | null
-  optionsFarming?: Contract | null
-  vault?: Contract | null
-  treasury?: Contract | null
-  solace?: Contract | null
-  xSolace?: Contract | null
-  cpFarm?: Contract | null
-  lpFarm?: Contract | null
-  registry?: Contract | null
-  lpToken?: Contract | null
-  lpAppraisor?: Contract | null
-  bondDepo?: Contract | null
-  claimsEscrow?: Contract | null
-  policyManager?: Contract | null
-  riskManager?: Contract | null
+  keyContracts: {
+    farmController?: Contract | null
+    optionsFarming?: Contract | null
+    farmRewards?: Contract | null
+    vault?: Contract | null
+    treasury?: Contract | null
+    solace?: Contract | null
+    xSolace?: Contract | null
+    cpFarm?: Contract | null
+    lpFarm?: Contract | null
+    sptFarm?: Contract | null
+    registry?: Contract | null
+    lpToken?: Contract | null
+    lpAppraisor?: Contract | null
+    bondDepo?: Contract | null
+    claimsEscrow?: Contract | null
+    policyManager?: Contract | null
+    riskManager?: Contract | null
+  }
   products: ProductContract[]
   tellers: BondTellerContract[]
   contractSources: ContractSources[]
@@ -42,21 +46,25 @@ type Contracts = {
 }
 
 const ContractsContext = createContext<Contracts>({
-  farmController: undefined,
-  optionsFarming: undefined,
-  vault: undefined,
-  treasury: undefined,
-  solace: undefined,
-  xSolace: undefined,
-  cpFarm: undefined,
-  lpFarm: undefined,
-  registry: undefined,
-  lpToken: undefined,
-  lpAppraisor: undefined,
-  bondDepo: undefined,
-  claimsEscrow: undefined,
-  policyManager: undefined,
-  riskManager: undefined,
+  keyContracts: {
+    farmController: undefined,
+    optionsFarming: undefined,
+    farmRewards: undefined,
+    vault: undefined,
+    treasury: undefined,
+    solace: undefined,
+    xSolace: undefined,
+    cpFarm: undefined,
+    lpFarm: undefined,
+    sptFarm: undefined,
+    registry: undefined,
+    lpToken: undefined,
+    lpAppraisor: undefined,
+    bondDepo: undefined,
+    claimsEscrow: undefined,
+    policyManager: undefined,
+    riskManager: undefined,
+  },
   products: [],
   tellers: [],
   contractSources: [],
@@ -73,12 +81,14 @@ const ContractsProvider: React.FC = (props) => {
 
   const farmController = useGetContract(keyContracts.farmController)
   const optionsFarming = useGetContract(keyContracts.optionsFarming)
+  const farmRewards = useGetContract(keyContracts.farmRewards)
   const vault = useGetContract(keyContracts.vault)
   const treasury = useGetContract(keyContracts.treasury)
   const solace = useGetContract(keyContracts.solace)
   const xSolace = useGetContract(keyContracts.xSolace)
   const cpFarm = useGetContract(keyContracts.cpFarm)
   const lpFarm = useGetContract(keyContracts.lpFarm)
+  const sptFarm = useGetContract(keyContracts.sptFarm)
   const registry = useGetContract(keyContracts.registry)
   const lpToken = useGetContract(keyContracts.lpToken)
   const claimsEscrow = useGetContract(keyContracts.claimsEscrow)
@@ -107,21 +117,25 @@ const ContractsProvider: React.FC = (props) => {
 
   const value = useMemo<Contracts>(
     () => ({
-      farmController,
-      optionsFarming,
-      vault,
-      treasury,
-      solace,
-      xSolace,
-      cpFarm,
-      lpFarm,
-      registry,
-      lpToken,
-      lpAppraisor,
-      bondDepo,
-      claimsEscrow,
-      policyManager,
-      riskManager,
+      keyContracts: {
+        farmController,
+        optionsFarming,
+        farmRewards,
+        vault,
+        treasury,
+        solace,
+        xSolace,
+        cpFarm,
+        lpFarm,
+        sptFarm,
+        registry,
+        lpToken,
+        lpAppraisor,
+        bondDepo,
+        claimsEscrow,
+        policyManager,
+        riskManager,
+      },
       products,
       tellers,
       contractSources,
@@ -132,12 +146,14 @@ const ContractsProvider: React.FC = (props) => {
     [
       farmController,
       optionsFarming,
+      farmRewards,
       vault,
       treasury,
       solace,
       xSolace,
       cpFarm,
       lpFarm,
+      sptFarm,
       registry,
       lpToken,
       lpAppraisor,

@@ -1,7 +1,7 @@
 import useDebounce from '@rooks/use-debounce'
 import { BigNumber } from 'ethers'
 import { formatUnits } from '@ethersproject/units'
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { NUM_BLOCKS_PER_DAY, ZERO } from '../constants'
 import { useContracts } from '../context/ContractsManager'
 import { useWallet } from '../context/WalletManager'
@@ -9,6 +9,7 @@ import { LiquityPosition, Policy, Position, StringToStringMapping, SupportedProd
 import { useCachedData } from '../context/CachedDataManager'
 import { useNetwork } from '../context/NetworkManager'
 import { PositionType } from '../constants/enums'
+import { useProvider } from '../context/ProviderManager'
 
 export const useGetPolicyPrice = (policyId: number): string => {
   const [policyPrice, setPolicyPrice] = useState<string>('')
@@ -38,7 +39,8 @@ export const useAppraisePolicyPosition = (policy: Policy | undefined): BigNumber
   const { activeNetwork } = useNetwork()
   const { account, library } = useWallet()
   const { getProtocolByName } = useContracts()
-  const { latestBlock, tokenPosData, userPolicyData } = useCachedData()
+  const { userPolicyData } = useCachedData()
+  const { tokenPosData, latestBlock } = useProvider()
   const [appraisal, setAppraisal] = useState<BigNumber>(ZERO)
 
   const handlePositionBalances = async (supportedProduct: SupportedProduct): Promise<BigNumber[]> => {
@@ -104,7 +106,7 @@ export const useAppraisePolicyPosition = (policy: Policy | undefined): BigNumber
 
   useEffect(() => {
     const getAppraisal = async () => {
-      if (!policy || userPolicyData.policiesLoading) return
+      if (!policy || userPolicyData.policiesLoading || !latestBlock) return
       try {
         const product = getProtocolByName(policy.productName)
 
@@ -135,7 +137,8 @@ export const useAppraisePolicyPosition = (policy: Policy | undefined): BigNumber
 
 export const useGetMaxCoverPerPolicy = (): string => {
   const [maxCoverPerPolicy, setMaxCoverPerPolicy] = useState<string>('0')
-  const { selectedProtocol, riskManager } = useContracts()
+  const { selectedProtocol, keyContracts } = useContracts()
+  const { riskManager } = useMemo(() => keyContracts, [keyContracts])
   const { currencyDecimals } = useNetwork()
 
   const getMaxCoverPerPolicy = async () => {
@@ -158,7 +161,8 @@ export const useGetMaxCoverPerPolicy = (): string => {
 
 export const useGetYearlyCosts = (): StringToStringMapping => {
   const [yearlyCosts, setYearlyCosts] = useState<StringToStringMapping>({})
-  const { products, getProtocolByName, riskManager } = useContracts()
+  const { products, getProtocolByName, keyContracts } = useContracts()
+  const { riskManager } = useMemo(() => keyContracts, [keyContracts])
   const { currencyDecimals } = useNetwork()
 
   const getYearlyCosts = async () => {
@@ -191,7 +195,8 @@ export const useGetYearlyCosts = (): StringToStringMapping => {
 
 export const useGetAvailableCoverages = (): StringToStringMapping => {
   const [availableCoverages, setAvailableCoverages] = useState<StringToStringMapping>({})
-  const { products, getProtocolByName, riskManager } = useContracts()
+  const { products, getProtocolByName, keyContracts } = useContracts()
+  const { riskManager } = useMemo(() => keyContracts, [keyContracts])
   const { currencyDecimals } = useNetwork()
 
   const getAvailableCoverages = async () => {

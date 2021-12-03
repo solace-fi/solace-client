@@ -26,6 +26,7 @@ import { BKPT_3, BKPT_5, ZERO } from '../../constants'
 import { TransactionCondition, FunctionName, Unit, PolicyState } from '../../constants/enums'
 import { LocalTx } from '../../constants/types'
 import { FunctionGasLimits } from '../../constants/mappings/gasMapping'
+import { USDC_ADDRESS } from '../../constants/mappings/tokenAddressMapping'
 
 /* import managers */
 import { useWallet } from '../../context/WalletManager'
@@ -33,16 +34,15 @@ import { useContracts } from '../../context/ContractsManager'
 import { useNotifications } from '../../context/NotificationsManager'
 import { useCachedData } from '../../context/CachedDataManager'
 import { useNetwork } from '../../context/NetworkManager'
-import { useGeneral } from '../../context/GeneralProvider'
 
 /* import components */
 import { BoxRow, Box, BoxItem, BoxItemTitle } from '../atoms/Box'
-import { Button, ButtonWrapper } from '../atoms/Button'
+import { Button } from '../atoms/Button'
 import { Text, TextSpan } from '../atoms/Typography'
 import { WalletConnectButton } from '../molecules/WalletConnectButton'
 import { FormRow, FormCol } from '../atoms/Form'
 import { Card, CardContainer } from '../atoms/Card'
-import { StyledTooltip } from '../molecules/Tooltip'
+import { HyperLink } from '../atoms/Link'
 
 /* import hooks */
 import { useCapitalPoolSize } from '../../hooks/useVault'
@@ -53,11 +53,11 @@ import { useGetTotalValueLocked } from '../../hooks/useFarm'
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'
 import { useGetFunctionGas } from '../../hooks/useGas'
 import { usePairPrice } from '../../hooks/usePair'
+import { useStakingApy } from '../../hooks/useXSolace'
+import { useReadToken } from '../../hooks/useToken'
 
 /* import utils */
 import { truncateBalance } from '../../utils/formatting'
-import { HyperLink } from '../atoms/Link'
-import { USDC_ADDRESS } from '../../constants/mappings/tokenAddressMapping'
 
 export const Statistics: React.FC = () => {
   /*************************************************************************************
@@ -65,17 +65,20 @@ export const Statistics: React.FC = () => {
   hooks
 
   *************************************************************************************/
-  const { haveErrors } = useGeneral()
   const { account, initialized } = useWallet()
   const { activeNetwork, currencyDecimals, chainId } = useNetwork()
-  const { farmController, solace } = useContracts()
+  const { keyContracts } = useContracts()
+  const { farmController, solace, xSolace } = useMemo(() => keyContracts, [keyContracts])
   const { makeTxToast } = useNotifications()
-  const { addLocalTransactions, reload, tokenPosData, latestBlock } = useCachedData()
+  const { addLocalTransactions, reload } = useCachedData()
+  const { stakingApy } = useStakingApy()
   // const capitalPoolSize = useCapitalPoolSize()
-  const solaceBalanceData = useSolaceBalance()
-  const xSolaceBalanceData = useXSolaceBalance()
+  const solaceBalance = useSolaceBalance()
+  const xSolaceBalance = useXSolaceBalance()
+  const readSolaceToken = useReadToken(solace)
+  const readXSolaceToken = useReadToken(xSolace)
   const totalUserRewards = useTotalPendingRewards()
-  const { allPolicies } = usePolicyGetter(true, latestBlock, tokenPosData)
+  const { allPolicies } = usePolicyGetter(true)
   // const totalValueLocked = useGetTotalValueLocked()
   const { width } = useWindowDimensions()
   const { getAutoGasConfig } = useGetFunctionGas()
@@ -148,23 +151,18 @@ export const Statistics: React.FC = () => {
     <Box color2>
       <BoxItem>
         <BoxItemTitle t4 light>
-          SOLACE Token
-        </BoxItemTitle>
-        <HyperLink
-          href={`https://app.sushi.com/add/${USDC_ADDRESS[chainId]}/${solace ? solace.address : null}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          style={{ width: '100%' }}
-        >
-          <Button widthP={100} light style={{ whiteSpace: 'nowrap' }} p={0}>
-            Sushiswap
-          </Button>
-        </HyperLink>
-      </BoxItem>
-      <BoxItem>
-        <BoxItemTitle t4 light>
-          SOLACE Price
-        </BoxItemTitle>
+          SOLACE{' '}
+          <HyperLink
+            href={`https://app.sushi.com/add/${USDC_ADDRESS[chainId]}/${solace ? solace.address : null}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ width: '100%' }}
+          >
+            <Button light style={{ whiteSpace: 'nowrap', minWidth: 'unset', minHeight: 'unset' }} p={4}>
+              buy on sushi
+            </Button>
+          </HyperLink>
+        </BoxItemTitle>{' '}
         <Text t2 nowrap light bold>
           {`$${pairPrice} `}
         </Text>
@@ -206,15 +204,15 @@ export const Statistics: React.FC = () => {
       {width > BKPT_3 ? (
         <BoxRow>
           {initialized && account ? (
-            <Box widthP={width > BKPT_5 ? 50 : undefined}>
+            <Box>
               <BoxItem>
                 <BoxItemTitle t4 light>
                   My SOLACE Balance
                 </BoxItemTitle>
                 <Text t2 light bold>
-                  {`${truncateBalance(solaceBalanceData.solaceBalance, 1)} `}
+                  {`${truncateBalance(solaceBalance, 1)} `}
                   <TextSpan t4 light bold>
-                    {solaceBalanceData.tokenData.symbol}
+                    {readSolaceToken.symbol}
                   </TextSpan>
                 </Text>
               </BoxItem>
@@ -223,33 +221,20 @@ export const Statistics: React.FC = () => {
                   My Staked Balance
                 </BoxItemTitle>
                 <Text t2 light bold>
-                  {`${truncateBalance(xSolaceBalanceData.xSolaceBalance, 1)} `}
+                  {`${truncateBalance(xSolaceBalance, 1)} `}
                   <TextSpan t4 light bold>
-                    {xSolaceBalanceData.tokenData.symbol}
+                    {readXSolaceToken.symbol}
                   </TextSpan>
                 </Text>
               </BoxItem>
-              {/* <BoxItem>
-                <BoxItemTitle t4 light bold>
-                  My Unclaimed Rewards{' '}
-                  <StyledTooltip
-                    id={'rewards'}
-                    tip={'You’ll be able to claim the rewards soon, once $SOLACE token is publicly released'}
-                    // link={'https://docs.solace.fi/docs/user-guides/earn-rewards'}
-                  />
+              <BoxItem>
+                <BoxItemTitle t4 light>
+                  Staking APY
                 </BoxItemTitle>
                 <Text t2 light bold>
-                  {`${truncateBalance(totalUserRewards, 1)} `}
-                  <TextSpan t4 light bold>
-                    SOLACE
-                  </TextSpan>
+                  {stakingApy}
                 </Text>
-              </BoxItem> */}
-              {/* <BoxItem>
-                <Button light disabled={haveErrors || fixed(totalUserRewards, 6) <= 0} onClick={claimRewards}>
-                  Claim Options
-                </Button>
-              </BoxItem> */}
+              </BoxItem>
             </Box>
           ) : (
             <Box>
@@ -270,9 +255,9 @@ export const Statistics: React.FC = () => {
                   <FormCol light>My SOLACE Balance</FormCol>
                   <FormCol>
                     <Text t2 light>
-                      {`${truncateBalance(solaceBalanceData.solaceBalance, 1)} `}
+                      {`${truncateBalance(solaceBalance, 1)} `}
                       <TextSpan t4 light>
-                        {solaceBalanceData.tokenData.symbol}
+                        {readSolaceToken.symbol}
                       </TextSpan>
                     </Text>
                   </FormCol>
@@ -281,53 +266,37 @@ export const Statistics: React.FC = () => {
                   <FormCol light>My Staked Balance</FormCol>
                   <FormCol>
                     <Text t2 light>
-                      {`${truncateBalance(xSolaceBalanceData.xSolaceBalance, 1)} `}
+                      {`${truncateBalance(xSolaceBalance, 1)} `}
                       <TextSpan t4 light>
-                        {xSolaceBalanceData.tokenData.symbol}
+                        {readXSolaceToken.symbol}
                       </TextSpan>
                     </Text>
                   </FormCol>
                 </FormRow>
-                {/* <FormRow>
-                  <FormCol light>My Unclaimed Rewards</FormCol>
+                <FormRow>
+                  <FormCol light>Staking APY</FormCol>
                   <FormCol>
                     <Text t2 light>
-                      {`${truncateBalance(totalUserRewards, 1)} `}
-                      <TextSpan t4 light>
-                        SOLACE
-                      </TextSpan>
+                      {stakingApy}
                     </Text>
                   </FormCol>
-                </FormRow> */}
-                {/* <ButtonWrapper>
-                  <Button
-                    light
-                    widthP={100}
-                    disabled={haveErrors || fixed(totalUserRewards, 6) <= 0}
-                    onClick={claimRewards}
-                  >
-                    Claim Options
-                  </Button>
-                </ButtonWrapper> */}
+                </FormRow>
               </Card>
               <Card color2>
                 <FormRow>
-                  <FormCol light>SOLACE Token</FormCol>
-                  <FormCol>
+                  <FormCol light>
+                    SOLACE{' '}
                     <HyperLink
                       href={`https://app.sushi.com/add/${USDC_ADDRESS[chainId]}/${solace ? solace.address : null}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       style={{ width: '100%' }}
                     >
-                      <Button widthP={100} light style={{ whiteSpace: 'nowrap' }} p={0}>
-                        Sushiswap
+                      <Button light style={{ whiteSpace: 'nowrap', minWidth: 'unset', minHeight: 'unset' }} p={4}>
+                        buy on sushi
                       </Button>
                     </HyperLink>
                   </FormCol>
-                </FormRow>
-                <FormRow>
-                  <FormCol light>SOLACE Price</FormCol>
                   <FormCol>
                     <Text t2 nowrap light>
                       {`$${pairPrice}`}

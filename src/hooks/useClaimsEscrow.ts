@@ -1,15 +1,16 @@
+import { useEffect, useMemo, useState } from 'react'
 import { BigNumber } from 'ethers'
 import { useContracts } from '../context/ContractsManager'
 import { ClaimDetails } from '../constants/types'
-import { useEffect, useState } from 'react'
-import { useCachedData } from '../context/CachedDataManager'
 import { useWallet } from '../context/WalletManager'
+import { useProvider } from '../context/ProviderManager'
 
 export const useGetClaimsDetails = (): ClaimDetails[] => {
   const { account } = useWallet()
-  const { claimsEscrow } = useContracts()
+  const { keyContracts } = useContracts()
+  const { claimsEscrow } = useMemo(() => keyContracts, [keyContracts])
   const [claimsDetails, setClaimsDetails] = useState<ClaimDetails[]>([])
-  const { latestBlock } = useCachedData()
+  const { latestBlock } = useProvider()
 
   useEffect(() => {
     const getClaimDetails = async () => {
@@ -40,7 +41,8 @@ export const useGetClaimsDetails = (): ClaimDetails[] => {
 }
 
 export const useGetCooldownPeriod = (): string => {
-  const { claimsEscrow } = useContracts()
+  const { keyContracts } = useContracts()
+  const { claimsEscrow } = useMemo(() => keyContracts, [keyContracts])
   const [cooldownPeriod, setCooldownPeriod] = useState<string>('0')
 
   useEffect(() => {
