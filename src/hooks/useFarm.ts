@@ -51,25 +51,3 @@ export const usePoolStakedValue = (farm: Contract | null | undefined): string =>
 
   return poolValue
 }
-
-export const useGetTotalValueLocked = (): string => {
-  const { currencyDecimals } = useNetwork()
-  const { keyContracts } = useContracts()
-  const { cpFarm, lpFarm } = useMemo(() => keyContracts, [keyContracts])
-  const [totalValueLocked, setTotalValueLocked] = useState<string>('0')
-  const cpPoolValue = usePoolStakedValue(cpFarm)
-  const lpPoolValue = usePoolStakedValue(lpFarm)
-
-  useEffect(() => {
-    const getTotalValueLocked = async () => {
-      const formattedTVL = formatUnits(
-        parseUnits(cpPoolValue, currencyDecimals).add(parseUnits(lpPoolValue, currencyDecimals)),
-        currencyDecimals
-      )
-      setTotalValueLocked(formattedTVL)
-    }
-    getTotalValueLocked()
-  }, [cpPoolValue, lpPoolValue, currencyDecimals])
-
-  return totalValueLocked
-}

@@ -12,7 +12,7 @@ import { useGeneral } from '../../context/GeneralProvider'
 import { useNotifications } from '../../context/NotificationsManager'
 import { useCachedData } from '../../context/CachedDataManager'
 
-import { FunctionName, TransactionCondition } from '../../constants/enums'
+import { ExplorerscanApi, FunctionName, TransactionCondition } from '../../constants/enums'
 import { LocalTx } from '../../constants/types'
 import { USDC_ADDRESS, USDT_ADDRESS, DAI_ADDRESS, FRAX_ADDRESS } from '../../constants/mappings/tokenAddressMapping'
 import { BKPT_5, ZERO } from '../../constants'
@@ -38,6 +38,10 @@ import { getDateStringWithMonthName } from '../../utils/time'
 import { queryBalance, queryDecimals } from '../../utils/contract'
 import { truncateBalance } from '../../utils/formatting'
 import { getContract, hasApproval, isAddress } from '../../utils'
+import { ModalAddendum } from '../molecules/Modal'
+import { HyperLink } from '../atoms/Link'
+import { StyledLinkExternal } from '../atoms/Icon'
+import { getExplorerItemUrl } from '../../utils/explorer'
 
 export const V1RewardsWindow: React.FC = () => {
   const { haveErrors } = useGeneral()
@@ -45,7 +49,7 @@ export const V1RewardsWindow: React.FC = () => {
   const { farmRewards, xSolace } = useMemo(() => keyContracts, [keyContracts])
   const { latestBlock } = useProvider()
   const { library, account } = useWallet()
-  const { chainId, currencyDecimals } = useNetwork()
+  const { activeNetwork, chainId, currencyDecimals } = useNetwork()
   const { makeTxToast } = useNotifications()
   const { reload } = useCachedData()
   const {
@@ -448,6 +452,19 @@ export const V1RewardsWindow: React.FC = () => {
               Redeem Rewards
             </Button>
           </ButtonWrapper>
+        )}
+        {farmRewards && (
+          <ModalAddendum>
+            <HyperLink
+              href={getExplorerItemUrl(activeNetwork.explorer.url, farmRewards.address, ExplorerscanApi.ADDRESS)}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <Button>
+                Source Contract <StyledLinkExternal size={20} />
+              </Button>
+            </HyperLink>
+          </ModalAddendum>
         )}
       </Card>
     </FlexCol>

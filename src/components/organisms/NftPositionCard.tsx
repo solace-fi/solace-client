@@ -25,7 +25,6 @@ import { Position, Token, Policy, TokenData } from '../../constants/types'
 import { PositionCard } from '../atoms/Card'
 import { PositionCardButton, PositionCardText, PositionCardName } from '../atoms/DeFiAsset'
 import { Button } from '../atoms/Button'
-import { NftPosition } from '../molecules/NftPosition'
 
 /* import hooks */
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'
@@ -96,7 +95,6 @@ export const NftPositionCard: React.FC<NftPositionCardProps> = ({
           This position is already covered
         </PositionCardText>
       )}
-      <NftPosition tokenId={token.metadata.tokenId} />
       <PositionCardName bold style={{ opacity: isActive ? '.5' : '1' }} light={lightText}>
         {token.token.name}
       </PositionCardName>

@@ -33,7 +33,6 @@ import { NftTokenInfo } from '../../constants/types'
 
 /* import components */
 import { CpPoolModal } from './CpPoolModal'
-import { LpPoolModal } from './LpPoolModal'
 import { UnderwritingPoolModal } from './UnderwritingPoolModal'
 import { Input } from '../atoms/Input'
 import { ModalRow, ModalCell } from '../atoms/Modal'
@@ -87,7 +86,6 @@ export const PoolModalRouter: React.FC<PoolModalRouterProps> = ({ modalTitle, fu
   const modals: { [key: string]: JSX.Element } = {
     ['uw']: <UnderwritingPoolModal isOpen={isOpen} modalTitle={modalTitle} func={func} closeModal={closeModal} />,
     ['cp']: <CpPoolModal isOpen={isOpen} modalTitle={modalTitle} func={func} closeModal={closeModal} />,
-    ['lp']: <LpPoolModal isOpen={isOpen} modalTitle={modalTitle} func={func} closeModal={closeModal} />,
   }
 
   return modals[farmName]
@@ -157,13 +155,6 @@ export const Erc721InputPanel: React.FC<Erc721InputPanelProps> = ({
           <div style={{ position: 'absolute', top: '77%' }}>Available: {availableBalance}</div>
         </ModalCell>
       </ModalRow>
-      <div style={{ marginBottom: '20px' }}>
-        {/* {assetTokens.length > 0 && (
-          <ModalCell jc={'center'} p={0}>
-            <NftPosition tokenId={nftId} />
-          </ModalCell>
-        )} */}
-      </div>
     </>
   )
 }

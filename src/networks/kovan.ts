@@ -7,19 +7,14 @@ import EthereumLogo from '../resources/svg/networks/ethereum-logo.svg'
 /*  core contract abi */
 import farmControllerABI from '../constants/abi/contracts/FarmController.sol/FarmController.json'
 import farmRewardsABI from '../constants/metadata/FarmRewards.json'
-import optionsFarmingABI from '../constants/abi/contracts/OptionsFarming.sol/OptionsFarming.json'
-import registryABI from '../constants/abi/contracts/Registry.sol/Registry.json'
+import vaultABI from '../constants/abi/contracts/Vault.sol/Vault.json'
 import solaceABI from '../constants/abi/contracts/SOLACE.sol/SOLACE.json'
 import xSolaceABI from '../constants/abi/contracts/xSOLACE.sol/xSOLACE.json'
-import treasuryABI from '../constants/abi/contracts/Treasury.sol/Treasury.json'
-import vaultABI from '../constants/abi/contracts/Vault.sol/Vault.json'
 import cpFarmABI from '../constants/abi/contracts/CpFarm.sol/CpFarm.json'
-import sptFarmABI from '../constants/abi/contracts/SptFarm.sol/SptFarm.json'
+import bondDepoABI from '../constants/abi/contracts/BondDepository.sol/BondDepository.json'
 import claimsEscrowABI from '../constants/abi/contracts/ClaimsEscrow.sol/ClaimsEscrow.json'
-import lpTokenArtifact from '../../node_modules/@uniswap/v3-periphery/artifacts/contracts/NonfungiblePositionManager.sol/NonfungiblePositionManager.json'
 import polMagABI from '../constants/abi/contracts/PolicyManager.sol/PolicyManager.json'
 import riskManagerABI from '../constants/abi/contracts/RiskManager.sol/RiskManager.json'
-import bondDepoABI from '../constants/abi/contracts/BondDepository.sol/BondDepository.json'
 
 /* product contract abi */
 import aaveABI from '../constants/abi/contracts/products/AaveV2Product.sol/AaveV2Product.json'
@@ -98,11 +93,7 @@ export const KovanNetwork: NetworkConfig = {
     key: String(ETHERSCAN_API_KEY),
     url: 'https://kovan.etherscan.io',
     apiUrl: 'https://api-kovan.etherscan.io',
-    excludedContractAddrs: [
-      String(process.env.REACT_APP_KOVAN_UNISWAP_LPTOKEN_ADDR),
-      String(process.env.REACT_APP_KOVAN_LPFARM_ADDR),
-      String(process.env.REACT_APP_KOVAN_SOLACE_ADDR),
-    ],
+    excludedContractAddrs: [String(process.env.REACT_APP_KOVAN_SOLACE_ADDR)],
   },
   config: {
     keyContracts: {
@@ -114,17 +105,9 @@ export const KovanNetwork: NetworkConfig = {
         addr: String(process.env.REACT_APP_KOVAN_FARM_REWARDS_ADDR),
         abi: farmRewardsABI,
       },
-      optionsFarming: {
-        addr: String(process.env.REACT_APP_KOVAN_OPTIONS_FARMING_ADDR),
-        abi: optionsFarmingABI,
-      },
       vault: {
         addr: String(process.env.REACT_APP_KOVAN_VAULT_ADDR),
         abi: vaultABI,
-      },
-      treasury: {
-        addr: String(process.env.REACT_APP_KOVAN_TREASURY_ADDR),
-        abi: treasuryABI,
       },
       solace: {
         addr: String(process.env.REACT_APP_KOVAN_SOLACE_ADDR),
@@ -138,22 +121,6 @@ export const KovanNetwork: NetworkConfig = {
         addr: String(process.env.REACT_APP_KOVAN_CPFARM_ADDR),
         abi: cpFarmABI,
       },
-      lpFarm: {
-        addr: String(process.env.REACT_APP_KOVAN_LPFARM_ADDR),
-        abi: null,
-      },
-      sptFarm: {
-        addr: String(process.env.REACT_APP_KOVAN_SPTFARM_ADDR),
-        abi: sptFarmABI,
-      },
-      registry: {
-        addr: String(process.env.REACT_APP_KOVAN_REGISTRY_ADDR),
-        abi: registryABI,
-      },
-      lpToken: {
-        addr: String(process.env.REACT_APP_KOVAN_UNISWAP_LPTOKEN_ADDR),
-        abi: lpTokenArtifact.abi,
-      },
       claimsEscrow: {
         addr: String(process.env.REACT_APP_KOVAN_CLAIMS_ESCROW_ADDR),
         abi: claimsEscrowABI,
@@ -161,10 +128,6 @@ export const KovanNetwork: NetworkConfig = {
       policyManager: {
         addr: String(process.env.REACT_APP_KOVAN_POLICY_MANAGER_ADDR),
         abi: polMagABI,
-      },
-      lpAppraisor: {
-        addr: String(process.env.REACT_APP_KOVAN_LPAPPRAISOR_ADDR),
-        abi: null,
       },
       riskManager: {
         addr: String(process.env.REACT_APP_KOVAN_RISK_MANAGER_ADDR),

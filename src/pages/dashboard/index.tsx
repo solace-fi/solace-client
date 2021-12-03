@@ -35,7 +35,6 @@ import { ClaimModal } from '../../components/organisms/ClaimModal'
 import { MyPolicies } from '../../components/molecules/MyPolicies'
 import { MyClaims } from '../../components/molecules/MyClaims'
 import { MyInvestments } from '../../components/molecules/MyInvestments'
-import { MyOptions } from '../../components/molecules/MyOptions'
 import { WalletConnectButton } from '../../components/molecules/WalletConnectButton'
 
 /* import hooks */
@@ -135,8 +134,7 @@ function Dashboard(): any {
             setOpen={setOpenPolicies}
           />
           <MyClaims />
-          {/* <MyInvestments />
-          <MyOptions /> */}
+          {/* <MyInvestments /> */}
         </Fragment>
       )}
     </Fragment>

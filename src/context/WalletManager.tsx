@@ -17,22 +17,6 @@ import { WalletModal } from '../components/organisms/WalletModal'
 import { useNetwork } from './NetworkManager'
 import { MetamaskConnector } from '../wallet/wallet-connectors/MetaMask'
 import { useGeneral } from './GeneralProvider'
-import { getTokens as gT0 } from '../products/sushiswap/positionGetter/getTokens'
-import { getTokens as gT1 } from '../products/yearn/positionGetter/getTokens'
-import { getTokens as gT2 } from '../products/curve/positionGetter/getTokens'
-import { getTokens as gT3 } from '../products/uniswapV2/positionGetter/getTokens'
-import { getTokens as gT4 } from '../products/uniswapV3/positionGetter/getTokens'
-import { getTokens as gT5 } from '../products/aave/positionGetter/getTokens'
-
-import { getBalances as gB0 } from '../products/sushiswap/positionGetter/getBalances'
-import { getBalances as gB1 } from '../products/yearn/positionGetter/getBalances'
-import { getBalances as gB2 } from '../products/curve/positionGetter/getBalances'
-import { getBalances as gB3 } from '../products/uniswapV2/positionGetter/getBalances'
-import { getBalances as gB4 } from '../products/uniswapV3/positionGetter/getBalances'
-import { getBalances as gB5 } from '../products/aave/positionGetter/getBalances'
-
-import { ETHERSCAN_API_KEY } from '../constants'
-import { withBackoffRetries } from '../utils/time'
 /*
 
 This Manager keeps track of the user's wallet and details, including the wallet type and account, 
@@ -225,50 +209,6 @@ const WalletProvider: React.FC = (props) => {
     }
     checkForENS()
   }, [web3React.account, web3React.library])
-
-  useEffect(() => {
-    const testMainnet = async () => {
-      const provider = new JsonRpcProvider(
-        `https://eth-mainnet.alchemyapi.io/v2/${String(process.env.REACT_APP_ALCHEMY_API_KEY)}`
-      )
-      const aaveU = '0x11BB97923209Df97E8c9839E1e394798cb0C0336'
-      const sushiU = '0x55f4b291E26d2143721C7EBeB1C44660A9A5Eb5E'
-      const curveU2 = '0x53C40473DcdFd927C4201cCFE24E314a7D7C3584'
-      const curveU3 = '0xfcb85d4139123b1ec6746d1c487a2201045b9f72'
-      const curveU4 = '0x18C64fAf2DF0286E1520B2F0F2d3841bcF865116'
-      const curveU5 = '0xbF7D65D769E82E7B862df338223263ba33F72623'
-      const uniV2U = '0xC04F63Ea1E2E2FFEACAde7839E0596E2B886f6A4'
-      const uniV3U = '0xAc32EAfcCAd3C8577FB2e842dCE8e441D9A7dB85'
-      const yearnU = '0x2b5989Dd16eA2a11053F35B8c08b1E313C4E5cbB'
-      const user = curveU5
-      const url = `https://api.etherscan.io/api?module=account&action=tokentx&address=${user}&startblock=0&endblock=latest&apikey=${String(
-        ETHERSCAN_API_KEY
-      )}`
-      const transferHistory = await withBackoffRetries(async () => fetch(url))
-        .then((res) => res.json())
-        .then((result) => result.result)
-        .then((result) => {
-          if (result != 'Max rate limit reached') return result
-          return []
-        })
-      // const cachedTokens = await gT0(provider, activeNetwork, { user, transferHistory })
-      // const cachedTokens = await gT1(provider, activeNetwork, { user, transferHistory })
-      const cachedTokens = await gT2(provider, activeNetwork, { user, transferHistory })
-      // const cachedTokens = await gT3(provider, activeNetwork, { user, transferHistory })
-      // const cachedTokens = await gT4(provider, activeNetwork, { user, transferHistory })
-      // const cachedTokens = await gT5(provider, activeNetwork, { user, transferHistory })
-      console.log(cachedTokens)
-      // const balances = await gB0(user, provider, activeNetwork, cachedTokens)
-      //const balances = await gB1(user, provider, activeNetwork, cachedTokens)
-      const balances = await gB2(user, provider, activeNetwork, cachedTokens)
-      //const balances = await gB3(user, provider, activeNetwork, cachedTokens)
-      // const balances = await gB4(user, provider, activeNetwork, cachedTokens)
-      // const balances = await gB5(user, provider, activeNetwork, cachedTokens)
-      console.log(balances)
-      // console.log('fetched balances', balances)
-    }
-    // testMainnet()
-  }, [])
 
   const value = useMemo<ContextWallet>(
     () => ({

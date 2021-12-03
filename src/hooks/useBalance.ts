@@ -5,9 +5,7 @@ import { useCachedData } from '../context/CachedDataManager'
 import { useState, useEffect, useRef } from 'react'
 import { formatUnits } from '@ethersproject/units'
 import { BigNumber } from 'ethers'
-import { NftTokenInfo } from '../constants/types'
-import { rangeFrom0 } from '../utils/numeric'
-import { listTokensOfOwner, queryBalance, queryDecimals } from '../utils/contract'
+import { queryBalance, queryDecimals } from '../utils/contract'
 import { useNetwork } from '../context/NetworkManager'
 import { Unit } from '../constants/enums'
 
@@ -159,87 +157,6 @@ export const useXSolaceBalance = () => {
   }, [account, xSolace, getXSolaceBalance, version])
 
   return xSolaceBalance
-}
-
-export const useUserWalletLpBalance = (): NftTokenInfo[] => {
-  const { keyContracts } = useContracts()
-  const { lpToken, lpFarm, lpAppraisor } = useMemo(() => keyContracts, [keyContracts])
-  const { account } = useWallet()
-  const [userNftTokenInfo, setUserNftTokenInfo] = useState<NftTokenInfo[]>([])
-
-  const getLpBalance = async () => {
-    if (!lpToken || !account || !lpFarm || !lpAppraisor) return
-    try {
-      const userLpTokenIds = await listTokensOfOwner(lpToken, account)
-      const userLpTokenValues = await Promise.all(userLpTokenIds.map(async (id) => await lpAppraisor.appraise(id)))
-      const _token0 = await lpFarm.token0()
-      const _token1 = await lpFarm.token1()
-      const userNftTokenInfo: NftTokenInfo[] = []
-      for (let i = 0; i < userLpTokenIds.length; i++) {
-        const lpTokenData = await lpToken.positions(userLpTokenIds[i])
-        const { token0, token1 } = lpTokenData
-        if (_token0 == token0 && _token1 == token1) {
-          userNftTokenInfo.push({ id: userLpTokenIds[i], value: userLpTokenValues[i] })
-        }
-      }
-      setUserNftTokenInfo(userNftTokenInfo)
-    } catch (err) {
-      console.log('useUserWalletLpBalance', err)
-    }
-  }
-
-  useEffect(() => {
-    if (!lpToken || !account) return
-    getLpBalance()
-    lpToken.on('Transfer', (from, to) => {
-      if (from == account || to == account) {
-        getLpBalance()
-      }
-    })
-
-    return () => {
-      lpToken.removeAllListeners()
-    }
-  }, [account, lpToken])
-
-  return userNftTokenInfo
-}
-
-export const useDepositedLpBalance = (): NftTokenInfo[] => {
-  const { keyContracts } = useContracts()
-  const { lpToken, lpFarm, lpAppraisor } = useMemo(() => keyContracts, [keyContracts])
-  const { account } = useWallet()
-  const [depositedNftTokenInfo, setFarmNftTokenInfo] = useState<NftTokenInfo[]>([])
-
-  const getLpBalance = async () => {
-    if (!lpToken || !account || !lpFarm || !lpAppraisor) return
-    try {
-      const listOfDepositedLpTokens: [BigNumber[], BigNumber[]] = await lpFarm.listDeposited(account)
-      const indices = rangeFrom0(listOfDepositedLpTokens[0].length)
-      const depositedNftTokenInfo: NftTokenInfo[] = indices.map((i) => {
-        return { id: listOfDepositedLpTokens[0][i], value: listOfDepositedLpTokens[1][i] }
-      })
-      setFarmNftTokenInfo(depositedNftTokenInfo)
-    } catch (err) {
-      console.log('useUserDepositedLpBalance', err)
-    }
-  }
-
-  useEffect(() => {
-    if (!lpToken || !account) return
-    getLpBalance()
-    lpToken?.on('Transfer', (from, to) => {
-      if (from == account || to == account) {
-        getLpBalance()
-      }
-    })
-
-    return () => {
-      lpToken.removeAllListeners()
-    }
-  }, [account, lpToken])
-
-  return depositedNftTokenInfo
 }
 
 export const useUnderWritingPoolBalance = () => {

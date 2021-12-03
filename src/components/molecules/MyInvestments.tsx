@@ -16,7 +16,6 @@
 
 /* import packages */
 import React, { useMemo } from 'react'
-import { formatUnits } from '@ethersproject/units'
 
 /* import managers */
 import { useWallet } from '../../context/WalletManager'
@@ -30,12 +29,10 @@ import { CardContainer, InvestmentCard, CardHeader, CardTitle, CardBlock } from 
 
 /* import constants */
 import { Unit } from '../../constants/enums'
-import { ZERO } from '../../constants'
 
 /* import hooks */
 import { useUserStakedValue } from '../../hooks/useFarm'
 import { useUserPendingRewards, useUserRewardsPerDay } from '../../hooks/useRewards'
-import { useDepositedLpBalance } from '../../hooks/useBalance'
 
 /* import utils */
 import { truncateBalance } from '../../utils/formatting'
@@ -49,14 +46,10 @@ export const MyInvestments: React.FC = () => {
   const { account } = useWallet()
   const { activeNetwork } = useNetwork()
   const { keyContracts } = useContracts()
-  const { cpFarm, lpFarm } = useMemo(() => keyContracts, [keyContracts])
+  const { cpFarm } = useMemo(() => keyContracts, [keyContracts])
   const cpUserRewards = useUserPendingRewards(cpFarm)
-  const lpUserRewards = useUserPendingRewards(lpFarm)
   const cpUserStakeValue = useUserStakedValue(cpFarm)
-  const lpUserStakeValue = useUserStakedValue(lpFarm)
-  // const depositedNftTokenInfo = useDepositedLpBalance()
   const cpUserRewardsPerDay = useUserRewardsPerDay(1, cpFarm)
-  const lpUserRewardsPerDay = useUserRewardsPerDay(2, lpFarm)
 
   return (
     <Content>
@@ -84,33 +77,6 @@ export const MyInvestments: React.FC = () => {
             </CardTitle>
           </CardBlock>
         </InvestmentCard>
-        {/* <InvestmentCard>
-          <CardHeader>
-            <CardTitle t4>Liquidity Pool</CardTitle>
-            <CardTitle t3 nowrap>
-              {account
-                ? truncateBalance(
-                    formatUnits(depositedNftTokenInfo.reduce((a, b) => a.add(b.value), ZERO).toString(), currencyDecimals),
-                    2
-                  )
-                : 0}{' '}
-              {Unit.SOLACE}
-              {account ? truncateBalance(lpUserStakeValue, 2) : 0} {Unit.SOLACE}
-            </CardTitle>
-          </CardHeader>
-          <CardBlock>
-            <CardTitle t4>Daily Earnings</CardTitle>
-            <CardTitle t3 nowrap>
-              {account ? truncateBalance(lpUserRewardsPerDay, 2) : 0} {Unit.SOLACE}
-            </CardTitle>
-          </CardBlock>
-          <CardBlock>
-            <CardTitle t4>Total Earnings</CardTitle>
-            <CardTitle t3 nowrap>
-              {account ? truncateBalance(lpUserRewards, 2) : 0} {Unit.SOLACE}
-            </CardTitle>
-          </CardBlock>
-        </InvestmentCard> */}
       </CardContainer>
     </Content>
   )

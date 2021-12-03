@@ -45,11 +45,9 @@ import { Card, CardContainer } from '../atoms/Card'
 import { HyperLink } from '../atoms/Link'
 
 /* import hooks */
-import { useCapitalPoolSize } from '../../hooks/useVault'
 import { useTotalPendingRewards } from '../../hooks/useRewards'
 import { useSolaceBalance, useUnderWritingPoolBalance, useXSolaceBalance } from '../../hooks/useBalance'
 import { usePolicyGetter } from '../../hooks/usePolicyGetter'
-import { useGetTotalValueLocked } from '../../hooks/useFarm'
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'
 import { useGetFunctionGas } from '../../hooks/useGas'
 import { usePairPrice } from '../../hooks/usePair'
@@ -72,14 +70,12 @@ export const Statistics: React.FC = () => {
   const { makeTxToast } = useNotifications()
   const { addLocalTransactions, reload } = useCachedData()
   const { stakingApy } = useStakingApy()
-  // const capitalPoolSize = useCapitalPoolSize()
   const solaceBalance = useSolaceBalance()
   const xSolaceBalance = useXSolaceBalance()
   const readSolaceToken = useReadToken(solace)
   const readXSolaceToken = useReadToken(xSolace)
   const totalUserRewards = useTotalPendingRewards()
   const { allPolicies } = usePolicyGetter(true)
-  // const totalValueLocked = useGetTotalValueLocked()
   const { width } = useWindowDimensions()
   const { getAutoGasConfig } = useGetFunctionGas()
   const gasConfig = useMemo(() => getAutoGasConfig(), [getAutoGasConfig])
