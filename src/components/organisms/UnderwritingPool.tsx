@@ -16,15 +16,13 @@
 
 /* import packages */
 import React from 'react'
-import { parseUnits } from '@ethersproject/units'
 
 /* import managers */
 import { useWallet } from '../../context/WalletManager'
-import { useNetwork } from '../../context/NetworkManager'
 import { useGeneral } from '../../context/GeneralProvider'
 
 /* import constants */
-import { CP_ROI, BKPT_4, BKPT_6 } from '../../constants'
+import { BKPT_4, BKPT_6 } from '../../constants'
 import { FunctionName } from '../../constants/enums'
 
 /* import components */
@@ -94,13 +92,6 @@ export const UnderwritingPool: React.FC<UnderwritingPoolProps> = ({ openModal })
               {account ? (
                 <TableData textAlignRight>
                   <TableDataGroup width={200} style={{ float: 'right' }}>
-                    {/* <Button
-                      light
-                      disabled={haveErrors}
-                      onClick={() => openModal(FunctionName.DEPOSIT_ETH, 'Deposit', 'uw')}
-                    >
-                      Deposit
-                    </Button> */}
                     <Button
                       light
                       disabled={haveErrors}
@@ -145,14 +136,6 @@ export const UnderwritingPool: React.FC<UnderwritingPoolProps> = ({ openModal })
           )}
           {account && (
             <ButtonWrapper isColumn={width <= BKPT_4}>
-              {/* <Button
-                widthP={100}
-                disabled={haveErrors}
-                onClick={() => openModal(FunctionName.DEPOSIT_ETH, 'Deposit', 'uw')}
-                light
-              >
-                Deposit
-              </Button> */}
               <Button
                 widthP={100}
                 disabled={haveErrors}

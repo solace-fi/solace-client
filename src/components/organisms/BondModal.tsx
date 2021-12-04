@@ -26,7 +26,7 @@ import { BigNumber } from 'ethers'
 
 /* import constants */
 import { BondTellerDetails, BondToken, LocalTx } from '../../constants/types'
-import { BKPT_3, MAX_BPS, MAX_APPROVAL_AMOUNT, ZERO } from '../../constants'
+import { BKPT_3, MAX_BPS, ZERO } from '../../constants'
 import { FunctionName, TransactionCondition } from '../../constants/enums'
 
 /* import managers */
@@ -42,7 +42,7 @@ import { useProvider } from '../../context/ProviderManager'
 import { WalletConnectButton } from '../molecules/WalletConnectButton'
 import { ModalContainer, ModalBase, ModalHeader, ModalCell } from '../atoms/Modal'
 import { ModalCloseButton } from '../molecules/Modal'
-import { Content, FlexCol, HeroContainer, HorizRule, MultiTabIndicator, Scrollable } from '../atoms/Layout'
+import { FlexCol, HeroContainer, HorizRule, MultiTabIndicator, Scrollable } from '../atoms/Layout'
 import { Text } from '../atoms/Typography'
 import { Button, ButtonWrapper } from '../atoms/Button'
 import { FormCol, FormRow } from '../../components/atoms/Form'
@@ -90,7 +90,13 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
   const { solace, xSolace } = useMemo(() => keyContracts, [keyContracts])
 
   const [canCloseOnLoading, setCanCloseOnLoading] = useState<boolean>(false)
+  const [canMax, setCanMax] = useState<boolean>(true)
+  const [isAcceptableAmount, setIsAcceptableAmount] = useState<boolean>(false)
+  const [isBondTellerErc20, setIsBondTellerErc20] = useState<boolean>(false)
+  const [isBonding, setIsBonding] = useState<boolean>(true)
+  const [isStaking, setIsStaking] = useState<boolean>(false)
   const [modalLoading, setModalLoading] = useState<boolean>(false)
+  const [shouldUseNativeToken, setShouldUseNativeToken] = useState<boolean>(true)
   const [showBondSettingsModal, setShowBondSettingsModal] = useState<boolean>(false)
 
   const [bondRecipient, setBondRecipient] = useState<string | undefined>(undefined)
@@ -98,30 +104,20 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
   const [calculatedAmountIn_X, setCalculatedAmountIn_X] = useState<BigNumber | undefined>(ZERO)
   const [calculatedAmountOut, setCalculatedAmountOut] = useState<BigNumber | undefined>(ZERO)
   const [calculatedAmountOut_X, setCalculatedAmountOut_X] = useState<BigNumber | undefined>(ZERO)
+  const [maxPayout, setMaxPayout] = useState<BigNumber>(ZERO)
   const [func, setFunc] = useState<FunctionName>(FunctionName.DEPOSIT_ETH)
-  const [isAcceptableAmount, setIsAcceptableAmount] = useState<boolean>(false)
-  const [canMax, setCanMax] = useState<boolean>(true)
-  const [isBondTellerErc20, setIsBondTellerErc20] = useState<boolean>(false)
-  const [isBonding, setIsBonding] = useState<boolean>(true)
-  const [isStaking, setIsStaking] = useState<boolean>(false)
   const [ownedBondTokens, setOwnedBondTokens] = useState<BondToken[]>([])
   const [principalBalance, setPrincipalBalance] = useState<string>('0')
-  const [shouldUseNativeToken, setShouldUseNativeToken] = useState<boolean>(true)
   const [slippagePrct, setSlippagePrct] = useState<string>('20')
 
   const [timestamp, setTimestamp] = useState<number>(0)
   const [vestingTermInMillis, setVestingTermInMillis] = useState<number>(0)
-  const [maxPayout, setMaxPayout] = useState<BigNumber>(ZERO)
   const pncplDecimals = useMemo(() => selectedBondDetail?.principalData.principalProps.decimals, [
     selectedBondDetail?.principalData.principalProps.decimals,
   ])
   const readSolaceToken = useReadToken(solace)
   const readXSolaceToken = useReadToken(xSolace)
   const nativeTokenBalance = useNativeTokenBalance()
-  const [contractForAllowance, setContractForAllowance] = useState<Contract | null>(null)
-  const [spenderAddress, setSpenderAddress] = useState<string | null>(null)
-  const tokenAllowance = useTokenAllowance(contractForAllowance, spenderAddress)
-
   const { deposit, redeem } = useBondTeller(selectedBondDetail)
   const { width } = useWindowDimensions()
   const { getUserBondData } = useUserBondData()
@@ -135,11 +131,13 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
     setMax,
     resetAmount,
   } = useInputAmount()
-  const approval = useMemo(() => contractForAllowance && spenderAddress && tokenAllowance != '0', [
+  const [contractForAllowance, setContractForAllowance] = useState<Contract | null>(null)
+  const [spenderAddress, setSpenderAddress] = useState<string | null>(null)
+  const approval = useTokenAllowance(
     contractForAllowance,
     spenderAddress,
-    tokenAllowance,
-  ])
+    amount && amount != '.' ? parseUnits(amount, pncplDecimals).toString() : '0'
+  )
   const assetBalance = useMemo(() => {
     switch (func) {
       case FunctionName.BOND_DEPOSIT_ERC20:
@@ -150,6 +148,7 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
         return parseUnits(nativeTokenBalance, currencyDecimals)
     }
   }, [func, nativeTokenBalance, principalBalance, pncplDecimals])
+
   /*************************************************************************************
 
   contract functions
@@ -161,7 +160,10 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
     if (!pncpl || !selectedBondDetail) return
     setModalLoading(true)
     try {
-      const tx = await pncpl.approve(selectedBondDetail.tellerData.teller.contract.address, MAX_APPROVAL_AMOUNT)
+      const tx = await pncpl.approve(
+        selectedBondDetail.tellerData.teller.contract.address,
+        parseUnits(amount, pncplDecimals)
+      )
       const txHash = tx.hash
       setCanCloseOnLoading(true)
       makeTxToast(FunctionName.APPROVE, TransactionCondition.PENDING, txHash)
@@ -476,70 +478,37 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
             <WalletConnectButton info welcome secondary />
           </ButtonWrapper>
         ) : isBonding ? (
-          approval || func == FunctionName.DEPOSIT_ETH ? (
-            <div style={{ textAlign: 'center', display: 'grid', gridTemplateColumns: '1fr 80px', marginTop: '20px' }}>
-              <Input
-                autoComplete="off"
-                autoCorrect="off"
-                placeholder="0.0"
-                textAlignCenter
-                type="text"
-                onChange={(e) =>
-                  handleInputChange(e.target.value, func == FunctionName.DEPOSIT_ETH ? currencyDecimals : pncplDecimals)
-                }
-                value={amount}
-              />
-              <Button
-                info
-                ml={10}
-                pt={4}
-                pb={4}
-                pl={8}
-                pr={8}
-                width={70}
-                height={30}
-                onClick={_setMax}
-                disabled={!canMax}
-              >
-                MAX
-              </Button>
-            </div>
-          ) : modalLoading ? (
-            <Content>
-              <Loader />
-            </Content>
-          ) : (
-            <>
-              <Content>
-                <Text textAlignCenter bold>
-                  First time bonding?
-                </Text>
-                <Text textAlignCenter t4>
-                  Please approve Solace DAO to use your token for bonding.
-                </Text>
-                <ButtonWrapper>
-                  <Button info secondary onClick={approve}>
-                    Sign
-                  </Button>
-                </ButtonWrapper>
-                {func == FunctionName.BOND_DEPOSIT_WETH && selectedBondDetail && (
-                  <FlexCol style={{ margin: 'auto' }}>
-                    <CheckboxOption
-                      jc={'center'}
-                      mb={10}
-                      isChecked={!shouldUseNativeToken}
-                      setChecked={() => setShouldUseNativeToken(!shouldUseNativeToken)}
-                      text={`Deposit ${selectedBondDetail.principalData.principalProps.name} instead`}
-                    />
-                  </FlexCol>
-                )}
-              </Content>
-            </>
-          )
+          <div style={{ textAlign: 'center', display: 'grid', gridTemplateColumns: '1fr 80px', marginTop: '20px' }}>
+            <Input
+              autoComplete="off"
+              autoCorrect="off"
+              placeholder="0.0"
+              textAlignCenter
+              type="text"
+              onChange={(e) =>
+                handleInputChange(e.target.value, func == FunctionName.DEPOSIT_ETH ? currencyDecimals : pncplDecimals)
+              }
+              value={amount}
+            />
+            <Button
+              info
+              ml={10}
+              pt={4}
+              pb={4}
+              pl={8}
+              pr={8}
+              width={70}
+              height={30}
+              onClick={_setMax}
+              disabled={!canMax}
+            >
+              MAX
+            </Button>
+          </div>
         ) : null}
         {isBonding && (
           <>
-            {account && (approval || func == FunctionName.DEPOSIT_ETH) && (
+            {account && (
               <>
                 <FormRow mt={40} mb={10}>
                   <FormCol>
@@ -624,7 +593,6 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
         )}
         {account &&
           isBonding &&
-          (approval || func == FunctionName.DEPOSIT_ETH) &&
           (modalLoading ? (
             <Loader />
           ) : (
@@ -649,10 +617,15 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
                 />
               </FlexCol>
               <ButtonWrapper isColumn>
+                {!approval && func != FunctionName.DEPOSIT_ETH && (
+                  <Button widthP={100} info disabled={haveErrors} onClick={approve}>
+                    Approve
+                  </Button>
+                )}
                 <Button
                   widthP={100}
                   info
-                  disabled={!isAcceptableAmount || haveErrors}
+                  disabled={!isAcceptableAmount || haveErrors || (!approval && func != FunctionName.DEPOSIT_ETH)}
                   onClick={() => callDepositBond(isStaking)}
                 >
                   Bond

@@ -1,3 +1,21 @@
+/*
+
+  Table of Contents:
+
+  import packages
+  import constants
+  import managers
+  import components
+  import hooks
+  import utils
+
+  BondSettingsModal
+      custom hooks
+      local functions
+      useEffect hooks
+
+*/
+
 import React, { useState, useEffect } from 'react'
 import { Modal } from '../molecules/Modal'
 import { ModalProps } from '../atoms/Modal'
@@ -28,8 +46,19 @@ export const BondSettingsModal: React.FC<BondSettingsModalProps> = ({
   modalTitle,
   handleClose,
 }) => {
+  /*
+
+  custom hooks
+
+  */
   const [slippage, setSlippage] = useState<string>(slippagePrct)
   const [recipient, setRecipient] = useState<string | undefined>(bondRecipient)
+
+  /*
+
+  local functions
+
+  */
 
   const handleInputSlippage = (input: string) => {
     // allow only numbers and decimals
@@ -57,6 +86,12 @@ export const BondSettingsModal: React.FC<BondSettingsModalProps> = ({
     setBondRecipient(recipient?.substring(0, 2) !== '0x' ? '0x' + recipient : recipient)
     handleClose()
   }
+
+  /*
+
+  useEffect hooks
+
+  */
 
   useEffect(() => {
     setSlippage(slippagePrct)

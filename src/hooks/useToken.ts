@@ -1,14 +1,20 @@
 import { useWallet } from '../context/WalletManager'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useState, useMemo } from 'react'
 import { Contract } from '@ethersproject/contracts'
 import { useCachedData } from '../context/CachedDataManager'
 import { queryName, queryDecimals, querySymbol } from '../utils/contract'
 import { ReadToken } from '../constants/types'
+import { hasApproval } from '../utils'
 
-export const useTokenAllowance = (tokenContract: Contract | null, spender: string | null): string => {
+export const useTokenAllowance = (
+  tokenContract: Contract | null,
+  spender: string | null,
+  parsedAmount: string
+): boolean => {
   const { library, account } = useWallet()
   const { version } = useCachedData()
   const [allowance, setAllowance] = useState<string>('0')
+  const approval = useMemo(() => hasApproval(allowance, parsedAmount), [parsedAmount, allowance])
 
   const checkAllowance = async () => {
     try {
@@ -22,9 +28,9 @@ export const useTokenAllowance = (tokenContract: Contract | null, spender: strin
 
   useEffect(() => {
     checkAllowance()
-  }, [tokenContract, spender, account, library, version])
+  }, [tokenContract, spender, parsedAmount, account, library, version])
 
-  return allowance
+  return approval
 }
 
 export const useReadToken = (tokenContract: Contract | null | undefined): ReadToken => {

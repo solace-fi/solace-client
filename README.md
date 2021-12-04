@@ -2,6 +2,12 @@
 
 ### The solace.fi web interface
 
+## Technologies
+
+---
+
+React Framework, TypeScript, Styled Components
+
 ## Where do I start reading through this code?
 
 ---
@@ -16,7 +22,7 @@ Note: This project was originally developed alongside the Hardhat framework.
 
 After you clone the core directory, you must clone this client directory inside because client is dependent on core.
 
-Install dependencies on both core and client directory
+Install dependencies on both core and client directories
 
     npm install
 
@@ -31,6 +37,7 @@ Run the following react command from the client directory to start the app
 ## Project Structure
 
     src/
+    |___analytics/
     |___components/
         |___atoms/
         |___molecules/
@@ -38,12 +45,16 @@ Run the following react command from the client directory to start the app
     |___networks/
     |___constants/
     |   |____abi/
+    |   |____mappings/
+    |   |____metadata/
+    |   |____enums
+    |   |____types
     |___context/
     |   |____GeneralManager
     |   |____ContractsManager
     |   |____NotificationsManager
     |   |____ProviderManager
-    |   |____UserDataManager
+    |   |____CachedDataManager
     |   |____WalletManager
     |___wallet/
     |   |____wallet-connectors/
@@ -53,6 +64,8 @@ Run the following react command from the client directory to start the app
     |   |____govern/
     |   |____invest/
     |   |____quote/
+    |   |____stake/
+    |   |____bond/
     |   |____about/
     |   |____App
     |___resources/
@@ -66,13 +79,13 @@ Run the following react command from the client directory to start the app
       <NetworkManager>                 // network management
         <WalletManager>                // wallet connection
           <ProviderManager>            // network-wallet mediator
-            <CachedDataManager>        // cached data
-              <ContractsManager>       // contracts
+            <ContractsManager>         // contracts
+              <CachedDataManager>      // cached data
                 <NotificationsManager> // notifications and toasts
                   ...
                 </NotificationsManager>
-              </ContractsManager>
-            </CachedDataManager>
+              </CachedDataManager>
+            </ContractsManager>
           </ProviderManager>
         </WalletManager>
       </NetworkManager>
@@ -86,9 +99,9 @@ WalletManager allows access to web3-react and wallet connection functionalities.
 
 ProviderManager allows functions from Network and Wallet Managers to work together.
 
-CachedDataManager allows the app to access data that is already cached onto the app.
-
 ContractsManager allows centralized access to contracts.
+
+CachedDataManager allows the app to access data that is already cached onto the app.
 
 NotificationsManager allows the app to create notifications for the user.
 

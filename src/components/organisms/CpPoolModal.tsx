@@ -20,7 +20,6 @@
 /* import packages */
 import React, { useState, Fragment, useEffect, useCallback, useMemo } from 'react'
 import { formatUnits, parseUnits } from '@ethersproject/units'
-import { BigNumber } from 'ethers'
 import { Contract } from '@ethersproject/contracts'
 
 /* import managers */
@@ -53,7 +52,6 @@ import { useVault } from '../../hooks/useVault'
 import { useInputAmount } from '../../hooks/useInputAmount'
 
 /* import utils */
-import { hasApproval } from '../../utils'
 import { getUnit, truncateBalance } from '../../utils/formatting'
 import { getExplorerItemUrl } from '../../utils/explorer'
 
@@ -72,9 +70,6 @@ export const CpPoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen
   const { makeTxToast } = useNotifications()
   const [modalLoading, setModalLoading] = useState<boolean>(false)
   const [canCloseOnLoading, setCanCloseOnLoading] = useState<boolean>(false)
-  const [contractForAllowance, setContractForAllowance] = useState<Contract | null>(null)
-  const [spenderAddress, setSpenderAddress] = useState<string | null>(null)
-  const tokenAllowance = useTokenAllowance(contractForAllowance, spenderAddress)
   const [isAcceptableAmount, setIsAcceptableAmount] = useState<boolean>(false)
 
   const { canTransfer } = useVault()
@@ -95,9 +90,13 @@ export const CpPoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen
     setMax,
     resetAmount,
   } = useInputAmount()
-  const approval = useMemo(
-    () => hasApproval(tokenAllowance, amount && amount != '.' ? parseUnits(amount, currencyDecimals).toString() : '0'),
-    [amount, currencyDecimals, tokenAllowance]
+
+  const [contractForAllowance, setContractForAllowance] = useState<Contract | null>(null)
+  const [spenderAddress, setSpenderAddress] = useState<string | null>(null)
+  const approval = useTokenAllowance(
+    contractForAllowance,
+    spenderAddress,
+    amount && amount != '.' ? parseUnits(amount, currencyDecimals).toString() : '0'
   )
   const assetBalance = useMemo(() => {
     switch (func) {
@@ -244,7 +243,7 @@ export const CpPoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen
         <Fragment>
           {!approval && (
             <ButtonWrapper>
-              <Button widthP={100} disabled={!isAcceptableAmount || haveErrors} onClick={approve} info>
+              <Button widthP={100} disabled={haveErrors} onClick={approve} info>
                 Approve
               </Button>
             </ButtonWrapper>

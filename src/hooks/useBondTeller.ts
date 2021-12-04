@@ -13,7 +13,7 @@ import { FunctionName, TransactionCondition } from '../constants/enums'
 import { queryDecimals, queryName, querySymbol } from '../utils/contract'
 import { useCachedData } from '../context/CachedDataManager'
 import { useProvider } from '../context/ProviderManager'
-import { useGetPairPrice } from './usePair'
+import { useGetPairPrice, usePairPrice } from './usePair'
 import { useNetwork } from '../context/NetworkManager'
 import { Unit } from '../constants/enums'
 import { getCoingeckoTokenPrice } from '../utils/api'
@@ -85,11 +85,13 @@ export const useBondTellerDetails = (): { tellerDetails: BondTellerDetails[]; mo
   const { library, account } = useWallet()
   const { version } = useCachedData()
   const { latestBlock } = useProvider()
-  const { tellers } = useContracts()
+  const { tellers, keyContracts } = useContracts()
+  const { solace } = useMemo(() => keyContracts, [keyContracts])
   const { activeNetwork } = useNetwork()
   const [tellerDetails, setTellerDetails] = useState<BondTellerDetails[]>([])
   const [mounting, setMounting] = useState<boolean>(true)
   const { getPairPrice, getPriceFromLp } = useGetPairPrice()
+  const solacePrice = usePairPrice(solace)
   const platform = useMemo(() => {
     switch (activeNetwork.nativeCurrency.symbol) {
       case Unit.ETH:
@@ -149,6 +151,11 @@ export const useBondTellerDetails = (): { tellerDetails: BondTellerDetails[]; mo
             }
           }
 
+          const bondRoi =
+            usdBondPrice > 0 && solacePrice.pairPrice != '-'
+              ? ((parseFloat(solacePrice.pairPrice) - usdBondPrice) * 100) / usdBondPrice
+              : 0
+
           const d: BondTellerDetails = {
             tellerData: {
               teller,
@@ -159,6 +166,7 @@ export const useBondTellerDetails = (): { tellerDetails: BondTellerDetails[]; mo
               capacity,
               maxPayout,
               bondFeeBps,
+              bondRoi,
             },
             principalData: {
               principal: principalContract,
@@ -178,7 +186,7 @@ export const useBondTellerDetails = (): { tellerDetails: BondTellerDetails[]; mo
     } catch (e) {
       console.log('getBondTellerDetails', e)
     }
-  }, [tellers, latestBlock, version])
+  }, [tellers, latestBlock, version, solacePrice.pairPrice])
 
   useEffect(() => {
     setMounting(true)

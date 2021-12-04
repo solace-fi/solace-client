@@ -116,6 +116,7 @@ function Bond(): any {
                   <TableHeader></TableHeader>
                   <TableHeader>Bond</TableHeader>
                   <TableHeader>Price Per SOLACE</TableHeader>
+                  <TableHeader>Return on Investment</TableHeader>
                   <TableHeader></TableHeader>
                 </TableRow>
               </TableHead>
@@ -164,6 +165,9 @@ function Bond(): any {
                           ? `$${truncateBalance(tellerDetail.tellerData.usdBondPrice, 4)}`
                           : `USD price not found`}
                       </Text>
+                    </TableData>
+                    <TableData>
+                      <Text>{truncateBalance(tellerDetail.tellerData.bondRoi, 2, false)}%</Text>
                     </TableData>
                     <TableData textAlignRight>
                       <Button disabled={haveErrors} info>
@@ -226,6 +230,14 @@ function Bond(): any {
                         {tellerDetail.tellerData.usdBondPrice > 0
                           ? `$${truncateBalance(tellerDetail.tellerData.usdBondPrice, 4)}`
                           : `USD price not found`}
+                      </Text>
+                    </FormCol>
+                  </FormRow>
+                  <FormRow>
+                    <FormCol>Return on Investment</FormCol>
+                    <FormCol>
+                      <Text bold t2>
+                        {truncateBalance(tellerDetail.tellerData.bondRoi, 2, false)}%
                       </Text>
                     </FormCol>
                   </FormRow>

@@ -152,6 +152,7 @@ export type BondTellerData = {
   capacity: BigNumber
   maxPayout: BigNumber
   bondFeeBps: BigNumber
+  bondRoi: number
 }
 
 export type BondPrincipalData = {

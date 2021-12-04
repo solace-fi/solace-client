@@ -1,17 +1,29 @@
+/*
+
+  Table of Contents:
+
+  import packages
+  import constants
+  import managers
+  import components
+  import hooks
+  import utils
+
+  V1RewardsWindow
+      custom hooks
+      local functions
+      useEffect hooks
+
+*/
+
+/* import packages */
 import React, { useState, useEffect, useMemo } from 'react'
 import useDebounce from '@rooks/use-debounce'
 import { formatUnits, parseUnits } from '@ethersproject/units'
 import { BigNumber } from 'ethers'
 import { Contract } from '@ethersproject/contracts'
 
-import { useNetwork } from '../../context/NetworkManager'
-import { useWallet } from '../../context/WalletManager'
-import { useContracts } from '../../context/ContractsManager'
-import { useProvider } from '../../context/ProviderManager'
-import { useGeneral } from '../../context/GeneralProvider'
-import { useNotifications } from '../../context/NotificationsManager'
-import { useCachedData } from '../../context/CachedDataManager'
-
+/* import constants */
 import { ExplorerscanApi, FunctionName, TransactionCondition } from '../../constants/enums'
 import { LocalTx } from '../../constants/types'
 import { USDC_ADDRESS, USDT_ADDRESS, DAI_ADDRESS, FRAX_ADDRESS } from '../../constants/mappings/tokenAddressMapping'
@@ -19,6 +31,15 @@ import { BKPT_5, ZERO } from '../../constants'
 import IERC20 from '../../constants/metadata/IERC20Metadata.json'
 import { FunctionGasLimits } from '../../constants/mappings/gasMapping'
 
+/* import managers */
+import { useNetwork } from '../../context/NetworkManager'
+import { useWallet } from '../../context/WalletManager'
+import { useContracts } from '../../context/ContractsManager'
+import { useGeneral } from '../../context/GeneralProvider'
+import { useNotifications } from '../../context/NotificationsManager'
+import { useCachedData } from '../../context/CachedDataManager'
+
+/* import components */
 import { Button, ButtonWrapper } from '../atoms/Button'
 import { Card } from '../atoms/Card'
 import { Input } from '../atoms/Input'
@@ -29,25 +50,32 @@ import { Box, BoxItem, BoxItemTitle, SmallBox } from '../atoms/Box'
 import { Text } from '../atoms/Typography'
 import { FormRow, FormCol } from '../atoms/Form'
 import { Loader } from '../atoms/Loader'
-
-import { useInputAmount } from '../../hooks/useInputAmount'
-import { useTokenAllowance } from '../../hooks/useToken'
-import { useWindowDimensions } from '../../hooks/useWindowDimensions'
-
-import { getDateStringWithMonthName } from '../../utils/time'
-import { queryBalance, queryDecimals } from '../../utils/contract'
-import { truncateBalance } from '../../utils/formatting'
-import { getContract, hasApproval, isAddress } from '../../utils'
 import { ModalAddendum } from '../molecules/Modal'
 import { HyperLink } from '../atoms/Link'
 import { StyledLinkExternal } from '../atoms/Icon'
+
+/* import hooks */
+import { useInputAmount } from '../../hooks/useInputAmount'
+import { useTokenAllowance } from '../../hooks/useToken'
+import { useWindowDimensions } from '../../hooks/useWindowDimensions'
+import { useV1FarmRewards } from '../../hooks/useFarm'
+
+/* import utils */
+import { getDateStringWithMonthName } from '../../utils/time'
+import { queryBalance, queryDecimals } from '../../utils/contract'
+import { truncateBalance } from '../../utils/formatting'
+import { getContract, isAddress } from '../../utils'
 import { getExplorerItemUrl } from '../../utils/explorer'
 
 export const V1RewardsWindow: React.FC = () => {
+  /* 
+  
+  custom hooks 
+  
+  */
   const { haveErrors } = useGeneral()
   const { keyContracts } = useContracts()
-  const { farmRewards, xSolace } = useMemo(() => keyContracts, [keyContracts])
-  const { latestBlock } = useProvider()
+  const { farmRewards } = useMemo(() => keyContracts, [keyContracts])
   const { library, account } = useWallet()
   const { activeNetwork, chainId, currencyDecimals } = useNetwork()
   const { makeTxToast } = useNotifications()
@@ -62,14 +90,16 @@ export const V1RewardsWindow: React.FC = () => {
     setMax,
     resetAmount,
   } = useInputAmount()
+  const stablecoins = useMemo(
+    () => [
+      { value: `${USDC_ADDRESS[chainId]}`, label: 'USDC' },
+      { value: `${USDT_ADDRESS[chainId]}`, label: 'USDT' },
+      { value: `${DAI_ADDRESS[chainId]}`, label: 'DAI' },
+      { value: `${FRAX_ADDRESS[chainId]}`, label: 'FRAX' },
+    ],
+    [chainId]
+  )
   const { width } = useWindowDimensions()
-
-  const stablecoins = [
-    { value: `${USDC_ADDRESS[chainId]}`, label: 'USDC' },
-    { value: `${USDT_ADDRESS[chainId]}`, label: 'USDT' },
-    { value: `${DAI_ADDRESS[chainId]}`, label: 'DAI' },
-    { value: `${FRAX_ADDRESS[chainId]}`, label: 'FRAX' },
-  ]
 
   const [stablecoinPayment, setStablecoinPayment] = useState(stablecoins[0])
   const [stablecoinUnsupported, setStablecoinUnsupported] = useState<boolean>(false)
@@ -79,14 +109,16 @@ export const V1RewardsWindow: React.FC = () => {
   const [vestingStart, setVestingStart] = useState<BigNumber>(ZERO)
   const [vestingEnd, setVestingEnd] = useState<BigNumber>(ZERO)
 
-  const [totalEarnedSolaceRewards, setTotalEarnedSolaceRewards] = useState<BigNumber>(ZERO)
-  const [totalEarnedXSolaceRewards, setTotalEarnedXSolaceRewards] = useState<BigNumber>(ZERO)
-  const [purchaseableVestedSolace, setPurchaseableVestedSolace] = useState<BigNumber>(ZERO)
-  const [purchaseableVestedXSolace, setPurchaseableVestedXSolace] = useState<BigNumber>(ZERO)
-  const [redeemedSolaceRewards, setRedeemedSolaceRewards] = useState<BigNumber>(ZERO)
-  const [redeemedXSolaceRewards, setRedeemedXSolaceRewards] = useState<BigNumber>(ZERO)
-  const [unredeemedSolaceRewards, setUnredeemedSolaceRewards] = useState<BigNumber>(ZERO)
-  const [unredeemedXSolaceRewards, setUnredeemedXSolaceRewards] = useState<BigNumber>(ZERO)
+  const {
+    totalEarnedSolaceRewards,
+    totalEarnedXSolaceRewards,
+    purchaseableVestedSolace,
+    purchaseableVestedXSolace,
+    redeemedSolaceRewards,
+    redeemedXSolaceRewards,
+    unredeemedSolaceRewards,
+    unredeemedXSolaceRewards,
+  } = useV1FarmRewards()
   const [pVestedXSolace_Stablecoin, setPVestedXSolace_Stablecoin] = useState<BigNumber | undefined>(ZERO)
   const [calculatedAmountOut, setCalculatedAmountOut] = useState<BigNumber | undefined>(ZERO)
 
@@ -95,14 +127,10 @@ export const V1RewardsWindow: React.FC = () => {
 
   const [contractForAllowance, setContractForAllowance] = useState<Contract | null>(null)
   const [spenderAddress, setSpenderAddress] = useState<string | null>(null)
-  const tokenAllowance = useTokenAllowance(contractForAllowance, spenderAddress)
-  const approval = useMemo(
-    () =>
-      hasApproval(
-        tokenAllowance,
-        amount && amount != '.' ? parseUnits(amount, userStablecoinDecimals).toString() : '0'
-      ),
-    [amount, tokenAllowance, userStablecoinDecimals]
+  const approval = useTokenAllowance(
+    contractForAllowance,
+    spenderAddress,
+    amount && amount != '.' ? parseUnits(amount, userStablecoinDecimals).toString() : '0'
   )
 
   const vestingStartString = useMemo(
@@ -239,33 +267,6 @@ export const V1RewardsWindow: React.FC = () => {
     }
     getFarmRewardsData()
   }, [farmRewards])
-
-  useEffect(() => {
-    const populateRewardsInfo = async () => {
-      if (!farmRewards || !account || !xSolace) return
-      const totalEarnedXSolaceRewards = await farmRewards.farmedRewards(account)
-      const totalEarnedSolaceRewards = await xSolace.xSolaceToSolace(totalEarnedXSolaceRewards)
-
-      const redeemedXSolaceRewards = await farmRewards.redeemedRewards(account)
-      const redeemedSolaceRewards = await xSolace.xSolaceToSolace(redeemedXSolaceRewards)
-
-      const purchaseableVestedXSolace = await farmRewards.purchaseableVestedXSolace(account)
-      const purchaseableVestedSolace = await xSolace.xSolaceToSolace(purchaseableVestedXSolace)
-
-      const unredeemedSolaceRewards = totalEarnedSolaceRewards.sub(redeemedSolaceRewards)
-      const unredeemedXSolaceRewards = totalEarnedXSolaceRewards.sub(redeemedXSolaceRewards)
-
-      setUnredeemedSolaceRewards(unredeemedSolaceRewards)
-      setUnredeemedXSolaceRewards(unredeemedXSolaceRewards)
-      setTotalEarnedSolaceRewards(totalEarnedSolaceRewards)
-      setTotalEarnedXSolaceRewards(totalEarnedXSolaceRewards)
-      setPurchaseableVestedSolace(purchaseableVestedSolace)
-      setPurchaseableVestedXSolace(purchaseableVestedXSolace)
-      setRedeemedSolaceRewards(redeemedSolaceRewards)
-      setRedeemedXSolaceRewards(redeemedXSolaceRewards)
-    }
-    populateRewardsInfo()
-  }, [account, farmRewards, latestBlock, xSolace, currencyDecimals])
 
   useEffect(() => {
     ;(async () => {
@@ -434,12 +435,7 @@ export const V1RewardsWindow: React.FC = () => {
         ) : (
           <ButtonWrapper isColumn={width <= BKPT_5}>
             {!approval && (
-              <Button
-                widthP={100}
-                info
-                disabled={haveErrors || !isAcceptableAmount || stablecoinUnsupported}
-                onClick={approve}
-              >
+              <Button widthP={100} info disabled={haveErrors || stablecoinUnsupported} onClick={approve}>
                 Approve
               </Button>
             )}
