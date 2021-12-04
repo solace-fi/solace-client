@@ -195,6 +195,62 @@ export const Statistics: React.FC = () => {
     </Box>
   )
 
+  const GlobalCard: React.FC = () => {
+    return (
+      <Card color2>
+        <FormRow>
+          <FormCol light>
+            SOLACE{' '}
+            <HyperLink
+              href={`https://app.sushi.com/add/${USDC_ADDRESS[chainId]}/${solace ? solace.address : null}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ width: '100%' }}
+            >
+              <Button light style={{ whiteSpace: 'nowrap', minWidth: 'unset', minHeight: 'unset' }} p={4}>
+                buy on sushi
+              </Button>
+            </HyperLink>
+          </FormCol>
+          <FormCol>
+            <Text t2 nowrap light>
+              {`$${pairPrice}`}
+            </Text>
+          </FormCol>
+        </FormRow>
+        <FormRow>
+          <FormCol light>Underwriting Pool Size</FormCol>
+          <FormCol>
+            <Text t2 nowrap light>
+              {underwritingPoolBalance == '-' ? '$-' : `$${truncateBalance(underwritingPoolBalance, 2)}`}
+            </Text>
+          </FormCol>
+        </FormRow>
+        <FormRow>
+          <FormCol light>Active Cover Amount</FormCol>
+          <FormCol>
+            <Text t2 nowrap light>
+              {totalActiveCoverAmount !== '-'
+                ? `${truncateBalance(totalActiveCoverAmount, 2)} `
+                : `${totalActiveCoverAmount} `}
+              <TextSpan t4 light>
+                {activeNetwork.nativeCurrency.symbol}
+              </TextSpan>
+            </Text>
+          </FormCol>
+        </FormRow>
+        <FormRow>
+          <FormCol light>Total Active Policies</FormCol>
+          <FormCol>
+            <Text t2 nowrap light>
+              {totalActivePolicies}
+            </Text>
+          </FormCol>
+        </FormRow>
+      </Card>
+    )
+  }
+
   return (
     <>
       {width > BKPT_3 ? (
@@ -278,57 +334,7 @@ export const Statistics: React.FC = () => {
                   </FormCol>
                 </FormRow>
               </Card>
-              <Card color2>
-                <FormRow>
-                  <FormCol light>
-                    SOLACE{' '}
-                    <HyperLink
-                      href={`https://app.sushi.com/add/${USDC_ADDRESS[chainId]}/${solace ? solace.address : null}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      style={{ width: '100%' }}
-                    >
-                      <Button light style={{ whiteSpace: 'nowrap', minWidth: 'unset', minHeight: 'unset' }} p={4}>
-                        buy on sushi
-                      </Button>
-                    </HyperLink>
-                  </FormCol>
-                  <FormCol>
-                    <Text t2 nowrap light>
-                      {`$${pairPrice}`}
-                    </Text>
-                  </FormCol>
-                </FormRow>
-                <FormRow>
-                  <FormCol light>Underwriting Pool Size</FormCol>
-                  <FormCol>
-                    <Text t2 nowrap light>
-                      {underwritingPoolBalance == '-' ? '$-' : `$${truncateBalance(underwritingPoolBalance, 2)}`}
-                    </Text>
-                  </FormCol>
-                </FormRow>
-                <FormRow>
-                  <FormCol light>Active Cover Amount</FormCol>
-                  <FormCol>
-                    <Text t2 nowrap light>
-                      {totalActiveCoverAmount !== '-'
-                        ? `${truncateBalance(totalActiveCoverAmount, 2)} `
-                        : `${totalActiveCoverAmount} `}
-                      <TextSpan t4 light>
-                        {activeNetwork.nativeCurrency.symbol}
-                      </TextSpan>
-                    </Text>
-                  </FormCol>
-                </FormRow>
-                <FormRow>
-                  <FormCol light>Total Active Policies</FormCol>
-                  <FormCol>
-                    <Text t2 nowrap light>
-                      {totalActivePolicies}
-                    </Text>
-                  </FormCol>
-                </FormRow>
-              </Card>
+              <GlobalCard />
             </CardContainer>
           ) : (
             <BoxRow>
@@ -337,7 +343,7 @@ export const Statistics: React.FC = () => {
                   <WalletConnectButton light welcome />
                 </BoxItem>
               </Box>
-              <GlobalBox />
+              <GlobalCard />
             </BoxRow>
           )}
         </>
