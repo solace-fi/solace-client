@@ -115,8 +115,8 @@ function Bond(): any {
                 <TableRow>
                   <TableHeader></TableHeader>
                   <TableHeader>Bond</TableHeader>
-                  <TableHeader>Price Per SOLACE</TableHeader>
-                  <TableHeader>Return on Investment</TableHeader>
+                  <TableHeader>Price</TableHeader>
+                  <TableHeader>ROI</TableHeader>
                   <TableHeader></TableHeader>
                 </TableRow>
               </TableHead>
@@ -224,7 +224,7 @@ function Bond(): any {
                     </FlexCol>
                   </FlexCol>
                   <FormRow>
-                    <FormCol>Price Per SOLACE</FormCol>
+                    <FormCol>Price</FormCol>
                     <FormCol>
                       <Text bold t2 fade={tellerDetail.tellerData.usdBondPrice <= 0}>
                         {tellerDetail.tellerData.usdBondPrice > 0
@@ -234,7 +234,7 @@ function Bond(): any {
                     </FormCol>
                   </FormRow>
                   <FormRow>
-                    <FormCol>Return on Investment</FormCol>
+                    <FormCol>ROI</FormCol>
                     <FormCol>
                       <Text bold t2>
                         {truncateBalance(tellerDetail.tellerData.bondRoi, 2, false)}%
