@@ -50,9 +50,7 @@ import { Box, BoxItem, BoxItemTitle, SmallBox } from '../atoms/Box'
 import { Text } from '../atoms/Typography'
 import { FormRow, FormCol } from '../atoms/Form'
 import { Loader } from '../atoms/Loader'
-import { ModalAddendum } from '../molecules/Modal'
-import { HyperLink } from '../atoms/Link'
-import { StyledLinkExternal } from '../atoms/Icon'
+import { SourceContract } from './SourceContract'
 
 /* import hooks */
 import { useInputAmount } from '../../hooks/useInputAmount'
@@ -65,7 +63,6 @@ import { getDateStringWithMonthName } from '../../utils/time'
 import { queryBalance, queryDecimals } from '../../utils/contract'
 import { truncateBalance } from '../../utils/formatting'
 import { getContract, isAddress } from '../../utils'
-import { getExplorerItemUrl } from '../../utils/explorer'
 
 export const V1RewardsWindow: React.FC = () => {
   /* 
@@ -77,7 +74,7 @@ export const V1RewardsWindow: React.FC = () => {
   const { keyContracts } = useContracts()
   const { farmRewards } = useMemo(() => keyContracts, [keyContracts])
   const { library, account } = useWallet()
-  const { activeNetwork, chainId, currencyDecimals } = useNetwork()
+  const { chainId, currencyDecimals } = useNetwork()
   const { makeTxToast } = useNotifications()
   const { reload } = useCachedData()
   const {
@@ -454,19 +451,7 @@ export const V1RewardsWindow: React.FC = () => {
             </Button>
           </ButtonWrapper>
         )}
-        {farmRewards && (
-          <ModalAddendum>
-            <HyperLink
-              href={getExplorerItemUrl(activeNetwork.explorer.url, farmRewards.address, ExplorerscanApi.ADDRESS)}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <Button>
-                Source Contract <StyledLinkExternal size={20} />
-              </Button>
-            </HyperLink>
-          </ModalAddendum>
-        )}
+        {farmRewards && <SourceContract contract={farmRewards} />}
       </Card>
     </FlexCol>
   )

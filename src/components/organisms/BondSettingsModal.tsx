@@ -4,9 +4,7 @@
 
   import packages
   import constants
-  import managers
   import components
-  import hooks
   import utils
 
   BondSettingsModal
@@ -16,19 +14,26 @@
 
 */
 
+/* import packages */
 import React, { useState, useEffect } from 'react'
+import { parseUnits } from '@ethersproject/units'
+import { BigNumber } from 'ethers'
+
+/* import constants */
+import { MAX_BPS } from '../../constants'
+import { BondTellerDetails } from '../../constants/types'
+
+/* import components */
 import { Modal } from '../molecules/Modal'
 import { ModalProps } from '../atoms/Modal'
 import { Input } from '../atoms/Input'
 import { Text } from '../atoms/Typography'
-import { parseUnits } from '@ethersproject/units'
-import { BigNumber } from 'ethers'
 import { Button, ButtonWrapper } from '../atoms/Button'
 import { FlexCol } from '../atoms/Layout'
-import { MAX_BPS } from '../../constants'
-import { BondTellerDetails } from '../../constants/types'
+
+/* import utils */
 import { isAddress } from '../../utils'
-import { formatAmount } from '../../utils/formatting'
+import { filterAmount, formatAmount } from '../../utils/formatting'
 
 interface BondSettingsModalProps extends ModalProps {
   bondRecipient: string | undefined
@@ -63,7 +68,7 @@ export const BondSettingsModal: React.FC<BondSettingsModalProps> = ({
 
   const handleInputSlippage = (input: string) => {
     // allow only numbers and decimals
-    const filtered = input.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1')
+    const filtered = filterAmount(input, slippage)
 
     // if filtered is only "0." or "." or '', filtered becomes '0.0'
     const formatted = formatAmount(filtered)

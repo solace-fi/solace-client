@@ -30,18 +30,17 @@ import { useNetwork } from '../../context/NetworkManager'
 import { useGeneral } from '../../context/GeneralProvider'
 
 /* import constants */
-import { FunctionName, TransactionCondition, ExplorerscanApi } from '../../constants/enums'
+import { FunctionName, TransactionCondition } from '../../constants/enums'
 import { LocalTx } from '../../constants/types'
 
 /* import components */
-import { Modal, ModalAddendum } from '../molecules/Modal'
+import { Modal } from '../molecules/Modal'
 import { Button, ButtonWrapper } from '../atoms/Button'
 import { Loader } from '../atoms/Loader'
 import { GasRadioGroup } from '../molecules/GasRadioGroup'
 import { Erc20InputPanel, PoolModalProps } from './PoolModalRouter'
 import { Text } from '../atoms/Typography'
-import { StyledLinkExternal } from '../atoms/Icon'
-import { HyperLink } from '../atoms/Link'
+import { SourceContract } from './SourceContract'
 
 /* import hooks */
 import { useUserStakedValue } from '../../hooks/useFarm'
@@ -53,7 +52,6 @@ import { useInputAmount } from '../../hooks/useInputAmount'
 
 /* import utils */
 import { getUnit, truncateBalance } from '../../utils/formatting'
-import { getExplorerItemUrl } from '../../utils/explorer'
 
 export const CpPoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, closeModal }) => {
   /*************************************************************************************
@@ -273,19 +271,7 @@ export const CpPoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen
           </Button>
         </ButtonWrapper>
       )}
-      {cpFarm && (
-        <ModalAddendum>
-          <HyperLink
-            href={getExplorerItemUrl(activeNetwork.explorer.url, cpFarm.address, ExplorerscanApi.ADDRESS)}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Button>
-              Source Contract <StyledLinkExternal size={20} />
-            </Button>
-          </HyperLink>
-        </ModalAddendum>
-      )}
+      {cpFarm && <SourceContract contract={cpFarm} />}
     </Modal>
   )
 }

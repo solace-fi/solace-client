@@ -12,7 +12,7 @@ import { GasFeeOption, LocalTx } from '../constants/types'
 
 import { useGetFunctionGas } from './useGas'
 
-import { fixed, filteredAmount } from '../utils/formatting'
+import { fixed, filterAmount } from '../utils/formatting'
 import { getNameToFunctionGasLimit } from '../constants/mappings/gasMapping'
 
 export const useInputAmount = () => {
@@ -61,7 +61,7 @@ export const useInputAmount = () => {
   }
 
   const handleInputChange = (input: string, maxDecimals?: number) => {
-    const filtered = filteredAmount(input, amount)
+    const filtered = filterAmount(input, amount)
     if (filtered.includes('.') && filtered.split('.')[1]?.length > (maxDecimals ?? currencyDecimals)) return
     setAmount(filtered)
     setMaxSelected(false)

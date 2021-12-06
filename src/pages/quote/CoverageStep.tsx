@@ -50,7 +50,7 @@ import { useGetQuote, useGetMaxCoverPerPolicy } from '../../hooks/usePolicy'
 import { useGetFunctionGas } from '../../hooks/useGas'
 
 /* import utils */
-import { accurateMultiply, encodeAddresses, filteredAmount, formatAmount } from '../../utils/formatting'
+import { accurateMultiply, encodeAddresses, filterAmount, formatAmount } from '../../utils/formatting'
 import { getDateStringWithMonthName, getDateExtended } from '../../utils/time'
 
 export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigation }) => {
@@ -195,7 +195,7 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
 
   const handleInputCoverage = (input: string) => {
     // allow only numbers and decimals
-    const filtered = input.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1')
+    const filtered = filterAmount(input, inputCoverage)
 
     // if filtered is only "0." or "." or '', filtered becomes '0.0'
     const formatted = formatAmount(filtered)
@@ -290,7 +290,7 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
               textAlignCenter
               type="text"
               value={inputCoverage}
-              onChange={(e) => handleInputCoverage(filteredAmount(e.target.value, inputCoverage))}
+              onChange={(e) => handleInputCoverage(e.target.value)}
               info
             />
             {maxCoverPerPolicyInWei.gt(positionAmount) && (

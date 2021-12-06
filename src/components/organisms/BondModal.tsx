@@ -65,7 +65,7 @@ import { useWindowDimensions } from '../../hooks/useWindowDimensions'
 
 /* import utils */
 import { getLongtimeFromMillis, getTimeFromMillis } from '../../utils/time'
-import { accurateMultiply, shortenAddress, truncateBalance } from '../../utils/formatting'
+import { accurateMultiply, formatAmount, shortenAddress, truncateBalance } from '../../utils/formatting'
 import { queryBalance } from '../../utils/contract'
 
 interface BondModalProps {
@@ -252,24 +252,27 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
   }
 
   const calculateAmountOut = async (_amount: string): Promise<void> => {
-    if (selectedBondDetail && pncplDecimals && _amount) {
-      let _calculatedAmountOut: BigNumber | undefined = ZERO
-      let _calculatedAmountOut_X: BigNumber | undefined = ZERO
+    if (selectedBondDetail && pncplDecimals) {
+      const formattedAmount = formatAmount(_amount)
       const tellerContract = selectedBondDetail.tellerData.teller.contract
       try {
-        const aO: BigNumber = await tellerContract.calculateAmountOut(accurateMultiply(_amount, pncplDecimals), false)
-        _calculatedAmountOut = aO
+        const aO: BigNumber = await tellerContract.calculateAmountOut(
+          accurateMultiply(formattedAmount, pncplDecimals),
+          false
+        )
+        setCalculatedAmountOut(aO)
       } catch (e) {
-        _calculatedAmountOut = undefined
+        setCalculatedAmountOut(undefined)
       }
-      setCalculatedAmountOut(_calculatedAmountOut)
       try {
-        const aO_X: BigNumber = await tellerContract.calculateAmountOut(accurateMultiply(_amount, pncplDecimals), true)
-        _calculatedAmountOut_X = aO_X
+        const aO_X: BigNumber = await tellerContract.calculateAmountOut(
+          accurateMultiply(formattedAmount, pncplDecimals),
+          true
+        )
+        setCalculatedAmountOut_X(aO_X)
       } catch (e) {
-        _calculatedAmountOut_X = undefined
+        setCalculatedAmountOut_X(undefined)
       }
-      setCalculatedAmountOut_X(_calculatedAmountOut_X)
     } else {
       setCalculatedAmountOut(ZERO)
       setCalculatedAmountOut_X(ZERO)
@@ -283,8 +286,6 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
       const maxPayout_X = await xSolace.solaceToXSolace(selectedBondDetail.tellerData.maxPayout)
       setMaxPayout(maxPayout)
 
-      let _calculatedAmountIn: BigNumber | undefined = ZERO
-      let _calculatedAmountIn_X: BigNumber | undefined = ZERO
       const tellerContract = selectedBondDetail.tellerData.teller.contract
       const bondFeeBps = selectedBondDetail.tellerData.bondFeeBps
 
@@ -294,22 +295,20 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
           maxPayout.mul(BigNumber.from(MAX_BPS).sub(bondFeeBps)).div(BigNumber.from(MAX_BPS)),
           false
         )
-        _calculatedAmountIn = aI
+        setCalculatedAmountIn(aI)
       } catch (e) {
-        _calculatedAmountIn = undefined
+        setCalculatedAmountIn(undefined)
       }
-      setCalculatedAmountIn(_calculatedAmountIn)
       try {
         // not including bond fee to remain below maxPayout
         const aI_X: BigNumber = await tellerContract.calculateAmountIn(
           maxPayout_X.mul(BigNumber.from(MAX_BPS).sub(bondFeeBps)).div(BigNumber.from(MAX_BPS)),
           true
         )
-        _calculatedAmountIn_X = aI_X
+        setCalculatedAmountIn_X(aI_X)
       } catch (e) {
-        _calculatedAmountIn_X = undefined
+        setCalculatedAmountIn_X(undefined)
       }
-      setCalculatedAmountIn_X(_calculatedAmountIn_X)
     } else {
       setCalculatedAmountIn(ZERO)
       setCalculatedAmountIn_X(ZERO)

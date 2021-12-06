@@ -31,7 +31,7 @@ import { useNetwork } from '../../context/NetworkManager'
 import { useGeneral } from '../../context/GeneralProvider'
 
 /* import components */
-import { Modal, ModalAddendum } from '../molecules/Modal'
+import { Modal } from '../molecules/Modal'
 import { FormRow, FormCol } from '../atoms/Form'
 import { Text } from '../atoms/Typography'
 import { PolicyModalInfo } from './PolicyModalInfo'
@@ -39,25 +39,23 @@ import { Input, StyledSlider } from '../../components/atoms/Input'
 import { Button, ButtonWrapper } from '../atoms/Button'
 import { Loader } from '../atoms/Loader'
 import { FlexCol, MultiTabIndicator } from '../atoms/Layout'
-import { HyperLink } from '../atoms/Link'
-import { StyledLinkExternal } from '../atoms/Icon'
 import { ModalCell } from '../atoms/Modal'
+import { SourceContract } from './SourceContract'
 
 /* import constants */
 import { BKPT_3, DAYS_PER_YEAR, NUM_BLOCKS_PER_DAY, ZERO } from '../../constants'
-import { FunctionName, TransactionCondition, ExplorerscanApi } from '../../constants/enums'
+import { FunctionName, TransactionCondition } from '../../constants/enums'
 import { LocalTx, Policy } from '../../constants/types'
 import { FunctionGasLimits } from '../../constants/mappings/gasMapping'
 
 /* import hooks */
 import { useAppraisePolicyPosition, useGetMaxCoverPerPolicy, useGetPolicyPrice } from '../../hooks/usePolicy'
 import { useGetFunctionGas } from '../../hooks/useGas'
+import { useWindowDimensions } from '../../hooks/useWindowDimensions'
 
 /* import utils */
-import { accurateMultiply, filteredAmount, formatAmount } from '../../utils/formatting'
+import { accurateMultiply, filterAmount, formatAmount } from '../../utils/formatting'
 import { getDaysLeft, getExpiration } from '../../utils/time'
-import { getExplorerItemUrl } from '../../utils/explorer'
-import { useWindowDimensions } from '../../hooks/useWindowDimensions'
 
 interface ManageModalProps {
   closeModal: () => void
@@ -273,7 +271,7 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
 
   const handleInputCoverage = (input: string) => {
     // allow only numbers and decimals
-    const filtered = input.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1')
+    const filtered = filterAmount(input, inputCoverage)
 
     // if filtered is only "0." or "." or '', filtered becomes '0.0'
     const formatted = formatAmount(filtered)
@@ -364,7 +362,7 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
             gridTemplateColumns: '1fr 1fr',
             display: 'grid',
             position: 'relative',
-            width: width > BKPT_3 ? '500px' : undefined,
+            width: width > BKPT_3 ? '600px' : undefined,
           }}
         >
           <MultiTabIndicator style={{ left: isUpdate ? '0' : '50%' }} />
@@ -408,7 +406,7 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
                     disabled={asyncLoading}
                     type="text"
                     value={inputCoverage}
-                    onChange={(e) => handleInputCoverage(filteredAmount(e.target.value, inputCoverage))}
+                    onChange={(e) => handleInputCoverage(e.target.value)}
                   />
                   {maxCoverPerPolicyInWei.gt(appraisal) && (
                     <Button
@@ -507,19 +505,7 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
         ) : (
           <Loader />
         )}
-        {selectedProtocol && (
-          <ModalAddendum>
-            <HyperLink
-              href={getExplorerItemUrl(activeNetwork.explorer.url, selectedProtocol.address, ExplorerscanApi.ADDRESS)}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <Button>
-                Source Contract <StyledLinkExternal size={20} />
-              </Button>
-            </HyperLink>
-          </ModalAddendum>
-        )}
+        {selectedProtocol && <SourceContract contract={selectedProtocol} />}
       </Fragment>
     </Modal>
   )

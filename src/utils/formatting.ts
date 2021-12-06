@@ -145,7 +145,7 @@ export const getHumanValue = (value?: BigNumber, decimals = 0): BigNumber | unde
 export const floatUnits = (value: BigNumber, decimals: number): number => parseFloat(formatUnits(value, decimals))
 
 // used for correctly user amount input before processing
-export const filteredAmount = (input: string, amount: string): string => {
+export const filterAmount = (input: string, amount: string): string => {
   if (!amount && input == '.') input = '.'
   const filtered = input.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1')
   return filtered
