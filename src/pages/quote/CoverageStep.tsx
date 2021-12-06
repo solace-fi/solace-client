@@ -50,7 +50,7 @@ import { useGetQuote, useGetMaxCoverPerPolicy } from '../../hooks/usePolicy'
 import { useGetFunctionGas } from '../../hooks/useGas'
 
 /* import utils */
-import { accurateMultiply, encodeAddresses, filteredAmount } from '../../utils/formatting'
+import { accurateMultiply, encodeAddresses, filteredAmount, formatAmount } from '../../utils/formatting'
 import { getDateStringWithMonthName, getDateExtended } from '../../utils/time'
 
 export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigation }) => {
@@ -198,7 +198,7 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
     const filtered = input.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1')
 
     // if filtered is only "0." or "." or '', filtered becomes '0.0'
-    const formatted = filtered == '0.' || filtered == '.' || filtered == '' ? '0.0' : filtered
+    const formatted = formatAmount(filtered)
 
     // if number has more than max decimal places, do not update
     if (filtered.includes('.') && filtered.split('.')[1]?.length > currencyDecimals) return

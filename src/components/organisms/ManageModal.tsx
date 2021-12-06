@@ -54,7 +54,7 @@ import { useAppraisePolicyPosition, useGetMaxCoverPerPolicy, useGetPolicyPrice }
 import { useGetFunctionGas } from '../../hooks/useGas'
 
 /* import utils */
-import { accurateMultiply, filteredAmount } from '../../utils/formatting'
+import { accurateMultiply, filteredAmount, formatAmount } from '../../utils/formatting'
 import { getDaysLeft, getExpiration } from '../../utils/time'
 import { getExplorerItemUrl } from '../../utils/explorer'
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'
@@ -276,7 +276,7 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
     const filtered = input.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1')
 
     // if filtered is only "0." or "." or '', filtered becomes '0.0'
-    const formatted = filtered == '0.' || filtered == '.' || filtered == '' ? '0.0' : filtered
+    const formatted = formatAmount(filtered)
 
     // if number has more than max decimal places, do not update
     if (filtered.includes('.') && filtered.split('.')[1]?.length > currencyDecimals) return

@@ -243,7 +243,7 @@ export const CpPoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen
         <Fragment>
           {!approval && (
             <ButtonWrapper>
-              <Button widthP={100} disabled={haveErrors} onClick={approve} info>
+              <Button widthP={100} disabled={!isAcceptableAmount || haveErrors} onClick={approve} info>
                 Approve
               </Button>
             </ButtonWrapper>

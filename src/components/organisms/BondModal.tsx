@@ -618,7 +618,7 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
               </FlexCol>
               <ButtonWrapper isColumn>
                 {!approval && func != FunctionName.DEPOSIT_ETH && (
-                  <Button widthP={100} info disabled={haveErrors} onClick={approve}>
+                  <Button widthP={100} info disabled={!isAcceptableAmount || haveErrors} onClick={approve}>
                     Approve
                   </Button>
                 )}

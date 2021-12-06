@@ -151,6 +151,9 @@ export const filteredAmount = (input: string, amount: string): string => {
   return filtered
 }
 
+export const formatAmount = (amount: string): string =>
+  amount == '0.' || amount == '.' || amount == '' ? '0.0' : amount
+
 // truncate strings, mostly addresses
 export const shortenAddress = (input: string): string =>
   `${input.substring(0, 6)}...${input.substring(input.length - 4, input.length)}`

@@ -332,7 +332,7 @@ export const V1RewardsWindow: React.FC = () => {
             placeholder="0.0"
             textAlignCenter
             type="text"
-            onChange={(e) => handleInputChange(e.target.value)}
+            onChange={(e) => handleInputChange(e.target.value, userStablecoinDecimals)}
             value={amount}
           />
           <Button info ml={10} pt={4} pb={4} pl={8} pr={8} width={70} height={30} onClick={_setMax}>
@@ -435,7 +435,12 @@ export const V1RewardsWindow: React.FC = () => {
         ) : (
           <ButtonWrapper isColumn={width <= BKPT_5}>
             {!approval && (
-              <Button widthP={100} info disabled={haveErrors || stablecoinUnsupported} onClick={approve}>
+              <Button
+                widthP={100}
+                info
+                disabled={!isAcceptableAmount || haveErrors || stablecoinUnsupported}
+                onClick={approve}
+              >
                 Approve
               </Button>
             )}

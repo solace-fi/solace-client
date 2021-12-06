@@ -28,6 +28,7 @@ import { FlexCol } from '../atoms/Layout'
 import { MAX_BPS } from '../../constants'
 import { BondTellerDetails } from '../../constants/types'
 import { isAddress } from '../../utils'
+import { formatAmount } from '../../utils/formatting'
 
 interface BondSettingsModalProps extends ModalProps {
   bondRecipient: string | undefined
@@ -65,7 +66,7 @@ export const BondSettingsModal: React.FC<BondSettingsModalProps> = ({
     const filtered = input.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1')
 
     // if filtered is only "0." or "." or '', filtered becomes '0.0'
-    const formatted = filtered == '0.' || filtered == '.' || filtered == '' ? '0.0' : filtered
+    const formatted = formatAmount(filtered)
 
     // if number has more than max decimal places, do not update
     if (filtered.includes('.') && filtered.split('.')[1]?.length > 2) return
