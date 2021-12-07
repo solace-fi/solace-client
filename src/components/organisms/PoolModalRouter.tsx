@@ -32,8 +32,8 @@ import { FunctionName, Unit } from '../../constants/enums'
 import { NftTokenInfo } from '../../constants/types'
 
 /* import components */
-import { CpPoolModal } from './CpPoolModal'
-import { UnderwritingPoolModal } from './UnderwritingPoolModal'
+import { CpPoolModal } from './capital-pool/CpPoolModal'
+import { UnderwritingPoolModal } from './underwriting-pool/UnderwritingPoolModal'
 import { Input } from '../atoms/Input'
 import { ModalRow, ModalCell } from '../atoms/Modal'
 import { Button } from '../atoms/Button'

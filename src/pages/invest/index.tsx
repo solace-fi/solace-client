@@ -19,8 +19,8 @@ import React, { useState, Fragment, useCallback } from 'react'
 /* import context */
 
 /* import components */
-import { UnderwritingPool } from '../../components/organisms/UnderwritingPool'
-import { CapitalProviderPool } from '../../components/organisms/CapitalProviderPool'
+import { UnderwritingPool } from '../../components/organisms/underwriting-pool/UnderwritingPool'
+import { CapitalProviderPool } from '../../components/organisms/capital-pool/CapitalProviderPool'
 
 /* import constants */
 import { FunctionName } from '../../constants/enums'

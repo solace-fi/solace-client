@@ -18,11 +18,10 @@
 
 /* import packages */
 import React, { useEffect, useState, useMemo } from 'react'
-import { formatUnits, parseUnits } from '@ethersproject/units'
-import { BigNumber } from 'ethers'
+import { formatUnits } from '@ethersproject/units'
 
 /* import constants */
-import { BKPT_3, BKPT_5, ZERO } from '../../constants'
+import { BKPT_3, ZERO } from '../../constants'
 import { TransactionCondition, FunctionName, Unit, PolicyState } from '../../constants/enums'
 import { LocalTx } from '../../constants/types'
 import { FunctionGasLimits } from '../../constants/mappings/gasMapping'

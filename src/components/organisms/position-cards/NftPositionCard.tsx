@@ -6,7 +6,7 @@
   import hooks
   import utils
 
-  TokenPositionCard
+  NftPositionCard
     hooks
 
 */
@@ -15,26 +15,25 @@
 import React, { useMemo } from 'react'
 
 /* import managers */
-import { useGeneral } from '../../context/GeneralProvider'
+import { useGeneral } from '../../../context/GeneralProvider'
 
 /* import constants */
-import { BKPT_3 } from '../../constants'
-import { Position, Token, Policy, TokenData } from '../../constants/types'
+import { BKPT_3 } from '../../../constants'
+import { Position, Token, Policy, TokenData } from '../../../constants/types'
 
 /* import components */
-import { PositionCard } from '../atoms/Card'
-import { PositionCardButton, PositionCardText, DeFiAssetImage, PositionCardName } from '../atoms/DeFiAsset'
-import { Button } from '../atoms/Button'
-import { TextSpan } from '../atoms/Typography'
+import { PositionCard } from '../../atoms/Card'
+import { PositionCardButton, PositionCardText, PositionCardName } from '../../atoms/DeFiAsset'
+import { Button } from '../../atoms/Button'
 
 /* import hooks */
-import { useWindowDimensions } from '../../hooks/useWindowDimensions'
+import { useWindowDimensions } from '../../../hooks/useWindowDimensions'
 
 /* import utils */
-import { fixedTokenPositionBalance, truncateBalance, trim0x } from '../../utils/formatting'
-import { userHasActiveProductPosition } from '../../utils/policy'
+import { trim0x } from '../../../utils/formatting'
+import { userHasActiveProductPosition } from '../../../utils/policy'
 
-interface TokenPositionCardProps {
+interface NftPositionCardProps {
   position: Position
   protocolName: string
   selectedPositions: Position[]
@@ -43,7 +42,7 @@ interface TokenPositionCardProps {
   handleSelect: (position: Position) => void
 }
 
-export const TokenPositionCard: React.FC<TokenPositionCardProps> = ({
+export const NftPositionCard: React.FC<NftPositionCardProps> = ({
   position,
   protocolName,
   selectedPositions,
@@ -73,10 +72,16 @@ export const TokenPositionCard: React.FC<TokenPositionCardProps> = ({
     token,
     userPolicies,
   ])
-  const lightText = isSelected || isActive
-  const foundPosition = userPolicies.filter(
-    (policy) => policy.productName == protocolName && policy.positionDescription.includes(trim0x(token.token.address))
-  )[0]
+  const lightText = useMemo(() => isSelected || isActive, [isSelected, isActive])
+  const foundPosition = useMemo(
+    () =>
+      userPolicies.filter(
+        (policy) =>
+          policy.productName == protocolName && policy.positionDescription.includes(trim0x(token.token.address))
+      )[0],
+    [protocolName, token.token.address, userPolicies]
+  )
+
   return (
     <PositionCard
       key={token.token.address}
@@ -90,9 +95,6 @@ export const TokenPositionCard: React.FC<TokenPositionCardProps> = ({
           This position is already covered
         </PositionCardText>
       )}
-      <DeFiAssetImage noborder style={{ opacity: isActive ? '.5' : '1' }} key={token.token.address}>
-        <img src={`https://assets.solace.fi/${token.token.address.toLowerCase()}`} alt={token.token.name} />
-      </DeFiAssetImage>
       <PositionCardName bold style={{ opacity: isActive ? '.5' : '1' }} light={lightText}>
         {token.token.name}
       </PositionCardName>
@@ -104,12 +106,6 @@ export const TokenPositionCard: React.FC<TokenPositionCardProps> = ({
           })}
         </PositionCardName>
       )}
-      <PositionCardText t2 style={{ opacity: isActive ? '.5' : '1' }} light={lightText}>
-        {truncateBalance(fixedTokenPositionBalance(token.token))}{' '}
-        <TextSpan style={{ fontSize: '12px' }} light={lightText}>
-          {token.token.symbol}
-        </TextSpan>
-      </PositionCardText>
       <PositionCardButton>
         {isActive ? (
           <Button widthP={width > BKPT_3 ? undefined : 100} light>

@@ -23,35 +23,35 @@ import { formatUnits, parseUnits } from '@ethersproject/units'
 import { Contract } from '@ethersproject/contracts'
 
 /* import managers */
-import { useNotifications } from '../../context/NotificationsManager'
-import { useCachedData } from '../../context/CachedDataManager'
-import { useContracts } from '../../context/ContractsManager'
-import { useNetwork } from '../../context/NetworkManager'
-import { useGeneral } from '../../context/GeneralProvider'
+import { useNotifications } from '../../../context/NotificationsManager'
+import { useCachedData } from '../../../context/CachedDataManager'
+import { useContracts } from '../../../context/ContractsManager'
+import { useNetwork } from '../../../context/NetworkManager'
+import { useGeneral } from '../../../context/GeneralProvider'
 
 /* import constants */
-import { FunctionName, TransactionCondition } from '../../constants/enums'
-import { LocalTx } from '../../constants/types'
+import { FunctionName, TransactionCondition } from '../../../constants/enums'
+import { LocalTx } from '../../../constants/types'
 
 /* import components */
-import { Modal } from '../molecules/Modal'
-import { Button, ButtonWrapper } from '../atoms/Button'
-import { Loader } from '../atoms/Loader'
-import { GasRadioGroup } from '../molecules/GasRadioGroup'
-import { Erc20InputPanel, PoolModalProps } from './PoolModalRouter'
-import { Text } from '../atoms/Typography'
-import { SourceContract } from './SourceContract'
+import { Modal } from '../../molecules/Modal'
+import { Button, ButtonWrapper } from '../../atoms/Button'
+import { Loader } from '../../atoms/Loader'
+import { GasRadioGroup } from '../../molecules/GasRadioGroup'
+import { Erc20InputPanel, PoolModalProps } from '../PoolModalRouter'
+import { Text } from '../../atoms/Typography'
+import { SourceContract } from '../SourceContract'
 
 /* import hooks */
-import { useUserStakedValue } from '../../hooks/useFarm'
-import { useScpBalance } from '../../hooks/useBalance'
-import { useTokenAllowance } from '../../hooks/useToken'
-import { useCpFarm } from '../../hooks/useCpFarm'
-import { useVault } from '../../hooks/useVault'
-import { useInputAmount } from '../../hooks/useInputAmount'
+import { useUserStakedValue } from '../../../hooks/useFarm'
+import { useScpBalance } from '../../../hooks/useBalance'
+import { useTokenAllowance } from '../../../hooks/useToken'
+import { useCpFarm } from '../../../hooks/useCpFarm'
+import { useVault } from '../../../hooks/useVault'
+import { useInputAmount } from '../../../hooks/useInputAmount'
 
 /* import utils */
-import { getUnit, truncateBalance } from '../../utils/formatting'
+import { getUnit, truncateBalance } from '../../../utils/formatting'
 
 export const CpPoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, closeModal }) => {
   /*************************************************************************************

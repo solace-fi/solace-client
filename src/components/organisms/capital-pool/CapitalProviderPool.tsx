@@ -18,30 +18,30 @@
 import React, { useMemo } from 'react'
 
 /* import managers */
-import { useContracts } from '../../context/ContractsManager'
-import { useWallet } from '../../context/WalletManager'
-import { useGeneral } from '../../context/GeneralProvider'
+import { useContracts } from '../../../context/ContractsManager'
+import { useWallet } from '../../../context/WalletManager'
+import { useGeneral } from '../../../context/GeneralProvider'
 
 /* import components */
-import { Content } from '../atoms/Layout'
-import { Text } from '../atoms/Typography'
-import { Table, TableHead, TableRow, TableHeader, TableBody, TableData, TableDataGroup } from '../atoms/Table'
-import { Button, ButtonWrapper } from '../atoms/Button'
-import { Card } from '../atoms/Card'
-import { FormRow, FormCol } from '../atoms/Form'
-import { HyperLink } from '../atoms/Link'
+import { Content } from '../../atoms/Layout'
+import { Text } from '../../atoms/Typography'
+import { Table, TableHead, TableRow, TableHeader, TableBody, TableData, TableDataGroup } from '../../atoms/Table'
+import { Button, ButtonWrapper } from '../../atoms/Button'
+import { Card } from '../../atoms/Card'
+import { FormRow, FormCol } from '../../atoms/Form'
+import { HyperLink } from '../../atoms/Link'
 
 /* import constants */
-import { BKPT_4, BKPT_6 } from '../../constants'
-import { FunctionName } from '../../constants/enums'
+import { BKPT_4, BKPT_6 } from '../../../constants'
+import { FunctionName } from '../../../constants/enums'
 
 /* import hooks */
-import { useRewardsPerDay, useUserPendingRewards, useUserRewardsPerDay } from '../../hooks/useRewards'
-import { useUserStakedValue, usePoolStakedValue } from '../../hooks/useFarm'
-import { useWindowDimensions } from '../../hooks/useWindowDimensions'
+import { useRewardsPerDay, useUserPendingRewards, useUserRewardsPerDay } from '../../../hooks/useRewards'
+import { useUserStakedValue, usePoolStakedValue } from '../../../hooks/useFarm'
+import { useWindowDimensions } from '../../../hooks/useWindowDimensions'
 
 /* import utils */
-import { truncateBalance } from '../../utils/formatting'
+import { truncateBalance } from '../../../utils/formatting'
 
 interface CapitalProviderPoolProps {
   openModal: (func: FunctionName, modalTitle: string, farmName: string) => void

@@ -24,38 +24,38 @@ import { BigNumber } from 'ethers'
 import { Block } from '@ethersproject/contracts/node_modules/@ethersproject/abstract-provider'
 
 /* import managers */
-import { useCachedData } from '../../context/CachedDataManager'
-import { useNotifications } from '../../context/NotificationsManager'
-import { useContracts } from '../../context/ContractsManager'
-import { useNetwork } from '../../context/NetworkManager'
-import { useGeneral } from '../../context/GeneralProvider'
+import { useCachedData } from '../../../context/CachedDataManager'
+import { useNotifications } from '../../../context/NotificationsManager'
+import { useContracts } from '../../../context/ContractsManager'
+import { useNetwork } from '../../../context/NetworkManager'
+import { useGeneral } from '../../../context/GeneralProvider'
 
 /* import components */
-import { Modal } from '../molecules/Modal'
-import { FormRow, FormCol } from '../atoms/Form'
-import { Text } from '../atoms/Typography'
+import { Modal } from '../../molecules/Modal'
+import { FormRow, FormCol } from '../../atoms/Form'
+import { Text } from '../../atoms/Typography'
 import { PolicyModalInfo } from './PolicyModalInfo'
-import { Input, StyledSlider } from '../../components/atoms/Input'
-import { Button, ButtonWrapper } from '../atoms/Button'
-import { Loader } from '../atoms/Loader'
-import { FlexCol, MultiTabIndicator } from '../atoms/Layout'
-import { ModalCell } from '../atoms/Modal'
-import { SourceContract } from './SourceContract'
+import { Input, StyledSlider } from '../../../components/atoms/Input'
+import { Button, ButtonWrapper } from '../../atoms/Button'
+import { Loader } from '../../atoms/Loader'
+import { FlexCol, MultiTabIndicator } from '../../atoms/Layout'
+import { ModalCell } from '../../atoms/Modal'
+import { SourceContract } from '../SourceContract'
 
 /* import constants */
-import { BKPT_3, DAYS_PER_YEAR, NUM_BLOCKS_PER_DAY, ZERO } from '../../constants'
-import { FunctionName, TransactionCondition } from '../../constants/enums'
-import { LocalTx, Policy } from '../../constants/types'
-import { FunctionGasLimits } from '../../constants/mappings/gasMapping'
+import { BKPT_3, DAYS_PER_YEAR, NUM_BLOCKS_PER_DAY, ZERO } from '../../../constants'
+import { FunctionName, TransactionCondition } from '../../../constants/enums'
+import { LocalTx, Policy } from '../../../constants/types'
+import { FunctionGasLimits } from '../../../constants/mappings/gasMapping'
 
 /* import hooks */
-import { useAppraisePolicyPosition, useGetMaxCoverPerPolicy, useGetPolicyPrice } from '../../hooks/usePolicy'
-import { useGetFunctionGas } from '../../hooks/useGas'
-import { useWindowDimensions } from '../../hooks/useWindowDimensions'
+import { useAppraisePolicyPosition, useGetMaxCoverPerPolicy, useGetPolicyPrice } from '../../../hooks/usePolicy'
+import { useGetFunctionGas } from '../../../hooks/useGas'
+import { useWindowDimensions } from '../../../hooks/useWindowDimensions'
 
 /* import utils */
-import { accurateMultiply, filterAmount, formatAmount } from '../../utils/formatting'
-import { getDaysLeft, getExpiration } from '../../utils/time'
+import { accurateMultiply, filterAmount, formatAmount } from '../../../utils/formatting'
+import { getDaysLeft, getExpiration } from '../../../utils/time'
 
 interface ManageModalProps {
   closeModal: () => void

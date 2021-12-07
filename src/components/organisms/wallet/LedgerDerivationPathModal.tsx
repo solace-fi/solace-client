@@ -18,16 +18,16 @@
 import React, { useState, useCallback } from 'react'
 
 /* import managers */
-import { useWallet } from '../../context/WalletManager'
+import { useWallet } from '../../../context/WalletManager'
 
 /* import components */
-import { Button, ButtonWrapper } from '../atoms/Button'
-import { ModalRow } from '../atoms/Modal'
-import { Modal } from '../molecules/Modal'
-import { StyledSelect } from '../molecules/Select'
+import { Button, ButtonWrapper } from '../../atoms/Button'
+import { ModalRow } from '../../atoms/Modal'
+import { Modal } from '../../molecules/Modal'
+import { StyledSelect } from '../../molecules/Select'
 
 /* import wallet */
-import { LedgerConnector } from '../../wallet/wallet-connectors/Ledger'
+import { LedgerConnector } from '../../../wallet/wallet-connectors/Ledger'
 
 interface LedgerDerivationPathModalProps {
   closeModal: () => void

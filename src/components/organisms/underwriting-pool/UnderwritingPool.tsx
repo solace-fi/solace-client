@@ -18,27 +18,27 @@
 import React from 'react'
 
 /* import managers */
-import { useWallet } from '../../context/WalletManager'
-import { useGeneral } from '../../context/GeneralProvider'
+import { useWallet } from '../../../context/WalletManager'
+import { useGeneral } from '../../../context/GeneralProvider'
 
 /* import constants */
-import { BKPT_4, BKPT_6 } from '../../constants'
-import { FunctionName } from '../../constants/enums'
+import { BKPT_4, BKPT_6 } from '../../../constants'
+import { FunctionName } from '../../../constants/enums'
 
 /* import components */
-import { Content } from '../atoms/Layout'
-import { Text } from '../atoms/Typography'
-import { Table, TableHead, TableRow, TableHeader, TableBody, TableData, TableDataGroup } from '../atoms/Table'
-import { Button, ButtonWrapper } from '../atoms/Button'
-import { Card } from '../atoms/Card'
-import { FormRow, FormCol } from '../atoms/Form'
+import { Content } from '../../atoms/Layout'
+import { Text } from '../../atoms/Typography'
+import { Table, TableHead, TableRow, TableHeader, TableBody, TableData, TableDataGroup } from '../../atoms/Table'
+import { Button, ButtonWrapper } from '../../atoms/Button'
+import { Card } from '../../atoms/Card'
+import { FormRow, FormCol } from '../../atoms/Form'
 
 /* import hooks */
-import { useCapitalPoolSize, useUserVaultDetails } from '../../hooks/useVault'
-import { useWindowDimensions } from '../../hooks/useWindowDimensions'
+import { useCapitalPoolSize, useUserVaultDetails } from '../../../hooks/useVault'
+import { useWindowDimensions } from '../../../hooks/useWindowDimensions'
 
 /* import utils */
-import { truncateBalance } from '../../utils/formatting'
+import { truncateBalance } from '../../../utils/formatting'
 
 interface UnderwritingPoolProps {
   openModal: (func: FunctionName, modalTitle: string, farmName: string) => void
