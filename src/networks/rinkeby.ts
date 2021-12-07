@@ -95,7 +95,10 @@ export const RinkebyNetwork: NetworkConfig = {
     key: String(ETHERSCAN_API_KEY),
     url: 'https://rinkeby.etherscan.io',
     apiUrl: 'https://api-rinkeby.etherscan.io',
-    excludedContractAddrs: [String(process.env.REACT_APP_RINKEBY_SOLACE_ADDR)],
+    excludedContractAddrs: [
+      String(process.env.REACT_APP_RINKEBY_SOLACE_ADDR),
+      String(process.env.REACT_APP_RINKEBY_VAULT_ADDR),
+    ],
   },
   config: {
     keyContracts: {

@@ -25,48 +25,45 @@ import useDebounce from '@rooks/use-debounce'
 import { BigNumber } from 'ethers'
 
 /* import constants */
-import { BondTellerDetails, BondToken, LocalTx } from '../../constants/types'
-import { BKPT_3, MAX_BPS, ZERO } from '../../constants'
-import { FunctionName, TransactionCondition } from '../../constants/enums'
+import { BondTellerDetails, BondToken, LocalTx } from '../../../constants/types'
+import { BKPT_3, MAX_BPS, ZERO } from '../../../constants'
+import { FunctionName, TransactionCondition } from '../../../constants/enums'
 
 /* import managers */
-import { useWallet } from '../../context/WalletManager'
-import { useNetwork } from '../../context/NetworkManager'
-import { useGeneral } from '../../context/GeneralProvider'
-import { useCachedData } from '../../context/CachedDataManager'
-import { useNotifications } from '../../context/NotificationsManager'
-import { useContracts } from '../../context/ContractsManager'
-import { useProvider } from '../../context/ProviderManager'
+import { useWallet } from '../../../context/WalletManager'
+import { useNetwork } from '../../../context/NetworkManager'
+import { useCachedData } from '../../../context/CachedDataManager'
+import { useNotifications } from '../../../context/NotificationsManager'
+import { useContracts } from '../../../context/ContractsManager'
 
 /* import components */
-import { WalletConnectButton } from '../molecules/WalletConnectButton'
-import { ModalContainer, ModalBase, ModalHeader, ModalCell } from '../atoms/Modal'
-import { ModalCloseButton } from '../molecules/Modal'
-import { FlexCol, HeroContainer, HorizRule, MultiTabIndicator, Scrollable } from '../atoms/Layout'
-import { Text } from '../atoms/Typography'
-import { Button, ButtonWrapper } from '../atoms/Button'
-import { FormCol, FormRow } from '../../components/atoms/Form'
-import { Input } from '../../components/atoms/Input'
-import { DeFiAssetImage } from '../../components/atoms/DeFiAsset'
-import { Card, CardContainer } from '../atoms/Card'
-import { Loader } from '../atoms/Loader'
-import { CheckboxOption } from './PoolModalRouter'
-import { FlexRow } from '../../components/atoms/Layout'
-import { SmallBox } from '../atoms/Box'
-import { StyledGear, StyledGraphDown, StyledSendPlane } from '../atoms/Icon'
+import { WalletConnectButton } from '../../molecules/WalletConnectButton'
+import { ModalContainer, ModalBase, ModalHeader, ModalCell } from '../../atoms/Modal'
+import { ModalCloseButton } from '../../molecules/Modal'
+import { FlexCol, HorizRule, MultiTabIndicator } from '../../atoms/Layout'
+import { Text } from '../../atoms/Typography'
+import { Button, ButtonWrapper } from '../../atoms/Button'
+import { Input } from '../../atoms/Input'
+import { DeFiAssetImage } from '../../atoms/DeFiAsset'
+import { Loader } from '../../atoms/Loader'
+import { FlexRow } from '../../atoms/Layout'
+import { StyledGear } from '../../atoms/Icon'
 import { BondSettingsModal } from './BondSettingsModal'
+import { OwnedBondList } from './OwnedBondList'
+import { BondOptions } from './BondOptions'
+import { PublicBondInfo } from './PublicBondInfo'
 
 /* import hooks */
-import { useInputAmount } from '../../hooks/useInputAmount'
-import { useReadToken, useTokenAllowance } from '../../hooks/useToken'
-import { useNativeTokenBalance } from '../../hooks/useBalance'
-import { useBondTeller, useUserBondData } from '../../hooks/useBondTeller'
-import { useWindowDimensions } from '../../hooks/useWindowDimensions'
+import { useInputAmount } from '../../../hooks/useInputAmount'
+import { useReadToken, useTokenAllowance } from '../../../hooks/useToken'
+import { useNativeTokenBalance } from '../../../hooks/useBalance'
+import { useBondTeller, useUserBondData } from '../../../hooks/useBondTeller'
+import { useWindowDimensions } from '../../../hooks/useWindowDimensions'
 
 /* import utils */
-import { getLongtimeFromMillis, getTimeFromMillis } from '../../utils/time'
-import { accurateMultiply, formatAmount, shortenAddress, truncateBalance } from '../../utils/formatting'
-import { queryBalance } from '../../utils/contract'
+import { accurateMultiply, formatAmount, truncateBalance } from '../../../utils/formatting'
+import { queryBalance } from '../../../utils/contract'
+import { PrivateBondInfo } from './PrivateBondInfo'
 
 interface BondModalProps {
   closeModal: () => void
@@ -80,11 +77,9 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
   custom hooks 
   
   */
-  const { haveErrors } = useGeneral()
   const { account } = useWallet()
-  const { activeNetwork, currencyDecimals } = useNetwork()
+  const { currencyDecimals } = useNetwork()
   const { reload } = useCachedData()
-  const { latestBlock } = useProvider()
   const { makeTxToast } = useNotifications()
   const { keyContracts } = useContracts()
   const { solace, xSolace } = useMemo(() => keyContracts, [keyContracts])
@@ -98,20 +93,17 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
   const [modalLoading, setModalLoading] = useState<boolean>(false)
   const [shouldUseNativeToken, setShouldUseNativeToken] = useState<boolean>(true)
   const [showBondSettingsModal, setShowBondSettingsModal] = useState<boolean>(false)
+  const [ownedBondTokens, setOwnedBondTokens] = useState<BondToken[]>([])
 
   const [bondRecipient, setBondRecipient] = useState<string | undefined>(undefined)
   const [calculatedAmountIn, setCalculatedAmountIn] = useState<BigNumber | undefined>(ZERO)
   const [calculatedAmountIn_X, setCalculatedAmountIn_X] = useState<BigNumber | undefined>(ZERO)
   const [calculatedAmountOut, setCalculatedAmountOut] = useState<BigNumber | undefined>(ZERO)
   const [calculatedAmountOut_X, setCalculatedAmountOut_X] = useState<BigNumber | undefined>(ZERO)
-  const [maxPayout, setMaxPayout] = useState<BigNumber>(ZERO)
   const [func, setFunc] = useState<FunctionName>(FunctionName.DEPOSIT_ETH)
-  const [ownedBondTokens, setOwnedBondTokens] = useState<BondToken[]>([])
   const [principalBalance, setPrincipalBalance] = useState<string>('0')
   const [slippagePrct, setSlippagePrct] = useState<string>('20')
 
-  const [timestamp, setTimestamp] = useState<number>(0)
-  const [vestingTermInMillis, setVestingTermInMillis] = useState<number>(0)
   const pncplDecimals = useMemo(() => selectedBondDetail?.principalData.principalProps.decimals, [
     selectedBondDetail?.principalData.principalProps.decimals,
   ])
@@ -234,11 +226,11 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
     setIsBondTellerErc20(false)
     setIsBonding(true)
     setIsStaking(false)
-    setOwnedBondTokens([])
     setPrincipalBalance('0')
     setShouldUseNativeToken(true)
     setSlippagePrct('0.5')
     setSpenderAddress(null)
+    setOwnedBondTokens([])
 
     setModalLoading(false)
     resetAmount()
@@ -284,7 +276,6 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
     if (selectedBondDetail && xSolace) {
       const maxPayout = selectedBondDetail.tellerData.maxPayout
       const maxPayout_X = await xSolace.solaceToXSolace(selectedBondDetail.tellerData.maxPayout)
-      setMaxPayout(maxPayout)
 
       const tellerContract = selectedBondDetail.tellerData.teller.contract
       const bondFeeBps = selectedBondDetail.tellerData.bondFeeBps
@@ -327,7 +318,6 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
   useEffect(() => {
     const getBondData = async () => {
       if (!selectedBondDetail?.principalData) return
-      setVestingTermInMillis(selectedBondDetail.tellerData.vestingTermInSeconds * 1000)
       setContractForAllowance(selectedBondDetail.principalData.principal)
       setSpenderAddress(selectedBondDetail.tellerData.teller.contract.address)
     }
@@ -337,10 +327,10 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
   useEffect(() => {
     const getUserBonds = async () => {
       if (!selectedBondDetail?.principalData || !account || !isOpen) return
-      const principalBal = await queryBalance(selectedBondDetail.principalData.principal, account)
       const ownedBonds = await getUserBondData(selectedBondDetail, account)
-      setPrincipalBalance(formatUnits(principalBal, selectedBondDetail.principalData.principalProps.decimals))
       setOwnedBondTokens(ownedBonds.sort((a, b) => a.id.toNumber() - b.id.toNumber()))
+      const principalBal = await queryBalance(selectedBondDetail.principalData.principal, account)
+      setPrincipalBalance(formatUnits(principalBal, selectedBondDetail.principalData.principalProps.decimals))
     }
     getUserBonds()
   }, [account, isOpen, selectedBondDetail, readSolaceToken, readXSolaceToken])
@@ -372,11 +362,6 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
   useEffect(() => {
     resetAmount()
   }, [isBonding])
-
-  useEffect(() => {
-    if (!latestBlock) return
-    setTimestamp(latestBlock.timestamp)
-  }, [latestBlock])
 
   useEffect(() => {
     setBondRecipient(account)
@@ -507,202 +492,48 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
         ) : null}
         {isBonding && (
           <>
-            {account && (
-              <>
-                <FormRow mt={40} mb={10}>
-                  <FormCol>
-                    <Text bold>My Balance</Text>
-                  </FormCol>
-                  <FormCol>
-                    <Text info textAlignRight bold>
-                      {formatUnits(assetBalance, pncplDecimals)}{' '}
-                      {func == FunctionName.DEPOSIT_ETH
-                        ? activeNetwork.nativeCurrency.symbol
-                        : selectedBondDetail?.principalData.principalProps?.symbol}
-                    </Text>
-                  </FormCol>
-                </FormRow>
-                <FormRow mb={5}>
-                  <FormCol>
-                    <Text bold>You Will Get</Text>
-                  </FormCol>
-                  <FormCol>
-                    <Text info textAlignRight bold>
-                      {calculatedAmountOut
-                        ? `${formatUnits(calculatedAmountOut, readSolaceToken.decimals)} ${readSolaceToken.symbol}`
-                        : `-`}
-                    </Text>
-                  </FormCol>
-                </FormRow>
-                <FormRow mb={30} jc={'right'}>
-                  <SmallBox transparent collapse={!isStaking} m={0} p={0}>
-                    <FormRow mb={10}>
-                      <FormCol></FormCol>
-                      <FormCol>
-                        <Text t4 textAlignRight>
-                          {'( '}
-                          {calculatedAmountOut_X
-                            ? `${formatUnits(calculatedAmountOut_X, readXSolaceToken.decimals)} ${
-                                readXSolaceToken.symbol
-                              }`
-                            : `-`}
-                          {' )'}
-                        </Text>
-                      </FormCol>
-                    </FormRow>
-                  </SmallBox>
-                </FormRow>
-              </>
-            )}
-            <HorizRule />
-            <FormRow mt={20} mb={10}>
-              <FormCol>
-                <Text t4>MAX You Can Buy</Text>
-              </FormCol>
-              <FormCol>
-                <Text t4 info textAlignRight>
-                  {`${formatUnits(maxPayout, readSolaceToken.decimals)} ${readSolaceToken.symbol}
-                  `}
-                </Text>
-              </FormCol>
-            </FormRow>
-            <FormRow mb={10}>
-              <FormCol>
-                <Text t4>Vesting Term</Text>
-              </FormCol>
-              <FormCol>
-                <Text t4 info textAlignRight>
-                  {getLongtimeFromMillis(vestingTermInMillis)}
-                </Text>
-              </FormCol>
-            </FormRow>
-            {selectedBondDetail?.tellerData.bondFeeBps && (
-              <FormRow>
-                <FormCol>
-                  <Text t4>Bond Fee</Text>
-                </FormCol>
-                <FormCol>
-                  <Text t4 info textAlignRight>
-                    {parseInt(selectedBondDetail?.tellerData.bondFeeBps.toString()) / 100}%
-                  </Text>
-                </FormCol>
-              </FormRow>
-            )}
+            <PrivateBondInfo
+              func={func}
+              selectedBondDetail={selectedBondDetail}
+              assetBalance={assetBalance}
+              pncplDecimals={pncplDecimals}
+              calculatedAmountOut={calculatedAmountOut}
+              calculatedAmountOut_X={calculatedAmountOut_X}
+              isStaking={isStaking}
+            />
+            <HorizRule mb={20} />
+            <PublicBondInfo selectedBondDetail={selectedBondDetail} />
+            {account &&
+              (modalLoading ? (
+                <Loader />
+              ) : (
+                <FlexCol mt={20}>
+                  <BondOptions
+                    isBondTellerErc20={isBondTellerErc20}
+                    selectedBondDetail={selectedBondDetail}
+                    isStaking={isStaking}
+                    shouldUseNativeToken={shouldUseNativeToken}
+                    approval={approval}
+                    func={func}
+                    isAcceptableAmount={isAcceptableAmount}
+                    slippagePrct={slippagePrct}
+                    bondRecipient={bondRecipient}
+                    setIsStaking={setIsStaking}
+                    setShouldUseNativeToken={setShouldUseNativeToken}
+                    approve={approve}
+                    callDepositBond={callDepositBond}
+                  />
+                </FlexCol>
+              ))}
           </>
         )}
-        {account &&
-          isBonding &&
-          (modalLoading ? (
-            <Loader />
-          ) : (
-            <FlexCol mt={20}>
-              <FlexCol style={{ margin: 'auto' }}>
-                {!isBondTellerErc20 && (
-                  <>
-                    <CheckboxOption
-                      mb={10}
-                      isChecked={!shouldUseNativeToken}
-                      setChecked={() => setShouldUseNativeToken(!shouldUseNativeToken)}
-                      text={`Deposit ${
-                        selectedBondDetail?.principalData.principalProps.name ?? 'wrapped token'
-                      } instead`}
-                    />
-                  </>
-                )}
-                <CheckboxOption
-                  isChecked={isStaking}
-                  setChecked={setIsStaking}
-                  text={'Autostake and receive xSOLACE'}
-                />
-              </FlexCol>
-              <ButtonWrapper isColumn>
-                {!approval && func != FunctionName.DEPOSIT_ETH && (
-                  <Button widthP={100} info disabled={!isAcceptableAmount || haveErrors} onClick={approve}>
-                    Approve
-                  </Button>
-                )}
-                <Button
-                  widthP={100}
-                  info
-                  disabled={!isAcceptableAmount || haveErrors || (!approval && func != FunctionName.DEPOSIT_ETH)}
-                  onClick={() => callDepositBond(isStaking)}
-                >
-                  Bond
-                </Button>
-                <FlexRow>
-                  <StyledGraphDown size={15} />
-                  <Text t4 ml={5}>
-                    {parseInt(accurateMultiply(slippagePrct, 2)) / 100}%
-                  </Text>
-                  {bondRecipient && (
-                    <FlexRow ml={10}>
-                      <StyledSendPlane size={15} />
-                      <Text t4 ml={5}>
-                        {shortenAddress(bondRecipient)}
-                      </Text>
-                    </FlexRow>
-                  )}
-                </FlexRow>
-              </ButtonWrapper>
-            </FlexCol>
-          ))}
-        {!isBonding &&
-          account &&
-          (ownedBondTokens.length > 0 ? (
-            <Scrollable maxMobileHeight={45} maxDesktopHeight={45} mt={20}>
-              <CardContainer cardsPerRow={1}>
-                {ownedBondTokens.map((token) => (
-                  <Card p={15} key={token.id.toString()}>
-                    <FormRow mb={10}>
-                      <FormCol>
-                        <Text>ID</Text>
-                      </FormCol>
-                      <FormCol>{token.id.toString()}</FormCol>
-                    </FormRow>
-                    <FormRow mb={10}>
-                      <FormCol>
-                        <Text>Paid Price</Text>
-                      </FormCol>
-                      <FormCol>
-                        <Text textAlignRight>{formatUnits(token.pricePaid, pncplDecimals)}</Text>
-                      </FormCol>
-                    </FormRow>
-                    <FormRow mb={10}>
-                      <FormCol>
-                        <Text>Payout</Text>
-                      </FormCol>
-                      <FormCol>
-                        <Text textAlignRight>
-                          {`${formatUnits(token.payoutAmount, readSolaceToken.decimals)} ${token.payoutToken}`}
-                        </Text>
-                      </FormCol>
-                    </FormRow>
-                    {token.maturation.toNumber() > timestamp ? (
-                      <FormRow mb={10}>
-                        <FormCol>Time Until Fully Vested</FormCol>
-                        <FormCol>{getTimeFromMillis((token.maturation.toNumber() - timestamp) * 1000)}</FormCol>
-                      </FormRow>
-                    ) : (
-                      <>
-                        <Text textAlignCenter success mb={10}>
-                          Fully Vested
-                        </Text>
-                        <Button widthP={100} info disabled={haveErrors} onClick={() => callRedeemBond(token.id)}>
-                          Claim
-                        </Button>
-                      </>
-                    )}
-                  </Card>
-                ))}
-              </CardContainer>
-            </Scrollable>
-          ) : (
-            <HeroContainer>
-              <Text t2 textAlignCenter>
-                You do not have any bond tokens.
-              </Text>
-            </HeroContainer>
-          ))}
+        {!isBonding && account && (
+          <OwnedBondList
+            ownedBondTokens={ownedBondTokens}
+            selectedBondDetail={selectedBondDetail}
+            callRedeemBond={callRedeemBond}
+          />
+        )}
       </ModalBase>
     </ModalContainer>
   )

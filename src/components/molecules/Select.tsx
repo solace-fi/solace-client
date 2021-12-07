@@ -70,7 +70,7 @@ export const StyledSelect: React.FC<StyledSelectProps> = ({ value, onChange, opt
         }),
         menuList: (base) => ({
           ...base,
-          // kill the white space on first and last option
+          // kills the white space on first and last option
           padding: 0,
         }),
       }}

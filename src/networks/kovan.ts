@@ -93,7 +93,10 @@ export const KovanNetwork: NetworkConfig = {
     key: String(ETHERSCAN_API_KEY),
     url: 'https://kovan.etherscan.io',
     apiUrl: 'https://api-kovan.etherscan.io',
-    excludedContractAddrs: [String(process.env.REACT_APP_KOVAN_SOLACE_ADDR)],
+    excludedContractAddrs: [
+      String(process.env.REACT_APP_KOVAN_SOLACE_ADDR),
+      String(process.env.REACT_APP_KOVAN_VAULT_ADDR),
+    ],
   },
   config: {
     keyContracts: {

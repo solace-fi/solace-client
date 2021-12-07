@@ -20,20 +20,20 @@ import { parseUnits } from '@ethersproject/units'
 import { BigNumber } from 'ethers'
 
 /* import constants */
-import { MAX_BPS } from '../../constants'
-import { BondTellerDetails } from '../../constants/types'
+import { MAX_BPS } from '../../../constants'
+import { BondTellerDetails } from '../../../constants/types'
 
 /* import components */
-import { Modal } from '../molecules/Modal'
-import { ModalProps } from '../atoms/Modal'
-import { Input } from '../atoms/Input'
-import { Text } from '../atoms/Typography'
-import { Button, ButtonWrapper } from '../atoms/Button'
-import { FlexCol } from '../atoms/Layout'
+import { Modal } from '../../molecules/Modal'
+import { ModalProps } from '../../atoms/Modal'
+import { Input } from '../../atoms/Input'
+import { Text } from '../../atoms/Typography'
+import { Button, ButtonWrapper } from '../../atoms/Button'
+import { FlexCol } from '../../atoms/Layout'
 
 /* import utils */
-import { isAddress } from '../../utils'
-import { filterAmount, formatAmount } from '../../utils/formatting'
+import { isAddress } from '../../../utils'
+import { filterAmount, formatAmount } from '../../../utils/formatting'
 
 interface BondSettingsModalProps extends ModalProps {
   bondRecipient: string | undefined

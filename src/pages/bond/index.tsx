@@ -34,7 +34,7 @@ import { Card, CardContainer } from '../../components/atoms/Card'
 import { FormRow, FormCol } from '../../components/atoms/Form'
 import { FlexCol, FlexRow, HeroContainer, Scrollable } from '../../components/atoms/Layout'
 import { Text } from '../../components/atoms/Typography'
-import { BondModal } from '../../components/organisms/BondModal'
+import { BondModal } from '../../components/organisms/bond/BondModal'
 import { Loader } from '../../components/atoms/Loader'
 import { HyperLink } from '../../components/atoms/Link'
 

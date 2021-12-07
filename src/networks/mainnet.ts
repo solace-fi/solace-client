@@ -96,7 +96,10 @@ export const MainNetwork: NetworkConfig = {
     key: String(ETHERSCAN_API_KEY),
     url: 'https://etherscan.io',
     apiUrl: 'https://api.etherscan.io',
-    excludedContractAddrs: [String(process.env.REACT_APP_MAINNET_SOLACE_ADDR)],
+    excludedContractAddrs: [
+      String(process.env.REACT_APP_MAINNET_SOLACE_ADDR),
+      String(process.env.REACT_APP_MAINNET_VAULT_ADDR),
+    ],
   },
   config: {
     keyContracts: {
