@@ -1,7 +1,7 @@
 import useDebounce from '@rooks/use-debounce'
 import { BigNumber } from 'ethers'
 import { formatUnits } from '@ethersproject/units'
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { NUM_BLOCKS_PER_DAY, ZERO } from '../constants'
 import { useContracts } from '../context/ContractsManager'
 import { useWallet } from '../context/WalletManager'
@@ -9,6 +9,7 @@ import { LiquityPosition, Policy, Position, StringToStringMapping, SupportedProd
 import { useCachedData } from '../context/CachedDataManager'
 import { useNetwork } from '../context/NetworkManager'
 import { PositionType } from '../constants/enums'
+import { useProvider } from '../context/ProviderManager'
 
 export const useGetPolicyPrice = (policyId: number): string => {
   const [policyPrice, setPolicyPrice] = useState<string>('')
@@ -27,8 +28,9 @@ export const useGetPolicyPrice = (policyId: number): string => {
   }
 
   useEffect(() => {
+    if (userPolicyData.policiesLoading) return
     getPrice()
-  }, [selectedProtocol, policyId, userPolicyData.userPolicies])
+  }, [selectedProtocol, policyId, userPolicyData.policiesLoading])
 
   return policyPrice
 }
@@ -37,12 +39,14 @@ export const useAppraisePolicyPosition = (policy: Policy | undefined): BigNumber
   const { activeNetwork } = useNetwork()
   const { account, library } = useWallet()
   const { getProtocolByName } = useContracts()
-  const { latestBlock, tokenPosData } = useCachedData()
+  const { userPolicyData } = useCachedData()
+  const { tokenPosData, latestBlock } = useProvider()
   const [appraisal, setAppraisal] = useState<BigNumber>(ZERO)
 
   const handlePositionBalances = async (supportedProduct: SupportedProduct): Promise<BigNumber[]> => {
-    const matchingCache = tokenPosData.storedPosData.find((dataset) => dataset.chainId == activeNetwork.chainId)
+    const matchingCache = await tokenPosData.handleGetCache(supportedProduct)
     if (!account || !library || !matchingCache || !policy) return []
+    const cachedPositions = matchingCache.positionsCache[supportedProduct.name].positions
     switch (supportedProduct.positionsType) {
       case PositionType.TOKEN:
         const tokensToAppraise: Token[] = []
@@ -50,7 +54,7 @@ export const useAppraisePolicyPosition = (policy: Policy | undefined): BigNumber
         // loop names because we want the only positions included in the policy, not positions cached on boot
         policy.positionNames.forEach(async (name) => {
           // find the position in the cache using the name
-          const positionToAppraise = matchingCache.positionsCache[supportedProduct.name].positions.find(
+          const positionToAppraise = cachedPositions.find(
             (position: Position) => (position.position as Token).token.symbol == name
           )
           if (!positionToAppraise) return
@@ -74,7 +78,7 @@ export const useAppraisePolicyPosition = (policy: Policy | undefined): BigNumber
       case PositionType.LQTY:
         const positionsToAppraise: LiquityPosition[] = []
         policy.positionNames.forEach(async (name) => {
-          const positionToAppraise = matchingCache.positionsCache[supportedProduct.name].positions.find(
+          const positionToAppraise = cachedPositions.find(
             (position: Position) => (position.position as LiquityPosition).positionName == name
           )
           if (!positionToAppraise) return
@@ -102,7 +106,7 @@ export const useAppraisePolicyPosition = (policy: Policy | undefined): BigNumber
 
   useEffect(() => {
     const getAppraisal = async () => {
-      if (!policy || !tokenPosData.dataInitialized) return
+      if (!policy || userPolicyData.policiesLoading || !latestBlock) return
       try {
         const product = getProtocolByName(policy.productName)
 
@@ -121,7 +125,7 @@ export const useAppraisePolicyPosition = (policy: Policy | undefined): BigNumber
       }
     }
     getAppraisal()
-  }, [policy?.policyId, account, tokenPosData.dataInitialized, latestBlock])
+  }, [policy?.policyId, account, userPolicyData.policiesLoading, latestBlock])
 
   useEffect(() => {
     // if policy id changes, reset appraisal to 0 to enable loading icon on frontend
@@ -133,7 +137,8 @@ export const useAppraisePolicyPosition = (policy: Policy | undefined): BigNumber
 
 export const useGetMaxCoverPerPolicy = (): string => {
   const [maxCoverPerPolicy, setMaxCoverPerPolicy] = useState<string>('0')
-  const { selectedProtocol, riskManager } = useContracts()
+  const { selectedProtocol, keyContracts } = useContracts()
+  const { riskManager } = useMemo(() => keyContracts, [keyContracts])
   const { currencyDecimals } = useNetwork()
 
   const getMaxCoverPerPolicy = async () => {
@@ -156,7 +161,8 @@ export const useGetMaxCoverPerPolicy = (): string => {
 
 export const useGetYearlyCosts = (): StringToStringMapping => {
   const [yearlyCosts, setYearlyCosts] = useState<StringToStringMapping>({})
-  const { products, getProtocolByName, riskManager } = useContracts()
+  const { products, getProtocolByName, keyContracts } = useContracts()
+  const { riskManager } = useMemo(() => keyContracts, [keyContracts])
   const { currencyDecimals } = useNetwork()
 
   const getYearlyCosts = async () => {
@@ -189,7 +195,8 @@ export const useGetYearlyCosts = (): StringToStringMapping => {
 
 export const useGetAvailableCoverages = (): StringToStringMapping => {
   const [availableCoverages, setAvailableCoverages] = useState<StringToStringMapping>({})
-  const { products, getProtocolByName, riskManager } = useContracts()
+  const { products, getProtocolByName, keyContracts } = useContracts()
+  const { riskManager } = useMemo(() => keyContracts, [keyContracts])
   const { currencyDecimals } = useNetwork()
 
   const getAvailableCoverages = async () => {

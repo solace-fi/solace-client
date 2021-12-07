@@ -47,10 +47,11 @@ export const RadioGroup = styled.div<GeneralElementProps>`
 
 export const RadioElement = styled.label``
 
-export const RadioCircle = styled.label`
+export const RadioCircle = styled.label<GeneralElementProps>`
   display: flex;
   align-items: center;
   cursor: pointer;
+  ${GeneralElementCss}
 `
 
 export const RadioCircleFigure = styled.div`

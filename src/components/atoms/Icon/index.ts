@@ -25,6 +25,11 @@ import { FileShield } from '@styled-icons/remix-fill/FileShield'
 import { CoinStack } from '@styled-icons/boxicons-solid/CoinStack'
 import { PeopleCommunity } from '@styled-icons/fluentui-system-filled/PeopleCommunity'
 import { FileEarmarkLock2Fill } from '@styled-icons/bootstrap/FileEarmarkLock2Fill'
+import { Gear } from '@styled-icons/octicons/Gear'
+import { GraphDown } from '@styled-icons/bootstrap/GraphDown'
+import { SendPlane } from '@styled-icons/remix-fill/SendPlane'
+import { Refresh } from '@styled-icons/boxicons-regular/Refresh'
+import { ReceiptMoney } from '@styled-icons/fluentui-system-filled/ReceiptMoney'
 
 export const StyledIconCss = css`
   margin: auto;
@@ -51,6 +56,8 @@ export const StyledDots = styled(DotsHorizontalRounded)`
 export const StyledInfo = styled(Info)``
 
 export const StyledDashboard = styled(Dashboard)``
+
+export const StyledReceiptMoney = styled(ReceiptMoney)``
 
 export const StyledFileShield = styled(FileShield)``
 
@@ -97,3 +104,11 @@ export const StyledCheckmark = styled(Checkmark)`
 export const StyledWarning = styled(Warning)`
   ${StyledIconCss}
 `
+
+export const StyledGear = styled(Gear)``
+
+export const StyledGraphDown = styled(GraphDown)``
+
+export const StyledSendPlane = styled(SendPlane)``
+
+export const StyledRefresh = styled(Refresh)``

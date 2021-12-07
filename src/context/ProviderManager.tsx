@@ -2,13 +2,20 @@ import React, { useState, useEffect, useCallback } from 'react'
 import { useNetwork } from './NetworkManager'
 import { useWallet } from './WalletManager'
 import { MetamaskConnector } from '../wallet/wallet-connectors/MetaMask'
+import { Block } from '@ethersproject/contracts/node_modules/@ethersproject/abstract-provider'
 
 import { Card, CardContainer } from '../components/atoms/Card'
 import { ModalCell } from '../components/atoms/Modal'
 import { Text } from '../components/atoms/Typography'
 import { Modal } from '../components/molecules/Modal'
 import { FormRow } from '../components/atoms/Form'
+
+import { Z_MODAL } from '../constants'
+
 import { capitalizeFirstLetter } from '../utils/formatting'
+import { useGetLatestBlock } from '../hooks/useGetLatestBlock'
+import { NetworkCache, SupportedProduct } from '../constants/types'
+import { useCachePositions } from '../hooks/useCachePositions'
 
 /*
 
@@ -29,10 +36,24 @@ and write to the blockchain.
 
 type ProviderContextType = {
   openNetworkModal: () => void
+  latestBlock: Block | undefined
+  tokenPosData: {
+    batchFetching: boolean
+    storedPosData: NetworkCache[]
+    handleGetCache: (supportedProduct: SupportedProduct) => Promise<NetworkCache | undefined>
+    getCacheForPolicies: (supportedProducts: SupportedProduct[]) => Promise<NetworkCache>
+  }
 }
 
 const InitialContextValue: ProviderContextType = {
   openNetworkModal: () => undefined,
+  latestBlock: undefined,
+  tokenPosData: {
+    batchFetching: false,
+    storedPosData: [],
+    handleGetCache: () => Promise.reject(),
+    getCacheForPolicies: () => Promise.reject(),
+  },
 }
 
 const ProviderContext = React.createContext<ProviderContextType>(InitialContextValue)
@@ -45,6 +66,8 @@ export function useProvider(): ProviderContextType {
 const ProviderManager: React.FC = ({ children }) => {
   const { networks, activeNetwork, findNetworkByChainId, findNetworkByName, changeNetwork } = useNetwork()
   const { connector } = useWallet()
+  const latestBlock = useGetLatestBlock()
+  const cachePositions = useCachePositions()
   const [networkModal, setNetworkModal] = useState<boolean>(false)
 
   const openModal = useCallback(() => {
@@ -106,13 +129,15 @@ const ProviderManager: React.FC = ({ children }) => {
   const value = React.useMemo(
     () => ({
       openNetworkModal: openModal,
+      latestBlock,
+      tokenPosData: cachePositions,
     }),
-    [openModal]
+    [openModal, latestBlock, cachePositions]
   )
   return (
     <ProviderContext.Provider value={value}>
       <Modal
-        zIndex={4}
+        zIndex={Z_MODAL + 1}
         handleClose={closeModal}
         isOpen={networkModal}
         modalTitle={'Connect a network'}
@@ -142,7 +167,8 @@ const ProviderManager: React.FC = ({ children }) => {
               onClick={() => switchNetwork(network.name)}
               glow={network.name == activeNetwork.name}
               color1={network.name == activeNetwork.name}
-              style={{ display: 'flex', justifyContent: 'center' }}
+              jc={'center'}
+              style={{ display: 'flex' }}
             >
               <FormRow mb={0}>
                 <ModalCell p={10}>

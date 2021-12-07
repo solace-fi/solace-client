@@ -12,7 +12,7 @@ export const fixed = (n: number | string, decimals = 1): number => {
   return Math.floor(n * Math.pow(10, decimals)) / Math.pow(10, decimals)
 }
 
-export const truncateBalance = (value: number | string, decimals = 6): string => {
+export const truncateBalance = (value: number | string, decimals = 6, abbrev = true): string => {
   if (typeof value == 'number' && value == 0) return '0'
   if (typeof value == 'string') {
     const pureNumberStr = value.replace('.', '').split('e')[0]
@@ -57,7 +57,8 @@ export const truncateBalance = (value: number | string, decimals = 6): string =>
 
   // if is nonzero whole number
   if (decimalIndex == -1) {
-    return numberAbbreviate(str)
+    if (abbrev) return numberAbbreviate(str)
+    return str
   }
 
   // if is nonzero number with decimals
@@ -66,7 +67,8 @@ export const truncateBalance = (value: number | string, decimals = 6): string =>
   if (parseFloat(truncatedStr) == 0) {
     return `< ${truncatedStr.slice(0, -1) + '1'}`
   }
-  return numberAbbreviate(truncatedStr)
+  if (abbrev) return numberAbbreviate(truncatedStr)
+  return truncatedStr
 }
 
 export const numberAbbreviate = (value: number | string, decimals = 2): string => {
@@ -143,11 +145,14 @@ export const getHumanValue = (value?: BigNumber, decimals = 0): BigNumber | unde
 export const floatUnits = (value: BigNumber, decimals: number): number => parseFloat(formatUnits(value, decimals))
 
 // used for correctly user amount input before processing
-export const filteredAmount = (input: string, amount: string): string => {
+export const filterAmount = (input: string, amount: string): string => {
   if (!amount && input == '.') input = '.'
-  const filteredAmount = input.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1')
-  return filteredAmount
+  const filtered = input.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1')
+  return filtered
 }
+
+export const formatAmount = (amount: string): string =>
+  amount == '0.' || amount == '.' || amount == '' ? '0.0' : amount
 
 // truncate strings, mostly addresses
 export const shortenAddress = (input: string): string =>
@@ -164,23 +169,30 @@ export const getUnit = (function_name: string, activeNetwork?: NetworkConfig): U
     case FunctionName.WITHDRAW_CP:
       return Unit.SCP
     case FunctionName.WITHDRAW_REWARDS:
+    case FunctionName.STAKE:
       return Unit.SOLACE
+    case FunctionName.UNSTAKE:
+      return Unit.X_SOLACE
     case FunctionName.DEPOSIT_LP_SIGNED:
     case FunctionName.WITHDRAW_LP:
     case FunctionName.MULTI_CALL:
       return Unit.LP
-    case FunctionName.DEPOSIT_POLICY_SIGNED:
-    case FunctionName.WITHDRAW_POLICY:
-    case FunctionName.WITHDRAW_CLAIMS_PAYOUT:
     case FunctionName.BUY_POLICY:
     case FunctionName.CANCEL_POLICY:
     case FunctionName.EXTEND_POLICY_PERIOD:
     case FunctionName.UPDATE_POLICY_AMOUNT:
     case FunctionName.UPDATE_POLICY:
     case FunctionName.SUBMIT_CLAIM:
-      return Unit.ID
+      return Unit.POLICY
+    case FunctionName.WITHDRAW_CLAIMS_PAYOUT:
+      return Unit.CLAIM
+    case FunctionName.BOND_DEPOSIT_ERC20:
+    case FunctionName.BOND_DEPOSIT_WETH:
+    case FunctionName.BOND_REDEEM:
+      return Unit.BOND
     case FunctionName.START_COOLDOWN:
     case FunctionName.STOP_COOLDOWN:
+    case FunctionName.REWARDS_REDEEM:
     default:
       return Unit._
   }
@@ -188,32 +200,38 @@ export const getUnit = (function_name: string, activeNetwork?: NetworkConfig): U
 
 export const formatTransactionContent = (
   function_name: string,
+  activeNetwork: NetworkConfig,
   amount: string,
-  activeNetwork: NetworkConfig
+  toAddr?: string
 ): string => {
   if (amount == '') return 'N/A'
   const unit = getUnit(function_name, activeNetwork)
   switch (function_name) {
     case FunctionName.WITHDRAW_CLAIMS_PAYOUT:
-      return `Claim ${unit} ${BigNumber.from(amount)}`
     case FunctionName.BUY_POLICY:
     case FunctionName.EXTEND_POLICY_PERIOD:
     case FunctionName.UPDATE_POLICY:
     case FunctionName.UPDATE_POLICY_AMOUNT:
     case FunctionName.CANCEL_POLICY:
     case FunctionName.SUBMIT_CLAIM:
-    case FunctionName.DEPOSIT_POLICY_SIGNED:
-    case FunctionName.WITHDRAW_POLICY:
-      return `Policy ${unit} ${BigNumber.from(amount)}`
-    case FunctionName.WITHDRAW_ETH:
-      return `${truncateBalance(formatUnits(BigNumber.from(amount), activeNetwork.nativeCurrency.decimals))} ${unit}`
+    case FunctionName.BOND_DEPOSIT_ERC20:
+    case FunctionName.BOND_DEPOSIT_WETH:
+    case FunctionName.BOND_REDEEM:
+      return `${unit} #${BigNumber.from(amount)}`
     case FunctionName.WITHDRAW_LP:
       return `#${BigNumber.from(amount)} ${Unit.LP}`
     case FunctionName.DEPOSIT_ETH:
+      if (toAddr && activeNetwork.cache.tellerToTokenMapping[toAddr]) {
+        return `Bond #${BigNumber.from(amount)}`
+      }
+      return `${truncateBalance(formatUnits(BigNumber.from(amount), activeNetwork.nativeCurrency.decimals))} ${unit}`
     case FunctionName.DEPOSIT_CP:
     case FunctionName.WITHDRAW_CP:
     case FunctionName.WITHDRAW_REWARDS:
     case FunctionName.APPROVE:
+    case FunctionName.STAKE:
+    case FunctionName.UNSTAKE:
+    case FunctionName.WITHDRAW_ETH:
       return `${truncateBalance(formatUnits(BigNumber.from(amount), activeNetwork.nativeCurrency.decimals))} ${unit}`
     case FunctionName.DEPOSIT_LP_SIGNED:
     case FunctionName.WITHDRAW_LP:
@@ -222,10 +240,6 @@ export const formatTransactionContent = (
       return `Thaw started`
     case FunctionName.STOP_COOLDOWN:
       return `Thaw stopped`
-    case FunctionName.DEPOSIT_POLICY_SIGNED_MULTI:
-      return `Deposited multiple policies`
-    case FunctionName.WITHDRAW_POLICY_MULTI:
-      return `Withdrew multiple policies`
     default:
       return `${amount} ${unit}`
   }

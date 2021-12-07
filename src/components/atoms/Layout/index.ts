@@ -1,9 +1,9 @@
-import { BKPT_NAVBAR, MAX_WIDTH, BKPT_5, BKPT_3 } from '../../../constants'
+import { BKPT_NAVBAR, MAX_WIDTH, BKPT_5, BKPT_3, Z_FOOTER } from '../../../constants'
 import styled, { createGlobalStyle, keyframes } from 'styled-components'
 import { GeneralElementProps, GeneralElementCss, HeightAndWidthProps, HeightAndWidthCss } from '../../generalInterfaces'
 import { Text3Css } from '../Typography'
 
-interface ScrollableProps {
+interface ScrollableProps extends GeneralElementProps {
   maxDesktopHeight?: number
   maxMobileHeight?: number
 }
@@ -22,6 +22,7 @@ export const Scrollable = styled.div<ScrollableProps>`
     max-height: ${(props) => (props.maxMobileHeight ? props.maxMobileHeight : `75`)}vh;
   }
   border-radius: 10px;
+  ${GeneralElementCss}
 `
 
 const movingGradient = keyframes`
@@ -158,5 +159,13 @@ export const Footer = styled.div`
   display: block;
   overflow: hidden;
   padding: 10px 0;
-  z-index: 1;
+  z-index: ${Z_FOOTER};
+`
+
+export const MultiTabIndicator = styled.hr`
+  position: absolute;
+  width: 50%;
+  top: 30px;
+  border-color: ${({ theme }) => theme.typography.infoText};
+  transition: all 200ms ease;
 `

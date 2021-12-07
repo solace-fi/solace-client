@@ -19,15 +19,17 @@ import React, { useState, Fragment, useCallback } from 'react'
 /* import context */
 
 /* import components */
-import { UnderwritingPool } from '../../components/organisms/UnderwritingPool'
-import { CapitalProviderPool } from '../../components/organisms/CapitalProviderPool'
-import { LiquidityPool } from '../../components/organisms/LiquidityPool'
-import { MyOptions } from '../../components/molecules/MyOptions'
-import { SptPool } from '../../components/organisms/SptPool'
+import { UnderwritingPool } from '../../components/organisms/underwriting-pool/UnderwritingPool'
+import { CapitalProviderPool } from '../../components/organisms/capital-pool/CapitalProviderPool'
 
 /* import constants */
 import { FunctionName } from '../../constants/enums'
 import { PoolModalRouter } from '../../components/organisms/PoolModalRouter'
+import { Box } from '../../components/atoms/Box'
+import { TextSpan, Text } from '../../components/atoms/Typography'
+import { StyledInfo } from '../../components/atoms/Icon'
+import { Content } from '../../components/atoms/Layout'
+import { V1RewardsWindow } from '../../components/organisms/V1RewardsWindow'
 
 function Invest(): any {
   /*************************************************************************************
@@ -68,11 +70,21 @@ function Invest(): any {
         closeModal={closeModal}
         farmName={farmName}
       />
+      <Content>
+        <Box warning pt={10} pb={10} pl={15} pr={15}>
+          <TextSpan light textAlignLeft>
+            <StyledInfo size={30} />
+          </TextSpan>
+          <Text light bold style={{ margin: '0 auto' }}>
+            This page will be deprecated soon. Users should withdraw their funds from the pools below.
+          </Text>
+        </Box>
+      </Content>
+      <Content>
+        <V1RewardsWindow />
+      </Content>
       <UnderwritingPool openModal={openModal} />
       <CapitalProviderPool openModal={openModal} />
-      <SptPool openModal={openModal} />
-      {/* <LiquidityPool openModal={openModal} /> */}
-      <MyOptions />
     </Fragment>
   )
 }

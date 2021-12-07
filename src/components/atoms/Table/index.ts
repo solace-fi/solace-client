@@ -2,6 +2,7 @@ import React from 'react'
 import styled from 'styled-components'
 import { GeneralElementProps, GeneralElementCss } from '../../generalInterfaces'
 import { GeneralTextProps, GeneralTextCss } from '../Typography'
+import { Z_TABLE } from '../../../constants/'
 
 interface TableProps extends GeneralTextProps, GeneralElementProps {
   isHighlight?: boolean
@@ -11,6 +12,7 @@ interface TableProps extends GeneralTextProps, GeneralElementProps {
 }
 
 interface TableHeadProps {
+  zIndex?: number
   sticky?: boolean
 }
 
@@ -47,7 +49,7 @@ export const TableHead = styled.thead<TableHeadProps>`
     transform: translateY(-7px);
     top: 7px;
     background-color: ${props.theme.table.head_bg_color};
-    z-index: 1;
+    z-index: ${props.zIndex ? props.zIndex : `${Z_TABLE}`};
     th {
       padding-top: 20px;
     }

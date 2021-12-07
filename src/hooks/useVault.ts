@@ -1,6 +1,6 @@
+import { useState, useEffect, useRef, useMemo } from 'react'
 import { formatUnits, parseUnits } from '@ethersproject/units'
 import { useContracts } from '../context/ContractsManager'
-import { useState, useEffect, useRef } from 'react'
 import { useWallet } from '../context/WalletManager'
 import { floatUnits } from '../utils/formatting'
 import { ZERO } from '../constants'
@@ -8,13 +8,16 @@ import { useCachedData } from '../context/CachedDataManager'
 import { useScpBalance } from './useBalance'
 import { useNetwork } from '../context/NetworkManager'
 import { FunctionName, TransactionCondition } from '../constants/enums'
-import { GasConfiguration, LocalTx } from '../constants/types'
+import { GasConfiguration, LocalTx, TxResult } from '../constants/types'
 import { BigNumber } from 'ethers'
+import { FunctionGasLimits } from '../constants/mappings/gasMapping'
+import { useProvider } from '../context/ProviderManager'
 
 export const useCapitalPoolSize = (): string => {
-  const { vault } = useContracts()
+  const { keyContracts } = useContracts()
+  const { vault } = useMemo(() => keyContracts, [keyContracts])
   const { currencyDecimals } = useNetwork()
-  const { latestBlock } = useCachedData()
+  const { latestBlock } = useProvider()
   const [capitalPoolSize, setCapitalPoolSize] = useState<string>('0')
 
   useEffect(() => {
@@ -39,11 +42,12 @@ export const useUserVaultDetails = () => {
   const [userVaultShare, setUserVaultShare] = useState<string>('0')
   const scpBalance = useScpBalance()
   const { account } = useWallet()
-  const { vault, cpFarm } = useContracts()
+  const { keyContracts } = useContracts()
+  const { vault, cpFarm } = useMemo(() => keyContracts, [keyContracts])
   const { currencyDecimals } = useNetwork()
 
   useEffect(() => {
-    const getUserVaultDetails = async () => {
+    const getUserVaultShare = async () => {
       if (!vault || !account) return
       try {
         const totalSupply = await vault.totalSupply()
@@ -60,14 +64,15 @@ export const useUserVaultDetails = () => {
         console.log('error getUserVaultShare ', err)
       }
     }
-    getUserVaultDetails()
+    getUserVaultShare()
   }, [vault, cpFarm, scpBalance, account])
 
   return { userVaultAssets, userVaultShare }
 }
 
 export const useCooldown = () => {
-  const { vault } = useContracts()
+  const { keyContracts } = useContracts()
+  const { vault } = useMemo(() => keyContracts, [keyContracts])
   const { account } = useWallet()
   const [cooldownStarted, setCooldownStarted] = useState<boolean>(false)
   const [timeWaited, setTimeWaited] = useState<number>(0)
@@ -75,19 +80,11 @@ export const useCooldown = () => {
   const [cooldownMin, setCooldownMin] = useState<number>(0)
   const [cooldownMax, setCooldownMax] = useState<number>(0)
   const [cooldownStart, setCooldownStart] = useState<number>(0)
-  const { version, latestBlock } = useCachedData()
+  const { version } = useCachedData()
+  const { latestBlock } = useProvider()
   const gettingCooldown = useRef(true)
 
-  const startCooldown = async (): Promise<
-    | {
-        tx: null
-        localTx: null
-      }
-    | {
-        tx: any
-        localTx: LocalTx
-      }
-  > => {
+  const startCooldown = async (): Promise<TxResult> => {
     if (!vault) return { tx: null, localTx: null }
     const tx = await vault.startCooldown()
     const localTx: LocalTx = {
@@ -99,16 +96,7 @@ export const useCooldown = () => {
     return { tx, localTx }
   }
 
-  const stopCooldown = async (): Promise<
-    | {
-        tx: null
-        localTx: null
-      }
-    | {
-        tx: any
-        localTx: LocalTx
-      }
-  > => {
+  const stopCooldown = async (): Promise<TxResult> => {
     if (!vault) return { tx: null, localTx: null }
     const tx = await vault.stopCooldown()
     const localTx: LocalTx = {
@@ -166,30 +154,18 @@ export const useCooldown = () => {
 }
 
 export const useVault = () => {
-  const { vault } = useContracts()
+  const { keyContracts } = useContracts()
+  const { vault } = useMemo(() => keyContracts, [keyContracts])
   const { version } = useCachedData()
   const { account } = useWallet()
   const [canTransfer, setCanTransfer] = useState<boolean>(true)
 
-  const depositEth = async (
-    parsedAmount: BigNumber,
-    txVal: string,
-    gasConfig: GasConfiguration
-  ): Promise<
-    | {
-        tx: null
-        localTx: null
-      }
-    | {
-        tx: any
-        localTx: LocalTx
-      }
-  > => {
+  const depositEth = async (parsedAmount: BigNumber, txVal: string, gasConfig: GasConfiguration): Promise<TxResult> => {
     if (!vault) return { tx: null, localTx: null }
     const tx = await vault.depositEth({
       value: parsedAmount,
       ...gasConfig,
-      gasLimit: 126777,
+      gasLimit: FunctionGasLimits['vault.depositEth'],
     })
     const localTx: LocalTx = {
       hash: tx.hash,
@@ -204,20 +180,11 @@ export const useVault = () => {
     parsedAmount: BigNumber,
     txVal: string,
     gasConfig: GasConfiguration
-  ): Promise<
-    | {
-        tx: null
-        localTx: null
-      }
-    | {
-        tx: any
-        localTx: LocalTx
-      }
-  > => {
+  ): Promise<TxResult> => {
     if (!vault) return { tx: null, localTx: null }
     const tx = await vault.withdrawEth(parsedAmount, {
       ...gasConfig,
-      gasLimit: 123823,
+      gasLimit: FunctionGasLimits['vault.withdrawEth'],
     })
     const localTx: LocalTx = {
       hash: tx.hash,

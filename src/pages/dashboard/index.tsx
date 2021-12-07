@@ -16,12 +16,13 @@
   *************************************************************************************/
 
 /* import packages */
-import React, { Fragment, useState, useCallback, useEffect, useMemo } from 'react'
+import React, { Fragment, useState, useCallback, useEffect } from 'react'
 
 /* import managers */
 import { useContracts } from '../../context/ContractsManager'
 import { useWallet } from '../../context/WalletManager'
 import { useCachedData } from '../../context/CachedDataManager'
+import { useProvider } from '../../context/ProviderManager'
 
 /* import constants */
 import { Policy } from '../../constants/types'
@@ -29,15 +30,14 @@ import { Policy } from '../../constants/types'
 /* import components */
 import { HeroContainer } from '../../components/atoms/Layout'
 import { Text } from '../../components/atoms/Typography'
-import { ManageModal } from '../../components/organisms/ManageModal'
-import { ClaimModal } from '../../components/organisms/ClaimModal'
+import { ManageModal } from '../../components/organisms/policy/ManageModal'
+import { ClaimModal } from '../../components/organisms/policy/ClaimModal'
 import { MyPolicies } from '../../components/molecules/MyPolicies'
 import { MyClaims } from '../../components/molecules/MyClaims'
 import { MyInvestments } from '../../components/molecules/MyInvestments'
-import { MyOptions } from '../../components/molecules/MyOptions'
+import { WalletConnectButton } from '../../components/molecules/WalletConnectButton'
 
 /* import hooks */
-import { useDepositedPolicies } from '../../hooks/useBalance'
 
 function Dashboard(): any {
   /*************************************************************************************
@@ -52,16 +52,9 @@ function Dashboard(): any {
   const [selectedPolicy, setSelectedPolicy] = useState<Policy | undefined>(undefined)
 
   const { setSelectedProtocolByName } = useContracts()
-  const { latestBlock, userPolicyData } = useCachedData()
+  const { userPolicyData } = useCachedData()
+  const { latestBlock } = useProvider()
   const { account } = useWallet()
-  const depositedPolicyTokenInfo = useDepositedPolicies()
-  const depositedPolicyIds = useMemo(() => depositedPolicyTokenInfo.map((i) => i.id.toNumber()), [
-    depositedPolicyTokenInfo,
-  ])
-  const isPolicyStaked = useMemo(() => depositedPolicyIds.includes(selectedPolicy ? selectedPolicy.policyId : 0), [
-    depositedPolicyIds,
-    selectedPolicy,
-  ])
 
   /*************************************************************************************
 
@@ -100,16 +93,15 @@ function Dashboard(): any {
 
   // if a policy is displayed on modal, always get latest policy
   useEffect(() => {
-    if (selectedPolicy) {
-      const matchingPolicy = userPolicyData.userPolicies.find(
-        (policy: Policy) => policy.policyId == selectedPolicy.policyId
-      )
-      if (!matchingPolicy) return
-      if (JSON.stringify(matchingPolicy) !== JSON.stringify(selectedPolicy)) {
-        setPolicy(matchingPolicy)
-      }
+    if (!selectedPolicy) return
+    const matchingPolicy = userPolicyData.userPolicies.find(
+      (policy: Policy) => policy.policyId == selectedPolicy.policyId
+    )
+    if (!matchingPolicy) return
+    if (JSON.stringify(matchingPolicy) !== JSON.stringify(selectedPolicy)) {
+      setPolicy(matchingPolicy)
     }
-  }, [userPolicyData.userPolicies])
+  }, [selectedPolicy, userPolicyData.userPolicies])
 
   return (
     <Fragment>
@@ -118,6 +110,7 @@ function Dashboard(): any {
           <Text bold t1 textAlignCenter>
             Please connect wallet to view dashboard
           </Text>
+          <WalletConnectButton info welcome secondary />
         </HeroContainer>
       ) : (
         <Fragment>
@@ -126,26 +119,22 @@ function Dashboard(): any {
             isOpen={showManageModal}
             latestBlock={latestBlock}
             selectedPolicy={selectedPolicy}
-            isPolicyStaked={isPolicyStaked}
           />
           <ClaimModal
             closeModal={closeModal}
             isOpen={showClaimModal}
             latestBlock={latestBlock}
             selectedPolicy={selectedPolicy}
-            isPolicyStaked={isPolicyStaked}
           />
           <MyPolicies
             latestBlock={latestBlock}
             openClaimModal={openClaimModal}
             openManageModal={openManageModal}
-            depositedPolicyIds={depositedPolicyIds}
             isOpen={openPolicies}
             setOpen={setOpenPolicies}
           />
           <MyClaims />
-          <MyInvestments />
-          <MyOptions />
+          {/* <MyInvestments /> */}
         </Fragment>
       )}
     </Fragment>

@@ -1,6 +1,7 @@
 import { NavLink } from 'react-router-dom'
 import styled, { css } from 'styled-components'
-import { BKPT_NAVBAR, BKPT_3 } from '../../../constants'
+import { BKPT_NAVBAR, BKPT_3, Z_TOPNAV } from '../../../constants'
+import { GeneralElementCss } from '../../generalInterfaces'
 import { GeneralTextProps, GeneralTextCss } from '../Typography'
 
 interface TopNavProps {
@@ -18,7 +19,7 @@ export const TopNav = styled.div<TopNavProps>`
   @media screen and (max-width: ${BKPT_NAVBAR}px) {
     display: block;
     width: 100%;
-    z-index: 2;
+    z-index: ${Z_TOPNAV};
   }
 
   @media screen and (max-width: ${BKPT_3}px) {
@@ -32,7 +33,7 @@ export const SidebarTextCss = css<GeneralTextProps>`
   font-size: 14px;
   color: ${({ theme }) => `${theme.typography.contrastText}`};
   text-decoration: none;
-  transition: all 0.2s;
+  transition: all 0.2s ease;
   &:hover,
   &.is-active {
     opacity: 1 !important;
@@ -50,13 +51,14 @@ export const SidebarItem = styled(NavLink)<GeneralTextProps>`
   ${SidebarTextCss}
 `
 
-export const ItemText = styled.li`
+export const ItemText = styled.li<GeneralTextProps>`
   display: flex;
   justify-content: start;
   align-items: center;
   padding: 4px 0;
   list-style: none;
   height: 30px;
+  ${GeneralTextCss}
 `
 
 export const ItemList = styled.ul`

@@ -6,13 +6,13 @@ import { formatUnits, parseUnits } from '@ethersproject/units'
 import { NUM_SECONDS_PER_DAY, ZERO } from '../constants'
 import { Contract } from '@ethersproject/contracts'
 import { floatUnits } from '../utils/formatting'
-import { useCachedData } from '../context/CachedDataManager'
 import { useNetwork } from '../context/NetworkManager'
-import { BigNumber } from 'ethers'
+import { useProvider } from '../context/ProviderManager'
 
 const useFarmControllerValues = (farmId: number) => {
-  const { farmController } = useContracts()
-  const { latestBlock } = useCachedData()
+  const { keyContracts } = useContracts()
+  const { farmController } = useMemo(() => keyContracts, [keyContracts])
+  const { latestBlock } = useProvider()
   const [farmControllerValues, setFarmControllerValues] = useState({
     allocPoints: ZERO,
     totalAllocPoints: ZERO,
@@ -47,10 +47,6 @@ export const useRewardsPerDay = (farmId: number): string => {
           floatUnits(allocPoints, currencyDecimals)) /
         floatUnits(totalAllocPoints, currencyDecimals)
       : 0
-    // const rewards = totalAllocPoints.gt(ZERO)
-    //   ? floatUnits(rewardPerSecond.mul(BigNumber.from(NUM_SECONDS_PER_DAY)).mul(allocPoints), currencyDecimals) /
-    //     floatUnits(totalAllocPoints, currencyDecimals)
-    //   : 0
     const formattedRewards = rewards.toString()
     return formattedRewards
   }, [allocPoints, totalAllocPoints, rewardPerSecond, currencyDecimals])
@@ -71,24 +67,15 @@ export const useUserRewardsPerDay = (farmId: number, farm: Contract | null | und
       : 0
     const rewards =
       floatUnits(rewardPerSecond, currencyDecimals) * NUM_SECONDS_PER_DAY * allocPercentage * poolPercentage
-    // let rewards = 0
-    // if (totalAllocPoints.gt(ZERO) && poolStakedValue.gt(ZERO)) {
-    //   rewards =
-    //     floatUnits(rewardPerSecond, currencyDecimals) *
-    //     NUM_SECONDS_PER_DAY *
-    //     floatUnits(allocPoints, currencyDecimals) *
-    //     floatUnits(userStakedValue, currencyDecimals)
-    //   rewards /= floatUnits(totalAllocPoints, currencyDecimals)
-    //   rewards /= floatUnits(poolStakedValue, currencyDecimals)
-    // }
     const formattedRewards = rewards.toString()
     return formattedRewards
   }, [allocPoints, totalAllocPoints, rewardPerSecond, poolStakedValue, userStakedValue])
 }
 
 export const useUserPendingRewards = (farm: Contract | null | undefined): string => {
-  const { farmController } = useContracts()
-  const { latestBlock } = useCachedData()
+  const { keyContracts } = useContracts()
+  const { farmController } = useMemo(() => keyContracts, [keyContracts])
+  const { latestBlock } = useProvider()
   const { account } = useWallet()
   const { currencyDecimals } = useNetwork()
   const [userRewards, setUserRewards] = useState<string>('0')
@@ -113,14 +100,21 @@ export const useUserPendingRewards = (farm: Contract | null | undefined): string
 }
 
 export const useTotalPendingRewards = (): string => {
-  const { cpFarm, lpFarm } = useContracts()
+  const { keyContracts } = useContracts()
+  const { farmController } = useMemo(() => keyContracts, [keyContracts])
   const { currencyDecimals } = useNetwork()
-  const cpUserRewards = useUserPendingRewards(cpFarm)
-  const lpUserRewards = useUserPendingRewards(lpFarm)
+  const { account } = useWallet()
+  const [totalPendingRewards, setTotalPendingRewards] = useState<string>('0')
 
-  return useMemo(() => {
-    const rewards = parseUnits(cpUserRewards, currencyDecimals).add(parseUnits(lpUserRewards, currencyDecimals))
-    const formattedRewards = formatUnits(rewards, currencyDecimals)
-    return formattedRewards
-  }, [cpUserRewards, lpUserRewards, currencyDecimals])
+  useEffect(() => {
+    const getTotalPendingRewards = async () => {
+      if (!farmController || !account) return
+      const rewards = await farmController.pendingRewards(account)
+      const formattedRewards = formatUnits(rewards, currencyDecimals)
+      setTotalPendingRewards(formattedRewards)
+    }
+    getTotalPendingRewards()
+  }, [farmController, currencyDecimals, account])
+
+  return totalPendingRewards
 }

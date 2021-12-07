@@ -37,14 +37,18 @@ export enum FunctionName {
   MULTI_CALL = 'Multicall',
   START_COOLDOWN = 'StartCooldown',
   STOP_COOLDOWN = 'StopCooldown',
-  DEPOSIT_POLICY_SIGNED = 'DepositPolicySigned',
-  DEPOSIT_POLICY_SIGNED_MULTI = 'DepositPolicySignedMulti',
-  WITHDRAW_POLICY = 'WithdrawPolicy',
-  WITHDRAW_POLICY_MULTI = 'WithdrawPolicyMulti',
 
   // TODO: include in transaction history retrieval
   EXERCISE_OPTION = 'ExerciseOption',
   FARM_OPTION_MULTI = 'FarmOptionMulti',
+
+  STAKE = 'StakeSigned',
+  UNSTAKE = 'Unstake',
+  BOND_DEPOSIT_WETH = 'DepositWeth',
+  BOND_DEPOSIT_ERC20 = 'Deposit',
+  BOND_REDEEM = 'Redeem',
+
+  REWARDS_REDEEM = 'Redeem',
 }
 
 export enum ExplorerscanApi {
@@ -58,9 +62,11 @@ export enum Unit {
   MATIC = 'MATIC',
   SCP = 'CP Token',
   SOLACE = 'SOLACE',
+  X_SOLACE = 'xSolace',
   LP = 'LP Token',
-  ID = 'ID',
   POLICY = 'Policy',
+  CLAIM = 'Claim',
+  BOND = 'Bond',
   _ = 'Unknown',
 }
 
@@ -85,4 +91,17 @@ export enum PositionType {
   TOKEN = 'token',
   LQTY = 'liquity',
   OTHER = 'other',
+}
+
+export enum BondName {
+  DAI = 'DAI',
+  SOLACE_DAI_SLP = 'SOLACE-DAI SLP',
+  ETH = 'ETH',
+  WETH = 'WETH',
+  SOLACE_ETH_SLP = 'SOLACE-ETH SLP',
+  USDC = 'USDC',
+  SOLACE_USDC_SLP = 'SOLACE-USDC SLP',
+  SCP = 'SCP',
+  WBTC = 'WBTC',
+  USDT = 'USDT',
 }

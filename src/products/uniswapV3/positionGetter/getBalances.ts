@@ -35,7 +35,6 @@ export const getBalances = async (
   tokens: _Token[]
 ): Promise<_Token[]> => {
   const nativeToken = tokenForChain[activeNetwork.chainId]
-  console.log(nativeToken, activeNetwork.chainId)
 
   const uniV3FactoryContract = getContract(UniV3FactoryAddr, UniV3FactoryAbi, provider)
 

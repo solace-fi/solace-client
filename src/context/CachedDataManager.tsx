@@ -1,16 +1,12 @@
 import React, { useMemo, useContext, createContext, useEffect, useState, useCallback } from 'react'
 import { useLocalStorage } from 'react-use-storage'
 import { useWallet } from './WalletManager'
-import { Block } from '@ethersproject/contracts/node_modules/@ethersproject/abstract-provider'
 
-import { LocalTx, Policy, NetworkCache, GasFeeListState } from '../constants/types'
+import { LocalTx, Policy, GasFeeListState } from '../constants/types'
 import { usePolicyGetter } from '../hooks/usePolicyGetter'
 import { useReload } from '../hooks/useReload'
-import { useInterval } from '../hooks/useInterval'
 
 import { useFetchGasPrice } from '../hooks/useGas'
-import { useGetLatestBlock } from '../hooks/useGetLatestBlock'
-import { useCachePositions } from '../hooks/useCachePositions'
 
 import { useNetwork } from './NetworkManager'
 import { PolicyState, SystemNotice } from '../constants/enums'
@@ -34,14 +30,9 @@ type CachedData = {
     userPolicies: Policy[]
     setCanGetAssessments: (toggle: boolean) => void
   }
-  tokenPosData: {
-    dataInitialized: boolean
-    storedPosData: NetworkCache[]
-  }
   showAccountModal: boolean
   version: number
   gasPrices: GasFeeListState
-  latestBlock: Block | undefined
   addLocalTransactions: (txToAdd: LocalTx) => void
   deleteLocalTransactions: (txsToDelete: []) => void
   openAccountModal: () => void
@@ -55,17 +46,12 @@ const CachedDataContext = createContext<CachedData>({
     userPolicies: [],
     setCanGetAssessments: () => undefined,
   },
-  tokenPosData: {
-    dataInitialized: false,
-    storedPosData: [],
-  },
   showAccountModal: false,
   version: 0,
   gasPrices: {
     options: [],
     loading: true,
   },
-  latestBlock: undefined,
   addLocalTransactions: () => undefined,
   deleteLocalTransactions: () => undefined,
   openAccountModal: () => undefined,
@@ -78,15 +64,8 @@ const CachedDataProvider: React.FC = (props) => {
   const [localTxs, setLocalTxs] = useLocalStorage<LocalTx[]>('solace_loc_txs', [])
   const [reload, version] = useReload()
   const gasPrices = useFetchGasPrice()
-  const latestBlock = useGetLatestBlock()
-  const { dataInitialized, storedPosData } = useCachePositions()
   const { addNotices, removeNotices } = useGeneral()
-  const { policiesLoading, userPolicies, setCanGetAssessments } = usePolicyGetter(
-    false,
-    latestBlock,
-    { dataInitialized, storedPosData },
-    account
-  )
+  const { policiesLoading, userPolicies, setCanGetAssessments } = usePolicyGetter(false, account)
   const [accountModal, setAccountModal] = useState<boolean>(false)
 
   const openModal = useCallback(() => {
@@ -149,11 +128,9 @@ const CachedDataProvider: React.FC = (props) => {
     () => ({
       localTransactions: localTxs,
       userPolicyData: { policiesLoading, userPolicies, setCanGetAssessments },
-      tokenPosData: { dataInitialized, storedPosData },
       showAccountModal: accountModal,
       version,
       gasPrices,
-      latestBlock,
       addLocalTransactions,
       deleteLocalTransactions,
       openAccountModal: openModal,
@@ -163,10 +140,7 @@ const CachedDataProvider: React.FC = (props) => {
       localTxs,
       addLocalTransactions,
       deleteLocalTransactions,
-      dataInitialized,
-      storedPosData,
       version,
-      latestBlock,
       gasPrices,
       policiesLoading,
       userPolicies,

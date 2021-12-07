@@ -18,12 +18,14 @@
 
 /* import packages */
 import React, { useEffect, useState, useMemo } from 'react'
-import { formatUnits, parseUnits } from '@ethersproject/units'
-import { BigNumber } from 'ethers'
+import { formatUnits } from '@ethersproject/units'
 
 /* import constants */
 import { BKPT_3, ZERO } from '../../constants'
 import { TransactionCondition, FunctionName, Unit, PolicyState } from '../../constants/enums'
+import { LocalTx } from '../../constants/types'
+import { FunctionGasLimits } from '../../constants/mappings/gasMapping'
+import { USDC_ADDRESS } from '../../constants/mappings/tokenAddressMapping'
 
 /* import managers */
 import { useWallet } from '../../context/WalletManager'
@@ -31,29 +33,28 @@ import { useContracts } from '../../context/ContractsManager'
 import { useNotifications } from '../../context/NotificationsManager'
 import { useCachedData } from '../../context/CachedDataManager'
 import { useNetwork } from '../../context/NetworkManager'
-import { useGeneral } from '../../context/GeneralProvider'
 
 /* import components */
 import { BoxRow, Box, BoxItem, BoxItemTitle } from '../atoms/Box'
-import { Button, ButtonWrapper } from '../atoms/Button'
+import { Button } from '../atoms/Button'
 import { Text, TextSpan } from '../atoms/Typography'
 import { WalletConnectButton } from '../molecules/WalletConnectButton'
 import { FormRow, FormCol } from '../atoms/Form'
 import { Card, CardContainer } from '../atoms/Card'
-import { StyledTooltip } from '../molecules/Tooltip'
+import { HyperLink } from '../atoms/Link'
 
 /* import hooks */
-import { useCapitalPoolSize } from '../../hooks/useVault'
 import { useTotalPendingRewards } from '../../hooks/useRewards'
-import { useSolaceBalance } from '../../hooks/useBalance'
+import { useSolaceBalance, useUnderWritingPoolBalance, useXSolaceBalance } from '../../hooks/useBalance'
 import { usePolicyGetter } from '../../hooks/usePolicyGetter'
-import { useGetTotalValueLocked } from '../../hooks/useFarm'
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'
 import { useGetFunctionGas } from '../../hooks/useGas'
+import { usePairPrice } from '../../hooks/usePair'
+import { useStakingApy } from '../../hooks/useXSolace'
+import { useReadToken } from '../../hooks/useToken'
 
 /* import utils */
 import { truncateBalance } from '../../utils/formatting'
-import { LocalTx } from '../../constants/types'
 
 export const Statistics: React.FC = () => {
   /*************************************************************************************
@@ -61,22 +62,26 @@ export const Statistics: React.FC = () => {
   hooks
 
   *************************************************************************************/
-  const { haveErrors } = useGeneral()
   const { account, initialized } = useWallet()
-  const { activeNetwork, currencyDecimals } = useNetwork()
-  const { farmController } = useContracts()
+  const { activeNetwork, currencyDecimals, chainId } = useNetwork()
+  const { keyContracts } = useContracts()
+  const { farmController, solace, xSolace } = useMemo(() => keyContracts, [keyContracts])
   const { makeTxToast } = useNotifications()
-  const { addLocalTransactions, reload, tokenPosData, latestBlock } = useCachedData()
-  const capitalPoolSize = useCapitalPoolSize()
+  const { addLocalTransactions, reload } = useCachedData()
+  const { stakingApy } = useStakingApy()
   const solaceBalance = useSolaceBalance()
+  const xSolaceBalance = useXSolaceBalance()
+  const readSolaceToken = useReadToken(solace)
+  const readXSolaceToken = useReadToken(xSolace)
   const totalUserRewards = useTotalPendingRewards()
-  const { allPolicies } = usePolicyGetter(true, latestBlock, tokenPosData)
-  const totalValueLocked = useGetTotalValueLocked()
+  const { allPolicies } = usePolicyGetter(true)
   const { width } = useWindowDimensions()
   const { getAutoGasConfig } = useGetFunctionGas()
   const gasConfig = useMemo(() => getAutoGasConfig(), [getAutoGasConfig])
   const [totalActiveCoverAmount, setTotalActiveCoverAmount] = useState<string>('-')
-  const [totalActivePolicies, setTotalActivePolicies] = useState<number | string>('-')
+  const [totalActivePolicies, setTotalActivePolicies] = useState<string>('-')
+  const { pairPrice } = usePairPrice(solace)
+  const { underwritingPoolBalance } = useUnderWritingPoolBalance()
 
   /*************************************************************************************
 
@@ -89,7 +94,7 @@ export const Statistics: React.FC = () => {
     try {
       const tx = await farmController.farmOptionMulti({
         ...gasConfig,
-        gasLimit: 834261,
+        gasLimit: FunctionGasLimits['farmController.farmOptionMulti'],
       })
       const txHash = tx.hash
       const localTx: LocalTx = {
@@ -129,7 +134,7 @@ export const Statistics: React.FC = () => {
         const activePolicies = allPolicies.filter(({ status }) => status === PolicyState.ACTIVE)
         const activeCoverAmount = activePolicies.reduce((pv, cv) => pv.add(cv.coverAmount), ZERO)
         setTotalActiveCoverAmount(formatUnits(activeCoverAmount, currencyDecimals))
-        setTotalActivePolicies(activePolicies.length)
+        setTotalActivePolicies(activePolicies.length.toString())
       }
       fetchPolicies()
     } catch (err) {
@@ -140,40 +145,46 @@ export const Statistics: React.FC = () => {
   const GlobalBox: React.FC = () => (
     <Box color2>
       <BoxItem>
-        <BoxItemTitle t4 light bold>
+        <BoxItemTitle t4 light>
+          SOLACE{' '}
+          <HyperLink
+            href={`https://app.sushi.com/add/${USDC_ADDRESS[chainId]}/${solace ? solace.address : null}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ width: '100%' }}
+          >
+            <Button light style={{ whiteSpace: 'nowrap', minWidth: 'unset', minHeight: 'unset' }} p={4}>
+              buy on sushi
+            </Button>
+          </HyperLink>
+        </BoxItemTitle>{' '}
+        <Text t2 nowrap light bold>
+          {`$${pairPrice} `}
+        </Text>
+      </BoxItem>
+      <BoxItem>
+        <BoxItemTitle t4 light>
           Underwriting Pool Size
         </BoxItemTitle>
         <Text t2 nowrap light bold>
-          {`${truncateBalance(capitalPoolSize, 1)} `}
-          <TextSpan t4 light bold>
-            {activeNetwork.nativeCurrency.symbol}
-          </TextSpan>
+          {underwritingPoolBalance == '-' ? '$-' : `$${truncateBalance(underwritingPoolBalance, 2)}`}
         </Text>
       </BoxItem>
       <BoxItem>
-        <BoxItemTitle t4 light bold>
-          Total Value Locked
-        </BoxItemTitle>
-        <Text t2 nowrap light bold>
-          {`${truncateBalance(totalValueLocked, 1)} `}
-          <TextSpan t4 light bold>
-            {activeNetwork.nativeCurrency.symbol}
-          </TextSpan>
-        </Text>
-      </BoxItem>
-      <BoxItem>
-        <BoxItemTitle t4 light bold>
+        <BoxItemTitle t4 light>
           Active Cover Amount
         </BoxItemTitle>
         <Text t2 nowrap light bold>
-          {totalActiveCoverAmount !== '-' ? `${truncateBalance(totalActiveCoverAmount, 2)} ` : `- `}
+          {totalActiveCoverAmount !== '-'
+            ? `${truncateBalance(totalActiveCoverAmount, 2)} `
+            : `${totalActiveCoverAmount} `}
           <TextSpan t4 light bold>
             {activeNetwork.nativeCurrency.symbol}
           </TextSpan>
         </Text>
       </BoxItem>
       <BoxItem>
-        <BoxItemTitle t4 light bold>
+        <BoxItemTitle t4 light>
           Total Active Policies
         </BoxItemTitle>
         <Text t2 nowrap light bold>
@@ -183,47 +194,103 @@ export const Statistics: React.FC = () => {
     </Box>
   )
 
+  const GlobalCard: React.FC = () => {
+    return (
+      <Card color2>
+        <FormRow>
+          <FormCol light>
+            SOLACE{' '}
+            <HyperLink
+              href={`https://app.sushi.com/add/${USDC_ADDRESS[chainId]}/${solace ? solace.address : null}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ width: '100%' }}
+            >
+              <Button light style={{ whiteSpace: 'nowrap', minWidth: 'unset', minHeight: 'unset' }} p={4}>
+                buy on sushi
+              </Button>
+            </HyperLink>
+          </FormCol>
+          <FormCol>
+            <Text t2 nowrap light>
+              {`$${pairPrice}`}
+            </Text>
+          </FormCol>
+        </FormRow>
+        <FormRow>
+          <FormCol light>Underwriting Pool Size</FormCol>
+          <FormCol>
+            <Text t2 nowrap light>
+              {underwritingPoolBalance == '-' ? '$-' : `$${truncateBalance(underwritingPoolBalance, 2)}`}
+            </Text>
+          </FormCol>
+        </FormRow>
+        <FormRow>
+          <FormCol light>Active Cover Amount</FormCol>
+          <FormCol>
+            <Text t2 nowrap light>
+              {totalActiveCoverAmount !== '-'
+                ? `${truncateBalance(totalActiveCoverAmount, 2)} `
+                : `${totalActiveCoverAmount} `}
+              <TextSpan t4 light>
+                {activeNetwork.nativeCurrency.symbol}
+              </TextSpan>
+            </Text>
+          </FormCol>
+        </FormRow>
+        <FormRow>
+          <FormCol light>Total Active Policies</FormCol>
+          <FormCol>
+            <Text t2 nowrap light>
+              {totalActivePolicies}
+            </Text>
+          </FormCol>
+        </FormRow>
+      </Card>
+    )
+  }
+
   return (
     <>
       {width > BKPT_3 ? (
         <BoxRow>
           {initialized && account ? (
             <Box>
-              {/* <BoxItem>
-                <BoxItemTitle t4>
-                  My Balance
-                </BoxItemTitle>
-                <Text t2>
-                  {`${truncateBalance(solaceBalance, 1)} `}
-                  <TextSpan t4>SOLACE</TextSpan>
-                </Text>
-              </BoxItem> */}
               <BoxItem>
-                <BoxItemTitle t4 light bold>
-                  My Unclaimed Rewards{' '}
-                  <StyledTooltip
-                    id={'rewards'}
-                    tip={'You’ll be able to claim the rewards soon, once $SOLACE token is publicly released'}
-                    // link={'https://docs.solace.fi/docs/user-guides/earn-rewards'}
-                  />
+                <BoxItemTitle t4 light>
+                  My SOLACE Balance
                 </BoxItemTitle>
                 <Text t2 light bold>
-                  {`${truncateBalance(totalUserRewards, 1)} `}
+                  {`${truncateBalance(solaceBalance, 1)} `}
                   <TextSpan t4 light bold>
-                    SOLACE
+                    {readSolaceToken.symbol}
                   </TextSpan>
                 </Text>
               </BoxItem>
-              {/* <BoxItem>
-                <Button light disabled={haveErrors || fixed(totalUserRewards, 6) <= 0} onClick={claimRewards}>
-                  Claim Options
-                </Button>
-              </BoxItem> */}
+              <BoxItem>
+                <BoxItemTitle t4 light>
+                  My Staked Balance
+                </BoxItemTitle>
+                <Text t2 light bold>
+                  {`${truncateBalance(xSolaceBalance, 1)} `}
+                  <TextSpan t4 light bold>
+                    {readXSolaceToken.symbol}
+                  </TextSpan>
+                </Text>
+              </BoxItem>
+              <BoxItem>
+                <BoxItemTitle t4 light>
+                  Staking APY
+                </BoxItemTitle>
+                <Text t2 light bold>
+                  {stakingApy}
+                </Text>
+              </BoxItem>
             </Box>
           ) : (
             <Box>
               <BoxItem>
-                <WalletConnectButton light />
+                <WalletConnectButton light welcome />
               </BoxItem>
             </Box>
           )}
@@ -235,89 +302,47 @@ export const Statistics: React.FC = () => {
           {initialized && account ? (
             <CardContainer m={20}>
               <Card color1>
-                {/* <FormRow>
-                  <FormCol>My Balance</FormCol>
-                  <FormCol>
-                    <Text t2>
-                      {`${truncateBalance(solaceBalance, 1)} `}
-                      <TextSpan t4>SOLACE</TextSpan>
-                    </Text>
-                  </FormCol>
-                </FormRow> */}
                 <FormRow>
-                  <FormCol light>My Unclaimed Rewards</FormCol>
+                  <FormCol light>My SOLACE Balance</FormCol>
                   <FormCol>
                     <Text t2 light>
-                      {`${truncateBalance(totalUserRewards, 1)} `}
+                      {`${truncateBalance(solaceBalance, 1)} `}
                       <TextSpan t4 light>
-                        SOLACE
-                      </TextSpan>
-                    </Text>
-                  </FormCol>
-                </FormRow>
-                {/* <ButtonWrapper>
-                  <Button
-                    light
-                    widthP={100}
-                    disabled={haveErrors || fixed(totalUserRewards, 6) <= 0}
-                    onClick={claimRewards}
-                  >
-                    Claim Options
-                  </Button>
-                </ButtonWrapper> */}
-              </Card>
-              <Card color2>
-                <FormRow>
-                  <FormCol light>Capital Pool Size</FormCol>
-                  <FormCol>
-                    <Text t2 nowrap light>
-                      {`${truncateBalance(capitalPoolSize, 1)} `}
-                      <TextSpan t4 light>
-                        {activeNetwork.nativeCurrency.symbol}
+                        {readSolaceToken.symbol}
                       </TextSpan>
                     </Text>
                   </FormCol>
                 </FormRow>
                 <FormRow>
-                  <FormCol light>Total Value Locked</FormCol>
+                  <FormCol light>My Staked Balance</FormCol>
                   <FormCol>
-                    <Text t2 nowrap light>
-                      {`${truncateBalance(totalValueLocked, 1)} `}
+                    <Text t2 light>
+                      {`${truncateBalance(xSolaceBalance, 1)} `}
                       <TextSpan t4 light>
-                        {activeNetwork.nativeCurrency.symbol}
+                        {readXSolaceToken.symbol}
                       </TextSpan>
                     </Text>
                   </FormCol>
                 </FormRow>
                 <FormRow>
-                  <FormCol light>Active Cover Amount</FormCol>
+                  <FormCol light>Staking APY</FormCol>
                   <FormCol>
-                    <Text t2 nowrap light>
-                      {totalActiveCoverAmount !== '-' ? `${truncateBalance(totalActiveCoverAmount, 2)} ` : `- `}
-                      <TextSpan t4 light>
-                        {activeNetwork.nativeCurrency.symbol}
-                      </TextSpan>
-                    </Text>
-                  </FormCol>
-                </FormRow>
-                <FormRow>
-                  <FormCol light>Total Active Policies</FormCol>
-                  <FormCol>
-                    <Text t2 nowrap light>
-                      {totalActivePolicies}
+                    <Text t2 light>
+                      {stakingApy}
                     </Text>
                   </FormCol>
                 </FormRow>
               </Card>
+              <GlobalCard />
             </CardContainer>
           ) : (
             <BoxRow>
               <Box>
                 <BoxItem>
-                  <WalletConnectButton light />
+                  <WalletConnectButton light welcome />
                 </BoxItem>
               </Box>
-              <GlobalBox />
+              <GlobalCard />
             </BoxRow>
           )}
         </>

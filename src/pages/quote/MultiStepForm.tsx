@@ -43,7 +43,6 @@ import { ProtocolStep } from './ProtocolStep'
 import { PositionStep } from './PositionStep'
 import { CoverageStep } from './CoverageStep'
 import { ConfirmStep } from './ConfirmStep'
-import { Step, StepsContainer, StepsWrapper, StepsProgress, StepsProgressBar } from '../../components/atoms/Progress'
 import { DeFiAsset, DeFiAssetImage, ProtocolTitle } from '../../components/atoms/DeFiAsset'
 import { Box, BoxItem, BoxRow } from '../../components/atoms/Box'
 import { Button, ButtonWrapper } from '../../components/atoms/Button'
@@ -53,6 +52,7 @@ import { Text } from '../../components/atoms/Typography'
 import { FlexRow } from '../../components/atoms/Layout'
 import { StyledDots } from '../../components/atoms/Icon'
 import { AssetsModal } from '../../components/organisms/AssetsModal'
+import { StyledStepComponent } from '../../components/molecules/Step'
 
 /* import hooks */
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'
@@ -151,12 +151,10 @@ export const MultiStepForm = () => {
       const pos: Position = positions[i]
       switch (pos.type) {
         case PositionType.TOKEN:
-          // for (let i = 0; i < (pos.position as Token).underlying.length; i++) {
           res.push({
             name: (pos.position as Token).token.name,
             address: (pos.position as Token).token.address,
           })
-          // }
           break
         case PositionType.LQTY:
           res.push({
@@ -224,19 +222,10 @@ export const MultiStepForm = () => {
         modalTitle={'Selected Positions'}
       />
       {width > BKPT_3 ? (
-        <StepsContainer step={Number(StepNumber[step.id]) + 1}>
-          <StepsWrapper>
-            {StepSections.map((section) => (
-              <Step key={section.name}>{section.name}</Step>
-            ))}
-          </StepsWrapper>
-          <StepsProgress>
-            <StepsProgressBar></StepsProgressBar>
-          </StepsProgress>
-        </StepsContainer>
+        <StyledStepComponent stepSections={StepSections} currentStep={Number(StepNumber[step.id]) + 1} />
       ) : (
         // mobile version
-        <FormRow mb={0} mt={20} ml={30} mr={30} style={{ justifyContent: 'center' }}>
+        <FormRow mb={0} mt={20} ml={30} mr={30} jc={'center'}>
           <FormCol>
             <div style={{ width: 100, height: 100 }}>
               <CircularProgressbar

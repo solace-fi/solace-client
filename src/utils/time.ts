@@ -50,6 +50,7 @@ const getTimesFromSeconds = (millis: number) => {
 }
 
 export function getLongtimeFromMillis(millis: number): string {
+  if (millis == 0) return '0'
   const { days, hours, minutes } = getTimesFromSeconds(millis)
 
   return `${days > 0 ? `${days} day${days > 1 ? 's' : ''}` : ''}${hours > 0 ? ' ' : ''}${
@@ -58,6 +59,7 @@ export function getLongtimeFromMillis(millis: number): string {
 }
 
 export const getTimeFromMillis = (millis: number): string => {
+  if (millis == 0) return '0'
   const { days, hours, minutes } = getTimesFromSeconds(millis)
 
   return `${days > 0 ? `${days}d` : ''}${hours > 0 ? ' ' : ''}${hours > 0 ? `${hours}h` : ''}${minutes > 0 ? ' ' : ''}${
@@ -70,7 +72,7 @@ export const getDaysLeft = (expirationBlock: number, latestBlockNumber: number):
 }
 
 export const getDateStringWithMonthName = (date: Date): string => {
-  return date.toLocaleString('default', { month: 'short', day: 'numeric', year: 'numeric' })
+  return date.toLocaleString('default', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'GMT' })
 }
 
 export const getDateExtended = (additionalDays: number): Date => {

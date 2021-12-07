@@ -20,7 +20,7 @@ import React, { useCallback } from 'react'
 import makeBlockie from 'ethereum-blockies-base64'
 
 /* import constants */
-import { BKPT_5, BKPT_3 } from '../../constants'
+import { BKPT_5, BKPT_3, Z_TABLE } from '../../constants'
 import { ExplorerscanApi } from '../../constants/enums'
 
 /* import managers */
@@ -88,7 +88,7 @@ export const AccountModal: React.FC<AccountModalProps> = ({ closeModal, isOpen }
       <CardContainer cardsPerRow={account ? 2 : 1} mb={10}>
         {account && activeWalletConnector && (
           <Card color1>
-            <FormRow style={{ justifyContent: 'center' }} m={0}>
+            <FormRow jc={'center'} m={0}>
               <Text t2 bold light>
                 <UserImage width={30} height={30} pr={5} style={{ display: 'inline-flex', verticalAlign: 'bottom' }}>
                   <img style={{ borderRadius: '10px' }} src={makeBlockie(account)} alt={'account'} />
@@ -99,7 +99,7 @@ export const AccountModal: React.FC<AccountModalProps> = ({ closeModal, isOpen }
             <FormRow mb={5}>
               <Input widthP={100} readOnly value={account} light textAlignCenter />
             </FormRow>
-            <ButtonWrapper pt={15} pb={5} isColumn={width <= BKPT_3}>
+            <ButtonWrapper pt={10} pb={5} isColumn={width <= BKPT_3}>
               <CopyButton toCopy={account} />
               <HyperLink
                 href={getExplorerItemUrl(activeNetwork.explorer.url, account, ExplorerscanApi.ADDRESS)}
@@ -142,12 +142,12 @@ export const AccountModal: React.FC<AccountModalProps> = ({ closeModal, isOpen }
           </Text>
           <Scrollable style={{ padding: '0 10px 0 10px' }} maxDesktopHeight={30}>
             <Table textAlignCenter style={{ borderSpacing: '0px 7px' }}>
-              <TableHead sticky>
+              <TableHead sticky zIndex={Z_TABLE + 1}>
                 <TableRow>
                   <TableHeader>Type</TableHeader>
                   {width > BKPT_5 && (
                     <>
-                      <TableHeader>Content</TableHeader>
+                      {/* <TableHeader>Content</TableHeader> */}
                       <TableHeader>Time</TableHeader>
                     </>
                   )}
@@ -168,7 +168,7 @@ export const AccountModal: React.FC<AccountModalProps> = ({ closeModal, isOpen }
                     </TableData>
                     {width > BKPT_5 && (
                       <>
-                        <TableData pt={5} pb={5} t4>{`${pendingtx.value}`}</TableData>
+                        {/* <TableData pt={5} pb={5} t4>{`${pendingtx.value}`}</TableData> */}
                         <TableData pt={5} pb={5} t4>
                           {timeAgo(Number(Date.now()) * 1000)}
                         </TableData>
@@ -202,19 +202,17 @@ export const AccountModal: React.FC<AccountModalProps> = ({ closeModal, isOpen }
                         pr={width <= BKPT_3 ? 0 : undefined}
                       >
                         {amounts.length > 0 ? (
-                          <Text error={tx.txreceipt_status != '1'}>
-                            {decodeInput(tx, contractSources).function_name}
-                          </Text>
+                          <Text error={tx.txreceipt_status != '1'}>{decodeInput(tx, contractSources)}</Text>
                         ) : (
                           <Loader width={10} height={10} />
                         )}
                       </TableData>
                       {width > BKPT_5 && (
                         <>
-                          <TableData pt={5} pb={5} t4>
+                          {/* <TableData pt={5} pb={5} t4>
                             {amounts.length > 0 && tx.txreceipt_status == '1' && <Text>{amounts[i]}</Text>}
                             {amounts.length > 0 && tx.txreceipt_status != '1' && <Text error>Transaction Failed</Text>}
-                          </TableData>
+                          </TableData> */}
                           <TableData pt={5} pb={5} t4>
                             {amounts.length > 0 && (
                               <Text error={tx.txreceipt_status != '1'}>{timeAgo(Number(tx.timeStamp) * 1000)}</Text>

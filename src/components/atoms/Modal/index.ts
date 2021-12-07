@@ -1,15 +1,18 @@
 import styled, { css, keyframes } from 'styled-components'
 import { ClickProps } from '../Button'
 import { GeneralTextProps, GeneralTextCss } from '../Typography'
-import { BKPT_3 } from '../../../constants'
+import { BKPT_3, Z_MODAL } from '../../../constants'
 import { GeneralElementProps, GeneralElementCss } from '../../generalInterfaces'
 
-export interface ModalProps {
-  handleClose: () => void
-  isOpen: boolean
-  modalTitle: string
-  disableCloseButton: boolean
+interface BaseModalProps {
   zIndex?: number
+  isOpen: boolean
+}
+
+export interface ModalProps extends BaseModalProps {
+  handleClose: () => void
+  modalTitle: string
+  disableCloseButton?: boolean
 }
 
 export interface ModalButtonProps extends ClickProps {
@@ -21,19 +24,19 @@ const FadeInAnimation = keyframes`
   to { opacity: 1; }
 `
 
-export const ModalContainer = styled.div<ModalProps>`
+export const ModalContainer = styled.div<BaseModalProps>`
   position: fixed;
   top: 0;
   left: 0;
   width: 100vw;
   height: 100vh;
   background: ${({ theme }) => theme.modal.bg_color};
-  z-index: ${(props) => (props.zIndex ? props.zIndex : '3')};
+  z-index: ${(props) => (props.zIndex ? props.zIndex : `${Z_MODAL}`)};
   ${(props) => (props.isOpen ? 'display: flex;' : 'display: none;')}
   overflow-y: auto;
 `
 
-export const ModalBase = styled.div<ModalProps>`
+export const ModalBase = styled.div<BaseModalProps>`
   margin: auto;
   position: relative;
   border-radius: 10px;

@@ -3,6 +3,7 @@ import { getAddress } from '@ethersproject/address'
 import { AddressZero } from '@ethersproject/constants'
 import { JsonRpcSigner, Web3Provider } from '@ethersproject/providers'
 import { BigNumber } from 'ethers'
+import { ZERO } from '../constants'
 
 // returns the checksummed address if the address is valid, otherwise returns false
 export function isAddress(value: any): string | false {
@@ -45,6 +46,7 @@ export const equalsIgnoreCase = (baseString: string, compareString: string): boo
 export const hasApproval = (tokenAllowance?: string, amountToApprove?: string): boolean => {
   if (!amountToApprove || !tokenAllowance) return false
   const currentAllowance = BigNumber.from(tokenAllowance)
+  if (currentAllowance.eq(ZERO)) return false
   const currentAmountToApprove = BigNumber.from(amountToApprove)
   if (currentAllowance.gte(currentAmountToApprove)) {
     return true

@@ -25,6 +25,7 @@ import { useWallet } from '../../context/WalletManager'
 import { useContracts } from '../../context/ContractsManager'
 import { useCachedData } from '../../context/CachedDataManager'
 import { useNetwork } from '../../context/NetworkManager'
+import { useProvider } from '../../context/ProviderManager'
 
 /* import components */
 import { Button, ButtonWrapper } from '../../components/atoms/Button'
@@ -33,22 +34,21 @@ import { CardContainer } from '../../components/atoms/Card'
 import { Loader } from '../../components/atoms/Loader'
 import { Scrollable, HeroContainer } from '../../components/atoms/Layout'
 import { Text, TextSpan } from '../../components/atoms/Typography'
-import { ManageModal } from '../../components/organisms/ManageModal'
+import { ManageModal } from '../../components/organisms/policy/ManageModal'
 import { HyperLink } from '../../components/atoms/Link'
-import { TokenPositionCard } from '../../components/organisms/TokenPositionCard'
-import { NftPositionCard } from '../../components/organisms/NftPositionCard'
+import { TokenPositionCard } from '../../components/organisms/position-cards/TokenPositionCard'
+import { NftPositionCard } from '../../components/organisms/position-cards/NftPositionCard'
 import { Box, BoxItem, BoxItemTitle } from '../../components/atoms/Box'
 import { StyledInfo } from '../../components/atoms/Icon'
-import { LiquityPositionCard } from '../../components/organisms/LiquityPositionCard'
+import { LiquityPositionCard } from '../../components/organisms/position-cards/LiquityPositionCard'
 
 /* import constants */
 import { PositionType } from '../../constants/enums'
-import { LiquityPosition, NetworkCache, Policy, Position, SupportedProduct, Token } from '../../constants/types'
+import { LiquityPosition, Policy, Position, SupportedProduct, Token } from '../../constants/types'
 import { BKPT_3 } from '../../constants'
 
 /* import hooks */
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'
-import { useDepositedPolicies } from '../../hooks/useBalance'
 
 /* import utils */
 import { userHasActiveProductPosition } from '../../utils/policy'
@@ -65,7 +65,8 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
   const { account, library } = useWallet()
   const { activeNetwork, findNetworkByChainId, chainId } = useNetwork()
   const { setSelectedProtocolByName } = useContracts()
-  const { userPolicyData, latestBlock, tokenPosData } = useCachedData()
+  const { userPolicyData } = useCachedData()
+  const { latestBlock, tokenPosData } = useProvider()
   const { width } = useWindowDimensions()
   const [showManageModal, setShowManageModal] = useState<boolean>(false)
   const [selectedPolicy, setSelectedPolicy] = useState<Policy | undefined>(undefined)
@@ -80,14 +81,6 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
     () => activeNetwork.cache.supportedProducts.find((product) => product.name == protocol.name),
     [activeNetwork.cache.supportedProducts, protocol.name]
   )
-  const depositedPolicyTokenInfo = useDepositedPolicies()
-  const depositedPolicyIds = useMemo(() => depositedPolicyTokenInfo.map((i) => i.id.toNumber()), [
-    depositedPolicyTokenInfo,
-  ])
-  const isPolicyStaked = useMemo(() => depositedPolicyIds.includes(selectedPolicy ? selectedPolicy.policyId : 0), [
-    depositedPolicyIds,
-    selectedPolicy,
-  ])
   /*************************************************************************************
 
   local functions
@@ -121,9 +114,10 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
     }
   }
 
-  const handleFetchPositions = async (supportedProduct: SupportedProduct, cache: NetworkCache): Promise<Position[]> => {
-    if (!account || !library) return []
-    const savedPositions = cache.positionsCache[supportedProduct.name].positions
+  const handleFetchPositions = async (supportedProduct: SupportedProduct): Promise<Position[] | undefined> => {
+    const matchingCache = await tokenPosData.handleGetCache(supportedProduct)
+    if (!account || !library || !matchingCache) return undefined
+    const savedPositions = matchingCache.positionsCache[supportedProduct.name].positions
     switch (supportedProduct.positionsType) {
       case PositionType.TOKEN:
         if (typeof supportedProduct.getBalances !== 'undefined') {
@@ -194,21 +188,22 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
   }
 
   const getUserPositions = async () => {
-    if (!tokenPosData.dataInitialized || !chainId || !canFetchPositions.current) return
+    if (!chainId || !canFetchPositions.current) return
     canFetchPositions.current = false
     if (findNetworkByChainId(chainId)) {
       try {
-        const matchingCache = tokenPosData.storedPosData.find((dataset) => dataset.chainId == activeNetwork.chainId)
-        if (!supportedProduct || !matchingCache) return
-        const _fetchedPositions = await handleFetchPositions(supportedProduct, matchingCache)
+        if (!supportedProduct) return
+        const _fetchedPositions = await handleFetchPositions(supportedProduct)
         canFetchPositions.current = true
-        setFetchedPositions(_fetchedPositions)
-        setForm({
-          target: {
-            name: 'loading',
-            value: false,
-          },
-        })
+        if (_fetchedPositions != undefined) {
+          setFetchedPositions(_fetchedPositions)
+          setForm({
+            target: {
+              name: 'loading',
+              value: false,
+            },
+          })
+        }
       } catch (err) {
         canFetchPositions.current = true
         console.log(err)
@@ -258,12 +253,12 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
 
   useEffect(() => {
     const loadOverTime = async () => {
-      if (canLoadOverTime.current) {
+      if (canLoadOverTime.current || !tokenPosData.batchFetching) {
         await getUserPositions()
       }
     }
     loadOverTime()
-  }, [latestBlock, tokenPosData.dataInitialized])
+  }, [latestBlock, tokenPosData.batchFetching])
 
   useEffect(() => {
     setSelectablePositions(
@@ -286,14 +281,13 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
 
   // if a policy is displayed on modal, always get latest policy
   useEffect(() => {
-    if (selectedPolicy) {
-      const matchingPolicy = userPolicyData.userPolicies.find(
-        (policy: Policy) => policy.policyId == selectedPolicy.policyId
-      )
-      if (!matchingPolicy) return
-      if (JSON.stringify(matchingPolicy) !== JSON.stringify(selectedPolicy)) {
-        setSelectedPolicy(matchingPolicy)
-      }
+    if (!selectedPolicy) return
+    const matchingPolicy = userPolicyData.userPolicies.find(
+      (policy: Policy) => policy.policyId == selectedPolicy.policyId
+    )
+    if (!matchingPolicy) return
+    if (JSON.stringify(matchingPolicy) !== JSON.stringify(selectedPolicy)) {
+      setSelectedPolicy(matchingPolicy)
     }
   }, [userPolicyData.userPolicies])
 
@@ -304,9 +298,8 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
         isOpen={showManageModal}
         latestBlock={latestBlock}
         closeModal={closeModal}
-        isPolicyStaked={isPolicyStaked}
       />
-      {fetchedPositions.length == 0 && !loading && !userPolicyData.policiesLoading && (
+      {fetchedPositions.length == 0 && !loading && (
         <HeroContainer>
           <Text t1 textAlignCenter>
             You do not own any positions on this protocol.
@@ -318,7 +311,7 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
           )}
         </HeroContainer>
       )}
-      {!loading && !userPolicyData.policiesLoading ? (
+      {!loading ? (
         <Fragment>
           {selectablePositions.length > 0 && (
             <ButtonWrapper pt={0} isColumn={width <= BKPT_3}>

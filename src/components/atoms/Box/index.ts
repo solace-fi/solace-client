@@ -9,6 +9,8 @@ interface BoxProps {
   color2?: boolean
   success?: boolean
   info?: boolean
+  warning?: boolean
+  error?: boolean
   transparent?: boolean
   outlined?: boolean
   glow?: boolean
@@ -16,7 +18,10 @@ interface BoxProps {
 }
 
 interface SmallBoxProps {
-  error?: boolean
+  successBorder?: boolean
+  infoBorder?: boolean
+  warningBorder?: boolean
+  errorBorder?: boolean
   canHover?: boolean
   collapse?: boolean
 }
@@ -30,6 +35,8 @@ const BoxCss = css<GeneralElementProps & BoxProps>`
   ${(props) => props.color2 && `background: ${props.theme.box.bg_color_2};`}
   ${(props) => props.success && `background: ${props.theme.box.success};`}
   ${(props) => props.info && `background: ${props.theme.box.info};`}
+  ${(props) => props.warning && `background: ${props.theme.box.warning};`}
+  ${(props) => props.error && `background: ${props.theme.box.error};`}
   ${(props) => props.glow && `box-shadow: ${props.theme.box.glow};`}
   ${(props) => props.shadow && `box-shadow: ${props.theme.box.shadow};`}
   ${GeneralElementCss}
@@ -99,10 +106,20 @@ export const SmallBox = styled.div<BoxProps & SmallBoxProps & GeneralElementProp
       ? null
       : `margin: 0 5px 0 5px;`}
   border-radius: 10px;
-  ${(props) => (props.collapse ? `transform: scaleY(0); height: 0;` : `transform: scaleY(1);`)}
+  max-height: ${(props) => (props.collapse ? '0vh' : '100vh')};
+  transform: ${(props) => (props.collapse ? 'scaleY(0)' : 'scaleY(1)')};
   transition: all 200ms ease;
   ${BoxCss}
-  ${(props) => props.error && `border-color: ${props.theme.typography.errorText};`}
+  ${(props) =>
+    props.successBorder &&
+    `border-width: 1px; border-style: solid; border-color: ${props.theme.typography.successText};`}
+  ${(props) =>
+    props.infoBorder && `border-width: 1px; border-style: solid; border-color: ${props.theme.typography.infoText};`}
+  ${(props) =>
+    props.warningBorder &&
+    `border-width: 1px; border-style: solid; border-color: ${props.theme.typography.warningText};`}
+  ${(props) =>
+    props.errorBorder && `border-width: 1px; border-style: solid; border-color: ${props.theme.typography.errorText};`}
   ${(props) => props.canHover && `&:hover { filter: brightness(1.5); }`}
 `
 

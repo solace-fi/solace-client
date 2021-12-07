@@ -163,9 +163,9 @@ export const TextStyleCss = css<TextStyleProps>`
   ${(props) => props.warning && `color: ${props.theme.typography.warningText};`}
   ${(props) => props.light && `color: ${props.theme.typography.lightText};`}
   ${(props) => props.dark && `color: ${props.theme.typography.darkText};`}
-  ${(props) => props.fade && `opacity: 0.5;`}
-
+  ${(props) => props.fade && `opacity: 0.8;`}
   ${GeneralElementCss}
+  transition: all 200ms ease;
 `
 
 export const GeneralTextCss = css<GeneralTextProps>`

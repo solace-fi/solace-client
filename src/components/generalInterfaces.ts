@@ -23,6 +23,10 @@ export interface MarginProps {
   mb?: number
 }
 
+export interface ChildrenPositioningProps {
+  jc?: string
+}
+
 export const HeightAndWidthCss = css<HeightAndWidthProps>`
   ${(props) => props.width != undefined && `width: ${props.width}px;`}
   ${(props) => props.height != undefined && `height: ${props.height}px;`}
@@ -46,10 +50,15 @@ export const MarginCss = css<MarginProps>`
   ${(props) => props.mb != undefined && `margin-bottom: ${props.mb}px;`}
 `
 
-export interface GeneralElementProps extends HeightAndWidthProps, PaddingProps, MarginProps {}
+export const ChildrenPositioningCss = css<ChildrenPositioningProps>`
+  ${(props) => props.jc != undefined && `justify-content: ${props.jc};`}
+`
+
+export interface GeneralElementProps extends HeightAndWidthProps, PaddingProps, MarginProps, ChildrenPositioningProps {}
 
 export const GeneralElementCss = css<GeneralElementProps>`
   ${HeightAndWidthCss}
   ${PaddingCss}
   ${MarginCss}
+  ${ChildrenPositioningCss}
 `

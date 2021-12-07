@@ -71,7 +71,7 @@ function About(): any {
                   FROM
                 </TextSpan>
               </Text>
-              <FlexRow style={{ justifyContent: 'space-between' }}>
+              <FlexRow jc={'space-between'}>
                 <img src={polygonLogo} />
                 <img src={aaveLogo} />
                 <img src={nearLogo} />
@@ -147,7 +147,7 @@ function About(): any {
                   FROM
                 </TextSpan>
               </Text>
-              <FlexRow style={{ justifyContent: 'space-between' }}>
+              <FlexRow jc={'space-between'}>
                 <img src={polygonLogo} />
                 <img src={aaveLogo} />
                 <img src={nearLogo} />

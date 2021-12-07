@@ -1,6 +1,6 @@
 import { ETHERSCAN_API_KEY } from '../constants'
 import { ExplorerscanApi } from '../constants/enums'
-import { ContractSources, GasPriceResult } from '../constants/types'
+import { ContractSources, GasPriceResult, NetworkConfig } from '../constants/types'
 import { withBackoffRetries } from './time'
 
 const STRINGIFIED_ETHERSCAN_API_KEY = String(ETHERSCAN_API_KEY)
@@ -23,9 +23,11 @@ export async function fetchExplorerTxHistoryByAddress(
     })
 }
 
-export async function fetchGasPrice(explorer: string, chainId: number): Promise<GasPriceResult> {
+export async function fetchGasPrice(activeNetwork: NetworkConfig): Promise<GasPriceResult> {
   return await withBackoffRetries(async () =>
-    fetch(`${explorer}/api?module=gastracker&action=gasoracle&apikey=${STRINGIFIED_ETHERSCAN_API_KEY}`)
+    fetch(
+      `${activeNetwork.explorer.apiUrl}/api?module=gastracker&action=gasoracle&apikey=${STRINGIFIED_ETHERSCAN_API_KEY}`
+    )
   )
     .then((result) => result.json())
     .then((result) => result.result)
@@ -35,12 +37,12 @@ export async function fetchGasPrice(explorer: string, chainId: number): Promise<
         proposed: Number(result.ProposeGasPrice),
         safe: Number(result.SafeGasPrice),
       }
-      if (chainId == 1) fetchedResult.suggestBaseFee = Number(result.suggestBaseFee)
+      if (activeNetwork.chainId == 1) fetchedResult.suggestBaseFee = Number(result.suggestBaseFee)
       return fetchedResult
     })
 }
 
-export async function fetchTransferEventsOfUser(explorer: string, user: string): Promise<GasPriceResult> {
+export async function fetchTransferEventsOfUser(explorer: string, user: string): Promise<any> {
   return await withBackoffRetries(async () =>
     fetch(
       `${explorer}/api?module=account&action=tokentx&address=${user}&startblock=0&endblock=latest&apikey=${String(

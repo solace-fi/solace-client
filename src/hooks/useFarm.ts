@@ -1,10 +1,13 @@
 import { Contract } from '@ethersproject/contracts'
 import { formatUnits, parseUnits } from '@ethersproject/units'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useCachedData } from '../context/CachedDataManager'
 import { useContracts } from '../context/ContractsManager'
 import { useNetwork } from '../context/NetworkManager'
+import { useProvider } from '../context/ProviderManager'
 import { useWallet } from '../context/WalletManager'
+import { BigNumber } from 'ethers'
+import { ZERO } from '../constants'
 
 export const useUserStakedValue = (farm: Contract | null | undefined): string => {
   const { account } = useWallet()
@@ -31,7 +34,7 @@ export const useUserStakedValue = (farm: Contract | null | undefined): string =>
 
 export const usePoolStakedValue = (farm: Contract | null | undefined): string => {
   const [poolValue, setPoolValue] = useState<string>('0')
-  const { latestBlock } = useCachedData()
+  const { latestBlock } = useProvider()
   const { currencyDecimals } = useNetwork()
 
   useEffect(() => {
@@ -51,23 +54,57 @@ export const usePoolStakedValue = (farm: Contract | null | undefined): string =>
   return poolValue
 }
 
-export const useGetTotalValueLocked = (): string => {
+export const useV1FarmRewards = () => {
+  const { account } = useWallet()
+  const { keyContracts } = useContracts()
+  const { farmRewards, xSolace } = useMemo(() => keyContracts, [keyContracts])
+  const { latestBlock } = useProvider()
   const { currencyDecimals } = useNetwork()
-  const { cpFarm, lpFarm } = useContracts()
-  const [totalValueLocked, setTotalValueLocked] = useState<string>('0')
-  const cpPoolValue = usePoolStakedValue(cpFarm)
-  const lpPoolValue = usePoolStakedValue(lpFarm)
+
+  const [totalEarnedSolaceRewards, setTotalEarnedSolaceRewards] = useState<BigNumber>(ZERO)
+  const [totalEarnedXSolaceRewards, setTotalEarnedXSolaceRewards] = useState<BigNumber>(ZERO)
+  const [purchaseableVestedSolace, setPurchaseableVestedSolace] = useState<BigNumber>(ZERO)
+  const [purchaseableVestedXSolace, setPurchaseableVestedXSolace] = useState<BigNumber>(ZERO)
+  const [redeemedSolaceRewards, setRedeemedSolaceRewards] = useState<BigNumber>(ZERO)
+  const [redeemedXSolaceRewards, setRedeemedXSolaceRewards] = useState<BigNumber>(ZERO)
+  const [unredeemedSolaceRewards, setUnredeemedSolaceRewards] = useState<BigNumber>(ZERO)
+  const [unredeemedXSolaceRewards, setUnredeemedXSolaceRewards] = useState<BigNumber>(ZERO)
 
   useEffect(() => {
-    const getTotalValueLocked = async () => {
-      const formattedTVL = formatUnits(
-        parseUnits(cpPoolValue, currencyDecimals).add(parseUnits(lpPoolValue, currencyDecimals)),
-        currencyDecimals
-      )
-      setTotalValueLocked(formattedTVL)
-    }
-    getTotalValueLocked()
-  }, [cpPoolValue, lpPoolValue, currencyDecimals])
+    const populateRewardsInfo = async () => {
+      if (!farmRewards || !account || !xSolace) return
+      const totalEarnedXSolaceRewards = await farmRewards.farmedRewards(account)
+      const totalEarnedSolaceRewards = await xSolace.xSolaceToSolace(totalEarnedXSolaceRewards)
 
-  return totalValueLocked
+      const redeemedXSolaceRewards = await farmRewards.redeemedRewards(account)
+      const redeemedSolaceRewards = await xSolace.xSolaceToSolace(redeemedXSolaceRewards)
+
+      const purchaseableVestedXSolace = await farmRewards.purchaseableVestedXSolace(account)
+      const purchaseableVestedSolace = await xSolace.xSolaceToSolace(purchaseableVestedXSolace)
+
+      const unredeemedSolaceRewards = totalEarnedSolaceRewards.sub(redeemedSolaceRewards)
+      const unredeemedXSolaceRewards = totalEarnedXSolaceRewards.sub(redeemedXSolaceRewards)
+
+      setUnredeemedSolaceRewards(unredeemedSolaceRewards)
+      setUnredeemedXSolaceRewards(unredeemedXSolaceRewards)
+      setTotalEarnedSolaceRewards(totalEarnedSolaceRewards)
+      setTotalEarnedXSolaceRewards(totalEarnedXSolaceRewards)
+      setPurchaseableVestedSolace(purchaseableVestedSolace)
+      setPurchaseableVestedXSolace(purchaseableVestedXSolace)
+      setRedeemedSolaceRewards(redeemedSolaceRewards)
+      setRedeemedXSolaceRewards(redeemedXSolaceRewards)
+    }
+    populateRewardsInfo()
+  }, [account, farmRewards, latestBlock, xSolace, currencyDecimals])
+
+  return {
+    totalEarnedSolaceRewards,
+    totalEarnedXSolaceRewards,
+    purchaseableVestedSolace,
+    purchaseableVestedXSolace,
+    redeemedSolaceRewards,
+    redeemedXSolaceRewards,
+    unredeemedSolaceRewards,
+    unredeemedXSolaceRewards,
+  }
 }
