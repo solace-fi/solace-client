@@ -15,24 +15,24 @@
 import React, { useMemo } from 'react'
 
 /* import managers */
-import { useGeneral } from '../../context/GeneralProvider'
+import { useGeneral } from '../../../context/GeneralProvider'
 
 /* import constants */
-import { BKPT_3 } from '../../constants'
-import { Position, Token, Policy, TokenData } from '../../constants/types'
+import { BKPT_3 } from '../../../constants'
+import { Position, Token, Policy, TokenData } from '../../../constants/types'
 
 /* import components */
-import { PositionCard } from '../atoms/Card'
-import { PositionCardButton, PositionCardText, DeFiAssetImage, PositionCardName } from '../atoms/DeFiAsset'
-import { Button } from '../atoms/Button'
-import { TextSpan } from '../atoms/Typography'
+import { PositionCard } from '../../atoms/Card'
+import { PositionCardButton, PositionCardText, DeFiAssetImage, PositionCardName } from '../../atoms/DeFiAsset'
+import { Button } from '../../atoms/Button'
+import { TextSpan } from '../../atoms/Typography'
 
 /* import hooks */
-import { useWindowDimensions } from '../../hooks/useWindowDimensions'
+import { useWindowDimensions } from '../../../hooks/useWindowDimensions'
 
 /* import utils */
-import { fixedTokenPositionBalance, truncateBalance, trim0x } from '../../utils/formatting'
-import { userHasActiveProductPosition } from '../../utils/policy'
+import { fixedTokenPositionBalance, truncateBalance, trim0x } from '../../../utils/formatting'
+import { userHasActiveProductPosition } from '../../../utils/policy'
 
 interface TokenPositionCardProps {
   position: Position

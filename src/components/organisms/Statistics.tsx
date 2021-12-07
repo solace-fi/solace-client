@@ -18,11 +18,10 @@
 
 /* import packages */
 import React, { useEffect, useState, useMemo } from 'react'
-import { formatUnits, parseUnits } from '@ethersproject/units'
-import { BigNumber } from 'ethers'
+import { formatUnits } from '@ethersproject/units'
 
 /* import constants */
-import { BKPT_3, BKPT_5, ZERO } from '../../constants'
+import { BKPT_3, ZERO } from '../../constants'
 import { TransactionCondition, FunctionName, Unit, PolicyState } from '../../constants/enums'
 import { LocalTx } from '../../constants/types'
 import { FunctionGasLimits } from '../../constants/mappings/gasMapping'
@@ -45,11 +44,9 @@ import { Card, CardContainer } from '../atoms/Card'
 import { HyperLink } from '../atoms/Link'
 
 /* import hooks */
-import { useCapitalPoolSize } from '../../hooks/useVault'
 import { useTotalPendingRewards } from '../../hooks/useRewards'
 import { useSolaceBalance, useUnderWritingPoolBalance, useXSolaceBalance } from '../../hooks/useBalance'
 import { usePolicyGetter } from '../../hooks/usePolicyGetter'
-import { useGetTotalValueLocked } from '../../hooks/useFarm'
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'
 import { useGetFunctionGas } from '../../hooks/useGas'
 import { usePairPrice } from '../../hooks/usePair'
@@ -72,14 +69,12 @@ export const Statistics: React.FC = () => {
   const { makeTxToast } = useNotifications()
   const { addLocalTransactions, reload } = useCachedData()
   const { stakingApy } = useStakingApy()
-  // const capitalPoolSize = useCapitalPoolSize()
   const solaceBalance = useSolaceBalance()
   const xSolaceBalance = useXSolaceBalance()
   const readSolaceToken = useReadToken(solace)
   const readXSolaceToken = useReadToken(xSolace)
   const totalUserRewards = useTotalPendingRewards()
   const { allPolicies } = usePolicyGetter(true)
-  // const totalValueLocked = useGetTotalValueLocked()
   const { width } = useWindowDimensions()
   const { getAutoGasConfig } = useGetFunctionGas()
   const gasConfig = useMemo(() => getAutoGasConfig(), [getAutoGasConfig])
@@ -199,6 +194,62 @@ export const Statistics: React.FC = () => {
     </Box>
   )
 
+  const GlobalCard: React.FC = () => {
+    return (
+      <Card color2>
+        <FormRow>
+          <FormCol light>
+            SOLACE{' '}
+            <HyperLink
+              href={`https://app.sushi.com/add/${USDC_ADDRESS[chainId]}/${solace ? solace.address : null}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ width: '100%' }}
+            >
+              <Button light style={{ whiteSpace: 'nowrap', minWidth: 'unset', minHeight: 'unset' }} p={4}>
+                buy on sushi
+              </Button>
+            </HyperLink>
+          </FormCol>
+          <FormCol>
+            <Text t2 nowrap light>
+              {`$${pairPrice}`}
+            </Text>
+          </FormCol>
+        </FormRow>
+        <FormRow>
+          <FormCol light>Underwriting Pool Size</FormCol>
+          <FormCol>
+            <Text t2 nowrap light>
+              {underwritingPoolBalance == '-' ? '$-' : `$${truncateBalance(underwritingPoolBalance, 2)}`}
+            </Text>
+          </FormCol>
+        </FormRow>
+        <FormRow>
+          <FormCol light>Active Cover Amount</FormCol>
+          <FormCol>
+            <Text t2 nowrap light>
+              {totalActiveCoverAmount !== '-'
+                ? `${truncateBalance(totalActiveCoverAmount, 2)} `
+                : `${totalActiveCoverAmount} `}
+              <TextSpan t4 light>
+                {activeNetwork.nativeCurrency.symbol}
+              </TextSpan>
+            </Text>
+          </FormCol>
+        </FormRow>
+        <FormRow>
+          <FormCol light>Total Active Policies</FormCol>
+          <FormCol>
+            <Text t2 nowrap light>
+              {totalActivePolicies}
+            </Text>
+          </FormCol>
+        </FormRow>
+      </Card>
+    )
+  }
+
   return (
     <>
       {width > BKPT_3 ? (
@@ -282,57 +333,7 @@ export const Statistics: React.FC = () => {
                   </FormCol>
                 </FormRow>
               </Card>
-              <Card color2>
-                <FormRow>
-                  <FormCol light>
-                    SOLACE{' '}
-                    <HyperLink
-                      href={`https://app.sushi.com/add/${USDC_ADDRESS[chainId]}/${solace ? solace.address : null}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      style={{ width: '100%' }}
-                    >
-                      <Button light style={{ whiteSpace: 'nowrap', minWidth: 'unset', minHeight: 'unset' }} p={4}>
-                        buy on sushi
-                      </Button>
-                    </HyperLink>
-                  </FormCol>
-                  <FormCol>
-                    <Text t2 nowrap light>
-                      {`$${pairPrice}`}
-                    </Text>
-                  </FormCol>
-                </FormRow>
-                <FormRow>
-                  <FormCol light>Underwriting Pool Size</FormCol>
-                  <FormCol>
-                    <Text t2 nowrap light>
-                      {underwritingPoolBalance == '-' ? '$-' : `$${truncateBalance(underwritingPoolBalance, 2)}`}
-                    </Text>
-                  </FormCol>
-                </FormRow>
-                <FormRow>
-                  <FormCol light>Active Cover Amount</FormCol>
-                  <FormCol>
-                    <Text t2 nowrap light>
-                      {totalActiveCoverAmount !== '-'
-                        ? `${truncateBalance(totalActiveCoverAmount, 2)} `
-                        : `${totalActiveCoverAmount} `}
-                      <TextSpan t4 light>
-                        {activeNetwork.nativeCurrency.symbol}
-                      </TextSpan>
-                    </Text>
-                  </FormCol>
-                </FormRow>
-                <FormRow>
-                  <FormCol light>Total Active Policies</FormCol>
-                  <FormCol>
-                    <Text t2 nowrap light>
-                      {totalActivePolicies}
-                    </Text>
-                  </FormCol>
-                </FormRow>
-              </Card>
+              <GlobalCard />
             </CardContainer>
           ) : (
             <BoxRow>
@@ -341,7 +342,7 @@ export const Statistics: React.FC = () => {
                   <WalletConnectButton light welcome />
                 </BoxItem>
               </Box>
-              <GlobalBox />
+              <GlobalCard />
             </BoxRow>
           )}
         </>

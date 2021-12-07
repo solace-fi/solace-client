@@ -23,31 +23,31 @@ import { BigNumber } from 'ethers'
 import { Block } from '@ethersproject/contracts/node_modules/@ethersproject/abstract-provider'
 
 /* import managers */
-import { useNetwork } from '../../context/NetworkManager'
-import { useWallet } from '../../context/WalletManager'
+import { useNetwork } from '../../../context/NetworkManager'
+import { useWallet } from '../../../context/WalletManager'
 
 /* import constants */
-import { Policy, BasicData } from '../../constants/types'
-import { BKPT_3, ZERO } from '../../constants'
+import { Policy, BasicData } from '../../../constants/types'
+import { BKPT_3, ZERO } from '../../../constants'
 
 /* import components */
-import { Box, BoxItem, BoxItemTitle } from '../atoms/Box'
-import { FormCol, FormRow } from '../atoms/Form'
-import { FlexCol, FlexRow, HeroContainer, HorizRule } from '../atoms/Layout'
-import { DeFiAsset, DeFiAssetImage } from '../atoms/DeFiAsset'
-import { Loader } from '../atoms/Loader'
-import { Text, TextSpan } from '../atoms/Typography'
-import { Card } from '../atoms/Card'
-import { Button, ButtonWrapper } from '../atoms/Button'
-import { StyledDots } from '../atoms/Icon'
-import { AssetsModal } from './AssetsModal'
+import { Box, BoxItem, BoxItemTitle } from '../../atoms/Box'
+import { FormCol, FormRow } from '../../atoms/Form'
+import { FlexCol, FlexRow, HeroContainer, HorizRule } from '../../atoms/Layout'
+import { DeFiAsset, DeFiAssetImage } from '../../atoms/DeFiAsset'
+import { Loader } from '../../atoms/Loader'
+import { Text, TextSpan } from '../../atoms/Typography'
+import { Card } from '../../atoms/Card'
+import { Button, ButtonWrapper } from '../../atoms/Button'
+import { StyledDots } from '../../atoms/Icon'
+import { AssetsModal } from '../AssetsModal'
 
 /* import hooks */
-import { useWindowDimensions } from '../../hooks/useWindowDimensions'
+import { useWindowDimensions } from '../../../hooks/useWindowDimensions'
 
 /* import utils */
-import { getDaysLeft } from '../../utils/time'
-import { truncateBalance } from '../../utils/formatting'
+import { getDaysLeft } from '../../../utils/time'
+import { truncateBalance } from '../../../utils/formatting'
 
 interface PolicyModalInfoProps {
   appraisal: BigNumber

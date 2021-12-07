@@ -30,12 +30,11 @@ import { Policy } from '../../constants/types'
 /* import components */
 import { HeroContainer } from '../../components/atoms/Layout'
 import { Text } from '../../components/atoms/Typography'
-import { ManageModal } from '../../components/organisms/ManageModal'
-import { ClaimModal } from '../../components/organisms/ClaimModal'
+import { ManageModal } from '../../components/organisms/policy/ManageModal'
+import { ClaimModal } from '../../components/organisms/policy/ClaimModal'
 import { MyPolicies } from '../../components/molecules/MyPolicies'
 import { MyClaims } from '../../components/molecules/MyClaims'
 import { MyInvestments } from '../../components/molecules/MyInvestments'
-import { MyOptions } from '../../components/molecules/MyOptions'
 import { WalletConnectButton } from '../../components/molecules/WalletConnectButton'
 
 /* import hooks */
@@ -135,8 +134,7 @@ function Dashboard(): any {
             setOpen={setOpenPolicies}
           />
           <MyClaims />
-          {/* <MyInvestments />
-          <MyOptions /> */}
+          {/* <MyInvestments /> */}
         </Fragment>
       )}
     </Fragment>

@@ -20,42 +20,38 @@
 /* import packages */
 import React, { useState, Fragment, useEffect, useCallback, useMemo } from 'react'
 import { formatUnits, parseUnits } from '@ethersproject/units'
-import { BigNumber } from 'ethers'
 import { Contract } from '@ethersproject/contracts'
 
 /* import managers */
-import { useNotifications } from '../../context/NotificationsManager'
-import { useCachedData } from '../../context/CachedDataManager'
-import { useContracts } from '../../context/ContractsManager'
-import { useNetwork } from '../../context/NetworkManager'
-import { useGeneral } from '../../context/GeneralProvider'
+import { useNotifications } from '../../../context/NotificationsManager'
+import { useCachedData } from '../../../context/CachedDataManager'
+import { useContracts } from '../../../context/ContractsManager'
+import { useNetwork } from '../../../context/NetworkManager'
+import { useGeneral } from '../../../context/GeneralProvider'
 
 /* import constants */
-import { FunctionName, TransactionCondition, ExplorerscanApi } from '../../constants/enums'
-import { LocalTx } from '../../constants/types'
+import { FunctionName, TransactionCondition } from '../../../constants/enums'
+import { LocalTx } from '../../../constants/types'
 
 /* import components */
-import { Modal, ModalAddendum } from '../molecules/Modal'
-import { Button, ButtonWrapper } from '../atoms/Button'
-import { Loader } from '../atoms/Loader'
-import { GasRadioGroup } from '../molecules/GasRadioGroup'
-import { Erc20InputPanel, PoolModalProps } from './PoolModalRouter'
-import { Text } from '../atoms/Typography'
-import { StyledLinkExternal } from '../atoms/Icon'
-import { HyperLink } from '../atoms/Link'
+import { Modal } from '../../molecules/Modal'
+import { Button, ButtonWrapper } from '../../atoms/Button'
+import { Loader } from '../../atoms/Loader'
+import { GasRadioGroup } from '../../molecules/GasRadioGroup'
+import { Erc20InputPanel, PoolModalProps } from '../PoolModalRouter'
+import { Text } from '../../atoms/Typography'
+import { SourceContract } from '../SourceContract'
 
 /* import hooks */
-import { useUserStakedValue } from '../../hooks/useFarm'
-import { useScpBalance } from '../../hooks/useBalance'
-import { useTokenAllowance } from '../../hooks/useToken'
-import { useCpFarm } from '../../hooks/useCpFarm'
-import { useVault } from '../../hooks/useVault'
-import { useInputAmount } from '../../hooks/useInputAmount'
+import { useUserStakedValue } from '../../../hooks/useFarm'
+import { useScpBalance } from '../../../hooks/useBalance'
+import { useTokenAllowance } from '../../../hooks/useToken'
+import { useCpFarm } from '../../../hooks/useCpFarm'
+import { useVault } from '../../../hooks/useVault'
+import { useInputAmount } from '../../../hooks/useInputAmount'
 
 /* import utils */
-import { hasApproval } from '../../utils'
-import { getUnit, truncateBalance } from '../../utils/formatting'
-import { getExplorerItemUrl } from '../../utils/explorer'
+import { getUnit, truncateBalance } from '../../../utils/formatting'
 
 export const CpPoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, closeModal }) => {
   /*************************************************************************************
@@ -72,9 +68,6 @@ export const CpPoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen
   const { makeTxToast } = useNotifications()
   const [modalLoading, setModalLoading] = useState<boolean>(false)
   const [canCloseOnLoading, setCanCloseOnLoading] = useState<boolean>(false)
-  const [contractForAllowance, setContractForAllowance] = useState<Contract | null>(null)
-  const [spenderAddress, setSpenderAddress] = useState<string | null>(null)
-  const tokenAllowance = useTokenAllowance(contractForAllowance, spenderAddress)
   const [isAcceptableAmount, setIsAcceptableAmount] = useState<boolean>(false)
 
   const { canTransfer } = useVault()
@@ -95,9 +88,13 @@ export const CpPoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen
     setMax,
     resetAmount,
   } = useInputAmount()
-  const approval = useMemo(
-    () => hasApproval(tokenAllowance, amount && amount != '.' ? parseUnits(amount, currencyDecimals).toString() : '0'),
-    [amount, currencyDecimals, tokenAllowance]
+
+  const [contractForAllowance, setContractForAllowance] = useState<Contract | null>(null)
+  const [spenderAddress, setSpenderAddress] = useState<string | null>(null)
+  const approval = useTokenAllowance(
+    contractForAllowance,
+    spenderAddress,
+    amount && amount != '.' ? parseUnits(amount, currencyDecimals).toString() : '0'
   )
   const assetBalance = useMemo(() => {
     switch (func) {
@@ -274,19 +271,7 @@ export const CpPoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen
           </Button>
         </ButtonWrapper>
       )}
-      {cpFarm && (
-        <ModalAddendum>
-          <HyperLink
-            href={getExplorerItemUrl(activeNetwork.explorer.url, cpFarm.address, ExplorerscanApi.ADDRESS)}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Button>
-              Source Contract <StyledLinkExternal size={20} />
-            </Button>
-          </HyperLink>
-        </ModalAddendum>
-      )}
+      {cpFarm && <SourceContract contract={cpFarm} />}
     </Modal>
   )
 }

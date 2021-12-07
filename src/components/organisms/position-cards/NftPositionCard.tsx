@@ -15,24 +15,23 @@
 import React, { useMemo } from 'react'
 
 /* import managers */
-import { useGeneral } from '../../context/GeneralProvider'
+import { useGeneral } from '../../../context/GeneralProvider'
 
 /* import constants */
-import { BKPT_3 } from '../../constants'
-import { Position, Token, Policy, TokenData } from '../../constants/types'
+import { BKPT_3 } from '../../../constants'
+import { Position, Token, Policy, TokenData } from '../../../constants/types'
 
 /* import components */
-import { PositionCard } from '../atoms/Card'
-import { PositionCardButton, PositionCardText, PositionCardName } from '../atoms/DeFiAsset'
-import { Button } from '../atoms/Button'
-import { NftPosition } from '../molecules/NftPosition'
+import { PositionCard } from '../../atoms/Card'
+import { PositionCardButton, PositionCardText, PositionCardName } from '../../atoms/DeFiAsset'
+import { Button } from '../../atoms/Button'
 
 /* import hooks */
-import { useWindowDimensions } from '../../hooks/useWindowDimensions'
+import { useWindowDimensions } from '../../../hooks/useWindowDimensions'
 
 /* import utils */
-import { trim0x } from '../../utils/formatting'
-import { userHasActiveProductPosition } from '../../utils/policy'
+import { trim0x } from '../../../utils/formatting'
+import { userHasActiveProductPosition } from '../../../utils/policy'
 
 interface NftPositionCardProps {
   position: Position
@@ -96,7 +95,6 @@ export const NftPositionCard: React.FC<NftPositionCardProps> = ({
           This position is already covered
         </PositionCardText>
       )}
-      <NftPosition tokenId={token.metadata.tokenId} />
       <PositionCardName bold style={{ opacity: isActive ? '.5' : '1' }} light={lightText}>
         {token.token.name}
       </PositionCardName>

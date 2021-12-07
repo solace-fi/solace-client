@@ -21,42 +21,39 @@
 /* import packages */
 import React, { useState, useEffect, useCallback, useMemo } from 'react'
 import { formatUnits, parseUnits } from '@ethersproject/units'
-import { BigNumber } from 'ethers'
 
 /* import managers */
-import { useNetwork } from '../../context/NetworkManager'
-import { useGeneral } from '../../context/GeneralProvider'
+import { useNetwork } from '../../../context/NetworkManager'
+import { useGeneral } from '../../../context/GeneralProvider'
 
 /* import constants */
-import { ExplorerscanApi, FunctionName, Unit } from '../../constants/enums'
-import { LocalTx } from '../../constants/types'
-import { BKPT_3 } from '../../constants'
+import { FunctionName, Unit } from '../../../constants/enums'
+import { LocalTx } from '../../../constants/types'
+import { BKPT_3 } from '../../../constants'
 
 /* import components */
-import { Modal, ModalAddendum } from '../molecules/Modal'
-import { Button, ButtonWrapper } from '../atoms/Button'
-import { Loader } from '../atoms/Loader'
-import { Text } from '../atoms/Typography'
-import { GasRadioGroup } from '../molecules/GasRadioGroup'
-import { CheckboxOption, PoolModalProps } from './PoolModalRouter'
-import { Box, BoxItem, BoxItemTitle } from '../atoms/Box'
-import { Input } from '../atoms/Input'
-import { ModalRow, ModalCell } from '../atoms/Modal'
-import { StyledLinkExternal } from '../atoms/Icon'
-import { HyperLink } from '../atoms/Link'
+import { Modal } from '../../molecules/Modal'
+import { Button, ButtonWrapper } from '../../atoms/Button'
+import { Loader } from '../../atoms/Loader'
+import { Text } from '../../atoms/Typography'
+import { GasRadioGroup } from '../../molecules/GasRadioGroup'
+import { CheckboxOption, PoolModalProps } from '../PoolModalRouter'
+import { Box, BoxItem, BoxItemTitle } from '../../atoms/Box'
+import { Input } from '../../atoms/Input'
+import { ModalRow, ModalCell } from '../../atoms/Modal'
+import { SourceContract } from '../SourceContract'
 
 /* import hooks */
-import { useNativeTokenBalance } from '../../hooks/useBalance'
-import { useScpBalance } from '../../hooks/useBalance'
-import { useCooldown, useVault } from '../../hooks/useVault'
-import { useCpFarm } from '../../hooks/useCpFarm'
-import { useWindowDimensions } from '../../hooks/useWindowDimensions'
-import { useInputAmount } from '../../hooks/useInputAmount'
+import { useNativeTokenBalance } from '../../../hooks/useBalance'
+import { useScpBalance } from '../../../hooks/useBalance'
+import { useCooldown, useVault } from '../../../hooks/useVault'
+import { useCpFarm } from '../../../hooks/useCpFarm'
+import { useWindowDimensions } from '../../../hooks/useWindowDimensions'
+import { useInputAmount } from '../../../hooks/useInputAmount'
 
 /* import utils */
-import { getUnit, truncateBalance } from '../../utils/formatting'
-import { getLongtimeFromMillis, getTimeFromMillis } from '../../utils/time'
-import { getExplorerItemUrl } from '../../utils/explorer'
+import { getUnit, truncateBalance } from '../../../utils/formatting'
+import { getLongtimeFromMillis, getTimeFromMillis } from '../../../utils/time'
 
 export const UnderwritingPoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, closeModal }) => {
   /*************************************************************************************
@@ -395,19 +392,7 @@ export const UnderwritingPoolModal: React.FC<PoolModalProps> = ({ modalTitle, fu
           </Button>
         </ButtonWrapper>
       )}
-      {vault && (
-        <ModalAddendum>
-          <HyperLink
-            href={getExplorerItemUrl(activeNetwork.explorer.url, vault.address, ExplorerscanApi.ADDRESS)}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Button>
-              Source Contract <StyledLinkExternal size={20} />
-            </Button>
-          </HyperLink>
-        </ModalAddendum>
-      )}
+      {vault && <SourceContract contract={vault} />}
     </Modal>
   )
 }

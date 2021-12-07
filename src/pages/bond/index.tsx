@@ -34,7 +34,7 @@ import { Card, CardContainer } from '../../components/atoms/Card'
 import { FormRow, FormCol } from '../../components/atoms/Form'
 import { FlexCol, FlexRow, HeroContainer, Scrollable } from '../../components/atoms/Layout'
 import { Text } from '../../components/atoms/Typography'
-import { BondModal } from '../../components/organisms/BondModal'
+import { BondModal } from '../../components/organisms/bond/BondModal'
 import { Loader } from '../../components/atoms/Loader'
 import { HyperLink } from '../../components/atoms/Link'
 
@@ -115,7 +115,8 @@ function Bond(): any {
                 <TableRow>
                   <TableHeader></TableHeader>
                   <TableHeader>Bond</TableHeader>
-                  <TableHeader>Price Per SOLACE</TableHeader>
+                  <TableHeader>Price</TableHeader>
+                  <TableHeader>ROI</TableHeader>
                   <TableHeader></TableHeader>
                 </TableRow>
               </TableHead>
@@ -164,6 +165,9 @@ function Bond(): any {
                           ? `$${truncateBalance(tellerDetail.tellerData.usdBondPrice, 4)}`
                           : `USD price not found`}
                       </Text>
+                    </TableData>
+                    <TableData>
+                      <Text>{truncateBalance(tellerDetail.tellerData.bondRoi, 2, false)}%</Text>
                     </TableData>
                     <TableData textAlignRight>
                       <Button disabled={haveErrors} info>
@@ -220,12 +224,20 @@ function Bond(): any {
                     </FlexCol>
                   </FlexCol>
                   <FormRow>
-                    <FormCol>Price Per SOLACE</FormCol>
+                    <FormCol>Price</FormCol>
                     <FormCol>
                       <Text bold t2 fade={tellerDetail.tellerData.usdBondPrice <= 0}>
                         {tellerDetail.tellerData.usdBondPrice > 0
                           ? `$${truncateBalance(tellerDetail.tellerData.usdBondPrice, 4)}`
                           : `USD price not found`}
+                      </Text>
+                    </FormCol>
+                  </FormRow>
+                  <FormRow>
+                    <FormCol>ROI</FormCol>
+                    <FormCol>
+                      <Text bold t2>
+                        {truncateBalance(tellerDetail.tellerData.bondRoi, 2, false)}%
                       </Text>
                     </FormCol>
                   </FormRow>

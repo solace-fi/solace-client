@@ -18,30 +18,30 @@
 import React, { useMemo } from 'react'
 
 /* import managers */
-import { useContracts } from '../../context/ContractsManager'
-import { useWallet } from '../../context/WalletManager'
-import { useGeneral } from '../../context/GeneralProvider'
+import { useContracts } from '../../../context/ContractsManager'
+import { useWallet } from '../../../context/WalletManager'
+import { useGeneral } from '../../../context/GeneralProvider'
 
 /* import components */
-import { Content } from '../atoms/Layout'
-import { Text } from '../atoms/Typography'
-import { Table, TableHead, TableRow, TableHeader, TableBody, TableData, TableDataGroup } from '../atoms/Table'
-import { Button, ButtonWrapper } from '../atoms/Button'
-import { Card } from '../atoms/Card'
-import { FormRow, FormCol } from '../atoms/Form'
-import { HyperLink } from '../atoms/Link'
+import { Content } from '../../atoms/Layout'
+import { Text } from '../../atoms/Typography'
+import { Table, TableHead, TableRow, TableHeader, TableBody, TableData, TableDataGroup } from '../../atoms/Table'
+import { Button, ButtonWrapper } from '../../atoms/Button'
+import { Card } from '../../atoms/Card'
+import { FormRow, FormCol } from '../../atoms/Form'
+import { HyperLink } from '../../atoms/Link'
 
 /* import constants */
-import { BKPT_4, BKPT_6 } from '../../constants'
-import { FunctionName } from '../../constants/enums'
+import { BKPT_4, BKPT_6 } from '../../../constants'
+import { FunctionName } from '../../../constants/enums'
 
 /* import hooks */
-import { useRewardsPerDay, useUserPendingRewards, useUserRewardsPerDay } from '../../hooks/useRewards'
-import { useUserStakedValue, usePoolStakedValue } from '../../hooks/useFarm'
-import { useWindowDimensions } from '../../hooks/useWindowDimensions'
+import { useRewardsPerDay, useUserPendingRewards, useUserRewardsPerDay } from '../../../hooks/useRewards'
+import { useUserStakedValue, usePoolStakedValue } from '../../../hooks/useFarm'
+import { useWindowDimensions } from '../../../hooks/useWindowDimensions'
 
 /* import utils */
-import { truncateBalance } from '../../utils/formatting'
+import { truncateBalance } from '../../../utils/formatting'
 
 interface CapitalProviderPoolProps {
   openModal: (func: FunctionName, modalTitle: string, farmName: string) => void
@@ -106,13 +106,6 @@ export const CapitalProviderPool: React.FC<CapitalProviderPoolProps> = ({ openMo
               {account ? (
                 <TableData textAlignRight>
                   <TableDataGroup width={200} style={{ float: 'right' }}>
-                    {/* <Button
-                      light
-                      disabled={haveErrors}
-                      onClick={() => openModal(FunctionName.DEPOSIT_CP, 'Deposit', 'cp')}
-                    >
-                      Deposit
-                    </Button> */}
                     <Button
                       light
                       disabled={haveErrors}
@@ -120,9 +113,6 @@ export const CapitalProviderPool: React.FC<CapitalProviderPoolProps> = ({ openMo
                     >
                       Withdraw
                     </Button>
-                    {/* <Button light disabled={haveErrors} style={{ whiteSpace: 'nowrap' }}>
-                      Claim Option
-                    </Button> */}
                   </TableDataGroup>
                 </TableData>
               ) : null}
@@ -176,14 +166,6 @@ export const CapitalProviderPool: React.FC<CapitalProviderPoolProps> = ({ openMo
           </FormRow>
           {account && (
             <ButtonWrapper isColumn={width <= BKPT_4}>
-              {/* <Button
-                widthP={100}
-                disabled={haveErrors}
-                onClick={() => openModal(FunctionName.DEPOSIT_CP, 'Deposit', 'cp')}
-                light
-              >
-                Deposit
-              </Button> */}
               <Button
                 widthP={100}
                 disabled={haveErrors}
@@ -192,9 +174,6 @@ export const CapitalProviderPool: React.FC<CapitalProviderPoolProps> = ({ openMo
               >
                 Withdraw
               </Button>
-              {/* <Button light widthP={100} disabled={haveErrors}>
-                Claim Option
-              </Button> */}
             </ButtonWrapper>
           )}
         </Card>

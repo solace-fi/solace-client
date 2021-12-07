@@ -19,10 +19,8 @@ import React, { useState, Fragment, useCallback } from 'react'
 /* import context */
 
 /* import components */
-import { UnderwritingPool } from '../../components/organisms/UnderwritingPool'
-import { CapitalProviderPool } from '../../components/organisms/CapitalProviderPool'
-import { LiquidityPool } from '../../components/organisms/LiquidityPool'
-import { MyOptions } from '../../components/molecules/MyOptions'
+import { UnderwritingPool } from '../../components/organisms/underwriting-pool/UnderwritingPool'
+import { CapitalProviderPool } from '../../components/organisms/capital-pool/CapitalProviderPool'
 
 /* import constants */
 import { FunctionName } from '../../constants/enums'
@@ -87,8 +85,6 @@ function Invest(): any {
       </Content>
       <UnderwritingPool openModal={openModal} />
       <CapitalProviderPool openModal={openModal} />
-      {/* <LiquidityPool openModal={openModal} /> */}
-      {/* <MyOptions /> */}
     </Fragment>
   )
 }

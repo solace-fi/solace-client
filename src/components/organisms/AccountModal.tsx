@@ -20,7 +20,7 @@ import React, { useCallback } from 'react'
 import makeBlockie from 'ethereum-blockies-base64'
 
 /* import constants */
-import { BKPT_5, BKPT_3 } from '../../constants'
+import { BKPT_5, BKPT_3, Z_TABLE } from '../../constants'
 import { ExplorerscanApi } from '../../constants/enums'
 
 /* import managers */
@@ -142,7 +142,7 @@ export const AccountModal: React.FC<AccountModalProps> = ({ closeModal, isOpen }
           </Text>
           <Scrollable style={{ padding: '0 10px 0 10px' }} maxDesktopHeight={30}>
             <Table textAlignCenter style={{ borderSpacing: '0px 7px' }}>
-              <TableHead sticky>
+              <TableHead sticky zIndex={Z_TABLE + 1}>
                 <TableRow>
                   <TableHeader>Type</TableHeader>
                   {width > BKPT_5 && (

@@ -12,6 +12,7 @@ interface TableProps extends GeneralTextProps, GeneralElementProps {
 }
 
 interface TableHeadProps {
+  zIndex?: number
   sticky?: boolean
 }
 
@@ -48,7 +49,7 @@ export const TableHead = styled.thead<TableHeadProps>`
     transform: translateY(-7px);
     top: 7px;
     background-color: ${props.theme.table.head_bg_color};
-    z-index: ${Z_TABLE};
+    z-index: ${props.zIndex ? props.zIndex : `${Z_TABLE}`};
     th {
       padding-top: 20px;
     }

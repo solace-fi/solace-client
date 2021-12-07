@@ -1,15 +1,39 @@
+/*
+
+  Table of Contents:
+
+  import packages
+  import constants
+  import components
+  import utils
+
+  BondSettingsModal
+      custom hooks
+      local functions
+      useEffect hooks
+
+*/
+
+/* import packages */
 import React, { useState, useEffect } from 'react'
-import { Modal } from '../molecules/Modal'
-import { ModalProps } from '../atoms/Modal'
-import { Input } from '../atoms/Input'
-import { Text } from '../atoms/Typography'
 import { parseUnits } from '@ethersproject/units'
 import { BigNumber } from 'ethers'
-import { Button, ButtonWrapper } from '../atoms/Button'
-import { FlexCol } from '../atoms/Layout'
-import { MAX_BPS } from '../../constants'
-import { BondTellerDetails } from '../../constants/types'
-import { isAddress } from '../../utils'
+
+/* import constants */
+import { MAX_BPS } from '../../../constants'
+import { BondTellerDetails } from '../../../constants/types'
+
+/* import components */
+import { Modal } from '../../molecules/Modal'
+import { ModalProps } from '../../atoms/Modal'
+import { Input } from '../../atoms/Input'
+import { Text } from '../../atoms/Typography'
+import { Button, ButtonWrapper } from '../../atoms/Button'
+import { FlexCol } from '../../atoms/Layout'
+
+/* import utils */
+import { isAddress } from '../../../utils'
+import { filterAmount, formatAmount } from '../../../utils/formatting'
 
 interface BondSettingsModalProps extends ModalProps {
   bondRecipient: string | undefined
@@ -28,15 +52,26 @@ export const BondSettingsModal: React.FC<BondSettingsModalProps> = ({
   modalTitle,
   handleClose,
 }) => {
+  /*
+
+  custom hooks
+
+  */
   const [slippage, setSlippage] = useState<string>(slippagePrct)
   const [recipient, setRecipient] = useState<string | undefined>(bondRecipient)
 
+  /*
+
+  local functions
+
+  */
+
   const handleInputSlippage = (input: string) => {
     // allow only numbers and decimals
-    const filtered = input.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1')
+    const filtered = filterAmount(input, slippage)
 
     // if filtered is only "0." or "." or '', filtered becomes '0.0'
-    const formatted = filtered == '0.' || filtered == '.' || filtered == '' ? '0.0' : filtered
+    const formatted = formatAmount(filtered)
 
     // if number has more than max decimal places, do not update
     if (filtered.includes('.') && filtered.split('.')[1]?.length > 2) return
@@ -57,6 +92,12 @@ export const BondSettingsModal: React.FC<BondSettingsModalProps> = ({
     setBondRecipient(recipient?.substring(0, 2) !== '0x' ? '0x' + recipient : recipient)
     handleClose()
   }
+
+  /*
+
+  useEffect hooks
+
+  */
 
   useEffect(() => {
     setSlippage(slippagePrct)

@@ -18,23 +18,23 @@
 import React, { useCallback, useState } from 'react'
 
 /* import managers */
-import { useWallet } from '../../context/WalletManager'
+import { useWallet } from '../../../context/WalletManager'
 
 /* import components */
-import { Card, CardContainer } from '../atoms/Card'
-import { ModalCell } from '../atoms/Modal'
-import { Text } from '../atoms/Typography'
-import { Modal } from '../molecules/Modal'
-import { FormRow } from '../atoms/Form'
-import { Button, ButtonWrapper } from '../atoms/Button'
-import { Scrollable } from '../atoms/Layout'
+import { Card, CardContainer } from '../../atoms/Card'
+import { ModalCell } from '../../atoms/Modal'
+import { Text } from '../../atoms/Typography'
+import { Modal } from '../../molecules/Modal'
+import { FormRow } from '../../atoms/Form'
+import { Button, ButtonWrapper } from '../../atoms/Button'
+import { Scrollable } from '../../atoms/Layout'
 import { LedgerDerivationPathModal } from './LedgerDerivationPathModal'
 
 /* import constants */
-import { Z_MODAL } from '../../constants'
+import { Z_MODAL } from '../../../constants'
 
 /* import wallets */
-import { SUPPORTED_WALLETS } from '../../wallet/'
+import { SUPPORTED_WALLETS } from '../../../wallet/'
 
 interface WalletModalProps {
   closeModal: () => void

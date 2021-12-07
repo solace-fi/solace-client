@@ -15,29 +15,29 @@
 import React, { useMemo } from 'react'
 
 /* import managers */
-import { useGeneral } from '../../context/GeneralProvider'
+import { useGeneral } from '../../../context/GeneralProvider'
 
 /* import constants */
-import { Position, LiquityPosition, Policy } from '../../constants/types'
-import { BKPT_3 } from '../../constants'
+import { Position, LiquityPosition, Policy } from '../../../constants/types'
+import { BKPT_3 } from '../../../constants'
 
 /* import components */
-import { Button } from '../atoms/Button'
-import { TextSpan } from '../atoms/Typography'
-import { PositionCard } from '../../components/atoms/Card'
+import { Button } from '../../atoms/Button'
+import { TextSpan } from '../../atoms/Typography'
+import { PositionCard } from '../../../components/atoms/Card'
 import {
   PositionCardButton,
   PositionCardText,
   DeFiAssetImage,
   PositionCardName,
-} from '../../components/atoms/DeFiAsset'
+} from '../../../components/atoms/DeFiAsset'
 
 /* import hooks */
-import { useWindowDimensions } from '../../hooks/useWindowDimensions'
+import { useWindowDimensions } from '../../../hooks/useWindowDimensions'
 
 /* import utils */
-import { fixedPositionBalance, truncateBalance, trim0x } from '../../utils/formatting'
-import { userHasActiveProductPosition } from '../../utils/policy'
+import { fixedPositionBalance, truncateBalance, trim0x } from '../../../utils/formatting'
+import { userHasActiveProductPosition } from '../../../utils/policy'
 
 interface LiquityPositionCardProps {
   position: Position
