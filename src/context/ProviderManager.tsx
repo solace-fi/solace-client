@@ -2,8 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react'
 import { useNetwork } from './NetworkManager'
 import { useWallet } from './WalletManager'
 import { MetamaskConnector } from '../wallet/wallet-connectors/MetaMask'
-import { Block } from '@ethersproject/contracts/node_modules/@ethersproject/abstract-provider'
-
+import { Block } from '@ethersproject/abstract-provider'
 import { Card, CardContainer } from '../components/atoms/Card'
 import { ModalCell } from '../components/atoms/Modal'
 import { Text } from '../components/atoms/Typography'
@@ -112,7 +111,7 @@ const ProviderManager: React.FC = ({ children }) => {
         } catch (e) {
           canSetNetwork = false
 
-          if (e.code === 4902) {
+          if ((e as any).code === 4902) {
             await connector.addChain(network.metamaskChain)
           }
         }

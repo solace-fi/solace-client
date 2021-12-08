@@ -1,16 +1,11 @@
 import { NetworkConfig, Token as _Token } from '../../../constants/types'
-import { rangeFrom0 } from '../../../utils/numeric'
-import { Contract } from '@ethersproject/contracts'
-import { addNativeTokenBalances, getProductTokenBalances } from '../../getBalances'
-import { accurateMultiply, getNonHumanValue } from '../../../utils/formatting'
-import { withBackoffRetries } from '../../../utils/time'
+import { accurateMultiply } from '../../../utils/formatting'
 import { BigNumber } from 'ethers'
 import { TickMath, Position, Pool, Route } from '@uniswap/v3-sdk'
-import { Token, Price, CurrencyAmount } from '@uniswap/sdk-core'
+import { Token, Price } from '@uniswap/sdk-core'
 import UniV3FactoryAbi from './_contracts/IUniswapV3Factory.json'
 
-import { ADDRESS_ZERO, ZERO } from '../../../constants'
-import axios from 'axios'
+import { ADDRESS_ZERO } from '../../../constants'
 import JSBI from 'jsbi'
 
 import { ApolloClient, InMemoryCache, gql } from '@apollo/client'
@@ -103,10 +98,11 @@ export const getBalances = async (
         tokenA,
         nativeToken,
         parseInt(pool.feeTier),
-        TickMath.getSqrtRatioAtTick(parseInt(pool.tick)),
-        JSBI.BigInt(pool.liquidity),
+        TickMath.getSqrtRatioAtTick(parseInt(pool.tick)).toString(),
+        pool.liquidity,
         parseInt(pool.tick)
       )
+
       const route_Of_TokenA_NativeToken = new Route([pool_Of_TokenA_NativeToken], tokenA, nativeToken)
       const midPriceTokenA_NativeToken = route_Of_TokenA_NativeToken.midPrice
       price_Of_TokenA_NativeToken = new Price(
@@ -169,8 +165,8 @@ export const getBalances = async (
         tokenB,
         nativeToken,
         parseInt(pool.feeTier),
-        TickMath.getSqrtRatioAtTick(parseInt(pool.tick)),
-        JSBI.BigInt(pool.liquidity),
+        TickMath.getSqrtRatioAtTick(parseInt(pool.tick)).toString(),
+        pool.liquidity,
         parseInt(pool.tick)
       )
       const route_Of_TokenB_NativeToken = new Route([pool_Of_TokenB_NativeToken], tokenB, nativeToken)
@@ -189,14 +185,14 @@ export const getBalances = async (
       tokenA,
       tokenB,
       fee_Of_TokenA_And_TokenB,
-      sqrtRatioX96_Of_TokenA_And_TokenB,
-      poolL_Of_TokenA_And_TokenB,
+      sqrtRatioX96_Of_TokenA_And_TokenB.toString(),
+      poolL_Of_TokenA_And_TokenB.toString(),
       poolTick_Of_TokenA_And_TokenB
     )
 
     const position = new Position({
       pool: pool_Of_TokenA_And_TokenB,
-      liquidity: L_Of_TokenA_And_TokenB,
+      liquidity: L_Of_TokenA_And_TokenB.toString(),
       tickLower: parseInt(tokens[i].metadata.tickLower),
       tickUpper: parseInt(tokens[i].metadata.tickUpper),
     })
@@ -215,7 +211,3 @@ export const getBalances = async (
 export const tokenForChain: { [chainId: number]: Token } = {
   [1]: WETHToken,
 }
-
-// export const computeNativeTokenAmountOut: { [chainId: number]: CurrencyAmount<Token> } = {
-//   [1]: CurrencyAmount.fromRawAmount(USDCToken, 100_000e6),
-// }

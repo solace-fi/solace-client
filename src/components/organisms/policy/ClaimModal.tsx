@@ -20,7 +20,7 @@
 /* import packages */
 import React, { Fragment, useCallback, useEffect, useState, useRef, useMemo } from 'react'
 import { formatUnits } from '@ethersproject/units'
-import { Block } from '@ethersproject/contracts/node_modules/@ethersproject/abstract-provider'
+import { Block } from '@ethersproject/abstract-provider'
 
 /* import managers */
 import { useCachedData } from '../../../context/CachedDataManager'

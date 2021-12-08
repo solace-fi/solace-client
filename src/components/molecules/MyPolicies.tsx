@@ -18,7 +18,7 @@
 /* import packages */
 import React from 'react'
 import { formatUnits } from '@ethersproject/units'
-import { Block } from '@ethersproject/contracts/node_modules/@ethersproject/abstract-provider'
+import { Block } from '@ethersproject/abstract-provider'
 
 /* import managers */
 import { useCachedData } from '../../context/CachedDataManager'

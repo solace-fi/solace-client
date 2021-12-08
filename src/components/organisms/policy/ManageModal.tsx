@@ -21,7 +21,7 @@
 import React, { Fragment, useState, useEffect, useMemo, useCallback } from 'react'
 import { parseUnits, formatUnits } from '@ethersproject/units'
 import { BigNumber } from 'ethers'
-import { Block } from '@ethersproject/contracts/node_modules/@ethersproject/abstract-provider'
+import { Block } from '@ethersproject/abstract-provider'
 
 /* import managers */
 import { useCachedData } from '../../../context/CachedDataManager'

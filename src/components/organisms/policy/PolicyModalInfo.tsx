@@ -20,7 +20,7 @@
 import React, { Fragment, useCallback, useState, useEffect, useMemo } from 'react'
 import { formatUnits } from '@ethersproject/units'
 import { BigNumber } from 'ethers'
-import { Block } from '@ethersproject/contracts/node_modules/@ethersproject/abstract-provider'
+import { Block } from '@ethersproject/abstract-provider'
 
 /* import managers */
 import { useNetwork } from '../../../context/NetworkManager'
