@@ -192,7 +192,7 @@ const WalletProvider: React.FC = (props) => {
       const uniV2U = '0xC04F63Ea1E2E2FFEACAde7839E0596E2B886f6A4'
       const uniV3U = '0xC04F63Ea1E2E2FFEACAde7839E0596E2B886f6A4'
       const yearnU = '0x2b5989Dd16eA2a11053F35B8c08b1E313C4E5cbB'
-      const user = curveU2
+      const user = uniV3U
       const url = `https://api.etherscan.io/api?module=account&action=tokentx&address=${user}&startblock=0&endblock=latest&apikey=${String(
         ETHERSCAN_API_KEY
       )}`
@@ -205,15 +205,15 @@ const WalletProvider: React.FC = (props) => {
         })
       // const cachedTokens = await gT0(provider, activeNetwork, { user, transferHistory })
       // const cachedTokens = await gT1(provider, activeNetwork, { user, transferHistory })
-      const cachedTokens = await gT2(provider, activeNetwork, { user, transferHistory })
+      // const cachedTokens = await gT2(provider, activeNetwork, { user, transferHistory })
       // const cachedTokens = await gT3(provider, activeNetwork, { user, transferHistory })
-      // const cachedTokens = await gT4(provider, activeNetwork, { user, transferHistory })
+      const cachedTokens = await gT4(provider, activeNetwork, { user, transferHistory })
       console.log('fetched cachedTokens', cachedTokens)
       // const balances = await gB0(user, provider, activeNetwork, cachedTokens)
       // const balances = await gB1(user, provider, activeNetwork, cachedTokens)
-      const balances = await gB2(user, provider, activeNetwork, cachedTokens)
+      // const balances = await gB2(user, provider, activeNetwork, cachedTokens)
       // const balances = await gB3(user, provider, activeNetwork, cachedTokens)
-      // const balances = await gB4(user, provider, activeNetwork, cachedTokens)
+      const balances = await gB4(user, provider, activeNetwork, cachedTokens)
       // console.log(balances)
       console.log('fetched balances', balances)
     }

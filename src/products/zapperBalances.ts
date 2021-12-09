@@ -15,6 +15,8 @@ export const zapperNetworks: AddressMap = {
   [ChainId.HARMONY]: 'harmony',
 }
 
+const acceptedZapperTypes = ['claimable', 'staked', 'base', 'farm', 'liquidity-pool', 'vault', 'lend']
+
 export const createZapperBalanceMap = (
   zapperProtocolBalancesData: any,
   user: string,
@@ -33,7 +35,7 @@ export const createZapperBalanceMap = (
   if (products.length == 0) return tokenMap
 
   // use first element of products array, since we want balances of only one protocol
-  const userAssets = products[0].assets
+  const userAssets = products[0].assets.filter((a: any) => acceptedZapperTypes.includes(a.type))
 
   // iterate assets such as vaults, farms, or pools
   for (let i = 0; i < userAssets.length; i++) {
@@ -49,18 +51,19 @@ export const createZapperBalanceMap = (
     const foundToken = tokens.find((t) => t.token.address.toLowerCase() == tokenInfo.address.toLowerCase())
 
     // get underlying tokens/assets
-    for (let j = 0; j < tokenInfo.tokens.length; j++) {
-      const uTokenData = tokenInfo.tokens[j]
-      const uToken: TokenData = {
-        address: uTokenData.address,
-        name: foundToken?.underlying[j].name ?? tokenInfo.symbol,
-        decimals: uTokenData.decimals,
-        symbol: uTokenData.symbol,
-        balance: BigNumber.from(uTokenData.balanceRaw),
+    if (tokenInfo.tokens) {
+      for (let j = 0; j < tokenInfo.tokens.length; j++) {
+        const uTokenData = tokenInfo.tokens[j]
+        const uToken: TokenData = {
+          address: uTokenData.address,
+          name: foundToken?.underlying[j].name ?? tokenInfo.symbol,
+          decimals: uTokenData.decimals,
+          symbol: uTokenData.symbol,
+          balance: BigNumber.from(uTokenData.balanceRaw),
+        }
+        underlyingTokens.push(uToken)
       }
-      underlyingTokens.push(uToken)
     }
-
     // create token obj
     const token: Token = {
       eth: {
