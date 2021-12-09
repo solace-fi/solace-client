@@ -31,7 +31,7 @@ export const getTokens = async (provider: any, activeNetwork: NetworkConfig, met
     .query({
       query: gql`
         query pairs($user: String!) {
-          positions(where: { owner_contains: $user }) {
+          positions(first: 1000, where: { owner_contains: $user }) {
             id
             owner
             tickLower {

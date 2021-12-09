@@ -187,12 +187,12 @@ const WalletProvider: React.FC = (props) => {
       const provider = new JsonRpcProvider(
         `https://eth-mainnet.alchemyapi.io/v2/${String(process.env.REACT_APP_ALCHEMY_API_KEY)}`
       )
-      const sushiU = '0xC04F63Ea1E2E2FFEACAde7839E0596E2B886f6A4'
-      const curveU2 = '0x53C40473DcdFd927C4201cCFE24E314a7D7C3584'
+      const sushiU = '0x34Bb9e91dC8AC1E13fb42A0e23f7236999e063D4'
+      const curveU2 = '0x1593aA5Ab7293Ece4650c6BeDb3cFEE6DbFB3624'
       const uniV2U = '0xC04F63Ea1E2E2FFEACAde7839E0596E2B886f6A4'
       const uniV3U = '0xC04F63Ea1E2E2FFEACAde7839E0596E2B886f6A4'
       const yearnU = '0x2b5989Dd16eA2a11053F35B8c08b1E313C4E5cbB'
-      const user = uniV3U
+      const user = curveU2
       const url = `https://api.etherscan.io/api?module=account&action=tokentx&address=${user}&startblock=0&endblock=latest&apikey=${String(
         ETHERSCAN_API_KEY
       )}`
@@ -203,21 +203,21 @@ const WalletProvider: React.FC = (props) => {
           if (result != 'Max rate limit reached') return result
           return []
         })
-      // const cachedTokens0 = await gT0(provider, activeNetwork, { user, transferHistory })
-      // const cachedTokens1 = await gT1(provider, activeNetwork, { user, transferHistory })
-      // const cachedTokens2 = await gT2(provider, activeNetwork, { user, transferHistory })
-      // const cachedTokens3 = await gT3(provider, activeNetwork, { user, transferHistory })
-      const cachedTokens4 = await gT4(provider, activeNetwork, { user, transferHistory })
-      console.log(cachedTokens4)
-      //const balances = await gB0(user, provider, activeNetwork, cachedTokens0)
-      //const balances = await gB1(user, provider, activeNetwork, cachedTokens1)
-      // const balances = await gB2(user, provider, activeNetwork, cachedTokens2)
-      //const balances = await gB3(user, provider, activeNetwork, cachedTokens3)
-      const balances = await gB4(user, provider, activeNetwork, cachedTokens4)
+      // const cachedTokens = await gT0(provider, activeNetwork, { user, transferHistory })
+      // const cachedTokens = await gT1(provider, activeNetwork, { user, transferHistory })
+      const cachedTokens = await gT2(provider, activeNetwork, { user, transferHistory })
+      // const cachedTokens = await gT3(provider, activeNetwork, { user, transferHistory })
+      // const cachedTokens = await gT4(provider, activeNetwork, { user, transferHistory })
+      console.log('fetched cachedTokens', cachedTokens)
+      // const balances = await gB0(user, provider, activeNetwork, cachedTokens)
+      // const balances = await gB1(user, provider, activeNetwork, cachedTokens)
+      const balances = await gB2(user, provider, activeNetwork, cachedTokens)
+      // const balances = await gB3(user, provider, activeNetwork, cachedTokens)
+      // const balances = await gB4(user, provider, activeNetwork, cachedTokens)
       // console.log(balances)
       console.log('fetched balances', balances)
     }
-    testMainnet()
+    // testMainnet()
   }, [])
 
   useEffect(() => {

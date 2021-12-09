@@ -5,6 +5,9 @@ import { addNativeTokenBalances, getProductTokenBalances } from '../../getBalanc
 import { Contract } from '@ethersproject/contracts'
 import { getNonHumanValue } from '../../../utils/formatting'
 import { withBackoffRetries } from '../../../utils/time'
+import { getCoingeckoTokenPrice, getZapperProtocolBalances } from '../../../utils/api'
+import { WETH9_ADDRESS } from '../../../constants/mappings/tokenAddressMapping'
+import { createZapperBalanceMap, zapperNetworks } from '../../zapperBalances'
 
 export const getBalances = async (
   user: string,
@@ -12,6 +15,27 @@ export const getBalances = async (
   activeNetwork: NetworkConfig,
   tokens: Token[]
 ): Promise<Token[]> => {
+  const zapperNet = zapperNetworks[activeNetwork.chainId]
+  if (zapperNet) {
+    const coinGeckoEthPrice = await getCoingeckoTokenPrice(WETH9_ADDRESS[activeNetwork.chainId], 'usd', 'ethereum')
+    const data = await getZapperProtocolBalances('compound', [user], zapperNet)
+
+    const finalTokens: Token[] = []
+
+    if (!coinGeckoEthPrice) return []
+    const tokenMap = createZapperBalanceMap(
+      data,
+      user,
+      parseFloat(coinGeckoEthPrice),
+      activeNetwork.nativeCurrency.decimals,
+      tokens
+    )
+    tokenMap.forEach((value: Token) => {
+      finalTokens.push(value)
+    })
+    return finalTokens
+  }
+
   // get ctoken balances
   const balances: Token[] = await getProductTokenBalances(user, tokenJson.abi, tokens, provider)
 

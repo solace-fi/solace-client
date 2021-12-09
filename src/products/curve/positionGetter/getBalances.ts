@@ -19,6 +19,9 @@ import { ADDRESS_ZERO, ZERO } from '../../../constants'
 import { queryBalance } from '../../../utils/contract'
 import { getAmounts_CurveGauge } from './getStakes/CurveGauge'
 import { get1InchPrice } from '../../../utils/api'
+import { getCoingeckoTokenPrice, getZapperProtocolBalances } from '../../../utils/api'
+import { WETH9_ADDRESS } from '../../../constants/mappings/tokenAddressMapping'
+import { createZapperBalanceMap, zapperNetworks } from '../../zapperBalances'
 
 const ETH = '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee'
 
@@ -39,8 +42,8 @@ export const getBalances = async (
   activeNetwork: NetworkConfig,
   tokens: Token[]
 ): Promise<Token[]> => {
-  const balances = tokens
-  const indices = rangeFrom0(balances.length)
+  // const balances = tokens
+  // const indices = rangeFrom0(balances.length)
 
   // const curveAddressProviderContract = getContract(CURVE_ADDRRESS_PROVIDER_ADDR, curveAddressProviderAbi.abi, provider)
   // const curveRegistryAddress = await curveAddressProviderContract.get_registry()
@@ -52,63 +55,84 @@ export const getBalances = async (
 
   */
 
-  const additionalTokenBalances: BigNumber[] = []
-  indices.forEach((i) => (additionalTokenBalances[i] = ZERO))
+  const zapperNet = zapperNetworks[activeNetwork.chainId]
+  if (!zapperNet) return []
 
-  const farmAmounts: BigNumber[][] = await Promise.all([getAmounts_CurveGauge(user, provider, activeNetwork, balances)])
+  const coinGeckoEthPrice = await getCoingeckoTokenPrice(WETH9_ADDRESS[activeNetwork.chainId], 'usd', 'ethereum')
+  const data = await getZapperProtocolBalances('curve', [user], zapperNet)
 
-  for (let i = 0; i < balances.length; i++) {
-    let newBalance = ZERO
-    for (let j = 0; j < farmAmounts.length; j++) {
-      const a = farmAmounts[j][i]
-      newBalance = a.add(newBalance)
-    }
-    additionalTokenBalances[i] = newBalance
-  }
+  const finalTokens: Token[] = []
 
-  const queriedBalances = await Promise.all(
-    balances.map((b) => queryBalance(getContract(b.token.address, ierc20Json.abi, provider), user))
+  if (!coinGeckoEthPrice) return []
+  const tokenMap = createZapperBalanceMap(
+    data,
+    user,
+    parseFloat(coinGeckoEthPrice),
+    activeNetwork.nativeCurrency.decimals,
+    tokens
   )
+  tokenMap.forEach((value: Token) => {
+    finalTokens.push(value)
+  })
+  return finalTokens
 
-  indices.forEach((i) => (balances[i].token.balance = queriedBalances[i].add(additionalTokenBalances[i])))
+  // const additionalTokenBalances: BigNumber[] = []
+  // indices.forEach((i) => (additionalTokenBalances[i] = ZERO))
 
-  const uBalances = await Promise.all(
-    balances.map(async (b) => {
-      if (b.token.balance.gt(ZERO)) {
-        const poolContract = getContract(b.metadata.poolAddr, curvePoolAbi, provider)
-        const factoryPoolContract = getContract(b.metadata.poolAddr, curveFactoryPoolAbi, provider)
-        if (v1Pools.includes(poolContract.address)) {
-          return b.token.balance
-        } else {
-          const uBalance = b.metadata.isFactory
-            ? await factoryPoolContract.calc_withdraw_one_coin(b.token.balance, 0)
-            : await poolContract.calc_withdraw_one_coin(b.token.balance, 0).catch(async () => {
-                const poolAltContract = getContract(b.metadata.poolAddr, curvePoolAltAbi, provider)
-                const uBalanceAlt = await poolAltContract.calc_withdraw_one_coin(b.token.balance, 0)
-                return uBalanceAlt
-              })
-          return uBalance
-        }
-      } else {
-        return ZERO
-      }
-    })
-  )
+  // const farmAmounts: BigNumber[][] = await Promise.all([getAmounts_CurveGauge(user, provider, activeNetwork, balances)])
 
-  indices.forEach((i) => (balances[i].underlying[0].balance = uBalances[i]))
+  // for (let i = 0; i < balances.length; i++) {
+  //   let newBalance = ZERO
+  //   for (let j = 0; j < farmAmounts.length; j++) {
+  //     const a = farmAmounts[j][i]
+  //     newBalance = a.add(newBalance)
+  //   }
+  //   additionalTokenBalances[i] = newBalance
+  // }
 
-  const nativeBalances = await Promise.all(
-    balances.map(async (b) => {
-      if (b.token.balance.gt(ZERO) && !equalsIgnoreCase(b.underlying[0].address, ETH)) {
-        const res = await get1InchPrice(b.underlying[0].address, ETH, b.underlying[0].balance.toString())
-        return BigNumber.from(res.data.toTokenAmount)
-      } else {
-        return ZERO
-      }
-    })
-  )
+  // const queriedBalances = await Promise.all(
+  //   balances.map((b) => queryBalance(getContract(b.token.address, ierc20Json.abi, provider), user))
+  // )
 
-  indices.forEach((i) => (balances[i].eth.balance = nativeBalances[i]))
+  // indices.forEach((i) => (balances[i].token.balance = queriedBalances[i].add(additionalTokenBalances[i])))
 
-  return balances.filter((b) => b.token.balance.gt(ZERO))
+  // const uBalances = await Promise.all(
+  //   balances.map(async (b) => {
+  //     if (b.token.balance.gt(ZERO)) {
+  //       const poolContract = getContract(b.metadata.poolAddr, curvePoolAbi, provider)
+  //       const factoryPoolContract = getContract(b.metadata.poolAddr, curveFactoryPoolAbi, provider)
+  //       if (v1Pools.includes(poolContract.address)) {
+  //         return b.token.balance
+  //       } else {
+  //         const uBalance = b.metadata.isFactory
+  //           ? await factoryPoolContract.calc_withdraw_one_coin(b.token.balance, 0)
+  //           : await poolContract.calc_withdraw_one_coin(b.token.balance, 0).catch(async () => {
+  //               const poolAltContract = getContract(b.metadata.poolAddr, curvePoolAltAbi, provider)
+  //               const uBalanceAlt = await poolAltContract.calc_withdraw_one_coin(b.token.balance, 0)
+  //               return uBalanceAlt
+  //             })
+  //         return uBalance
+  //       }
+  //     } else {
+  //       return ZERO
+  //     }
+  //   })
+  // )
+
+  // indices.forEach((i) => (balances[i].underlying[0].balance = uBalances[i]))
+
+  // const nativeBalances = await Promise.all(
+  //   balances.map(async (b) => {
+  //     if (b.token.balance.gt(ZERO) && !equalsIgnoreCase(b.underlying[0].address, ETH)) {
+  //       const res = await get1InchPrice(b.underlying[0].address, ETH, b.underlying[0].balance.toString())
+  //       return BigNumber.from(res.data.toTokenAmount)
+  //     } else {
+  //       return ZERO
+  //     }
+  //   })
+  // )
+
+  // indices.forEach((i) => (balances[i].eth.balance = nativeBalances[i]))
+
+  // return balances.filter((b) => b.token.balance.gt(ZERO))
 }
