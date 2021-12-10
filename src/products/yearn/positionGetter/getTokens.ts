@@ -22,7 +22,7 @@ export const getTokens = async (provider: any, activeNetwork: NetworkConfig, met
 
   /*
 
-  APOLLO RETRIEVAL
+  APOLLO RETRIEVAL // not being used because of result mismatch
 
   */
 
