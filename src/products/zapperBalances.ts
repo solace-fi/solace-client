@@ -2,7 +2,7 @@ import { BigNumber } from 'ethers'
 import { Token, TokenData } from '../constants/types'
 import { ChainId, AddressMap } from '@sushiswap/sdk'
 
-export const zapperNetworks: AddressMap = {
+export const networkNames: AddressMap = {
   [ChainId.MAINNET]: 'ethereum',
   [ChainId.MATIC]: 'polygon',
   [10]: 'optimism',

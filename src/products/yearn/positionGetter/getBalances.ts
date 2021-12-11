@@ -16,7 +16,7 @@ import curvePoolAbi from '../../curve/positionGetter/_contracts/ICurvePool.json'
 import { queryDecimals } from '../../../utils/contract'
 import { get1InchPrice, getCoingeckoTokenPrice, getZapperProtocolBalances } from '../../../utils/api'
 import { WETH9_ADDRESS } from '../../../constants/mappings/tokenAddressMapping'
-import { createZapperBalanceMap, zapperNetworks } from '../../zapperBalances'
+import { createZapperBalanceMap, networkNames } from '../../zapperBalances'
 
 const CURVE_ADDRRESS_PROVIDER_ADDR = '0x0000000022D53366457F9d5E68Ec105046FC4383'
 
@@ -30,7 +30,7 @@ export const getBalances = async (
 ): Promise<Token[]> => {
   // const balances: Token[] = await getProductTokenBalances(user, ierc20Json.abi, tokens, provider)
 
-  const zapperNet = zapperNetworks[activeNetwork.chainId]
+  const zapperNet = networkNames[activeNetwork.chainId]
   if (!zapperNet) return []
 
   const coinGeckoEthPrice = await getCoingeckoTokenPrice(WETH9_ADDRESS[activeNetwork.chainId], 'usd', 'ethereum')

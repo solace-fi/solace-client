@@ -13,8 +13,9 @@ import { Z_MODAL } from '../constants'
 
 import { capitalizeFirstLetter } from '../utils/formatting'
 import { useGetLatestBlock } from '../hooks/useGetLatestBlock'
-import { NetworkCache, SupportedProduct } from '../constants/types'
+import { NetworkCache, SupportedProduct, ZerionPosition } from '../constants/types'
 import { useCachePositions } from '../hooks/useCachePositions'
+import { useZerion } from '../hooks/useZerion'
 
 /*
 
@@ -36,6 +37,7 @@ and write to the blockchain.
 type ProviderContextType = {
   openNetworkModal: () => void
   latestBlock: Block | undefined
+  userPositions: ZerionPosition[]
   tokenPosData: {
     batchFetching: boolean
     storedPosData: NetworkCache[]
@@ -47,6 +49,7 @@ type ProviderContextType = {
 const InitialContextValue: ProviderContextType = {
   openNetworkModal: () => undefined,
   latestBlock: undefined,
+  userPositions: [],
   tokenPosData: {
     batchFetching: false,
     storedPosData: [],
@@ -68,6 +71,7 @@ const ProviderManager: React.FC = ({ children }) => {
   const latestBlock = useGetLatestBlock()
   const cachePositions = useCachePositions()
   const [networkModal, setNetworkModal] = useState<boolean>(false)
+  const zerionPositions = useZerion()
 
   const openModal = useCallback(() => {
     document.body.style.overflowY = 'hidden'
@@ -128,10 +132,11 @@ const ProviderManager: React.FC = ({ children }) => {
   const value = React.useMemo(
     () => ({
       openNetworkModal: openModal,
+      userPositions: zerionPositions,
       latestBlock,
       tokenPosData: cachePositions,
     }),
-    [openModal, latestBlock, cachePositions]
+    [openModal, latestBlock, cachePositions, zerionPositions]
   )
   return (
     <ProviderContext.Provider value={value}>

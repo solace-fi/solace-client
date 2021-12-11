@@ -4,7 +4,7 @@ import { rangeFrom0 } from '../../../utils/numeric'
 import { addNativeTokenBalances, getProductTokenBalances } from '../../getBalances'
 import { getCoingeckoTokenPrice, getZapperProtocolBalances } from '../../../utils/api'
 import { WETH9_ADDRESS } from '../../../constants/mappings/tokenAddressMapping'
-import { createZapperBalanceMap, zapperNetworks } from '../../zapperBalances'
+import { createZapperBalanceMap, networkNames } from '../../zapperBalances'
 
 export const getBalances = async (
   user: string,
@@ -12,7 +12,7 @@ export const getBalances = async (
   activeNetwork: NetworkConfig,
   tokens: Token[]
 ): Promise<Token[]> => {
-  const zapperNet = zapperNetworks[activeNetwork.chainId]
+  const zapperNet = networkNames[activeNetwork.chainId]
   if (zapperNet) {
     const coinGeckoEthPrice = await getCoingeckoTokenPrice(WETH9_ADDRESS[activeNetwork.chainId], 'usd', 'ethereum')
 

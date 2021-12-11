@@ -21,7 +21,7 @@ import { getAmounts_CurveGauge } from './getStakes/CurveGauge'
 import { get1InchPrice } from '../../../utils/api'
 import { getCoingeckoTokenPrice, getZapperProtocolBalances } from '../../../utils/api'
 import { WETH9_ADDRESS } from '../../../constants/mappings/tokenAddressMapping'
-import { createZapperBalanceMap, zapperNetworks } from '../../zapperBalances'
+import { createZapperBalanceMap, networkNames } from '../../zapperBalances'
 
 const ETH = '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee'
 
@@ -55,7 +55,7 @@ export const getBalances = async (
 
   */
 
-  const zapperNet = zapperNetworks[activeNetwork.chainId]
+  const zapperNet = networkNames[activeNetwork.chainId]
   if (!zapperNet) return []
 
   const coinGeckoEthPrice = await getCoingeckoTokenPrice(WETH9_ADDRESS[activeNetwork.chainId], 'usd', 'ethereum')

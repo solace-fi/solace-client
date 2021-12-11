@@ -42,7 +42,7 @@ import { HyperLink } from '../../atoms/Link'
 import { SourceContract } from '../SourceContract'
 
 /* import constants */
-import { FunctionName, TransactionCondition } from '../../../constants/enums'
+import { FunctionName, PolicyState, TransactionCondition } from '../../../constants/enums'
 import { BKPT_3 } from '../../../constants'
 import { Policy, ClaimAssessment, LocalTx } from '../../../constants/types'
 
@@ -162,6 +162,7 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
   useEffect(() => {
     const loadOnBoot = async () => {
       if (!selectedPolicy || !isOpen) return
+      if (selectedPolicy.status == PolicyState.EXPIRED) return
       setCanCloseOnLoading(true)
       setModalLoading(true)
       userPolicyData.setCanGetAssessments(false)
@@ -180,6 +181,7 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
   useEffect(() => {
     const loadOverTime = async () => {
       if (!selectedPolicy || !isOpen || mounting.current) return
+      if (selectedPolicy.status == PolicyState.EXPIRED) return
       userPolicyData.setCanGetAssessments(false)
       const assessment = await getClaimAssessment(String(selectedPolicy.policyId), chainId).catch((err) => {
         console.log(err)
