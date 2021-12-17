@@ -17,6 +17,7 @@
 import React, { Fragment } from 'react'
 import { Route, Switch, useLocation } from 'react-router-dom'
 
+import '../index.css'
 /* import managers */
 
 /* import pages */
@@ -52,31 +53,33 @@ export default function App(): any {
       <AnalyticsReporter />
       <GlobalStyle location={location} />
       <TopNavbar />
-      <Layout>
-        <ContentContainer>
-          <SideNavContent>
-            <SideNavbar />
-          </SideNavContent>
-          <LayoutContent>
-            <LayoutContentWithLoader>
-              {location.pathname !== '/quote' && location.pathname !== '/terms' && location.pathname !== '/' && (
-                <Statistics />
-              )}
-              <Switch>
-                <Route exact path="/" component={About} />
-                <Route exact path="/dashboard" component={Dashboard} />
-                <Route exact path="/invest" component={Invest} />
-                <Route exact path="/stake" component={Stake} />
-                <Route exact path="/bond" component={Bond} />
-                <Route exact path="/quote" component={Quote} />
-                <Route exact path="/govern" component={Govern} />
-                <Route exact path="/terms" component={Terms} />
-              </Switch>
-            </LayoutContentWithLoader>
-          </LayoutContent>
-          {location.pathname == '/' && width > BKPT_5 && <SideNavContent />}
-        </ContentContainer>
-      </Layout>
+      <div>
+        <Layout>
+          <ContentContainer>
+            <SideNavContent>
+              <SideNavbar />
+            </SideNavContent>
+            <LayoutContent>
+              <LayoutContentWithLoader>
+                {location.pathname !== '/quote' && location.pathname !== '/terms' && location.pathname !== '/' && (
+                  <Statistics />
+                )}
+                <Switch>
+                  <Route exact path="/" component={About} />
+                  <Route exact path="/dashboard" component={Dashboard} />
+                  <Route exact path="/invest" component={Invest} />
+                  <Route exact path="/stake" component={Stake} />
+                  <Route exact path="/bond" component={Bond} />
+                  <Route exact path="/quote" component={Quote} />
+                  <Route exact path="/govern" component={Govern} />
+                  <Route exact path="/terms" component={Terms} />
+                </Switch>
+              </LayoutContentWithLoader>
+            </LayoutContent>
+            {location.pathname == '/' && width > BKPT_5 && <SideNavContent />}
+          </ContentContainer>
+        </Layout>
+      </div>
     </Fragment>
   )
 }

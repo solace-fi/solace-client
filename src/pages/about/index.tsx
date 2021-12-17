@@ -47,6 +47,7 @@ function About(): any {
             <Text light mont mt={30} style={{ fontSize: '36px', lineHeight: '2' }}>
               Safe. Secure. Simple.
             </Text>
+            <p className="text-xl">hhh</p>
             <Text light t4 textAlignCenter style={{ lineHeight: '1.8', width: '500px', fontSize: '18px' }}>
               We’re here to protect your funds, so you don’t have to stress about getting rekt anymore.
             </Text>
