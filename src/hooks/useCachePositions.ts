@@ -12,7 +12,7 @@ import {
 } from '../constants/types'
 import { useWallet } from '../context/WalletManager'
 import { useNetwork } from '../context/NetworkManager'
-import { useSessionStorage } from 'react-use-storage'
+import { useStorage } from '../hooks/useStorage'
 import { NetworkCache } from '../constants/types'
 import { PositionType } from '../constants/enums'
 import { getTroveContract } from '../products/liquity/positionGetter/getPositions'
@@ -22,7 +22,7 @@ import { fetchTransferEventsOfUser } from '../utils/explorer'
 export const useCachePositions = () => {
   const { library, account } = useWallet()
   const { activeNetwork } = useNetwork()
-  const [storedPosData, setStoredPosData] = useSessionStorage<NetworkCache[]>('sol_position_data', [])
+  const [storedPosData, setStoredPosData] = useStorage<NetworkCache[]>('session', 'sol_position_data', [])
   const [transferHistory, setTransferHistory] = useState<any>([])
   const [batchFetching, setBatchFetching] = useState<boolean>(false)
   const fetching = useRef<boolean>(false)

@@ -1,5 +1,5 @@
 import React, { useMemo, useContext, createContext, useEffect, useState, useCallback } from 'react'
-import { useLocalStorage } from 'react-use-storage'
+
 import { useWallet } from './WalletManager'
 
 import { LocalTx, Policy, GasFeeListState } from '../constants/types'
@@ -12,6 +12,7 @@ import { useNetwork } from './NetworkManager'
 import { PolicyState, SystemNotice } from '../constants/enums'
 import { useGeneral } from './GeneralProvider'
 import { AccountModal } from '../components/organisms/AccountModal'
+import { useStorage } from '../hooks/useStorage'
 
 /*
 
@@ -61,7 +62,7 @@ const CachedDataContext = createContext<CachedData>({
 const CachedDataProvider: React.FC = (props) => {
   const { account, disconnect } = useWallet()
   const { chainId } = useNetwork()
-  const [localTxs, setLocalTxs] = useLocalStorage<LocalTx[]>('solace_loc_txs', [])
+  const [localTxs, setLocalTxs] = useStorage<LocalTx[]>('local', 'solace_loc_txs', [])
   const [reload, version] = useReload()
   const gasPrices = useFetchGasPrice()
   const { addNotices, removeNotices } = useGeneral()
@@ -78,25 +79,12 @@ const CachedDataProvider: React.FC = (props) => {
     setAccountModal(false)
   }, [])
 
-  const addLocalTransactions = (txToAdd: LocalTx) => {
-    setLocalTxs([txToAdd, ...localTxs])
-  }
-
-  const deleteLocalTransactions = (txsToDelete: LocalTx[]) => {
-    if (txsToDelete.length == 0) return
-    const formattedTxsToDelete = txsToDelete.map((tx) => tx.hash.toLowerCase())
-    const passedLocalTxs = localTxs.filter(
-      (tx: LocalTx) => !formattedTxsToDelete.includes(tx.hash.toLowerCase()) && tx.status !== 'Complete'
-    )
-    setLocalTxs(passedLocalTxs)
-  }
-
   useEffect(() => {
     const clearLocalTransactions = () => {
       setLocalTxs([])
     }
     clearLocalTransactions()
-  }, [disconnect, account, chainId])
+  }, [disconnect, account, chainId, setLocalTxs])
 
   useEffect(() => {
     if (!policiesLoading) {
@@ -122,10 +110,22 @@ const CachedDataProvider: React.FC = (props) => {
         removeNotices([SystemNotice.LOSS_EVENT_DETECTED])
       }
     }
-  }, [policiesLoading, userPolicies])
+  }, [policiesLoading, userPolicies, addNotices, removeNotices])
 
-  const value = useMemo<CachedData>(
-    () => ({
+  const value = useMemo<CachedData>(() => {
+    const addLocalTransactions = (txToAdd: LocalTx) => {
+      setLocalTxs([txToAdd, ...localTxs])
+    }
+
+    const deleteLocalTransactions = (txsToDelete: LocalTx[]) => {
+      if (txsToDelete.length == 0) return
+      const formattedTxsToDelete = txsToDelete.map((tx) => tx.hash.toLowerCase())
+      const passedLocalTxs = localTxs.filter(
+        (tx: LocalTx) => !formattedTxsToDelete.includes(tx.hash.toLowerCase()) && tx.status !== 'Complete'
+      )
+      setLocalTxs(passedLocalTxs)
+    }
+    return {
       localTransactions: localTxs,
       userPolicyData: { policiesLoading, userPolicies, setCanGetAssessments },
       showAccountModal: accountModal,
@@ -135,18 +135,19 @@ const CachedDataProvider: React.FC = (props) => {
       deleteLocalTransactions,
       openAccountModal: openModal,
       reload,
-    }),
-    [
-      localTxs,
-      addLocalTransactions,
-      deleteLocalTransactions,
-      version,
-      gasPrices,
-      policiesLoading,
-      userPolicies,
-      setCanGetAssessments,
-    ]
-  )
+    }
+  }, [
+    localTxs,
+    version,
+    gasPrices,
+    policiesLoading,
+    userPolicies,
+    setCanGetAssessments,
+    accountModal,
+    openModal,
+    reload,
+    setLocalTxs,
+  ])
 
   return (
     <CachedDataContext.Provider value={value}>

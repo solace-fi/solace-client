@@ -37,8 +37,8 @@ import { Text } from '../atoms/Typography'
 /* import utils */
 import { getExplorerItemUrl } from '../../utils/explorer'
 
-/* import resources */
-import quantstampPdf from '../../resources/pdf/Solace-Quantstamp-Report.pdf'
+// /* import resources */
+// import quantstampPdf from '../../resources/pdf/Solace-Quantstamp-Report.pdf'
 
 interface AppToastProps {
   message: string
@@ -78,7 +78,7 @@ export const AuditToast: React.FC = () => {
           </HyperLink>{' '}
           and{' '}
           <HyperLink
-            href={quantstampPdf}
+            href="./pdf/Solace-Quantstamp-Report.pdf"
             target="_blank"
             rel="noopener noreferrer"
             style={{ color: 'rgb(250, 250, 250)', textDecoration: 'underline' }}

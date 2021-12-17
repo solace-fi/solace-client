@@ -1,5 +1,5 @@
 import React, { createContext, useCallback, useContext, useMemo } from 'react'
-import { useLocalStorage } from 'react-use-storage'
+import { useStorage } from '../hooks/useStorage'
 import { NetworkConfig } from '../constants/types'
 import { AbstractConnector } from '@web3-react/abstract-connector'
 import { MetamaskConnector } from '../wallet/wallet-connectors/MetaMask'
@@ -38,7 +38,7 @@ const NetworkContext = createContext<NetworkContext>({
 })
 
 const NetworksProvider: React.FC = (props) => {
-  const [lastNetwork, setLastNetwork] = useLocalStorage<string | undefined>('solace_net')
+  const [lastNetwork, setLastNetwork] = useStorage<string | undefined>('local', 'solace_net', null)
   const activeNetwork = useMemo(() => {
     let network: NetworkConfig | undefined
 
@@ -60,23 +60,24 @@ const NetworksProvider: React.FC = (props) => {
     return networks.find((network) => network.chainId == chainId)
   }, [])
 
-  const changeNetwork = useCallback((networkName: string, connector: AbstractConnector | undefined):
-    | NetworkConfig
-    | undefined => {
-    const network = findNetworkByName(networkName)
+  const changeNetwork = useCallback(
+    (networkName: string, connector: AbstractConnector | undefined): NetworkConfig | undefined => {
+      const network = findNetworkByName(networkName)
 
-    if (network) {
-      setLastNetwork(network.name.toLowerCase())
+      if (network) {
+        setLastNetwork(network.name.toLowerCase())
 
-      // there were cases where changing networks with the same wallet (not metamask) does not pull data correctly
-      if (connector && !(connector instanceof MetamaskConnector)) window.location.reload()
+        // there were cases where changing networks with the same wallet (not metamask) does not pull data correctly
+        if (connector && !(connector instanceof MetamaskConnector)) window.location.reload()
 
-      // there were cases where changing networks with the same wallet does not pull data correctly
-      if (connector) window.location.reload() // <- uncomment if there's too many errors going on
-    }
+        // there were cases where changing networks with the same wallet does not pull data correctly
+        if (connector) window.location.reload() // <- uncomment if there's too many errors going on
+      }
 
-    return network
-  }, [])
+      return network
+    },
+    [findNetworkByName, setLastNetwork]
+  )
 
   const value = useMemo<NetworkContext>(
     () => ({

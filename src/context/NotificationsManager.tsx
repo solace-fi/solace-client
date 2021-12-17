@@ -2,11 +2,7 @@ import React, { createContext, useContext, useMemo, useEffect, useState, useRef 
 import { toast } from 'react-toastify'
 import { useWallet } from '../context/WalletManager'
 
-import 'animate.css/animate.min.css'
-import 'react-toastify/dist/ReactToastify.css'
 import { TransactionCondition, Error, SystemNotice } from '../constants/enums'
-
-import '../styles/toast.css'
 import { StylizedToastContainer } from '../components/atoms/Message'
 import { AppToast, NotificationToast } from '../components/molecules/Toast'
 import { StyledInfo, StyledWarning } from '../components/atoms/Icon'

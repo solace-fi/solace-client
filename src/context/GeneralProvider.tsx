@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useCallback, useRef } from 'react'
-import { useLocalStorage } from 'react-use-storage'
+import { useStorage } from '../hooks/useStorage'
 import { ThemeProvider } from 'styled-components'
 import { lightTheme, darkTheme } from '../styles/themes'
 import { Error, SystemNotice } from '../constants/enums'
@@ -41,8 +41,10 @@ export function useGeneral(): GeneralContextType {
 }
 
 const GeneralProvider: React.FC = (props) => {
-  const [selectedTheme, setSelectedTheme, removeSelectedTheme] = useLocalStorage<'light' | 'dark' | undefined>(
-    'sol_data_theme'
+  const [selectedTheme, setSelectedTheme, removeSelectedTheme] = useStorage<'light' | 'dark' | undefined>(
+    'local',
+    'sol_data_theme',
+    null
   )
   const appTheme: 'light' | 'dark' = selectedTheme ?? 'light'
   const theme = appTheme == 'light' ? lightTheme : darkTheme
@@ -50,45 +52,57 @@ const GeneralProvider: React.FC = (props) => {
   const [errors, setErrors] = useState<string[]>([])
   const haveErrors = useRef(errors.length > 0)
 
-  const addNotices = useCallback((noticesToAdd: SystemNoticeData[]) => {
-    if (noticesToAdd.length == 0) return
+  const addNotices = useCallback(
+    (noticesToAdd: SystemNoticeData[]) => {
+      if (noticesToAdd.length == 0) return
 
-    // convert input data into JSON string array
-    const stringifiedNoticeData = noticesToAdd.map((notice) => JSON.stringify(notice))
+      // convert input data into JSON string array
+      const stringifiedNoticeData = noticesToAdd.map((notice) => JSON.stringify(notice))
 
-    setNotices([...stringifiedNoticeData, ...notices])
-  }, [])
+      setNotices([...stringifiedNoticeData, ...notices])
+    },
+    [notices]
+  )
 
-  const removeNotices = useCallback((noticesToRemove: SystemNotice[]) => {
-    if (noticesToRemove.length == 0) return
+  const removeNotices = useCallback(
+    (noticesToRemove: SystemNotice[]) => {
+      if (noticesToRemove.length == 0) return
 
-    // convert cached data into JSON object to compare types, then remove those from cache whose types match
-    const updatedNotices = notices.filter(
-      (notice: string) => !noticesToRemove.includes((JSON.parse(notice) as SystemNoticeData).type)
-    )
-    if (updatedNotices == notices) return
-    setNotices(updatedNotices)
-  }, [])
+      // convert cached data into JSON object to compare types, then remove those from cache whose types match
+      const updatedNotices = notices.filter(
+        (notice: string) => !noticesToRemove.includes((JSON.parse(notice) as SystemNoticeData).type)
+      )
+      if (updatedNotices == notices) return
+      setNotices(updatedNotices)
+    },
+    [notices]
+  )
 
-  const addErrors = useCallback((errorsToAdd: ErrorData[]) => {
-    if (errorsToAdd.length == 0) return
+  const addErrors = useCallback(
+    (errorsToAdd: ErrorData[]) => {
+      if (errorsToAdd.length == 0) return
 
-    // convert input data into JSON string array
-    const stringifiedErrorData = errorsToAdd.map((error) => JSON.stringify(error))
+      // convert input data into JSON string array
+      const stringifiedErrorData = errorsToAdd.map((error) => JSON.stringify(error))
 
-    setErrors([...stringifiedErrorData, ...errors])
-  }, [])
+      setErrors([...stringifiedErrorData, ...errors])
+    },
+    [errors]
+  )
 
-  const removeErrors = useCallback((errorsToRemove: Error[]) => {
-    if (errorsToRemove.length == 0) return
+  const removeErrors = useCallback(
+    (errorsToRemove: Error[]) => {
+      if (errorsToRemove.length == 0) return
 
-    // convert cached data into JSON object to compare types, then remove those from cache whose types match
-    const updatedErrors = errors.filter(
-      (error: string) => !errorsToRemove.includes((JSON.parse(error) as ErrorData).type)
-    )
-    if (updatedErrors == notices) return
-    setErrors(updatedErrors)
-  }, [])
+      // convert cached data into JSON object to compare types, then remove those from cache whose types match
+      const updatedErrors = errors.filter(
+        (error: string) => !errorsToRemove.includes((JSON.parse(error) as ErrorData).type)
+      )
+      if (updatedErrors == notices) return
+      setErrors(updatedErrors)
+    },
+    [errors, notices]
+  )
 
   function toggleTheme() {
     if (appTheme === 'light') {
