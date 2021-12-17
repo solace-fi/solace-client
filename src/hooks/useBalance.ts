@@ -46,7 +46,7 @@ export const useNativeTokenBalance = (): string => {
       }
     }
     getNativeTokenBalance()
-  }, [activeNetwork, account, version])
+  }, [activeNetwork, account, version, library])
 
   return balance
 }
@@ -59,18 +59,17 @@ export const useScpBalance = (): string => {
   const [scpBalance, setScpBalance] = useState<string>('0')
   const { version } = useCachedData()
 
-  const getScpBalance = async () => {
-    if (!vault || !account) return
-    try {
-      const balance = await queryBalance(vault, account)
-      const formattedBalance = formatUnits(balance, activeNetwork.nativeCurrency.decimals)
-      setScpBalance(formattedBalance)
-    } catch (err) {
-      console.log('getScpBalance', err)
-    }
-  }
-
   useEffect(() => {
+    const getScpBalance = async () => {
+      if (!vault || !account) return
+      try {
+        const balance = await queryBalance(vault, account)
+        const formattedBalance = formatUnits(balance, activeNetwork.nativeCurrency.decimals)
+        setScpBalance(formattedBalance)
+      } catch (err) {
+        console.log('getScpBalance', err)
+      }
+    }
     if (!vault || !account) return
     getScpBalance()
     vault.on('Transfer', (from, to) => {
@@ -82,7 +81,7 @@ export const useScpBalance = (): string => {
     return () => {
       vault.removeAllListeners()
     }
-  }, [account, vault, version])
+  }, [account, vault, version, activeNetwork, version])
 
   return scpBalance
 }
@@ -123,7 +122,7 @@ export const useSolaceBalance = (): string => {
   return solaceBalance
 }
 
-export const useXSolaceBalance = () => {
+export const useXSolaceBalance = (): string => {
   const { keyContracts } = useContracts()
   const { xSolace } = useMemo(() => keyContracts, [keyContracts])
   const { account } = useWallet()
@@ -159,7 +158,9 @@ export const useXSolaceBalance = () => {
   return xSolaceBalance
 }
 
-export const useUnderWritingPoolBalance = () => {
+export const useUnderWritingPoolBalance = (): {
+  underwritingPoolBalance: string
+} => {
   const { activeNetwork, chainId, currencyDecimals } = useNetwork()
   const { tellers, keyContracts } = useContracts()
   const { bondDepo, solace } = useMemo(() => keyContracts, [keyContracts])
@@ -274,7 +275,19 @@ export const useUnderWritingPoolBalance = () => {
       }
     }
     getGnosisBalance()
-  }, [tellers, library, bondDepo, coinGeckoNativeTokenPrice, latestBlock])
+  }, [
+    tellers,
+    library,
+    bondDepo,
+    coinGeckoNativeTokenPrice,
+    latestBlock,
+    solace,
+    chainId,
+    currencyDecimals,
+    activeNetwork,
+    getPairPrice,
+    platform,
+  ])
 
   return { underwritingPoolBalance }
 }

@@ -109,6 +109,16 @@ export const accurateMultiply = (value: number | string, decimals: number): stri
   if (result.indexOf('.') != result.lastIndexOf('.')) return result
   const currentNumDecimalPlaces = result.length - decimalIndex - 1
   const decimalPlacesToAdd = decimals - currentNumDecimalPlaces
+
+  if (currentNumDecimalPlaces > decimals) {
+    // if current number of decimal places is greater than the number of decimals to multiply to,
+    // it is time to truncate
+    const numCharsToCut = decimals - currentNumDecimalPlaces
+    result = result.substr(0, decimalIndex).concat(result.substr(decimalIndex + 1, result.length))
+    result = result.slice(0, numCharsToCut)
+    return result
+  }
+
   result = result.substr(0, decimalIndex).concat(result.substr(decimalIndex + 1, result.length))
   const range = rangeFrom0(decimalPlacesToAdd)
   range.forEach(() => (result += '0'))

@@ -20,7 +20,6 @@
 /* import packages */
 import React, { useMemo } from 'react'
 import makeBlockie from 'ethereum-blockies-base64'
-import { useLocation } from 'react-router'
 
 /* import managers */
 import { useWallet } from '../../context/WalletManager'
@@ -38,6 +37,7 @@ import { GeneralElementProps } from '../generalInterfaces'
 
 /* import utils */
 import { shortenAddress, capitalizeFirstLetter } from '../../utils/formatting'
+import { useRouter } from 'next/router'
 
 export const UserAccount: React.FC<ButtonProps & GeneralElementProps> = (props) => {
   /*************************************************************************************
@@ -46,7 +46,7 @@ export const UserAccount: React.FC<ButtonProps & GeneralElementProps> = (props) 
 
   *************************************************************************************/
   const { appTheme } = useGeneral()
-  const location = useLocation()
+  const location = useRouter()
   const { activeNetwork } = useNetwork()
   const { account, name } = useWallet()
   const { openAccountModal } = useCachedData()
@@ -104,7 +104,7 @@ export const MiniUserAccount: React.FC<ButtonProps & GeneralElementProps> = (pro
 
   *************************************************************************************/
   const { appTheme } = useGeneral()
-  const location = useLocation()
+  const location = useRouter()
   const { account } = useWallet()
   const { openAccountModal } = useCachedData()
   const bgColor = useMemo(

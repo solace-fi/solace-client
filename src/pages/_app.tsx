@@ -14,21 +14,21 @@
   *************************************************************************************/
 
 /* import packages */
-import React, { Fragment } from 'react'
-import { Route, Switch, useLocation } from 'react-router-dom'
+import React from 'react'
+// import { Route, Switch } from 'react-router-dom'
 
 import '../index.css'
 /* import managers */
 
 /* import pages */
-import About from './about'
-import Dashboard from './dashboard'
-import Invest from './invest'
-import Stake from './stake'
-import Bond from './bond'
-import Quote from './quote'
-import Govern from './govern'
-import Terms from './terms'
+// import About from './about'
+// import Dashboard from './dashboard'
+// import Invest from './invest'
+// import Stake from './stake'
+// import Bond from './bond'
+// import Quote from './quote'
+// import Govern from './govern'
+// import Terms from './terms'
 import 'animate.css/animate.min.css'
 import '../styles/toast.css'
 import 'react-toastify/dist/ReactToastify.css'
@@ -47,9 +47,10 @@ import { useWindowDimensions } from '../hooks/useWindowDimensions'
 
 import { AnalyticsReporter } from '../analytics'
 import AppWrapper from '../components/AppWrapper'
+import { useRouter } from 'next/router'
 
 export default function App(): any {
-  const location = useLocation()
+  const location = useRouter()
   const { width } = useWindowDimensions()
 
   return (
@@ -67,7 +68,7 @@ export default function App(): any {
               {location.pathname !== '/quote' && location.pathname !== '/terms' && location.pathname !== '/' && (
                 <Statistics />
               )}
-              <Switch>
+              {/* <Switch>
                 <Route exact path="/" component={About} />
                 <Route exact path="/dashboard" component={Dashboard} />
                 <Route exact path="/invest" component={Invest} />
@@ -76,7 +77,7 @@ export default function App(): any {
                 <Route exact path="/quote" component={Quote} />
                 <Route exact path="/govern" component={Govern} />
                 <Route exact path="/terms" component={Terms} />
-              </Switch>
+              </Switch> */}
             </LayoutContentWithLoader>
           </LayoutContent>
           {location.pathname == '/' && width > BKPT_5 && <SideNavContent />}

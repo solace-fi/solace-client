@@ -24,7 +24,6 @@
 import React from 'react'
 import ReactTooltip from 'react-tooltip'
 import styled, { css } from 'styled-components'
-import { useLocation } from 'react-router'
 
 /* import constants */
 import { BKPT_3, Z_TOOLTIP } from '../../constants'
@@ -35,6 +34,7 @@ import { Text } from '../atoms/Typography'
 
 /* import hooks */
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'
+import { useRouter } from 'next/router'
 
 type StyledTooltipProps = {
   id: string
@@ -65,7 +65,7 @@ const CustomNavbarTooltip = styled(ReactTooltip)`
 
 export const StyledNavTooltip: React.FC<StyledTooltipProps> = ({ id, tip, children }) => {
   const { width } = useWindowDimensions()
-  const location = useLocation()
+  const location = useRouter()
 
   return (
     <>

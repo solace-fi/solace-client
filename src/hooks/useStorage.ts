@@ -14,7 +14,7 @@ export function useStorage<ValueType>(
   defaultValue: ValueType
 ): [ValueType, (updatedValue: ValueType, remove?: boolean) => void, () => void]
 
-export default function useStorage<ValueType>(
+export function useStorage<ValueType>(
   storageType: 'local' | 'session',
   key: string,
   defaultValue: ValueType | null = null
@@ -38,9 +38,8 @@ export default function useStorage<ValueType>(
     const value = raw ? (JSON.parse(raw) as ValueType | null) : defaultValue
     // set the state value to the value we just got from storage
     setValue(value)
-    // check if the value we got from storage is different than the default value
-    if (defaultValue != null && JSON.stringify(defaultValue) !== raw) {
-      // if so, update the storage with the default value
+    // ensure that, if there's a default value, localStorage is not null.
+    if (value === null && defaultValue !== null) {
       storage.setItem(key, JSON.stringify(defaultValue))
     }
   }, [key, defaultValue, storageType])
@@ -98,13 +97,3 @@ export default function useStorage<ValueType>(
     ]
   }
 }
-
-// const useStorage = (type: 'local' | 'session') => InnerStorageFunction
-
-// export default useStorage
-// function useStorage(
-//   type: 'local' | 'session',
-// ): (key: string, defaultValue: any | null) => [any | null, (updatedValue: any | null, remove?: boolean) => void, () => void]
-
-// export const useLocalStorage = useStorage('local')
-// export const useSessionStorage = useStorage('session')

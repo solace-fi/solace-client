@@ -1,9 +1,9 @@
+import { useRouter } from 'next/router'
 import { useEffect } from 'react'
-import { useLocation } from 'react-router-dom'
 import { hotjar } from 'react-hotjar'
 
 export const AnalyticsReporter = (): null => {
-  const location = useLocation()
+  const location = useRouter()
 
   useEffect(() => {
     hotjar.initialize(2681883, 6)

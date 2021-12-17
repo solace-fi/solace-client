@@ -14,6 +14,9 @@ import { getAmounts_MasterChefStakingPool } from './getStakes/MasterChefStakingF
 
 import { ApolloClient, InMemoryCache, gql } from '@apollo/client'
 import { queryBalance } from '../../../utils/contract'
+import { getCoingeckoTokenPrice, getZapperProtocolBalances } from '../../../utils/api'
+import { WETH9_ADDRESS } from '../../../constants/mappings/tokenAddressMapping'
+import { createZapperBalanceMap, networkNames } from '../../zapperBalances'
 
 export const getBalances = async (
   user: string,
@@ -23,70 +26,91 @@ export const getBalances = async (
 ): Promise<Token[]> => {
   if (tokens.length == 0) return []
 
-  const balances: Token[] = tokens
-  const indices = rangeFrom0(balances.length)
+  const zapperNet = networkNames[activeNetwork.chainId]
+  if (!zapperNet) return []
 
-  /*
+  const coinGeckoEthPrice = await getCoingeckoTokenPrice(WETH9_ADDRESS[activeNetwork.chainId], 'usd', 'ethereum')
+  const data = await getZapperProtocolBalances('sushiswap', [user], zapperNet)
 
-    farm contract segment
+  const finalTokens: Token[] = []
 
-  */
+  if (!coinGeckoEthPrice) return []
+  const tokenMap = createZapperBalanceMap(
+    data,
+    user,
+    parseFloat(coinGeckoEthPrice),
+    activeNetwork.nativeCurrency.decimals,
+    tokens
+  )
+  tokenMap.forEach((value: Token) => {
+    finalTokens.push(value)
+  })
+  return finalTokens
 
-  const additionalTokenBalances: BigNumber[] = []
-  indices.forEach((i) => (additionalTokenBalances[i] = ZERO))
+  // const balances: Token[] = tokens
+  // const indices = rangeFrom0(balances.length)
 
-  const farmAmounts: BigNumber[][] = await Promise.all([
-    getAmounts_MasterChefStakingPool(user, provider, activeNetwork, balances),
-  ])
+  // /*
 
-  for (let i = 0; i < balances.length; i++) {
-    let newBalance = ZERO
-    for (let j = 0; j < farmAmounts.length; j++) {
-      const a = farmAmounts[j][i]
-      newBalance = a.add(newBalance)
-    }
-    additionalTokenBalances[i] = newBalance
-  }
+  //   farm contract segment
 
-  /*
+  // */
 
-    get balances for lp tokens in user wallet (and fetched farm positions)
+  // const additionalTokenBalances: BigNumber[] = []
+  // indices.forEach((i) => (additionalTokenBalances[i] = ZERO))
 
-  */
+  // const farmAmounts: BigNumber[][] = await Promise.all([
+  //   getAmounts_MasterChefStakingPool(user, provider, activeNetwork, balances),
+  // ])
 
-  const lpTokenContracts = balances.map((token) => getContract(token.token.address, ierc20Json.abi, provider))
-  const queriedBalances = await Promise.all(lpTokenContracts.map((contract) => queryBalance(contract, user)))
-  indices.forEach((i) => (balances[i].token.balance = queriedBalances[i].add(additionalTokenBalances[i])))
+  // for (let i = 0; i < balances.length; i++) {
+  //   let newBalance = ZERO
+  //   for (let j = 0; j < farmAmounts.length; j++) {
+  //     const a = farmAmounts[j][i]
+  //     newBalance = a.add(newBalance)
+  //   }
+  //   additionalTokenBalances[i] = newBalance
+  // }
 
-  for (let i = 0; i < balances.length; i++) {
-    if (balances[i].token.balance.gt(ZERO)) {
-      const token0Contract = getContract(balances[i].underlying[0].address, ierc20Json.abi, provider)
-      const token1Contract = getContract(balances[i].underlying[1].address, ierc20Json.abi, provider)
+  // /*
 
-      const bal0 = await withBackoffRetries(async () => queryBalance(token0Contract, balances[i].token.address))
-      const bal1 = await withBackoffRetries(async () => queryBalance(token1Contract, balances[i].token.address))
+  //   get balances for lp tokens in user wallet (and fetched farm positions)
 
-      const totalSupply = await lpTokenContracts[i].totalSupply()
-      const liquidity = await withBackoffRetries(async () =>
-        queryBalance(lpTokenContracts[i], balances[i].token.address)
-      )
+  // */
 
-      const adjustedLiquidity = liquidity.add(balances[i].token.balance)
+  // const lpTokenContracts = balances.map((token) => getContract(token.token.address, ierc20Json.abi, provider))
+  // const queriedBalances = await Promise.all(lpTokenContracts.map((contract) => queryBalance(contract, user)))
+  // indices.forEach((i) => (balances[i].token.balance = queriedBalances[i].add(additionalTokenBalances[i])))
 
-      const amount0 = adjustedLiquidity.mul(bal0).div(totalSupply)
-      const amount1 = adjustedLiquidity.mul(bal1).div(totalSupply)
+  // for (let i = 0; i < balances.length; i++) {
+  //   if (balances[i].token.balance.gt(ZERO)) {
+  //     const token0Contract = getContract(balances[i].underlying[0].address, ierc20Json.abi, provider)
+  //     const token1Contract = getContract(balances[i].underlying[1].address, ierc20Json.abi, provider)
 
-      balances[i].underlying[0].balance = amount0
-      balances[i].underlying[1].balance = amount1
+  //     const bal0 = await withBackoffRetries(async () => queryBalance(token0Contract, balances[i].token.address))
+  //     const bal1 = await withBackoffRetries(async () => queryBalance(token1Contract, balances[i].token.address))
 
-      let standingEthAmount = ZERO
-      for (let j = 0; j < balances[i].underlying.length; j++) {
-        const fetchedAmount = await queryNativeTokenBalance(balances[i].underlying[j], activeNetwork.chainId)
-        standingEthAmount = standingEthAmount.add(fetchedAmount)
-      }
-      balances[i].eth.balance = standingEthAmount
-    }
-  }
-  const newBalances = balances
-  return newBalances.filter((b) => b.token.balance.gt(ZERO))
+  //     const totalSupply = await lpTokenContracts[i].totalSupply()
+  //     const liquidity = await withBackoffRetries(async () =>
+  //       queryBalance(lpTokenContracts[i], balances[i].token.address)
+  //     )
+
+  //     const adjustedLiquidity = liquidity.add(balances[i].token.balance)
+
+  //     const amount0 = adjustedLiquidity.mul(bal0).div(totalSupply)
+  //     const amount1 = adjustedLiquidity.mul(bal1).div(totalSupply)
+
+  //     balances[i].underlying[0].balance = amount0
+  //     balances[i].underlying[1].balance = amount1
+
+  //     let standingEthAmount = ZERO
+  //     for (let j = 0; j < balances[i].underlying.length; j++) {
+  //       const fetchedAmount = await queryNativeTokenBalance(balances[i].underlying[j], activeNetwork.chainId)
+  //       standingEthAmount = standingEthAmount.add(fetchedAmount)
+  //     }
+  //     balances[i].eth.balance = standingEthAmount
+  //   }
+  // }
+  // const newBalances = balances
+  // return newBalances.filter((b) => b.token.balance.gt(ZERO))
 }

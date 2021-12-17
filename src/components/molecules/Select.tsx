@@ -43,15 +43,15 @@ export const StyledSelect: React.FC<StyledSelectProps> = ({ value, onChange, opt
       onChange={onChange}
       options={options}
       styles={{
-        dropdownIndicator: (provided, state) => ({
+        dropdownIndicator: (provided) => ({
           ...provided,
           color: 'rgb(250, 250, 250)',
         }),
-        singleValue: (provided, state) => ({
+        singleValue: (provided) => ({
           ...provided,
           color: 'rgb(250, 250, 250)',
         }),
-        control: (provided, state) => ({
+        control: (provided) => ({
           ...provided,
           backgroundColor: appTheme == 'light' ? 'rgb(95, 93, 249)' : 'rgb(20, 19, 51)',
           color: 'rgb(250, 250, 250)',

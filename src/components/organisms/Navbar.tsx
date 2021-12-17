@@ -20,19 +20,18 @@
 
 /* import packages */
 import React, { Fragment, useEffect, useMemo, useState } from 'react'
-import { useLocation } from 'react-router'
 
 /* import managers */
 import { useGeneral } from '../../context/GeneralProvider'
 import { useNotifications } from '../../context/NotificationsManager'
 
 /* import constants */
-import { BKPT_3, BKPT_NAVBAR } from '../../constants'
+import { BKPT_3 } from '../../constants'
 import { SystemNotice } from '../../constants/enums'
 
 /* import components */
 import { SidebarItem, TopNav, ItemText, ItemList, SidebarText } from '../atoms/Navbar'
-import { NavButton, Button } from '../atoms/Button'
+import { NavButton } from '../atoms/Button'
 import { Logo, MiniLogo } from '../molecules/Logo'
 import {
   StyledDashboard,
@@ -45,7 +44,6 @@ import {
   StyledCoinStack,
   StyledCommunity,
   StyledDocuments,
-  StyledDocumentText,
   StyledWork,
   StyledLockFile,
   StyledReceiptMoney,
@@ -53,7 +51,7 @@ import {
 import { Text, TextSpan } from '../atoms/Typography'
 import { HyperLink } from '../atoms/Link'
 import { ThemeButton } from '../molecules/ThemeButton'
-import { FlexCol, FlexRow, HorizRule } from '../atoms/Layout'
+import { FlexRow, HorizRule } from '../atoms/Layout'
 import { MiniUserAccount, UserAccount } from '../molecules/Account'
 import { StyledNavTooltip } from '../molecules/Tooltip'
 import { AuditToast } from '../molecules/Toast'
@@ -65,6 +63,7 @@ import AlchemyBadgeDark from '../../resources/svg/alchemy-badge-dark.svg'
 
 /* import hooks */
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'
+import { useRouter } from 'next/router'
 
 export const SideNavbar: React.FC = () => {
   /*
@@ -73,7 +72,7 @@ export const SideNavbar: React.FC = () => {
 
   */
   const { appTheme } = useGeneral()
-  const location = useLocation()
+  const location = useRouter()
   const { width } = useWindowDimensions()
   const miniNavbarMarginSet = useMemo(() => {
     return {
@@ -365,7 +364,7 @@ export const TopNavbar: React.FC = () => {
 
   *************************************************************************************/
   const [isOpen, setIsOpen] = useState<boolean>(false)
-  const location = useLocation()
+  const location = useRouter()
   const { toastSettings, makeAppToast } = useNotifications()
 
   const handleIsOpen = (toggle: boolean) => {
@@ -398,7 +397,7 @@ export const TopNavbar: React.FC = () => {
         true
       )
     }
-  }, [location])
+  }, [location, toastSettings.appNotice, makeAppToast])
 
   return (
     <TopNav id="top-nav" isOpen={isOpen} style={{ overflowY: isOpen ? 'auto' : 'hidden' }}>

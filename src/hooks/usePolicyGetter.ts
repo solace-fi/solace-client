@@ -178,7 +178,7 @@ export const usePolicyGetter = (
     let updatedPolicy = await queryPolicy(id, blockNumber)
     updatedPolicy = await getEditedPolicy(updatedPolicy)
 
-    if (canGetClaimAssessments.current) {
+    if (canGetClaimAssessments.current && updatedPolicy.status == PolicyState.ACTIVE) {
       const assessment = await getClaimAssessment(String(updatedPolicy.policyId), activeNetwork.chainId).catch(
         (err) => {
           console.log(err)
@@ -195,12 +195,13 @@ export const usePolicyGetter = (
 
   const fetchClaimAssessments = async (policies: Policy[]) => {
     const claimAssessments = await Promise.all(
-      policies.map(async (policy) =>
-        getClaimAssessment(String(policy.policyId), chainId).catch((err) => {
+      policies.map(async (policy) => {
+        if (policy.status == PolicyState.EXPIRED) return undefined
+        return getClaimAssessment(String(policy.policyId), chainId).catch((err) => {
           console.log(err)
           return undefined
         })
-      )
+      })
     )
     const policiesWithClaimAssessments = policies.map((policy, i) => {
       return { ...policy, claimAssessment: claimAssessments[i] }
