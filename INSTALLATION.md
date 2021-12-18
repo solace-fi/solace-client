@@ -2,27 +2,14 @@
 
 In a terminal window, run
 ```
-git checkout https://github.com/solace-fi/core.git
-git checkout https://github.com/solace-fi/client.git
-cd core
-git checkout feat/Revamped-Scripts # or whatever the active branch is at the time
+git clone https://github.com/solace-fi/solace-core.git
+git clone https://github.com/solace-fi/solace-client.git
+cd solace-core
 npm i
 npx hardhat compile
-npx hardhat node
-```
-
-Open new terminal window and continue
-```
-cd core
-npx hardhat run scripts/deploy.ts --network localhost
-cd ../client
-git checkout feat/styling # or whatever the active branch is at the time
+cd ../solace-client
 npm i
-cp -r . ../core/client
-cd ../core/client
-cp .env.example .env
-cat ../scripts/contract_locations.txt >> .env
-# there may be values to enter and duplicate lines to remove in core/client/.env
+cp -r ../solace-core/client/. .
 npm run start
 ```
 
