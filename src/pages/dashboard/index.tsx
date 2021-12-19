@@ -34,7 +34,7 @@ import { ManageModal } from '../../components/organisms/policy/ManageModal'
 import { ClaimModal } from '../../components/organisms/policy/ClaimModal'
 import { MyPolicies } from '../../components/molecules/MyPolicies'
 import { MyClaims } from '../../components/molecules/MyClaims'
-import { MyInvestments } from '../../components/molecules/MyInvestments'
+// import { MyInvestments } from '../../components/molecules/MyInvestments'
 import { WalletConnectButton } from '../../components/molecules/WalletConnectButton'
 
 /* import hooks */

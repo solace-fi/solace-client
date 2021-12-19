@@ -192,7 +192,7 @@ export const AccountModal: React.FC<AccountModalProps> = ({ closeModal, isOpen }
                   </TableRow>
                 ))}
                 {txHistory &&
-                  txHistory.map((tx: any, i: number) => (
+                  txHistory.map((tx: any) => (
                     <TableRow key={tx.hash}>
                       <TableData
                         t4

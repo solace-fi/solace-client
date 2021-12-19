@@ -22,16 +22,16 @@ import { formatUnits } from '@ethersproject/units'
 
 /* import constants */
 import { BKPT_3, ZERO } from '../../constants'
-import { TransactionCondition, FunctionName, Unit, PolicyState } from '../../constants/enums'
-import { LocalTx } from '../../constants/types'
-import { FunctionGasLimits } from '../../constants/mappings/gasMapping'
+import { /*TransactionCondition, FunctionName, Unit, */ PolicyState } from '../../constants/enums'
+// import { LocalTx } from '../../constants/types'
+// import { FunctionGasLimits } from '../../constants/mappings/gasMapping'
 import { USDC_ADDRESS } from '../../constants/mappings/tokenAddressMapping'
 
 /* import managers */
 import { useWallet } from '../../context/WalletManager'
 import { useContracts } from '../../context/ContractsManager'
-import { useNotifications } from '../../context/NotificationsManager'
-import { useCachedData } from '../../context/CachedDataManager'
+// import { useNotifications } from '../../context/NotificationsManager'
+// import { useCachedData } from '../../context/CachedDataManager'
 import { useNetwork } from '../../context/NetworkManager'
 
 /* import components */
@@ -44,11 +44,11 @@ import { Card, CardContainer } from '../atoms/Card'
 import { HyperLink } from '../atoms/Link'
 
 /* import hooks */
-import { useTotalPendingRewards } from '../../hooks/useRewards'
+// import { useTotalPendingRewards } from '../../hooks/useRewards'
 import { useSolaceBalance, useUnderWritingPoolBalance, useXSolaceBalance } from '../../hooks/useBalance'
 import { usePolicyGetter } from '../../hooks/usePolicyGetter'
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'
-import { useGetFunctionGas } from '../../hooks/useGas'
+// import { useGetFunctionGas } from '../../hooks/useGas'
 import { usePairPrice } from '../../hooks/usePair'
 import { useStakingApy } from '../../hooks/useXSolace'
 import { useReadToken } from '../../hooks/useToken'
@@ -65,19 +65,19 @@ export const Statistics: React.FC = () => {
   const { account, initialized } = useWallet()
   const { activeNetwork, currencyDecimals, chainId } = useNetwork()
   const { keyContracts } = useContracts()
-  const { farmController, solace, xSolace } = useMemo(() => keyContracts, [keyContracts])
-  const { makeTxToast } = useNotifications()
-  const { addLocalTransactions, reload } = useCachedData()
+  const { /*farmController,*/ solace, xSolace } = useMemo(() => keyContracts, [keyContracts])
+  // const { makeTxToast } = useNotifications()
+  // const { addLocalTransactions, reload } = useCachedData()
   const { stakingApy } = useStakingApy()
   const solaceBalance = useSolaceBalance()
   const xSolaceBalance = useXSolaceBalance()
   const readSolaceToken = useReadToken(solace)
   const readXSolaceToken = useReadToken(xSolace)
-  const totalUserRewards = useTotalPendingRewards()
+  // const totalUserRewards = useTotalPendingRewards()
   const { allPolicies } = usePolicyGetter(true)
   const { width } = useWindowDimensions()
-  const { getAutoGasConfig } = useGetFunctionGas()
-  const gasConfig = useMemo(() => getAutoGasConfig(), [getAutoGasConfig])
+  // const { getAutoGasConfig } = useGetFunctionGas()
+  // const gasConfig = useMemo(() => getAutoGasConfig(), [getAutoGasConfig])
   const [totalActiveCoverAmount, setTotalActiveCoverAmount] = useState<string>('-')
   const [totalActivePolicies, setTotalActivePolicies] = useState<string>('-')
   const { pairPrice } = usePairPrice(solace)
@@ -88,39 +88,39 @@ export const Statistics: React.FC = () => {
   contract functions
 
   *************************************************************************************/
-  const claimRewards = async () => {
-    if (!farmController) return
-    const txType = FunctionName.WITHDRAW_REWARDS
-    try {
-      const tx = await farmController.farmOptionMulti({
-        ...gasConfig,
-        gasLimit: FunctionGasLimits['farmController.farmOptionMulti'],
-      })
-      const txHash = tx.hash
-      const localTx: LocalTx = {
-        hash: txHash,
-        type: txType,
-        value: `${truncateBalance(totalUserRewards)} ${Unit.SOLACE}`,
-        status: TransactionCondition.PENDING,
-      }
-      addLocalTransactions(localTx)
-      makeTxToast(txType, TransactionCondition.PENDING, txHash)
-      reload()
-      await tx.wait().then((receipt: any) => {
-        const status = receipt.status ? TransactionCondition.SUCCESS : TransactionCondition.FAILURE
-        makeTxToast(txType, status, txHash)
-        reload()
-      })
-    } catch (err) {
-      if (err?.code === 4001) {
-        console.log('Transaction rejected.')
-      } else {
-        console.log(`Transaction failed: ${err.message}`)
-      }
-      makeTxToast(txType, TransactionCondition.CANCELLED)
-      reload()
-    }
-  }
+  // const claimRewards = async () => {
+  //   if (!farmController) return
+  //   const txType = FunctionName.WITHDRAW_REWARDS
+  //   try {
+  //     const tx = await farmController.farmOptionMulti({
+  //       ...gasConfig,
+  //       gasLimit: FunctionGasLimits['farmController.farmOptionMulti'],
+  //     })
+  //     const txHash = tx.hash
+  //     const localTx: LocalTx = {
+  //       hash: txHash,
+  //       type: txType,
+  //       value: `${truncateBalance(totalUserRewards)} ${Unit.SOLACE}`,
+  //       status: TransactionCondition.PENDING,
+  //     }
+  //     addLocalTransactions(localTx)
+  //     makeTxToast(txType, TransactionCondition.PENDING, txHash)
+  //     reload()
+  //     await tx.wait().then((receipt: any) => {
+  //       const status = receipt.status ? TransactionCondition.SUCCESS : TransactionCondition.FAILURE
+  //       makeTxToast(txType, status, txHash)
+  //       reload()
+  //     })
+  //   } catch (err) {
+  //     if (err?.code === 4001) {
+  //       console.log('Transaction rejected.')
+  //     } else {
+  //       console.log(`Transaction failed: ${err.message}`)
+  //     }
+  //     makeTxToast(txType, TransactionCondition.CANCELLED)
+  //     reload()
+  //   }
+  // }
 
   /*************************************************************************************
 

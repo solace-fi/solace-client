@@ -1,6 +1,7 @@
 import { GeneralElementProps, GeneralElementCss, PaddingProps, PaddingCss } from '../../generalInterfaces'
 import styled, { css } from 'styled-components'
-import { GeneralTextProps, GeneralTextCss, Text4Css } from '../Typography'
+import { Text4Css } from '../Typography'
+// removed: GeneralTextProps, GeneralTextCss
 
 export interface ClickProps {
   onClick?: any

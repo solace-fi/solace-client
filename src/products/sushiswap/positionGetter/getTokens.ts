@@ -1,12 +1,12 @@
 import { NetworkConfig, Token } from '../../../constants/types'
-import { ETHERSCAN_API_KEY } from '../../../constants'
+// import { ETHERSCAN_API_KEY } from '../../../constants'
 import ierc20Json from '../../../constants/metadata/IERC20Metadata.json'
 import { getContract } from '../../../utils'
 import { ZERO } from '../../../constants'
-import { numberify } from '../../../utils/numeric'
-import { queryBalance, queryDecimals } from '../../../utils/contract'
+// import { numberify } from '../../../utils/numeric'
+import { /*queryBalance,*/ queryDecimals } from '../../../utils/contract'
 
-import sushiLPTokenAbi from './_contracts/ISushiLPToken.json'
+// import sushiLPTokenAbi from './_contracts/ISushiLPToken.json'
 
 import { ApolloClient, InMemoryCache, gql } from '@apollo/client'
 

@@ -135,7 +135,7 @@ export const Erc721InputPanel: React.FC<Erc721InputPanelProps> = ({
   availableBalance,
   nftSelection,
   handleNft,
-  nftId,
+  // nftId,
 }) => {
   const { currencyDecimals } = useNetwork()
 

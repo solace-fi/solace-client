@@ -1,7 +1,7 @@
 import { NetworkConfig, Token } from '../../../constants/types'
 import { rangeFrom0 } from '../../../utils/numeric'
 import { Contract } from '@ethersproject/contracts'
-import { addNativeTokenBalances, getProductTokenBalances } from '../../getBalances'
+import { /*addNativeTokenBalances,*/ getProductTokenBalances } from '../../getBalances'
 import { getNonHumanValue } from '../../../utils/formatting'
 import ierc20Json from '../../../constants/metadata/IERC20Metadata.json'
 import { vaultAbi } from './_contracts/yearnAbis'

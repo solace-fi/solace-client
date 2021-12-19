@@ -1,7 +1,7 @@
 import { NavLink } from 'react-router-dom'
 import styled, { css } from 'styled-components'
 import { BKPT_NAVBAR, BKPT_3, Z_TOPNAV } from '../../../constants'
-import { GeneralElementCss } from '../../generalInterfaces'
+// import { GeneralElementCss } from '../../generalInterfaces'
 import { GeneralTextProps, GeneralTextCss } from '../Typography'
 
 interface TopNavProps {

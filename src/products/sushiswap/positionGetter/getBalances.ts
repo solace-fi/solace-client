@@ -1,18 +1,18 @@
 import { NetworkConfig, Token } from '../../../constants/types'
-import { getProductTokenBalances, queryNativeTokenBalance } from '../../getBalances'
+import { /* getProductTokenBalances,*/ queryNativeTokenBalance } from '../../getBalances'
 import { getContract } from '../../../utils'
-import { THEGRAPH_API_KEY, ZERO } from '../../../constants'
-import { rangeFrom0, bnCmp } from '../../../utils/numeric'
+import { /* THEGRAPH_API_KEY,*/ ZERO } from '../../../constants'
+import { rangeFrom0 /*, bnCmp*/ } from '../../../utils/numeric'
 
-import masterchefABI from './_contracts/IMasterChef.json'
-import masterchefStakingPoolABI from './_contracts/IMasterChefStakingPool.json'
+// import masterchefABI from './_contracts/IMasterChef.json'
+// import masterchefStakingPoolABI from './_contracts/IMasterChefStakingPool.json'
 import { BigNumber } from 'ethers'
 import { withBackoffRetries } from '../../../utils/time'
-import axios from 'axios'
+// import axios from 'axios'
 import ierc20Json from '../../../constants/metadata/IERC20Metadata.json'
 import { getAmounts_MasterChefStakingPool } from './getStakes/MasterChefStakingFarm'
 
-import { ApolloClient, InMemoryCache, gql } from '@apollo/client'
+// import { ApolloClient, InMemoryCache, gql } from '@apollo/client'
 import { queryBalance } from '../../../utils/contract'
 
 export const getBalances = async (

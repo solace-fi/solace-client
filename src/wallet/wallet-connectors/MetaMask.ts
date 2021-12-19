@@ -4,7 +4,7 @@ import {
   MetamaskAddEthereumChain,
   MetamaskSwitchEthereumChain,
   MetamaskWatchAsset,
-  NetworkConfig,
+  // NetworkConfig,
 } from '../../constants/types'
 import MetamaskLogo from '../../resources/svg/wallets/metamask-logo.svg'
 
@@ -48,7 +48,7 @@ export const MetaMaskConnector = {
   name: 'MetaMask',
   logo: MetamaskLogo,
   supportedTxTypes: [0, 2],
-  getConnector(network: NetworkConfig): AbstractConnector {
+  getConnector(/*network: NetworkConfig*/): AbstractConnector {
     return new MetamaskConnector({
       supportedChainIds: networks.map((network) => network.chainId),
     })

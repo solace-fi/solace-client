@@ -26,7 +26,7 @@ import useDebounce from '@rooks/use-debounce'
 /* import constants */
 import { DAYS_PER_YEAR, NUM_BLOCKS_PER_DAY, BKPT_3 } from '../../constants'
 import { ProductContract } from '../../constants/types'
-import { ExplorerscanApi } from '../../constants/enums'
+// import { ExplorerscanApi } from '../../constants/enums'
 
 /* import context */
 import { useContracts } from '../../context/ContractsManager'
@@ -41,10 +41,10 @@ import { Search } from '../../components/atoms/Input'
 import { DeFiAsset, DeFiAssetImage, ProtocolTitle } from '../../components/atoms/DeFiAsset'
 import { Card, CardContainer } from '../../components/atoms/Card'
 import { FormRow, FormCol } from '../../components/atoms/Form'
-import { FlexCol, FlexRow, Scrollable } from '../../components/atoms/Layout'
+import { /*FlexCol, FlexRow,*/ Scrollable } from '../../components/atoms/Layout'
 import { Text } from '../../components/atoms/Typography'
-import { HyperLink } from '../../components/atoms/Link'
-import { StyledLinkExternal } from '../../components/atoms/Icon'
+// import { HyperLink } from '../../components/atoms/Link'
+// import { StyledLinkExternal } from '../../components/atoms/Icon'
 
 /* import hooks */
 import { useGetAvailableCoverages, useGetYearlyCosts } from '../../hooks/usePolicy'
@@ -52,7 +52,7 @@ import { useWindowDimensions } from '../../hooks/useWindowDimensions'
 
 /* import utils */
 import { fixed, truncateBalance } from '../../utils/formatting'
-import { getExplorerItemUrl } from '../../utils/explorer'
+// import { getExplorerItemUrl } from '../../utils/explorer'
 
 /*************************************************************************************
 

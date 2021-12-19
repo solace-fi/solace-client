@@ -1,16 +1,16 @@
 import { NetworkConfig, Token as _Token } from '../../../constants/types'
-import { rangeFrom0 } from '../../../utils/numeric'
-import { Contract } from '@ethersproject/contracts'
-import { addNativeTokenBalances, getProductTokenBalances } from '../../getBalances'
-import { accurateMultiply, getNonHumanValue } from '../../../utils/formatting'
-import { withBackoffRetries } from '../../../utils/time'
+// import { rangeFrom0 } from '../../../utils/numeric'
+// import { Contract } from '@ethersproject/contracts'
+// import { addNativeTokenBalances, getProductTokenBalances } from '../../getBalances'
+import { accurateMultiply /*, getNonHumanValue */ } from '../../../utils/formatting'
+// import { withBackoffRetries } from '../../../utils/time'
 import { BigNumber } from 'ethers'
 import { TickMath, Position, Pool, Route } from '@uniswap/v3-sdk'
-import { Token, Price, CurrencyAmount } from '@uniswap/sdk-core'
+import { Token, Price /*, CurrencyAmount*/ } from '@uniswap/sdk-core'
 import UniV3FactoryAbi from './_contracts/IUniswapV3Factory.json'
 
-import { ADDRESS_ZERO, ZERO } from '../../../constants'
-import axios from 'axios'
+import { ADDRESS_ZERO /*, ZERO */ } from '../../../constants'
+// import axios from 'axios'
 import JSBI from 'jsbi'
 
 import { ApolloClient, InMemoryCache, gql } from '@apollo/client'
@@ -18,8 +18,8 @@ import { getContract } from '../../../utils'
 
 const UniV3FactoryAddr = '0x1F98431c8aD98523631AE4a59f267346ea31F984'
 
-const ETH = '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee'
-const WETH = '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2'
+// const ETH = '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee'
+// const WETH = '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2'
 
 const WETHToken = new Token(1, '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2', 18, 'WETH', 'Wrapped Ether') // mainnet eth
 

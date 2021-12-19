@@ -1,10 +1,10 @@
-import { providers, utils } from 'ethers'
+import { providers /*, utils */ } from 'ethers'
 import { Contract } from '@ethersproject/contracts'
 import { ZERO } from '../../../constants'
 import { NetworkConfig, Token } from '../../../constants/types'
 import ierc20Json from '../../../constants/metadata/IERC20Metadata.json'
 import { AaveProtocolDataProviderFactory } from './_contracts/AaveProtocolDataProviderFactory'
-import { withBackoffRetries } from '../../../utils/time'
+// import { withBackoffRetries } from '../../../utils/time'
 import { equalsIgnoreCase } from '../../../utils'
 import { queryName } from '../../../utils/contract'
 
@@ -101,7 +101,7 @@ const generateTokensData = async (
   }
 }
 
-export const getTokens = async (provider: any, activeNetwork: NetworkConfig, metadata?: any): Promise<Token[]> => {
+export const getTokens = async (provider: any, activeNetwork: NetworkConfig /*, metadata?: any*/): Promise<Token[]> => {
   if (!provider) return []
   let allTokens: Token[] = []
   if (NETWORKS_CONFIG[String(activeNetwork.chainId)] == undefined) return []

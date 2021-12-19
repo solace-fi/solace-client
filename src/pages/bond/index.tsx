@@ -24,7 +24,7 @@ import { BondTellerDetails } from '../../constants/types'
 
 /* import context */
 import { useGeneral } from '../../context/GeneralProvider'
-import { useContracts } from '../../context/ContractsManager'
+// import { useContracts } from '../../context/ContractsManager'
 
 /* import components */
 import { Button } from '../../components/atoms/Button'
@@ -41,7 +41,7 @@ import { HyperLink } from '../../components/atoms/Link'
 /* import hooks */
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'
 import { useBondTellerDetails } from '../../hooks/useBondTeller'
-import { usePairPrice } from '../../hooks/usePair'
+// import { usePairPrice } from '../../hooks/usePair'
 
 /* import utils */
 import { truncateBalance } from '../../utils/formatting'
@@ -53,8 +53,8 @@ function Bond(): any {
 
   */
   const { haveErrors } = useGeneral()
-  const { keyContracts } = useContracts()
-  const { solace } = useMemo(() => keyContracts, [keyContracts])
+  // const { keyContracts } = useContracts()
+  // const { solace } = useMemo(() => keyContracts, [keyContracts])
   const [showBondModal, setShowBondModal] = useState<boolean>(false)
   const [selectedBondDetail, setSelectedBondDetail] = useState<BondTellerDetails | undefined>(undefined)
   const { width } = useWindowDimensions()

@@ -1,15 +1,15 @@
 import { NetworkConfig, Token } from '../../../constants/types'
 import { getContract } from '../../../utils'
-import { queryBalance, queryDecimals, queryName, querySymbol } from '../../../utils/contract'
-import { numberify, rangeFrom0 } from '../../../utils/numeric'
+import { /*queryBalance, */ queryDecimals, queryName, querySymbol } from '../../../utils/contract'
+import { /*numberify, */ rangeFrom0 } from '../../../utils/numeric'
 import { ZERO } from '../../../constants'
 import ierc20Json from '../../../constants/metadata/IERC20Metadata.json'
 import { capitalizeFirstLetter } from '../../../utils/formatting'
-import { withBackoffRetries } from '../../../utils/time'
+// import { withBackoffRetries } from '../../../utils/time'
 import { vaultAbi, yregistryAbi } from './_contracts/yearnAbis'
-import { BigNumber, utils } from 'ethers'
+import { BigNumber /*, utils*/ } from 'ethers'
 
-import { ApolloClient, InMemoryCache, gql } from '@apollo/client'
+// import { ApolloClient, InMemoryCache, gql } from '@apollo/client'
 
 export const getTokens = async (provider: any, activeNetwork: NetworkConfig, metadata?: any): Promise<Token[]> => {
   // TODO: reduce the ~1000 requests down

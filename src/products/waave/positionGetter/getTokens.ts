@@ -1,14 +1,14 @@
 import { NetworkConfig, Token } from '../../../constants/types'
 import { Contract } from '@ethersproject/contracts'
 import { ZERO } from '../../../constants'
-import { withBackoffRetries } from '../../../utils/time'
-import { numberify, rangeFrom0 } from '../../../utils/numeric'
+// import { withBackoffRetries } from '../../../utils/time'
+import { /* numberify,*/ rangeFrom0 } from '../../../utils/numeric'
 
 import waaveRegistryAbi from '../../../constants/abi/contracts/interface/Waave/IWaRegistry.sol/IWaRegistry.json'
 import waaveTokenAbi from '../../../constants/abi/contracts/interface/Waave/IWaToken.sol/IWaToken.json'
 import { queryDecimals, queryName, querySymbol, queryUnderLying } from '../../../utils/contract'
 
-export const getTokens = async (provider: any, activeNetwork: NetworkConfig, metadata?: any): Promise<Token[]> => {
+export const getTokens = async (provider: any, activeNetwork: NetworkConfig /*, metadata?: any*/): Promise<Token[]> => {
   const waaveRegistryAddr =
     activeNetwork.chainId == 42
       ? String(process.env.REACT_APP_KOVAN_WA_REGISTRY_ADDR)

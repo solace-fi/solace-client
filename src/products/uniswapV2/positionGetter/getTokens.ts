@@ -1,12 +1,12 @@
 import { NetworkConfig, Token } from '../../../constants/types'
-import { ETHERSCAN_API_KEY } from '../../../constants'
+// import { ETHERSCAN_API_KEY } from '../../../constants'
 import ierc20Json from '../../../constants/metadata/IERC20Metadata.json'
 import { getContract } from '../../../utils'
-import { queryBalance, queryDecimals, queryName } from '../../../utils/contract'
+import { /*queryBalance,*/ queryDecimals, queryName } from '../../../utils/contract'
 import { ZERO } from '../../../constants'
 
-import uniV2FactoryAbi from './_contracts/IUniV2Factory.json'
-import uniLPTokenAbi from './_contracts/IUniLPToken.json'
+// import uniV2FactoryAbi from './_contracts/IUniV2Factory.json'
+// import uniLPTokenAbi from './_contracts/IUniLPToken.json'
 
 import { ApolloClient, InMemoryCache, gql } from '@apollo/client'
 
