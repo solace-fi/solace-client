@@ -112,7 +112,7 @@ const ProviderManager: React.FC = ({ children }) => {
         } catch (e) {
           canSetNetwork = false
 
-          if (e.code === 4902) {
+          if ((e as any).code === 4902) {
             await connector.addChain(network.metamaskChain)
           }
         }

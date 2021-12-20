@@ -127,7 +127,7 @@ const WalletProvider: React.FC = (props) => {
             chainId: activeNetwork.metamaskChain.chainId,
           })
         } catch (e) {
-          if (e.code === 4902) {
+          if ((e as any).code === 4902) {
             await connector.addChain(activeNetwork.metamaskChain)
           }
         }
