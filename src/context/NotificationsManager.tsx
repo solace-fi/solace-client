@@ -286,7 +286,7 @@ const ToastsProvider: React.FC = (props) => {
       setErrorMap(new Map(errorMap.set(Error.UNKNOWN_WALLET_ERROR, undefined)))
       toast.dismiss(Error.UNKNOWN_WALLET_ERROR)
     }
-  }, [errors])
+  }, [errors, appError, errorMap])
 
   const value = useMemo<ToastSystem>(
     () => ({
@@ -299,7 +299,7 @@ const ToastsProvider: React.FC = (props) => {
         appError,
       },
     }),
-    []
+    [appNotice, appError, txError, txSuccess]
   )
 
   return (

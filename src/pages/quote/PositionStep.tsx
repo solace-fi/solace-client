@@ -235,7 +235,7 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
       if (supportedProduct && supportedProduct.productLink) setProductLink(supportedProduct.productLink)
     }
     getProductLink()
-  }, [])
+  }, [supportedProduct])
 
   useEffect(() => {
     const loadOnBoot = async () => {
@@ -277,7 +277,7 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
         return !userHasActiveProductPosition(userPolicyData.userPolicies, protocol.name, addr)
       })
     )
-  }, [fetchedPositions, protocol.name])
+  }, [fetchedPositions, protocol.name, userPolicyData.userPolicies])
 
   // if a policy is displayed on modal, always get latest policy
   useEffect(() => {
@@ -289,7 +289,7 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
     if (JSON.stringify(matchingPolicy) !== JSON.stringify(selectedPolicy)) {
       setSelectedPolicy(matchingPolicy)
     }
-  }, [userPolicyData.userPolicies])
+  }, [userPolicyData.userPolicies, selectedPolicy])
 
   return (
     <Fragment>

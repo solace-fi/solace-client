@@ -199,11 +199,11 @@ export const UnderwritingPoolModal: React.FC<PoolModalProps> = ({ modalTitle, fu
 
   useEffect(() => {
     if (maxSelected) _setMax()
-  }, [handleSelectGasChange])
+  }, [handleSelectGasChange, maxSelected])
 
   useEffect(() => {
     setIsAcceptableAmount(isAppropriateAmount(amount, currencyDecimals, assetBalance))
-  }, [amount, assetBalance])
+  }, [amount, assetBalance, currencyDecimals])
 
   /*************************************************************************************
 

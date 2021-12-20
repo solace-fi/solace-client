@@ -139,7 +139,7 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
       default:
         return parseUnits(nativeTokenBalance, currencyDecimals)
     }
-  }, [func, nativeTokenBalance, principalBalance, pncplDecimals])
+  }, [func, nativeTokenBalance, principalBalance, pncplDecimals, currencyDecimals])
 
   /*************************************************************************************
 
@@ -235,7 +235,7 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
     setModalLoading(false)
     resetAmount()
     closeModal()
-  }, [closeModal])
+  }, [closeModal, account])
 
   const _setMax = () => {
     if (!pncplDecimals || !calculatedAmountIn || !calculatedAmountIn_X) return
@@ -344,7 +344,7 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
       setFunc(tempFunc)
     }
     getTellerType()
-  }, [selectedBondDetail?.tellerData.teller.isBondTellerErc20, isOpen])
+  }, [selectedBondDetail, selectedBondDetail?.tellerData.teller.isBondTellerErc20, isOpen])
 
   useEffect(() => {
     calculateAmountIn()
@@ -370,7 +370,7 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
   useEffect(() => {
     if (isBondTellerErc20) return
     setFunc(shouldUseNativeToken ? FunctionName.DEPOSIT_ETH : FunctionName.BOND_DEPOSIT_WETH)
-  }, [shouldUseNativeToken])
+  }, [shouldUseNativeToken, isBondTellerErc20])
 
   return (
     <ModalContainer isOpen={isOpen}>

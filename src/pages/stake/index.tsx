@@ -128,7 +128,16 @@ function Stake(): any {
 
   useEffect(() => {
     setIsAcceptableAmount(isAppropriateAmount(amount, assetDecimals, assetBalance))
-  }, [amount, isStaking, assetBalance, assetDecimals, readSolaceToken.decimals, readXSolaceToken.decimals, xSolace])
+  }, [
+    amount,
+    isStaking,
+    assetBalance,
+    assetDecimals,
+    readSolaceToken.decimals,
+    readXSolaceToken.decimals,
+    xSolace,
+    isAppropriateAmount,
+  ])
 
   useEffect(() => {
     resetAmount()
@@ -149,7 +158,7 @@ function Stake(): any {
       }
     }
     getConvertedAmount()
-  }, [amount, readSolaceToken.decimals, readXSolaceToken.decimals, xSolace])
+  }, [amount, readSolaceToken.decimals, readXSolaceToken.decimals, xSolace, isStaking])
 
   return (
     <>

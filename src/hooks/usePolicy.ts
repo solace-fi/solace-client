@@ -125,11 +125,20 @@ export const useAppraisePolicyPosition = (policy: Policy | undefined): BigNumber
       }
     }
     getAppraisal()
-  }, [policy?.policyId, account, userPolicyData.policiesLoading, latestBlock])
+  }, [
+    policy?.policyId,
+    account,
+    userPolicyData.policiesLoading,
+    latestBlock,
+    activeNetwork.cache.supportedProducts,
+    policy,
+  ])
 
   useEffect(() => {
     // if policy id changes, reset appraisal to 0 to enable loading icon on frontend
     if (!appraisal.eq(ZERO)) setAppraisal(ZERO)
+    // ignore eslintreact-hooks/exhaustive-deps because it has setAppraisal
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [policy?.policyId])
 
   return appraisal

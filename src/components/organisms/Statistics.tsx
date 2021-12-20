@@ -140,7 +140,7 @@ export const Statistics: React.FC = () => {
     } catch (err) {
       console.log(err)
     }
-  }, [allPolicies])
+  }, [allPolicies, currencyDecimals])
 
   const GlobalBox: React.FC = () => (
     <Box color2>

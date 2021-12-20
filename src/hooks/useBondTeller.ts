@@ -186,7 +186,7 @@ export const useBondTellerDetails = (): { tellerDetails: BondTellerDetails[]; mo
     } catch (e) {
       console.log('getBondTellerDetails', e)
     }
-  }, [tellers, latestBlock, version, solacePrice.pairPrice])
+  }, [tellers, latestBlock, version, solacePrice.pairPrice, platform, library, account])
 
   useEffect(() => {
     setMounting(true)

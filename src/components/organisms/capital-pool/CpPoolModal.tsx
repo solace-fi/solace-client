@@ -201,7 +201,7 @@ export const CpPoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen
 
   useEffect(() => {
     setIsAcceptableAmount(isAppropriateAmount(amount, currencyDecimals, assetBalance))
-  }, [amount, assetBalance, assetBalance])
+  }, [amount, assetBalance, assetBalance, currencyDecimals])
 
   useEffect(() => {
     if (isOpen && vault && cpFarm?.address) {

@@ -58,7 +58,7 @@ export const useFetchGasPrice = (): GasFeeListState => {
     }
     if (!latestBlock || running.current) return
     fetchGasPrices()
-  }, [chainId, latestBlock])
+  }, [chainId, latestBlock, activeNetwork])
 
   return state
 }

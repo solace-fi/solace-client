@@ -46,7 +46,7 @@ export const useNativeTokenBalance = (): string => {
       }
     }
     getNativeTokenBalance()
-  }, [activeNetwork, account, version])
+  }, [activeNetwork, account, version, library])
 
   return balance
 }
@@ -274,7 +274,7 @@ export const useUnderWritingPoolBalance = () => {
       }
     }
     getGnosisBalance()
-  }, [tellers, library, bondDepo, coinGeckoNativeTokenPrice, latestBlock])
+  }, [tellers, library, bondDepo, coinGeckoNativeTokenPrice, latestBlock, chainId, currencyDecimals, solace, platform])
 
   return { underwritingPoolBalance }
 }

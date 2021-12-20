@@ -89,7 +89,7 @@ const ProviderManager: React.FC = ({ children }) => {
         })
       })
     }
-  }, [connector, changeNetwork, findNetworkByChainId])
+  }, [connector, changeNetwork, findNetworkByChainId, networks])
 
   const switchNetwork = useCallback(
     async (networkName: string) => {

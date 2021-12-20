@@ -69,7 +69,7 @@ export const useUserRewardsPerDay = (farmId: number, farm: Contract | null | und
       floatUnits(rewardPerSecond, currencyDecimals) * NUM_SECONDS_PER_DAY * allocPercentage * poolPercentage
     const formattedRewards = rewards.toString()
     return formattedRewards
-  }, [allocPoints, totalAllocPoints, rewardPerSecond, poolStakedValue, userStakedValue])
+  }, [allocPoints, totalAllocPoints, rewardPerSecond, poolStakedValue, userStakedValue, currencyDecimals])
 }
 
 export const useUserPendingRewards = (farm: Contract | null | undefined): string => {

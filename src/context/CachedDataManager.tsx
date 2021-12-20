@@ -145,6 +145,7 @@ const CachedDataProvider: React.FC = (props) => {
       policiesLoading,
       userPolicies,
       setCanGetAssessments,
+      accountModal,
     ]
   )
 

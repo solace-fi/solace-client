@@ -65,7 +65,7 @@ export const useUserVaultDetails = () => {
       }
     }
     getUserVaultShare()
-  }, [vault, cpFarm, scpBalance, account])
+  }, [vault, cpFarm, scpBalance, account, currencyDecimals])
 
   return { userVaultAssets, userVaultShare }
 }
@@ -140,7 +140,7 @@ export const useCooldown = () => {
     }
     if (gettingCooldown.current) return
     calculateTime()
-  }, [cooldownStart, latestBlock])
+  }, [cooldownStart, latestBlock, cooldownMin, cooldownMax])
 
   return {
     cooldownStarted,

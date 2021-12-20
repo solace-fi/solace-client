@@ -164,7 +164,7 @@ const WalletProvider: React.FC = (props) => {
 
       setConnecting(undefined)
     },
-    [web3React, activeNetwork, connectingRef, setConnecting, setSelectedProvider, addErrors]
+    [web3React, activeNetwork, connectingRef, setConnecting, setSelectedProvider, addErrors, date, initialized]
   )
 
   useEffect(() => {

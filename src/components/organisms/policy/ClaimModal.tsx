@@ -151,7 +151,7 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
     userPolicyData.setCanGetAssessments(true)
     mounting.current = true
     closeModal()
-  }, [closeModal])
+  }, [closeModal, userPolicyData])
 
   /*************************************************************************************
 
@@ -175,7 +175,7 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
       mounting.current = false
     }
     loadOnBoot()
-  }, [isOpen])
+  }, [isOpen, selectedPolicy, chainId, userPolicyData])
 
   useEffect(() => {
     const loadOverTime = async () => {
@@ -188,7 +188,7 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
       setAssessment(assessment)
     }
     loadOverTime()
-  }, [selectedPolicy])
+  }, [selectedPolicy, userPolicyData, isOpen, chainId])
 
   return (
     <Modal
