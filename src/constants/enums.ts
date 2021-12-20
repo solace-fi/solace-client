@@ -38,7 +38,6 @@ export enum FunctionName {
   START_COOLDOWN = 'StartCooldown',
   STOP_COOLDOWN = 'StopCooldown',
 
-  // TODO: include in transaction history retrieval
   EXERCISE_OPTION = 'ExerciseOption',
   FARM_OPTION_MULTI = 'FarmOptionMulti',
 

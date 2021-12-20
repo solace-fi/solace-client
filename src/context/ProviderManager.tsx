@@ -2,8 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react'
 import { useNetwork } from './NetworkManager'
 import { useWallet } from './WalletManager'
 import { MetamaskConnector } from '../wallet/wallet-connectors/MetaMask'
-import { Block } from '@ethersproject/contracts/node_modules/@ethersproject/abstract-provider'
-
+import { Block } from '@ethersproject/abstract-provider'
 import { Card, CardContainer } from '../components/atoms/Card'
 import { ModalCell } from '../components/atoms/Modal'
 import { Text } from '../components/atoms/Typography'
@@ -14,8 +13,9 @@ import { Z_MODAL } from '../constants'
 
 import { capitalizeFirstLetter } from '../utils/formatting'
 import { useGetLatestBlock } from '../hooks/useGetLatestBlock'
-import { NetworkCache, SupportedProduct } from '../constants/types'
+import { NetworkCache, SupportedProduct, ZerionPosition } from '../constants/types'
 import { useCachePositions } from '../hooks/useCachePositions'
+import { useZerion } from '../hooks/useZerion'
 
 /*
 
@@ -37,6 +37,7 @@ and write to the blockchain.
 type ProviderContextType = {
   openNetworkModal: () => void
   latestBlock: Block | undefined
+  userPositions: ZerionPosition[]
   tokenPosData: {
     batchFetching: boolean
     storedPosData: NetworkCache[]
@@ -48,6 +49,7 @@ type ProviderContextType = {
 const InitialContextValue: ProviderContextType = {
   openNetworkModal: () => undefined,
   latestBlock: undefined,
+  userPositions: [],
   tokenPosData: {
     batchFetching: false,
     storedPosData: [],
@@ -69,6 +71,7 @@ const ProviderManager: React.FC = ({ children }) => {
   const latestBlock = useGetLatestBlock()
   const cachePositions = useCachePositions()
   const [networkModal, setNetworkModal] = useState<boolean>(false)
+  const zerionPositions = useZerion()
 
   const openModal = useCallback(() => {
     document.body.style.overflowY = 'hidden'
@@ -112,7 +115,7 @@ const ProviderManager: React.FC = ({ children }) => {
         } catch (e) {
           canSetNetwork = false
 
-          if (e.code === 4902) {
+          if ((e as any).code === 4902) {
             await connector.addChain(network.metamaskChain)
           }
         }
@@ -129,10 +132,11 @@ const ProviderManager: React.FC = ({ children }) => {
   const value = React.useMemo(
     () => ({
       openNetworkModal: openModal,
+      userPositions: zerionPositions,
       latestBlock,
       tokenPosData: cachePositions,
     }),
-    [openModal, latestBlock, cachePositions]
+    [openModal, latestBlock, cachePositions, zerionPositions]
   )
   return (
     <ProviderContext.Provider value={value}>

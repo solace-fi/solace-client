@@ -12,7 +12,6 @@ import { BigNumber, utils } from 'ethers'
 import { ApolloClient, InMemoryCache, gql } from '@apollo/client'
 
 export const getTokens = async (provider: any, activeNetwork: NetworkConfig, metadata?: any): Promise<Token[]> => {
-  // TODO: reduce the ~1000 requests down
   if (!provider) return []
   if (!metadata.user) return []
   // const yRegistryAddress = await provider.resolveName('v2.registry.ychad.eth')
@@ -23,7 +22,7 @@ export const getTokens = async (provider: any, activeNetwork: NetworkConfig, met
 
   /*
 
-  APOLLO RETRIEVAL
+  APOLLO RETRIEVAL // not being used because of result mismatch
 
   */
 

@@ -1,4 +1,4 @@
-import { Block } from '@ethersproject/contracts/node_modules/@ethersproject/abstract-provider'
+import { Block } from '@ethersproject/abstract-provider'
 import { PolicyState } from '../constants/enums'
 import { Policy } from '../constants/types'
 import { trim0x } from './formatting'

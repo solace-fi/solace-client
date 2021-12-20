@@ -2,6 +2,9 @@ import { NetworkConfig, Token } from '../../../constants/types'
 import ierc20Json from '../../../constants/metadata/IERC20Metadata.json'
 import { rangeFrom0 } from '../../../utils/numeric'
 import { addNativeTokenBalances, getProductTokenBalances } from '../../getBalances'
+import { getCoingeckoTokenPrice, getZapperProtocolBalances } from '../../../utils/api'
+import { WETH9_ADDRESS } from '../../../constants/mappings/tokenAddressMapping'
+import { createZapperBalanceMap, networkNames } from '../../zapperBalances'
 
 export const getBalances = async (
   user: string,
@@ -9,6 +12,37 @@ export const getBalances = async (
   activeNetwork: NetworkConfig,
   tokens: Token[]
 ): Promise<Token[]> => {
+  const zapperNet = networkNames[activeNetwork.chainId]
+  if (zapperNet) {
+    const coinGeckoEthPrice = await getCoingeckoTokenPrice(WETH9_ADDRESS[activeNetwork.chainId], 'usd', 'ethereum')
+
+    const dataSet = await Promise.all([
+      getZapperProtocolBalances('aave', [user], zapperNet),
+      getZapperProtocolBalances('aave-v2', [user], zapperNet),
+      getZapperProtocolBalances('aave-amm', [user], zapperNet),
+    ])
+
+    const finalTokens: Token[] = []
+
+    if (!coinGeckoEthPrice) return []
+    let iterativeTokenMap = undefined
+    for (let i = 0; i < dataSet.length; i++) {
+      iterativeTokenMap = createZapperBalanceMap(
+        dataSet[i],
+        user,
+        parseFloat(coinGeckoEthPrice),
+        activeNetwork.nativeCurrency.decimals,
+        tokens,
+        iterativeTokenMap
+      )
+    }
+    if (!iterativeTokenMap) return []
+    iterativeTokenMap.forEach((value: Token) => {
+      finalTokens.push(value)
+    })
+    return finalTokens
+  }
+
   // get atoken balances
   const balances: Token[] = await getProductTokenBalances(user, ierc20Json.abi, tokens, provider)
   //get utoken balances

@@ -1,5 +1,5 @@
-import { Block } from '@ethersproject/contracts/node_modules/@ethersproject/abstract-provider'
 import { useEffect, useRef, useState } from 'react'
+import { Block } from '@ethersproject/abstract-provider'
 import { useWallet } from '../context/WalletManager'
 
 export const useGetLatestBlock = (): Block | undefined => {
