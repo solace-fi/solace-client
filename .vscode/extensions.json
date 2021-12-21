@@ -1,0 +1,7 @@
+{
+  "recommendations": [
+    "lightyen.tailwindcss-intellisense-twin",
+    "styled-components.vscode-styled-components",
+    "esbenp.prettier-vscode"
+  ]
+}
