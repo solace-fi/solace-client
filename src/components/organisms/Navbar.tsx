@@ -27,12 +27,12 @@ import { useGeneral } from '../../context/GeneralProvider'
 import { useNotifications } from '../../context/NotificationsManager'
 
 /* import constants */
-import { BKPT_3, BKPT_NAVBAR } from '../../constants'
+import { BKPT_3 /*, BKPT_NAVBAR */ } from '../../constants'
 import { SystemNotice } from '../../constants/enums'
 
 /* import components */
 import { SidebarItem, TopNav, ItemText, ItemList, SidebarText } from '../atoms/Navbar'
-import { NavButton, Button } from '../atoms/Button'
+import { NavButton /*, Button*/ } from '../atoms/Button'
 import { Logo, MiniLogo } from '../molecules/Logo'
 import {
   StyledDashboard,
@@ -45,7 +45,7 @@ import {
   StyledCoinStack,
   StyledCommunity,
   StyledDocuments,
-  StyledDocumentText,
+  // StyledDocumentText,
   StyledWork,
   StyledLockFile,
   StyledReceiptMoney,
@@ -53,7 +53,7 @@ import {
 import { Text, TextSpan } from '../atoms/Typography'
 import { HyperLink } from '../atoms/Link'
 import { ThemeButton } from '../molecules/ThemeButton'
-import { FlexCol, FlexRow, HorizRule } from '../atoms/Layout'
+import { /*FlexCol, */ FlexRow, HorizRule } from '../atoms/Layout'
 import { MiniUserAccount, UserAccount } from '../molecules/Account'
 import { StyledNavTooltip } from '../molecules/Tooltip'
 import { AuditToast } from '../molecules/Toast'
