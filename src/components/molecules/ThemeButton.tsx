@@ -16,7 +16,7 @@
 import React from 'react'
 
 /* import managers */
-import { useGeneral } from '../../context/GeneralProvider'
+import { useGeneral } from '../../context/GeneralManager'
 
 /* import constants */
 

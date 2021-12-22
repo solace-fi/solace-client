@@ -16,7 +16,7 @@ import { ErrorData } from '../constants/types'
 import { WalletModal } from '../components/organisms/wallet/WalletModal'
 import { useNetwork } from './NetworkManager'
 import { MetamaskConnector } from '../wallet/wallet-connectors/MetaMask'
-import { useGeneral } from './GeneralProvider'
+import { useGeneral } from './GeneralManager'
 
 import { getTokens as gT0 } from '../products/sushiswap/positionGetter/getTokens'
 import { getTokens as gT1 } from '../products/yearn/positionGetter/getTokens'

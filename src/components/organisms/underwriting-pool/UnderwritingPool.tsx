@@ -19,7 +19,7 @@ import React from 'react'
 
 /* import managers */
 import { useWallet } from '../../../context/WalletManager'
-import { useGeneral } from '../../../context/GeneralProvider'
+import { useGeneral } from '../../../context/GeneralManager'
 
 /* import constants */
 import { BKPT_4, BKPT_6 } from '../../../constants'

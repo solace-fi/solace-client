@@ -24,7 +24,7 @@ import { BigNumber } from 'ethers'
 import { formatUnits } from '@ethersproject/units'
 
 /* import managers */
-import { useGeneral } from '../../context/GeneralProvider'
+import { useGeneral } from '../../context/GeneralManager'
 import { useNetwork } from '../../context/NetworkManager'
 
 /* import constants */

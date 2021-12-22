@@ -31,7 +31,7 @@ import 'react-circular-progressbar/dist/styles.css'
 /* import context */
 import { useWallet } from '../../context/WalletManager'
 import { useNetwork } from '../../context/NetworkManager'
-import { useGeneral } from '../../context/GeneralProvider'
+import { useGeneral } from '../../context/GeneralManager'
 
 /* import constants */
 import { BKPT_3 } from '../../constants'

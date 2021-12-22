@@ -21,7 +21,7 @@ import { BondTellerDetails } from '../../../constants/types'
 import { FunctionName } from '../../../constants/enums'
 
 /* import managers */
-import { useGeneral } from '../../../context/GeneralProvider'
+import { useGeneral } from '../../../context/GeneralManager'
 
 /* import components */
 import { FlexCol } from '../../atoms/Layout'

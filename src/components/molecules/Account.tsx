@@ -26,7 +26,7 @@ import { useLocation } from 'react-router'
 import { useWallet } from '../../context/WalletManager'
 import { useCachedData } from '../../context/CachedDataManager'
 import { useNetwork } from '../../context/NetworkManager'
-import { useGeneral } from '../../context/GeneralProvider'
+import { useGeneral } from '../../context/GeneralManager'
 
 /* import components */
 import { Text } from '../atoms/Typography'

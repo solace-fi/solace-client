@@ -15,7 +15,7 @@ import React from 'react'
 import Select from 'react-select'
 
 /* import context */
-import { useGeneral } from '../../context/GeneralProvider'
+import { useGeneral } from '../../context/GeneralManager'
 
 interface StyledSelectProps {
   value: {

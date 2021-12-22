@@ -27,7 +27,7 @@ import { useNotifications } from '../../../context/NotificationsManager'
 import { useCachedData } from '../../../context/CachedDataManager'
 import { useContracts } from '../../../context/ContractsManager'
 import { useNetwork } from '../../../context/NetworkManager'
-import { useGeneral } from '../../../context/GeneralProvider'
+import { useGeneral } from '../../../context/GeneralManager'
 
 /* import constants */
 import { FunctionName, TransactionCondition } from '../../../constants/enums'

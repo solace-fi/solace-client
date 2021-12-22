@@ -10,7 +10,7 @@ import '../styles/toast.css'
 import { StylizedToastContainer } from '../components/atoms/Message'
 import { AppToast, NotificationToast } from '../components/molecules/Toast'
 import { StyledInfo, StyledWarning } from '../components/atoms/Icon'
-import { useGeneral } from './GeneralProvider'
+import { useGeneral } from './GeneralManager'
 import { ErrorData, SystemNoticeData } from '../constants/types'
 
 /*

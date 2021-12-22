@@ -24,7 +24,7 @@ import { BigNumber } from 'ethers'
 import { BondTellerDetails, BondToken } from '../../../constants/types'
 
 /* import managers */
-import { useGeneral } from '../../../context/GeneralProvider'
+import { useGeneral } from '../../../context/GeneralManager'
 import { useContracts } from '../../../context/ContractsManager'
 import { useProvider } from '../../../context/ProviderManager'
 

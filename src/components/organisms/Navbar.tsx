@@ -23,7 +23,7 @@ import React, { Fragment, useEffect, useMemo, useState } from 'react'
 import { useLocation } from 'react-router'
 
 /* import managers */
-import { useGeneral } from '../../context/GeneralProvider'
+import { useGeneral } from '../../context/GeneralManager'
 import { useNotifications } from '../../context/NotificationsManager'
 
 /* import constants */
