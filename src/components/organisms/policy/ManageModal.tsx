@@ -28,7 +28,7 @@ import { useCachedData } from '../../../context/CachedDataManager'
 import { useNotifications } from '../../../context/NotificationsManager'
 import { useContracts } from '../../../context/ContractsManager'
 import { useNetwork } from '../../../context/NetworkManager'
-import { useGeneral } from '../../../context/GeneralProvider'
+import { useGeneral } from '../../../context/GeneralManager'
 
 /* import components */
 import { Modal } from '../../molecules/Modal'

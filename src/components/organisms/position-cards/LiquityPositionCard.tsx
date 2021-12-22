@@ -15,7 +15,7 @@
 import React, { useMemo } from 'react'
 
 /* import managers */
-import { useGeneral } from '../../../context/GeneralProvider'
+import { useGeneral } from '../../../context/GeneralManager'
 
 /* import constants */
 import { Position, LiquityPosition, Policy } from '../../../constants/types'

@@ -30,7 +30,7 @@ import { ExplorerscanApi } from '../../constants/enums'
 
 /* import context */
 import { useContracts } from '../../context/ContractsManager'
-import { useGeneral } from '../../context/GeneralProvider'
+import { useGeneral } from '../../context/GeneralManager'
 import { useNetwork } from '../../context/NetworkManager'
 
 /* import components */

@@ -24,7 +24,7 @@ import { formatUnits, parseUnits } from '@ethersproject/units'
 
 /* import managers */
 import { useNetwork } from '../../../context/NetworkManager'
-import { useGeneral } from '../../../context/GeneralProvider'
+import { useGeneral } from '../../../context/GeneralManager'
 
 /* import constants */
 import { FunctionName, Unit } from '../../../constants/enums'

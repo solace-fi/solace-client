@@ -20,7 +20,7 @@ import React, { useMemo } from 'react'
 /* import managers */
 import { useContracts } from '../../../context/ContractsManager'
 import { useWallet } from '../../../context/WalletManager'
-import { useGeneral } from '../../../context/GeneralProvider'
+import { useGeneral } from '../../../context/GeneralManager'
 
 /* import components */
 import { Content } from '../../atoms/Layout'

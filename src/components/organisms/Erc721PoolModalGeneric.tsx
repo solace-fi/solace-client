@@ -25,7 +25,7 @@ import { Contract } from '@ethersproject/contracts'
 
 /* import managers */
 import { useNetwork } from '../../context/NetworkManager'
-import { useGeneral } from '../../context/GeneralProvider'
+import { useGeneral } from '../../context/GeneralManager'
 
 /* import constants */
 import { ZERO } from '../../constants'

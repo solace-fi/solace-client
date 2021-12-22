@@ -10,7 +10,7 @@ import { useFetchGasPrice } from '../hooks/useGas'
 
 import { useNetwork } from './NetworkManager'
 import { PolicyState, SystemNotice } from '../constants/enums'
-import { useGeneral } from './GeneralProvider'
+import { useGeneral } from './GeneralManager'
 import { AccountModal } from '../components/organisms/AccountModal'
 
 /*

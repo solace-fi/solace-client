@@ -10,7 +10,7 @@ import NotificationsManager from './context/NotificationsManager'
 import ProviderManager from './context/ProviderManager'
 import CachedDataManager from './context/CachedDataManager'
 import NetworkManager from './context/NetworkManager'
-import GeneralManager from './context/GeneralProvider'
+import GeneralManager from './context/GeneralManager'
 
 /*
 

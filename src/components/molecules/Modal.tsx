@@ -18,7 +18,7 @@
 import React, { Fragment } from 'react'
 
 /* import managers */
-import { useGeneral } from '../../context/GeneralProvider'
+import { useGeneral } from '../../context/GeneralManager'
 
 /* import components */
 import { Text } from '../atoms/Typography'

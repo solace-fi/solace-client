@@ -35,7 +35,7 @@ import { FunctionGasLimits } from '../../constants/mappings/gasMapping'
 import { useNetwork } from '../../context/NetworkManager'
 import { useWallet } from '../../context/WalletManager'
 import { useContracts } from '../../context/ContractsManager'
-import { useGeneral } from '../../context/GeneralProvider'
+import { useGeneral } from '../../context/GeneralManager'
 import { useNotifications } from '../../context/NotificationsManager'
 import { useCachedData } from '../../context/CachedDataManager'
 

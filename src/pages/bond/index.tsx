@@ -23,7 +23,7 @@ import { BKPT_4 } from '../../constants'
 import { BondTellerDetails } from '../../constants/types'
 
 /* import context */
-import { useGeneral } from '../../context/GeneralProvider'
+import { useGeneral } from '../../context/GeneralManager'
 import { useContracts } from '../../context/ContractsManager'
 
 /* import components */

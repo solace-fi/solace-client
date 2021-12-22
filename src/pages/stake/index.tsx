@@ -20,7 +20,7 @@ import { BigNumber } from 'ethers'
 
 /* import managers */
 import { useWallet } from '../../context/WalletManager'
-import { useGeneral } from '../../context/GeneralProvider'
+import { useGeneral } from '../../context/GeneralManager'
 import { useContracts } from '../../context/ContractsManager'
 
 /* import constants */
