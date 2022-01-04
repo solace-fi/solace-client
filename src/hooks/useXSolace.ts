@@ -60,7 +60,7 @@ export const useXSolaceDetails = () => {
   const { solace, xSolace } = useMemo(() => keyContracts, [keyContracts])
   const { version } = useCachedData()
   const { latestBlock } = useProvider()
-  const xSolaceBalance = useXSolaceBalance()
+  const { xSolaceBalance } = useXSolaceBalance()
   const readSolaceToken = useReadToken(solace)
   const readXSolaceToken = useReadToken(xSolace)
   const [userShare, setUserShare] = useState<string>('0')
@@ -78,7 +78,7 @@ export const useXSolaceDetails = () => {
     } catch (err) {
       console.log('error getXSolaceUserPoolShare ', err)
     }
-  }, [xSolace, xSolaceBalance, readSolaceToken, readXSolaceToken])
+  }, [xSolace, xSolaceBalance, readXSolaceToken])
 
   const getXSolacePerSolace = useCallback(async () => {
     if (!xSolace || !readSolaceToken || !readXSolaceToken) return

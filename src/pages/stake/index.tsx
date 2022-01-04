@@ -41,7 +41,7 @@ import { StyledRefresh } from '../../components/atoms/Icon'
 
 /* import hooks */
 import { useSolaceBalance, useXSolaceBalance } from '../../hooks/useBalance'
-import { useStakingApy, useXSolace, useXSolaceDetails } from '../../hooks/useXSolace'
+import { useXSolace, useXSolaceDetails } from '../../hooks/useXSolace'
 import { useInputAmount } from '../../hooks/useInputAmount'
 import { useReadToken } from '../../hooks/useToken'
 
@@ -60,7 +60,7 @@ function Stake(): any {
   const { solace, xSolace } = useMemo(() => keyContracts, [keyContracts])
   const [isStaking, setIsStaking] = useState<boolean>(true)
   const solaceBalance = useSolaceBalance()
-  const xSolaceBalance = useXSolaceBalance()
+  const { stakedSolaceBalance } = useXSolaceBalance()
   const readSolaceToken = useReadToken(solace)
   const readXSolaceToken = useReadToken(xSolace)
   const {
@@ -74,7 +74,7 @@ function Stake(): any {
     resetAmount,
   } = useInputAmount()
   const { stake, unstake } = useXSolace()
-  const { stakingApy } = useStakingApy()
+  // const { stakingApy } = useStakingApy()
   const { userShare, xSolacePerSolace, solacePerXSolace } = useXSolaceDetails()
   const { account } = useWallet()
   const [convertStoX, setConvertStoX] = useState<boolean>(true)
@@ -86,8 +86,8 @@ function Stake(): any {
     () =>
       isStaking
         ? parseUnits(solaceBalance, readSolaceToken.decimals)
-        : parseUnits(xSolaceBalance, readXSolaceToken.decimals),
-    [isStaking, solaceBalance, xSolaceBalance, readSolaceToken, readXSolaceToken]
+        : parseUnits(stakedSolaceBalance, readSolaceToken.decimals),
+    [isStaking, solaceBalance, stakedSolaceBalance, readSolaceToken]
   )
 
   const assetDecimals = useMemo(() => (isStaking ? readSolaceToken.decimals : readXSolaceToken.decimals), [
@@ -144,8 +144,9 @@ function Stake(): any {
         const amountInXSolace = await xSolace.solaceToXSolace(parseUnits(formatted, readSolaceToken.decimals))
         setConvertedAmount(amountInXSolace)
       } else {
-        const amountInSolace = await xSolace.xSolaceToSolace(parseUnits(formatted, readXSolaceToken.decimals))
-        setConvertedAmount(amountInSolace)
+        // const amountInSolace = await xSolace.xSolaceToSolace(parseUnits(formatted, readXSolaceToken.decimals))
+        // setConvertedAmount(amountInSolace)
+        setConvertedAmount(parseUnits(formatted, readSolaceToken.decimals))
       }
     }
     getConvertedAmount()
@@ -201,7 +202,7 @@ function Stake(): any {
                 </FormCol>
                 <FormCol>
                   <Text bold t2 textAlignRight info>
-                    {stakingApy}
+                    2000%
                   </Text>
                 </FormCol>
               </FormRow>
@@ -245,7 +246,7 @@ function Stake(): any {
                 </FormCol>
                 <FormCol>
                   <Text textAlignRight info t4={isStaking} fade={isStaking}>
-                    {xSolaceBalance} {readXSolaceToken.symbol}
+                    {stakedSolaceBalance} {readSolaceToken.symbol}
                   </Text>
                 </FormCol>
               </FormRow>
@@ -284,7 +285,7 @@ function Stake(): any {
               {account && (
                 <FormRow mt={20} mb={10}>
                   <FormCol>
-                    <Text t4>My xSolace Pool Share</Text>
+                    <Text t4>My Pool Share</Text>
                   </FormCol>
                   <FormCol>
                     <Text t4>{userShare}%</Text>

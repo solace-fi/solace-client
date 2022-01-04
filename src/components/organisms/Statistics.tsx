@@ -44,7 +44,7 @@ import { useSolaceBalance, useUnderWritingPoolBalance, useXSolaceBalance } from 
 import { usePolicyGetter } from '../../hooks/usePolicyGetter'
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'
 import { usePairPrice } from '../../hooks/usePair'
-import { useStakingApy } from '../../hooks/useXSolace'
+// import { useStakingApy } from '../../hooks/useXSolace'
 import { useReadToken } from '../../hooks/useToken'
 
 /* import utils */
@@ -59,12 +59,11 @@ export const Statistics: React.FC = () => {
   const { account, initialized } = useWallet()
   const { activeNetwork, currencyDecimals, chainId } = useNetwork()
   const { keyContracts } = useContracts()
-  const { solace, xSolace } = useMemo(() => keyContracts, [keyContracts])
-  const { stakingApy } = useStakingApy()
+  const { solace } = useMemo(() => keyContracts, [keyContracts])
+  // const { stakingApy } = useStakingApy()
   const solaceBalance = useSolaceBalance()
-  const xSolaceBalance = useXSolaceBalance()
+  const { stakedSolaceBalance } = useXSolaceBalance()
   const readSolaceToken = useReadToken(solace)
-  const readXSolaceToken = useReadToken(xSolace)
   const { allPolicies } = usePolicyGetter(true)
   const { width } = useWindowDimensions()
   const [totalActiveCoverAmount, setTotalActiveCoverAmount] = useState<string>('-')
@@ -228,9 +227,9 @@ export const Statistics: React.FC = () => {
                   My Staked Balance
                 </BoxItemTitle>
                 <Text t2 light bold>
-                  {`${truncateBalance(xSolaceBalance, 1)} `}
+                  {`${truncateBalance(stakedSolaceBalance, 1)} `}
                   <TextSpan t4 light bold>
-                    {readXSolaceToken.symbol}
+                    {readSolaceToken.symbol}
                   </TextSpan>
                 </Text>
               </BoxItem>
@@ -239,7 +238,7 @@ export const Statistics: React.FC = () => {
                   Staking APY
                 </BoxItemTitle>
                 <Text t2 light bold>
-                  {stakingApy}
+                  2000%
                 </Text>
               </BoxItem>
             </Box>
@@ -273,9 +272,9 @@ export const Statistics: React.FC = () => {
                   <FormCol light>My Staked Balance</FormCol>
                   <FormCol>
                     <Text t2 light>
-                      {`${truncateBalance(xSolaceBalance, 1)} `}
+                      {`${truncateBalance(stakedSolaceBalance, 1)} `}
                       <TextSpan t4 light>
-                        {readXSolaceToken.symbol}
+                        {readSolaceToken.symbol}
                       </TextSpan>
                     </Text>
                   </FormCol>
@@ -284,7 +283,7 @@ export const Statistics: React.FC = () => {
                   <FormCol light>Staking APY</FormCol>
                   <FormCol>
                     <Text t2 light>
-                      {stakingApy}
+                      2000%
                     </Text>
                   </FormCol>
                 </FormRow>
