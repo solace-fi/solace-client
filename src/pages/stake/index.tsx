@@ -60,7 +60,7 @@ function Stake(): any {
   const { solace, xSolace } = useMemo(() => keyContracts, [keyContracts])
   const [isStaking, setIsStaking] = useState<boolean>(true)
   const solaceBalance = useSolaceBalance()
-  const { stakedSolaceBalance } = useXSolaceBalance()
+  const { xSolaceBalance, stakedSolaceBalance } = useXSolaceBalance()
   const readSolaceToken = useReadToken(solace)
   const readXSolaceToken = useReadToken(xSolace)
   const {
@@ -109,7 +109,12 @@ function Stake(): any {
   const callUnstake = async () => {
     if (!xSolace) return
     const formatted = formatAmount(amount)
-    const xSolaceToUnstake = await xSolace.solaceToXSolace(parseUnits(formatted, readSolaceToken.decimals))
+    let xSolaceToUnstake: BigNumber = ZERO
+    if (formatted == stakedSolaceBalance) {
+      xSolaceToUnstake = parseUnits(xSolaceBalance, readXSolaceToken.decimals)
+    } else {
+      xSolaceToUnstake = await xSolace.solaceToXSolace(parseUnits(formatted, readSolaceToken.decimals))
+    }
     await unstake(
       xSolaceToUnstake,
       `${truncateBalance(xSolaceToUnstake.toString())} ${getUnit(FunctionName.UNSTAKE)}`,
@@ -291,7 +296,7 @@ function Stake(): any {
                     <Text t4>My Pool Share</Text>
                   </FormCol>
                   <FormCol>
-                    <Text t4>{userShare}%</Text>
+                    <Text t4>{truncateBalance(userShare)}%</Text>
                   </FormCol>
                 </FormRow>
               )}
