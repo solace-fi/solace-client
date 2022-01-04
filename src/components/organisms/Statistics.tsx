@@ -44,7 +44,7 @@ import { useSolaceBalance, useUnderWritingPoolBalance, useXSolaceBalance } from 
 import { usePolicyGetter } from '../../hooks/usePolicyGetter'
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'
 import { usePairPrice } from '../../hooks/usePair'
-import { useStakingApy } from '../../hooks/useXSolace'
+import { useStakingApyV1 } from '../../hooks/useXSolaceV1'
 import { useReadToken } from '../../hooks/useToken'
 
 /* import utils */
@@ -60,7 +60,7 @@ export const Statistics: React.FC = () => {
   const { activeNetwork, currencyDecimals, chainId } = useNetwork()
   const { keyContracts } = useContracts()
   const { solace, xSolace } = useMemo(() => keyContracts, [keyContracts])
-  const { stakingApy } = useStakingApy()
+  const { stakingApy } = useStakingApyV1()
   const solaceBalance = useSolaceBalance()
   const xSolaceBalance = useXSolaceBalance()
   const readSolaceToken = useReadToken(solace)
@@ -239,7 +239,7 @@ export const Statistics: React.FC = () => {
                   Staking APY
                 </BoxItemTitle>
                 <Text t2 light bold>
-                  {stakingApy}
+                  {/* {stakingApy} */}
                 </Text>
               </BoxItem>
             </Box>

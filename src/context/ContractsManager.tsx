@@ -24,6 +24,8 @@ type Contracts = {
     vault?: Contract | null
     solace?: Contract | null
     xSolace?: Contract | null
+    xSolaceV1?: Contract | null
+    xSolaceMigrator?: Contract | null
     cpFarm?: Contract | null
     bondDepo?: Contract | null
     claimsEscrow?: Contract | null
@@ -45,6 +47,8 @@ const ContractsContext = createContext<Contracts>({
     vault: undefined,
     solace: undefined,
     xSolace: undefined,
+    xSolaceV1: undefined,
+    xSolaceMigrator: undefined,
     cpFarm: undefined,
     bondDepo: undefined,
     claimsEscrow: undefined,
@@ -70,6 +74,8 @@ const ContractsProvider: React.FC = (props) => {
   const vault = useGetContract(keyContracts.vault)
   const solace = useGetContract(keyContracts.solace)
   const xSolace = useGetContract(keyContracts.xSolace)
+  const xSolaceV1 = useGetContract(keyContracts.xSolaceV1)
+  const xSolaceMigrator = useGetContract(keyContracts.xSolaceMigrator)
   const cpFarm = useGetContract(keyContracts.cpFarm)
   const claimsEscrow = useGetContract(keyContracts.claimsEscrow)
   const policyManager = useGetContract(keyContracts.policyManager)
@@ -102,6 +108,8 @@ const ContractsProvider: React.FC = (props) => {
         vault,
         solace,
         xSolace,
+        xSolaceV1,
+        xSolaceMigrator,
         cpFarm,
         bondDepo,
         claimsEscrow,
@@ -121,6 +129,8 @@ const ContractsProvider: React.FC = (props) => {
       vault,
       solace,
       xSolace,
+      xSolaceV1,
+      xSolaceMigrator,
       cpFarm,
       bondDepo,
       claimsEscrow,

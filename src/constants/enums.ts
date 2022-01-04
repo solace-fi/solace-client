@@ -38,16 +38,22 @@ export enum FunctionName {
   START_COOLDOWN = 'StartCooldown',
   STOP_COOLDOWN = 'StopCooldown',
 
-  EXERCISE_OPTION = 'ExerciseOption',
-  FARM_OPTION_MULTI = 'FarmOptionMulti',
+  STAKE = 'DepositSigned',
+  UNSTAKE = 'Withdraw',
+  LOCK = 'Lock',
 
-  STAKE = 'StakeSigned',
-  UNSTAKE = 'Unstake',
   BOND_DEPOSIT_WETH = 'DepositWeth',
   BOND_DEPOSIT_ERC20 = 'Deposit',
   BOND_REDEEM = 'Redeem',
-
   REWARDS_REDEEM = 'Redeem',
+
+  // legacy
+  STAKE_V1 = 'StakeSigned',
+  UNSTAKE_V1 = 'Unstake',
+
+  // discontinued
+  EXERCISE_OPTION = 'ExerciseOption',
+  FARM_OPTION_MULTI = 'FarmOptionMulti',
 }
 
 export enum ExplorerscanApi {

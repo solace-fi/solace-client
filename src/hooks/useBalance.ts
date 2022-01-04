@@ -159,6 +159,42 @@ export const useXSolaceBalance = () => {
   return xSolaceBalance
 }
 
+export const useXSolaceV1Balance = () => {
+  const { keyContracts } = useContracts()
+  const { xSolaceV1 } = useMemo(() => keyContracts, [keyContracts])
+  const { account } = useWallet()
+  const { version } = useCachedData()
+  const [xSolaceV1Balance, setXSolaceV1Balance] = useState<string>('0')
+  const readToken = useReadToken(xSolaceV1)
+
+  const getXSolaceV1Balance = useCallback(async () => {
+    if (!xSolaceV1 || !account) return
+    try {
+      const balance = await queryBalance(xSolaceV1, account)
+      const formattedBalance = formatUnits(balance, readToken.decimals)
+      setXSolaceV1Balance(formattedBalance)
+    } catch (err) {
+      console.log('getXSolaceV1Balance', err)
+    }
+  }, [account, xSolaceV1, readToken])
+
+  useEffect(() => {
+    if (!xSolaceV1 || !account) return
+    getXSolaceV1Balance()
+    xSolaceV1.on('Transfer', (from, to) => {
+      if (from == account || to == account) {
+        getXSolaceV1Balance()
+      }
+    })
+
+    return () => {
+      xSolaceV1.removeAllListeners()
+    }
+  }, [account, xSolaceV1, getXSolaceV1Balance, version])
+
+  return xSolaceV1Balance
+}
+
 export const useUnderWritingPoolBalance = () => {
   const { activeNetwork, chainId, currencyDecimals } = useNetwork()
   const { tellers, keyContracts } = useContracts()

@@ -55,9 +55,9 @@ export const getNameToFunctionGasLimit = (functionName: FunctionName, cond?: str
       return gasLimitMap['optionsFarming.exerciseOption']
     case FunctionName.WITHDRAW_ETH:
       return gasLimitMap['vault.withdrawEth']
-    case FunctionName.STAKE:
+    case FunctionName.STAKE_V1:
       return gasLimitMap['xSolace.stakeSigned']
-    case FunctionName.UNSTAKE:
+    case FunctionName.UNSTAKE_V1:
     default:
       return gasLimitMap['xSolace.unstake']
   }

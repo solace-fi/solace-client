@@ -72,8 +72,8 @@ export const useTransactionDetails = (): { txHistory: any; amounts: string[] } =
           return { data: edTopics[edTopics.length - 1], toAddr: receipt.to }
         }
         return { data: logs[logs.length - 1].data, toAddr: receipt.to }
-      case FunctionName.STAKE:
-      case FunctionName.UNSTAKE:
+      case FunctionName.STAKE_V1:
+      case FunctionName.UNSTAKE_V1:
       case FunctionName.WITHDRAW_ETH:
         return { data: logs[0].data }
       case FunctionName.SUBMIT_CLAIM:

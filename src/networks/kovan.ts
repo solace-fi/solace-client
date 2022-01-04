@@ -9,7 +9,7 @@ import farmControllerABI from '../constants/abi/contracts/FarmController.sol/Far
 import farmRewardsABI from '../constants/metadata/FarmRewards.json'
 import vaultABI from '../constants/abi/contracts/Vault.sol/Vault.json'
 import solaceABI from '../constants/abi/contracts/SOLACE.sol/SOLACE.json'
-import xSolaceABI from '../constants/abi/contracts/xSOLACE.sol/xSOLACE.json'
+import xSolaceV1ABI from '../constants/abi/contracts/xSOLACE.sol/xSOLACE.json'
 import cpFarmABI from '../constants/abi/contracts/CpFarm.sol/CpFarm.json'
 import bondDepoABI from '../constants/abi/contracts/BondDepository.sol/BondDepository.json'
 import claimsEscrowABI from '../constants/abi/contracts/ClaimsEscrow.sol/ClaimsEscrow.json'
@@ -116,9 +116,9 @@ export const KovanNetwork: NetworkConfig = {
         addr: String(process.env.REACT_APP_KOVAN_SOLACE_ADDR),
         abi: solaceABI,
       },
-      xSolace: {
-        addr: String(process.env.REACT_APP_KOVAN_XSOLACE_ADDR),
-        abi: xSolaceABI,
+      xSolaceV1: {
+        addr: String(process.env.REACT_APP_KOVAN_XSOLACE_V1_ADDR),
+        abi: xSolaceV1ABI,
       },
       cpFarm: {
         addr: String(process.env.REACT_APP_KOVAN_CPFARM_ADDR),

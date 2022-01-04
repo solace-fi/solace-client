@@ -57,7 +57,7 @@ export const usePoolStakedValue = (farm: Contract | null | undefined): string =>
 export const useV1FarmRewards = () => {
   const { account } = useWallet()
   const { keyContracts } = useContracts()
-  const { farmRewards, xSolace } = useMemo(() => keyContracts, [keyContracts])
+  const { farmRewards, xSolaceV1 } = useMemo(() => keyContracts, [keyContracts])
   const { latestBlock } = useProvider()
   const { currencyDecimals } = useNetwork()
 
@@ -72,15 +72,15 @@ export const useV1FarmRewards = () => {
 
   useEffect(() => {
     const populateRewardsInfo = async () => {
-      if (!farmRewards || !account || !xSolace) return
+      if (!farmRewards || !account || !xSolaceV1) return
       const totalEarnedXSolaceRewards = await farmRewards.farmedRewards(account)
-      const totalEarnedSolaceRewards = await xSolace.xSolaceToSolace(totalEarnedXSolaceRewards)
+      const totalEarnedSolaceRewards = await xSolaceV1.xSolaceToSolace(totalEarnedXSolaceRewards)
 
       const redeemedXSolaceRewards = await farmRewards.redeemedRewards(account)
-      const redeemedSolaceRewards = await xSolace.xSolaceToSolace(redeemedXSolaceRewards)
+      const redeemedSolaceRewards = await xSolaceV1.xSolaceToSolace(redeemedXSolaceRewards)
 
       const purchaseableVestedXSolace = await farmRewards.purchaseableVestedXSolace(account)
-      const purchaseableVestedSolace = await xSolace.xSolaceToSolace(purchaseableVestedXSolace)
+      const purchaseableVestedSolace = await xSolaceV1.xSolaceToSolace(purchaseableVestedXSolace)
 
       const unredeemedSolaceRewards = totalEarnedSolaceRewards.sub(redeemedSolaceRewards)
       const unredeemedXSolaceRewards = totalEarnedXSolaceRewards.sub(redeemedXSolaceRewards)
@@ -95,7 +95,7 @@ export const useV1FarmRewards = () => {
       setRedeemedXSolaceRewards(redeemedXSolaceRewards)
     }
     populateRewardsInfo()
-  }, [account, farmRewards, latestBlock, xSolace, currencyDecimals])
+  }, [account, farmRewards, latestBlock, xSolaceV1, currencyDecimals])
 
   return {
     totalEarnedSolaceRewards,

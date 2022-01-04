@@ -9,7 +9,9 @@ import farmControllerABI from '../constants/abi/contracts/FarmController.sol/Far
 import farmRewardsABI from '../constants/metadata/FarmRewards.json'
 import vaultABI from '../constants/abi/contracts/Vault.sol/Vault.json'
 import solaceABI from '../constants/abi/contracts/SOLACE.sol/SOLACE.json'
-import xSolaceABI from '../constants/abi/contracts/xSOLACE.sol/xSOLACE.json'
+import xSolaceABI from '../constants/metadata/xSOLACE.json'
+import xSolaceV1ABI from '../constants/abi/contracts/xSOLACE.sol/xSOLACE.json'
+import xSolaceMigratorABI from '../constants/metadata/xSolaceMigrator.json'
 import cpFarmABI from '../constants/abi/contracts/CpFarm.sol/CpFarm.json'
 import bondDepoABI from '../constants/abi/contracts/BondDepository.sol/BondDepository.json'
 import claimsEscrowABI from '../constants/abi/contracts/ClaimsEscrow.sol/ClaimsEscrow.json'
@@ -120,7 +122,15 @@ export const RinkebyNetwork: NetworkConfig = {
       },
       xSolace: {
         addr: String(process.env.REACT_APP_RINKEBY_XSOLACE_ADDR),
-        abi: xSolaceABI,
+        abi: xSolaceABI.abi,
+      },
+      xSolaceV1: {
+        addr: String(process.env.REACT_APP_RINKEBY_XSOLACE_V1_ADDR),
+        abi: xSolaceV1ABI,
+      },
+      xSolaceMigrator: {
+        addr: String(process.env.REACT_APP_RINKEBY_XSOLACE_MIGRATOR_ADDR),
+        abi: xSolaceMigratorABI.abi,
       },
       cpFarm: {
         addr: String(process.env.REACT_APP_RINKEBY_CPFARM_ADDR),

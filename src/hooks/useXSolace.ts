@@ -2,19 +2,18 @@ import { useState, useEffect, useCallback, useMemo } from 'react'
 import { useContracts } from '../context/ContractsManager'
 import { useNetwork } from '../context/NetworkManager'
 import { useWallet } from '../context/WalletManager'
-import { GasConfiguration, LocalTx, TxResult } from '../constants/types'
+import { GasConfiguration, LocalTx } from '../constants/types'
 import { BigNumber } from 'ethers'
-import { DEADLINE, ZERO } from '../constants'
+import { DEADLINE, GAS_LIMIT, ZERO } from '../constants'
 import { FunctionName, TransactionCondition } from '../constants/enums'
 import { getPermitErc20Signature } from '../utils/signature'
-import { FunctionGasLimits } from '../constants/mappings/gasMapping'
 import { useXSolaceBalance } from './useBalance'
-import { floatUnits, truncateBalance } from '../utils/formatting'
+import { floatUnits } from '../utils/formatting'
 import { useCachedData } from '../context/CachedDataManager'
-import { parseUnits, formatUnits } from '@ethersproject/units'
 import { useProvider } from '../context/ProviderManager'
 import { useReadToken } from './useToken'
 
+// TODO: populate with depositAndLockSigned
 export const useXSolace = () => {
   const { keyContracts } = useContracts()
   const { solace, xSolace } = useMemo(() => keyContracts, [keyContracts])
@@ -24,9 +23,9 @@ export const useXSolace = () => {
   const stake = async (parsedAmount: BigNumber, txVal: string, gasConfig: GasConfiguration) => {
     if (!solace || !xSolace || !account) return { tx: null, localTx: null }
     const { v, r, s } = await getPermitErc20Signature(account, chainId, library, xSolace.address, solace, parsedAmount)
-    const tx = await xSolace.stakeSigned(account, parsedAmount, DEADLINE, v, r, s, {
+    const tx = await xSolace.depositSigned(account, parsedAmount, DEADLINE, v, r, s, {
       ...gasConfig,
-      gasLimit: FunctionGasLimits['xSolace.stakeSigned'],
+      gasLimit: GAS_LIMIT,
     })
     const localTx: LocalTx = {
       hash: tx.hash,
@@ -37,11 +36,11 @@ export const useXSolace = () => {
     return { tx, localTx }
   }
 
-  const unstake = async (parsedAmount: BigNumber, txVal: string, gasConfig: GasConfiguration): Promise<TxResult> => {
-    if (!xSolace) return { tx: null, localTx: null }
-    const tx = await xSolace.unstake(parsedAmount, {
+  const unstake = async (parsedAmount: BigNumber, txVal: string, gasConfig: GasConfiguration) => {
+    if (!xSolace || !account) return { tx: null, localTx: null }
+    const tx = await xSolace.withdraw(parsedAmount, {
       ...gasConfig,
-      gasLimit: FunctionGasLimits['xSolace.unstake'],
+      gasLimit: GAS_LIMIT,
     })
     const localTx: LocalTx = {
       hash: tx.hash,
@@ -52,20 +51,85 @@ export const useXSolace = () => {
     return { tx, localTx }
   }
 
-  return { stake, unstake }
+  const lock = async (duration: number, txVal: string, gasConfig: GasConfiguration) => {
+    if (!xSolace || !account) return { tx: null, localTx: null }
+    const tx = await xSolace.lock(duration, {
+      ...gasConfig,
+      gasLimit: GAS_LIMIT,
+    })
+    const localTx: LocalTx = {
+      hash: tx.hash,
+      type: FunctionName.LOCK,
+      value: txVal,
+      status: TransactionCondition.PENDING,
+    }
+    return { tx, localTx }
+  }
+
+  return { stake, unstake, lock }
 }
 
 export const useXSolaceDetails = () => {
   const { keyContracts } = useContracts()
-  const { solace, xSolace } = useMemo(() => keyContracts, [keyContracts])
+  const { xSolace } = useMemo(() => keyContracts, [keyContracts])
+  const { version } = useCachedData()
+  const { latestBlock } = useProvider()
+
+  const [totalSolaceDeposited, setTotalSolaceDeposited] = useState<BigNumber>(ZERO)
+  const [totalSolaceLocked, setTotalSolaceLocked] = useState<BigNumber>(ZERO)
+  const [totalSolaceUnlocked, setTotalSolaceUnlocked] = useState<BigNumber>(ZERO)
+
+  const getTotalSolaceDeposited = useCallback(async () => {
+    if (!xSolace) return
+    try {
+      const totalSolaceDeposited = await xSolace.totalSolaceDeposited()
+      setTotalSolaceDeposited(totalSolaceDeposited)
+    } catch (err) {
+      console.log('error getTotalSolaceDeposited ', err)
+    }
+  }, [xSolace])
+
+  const getTotalSolaceLocked = useCallback(async () => {
+    if (!xSolace) return
+    try {
+      const totalSolaceLocked = await xSolace.totalSolaceLocked()
+      setTotalSolaceLocked(totalSolaceLocked)
+    } catch (err) {
+      console.log('error getTotalSolaceLocked ', err)
+    }
+  }, [xSolace])
+
+  const getTotalSolaceUnlocked = useCallback(async () => {
+    if (!xSolace) return
+    try {
+      const totalSolaceUnlocked = await xSolace.totalSolaceUnlocked()
+      setTotalSolaceUnlocked(totalSolaceUnlocked)
+    } catch (err) {
+      console.log('error getTotalSolaceUnlocked ', err)
+    }
+  }, [xSolace])
+
+  useEffect(() => {
+    getTotalSolaceDeposited()
+    getTotalSolaceLocked()
+    getTotalSolaceUnlocked()
+  }, [latestBlock, version, getTotalSolaceDeposited, getTotalSolaceLocked, getTotalSolaceUnlocked])
+
+  return { totalSolaceDeposited, totalSolaceLocked, totalSolaceUnlocked }
+}
+
+export const useXSolaceByAccount = () => {
+  const { keyContracts } = useContracts()
+  const { xSolace } = useMemo(() => keyContracts, [keyContracts])
+  const { account } = useWallet()
   const { version } = useCachedData()
   const { latestBlock } = useProvider()
   const xSolaceBalance = useXSolaceBalance()
-  const readSolaceToken = useReadToken(solace)
   const readXSolaceToken = useReadToken(xSolace)
   const [userShare, setUserShare] = useState<string>('0')
-  const [xSolacePerSolace, setXSolacePerSolace] = useState<string>('1')
-  const [solacePerXSolace, setSolacePerXSolace] = useState<string>('1')
+  const [isLocked, setIsLocked] = useState<boolean>(false)
+  const [lockedTimeLeft, setLockedTimeLeft] = useState<boolean>(false)
+  const [stakedBalance, setStakedBalance] = useState<BigNumber>(ZERO)
 
   const getXSolaceUserPoolShare = useCallback(async () => {
     if (!xSolace || xSolaceBalance == '0') return
@@ -78,59 +142,46 @@ export const useXSolaceDetails = () => {
     } catch (err) {
       console.log('error getXSolaceUserPoolShare ', err)
     }
-  }, [xSolace, xSolaceBalance, readSolaceToken, readXSolaceToken])
+  }, [xSolace, xSolaceBalance, readXSolaceToken])
 
-  const getXSolacePerSolace = useCallback(async () => {
-    if (!xSolace || !readSolaceToken || !readXSolaceToken) return
+  const getIsLocked = useCallback(async () => {
+    if (!xSolace || !account) return
     try {
-      const amount = await xSolace.solaceToXSolace(parseUnits('1', readSolaceToken.decimals))
-      setXSolacePerSolace(formatUnits(amount, readXSolaceToken.decimals))
+      const isLocked = await xSolace.isLocked(account)
+      setIsLocked(isLocked)
     } catch (err) {
-      console.log('error getXSolacePerSolace ', err)
+      console.log('error getIsLocked ', err)
     }
-  }, [xSolace, readSolaceToken, readXSolaceToken])
+  }, [account, xSolace])
 
-  const getSolacePerXSolace = useCallback(async () => {
-    if (!xSolace) return
+  const getLockedTimeLeft = useCallback(async () => {
+    if (!xSolace || !account) return
     try {
-      const amount = await xSolace.xSolaceToSolace(parseUnits('1', readXSolaceToken.decimals))
-      setSolacePerXSolace(formatUnits(amount, readSolaceToken.decimals))
+      const lockedTimeLeft = await xSolace.lockedTimeLeft(account)
+      setLockedTimeLeft(lockedTimeLeft)
     } catch (err) {
-      console.log('error getSolacePerXSolace ', err)
+      console.log('error getIsLocked ', err)
     }
-  }, [xSolace, readSolaceToken, readXSolaceToken])
+  }, [account, xSolace])
+
+  const getLockedSolaceForUser = useCallback(async () => {
+    if (!xSolace || !account) return
+    try {
+      const userValue = await xSolace.userInfo(account)
+      const pendingRewards = await xSolace.pendingRewards(account)
+      const stakedBalance = userValue.value.add(pendingRewards)
+      setStakedBalance(stakedBalance)
+    } catch (err) {
+      console.log('error stakedBalance ', err)
+    }
+  }, [account, xSolace])
 
   useEffect(() => {
+    getIsLocked()
+    getLockedTimeLeft()
     getXSolaceUserPoolShare()
-    getXSolacePerSolace()
-    getSolacePerXSolace()
-  }, [latestBlock, version, getXSolaceUserPoolShare, getSolacePerXSolace, getXSolacePerSolace])
+    getLockedSolaceForUser()
+  }, [latestBlock, version, getIsLocked, getLockedTimeLeft, getXSolaceUserPoolShare, getLockedSolaceForUser])
 
-  return { userShare, xSolacePerSolace, solacePerXSolace }
-}
-
-export const useStakingApy = () => {
-  const { latestBlock } = useProvider()
-  const [stakingApy, setStakingApy] = useState<string>('-%')
-  const { keyContracts } = useContracts()
-  const { xSolace } = useMemo(() => keyContracts, [keyContracts])
-
-  const getStakingAPY = useCallback(async () => {
-    if (!latestBlock || !xSolace) return
-    try {
-      const amount = await xSolace.solaceToXSolace(parseUnits('1', 18))
-      const apy = (1 / parseFloat(formatUnits(amount, 18)) - 1) * 100
-      const formattedApy = `${truncateBalance(apy, 2, false)}%`
-      setStakingApy(formattedApy)
-    } catch (err) {
-      console.log('error getStakingAPY ', err)
-    }
-  }, [xSolace, latestBlock])
-
-  useEffect(() => {
-    if (!latestBlock) return
-    getStakingAPY()
-  }, [latestBlock, getStakingAPY])
-
-  return { stakingApy }
+  return { userShare, stakedBalance, isLocked, lockedTimeLeft }
 }

@@ -41,7 +41,7 @@ import { StyledRefresh } from '../../components/atoms/Icon'
 
 /* import hooks */
 import { useSolaceBalance, useXSolaceBalance } from '../../hooks/useBalance'
-import { useStakingApy, useXSolace, useXSolaceDetails } from '../../hooks/useXSolace'
+import { useStakingApyV1, useXSolaceV1, useXSolaceV1Details } from '../../hooks/useXSolaceV1'
 import { useInputAmount } from '../../hooks/useInputAmount'
 import { useReadToken } from '../../hooks/useToken'
 
@@ -57,12 +57,12 @@ function Stake(): any {
 
   const { haveErrors } = useGeneral()
   const { keyContracts } = useContracts()
-  const { solace, xSolace } = useMemo(() => keyContracts, [keyContracts])
+  const { solace, xSolaceV1 } = useMemo(() => keyContracts, [keyContracts])
   const [isStaking, setIsStaking] = useState<boolean>(true)
   const solaceBalance = useSolaceBalance()
   const xSolaceBalance = useXSolaceBalance()
   const readSolaceToken = useReadToken(solace)
-  const readXSolaceToken = useReadToken(xSolace)
+  const readXSolaceToken = useReadToken(xSolaceV1)
   const {
     gasConfig,
     amount,
@@ -73,9 +73,9 @@ function Stake(): any {
     setMax,
     resetAmount,
   } = useInputAmount()
-  const { stake, unstake } = useXSolace()
-  const { stakingApy } = useStakingApy()
-  const { userShare, xSolacePerSolace, solacePerXSolace } = useXSolaceDetails()
+  const { stake_v1, unstake_v1 } = useXSolaceV1()
+  const { stakingApy } = useStakingApyV1()
+  const { userShare, xSolacePerSolace, solacePerXSolace } = useXSolaceV1Details()
   const { account } = useWallet()
   const [convertStoX, setConvertStoX] = useState<boolean>(true)
   const [convertedAmount, setConvertedAmount] = useState<BigNumber>(ZERO)
@@ -97,23 +97,23 @@ function Stake(): any {
   ])
 
   const callStakeSigned = async () => {
-    await stake(
+    await stake_v1(
       parseUnits(amount, readSolaceToken.decimals),
-      `${truncateBalance(amount)} ${getUnit(FunctionName.STAKE)}`,
+      `${truncateBalance(amount)} ${getUnit(FunctionName.STAKE_V1)}`,
       gasConfig
     )
       .then((res) => handleToast(res.tx, res.localTx))
-      .catch((err) => handleContractCallError('callStakeSigned', err, FunctionName.STAKE))
+      .catch((err) => handleContractCallError('callStakeSigned', err, FunctionName.STAKE_V1))
   }
 
   const callUnstake = async () => {
-    await unstake(
+    await unstake_v1(
       parseUnits(amount, readXSolaceToken.decimals),
-      `${truncateBalance(amount)} ${getUnit(FunctionName.UNSTAKE)}`,
+      `${truncateBalance(amount)} ${getUnit(FunctionName.UNSTAKE_V1)}`,
       gasConfig
     )
       .then((res) => handleToast(res.tx, res.localTx))
-      .catch((err) => handleContractCallError('callUnstake', err, FunctionName.UNSTAKE))
+      .catch((err) => handleContractCallError('callUnstake', err, FunctionName.UNSTAKE_V1))
   }
 
   const _setMax = () => {
@@ -128,7 +128,7 @@ function Stake(): any {
 
   useEffect(() => {
     setIsAcceptableAmount(isAppropriateAmount(amount, assetDecimals, assetBalance))
-  }, [amount, isStaking, assetBalance, assetDecimals, readSolaceToken.decimals, readXSolaceToken.decimals, xSolace])
+  }, [amount, isStaking, assetBalance, assetDecimals, readSolaceToken.decimals, readXSolaceToken.decimals, xSolaceV1])
 
   useEffect(() => {
     resetAmount()
@@ -138,18 +138,18 @@ function Stake(): any {
 
   useEffect(() => {
     const getConvertedAmount = async () => {
-      if (!xSolace) return
+      if (!xSolaceV1) return
       const formatted = formatAmount(amount)
       if (isStaking) {
-        const amountInXSolace = await xSolace.solaceToXSolace(parseUnits(formatted, readSolaceToken.decimals))
+        const amountInXSolace = await xSolaceV1.solaceToXSolace(parseUnits(formatted, readSolaceToken.decimals))
         setConvertedAmount(amountInXSolace)
       } else {
-        const amountInSolace = await xSolace.xSolaceToSolace(parseUnits(formatted, readXSolaceToken.decimals))
+        const amountInSolace = await xSolaceV1.xSolaceToSolace(parseUnits(formatted, readXSolaceToken.decimals))
         setConvertedAmount(amountInSolace)
       }
     }
     getConvertedAmount()
-  }, [amount, readSolaceToken.decimals, readXSolaceToken.decimals, xSolace])
+  }, [amount, readSolaceToken.decimals, readXSolaceToken.decimals, xSolaceV1])
 
   return (
     <>
