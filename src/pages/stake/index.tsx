@@ -250,7 +250,7 @@ function Stake(): any {
                   </Text>
                 </FormCol>
               </FormRow>
-              <FormRow mb={10}>
+              {/* <FormRow mb={10}>
                 <FormCol>
                   <Text bold>Amount you will get</Text>
                 </FormCol>
@@ -265,7 +265,7 @@ function Stake(): any {
                     {isStaking ? readXSolaceToken.symbol : readSolaceToken.symbol}
                   </Text>
                 </FormCol>
-              </FormRow>
+              </FormRow> */}
               <FormRow mt={10} mb={30}>
                 <FormCol>
                   <Button onClick={() => setConvertStoX(!convertStoX)}>
