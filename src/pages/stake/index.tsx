@@ -107,9 +107,12 @@ function Stake(): any {
   }
 
   const callUnstake = async () => {
+    if (!xSolace) return
+    const formatted = formatAmount(amount)
+    const xSolaceToUnstake = await xSolace.solaceToXSolace(parseUnits(formatted, readSolaceToken.decimals))
     await unstake(
-      parseUnits(amount, readXSolaceToken.decimals),
-      `${truncateBalance(amount)} ${getUnit(FunctionName.UNSTAKE)}`,
+      xSolaceToUnstake,
+      `${truncateBalance(xSolaceToUnstake.toString())} ${getUnit(FunctionName.UNSTAKE)}`,
       gasConfig
     )
       .then((res) => handleToast(res.tx, res.localTx))
