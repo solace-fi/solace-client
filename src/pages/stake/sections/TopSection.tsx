@@ -34,7 +34,7 @@ export default function TopSection({
 }): JSX.Element {
   return (
     <Twiv
-      css={tw`flex flex-col lg:flex-row py-5 px-7 lg:pl-7 border-b bg-white border-[#E3E4E6] space-x-0 lg:space-x-20 w-full items-center lg:items-stretch mx-auto max-w-[375px] lg:max-w-[1114px] rounded-t-xl`}
+      css={tw`flex flex-col lg:flex-row py-5 px-7 lg:pl-7 border-b bg-white border-[#E3E4E6] space-x-0 lg:space-x-20 items-center lg:items-stretch mx-auto max-w-[375px] lg:max-w-[1114px] rounded-t-xl`}
       style={{
         boxShadow: '0 0px 25px 0px rgb(0 0 0 / 0.1), 0 8px 10px 0px rgb(0 0 0 / 0.1)',
       }}
@@ -64,27 +64,23 @@ export default function TopSection({
             <CardSectionValue annotation="SOLACE" importance={Tab.staking === tab ? 'secondary' : 'primary'}>
               {staked.toFixed(2)}
             </CardSectionValue>
-            <Twiv css={tw`w-2 hidden lg:block`}>
-              <CardSectionValue annotation="xSOLACE)" importance="tertiary">
-                {'(' + (staked * xSolacePrice).toFixed(2)}
-              </CardSectionValue>
-            </Twiv>
+            <Twiv css={tw`w-2 hidden lg:block`}></Twiv>
+            <CardSectionValue annotation="xSOLACE)" importance="tertiary">
+              {'(' + (staked * xSolacePrice).toFixed(2)}
+            </CardSectionValue>
           </Twiv>
         </div>
         <Twiv css={tw`flex flex-col lg:flex-row justify-between space-x-0 lg:space-x-20 items-center lg:items-stretch`}>
-          <Twiv css={tw`hidden lg:flex items-stretch`}>
-            <VerticalSeparator />
-          </Twiv>
+          <Twiv css={tw`hidden lg:flex items-stretch w-px bg-[#E3E4E6]`}>{/* <VerticalSeparator /> */}</Twiv>
           {/* horizontal separator for mobile */}
-          <Twiv css={tw`block w-64 border-b mt-5 mb-5 border-b-[#E3E4E6] border-solid mx-auto lg:hidden`}>
-            <Twiv css={tw`flex flex-row items-baseline space-x-1 lg:space-x-0 lg:items-start lg:flex-col`}>
-              <SectionLabel>
-                <div>APY</div>
-              </SectionLabel>
-              <CardSectionValue importance={isLocked ? 'primary' : 'secondary'}>
-                {lockingBenefitsCalculator(lockedDays).apy.toFixed(0)}%
-              </CardSectionValue>
-            </Twiv>
+          <Twiv css={tw`block w-64 border-b mt-5 mb-5 border-b-[#E3E4E6] border-solid mx-auto lg:hidden`}></Twiv>
+          <Twiv css={tw`flex flex-row items-baseline space-x-1 lg:space-x-0 lg:items-start lg:flex-col`}>
+            <SectionLabel>
+              <div>APY</div>
+            </SectionLabel>
+            <CardSectionValue importance={isLocked ? 'primary' : 'secondary'}>
+              {lockingBenefitsCalculator(lockedDays).apy.toFixed(0)}%
+            </CardSectionValue>
           </Twiv>
         </Twiv>
       </Twiv>

@@ -15,7 +15,7 @@
 
 /* import packages */
 import React, { useState, useEffect, useMemo, Dispatch, SetStateAction } from 'react'
-import { formatUnits, parseUnits } from '@ethersproject/units'
+import { parseUnits } from '@ethersproject/units'
 import { BigNumber } from 'ethers'
 
 /* import managers */
@@ -40,7 +40,7 @@ import { WalletConnectButton } from '../../components/molecules/WalletConnectBut
 import { StyledRefresh } from '../../components/atoms/Icon'
 
 /* import hooks */
-import { useSolaceBalance, useXSolaceBalance } from '../../hooks/useBalance'
+import { useSolaceBalance, useXSolaceV1Balance } from '../../hooks/useBalance'
 import { useStakingApyV1, useXSolaceV1, useXSolaceV1Details } from '../../hooks/useXSolaceV1'
 import { useInputAmount } from '../../hooks/useInputAmount'
 import { useReadToken } from '../../hooks/useToken'
@@ -70,7 +70,7 @@ function Stake1(): any {
   const { solace, xSolaceV1 } = useMemo(() => keyContracts, [keyContracts])
   const [isStaking, setIsStaking] = useState<boolean>(true)
   const solaceBalance = useSolaceBalance()
-  const xSolaceBalance = useXSolaceBalance()
+  const { xSolaceV1Balance, v1StakedSolaceBalance } = useXSolaceV1Balance()
   const readSolaceToken = useReadToken(solace)
   const readXSolaceToken = useReadToken(xSolaceV1)
   const {
@@ -96,8 +96,8 @@ function Stake1(): any {
     () =>
       isStaking
         ? parseUnits(solaceBalance, readSolaceToken.decimals)
-        : parseUnits(xSolaceBalance, readXSolaceToken.decimals),
-    [isStaking, solaceBalance, xSolaceBalance, readSolaceToken, readXSolaceToken]
+        : parseUnits(v1StakedSolaceBalance, readSolaceToken.decimals),
+    [isStaking, solaceBalance, v1StakedSolaceBalance, readSolaceToken]
   )
 
   const assetDecimals = useMemo(() => (isStaking ? readSolaceToken.decimals : readXSolaceToken.decimals), [
@@ -117,9 +117,17 @@ function Stake1(): any {
   }
 
   const callUnstake = async () => {
+    if (!xSolaceV1) return
+    const formatted = formatAmount(amount)
+    let xSolaceToUnstake: BigNumber = ZERO
+    if (formatted == v1StakedSolaceBalance) {
+      xSolaceToUnstake = parseUnits(xSolaceV1Balance, readXSolaceToken.decimals)
+    } else {
+      xSolaceToUnstake = await xSolaceV1.solaceToXSolace(parseUnits(formatted, readSolaceToken.decimals))
+    }
     await unstake_v1(
-      parseUnits(amount, readXSolaceToken.decimals),
-      `${truncateBalance(amount)} ${getUnit(FunctionName.UNSTAKE_V1)}`,
+      xSolaceToUnstake,
+      `${truncateBalance(xSolaceToUnstake.toString())} ${getUnit(FunctionName.UNSTAKE_V1)}`,
       gasConfig
     )
       .then((res) => handleToast(res.tx, res.localTx))
@@ -156,8 +164,9 @@ function Stake1(): any {
         const amountInXSolace = await xSolaceV1.solaceToXSolace(parseUnits(formatted, readSolaceToken.decimals))
         setConvertedAmount(amountInXSolace)
       } else {
-        const amountInSolace = await xSolaceV1.xSolaceToSolace(parseUnits(formatted, readXSolaceToken.decimals))
-        setConvertedAmount(amountInSolace)
+        // const amountInSolace = await xSolace.xSolaceToSolace(parseUnits(formatted, readXSolaceToken.decimals))
+        // setConvertedAmount(amountInSolace)
+        setConvertedAmount(parseUnits(formatted, readSolaceToken.decimals))
       }
     }
     getConvertedAmount()
@@ -214,7 +223,7 @@ function Stake1(): any {
                 </FormCol>
                 <FormCol>
                   <Text bold t2 textAlignRight info>
-                    {stakingApy}
+                    2000%
                   </Text>
                 </FormCol>
               </FormRow>
@@ -258,11 +267,11 @@ function Stake1(): any {
                 </FormCol>
                 <FormCol>
                   <Text textAlignRight info t4={isStaking} fade={isStaking}>
-                    {xSolaceBalance} {readXSolaceToken.symbol}
+                    {v1StakedSolaceBalance} {readSolaceToken.symbol}
                   </Text>
                 </FormCol>
               </FormRow>
-              <FormRow mb={10}>
+              {/* <FormRow mb={10}>
                 <FormCol>
                   <Text bold>Amount you will get</Text>
                 </FormCol>
@@ -277,7 +286,7 @@ function Stake1(): any {
                     {isStaking ? readXSolaceToken.symbol : readSolaceToken.symbol}
                   </Text>
                 </FormCol>
-              </FormRow>
+              </FormRow> */}
               <FormRow mt={10} mb={30}>
                 <FormCol>
                   <Button onClick={() => setConvertStoX(!convertStoX)}>
@@ -297,10 +306,10 @@ function Stake1(): any {
               {account && (
                 <FormRow mt={20} mb={10}>
                   <FormCol>
-                    <Text t4>My xSolace Pool Share</Text>
+                    <Text t4>My Pool Share</Text>
                   </FormCol>
                   <FormCol>
-                    <Text t4>{userShare}%</Text>
+                    <Text t4>{truncateBalance(userShare)}%</Text>
                   </FormCol>
                 </FormRow>
               )}

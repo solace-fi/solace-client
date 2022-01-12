@@ -129,18 +129,18 @@ export const useXSolaceBalance = () => {
   const { account } = useWallet()
   const { version } = useCachedData()
   const [xSolaceBalance, setXSolaceBalance] = useState<string>('0')
-  const readToken = useReadToken(xSolace)
+  const readXToken = useReadToken(xSolace)
 
   const getXSolaceBalance = useCallback(async () => {
     if (!xSolace || !account) return
     try {
       const balance = await queryBalance(xSolace, account)
-      const formattedBalance = formatUnits(balance, readToken.decimals)
+      const formattedBalance = formatUnits(balance, readXToken.decimals)
       setXSolaceBalance(formattedBalance)
     } catch (err) {
       console.log('getXSolaceBalance', err)
     }
-  }, [account, xSolace, readToken])
+  }, [account, xSolace, readXToken])
 
   useEffect(() => {
     if (!xSolace || !account) return
@@ -159,24 +159,29 @@ export const useXSolaceBalance = () => {
   return xSolaceBalance
 }
 
-export const useXSolaceV1Balance = () => {
+export const useXSolaceV1Balance = (): { xSolaceV1Balance: string; v1StakedSolaceBalance: string } => {
   const { keyContracts } = useContracts()
-  const { xSolaceV1 } = useMemo(() => keyContracts, [keyContracts])
+  const { xSolaceV1, solace } = useMemo(() => keyContracts, [keyContracts])
   const { account } = useWallet()
   const { version } = useCachedData()
   const [xSolaceV1Balance, setXSolaceV1Balance] = useState<string>('0')
-  const readToken = useReadToken(xSolaceV1)
+  const [v1StakedSolaceBalance, setV1StakedSolaceBalance] = useState<string>('0')
+  const readToken = useReadToken(solace)
+  const readXV1Token = useReadToken(xSolaceV1)
 
   const getXSolaceV1Balance = useCallback(async () => {
     if (!xSolaceV1 || !account) return
     try {
       const balance = await queryBalance(xSolaceV1, account)
-      const formattedBalance = formatUnits(balance, readToken.decimals)
+      const stakedBalance = await xSolaceV1.xSolaceToSolace(balance)
+      const formattedStakedBalance = formatUnits(stakedBalance, readToken.decimals)
+      const formattedBalance = formatUnits(balance, readXV1Token.decimals)
       setXSolaceV1Balance(formattedBalance)
+      setV1StakedSolaceBalance(formattedStakedBalance)
     } catch (err) {
       console.log('getXSolaceV1Balance', err)
     }
-  }, [account, xSolaceV1, readToken])
+  }, [account, xSolaceV1, readToken, readXV1Token])
 
   useEffect(() => {
     if (!xSolaceV1 || !account) return
@@ -192,7 +197,7 @@ export const useXSolaceV1Balance = () => {
     }
   }, [account, xSolaceV1, getXSolaceV1Balance, version])
 
-  return xSolaceV1Balance
+  return { xSolaceV1Balance, v1StakedSolaceBalance }
 }
 
 export const useUnderWritingPoolBalance = () => {

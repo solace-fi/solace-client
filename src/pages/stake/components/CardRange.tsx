@@ -38,7 +38,8 @@ export default function CardRange({
       type="range"
       min={min}
       max={max}
-      css={tw`bg-gray-200 rounded-full h-2 mt-2.5`}
+      // css={tw`bg-[#E3E4E6] rounded-full h-2 mt-2.5`}
+      css={'background-color: #E3E4E6; border-radius: 50%; height: 2.5rem; margin-top: 0.5rem;'}
       value={value}
       onChange={onChange}
     />

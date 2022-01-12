@@ -59,8 +59,8 @@ export default function InputSection({
         {
           // switch object
           {
-            [Tab.staking]: <StyledImage src={'/solace-token-gradient.svg'} css={tw`w-5 h-5 pt-px`} />,
-            [Tab.unstaking]: <StyledImage src={'/xsolace-token-gradient.svg'} css={tw`w-5 h-5 pt-px`} />,
+            [Tab.staking]: <StyledImage src={'/images/solace-token-gradient.svg'} css={tw`w-5 h-5 pt-px`} />,
+            [Tab.unstaking]: <StyledImage src={'/images/xsolace-token-gradient.svg'} css={tw`w-5 h-5 pt-px`} />,
             [Tab.locking]: <StyledClock css={tw`w-5 h-5 pt-px`} />,
           }[tab]
         }

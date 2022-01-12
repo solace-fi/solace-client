@@ -30,9 +30,9 @@ export default function CardSectionValue({
   `
   const amongFirstTwo = isOneOf(importance, ['primary', 'secondary'])
   const isPrimary = importance === 'primary'
-  const firstTextSize = amongFirstTwo ? tw`text-base` : tw`text-sm`
-  const firstTextColor = amongFirstTwo ? tw`text-[#F7F7FF]` : ''
-  const firstInterpolation = `${firstTextSize} ${firstTextColor}`
+  const mainTextSize = amongFirstTwo ? tw`text-base` : tw`text-sm`
+  const mainTextColor = isPrimary ? tw`text-[#5F5DF9]` : ''
+  const firstInterpolation = [mainTextSize, mainTextColor] as TwStyle[]
 
   /*
           css={tw`
@@ -40,9 +40,10 @@ export default function CardSectionValue({
             ${amongFirstTwo ? 'text-sm' : 'text-xs'}
             ${isPrimary ? ' text-text-accent' : ''}
           `} */
-  const secondTextSize = amongFirstTwo ? tw`text-sm` : tw`text-xs`
-  const secondTextColor = amongFirstTwo ? tw`text-[#F7F7FF]` : ''
-  const secondInterpolation = `${secondTextSize} ${secondTextColor}`
+  const annotationTextSize = amongFirstTwo ? tw`text-sm` : tw`text-xs`
+  const annotationTextColor = isPrimary ? tw`text-[#5F5DF9]` : ''
+  const secondInterpolation = [annotationTextSize, annotationTextColor] as TwStyle[]
+  // const secondInterpolation = `${annotationTextSize} ${annotationTextColor}`
 
   return (
     <BaseDiv>
@@ -50,7 +51,7 @@ export default function CardSectionValue({
       {annotation && (
         <>
           <Twan css={secondInterpolation}>{annotation}</Twan>
-          <span>{annotation}</span>
+          {/* <span>{annotation}</span> */}
         </>
       )}
     </BaseDiv>

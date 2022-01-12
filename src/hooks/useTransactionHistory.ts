@@ -110,26 +110,26 @@ export const useTransactionDetails = (): { txHistory: any; amounts: string[] } =
     }
   }
 
-  const getTransactionAmounts = async () => {
-    if (txHistory) {
-      const currentAmounts = []
-      for (let tx_i = 0; tx_i < txHistory.length; tx_i++) {
-        // console.log(txHistory[tx_i].hash)
-        const function_name = decodeInput(txHistory[tx_i], contractSources)
-        if (!function_name) {
-          currentAmounts.push('N/A')
-        } else {
-          const txData = await getTransactionAmount(function_name, txHistory[tx_i], library)
-          currentAmounts.push(`${formatTransactionContent(function_name, activeNetwork, txData.data, txData.toAddr)}`)
-        }
-      }
-      setAmounts(currentAmounts)
-    }
-  }
+  // const getTransactionAmounts = async () => {
+  //   if (txHistory) {
+  //     const currentAmounts = []
+  //     for (let tx_i = 0; tx_i < txHistory.length; tx_i++) {
+  //       // console.log(txHistory[tx_i].hash)
+  //       const function_name = decodeInput(txHistory[tx_i], contractSources)
+  //       if (!function_name) {
+  //         currentAmounts.push('N/A')
+  //       } else {
+  //         const txData = await getTransactionAmount(function_name, txHistory[tx_i], library)
+  //         currentAmounts.push(`${formatTransactionContent(function_name, activeNetwork, txData.data, txData.toAddr)}`)
+  //       }
+  //     }
+  //     setAmounts(currentAmounts)
+  //   }
+  // }
 
-  useEffect(() => {
-    getTransactionAmounts()
-  }, [txHistory])
+  // useEffect(() => {
+  //   getTransactionAmounts()
+  // }, [txHistory])
 
   return { txHistory, amounts }
 }

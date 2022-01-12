@@ -40,11 +40,12 @@ import { Card, CardContainer } from '../atoms/Card'
 import { HyperLink } from '../atoms/Link'
 
 /* import hooks */
-import { useSolaceBalance, useUnderWritingPoolBalance, useXSolaceBalance } from '../../hooks/useBalance'
+import { useSolaceBalance, useXSolaceBalance, useUnderWritingPoolBalance } from '../../hooks/useBalance'
 import { usePolicyGetter } from '../../hooks/usePolicyGetter'
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'
 import { usePairPrice } from '../../hooks/usePair'
-import { useStakingApyV1 } from '../../hooks/useXSolaceV1'
+import { useXSLocker } from '../../hooks/useXSLocker'
+// import { useStakingApyV1 } from '../../hooks/useXSolaceV1'
 import { useReadToken } from '../../hooks/useToken'
 
 /* import utils */
@@ -60,13 +61,14 @@ export const Statistics: React.FC = () => {
   const { activeNetwork, currencyDecimals, chainId } = useNetwork()
   const { keyContracts } = useContracts()
   const { solace, xSolace } = useMemo(() => keyContracts, [keyContracts])
-  const { stakingApy } = useStakingApyV1()
   const solaceBalance = useSolaceBalance()
   const xSolaceBalance = useXSolaceBalance()
   const readSolaceToken = useReadToken(solace)
   const readXSolaceToken = useReadToken(xSolace)
   const { allPolicies } = usePolicyGetter(true)
+  const { getLockedBalance } = useXSLocker()
   const { width } = useWindowDimensions()
+  const [lockedSolaceBalance, setLockedSolaceBalance] = useState<string>('0')
   const [totalActiveCoverAmount, setTotalActiveCoverAmount] = useState<string>('-')
   const [totalActivePolicies, setTotalActivePolicies] = useState<string>('-')
   const { pairPrice } = usePairPrice(solace)
@@ -97,6 +99,15 @@ export const Statistics: React.FC = () => {
       console.log(err)
     }
   }, [allPolicies])
+
+  useEffect(() => {
+    if (!account) return
+    const getLockedSolaceBalance = async () => {
+      const _lockedSolaceBalance = await getLockedBalance(account)
+      setLockedSolaceBalance(_lockedSolaceBalance)
+    }
+    getLockedSolaceBalance()
+  }, [account])
 
   const GlobalBox: React.FC = () => (
     <Box color2>
@@ -236,10 +247,21 @@ export const Statistics: React.FC = () => {
               </BoxItem>
               <BoxItem>
                 <BoxItemTitle t4 light>
+                  My Locked Balance
+                </BoxItemTitle>
+                <Text t2 light bold>
+                  {`${truncateBalance(lockedSolaceBalance, 1)} `}
+                  <TextSpan t4 light bold>
+                    {readSolaceToken.symbol}
+                  </TextSpan>
+                </Text>
+              </BoxItem>
+              <BoxItem>
+                <BoxItemTitle t4 light>
                   Staking APY
                 </BoxItemTitle>
                 <Text t2 light bold>
-                  {/* {stakingApy} */}
+                  2000%
                 </Text>
               </BoxItem>
             </Box>
@@ -281,10 +303,21 @@ export const Statistics: React.FC = () => {
                   </FormCol>
                 </FormRow>
                 <FormRow>
+                  <FormCol light>My Locked Balance</FormCol>
+                  <FormCol>
+                    <Text t2 light>
+                      {`${truncateBalance(lockedSolaceBalance, 1)} `}
+                      <TextSpan t4 light>
+                        {readSolaceToken.symbol}
+                      </TextSpan>
+                    </Text>
+                  </FormCol>
+                </FormRow>
+                <FormRow>
                   <FormCol light>Staking APY</FormCol>
                   <FormCol>
                     <Text t2 light>
-                      {stakingApy}
+                      2000%
                     </Text>
                   </FormCol>
                 </FormRow>
