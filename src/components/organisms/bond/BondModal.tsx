@@ -82,7 +82,7 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
   const { reload } = useCachedData()
   const { makeTxToast } = useNotifications()
   const { keyContracts } = useContracts()
-  const { solace, xSolace } = useMemo(() => keyContracts, [keyContracts])
+  const { solace, xSolaceV1 } = useMemo(() => keyContracts, [keyContracts])
 
   const [canCloseOnLoading, setCanCloseOnLoading] = useState<boolean>(false)
   const [canMax, setCanMax] = useState<boolean>(true)
@@ -108,7 +108,7 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
     selectedBondDetail?.principalData.principalProps.decimals,
   ])
   const readSolaceToken = useReadToken(solace)
-  const readXSolaceToken = useReadToken(xSolace)
+  const readXSolaceToken = useReadToken(xSolaceV1)
   const nativeTokenBalance = useNativeTokenBalance()
   const { deposit, redeem } = useBondTeller(selectedBondDetail)
   const { width } = useWindowDimensions()
@@ -273,9 +273,9 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
 
   const calculateAmountIn = async (): Promise<void> => {
     setCanMax(false)
-    if (selectedBondDetail && xSolace) {
+    if (selectedBondDetail && xSolaceV1) {
       const maxPayout = selectedBondDetail.tellerData.maxPayout
-      const maxPayout_X = await xSolace.solaceToXSolace(selectedBondDetail.tellerData.maxPayout)
+      const maxPayout_X = await xSolaceV1.solaceToXSolace(selectedBondDetail.tellerData.maxPayout)
 
       const tellerContract = selectedBondDetail.tellerData.teller.contract
       const bondFeeBps = selectedBondDetail.tellerData.bondFeeBps
@@ -348,7 +348,7 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
 
   useEffect(() => {
     calculateAmountIn()
-  }, [selectedBondDetail, xSolace])
+  }, [selectedBondDetail, xSolaceV1])
 
   useEffect(() => {
     _calculateAmountOut(amount)

@@ -72,8 +72,8 @@ export const useTransactionDetails = (): { txHistory: any; amounts: string[] } =
           return { data: edTopics[edTopics.length - 1], toAddr: receipt.to }
         }
         return { data: logs[logs.length - 1].data, toAddr: receipt.to }
-      case FunctionName.STAKE:
-      case FunctionName.UNSTAKE:
+      case FunctionName.STAKE_V1:
+      case FunctionName.UNSTAKE_V1:
       case FunctionName.WITHDRAW_ETH:
         return { data: logs[0].data }
       case FunctionName.SUBMIT_CLAIM:
@@ -110,26 +110,26 @@ export const useTransactionDetails = (): { txHistory: any; amounts: string[] } =
     }
   }
 
-  const getTransactionAmounts = async () => {
-    if (txHistory) {
-      const currentAmounts = []
-      for (let tx_i = 0; tx_i < txHistory.length; tx_i++) {
-        // console.log(txHistory[tx_i].hash)
-        const function_name = decodeInput(txHistory[tx_i], contractSources)
-        if (!function_name) {
-          currentAmounts.push('N/A')
-        } else {
-          const txData = await getTransactionAmount(function_name, txHistory[tx_i], library)
-          currentAmounts.push(`${formatTransactionContent(function_name, activeNetwork, txData.data, txData.toAddr)}`)
-        }
-      }
-      setAmounts(currentAmounts)
-    }
-  }
+  // const getTransactionAmounts = async () => {
+  //   if (txHistory) {
+  //     const currentAmounts = []
+  //     for (let tx_i = 0; tx_i < txHistory.length; tx_i++) {
+  //       // console.log(txHistory[tx_i].hash)
+  //       const function_name = decodeInput(txHistory[tx_i], contractSources)
+  //       if (!function_name) {
+  //         currentAmounts.push('N/A')
+  //       } else {
+  //         const txData = await getTransactionAmount(function_name, txHistory[tx_i], library)
+  //         currentAmounts.push(`${formatTransactionContent(function_name, activeNetwork, txData.data, txData.toAddr)}`)
+  //       }
+  //     }
+  //     setAmounts(currentAmounts)
+  //   }
+  // }
 
-  useEffect(() => {
-    getTransactionAmounts()
-  }, [txHistory])
+  // useEffect(() => {
+  //   getTransactionAmounts()
+  // }, [txHistory])
 
   return { txHistory, amounts }
 }

@@ -125,27 +125,22 @@ export const useSolaceBalance = (): string => {
 
 export const useXSolaceBalance = () => {
   const { keyContracts } = useContracts()
-  const { xSolace, solace } = useMemo(() => keyContracts, [keyContracts])
+  const { xSolace } = useMemo(() => keyContracts, [keyContracts])
   const { account } = useWallet()
   const { version } = useCachedData()
   const [xSolaceBalance, setXSolaceBalance] = useState<string>('0')
-  const [stakedSolaceBalance, setStakedSolaceBalance] = useState<string>('0')
   const readXToken = useReadToken(xSolace)
-  const readToken = useReadToken(solace)
 
   const getXSolaceBalance = useCallback(async () => {
     if (!xSolace || !account) return
     try {
       const balance = await queryBalance(xSolace, account)
-      const stakedBalance = await xSolace.xSolaceToSolace(balance)
-      const formattedStakedBalance = formatUnits(stakedBalance, readToken.decimals)
       const formattedBalance = formatUnits(balance, readXToken.decimals)
       setXSolaceBalance(formattedBalance)
-      setStakedSolaceBalance(formattedStakedBalance)
     } catch (err) {
       console.log('getXSolaceBalance', err)
     }
-  }, [account, xSolace, readXToken, readToken])
+  }, [account, xSolace, readXToken])
 
   useEffect(() => {
     if (!xSolace || !account) return
@@ -161,7 +156,48 @@ export const useXSolaceBalance = () => {
     }
   }, [account, xSolace, getXSolaceBalance, version])
 
-  return { xSolaceBalance, stakedSolaceBalance }
+  return xSolaceBalance
+}
+
+export const useXSolaceV1Balance = (): { xSolaceV1Balance: string; v1StakedSolaceBalance: string } => {
+  const { keyContracts } = useContracts()
+  const { xSolaceV1, solace } = useMemo(() => keyContracts, [keyContracts])
+  const { account } = useWallet()
+  const { version } = useCachedData()
+  const [xSolaceV1Balance, setXSolaceV1Balance] = useState<string>('0')
+  const [v1StakedSolaceBalance, setV1StakedSolaceBalance] = useState<string>('0')
+  const readToken = useReadToken(solace)
+  const readXV1Token = useReadToken(xSolaceV1)
+
+  const getXSolaceV1Balance = useCallback(async () => {
+    if (!xSolaceV1 || !account) return
+    try {
+      const balance = await queryBalance(xSolaceV1, account)
+      const stakedBalance = await xSolaceV1.xSolaceToSolace(balance)
+      const formattedStakedBalance = formatUnits(stakedBalance, readToken.decimals)
+      const formattedBalance = formatUnits(balance, readXV1Token.decimals)
+      setXSolaceV1Balance(formattedBalance)
+      setV1StakedSolaceBalance(formattedStakedBalance)
+    } catch (err) {
+      console.log('getXSolaceV1Balance', err)
+    }
+  }, [account, xSolaceV1, readToken, readXV1Token])
+
+  useEffect(() => {
+    if (!xSolaceV1 || !account) return
+    getXSolaceV1Balance()
+    xSolaceV1.on('Transfer', (from, to) => {
+      if (from == account || to == account) {
+        getXSolaceV1Balance()
+      }
+    })
+
+    return () => {
+      xSolaceV1.removeAllListeners()
+    }
+  }, [account, xSolaceV1, getXSolaceV1Balance, version])
+
+  return { xSolaceV1Balance, v1StakedSolaceBalance }
 }
 
 export const useUnderWritingPoolBalance = () => {

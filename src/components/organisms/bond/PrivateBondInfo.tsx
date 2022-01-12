@@ -63,9 +63,9 @@ export const PrivateBondInfo: React.FC<PrivateBondInfoProps> = ({
   const { account } = useWallet()
   const { activeNetwork } = useNetwork()
   const { keyContracts } = useContracts()
-  const { solace, xSolace } = useMemo(() => keyContracts, [keyContracts])
+  const { solace, xSolaceV1 } = useMemo(() => keyContracts, [keyContracts])
   const readSolaceToken = useReadToken(solace)
-  const readXSolaceToken = useReadToken(xSolace)
+  const readXSolaceToken = useReadToken(xSolaceV1)
   return (
     <>
       {account && (
