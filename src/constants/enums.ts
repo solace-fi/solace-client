@@ -40,7 +40,12 @@ export enum FunctionName {
 
   STAKE = 'DepositSigned',
   UNSTAKE = 'Withdraw',
-  LOCK = 'Lock',
+
+  CREATE_LOCK = 'CreateLock',
+  INCREASE_LOCK_AMOUNT = 'IncreaseAmount',
+  EXTEND_LOCK = 'ExtendLock',
+  WITHDRAW_FROM_LOCK = 'Withdraw',
+  HARVEST = 'Harvest',
 
   BOND_DEPOSIT_WETH = 'DepositWeth',
   BOND_DEPOSIT_ERC20 = 'Deposit',

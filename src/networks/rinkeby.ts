@@ -11,6 +11,8 @@ import vaultABI from '../constants/abi/contracts/Vault.sol/Vault.json'
 import solaceABI from '../constants/abi/contracts/SOLACE.sol/SOLACE.json'
 import xSolaceABI from '../constants/metadata/xSOLACE.json'
 import xSolaceV1ABI from '../constants/abi/contracts/xSOLACE.sol/xSOLACE.json'
+import xsLockerABI from '../constants/metadata/xsLocker.json'
+import stakingRewardsABI from '../constants/metadata/StakingRewards.json'
 import xSolaceMigratorABI from '../constants/metadata/xSolaceMigrator.json'
 import cpFarmABI from '../constants/abi/contracts/CpFarm.sol/CpFarm.json'
 import bondDepoABI from '../constants/abi/contracts/BondDepository.sol/BondDepository.json'
@@ -127,6 +129,14 @@ export const RinkebyNetwork: NetworkConfig = {
       xSolaceV1: {
         addr: String(process.env.REACT_APP_RINKEBY_XSOLACE_V1_ADDR),
         abi: xSolaceV1ABI,
+      },
+      xsLocker: {
+        addr: String(process.env.REACT_APP_RINKEBY_XSLOCKER_ADDR),
+        abi: xsLockerABI.abi,
+      },
+      stakingRewards: {
+        addr: String(process.env.REACT_APP_RINKEBY_STAKING_REWARDS_ADDR),
+        abi: stakingRewardsABI.abi,
       },
       xSolaceMigrator: {
         addr: String(process.env.REACT_APP_RINKEBY_XSOLACE_MIGRATOR_ADDR),

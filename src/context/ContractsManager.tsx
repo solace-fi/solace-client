@@ -25,6 +25,8 @@ type Contracts = {
     solace?: Contract | null
     xSolace?: Contract | null
     xSolaceV1?: Contract | null
+    xsLocker?: Contract | null
+    stakingRewards?: Contract | null
     xSolaceMigrator?: Contract | null
     cpFarm?: Contract | null
     bondDepo?: Contract | null
@@ -48,6 +50,8 @@ const ContractsContext = createContext<Contracts>({
     solace: undefined,
     xSolace: undefined,
     xSolaceV1: undefined,
+    xsLocker: undefined,
+    stakingRewards: undefined,
     xSolaceMigrator: undefined,
     cpFarm: undefined,
     bondDepo: undefined,
@@ -75,6 +79,8 @@ const ContractsProvider: React.FC = (props) => {
   const solace = useGetContract(keyContracts.solace)
   const xSolace = useGetContract(keyContracts.xSolace)
   const xSolaceV1 = useGetContract(keyContracts.xSolaceV1)
+  const xsLocker = useGetContract(keyContracts.xsLocker)
+  const stakingRewards = useGetContract(keyContracts.stakingRewards)
   const xSolaceMigrator = useGetContract(keyContracts.xSolaceMigrator)
   const cpFarm = useGetContract(keyContracts.cpFarm)
   const claimsEscrow = useGetContract(keyContracts.claimsEscrow)
@@ -109,6 +115,8 @@ const ContractsProvider: React.FC = (props) => {
         solace,
         xSolace,
         xSolaceV1,
+        xsLocker,
+        stakingRewards,
         xSolaceMigrator,
         cpFarm,
         bondDepo,
@@ -130,6 +138,8 @@ const ContractsProvider: React.FC = (props) => {
       solace,
       xSolace,
       xSolaceV1,
+      xsLocker,
+      stakingRewards,
       xSolaceMigrator,
       cpFarm,
       bondDepo,
