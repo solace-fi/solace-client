@@ -201,7 +201,7 @@ export const AccountModal: React.FC<AccountModalProps> = ({ closeModal, isOpen }
                         pl={width <= BKPT_3 ? 0 : undefined}
                         pr={width <= BKPT_3 ? 0 : undefined}
                       >
-                        {amounts.length > 0 ? (
+                        {txHistory.length > 0 ? (
                           <Text error={tx.txreceipt_status != '1'}>{decodeInput(tx, contractSources)}</Text>
                         ) : (
                           <Loader width={10} height={10} />
@@ -214,7 +214,7 @@ export const AccountModal: React.FC<AccountModalProps> = ({ closeModal, isOpen }
                             {amounts.length > 0 && tx.txreceipt_status != '1' && <Text error>Transaction Failed</Text>}
                           </TableData> */}
                           <TableData pt={5} pb={5} t4>
-                            {amounts.length > 0 && (
+                            {txHistory.length > 0 && (
                               <Text error={tx.txreceipt_status != '1'}>{timeAgo(Number(tx.timeStamp) * 1000)}</Text>
                             )}
                           </TableData>
@@ -227,7 +227,7 @@ export const AccountModal: React.FC<AccountModalProps> = ({ closeModal, isOpen }
                         pl={width <= BKPT_3 ? 0 : undefined}
                         pr={width <= BKPT_3 ? 0 : undefined}
                       >
-                        {amounts.length > 0 && (
+                        {txHistory.length > 0 && (
                           <HyperLink
                             href={getExplorerItemUrl(activeNetwork.explorer.url, tx.hash, ExplorerscanApi.TX)}
                             target="_blank"
