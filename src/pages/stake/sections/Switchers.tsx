@@ -25,7 +25,7 @@ export default function Switchers({
 
   return (
     <>
-      <Twiv css={tw`flex justify-between items-center mb-5`}>
+      {/* <Twiv css={tw`flex justify-between items-center mb-5`}>
         <Twiv css={tw`text-xl font-semibold select-none`}>
           <Twan css={tw`text-gray-600`}>Version: </Twan>
           <Twan
@@ -49,7 +49,6 @@ export default function Switchers({
           </Twan>
         </Twiv>
       </Twiv>
-      {/* select between staking, unstaking, locking */}
       <Twiv css={tw`flex justify-between items-center mb-5`}>
         <Twiv css={tw`text-xl font-semibold select-none`}>
           <Twan css={tw`text-gray-600`}>Tab: </Twan>
@@ -84,7 +83,7 @@ export default function Switchers({
           </Twan>
         </Twiv>
       </Twiv>
-      {/* select between on and off Locking */}
+      
       <Twiv css={tw`flex justify-between items-center mb-5`}>
         <Twiv css={tw`text-xl font-semibold select-none`}>
           <Twan css={tw`text-gray-600`}>Locking: </Twan>
@@ -108,7 +107,7 @@ export default function Switchers({
             Off
           </Twan>
         </Twiv>
-      </Twiv>
+      </Twiv> */}
     </>
   )
 }

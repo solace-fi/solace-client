@@ -1,6 +1,6 @@
 import { Tab } from '../types/Tab'
 import React from 'react'
-import tw from 'twin.macro'
+import tw, { TwStyle } from 'twin.macro'
 import CardRange from '../components/CardRange'
 import GenericInformationBox from '../components/GenericInformationBox'
 import GrayBox from '../components/GrayBox'
@@ -8,16 +8,53 @@ import InformationBox from '../components/InformationBox'
 import SectionLabel from '../components/SectionLabel'
 import SubmitButton from '../components/SubmitButton'
 import Twiv from '../components/Twiv'
-import lockingBenefitsCalculator from '../functions/LockingBenefitsCalculator'
+import lockingBenefitsCalculator from '../utils/LockingBenefitsCalculator'
 import { InfoBoxType } from '../types/InfoBoxType'
 import InputSection from './InputSection'
 import TopSection from './TopSection'
+import styled from 'styled-components'
 
-function TwFlexCol({ children, className, ...props }: { children: React.ReactNode; className?: string; props?: any }) {
+function TwFlexCol({
+  children,
+  className,
+  css,
+  ...props
+}: {
+  children: React.ReactNode
+  className?: string
+  css?: TwStyle | TwStyle[]
+  props?: any
+}) {
   return (
-    <div className={`flex flex-col ${className}`} {...props}>
+    <Twiv className={className} css={[tw`flex flex-col`].concat(css || [])} {...props}>
       {children}
-    </div>
+    </Twiv>
+  )
+}
+
+/* <form
+onSubmit={(e) => onSubmit(e)}
+className="bg-[#fff] mx-auto shadow-lg max-w-[375px] lg:max-w-[1114px] rounded-b-xl flex flex-col p-7 items-stretch overflow-hidden"
+> */
+
+function StyledForm({
+  children,
+  css,
+  onSubmit,
+  ...props
+}: {
+  children: React.ReactNode
+  css?: TwStyle
+  onSubmit: (e: React.FormEvent<HTMLFormElement>) => void
+  props?: any
+}) {
+  const Styled = styled.form`
+    ${css}
+  `
+  return (
+    <Styled {...props} onSubmit={onSubmit}>
+      {children}
+    </Styled>
   )
 }
 export default function V2Form({
@@ -62,9 +99,9 @@ export default function V2Form({
       />
 
       {/* underbox */}
-      <form
+      <StyledForm
         onSubmit={(e) => onSubmit(e)}
-        className="bg-bg-primary mx-auto shadow-lg max-w-[375px] lg:max-w-[1114px] rounded-b-xl flex flex-col p-7 items-stretch overflow-hidden"
+        css={tw`bg-[#fff] mx-auto shadow-lg max-w-[375px] lg:max-w-[1114px] rounded-b-xl flex flex-col p-7 items-stretch overflow-hidden`}
       >
         <Twiv css={tw`flex`}></Twiv>
         {/*  total: 359 with top part*/}
@@ -92,7 +129,7 @@ export default function V2Form({
             </SectionLabel>
             <InputSection tab={tab} value={inputValue} onChange={inputOnChange} setMax={setMax} />
             {/* slider */}
-            <TwFlexCol className="mt-5 mb-10">
+            <TwFlexCol css={tw`mt-5 mb-10`}>
               <CardRange value={rangeValue} onChange={rangeOnChange} min="0" max="100" />
             </TwFlexCol>
             <SubmitButton
@@ -120,7 +157,7 @@ export default function V2Form({
                           title: 'Current APY',
                           body: (
                             <Twiv css={tw`flex space-x-2 mt-2 font-semibold`}>
-                              <Twiv css={tw`text-text-secondary line-through`}>{2000}%</Twiv>
+                              <Twiv css={tw`text-[#5E5E5E] line-through`}>{2000}%</Twiv>
                               <div>{apy.toFixed(0)}%</div>
                             </Twiv>
                           ),
@@ -140,7 +177,7 @@ export default function V2Form({
                       title: 'Better APY',
                       body: (
                         <Twiv css={tw`flex space-x-2 mt-2 font-semibold`}>
-                          <Twiv css={tw`text-text-secondary line-through`}>{apy.toFixed(0)}%</Twiv>
+                          <Twiv css={tw`text-[#5E5E5E] line-through`}>{apy.toFixed(0)}%</Twiv>
                           <div>{lockingBenefitsCalculator(Number(inputValue ?? 0) + lockedDays).apy.toFixed(0)}%</div>
                         </Twiv>
                       ),
@@ -161,7 +198,7 @@ export default function V2Form({
             />
           </div>
         </Twiv>
-      </form>
+      </StyledForm>
     </>
   )
 }

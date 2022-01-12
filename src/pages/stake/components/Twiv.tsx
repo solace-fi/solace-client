@@ -11,7 +11,7 @@ export default function Twiv({
 }: {
   className?: string
   children?: React.ReactNode | React.ReactNode[]
-  css?: TwStyle
+  css?: TwStyle | TwStyle[]
   span?: boolean
   [key: string]: any
 }): JSX.Element {

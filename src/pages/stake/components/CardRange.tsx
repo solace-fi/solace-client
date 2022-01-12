@@ -1,7 +1,8 @@
 import React from 'react'
 import styled from 'styled-components'
+import tw, { TwStyle } from 'twin.macro'
 
-const StyledRangeInput = styled.input`
+const StyledRangeInput = styled.input<{ css: string | TwStyle }>`
   &::-webkit-range-thumb,
   &::-moz-range-thumb {
     -webkit-appearance: none;
@@ -37,7 +38,7 @@ export default function CardRange({
       type="range"
       min={min}
       max={max}
-      className="bg-gray-200 rounded-full h-2 mt-2.5"
+      css={tw`bg-gray-200 rounded-full h-2 mt-2.5`}
       value={value}
       onChange={onChange}
     />

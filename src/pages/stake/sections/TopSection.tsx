@@ -1,13 +1,21 @@
 import { Tab } from '../types/Tab'
 import { LockAlt } from '@styled-icons/boxicons-solid'
 import React from 'react'
-import tw from 'twin.macro'
+import tw, { TwStyle } from 'twin.macro'
 import CardSectionValue from '../components/CardSectionValue'
 import SectionLabel from '../components/SectionLabel'
 import Twan from '../components/Twan'
 import Twiv from '../components/Twiv'
 import VerticalSeparator from '../components/VerticalSeparator'
-import lockingBenefitsCalculator from '../functions/LockingBenefitsCalculator'
+import lockingBenefitsCalculator from '../utils/LockingBenefitsCalculator'
+import styled from 'styled-components'
+
+function StyledLockAlt({ css }: { css: TwStyle }): JSX.Element {
+  const Styled = styled(LockAlt)`
+    ${css}
+  `
+  return <Styled />
+}
 export default function TopSection({
   staked,
   unstaked,
@@ -25,8 +33,8 @@ export default function TopSection({
   lockedDays: number
 }): JSX.Element {
   return (
-    <div
-      className="flex flex-col lg:flex-row py-5 px-7 lg:pl-7 border-b bg-white border-util-separator space-x-0 lg:space-x-20 w-full items-center lg:items-stretch mx-auto max-w-[375px] lg:max-w-[1114px] rounded-t-xl"
+    <Twiv
+      css={tw`flex flex-col lg:flex-row py-5 px-7 lg:pl-7 border-b bg-white border-[#E3E4E6] space-x-0 lg:space-x-20 w-full items-center lg:items-stretch mx-auto max-w-[375px] lg:max-w-[1114px] rounded-t-xl`}
       style={{
         boxShadow: '0 0px 25px 0px rgb(0 0 0 / 0.1), 0 8px 10px 0px rgb(0 0 0 / 0.1)',
       }}
@@ -44,8 +52,8 @@ export default function TopSection({
             <Twiv css={tw`flex flex-col lg:flex-row items-start lg:items-center`}>
               <div>Staked Balance</div>
               {isLocked ? (
-                <Twan css={tw`ml-0 lg:ml-2 text-text-accent flex items-center mt-1 lg:mt-0`}>
-                  <LockAlt className="text-text-accent h-3.5 mr-1" /> <div>{String(lockedDays)} Days</div>
+                <Twan css={tw`ml-0 lg:ml-2 text-[#5F5DF9] flex items-center mt-1 lg:mt-0`}>
+                  <StyledLockAlt css={tw`text-[#5F5DF9] h-3.5 mr-1`} /> <div>{String(lockedDays)} Days</div>
                 </Twan>
               ) : (
                 <></>
@@ -68,7 +76,7 @@ export default function TopSection({
             <VerticalSeparator />
           </Twiv>
           {/* horizontal separator for mobile */}
-          <Twiv css={tw`block w-64 border-b mt-5 mb-5 border-b-util-separator border-solid mx-auto lg:hidden`}>
+          <Twiv css={tw`block w-64 border-b mt-5 mb-5 border-b-[#E3E4E6] border-solid mx-auto lg:hidden`}>
             <Twiv css={tw`flex flex-row items-baseline space-x-1 lg:space-x-0 lg:items-start lg:flex-col`}>
               <SectionLabel>
                 <div>APY</div>
@@ -80,6 +88,6 @@ export default function TopSection({
           </Twiv>
         </Twiv>
       </Twiv>
-    </div>
+    </Twiv>
   )
 }

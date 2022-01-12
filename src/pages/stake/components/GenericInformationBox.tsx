@@ -1,7 +1,6 @@
 import React, { ReactNode } from 'react'
 import tw from 'twin.macro'
-import classOrEmpty from '../functions/classOrEmpty'
-import separateChildren from '../functions/separateChildren'
+import separateChildren from '../utils/separateChildren'
 import SectionLabel from './SectionLabel'
 import Twiv from './Twiv'
 
@@ -14,17 +13,17 @@ export default function GenericInformationBox({
   }[]
 }): JSX.Element {
   return (
-    <Twiv css={tw`flex bg-bg-secondary text-text-purple rounded-xl items-stretch py-3 px-6 font-medium space-x-5 mb-8`}>
+    <Twiv css={tw`flex bg-[#fafafa] text-[#B471E1] rounded-xl items-stretch py-3 px-6 font-medium space-x-5 mb-8`}>
       {separateChildren(
         details.map((detail, i) => {
           const { title, body } = detail
           return (
-            <div key={i} className={classOrEmpty(details.length > 1, 'flex space-x-3')}>
+            <Twiv key={i} css={details.length > 1 ? tw`flex space-x-3` : undefined}>
               <div>
                 <SectionLabel>{title}</SectionLabel>
                 <Twiv css={tw`mt-2 font-semibold`}>{body}</Twiv>
               </div>
-            </div>
+            </Twiv>
           )
         })
       )}

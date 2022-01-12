@@ -10,7 +10,7 @@ export default function Twan({
 }: {
   className?: string
   children?: React.ReactNode | React.ReactNode[]
-  css?: TwStyle
+  css?: TwStyle | string
   [key: string]: any
 }): JSX.Element {
   // grab the css style prop and put it in a styled div (use pure styled/components, do not use tw(

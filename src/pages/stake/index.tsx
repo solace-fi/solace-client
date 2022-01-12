@@ -458,8 +458,8 @@ export default function Stake(): JSX.Element {
           </Notification>
           {/* only show the following if staking is v2 and the tab is not `difference` */}
           {version === Version.v2 && (
-            <Twiv css={tw`font-sans text-text-secondary`}>
-              <Twiv css={tw`bg-bg-secondary min-h-screen px-1 lg:px-10 py-10`}>
+            <Twiv css={tw`font-sans text-[#5E5E5E]`}>
+              <Twiv css={tw`bg-[#fafafa] min-h-screen px-1 lg:px-10 py-10`}>
                 {/* select between v1 and v2 */}
                 <Switchers
                   tab={tab}
@@ -513,15 +513,15 @@ export default function Stake(): JSX.Element {
           )}
           {/* only show the following if staking is v1 and the tab is not `difference` */}
           {version === Version.v1 && (
-            <Twiv css={tw`text-xl font-bold text-text-accent animate-bounce`}>
-              V1 not implemented in this component <Twan css={tw`text-text-warning`}>(yet)</Twan>.
+            <Twiv css={tw`text-xl font-bold text-[#5F5DF9] animate-bounce`}>
+              V1 not implemented in this component <Twan css={tw`text-[#F04D42]`}>(yet)</Twan>.
             </Twiv>
           )}
           {/* only show the following if staking is v1 and the tab is `difference` */}
           {version === Version.difference && (
-            <Twiv css={tw`text-xl font-bold text-text-accent animate-bounce`}>
+            <Twiv css={tw`text-xl font-bold text-[#5F5DF9] animate-bounce`}>
               Difference between V1 and V2:
-              <Twiv css={tw`text-text-secondary`}>not implemented yet</Twiv>
+              <Twiv css={tw`text-[#5E5E5E]`}>not implemented yet</Twiv>
             </Twiv>
           )}
         </Content>
