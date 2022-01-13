@@ -40,8 +40,8 @@ import { WalletConnectButton } from '../../components/molecules/WalletConnectBut
 import { StyledRefresh } from '../../components/atoms/Icon'
 
 /* import hooks */
-import { useSolaceBalance, useXSolaceV1Balance } from '../../hooks/useBalance'
-import { useStakingApyV1, useXSolaceV1, useXSolaceV1Details } from '../../hooks/useXSolaceV1'
+import { useSolaceBalance, useXSolaceBalance, useXSolaceV1Balance } from '../../hooks/useBalance'
+import { useXSolaceV1, useXSolaceV1Details } from '../../hooks/useXSolaceV1'
 import { useInputAmount } from '../../hooks/useInputAmount'
 import { useReadToken } from '../../hooks/useToken'
 
@@ -55,6 +55,7 @@ import V2Form from './sections/V2Form'
 import { Version } from './types/Version'
 import styled from 'styled-components'
 import Twan from './components/Twan'
+import { useXSLocker } from '../../hooks/useXSLocker'
 
 // disable no unused variables
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -84,7 +85,6 @@ function Stake1(): any {
     resetAmount,
   } = useInputAmount()
   const { stake_v1, unstake_v1 } = useXSolaceV1()
-  const { stakingApy } = useStakingApyV1()
   const { userShare, xSolacePerSolace, solacePerXSolace } = useXSolaceV1Details()
   const { account } = useWallet()
   const [convertStoX, setConvertStoX] = useState<boolean>(true)
@@ -405,22 +405,41 @@ export default function Stake(): JSX.Element {
   [tab, stakingInputValue, stakingRangeValue, unstakingInputValue, unstakingRangeValue, lockingInputValue, lockingRangeValue, version]);
 
   // user current staked and unstaked amounts, and locking time
-  const [stakedAmount /*, setStakedAmount*/] = useState(552)
-  const [unstakedAmount /*, setUnstakedAmount*/] = useState(0)
+
   const [lockedDays, setLockedDays] = useState(157)
   // xsolace price in solace
-  const [xSolacePrice /*, setXSolacePrice */] = useState(1.5)
   const maxDaysLocked = 1461
 
-  // prettier-ignore
-  const setMax = useMemo(() => Version.difference === version ? () => undefined :  ({
-      [Tab.staking]: () => (setRangeValue("100"), setInputValue(unstakedAmount.toString())),
-      [Tab.unstaking]: () => (setRangeValue("100"), setInputValue(stakedAmount.toString())),
-      [Tab.locking]: () => (setRangeValue("100"), setInputValue(maxDaysLocked.toString())),
-    }[tab] as () => void) ,
+  const solaceBalance = useSolaceBalance()
+  const { getStakedBalance, getUserLockerBalances } = useXSLocker()
+  const [stakedSolaceBalance, setStakedSolaceBalance] = useState<string>('0')
+  const [lockedSolaceBalance, setLockedSolaceBalance] = useState<string>('0')
+  const [unlockedSolaceBalance, setUnlockedSolaceBalance] = useState<string>('0')
+
+  // prettier - ignore
+  const setMax = useMemo(
+    () =>
+      Version.difference === version
+        ? () => undefined
+        : ({
+            [Tab.staking]: () => (setRangeValue('100'), setInputValue(solaceBalance)),
+            [Tab.unstaking]: () => (setRangeValue('100'), setInputValue(unlockedSolaceBalance)),
+            [Tab.locking]: () => (setRangeValue('100'), setInputValue(maxDaysLocked.toString())),
+          }[tab] as () => void),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [tab, stakedAmount, unstakedAmount, maxDaysLocked, setInputValue, setRangeValue]
-  );
+    [tab, unlockedSolaceBalance, solaceBalance, maxDaysLocked, setInputValue, setRangeValue]
+  )
+
+  useEffect(() => {
+    const _getUserLockerBalances = async () => {
+      if (!account) return
+      const balances = await getUserLockerBalances(account)
+      setStakedSolaceBalance(balances.stakedBalance)
+      setUnlockedSolaceBalance(balances.unlockedBalance)
+      setLockedSolaceBalance(balances.lockedBalance)
+    }
+    _getUserLockerBalances()
+  }, [account])
 
   return (
     <>
@@ -472,17 +491,17 @@ export default function Stake(): JSX.Element {
                 {/* select between v1 and v2 */}
                 <Switchers
                   tab={tab}
-                  setTab={setTab}
-                  version={version}
                   lockedDays={lockedDays}
+                  version={version}
+                  setTab={setTab}
                   setLockedDays={setLockedDays}
                   setVersion={setVersion}
                 />
                 <V2Form
                   tab={tab}
-                  stakedAmount={stakedAmount}
-                  unstakedAmount={unstakedAmount}
-                  xSolacePrice={xSolacePrice}
+                  staked={stakedSolaceBalance}
+                  unstaked={solaceBalance}
+                  locked={lockedSolaceBalance}
                   onSubmit={onSubmit}
                   inputValue={inputValue}
                   setMax={setMax}
@@ -494,8 +513,8 @@ export default function Stake(): JSX.Element {
                     // 3. update range value state (as percentage string between 0 and 100)
                     setRangeValue(
                       {
-                        [Tab.staking]: String((Number(inputValue) * 100) / unstakedAmount),
-                        [Tab.unstaking]: String((Number(inputValue) * 100) / stakedAmount),
+                        [Tab.staking]: String((Number(inputValue) * 100) / parseFloat(solaceBalance)),
+                        [Tab.unstaking]: String((Number(inputValue) * 100) / parseFloat(unlockedSolaceBalance)),
                         [Tab.locking]: String((Number(inputValue) * 100) / maxDaysLocked),
                       }[tab]
                     )
@@ -510,8 +529,8 @@ export default function Stake(): JSX.Element {
                     setTimeout(() => console.log({ targetValue: e.target.value, rangeValue }), 0)
                     setInputValue(
                       {
-                        [Tab.staking]: String((Number(e.target.value) * unstakedAmount) / 100),
-                        [Tab.unstaking]: String((Number(e.target.value) * stakedAmount) / 100),
+                        [Tab.staking]: String((Number(e.target.value) * parseFloat(solaceBalance)) / 100),
+                        [Tab.unstaking]: String((Number(e.target.value) * parseFloat(unlockedSolaceBalance)) / 100),
                         [Tab.locking]: String((Number(e.target.value) * maxDaysLocked) / 100),
                       }[tab]
                     )

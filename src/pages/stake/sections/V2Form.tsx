@@ -1,5 +1,5 @@
 import { Tab } from '../types/Tab'
-import React from 'react'
+import React, { useMemo } from 'react'
 import tw, { TwStyle } from 'twin.macro'
 import CardRange from '../components/CardRange'
 import GenericInformationBox from '../components/GenericInformationBox'
@@ -59,10 +59,10 @@ function StyledForm({
 }
 export default function V2Form({
   tab,
-  stakedAmount,
-  unstakedAmount,
+  staked,
+  unstaked,
   lockedDays,
-  xSolacePrice,
+  locked,
   onSubmit,
   inputValue,
   inputOnChange,
@@ -71,10 +71,10 @@ export default function V2Form({
   setMax,
 }: {
   tab: Tab.staking | Tab.unstaking | Tab.locking
-  stakedAmount: number
-  unstakedAmount: number
+  staked: string
+  unstaked: string
   lockedDays: number
-  xSolacePrice: number
+  locked: string
   onSubmit: (e: React.FormEvent<HTMLFormElement>) => void
   inputValue: string | undefined
   inputOnChange: (e: React.ChangeEvent<HTMLInputElement>) => void
@@ -86,13 +86,13 @@ export default function V2Form({
   // during Unstaking, it's the staked amount,
   // during Locking, it's 1461 (days in 4 years)
   // const rangeMax = tab === Tab.staking ? unstakedAmount : tab === Tab.locking ? 1461 : stakedAmount;
-  const { apy, multiplier } = lockingBenefitsCalculator(lockedDays)
+  const { apy, multiplier } = useMemo(() => lockingBenefitsCalculator(lockedDays), [lockedDays])
   return (
     <>
       <TopSection
-        staked={stakedAmount}
-        unstaked={unstakedAmount}
-        xSolacePrice={xSolacePrice}
+        staked={staked}
+        unstaked={unstaked}
+        locked={locked}
         isLocked={lockedDays > 0}
         lockedDays={lockedDays}
         tab={tab}
