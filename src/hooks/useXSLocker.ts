@@ -9,12 +9,15 @@ import { GasConfiguration, LocalTx } from '../constants/types'
 import { getPermitErc20Signature } from '../utils/signature'
 import { DEADLINE, GAS_LIMIT, ZERO } from '../constants'
 import { FunctionName, TransactionCondition } from '../constants/enums'
+import { useProvider } from '../context/ProviderManager'
+import { rangeFrom0 } from '../utils/numeric'
 
 export const useXSLocker = () => {
   const { keyContracts } = useContracts()
   const { xsLocker, solace } = useMemo(() => keyContracts, [keyContracts])
   const { library } = useWallet()
   const { chainId } = useNetwork()
+  const { latestBlock } = useProvider()
   const readToken = useReadToken(solace)
 
   const getLock = async (xsLockID: BigNumber) => {
@@ -50,14 +53,14 @@ export const useXSLocker = () => {
     }
   }
 
-  const getLockedBalance = async (account: string) => {
+  const getStakedBalance = async (account: string) => {
     if (!xsLocker) return '0'
     try {
       const stakedBalance = await xsLocker.stakedBalance(account)
       const formattedStakedBalance = formatUnits(stakedBalance, readToken.decimals)
       return formattedStakedBalance
     } catch (err) {
-      console.log('error getLockedBalance ', err)
+      console.log('error getStakedBalance ', err)
       return '0'
     }
   }
@@ -152,14 +155,46 @@ export const useXSLocker = () => {
     return { tx, localTx }
   }
 
+  const getUserLockerBalances = async (account: string) => {
+    if (!latestBlock || !xsLocker) return { stakedBalance: '0', lockedBalance: '0', unlockedBalance: '0' }
+    const timestamp: number = latestBlock.timestamp
+    let stakedBalance = ZERO // staked = locked + unlocked
+    let lockedBalance = ZERO
+    let unlockedBalance = ZERO
+    const numLocks = await xsLocker.balanceOf(account)
+    const indices = rangeFrom0(numLocks.toNumber())
+    const xsLockIDs = await Promise.all(
+      indices.map(async (index) => {
+        return await xsLocker.tokenOfOwnerByIndex(account, index)
+      })
+    )
+    const locks = await Promise.all(
+      xsLockIDs.map(async (xsLockID) => {
+        return await xsLocker.locks(xsLockID)
+      })
+    )
+    locks.forEach((lock) => {
+      stakedBalance = stakedBalance.add(lock.amount)
+      if (lock.end.gt(timestamp)) lockedBalance = lockedBalance.add(lock.amount)
+      else unlockedBalance = unlockedBalance.add(lock.amount)
+    })
+
+    return {
+      stakedBalance: formatUnits(stakedBalance, readToken.decimals),
+      lockedBalance: formatUnits(lockedBalance, readToken.decimals),
+      unlockedBalance: formatUnits(unlockedBalance, readToken.decimals),
+    }
+  }
+
   return {
     createLock,
     increaseLockAmount,
     extendLock,
     withdrawFromLock,
-    getLockedBalance,
+    getStakedBalance,
     getLock,
     getIsLocked,
     getTimeLeft,
+    getUserLockerBalances,
   }
 }

@@ -9,7 +9,7 @@ function BaseDiv({
   className,
   ...props
 }: {
-  css?: any
+  css?: string
   tw?: string
   className?: string
   children?: React.ReactNode | React.ReactNode[]
@@ -20,7 +20,7 @@ function BaseDiv({
     ${css ?? ''}
   `
   return (
-    <Styled className={className} {...props}>
+    <Styled className={className + ' ' + css} {...props}>
       {'children' in props ? (props as { children: any }).children : null}
     </Styled>
   )

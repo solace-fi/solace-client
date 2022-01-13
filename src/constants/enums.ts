@@ -41,6 +41,8 @@ export enum FunctionName {
   STAKE = 'DepositSigned',
   UNSTAKE = 'Withdraw',
 
+  SOLACE_MIGRATE = 'MigrateSigned',
+
   CREATE_LOCK = 'CreateLock',
   INCREASE_LOCK_AMOUNT = 'IncreaseAmount',
   EXTEND_LOCK = 'ExtendLock',

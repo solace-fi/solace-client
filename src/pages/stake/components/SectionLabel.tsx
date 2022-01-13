@@ -2,34 +2,33 @@ import React from 'react'
 import { css } from 'styled-components'
 import BaseDiv from '../atoms/BaseDiv'
 
-const Css = css
+// const Css = css
 
 const SectionLabel = ({
   children,
   css,
-  tws,
+  // tws,
   ...props
 }: {
   children: string | React.ReactNode
   css?: string
-  tws?: string
+  // tws?: string
   props?: any[]
 }): JSX.Element => {
   // send the following to the tw prop: font-semibold text-xs mb-2
   // styled css to the css prop
   // className to the className prop
-  const myCss = Css<{
-    children: string | React.ReactNode
-    css?: string
-    tws?: string
-    props?: any[]
-  }>`
-    ${`font-semibold text-xs mb-2`}
-    ${tws}
-  ${({ css }) => css ?? ''}
-  `
+  // const myCss = Css<{
+  //   children: string | React.ReactNode
+  //   css?: string
+  //   tws?: string
+  //   props?: any[]
+  // }>`
+  // ${``}
+  // ${({ css }) => css ?? ''}
+  // `
   return (
-    <BaseDiv css={myCss} {...props}>
+    <BaseDiv css={'font-semibold text-xs mb-2' + ' ' + css} {...props}>
       {children}
     </BaseDiv>
   )

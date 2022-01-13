@@ -1,5 +1,5 @@
 import { Tab } from '../types/Tab'
-import React from 'react'
+import React, { useMemo } from 'react'
 import CardRange from '../components/CardRange'
 import GenericInformationBox from '../components/GenericInformationBox'
 import GrayBox from '../components/GrayBox'
@@ -48,20 +48,21 @@ function StyledForm({
   props?: any
 }) {
   const Styled = styled.form`
-    ${css}
+    /* ${css} */
   `
   return (
-    <Styled {...props} onSubmit={onSubmit}>
+    <Styled className={css} {...props} onSubmit={onSubmit}>
       {children}
     </Styled>
   )
 }
+
 export default function V2Form({
   tab,
-  stakedAmount,
-  unstakedAmount,
+  staked,
+  unstaked,
   lockedDays,
-  xSolacePrice,
+  locked,
   onSubmit,
   inputValue,
   inputOnChange,
@@ -70,10 +71,10 @@ export default function V2Form({
   setMax,
 }: {
   tab: Tab.staking | Tab.unstaking | Tab.locking
-  stakedAmount: number
-  unstakedAmount: number
+  staked: string
+  unstaked: string
   lockedDays: number
-  xSolacePrice: number
+  locked: string
   onSubmit: (e: React.FormEvent<HTMLFormElement>) => void
   inputValue: string | undefined
   inputOnChange: (e: React.ChangeEvent<HTMLInputElement>) => void
@@ -85,13 +86,13 @@ export default function V2Form({
   // during Unstaking, it's the staked amount,
   // during Locking, it's 1461 (days in 4 years)
   // const rangeMax = tab === Tab.staking ? unstakedAmount : tab === Tab.locking ? 1461 : stakedAmount;
-  const { apy, multiplier } = lockingBenefitsCalculator(lockedDays)
+  const { apy, multiplier } = useMemo(() => lockingBenefitsCalculator(lockedDays), [lockedDays])
   return (
     <>
       <TopSection
-        staked={stakedAmount}
-        unstaked={unstakedAmount}
-        xSolacePrice={xSolacePrice}
+        staked={staked}
+        unstaked={unstaked}
+        locked={locked}
         isLocked={lockedDays > 0}
         lockedDays={lockedDays}
         tab={tab}
@@ -100,12 +101,12 @@ export default function V2Form({
       {/* underbox */}
       <StyledForm
         onSubmit={(e) => onSubmit(e)}
-        css={`bg-[#fff] mx-auto shadow-lg max-w-[375px] lg:max-w-[1114px] rounded-b-xl flex flex-col p-7 items-stretch overflow-hidden`}
+        css="bg-[#fff] mx-auto shadow-lg max-w-[375px] lg:max-w-[1114px] rounded-b-xl flex flex-col p-7 items-stretch overflow-hidden"
       >
         <Twiv css={`flex`}></Twiv>
         {/*  total: 359 with top part*/}
         {/* input, slider & warning */}
-        <Twiv css={`flex flex-col lg:flex-row space-x-0 space-y-8 lg:space-y-0 lg:space-x-5`}>
+        <Twiv css="flex flex-col lg:flex-row space-x-0 space-y-8 lg:space-y-0 lg:space-x-5">
           {/* input/slider container */}
           <TwFlexCol>
             {tab === Tab.locking && lockedDays > 0 && (

@@ -1,6 +1,6 @@
 import { Tab } from '../types/Tab'
 import { LockAlt } from '@styled-icons/boxicons-solid'
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import CardSectionValue from '../components/CardSectionValue'
 import SectionLabel from '../components/SectionLabel'
 import Twan from '../components/Twan'
@@ -8,6 +8,10 @@ import Twiv from '../components/Twiv'
 import VerticalSeparator from '../components/VerticalSeparator'
 import lockingBenefitsCalculator from '../utils/LockingBenefitsCalculator'
 import styled from 'styled-components'
+import { useSolaceBalance, useXSolaceBalance } from '../../../hooks/useBalance'
+import { useWallet } from '../../../context/WalletManager'
+import { useXSLocker } from '../../../hooks/useXSLocker'
+import { truncateBalance } from '../../../utils/formatting'
 
 function StyledLockAlt({ css }: { css: string }): JSX.Element {
   const Styled = styled(LockAlt)`
@@ -18,15 +22,15 @@ function StyledLockAlt({ css }: { css: string }): JSX.Element {
 export default function TopSection({
   staked,
   unstaked,
-  xSolacePrice,
+  locked,
   tab,
   isLocked,
   lockedDays,
 }: // lockedDays
 {
-  staked: number
-  unstaked: number
-  xSolacePrice: number
+  staked: string
+  unstaked: string
+  locked: string
   tab: Tab
   isLocked: boolean
   lockedDays: number
@@ -43,32 +47,36 @@ export default function TopSection({
         <Twiv css={`flex-shrink-0`}>
           <SectionLabel>Unstaked Balance</SectionLabel>
           <CardSectionValue annotation="SOLACE" importance={Tab.staking === tab ? 'primary' : 'secondary'}>
-            {unstaked.toFixed(2)}
+            {truncateBalance(unstaked, 2)}
           </CardSectionValue>
         </Twiv>
+
         <div>
           <SectionLabel>
             <Twiv css={`flex flex-col lg:flex-row items-start lg:items-center`}>
               <div>Staked Balance</div>
-              {isLocked ? (
-                <Twan css={`ml-0 lg:ml-2 text-[#5F5DF9] flex items-center mt-1 lg:mt-0`}>
-                  <StyledLockAlt css={`text-[#5F5DF9] h-3.5 mr-1`} /> <div>{String(lockedDays)} Days</div>
-                </Twan>
-              ) : (
-                <></>
-              )}
             </Twiv>
           </SectionLabel>
           <Twiv css={`flex flex-col lg:flex-row w-max flex-shrink-0`}>
-            <CardSectionValue annotation="SOLACE" importance={Tab.staking === tab ? 'secondary' : 'primary'}>
-              {staked.toFixed(2)}
-            </CardSectionValue>
-            <Twiv css={`w-2 hidden lg:block`}></Twiv>
-            <CardSectionValue annotation="xSOLACE)" importance="tertiary">
-              {'(' + (staked * xSolacePrice).toFixed(2)}
+            <CardSectionValue annotation="xSOLACE" importance={Tab.staking === tab ? 'primary' : 'secondary'}>
+              {truncateBalance(staked, 2)}
             </CardSectionValue>
           </Twiv>
         </div>
+
+        <div>
+          <SectionLabel>
+            <Twiv css={`flex flex-col lg:flex-row items-start lg:items-center`}>
+              <div>Locked Balance</div>
+            </Twiv>
+          </SectionLabel>
+          <Twiv css={`flex flex-col lg:flex-row w-max flex-shrink-0`}>
+            <CardSectionValue annotation="SOLACE" importance={Tab.staking === tab ? 'primary' : 'secondary'}>
+              {truncateBalance(locked, 2)}
+            </CardSectionValue>
+          </Twiv>
+        </div>
+
         <Twiv css={`flex flex-col lg:flex-row justify-between space-x-0 lg:space-x-20 items-center lg:items-stretch`}>
           <Twiv css={`hidden lg:flex items-stretch w-px bg-[#E3E4E6]`}>{/* <VerticalSeparator /> */}</Twiv>
           {/* horizontal separator for mobile */}

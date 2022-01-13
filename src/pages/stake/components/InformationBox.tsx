@@ -10,9 +10,9 @@ import Twiv from './Twiv'
 
 function StyledInfoCircle({ css }: { css: string[] }): JSX.Element {
   const Styled = styled(InfoCircle)`
-    ${css}
+    /* ${css} */
   `
-  return <Styled />
+  return <Styled className={css.join(' ')} />
 }
 
 export default function InformationBox({ type, text }: { type: InfoBoxType; text: string }): JSX.Element {

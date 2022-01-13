@@ -15,25 +15,9 @@ import { useGetFunctionGas } from './useGas'
 import { fixed, filterAmount } from '../utils/formatting'
 import { getNameToFunctionGasLimit } from '../constants/mappings/gasMapping'
 
-export const useInputAmount = () => {
-  const { currencyDecimals } = useNetwork()
-  const { addLocalTransactions, reload, gasPrices } = useCachedData()
+export const useTransactionExecution = () => {
+  const { addLocalTransactions, reload } = useCachedData()
   const { makeTxToast } = useNotifications()
-  const [selectedGasOption, setSelectedGasOption] = useState<GasFeeOption | undefined>(gasPrices.selected)
-  const { getGasConfig } = useGetFunctionGas()
-  const gasConfig = useMemo(() => getGasConfig(selectedGasOption ? selectedGasOption.value : undefined), [
-    selectedGasOption,
-    getGasConfig,
-  ])
-  const [amount, setAmount] = useState<string>('')
-  const [maxSelected, setMaxSelected] = useState<boolean>(false)
-
-  const isAppropriateAmount = (amount: string, amountDecimals: number, assetBalance: BigNumber): boolean => {
-    if (!amount || amount == '.' || parseUnits(amount, amountDecimals).lte(ZERO)) return false
-    return assetBalance.gte(parseUnits(amount, amountDecimals))
-  }
-
-  const handleSelectGasChange = (option: GasFeeOption | undefined) => setSelectedGasOption(option)
 
   const handleToast = async (tx: any, localTx: LocalTx | null) => {
     if (!tx || !localTx) return
@@ -52,6 +36,29 @@ export const useInputAmount = () => {
     makeTxToast(txType, TransactionCondition.CANCELLED)
     reload()
   }
+
+  return { handleToast, handleContractCallError }
+}
+
+export const useInputAmount = () => {
+  const { currencyDecimals } = useNetwork()
+  const { gasPrices } = useCachedData()
+  const [selectedGasOption, setSelectedGasOption] = useState<GasFeeOption | undefined>(gasPrices.selected)
+  const { getGasConfig } = useGetFunctionGas()
+  const { handleToast, handleContractCallError } = useTransactionExecution()
+  const gasConfig = useMemo(() => getGasConfig(selectedGasOption ? selectedGasOption.value : undefined), [
+    selectedGasOption,
+    getGasConfig,
+  ])
+  const [amount, setAmount] = useState<string>('')
+  const [maxSelected, setMaxSelected] = useState<boolean>(false)
+
+  const isAppropriateAmount = (amount: string, amountDecimals: number, assetBalance: BigNumber): boolean => {
+    if (!amount || amount == '.' || parseUnits(amount, amountDecimals).lte(ZERO)) return false
+    return assetBalance.gte(parseUnits(amount, amountDecimals))
+  }
+
+  const handleSelectGasChange = (option: GasFeeOption | undefined) => setSelectedGasOption(option)
 
   const calculateMaxAmount = (balance: BigNumber, amountDecimals: number, func?: FunctionName, funcCond?: string) => {
     const bal = formatUnits(balance, amountDecimals)

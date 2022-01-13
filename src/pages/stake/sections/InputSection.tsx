@@ -6,16 +6,16 @@ import { Tab } from '../types/Tab'
 
 function StyledImage({ src, alt, css }: { src: string; alt?: string; css: string }): JSX.Element {
   const Styled = styled.img`
-    ${css}
+    /* ${css} */
   `
-  return <Styled src={src} alt={alt} />
+  return <Styled className={css} src={src} alt={alt} />
 }
 
 function StyledClock({ css }: { css: string }): JSX.Element {
   const Styled = styled(Clock)`
-    ${css}
+    /* ${css} */
   `
-  return <Styled />
+  return <Styled className={css} />
 }
 
 function StyledInput({
@@ -33,9 +33,9 @@ function StyledInput({
 }): JSX.Element {
   const Styled = styled.input`
     background-color: inherit;
-    ${css}
+    /* ${css} */
   `
-  return <Styled type={type} value={value} placeholder={placeholder} onChange={onChange} />
+  return <Styled className={css} type={type} value={value} placeholder={placeholder} onChange={onChange} />
 }
 
 export default function InputSection({

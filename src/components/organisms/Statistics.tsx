@@ -62,13 +62,14 @@ export const Statistics: React.FC = () => {
   const { keyContracts } = useContracts()
   const { solace, xSolace } = useMemo(() => keyContracts, [keyContracts])
   const solaceBalance = useSolaceBalance()
-  const xSolaceBalance = useXSolaceBalance()
+  // const xSolaceBalance = useXSolaceBalance()
   const readSolaceToken = useReadToken(solace)
   const readXSolaceToken = useReadToken(xSolace)
   const { allPolicies } = usePolicyGetter(true)
-  const { getLockedBalance } = useXSLocker()
+  const { getUserLockerBalances } = useXSLocker()
   const { width } = useWindowDimensions()
   const [lockedSolaceBalance, setLockedSolaceBalance] = useState<string>('0')
+  const [unlockedSolaceBalance, setUnlockedSolaceBalance] = useState<string>('0')
   const [totalActiveCoverAmount, setTotalActiveCoverAmount] = useState<string>('-')
   const [totalActivePolicies, setTotalActivePolicies] = useState<string>('-')
   const { pairPrice } = usePairPrice(solace)
@@ -101,12 +102,13 @@ export const Statistics: React.FC = () => {
   }, [allPolicies])
 
   useEffect(() => {
-    if (!account) return
-    const getLockedSolaceBalance = async () => {
-      const _lockedSolaceBalance = await getLockedBalance(account)
-      setLockedSolaceBalance(_lockedSolaceBalance)
+    const _getUserLockerBalances = async () => {
+      if (!account) return
+      const balances = await getUserLockerBalances(account)
+      setUnlockedSolaceBalance(balances.unlockedBalance)
+      setLockedSolaceBalance(balances.lockedBalance)
     }
-    getLockedSolaceBalance()
+    _getUserLockerBalances()
   }, [account])
 
   const GlobalBox: React.FC = () => (
@@ -236,10 +238,10 @@ export const Statistics: React.FC = () => {
               </BoxItem>
               <BoxItem>
                 <BoxItemTitle t4 light>
-                  My Staked Balance
+                  My Unlocked Stake
                 </BoxItemTitle>
                 <Text t2 light bold>
-                  {`${truncateBalance(xSolaceBalance, 1)} `}
+                  {`${truncateBalance(unlockedSolaceBalance, 1)} `}
                   <TextSpan t4 light bold>
                     {readXSolaceToken.symbol}
                   </TextSpan>
@@ -247,7 +249,7 @@ export const Statistics: React.FC = () => {
               </BoxItem>
               <BoxItem>
                 <BoxItemTitle t4 light>
-                  My Locked Balance
+                  My Locked Stake
                 </BoxItemTitle>
                 <Text t2 light bold>
                   {`${truncateBalance(lockedSolaceBalance, 1)} `}
@@ -292,10 +294,10 @@ export const Statistics: React.FC = () => {
                   </FormCol>
                 </FormRow>
                 <FormRow>
-                  <FormCol light>My Staked Balance</FormCol>
+                  <FormCol light>My Unlocked Stake</FormCol>
                   <FormCol>
                     <Text t2 light>
-                      {`${truncateBalance(xSolaceBalance, 1)} `}
+                      {`${truncateBalance(unlockedSolaceBalance, 1)} `}
                       <TextSpan t4 light>
                         {readXSolaceToken.symbol}
                       </TextSpan>
@@ -303,7 +305,7 @@ export const Statistics: React.FC = () => {
                   </FormCol>
                 </FormRow>
                 <FormRow>
-                  <FormCol light>My Locked Balance</FormCol>
+                  <FormCol light>My Locked Stake</FormCol>
                   <FormCol>
                     <Text t2 light>
                       {`${truncateBalance(lockedSolaceBalance, 1)} `}
