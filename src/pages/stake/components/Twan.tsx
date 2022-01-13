@@ -1,8 +1,6 @@
-import { TwStyle } from 'twin.macro'
 import React from 'react'
-import styled from 'styled-components'
 
-export default function Twan({
+export default function Twiv({
   className,
   children,
   css,
@@ -10,16 +8,14 @@ export default function Twan({
 }: {
   className?: string
   children?: React.ReactNode | React.ReactNode[]
-  css?: TwStyle | string | TwStyle[]
+  css?: string | string[]
+  span?: boolean
   [key: string]: any
 }): JSX.Element {
-  // grab the css style prop and put it in a styled div (use pure styled/components, do not use tw(
-  const Styled = styled.span`
-    ${css}
-  `
+  const stringifiedCss = Array.isArray(css) ? css.join(' ') : css
   return (
-    <Styled className={className} {...props}>
+    <span className={stringifiedCss + ' ' + className} {...props}>
       {children}
-    </Styled>
+    </span>
   )
 }

@@ -1,8 +1,7 @@
 import React from 'react'
-import styled from 'styled-components'
-import tw, { TwStyle } from 'twin.macro'
+import styled, { DefaultTheme, ThemedStyledFunction } from 'styled-components'
 
-const StyledRangeInput = styled.input<{ css: string | TwStyle }>`
+const StyledRangeInput = styled.input`
   &::-webkit-range-thumb,
   &::-moz-range-thumb {
     -webkit-appearance: none;
@@ -19,6 +18,10 @@ const StyledRangeInput = styled.input<{ css: string | TwStyle }>`
     background-repeat: no-repeat;
     cursor: pointer;
     overflow: hidden;
+    /* background-color: #e3e4e6; */
+    border-radius: 50%;
+    height: 2.5rem;
+    margin-top: 0.5rem;
   }
 `
 
@@ -38,8 +41,8 @@ export default function CardRange({
       type="range"
       min={min}
       max={max}
-      // css={tw`bg-[#E3E4E6] rounded-full h-2 mt-2.5`}
-      css={'background-color: #E3E4E6; border-radius: 50%; height: 2.5rem; margin-top: 0.5rem;'}
+      // css={`bg-[#E3E4E6] rounded-full h-2 mt-2.5`}
+      // styles={''}
       value={value}
       onChange={onChange}
     />

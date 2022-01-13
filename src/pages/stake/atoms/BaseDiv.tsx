@@ -1,8 +1,7 @@
 import React from 'react'
 import styled, { DefaultTheme, FlattenInterpolation, ThemedStyledProps } from 'styled-components'
-import { TwStyle } from 'twin.macro'
 
-// function baseDiv takes in a css prop, a tailwind TwStyle, and a className (all optional)
+// function baseDiv takes in a css prop, a tailwind string, and a className (all optional)
 // and returns a styled div with the css prop and the className
 function BaseDiv({
   css,
@@ -10,8 +9,8 @@ function BaseDiv({
   className,
   ...props
 }: {
-  css?: any
-  tw?: TwStyle
+  css?: string
+  tw?: string
   className?: string
   children?: React.ReactNode | React.ReactNode[]
   props?: any
@@ -21,7 +20,7 @@ function BaseDiv({
     ${css ?? ''}
   `
   return (
-    <Styled className={className} {...props}>
+    <Styled className={className + ' ' + css} {...props}>
       {'children' in props ? (props as { children: any }).children : null}
     </Styled>
   )

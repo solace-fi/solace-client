@@ -1,5 +1,5 @@
 import React, { Dispatch, SetStateAction } from 'react'
-import tw from 'twin.macro'
+
 import Twan from '../components/Twan'
 import Twiv from '../components/Twiv'
 import { Tab } from '../types/Tab'
@@ -25,11 +25,11 @@ export default function Switchers({
 
   return (
     <>
-      {/* <Twiv css={tw`flex justify-between items-center mb-5`}>
-        <Twiv css={tw`text-xl font-semibold select-none`}>
-          <Twan css={tw`text-gray-600`}>Version: </Twan>
+      {/* <Twiv css={`flex justify-between items-center mb-5`}>
+        <Twiv css={`text-xl font-semibold select-none`}>
+          <Twan css={`text-gray-600`}>Version: </Twan>
           <Twan
-            css={tw`
+            css={`
               text-gray-700 cursor-pointer underline
               ${version === Version.v1 ? 'text-blue-500' : 'text-gray-500'}
             `}
@@ -37,9 +37,9 @@ export default function Switchers({
           >
             v1
           </Twan>{' '}
-          <Twan css={tw`text-gray-600`}>/</Twan>{' '}
+          <Twan css={`text-gray-600`}>/</Twan>{' '}
           <Twan
-            css={tw`
+            css={`
               text-gray-700 cursor-pointer underline
               ${version === Version.v2 ? 'text-blue-500' : 'text-gray-500'}
             `}
@@ -49,34 +49,25 @@ export default function Switchers({
           </Twan>
         </Twiv>
       </Twiv> */}
-      <Twiv css={tw`flex justify-between items-center mb-5`}>
-        <Twiv css={tw`text-xl font-semibold select-none`}>
-          <Twan css={tw`text-gray-600`}>Tab: </Twan>
+      <Twiv css={`flex justify-between items-center mb-5`}>
+        <Twiv css={`text-xl font-semibold select-none`}>
+          <Twan css={`text-gray-600`}>Tab: </Twan>
           <Twan
-            css={[
-              tw`text-gray-700 cursor-pointer underline`,
-              tab === Tab.staking ? tw`text-blue-500` : tw`text-gray-500`,
-            ]}
+            css={[`text-gray-700 cursor-pointer underline`, tab === Tab.staking ? `text-blue-500` : `text-gray-500`]}
             onClick={() => setTab(Tab.staking)}
           >
             Staking
           </Twan>{' '}
-          <Twan css={tw`text-gray-600`}>/</Twan>{' '}
+          <Twan css={`text-gray-600`}>/</Twan>{' '}
           <Twan
-            css={[
-              tw`text-gray-700 cursor-pointer underline`,
-              tab === Tab.unstaking ? tw`text-blue-500` : tw`text-gray-500`,
-            ]}
+            css={[`text-gray-700 cursor-pointer underline`, tab === Tab.unstaking ? `text-blue-500` : `text-gray-500`]}
             onClick={() => setTab(Tab.unstaking)}
           >
             Unstaking
           </Twan>{' '}
-          <Twan css={tw`text-gray-600`}>/</Twan>{' '}
+          <Twan css={`text-gray-600`}>/</Twan>{' '}
           <Twan
-            css={[
-              tw`text-gray-700 cursor-pointer underline`,
-              tab === Tab.locking ? tw`text-blue-500` : tw`text-gray-500`,
-            ]}
+            css={[`text-gray-700 cursor-pointer underline`, tab === Tab.locking ? `text-blue-500` : `text-gray-500`]}
             onClick={() => setTab(Tab.locking)}
           >
             Locking
@@ -84,23 +75,23 @@ export default function Switchers({
         </Twiv>
       </Twiv>
 
-      <Twiv css={tw`flex justify-between items-center mb-5`}>
-        <Twiv css={tw`text-xl font-semibold select-none`}>
-          <Twan css={tw`text-gray-600`}>Locking: </Twan>
+      <Twiv css={`flex justify-between items-center mb-5`}>
+        <Twiv css={`text-xl font-semibold select-none`}>
+          <Twan css={`text-gray-600`}>Locking: </Twan>
           <Twan
             css={[
-              tw`text-gray-700 cursor-pointer underline`,
-              lockedDays === defaultLockedDays ? tw`text-blue-500` : tw`text-gray-500`,
+              `text-gray-700 cursor-pointer underline`,
+              lockedDays === defaultLockedDays ? `text-blue-500` : `text-gray-500`,
             ]}
             onClick={onOffLockedDays}
           >
             On
           </Twan>{' '}
-          <Twan css={tw`text-gray-600`}>/</Twan>{' '}
+          <Twan css={`text-gray-600`}>/</Twan>{' '}
           <Twan
             css={[
-              tw`text-gray-700 cursor-pointer underline`,
-              lockedDays === noLockedDays ? tw`text-blue-500` : tw`text-gray-500`,
+              `text-gray-700 cursor-pointer underline`,
+              lockedDays === noLockedDays ? `text-blue-500` : `text-gray-500`,
             ]}
             onClick={onOffLockedDays}
           >

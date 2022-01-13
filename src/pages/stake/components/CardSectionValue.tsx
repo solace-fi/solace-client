@@ -1,4 +1,3 @@
-import tw, { TwStyle } from 'twin.macro'
 import React from 'react'
 import styled from 'styled-components'
 import Twan from './Twan'
@@ -17,32 +16,32 @@ export default function CardSectionValue({
   children: string | React.ReactNode
   annotation?: string
   importance: 'primary' | 'secondary' | 'tertiary'
-  css?: TwStyle
+  css?: string
 }): JSX.Element {
   /**
   secondary:
-  <Twiv css={tw`font-semibold mt-2 leading`}>
-    <Twiv css={tw`text-base">522.2</div> <span className="text-sm">SOLACE</spa`}>
+  <Twiv css={`font-semibold mt-2 leading`}>
+    <Twiv css={`text-base">522.2</div> <span className="text-sm">SOLACE</spa`}>
   </div> */
   const BaseDiv = styled.div`
-    ${tw`font-semibold`}
+    ${`font-semibold`}
     ${css ?? ''}
   `
   const amongFirstTwo = isOneOf(importance, ['primary', 'secondary'])
   const isPrimary = importance === 'primary'
-  const mainTextSize = amongFirstTwo ? tw`text-base` : tw`text-sm`
-  const mainTextColor = isPrimary ? tw`text-[#5F5DF9]` : ''
-  const firstInterpolation = [mainTextSize, mainTextColor] as TwStyle[]
+  const mainTextSize = amongFirstTwo ? `text-base` : `text-sm`
+  const mainTextColor = isPrimary ? `text-[#5F5DF9]` : ''
+  const firstInterpolation = [mainTextSize, mainTextColor] as string[]
 
   /*
-          css={tw`
+          css={`
             inline
             ${amongFirstTwo ? 'text-sm' : 'text-xs'}
             ${isPrimary ? ' text-text-accent' : ''}
           `} */
-  const annotationTextSize = amongFirstTwo ? tw`text-sm` : tw`text-xs`
-  const annotationTextColor = isPrimary ? tw`text-[#5F5DF9]` : ''
-  const secondInterpolation = [annotationTextSize, annotationTextColor] as TwStyle[]
+  const annotationTextSize = amongFirstTwo ? `text-sm` : `text-xs`
+  const annotationTextColor = isPrimary ? `text-[#5F5DF9]` : ''
+  const secondInterpolation = [annotationTextSize, annotationTextColor] as string[]
   // const secondInterpolation = `${annotationTextSize} ${annotationTextColor}`
 
   return (
