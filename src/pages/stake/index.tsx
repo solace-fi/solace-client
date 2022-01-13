@@ -48,13 +48,14 @@ import { useReadToken } from '../../hooks/useToken'
 /* import utils */
 import { formatAmount, getUnit, truncateBalance } from '../../utils/formatting'
 import { Tab } from './types/Tab'
-import tw from 'twin.macro'
+
 import Twiv from './components/Twiv'
 import Switchers from './sections/Switchers'
 import V2Form from './sections/V2Form'
 import { Version } from './types/Version'
 import styled from 'styled-components'
 import Twan from './components/Twan'
+import './tailwind.min.css'
 
 // disable no unused variables
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -337,7 +338,7 @@ function Stake1(): any {
 
 import React from 'react'
 import { Dispatch, SetStateAction, useMemo, useState } from 'react'
-import tw from 'twin.macro'
+
 import Twiv from './components/Twiv'
 import { Tab } from './types/Tab'
 import { Version } from './types/Version'
@@ -348,12 +349,35 @@ import V2Form from './sections/V2Form'
  */
 
 // Upper banner
-const Notification = tw.div`bg-[#F04D42] text-[#fafafa] rounded-[10px] p-6 text-sm font-medium flex items-center`
 
-const baseButton = tw`rounded-lg text-sm font-semibold flex items-center justify-center select-none border-solid border-[1px] border-white duration-200`
-const whiteButton = tw`bg-white text-[#F04D42]`
-const redButton = tw`bg-[#F04D42] text-[#fafafa] hover:bg-white hover:text-[#F04D42] cursor-pointer`
-const DifferenceText = tw.div`text-sm font-bold underline mt-3 text-underline-offset[4px] text-decoration-thickness[2px] self-center cursor-pointer select-none hover:opacity-80 duration-200`
+const baseButton = `rounded-lg text-sm font-semibold flex items-center justify-center select-none border-solid border-[1px] border-white duration-200`
+const whiteButton = `bg-white text-[#F04D42]`
+const redButton = `bg-[#F04D42] text-[#fafafa] hover:bg-white hover:text-[#F04D42] cursor-pointer`
+// div with the following classes: text-sm font-bold underline mt-3 text-underline-offset[4px] text-decoration-thickness[2px] self-center cursor-pointer select-none hover:opacity-80 duration-200
+const DifferenceText = function DifferenceText({
+  children,
+  onClick,
+}: {
+  onClick: () => void
+  children: React.ReactNode
+}) {
+  return (
+    <div
+      onClick={onClick}
+      className="text-sm font-bold underline mt-3 text-underline-offset[4px] text-decoration-thickness[2px] self-center cursor-pointer select-none hover:opacity-80 duration-200"
+    >
+      {children}
+    </div>
+  )
+}
+// const Notification = tw.div`bg-[#F04D42] text-[#fafafa] rounded-[10px] p-6 text-sm font-medium flex items-center`
+const Notification = function Notification({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="bg-[#F04D42] text-[#fafafa] rounded-[10px] p-6 text-sm font-medium flex items-center">
+      {children}
+    </div>
+  )
+}
 
 const NotificationButton = styled.div<{ active?: boolean }>`
   ${({ active }) => (active ? whiteButton : redButton)}
@@ -369,8 +393,16 @@ const NotificationButton = styled.div<{ active?: boolean }>`
 `
 
 const Typography = {
-  Notice: tw.p`my-0 text-sm font-medium mr-10`,
-  Emphasis: tw.span`font-bold`,
+  Notice: styled.p`
+    margin-top: 0;
+    margin-bottom: 0;
+    font-size: 0.875rem /* 14px */;
+    line-height: 1.25rem /* 20px */;
+    font-weight: 500;
+  `,
+  Emphasis: styled.span`
+    font-weight: 700;
+  `,
 } as const
 
 export default function Stake(): JSX.Element {
@@ -467,8 +499,8 @@ export default function Stake(): JSX.Element {
           </Notification>
           {/* only show the following if staking is v2 and the tab is not `difference` */}
           {version === Version.v2 && (
-            <Twiv css={tw`font-sans text-[#5E5E5E]`}>
-              <Twiv css={tw`bg-[#fafafa] min-h-screen px-1 lg:px-10 py-10`}>
+            <Twiv css={`font-sans text-[#5E5E5E]`}>
+              <Twiv css={`bg-[#fafafa] min-h-screen px-1 lg:px-10 py-10`}>
                 {/* select between v1 and v2 */}
                 <Switchers
                   tab={tab}
@@ -522,15 +554,15 @@ export default function Stake(): JSX.Element {
           )}
           {/* only show the following if staking is v1 and the tab is not `difference` */}
           {version === Version.v1 && (
-            <Twiv css={tw`text-xl font-bold text-[#5F5DF9] animate-bounce`}>
-              V1 not implemented in this component <Twan css={tw`text-[#F04D42]`}>(yet)</Twan>.
+            <Twiv css={`text-xl font-bold text-[#5F5DF9] animate-bounce`}>
+              V1 not implemented in this component <Twan css={`text-[#F04D42]`}>(yet)</Twan>.
             </Twiv>
           )}
           {/* only show the following if staking is v1 and the tab is `difference` */}
           {version === Version.difference && (
-            <Twiv css={tw`text-xl font-bold text-[#5F5DF9] animate-bounce`}>
+            <Twiv css={`text-xl font-bold text-[#5F5DF9] animate-bounce`}>
               Difference between V1 and V2:
-              <Twiv css={tw`text-[#5E5E5E]`}>not implemented yet</Twiv>
+              <Twiv css={`text-[#5E5E5E]`}>not implemented yet</Twiv>
             </Twiv>
           )}
         </Content>

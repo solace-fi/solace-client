@@ -1,6 +1,5 @@
 import React from 'react'
-import styled, { css } from 'styled-components'
-import tw, { TwStyle } from 'twin.macro'
+import { css } from 'styled-components'
 import BaseDiv from '../atoms/BaseDiv'
 
 const Css = css
@@ -13,7 +12,7 @@ const SectionLabel = ({
 }: {
   children: string | React.ReactNode
   css?: string
-  tws?: TwStyle
+  tws?: string
   props?: any[]
 }): JSX.Element => {
   // send the following to the tw prop: font-semibold text-xs mb-2
@@ -22,10 +21,10 @@ const SectionLabel = ({
   const myCss = Css<{
     children: string | React.ReactNode
     css?: string
-    tws?: TwStyle
+    tws?: string
     props?: any[]
   }>`
-    ${tw`font-semibold text-xs mb-2`}
+    ${`font-semibold text-xs mb-2`}
     ${tws}
   ${({ css }) => css ?? ''}
   `

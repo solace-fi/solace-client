@@ -1,6 +1,5 @@
 import { Tab } from '../types/Tab'
 import React from 'react'
-import tw, { TwStyle } from 'twin.macro'
 import CardRange from '../components/CardRange'
 import GenericInformationBox from '../components/GenericInformationBox'
 import GrayBox from '../components/GrayBox'
@@ -22,11 +21,11 @@ function TwFlexCol({
 }: {
   children: React.ReactNode
   className?: string
-  css?: TwStyle | TwStyle[]
+  css?: string | string[]
   props?: any
 }) {
   return (
-    <Twiv className={className} css={[tw`flex flex-col`].concat(css || [])} {...props}>
+    <Twiv className={className} css={[`flex flex-col`].concat(css || [])} {...props}>
       {children}
     </Twiv>
   )
@@ -44,7 +43,7 @@ function StyledForm({
   ...props
 }: {
   children: React.ReactNode
-  css?: TwStyle
+  css?: string
   onSubmit: (e: React.FormEvent<HTMLFormElement>) => void
   props?: any
 }) {
@@ -101,19 +100,19 @@ export default function V2Form({
       {/* underbox */}
       <StyledForm
         onSubmit={(e) => onSubmit(e)}
-        css={tw`bg-[#fff] mx-auto shadow-lg max-w-[375px] lg:max-w-[1114px] rounded-b-xl flex flex-col p-7 items-stretch overflow-hidden`}
+        css={`bg-[#fff] mx-auto shadow-lg max-w-[375px] lg:max-w-[1114px] rounded-b-xl flex flex-col p-7 items-stretch overflow-hidden`}
       >
-        <Twiv css={tw`flex`}></Twiv>
+        <Twiv css={`flex`}></Twiv>
         {/*  total: 359 with top part*/}
         {/* input, slider & warning */}
-        <Twiv css={tw`flex flex-col lg:flex-row space-x-0 space-y-8 lg:space-y-0 lg:space-x-5`}>
+        <Twiv css={`flex flex-col lg:flex-row space-x-0 space-y-8 lg:space-y-0 lg:space-x-5`}>
           {/* input/slider container */}
           <TwFlexCol>
             {tab === Tab.locking && lockedDays > 0 && (
               <>
                 <SectionLabel>Current lock time duration</SectionLabel>
                 <GrayBox>
-                  <Twiv css={tw`h-full flex items-center`}>257 Days</Twiv>
+                  <Twiv css={`h-full flex items-center`}>257 Days</Twiv>
                 </GrayBox>
               </>
             )}
@@ -129,7 +128,7 @@ export default function V2Form({
             </SectionLabel>
             <InputSection tab={tab} value={inputValue} onChange={inputOnChange} setMax={setMax} />
             {/* slider */}
-            <TwFlexCol css={tw`mt-5 mb-10`}>
+            <TwFlexCol css={`mt-5 mb-10`}>
               <CardRange value={rangeValue} onChange={rangeOnChange} min="0" max="100" />
             </TwFlexCol>
             <SubmitButton
@@ -156,8 +155,8 @@ export default function V2Form({
                         {
                           title: 'Current APY',
                           body: (
-                            <Twiv css={tw`flex space-x-2 mt-2 font-semibold`}>
-                              <Twiv css={tw`text-[#5E5E5E] line-through`}>{2000}%</Twiv>
+                            <Twiv css={`flex space-x-2 mt-2 font-semibold`}>
+                              <Twiv css={`text-[#5E5E5E] line-through`}>{2000}%</Twiv>
                               <div>{apy.toFixed(0)}%</div>
                             </Twiv>
                           ),
@@ -176,8 +175,8 @@ export default function V2Form({
                     {
                       title: 'Better APY',
                       body: (
-                        <Twiv css={tw`flex space-x-2 mt-2 font-semibold`}>
-                          <Twiv css={tw`text-[#5E5E5E] line-through`}>{apy.toFixed(0)}%</Twiv>
+                        <Twiv css={`flex space-x-2 mt-2 font-semibold`}>
+                          <Twiv css={`text-[#5E5E5E] line-through`}>{apy.toFixed(0)}%</Twiv>
                           <div>{lockingBenefitsCalculator(Number(inputValue ?? 0) + lockedDays).apy.toFixed(0)}%</div>
                         </Twiv>
                       ),

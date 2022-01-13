@@ -16,7 +16,6 @@
 /* import packages */
 import React, { Fragment } from 'react'
 import { Route, Switch, useLocation } from 'react-router-dom'
-
 /* import managers */
 
 /* import pages */
