@@ -1,26 +1,24 @@
 import React from 'react'
-import styled, { DefaultTheme, ThemedStyledFunction } from 'styled-components'
+import styled from 'styled-components'
 
 const StyledRangeInput = styled.input`
+  height: 8px;
+  background-color: #e3e4e6;
+  border-radius: 9999px;
   &::-webkit-range-thumb,
   &::-moz-range-thumb {
     -webkit-appearance: none;
     -moz-appearance: none;
     appearance: none;
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    border: 0;
-    background-color: #5f5df9;
-    background-image: "url('/solace-token-gradient.svg')";
+    height: 24px;
+    width: 24px;
+    background-color: #8f85f1;
+    border-width: 0;
     background-size: contain;
     background-position: center center;
     background-repeat: no-repeat;
     cursor: pointer;
-    overflow: hidden;
-    /* background-color: #e3e4e6; */
     border-radius: 50%;
-    height: 2.5rem;
     margin-top: 0.5rem;
   }
 `
