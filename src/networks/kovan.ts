@@ -6,7 +6,7 @@ import EthereumLogo from '../resources/svg/networks/ethereum-logo.svg'
 
 /*  core contract abi */
 import farmControllerABI from '../constants/abi/contracts/FarmController.sol/FarmController.json'
-import farmRewardsABI from '../constants/metadata/FarmRewards.json'
+import farmRewardsABI from '../constants/metadata/FarmRewardsV2.json'
 import vaultABI from '../constants/abi/contracts/Vault.sol/Vault.json'
 import solaceABI from '../constants/abi/contracts/SOLACE.sol/SOLACE.json'
 import xSolaceV1ABI from '../constants/abi/contracts/xSOLACE.sol/xSOLACE.json'
@@ -106,7 +106,7 @@ export const KovanNetwork: NetworkConfig = {
       },
       farmRewards: {
         addr: String(process.env.REACT_APP_KOVAN_FARM_REWARDS_ADDR),
-        abi: farmRewardsABI,
+        abi: farmRewardsABI.abi,
       },
       vault: {
         addr: String(process.env.REACT_APP_KOVAN_VAULT_ADDR),

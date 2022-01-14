@@ -9,7 +9,7 @@
   import hooks
   import utils
 
-  V1RewardsWindow
+  EarlyFarmRewardsWindow
       custom hooks
       local functions
       useEffect hooks
@@ -24,7 +24,7 @@ import { BigNumber } from 'ethers'
 import { Contract } from '@ethersproject/contracts'
 
 /* import constants */
-import { ExplorerscanApi, FunctionName, TransactionCondition } from '../../constants/enums'
+import { FunctionName, TransactionCondition } from '../../constants/enums'
 import { LocalTx } from '../../constants/types'
 import { USDC_ADDRESS, USDT_ADDRESS, DAI_ADDRESS, FRAX_ADDRESS } from '../../constants/mappings/tokenAddressMapping'
 import { BKPT_5, ZERO } from '../../constants'
@@ -56,7 +56,7 @@ import { SourceContract } from './SourceContract'
 import { useInputAmount } from '../../hooks/useInputAmount'
 import { useTokenAllowance } from '../../hooks/useToken'
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'
-import { useV1FarmRewards } from '../../hooks/useFarm'
+import { useEarlyFarmRewards } from '../../hooks/useFarm'
 
 /* import utils */
 import { getDateStringWithMonthName } from '../../utils/time'
@@ -64,7 +64,7 @@ import { queryBalance, queryDecimals } from '../../utils/contract'
 import { truncateBalance } from '../../utils/formatting'
 import { getContract, isAddress } from '../../utils'
 
-export const V1RewardsWindow: React.FC = () => {
+export const EarlyFarmRewardsWindow: React.FC = () => {
   /* 
   
   custom hooks 
@@ -103,20 +103,10 @@ export const V1RewardsWindow: React.FC = () => {
   const [userStablecoinBalance, setUserStablecoinBalance] = useState<BigNumber>(ZERO)
   const [userStablecoinDecimals, setUserStablecoinDecimals] = useState<number>(0)
 
-  const [vestingStart, setVestingStart] = useState<BigNumber>(ZERO)
   const [vestingEnd, setVestingEnd] = useState<BigNumber>(ZERO)
 
-  const {
-    totalEarnedSolaceRewards,
-    totalEarnedXSolaceRewards,
-    purchaseableVestedSolace,
-    purchaseableVestedXSolace,
-    redeemedSolaceRewards,
-    redeemedXSolaceRewards,
-    unredeemedSolaceRewards,
-    unredeemedXSolaceRewards,
-  } = useV1FarmRewards()
-  const [pVestedXSolace_Stablecoin, setPVestedXSolace_Stablecoin] = useState<BigNumber | undefined>(ZERO)
+  const { totalEarnedSolaceRewards, purchaseableSolace } = useEarlyFarmRewards()
+  const [pSolaceInStablecoin, setPSolaceInStablecoin] = useState<BigNumber | undefined>(ZERO)
   const [calculatedAmountOut, setCalculatedAmountOut] = useState<BigNumber | undefined>(ZERO)
 
   const [buttonLoading, setButtonLoading] = useState<boolean>(false)
@@ -130,10 +120,6 @@ export const V1RewardsWindow: React.FC = () => {
     amount && amount != '.' ? parseUnits(amount, userStablecoinDecimals).toString() : '0'
   )
 
-  const vestingStartString = useMemo(
-    () => getDateStringWithMonthName(new Date(parseInt(vestingStart.toString()) * 1000)),
-    [vestingStart]
-  )
   const vestingEndString = useMemo(() => getDateStringWithMonthName(new Date(parseInt(vestingEnd.toString()) * 1000)), [
     vestingEnd,
   ])
@@ -192,11 +178,11 @@ export const V1RewardsWindow: React.FC = () => {
   const handleSelect = (s: any) => setStablecoinPayment(s)
 
   const _setMax = () => {
-    if (!pVestedXSolace_Stablecoin) return
-    if (pVestedXSolace_Stablecoin.gt(userStablecoinBalance)) {
+    if (!pSolaceInStablecoin) return
+    if (pSolaceInStablecoin.gt(userStablecoinBalance)) {
       setMax(userStablecoinBalance, userStablecoinDecimals)
     } else {
-      setMax(pVestedXSolace_Stablecoin, userStablecoinDecimals)
+      setMax(pSolaceInStablecoin, userStablecoinDecimals)
     }
   }
 
@@ -227,7 +213,7 @@ export const V1RewardsWindow: React.FC = () => {
       )
       setCalculatedAmountOut(calculatedAmountOut)
       const isApproriateAmount = isAppropriateAmount(amount, userStablecoinDecimals, userStablecoinBalance)
-      const calc_aO_Acceptable = calculatedAmountOut ? calculatedAmountOut.lte(purchaseableVestedXSolace) : false
+      const calc_aO_Acceptable = calculatedAmountOut ? calculatedAmountOut.lte(purchaseableSolace) : false
       const isAcceptable = isApproriateAmount && calc_aO_Acceptable
       setIsAcceptableAmount(isAcceptable)
       setButtonLoading(false)
@@ -251,14 +237,12 @@ export const V1RewardsWindow: React.FC = () => {
 
   useEffect(() => {
     _checkAmount()
-  }, [stablecoinPayment, userStablecoinDecimals, userStablecoinBalance, amount, purchaseableVestedXSolace])
+  }, [stablecoinPayment, userStablecoinDecimals, userStablecoinBalance, amount])
 
   useEffect(() => {
     const getFarmRewardsData = async () => {
       if (!farmRewards) return
-      const vestingStart = await farmRewards.vestingStart()
-      const vestingEnd = await farmRewards.vestingEnd()
-      setVestingStart(vestingStart)
+      const vestingEnd = await farmRewards.VESTING_END()
       setVestingEnd(vestingEnd)
       setSpenderAddress(farmRewards.address)
     }
@@ -269,16 +253,13 @@ export const V1RewardsWindow: React.FC = () => {
     ;(async () => {
       if (!farmRewards || !isAddress(stablecoinPayment.value)) return
       try {
-        const pVestedXSolace_Stablecoin = await farmRewards.calculateAmountIn(
-          stablecoinPayment.value,
-          purchaseableVestedXSolace
-        )
-        setPVestedXSolace_Stablecoin(pVestedXSolace_Stablecoin)
+        const pSolace_Stablecoin = await farmRewards.calculateAmountIn(stablecoinPayment.value, purchaseableSolace)
+        setPSolaceInStablecoin(pSolace_Stablecoin)
       } catch (e) {
-        setPVestedXSolace_Stablecoin(undefined)
+        setPSolaceInStablecoin(undefined)
       }
     })()
-  }, [farmRewards, purchaseableVestedXSolace, stablecoinPayment.value])
+  }, [farmRewards, purchaseableSolace, stablecoinPayment.value])
 
   return (
     <FlexCol>
@@ -297,11 +278,10 @@ export const V1RewardsWindow: React.FC = () => {
           Instructions
         </Text>
         <Text t4 mb={10} autoAlignHorizontal>
-          - Starting on {vestingStart.gt(ZERO) ? vestingStartString : `-`}, your earned SOLACE tokens are automatically
-          staked and vested.
+          - Your earned SOLACE tokens are automatically staked and vested.
         </Text>
         <Text t4 mb={10} autoAlignHorizontal>
-          - Pay stablecoins to receive your token rewards in xSOLACE.
+          - Pay stablecoins to migrate your token rewards into a lock.
         </Text>
         <Text t4 mb={10} autoAlignHorizontal>
           - Vested tokens unlock linearly over 6 months.
@@ -346,81 +326,23 @@ export const V1RewardsWindow: React.FC = () => {
         <FormRow mb={20}>
           <FormCol bold>You will get</FormCol>
           <FormCol bold textAlignRight info>
-            {calculatedAmountOut ? `${truncateBalance(formatUnits(calculatedAmountOut, 18), 18, false)} xSOLACE` : `-`}
+            {calculatedAmountOut ? `${truncateBalance(formatUnits(calculatedAmountOut, 18), 18, false)}` : `-`} SOLACE
           </FormCol>
         </FormRow>
         <HorizRule />
         <FormRow mt={20} mb={0}>
           <FormCol bold>Amount you can redeem now</FormCol>
           <FormCol bold textAlignRight info>
-            {truncateBalance(formatUnits(purchaseableVestedXSolace, currencyDecimals), 4, false)} xSOLACE
-          </FormCol>
-        </FormRow>
-        <FormRow mb={10}>
-          <FormCol></FormCol>
-          <FormCol>
-            <Text t4 textAlignRight>
-              {'( '}
-              {truncateBalance(formatUnits(purchaseableVestedSolace, currencyDecimals), 4, false)} SOLACE
-              {' )'}
-            </Text>
-          </FormCol>
-        </FormRow>
-        <FormRow mb={0}>
-          <FormCol bold>Amount already redeemed</FormCol>
-          <FormCol bold textAlignRight info>
-            {truncateBalance(formatUnits(redeemedXSolaceRewards, currencyDecimals), 4, false)} xSOLACE
-          </FormCol>
-        </FormRow>
-        <FormRow mb={10}>
-          <FormCol></FormCol>
-          <FormCol>
-            <Text t4 textAlignRight>
-              {'( '}
-              {truncateBalance(formatUnits(redeemedSolaceRewards, currencyDecimals), 4, false)} SOLACE
-              {' )'}
-            </Text>
+            {truncateBalance(formatUnits(purchaseableSolace, currencyDecimals), 4, false)} SOLACE
           </FormCol>
         </FormRow>
         <FormRow mb={0}>
           <FormCol bold>Your total earned amount</FormCol>
           <FormCol bold textAlignRight info>
-            {truncateBalance(formatUnits(totalEarnedXSolaceRewards, currencyDecimals), 4, false)} xSOLACE
-          </FormCol>
-        </FormRow>
-        <FormRow mb={10}>
-          <FormCol></FormCol>
-          <FormCol>
-            <Text t4 textAlignRight>
-              {'( '}
-              {truncateBalance(formatUnits(totalEarnedSolaceRewards, currencyDecimals), 4, false)} SOLACE
-              {' )'}
-            </Text>
-          </FormCol>
-        </FormRow>
-        <FormRow mb={0}>
-          <FormCol bold>Amount still vesting</FormCol>
-          <FormCol bold textAlignRight info>
-            {truncateBalance(formatUnits(unredeemedXSolaceRewards, currencyDecimals), 4, false)} xSOLACE
-          </FormCol>
-        </FormRow>
-        <FormRow mb={10}>
-          <FormCol></FormCol>
-          <FormCol>
-            <Text t4 textAlignRight>
-              {'( '}
-              {truncateBalance(formatUnits(unredeemedSolaceRewards, currencyDecimals), 4, false)} SOLACE
-              {' )'}
-            </Text>
+            {truncateBalance(formatUnits(totalEarnedSolaceRewards, currencyDecimals), 4, false)} SOLACE
           </FormCol>
         </FormRow>
         <HorizRule />
-        <FormRow mb={10}>
-          <FormCol t4>Start of Vesting Term</FormCol>
-          <FormCol t4 textAlignRight>
-            {vestingStart.gt(ZERO) ? vestingStartString : `-`}
-          </FormCol>
-        </FormRow>
         <FormRow>
           <FormCol t4>End of Vesting Term</FormCol>
           <FormCol t4 textAlignRight>
