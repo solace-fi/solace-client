@@ -6,7 +6,9 @@ const StyledRangeInput = styled.input`
   background-color: #e3e4e6;
   border-radius: 9999px;
   &::-webkit-range-thumb,
-  &::-moz-range-thumb {
+  &::-moz-range-thumb,
+  &::-webkit-slider-thumb,
+  &::-ms-thumb {
     -webkit-appearance: none;
     -moz-appearance: none;
     appearance: none;
