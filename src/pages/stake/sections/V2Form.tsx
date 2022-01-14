@@ -130,7 +130,7 @@ export default function V2Form({
             <InputSection tab={tab} value={inputValue} onChange={inputOnChange} setMax={setMax} />
             {/* slider */}
             <TwFlexCol css={`mt-5 mb-10`}>
-              <CardRange value={rangeValue} onChange={rangeOnChange} min="0" max="100" />
+              <CardRange type="range" value={rangeValue} onChange={rangeOnChange} min="0" max="100" key="mainrange" />
             </TwFlexCol>
             <SubmitButton
               text={

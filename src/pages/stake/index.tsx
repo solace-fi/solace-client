@@ -594,15 +594,14 @@ export default function Stake(): JSX.Element {
                   inputOnChange={(e) => {
                     // 1. validate input (blocked till main project integration)
                     // 2. update input value state
-                    setInputValue(e.target.value)
+                    e.target.value !== inputValue && setInputValue(e.target.value)
                     // 3. update range value state (as percentage string between 0 and 100)
-                    setRangeValue(
-                      {
-                        [Tab.staking]: String((Number(inputValue) * 100) / parseFloat(solaceBalance)),
-                        [Tab.unstaking]: String((Number(inputValue) * 100) / parseFloat(unlockedSolaceBalance)),
-                        [Tab.locking]: String((Number(inputValue) * 100) / maxDaysLocked),
-                      }[tab]
-                    )
+                    const newRangeValue = {
+                      [Tab.staking]: String((Number(inputValue) * 100) / parseFloat(solaceBalance)),
+                      [Tab.unstaking]: String((Number(inputValue) * 100) / parseFloat(unlockedSolaceBalance)),
+                      [Tab.locking]: String((Number(inputValue) * 100) / maxDaysLocked),
+                    }[tab]
+                    newRangeValue !== rangeValue && setRangeValue(newRangeValue)
                   }}
                   rangeValue={rangeValue ?? '0'}
                   rangeOnChange={(e) => {
@@ -610,15 +609,14 @@ export default function Stake(): JSX.Element {
                     // 2. update input value state (as percentage string between 0 and 100)
                     // 3. update range value state
 
-                    setRangeValue(e.target.value)
+                    rangeValue !== e.target.value && setRangeValue(e.target.value)
                     setTimeout(() => console.log({ targetValue: e.target.value, rangeValue }), 0)
-                    setInputValue(
-                      {
-                        [Tab.staking]: String((Number(e.target.value) * parseFloat(solaceBalance)) / 100),
-                        [Tab.unstaking]: String((Number(e.target.value) * parseFloat(unlockedSolaceBalance)) / 100),
-                        [Tab.locking]: String((Number(e.target.value) * maxDaysLocked) / 100),
-                      }[tab]
-                    )
+                    const newInputValue = {
+                      [Tab.staking]: String((Number(e.target.value) * parseFloat(solaceBalance)) / 100),
+                      [Tab.unstaking]: String((Number(e.target.value) * parseFloat(unlockedSolaceBalance)) / 100),
+                      [Tab.locking]: String((Number(e.target.value) * maxDaysLocked) / 100),
+                    }[tab]
+                    newInputValue !== inputValue && setInputValue(newInputValue)
                   }}
                 />
               </Twiv>

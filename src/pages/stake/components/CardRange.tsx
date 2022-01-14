@@ -1,7 +1,6 @@
-import React from 'react'
 import styled from 'styled-components'
 
-const StyledRangeInput = styled.input`
+const CardRange = styled.input`
   height: 8px;
   background-color: #e3e4e6;
   border-radius: 9999px;
@@ -25,26 +24,31 @@ const StyledRangeInput = styled.input`
   }
 `
 
-export default function CardRange({
-  value,
-  onChange,
-  min,
-  max,
-}: {
-  value: string
-  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void
-  min: string
-  max: string
-}): JSX.Element {
-  return (
-    <StyledRangeInput
-      type="range"
-      min={min}
-      max={max}
-      // css={`bg-[#E3E4E6] rounded-full h-2 mt-2.5`}
-      // styles={''}
-      value={value}
-      onChange={onChange}
-    />
-  )
-}
+export default CardRange
+
+// export default function CardRange({
+//   value,
+//   onChange,
+//   min,
+//   max,
+//   key,
+// }: {
+//   value: string
+//   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void
+//   min: string
+//   max: string
+//   key?: string
+// }): JSX.Element {
+//   return (
+//     <StyledRangeInput
+//       type="range"
+//       min={min}
+//       max={max}
+//       // css={`bg-[#E3E4E6] rounded-full h-2 mt-2.5`}
+//       // styles={''}
+//       value={value}
+//       onChange={onChange}
+//       key={key}
+//     />
+//   )
+// }
