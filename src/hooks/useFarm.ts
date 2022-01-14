@@ -1,5 +1,5 @@
 import { Contract } from '@ethersproject/contracts'
-import { formatUnits, parseUnits } from '@ethersproject/units'
+import { formatUnits } from '@ethersproject/units'
 import { useState, useEffect, useMemo } from 'react'
 import { useCachedData } from '../context/CachedDataManager'
 import { useContracts } from '../context/ContractsManager'
@@ -8,6 +8,7 @@ import { useProvider } from '../context/ProviderManager'
 import { useWallet } from '../context/WalletManager'
 import { BigNumber } from 'ethers'
 import { ZERO } from '../constants'
+import { earlyFarmRewards } from '../constants/mappings/earlyFarmRewards'
 
 export const useUserStakedValue = (farm: Contract | null | undefined): string => {
   const { account } = useWallet()
@@ -54,7 +55,7 @@ export const usePoolStakedValue = (farm: Contract | null | undefined): string =>
   return poolValue
 }
 
-export const useV1FarmRewards = () => {
+export const useEarlyFarmRewards = () => {
   const { account } = useWallet()
   const { keyContracts } = useContracts()
   const { farmRewards, xSolaceV1 } = useMemo(() => keyContracts, [keyContracts])
@@ -62,49 +63,25 @@ export const useV1FarmRewards = () => {
   const { currencyDecimals } = useNetwork()
 
   const [totalEarnedSolaceRewards, setTotalEarnedSolaceRewards] = useState<BigNumber>(ZERO)
-  const [totalEarnedXSolaceRewards, setTotalEarnedXSolaceRewards] = useState<BigNumber>(ZERO)
-  const [purchaseableVestedSolace, setPurchaseableVestedSolace] = useState<BigNumber>(ZERO)
-  const [purchaseableVestedXSolace, setPurchaseableVestedXSolace] = useState<BigNumber>(ZERO)
-  const [redeemedSolaceRewards, setRedeemedSolaceRewards] = useState<BigNumber>(ZERO)
-  const [redeemedXSolaceRewards, setRedeemedXSolaceRewards] = useState<BigNumber>(ZERO)
-  const [unredeemedSolaceRewards, setUnredeemedSolaceRewards] = useState<BigNumber>(ZERO)
-  const [unredeemedXSolaceRewards, setUnredeemedXSolaceRewards] = useState<BigNumber>(ZERO)
+  const [purchaseableSolace, setPurchaseableSolace] = useState<BigNumber>(ZERO)
 
   useEffect(() => {
     const populateRewardsInfo = async () => {
       if (!farmRewards || !account || !xSolaceV1) return
-      const totalEarnedXSolaceRewards = await farmRewards.farmedRewards(account)
-      const totalEarnedSolaceRewards = await xSolaceV1.xSolaceToSolace(totalEarnedXSolaceRewards)
+      const rewards = earlyFarmRewards[account.toLowerCase()]
+      if (!rewards) return
+      const totalEarnedSolaceRewards = BigNumber.from(rewards)
 
-      const redeemedXSolaceRewards = await farmRewards.redeemedRewards(account)
-      const redeemedSolaceRewards = await xSolaceV1.xSolaceToSolace(redeemedXSolaceRewards)
+      const purchaseableSolace = await farmRewards.purchaseableSolace(account)
 
-      const purchaseableVestedXSolace = await farmRewards.purchaseableVestedXSolace(account)
-      const purchaseableVestedSolace = await xSolaceV1.xSolaceToSolace(purchaseableVestedXSolace)
-
-      const unredeemedSolaceRewards = totalEarnedSolaceRewards.sub(redeemedSolaceRewards)
-      const unredeemedXSolaceRewards = totalEarnedXSolaceRewards.sub(redeemedXSolaceRewards)
-
-      setUnredeemedSolaceRewards(unredeemedSolaceRewards)
-      setUnredeemedXSolaceRewards(unredeemedXSolaceRewards)
       setTotalEarnedSolaceRewards(totalEarnedSolaceRewards)
-      setTotalEarnedXSolaceRewards(totalEarnedXSolaceRewards)
-      setPurchaseableVestedSolace(purchaseableVestedSolace)
-      setPurchaseableVestedXSolace(purchaseableVestedXSolace)
-      setRedeemedSolaceRewards(redeemedSolaceRewards)
-      setRedeemedXSolaceRewards(redeemedXSolaceRewards)
+      setPurchaseableSolace(purchaseableSolace)
     }
     populateRewardsInfo()
   }, [account, farmRewards, latestBlock, xSolaceV1, currencyDecimals])
 
   return {
     totalEarnedSolaceRewards,
-    totalEarnedXSolaceRewards,
-    purchaseableVestedSolace,
-    purchaseableVestedXSolace,
-    redeemedSolaceRewards,
-    redeemedXSolaceRewards,
-    unredeemedSolaceRewards,
-    unredeemedXSolaceRewards,
+    purchaseableSolace,
   }
 }
