@@ -7,10 +7,11 @@ import { formatUnits } from '@ethersproject/units'
 import { BigNumber } from 'ethers'
 import { GasConfiguration, LocalTx } from '../constants/types'
 import { getPermitErc20Signature } from '../utils/signature'
-import { DEADLINE, GAS_LIMIT, ZERO } from '../constants'
+import { DEADLINE, ZERO } from '../constants'
 import { FunctionName, TransactionCondition } from '../constants/enums'
 import { useProvider } from '../context/ProviderManager'
 import { rangeFrom0 } from '../utils/numeric'
+import { FunctionGasLimits } from '../constants/mappings/gasMapping'
 
 export const useXSLocker = () => {
   const { keyContracts } = useContracts()
@@ -76,7 +77,7 @@ export const useXSLocker = () => {
     const { v, r, s } = await getPermitErc20Signature(recipient, chainId, library, xsLocker.address, solace, amount)
     const tx = await xsLocker.createLockSigned(recipient, amount, end, DEADLINE, v, r, s, {
       ...gasConfig,
-      gasLimit: GAS_LIMIT,
+      gasLimit: FunctionGasLimits['xsLocker.createLockSigned'],
     })
     const localTx: LocalTx = {
       hash: tx.hash,
@@ -99,7 +100,7 @@ export const useXSLocker = () => {
     const { v, r, s } = await getPermitErc20Signature(recipient, chainId, library, xsLocker.address, solace, amount)
     const tx = await xsLocker.increaseAmountSigned(recipient, xsLockID, amount, end, DEADLINE, v, r, s, {
       ...gasConfig,
-      gasLimit: GAS_LIMIT,
+      gasLimit: FunctionGasLimits['xsLocker.increaseAmountSigned'],
     })
     const localTx: LocalTx = {
       hash: tx.hash,
@@ -114,7 +115,7 @@ export const useXSLocker = () => {
     if (!xsLocker || !solace) return
     const tx = await xsLocker.extendLock(xsLockID, end, {
       ...gasConfig,
-      gasLimit: GAS_LIMIT,
+      gasLimit: FunctionGasLimits['xsLocker.extendLock'],
     })
     const localTx: LocalTx = {
       hash: tx.hash,
@@ -134,21 +135,29 @@ export const useXSLocker = () => {
   ) => {
     if (!xsLocker || !solace || xsLockIDs.length == 0) return
     let tx = null
-    const gasSettings = {
-      ...gasConfig,
-      gasLimit: GAS_LIMIT,
-    }
+    let type = FunctionName.WITHDRAW_IN_PART_FROM_LOCK
     if (amount) {
-      tx = await xsLocker.withdrawInPart(xsLockIDs[0], recipient, amount, gasSettings)
+      tx = await xsLocker.withdrawInPart(xsLockIDs[0], recipient, amount, {
+        ...gasConfig,
+        gasLimit: FunctionGasLimits['xsLocker.withdrawInPart'],
+      })
     } else if (xsLockIDs.length > 1) {
-      tx = await xsLocker.withdrawMany(xsLockIDs, recipient, gasSettings)
+      tx = await xsLocker.withdrawMany(xsLockIDs, recipient, {
+        ...gasConfig,
+        gasLimit: FunctionGasLimits['xsLocker.withdrawMany'],
+      })
+      type = FunctionName.WITHDRAW_MANY_FROM_LOCK
     } else {
-      tx = await xsLocker.withdraw(xsLockIDs[0], recipient, gasSettings)
+      tx = await xsLocker.withdraw(xsLockIDs[0], recipient, {
+        ...gasConfig,
+        gasLimit: FunctionGasLimits['xsLocker.withdraw'],
+      })
+      type = FunctionName.WITHDRAW_FROM_LOCK
     }
 
     const localTx: LocalTx = {
       hash: tx.hash,
-      type: FunctionName.WITHDRAW_FROM_LOCK,
+      type: type,
       value: txVal,
       status: TransactionCondition.PENDING,
     }

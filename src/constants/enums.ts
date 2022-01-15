@@ -38,17 +38,23 @@ export enum FunctionName {
   START_COOLDOWN = 'StartCooldown',
   STOP_COOLDOWN = 'StopCooldown',
 
-  STAKE = 'DepositSigned',
-  UNSTAKE = 'Withdraw',
-
   SOLACE_MIGRATE = 'MigrateSigned',
 
+  // xsLocker
   CREATE_LOCK = 'CreateLock',
   INCREASE_LOCK_AMOUNT = 'IncreaseAmount',
   EXTEND_LOCK = 'ExtendLock',
   WITHDRAW_FROM_LOCK = 'Withdraw',
-  HARVEST = 'Harvest',
+  WITHDRAW_IN_PART_FROM_LOCK = 'WithdrawInPart',
+  WITHDRAW_MANY_FROM_LOCK = 'WithdrawMany',
 
+  // staking rewards
+  HARVEST_LOCK = 'HarvestLock',
+  HARVEST_LOCKS = 'HarvestLocks',
+  COMPOUND_LOCK = 'CompoundLock',
+  COMPOUND_LOCKS = 'CompoundLocks',
+
+  // bond tellers
   BOND_DEPOSIT_WETH = 'DepositWeth',
   BOND_DEPOSIT_ERC20 = 'Deposit',
   BOND_REDEEM = 'Redeem',

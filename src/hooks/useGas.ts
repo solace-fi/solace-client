@@ -94,7 +94,8 @@ export const useGetFunctionGas = () => {
 
   const getAutoGasConfig = useCallback((): GasConfiguration => getGasConfig(undefined), [getGasConfig])
 
-  const getGasLimitForTransaction = useCallback(
+  // this function is used for getting the gas limit for a transaction with a supported product
+  const getSupportedProductGasLimit = useCallback(
     (productName: string, txType: FunctionName): number => {
       let callingGasLimit = GAS_LIMIT
       const supportedProduct = activeNetwork.cache.supportedProducts.find((p) => p.name == productName)
@@ -108,5 +109,5 @@ export const useGetFunctionGas = () => {
     [activeNetwork]
   )
 
-  return { getGasConfig, getAutoGasConfig, getGasLimitForTransaction }
+  return { getGasConfig, getAutoGasConfig, getSupportedProductGasLimit }
 }
