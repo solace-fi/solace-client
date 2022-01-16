@@ -11,7 +11,6 @@ export default function CardSectionValue({
   children,
   annotation,
   importance,
-  css,
 }: {
   children: string | React.ReactNode
   annotation?: string
@@ -24,8 +23,7 @@ export default function CardSectionValue({
     <Twiv css={`text-base">522.2</div> <span className="text-sm">SOLACE</spa`}>
   </div> */
   const BaseDiv = styled.div`
-    ${`font-semibold`}
-    ${css ?? ''}
+    font-weight: 600;
   `
   const amongFirstTwo = isOneOf(importance, ['primary', 'secondary'])
   const isPrimary = importance === 'primary'

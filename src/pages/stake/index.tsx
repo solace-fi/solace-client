@@ -333,24 +333,10 @@ function Stake1(): any {
   )
 }
 
-// export default Stake
-
-/* MY STUFFERINO
-
-import React from 'react'
-import { Dispatch, SetStateAction, useMemo, useState } from 'react'
-
-import Twiv from './components/Twiv'
-import { Tab } from './types/Tab'
-import { Version } from './types/Version'
-import Switchers from './sections/Switchers'
-import V2Form from './sections/V2Form'
 /*
  Components
  */
 
-// Upper banner
-// div with the following classes: text-sm font-bold underline mt-3 text-underline-offset[4px] text-decoration-thickness[2px] self-center cursor-pointer select-none hover:opacity-80 duration-200
 const DifferenceText = function DifferenceText({
   children,
   onClick,
@@ -396,15 +382,7 @@ const Notification = styled.div<GeneralElementProps>`
   align-items: center;
   justify-content: space-between;
 `
-// const Notification = function Notification({ children }: { children: React.ReactNode }) {
-//   return (
-//     <Twiv css="bg-[#F04D42] text-[#fafafa] rounded-[10px] p-6 text-sm font-medium flex items-center">{children}</Twiv>
-//   )
-// }
 
-// const baseButton = `rounded-lg text-sm font-semibold flex items-center justify-center select-none border-solid border-[1px] border-white duration-200`
-// const whiteButton = `bg-white text-[#F04D42]`
-// const redButton = `bg-[#F04D42] text-[#fafafa] hover:bg-white hover:text-[#F04D42] cursor-pointer`
 const baseButtonStyle = css`
   border-radius: 0.5rem;
   font-size: 0.875rem;

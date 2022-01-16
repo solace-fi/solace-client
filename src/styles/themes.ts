@@ -10,7 +10,7 @@ export const lightTheme = {
     successText: 'rgb(40, 167, 69)',
   },
   body: {
-    bg_color: '#fff',
+    bg_color: '#fafafa',
   },
   accordion: {
     color: 'auto',

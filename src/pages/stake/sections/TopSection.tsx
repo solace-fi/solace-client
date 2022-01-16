@@ -37,14 +37,14 @@ export default function TopSection({
 }): JSX.Element {
   return (
     <Twiv
-      css={`flex flex-col lg:flex-row py-5 px-7 lg:pl-7 border-b bg-white border-[#E3E4E6] space-x-0 lg:space-x-20 items-center lg:items-stretch mx-auto max-w-[375px] lg:max-w-[1114px] rounded-t-xl`}
+      css="flex flex-col lg:flex-row py-5 px-7 lg:pl-7 border-b bg-white border-[#E3E4E6] space-x-0 lg:space-x-20 items-center lg:items-stretch mx-auto max-w-[375px] lg:max-w-[1114px] rounded-t-xl"
       style={{
         boxShadow: '0 0px 25px 0px rgb(0 0 0 / 0.1), 0 8px 10px 0px rgb(0 0 0 / 0.1)',
       }}
     >
       {/* gotta make the one above the child, then give it a flex-row parent on desktop (lg: and higher) and a flex-col parent on mobile. this will push apy below it */}
-      <Twiv css={`flex items-stretch space-x-20`}>
-        <Twiv css={`flex-shrink-0`}>
+      <Twiv css={'flex items-stretch space-x-20'}>
+        <Twiv css={'flex-shrink-0'}>
           <SectionLabel>Unstaked Balance</SectionLabel>
           <CardSectionValue annotation="SOLACE" importance={Tab.staking === tab ? 'primary' : 'secondary'}>
             {truncateBalance(unstaked, 2)}
@@ -53,11 +53,11 @@ export default function TopSection({
 
         <div>
           <SectionLabel>
-            <Twiv css={`flex flex-col lg:flex-row items-start lg:items-center`}>
+            <Twiv css={'flex flex-col lg:flex-row items-start lg:items-center'}>
               <div>Staked Balance</div>
             </Twiv>
           </SectionLabel>
-          <Twiv css={`flex flex-col lg:flex-row w-max flex-shrink-0`}>
+          <Twiv css={'flex flex-col lg:flex-row w-max flex-shrink-0'}>
             <CardSectionValue annotation="xSOLACE" importance={Tab.staking === tab ? 'primary' : 'secondary'}>
               {truncateBalance(staked, 2)}
             </CardSectionValue>
@@ -66,22 +66,22 @@ export default function TopSection({
 
         <div>
           <SectionLabel>
-            <Twiv css={`flex flex-col lg:flex-row items-start lg:items-center`}>
+            <Twiv css={'flex flex-col lg:flex-row items-start lg:items-center'}>
               <div>Locked Balance</div>
             </Twiv>
           </SectionLabel>
-          <Twiv css={`flex flex-col lg:flex-row w-max flex-shrink-0`}>
+          <Twiv css={'flex flex-col lg:flex-row w-max flex-shrink-0'}>
             <CardSectionValue annotation="SOLACE" importance={Tab.staking === tab ? 'primary' : 'secondary'}>
               {truncateBalance(locked, 2)}
             </CardSectionValue>
           </Twiv>
         </div>
 
-        <Twiv css={`flex flex-col lg:flex-row justify-between space-x-0 lg:space-x-20 items-center lg:items-stretch`}>
-          <Twiv css={`hidden lg:flex items-stretch w-px bg-[#E3E4E6]`}>{/* <VerticalSeparator /> */}</Twiv>
+        <Twiv css={'flex flex-col lg:flex-row justify-between space-x-0 lg:space-x-20 items-center lg:items-stretch'}>
+          <Twiv css={'hidden lg:flex items-stretch w-px bg-[#E3E4E6]'}>{/* <VerticalSeparator /> */}</Twiv>
           {/* horizontal separator for mobile */}
-          <Twiv css={`block w-64 border-b mt-5 mb-5 border-b-[#E3E4E6] border-solid mx-auto lg:hidden`}></Twiv>
-          <Twiv css={`flex flex-row items-baseline space-x-1 lg:space-x-0 lg:items-start lg:flex-col`}>
+          <Twiv css={'block w-64 border-b mt-5 mb-5 border-b-[#E3E4E6] border-solid mx-auto lg:hidden'}></Twiv>
+          <Twiv css={'flex flex-row items-baseline space-x-1 lg:space-x-0 lg:items-start lg:flex-col'}>
             <SectionLabel>
               <div>APY</div>
             </SectionLabel>

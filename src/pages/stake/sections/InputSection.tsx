@@ -13,36 +13,6 @@ function StyledClock({ css }: { css: string }): JSX.Element {
   const Styled = styled(Clock)``
   return <Styled className={css} />
 }
-// const Styled = styled.input`
-//   background-color: inherit;
-// `
-// function StyledInput({
-//   value,
-//   placeholder,
-//   onChange,
-//   css,
-//   type,
-//   key,
-// }: {
-//   value: string | undefined
-//   placeholder: string
-//   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void
-//   css: string
-//   type: string
-//   key?: string
-// }): JSX.Element {
-//   return (
-//     <input
-//       className={css}
-//       type={type}
-//       value={value}
-//       placeholder={placeholder}
-//       onChange={onChange}
-//       key={key}
-//       style={{ backgroundColor: 'inherit' }}
-//     />
-//   )
-// }
 
 export default function InputSection({
   tab,

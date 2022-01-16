@@ -156,8 +156,8 @@ export default function V2Form({
                         {
                           title: 'Current APY',
                           body: (
-                            <Twiv css={`flex space-x-2 mt-2 font-semibold`}>
-                              <Twiv css={`text-[#5E5E5E] line-through`}>{2000}%</Twiv>
+                            <Twiv css={'flex space-x-2 mt-2 font-semibold'}>
+                              <Twiv css={'text-[#5E5E5E] line-through'}>{2000}%</Twiv>
                               <div>{apy.toFixed(0)}%</div>
                             </Twiv>
                           ),
@@ -176,8 +176,8 @@ export default function V2Form({
                     {
                       title: 'Better APY',
                       body: (
-                        <Twiv css={`flex space-x-2 mt-2 font-semibold`}>
-                          <Twiv css={`text-[#5E5E5E] line-through`}>{apy.toFixed(0)}%</Twiv>
+                        <Twiv css={'flex space-x-2 mt-2 font-semibold'}>
+                          <Twiv css={'text-[#5E5E5E] line-through'}>{apy.toFixed(0)}%</Twiv>
                           <div>{lockingBenefitsCalculator(Number(inputValue ?? 0) + lockedDays).apy.toFixed(0)}%</div>
                         </Twiv>
                       ),
