@@ -54,7 +54,7 @@ export const useStakingRewards = () => {
     }
   }
 
-  const harvestLockRewards = async (xsLockIDs: BigNumber[], txVal: string, gasConfig: GasConfiguration) => {
+  const harvestLockRewards = async (xsLockIDs: BigNumber[], gasConfig: GasConfiguration) => {
     if (!stakingRewards || xsLockIDs.length == 0) return
     let tx = null
     let type = FunctionName.HARVEST_LOCK
@@ -73,7 +73,6 @@ export const useStakingRewards = () => {
     const localTx: LocalTx = {
       hash: tx.hash,
       type: type,
-      value: txVal,
       status: TransactionCondition.PENDING,
     }
     return { tx, localTx }
@@ -81,7 +80,6 @@ export const useStakingRewards = () => {
 
   const compoundLockRewards = async (
     xsLockIDs: BigNumber[],
-    txVal: string,
     gasConfig: GasConfiguration,
     targetXsLockID?: BigNumber
   ) => {
@@ -103,7 +101,6 @@ export const useStakingRewards = () => {
     const localTx: LocalTx = {
       hash: tx.hash,
       type: type,
-      value: txVal,
       status: TransactionCondition.PENDING,
     }
     return { tx, localTx }

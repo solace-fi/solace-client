@@ -130,11 +130,7 @@ export const UnderwritingPoolModal: React.FC<PoolModalProps> = ({ modalTitle, fu
 
   const callDeposit = async () => {
     setModalLoading(true)
-    await depositEth(
-      parseUnits(amount, currencyDecimals),
-      `${truncateBalance(amount)} ${getUnit(func, activeNetwork)}`,
-      gasConfig
-    )
+    await depositEth(parseUnits(amount, currencyDecimals), gasConfig)
       .then((res) => _handleToast(res.tx, res.localTx))
       .catch((err) => _handleContractCallError('callDeposit', err, FunctionName.DEPOSIT_ETH))
   }
@@ -142,22 +138,14 @@ export const UnderwritingPoolModal: React.FC<PoolModalProps> = ({ modalTitle, fu
   const callDepositEth = async () => {
     setModalLoading(true)
     await cpFarmFunctions
-      .depositEth(
-        parseUnits(amount, currencyDecimals),
-        `${truncateBalance(amount)} ${getUnit(func, activeNetwork)}`,
-        gasConfig
-      )
+      .depositEth(parseUnits(amount, currencyDecimals), gasConfig)
       .then((res) => _handleToast(res.tx, res.localTx))
       .catch((err) => _handleContractCallError('callDepositEth', err, FunctionName.DEPOSIT_ETH))
   }
 
   const callWithdrawEth = async () => {
     setModalLoading(true)
-    await withdrawEth(
-      parseUnits(amount, currencyDecimals),
-      `${truncateBalance(amount)} ${getUnit(func, activeNetwork)}`,
-      gasConfig
-    )
+    await withdrawEth(parseUnits(amount, currencyDecimals), gasConfig)
       .then((res) => _handleToast(res.tx, res.localTx))
       .catch((err) => _handleContractCallError('callWithdrawEth', err, FunctionName.WITHDRAW_ETH))
   }

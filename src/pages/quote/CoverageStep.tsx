@@ -141,7 +141,6 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
       const localTx: LocalTx = {
         hash: txHash,
         type: txType,
-        value: 'Purchasing...',
         status: TransactionCondition.PENDING,
       }
       setForm({

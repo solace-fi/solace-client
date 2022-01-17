@@ -87,7 +87,6 @@ export const MyClaims: React.FC = () => {
       const localTx: LocalTx = {
         hash: txHash,
         type: txType,
-        value: `Claim #${String(_claimId)}`,
         status: TransactionCondition.PENDING,
       }
       addLocalTransactions(localTx)

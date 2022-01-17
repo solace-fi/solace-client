@@ -106,7 +106,6 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
       const localTx: LocalTx = {
         hash: txHash,
         type: txType,
-        value: `Policy #${selectedPolicy.policyId}`,
         status: TransactionCondition.PENDING,
       }
       await handleToast(tx, localTx)

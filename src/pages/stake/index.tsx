@@ -90,7 +90,6 @@ function Stake1(): any {
   const { userShare, xSolacePerSolace, solacePerXSolace } = useXSolaceV1Details()
   const { account } = useWallet()
   const [convertStoX, setConvertStoX] = useState<boolean>(true)
-  const [convertedAmount, setConvertedAmount] = useState<BigNumber>(ZERO)
 
   const [isAcceptableAmount, setIsAcceptableAmount] = useState<boolean>(false)
 
@@ -109,11 +108,7 @@ function Stake1(): any {
   ])
 
   const callStakeSigned = async () => {
-    await stake_v1(
-      parseUnits(amount, readSolaceToken.decimals),
-      `${truncateBalance(amount)} ${getUnit(FunctionName.STAKE_V1)}`,
-      gasConfig
-    )
+    await stake_v1(parseUnits(amount, readSolaceToken.decimals), gasConfig)
       .then((res) => handleToast(res.tx, res.localTx))
       .catch((err) => handleContractCallError('callStakeSigned', err, FunctionName.STAKE_V1))
   }
@@ -127,11 +122,7 @@ function Stake1(): any {
     } else {
       xSolaceToUnstake = await xSolaceV1.solaceToXSolace(parseUnits(formatted, readSolaceToken.decimals))
     }
-    await unstake_v1(
-      xSolaceToUnstake,
-      `${truncateBalance(xSolaceToUnstake.toString())} ${getUnit(FunctionName.UNSTAKE_V1)}`,
-      gasConfig
-    )
+    await unstake_v1(xSolaceToUnstake, gasConfig)
       .then((res) => handleToast(res.tx, res.localTx))
       .catch((err) => handleContractCallError('callUnstake', err, FunctionName.UNSTAKE_V1))
   }
@@ -153,27 +144,9 @@ function Stake1(): any {
 
   useEffect(() => {
     resetAmount()
-    setConvertedAmount(ZERO)
     setConvertStoX(isStaking)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isStaking])
-
-  useEffect(() => {
-    const getConvertedAmount = async () => {
-      if (!xSolaceV1) return
-      const formatted = formatAmount(amount)
-      if (isStaking) {
-        const amountInXSolace = await xSolaceV1.solaceToXSolace(parseUnits(formatted, readSolaceToken.decimals))
-        setConvertedAmount(amountInXSolace)
-      } else {
-        // const amountInSolace = await xSolace.xSolaceToSolace(parseUnits(formatted, readXSolaceToken.decimals))
-        // setConvertedAmount(amountInSolace)
-        setConvertedAmount(parseUnits(formatted, readSolaceToken.decimals))
-      }
-    }
-    getConvertedAmount()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [amount, readSolaceToken.decimals, readXSolaceToken.decimals, xSolaceV1])
 
   return (
     <>

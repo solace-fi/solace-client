@@ -8,7 +8,6 @@ export type WindowDimensions = {
 export type LocalTx = {
   hash: any
   type: string
-  value: string
   status: TransactionCondition
 }
 

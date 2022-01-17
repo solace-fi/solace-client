@@ -15,7 +15,7 @@ export const useXSolaceMigrator = () => {
   const { library } = useWallet()
   const { chainId } = useNetwork()
 
-  const migrate = async (account: string, amount: BigNumber, txVal: string, gasConfig: GasConfiguration) => {
+  const migrate = async (account: string, amount: BigNumber, gasConfig: GasConfiguration) => {
     if (!xSolaceMigrator || !solace) return
     const { v, r, s } = await getPermitErc20Signature(
       account,
@@ -32,7 +32,6 @@ export const useXSolaceMigrator = () => {
     const localTx: LocalTx = {
       hash: tx.hash,
       type: FunctionName.SOLACE_MIGRATE,
-      value: txVal,
       status: TransactionCondition.PENDING,
     }
     return { tx, localTx }

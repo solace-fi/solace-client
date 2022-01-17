@@ -66,13 +66,7 @@ export const useXSLocker = () => {
     }
   }
 
-  const createLock = async (
-    recipient: string,
-    amount: BigNumber,
-    end: BigNumber,
-    txVal: string,
-    gasConfig: GasConfiguration
-  ) => {
+  const createLock = async (recipient: string, amount: BigNumber, end: BigNumber, gasConfig: GasConfiguration) => {
     if (!xsLocker || !solace) return
     const { v, r, s } = await getPermitErc20Signature(recipient, chainId, library, xsLocker.address, solace, amount)
     const tx = await xsLocker.createLockSigned(recipient, amount, end, DEADLINE, v, r, s, {
@@ -82,7 +76,6 @@ export const useXSLocker = () => {
     const localTx: LocalTx = {
       hash: tx.hash,
       type: FunctionName.CREATE_LOCK,
-      value: txVal,
       status: TransactionCondition.PENDING,
     }
     return { tx, localTx }
@@ -93,7 +86,6 @@ export const useXSLocker = () => {
     xsLockID: BigNumber,
     amount: BigNumber,
     end: BigNumber,
-    txVal: string,
     gasConfig: GasConfiguration
   ) => {
     if (!xsLocker || !solace) return
@@ -105,13 +97,12 @@ export const useXSLocker = () => {
     const localTx: LocalTx = {
       hash: tx.hash,
       type: FunctionName.INCREASE_LOCK_AMOUNT,
-      value: txVal,
       status: TransactionCondition.PENDING,
     }
     return { tx, localTx }
   }
 
-  const extendLock = async (xsLockID: BigNumber, end: BigNumber, txVal: string, gasConfig: GasConfiguration) => {
+  const extendLock = async (xsLockID: BigNumber, end: BigNumber, gasConfig: GasConfiguration) => {
     if (!xsLocker || !solace) return
     const tx = await xsLocker.extendLock(xsLockID, end, {
       ...gasConfig,
@@ -120,7 +111,6 @@ export const useXSLocker = () => {
     const localTx: LocalTx = {
       hash: tx.hash,
       type: FunctionName.EXTEND_LOCK,
-      value: txVal,
       status: TransactionCondition.PENDING,
     }
     return { tx, localTx }
@@ -129,7 +119,6 @@ export const useXSLocker = () => {
   const withdrawFromLock = async (
     recipient: string,
     xsLockIDs: BigNumber[],
-    txVal: string,
     gasConfig: GasConfiguration,
     amount?: BigNumber
   ) => {
@@ -158,7 +147,6 @@ export const useXSLocker = () => {
     const localTx: LocalTx = {
       hash: tx.hash,
       type: type,
-      value: txVal,
       status: TransactionCondition.PENDING,
     }
     return { tx, localTx }

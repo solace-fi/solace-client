@@ -148,7 +148,6 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
       const localTx: LocalTx = {
         hash: tx.hash,
         type: txType,
-        value: `Policy #${selectedPolicy.policyId}`,
         status: TransactionCondition.PENDING,
       }
       await handleToast(tx, localTx)
@@ -175,7 +174,6 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
       const localTx: LocalTx = {
         hash: tx.hash,
         type: txType,
-        value: `Policy #${selectedPolicy.policyId}`,
         status: TransactionCondition.PENDING,
       }
       await handleToast(tx, localTx)
@@ -205,7 +203,6 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
       const localTx: LocalTx = {
         hash: tx.hash,
         type: txType,
-        value: `Policy #${selectedPolicy}`,
         status: TransactionCondition.PENDING,
       }
       await handleToast(tx, localTx)
@@ -226,7 +223,6 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
       const localTx: LocalTx = {
         hash: tx.hash,
         type: txType,
-        value: `Policy #${selectedPolicy.policyId}`,
         status: TransactionCondition.PENDING,
       }
       await handleToast(tx, localTx)
