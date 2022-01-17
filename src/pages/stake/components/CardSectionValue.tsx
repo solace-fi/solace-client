@@ -15,8 +15,8 @@ const Value = styled.span<{ importance: 'primary' | 'secondary' | 'tertiary' | '
     switch (importance) {
       case 'primary':
       case 'secondary':
-        return '16px'
       case 'tertiary':
+        return '16px'
       case 'quaternary':
         return '14px'
     }
@@ -40,8 +40,8 @@ const Annotation = styled.span<{ importance: 'primary' | 'secondary' | 'tertiary
     switch (importance) {
       case 'primary':
       case 'secondary':
-        return '12px'
       case 'tertiary':
+        return '12px'
       case 'quaternary':
         return '10px'
     }
@@ -64,31 +64,25 @@ const Annotation = styled.span<{ importance: 'primary' | 'secondary' | 'tertiary
 export default function CardSectionValue({
   children,
   annotation,
-  importance,
+  // importance,
+  highlight,
 }: {
   children: string | React.ReactNode
   annotation?: string
-  importance: 'primary' | 'secondary' | 'tertiary'
+  // importance: 'primary' | 'secondary' | 'tertiary'
+  highlight?: boolean
   css?: string
 }): JSX.Element {
   const BaseDiv = styled.div`
     font-weight: 600;
   `
-  const amongFirstTwo = isOneOf(importance, ['primary', 'secondary'])
-  const isPrimary = importance === 'primary'
-  const mainTextSize = amongFirstTwo ? `text-base` : `text-sm`
-  const mainTextColor = isPrimary ? `text-[#5F5DF9]` : ''
-  const firstInterpolation = [mainTextSize, mainTextColor] as string[]
-  const annotationTextSize = amongFirstTwo ? `text-sm` : `text-xs`
-  const annotationTextColor = isPrimary ? `text-[#5F5DF9]` : ''
-  const secondInterpolation = [annotationTextSize, annotationTextColor] as string[]
 
   return (
     <BaseDiv>
       {/* <Twan css={firstInterpolation}>{children}</Twan>{' '} */}
-      <Value importance={importance}>{children}</Value>{' '}
+      <Value importance={highlight ? 'tertiary' : 'primary'}>{children}</Value>{' '}
       {annotation && (
-        <Annotation importance={importance}>{annotation}</Annotation>
+        <Annotation importance={highlight ? 'tertiary' : 'primary'}>{annotation}</Annotation>
         // <>
         //   <Twan css={secondInterpolation}>{annotation}</Twan>
         // </>

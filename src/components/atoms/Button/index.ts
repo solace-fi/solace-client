@@ -21,6 +21,7 @@ export interface ButtonProps extends ClickProps {
   noradius?: boolean
   noborder?: boolean
   nohover?: boolean
+  semibold?: boolean
 }
 
 interface ButtonWrapperProps {
@@ -151,8 +152,11 @@ export const ButtonBaseCss = css<ButtonProps & GeneralElementProps>`
               ? props.theme.typography.errorText
               : props.theme.typography.contrastText
           };`
-        } }`};
+        } }
+    `}
   ${(props) => props.glow && `box-shadow: ${props.theme.button.glow};`}
+  font-weight: ${(props) => (props.semibold ? '600' : '500')};
+  font-family: 'Open Sans', sans-serif;
   ${Text4Css}
 `
 
