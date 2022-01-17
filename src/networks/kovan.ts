@@ -24,6 +24,8 @@ import waaveABI from '../constants/abi/contracts/products/WaaveProduct.sol/Waave
 import { AaveProduct } from '../products/aave'
 import { WaaveProduct } from '../products/waave'
 
+import { KEY_ADDRS, PRODUCT_ADDRS, TELLER_ADDRS } from '../constants/addresses/kovan'
+
 /*
 
 When adding new products, please add into productContracts, functions, and cache
@@ -33,47 +35,47 @@ When adding new products, please add into productContracts, functions, and cache
 const tellerToTokenMapping: {
   [key: string]: { addr: string; isBondTellerErc20: boolean; isLp: boolean }
 } = {
-  [String(process.env.REACT_APP_KOVAN_DAI_TELLER_ADDR)]: {
+  [TELLER_ADDRS.DAI_TELLER]: {
     addr: '0xc56010e957c325b140f182b4fbee61c2fb95fdb3',
     isBondTellerErc20: true,
     isLp: false,
   },
-  [String(process.env.REACT_APP_KOVAN_ETH_TELLER_ADDR)]: {
+  [TELLER_ADDRS.ETH_TELLER]: {
     addr: '0xd0a1e359811322d97991e03f863a0c30c2cf029c',
     isBondTellerErc20: false,
     isLp: false,
   },
-  [String(process.env.REACT_APP_KOVAN_USDC_TELLER_ADDR)]: {
+  [TELLER_ADDRS.USDC_TELLER]: {
     addr: '0xefd4e002d58a66e9ea53f9ebf0583aecc6e183f0',
     isBondTellerErc20: true,
     isLp: false,
   },
-  [String(process.env.REACT_APP_KOVAN_SOLACE_USDC_SLP_TELLER_ADDR)]: {
+  [TELLER_ADDRS.SOLACE_USDC_SLP_TELLER]: {
     addr: '0x13465d2d66be93764b33577c73fc2411917fe9e4',
     isBondTellerErc20: true,
     isLp: true,
   },
-  [String(process.env.REACT_APP_KOVAN_SCP_TELLER_ADDR)]: {
+  [TELLER_ADDRS.SCP_TELLER]: {
     addr: '0x501acee83a6f269b77c167c6701843d454e2efa0',
     isBondTellerErc20: true,
     isLp: false,
   },
-  [String(process.env.REACT_APP_KOVAN_WBTC_TELLER_ADDR)]: {
+  [TELLER_ADDRS.WBTC_TELLER]: {
     addr: '0x1063bf969f8d3d7296a2a94274d3df9202da2a3a',
     isBondTellerErc20: true,
     isLp: false,
   },
-  [String(process.env.REACT_APP_KOVAN_USDT_TELLER_ADDR)]: {
+  [TELLER_ADDRS.USDT_TELLER]: {
     addr: '0xaea2b0f4763c8ffc33a4c454cd08f803b02b6b53',
     isBondTellerErc20: true,
     isLp: false,
   },
-  // [String(process.env.REACT_APP_KOVAN_SOLACE_ETH_SLP_TELLER_ADDR)]: {
+  // [TELLER_ADDRS.SOLACE_ETH_SLP_TELLER]: {
   //   addr: '0x64844b869abb2f310442a692bd1cc84b393b2777',
   //   isBondTellerErc20: true,
   //   isLp: true,
   // },
-  // [String(process.env.REACT_APP_KOVAN_SOLACE_DAI_SLP_TELLER_ADDR)]: {
+  // [TELLER_ADDRS.SOLACE_DAI_SLP_TELLER]: {
   //   addr: '0x836c25e0fe4edc95443a88b6694d7e3be37d98bd',
   //   isBondTellerErc20: true,
   //   isLp: true,
@@ -93,74 +95,71 @@ export const KovanNetwork: NetworkConfig = {
     key: String(ETHERSCAN_API_KEY),
     url: 'https://kovan.etherscan.io',
     apiUrl: 'https://api-kovan.etherscan.io',
-    excludedContractAddrs: [
-      String(process.env.REACT_APP_KOVAN_SOLACE_ADDR),
-      String(process.env.REACT_APP_KOVAN_VAULT_ADDR),
-    ],
+    excludedContractAddrs: [KEY_ADDRS.SOLACE, KEY_ADDRS.VAULT],
   },
   config: {
     keyContracts: {
       farmController: {
-        addr: String(process.env.REACT_APP_KOVAN_FARM_CONTROLLER_ADDR),
+        addr: KEY_ADDRS.FARM_CONTROLLER,
         abi: farmControllerABI,
       },
       farmRewards: {
-        addr: String(process.env.REACT_APP_KOVAN_FARM_REWARDS_ADDR),
+        addr: KEY_ADDRS.FARM_REWARDS,
         abi: farmRewardsABI.abi,
       },
       vault: {
-        addr: String(process.env.REACT_APP_KOVAN_VAULT_ADDR),
+        addr: KEY_ADDRS.VAULT,
         abi: vaultABI,
       },
       solace: {
-        addr: String(process.env.REACT_APP_KOVAN_SOLACE_ADDR),
+        addr: KEY_ADDRS.SOLACE,
         abi: solaceABI,
       },
       xSolaceV1: {
-        addr: String(process.env.REACT_APP_KOVAN_XSOLACE_V1_ADDR),
+        addr: KEY_ADDRS.XSOLACE_V1,
         abi: xSolaceV1ABI,
       },
       cpFarm: {
-        addr: String(process.env.REACT_APP_KOVAN_CPFARM_ADDR),
+        addr: KEY_ADDRS.CPFARM,
         abi: cpFarmABI,
       },
       claimsEscrow: {
-        addr: String(process.env.REACT_APP_KOVAN_CLAIMS_ESCROW_ADDR),
+        addr: KEY_ADDRS.CLAIMS_ESCROW,
         abi: claimsEscrowABI,
       },
       policyManager: {
-        addr: String(process.env.REACT_APP_KOVAN_POLICY_MANAGER_ADDR),
+        addr: KEY_ADDRS.POLICY_MANAGER,
         abi: polMagABI,
       },
       riskManager: {
-        addr: String(process.env.REACT_APP_KOVAN_RISK_MANAGER_ADDR),
+        addr: KEY_ADDRS.RISK_MANAGER,
         abi: riskManagerABI,
       },
       bondDepo: {
-        addr: String(process.env.REACT_APP_KOVAN_BOND_DEPO_ADDR),
+        addr: KEY_ADDRS.BOND_DEPO,
         abi: bondDepoABI,
       },
     },
     productContracts: {
       [ProductName.AAVE]: {
-        addr: String(process.env.REACT_APP_KOVAN_AAVE_PRODUCT_ADDR),
+        addr: PRODUCT_ADDRS.AAVE_PRODUCT,
         abi: aaveABI,
       },
       [ProductName.WAAVE]: {
-        addr: String(process.env.REACT_APP_KOVAN_WAAVE_PRODUCT_ADDR),
+        addr: PRODUCT_ADDRS.WAAVE_PRODUCT,
         abi: waaveABI,
       },
     },
     bondTellerContracts: {
-      [BondName.DAI]: String(process.env.REACT_APP_KOVAN_DAI_TELLER_ADDR),
-      // [BondName.SOLACE_DAI_SLP]: String(process.env.REACT_APP_KOVAN_SOLACE_DAI_SLP_TELLER_ADDR),
-      [BondName.ETH]: String(process.env.REACT_APP_KOVAN_ETH_TELLER_ADDR),
-      // [BondName.SOLACE_ETH_SLP]: String(process.env.REACT_APP_KOVAN_SOLACE_ETH_SLP_TELLER_ADDR),
-      [BondName.USDC]: String(process.env.REACT_APP_KOVAN_USDC_TELLER_ADDR),
-      [BondName.SOLACE_USDC_SLP]: String(process.env.REACT_APP_KOVAN_SOLACE_USDC_SLP_TELLER_ADDR),
-      [BondName.SCP]: String(process.env.REACT_APP_KOVAN_SCP_TELLER_ADDR),
-      [BondName.WBTC]: String(process.env.REACT_APP_KOVAN_WBTC_TELLER_ADDR),
-      [BondName.USDT]: String(process.env.REACT_APP_KOVAN_USDT_TELLER_ADDR),
+      [BondName.DAI]: TELLER_ADDRS.DAI_TELLER,
+      // [BondName.SOLACE_DAI_SLP]: TELLER_ADDRS.SOLACE_DAI_SLP_TELLER,
+      [BondName.ETH]: TELLER_ADDRS.ETH_TELLER,
+      // [BondName.SOLACE_ETH_SLP]: TELLER_ADDRS.SOLACE_ETH_SLP_TELLER,
+      [BondName.USDC]: TELLER_ADDRS.USDC_TELLER,
+      [BondName.SOLACE_USDC_SLP]: TELLER_ADDRS.SOLACE_USDC_SLP_TELLER,
+      [BondName.SCP]: TELLER_ADDRS.SCP_TELLER,
+      [BondName.WBTC]: TELLER_ADDRS.WBTC_TELLER,
+      [BondName.USDT]: TELLER_ADDRS.USDT_TELLER,
     },
   },
   cache: {
