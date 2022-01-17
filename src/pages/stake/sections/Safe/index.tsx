@@ -6,17 +6,12 @@ import RaisedBox from '../../atoms/RaisedBox'
 import ShadowDiv from '../../atoms/ShadowDiv'
 import CardSectionValue from '../../components/CardSectionValue'
 import InfoPair, { Label } from '../../molecules/InfoPair'
-import { Text } from '../../../../components/atoms/Typography'
 import HorizontalSeparator from '../../components/HorizontalSeparator'
-import InformationBox from '../../components/InformationBox'
-import { InfoBoxType } from '../../types/InfoBoxType'
-
-enum Tab {
-  DEPOSIT,
-  EXTEND_LOCK,
-  WITHDRAW,
-  REWARDS,
-}
+import DepositForm from './DepositForm'
+import LockForm from './LockForm'
+import RewardsForm from './RewardsForm'
+import WithdrawForm from './WithdrawForm'
+import { Tab } from '../../types/Tab'
 
 export default function Safe({
   stakingAmount,
@@ -102,11 +97,11 @@ export default function Safe({
                   Deposit
                 </Label>
                 <Label
-                  importance={activeTab === Tab.EXTEND_LOCK ? 'primary' : 'secondary'}
+                  importance={activeTab === Tab.LOCK ? 'primary' : 'secondary'}
                   clickable
-                  onClick={() => setActiveTab(Tab.EXTEND_LOCK)}
+                  onClick={() => setActiveTab(Tab.LOCK)}
                 >
-                  Extend Lock/Lock
+                  {timeLeft > 0 ? 'Extend Lock' : 'Lock'}
                 </Label>
                 <Label
                   importance={activeTab === Tab.WITHDRAW ? 'primary' : 'secondary'}
@@ -124,10 +119,11 @@ export default function Safe({
                 </Label>
               </Flex>
             </Flex>
-            <InformationBox
-              type={InfoBoxType.info}
-              text="All locked balances will be unavailable for withdrawal until the lock timer ends. All future deposits will be locked for the same time."
-            />
+            {/* depending on the tab, use <DepositForm />, or LockForm, RewardsForm or WithdrawForm */}
+            {activeTab === Tab.DEPOSIT && <DepositForm />}
+            {activeTab === Tab.LOCK && <LockForm />}
+            {activeTab === Tab.WITHDRAW && <WithdrawForm />}
+            {activeTab === Tab.REWARDS && <RewardsForm />}
           </Flex>
         )}
       </RaisedBox>

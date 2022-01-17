@@ -40,30 +40,19 @@ import { WalletConnectButton } from '../../components/molecules/WalletConnectBut
 import { StyledRefresh } from '../../components/atoms/Icon'
 
 /* import hooks */
-import { useSolaceBalance, useXSolaceBalance, useXSolaceV1Balance } from '../../hooks/useBalance'
+import { useSolaceBalance, useXSolaceV1Balance } from '../../hooks/useBalance'
 import { useXSolaceV1, useXSolaceV1Details } from '../../hooks/useXSolaceV1'
 import { useInputAmount } from '../../hooks/useInputAmount'
 import { useReadToken } from '../../hooks/useToken'
 
 /* import utils */
-import { formatAmount, getUnit, truncateBalance } from '../../utils/formatting'
+import { formatAmount, truncateBalance } from '../../utils/formatting'
 import { Tab } from './types/Tab'
 
 import Twiv from './components/Twiv'
-import Switchers from './sections/Switchers'
-import V2Form from './sections/V2Form'
 import { Version } from './types/Version'
-import styled, { css } from 'styled-components'
 import Twan from './components/Twan'
 import '../../resources/tailwind.min.css'
-import { useXSLocker } from '../../hooks/useXSLocker'
-import { GeneralElementProps } from '../../components/generalInterfaces'
-import Checkbox from './atoms/Checkbox'
-import RaisedBox from './atoms/RaisedBox'
-import ShadowDiv from './atoms/ShadowDiv'
-import InfoPair from './molecules/InfoPair'
-import CardSectionValue from './components/CardSectionValue'
-import VerticalSeparator from './components/VerticalSeparator'
 import DifferenceNotification from './organisms/DifferenceNotification'
 import Flex from './atoms/Flex'
 import Safe from './sections/Safe/index'
@@ -324,7 +313,7 @@ export default function Stake(): JSX.Element {
   // account usewallet
   const { account } = useWallet()
   const [version, setVersion] = useState<Version>(Version.v2 as Version)
-  const [tab, setTab] = useState(Tab.staking)
+  const [tab, setTab] = useState(Tab.DEPOSIT)
   // const inputRef = useRef<HTMLInputElement>(null);
 
   // user current staked and unstaked amounts, and locking time

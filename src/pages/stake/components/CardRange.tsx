@@ -1,6 +1,8 @@
 import styled from 'styled-components'
 
-const CardRange = styled.input`
+const CardRange = styled.input.attrs(() => ({
+  type: 'range',
+}))`
   height: 8px;
   background-color: #e3e4e6;
   border-radius: 9999px;
