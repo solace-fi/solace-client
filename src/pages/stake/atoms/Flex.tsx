@@ -7,7 +7,9 @@ export default styled.div<{
   end?: boolean
   stretch?: boolean
   wrap?: boolean
-  mb?: string
+  mb?: number
+  p?: number
+  gap?: number
 }>`
   display: flex;
   justify-content: ${({ between, end, center }) =>
@@ -16,4 +18,6 @@ export default styled.div<{
   flex-direction: ${({ column }) => (column ? 'column' : 'row')};
   flex-wrap: ${({ wrap }) => (wrap ? 'wrap' : 'nowrap')};
   margin-bottom: ${({ mb }) => mb + 'px'};
+  padding: ${({ p }) => p}px;
+  gap: ${({ gap }) => gap}px;
 `

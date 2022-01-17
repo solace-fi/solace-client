@@ -66,6 +66,7 @@ import CardSectionValue from './components/CardSectionValue'
 import VerticalSeparator from './components/VerticalSeparator'
 import DifferenceNotification from './organisms/DifferenceNotification'
 import Flex from './atoms/Flex'
+import Safe from './sections/Safe/index'
 
 // disable no unused variables
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -429,33 +430,36 @@ export default function Stake(): JSX.Element {
           {/* <Checkbox type="checkbox" /> */}
           {/* 24-padding white box with 10px radius corner and shadow */}
           <RaisedBox
-            style={{
-              display: 'flex',
-              alignItems: 'strech',
-              gap: '91px',
-              flexWrap: 'wrap',
-              marginBottom: '30px',
-            }}
+          // style={{
+          //   display: 'flex',
+          //   alignItems: 'strech',
+          //   gap: '91px',
+          //   flexWrap: 'wrap',
+          //   marginBottom: '30px',
+          //   padding: '24px',
+          // }}
           >
-            {/* unstaked, staked, locked, total rewards, separator, apy (secondary) */}
-            <InfoPair importance="primary" label="Unstaked Balance">
-              <CardSectionValue annotation="SOLACE">{stakedSolaceBalance}</CardSectionValue>
-            </InfoPair>
-            <InfoPair importance="primary" label="Staked Balance">
-              <CardSectionValue annotation="SOLACE">{unlockedSolaceBalance}</CardSectionValue>
-            </InfoPair>
-            <InfoPair importance="primary" label="Locked Balance">
-              <CardSectionValue annotation="SOLACE">{lockedSolaceBalance}</CardSectionValue>
-            </InfoPair>
-            <InfoPair importance="primary" label="Total Rewards">
-              <CardSectionValue annotation="SOLACE">{stakedSolaceBalance}</CardSectionValue>
-            </InfoPair>
-            <VerticalSeparator />
-            <InfoPair importance="secondary" label="APY">
-              <Text bold>2000%</Text>
-            </InfoPair>
+            <Flex stretch gap={91} wrap mb={20} p={24}>
+              {/* unstaked, staked, locked, total rewards, separator, apy (secondary) */}
+              <InfoPair importance="primary" label="Unstaked Balance">
+                <CardSectionValue annotation="SOLACE">{stakedSolaceBalance}</CardSectionValue>
+              </InfoPair>
+              <InfoPair importance="primary" label="Staked Balance">
+                <CardSectionValue annotation="SOLACE">{unlockedSolaceBalance}</CardSectionValue>
+              </InfoPair>
+              <InfoPair importance="primary" label="Locked Balance">
+                <CardSectionValue annotation="SOLACE">{lockedSolaceBalance}</CardSectionValue>
+              </InfoPair>
+              <InfoPair importance="primary" label="Total Rewards">
+                <CardSectionValue annotation="SOLACE">{stakedSolaceBalance}</CardSectionValue>
+              </InfoPair>
+              <VerticalSeparator />
+              <InfoPair importance="secondary" label="APY">
+                <Text bold>2000%</Text>
+              </InfoPair>
+            </Flex>
           </RaisedBox>
-          <Flex between mb="20">
+          <Flex between mb={20}>
             <Button secondary info noborder pl={23} pr={23}>
               New Stake
             </Button>
@@ -463,49 +467,44 @@ export default function Stake(): JSX.Element {
               Batch Actions
             </Button>
           </Flex>
-          <ShadowDiv style={{ marginBottom: '20px' }}>
-            <RaisedBox
-              style={{
-                padding: '24px',
-                display: 'flex',
-                alignItems: 'strech',
-                gap: '90px',
-              }}
-            >
-              {/* amount: staked SOLACE, status: locked, Lock time left: 433 DAYS, Multiplier: 1.8x, APY: 2578.12%, Rewards: 20 SOLACE */}
-              <InfoPair importance="tertiary" label="Amount">
-                <CardSectionValue highlight={true} annotation="SOLACE">
-                  {stakedSolaceBalance}
-                </CardSectionValue>
-              </InfoPair>
-              <InfoPair importance="tertiary" label="Status">
-                <CardSectionValue>Locked</CardSectionValue>
-              </InfoPair>
-              <InfoPair importance="tertiary" label="Lock time left">
-                <CardSectionValue annotation="DAYS">{lockedDays}</CardSectionValue>
-              </InfoPair>
-              <InfoPair importance="tertiary" label="Multiplier">
-                <CardSectionValue highlight={true}>1.8x</CardSectionValue>
-              </InfoPair>
-              <InfoPair importance="tertiary" label="APY">
-                <CardSectionValue highlight={true}>2578.12%</CardSectionValue>
-              </InfoPair>
-              <InfoPair importance="tertiary" label="Rewards">
-                <CardSectionValue highlight={true} annotation="SOLACE">
-                  20
-                </CardSectionValue>
-              </InfoPair>
-              <FlexCol
-                style={{
-                  justifyContent: 'center',
-                }}
-              >
-                <Button info semibold>
-                  Manage
-                </Button>
-              </FlexCol>
-            </RaisedBox>
-          </ShadowDiv>
+          {/* Safe props
+          
+  stakingAmount: number
+  safeStatus: string
+  timeLeft: number
+  multiplier: number
+  apy: number
+  rewards: number */}
+          {[
+            {
+              id: '1',
+              stakingAmount: 100,
+              safeStatus: 'Locked',
+              timeLeft: 157,
+              multiplier: 1.32,
+              apy: 2000 * 1.32,
+              rewards: 100,
+            },
+            {
+              id: '2',
+              stakingAmount: 250,
+              safeStatus: 'Staked',
+              timeLeft: 0,
+              multiplier: 1,
+              apy: 2000,
+              rewards: 0,
+            },
+          ].map(({ stakingAmount, safeStatus, timeLeft, multiplier, apy, rewards, id }) => (
+            <Safe
+              stakingAmount={stakingAmount}
+              safeStatus={safeStatus}
+              timeLeft={timeLeft}
+              multiplier={multiplier}
+              apy={apy}
+              rewards={rewards}
+              key={id}
+            />
+          ))}
           {/* only show the following if staking is v2 and the tab is not `difference` */}
           {version === Version.v2 && (
             <Twiv css={'text-[#5E5E5E]'}>

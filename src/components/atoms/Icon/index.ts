@@ -30,6 +30,7 @@ import { GraphDown } from '@styled-icons/bootstrap/GraphDown'
 import { SendPlane } from '@styled-icons/remix-fill/SendPlane'
 import { Refresh } from '@styled-icons/boxicons-regular/Refresh'
 import { ReceiptMoney } from '@styled-icons/fluentui-system-filled/ReceiptMoney'
+import { InfoCircle } from 'styled-icons/bootstrap'
 
 export const StyledIconCss = css`
   margin: auto;
@@ -112,3 +113,5 @@ export const StyledGraphDown = styled(GraphDown)``
 export const StyledSendPlane = styled(SendPlane)``
 
 export const StyledRefresh = styled(Refresh)``
+
+export const StyledInfoCircle = styled(InfoCircle)``

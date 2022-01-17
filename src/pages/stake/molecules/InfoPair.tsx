@@ -9,7 +9,7 @@ type InfoPairProps = {
   importance: 'primary' | 'secondary' | 'tertiary' | 'quaternary'
 }
 
-const Label = styled.div<InfoPairProps>`
+export const Label = styled.div<InfoPairProps & { clickable?: boolean }>`
   font-size: ${({ importance }) => {
     switch (importance) {
       case 'primary':
@@ -32,6 +32,21 @@ const Label = styled.div<InfoPairProps>`
     }
   }};
   font-weight: 600;
+  ${({ clickable }) =>
+    clickable &&
+    `
+    cursor: pointer;
+    user-select: none;
+    
+    `}
+  ${({ clickable, importance }) =>
+    clickable &&
+    importance === 'primary' &&
+    `
+    text-underline-offset: 8px;
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+    `}
 `
 
 const Value = styled.div<InfoPairProps>`
