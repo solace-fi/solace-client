@@ -80,7 +80,15 @@ export const lightTheme = {
   tooltip: {
     bg_color: 'rgba(25, 29, 36, 1)',
   },
-}
+  v2: {
+    aside: '#FAFAFA',
+    raised: '#FFFFFF',
+    primary: '#5F5DF9',
+    secondary: '#5e5e5e',
+    tertiary: '#969696',
+    separator: '#E3E4E6',
+  },
+} as const
 
 export const darkTheme = {
   typography: {
@@ -164,4 +172,15 @@ export const darkTheme = {
   tooltip: {
     bg_color: 'rgba(25, 29, 36, 1)',
   },
-}
+  v2: {
+    aside: '#2e2e2e',
+    raised: '#FFFFFF',
+    primary: '#8e8df2',
+    secondary: '#5e5e5e',
+    tertiary: '#969696',
+    separator: '#E3E4E6',
+  },
+} as const
+
+export type Theme = typeof lightTheme | typeof darkTheme
+// export type Theme = { theme: typeof lightTheme | typeof darkTheme }

@@ -1,7 +1,15 @@
 import React from 'react'
+import styled from 'styled-components'
 
-import Twiv from './Twiv'
+// import Separator from './Twiv'
 
-const VerticalSeparator = () => <Twiv css={`border-l-[1px] border-solid border-red-500`} />
+const Separator = styled.div`
+  border-color: ${({ theme }) => theme.v2.separator};
+  border-style: solid;
+  border-left-width: 1px;
+`
+
+// const VerticalSeparator = () => <Separator />
+
 // border-[#E3E4E6]`}></Twiv>
-export default VerticalSeparator as React.FC
+export default Separator

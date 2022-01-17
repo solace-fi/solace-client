@@ -58,6 +58,12 @@ import Twan from './components/Twan'
 import './tailwind.min.css'
 import { useXSLocker } from '../../hooks/useXSLocker'
 import { GeneralElementProps } from '../../components/generalInterfaces'
+import Checkbox from './atoms/Checkbox'
+import RaisedBox from './atoms/RaisedBox'
+import ShadowDiv from './atoms/ShadowDiv'
+import InfoPair from './molecules/InfoPair'
+import CardSectionValue from './components/CardSectionValue'
+import VerticalSeparator from './components/VerticalSeparator'
 
 // disable no unused variables
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -502,6 +508,7 @@ export default function Stake(): JSX.Element {
       setLockedSolaceBalance(balances.lockedBalance)
     }
     _getUserLockerBalances()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [account])
 
   return (
@@ -547,9 +554,47 @@ export default function Stake(): JSX.Element {
               <DifferenceText onClick={() => setVersion(Version.difference)}>What is the difference?</DifferenceText>
             </div>
           </Notification>
+          <Checkbox type="checkbox" />
+          {/* 24-padding white box with 10px radius corner and shadow */}
+          <ShadowDiv style={{ marginBottom: '20px' }}>
+            <RaisedBox
+              style={{
+                display: 'flex',
+                alignItems: 'strech',
+                gap: '91px',
+                flexWrap: 'wrap',
+              }}
+            >
+              {/* unstaked, staked, locked, total rewards, separator, apy (secondary) */}
+              <InfoPair importance="primary" label="Unstaked Balance">
+                <CardSectionValue importance="primary" annotation="SOLACE">
+                  {stakedSolaceBalance}
+                </CardSectionValue>
+              </InfoPair>
+              <InfoPair importance="primary" label="Staked Balance">
+                <CardSectionValue importance="primary" annotation="SOLACE">
+                  {unlockedSolaceBalance}
+                </CardSectionValue>
+              </InfoPair>
+              <InfoPair importance="primary" label="Locked Balance">
+                <CardSectionValue importance="primary" annotation="SOLACE">
+                  {lockedSolaceBalance}
+                </CardSectionValue>
+              </InfoPair>
+              <InfoPair importance="primary" label="Total Rewards">
+                <CardSectionValue importance="primary" annotation="SOLACE">
+                  {stakedSolaceBalance}
+                </CardSectionValue>
+              </InfoPair>
+              <VerticalSeparator />
+              <InfoPair importance="secondary" label="APY">
+                <Text bold>2000%</Text>
+              </InfoPair>
+            </RaisedBox>
+          </ShadowDiv>
           {/* only show the following if staking is v2 and the tab is not `difference` */}
           {version === Version.v2 && (
-            <Twiv css={'font-sans text-[#5E5E5E]'}>
+            <Twiv css={'text-[#5E5E5E]'}>
               <Twiv css={'bg-[#fafafa] min-h-screen px-1 lg:px-10 py-10'}>
                 {/* select between v1 and v2 */}
                 <Switchers
