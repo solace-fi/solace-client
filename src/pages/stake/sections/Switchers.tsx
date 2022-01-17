@@ -9,20 +9,12 @@ export default function Switchers({
   setTab,
   version,
   setVersion,
-  lockedDays,
-  setLockedDays,
 }: {
   tab: Tab
   setTab: Dispatch<SetStateAction<Tab>>
   version: Version
   setVersion: Dispatch<SetStateAction<Version>>
-  lockedDays: number
-  setLockedDays: Dispatch<SetStateAction<number>>
 }): JSX.Element {
-  const defaultLockedDays = 157
-  const noLockedDays = 0
-  const onOffLockedDays = () => setLockedDays(lockedDays === noLockedDays ? defaultLockedDays : noLockedDays)
-
   return (
     <>
       {/* <Twiv css={`flex justify-between items-center mb-5`}>
@@ -71,31 +63,6 @@ export default function Switchers({
             onClick={() => setTab(Tab.locking)}
           >
             Locking
-          </Twan>
-        </Twiv>
-      </Twiv>
-
-      <Twiv css={`flex justify-between items-center mb-5`}>
-        <Twiv css={`text-xl font-semibold select-none`}>
-          <Twan css={`text-gray-600`}>Locking: </Twan>
-          <Twan
-            css={[
-              `text-gray-700 cursor-pointer underline`,
-              lockedDays === defaultLockedDays ? `text-blue-500` : `text-gray-500`,
-            ]}
-            onClick={onOffLockedDays}
-          >
-            On
-          </Twan>{' '}
-          <Twan css={`text-gray-600`}>/</Twan>{' '}
-          <Twan
-            css={[
-              `text-gray-700 cursor-pointer underline`,
-              lockedDays === noLockedDays ? `text-blue-500` : `text-gray-500`,
-            ]}
-            onClick={onOffLockedDays}
-          >
-            Off
           </Twan>
         </Twiv>
       </Twiv>
