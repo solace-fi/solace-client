@@ -73,7 +73,7 @@ export const AccountModal: React.FC<AccountModalProps> = ({ closeModal, isOpen }
   const { contractSources } = useContracts()
   const { account, activeWalletConnector, name } = useWallet()
   const { width } = useWindowDimensions()
-  const { txHistory, amounts } = useTransactionDetails()
+  const { txHistory } = useTransactionDetails()
   /************************************************************************************* 
     
   local functions
@@ -168,7 +168,6 @@ export const AccountModal: React.FC<AccountModalProps> = ({ closeModal, isOpen }
                     </TableData>
                     {width > BKPT_5 && (
                       <>
-                        {/* <TableData pt={5} pb={5} t4>{`${pendingtx.value}`}</TableData> */}
                         <TableData pt={5} pb={5} t4>
                           {timeAgo(Number(Date.now()) * 1000)}
                         </TableData>
@@ -208,17 +207,11 @@ export const AccountModal: React.FC<AccountModalProps> = ({ closeModal, isOpen }
                         )}
                       </TableData>
                       {width > BKPT_5 && (
-                        <>
-                          {/* <TableData pt={5} pb={5} t4>
-                            {amounts.length > 0 && tx.txreceipt_status == '1' && <Text>{amounts[i]}</Text>}
-                            {amounts.length > 0 && tx.txreceipt_status != '1' && <Text error>Transaction Failed</Text>}
-                          </TableData> */}
-                          <TableData pt={5} pb={5} t4>
-                            {txHistory.length > 0 && (
-                              <Text error={tx.txreceipt_status != '1'}>{timeAgo(Number(tx.timeStamp) * 1000)}</Text>
-                            )}
-                          </TableData>
-                        </>
+                        <TableData pt={5} pb={5} t4>
+                          {txHistory.length > 0 && (
+                            <Text error={tx.txreceipt_status != '1'}>{timeAgo(Number(tx.timeStamp) * 1000)}</Text>
+                          )}
+                        </TableData>
                       )}
                       <TableData
                         t4

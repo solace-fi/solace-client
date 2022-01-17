@@ -27,7 +27,6 @@ export const useBondTeller = (selectedBondDetail: BondTellerDetails | undefined)
     minAmountOut: BigNumber,
     recipient: string,
     stake: boolean,
-    txVal: string,
     func: FunctionName,
     gasConfig: GasConfiguration
   ): Promise<TxResult> => {
@@ -57,13 +56,12 @@ export const useBondTeller = (selectedBondDetail: BondTellerDetails | undefined)
     const localTx: LocalTx = {
       hash: tx.hash,
       type: func,
-      value: txVal,
       status: TransactionCondition.PENDING,
     }
     return { tx, localTx }
   }
 
-  const redeem = async (bondId: BigNumber, txVal: string, gasConfig: GasConfiguration): Promise<TxResult> => {
+  const redeem = async (bondId: BigNumber, gasConfig: GasConfiguration): Promise<TxResult> => {
     if (!selectedBondDetail) return { tx: null, localTx: null }
     const tx = await selectedBondDetail.tellerData.teller.contract.redeem(bondId, {
       ...gasConfig,
@@ -72,7 +70,6 @@ export const useBondTeller = (selectedBondDetail: BondTellerDetails | undefined)
     const localTx: LocalTx = {
       hash: tx.hash,
       type: FunctionName.BOND_REDEEM,
-      value: txVal,
       status: TransactionCondition.PENDING,
     }
     return { tx, localTx }

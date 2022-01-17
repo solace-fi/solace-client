@@ -160,7 +160,6 @@ export const EarlyFarmRewardsWindow: React.FC = () => {
       const localTx: LocalTx = {
         hash: tx.hash,
         type: FunctionName.REWARDS_REDEEM,
-        value: 'Redeeming rewards',
         status: TransactionCondition.PENDING,
       }
       handleToast(tx, localTx)

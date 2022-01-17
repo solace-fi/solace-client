@@ -5,8 +5,9 @@ import { useNetwork } from '../context/NetworkManager'
 import { GasConfiguration, LocalTx } from '../constants/types'
 import { BigNumber } from 'ethers'
 import { getPermitErc20Signature } from '../utils/signature'
-import { DEADLINE, GAS_LIMIT, ZERO } from '../constants'
+import { DEADLINE, ZERO } from '../constants'
 import { FunctionName, TransactionCondition } from '../constants/enums'
+import { FunctionGasLimits } from '../constants/mappings/gasMapping'
 
 export const useXSolaceMigrator = () => {
   const { keyContracts } = useContracts()
@@ -14,7 +15,7 @@ export const useXSolaceMigrator = () => {
   const { library } = useWallet()
   const { chainId } = useNetwork()
 
-  const migrate = async (account: string, amount: BigNumber, txVal: string, gasConfig: GasConfiguration) => {
+  const migrate = async (account: string, amount: BigNumber, gasConfig: GasConfiguration) => {
     if (!xSolaceMigrator || !solace) return
     const { v, r, s } = await getPermitErc20Signature(
       account,
@@ -26,12 +27,11 @@ export const useXSolaceMigrator = () => {
     )
     const tx = await xSolaceMigrator.migrateSigned(amount, ZERO, DEADLINE, v, r, s, {
       ...gasConfig,
-      gasLimit: GAS_LIMIT,
+      gasLimit: FunctionGasLimits['xSolaceMigrator.migrateSigned'],
     })
     const localTx: LocalTx = {
       hash: tx.hash,
       type: FunctionName.SOLACE_MIGRATE,
-      value: txVal,
       status: TransactionCondition.PENDING,
     }
     return { tx, localTx }

@@ -14,7 +14,7 @@
 */
 
 /* import packages */
-import React, { useState, useEffect, useMemo, Dispatch, SetStateAction } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 import { parseUnits } from '@ethersproject/units'
 import { BigNumber } from 'ethers'
 
@@ -99,7 +99,6 @@ function Stake1(): any {
   const { userShare, xSolacePerSolace, solacePerXSolace } = useXSolaceV1Details()
   const { account } = useWallet()
   const [convertStoX, setConvertStoX] = useState<boolean>(true)
-  const [convertedAmount, setConvertedAmount] = useState<BigNumber>(ZERO)
 
   const [isAcceptableAmount, setIsAcceptableAmount] = useState<boolean>(false)
 
@@ -118,11 +117,7 @@ function Stake1(): any {
   ])
 
   const callStakeSigned = async () => {
-    await stake_v1(
-      parseUnits(amount, readSolaceToken.decimals),
-      `${truncateBalance(amount)} ${getUnit(FunctionName.STAKE_V1)}`,
-      gasConfig
-    )
+    await stake_v1(parseUnits(amount, readSolaceToken.decimals), gasConfig)
       .then((res) => handleToast(res.tx, res.localTx))
       .catch((err) => handleContractCallError('callStakeSigned', err, FunctionName.STAKE_V1))
   }
@@ -136,11 +131,7 @@ function Stake1(): any {
     } else {
       xSolaceToUnstake = await xSolaceV1.solaceToXSolace(parseUnits(formatted, readSolaceToken.decimals))
     }
-    await unstake_v1(
-      xSolaceToUnstake,
-      `${truncateBalance(xSolaceToUnstake.toString())} ${getUnit(FunctionName.UNSTAKE_V1)}`,
-      gasConfig
-    )
+    await unstake_v1(xSolaceToUnstake, gasConfig)
       .then((res) => handleToast(res.tx, res.localTx))
       .catch((err) => handleContractCallError('callUnstake', err, FunctionName.UNSTAKE_V1))
   }
@@ -162,27 +153,9 @@ function Stake1(): any {
 
   useEffect(() => {
     resetAmount()
-    setConvertedAmount(ZERO)
     setConvertStoX(isStaking)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isStaking])
-
-  useEffect(() => {
-    const getConvertedAmount = async () => {
-      if (!xSolaceV1) return
-      const formatted = formatAmount(amount)
-      if (isStaking) {
-        const amountInXSolace = await xSolaceV1.solaceToXSolace(parseUnits(formatted, readSolaceToken.decimals))
-        setConvertedAmount(amountInXSolace)
-      } else {
-        // const amountInSolace = await xSolace.xSolaceToSolace(parseUnits(formatted, readXSolaceToken.decimals))
-        // setConvertedAmount(amountInSolace)
-        setConvertedAmount(parseUnits(formatted, readSolaceToken.decimals))
-      }
-    }
-    getConvertedAmount()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [amount, readSolaceToken.decimals, readXSolaceToken.decimals, xSolaceV1])
 
   return (
     <>
@@ -352,68 +325,8 @@ export default function Stake(): JSX.Element {
   const [version, setVersion] = useState<Version>(Version.v2 as Version)
   const [tab, setTab] = useState(Tab.staking)
   // const inputRef = useRef<HTMLInputElement>(null);
-  const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    alert('cickity click')
-    // if (inputRef.current && inputRef.current.value) {
-    //   alert(`Submitting ${inputRef.current.value}`);
-    // }
-  }
-  // inputValue and rangeValue for staking, unstaking and locking
-  const [stakingInputValue, setStakingInputValue] = useState('')
-  const [stakingRangeValue, setStakingRangeValue] = useState('')
-  const [unstakingInputValue, setUnstakingInputValue] = useState('')
-  const [unstakingRangeValue, setUnstakingRangeValue] = useState('')
-  const [lockingInputValue, setLockingInputValue] = useState('')
-  const [lockingRangeValue, setLockingRangeValue] = useState('')
-
-  // simplification utilities
-  // prettier-ignore
-  const [inputValue, setInputValue, rangeValue, setRangeValue] = useMemo(() => version === Version.difference ? [undefined, () => {""}, undefined, () => {""}] : ({
-    [Tab.staking]: [stakingInputValue, setStakingInputValue, stakingRangeValue, setStakingRangeValue],
-    [Tab.unstaking]: [unstakingInputValue, setUnstakingInputValue, unstakingRangeValue, setUnstakingRangeValue],
-    [Tab.locking]: [lockingInputValue, setLockingInputValue, lockingRangeValue, setLockingRangeValue],
-  }[tab] as [string, Dispatch<SetStateAction<string>>, string, Dispatch<SetStateAction<string>>]),
-
-  [tab, stakingInputValue, stakingRangeValue, unstakingInputValue, unstakingRangeValue, lockingInputValue, lockingRangeValue, version]);
 
   // user current staked and unstaked amounts, and locking time
-
-  const [lockedDays, setLockedDays] = useState(157)
-  // xsolace price in solace
-  const maxDaysLocked = 1461
-
-  const solaceBalance = useSolaceBalance()
-  const { getStakedBalance, getUserLockerBalances } = useXSLocker()
-  const [stakedSolaceBalance, setStakedSolaceBalance] = useState<string>('0')
-  const [lockedSolaceBalance, setLockedSolaceBalance] = useState<string>('0')
-  const [unlockedSolaceBalance, setUnlockedSolaceBalance] = useState<string>('0')
-
-  // prettier - ignore
-  const setMax = useMemo(
-    () =>
-      Version.difference === version
-        ? () => undefined
-        : ({
-            [Tab.staking]: () => (setRangeValue('100'), setInputValue(solaceBalance)),
-            [Tab.unstaking]: () => (setRangeValue('100'), setInputValue(unlockedSolaceBalance)),
-            [Tab.locking]: () => (setRangeValue('100'), setInputValue(maxDaysLocked.toString())),
-          }[tab] as () => void),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [tab, unlockedSolaceBalance, solaceBalance, maxDaysLocked, setInputValue, setRangeValue]
-  )
-
-  useEffect(() => {
-    const _getUserLockerBalances = async () => {
-      if (!account) return
-      const balances = await getUserLockerBalances(account)
-      setStakedSolaceBalance(balances.stakedBalance)
-      setUnlockedSolaceBalance(balances.unlockedBalance)
-      setLockedSolaceBalance(balances.lockedBalance)
-    }
-    _getUserLockerBalances()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [account])
 
   return (
     <>
@@ -510,51 +423,8 @@ export default function Stake(): JSX.Element {
             <Twiv css={'text-[#5E5E5E]'}>
               <Twiv css={'bg-[#fafafa] min-h-screen px-1 lg:px-10 py-10'}>
                 {/* select between v1 and v2 */}
-                <Switchers
-                  tab={tab}
-                  lockedDays={lockedDays}
-                  version={version}
-                  setTab={setTab}
-                  setLockedDays={setLockedDays}
-                  setVersion={setVersion}
-                />
-                <V2Form
-                  tab={tab}
-                  staked={stakedSolaceBalance}
-                  unstaked={solaceBalance}
-                  locked={lockedSolaceBalance}
-                  onSubmit={onSubmit}
-                  inputValue={inputValue}
-                  setMax={setMax}
-                  lockedDays={lockedDays}
-                  inputOnChange={(e) => {
-                    // 1. validate input (blocked till main project integration)
-                    // 2. update input value state
-                    e.target.value !== inputValue && setInputValue(e.target.value)
-                    // 3. update range value state (as percentage string between 0 and 100)
-                    const newRangeValue = {
-                      [Tab.staking]: String((Number(inputValue) * 100) / parseFloat(solaceBalance)),
-                      [Tab.unstaking]: String((Number(inputValue) * 100) / parseFloat(unlockedSolaceBalance)),
-                      [Tab.locking]: String((Number(inputValue) * 100) / maxDaysLocked),
-                    }[tab]
-                    newRangeValue !== rangeValue && setRangeValue(newRangeValue)
-                  }}
-                  rangeValue={rangeValue ?? '0'}
-                  rangeOnChange={(e) => {
-                    // 1. validate input (blocked till main project integration)
-                    // 2. update input value state (as percentage string between 0 and 100)
-                    // 3. update range value state
-
-                    rangeValue !== e.target.value && setRangeValue(e.target.value)
-                    setTimeout(() => console.log({ targetValue: e.target.value, rangeValue }), 0)
-                    const newInputValue = {
-                      [Tab.staking]: String((Number(e.target.value) * parseFloat(solaceBalance)) / 100),
-                      [Tab.unstaking]: String((Number(e.target.value) * parseFloat(unlockedSolaceBalance)) / 100),
-                      [Tab.locking]: String((Number(e.target.value) * maxDaysLocked) / 100),
-                    }[tab]
-                    newInputValue !== inputValue && setInputValue(newInputValue)
-                  }}
-                />
+                <Switchers tab={tab} version={version} setTab={setTab} setVersion={setVersion} />
+                <V2Form tab={tab} version={version} />
               </Twiv>
             </Twiv>
           )}

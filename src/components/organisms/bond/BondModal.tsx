@@ -177,15 +177,7 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
     const slippageInt = parseInt(accurateMultiply(slippagePrct, 2))
     const calcAOut = stake ? calculatedAmountOut_X : calculatedAmountOut
     const minAmountOut = calcAOut.mul(BigNumber.from(MAX_BPS - slippageInt)).div(BigNumber.from(MAX_BPS))
-    await deposit(
-      parseUnits(amount, pncplDecimals),
-      minAmountOut,
-      bondRecipient,
-      stake,
-      `${truncateBalance(amount)} ${pncplDecimals}`,
-      func,
-      gasConfig
-    )
+    await deposit(parseUnits(amount, pncplDecimals), minAmountOut, bondRecipient, stake, func, gasConfig)
       .then((res) => _handleToast(res.tx, res.localTx))
       .catch((err) => _handleContractCallError('callDepositBond', err, func))
   }
@@ -193,7 +185,7 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
   const callRedeemBond = async (bondId: BigNumber) => {
     if (bondId.eq(ZERO)) return
     setModalLoading(true)
-    await redeem(bondId, `#${bondId.toString()}`, gasConfig)
+    await redeem(bondId, gasConfig)
       .then((res) => _handleToast(res.tx, res.localTx))
       .catch((err) => _handleContractCallError('callRedeemBond', err, func))
   }

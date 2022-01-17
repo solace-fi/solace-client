@@ -9,7 +9,7 @@ export const useCpFarm = () => {
   const { keyContracts } = useContracts()
   const { cpFarm } = useMemo(() => keyContracts, [keyContracts])
 
-  const depositEth = async (parsedAmount: BigNumber, txVal: string, gasConfig: GasConfiguration): Promise<TxResult> => {
+  const depositEth = async (parsedAmount: BigNumber, gasConfig: GasConfiguration): Promise<TxResult> => {
     if (!cpFarm) return { tx: null, localTx: null }
     const tx = await cpFarm.depositEth({
       value: parsedAmount,
@@ -19,13 +19,12 @@ export const useCpFarm = () => {
     const localTx: LocalTx = {
       hash: tx.hash,
       type: FunctionName.DEPOSIT_ETH,
-      value: txVal,
       status: TransactionCondition.PENDING,
     }
     return { tx, localTx }
   }
 
-  const depositCp = async (parsedAmount: BigNumber, txVal: string, gasConfig: GasConfiguration): Promise<TxResult> => {
+  const depositCp = async (parsedAmount: BigNumber, gasConfig: GasConfiguration): Promise<TxResult> => {
     if (!cpFarm) return { tx: null, localTx: null }
     const tx = await cpFarm.depositCp(parsedAmount, {
       ...gasConfig,
@@ -34,13 +33,12 @@ export const useCpFarm = () => {
     const localTx: LocalTx = {
       hash: tx.hash,
       type: FunctionName.DEPOSIT_CP,
-      value: txVal,
       status: TransactionCondition.PENDING,
     }
     return { tx, localTx }
   }
 
-  const withdrawCp = async (parsedAmount: BigNumber, txVal: string, gasConfig: GasConfiguration): Promise<TxResult> => {
+  const withdrawCp = async (parsedAmount: BigNumber, gasConfig: GasConfiguration): Promise<TxResult> => {
     if (!cpFarm) return { tx: null, localTx: null }
     const tx = await cpFarm.withdrawCp(parsedAmount, {
       ...gasConfig,
@@ -49,7 +47,6 @@ export const useCpFarm = () => {
     const localTx: LocalTx = {
       hash: tx.hash,
       type: FunctionName.WITHDRAW_CP,
-      value: txVal,
       status: TransactionCondition.PENDING,
     }
     return { tx, localTx }

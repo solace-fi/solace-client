@@ -135,11 +135,7 @@ export const CpPoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen
   const callDepositCp = async () => {
     setModalLoading(true)
     await cpFarmFunctions
-      .depositCp(
-        parseUnits(amount, currencyDecimals),
-        `${truncateBalance(amount)} ${getUnit(func, activeNetwork)}`,
-        gasConfig
-      )
+      .depositCp(parseUnits(amount, currencyDecimals), gasConfig)
       .then((res) => _handleToast(res.tx, res.localTx))
       .catch((err) => _handleContractCallError('callDepositCp', err, FunctionName.DEPOSIT_CP))
   }
@@ -147,11 +143,7 @@ export const CpPoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen
   const callWithdrawCp = async () => {
     setModalLoading(true)
     await cpFarmFunctions
-      .withdrawCp(
-        parseUnits(amount, currencyDecimals),
-        `${truncateBalance(amount)} ${getUnit(func, activeNetwork)}`,
-        gasConfig
-      )
+      .withdrawCp(parseUnits(amount, currencyDecimals), gasConfig)
       .then((res) => _handleToast(res.tx, res.localTx))
       .catch((err) => _handleContractCallError('callWithdrawCp', err, FunctionName.WITHDRAW_CP))
   }

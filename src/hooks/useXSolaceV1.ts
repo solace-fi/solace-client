@@ -21,7 +21,7 @@ export const useXSolaceV1 = () => {
   const { account, library } = useWallet()
   const { chainId } = useNetwork()
 
-  const stake_v1 = async (parsedAmount: BigNumber, txVal: string, gasConfig: GasConfiguration) => {
+  const stake_v1 = async (parsedAmount: BigNumber, gasConfig: GasConfiguration) => {
     if (!solace || !xSolaceV1 || !account) return { tx: null, localTx: null }
     const { v, r, s } = await getPermitErc20Signature(
       account,
@@ -38,13 +38,12 @@ export const useXSolaceV1 = () => {
     const localTx: LocalTx = {
       hash: tx.hash,
       type: FunctionName.STAKE_V1,
-      value: txVal,
       status: TransactionCondition.PENDING,
     }
     return { tx, localTx }
   }
 
-  const unstake_v1 = async (parsedAmount: BigNumber, txVal: string, gasConfig: GasConfiguration): Promise<TxResult> => {
+  const unstake_v1 = async (parsedAmount: BigNumber, gasConfig: GasConfiguration): Promise<TxResult> => {
     if (!xSolaceV1) return { tx: null, localTx: null }
     const tx = await xSolaceV1.unstake(parsedAmount, {
       ...gasConfig,
@@ -53,7 +52,6 @@ export const useXSolaceV1 = () => {
     const localTx: LocalTx = {
       hash: tx.hash,
       type: FunctionName.UNSTAKE_V1,
-      value: txVal,
       status: TransactionCondition.PENDING,
     }
     return { tx, localTx }
