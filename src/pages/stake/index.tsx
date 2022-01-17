@@ -67,6 +67,7 @@ import VerticalSeparator from './components/VerticalSeparator'
 import DifferenceNotification from './organisms/DifferenceNotification'
 import Flex from './atoms/Flex'
 import Safe from './sections/Safe/index'
+import AggregatedStakeData from './sections/AggregatedStakeData'
 
 // disable no unused variables
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -340,38 +341,7 @@ export default function Stake(): JSX.Element {
       ) : (
         <Content>
           <DifferenceNotification version={version} setVersion={setVersion} />
-          {/* <Checkbox type="checkbox" /> */}
-          {/* 24-padding white box with 10px radius corner and shadow */}
-          <RaisedBox
-          // style={{
-          //   display: 'flex',
-          //   alignItems: 'strech',
-          //   gap: '91px',
-          //   flexWrap: 'wrap',
-          //   marginBottom: '30px',
-          //   padding: '24px',
-          // }}
-          >
-            <Flex stretch gap={91} wrap mb={20} p={24}>
-              {/* unstaked, staked, locked, total rewards, separator, apy (secondary) */}
-              <InfoPair importance="primary" label="Unstaked Balance">
-                <CardSectionValue annotation="SOLACE">{stakedSolaceBalance}</CardSectionValue>
-              </InfoPair>
-              <InfoPair importance="primary" label="Staked Balance">
-                <CardSectionValue annotation="SOLACE">{unlockedSolaceBalance}</CardSectionValue>
-              </InfoPair>
-              <InfoPair importance="primary" label="Locked Balance">
-                <CardSectionValue annotation="SOLACE">{lockedSolaceBalance}</CardSectionValue>
-              </InfoPair>
-              <InfoPair importance="primary" label="Total Rewards">
-                <CardSectionValue annotation="SOLACE">{stakedSolaceBalance}</CardSectionValue>
-              </InfoPair>
-              <VerticalSeparator />
-              <InfoPair importance="secondary" label="APY">
-                <Text bold>2000%</Text>
-              </InfoPair>
-            </Flex>
-          </RaisedBox>
+          <AggregatedStakeData />
           <Flex between mb={20}>
             <Button secondary info noborder pl={23} pr={23}>
               New Stake
@@ -418,16 +388,6 @@ export default function Stake(): JSX.Element {
               key={id}
             />
           ))}
-          {/* only show the following if staking is v2 and the tab is not `difference` */}
-          {version === Version.v2 && (
-            <Twiv css={'text-[#5E5E5E]'}>
-              <Twiv css={'bg-[#fafafa] min-h-screen px-1 lg:px-10 py-10'}>
-                {/* select between v1 and v2 */}
-                <Switchers tab={tab} version={version} setTab={setTab} setVersion={setVersion} />
-                <V2Form tab={tab} version={version} />
-              </Twiv>
-            </Twiv>
-          )}
           {/* only show the following if staking is v1 and the tab is not `difference` */}
           {version === Version.v1 && (
             <Twiv css={'text-xl font-bold text-[#5F5DF9] animate-bounce'}>
