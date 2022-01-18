@@ -50,7 +50,13 @@ import { useGetQuote, useGetMaxCoverPerPolicy } from '../../hooks/usePolicy'
 import { useGetFunctionGas } from '../../hooks/useGas'
 
 /* import utils */
-import { accurateMultiply, encodeAddresses, filterAmount, formatAmount } from '../../utils/formatting'
+import {
+  accurateMultiply,
+  convertSciNotaToPrecise,
+  encodeAddresses,
+  filterAmount,
+  formatAmount,
+} from '../../utils/formatting'
 import { getDateStringWithMonthName, getDateExtended } from '../../utils/time'
 
 export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigation }) => {
@@ -221,9 +227,12 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
 
   const handleCoverageChange = (coverAmount: string, convertFromSciNota = true) => {
     setInputCoverage(
-      formatUnits(BigNumber.from(`${convertFromSciNota ? +coverAmount : coverAmount}`), currencyDecimals)
+      formatUnits(
+        BigNumber.from(`${convertFromSciNota ? convertSciNotaToPrecise(coverAmount) : coverAmount}`),
+        currencyDecimals
+      )
     )
-    setCoverage(`${convertFromSciNota ? +coverAmount : coverAmount}`)
+    setCoverage(`${convertFromSciNota ? convertSciNotaToPrecise(coverAmount) : coverAmount}`)
   }
 
   const setMaxCover = () => {

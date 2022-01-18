@@ -3,6 +3,12 @@ import styled from 'styled-components'
 import { Button } from '../../../../components/atoms/Button'
 import InformationBox from '../../components/InformationBox'
 import { InfoBoxType } from '../../types/InfoBoxType'
+import { LockData } from '../../../../constants/types'
+import { useInputAmount } from '../../../../hooks/useInputAmount'
+import { useStakingRewards } from '../../../../hooks/useStakingRewards'
+import { FunctionName } from '../../../../constants/enums'
+import { parseUnits } from 'ethers/lib/utils'
+import { ZERO } from '../../../../constants'
 
 const StyledForm = styled.form`
   display: flex;
@@ -17,11 +23,19 @@ const StyledForm = styled.form`
   width: 521px;
 `
 
-export default function DepositForm(): JSX.Element {
-  // const solaceBalance = useSolaceBalance()
+export default function RewardsForm({ lock }: { lock: LockData }): JSX.Element {
+  const { handleToast, handleContractCallError, gasConfig } = useInputAmount()
+  const { harvestLockRewards } = useStakingRewards()
+
+  const callHarvestLockRewards = async () => {
+    await harvestLockRewards([lock.xsLockID], gasConfig)
+      .then((res) => handleToast(res.tx, res.localTx))
+      .catch((err) => handleContractCallError('callHarvestLockRewards', err, FunctionName.HARVEST_LOCK))
+  }
+
   const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    alert('clickity click')
+    callHarvestLockRewards()
   }
   return (
     <div
@@ -36,8 +50,8 @@ export default function DepositForm(): JSX.Element {
         text="Every action like “Extending Lock” or “Deposit” automatically collects rewards."
       />
       <StyledForm onSubmit={onSubmit}>
-        <Button secondary info noborder>
-          Stake
+        <Button secondary info noborder disabled={parseUnits(lock.pendingRewards, 18).eq(ZERO)}>
+          Harvest
         </Button>
       </StyledForm>
     </div>
