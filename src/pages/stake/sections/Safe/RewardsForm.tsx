@@ -49,7 +49,7 @@ export default function RewardsForm({ lock }: { lock: LockData }): JSX.Element {
         type={InfoBoxType.info}
         text={
           !parseUnits(lock.pendingRewards, 18).eq(ZERO)
-            ? 'Every action like “Extending Lock” or “Deposit” automatically collects rewards.'
+            ? 'Rewards are accrued by the second. Depositing or withdrawing SOLACE, or extending a lockup period also harvests rewards for you.'
             : "You don't have any rewards to collect. Stake SOLACE to earn rewards!"
         }
       />

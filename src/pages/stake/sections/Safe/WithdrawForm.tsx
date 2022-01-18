@@ -79,7 +79,7 @@ export default function WithdrawForm({ lock }: { lock: LockData }): JSX.Element 
         gap: '30px',
       }}
     >
-      <InformationBox type={InfoBoxType.info} text="Withdrawal is available only when lock period ends." />
+      <InformationBox type={InfoBoxType.info} text="Withdrawal is available only when the lockup period ends." />
       <StyledForm onSubmit={onSubmit}>
         <InputSection
           tab={Tab.WITHDRAW}
