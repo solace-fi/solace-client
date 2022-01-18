@@ -315,6 +315,7 @@ function Stake1(): any {
 
 export default function Stake(): JSX.Element {
   // account usewallet
+  const { xSolaceV1Balance } = useXSolaceV1Balance()
   const { account } = useWallet()
   const { latestBlock } = useProvider()
   const { version } = useCachedData()
@@ -353,46 +354,48 @@ export default function Stake(): JSX.Element {
         </HeroContainer>
       ) : (
         <Content>
-          <DifferenceNotification version={version} setVersion={setStakingVersion} />
-          <AggregatedStakeData stakeData={userLockInfo} />
-          <Flex between mb={20}>
-            <Button secondary info noborder pl={23} pr={23}>
-              New Stake
-            </Button>
-            <Button info pl={23} pr={23}>
-              Batch Actions
-            </Button>
-          </Flex>
-          {[
-            {
-              xsLockID: BigNumber.from(1),
-              unboostedAmount: '433.123456789123456789',
-              end: BigNumber.from(11111555444156),
-              timeLeft: BigNumber.from(41235),
-              boostedValue: '43355.000000000000000000',
-              pendingRewards: '3.000000000000000000',
-              apy: BigNumber.from(44),
-            },
-            {
-              xsLockID: BigNumber.from(2),
-              unboostedAmount: '111.000000000000000000',
-              end: BigNumber.from(54711111554156),
-              timeLeft: BigNumber.from(41635),
-              boostedValue: '49355.123456789123456789',
-              pendingRewards: '2.123456789123456789',
-              apy: BigNumber.from(94),
-            },
-          ].map((lock) => (
-            <Safe key={lock.xsLockID.toNumber()} lock={lock} />
-          ))}
-          {/* only show the following if staking is v1 and the tab is not `difference` */}
-          {version === StakingVersion.v1 && (
-            <Twiv css={'text-xl font-bold text-[#5F5DF9] animate-bounce'}>
-              V1 not implemented in this component <Twan css={'text-[#F04D42]'}>(yet)</Twan>.
-            </Twiv>
+          {(parseFloat(xSolaceV1Balance) > 0 || stakingVersion === StakingVersion.v1) && (
+            <DifferenceNotification version={stakingVersion} setVersion={setStakingVersion} />
           )}
+          {StakingVersion.v2 === stakingVersion && (
+            <>
+              <AggregatedStakeData stakeData={userLockInfo} />
+              <Flex between mb={20}>
+                <Button secondary info noborder pl={23} pr={23}>
+                  New Stake
+                </Button>
+                <Button info pl={23} pr={23}>
+                  Batch Actions
+                </Button>
+              </Flex>
+              {[
+                {
+                  xsLockID: BigNumber.from(1),
+                  unboostedAmount: '433.123456789123456789',
+                  end: BigNumber.from(11111555444156),
+                  timeLeft: BigNumber.from(41235),
+                  boostedValue: '43355.000000000000000000',
+                  pendingRewards: '3.000000000000000000',
+                  apy: BigNumber.from(44),
+                },
+                {
+                  xsLockID: BigNumber.from(2),
+                  unboostedAmount: '111.000000000000000000',
+                  end: BigNumber.from(54711111554156),
+                  timeLeft: BigNumber.from(41635),
+                  boostedValue: '49355.123456789123456789',
+                  pendingRewards: '2.123456789123456789',
+                  apy: BigNumber.from(94),
+                },
+              ].map((lock) => (
+                <Safe key={lock.xsLockID.toNumber()} lock={lock} />
+              ))}
+            </>
+          )}
+          {/* only show the following if staking is v1 and the tab is not `difference` */}
+          {stakingVersion === StakingVersion.v1 && <Stake1 />}
           {/* only show the following if staking is v1 and the tab is 'difference' */}
-          {version === StakingVersion.difference && (
+          {stakingVersion === StakingVersion.difference && (
             <Twiv css={'text-xl font-bold text-[#5F5DF9] animate-bounce'}>
               Difference between V1 and V2:
               <Twiv css={'text-[#5E5E5E]'}>not implemented yet</Twiv>

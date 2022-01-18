@@ -388,20 +388,17 @@ iframe,
 embed,
 object {
   display: block;
-  /* 1 */
-  /* vertical-align: middle; */
-  /* 2 */
 }
 
 /*
 Constrain images and videos to the parent width and preserve their intrinsic aspect ratio. (https://github.com/mozdevs/cssremedy/issues/14)
 */
 
-img,
+/* img,
 video {
   max-width: 100%;
   height: auto;
-}
+} */
 
 /*
 Ensure the default browser behavior of the `hidden` attribute.
