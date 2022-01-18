@@ -20,9 +20,10 @@ const StyledForm = styled.form`
   width: 521px;
 `
 
-export default function DepositForm(): JSX.Element {
+export default function WithdrawForm(): JSX.Element {
   // const solaceBalance = useSolaceBalance()
   const solaceBalance = '123123'
+  const lockTimeLeft = 157
   const [inputValue, setInputValue] = React.useState('0')
   const [rangeValue, setRangeValue] = React.useState('0')
   const setMax = () => (setRangeValue('100'), setInputValue(solaceBalance))
@@ -57,11 +58,23 @@ export default function DepositForm(): JSX.Element {
         text="Withdrowal is available only when lock period ends. "
       /> */}
       <StyledForm onSubmit={onSubmit}>
-        <InputSection tab={Tab.WITHDRAW} value={inputValue} onChange={inputOnChange} setMax={setMax} />
-        <StyledSlider value={rangeValue} onChange={rangeOnChange} min={0} max={100} />
+        <InputSection
+          tab={Tab.WITHDRAW}
+          value={Number(inputValue) > 0 ? inputValue : undefined}
+          onChange={inputOnChange}
+          setMax={setMax}
+          disabled={true}
+        />
+        <StyledSlider
+          value={Number(rangeValue) > 0 ? rangeValue : undefined}
+          onChange={rangeOnChange}
+          min={0}
+          max={100}
+          disabled={lockTimeLeft > 0}
+        />
         {/* <CardRange value={rangeValue} onChange={rangeOnChange} min="0" max="100" /> */}
         <Button secondary info noborder>
-          Stake
+          Withdraw
         </Button>
       </StyledForm>
     </div>

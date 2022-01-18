@@ -20,11 +20,12 @@ const StyledForm = styled.form`
   width: 521px;
 `
 
-export default function DepositForm(): JSX.Element {
+export default function LockForm(): JSX.Element {
   // const solaceBalance = useSolaceBalance()
   const solaceBalance = '123123'
   const [inputValue, setInputValue] = React.useState('0')
   const [rangeValue, setRangeValue] = React.useState('0')
+  const lockingDays = 157
   const setMax = () => (setRangeValue('100'), setInputValue(solaceBalance))
   const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -57,11 +58,21 @@ export default function DepositForm(): JSX.Element {
         text="All locked balances will be unavailable for withdrawal until the lock timer ends. All future deposits will be locked for the same time."
       />
       <StyledForm onSubmit={onSubmit}>
-        <InputSection tab={Tab.LOCK} value={inputValue} onChange={inputOnChange} setMax={setMax} />
-        <StyledSlider value={rangeValue} onChange={rangeOnChange} min={0} max={100} />
+        <InputSection
+          tab={Tab.LOCK}
+          value={Number(inputValue) > 0 ? inputValue : undefined}
+          onChange={inputOnChange}
+          setMax={setMax}
+        />
+        <StyledSlider
+          value={Number(rangeValue) > 0 ? rangeValue : undefined}
+          onChange={rangeOnChange}
+          min={0}
+          max={100}
+        />
         {/* <CardRange value={rangeValue} onChange={rangeOnChange} min="0" max="100" /> */}
-        <Button secondary info noborder>
-          Stake
+        <Button secondary info noborder pl={20} pr={20}>
+          {lockingDays > 0 ? 'Extend locking time' : 'Lock'}
         </Button>
       </StyledForm>
     </div>

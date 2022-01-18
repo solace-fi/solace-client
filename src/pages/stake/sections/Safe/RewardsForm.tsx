@@ -17,7 +17,8 @@ const StyledForm = styled.form`
   width: 521px;
 `
 
-export default function DepositForm(): JSX.Element {
+export default function RewardsForm(): JSX.Element {
+  const availableRewards = 1
   // const solaceBalance = useSolaceBalance()
   const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -33,12 +34,20 @@ export default function DepositForm(): JSX.Element {
     >
       <InformationBox
         type={InfoBoxType.info}
-        text="Every action like “Extending Lock” or “Deposit” automatically collects rewards."
+        text={
+          availableRewards
+            ? 'Every action like “Extending Lock” or “Deposit” automatically collects rewards.'
+            : "You don't have any rewards to collect. Stake SOLACE to earn rewards!"
+        }
       />
       <StyledForm onSubmit={onSubmit}>
-        <Button secondary info noborder>
-          Stake
-        </Button>
+        {availableRewards > 0 ? (
+          <Button secondary info noborder>
+            Collect
+          </Button>
+        ) : (
+          <Button disabled>Collect</Button>
+        )}
       </StyledForm>
     </div>
   )

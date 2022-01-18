@@ -57,8 +57,18 @@ export default function DepositForm(): JSX.Element {
         text="New deposit will be added to current locked amount locked for the same time. "
       />
       <StyledForm onSubmit={onSubmit}>
-        <InputSection tab={Tab.DEPOSIT} value={inputValue} onChange={inputOnChange} setMax={setMax} />
-        <StyledSlider value={rangeValue} onChange={rangeOnChange} min={0} max={100} />
+        <InputSection
+          tab={Tab.DEPOSIT}
+          value={Number(inputValue) > 0 ? inputValue : undefined}
+          onChange={inputOnChange}
+          setMax={setMax}
+        />
+        <StyledSlider
+          value={Number(rangeValue) > 0 ? rangeValue : undefined}
+          onChange={rangeOnChange}
+          min={0}
+          max={100}
+        />
         {/* <CardRange value={rangeValue} onChange={rangeOnChange} min="0" max="100" /> */}
         <Button secondary info noborder>
           Stake
