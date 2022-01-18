@@ -79,12 +79,12 @@ export default function Safe({ lock }: { lock: LockData }): JSX.Element {
           </Flex>
         </Flex>
         {/* Separator */}
-        <HorizontalSeparator />
         {/* <div style={{ height: '1px', backgroundColor: '#e6e6e6',  }} /> */}
         {/******************************************************
 				                        SAFE BODY
 				******************************************************/}
         <Accordion isOpen={isOpen} style={{ backgroundColor: 'inherit' }}>
+          <HorizontalSeparator />
           <Flex column gap={30} p={24} stretch>
             <Flex between stretch>
               {/* 4 tab switchers, just normal text with underline offset 8px: deposit, extend lock/lock, withdraw, rewards */}

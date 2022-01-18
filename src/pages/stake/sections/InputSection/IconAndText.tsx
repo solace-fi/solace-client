@@ -14,7 +14,19 @@ function StyledClock({ css }: { css: string }): JSX.Element {
   return <Styled className={css} />
 }
 
-export default function IconAndText({ tab }: { tab: Tab.DEPOSIT | Tab.LOCK | Tab.WITHDRAW }): JSX.Element {
+export default function IconAndText({
+  tab,
+  disabled,
+}: {
+  tab: Tab.DEPOSIT | Tab.LOCK | Tab.WITHDRAW
+  disabled?: boolean
+}): JSX.Element {
+  const StyledWords = styled.div<{ disabled?: boolean }>`
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.5;
+    color: ${({ disabled }) => (disabled ? '#979797' : '#1A1A1A')};
+  `
   return (
     <Twiv
       css="hidden lg:flex rounded-l-xl border-r border-[#E3E4E6] p-5 space-x-1 items-center"
@@ -30,7 +42,7 @@ export default function IconAndText({ tab }: { tab: Tab.DEPOSIT | Tab.LOCK | Tab
           [Tab.LOCK]: <StyledClock css="w-5 h-5 pt-px" />,
         }[tab]
       }
-      <Twiv css="font-semibold text-xs">
+      <StyledWords>
         {
           {
             [Tab.DEPOSIT]: 'SOLACE',
@@ -38,7 +50,7 @@ export default function IconAndText({ tab }: { tab: Tab.DEPOSIT | Tab.LOCK | Tab
             [Tab.LOCK]: 'Days',
           }[tab]
         }
-      </Twiv>
+      </StyledWords>
     </Twiv>
   )
 }

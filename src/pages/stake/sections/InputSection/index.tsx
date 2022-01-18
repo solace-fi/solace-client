@@ -9,16 +9,19 @@ export default function InputSection({
   value,
   onChange,
   setMax,
+  disabled,
 }: // ref,
 {
   tab: Tab.DEPOSIT | Tab.WITHDRAW | Tab.LOCK
   value: string | undefined
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void
   setMax: () => void
+  disabled?: boolean
 }): JSX.Element {
+  console.log(disabled)
   return (
     <InputSectionWrapper>
-      <IconAndText tab={tab} />
+      <IconAndText tab={tab} disabled={disabled} />
       <input
         key="mainInput"
         type="text"

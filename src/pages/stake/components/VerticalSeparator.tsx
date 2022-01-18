@@ -7,4 +7,8 @@ const Separator = styled.div`
   width: 1px;
   background-color: ${({ theme }) => theme.v2.separator};
 `
+
+export const DarkSeparator = styled(Separator)`
+  background-color: #000;
+`
 export default Separator
