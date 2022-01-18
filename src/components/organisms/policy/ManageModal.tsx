@@ -54,7 +54,7 @@ import { useGetFunctionGas } from '../../../hooks/useGas'
 import { useWindowDimensions } from '../../../hooks/useWindowDimensions'
 
 /* import utils */
-import { accurateMultiply, filterAmount, formatAmount } from '../../../utils/formatting'
+import { accurateMultiply, convertSciNotaToPrecise, filterAmount, formatAmount } from '../../../utils/formatting'
 import { getDaysLeft, getExpiration } from '../../../utils/time'
 
 interface ManageModalProps {
@@ -260,9 +260,12 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
 
   const handleCoverageChange = (coverAmount: string, convertFromSciNota = true) => {
     setInputCoverage(
-      formatUnits(BigNumber.from(`${convertFromSciNota ? +coverAmount : coverAmount}`), currencyDecimals)
+      formatUnits(
+        BigNumber.from(`${convertFromSciNota ? convertSciNotaToPrecise(coverAmount) : coverAmount}`),
+        currencyDecimals
+      )
     )
-    setNewCoverage(`${convertFromSciNota ? +coverAmount : coverAmount}`)
+    setNewCoverage(`${convertFromSciNota ? convertSciNotaToPrecise(coverAmount) : coverAmount}`)
   }
 
   const handleInputCoverage = (input: string) => {

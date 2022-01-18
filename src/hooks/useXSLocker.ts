@@ -68,7 +68,7 @@ export const useXSLocker = () => {
   }
 
   const createLock = async (recipient: string, amount: BigNumber, end: BigNumber, gasConfig: GasConfiguration) => {
-    if (!xsLocker || !solace) return
+    if (!xsLocker || !solace) return { tx: null, localTx: null }
     const { v, r, s } = await getPermitErc20Signature(recipient, chainId, library, xsLocker.address, solace, amount)
     const tx = await xsLocker.createLockSigned(recipient, amount, end, DEADLINE, v, r, s, {
       ...gasConfig,
@@ -86,12 +86,11 @@ export const useXSLocker = () => {
     recipient: string,
     xsLockID: BigNumber,
     amount: BigNumber,
-    end: BigNumber,
     gasConfig: GasConfiguration
   ) => {
-    if (!xsLocker || !solace) return
+    if (!xsLocker || !solace) return { tx: null, localTx: null }
     const { v, r, s } = await getPermitErc20Signature(recipient, chainId, library, xsLocker.address, solace, amount)
-    const tx = await xsLocker.increaseAmountSigned(recipient, xsLockID, amount, end, DEADLINE, v, r, s, {
+    const tx = await xsLocker.increaseAmountSigned(xsLockID, amount, DEADLINE, v, r, s, {
       ...gasConfig,
       gasLimit: FunctionGasLimits['xsLocker.increaseAmountSigned'],
     })
@@ -104,7 +103,7 @@ export const useXSLocker = () => {
   }
 
   const extendLock = async (xsLockID: BigNumber, end: BigNumber, gasConfig: GasConfiguration) => {
-    if (!xsLocker || !solace) return
+    if (!xsLocker || !solace) return { tx: null, localTx: null }
     const tx = await xsLocker.extendLock(xsLockID, end, {
       ...gasConfig,
       gasLimit: FunctionGasLimits['xsLocker.extendLock'],
@@ -123,7 +122,7 @@ export const useXSLocker = () => {
     gasConfig: GasConfiguration,
     amount?: BigNumber
   ) => {
-    if (!xsLocker || !solace || xsLockIDs.length == 0) return
+    if (!xsLocker || !solace || xsLockIDs.length == 0) return { tx: null, localTx: null }
     let tx = null
     let type = FunctionName.WITHDRAW_IN_PART_FROM_LOCK
     if (amount) {
@@ -232,6 +231,7 @@ export const useUserLockData = () => {
         return await xsLocker.tokenOfOwnerByIndex(user, index)
       })
     )
+    const solaceDecimals = await queryDecimals(solace)
     const locks: LockData[] = await Promise.all(
       xsLockIDs.map(async (xsLockID) => {
         const rewards: BigNumber = await stakingRewards.pendingRewardsOfLock(xsLockID)
@@ -244,11 +244,11 @@ export const useUserLockData = () => {
         const apy: BigNumber = lock.amount.gt(ZERO) ? yearlyReturns.mul(100).div(lock.amount) : ZERO
         return {
           xsLockID: xsLockID,
-          unboostedAmount: formatUnits(lock.amount, 18),
+          unboostedAmount: formatUnits(lock.amount, solaceDecimals),
           end: lock.end,
           timeLeft: timeLeft,
-          boostedValue: formatUnits(stakedLock.value, 18),
-          pendingRewards: formatUnits(rewards, 18),
+          boostedValue: formatUnits(stakedLock.value, solaceDecimals),
+          pendingRewards: formatUnits(rewards, solaceDecimals),
           apy: apy,
         }
       })
@@ -264,7 +264,6 @@ export const useUserLockData = () => {
       ? rewardPerSecond.mul(BigNumber.from(31536000)).mul(userValue).div(valueStaked)
       : ZERO
     const userApy: BigNumber = stakedBalance.gt(ZERO) ? userYearlyReturns.mul(100).div(stakedBalance) : ZERO
-    const solaceDecimals = await queryDecimals(solace)
     const userInfo: UserLocksInfo = {
       pendingRewards: formatUnits(pendingRewards, solaceDecimals),
       stakedBalance: formatUnits(stakedBalance, solaceDecimals),

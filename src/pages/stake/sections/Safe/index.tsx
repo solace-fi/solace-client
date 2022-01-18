@@ -120,10 +120,10 @@ export default function Safe({ lock }: { lock: LockData }): JSX.Element {
               </Flex>
             </Flex>
             {/* depending on the tab, use <DepositForm />, or LockForm, RewardsForm or WithdrawForm */}
-            {activeTab === Tab.DEPOSIT && <DepositForm />}
-            {activeTab === Tab.LOCK && <LockForm />}
-            {activeTab === Tab.WITHDRAW && <WithdrawForm />}
-            {activeTab === Tab.REWARDS && <RewardsForm />}
+            {activeTab === Tab.DEPOSIT && <DepositForm lock={lock} />}
+            {activeTab === Tab.LOCK && <LockForm lock={lock} />}
+            {activeTab === Tab.WITHDRAW && <WithdrawForm lock={lock} />}
+            {activeTab === Tab.REWARDS && <RewardsForm lock={lock} />}
           </Flex>
         </Accordion>
       </RaisedBox>

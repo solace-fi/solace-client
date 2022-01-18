@@ -16,7 +16,7 @@ export const useXSolaceMigrator = () => {
   const { chainId } = useNetwork()
 
   const migrate = async (account: string, amount: BigNumber, gasConfig: GasConfiguration) => {
-    if (!xSolaceMigrator || !solace) return
+    if (!xSolaceMigrator || !solace) return { tx: null, localTx: null }
     const { v, r, s } = await getPermitErc20Signature(
       account,
       chainId,

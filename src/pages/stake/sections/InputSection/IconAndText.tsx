@@ -26,7 +26,7 @@ export default function IconAndText({ tab }: { tab: Tab.DEPOSIT | Tab.LOCK | Tab
         // switch object
         {
           [Tab.DEPOSIT]: <StyledImage src="/images/solace-token-gradient.svg" css="w-5 h-5 pt-px" />,
-          [Tab.WITHDRAW]: <StyledImage src="/images/xsolace-token-gradient.svg" css="w-5 h-5 pt-px" />,
+          [Tab.WITHDRAW]: <StyledImage src="/images/solace-token-gradient.svg" css="w-5 h-5 pt-px" />,
           [Tab.LOCK]: <StyledClock css="w-5 h-5 pt-px" />,
         }[tab]
       }
@@ -34,7 +34,7 @@ export default function IconAndText({ tab }: { tab: Tab.DEPOSIT | Tab.LOCK | Tab
         {
           {
             [Tab.DEPOSIT]: 'SOLACE',
-            [Tab.WITHDRAW]: 'xSOLACE',
+            [Tab.WITHDRAW]: 'SOLACE',
             [Tab.LOCK]: 'Days',
           }[tab]
         }
