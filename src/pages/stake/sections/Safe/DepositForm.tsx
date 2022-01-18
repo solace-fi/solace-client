@@ -83,20 +83,6 @@ export default function DepositForm({ lock }: { lock: LockData }): JSX.Element {
       <StyledForm onSubmit={onSubmit}>
         <InputSection
           tab={Tab.DEPOSIT}
-<<<<<<< HEAD
-          value={Number(inputValue) > 0 ? inputValue : undefined}
-          onChange={inputOnChange}
-          setMax={setMax}
-        />
-        <StyledSlider
-          value={Number(rangeValue) > 0 ? rangeValue : undefined}
-          onChange={rangeOnChange}
-          min={0}
-          max={100}
-        />
-        {/* <CardRange value={rangeValue} onChange={rangeOnChange} min="0" max="100" /> */}
-        <Button secondary info noborder>
-=======
           value={inputValue}
           onChange={(e) => inputOnChange(e.target.value)}
           setMax={setMax}
@@ -108,7 +94,6 @@ export default function DepositForm({ lock }: { lock: LockData }): JSX.Element {
           max={parseUnits(solaceBalance, 18).toString()}
         />
         <Button secondary info noborder disabled={!isAppropriateAmount(inputValue, 18, parseUnits(solaceBalance, 18))}>
->>>>>>> 2f69d3337b1aa22dfd1da0d11194a5a864f06532
           Stake
         </Button>
       </StyledForm>
