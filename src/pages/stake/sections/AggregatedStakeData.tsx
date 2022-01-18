@@ -6,12 +6,9 @@ import VerticalSeparator from '../components/VerticalSeparator'
 import InfoPair from '../molecules/InfoPair'
 import { Text } from '../../../components/atoms/Typography'
 import { UserLocksInfo } from '../../../constants/types'
-import { useSolaceBalance } from '../../../hooks/useBalance'
 import { truncateBalance } from '../../../utils/formatting'
 
 export default function AggregatedStakeData({ stakeData }: { stakeData: UserLocksInfo }): JSX.Element {
-  const solaceBalance = useSolaceBalance()
-
   return (
     <RaisedBox>
       <Flex stretch gap={91} wrap mb={20} p={24}>
@@ -33,7 +30,9 @@ export default function AggregatedStakeData({ stakeData }: { stakeData: UserLock
         </InfoPair>
         <VerticalSeparator />
         <InfoPair importance="secondary" label="APY">
-          <Text bold>{stakeData.apy.toNumber()}%</Text>
+          <Text bold dark>
+            {stakeData.apy.toNumber()}%
+          </Text>
         </InfoPair>
       </Flex>
     </RaisedBox>

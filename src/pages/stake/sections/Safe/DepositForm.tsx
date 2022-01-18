@@ -76,10 +76,7 @@ export default function DepositForm({ lock }: { lock: LockData }): JSX.Element {
         gap: '30px',
       }}
     >
-      <InformationBox
-        type={InfoBoxType.info}
-        text="New deposit will be added to current locked amount locked for the same time. "
-      />
+      <InformationBox type={InfoBoxType.info} text="Stake additional SOLACE to this safe." />
       <StyledForm onSubmit={onSubmit}>
         <InputSection
           tab={Tab.DEPOSIT}

@@ -47,7 +47,7 @@ export default function RewardsForm({ lock }: { lock: LockData }): JSX.Element {
     >
       <InformationBox
         type={InfoBoxType.info}
-        text="Every action like “Extending Lock” or “Deposit” automatically collects rewards."
+        text="Rewards are accrued by the second. Depositing or withdrawing SOLACE, or extending a lockup period also harvests rewards for you."
       />
       <StyledForm onSubmit={onSubmit}>
         <Button secondary info noborder disabled={parseUnits(lock.pendingRewards, 18).eq(ZERO)}>

@@ -30,7 +30,7 @@ export default function Safe({ lock }: { lock: LockData }): JSX.Element {
   const lockTimeLeft = useMemo(() => getTimeFromMillis(lock.timeLeft.toNumber() * 1000), [lock.timeLeft])
   const safeStatus = useMemo(() => {
     if (lock.timeLeft.toNumber() > 0) return 'Locked'
-    if (parseFloat(lock.unboostedAmount) > 0) return 'Staked'
+    if (parseFloat(lock.unboostedAmount) > 0) return 'Unlocked'
     return 'Empty'
   }, [lock.timeLeft, lock.unboostedAmount])
 
@@ -94,14 +94,14 @@ export default function Safe({ lock }: { lock: LockData }): JSX.Element {
                   clickable
                   onClick={() => setActiveTab(Tab.DEPOSIT)}
                 >
-                  Deposit
+                  Stake
                 </Label>
                 <Label
                   importance={activeTab === Tab.LOCK ? 'primary' : 'secondary'}
                   clickable
                   onClick={() => setActiveTab(Tab.LOCK)}
                 >
-                  {lock.timeLeft.toNumber() > 0 ? 'Extend Lock' : 'Lock'}
+                  {lock.timeLeft.toNumber() > 0 ? 'Extend Lockup' : 'Lockup'}
                 </Label>
                 <Label
                   importance={activeTab === Tab.WITHDRAW ? 'primary' : 'secondary'}

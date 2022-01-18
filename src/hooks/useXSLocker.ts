@@ -70,7 +70,7 @@ export const useXSLocker = () => {
   const createLock = async (recipient: string, amount: BigNumber, end: BigNumber, gasConfig: GasConfiguration) => {
     if (!xsLocker || !solace) return { tx: null, localTx: null }
     const { v, r, s } = await getPermitErc20Signature(recipient, chainId, library, xsLocker.address, solace, amount)
-    const tx = await xsLocker.createLockSigned(recipient, amount, end, DEADLINE, v, r, s, {
+    const tx = await xsLocker.createLockSigned(amount, end, DEADLINE, v, r, s, {
       ...gasConfig,
       gasLimit: FunctionGasLimits['xsLocker.createLockSigned'],
     })

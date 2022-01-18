@@ -38,7 +38,7 @@ export default function LockForm({ lock }: { lock: LockData }): JSX.Element {
   const [inputValue, setInputValue] = React.useState('0')
 
   const callExtendLock = async () => {
-    if (!latestBlock) return
+    if (!latestBlock || !inputValue || inputValue == '0') return
     const seconds = parseInt(inputValue) * 86400
     await extendLock(lock.xsLockID, BigNumber.from(seconds), gasConfig)
       .then((res) => handleToast(res.tx, res.localTx))
@@ -72,7 +72,7 @@ export default function LockForm({ lock }: { lock: LockData }): JSX.Element {
     >
       <InformationBox
         type={InfoBoxType.info}
-        text="All locked balances will be unavailable for withdrawal until the lock timer ends. All future deposits will be locked for the same time."
+        text="You may extend or start the lockup period of this safe. Note that you cannot withdraw funds during a lockup period."
       />
       <StyledForm onSubmit={onSubmit}>
         <InputSection
@@ -89,12 +89,12 @@ export default function LockForm({ lock }: { lock: LockData }): JSX.Element {
         />
         {
           <SmallBox transparent collapse={!inputValue || inputValue == '0'} m={0} p={0}>
-            <Text dark>Lock End Date: {getExpiration(parseInt(inputValue))}</Text>
+            <Text dark>Lockup End Date: {getExpiration(parseInt(inputValue))}</Text>
           </SmallBox>
         }
 
         <Button secondary info noborder disabled={!inputValue || inputValue == '0'}>
-          {lock.timeLeft.toNumber() > 0 ? `Extend Lock` : `Lock`}
+          {lock.timeLeft.toNumber() > 0 ? `Extend Lockup` : `Start Lockup`}
         </Button>
       </StyledForm>
     </div>

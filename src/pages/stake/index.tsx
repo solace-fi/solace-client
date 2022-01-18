@@ -35,7 +35,7 @@ import { Button, ButtonWrapper } from '../../components/atoms/Button'
 import { Card } from '../../components/atoms/Card'
 import { FormCol, FormRow } from '../../components/atoms/Form'
 import { Input } from '../../components/atoms/Input'
-import { Content, FlexCol, FlexRow, HorizRule } from '../../components/atoms/Layout'
+import { Content, FlexCol, FlexRow, HorizRule, Scrollable } from '../../components/atoms/Layout'
 import { ModalCell } from '../../components/atoms/Modal'
 import { Text } from '../../components/atoms/Typography'
 import { HeroContainer, MultiTabIndicator } from '../../components/atoms/Layout'
@@ -362,43 +362,45 @@ export default function Stake(): JSX.Element {
               <AggregatedStakeData stakeData={userLockInfo} />
               <Flex between mb={20}>
                 <Button secondary info noborder pl={23} pr={23}>
-                  New Stake
+                  Create New Safe
                 </Button>
                 <Button info pl={23} pr={23}>
                   Batch Actions
                 </Button>
               </Flex>
-              {[
-                {
-                  xsLockID: BigNumber.from(1),
-                  unboostedAmount: '433.123456789123456789',
-                  end: BigNumber.from(11111555444156),
-                  timeLeft: BigNumber.from(41235),
-                  boostedValue: '43355.000000000000000000',
-                  pendingRewards: '3.000000000000000000',
-                  apy: BigNumber.from(44),
-                },
-                {
-                  xsLockID: BigNumber.from(2),
-                  unboostedAmount: '111.000000000000000000',
-                  end: BigNumber.from(54711111554156),
-                  timeLeft: BigNumber.from(41635),
-                  boostedValue: '49355.123456789123456789',
-                  pendingRewards: '2.123456789123456789',
-                  apy: BigNumber.from(94),
-                },
-                {
-                  xsLockID: BigNumber.from(3),
-                  unboostedAmount: '111.000000000000000000',
-                  end: BigNumber.from(54711111554156),
-                  timeLeft: BigNumber.from(0),
-                  boostedValue: '49355.123456789123456789',
-                  pendingRewards: '2.123456789123456789',
-                  apy: BigNumber.from(94),
-                },
-              ].map((lock) => (
-                <Safe key={lock.xsLockID.toNumber()} lock={lock} />
-              ))}
+              <Scrollable>
+                {[
+                  {
+                    xsLockID: BigNumber.from(1),
+                    unboostedAmount: '433.123456789123456789',
+                    end: BigNumber.from(11111555444156),
+                    timeLeft: BigNumber.from(41235),
+                    boostedValue: '43355.000000000000000000',
+                    pendingRewards: '3.000000000000000000',
+                    apy: BigNumber.from(44),
+                  },
+                  {
+                    xsLockID: BigNumber.from(2),
+                    unboostedAmount: '111.000000000000000000',
+                    end: BigNumber.from(54711111554156),
+                    timeLeft: BigNumber.from(41635),
+                    boostedValue: '49355.123456789123456789',
+                    pendingRewards: '2.123456789123456789',
+                    apy: BigNumber.from(94),
+                  },
+                  {
+                    xsLockID: BigNumber.from(3),
+                    unboostedAmount: '111.000000000000000000',
+                    end: BigNumber.from(54711111554156),
+                    timeLeft: BigNumber.from(0),
+                    boostedValue: '49355.123456789123456789',
+                    pendingRewards: '2.123456789123456789',
+                    apy: BigNumber.from(94),
+                  },
+                ].map((lock) => (
+                  <Safe key={lock.xsLockID.toNumber()} lock={lock} />
+                ))}
+              </Scrollable>
             </>
           )}
           {/* only show the following if staking is v1 and the tab is not `difference` */}
