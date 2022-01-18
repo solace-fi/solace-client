@@ -10,7 +10,7 @@ import lockingBenefitsCalculator from '../utils/LockingBenefitsCalculator'
 import { InfoBoxType } from '../types/InfoBoxType'
 import InputSection from './InputSection'
 import TopSection from './TopSection'
-import { Version } from '../types/Version'
+import { StakingVersion } from '../types/Version'
 import { useWallet } from '../../../context/WalletManager'
 import { useSolaceBalance } from '../../../hooks/useBalance'
 import { useXSLocker } from '../../../hooks/useXSLocker'
@@ -61,7 +61,7 @@ export default function V2Form({
   version,
 }: {
   tab: Tab.DEPOSIT | Tab.WITHDRAW | Tab.LOCK
-  version: Version
+  version: StakingVersion
 }): JSX.Element {
   // range max during Staking is the unstaked amount
   // during Unstaking, it's the staked amount,
@@ -84,7 +84,7 @@ export default function V2Form({
 
   const setMax = useMemo(
     () =>
-      Version.difference === version
+      StakingVersion.difference === version
         ? () => undefined
         : ({
             [Tab.DEPOSIT]: () => (setRangeValue('100'), setInputValue(solaceBalance)),

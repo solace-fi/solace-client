@@ -1,7 +1,7 @@
 import { Dispatch, SetStateAction } from 'react'
 import styled, { css } from 'styled-components'
 import { GeneralElementProps } from '../../../components/generalInterfaces'
-import { Version } from '../types/Version'
+import { StakingVersion } from '../types/Version'
 import React from 'react'
 
 const DifferenceText = function DifferenceText({
@@ -108,8 +108,8 @@ export default function DifferenceNotification({
   version,
   setVersion,
 }: {
-  version: Version
-  setVersion: Dispatch<SetStateAction<Version>>
+  version: StakingVersion
+  setVersion: Dispatch<SetStateAction<StakingVersion>>
 }): JSX.Element {
   return (
     <Notification>
@@ -128,19 +128,19 @@ export default function DifferenceNotification({
       >
         <div style={{ display: 'flex' }}>
           {/* div with 2 buttons horizontally saying Staking V1 and Staking V2, one border white, red bg, white text, the other white bg, red text, both semibold */}
-          <NotificationButton active={version === Version.v1} onClick={() => setVersion(Version.v1)}>
+          <NotificationButton active={version === StakingVersion.v1} onClick={() => setVersion(StakingVersion.v1)}>
             Staking V1
           </NotificationButton>
           <NotificationButton
             onClick={() => {
-              setVersion(Version.v2)
+              setVersion(StakingVersion.v2)
             }}
-            active={version === Version.v2}
+            active={version === StakingVersion.v2}
           >
             Staking V2
           </NotificationButton>
         </div>
-        <DifferenceText onClick={() => setVersion(Version.difference)}>What is the difference?</DifferenceText>
+        <DifferenceText onClick={() => setVersion(StakingVersion.difference)}>What is the difference?</DifferenceText>
       </div>
     </Notification>
   )

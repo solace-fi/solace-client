@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useMemo, useState } from 'react'
 
 import { Button } from '../../../../components/atoms/Button'
 import Flex from '../../atoms/Flex'
@@ -12,31 +12,31 @@ import LockForm from './LockForm'
 import RewardsForm from './RewardsForm'
 import WithdrawForm from './WithdrawForm'
 import { Tab } from '../../types/Tab'
+import { Accordion } from '../../../../components/atoms/Accordion'
+import { LockData } from '../../../../constants/types'
+import { getTimeFromMillis } from '../../../../utils/time'
+import { truncateBalance } from '../../../../utils/formatting'
 
-export default function Safe({
-  stakingAmount,
-  safeStatus,
-  timeLeft,
-  multiplier,
-  apy,
-  rewards,
-  key,
-}: {
-  stakingAmount: number
-  safeStatus: string
-  timeLeft: number
-  multiplier: number
-  apy: number
-  rewards: number
-  key: string
-}): JSX.Element {
+export default function Safe({ lock }: { lock: LockData }): JSX.Element {
   const [isOpen, setIsOpen] = useState(false)
   const openSafe = () => setIsOpen(true)
   const closeSafe = () => setIsOpen(false)
 
+  const multiplier = useMemo(
+    () => (parseFloat(lock.unboostedAmount) > 0 ? parseFloat(lock.boostedValue) / parseFloat(lock.unboostedAmount) : 0),
+    [lock.boostedValue, lock.unboostedAmount]
+  )
+  const stringifiedMultiplier = useMemo(() => truncateBalance(multiplier, 1), [multiplier])
+  const lockTimeLeft = useMemo(() => getTimeFromMillis(lock.timeLeft.toNumber() * 1000), [lock.timeLeft])
+  const safeStatus = useMemo(() => {
+    if (lock.timeLeft.toNumber() > 0) return 'Locked'
+    if (parseFloat(lock.unboostedAmount) > 0) return 'Staked'
+    return 'Empty'
+  }, [lock.timeLeft, lock.unboostedAmount])
+
   const [activeTab, setActiveTab] = useState(Tab.DEPOSIT)
   return (
-    <ShadowDiv style={{ marginBottom: '20px' }} key={key}>
+    <ShadowDiv style={{ marginBottom: '20px' }}>
       <RaisedBox>
         {/******************************************************
 				                      TOP SECTION
@@ -45,24 +45,24 @@ export default function Safe({
           <Flex stretch gap={90}>
             <InfoPair importance="tertiary" label="Amount">
               <CardSectionValue highlight={true} annotation="SOLACE">
-                {stakingAmount}
+                {truncateBalance(lock.unboostedAmount, 4)}
               </CardSectionValue>
             </InfoPair>
             <InfoPair importance="tertiary" label="Status">
               <CardSectionValue>{safeStatus}</CardSectionValue>
             </InfoPair>
             <InfoPair importance="tertiary" label="Lock time left">
-              <CardSectionValue annotation="DAYS">{timeLeft}</CardSectionValue>
+              <CardSectionValue>{lockTimeLeft}</CardSectionValue>
             </InfoPair>
             <InfoPair importance="tertiary" label="Multiplier">
-              <CardSectionValue highlight={multiplier > 1}>{multiplier}x</CardSectionValue>
+              <CardSectionValue highlight={multiplier > 1}>{stringifiedMultiplier}x</CardSectionValue>
             </InfoPair>
             <InfoPair importance="tertiary" label="APY">
-              <CardSectionValue highlight={true}>{apy}%</CardSectionValue>
+              <CardSectionValue highlight={true}>{lock.apy.toNumber()}%</CardSectionValue>
             </InfoPair>
             <InfoPair importance="tertiary" label="Rewards">
-              <CardSectionValue highlight={rewards > 0} annotation="SOLACE">
-                {rewards}
+              <CardSectionValue highlight={parseFloat(lock.pendingRewards) > 0} annotation="SOLACE">
+                {truncateBalance(lock.pendingRewards, 4)}
               </CardSectionValue>
             </InfoPair>
           </Flex>
@@ -84,7 +84,7 @@ export default function Safe({
         {/******************************************************
 				                        SAFE BODY
 				******************************************************/}
-        {isOpen && (
+        <Accordion isOpen={isOpen} style={{ backgroundColor: 'inherit' }}>
           <Flex column gap={30} p={24} stretch>
             <Flex between stretch>
               {/* 4 tab switchers, just normal text with underline offset 8px: deposit, extend lock/lock, withdraw, rewards */}
@@ -101,7 +101,7 @@ export default function Safe({
                   clickable
                   onClick={() => setActiveTab(Tab.LOCK)}
                 >
-                  {timeLeft > 0 ? 'Extend Lock' : 'Lock'}
+                  {lock.timeLeft.toNumber() > 0 ? 'Extend Lock' : 'Lock'}
                 </Label>
                 <Label
                   importance={activeTab === Tab.WITHDRAW ? 'primary' : 'secondary'}
@@ -125,7 +125,7 @@ export default function Safe({
             {activeTab === Tab.WITHDRAW && <WithdrawForm />}
             {activeTab === Tab.REWARDS && <RewardsForm />}
           </Flex>
-        )}
+        </Accordion>
       </RaisedBox>
     </ShadowDiv>
   )
