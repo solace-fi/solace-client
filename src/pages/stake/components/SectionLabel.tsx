@@ -1,5 +1,4 @@
 import React from 'react'
-import { css } from 'styled-components'
 import BaseDiv from '../atoms/BaseDiv'
 
 // const Css = css
@@ -28,9 +27,15 @@ const SectionLabel = ({
   // ${({ css }) => css ?? ''}
   // `
   return (
-    <BaseDiv css={'font-semibold text-xs mb-2' + ' ' + css} {...props}>
+    <div
+      style={{
+        fontWeight: 600,
+      }}
+      className="font-semibold text-xs mb-2"
+      {...props}
+    >
       {children}
-    </BaseDiv>
+    </div>
   )
 }
 

@@ -1,5 +1,6 @@
 export enum Tab {
-  staking,
-  unstaking,
-  locking,
+  DEPOSIT,
+  LOCK,
+  WITHDRAW,
+  REWARDS,
 }

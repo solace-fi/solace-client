@@ -1,6 +1,5 @@
 import { Tab } from '../types/Tab'
-import React, { useState, useEffect, useMemo, Dispatch, SetStateAction } from 'react'
-import CardRange from '../components/CardRange'
+import React, { useState, useEffect, useMemo } from 'react'
 import GenericInformationBox from '../components/GenericInformationBox'
 import GrayBox from '../components/GrayBox'
 import InformationBox from '../components/InformationBox'
@@ -11,12 +10,10 @@ import lockingBenefitsCalculator from '../utils/LockingBenefitsCalculator'
 import { InfoBoxType } from '../types/InfoBoxType'
 import InputSection from './InputSection'
 import TopSection from './TopSection'
-import styled from 'styled-components'
-import { StyledSlider } from '../../../components/atoms/Input'
 import { Version } from '../types/Version'
+import { useWallet } from '../../../context/WalletManager'
 import { useSolaceBalance } from '../../../hooks/useBalance'
 import { useXSLocker } from '../../../hooks/useXSLocker'
-import { useWallet } from '../../../context/WalletManager'
 
 function TwFlexCol({
   children,
@@ -63,13 +60,13 @@ export default function V2Form({
   tab,
   version,
 }: {
-  tab: Tab.staking | Tab.unstaking | Tab.locking
+  tab: Tab.DEPOSIT | Tab.WITHDRAW | Tab.LOCK
   version: Version
 }): JSX.Element {
   // range max during Staking is the unstaked amount
   // during Unstaking, it's the staked amount,
   // during Locking, it's 1461 (days in 4 years)
-  // const rangeMax = tab === Tab.staking ? unstakedAmount : tab === Tab.locking ? 1461 : stakedAmount;
+  // const rangeMax = tab === Tab.DEPOSIT ? unstakedAmount : tab === Tab.LOCK ? 1461 : stakedAmount;
   const [lockedDays, setLockedDays] = useState(157)
   const { apy, multiplier } = useMemo(() => lockingBenefitsCalculator(lockedDays), [lockedDays])
   const maxDaysLocked = 1461
@@ -85,33 +82,14 @@ export default function V2Form({
   const [inputValue, setInputValue] = useState<string>('0')
   const [rangeValue, setRangeValue] = useState<string>('0')
 
-  // inputValue and rangeValue for staking, unstaking and locking
-  // const [stakingInputValue, setStakingInputValue] = useState('')
-  // const [stakingRangeValue, setStakingRangeValue] = useState('')
-  // const [unstakingInputValue, setUnstakingInputValue] = useState('')
-  // const [unstakingRangeValue, setUnstakingRangeValue] = useState('')
-  // const [lockingInputValue, setLockingInputValue] = useState('')
-  // const [lockingRangeValue, setLockingRangeValue] = useState('')
-
-  // simplification utilities
-  // prettier-ignore
-  // const [inputValue, setInputValue, rangeValue, setRangeValue] = useMemo(() => version === Version.difference ? [undefined, () => {""}, undefined, () => {""}] : ({
-  //   [Tab.staking]: [stakingInputValue, setStakingInputValue, stakingRangeValue, setStakingRangeValue],
-  //   [Tab.unstaking]: [unstakingInputValue, setUnstakingInputValue, unstakingRangeValue, setUnstakingRangeValue],
-  //   [Tab.locking]: [lockingInputValue, setLockingInputValue, lockingRangeValue, setLockingRangeValue],
-  // }[tab] as [string, Dispatch<SetStateAction<string>>, string, Dispatch<SetStateAction<string>>]),
-
-  // [tab, stakingInputValue, stakingRangeValue, unstakingInputValue, unstakingRangeValue, lockingInputValue, lockingRangeValue, version]);
-
-  // prettier - ignore
   const setMax = useMemo(
     () =>
       Version.difference === version
         ? () => undefined
         : ({
-            [Tab.staking]: () => (setRangeValue('100'), setInputValue(solaceBalance)),
-            [Tab.unstaking]: () => (setRangeValue('100'), setInputValue(unlockedSolaceBalance)),
-            [Tab.locking]: () => (setRangeValue('100'), setInputValue(maxDaysLocked.toString())),
+            [Tab.DEPOSIT]: () => (setRangeValue('100'), setInputValue(solaceBalance)),
+            [Tab.WITHDRAW]: () => (setRangeValue('100'), setInputValue(unlockedSolaceBalance)),
+            [Tab.LOCK]: () => (setRangeValue('100'), setInputValue(maxDaysLocked.toString())),
           }[tab] as () => void),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [tab, unlockedSolaceBalance, solaceBalance, maxDaysLocked, setInputValue, setRangeValue]
@@ -131,35 +109,11 @@ export default function V2Form({
   const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     alert('clickity click')
-    // if (inputRef.current && inputRef.current.value) {
-    //   alert(`Submitting ${inputRef.current.value}`);
-    // }
   }
 
   const inputOnChange = (input: string) => {
-    // 1. validate input (blocked till main project integration)
-    // 2. update input value state
     setInputValue(input)
-    // 3. update range value state (as percentage string between 0 and 100)
     setRangeValue(input)
-    // {
-    //   [Tab.staking]: String((Number(input) * 100) / parseFloat(solaceBalance)),
-    //   [Tab.unstaking]: String((Number(input) * 100) / parseFloat(unlockedSolaceBalance)),
-    //   [Tab.locking]: String((Number(input) * 100) / maxDaysLocked),
-    // }[tab]
-  }
-
-  const rangeOnChange = (input: string) => {
-    // 1. validate input (blocked till main project integration)
-    // 2. update input value state (as percentage string between 0 and 100)
-    // 3. update range value state
-    setRangeValue(input)
-    setInputValue(input)
-    // {
-    //   [Tab.staking]: String((Number(input) * parseFloat(solaceBalance)) / 100),
-    //   [Tab.unstaking]: String((Number(input) * parseFloat(unlockedSolaceBalance)) / 100),
-    //   [Tab.locking]: String((Number(input) * maxDaysLocked) / 100),
-    // }[tab]
   }
 
   return (
@@ -184,7 +138,7 @@ export default function V2Form({
         <Twiv css="flex flex-col lg:flex-row space-x-0 space-y-8 lg:space-y-0 lg:space-x-5">
           {/* input/slider container */}
           <TwFlexCol>
-            {tab === Tab.locking && lockedDays > 0 && (
+            {tab === Tab.LOCK && lockedDays > 0 && (
               <>
                 <SectionLabel>Current lock time duration</SectionLabel>
                 <GrayBox>
@@ -196,9 +150,9 @@ export default function V2Form({
             <SectionLabel>
               {
                 {
-                  [Tab.staking]: 'Staking amount',
-                  [Tab.unstaking]: 'Unstaking amount',
-                  [Tab.locking]: lockedDays > 0 ? 'Extend lock time duration' : 'Lock time duration',
+                  [Tab.DEPOSIT]: 'Staking amount',
+                  [Tab.WITHDRAW]: 'Unstaking amount',
+                  [Tab.LOCK]: lockedDays > 0 ? 'Extend lock time duration' : 'Lock time duration',
                 }[tab]
               }
             </SectionLabel>
@@ -208,17 +162,12 @@ export default function V2Form({
               onChange={(e) => inputOnChange(e.target.value)}
               setMax={setMax}
             />
-            {/* slider */}
-            <TwFlexCol css={`mt-5 mb-10`}>
-              {/* <CardRange value={rangeValue} onChange={rangeOnChange} min="0" max="100" /> */}
-              <StyledSlider value={rangeValue} onChange={(e) => rangeOnChange(e.target.value)} min={0} max={100} />
-              <CardRange value={rangeValue} onChange={(e) => rangeOnChange(e.target.value)} min="0" max="100" />
-            </TwFlexCol>
+            {/* <TwFlexCol css={`mt-5 mb-10`}></TwFlexCol> */}
             <SubmitButton
               text={
-                tab === Tab.staking
+                tab === Tab.DEPOSIT
                   ? 'Stake'
-                  : tab === Tab.unstaking
+                  : tab === Tab.WITHDRAW
                   ? 'Unstake'
                   : lockedDays > 0
                   ? 'Extend lock time'
@@ -228,7 +177,7 @@ export default function V2Form({
           </TwFlexCol>
           {/* warning */}
           <div>
-            {tab === Tab.locking && (
+            {tab === Tab.LOCK && (
               <React.Fragment>
                 {lockedDays > 0 && (
                   <React.Fragment>
@@ -238,8 +187,8 @@ export default function V2Form({
                         {
                           title: 'Current APY',
                           body: (
-                            <Twiv css={`flex space-x-2 mt-2 font-semibold`}>
-                              <Twiv css={`text-[#5E5E5E] line-through`}>{2000}%</Twiv>
+                            <Twiv css={'flex space-x-2 mt-2 font-semibold'}>
+                              <Twiv css={'text-[#5E5E5E] line-through'}>{2000}%</Twiv>
                               <div>{apy.toFixed(0)}%</div>
                             </Twiv>
                           ),
@@ -258,8 +207,8 @@ export default function V2Form({
                     {
                       title: 'Better APY',
                       body: (
-                        <Twiv css={`flex space-x-2 mt-2 font-semibold`}>
-                          <Twiv css={`text-[#5E5E5E] line-through`}>{apy.toFixed(0)}%</Twiv>
+                        <Twiv css={'flex space-x-2 mt-2 font-semibold'}>
+                          <Twiv css={'text-[#5E5E5E] line-through'}>{apy.toFixed(0)}%</Twiv>
                           <div>{lockingBenefitsCalculator(Number(inputValue ?? 0) + lockedDays).apy.toFixed(0)}%</div>
                         </Twiv>
                       ),
@@ -274,7 +223,7 @@ export default function V2Form({
               </React.Fragment>
             )}
             <InformationBox
-              type={Tab.staking === tab ? InfoBoxType.warning : InfoBoxType.info}
+              type={Tab.DEPOSIT === tab ? InfoBoxType.warning : InfoBoxType.info}
               text="Some important notes about staking for users to see before
             staking any amount of their tokens."
             />

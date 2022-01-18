@@ -1,50 +1,64 @@
 import React from 'react'
-import styled from 'styled-components'
-import { InfoCircle } from 'styled-icons/bootstrap'
+import styled, { css } from 'styled-components'
+import { GeneralElementProps } from '../../../components/generalInterfaces'
 import { InfoBoxType } from '../types/InfoBoxType'
 import Twiv from './Twiv'
+import { StyledInfoCircle } from '../../../components/atoms/Icon'
 
-// const StyledInfoCircle = styled(InfoCircle)<{ css: string }>`
-//   ${(css) => css}/* color: red; */
-// `
+// border-[#5F5DF9] bg-[#F7F7FF] text-[#5F5DF9]
+const infoCss = css`
+  border-color: #5f5df9;
+  color: #5f5df9;
+  background-color: #f7f7ff;
+`
 
-function StyledInfoCircle({ css }: { css: string[] }): JSX.Element {
-  const Styled = styled(InfoCircle)`
-    /* ${css} */
-  `
-  return <Styled className={css.join(' ')} />
+// border-[#F04D42] text-[#F04D42] bg-[#FEF6F5]
+const errorCss = css`
+  border-color: #f04d42;
+  color: #f04d42;
+  background-color: #fef6f5;
+`
+
+const StyledInfoBox = styled.div<{ type: InfoBoxType }>`
+  display: flex;
+  border: 1px solid;
+  margin-top: 8px;
+  ${(props) => (props.type === InfoBoxType.info ? infoCss : props.type === InfoBoxType.error ? errorCss : '')}
+`
+
+const switchStyles = (type: InfoBoxType) => {
+  switch (type) {
+    case InfoBoxType.info:
+      return css`
+        color: ${(props) => props.theme.infoText};
+      `
+    case InfoBoxType.error:
+      return css`
+        color: ${(props) => props.theme.errorText};
+      `
+    default:
+      return ''
+  }
 }
+
+const CircleWrapper = styled.div<{ type: InfoBoxType }>`
+  ${({ type }) => switchStyles(type)}
+`
+
+const StyledStyledInfoCircle = styled(StyledInfoCircle)`
+  height: 20px;
+  width: 20px;
+  padding: 26px;
+`
 
 export default function InformationBox({ type, text }: { type: InfoBoxType; text: string }): JSX.Element {
   return (
-    <Twiv
-      css={[
-        `flex border`,
-        {
-          [InfoBoxType.info]: `border-[#5F5DF9] bg-[#F7F7FF] text-[#5F5DF9]`,
-          [InfoBoxType.warning]: `border-[#F04D42] text-[#F04D42] bg-[#FEF6F5]`,
-          [InfoBoxType.error]: `border-[#F04D42] text-[#F04D42] bg-[#FEF6F5]`,
-        }[type],
-        `rounded-xl items-center h-20 pr-7 text-xs font-medium`,
-      ]}
-    >
-      {/* left icon */}
-      <Twiv css={`flex rounded-l-xl h-full pt-5 pl-6 pr-6`}>
-        <Twiv>
-          <StyledInfoCircle
-            css={[
-              `h-5 w-5`,
-              {
-                [InfoBoxType.info]: `text-[#5F5DF9]`,
-                [InfoBoxType.warning]: `text-[#F04D42]`,
-                [InfoBoxType.error]: `text-[#F04D42]`,
-              }[type],
-            ]}
-          />
-        </Twiv>
-      </Twiv>
+    <StyledInfoBox type={type} className="flex border rounded-xl items-center h-20 pr-7 text-xs font-medium">
+      <CircleWrapper type={type}>
+        <StyledStyledInfoCircle />
+      </CircleWrapper>
       {/* right text */}
-      <Twiv css={`leading-5`}>{text}</Twiv>
-    </Twiv>
+      <Twiv css="leading-5">{text}</Twiv>
+    </StyledInfoBox>
   )
 }

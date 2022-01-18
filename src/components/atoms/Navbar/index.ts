@@ -56,7 +56,7 @@ export const ItemText = styled.li<GeneralTextProps>`
   align-items: center;
   padding: 4px 0;
   list-style: none;
-  height: 30px;
+  height: 35px;
   ${GeneralTextCss}
 `
 

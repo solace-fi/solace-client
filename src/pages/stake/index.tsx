@@ -40,24 +40,23 @@ import { WalletConnectButton } from '../../components/molecules/WalletConnectBut
 import { StyledRefresh } from '../../components/atoms/Icon'
 
 /* import hooks */
-import { useSolaceBalance, useXSolaceBalance, useXSolaceV1Balance } from '../../hooks/useBalance'
+import { useSolaceBalance, useXSolaceV1Balance } from '../../hooks/useBalance'
 import { useXSolaceV1, useXSolaceV1Details } from '../../hooks/useXSolaceV1'
 import { useInputAmount } from '../../hooks/useInputAmount'
 import { useReadToken } from '../../hooks/useToken'
 
 /* import utils */
-import { formatAmount, getUnit, truncateBalance } from '../../utils/formatting'
+import { formatAmount, truncateBalance } from '../../utils/formatting'
 import { Tab } from './types/Tab'
 
 import Twiv from './components/Twiv'
-import Switchers from './sections/Switchers'
-import V2Form from './sections/V2Form'
 import { Version } from './types/Version'
-import styled, { css } from 'styled-components'
 import Twan from './components/Twan'
-import './tailwind.min.css'
-import { useXSLocker } from '../../hooks/useXSLocker'
-import { GeneralElementProps } from '../../components/generalInterfaces'
+import '../../resources/tailwind.min.css'
+import DifferenceNotification from './organisms/DifferenceNotification'
+import Flex from './atoms/Flex'
+import Safe from './sections/Safe/index'
+import AggregatedStakeData from './sections/AggregatedStakeData'
 
 // disable no unused variables
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -306,136 +305,15 @@ function Stake1(): any {
   )
 }
 
-// export default Stake
-
-/* MY STUFFERINO
-
-import React from 'react'
-import { Dispatch, SetStateAction, useMemo, useState } from 'react'
-
-import Twiv from './components/Twiv'
-import { Tab } from './types/Tab'
-import { Version } from './types/Version'
-import Switchers from './sections/Switchers'
-import V2Form from './sections/V2Form'
 /*
  Components
  */
-
-// Upper banner
-// div with the following classes: text-sm font-bold underline mt-3 text-underline-offset[4px] text-decoration-thickness[2px] self-center cursor-pointer select-none hover:opacity-80 duration-200
-const DifferenceText = function DifferenceText({
-  children,
-  onClick,
-}: {
-  onClick: () => void
-  children: React.ReactNode
-}) {
-  // text-sm font-bold underline mt-3 text-underline-offset[4px] text-decoration-thickness[2px] self-center cursor-pointer select-none hover:opacity-80 duration-200
-  const StyledText = styled.div`
-    font-size: 0.875rem;
-    line-height: 1.25rem;
-    margin-top: 0.75rem;
-    font-weight: 700;
-    text-decoration: underline;
-    text-decoration-thickness: 2px;
-    text-underline-offset: 4px;
-    align-self: center;
-    cursor: pointer;
-    user-select: none;
-    transition: opacity 0.2s ease-in-out;
-    &:hover {
-      opacity: 0.8;
-    }
-  `
-  return (
-    <StyledText
-      onClick={onClick}
-      // className="text-sm font-bold underline mt-3 text-underline-offset[4px] text-decoration-thickness[2px] self-center cursor-pointer select-none hover:opacity-80 duration-200"
-    >
-      {children}
-    </StyledText>
-  )
-}
-// const Notification = tw.div`bg-[#F04D42] text-[#fafafa] rounded-[10px] p-6 text-sm font-medium flex items-center`
-const Notification = styled.div<GeneralElementProps>`
-  background-color: #f04d42;
-  color: #fafafa;
-  padding: 1.5rem;
-  font-size: 0.875rem;
-  line-height: 1.25rem;
-  border-radius: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-`
-// const Notification = function Notification({ children }: { children: React.ReactNode }) {
-//   return (
-//     <Twiv css="bg-[#F04D42] text-[#fafafa] rounded-[10px] p-6 text-sm font-medium flex items-center">{children}</Twiv>
-//   )
-// }
-
-// const baseButton = `rounded-lg text-sm font-semibold flex items-center justify-center select-none border-solid border-[1px] border-white duration-200`
-// const whiteButton = `bg-white text-[#F04D42]`
-// const redButton = `bg-[#F04D42] text-[#fafafa] hover:bg-white hover:text-[#F04D42] cursor-pointer`
-const baseButtonStyle = css`
-  border-radius: 0.5rem;
-  font-size: 0.875rem;
-  line-height: 1.25rem;
-  font-weight: 600;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  user-select: none;
-  border: 1px solid;
-  border-color: white;
-`
-const redButtonStyle = css`
-  background-color: #f04d42;
-  color: #fafafa;
-  transition: all 0.2s ease-in-out;
-  cursor: pointer;
-  &:hover {
-    background-color: white;
-    color: #f04d42;
-  }
-`
-const whiteButtonStyle = css`
-  background-color: white;
-  color: #f04d42;
-`
-
-const NotificationButton = styled.div<{ active?: boolean }>`
-  ${baseButtonStyle}
-  ${({ active }) => (active ? whiteButtonStyle : redButtonStyle)}
-  &:not(:first-child) {
-    margin-left: 10px;
-  }
-  height: 34px;
-  width: 117px;
-  border-radius: 10px;
-  font-size: 14px;
-`
-
-const Typography = {
-  Notice: styled.p`
-    margin-top: 0;
-    margin-bottom: 0;
-    margin-right: 60px;
-    font-size: 0.875rem /* 14px */;
-    line-height: 22.4px;
-    font-weight: 500;
-  `,
-  Emphasis: styled.span`
-    font-weight: 700;
-  `,
-} as const
 
 export default function Stake(): JSX.Element {
   // account usewallet
   const { account } = useWallet()
   const [version, setVersion] = useState<Version>(Version.v2 as Version)
-  const [tab, setTab] = useState(Tab.staking)
+  const [tab, setTab] = useState(Tab.DEPOSIT)
   // const inputRef = useRef<HTMLInputElement>(null);
 
   // user current staked and unstaked amounts, and locking time
@@ -451,48 +329,54 @@ export default function Stake(): JSX.Element {
         </HeroContainer>
       ) : (
         <Content>
-          <Notification>
-            <Typography.Notice>
-              We have updated our staking mechanism to a new version{' '}
-              <Typography.Emphasis>STAKING V2</Typography.Emphasis> which is a part of our{' '}
-              <Typography.Emphasis>Governance system</Typography.Emphasis>. New staking is available only in new{' '}
-              <Typography.Emphasis>STAKING V2</Typography.Emphasis>. In{' '}
-              <Typography.Emphasis>STAKING V1</Typography.Emphasis> you can unstake your funds or migrate funds to new{' '}
-              <Typography.Emphasis>STAKING V2</Typography.Emphasis>.
-            </Typography.Notice>
-            <div
-              style={{
-                display: 'flex',
-                flexDirection: 'column',
-              }}
-            >
-              <div style={{ display: 'flex' }}>
-                {/* div with 2 buttons horizontally saying Staking V1 and Staking V2, one border white, red bg, white text, the other white bg, red text, both semibold */}
-                <NotificationButton active={version === Version.v1} onClick={() => setVersion(Version.v1)}>
-                  Staking V1
-                </NotificationButton>
-                <NotificationButton
-                  onClick={() => {
-                    setVersion(Version.v2)
-                  }}
-                  active={version === Version.v2}
-                >
-                  Staking V2
-                </NotificationButton>
-              </div>
-              <DifferenceText onClick={() => setVersion(Version.difference)}>What is the difference?</DifferenceText>
-            </div>
-          </Notification>
-          {/* only show the following if staking is v2 and the tab is not `difference` */}
-          {version === Version.v2 && (
-            <Twiv css={'font-sans text-[#5E5E5E]'}>
-              <Twiv css={'bg-[#fafafa] min-h-screen px-1 lg:px-10 py-10'}>
-                {/* select between v1 and v2 */}
-                <Switchers tab={tab} version={version} setTab={setTab} setVersion={setVersion} />
-                <V2Form tab={tab} version={version} />
-              </Twiv>
-            </Twiv>
-          )}
+          <DifferenceNotification version={version} setVersion={setVersion} />
+          <AggregatedStakeData />
+          <Flex between mb={20}>
+            <Button secondary info noborder pl={23} pr={23}>
+              New Stake
+            </Button>
+            <Button info pl={23} pr={23}>
+              Batch Actions
+            </Button>
+          </Flex>
+          {/* Safe props
+          
+  stakingAmount: number
+  safeStatus: string
+  timeLeft: number
+  multiplier: number
+  apy: number
+  rewards: number */}
+          {[
+            {
+              id: '1',
+              stakingAmount: 100,
+              safeStatus: 'Locked',
+              timeLeft: 157,
+              multiplier: 1.32,
+              apy: 2000 * 1.32,
+              rewards: 100,
+            },
+            {
+              id: '2',
+              stakingAmount: 250,
+              safeStatus: 'Staked',
+              timeLeft: 0,
+              multiplier: 1,
+              apy: 2000,
+              rewards: 0,
+            },
+          ].map(({ stakingAmount, safeStatus, timeLeft, multiplier, apy, rewards, id }) => (
+            <Safe
+              stakingAmount={stakingAmount}
+              safeStatus={safeStatus}
+              timeLeft={timeLeft}
+              multiplier={multiplier}
+              apy={apy}
+              rewards={rewards}
+              key={id}
+            />
+          ))}
           {/* only show the following if staking is v1 and the tab is not `difference` */}
           {version === Version.v1 && (
             <Twiv css={'text-xl font-bold text-[#5F5DF9] animate-bounce'}>

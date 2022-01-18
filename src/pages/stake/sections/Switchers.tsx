@@ -45,22 +45,22 @@ export default function Switchers({
         <Twiv css={`text-xl font-semibold select-none`}>
           <Twan css={`text-gray-600`}>Tab: </Twan>
           <Twan
-            css={[`text-gray-700 cursor-pointer underline`, tab === Tab.staking ? `text-blue-500` : `text-gray-500`]}
-            onClick={() => setTab(Tab.staking)}
+            css={[`text-gray-700 cursor-pointer underline`, tab === Tab.DEPOSIT ? `text-blue-500` : `text-gray-500`]}
+            onClick={() => setTab(Tab.DEPOSIT)}
           >
             Staking
           </Twan>{' '}
           <Twan css={`text-gray-600`}>/</Twan>{' '}
           <Twan
-            css={[`text-gray-700 cursor-pointer underline`, tab === Tab.unstaking ? `text-blue-500` : `text-gray-500`]}
-            onClick={() => setTab(Tab.unstaking)}
+            css={[`text-gray-700 cursor-pointer underline`, tab === Tab.WITHDRAW ? `text-blue-500` : `text-gray-500`]}
+            onClick={() => setTab(Tab.WITHDRAW)}
           >
             Unstaking
           </Twan>{' '}
           <Twan css={`text-gray-600`}>/</Twan>{' '}
           <Twan
-            css={[`text-gray-700 cursor-pointer underline`, tab === Tab.locking ? `text-blue-500` : `text-gray-500`]}
-            onClick={() => setTab(Tab.locking)}
+            css={[`text-gray-700 cursor-pointer underline`, tab === Tab.LOCK ? `text-blue-500` : `text-gray-500`]}
+            onClick={() => setTab(Tab.LOCK)}
           >
             Locking
           </Twan>
