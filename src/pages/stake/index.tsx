@@ -354,7 +354,7 @@ export default function Stake(): JSX.Element {
         </HeroContainer>
       ) : (
         <Content>
-          {parseFloat(xSolaceV1Balance) > 0 && (
+          {(parseFloat(xSolaceV1Balance) > 0 || stakingVersion === StakingVersion.v1) && (
             <DifferenceNotification version={stakingVersion} setVersion={setStakingVersion} />
           )}
           {StakingVersion.v2 === stakingVersion && (
