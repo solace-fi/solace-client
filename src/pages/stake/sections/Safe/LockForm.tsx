@@ -6,6 +6,13 @@ import InformationBox from '../../components/InformationBox'
 import { InfoBoxType } from '../../types/InfoBoxType'
 import { Tab } from '../../types/Tab'
 import InputSection from '../InputSection'
+import { LockData } from '../../../../constants/types'
+import { DAYS_PER_YEAR } from '../../../../constants'
+import { useXSLocker } from '../../../../hooks/useXSLocker'
+import { useInputAmount } from '../../../../hooks/useInputAmount'
+import { FunctionName } from '../../../../constants/enums'
+import { BigNumber } from 'ethers'
+import { useProvider } from '../../../../context/ProviderManager'
 
 const StyledForm = styled.form`
   display: flex;
@@ -20,31 +27,38 @@ const StyledForm = styled.form`
   width: 521px;
 `
 
-export default function LockForm(): JSX.Element {
-  // const solaceBalance = useSolaceBalance()
-  const solaceBalance = '123123'
+export default function LockForm({ lock }: { lock: LockData }): JSX.Element {
+  const { latestBlock } = useProvider()
+  const { extendLock } = useXSLocker()
+  const { handleToast, handleContractCallError, gasConfig } = useInputAmount()
+
   const [inputValue, setInputValue] = React.useState('0')
-  const [rangeValue, setRangeValue] = React.useState('0')
-  const lockingDays = 157
-  const setMax = () => (setRangeValue('100'), setInputValue(solaceBalance))
-  const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    alert('clickity click')
+
+  const callExtendLock = async () => {
+    if (!latestBlock) return
+    const seconds = parseInt(inputValue) * 86400
+    await extendLock(lock.xsLockID, BigNumber.from(seconds), gasConfig)
+      .then((res) => handleToast(res.tx, res.localTx))
+      .catch((err) => handleContractCallError('callExtendLock', err, FunctionName.INCREASE_LOCK_AMOUNT))
   }
 
-  const inputOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value
+  const inputOnChange = (value: string) => {
+    const filtered = value.replace(/[^0-9]*/g, '')
+    if (parseFloat(filtered) <= DAYS_PER_YEAR * 4 || filtered == '') {
+      setInputValue(filtered)
+    }
+  }
+  const rangeOnChange = (value: string) => {
     setInputValue(value)
-    setRangeValue(String((parseFloat(value) / parseFloat(solaceBalance)) * 100))
   }
-  const rangeOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value
-    console.log(value)
-    // rule of 3 formula: (inputValue / 100) * solaceBalance
-    const newInputValue = String((parseFloat(value) / 100) * parseFloat(solaceBalance))
-    setInputValue(newInputValue)
-    setRangeValue(value)
+
+  const setMax = () => setInputValue(`${DAYS_PER_YEAR * 4}`)
+
+  const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    callExtendLock()
   }
+
   return (
     <div
       style={{
@@ -60,19 +74,18 @@ export default function LockForm(): JSX.Element {
       <StyledForm onSubmit={onSubmit}>
         <InputSection
           tab={Tab.LOCK}
-          value={Number(inputValue) > 0 ? inputValue : undefined}
-          onChange={inputOnChange}
+          value={inputValue}
+          onChange={(e) => inputOnChange(e.target.value)}
           setMax={setMax}
         />
         <StyledSlider
-          value={Number(rangeValue) > 0 ? rangeValue : undefined}
-          onChange={rangeOnChange}
+          value={inputValue}
+          onChange={(e) => rangeOnChange(e.target.value)}
           min={0}
-          max={100}
+          max={DAYS_PER_YEAR * 4}
         />
-        {/* <CardRange value={rangeValue} onChange={rangeOnChange} min="0" max="100" /> */}
-        <Button secondary info noborder pl={20} pr={20}>
-          {lockingDays > 0 ? 'Extend locking time' : 'Lock'}
+        <Button secondary info noborder disabled={!inputValue || inputValue == '0'}>
+          Extend Lock
         </Button>
       </StyledForm>
     </div>

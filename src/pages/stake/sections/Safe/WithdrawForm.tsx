@@ -2,10 +2,16 @@ import React from 'react'
 import styled from 'styled-components'
 import { Button } from '../../../../components/atoms/Button'
 import { StyledSlider } from '../../../../components/atoms/Input'
-import InformationBox from '../../components/InformationBox'
-import { InfoBoxType } from '../../types/InfoBoxType'
 import { Tab } from '../../types/Tab'
 import InputSection from '../InputSection'
+import { LockData } from '../../../../constants/types'
+import { formatUnits, parseUnits } from '@ethersproject/units'
+import { accurateMultiply, convertSciNotaToPrecise, filterAmount, formatAmount } from '../../../../utils/formatting'
+import { BigNumber } from 'ethers'
+import { useInputAmount } from '../../../../hooks/useInputAmount'
+import { useXSLocker } from '../../../../hooks/useXSLocker'
+import { useWallet } from '../../../../context/WalletManager'
+import { FunctionName } from '../../../../constants/enums'
 
 const StyledForm = styled.form`
   display: flex;
@@ -20,31 +26,49 @@ const StyledForm = styled.form`
   width: 521px;
 `
 
-export default function WithdrawForm(): JSX.Element {
-  // const solaceBalance = useSolaceBalance()
-  const solaceBalance = '123123'
-  const lockTimeLeft = 157
+export default function WithdrawForm({ lock }: { lock: LockData }): JSX.Element {
+  const { handleToast, handleContractCallError, isAppropriateAmount, gasConfig } = useInputAmount()
+  const { withdrawFromLock } = useXSLocker()
+  const { account } = useWallet()
+
   const [inputValue, setInputValue] = React.useState('0')
   const [rangeValue, setRangeValue] = React.useState('0')
-  const setMax = () => (setRangeValue('100'), setInputValue(solaceBalance))
-  const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    alert('clickity click')
+
+  const callWithdrawFromLock = async () => {
+    if (!account) return
+    let type = FunctionName.WITHDRAW_IN_PART_FROM_LOCK
+    const isMax = parseUnits(inputValue, 18).eq(lock.unboostedAmount)
+    if (isMax) {
+      type = FunctionName.WITHDRAW_FROM_LOCK
+    }
+    await withdrawFromLock(account, [lock.xsLockID], gasConfig, isMax ? undefined : parseUnits(inputValue, 18))
+      .then((res) => handleToast(res.tx, res.localTx))
+      .catch((err) => handleContractCallError('callWithdrawFromLock', err, type))
   }
 
-  const inputOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value
-    setInputValue(value)
-    setRangeValue(String((parseFloat(value) / parseFloat(solaceBalance)) * 100))
+  const inputOnChange = (value: string) => {
+    const filtered = filterAmount(value, inputValue)
+    const formatted = formatAmount(filtered)
+    if (filtered.includes('.') && filtered.split('.')[1]?.length > 18) return
+
+    if (parseUnits(formatted, 18).gt(parseUnits(lock.unboostedAmount, 18))) return
+
+    setRangeValue(accurateMultiply(filtered, 18))
+    setInputValue(filtered)
   }
-  const rangeOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value
-    console.log(value)
-    // rule of 3 formula: (inputValue / 100) * solaceBalance
-    const newInputValue = String((parseFloat(value) / 100) * parseFloat(solaceBalance))
-    setInputValue(newInputValue)
-    setRangeValue(value)
+
+  const rangeOnChange = (value: string, convertFromSciNota = true) => {
+    setInputValue(formatUnits(BigNumber.from(`${convertFromSciNota ? convertSciNotaToPrecise(value) : value}`), 18))
+    setRangeValue(`${convertFromSciNota ? convertSciNotaToPrecise(value) : value}`)
   }
+
+  const setMax = () => rangeOnChange(parseUnits(lock.unboostedAmount, 18).toString())
+
+  const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    callWithdrawFromLock()
+  }
+
   return (
     <div
       style={{
@@ -60,20 +84,22 @@ export default function WithdrawForm(): JSX.Element {
       <StyledForm onSubmit={onSubmit}>
         <InputSection
           tab={Tab.WITHDRAW}
-          value={Number(inputValue) > 0 ? inputValue : undefined}
-          onChange={inputOnChange}
+          value={inputValue}
+          onChange={(e) => inputOnChange(e.target.value)}
           setMax={setMax}
-          disabled={true}
         />
         <StyledSlider
-          value={Number(rangeValue) > 0 ? rangeValue : undefined}
-          onChange={rangeOnChange}
-          min={0}
-          max={100}
-          disabled={lockTimeLeft > 0}
+          value={rangeValue}
+          onChange={(e) => rangeOnChange(e.target.value)}
+          min={1}
+          max={parseUnits(lock.unboostedAmount, 18).toString()}
         />
-        {/* <CardRange value={rangeValue} onChange={rangeOnChange} min="0" max="100" /> */}
-        <Button secondary info noborder>
+        <Button
+          secondary
+          info
+          noborder
+          disabled={!isAppropriateAmount(inputValue, 18, parseUnits(lock.unboostedAmount, 18))}
+        >
           Withdraw
         </Button>
       </StyledForm>

@@ -23,6 +23,27 @@ export const truncateBalance = (value: number | string, decimals = 6, abbrev = t
   let str = value.toString()
 
   // if string is in scientific notation, for example (1.2345e3, or 1.2345e-5)
+  str = convertSciNotaToPrecise(str)
+  const decimalIndex = str.indexOf('.')
+
+  // if is nonzero whole number
+  if (decimalIndex == -1) {
+    if (abbrev) return numberAbbreviate(str)
+    return str
+  }
+
+  // if is nonzero number with decimals
+  const cutoffIndex = decimalIndex + decimals
+  const truncatedStr = str.substring(0, cutoffIndex + 1)
+  if (parseFloat(truncatedStr) == 0) {
+    return `< ${truncatedStr.slice(0, -1) + '1'}`
+  }
+  if (abbrev) return numberAbbreviate(truncatedStr)
+  return truncatedStr
+}
+
+export const convertSciNotaToPrecise = (str: string): string => {
+  // if string is in scientific notation, for example (1.2345e3, or 1.2345e-5)
   if (str.includes('e')) {
     // get number left of 'e'
     const n = str.split('e')[0]
@@ -53,22 +74,7 @@ export const truncateBalance = (value: number | string, decimals = 6, abbrev = t
       }
     }
   }
-  const decimalIndex = str.indexOf('.')
-
-  // if is nonzero whole number
-  if (decimalIndex == -1) {
-    if (abbrev) return numberAbbreviate(str)
-    return str
-  }
-
-  // if is nonzero number with decimals
-  const cutoffIndex = decimalIndex + decimals
-  const truncatedStr = str.substring(0, cutoffIndex + 1)
-  if (parseFloat(truncatedStr) == 0) {
-    return `< ${truncatedStr.slice(0, -1) + '1'}`
-  }
-  if (abbrev) return numberAbbreviate(truncatedStr)
-  return truncatedStr
+  return str
 }
 
 export const numberAbbreviate = (value: number | string, decimals = 2): string => {
