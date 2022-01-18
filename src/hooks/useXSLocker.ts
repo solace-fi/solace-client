@@ -5,13 +5,14 @@ import { useNetwork } from '../context/NetworkManager'
 import { useReadToken } from './useToken'
 import { formatUnits } from '@ethersproject/units'
 import { BigNumber } from 'ethers'
-import { GasConfiguration, LocalTx } from '../constants/types'
+import { GasConfiguration, LocalTx, LockData, UserLocksData, UserLocksInfo } from '../constants/types'
 import { getPermitErc20Signature } from '../utils/signature'
 import { DEADLINE, ZERO } from '../constants'
 import { FunctionName, TransactionCondition } from '../constants/enums'
 import { useProvider } from '../context/ProviderManager'
 import { rangeFrom0 } from '../utils/numeric'
 import { FunctionGasLimits } from '../constants/mappings/gasMapping'
+import { queryDecimals } from '../utils/contract'
 
 export const useXSLocker = () => {
   const { keyContracts } = useContracts()
@@ -194,4 +195,89 @@ export const useXSLocker = () => {
     getTimeLeft,
     getUserLockerBalances,
   }
+}
+
+export const useUserLockData = () => {
+  const { latestBlock } = useProvider()
+  const { keyContracts } = useContracts()
+  const { xsLocker, stakingRewards, solace } = useMemo(() => keyContracts, [keyContracts])
+
+  const getUserLocks = async (user: string): Promise<UserLocksData> => {
+    if (!latestBlock || !stakingRewards || !xsLocker || !solace)
+      return {
+        user: {
+          pendingRewards: '0',
+          stakedBalance: '0',
+          lockedBalance: '0',
+          unlockedBalance: '0',
+          yearlyReturns: '0',
+          apy: ZERO,
+        },
+        locks: [],
+      }
+    const timestamp = latestBlock.timestamp
+    let stakedBalance = ZERO // staked = locked + unlocked
+    let lockedBalance = ZERO // measured in SOLACE
+    let unlockedBalance = ZERO
+    let pendingRewards = ZERO
+    let userValue = ZERO // measured in SOLACE * rewards multiplier
+    const [rewardPerSecond, valueStaked, numLocks] = await Promise.all([
+      stakingRewards.rewardPerSecond(), // across all locks
+      stakingRewards.valueStaked(), // across all locks from all users
+      xsLocker.balanceOf(user),
+    ])
+    const indices = rangeFrom0(numLocks)
+    const xsLockIDs = await Promise.all(
+      indices.map(async (index) => {
+        return await xsLocker.tokenOfOwnerByIndex(user, index)
+      })
+    )
+    const locks: LockData[] = await Promise.all(
+      xsLockIDs.map(async (xsLockID) => {
+        const rewards: BigNumber = await stakingRewards.pendingRewardsOfLock(xsLockID)
+        const lock = await xsLocker.locks(xsLockID)
+        const timeLeft: BigNumber = lock.end.gt(timestamp) ? lock.end.sub(timestamp) : ZERO
+        const stakedLock = await stakingRewards.stakedLockInfo(xsLockID)
+        const yearlyReturns: BigNumber = valueStaked.gt(ZERO)
+          ? rewardPerSecond.mul(BigNumber.from(31536000)).mul(stakedLock.value).div(valueStaked)
+          : ZERO
+        const apy: BigNumber = lock.amount.gt(ZERO) ? yearlyReturns.mul(100).div(lock.amount) : ZERO
+        return {
+          xsLockID: xsLockID,
+          unboostedAmount: formatUnits(lock.amount, 18),
+          end: lock.end,
+          timeLeft: timeLeft,
+          boostedValue: formatUnits(stakedLock.value, 18),
+          pendingRewards: formatUnits(rewards, 18),
+          apy: apy,
+        }
+      })
+    )
+    locks.forEach((lock) => {
+      pendingRewards = pendingRewards.add(lock.pendingRewards)
+      stakedBalance = stakedBalance.add(lock.unboostedAmount)
+      if (lock.end.gt(timestamp)) lockedBalance = lockedBalance.add(lock.unboostedAmount)
+      else unlockedBalance = unlockedBalance.add(lock.unboostedAmount)
+      userValue = userValue.add(lock.boostedValue)
+    })
+    const userYearlyReturns: BigNumber = valueStaked.gt(ZERO)
+      ? rewardPerSecond.mul(BigNumber.from(31536000)).mul(userValue).div(valueStaked)
+      : ZERO
+    const userApy: BigNumber = stakedBalance.gt(ZERO) ? userYearlyReturns.mul(100).div(stakedBalance) : ZERO
+    const solaceDecimals = await queryDecimals(solace)
+    const userInfo: UserLocksInfo = {
+      pendingRewards: formatUnits(pendingRewards, solaceDecimals),
+      stakedBalance: formatUnits(stakedBalance, solaceDecimals),
+      lockedBalance: formatUnits(lockedBalance, solaceDecimals),
+      unlockedBalance: formatUnits(unlockedBalance, solaceDecimals),
+      yearlyReturns: formatUnits(userYearlyReturns, solaceDecimals),
+      apy: userApy,
+    }
+    return {
+      user: userInfo,
+      locks: locks,
+    }
+  }
+
+  return { getUserLocks }
 }

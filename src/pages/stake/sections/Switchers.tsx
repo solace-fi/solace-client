@@ -3,7 +3,7 @@ import React, { Dispatch, SetStateAction } from 'react'
 import Twan from '../components/Twan'
 import Twiv from '../components/Twiv'
 import { Tab } from '../types/Tab'
-import { Version } from '../types/Version'
+import { StakingVersion } from '../types/Version'
 export default function Switchers({
   tab,
   setTab,
@@ -12,8 +12,8 @@ export default function Switchers({
 }: {
   tab: Tab
   setTab: Dispatch<SetStateAction<Tab>>
-  version: Version
-  setVersion: Dispatch<SetStateAction<Version>>
+  version: StakingVersion
+  setVersion: Dispatch<SetStateAction<StakingVersion>>
 }): JSX.Element {
   return (
     <>
@@ -23,9 +23,9 @@ export default function Switchers({
           <Twan
             css={`
               text-gray-700 cursor-pointer underline
-              ${version === Version.v1 ? 'text-blue-500' : 'text-gray-500'}
+              ${version === StakingVersion.v1 ? 'text-blue-500' : 'text-gray-500'}
             `}
-            onClick={() => setVersion(Version.v1)}
+            onClick={() => setVersion(StakingVersion.v1)}
           >
             v1
           </Twan>{' '}
@@ -33,9 +33,9 @@ export default function Switchers({
           <Twan
             css={`
               text-gray-700 cursor-pointer underline
-              ${version === Version.v2 ? 'text-blue-500' : 'text-gray-500'}
+              ${version === StakingVersion.v2 ? 'text-blue-500' : 'text-gray-500'}
             `}
-            onClick={() => setVersion(Version.v2)}
+            onClick={() => setVersion(StakingVersion.v2)}
           >
             v2
           </Twan>

@@ -22,10 +22,13 @@ import { BigNumber } from 'ethers'
 import { useWallet } from '../../context/WalletManager'
 import { useGeneral } from '../../context/GeneralManager'
 import { useContracts } from '../../context/ContractsManager'
+import { useProvider } from '../../context/ProviderManager'
+import { useCachedData } from '../../context/CachedDataManager'
 
 /* import constants */
 import { FunctionName } from '../../constants/enums'
 import { ZERO } from '../../constants'
+import { LockData, UserLocksInfo } from '../../constants/types'
 
 /* import components */
 import { Button, ButtonWrapper } from '../../components/atoms/Button'
@@ -44,15 +47,16 @@ import { useSolaceBalance, useXSolaceV1Balance } from '../../hooks/useBalance'
 import { useXSolaceV1, useXSolaceV1Details } from '../../hooks/useXSolaceV1'
 import { useInputAmount } from '../../hooks/useInputAmount'
 import { useReadToken } from '../../hooks/useToken'
+import { useUserLockData } from '../../hooks/useXSLocker'
 
 /* import utils */
 import { formatAmount, truncateBalance } from '../../utils/formatting'
 import { Tab } from './types/Tab'
 
 import Twiv from './components/Twiv'
-import { Version } from './types/Version'
+import { StakingVersion } from './types/Version'
 import Twan from './components/Twan'
-import '../../resources/tailwind.min.css'
+import '../../styles/tailwind.min.css'
 import DifferenceNotification from './organisms/DifferenceNotification'
 import Flex from './atoms/Flex'
 import Safe from './sections/Safe/index'
@@ -312,11 +316,31 @@ function Stake1(): any {
 export default function Stake(): JSX.Element {
   // account usewallet
   const { account } = useWallet()
-  const [version, setVersion] = useState<Version>(Version.v2 as Version)
+  const { latestBlock } = useProvider()
+  const { version } = useCachedData()
+  const [stakingVersion, setStakingVersion] = useState<StakingVersion>(StakingVersion.v2 as StakingVersion)
   const [tab, setTab] = useState(Tab.DEPOSIT)
-  // const inputRef = useRef<HTMLInputElement>(null);
+  const [locks, setLocks] = useState<LockData[]>([])
+  const [userLockInfo, setUserLockInfo] = useState<UserLocksInfo>({
+    pendingRewards: '0',
+    stakedBalance: '0',
+    lockedBalance: '0',
+    unlockedBalance: '0',
+    yearlyReturns: '0',
+    apy: ZERO,
+  })
 
-  // user current staked and unstaked amounts, and locking time
+  const { getUserLocks } = useUserLockData()
+
+  useEffect(() => {
+    const _getUserLocks = async () => {
+      if (!account) return
+      const userLockData = await getUserLocks(account)
+      setLocks(userLockData.locks)
+      setUserLockInfo(userLockData.user)
+    }
+    _getUserLocks()
+  }, [account, latestBlock, version])
 
   return (
     <>
@@ -329,8 +353,8 @@ export default function Stake(): JSX.Element {
         </HeroContainer>
       ) : (
         <Content>
-          <DifferenceNotification version={version} setVersion={setVersion} />
-          <AggregatedStakeData />
+          <DifferenceNotification version={version} setVersion={setStakingVersion} />
+          <AggregatedStakeData stakeData={userLockInfo} />
           <Flex between mb={20}>
             <Button secondary info noborder pl={23} pr={23}>
               New Stake
@@ -339,52 +363,36 @@ export default function Stake(): JSX.Element {
               Batch Actions
             </Button>
           </Flex>
-          {/* Safe props
-          
-  stakingAmount: number
-  safeStatus: string
-  timeLeft: number
-  multiplier: number
-  apy: number
-  rewards: number */}
           {[
             {
-              id: '1',
-              stakingAmount: 100,
-              safeStatus: 'Locked',
-              timeLeft: 157,
-              multiplier: 1.32,
-              apy: 2000 * 1.32,
-              rewards: 100,
+              xsLockID: BigNumber.from(1),
+              unboostedAmount: '433.123456789123456789',
+              end: BigNumber.from(11111555444156),
+              timeLeft: BigNumber.from(41235),
+              boostedValue: '43355.000000000000000000',
+              pendingRewards: '3.000000000000000000',
+              apy: BigNumber.from(44),
             },
             {
-              id: '2',
-              stakingAmount: 250,
-              safeStatus: 'Staked',
-              timeLeft: 0,
-              multiplier: 1,
-              apy: 2000,
-              rewards: 0,
+              xsLockID: BigNumber.from(2),
+              unboostedAmount: '111.000000000000000000',
+              end: BigNumber.from(54711111554156),
+              timeLeft: BigNumber.from(41635),
+              boostedValue: '49355.123456789123456789',
+              pendingRewards: '2.123456789123456789',
+              apy: BigNumber.from(94),
             },
-          ].map(({ stakingAmount, safeStatus, timeLeft, multiplier, apy, rewards, id }) => (
-            <Safe
-              stakingAmount={stakingAmount}
-              safeStatus={safeStatus}
-              timeLeft={timeLeft}
-              multiplier={multiplier}
-              apy={apy}
-              rewards={rewards}
-              key={id}
-            />
+          ].map((lock) => (
+            <Safe key={lock.xsLockID.toNumber()} lock={lock} />
           ))}
           {/* only show the following if staking is v1 and the tab is not `difference` */}
-          {version === Version.v1 && (
+          {version === StakingVersion.v1 && (
             <Twiv css={'text-xl font-bold text-[#5F5DF9] animate-bounce'}>
               V1 not implemented in this component <Twan css={'text-[#F04D42]'}>(yet)</Twan>.
             </Twiv>
           )}
           {/* only show the following if staking is v1 and the tab is 'difference' */}
-          {version === Version.difference && (
+          {version === StakingVersion.difference && (
             <Twiv css={'text-xl font-bold text-[#5F5DF9] animate-bounce'}>
               Difference between V1 and V2:
               <Twiv css={'text-[#5E5E5E]'}>not implemented yet</Twiv>
