@@ -61,6 +61,7 @@ import DifferenceNotification from './organisms/DifferenceNotification'
 import Flex from './atoms/Flex'
 import Safe from './sections/Safe/index'
 import AggregatedStakeData from './sections/AggregatedStakeData'
+import NewSafe from './sections/Safe/NewSafe'
 
 // disable no unused variables
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -315,6 +316,7 @@ function Stake1(): any {
 
 export default function Stake(): JSX.Element {
   // account usewallet
+  const [newSafeIsOpen, setNewSafeIsOpen] = useState(false)
   const { xSolaceV1Balance } = useXSolaceV1Balance()
   const { account } = useWallet()
   const { latestBlock } = useProvider()
@@ -343,6 +345,10 @@ export default function Stake(): JSX.Element {
     _getUserLocks()
   }, [account, latestBlock, version])
 
+  console.log({ newSafeIsOpen })
+  const openSafe = () => setNewSafeIsOpen(true)
+  const closeSafe = () => setNewSafeIsOpen(false)
+
   return (
     <>
       {!account ? (
@@ -361,13 +367,20 @@ export default function Stake(): JSX.Element {
             <>
               <AggregatedStakeData stakeData={userLockInfo} />
               <Flex between mb={20}>
-                <Button secondary info noborder pl={23} pr={23}>
-                  New Stake
-                </Button>
+                {!newSafeIsOpen ? (
+                  <Button secondary info noborder pl={23} pr={23} onClick={openSafe}>
+                    New Stake
+                  </Button>
+                ) : (
+                  <Button secondary info noborder pl={23} pr={23} onClick={closeSafe}>
+                    Close
+                  </Button>
+                )}
                 <Button info pl={23} pr={23}>
                   Batch Actions
                 </Button>
               </Flex>
+              <NewSafe isOpen={newSafeIsOpen} />
               {[
                 {
                   xsLockID: BigNumber.from(1),

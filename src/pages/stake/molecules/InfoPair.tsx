@@ -25,9 +25,9 @@ export const Label = styled.div<InfoPairProps & { clickable?: boolean }>`
       case 'primary':
         return theme.v2.primary
       case 'secondary':
+      case 'quaternary':
         return theme.v2.secondary
       case 'tertiary':
-      case 'quaternary':
         return theme.v2.tertiary
     }
   }};

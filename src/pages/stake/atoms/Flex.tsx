@@ -8,8 +8,14 @@ export default styled.div<{
   stretch?: boolean
   wrap?: boolean
   mb?: number
+  mt?: number
   p?: number
+  pb?: number
+  pl?: number
+  pr?: number
+  pt?: number
   gap?: number
+  w?: number
 }>`
   display: flex;
   justify-content: ${({ between, end, center }) =>
@@ -18,6 +24,12 @@ export default styled.div<{
   flex-direction: ${({ column }) => (column ? 'column' : 'row')};
   flex-wrap: ${({ wrap }) => (wrap ? 'wrap' : 'nowrap')};
   margin-bottom: ${({ mb }) => mb + 'px'};
+  margin-top: ${({ mt }) => mt + 'px'};
   padding: ${({ p }) => p}px;
+  padding-bottom: ${({ pb }) => pb}px;
+  padding-left: ${({ pl }) => pl}px;
+  padding-right: ${({ pr }) => pr}px;
+  padding-top: ${({ pt }) => pt}px;
   gap: ${({ gap }) => gap}px;
+  width: ${({ w }) => w}px;
 `
