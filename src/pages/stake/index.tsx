@@ -393,12 +393,7 @@ export default function Stake(): JSX.Element {
             </>
           )}
           {/* only show the following if staking is v1 and the tab is not `difference` */}
-          {stakingVersion === StakingVersion.v1 && (
-            <Stake1 />
-            // <Twiv css={'text-xl font-bold text-[#5F5DF9] animate-bounce'}>
-            //   V1 not implemented in this component <Twan css={'text-[#F04D42]'}>(yet)</Twan>.
-            // </Twiv>
-          )}
+          {stakingVersion === StakingVersion.v1 && <Stake1 />}
           {/* only show the following if staking is v1 and the tab is 'difference' */}
           {stakingVersion === StakingVersion.difference && (
             <Twiv css={'text-xl font-bold text-[#5F5DF9] animate-bounce'}>
