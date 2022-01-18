@@ -387,6 +387,15 @@ export default function Stake(): JSX.Element {
                   pendingRewards: '2.123456789123456789',
                   apy: BigNumber.from(94),
                 },
+                {
+                  xsLockID: BigNumber.from(3),
+                  unboostedAmount: '111.000000000000000000',
+                  end: BigNumber.from(54711111554156),
+                  timeLeft: BigNumber.from(0),
+                  boostedValue: '49355.123456789123456789',
+                  pendingRewards: '2.123456789123456789',
+                  apy: BigNumber.from(94),
+                },
               ].map((lock) => (
                 <Safe key={lock.xsLockID.toNumber()} lock={lock} />
               ))}

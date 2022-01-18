@@ -12,6 +12,8 @@ import { useInputAmount } from '../../../../hooks/useInputAmount'
 import { useXSLocker } from '../../../../hooks/useXSLocker'
 import { useWallet } from '../../../../context/WalletManager'
 import { FunctionName } from '../../../../constants/enums'
+import InformationBox from '../../components/InformationBox'
+import { InfoBoxType } from '../../types/InfoBoxType'
 
 const StyledForm = styled.form`
   display: flex;
@@ -77,10 +79,7 @@ export default function WithdrawForm({ lock }: { lock: LockData }): JSX.Element 
         gap: '30px',
       }}
     >
-      {/* <InformationBox
-        type={InfoBoxType.info}
-        text="Withdrowal is available only when lock period ends. "
-      /> */}
+      <InformationBox type={InfoBoxType.info} text="Withdrawal is available only when lock period ends." />
       <StyledForm onSubmit={onSubmit}>
         <InputSection
           tab={Tab.WITHDRAW}
@@ -98,7 +97,9 @@ export default function WithdrawForm({ lock }: { lock: LockData }): JSX.Element 
           secondary
           info
           noborder
-          disabled={!isAppropriateAmount(inputValue, 18, parseUnits(lock.unboostedAmount, 18))}
+          disabled={
+            !isAppropriateAmount(inputValue, 18, parseUnits(lock.unboostedAmount, 18)) || lock.timeLeft.toNumber() > 0
+          }
         >
           Withdraw
         </Button>

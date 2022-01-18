@@ -13,6 +13,9 @@ import { useInputAmount } from '../../../../hooks/useInputAmount'
 import { FunctionName } from '../../../../constants/enums'
 import { BigNumber } from 'ethers'
 import { useProvider } from '../../../../context/ProviderManager'
+import { SmallBox } from '../../../../components/atoms/Box'
+import { Text } from '../../../../components/atoms/Typography'
+import { getExpiration } from '../../../../utils/time'
 
 const StyledForm = styled.form`
   display: flex;
@@ -84,8 +87,14 @@ export default function LockForm({ lock }: { lock: LockData }): JSX.Element {
           min={0}
           max={DAYS_PER_YEAR * 4}
         />
+        {
+          <SmallBox transparent collapse={!inputValue || inputValue == '0'} m={0} p={0}>
+            <Text dark>Lock End Date: {getExpiration(parseInt(inputValue))}</Text>
+          </SmallBox>
+        }
+
         <Button secondary info noborder disabled={!inputValue || inputValue == '0'}>
-          Extend Lock
+          {lock.timeLeft.toNumber() > 0 ? `Extend Lock` : `Lock`}
         </Button>
       </StyledForm>
     </div>
