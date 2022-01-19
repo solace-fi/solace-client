@@ -9,13 +9,16 @@ import farmControllerABI from '../constants/abi/contracts/FarmController.sol/Far
 import farmRewardsABI from '../constants/metadata/FarmRewardsV2.json'
 import vaultABI from '../constants/abi/contracts/Vault.sol/Vault.json'
 import solaceABI from '../constants/abi/contracts/SOLACE.sol/SOLACE.json'
+import xSolaceABI from '../constants/metadata/xSOLACE.json'
 import xSolaceV1ABI from '../constants/abi/contracts/xSOLACE.sol/xSOLACE.json'
+import xsLockerABI from '../constants/metadata/xsLocker.json'
+import stakingRewardsABI from '../constants/metadata/StakingRewards.json'
+import xSolaceMigratorABI from '../constants/metadata/xSolaceMigrator.json'
 import cpFarmABI from '../constants/abi/contracts/CpFarm.sol/CpFarm.json'
 import bondDepoABI from '../constants/abi/contracts/BondDepository.sol/BondDepository.json'
 import claimsEscrowABI from '../constants/abi/contracts/ClaimsEscrow.sol/ClaimsEscrow.json'
 import polMagABI from '../constants/abi/contracts/PolicyManager.sol/PolicyManager.json'
 import riskManagerABI from '../constants/abi/contracts/RiskManager.sol/RiskManager.json'
-
 /* product contract abi */
 import aaveABI from '../constants/abi/contracts/products/AaveV2Product.sol/AaveV2Product.json'
 import waaveABI from '../constants/abi/contracts/products/WaaveProduct.sol/WaaveProduct.json'
@@ -115,9 +118,25 @@ export const KovanNetwork: NetworkConfig = {
         addr: KEY_ADDRS.SOLACE,
         abi: solaceABI,
       },
+      xSolace: {
+        addr: KEY_ADDRS.XSOLACE,
+        abi: xSolaceABI.abi,
+      },
       xSolaceV1: {
         addr: KEY_ADDRS.XSOLACE_V1,
         abi: xSolaceV1ABI,
+      },
+      xsLocker: {
+        addr: KEY_ADDRS.XSLOCKER,
+        abi: xsLockerABI.abi,
+      },
+      stakingRewards: {
+        addr: KEY_ADDRS.STAKING_REWARDS,
+        abi: stakingRewardsABI.abi,
+      },
+      xSolaceMigrator: {
+        addr: KEY_ADDRS.XSOLACE_MIGRATOR,
+        abi: xSolaceMigratorABI.abi,
       },
       cpFarm: {
         addr: KEY_ADDRS.CPFARM,
