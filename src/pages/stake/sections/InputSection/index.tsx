@@ -30,8 +30,9 @@ export default function InputSection({
         value={value}
         onChange={onChange}
         style={{ backgroundColor: 'inherit', width: '100%' }}
+        disabled={disabled}
       />
-      <MaxButton setMax={setMax} />
+      <MaxButton setMax={setMax} disabled={disabled} />
     </InputSectionWrapper>
   )
 }

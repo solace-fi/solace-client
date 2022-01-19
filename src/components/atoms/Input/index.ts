@@ -61,7 +61,16 @@ export const Search = styled.input`
   font-family: 'Open Sans', sans-serif;
 `
 
-export const StyledSlider = styled(Slider)`
+export const StyledSlider = styled(Slider)<{ disabled?: boolean; theme?: any }>`
   background-color: ${({ theme }) => theme.input.slider_color} !important;
   color: ${({ theme }) => theme.input.slider_node_color} !important;
+  ${({ disabled }) =>
+    disabled &&
+    css`
+      opacity: 0.5;
+      cursor: default;
+      &:hover {
+        cursor: default;
+      }
+    `}
 `
