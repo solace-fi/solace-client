@@ -50,7 +50,7 @@ export default function DifferenceBoxes({
               Some additional info about some stuff and other stuff for users to understand.
             </Text> */}
             <Flex column gap={20} center>
-              <Text t2>Weekly rewards</Text>
+              <Text t2>Rewards distributed weekly</Text>
               <Text t2 lineThrough>
                 Governance Rights
               </Text>
@@ -86,10 +86,10 @@ export default function DifferenceBoxes({
             </Text> */}
             <Flex column gap={20} center>
               <Text t2 light>
-                Rewards updated each second
+                Rewards Distributed Each Second
               </Text>
               <Text t2 light>
-                xSOLACE gives governance rights
+                Governance Rights
               </Text>
               <Text t2 light>
                 Locking multipliers
