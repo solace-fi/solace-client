@@ -39,7 +39,8 @@ export default function LockForm({ lock }: { lock: LockData }): JSX.Element {
 
   const callExtendLock = async () => {
     if (!latestBlock || !inputValue || inputValue == '0') return
-    const seconds = parseInt(inputValue) * 86400
+    const seconds = latestBlock.timestamp + parseInt(inputValue) * 86400
+    // const seconds = latestBlock.timestamp + 200
     await extendLock(lock.xsLockID, BigNumber.from(seconds), gasConfig)
       .then((res) => handleToast(res.tx, res.localTx))
       .catch((err) => handleContractCallError('callExtendLock', err, FunctionName.INCREASE_LOCK_AMOUNT))

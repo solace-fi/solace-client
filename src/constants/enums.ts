@@ -38,7 +38,7 @@ export enum FunctionName {
   START_COOLDOWN = 'StartCooldown',
   STOP_COOLDOWN = 'StopCooldown',
 
-  SOLACE_MIGRATE = 'MigrateSigned',
+  STAKING_MIGRATE = 'MigrateSigned',
 
   // xsLocker
   CREATE_LOCK = 'CreateLock',
