@@ -24,11 +24,13 @@ import { formatUnits } from '@ethersproject/units'
 import { BKPT_3, ZERO } from '../../constants'
 import { PolicyState } from '../../constants/enums'
 import { USDC_ADDRESS } from '../../constants/mappings/tokenAddressMapping'
+import { GlobalLockInfo, UserLocksInfo } from '../../constants/types'
 
 /* import managers */
 import { useWallet } from '../../context/WalletManager'
 import { useContracts } from '../../context/ContractsManager'
 import { useNetwork } from '../../context/NetworkManager'
+import { useProvider } from '../../context/ProviderManager'
 
 /* import components */
 import { BoxRow, Box, BoxItem, BoxItemTitle } from '../atoms/Box'
@@ -44,8 +46,8 @@ import { useSolaceBalance, useUnderWritingPoolBalance } from '../../hooks/useBal
 import { usePolicyGetter } from '../../hooks/usePolicyGetter'
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'
 import { usePairPrice } from '../../hooks/usePair'
-import { useXSLocker } from '../../hooks/useXSLocker'
-// import { useStakingApyV1 } from '../../hooks/useXSolaceV1'
+import { useUserLockData } from '../../hooks/useXSLocker'
+import { useStakingRewards } from '../../hooks/useStakingRewards'
 import { useReadToken } from '../../hooks/useToken'
 
 /* import utils */
@@ -60,18 +62,33 @@ export const Statistics: React.FC = () => {
   const { account, initialized } = useWallet()
   const { activeNetwork, currencyDecimals, chainId } = useNetwork()
   const { keyContracts } = useContracts()
+  const { latestBlock } = useProvider()
   const { solace } = useMemo(() => keyContracts, [keyContracts])
   const solaceBalance = useSolaceBalance()
   const readSolaceToken = useReadToken(solace)
   const { allPolicies } = usePolicyGetter(true)
-  const { getUserLockerBalances } = useXSLocker()
+  const { getUserLocks } = useUserLockData()
   const { width } = useWindowDimensions()
-  const [lockedSolaceBalance, setLockedSolaceBalance] = useState<string>('0')
-  const [unlockedSolaceBalance, setUnlockedSolaceBalance] = useState<string>('0')
+  const { getGlobalLockStats } = useStakingRewards()
   const [totalActiveCoverAmount, setTotalActiveCoverAmount] = useState<string>('-')
   const [totalActivePolicies, setTotalActivePolicies] = useState<string>('-')
   const { pairPrice } = usePairPrice(solace)
   const { underwritingPoolBalance } = useUnderWritingPoolBalance()
+  const [userLockInfo, setUserLockInfo] = useState<UserLocksInfo>({
+    pendingRewards: ZERO,
+    stakedBalance: ZERO,
+    lockedBalance: ZERO,
+    unlockedBalance: ZERO,
+    yearlyReturns: ZERO,
+    apy: ZERO,
+  })
+  const [globalLockStats, setGlobalLockStats] = React.useState<GlobalLockInfo>({
+    solaceStaked: ZERO,
+    valueStaked: ZERO,
+    numLocks: ZERO,
+    rewardPerSecond: ZERO,
+    apy: ZERO,
+  })
 
   /*************************************************************************************
 
@@ -100,14 +117,22 @@ export const Statistics: React.FC = () => {
   }, [allPolicies])
 
   useEffect(() => {
-    const _getUserLockerBalances = async () => {
+    const _getUserLocks = async () => {
       if (!account) return
-      const balances = await getUserLockerBalances(account)
-      setUnlockedSolaceBalance(balances.unlockedBalance)
-      setLockedSolaceBalance(balances.lockedBalance)
+      const userLockData = await getUserLocks(account)
+      setUserLockInfo(userLockData.user)
     }
-    _getUserLockerBalances()
-  }, [account])
+    _getUserLocks()
+  }, [account, latestBlock])
+
+  useEffect(() => {
+    if (!latestBlock) return
+    const _getGlobalLockStats = async () => {
+      const globalLockStats: GlobalLockInfo = await getGlobalLockStats()
+      setGlobalLockStats(globalLockStats)
+    }
+    _getGlobalLockStats()
+  }, [latestBlock])
 
   const GlobalBox: React.FC = () => (
     <Box color2>
@@ -236,10 +261,10 @@ export const Statistics: React.FC = () => {
               </BoxItem>
               <BoxItem>
                 <BoxItemTitle t4 light>
-                  My Unlocked Stake
+                  My Stake
                 </BoxItemTitle>
                 <Text t2 light bold>
-                  {`${truncateValue(unlockedSolaceBalance, 1)} `}
+                  {`${truncateValue(formatUnits(userLockInfo.stakedBalance, 18), 1)} `}
                   <TextSpan t4 light bold>
                     {readSolaceToken.symbol}
                   </TextSpan>
@@ -247,10 +272,10 @@ export const Statistics: React.FC = () => {
               </BoxItem>
               <BoxItem>
                 <BoxItemTitle t4 light>
-                  My Locked Stake
+                  Global Stake
                 </BoxItemTitle>
                 <Text t2 light bold>
-                  {`${truncateValue(lockedSolaceBalance, 1)} `}
+                  {`${truncateValue(formatUnits(globalLockStats.solaceStaked, 18), 1)} `}
                   <TextSpan t4 light bold>
                     {readSolaceToken.symbol}
                   </TextSpan>
@@ -258,10 +283,10 @@ export const Statistics: React.FC = () => {
               </BoxItem>
               <BoxItem>
                 <BoxItemTitle t4 light>
-                  Staking APY
+                  Global APY
                 </BoxItemTitle>
                 <Text t2 light bold>
-                  2000%
+                  {`${truncateValue(globalLockStats.apy.toNumber(), 1)}`}%
                 </Text>
               </BoxItem>
             </Box>
@@ -292,10 +317,10 @@ export const Statistics: React.FC = () => {
                   </FormCol>
                 </FormRow>
                 <FormRow>
-                  <FormCol light>My Unlocked Stake</FormCol>
+                  <FormCol light>My Stake</FormCol>
                   <FormCol>
                     <Text t2 light>
-                      {`${truncateValue(unlockedSolaceBalance, 1)} `}
+                      {`${truncateValue(formatUnits(userLockInfo.stakedBalance, 18), 1)} `}
                       <TextSpan t4 light>
                         {readSolaceToken.symbol}
                       </TextSpan>
@@ -303,10 +328,10 @@ export const Statistics: React.FC = () => {
                   </FormCol>
                 </FormRow>
                 <FormRow>
-                  <FormCol light>My Locked Stake</FormCol>
+                  <FormCol light>Global Stake</FormCol>
                   <FormCol>
                     <Text t2 light>
-                      {`${truncateValue(lockedSolaceBalance, 1)} `}
+                      {`${truncateValue(formatUnits(globalLockStats.solaceStaked, 18), 1)} `}
                       <TextSpan t4 light>
                         {readSolaceToken.symbol}
                       </TextSpan>
@@ -314,10 +339,10 @@ export const Statistics: React.FC = () => {
                   </FormCol>
                 </FormRow>
                 <FormRow>
-                  <FormCol light>Staking APY</FormCol>
+                  <FormCol light>Global APY</FormCol>
                   <FormCol>
                     <Text t2 light>
-                      2000%
+                      {`${truncateValue(globalLockStats.apy.toNumber(), 1)}`}%
                     </Text>
                   </FormCol>
                 </FormRow>

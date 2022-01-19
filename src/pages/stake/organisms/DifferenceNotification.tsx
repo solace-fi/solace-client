@@ -3,6 +3,8 @@ import styled, { css } from 'styled-components'
 import { GeneralElementProps } from '../../../components/generalInterfaces'
 import { StakingVersion } from '../types/Version'
 import React from 'react'
+import { useWindowDimensions } from '../../../hooks/useWindowDimensions'
+import { BKPT_4 } from '../../../constants'
 
 const DifferenceText = function DifferenceText({
   children,
@@ -111,8 +113,10 @@ export default function DifferenceNotification({
   version: StakingVersion
   setVersion: Dispatch<SetStateAction<StakingVersion>>
 }): JSX.Element {
+  const { width } = useWindowDimensions()
+
   return (
-    <Notification>
+    <Notification style={{ flexDirection: width > BKPT_4 ? 'row' : 'column' }}>
       <Typography.Notice>
         We have updated our staking mechanism to a new version <Typography.Emphasis>STAKING V2</Typography.Emphasis>{' '}
         which is a part of our <Typography.Emphasis>Governance system</Typography.Emphasis>. New staking is available
@@ -126,7 +130,7 @@ export default function DifferenceNotification({
           flexDirection: 'column',
         }}
       >
-        <div style={{ display: 'flex' }}>
+        <div style={{ display: 'flex', padding: '10px' }}>
           {/* div with 2 buttons horizontally saying Staking V1 and Staking V2, one border white, red bg, white text, the other white bg, red text, both semibold */}
           <NotificationButton active={version === StakingVersion.v1} onClick={() => setVersion(StakingVersion.v1)}>
             Staking V1
