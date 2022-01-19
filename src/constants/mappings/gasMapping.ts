@@ -30,7 +30,7 @@ export const FunctionGasLimits: { [key: string]: number } = {
   ['xsLocker.withdrawInPart']: 151213,
   ['xsLocker.withdrawMany']: 293442,
   ['xsLocker.withdraw']: 365209,
-  ['xSolaceMigrator.migrateSigned']: 556193,
+  ['xSolaceMigrator.migrateSigned']: 476193,
 }
 
 // this function is used in operations that determine max amount to send if the same currency being sent is also used as gas
