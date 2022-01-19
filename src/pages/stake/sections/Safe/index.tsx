@@ -16,23 +16,28 @@ import { Accordion } from '../../../../components/atoms/Accordion'
 import { LockData } from '../../../../constants/types'
 import { getTimeFromMillis } from '../../../../utils/time'
 import { truncateBalance } from '../../../../utils/formatting'
+import { formatUnits } from 'ethers/lib/utils'
 
 export default function Safe({ lock }: { lock: LockData }): JSX.Element {
   const [isOpen, setIsOpen] = useState(false)
   const openSafe = () => setIsOpen(true)
   const closeSafe = () => setIsOpen(false)
 
+  const unboostedAmount = useMemo(() => formatUnits(lock.unboostedAmount, 18), [lock.unboostedAmount])
+  const boostedValue = useMemo(() => formatUnits(lock.boostedValue, 18), [lock.boostedValue])
+  const pendingRewards = useMemo(() => formatUnits(lock.pendingRewards, 18), [lock.pendingRewards])
+
   const multiplier = useMemo(
-    () => (parseFloat(lock.unboostedAmount) > 0 ? parseFloat(lock.boostedValue) / parseFloat(lock.unboostedAmount) : 0),
-    [lock.boostedValue, lock.unboostedAmount]
+    () => (parseFloat(unboostedAmount) > 0 ? parseFloat(boostedValue) / parseFloat(unboostedAmount) : 0),
+    [boostedValue, unboostedAmount]
   )
   const stringifiedMultiplier = useMemo(() => truncateBalance(multiplier, 1), [multiplier])
   const lockTimeLeft = useMemo(() => getTimeFromMillis(lock.timeLeft.toNumber() * 1000), [lock.timeLeft])
   const safeStatus = useMemo(() => {
     if (lock.timeLeft.toNumber() > 0) return 'Locked'
-    if (parseFloat(lock.unboostedAmount) > 0) return 'Unlocked'
+    if (parseFloat(unboostedAmount) > 0) return 'Unlocked'
     return 'Empty'
-  }, [lock.timeLeft, lock.unboostedAmount])
+  }, [lock.timeLeft, unboostedAmount])
 
   const [activeTab, setActiveTab] = useState(Tab.DEPOSIT)
   return (
@@ -45,7 +50,7 @@ export default function Safe({ lock }: { lock: LockData }): JSX.Element {
           <Flex stretch gap={90}>
             <InfoPair importance="tertiary" label="Amount">
               <CardSectionValue highlight={true} annotation="SOLACE">
-                {truncateBalance(lock.unboostedAmount, 4)}
+                {truncateBalance(unboostedAmount, 4)}
               </CardSectionValue>
             </InfoPair>
             <InfoPair importance="tertiary" label="Status">
@@ -61,8 +66,8 @@ export default function Safe({ lock }: { lock: LockData }): JSX.Element {
               <CardSectionValue highlight={true}>{lock.apy.toNumber()}%</CardSectionValue>
             </InfoPair>
             <InfoPair importance="tertiary" label="Rewards">
-              <CardSectionValue highlight={parseFloat(lock.pendingRewards) > 0} annotation="SOLACE">
-                {truncateBalance(lock.pendingRewards, 4)}
+              <CardSectionValue highlight={parseFloat(pendingRewards) > 0} annotation="SOLACE">
+                {truncateBalance(pendingRewards, 4)}
               </CardSectionValue>
             </InfoPair>
           </Flex>

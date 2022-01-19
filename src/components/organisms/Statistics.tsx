@@ -60,11 +60,9 @@ export const Statistics: React.FC = () => {
   const { account, initialized } = useWallet()
   const { activeNetwork, currencyDecimals, chainId } = useNetwork()
   const { keyContracts } = useContracts()
-  const { solace, xSolace } = useMemo(() => keyContracts, [keyContracts])
+  const { solace } = useMemo(() => keyContracts, [keyContracts])
   const solaceBalance = useSolaceBalance()
-  // const xSolaceBalance = useXSolaceBalance()
   const readSolaceToken = useReadToken(solace)
-  const readXSolaceToken = useReadToken(xSolace)
   const { allPolicies } = usePolicyGetter(true)
   const { getUserLockerBalances } = useXSLocker()
   const { width } = useWindowDimensions()
@@ -243,7 +241,7 @@ export const Statistics: React.FC = () => {
                 <Text t2 light bold>
                   {`${truncateBalance(unlockedSolaceBalance, 1)} `}
                   <TextSpan t4 light bold>
-                    {readXSolaceToken.symbol}
+                    {readSolaceToken.symbol}
                   </TextSpan>
                 </Text>
               </BoxItem>
@@ -299,7 +297,7 @@ export const Statistics: React.FC = () => {
                     <Text t2 light>
                       {`${truncateBalance(unlockedSolaceBalance, 1)} `}
                       <TextSpan t4 light>
-                        {readXSolaceToken.symbol}
+                        {readSolaceToken.symbol}
                       </TextSpan>
                     </Text>
                   </FormCol>

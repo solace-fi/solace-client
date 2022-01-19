@@ -205,11 +205,11 @@ export const useUserLockData = () => {
     if (!latestBlock || !stakingRewards || !xsLocker || !solace)
       return {
         user: {
-          pendingRewards: '0',
-          stakedBalance: '0',
-          lockedBalance: '0',
-          unlockedBalance: '0',
-          yearlyReturns: '0',
+          pendingRewards: ZERO,
+          stakedBalance: ZERO,
+          lockedBalance: ZERO,
+          unlockedBalance: ZERO,
+          yearlyReturns: ZERO,
           apy: ZERO,
         },
         locks: [],
@@ -231,7 +231,6 @@ export const useUserLockData = () => {
         return await xsLocker.tokenOfOwnerByIndex(user, index)
       })
     )
-    const solaceDecimals = await queryDecimals(solace)
     const locks: LockData[] = await Promise.all(
       xsLockIDs.map(async (xsLockID) => {
         const rewards: BigNumber = await stakingRewards.pendingRewardsOfLock(xsLockID)
@@ -242,40 +241,42 @@ export const useUserLockData = () => {
           ? rewardPerSecond.mul(BigNumber.from(31536000)).mul(stakedLock.value).div(valueStaked)
           : ZERO
         const apy: BigNumber = lock.amount.gt(ZERO) ? yearlyReturns.mul(100).div(lock.amount) : ZERO
-        return {
+        const _lock: LockData = {
           xsLockID: xsLockID,
-          unboostedAmount: formatUnits(lock.amount, solaceDecimals),
+          unboostedAmount: lock.amount,
           end: lock.end,
           timeLeft: timeLeft,
-          boostedValue: formatUnits(stakedLock.value, solaceDecimals),
-          pendingRewards: formatUnits(rewards, solaceDecimals),
+          boostedValue: stakedLock.value,
+          pendingRewards: rewards,
           apy: apy,
         }
+        return _lock
       })
     )
     locks.forEach((lock) => {
-      pendingRewards = pendingRewards.add(parseUnits(lock.pendingRewards, solaceDecimals))
-      stakedBalance = stakedBalance.add(parseUnits(lock.unboostedAmount, solaceDecimals))
-      if (lock.end.gt(timestamp)) lockedBalance = lockedBalance.add(parseUnits(lock.unboostedAmount, solaceDecimals))
-      else unlockedBalance = unlockedBalance.add(parseUnits(lock.unboostedAmount, solaceDecimals))
-      userValue = userValue.add(parseUnits(lock.boostedValue, solaceDecimals))
+      pendingRewards = pendingRewards.add(lock.pendingRewards)
+      stakedBalance = stakedBalance.add(lock.unboostedAmount)
+      if (lock.end.gt(timestamp)) lockedBalance = lockedBalance.add(lock.unboostedAmount)
+      else unlockedBalance = unlockedBalance.add(lock.unboostedAmount)
+      userValue = userValue.add(lock.boostedValue)
     })
     const userYearlyReturns: BigNumber = valueStaked.gt(ZERO)
       ? rewardPerSecond.mul(BigNumber.from(31536000)).mul(userValue).div(valueStaked)
       : ZERO
     const userApy: BigNumber = stakedBalance.gt(ZERO) ? userYearlyReturns.mul(100).div(stakedBalance) : ZERO
     const userInfo: UserLocksInfo = {
-      pendingRewards: formatUnits(pendingRewards, solaceDecimals),
-      stakedBalance: formatUnits(stakedBalance, solaceDecimals),
-      lockedBalance: formatUnits(lockedBalance, solaceDecimals),
-      unlockedBalance: formatUnits(unlockedBalance, solaceDecimals),
-      yearlyReturns: formatUnits(userYearlyReturns, solaceDecimals),
+      pendingRewards: pendingRewards,
+      stakedBalance: stakedBalance,
+      lockedBalance: lockedBalance,
+      unlockedBalance: unlockedBalance,
+      yearlyReturns: userYearlyReturns,
       apy: userApy,
     }
-    return {
+    const data = {
       user: userInfo,
       locks: locks,
     }
+    return data
   }
 
   return { getUserLocks }

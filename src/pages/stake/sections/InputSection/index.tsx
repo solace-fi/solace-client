@@ -18,7 +18,6 @@ export default function InputSection({
   setMax: () => void
   disabled?: boolean
 }): JSX.Element {
-  console.log(disabled)
   return (
     <InputSectionWrapper>
       <IconAndText tab={tab} disabled={disabled} />

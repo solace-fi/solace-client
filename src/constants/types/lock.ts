@@ -2,20 +2,20 @@ import { BigNumber } from 'ethers'
 
 export type LockData = {
   xsLockID: BigNumber
-  unboostedAmount: string
+  unboostedAmount: BigNumber
   end: BigNumber
   timeLeft: BigNumber
-  boostedValue: string
-  pendingRewards: string
+  boostedValue: BigNumber
+  pendingRewards: BigNumber
   apy: BigNumber
 }
 
 export type UserLocksInfo = {
-  pendingRewards: string
-  stakedBalance: string
-  lockedBalance: string
-  unlockedBalance: string
-  yearlyReturns: string
+  pendingRewards: BigNumber
+  stakedBalance: BigNumber
+  lockedBalance: BigNumber
+  unlockedBalance: BigNumber
+  yearlyReturns: BigNumber
   apy: BigNumber
 }
 

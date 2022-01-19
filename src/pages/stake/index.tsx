@@ -281,7 +281,6 @@ function Stake1(): any {
 export default function Stake(): JSX.Element {
   // account usewallet
   const [newSafeIsOpen, setNewSafeIsOpen] = useState(false)
-  const { xSolaceV1Balance } = useXSolaceV1Balance()
   const { account } = useWallet()
   const { latestBlock } = useProvider()
   const { version } = useCachedData()
@@ -289,11 +288,11 @@ export default function Stake(): JSX.Element {
   const [tab, setTab] = useState(Tab.DEPOSIT)
   const [locks, setLocks] = useState<LockData[]>([])
   const [userLockInfo, setUserLockInfo] = useState<UserLocksInfo>({
-    pendingRewards: '0',
-    stakedBalance: '0',
-    lockedBalance: '0',
-    unlockedBalance: '0',
-    yearlyReturns: '0',
+    pendingRewards: ZERO,
+    stakedBalance: ZERO,
+    lockedBalance: ZERO,
+    unlockedBalance: ZERO,
+    yearlyReturns: ZERO,
     apy: ZERO,
   })
 
@@ -309,7 +308,6 @@ export default function Stake(): JSX.Element {
     _getUserLocks()
   }, [account, latestBlock, version])
 
-  console.log({ newSafeIsOpen })
   const openSafe = () => setNewSafeIsOpen(true)
   const closeSafe = () => setNewSafeIsOpen(false)
 
@@ -338,9 +336,9 @@ export default function Stake(): JSX.Element {
                     Close
                   </Button>
                 )}
-                <Button info pl={23} pr={23}>
+                {/* <Button info pl={23} pr={23}>
                   Batch Actions
-                </Button>
+                </Button> */}
               </Flex>
               <NewSafe isOpen={newSafeIsOpen} />
               {locks.map((lock) => (

@@ -39,7 +39,7 @@ export default function WithdrawForm({ lock }: { lock: LockData }): JSX.Element 
   const callWithdrawFromLock = async () => {
     if (!account) return
     let type = FunctionName.WITHDRAW_IN_PART_FROM_LOCK
-    const isMax = parseUnits(inputValue, 18).eq(parseUnits(lock.unboostedAmount, 18))
+    const isMax = parseUnits(inputValue, 18).eq(lock.unboostedAmount)
     if (isMax) {
       type = FunctionName.WITHDRAW_FROM_LOCK
     }
@@ -53,7 +53,7 @@ export default function WithdrawForm({ lock }: { lock: LockData }): JSX.Element 
     const formatted = formatAmount(filtered)
     if (filtered.includes('.') && filtered.split('.')[1]?.length > 18) return
 
-    if (parseUnits(formatted, 18).gt(parseUnits(lock.unboostedAmount, 18))) return
+    if (parseUnits(formatted, 18).gt(lock.unboostedAmount)) return
 
     setRangeValue(accurateMultiply(filtered, 18))
     setInputValue(filtered)
@@ -64,7 +64,7 @@ export default function WithdrawForm({ lock }: { lock: LockData }): JSX.Element 
     setRangeValue(`${convertFromSciNota ? convertSciNotaToPrecise(value) : value}`)
   }
 
-  const setMax = () => rangeOnChange(parseUnits(lock.unboostedAmount, 18).toString())
+  const setMax = () => rangeOnChange(lock.unboostedAmount.toString())
 
   const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -91,15 +91,13 @@ export default function WithdrawForm({ lock }: { lock: LockData }): JSX.Element 
           value={rangeValue}
           onChange={(e) => rangeOnChange(e.target.value)}
           min={1}
-          max={parseUnits(lock.unboostedAmount, 18).toString()}
+          max={lock.unboostedAmount.toString()}
         />
         <Button
           secondary
           info
           noborder
-          disabled={
-            !isAppropriateAmount(inputValue, 18, parseUnits(lock.unboostedAmount, 18)) || lock.timeLeft.toNumber() > 0
-          }
+          disabled={!isAppropriateAmount(inputValue, 18, lock.unboostedAmount) || lock.timeLeft.toNumber() > 0}
         >
           Withdraw
         </Button>

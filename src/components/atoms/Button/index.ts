@@ -38,8 +38,9 @@ const ButtonColorFunc = (props: ButtonProps, theme: any) => {
   if (props.disabled && props.secondary) {
     let textColor = `${theme.typography.analogicalText}`
     if (props.light) textColor = `${theme.typography.darkText}`
-    if (props.dark || props.info || props.success || props.warning || props.error)
+    if (props.dark || props.info || props.success || props.warning || props.error) {
       textColor = `${theme.typography.lightText}`
+    }
     if (props.analogical) textColor = `${theme.typography.contrastText}`
     let bgColor = `${theme.typography.contrastText}`
     if (props.light) bgColor = `${theme.typography.lightText}`
@@ -75,8 +76,9 @@ const ButtonColorFunc = (props: ButtonProps, theme: any) => {
   if (props.secondary) {
     let textColor = `${theme.typography.analogicalText}`
     if (props.light) textColor = `${theme.typography.darkText}`
-    if (props.dark || props.info || props.success || props.warning || props.error)
+    if (props.dark || props.info || props.success || props.warning || props.error) {
       textColor = `${theme.typography.lightText}`
+    }
     if (props.analogical) textColor = `${theme.typography.contrastText}`
     let bgColor = `${theme.typography.contrastText}`
     if (props.light) bgColor = `${theme.typography.lightText}`
@@ -110,13 +112,11 @@ const ButtonColorFunc = (props: ButtonProps, theme: any) => {
       hoverTextColor = `${theme.typography.darkText}`
       hoverBgColor = `${theme.typography.lightText}`
     }
-    if (props.dark || props.info || props.success || props.warning || props.error) {
-      if (props.dark) hoverBgColor = `${theme.typography.darkText}`
-      if (props.info) hoverBgColor = `${theme.typography.infoText}`
-      if (props.success) hoverBgColor = `${theme.typography.successText}`
-      if (props.warning) hoverBgColor = `${theme.typography.warningText}`
-      if (props.error) hoverBgColor = `${theme.typography.errorText}`
-    }
+    if (props.dark) hoverBgColor = `${theme.typography.darkText}`
+    if (props.info) hoverBgColor = `${theme.typography.infoText}`
+    if (props.success) hoverBgColor = `${theme.typography.successText}`
+    if (props.warning) hoverBgColor = `${theme.typography.warningText}`
+    if (props.error) hoverBgColor = `${theme.typography.errorText}`
     if (props.analogical) {
       hoverTextColor = `${theme.typography.contrastText}`
       hoverBgColor = `${theme.typography.analogicalText}`

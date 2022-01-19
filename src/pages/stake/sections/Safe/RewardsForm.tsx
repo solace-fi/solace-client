@@ -48,13 +48,13 @@ export default function RewardsForm({ lock }: { lock: LockData }): JSX.Element {
       <InformationBox
         type={InfoBoxType.info}
         text={
-          !parseUnits(lock.pendingRewards, 18).eq(ZERO)
+          !lock.pendingRewards.eq(ZERO)
             ? 'Rewards are accrued by the second. Depositing or withdrawing SOLACE, or extending a lockup period also harvests rewards for you.'
             : "You don't have any rewards to collect. Stake SOLACE to earn rewards!"
         }
       />
       <StyledForm onSubmit={onSubmit}>
-        <Button secondary info noborder disabled={parseUnits(lock.pendingRewards, 18).eq(ZERO)}>
+        <Button secondary info noborder disabled={lock.pendingRewards.eq(ZERO)}>
           Harvest
         </Button>
       </StyledForm>
