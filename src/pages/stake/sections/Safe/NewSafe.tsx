@@ -23,7 +23,7 @@ import ShadowDiv from '../../atoms/ShadowDiv'
 import InfoPair, { Label } from '../../molecules/InfoPair'
 import Flex from '../../atoms/Flex'
 import GrayBox from '../../components/GrayBox'
-import { DarkSeparator } from '../../components/VerticalSeparator'
+import VerticalSeparator, { DarkSeparator } from '../../components/VerticalSeparator'
 import { Accordion } from '../../../../components/atoms/Accordion'
 import { useProvider } from '../../../../context/ProviderManager'
 
@@ -137,13 +137,17 @@ export default function NewSafe({ isOpen }: { isOpen: boolean }): JSX.Element {
                     <Flex stretch column>
                       <Flex stretch gap={24}>
                         <Flex column gap={2}>
-                          <Text t3>Regular APY</Text>
-                          <Text>55%</Text>
+                          <Text t5s mb={8}>
+                            Regular APY
+                          </Text>
+                          <Text t3s>55%</Text>
                         </Flex>
-                        <DarkSeparator />
+                        <VerticalSeparator />
                         <Flex column gap={2}>
-                          <Text t3>Multiplier</Text>
-                          <Text>1x</Text>
+                          <Text t5s mb={8}>
+                            Multiplier
+                          </Text>
+                          <Text t3s>1x</Text>
                         </Flex>
                       </Flex>
                     </Flex>
@@ -190,13 +194,26 @@ export default function NewSafe({ isOpen }: { isOpen: boolean }): JSX.Element {
                     <Flex stretch column>
                       <Flex stretch gap={24}>
                         <Flex column gap={2}>
-                          <Text t3>Better APY</Text>
-                          <Text>0.5%</Text>
+                          <Text t5s techygradient mb={8}>
+                            Better APY
+                          </Text>
+                          <Text t3s techygradient>
+                            <Flex>
+                              <Text lineThrough mr={10}>
+                                0.2%
+                              </Text>{' '}
+                              0.5%
+                            </Flex>
+                          </Text>
                         </Flex>
-                        <DarkSeparator />
+                        <VerticalSeparator />
                         <Flex column gap={2}>
-                          <Text t3>Better multiplier</Text>
-                          <Text>1.7x</Text>
+                          <Text t5s techygradient mb={8}>
+                            Better multiplier
+                          </Text>
+                          <Text t3s techygradient>
+                            1.7x
+                          </Text>
                         </Flex>
                       </Flex>
                     </Flex>

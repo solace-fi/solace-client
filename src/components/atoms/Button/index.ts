@@ -22,6 +22,7 @@ export interface ButtonProps extends ClickProps {
   noborder?: boolean
   nohover?: boolean
   semibold?: boolean
+  techygradient?: boolean
 }
 
 interface ButtonWrapperProps {
@@ -88,6 +89,18 @@ const ButtonColorFunc = (props: ButtonProps, theme: any) => {
     if (props.success) bgColor = `${theme.typography.successText}`
     if (props.warning) bgColor = `${theme.typography.warningText}`
     if (props.error) bgColor = `${theme.typography.errorText}`
+    if (props.techygradient) {
+      return `
+        color: ${theme.typography.lightText};
+        // gradient to bottom right, gradient is theme.typography.techyGradientA to theme.typography.techyGradientB
+        background-image: linear-gradient(to bottom right, ${theme.typography.techyGradientA}, ${theme.typography.techyGradientB});
+        opacity: 1;
+        transform: scale(1);
+        &:hover {
+          opacity: 0.8;
+        }
+      `
+    }
     return `
       color: ${textColor};
       background-color: ${bgColor};

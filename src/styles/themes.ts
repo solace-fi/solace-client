@@ -8,6 +8,8 @@ export const lightTheme = {
     errorText: 'rgb(255, 12, 28)',
     warningText: 'rgb(187, 136, 0)',
     successText: 'rgb(40, 167, 69)',
+    techyGradientA: 'rgb(212, 120, 216)',
+    techyGradientB: 'rgb(95, 93, 249)',
   },
   body: {
     bg_color: '#fafafa',

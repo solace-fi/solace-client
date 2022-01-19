@@ -34,6 +34,7 @@ export default function DepositForm({ lock }: { lock: LockData }): JSX.Element {
   const { handleToast, handleContractCallError, isAppropriateAmount, gasConfig } = useInputAmount()
   const { increaseLockAmount } = useXSLocker()
   const { account } = useWallet()
+  const [disabled, setDisabled] = React.useState(false)
 
   const [inputValue, setInputValue] = React.useState('0')
   const [rangeValue, setRangeValue] = React.useState('0')
@@ -82,13 +83,21 @@ export default function DepositForm({ lock }: { lock: LockData }): JSX.Element {
           tab={Tab.DEPOSIT}
           value={inputValue}
           onChange={(e) => inputOnChange(e.target.value)}
-          setMax={setMax}
+          setMax={() =>
+            !disabled
+              ? setMax
+              : () => {
+                  return undefined
+                }
+          }
+          disabled={disabled}
         />
         <StyledSlider
           value={rangeValue}
           onChange={(e) => rangeOnChange(e.target.value)}
           min={1}
           max={parseUnits(solaceBalance, 18).toString()}
+          disabled={disabled}
         />
         <Button secondary info noborder disabled={!isAppropriateAmount(inputValue, 18, parseUnits(solaceBalance, 18))}>
           Stake
