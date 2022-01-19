@@ -29,6 +29,7 @@ export interface TextStyleProps extends GeneralElementProps {
   autoAlignHorizontal?: boolean
   autoAlign?: boolean
   bold?: boolean
+  extrabold?: boolean
   info?: boolean
   success?: boolean
   error?: boolean
@@ -183,6 +184,7 @@ export const TextStyleCss = css<TextStyleProps>`
   ${(props) => props.autoAlignVertical && AlignVerticalCss}
   ${(props) => props.autoAlignHorizontal && AlignHorizontalCss}
   ${(props) => props.bold && 'font-weight: 600;'}
+  ${(props) => props.extrabold && 'font-weight: 700;'}
   ${(props) => props.lineHeight && `line-height: ${props.lineHeight};`}
   ${(props) => props.lineThrough && 'text-decoration: line-through;'}
 

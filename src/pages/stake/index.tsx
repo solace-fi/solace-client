@@ -63,6 +63,7 @@ import Flex from './atoms/Flex'
 import Safe from './sections/Safe/index'
 import AggregatedStakeData from './sections/AggregatedStakeData'
 import NewSafe from './sections/Safe/NewSafe'
+import DifferenceBoxes from './sections/DifferenceBoxes.tsx'
 
 // disable no unused variables
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -352,10 +353,11 @@ export default function Stake(): JSX.Element {
           {stakingVersion === StakingVersion.v1 && <Stake1 />}
           {/* only show the following if staking is v1 and the tab is 'difference' */}
           {stakingVersion === StakingVersion.difference && (
-            <Twiv css={'text-xl font-bold text-[#5F5DF9] animate-bounce'}>
-              Difference between V1 and V2:
-              <Twiv css={'text-[#5E5E5E]'}>not implemented yet</Twiv>
-            </Twiv>
+            <DifferenceBoxes setStakingVersion={setStakingVersion} />
+            // <Twiv css={'text-xl font-bold text-[#5F5DF9] animate-bounce'}>
+            //   Difference between V1 and V2:
+            //   <Twiv css={'text-[#5E5E5E]'}>not implemented yet</Twiv>
+            // </Twiv>
           )}
         </Content>
       )}
