@@ -53,7 +53,7 @@ import { useAppraisePolicyPosition } from '../../../hooks/usePolicy'
 import { useGetFunctionGas } from '../../../hooks/useGas'
 
 /* import utils */
-import { truncateBalance } from '../../../utils/formatting'
+import { truncateValue } from '../../../utils/formatting'
 import { getLongtimeFromMillis } from '../../../utils/time'
 import { getClaimAssessment } from '../../../utils/api'
 
@@ -221,7 +221,7 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
                 </FormCol>
                 <FormCol>
                   <Text bold t2 autoAlign>
-                    {truncateBalance(formatUnits(assessment.amountOut || 0, currencyDecimals))}{' '}
+                    {truncateValue(formatUnits(assessment.amountOut || 0, currencyDecimals))}{' '}
                     {activeNetwork.nativeCurrency.symbol}
                   </Text>
                 </FormCol>

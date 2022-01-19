@@ -125,11 +125,26 @@ const ButtonColorFunc = (props: ButtonProps, theme: any) => {
       hoverTextColor = `${theme.typography.darkText}`
       hoverBgColor = `${theme.typography.lightText}`
     }
-    if (props.dark) hoverBgColor = `${theme.typography.darkText}`
-    if (props.info) hoverBgColor = `${theme.typography.infoText}`
-    if (props.success) hoverBgColor = `${theme.typography.successText}`
-    if (props.warning) hoverBgColor = `${theme.typography.warningText}`
-    if (props.error) hoverBgColor = `${theme.typography.errorText}`
+    if (props.dark) {
+      hoverTextColor = `${theme.typography.lightText}`
+      hoverBgColor = `${theme.typography.darkText}`
+    }
+    if (props.info) {
+      hoverTextColor = `${theme.typography.lightText}`
+      hoverBgColor = `${theme.typography.infoText}`
+    }
+    if (props.success) {
+      hoverTextColor = `${theme.typography.lightText}`
+      hoverBgColor = `${theme.typography.successText}`
+    }
+    if (props.warning) {
+      hoverTextColor = `${theme.typography.lightText}`
+      hoverBgColor = `${theme.typography.warningText}`
+    }
+    if (props.error) {
+      hoverTextColor = `${theme.typography.lightText}`
+      hoverBgColor = `${theme.typography.errorText}`
+    }
     if (props.analogical) {
       hoverTextColor = `${theme.typography.contrastText}`
       hoverBgColor = `${theme.typography.analogicalText}`

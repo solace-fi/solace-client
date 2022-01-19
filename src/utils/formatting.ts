@@ -12,13 +12,11 @@ export const fixed = (n: number | string, decimals = 1): number => {
   return Math.floor(n * Math.pow(10, decimals)) / Math.pow(10, decimals)
 }
 
-export const truncateBalance = (value: number | string, decimals = 6, abbrev = true): string => {
+export const truncateValue = (value: number | string, decimals = 6, abbrev = true): string => {
   if (typeof value == 'number' && value == 0) return '0'
   if (typeof value == 'string') {
     const pureNumberStr = value.replace('.', '').split('e')[0]
-    if (BigNumber.from(pureNumberStr).eq('0')) {
-      return '0'
-    }
+    if (BigNumber.from(pureNumberStr).eq('0')) return '0'
   }
   let str = value.toString()
 
@@ -35,9 +33,7 @@ export const truncateBalance = (value: number | string, decimals = 6, abbrev = t
   // if is nonzero number with decimals
   const cutoffIndex = decimalIndex + decimals
   const truncatedStr = str.substring(0, cutoffIndex + 1)
-  if (parseFloat(truncatedStr) == 0) {
-    return `< ${truncatedStr.slice(0, -1) + '1'}`
-  }
+  if (parseFloat(truncatedStr) == 0) return `< ${truncatedStr.slice(0, -1) + '1'}`
   if (abbrev) return numberAbbreviate(truncatedStr)
   return truncatedStr
 }
@@ -240,7 +236,7 @@ export const formatTransactionContent = (
       if (toAddr && activeNetwork.cache.tellerToTokenMapping[toAddr]) {
         return `Bond #${BigNumber.from(amount)}`
       }
-      return `${truncateBalance(formatUnits(BigNumber.from(amount), activeNetwork.nativeCurrency.decimals))} ${unit}`
+      return `${truncateValue(formatUnits(BigNumber.from(amount), activeNetwork.nativeCurrency.decimals))} ${unit}`
     case FunctionName.DEPOSIT_CP:
     case FunctionName.WITHDRAW_CP:
     case FunctionName.WITHDRAW_REWARDS:
@@ -248,7 +244,7 @@ export const formatTransactionContent = (
     case FunctionName.STAKE_V1:
     case FunctionName.UNSTAKE_V1:
     case FunctionName.WITHDRAW_ETH:
-      return `${truncateBalance(formatUnits(BigNumber.from(amount), activeNetwork.nativeCurrency.decimals))} ${unit}`
+      return `${truncateValue(formatUnits(BigNumber.from(amount), activeNetwork.nativeCurrency.decimals))} ${unit}`
     case FunctionName.DEPOSIT_LP_SIGNED:
     case FunctionName.WITHDRAW_LP:
       return `#${BigNumber.from(amount)} ${unit}`

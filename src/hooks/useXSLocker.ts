@@ -3,7 +3,7 @@ import { useContracts } from '../context/ContractsManager'
 import { useWallet } from '../context/WalletManager'
 import { useNetwork } from '../context/NetworkManager'
 import { useReadToken } from './useToken'
-import { formatUnits, parseUnits } from '@ethersproject/units'
+import { formatUnits } from '@ethersproject/units'
 import { BigNumber } from 'ethers'
 import { GasConfiguration, LocalTx, LockData, UserLocksData, UserLocksInfo } from '../constants/types'
 import { getPermitErc20Signature } from '../utils/signature'
@@ -12,7 +12,6 @@ import { FunctionName, TransactionCondition } from '../constants/enums'
 import { useProvider } from '../context/ProviderManager'
 import { rangeFrom0 } from '../utils/numeric'
 import { FunctionGasLimits } from '../constants/mappings/gasMapping'
-import { queryDecimals } from '../utils/contract'
 
 export const useXSLocker = () => {
   const { keyContracts } = useContracts()

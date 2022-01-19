@@ -11,7 +11,7 @@ import styled from 'styled-components'
 import { useSolaceBalance, useXSolaceBalance } from '../../../hooks/useBalance'
 import { useWallet } from '../../../context/WalletManager'
 import { useXSLocker } from '../../../hooks/useXSLocker'
-import { truncateBalance } from '../../../utils/formatting'
+import { truncateValue } from '../../../utils/formatting'
 
 function StyledLockAlt({ css }: { css: string }): JSX.Element {
   const Styled = styled(LockAlt)`
@@ -48,7 +48,7 @@ export default function TopSection({
     //     <Twiv css={'flex-shrink-0'}>
     //       <SectionLabel>Unstaked Balance</SectionLabel>
     //       <CardSectionValue annotation="SOLACE" importance={Tab.staking === tab ? 'primary' : 'secondary'}>
-    //         {truncateBalance(unstaked, 2)}
+    //         {truncateValue(unstaked, 2)}
     //       </CardSectionValue>
     //     </Twiv>
 
@@ -60,7 +60,7 @@ export default function TopSection({
     //       </SectionLabel>
     //       <Twiv css={'flex flex-col lg:flex-row w-max flex-shrink-0'}>
     //         <CardSectionValue annotation="xSOLACE" importance={Tab.staking === tab ? 'primary' : 'secondary'}>
-    //           {truncateBalance(staked, 2)}
+    //           {truncateValue(staked, 2)}
     //         </CardSectionValue>
     //       </Twiv>
     //     </div>
@@ -73,7 +73,7 @@ export default function TopSection({
     //       </SectionLabel>
     //       <Twiv css={'flex flex-col lg:flex-row w-max flex-shrink-0'}>
     //         <CardSectionValue annotation="SOLACE" importance={Tab.staking === tab ? 'primary' : 'secondary'}>
-    //           {truncateBalance(locked, 2)}
+    //           {truncateValue(locked, 2)}
     //         </CardSectionValue>
     //       </Twiv>
     //     </div>

@@ -47,7 +47,7 @@ import { useWindowDimensions } from '../../../hooks/useWindowDimensions'
 
 /* import utils */
 import { getDaysLeft } from '../../../utils/time'
-import { truncateBalance } from '../../../utils/formatting'
+import { truncateValue } from '../../../utils/formatting'
 
 interface PolicyModalInfoProps {
   appraisal: BigNumber
@@ -136,7 +136,7 @@ export const PolicyModalInfo: React.FC<PolicyModalInfoProps> = ({ appraisal, sel
             <BoxItemTitle t3>Cover Amount</BoxItemTitle>
             <Text t2 nowrap>
               {selectedPolicy?.coverAmount
-                ? truncateBalance(formatUnits(selectedPolicy.coverAmount, currencyDecimals))
+                ? truncateValue(formatUnits(selectedPolicy.coverAmount, currencyDecimals))
                 : 0}{' '}
               {activeNetwork.nativeCurrency.symbol}
             </Text>
@@ -145,9 +145,7 @@ export const PolicyModalInfo: React.FC<PolicyModalInfoProps> = ({ appraisal, sel
             <BoxItemTitle t3>Position Amount</BoxItemTitle>
             <Text t2 nowrap>
               {appraisal.gt(ZERO) ? (
-                `${truncateBalance(formatUnits(appraisal, currencyDecimals) || 0)} ${
-                  activeNetwork.nativeCurrency.symbol
-                }`
+                `${truncateValue(formatUnits(appraisal, currencyDecimals) || 0)} ${activeNetwork.nativeCurrency.symbol}`
               ) : (
                 <Loader width={10} height={10} />
               )}
@@ -184,7 +182,7 @@ export const PolicyModalInfo: React.FC<PolicyModalInfoProps> = ({ appraisal, sel
             <FormCol>
               <Text bold t3>
                 {selectedPolicy?.coverAmount
-                  ? truncateBalance(formatUnits(selectedPolicy.coverAmount, currencyDecimals))
+                  ? truncateValue(formatUnits(selectedPolicy.coverAmount, currencyDecimals))
                   : 0}{' '}
                 {activeNetwork.nativeCurrency.symbol}
               </Text>
@@ -197,7 +195,7 @@ export const PolicyModalInfo: React.FC<PolicyModalInfoProps> = ({ appraisal, sel
             <FormCol>
               <Text bold t3>
                 {appraisal.gt(ZERO) ? (
-                  `${truncateBalance(formatUnits(appraisal, currencyDecimals) || 0)} ${
+                  `${truncateValue(formatUnits(appraisal, currencyDecimals) || 0)} ${
                     activeNetwork.nativeCurrency.symbol
                   }`
                 ) : (

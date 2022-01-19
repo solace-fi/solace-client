@@ -61,7 +61,7 @@ import { useBondTeller, useUserBondData } from '../../../hooks/useBondTeller'
 import { useWindowDimensions } from '../../../hooks/useWindowDimensions'
 
 /* import utils */
-import { accurateMultiply, formatAmount, truncateBalance } from '../../../utils/formatting'
+import { accurateMultiply, formatAmount } from '../../../utils/formatting'
 import { queryBalance } from '../../../utils/contract'
 import { PrivateBondInfo } from './PrivateBondInfo'
 

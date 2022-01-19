@@ -102,6 +102,8 @@ export const darkTheme = {
     errorText: 'rgb(240, 77, 66)',
     warningText: 'rgb(245, 221, 83)',
     successText: 'rgb(0, 255, 209)',
+    techyGradientA: '#F3D37E',
+    techyGradientB: '#F04D42',
   },
   body: {
     bg_color: 'rgb(46, 46, 46)',
@@ -175,11 +177,11 @@ export const darkTheme = {
     bg_color: 'rgba(25, 29, 36, 1)',
   },
   v2: {
-    aside: '#2e2e2e',
-    raised: '#FFFFFF',
-    primary: '#8e8df2',
-    secondary: '#5e5e5e',
-    tertiary: '#969696',
+    aside: '#1f1f1f',
+    raised: '#2e2e2e',
+    primary: 'rgb(250, 130, 255)',
+    secondary: 'rgb(250, 250, 250)',
+    tertiary: '#a6a6a6',
     separator: '#E3E4E6',
   },
 } as const

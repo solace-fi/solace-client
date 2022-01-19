@@ -23,3 +23,11 @@ export type UserLocksData = {
   user: UserLocksInfo
   locks: LockData[]
 }
+
+export type GlobalLockInfo = {
+  solaceStaked: BigNumber
+  valueStaked: BigNumber
+  numLocks: BigNumber
+  rewardPerSecond: BigNumber
+  apy: BigNumber
+}

@@ -61,7 +61,7 @@ import { useEarlyFarmRewards } from '../../hooks/useFarm'
 /* import utils */
 import { getDateStringWithMonthName } from '../../utils/time'
 import { queryBalance, queryDecimals } from '../../utils/contract'
-import { truncateBalance } from '../../utils/formatting'
+import { truncateValue } from '../../utils/formatting'
 import { getContract, isAddress } from '../../utils'
 
 export const EarlyFarmRewardsWindow: React.FC = () => {
@@ -318,27 +318,27 @@ export const EarlyFarmRewardsWindow: React.FC = () => {
         <FormRow mb={10}>
           <FormCol bold>My balance</FormCol>
           <FormCol bold textAlignRight info>
-            {truncateBalance(formatUnits(userStablecoinBalance, userStablecoinDecimals), userStablecoinDecimals, false)}{' '}
+            {truncateValue(formatUnits(userStablecoinBalance, userStablecoinDecimals), userStablecoinDecimals, false)}{' '}
             {stablecoinPayment.label}
           </FormCol>
         </FormRow>
         <FormRow mb={20}>
           <FormCol bold>You will get</FormCol>
           <FormCol bold textAlignRight info>
-            {calculatedAmountOut ? `${truncateBalance(formatUnits(calculatedAmountOut, 18), 18, false)}` : `-`} SOLACE
+            {calculatedAmountOut ? `${truncateValue(formatUnits(calculatedAmountOut, 18), 18, false)}` : `-`} SOLACE
           </FormCol>
         </FormRow>
         <HorizRule />
         <FormRow mt={20} mb={0}>
           <FormCol bold>Amount you can redeem now</FormCol>
           <FormCol bold textAlignRight info>
-            {truncateBalance(formatUnits(purchaseableSolace, currencyDecimals), 4, false)} SOLACE
+            {truncateValue(formatUnits(purchaseableSolace, currencyDecimals), 4, false)} SOLACE
           </FormCol>
         </FormRow>
         <FormRow mb={0}>
           <FormCol bold>Your total earned amount</FormCol>
           <FormCol bold textAlignRight info>
-            {truncateBalance(formatUnits(totalEarnedSolaceRewards, currencyDecimals), 4, false)} SOLACE
+            {truncateValue(formatUnits(totalEarnedSolaceRewards, currencyDecimals), 4, false)} SOLACE
           </FormCol>
         </FormRow>
         <HorizRule />

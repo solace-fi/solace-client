@@ -51,7 +51,7 @@ import { useVault } from '../../../hooks/useVault'
 import { useInputAmount } from '../../../hooks/useInputAmount'
 
 /* import utils */
-import { getUnit, truncateBalance } from '../../../utils/formatting'
+import { getUnit, truncateValue } from '../../../utils/formatting'
 
 export const CpPoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, closeModal }) => {
   /*************************************************************************************
@@ -211,7 +211,7 @@ export const CpPoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen
     >
       <Erc20InputPanel
         unit={getUnit(func, activeNetwork)}
-        availableBalance={truncateBalance(formatUnits(assetBalance, currencyDecimals))}
+        availableBalance={truncateValue(formatUnits(assetBalance, currencyDecimals))}
         amount={amount}
         handleInputChange={handleInputChange}
         setMax={_setMax}

@@ -52,7 +52,7 @@ import { useWindowDimensions } from '../../../hooks/useWindowDimensions'
 import { useInputAmount } from '../../../hooks/useInputAmount'
 
 /* import utils */
-import { getUnit, truncateBalance } from '../../../utils/formatting'
+import { truncateValue } from '../../../utils/formatting'
 import { getLongtimeFromMillis, getTimeFromMillis } from '../../../utils/time'
 
 export const UnderwritingPoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, closeModal }) => {
@@ -260,7 +260,7 @@ export const UnderwritingPoolModal: React.FC<PoolModalProps> = ({ modalTitle, fu
             value={amount}
           />
           <div style={{ position: 'absolute', top: '70%' }}>
-            Available: {truncateBalance(formatUnits(assetBalance, currencyDecimals))}
+            Available: {truncateValue(formatUnits(assetBalance, currencyDecimals))}
           </div>
         </ModalCell>
         <ModalCell t3>

@@ -343,7 +343,7 @@ export const SideNavbar: React.FC = () => {
           )}
           <HorizRule location={location} />
           <StyledNavTooltip id={'theme-nav'} tip={'Change Theme'}>
-            <ThemeButton light={lightText} width={0} />
+            <ThemeButton light={lightText} width={0} p={10} />
           </StyledNavTooltip>
           {width > BKPT_3 && (
             <>

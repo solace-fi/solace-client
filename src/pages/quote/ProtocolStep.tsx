@@ -26,7 +26,6 @@ import useDebounce from '@rooks/use-debounce'
 /* import constants */
 import { DAYS_PER_YEAR, NUM_BLOCKS_PER_DAY, BKPT_3 } from '../../constants'
 import { ProductContract } from '../../constants/types'
-import { ExplorerscanApi } from '../../constants/enums'
 
 /* import context */
 import { useContracts } from '../../context/ContractsManager'
@@ -41,18 +40,15 @@ import { Search } from '../../components/atoms/Input'
 import { DeFiAsset, DeFiAssetImage, ProtocolTitle } from '../../components/atoms/DeFiAsset'
 import { Card, CardContainer } from '../../components/atoms/Card'
 import { FormRow, FormCol } from '../../components/atoms/Form'
-import { FlexCol, FlexRow, Scrollable } from '../../components/atoms/Layout'
+import { Scrollable } from '../../components/atoms/Layout'
 import { Text } from '../../components/atoms/Typography'
-import { HyperLink } from '../../components/atoms/Link'
-import { StyledLinkExternal } from '../../components/atoms/Icon'
 
 /* import hooks */
 import { useGetAvailableCoverages, useGetYearlyCosts } from '../../hooks/usePolicy'
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'
 
 /* import utils */
-import { fixed, truncateBalance } from '../../utils/formatting'
-import { getExplorerItemUrl } from '../../utils/explorer'
+import { fixed, truncateValue } from '../../utils/formatting'
 
 /*************************************************************************************
 
@@ -113,7 +109,7 @@ export const ProtocolStep: React.FC<formProps> = ({ setForm, navigation }) => {
     setSearchValue(searchValue)
   }, 300)
 
-  const handleAvailableCoverage = (protocol: string) => truncateBalance(availableCoverages[protocol] ?? '0', 2)
+  const handleAvailableCoverage = (protocol: string) => truncateValue(availableCoverages[protocol] ?? '0', 2)
 
   const getAdjustedYearlyCost = (yearlyCost: string) =>
     parseFloat(yearlyCost ?? '0') * Math.pow(10, 6) * NUM_BLOCKS_PER_DAY * DAYS_PER_YEAR

@@ -15,7 +15,7 @@ import { Tab } from '../../types/Tab'
 import { Accordion } from '../../../../components/atoms/Accordion'
 import { LockData } from '../../../../constants/types'
 import { getTimeFromMillis } from '../../../../utils/time'
-import { truncateBalance } from '../../../../utils/formatting'
+import { truncateValue } from '../../../../utils/formatting'
 import { formatUnits } from 'ethers/lib/utils'
 
 export default function Safe({ lock }: { lock: LockData }): JSX.Element {
@@ -31,7 +31,7 @@ export default function Safe({ lock }: { lock: LockData }): JSX.Element {
     () => (parseFloat(unboostedAmount) > 0 ? parseFloat(boostedValue) / parseFloat(unboostedAmount) : 0),
     [boostedValue, unboostedAmount]
   )
-  const stringifiedMultiplier = useMemo(() => truncateBalance(multiplier, 1), [multiplier])
+  const stringifiedMultiplier = useMemo(() => truncateValue(multiplier, 1), [multiplier])
   const lockTimeLeft = useMemo(() => getTimeFromMillis(lock.timeLeft.toNumber() * 1000), [lock.timeLeft])
   const safeStatus = useMemo(() => {
     if (lock.timeLeft.toNumber() > 0) return 'Locked'
@@ -50,7 +50,7 @@ export default function Safe({ lock }: { lock: LockData }): JSX.Element {
           <Flex stretch gap={90}>
             <InfoPair importance="tertiary" label="Amount">
               <CardSectionValue highlight={true} annotation="SOLACE">
-                {truncateBalance(unboostedAmount, 4)}
+                {truncateValue(unboostedAmount, 4)}
               </CardSectionValue>
             </InfoPair>
             <InfoPair importance="tertiary" label="Status">
@@ -67,7 +67,7 @@ export default function Safe({ lock }: { lock: LockData }): JSX.Element {
             </InfoPair>
             <InfoPair importance="tertiary" label="Rewards">
               <CardSectionValue highlight={parseFloat(pendingRewards) > 0} annotation="SOLACE">
-                {truncateBalance(pendingRewards, 4)}
+                {truncateValue(pendingRewards, 4)}
               </CardSectionValue>
             </InfoPair>
           </Flex>

@@ -1,11 +1,17 @@
 import { BigNumber } from 'ethers'
 import { formatUnits, parseUnits } from '@ethersproject/units'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import styled from 'styled-components'
 import { Button } from '../../../../components/atoms/Button'
 import { StyledSlider } from '../../../../components/atoms/Input'
 import { useSolaceBalance } from '../../../../hooks/useBalance'
-import { accurateMultiply, convertSciNotaToPrecise, filterAmount, formatAmount } from '../../../../utils/formatting'
+import {
+  accurateMultiply,
+  convertSciNotaToPrecise,
+  filterAmount,
+  formatAmount,
+  truncateValue,
+} from '../../../../utils/formatting'
 import InformationBox from '../../components/InformationBox'
 import { InfoBoxType } from '../../types/InfoBoxType'
 import { Tab } from '../../types/Tab'
@@ -16,7 +22,7 @@ import { useXSLocker } from '../../../../hooks/useXSLocker'
 import { useWallet } from '../../../../context/WalletManager'
 import { SmallBox } from '../../../../components/atoms/Box'
 import { Text } from '../../../../components/atoms/Typography'
-import { DAYS_PER_YEAR } from '../../../../constants'
+import { DAYS_PER_YEAR, ZERO } from '../../../../constants'
 import { getExpiration } from '../../../../utils/time'
 import RaisedBox from '../../atoms/RaisedBox'
 import ShadowDiv from '../../atoms/ShadowDiv'
@@ -26,6 +32,8 @@ import GrayBox from '../../components/GrayBox'
 import VerticalSeparator, { DarkSeparator } from '../../components/VerticalSeparator'
 import { Accordion } from '../../../../components/atoms/Accordion'
 import { useProvider } from '../../../../context/ProviderManager'
+import { useStakingRewards } from '../../../../hooks/useStakingRewards'
+import { GlobalLockInfo } from '../../../../constants/types'
 
 const StyledForm = styled.form`
   display: flex;
@@ -44,20 +52,30 @@ const Container = styled.div`
 `
 
 export default function NewSafe({ isOpen }: { isOpen: boolean }): JSX.Element {
-  const solaceBalance = useSolaceBalance()
+  const { account } = useWallet()
   const { latestBlock } = useProvider()
+  const solaceBalance = useSolaceBalance()
   const { handleToast, handleContractCallError, isAppropriateAmount, gasConfig } = useInputAmount()
   const { createLock } = useXSLocker()
-  const { account } = useWallet()
+  const { getGlobalLockStats } = useStakingRewards()
 
   const [stakeInputValue, setStakeInputValue] = React.useState('0')
   const [stakeRangeValue, setStakeRangeValue] = React.useState('0')
   const [lockInputValue, setLockInputValue] = React.useState('0')
+  const [projectedMultiplier, setProjectedMultiplier] = React.useState<string>('0')
+  const [projectedApy, setProjectedApy] = React.useState<BigNumber>(ZERO)
+  const [projectedYearlyReturns, setProjectedYearlyReturns] = React.useState<BigNumber>(ZERO)
+  const [globalLockStats, setGlobalLockStats] = React.useState<GlobalLockInfo>({
+    solaceStaked: ZERO,
+    valueStaked: ZERO,
+    numLocks: ZERO,
+    rewardPerSecond: ZERO,
+    apy: ZERO,
+  })
 
   const callCreateLock = async () => {
     if (!latestBlock || !account) return
-    const seconds = parseInt(lockInputValue) * 86400
-    // const seconds = latestBlock.timestamp + 200
+    const seconds = latestBlock.timestamp + parseInt(lockInputValue) * 86400
     await createLock(account, parseUnits(stakeInputValue, 18), BigNumber.from(seconds), gasConfig)
       .then((res) => handleToast(res.tx, res.localTx))
       .catch((err) => handleContractCallError('callCreateLock', err, FunctionName.CREATE_LOCK))
@@ -103,6 +121,47 @@ export default function NewSafe({ isOpen }: { isOpen: boolean }): JSX.Element {
     callCreateLock()
   }
 
+  useEffect(() => {
+    if (!latestBlock) return
+    const _getGlobalLockStats = async () => {
+      const globalLockStats: GlobalLockInfo = await getGlobalLockStats()
+      setGlobalLockStats(globalLockStats)
+    }
+    _getGlobalLockStats()
+  }, [latestBlock])
+
+  useEffect(() => {
+    if (!latestBlock) return
+    let rewardMultiplier = 1.0
+    // let voteMultiplier = 1.0
+    const lockEnd = latestBlock.timestamp + parseInt(lockInputValue) * 86400
+    if (latestBlock.timestamp + parseInt(lockInputValue) * 86400 > latestBlock.timestamp) {
+      rewardMultiplier += (1.5 * (lockEnd - latestBlock.timestamp)) / (31536000 * 4)
+      // voteMultiplier += (3.0 * (lockEnd - latestBlock.timestamp)) / (31536000 * 4)
+    }
+    const strRewardMultiplier = truncateValue(rewardMultiplier.toString(), 2)
+    // const strVoteMultiplier = truncateValue(voteMultiplier.toString(), 2)
+    const boostedValue = BigNumber.from(
+      convertSciNotaToPrecise(`${Math.floor(rewardMultiplier * parseFloat(stakeRangeValue))}`)
+    )
+    // const xsolaceAmount = BigNumber.from(
+    //   convertSciNotaToPrecise(`${Math.floor(voteMultiplier * parseFloat(stakeRangeValue))}`)
+    // )
+    // assuming user wants to create lock with solaceAmount that ends at lockEnd
+    const newValueStaked = globalLockStats.valueStaked.add(boostedValue)
+    // const newSolaceStaked = globalLockStats.solaceStaked.add(parseUnits(stakeInputValue, 18))
+    const projectedYearlyReturns = newValueStaked.gt(0)
+      ? globalLockStats.rewardPerSecond.mul(31536000).mul(boostedValue).div(newValueStaked)
+      : ZERO
+    const projectedApy = parseUnits(stakeInputValue, 18).gt(0)
+      ? projectedYearlyReturns.mul(100).div(parseUnits(stakeInputValue, 18))
+      : ZERO
+    setProjectedMultiplier(strRewardMultiplier)
+    setProjectedApy(projectedApy)
+    setProjectedYearlyReturns(projectedYearlyReturns)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [globalLockStats, lockInputValue, stakeInputValue, stakeRangeValue])
+
   return (
     <Accordion isOpen={isOpen} style={{ backgroundColor: 'inherit' }}>
       <ShadowDiv style={{ marginBottom: '20px' }}>
@@ -131,23 +190,36 @@ export default function NewSafe({ isOpen }: { isOpen: boolean }): JSX.Element {
                 </Flex>
                 <Flex column stretch w={521}>
                   <Label importance="quaternary" style={{ marginBottom: '8px' }}>
-                    Stake benefits
+                    Projected benefits
                   </Label>
                   <GrayBox>
                     <Flex stretch column>
                       <Flex stretch gap={24}>
                         <Flex column gap={2}>
-                          <Text t5s mb={8}>
-                            Regular APY
+                          <Text t5s techygradient mb={8}>
+                            APY
                           </Text>
-                          <Text t3s>55%</Text>
+                          <Text t3s techygradient>
+                            <Flex>{projectedApy.toNumber()}%</Flex>
+                          </Text>
                         </Flex>
                         <VerticalSeparator />
                         <Flex column gap={2}>
-                          <Text t5s mb={8}>
-                            Multiplier
+                          <Text t5s techygradient mb={8}>
+                            Reward Multiplier
                           </Text>
-                          <Text t3s>1x</Text>
+                          <Text t3s techygradient>
+                            {projectedMultiplier}x
+                          </Text>
+                        </Flex>
+                        <VerticalSeparator />
+                        <Flex column gap={2}>
+                          <Text t5s techygradient mb={8}>
+                            Yearly Return
+                          </Text>
+                          <Text t3s techygradient>
+                            {truncateValue(formatUnits(projectedYearlyReturns, 18), 4, false)}
+                          </Text>
                         </Flex>
                       </Flex>
                     </Flex>
@@ -176,7 +248,6 @@ export default function NewSafe({ isOpen }: { isOpen: boolean }): JSX.Element {
                   {
                     <SmallBox transparent collapse={!lockInputValue || lockInputValue == '0'} m={0} p={0}>
                       <Text
-                        dark
                         style={{
                           fontWeight: 500,
                         }}
@@ -186,7 +257,7 @@ export default function NewSafe({ isOpen }: { isOpen: boolean }): JSX.Element {
                     </SmallBox>
                   }
                 </Flex>
-                <Flex column stretch w={521}>
+                {/* <Flex column stretch w={521}>
                   <Label importance="quaternary" style={{ marginBottom: '8px' }}>
                     Lock benefits
                   </Label>
@@ -218,7 +289,7 @@ export default function NewSafe({ isOpen }: { isOpen: boolean }): JSX.Element {
                       </Flex>
                     </Flex>
                   </GrayBox>
-                </Flex>
+                </Flex> */}
               </Flex>
             </Flex>
             <Flex p={24}>

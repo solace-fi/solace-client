@@ -46,20 +46,16 @@ export default function DifferenceBoxes({
             <Text t1 extrabold>
               Staking V1
             </Text>
+            {/* <Text t5s textAlignCenter style={{ fontWeight: 400, margin: '10px 55px 0px 55px' }}>
+              Some additional info about some stuff and other stuff for users to understand.
+            </Text> */}
             <Flex column gap={20} center>
-              <Text t2>Benefit 1</Text>
-              <Text t2>Benefit 2</Text>
+              <Text t2>Weekly rewards</Text>
               <Text t2 lineThrough>
-                Benefit 3
+                Governance Rights
               </Text>
               <Text t2 lineThrough>
-                Benefit 4
-              </Text>
-              <Text t2 lineThrough>
-                Benefit 5
-              </Text>
-              <Text t5s textAlignCenter style={{ fontWeight: 400, margin: '10px 55px 0px 55px' }}>
-                Some additional info about some stuff and other stuff for users to understand.
+                Multipliers
               </Text>
             </Flex>
             <Button
@@ -85,24 +81,18 @@ export default function DifferenceBoxes({
             <Text t1 extrabold light>
               Staking V2
             </Text>
+            {/* <Text t5s light textAlignCenter style={{ fontWeight: 400, margin: '10px 55px 0px 55px' }}>
+              Users are in more control of their funds and returns. Users can utilize safes to take ad
+            </Text> */}
             <Flex column gap={20} center>
               <Text t2 light>
-                Benefit 1
+                Rewards updated each second
               </Text>
               <Text t2 light>
-                Benefit 2
+                xSOLACE gives governance rights
               </Text>
               <Text t2 light>
-                Benefit 3
-              </Text>
-              <Text t2 light>
-                Benefit 4
-              </Text>
-              <Text t2 light>
-                Benefit 5
-              </Text>
-              <Text t5s light textAlignCenter style={{ fontWeight: 400, margin: '10px 55px 0px 55px' }}>
-                Some additional info about some stuff and other stuff for users to understand.
+                Locking multipliers
               </Text>
             </Flex>
             <Button pl={23} pr={23} noborder secondary light onClick={() => setStakingVersion(StakingVersion.v2)}>

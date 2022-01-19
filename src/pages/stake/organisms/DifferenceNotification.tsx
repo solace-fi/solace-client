@@ -134,7 +134,6 @@ export default function DifferenceNotification({
           <NotificationButton
             onClick={() => {
               setVersion(StakingVersion.v2)
-              console.log('v2', version)
             }}
             active={version === StakingVersion.v2}
           >
@@ -144,7 +143,6 @@ export default function DifferenceNotification({
         <DifferenceText
           onClick={() => {
             setVersion(StakingVersion.difference)
-            console.log('diff')
           }}
         >
           What is the difference?

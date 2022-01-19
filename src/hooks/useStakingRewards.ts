@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 import { useContracts } from '../context/ContractsManager'
 import { BigNumber } from 'ethers'
-import { GasConfiguration, LocalTx } from '../constants/types'
+import { GasConfiguration, GlobalLockInfo, LocalTx } from '../constants/types'
 import { ZERO } from '../constants'
 import { FunctionName, TransactionCondition } from '../constants/enums'
 import { rangeFrom0 } from '../utils/numeric'
@@ -51,6 +51,47 @@ export const useStakingRewards = () => {
     } catch (err) {
       console.log('error getStakedLockInfo ', err)
       return null
+    }
+  }
+
+  const getGlobalLockStats = async (): Promise<GlobalLockInfo> => {
+    if (!stakingRewards || !xsLocker)
+      return {
+        solaceStaked: ZERO,
+        valueStaked: ZERO,
+        numLocks: ZERO,
+        rewardPerSecond: ZERO,
+        apy: ZERO,
+      }
+    let totalSolaceStaked = ZERO
+    const [rewardPerSecond, valueStaked, numlocks] = await Promise.all([
+      stakingRewards.rewardPerSecond(), // across all locks
+      stakingRewards.valueStaked(), // across all locks
+      xsLocker.totalSupply(),
+    ])
+    const indices = rangeFrom0(numlocks.toNumber())
+    const xsLockIDs = await Promise.all(
+      indices.map(async (index) => {
+        return await xsLocker.tokenByIndex(index)
+      })
+    )
+    const locks = await Promise.all(
+      xsLockIDs.map(async (xsLockID) => {
+        return await xsLocker.locks(xsLockID)
+      })
+    )
+    locks.forEach((lock) => {
+      totalSolaceStaked = totalSolaceStaked.add(lock.amount)
+    })
+    const apy = totalSolaceStaked.gt(0)
+      ? rewardPerSecond.mul(BigNumber.from(31536000)).mul(BigNumber.from(100)).div(totalSolaceStaked)
+      : BigNumber.from(1000)
+    return {
+      solaceStaked: totalSolaceStaked,
+      valueStaked: valueStaked,
+      numLocks: numlocks,
+      rewardPerSecond: rewardPerSecond,
+      apy: apy, // individual lock apy may be up to 2.5x this
     }
   }
 
@@ -106,5 +147,12 @@ export const useStakingRewards = () => {
     return { tx, localTx }
   }
 
-  return { getUserPendingRewards, getPendingRewardsOfLock, getStakedLockInfo, harvestLockRewards, compoundLockRewards }
+  return {
+    getUserPendingRewards,
+    getPendingRewardsOfLock,
+    getStakedLockInfo,
+    getGlobalLockStats,
+    harvestLockRewards,
+    compoundLockRewards,
+  }
 }

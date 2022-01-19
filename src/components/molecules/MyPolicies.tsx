@@ -45,7 +45,7 @@ import { StyledArrowDropDown } from '../atoms/Icon'
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'
 
 /* import utils */
-import { truncateBalance } from '../../utils/formatting'
+import { truncateValue } from '../../utils/formatting'
 import { calculatePolicyExpirationDate, shouldWarnUser } from '../../utils/policy'
 
 interface MyPoliciesProps {
@@ -147,7 +147,7 @@ export const MyPolicies: React.FC<MyPoliciesProps> = ({
                         </TableData>
                         <TableData>
                           <Text t2 warning={isWarned}>
-                            {truncateBalance(formatUnits(policy.coverAmount, currencyDecimals), 2)}{' '}
+                            {truncateValue(formatUnits(policy.coverAmount, currencyDecimals), 2)}{' '}
                             {activeNetwork.nativeCurrency.symbol}
                           </Text>
                         </TableData>
@@ -232,7 +232,7 @@ export const MyPolicies: React.FC<MyPoliciesProps> = ({
                         <FormCol>
                           <Text t2>
                             {policy.coverAmount
-                              ? truncateBalance(formatUnits(policy.coverAmount, currencyDecimals), 2)
+                              ? truncateValue(formatUnits(policy.coverAmount, currencyDecimals), 2)
                               : 0}{' '}
                             {activeNetwork.nativeCurrency.symbol}
                           </Text>

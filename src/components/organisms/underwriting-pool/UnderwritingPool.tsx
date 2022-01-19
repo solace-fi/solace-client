@@ -38,7 +38,7 @@ import { useCapitalPoolSize, useUserVaultDetails } from '../../../hooks/useVault
 import { useWindowDimensions } from '../../../hooks/useWindowDimensions'
 
 /* import utils */
-import { truncateBalance } from '../../../utils/formatting'
+import { truncateValue } from '../../../utils/formatting'
 
 interface UnderwritingPoolProps {
   openModal: (func: FunctionName, modalTitle: string, farmName: string) => void
@@ -79,10 +79,10 @@ export const UnderwritingPool: React.FC<UnderwritingPoolProps> = ({ openModal })
           </TableHead>
           <TableBody>
             <TableRow light>
-              {account ? <TableData t3>{truncateBalance(userVaultAssets, 2)}</TableData> : null}
-              <TableData t3>{truncateBalance(capitalPoolSize, 2)}</TableData>
+              {account ? <TableData t3>{truncateValue(userVaultAssets, 2)}</TableData> : null}
+              <TableData t3>{truncateValue(capitalPoolSize, 2)}</TableData>
               <TableData t3>N/A</TableData>
-              {account ? <TableData t3>{`${truncateBalance(userVaultShare, 2)}%`}</TableData> : null}
+              {account ? <TableData t3>{`${truncateValue(userVaultShare, 2)}%`}</TableData> : null}
               <TableData t3></TableData>
               <TableData t3></TableData>
               {account ? (
@@ -108,14 +108,14 @@ export const UnderwritingPool: React.FC<UnderwritingPoolProps> = ({ openModal })
             <FormRow>
               <FormCol light>My Assets:</FormCol>
               <FormCol light t2>
-                {truncateBalance(userVaultAssets, 2)}
+                {truncateValue(userVaultAssets, 2)}
               </FormCol>
             </FormRow>
           )}
           <FormRow>
             <FormCol light>Total Assets:</FormCol>
             <FormCol light t2>
-              {truncateBalance(capitalPoolSize, 2)}
+              {truncateValue(capitalPoolSize, 2)}
             </FormCol>
           </FormRow>
           <FormRow>
@@ -127,7 +127,7 @@ export const UnderwritingPool: React.FC<UnderwritingPoolProps> = ({ openModal })
           {account && (
             <FormRow>
               <FormCol light>My Vault Share:</FormCol>
-              <FormCol light t2>{`${truncateBalance(userVaultShare, 2)}%`}</FormCol>
+              <FormCol light t2>{`${truncateValue(userVaultShare, 2)}%`}</FormCol>
             </FormRow>
           )}
           {account && (

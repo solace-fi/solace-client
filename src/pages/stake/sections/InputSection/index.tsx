@@ -1,4 +1,5 @@
 import React from 'react'
+import { Button } from '../../../../components/atoms/Button'
 import { Tab } from '../../types/Tab'
 import IconAndText from './IconAndText'
 import InputSectionWrapper from './InputSectionWrapper'
@@ -28,10 +29,13 @@ export default function InputSection({
         placeholder="0"
         value={value}
         onChange={onChange}
-        style={{ backgroundColor: 'inherit', width: '100%' }}
+        style={{ backgroundColor: 'inherit', color: 'inherit', width: '100%' }}
         disabled={disabled}
       />
-      <MaxButton setMax={setMax} disabled={disabled} />
+      {/* <MaxButton setMax={setMax} disabled={disabled} /> */}
+      <Button info onClick={setMax} disabled={disabled} m={10}>
+        MAX
+      </Button>
     </InputSectionWrapper>
   )
 }

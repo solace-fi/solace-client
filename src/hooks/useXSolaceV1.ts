@@ -9,7 +9,7 @@ import { FunctionName, TransactionCondition } from '../constants/enums'
 import { getPermitErc20Signature } from '../utils/signature'
 import { FunctionGasLimits } from '../constants/mappings/gasMapping'
 import { useXSolaceBalance } from './useBalance'
-import { floatUnits, truncateBalance } from '../utils/formatting'
+import { floatUnits, truncateValue } from '../utils/formatting'
 import { useCachedData } from '../context/CachedDataManager'
 import { parseUnits, formatUnits } from '@ethersproject/units'
 import { useProvider } from '../context/ProviderManager'
@@ -125,7 +125,7 @@ export const useStakingApyV1 = () => {
     try {
       const amount = await xSolaceV1.solaceToXSolace(parseUnits('1', 18))
       const apy = (1 / parseFloat(formatUnits(amount, 18)) - 1) * 100
-      const formattedApy = `${truncateBalance(apy, 2, false)}%`
+      const formattedApy = `${truncateValue(apy, 2, false)}%`
       setStakingApy(formattedApy)
     } catch (err) {
       console.log('error getStakingAPY ', err)

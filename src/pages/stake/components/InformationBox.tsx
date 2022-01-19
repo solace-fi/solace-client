@@ -7,16 +7,22 @@ import { StyledInfo } from '../../../components/atoms/Icon'
 
 // border-[#5F5DF9] bg-[#F7F7FF] text-[#5F5DF9]
 const infoCss = css`
-  border-color: #5f5df9;
-  color: #5f5df9;
-  background-color: #f7f7ff;
+  /* border-color: #5f5df9; */
+  ${(props) => `color: ${props.theme.typography.infoText};`}
+  ${(props) => `border-color: ${props.theme.typography.infoText};`}
+  /* color: #5f5df9; */
+  /* background-color: #f7f7ff; */
+  ${(props) => `background-color: ${props.theme.v2.raised};`}
 `
 
 // border-[#F04D42] text-[#F04D42] bg-[#FEF6F5]
 const errorCss = css`
-  border-color: #f04d42;
+  /* border-color: #f04d42; */
   color: #f04d42;
-  background-color: #fef6f5;
+  ${(props) => `color: ${props.theme.typography.errorText};`}
+  ${(props) => `border-color: ${props.theme.typography.errorText};`}
+  /* background-color: #fef6f5; */
+  ${(props) => `background-color: ${props.theme.v2.aside};`}
 `
 
 const StyledInfoBox = styled.div<{ type: InfoBoxType }>`

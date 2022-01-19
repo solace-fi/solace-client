@@ -40,7 +40,7 @@ import { Card, CardContainer } from '../atoms/Card'
 import { HyperLink } from '../atoms/Link'
 
 /* import hooks */
-import { useSolaceBalance, useXSolaceBalance, useUnderWritingPoolBalance } from '../../hooks/useBalance'
+import { useSolaceBalance, useUnderWritingPoolBalance } from '../../hooks/useBalance'
 import { usePolicyGetter } from '../../hooks/usePolicyGetter'
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'
 import { usePairPrice } from '../../hooks/usePair'
@@ -49,7 +49,7 @@ import { useXSLocker } from '../../hooks/useXSLocker'
 import { useReadToken } from '../../hooks/useToken'
 
 /* import utils */
-import { truncateBalance } from '../../utils/formatting'
+import { truncateValue } from '../../utils/formatting'
 
 export const Statistics: React.FC = () => {
   /*************************************************************************************
@@ -134,7 +134,7 @@ export const Statistics: React.FC = () => {
           Underwriting Pool Size
         </BoxItemTitle>
         <Text t2 nowrap light bold>
-          {underwritingPoolBalance == '-' ? '$-' : `$${truncateBalance(underwritingPoolBalance, 2)}`}
+          {underwritingPoolBalance == '-' ? '$-' : `$${truncateValue(underwritingPoolBalance, 2)}`}
         </Text>
       </BoxItem>
       <BoxItem>
@@ -143,7 +143,7 @@ export const Statistics: React.FC = () => {
         </BoxItemTitle>
         <Text t2 nowrap light bold>
           {totalActiveCoverAmount !== '-'
-            ? `${truncateBalance(totalActiveCoverAmount, 2)} `
+            ? `${truncateValue(totalActiveCoverAmount, 2)} `
             : `${totalActiveCoverAmount} `}
           <TextSpan t4 light bold>
             {activeNetwork.nativeCurrency.symbol}
@@ -188,7 +188,7 @@ export const Statistics: React.FC = () => {
           <FormCol light>Underwriting Pool Size</FormCol>
           <FormCol>
             <Text t2 nowrap light>
-              {underwritingPoolBalance == '-' ? '$-' : `$${truncateBalance(underwritingPoolBalance, 2)}`}
+              {underwritingPoolBalance == '-' ? '$-' : `$${truncateValue(underwritingPoolBalance, 2)}`}
             </Text>
           </FormCol>
         </FormRow>
@@ -197,7 +197,7 @@ export const Statistics: React.FC = () => {
           <FormCol>
             <Text t2 nowrap light>
               {totalActiveCoverAmount !== '-'
-                ? `${truncateBalance(totalActiveCoverAmount, 2)} `
+                ? `${truncateValue(totalActiveCoverAmount, 2)} `
                 : `${totalActiveCoverAmount} `}
               <TextSpan t4 light>
                 {activeNetwork.nativeCurrency.symbol}
@@ -228,7 +228,7 @@ export const Statistics: React.FC = () => {
                   My SOLACE Balance
                 </BoxItemTitle>
                 <Text t2 light bold>
-                  {`${truncateBalance(solaceBalance, 1)} `}
+                  {`${truncateValue(solaceBalance, 1)} `}
                   <TextSpan t4 light bold>
                     {readSolaceToken.symbol}
                   </TextSpan>
@@ -239,7 +239,7 @@ export const Statistics: React.FC = () => {
                   My Unlocked Stake
                 </BoxItemTitle>
                 <Text t2 light bold>
-                  {`${truncateBalance(unlockedSolaceBalance, 1)} `}
+                  {`${truncateValue(unlockedSolaceBalance, 1)} `}
                   <TextSpan t4 light bold>
                     {readSolaceToken.symbol}
                   </TextSpan>
@@ -250,7 +250,7 @@ export const Statistics: React.FC = () => {
                   My Locked Stake
                 </BoxItemTitle>
                 <Text t2 light bold>
-                  {`${truncateBalance(lockedSolaceBalance, 1)} `}
+                  {`${truncateValue(lockedSolaceBalance, 1)} `}
                   <TextSpan t4 light bold>
                     {readSolaceToken.symbol}
                   </TextSpan>
@@ -284,7 +284,7 @@ export const Statistics: React.FC = () => {
                   <FormCol light>My SOLACE Balance</FormCol>
                   <FormCol>
                     <Text t2 light>
-                      {`${truncateBalance(solaceBalance, 1)} `}
+                      {`${truncateValue(solaceBalance, 1)} `}
                       <TextSpan t4 light>
                         {readSolaceToken.symbol}
                       </TextSpan>
@@ -295,7 +295,7 @@ export const Statistics: React.FC = () => {
                   <FormCol light>My Unlocked Stake</FormCol>
                   <FormCol>
                     <Text t2 light>
-                      {`${truncateBalance(unlockedSolaceBalance, 1)} `}
+                      {`${truncateValue(unlockedSolaceBalance, 1)} `}
                       <TextSpan t4 light>
                         {readSolaceToken.symbol}
                       </TextSpan>
@@ -306,7 +306,7 @@ export const Statistics: React.FC = () => {
                   <FormCol light>My Locked Stake</FormCol>
                   <FormCol>
                     <Text t2 light>
-                      {`${truncateBalance(lockedSolaceBalance, 1)} `}
+                      {`${truncateValue(lockedSolaceBalance, 1)} `}
                       <TextSpan t4 light>
                         {readSolaceToken.symbol}
                       </TextSpan>

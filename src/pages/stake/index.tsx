@@ -51,7 +51,7 @@ import { useUserLockData } from '../../hooks/useXSLocker'
 import { useXSolaceMigrator } from '../../hooks/useXSolaceMigrator'
 
 /* import utils */
-import { formatAmount, truncateBalance } from '../../utils/formatting'
+import { formatAmount } from '../../utils/formatting'
 import { Tab } from './types/Tab'
 
 import Twiv from './components/Twiv'
@@ -209,48 +209,7 @@ function Stake1(): any {
                   </Text>
                 </FormCol>
               </FormRow>
-              {/* <FormRow mb={10}>
-                <FormCol>
-                  <Text bold>Amount you will get</Text>
-                </FormCol>
-                <FormCol>
-                  <Text bold textAlignRight info>
-                    {convertedAmount.eq(ZERO)
-                      ? `-`
-                      : formatUnits(
-                          convertedAmount,
-                          isMigrating ? readXSolaceToken.decimals : readSolaceToken.decimals
-                        )}{' '}
-                    {isMigrating ? readXSolaceToken.symbol : readSolaceToken.symbol}
-                  </Text>
-                </FormCol>
-              </FormRow> */}
-              {/* <FormRow mt={10} mb={30}>
-                <FormCol>
-                  <Button onClick={() => setConvertStoX(!convertStoX)}>
-                    Conversion
-                    <StyledRefresh size={30} style={{ cursor: 'pointer' }} />
-                  </Button>
-                </FormCol>
-                <FormCol>
-                  <Text t4 pr={5}>
-                    {convertStoX
-                      ? `1 ${readSolaceToken.symbol} = ${xSolacePerSolace} ${readXSolaceToken.symbol}`
-                      : `1 ${readXSolaceToken.symbol} = ${solacePerXSolace} ${readSolaceToken.symbol}`}
-                  </Text>
-                </FormCol>
-              </FormRow> */}
               <HorizRule />
-              {/* {account && (
-                <FormRow mt={20} mb={10}>
-                  <FormCol>
-                    <Text t4>My Pool Share</Text>
-                  </FormCol>
-                  <FormCol>
-                    <Text t4>{truncateBalance(userShare)}%</Text>
-                  </FormCol>
-                </FormRow>
-              )} */}
               <ButtonWrapper isColumn style={{ gap: '20px' }}>
                 <Button widthP={100} info secondary disabled={!isAcceptableAmount || haveErrors} onClick={callUnstake}>
                   Unstake
