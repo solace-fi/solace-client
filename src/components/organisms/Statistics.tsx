@@ -246,119 +246,116 @@ export const Statistics: React.FC = () => {
     <>
       {width > BKPT_3 ? (
         <BoxRow>
-          {initialized && account ? (
-            <Box>
-              <BoxItem>
-                <BoxItemTitle t4 light>
-                  My SOLACE Balance
-                </BoxItemTitle>
-                <Text t2 light bold>
-                  {`${truncateValue(solaceBalance, 1)} `}
-                  <TextSpan t4 light bold>
-                    {readSolaceToken.symbol}
-                  </TextSpan>
-                </Text>
-              </BoxItem>
-              <BoxItem>
-                <BoxItemTitle t4 light>
-                  My Stake
-                </BoxItemTitle>
-                <Text t2 light bold>
-                  {`${truncateValue(formatUnits(userLockInfo.stakedBalance, 18), 1)} `}
-                  <TextSpan t4 light bold>
-                    {readSolaceToken.symbol}
-                  </TextSpan>
-                </Text>
-              </BoxItem>
-              <BoxItem>
-                <BoxItemTitle t4 light>
-                  Global Stake
-                </BoxItemTitle>
-                <Text t2 light bold>
-                  {`${truncateValue(formatUnits(globalLockStats.solaceStaked, 18), 1)} `}
-                  <TextSpan t4 light bold>
-                    {readSolaceToken.symbol}
-                  </TextSpan>
-                </Text>
-              </BoxItem>
-              <BoxItem>
-                <BoxItemTitle t4 light>
-                  Global APY
-                </BoxItemTitle>
-                <Text t2 light bold>
-                  {`${truncateValue(globalLockStats.apy.toNumber(), 1)}`}%
-                </Text>
-              </BoxItem>
-            </Box>
-          ) : (
-            <Box>
+          <Box>
+            {initialized && account ? (
+              <>
+                <BoxItem>
+                  <BoxItemTitle t4 light>
+                    My SOLACE Balance
+                  </BoxItemTitle>
+                  <Text t2 light bold>
+                    {`${truncateValue(solaceBalance, 1)} `}
+                    <TextSpan t4 light bold>
+                      {readSolaceToken.symbol}
+                    </TextSpan>
+                  </Text>
+                </BoxItem>
+                <BoxItem>
+                  <BoxItemTitle t4 light>
+                    My Stake
+                  </BoxItemTitle>
+                  <Text t2 light bold>
+                    {`${truncateValue(formatUnits(userLockInfo.stakedBalance, 18), 1)} `}
+                    <TextSpan t4 light bold>
+                      {readSolaceToken.symbol}
+                    </TextSpan>
+                  </Text>
+                </BoxItem>
+              </>
+            ) : (
               <BoxItem>
                 <WalletConnectButton light welcome />
               </BoxItem>
-            </Box>
-          )}
+            )}
+            <BoxItem>
+              <BoxItemTitle t4 light>
+                Global Stake
+              </BoxItemTitle>
+              <Text t2 light bold>
+                {`${truncateValue(formatUnits(globalLockStats.solaceStaked, 18), 1)} `}
+                <TextSpan t4 light bold>
+                  {readSolaceToken.symbol}
+                </TextSpan>
+              </Text>
+            </BoxItem>
+            <BoxItem>
+              <BoxItemTitle t4 light>
+                Global APY
+              </BoxItemTitle>
+              <Text t2 light bold>
+                {`${truncateValue(globalLockStats.apy.toNumber(), 1)}`}%
+              </Text>
+            </BoxItem>
+          </Box>
           <GlobalBox />
         </BoxRow>
       ) : (
         // mobile version
         <>
-          {initialized && account ? (
-            <CardContainer m={20}>
-              <Card color1>
-                <FormRow>
-                  <FormCol light>My SOLACE Balance</FormCol>
-                  <FormCol>
-                    <Text t2 light>
-                      {`${truncateValue(solaceBalance, 1)} `}
-                      <TextSpan t4 light>
-                        {readSolaceToken.symbol}
-                      </TextSpan>
-                    </Text>
-                  </FormCol>
-                </FormRow>
-                <FormRow>
-                  <FormCol light>My Stake</FormCol>
-                  <FormCol>
-                    <Text t2 light>
-                      {`${truncateValue(formatUnits(userLockInfo.stakedBalance, 18), 1)} `}
-                      <TextSpan t4 light>
-                        {readSolaceToken.symbol}
-                      </TextSpan>
-                    </Text>
-                  </FormCol>
-                </FormRow>
-                <FormRow>
-                  <FormCol light>Global Stake</FormCol>
-                  <FormCol>
-                    <Text t2 light>
-                      {`${truncateValue(formatUnits(globalLockStats.solaceStaked, 18), 1)} `}
-                      <TextSpan t4 light>
-                        {readSolaceToken.symbol}
-                      </TextSpan>
-                    </Text>
-                  </FormCol>
-                </FormRow>
-                <FormRow>
-                  <FormCol light>Global APY</FormCol>
-                  <FormCol>
-                    <Text t2 light>
-                      {`${truncateValue(globalLockStats.apy.toNumber(), 1)}`}%
-                    </Text>
-                  </FormCol>
-                </FormRow>
-              </Card>
-              <GlobalCard />
-            </CardContainer>
-          ) : (
-            <BoxRow>
-              <Box>
-                <BoxItem>
+          <CardContainer m={20}>
+            <Card color1>
+              {initialized && account ? (
+                <>
+                  <FormRow>
+                    <FormCol light>My SOLACE Balance</FormCol>
+                    <FormCol>
+                      <Text t2 light>
+                        {`${truncateValue(solaceBalance, 1)} `}
+                        <TextSpan t4 light>
+                          {readSolaceToken.symbol}
+                        </TextSpan>
+                      </Text>
+                    </FormCol>
+                  </FormRow>
+                  <FormRow>
+                    <FormCol light>My Stake</FormCol>
+                    <FormCol>
+                      <Text t2 light>
+                        {`${truncateValue(formatUnits(userLockInfo.stakedBalance, 18), 1)} `}
+                        <TextSpan t4 light>
+                          {readSolaceToken.symbol}
+                        </TextSpan>
+                      </Text>
+                    </FormCol>
+                  </FormRow>
+                </>
+              ) : (
+                <BoxRow>
                   <WalletConnectButton light welcome />
-                </BoxItem>
-              </Box>
-              <GlobalCard />
-            </BoxRow>
-          )}
+                </BoxRow>
+              )}
+              <FormRow>
+                <FormCol light>Global Stake</FormCol>
+                <FormCol>
+                  <Text t2 light>
+                    {`${truncateValue(formatUnits(globalLockStats.solaceStaked, 18), 1)} `}
+                    <TextSpan t4 light>
+                      {readSolaceToken.symbol}
+                    </TextSpan>
+                  </Text>
+                </FormCol>
+              </FormRow>
+              <FormRow>
+                <FormCol light>Global APY</FormCol>
+                <FormCol>
+                  <Text t2 light>
+                    {`${truncateValue(globalLockStats.apy.toNumber(), 1)}`}%
+                  </Text>
+                </FormCol>
+              </FormRow>
+            </Card>
+            <GlobalCard />
+          </CardContainer>
         </>
       )}
     </>
