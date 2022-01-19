@@ -62,9 +62,11 @@ export const getTimeFromMillis = (millis: number): string => {
   if (millis == 0) return '0'
   const { days, hours, minutes } = getTimesFromSeconds(millis)
 
-  return `${days > 0 ? `${days}d` : ''}${hours > 0 ? ' ' : ''}${hours > 0 ? `${hours}h` : ''}${minutes > 0 ? ' ' : ''}${
-    minutes > 0 ? `${minutes}m` : ''
-  }`
+  let str = `${days > 0 ? `${days}d` : ''}${hours > 0 ? ' ' : ''}${hours > 0 ? `${hours}h` : ''}${
+    minutes > 0 ? ' ' : ''
+  }${minutes > 0 ? `${minutes}m` : ''}`
+  if (str == '') str = '< 1m'
+  return str
 }
 
 export const getDaysLeft = (expirationBlock: number, latestBlockNumber: number): number => {

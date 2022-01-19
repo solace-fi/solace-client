@@ -34,6 +34,109 @@ export const ButtonWrapperCss = css<ButtonWrapperProps>`
   ${(props) => props.isColumn && 'flex-direction: column;'}
 `
 
+const ButtonColorFunc = (props: ButtonProps, theme: any) => {
+  if (props.disabled && props.secondary) {
+    let textColor = `${theme.typography.analogicalText}`
+    if (props.light) textColor = `${theme.typography.darkText}`
+    if (props.dark || props.info || props.success || props.warning || props.error)
+      textColor = `${theme.typography.lightText}`
+    if (props.analogical) textColor = `${theme.typography.contrastText}`
+    let bgColor = `${theme.typography.contrastText}`
+    if (props.light) bgColor = `${theme.typography.lightText}`
+    if (props.dark) bgColor = `${theme.typography.darkText}`
+    if (props.analogical) bgColor = `${theme.typography.analogicalText}`
+    if (props.info) bgColor = `${theme.typography.infoText}`
+    if (props.success) bgColor = `${theme.typography.successText}`
+    if (props.warning) bgColor = `${theme.typography.warningText}`
+    if (props.error) bgColor = `${theme.typography.errorText}`
+    return `
+      color: ${textColor};
+      background-color: ${bgColor};
+      opacity: 0.5;
+      transform: scale(0.9);
+    `
+  }
+  if (props.disabled) {
+    let textColor = `${theme.typography.contrastText}`
+    if (props.light) textColor = `${theme.typography.lightText}`
+    if (props.dark) textColor = `${theme.typography.darkText}`
+    if (props.analogical) textColor = `${theme.typography.analogicalText}`
+    if (props.info) textColor = `${theme.typography.infoText}`
+    if (props.success) textColor = `${theme.typography.successText}`
+    if (props.warning) textColor = `${theme.typography.warningText}`
+    if (props.error) textColor = `${theme.typography.errorText}`
+    return `
+      color: ${textColor};
+      background-color: rgba(0, 0, 0, 0);
+      opacity: 0.5;
+      transform: scale(0.9);
+    `
+  }
+  if (props.secondary) {
+    let textColor = `${theme.typography.analogicalText}`
+    if (props.light) textColor = `${theme.typography.darkText}`
+    if (props.dark || props.info || props.success || props.warning || props.error)
+      textColor = `${theme.typography.lightText}`
+    if (props.analogical) textColor = `${theme.typography.contrastText}`
+    let bgColor = `${theme.typography.contrastText}`
+    if (props.light) bgColor = `${theme.typography.lightText}`
+    if (props.dark) bgColor = `${theme.typography.darkText}`
+    if (props.analogical) bgColor = `${theme.typography.analogicalText}`
+    if (props.info) bgColor = `${theme.typography.infoText}`
+    if (props.success) bgColor = `${theme.typography.successText}`
+    if (props.warning) bgColor = `${theme.typography.warningText}`
+    if (props.error) bgColor = `${theme.typography.errorText}`
+    return `
+      color: ${textColor};
+      background-color: ${bgColor};
+      &:hover { 
+        ${!props.nohover && `opacity: 0.8;`} 
+      }
+    `
+  }
+  let textColor = `${theme.typography.contrastText}`
+  let hoverTextColor = `${theme.typography.analogicalText}`
+  let hoverBgColor = `${theme.typography.contrastText}`
+
+  if (props.light) textColor = `${theme.typography.lightText}`
+  if (props.dark) textColor = `${theme.typography.darkText}`
+  if (props.analogical) textColor = `${theme.typography.analogicalText}`
+  if (props.info) textColor = `${theme.typography.infoText}`
+  if (props.success) textColor = `${theme.typography.successText}`
+  if (props.warning) textColor = `${theme.typography.warningText}`
+  if (props.error) textColor = `${theme.typography.errorText}`
+  if (!props.nohover) {
+    if (props.light) {
+      hoverTextColor = `${theme.typography.darkText}`
+      hoverBgColor = `${theme.typography.lightText}`
+    }
+    if (props.dark || props.info || props.success || props.warning || props.error) {
+      if (props.dark) hoverBgColor = `${theme.typography.darkText}`
+      if (props.info) hoverBgColor = `${theme.typography.infoText}`
+      if (props.success) hoverBgColor = `${theme.typography.successText}`
+      if (props.warning) hoverBgColor = `${theme.typography.warningText}`
+      if (props.error) hoverBgColor = `${theme.typography.errorText}`
+    }
+    if (props.analogical) {
+      hoverTextColor = `${theme.typography.contrastText}`
+      hoverBgColor = `${theme.typography.analogicalText}`
+    }
+  }
+  return `
+    color: ${textColor};
+    background-color: rgba(0, 0, 0, 0);
+    &:hover {
+      ${
+        !props.nohover &&
+        `
+      color: ${hoverTextColor};
+      background-color: ${hoverBgColor};
+      `
+      }
+    }
+  `
+}
+
 export const ButtonBaseCss = css<ButtonProps & GeneralElementProps>`
   display: inline-flex;
   align-items: center;
@@ -64,96 +167,8 @@ export const ButtonBaseCss = css<ButtonProps & GeneralElementProps>`
   visibility: ${(props) => (props.hidden ? 'hidden;' : 'visible;')};
   color: ${({ theme }) => theme.typography.contrastText};
 
-  ${(props) =>
-    props.disabled
-      ? `color: ${
-          props.light
-            ? props.theme.typography.lightText
-            : props.dark
-            ? props.theme.typography.darkText
-            : props.analogical
-            ? props.theme.typography.analogicalText
-            : props.info
-            ? props.theme.typography.infoText
-            : props.success
-            ? props.theme.typography.successText
-            : props.warning
-            ? props.theme.typography.warningText
-            : props.error
-            ? props.theme.typography.errorText
-            : props.theme.typography.contrastText
-        }; background-color: rgba(0, 0, 0, 0); opacity: 0.5; transform: scale(.9);`
-      : props.secondary
-      ? `color: ${
-          props.light
-            ? props.theme.typography.darkText
-            : props.dark || props.info || props.success || props.warning || props.error
-            ? props.theme.typography.lightText
-            : props.analogical
-            ? props.theme.typography.contrastText
-            : props.theme.typography.analogicalText
-        }; background-color: ${
-          props.light
-            ? props.theme.typography.lightText
-            : props.dark
-            ? props.theme.typography.darkText
-            : props.analogical
-            ? props.theme.typography.analogicalText
-            : props.info
-            ? props.theme.typography.infoText
-            : props.success
-            ? props.theme.typography.successText
-            : props.warning
-            ? props.theme.typography.warningText
-            : props.error
-            ? props.theme.typography.errorText
-            : props.theme.typography.contrastText
-        }; &:hover { ${!props.nohover && `opacity: 0.8;`} }`
-      : `color: ${
-          props.light
-            ? props.theme.typography.lightText
-            : props.dark
-            ? props.theme.typography.darkText
-            : props.analogical
-            ? props.theme.typography.analogicalText
-            : props.info
-            ? props.theme.typography.infoText
-            : props.success
-            ? props.theme.typography.successText
-            : props.warning
-            ? props.theme.typography.warningText
-            : props.error
-            ? props.theme.typography.errorText
-            : props.theme.typography.contrastText
-        }; background-color: rgba(0, 0, 0, 0); &:hover { ${
-          !props.nohover &&
-          `color: ${
-            props.light
-              ? props.theme.typography.darkText
-              : props.dark || props.info || props.success || props.warning || props.error
-              ? props.theme.typography.lightText
-              : props.analogical
-              ? props.theme.typography.contrastText
-              : props.theme.typography.analogicalText
-          }; background-color: ${
-            props.light
-              ? props.theme.typography.lightText
-              : props.dark
-              ? props.theme.typography.darkText
-              : props.analogical
-              ? props.theme.typography.analogicalText
-              : props.info
-              ? props.theme.typography.infoText
-              : props.success
-              ? props.theme.typography.successText
-              : props.warning
-              ? props.theme.typography.warningText
-              : props.error
-              ? props.theme.typography.errorText
-              : props.theme.typography.contrastText
-          };`
-        } }
-    `}
+  ${(props) => ButtonColorFunc(props, props.theme)}
+
   ${(props) => props.glow && `box-shadow: ${props.theme.button.glow};`}
   font-weight: ${(props) => (props.semibold ? '600' : '500')};
   font-family: 'Open Sans', sans-serif;

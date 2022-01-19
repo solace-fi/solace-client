@@ -37,7 +37,7 @@ import { FormCol, FormRow } from '../../components/atoms/Form'
 import { Input } from '../../components/atoms/Input'
 import { Content, FlexCol, FlexRow, HorizRule, Scrollable } from '../../components/atoms/Layout'
 import { ModalCell } from '../../components/atoms/Modal'
-import { Text } from '../../components/atoms/Typography'
+import { Text, TextSpan } from '../../components/atoms/Typography'
 import { HeroContainer, MultiTabIndicator } from '../../components/atoms/Layout'
 import { WalletConnectButton } from '../../components/molecules/WalletConnectButton'
 import { StyledRefresh } from '../../components/atoms/Icon'
@@ -48,6 +48,7 @@ import { useXSolaceV1, useXSolaceV1Details } from '../../hooks/useXSolaceV1'
 import { useInputAmount } from '../../hooks/useInputAmount'
 import { useReadToken } from '../../hooks/useToken'
 import { useUserLockData } from '../../hooks/useXSLocker'
+import { useXSolaceMigrator } from '../../hooks/useXSolaceMigrator'
 
 /* import utils */
 import { formatAmount, truncateBalance } from '../../utils/formatting'
@@ -75,8 +76,8 @@ function Stake1(): any {
   const { haveErrors } = useGeneral()
   const { keyContracts } = useContracts()
   const { solace, xSolaceV1 } = useMemo(() => keyContracts, [keyContracts])
-  const [isStaking, setIsStaking] = useState<boolean>(true)
-  const solaceBalance = useSolaceBalance()
+  // const [isMigrating, setIsMigrating] = useState<boolean>(true)
+  // const solaceBalance = useSolaceBalance()
   const { xSolaceV1Balance, v1StakedSolaceBalance } = useXSolaceV1Balance()
   const readSolaceToken = useReadToken(solace)
   const readXSolaceToken = useReadToken(xSolaceV1)
@@ -88,28 +89,14 @@ function Stake1(): any {
     handleContractCallError,
     handleInputChange,
     setMax,
-    resetAmount,
   } = useInputAmount()
   const { stake_v1, unstake_v1 } = useXSolaceV1()
-  const { userShare, xSolacePerSolace, solacePerXSolace } = useXSolaceV1Details()
+  // const { userShare, xSolacePerSolace, solacePerXSolace } = useXSolaceV1Details()
+  const { migrate } = useXSolaceMigrator()
   const { account } = useWallet()
-  const [convertStoX, setConvertStoX] = useState<boolean>(true)
+  // const [convertStoX, setConvertStoX] = useState<boolean>(true)
 
   const [isAcceptableAmount, setIsAcceptableAmount] = useState<boolean>(false)
-
-  const assetBalance = useMemo(
-    () =>
-      isStaking
-        ? parseUnits(solaceBalance, readSolaceToken.decimals)
-        : parseUnits(v1StakedSolaceBalance, readSolaceToken.decimals),
-    [isStaking, solaceBalance, v1StakedSolaceBalance, readSolaceToken]
-  )
-
-  const assetDecimals = useMemo(() => (isStaking ? readSolaceToken.decimals : readXSolaceToken.decimals), [
-    isStaking,
-    readSolaceToken.decimals,
-    readXSolaceToken.decimals,
-  ])
 
   const callStakeSigned = async () => {
     await stake_v1(parseUnits(amount, readSolaceToken.decimals), gasConfig)
@@ -118,21 +105,32 @@ function Stake1(): any {
   }
 
   const callUnstake = async () => {
-    if (!xSolaceV1) return
-    const formatted = formatAmount(amount)
-    let xSolaceToUnstake: BigNumber = ZERO
-    if (formatted == v1StakedSolaceBalance) {
-      xSolaceToUnstake = parseUnits(xSolaceV1Balance, readXSolaceToken.decimals)
-    } else {
-      xSolaceToUnstake = await xSolaceV1.solaceToXSolace(parseUnits(formatted, readSolaceToken.decimals))
-    }
+    const xSolaceToUnstake: BigNumber = await getXSolaceFromSolace()
     await unstake_v1(xSolaceToUnstake, gasConfig)
       .then((res) => handleToast(res.tx, res.localTx))
       .catch((err) => handleContractCallError('callUnstake', err, FunctionName.UNSTAKE_V1))
   }
 
-  const _setMax = () => {
-    setMax(assetBalance, assetDecimals)
+  const callMigrateSigned = async () => {
+    if (!account) return
+    const xSolaceToMigrate: BigNumber = await getXSolaceFromSolace()
+    await migrate(account, xSolaceToMigrate, gasConfig)
+      .then((res) => handleToast(res.tx, res.localTx))
+      .catch((err) => handleContractCallError('callMigrateSigned', err, FunctionName.STAKING_MIGRATE))
+  }
+
+  const _setMax = () => setMax(parseUnits(v1StakedSolaceBalance, readSolaceToken.decimals), readSolaceToken.decimals)
+
+  const getXSolaceFromSolace = async () => {
+    const formatted = formatAmount(amount)
+    let xSolace: BigNumber = ZERO
+    if (!xSolaceV1) return xSolace
+    if (formatted == v1StakedSolaceBalance) {
+      xSolace = parseUnits(xSolaceV1Balance, readXSolaceToken.decimals)
+    } else {
+      xSolace = await xSolaceV1.solaceToXSolace(parseUnits(formatted, readSolaceToken.decimals))
+    }
+    return xSolace
   }
 
   /*
@@ -142,15 +140,17 @@ function Stake1(): any {
   */
 
   useEffect(() => {
-    setIsAcceptableAmount(isAppropriateAmount(amount, assetDecimals, assetBalance))
+    setIsAcceptableAmount(
+      isAppropriateAmount(amount, readSolaceToken.decimals, parseUnits(v1StakedSolaceBalance, readSolaceToken.decimals))
+    )
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [amount, isStaking, assetBalance, assetDecimals, readSolaceToken.decimals, readXSolaceToken.decimals, xSolaceV1])
+  }, [amount, parseUnits(v1StakedSolaceBalance, readSolaceToken.decimals), readSolaceToken.decimals])
 
-  useEffect(() => {
-    resetAmount()
-    setConvertStoX(isStaking)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isStaking])
+  // useEffect(() => {
+  //   resetAmount()
+  //   setConvertStoX(isMigrating)
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [isMigrating])
 
   return (
     <>
@@ -165,47 +165,20 @@ function Stake1(): any {
         <Content>
           <FlexCol>
             <Card style={{ margin: 'auto' }}>
-              <div style={{ gridTemplateColumns: '1fr 1fr', display: 'grid', position: 'relative' }}>
-                <MultiTabIndicator style={{ left: isStaking ? '0' : '50%' }} />
-                <ModalCell
-                  pt={5}
-                  pb={10}
-                  pl={0}
-                  pr={0}
-                  onClick={() => setIsStaking(true)}
-                  jc={'center'}
-                  style={{ cursor: 'pointer' }}
-                >
-                  <Text t1 info={isStaking}>
-                    Stake
-                  </Text>
-                </ModalCell>
-                <ModalCell
-                  pt={5}
-                  pb={10}
-                  pl={0}
-                  pr={0}
-                  onClick={() => setIsStaking(false)}
-                  jc={'center'}
-                  style={{ cursor: 'pointer' }}
-                >
-                  <Text t1 info={!isStaking}>
-                    Unstake
+              <div style={{ position: 'relative' }}>
+                <MultiTabIndicator />
+                <ModalCell pt={5} pb={10} pl={0} pr={0} jc={'center'}>
+                  <Text t1>
+                    <TextSpan t1 info>
+                      Migrate
+                    </TextSpan>{' '}
+                    or{' '}
+                    <TextSpan t1 info>
+                      Unstake
+                    </TextSpan>
                   </Text>
                 </ModalCell>
               </div>
-              <FormRow mt={20} mb={10}>
-                <FormCol>
-                  <Text bold t2>
-                    APY
-                  </Text>
-                </FormCol>
-                <FormCol>
-                  <Text bold t2 textAlignRight info>
-                    2000%
-                  </Text>
-                </FormCol>
-              </FormRow>
               <FlexRow style={{ textAlign: 'center', marginTop: '20px', marginBottom: '10px' }}>
                 <Input
                   widthP={100}
@@ -217,35 +190,20 @@ function Stake1(): any {
                   placeholder="0.0"
                   textAlignCenter
                   type="text"
-                  onChange={(e) =>
-                    handleInputChange(e.target.value, isStaking ? readSolaceToken.decimals : readXSolaceToken.decimals)
-                  }
+                  onChange={(e) => handleInputChange(e.target.value, readSolaceToken.decimals)}
                   value={amount}
                 />
                 <Button info ml={10} pt={4} pb={4} pl={8} pr={8} width={70} height={30} onClick={_setMax}>
                   MAX
                 </Button>
               </FlexRow>
-              <FormRow mt={40} mb={10}>
-                <FormCol>
-                  <Text t4={!isStaking} fade={!isStaking}>
-                    Unstaked Balance
-                  </Text>
-                </FormCol>
-                <FormCol>
-                  <Text textAlignRight info t4={!isStaking} fade={!isStaking}>
-                    {solaceBalance} {readSolaceToken.symbol}
-                  </Text>
-                </FormCol>
-              </FormRow>
+
               <FormRow mb={30}>
                 <FormCol>
-                  <Text t4={isStaking} fade={isStaking}>
-                    Staked Balance
-                  </Text>
+                  <Text>Staked Balance</Text>
                 </FormCol>
                 <FormCol>
-                  <Text textAlignRight info t4={isStaking} fade={isStaking}>
+                  <Text textAlignRight info>
                     {v1StakedSolaceBalance} {readSolaceToken.symbol}
                   </Text>
                 </FormCol>
@@ -260,13 +218,13 @@ function Stake1(): any {
                       ? `-`
                       : formatUnits(
                           convertedAmount,
-                          isStaking ? readXSolaceToken.decimals : readSolaceToken.decimals
+                          isMigrating ? readXSolaceToken.decimals : readSolaceToken.decimals
                         )}{' '}
-                    {isStaking ? readXSolaceToken.symbol : readSolaceToken.symbol}
+                    {isMigrating ? readXSolaceToken.symbol : readSolaceToken.symbol}
                   </Text>
                 </FormCol>
               </FormRow> */}
-              <FormRow mt={10} mb={30}>
+              {/* <FormRow mt={10} mb={30}>
                 <FormCol>
                   <Button onClick={() => setConvertStoX(!convertStoX)}>
                     Conversion
@@ -280,9 +238,9 @@ function Stake1(): any {
                       : `1 ${readXSolaceToken.symbol} = ${solacePerXSolace} ${readSolaceToken.symbol}`}
                   </Text>
                 </FormCol>
-              </FormRow>
+              </FormRow> */}
               <HorizRule />
-              {account && (
+              {/* {account && (
                 <FormRow mt={20} mb={10}>
                   <FormCol>
                     <Text t4>My Pool Share</Text>
@@ -291,15 +249,21 @@ function Stake1(): any {
                     <Text t4>{truncateBalance(userShare)}%</Text>
                   </FormCol>
                 </FormRow>
-              )}
-              <ButtonWrapper>
+              )} */}
+              <ButtonWrapper isColumn style={{ gap: '20px' }}>
+                <Button widthP={100} info secondary disabled={!isAcceptableAmount || haveErrors} onClick={callUnstake}>
+                  Unstake
+                </Button>
                 <Button
                   widthP={100}
-                  info
+                  error
+                  style={{ backgroundColor: '#f04d42' }}
                   disabled={!isAcceptableAmount || haveErrors}
-                  onClick={isStaking ? callStakeSigned : callUnstake}
+                  secondary
+                  onClick={callMigrateSigned}
+                  light
                 >
-                  {isStaking ? 'Stake' : 'Unstake'}
+                  Migrate to STAKING V2
                 </Button>
               </ButtonWrapper>
             </Card>
@@ -360,9 +324,7 @@ export default function Stake(): JSX.Element {
         </HeroContainer>
       ) : (
         <Content>
-          {(parseFloat(xSolaceV1Balance) > 0 || stakingVersion === StakingVersion.v1) && (
-            <DifferenceNotification version={stakingVersion} setVersion={setStakingVersion} />
-          )}
+          <DifferenceNotification version={stakingVersion} setVersion={setStakingVersion} />
           {StakingVersion.v2 === stakingVersion && (
             <>
               <AggregatedStakeData stakeData={userLockInfo} />
@@ -381,39 +343,9 @@ export default function Stake(): JSX.Element {
                 </Button>
               </Flex>
               <NewSafe isOpen={newSafeIsOpen} />
-              <Scrollable>
-                {[
-                  {
-                    xsLockID: BigNumber.from(1),
-                    unboostedAmount: '433.123456789123456789',
-                    end: BigNumber.from(11111555444156),
-                    timeLeft: BigNumber.from(41235),
-                    boostedValue: '43355.000000000000000000',
-                    pendingRewards: '3.000000000000000000',
-                    apy: BigNumber.from(44),
-                  },
-                  {
-                    xsLockID: BigNumber.from(2),
-                    unboostedAmount: '111.000000000000000000',
-                    end: BigNumber.from(54711111554156),
-                    timeLeft: BigNumber.from(41635),
-                    boostedValue: '49355.123456789123456789',
-                    pendingRewards: '2.123456789123456789',
-                    apy: BigNumber.from(94),
-                  },
-                  {
-                    xsLockID: BigNumber.from(3),
-                    unboostedAmount: '111.000000000000000000',
-                    end: BigNumber.from(54711111554156),
-                    timeLeft: BigNumber.from(0),
-                    boostedValue: '49355.123456789123456789',
-                    pendingRewards: '2.123456789123456789',
-                    apy: BigNumber.from(94),
-                  },
-                ].map((lock) => (
-                  <Safe key={lock.xsLockID.toNumber()} lock={lock} />
-                ))}
-              </Scrollable>
+              {locks.map((lock) => (
+                <Safe key={lock.xsLockID.toNumber()} lock={lock} />
+              ))}
             </>
           )}
           {/* only show the following if staking is v1 and the tab is not `difference` */}

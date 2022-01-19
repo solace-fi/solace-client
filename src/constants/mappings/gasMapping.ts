@@ -24,13 +24,13 @@ export const FunctionGasLimits: { [key: string]: number } = {
   ['stakingRewards.compoundLocks']: 278677,
   ['stakingRewards.harvestLock']: 213063,
   ['stakingRewards.harvestLocks']: 233061,
-  ['xsLocker.createLockSigned']: 360597,
-  ['xsLocker.increaseAmountSigned']: 112431,
+  ['xsLocker.createLockSigned']: 560597,
+  ['xsLocker.increaseAmountSigned']: 202431,
   ['xsLocker.extendLock']: 189006,
   ['xsLocker.withdrawInPart']: 151213,
   ['xsLocker.withdrawMany']: 293442,
   ['xsLocker.withdraw']: 365209,
-  ['xSolaceMigrator.migrateSigned']: 456193,
+  ['xSolaceMigrator.migrateSigned']: 556193,
 }
 
 // this function is used in operations that determine max amount to send if the same currency being sent is also used as gas

@@ -11,18 +11,18 @@ import { FunctionGasLimits } from '../constants/mappings/gasMapping'
 
 export const useXSolaceMigrator = () => {
   const { keyContracts } = useContracts()
-  const { xSolaceMigrator, solace } = useMemo(() => keyContracts, [keyContracts])
+  const { xSolaceMigrator, xSolaceV1 } = useMemo(() => keyContracts, [keyContracts])
   const { library } = useWallet()
   const { chainId } = useNetwork()
 
   const migrate = async (account: string, amount: BigNumber, gasConfig: GasConfiguration) => {
-    if (!xSolaceMigrator || !solace) return { tx: null, localTx: null }
+    if (!xSolaceMigrator || !xSolaceV1) return { tx: null, localTx: null }
     const { v, r, s } = await getPermitErc20Signature(
       account,
       chainId,
       library,
       xSolaceMigrator.address,
-      solace,
+      xSolaceV1,
       amount
     )
     const tx = await xSolaceMigrator.migrateSigned(amount, ZERO, DEADLINE, v, r, s, {
@@ -31,7 +31,7 @@ export const useXSolaceMigrator = () => {
     })
     const localTx: LocalTx = {
       hash: tx.hash,
-      type: FunctionName.SOLACE_MIGRATE,
+      type: FunctionName.STAKING_MIGRATE,
       status: TransactionCondition.PENDING,
     }
     return { tx, localTx }

@@ -39,7 +39,7 @@ export default function WithdrawForm({ lock }: { lock: LockData }): JSX.Element 
   const callWithdrawFromLock = async () => {
     if (!account) return
     let type = FunctionName.WITHDRAW_IN_PART_FROM_LOCK
-    const isMax = parseUnits(inputValue, 18).eq(lock.unboostedAmount)
+    const isMax = parseUnits(inputValue, 18).eq(parseUnits(lock.unboostedAmount, 18))
     if (isMax) {
       type = FunctionName.WITHDRAW_FROM_LOCK
     }

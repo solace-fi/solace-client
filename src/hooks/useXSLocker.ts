@@ -3,7 +3,7 @@ import { useContracts } from '../context/ContractsManager'
 import { useWallet } from '../context/WalletManager'
 import { useNetwork } from '../context/NetworkManager'
 import { useReadToken } from './useToken'
-import { formatUnits } from '@ethersproject/units'
+import { formatUnits, parseUnits } from '@ethersproject/units'
 import { BigNumber } from 'ethers'
 import { GasConfiguration, LocalTx, LockData, UserLocksData, UserLocksInfo } from '../constants/types'
 import { getPermitErc20Signature } from '../utils/signature'
@@ -254,11 +254,11 @@ export const useUserLockData = () => {
       })
     )
     locks.forEach((lock) => {
-      pendingRewards = pendingRewards.add(lock.pendingRewards)
-      stakedBalance = stakedBalance.add(lock.unboostedAmount)
-      if (lock.end.gt(timestamp)) lockedBalance = lockedBalance.add(lock.unboostedAmount)
-      else unlockedBalance = unlockedBalance.add(lock.unboostedAmount)
-      userValue = userValue.add(lock.boostedValue)
+      pendingRewards = pendingRewards.add(parseUnits(lock.pendingRewards, solaceDecimals))
+      stakedBalance = stakedBalance.add(parseUnits(lock.unboostedAmount, solaceDecimals))
+      if (lock.end.gt(timestamp)) lockedBalance = lockedBalance.add(parseUnits(lock.unboostedAmount, solaceDecimals))
+      else unlockedBalance = unlockedBalance.add(parseUnits(lock.unboostedAmount, solaceDecimals))
+      userValue = userValue.add(parseUnits(lock.boostedValue, solaceDecimals))
     })
     const userYearlyReturns: BigNumber = valueStaked.gt(ZERO)
       ? rewardPerSecond.mul(BigNumber.from(31536000)).mul(userValue).div(valueStaked)

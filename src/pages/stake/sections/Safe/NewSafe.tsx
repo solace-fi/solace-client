@@ -25,6 +25,7 @@ import Flex from '../../atoms/Flex'
 import GrayBox from '../../components/GrayBox'
 import { DarkSeparator } from '../../components/VerticalSeparator'
 import { Accordion } from '../../../../components/atoms/Accordion'
+import { useProvider } from '../../../../context/ProviderManager'
 
 const StyledForm = styled.form`
   display: flex;
@@ -44,23 +45,22 @@ const Container = styled.div`
 
 export default function NewSafe({ isOpen }: { isOpen: boolean }): JSX.Element {
   const solaceBalance = useSolaceBalance()
+  const { latestBlock } = useProvider()
   const { handleToast, handleContractCallError, isAppropriateAmount, gasConfig } = useInputAmount()
-  const { increaseLockAmount } = useXSLocker()
+  const { createLock } = useXSLocker()
   const { account } = useWallet()
 
   const [stakeInputValue, setStakeInputValue] = React.useState('0')
   const [stakeRangeValue, setStakeRangeValue] = React.useState('0')
   const [lockInputValue, setLockInputValue] = React.useState('0')
 
-  const lock = {
-    xsLockID: BigNumber.from(12321),
-  }
-
-  const callIncreaseLockAmount = async () => {
-    if (!account) return
-    await increaseLockAmount(account, lock.xsLockID, parseUnits(lockInputValue, 18), gasConfig)
+  const callCreateLock = async () => {
+    if (!latestBlock || !account) return
+    const seconds = parseInt(lockInputValue) * 86400
+    // const seconds = latestBlock.timestamp + 200
+    await createLock(account, parseUnits(stakeInputValue, 18), BigNumber.from(seconds), gasConfig)
       .then((res) => handleToast(res.tx, res.localTx))
-      .catch((err) => handleContractCallError('callIncreaseLockAmount', err, FunctionName.INCREASE_LOCK_AMOUNT))
+      .catch((err) => handleContractCallError('callCreateLock', err, FunctionName.CREATE_LOCK))
   }
 
   /*            STAKE INPUT & RANGE HANDLERS             */
@@ -95,12 +95,12 @@ export default function NewSafe({ isOpen }: { isOpen: boolean }): JSX.Element {
 
   /*            MAX HANDLERS             */
   const stakeSetMax = () => stakeRangeOnChange(parseUnits(solaceBalance, 18).toString())
-  const lockSetMax = () => lockRangeOnChange(parseUnits(solaceBalance, 18).toString())
+  const lockSetMax = () => setLockInputValue(`${DAYS_PER_YEAR * 4}`)
 
   /*            SUBMIT HANDLER             */
   const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    callIncreaseLockAmount()
+    callCreateLock()
   }
 
   return (
