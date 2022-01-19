@@ -204,6 +204,7 @@ export const TextStyleCss = css<TextStyleProps>`
     props.techygradient &&
     `background-image: linear-gradient(to bottom, ${props.theme.typography.techyGradientA}, ${props.theme.typography.techyGradientB});
     background-clip: text;
+    -webkit-background-clip: text;
     color: transparent;
     font-weight: 600;`}
   ${GeneralElementCss}
