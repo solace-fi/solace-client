@@ -1,6 +1,7 @@
 import React from 'react'
 import styled from 'styled-components'
 import { Clock } from 'styled-icons/bootstrap'
+import GrayBgDiv from '../../atoms/BodyBgCss'
 import Twiv from '../../components/Twiv'
 import { Tab } from '../../types/Tab'
 
@@ -20,6 +21,11 @@ const StyledWords = styled.div<{ disabled?: boolean }>`
   line-height: 1.5;
   color: ${({ disabled }) => disabled && '#979797'};
 `
+
+const StyledGrayBox = styled(GrayBgDiv)`
+  border-color: ${({ theme }) => theme.separator.bg_color};
+`
+
 export default function IconAndText({
   tab,
   disabled,
@@ -30,8 +36,8 @@ export default function IconAndText({
   const className = 'w-5 h-5 pt-px'
   const disabledClassName = 'w-5 h-5 pt-px opacity-50'
   return (
-    <Twiv
-      css="hidden lg:flex rounded-l-xl border-r border-[#E3E4E6] p-5 space-x-1 items-center"
+    <StyledGrayBox
+      className="hidden lg:flex rounded-l-xl border-r p-5 space-x-1 items-center"
       style={{
         flexShrink: '0',
       }}
@@ -57,6 +63,6 @@ export default function IconAndText({
           }[tab]
         }
       </StyledWords>
-    </Twiv>
+    </StyledGrayBox>
   )
 }

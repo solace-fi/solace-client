@@ -17,6 +17,7 @@ export interface ButtonProps extends ClickProps {
   error?: boolean
   warning?: boolean
   glow?: boolean
+  separator?: boolean
   hidden?: boolean
   noradius?: boolean
   noborder?: boolean
@@ -178,6 +179,7 @@ export const ButtonBaseCss = css<ButtonProps & GeneralElementProps>`
   ${(props) => props.info && `border: 1px solid ${props.theme.typography.infoText};`}
   ${(props) => props.warning && `border: 1px solid ${props.theme.typography.warningText};`}
   ${(props) => props.error && `border: 1px solid ${props.theme.typography.errorText};`}
+  ${(props) => props.separator && `border: 1px solid ${props.theme.typography.separator};`}
 
   ${(props) => props.noborder && `border: none;`}
 
