@@ -13,7 +13,7 @@ const infoCss = css`
   ${(props) => `border-color: ${props.theme.typography.infoText};`}
   /* color: #5f5df9; */
   /* background-color: #f7f7ff; */
-  ${(props) => `background-color: ${props.theme.v2.raised};`}
+  ${(props) => `background-color: ${props.theme.box.infoLight};`}
 `
 
 // border-[#F04D42] text-[#F04D42] bg-[#FEF6F5]
@@ -30,6 +30,7 @@ const StyledInfoBox = styled.div<{ type: InfoBoxType; forceExpand?: boolean }>`
   display: flex;
   border: 1px solid;
   margin-top: 8px;
+  background-color: ${(props) => props.theme.box.infoLight};
   ${(props) =>
     props.forceExpand &&
     css`

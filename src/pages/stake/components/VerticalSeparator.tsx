@@ -5,7 +5,7 @@ export const Separator = styled.div<{
   theme: any
 }>`
   ${(props) => (props.horizontal ? 'height' : 'width')}: 1px;
-  background-color: ${({ theme }) => theme.v2.separator};
+  background-color: ${({ theme }) => theme.separator.bg_color};
 `
 
 // export HorizontalSeparator and VerticalSeparator by passing the horizontal or vertical props to the Separator component

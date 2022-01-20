@@ -1,9 +1,14 @@
 import React from 'react'
+import styled from 'styled-components'
 import { Button } from '../../../../components/atoms/Button'
 import { Tab } from '../../types/Tab'
 import IconAndText from './IconAndText'
 import InputSectionWrapper from './InputSectionWrapper'
 import MaxButton from './MaxButton'
+
+const StyledInput = styled.input`
+  border-color: ${({ theme }) => theme.separator.bg_color};
+`
 
 export default function InputSection({
   tab,
@@ -22,10 +27,10 @@ export default function InputSection({
   return (
     <InputSectionWrapper>
       <IconAndText tab={tab} disabled={disabled} />
-      <input
+      <StyledInput
         key="mainInput"
         type="text"
-        className="py-3 lg:py-5 px-5 outline-none rounded-xl border-[#E3E4E6] lg:border-0 lg:rounded-none"
+        className="py-3 lg:py-5 px-5 outline-none rounded-xl lg:border-0 lg:rounded-none"
         placeholder="0"
         value={value}
         onChange={onChange}
@@ -33,7 +38,7 @@ export default function InputSection({
         disabled={disabled}
       />
       {/* <MaxButton setMax={setMax} disabled={disabled} /> */}
-      <Button info onClick={setMax} disabled={disabled} m={10}>
+      <Button onClick={setMax} disabled={disabled} m={10}>
         MAX
       </Button>
     </InputSectionWrapper>

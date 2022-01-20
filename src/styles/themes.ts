@@ -10,6 +10,7 @@ export const lightTheme = {
     successText: 'rgb(40, 167, 69)',
     techyGradientA: 'rgb(212, 120, 216)',
     techyGradientB: 'rgb(95, 93, 249)',
+    separator: '#E3E4E6',
   },
   body: {
     bg_color: '#fafafa',
@@ -24,6 +25,7 @@ export const lightTheme = {
     border_color: 'rgb(94, 94, 94)',
     success: 'rgba(0, 187, 40, 0.7)',
     info: 'rgba(60, 58, 158)',
+    infoLight: '#f7f7ff',
     warning: 'rgb(230, 158, 16)',
     error: 'rgb(240, 77, 66)',
     glow: '0 0 7px #fff',
@@ -82,6 +84,9 @@ export const lightTheme = {
   tooltip: {
     bg_color: 'rgba(25, 29, 36, 1)',
   },
+  separator: {
+    bg_color: '#E3E4E6',
+  },
   v2: {
     aside: '#FAFAFA',
     raised: '#FFFFFF',
@@ -104,6 +109,7 @@ export const darkTheme = {
     successText: 'rgb(0, 255, 209)',
     techyGradientA: '#F3D37E',
     techyGradientB: '#F04D42',
+    separator: '#828282',
   },
   body: {
     bg_color: 'rgb(46, 46, 46)',
@@ -118,6 +124,7 @@ export const darkTheme = {
     border_color: 'rgb(250, 250, 250)',
     success: 'rgba(21, 163, 52, 0.7)',
     info: 'rgba(76, 87, 133)',
+    infoLight: 'rgb(46, 40, 56)',
     warning: 'rgb(212, 136, 6)',
     error: 'rgb(240, 77, 66)',
     glow: '0 0 0px #fff',
@@ -175,6 +182,9 @@ export const darkTheme = {
   },
   tooltip: {
     bg_color: 'rgba(25, 29, 36, 1)',
+  },
+  separator: {
+    bg_color: '#828282',
   },
   v2: {
     aside: '#1f1f1f',
