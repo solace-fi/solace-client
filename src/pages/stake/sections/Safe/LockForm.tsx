@@ -17,7 +17,7 @@ import { SmallBox } from '../../../../components/atoms/Box'
 import { Text } from '../../../../components/atoms/Typography'
 import { getExpiration } from '../../../../utils/time'
 
-const StyledForm = styled.form`
+const StyledForm = styled.div`
   display: flex;
   flex-direction: column;
   align-items: start;
@@ -57,11 +57,6 @@ export default function LockForm({ lock }: { lock: LockData }): JSX.Element {
 
   const setMax = () => setInputValue(`${DAYS_PER_YEAR * 4}`)
 
-  const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    callExtendLock()
-  }
-
   return (
     <div
       style={{
@@ -74,7 +69,7 @@ export default function LockForm({ lock }: { lock: LockData }): JSX.Element {
         type={InfoBoxType.info}
         text="You may extend or start the lockup period of this safe. Note that you cannot withdraw funds during a lockup period."
       />
-      <StyledForm onSubmit={onSubmit}>
+      <StyledForm>
         <InputSection
           tab={Tab.LOCK}
           value={inputValue}
@@ -93,7 +88,7 @@ export default function LockForm({ lock }: { lock: LockData }): JSX.Element {
           </SmallBox>
         }
 
-        <Button secondary info noborder disabled={!inputValue || inputValue == '0'}>
+        <Button secondary info noborder disabled={!inputValue || inputValue == '0'} onClick={callExtendLock}>
           {lock.timeLeft.toNumber() > 0 ? `Extend Lockup` : `Start Lockup`}
         </Button>
       </StyledForm>

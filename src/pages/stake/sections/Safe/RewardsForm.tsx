@@ -10,7 +10,7 @@ import { FunctionName } from '../../../../constants/enums'
 import { parseUnits } from 'ethers/lib/utils'
 import { ZERO } from '../../../../constants'
 
-const StyledForm = styled.form`
+const StyledForm = styled.div`
   display: flex;
   flex-direction: column;
   align-items: start;
@@ -33,10 +33,6 @@ export default function RewardsForm({ lock }: { lock: LockData }): JSX.Element {
       .catch((err) => handleContractCallError('callHarvestLockRewards', err, FunctionName.HARVEST_LOCK))
   }
 
-  const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    callHarvestLockRewards()
-  }
   return (
     <div
       style={{
@@ -53,8 +49,8 @@ export default function RewardsForm({ lock }: { lock: LockData }): JSX.Element {
             : "You don't have any rewards to collect. Stake SOLACE to earn rewards!"
         }
       />
-      <StyledForm onSubmit={onSubmit}>
-        <Button secondary info noborder disabled={lock.pendingRewards.eq(ZERO)}>
+      <StyledForm>
+        <Button secondary info noborder disabled={lock.pendingRewards.eq(ZERO)} onClick={callHarvestLockRewards}>
           Harvest
         </Button>
       </StyledForm>

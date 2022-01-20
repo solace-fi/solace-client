@@ -15,7 +15,7 @@ import { FunctionName } from '../../../../constants/enums'
 import InformationBox from '../../components/InformationBox'
 import { InfoBoxType } from '../../types/InfoBoxType'
 
-const StyledForm = styled.form`
+const StyledForm = styled.div`
   display: flex;
   flex-direction: column;
   align-items: start;
@@ -66,11 +66,6 @@ export default function WithdrawForm({ lock }: { lock: LockData }): JSX.Element 
 
   const setMax = () => rangeOnChange(lock.unboostedAmount.toString())
 
-  const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    callWithdrawFromLock()
-  }
-
   return (
     <div
       style={{
@@ -80,7 +75,7 @@ export default function WithdrawForm({ lock }: { lock: LockData }): JSX.Element 
       }}
     >
       <InformationBox type={InfoBoxType.info} text="Withdrawal is available only when the lockup period ends." />
-      <StyledForm onSubmit={onSubmit}>
+      <StyledForm>
         <InputSection
           tab={Tab.WITHDRAW}
           value={inputValue}
@@ -98,6 +93,7 @@ export default function WithdrawForm({ lock }: { lock: LockData }): JSX.Element 
           info
           noborder
           disabled={!isAppropriateAmount(inputValue, 18, lock.unboostedAmount) || lock.timeLeft.toNumber() > 0}
+          onClick={callWithdrawFromLock}
         >
           Withdraw
         </Button>

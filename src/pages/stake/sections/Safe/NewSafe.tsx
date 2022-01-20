@@ -35,7 +35,7 @@ import { useProvider } from '../../../../context/ProviderManager'
 import { useStakingRewards } from '../../../../hooks/useStakingRewards'
 import { GlobalLockInfo } from '../../../../constants/types'
 
-const StyledForm = styled.form`
+const StyledForm = styled.div`
   display: flex;
   flex-direction: column;
 `
@@ -115,12 +115,6 @@ export default function NewSafe({ isOpen }: { isOpen: boolean }): JSX.Element {
   const stakeSetMax = () => stakeRangeOnChange(parseUnits(solaceBalance, 18).toString())
   const lockSetMax = () => setLockInputValue(`${DAYS_PER_YEAR * 4}`)
 
-  /*            SUBMIT HANDLER             */
-  const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    callCreateLock()
-  }
-
   useEffect(() => {
     if (!latestBlock) return
     const _getGlobalLockStats = async () => {
@@ -166,7 +160,7 @@ export default function NewSafe({ isOpen }: { isOpen: boolean }): JSX.Element {
     <Accordion isOpen={isOpen} style={{ backgroundColor: 'inherit' }}>
       <ShadowDiv style={{ marginBottom: '20px' }}>
         <RaisedBox>
-          <StyledForm onSubmit={onSubmit}>
+          <StyledForm>
             <Flex column p={24} gap={30} stretch>
               <Flex gap={24}>
                 <Flex column gap={24}>
@@ -304,6 +298,7 @@ export default function NewSafe({ isOpen }: { isOpen: boolean }): JSX.Element {
                 info
                 noborder
                 disabled={!isAppropriateAmount(stakeInputValue, 18, parseUnits(solaceBalance, 18))}
+                onClick={callCreateLock}
               >
                 Stake
               </Button>
