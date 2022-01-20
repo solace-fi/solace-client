@@ -64,13 +64,13 @@ import AlchemyBadgeDark from '../../resources/svg/alchemy-badge-dark.svg'
 
 /* import hooks */
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'
-import styled from 'styled-components'
+// import styled from 'styled-components'
 
-const NavbarWrapper = styled.div`
-  &::-webkit-scrollbar {
-    display: none;
-  }
-`
+// const NavbarWrapper = styled.div`
+//   &::-webkit-scrollbar {
+//     display: none;
+//   }
+// `
 
 export const SideNavbar: React.FC = () => {
   /*

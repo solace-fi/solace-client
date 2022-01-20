@@ -5,6 +5,23 @@ import { StakingVersion } from '../types/Version'
 import React from 'react'
 import { useWindowDimensions } from '../../../hooks/useWindowDimensions'
 import { BKPT_4 } from '../../../constants'
+// text-sm font-bold underline mt-3 text-underline-offset[4px] text-decoration-thickness[2px] self-center cursor-pointer select-none hover:opacity-80 duration-200
+const StyledText = styled.div`
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  margin-top: 0.75rem;
+  font-weight: 700;
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 4px;
+  align-self: center;
+  cursor: pointer;
+  user-select: none;
+  transition: opacity 0.2s ease-in-out;
+  &:hover {
+    opacity: 0.8;
+  }
+`
 
 const DifferenceText = function DifferenceText({
   children,
@@ -13,23 +30,6 @@ const DifferenceText = function DifferenceText({
   onClick: () => void
   children: React.ReactNode
 }) {
-  // text-sm font-bold underline mt-3 text-underline-offset[4px] text-decoration-thickness[2px] self-center cursor-pointer select-none hover:opacity-80 duration-200
-  const StyledText = styled.div`
-    font-size: 0.875rem;
-    line-height: 1.25rem;
-    margin-top: 0.75rem;
-    font-weight: 700;
-    text-decoration: underline;
-    text-decoration-thickness: 2px;
-    text-underline-offset: 4px;
-    align-self: center;
-    cursor: pointer;
-    user-select: none;
-    transition: opacity 0.2s ease-in-out;
-    &:hover {
-      opacity: 0.8;
-    }
-  `
   return (
     <StyledText
       onClick={onClick}

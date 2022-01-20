@@ -5,24 +5,24 @@ import styled, { DefaultTheme, FlattenInterpolation, ThemedStyledProps } from 's
 // and returns a styled div with the css prop and the className
 function BaseDiv({
   css,
-  tw,
+  // tw,
   className,
   ...props
 }: {
   css?: string
-  tw?: string
+  // tw?: string
   className?: string
   children?: React.ReactNode | React.ReactNode[]
   props?: any
 }): JSX.Element {
-  const Styled = styled.div`
-    ${tw}
-    ${css ?? ''}
-  `
+  // const Styled = styled.div`
+  //   ${tw}
+  //   ${css ?? ''}
+  // `
   return (
-    <Styled className={className + ' ' + css} {...props}>
+    <div className={className + ' ' + css} {...props}>
       {'children' in props ? (props as { children: any }).children : null}
-    </Styled>
+    </div>
   )
 }
 
