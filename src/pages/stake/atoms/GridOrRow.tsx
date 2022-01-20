@@ -3,7 +3,7 @@ import { BKPT_6 } from '../../../constants'
 
 export const GridOrRow = styled.div`
   display: flex;
-  gap: 91px;
+  gap: 80px;
   align-items: stretch;
   @media screen and (max-width: ${BKPT_6}px) {
     margin-left: auto;

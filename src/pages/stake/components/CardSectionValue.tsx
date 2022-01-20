@@ -63,6 +63,10 @@ const Annotation = styled.span<{ importance: 'primary' | 'secondary' | 'tertiary
 // secondary CardSectionValue is just `font-medium mt-2`
 const BaseDiv = styled.div`
   font-weight: 600;
+  display: flex;
+  align-items: baseline;
+  gap: 5px;
+  flex-wrap: wrap;
 `
 export default function CardSectionValue({
   children,
