@@ -1,11 +1,11 @@
 import styled from 'styled-components'
-import { BKPT_5 } from '../../../constants'
+import { BKPT_6 } from '../../../constants'
 
 export const GridOrRow = styled.div`
   display: flex;
   gap: 91px;
   align-items: stretch;
-  @media screen and (max-width: ${BKPT_5}px) {
+  @media screen and (max-width: ${BKPT_6}px) {
     margin-left: auto;
     margin-right: auto;
     display: grid;
