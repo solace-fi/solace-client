@@ -6,7 +6,7 @@ import RaisedBox from '../../atoms/RaisedBox'
 import ShadowDiv from '../../atoms/ShadowDiv'
 import CardSectionValue from '../../components/CardSectionValue'
 import InfoPair, { Label } from '../../molecules/InfoPair'
-import HorizontalSeparator from '../../components/HorizontalSeparator'
+import { HorizontalSeparator } from '../../components/VerticalSeparator'
 import DepositForm from './DepositForm'
 import LockForm from './LockForm'
 import RewardsForm from './RewardsForm'
@@ -17,8 +17,12 @@ import { LockData } from '../../../../constants/types'
 import { getTimeFromMillis } from '../../../../utils/time'
 import { truncateValue } from '../../../../utils/formatting'
 import { formatUnits } from 'ethers/lib/utils'
+import { GridOrRow } from '../../atoms/GridOrRow'
+import { BKPT_5 } from '../../../../constants'
+import { useWindowDimensions } from '../../../../hooks/useWindowDimensions'
 
 export default function Safe({ lock }: { lock: LockData }): JSX.Element {
+  const { width } = useWindowDimensions()
   const [isOpen, setIsOpen] = useState(false)
   const openSafe = () => setIsOpen(true)
   const closeSafe = () => setIsOpen(false)
@@ -47,7 +51,8 @@ export default function Safe({ lock }: { lock: LockData }): JSX.Element {
 				                      TOP SECTION
 				******************************************************/}
         <Flex between stretch p={24}>
-          <Flex stretch gap={90}>
+          <GridOrRow>
+            {/* <Flex stretch gap={90}> */}
             <InfoPair importance="tertiary" label="Amount">
               <CardSectionValue highlight={true} annotation="SOLACE">
                 {truncateValue(unboostedAmount, 4)}
@@ -70,18 +75,19 @@ export default function Safe({ lock }: { lock: LockData }): JSX.Element {
                 {truncateValue(pendingRewards, 4)}
               </CardSectionValue>
             </InfoPair>
-          </Flex>
-          <Flex center>
-            {!isOpen ? (
-              <Button info semibold onClick={openSafe}>
-                Manage
-              </Button>
-            ) : (
-              <Button info semibold onClick={closeSafe}>
-                Close
-              </Button>
-            )}
-          </Flex>
+            <Flex center className="items-1">
+              {!isOpen ? (
+                <Button info semibold onClick={openSafe}>
+                  Manage
+                </Button>
+              ) : (
+                <Button info semibold onClick={closeSafe}>
+                  Close
+                </Button>
+              )}
+            </Flex>
+          </GridOrRow>
+          {/* </Flex> */}
         </Flex>
         {/* Separator */}
         {/* <div style={{ height: '1px', backgroundColor: '#e6e6e6',  }} /> */}
@@ -93,7 +99,7 @@ export default function Safe({ lock }: { lock: LockData }): JSX.Element {
           <Flex column gap={30} p={24} stretch>
             <Flex between stretch>
               {/* 4 tab switchers, just normal text with underline offset 8px: deposit, extend lock/lock, withdraw, rewards */}
-              <Flex gap={40}>
+              <Flex gap={BKPT_5 < width ? 40 : 21.66}>
                 <Label
                   importance={activeTab === Tab.DEPOSIT ? 'primary' : 'secondary'}
                   clickable

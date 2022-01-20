@@ -7,6 +7,7 @@ import React from 'react'
 
 type InfoPairProps = {
   importance: 'primary' | 'secondary' | 'tertiary' | 'quaternary'
+  horizontal?: boolean
 }
 
 export const Label = styled.div<InfoPairProps & { clickable?: boolean }>`
@@ -50,7 +51,7 @@ export const Label = styled.div<InfoPairProps & { clickable?: boolean }>`
 `
 
 const Value = styled.div<InfoPairProps>`
-  font-size: ${({ importance, theme }) => {
+  font-size: ${({ importance }) => {
     switch (importance) {
       case 'primary':
         return '16px'
@@ -80,10 +81,11 @@ export default function InfoPair({
   importance,
   children,
   label,
+  horizontal,
 }: InfoPairProps & { children: React.ReactNode | string | React.ReactNode[]; label: string }): JSX.Element {
   return (
-    <div>
-      <Label importance={importance} style={{ marginBottom: '8px' }}>
+    <div style={horizontal ? { display: 'flex', gap: '8px' } : {}}>
+      <Label importance={importance} style={!horizontal ? { marginBottom: '8px' } : {}}>
         {label}
       </Label>
       <Value importance={importance}>{children}</Value>

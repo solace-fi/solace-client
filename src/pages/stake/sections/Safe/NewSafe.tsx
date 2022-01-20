@@ -22,36 +22,33 @@ import { useXSLocker } from '../../../../hooks/useXSLocker'
 import { useWallet } from '../../../../context/WalletManager'
 import { SmallBox } from '../../../../components/atoms/Box'
 import { Text } from '../../../../components/atoms/Typography'
-import { DAYS_PER_YEAR, ZERO } from '../../../../constants'
+import { BKPT_5, DAYS_PER_YEAR, ZERO } from '../../../../constants'
 import { getExpiration } from '../../../../utils/time'
 import RaisedBox from '../../atoms/RaisedBox'
 import ShadowDiv from '../../atoms/ShadowDiv'
 import InfoPair, { Label } from '../../molecules/InfoPair'
 import Flex from '../../atoms/Flex'
 import GrayBox from '../../components/GrayBox'
-import VerticalSeparator, { DarkSeparator } from '../../components/VerticalSeparator'
+import { VerticalSeparator } from '../../components/VerticalSeparator'
 import { Accordion } from '../../../../components/atoms/Accordion'
 import { useProvider } from '../../../../context/ProviderManager'
 import { useStakingRewards } from '../../../../hooks/useStakingRewards'
 import { GlobalLockInfo } from '../../../../constants/types'
+import { useWindowDimensions } from '../../../../hooks/useWindowDimensions'
 
 const StyledForm = styled.div`
   display: flex;
   flex-direction: column;
-`
-const Container = styled.div`
-  max-width: 521px;
-  justify-content: center;
-  width: 100%;
-  height: 100%;
-  padding: 0;
-  margin: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 30px;
+  align-items: stretch;
+  @media (max-width: ${BKPT_5}px) {
+    align-items: center;
+    margin-left: auto;
+    margin-right: auto;
+  }
 `
 
 export default function NewSafe({ isOpen }: { isOpen: boolean }): JSX.Element {
+  const { width } = useWindowDimensions()
   const { account } = useWallet()
   const { latestBlock } = useProvider()
   const solaceBalance = useSolaceBalance()
@@ -161,8 +158,8 @@ export default function NewSafe({ isOpen }: { isOpen: boolean }): JSX.Element {
       <ShadowDiv style={{ marginBottom: '20px' }}>
         <RaisedBox>
           <StyledForm>
-            <Flex column p={24} gap={30} stretch>
-              <Flex gap={24}>
+            <Flex column p={24} gap={30}>
+              <Flex column={BKPT_5 > width} gap={24}>
                 <Flex column gap={24}>
                   <div>
                     <Label importance="quaternary" style={{ marginBottom: '8px' }}>
@@ -182,7 +179,7 @@ export default function NewSafe({ isOpen }: { isOpen: boolean }): JSX.Element {
                     max={parseUnits(solaceBalance, 18).toString()}
                   />
                 </Flex>
-                <Flex column stretch w={521}>
+                <Flex column stretch w={BKPT_5 > width ? 300 : 521}>
                   <Label importance="quaternary" style={{ marginBottom: '8px' }}>
                     Projected benefits
                   </Label>
@@ -193,6 +190,9 @@ export default function NewSafe({ isOpen }: { isOpen: boolean }): JSX.Element {
                           <Text t5s techygradient mb={8}>
                             APY
                           </Text>
+                          <div style={BKPT_5 > width ? { margin: '-4px 0', display: 'block' } : { display: 'none' }}>
+                            &nbsp;
+                          </div>
                           <Text t3s techygradient>
                             <Flex>{projectedApy.toNumber()}%</Flex>
                           </Text>
@@ -220,7 +220,7 @@ export default function NewSafe({ isOpen }: { isOpen: boolean }): JSX.Element {
                   </GrayBox>
                 </Flex>
               </Flex>
-              <Flex gap={24}>
+              <Flex column={BKPT_5 > width} gap={24}>
                 <Flex column gap={24}>
                   <div>
                     <Label importance="quaternary" style={{ marginBottom: '8px' }}>
@@ -251,7 +251,7 @@ export default function NewSafe({ isOpen }: { isOpen: boolean }): JSX.Element {
                     </SmallBox>
                   }
                 </Flex>
-                {/* <Flex column stretch w={521}>
+                {/* <Flex column stretch w={BKPT_5 > width ? 300 : 521}>
                   <Label importance="quaternary" style={{ marginBottom: '8px' }}>
                     Lock benefits
                   </Label>
@@ -286,13 +286,14 @@ export default function NewSafe({ isOpen }: { isOpen: boolean }): JSX.Element {
                 </Flex> */}
               </Flex>
             </Flex>
-            <Flex p={24}>
+            <Flex p={24} stretch>
               <InformationBox
                 type={InfoBoxType.info}
                 text="New deposit will be added to current locked amount locked for the same time."
+                forceExpand
               />
             </Flex>
-            <Flex pb={24} pl={24}>
+            <Flex pb={24} pl={24} w={BKPT_5 > width ? 333 : undefined}>
               <Button
                 secondary
                 info

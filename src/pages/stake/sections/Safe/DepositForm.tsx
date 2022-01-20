@@ -15,19 +15,8 @@ import { LockData } from '../../../../constants/types'
 import { FunctionName } from '../../../../constants/enums'
 import { useXSLocker } from '../../../../hooks/useXSLocker'
 import { useWallet } from '../../../../context/WalletManager'
-
-const StyledForm = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: start;
-  gap: 30px;
-  justify-content: center;
-  width: 100%;
-  height: 100%;
-  padding: 0;
-  margin: 0;
-  width: 521px;
-`
+import { BKPT_5 } from '../../../../constants'
+import { StyledForm } from '../../atoms/StyledForm'
 
 export default function DepositForm({ lock }: { lock: LockData }): JSX.Element {
   const solaceBalance = useSolaceBalance()

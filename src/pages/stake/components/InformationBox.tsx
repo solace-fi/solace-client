@@ -4,6 +4,7 @@ import { GeneralElementProps } from '../../../components/generalInterfaces'
 import { InfoBoxType } from '../types/InfoBoxType'
 import Twiv from './Twiv'
 import { StyledInfo } from '../../../components/atoms/Icon'
+import { BKPT_5 } from '../../../constants'
 
 // border-[#5F5DF9] bg-[#F7F7FF] text-[#5F5DF9]
 const infoCss = css`
@@ -25,10 +26,18 @@ const errorCss = css`
   ${(props) => `background-color: ${props.theme.v2.aside};`}
 `
 
-const StyledInfoBox = styled.div<{ type: InfoBoxType }>`
+const StyledInfoBox = styled.div<{ type: InfoBoxType; forceExpand?: boolean }>`
   display: flex;
   border: 1px solid;
   margin-top: 8px;
+  ${(props) =>
+    props.forceExpand &&
+    css`
+      width: 275px;
+      @media (min-width: ${BKPT_5}px) {
+        width: 100%;
+      }
+    `}
   ${(props) => (props.type === InfoBoxType.info ? infoCss : props.type === InfoBoxType.error ? errorCss : '')}
 `
 
@@ -57,9 +66,21 @@ const StyledStyledInfo = styled(StyledInfo)`
   padding: 26px;
 `
 
-export default function InformationBox({ type, text }: { type: InfoBoxType; text: string }): JSX.Element {
+export default function InformationBox({
+  type,
+  text,
+  forceExpand,
+}: {
+  type: InfoBoxType
+  text: string
+  forceExpand?: boolean
+}): JSX.Element {
   return (
-    <StyledInfoBox type={type} className="flex border rounded-xl items-center h-20 pr-7 text-xs font-medium">
+    <StyledInfoBox
+      type={type}
+      className="flex border rounded-xl items-center h-20 pr-7 text-xs font-medium"
+      forceExpand={forceExpand}
+    >
       <InfoWrapper type={type}>
         <StyledStyledInfo />
       </InfoWrapper>
