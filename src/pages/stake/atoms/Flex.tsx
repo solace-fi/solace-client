@@ -4,6 +4,7 @@ export default styled.div<{
   between?: boolean
   center?: boolean
   column?: boolean
+  col?: boolean
   end?: boolean
   stretch?: boolean
   wrap?: boolean
@@ -21,7 +22,7 @@ export default styled.div<{
   justify-content: ${({ between, end, center }) =>
     between ? 'space-between' : end ? 'flex-end' : center ? 'center' : 'flex-start'};
   align-items: ${({ center, stretch }) => (center ? 'center' : stretch ? 'stretch' : 'flex-start')};
-  flex-direction: ${({ column }) => (column ? 'column' : 'row')};
+  flex-direction: ${({ column, col }) => (column || col ? 'column' : 'row')};
   flex-wrap: ${({ wrap }) => (wrap ? 'wrap' : 'nowrap')};
   margin-bottom: ${({ mb }) => mb + 'px'};
   margin-top: ${({ mt }) => mt + 'px'};

@@ -93,7 +93,7 @@ export default function LockForm({ lock }: { lock: LockData }): JSX.Element {
           </SmallBox>
         }
 
-        <Button secondary info noborder disabled={!inputValue || inputValue == '0'}>
+        <Button pl={14} pr={14} secondary info noborder disabled={!inputValue || inputValue == '0'}>
           {lock.timeLeft.toNumber() > 0 ? `Extend Lockup` : `Start Lockup`}
         </Button>
       </StyledForm>

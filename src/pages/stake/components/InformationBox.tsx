@@ -4,6 +4,7 @@ import { GeneralElementProps } from '../../../components/generalInterfaces'
 import { InfoBoxType } from '../types/InfoBoxType'
 import Twiv from './Twiv'
 import { StyledInfo } from '../../../components/atoms/Icon'
+import { BKPT_5 } from '../../../constants'
 
 // border-[#5F5DF9] bg-[#F7F7FF] text-[#5F5DF9]
 const infoCss = css`
@@ -29,6 +30,10 @@ const StyledInfoBox = styled.div<{ type: InfoBoxType }>`
   display: flex;
   border: 1px solid;
   margin-top: 8px;
+  width: 275px;
+  @media (min-width: ${BKPT_5}px) {
+    width: 100%;
+  }
   ${(props) => (props.type === InfoBoxType.info ? infoCss : props.type === InfoBoxType.error ? errorCss : '')}
 `
 
