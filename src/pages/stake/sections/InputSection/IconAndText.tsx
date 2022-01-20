@@ -4,14 +4,14 @@ import { Clock } from 'styled-icons/bootstrap'
 import Twiv from '../../components/Twiv'
 import { Tab } from '../../types/Tab'
 
+const StyledImg = styled.img``
 function StyledImage({ src, alt, css }: { src: string; alt?: string; css: string }): JSX.Element {
-  const Styled = styled.img``
-  return <Styled className={css} src={src} alt={alt} />
+  return <StyledImg className={css} src={src} alt={alt} />
 }
 
+const StyledClk = styled(Clock)``
 function StyledClock({ css }: { css: string }): JSX.Element {
-  const Styled = styled(Clock)``
-  return <Styled className={css} />
+  return <StyledClk className={css} />
 }
 
 const StyledWords = styled.div<{ disabled?: boolean }>`

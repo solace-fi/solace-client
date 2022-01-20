@@ -61,6 +61,9 @@ const Annotation = styled.span<{ importance: 'primary' | 'secondary' | 'tertiary
 `
 
 // secondary CardSectionValue is just `font-medium mt-2`
+const BaseDiv = styled.div`
+  font-weight: 600;
+`
 export default function CardSectionValue({
   children,
   annotation,
@@ -73,10 +76,6 @@ export default function CardSectionValue({
   highlight?: boolean
   css?: string
 }): JSX.Element {
-  const BaseDiv = styled.div`
-    font-weight: 600;
-  `
-
   return (
     <BaseDiv>
       {/* <Twan css={firstInterpolation}>{children}</Twan>{' '} */}
