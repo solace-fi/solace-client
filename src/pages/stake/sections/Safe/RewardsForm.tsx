@@ -21,10 +21,6 @@ export default function RewardsForm({ lock }: { lock: LockData }): JSX.Element {
       .catch((err) => handleContractCallError('callHarvestLockRewards', err, FunctionName.HARVEST_LOCK))
   }
 
-  const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    callHarvestLockRewards()
-  }
   return (
     <div
       style={{
@@ -41,8 +37,8 @@ export default function RewardsForm({ lock }: { lock: LockData }): JSX.Element {
             : "You don't have any rewards to collect. Stake SOLACE to earn rewards!"
         }
       />
-      <StyledForm onSubmit={onSubmit}>
-        <Button secondary info noborder disabled={lock.pendingRewards.eq(ZERO)}>
+      <StyledForm>
+        <Button secondary info noborder disabled={lock.pendingRewards.eq(ZERO)} onClick={callHarvestLockRewards}>
           Harvest
         </Button>
       </StyledForm>

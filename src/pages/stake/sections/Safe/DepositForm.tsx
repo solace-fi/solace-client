@@ -53,11 +53,6 @@ export default function DepositForm({ lock }: { lock: LockData }): JSX.Element {
 
   const setMax = () => rangeOnChange(parseUnits(solaceBalance, 18).toString())
 
-  const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    callIncreaseLockAmount()
-  }
-
   return (
     <div
       style={{
@@ -67,14 +62,14 @@ export default function DepositForm({ lock }: { lock: LockData }): JSX.Element {
       }}
     >
       <InformationBox type={InfoBoxType.info} text="Stake additional SOLACE to this safe." />
-      <StyledForm onSubmit={onSubmit}>
+      <StyledForm>
         <InputSection
           tab={Tab.DEPOSIT}
           value={inputValue}
           onChange={(e) => inputOnChange(e.target.value)}
           setMax={() =>
             !disabled
-              ? setMax
+              ? setMax()
               : () => {
                   return undefined
                 }
@@ -88,7 +83,13 @@ export default function DepositForm({ lock }: { lock: LockData }): JSX.Element {
           max={parseUnits(solaceBalance, 18).toString()}
           disabled={disabled}
         />
-        <Button secondary info noborder disabled={!isAppropriateAmount(inputValue, 18, parseUnits(solaceBalance, 18))}>
+        <Button
+          secondary
+          info
+          noborder
+          disabled={!isAppropriateAmount(inputValue, 18, parseUnits(solaceBalance, 18))}
+          onClick={callIncreaseLockAmount}
+        >
           Stake
         </Button>
       </StyledForm>
