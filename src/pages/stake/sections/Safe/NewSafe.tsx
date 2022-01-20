@@ -157,15 +157,9 @@ export default function NewSafe({ isOpen }: { isOpen: boolean }): JSX.Element {
     <Accordion isOpen={isOpen} style={{ backgroundColor: 'inherit' }}>
       <ShadowDiv style={{ marginBottom: '20px' }}>
         <RaisedBox>
-<<<<<<< HEAD
-          <StyledForm onSubmit={onSubmit}>
+          <StyledForm>
             <Flex column p={24} gap={30}>
               <Flex column={BKPT_5 > width} gap={24}>
-=======
-          <StyledForm>
-            <Flex column p={24} gap={30} stretch>
-              <Flex gap={24}>
->>>>>>> 13f568c47447bb3484dc39fa8dfeaee5fbfadeb8
                 <Flex column gap={24}>
                   <div>
                     <Label importance="quaternary" style={{ marginBottom: '8px' }}>
