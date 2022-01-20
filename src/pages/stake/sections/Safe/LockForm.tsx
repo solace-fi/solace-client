@@ -16,19 +16,7 @@ import { useProvider } from '../../../../context/ProviderManager'
 import { SmallBox } from '../../../../components/atoms/Box'
 import { Text } from '../../../../components/atoms/Typography'
 import { getExpiration } from '../../../../utils/time'
-
-const StyledForm = styled.form`
-  display: flex;
-  flex-direction: column;
-  align-items: start;
-  gap: 30px;
-  justify-content: center;
-  width: 100%;
-  height: 100%;
-  padding: 0;
-  margin: 0;
-  width: 521px;
-`
+import { StyledForm } from '../../atoms/StyledForm'
 
 export default function LockForm({ lock }: { lock: LockData }): JSX.Element {
   const { latestBlock } = useProvider()

@@ -14,19 +14,7 @@ import { useWallet } from '../../../../context/WalletManager'
 import { FunctionName } from '../../../../constants/enums'
 import InformationBox from '../../components/InformationBox'
 import { InfoBoxType } from '../../types/InfoBoxType'
-
-const StyledForm = styled.form`
-  display: flex;
-  flex-direction: column;
-  align-items: start;
-  gap: 30px;
-  justify-content: center;
-  width: 100%;
-  height: 100%;
-  padding: 0;
-  margin: 0;
-  width: 521px;
-`
+import { StyledForm } from '../../atoms/StyledForm'
 
 export default function WithdrawForm({ lock }: { lock: LockData }): JSX.Element {
   const { handleToast, handleContractCallError, isAppropriateAmount, gasConfig } = useInputAmount()

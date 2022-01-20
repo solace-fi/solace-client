@@ -40,7 +40,7 @@ const StyledForm = styled.form`
   display: flex;
   flex-direction: column;
   align-items: stretch;
-  @media (min-width: ${BKPT_5}px) {
+  @media (max-width: ${BKPT_5}px) {
     align-items: center;
     margin-left: auto;
     margin-right: auto;
@@ -296,9 +296,10 @@ export default function NewSafe({ isOpen }: { isOpen: boolean }): JSX.Element {
               <InformationBox
                 type={InfoBoxType.info}
                 text="New deposit will be added to current locked amount locked for the same time."
+                forceExpand
               />
             </Flex>
-            <Flex pb={24} pl={24}>
+            <Flex pb={24} pl={24} w={BKPT_5 > width ? 333 : undefined}>
               <Button
                 secondary
                 info

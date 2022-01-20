@@ -9,19 +9,7 @@ import { useStakingRewards } from '../../../../hooks/useStakingRewards'
 import { FunctionName } from '../../../../constants/enums'
 import { parseUnits } from 'ethers/lib/utils'
 import { ZERO } from '../../../../constants'
-
-const StyledForm = styled.form`
-  display: flex;
-  flex-direction: column;
-  align-items: start;
-  gap: 30px;
-  justify-content: center;
-  width: 100%;
-  height: 100%;
-  padding: 0;
-  margin: 0;
-  width: 521px;
-`
+import { StyledForm } from '../../atoms/StyledForm'
 
 export default function RewardsForm({ lock }: { lock: LockData }): JSX.Element {
   const { handleToast, handleContractCallError, gasConfig } = useInputAmount()
