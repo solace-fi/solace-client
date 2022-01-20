@@ -39,7 +39,7 @@ export const truncateValue = (value: number | string, decimals = 6, abbrev = tru
 }
 
 export const convertSciNotaToPrecise = (str: string): string => {
-  // if string is in scientific notation, for example (1.2345e3, or 1.2345e-5)
+  // if string is in scientific notation, for example (1.2345e3, or 1.2345e-5), (2)
   if (str.includes('e')) {
     // get number left of 'e'
     const n = str.split('e')[0]
@@ -57,14 +57,22 @@ export const convertSciNotaToPrecise = (str: string): string => {
       str = '0.'.concat(zeros).concat(temp) // add abs(exponent) - 1 zeros to the left of temp
     } else {
       // if exponent does not have negative sign, it must be positive
-      if (n.split('.')[1].length > parseInt(exponent)) {
+
+      let lengthOfDecimalPlaces = 0
+
+      if (n.includes('.')) {
+        // if number contains decimals, this is important
+        lengthOfDecimalPlaces = n.split('.')[1].length
+      }
+
+      if (lengthOfDecimalPlaces > parseInt(exponent)) {
         // if length of decimal places in string surpasses exponent, must insert decimal point inside
         const decimalIndex = n.indexOf('.')
         const newDecimalIndex = decimalIndex + parseInt(exponent)
         str = temp.substring(0, newDecimalIndex).concat('.').concat(temp.substring(newDecimalIndex, temp.length))
       } else {
         // if length of decimal places in string does not surpass exponent, simply append zeros
-        const range = rangeFrom0(parseInt(exponent) - n.split('.')[1].length)
+        const range = rangeFrom0(parseInt(exponent) - lengthOfDecimalPlaces)
         range.forEach(() => (zeros += '0'))
         str = temp.concat(zeros)
       }
