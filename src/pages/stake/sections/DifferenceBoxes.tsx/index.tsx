@@ -4,9 +4,11 @@ import RaisedBox from '../../atoms/RaisedBox'
 import ShadowDiv from '../../atoms/ShadowDiv'
 import { Text } from '../../../../components/atoms/Typography'
 import { Button } from '../../../../components/atoms/Button'
-import styled from 'styled-components'
+import styled, { css } from 'styled-components'
 import { Tab } from '../../types/Tab'
 import { StakingVersion } from '../../types/Version'
+import { BKPT_5 } from '../../../../constants'
+import { useWindowDimensions } from '../../../../hooks/useWindowDimensions'
 
 /*
           style={{
@@ -16,15 +18,33 @@ import { StakingVersion } from '../../types/Version'
           }} */
 const StyledRaisedBox = styled(RaisedBox)<{
   theme: any
+  width: number
+  techyGradient?: boolean
 }>`
-  width: 378px;
+  /* width: ${({ width }) => (BKPT_5 > width ? '%' : '378px')}; */
+  ${({ width }) => {
+    if (BKPT_5 < width) {
+      return css`
+        width: 378px;
+      `
+    } else {
+      return css`
+        width: 250px;
+      `
+    }
+  }}
+  /* margin auto if width under BKPT_5 */
   padding: 40px 24px;
   // techy-gradient
-  background-image: linear-gradient(
-    to bottom right,
-    ${({ theme }) => theme.typography.techyGradientA},
-    ${({ theme }) => theme.typography.techyGradientB}
-  );
+  ${({ techyGradient }) =>
+    techyGradient &&
+    css`
+      background-image: linear-gradient(
+        to bottom right,
+        ${({ theme }) => theme.typography.techyGradientA},
+        ${({ theme }) => theme.typography.techyGradientB}
+      );
+    `}
 `
 
 export default function DifferenceBoxes({
@@ -32,15 +52,19 @@ export default function DifferenceBoxes({
 }: {
   setStakingVersion: (tab: StakingVersion) => void
 }): JSX.Element {
+  const { width } = useWindowDimensions()
   return (
-    <Flex center gap={100}>
+    <Flex center gap={BKPT_5 > width ? 20 : 100} column={BKPT_5 > width}>
       <ShadowDiv>
-        <RaisedBox
-          style={{
-            width: '378px',
-            // py = 40px, px = 24px
-            padding: '40px 24px',
-          }}
+        <StyledRaisedBox
+          width={width}
+          style={
+            {
+              // width: BKPT_5 > width ? '90%' : '378px',
+              // // py = 40px, px = 24px
+              // padding: '40px 24px',
+            }
+          }
         >
           <Flex center column gap={40}>
             <Text t1 extrabold>
@@ -73,10 +97,10 @@ export default function DifferenceBoxes({
               </Text>
             </Button>
           </Flex>
-        </RaisedBox>
+        </StyledRaisedBox>
       </ShadowDiv>
       <ShadowDiv>
-        <StyledRaisedBox>
+        <StyledRaisedBox width={width} techyGradient>
           <Flex center column gap={40}>
             <Text t1 extrabold light>
               Staking V2
@@ -85,7 +109,7 @@ export default function DifferenceBoxes({
               Users are in more control of their funds and returns. Users can utilize safes to take ad
             </Text> */}
             <Flex column gap={20} center>
-              <Text t2 light>
+              <Text t2 light textAlignCenter>
                 Rewards Distributed Each Second
               </Text>
               <Text t2 light>
