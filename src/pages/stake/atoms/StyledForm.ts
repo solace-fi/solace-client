@@ -1,7 +1,7 @@
 import styled from 'styled-components'
 import { BKPT_5 } from '../../../constants'
 
-export const StyledForm = styled.form`
+export const StyledForm = styled.div`
   display: flex;
   flex-direction: column;
   align-items: start;
