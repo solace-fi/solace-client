@@ -18,8 +18,11 @@ import { getTimeFromMillis } from '../../../../utils/time'
 import { truncateValue } from '../../../../utils/formatting'
 import { formatUnits } from 'ethers/lib/utils'
 import { GridOrRow } from '../../atoms/GridOrRow'
+import { BKPT_5 } from '../../../../constants'
+import { useWindowDimensions } from '../../../../hooks/useWindowDimensions'
 
 export default function Safe({ lock }: { lock: LockData }): JSX.Element {
+  const { width } = useWindowDimensions()
   const [isOpen, setIsOpen] = useState(false)
   const openSafe = () => setIsOpen(true)
   const closeSafe = () => setIsOpen(false)
@@ -96,7 +99,7 @@ export default function Safe({ lock }: { lock: LockData }): JSX.Element {
           <Flex column gap={30} p={24} stretch>
             <Flex between stretch>
               {/* 4 tab switchers, just normal text with underline offset 8px: deposit, extend lock/lock, withdraw, rewards */}
-              <Flex gap={40}>
+              <Flex gap={BKPT_5 < width ? 40 : 21.66}>
                 <Label
                   importance={activeTab === Tab.DEPOSIT ? 'primary' : 'secondary'}
                   clickable
