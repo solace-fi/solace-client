@@ -51,7 +51,7 @@ export default function Safe({
     [boostedValue, unboostedAmount]
   )
   const stringifiedMultiplier = useMemo(() => truncateValue(multiplier, 1), [multiplier])
-  const lockTimeLeft = useMemo(() => getTimeFromMillis(lock.timeLeft.toNumber() * 1000), [lock.timeLeft])
+  const lockTimeLeft = useMemo(() => getTimeFromMillis(lock.timeLeft.toNumber() * 1000, true), [lock.timeLeft])
   const safeStatus = useMemo(() => {
     if (lock.timeLeft.toNumber() > 0) return 'Locked'
     if (parseFloat(unboostedAmount) > 0) return 'Unlocked'
@@ -113,7 +113,7 @@ export default function Safe({
 				                        SAFE BODY
 				******************************************************/}
         <Accordion
-          noscroll
+          noScroll
           isOpen={isOpen}
           style={{ backgroundColor: 'inherit' }}
           customHeight={accordionRef.current != null ? `${accordionRef.current.scrollHeight}px` : undefined}

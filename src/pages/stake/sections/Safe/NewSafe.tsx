@@ -108,7 +108,7 @@ export default function NewSafe({ isOpen }: { isOpen: boolean }): JSX.Element {
 
   return (
     <Accordion
-      noscroll
+      noScroll
       isOpen={isOpen}
       style={{ backgroundColor: 'inherit' }}
       customHeight={accordionRef.current != null ? `${accordionRef.current.scrollHeight}px` : undefined}
