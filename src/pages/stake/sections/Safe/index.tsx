@@ -20,8 +20,21 @@ import { formatUnits } from 'ethers/lib/utils'
 import { GridOrRow } from '../../atoms/GridOrRow'
 import { BKPT_5 } from '../../../../constants'
 import { useWindowDimensions } from '../../../../hooks/useWindowDimensions'
+import Checkbox from '../../atoms/Checkbox'
 
-export default function Safe({ lock }: { lock: LockData }): JSX.Element {
+export default function Safe({
+  lock,
+  batchActionsIsEnabled,
+  isChecked,
+  onCheck,
+  index,
+}: {
+  lock: LockData
+  batchActionsIsEnabled: boolean
+  isChecked: boolean
+  onCheck: (index: number) => void
+  index: number
+}): JSX.Element {
   const { width } = useWindowDimensions()
   const [isOpen, setIsOpen] = useState(false)
   const openSafe = () => setIsOpen(true)
@@ -50,8 +63,11 @@ export default function Safe({ lock }: { lock: LockData }): JSX.Element {
         {/******************************************************
 				                      TOP SECTION
 				******************************************************/}
-        <Flex between stretch p={24}>
-          <GridOrRow>
+        <Flex between stretch p={24} gap={24}>
+          <Flex center>
+            {batchActionsIsEnabled && <Checkbox type="checkbox" checked={isChecked} onChange={() => onCheck(index)} />}
+          </Flex>
+          <GridOrRow gap={batchActionsIsEnabled ? 77 : 80}>
             {/* <Flex stretch gap={90}> */}
             <InfoPair importance="tertiary" label="Amount">
               <CardSectionValue highlight={true} annotation="SOLACE">

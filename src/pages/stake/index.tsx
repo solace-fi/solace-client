@@ -29,22 +29,23 @@ import { useCachedData } from '../../context/CachedDataManager'
 import { FunctionName } from '../../constants/enums'
 import { ZERO } from '../../constants'
 import { LockData, UserLocksInfo } from '../../constants/types'
+import { StakingVersion } from './types/Version'
+import { LockCheckbox } from './types/LockCheckbox'
 
 /* import components */
 import { Button, ButtonWrapper } from '../../components/atoms/Button'
 import { Card } from '../../components/atoms/Card'
 import { FormCol, FormRow } from '../../components/atoms/Form'
 import { Input } from '../../components/atoms/Input'
-import { Content, FlexCol, FlexRow, HorizRule, Scrollable } from '../../components/atoms/Layout'
+import { Content, FlexCol, FlexRow, HorizRule } from '../../components/atoms/Layout'
 import { ModalCell } from '../../components/atoms/Modal'
 import { Text, TextSpan } from '../../components/atoms/Typography'
 import { HeroContainer, MultiTabIndicator } from '../../components/atoms/Layout'
 import { WalletConnectButton } from '../../components/molecules/WalletConnectButton'
-import { StyledRefresh } from '../../components/atoms/Icon'
 
 /* import hooks */
-import { useSolaceBalance, useXSolaceV1Balance } from '../../hooks/useBalance'
-import { useXSolaceV1, useXSolaceV1Details } from '../../hooks/useXSolaceV1'
+import { useXSolaceV1Balance } from '../../hooks/useBalance'
+import { useXSolaceV1 } from '../../hooks/useXSolaceV1'
 import { useInputAmount } from '../../hooks/useInputAmount'
 import { useReadToken } from '../../hooks/useToken'
 import { useUserLockData } from '../../hooks/useXSLocker'
@@ -52,11 +53,17 @@ import { useXSolaceMigrator } from '../../hooks/useXSolaceMigrator'
 
 /* import utils */
 import { formatAmount } from '../../utils/formatting'
-import { Tab } from './types/Tab'
+import calculateTotalWithdrawable from './utils/stake/batchActions/actions/calculateTotalWithdrawable'
+import calculateTotalHarvest from './utils/stake/batchActions/actions/calculateTotalHarvest'
+import { formatShort } from './utils/stake/batchActions/formatShort'
 
-import Twiv from './components/Twiv'
-import { StakingVersion } from './types/Version'
-import Twan from './components/Twan'
+import updateLocksChecked from './utils/stake/batchActions/checkboxes/updateLocksChecked'
+import getCheckedLocks from './utils/stake/batchActions/checkboxes/getCheckedLocks'
+import lockIsChecked from './utils/stake/batchActions/checkboxes/lockIsChecked'
+import updateLockCheck from './utils/stake/batchActions/checkboxes/updateLockCheck'
+import somethingIsChecked from './utils/stake/batchActions/checkboxes/somethingIsChecked'
+import allLocksAreChecked from './utils/stake/batchActions/checkboxes/allLocksAreChecked'
+
 import '../../styles/tailwind.min.css'
 import DifferenceNotification from './organisms/DifferenceNotification'
 import Flex from './atoms/Flex'
@@ -64,6 +71,10 @@ import Safe from './sections/Safe/index'
 import AggregatedStakeData from './sections/AggregatedStakeData'
 import NewSafe from './sections/Safe/NewSafe'
 import DifferenceBoxes from './sections/DifferenceBoxes.tsx'
+import Checkbox from './atoms/Checkbox'
+import CardSectionValue from './components/CardSectionValue'
+
+// util imports
 
 // disable no unused variables
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -241,11 +252,13 @@ function Stake1(): any {
 export default function Stake(): JSX.Element {
   // account usewallet
   const [newSafeIsOpen, setNewSafeIsOpen] = useState(false)
+  const [batchActionsIsEnabled, setBatchActionsIsEnabled] = useState(false)
+  const [locksChecked, setLocksChecked] = useState<LockCheckbox[]>([])
+
   const { account } = useWallet()
   const { latestBlock } = useProvider()
   const { version } = useCachedData()
   const [stakingVersion, setStakingVersion] = useState<StakingVersion>(StakingVersion.v2 as StakingVersion)
-  const [tab, setTab] = useState(Tab.DEPOSIT)
   const [locks, setLocks] = useState<LockData[]>([])
   const [userLockInfo, setUserLockInfo] = useState<UserLocksInfo>({
     pendingRewards: ZERO,
@@ -263,13 +276,52 @@ export default function Stake(): JSX.Element {
       if (!account) return
       const userLockData = await getUserLocks(account)
       setLocks(userLockData.locks)
+      setLocksChecked(updateLocksChecked(userLockData.locks, locksChecked))
       setUserLockInfo(userLockData.user)
     }
     _getUserLocks()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [account, latestBlock, version])
 
   const openSafe = () => setNewSafeIsOpen(true)
   const closeSafe = () => setNewSafeIsOpen(false)
+  const toggleBatchActions = () => setBatchActionsIsEnabled(!batchActionsIsEnabled)
+
+  const handleLockCheck = (lockId: BigNumber) => {
+    const checkboxStatus = lockIsChecked(locksChecked, lockId)
+    const newArr = updateLockCheck(locksChecked, lockId, !checkboxStatus)
+    setLocksChecked(newArr)
+  }
+
+  const handleLockCheckAll = () => {
+    if (allLocksAreChecked(locksChecked)) {
+      setLocksChecked(locksChecked.map((lock) => ({ ...lock, checked: false })))
+    } else {
+      setLocksChecked(locksChecked.map((lock) => ({ ...lock, checked: true })))
+    }
+  }
+
+  const handleBatchWithdraw = async () => {
+    const selectedLocks = locks.filter((_, index) => locksChecked[index])
+    const selectedLocksWithdraw = selectedLocks.map((lock) => ({
+      lockId: lock.xsLockID,
+      amount: lock.pendingRewards,
+    }))
+    console.log('selectedLocksWithdraw', selectedLocksWithdraw)
+  }
+
+  const handleBatchHarvest = async () => {
+    const selectedLocks = locks.filter((_, index) => locksChecked[index])
+    const selectedLocksHarvest = selectedLocks.map((lock) => ({
+      lockId: lock.xsLockID,
+      amount: lock.pendingRewards,
+    }))
+    console.log('selectedLocksHarvest', selectedLocksHarvest)
+  }
+  const rewardsAreZero = () => calculateTotalHarvest(getCheckedLocks(locks, locksChecked)).isZero()
+  const withdrawalsAreZero = () => calculateTotalWithdrawable(getCheckedLocks(locks, locksChecked)).isZero()
+  const getFormattedRewards = () => formatShort(calculateTotalHarvest(getCheckedLocks(locks, locksChecked)))
+  const getFormattedWithdrawal = () => formatShort(calculateTotalWithdrawable(getCheckedLocks(locks, locksChecked)))
 
   return (
     <>
@@ -287,22 +339,100 @@ export default function Stake(): JSX.Element {
             <>
               <AggregatedStakeData stakeData={userLockInfo} />
               <Flex between mb={20}>
-                {!newSafeIsOpen ? (
-                  <Button secondary info noborder pl={23} pr={23} onClick={openSafe}>
-                    Create New Safe
-                  </Button>
+                {!batchActionsIsEnabled ? (
+                  !newSafeIsOpen ? (
+                    <Button secondary info noborder pl={23} pr={23} onClick={openSafe}>
+                      Create New Safe
+                    </Button>
+                  ) : (
+                    <Button secondary info noborder pl={23} pr={23} onClick={closeSafe}>
+                      Close
+                    </Button>
+                  )
                 ) : (
-                  <Button secondary info noborder pl={23} pr={23} onClick={closeSafe}>
-                    Close
-                  </Button>
+                  // checkbox + Select all, Rewards selected (harvest), Withdraw selected (withdraw)
+                  <>
+                    {/* select all checkbox */}
+                    <Flex gap={20}>
+                      <Flex
+                        center
+                        gap={5}
+                        style={{
+                          cursor: 'pointer',
+                          userSelect: 'none',
+                        }}
+                        onClick={handleLockCheckAll}
+                      >
+                        <Checkbox type="checkbox" checked={allLocksAreChecked(locksChecked)} />
+                        <Text bold t4 info>
+                          Select all
+                        </Text>
+                      </Flex>
+                      {somethingIsChecked(locksChecked) && (
+                        <>
+                          {' '}
+                          <Flex center gap={5}>
+                            <Text t4>Rewards selected:</Text>
+                            <CardSectionValue annotation="SOLACE" smol info>
+                              {/* calcualte total selected harvest, divide by 1e18, to string (big numbers) */}
+                              {getFormattedRewards()}
+                            </CardSectionValue>
+                          </Flex>
+                          <Flex center gap={5}>
+                            <Text t4>Withdrawable selected:</Text>
+                            <CardSectionValue annotation="SOLACE" smol info>
+                              {getFormattedWithdrawal()}
+                            </CardSectionValue>
+                          </Flex>
+                        </>
+                      )}
+                    </Flex>
+                    {/* Harvest selected (harvest) */}
+                    {/* <Button secondary info noborder pl={23} pr={23} onClick={handleExitBatch}>
+                        Exit Batch
+                      </Button>
+                      <Button secondary info noborder pl={23} pr={23} onClick={handleBatchHarvest}>
+                        Harvest
+                      </Button>
+                      <Button secondary info noborder pl={23} pr={23} onClick={handleBatchWithdraw}>
+                        Withdraw
+                      </Button> */}
+                  </>
                 )}
-                {/* <Button info pl={23} pr={23}>
-                  Batch Actions
+                <Flex center gap={20}>
+                  {/* 2 buttons: withdraw, harvest rewards */}
+                  {batchActionsIsEnabled && (
+                    <>
+                      {!rewardsAreZero() && (
+                        <Button secondary info noborder pl={23} pr={23} onClick={handleBatchHarvest}>
+                          Harvest Rewards
+                        </Button>
+                      )}
+                      {!withdrawalsAreZero() && (
+                        <Button secondary info noborder pl={23} pr={23} onClick={handleBatchWithdraw}>
+                          Withdraw
+                        </Button>
+                      )}
+                    </>
+                  )}
+                  <Button info pl={23} pr={23} onClick={toggleBatchActions}>
+                    {batchActionsIsEnabled ? 'Exit Batch' : 'Batch Actions'}
+                  </Button>
+                </Flex>
+                {/* <Button info pl={23} pr={23} onClick={toggleBatchActions}>
+                  {batchActionsIsEnabled ? 'X' : 'Batch Actions'}
                 </Button> */}
               </Flex>
               <NewSafe isOpen={newSafeIsOpen} />
-              {locks.map((lock) => (
-                <Safe key={lock.xsLockID.toNumber()} lock={lock} />
+              {locks.map((lock, i) => (
+                <Safe
+                  key={lock.xsLockID.toNumber()}
+                  lock={lock}
+                  batchActionsIsEnabled={batchActionsIsEnabled}
+                  isChecked={lockIsChecked(locksChecked, lock.xsLockID)}
+                  onCheck={() => handleLockCheck(lock.xsLockID)}
+                  index={i}
+                />
               ))}
             </>
           )}

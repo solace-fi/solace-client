@@ -10,8 +10,15 @@ const Wrapper = styled.div`
   font-weight: 600;
 `
 
-const Value = styled.span<{ importance: 'primary' | 'secondary' | 'tertiary' | 'quaternary' }>`
-  font-size: ${({ importance }) => {
+const Value = styled.span<{
+  importance: 'primary' | 'secondary' | 'tertiary' | 'quaternary'
+  smol?: boolean
+  info?: boolean
+}>`
+  font-size: ${({ importance, smol }) => {
+    if (smol) {
+      return '14px'
+    }
     switch (importance) {
       case 'primary':
       case 'secondary':
@@ -22,7 +29,9 @@ const Value = styled.span<{ importance: 'primary' | 'secondary' | 'tertiary' | '
     }
   }};
 
-  color: ${({ importance, theme }) => {
+  color: ${({ importance, theme, info }) => {
+    if (info) return theme.typography.infoText
+
     switch (importance) {
       case 'primary':
       case 'secondary':
@@ -35,8 +44,13 @@ const Value = styled.span<{ importance: 'primary' | 'secondary' | 'tertiary' | '
   }};
 `
 
-const Annotation = styled.span<{ importance: 'primary' | 'secondary' | 'tertiary' | 'quaternary' }>`
-  font-size: ${({ importance }) => {
+const Annotation = styled.span<{
+  importance: 'primary' | 'secondary' | 'tertiary' | 'quaternary'
+  smol?: boolean
+  info?: boolean
+}>`
+  font-size: ${({ importance, smol }) => {
+    if (smol) return '11px'
     switch (importance) {
       case 'primary':
       case 'secondary':
@@ -47,7 +61,8 @@ const Annotation = styled.span<{ importance: 'primary' | 'secondary' | 'tertiary
     }
   }};
 
-  color: ${({ importance, theme }) => {
+  color: ${({ importance, theme, info }) => {
+    if (info) return theme.typography.infoText
     switch (importance) {
       case 'primary':
       case 'secondary':
@@ -73,19 +88,27 @@ export default function CardSectionValue({
   annotation,
   // importance,
   highlight,
+  smol,
+  info,
 }: {
   children: string | React.ReactNode
   annotation?: string
   // importance: 'primary' | 'secondary' | 'tertiary'
   highlight?: boolean
   css?: string
+  smol?: boolean
+  info?: boolean
 }): JSX.Element {
   return (
     <BaseDiv>
       {/* <Twan css={firstInterpolation}>{children}</Twan>{' '} */}
-      <Value importance={highlight ? 'tertiary' : 'primary'}>{children}</Value>{' '}
+      <Value importance={highlight ? 'tertiary' : 'primary'} smol={smol} info={info}>
+        {children}
+      </Value>{' '}
       {annotation && (
-        <Annotation importance={highlight ? 'tertiary' : 'primary'}>{annotation}</Annotation>
+        <Annotation importance={highlight ? 'tertiary' : 'primary'} smol={smol} info={info}>
+          {annotation}
+        </Annotation>
         // <>
         //   <Twan css={secondInterpolation}>{annotation}</Twan>
         // </>

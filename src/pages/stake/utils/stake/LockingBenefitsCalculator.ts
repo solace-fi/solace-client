@@ -3,4 +3,5 @@ const lockingBenefitsCalculator = (days: number): { apy: number; multiplier: num
   const apy = multiplier * 2000
   return { apy, multiplier }
 }
+
 export default lockingBenefitsCalculator
