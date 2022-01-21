@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react'
+import React, { useMemo, useState, useRef } from 'react'
 
 import { Button } from '../../../../components/atoms/Button'
 import Flex from '../../atoms/Flex'
@@ -26,6 +26,8 @@ export default function Safe({ lock }: { lock: LockData }): JSX.Element {
   const [isOpen, setIsOpen] = useState(false)
   const openSafe = () => setIsOpen(true)
   const closeSafe = () => setIsOpen(false)
+
+  const accordionRef = useRef<HTMLDivElement>(null)
 
   const unboostedAmount = useMemo(() => formatUnits(lock.unboostedAmount, 18), [lock.unboostedAmount])
   const boostedValue = useMemo(() => formatUnits(lock.boostedValue, 18), [lock.boostedValue])
@@ -94,48 +96,55 @@ export default function Safe({ lock }: { lock: LockData }): JSX.Element {
         {/******************************************************
 				                        SAFE BODY
 				******************************************************/}
-        <Accordion isOpen={isOpen} style={{ backgroundColor: 'inherit' }}>
-          <HorizontalSeparator />
-          <Flex column gap={30} p={24} stretch>
-            <Flex between stretch>
-              {/* 4 tab switchers, just normal text with underline offset 8px: deposit, extend lock/lock, withdraw, rewards */}
-              <Flex gap={BKPT_5 < width ? 40 : 21.66}>
-                <Label
-                  importance={activeTab === Tab.DEPOSIT ? 'primary' : 'secondary'}
-                  clickable
-                  onClick={() => setActiveTab(Tab.DEPOSIT)}
-                >
-                  Stake
-                </Label>
-                <Label
-                  importance={activeTab === Tab.LOCK ? 'primary' : 'secondary'}
-                  clickable
-                  onClick={() => setActiveTab(Tab.LOCK)}
-                >
-                  {lock.timeLeft.toNumber() > 0 ? 'Extend Lockup' : 'Lockup'}
-                </Label>
-                <Label
-                  importance={activeTab === Tab.WITHDRAW ? 'primary' : 'secondary'}
-                  clickable
-                  onClick={() => setActiveTab(Tab.WITHDRAW)}
-                >
-                  Withdraw
-                </Label>
-                <Label
-                  importance={activeTab === Tab.REWARDS ? 'primary' : 'secondary'}
-                  clickable
-                  onClick={() => setActiveTab(Tab.REWARDS)}
-                >
-                  Rewards
-                </Label>
+        <Accordion
+          noscroll
+          isOpen={isOpen}
+          style={{ backgroundColor: 'inherit' }}
+          customHeight={accordionRef.current != null ? `${accordionRef.current.scrollHeight}px` : undefined}
+        >
+          <div>
+            <HorizontalSeparator />
+            <Flex column gap={30} p={24} stretch>
+              <Flex between stretch>
+                {/* 4 tab switchers, just normal text with underline offset 8px: deposit, extend lock/lock, withdraw, rewards */}
+                <Flex gap={BKPT_5 < width ? 40 : 21.66}>
+                  <Label
+                    importance={activeTab === Tab.DEPOSIT ? 'primary' : 'secondary'}
+                    clickable
+                    onClick={() => setActiveTab(Tab.DEPOSIT)}
+                  >
+                    Stake
+                  </Label>
+                  <Label
+                    importance={activeTab === Tab.LOCK ? 'primary' : 'secondary'}
+                    clickable
+                    onClick={() => setActiveTab(Tab.LOCK)}
+                  >
+                    {lock.timeLeft.toNumber() > 0 ? 'Extend Lockup' : 'Lockup'}
+                  </Label>
+                  <Label
+                    importance={activeTab === Tab.WITHDRAW ? 'primary' : 'secondary'}
+                    clickable
+                    onClick={() => setActiveTab(Tab.WITHDRAW)}
+                  >
+                    Withdraw
+                  </Label>
+                  <Label
+                    importance={activeTab === Tab.REWARDS ? 'primary' : 'secondary'}
+                    clickable
+                    onClick={() => setActiveTab(Tab.REWARDS)}
+                  >
+                    Rewards
+                  </Label>
+                </Flex>
               </Flex>
+              {/* depending on the tab, use <DepositForm />, or LockForm, RewardsForm or WithdrawForm */}
+              {activeTab === Tab.DEPOSIT && <DepositForm lock={lock} />}
+              {activeTab === Tab.LOCK && <LockForm lock={lock} />}
+              {activeTab === Tab.WITHDRAW && <WithdrawForm lock={lock} />}
+              {activeTab === Tab.REWARDS && <RewardsForm lock={lock} />}
             </Flex>
-            {/* depending on the tab, use <DepositForm />, or LockForm, RewardsForm or WithdrawForm */}
-            {activeTab === Tab.DEPOSIT && <DepositForm lock={lock} />}
-            {activeTab === Tab.LOCK && <LockForm lock={lock} />}
-            {activeTab === Tab.WITHDRAW && <WithdrawForm lock={lock} />}
-            {activeTab === Tab.REWARDS && <RewardsForm lock={lock} />}
-          </Flex>
+          </div>
         </Accordion>
       </RaisedBox>
     </ShadowDiv>
