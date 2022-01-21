@@ -28,7 +28,7 @@ export const FunctionGasLimits: { [key: string]: number } = {
   ['xsLocker.increaseAmountSigned']: 202431,
   ['xsLocker.extendLock']: 189006,
   ['xsLocker.withdrawInPart']: 151213,
-  ['xsLocker.withdrawMany']: 293442,
+  ['xsLocker.withdrawMany']: 493442,
   ['xsLocker.withdraw']: 365209,
   ['xSolaceMigrator.migrateSigned']: 600000,
 }

@@ -35,7 +35,11 @@ export default function LockForm({ lock }: { lock: LockData }): JSX.Element {
   const [inputValue, setInputValue] = React.useState('0')
   const { projectedMultiplier, projectedApy, projectedYearlyReturns } = useProjectedBenefits(
     lock.unboostedAmount.toString(),
-    lock.end.toNumber() + parseInt(inputValue) * 86400
+    lock.end.toNumber() == 0
+      ? latestBlock
+        ? latestBlock.timestamp + parseInt(inputValue) * 86400
+        : 0
+      : lock.end.toNumber() + parseInt(inputValue) * 86400
   )
 
   const callExtendLock = async () => {

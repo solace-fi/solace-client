@@ -48,7 +48,7 @@ import { useXSolaceV1Balance } from '../../hooks/useBalance'
 import { useXSolaceV1 } from '../../hooks/useXSolaceV1'
 import { useInputAmount } from '../../hooks/useInputAmount'
 import { useReadToken } from '../../hooks/useToken'
-import { useUserLockData } from '../../hooks/useXSLocker'
+import { useUserLockData, useXSLocker } from '../../hooks/useXSLocker'
 import { useXSolaceMigrator } from '../../hooks/useXSolaceMigrator'
 
 /* import utils */
@@ -79,6 +79,8 @@ import { Label } from './molecules/InfoPair'
 import InputSection from './sections/InputSection'
 import { SmallBox } from '../../components/atoms/Box'
 import { getExpiration } from '../../utils/time'
+import { Tab } from './types/Tab'
+import { useStakingRewards } from '../../hooks/useStakingRewards'
 
 // disable no unused variables
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -106,7 +108,7 @@ function Stake1(): any {
     handleInputChange,
     setMax,
   } = useInputAmount()
-  const { stake_v1, unstake_v1 } = useXSolaceV1()
+  const { unstake_v1 } = useXSolaceV1()
   // const { userShare, xSolacePerSolace, solacePerXSolace } = useXSolaceV1Details()
   const { migrate } = useXSolaceMigrator()
   const { account } = useWallet()
@@ -115,12 +117,6 @@ function Stake1(): any {
 
   const [isAcceptableAmount, setIsAcceptableAmount] = useState<boolean>(false)
   const [lockInputValue, setLockInputValue] = React.useState('0')
-
-  // const callStakeSigned = async () => {
-  //   await stake_v1(parseUnits(amount, readSolaceToken.decimals), gasConfig)
-  //     .then((res) => handleToast(res.tx, res.localTx))
-  //     .catch((err) => handleContractCallError('callStakeSigned', err, FunctionName.STAKE_V1))
-  // }
 
   const callUnstake = async () => {
     const xSolaceToUnstake: BigNumber = await getXSolaceFromSolace()
@@ -308,6 +304,9 @@ export default function Stake(): JSX.Element {
   })
 
   const { getUserLocks } = useUserLockData()
+  const { withdrawFromLock } = useXSLocker()
+  const { harvestLockRewards } = useStakingRewards()
+  const { handleToast, handleContractCallError, gasConfig } = useInputAmount()
 
   useEffect(() => {
     const _getUserLocks = async () => {
@@ -323,7 +322,10 @@ export default function Stake(): JSX.Element {
 
   const openSafe = () => setNewSafeIsOpen(true)
   const closeSafe = () => setNewSafeIsOpen(false)
-  const toggleBatchActions = () => setBatchActionsIsEnabled(!batchActionsIsEnabled)
+  const toggleBatchActions = () => {
+    closeSafe()
+    setBatchActionsIsEnabled(!batchActionsIsEnabled)
+  }
 
   const handleLockCheck = (lockId: BigNumber) => {
     const checkboxStatus = lockIsChecked(locksChecked, lockId)
@@ -340,21 +342,25 @@ export default function Stake(): JSX.Element {
   }
 
   const handleBatchWithdraw = async () => {
-    const selectedLocks = locks.filter((_, index) => locksChecked[index])
-    const selectedLocksWithdraw = selectedLocks.map((lock) => ({
-      lockId: lock.xsLockID,
-      amount: lock.pendingRewards,
-    }))
-    console.log('selectedLocksWithdraw', selectedLocksWithdraw)
+    if (!account) return
+    const selectedLocks = getCheckedLocks(locks, locksChecked)
+    const eligibleLocks = selectedLocks.filter((lock) => lock.timeLeft.isZero())
+    const eligibleIds = eligibleLocks.map((lock) => lock.xsLockID)
+    if (eligibleIds.length == 0) return
+    const type = eligibleIds.length > 1 ? FunctionName.WITHDRAW_MANY_FROM_LOCK : FunctionName.WITHDRAW_FROM_LOCK
+    await withdrawFromLock(account, eligibleIds, gasConfig)
+      .then((res) => handleToast(res.tx, res.localTx))
+      .catch((err) => handleContractCallError('handleBatchWithdraw', err, type))
   }
 
   const handleBatchHarvest = async () => {
-    const selectedLocks = locks.filter((_, index) => locksChecked[index])
-    const selectedLocksHarvest = selectedLocks.map((lock) => ({
-      lockId: lock.xsLockID,
-      amount: lock.pendingRewards,
-    }))
-    console.log('selectedLocksHarvest', selectedLocksHarvest)
+    const selectedLocks = getCheckedLocks(locks, locksChecked)
+    const eligibleLocks = selectedLocks.filter((lock) => !lock.pendingRewards.isZero())
+    const eligibleIds = eligibleLocks.map((lock) => lock.xsLockID)
+    const type = eligibleIds.length > 1 ? FunctionName.HARVEST_LOCKS : FunctionName.HARVEST_LOCK
+    await harvestLockRewards(eligibleIds, gasConfig)
+      .then((res) => handleToast(res.tx, res.localTx))
+      .catch((err) => handleContractCallError('handleBatchHarvest', err, type))
   }
   const rewardsAreZero = () => calculateTotalHarvest(getCheckedLocks(locks, locksChecked)).isZero()
   const withdrawalsAreZero = () => calculateTotalWithdrawable(getCheckedLocks(locks, locksChecked)).isZero()
@@ -391,7 +397,7 @@ export default function Stake(): JSX.Element {
                   // checkbox + Select all, Rewards selected (harvest), Withdraw selected (withdraw)
                   <>
                     {/* select all checkbox */}
-                    <Flex gap={20}>
+                    <Flex gap={20} style={{ marginTop: 'auto', marginBottom: 'auto' }}>
                       <Flex
                         center
                         gap={5}
@@ -425,41 +431,39 @@ export default function Stake(): JSX.Element {
                         </>
                       )}
                     </Flex>
-                    {/* Harvest selected (harvest) */}
-                    {/* <Button secondary info noborder pl={23} pr={23} onClick={handleExitBatch}>
-                        Exit Batch
-                      </Button>
-                      <Button secondary info noborder pl={23} pr={23} onClick={handleBatchHarvest}>
-                        Harvest
-                      </Button>
-                      <Button secondary info noborder pl={23} pr={23} onClick={handleBatchWithdraw}>
-                        Withdraw
-                      </Button> */}
                   </>
                 )}
                 <Flex center gap={20}>
-                  {/* 2 buttons: withdraw, harvest rewards */}
                   {batchActionsIsEnabled && (
                     <>
-                      {!rewardsAreZero() && (
-                        <Button secondary info noborder pl={23} pr={23} onClick={handleBatchHarvest}>
-                          Harvest Rewards
-                        </Button>
-                      )}
-                      {!withdrawalsAreZero() && (
-                        <Button secondary info noborder pl={23} pr={23} onClick={handleBatchWithdraw}>
-                          Withdraw
-                        </Button>
-                      )}
+                      <Button
+                        secondary
+                        info
+                        noborder
+                        pl={23}
+                        pr={23}
+                        onClick={handleBatchHarvest}
+                        disabled={rewardsAreZero()}
+                      >
+                        Harvest Rewards
+                      </Button>
+                      <Button
+                        secondary
+                        info
+                        noborder
+                        pl={23}
+                        pr={23}
+                        onClick={handleBatchWithdraw}
+                        disabled={withdrawalsAreZero()}
+                      >
+                        Withdraw
+                      </Button>
                     </>
                   )}
                   <Button info pl={23} pr={23} onClick={toggleBatchActions}>
                     {batchActionsIsEnabled ? 'Exit Batch' : 'Batch Actions'}
                   </Button>
                 </Flex>
-                {/* <Button info pl={23} pr={23} onClick={toggleBatchActions}>
-                  {batchActionsIsEnabled ? 'X' : 'Batch Actions'}
-                </Button> */}
               </Flex>
               <NewSafe isOpen={newSafeIsOpen} />
               {locks.map((lock, i) => (
@@ -477,13 +481,7 @@ export default function Stake(): JSX.Element {
           {/* only show the following if staking is v1 and the tab is not `difference` */}
           {stakingVersion === StakingVersion.v1 && <Stake1 />}
           {/* only show the following if staking is v1 and the tab is 'difference' */}
-          {stakingVersion === StakingVersion.difference && (
-            <DifferenceBoxes setStakingVersion={setStakingVersion} />
-            // <Twiv css={'text-xl font-bold text-[#5F5DF9] animate-bounce'}>
-            //   Difference between V1 and V2:
-            //   <Twiv css={'text-[#5E5E5E]'}>not implemented yet</Twiv>
-            // </Twiv>
-          )}
+          {stakingVersion === StakingVersion.difference && <DifferenceBoxes setStakingVersion={setStakingVersion} />}
         </Content>
       )}
     </>
