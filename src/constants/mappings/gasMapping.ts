@@ -23,7 +23,7 @@ export const FunctionGasLimits: { [key: string]: number } = {
   ['stakingRewards.compoundLock']: 255664,
   ['stakingRewards.compoundLocks']: 278677,
   ['stakingRewards.harvestLock']: 213063,
-  ['stakingRewards.harvestLocks']: 233061,
+  ['stakingRewards.harvestLocks']: 333061,
   ['xsLocker.createLockSigned']: 560597,
   ['xsLocker.increaseAmountSigned']: 202431,
   ['xsLocker.extendLock']: 189006,

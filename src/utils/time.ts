@@ -49,26 +49,24 @@ const getTimesFromSeconds = (millis: number) => {
   return { days, hours, minutes, seconds }
 }
 
-export function getLongtimeFromMillis(millis: number, firstUnitOnly = false): string {
+export function getLongtimeFromMillis(millis: number): string {
   if (millis == 0) return '0'
   const { days, hours, minutes } = getTimesFromSeconds(millis)
 
   let str = `${days > 0 ? `${days} day${days > 1 ? 's' : ''}` : ''}${hours > 0 ? ' ' : ''}${
     hours > 0 ? `${hours} hour${hours > 1 ? 's' : ''}` : ''
   }${minutes > 0 ? ' ' : ''}${minutes > 0 ? `${minutes} minute${minutes > 1 ? 's' : ''}` : ''}`
-  if (str != '' && firstUnitOnly) str = str.split(' ')[0]
   if (str == '') str = '< 1 minute'
   return str
 }
 
-export const getTimeFromMillis = (millis: number, firstUnitOnly = false): string => {
+export const getTimeFromMillis = (millis: number): string => {
   if (millis == 0) return '0'
   const { days, hours, minutes } = getTimesFromSeconds(millis)
 
   let str = `${days > 0 ? `${days}d` : ''}${hours > 0 ? ' ' : ''}${hours > 0 ? `${hours}h` : ''}${
     minutes > 0 ? ' ' : ''
   }${minutes > 0 ? `${minutes}m` : ''}`
-  if (str != '' && firstUnitOnly) str = str.split(' ')[0]
   if (str == '') str = '< 1m'
   return str
 }
