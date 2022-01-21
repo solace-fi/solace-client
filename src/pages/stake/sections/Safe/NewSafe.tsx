@@ -144,8 +144,13 @@ export default function NewSafe({ isOpen }: { isOpen: boolean }): JSX.Element {
     const projectedYearlyReturns = newValueStaked.gt(0)
       ? globalLockStats.rewardPerSecond.mul(31536000).mul(boostedValue).div(newValueStaked)
       : ZERO
-    const projectedApy = parseUnits(stakeInputValue == '' ? '0' : stakeInputValue, 18).gt(0)
-      ? projectedYearlyReturns.mul(100).div(parseUnits(stakeInputValue == '' ? '0' : stakeInputValue, 18))
+    const formattedStakeInputValue = formatAmount(stakeInputValue)
+    const projectedApy = parseUnits(parseFloat(formattedStakeInputValue) == 0 ? '0' : formattedStakeInputValue, 18).gt(
+      0
+    )
+      ? projectedYearlyReturns
+          .mul(100)
+          .div(parseUnits(parseFloat(formattedStakeInputValue) == 0 ? '0' : formattedStakeInputValue, 18))
       : ZERO
     setProjectedMultiplier(strRewardMultiplier)
     setProjectedApy(projectedApy)

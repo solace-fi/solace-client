@@ -27,7 +27,7 @@ import { useCachedData } from '../../context/CachedDataManager'
 
 /* import constants */
 import { FunctionName } from '../../constants/enums'
-import { ZERO } from '../../constants'
+import { DAYS_PER_YEAR, ZERO } from '../../constants'
 import { LockData, UserLocksInfo } from '../../constants/types'
 import { StakingVersion } from './types/Version'
 import { LockCheckbox } from './types/LockCheckbox'
@@ -36,10 +36,10 @@ import { LockCheckbox } from './types/LockCheckbox'
 import { Button, ButtonWrapper } from '../../components/atoms/Button'
 import { Card } from '../../components/atoms/Card'
 import { FormCol, FormRow } from '../../components/atoms/Form'
-import { Input } from '../../components/atoms/Input'
+import { Input, StyledSlider } from '../../components/atoms/Input'
 import { Content, FlexCol, FlexRow, HorizRule } from '../../components/atoms/Layout'
 import { ModalCell } from '../../components/atoms/Modal'
-import { Text, TextSpan } from '../../components/atoms/Typography'
+import { Text } from '../../components/atoms/Typography'
 import { HeroContainer, MultiTabIndicator } from '../../components/atoms/Layout'
 import { WalletConnectButton } from '../../components/molecules/WalletConnectButton'
 
@@ -75,6 +75,10 @@ import Checkbox from './atoms/Checkbox'
 import CardSectionValue from './components/CardSectionValue'
 
 // util imports
+import { Label } from './molecules/InfoPair'
+import InputSection from './sections/InputSection'
+import { SmallBox } from '../../components/atoms/Box'
+import { getExpiration } from '../../utils/time'
 
 // disable no unused variables
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -106,15 +110,17 @@ function Stake1(): any {
   // const { userShare, xSolacePerSolace, solacePerXSolace } = useXSolaceV1Details()
   const { migrate } = useXSolaceMigrator()
   const { account } = useWallet()
+  const { latestBlock } = useProvider()
   // const [convertStoX, setConvertStoX] = useState<boolean>(true)
 
   const [isAcceptableAmount, setIsAcceptableAmount] = useState<boolean>(false)
+  const [lockInputValue, setLockInputValue] = React.useState('0')
 
-  const callStakeSigned = async () => {
-    await stake_v1(parseUnits(amount, readSolaceToken.decimals), gasConfig)
-      .then((res) => handleToast(res.tx, res.localTx))
-      .catch((err) => handleContractCallError('callStakeSigned', err, FunctionName.STAKE_V1))
-  }
+  // const callStakeSigned = async () => {
+  //   await stake_v1(parseUnits(amount, readSolaceToken.decimals), gasConfig)
+  //     .then((res) => handleToast(res.tx, res.localTx))
+  //     .catch((err) => handleContractCallError('callStakeSigned', err, FunctionName.STAKE_V1))
+  // }
 
   const callUnstake = async () => {
     const xSolaceToUnstake: BigNumber = await getXSolaceFromSolace()
@@ -124,9 +130,10 @@ function Stake1(): any {
   }
 
   const callMigrateSigned = async () => {
-    if (!account) return
+    if (!latestBlock || !account) return
     const xSolaceToMigrate: BigNumber = await getXSolaceFromSolace()
-    await migrate(account, xSolaceToMigrate, gasConfig)
+    const seconds = latestBlock.timestamp + parseInt(lockInputValue) * 86400
+    await migrate(account, BigNumber.from(seconds), xSolaceToMigrate, gasConfig)
       .then((res) => handleToast(res.tx, res.localTx))
       .catch((err) => handleContractCallError('callMigrateSigned', err, FunctionName.STAKING_MIGRATE))
   }
@@ -144,6 +151,16 @@ function Stake1(): any {
     }
     return xSolace
   }
+
+  const lockInputOnChange = (value: string) => {
+    const filtered = value.replace(/[^0-9]*/g, '')
+    if (parseFloat(filtered) <= DAYS_PER_YEAR * 4 || filtered == '') {
+      setLockInputValue(filtered)
+    }
+  }
+  const lockRangeOnChange = (value: string) => setLockInputValue(value)
+
+  const lockSetMax = () => setLockInputValue(`${DAYS_PER_YEAR * 4}`)
 
   /*
 
@@ -180,15 +197,7 @@ function Stake1(): any {
               <div style={{ position: 'relative' }}>
                 <MultiTabIndicator />
                 <ModalCell pt={5} pb={10} pl={0} pr={0} jc={'center'}>
-                  <Text t1>
-                    <TextSpan t1 info>
-                      Migrate
-                    </TextSpan>{' '}
-                    or{' '}
-                    <TextSpan t1 info>
-                      Unstake
-                    </TextSpan>
-                  </Text>
+                  <Text t1>Staking V1</Text>
                 </ModalCell>
               </div>
               <FlexRow style={{ textAlign: 'center', marginTop: '20px', marginBottom: '10px' }}>
@@ -225,6 +234,35 @@ function Stake1(): any {
                 <Button widthP={100} info secondary disabled={!isAcceptableAmount || haveErrors} onClick={callUnstake}>
                   Unstake
                 </Button>
+                <Text>or</Text>
+                <div>
+                  <Label importance="quaternary" style={{ marginBottom: '8px' }}>
+                    Choose a Lock time (optional)
+                  </Label>
+                  <InputSection
+                    tab={Tab.LOCK}
+                    value={lockInputValue}
+                    onChange={(e) => lockInputOnChange(e.target.value)}
+                    setMax={lockSetMax}
+                  />
+                </div>
+                <StyledSlider
+                  value={lockInputValue}
+                  onChange={(e) => lockRangeOnChange(e.target.value)}
+                  min={0}
+                  max={DAYS_PER_YEAR * 4}
+                />
+                {
+                  <SmallBox transparent collapse={!lockInputValue || lockInputValue == '0'} m={0} p={0}>
+                    <Text
+                      style={{
+                        fontWeight: 500,
+                      }}
+                    >
+                      Lock End Date: {getExpiration(parseInt(lockInputValue))}
+                    </Text>
+                  </SmallBox>
+                }
                 <Button
                   widthP={100}
                   error
