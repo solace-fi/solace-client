@@ -46,7 +46,7 @@ export const equalsIgnoreCase = (baseString: string, compareString: string): boo
 export const hasApproval = (tokenAllowance?: string, amountToApprove?: string): boolean => {
   if (!amountToApprove || !tokenAllowance) return false
   const currentAllowance = BigNumber.from(tokenAllowance)
-  if (currentAllowance.eq(ZERO)) return false
+  if (currentAllowance.isZero()) return false
   const currentAmountToApprove = BigNumber.from(amountToApprove)
   if (currentAllowance.gte(currentAmountToApprove)) {
     return true

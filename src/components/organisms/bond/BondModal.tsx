@@ -183,7 +183,7 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
   }
 
   const callRedeemBond = async (bondId: BigNumber) => {
-    if (bondId.eq(ZERO)) return
+    if (bondId.isZero()) return
     setModalLoading(true)
     await redeem(bondId, gasConfig)
       .then((res) => _handleToast(res.tx, res.localTx))
