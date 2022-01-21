@@ -1,5 +1,4 @@
 import React from 'react'
-import styled from 'styled-components'
 import { Button } from '../../../../components/atoms/Button'
 import InformationBox from '../../components/InformationBox'
 import { InfoBoxType } from '../../types/InfoBoxType'
@@ -7,8 +6,6 @@ import { LockData } from '../../../../constants/types'
 import { useInputAmount } from '../../../../hooks/useInputAmount'
 import { useStakingRewards } from '../../../../hooks/useStakingRewards'
 import { FunctionName } from '../../../../constants/enums'
-import { parseUnits } from 'ethers/lib/utils'
-import { ZERO } from '../../../../constants'
 import { StyledForm } from '../../atoms/StyledForm'
 
 export default function RewardsForm({ lock }: { lock: LockData }): JSX.Element {
@@ -32,13 +29,13 @@ export default function RewardsForm({ lock }: { lock: LockData }): JSX.Element {
       <InformationBox
         type={InfoBoxType.info}
         text={
-          !lock.pendingRewards.eq(ZERO)
+          !lock.pendingRewards.isZero()
             ? 'Rewards are accrued by the second. Depositing or withdrawing SOLACE, or extending a lockup period also harvests rewards for you.'
             : "You don't have any rewards to collect. Stake SOLACE to earn rewards!"
         }
       />
       <StyledForm>
-        <Button secondary info noborder disabled={lock.pendingRewards.eq(ZERO)} onClick={callHarvestLockRewards}>
+        <Button secondary info noborder disabled={lock.pendingRewards.isZero()} onClick={callHarvestLockRewards}>
           Harvest
         </Button>
       </StyledForm>

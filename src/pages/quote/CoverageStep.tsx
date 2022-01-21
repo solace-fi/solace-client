@@ -94,7 +94,7 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
           ZERO
       }
     }, ZERO)
-    if (totalBalance.eq(ZERO)) return ZERO
+    if (totalBalance.isZero()) return ZERO
     return BigNumber.from(accurateMultiply(formatUnits(totalBalance, currencyDecimals), currencyDecimals))
   }, [positions, currencyDecimals])
 

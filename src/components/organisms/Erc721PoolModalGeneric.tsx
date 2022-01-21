@@ -217,7 +217,7 @@ export const Erc721PoolModalGeneric: React.FC<PoolModalProps & Erc721PoolModalGe
           <Button
             widthP={100}
             hidden={modalLoading}
-            disabled={haveErrors || nftId.eq(ZERO)}
+            disabled={haveErrors || nftId.isZero()}
             onClick={handleCallbackFunc}
             info
           >

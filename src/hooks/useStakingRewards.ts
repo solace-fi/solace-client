@@ -1,11 +1,14 @@
-import { useMemo } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import { useContracts } from '../context/ContractsManager'
 import { BigNumber } from 'ethers'
+import { formatUnits, parseUnits } from '@ethersproject/units'
 import { GasConfiguration, GlobalLockInfo, LocalTx } from '../constants/types'
 import { ZERO } from '../constants'
 import { FunctionName, TransactionCondition } from '../constants/enums'
 import { rangeFrom0 } from '../utils/numeric'
 import { FunctionGasLimits } from '../constants/mappings/gasMapping'
+import { useProvider } from '../context/ProviderManager'
+import { convertSciNotaToPrecise, truncateValue, formatAmount } from '../utils/formatting'
 
 export const useStakingRewards = () => {
   const { keyContracts } = useContracts()
@@ -155,4 +158,64 @@ export const useStakingRewards = () => {
     harvestLockRewards,
     compoundLockRewards,
   }
+}
+
+export const useProjectedBenefits = (
+  bnBalance: string,
+  lockEnd: number
+): {
+  projectedMultiplier: string
+  projectedApy: BigNumber
+  projectedYearlyReturns: BigNumber
+} => {
+  const { getGlobalLockStats } = useStakingRewards()
+  const { latestBlock } = useProvider()
+
+  const [projectedMultiplier, setProjectedMultiplier] = useState<string>('0')
+  const [projectedApy, setProjectedApy] = useState<BigNumber>(ZERO)
+  const [projectedYearlyReturns, setProjectedYearlyReturns] = useState<BigNumber>(ZERO)
+  const [globalLockStats, setGlobalLockStats] = useState<GlobalLockInfo>({
+    solaceStaked: ZERO,
+    valueStaked: ZERO,
+    numLocks: ZERO,
+    rewardPerSecond: ZERO,
+    apy: ZERO,
+  })
+
+  useEffect(() => {
+    if (!latestBlock) return
+    const _getGlobalLockStats = async () => {
+      const globalLockStats: GlobalLockInfo = await getGlobalLockStats()
+      setGlobalLockStats(globalLockStats)
+    }
+    _getGlobalLockStats()
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [latestBlock])
+
+  useEffect(() => {
+    if (!latestBlock) return
+
+    let rewardMultiplier = 1.0
+    if (lockEnd > latestBlock.timestamp) rewardMultiplier += (1.5 * (lockEnd - latestBlock.timestamp)) / (31536000 * 4)
+    const preciseMultiplier = convertSciNotaToPrecise(`${Math.floor(rewardMultiplier * parseFloat(bnBalance))}`)
+    const boostedValue = BigNumber.from(preciseMultiplier)
+
+    const newValueStaked = globalLockStats.valueStaked.add(boostedValue)
+    const projectedYearlyReturns = newValueStaked.gt(ZERO)
+      ? globalLockStats.rewardPerSecond.mul(31536000).mul(boostedValue).div(newValueStaked)
+      : ZERO
+    const formattedStakeValue = formatAmount(formatUnits(BigNumber.from(bnBalance)))
+    const parsedStakeValue = parseUnits(parseFloat(formattedStakeValue) == 0 ? '0' : formattedStakeValue, 18)
+    const projectedApy = parsedStakeValue.gt(0) ? projectedYearlyReturns.mul(100).div(parsedStakeValue) : ZERO
+
+    const strRewardMultiplier = truncateValue(rewardMultiplier.toString(), 2)
+    setProjectedMultiplier(strRewardMultiplier)
+    setProjectedApy(projectedApy)
+    setProjectedYearlyReturns(projectedYearlyReturns)
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [globalLockStats, lockEnd, bnBalance])
+
+  return { projectedMultiplier, projectedApy, projectedYearlyReturns }
 }

@@ -1,6 +1,6 @@
 import { BigNumber } from 'ethers'
 import { formatUnits, parseUnits } from '@ethersproject/units'
-import React, { useEffect, useState } from 'react'
+import React, { useRef } from 'react'
 import styled from 'styled-components'
 import { Button } from '../../../../components/atoms/Button'
 import { StyledSlider } from '../../../../components/atoms/Input'
@@ -22,7 +22,7 @@ import { useXSLocker } from '../../../../hooks/useXSLocker'
 import { useWallet } from '../../../../context/WalletManager'
 import { SmallBox } from '../../../../components/atoms/Box'
 import { Text } from '../../../../components/atoms/Typography'
-import { BKPT_5, DAYS_PER_YEAR, ZERO } from '../../../../constants'
+import { BKPT_5, DAYS_PER_YEAR } from '../../../../constants'
 import { getExpiration } from '../../../../utils/time'
 import RaisedBox from '../../atoms/RaisedBox'
 import ShadowDiv from '../../atoms/ShadowDiv'
@@ -32,8 +32,7 @@ import GrayBox from '../../components/GrayBox'
 import { VerticalSeparator } from '../../components/VerticalSeparator'
 import { Accordion } from '../../../../components/atoms/Accordion'
 import { useProvider } from '../../../../context/ProviderManager'
-import { useStakingRewards } from '../../../../hooks/useStakingRewards'
-import { GlobalLockInfo } from '../../../../constants/types'
+import { useProjectedBenefits } from '../../../../hooks/useStakingRewards'
 import { useWindowDimensions } from '../../../../hooks/useWindowDimensions'
 
 const StyledForm = styled.div`
@@ -54,21 +53,16 @@ export default function NewSafe({ isOpen }: { isOpen: boolean }): JSX.Element {
   const solaceBalance = useSolaceBalance()
   const { handleToast, handleContractCallError, isAppropriateAmount, gasConfig } = useInputAmount()
   const { createLock } = useXSLocker()
-  const { getGlobalLockStats } = useStakingRewards()
+
+  const accordionRef = useRef<HTMLDivElement>(null)
 
   const [stakeInputValue, setStakeInputValue] = React.useState('0')
   const [stakeRangeValue, setStakeRangeValue] = React.useState('0')
   const [lockInputValue, setLockInputValue] = React.useState('0')
-  const [projectedMultiplier, setProjectedMultiplier] = React.useState<string>('0')
-  const [projectedApy, setProjectedApy] = React.useState<BigNumber>(ZERO)
-  const [projectedYearlyReturns, setProjectedYearlyReturns] = React.useState<BigNumber>(ZERO)
-  const [globalLockStats, setGlobalLockStats] = React.useState<GlobalLockInfo>({
-    solaceStaked: ZERO,
-    valueStaked: ZERO,
-    numLocks: ZERO,
-    rewardPerSecond: ZERO,
-    apy: ZERO,
-  })
+  const { projectedMultiplier, projectedApy, projectedYearlyReturns } = useProjectedBenefits(
+    stakeRangeValue,
+    latestBlock ? latestBlock.timestamp + parseInt(lockInputValue) * 86400 : 0
+  )
 
   const callCreateLock = async () => {
     if (!latestBlock || !account) return
@@ -112,55 +106,14 @@ export default function NewSafe({ isOpen }: { isOpen: boolean }): JSX.Element {
   const stakeSetMax = () => stakeRangeOnChange(parseUnits(solaceBalance, 18).toString())
   const lockSetMax = () => setLockInputValue(`${DAYS_PER_YEAR * 4}`)
 
-  useEffect(() => {
-    if (!latestBlock) return
-    const _getGlobalLockStats = async () => {
-      const globalLockStats: GlobalLockInfo = await getGlobalLockStats()
-      setGlobalLockStats(globalLockStats)
-    }
-    _getGlobalLockStats()
-  }, [latestBlock])
-
-  useEffect(() => {
-    if (!latestBlock) return
-    let rewardMultiplier = 1.0
-    // let voteMultiplier = 1.0
-    const lockEnd = latestBlock.timestamp + parseInt(lockInputValue) * 86400
-    if (latestBlock.timestamp + parseInt(lockInputValue) * 86400 > latestBlock.timestamp) {
-      rewardMultiplier += (1.5 * (lockEnd - latestBlock.timestamp)) / (31536000 * 4)
-      // voteMultiplier += (3.0 * (lockEnd - latestBlock.timestamp)) / (31536000 * 4)
-    }
-    const strRewardMultiplier = truncateValue(rewardMultiplier.toString(), 2)
-    // const strVoteMultiplier = truncateValue(voteMultiplier.toString(), 2)
-    const boostedValue = BigNumber.from(
-      convertSciNotaToPrecise(`${Math.floor(rewardMultiplier * parseFloat(stakeRangeValue))}`)
-    )
-    // const xsolaceAmount = BigNumber.from(
-    //   convertSciNotaToPrecise(`${Math.floor(voteMultiplier * parseFloat(stakeRangeValue))}`)
-    // )
-    // assuming user wants to create lock with solaceAmount that ends at lockEnd
-    const newValueStaked = globalLockStats.valueStaked.add(boostedValue)
-    // const newSolaceStaked = globalLockStats.solaceStaked.add(parseUnits(stakeInputValue, 18))
-    const projectedYearlyReturns = newValueStaked.gt(0)
-      ? globalLockStats.rewardPerSecond.mul(31536000).mul(boostedValue).div(newValueStaked)
-      : ZERO
-    const formattedStakeInputValue = formatAmount(stakeInputValue)
-    const projectedApy = parseUnits(parseFloat(formattedStakeInputValue) == 0 ? '0' : formattedStakeInputValue, 18).gt(
-      0
-    )
-      ? projectedYearlyReturns
-          .mul(100)
-          .div(parseUnits(parseFloat(formattedStakeInputValue) == 0 ? '0' : formattedStakeInputValue, 18))
-      : ZERO
-    setProjectedMultiplier(strRewardMultiplier)
-    setProjectedApy(projectedApy)
-    setProjectedYearlyReturns(projectedYearlyReturns)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [globalLockStats, lockInputValue, stakeInputValue, stakeRangeValue])
-
   return (
-    <Accordion isOpen={isOpen} style={{ backgroundColor: 'inherit' }}>
-      <ShadowDiv style={{ marginBottom: '20px' }}>
+    <Accordion
+      noscroll
+      isOpen={isOpen}
+      style={{ backgroundColor: 'inherit' }}
+      customHeight={accordionRef.current != null ? `${accordionRef.current.scrollHeight}px` : undefined}
+    >
+      <ShadowDiv ref={accordionRef} style={{ marginBottom: '20px' }}>
         <RaisedBox>
           <StyledForm>
             <Flex column p={24} gap={30}>
@@ -256,39 +209,6 @@ export default function NewSafe({ isOpen }: { isOpen: boolean }): JSX.Element {
                     </SmallBox>
                   }
                 </Flex>
-                {/* <Flex column stretch w={BKPT_5 > width ? 300 : 521}>
-                  <Label importance="quaternary" style={{ marginBottom: '8px' }}>
-                    Lock benefits
-                  </Label>
-                  <GrayBox>
-                    <Flex stretch column>
-                      <Flex stretch gap={24}>
-                        <Flex column gap={2}>
-                          <Text t5s techygradient mb={8}>
-                            Better APY
-                          </Text>
-                          <Text t3s techygradient>
-                            <Flex>
-                              <Text lineThrough mr={10}>
-                                0.2%
-                              </Text>{' '}
-                              0.5%
-                            </Flex>
-                          </Text>
-                        </Flex>
-                        <VerticalSeparator />
-                        <Flex column gap={2}>
-                          <Text t5s techygradient mb={8}>
-                            Better multiplier
-                          </Text>
-                          <Text t3s techygradient>
-                            1.7x
-                          </Text>
-                        </Flex>
-                      </Flex>
-                    </Flex>
-                  </GrayBox>
-                </Flex> */}
               </Flex>
             </Flex>
             <Flex p={24} stretch>

@@ -54,7 +54,7 @@ export const queryNativeTokenBalance = async (
   getMainNetworkTokenAddress?: (address: string, chainId: number) => string
 ): Promise<BigNumber> => {
   if (equalsIgnoreCase(token.address, ETH)) return BigNumber.from(token.balance)
-  if (BigNumber.from(token.balance).eq(ZERO)) return ZERO
+  if (BigNumber.from(token.balance).isZero()) return ZERO
   let address = token.address
   if (getMainNetworkTokenAddress) {
     address = getMainNetworkTokenAddress(token.address, chainId)

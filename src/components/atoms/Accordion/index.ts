@@ -3,10 +3,11 @@ import styled from 'styled-components'
 type AccordionProps = {
   isOpen: boolean
   noscroll?: boolean
+  customHeight?: string
 }
 
 export const Accordion = styled.div<AccordionProps>`
-  max-height: ${(props) => (props.isOpen ? '70vh' : '0vh')};
+  max-height: ${(props) => (props.isOpen ? props.customHeight ?? '70vh' : '0vh')};
   transition: max-height 200ms ease;
   color: ${({ theme }) => theme.accordion.color}};
   background-color: ${({ theme }) => theme.accordion.bg_color}};
