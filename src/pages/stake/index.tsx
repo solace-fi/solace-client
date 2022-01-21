@@ -79,6 +79,7 @@ import { Label } from './molecules/InfoPair'
 import InputSection from './sections/InputSection'
 import { SmallBox } from '../../components/atoms/Box'
 import { getExpiration } from '../../utils/time'
+import { Tab } from './types/Tab'
 
 // disable no unused variables
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
