@@ -1,9 +1,10 @@
 import styled from 'styled-components'
 import { BKPT_6 } from '../../../constants'
+import Flex from './Flex'
 
-export const GridOrRow = styled.div`
+export const GridOrRow = styled(Flex)`
   display: flex;
-  gap: 91px;
+  /* gap: 80px; */
   align-items: stretch;
   @media screen and (max-width: ${BKPT_6}px) {
     margin-left: auto;
