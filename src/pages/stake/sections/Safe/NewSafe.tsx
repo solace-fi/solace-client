@@ -1,6 +1,6 @@
 import { BigNumber } from 'ethers'
 import { formatUnits, parseUnits } from '@ethersproject/units'
-import React from 'react'
+import React, { useRef } from 'react'
 import styled from 'styled-components'
 import { Button } from '../../../../components/atoms/Button'
 import { StyledSlider } from '../../../../components/atoms/Input'
@@ -54,6 +54,8 @@ export default function NewSafe({ isOpen }: { isOpen: boolean }): JSX.Element {
   const { handleToast, handleContractCallError, isAppropriateAmount, gasConfig } = useInputAmount()
   const { createLock } = useXSLocker()
 
+  const accordionRef = useRef<HTMLDivElement>(null)
+
   const [stakeInputValue, setStakeInputValue] = React.useState('0')
   const [stakeRangeValue, setStakeRangeValue] = React.useState('0')
   const [lockInputValue, setLockInputValue] = React.useState('0')
@@ -105,8 +107,13 @@ export default function NewSafe({ isOpen }: { isOpen: boolean }): JSX.Element {
   const lockSetMax = () => setLockInputValue(`${DAYS_PER_YEAR * 4}`)
 
   return (
-    <Accordion isOpen={isOpen} style={{ backgroundColor: 'inherit' }}>
-      <ShadowDiv style={{ marginBottom: '20px' }}>
+    <Accordion
+      noscroll
+      isOpen={isOpen}
+      style={{ backgroundColor: 'inherit' }}
+      customHeight={accordionRef.current != null ? `${accordionRef.current.scrollHeight}px` : undefined}
+    >
+      <ShadowDiv ref={accordionRef} style={{ marginBottom: '20px' }}>
         <RaisedBox>
           <StyledForm>
             <Flex column p={24} gap={30}>
