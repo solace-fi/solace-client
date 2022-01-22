@@ -120,7 +120,11 @@ function Bond(): any {
                 {currentTellerDetails.map((tellerDetail, i) => (
                   <TableRow
                     key={i}
-                    onClick={haveErrors ? undefined : () => openModal(true, tellerDetail)}
+                    onClick={
+                      haveErrors || tellerDetail.tellerData.teller.isDisabled
+                        ? undefined
+                        : () => openModal(true, tellerDetail)
+                    }
                     style={{ cursor: 'pointer' }}
                   >
                     <TableData>
@@ -166,8 +170,8 @@ function Bond(): any {
                       <Text>{truncateValue(tellerDetail.tellerData.bondRoi, 2, false)}%</Text>
                     </TableData>
                     <TableData textAlignRight>
-                      <Button disabled={haveErrors} info>
-                        Bond
+                      <Button disabled={haveErrors || tellerDetail.tellerData.teller.isDisabled} info>
+                        {tellerDetail.tellerData.teller.isDisabled ? 'Disabled' : 'Bond'}
                       </Button>
                     </TableData>
                   </TableRow>

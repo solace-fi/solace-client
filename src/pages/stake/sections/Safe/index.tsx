@@ -113,7 +113,7 @@ export default function Safe({
 				                        SAFE BODY
 				******************************************************/}
         <Accordion
-          noscroll
+          noScroll
           isOpen={isOpen}
           style={{ backgroundColor: 'inherit' }}
           customHeight={accordionRef.current != null ? `${accordionRef.current.scrollHeight}px` : undefined}

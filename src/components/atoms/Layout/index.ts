@@ -165,8 +165,9 @@ export const Footer = styled.div`
 export const MultiTabIndicator = styled.hr`
   position: absolute;
   width: 50%;
-  left: 25%;
+  left: 0%;
   top: 40px;
-  border-color: ${({ theme }) => theme.typography.contrastText};
+  border-color: ${({ theme }) => theme.typography.infoText};
+  border-width: 2px;
   transition: all 200ms ease;
 `

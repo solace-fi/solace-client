@@ -1,5 +1,5 @@
 import { BondName, ProductName, Unit } from '../constants/enums'
-import { NetworkConfig } from '../constants/types'
+import { NetworkConfig, TellerToken } from '../constants/types'
 import { ETHERSCAN_API_KEY, ALCHEMY_API_KEY } from '../constants'
 import { hexValue } from '@ethersproject/bytes'
 import EthereumLogo from '../resources/svg/networks/ethereum-logo.svg'
@@ -36,42 +36,49 @@ When adding new products, please add into productContracts, functions, and cache
 */
 
 const tellerToTokenMapping: {
-  [key: string]: { addr: string; isBondTellerErc20: boolean; isLp: boolean }
+  [key: string]: TellerToken
 } = {
   [TELLER_ADDRS.DAI_TELLER]: {
     addr: '0xc56010e957c325b140f182b4fbee61c2fb95fdb3',
     isBondTellerErc20: true,
     isLp: false,
+    isDisabled: false,
   },
   [TELLER_ADDRS.ETH_TELLER]: {
     addr: '0xd0a1e359811322d97991e03f863a0c30c2cf029c',
     isBondTellerErc20: false,
     isLp: false,
+    isDisabled: false,
   },
   [TELLER_ADDRS.USDC_TELLER]: {
     addr: '0xefd4e002d58a66e9ea53f9ebf0583aecc6e183f0',
     isBondTellerErc20: true,
     isLp: false,
+    isDisabled: false,
   },
   [TELLER_ADDRS.SOLACE_USDC_SLP_TELLER]: {
     addr: '0x13465d2d66be93764b33577c73fc2411917fe9e4',
     isBondTellerErc20: true,
     isLp: true,
+    isDisabled: false,
   },
   [TELLER_ADDRS.SCP_TELLER]: {
     addr: '0x501acee83a6f269b77c167c6701843d454e2efa0',
     isBondTellerErc20: true,
     isLp: false,
+    isDisabled: false,
   },
   [TELLER_ADDRS.WBTC_TELLER]: {
     addr: '0x1063bf969f8d3d7296a2a94274d3df9202da2a3a',
     isBondTellerErc20: true,
     isLp: false,
+    isDisabled: false,
   },
   [TELLER_ADDRS.USDT_TELLER]: {
     addr: '0xaea2b0f4763c8ffc33a4c454cd08f803b02b6b53',
     isBondTellerErc20: true,
     isLp: false,
+    isDisabled: false,
   },
   // [TELLER_ADDRS.SOLACE_ETH_SLP_TELLER]: {
   //   addr: '0x64844b869abb2f310442a692bd1cc84b393b2777',
