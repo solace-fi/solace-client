@@ -90,6 +90,12 @@ export default function WithdrawForm({ lock }: { lock: LockData }): JSX.Element 
               onChange={(e) => inputOnChange(e.target.value)}
               setMax={setMax}
             />
+            <StyledSlider
+              value={rangeValue}
+              onChange={(e) => rangeOnChange(e.target.value)}
+              min={1}
+              max={lock.unboostedAmount.toString()}
+            />
           </Flex>
           <Flex column stretch w={BKPT_5 > width ? 300 : 521}>
             <Label importance="quaternary" style={{ marginBottom: '8px' }}>
@@ -132,12 +138,7 @@ export default function WithdrawForm({ lock }: { lock: LockData }): JSX.Element 
             </GrayBox>
           </Flex>
         </Flex>
-        <StyledSlider
-          value={rangeValue}
-          onChange={(e) => rangeOnChange(e.target.value)}
-          min={1}
-          max={lock.unboostedAmount.toString()}
-        />
+
         <Button
           secondary
           info

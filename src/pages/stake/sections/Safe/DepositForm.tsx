@@ -97,6 +97,13 @@ export default function DepositForm({ lock }: { lock: LockData }): JSX.Element {
               }
               disabled={disabled}
             />
+            <StyledSlider
+              value={rangeValue}
+              onChange={(e) => rangeOnChange(e.target.value)}
+              min={1}
+              max={parseUnits(solaceBalance, 18).toString()}
+              disabled={disabled}
+            />
           </Flex>
           <Flex column stretch w={BKPT_5 > width ? 300 : 521}>
             <Label importance="quaternary" style={{ marginBottom: '8px' }}>
@@ -139,13 +146,7 @@ export default function DepositForm({ lock }: { lock: LockData }): JSX.Element {
             </GrayBox>
           </Flex>
         </Flex>
-        <StyledSlider
-          value={rangeValue}
-          onChange={(e) => rangeOnChange(e.target.value)}
-          min={1}
-          max={parseUnits(solaceBalance, 18).toString()}
-          disabled={disabled}
-        />
+
         <Button
           secondary
           info

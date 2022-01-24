@@ -86,6 +86,7 @@ import { Accordion } from '../../components/atoms/Accordion'
 import GrayBox from './components/GrayBox'
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'
 import { formatUnits } from 'ethers/lib/utils'
+import { Modal } from '../../components/molecules/Modal'
 
 // disable no unused variables
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -372,7 +373,7 @@ export default function Stake(): JSX.Element {
 
   const { getUserLocks } = useUserLockData()
   const { withdrawFromLock } = useXSLocker()
-  const { harvestLockRewards } = useStakingRewards()
+  const { harvestLockRewards, compoundLockRewards } = useStakingRewards()
   const { handleToast, handleContractCallError, gasConfig } = useInputAmount()
 
   useEffect(() => {
@@ -429,6 +430,17 @@ export default function Stake(): JSX.Element {
       .then((res) => handleToast(res.tx, res.localTx))
       .catch((err) => handleContractCallError('handleBatchHarvest', err, type))
   }
+
+  const handleBatchCompound = async () => {
+    const selectedLocks = getCheckedLocks(locks, locksChecked)
+    const eligibleLocks = selectedLocks.filter((lock) => !lock.pendingRewards.isZero())
+    const eligibleIds = eligibleLocks.map((lock) => lock.xsLockID)
+    const type = eligibleIds.length > 1 ? FunctionName.COMPOUND_LOCKS : FunctionName.COMPOUND_LOCK
+    await compoundLockRewards(eligibleIds, gasConfig)
+      .then((res) => handleToast(res.tx, res.localTx))
+      .catch((err) => handleContractCallError('handleBatchCompound', err, type))
+  }
+
   const rewardsAreZero = () => calculateTotalHarvest(getCheckedLocks(locks, locksChecked)).isZero()
   const withdrawalsAreZero = () => calculateTotalWithdrawable(getCheckedLocks(locks, locksChecked)).isZero()
   const getFormattedRewards = () => formatShort(calculateTotalHarvest(getCheckedLocks(locks, locksChecked)))

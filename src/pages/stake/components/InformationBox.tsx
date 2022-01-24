@@ -79,7 +79,7 @@ export default function InformationBox({
   return (
     <StyledInfoBox
       type={type}
-      className="flex border rounded-xl items-center h-20 pr-7 text-xs font-medium"
+      className="flex border rounded-xl items-center pr-7 text-xs font-medium"
       forceExpand={forceExpand}
     >
       <InfoWrapper type={type}>

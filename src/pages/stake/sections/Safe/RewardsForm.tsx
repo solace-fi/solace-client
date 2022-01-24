@@ -1,5 +1,5 @@
 import React from 'react'
-import { Button } from '../../../../components/atoms/Button'
+import { Button, ButtonWrapper } from '../../../../components/atoms/Button'
 import InformationBox from '../../components/InformationBox'
 import { InfoBoxType } from '../../types/InfoBoxType'
 import { LockData } from '../../../../constants/types'
@@ -10,12 +10,18 @@ import { StyledForm } from '../../atoms/StyledForm'
 
 export default function RewardsForm({ lock }: { lock: LockData }): JSX.Element {
   const { handleToast, handleContractCallError, gasConfig } = useInputAmount()
-  const { harvestLockRewards } = useStakingRewards()
+  const { harvestLockRewards, compoundLockRewards } = useStakingRewards()
 
   const callHarvestLockRewards = async () => {
     await harvestLockRewards([lock.xsLockID], gasConfig)
       .then((res) => handleToast(res.tx, res.localTx))
       .catch((err) => handleContractCallError('callHarvestLockRewards', err, FunctionName.HARVEST_LOCK))
+  }
+
+  const callCompoundLockRewards = async () => {
+    await compoundLockRewards([lock.xsLockID], gasConfig)
+      .then((res) => handleToast(res.tx, res.localTx))
+      .catch((err) => handleContractCallError('callCompoundLockRewards', err, FunctionName.COMPOUND_LOCK))
   }
 
   return (
@@ -30,14 +36,19 @@ export default function RewardsForm({ lock }: { lock: LockData }): JSX.Element {
         type={InfoBoxType.info}
         text={
           !lock.pendingRewards.isZero()
-            ? 'Rewards are accrued by the second. Depositing or withdrawing SOLACE, or extending a lockup period also harvests rewards for you.'
+            ? 'Rewards are accrued second. Depositing or withdrawing SOLACE, or extending a lockup period also harvests rewards for you.'
             : "You don't have any rewards to collect. Stake SOLACE to earn rewards!"
         }
       />
       <StyledForm>
-        <Button secondary info noborder disabled={lock.pendingRewards.isZero()} onClick={callHarvestLockRewards}>
-          Harvest
-        </Button>
+        <ButtonWrapper>
+          <Button secondary info noborder disabled={lock.pendingRewards.isZero()} onClick={callHarvestLockRewards}>
+            Harvest
+          </Button>
+          <Button secondary info noborder disabled={lock.pendingRewards.isZero()} onClick={callCompoundLockRewards}>
+            Compound
+          </Button>
+        </ButtonWrapper>
       </StyledForm>
     </div>
   )

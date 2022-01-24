@@ -57,7 +57,7 @@ export const useStakingRewards = () => {
     }
   }
 
-  const getGlobalLockStats = async (): Promise<GlobalLockInfo> => {
+  const getGlobalLockStats = async (blockNum: number): Promise<GlobalLockInfo> => {
     if (!stakingRewards || !xsLocker)
       return {
         solaceStaked: ZERO,
@@ -68,19 +68,19 @@ export const useStakingRewards = () => {
       }
     let totalSolaceStaked = ZERO
     const [rewardPerSecond, valueStaked, numlocks] = await Promise.all([
-      stakingRewards.rewardPerSecond(), // across all locks
-      stakingRewards.valueStaked(), // across all locks
-      xsLocker.totalSupply(),
+      stakingRewards.rewardPerSecond({ blockTag: blockNum }), // across all locks
+      stakingRewards.valueStaked({ blockTag: blockNum }), // across all locks
+      xsLocker.totalSupply({ blockTag: blockNum }),
     ])
     const indices = rangeFrom0(numlocks.toNumber())
     const xsLockIDs = await Promise.all(
       indices.map(async (index) => {
-        return await xsLocker.tokenByIndex(index)
+        return await xsLocker.tokenByIndex(index, { blockTag: blockNum })
       })
     )
     const locks = await Promise.all(
       xsLockIDs.map(async (xsLockID) => {
-        return await xsLocker.locks(xsLockID)
+        return await xsLocker.locks(xsLockID, { blockTag: blockNum })
       })
     )
     locks.forEach((lock) => {
@@ -185,7 +185,7 @@ export const useProjectedBenefits = (
   useEffect(() => {
     if (!latestBlock) return
     const _getGlobalLockStats = async () => {
-      const globalLockStats: GlobalLockInfo = await getGlobalLockStats()
+      const globalLockStats: GlobalLockInfo = await getGlobalLockStats(latestBlock.number)
       setGlobalLockStats(globalLockStats)
     }
     _getGlobalLockStats()

@@ -128,7 +128,7 @@ export const Statistics: React.FC = () => {
   useEffect(() => {
     if (!latestBlock) return
     const _getGlobalLockStats = async () => {
-      const globalLockStats: GlobalLockInfo = await getGlobalLockStats()
+      const globalLockStats: GlobalLockInfo = await getGlobalLockStats(latestBlock.number)
       setGlobalLockStats(globalLockStats)
     }
     _getGlobalLockStats()
