@@ -34,10 +34,10 @@ import { LockCheckbox } from './types/LockCheckbox'
 
 /* import components */
 import { Button, ButtonWrapper } from '../../components/atoms/Button'
-import { Card } from '../../components/atoms/Card'
+import { Card, CardContainer } from '../../components/atoms/Card'
 import { FormCol, FormRow } from '../../components/atoms/Form'
 import { StyledSlider } from '../../components/atoms/Input'
-import { Content, FlexCol, FlexRow } from '../../components/atoms/Layout'
+import { Content, FlexCol, FlexRow, Scrollable } from '../../components/atoms/Layout'
 import { ModalCell } from '../../components/atoms/Modal'
 import { Text } from '../../components/atoms/Typography'
 import { HeroContainer } from '../../components/atoms/Layout'
@@ -78,7 +78,7 @@ import CardSectionValue from './components/CardSectionValue'
 import { Label } from './molecules/InfoPair'
 import InputSection from './sections/InputSection'
 import { SmallBox } from '../../components/atoms/Box'
-import { getExpiration } from '../../utils/time'
+import { getExpiration, getTimeFromMillis } from '../../utils/time'
 import { Tab } from './types/Tab'
 import { useProjectedBenefits, useStakingRewards } from '../../hooks/useStakingRewards'
 import { VerticalSeparator } from './components/VerticalSeparator'
@@ -355,6 +355,8 @@ export default function Stake(): JSX.Element {
   // account usewallet
   const [newSafeIsOpen, setNewSafeIsOpen] = useState(false)
   const [batchActionsIsEnabled, setBatchActionsIsEnabled] = useState(false)
+  const [isCompoundModalOpen, setIsCompoundModalOpen] = useState<boolean>(false)
+  const [targetLock, setTargetLock] = useState<BigNumber | undefined>(undefined)
   const [locksChecked, setLocksChecked] = useState<LockCheckbox[]>([])
 
   const { account } = useWallet()
@@ -436,8 +438,12 @@ export default function Stake(): JSX.Element {
     const eligibleLocks = selectedLocks.filter((lock) => !lock.pendingRewards.isZero())
     const eligibleIds = eligibleLocks.map((lock) => lock.xsLockID)
     const type = eligibleIds.length > 1 ? FunctionName.COMPOUND_LOCKS : FunctionName.COMPOUND_LOCK
-    await compoundLockRewards(eligibleIds, gasConfig)
-      .then((res) => handleToast(res.tx, res.localTx))
+    setTargetLock(undefined)
+    await compoundLockRewards(eligibleIds, gasConfig, targetLock)
+      .then((res) => {
+        setIsCompoundModalOpen(false)
+        handleToast(res.tx, res.localTx)
+      })
       .catch((err) => handleContractCallError('handleBatchCompound', err, type))
   }
 
@@ -460,6 +466,61 @@ export default function Stake(): JSX.Element {
           <DifferenceNotification version={stakingVersion} setVersion={setStakingVersion} />
           {StakingVersion.v2 === stakingVersion && (
             <>
+              <Modal
+                isOpen={isCompoundModalOpen}
+                handleClose={() => {
+                  setIsCompoundModalOpen(false)
+                  setTargetLock(undefined)
+                }}
+                modalTitle={'Select a safe to deposit your rewards'}
+              >
+                <Scrollable maxMobileHeight={60}>
+                  <CardContainer cardsPerRow={1} style={{ gap: '10px' }}>
+                    {locks.map((lock) => {
+                      const unboostedAmount = formatUnits(lock.unboostedAmount, 18)
+                      const boostedValue = formatUnits(lock.boostedValue, 18)
+                      const multiplier =
+                        parseFloat(unboostedAmount) > 0 ? parseFloat(boostedValue) / parseFloat(unboostedAmount) : 0
+                      const isSelected = targetLock && targetLock.eq(lock.xsLockID)
+                      return (
+                        <Card
+                          canHover
+                          pt={15}
+                          pb={15}
+                          pl={30}
+                          pr={30}
+                          key={lock.xsLockID.toNumber()}
+                          glow={isSelected}
+                          color1={isSelected}
+                          onClick={() => setTargetLock(lock.xsLockID)}
+                        >
+                          <FormRow mb={0}>
+                            <FormCol bold light={isSelected}>
+                              {truncateValue(formatUnits(lock.unboostedAmount, 18), 4)}
+                            </FormCol>
+                            <FormCol bold light={isSelected}>
+                              {getTimeFromMillis(lock.timeLeft.toNumber() * 1000).split(' ')[0]}
+                            </FormCol>
+                            <FormCol bold light={isSelected}>
+                              {truncateValue(multiplier, 1)}x
+                            </FormCol>
+                            <FormCol bold light={isSelected}>
+                              {lock.apy.toNumber()}%
+                            </FormCol>
+                          </FormRow>
+                        </Card>
+                      )
+                    })}
+                  </CardContainer>
+                </Scrollable>
+                {targetLock && (
+                  <ButtonWrapper>
+                    <Button widthP={100} onClick={handleBatchCompound} info>
+                      Confirm
+                    </Button>
+                  </ButtonWrapper>
+                )}
+              </Modal>
               <AggregatedStakeData stakeData={userLockInfo} />
               <Flex
                 between
@@ -548,6 +609,23 @@ export default function Stake(): JSX.Element {
                         disabled={rewardsAreZero()}
                       >
                         Harvest Rewards
+                      </Button>
+                      <Button
+                        secondary
+                        info
+                        noborder
+                        pl={23}
+                        pr={23}
+                        onClick={() => {
+                          if (getCheckedLocks(locks, locksChecked).length > 1) {
+                            setIsCompoundModalOpen(true)
+                          } else {
+                            handleBatchCompound()
+                          }
+                        }}
+                        disabled={rewardsAreZero()}
+                      >
+                        Compound Rewards
                       </Button>
                       <Button
                         secondary
