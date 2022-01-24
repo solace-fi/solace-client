@@ -350,6 +350,7 @@ function Stake1(): any {
  */
 
 export default function Stake(): JSX.Element {
+  const { width } = useWindowDimensions()
   // account usewallet
   const [newSafeIsOpen, setNewSafeIsOpen] = useState(false)
   const [batchActionsIsEnabled, setBatchActionsIsEnabled] = useState(false)
@@ -448,7 +449,19 @@ export default function Stake(): JSX.Element {
           {StakingVersion.v2 === stakingVersion && (
             <>
               <AggregatedStakeData stakeData={userLockInfo} />
-              <Flex between mb={20}>
+              <Flex
+                between
+                mb={20}
+                style={
+                  width < BKPT_5 && batchActionsIsEnabled
+                    ? {
+                        flexDirection: 'column-reverse',
+                        gap: '30px',
+                        alignItems: 'stretch',
+                      }
+                    : {}
+                }
+              >
                 {!batchActionsIsEnabled ? (
                   !newSafeIsOpen ? (
                     <Button secondary info noborder pl={23} pr={23} onClick={openSafe}>
@@ -463,7 +476,7 @@ export default function Stake(): JSX.Element {
                   // checkbox + Select all, Rewards selected (harvest), Withdraw selected (withdraw)
                   <>
                     {/* select all checkbox */}
-                    <Flex gap={20} style={{ marginTop: 'auto', marginBottom: 'auto' }}>
+                    <Flex gap={20} style={{ marginTop: 'auto', marginBottom: 'auto' }} between={width < BKPT_5}>
                       <Flex
                         center
                         gap={5}
@@ -479,7 +492,18 @@ export default function Stake(): JSX.Element {
                         </Text>
                       </Flex>
                       {somethingIsChecked(locksChecked) && (
-                        <>
+                        <Flex
+                          gap={20}
+                          style={
+                            width < BKPT_5
+                              ? {
+                                  flexDirection: 'column',
+                                  alignItems: 'flex-end',
+                                  gap: '5px',
+                                }
+                              : {}
+                          }
+                        >
                           {' '}
                           <Flex center gap={5}>
                             <Text t4>Rewards selected:</Text>
@@ -494,7 +518,7 @@ export default function Stake(): JSX.Element {
                               {getFormattedWithdrawal()}
                             </CardSectionValue>
                           </Flex>
-                        </>
+                        </Flex>
                       )}
                     </Flex>
                   </>
