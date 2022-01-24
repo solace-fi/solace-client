@@ -10,6 +10,7 @@ export type BondTellerContract = {
   contract: Contract
   isBondTellerErc20: boolean
   isLp: boolean
+  isDisabled: boolean
   underlyingAddr: string
 }
 
