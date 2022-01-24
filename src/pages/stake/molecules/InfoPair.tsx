@@ -1,4 +1,4 @@
-import styled, { ThemedStyledProps } from 'styled-components'
+import styled, { css, ThemedStyledProps } from 'styled-components'
 import { Theme } from '../../../styles/themes'
 import React from 'react'
 
@@ -77,18 +77,62 @@ const Value = styled.div<InfoPairProps>`
   }};
 `
 
+const Safu = styled.div<{
+  horizontal?: boolean
+  isSafePreview?: boolean
+  batch?: boolean
+  desktop?: boolean
+}>`
+  ${({ horizontal }) =>
+    horizontal &&
+    css`
+      display: flex;
+      gap: 8px;
+    `};
+  ${({ isSafePreview, desktop }) =>
+    isSafePreview &&
+    desktop &&
+    css`
+      /* background-color: pink; */
+      min-width: 140px;
+      margin-right: 20px;
+    `}
+  ${({ batch, desktop }) =>
+    batch &&
+    desktop &&
+    css`
+      /* background-color: greenyellow; */
+      /* margin-left: 17px; */
+      margin-right: 16.6px;
+    `}
+`
+
 export default function InfoPair({
   importance,
   children,
   label,
   horizontal,
-}: InfoPairProps & { children: React.ReactNode | string | React.ReactNode[]; label: string }): JSX.Element {
+  isSafePreview,
+  batch,
+  desktop,
+}: InfoPairProps & {
+  children: React.ReactNode | string | React.ReactNode[]
+  label: string
+  isSafePreview?: boolean
+  batch?: boolean
+  desktop?: boolean
+}): JSX.Element {
   return (
-    <div style={horizontal ? { display: 'flex', gap: '8px' } : {}}>
+    <Safu
+      style={horizontal ? { display: 'flex', gap: '8px' } : {}}
+      isSafePreview={isSafePreview}
+      batch={batch}
+      desktop={desktop}
+    >
       <Label importance={importance} style={!horizontal ? { marginBottom: '8px' } : {}}>
         {label}
       </Label>
       <Value importance={importance}>{children}</Value>
-    </div>
+    </Safu>
   )
 }
