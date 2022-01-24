@@ -133,7 +133,7 @@ export default function LockForm({ lock }: { lock: LockData }): JSX.Element {
         </Flex>
         {
           <SmallBox transparent collapse={!inputValue || inputValue == '0'} m={0} p={0}>
-            <Text dark>Lockup End Date: {getExpiration(parseInt(inputValue))}</Text>
+            <Text>Lockup End Date: {getExpiration(parseInt(inputValue))}</Text>
           </SmallBox>
         }
         <Button

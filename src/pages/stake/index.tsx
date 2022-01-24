@@ -80,15 +80,12 @@ import InputSection from './sections/InputSection'
 import { SmallBox } from '../../components/atoms/Box'
 import { getExpiration } from '../../utils/time'
 import { Tab } from './types/Tab'
-<<<<<<< HEAD
-=======
 import { useProjectedBenefits, useStakingRewards } from '../../hooks/useStakingRewards'
 import { VerticalSeparator } from './components/VerticalSeparator'
 import { Accordion } from '../../components/atoms/Accordion'
 import GrayBox from './components/GrayBox'
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'
 import { formatUnits } from 'ethers/lib/utils'
->>>>>>> feat/updated-dependencies
 
 // disable no unused variables
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
