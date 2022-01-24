@@ -27,7 +27,7 @@ import { useCachedData } from '../../context/CachedDataManager'
 
 /* import constants */
 import { FunctionName } from '../../constants/enums'
-import { DAYS_PER_YEAR, ZERO } from '../../constants'
+import { BKPT_5, DAYS_PER_YEAR, ZERO } from '../../constants'
 import { LockData, UserLocksInfo } from '../../constants/types'
 import { StakingVersion } from './types/Version'
 import { LockCheckbox } from './types/LockCheckbox'
@@ -36,11 +36,11 @@ import { LockCheckbox } from './types/LockCheckbox'
 import { Button, ButtonWrapper } from '../../components/atoms/Button'
 import { Card } from '../../components/atoms/Card'
 import { FormCol, FormRow } from '../../components/atoms/Form'
-import { Input, StyledSlider } from '../../components/atoms/Input'
-import { Content, FlexCol, FlexRow, HorizRule } from '../../components/atoms/Layout'
+import { StyledSlider } from '../../components/atoms/Input'
+import { Content, FlexCol, FlexRow } from '../../components/atoms/Layout'
 import { ModalCell } from '../../components/atoms/Modal'
 import { Text } from '../../components/atoms/Typography'
-import { HeroContainer, MultiTabIndicator } from '../../components/atoms/Layout'
+import { HeroContainer } from '../../components/atoms/Layout'
 import { WalletConnectButton } from '../../components/molecules/WalletConnectButton'
 
 /* import hooks */
@@ -48,11 +48,11 @@ import { useXSolaceV1Balance } from '../../hooks/useBalance'
 import { useXSolaceV1 } from '../../hooks/useXSolaceV1'
 import { useInputAmount } from '../../hooks/useInputAmount'
 import { useReadToken } from '../../hooks/useToken'
-import { useUserLockData } from '../../hooks/useXSLocker'
+import { useUserLockData, useXSLocker } from '../../hooks/useXSLocker'
 import { useXSolaceMigrator } from '../../hooks/useXSolaceMigrator'
 
 /* import utils */
-import { formatAmount } from '../../utils/formatting'
+import { accurateMultiply, formatAmount, truncateValue } from '../../utils/formatting'
 import calculateTotalWithdrawable from './utils/stake/batchActions/actions/calculateTotalWithdrawable'
 import calculateTotalHarvest from './utils/stake/batchActions/actions/calculateTotalHarvest'
 import { formatShort } from './utils/stake/batchActions/formatShort'
@@ -80,6 +80,15 @@ import InputSection from './sections/InputSection'
 import { SmallBox } from '../../components/atoms/Box'
 import { getExpiration } from '../../utils/time'
 import { Tab } from './types/Tab'
+<<<<<<< HEAD
+=======
+import { useProjectedBenefits, useStakingRewards } from '../../hooks/useStakingRewards'
+import { VerticalSeparator } from './components/VerticalSeparator'
+import { Accordion } from '../../components/atoms/Accordion'
+import GrayBox from './components/GrayBox'
+import { useWindowDimensions } from '../../hooks/useWindowDimensions'
+import { formatUnits } from 'ethers/lib/utils'
+>>>>>>> feat/updated-dependencies
 
 // disable no unused variables
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -93,8 +102,7 @@ function Stake1(): any {
   const { haveErrors } = useGeneral()
   const { keyContracts } = useContracts()
   const { solace, xSolaceV1 } = useMemo(() => keyContracts, [keyContracts])
-  // const [isMigrating, setIsMigrating] = useState<boolean>(true)
-  // const solaceBalance = useSolaceBalance()
+  const [isMigrating, setIsMigrating] = useState<boolean>(true)
   const { xSolaceV1Balance, v1StakedSolaceBalance } = useXSolaceV1Balance()
   const readSolaceToken = useReadToken(solace)
   const readXSolaceToken = useReadToken(xSolaceV1)
@@ -107,21 +115,19 @@ function Stake1(): any {
     handleInputChange,
     setMax,
   } = useInputAmount()
-  const { stake_v1, unstake_v1 } = useXSolaceV1()
-  // const { userShare, xSolacePerSolace, solacePerXSolace } = useXSolaceV1Details()
+  const { unstake_v1 } = useXSolaceV1()
   const { migrate } = useXSolaceMigrator()
   const { account } = useWallet()
   const { latestBlock } = useProvider()
-  // const [convertStoX, setConvertStoX] = useState<boolean>(true)
+  const { width } = useWindowDimensions()
 
   const [isAcceptableAmount, setIsAcceptableAmount] = useState<boolean>(false)
   const [lockInputValue, setLockInputValue] = React.useState('0')
 
-  // const callStakeSigned = async () => {
-  //   await stake_v1(parseUnits(amount, readSolaceToken.decimals), gasConfig)
-  //     .then((res) => handleToast(res.tx, res.localTx))
-  //     .catch((err) => handleContractCallError('callStakeSigned', err, FunctionName.STAKE_V1))
-  // }
+  const { projectedMultiplier, projectedApy, projectedYearlyReturns } = useProjectedBenefits(
+    accurateMultiply(formatAmount(amount), 18),
+    latestBlock ? latestBlock.timestamp + parseInt(lockInputValue) * 86400 : 0
+  )
 
   const callUnstake = async () => {
     const xSolaceToUnstake: BigNumber = await getXSolaceFromSolace()
@@ -176,12 +182,6 @@ function Stake1(): any {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [amount, parseUnits(v1StakedSolaceBalance, readSolaceToken.decimals), readSolaceToken.decimals])
 
-  // useEffect(() => {
-  //   resetAmount()
-  //   setConvertStoX(isMigrating)
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, [isMigrating])
-
   return (
     <>
       {!account ? (
@@ -195,32 +195,37 @@ function Stake1(): any {
         <Content>
           <FlexCol>
             <Card style={{ margin: 'auto' }}>
-              <div style={{ position: 'relative' }}>
-                <MultiTabIndicator />
-                <ModalCell pt={5} pb={10} pl={0} pr={0} jc={'center'}>
-                  <Text t1>Staking V1</Text>
+              <div style={{ gridTemplateColumns: '1fr 0fr 1fr', display: 'grid', position: 'relative' }}>
+                {/* <MultiTabIndicator style={{ left: isMigrating ? '0' : '50%' }} /> */}
+                <ModalCell
+                  pt={5}
+                  pb={10}
+                  pl={0}
+                  pr={0}
+                  onClick={() => setIsMigrating(true)}
+                  jc={'center'}
+                  style={{ cursor: 'pointer', backgroundColor: !isMigrating ? 'rgba(0, 0, 0, .05)' : 'inherit' }}
+                >
+                  <Text t1 bold info={isMigrating}>
+                    Migrate
+                  </Text>
+                </ModalCell>
+                <VerticalSeparator />
+                <ModalCell
+                  pt={5}
+                  pb={10}
+                  pl={0}
+                  pr={0}
+                  onClick={() => setIsMigrating(false)}
+                  jc={'center'}
+                  style={{ cursor: 'pointer', backgroundColor: isMigrating ? 'rgba(0, 0, 0, .05)' : 'inherit' }}
+                >
+                  <Text t1 bold info={!isMigrating}>
+                    Unstake
+                  </Text>
                 </ModalCell>
               </div>
-              <FlexRow style={{ textAlign: 'center', marginTop: '20px', marginBottom: '10px' }}>
-                <Input
-                  widthP={100}
-                  minLength={1}
-                  maxLength={79}
-                  autoComplete="off"
-                  autoCorrect="off"
-                  inputMode="decimal"
-                  placeholder="0.0"
-                  textAlignCenter
-                  type="text"
-                  onChange={(e) => handleInputChange(e.target.value, readSolaceToken.decimals)}
-                  value={amount}
-                />
-                <Button info ml={10} pt={4} pb={4} pl={8} pr={8} width={70} height={30} onClick={_setMax}>
-                  MAX
-                </Button>
-              </FlexRow>
-
-              <FormRow mb={30}>
+              <FormRow mt={20} mb={10}>
                 <FormCol>
                   <Text>Staked Balance</Text>
                 </FormCol>
@@ -230,51 +235,110 @@ function Stake1(): any {
                   </Text>
                 </FormCol>
               </FormRow>
-              <HorizRule />
-              <ButtonWrapper isColumn style={{ gap: '20px' }}>
-                <Button widthP={100} info secondary disabled={!isAcceptableAmount || haveErrors} onClick={callUnstake}>
-                  Unstake
-                </Button>
-                <Text>or</Text>
-                <div>
-                  <Label importance="quaternary" style={{ marginBottom: '8px' }}>
-                    Choose a Lock time (optional)
-                  </Label>
-                  <InputSection
-                    tab={Tab.LOCK}
-                    value={lockInputValue}
-                    onChange={(e) => lockInputOnChange(e.target.value)}
-                    setMax={lockSetMax}
-                  />
-                </div>
-                <StyledSlider
-                  value={lockInputValue}
-                  onChange={(e) => lockRangeOnChange(e.target.value)}
-                  min={0}
-                  max={DAYS_PER_YEAR * 4}
+              <FlexRow mb={30} style={{ textAlign: 'center' }}>
+                <InputSection
+                  tab={Tab.DEPOSIT}
+                  value={amount}
+                  onChange={(e) => handleInputChange(e.target.value, readSolaceToken.decimals)}
+                  setMax={_setMax}
                 />
-                {
-                  <SmallBox transparent collapse={!lockInputValue || lockInputValue == '0'} m={0} p={0}>
-                    <Text
-                      style={{
-                        fontWeight: 500,
-                      }}
-                    >
-                      Lock End Date: {getExpiration(parseInt(lockInputValue))}
-                    </Text>
-                  </SmallBox>
-                }
-                <Button
-                  widthP={100}
-                  error
-                  style={{ backgroundColor: '#f04d42' }}
-                  disabled={!isAcceptableAmount || haveErrors}
-                  secondary
-                  onClick={callMigrateSigned}
-                  light
-                >
-                  Migrate to STAKING V2
-                </Button>
+              </FlexRow>
+              <Accordion noScroll noBackgroundColor isOpen={isMigrating}>
+                <Flex column gap={24} mb={20}>
+                  <div>
+                    <Label importance="quaternary" style={{ marginBottom: '8px' }}>
+                      Choose a Lock time (optional)
+                    </Label>
+                    <InputSection
+                      tab={Tab.LOCK}
+                      value={lockInputValue}
+                      onChange={(e) => lockInputOnChange(e.target.value)}
+                      setMax={lockSetMax}
+                    />
+                  </div>
+                  <StyledSlider
+                    value={lockInputValue}
+                    onChange={(e) => lockRangeOnChange(e.target.value)}
+                    min={0}
+                    max={DAYS_PER_YEAR * 4}
+                  />
+                  {
+                    <SmallBox transparent collapse={!lockInputValue || lockInputValue == '0'} m={0} p={0}>
+                      <Text
+                        style={{
+                          fontWeight: 500,
+                        }}
+                      >
+                        Lock End Date: {getExpiration(parseInt(lockInputValue))}
+                      </Text>
+                    </SmallBox>
+                  }
+                </Flex>
+                <Flex column stretch w={BKPT_5 > width ? 300 : 521}>
+                  <Label importance="quaternary" style={{ marginBottom: '8px' }}>
+                    Projected benefits when migrated
+                  </Label>
+                  <GrayBox>
+                    <Flex stretch column>
+                      <Flex stretch gap={24}>
+                        <Flex column gap={2}>
+                          <Text t5s techygradient mb={8}>
+                            APY
+                          </Text>
+                          <div style={BKPT_5 > width ? { margin: '-4px 0', display: 'block' } : { display: 'none' }}>
+                            &nbsp;
+                          </div>
+                          <Text t3s techygradient>
+                            <Flex>{projectedApy.toNumber()}%</Flex>
+                          </Text>
+                        </Flex>
+                        <VerticalSeparator />
+                        <Flex column gap={2}>
+                          <Text t5s techygradient mb={8}>
+                            Reward Multiplier
+                          </Text>
+                          <Text t3s techygradient>
+                            {projectedMultiplier}x
+                          </Text>
+                        </Flex>
+                        <VerticalSeparator />
+                        <Flex column gap={2}>
+                          <Text t5s techygradient mb={8}>
+                            Yearly Return
+                          </Text>
+                          <Text t3s techygradient>
+                            {truncateValue(formatUnits(projectedYearlyReturns, 18), 4, false)}
+                          </Text>
+                        </Flex>
+                      </Flex>
+                    </Flex>
+                  </GrayBox>
+                </Flex>
+              </Accordion>
+              <ButtonWrapper>
+                {isMigrating ? (
+                  <Button
+                    widthP={100}
+                    error
+                    style={{ backgroundColor: '#f04d42' }}
+                    disabled={!isAcceptableAmount || haveErrors}
+                    secondary
+                    onClick={callMigrateSigned}
+                    light
+                  >
+                    Migrate to STAKING V2
+                  </Button>
+                ) : (
+                  <Button
+                    widthP={100}
+                    info
+                    secondary
+                    disabled={!isAcceptableAmount || haveErrors}
+                    onClick={callUnstake}
+                  >
+                    Unstake
+                  </Button>
+                )}
               </ButtonWrapper>
             </Card>
           </FlexCol>
@@ -289,6 +353,7 @@ function Stake1(): any {
  */
 
 export default function Stake(): JSX.Element {
+  const { width } = useWindowDimensions()
   // account usewallet
   const [newSafeIsOpen, setNewSafeIsOpen] = useState(false)
   const [batchActionsIsEnabled, setBatchActionsIsEnabled] = useState(false)
@@ -309,6 +374,9 @@ export default function Stake(): JSX.Element {
   })
 
   const { getUserLocks } = useUserLockData()
+  const { withdrawFromLock } = useXSLocker()
+  const { harvestLockRewards } = useStakingRewards()
+  const { handleToast, handleContractCallError, gasConfig } = useInputAmount()
 
   useEffect(() => {
     const _getUserLocks = async () => {
@@ -324,7 +392,10 @@ export default function Stake(): JSX.Element {
 
   const openSafe = () => setNewSafeIsOpen(true)
   const closeSafe = () => setNewSafeIsOpen(false)
-  const toggleBatchActions = () => setBatchActionsIsEnabled(!batchActionsIsEnabled)
+  const toggleBatchActions = () => {
+    closeSafe()
+    setBatchActionsIsEnabled(!batchActionsIsEnabled)
+  }
 
   const handleLockCheck = (lockId: BigNumber) => {
     const checkboxStatus = lockIsChecked(locksChecked, lockId)
@@ -341,21 +412,25 @@ export default function Stake(): JSX.Element {
   }
 
   const handleBatchWithdraw = async () => {
-    const selectedLocks = locks.filter((_, index) => locksChecked[index])
-    const selectedLocksWithdraw = selectedLocks.map((lock) => ({
-      lockId: lock.xsLockID,
-      amount: lock.pendingRewards,
-    }))
-    console.log('selectedLocksWithdraw', selectedLocksWithdraw)
+    if (!account) return
+    const selectedLocks = getCheckedLocks(locks, locksChecked)
+    const eligibleLocks = selectedLocks.filter((lock) => lock.timeLeft.isZero())
+    const eligibleIds = eligibleLocks.map((lock) => lock.xsLockID)
+    if (eligibleIds.length == 0) return
+    const type = eligibleIds.length > 1 ? FunctionName.WITHDRAW_MANY_FROM_LOCK : FunctionName.WITHDRAW_FROM_LOCK
+    await withdrawFromLock(account, eligibleIds, gasConfig)
+      .then((res) => handleToast(res.tx, res.localTx))
+      .catch((err) => handleContractCallError('handleBatchWithdraw', err, type))
   }
 
   const handleBatchHarvest = async () => {
-    const selectedLocks = locks.filter((_, index) => locksChecked[index])
-    const selectedLocksHarvest = selectedLocks.map((lock) => ({
-      lockId: lock.xsLockID,
-      amount: lock.pendingRewards,
-    }))
-    console.log('selectedLocksHarvest', selectedLocksHarvest)
+    const selectedLocks = getCheckedLocks(locks, locksChecked)
+    const eligibleLocks = selectedLocks.filter((lock) => !lock.pendingRewards.isZero())
+    const eligibleIds = eligibleLocks.map((lock) => lock.xsLockID)
+    const type = eligibleIds.length > 1 ? FunctionName.HARVEST_LOCKS : FunctionName.HARVEST_LOCK
+    await harvestLockRewards(eligibleIds, gasConfig)
+      .then((res) => handleToast(res.tx, res.localTx))
+      .catch((err) => handleContractCallError('handleBatchHarvest', err, type))
   }
   const rewardsAreZero = () => calculateTotalHarvest(getCheckedLocks(locks, locksChecked)).isZero()
   const withdrawalsAreZero = () => calculateTotalWithdrawable(getCheckedLocks(locks, locksChecked)).isZero()
@@ -377,7 +452,19 @@ export default function Stake(): JSX.Element {
           {StakingVersion.v2 === stakingVersion && (
             <>
               <AggregatedStakeData stakeData={userLockInfo} />
-              <Flex between mb={20}>
+              <Flex
+                between
+                mb={20}
+                style={
+                  width < BKPT_5 && batchActionsIsEnabled
+                    ? {
+                        flexDirection: 'column-reverse',
+                        gap: '30px',
+                        alignItems: 'stretch',
+                      }
+                    : {}
+                }
+              >
                 {!batchActionsIsEnabled ? (
                   !newSafeIsOpen ? (
                     <Button secondary info noborder pl={23} pr={23} onClick={openSafe}>
@@ -392,7 +479,7 @@ export default function Stake(): JSX.Element {
                   // checkbox + Select all, Rewards selected (harvest), Withdraw selected (withdraw)
                   <>
                     {/* select all checkbox */}
-                    <Flex gap={20}>
+                    <Flex gap={20} style={{ marginTop: 'auto', marginBottom: 'auto' }} between={width < BKPT_5}>
                       <Flex
                         center
                         gap={5}
@@ -408,7 +495,18 @@ export default function Stake(): JSX.Element {
                         </Text>
                       </Flex>
                       {somethingIsChecked(locksChecked) && (
-                        <>
+                        <Flex
+                          gap={20}
+                          style={
+                            width < BKPT_5
+                              ? {
+                                  flexDirection: 'column',
+                                  alignItems: 'flex-end',
+                                  gap: '5px',
+                                }
+                              : {}
+                          }
+                        >
                           {' '}
                           <Flex center gap={5}>
                             <Text t4>Rewards selected:</Text>
@@ -423,44 +521,42 @@ export default function Stake(): JSX.Element {
                               {getFormattedWithdrawal()}
                             </CardSectionValue>
                           </Flex>
-                        </>
+                        </Flex>
                       )}
                     </Flex>
-                    {/* Harvest selected (harvest) */}
-                    {/* <Button secondary info noborder pl={23} pr={23} onClick={handleExitBatch}>
-                        Exit Batch
-                      </Button>
-                      <Button secondary info noborder pl={23} pr={23} onClick={handleBatchHarvest}>
-                        Harvest
-                      </Button>
-                      <Button secondary info noborder pl={23} pr={23} onClick={handleBatchWithdraw}>
-                        Withdraw
-                      </Button> */}
                   </>
                 )}
                 <Flex center gap={20}>
-                  {/* 2 buttons: withdraw, harvest rewards */}
                   {batchActionsIsEnabled && (
                     <>
-                      {!rewardsAreZero() && (
-                        <Button secondary info noborder pl={23} pr={23} onClick={handleBatchHarvest}>
-                          Harvest Rewards
-                        </Button>
-                      )}
-                      {!withdrawalsAreZero() && (
-                        <Button secondary info noborder pl={23} pr={23} onClick={handleBatchWithdraw}>
-                          Withdraw
-                        </Button>
-                      )}
+                      <Button
+                        secondary
+                        info
+                        noborder
+                        pl={23}
+                        pr={23}
+                        onClick={handleBatchHarvest}
+                        disabled={rewardsAreZero()}
+                      >
+                        Harvest Rewards
+                      </Button>
+                      <Button
+                        secondary
+                        info
+                        noborder
+                        pl={23}
+                        pr={23}
+                        onClick={handleBatchWithdraw}
+                        disabled={withdrawalsAreZero()}
+                      >
+                        Withdraw
+                      </Button>
                     </>
                   )}
                   <Button info pl={23} pr={23} onClick={toggleBatchActions}>
                     {batchActionsIsEnabled ? 'Exit Batch' : 'Batch Actions'}
                   </Button>
                 </Flex>
-                {/* <Button info pl={23} pr={23} onClick={toggleBatchActions}>
-                  {batchActionsIsEnabled ? 'X' : 'Batch Actions'}
-                </Button> */}
               </Flex>
               <NewSafe isOpen={newSafeIsOpen} />
               {locks.map((lock, i) => (
@@ -478,13 +574,7 @@ export default function Stake(): JSX.Element {
           {/* only show the following if staking is v1 and the tab is not `difference` */}
           {stakingVersion === StakingVersion.v1 && <Stake1 />}
           {/* only show the following if staking is v1 and the tab is 'difference' */}
-          {stakingVersion === StakingVersion.difference && (
-            <DifferenceBoxes setStakingVersion={setStakingVersion} />
-            // <Twiv css={'text-xl font-bold text-[#5F5DF9] animate-bounce'}>
-            //   Difference between V1 and V2:
-            //   <Twiv css={'text-[#5E5E5E]'}>not implemented yet</Twiv>
-            // </Twiv>
-          )}
+          {stakingVersion === StakingVersion.difference && <DifferenceBoxes setStakingVersion={setStakingVersion} />}
         </Content>
       )}
     </>

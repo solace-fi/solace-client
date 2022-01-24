@@ -10,7 +10,6 @@ import { LockCheckbox } from '../../../../types/LockCheckbox'
  */
 const getCheckedLocks = (lockArray: LockData[], checkboxArray: LockCheckbox[]): LockData[] => {
   // find all xsLockIDs in the checkbox array, and return the corresponding locks
-  console.log('CHECKBOXES: ', checkboxArray)
   return lockArray.filter((lock) => {
     return checkboxArray.find((checkbox) => {
       if (checkbox.xsLockID === undefined) console.log('undefined ID lock', JSON.stringify(checkbox))

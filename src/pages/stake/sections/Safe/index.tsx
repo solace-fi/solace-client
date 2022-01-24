@@ -18,7 +18,7 @@ import { getTimeFromMillis } from '../../../../utils/time'
 import { truncateValue } from '../../../../utils/formatting'
 import { formatUnits } from 'ethers/lib/utils'
 import { GridOrRow } from '../../atoms/GridOrRow'
-import { BKPT_5 } from '../../../../constants'
+import { BKPT_5, BKPT_6 } from '../../../../constants'
 import { useWindowDimensions } from '../../../../hooks/useWindowDimensions'
 import Checkbox from '../../atoms/Checkbox'
 
@@ -66,41 +66,87 @@ export default function Safe({
 				                      TOP SECTION
 				******************************************************/}
         <Flex between stretch p={24} gap={24}>
-          <Flex center>
+          <Flex center hidden={!batchActionsIsEnabled || width < BKPT_5}>
             {batchActionsIsEnabled && <Checkbox type="checkbox" checked={isChecked} onChange={() => onCheck(index)} />}
           </Flex>
-          <GridOrRow gap={batchActionsIsEnabled ? 77 : 80}>
+          <GridOrRow>
             {/* <Flex stretch gap={90}> */}
-            <InfoPair importance="tertiary" label="Amount">
+            <InfoPair
+              isSafePreview
+              batch={batchActionsIsEnabled}
+              importance="tertiary"
+              label="Amount"
+              desktop={width > BKPT_5}
+            >
               <CardSectionValue highlight={true} annotation="SOLACE">
                 {truncateValue(unboostedAmount, 4)}
               </CardSectionValue>
             </InfoPair>
-            <InfoPair importance="tertiary" label="Status">
+            <InfoPair
+              isSafePreview
+              batch={batchActionsIsEnabled}
+              importance="tertiary"
+              label="Status"
+              desktop={width > BKPT_5}
+            >
               <CardSectionValue>{safeStatus}</CardSectionValue>
             </InfoPair>
-            <InfoPair importance="tertiary" label="Lock time left">
+            <InfoPair
+              isSafePreview
+              batch={batchActionsIsEnabled}
+              importance="tertiary"
+              label="Lock time left"
+              desktop={width > BKPT_5}
+            >
               <CardSectionValue>{lockTimeLeft}</CardSectionValue>
             </InfoPair>
-            <InfoPair importance="tertiary" label="Multiplier">
+            <InfoPair
+              isSafePreview
+              batch={batchActionsIsEnabled}
+              importance="tertiary"
+              label="Multiplier"
+              desktop={width > BKPT_5}
+            >
               <CardSectionValue highlight={multiplier > 1}>{stringifiedMultiplier}x</CardSectionValue>
             </InfoPair>
-            <InfoPair importance="tertiary" label="APY">
+            <InfoPair
+              isSafePreview
+              batch={batchActionsIsEnabled}
+              importance="tertiary"
+              label="APY"
+              desktop={width > BKPT_5}
+            >
               <CardSectionValue highlight={true}>{lock.apy.toNumber()}%</CardSectionValue>
             </InfoPair>
-            <InfoPair importance="tertiary" label="Rewards">
+            <InfoPair
+              isSafePreview
+              batch={batchActionsIsEnabled}
+              importance="tertiary"
+              label="Rewards"
+              desktop={width > BKPT_5}
+            >
               <CardSectionValue highlight={parseFloat(pendingRewards) > 0} annotation="SOLACE">
                 {truncateValue(pendingRewards, 4)}
               </CardSectionValue>
             </InfoPair>
             <Flex center className="items-1">
-              {!isOpen ? (
-                <Button info semibold onClick={openSafe}>
-                  Manage
+              {!batchActionsIsEnabled ? (
+                !isOpen ? (
+                  <Button info semibold onClick={openSafe}>
+                    Manage
+                  </Button>
+                ) : (
+                  <Button info semibold onClick={closeSafe}>
+                    Close
+                  </Button>
+                )
+              ) : !isChecked ? (
+                <Button info semibold nohover onClick={onCheck}>
+                  Select
                 </Button>
               ) : (
-                <Button info semibold onClick={closeSafe}>
-                  Close
+                <Button info secondary nohover semibold onClick={onCheck}>
+                  Selected
                 </Button>
               )}
             </Flex>
@@ -113,7 +159,7 @@ export default function Safe({
 				                        SAFE BODY
 				******************************************************/}
         <Accordion
-          noscroll
+          noScroll
           isOpen={isOpen}
           style={{ backgroundColor: 'inherit' }}
           customHeight={accordionRef.current != null ? `${accordionRef.current.scrollHeight}px` : undefined}
