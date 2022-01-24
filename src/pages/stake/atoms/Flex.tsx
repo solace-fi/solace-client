@@ -17,6 +17,7 @@ export default styled.div<{
   pt?: number
   gap?: number
   w?: number
+  hidden?: boolean
 }>`
   display: flex;
   justify-content: ${({ between, end, center }) =>
@@ -33,4 +34,5 @@ export default styled.div<{
   padding-top: ${({ pt }) => pt}px;
   gap: ${({ gap }) => gap}px;
   width: ${({ w }) => w}px;
+  ${({ hidden }) => hidden && 'display: none;'}
 `
