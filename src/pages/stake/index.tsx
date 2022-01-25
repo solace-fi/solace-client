@@ -549,7 +549,7 @@ export default function Stake(): JSX.Element {
                   // checkbox + Select all, Rewards selected (harvest), Withdraw selected (withdraw)
                   <>
                     {/* select all checkbox */}
-                    <Flex gap={20} style={{ marginTop: 'auto', marginBottom: 'auto' }} between={width < BKPT_5}>
+                    <Flex gap={15} style={{ marginTop: 'auto', marginBottom: 'auto' }} between={width < BKPT_5}>
                       <Flex
                         center
                         gap={5}
@@ -566,7 +566,7 @@ export default function Stake(): JSX.Element {
                       </Flex>
                       {somethingIsChecked(locksChecked) && (
                         <Flex
-                          gap={20}
+                          gap={15}
                           style={
                             width < BKPT_5
                               ? {
@@ -577,7 +577,6 @@ export default function Stake(): JSX.Element {
                               : {}
                           }
                         >
-                          {' '}
                           <Flex center gap={5}>
                             <Text t4>Rewards selected:</Text>
                             <CardSectionValue annotation="SOLACE" smol info>
@@ -596,15 +595,15 @@ export default function Stake(): JSX.Element {
                     </Flex>
                   </>
                 )}
-                <Flex center gap={20}>
+                <Flex center gap={15} column={width < BKPT_5}>
                   {batchActionsIsEnabled && (
-                    <>
+                    <Flex gap={15}>
                       <Button
                         secondary
                         info
                         noborder
-                        pl={23}
-                        pr={23}
+                        pl={10}
+                        pr={10}
                         onClick={handleBatchHarvest}
                         disabled={rewardsAreZero()}
                       >
@@ -614,8 +613,8 @@ export default function Stake(): JSX.Element {
                         secondary
                         info
                         noborder
-                        pl={23}
-                        pr={23}
+                        pl={10}
+                        pr={10}
                         onClick={() => {
                           if (getCheckedLocks(locks, locksChecked).length > 1) {
                             setIsCompoundModalOpen(true)
@@ -631,16 +630,16 @@ export default function Stake(): JSX.Element {
                         secondary
                         info
                         noborder
-                        pl={23}
-                        pr={23}
+                        pl={10}
+                        pr={10}
                         onClick={handleBatchWithdraw}
                         disabled={withdrawalsAreZero()}
                       >
                         Withdraw
                       </Button>
-                    </>
+                    </Flex>
                   )}
-                  <Button info pl={23} pr={23} onClick={toggleBatchActions}>
+                  <Button info pl={10} pr={10} onClick={toggleBatchActions}>
                     {batchActionsIsEnabled ? 'Exit Batch' : 'Batch Actions'}
                   </Button>
                 </Flex>
