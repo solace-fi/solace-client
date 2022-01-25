@@ -712,9 +712,11 @@ export default function Stake(): JSX.Element {
                       </Button>
                     </Flex>
                   )}
-                  <Button pl={10} pr={10} onClick={toggleBatchActions} secondary={batchActionsIsEnabled}>
-                    <StyledMultiselect size={20} /> {batchActionsIsEnabled ? 'Exit Multi-select' : `Multi-select`}
-                  </Button>
+                  {locks.length > 1 && (
+                    <Button pl={10} pr={10} onClick={toggleBatchActions} secondary={batchActionsIsEnabled}>
+                      <StyledMultiselect size={20} /> {batchActionsIsEnabled ? 'Exit Multi-select' : `Multi-select`}
+                    </Button>
+                  )}
                 </Flex>
               </Flex>
               <NewSafe isOpen={newSafeIsOpen} />
