@@ -4,7 +4,6 @@ import { Button } from '../../../../components/atoms/Button'
 import { Tab } from '../../types/Tab'
 import IconAndText from './IconAndText'
 import InputSectionWrapper from './InputSectionWrapper'
-import MaxButton from './MaxButton'
 
 const StyledInput = styled.input`
   border-color: ${({ theme }) => theme.separator.bg_color};
@@ -21,7 +20,7 @@ export default function InputSection({
   tab: Tab.DEPOSIT | Tab.WITHDRAW | Tab.LOCK
   value: string | undefined
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void
-  setMax: () => void
+  setMax?: () => void
   disabled?: boolean
 }): JSX.Element {
   return (
@@ -34,13 +33,14 @@ export default function InputSection({
         placeholder="0"
         value={value}
         onChange={onChange}
-        style={{ backgroundColor: 'inherit', color: 'inherit', width: '100%' }}
+        style={{ backgroundColor: 'inherit', color: 'inherit', borderRadius: 'inherit', width: '100%' }}
         disabled={disabled}
       />
-      {/* <MaxButton setMax={setMax} disabled={disabled} /> */}
-      <Button onClick={setMax} disabled={disabled} m={10}>
-        MAX
-      </Button>
+      {setMax && (
+        <Button onClick={setMax} disabled={disabled} m={10}>
+          MAX
+        </Button>
+      )}
     </InputSectionWrapper>
   )
 }

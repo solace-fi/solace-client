@@ -146,7 +146,6 @@ export default function DepositForm({ lock }: { lock: LockData }): JSX.Element {
             </GrayBox>
           </Flex>
         </Flex>
-
         <Button
           secondary
           info

@@ -40,8 +40,6 @@ export default function Safe({
   const openSafe = () => setIsOpen(true)
   const closeSafe = () => setIsOpen(false)
 
-  const accordionRef = useRef<HTMLDivElement>(null)
-
   const unboostedAmount = useMemo(() => formatUnits(lock.unboostedAmount, 18), [lock.unboostedAmount])
   const boostedValue = useMemo(() => formatUnits(lock.boostedValue, 18), [lock.boostedValue])
   const pendingRewards = useMemo(() => formatUnits(lock.pendingRewards, 18), [lock.pendingRewards])
@@ -158,12 +156,7 @@ export default function Safe({
         {/******************************************************
 				                        SAFE BODY
 				******************************************************/}
-        <Accordion
-          noScroll
-          isOpen={isOpen}
-          style={{ backgroundColor: 'inherit' }}
-          customHeight={accordionRef.current != null ? `${accordionRef.current.scrollHeight}px` : undefined}
-        >
+        <Accordion noScroll isOpen={isOpen} style={{ backgroundColor: 'inherit' }} customHeight={'1000px'}>
           <div>
             <HorizontalSeparator />
             <Flex column gap={30} p={24} stretch>

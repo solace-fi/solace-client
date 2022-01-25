@@ -27,7 +27,7 @@ import { useCachedData } from '../../context/CachedDataManager'
 
 /* import constants */
 import { FunctionName } from '../../constants/enums'
-import { BKPT_5, DAYS_PER_YEAR, ZERO } from '../../constants'
+import { BKPT_1, BKPT_5, DAYS_PER_YEAR, ZERO, Z_TABLE } from '../../constants'
 import { LockData, UserLocksInfo } from '../../constants/types'
 import { StakingVersion } from './types/Version'
 import { LockCheckbox } from './types/LockCheckbox'
@@ -87,6 +87,8 @@ import GrayBox from './components/GrayBox'
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'
 import { formatUnits } from 'ethers/lib/utils'
 import { Modal } from '../../components/molecules/Modal'
+import { Table, TableBody, TableData, TableHead, TableHeader, TableRow } from '../../components/atoms/Table'
+import { StyledMultiselect } from '../../components/atoms/Icon'
 
 // disable no unused variables
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -474,44 +476,114 @@ export default function Stake(): JSX.Element {
                 }}
                 modalTitle={'Select a safe to deposit your rewards'}
               >
+                <FormRow>
+                  <FormCol>Rewards from selected safes</FormCol>
+                  <FormCol>{getFormattedRewards()}</FormCol>
+                </FormRow>
                 <Scrollable maxMobileHeight={60}>
-                  <CardContainer cardsPerRow={1} style={{ gap: '10px' }}>
-                    {locks.map((lock) => {
-                      const unboostedAmount = formatUnits(lock.unboostedAmount, 18)
-                      const boostedValue = formatUnits(lock.boostedValue, 18)
-                      const multiplier =
-                        parseFloat(unboostedAmount) > 0 ? parseFloat(boostedValue) / parseFloat(unboostedAmount) : 0
-                      const isSelected = targetLock && targetLock.eq(lock.xsLockID)
-                      return (
-                        <Card
-                          canHover
-                          pt={15}
-                          pb={15}
-                          pl={30}
-                          pr={30}
-                          key={lock.xsLockID.toNumber()}
-                          glow={isSelected}
-                          color1={isSelected}
-                          onClick={() => setTargetLock(lock.xsLockID)}
-                        >
-                          <FormRow mb={0}>
-                            <FormCol bold light={isSelected}>
-                              {truncateValue(formatUnits(lock.unboostedAmount, 18), 4)}
-                            </FormCol>
-                            <FormCol bold light={isSelected}>
-                              {getTimeFromMillis(lock.timeLeft.toNumber() * 1000).split(' ')[0]}
-                            </FormCol>
-                            <FormCol bold light={isSelected}>
-                              {truncateValue(multiplier, 1)}x
-                            </FormCol>
-                            <FormCol bold light={isSelected}>
-                              {lock.apy.toNumber()}%
-                            </FormCol>
-                          </FormRow>
-                        </Card>
-                      )
-                    })}
-                  </CardContainer>
+                  {width > BKPT_1 ? (
+                    <Table>
+                      <TableHead sticky zIndex={Z_TABLE + 1}>
+                        <TableRow textAlignCenter>
+                          <TableHeader t5s pl={2} pr={2}>
+                            Amount
+                          </TableHeader>
+                          <TableHeader t5s pl={2} pr={2}>
+                            Lock time
+                          </TableHeader>
+                          <TableHeader t5s pl={2} pr={2}>
+                            Multiplier
+                          </TableHeader>
+                          <TableHeader t5s pl={2} pr={2}>
+                            APY
+                          </TableHeader>
+                        </TableRow>
+                      </TableHead>
+                      <TableBody>
+                        {locks.map((lock) => {
+                          const unboostedAmount = formatUnits(lock.unboostedAmount, 18)
+                          const boostedValue = formatUnits(lock.boostedValue, 18)
+                          const multiplier =
+                            parseFloat(unboostedAmount) > 0 ? parseFloat(boostedValue) / parseFloat(unboostedAmount) : 0
+                          const isSelected = targetLock ? targetLock.eq(lock.xsLockID) : false
+                          const timeLeft = getTimeFromMillis(lock.timeLeft.toNumber() * 1000)
+                          return (
+                            <TableRow
+                              canHover
+                              key={lock.xsLockID.toNumber()}
+                              onClick={() => setTargetLock(lock.xsLockID)}
+                              isHighlight={isSelected}
+                              style={{ cursor: 'pointer' }}
+                            >
+                              <TableData p={10}>
+                                <Text light={isSelected}>
+                                  {truncateValue(formatUnits(lock.unboostedAmount, 18), 4)}
+                                </Text>
+                              </TableData>
+                              <TableData p={10}>
+                                <Text light={isSelected}>
+                                  {timeLeft.includes('<') ? timeLeft : timeLeft.split(' ')[0]}
+                                </Text>
+                              </TableData>
+                              <TableData p={10}>
+                                <Text light={isSelected}>{truncateValue(multiplier, 1)}x</Text>
+                              </TableData>
+                              <TableData p={10}>
+                                <Text light={isSelected}>{lock.apy.toNumber()}%</Text>
+                              </TableData>
+                            </TableRow>
+                          )
+                        })}
+                      </TableBody>
+                    </Table>
+                  ) : (
+                    <CardContainer cardsPerRow={1} style={{ gap: '10px' }}>
+                      {locks.map((lock) => {
+                        const unboostedAmount = formatUnits(lock.unboostedAmount, 18)
+                        const boostedValue = formatUnits(lock.boostedValue, 18)
+                        const multiplier =
+                          parseFloat(unboostedAmount) > 0 ? parseFloat(boostedValue) / parseFloat(unboostedAmount) : 0
+                        const isSelected = targetLock && targetLock.eq(lock.xsLockID)
+                        return (
+                          <Card
+                            canHover
+                            pt={15}
+                            pb={15}
+                            pl={30}
+                            pr={30}
+                            key={lock.xsLockID.toNumber()}
+                            isHighlight={isSelected}
+                            onClick={() => setTargetLock(lock.xsLockID)}
+                          >
+                            <FormRow mb={0}>
+                              <FormCol light={isSelected}>Amount</FormCol>
+                              <FormCol bold light={isSelected}>
+                                {truncateValue(formatUnits(lock.unboostedAmount, 18), 4)}
+                              </FormCol>
+                            </FormRow>
+                            <FormRow mb={0}>
+                              <FormCol light={isSelected}>Lock time left</FormCol>
+                              <FormCol bold light={isSelected}>
+                                {getTimeFromMillis(lock.timeLeft.toNumber() * 1000)}
+                              </FormCol>
+                            </FormRow>
+                            <FormRow mb={0}>
+                              <FormCol light={isSelected}>Multiplier</FormCol>
+                              <FormCol bold light={isSelected}>
+                                {truncateValue(multiplier, 1)}x
+                              </FormCol>
+                            </FormRow>
+                            <FormRow mb={0}>
+                              <FormCol light={isSelected}>APY</FormCol>
+                              <FormCol bold light={isSelected}>
+                                {lock.apy.toNumber()}%
+                              </FormCol>
+                            </FormRow>
+                          </Card>
+                        )
+                      })}
+                    </CardContainer>
+                  )}
                 </Scrollable>
                 {targetLock && (
                   <ButtonWrapper>
@@ -524,6 +596,7 @@ export default function Stake(): JSX.Element {
               <AggregatedStakeData stakeData={userLockInfo} />
               <Flex
                 between
+                mt={20}
                 mb={20}
                 style={
                   width < BKPT_5 && batchActionsIsEnabled
@@ -639,9 +712,11 @@ export default function Stake(): JSX.Element {
                       </Button>
                     </Flex>
                   )}
-                  <Button info pl={10} pr={10} onClick={toggleBatchActions}>
-                    {batchActionsIsEnabled ? 'Exit Batch' : 'Batch Actions'}
-                  </Button>
+                  {locks.length > 1 && (
+                    <Button pl={10} pr={10} onClick={toggleBatchActions} secondary={batchActionsIsEnabled}>
+                      <StyledMultiselect size={20} /> {batchActionsIsEnabled ? 'Exit Multi-select' : `Multi-select`}
+                    </Button>
+                  )}
                 </Flex>
               </Flex>
               <NewSafe isOpen={newSafeIsOpen} />
