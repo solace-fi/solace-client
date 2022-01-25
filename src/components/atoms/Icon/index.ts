@@ -30,6 +30,7 @@ import { Twitter } from '@styled-icons/boxicons-logos/Twitter'
 import { Wallet } from '@styled-icons/boxicons-solid/Wallet'
 import { Warning } from '@styled-icons/fluentui-system-regular/Warning'
 import { Work } from '@styled-icons/material/Work'
+import { Multiselect } from '@styled-icons/fluentui-system-regular/Multiselect'
 
 export const StyledIconCss = css`
   margin: auto;
@@ -112,3 +113,5 @@ export const StyledGraphDown = styled(GraphDown)``
 export const StyledSendPlane = styled(SendPlane)``
 
 export const StyledRefresh = styled(Refresh)``
+
+export const StyledMultiselect = styled(Multiselect)``

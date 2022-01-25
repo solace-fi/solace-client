@@ -88,6 +88,7 @@ import { useWindowDimensions } from '../../hooks/useWindowDimensions'
 import { formatUnits } from 'ethers/lib/utils'
 import { Modal } from '../../components/molecules/Modal'
 import { Table, TableBody, TableData, TableHead, TableHeader, TableRow } from '../../components/atoms/Table'
+import { StyledMultiselect } from '../../components/atoms/Icon'
 
 // disable no unused variables
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -595,6 +596,7 @@ export default function Stake(): JSX.Element {
               <AggregatedStakeData stakeData={userLockInfo} />
               <Flex
                 between
+                mt={20}
                 mb={20}
                 style={
                   width < BKPT_5 && batchActionsIsEnabled
@@ -710,8 +712,8 @@ export default function Stake(): JSX.Element {
                       </Button>
                     </Flex>
                   )}
-                  <Button info pl={10} pr={10} onClick={toggleBatchActions}>
-                    {batchActionsIsEnabled ? 'Exit Batch' : 'Batch Actions'}
+                  <Button pl={10} pr={10} onClick={toggleBatchActions} secondary={batchActionsIsEnabled}>
+                    <StyledMultiselect size={20} /> {batchActionsIsEnabled ? 'Exit Multi-select' : `Multi-select`}
                   </Button>
                 </Flex>
               </Flex>

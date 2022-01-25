@@ -56,23 +56,11 @@ export default function DifferenceBoxes({
   return (
     <Flex center gap={BKPT_5 > width ? 20 : 100} column={BKPT_5 > width}>
       <ShadowDiv>
-        <StyledRaisedBox
-          width={width}
-          style={
-            {
-              // width: BKPT_5 > width ? '90%' : '378px',
-              // // py = 40px, px = 24px
-              // padding: '40px 24px',
-            }
-          }
-        >
+        <StyledRaisedBox width={width}>
           <Flex center column gap={40}>
             <Text t1 extrabold>
               Staking V1
             </Text>
-            {/* <Text t5s textAlignCenter style={{ fontWeight: 400, margin: '10px 55px 0px 55px' }}>
-              Some additional info about some stuff and other stuff for users to understand.
-            </Text> */}
             <Flex column gap={20} center>
               <Text t2>Rewards distributed weekly</Text>
               <Text t2 lineThrough>
