@@ -380,6 +380,23 @@ export default function Stake(): JSX.Element {
   const { harvestLockRewards, compoundLockRewards } = useStakingRewards()
   const { handleToast, handleContractCallError, gasConfig } = useInputAmount()
 
+  const rewardsAreZero = useMemo(() => calculateTotalHarvest(getCheckedLocks(locks, locksChecked)).isZero(), [
+    locks,
+    locksChecked,
+  ])
+  const withdrawalsAreZero = useMemo(() => calculateTotalWithdrawable(getCheckedLocks(locks, locksChecked)).isZero(), [
+    locks,
+    locksChecked,
+  ])
+  const formattedRewards = useMemo(() => formatShort(calculateTotalHarvest(getCheckedLocks(locks, locksChecked))), [
+    locks,
+    locksChecked,
+  ])
+  const formattedWithdrawal = useMemo(
+    () => formatShort(calculateTotalWithdrawable(getCheckedLocks(locks, locksChecked))),
+    [locks, locksChecked]
+  )
+
   useEffect(() => {
     const _getUserLocks = async () => {
       if (!account) return
@@ -449,11 +466,6 @@ export default function Stake(): JSX.Element {
       .catch((err) => handleContractCallError('handleBatchCompound', err, type))
   }
 
-  const rewardsAreZero = () => calculateTotalHarvest(getCheckedLocks(locks, locksChecked)).isZero()
-  const withdrawalsAreZero = () => calculateTotalWithdrawable(getCheckedLocks(locks, locksChecked)).isZero()
-  const getFormattedRewards = () => formatShort(calculateTotalHarvest(getCheckedLocks(locks, locksChecked)))
-  const getFormattedWithdrawal = () => formatShort(calculateTotalWithdrawable(getCheckedLocks(locks, locksChecked)))
-
   return (
     <>
       {!account ? (
@@ -478,7 +490,7 @@ export default function Stake(): JSX.Element {
               >
                 <FormRow>
                   <FormCol>Rewards from selected safes</FormCol>
-                  <FormCol>{getFormattedRewards()}</FormCol>
+                  <FormCol>{formattedRewards}</FormCol>
                 </FormRow>
                 <Scrollable maxMobileHeight={60}>
                   {width > BKPT_1 ? (
@@ -654,13 +666,13 @@ export default function Stake(): JSX.Element {
                             <Text t4>Rewards selected:</Text>
                             <CardSectionValue annotation="SOLACE" smol info>
                               {/* calcualte total selected harvest, divide by 1e18, to string (big numbers) */}
-                              {getFormattedRewards()}
+                              {formattedRewards}
                             </CardSectionValue>
                           </Flex>
                           <Flex center gap={5}>
                             <Text t4>Withdrawable selected:</Text>
                             <CardSectionValue annotation="SOLACE" smol info>
-                              {getFormattedWithdrawal()}
+                              {formattedWithdrawal}
                             </CardSectionValue>
                           </Flex>
                         </Flex>
@@ -678,7 +690,7 @@ export default function Stake(): JSX.Element {
                         pl={10}
                         pr={10}
                         onClick={handleBatchHarvest}
-                        disabled={rewardsAreZero()}
+                        disabled={rewardsAreZero}
                       >
                         Harvest Rewards
                       </Button>
@@ -695,7 +707,7 @@ export default function Stake(): JSX.Element {
                             handleBatchCompound()
                           }
                         }}
-                        disabled={rewardsAreZero()}
+                        disabled={rewardsAreZero}
                       >
                         Compound Rewards
                       </Button>
@@ -706,7 +718,7 @@ export default function Stake(): JSX.Element {
                         pl={10}
                         pr={10}
                         onClick={handleBatchWithdraw}
-                        disabled={withdrawalsAreZero()}
+                        disabled={withdrawalsAreZero}
                       >
                         Withdraw
                       </Button>
@@ -714,7 +726,8 @@ export default function Stake(): JSX.Element {
                   )}
                   {locks.length > 1 && (
                     <Button pl={10} pr={10} onClick={toggleBatchActions} secondary={batchActionsIsEnabled}>
-                      <StyledMultiselect size={20} /> {batchActionsIsEnabled ? 'Exit Multi-select' : `Multi-select`}
+                      <StyledMultiselect size={20} style={{ marginRight: '5px' }} />{' '}
+                      {batchActionsIsEnabled ? 'Exit Multi-select' : `Multi-select`}
                     </Button>
                   )}
                 </Flex>
