@@ -27,7 +27,7 @@ import { useCachedData } from '../../context/CachedDataManager'
 
 /* import constants */
 import { FunctionName } from '../../constants/enums'
-import { BKPT_5, DAYS_PER_YEAR, ZERO } from '../../constants'
+import { BKPT_5, DAYS_PER_YEAR, ZERO, Z_TABLE } from '../../constants'
 import { LockData, UserLocksInfo } from '../../constants/types'
 import { StakingVersion } from './types/Version'
 import { LockCheckbox } from './types/LockCheckbox'
@@ -87,6 +87,7 @@ import GrayBox from './components/GrayBox'
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'
 import { formatUnits } from 'ethers/lib/utils'
 import { Modal } from '../../components/molecules/Modal'
+import { Table, TableBody, TableData, TableHead, TableHeader, TableRow } from '../../components/atoms/Table'
 
 // disable no unused variables
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -474,8 +475,13 @@ export default function Stake(): JSX.Element {
                 }}
                 modalTitle={'Select a safe to deposit your rewards'}
               >
+                {/* <Text t2>Sending {getFormattedRewards()} SOLACE...</Text> */}
+                <FormRow>
+                  <FormCol>Rewards from selected safes</FormCol>
+                  <FormCol>{getFormattedRewards()}</FormCol>
+                </FormRow>
                 <Scrollable maxMobileHeight={60}>
-                  <CardContainer cardsPerRow={1} style={{ gap: '10px' }}>
+                  {/* <CardContainer cardsPerRow={1} style={{ gap: '10px' }}>
                     {locks.map((lock) => {
                       const unboostedAmount = formatUnits(lock.unboostedAmount, 18)
                       const boostedValue = formatUnits(lock.boostedValue, 18)
@@ -495,15 +501,25 @@ export default function Stake(): JSX.Element {
                           onClick={() => setTargetLock(lock.xsLockID)}
                         >
                           <FormRow mb={0}>
+                            <FormCol light={isSelected}>Amount</FormCol>
                             <FormCol bold light={isSelected}>
                               {truncateValue(formatUnits(lock.unboostedAmount, 18), 4)}
                             </FormCol>
+                          </FormRow>
+                          <FormRow mb={0}>
+                            <FormCol light={isSelected}>Lock time left</FormCol>
                             <FormCol bold light={isSelected}>
-                              {getTimeFromMillis(lock.timeLeft.toNumber() * 1000).split(' ')[0]}
+                              {getTimeFromMillis(lock.timeLeft.toNumber() * 1000)}
                             </FormCol>
+                          </FormRow>
+                          <FormRow mb={0}>
+                            <FormCol light={isSelected}>Multiplier</FormCol>
                             <FormCol bold light={isSelected}>
                               {truncateValue(multiplier, 1)}x
                             </FormCol>
+                          </FormRow>
+                          <FormRow mb={0}>
+                            <FormCol light={isSelected}>APY</FormCol>
                             <FormCol bold light={isSelected}>
                               {lock.apy.toNumber()}%
                             </FormCol>
@@ -511,7 +527,59 @@ export default function Stake(): JSX.Element {
                         </Card>
                       )
                     })}
-                  </CardContainer>
+                  </CardContainer> */}
+                  <Table>
+                    <TableHead sticky zIndex={Z_TABLE + 1}>
+                      <TableRow textAlignCenter>
+                        <TableHeader pl={2} pr={2}>
+                          Amount
+                        </TableHeader>
+                        <TableHeader pl={2} pr={2}>
+                          Lock time
+                        </TableHeader>
+                        <TableHeader pl={2} pr={2}>
+                          Multiplier
+                        </TableHeader>
+                        <TableHeader pl={2} pr={2}>
+                          APY
+                        </TableHeader>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {locks.map((lock) => {
+                        const unboostedAmount = formatUnits(lock.unboostedAmount, 18)
+                        const boostedValue = formatUnits(lock.boostedValue, 18)
+                        const multiplier =
+                          parseFloat(unboostedAmount) > 0 ? parseFloat(boostedValue) / parseFloat(unboostedAmount) : 0
+                        const isSelected = targetLock ? targetLock.eq(lock.xsLockID) : false
+                        const timeLeft = getTimeFromMillis(lock.timeLeft.toNumber() * 1000)
+                        return (
+                          <TableRow
+                            canHover
+                            key={lock.xsLockID.toNumber()}
+                            onClick={() => setTargetLock(lock.xsLockID)}
+                            isHighlight={isSelected}
+                            style={{ cursor: 'pointer' }}
+                          >
+                            <TableData p={10}>
+                              <Text light={isSelected}>{truncateValue(formatUnits(lock.unboostedAmount, 18), 4)}</Text>
+                            </TableData>
+                            <TableData p={10}>
+                              <Text light={isSelected}>
+                                {timeLeft.includes('<') ? timeLeft : timeLeft.split(' ')[0]}
+                              </Text>
+                            </TableData>
+                            <TableData p={10}>
+                              <Text light={isSelected}>{truncateValue(multiplier, 1)}x</Text>
+                            </TableData>
+                            <TableData p={10}>
+                              <Text light={isSelected}>{lock.apy.toNumber()}%</Text>
+                            </TableData>
+                          </TableRow>
+                        )
+                      })}
+                    </TableBody>
+                  </Table>
                 </Scrollable>
                 {targetLock && (
                   <ButtonWrapper>

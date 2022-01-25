@@ -32,7 +32,9 @@ export const Table = styled.table<TableProps>`
 `
 
 export const TableRow = styled.tr<TableProps>`
-  ${(props) => props.isHighlight && `background-color: ${props.theme.table.highlight_bg_color};`}
+  ${(props) =>
+    props.isHighlight &&
+    `background-color: ${props.theme.table.highlight_bg_color}; td { background-color: ${props.theme.table.highlight_bg_color}; }`}
   th,
   td {
     ${GeneralTextCss}

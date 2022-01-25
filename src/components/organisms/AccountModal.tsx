@@ -164,12 +164,12 @@ export const AccountModal: React.FC<AccountModalProps> = ({ closeModal, isOpen }
                       pb={5}
                       t4
                     >
-                      {pendingtx.type}
+                      <Text light>{pendingtx.type}</Text>
                     </TableData>
                     {width > BKPT_5 && (
                       <>
                         <TableData pt={5} pb={5} t4>
-                          {timeAgo(Number(Date.now()) * 1000)}
+                          <Text light>{timeAgo(Number(Date.now()) * 1000)}</Text>
                         </TableData>
                       </>
                     )}
@@ -185,7 +185,7 @@ export const AccountModal: React.FC<AccountModalProps> = ({ closeModal, isOpen }
                         target="_blank"
                         rel="noopener noreferrer"
                       >
-                        <Button>{shortenAddress(pendingtx.hash)} </Button>
+                        <Button light>{shortenAddress(pendingtx.hash)}</Button>
                       </HyperLink>
                     </TableData>
                   </TableRow>
