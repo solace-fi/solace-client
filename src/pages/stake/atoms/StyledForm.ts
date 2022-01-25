@@ -10,10 +10,11 @@ export const StyledForm = styled.div`
   width: 100%;
   height: 100%;
   padding: 0;
-  margin: 0;
+  margin: auto;
   width: 300px;
   /* for screens bigger than BKPT_5 */
   @media (min-width: ${BKPT_5}px) {
     width: 521px;
+    margin: 0;
   }
 `
