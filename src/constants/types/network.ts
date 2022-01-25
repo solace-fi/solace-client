@@ -2,6 +2,7 @@ import { ContractSources } from './contract'
 import { Position } from './position'
 import { SupportedProduct } from './product'
 import { Unit } from '../enums'
+import { TellerToken } from '.'
 
 export type NetworkConfig = {
   name: string
@@ -32,7 +33,7 @@ export type NetworkConfig = {
   cache: {
     supportedProducts: SupportedProduct[]
     tellerToTokenMapping: {
-      [key: string]: { addr: string; isBondTellerErc20: boolean; isLp: boolean }
+      [key: string]: TellerToken
     }
   }
   metamaskChain?: MetamaskAddEthereumChain

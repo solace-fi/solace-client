@@ -64,6 +64,7 @@ export function useGetBondTellerContracts(): BondTellerContract[] {
       const bondTellerContractAddr = config.bondTellerContracts[key]
       const isBondTellerErc20 = cache.tellerToTokenMapping[bondTellerContractAddr].isBondTellerErc20
       const isLp = cache.tellerToTokenMapping[bondTellerContractAddr].isLp
+      const isDisabled = cache.tellerToTokenMapping[bondTellerContractAddr].isDisabled
       const name = key
       const underlyingAddr = cache.tellerToTokenMapping[bondTellerContractAddr].addr
       const contract = getContract(
@@ -77,6 +78,7 @@ export function useGetBondTellerContracts(): BondTellerContract[] {
         contract,
         isBondTellerErc20,
         isLp,
+        isDisabled,
         underlyingAddr,
       })
     })

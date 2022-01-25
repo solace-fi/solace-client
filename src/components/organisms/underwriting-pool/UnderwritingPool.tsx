@@ -38,7 +38,7 @@ import { useCapitalPoolSize, useUserVaultDetails } from '../../../hooks/useVault
 import { useWindowDimensions } from '../../../hooks/useWindowDimensions'
 
 /* import utils */
-import { truncateBalance } from '../../../utils/formatting'
+import { truncateValue } from '../../../utils/formatting'
 
 interface UnderwritingPoolProps {
   openModal: (func: FunctionName, modalTitle: string, farmName: string) => void
@@ -69,26 +69,22 @@ export const UnderwritingPool: React.FC<UnderwritingPoolProps> = ({ openModal })
         <Table isHighlight textAlignCenter>
           <TableHead>
             <TableRow>
-              {account ? <TableHeader width={100}>My Assets</TableHeader> : null}
-              <TableHeader width={100}>Total Assets</TableHeader>
-              <TableHeader width={100}>ROI (1Y)</TableHeader>
-              {account ? <TableHeader width={130}>My Vault Share</TableHeader> : null}
+              {account ? <TableHeader>My Assets</TableHeader> : null}
+              <TableHeader>Total Assets</TableHeader>
+              <TableHeader>ROI (1Y)</TableHeader>
+              {account ? <TableHeader>My Vault Share</TableHeader> : null}
+              <TableHeader></TableHeader>
+              <TableHeader></TableHeader>
             </TableRow>
           </TableHead>
           <TableBody>
             <TableRow light>
-              {account ? (
-                <TableData t3 width={100}>
-                  {truncateBalance(userVaultAssets, 2)}
-                </TableData>
-              ) : null}
-              <TableData t3 width={100}>
-                {truncateBalance(capitalPoolSize, 2)}
-              </TableData>
-              <TableData t3 width={100}>
-                N/A
-              </TableData>
-              {account ? <TableData t3 width={130}>{`${truncateBalance(userVaultShare, 2)}%`}</TableData> : null}
+              {account ? <TableData t3>{truncateValue(userVaultAssets, 2)}</TableData> : null}
+              <TableData t3>{truncateValue(capitalPoolSize, 2)}</TableData>
+              <TableData t3>N/A</TableData>
+              {account ? <TableData t3>{`${truncateValue(userVaultShare, 2)}%`}</TableData> : null}
+              <TableData t3></TableData>
+              <TableData t3></TableData>
               {account ? (
                 <TableData textAlignRight>
                   <TableDataGroup width={200} style={{ float: 'right' }}>
@@ -112,14 +108,14 @@ export const UnderwritingPool: React.FC<UnderwritingPoolProps> = ({ openModal })
             <FormRow>
               <FormCol light>My Assets:</FormCol>
               <FormCol light t2>
-                {truncateBalance(userVaultAssets, 2)}
+                {truncateValue(userVaultAssets, 2)}
               </FormCol>
             </FormRow>
           )}
           <FormRow>
             <FormCol light>Total Assets:</FormCol>
             <FormCol light t2>
-              {truncateBalance(capitalPoolSize, 2)}
+              {truncateValue(capitalPoolSize, 2)}
             </FormCol>
           </FormRow>
           <FormRow>
@@ -131,7 +127,7 @@ export const UnderwritingPool: React.FC<UnderwritingPoolProps> = ({ openModal })
           {account && (
             <FormRow>
               <FormCol light>My Vault Share:</FormCol>
-              <FormCol light t2>{`${truncateBalance(userVaultShare, 2)}%`}</FormCol>
+              <FormCol light t2>{`${truncateValue(userVaultShare, 2)}%`}</FormCol>
             </FormRow>
           )}
           {account && (

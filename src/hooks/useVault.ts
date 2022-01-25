@@ -90,7 +90,6 @@ export const useCooldown = () => {
     const localTx: LocalTx = {
       hash: tx.hash,
       type: FunctionName.START_COOLDOWN,
-      value: 'Starting Thaw',
       status: TransactionCondition.PENDING,
     }
     return { tx, localTx }
@@ -102,7 +101,6 @@ export const useCooldown = () => {
     const localTx: LocalTx = {
       hash: tx.hash,
       type: FunctionName.STOP_COOLDOWN,
-      value: 'Stopping Thaw',
       status: TransactionCondition.PENDING,
     }
     return { tx, localTx }
@@ -160,7 +158,7 @@ export const useVault = () => {
   const { account } = useWallet()
   const [canTransfer, setCanTransfer] = useState<boolean>(true)
 
-  const depositEth = async (parsedAmount: BigNumber, txVal: string, gasConfig: GasConfiguration): Promise<TxResult> => {
+  const depositEth = async (parsedAmount: BigNumber, gasConfig: GasConfiguration): Promise<TxResult> => {
     if (!vault) return { tx: null, localTx: null }
     const tx = await vault.depositEth({
       value: parsedAmount,
@@ -170,17 +168,12 @@ export const useVault = () => {
     const localTx: LocalTx = {
       hash: tx.hash,
       type: FunctionName.DEPOSIT_ETH,
-      value: txVal,
       status: TransactionCondition.PENDING,
     }
     return { tx, localTx }
   }
 
-  const withdrawEth = async (
-    parsedAmount: BigNumber,
-    txVal: string,
-    gasConfig: GasConfiguration
-  ): Promise<TxResult> => {
+  const withdrawEth = async (parsedAmount: BigNumber, gasConfig: GasConfiguration): Promise<TxResult> => {
     if (!vault) return { tx: null, localTx: null }
     const tx = await vault.withdrawEth(parsedAmount, {
       ...gasConfig,
@@ -189,7 +182,6 @@ export const useVault = () => {
     const localTx: LocalTx = {
       hash: tx.hash,
       type: FunctionName.WITHDRAW_ETH,
-      value: txVal,
       status: TransactionCondition.PENDING,
     }
     return { tx, localTx }

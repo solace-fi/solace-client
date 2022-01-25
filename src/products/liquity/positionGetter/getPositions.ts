@@ -3,6 +3,7 @@ import { LiquityPosition, NetworkConfig } from '../../../constants/types'
 import { getContract } from '../../../utils'
 import { Contract } from '@ethersproject/contracts'
 import { queryNativeTokenBalance } from '../../getBalances'
+import { PRODUCT_ADDRS } from '../../../constants/addresses/rinkeby'
 
 const ITroveManagerAbi = [
   {
@@ -190,7 +191,7 @@ export const getPositions = async (
 export const getTroveContract = (provider: any, chainId: number): Contract => {
   let TROVE_MANAGER_ADDRESS = '0xA39739EF8b0231DbFA0DcdA07d7e29faAbCf4bb2'
   if (chainId == 4) {
-    TROVE_MANAGER_ADDRESS = String(process.env.REACT_APP_RINKEBY_LIQUITY_TROVE_MANAGER_ADDR)
+    TROVE_MANAGER_ADDRESS = PRODUCT_ADDRS.LIQUITY_TROVE_MANAGER
   }
   const contract = getContract(TROVE_MANAGER_ADDRESS, ITroveManagerAbi, provider)
   return contract

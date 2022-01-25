@@ -24,7 +24,6 @@ import { BondTellerDetails } from '../../constants/types'
 
 /* import context */
 import { useGeneral } from '../../context/GeneralManager'
-import { useContracts } from '../../context/ContractsManager'
 
 /* import components */
 import { Button } from '../../components/atoms/Button'
@@ -41,10 +40,9 @@ import { HyperLink } from '../../components/atoms/Link'
 /* import hooks */
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'
 import { useBondTellerDetails } from '../../hooks/useBondTeller'
-import { usePairPrice } from '../../hooks/usePair'
 
 /* import utils */
-import { truncateBalance } from '../../utils/formatting'
+import { truncateValue } from '../../utils/formatting'
 
 function Bond(): any {
   /*
@@ -53,8 +51,6 @@ function Bond(): any {
 
   */
   const { haveErrors } = useGeneral()
-  const { keyContracts } = useContracts()
-  const { solace } = useMemo(() => keyContracts, [keyContracts])
   const [showBondModal, setShowBondModal] = useState<boolean>(false)
   const [selectedBondDetail, setSelectedBondDetail] = useState<BondTellerDetails | undefined>(undefined)
   const { width } = useWindowDimensions()
@@ -124,7 +120,11 @@ function Bond(): any {
                 {currentTellerDetails.map((tellerDetail, i) => (
                   <TableRow
                     key={i}
-                    onClick={haveErrors ? undefined : () => openModal(true, tellerDetail)}
+                    onClick={
+                      haveErrors || tellerDetail.tellerData.teller.isDisabled
+                        ? undefined
+                        : () => openModal(true, tellerDetail)
+                    }
                     style={{ cursor: 'pointer' }}
                   >
                     <TableData>
@@ -162,16 +162,16 @@ function Bond(): any {
                     <TableData>
                       <Text fade={tellerDetail.tellerData.usdBondPrice <= 0}>
                         {tellerDetail.tellerData.usdBondPrice > 0
-                          ? `$${truncateBalance(tellerDetail.tellerData.usdBondPrice, 4)}`
+                          ? `$${truncateValue(tellerDetail.tellerData.usdBondPrice, 4)}`
                           : `USD price not found`}
                       </Text>
                     </TableData>
                     <TableData>
-                      <Text>{truncateBalance(tellerDetail.tellerData.bondRoi, 2, false)}%</Text>
+                      <Text>{truncateValue(tellerDetail.tellerData.bondRoi, 2, false)}%</Text>
                     </TableData>
                     <TableData textAlignRight>
-                      <Button disabled={haveErrors} info>
-                        Bond
+                      <Button disabled={haveErrors || tellerDetail.tellerData.teller.isDisabled} info>
+                        {tellerDetail.tellerData.teller.isDisabled ? 'Disabled' : 'Bond'}
                       </Button>
                     </TableData>
                   </TableRow>
@@ -228,7 +228,7 @@ function Bond(): any {
                     <FormCol>
                       <Text bold t2 fade={tellerDetail.tellerData.usdBondPrice <= 0}>
                         {tellerDetail.tellerData.usdBondPrice > 0
-                          ? `$${truncateBalance(tellerDetail.tellerData.usdBondPrice, 4)}`
+                          ? `$${truncateValue(tellerDetail.tellerData.usdBondPrice, 4)}`
                           : `USD price not found`}
                       </Text>
                     </FormCol>
@@ -237,7 +237,7 @@ function Bond(): any {
                     <FormCol>ROI</FormCol>
                     <FormCol>
                       <Text bold t2>
-                        {truncateBalance(tellerDetail.tellerData.bondRoi, 2, false)}%
+                        {truncateValue(tellerDetail.tellerData.bondRoi, 2, false)}%
                       </Text>
                     </FormCol>
                   </FormRow>

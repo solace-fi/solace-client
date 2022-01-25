@@ -35,7 +35,7 @@ import { useUserStakedValue } from '../../hooks/useFarm'
 import { useUserPendingRewards, useUserRewardsPerDay } from '../../hooks/useRewards'
 
 /* import utils */
-import { truncateBalance } from '../../utils/formatting'
+import { truncateValue } from '../../utils/formatting'
 
 export const MyInvestments: React.FC = () => {
   /*************************************************************************************
@@ -61,19 +61,19 @@ export const MyInvestments: React.FC = () => {
           <CardHeader>
             <CardTitle t4>Options Farming Pool</CardTitle>
             <CardTitle t3 nowrap>
-              {account ? truncateBalance(cpUserStakeValue, 2) : 0} {activeNetwork.nativeCurrency.symbol}
+              {account ? truncateValue(cpUserStakeValue, 2) : 0} {activeNetwork.nativeCurrency.symbol}
             </CardTitle>
           </CardHeader>
           <CardBlock>
             <CardTitle t4>Daily Earnings</CardTitle>
             <CardTitle t3 nowrap>
-              {account ? truncateBalance(cpUserRewardsPerDay, 2) : 0} {Unit.SOLACE}
+              {account ? truncateValue(cpUserRewardsPerDay, 2) : 0} {Unit.SOLACE}
             </CardTitle>
           </CardBlock>
           <CardBlock>
             <CardTitle t4>Total Earnings</CardTitle>
             <CardTitle t3 nowrap>
-              {account ? truncateBalance(cpUserRewards, 2) : 0} {Unit.SOLACE}
+              {account ? truncateValue(cpUserRewards, 2) : 0} {Unit.SOLACE}
             </CardTitle>
           </CardBlock>
         </InvestmentCard>

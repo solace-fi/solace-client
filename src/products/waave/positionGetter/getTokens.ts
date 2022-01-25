@@ -1,18 +1,17 @@
 import { NetworkConfig, Token } from '../../../constants/types'
 import { Contract } from '@ethersproject/contracts'
 import { ZERO } from '../../../constants'
-import { withBackoffRetries } from '../../../utils/time'
-import { numberify, rangeFrom0 } from '../../../utils/numeric'
+import { rangeFrom0 } from '../../../utils/numeric'
 
 import waaveRegistryAbi from '../../../constants/abi/contracts/interface/Waave/IWaRegistry.sol/IWaRegistry.json'
 import waaveTokenAbi from '../../../constants/abi/contracts/interface/Waave/IWaToken.sol/IWaToken.json'
 import { queryDecimals, queryName, querySymbol, queryUnderLying } from '../../../utils/contract'
 
+import { TOKEN_ADDRS as rinkebyTokenAddrs } from '../../../constants/addresses/rinkeby'
+import { TOKEN_ADDRS as kovanTokenAddrs } from '../../../constants/addresses/kovan'
+
 export const getTokens = async (provider: any, activeNetwork: NetworkConfig, metadata?: any): Promise<Token[]> => {
-  const waaveRegistryAddr =
-    activeNetwork.chainId == 42
-      ? String(process.env.REACT_APP_KOVAN_WA_REGISTRY_ADDR)
-      : String(process.env.REACT_APP_RINKEBY_WA_REGISTRY_ADDR)
+  const waaveRegistryAddr = activeNetwork.chainId == 42 ? kovanTokenAddrs.WA_REGISTRY : rinkebyTokenAddrs.WA_REGISTRY
 
   const waaveRegistryContract = new Contract(waaveRegistryAddr, waaveRegistryAbi, provider)
   const waaveTokenAddresses: string[] = await waaveRegistryContract.getAllWaTokens()

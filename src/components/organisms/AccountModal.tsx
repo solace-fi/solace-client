@@ -73,7 +73,7 @@ export const AccountModal: React.FC<AccountModalProps> = ({ closeModal, isOpen }
   const { contractSources } = useContracts()
   const { account, activeWalletConnector, name } = useWallet()
   const { width } = useWindowDimensions()
-  const { txHistory, amounts } = useTransactionDetails()
+  const { txHistory } = useTransactionDetails()
   /************************************************************************************* 
     
   local functions
@@ -164,13 +164,12 @@ export const AccountModal: React.FC<AccountModalProps> = ({ closeModal, isOpen }
                       pb={5}
                       t4
                     >
-                      {pendingtx.type}
+                      <Text light>{pendingtx.type}</Text>
                     </TableData>
                     {width > BKPT_5 && (
                       <>
-                        {/* <TableData pt={5} pb={5} t4>{`${pendingtx.value}`}</TableData> */}
                         <TableData pt={5} pb={5} t4>
-                          {timeAgo(Number(Date.now()) * 1000)}
+                          <Text light>{timeAgo(Number(Date.now()) * 1000)}</Text>
                         </TableData>
                       </>
                     )}
@@ -186,7 +185,7 @@ export const AccountModal: React.FC<AccountModalProps> = ({ closeModal, isOpen }
                         target="_blank"
                         rel="noopener noreferrer"
                       >
-                        <Button>{shortenAddress(pendingtx.hash)} </Button>
+                        <Button light>{shortenAddress(pendingtx.hash)}</Button>
                       </HyperLink>
                     </TableData>
                   </TableRow>
@@ -201,24 +200,18 @@ export const AccountModal: React.FC<AccountModalProps> = ({ closeModal, isOpen }
                         pl={width <= BKPT_3 ? 0 : undefined}
                         pr={width <= BKPT_3 ? 0 : undefined}
                       >
-                        {amounts.length > 0 ? (
+                        {txHistory.length > 0 ? (
                           <Text error={tx.txreceipt_status != '1'}>{decodeInput(tx, contractSources)}</Text>
                         ) : (
                           <Loader width={10} height={10} />
                         )}
                       </TableData>
                       {width > BKPT_5 && (
-                        <>
-                          {/* <TableData pt={5} pb={5} t4>
-                            {amounts.length > 0 && tx.txreceipt_status == '1' && <Text>{amounts[i]}</Text>}
-                            {amounts.length > 0 && tx.txreceipt_status != '1' && <Text error>Transaction Failed</Text>}
-                          </TableData> */}
-                          <TableData pt={5} pb={5} t4>
-                            {amounts.length > 0 && (
-                              <Text error={tx.txreceipt_status != '1'}>{timeAgo(Number(tx.timeStamp) * 1000)}</Text>
-                            )}
-                          </TableData>
-                        </>
+                        <TableData pt={5} pb={5} t4>
+                          {txHistory.length > 0 && (
+                            <Text error={tx.txreceipt_status != '1'}>{timeAgo(Number(tx.timeStamp) * 1000)}</Text>
+                          )}
+                        </TableData>
                       )}
                       <TableData
                         t4
@@ -227,7 +220,7 @@ export const AccountModal: React.FC<AccountModalProps> = ({ closeModal, isOpen }
                         pl={width <= BKPT_3 ? 0 : undefined}
                         pr={width <= BKPT_3 ? 0 : undefined}
                       >
-                        {amounts.length > 0 && (
+                        {txHistory.length > 0 && (
                           <HyperLink
                             href={getExplorerItemUrl(activeNetwork.explorer.url, tx.hash, ExplorerscanApi.TX)}
                             target="_blank"

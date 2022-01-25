@@ -2,7 +2,7 @@ import { useEffect, useState, useMemo } from 'react'
 import { Token, Pair } from '@sushiswap/sdk'
 
 import { useNetwork } from '../context/NetworkManager'
-import { floatUnits, truncateBalance } from '../utils/formatting'
+import { floatUnits, truncateValue } from '../utils/formatting'
 import { queryDecimals } from '../utils/contract'
 import { Contract } from '@ethersproject/contracts'
 import { getContract } from '../utils'
@@ -29,7 +29,7 @@ export function usePairPrice(token: Contract | null | undefined) {
     const start = async () => {
       const price = await getPairPrice(token)
       if (price > 0) {
-        setPairPrice(truncateBalance(price, 2))
+        setPairPrice(truncateValue(price, 2))
       }
     }
     start()

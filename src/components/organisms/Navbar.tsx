@@ -64,6 +64,13 @@ import AlchemyBadgeDark from '../../resources/svg/alchemy-badge-dark.svg'
 
 /* import hooks */
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'
+// import styled from 'styled-components'
+
+// const NavbarWrapper = styled.div`
+//   &::-webkit-scrollbar {
+//     display: none;
+//   }
+// `
 
 export const SideNavbar: React.FC = () => {
   /*
@@ -91,6 +98,7 @@ export const SideNavbar: React.FC = () => {
         bottom: '0',
         display: 'flex',
         background: 'transparent',
+        // scrollbarWidth: 'thin',
       }}
     >
       <div
@@ -335,7 +343,7 @@ export const SideNavbar: React.FC = () => {
           )}
           <HorizRule location={location} />
           <StyledNavTooltip id={'theme-nav'} tip={'Change Theme'}>
-            <ThemeButton light={lightText} width={0} />
+            <ThemeButton light={lightText} width={0} p={10} />
           </StyledNavTooltip>
           {width > BKPT_3 && (
             <>

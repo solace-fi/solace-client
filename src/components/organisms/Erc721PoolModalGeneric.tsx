@@ -45,7 +45,7 @@ import { useUserStakedValue } from '../../hooks/useFarm'
 import { useInputAmount } from '../../hooks/useInputAmount'
 
 /* import utils */
-import { getUnit, truncateBalance } from '../../utils/formatting'
+import { getUnit, truncateValue } from '../../utils/formatting'
 
 interface Erc721PoolModalGenericProps {
   farmContract: Contract | null | undefined
@@ -199,7 +199,7 @@ export const Erc721PoolModalGeneric: React.FC<PoolModalProps & Erc721PoolModalGe
       <Erc721InputPanel
         unit={getUnit(func, activeNetwork)}
         assetTokens={getAssetTokensByFunc()}
-        availableBalance={truncateBalance(formatUnits(assetBalance, currencyDecimals))}
+        availableBalance={truncateValue(formatUnits(assetBalance, currencyDecimals))}
         nftSelection={nftSelection}
         handleNft={handleNft}
         nftId={nftId}
@@ -217,7 +217,7 @@ export const Erc721PoolModalGeneric: React.FC<PoolModalProps & Erc721PoolModalGe
           <Button
             widthP={100}
             hidden={modalLoading}
-            disabled={haveErrors || nftId.eq(ZERO)}
+            disabled={haveErrors || nftId.isZero()}
             onClick={handleCallbackFunc}
             info
           >

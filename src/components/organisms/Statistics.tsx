@@ -24,11 +24,13 @@ import { formatUnits } from '@ethersproject/units'
 import { BKPT_3, ZERO } from '../../constants'
 import { PolicyState } from '../../constants/enums'
 import { USDC_ADDRESS } from '../../constants/mappings/tokenAddressMapping'
+import { GlobalLockInfo, UserLocksInfo } from '../../constants/types'
 
 /* import managers */
 import { useWallet } from '../../context/WalletManager'
 import { useContracts } from '../../context/ContractsManager'
 import { useNetwork } from '../../context/NetworkManager'
+import { useProvider } from '../../context/ProviderManager'
 
 /* import components */
 import { BoxRow, Box, BoxItem, BoxItemTitle } from '../atoms/Box'
@@ -40,15 +42,16 @@ import { Card, CardContainer } from '../atoms/Card'
 import { HyperLink } from '../atoms/Link'
 
 /* import hooks */
-import { useSolaceBalance, useUnderWritingPoolBalance, useXSolaceBalance } from '../../hooks/useBalance'
+import { useSolaceBalance, useUnderWritingPoolBalance } from '../../hooks/useBalance'
 import { usePolicyGetter } from '../../hooks/usePolicyGetter'
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'
 import { usePairPrice } from '../../hooks/usePair'
-// import { useStakingApy } from '../../hooks/useXSolace'
+import { useUserLockData } from '../../hooks/useXSLocker'
+import { useStakingRewards } from '../../hooks/useStakingRewards'
 import { useReadToken } from '../../hooks/useToken'
 
 /* import utils */
-import { truncateBalance } from '../../utils/formatting'
+import { truncateValue } from '../../utils/formatting'
 
 export const Statistics: React.FC = () => {
   /*************************************************************************************
@@ -59,17 +62,33 @@ export const Statistics: React.FC = () => {
   const { account, initialized } = useWallet()
   const { activeNetwork, currencyDecimals, chainId } = useNetwork()
   const { keyContracts } = useContracts()
+  const { latestBlock } = useProvider()
   const { solace } = useMemo(() => keyContracts, [keyContracts])
-  // const { stakingApy } = useStakingApy()
   const solaceBalance = useSolaceBalance()
-  const { stakedSolaceBalance } = useXSolaceBalance()
   const readSolaceToken = useReadToken(solace)
   const { allPolicies } = usePolicyGetter(true)
+  const { getUserLocks } = useUserLockData()
   const { width } = useWindowDimensions()
+  const { getGlobalLockStats } = useStakingRewards()
   const [totalActiveCoverAmount, setTotalActiveCoverAmount] = useState<string>('-')
   const [totalActivePolicies, setTotalActivePolicies] = useState<string>('-')
   const { pairPrice } = usePairPrice(solace)
   const { underwritingPoolBalance } = useUnderWritingPoolBalance()
+  const [userLockInfo, setUserLockInfo] = useState<UserLocksInfo>({
+    pendingRewards: ZERO,
+    stakedBalance: ZERO,
+    lockedBalance: ZERO,
+    unlockedBalance: ZERO,
+    yearlyReturns: ZERO,
+    apy: ZERO,
+  })
+  const [globalLockStats, setGlobalLockStats] = React.useState<GlobalLockInfo>({
+    solaceStaked: ZERO,
+    valueStaked: ZERO,
+    numLocks: ZERO,
+    rewardPerSecond: ZERO,
+    apy: ZERO,
+  })
 
   /*************************************************************************************
 
@@ -97,6 +116,24 @@ export const Statistics: React.FC = () => {
     }
   }, [allPolicies])
 
+  useEffect(() => {
+    const _getUserLocks = async () => {
+      if (!account) return
+      const userLockData = await getUserLocks(account)
+      setUserLockInfo(userLockData.user)
+    }
+    _getUserLocks()
+  }, [account, latestBlock])
+
+  useEffect(() => {
+    if (!latestBlock) return
+    const _getGlobalLockStats = async () => {
+      const globalLockStats: GlobalLockInfo = await getGlobalLockStats(latestBlock.number)
+      setGlobalLockStats(globalLockStats)
+    }
+    _getGlobalLockStats()
+  }, [latestBlock])
+
   const GlobalBox: React.FC = () => (
     <Box color2>
       <BoxItem>
@@ -122,7 +159,7 @@ export const Statistics: React.FC = () => {
           Underwriting Pool Size
         </BoxItemTitle>
         <Text t2 nowrap light bold>
-          {underwritingPoolBalance == '-' ? '$-' : `$${truncateBalance(underwritingPoolBalance, 2)}`}
+          {underwritingPoolBalance == '-' ? '$-' : `$${truncateValue(underwritingPoolBalance, 2)}`}
         </Text>
       </BoxItem>
       <BoxItem>
@@ -131,7 +168,7 @@ export const Statistics: React.FC = () => {
         </BoxItemTitle>
         <Text t2 nowrap light bold>
           {totalActiveCoverAmount !== '-'
-            ? `${truncateBalance(totalActiveCoverAmount, 2)} `
+            ? `${truncateValue(totalActiveCoverAmount, 2)} `
             : `${totalActiveCoverAmount} `}
           <TextSpan t4 light bold>
             {activeNetwork.nativeCurrency.symbol}
@@ -176,7 +213,7 @@ export const Statistics: React.FC = () => {
           <FormCol light>Underwriting Pool Size</FormCol>
           <FormCol>
             <Text t2 nowrap light>
-              {underwritingPoolBalance == '-' ? '$-' : `$${truncateBalance(underwritingPoolBalance, 2)}`}
+              {underwritingPoolBalance == '-' ? '$-' : `$${truncateValue(underwritingPoolBalance, 2)}`}
             </Text>
           </FormCol>
         </FormRow>
@@ -185,7 +222,7 @@ export const Statistics: React.FC = () => {
           <FormCol>
             <Text t2 nowrap light>
               {totalActiveCoverAmount !== '-'
-                ? `${truncateBalance(totalActiveCoverAmount, 2)} `
+                ? `${truncateValue(totalActiveCoverAmount, 2)} `
                 : `${totalActiveCoverAmount} `}
               <TextSpan t4 light>
                 {activeNetwork.nativeCurrency.symbol}
@@ -209,97 +246,116 @@ export const Statistics: React.FC = () => {
     <>
       {width > BKPT_3 ? (
         <BoxRow>
-          {initialized && account ? (
-            <Box>
-              <BoxItem>
-                <BoxItemTitle t4 light>
-                  My SOLACE Balance
-                </BoxItemTitle>
-                <Text t2 light bold>
-                  {`${truncateBalance(solaceBalance, 1)} `}
-                  <TextSpan t4 light bold>
-                    {readSolaceToken.symbol}
-                  </TextSpan>
-                </Text>
-              </BoxItem>
-              <BoxItem>
-                <BoxItemTitle t4 light>
-                  My Staked Balance
-                </BoxItemTitle>
-                <Text t2 light bold>
-                  {`${truncateBalance(stakedSolaceBalance, 1)} `}
-                  <TextSpan t4 light bold>
-                    {readSolaceToken.symbol}
-                  </TextSpan>
-                </Text>
-              </BoxItem>
-              <BoxItem>
-                <BoxItemTitle t4 light>
-                  Staking APY
-                </BoxItemTitle>
-                <Text t2 light bold>
-                  2000%
-                </Text>
-              </BoxItem>
-            </Box>
-          ) : (
-            <Box>
+          <Box>
+            {initialized && account ? (
+              <>
+                <BoxItem>
+                  <BoxItemTitle t4 light>
+                    My SOLACE Balance
+                  </BoxItemTitle>
+                  <Text t2 light bold>
+                    {`${truncateValue(solaceBalance, 1)} `}
+                    <TextSpan t4 light bold>
+                      {readSolaceToken.symbol}
+                    </TextSpan>
+                  </Text>
+                </BoxItem>
+                <BoxItem>
+                  <BoxItemTitle t4 light>
+                    My Stake
+                  </BoxItemTitle>
+                  <Text t2 light bold>
+                    {`${truncateValue(formatUnits(userLockInfo.stakedBalance, 18), 1)} `}
+                    <TextSpan t4 light bold>
+                      {readSolaceToken.symbol}
+                    </TextSpan>
+                  </Text>
+                </BoxItem>
+              </>
+            ) : (
               <BoxItem>
                 <WalletConnectButton light welcome />
               </BoxItem>
-            </Box>
-          )}
+            )}
+            <BoxItem>
+              <BoxItemTitle t4 light>
+                Global Stake
+              </BoxItemTitle>
+              <Text t2 light bold>
+                {`${truncateValue(formatUnits(globalLockStats.solaceStaked, 18), 1)} `}
+                <TextSpan t4 light bold>
+                  {readSolaceToken.symbol}
+                </TextSpan>
+              </Text>
+            </BoxItem>
+            <BoxItem>
+              <BoxItemTitle t4 light>
+                Global APY
+              </BoxItemTitle>
+              <Text t2 light bold>
+                {`${truncateValue(globalLockStats.apy.toNumber(), 1)}`}%
+              </Text>
+            </BoxItem>
+          </Box>
           <GlobalBox />
         </BoxRow>
       ) : (
         // mobile version
         <>
-          {initialized && account ? (
-            <CardContainer m={20}>
-              <Card color1>
-                <FormRow>
-                  <FormCol light>My SOLACE Balance</FormCol>
-                  <FormCol>
-                    <Text t2 light>
-                      {`${truncateBalance(solaceBalance, 1)} `}
-                      <TextSpan t4 light>
-                        {readSolaceToken.symbol}
-                      </TextSpan>
-                    </Text>
-                  </FormCol>
-                </FormRow>
-                <FormRow>
-                  <FormCol light>My Staked Balance</FormCol>
-                  <FormCol>
-                    <Text t2 light>
-                      {`${truncateBalance(stakedSolaceBalance, 1)} `}
-                      <TextSpan t4 light>
-                        {readSolaceToken.symbol}
-                      </TextSpan>
-                    </Text>
-                  </FormCol>
-                </FormRow>
-                <FormRow>
-                  <FormCol light>Staking APY</FormCol>
-                  <FormCol>
-                    <Text t2 light>
-                      2000%
-                    </Text>
-                  </FormCol>
-                </FormRow>
-              </Card>
-              <GlobalCard />
-            </CardContainer>
-          ) : (
-            <BoxRow>
-              <Box>
-                <BoxItem>
+          <CardContainer m={20}>
+            <Card color1>
+              {initialized && account ? (
+                <>
+                  <FormRow>
+                    <FormCol light>My SOLACE Balance</FormCol>
+                    <FormCol>
+                      <Text t2 light>
+                        {`${truncateValue(solaceBalance, 1)} `}
+                        <TextSpan t4 light>
+                          {readSolaceToken.symbol}
+                        </TextSpan>
+                      </Text>
+                    </FormCol>
+                  </FormRow>
+                  <FormRow>
+                    <FormCol light>My Stake</FormCol>
+                    <FormCol>
+                      <Text t2 light>
+                        {`${truncateValue(formatUnits(userLockInfo.stakedBalance, 18), 1)} `}
+                        <TextSpan t4 light>
+                          {readSolaceToken.symbol}
+                        </TextSpan>
+                      </Text>
+                    </FormCol>
+                  </FormRow>
+                </>
+              ) : (
+                <BoxRow>
                   <WalletConnectButton light welcome />
-                </BoxItem>
-              </Box>
-              <GlobalCard />
-            </BoxRow>
-          )}
+                </BoxRow>
+              )}
+              <FormRow>
+                <FormCol light>Global Stake</FormCol>
+                <FormCol>
+                  <Text t2 light>
+                    {`${truncateValue(formatUnits(globalLockStats.solaceStaked, 18), 1)} `}
+                    <TextSpan t4 light>
+                      {readSolaceToken.symbol}
+                    </TextSpan>
+                  </Text>
+                </FormCol>
+              </FormRow>
+              <FormRow>
+                <FormCol light>Global APY</FormCol>
+                <FormCol>
+                  <Text t2 light>
+                    {`${truncateValue(globalLockStats.apy.toNumber(), 1)}`}%
+                  </Text>
+                </FormCol>
+              </FormRow>
+            </Card>
+            <GlobalCard />
+          </CardContainer>
         </>
       )}
     </>

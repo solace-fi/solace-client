@@ -48,7 +48,7 @@ import { useWindowDimensions } from '../../hooks/useWindowDimensions'
 import { useGetFunctionGas } from '../../hooks/useGas'
 
 /* import utils */
-import { accurateMultiply, truncateBalance } from '../../utils/formatting'
+import { accurateMultiply, truncateValue } from '../../utils/formatting'
 import { getTimeFromMillis } from '../../utils/time'
 
 export const MyClaims: React.FC = () => {
@@ -87,7 +87,6 @@ export const MyClaims: React.FC = () => {
       const localTx: LocalTx = {
         hash: txHash,
         type: txType,
-        value: `Claim #${String(_claimId)}`,
         status: TransactionCondition.PENDING,
       }
       addLocalTransactions(localTx)
@@ -140,7 +139,7 @@ export const MyClaims: React.FC = () => {
                         Amount
                       </BoxItemTitle>
                       <Text t3 light>
-                        {truncateBalance(formattedBalance, width > BKPT_3 ? currencyDecimals : customDecimals)}{' '}
+                        {truncateValue(formattedBalance, width > BKPT_3 ? currencyDecimals : customDecimals)}{' '}
                         {activeNetwork.nativeCurrency.symbol}
                       </Text>
                     </BoxItem>

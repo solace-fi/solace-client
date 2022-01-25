@@ -19,46 +19,57 @@ export const FunctionGasLimits: { [key: string]: number } = {
   ['vault.withdrawEth']: 123823,
   ['xSolace.stakeSigned']: 143344,
   ['xSolace.unstake']: 113443,
-  ['farmRewards.redeem']: 206305,
+  ['farmRewards.redeem']: 587271,
+  ['stakingRewards.compoundLock']: 255664,
+  ['stakingRewards.compoundLocks']: 278677,
+  ['stakingRewards.harvestLock']: 213063,
+  ['stakingRewards.harvestLocks']: 333061,
+  ['xsLocker.createLockSigned']: 560597,
+  ['xsLocker.increaseAmountSigned']: 202431,
+  ['xsLocker.extendLock']: 189006,
+  ['xsLocker.withdrawInPart']: 151213,
+  ['xsLocker.withdrawMany']: 493442,
+  ['xsLocker.withdraw']: 365209,
+  ['xSolaceMigrator.migrateSigned']: 600000,
 }
 
+// this function is used in operations that determine max amount to send if the same currency being sent is also used as gas
 export const getNameToFunctionGasLimit = (functionName: FunctionName, cond?: string): number => {
-  const gasLimitMap = FunctionGasLimits
   switch (functionName) {
     case FunctionName.WITHDRAW_CLAIMS_PAYOUT:
-      return gasLimitMap['claimsEscrow.withdrawClaimsPayout']
+      return FunctionGasLimits['claimsEscrow.withdrawClaimsPayout']
     case FunctionName.UPDATE_POLICY:
-      return gasLimitMap['selectedProtocol.updatePolicy']
+      return FunctionGasLimits['selectedProtocol.updatePolicy']
     case FunctionName.UPDATE_POLICY_AMOUNT:
-      return gasLimitMap['selectedProtocol.updateCoverAmount']
+      return FunctionGasLimits['selectedProtocol.updateCoverAmount']
     case FunctionName.EXTEND_POLICY_PERIOD:
-      return gasLimitMap['selectedProtocol.extendPolicy']
+      return FunctionGasLimits['selectedProtocol.extendPolicy']
     case FunctionName.CANCEL_POLICY:
-      return gasLimitMap['selectedProtocol.cancelPolicy']
+      return FunctionGasLimits['selectedProtocol.cancelPolicy']
     case FunctionName.FARM_OPTION_MULTI:
-      return gasLimitMap['farmController.farmOptionMulti']
+      return FunctionGasLimits['farmController.farmOptionMulti']
     case FunctionName.BOND_DEPOSIT_ERC20:
-      return gasLimitMap['tellerErc20.deposit']
+      return FunctionGasLimits['tellerErc20.deposit']
     case FunctionName.DEPOSIT_ETH:
-      if (!cond) return gasLimitMap['tellerEth.depositEth'] // by default, return teller variant of depositEth
-      if (cond == 'vault') return gasLimitMap['vault.depositEth']
-      else return gasLimitMap['cpFarm.depositEth']
+      if (!cond) return FunctionGasLimits['tellerEth.depositEth'] // by default, return teller variant of depositEth
+      if (cond == 'vault') return FunctionGasLimits['vault.depositEth']
+      else return FunctionGasLimits['cpFarm.depositEth']
     case FunctionName.BOND_DEPOSIT_WETH:
-      return gasLimitMap['tellerEth.depositWeth']
+      return FunctionGasLimits['tellerEth.depositWeth']
     case FunctionName.BOND_REDEEM:
-      return gasLimitMap['tellerEth.redeem']
+      return FunctionGasLimits['tellerEth.redeem']
     case FunctionName.DEPOSIT_CP:
-      return gasLimitMap['cpFarm.depositCp']
+      return FunctionGasLimits['cpFarm.depositCp']
     case FunctionName.WITHDRAW_CP:
-      return gasLimitMap['cpFarm.withdrawCp']
+      return FunctionGasLimits['cpFarm.withdrawCp']
     case FunctionName.EXERCISE_OPTION:
-      return gasLimitMap['optionsFarming.exerciseOption']
+      return FunctionGasLimits['optionsFarming.exerciseOption']
     case FunctionName.WITHDRAW_ETH:
-      return gasLimitMap['vault.withdrawEth']
-    case FunctionName.STAKE:
-      return gasLimitMap['xSolace.stakeSigned']
-    case FunctionName.UNSTAKE:
+      return FunctionGasLimits['vault.withdrawEth']
+    case FunctionName.STAKE_V1:
+      return FunctionGasLimits['xSolace.stakeSigned']
+    case FunctionName.UNSTAKE_V1:
     default:
-      return gasLimitMap['xSolace.unstake']
+      return FunctionGasLimits['xSolace.unstake']
   }
 }

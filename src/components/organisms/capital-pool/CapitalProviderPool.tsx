@@ -41,7 +41,7 @@ import { useUserStakedValue, usePoolStakedValue } from '../../../hooks/useFarm'
 import { useWindowDimensions } from '../../../hooks/useWindowDimensions'
 
 /* import utils */
-import { truncateBalance } from '../../../utils/formatting'
+import { truncateValue } from '../../../utils/formatting'
 
 interface CapitalProviderPoolProps {
   openModal: (func: FunctionName, modalTitle: string, farmName: string) => void
@@ -97,12 +97,12 @@ export const CapitalProviderPool: React.FC<CapitalProviderPoolProps> = ({ openMo
           </TableHead>
           <TableBody>
             <TableRow light>
-              {account ? <TableData t3>{truncateBalance(cpUserStakeValue, 2)}</TableData> : null}
-              <TableData t3>{truncateBalance(cpPoolValue, 2)}</TableData>
+              {account ? <TableData t3>{truncateValue(cpUserStakeValue, 2)}</TableData> : null}
+              <TableData t3>{truncateValue(cpPoolValue, 2)}</TableData>
               <TableData t3>N/A</TableData>
-              {account ? <TableData t3>{truncateBalance(cpUserRewards, 2)}</TableData> : null}
-              {account ? <TableData t3>{truncateBalance(cpUserRewardsPerDay, 2)}</TableData> : null}
-              <TableData t3>{truncateBalance(cpRewardsPerDay, 2)}</TableData>
+              {account ? <TableData t3>{truncateValue(cpUserRewards, 2)}</TableData> : null}
+              {account ? <TableData t3>{truncateValue(cpUserRewardsPerDay, 2)}</TableData> : null}
+              <TableData t3>{truncateValue(cpRewardsPerDay, 2)}</TableData>
               {account ? (
                 <TableData textAlignRight>
                   <TableDataGroup width={200} style={{ float: 'right' }}>
@@ -126,14 +126,14 @@ export const CapitalProviderPool: React.FC<CapitalProviderPoolProps> = ({ openMo
             <FormRow>
               <FormCol light>My Stake:</FormCol>
               <FormCol light t2>
-                {truncateBalance(cpUserStakeValue, 2)}
+                {truncateValue(cpUserStakeValue, 2)}
               </FormCol>
             </FormRow>
           )}
           <FormRow>
             <FormCol light>Total Assets:</FormCol>
             <FormCol light t2>
-              {truncateBalance(cpPoolValue, 2)}
+              {truncateValue(cpPoolValue, 2)}
             </FormCol>
           </FormRow>
           <FormRow>
@@ -147,13 +147,13 @@ export const CapitalProviderPool: React.FC<CapitalProviderPoolProps> = ({ openMo
               <FormRow>
                 <FormCol light>My Rewards:</FormCol>
                 <FormCol light t2>
-                  {truncateBalance(cpUserRewards, 2)}
+                  {truncateValue(cpUserRewards, 2)}
                 </FormCol>
               </FormRow>
               <FormRow>
                 <FormCol light>My Daily Rewards:</FormCol>
                 <FormCol light t2>
-                  {truncateBalance(cpUserRewardsPerDay, 2)}
+                  {truncateValue(cpUserRewardsPerDay, 2)}
                 </FormCol>
               </FormRow>
             </>
@@ -161,7 +161,7 @@ export const CapitalProviderPool: React.FC<CapitalProviderPoolProps> = ({ openMo
           <FormRow>
             <FormCol light>Daily Rewards:</FormCol>
             <FormCol light t2>
-              {truncateBalance(cpRewardsPerDay, 2)}
+              {truncateValue(cpRewardsPerDay, 2)}
             </FormCol>
           </FormRow>
           {account && (

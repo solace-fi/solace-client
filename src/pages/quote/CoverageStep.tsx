@@ -50,7 +50,13 @@ import { useGetQuote, useGetMaxCoverPerPolicy } from '../../hooks/usePolicy'
 import { useGetFunctionGas } from '../../hooks/useGas'
 
 /* import utils */
-import { accurateMultiply, encodeAddresses, filterAmount, formatAmount } from '../../utils/formatting'
+import {
+  accurateMultiply,
+  convertSciNotaToPrecise,
+  encodeAddresses,
+  filterAmount,
+  formatAmount,
+} from '../../utils/formatting'
 import { getDateStringWithMonthName, getDateExtended } from '../../utils/time'
 
 export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigation }) => {
@@ -68,7 +74,7 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
   const { selectedProtocol } = useContracts()
   const { makeTxToast } = useNotifications()
   const { activeNetwork, currencyDecimals } = useNetwork()
-  const { getAutoGasConfig, getGasLimitForTransaction } = useGetFunctionGas()
+  const { getAutoGasConfig, getSupportedProductGasLimit } = useGetFunctionGas()
   const gasConfig = useMemo(() => getAutoGasConfig(), [getAutoGasConfig])
   const maxCoverPerPolicyInWei = useMemo(() => parseUnits(maxCoverPerPolicy, currencyDecimals), [
     maxCoverPerPolicy,
@@ -88,7 +94,7 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
           ZERO
       }
     }, ZERO)
-    if (totalBalance.eq(ZERO)) return ZERO
+    if (totalBalance.isZero()) return ZERO
     return BigNumber.from(accurateMultiply(formatUnits(totalBalance, currencyDecimals), currencyDecimals))
   }, [positions, currencyDecimals])
 
@@ -133,7 +139,7 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
         {
           value: parseUnits(quote, currencyDecimals),
           ...gasConfig,
-          gasLimit: getGasLimitForTransaction(protocol.name, txType),
+          gasLimit: getSupportedProductGasLimit(protocol.name, txType),
         }
       )
       navigation.next()
@@ -141,7 +147,6 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
       const localTx: LocalTx = {
         hash: txHash,
         type: txType,
-        value: 'Purchasing...',
         status: TransactionCondition.PENDING,
       }
       setForm({
@@ -222,9 +227,12 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
 
   const handleCoverageChange = (coverAmount: string, convertFromSciNota = true) => {
     setInputCoverage(
-      formatUnits(BigNumber.from(`${convertFromSciNota ? +coverAmount : coverAmount}`), currencyDecimals)
+      formatUnits(
+        BigNumber.from(`${convertFromSciNota ? convertSciNotaToPrecise(coverAmount) : coverAmount}`),
+        currencyDecimals
+      )
     )
-    setCoverage(`${convertFromSciNota ? +coverAmount : coverAmount}`)
+    setCoverage(`${convertFromSciNota ? convertSciNotaToPrecise(coverAmount) : coverAmount}`)
   }
 
   const setMaxCover = () => {

@@ -12,17 +12,34 @@ export const fixed = (n: number | string, decimals = 1): number => {
   return Math.floor(n * Math.pow(10, decimals)) / Math.pow(10, decimals)
 }
 
-export const truncateBalance = (value: number | string, decimals = 6, abbrev = true): string => {
+export const truncateValue = (value: number | string, decimals = 6, abbrev = true): string => {
   if (typeof value == 'number' && value == 0) return '0'
   if (typeof value == 'string') {
     const pureNumberStr = value.replace('.', '').split('e')[0]
-    if (BigNumber.from(pureNumberStr).eq('0')) {
-      return '0'
-    }
+    if (BigNumber.from(pureNumberStr).eq('0')) return '0'
   }
   let str = value.toString()
 
   // if string is in scientific notation, for example (1.2345e3, or 1.2345e-5)
+  str = convertSciNotaToPrecise(str)
+  const decimalIndex = str.indexOf('.')
+
+  // if is nonzero whole number
+  if (decimalIndex == -1) {
+    if (abbrev) return numberAbbreviate(str)
+    return str
+  }
+
+  // if is nonzero number with decimals
+  const cutoffIndex = decimalIndex + decimals
+  const truncatedStr = str.substring(0, cutoffIndex + 1)
+  if (parseFloat(truncatedStr) == 0) return `< ${truncatedStr.slice(0, -1) + '1'}`
+  if (abbrev) return numberAbbreviate(truncatedStr)
+  return truncatedStr
+}
+
+export const convertSciNotaToPrecise = (str: string): string => {
+  // if string is in scientific notation, for example (1.2345e3, or 1.2345e-5), (2)
   if (str.includes('e')) {
     // get number left of 'e'
     const n = str.split('e')[0]
@@ -40,35 +57,28 @@ export const truncateBalance = (value: number | string, decimals = 6, abbrev = t
       str = '0.'.concat(zeros).concat(temp) // add abs(exponent) - 1 zeros to the left of temp
     } else {
       // if exponent does not have negative sign, it must be positive
-      if (n.split('.')[1].length > parseInt(exponent)) {
+
+      let lengthOfDecimalPlaces = 0
+
+      if (n.includes('.')) {
+        // if number contains decimals, this is important
+        lengthOfDecimalPlaces = n.split('.')[1].length
+      }
+
+      if (lengthOfDecimalPlaces > parseInt(exponent)) {
         // if length of decimal places in string surpasses exponent, must insert decimal point inside
         const decimalIndex = n.indexOf('.')
         const newDecimalIndex = decimalIndex + parseInt(exponent)
         str = temp.substring(0, newDecimalIndex).concat('.').concat(temp.substring(newDecimalIndex, temp.length))
       } else {
         // if length of decimal places in string does not surpass exponent, simply append zeros
-        const range = rangeFrom0(parseInt(exponent) - n.split('.')[1].length)
+        const range = rangeFrom0(parseInt(exponent) - lengthOfDecimalPlaces)
         range.forEach(() => (zeros += '0'))
         str = temp.concat(zeros)
       }
     }
   }
-  const decimalIndex = str.indexOf('.')
-
-  // if is nonzero whole number
-  if (decimalIndex == -1) {
-    if (abbrev) return numberAbbreviate(str)
-    return str
-  }
-
-  // if is nonzero number with decimals
-  const cutoffIndex = decimalIndex + decimals
-  const truncatedStr = str.substring(0, cutoffIndex + 1)
-  if (parseFloat(truncatedStr) == 0) {
-    return `< ${truncatedStr.slice(0, -1) + '1'}`
-  }
-  if (abbrev) return numberAbbreviate(truncatedStr)
-  return truncatedStr
+  return str
 }
 
 export const numberAbbreviate = (value: number | string, decimals = 2): string => {
@@ -179,9 +189,9 @@ export const getUnit = (function_name: string, activeNetwork?: NetworkConfig): U
     case FunctionName.WITHDRAW_CP:
       return Unit.SCP
     case FunctionName.WITHDRAW_REWARDS:
-    case FunctionName.STAKE:
+    case FunctionName.STAKE_V1:
       return Unit.SOLACE
-    case FunctionName.UNSTAKE:
+    case FunctionName.UNSTAKE_V1:
       return Unit.X_SOLACE
     case FunctionName.DEPOSIT_LP_SIGNED:
     case FunctionName.WITHDRAW_LP:
@@ -234,15 +244,15 @@ export const formatTransactionContent = (
       if (toAddr && activeNetwork.cache.tellerToTokenMapping[toAddr]) {
         return `Bond #${BigNumber.from(amount)}`
       }
-      return `${truncateBalance(formatUnits(BigNumber.from(amount), activeNetwork.nativeCurrency.decimals))} ${unit}`
+      return `${truncateValue(formatUnits(BigNumber.from(amount), activeNetwork.nativeCurrency.decimals))} ${unit}`
     case FunctionName.DEPOSIT_CP:
     case FunctionName.WITHDRAW_CP:
     case FunctionName.WITHDRAW_REWARDS:
     case FunctionName.APPROVE:
-    case FunctionName.STAKE:
-    case FunctionName.UNSTAKE:
+    case FunctionName.STAKE_V1:
+    case FunctionName.UNSTAKE_V1:
     case FunctionName.WITHDRAW_ETH:
-      return `${truncateBalance(formatUnits(BigNumber.from(amount), activeNetwork.nativeCurrency.decimals))} ${unit}`
+      return `${truncateValue(formatUnits(BigNumber.from(amount), activeNetwork.nativeCurrency.decimals))} ${unit}`
     case FunctionName.DEPOSIT_LP_SIGNED:
     case FunctionName.WITHDRAW_LP:
       return `#${BigNumber.from(amount)} ${unit}`

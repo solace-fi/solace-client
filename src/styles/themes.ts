@@ -8,9 +8,12 @@ export const lightTheme = {
     errorText: 'rgb(255, 12, 28)',
     warningText: 'rgb(187, 136, 0)',
     successText: 'rgb(40, 167, 69)',
+    techyGradientA: 'rgb(212, 120, 216)',
+    techyGradientB: 'rgb(95, 93, 249)',
+    separator: '#E3E4E6',
   },
   body: {
-    bg_color: '#fff',
+    bg_color: '#fafafa',
   },
   accordion: {
     color: 'auto',
@@ -22,6 +25,7 @@ export const lightTheme = {
     border_color: 'rgb(94, 94, 94)',
     success: 'rgba(0, 187, 40, 0.7)',
     info: 'rgba(60, 58, 158)',
+    infoLight: '#f7f7ff',
     warning: 'rgb(230, 158, 16)',
     error: 'rgb(240, 77, 66)',
     glow: '0 0 7px #fff',
@@ -80,7 +84,18 @@ export const lightTheme = {
   tooltip: {
     bg_color: 'rgba(25, 29, 36, 1)',
   },
-}
+  separator: {
+    bg_color: '#E3E4E6',
+  },
+  v2: {
+    aside: '#FAFAFA',
+    raised: '#FFFFFF',
+    primary: '#5F5DF9',
+    secondary: '#5e5e5e',
+    tertiary: '#969696',
+    separator: '#E3E4E6',
+  },
+} as const
 
 export const darkTheme = {
   typography: {
@@ -92,6 +107,9 @@ export const darkTheme = {
     errorText: 'rgb(240, 77, 66)',
     warningText: 'rgb(245, 221, 83)',
     successText: 'rgb(0, 255, 209)',
+    techyGradientA: '#F3D37E',
+    techyGradientB: '#F04D42',
+    separator: '#828282',
   },
   body: {
     bg_color: 'rgb(46, 46, 46)',
@@ -106,6 +124,7 @@ export const darkTheme = {
     border_color: 'rgb(250, 250, 250)',
     success: 'rgba(21, 163, 52, 0.7)',
     info: 'rgba(76, 87, 133)',
+    infoLight: 'rgb(46, 40, 56)',
     warning: 'rgb(212, 136, 6)',
     error: 'rgb(240, 77, 66)',
     glow: '0 0 0px #fff',
@@ -164,4 +183,18 @@ export const darkTheme = {
   tooltip: {
     bg_color: 'rgba(25, 29, 36, 1)',
   },
-}
+  separator: {
+    bg_color: '#828282',
+  },
+  v2: {
+    aside: '#1f1f1f',
+    raised: '#2e2e2e',
+    primary: 'rgb(250, 130, 255)',
+    secondary: 'rgb(250, 250, 250)',
+    tertiary: '#a6a6a6',
+    separator: '#E3E4E6',
+  },
+} as const
+
+export type Theme = typeof lightTheme | typeof darkTheme
+// export type Theme = { theme: typeof lightTheme | typeof darkTheme }

@@ -31,7 +31,7 @@ import { TextSpan } from '../../atoms/Typography'
 import { useWindowDimensions } from '../../../hooks/useWindowDimensions'
 
 /* import utils */
-import { fixedTokenPositionBalance, truncateBalance, trim0x } from '../../../utils/formatting'
+import { fixedTokenPositionBalance, truncateValue, trim0x } from '../../../utils/formatting'
 import { userHasActiveProductPosition } from '../../../utils/policy'
 
 interface TokenPositionCardProps {
@@ -105,7 +105,7 @@ export const TokenPositionCard: React.FC<TokenPositionCardProps> = ({
         </PositionCardName>
       )}
       <PositionCardText t2 style={{ opacity: isActive ? '.5' : '1' }} light={lightText}>
-        {truncateBalance(fixedTokenPositionBalance(token.token))}{' '}
+        {truncateValue(fixedTokenPositionBalance(token.token))}{' '}
         <TextSpan style={{ fontSize: '12px' }} light={lightText}>
           {token.token.symbol}
         </TextSpan>

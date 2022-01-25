@@ -15,19 +15,6 @@ import { WETH9_ADDRESS } from '../../../constants/mappings/tokenAddressMapping'
 import { formatUnits, parseUnits } from '@ethersproject/units'
 import { createZapperBalanceMap, networkNames } from '../../zapperBalances'
 
-/*
-
-  TODO: uniV3 position balance getter JSBI issues
-
-  This getter is currently broken probably due to mismatch between versions of involved packages, including v3-sdk and JSBI.
-
-  Two errors keep popping up:
-
-    "Convert JSBI instances to native numbers using toNumber."
-
-    "Argument of type 'JSBI' is not assignable to parameter of type 'BigintIsh'"
-
-*/
 const UniV3FactoryAddr = '0x1F98431c8aD98523631AE4a59f267346ea31F984'
 
 const ETH = '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee'

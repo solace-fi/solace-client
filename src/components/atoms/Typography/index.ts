@@ -7,6 +7,8 @@ export interface TextFontProps {
   t2?: boolean
   t3?: boolean
   t4?: boolean
+  t3s?: boolean
+  t5s?: boolean
 }
 
 export interface TextAlignProps {
@@ -27,11 +29,14 @@ export interface TextStyleProps extends GeneralElementProps {
   autoAlignHorizontal?: boolean
   autoAlign?: boolean
   bold?: boolean
+  extrabold?: boolean
   info?: boolean
   success?: boolean
   error?: boolean
   warning?: boolean
   fade?: boolean
+  techygradient?: boolean
+  lineThrough?: boolean
 }
 
 export interface GeneralTextProps extends TextFontProps, TextAlignProps, TextStyleProps {}
@@ -66,6 +71,18 @@ const Font4 = css`
   @media screen and (max-width: ${BKPT_3}px) {
     font-size: 12px;
   }
+`
+
+const Font3Static = css`
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 14.4px;
+`
+
+const Font5Static = css`
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 14px;
 `
 
 const AlignCenterCss = css`
@@ -129,12 +146,28 @@ export const Text4Css = css`
   ${Font4}
 `
 
+export const Text3StaticCss = css`
+  ${Font3Static}
+`
+
+export const Text5StaticCss = css`
+  ${Font5Static}
+`
+
+// // bg-clip-text bg-gradient-to-tr from-yellow-500 to-blue-800 text-transparent
+// export const TextClipCss = css`
+//   background-clip: text;
+//   color: transparent;
+// `
+
 export const TextFontCss = css<TextFontProps>`
   ${Text3Css}
   ${(props) => props.t1 && Text1Css}
   ${(props) => props.t2 && Text2Css}
   ${(props) => props.t3 && Text3Css}
   ${(props) => props.t4 && Text4Css}
+  ${(props) => props.t3s && Text3StaticCss}
+  ${(props) => props.t5s && Text5StaticCss}
 `
 
 export const TextAlignCss = css<TextAlignProps>`
@@ -151,7 +184,9 @@ export const TextStyleCss = css<TextStyleProps>`
   ${(props) => props.autoAlignVertical && AlignVerticalCss}
   ${(props) => props.autoAlignHorizontal && AlignHorizontalCss}
   ${(props) => props.bold && 'font-weight: 600;'}
+  ${(props) => props.extrabold && 'font-weight: 700;'}
   ${(props) => props.lineHeight && `line-height: ${props.lineHeight};`}
+  ${(props) => props.lineThrough && 'text-decoration: line-through;'}
 
   ${(props) =>
     props.analogical
@@ -164,6 +199,14 @@ export const TextStyleCss = css<TextStyleProps>`
   ${(props) => props.light && `color: ${props.theme.typography.lightText};`}
   ${(props) => props.dark && `color: ${props.theme.typography.darkText};`}
   ${(props) => props.fade && `opacity: 0.8;`}
+  /* techy gradient is props.theme.typography.techyGradientA and techyGradientB (top to bottom); text bg clip css */
+  ${(props) =>
+    props.techygradient &&
+    `background-image: linear-gradient(to bottom, ${props.theme.typography.techyGradientA}, ${props.theme.typography.techyGradientB});
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+    font-weight: 600;`}
   ${GeneralElementCss}
   transition: all 200ms ease;
 `

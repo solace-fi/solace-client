@@ -52,7 +52,7 @@ import { useWindowDimensions } from '../../../hooks/useWindowDimensions'
 import { useInputAmount } from '../../../hooks/useInputAmount'
 
 /* import utils */
-import { getUnit, truncateBalance } from '../../../utils/formatting'
+import { truncateValue } from '../../../utils/formatting'
 import { getLongtimeFromMillis, getTimeFromMillis } from '../../../utils/time'
 
 export const UnderwritingPoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, closeModal }) => {
@@ -130,11 +130,7 @@ export const UnderwritingPoolModal: React.FC<PoolModalProps> = ({ modalTitle, fu
 
   const callDeposit = async () => {
     setModalLoading(true)
-    await depositEth(
-      parseUnits(amount, currencyDecimals),
-      `${truncateBalance(amount)} ${getUnit(func, activeNetwork)}`,
-      gasConfig
-    )
+    await depositEth(parseUnits(amount, currencyDecimals), gasConfig)
       .then((res) => _handleToast(res.tx, res.localTx))
       .catch((err) => _handleContractCallError('callDeposit', err, FunctionName.DEPOSIT_ETH))
   }
@@ -142,22 +138,14 @@ export const UnderwritingPoolModal: React.FC<PoolModalProps> = ({ modalTitle, fu
   const callDepositEth = async () => {
     setModalLoading(true)
     await cpFarmFunctions
-      .depositEth(
-        parseUnits(amount, currencyDecimals),
-        `${truncateBalance(amount)} ${getUnit(func, activeNetwork)}`,
-        gasConfig
-      )
+      .depositEth(parseUnits(amount, currencyDecimals), gasConfig)
       .then((res) => _handleToast(res.tx, res.localTx))
       .catch((err) => _handleContractCallError('callDepositEth', err, FunctionName.DEPOSIT_ETH))
   }
 
   const callWithdrawEth = async () => {
     setModalLoading(true)
-    await withdrawEth(
-      parseUnits(amount, currencyDecimals),
-      `${truncateBalance(amount)} ${getUnit(func, activeNetwork)}`,
-      gasConfig
-    )
+    await withdrawEth(parseUnits(amount, currencyDecimals), gasConfig)
       .then((res) => _handleToast(res.tx, res.localTx))
       .catch((err) => _handleContractCallError('callWithdrawEth', err, FunctionName.WITHDRAW_ETH))
   }
@@ -272,7 +260,7 @@ export const UnderwritingPoolModal: React.FC<PoolModalProps> = ({ modalTitle, fu
             value={amount}
           />
           <div style={{ position: 'absolute', top: '70%' }}>
-            Available: {truncateBalance(formatUnits(assetBalance, currencyDecimals))}
+            Available: {truncateValue(formatUnits(assetBalance, currencyDecimals))}
           </div>
         </ModalCell>
         <ModalCell t3>

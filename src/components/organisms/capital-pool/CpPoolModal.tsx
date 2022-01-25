@@ -51,7 +51,7 @@ import { useVault } from '../../../hooks/useVault'
 import { useInputAmount } from '../../../hooks/useInputAmount'
 
 /* import utils */
-import { getUnit, truncateBalance } from '../../../utils/formatting'
+import { getUnit, truncateValue } from '../../../utils/formatting'
 
 export const CpPoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, closeModal }) => {
   /*************************************************************************************
@@ -135,11 +135,7 @@ export const CpPoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen
   const callDepositCp = async () => {
     setModalLoading(true)
     await cpFarmFunctions
-      .depositCp(
-        parseUnits(amount, currencyDecimals),
-        `${truncateBalance(amount)} ${getUnit(func, activeNetwork)}`,
-        gasConfig
-      )
+      .depositCp(parseUnits(amount, currencyDecimals), gasConfig)
       .then((res) => _handleToast(res.tx, res.localTx))
       .catch((err) => _handleContractCallError('callDepositCp', err, FunctionName.DEPOSIT_CP))
   }
@@ -147,11 +143,7 @@ export const CpPoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen
   const callWithdrawCp = async () => {
     setModalLoading(true)
     await cpFarmFunctions
-      .withdrawCp(
-        parseUnits(amount, currencyDecimals),
-        `${truncateBalance(amount)} ${getUnit(func, activeNetwork)}`,
-        gasConfig
-      )
+      .withdrawCp(parseUnits(amount, currencyDecimals), gasConfig)
       .then((res) => _handleToast(res.tx, res.localTx))
       .catch((err) => _handleContractCallError('callWithdrawCp', err, FunctionName.WITHDRAW_CP))
   }
@@ -219,7 +211,7 @@ export const CpPoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen
     >
       <Erc20InputPanel
         unit={getUnit(func, activeNetwork)}
-        availableBalance={truncateBalance(formatUnits(assetBalance, currencyDecimals))}
+        availableBalance={truncateValue(formatUnits(assetBalance, currencyDecimals))}
         amount={amount}
         handleInputChange={handleInputChange}
         setMax={_setMax}

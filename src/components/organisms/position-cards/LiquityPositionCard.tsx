@@ -36,7 +36,7 @@ import {
 import { useWindowDimensions } from '../../../hooks/useWindowDimensions'
 
 /* import utils */
-import { fixedPositionBalance, truncateBalance, trim0x } from '../../../utils/formatting'
+import { fixedPositionBalance, truncateValue, trim0x } from '../../../utils/formatting'
 import { userHasActiveProductPosition } from '../../../utils/policy'
 
 interface LiquityPositionCardProps {
@@ -114,7 +114,7 @@ export const LiquityPositionCard: React.FC<LiquityPositionCardProps> = ({
         }}
         light={lightText}
       >
-        {truncateBalance(fixedPositionBalance(liquityPosition.amount.toString(), 18))}{' '}
+        {truncateValue(fixedPositionBalance(liquityPosition.amount.toString(), 18))}{' '}
         <TextSpan style={{ fontSize: '12px' }} light={lightText}>
           {liquityPosition.associatedToken.symbol}
         </TextSpan>

@@ -1,0 +1,46 @@
+import React from 'react'
+import styled from 'styled-components'
+import { Button } from '../../../../components/atoms/Button'
+import { Tab } from '../../types/Tab'
+import IconAndText from './IconAndText'
+import InputSectionWrapper from './InputSectionWrapper'
+import MaxButton from './MaxButton'
+
+const StyledInput = styled.input`
+  border-color: ${({ theme }) => theme.separator.bg_color};
+`
+
+export default function InputSection({
+  tab,
+  value,
+  onChange,
+  setMax,
+  disabled,
+}: // ref,
+{
+  tab: Tab.DEPOSIT | Tab.WITHDRAW | Tab.LOCK
+  value: string | undefined
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void
+  setMax: () => void
+  disabled?: boolean
+}): JSX.Element {
+  return (
+    <InputSectionWrapper>
+      <IconAndText tab={tab} disabled={disabled} />
+      <StyledInput
+        key="mainInput"
+        type="text"
+        className="py-3 lg:py-5 px-5 outline-none rounded-xl lg:border-0 lg:rounded-none"
+        placeholder="0"
+        value={value}
+        onChange={onChange}
+        style={{ backgroundColor: 'inherit', color: 'inherit', width: '100%' }}
+        disabled={disabled}
+      />
+      {/* <MaxButton setMax={setMax} disabled={disabled} /> */}
+      <Button onClick={setMax} disabled={disabled} m={10}>
+        MAX
+      </Button>
+    </InputSectionWrapper>
+  )
+}
