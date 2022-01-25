@@ -226,3 +226,18 @@ export const TextSpan = styled.span<GeneralTextProps & GeneralElementProps>`
   ${GeneralTextCss}
   ${GeneralElementCss}
 `
+
+/**
+ * @name TTTest
+ * @description Test component for typography
+ * @param {string} testprop - test prop
+ */
+export const TTTest = styled.div<{
+  testprop: string
+}>`
+  ${(props) =>
+    props.testprop &&
+    css`
+      color: 'blue';
+    `}
+`

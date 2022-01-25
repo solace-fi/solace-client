@@ -1,4 +1,4 @@
-import styled from 'styled-components'
+import styled, { css } from 'styled-components'
 
 export default styled.div<{
   between?: boolean
@@ -22,7 +22,18 @@ export default styled.div<{
   display: flex;
   justify-content: ${({ between, end, center }) =>
     between ? 'space-between' : end ? 'flex-end' : center ? 'center' : 'flex-start'};
-  align-items: ${({ center, stretch }) => (center ? 'center' : stretch ? 'stretch' : 'flex-start')};
+  ${({ center }) =>
+    center &&
+    css`
+      align-items: center;
+      justify-content: center;
+    `}
+  ${({ stretch }) =>
+    stretch &&
+    css`
+      align-items: stretch;
+    `}
+  /* align-items: ${({ center, stretch }) => (center ? 'center' : stretch ? 'stretch' : 'flex-start')}; */
   flex-direction: ${({ column, col }) => (column || col ? 'column' : 'row')};
   flex-wrap: ${({ wrap }) => (wrap ? 'wrap' : 'nowrap')};
   margin-bottom: ${({ mb }) => mb + 'px'};
