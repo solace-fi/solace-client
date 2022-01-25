@@ -10,84 +10,112 @@ import { truncateValue } from '../../../utils/formatting'
 import { formatUnits } from '@ethersproject/units'
 import { useWindowDimensions } from '../../../hooks/useWindowDimensions'
 import { BKPT_6 } from '../../../constants'
+import { FormRow, FormCol } from '../../../components/atoms/Form'
+import { Card } from '../../../components/atoms/Card'
 
 export default function AggregatedStakeData({ stakeData }: { stakeData: UserLocksInfo }): JSX.Element {
   const { width } = useWindowDimensions()
   return (
-    <RaisedBox>
-      <Flex col={width < BKPT_6} stretch gap={BKPT_6 > width ? 20 : 91} wrap mb={20} p={24}>
-        {/* unstaked, staked, locked, total rewards, separator, apy (secondary) */}
-        {/* <InfoPair importance="primary" label="Unstaked Balance">
-          <CardSectionValue annotation="SOLACE">{truncateValue(solaceBalance, 2)}</CardSectionValue>
-        </InfoPair> */}
-        <Flex
-          gap={BKPT_6 > width ? 20 : 91}
-          style={
-            BKPT_6 > width
-              ? { alignSelf: 'start', margin: 'auto', width: '300px', display: 'flex', justifyContent: 'space-between' }
-              : {}
-          }
-        >
-          <div style={BKPT_6 > width ? { width: '140px' } : {}}>
-            <InfoPair importance="primary" label="Staked Balance">
-              <CardSectionValue annotation="SOLACE">
-                {truncateValue(formatUnits(stakeData.stakedBalance, 18), 2)}
-              </CardSectionValue>
-            </InfoPair>
-          </div>
-          <div style={BKPT_6 > width ? { width: '140px' } : {}}>
-            <InfoPair importance="primary" label="Unlocked Balance">
-              <CardSectionValue annotation="SOLACE">
-                {truncateValue(formatUnits(stakeData.unlockedBalance, 18), 2)}
-              </CardSectionValue>
-            </InfoPair>
-          </div>
-        </Flex>
-        <Flex
-          gap={BKPT_6 > width ? 20 : 91}
-          style={
-            BKPT_6 > width
-              ? { alignSelf: 'start', margin: 'auto', width: '300px', display: 'flex', justifyContent: 'space-between' }
-              : {}
-          }
-        >
-          <div style={BKPT_6 > width ? { width: '140px' } : {}}>
-            <InfoPair importance="primary" label="Locked Balance">
-              <CardSectionValue annotation="SOLACE">
-                {truncateValue(formatUnits(stakeData.lockedBalance, 18), 2)}
-              </CardSectionValue>
-            </InfoPair>
-          </div>
-          <div style={BKPT_6 > width ? { width: '140px' } : {}}>
-            <InfoPair importance="primary" label="Total Rewards">
-              <CardSectionValue annotation="SOLACE">
-                {truncateValue(formatUnits(stakeData.pendingRewards, 18), 2)}
-              </CardSectionValue>
-            </InfoPair>
-          </div>
-        </Flex>
-        <Flex col={BKPT_6 > width} gap={BKPT_6 > width ? 20 : 91} stretch>
-          <Separator horizontal={BKPT_6 > width} />
-          <div
-            style={
-              BKPT_6 > width
-                ? {
-                    alignSelf: 'center',
-                    width: '300px',
-                    display: 'flex',
-                    justifyContent: 'center',
-                  }
-                : {}
-            }
-          >
-            <InfoPair importance="secondary" label="APY" horizontal={BKPT_6 > width}>
-              <Text bold style={{ fontSize: '16px' }}>
+    <>
+      {width > BKPT_6 ? (
+        <RaisedBox>
+          <Flex stretch gap={91} wrap mb={20} p={24}>
+            <Flex gap={91}>
+              <div>
+                <InfoPair importance="primary" label="Staked Balance">
+                  <CardSectionValue annotation="SOLACE">
+                    {truncateValue(formatUnits(stakeData.stakedBalance, 18), 2)}
+                  </CardSectionValue>
+                </InfoPair>
+              </div>
+              <div>
+                <InfoPair importance="primary" label="Unlocked Balance">
+                  <CardSectionValue annotation="SOLACE">
+                    {truncateValue(formatUnits(stakeData.unlockedBalance, 18), 2)}
+                  </CardSectionValue>
+                </InfoPair>
+              </div>
+            </Flex>
+            <Flex gap={91}>
+              <div>
+                <InfoPair importance="primary" label="Locked Balance">
+                  <CardSectionValue annotation="SOLACE">
+                    {truncateValue(formatUnits(stakeData.lockedBalance, 18), 2)}
+                  </CardSectionValue>
+                </InfoPair>
+              </div>
+              <div>
+                <InfoPair importance="primary" label="Total Rewards">
+                  <CardSectionValue annotation="SOLACE">
+                    {truncateValue(formatUnits(stakeData.pendingRewards, 18), 2)}
+                  </CardSectionValue>
+                </InfoPair>
+              </div>
+            </Flex>
+            <Flex col={BKPT_6 > width} gap={91} stretch>
+              <Separator horizontal={BKPT_6 > width} />
+              <div>
+                <InfoPair importance="secondary" label="APY" horizontal={BKPT_6 > width}>
+                  <Text bold style={{ fontSize: '16px' }}>
+                    {stakeData.apy.toNumber()}%
+                  </Text>
+                </InfoPair>
+              </div>
+            </Flex>
+          </Flex>
+        </RaisedBox>
+      ) : (
+        <Card>
+          <FormRow>
+            <FormCol info bold>
+              Staked Balance
+            </FormCol>
+            <FormCol>
+              <Text t2 nowrap bold>
+                {truncateValue(formatUnits(stakeData.stakedBalance, 18), 2)} SOLACE
+              </Text>
+            </FormCol>
+          </FormRow>
+          <FormRow>
+            <FormCol info bold>
+              Unlocked Balance
+            </FormCol>
+            <FormCol>
+              <Text t2 nowrap bold>
+                {truncateValue(formatUnits(stakeData.unlockedBalance, 18), 2)} SOLACE
+              </Text>
+            </FormCol>
+          </FormRow>
+          <FormRow>
+            <FormCol info bold>
+              Locked Balance
+            </FormCol>
+            <FormCol>
+              <Text t2 nowrap bold>
+                {truncateValue(formatUnits(stakeData.lockedBalance, 18), 2)} SOLACE
+              </Text>
+            </FormCol>
+          </FormRow>
+          <FormRow>
+            <FormCol info bold>
+              Total Rewards
+            </FormCol>
+            <FormCol>
+              <Text t2 nowrap bold>
+                {truncateValue(formatUnits(stakeData.pendingRewards, 18), 2)} SOLACE
+              </Text>
+            </FormCol>
+          </FormRow>
+          <FormRow>
+            <FormCol>APY</FormCol>
+            <FormCol>
+              <Text t2 nowrap bold>
                 {stakeData.apy.toNumber()}%
               </Text>
-            </InfoPair>
-          </div>
-        </Flex>
-      </Flex>
-    </RaisedBox>
+            </FormCol>
+          </FormRow>
+        </Card>
+      )}
+    </>
   )
 }
