@@ -46,11 +46,11 @@ const switchStyles = (type: InfoBoxType) => {
   switch (type) {
     case InfoBoxType.info:
       return css`
-        color: ${(props) => props.theme.infoText};
+        color: ${(props) => props.theme.typography.infoText};
       `
     case InfoBoxType.error:
       return css`
-        color: ${(props) => props.theme.errorText};
+        color: ${(props) => props.theme.typography.errorText};
       `
     default:
       return ''

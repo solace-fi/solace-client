@@ -29,6 +29,13 @@ export type NetworkConfig = {
     keyContracts: { [key: string]: ContractSources }
     productContracts: { [key: string]: ContractSources }
     bondTellerContracts: { [key: string]: string }
+    availableFeatures: {
+      bondingV1: boolean
+      stakingV1: boolean
+      stakingV2: boolean
+      farmingV1: boolean
+      coverProducts: boolean
+    }
   }
   cache: {
     supportedProducts: SupportedProduct[]

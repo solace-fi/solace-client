@@ -14,7 +14,7 @@ export const StyledGrayBox = styled.div`
 export default function GrayBox({ children }: { children: React.ReactNode | string }): JSX.Element {
   return (
     <GrayBgDiv
-      className="flex text-[#B471E1] rounded-xl items-stretch font-medium mb-8"
+      className="flex text-[#213a4d] rounded-xl items-stretch font-medium mb-8"
       style={{
         height: '64px',
       }}

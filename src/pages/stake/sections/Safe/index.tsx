@@ -175,7 +175,7 @@ export default function Safe({
                     clickable
                     onClick={() => setActiveTab(Tab.LOCK)}
                   >
-                    {lock.timeLeft.toNumber() > 0 ? 'Extend Lockup' : 'Lockup'}
+                    {lock.timeLeft.toNumber() > 0 ? 'Reset Lockup' : 'Lockup'}
                   </Label>
                   <Label
                     importance={activeTab === Tab.WITHDRAW ? 'primary' : 'secondary'}

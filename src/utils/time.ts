@@ -37,7 +37,7 @@ export function timeAgo(someDateInThePast: number): string {
   return result + ' ago'
 }
 
-const getTimesFromSeconds = (millis: number) => {
+export const getTimesFromSeconds = (millis: number) => {
   let seconds = parseInt((millis / 1000).toString())
   const days = parseInt((seconds / 86400).toString())
   seconds = seconds % 86400

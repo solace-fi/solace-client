@@ -1,5 +1,4 @@
 import React from 'react'
-import styled from 'styled-components'
 import { Button } from '../../../../components/atoms/Button'
 import { StyledSlider } from '../../../../components/atoms/Input'
 import InformationBox from '../../components/InformationBox'
@@ -35,11 +34,7 @@ export default function LockForm({ lock }: { lock: LockData }): JSX.Element {
   const [inputValue, setInputValue] = React.useState('0')
   const { projectedMultiplier, projectedApy, projectedYearlyReturns } = useProjectedBenefits(
     lock.unboostedAmount.toString(),
-    lock.end.toNumber() == 0
-      ? latestBlock
-        ? latestBlock.timestamp + parseInt(inputValue) * 86400
-        : 0
-      : lock.end.toNumber() + parseInt(inputValue) * 86400
+    latestBlock ? latestBlock.timestamp + parseInt(inputValue) * 86400 : 0
   )
 
   const callExtendLock = async () => {
@@ -72,7 +67,7 @@ export default function LockForm({ lock }: { lock: LockData }): JSX.Element {
     >
       <InformationBox
         type={InfoBoxType.info}
-        text="You may extend or start the lockup period of this safe. Note that you cannot withdraw funds during a lockup period."
+        text="The maximum lockup period is 4 years. Note that you cannot withdraw funds during a lockup period. Harvests rewards for you."
       />
       <StyledForm>
         <Flex column={BKPT_5 > width} gap={24}>
@@ -142,10 +137,10 @@ export default function LockForm({ lock }: { lock: LockData }): JSX.Element {
           secondary
           info
           noborder
-          disabled={!inputValue || inputValue == '0'}
+          disabled={!inputValue || parseInt(inputValue) * 86400 <= lock.timeLeft.toNumber()}
           onClick={callExtendLock}
         >
-          {lock.timeLeft.toNumber() > 0 ? `Extend Lockup` : `Start Lockup`}
+          {lock.timeLeft.toNumber() > 0 ? `Reset Lockup` : `Start Lockup`}
         </Button>
       </StyledForm>
     </div>

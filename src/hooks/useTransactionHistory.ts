@@ -21,7 +21,7 @@ export const useFetchTxHistoryByAddress = (): any => {
 
   const fetchTxHistoryByAddress = async (account: string) => {
     running.current = true
-    await fetchExplorerTxHistoryByAddress(activeNetwork.explorer.apiUrl, account, contractSources)
+    await fetchExplorerTxHistoryByAddress(activeNetwork.explorer.apiUrl, account)
       .then((result) => {
         if (result.status == '1') {
           const contractAddrs = contractSources.map((contract) => contract.addr)

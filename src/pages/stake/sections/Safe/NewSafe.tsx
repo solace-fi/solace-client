@@ -110,7 +110,7 @@ export default function NewSafe({ isOpen }: { isOpen: boolean }): JSX.Element {
     <Accordion
       noScroll
       isOpen={isOpen}
-      style={{ backgroundColor: 'inherit' }}
+      style={{ backgroundColor: 'inherit', marginBottom: '20px' }}
       customHeight={accordionRef.current != null ? `${accordionRef.current.scrollHeight}px` : undefined}
     >
       <ShadowDiv ref={accordionRef} style={{ marginBottom: '20px' }}>
