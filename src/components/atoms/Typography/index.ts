@@ -5,6 +5,7 @@ import { BKPT_3 } from '../../../constants'
 export interface TextFontProps {
   t1?: boolean
   t2?: boolean
+  t2_5?: boolean
   t3?: boolean
   t4?: boolean
   t3s?: boolean
@@ -28,6 +29,7 @@ export interface TextStyleProps extends GeneralElementProps {
   autoAlignVertical?: boolean
   autoAlignHorizontal?: boolean
   autoAlign?: boolean
+  medium?: boolean
   bold?: boolean
   extrabold?: boolean
   info?: boolean
@@ -54,6 +56,14 @@ const Font2 = css`
 
   @media screen and (max-width: ${BKPT_3}px) {
     font-size: 18px;
+  }
+`
+
+const font2_5 = css`
+  font-size: 18px;
+
+  @media screen and (max-width: ${BKPT_3}px) {
+    font-size: 16px;
   }
 `
 
@@ -138,6 +148,10 @@ export const Text2Css = css`
   ${Font2}
 `
 
+export const Text2_5Css = css`
+  ${font2_5}
+`
+
 export const Text3Css = css`
   ${Font3}
 `
@@ -164,6 +178,7 @@ export const TextFontCss = css<TextFontProps>`
   ${Text3Css}
   ${(props) => props.t1 && Text1Css}
   ${(props) => props.t2 && Text2Css}
+  ${(props) => props.t2_5 && Text2_5Css}
   ${(props) => props.t3 && Text3Css}
   ${(props) => props.t4 && Text4Css}
   ${(props) => props.t3s && Text3StaticCss}
@@ -183,6 +198,7 @@ export const TextStyleCss = css<TextStyleProps>`
   ${(props) => props.autoAlign && AlignAutoCss}
   ${(props) => props.autoAlignVertical && AlignVerticalCss}
   ${(props) => props.autoAlignHorizontal && AlignHorizontalCss}
+  ${(props) => props.medium && 'font-weight: 500;'}
   ${(props) => props.bold && 'font-weight: 600;'}
   ${(props) => props.extrabold && 'font-weight: 700;'}
   ${(props) => props.lineHeight && `line-height: ${props.lineHeight};`}

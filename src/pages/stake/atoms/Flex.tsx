@@ -2,6 +2,9 @@ import styled, { css } from 'styled-components'
 
 export default styled.div<{
   between?: boolean
+  // center?: boolean
+  justifyCenter?: boolean
+  itemsCenter?: boolean
   center?: boolean
   column?: boolean
   col?: boolean
@@ -18,22 +21,41 @@ export default styled.div<{
   gap?: number
   w?: number
   hidden?: boolean
+  baseline?: boolean
 }>`
   display: flex;
-  justify-content: ${({ between, end, center }) =>
-    between ? 'space-between' : end ? 'flex-end' : center ? 'center' : 'flex-start'};
+  justify-content: 'flex-start';
+  ${({ justifyCenter }) =>
+    justifyCenter &&
+    css`
+      justify-content: center;
+    `}
+  ${({ between }) =>
+    between &&
+    css`
+      justify-content: space-between;
+    `}
+  ${({ itemsCenter }) =>
+    itemsCenter &&
+    css`
+      align-items: center;
+    `}
   ${({ center }) =>
     center &&
     css`
-      align-items: center;
       justify-content: center;
+      align-items: center;
     `}
   ${({ stretch }) =>
     stretch &&
     css`
       align-items: stretch;
     `}
-  /* align-items: ${({ center, stretch }) => (center ? 'center' : stretch ? 'stretch' : 'flex-start')}; */
+    ${({ baseline }) =>
+    baseline &&
+    css`
+      align-items: baseline;
+    `}
   flex-direction: ${({ column, col }) => (column || col ? 'column' : 'row')};
   flex-wrap: ${({ wrap }) => (wrap ? 'wrap' : 'nowrap')};
   margin-bottom: ${({ mb }) => mb + 'px'};
