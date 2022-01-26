@@ -1,6 +1,7 @@
 import styled, { css } from 'styled-components'
 import { ArrowDropDown } from '@styled-icons/remix-line/ArrowDropDown'
 import { Checkmark } from '@styled-icons/evaicons-solid/Checkmark'
+import { Clock } from 'styled-icons/bootstrap'
 import { CoinStack } from '@styled-icons/boxicons-solid/CoinStack'
 import { Copy } from '@styled-icons/boxicons-regular/Copy'
 import { DarkMode } from '@styled-icons/material-outlined/DarkMode'
@@ -61,6 +62,8 @@ export const StyledDashboard = styled(Dashboard)``
 export const StyledReceiptMoney = styled(ReceiptMoney)``
 
 export const StyledFileShield = styled(FileShield)``
+
+export const StyledClock = styled(Clock)``
 
 export const StyledCoinStack = styled(CoinStack)``
 

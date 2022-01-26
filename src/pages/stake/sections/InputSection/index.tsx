@@ -2,7 +2,7 @@ import React from 'react'
 import styled from 'styled-components'
 import { Button } from '../../../../components/atoms/Button'
 import { Tab } from '../../types/Tab'
-import IconAndText from './IconAndText'
+import IconAndText, { GenericIconAndText } from './IconAndText'
 import InputSectionWrapper from './InputSectionWrapper'
 
 const StyledInput = styled.input`
@@ -44,3 +44,42 @@ export default function InputSection({
     </InputSectionWrapper>
   )
 }
+
+export const GenericInputSection = ({
+  icon,
+  text,
+  value,
+  onChange,
+  disabled,
+  w,
+}: {
+  icon: JSX.Element
+  text: string
+  value: string | undefined
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void
+  disabled?: boolean
+  w?: number
+}): JSX.Element => (
+  <InputSectionWrapper
+    style={{
+      width: w ? w : '335px',
+    }}
+  >
+    <GenericIconAndText icon={icon} text={text} disabled={disabled} />
+    <StyledInput
+      key="mainInput"
+      type="text"
+      className="py-3 lg:py-5 px-5 outline-none rounded-xl lg:border-0 lg:rounded-none"
+      placeholder="0"
+      value={value}
+      onChange={onChange}
+      style={{ backgroundColor: 'inherit', color: 'inherit', borderRadius: 'inherit', width: '100%' }}
+      disabled={disabled}
+    />
+    {/* {setMax && (
+      <Button onClick={setMax} disabled={disabled} m={10}>
+        MAX
+      </Button>
+    )} */}
+  </InputSectionWrapper>
+)

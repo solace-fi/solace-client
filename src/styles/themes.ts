@@ -112,7 +112,7 @@ export const darkTheme = {
     separator: '#828282',
   },
   body: {
-    bg_color: 'rgb(46, 46, 46)',
+    bg_color: '#242933',
   },
   accordion: {
     color: 'auto',
@@ -188,7 +188,7 @@ export const darkTheme = {
   },
   v2: {
     aside: '#1f1f1f',
-    raised: '#2e2e2e',
+    raised: '#2E3440',
     primary: 'rgb(250, 130, 255)',
     secondary: 'rgb(250, 250, 250)',
     tertiary: '#a6a6a6',
