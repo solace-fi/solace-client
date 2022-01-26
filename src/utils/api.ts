@@ -1,4 +1,4 @@
-import { ClaimAssessment } from '../constants/types'
+import { ClaimAssessment, SolaceRiskBalance } from '../constants/types'
 import axios from 'axios'
 import { withBackoffRetries } from './time'
 import { equalsIgnoreCase } from '.'
@@ -57,6 +57,28 @@ export const getZapperProtocolBalances = async (appId: string, addresses: string
       addresses: addresses,
       network: network,
       api_key: String(process.env.REACT_APP_ZAPPER_API_KEY),
+    },
+  })
+  return data
+}
+
+export const getSolaceRiskBalances = async (address: string, chainId: number): Promise<SolaceRiskBalance[]> => {
+  const { data } = await axios.get(`https://risk-data.solace.fi/balances`, {
+    params: {
+      account: address,
+      chain_id: chainId,
+    },
+  })
+  return data
+}
+
+export const getSolaceRiskScores = async (address: string, positions: SolaceRiskBalance[]) => {
+  const { data } = await axios.get(`https://risk-data.solace.fi/scores`, {
+    params: {
+      body: {
+        account: address,
+        positions,
+      },
     },
   })
   return data
