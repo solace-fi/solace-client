@@ -16,7 +16,7 @@
   *************************************************************************************/
 
 /* import packages */
-import React, { Fragment, useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 
 /* import constants */
 import { BKPT_4 } from '../../constants'
@@ -94,7 +94,7 @@ function Bond(): any {
   }, [selectedBondDetail, currentTellerDetails])
 
   return (
-    <Fragment>
+    <>
       <BondModal closeModal={() => openModal(false)} isOpen={showBondModal} selectedBondDetail={selectedBondDetail} />
       <Text t4 pt={10} pb={10}>
         You can bond by selling your assets for SOLACE at a discounted price.
@@ -109,7 +109,7 @@ function Bond(): any {
           More information on bonding here.
         </HyperLink>
         {canBondV1 ? (
-          <>
+          <Content>
             {mounting ? (
               <Loader />
             ) : currentTellerDetails.length > 0 ? (
@@ -262,7 +262,7 @@ function Bond(): any {
                 </Text>
               </HeroContainer>
             )}
-          </>
+          </Content>
         ) : (
           <Content>
             <Box error pt={10} pb={10} pl={15} pr={15}>
@@ -276,7 +276,7 @@ function Bond(): any {
           </Content>
         )}
       </Text>
-    </Fragment>
+    </>
   )
 }
 
