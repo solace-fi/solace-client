@@ -14,13 +14,14 @@ import WithdrawForm from './WithdrawForm'
 import { Tab } from '../../types/Tab'
 import { Accordion } from '../../../../components/atoms/Accordion'
 import { LockData } from '../../../../constants/types'
-import { getTimeFromMillis } from '../../../../utils/time'
+import { getDateStringWithMonthName, getTimeFromMillis } from '../../../../utils/time'
 import { truncateValue } from '../../../../utils/formatting'
 import { formatUnits } from 'ethers/lib/utils'
 import { GridOrRow } from '../../atoms/GridOrRow'
-import { BKPT_5, BKPT_6 } from '../../../../constants'
+import { BKPT_5 } from '../../../../constants'
 import { useWindowDimensions } from '../../../../hooks/useWindowDimensions'
 import Checkbox from '../../atoms/Checkbox'
+import { StyledTooltip } from '../../../../components/molecules/Tooltip'
 
 export default function Safe({
   lock,
@@ -89,15 +90,21 @@ export default function Safe({
             >
               <CardSectionValue>{safeStatus}</CardSectionValue>
             </InfoPair>
-            <InfoPair
-              isSafePreview
-              batch={batchActionsIsEnabled}
-              importance="tertiary"
-              label="Lock time left"
-              desktop={width > BKPT_5}
+            <StyledTooltip
+              id={`lock-time-left#${lock.xsLockID.toNumber()}`}
+              tip={`${getDateStringWithMonthName(new Date(lock.end.toNumber() * 1000))}`}
+              alwaysShowChildren
             >
-              <CardSectionValue>{lockTimeLeft}</CardSectionValue>
-            </InfoPair>
+              <InfoPair
+                isSafePreview
+                batch={batchActionsIsEnabled}
+                importance="tertiary"
+                label="Lock time left"
+                desktop={width > BKPT_5}
+              >
+                <CardSectionValue>{lockTimeLeft}</CardSectionValue>
+              </InfoPair>
+            </StyledTooltip>
             <InfoPair
               isSafePreview
               batch={batchActionsIsEnabled}
@@ -175,7 +182,7 @@ export default function Safe({
                     clickable
                     onClick={() => setActiveTab(Tab.LOCK)}
                   >
-                    {lock.timeLeft.toNumber() > 0 ? 'Extend Lockup' : 'Lockup'}
+                    {lock.timeLeft.toNumber() > 0 ? 'Reset Lockup' : 'Lockup'}
                   </Label>
                   <Label
                     importance={activeTab === Tab.WITHDRAW ? 'primary' : 'secondary'}

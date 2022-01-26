@@ -16,6 +16,8 @@ import { VerticalSeparator } from '../stake/components/VerticalSeparator'
 import InputSection, { GenericInputSection } from '../stake/sections/InputSection'
 import CardRange from '../stake/components/CardRange'
 import styled, { css } from 'styled-components'
+import { Table, TableBody, TableData, TableHead, TableHeader, TableRow } from '../../components/atoms/Table'
+import { StyledTooltip } from '../../components/molecules/Tooltip'
 
 function Card({
   children,
@@ -94,7 +96,9 @@ function CoverageLimit() {
         <Text t2 bold>
           Coverage Limit
         </Text>
-        <QuestionCircle height={20} width={20} color={'#aaa'} />
+        <StyledTooltip id={'coverage-limit'} tip={'Coverage Limit tip'}>
+          <QuestionCircle height={20} width={20} color={'#aaa'} />
+        </StyledTooltip>
       </Flex>
       <Flex mt={40} baseline center gap={4}>
         <Text techygradient t2 bold>
@@ -229,7 +233,9 @@ function CoverageBalance() {
           <Text t2 bold>
             Coverage Balance
           </Text>
-          <QuestionCircle height={20} width={20} color={'#aaa'} />
+          <StyledTooltip id={'coverage-balance'} tip={'Coverage Balance'}>
+            <QuestionCircle height={20} width={20} color={'#aaa'} />
+          </StyledTooltip>
         </Flex>
         <Flex
           col
@@ -348,7 +354,9 @@ function CoveragePrice() {
           <Text t2 bold>
             Coverage Price*
           </Text>
-          <QuestionCircle height={20} width={20} color={'#aaa'} />
+          <StyledTooltip id={'coverage-price'} tip={'Coverage Price'}>
+            <QuestionCircle height={20} width={20} color={'#aaa'} />
+          </StyledTooltip>
         </Flex>
         {/* middle has padding l and r 40px, rest is p l and r 24px (comes with Card); vertical justify-between */}
         <Flex col gap={30} pl={40} pr={40}>
@@ -372,34 +380,34 @@ function CoveragePrice() {
   )
 }
 
-const StyledTable = styled.table`
-  background-color: ${(props) => props.theme.v2.raised};
-  border-collapse: separate;
-  border-spacing: 0 10px;
-  font-size: 14px;
-`
-const StyledTr = styled.tr``
+// const StyledTable = styled.table`
+//   background-color: ${(props) => props.theme.v2.raised};
+//   border-collapse: separate;
+//   border-spacing: 0 10px;
+//   font-size: 14px;
+// `
+// const StyledTr = styled.tr``
 
-const StyledTd = styled.td<{
-  first?: boolean
-  last?: boolean
-}>`
-  background-color: ${(props) => props.theme.body.bg_color};
-  padding: 10px 24px;
-  /* first and last ones have border-radius left and right 10px respectively */
-  ${(props) =>
-    props.first &&
-    css`
-      border-top-left-radius: 10px;
-      border-bottom-left-radius: 10px;
-    `}
-  ${(props) =>
-    props.last &&
-    css`
-      border-top-right-radius: 10px;
-      border-bottom-right-radius: 10px;
-    `}
-`
+// const StyledTd = styled.td<{
+//   first?: boolean
+//   last?: boolean
+// }>`
+//   background-color: ${(props) => props.theme.body.bg_color};
+//   padding: 10px 24px;
+//   /* first and last ones have border-radius left and right 10px respectively */
+//   ${(props) =>
+//     props.first &&
+//     css`
+//       border-top-left-radius: 10px;
+//       border-bottom-left-radius: 10px;
+//     `}
+//   ${(props) =>
+//     props.last &&
+//     css`
+//       border-top-right-radius: 10px;
+//       border-bottom-right-radius: 10px;
+//     `}
+// `
 
 function PortfolioTable() {
   /* table like this:
@@ -446,33 +454,55 @@ function PortfolioTable() {
     },
   ]
   return (
-    <StyledTable>
-      <thead>
-        <tr style={{}}>
-          <th style={{ textAlign: 'start', padding: '10px 24px' }}>Protocol</th>
-          <th style={{ textAlign: 'start', padding: '10px 24px' }}>Type</th>
-          <th style={{ textAlign: 'start', padding: '10px 24px' }}>Positions</th>
-          <th style={{ textAlign: 'start', padding: '10px 24px' }}>Amount</th>
-          <th style={{ textAlign: 'start', padding: '10px 24px' }}>Risk Level</th>
-        </tr>
-      </thead>
-      <tbody>
-        {data.map((row) => (
-          <StyledTr
-            key={row.id}
-            style={{
-              marginTop: '10px',
-            }}
-          >
-            <StyledTd first>{row.protocol}</StyledTd>
-            <StyledTd>{row.type}</StyledTd>
-            <StyledTd>{row.positions.join(', ')}</StyledTd>
-            <StyledTd>{row.amount}</StyledTd>
-            <StyledTd last>{row.riskLevel}</StyledTd>
-          </StyledTr>
-        ))}
-      </tbody>
-    </StyledTable>
+    <>
+      {/* <StyledTable>
+        <thead>
+          <tr style={{}}>
+            <th style={{ textAlign: 'start', padding: '10px 24px' }}>Protocol</th>
+            <th style={{ textAlign: 'start', padding: '10px 24px' }}>Type</th>
+            <th style={{ textAlign: 'start', padding: '10px 24px' }}>Positions</th>
+            <th style={{ textAlign: 'start', padding: '10px 24px' }}>Amount</th>
+            <th style={{ textAlign: 'start', padding: '10px 24px' }}>Risk Level</th>
+          </tr>
+        </thead>
+        <tbody>
+          {data.map((row) => (
+            <StyledTr
+              key={row.id}
+              style={{
+                marginTop: '10px',
+              }}
+            >
+              <StyledTd first>{row.protocol}</StyledTd>
+              <StyledTd>{row.type}</StyledTd>
+              <StyledTd>{row.positions.join(', ')}</StyledTd>
+              <StyledTd>{row.amount}</StyledTd>
+              <StyledTd last>{row.riskLevel}</StyledTd>
+            </StyledTr>
+          ))}
+        </tbody>
+      </StyledTable> */}
+      <Table>
+        <TableHead>
+          <TableHeader>Protocol</TableHeader>
+          <TableHeader>Type</TableHeader>
+          <TableHeader>Positions</TableHeader>
+          <TableHeader>Amount</TableHeader>
+          <TableHeader>Risk Level</TableHeader>
+        </TableHead>
+        <TableBody>
+          {data.map((row) => (
+            <TableRow key={row.id}>
+              <TableData>{row.protocol}</TableData>
+              <TableData>{row.type}</TableData>
+              <TableData>{row.positions.join(', ')}</TableData>
+              <TableData>{row.amount}</TableData>
+              <TableData>{row.riskLevel}</TableData>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </>
   )
 }
 

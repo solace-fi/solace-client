@@ -89,6 +89,9 @@ export const useBondTellerDetails = (): { tellerDetails: BondTellerDetails[]; mo
   const [mounting, setMounting] = useState<boolean>(true)
   const { getPairPrice, getPriceFromLp } = useGetPairPrice()
   const solacePrice = usePairPrice(solace)
+  const canBondV1 = useMemo(() => activeNetwork.config.availableFeatures.bondingV1, [
+    activeNetwork.config.availableFeatures.bondingV1,
+  ])
   const platform = useMemo(() => {
     switch (activeNetwork.nativeCurrency.symbol) {
       case Unit.ETH:
@@ -100,7 +103,7 @@ export const useBondTellerDetails = (): { tellerDetails: BondTellerDetails[]; mo
   }, [activeNetwork.nativeCurrency.symbol])
 
   const getBondTellerDetails = useCallback(async () => {
-    if (!library) return
+    if (!library || !canBondV1) return
     try {
       const data: BondTellerDetails[] = await Promise.all(
         tellers.map(async (teller) => {
@@ -183,7 +186,7 @@ export const useBondTellerDetails = (): { tellerDetails: BondTellerDetails[]; mo
     } catch (e) {
       console.log('getBondTellerDetails', e)
     }
-  }, [tellers, latestBlock, version, solacePrice.pairPrice])
+  }, [tellers, latestBlock, version, solacePrice.pairPrice, canBondV1])
 
   useEffect(() => {
     setMounting(true)

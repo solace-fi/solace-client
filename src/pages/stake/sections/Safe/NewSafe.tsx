@@ -75,11 +75,7 @@ export default function NewSafe({ isOpen }: { isOpen: boolean }): JSX.Element {
   /*            STAKE INPUT & RANGE HANDLERS             */
   const stakeInputOnChange = (value: string) => {
     const filtered = filterAmount(value, stakeInputValue)
-    const formatted = formatAmount(filtered)
     if (filtered.includes('.') && filtered.split('.')[1]?.length > 18) return
-
-    if (parseUnits(formatted, 18).gt(parseUnits(solaceBalance, 18))) return
-
     setStakeRangeValue(accurateMultiply(filtered, 18))
     setStakeInputValue(filtered)
   }
@@ -110,7 +106,7 @@ export default function NewSafe({ isOpen }: { isOpen: boolean }): JSX.Element {
     <Accordion
       noScroll
       isOpen={isOpen}
-      style={{ backgroundColor: 'inherit' }}
+      style={{ backgroundColor: 'inherit', marginBottom: '20px' }}
       customHeight={accordionRef.current != null ? `${accordionRef.current.scrollHeight}px` : undefined}
     >
       <ShadowDiv ref={accordionRef} style={{ marginBottom: '20px' }}>

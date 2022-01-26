@@ -27,7 +27,7 @@ import styled, { css } from 'styled-components'
 import { useLocation } from 'react-router'
 
 /* import constants */
-import { BKPT_3, Z_TOOLTIP } from '../../constants'
+import { BKPT_1, BKPT_3, Z_TOOLTIP } from '../../constants'
 
 /* import components */
 import { StyledInfo, StyledLinkExternal } from '../atoms/Icon'
@@ -94,7 +94,13 @@ export const StyledNavTooltip: React.FC<StyledTooltipProps> = ({ id, tip, childr
   )
 }
 
-export const StyledTooltip: React.FC<StyledTooltipProps> = ({ id, tip, link }) => {
+export const StyledTooltip: React.FC<StyledTooltipProps & { alwaysShowChildren?: boolean }> = ({
+  id,
+  tip,
+  children,
+  alwaysShowChildren,
+  link,
+}) => {
   /*************************************************************************************
 
   hooks
@@ -104,10 +110,10 @@ export const StyledTooltip: React.FC<StyledTooltipProps> = ({ id, tip, link }) =
 
   return (
     <>
-      {width > BKPT_3 ? (
+      {width > BKPT_1 ? (
         <>
           <a data-for={id} data-tip={tip}>
-            <StyledInfo size={20} />
+            {children}
           </a>
           <CustomTooltip id={id} delayShow={200} delayHide={200} effect="solid">
             {link ? (
@@ -132,6 +138,8 @@ export const StyledTooltip: React.FC<StyledTooltipProps> = ({ id, tip, link }) =
             )}
           </CustomTooltip>
         </>
+      ) : alwaysShowChildren ? (
+        children
       ) : null}
     </>
   )

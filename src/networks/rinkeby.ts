@@ -194,6 +194,13 @@ export const RinkebyNetwork: NetworkConfig = {
       [BondName.WBTC]: TELLER_ADDRS.WBTC_TELLER,
       [BondName.USDT]: TELLER_ADDRS.USDT_TELLER,
     },
+    availableFeatures: {
+      bondingV1: true,
+      stakingV1: true,
+      stakingV2: true,
+      farmingV1: true,
+      coverProducts: true,
+    },
   },
   cache: {
     supportedProducts: [CompoundProduct, WaaveProduct, LiquityProduct],

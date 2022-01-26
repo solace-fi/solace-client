@@ -80,7 +80,10 @@ export default function WithdrawForm({ lock }: { lock: LockData }): JSX.Element 
         gap: '30px',
       }}
     >
-      <InformationBox type={InfoBoxType.info} text="Withdrawal is available only when the lockup period ends." />
+      <InformationBox
+        type={InfoBoxType.info}
+        text="Withdrawal is available only when the lockup period ends. Withdrawing harvests rewards for you."
+      />
       <StyledForm>
         <Flex column={BKPT_5 > width} gap={24}>
           <Flex column gap={24}>

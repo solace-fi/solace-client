@@ -2,7 +2,7 @@ import { Block } from '@ethersproject/abstract-provider'
 import { PolicyState } from '../constants/enums'
 import { Policy } from '../constants/types'
 import { trim0x } from './formatting'
-import { getDaysLeft, getExpiration } from './time'
+import { getDaysLeftByBlockNum, getExpiration } from './time'
 
 export const userHasActiveProductPosition = (userPolicies: Policy[], product: string, address: string): boolean => {
   for (const policy of userPolicies) {
@@ -18,13 +18,13 @@ export const userHasActiveProductPosition = (userPolicies: Policy[], product: st
 
 export const calculatePolicyExpirationDate = (latestBlock: Block | undefined, expirationBlock: number): string => {
   if (!latestBlock) return 'Fetching...'
-  const daysLeft = getDaysLeft(expirationBlock, latestBlock.number)
+  const daysLeft = getDaysLeftByBlockNum(expirationBlock, latestBlock.number)
   return getExpiration(daysLeft)
 }
 
 export const shouldWarnUser = (latestBlock: Block | undefined, policy: Policy): boolean => {
   return (
     policy.status === PolicyState.ACTIVE &&
-    getDaysLeft(policy.expirationBlock, latestBlock ? latestBlock.number : 0) <= 1
+    getDaysLeftByBlockNum(policy.expirationBlock, latestBlock ? latestBlock.number : 0) <= 1
   )
 }

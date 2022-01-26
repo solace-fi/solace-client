@@ -14,9 +14,10 @@
   *************************************************************************************/
 
 /* import packages */
-import React, { useState, Fragment, useCallback } from 'react'
+import React, { useState, useCallback } from 'react'
 
 /* import context */
+import { useNetwork } from '../../context/NetworkManager'
 
 /* import components */
 import { UnderwritingPool } from '../../components/organisms/underwriting-pool/UnderwritingPool'
@@ -37,6 +38,7 @@ function Invest(): any {
   hooks
 
   *************************************************************************************/
+  const { activeNetwork } = useNetwork()
   const [func, setFunc] = useState<FunctionName>(FunctionName.DEPOSIT_ETH)
   const [modalTitle, setModalTitle] = useState<string>('')
   const [showPoolModal, setShowPoolModal] = useState<boolean>(false)
@@ -62,30 +64,45 @@ function Invest(): any {
   }, [])
 
   return (
-    <Fragment>
-      <PoolModalRouter
-        isOpen={showPoolModal}
-        modalTitle={modalTitle}
-        func={func}
-        closeModal={closeModal}
-        farmName={farmName}
-      />
-      <Content>
-        <Box warning pt={10} pb={10} pl={15} pr={15}>
-          <TextSpan light textAlignLeft>
-            <StyledInfo size={30} />
-          </TextSpan>
-          <Text light bold style={{ margin: '0 auto' }}>
-            This page will be deprecated soon. Users should withdraw their funds from the pools below.
-          </Text>
-        </Box>
-      </Content>
-      <Content>
-        <EarlyFarmRewardsWindow />
-      </Content>
-      <UnderwritingPool openModal={openModal} />
-      <CapitalProviderPool openModal={openModal} />
-    </Fragment>
+    <>
+      {activeNetwork.config.availableFeatures.farmingV1 ? (
+        <>
+          <PoolModalRouter
+            isOpen={showPoolModal}
+            modalTitle={modalTitle}
+            func={func}
+            closeModal={closeModal}
+            farmName={farmName}
+          />
+          <Content>
+            <Box warning pt={10} pb={10} pl={15} pr={15}>
+              <TextSpan light textAlignLeft>
+                <StyledInfo size={30} />
+              </TextSpan>
+              <Text light bold style={{ margin: '0 auto' }}>
+                This page will be deprecated soon. Users should withdraw their funds from the pools below.
+              </Text>
+            </Box>
+          </Content>
+          <Content>
+            <EarlyFarmRewardsWindow />
+          </Content>
+          <UnderwritingPool openModal={openModal} />
+          <CapitalProviderPool openModal={openModal} />
+        </>
+      ) : (
+        <Content>
+          <Box error pt={10} pb={10} pl={15} pr={15}>
+            <TextSpan light textAlignLeft>
+              <StyledInfo size={30} />
+            </TextSpan>
+            <Text light bold style={{ margin: '0 auto' }}>
+              Farms are not supported on this network.
+            </Text>
+          </Box>
+        </Content>
+      )}
+    </>
   )
 }
 
