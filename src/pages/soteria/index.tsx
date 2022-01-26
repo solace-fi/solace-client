@@ -376,6 +376,7 @@ const StyledTable = styled.table`
   background-color: ${(props) => props.theme.v2.raised};
   border-collapse: separate;
   border-spacing: 0 10px;
+  font-size: 14px;
 `
 const StyledTr = styled.tr``
 
