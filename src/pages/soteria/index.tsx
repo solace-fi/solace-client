@@ -353,15 +353,15 @@ function CoveragePrice() {
         {/* middle has padding l and r 40px, rest is p l and r 24px (comes with Card); vertical justify-between */}
         <Flex col gap={30} pl={40} pr={40}>
           <Flex between itemsCenter>
-            <ValuePair bigText="0.00184" smallText="USD" />
+            <ValuePair bigText="0.00184" smallText="USD" info />
             <Text t5s>/ Day</Text>
           </Flex>
           <Flex between itemsCenter>
-            <ValuePair bigText="0.0552" smallText="USD" />
+            <ValuePair bigText="0.0552" smallText="USD" info />
             <Text t5s>/ Month</Text>
           </Flex>
           <Flex between itemsCenter>
-            <ValuePair bigText="0.6716" smallText="USD" />
+            <ValuePair bigText="0.6716" smallText="USD" info />
             <Text t5s>/ Year</Text>
           </Flex>
         </Flex>
@@ -471,35 +471,6 @@ function PortfolioTable() {
             <StyledTd last>{row.riskLevel}</StyledTd>
           </StyledTr>
         ))}
-        {/* // ))
-        // <StyledTr>
-        //   <td>Uniswap</td>
-        //   <td>DEX</td>
-        //   <td>ETH,BTC,DAI</td>
-        //   <td>42345 USD</td>
-        //   <td>Low</td>
-        // </StyledTr>
-        // <StyledTr>
-        //   <td>Nexus Mutual</td>
-        //   <td>Derivatives</td>
-        //   <td>ETH,DAI</td>
-        //   <td>34562 USD</td>
-        //   <td>High</td>
-        // </StyledTr>
-        // <StyledTr>
-        //   <td>Aave</td>
-        //   <td>Lending</td>
-        //   <td>ETH,DAI</td>
-        //   <td>12809 USD</td>
-        //   <td>Medium</td>
-        // </StyledTr>
-        // <StyledTr>
-        //   <td>Yearn Finance</td>
-        //   <td>Assets</td>
-        //   <td>BTC</td>
-        //   <td>2154 USD</td>
-        //   <td>Medium</td>
-        // </StyledTr> */}
       </tbody>
     </StyledTable>
   )
