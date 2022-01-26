@@ -67,7 +67,7 @@ export default function LockForm({ lock }: { lock: LockData }): JSX.Element {
     >
       <InformationBox
         type={InfoBoxType.info}
-        text="The maximum lockup period is 4 years. Note that you cannot withdraw funds during a lockup period. Harvests rewards for you."
+        text="The maximum lockup period is 4 years. Note that you cannot withdraw funds during a lockup period. Setting the lockup period harvests rewards for you."
       />
       <StyledForm>
         <Flex column={BKPT_5 > width} gap={24}>

@@ -55,7 +55,7 @@ import { useWindowDimensions } from '../../../hooks/useWindowDimensions'
 
 /* import utils */
 import { accurateMultiply, convertSciNotaToPrecise, filterAmount, formatAmount } from '../../../utils/formatting'
-import { getDaysLeft, getExpiration } from '../../../utils/time'
+import { getDaysLeftByBlockNum, getExpiration } from '../../../utils/time'
 
 interface ManageModalProps {
   closeModal: () => void
@@ -93,7 +93,8 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
   const { getAutoGasConfig } = useGetFunctionGas()
   const gasConfig = useMemo(() => getAutoGasConfig(), [getAutoGasConfig])
   const daysLeft = useMemo(
-    () => getDaysLeft(selectedPolicy ? selectedPolicy.expirationBlock : 0, latestBlock ? latestBlock.number : 0),
+    () =>
+      getDaysLeftByBlockNum(selectedPolicy ? selectedPolicy.expirationBlock : 0, latestBlock ? latestBlock.number : 0),
     [latestBlock, selectedPolicy]
   )
   const blocksLeft = useMemo(
@@ -290,7 +291,10 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
     if (
       parseFloat(filtered) <=
         DAYS_PER_YEAR -
-          getDaysLeft(selectedPolicy ? selectedPolicy.expirationBlock : 0, latestBlock ? latestBlock.number : 0) ||
+          getDaysLeftByBlockNum(
+            selectedPolicy ? selectedPolicy.expirationBlock : 0,
+            latestBlock ? latestBlock.number : 0
+          ) ||
       filtered == ''
     ) {
       setExtendedTime(filtered)

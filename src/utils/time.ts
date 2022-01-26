@@ -37,7 +37,7 @@ export function timeAgo(someDateInThePast: number): string {
   return result + ' ago'
 }
 
-export const getTimesFromSeconds = (millis: number) => {
+export const getTimesFromMillis = (millis: number) => {
   let seconds = parseInt((millis / 1000).toString())
   const days = parseInt((seconds / 86400).toString())
   seconds = seconds % 86400
@@ -51,7 +51,7 @@ export const getTimesFromSeconds = (millis: number) => {
 
 export function getLongtimeFromMillis(millis: number): string {
   if (millis == 0) return '0'
-  const { days, hours, minutes } = getTimesFromSeconds(millis)
+  const { days, hours, minutes } = getTimesFromMillis(millis)
 
   let str = `${days > 0 ? `${days} day${days > 1 ? 's' : ''}` : ''}${hours > 0 ? ' ' : ''}${
     hours > 0 ? `${hours} hour${hours > 1 ? 's' : ''}` : ''
@@ -62,7 +62,7 @@ export function getLongtimeFromMillis(millis: number): string {
 
 export const getTimeFromMillis = (millis: number): string => {
   if (millis == 0) return '0'
-  const { days, hours, minutes } = getTimesFromSeconds(millis)
+  const { days, hours, minutes } = getTimesFromMillis(millis)
 
   let str = `${days > 0 ? `${days}d` : ''}${hours > 0 ? ' ' : ''}${hours > 0 ? `${hours}h` : ''}${
     minutes > 0 ? ' ' : ''
@@ -71,7 +71,7 @@ export const getTimeFromMillis = (millis: number): string => {
   return str
 }
 
-export const getDaysLeft = (expirationBlock: number, latestBlockNumber: number): number => {
+export const getDaysLeftByBlockNum = (expirationBlock: number, latestBlockNumber: number): number => {
   return Math.floor((expirationBlock - latestBlockNumber) / NUM_BLOCKS_PER_DAY)
 }
 

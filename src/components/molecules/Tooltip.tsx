@@ -94,7 +94,13 @@ export const StyledNavTooltip: React.FC<StyledTooltipProps> = ({ id, tip, childr
   )
 }
 
-export const StyledTooltip: React.FC<StyledTooltipProps> = ({ id, tip, children, link }) => {
+export const StyledTooltip: React.FC<StyledTooltipProps & { alwaysShowChildren?: boolean }> = ({
+  id,
+  tip,
+  children,
+  alwaysShowChildren,
+  link,
+}) => {
   /*************************************************************************************
 
   hooks
@@ -132,6 +138,8 @@ export const StyledTooltip: React.FC<StyledTooltipProps> = ({ id, tip, children,
             )}
           </CustomTooltip>
         </>
+      ) : alwaysShowChildren ? (
+        children
       ) : null}
     </>
   )

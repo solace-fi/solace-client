@@ -76,7 +76,10 @@ export default function DepositForm({ lock }: { lock: LockData }): JSX.Element {
         gap: '30px',
       }}
     >
-      <InformationBox type={InfoBoxType.info} text="Stake additional SOLACE to this safe. Harvests rewards for you." />
+      <InformationBox
+        type={InfoBoxType.info}
+        text="Stake additional SOLACE to this safe. Staking harvests rewards for you."
+      />
       <StyledForm>
         <Flex column={BKPT_5 > width} gap={24}>
           <Flex column gap={24}>
