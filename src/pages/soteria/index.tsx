@@ -17,6 +17,7 @@ import InputSection, { GenericInputSection } from '../stake/sections/InputSectio
 import CardRange from '../stake/components/CardRange'
 import styled, { css } from 'styled-components'
 import { Table, TableBody, TableData, TableHead, TableHeader, TableRow } from '../../components/atoms/Table'
+import { StyledTooltip } from '../../components/molecules/Tooltip'
 
 function Card({
   children,
@@ -95,7 +96,9 @@ function CoverageLimit() {
         <Text t2 bold>
           Coverage Limit
         </Text>
-        <QuestionCircle height={20} width={20} color={'#aaa'} />
+        <StyledTooltip id={'coverage-limit'} tip={'Coverage Limit tip'}>
+          <QuestionCircle height={20} width={20} color={'#aaa'} />
+        </StyledTooltip>
       </Flex>
       <Flex mt={40} baseline center gap={4}>
         <Text techygradient t2 bold>
@@ -230,7 +233,9 @@ function CoverageBalance() {
           <Text t2 bold>
             Coverage Balance
           </Text>
-          <QuestionCircle height={20} width={20} color={'#aaa'} />
+          <StyledTooltip id={'coverage-balance'} tip={'Coverage Balance'}>
+            <QuestionCircle height={20} width={20} color={'#aaa'} />
+          </StyledTooltip>
         </Flex>
         <Flex
           col
@@ -349,7 +354,9 @@ function CoveragePrice() {
           <Text t2 bold>
             Coverage Price*
           </Text>
-          <QuestionCircle height={20} width={20} color={'#aaa'} />
+          <StyledTooltip id={'coverage-price'} tip={'Coverage Price'}>
+            <QuestionCircle height={20} width={20} color={'#aaa'} />
+          </StyledTooltip>
         </Flex>
         {/* middle has padding l and r 40px, rest is p l and r 24px (comes with Card); vertical justify-between */}
         <Flex col gap={30} pl={40} pr={40}>

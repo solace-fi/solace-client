@@ -158,7 +158,7 @@ export const darkTheme = {
     slider_node_color: '#6ec3ff',
   },
   modal: {
-    bg_color: 'rgba(20, 19, 51, 0.9)',
+    bg_color: 'rgba(21, 25, 31, 0.9)',
     base_color: '#242933',
     glow: '0',
   },

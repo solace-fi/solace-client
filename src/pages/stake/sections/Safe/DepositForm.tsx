@@ -56,11 +56,7 @@ export default function DepositForm({ lock }: { lock: LockData }): JSX.Element {
 
   const inputOnChange = (value: string) => {
     const filtered = filterAmount(value, inputValue)
-    const formatted = formatAmount(filtered)
     if (filtered.includes('.') && filtered.split('.')[1]?.length > 18) return
-
-    if (parseUnits(formatted, 18).gt(parseUnits(solaceBalance, 18))) return
-
     setRangeValue(accurateMultiply(filtered, 18))
     setInputValue(filtered)
   }
