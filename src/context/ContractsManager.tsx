@@ -33,6 +33,7 @@ type Contracts = {
     claimsEscrow?: Contract | null
     policyManager?: Contract | null
     riskManager?: Contract | null
+    soteriaCoverageProduct?: Contract | null
   }
   products: ProductContract[]
   tellers: BondTellerContract[]
@@ -58,6 +59,7 @@ const ContractsContext = createContext<Contracts>({
     claimsEscrow: undefined,
     policyManager: undefined,
     riskManager: undefined,
+    soteriaCoverageProduct: undefined,
   },
   products: [],
   tellers: [],
@@ -87,6 +89,7 @@ const ContractsProvider: React.FC = (props) => {
   const policyManager = useGetContract(keyContracts.policyManager)
   const riskManager = useGetContract(keyContracts.riskManager)
   const bondDepo = useGetContract(keyContracts.bondDepo)
+  const soteriaCoverageProduct = useGetContract(keyContracts.soteriaCoverageProduct)
   const products = useGetProductContracts()
   const tellers = useGetBondTellerContracts()
 
@@ -123,6 +126,7 @@ const ContractsProvider: React.FC = (props) => {
         claimsEscrow,
         policyManager,
         riskManager,
+        soteriaCoverageProduct,
       },
       products,
       tellers,
@@ -146,6 +150,7 @@ const ContractsProvider: React.FC = (props) => {
       claimsEscrow,
       policyManager,
       riskManager,
+      soteriaCoverageProduct,
       products,
       tellers,
       contractSources,
