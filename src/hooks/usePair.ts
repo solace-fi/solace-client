@@ -87,7 +87,7 @@ export const useGetPairPrice = () => {
   }
 
   // lp token to USDC price
-  const getPriceFromLp = async (lpToken: Contract): Promise<number> => {
+  const getPriceFromSushiswapLp = async (lpToken: Contract): Promise<number> => {
     if (!library) return -1
     try {
       const [token0, token1] = await Promise.all([lpToken.token0(), lpToken.token1()])
@@ -124,10 +124,10 @@ export const useGetPairPrice = () => {
       const multiplied = poolShareOfOneUnit * (price0 * totalReserve0 + price1 * totalReserve1)
       return multiplied
     } catch (err) {
-      console.log(`getPriceFromLp, cannot retrieve for ${lpToken.address}`, err)
+      console.log(`getPriceFromSushiswapLp, cannot retrieve for ${lpToken.address}`, err)
       return -1
     }
   }
 
-  return { getPairPrice, getPriceFromLp }
+  return { getPairPrice, getPriceFromSushiswapLp }
 }

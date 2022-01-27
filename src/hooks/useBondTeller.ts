@@ -89,7 +89,7 @@ export const useBondTellerDetails = (): { tellerDetails: BondTellerDetails[]; mo
   const { activeNetwork } = useNetwork()
   const [tellerDetails, setTellerDetails] = useState<BondTellerDetails[]>([])
   const [mounting, setMounting] = useState<boolean>(true)
-  const { getPairPrice, getPriceFromLp } = useGetPairPrice()
+  const { getPairPrice, getPriceFromSushiswapLp } = useGetPairPrice()
   const solacePrice = usePairPrice(solace)
   const canBondV1 = useMemo(() => activeNetwork.config.availableFeatures.bondingV1, [
     activeNetwork.config.availableFeatures.bondingV1,
@@ -136,7 +136,7 @@ export const useBondTellerDetails = (): { tellerDetails: BondTellerDetails[]; mo
 
           // get usdBondPrice
           if (teller.isLp) {
-            const price = await getPriceFromLp(principalContract)
+            const price = await getPriceFromSushiswapLp(principalContract)
             usdBondPrice = Math.max(price, 0) * floatUnits(bondPrice, decimals)
             const [token0, token1] = await Promise.all([principalContract.token0(), principalContract.token1()])
             lpData = {
