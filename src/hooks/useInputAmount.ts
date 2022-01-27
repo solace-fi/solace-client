@@ -41,14 +41,7 @@ export const useTransactionExecution = () => {
 
 export const useInputAmount = () => {
   const { currencyDecimals } = useNetwork()
-  const { gasPrices } = useCachedData()
-  const [selectedGasOption, setSelectedGasOption] = useState<GasFeeOption | undefined>(gasPrices.selected)
-  const { getGasConfig } = useGetFunctionGas()
-  const { handleToast, handleContractCallError } = useTransactionExecution()
-  const gasConfig = useMemo(() => getGasConfig(selectedGasOption ? selectedGasOption.value : undefined), [
-    selectedGasOption,
-    getGasConfig,
-  ])
+  const { gasPrice } = useCachedData()
   const [amount, setAmount] = useState<string>('')
   const [maxSelected, setMaxSelected] = useState<boolean>(false)
 
@@ -57,12 +50,11 @@ export const useInputAmount = () => {
     return assetBalance.gte(parseUnits(amount, amountDecimals))
   }
 
-  const handleSelectGasChange = (option: GasFeeOption | undefined) => setSelectedGasOption(option)
-
   const calculateMaxAmount = (balance: BigNumber, amountDecimals: number, gasLimit?: number) => {
     const bal = formatUnits(balance, amountDecimals)
-    if (!gasLimit || !selectedGasOption?.value) return bal
-    const gasInCurrency = (gasLimit / POW_NINE) * selectedGasOption.value
+    if (!gasLimit || !gasPrice) return bal
+    // if currency to send is also for paying gas, subtract gas from amount to send
+    const gasInCurrency = (gasLimit / POW_NINE) * gasPrice
     return Math.max(fixed(fixed(bal, 6) - fixed(gasInCurrency, 6), 6), 0)
   }
 
@@ -86,21 +78,10 @@ export const useInputAmount = () => {
     setMaxSelected(false)
   }
 
-  useEffect(() => {
-    if (!gasPrices.selected) return
-    handleSelectGasChange(gasPrices.selected)
-  }, [gasPrices])
-
   return {
-    gasConfig,
-    gasPrices,
-    selectedGasOption,
     amount,
     maxSelected,
-    handleSelectGasChange,
     isAppropriateAmount,
-    handleToast,
-    handleContractCallError,
     calculateMaxAmount,
     handleInputChange,
     setMax,

@@ -2,12 +2,14 @@ import { BigNumber } from 'ethers'
 import { useMemo } from 'react'
 import { GAS_LIMIT, ZERO } from '../constants'
 import { FunctionName, TransactionCondition } from '../constants/enums'
-import { GasConfiguration, LocalTx } from '../constants/types'
+import { LocalTx } from '../constants/types'
 import { useContracts } from '../context/ContractsManager'
+import { useGetFunctionGas } from './useGas'
 
 export const useSoteria = () => {
   const { keyContracts } = useContracts()
   const { soteriaCoverageProduct } = useMemo(() => keyContracts, [keyContracts])
+  const { gasConfig } = useGetFunctionGas()
 
   const getReferralCode = async (account: string): Promise<BigNumber> => {
     if (!soteriaCoverageProduct) return ZERO
@@ -143,8 +145,7 @@ export const useSoteria = () => {
     account: string,
     coverLimit: BigNumber,
     deposit: BigNumber,
-    referralCode: BigNumber,
-    gasConfig: GasConfiguration
+    referralCode: BigNumber
   ) => {
     if (!soteriaCoverageProduct) return { tx: null, localTx: null }
     const tx = await soteriaCoverageProduct.activatePolicy(account, coverLimit, referralCode, {
@@ -160,7 +161,7 @@ export const useSoteria = () => {
     return { tx, localTx }
   }
 
-  const deactivatePolicy = async (gasConfig: GasConfiguration) => {
+  const deactivatePolicy = async () => {
     if (!soteriaCoverageProduct) return { tx: null, localTx: null }
     const tx = await soteriaCoverageProduct.deactivatePolicy({
       ...gasConfig,
@@ -174,7 +175,7 @@ export const useSoteria = () => {
     return { tx, localTx }
   }
 
-  const updateCoverLimit = async (newCoverLimit: BigNumber, referralCode: BigNumber, gasConfig: GasConfiguration) => {
+  const updateCoverLimit = async (newCoverLimit: BigNumber, referralCode: BigNumber) => {
     if (!soteriaCoverageProduct) return { tx: null, localTx: null }
     const tx = await soteriaCoverageProduct.updateCoverLimit(newCoverLimit, referralCode, {
       ...gasConfig,
@@ -188,7 +189,7 @@ export const useSoteria = () => {
     return { tx, localTx }
   }
 
-  const deposit = async (deposit: BigNumber, gasConfig: GasConfiguration) => {
+  const deposit = async (deposit: BigNumber) => {
     if (!soteriaCoverageProduct) return { tx: null, localTx: null }
     const tx = await soteriaCoverageProduct.deposit({
       value: deposit,
@@ -203,7 +204,7 @@ export const useSoteria = () => {
     return { tx, localTx }
   }
 
-  const withdraw = async (amount: BigNumber, gasConfig: GasConfiguration) => {
+  const withdraw = async (amount: BigNumber) => {
     if (!soteriaCoverageProduct) return { tx: null, localTx: null }
     const tx = await soteriaCoverageProduct.withdraw(amount, {
       ...gasConfig,

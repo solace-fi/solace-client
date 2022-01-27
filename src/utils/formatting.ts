@@ -124,12 +124,12 @@ export const accurateMultiply = (value: number | string, decimals: number): stri
     // if current number of decimal places is greater than the number of decimals to multiply to,
     // it is time to truncate
     const numCharsToCut = decimals - currentNumDecimalPlaces
-    result = result.substr(0, decimalIndex).concat(result.substr(decimalIndex + 1, result.length))
+    result = result.substring(0, decimalIndex).concat(result.substring(decimalIndex + 1, result.length))
     result = result.slice(0, numCharsToCut)
     return result
   }
 
-  result = result.substr(0, decimalIndex).concat(result.substr(decimalIndex + 1, result.length))
+  result = result.substring(0, decimalIndex).concat(result.substring(decimalIndex + 1, result.length))
   const range = rangeFrom0(decimalPlacesToAdd)
   range.forEach(() => (result += '0'))
   const finalRes = result.replace(/^0+/, '')
@@ -147,6 +147,10 @@ export const fixedPositionBalance = (balance: string, decimals: number): number 
 }
 
 export const getNonHumanValue = (value: BigNumber | number, decimals = 0): BigNumber => {
+  if (typeof value == 'number') {
+    const productStr = accurateMultiply(value, decimals)
+    return BigNumber.from(productStr)
+  }
   return BigNumber.from(value).mul(getExponentValue(decimals))
 }
 

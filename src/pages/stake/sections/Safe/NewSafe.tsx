@@ -16,7 +16,7 @@ import InformationBox from '../../components/InformationBox'
 import { InfoBoxType } from '../../types/InfoBoxType'
 import { Tab } from '../../types/Tab'
 import InputSection from '../InputSection'
-import { useInputAmount } from '../../../../hooks/useInputAmount'
+import { useInputAmount, useTransactionExecution } from '../../../../hooks/useInputAmount'
 import { FunctionName } from '../../../../constants/enums'
 import { useXSLocker } from '../../../../hooks/useXSLocker'
 import { useWallet } from '../../../../context/WalletManager'
@@ -51,7 +51,8 @@ export default function NewSafe({ isOpen }: { isOpen: boolean }): JSX.Element {
   const { account } = useWallet()
   const { latestBlock } = useProvider()
   const solaceBalance = useSolaceBalance()
-  const { handleToast, handleContractCallError, isAppropriateAmount, gasConfig } = useInputAmount()
+  const { isAppropriateAmount } = useInputAmount()
+  const { handleToast, handleContractCallError } = useTransactionExecution()
   const { createLock } = useXSLocker()
 
   const accordionRef = useRef<HTMLDivElement>(null)
@@ -67,7 +68,7 @@ export default function NewSafe({ isOpen }: { isOpen: boolean }): JSX.Element {
   const callCreateLock = async () => {
     if (!latestBlock || !account) return
     const seconds = latestBlock.timestamp + parseInt(lockInputValue) * 86400
-    await createLock(account, parseUnits(stakeInputValue, 18), BigNumber.from(seconds), gasConfig)
+    await createLock(account, parseUnits(stakeInputValue, 18), BigNumber.from(seconds))
       .then((res) => handleToast(res.tx, res.localTx))
       .catch((err) => handleContractCallError('callCreateLock', err, FunctionName.CREATE_LOCK))
   }

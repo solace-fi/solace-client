@@ -1,15 +1,17 @@
 import { BigNumber } from 'ethers'
 import { useContracts } from '../context/ContractsManager'
 import { FunctionName, TransactionCondition } from '../constants/enums'
-import { GasConfiguration, LocalTx, TxResult } from '../constants/types'
+import { LocalTx, TxResult } from '../constants/types'
 import { FunctionGasLimits } from '../constants/mappings/gasMapping'
 import { useMemo } from 'react'
+import { useGetFunctionGas } from './useGas'
 
 export const useCpFarm = () => {
   const { keyContracts } = useContracts()
   const { cpFarm } = useMemo(() => keyContracts, [keyContracts])
+  const { gasConfig } = useGetFunctionGas()
 
-  const depositEth = async (parsedAmount: BigNumber, gasConfig: GasConfiguration): Promise<TxResult> => {
+  const depositEth = async (parsedAmount: BigNumber): Promise<TxResult> => {
     if (!cpFarm) return { tx: null, localTx: null }
     const tx = await cpFarm.depositEth({
       value: parsedAmount,
@@ -24,7 +26,7 @@ export const useCpFarm = () => {
     return { tx, localTx }
   }
 
-  const depositCp = async (parsedAmount: BigNumber, gasConfig: GasConfiguration): Promise<TxResult> => {
+  const depositCp = async (parsedAmount: BigNumber): Promise<TxResult> => {
     if (!cpFarm) return { tx: null, localTx: null }
     const tx = await cpFarm.depositCp(parsedAmount, {
       ...gasConfig,
@@ -38,7 +40,7 @@ export const useCpFarm = () => {
     return { tx, localTx }
   }
 
-  const withdrawCp = async (parsedAmount: BigNumber, gasConfig: GasConfiguration): Promise<TxResult> => {
+  const withdrawCp = async (parsedAmount: BigNumber): Promise<TxResult> => {
     if (!cpFarm) return { tx: null, localTx: null }
     const tx = await cpFarm.withdrawCp(parsedAmount, {
       ...gasConfig,

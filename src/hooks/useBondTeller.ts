@@ -1,6 +1,6 @@
 import { BigNumber } from 'ethers'
 import { useCallback, useEffect, useState, useMemo } from 'react'
-import { BondTellerDetails, GasConfiguration, TxResult, LocalTx } from '../constants/types'
+import { BondTellerDetails, TxResult, LocalTx } from '../constants/types'
 import { useContracts } from '../context/ContractsManager'
 import { getContract } from '../utils'
 
@@ -20,15 +20,17 @@ import { getCoingeckoTokenPrice } from '../utils/api'
 import { floatUnits } from '../utils/formatting'
 import { BondToken } from '../constants/types'
 import { useReadToken } from '../hooks/useToken'
+import { useGetFunctionGas } from './useGas'
 
 export const useBondTeller = (selectedBondDetail: BondTellerDetails | undefined) => {
+  const { gasConfig } = useGetFunctionGas()
+
   const deposit = async (
     parsedAmount: BigNumber,
     minAmountOut: BigNumber,
     recipient: string,
     stake: boolean,
-    func: FunctionName,
-    gasConfig: GasConfiguration
+    func: FunctionName
   ): Promise<TxResult> => {
     if (!selectedBondDetail) return { tx: null, localTx: null }
     const tx =
@@ -61,7 +63,7 @@ export const useBondTeller = (selectedBondDetail: BondTellerDetails | undefined)
     return { tx, localTx }
   }
 
-  const redeem = async (bondId: BigNumber, gasConfig: GasConfiguration): Promise<TxResult> => {
+  const redeem = async (bondId: BigNumber): Promise<TxResult> => {
     if (!selectedBondDetail) return { tx: null, localTx: null }
     const tx = await selectedBondDetail.tellerData.teller.contract.redeem(bondId, {
       ...gasConfig,

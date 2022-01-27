@@ -25,11 +25,13 @@ import { formatUnits, parseUnits } from '@ethersproject/units'
 /* import managers */
 import { useNetwork } from '../../../context/NetworkManager'
 import { useGeneral } from '../../../context/GeneralManager'
+import { useCachedData } from '../../../context/CachedDataManager'
 
 /* import constants */
 import { FunctionName, Unit } from '../../../constants/enums'
 import { LocalTx } from '../../../constants/types'
 import { BKPT_3 } from '../../../constants'
+import { FunctionGasLimits } from '../../../constants/mappings/gasMapping'
 
 /* import components */
 import { Modal } from '../../molecules/Modal'
@@ -49,12 +51,11 @@ import { useScpBalance } from '../../../hooks/useBalance'
 import { useCooldown, useVault } from '../../../hooks/useVault'
 import { useCpFarm } from '../../../hooks/useCpFarm'
 import { useWindowDimensions } from '../../../hooks/useWindowDimensions'
-import { useInputAmount } from '../../../hooks/useInputAmount'
+import { useInputAmount, useTransactionExecution } from '../../../hooks/useInputAmount'
 
 /* import utils */
 import { truncateValue } from '../../../utils/formatting'
 import { getLongtimeFromMillis, getTimeFromMillis } from '../../../utils/time'
-import { FunctionGasLimits } from '../../../constants/mappings/gasMapping'
 
 export const UnderwritingPoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, closeModal }) => {
   /*************************************************************************************
@@ -65,6 +66,7 @@ export const UnderwritingPoolModal: React.FC<PoolModalProps> = ({ modalTitle, fu
 
   const { haveErrors } = useGeneral()
   const { activeNetwork, currencyDecimals } = useNetwork()
+  const { gasPrice } = useCachedData()
 
   const [modalLoading, setModalLoading] = useState<boolean>(false)
   const [canCloseOnLoading, setCanCloseOnLoading] = useState<boolean>(false)
@@ -84,20 +86,8 @@ export const UnderwritingPoolModal: React.FC<PoolModalProps> = ({ modalTitle, fu
   } = useCooldown()
   const { canTransfer, vault, depositEth, withdrawEth } = useVault()
   const cpFarmFunctions = useCpFarm()
-  const {
-    gasConfig,
-    gasPrices,
-    selectedGasOption,
-    amount,
-    maxSelected,
-    handleSelectGasChange,
-    isAppropriateAmount,
-    handleToast,
-    handleContractCallError,
-    handleInputChange,
-    setMax,
-    resetAmount,
-  } = useInputAmount()
+  const { amount, maxSelected, isAppropriateAmount, handleInputChange, setMax, resetAmount } = useInputAmount()
+  const { handleToast, handleContractCallError } = useTransactionExecution()
   const { width } = useWindowDimensions()
   const assetBalance = useMemo(() => {
     switch (func) {
@@ -131,7 +121,7 @@ export const UnderwritingPoolModal: React.FC<PoolModalProps> = ({ modalTitle, fu
 
   const callDeposit = async () => {
     setModalLoading(true)
-    await depositEth(parseUnits(amount, currencyDecimals), gasConfig)
+    await depositEth(parseUnits(amount, currencyDecimals))
       .then((res) => _handleToast(res.tx, res.localTx))
       .catch((err) => _handleContractCallError('callDeposit', err, FunctionName.DEPOSIT_ETH))
   }
@@ -139,14 +129,14 @@ export const UnderwritingPoolModal: React.FC<PoolModalProps> = ({ modalTitle, fu
   const callDepositEth = async () => {
     setModalLoading(true)
     await cpFarmFunctions
-      .depositEth(parseUnits(amount, currencyDecimals), gasConfig)
+      .depositEth(parseUnits(amount, currencyDecimals))
       .then((res) => _handleToast(res.tx, res.localTx))
       .catch((err) => _handleContractCallError('callDepositEth', err, FunctionName.DEPOSIT_ETH))
   }
 
   const callWithdrawEth = async () => {
     setModalLoading(true)
-    await withdrawEth(parseUnits(amount, currencyDecimals), gasConfig)
+    await withdrawEth(parseUnits(amount, currencyDecimals))
       .then((res) => _handleToast(res.tx, res.localTx))
       .catch((err) => _handleContractCallError('callWithdrawEth', err, FunctionName.WITHDRAW_ETH))
   }
@@ -177,12 +167,11 @@ export const UnderwritingPoolModal: React.FC<PoolModalProps> = ({ modalTitle, fu
 
   const handleClose = useCallback(() => {
     resetAmount()
-    handleSelectGasChange(gasPrices.selected)
     setIsStaking(false)
     setModalLoading(false)
     setCanCloseOnLoading(false)
     closeModal()
-  }, [closeModal, gasPrices.selected])
+  }, [closeModal])
 
   /*************************************************************************************
 
@@ -192,7 +181,7 @@ export const UnderwritingPoolModal: React.FC<PoolModalProps> = ({ modalTitle, fu
 
   useEffect(() => {
     if (maxSelected) _setMax()
-  }, [handleSelectGasChange])
+  }, [gasPrice])
 
   useEffect(() => {
     setIsAcceptableAmount(isAppropriateAmount(amount, currencyDecimals, assetBalance))
@@ -274,12 +263,6 @@ export const UnderwritingPoolModal: React.FC<PoolModalProps> = ({ modalTitle, fu
           </Button>
         </ModalCell>
       </ModalRow>
-      <GasRadioGroup
-        gasPrices={gasPrices}
-        selectedGasOption={selectedGasOption}
-        handleSelectGasChange={handleSelectGasChange}
-        mb={20}
-      />
       {func == FunctionName.DEPOSIT_ETH && <UnderwritingForeword />}
       {modalLoading ? (
         <Loader />
