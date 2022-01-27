@@ -13,12 +13,11 @@ import USDC from '../../resources/svg/icons/usdc.svg'
 import ToggleSwitch from '../../components/atoms/ToggleSwitch'
 import { FixedHeightGrayBox, StyledGrayBox } from '../stake/components/GrayBox'
 import { VerticalSeparator } from '../stake/components/VerticalSeparator'
-import InputSection, { GenericInputSection } from '../stake/sections/InputSection'
-import CardRange from '../stake/components/CardRange'
-import styled, { css } from 'styled-components'
-import { FunSlider, StyledSlider } from '../../components/atoms/Input'
-import { Slider } from '@rebass/forms'
+import { GenericInputSection } from '../stake/sections/InputSection'
+import { StyledSlider } from '../../components/atoms/Input'
 import commaNumber from '../../utils/commaNumber'
+import { Table, TableHead, TableHeader, TableBody, TableRow, TableData } from '../../components/atoms/Table'
+import { StyledTooltip } from '../../components/molecules/Tooltip'
 
 function Card({
   children,
@@ -27,7 +26,6 @@ function Card({
   bigger,
   normous,
   horiz,
-  between,
   ...rest
 }: {
   children: React.ReactNode
@@ -36,7 +34,6 @@ function Card({
   /** it middle card flex 1.2 */ bigger?: boolean
   /*flex: 12*/ normous?: boolean
   horiz?: boolean
-  between?: boolean
 }) {
   const defaultStyle = style ?? {}
   // thinner is 0.8, bigger is 1.2
@@ -119,7 +116,9 @@ function CoverageLimit() {
           <Text t2 bold>
             Coverage Limit
           </Text>
-          <QuestionCircle height={20} width={20} color={'#aaa'} />
+          <StyledTooltip id={'coverage-limit'} tip={'Coverage Limit tip'}>
+            <QuestionCircle height={20} width={20} color={'#aaa'} />
+          </StyledTooltip>
         </Flex>
         <div>
           {!isEditing ? (
@@ -158,10 +157,58 @@ function CoverageLimit() {
             mt={18}
             min={0}
             max={totalFunds}
-            onChange={(e) => setUsd(Number(e.target.value))}
-            value={usd > 0 ? String(usd) : usd > 0 ? String(usd) : '0'}
+            onChange={(e) =>
+              isEditing
+                ? setUsd(Number(e.target.value))
+                : () => {
+                    1
+                  }
+            }
+            value={isEditing ? (usd > 0 ? String(usd) : usd > 0 ? String(usd) : '0') : coverageLimit}
           />
-          <Flex center mt={60}>
+          {isEditing && (
+            <Flex baseline gap={4} center mt={isEditing ? 28 : 60}>
+              <Text t4 bold>
+                {isEditing ? 'Fund to be covered:' : 'Funds covered:'}
+              </Text>
+              <Flex mt={2}>
+                <Text
+                  t3
+                  bold
+                  style={{
+                    fontSize: '18px',
+                  }}
+                >
+                  {/* formula: fund covered * 100 / totalFunds = fundsCovered% */}
+                  {(((isEditing ? usd : coverageLimit) * 100) / totalFunds).toFixed(0)}%
+                </Text>
+                {/* <Text t4 bold>
+                USD
+              </Text> */}
+              </Flex>
+            </Flex>
+          )}
+          <Flex baseline gap={4} center mt={isEditing ? 4 : 59}>
+            <Text t4 bold>
+              {'Funds covered:'}
+            </Text>
+            <Flex mt={2}>
+              <Text
+                t3
+                bold
+                style={{
+                  fontSize: '18px',
+                }}
+              >
+                {/* formula: fund covered * 100 / totalFunds = fundsCovered% */}
+                {((coverageLimit * 100) / totalFunds).toFixed(0)}%
+              </Text>
+              {/* <Text t4 bold>
+                USD
+              </Text> */}
+            </Flex>
+          </Flex>
+          <Flex center mt={4}>
             <Flex baseline gap={4} center>
               <Text t4 bold>
                 Total funds:
@@ -184,7 +231,7 @@ function CoverageLimit() {
           </Flex>
           <Flex center mt={6.5}>
             <Text t4>
-              Risk value:{' '}
+              Risk level:{' '}
               <Text
                 t3
                 warning
@@ -267,6 +314,21 @@ function CoverageBalance() {
   // setters for usd and days
   const [usd, setUsd] = React.useState('0')
   const [days, setDays] = React.useState('0')
+  // mock usd per day is $500
+  const [usdPerDay, setUsdPerDay] = React.useState(500)
+  // mock total funds is $3,123,411.32
+  const [coverageBalance, setCoverageBalance] = React.useState(3123411.32)
+  const handleUpdateDays = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setDays(e.target.value)
+    setUsd(String(Number(e.target.value) * usdPerDay))
+  }
+  const handleUpdateUsd = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setUsd(e.target.value)
+    setDays(String(Number(e.target.value) / usdPerDay))
+  }
+  const handleSubmit = () => {
+    // setCoverageBalance(usd)
+  }
   return (
     <Card bigger horiz>
       <Flex
@@ -284,7 +346,9 @@ function CoverageBalance() {
           <Text t2 bold>
             Coverage Balance
           </Text>
-          <QuestionCircle height={20} width={20} color={'#aaa'} />
+          <StyledTooltip id={'coverage-balance'} tip={'Coverage Balance'}>
+            <QuestionCircle height={20} width={20} color={'#aaa'} />
+          </StyledTooltip>
         </Flex>
         <Flex
           col
@@ -397,7 +461,7 @@ function CoverageActive() {
 
 function CoveragePrice() {
   return (
-    <Card normous={true} horiz>
+    <Card normous horiz>
       {/* top part / title */}
       {/* <Flex col stretch between> */}
       <Flex between col>
@@ -405,7 +469,9 @@ function CoveragePrice() {
           <Text t2 bold>
             Coverage Price*
           </Text>
-          <QuestionCircle height={20} width={20} color={'#aaa'} />
+          <StyledTooltip id={'coverage-price'} tip={'Coverage Price'}>
+            <QuestionCircle height={20} width={20} color={'#aaa'} />
+          </StyledTooltip>
         </Flex>
         {/* middle has padding l and r 40px, rest is p l and r 24px (comes with Card); vertical justify-between */}
         <Flex col gap={30} pl={40} pr={40}>
@@ -429,34 +495,34 @@ function CoveragePrice() {
   )
 }
 
-const StyledTable = styled.table`
-  background-color: ${(props) => props.theme.v2.raised};
-  border-collapse: separate;
-  border-spacing: 0 10px;
-  font-size: 14px;
-`
-const StyledTr = styled.tr``
+// const StyledTable = styled.table`
+//   background-color: ${(props) => props.theme.v2.raised};
+//   border-collapse: separate;
+//   border-spacing: 0 10px;
+//   font-size: 14px;
+// `
+// const StyledTr = styled.tr``
 
-const StyledTd = styled.td<{
-  first?: boolean
-  last?: boolean
-}>`
-  background-color: ${(props) => props.theme.body.bg_color};
-  padding: 10px 24px;
-  /* first and last ones have border-radius left and right 10px respectively */
-  ${(props) =>
-    props.first &&
-    css`
-      border-top-left-radius: 10px;
-      border-bottom-left-radius: 10px;
-    `}
-  ${(props) =>
-    props.last &&
-    css`
-      border-top-right-radius: 10px;
-      border-bottom-right-radius: 10px;
-    `}
-`
+// const StyledTd = styled.td<{
+//   first?: boolean
+//   last?: boolean
+// }>`
+//   background-color: ${(props) => props.theme.body.bg_color};
+//   padding: 10px 24px;
+//   /* first and last ones have border-radius left and right 10px respectively */
+//   ${(props) =>
+//     props.first &&
+//     css`
+//       border-top-left-radius: 10px;
+//       border-bottom-left-radius: 10px;
+//     `}
+//   ${(props) =>
+//     props.last &&
+//     css`
+//       border-top-right-radius: 10px;
+//       border-bottom-right-radius: 10px;
+//     `}
+// `
 
 function PortfolioTable() {
   /* table like this:
@@ -503,33 +569,55 @@ function PortfolioTable() {
     },
   ]
   return (
-    <StyledTable>
-      <thead>
-        <tr style={{}}>
-          <th style={{ textAlign: 'start', padding: '10px 24px' }}>Protocol</th>
-          <th style={{ textAlign: 'start', padding: '10px 24px' }}>Type</th>
-          <th style={{ textAlign: 'start', padding: '10px 24px' }}>Positions</th>
-          <th style={{ textAlign: 'start', padding: '10px 24px' }}>Amount</th>
-          <th style={{ textAlign: 'start', padding: '10px 24px' }}>Risk Level</th>
-        </tr>
-      </thead>
-      <tbody>
-        {data.map((row) => (
-          <StyledTr
-            key={row.id}
-            style={{
-              marginTop: '10px',
-            }}
-          >
-            <StyledTd first>{row.protocol}</StyledTd>
-            <StyledTd>{row.type}</StyledTd>
-            <StyledTd>{row.positions.join(', ')}</StyledTd>
-            <StyledTd>{row.amount}</StyledTd>
-            <StyledTd last>{row.riskLevel}</StyledTd>
-          </StyledTr>
-        ))}
-      </tbody>
-    </StyledTable>
+    <>
+      {/* <StyledTable>
+        <thead>
+          <tr style={{}}>
+            <th style={{ textAlign: 'start', padding: '10px 24px' }}>Protocol</th>
+            <th style={{ textAlign: 'start', padding: '10px 24px' }}>Type</th>
+            <th style={{ textAlign: 'start', padding: '10px 24px' }}>Positions</th>
+            <th style={{ textAlign: 'start', padding: '10px 24px' }}>Amount</th>
+            <th style={{ textAlign: 'start', padding: '10px 24px' }}>Risk Level</th>
+          </tr>
+        </thead>
+        <tbody>
+          {data.map((row) => (
+            <StyledTr
+              key={row.id}
+              style={{
+                marginTop: '10px',
+              }}
+            >
+              <StyledTd first>{row.protocol}</StyledTd>
+              <StyledTd>{row.type}</StyledTd>
+              <StyledTd>{row.positions.join(', ')}</StyledTd>
+              <StyledTd>{row.amount}</StyledTd>
+              <StyledTd last>{row.riskLevel}</StyledTd>
+            </StyledTr>
+          ))}
+        </tbody>
+      </StyledTable> */}
+      <Table>
+        <TableHead>
+          <TableHeader>Protocol</TableHeader>
+          <TableHeader>Type</TableHeader>
+          <TableHeader>Positions</TableHeader>
+          <TableHeader>Amount</TableHeader>
+          <TableHeader>Risk Level</TableHeader>
+        </TableHead>
+        <TableBody>
+          {data.map((row) => (
+            <TableRow key={row.id}>
+              <TableData>{row.protocol}</TableData>
+              <TableData>{row.type}</TableData>
+              <TableData>{row.positions.join(', ')}</TableData>
+              <TableData>{row.amount}</TableData>
+              <TableData>{row.riskLevel}</TableData>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </>
   )
 }
 
