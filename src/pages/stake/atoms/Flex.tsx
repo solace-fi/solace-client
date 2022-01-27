@@ -8,7 +8,7 @@ export default styled.div<{
   center?: boolean
   column?: boolean
   col?: boolean
-  end?: boolean
+  justifyEnd?: boolean
   stretch?: boolean
   wrap?: boolean
   mb?: number
@@ -22,6 +22,7 @@ export default styled.div<{
   w?: number
   hidden?: boolean
   baseline?: boolean
+  flex1?: boolean
 }>`
   display: flex;
   justify-content: 'flex-start';
@@ -68,4 +69,6 @@ export default styled.div<{
   gap: ${({ gap }) => gap}px;
   width: ${({ w }) => w}px;
   ${({ hidden }) => hidden && 'display: none;'}
+  ${({ justifyEnd }) => justifyEnd && 'justify-content: flex-end;'}
+  ${({ flex1 }) => flex1 && 'flex: 1;'}
 `
