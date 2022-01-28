@@ -5,7 +5,7 @@ import { useWallet } from '../context/WalletManager'
 import { FunctionName } from '../constants/enums'
 import { Provider, Web3Provider } from '@ethersproject/providers'
 import { decodeInput } from '../utils/decoder'
-import { formatTransactionContent } from '../utils/formatting'
+// import { formatTransactionContent } from '../utils/formatting'
 import { useContracts } from '../context/ContractsManager'
 import { useNetwork } from '../context/NetworkManager'
 import { useProvider } from '../context/ProviderManager'
@@ -21,7 +21,7 @@ export const useFetchTxHistoryByAddress = (): any => {
 
   const fetchTxHistoryByAddress = async (account: string) => {
     running.current = true
-    await fetchExplorerTxHistoryByAddress(activeNetwork.explorer.apiUrl, account)
+    await fetchExplorerTxHistoryByAddress(activeNetwork, account)
       .then((result) => {
         if (result.status == '1') {
           const contractAddrs = contractSources.map((contract) => contract.addr)

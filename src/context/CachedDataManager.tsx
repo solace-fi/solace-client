@@ -32,7 +32,7 @@ type CachedData = {
   }
   showAccountModal: boolean
   version: number
-  gasPrices: GasFeeListState
+  gasPrice: number | undefined
   addLocalTransactions: (txToAdd: LocalTx) => void
   deleteLocalTransactions: (txsToDelete: []) => void
   openAccountModal: () => void
@@ -48,10 +48,7 @@ const CachedDataContext = createContext<CachedData>({
   },
   showAccountModal: false,
   version: 0,
-  gasPrices: {
-    options: [],
-    loading: true,
-  },
+  gasPrice: undefined,
   addLocalTransactions: () => undefined,
   deleteLocalTransactions: () => undefined,
   openAccountModal: () => undefined,
@@ -63,7 +60,7 @@ const CachedDataProvider: React.FC = (props) => {
   const { chainId } = useNetwork()
   const [localTxs, setLocalTxs] = useLocalStorage<LocalTx[]>('solace_loc_txs', [])
   const [reload, version] = useReload()
-  const gasPrices = useFetchGasPrice()
+  const gasPrice = useFetchGasPrice()
   const { addNotices, removeNotices } = useGeneral()
   const { policiesLoading, userPolicies, setCanGetAssessments } = usePolicyGetter(false, account)
   const [accountModal, setAccountModal] = useState<boolean>(false)
@@ -130,7 +127,7 @@ const CachedDataProvider: React.FC = (props) => {
       userPolicyData: { policiesLoading, userPolicies, setCanGetAssessments },
       showAccountModal: accountModal,
       version,
-      gasPrices,
+      gasPrice,
       addLocalTransactions,
       deleteLocalTransactions,
       openAccountModal: openModal,
@@ -141,7 +138,7 @@ const CachedDataProvider: React.FC = (props) => {
       addLocalTransactions,
       deleteLocalTransactions,
       version,
-      gasPrices,
+      gasPrice,
       policiesLoading,
       userPolicies,
       setCanGetAssessments,

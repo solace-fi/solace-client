@@ -13,7 +13,7 @@ import {
   truncateValue,
 } from '../../../../utils/formatting'
 import { BigNumber } from 'ethers'
-import { useInputAmount } from '../../../../hooks/useInputAmount'
+import { useInputAmount, useTransactionExecution } from '../../../../hooks/useInputAmount'
 import { useXSLocker } from '../../../../hooks/useXSLocker'
 import { useWallet } from '../../../../context/WalletManager'
 import { FunctionName } from '../../../../constants/enums'
@@ -30,7 +30,8 @@ import { BKPT_5 } from '../../../../constants'
 import { Text } from '../../../../components/atoms/Typography'
 
 export default function WithdrawForm({ lock }: { lock: LockData }): JSX.Element {
-  const { handleToast, handleContractCallError, isAppropriateAmount, gasConfig } = useInputAmount()
+  const { isAppropriateAmount } = useInputAmount()
+  const { handleToast, handleContractCallError } = useTransactionExecution()
   const { withdrawFromLock } = useXSLocker()
   const { account } = useWallet()
   const { width } = useWindowDimensions()
@@ -49,7 +50,7 @@ export default function WithdrawForm({ lock }: { lock: LockData }): JSX.Element 
     if (isMax) {
       type = FunctionName.WITHDRAW_FROM_LOCK
     }
-    await withdrawFromLock(account, [lock.xsLockID], gasConfig, isMax ? undefined : parseUnits(inputValue, 18))
+    await withdrawFromLock(account, [lock.xsLockID], isMax ? undefined : parseUnits(inputValue, 18))
       .then((res) => handleToast(res.tx, res.localTx))
       .catch((err) => handleContractCallError('callWithdrawFromLock', err, type))
   }

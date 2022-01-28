@@ -15,7 +15,7 @@ import InformationBox from '../../components/InformationBox'
 import { InfoBoxType } from '../../types/InfoBoxType'
 import { Tab } from '../../types/Tab'
 import InputSection from '../InputSection'
-import { useInputAmount } from '../../../../hooks/useInputAmount'
+import { useInputAmount, useTransactionExecution } from '../../../../hooks/useInputAmount'
 import { LockData } from '../../../../constants/types'
 import { FunctionName } from '../../../../constants/enums'
 import { useXSLocker } from '../../../../hooks/useXSLocker'
@@ -32,7 +32,8 @@ import { Text } from '../../../../components/atoms/Typography'
 
 export default function DepositForm({ lock }: { lock: LockData }): JSX.Element {
   const solaceBalance = useSolaceBalance()
-  const { handleToast, handleContractCallError, isAppropriateAmount, gasConfig } = useInputAmount()
+  const { isAppropriateAmount } = useInputAmount()
+  const { handleToast, handleContractCallError } = useTransactionExecution()
   const { increaseLockAmount } = useXSLocker()
   const { account } = useWallet()
   const { width } = useWindowDimensions()
@@ -49,7 +50,7 @@ export default function DepositForm({ lock }: { lock: LockData }): JSX.Element {
 
   const callIncreaseLockAmount = async () => {
     if (!account) return
-    await increaseLockAmount(account, lock.xsLockID, parseUnits(inputValue, 18), gasConfig)
+    await increaseLockAmount(account, lock.xsLockID, parseUnits(inputValue, 18))
       .then((res) => handleToast(res.tx, res.localTx))
       .catch((err) => handleContractCallError('callIncreaseLockAmount', err, FunctionName.INCREASE_LOCK_AMOUNT))
   }

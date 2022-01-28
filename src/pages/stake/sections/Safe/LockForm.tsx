@@ -8,7 +8,7 @@ import InputSection from '../InputSection'
 import { LockData } from '../../../../constants/types'
 import { BKPT_5, DAYS_PER_YEAR } from '../../../../constants'
 import { useXSLocker } from '../../../../hooks/useXSLocker'
-import { useInputAmount } from '../../../../hooks/useInputAmount'
+import { useTransactionExecution } from '../../../../hooks/useInputAmount'
 import { FunctionName } from '../../../../constants/enums'
 import { BigNumber } from 'ethers'
 import { useProvider } from '../../../../context/ProviderManager'
@@ -28,7 +28,7 @@ import { useProjectedBenefits } from '../../../../hooks/useStakingRewards'
 export default function LockForm({ lock }: { lock: LockData }): JSX.Element {
   const { latestBlock } = useProvider()
   const { extendLock } = useXSLocker()
-  const { handleToast, handleContractCallError, gasConfig } = useInputAmount()
+  const { handleToast, handleContractCallError } = useTransactionExecution()
   const { width } = useWindowDimensions()
 
   const [inputValue, setInputValue] = React.useState('0')
@@ -40,7 +40,7 @@ export default function LockForm({ lock }: { lock: LockData }): JSX.Element {
   const callExtendLock = async () => {
     if (!latestBlock || !inputValue || inputValue == '0') return
     const seconds = latestBlock.timestamp + parseInt(inputValue) * 86400
-    await extendLock(lock.xsLockID, BigNumber.from(seconds), gasConfig)
+    await extendLock(lock.xsLockID, BigNumber.from(seconds))
       .then((res) => handleToast(res.tx, res.localTx))
       .catch((err) => handleContractCallError('callExtendLock', err, FunctionName.INCREASE_LOCK_AMOUNT))
   }

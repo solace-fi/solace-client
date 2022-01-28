@@ -54,7 +54,7 @@ import { BondOptions } from './BondOptions'
 import { PublicBondInfo } from './PublicBondInfo'
 
 /* import hooks */
-import { useInputAmount } from '../../../hooks/useInputAmount'
+import { useInputAmount, useTransactionExecution } from '../../../hooks/useInputAmount'
 import { useReadToken, useTokenAllowance } from '../../../hooks/useToken'
 import { useNativeTokenBalance } from '../../../hooks/useBalance'
 import { useBondTeller, useUserBondData } from '../../../hooks/useBondTeller'
@@ -64,6 +64,7 @@ import { useWindowDimensions } from '../../../hooks/useWindowDimensions'
 import { accurateMultiply, formatAmount } from '../../../utils/formatting'
 import { queryBalance } from '../../../utils/contract'
 import { PrivateBondInfo } from './PrivateBondInfo'
+import { FunctionGasLimits } from '../../../constants/mappings/gasMapping'
 
 interface BondModalProps {
   closeModal: () => void
@@ -113,16 +114,8 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
   const { deposit, redeem } = useBondTeller(selectedBondDetail)
   const { width } = useWindowDimensions()
   const { getUserBondData } = useUserBondData()
-  const {
-    gasConfig,
-    amount,
-    isAppropriateAmount,
-    handleToast,
-    handleContractCallError,
-    handleInputChange,
-    setMax,
-    resetAmount,
-  } = useInputAmount()
+  const { amount, isAppropriateAmount, handleInputChange, setMax, resetAmount } = useInputAmount()
+  const { handleToast, handleContractCallError } = useTransactionExecution()
   const [contractForAllowance, setContractForAllowance] = useState<Contract | null>(null)
   const [spenderAddress, setSpenderAddress] = useState<string | null>(null)
   const approval = useTokenAllowance(
@@ -177,7 +170,7 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
     const slippageInt = parseInt(accurateMultiply(slippagePrct, 2))
     const calcAOut = stake ? calculatedAmountOut_X : calculatedAmountOut
     const minAmountOut = calcAOut.mul(BigNumber.from(MAX_BPS - slippageInt)).div(BigNumber.from(MAX_BPS))
-    await deposit(parseUnits(amount, pncplDecimals), minAmountOut, bondRecipient, stake, func, gasConfig)
+    await deposit(parseUnits(amount, pncplDecimals), minAmountOut, bondRecipient, stake, func)
       .then((res) => _handleToast(res.tx, res.localTx))
       .catch((err) => _handleContractCallError('callDepositBond', err, func))
   }
@@ -185,7 +178,7 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
   const callRedeemBond = async (bondId: BigNumber) => {
     if (bondId.isZero()) return
     setModalLoading(true)
-    await redeem(bondId, gasConfig)
+    await redeem(bondId)
       .then((res) => _handleToast(res.tx, res.localTx))
       .catch((err) => _handleContractCallError('callRedeemBond', err, func))
   }
@@ -232,7 +225,13 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
   const _setMax = () => {
     if (!pncplDecimals || !calculatedAmountIn || !calculatedAmountIn_X) return
     const calcAIn = isStaking ? calculatedAmountIn_X : calculatedAmountIn
-    setMax(assetBalance.gt(calcAIn) ? calcAIn : assetBalance, pncplDecimals, func)
+    if (func == FunctionName.DEPOSIT_ETH) {
+    }
+    setMax(
+      assetBalance.gt(calcAIn) ? calcAIn : assetBalance,
+      pncplDecimals,
+      func == FunctionName.DEPOSIT_ETH ? FunctionGasLimits['tellerEth.depositEth'] : undefined
+    )
   }
 
   const calculateAmountOut = async (_amount: string): Promise<void> => {
