@@ -1,5 +1,3 @@
-import { FunctionName } from '../enums'
-
 export const FunctionGasLimits: { [key: string]: number } = {
   ['claimsEscrow.withdrawClaimsPayout']: 150000,
   ['selectedProtocol.updatePolicy']: 230032,
@@ -31,45 +29,4 @@ export const FunctionGasLimits: { [key: string]: number } = {
   ['xsLocker.withdrawMany']: 493442,
   ['xsLocker.withdraw']: 365209,
   ['xSolaceMigrator.migrateSigned']: 600000,
-}
-
-// this function is used in operations that determine max amount to send if the same currency being sent is also used as gas
-export const getNameToFunctionGasLimit = (functionName: FunctionName, cond?: string): number => {
-  switch (functionName) {
-    case FunctionName.WITHDRAW_CLAIMS_PAYOUT:
-      return FunctionGasLimits['claimsEscrow.withdrawClaimsPayout']
-    case FunctionName.UPDATE_POLICY:
-      return FunctionGasLimits['selectedProtocol.updatePolicy']
-    case FunctionName.UPDATE_POLICY_AMOUNT:
-      return FunctionGasLimits['selectedProtocol.updateCoverAmount']
-    case FunctionName.EXTEND_POLICY_PERIOD:
-      return FunctionGasLimits['selectedProtocol.extendPolicy']
-    case FunctionName.CANCEL_POLICY:
-      return FunctionGasLimits['selectedProtocol.cancelPolicy']
-    case FunctionName.FARM_OPTION_MULTI:
-      return FunctionGasLimits['farmController.farmOptionMulti']
-    case FunctionName.BOND_DEPOSIT_ERC20:
-      return FunctionGasLimits['tellerErc20.deposit']
-    case FunctionName.DEPOSIT_ETH:
-      if (!cond) return FunctionGasLimits['tellerEth.depositEth'] // by default, return teller variant of depositEth
-      if (cond == 'vault') return FunctionGasLimits['vault.depositEth']
-      else return FunctionGasLimits['cpFarm.depositEth']
-    case FunctionName.BOND_DEPOSIT_WETH:
-      return FunctionGasLimits['tellerEth.depositWeth']
-    case FunctionName.BOND_REDEEM:
-      return FunctionGasLimits['tellerEth.redeem']
-    case FunctionName.DEPOSIT_CP:
-      return FunctionGasLimits['cpFarm.depositCp']
-    case FunctionName.WITHDRAW_CP:
-      return FunctionGasLimits['cpFarm.withdrawCp']
-    case FunctionName.EXERCISE_OPTION:
-      return FunctionGasLimits['optionsFarming.exerciseOption']
-    case FunctionName.WITHDRAW_ETH:
-      return FunctionGasLimits['vault.withdrawEth']
-    case FunctionName.STAKE_V1:
-      return FunctionGasLimits['xSolace.stakeSigned']
-    case FunctionName.UNSTAKE_V1:
-    default:
-      return FunctionGasLimits['xSolace.unstake']
-  }
 }

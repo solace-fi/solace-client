@@ -207,13 +207,13 @@ export default function NewSafe({ isOpen }: { isOpen: boolean }): JSX.Element {
                 </Flex>
               </Flex>
             </Flex>
-            <Flex p={24} stretch>
+            {/* <Flex p={24} stretch>
               <InformationBox
                 type={InfoBoxType.info}
                 text="New deposit will be added to current locked amount locked for the same time."
                 forceExpand
               />
-            </Flex>
+            </Flex> */}
             <Flex pb={24} pl={24} w={BKPT_5 > width ? 333 : undefined}>
               <Button
                 secondary

@@ -54,6 +54,13 @@ export enum FunctionName {
   COMPOUND_LOCK = 'CompoundLock',
   COMPOUND_LOCKS = 'CompoundLocks',
 
+  // soteria
+  SOTERIA_ACTIVATE = 'ActivatePolicy',
+  SOTERIA_DEACTIVATE = 'DeactivatePolicy',
+  SOTERIA_UPDATE = 'UpdateCoverLimit',
+  SOTERIA_DEPOSIT = 'Deposit',
+  SOTERIA_WITHDRAW = 'Withdraw',
+
   // bond tellers
   BOND_DEPOSIT_WETH = 'DepositWeth',
   BOND_DEPOSIT_ERC20 = 'Deposit',

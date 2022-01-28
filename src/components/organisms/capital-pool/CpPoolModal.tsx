@@ -52,6 +52,7 @@ import { useInputAmount } from '../../../hooks/useInputAmount'
 
 /* import utils */
 import { getUnit, truncateValue } from '../../../utils/formatting'
+import { FunctionGasLimits } from '../../../constants/mappings/gasMapping'
 
 export const CpPoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, closeModal }) => {
   /*************************************************************************************
@@ -165,7 +166,11 @@ export const CpPoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen
   }
 
   const _setMax = () => {
-    setMax(assetBalance, currencyDecimals, func, 'cpFarm')
+    setMax(
+      assetBalance,
+      currencyDecimals,
+      func == FunctionName.DEPOSIT_ETH ? FunctionGasLimits['cpFarm.depositEth'] : undefined
+    )
   }
 
   const handleCallbackFunc = async () => {

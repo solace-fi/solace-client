@@ -64,6 +64,7 @@ import { useWindowDimensions } from '../../../hooks/useWindowDimensions'
 import { accurateMultiply, formatAmount } from '../../../utils/formatting'
 import { queryBalance } from '../../../utils/contract'
 import { PrivateBondInfo } from './PrivateBondInfo'
+import { FunctionGasLimits } from '../../../constants/mappings/gasMapping'
 
 interface BondModalProps {
   closeModal: () => void
@@ -232,7 +233,13 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
   const _setMax = () => {
     if (!pncplDecimals || !calculatedAmountIn || !calculatedAmountIn_X) return
     const calcAIn = isStaking ? calculatedAmountIn_X : calculatedAmountIn
-    setMax(assetBalance.gt(calcAIn) ? calcAIn : assetBalance, pncplDecimals, func)
+    if (func == FunctionName.DEPOSIT_ETH) {
+    }
+    setMax(
+      assetBalance.gt(calcAIn) ? calcAIn : assetBalance,
+      pncplDecimals,
+      func == FunctionName.DEPOSIT_ETH ? FunctionGasLimits['tellerEth.depositEth'] : undefined
+    )
   }
 
   const calculateAmountOut = async (_amount: string): Promise<void> => {

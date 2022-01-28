@@ -13,7 +13,6 @@ import { GasFeeOption, LocalTx } from '../constants/types'
 import { useGetFunctionGas } from './useGas'
 
 import { fixed, filterAmount, formatAmount } from '../utils/formatting'
-import { getNameToFunctionGasLimit } from '../constants/mappings/gasMapping'
 
 export const useTransactionExecution = () => {
   const { addLocalTransactions, reload } = useCachedData()
@@ -60,11 +59,11 @@ export const useInputAmount = () => {
 
   const handleSelectGasChange = (option: GasFeeOption | undefined) => setSelectedGasOption(option)
 
-  const calculateMaxAmount = (balance: BigNumber, amountDecimals: number, func?: FunctionName, funcCond?: string) => {
+  const calculateMaxAmount = (balance: BigNumber, amountDecimals: number, gasLimit?: number) => {
     const bal = formatUnits(balance, amountDecimals)
-    if (func !== FunctionName.DEPOSIT_ETH || !selectedGasOption?.value) return bal
-    const gasInEth = (getNameToFunctionGasLimit(func, funcCond) / POW_NINE) * selectedGasOption.value
-    return Math.max(fixed(fixed(bal, 6) - fixed(gasInEth, 6), 6), 0)
+    if (!gasLimit || !selectedGasOption?.value) return bal
+    const gasInCurrency = (gasLimit / POW_NINE) * selectedGasOption.value
+    return Math.max(fixed(fixed(bal, 6) - fixed(gasInCurrency, 6), 6), 0)
   }
 
   const handleInputChange = (input: string, maxDecimals?: number, maxBalance?: string) => {
@@ -76,8 +75,8 @@ export const useInputAmount = () => {
     setMaxSelected(false)
   }
 
-  const setMax = (balance: BigNumber, balanceDecimals: number, func?: FunctionName, funcCond?: string) => {
-    const calculatedMaxAmount = calculateMaxAmount(balance, balanceDecimals, func, funcCond)
+  const setMax = (balance: BigNumber, balanceDecimals: number, gasLimit?: number) => {
+    const calculatedMaxAmount = calculateMaxAmount(balance, balanceDecimals, gasLimit)
     setAmount(calculatedMaxAmount.toString())
     setMaxSelected(true)
   }

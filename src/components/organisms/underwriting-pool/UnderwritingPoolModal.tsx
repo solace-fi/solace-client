@@ -54,6 +54,7 @@ import { useInputAmount } from '../../../hooks/useInputAmount'
 /* import utils */
 import { truncateValue } from '../../../utils/formatting'
 import { getLongtimeFromMillis, getTimeFromMillis } from '../../../utils/time'
+import { FunctionGasLimits } from '../../../constants/mappings/gasMapping'
 
 export const UnderwritingPoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, closeModal }) => {
   /*************************************************************************************
@@ -167,7 +168,11 @@ export const UnderwritingPoolModal: React.FC<PoolModalProps> = ({ modalTitle, fu
   }
 
   const _setMax = () => {
-    setMax(assetBalance, currencyDecimals, func, 'vault')
+    setMax(
+      assetBalance,
+      currencyDecimals,
+      func == FunctionName.DEPOSIT_ETH ? FunctionGasLimits['vault.depositEth'] : undefined
+    )
   }
 
   const handleClose = useCallback(() => {
