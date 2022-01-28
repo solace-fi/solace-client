@@ -64,8 +64,7 @@ export const MyClaims: React.FC = () => {
   const { addLocalTransactions, reload } = useCachedData()
   const { makeTxToast } = useNotifications()
   const claimsDetails = useGetClaimsDetails()
-  const { getAutoGasConfig } = useGetFunctionGas()
-  const gasConfig = useMemo(() => getAutoGasConfig(), [getAutoGasConfig])
+  const { gasConfig } = useGetFunctionGas()
   const [openClaims, setOpenClaims] = useState<boolean>(true)
   const { width } = useWindowDimensions()
 

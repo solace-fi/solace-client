@@ -74,8 +74,7 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
   const { selectedProtocol } = useContracts()
   const { makeTxToast } = useNotifications()
   const { activeNetwork, currencyDecimals } = useNetwork()
-  const { getAutoGasConfig, getSupportedProductGasLimit } = useGetFunctionGas()
-  const gasConfig = useMemo(() => getAutoGasConfig(), [getAutoGasConfig])
+  const { gasConfig, getSupportedProductGasLimit } = useGetFunctionGas()
   const maxCoverPerPolicyInWei = useMemo(() => parseUnits(maxCoverPerPolicy, currencyDecimals), [
     maxCoverPerPolicy,
     currencyDecimals,

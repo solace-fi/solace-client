@@ -238,11 +238,11 @@ export const useCachePositions = () => {
         console.log('useCachePositions: no account found, no init needed yet')
         return
       }
-      const transferHistory = await fetchTransferEventsOfUser(activeNetwork.explorer.apiUrl, account)
+      const transferHistory = await fetchTransferEventsOfUser(activeNetwork, account)
       setTransferHistory(transferHistory)
     }
     getTransfers()
-  }, [account, activeNetwork.explorer.apiUrl])
+  }, [account, activeNetwork])
 
   return { batchFetching, storedPosData, handleGetCache, getCacheForPolicies }
 }

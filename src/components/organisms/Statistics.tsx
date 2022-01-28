@@ -45,13 +45,13 @@ import { HyperLink } from '../atoms/Link'
 import { useSolaceBalance, useUnderWritingPoolBalance } from '../../hooks/useBalance'
 import { usePolicyGetter } from '../../hooks/usePolicyGetter'
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'
-import { usePairPrice } from '../../hooks/usePair'
 import { useUserLockData } from '../../hooks/useXSLocker'
 import { useStakingRewards } from '../../hooks/useStakingRewards'
 import { useReadToken } from '../../hooks/useToken'
 
 /* import utils */
 import { truncateValue } from '../../utils/formatting'
+import { getCoingeckoTokenPrice } from '../../utils/api'
 
 export const Statistics: React.FC = () => {
   /*************************************************************************************
@@ -60,7 +60,7 @@ export const Statistics: React.FC = () => {
 
   *************************************************************************************/
   const { account, initialized } = useWallet()
-  const { activeNetwork, currencyDecimals, chainId } = useNetwork()
+  const { activeNetwork, currencyDecimals, chainId, networks } = useNetwork()
   const { keyContracts } = useContracts()
   const { latestBlock } = useProvider()
   const { solace } = useMemo(() => keyContracts, [keyContracts])
@@ -72,7 +72,7 @@ export const Statistics: React.FC = () => {
   const { getGlobalLockStats } = useStakingRewards()
   const [totalActiveCoverAmount, setTotalActiveCoverAmount] = useState<string>('-')
   const [totalActivePolicies, setTotalActivePolicies] = useState<string>('-')
-  const { pairPrice } = usePairPrice(solace)
+  const [pairPrice, setPairPrice] = useState<string>('-')
   const { underwritingPoolBalance } = useUnderWritingPoolBalance()
   const [userLockInfo, setUserLockInfo] = useState<UserLocksInfo>({
     pendingRewards: ZERO,
@@ -92,15 +92,20 @@ export const Statistics: React.FC = () => {
 
   /*************************************************************************************
 
-  contract functions
-
-  *************************************************************************************/
-
-  /*************************************************************************************
-
   useEffect hooks
 
   *************************************************************************************/
+
+  useEffect(() => {
+    const getPrice = async () => {
+      if (!latestBlock) return
+      const mainnetSolaceAddr = networks[0].config.keyContracts.solace.addr
+      const coingeckoPrice = await getCoingeckoTokenPrice(mainnetSolaceAddr, 'usd', 'ethereum')
+      const price = parseFloat(coingeckoPrice ?? '0')
+      setPairPrice(truncateValue(price, 2))
+    }
+    getPrice()
+  }, [latestBlock, networks])
 
   useEffect(() => {
     try {

@@ -2,17 +2,19 @@ import { useEffect, useState, useMemo } from 'react'
 import { useContracts } from '../context/ContractsManager'
 import { BigNumber } from 'ethers'
 import { formatUnits, parseUnits } from '@ethersproject/units'
-import { GasConfiguration, GlobalLockInfo, LocalTx } from '../constants/types'
+import { GlobalLockInfo, LocalTx } from '../constants/types'
 import { ZERO } from '../constants'
 import { FunctionName, TransactionCondition } from '../constants/enums'
 import { rangeFrom0 } from '../utils/numeric'
 import { FunctionGasLimits } from '../constants/mappings/gasMapping'
 import { useProvider } from '../context/ProviderManager'
 import { convertSciNotaToPrecise, truncateValue, formatAmount } from '../utils/formatting'
+import { useGetFunctionGas } from './useGas'
 
 export const useStakingRewards = () => {
   const { keyContracts } = useContracts()
   const { stakingRewards, xsLocker } = useMemo(() => keyContracts, [keyContracts])
+  const { gasConfig } = useGetFunctionGas()
 
   const getUserPendingRewards = async (account: string) => {
     let pendingRewards = ZERO
@@ -98,7 +100,7 @@ export const useStakingRewards = () => {
     }
   }
 
-  const harvestLockRewards = async (xsLockIDs: BigNumber[], gasConfig: GasConfiguration) => {
+  const harvestLockRewards = async (xsLockIDs: BigNumber[]) => {
     if (!stakingRewards || xsLockIDs.length == 0) return { tx: null, localTx: null }
     let tx = null
     let type = FunctionName.HARVEST_LOCK
@@ -122,11 +124,7 @@ export const useStakingRewards = () => {
     return { tx, localTx }
   }
 
-  const compoundLockRewards = async (
-    xsLockIDs: BigNumber[],
-    gasConfig: GasConfiguration,
-    targetXsLockID?: BigNumber
-  ) => {
+  const compoundLockRewards = async (xsLockIDs: BigNumber[], targetXsLockID?: BigNumber) => {
     if (!stakingRewards || xsLockIDs.length == 0) return { tx: null, localTx: null }
     let tx = null
     let type = FunctionName.COMPOUND_LOCK

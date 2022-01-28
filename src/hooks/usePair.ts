@@ -41,13 +41,13 @@ export function usePairPrice(token: Contract | null | undefined) {
 export const useGetPairPrice = () => {
   const { library } = useWallet()
   const { activeNetwork, chainId } = useNetwork()
-  const platform = useMemo(() => {
+  const coingeckoTokenId = useMemo(() => {
     switch (activeNetwork.nativeCurrency.symbol) {
       case Unit.ETH:
         return 'ethereum'
       case Unit.MATIC:
       default:
-        return 'matic'
+        return 'matic-network'
     }
   }, [activeNetwork.nativeCurrency.symbol])
 
@@ -87,7 +87,7 @@ export const useGetPairPrice = () => {
   }
 
   // lp token to USDC price
-  const getPriceFromLp = async (lpToken: Contract): Promise<number> => {
+  const getPriceFromSushiswapLp = async (lpToken: Contract): Promise<number> => {
     if (!library) return -1
     try {
       const [token0, token1] = await Promise.all([lpToken.token0(), lpToken.token1()])
@@ -106,11 +106,11 @@ export const useGetPairPrice = () => {
       let price1 = await getPairPrice(token1Contract)
 
       if (price0 == -1) {
-        const coinGeckoTokenPrice = await getCoingeckoTokenPrice(token0Contract.address, 'usd', platform)
+        const coinGeckoTokenPrice = await getCoingeckoTokenPrice(token0Contract.address, 'usd', coingeckoTokenId)
         price0 = parseFloat(coinGeckoTokenPrice ?? '0')
       }
       if (price1 == -1) {
-        const coinGeckoTokenPrice = await getCoingeckoTokenPrice(token1Contract.address, 'usd', platform)
+        const coinGeckoTokenPrice = await getCoingeckoTokenPrice(token1Contract.address, 'usd', coingeckoTokenId)
         price1 = parseFloat(coinGeckoTokenPrice ?? '0')
       }
 
@@ -124,10 +124,10 @@ export const useGetPairPrice = () => {
       const multiplied = poolShareOfOneUnit * (price0 * totalReserve0 + price1 * totalReserve1)
       return multiplied
     } catch (err) {
-      console.log(`getPriceFromLp, cannot retrieve for ${lpToken.address}`, err)
+      console.log(`getPriceFromSushiswapLp, cannot retrieve for ${lpToken.address}`, err)
       return -1
     }
   }
 
-  return { getPairPrice, getPriceFromLp }
+  return { getPairPrice, getPriceFromSushiswapLp }
 }

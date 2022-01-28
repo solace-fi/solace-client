@@ -90,8 +90,7 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
     currencyDecimals,
   ])
   const { width } = useWindowDimensions()
-  const { getAutoGasConfig } = useGetFunctionGas()
-  const gasConfig = useMemo(() => getAutoGasConfig(), [getAutoGasConfig])
+  const { gasConfig } = useGetFunctionGas()
   const daysLeft = useMemo(
     () =>
       getDaysLeftByBlockNum(selectedPolicy ? selectedPolicy.expirationBlock : 0, latestBlock ? latestBlock.number : 0),

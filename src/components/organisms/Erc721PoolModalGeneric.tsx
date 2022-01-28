@@ -42,10 +42,11 @@ import { SourceContract } from './SourceContract'
 
 /* import hooks */
 import { useUserStakedValue } from '../../hooks/useFarm'
-import { useInputAmount } from '../../hooks/useInputAmount'
+import { useTransactionExecution } from '../../hooks/useInputAmount'
 
 /* import utils */
 import { getUnit, truncateValue } from '../../utils/formatting'
+import { useGetFunctionGas } from '../../hooks/useGas'
 
 interface Erc721PoolModalGenericProps {
   farmContract: Contract | null | undefined
@@ -85,14 +86,8 @@ export const Erc721PoolModalGeneric: React.FC<PoolModalProps & Erc721PoolModalGe
   const [nftSelection, setNftSelection] = useState<{ value: string; label: string }>({ value: '', label: '' })
   const canSetSelection = useRef(true)
   const userStakeValue = useUserStakedValue(farmContract)
-  const {
-    gasConfig,
-    gasPrices,
-    selectedGasOption,
-    handleSelectGasChange,
-    handleToast,
-    handleContractCallError,
-  } = useInputAmount()
+  const { gasConfig } = useGetFunctionGas()
+  const { handleToast, handleContractCallError } = useTransactionExecution()
   const assetBalance = useMemo(() => {
     switch (func) {
       case depositFunc.name:
@@ -153,12 +148,11 @@ export const Erc721PoolModalGeneric: React.FC<PoolModalProps & Erc721PoolModalGe
   }
 
   const handleClose = useCallback(() => {
-    handleSelectGasChange(gasPrices.selected)
     setModalLoading(false)
     handleNft({ value: '0', label: '' })
     canSetSelection.current = true
     closeModal()
-  }, [closeModal, gasPrices.selected])
+  }, [closeModal])
 
   const handleNft = useCallback((target: { value: string; label: string }) => {
     setNftId(BigNumber.from(target.value))
@@ -203,12 +197,6 @@ export const Erc721PoolModalGeneric: React.FC<PoolModalProps & Erc721PoolModalGe
         nftSelection={nftSelection}
         handleNft={handleNft}
         nftId={nftId}
-      />
-      <GasRadioGroup
-        gasPrices={gasPrices}
-        selectedGasOption={selectedGasOption}
-        handleSelectGasChange={handleSelectGasChange}
-        mb={20}
       />
       {modalLoading ? (
         <Loader />

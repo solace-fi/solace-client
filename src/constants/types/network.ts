@@ -8,7 +8,7 @@ export type NetworkConfig = {
   name: string
   chainId: number
   isTestnet: boolean
-  logo: string
+  logo?: string
   supportedTxTypes: number[]
   nativeCurrency: {
     symbol: Unit
@@ -19,8 +19,8 @@ export type NetworkConfig = {
     pollingInterval: number
   }
   explorer: {
-    name: 'Etherscan' | 'Polygonscan'
-    key: string
+    name: string
+    key?: string
     url: string
     apiUrl: string
     excludedContractAddrs: string[]
