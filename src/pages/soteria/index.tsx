@@ -11,12 +11,12 @@ import { Button } from '../../components/atoms/Button'
 import USD from '../../resources/svg/icons/usd.svg'
 import USDC from '../../resources/svg/icons/usdc.svg'
 import ToggleSwitch from '../../components/atoms/ToggleSwitch'
-import { StyledGrayBox } from '../stake/components/GrayBox'
+import { FixedHeightGrayBox, StyledGrayBox } from '../stake/components/GrayBox'
 import { VerticalSeparator } from '../stake/components/VerticalSeparator'
-import InputSection, { GenericInputSection } from '../stake/sections/InputSection'
-import CardRange from '../stake/components/CardRange'
-import styled, { css } from 'styled-components'
-import { Table, TableBody, TableData, TableHead, TableHeader, TableRow } from '../../components/atoms/Table'
+import { GenericInputSection } from '../stake/sections/InputSection'
+import { StyledSlider } from '../../components/atoms/Input'
+import commaNumber from '../../utils/commaNumber'
+import { Table, TableHead, TableHeader, TableBody, TableRow, TableData } from '../../components/atoms/Table'
 import { StyledTooltip } from '../../components/molecules/Tooltip'
 
 function Card({
@@ -26,16 +26,14 @@ function Card({
   bigger,
   normous,
   horiz,
-  between,
   ...rest
 }: {
   children: React.ReactNode
   style?: React.CSSProperties
   thinner?: boolean
-  bigger?: boolean
-  normous?: boolean
+  /** it middle card flex 1.2 */ bigger?: boolean
+  /*flex: 12*/ normous?: boolean
   horiz?: boolean
-  between?: boolean
 }) {
   const defaultStyle = style ?? {}
   // thinner is 0.8, bigger is 1.2
@@ -50,23 +48,26 @@ function Card({
     // justifyContent: between ? 'space-between' : 'flex-start',
   }
   const combinedStyle = { ...defaultStyle, ...customStyle }
+
+  const colStyle: React.CSSProperties = {
+    display: 'flex',
+    flexDirection: 'column',
+    // alignItems: 'stretch',
+  }
+
+  const rowStyle: React.CSSProperties = {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'stretch',
+  }
   return (
     <ShadowDiv stretch style={combinedStyle} {...rest}>
-      <RaisedBox
-        style={
-          horiz
-            ? {
-                display: 'flex',
-                flexDirection: 'row',
-                alignItems: 'stretch',
-              }
-            : {}
-        }
-      >
+      <RaisedBox style={horiz ? rowStyle : colStyle}>
         <Flex
           p={24}
           column={!horiz}
           stretch
+          flex1
           // style={{
           //   backgroundColor: 'green',
           // }}
@@ -83,99 +84,196 @@ function Card({
 // fourth line is 1 submit and 1 cancel button
 
 function CoverageLimit() {
+  const [isEditing, setIsEditing] = React.useState(false)
+  const startEditing = () => setIsEditing(true)
+  const stopEditing = () => setIsEditing(false)
+  const [usd, setUsd] = React.useState<number>(0)
+  const totalFunds = 23325156
+  const coverageLimit = 15325156
+  React.useEffect(() => {
+    if (15325156) {
+      setUsd(15325156)
+    }
+  }, [])
   return (
     <Card thinner>
       <Flex
-        itemsCenter
-        // style={{
-        //   // just between
-        //   justifyContent: 'space-between',
-        // }}
         between
-      >
-        <Text t2 bold>
-          Coverage Limit
-        </Text>
-        <StyledTooltip id={'coverage-limit'} tip={'Coverage Limit tip'}>
-          <QuestionCircle height={20} width={20} color={'#aaa'} />
-        </StyledTooltip>
-      </Flex>
-      <Flex mt={40} baseline center gap={4}>
-        <Text techygradient t2 bold>
-          1,000,000
-        </Text>
-        <Text techygradient t4 bold>
-          USD
-        </Text>
-      </Flex>
-      <Flex center mt={20}>
-        <Flex
-          col
-          center
-          style={{
-            height: '200px',
-            width: '200px',
-            borderRadius: '100%',
-            border: '11px solid #aaa',
-          }}
-        >
-          <Text t4 bold>
-            Total funds:
-          </Text>
-          <Flex gap={4} baseline mt={2}>
-            <Text
-              t3
-              bold
-              style={{
-                fontSize: '18px',
-              }}
-            >
-              1,432,098
-            </Text>
-            <Text t4 bold>
-              USD
-            </Text>
-          </Flex>
-        </Flex>
-      </Flex>
-      <Flex center mt={20}>
-        <Text t4>
-          Risk value:{' '}
-          <Text
-            t3
-            warning
-            bold
-            style={{
-              display: 'inline',
-            }}
-          >
-            Medium
-          </Text>
-        </Text>
-      </Flex>
-      <Flex
-        // center
-        mt={40}
-        // gap={24}
+        col
+        stretch
         style={{
-          justifyContent: 'center',
+          flex: '2',
         }}
       >
-        <Button
-          info
-          secondary
-          pl={46.75}
-          pr={46.75}
-          pt={10}
-          pb={10}
-          style={{
-            fontWeight: 600,
-          }}
+        <Flex
+          itemsCenter
+          // style={{
+          //   // just between
+          //   justifyContent: 'space-between',
+          // }}
+          between
         >
-          Edit Limit
-        </Button>
-        {/* <Button info>Cancel</Button> */}
+          <Text t2 bold>
+            Coverage Limit
+          </Text>
+          <StyledTooltip id={'coverage-limit'} tip={'Coverage Limit tip'}>
+            <QuestionCircle height={20} width={20} color={'#aaa'} />
+          </StyledTooltip>
+        </Flex>
+        <div>
+          {!isEditing ? (
+            <FixedHeightGrayBox
+              h={66}
+              style={{
+                justifyContent: 'center',
+                alignItems: 'center',
+                marginTop: '40px',
+              }}
+            >
+              <Flex baseline center gap={4}>
+                <Text techygradient t2 bold>
+                  {commaNumber(coverageLimit)}
+                </Text>
+                <Text techygradient t4 bold>
+                  USD
+                </Text>
+              </Flex>
+            </FixedHeightGrayBox>
+          ) : (
+            <GenericInputSection
+              icon={<img src={USD} height={20} />}
+              onChange={(e) => setUsd(Number(e.target.value))}
+              text="USD"
+              value={usd > 0 ? String(usd) : ''}
+              disabled={false}
+              w={300}
+              style={{
+                marginTop: '40px',
+              }}
+            />
+          )}
+          {/* <div style={{ height: '8px', backgroundColor: 'gray', borderRadius: '9999px', marginTop: '18px' }}> </div> */}
+          <StyledSlider
+            mt={18}
+            min={0}
+            max={totalFunds}
+            onChange={(e) =>
+              isEditing
+                ? setUsd(Number(e.target.value))
+                : () => {
+                    1
+                  }
+            }
+            value={isEditing ? (usd > 0 ? String(usd) : usd > 0 ? String(usd) : '0') : coverageLimit}
+          />
+          {isEditing && (
+            <Flex baseline gap={4} center mt={isEditing ? 28 : 60}>
+              <Text t4 bold>
+                {isEditing ? 'Fund to be covered:' : 'Funds covered:'}
+              </Text>
+              <Flex mt={2}>
+                <Text
+                  t3
+                  bold
+                  style={{
+                    fontSize: '18px',
+                  }}
+                >
+                  {/* formula: fund covered * 100 / totalFunds = fundsCovered% */}
+                  {(((isEditing ? usd : coverageLimit) * 100) / totalFunds).toFixed(0)}%
+                </Text>
+                {/* <Text t4 bold>
+                USD
+              </Text> */}
+              </Flex>
+            </Flex>
+          )}
+          <Flex baseline gap={4} center mt={isEditing ? 4 : 59}>
+            <Text t4 bold>
+              {'Funds covered:'}
+            </Text>
+            <Flex mt={2}>
+              <Text
+                t3
+                bold
+                style={{
+                  fontSize: '18px',
+                }}
+              >
+                {/* formula: fund covered * 100 / totalFunds = fundsCovered% */}
+                {((coverageLimit * 100) / totalFunds).toFixed(0)}%
+              </Text>
+              {/* <Text t4 bold>
+                USD
+              </Text> */}
+            </Flex>
+          </Flex>
+          <Flex center mt={4}>
+            <Flex baseline gap={4} center>
+              <Text t4 bold>
+                Total funds:
+              </Text>
+              <Flex gap={4} baseline mt={2}>
+                <Text
+                  t3
+                  bold
+                  style={{
+                    fontSize: '18px',
+                  }}
+                >
+                  {totalFunds}
+                </Text>
+                <Text t4 bold>
+                  USD
+                </Text>
+              </Flex>
+            </Flex>
+          </Flex>
+          <Flex center mt={6.5}>
+            <Text t4>
+              Risk level:{' '}
+              <Text
+                t3
+                warning
+                bold
+                style={{
+                  display: 'inline',
+                }}
+              >
+                Medium
+              </Text>
+            </Text>
+          </Flex>
+        </div>
+        <Flex mt={40} justifyCenter={!isEditing} between={isEditing} gap={isEditing ? 20 : undefined}>
+          {!isEditing ? (
+            <Button
+              info
+              secondary
+              pl={46.75}
+              pr={46.75}
+              pt={8}
+              pb={8}
+              style={{
+                fontWeight: 600,
+              }}
+              onClick={startEditing}
+            >
+              Edit Limit
+            </Button>
+          ) : (
+            <>
+              <Button info secondary pt={8} pb={8} style={{ fontWeight: 600, flex: 1, transition: '0s' }}>
+                Set Limit
+              </Button>
+              <Button info pt={8} pb={8} style={{ fontWeight: 600, flex: 1, transition: '0s' }} onClick={stopEditing}>
+                Cancel
+              </Button>
+            </>
+          )}
+        </Flex>
       </Flex>
+      {/* <Button info>Cancel</Button> */}
     </Card>
   )
 }
@@ -216,6 +314,21 @@ function CoverageBalance() {
   // setters for usd and days
   const [usd, setUsd] = React.useState('0')
   const [days, setDays] = React.useState('0')
+  // mock usd per day is $500
+  const [usdPerDay, setUsdPerDay] = React.useState(500)
+  // mock total funds is $3,123,411.32
+  const [coverageBalance, setCoverageBalance] = React.useState(3123411.32)
+  const handleUpdateDays = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setDays(e.target.value)
+    setUsd(String(Number(e.target.value) * usdPerDay))
+  }
+  const handleUpdateUsd = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setUsd(e.target.value)
+    setDays(String(Number(e.target.value) / usdPerDay))
+  }
+  const handleSubmit = () => {
+    // setCoverageBalance(usd)
+  }
   return (
     <Card bigger horiz>
       <Flex
@@ -284,18 +397,19 @@ function CoverageBalance() {
               value={ifStringZeroUndefined(days)}
               disabled={false}
             />
-            <CardRange type="range" />
+            <StyledSlider />
           </Flex>
-          <Flex gap={24}>
+          <Flex gap={20}>
             <Button
               info
               secondary
               pl={46.75}
               pr={46.75}
-              pt={10}
-              pb={10}
+              pt={8}
+              pb={8}
               style={{
                 fontWeight: 600,
+                flex: 1,
               }}
             >
               Deposit
@@ -304,10 +418,11 @@ function CoverageBalance() {
               info
               pl={46.75}
               pr={46.75}
-              pt={10}
-              pb={10}
+              pt={8}
+              pb={8}
               style={{
                 fontWeight: 600,
+                flex: 1,
               }}
             >
               Withdraw
@@ -346,7 +461,7 @@ function CoverageActive() {
 
 function CoveragePrice() {
   return (
-    <Card normous between horiz>
+    <Card normous horiz>
       {/* top part / title */}
       {/* <Flex col stretch between> */}
       <Flex between col>

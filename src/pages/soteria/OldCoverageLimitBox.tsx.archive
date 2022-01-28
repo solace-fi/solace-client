@@ -1,0 +1,95 @@
+function CoverageLimit() {
+  return (
+    <Card thinner>
+      <Flex
+        itemsCenter
+        // style={{
+        //   // just between
+        //   justifyContent: 'space-between',
+        // }}
+        between
+      >
+        <Text t2 bold>
+          Coverage Limit
+        </Text>
+        <QuestionCircle height={20} width={20} color={'#aaa'} />
+      </Flex>
+      <Flex mt={40} baseline center gap={4}>
+        <Text techygradient t2 bold>
+          1,000,000
+        </Text>
+        <Text techygradient t4 bold>
+          USD
+        </Text>
+      </Flex>
+      <Flex center mt={20}>
+        <Flex
+          col
+          center
+          style={{
+            height: '200px',
+            width: '200px',
+            borderRadius: '100%',
+            border: '11px solid #aaa',
+          }}
+        >
+          <Text t4 bold>
+            Total funds:
+          </Text>
+          <Flex gap={4} baseline mt={2}>
+            <Text
+              t3
+              bold
+              style={{
+                fontSize: '18px',
+              }}
+            >
+              1,432,098
+            </Text>
+            <Text t4 bold>
+              USD
+            </Text>
+          </Flex>
+        </Flex>
+      </Flex>
+      <Flex center mt={20}>
+        <Text t4>
+          Risk value:{' '}
+          <Text
+            t3
+            warning
+            bold
+            style={{
+              display: 'inline',
+            }}
+          >
+            Medium
+          </Text>
+        </Text>
+      </Flex>
+      <Flex
+        // center
+        mt={40}
+        // gap={24}
+        style={{
+          justifyContent: 'center',
+        }}
+      >
+        <Button
+          info
+          secondary
+          pl={46.75}
+          pr={46.75}
+          pt={10}
+          pb={10}
+          style={{
+            fontWeight: 600,
+          }}
+        >
+          Edit Limit
+        </Button>
+        {/* <Button info>Cancel</Button> */}
+      </Flex>
+    </Card>
+  )
+}

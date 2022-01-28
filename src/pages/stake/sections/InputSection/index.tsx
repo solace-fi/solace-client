@@ -52,6 +52,7 @@ export const GenericInputSection = ({
   onChange,
   disabled,
   w,
+  style,
 }: {
   icon: JSX.Element
   text: string
@@ -59,27 +60,32 @@ export const GenericInputSection = ({
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void
   disabled?: boolean
   w?: number
-}): JSX.Element => (
-  <InputSectionWrapper
-    style={{
-      width: w ? w : '335px',
-    }}
-  >
-    <GenericIconAndText icon={icon} text={text} disabled={disabled} />
-    <StyledInput
-      key="mainInput"
-      type="text"
-      className="py-3 lg:py-5 px-5 outline-none rounded-xl lg:border-0 lg:rounded-none"
-      placeholder="0"
-      value={value}
-      onChange={onChange}
-      style={{ backgroundColor: 'inherit', color: 'inherit', borderRadius: 'inherit', width: '100%' }}
-      disabled={disabled}
-    />
-    {/* {setMax && (
+  style?: React.CSSProperties
+}): JSX.Element => {
+  const rawStyle = {
+    ...style,
+    // width: w ? w : '335px',
+    width: '100%',
+    height: '64px',
+  }
+  return (
+    <InputSectionWrapper style={rawStyle}>
+      <GenericIconAndText icon={icon} text={text} disabled={disabled} />
+      <StyledInput
+        key="mainInput"
+        type="text"
+        className="py-3 lg:py-5 px-5 outline-none rounded-xl lg:border-0 lg:rounded-none"
+        placeholder="0"
+        value={value}
+        onChange={onChange}
+        style={{ backgroundColor: 'inherit', color: 'inherit', borderRadius: 'inherit', width: '100%' }}
+        disabled={disabled}
+      />
+      {/* {setMax && (
       <Button onClick={setMax} disabled={disabled} m={10}>
         MAX
       </Button>
     )} */}
-  </InputSectionWrapper>
-)
+    </InputSectionWrapper>
+  )
+}
