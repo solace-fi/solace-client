@@ -355,7 +355,7 @@ function Stake1(): any {
               <StyledInfo size={30} />
             </TextSpan>
             <Text light bold style={{ margin: '0 auto' }}>
-              Staking V1 is not supported on this network.
+              Staking V1 is not available on this network.
             </Text>
           </Box>
         </Content>
@@ -773,7 +773,7 @@ export default function Stake(): JSX.Element {
                     <StyledInfo size={30} />
                   </TextSpan>
                   <Text light bold style={{ margin: '0 auto' }}>
-                    Staking V2 is not supported on this network.
+                    Staking V2 is not available on this network.
                   </Text>
                 </Box>
               </Content>

@@ -17,7 +17,7 @@ import { useGetPairPrice, usePairPrice } from './usePair'
 import { useNetwork } from '../context/NetworkManager'
 import { Unit } from '../constants/enums'
 import { getCoingeckoTokenPrice } from '../utils/api'
-import { floatUnits } from '../utils/formatting'
+import { floatUnits, truncateValue } from '../utils/formatting'
 import { BondToken } from '../constants/types'
 import { useReadToken } from '../hooks/useToken'
 import { useGetFunctionGas } from './useGas'
@@ -85,22 +85,23 @@ export const useBondTellerDetails = (): { tellerDetails: BondTellerDetails[]; mo
   const { version } = useCachedData()
   const { latestBlock } = useProvider()
   const { tellers, keyContracts } = useContracts()
-  const { solace } = useMemo(() => keyContracts, [keyContracts])
-  const { activeNetwork } = useNetwork()
+  // const { solace } = useMemo(() => keyContracts, [keyContracts])
+  const { activeNetwork, networks } = useNetwork()
   const [tellerDetails, setTellerDetails] = useState<BondTellerDetails[]>([])
   const [mounting, setMounting] = useState<boolean>(true)
   const { getPairPrice, getPriceFromSushiswapLp } = useGetPairPrice()
-  const solacePrice = usePairPrice(solace)
+  // const solacePrice = usePairPrice(solace)
+  const [solacePrice, setSolacePrice] = useState<string>('-')
   const canBondV1 = useMemo(() => activeNetwork.config.availableFeatures.bondingV1, [
     activeNetwork.config.availableFeatures.bondingV1,
   ])
-  const platform = useMemo(() => {
+  const coingeckoTokenId = useMemo(() => {
     switch (activeNetwork.nativeCurrency.symbol) {
       case Unit.ETH:
         return 'ethereum'
       case Unit.MATIC:
       default:
-        return 'matic'
+        return 'matic-network'
     }
   }, [activeNetwork.nativeCurrency.symbol])
 
@@ -146,7 +147,11 @@ export const useBondTellerDetails = (): { tellerDetails: BondTellerDetails[]; mo
           } else {
             const price = await getPairPrice(principalContract)
             if (price == -1) {
-              const coinGeckoTokenPrice = await getCoingeckoTokenPrice(principalContract.address, 'usd', platform)
+              const coinGeckoTokenPrice = await getCoingeckoTokenPrice(
+                principalContract.address,
+                'usd',
+                coingeckoTokenId
+              )
               usdBondPrice = parseFloat(coinGeckoTokenPrice ?? '0') * floatUnits(bondPrice, decimals)
             } else {
               usdBondPrice = price * floatUnits(bondPrice, decimals)
@@ -154,9 +159,7 @@ export const useBondTellerDetails = (): { tellerDetails: BondTellerDetails[]; mo
           }
 
           const bondRoi =
-            usdBondPrice > 0 && solacePrice.pairPrice != '-'
-              ? ((parseFloat(solacePrice.pairPrice) - usdBondPrice) * 100) / usdBondPrice
-              : 0
+            usdBondPrice > 0 && solacePrice != '-' ? ((parseFloat(solacePrice) - usdBondPrice) * 100) / usdBondPrice : 0
 
           const d: BondTellerDetails = {
             tellerData: {
@@ -188,7 +191,7 @@ export const useBondTellerDetails = (): { tellerDetails: BondTellerDetails[]; mo
     } catch (e) {
       console.log('getBondTellerDetails', e)
     }
-  }, [tellers, latestBlock, version, solacePrice.pairPrice, canBondV1])
+  }, [tellers, latestBlock, version, solacePrice, canBondV1])
 
   useEffect(() => {
     setMounting(true)
@@ -197,6 +200,17 @@ export const useBondTellerDetails = (): { tellerDetails: BondTellerDetails[]; mo
   useEffect(() => {
     getBondTellerDetails()
   }, [getBondTellerDetails])
+
+  useEffect(() => {
+    const getPrice = async () => {
+      if (!latestBlock) return
+      const mainnetSolaceAddr = networks[0].config.keyContracts.solace.addr
+      const coingeckoMainnetPrice = await getCoingeckoTokenPrice(mainnetSolaceAddr, 'usd', 'ethereum')
+      const price = parseFloat(coingeckoMainnetPrice ?? '0')
+      setSolacePrice(truncateValue(price, 2))
+    }
+    getPrice()
+  }, [latestBlock, networks])
 
   return { tellerDetails, mounting }
 }

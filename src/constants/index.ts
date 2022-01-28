@@ -1,8 +1,11 @@
 import { constants } from 'ethers'
 
-export const ETHERSCAN_API_KEY = process.env.REACT_APP_ETHERSCAN_API_KEY
-export const ALCHEMY_API_KEY = process.env.REACT_APP_ALCHEMY_API_KEY
+export const ALCHEMY_ETHEREUM_API_KEY = process.env.REACT_APP_ALCHEMY_ETHEREUM_API_KEY
+export const ALCHEMY_POLYGON_API_KEY = process.env.REACT_APP_ALCHEMY_POLYGON_API_KEY
+export const ALCHEMY_MUMBAI_API_KEY = process.env.REACT_APP_ALCHEMY_MUMBAI_API_KEY
 export const THEGRAPH_API_KEY = process.env.REACT_APP_THEGRAPH_API_KEY
+export const POLYGONSCAN_API_KEY = process.env.REACT_APP_POLYGONSCAN_API_KEY
+export const ETHERSCAN_API_KEY = process.env.REACT_APP_ETHERSCAN_API_KEY
 
 export const NUM_SECONDS_PER_DAY = 86400
 export const NUM_BLOCKS_PER_DAY = 6450

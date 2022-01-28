@@ -41,13 +41,13 @@ export function usePairPrice(token: Contract | null | undefined) {
 export const useGetPairPrice = () => {
   const { library } = useWallet()
   const { activeNetwork, chainId } = useNetwork()
-  const platform = useMemo(() => {
+  const coingeckoTokenId = useMemo(() => {
     switch (activeNetwork.nativeCurrency.symbol) {
       case Unit.ETH:
         return 'ethereum'
       case Unit.MATIC:
       default:
-        return 'matic'
+        return 'matic-network'
     }
   }, [activeNetwork.nativeCurrency.symbol])
 
@@ -106,11 +106,11 @@ export const useGetPairPrice = () => {
       let price1 = await getPairPrice(token1Contract)
 
       if (price0 == -1) {
-        const coinGeckoTokenPrice = await getCoingeckoTokenPrice(token0Contract.address, 'usd', platform)
+        const coinGeckoTokenPrice = await getCoingeckoTokenPrice(token0Contract.address, 'usd', coingeckoTokenId)
         price0 = parseFloat(coinGeckoTokenPrice ?? '0')
       }
       if (price1 == -1) {
-        const coinGeckoTokenPrice = await getCoingeckoTokenPrice(token1Contract.address, 'usd', platform)
+        const coinGeckoTokenPrice = await getCoingeckoTokenPrice(token1Contract.address, 'usd', coingeckoTokenId)
         price1 = parseFloat(coinGeckoTokenPrice ?? '0')
       }
 

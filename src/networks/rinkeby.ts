@@ -1,6 +1,6 @@
 import { BondName, ProductName, Unit } from '../constants/enums'
 import { NetworkConfig, TellerToken } from '../constants/types'
-import { ETHERSCAN_API_KEY, ALCHEMY_API_KEY } from '../constants'
+import { ETHERSCAN_API_KEY, ALCHEMY_ETHEREUM_API_KEY } from '../constants'
 import { hexValue } from '@ethersproject/bytes'
 import EthereumLogo from '../resources/svg/networks/ethereum-logo.svg'
 
@@ -96,13 +96,16 @@ const tellerToTokenMapping: {
 }
 
 export const RinkebyNetwork: NetworkConfig = {
-  name: 'rinkeby',
+  name: 'Rinkeby',
   chainId: 4,
   isTestnet: true,
   logo: EthereumLogo,
   supportedTxTypes: [0, 2],
   nativeCurrency: { symbol: Unit.ETH, decimals: 18 },
-  rpc: { httpsUrl: `https://eth-rinkeby.alchemyapi.io/v2/${ALCHEMY_API_KEY}`, pollingInterval: 12_000 },
+  rpc: {
+    httpsUrl: `https://eth-rinkeby.alchemyapi.io/v2/${String(ALCHEMY_ETHEREUM_API_KEY)}`,
+    pollingInterval: 12_000,
+  },
   explorer: {
     name: 'Etherscan',
     key: String(ETHERSCAN_API_KEY),

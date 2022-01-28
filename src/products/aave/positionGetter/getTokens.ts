@@ -1,14 +1,13 @@
-import { providers, utils } from 'ethers'
+import { providers } from 'ethers'
 import { Contract } from '@ethersproject/contracts'
 import { ZERO } from '../../../constants'
 import { NetworkConfig, Token } from '../../../constants/types'
 import ierc20Json from '../../../constants/metadata/IERC20Metadata.json'
 import { AaveProtocolDataProviderFactory } from './_contracts/AaveProtocolDataProviderFactory'
-import { withBackoffRetries } from '../../../utils/time'
 import { equalsIgnoreCase } from '../../../utils'
 import { queryName } from '../../../utils/contract'
 
-const KEY = process.env.REACT_APP_ALCHEMY_API_KEY
+const KEY = process.env.REACT_APP_ALCHEMY_ETHEREUM_API_KEY
 if (KEY === '') throw new Error('ENV ALCHEMY KEY not configured')
 
 type Market = {

@@ -209,16 +209,16 @@ export const useUnderWritingPoolBalance = () => {
   const [underwritingPoolBalance, setUnderwritingPoolBalance] = useState<string>('-')
   const { getPairPrice } = useGetPairPrice()
 
-  const platform = useMemo(() => {
+  const coingeckoTokenId = useMemo(() => {
     switch (activeNetwork.nativeCurrency.symbol) {
       case Unit.ETH:
         return 'ethereum'
       case Unit.MATIC:
       default:
-        return 'matic'
+        return 'matic-network'
     }
   }, [activeNetwork.nativeCurrency.symbol])
-  const coinGeckoNativeTokenPrice = useCoingeckoPrice(platform, 'usd')
+  const coinGeckoNativeTokenPrice = useCoingeckoPrice(coingeckoTokenId, 'usd')
 
   useEffect(() => {
     const getGnosisBalance = async () => {
@@ -255,11 +255,11 @@ export const useUnderWritingPoolBalance = () => {
             let price1 = await getPairPrice(token1Contract)
 
             if (price0 == -1) {
-              const coinGeckoTokenPrice = await getCoingeckoTokenPrice(token0Contract.address, 'usd', platform)
+              const coinGeckoTokenPrice = await getCoingeckoTokenPrice(token0Contract.address, 'usd', coingeckoTokenId)
               price0 = parseFloat(coinGeckoTokenPrice ?? '0')
             }
             if (price1 == -1) {
-              const coinGeckoTokenPrice = await getCoingeckoTokenPrice(token1Contract.address, 'usd', platform)
+              const coinGeckoTokenPrice = await getCoingeckoTokenPrice(token1Contract.address, 'usd', coingeckoTokenId)
               price1 = parseFloat(coinGeckoTokenPrice ?? '0')
             }
 
@@ -275,7 +275,11 @@ export const useUnderWritingPoolBalance = () => {
           } else {
             let price = await getPairPrice(principalContracts[i])
             if (price == -1) {
-              const coinGeckoTokenPrice = await getCoingeckoTokenPrice(principalContracts[i].address, 'usd', platform)
+              const coinGeckoTokenPrice = await getCoingeckoTokenPrice(
+                principalContracts[i].address,
+                'usd',
+                coingeckoTokenId
+              )
               price = parseFloat(coinGeckoTokenPrice ?? '0')
             }
             const principalDecimals = await principalContracts[i].decimals()
