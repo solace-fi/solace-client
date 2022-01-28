@@ -56,42 +56,49 @@ const tellerToTokenMapping: {
     isBondTellerErc20: true,
     isLp: false,
     isDisabled: false,
+    version: 1,
   },
   [TELLER_ADDRS.ETH_TELLER]: {
     addr: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
     isBondTellerErc20: false,
     isLp: false,
     isDisabled: true,
+    version: 1,
   },
   [TELLER_ADDRS.USDC_TELLER]: {
     addr: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
     isBondTellerErc20: true,
     isLp: false,
     isDisabled: false,
+    version: 1,
   },
   [TELLER_ADDRS.SOLACE_USDC_SLP_TELLER]: {
     addr: '0x9c051f8a6648a51ef324d30c235da74d060153ac',
     isBondTellerErc20: true,
     isLp: true,
     isDisabled: false,
+    version: 1,
   },
   [TELLER_ADDRS.SCP_TELLER]: {
     addr: '0x501acee83a6f269b77c167c6701843d454e2efa0',
     isBondTellerErc20: true,
     isLp: false,
     isDisabled: false,
+    version: 1,
   },
   [TELLER_ADDRS.WBTC_TELLER]: {
     addr: '0x2260fac5e5542a773aa44fbcfedf7c193bc2c599',
     isBondTellerErc20: true,
     isLp: false,
     isDisabled: false,
+    version: 1,
   },
   [TELLER_ADDRS.USDT_TELLER]: {
     addr: '0xdac17f958d2ee523a2206206994597c13d831ec7',
     isBondTellerErc20: true,
     isLp: false,
     isDisabled: false,
+    version: 1,
   },
 }
 
@@ -217,6 +224,7 @@ export const MainNetwork: NetworkConfig = {
     },
     availableFeatures: {
       bondingV1: true,
+      bondingV2: false,
       stakingV1: true,
       stakingV2: true,
       farmingV1: true,

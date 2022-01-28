@@ -62,10 +62,10 @@ export enum FunctionName {
   SOTERIA_WITHDRAW = 'Withdraw',
 
   // bond tellers
-  BOND_DEPOSIT_WETH = 'DepositWeth',
-  BOND_DEPOSIT_ERC20 = 'Deposit',
-  BOND_REDEEM = 'Redeem',
-  REWARDS_REDEEM = 'Redeem',
+  BOND_DEPOSIT_WETH_V1 = 'DepositWeth',
+  BOND_DEPOSIT_ERC20_V1 = 'Deposit',
+  BOND_REDEEM_V1 = 'Redeem',
+  REWARDS_REDEEM_V1 = 'Redeem',
 
   // legacy
   STAKE_V1 = 'StakeSigned',

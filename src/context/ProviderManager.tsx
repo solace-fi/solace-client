@@ -3,7 +3,7 @@ import { useNetwork } from './NetworkManager'
 import { useWallet } from './WalletManager'
 import { MetamaskConnector } from '../wallet/wallet-connectors/MetaMask'
 import { Block } from '@ethersproject/abstract-provider'
-import { Card } from '../components/atoms/Card'
+import { Card, CardContainer } from '../components/atoms/Card'
 import { ModalCell } from '../components/atoms/Modal'
 import { Text } from '../components/atoms/Typography'
 import { Modal } from '../components/molecules/Modal'
@@ -187,36 +187,32 @@ const ProviderManager: React.FC = ({ children }) => {
             />
           </Flex>
         </Flex>
-        <Scrollable maxMobileHeight={60} style={{ padding: '0 10px 0 10px' }}>
-          <Table style={{ borderSpacing: '0px 7px' }}>
-            <TableBody>
-              {adjustedNetworks.map((network) => (
-                <Card
-                  canHover
-                  pt={5}
-                  pb={5}
-                  pl={30}
-                  pr={30}
-                  mt={15}
-                  mb={15}
-                  key={network.name}
-                  onClick={() => switchNetwork(network.name)}
-                  glow={network.name == activeNetwork.name}
-                  color1={network.name == activeNetwork.name}
-                  jc={'center'}
-                  style={{ display: 'flex' }}
-                >
-                  <FormRow mb={0}>
-                    <ModalCell p={10}>
-                      <Text t4 bold light={network.name == activeNetwork.name}>
-                        {network.name}
-                      </Text>
-                    </ModalCell>
-                  </FormRow>
-                </Card>
-              ))}
-            </TableBody>
-          </Table>
+        <Scrollable maxMobileHeight={60}>
+          <CardContainer cardsPerRow={1}>
+            {adjustedNetworks.map((network) => (
+              <Card
+                canHover
+                pt={5}
+                pb={5}
+                pl={30}
+                pr={30}
+                key={network.name}
+                onClick={() => switchNetwork(network.name)}
+                glow={network.name == activeNetwork.name}
+                color1={network.name == activeNetwork.name}
+                jc={'center'}
+                style={{ display: 'flex' }}
+              >
+                <FormRow mb={0}>
+                  <ModalCell p={10}>
+                    <Text t4 bold light={network.name == activeNetwork.name}>
+                      {network.name}
+                    </Text>
+                  </ModalCell>
+                </FormRow>
+              </Card>
+            ))}
+          </CardContainer>
         </Scrollable>
       </Modal>
       {children}

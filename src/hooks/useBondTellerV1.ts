@@ -19,10 +19,10 @@ import { Unit } from '../constants/enums'
 import { getCoingeckoTokenPrice } from '../utils/api'
 import { floatUnits, truncateValue } from '../utils/formatting'
 import { BondToken } from '../constants/types'
-import { useReadToken } from '../hooks/useToken'
+import { useReadToken } from './useToken'
 import { useGetFunctionGas } from './useGas'
 
-export const useBondTeller = (selectedBondDetail: BondTellerDetails | undefined) => {
+export const useBondTellerV1 = (selectedBondDetail: BondTellerDetails | undefined) => {
   const { gasConfig } = useGetFunctionGas()
 
   const deposit = async (
@@ -34,7 +34,7 @@ export const useBondTeller = (selectedBondDetail: BondTellerDetails | undefined)
   ): Promise<TxResult> => {
     if (!selectedBondDetail) return { tx: null, localTx: null }
     const tx =
-      func == FunctionName.BOND_DEPOSIT_ERC20
+      func == FunctionName.BOND_DEPOSIT_ERC20_V1
         ? await selectedBondDetail.tellerData.teller.contract.deposit(parsedAmount, minAmountOut, recipient, stake, {
             ...gasConfig,
             gasLimit: FunctionGasLimits['tellerErc20.deposit'],
@@ -71,7 +71,7 @@ export const useBondTeller = (selectedBondDetail: BondTellerDetails | undefined)
     })
     const localTx: LocalTx = {
       hash: tx.hash,
-      type: FunctionName.BOND_REDEEM,
+      type: FunctionName.BOND_REDEEM_V1,
       status: TransactionCondition.PENDING,
     }
     return { tx, localTx }
@@ -80,7 +80,7 @@ export const useBondTeller = (selectedBondDetail: BondTellerDetails | undefined)
   return { deposit, redeem }
 }
 
-export const useBondTellerDetails = (): { tellerDetails: BondTellerDetails[]; mounting: boolean } => {
+export const useBondTellerDetailsV1 = (): { tellerDetails: BondTellerDetails[]; mounting: boolean } => {
   const { library, account } = useWallet()
   const { version } = useCachedData()
   const { latestBlock } = useProvider()

@@ -57,7 +57,7 @@ import { PublicBondInfo } from './PublicBondInfo'
 import { useInputAmount, useTransactionExecution } from '../../../hooks/useInputAmount'
 import { useReadToken, useTokenAllowance } from '../../../hooks/useToken'
 import { useNativeTokenBalance } from '../../../hooks/useBalance'
-import { useBondTeller, useUserBondData } from '../../../hooks/useBondTeller'
+import { useBondTellerV1, useUserBondData } from '../../../hooks/useBondTellerV1'
 import { useWindowDimensions } from '../../../hooks/useWindowDimensions'
 
 /* import utils */
@@ -111,7 +111,7 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
   const readSolaceToken = useReadToken(solace)
   const readXSolaceToken = useReadToken(xSolaceV1)
   const nativeTokenBalance = useNativeTokenBalance()
-  const { deposit, redeem } = useBondTeller(selectedBondDetail)
+  const { deposit, redeem } = useBondTellerV1(selectedBondDetail)
   const { width } = useWindowDimensions()
   const { getUserBondData } = useUserBondData()
   const { amount, isAppropriateAmount, handleInputChange, setMax, resetAmount } = useInputAmount()
@@ -125,8 +125,8 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
   )
   const assetBalance = useMemo(() => {
     switch (func) {
-      case FunctionName.BOND_DEPOSIT_ERC20:
-      case FunctionName.BOND_DEPOSIT_WETH:
+      case FunctionName.BOND_DEPOSIT_ERC20_V1:
+      case FunctionName.BOND_DEPOSIT_WETH_V1:
         return parseUnits(principalBalance, pncplDecimals)
       case FunctionName.DEPOSIT_ETH:
       default:
@@ -330,7 +330,7 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
     const getTellerType = async () => {
       if (!selectedBondDetail) return
       const isBondTellerErc20 = selectedBondDetail.tellerData.teller.isBondTellerErc20
-      const tempFunc = isBondTellerErc20 ? FunctionName.BOND_DEPOSIT_ERC20 : FunctionName.DEPOSIT_ETH
+      const tempFunc = isBondTellerErc20 ? FunctionName.BOND_DEPOSIT_ERC20_V1 : FunctionName.DEPOSIT_ETH
       setIsBondTellerErc20(isBondTellerErc20)
       setFunc(tempFunc)
     }
@@ -360,7 +360,7 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
 
   useEffect(() => {
     if (isBondTellerErc20) return
-    setFunc(shouldUseNativeToken ? FunctionName.DEPOSIT_ETH : FunctionName.BOND_DEPOSIT_WETH)
+    setFunc(shouldUseNativeToken ? FunctionName.DEPOSIT_ETH : FunctionName.BOND_DEPOSIT_WETH_V1)
   }, [shouldUseNativeToken])
 
   return (

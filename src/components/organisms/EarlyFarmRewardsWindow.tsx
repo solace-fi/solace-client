@@ -153,12 +153,12 @@ export const EarlyFarmRewardsWindow: React.FC = () => {
       })
       const localTx: LocalTx = {
         hash: tx.hash,
-        type: FunctionName.REWARDS_REDEEM,
+        type: FunctionName.REWARDS_REDEEM_V1,
         status: TransactionCondition.PENDING,
       }
       handleToast(tx, localTx)
     } catch (err) {
-      handleContractCallError('callRedeem', err, FunctionName.REWARDS_REDEEM)
+      handleContractCallError('callRedeem', err, FunctionName.REWARDS_REDEEM_V1)
     }
   }
 

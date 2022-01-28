@@ -43,4 +43,5 @@ export type TellerToken = {
   isBondTellerErc20: boolean
   isLp: boolean
   isDisabled: boolean
+  version: number
 }

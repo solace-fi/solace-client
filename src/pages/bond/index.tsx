@@ -43,7 +43,7 @@ import { Content } from '../../components/atoms/Layout'
 
 /* import hooks */
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'
-import { useBondTellerDetails } from '../../hooks/useBondTeller'
+import { useBondTellerDetailsV1 } from '../../hooks/useBondTellerV1'
 
 /* import utils */
 import { truncateValue } from '../../utils/formatting'
@@ -59,7 +59,7 @@ function Bond(): any {
   const [showBondModal, setShowBondModal] = useState<boolean>(false)
   const [selectedBondDetail, setSelectedBondDetail] = useState<BondTellerDetails | undefined>(undefined)
   const { width } = useWindowDimensions()
-  const { tellerDetails, mounting } = useBondTellerDetails()
+  const { tellerDetails, mounting } = useBondTellerDetailsV1()
   const currentTellerDetails = useMemo(() => tellerDetails, [tellerDetails])
   const canBondV1 = useMemo(() => activeNetwork.config.availableFeatures.bondingV1, [
     activeNetwork.config.availableFeatures.bondingV1,

@@ -98,9 +98,9 @@ export const useTransactionDetails = (): { txHistory: any; amounts: string[] } =
         const data = logs[logs.length - 1].data
         if (!data) return { data: '' }
         return { data }
-      case FunctionName.BOND_DEPOSIT_ERC20:
-      case FunctionName.BOND_DEPOSIT_WETH:
-      case FunctionName.BOND_REDEEM:
+      case FunctionName.BOND_DEPOSIT_ERC20_V1:
+      case FunctionName.BOND_DEPOSIT_WETH_V1:
+      case FunctionName.BOND_REDEEM_V1:
         const edTopics = logs[logs.length - 2].topics
         return { data: edTopics[edTopics.length - 1] }
       case FunctionName.MULTI_CALL:

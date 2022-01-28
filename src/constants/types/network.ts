@@ -31,6 +31,7 @@ export type NetworkConfig = {
     bondTellerContracts: { [key: string]: string }
     availableFeatures: {
       bondingV1: boolean
+      bondingV2: boolean
       stakingV1: boolean
       stakingV2: boolean
       farmingV1: boolean

@@ -26,6 +26,7 @@ export const AuroraNetwork: NetworkConfig = {
     bondTellerContracts: {},
     availableFeatures: {
       bondingV1: true,
+      bondingV2: false,
       coverProducts: false,
       farmingV1: false,
       stakingV1: false,
