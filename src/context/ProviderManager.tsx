@@ -1,9 +1,9 @@
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useState, useEffect, useCallback, useMemo } from 'react'
 import { useNetwork } from './NetworkManager'
 import { useWallet } from './WalletManager'
 import { MetamaskConnector } from '../wallet/wallet-connectors/MetaMask'
 import { Block } from '@ethersproject/abstract-provider'
-import { Card, CardContainer } from '../components/atoms/Card'
+import { Card } from '../components/atoms/Card'
 import { ModalCell } from '../components/atoms/Modal'
 import { Text } from '../components/atoms/Typography'
 import { Modal } from '../components/molecules/Modal'
@@ -11,11 +11,14 @@ import { FormRow } from '../components/atoms/Form'
 
 import { Z_MODAL } from '../constants'
 
-import { capitalizeFirstLetter } from '../utils/formatting'
 import { useGetLatestBlock } from '../hooks/useGetLatestBlock'
 import { NetworkCache, SupportedProduct, ZerionPosition } from '../constants/types'
 import { useCachePositions } from '../hooks/useCachePositions'
 import { useZerion } from '../hooks/useZerion'
+import { Scrollable } from '../components/atoms/Layout'
+import Flex from '../pages/stake/atoms/Flex'
+import ToggleSwitch from '../components/atoms/ToggleSwitch'
+import { Table, TableBody } from '../components/atoms/Table'
 
 /*
 
@@ -71,7 +74,15 @@ const ProviderManager: React.FC = ({ children }) => {
   const latestBlock = useGetLatestBlock()
   const cachePositions = useCachePositions()
   const [networkModal, setNetworkModal] = useState<boolean>(false)
+  const [showTestnets, setShowTestnets] = useState<boolean>(false)
   const zerionPositions = useZerion()
+
+  const adjustedNetworks = useMemo(() => {
+    const sortedNetworks = networks.sort((a, b) => {
+      return a.isTestnet === b.isTestnet ? 0 : a.isTestnet ? 1 : -1
+    })
+    return showTestnets ? sortedNetworks : sortedNetworks.filter((n) => !n.isTestnet)
+  }, [showTestnets, networks])
 
   const openModal = useCallback(() => {
     document.body.style.overflowY = 'hidden'
@@ -82,6 +93,10 @@ const ProviderManager: React.FC = ({ children }) => {
     document.body.style.overflowY = 'scroll'
     setNetworkModal(false)
   }, [])
+
+  useEffect(() => {
+    setShowTestnets(activeNetwork.isTestnet)
+  }, [activeNetwork])
 
   useEffect(() => {
     if (connector instanceof MetamaskConnector) {
@@ -158,32 +173,51 @@ const ProviderManager: React.FC = ({ children }) => {
             the network on this app.{' '}
           </Text>
         </Card>
-
-        <CardContainer cardsPerRow={1}>
-          {networks.map((network) => (
-            <Card
-              canHover
-              pt={5}
-              pb={5}
-              pl={80}
-              pr={80}
-              key={network.name}
-              onClick={() => switchNetwork(network.name)}
-              glow={network.name == activeNetwork.name}
-              color1={network.name == activeNetwork.name}
-              jc={'center'}
-              style={{ display: 'flex' }}
-            >
-              <FormRow mb={0}>
-                <ModalCell p={10}>
-                  <Text t4 bold light={network.name == activeNetwork.name}>
-                    {capitalizeFirstLetter(network.name)}
-                  </Text>
-                </ModalCell>
-              </FormRow>
-            </Card>
-          ))}
-        </CardContainer>
+        <Flex between itemsCenter mb={5}>
+          <Flex stretch gap={7}>
+            <Text t4 bold>
+              Show Test Networks
+            </Text>
+          </Flex>
+          <Flex between itemsCenter>
+            <ToggleSwitch
+              id="show-testnets"
+              toggled={showTestnets}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setShowTestnets(e.target.checked)}
+            />
+          </Flex>
+        </Flex>
+        <Scrollable maxMobileHeight={60} style={{ padding: '0 10px 0 10px' }}>
+          <Table style={{ borderSpacing: '0px 7px' }}>
+            <TableBody>
+              {adjustedNetworks.map((network) => (
+                <Card
+                  canHover
+                  pt={5}
+                  pb={5}
+                  pl={30}
+                  pr={30}
+                  mt={15}
+                  mb={15}
+                  key={network.name}
+                  onClick={() => switchNetwork(network.name)}
+                  glow={network.name == activeNetwork.name}
+                  color1={network.name == activeNetwork.name}
+                  jc={'center'}
+                  style={{ display: 'flex' }}
+                >
+                  <FormRow mb={0}>
+                    <ModalCell p={10}>
+                      <Text t4 bold light={network.name == activeNetwork.name}>
+                        {network.name}
+                      </Text>
+                    </ModalCell>
+                  </FormRow>
+                </Card>
+              ))}
+            </TableBody>
+          </Table>
+        </Scrollable>
       </Modal>
       {children}
     </ProviderContext.Provider>

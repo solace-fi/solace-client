@@ -53,10 +53,11 @@ import { Loader } from '../atoms/Loader'
 import { SourceContract } from './SourceContract'
 
 /* import hooks */
-import { useInputAmount } from '../../hooks/useInputAmount'
+import { useInputAmount, useTransactionExecution } from '../../hooks/useInputAmount'
 import { useTokenAllowance } from '../../hooks/useToken'
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'
 import { useEarlyFarmRewards } from '../../hooks/useFarm'
+import { useGetFunctionGas } from '../../hooks/useGas'
 
 /* import utils */
 import { getDateStringWithMonthName } from '../../utils/time'
@@ -77,16 +78,9 @@ export const EarlyFarmRewardsWindow: React.FC = () => {
   const { chainId, currencyDecimals } = useNetwork()
   const { makeTxToast } = useNotifications()
   const { reload } = useCachedData()
-  const {
-    gasConfig,
-    amount,
-    isAppropriateAmount,
-    handleToast,
-    handleContractCallError,
-    handleInputChange,
-    setMax,
-    resetAmount,
-  } = useInputAmount()
+  const { gasConfig } = useGetFunctionGas()
+  const { amount, isAppropriateAmount, handleInputChange, setMax, resetAmount } = useInputAmount()
+  const { handleToast, handleContractCallError } = useTransactionExecution()
   const stablecoins = useMemo(
     () => [
       { value: `${USDC_ADDRESS[chainId]}`, label: 'USDC' },

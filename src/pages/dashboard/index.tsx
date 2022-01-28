@@ -16,26 +16,29 @@
   *************************************************************************************/
 
 /* import packages */
-import React, { Fragment, useState, useCallback, useEffect } from 'react'
+import React, { useState, useCallback, useEffect } from 'react'
 
 /* import managers */
 import { useContracts } from '../../context/ContractsManager'
 import { useWallet } from '../../context/WalletManager'
 import { useCachedData } from '../../context/CachedDataManager'
 import { useProvider } from '../../context/ProviderManager'
+import { useNetwork } from '../../context/NetworkManager'
 
 /* import constants */
 import { Policy } from '../../constants/types'
 
 /* import components */
-import { HeroContainer } from '../../components/atoms/Layout'
-import { Text } from '../../components/atoms/Typography'
+import { Content, HeroContainer } from '../../components/atoms/Layout'
+import { Text, TextSpan } from '../../components/atoms/Typography'
 import { ManageModal } from '../../components/organisms/policy/ManageModal'
 import { ClaimModal } from '../../components/organisms/policy/ClaimModal'
 import { MyPolicies } from '../../components/molecules/MyPolicies'
 import { MyClaims } from '../../components/molecules/MyClaims'
 import { MyInvestments } from '../../components/molecules/MyInvestments'
 import { WalletConnectButton } from '../../components/molecules/WalletConnectButton'
+import { Box } from '../../components/atoms/Box'
+import { StyledInfo } from '../../components/atoms/Icon'
 
 /* import hooks */
 
@@ -55,6 +58,7 @@ function Dashboard(): any {
   const { userPolicyData } = useCachedData()
   const { latestBlock } = useProvider()
   const { account } = useWallet()
+  const { activeNetwork } = useNetwork()
 
   /*************************************************************************************
 
@@ -104,7 +108,7 @@ function Dashboard(): any {
   }, [selectedPolicy, userPolicyData.userPolicies])
 
   return (
-    <Fragment>
+    <>
       {!account ? (
         <HeroContainer>
           <Text bold t1 textAlignCenter>
@@ -112,8 +116,8 @@ function Dashboard(): any {
           </Text>
           <WalletConnectButton info welcome secondary />
         </HeroContainer>
-      ) : (
-        <Fragment>
+      ) : activeNetwork.config.availableFeatures.coverProducts ? (
+        <>
           <ManageModal
             closeModal={closeModal}
             isOpen={showManageModal}
@@ -134,10 +138,20 @@ function Dashboard(): any {
             setOpen={setOpenPolicies}
           />
           <MyClaims />
-          {/* <MyInvestments /> */}
-        </Fragment>
+        </>
+      ) : (
+        <Content>
+          <Box error pt={10} pb={10} pl={15} pr={15}>
+            <TextSpan light textAlignLeft>
+              <StyledInfo size={30} />
+            </TextSpan>
+            <Text light bold style={{ margin: '0 auto' }}>
+              This dashboard is not available on this network.
+            </Text>
+          </Box>
+        </Content>
       )}
-    </Fragment>
+    </>
   )
 }
 

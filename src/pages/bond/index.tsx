@@ -270,7 +270,7 @@ function Bond(): any {
                 <StyledInfo size={30} />
               </TextSpan>
               <Text light bold style={{ margin: '0 auto' }}>
-                Bonding is not supported on this network.
+                Bonding is not available on this network.
               </Text>
             </Box>
           </Content>

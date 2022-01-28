@@ -1,18 +1,19 @@
 import { BigNumber } from 'ethers'
 import { Token, TokenData } from '../constants/types'
-import { ChainId, AddressMap } from '@sushiswap/sdk'
 
-export const networkNames: AddressMap = {
-  [ChainId.MAINNET]: 'ethereum',
-  [ChainId.MATIC]: 'polygon',
+export const networkNames: {
+  [chainId: number]: string
+} = {
+  [1]: 'ethereum',
+  [137]: 'polygon',
   [10]: 'optimism',
-  [ChainId.XDAI]: 'xdai',
-  [ChainId.BSC]: 'binance-smart-chain',
-  [ChainId.FANTOM]: 'fantom',
-  [ChainId.AVALANCHE]: 'avalanche',
-  [ChainId.ARBITRUM]: 'arbitrum',
-  [ChainId.CELO]: 'celo',
-  [ChainId.HARMONY]: 'harmony',
+  [100]: 'xdai',
+  [56]: 'binance-smart-chain',
+  [250]: 'fantom',
+  [43114]: 'avalanche',
+  [42161]: 'arbitrum',
+  [42220]: 'celo',
+  [1666600000]: 'harmony',
 }
 
 const acceptedZapperTypes = ['claimable', 'staked', 'base', 'farm', 'liquidity-pool', 'vault', 'lend']

@@ -8,6 +8,10 @@ import { MetamaskConnector } from '../wallet/wallet-connectors/MetaMask'
 import { MainNetwork } from '../networks/mainnet'
 import { KovanNetwork } from '../networks/kovan'
 import { RinkebyNetwork } from '../networks/rinkeby'
+import { PolygonNetwork } from '../networks/polygon'
+import { MumbaiNetwork } from '../networks/mumbai'
+import { AuroraNetwork } from '../networks/aurora'
+import { AuroraTestnetNetwork } from '../networks/auroraTestnet'
 
 /*
 
@@ -15,7 +19,15 @@ This manager keeps track of the current network and other important information.
 
 */
 
-export const networks: NetworkConfig[] = [MainNetwork, RinkebyNetwork, KovanNetwork]
+export const networks: NetworkConfig[] = [
+  MainNetwork,
+  RinkebyNetwork,
+  KovanNetwork,
+  PolygonNetwork,
+  MumbaiNetwork,
+  AuroraNetwork,
+  AuroraTestnetNetwork,
+]
 
 type NetworkContext = {
   activeNetwork: NetworkConfig
