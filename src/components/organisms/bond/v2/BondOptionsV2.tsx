@@ -8,7 +8,7 @@
     import components
     import utils
 
-    BondOptions
+    BondOptionsV2
       custom hooks
 
   *************************************************************************************/
@@ -17,24 +17,24 @@
 import React from 'react'
 
 /* import constants */
-import { BondTellerDetails } from '../../../constants/types'
-import { FunctionName } from '../../../constants/enums'
+import { BondTellerDetails } from '../../../../constants/types'
+import { FunctionName } from '../../../../constants/enums'
 
 /* import managers */
-import { useGeneral } from '../../../context/GeneralManager'
+import { useGeneral } from '../../../../context/GeneralManager'
 
 /* import components */
-import { FlexCol } from '../../atoms/Layout'
-import { Text } from '../../atoms/Typography'
-import { Button, ButtonWrapper } from '../../atoms/Button'
-import { CheckboxOption } from '../PoolModalRouter'
-import { FlexRow } from '../../../components/atoms/Layout'
-import { StyledGraphDown, StyledSendPlane } from '../../atoms/Icon'
+import { FlexCol } from '../../../atoms/Layout'
+import { Text } from '../../../atoms/Typography'
+import { Button, ButtonWrapper } from '../../../atoms/Button'
+import { CheckboxOption } from '../../PoolModalRouter'
+import { FlexRow } from '../../../atoms/Layout'
+import { StyledGraphDown, StyledSendPlane } from '../../../atoms/Icon'
 
 /* import utils */
-import { accurateMultiply, shortenAddress } from '../../../utils/formatting'
+import { accurateMultiply, shortenAddress } from '../../../../utils/formatting'
 
-interface BondOptionsProps {
+interface BondOptionsV2Props {
   isBondTellerErc20: boolean
   selectedBondDetail?: BondTellerDetails
   isStaking: boolean
@@ -50,7 +50,7 @@ interface BondOptionsProps {
   callDepositBond: (stake: boolean) => Promise<void>
 }
 
-export const BondOptions: React.FC<BondOptionsProps> = ({
+export const BondOptionsV2: React.FC<BondOptionsV2Props> = ({
   isBondTellerErc20,
   selectedBondDetail,
   isStaking,
@@ -85,10 +85,10 @@ export const BondOptions: React.FC<BondOptionsProps> = ({
             />
           </>
         )}
-        <CheckboxOption isChecked={isStaking} setChecked={setIsStaking} text={'Autostake and receive xSOLACE'} />
+        <CheckboxOption isChecked={isStaking} setChecked={setIsStaking} text={'Autostake'} />
       </FlexCol>
       <ButtonWrapper isColumn>
-        {!approval && func != FunctionName.BOND_DEPOSIT_ETH_V1 && (
+        {!approval && func != FunctionName.BOND_DEPOSIT_ETH_V2 && (
           <Button widthP={100} info disabled={!isAcceptableAmount || haveErrors} onClick={approve}>
             Approve
           </Button>
@@ -96,7 +96,7 @@ export const BondOptions: React.FC<BondOptionsProps> = ({
         <Button
           widthP={100}
           info
-          disabled={!isAcceptableAmount || haveErrors || (!approval && func != FunctionName.BOND_DEPOSIT_ETH_V1)}
+          disabled={!isAcceptableAmount || haveErrors || (!approval && func != FunctionName.BOND_DEPOSIT_ETH_V2)}
           onClick={() => callDepositBond(isStaking)}
         >
           Bond

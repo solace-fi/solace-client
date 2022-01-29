@@ -27,7 +27,7 @@ import waaveABI from '../constants/abi/contracts/products/WaaveProduct.sol/Waave
 import { AaveProduct } from '../products/aave'
 import { WaaveProduct } from '../products/waave'
 
-import { KEY_ADDRS, PRODUCT_ADDRS, TELLER_ADDRS_V1 } from '../constants/addresses/kovan'
+import { KEY_ADDRS, PRODUCT_ADDRS, TELLER_ADDRS_V1, TELLER_ADDRS_V2 } from '../constants/addresses/kovan'
 
 /*
 
@@ -39,7 +39,7 @@ const tellerToTokenMapping: {
   [key: string]: TellerToken
 } = {
   [TELLER_ADDRS_V1.DAI_TELLER]: {
-    addr: '0xc56010e957c325b140f182b4fbee61c2fb95fdb3',
+    addr: '0x31a1D59460a9619ec6965a5684C6d3Ae470D0fE5',
     isBondTellerErc20: true,
     isLp: false,
     isDisabled: false,
@@ -53,14 +53,14 @@ const tellerToTokenMapping: {
     version: 1,
   },
   [TELLER_ADDRS_V1.USDC_TELLER]: {
-    addr: '0xefd4e002d58a66e9ea53f9ebf0583aecc6e183f0',
+    addr: '0x512d93ADc3DF4E24cb4b26c44A91682Ec073F559',
     isBondTellerErc20: true,
     isLp: false,
     isDisabled: false,
     version: 1,
   },
   [TELLER_ADDRS_V1.SOLACE_USDC_SLP_TELLER]: {
-    addr: '0x13465d2d66be93764b33577c73fc2411917fe9e4',
+    addr: '0x7BEc68fB902f90Ba84634E764C91fDfFCA04D084',
     isBondTellerErc20: true,
     isLp: true,
     isDisabled: false,
@@ -87,16 +87,48 @@ const tellerToTokenMapping: {
     isDisabled: false,
     version: 1,
   },
-  // [TELLER_ADDRS_V1.SOLACE_ETH_SLP_TELLER]: {
-  //   addr: '0x64844b869abb2f310442a692bd1cc84b393b2777',
-  //   isBondTellerErc20: true,
-  //   isLp: true,
-  // },
-  // [TELLER_ADDRS_V1.SOLACE_DAI_SLP_TELLER]: {
-  //   addr: '0x836c25e0fe4edc95443a88b6694d7e3be37d98bd',
-  //   isBondTellerErc20: true,
-  //   isLp: true,
-  // },
+  [TELLER_ADDRS_V2.DAI_TELLER]: {
+    addr: '0x31a1D59460a9619ec6965a5684C6d3Ae470D0fE5',
+    isBondTellerErc20: true,
+    isLp: false,
+    isDisabled: false,
+    version: 2,
+  },
+  [TELLER_ADDRS_V2.ETH_TELLER]: {
+    addr: '0xd0a1e359811322d97991e03f863a0c30c2cf029c',
+    isBondTellerErc20: false,
+    isLp: false,
+    isDisabled: false,
+    version: 2,
+  },
+  [TELLER_ADDRS_V2.USDC_TELLER]: {
+    addr: '0x512d93ADc3DF4E24cb4b26c44A91682Ec073F559',
+    isBondTellerErc20: true,
+    isLp: false,
+    isDisabled: false,
+    version: 2,
+  },
+  [TELLER_ADDRS_V2.SCP_TELLER]: {
+    addr: '0x501acee83a6f269b77c167c6701843d454e2efa0',
+    isBondTellerErc20: true,
+    isLp: false,
+    isDisabled: false,
+    version: 2,
+  },
+  [TELLER_ADDRS_V2.WBTC_TELLER]: {
+    addr: '0x1063bf969f8d3d7296a2a94274d3df9202da2a3a',
+    isBondTellerErc20: true,
+    isLp: false,
+    isDisabled: false,
+    version: 2,
+  },
+  [TELLER_ADDRS_V2.USDT_TELLER]: {
+    addr: '0xaea2b0f4763c8ffc33a4c454cd08f803b02b6b53',
+    isBondTellerErc20: true,
+    isLp: false,
+    isDisabled: false,
+    version: 2,
+  },
 }
 
 export const KovanNetwork: NetworkConfig = {
@@ -184,13 +216,13 @@ export const KovanNetwork: NetworkConfig = {
       },
     },
     bondTellerContracts: {
-      [BondName.DAI]: [TELLER_ADDRS_V1.DAI_TELLER],
-      [BondName.ETH]: [TELLER_ADDRS_V1.ETH_TELLER],
-      [BondName.USDC]: [TELLER_ADDRS_V1.USDC_TELLER],
+      [BondName.DAI]: [TELLER_ADDRS_V1.DAI_TELLER, TELLER_ADDRS_V2.DAI_TELLER],
+      [BondName.ETH]: [TELLER_ADDRS_V1.ETH_TELLER, TELLER_ADDRS_V2.ETH_TELLER],
+      [BondName.USDC]: [TELLER_ADDRS_V1.USDC_TELLER, TELLER_ADDRS_V2.USDC_TELLER],
       [BondName.SOLACE_USDC_SLP]: [TELLER_ADDRS_V1.SOLACE_USDC_SLP_TELLER],
-      [BondName.SCP]: [TELLER_ADDRS_V1.SCP_TELLER],
-      [BondName.WBTC]: [TELLER_ADDRS_V1.WBTC_TELLER],
-      [BondName.USDT]: [TELLER_ADDRS_V1.USDT_TELLER],
+      [BondName.SCP]: [TELLER_ADDRS_V1.SCP_TELLER, TELLER_ADDRS_V2.SCP_TELLER],
+      [BondName.WBTC]: [TELLER_ADDRS_V1.WBTC_TELLER, TELLER_ADDRS_V2.WBTC_TELLER],
+      [BondName.USDT]: [TELLER_ADDRS_V1.USDT_TELLER, TELLER_ADDRS_V2.USDT_TELLER],
       // [BondName.SOLACE_DAI_SLP]: TELLER_ADDRS_V1.SOLACE_DAI_SLP_TELLER,
       // [BondName.SOLACE_ETH_SLP]: TELLER_ADDRS_V1.SOLACE_ETH_SLP_TELLER,
     },

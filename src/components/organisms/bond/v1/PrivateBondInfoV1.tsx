@@ -8,7 +8,7 @@
     import components
     import hooks
 
-    PrivateBondInfo
+    PrivateBondInfoV1
       custom hooks
 
   *************************************************************************************/
@@ -19,23 +19,23 @@ import { formatUnits } from '@ethersproject/units'
 import { BigNumber } from 'ethers'
 
 /* import constants */
-import { FunctionName } from '../../../constants/enums'
-import { BondTellerDetails } from '../../../constants/types'
+import { FunctionName } from '../../../../constants/enums'
+import { BondTellerDetails } from '../../../../constants/types'
 
 /* import managers */
-import { useNetwork } from '../../../context/NetworkManager'
-import { useWallet } from '../../../context/WalletManager'
-import { useContracts } from '../../../context/ContractsManager'
+import { useNetwork } from '../../../../context/NetworkManager'
+import { useWallet } from '../../../../context/WalletManager'
+import { useContracts } from '../../../../context/ContractsManager'
 
 /* import components */
-import { FormCol, FormRow } from '../../atoms/Form'
-import { Text } from '../../atoms/Typography'
-import { SmallBox } from '../../atoms/Box'
+import { FormCol, FormRow } from '../../../atoms/Form'
+import { Text } from '../../../atoms/Typography'
+import { SmallBox } from '../../../atoms/Box'
 
 /* import hooks */
-import { useReadToken } from '../../../hooks/useToken'
+import { useReadToken } from '../../../../hooks/useToken'
 
-interface PrivateBondInfoProps {
+interface PrivateBondInfoV1Props {
   func: FunctionName
   selectedBondDetail?: BondTellerDetails
   assetBalance: BigNumber
@@ -45,7 +45,7 @@ interface PrivateBondInfoProps {
   isStaking: boolean
 }
 
-export const PrivateBondInfo: React.FC<PrivateBondInfoProps> = ({
+export const PrivateBondInfoV1: React.FC<PrivateBondInfoV1Props> = ({
   func,
   selectedBondDetail,
   assetBalance,

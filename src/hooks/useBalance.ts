@@ -223,7 +223,7 @@ export const useUnderWritingPoolBalance = () => {
   useEffect(() => {
     const getGnosisBalance = async () => {
       if (!bondDepo || !solace) return
-      const multiSig = await bondDepo.underwritingPool()
+      const multiSig = '0x9fec1bb252e20bfb7c492beeee70314ddfe89c55'
       if (!library) return
       const principalContracts = tellers.map((t) =>
         getContract(t.addr, t.isLp ? sushiswapLpAbi : t.isBondTellerErc20 ? ierc20Json.abi : weth9, library, undefined)

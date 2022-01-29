@@ -5,8 +5,10 @@ import { Contract } from '@ethersproject/contracts'
 import { BondTellerContract, ContractSources, ProductContract, SupportedProduct } from '../constants/types'
 import { useNetwork } from '../context/NetworkManager'
 
-import bondTellerErc20Abi from '../constants/abi/contracts/BondTellerErc20.sol/BondTellerErc20.json'
-import bondTellerEthAbi from '../constants/abi/contracts/BondTellerEth.sol/BondTellerEth.json'
+import bondTellerErc20Abi_V1 from '../constants/abi/contracts/BondTellerErc20.sol/BondTellerErc20.json'
+import bondTellerErc20Abi_V2 from '../constants/metadata/BondTellerErc20_V2.json'
+import bondTellerEthAbi_V1 from '../constants/abi/contracts/BondTellerEth.sol/BondTellerEth.json'
+import bondTellerEthAbi_V2 from '../constants/metadata/BondTellerEth_V2.json'
 
 export function useGetContract(source: ContractSources | undefined, hasSigner = true): Contract | null {
   const { library, account } = useWallet()
@@ -68,12 +70,13 @@ export function useGetBondTellerContracts(): BondTellerContract[] {
         const isDisabled = cache.tellerToTokenMapping[bondTellerContract].isDisabled
         const addr = cache.tellerToTokenMapping[bondTellerContract].addr
         const version = cache.tellerToTokenMapping[bondTellerContract].version
-        const contract = getContract(
-          bondTellerContract,
-          isBondTellerErc20 ? bondTellerErc20Abi : bondTellerEthAbi,
-          library,
-          account ? account : undefined
-        )
+        let abi = null
+        if (version == 1) {
+          abi = isBondTellerErc20 ? bondTellerErc20Abi_V1 : bondTellerEthAbi_V1
+        } else {
+          abi = isBondTellerErc20 ? bondTellerErc20Abi_V2.abi : bondTellerEthAbi_V2.abi
+        }
+        const contract = getContract(bondTellerContract, abi, library, account ? account : undefined)
         const cntct: BondTellerContract = {
           name: key,
           contract,
@@ -120,9 +123,16 @@ export function useContractArray(): ContractSources[] {
       versionsArray.forEach((bondTellerContract) => {
         if (!excludedContractAddrs.includes(bondTellerContract)) {
           const isBondTellerErc20 = cache.tellerToTokenMapping[bondTellerContract].isBondTellerErc20
+          const version = cache.tellerToTokenMapping[bondTellerContract].version
+          let abi = null
+          if (version == 1) {
+            abi = isBondTellerErc20 ? bondTellerErc20Abi_V1 : bondTellerEthAbi_V1
+          } else {
+            abi = isBondTellerErc20 ? bondTellerErc20Abi_V2.abi : bondTellerEthAbi_V2.abi
+          }
           contractSources.push({
             addr: bondTellerContract.toLowerCase(),
-            abi: isBondTellerErc20 ? bondTellerErc20Abi : bondTellerEthAbi,
+            abi,
           })
         }
       })

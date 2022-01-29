@@ -84,7 +84,7 @@ export const useBondTellerDetailsV1 = (): { tellerDetails: BondTellerDetails[]; 
   const { library, account } = useWallet()
   const { version } = useCachedData()
   const { latestBlock } = useProvider()
-  const { tellers, keyContracts } = useContracts()
+  const { tellers } = useContracts()
   // const { solace } = useMemo(() => keyContracts, [keyContracts])
   const { activeNetwork, networks } = useNetwork()
   const [tellerDetails, setTellerDetails] = useState<BondTellerDetails[]>([])
@@ -109,82 +109,93 @@ export const useBondTellerDetailsV1 = (): { tellerDetails: BondTellerDetails[]; 
     if (!library || !canBondV1) return
     try {
       const data: BondTellerDetails[] = await Promise.all(
-        tellers.map(async (teller) => {
-          const [principalAddr, bondPrice, vestingTermInSeconds, capacity, maxPayout, bondFeeBps] = await Promise.all([
-            teller.contract.principal(),
-            teller.contract.bondPrice(),
-            teller.contract.vestingTerm(),
-            teller.contract.capacity(),
-            teller.contract.maxPayout(),
-            teller.contract.bondFeeBps(),
-          ])
-
-          const principalContract = getContract(
-            principalAddr,
-            teller.isLp ? sushiswapLpAbi : teller.isBondTellerErc20 ? ierc20Json.abi : weth9,
-            library,
-            account ?? undefined
-          )
-
-          const [decimals, name, symbol] = await Promise.all([
-            queryDecimals(principalContract),
-            queryName(principalContract, library),
-            querySymbol(principalContract, library),
-          ])
-
-          let lpData = {}
-          let usdBondPrice = 0
-
-          // get usdBondPrice
-          if (teller.isLp) {
-            const price = await getPriceFromSushiswapLp(principalContract)
-            usdBondPrice = Math.max(price, 0) * floatUnits(bondPrice, decimals)
-            const [token0, token1] = await Promise.all([principalContract.token0(), principalContract.token1()])
-            lpData = {
-              token0,
-              token1,
-            }
-          } else {
-            const price = await getPairPrice(principalContract)
-            if (price == -1) {
-              const coinGeckoTokenPrice = await getCoingeckoTokenPrice(
-                principalContract.address,
-                'usd',
-                coingeckoTokenId
-              )
-              usdBondPrice = parseFloat(coinGeckoTokenPrice ?? '0') * floatUnits(bondPrice, decimals)
-            } else {
-              usdBondPrice = price * floatUnits(bondPrice, decimals)
-            }
-          }
-
-          const bondRoi =
-            usdBondPrice > 0 && solacePrice != '-' ? ((parseFloat(solacePrice) - usdBondPrice) * 100) / usdBondPrice : 0
-
-          const d: BondTellerDetails = {
-            tellerData: {
-              teller,
+        tellers
+          .filter((t) => t.version == 1)
+          .map(async (teller) => {
+            const [
               principalAddr,
               bondPrice,
-              usdBondPrice,
               vestingTermInSeconds,
               capacity,
               maxPayout,
               bondFeeBps,
-              bondRoi,
-            },
-            principalData: {
-              principal: principalContract,
-              principalProps: {
-                symbol,
-                decimals,
-                name,
+            ] = await Promise.all([
+              teller.contract.principal(),
+              teller.contract.bondPrice(),
+              teller.contract.vestingTerm(),
+              teller.contract.capacity(),
+              teller.contract.maxPayout(),
+              teller.contract.bondFeeBps(),
+            ])
+
+            const principalContract = getContract(
+              principalAddr,
+              teller.isLp ? sushiswapLpAbi : teller.isBondTellerErc20 ? ierc20Json.abi : weth9,
+              library,
+              account ?? undefined
+            )
+
+            const [decimals, name, symbol] = await Promise.all([
+              queryDecimals(principalContract),
+              queryName(principalContract, library),
+              querySymbol(principalContract, library),
+            ])
+
+            let lpData = {}
+            let usdBondPrice = 0
+
+            // get usdBondPrice
+            if (teller.isLp) {
+              const price = await getPriceFromSushiswapLp(principalContract)
+              usdBondPrice = Math.max(price, 0) * floatUnits(bondPrice, decimals)
+              const [token0, token1] = await Promise.all([principalContract.token0(), principalContract.token1()])
+              lpData = {
+                token0,
+                token1,
+              }
+            } else {
+              const price = await getPairPrice(principalContract)
+              if (price == -1) {
+                const coinGeckoTokenPrice = await getCoingeckoTokenPrice(
+                  principalContract.address,
+                  'usd',
+                  coingeckoTokenId
+                )
+                usdBondPrice = parseFloat(coinGeckoTokenPrice ?? '0') * floatUnits(bondPrice, decimals)
+              } else {
+                usdBondPrice = price * floatUnits(bondPrice, decimals)
+              }
+            }
+
+            const bondRoi =
+              usdBondPrice > 0 && solacePrice != '-'
+                ? ((parseFloat(solacePrice) - usdBondPrice) * 100) / usdBondPrice
+                : 0
+
+            const d: BondTellerDetails = {
+              tellerData: {
+                teller,
+                principalAddr,
+                bondPrice,
+                usdBondPrice,
+                vestingTermInSeconds,
+                capacity,
+                maxPayout,
+                bondFeeBps,
+                bondRoi,
               },
-              ...lpData,
-            },
-          }
-          return d
-        })
+              principalData: {
+                principal: principalContract,
+                principalProps: {
+                  symbol,
+                  decimals,
+                  name,
+                },
+                ...lpData,
+              },
+            }
+            return d
+          })
       )
       setMounting(false)
       setTellerDetails(data)
