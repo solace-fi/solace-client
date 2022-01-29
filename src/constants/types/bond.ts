@@ -2,12 +2,21 @@ import { BigNumber } from 'ethers'
 import { Contract } from '@ethersproject/contracts'
 import { BondTellerContract } from './contract'
 
-export type BondToken = {
+export type BondTokenV1 = {
   id: BigNumber
   payoutToken: string
   payoutAmount: BigNumber
   pricePaid: BigNumber
   maturation: BigNumber
+}
+
+export type BondToken = {
+  id: BigNumber
+  payoutAmount: BigNumber
+  payoutAlreadyClaimed: BigNumber
+  principalPaid: BigNumber
+  vestingStart: number
+  localVestingTerm: number
 }
 
 export type BondTellerDetails = {

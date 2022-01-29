@@ -18,7 +18,7 @@ import { useNetwork } from '../context/NetworkManager'
 import { Unit } from '../constants/enums'
 import { getCoingeckoTokenPrice } from '../utils/api'
 import { floatUnits, truncateValue } from '../utils/formatting'
-import { BondToken } from '../constants/types'
+import { BondTokenV1 } from '../constants/types'
 import { useReadToken } from './useToken'
 import { useGetFunctionGas } from './useGas'
 
@@ -215,18 +215,18 @@ export const useBondTellerDetailsV1 = (): { tellerDetails: BondTellerDetails[]; 
   return { tellerDetails, mounting }
 }
 
-export const useUserBondData = () => {
+export const useUserBondDataV1 = () => {
   const { keyContracts } = useContracts()
   const { solace, xSolaceV1 } = useMemo(() => keyContracts, [keyContracts])
   const readSolaceToken = useReadToken(solace)
   const readXSolaceToken = useReadToken(xSolaceV1)
 
-  const getUserBondData = async (selectedBondDetail: BondTellerDetails, account: string) => {
+  const getUserBondDataV1 = async (selectedBondDetail: BondTellerDetails, account: string) => {
     const ownedTokenIds: BigNumber[] = await selectedBondDetail.tellerData.teller.contract.listTokensOfOwner(account)
     const ownedBondData = await Promise.all(
       ownedTokenIds.map(async (id) => await selectedBondDetail.tellerData.teller.contract.bonds(id))
     )
-    const ownedBonds: BondToken[] = ownedTokenIds.map((id, idx) => {
+    const ownedBonds: BondTokenV1[] = ownedTokenIds.map((id, idx) => {
       const payoutToken: string =
         ownedBondData[idx].payoutToken == readSolaceToken.address
           ? readSolaceToken.symbol
@@ -244,5 +244,5 @@ export const useUserBondData = () => {
     return ownedBonds
   }
 
-  return { getUserBondData }
+  return { getUserBondDataV1 }
 }

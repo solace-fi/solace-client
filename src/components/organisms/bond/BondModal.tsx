@@ -25,7 +25,7 @@ import useDebounce from '@rooks/use-debounce'
 import { BigNumber } from 'ethers'
 
 /* import constants */
-import { BondTellerDetails, BondToken, LocalTx } from '../../../constants/types'
+import { BondTellerDetails, BondTokenV1, LocalTx } from '../../../constants/types'
 import { BKPT_3, MAX_BPS, ZERO } from '../../../constants'
 import { FunctionName, TransactionCondition } from '../../../constants/enums'
 
@@ -57,7 +57,7 @@ import { PublicBondInfo } from './PublicBondInfo'
 import { useInputAmount, useTransactionExecution } from '../../../hooks/useInputAmount'
 import { useReadToken, useTokenAllowance } from '../../../hooks/useToken'
 import { useNativeTokenBalance } from '../../../hooks/useBalance'
-import { useBondTellerV1, useUserBondData } from '../../../hooks/useBondTellerV1'
+import { useBondTellerV1, useUserBondDataV1 } from '../../../hooks/useBondTellerV1'
 import { useWindowDimensions } from '../../../hooks/useWindowDimensions'
 
 /* import utils */
@@ -94,7 +94,7 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
   const [modalLoading, setModalLoading] = useState<boolean>(false)
   const [shouldUseNativeToken, setShouldUseNativeToken] = useState<boolean>(true)
   const [showBondSettingsModal, setShowBondSettingsModal] = useState<boolean>(false)
-  const [ownedBondTokens, setOwnedBondTokens] = useState<BondToken[]>([])
+  const [ownedBondTokens, setOwnedBondTokens] = useState<BondTokenV1[]>([])
 
   const [bondRecipient, setBondRecipient] = useState<string | undefined>(undefined)
   const [calculatedAmountIn, setCalculatedAmountIn] = useState<BigNumber | undefined>(ZERO)
@@ -113,7 +113,7 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
   const nativeTokenBalance = useNativeTokenBalance()
   const { deposit, redeem } = useBondTellerV1(selectedBondDetail)
   const { width } = useWindowDimensions()
-  const { getUserBondData } = useUserBondData()
+  const { getUserBondDataV1 } = useUserBondDataV1()
   const { amount, isAppropriateAmount, handleInputChange, setMax, resetAmount } = useInputAmount()
   const { handleToast, handleContractCallError } = useTransactionExecution()
   const [contractForAllowance, setContractForAllowance] = useState<Contract | null>(null)
@@ -318,7 +318,7 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
   useEffect(() => {
     const getUserBonds = async () => {
       if (!selectedBondDetail?.principalData || !account || !isOpen) return
-      const ownedBonds = await getUserBondData(selectedBondDetail, account)
+      const ownedBonds = await getUserBondDataV1(selectedBondDetail, account)
       setOwnedBondTokens(ownedBonds.sort((a, b) => a.id.toNumber() - b.id.toNumber()))
       const principalBal = await queryBalance(selectedBondDetail.principalData.principal, account)
       setPrincipalBalance(formatUnits(principalBal, selectedBondDetail.principalData.principalProps.decimals))

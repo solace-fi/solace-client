@@ -21,7 +21,7 @@ import { formatUnits } from '@ethersproject/units'
 import { BigNumber } from 'ethers'
 
 /* import constants */
-import { BondTellerDetails, BondToken } from '../../../constants/types'
+import { BondTellerDetails, BondTokenV1 } from '../../../constants/types'
 
 /* import managers */
 import { useGeneral } from '../../../context/GeneralManager'
@@ -42,7 +42,7 @@ import { useReadToken } from '../../../hooks/useToken'
 import { getTimeFromMillis } from '../../../utils/time'
 
 interface OwnedBondListProps {
-  ownedBondTokens: BondToken[]
+  ownedBondTokens: BondTokenV1[]
   selectedBondDetail?: BondTellerDetails
   callRedeemBond: (bondId: BigNumber) => Promise<void>
 }
