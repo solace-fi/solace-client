@@ -216,7 +216,7 @@ export const getUnit = (function_name: string, activeNetwork?: NetworkConfig): U
       return Unit.BOND
     case FunctionName.START_COOLDOWN:
     case FunctionName.STOP_COOLDOWN:
-    case FunctionName.REWARDS_REDEEM_V1:
+    case FunctionName.REWARDS_REDEEM:
     default:
       return Unit._
   }

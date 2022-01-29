@@ -24,7 +24,8 @@ export const useFetchGasPrice = (): number | undefined => {
       running.current = true
       await library.getGasPrice().then((result: BigNumber) => {
         const gasString = formatUnits(result, 'gwei')
-        const gasVal = parseFloat(gasString)
+        const gasPadding = 1
+        const gasVal = Math.ceil(parseFloat(gasString) * gasPadding)
         setGasPrice(gasVal)
       })
       // await fetchGasPrice(activeNetwork).then((result) => {

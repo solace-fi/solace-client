@@ -88,7 +88,7 @@ export const BondOptions: React.FC<BondOptionsProps> = ({
         <CheckboxOption isChecked={isStaking} setChecked={setIsStaking} text={'Autostake and receive xSOLACE'} />
       </FlexCol>
       <ButtonWrapper isColumn>
-        {!approval && func != FunctionName.DEPOSIT_ETH && (
+        {!approval && func != FunctionName.BOND_DEPOSIT_ETH_V1 && (
           <Button widthP={100} info disabled={!isAcceptableAmount || haveErrors} onClick={approve}>
             Approve
           </Button>
@@ -96,7 +96,7 @@ export const BondOptions: React.FC<BondOptionsProps> = ({
         <Button
           widthP={100}
           info
-          disabled={!isAcceptableAmount || haveErrors || (!approval && func != FunctionName.DEPOSIT_ETH)}
+          disabled={!isAcceptableAmount || haveErrors || (!approval && func != FunctionName.BOND_DEPOSIT_ETH_V1)}
           onClick={() => callDepositBond(isStaking)}
         >
           Bond

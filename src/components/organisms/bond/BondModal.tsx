@@ -101,7 +101,7 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
   const [calculatedAmountIn_X, setCalculatedAmountIn_X] = useState<BigNumber | undefined>(ZERO)
   const [calculatedAmountOut, setCalculatedAmountOut] = useState<BigNumber | undefined>(ZERO)
   const [calculatedAmountOut_X, setCalculatedAmountOut_X] = useState<BigNumber | undefined>(ZERO)
-  const [func, setFunc] = useState<FunctionName>(FunctionName.DEPOSIT_ETH)
+  const [func, setFunc] = useState<FunctionName>(FunctionName.BOND_DEPOSIT_ETH_V1)
   const [principalBalance, setPrincipalBalance] = useState<string>('0')
   const [slippagePrct, setSlippagePrct] = useState<string>('20')
 
@@ -128,7 +128,7 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
       case FunctionName.BOND_DEPOSIT_ERC20_V1:
       case FunctionName.BOND_DEPOSIT_WETH_V1:
         return parseUnits(principalBalance, pncplDecimals)
-      case FunctionName.DEPOSIT_ETH:
+      case FunctionName.BOND_DEPOSIT_ETH_V1:
       default:
         return parseUnits(nativeTokenBalance, currencyDecimals)
     }
@@ -206,7 +206,7 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
     setCalculatedAmountOut(ZERO)
     setCalculatedAmountOut_X(ZERO)
     setContractForAllowance(null)
-    setFunc(FunctionName.DEPOSIT_ETH)
+    setFunc(FunctionName.BOND_DEPOSIT_ETH_V1)
     setIsAcceptableAmount(false)
     setIsBondTellerErc20(false)
     setIsBonding(true)
@@ -225,12 +225,12 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
   const _setMax = () => {
     if (!pncplDecimals || !calculatedAmountIn || !calculatedAmountIn_X) return
     const calcAIn = isStaking ? calculatedAmountIn_X : calculatedAmountIn
-    if (func == FunctionName.DEPOSIT_ETH) {
+    if (func == FunctionName.BOND_DEPOSIT_ETH_V1) {
     }
     setMax(
       assetBalance.gt(calcAIn) ? calcAIn : assetBalance,
       pncplDecimals,
-      func == FunctionName.DEPOSIT_ETH ? FunctionGasLimits['tellerEth.depositEth'] : undefined
+      func == FunctionName.BOND_DEPOSIT_ETH_V1 ? FunctionGasLimits['tellerEth_v1.depositEth'] : undefined
     )
   }
 
@@ -330,7 +330,7 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
     const getTellerType = async () => {
       if (!selectedBondDetail) return
       const isBondTellerErc20 = selectedBondDetail.tellerData.teller.isBondTellerErc20
-      const tempFunc = isBondTellerErc20 ? FunctionName.BOND_DEPOSIT_ERC20_V1 : FunctionName.DEPOSIT_ETH
+      const tempFunc = isBondTellerErc20 ? FunctionName.BOND_DEPOSIT_ERC20_V1 : FunctionName.BOND_DEPOSIT_ETH_V1
       setIsBondTellerErc20(isBondTellerErc20)
       setFunc(tempFunc)
     }
@@ -360,7 +360,7 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
 
   useEffect(() => {
     if (isBondTellerErc20) return
-    setFunc(shouldUseNativeToken ? FunctionName.DEPOSIT_ETH : FunctionName.BOND_DEPOSIT_WETH_V1)
+    setFunc(shouldUseNativeToken ? FunctionName.BOND_DEPOSIT_ETH_V1 : FunctionName.BOND_DEPOSIT_WETH_V1)
   }, [shouldUseNativeToken])
 
   return (
@@ -377,7 +377,7 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
           selectedBondDetail={selectedBondDetail}
         />
         <ModalHeader style={{ position: 'relative', marginTop: '20px' }}>
-          {(approval || func == FunctionName.DEPOSIT_ETH) && (
+          {(approval || func == FunctionName.BOND_DEPOSIT_ETH_V1) && (
             <FlexRow style={{ cursor: 'pointer', position: 'absolute', left: '0', bottom: '-10px' }}>
               <StyledGear size={25} onClick={() => setShowBondSettingsModal(true)} />
             </FlexRow>
@@ -461,7 +461,10 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
               textAlignCenter
               type="text"
               onChange={(e) =>
-                handleInputChange(e.target.value, func == FunctionName.DEPOSIT_ETH ? currencyDecimals : pncplDecimals)
+                handleInputChange(
+                  e.target.value,
+                  func == FunctionName.BOND_DEPOSIT_ETH_V1 ? currencyDecimals : pncplDecimals
+                )
               }
               value={amount}
             />

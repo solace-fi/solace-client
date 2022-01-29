@@ -77,7 +77,7 @@ export const PrivateBondInfo: React.FC<PrivateBondInfoProps> = ({
             <FormCol>
               <Text info textAlignRight bold>
                 {formatUnits(assetBalance, pncplDecimals)}{' '}
-                {func == FunctionName.DEPOSIT_ETH
+                {func == FunctionName.BOND_DEPOSIT_ETH_V1
                   ? activeNetwork.nativeCurrency.symbol
                   : selectedBondDetail?.principalData.principalProps?.symbol}
               </Text>
