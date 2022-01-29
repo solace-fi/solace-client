@@ -23,8 +23,8 @@ export const networks: NetworkConfig[] = [
   MainNetwork,
   RinkebyNetwork,
   KovanNetwork,
-  PolygonNetwork,
-  MumbaiNetwork,
+  // PolygonNetwork,
+  // MumbaiNetwork,
   AuroraNetwork,
   AuroraTestnetNetwork,
 ]

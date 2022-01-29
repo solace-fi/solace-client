@@ -4,7 +4,7 @@ import EthereumLogo from '../resources/svg/networks/ethereum-logo.svg'
 import { hexValue } from 'ethers/lib/utils'
 
 export const AuroraTestnetNetwork: NetworkConfig = {
-  name: 'Aurora Test',
+  name: 'Aurora Testnet',
   chainId: 1313161555,
   isTestnet: true,
   // logo: EthereumLogo,
