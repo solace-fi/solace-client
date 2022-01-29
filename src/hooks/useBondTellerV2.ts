@@ -141,10 +141,8 @@ export const useBondTellerDetailsV2 = () => {
                 coingeckoTokenId
               )
               usdBondPrice = parseFloat(coinGeckoTokenPrice ?? '0') * floatUnits(bondPrice, decimals)
-              console.log('usd1', usdBondPrice)
             } else {
               usdBondPrice = price * floatUnits(bondPrice, decimals)
-              console.log('usd2', usdBondPrice)
             }
 
             const bondRoi =

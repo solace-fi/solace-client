@@ -85,7 +85,7 @@ export const BondOptionsV2: React.FC<BondOptionsV2Props> = ({
             />
           </>
         )}
-        <CheckboxOption isChecked={isStaking} setChecked={setIsStaking} text={'Autostake'} />
+        <CheckboxOption isChecked={isStaking} setChecked={setIsStaking} text={'Autostake and create a lock'} />
       </FlexCol>
       <ButtonWrapper isColumn>
         {!approval && func != FunctionName.BOND_DEPOSIT_ETH_V2 && (
