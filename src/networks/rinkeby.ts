@@ -30,7 +30,7 @@ import { CompoundProduct } from '../products/compound'
 import { WaaveProduct } from '../products/waave'
 import { LiquityProduct } from '../products/liquity'
 
-import { KEY_ADDRS, PRODUCT_ADDRS, TELLER_ADDRS_V1 } from '../constants/addresses/rinkeby'
+import { KEY_ADDRS, PRODUCT_ADDRS, TELLER_ADDRS_V1, TELLER_ADDRS_V2 } from '../constants/addresses/rinkeby'
 
 /*
 
@@ -42,7 +42,7 @@ const tellerToTokenMapping: {
   [key: string]: TellerToken
 } = {
   [TELLER_ADDRS_V1.DAI_TELLER]: {
-    addr: '0x5592ec0cfb4dbc12d3ab100b257153436a1f0fea',
+    addr: '0xE28bEf39f41c63B66cFD97BFfDB6Defc915B3C88',
     isBondTellerErc20: true,
     isLp: false,
     isDisabled: false,
@@ -56,7 +56,7 @@ const tellerToTokenMapping: {
     version: 1,
   },
   [TELLER_ADDRS_V1.USDC_TELLER]: {
-    addr: '0x4dbcdf9b62e891a7cec5a2568c3f4faf9e8abe2b',
+    addr: '0x6D6DC3A8f02a1fEc0B9575e8dDE4135929Bd6e21',
     isBondTellerErc20: true,
     isLp: false,
     isDisabled: false,
@@ -84,22 +84,54 @@ const tellerToTokenMapping: {
     version: 1,
   },
   [TELLER_ADDRS_V1.USDT_TELLER]: {
-    addr: '0xd9ba894e0097f8cc2bbc9d24d308b98e36dc6d02',
+    addr: '0x638b7BaA3D0C7d235fb904B01523883F980f24Ce',
     isBondTellerErc20: true,
     isLp: false,
     isDisabled: false,
     version: 1,
   },
-  // [TELLER_ADDRS_V1.SOLACE_ETH_SLP_TELLER]: {
-  //   addr: '0x66844fbeb515f3da46c6129fe911f0cb436ba2e0',
-  //   isBondTellerErc20: true,
-  //   isLp: true,
-  // },
-  // [TELLER_ADDRS_V1.SOLACE_DAI_SLP_TELLER]: {
-  //   addr: '0xf57fec00d4712e68fb0bceac77a2841edd7a155e',
-  //   isBondTellerErc20: true,
-  //   isLp: true,
-  // },
+  [TELLER_ADDRS_V2.DAI_TELLER]: {
+    addr: '0xE28bEf39f41c63B66cFD97BFfDB6Defc915B3C88',
+    isBondTellerErc20: true,
+    isLp: false,
+    isDisabled: false,
+    version: 2,
+  },
+  [TELLER_ADDRS_V2.ETH_TELLER]: {
+    addr: '0xc778417e063141139fce010982780140aa0cd5ab',
+    isBondTellerErc20: false,
+    isLp: false,
+    isDisabled: false,
+    version: 2,
+  },
+  [TELLER_ADDRS_V2.USDC_TELLER]: {
+    addr: '0x6D6DC3A8f02a1fEc0B9575e8dDE4135929Bd6e21',
+    isBondTellerErc20: true,
+    isLp: false,
+    isDisabled: false,
+    version: 2,
+  },
+  [TELLER_ADDRS_V2.SCP_TELLER]: {
+    addr: '0x501acee83a6f269b77c167c6701843d454e2efa0',
+    isBondTellerErc20: true,
+    isLp: false,
+    isDisabled: false,
+    version: 2,
+  },
+  [TELLER_ADDRS_V2.WBTC_TELLER]: {
+    addr: '0x20fb9cddbca5a5eb468c76010aec6ed4eacc037f',
+    isBondTellerErc20: true,
+    isLp: false,
+    isDisabled: false,
+    version: 2,
+  },
+  [TELLER_ADDRS_V2.USDT_TELLER]: {
+    addr: '0x638b7BaA3D0C7d235fb904B01523883F980f24Ce',
+    isBondTellerErc20: true,
+    isLp: false,
+    isDisabled: false,
+    version: 2,
+  },
 }
 
 export const RinkebyNetwork: NetworkConfig = {
@@ -194,13 +226,13 @@ export const RinkebyNetwork: NetworkConfig = {
       },
     },
     bondTellerContracts: {
-      [BondName.DAI]: [TELLER_ADDRS_V1.DAI_TELLER],
-      [BondName.ETH]: [TELLER_ADDRS_V1.ETH_TELLER],
-      [BondName.USDC]: [TELLER_ADDRS_V1.USDC_TELLER],
+      [BondName.DAI]: [TELLER_ADDRS_V1.DAI_TELLER, TELLER_ADDRS_V2.DAI_TELLER],
+      [BondName.ETH]: [TELLER_ADDRS_V1.ETH_TELLER, TELLER_ADDRS_V2.ETH_TELLER],
+      [BondName.USDC]: [TELLER_ADDRS_V1.USDC_TELLER, TELLER_ADDRS_V2.USDC_TELLER],
       [BondName.SOLACE_USDC_SLP]: [TELLER_ADDRS_V1.SOLACE_USDC_SLP_TELLER],
-      [BondName.SCP]: [TELLER_ADDRS_V1.SCP_TELLER],
-      [BondName.WBTC]: [TELLER_ADDRS_V1.WBTC_TELLER],
-      [BondName.USDT]: [TELLER_ADDRS_V1.USDT_TELLER],
+      [BondName.SCP]: [TELLER_ADDRS_V1.SCP_TELLER, TELLER_ADDRS_V2.SCP_TELLER],
+      [BondName.WBTC]: [TELLER_ADDRS_V1.WBTC_TELLER, TELLER_ADDRS_V2.WBTC_TELLER],
+      [BondName.USDT]: [TELLER_ADDRS_V1.USDT_TELLER, TELLER_ADDRS_V2.USDT_TELLER],
     },
     availableFeatures: {
       bondingV1: true,

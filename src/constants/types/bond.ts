@@ -10,7 +10,7 @@ export type BondTokenV1 = {
   maturation: BigNumber
 }
 
-export type BondToken = {
+export type BondTokenV2 = {
   id: BigNumber
   payoutAmount: BigNumber
   payoutAlreadyClaimed: BigNumber
@@ -32,7 +32,7 @@ export type BondTellerData = {
   vestingTermInSeconds: number
   capacity: BigNumber
   maxPayout: BigNumber
-  bondFeeBps: BigNumber
+  bondFeeBps?: BigNumber
   bondRoi: number
 }
 

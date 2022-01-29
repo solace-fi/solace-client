@@ -9,7 +9,7 @@
     import hooks
     import utils
 
-    BondModal
+    BondModalV1
       custom hooks
       contract functions
       local functions
@@ -25,54 +25,54 @@ import useDebounce from '@rooks/use-debounce'
 import { BigNumber } from 'ethers'
 
 /* import constants */
-import { BondTellerDetails, BondTokenV1, LocalTx } from '../../../constants/types'
-import { BKPT_3, MAX_BPS, ZERO } from '../../../constants'
-import { FunctionName, TransactionCondition } from '../../../constants/enums'
+import { BondTellerDetails, BondTokenV1, LocalTx } from '../../../../constants/types'
+import { BKPT_3, MAX_BPS, ZERO } from '../../../../constants'
+import { FunctionName, TransactionCondition } from '../../../../constants/enums'
 
 /* import managers */
-import { useWallet } from '../../../context/WalletManager'
-import { useNetwork } from '../../../context/NetworkManager'
-import { useCachedData } from '../../../context/CachedDataManager'
-import { useNotifications } from '../../../context/NotificationsManager'
-import { useContracts } from '../../../context/ContractsManager'
+import { useWallet } from '../../../../context/WalletManager'
+import { useNetwork } from '../../../../context/NetworkManager'
+import { useCachedData } from '../../../../context/CachedDataManager'
+import { useNotifications } from '../../../../context/NotificationsManager'
+import { useContracts } from '../../../../context/ContractsManager'
 
 /* import components */
-import { WalletConnectButton } from '../../molecules/WalletConnectButton'
-import { ModalContainer, ModalBase, ModalHeader, ModalCell } from '../../atoms/Modal'
-import { ModalCloseButton } from '../../molecules/Modal'
-import { FlexCol, HorizRule, MultiTabIndicator } from '../../atoms/Layout'
-import { Text } from '../../atoms/Typography'
-import { Button, ButtonWrapper } from '../../atoms/Button'
-import { Input } from '../../atoms/Input'
-import { DeFiAssetImage } from '../../atoms/DeFiAsset'
-import { Loader } from '../../atoms/Loader'
-import { FlexRow } from '../../atoms/Layout'
-import { StyledGear } from '../../atoms/Icon'
-import { BondSettingsModal } from './BondSettingsModal'
-import { OwnedBondList } from './OwnedBondList'
-import { BondOptions } from './BondOptions'
-import { PublicBondInfo } from './PublicBondInfo'
+import { WalletConnectButton } from '../../../molecules/WalletConnectButton'
+import { ModalContainer, ModalBase, ModalHeader, ModalCell } from '../../../atoms/Modal'
+import { ModalCloseButton } from '../../../molecules/Modal'
+import { FlexCol, HorizRule, MultiTabIndicator } from '../../../atoms/Layout'
+import { Text } from '../../../atoms/Typography'
+import { Button, ButtonWrapper } from '../../../atoms/Button'
+import { Input } from '../../../atoms/Input'
+import { DeFiAssetImage } from '../../../atoms/DeFiAsset'
+import { Loader } from '../../../atoms/Loader'
+import { FlexRow } from '../../../atoms/Layout'
+import { StyledGear } from '../../../atoms/Icon'
+import { BondSettingsModal } from '../BondSettingsModal'
+import { OwnedBondListV1 } from './OwnedBondListV1'
+import { BondOptionsV1 } from './BondOptionsV1'
+import { PublicBondInfo } from '../PublicBondInfo'
 
 /* import hooks */
-import { useInputAmount, useTransactionExecution } from '../../../hooks/useInputAmount'
-import { useReadToken, useTokenAllowance } from '../../../hooks/useToken'
-import { useNativeTokenBalance } from '../../../hooks/useBalance'
-import { useBondTellerV1, useUserBondDataV1 } from '../../../hooks/useBondTellerV1'
-import { useWindowDimensions } from '../../../hooks/useWindowDimensions'
+import { useInputAmount, useTransactionExecution } from '../../../../hooks/useInputAmount'
+import { useReadToken, useTokenAllowance } from '../../../../hooks/useToken'
+import { useNativeTokenBalance } from '../../../../hooks/useBalance'
+import { useBondTellerV1, useUserBondDataV1 } from '../../../../hooks/useBondTellerV1'
+import { useWindowDimensions } from '../../../../hooks/useWindowDimensions'
 
 /* import utils */
-import { accurateMultiply, formatAmount } from '../../../utils/formatting'
-import { queryBalance } from '../../../utils/contract'
-import { PrivateBondInfo } from './PrivateBondInfo'
-import { FunctionGasLimits } from '../../../constants/mappings/gasMapping'
+import { accurateMultiply, formatAmount } from '../../../../utils/formatting'
+import { queryBalance } from '../../../../utils/contract'
+import { PrivateBondInfoV1 } from './PrivateBondInfoV1'
+import { FunctionGasLimits } from '../../../../constants/mappings/gasMapping'
 
-interface BondModalProps {
+interface BondModalV1Props {
   closeModal: () => void
   isOpen: boolean
   selectedBondDetail?: BondTellerDetails
 }
 
-export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, selectedBondDetail }) => {
+export const BondModalV1: React.FC<BondModalV1Props> = ({ closeModal, isOpen, selectedBondDetail }) => {
   /* 
   
   custom hooks 
@@ -274,7 +274,7 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
       try {
         // not including bond fee to remain below maxPayout
         const aI: BigNumber = await tellerContract.calculateAmountIn(
-          maxPayout.mul(BigNumber.from(MAX_BPS).sub(bondFeeBps)).div(BigNumber.from(MAX_BPS)),
+          maxPayout.mul(BigNumber.from(MAX_BPS).sub(bondFeeBps ?? ZERO)).div(BigNumber.from(MAX_BPS)),
           false
         )
         setCalculatedAmountIn(aI)
@@ -284,7 +284,7 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
       try {
         // not including bond fee to remain below maxPayout
         const aI_X: BigNumber = await tellerContract.calculateAmountIn(
-          maxPayout_X.mul(BigNumber.from(MAX_BPS).sub(bondFeeBps)).div(BigNumber.from(MAX_BPS)),
+          maxPayout_X.mul(BigNumber.from(MAX_BPS).sub(bondFeeBps ?? ZERO)).div(BigNumber.from(MAX_BPS)),
           true
         )
         setCalculatedAmountIn_X(aI_X)
@@ -486,7 +486,7 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
         ) : null}
         {isBonding && (
           <>
-            <PrivateBondInfo
+            <PrivateBondInfoV1
               func={func}
               selectedBondDetail={selectedBondDetail}
               assetBalance={assetBalance}
@@ -502,7 +502,7 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
                 <Loader />
               ) : (
                 <FlexCol mt={20}>
-                  <BondOptions
+                  <BondOptionsV1
                     isBondTellerErc20={isBondTellerErc20}
                     selectedBondDetail={selectedBondDetail}
                     isStaking={isStaking}
@@ -522,7 +522,7 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
           </>
         )}
         {!isBonding && account && (
-          <OwnedBondList
+          <OwnedBondListV1
             ownedBondTokens={ownedBondTokens}
             selectedBondDetail={selectedBondDetail}
             callRedeemBond={callRedeemBond}

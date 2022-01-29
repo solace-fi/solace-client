@@ -1,4 +1,4 @@
-import { BondTellerDetails, BondToken, TxResult, LocalTx } from '../constants/types'
+import { BondTellerDetails, BondTokenV2, TxResult, LocalTx } from '../constants/types'
 import { useContracts } from '../context/ContractsManager'
 import { listTokensOfOwner } from '../utils/contract'
 
@@ -7,7 +7,6 @@ import { useCallback, useEffect, useState, useMemo } from 'react'
 import { getContract } from '../utils'
 
 import ierc20Json from '../constants/metadata/IERC20Metadata.json'
-import sushiswapLpAbi from '../constants/metadata/ISushiswapMetadataAlt.json'
 import weth9 from '../constants/abi/contracts/WETH9.sol/WETH9.json'
 import { useWallet } from '../context/WalletManager'
 import { FunctionGasLimits } from '../constants/mappings/gasMapping'
@@ -20,8 +19,6 @@ import { useNetwork } from '../context/NetworkManager'
 import { Unit } from '../constants/enums'
 import { getCoingeckoTokenPrice } from '../utils/api'
 import { floatUnits, truncateValue } from '../utils/formatting'
-import { BondTokenV1 } from '../constants/types'
-import { useReadToken } from './useToken'
 import { useGetFunctionGas } from './useGas'
 import { GAS_LIMIT } from '../constants'
 
@@ -83,15 +80,137 @@ export const useBondTellerV2 = (selectedBondDetail: BondTellerDetails | undefine
   return { deposit, claimPayout }
 }
 
-export const useUserBondDataV2 = () => {
-  const { keyContracts } = useContracts()
+export const useBondTellerDetailsV2 = () => {
+  const { library, account } = useWallet()
+  const { version } = useCachedData()
+  const { latestBlock } = useProvider()
+  const { tellers } = useContracts()
+  const { activeNetwork, networks } = useNetwork()
+  const [tellerDetails, setTellerDetails] = useState<BondTellerDetails[]>([])
+  const [mounting, setMounting] = useState<boolean>(true)
+  const { getPairPrice } = useGetPairPrice()
+  const [solacePrice, setSolacePrice] = useState<string>('-')
+  const canBondV2 = useMemo(() => activeNetwork.config.availableFeatures.bondingV1, [
+    activeNetwork.config.availableFeatures.bondingV1,
+  ])
+  const coingeckoTokenId = useMemo(() => {
+    switch (activeNetwork.nativeCurrency.symbol) {
+      case Unit.ETH:
+        return 'ethereum'
+      case Unit.MATIC:
+      default:
+        return 'matic-network'
+    }
+  }, [activeNetwork.nativeCurrency.symbol])
 
+  const getBondTellerDetails = useCallback(async () => {
+    if (!library || !canBondV2) return
+    try {
+      const data = await Promise.all(
+        tellers
+          .filter((t) => t.version == 2)
+          .map(async (teller) => {
+            const [principalAddr, bondPrice, vestingTermInSeconds, capacity, maxPayout] = await Promise.all([
+              teller.contract.principal(),
+              teller.contract.bondPrice(),
+              teller.contract.globalVestingTerm(),
+              teller.contract.capacity(),
+              teller.contract.maxPayout(),
+            ])
+
+            const principalContract = getContract(
+              principalAddr,
+              teller.isBondTellerErc20 ? ierc20Json.abi : weth9,
+              library,
+              account ?? undefined
+            )
+
+            const [decimals, name, symbol] = await Promise.all([
+              queryDecimals(principalContract),
+              queryName(principalContract, library),
+              querySymbol(principalContract, library),
+            ])
+
+            let usdBondPrice = 0
+
+            const price = await getPairPrice(principalContract)
+            if (price == -1) {
+              const coinGeckoTokenPrice = await getCoingeckoTokenPrice(
+                principalContract.address,
+                'usd',
+                coingeckoTokenId
+              )
+              usdBondPrice = parseFloat(coinGeckoTokenPrice ?? '0') * floatUnits(bondPrice, decimals)
+              console.log('usd1', usdBondPrice)
+            } else {
+              usdBondPrice = price * floatUnits(bondPrice, decimals)
+              console.log('usd2', usdBondPrice)
+            }
+
+            const bondRoi =
+              usdBondPrice > 0 && solacePrice != '-'
+                ? ((parseFloat(solacePrice) - usdBondPrice) * 100) / usdBondPrice
+                : 0
+
+            const d: BondTellerDetails = {
+              tellerData: {
+                teller,
+                principalAddr,
+                bondPrice,
+                usdBondPrice,
+                vestingTermInSeconds,
+                capacity,
+                maxPayout,
+                bondRoi,
+              },
+              principalData: {
+                principal: principalContract,
+                principalProps: {
+                  symbol,
+                  decimals,
+                  name,
+                },
+              },
+            }
+            return d
+          })
+      )
+      setMounting(false)
+      setTellerDetails(data)
+    } catch (e) {
+      console.log('getBondTellerDetails', e)
+    }
+  }, [tellers, latestBlock, version, solacePrice, canBondV2])
+
+  useEffect(() => {
+    setMounting(true)
+  }, [tellers])
+
+  useEffect(() => {
+    getBondTellerDetails()
+  }, [getBondTellerDetails])
+
+  useEffect(() => {
+    const getPrice = async () => {
+      if (!latestBlock) return
+      const mainnetSolaceAddr = networks[0].config.keyContracts.solace.addr
+      const coingeckoMainnetPrice = await getCoingeckoTokenPrice(mainnetSolaceAddr, 'usd', 'ethereum')
+      const price = parseFloat(coingeckoMainnetPrice ?? '0')
+      setSolacePrice(truncateValue(price, 2))
+    }
+    getPrice()
+  }, [latestBlock, networks])
+
+  return { tellerDetails, mounting }
+}
+
+export const useUserBondDataV2 = () => {
   const getUserBondDataV2 = async (selectedBondDetail: BondTellerDetails, account: string) => {
     const ownedTokenIds: BigNumber[] = await listTokensOfOwner(selectedBondDetail.tellerData.teller.contract, account)
     const ownedBondData = await Promise.all(
       ownedTokenIds.map(async (id) => await selectedBondDetail.tellerData.teller.contract.bonds(id))
     )
-    const ownedBonds: BondToken[] = ownedTokenIds.map((id, idx) => {
+    const ownedBonds: BondTokenV2[] = ownedTokenIds.map((id, idx) => {
       return {
         id,
         payoutAmount: ownedBondData[idx].payoutAmount,
@@ -103,4 +222,6 @@ export const useUserBondDataV2 = () => {
     })
     return ownedBonds
   }
+
+  return { getUserBondDataV2 }
 }

@@ -9,7 +9,7 @@
     import hooks
     import utils
 
-    OwnedBondList
+    OwnedBondListV1
       custom hooks
       useEffect hooks
 
@@ -21,33 +21,33 @@ import { formatUnits } from '@ethersproject/units'
 import { BigNumber } from 'ethers'
 
 /* import constants */
-import { BondTellerDetails, BondTokenV1 } from '../../../constants/types'
+import { BondTellerDetails, BondTokenV1 } from '../../../../constants/types'
 
 /* import managers */
-import { useGeneral } from '../../../context/GeneralManager'
-import { useContracts } from '../../../context/ContractsManager'
-import { useProvider } from '../../../context/ProviderManager'
+import { useGeneral } from '../../../../context/GeneralManager'
+import { useContracts } from '../../../../context/ContractsManager'
+import { useProvider } from '../../../../context/ProviderManager'
 
 /* import components */
-import { Text } from '../../atoms/Typography'
-import { Button } from '../../atoms/Button'
-import { FormCol, FormRow } from '../../../components/atoms/Form'
-import { Card, CardContainer } from '../../atoms/Card'
-import { Scrollable, HeroContainer } from '../../atoms/Layout'
+import { Text } from '../../../atoms/Typography'
+import { Button } from '../../../atoms/Button'
+import { FormCol, FormRow } from '../../../atoms/Form'
+import { Card, CardContainer } from '../../../atoms/Card'
+import { Scrollable, HeroContainer } from '../../../atoms/Layout'
 
 /* import hooks */
-import { useReadToken } from '../../../hooks/useToken'
+import { useReadToken } from '../../../../hooks/useToken'
 
 /* import utils */
-import { getTimeFromMillis } from '../../../utils/time'
+import { getTimeFromMillis } from '../../../../utils/time'
 
-interface OwnedBondListProps {
+interface OwnedBondListV1Props {
   ownedBondTokens: BondTokenV1[]
   selectedBondDetail?: BondTellerDetails
   callRedeemBond: (bondId: BigNumber) => Promise<void>
 }
 
-export const OwnedBondList: React.FC<OwnedBondListProps> = ({
+export const OwnedBondListV1: React.FC<OwnedBondListV1Props> = ({
   ownedBondTokens,
   selectedBondDetail,
   callRedeemBond,
