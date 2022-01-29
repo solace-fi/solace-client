@@ -2,6 +2,12 @@ import { Unit } from '../constants/enums'
 import { NetworkConfig } from '../constants/types'
 import EthereumLogo from '../resources/svg/networks/ethereum-logo.svg'
 import { hexValue } from 'ethers/lib/utils'
+import { KEY_ADDRS } from '../constants/addresses/auroraTestnet'
+
+import solaceABI from '../constants/abi/contracts/SOLACE.sol/SOLACE.json'
+import xSolaceABI from '../constants/metadata/xSOLACE.json'
+import xsLockerABI from '../constants/metadata/xsLocker.json'
+import stakingRewardsABI from '../constants/metadata/StakingRewards.json'
 
 export const AuroraTestnetNetwork: NetworkConfig = {
   name: 'Aurora Testnet',
@@ -18,10 +24,27 @@ export const AuroraTestnetNetwork: NetworkConfig = {
     name: 'Explorer',
     url: 'https://explorer.testnet.aurora.dev',
     apiUrl: 'https://explorer.testnet.aurora.dev',
-    excludedContractAddrs: [],
+    excludedContractAddrs: [KEY_ADDRS.SOLACE],
   },
   config: {
-    keyContracts: {},
+    keyContracts: {
+      solace: {
+        addr: KEY_ADDRS.SOLACE,
+        abi: solaceABI,
+      },
+      xSolace: {
+        addr: KEY_ADDRS.XSOLACE,
+        abi: xSolaceABI.abi,
+      },
+      xsLocker: {
+        addr: KEY_ADDRS.XSLOCKER,
+        abi: xsLockerABI.abi,
+      },
+      stakingRewards: {
+        addr: KEY_ADDRS.STAKING_REWARDS,
+        abi: stakingRewardsABI.abi,
+      },
+    },
     productContracts: {},
     bondTellerContracts: {},
     availableFeatures: {
