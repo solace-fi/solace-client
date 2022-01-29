@@ -226,12 +226,7 @@ export const useUnderWritingPoolBalance = () => {
       const multiSig = await bondDepo.underwritingPool()
       if (!library) return
       const principalContracts = tellers.map((t) =>
-        getContract(
-          t.underlyingAddr,
-          t.isLp ? sushiswapLpAbi : t.isBondTellerErc20 ? ierc20Json.abi : weth9,
-          library,
-          undefined
-        )
+        getContract(t.addr, t.isLp ? sushiswapLpAbi : t.isBondTellerErc20 ? ierc20Json.abi : weth9, library, undefined)
       )
       principalContracts.push(solace)
       const balances: BigNumber[] = await Promise.all(principalContracts.map((c) => queryBalance(c, multiSig)))

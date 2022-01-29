@@ -28,7 +28,7 @@ export type NetworkConfig = {
   config: {
     keyContracts: { [key: string]: ContractSources }
     productContracts: { [key: string]: ContractSources }
-    bondTellerContracts: { [key: string]: VersionedBondTeller }
+    bondTellerContracts: { [key: string]: string[] }
     availableFeatures: {
       bondingV1: boolean
       bondingV2: boolean
@@ -91,5 +91,3 @@ export type PositionNamesCacheValue = {
   positionNames: { [key: string]: string }
   underlyingPositionNames: { [key: string]: string[] }
 }
-
-export type VersionedBondTeller = { [key: string]: string }

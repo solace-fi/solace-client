@@ -61,27 +61,29 @@ export function useGetBondTellerContracts(): BondTellerContract[] {
     if (!library) return []
     const bondTellerContracts: BondTellerContract[] = []
     Object.keys(config.bondTellerContracts).forEach((key) => {
-      Object.keys(key).forEach((version) => {
-        const bondTellerContract = config.bondTellerContracts[key][version]
+      const versionsArray = config.bondTellerContracts[key]
+      versionsArray.forEach((bondTellerContract) => {
         const isBondTellerErc20 = cache.tellerToTokenMapping[bondTellerContract].isBondTellerErc20
         const isLp = cache.tellerToTokenMapping[bondTellerContract].isLp
         const isDisabled = cache.tellerToTokenMapping[bondTellerContract].isDisabled
-        const nameAndVersion = key.concat(` ${version}`)
-        const underlyingAddr = cache.tellerToTokenMapping[bondTellerContract].addr
+        const addr = cache.tellerToTokenMapping[bondTellerContract].addr
+        const version = cache.tellerToTokenMapping[bondTellerContract].version
         const contract = getContract(
           bondTellerContract,
           isBondTellerErc20 ? bondTellerErc20Abi : bondTellerEthAbi,
           library,
           account ? account : undefined
         )
-        bondTellerContracts.push({
-          name: nameAndVersion,
+        const cntct: BondTellerContract = {
+          name: key,
           contract,
           isBondTellerErc20,
           isLp,
           isDisabled,
-          underlyingAddr,
-        })
+          addr,
+          version,
+        }
+        bondTellerContracts.push(cntct)
       })
     })
     return bondTellerContracts
@@ -114,8 +116,8 @@ export function useContractArray(): ContractSources[] {
       }
     })
     Object.keys(config.bondTellerContracts).forEach((key) => {
-      Object.keys(key).forEach((version) => {
-        const bondTellerContract = config.bondTellerContracts[key][version]
+      const versionsArray = config.bondTellerContracts[key]
+      versionsArray.forEach((bondTellerContract) => {
         if (!excludedContractAddrs.includes(bondTellerContract)) {
           const isBondTellerErc20 = cache.tellerToTokenMapping[bondTellerContract].isBondTellerErc20
           contractSources.push({
