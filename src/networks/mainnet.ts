@@ -67,6 +67,7 @@ const tellerToTokenMapping: {
     isBondTellerErc20: true,
     isLp: false,
     isDisabled: false,
+    cannotBuy: true,
     version: 1,
   },
   [TELLER_ADDRS_V1.ETH_TELLER]: {
@@ -74,7 +75,8 @@ const tellerToTokenMapping: {
     mainnetAddr: WETH9_ADDRESS[1],
     isBondTellerErc20: false,
     isLp: false,
-    isDisabled: true,
+    isDisabled: false,
+    cannotBuy: true,
     version: 1,
   },
   [TELLER_ADDRS_V1.USDC_TELLER]: {
@@ -83,6 +85,7 @@ const tellerToTokenMapping: {
     isBondTellerErc20: true,
     isLp: false,
     isDisabled: false,
+    cannotBuy: true,
     version: 1,
   },
   [TELLER_ADDRS_V1.SOLACE_USDC_SLP_TELLER]: {
@@ -91,6 +94,7 @@ const tellerToTokenMapping: {
     isBondTellerErc20: true,
     isLp: true,
     isDisabled: false,
+    cannotBuy: true,
     version: 1,
   },
   [TELLER_ADDRS_V1.SCP_TELLER]: {
@@ -99,6 +103,7 @@ const tellerToTokenMapping: {
     isBondTellerErc20: true,
     isLp: false,
     isDisabled: false,
+    cannotBuy: true,
     version: 1,
   },
   [TELLER_ADDRS_V1.WBTC_TELLER]: {
@@ -107,6 +112,7 @@ const tellerToTokenMapping: {
     isBondTellerErc20: true,
     isLp: false,
     isDisabled: false,
+    cannotBuy: true,
     version: 1,
   },
   [TELLER_ADDRS_V1.USDT_TELLER]: {
@@ -115,6 +121,7 @@ const tellerToTokenMapping: {
     isBondTellerErc20: true,
     isLp: false,
     isDisabled: false,
+    cannotBuy: true,
     version: 1,
   },
   [TELLER_ADDRS_V2.DAI_TELLER]: {

@@ -87,35 +87,41 @@ export const BondOptionsV2: React.FC<BondOptionsV2Props> = ({
         )}
         <CheckboxOption isChecked={isStaking} setChecked={setIsStaking} text={'Autostake and create a lock'} />
       </FlexCol>
-      <ButtonWrapper isColumn>
-        {!approval && func != FunctionName.BOND_DEPOSIT_ETH_V2 && (
-          <Button widthP={100} info disabled={!isAcceptableAmount || haveErrors} onClick={approve}>
-            Approve
-          </Button>
-        )}
-        <Button
-          widthP={100}
-          info
-          disabled={!isAcceptableAmount || haveErrors || (!approval && func != FunctionName.BOND_DEPOSIT_ETH_V2)}
-          onClick={() => callDepositBond(isStaking)}
-        >
-          Bond
-        </Button>
-        <FlexRow>
-          <StyledGraphDown size={15} />
-          <Text t4 ml={5}>
-            {parseInt(accurateMultiply(slippagePrct, 2)) / 100}%
-          </Text>
-          {bondRecipient && (
-            <FlexRow ml={10}>
-              <StyledSendPlane size={15} />
-              <Text t4 ml={5}>
-                {shortenAddress(bondRecipient)}
-              </Text>
-            </FlexRow>
+      {!selectedBondDetail?.tellerData.teller.cannotBuy ? (
+        <ButtonWrapper isColumn>
+          {!approval && func != FunctionName.BOND_DEPOSIT_ETH_V2 && (
+            <Button widthP={100} info disabled={!isAcceptableAmount || haveErrors} onClick={approve}>
+              Approve
+            </Button>
           )}
-        </FlexRow>
-      </ButtonWrapper>
+          <Button
+            widthP={100}
+            info
+            disabled={!isAcceptableAmount || haveErrors || (!approval && func != FunctionName.BOND_DEPOSIT_ETH_V2)}
+            onClick={() => callDepositBond(isStaking)}
+          >
+            Bond
+          </Button>
+          <FlexRow>
+            <StyledGraphDown size={15} />
+            <Text t4 ml={5}>
+              {parseInt(accurateMultiply(slippagePrct, 2)) / 100}%
+            </Text>
+            {bondRecipient && (
+              <FlexRow ml={10}>
+                <StyledSendPlane size={15} />
+                <Text t4 ml={5}>
+                  {shortenAddress(bondRecipient)}
+                </Text>
+              </FlexRow>
+            )}
+          </FlexRow>
+        </ButtonWrapper>
+      ) : (
+        <ButtonWrapper>
+          <Button disabled>Not on sale</Button>
+        </ButtonWrapper>
+      )}
     </>
   )
 }

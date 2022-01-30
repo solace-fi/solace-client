@@ -68,6 +68,7 @@ export function useGetBondTellerContracts(): BondTellerContract[] {
         const isBondTellerErc20 = cache.tellerToTokenMapping[bondTellerContract].isBondTellerErc20
         const isLp = cache.tellerToTokenMapping[bondTellerContract].isLp
         const isDisabled = cache.tellerToTokenMapping[bondTellerContract].isDisabled
+        const cannotBuy = cache.tellerToTokenMapping[bondTellerContract].cannotBuy
         const addr = cache.tellerToTokenMapping[bondTellerContract].addr
         const mainnetAddr = cache.tellerToTokenMapping[bondTellerContract].mainnetAddr
         const version = cache.tellerToTokenMapping[bondTellerContract].version
@@ -83,10 +84,11 @@ export function useGetBondTellerContracts(): BondTellerContract[] {
           contract,
           isBondTellerErc20,
           isLp,
-          isDisabled,
           addr,
           mainnetAddr,
           version,
+          isDisabled,
+          cannotBuy,
         }
         bondTellerContracts.push(cntct)
       })
