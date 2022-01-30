@@ -157,7 +157,7 @@ export const Statistics: React.FC = () => {
           {`$${pairPrice} `}
         </Text>
       </BoxItem>
-      {activeNetwork.config.availableFeatures.bondingV1 && (
+      {!activeNetwork.config.featureRestrictions.noBondingV1 && (
         <BoxItem>
           <BoxItemTitle t4 light>
             Underwriting Pool Size
@@ -167,7 +167,7 @@ export const Statistics: React.FC = () => {
           </Text>
         </BoxItem>
       )}
-      {activeNetwork.config.availableFeatures.coverProducts && (
+      {!activeNetwork.config.featureRestrictions.noCoverProducts && (
         <>
           <BoxItem>
             <BoxItemTitle t4 light>
@@ -218,7 +218,7 @@ export const Statistics: React.FC = () => {
             </Text>
           </FormCol>
         </FormRow>
-        {activeNetwork.config.availableFeatures.bondingV1 && (
+        {!activeNetwork.config.featureRestrictions.noBondingV1 && (
           <FormRow>
             <FormCol light>Underwriting Pool Size</FormCol>
             <FormCol>
@@ -228,7 +228,7 @@ export const Statistics: React.FC = () => {
             </FormCol>
           </FormRow>
         )}
-        {activeNetwork.config.availableFeatures.coverProducts && (
+        {!activeNetwork.config.featureRestrictions.noCoverProducts && (
           <>
             <FormRow>
               <FormCol light>Active Cover Amount</FormCol>
@@ -275,7 +275,7 @@ export const Statistics: React.FC = () => {
                     </TextSpan>
                   </Text>
                 </BoxItem>
-                {activeNetwork.config.availableFeatures.stakingV2 && (
+                {!activeNetwork.config.featureRestrictions.noStakingV2 && (
                   <BoxItem>
                     <BoxItemTitle t4 light>
                       My Stake
@@ -294,7 +294,7 @@ export const Statistics: React.FC = () => {
                 <WalletConnectButton light welcome />
               </BoxItem>
             )}
-            {activeNetwork.config.availableFeatures.stakingV2 && (
+            {!activeNetwork.config.featureRestrictions.noStakingV2 && (
               <>
                 <BoxItem>
                   <BoxItemTitle t4 light>
@@ -338,7 +338,7 @@ export const Statistics: React.FC = () => {
                       </Text>
                     </FormCol>
                   </FormRow>
-                  {activeNetwork.config.availableFeatures.stakingV2 && (
+                  {!activeNetwork.config.featureRestrictions.noStakingV2 && (
                     <FormRow>
                       <FormCol light>My Stake</FormCol>
                       <FormCol>
@@ -357,7 +357,7 @@ export const Statistics: React.FC = () => {
                   <WalletConnectButton light welcome />
                 </BoxRow>
               )}
-              {activeNetwork.config.availableFeatures.stakingV2 && (
+              {!activeNetwork.config.featureRestrictions.noStakingV2 && (
                 <>
                   <FormRow>
                     <FormCol light>Global Stake</FormCol>

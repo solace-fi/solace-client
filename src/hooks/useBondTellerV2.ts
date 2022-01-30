@@ -87,8 +87,8 @@ export const useBondTellerDetailsV2 = (
   const [tellerDetails, setTellerDetails] = useState<BondTellerDetails[]>([])
   const [mounting, setMounting] = useState<boolean>(true)
   const { getPriceFromSushiswap } = useGetPriceFromSushiSwap()
-  const canBondV2 = useMemo(() => activeNetwork.config.availableFeatures.bondingV2, [
-    activeNetwork.config.availableFeatures.bondingV2,
+  const canBondV2 = useMemo(() => !activeNetwork.config.featureRestrictions.noBondingV2, [
+    activeNetwork.config.featureRestrictions.noBondingV2,
   ])
   const { tokenPriceMapping } = useCachedData()
   const running = useRef(false)

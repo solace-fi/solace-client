@@ -120,8 +120,8 @@ function Stake1(): any {
 
   const [isAcceptableAmount, setIsAcceptableAmount] = useState<boolean>(false)
   const [lockInputValue, setLockInputValue] = React.useState('0')
-  const canStakeV1 = useMemo(() => activeNetwork.config.availableFeatures.stakingV1, [
-    activeNetwork.config.availableFeatures.stakingV1,
+  const canStakeV1 = useMemo(() => !activeNetwork.config.featureRestrictions.noStakingV1, [
+    activeNetwork.config.featureRestrictions.noStakingV1,
   ])
   const { projectedMultiplier, projectedApy, projectedYearlyReturns } = useProjectedBenefits(
     accurateMultiply(formatAmount(amount), 18),
@@ -390,8 +390,8 @@ export default function Stake(): JSX.Element {
     yearlyReturns: ZERO,
     apy: ZERO,
   })
-  const canStakeV2 = useMemo(() => activeNetwork.config.availableFeatures.stakingV2, [
-    activeNetwork.config.availableFeatures.stakingV2,
+  const canStakeV2 = useMemo(() => !activeNetwork.config.featureRestrictions.noStakingV2, [
+    activeNetwork.config.featureRestrictions.noStakingV2,
   ])
   const { getUserLocks } = useUserLockData()
   const { withdrawFromLock } = useXSLocker()
@@ -745,7 +745,7 @@ export default function Stake(): JSX.Element {
                         </Button>
                       </Flex>
                     )}
-                    {locks.length > 1 && (
+                    {locks.length > 1 && !batchActionsIsEnabled && (
                       <Button pl={10} pr={10} onClick={toggleBatchActions} secondary={batchActionsIsEnabled}>
                         <StyledMultiselect size={20} style={{ marginRight: '5px' }} />{' '}
                         {batchActionsIsEnabled ? 'Exit Multi-select' : `Multi-select`}

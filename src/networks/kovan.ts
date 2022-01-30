@@ -258,15 +258,7 @@ export const KovanNetwork: NetworkConfig = {
       // [BondName.SOLACE_DAI_SLP]: TELLER_ADDRS_V1.SOLACE_DAI_SLP_TELLER,
       // [BondName.SOLACE_ETH_SLP]: TELLER_ADDRS_V1.SOLACE_ETH_SLP_TELLER,
     },
-    availableFeatures: {
-      bondingV1: true,
-      bondingV2: true,
-      coverProducts: true,
-      farmingV1: true,
-      soteria: true,
-      stakingV1: true,
-      stakingV2: true,
-    },
+    featureRestrictions: {},
   },
   cache: {
     supportedProducts: [AaveProduct, WaaveProduct],

@@ -75,11 +75,11 @@ function Bond(): any {
   const currentTellerDetailsV1 = useMemo(() => btdV1.tellerDetails, [btdV1.tellerDetails])
   const currentTellerDetailsV2 = useMemo(() => btdV2.tellerDetails, [btdV2.tellerDetails])
 
-  const canBondV1 = useMemo(() => activeNetwork.config.availableFeatures.bondingV1, [
-    activeNetwork.config.availableFeatures.bondingV1,
+  const canBondV1 = useMemo(() => !activeNetwork.config.featureRestrictions.noBondingV1, [
+    activeNetwork.config.featureRestrictions.noBondingV1,
   ])
-  const canBondV2 = useMemo(() => activeNetwork.config.availableFeatures.bondingV2, [
-    activeNetwork.config.availableFeatures.bondingV2,
+  const canBondV2 = useMemo(() => !activeNetwork.config.featureRestrictions.noBondingV2, [
+    activeNetwork.config.featureRestrictions.noBondingV2,
   ])
 
   /*
@@ -228,7 +228,7 @@ function Bond(): any {
                                       {tellerDetail.principalData ? (
                                         <DeFiAssetImage noborder>
                                           <img
-                                            src={`https://assets.solace.fi/${tellerDetail.tellerData.principalAddr.toLowerCase()}`}
+                                            src={`https://assets.solace.fi/${tellerDetail.principalData.principalProps.name.toLowerCase()}`}
                                             alt={tellerDetail.tellerData.teller.name}
                                           />
                                         </DeFiAssetImage>
@@ -365,7 +365,7 @@ function Bond(): any {
                                         ) : (
                                           <DeFiAssetImage noborder>
                                             <img
-                                              src={`https://assets.solace.fi/${tellerDetail.tellerData.principalAddr.toLowerCase()}`}
+                                              src={`https://assets.solace.fi/${tellerDetail.principalData.principalProps.name.toLowerCase()}`}
                                               alt={tellerDetail.tellerData.teller.name}
                                             />
                                           </DeFiAssetImage>

@@ -67,7 +67,7 @@ export default function App(): any {
                 <Route exact path="/dashboard" component={Dashboard} />
                 <Route exact path="/invest" component={Invest} />
                 <Route exact path="/stake" component={Stake} />
-                <Route exact path="/soteria" component={Soteria} />
+                {/* <Route exact path="/soteria" component={Soteria} /> */}
                 <Route exact path="/bond" component={Bond} />
                 <Route exact path="/quote" component={Quote} />
                 <Route exact path="/govern" component={Govern} />

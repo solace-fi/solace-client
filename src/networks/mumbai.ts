@@ -26,14 +26,11 @@ export const MumbaiNetwork: NetworkConfig = {
     keyContracts: {},
     productContracts: {},
     bondTellerContracts: {},
-    availableFeatures: {
-      bondingV1: true,
-      bondingV2: false,
-      coverProducts: false,
-      farmingV1: false,
-      soteria: true,
-      stakingV1: false,
-      stakingV2: true,
+    featureRestrictions: {
+      noBondingV1: true,
+      noCoverProducts: true,
+      noFarmingV1: true,
+      noStakingV1: true,
     },
   },
   cache: {

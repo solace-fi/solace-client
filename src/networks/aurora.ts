@@ -115,14 +115,11 @@ export const AuroraNetwork: NetworkConfig = {
       [BondName.USDT]: [TELLER_ADDRS_V2.USDT_TELLER],
       [BondName.FRAX]: [TELLER_ADDRS_V2.FRAX_TELLER],
     },
-    availableFeatures: {
-      bondingV1: false,
-      bondingV2: true,
-      coverProducts: false,
-      farmingV1: false,
-      soteria: true,
-      stakingV1: false,
-      stakingV2: true,
+    featureRestrictions: {
+      noBondingV1: true,
+      noCoverProducts: true,
+      noFarmingV1: true,
+      noStakingV1: true,
     },
   },
   cache: {

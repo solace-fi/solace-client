@@ -296,15 +296,7 @@ export const MainNetwork: NetworkConfig = {
       [BondName.USDT]: [TELLER_ADDRS_V1.USDT_TELLER, TELLER_ADDRS_V2.USDT_TELLER],
       [BondName.FRAX]: [TELLER_ADDRS_V2.FRAX_TELLER],
     },
-    availableFeatures: {
-      bondingV1: true,
-      bondingV2: true,
-      coverProducts: true,
-      farmingV1: true,
-      soteria: true,
-      stakingV1: true,
-      stakingV2: true,
-    },
+    featureRestrictions: {},
   },
   cache: {
     supportedProducts: [

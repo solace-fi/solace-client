@@ -116,7 +116,7 @@ function Dashboard(): any {
           </Text>
           <WalletConnectButton info welcome secondary />
         </HeroContainer>
-      ) : activeNetwork.config.availableFeatures.coverProducts ? (
+      ) : !activeNetwork.config.featureRestrictions.noCoverProducts ? (
         <>
           <ManageModal
             closeModal={closeModal}
