@@ -1,5 +1,5 @@
 import { BigNumber } from 'ethers'
-import { useCallback, useEffect, useState, useMemo } from 'react'
+import { useCallback, useEffect, useState, useMemo, useRef } from 'react'
 import { BondTellerDetails, TxResult, LocalTx } from '../constants/types'
 import { useContracts } from '../context/ContractsManager'
 import { getContract } from '../utils'
@@ -11,16 +11,14 @@ import { useWallet } from '../context/WalletManager'
 import { FunctionGasLimits } from '../constants/mappings/gasMapping'
 import { FunctionName, TransactionCondition } from '../constants/enums'
 import { queryDecimals, queryName, querySymbol } from '../utils/contract'
-import { useCachedData } from '../context/CachedDataManager'
 import { useProvider } from '../context/ProviderManager'
-import { useGetPairPrice, usePairPrice } from './usePair'
+import { useGetPriceFromSushiSwap } from './usePrice'
 import { useNetwork } from '../context/NetworkManager'
-import { Unit } from '../constants/enums'
-import { getCoingeckoTokenPrice } from '../utils/api'
 import { floatUnits, truncateValue } from '../utils/formatting'
 import { BondTokenV1 } from '../constants/types'
 import { useReadToken } from './useToken'
 import { useGetFunctionGas } from './useGas'
+import { useCachedData } from '../context/CachedDataManager'
 
 export const useBondTellerV1 = (selectedBondDetail: BondTellerDetails | undefined) => {
   const { gasConfig } = useGetFunctionGas()
@@ -80,148 +78,132 @@ export const useBondTellerV1 = (selectedBondDetail: BondTellerDetails | undefine
   return { deposit, redeem }
 }
 
-export const useBondTellerDetailsV1 = (): { tellerDetails: BondTellerDetails[]; mounting: boolean } => {
+export const useBondTellerDetailsV1 = (
+  canGetPrices: boolean
+): { tellerDetails: BondTellerDetails[]; mounting: boolean } => {
   const { library, account } = useWallet()
-  const { version } = useCachedData()
   const { latestBlock } = useProvider()
   const { tellers } = useContracts()
-  // const { solace } = useMemo(() => keyContracts, [keyContracts])
   const { activeNetwork, networks } = useNetwork()
   const [tellerDetails, setTellerDetails] = useState<BondTellerDetails[]>([])
   const [mounting, setMounting] = useState<boolean>(true)
-  const { getPairPrice, getPriceFromSushiswapLp } = useGetPairPrice()
-  // const solacePrice = usePairPrice(solace)
-  const [solacePrice, setSolacePrice] = useState<string>('-')
+  const { getPriceFromSushiswap, getPriceFromSushiswapLp } = useGetPriceFromSushiSwap()
   const canBondV1 = useMemo(() => activeNetwork.config.availableFeatures.bondingV1, [
     activeNetwork.config.availableFeatures.bondingV1,
   ])
-  const coingeckoTokenId = useMemo(() => {
-    switch (activeNetwork.nativeCurrency.symbol) {
-      case Unit.ETH:
-        return 'ethereum'
-      case Unit.MATIC:
-      default:
-        return 'matic-network'
-    }
-  }, [activeNetwork.nativeCurrency.symbol])
-
-  const getBondTellerDetails = useCallback(async () => {
-    if (!library || !canBondV1) return
-    try {
-      const data: BondTellerDetails[] = await Promise.all(
-        tellers
-          .filter((t) => t.version == 1)
-          .map(async (teller) => {
-            const [
-              principalAddr,
-              bondPrice,
-              vestingTermInSeconds,
-              capacity,
-              maxPayout,
-              bondFeeBps,
-            ] = await Promise.all([
-              teller.contract.principal(),
-              teller.contract.bondPrice(),
-              teller.contract.vestingTerm(),
-              teller.contract.capacity(),
-              teller.contract.maxPayout(),
-              teller.contract.bondFeeBps(),
-            ])
-
-            const principalContract = getContract(
-              principalAddr,
-              teller.isLp ? sushiswapLpAbi : teller.isBondTellerErc20 ? ierc20Json.abi : weth9,
-              library,
-              account ?? undefined
-            )
-
-            const [decimals, name, symbol] = await Promise.all([
-              queryDecimals(principalContract),
-              queryName(principalContract, library),
-              querySymbol(principalContract, library),
-            ])
-
-            let lpData = {}
-            let usdBondPrice = 0
-
-            // get usdBondPrice
-            if (teller.isLp) {
-              const price = await getPriceFromSushiswapLp(principalContract)
-              usdBondPrice = Math.max(price, 0) * floatUnits(bondPrice, decimals)
-              const [token0, token1] = await Promise.all([principalContract.token0(), principalContract.token1()])
-              lpData = {
-                token0,
-                token1,
-              }
-            } else {
-              const price = await getPairPrice(principalContract)
-              if (price == -1) {
-                const coinGeckoTokenPrice = await getCoingeckoTokenPrice(
-                  principalContract.address,
-                  'usd',
-                  coingeckoTokenId
-                )
-                usdBondPrice = parseFloat(coinGeckoTokenPrice ?? '0') * floatUnits(bondPrice, decimals)
-              } else {
-                usdBondPrice = price * floatUnits(bondPrice, decimals)
-              }
-            }
-
-            const bondRoi =
-              usdBondPrice > 0 && solacePrice != '-'
-                ? ((parseFloat(solacePrice) - usdBondPrice) * 100) / usdBondPrice
-                : 0
-
-            const d: BondTellerDetails = {
-              tellerData: {
-                teller,
-                principalAddr,
-                bondPrice,
-                usdBondPrice,
-                vestingTermInSeconds,
-                capacity,
-                maxPayout,
-                bondFeeBps,
-                bondRoi,
-              },
-              principalData: {
-                principal: principalContract,
-                principalProps: {
-                  symbol,
-                  decimals,
-                  name,
-                },
-                ...lpData,
-              },
-            }
-            return d
-          })
-      )
-      setMounting(false)
-      setTellerDetails(data)
-    } catch (e) {
-      console.log('getBondTellerDetails', e)
-    }
-  }, [tellers, latestBlock, version, solacePrice, canBondV1])
+  const { tokenPriceMapping } = useCachedData()
+  const running = useRef(false)
 
   useEffect(() => {
     setMounting(true)
   }, [tellers])
 
   useEffect(() => {
-    getBondTellerDetails()
-  }, [getBondTellerDetails])
+    const getPrices = async () => {
+      if (
+        !library ||
+        !canBondV1 ||
+        !latestBlock ||
+        !canGetPrices ||
+        running.current ||
+        (Object.keys(tokenPriceMapping).length === 0 && tokenPriceMapping.constructor === Object)
+      )
+        return
+      running.current = true
+      const solacePrice = truncateValue(tokenPriceMapping[networks[0].config.keyContracts.solace.addr.toLowerCase()], 2)
+      try {
+        const data: BondTellerDetails[] = await Promise.all(
+          tellers
+            .filter((t) => t.version == 1)
+            .map(async (teller) => {
+              const [
+                principalAddr,
+                bondPrice,
+                vestingTermInSeconds,
+                capacity,
+                maxPayout,
+                bondFeeBps,
+              ] = await Promise.all([
+                teller.contract.principal(),
+                teller.contract.bondPrice(),
+                teller.contract.vestingTerm(),
+                teller.contract.capacity(),
+                teller.contract.maxPayout(),
+                teller.contract.bondFeeBps(),
+              ])
 
-  useEffect(() => {
-    const getPrice = async () => {
-      if (!latestBlock) return
-      const mainnetSolaceAddr = networks[0].config.keyContracts.solace.addr
-      const coingeckoMainnetPrice = await getCoingeckoTokenPrice(mainnetSolaceAddr, 'usd', 'ethereum')
-      const price = parseFloat(coingeckoMainnetPrice ?? '0')
-      setSolacePrice(truncateValue(price, 2))
+              const principalContract = getContract(
+                principalAddr,
+                teller.isLp ? sushiswapLpAbi : teller.isBondTellerErc20 ? ierc20Json.abi : weth9,
+                library,
+                account ?? undefined
+              )
+
+              const [decimals, name, symbol] = await Promise.all([
+                queryDecimals(principalContract),
+                queryName(principalContract, library),
+                querySymbol(principalContract, library),
+              ])
+
+              let lpData = {}
+              let usdBondPrice = 0
+
+              // get usdBondPrice
+              if (teller.isLp) {
+                const price = await getPriceFromSushiswapLp(principalContract)
+                usdBondPrice = Math.max(price, 0) * floatUnits(bondPrice, decimals)
+                const [token0, token1] = await Promise.all([principalContract.token0(), principalContract.token1()])
+                lpData = {
+                  token0,
+                  token1,
+                }
+              } else {
+                usdBondPrice = tokenPriceMapping[teller.mainnetAddr.toLowerCase()] * floatUnits(bondPrice, decimals)
+                if (usdBondPrice <= 0) {
+                  const price = await getPriceFromSushiswap(principalContract) // via sushiswap sdk
+                  if (price != -1) usdBondPrice = price * floatUnits(bondPrice, decimals)
+                }
+              }
+
+              const bondRoi =
+                usdBondPrice > 0 && solacePrice != '-'
+                  ? ((parseFloat(solacePrice) - usdBondPrice) * 100) / usdBondPrice
+                  : 0
+
+              const d: BondTellerDetails = {
+                tellerData: {
+                  teller,
+                  principalAddr,
+                  bondPrice,
+                  usdBondPrice,
+                  vestingTermInSeconds,
+                  capacity,
+                  maxPayout,
+                  bondFeeBps,
+                  bondRoi,
+                },
+                principalData: {
+                  principal: principalContract,
+                  principalProps: {
+                    symbol,
+                    decimals,
+                    name,
+                  },
+                  ...lpData,
+                },
+              }
+              return d
+            })
+        )
+        setMounting(false)
+        setTellerDetails(data)
+      } catch (e) {
+        console.log('getBondTellerDetailsV1', e)
+      }
+      running.current = false
     }
-    getPrice()
-  }, [latestBlock, networks])
+    getPrices()
+  }, [latestBlock, tellers, canBondV1, tokenPriceMapping, canGetPrices])
 
   return { tellerDetails, mounting }
 }

@@ -83,7 +83,7 @@ export const BondModalV2: React.FC<BondModalV2Props> = ({ closeModal, isOpen, se
   const { reload } = useCachedData()
   const { makeTxToast } = useNotifications()
   const { keyContracts } = useContracts()
-  const { solace, xSolaceV1 } = useMemo(() => keyContracts, [keyContracts])
+  const { solace } = useMemo(() => keyContracts, [keyContracts])
 
   const [canCloseOnLoading, setCanCloseOnLoading] = useState<boolean>(false)
   const [canMax, setCanMax] = useState<boolean>(true)
@@ -247,7 +247,7 @@ export const BondModalV2: React.FC<BondModalV2Props> = ({ closeModal, isOpen, se
 
   const calculateAmountIn = async (): Promise<void> => {
     setCanMax(false)
-    if (selectedBondDetail && xSolaceV1) {
+    if (selectedBondDetail) {
       const maxPayout = selectedBondDetail.tellerData.maxPayout
 
       const tellerContract = selectedBondDetail.tellerData.teller.contract
@@ -310,7 +310,7 @@ export const BondModalV2: React.FC<BondModalV2Props> = ({ closeModal, isOpen, se
 
   useEffect(() => {
     calculateAmountIn()
-  }, [selectedBondDetail, xSolaceV1])
+  }, [selectedBondDetail])
 
   useEffect(() => {
     _calculateAmountOut(amount)
@@ -320,10 +320,6 @@ export const BondModalV2: React.FC<BondModalV2Props> = ({ closeModal, isOpen, se
     if (!pncplDecimals) return
     setIsAcceptableAmount(isAppropriateAmount(amount, pncplDecimals, assetBalance))
   }, [pncplDecimals, assetBalance, amount])
-
-  useEffect(() => {
-    resetAmount()
-  }, [isBonding])
 
   useEffect(() => {
     setBondRecipient(account)

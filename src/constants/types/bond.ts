@@ -49,6 +49,7 @@ export type BondPrincipalData = {
 
 export type TellerToken = {
   addr: string
+  mainnetAddr: string
   isBondTellerErc20: boolean
   isDisabled: boolean
   isLp: boolean

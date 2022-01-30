@@ -49,6 +49,8 @@ import { useBondTellerDetailsV2 } from '../../hooks/useBondTellerV2'
 
 /* import utils */
 import { truncateValue } from '../../utils/formatting'
+import { ModalCell } from '../../components/atoms/Modal'
+import { VerticalSeparator } from '../stake/components/VerticalSeparator'
 
 function Bond(): any {
   /*
@@ -58,14 +60,21 @@ function Bond(): any {
   */
   const { haveErrors } = useGeneral()
   const { activeNetwork } = useNetwork()
-  const [showBondModalV1, setShowBondModalV1] = useState<boolean>(false)
-  const [showBondModalV2, setShowBondModalV2] = useState<boolean>(false)
   const [selectedBondDetail, setSelectedBondDetail] = useState<BondTellerDetails | undefined>(undefined)
   const { width } = useWindowDimensions()
-  const btdV1 = useBondTellerDetailsV1()
-  const btdV2 = useBondTellerDetailsV2()
+
+  const [showBondModalV1, setShowBondModalV1] = useState<boolean>(false)
+  const [showBondModalV2, setShowBondModalV2] = useState<boolean>(false)
+
+  const [showV2Bonds, setShowV2Bonds] = useState<boolean>(true)
+  const [showV1Bonds, setShowV1Bonds] = useState<boolean>(false)
+
+  const btdV1 = useBondTellerDetailsV1(showV1Bonds)
+  const btdV2 = useBondTellerDetailsV2(showV2Bonds)
+
   const currentTellerDetailsV1 = useMemo(() => btdV1.tellerDetails, [btdV1.tellerDetails])
   const currentTellerDetailsV2 = useMemo(() => btdV2.tellerDetails, [btdV2.tellerDetails])
+
   const canBondV1 = useMemo(() => activeNetwork.config.availableFeatures.bondingV1, [
     activeNetwork.config.availableFeatures.bondingV1,
   ])
@@ -141,16 +150,55 @@ function Bond(): any {
           {' '}
           More information on bonding here.
         </HyperLink>
+        <Content>
+          <Card>
+            <div style={{ gridTemplateColumns: '1fr 0fr 1fr', display: 'grid', position: 'relative' }}>
+              <ModalCell
+                pt={5}
+                pb={10}
+                pl={0}
+                pr={0}
+                onClick={() => {
+                  setShowV1Bonds(true)
+                  setShowV2Bonds(false)
+                }}
+                jc={'center'}
+                style={{ cursor: 'pointer', backgroundColor: !showV1Bonds ? 'rgba(0, 0, 0, .05)' : 'inherit' }}
+              >
+                <Text t1 bold info={showV1Bonds}>
+                  V1
+                </Text>
+              </ModalCell>
+              <VerticalSeparator />
+              <ModalCell
+                pt={5}
+                pb={10}
+                pl={0}
+                pr={0}
+                onClick={() => {
+                  setShowV1Bonds(false)
+                  setShowV2Bonds(true)
+                }}
+                jc={'center'}
+                style={{ cursor: 'pointer', backgroundColor: !showV2Bonds ? 'rgba(0, 0, 0, .05)' : 'inherit' }}
+              >
+                <Text t1 bold info={showV2Bonds}>
+                  V2
+                </Text>
+              </ModalCell>
+            </div>
+          </Card>
+        </Content>
         {canBondV1 || canBondV2 ? (
           <>
-            {btdV1.mounting || btdV2.mounting ? (
+            {(btdV1.mounting && showV1Bonds && canBondV1) || (btdV2.mounting && showV2Bonds && canBondV2) ? (
               <Content>
                 <Loader />
               </Content>
             ) : (
               <>
-                {canBondV2 &&
-                  (currentTellerDetailsV2.length > 0 ? (
+                {showV2Bonds &&
+                  (canBondV2 && currentTellerDetailsV2.length > 0 ? (
                     width > BKPT_4 ? (
                       <Content>
                         <Scrollable style={{ padding: '0 10px 0 10px' }}>
@@ -270,8 +318,8 @@ function Bond(): any {
                       </Text>
                     </HeroContainer>
                   ))}
-                {canBondV1 &&
-                  (currentTellerDetailsV1.length > 0 ? (
+                {showV1Bonds &&
+                  (canBondV1 && currentTellerDetailsV1.length > 0 ? (
                     width > BKPT_4 ? (
                       <Content>
                         <Scrollable style={{ padding: '0 10px 0 10px' }}>

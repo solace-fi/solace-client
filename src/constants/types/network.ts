@@ -32,10 +32,11 @@ export type NetworkConfig = {
     availableFeatures: {
       bondingV1: boolean
       bondingV2: boolean
+      coverProducts: boolean
+      farmingV1: boolean
+      soteria: boolean
       stakingV1: boolean
       stakingV2: boolean
-      farmingV1: boolean
-      coverProducts: boolean
     }
   }
   cache: {

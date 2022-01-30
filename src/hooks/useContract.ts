@@ -69,6 +69,7 @@ export function useGetBondTellerContracts(): BondTellerContract[] {
         const isLp = cache.tellerToTokenMapping[bondTellerContract].isLp
         const isDisabled = cache.tellerToTokenMapping[bondTellerContract].isDisabled
         const addr = cache.tellerToTokenMapping[bondTellerContract].addr
+        const mainnetAddr = cache.tellerToTokenMapping[bondTellerContract].mainnetAddr
         const version = cache.tellerToTokenMapping[bondTellerContract].version
         let abi = null
         if (version == 1) {
@@ -84,6 +85,7 @@ export function useGetBondTellerContracts(): BondTellerContract[] {
           isLp,
           isDisabled,
           addr,
+          mainnetAddr,
           version,
         }
         bondTellerContracts.push(cntct)

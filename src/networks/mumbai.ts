@@ -31,6 +31,7 @@ export const MumbaiNetwork: NetworkConfig = {
       bondingV2: false,
       coverProducts: false,
       farmingV1: false,
+      soteria: true,
       stakingV1: false,
       stakingV2: true,
     },

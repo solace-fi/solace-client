@@ -197,7 +197,6 @@ function Stake1(): any {
               <FlexCol>
                 <Card style={{ margin: 'auto' }}>
                   <div style={{ gridTemplateColumns: '1fr 0fr 1fr', display: 'grid', position: 'relative' }}>
-                    {/* <MultiTabIndicator style={{ left: isMigrating ? '0' : '50%' }} /> */}
                     <ModalCell
                       pt={5}
                       pb={10}

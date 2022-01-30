@@ -138,4 +138,5 @@ export enum BondName {
   SCP = 'SCP',
   WBTC = 'WBTC',
   USDT = 'USDT',
+  FRAX = 'FRAX',
 }

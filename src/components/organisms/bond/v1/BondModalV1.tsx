@@ -351,10 +351,6 @@ export const BondModalV1: React.FC<BondModalV1Props> = ({ closeModal, isOpen, se
   }, [pncplDecimals, assetBalance, amount])
 
   useEffect(() => {
-    resetAmount()
-  }, [isBonding])
-
-  useEffect(() => {
     setBondRecipient(account)
   }, [account])
 

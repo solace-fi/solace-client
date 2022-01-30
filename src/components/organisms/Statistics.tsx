@@ -31,6 +31,7 @@ import { useWallet } from '../../context/WalletManager'
 import { useContracts } from '../../context/ContractsManager'
 import { useNetwork } from '../../context/NetworkManager'
 import { useProvider } from '../../context/ProviderManager'
+import { useCachedData } from '../../context/CachedDataManager'
 
 /* import components */
 import { BoxRow, Box, BoxItem, BoxItemTitle } from '../atoms/Box'
@@ -51,7 +52,6 @@ import { useReadToken } from '../../hooks/useToken'
 
 /* import utils */
 import { truncateValue } from '../../utils/formatting'
-import { getCoingeckoTokenPrice } from '../../utils/api'
 
 export const Statistics: React.FC = () => {
   /*************************************************************************************
@@ -65,6 +65,7 @@ export const Statistics: React.FC = () => {
   const { latestBlock } = useProvider()
   const { solace } = useMemo(() => keyContracts, [keyContracts])
   const solaceBalance = useSolaceBalance()
+  const { tokenPriceMapping } = useCachedData()
   const readSolaceToken = useReadToken(solace)
   const { allPolicies } = usePolicyGetter(true)
   const { getUserLocks } = useUserLockData()
@@ -98,14 +99,11 @@ export const Statistics: React.FC = () => {
 
   useEffect(() => {
     const getPrice = async () => {
-      if (!latestBlock) return
-      const mainnetSolaceAddr = networks[0].config.keyContracts.solace.addr
-      const coingeckoPrice = await getCoingeckoTokenPrice(mainnetSolaceAddr, 'usd', 'ethereum')
-      const price = parseFloat(coingeckoPrice ?? '0')
-      setPairPrice(truncateValue(price, 2))
+      if (Object.keys(tokenPriceMapping).length === 0 && tokenPriceMapping.constructor === Object) return
+      setPairPrice(truncateValue(tokenPriceMapping[networks[0].config.keyContracts.solace.addr.toLowerCase()], 2))
     }
     getPrice()
-  }, [latestBlock, networks])
+  }, [tokenPriceMapping])
 
   useEffect(() => {
     try {
