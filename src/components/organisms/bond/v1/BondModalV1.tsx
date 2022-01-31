@@ -79,60 +79,60 @@ export const BondModalV1: React.FC<BondModalV1Props> = ({ closeModal, isOpen, se
   
   */
   const { account } = useWallet()
-  const { currencyDecimals } = useNetwork()
-  const { reload } = useCachedData()
-  const { makeTxToast } = useNotifications()
+  // const { currencyDecimals } = useNetwork()
+  // const { reload } = useCachedData()
+  // const { makeTxToast } = useNotifications()
   const { keyContracts } = useContracts()
   const { solace, xSolaceV1 } = useMemo(() => keyContracts, [keyContracts])
 
   const [canCloseOnLoading, setCanCloseOnLoading] = useState<boolean>(false)
-  const [canMax, setCanMax] = useState<boolean>(true)
-  const [isAcceptableAmount, setIsAcceptableAmount] = useState<boolean>(false)
-  const [isBondTellerErc20, setIsBondTellerErc20] = useState<boolean>(false)
-  const [isBonding, setIsBonding] = useState<boolean>(true)
-  const [isStaking, setIsStaking] = useState<boolean>(false)
+  // const [canMax, setCanMax] = useState<boolean>(true)
+  // const [isAcceptableAmount, setIsAcceptableAmount] = useState<boolean>(false)
+  // const [isBondTellerErc20, setIsBondTellerErc20] = useState<boolean>(false)
+  const [isBonding, setIsBonding] = useState<boolean>(false)
+  // const [isStaking, setIsStaking] = useState<boolean>(false)
   const [modalLoading, setModalLoading] = useState<boolean>(false)
-  const [shouldUseNativeToken, setShouldUseNativeToken] = useState<boolean>(true)
+  // const [shouldUseNativeToken, setShouldUseNativeToken] = useState<boolean>(true)
   const [showBondSettingsModal, setShowBondSettingsModal] = useState<boolean>(false)
   const [ownedBondTokens, setOwnedBondTokens] = useState<BondTokenV1[]>([])
 
   const [bondRecipient, setBondRecipient] = useState<string | undefined>(undefined)
-  const [calculatedAmountIn, setCalculatedAmountIn] = useState<BigNumber | undefined>(ZERO)
-  const [calculatedAmountIn_X, setCalculatedAmountIn_X] = useState<BigNumber | undefined>(ZERO)
-  const [calculatedAmountOut, setCalculatedAmountOut] = useState<BigNumber | undefined>(ZERO)
-  const [calculatedAmountOut_X, setCalculatedAmountOut_X] = useState<BigNumber | undefined>(ZERO)
+  // const [calculatedAmountIn, setCalculatedAmountIn] = useState<BigNumber | undefined>(ZERO)
+  // const [calculatedAmountIn_X, setCalculatedAmountIn_X] = useState<BigNumber | undefined>(ZERO)
+  // const [calculatedAmountOut, setCalculatedAmountOut] = useState<BigNumber | undefined>(ZERO)
+  // const [calculatedAmountOut_X, setCalculatedAmountOut_X] = useState<BigNumber | undefined>(ZERO)
   const [func, setFunc] = useState<FunctionName>(FunctionName.BOND_DEPOSIT_ETH_V1)
-  const [principalBalance, setPrincipalBalance] = useState<string>('0')
+  // const [principalBalance, setPrincipalBalance] = useState<string>('0')
   const [slippagePrct, setSlippagePrct] = useState<string>('20')
 
-  const pncplDecimals = useMemo(() => selectedBondDetail?.principalData.principalProps.decimals, [
-    selectedBondDetail?.principalData.principalProps.decimals,
-  ])
+  // const pncplDecimals = useMemo(() => selectedBondDetail?.principalData.principalProps.decimals, [
+  //   selectedBondDetail?.principalData.principalProps.decimals,
+  // ])
   const readSolaceToken = useReadToken(solace)
   const readXSolaceToken = useReadToken(xSolaceV1)
-  const nativeTokenBalance = useNativeTokenBalance()
+  // const nativeTokenBalance = useNativeTokenBalance()
   const { deposit, redeem } = useBondTellerV1(selectedBondDetail)
-  const { width } = useWindowDimensions()
+  // const { width } = useWindowDimensions()
   const { getUserBondDataV1 } = useUserBondDataV1()
-  const { amount, isAppropriateAmount, handleInputChange, setMax, resetAmount } = useInputAmount()
+  // const { amount, isAppropriateAmount, handleInputChange, setMax, resetAmount } = useInputAmount()
   const { handleToast, handleContractCallError } = useTransactionExecution()
-  const [contractForAllowance, setContractForAllowance] = useState<Contract | null>(null)
-  const [spenderAddress, setSpenderAddress] = useState<string | null>(null)
-  const approval = useTokenAllowance(
-    contractForAllowance,
-    spenderAddress,
-    amount && amount != '.' ? parseUnits(amount, pncplDecimals).toString() : '0'
-  )
-  const assetBalance = useMemo(() => {
-    switch (func) {
-      case FunctionName.BOND_DEPOSIT_ERC20_V1:
-      case FunctionName.BOND_DEPOSIT_WETH_V1:
-        return parseUnits(principalBalance, pncplDecimals)
-      case FunctionName.BOND_DEPOSIT_ETH_V1:
-      default:
-        return parseUnits(nativeTokenBalance, currencyDecimals)
-    }
-  }, [func, nativeTokenBalance, principalBalance, pncplDecimals])
+  // const [contractForAllowance, setContractForAllowance] = useState<Contract | null>(null)
+  // const [spenderAddress, setSpenderAddress] = useState<string | null>(null)
+  // const approval = useTokenAllowance(
+  //   contractForAllowance,
+  //   spenderAddress,
+  //   amount && amount != '.' ? parseUnits(amount, pncplDecimals).toString() : '0'
+  // )
+  // const assetBalance = useMemo(() => {
+  //   switch (func) {
+  //     case FunctionName.BOND_DEPOSIT_ERC20_V1:
+  //     case FunctionName.BOND_DEPOSIT_WETH_V1:
+  //       return parseUnits(principalBalance, pncplDecimals)
+  //     case FunctionName.BOND_DEPOSIT_ETH_V1:
+  //     default:
+  //       return parseUnits(nativeTokenBalance, currencyDecimals)
+  //   }
+  // }, [func, nativeTokenBalance, principalBalance, pncplDecimals])
 
   /*************************************************************************************
 
@@ -140,40 +140,40 @@ export const BondModalV1: React.FC<BondModalV1Props> = ({ closeModal, isOpen, se
 
   *************************************************************************************/
 
-  const approve = async () => {
-    const pncpl = selectedBondDetail?.principalData.principal
-    if (!pncpl || !selectedBondDetail) return
-    setModalLoading(true)
-    try {
-      const tx = await pncpl.approve(
-        selectedBondDetail.tellerData.teller.contract.address,
-        parseUnits(amount, pncplDecimals)
-      )
-      const txHash = tx.hash
-      setCanCloseOnLoading(true)
-      makeTxToast(FunctionName.APPROVE, TransactionCondition.PENDING, txHash)
-      await tx.wait().then((receipt: any) => {
-        const status = receipt.status ? TransactionCondition.SUCCESS : TransactionCondition.FAILURE
-        makeTxToast(FunctionName.APPROVE, status, txHash)
-        reload()
-      })
-      setCanCloseOnLoading(false)
-      setModalLoading(false)
-    } catch (err) {
-      _handleContractCallError('approve', err, FunctionName.APPROVE)
-    }
-  }
+  // const approve = async () => {
+  //   const pncpl = selectedBondDetail?.principalData.principal
+  //   if (!pncpl || !selectedBondDetail) return
+  //   setModalLoading(true)
+  //   try {
+  //     const tx = await pncpl.approve(
+  //       selectedBondDetail.tellerData.teller.contract.address,
+  //       parseUnits(amount, pncplDecimals)
+  //     )
+  //     const txHash = tx.hash
+  //     setCanCloseOnLoading(true)
+  //     makeTxToast(FunctionName.APPROVE, TransactionCondition.PENDING, txHash)
+  //     await tx.wait().then((receipt: any) => {
+  //       const status = receipt.status ? TransactionCondition.SUCCESS : TransactionCondition.FAILURE
+  //       makeTxToast(FunctionName.APPROVE, status, txHash)
+  //       reload()
+  //     })
+  //     setCanCloseOnLoading(false)
+  //     setModalLoading(false)
+  //   } catch (err) {
+  //     _handleContractCallError('approve', err, FunctionName.APPROVE)
+  //   }
+  // }
 
-  const callDepositBond = async (stake: boolean) => {
-    if (!pncplDecimals || !calculatedAmountOut || !calculatedAmountOut_X || !bondRecipient) return
-    setModalLoading(true)
-    const slippageInt = parseInt(accurateMultiply(slippagePrct, 2))
-    const calcAOut = stake ? calculatedAmountOut_X : calculatedAmountOut
-    const minAmountOut = calcAOut.mul(BigNumber.from(MAX_BPS - slippageInt)).div(BigNumber.from(MAX_BPS))
-    await deposit(parseUnits(amount, pncplDecimals), minAmountOut, bondRecipient, stake, func)
-      .then((res) => _handleToast(res.tx, res.localTx))
-      .catch((err) => _handleContractCallError('callDepositBond', err, func))
-  }
+  // const callDepositBond = async (stake: boolean) => {
+  //   if (!pncplDecimals || !calculatedAmountOut || !calculatedAmountOut_X || !bondRecipient) return
+  //   setModalLoading(true)
+  //   const slippageInt = parseInt(accurateMultiply(slippagePrct, 2))
+  //   const calcAOut = stake ? calculatedAmountOut_X : calculatedAmountOut
+  //   const minAmountOut = calcAOut.mul(BigNumber.from(MAX_BPS - slippageInt)).div(BigNumber.from(MAX_BPS))
+  //   await deposit(parseUnits(amount, pncplDecimals), minAmountOut, bondRecipient, stake, func)
+  //     .then((res) => _handleToast(res.tx, res.localTx))
+  //     .catch((err) => _handleContractCallError('callDepositBond', err, func))
+  // }
 
   const callRedeemBond = async (bondId: BigNumber) => {
     if (bondId.isZero()) return
@@ -201,102 +201,102 @@ export const BondModalV1: React.FC<BondModalV1Props> = ({ closeModal, isOpen, se
 
   const handleClose = useCallback(() => {
     setBondRecipient(account)
-    setCalculatedAmountIn(ZERO)
-    setCalculatedAmountIn_X(ZERO)
-    setCalculatedAmountOut(ZERO)
-    setCalculatedAmountOut_X(ZERO)
-    setContractForAllowance(null)
+    // setCalculatedAmountIn(ZERO)
+    // setCalculatedAmountIn_X(ZERO)
+    // setCalculatedAmountOut(ZERO)
+    // setCalculatedAmountOut_X(ZERO)
+    // setContractForAllowance(null)
     setFunc(FunctionName.BOND_DEPOSIT_ETH_V1)
-    setIsAcceptableAmount(false)
-    setIsBondTellerErc20(false)
-    setIsBonding(true)
-    setIsStaking(false)
-    setPrincipalBalance('0')
-    setShouldUseNativeToken(true)
+    // setIsAcceptableAmount(false)
+    // setIsBondTellerErc20(false)
+    setIsBonding(false)
+    // setIsStaking(false)
+    // setPrincipalBalance('0')
+    // setShouldUseNativeToken(true)
     setSlippagePrct('0.5')
-    setSpenderAddress(null)
+    // setSpenderAddress(null)
     setOwnedBondTokens([])
 
     setModalLoading(false)
-    resetAmount()
+    // resetAmount()
     closeModal()
   }, [closeModal])
 
-  const _setMax = () => {
-    if (!pncplDecimals || !calculatedAmountIn || !calculatedAmountIn_X) return
-    const calcAIn = isStaking ? calculatedAmountIn_X : calculatedAmountIn
-    if (func == FunctionName.BOND_DEPOSIT_ETH_V1) {
-    }
-    setMax(
-      assetBalance.gt(calcAIn) ? calcAIn : assetBalance,
-      pncplDecimals,
-      func == FunctionName.BOND_DEPOSIT_ETH_V1 ? FunctionGasLimits['tellerEth_v1.depositEth'] : undefined
-    )
-  }
+  // const _setMax = () => {
+  //   if (!pncplDecimals || !calculatedAmountIn || !calculatedAmountIn_X) return
+  //   const calcAIn = isStaking ? calculatedAmountIn_X : calculatedAmountIn
+  //   if (func == FunctionName.BOND_DEPOSIT_ETH_V1) {
+  //   }
+  //   setMax(
+  //     assetBalance.gt(calcAIn) ? calcAIn : assetBalance,
+  //     pncplDecimals,
+  //     func == FunctionName.BOND_DEPOSIT_ETH_V1 ? FunctionGasLimits['tellerEth_v1.depositEth'] : undefined
+  //   )
+  // }
 
-  const calculateAmountOut = async (_amount: string): Promise<void> => {
-    if (selectedBondDetail && pncplDecimals) {
-      const formattedAmount = formatAmount(_amount)
-      const tellerContract = selectedBondDetail.tellerData.teller.contract
-      try {
-        const aO: BigNumber = await tellerContract.calculateAmountOut(
-          accurateMultiply(formattedAmount, pncplDecimals),
-          false
-        )
-        setCalculatedAmountOut(aO)
-      } catch (e) {
-        setCalculatedAmountOut(undefined)
-      }
-      try {
-        const aO_X: BigNumber = await tellerContract.calculateAmountOut(
-          accurateMultiply(formattedAmount, pncplDecimals),
-          true
-        )
-        setCalculatedAmountOut_X(aO_X)
-      } catch (e) {
-        setCalculatedAmountOut_X(undefined)
-      }
-    } else {
-      setCalculatedAmountOut(ZERO)
-      setCalculatedAmountOut_X(ZERO)
-    }
-  }
+  // const calculateAmountOut = async (_amount: string): Promise<void> => {
+  //   if (selectedBondDetail && pncplDecimals) {
+  //     const formattedAmount = formatAmount(_amount)
+  //     const tellerContract = selectedBondDetail.tellerData.teller.contract
+  //     try {
+  //       const aO: BigNumber = await tellerContract.calculateAmountOut(
+  //         accurateMultiply(formattedAmount, pncplDecimals),
+  //         false
+  //       )
+  //       setCalculatedAmountOut(aO)
+  //     } catch (e) {
+  //       setCalculatedAmountOut(undefined)
+  //     }
+  //     try {
+  //       const aO_X: BigNumber = await tellerContract.calculateAmountOut(
+  //         accurateMultiply(formattedAmount, pncplDecimals),
+  //         true
+  //       )
+  //       setCalculatedAmountOut_X(aO_X)
+  //     } catch (e) {
+  //       setCalculatedAmountOut_X(undefined)
+  //     }
+  //   } else {
+  //     setCalculatedAmountOut(ZERO)
+  //     setCalculatedAmountOut_X(ZERO)
+  //   }
+  // }
 
-  const calculateAmountIn = async (): Promise<void> => {
-    setCanMax(false)
-    if (selectedBondDetail && xSolaceV1) {
-      const maxPayout = selectedBondDetail.tellerData.maxPayout
-      const maxPayout_X = await xSolaceV1.solaceToXSolace(selectedBondDetail.tellerData.maxPayout)
+  // const calculateAmountIn = async (): Promise<void> => {
+  //   setCanMax(false)
+  //   if (selectedBondDetail && xSolaceV1) {
+  //     const maxPayout = selectedBondDetail.tellerData.maxPayout
+  //     const maxPayout_X = await xSolaceV1.solaceToXSolace(selectedBondDetail.tellerData.maxPayout)
 
-      const tellerContract = selectedBondDetail.tellerData.teller.contract
-      const bondFeeBps = selectedBondDetail.tellerData.bondFeeBps
+  //     const tellerContract = selectedBondDetail.tellerData.teller.contract
+  //     const bondFeeBps = selectedBondDetail.tellerData.bondFeeBps
 
-      try {
-        // not including bond fee to remain below maxPayout
-        const aI: BigNumber = await tellerContract.calculateAmountIn(
-          maxPayout.mul(BigNumber.from(MAX_BPS).sub(bondFeeBps ?? ZERO)).div(BigNumber.from(MAX_BPS)),
-          false
-        )
-        setCalculatedAmountIn(aI)
-      } catch (e) {
-        setCalculatedAmountIn(undefined)
-      }
-      try {
-        // not including bond fee to remain below maxPayout
-        const aI_X: BigNumber = await tellerContract.calculateAmountIn(
-          maxPayout_X.mul(BigNumber.from(MAX_BPS).sub(bondFeeBps ?? ZERO)).div(BigNumber.from(MAX_BPS)),
-          true
-        )
-        setCalculatedAmountIn_X(aI_X)
-      } catch (e) {
-        setCalculatedAmountIn_X(undefined)
-      }
-    } else {
-      setCalculatedAmountIn(ZERO)
-      setCalculatedAmountIn_X(ZERO)
-    }
-    setCanMax(true)
-  }
+  //     try {
+  //       // not including bond fee to remain below maxPayout
+  //       const aI: BigNumber = await tellerContract.calculateAmountIn(
+  //         maxPayout.mul(BigNumber.from(MAX_BPS).sub(bondFeeBps ?? ZERO)).div(BigNumber.from(MAX_BPS)),
+  //         false
+  //       )
+  //       setCalculatedAmountIn(aI)
+  //     } catch (e) {
+  //       setCalculatedAmountIn(undefined)
+  //     }
+  //     try {
+  //       // not including bond fee to remain below maxPayout
+  //       const aI_X: BigNumber = await tellerContract.calculateAmountIn(
+  //         maxPayout_X.mul(BigNumber.from(MAX_BPS).sub(bondFeeBps ?? ZERO)).div(BigNumber.from(MAX_BPS)),
+  //         true
+  //       )
+  //       setCalculatedAmountIn_X(aI_X)
+  //     } catch (e) {
+  //       setCalculatedAmountIn_X(undefined)
+  //     }
+  //   } else {
+  //     setCalculatedAmountIn(ZERO)
+  //     setCalculatedAmountIn_X(ZERO)
+  //   }
+  //   setCanMax(true)
+  // }
 
   /* 
   
@@ -304,60 +304,60 @@ export const BondModalV1: React.FC<BondModalV1Props> = ({ closeModal, isOpen, se
   
   */
 
-  const _calculateAmountOut = useDebounce(async (_amount: string) => calculateAmountOut(_amount), 300)
+  // const _calculateAmountOut = useDebounce(async (_amount: string) => calculateAmountOut(_amount), 300)
 
-  useEffect(() => {
-    const getBondData = async () => {
-      if (!selectedBondDetail?.principalData) return
-      setContractForAllowance(selectedBondDetail.principalData.principal)
-      setSpenderAddress(selectedBondDetail.tellerData.teller.contract.address)
-    }
-    getBondData()
-  }, [selectedBondDetail, account, isOpen])
+  // useEffect(() => {
+  //   const getBondData = async () => {
+  //     if (!selectedBondDetail?.principalData) return
+  //     setContractForAllowance(selectedBondDetail.principalData.principal)
+  //     setSpenderAddress(selectedBondDetail.tellerData.teller.contract.address)
+  //   }
+  //   getBondData()
+  // }, [selectedBondDetail, account, isOpen])
 
   useEffect(() => {
     const getUserBonds = async () => {
       if (!selectedBondDetail?.principalData || !account || !isOpen) return
       const ownedBonds = await getUserBondDataV1(selectedBondDetail, account)
       setOwnedBondTokens(ownedBonds.sort((a, b) => a.id.toNumber() - b.id.toNumber()))
-      const principalBal = await queryBalance(selectedBondDetail.principalData.principal, account)
-      setPrincipalBalance(formatUnits(principalBal, selectedBondDetail.principalData.principalProps.decimals))
+      // const principalBal = await queryBalance(selectedBondDetail.principalData.principal, account)
+      // setPrincipalBalance(formatUnits(principalBal, selectedBondDetail.principalData.principalProps.decimals))
     }
     getUserBonds()
   }, [account, isOpen, selectedBondDetail, readSolaceToken, readXSolaceToken])
 
-  useEffect(() => {
-    const getTellerType = async () => {
-      if (!selectedBondDetail) return
-      const isBondTellerErc20 = selectedBondDetail.tellerData.teller.isBondTellerErc20
-      const tempFunc = isBondTellerErc20 ? FunctionName.BOND_DEPOSIT_ERC20_V1 : FunctionName.BOND_DEPOSIT_ETH_V1
-      setIsBondTellerErc20(isBondTellerErc20)
-      setFunc(tempFunc)
-    }
-    getTellerType()
-  }, [selectedBondDetail?.tellerData.teller.isBondTellerErc20, isOpen])
+  // useEffect(() => {
+  //   const getTellerType = async () => {
+  //     if (!selectedBondDetail) return
+  //     const isBondTellerErc20 = selectedBondDetail.tellerData.teller.isBondTellerErc20
+  //     const tempFunc = isBondTellerErc20 ? FunctionName.BOND_DEPOSIT_ERC20_V1 : FunctionName.BOND_DEPOSIT_ETH_V1
+  //     setIsBondTellerErc20(isBondTellerErc20)
+  //     setFunc(tempFunc)
+  //   }
+  //   getTellerType()
+  // }, [selectedBondDetail?.tellerData.teller.isBondTellerErc20, isOpen])
 
-  useEffect(() => {
-    calculateAmountIn()
-  }, [selectedBondDetail, xSolaceV1])
+  // useEffect(() => {
+  //   calculateAmountIn()
+  // }, [selectedBondDetail, xSolaceV1])
 
-  useEffect(() => {
-    _calculateAmountOut(amount)
-  }, [selectedBondDetail, amount])
+  // useEffect(() => {
+  //   _calculateAmountOut(amount)
+  // }, [selectedBondDetail, amount])
 
-  useEffect(() => {
-    if (!pncplDecimals) return
-    setIsAcceptableAmount(isAppropriateAmount(amount, pncplDecimals, assetBalance))
-  }, [pncplDecimals, assetBalance, amount])
+  // useEffect(() => {
+  //   if (!pncplDecimals) return
+  //   setIsAcceptableAmount(isAppropriateAmount(amount, pncplDecimals, assetBalance))
+  // }, [pncplDecimals, assetBalance, amount])
 
   useEffect(() => {
     setBondRecipient(account)
   }, [account])
 
-  useEffect(() => {
-    if (isBondTellerErc20) return
-    setFunc(shouldUseNativeToken ? FunctionName.BOND_DEPOSIT_ETH_V1 : FunctionName.BOND_DEPOSIT_WETH_V1)
-  }, [shouldUseNativeToken])
+  // useEffect(() => {
+  //   if (isBondTellerErc20) return
+  //   setFunc(shouldUseNativeToken ? FunctionName.BOND_DEPOSIT_ETH_V1 : FunctionName.BOND_DEPOSIT_WETH_V1)
+  // }, [shouldUseNativeToken])
 
   return (
     <ModalContainer isOpen={isOpen}>
@@ -373,11 +373,11 @@ export const BondModalV1: React.FC<BondModalV1Props> = ({ closeModal, isOpen, se
           selectedBondDetail={selectedBondDetail}
         />
         <ModalHeader style={{ position: 'relative', marginTop: '20px' }}>
-          {(approval || func == FunctionName.BOND_DEPOSIT_ETH_V1) && (
+          {/* {(approval || func == FunctionName.BOND_DEPOSIT_ETH_V1) && (
             <FlexRow style={{ cursor: 'pointer', position: 'absolute', left: '0', bottom: '-10px' }}>
               <StyledGear size={25} onClick={() => setShowBondSettingsModal(true)} />
             </FlexRow>
-          )}
+          )} */}
           <FlexRow style={{ position: 'absolute', left: '50%', transform: 'translate(-50%)' }}>
             {selectedBondDetail?.principalData &&
               (selectedBondDetail.principalData.token0 && selectedBondDetail.principalData.token1 ? (
@@ -408,7 +408,7 @@ export const BondModalV1: React.FC<BondModalV1Props> = ({ closeModal, isOpen, se
             <ModalCloseButton hidden={modalLoading && !canCloseOnLoading} onClick={handleClose} />
           </FlexRow>
         </ModalHeader>
-        <div
+        {/* <div
           style={{
             gridTemplateColumns: '1fr 1fr',
             display: 'grid',
@@ -443,44 +443,45 @@ export const BondModalV1: React.FC<BondModalV1Props> = ({ closeModal, isOpen, se
               Redeem
             </Text>
           </ModalCell>
-        </div>
+        </div> */}
         {!account ? (
           <ButtonWrapper>
             <WalletConnectButton info welcome secondary />
           </ButtonWrapper>
         ) : isBonding ? (
-          <div style={{ textAlign: 'center', display: 'grid', gridTemplateColumns: '1fr 80px', marginTop: '20px' }}>
-            <Input
-              autoComplete="off"
-              autoCorrect="off"
-              placeholder="0.0"
-              textAlignCenter
-              type="text"
-              onChange={(e) =>
-                handleInputChange(
-                  e.target.value,
-                  func == FunctionName.BOND_DEPOSIT_ETH_V1 ? currencyDecimals : pncplDecimals
-                )
-              }
-              value={amount}
-            />
-            <Button
-              info
-              ml={10}
-              pt={4}
-              pb={4}
-              pl={8}
-              pr={8}
-              width={70}
-              height={30}
-              onClick={_setMax}
-              disabled={!canMax}
-            >
-              MAX
-            </Button>
-          </div>
+          // <div style={{ textAlign: 'center', display: 'grid', gridTemplateColumns: '1fr 80px', marginTop: '20px' }}>
+          //   <Input
+          //     autoComplete="off"
+          //     autoCorrect="off"
+          //     placeholder="0.0"
+          //     textAlignCenter
+          //     type="text"
+          //     onChange={(e) =>
+          //       handleInputChange(
+          //         e.target.value,
+          //         func == FunctionName.BOND_DEPOSIT_ETH_V1 ? currencyDecimals : pncplDecimals
+          //       )
+          //     }
+          //     value={amount}
+          //   />
+          //   <Button
+          //     info
+          //     ml={10}
+          //     pt={4}
+          //     pb={4}
+          //     pl={8}
+          //     pr={8}
+          //     width={70}
+          //     height={30}
+          //     onClick={_setMax}
+          //     disabled={!canMax}
+          //   >
+          //     MAX
+          //   </Button>
+          // </div>
+          <></>
         ) : null}
-        {isBonding && (
+        {/* {isBonding && (
           <>
             <PrivateBondInfoV1
               func={func}
@@ -516,7 +517,7 @@ export const BondModalV1: React.FC<BondModalV1Props> = ({ closeModal, isOpen, se
                 </FlexCol>
               ))}
           </>
-        )}
+        )} */}
         {!isBonding && account && (
           <OwnedBondListV1
             ownedBondTokens={ownedBondTokens}

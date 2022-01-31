@@ -69,18 +69,18 @@ function Bond(): any {
   const [showV2Bonds, setShowV2Bonds] = useState<boolean>(true)
   const [showV1Bonds, setShowV1Bonds] = useState<boolean>(false)
 
-  const btdV1 = useBondTellerDetailsV1(showV1Bonds)
-  const btdV2 = useBondTellerDetailsV2(showV2Bonds)
-
-  const currentTellerDetailsV1 = useMemo(() => btdV1.tellerDetails, [btdV1.tellerDetails])
-  const currentTellerDetailsV2 = useMemo(() => btdV2.tellerDetails, [btdV2.tellerDetails])
-
   const canBondV1 = useMemo(() => !activeNetwork.config.featureRestrictions.noBondingV1, [
     activeNetwork.config.featureRestrictions.noBondingV1,
   ])
   const canBondV2 = useMemo(() => !activeNetwork.config.featureRestrictions.noBondingV2, [
     activeNetwork.config.featureRestrictions.noBondingV2,
   ])
+
+  const btdV1 = useBondTellerDetailsV1(showV1Bonds)
+  const btdV2 = useBondTellerDetailsV2(showV2Bonds)
+
+  const currentTellerDetailsV1 = useMemo(() => btdV1.tellerDetails, [btdV1.tellerDetails])
+  const currentTellerDetailsV2 = useMemo(() => btdV2.tellerDetails, [btdV2.tellerDetails])
 
   /*
 
@@ -328,8 +328,8 @@ function Bond(): any {
                               <TableRow>
                                 <TableHeader></TableHeader>
                                 <TableHeader>Bond</TableHeader>
-                                <TableHeader>Price</TableHeader>
-                                <TableHeader>ROI</TableHeader>
+                                {/* <TableHeader>Price</TableHeader> */}
+                                {/* <TableHeader>ROI</TableHeader> */}
                                 <TableHeader></TableHeader>
                               </TableRow>
                             </TableHead>
@@ -376,19 +376,19 @@ function Bond(): any {
                                     </FlexRow>
                                   </TableData>
                                   <TableData>{tellerDetail.tellerData.teller.name}</TableData>
-                                  <TableData>
+                                  {/* <TableData>
                                     <Text fade={tellerDetail.tellerData.usdBondPrice <= 0}>
                                       {tellerDetail.tellerData.usdBondPrice > 0
                                         ? `$${truncateValue(tellerDetail.tellerData.usdBondPrice, 4)}`
                                         : `USD price not found`}
                                     </Text>
-                                  </TableData>
-                                  <TableData>
+                                  </TableData> */}
+                                  {/* <TableData>
                                     <Text>{truncateValue(tellerDetail.tellerData.bondRoi, 2, false)}%</Text>
-                                  </TableData>
+                                  </TableData> */}
                                   <TableData textAlignRight>
                                     <Button disabled={haveErrors || tellerDetail.tellerData.teller.isDisabled} info>
-                                      {tellerDetail.tellerData.teller.isDisabled ? 'Disabled' : 'Bond'}
+                                      {tellerDetail.tellerData.teller.isDisabled ? 'Disabled' : 'Redeem'}
                                     </Button>
                                   </TableData>
                                 </TableRow>
@@ -442,7 +442,7 @@ function Bond(): any {
                                     </Text>
                                   </FlexCol>
                                 </FlexCol>
-                                <FormRow>
+                                {/* <FormRow>
                                   <FormCol>Price</FormCol>
                                   <FormCol>
                                     <Text bold t2 fade={tellerDetail.tellerData.usdBondPrice <= 0}>
@@ -451,15 +451,15 @@ function Bond(): any {
                                         : `USD price not found`}
                                     </Text>
                                   </FormCol>
-                                </FormRow>
-                                <FormRow>
+                                </FormRow> */}
+                                {/* <FormRow>
                                   <FormCol>ROI</FormCol>
                                   <FormCol>
                                     <Text bold t2>
                                       {truncateValue(tellerDetail.tellerData.bondRoi, 2, false)}%
                                     </Text>
                                   </FormCol>
-                                </FormRow>
+                                </FormRow> */}
                               </Card>
                             ))}
                           </CardContainer>
