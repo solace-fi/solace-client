@@ -109,7 +109,7 @@ export const useBondTellerDetailsV2 = (
       )
         return
       running.current = true
-      const solacePrice = truncateValue(tokenPriceMapping[networks[0].config.keyContracts.solace.addr.toLowerCase()], 2)
+      const solacePrice = tokenPriceMapping[networks[0].config.keyContracts.solace.addr.toLowerCase()]
       try {
         const data: BondTellerDetails[] = await Promise.all(
           tellers
@@ -144,10 +144,7 @@ export const useBondTellerDetailsV2 = (
                 if (price != -1) usdBondPrice = price * floatUnits(bondPrice, decimals)
               }
 
-              const bondRoi =
-                usdBondPrice > 0 && solacePrice != '-'
-                  ? ((parseFloat(solacePrice) - usdBondPrice) * 100) / usdBondPrice
-                  : 0
+              const bondRoi = usdBondPrice > 0 ? ((solacePrice - usdBondPrice) * 100) / usdBondPrice : 0
 
               const d: BondTellerDetails = {
                 tellerData: {
