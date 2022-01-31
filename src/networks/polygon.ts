@@ -14,6 +14,7 @@ export const PolygonNetwork: NetworkConfig = {
   rpc: {
     httpsUrl: `https://polygon-mainnet.g.alchemy.com/v2/${String(ALCHEMY_POLYGON_API_KEY)}`,
     pollingInterval: 12_000,
+    blockConfirms: 1,
   },
   explorer: {
     name: 'Polygonscan',

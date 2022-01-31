@@ -91,7 +91,7 @@ export const MyClaims: React.FC = () => {
       addLocalTransactions(localTx)
       reload()
       makeTxToast(txType, TransactionCondition.PENDING, txHash)
-      await tx.wait().then((receipt: any) => {
+      await tx.wait(activeNetwork.rpc.blockConfirms).then((receipt: any) => {
         const status = receipt.status ? TransactionCondition.SUCCESS : TransactionCondition.FAILURE
         makeTxToast(txType, status, txHash)
         reload()

@@ -17,6 +17,7 @@ export type NetworkConfig = {
   rpc: {
     httpsUrl: string
     pollingInterval: number
+    blockConfirms: number
   }
   explorer: {
     name: string

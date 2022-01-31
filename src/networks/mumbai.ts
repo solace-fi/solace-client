@@ -14,6 +14,7 @@ export const MumbaiNetwork: NetworkConfig = {
   rpc: {
     httpsUrl: `https://polygon-mumbai.g.alchemy.com/v2/${String(ALCHEMY_MUMBAI_API_KEY)}`,
     pollingInterval: 12_000,
+    blockConfirms: 1,
   },
   explorer: {
     name: 'Polygonscan',

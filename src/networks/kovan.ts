@@ -169,7 +169,11 @@ export const KovanNetwork: NetworkConfig = {
   logo: EthereumLogo,
   supportedTxTypes: [0, 2],
   nativeCurrency: { symbol: Unit.ETH, decimals: 18 },
-  rpc: { httpsUrl: `https://eth-kovan.alchemyapi.io/v2/${String(ALCHEMY_ETHEREUM_API_KEY)}`, pollingInterval: 12_000 },
+  rpc: {
+    httpsUrl: `https://eth-kovan.alchemyapi.io/v2/${String(ALCHEMY_ETHEREUM_API_KEY)}`,
+    pollingInterval: 12_000,
+    blockConfirms: 1,
+  },
   explorer: {
     name: 'Etherscan',
     key: String(ETHERSCAN_API_KEY),

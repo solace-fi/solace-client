@@ -175,6 +175,7 @@ export const RinkebyNetwork: NetworkConfig = {
   rpc: {
     httpsUrl: `https://eth-rinkeby.alchemyapi.io/v2/${String(ALCHEMY_ETHEREUM_API_KEY)}`,
     pollingInterval: 12_000,
+    blockConfirms: 1,
   },
   explorer: {
     name: 'Etherscan',

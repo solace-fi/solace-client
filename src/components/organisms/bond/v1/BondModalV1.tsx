@@ -152,7 +152,7 @@ export const BondModalV1: React.FC<BondModalV1Props> = ({ closeModal, isOpen, se
   //     const txHash = tx.hash
   //     setCanCloseOnLoading(true)
   //     makeTxToast(FunctionName.APPROVE, TransactionCondition.PENDING, txHash)
-  //     await tx.wait().then((receipt: any) => {
+  //     await tx.wait(activeNetwork.rpc.blockConfirms).then((receipt: any) => {
   //       const status = receipt.status ? TransactionCondition.SUCCESS : TransactionCondition.FAILURE
   //       makeTxToast(FunctionName.APPROVE, status, txHash)
   //       reload()

@@ -80,6 +80,7 @@ export const AuroraNetwork: NetworkConfig = {
   rpc: {
     httpsUrl: `https://mainnet.aurora.dev`,
     pollingInterval: 12_000,
+    blockConfirms: 3,
   },
   explorer: {
     name: 'Explorer',

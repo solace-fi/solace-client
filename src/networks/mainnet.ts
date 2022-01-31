@@ -192,6 +192,7 @@ export const MainNetwork: NetworkConfig = {
   rpc: {
     httpsUrl: `https://eth-mainnet.alchemyapi.io/v2/${String(ALCHEMY_ETHEREUM_API_KEY)}`,
     pollingInterval: 12_000,
+    blockConfirms: 2,
   },
   explorer: {
     name: 'Etherscan',

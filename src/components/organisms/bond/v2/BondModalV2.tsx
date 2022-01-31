@@ -79,8 +79,8 @@ export const BondModalV2: React.FC<BondModalV2Props> = ({ closeModal, isOpen, se
   
   */
   const { account } = useWallet()
-  const { currencyDecimals } = useNetwork()
-  const { reload } = useCachedData()
+  const { currencyDecimals, activeNetwork } = useNetwork()
+  const { reload, version } = useCachedData()
   const { makeTxToast } = useNotifications()
   const { keyContracts } = useContracts()
   const { solace } = useMemo(() => keyContracts, [keyContracts])
@@ -149,7 +149,7 @@ export const BondModalV2: React.FC<BondModalV2Props> = ({ closeModal, isOpen, se
       const txHash = tx.hash
       setCanCloseOnLoading(true)
       makeTxToast(FunctionName.APPROVE, TransactionCondition.PENDING, txHash)
-      await tx.wait().then((receipt: any) => {
+      await tx.wait(activeNetwork.rpc.blockConfirms).then((receipt: any) => {
         const status = receipt.status ? TransactionCondition.SUCCESS : TransactionCondition.FAILURE
         makeTxToast(FunctionName.APPROVE, status, txHash)
         reload()
@@ -289,7 +289,7 @@ export const BondModalV2: React.FC<BondModalV2Props> = ({ closeModal, isOpen, se
       setPrincipalBalance(formatUnits(principalBal, selectedBondDetail.principalData.principalProps.decimals))
     }
     getUserBonds()
-  }, [account, selectedBondDetail, readSolaceToken])
+  }, [account, selectedBondDetail, readSolaceToken, version])
 
   useEffect(() => {
     const getTellerType = async () => {

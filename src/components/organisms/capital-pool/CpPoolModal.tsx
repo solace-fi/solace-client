@@ -108,7 +108,7 @@ export const CpPoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen
       const txHash = tx.hash
       setCanCloseOnLoading(true)
       makeTxToast(FunctionName.APPROVE, TransactionCondition.PENDING, txHash)
-      await tx.wait().then((receipt: any) => {
+      await tx.wait(activeNetwork.rpc.blockConfirms).then((receipt: any) => {
         const status = receipt.status ? TransactionCondition.SUCCESS : TransactionCondition.FAILURE
         makeTxToast(FunctionName.APPROVE, status, txHash)
         reload()

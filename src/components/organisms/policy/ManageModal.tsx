@@ -244,7 +244,7 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
     addLocalTransactions(localTx)
     reload()
     makeTxToast(localTx.type, TransactionCondition.PENDING, localTx.hash)
-    await tx.wait().then((receipt: any) => {
+    await tx.wait(activeNetwork.rpc.blockConfirms).then((receipt: any) => {
       const status = receipt.status ? TransactionCondition.SUCCESS : TransactionCondition.FAILURE
       makeTxToast(localTx.type, status, localTx.hash)
       reload()

@@ -125,7 +125,7 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
     reload()
     makeTxToast(localTx.type, TransactionCondition.PENDING, localTx.hash)
     setCanCloseOnLoading(true)
-    await tx.wait().then((receipt: any) => {
+    await tx.wait(activeNetwork.rpc.blockConfirms).then((receipt: any) => {
       const status = receipt.status ? TransactionCondition.SUCCESS : TransactionCondition.FAILURE
       makeTxToast(localTx.type, status, localTx.hash)
       setCanCloseOnLoading(false)

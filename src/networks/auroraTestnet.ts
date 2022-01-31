@@ -81,6 +81,7 @@ export const AuroraTestnetNetwork: NetworkConfig = {
   rpc: {
     httpsUrl: `https://testnet.aurora.dev`,
     pollingInterval: 12_000,
+    blockConfirms: 3,
   },
   explorer: {
     name: 'Explorer',

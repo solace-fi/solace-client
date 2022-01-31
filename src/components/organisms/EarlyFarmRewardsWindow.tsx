@@ -75,7 +75,7 @@ export const EarlyFarmRewardsWindow: React.FC = () => {
   const { keyContracts } = useContracts()
   const { farmRewards } = useMemo(() => keyContracts, [keyContracts])
   const { library, account } = useWallet()
-  const { chainId, currencyDecimals } = useNetwork()
+  const { chainId, currencyDecimals, activeNetwork } = useNetwork()
   const { makeTxToast } = useNotifications()
   const { reload } = useCachedData()
   const { gasConfig } = useGetFunctionGas()
@@ -132,7 +132,7 @@ export const EarlyFarmRewardsWindow: React.FC = () => {
       const txHash = tx.hash
       setButtonLoading(true)
       makeTxToast(FunctionName.APPROVE, TransactionCondition.PENDING, txHash)
-      await tx.wait().then((receipt: any) => {
+      await tx.wait(activeNetwork.rpc.blockConfirms).then((receipt: any) => {
         const status = receipt.status ? TransactionCondition.SUCCESS : TransactionCondition.FAILURE
         makeTxToast(FunctionName.APPROVE, status, txHash)
         reload()
