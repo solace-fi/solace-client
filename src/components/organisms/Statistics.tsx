@@ -142,22 +142,25 @@ export const Statistics: React.FC = () => {
       <BoxItem>
         <BoxItemTitle t4 light>
           SOLACE{' '}
-          <HyperLink
-            href={`https://app.sushi.com/add/${USDC_ADDRESS[chainId]}/${solace ? solace.address : null}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{ width: '100%' }}
-          >
-            <Button light style={{ whiteSpace: 'nowrap', minWidth: 'unset', minHeight: 'unset' }} p={4}>
-              buy on sushi
-            </Button>
-          </HyperLink>
+          {!activeNetwork.config.featureRestrictions.cannotBuySolace && (
+            <HyperLink
+              href={`https://app.sushi.com/add/${USDC_ADDRESS[chainId]}/${solace ? solace.address : null}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ width: '100%' }}
+            >
+              <Button light style={{ whiteSpace: 'nowrap', minWidth: 'unset', minHeight: 'unset' }} p={4}>
+                buy on sushi
+              </Button>
+            </HyperLink>
+          )}
         </BoxItemTitle>{' '}
         <Text t2 nowrap light bold>
           {`$${pairPrice} `}
         </Text>
       </BoxItem>
-      {!activeNetwork.config.featureRestrictions.noBondingV1 && (
+      {(!activeNetwork.config.featureRestrictions.noBondingV1 ||
+        !activeNetwork.config.featureRestrictions.noBondingV2) && (
         <BoxItem>
           <BoxItemTitle t4 light>
             Underwriting Pool Size
@@ -201,16 +204,18 @@ export const Statistics: React.FC = () => {
         <FormRow>
           <FormCol light>
             SOLACE{' '}
-            <HyperLink
-              href={`https://app.sushi.com/add/${USDC_ADDRESS[chainId]}/${solace ? solace.address : null}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{ width: '100%' }}
-            >
-              <Button light style={{ whiteSpace: 'nowrap', minWidth: 'unset', minHeight: 'unset' }} p={4}>
-                buy on sushi
-              </Button>
-            </HyperLink>
+            {!activeNetwork.config.featureRestrictions.cannotBuySolace && (
+              <HyperLink
+                href={`https://app.sushi.com/add/${USDC_ADDRESS[chainId]}/${solace ? solace.address : null}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ width: '100%' }}
+              >
+                <Button light style={{ whiteSpace: 'nowrap', minWidth: 'unset', minHeight: 'unset' }} p={4}>
+                  buy on sushi
+                </Button>
+              </HyperLink>
+            )}
           </FormCol>
           <FormCol>
             <Text t2 nowrap light>
@@ -218,7 +223,8 @@ export const Statistics: React.FC = () => {
             </Text>
           </FormCol>
         </FormRow>
-        {!activeNetwork.config.featureRestrictions.noBondingV1 && (
+        {(!activeNetwork.config.featureRestrictions.noBondingV1 ||
+          !activeNetwork.config.featureRestrictions.noBondingV2) && (
           <FormRow>
             <FormCol light>Underwriting Pool Size</FormCol>
             <FormCol>

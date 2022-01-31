@@ -197,19 +197,13 @@ export const BondModalV2: React.FC<BondModalV2Props> = ({ closeModal, isOpen, se
 
   const handleClose = useCallback(() => {
     setBondRecipient(account)
-    setCalculatedAmountIn(ZERO)
-    setCalculatedAmountOut(ZERO)
-    setContractForAllowance(null)
     setFunc(FunctionName.BOND_DEPOSIT_ETH_V2)
     setIsAcceptableAmount(false)
     setIsBondTellerErc20(false)
     setIsBonding(true)
     setIsStaking(false)
-    setPrincipalBalance('0')
     setShouldUseNativeToken(true)
     setSlippagePrct('0.5')
-    setSpenderAddress(null)
-    setOwnedBondTokens([])
 
     setModalLoading(false)
     resetAmount()
@@ -284,7 +278,7 @@ export const BondModalV2: React.FC<BondModalV2Props> = ({ closeModal, isOpen, se
       setSpenderAddress(selectedBondDetail.tellerData.teller.contract.address)
     }
     getBondData()
-  }, [selectedBondDetail, account, isOpen])
+  }, [selectedBondDetail, account])
 
   useEffect(() => {
     const getUserBonds = async () => {
@@ -295,7 +289,7 @@ export const BondModalV2: React.FC<BondModalV2Props> = ({ closeModal, isOpen, se
       setPrincipalBalance(formatUnits(principalBal, selectedBondDetail.principalData.principalProps.decimals))
     }
     getUserBonds()
-  }, [account, isOpen, selectedBondDetail, readSolaceToken])
+  }, [account, selectedBondDetail, readSolaceToken])
 
   useEffect(() => {
     const getTellerType = async () => {
@@ -306,7 +300,7 @@ export const BondModalV2: React.FC<BondModalV2Props> = ({ closeModal, isOpen, se
       setFunc(tempFunc)
     }
     getTellerType()
-  }, [selectedBondDetail?.tellerData.teller.isBondTellerErc20, isOpen])
+  }, [selectedBondDetail, isOpen])
 
   useEffect(() => {
     calculateAmountIn()

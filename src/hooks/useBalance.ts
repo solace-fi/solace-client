@@ -224,7 +224,7 @@ export const useUnderWritingPoolBalance = () => {
   useEffect(() => {
     const getGnosisBalance = async () => {
       if (!solace || (Object.keys(tokenPriceMapping).length === 0 && tokenPriceMapping.constructor === Object)) return
-      const multiSig = '0x9fec1bb252e20bfb7c492beeee70314ddfe89c55'
+      const multiSig = '0x5efc0d9ee3223229ce3b53e441016efc5ba83435'
       if (!library) return
       const principalContracts = tellers.map((t) =>
         getContract(t.addr, t.isLp ? sushiswapLpAbi : t.isBondTellerErc20 ? ierc20Json.abi : weth9, library, undefined)

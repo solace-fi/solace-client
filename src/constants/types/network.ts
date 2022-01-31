@@ -30,6 +30,7 @@ export type NetworkConfig = {
     productContracts: { [key: string]: ContractSources }
     bondTellerContracts: { [key: string]: string[] }
     featureRestrictions: {
+      cannotBuySolace?: boolean
       noBondingV1?: boolean
       noBondingV2?: boolean
       noCoverProducts?: boolean

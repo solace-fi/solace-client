@@ -120,6 +120,7 @@ export const AuroraNetwork: NetworkConfig = {
       noCoverProducts: true,
       noFarmingV1: true,
       noStakingV1: true,
+      cannotBuySolace: true,
     },
   },
   cache: {
