@@ -145,14 +145,14 @@ export const BondModalV1: React.FC<BondModalV1Props> = ({ closeModal, isOpen, se
   //   if (!pncpl || !selectedBondDetail) return
   //   setModalLoading(true)
   //   try {
-  //     const tx = await pncpl.approve(
+  //     const tx: TransactionResponse = await pncpl.approve(
   //       selectedBondDetail.tellerData.teller.contract.address,
   //       parseUnits(amount, pncplDecimals)
   //     )
   //     const txHash = tx.hash
   //     setCanCloseOnLoading(true)
   //     makeTxToast(FunctionName.APPROVE, TransactionCondition.PENDING, txHash)
-  //     await tx.wait(activeNetwork.rpc.blockConfirms).then((receipt: any) => {
+  //     await tx.wait(activeNetwork.rpc.blockConfirms).then((receipt: TransactionReceipt) => {
   //       const status = receipt.status ? TransactionCondition.SUCCESS : TransactionCondition.FAILURE
   //       makeTxToast(FunctionName.APPROVE, status, txHash)
   //       reload()

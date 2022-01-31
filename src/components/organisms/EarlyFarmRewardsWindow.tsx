@@ -22,6 +22,7 @@ import useDebounce from '@rooks/use-debounce'
 import { formatUnits, parseUnits } from '@ethersproject/units'
 import { BigNumber } from 'ethers'
 import { Contract } from '@ethersproject/contracts'
+import { TransactionReceipt, TransactionResponse } from '@ethersproject/providers'
 
 /* import constants */
 import { FunctionName, TransactionCondition } from '../../constants/enums'
@@ -128,11 +129,14 @@ export const EarlyFarmRewardsWindow: React.FC = () => {
     if (!farmRewards || !account || !isAddress(stablecoinPayment.value) || !library) return
     const stablecoinContract = getContract(stablecoinPayment.value, IERC20.abi, library, account)
     try {
-      const tx = await stablecoinContract.approve(farmRewards.address, parseUnits(amount, userStablecoinDecimals))
+      const tx: TransactionResponse = await stablecoinContract.approve(
+        farmRewards.address,
+        parseUnits(amount, userStablecoinDecimals)
+      )
       const txHash = tx.hash
       setButtonLoading(true)
       makeTxToast(FunctionName.APPROVE, TransactionCondition.PENDING, txHash)
-      await tx.wait(activeNetwork.rpc.blockConfirms).then((receipt: any) => {
+      await tx.wait(activeNetwork.rpc.blockConfirms).then((receipt: TransactionReceipt) => {
         const status = receipt.status ? TransactionCondition.SUCCESS : TransactionCondition.FAILURE
         makeTxToast(FunctionName.APPROVE, status, txHash)
         reload()

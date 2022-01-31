@@ -21,6 +21,7 @@
 import React, { useState, Fragment, useEffect, useCallback, useMemo } from 'react'
 import { formatUnits, parseUnits } from '@ethersproject/units'
 import { Contract } from '@ethersproject/contracts'
+import { TransactionReceipt, TransactionResponse } from '@ethersproject/providers'
 
 /* import managers */
 import { useNotifications } from '../../../context/NotificationsManager'
@@ -104,11 +105,11 @@ export const CpPoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen
     if (!cpFarm || !vault) return
     setModalLoading(true)
     try {
-      const tx = await vault.approve(cpFarm.address, parseUnits(amount, currencyDecimals))
+      const tx: TransactionResponse = await vault.approve(cpFarm.address, parseUnits(amount, currencyDecimals))
       const txHash = tx.hash
       setCanCloseOnLoading(true)
       makeTxToast(FunctionName.APPROVE, TransactionCondition.PENDING, txHash)
-      await tx.wait(activeNetwork.rpc.blockConfirms).then((receipt: any) => {
+      await tx.wait(activeNetwork.rpc.blockConfirms).then((receipt: TransactionReceipt) => {
         const status = receipt.status ? TransactionCondition.SUCCESS : TransactionCondition.FAILURE
         makeTxToast(FunctionName.APPROVE, status, txHash)
         reload()

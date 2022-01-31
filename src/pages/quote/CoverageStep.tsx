@@ -21,6 +21,7 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { formatUnits, parseUnits } from 'ethers/lib/utils'
 import { BigNumber } from 'ethers'
+import { TransactionReceipt, TransactionResponse } from '@ethersproject/providers'
 
 /* import constants */
 import { DAYS_PER_YEAR, NUM_BLOCKS_PER_DAY, ZERO } from '../../constants'
@@ -116,7 +117,7 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
     })
     const txType = FunctionName.BUY_POLICY
     try {
-      const tx = await selectedProtocol.buyPolicy(
+      const tx: TransactionResponse = await selectedProtocol.buyPolicy(
         account,
         coverAmount,
         NUM_BLOCKS_PER_DAY * parseInt(timePeriod),
@@ -157,7 +158,7 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
       addLocalTransactions(localTx)
       reload()
       makeTxToast(txType, TransactionCondition.PENDING, txHash)
-      await tx.wait(activeNetwork.rpc.blockConfirms).then((receipt: any) => {
+      await tx.wait(activeNetwork.rpc.blockConfirms).then((receipt: TransactionReceipt) => {
         const status = receipt.status ? TransactionCondition.SUCCESS : TransactionCondition.FAILURE
         makeTxToast(txType, status, txHash)
         reload()
