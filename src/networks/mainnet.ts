@@ -304,6 +304,7 @@ export const MainNetwork: NetworkConfig = {
       [BondName.FRAX]: [TELLER_ADDRS_V2.FRAX_TELLER],
     },
     featureRestrictions: {},
+    underwritingPoolAddr: '0x5efc0d9ee3223229ce3b53e441016efc5ba83435',
   },
   cache: {
     supportedProducts: [

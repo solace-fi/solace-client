@@ -122,6 +122,7 @@ export const AuroraNetwork: NetworkConfig = {
       noStakingV1: true,
       cannotBuySolace: true,
     },
+    underwritingPoolAddr: '0x501ace27a074471f099fffec008bd1b151c7f7de',
   },
   cache: {
     supportedProducts: [],

@@ -39,6 +39,7 @@ export type NetworkConfig = {
       noStakingV1?: boolean
       noStakingV2?: boolean
     }
+    underwritingPoolAddr?: string
   }
   cache: {
     supportedProducts: SupportedProduct[]
