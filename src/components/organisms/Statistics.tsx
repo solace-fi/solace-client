@@ -43,7 +43,11 @@ import { Card, CardContainer } from '../atoms/Card'
 import { HyperLink } from '../atoms/Link'
 
 /* import hooks */
-import { useSolaceBalance, useUnderWritingPoolBalance } from '../../hooks/useBalance'
+import {
+  useSolaceBalance,
+  useUnderWritingPoolBalance,
+  useCrossChainUnderwritingPoolBalance,
+} from '../../hooks/useBalance'
 import { usePolicyGetter } from '../../hooks/usePolicyGetter'
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'
 import { useUserLockData } from '../../hooks/useXSLocker'
@@ -74,7 +78,7 @@ export const Statistics: React.FC = () => {
   const [totalActiveCoverAmount, setTotalActiveCoverAmount] = useState<string>('-')
   const [totalActivePolicies, setTotalActivePolicies] = useState<string>('-')
   const [pairPrice, setPairPrice] = useState<string>('-')
-  const { underwritingPoolBalance } = useUnderWritingPoolBalance()
+  const { underwritingPoolBalance } = useCrossChainUnderwritingPoolBalance()
   const [userLockInfo, setUserLockInfo] = useState<UserLocksInfo>({
     pendingRewards: ZERO,
     stakedBalance: ZERO,

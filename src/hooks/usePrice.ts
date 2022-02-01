@@ -21,7 +21,7 @@ import { useProvider } from '../context/ProviderManager'
 
 export const useGetPriceFromSushiSwap = () => {
   const { library } = useWallet()
-  const { activeNetwork, chainId } = useNetwork()
+  const { activeNetwork } = useNetwork()
   const coingeckoTokenId = useMemo(() => {
     switch (activeNetwork.nativeCurrency.symbol) {
       case Unit.ETH:
@@ -32,19 +32,19 @@ export const useGetPriceFromSushiSwap = () => {
     }
   }, [activeNetwork.nativeCurrency.symbol])
 
-  const handleAddressException = (address: string) => {
+  const handleAddressException = (address: string, chainId: number) => {
     if (address.toLowerCase() == activeNetwork.config.keyContracts['vault'].addr.toLowerCase())
       return WETH9_ADDRESS[chainId]
     return address
   }
 
   // token to USDC price
-  const getPriceFromSushiswap = async (token: Contract): Promise<number> => {
+  const getPriceFromSushiswap = async (token: Contract, chainId: number): Promise<number> => {
     if (!library) return -1
     if (token.address.toLowerCase() == USDC_ADDRESS[chainId].toLowerCase() ?? USDC_ADDRESS[1].toLowerCase()) return 1
     try {
       const decimals = await queryDecimals(token)
-      const TOKEN = new Token(chainId, handleAddressException(token.address), decimals)
+      const TOKEN = new Token(chainId, handleAddressException(token.address, chainId), decimals)
       const USDC = new Token(chainId, USDC_ADDRESS[chainId] ?? USDC_ADDRESS[1], 6)
       const pairAddr = await Pair.getAddress(TOKEN, USDC)
       const pairPoolContract = getContract(pairAddr, sushiSwapLpAltABI, library)
@@ -68,7 +68,7 @@ export const useGetPriceFromSushiSwap = () => {
   }
 
   // lp token to USDC price
-  const getPriceFromSushiswapLp = async (lpToken: Contract): Promise<number> => {
+  const getPriceFromSushiswapLp = async (lpToken: Contract, chainId: number): Promise<number> => {
     if (!library) return -1
     try {
       const [token0, token1] = await Promise.all([lpToken.token0(), lpToken.token1()])
@@ -83,8 +83,8 @@ export const useGetPriceFromSushiSwap = () => {
       ])
 
       const poolShareOfOneUnit = totalSupply.gt(ZERO) ? 1 / floatUnits(totalSupply, principalDecimals) : 0
-      let price0 = await getPriceFromSushiswap(token0Contract)
-      let price1 = await getPriceFromSushiswap(token1Contract)
+      let price0 = await getPriceFromSushiswap(token0Contract, chainId)
+      let price1 = await getPriceFromSushiswap(token1Contract, chainId)
 
       if (price0 == -1) {
         const coinGeckoTokenPrice = await getCoingeckoTokenPrice(token0Contract.address, 'usd', coingeckoTokenId)
@@ -132,6 +132,7 @@ export const useGetPricesFromCoingecko = () => {
       }),
       {}
     )
+    console.log(hashmap)
     return hashmap
   }
 
@@ -145,8 +146,6 @@ export const useGetTokenPricesFromCoingecko = () => {
   const { networks } = useNetwork()
   const { latestBlock } = useProvider()
   const { getPricesFromCoingecko } = useGetPricesFromCoingecko()
-
-  const mappingIsEmpty = () => Object.keys(tokenPriceMapping).length === 0 && tokenPriceMapping.constructor === Object
 
   useEffect(() => {
     const getPrices = async () => {
@@ -162,5 +161,32 @@ export const useGetTokenPricesFromCoingecko = () => {
     getPrices()
   }, [tellers, latestBlock])
 
-  return { tokenPriceMapping, mappingIsEmpty }
+  return { tokenPriceMapping }
+}
+
+export const useGetCrossTokenPricesFromCoingecko = () => {
+  const [tokenPriceMapping, setPriceMapping] = useState<TokenToPriceMapping>({})
+  const gettingPrices = useRef(false)
+  const { tellers } = useContracts()
+  const { networks } = useNetwork()
+  const { latestBlock } = useProvider()
+  const { getPricesFromCoingecko } = useGetPricesFromCoingecko()
+
+  useEffect(() => {
+    const getPrices = async () => {
+      if (!latestBlock || gettingPrices.current) return
+      gettingPrices.current = true
+      const solaceAddr = networks[0].config.keyContracts.solace.addr
+      const nativeAddrs = networks.map((n) => n.nativeCurrency.mainnetReference)
+      const tellerAddrs = tellers.map((t) => t.mainnetAddr)
+      const mainnetAddrs = [...nativeAddrs, ...tellerAddrs]
+      mainnetAddrs.push(solaceAddr)
+      const priceMap = await getPricesFromCoingecko(mainnetAddrs)
+      setPriceMapping(priceMap)
+      gettingPrices.current = false
+    }
+    getPrices()
+  }, [latestBlock])
+
+  return { tokenPriceMapping }
 }

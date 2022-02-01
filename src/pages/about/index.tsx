@@ -56,10 +56,10 @@ function About(): any {
                   Buy Cover
                 </Button>
               </StyledNavLink>
-              <StyledNavLink to="/invest">
+              <StyledNavLink to="/bond">
                 <Button light width={200} style={{ padding: '15px 50px', borderRadius: '55px' }}>
                   <TextSpan nowrap style={{ color: 'inherit' }}>
-                    Underwrite Risk
+                    Buy Bonds
                   </TextSpan>
                 </Button>
               </StyledNavLink>
@@ -132,10 +132,10 @@ function About(): any {
                   </TextSpan>
                 </Button>
               </StyledNavLink>
-              <StyledNavLink to="/invest">
+              <StyledNavLink to="/bond">
                 <Button light width={150} style={{ padding: '15px 50px', borderRadius: '55px' }}>
                   <TextSpan light nowrap>
-                    Underwrite Risk
+                    Buy Bonds
                   </TextSpan>
                 </Button>
               </StyledNavLink>

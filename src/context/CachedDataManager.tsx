@@ -12,7 +12,7 @@ import { useNetwork } from './NetworkManager'
 import { PolicyState, SystemNotice } from '../constants/enums'
 import { useGeneral } from './GeneralManager'
 import { AccountModal } from '../components/organisms/AccountModal'
-import { useGetTokenPricesFromCoingecko } from '../hooks/usePrice'
+import { useGetCrossTokenPricesFromCoingecko } from '../hooks/usePrice'
 
 /*
 
@@ -61,7 +61,7 @@ const CachedDataContext = createContext<CachedData>({
 const CachedDataProvider: React.FC = (props) => {
   const { account, disconnect } = useWallet()
   const { chainId } = useNetwork()
-  const { tokenPriceMapping } = useGetTokenPricesFromCoingecko()
+  const { tokenPriceMapping } = useGetCrossTokenPricesFromCoingecko()
   const [localTxs, setLocalTxs] = useLocalStorage<LocalTx[]>('solace_loc_txs', [])
   const [reload, version] = useReload()
   const gasPrice = useFetchGasPrice()

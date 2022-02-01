@@ -84,7 +84,7 @@ export const useBondTellerDetailsV1 = (
   const { library, account } = useWallet()
   const { latestBlock } = useProvider()
   const { tellers } = useContracts()
-  const { activeNetwork, networks } = useNetwork()
+  const { activeNetwork, networks, chainId } = useNetwork()
   const [tellerDetails, setTellerDetails] = useState<BondTellerDetails[]>([])
   const [mounting, setMounting] = useState<boolean>(true)
   const { getPriceFromSushiswap, getPriceFromSushiswapLp } = useGetPriceFromSushiSwap()
@@ -150,7 +150,7 @@ export const useBondTellerDetailsV1 = (
 
               // get usdBondPrice
               if (teller.isLp) {
-                const price = await getPriceFromSushiswapLp(principalContract)
+                const price = await getPriceFromSushiswapLp(principalContract, chainId)
                 usdBondPrice = Math.max(price, 0) * floatUnits(bondPrice, decimals)
                 const [token0, token1] = await Promise.all([principalContract.token0(), principalContract.token1()])
                 lpData = {
@@ -160,7 +160,7 @@ export const useBondTellerDetailsV1 = (
               } else {
                 usdBondPrice = tokenPriceMapping[teller.mainnetAddr.toLowerCase()] * floatUnits(bondPrice, decimals)
                 if (usdBondPrice <= 0) {
-                  const price = await getPriceFromSushiswap(principalContract) // via sushiswap sdk
+                  const price = await getPriceFromSushiswap(principalContract, chainId) // via sushiswap sdk
                   if (price != -1) usdBondPrice = price * floatUnits(bondPrice, decimals)
                 }
               }
