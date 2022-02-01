@@ -31,6 +31,7 @@ import { useWallet } from '../../context/WalletManager'
 import { useContracts } from '../../context/ContractsManager'
 import { useNetwork } from '../../context/NetworkManager'
 import { useProvider } from '../../context/ProviderManager'
+import { useCachedData } from '../../context/CachedDataManager'
 
 /* import components */
 import { BoxRow, Box, BoxItem, BoxItemTitle } from '../atoms/Box'
@@ -51,7 +52,6 @@ import { useReadToken } from '../../hooks/useToken'
 
 /* import utils */
 import { truncateValue } from '../../utils/formatting'
-import { getCoingeckoTokenPrice } from '../../utils/api'
 
 export const Statistics: React.FC = () => {
   /*************************************************************************************
@@ -65,6 +65,7 @@ export const Statistics: React.FC = () => {
   const { latestBlock } = useProvider()
   const { solace } = useMemo(() => keyContracts, [keyContracts])
   const solaceBalance = useSolaceBalance()
+  const { tokenPriceMapping } = useCachedData()
   const readSolaceToken = useReadToken(solace)
   const { allPolicies } = usePolicyGetter(true)
   const { getUserLocks } = useUserLockData()
@@ -98,14 +99,11 @@ export const Statistics: React.FC = () => {
 
   useEffect(() => {
     const getPrice = async () => {
-      if (!latestBlock) return
-      const mainnetSolaceAddr = networks[0].config.keyContracts.solace.addr
-      const coingeckoPrice = await getCoingeckoTokenPrice(mainnetSolaceAddr, 'usd', 'ethereum')
-      const price = parseFloat(coingeckoPrice ?? '0')
-      setPairPrice(truncateValue(price, 2))
+      if (Object.keys(tokenPriceMapping).length === 0 && tokenPriceMapping.constructor === Object) return
+      setPairPrice(truncateValue(tokenPriceMapping[networks[0].config.keyContracts.solace.addr.toLowerCase()], 2))
     }
     getPrice()
-  }, [latestBlock, networks])
+  }, [tokenPriceMapping])
 
   useEffect(() => {
     try {
@@ -144,22 +142,25 @@ export const Statistics: React.FC = () => {
       <BoxItem>
         <BoxItemTitle t4 light>
           SOLACE{' '}
-          <HyperLink
-            href={`https://app.sushi.com/add/${USDC_ADDRESS[chainId]}/${solace ? solace.address : null}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{ width: '100%' }}
-          >
-            <Button light style={{ whiteSpace: 'nowrap', minWidth: 'unset', minHeight: 'unset' }} p={4}>
-              buy on sushi
-            </Button>
-          </HyperLink>
+          {!activeNetwork.config.featureRestrictions.cannotBuySolace && (
+            <HyperLink
+              href={`https://app.sushi.com/add/${USDC_ADDRESS[chainId]}/${solace ? solace.address : null}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ width: '100%' }}
+            >
+              <Button light style={{ whiteSpace: 'nowrap', minWidth: 'unset', minHeight: 'unset' }} p={4}>
+                buy on sushi
+              </Button>
+            </HyperLink>
+          )}
         </BoxItemTitle>{' '}
         <Text t2 nowrap light bold>
           {`$${pairPrice} `}
         </Text>
       </BoxItem>
-      {activeNetwork.config.availableFeatures.bondingV1 && (
+      {(!activeNetwork.config.featureRestrictions.noBondingV1 ||
+        !activeNetwork.config.featureRestrictions.noBondingV2) && (
         <BoxItem>
           <BoxItemTitle t4 light>
             Underwriting Pool Size
@@ -169,7 +170,7 @@ export const Statistics: React.FC = () => {
           </Text>
         </BoxItem>
       )}
-      {activeNetwork.config.availableFeatures.coverProducts && (
+      {!activeNetwork.config.featureRestrictions.noCoverProducts && (
         <>
           <BoxItem>
             <BoxItemTitle t4 light>
@@ -203,16 +204,18 @@ export const Statistics: React.FC = () => {
         <FormRow>
           <FormCol light>
             SOLACE{' '}
-            <HyperLink
-              href={`https://app.sushi.com/add/${USDC_ADDRESS[chainId]}/${solace ? solace.address : null}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{ width: '100%' }}
-            >
-              <Button light style={{ whiteSpace: 'nowrap', minWidth: 'unset', minHeight: 'unset' }} p={4}>
-                buy on sushi
-              </Button>
-            </HyperLink>
+            {!activeNetwork.config.featureRestrictions.cannotBuySolace && (
+              <HyperLink
+                href={`https://app.sushi.com/add/${USDC_ADDRESS[chainId]}/${solace ? solace.address : null}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ width: '100%' }}
+              >
+                <Button light style={{ whiteSpace: 'nowrap', minWidth: 'unset', minHeight: 'unset' }} p={4}>
+                  buy on sushi
+                </Button>
+              </HyperLink>
+            )}
           </FormCol>
           <FormCol>
             <Text t2 nowrap light>
@@ -220,7 +223,8 @@ export const Statistics: React.FC = () => {
             </Text>
           </FormCol>
         </FormRow>
-        {activeNetwork.config.availableFeatures.bondingV1 && (
+        {(!activeNetwork.config.featureRestrictions.noBondingV1 ||
+          !activeNetwork.config.featureRestrictions.noBondingV2) && (
           <FormRow>
             <FormCol light>Underwriting Pool Size</FormCol>
             <FormCol>
@@ -230,7 +234,7 @@ export const Statistics: React.FC = () => {
             </FormCol>
           </FormRow>
         )}
-        {activeNetwork.config.availableFeatures.coverProducts && (
+        {!activeNetwork.config.featureRestrictions.noCoverProducts && (
           <>
             <FormRow>
               <FormCol light>Active Cover Amount</FormCol>
@@ -277,7 +281,7 @@ export const Statistics: React.FC = () => {
                     </TextSpan>
                   </Text>
                 </BoxItem>
-                {activeNetwork.config.availableFeatures.stakingV2 && (
+                {!activeNetwork.config.featureRestrictions.noStakingV2 && (
                   <BoxItem>
                     <BoxItemTitle t4 light>
                       My Stake
@@ -296,7 +300,7 @@ export const Statistics: React.FC = () => {
                 <WalletConnectButton light welcome />
               </BoxItem>
             )}
-            {activeNetwork.config.availableFeatures.stakingV2 && (
+            {!activeNetwork.config.featureRestrictions.noStakingV2 && (
               <>
                 <BoxItem>
                   <BoxItemTitle t4 light>
@@ -340,7 +344,7 @@ export const Statistics: React.FC = () => {
                       </Text>
                     </FormCol>
                   </FormRow>
-                  {activeNetwork.config.availableFeatures.stakingV2 && (
+                  {!activeNetwork.config.featureRestrictions.noStakingV2 && (
                     <FormRow>
                       <FormCol light>My Stake</FormCol>
                       <FormCol>
@@ -359,7 +363,7 @@ export const Statistics: React.FC = () => {
                   <WalletConnectButton light welcome />
                 </BoxRow>
               )}
-              {activeNetwork.config.availableFeatures.stakingV2 && (
+              {!activeNetwork.config.featureRestrictions.noStakingV2 && (
                 <>
                   <FormRow>
                     <FormCol light>Global Stake</FormCol>

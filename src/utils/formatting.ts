@@ -210,9 +210,9 @@ export const getUnit = (function_name: string, activeNetwork?: NetworkConfig): U
       return Unit.POLICY
     case FunctionName.WITHDRAW_CLAIMS_PAYOUT:
       return Unit.CLAIM
-    case FunctionName.BOND_DEPOSIT_ERC20:
-    case FunctionName.BOND_DEPOSIT_WETH:
-    case FunctionName.BOND_REDEEM:
+    case FunctionName.BOND_DEPOSIT_ERC20_V1:
+    case FunctionName.BOND_DEPOSIT_WETH_V1:
+    case FunctionName.BOND_REDEEM_V1:
       return Unit.BOND
     case FunctionName.START_COOLDOWN:
     case FunctionName.STOP_COOLDOWN:
@@ -238,9 +238,9 @@ export const getUnit = (function_name: string, activeNetwork?: NetworkConfig): U
 //     case FunctionName.UPDATE_POLICY_AMOUNT:
 //     case FunctionName.CANCEL_POLICY:
 //     case FunctionName.SUBMIT_CLAIM:
-//     case FunctionName.BOND_DEPOSIT_ERC20:
-//     case FunctionName.BOND_DEPOSIT_WETH:
-//     case FunctionName.BOND_REDEEM:
+//     case FunctionName.BOND_DEPOSIT_ERC20_V1:
+//     case FunctionName.BOND_DEPOSIT_WETH_V1:
+//     case FunctionName.BOND_REDEEM_V1:
 //       return `${unit} #${BigNumber.from(amount)}`
 //     case FunctionName.WITHDRAW_LP:
 //       return `#${BigNumber.from(amount)} ${Unit.LP}`

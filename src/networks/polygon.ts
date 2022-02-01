@@ -14,6 +14,7 @@ export const PolygonNetwork: NetworkConfig = {
   rpc: {
     httpsUrl: `https://polygon-mainnet.g.alchemy.com/v2/${String(ALCHEMY_POLYGON_API_KEY)}`,
     pollingInterval: 12_000,
+    blockConfirms: 1,
   },
   explorer: {
     name: 'Polygonscan',
@@ -26,12 +27,11 @@ export const PolygonNetwork: NetworkConfig = {
     keyContracts: {},
     productContracts: {},
     bondTellerContracts: {},
-    availableFeatures: {
-      bondingV1: true,
-      coverProducts: false,
-      farmingV1: false,
-      stakingV1: false,
-      stakingV2: true,
+    featureRestrictions: {
+      noBondingV1: true,
+      noCoverProducts: true,
+      noFarmingV1: true,
+      noStakingV1: true,
     },
   },
   cache: {

@@ -30,7 +30,17 @@ import { CompoundProduct } from '../products/compound'
 import { WaaveProduct } from '../products/waave'
 import { LiquityProduct } from '../products/liquity'
 
-import { KEY_ADDRS, PRODUCT_ADDRS, TELLER_ADDRS } from '../constants/addresses/rinkeby'
+import { KEY_ADDRS, PRODUCT_ADDRS, TELLER_ADDRS_V1, TELLER_ADDRS_V2 } from '../constants/addresses/rinkeby'
+import {
+  DAI_ADDRESS,
+  FRAX_ADDRESS,
+  SCP_ADDRESS,
+  SOLACE_USDC_SLP_ADDRESS,
+  USDC_ADDRESS,
+  USDT_ADDRESS,
+  WBTC_ADDRESS,
+  WETH9_ADDRESS,
+} from '../constants/mappings/tokenAddressMapping'
 
 /*
 
@@ -41,58 +51,118 @@ When adding new products, please add into productContracts, functions, and cache
 const tellerToTokenMapping: {
   [key: string]: TellerToken
 } = {
-  [TELLER_ADDRS.DAI_TELLER]: {
-    addr: '0x5592ec0cfb4dbc12d3ab100b257153436a1f0fea',
+  [TELLER_ADDRS_V1.DAI_TELLER]: {
+    addr: DAI_ADDRESS[4],
+    mainnetAddr: DAI_ADDRESS[1],
     isBondTellerErc20: true,
     isLp: false,
     isDisabled: false,
+    version: 1,
   },
-  [TELLER_ADDRS.ETH_TELLER]: {
-    addr: '0xc778417e063141139fce010982780140aa0cd5ab',
+  [TELLER_ADDRS_V1.ETH_TELLER]: {
+    addr: WETH9_ADDRESS[4],
+    mainnetAddr: WETH9_ADDRESS[1],
     isBondTellerErc20: false,
     isLp: false,
     isDisabled: false,
+    version: 1,
   },
-  [TELLER_ADDRS.USDC_TELLER]: {
-    addr: '0x4dbcdf9b62e891a7cec5a2568c3f4faf9e8abe2b',
+  [TELLER_ADDRS_V1.USDC_TELLER]: {
+    addr: USDC_ADDRESS[4],
+    mainnetAddr: USDC_ADDRESS[1],
     isBondTellerErc20: true,
     isLp: false,
     isDisabled: false,
+    version: 1,
   },
-  [TELLER_ADDRS.SOLACE_USDC_SLP_TELLER]: {
-    addr: '0x7bec68fb902f90ba84634e764c91fdffca04d084',
+  [TELLER_ADDRS_V1.SOLACE_USDC_SLP_TELLER]: {
+    addr: SOLACE_USDC_SLP_ADDRESS[4],
+    mainnetAddr: SOLACE_USDC_SLP_ADDRESS[1],
     isBondTellerErc20: true,
     isLp: true,
     isDisabled: false,
+    version: 1,
   },
-  [TELLER_ADDRS.SCP_TELLER]: {
-    addr: '0x501acee83a6f269b77c167c6701843d454e2efa0',
+  [TELLER_ADDRS_V1.SCP_TELLER]: {
+    addr: SCP_ADDRESS[4],
+    mainnetAddr: SCP_ADDRESS[1],
     isBondTellerErc20: true,
     isLp: false,
     isDisabled: false,
+    version: 1,
   },
-  [TELLER_ADDRS.WBTC_TELLER]: {
-    addr: '0x20fb9cddbca5a5eb468c76010aec6ed4eacc037f',
+  [TELLER_ADDRS_V1.WBTC_TELLER]: {
+    addr: WBTC_ADDRESS[4],
+    mainnetAddr: WBTC_ADDRESS[1],
     isBondTellerErc20: true,
     isLp: false,
     isDisabled: false,
+    version: 1,
   },
-  [TELLER_ADDRS.USDT_TELLER]: {
-    addr: '0xd9ba894e0097f8cc2bbc9d24d308b98e36dc6d02',
+  [TELLER_ADDRS_V1.USDT_TELLER]: {
+    addr: USDT_ADDRESS[4],
+    mainnetAddr: USDT_ADDRESS[1],
     isBondTellerErc20: true,
     isLp: false,
     isDisabled: false,
+    version: 1,
   },
-  // [TELLER_ADDRS.SOLACE_ETH_SLP_TELLER]: {
-  //   addr: '0x66844fbeb515f3da46c6129fe911f0cb436ba2e0',
-  //   isBondTellerErc20: true,
-  //   isLp: true,
-  // },
-  // [TELLER_ADDRS.SOLACE_DAI_SLP_TELLER]: {
-  //   addr: '0xf57fec00d4712e68fb0bceac77a2841edd7a155e',
-  //   isBondTellerErc20: true,
-  //   isLp: true,
-  // },
+  [TELLER_ADDRS_V2.DAI_TELLER]: {
+    addr: DAI_ADDRESS[4],
+    mainnetAddr: DAI_ADDRESS[1],
+    isBondTellerErc20: true,
+    isLp: false,
+    isDisabled: false,
+    version: 2,
+  },
+  [TELLER_ADDRS_V2.ETH_TELLER]: {
+    addr: WETH9_ADDRESS[4],
+    mainnetAddr: WETH9_ADDRESS[1],
+    isBondTellerErc20: false,
+    isLp: false,
+    isDisabled: false,
+    version: 2,
+  },
+  [TELLER_ADDRS_V2.USDC_TELLER]: {
+    addr: USDC_ADDRESS[4],
+    mainnetAddr: USDC_ADDRESS[1],
+    isBondTellerErc20: true,
+    isLp: false,
+    isDisabled: false,
+    version: 2,
+  },
+  [TELLER_ADDRS_V2.SCP_TELLER]: {
+    addr: SCP_ADDRESS[4],
+    mainnetAddr: SCP_ADDRESS[1],
+    isBondTellerErc20: true,
+    isLp: false,
+    isDisabled: false,
+    version: 2,
+  },
+  [TELLER_ADDRS_V2.WBTC_TELLER]: {
+    addr: WBTC_ADDRESS[4],
+    mainnetAddr: WBTC_ADDRESS[1],
+    isBondTellerErc20: true,
+    isLp: false,
+    isDisabled: false,
+    version: 2,
+  },
+  [TELLER_ADDRS_V2.USDT_TELLER]: {
+    addr: USDT_ADDRESS[4],
+    mainnetAddr: USDT_ADDRESS[1],
+    isBondTellerErc20: true,
+    isLp: false,
+    isDisabled: false,
+    version: 2,
+  },
+  [TELLER_ADDRS_V2.FRAX_TELLER]: {
+    addr: FRAX_ADDRESS[4],
+    mainnetAddr: FRAX_ADDRESS[1],
+    isBondTellerErc20: true,
+    isLp: false,
+    isDisabled: false,
+    version: 2,
+  },
 }
 
 export const RinkebyNetwork: NetworkConfig = {
@@ -105,6 +175,7 @@ export const RinkebyNetwork: NetworkConfig = {
   rpc: {
     httpsUrl: `https://eth-rinkeby.alchemyapi.io/v2/${String(ALCHEMY_ETHEREUM_API_KEY)}`,
     pollingInterval: 12_000,
+    blockConfirms: 1,
   },
   explorer: {
     name: 'Etherscan',
@@ -187,23 +258,16 @@ export const RinkebyNetwork: NetworkConfig = {
       },
     },
     bondTellerContracts: {
-      [BondName.DAI]: TELLER_ADDRS.DAI_TELLER,
-      // [BondName.SOLACE_DAI_SLP]: TELLER_ADDRS.SOLACE_DAI_SLP_TELLER,
-      [BondName.ETH]: TELLER_ADDRS.ETH_TELLER,
-      // [BondName.SOLACE_ETH_SLP]: TELLER_ADDRS.SOLACE_ETH_SLP_TELLER,
-      [BondName.USDC]: TELLER_ADDRS.USDC_TELLER,
-      [BondName.SOLACE_USDC_SLP]: TELLER_ADDRS.SOLACE_USDC_SLP_TELLER,
-      [BondName.SCP]: TELLER_ADDRS.SCP_TELLER,
-      [BondName.WBTC]: TELLER_ADDRS.WBTC_TELLER,
-      [BondName.USDT]: TELLER_ADDRS.USDT_TELLER,
+      [BondName.DAI]: [TELLER_ADDRS_V1.DAI_TELLER, TELLER_ADDRS_V2.DAI_TELLER],
+      [BondName.ETH]: [TELLER_ADDRS_V1.ETH_TELLER, TELLER_ADDRS_V2.ETH_TELLER],
+      [BondName.USDC]: [TELLER_ADDRS_V1.USDC_TELLER, TELLER_ADDRS_V2.USDC_TELLER],
+      [BondName.SOLACE_USDC_SLP]: [TELLER_ADDRS_V1.SOLACE_USDC_SLP_TELLER],
+      [BondName.SCP]: [TELLER_ADDRS_V1.SCP_TELLER, TELLER_ADDRS_V2.SCP_TELLER],
+      [BondName.WBTC]: [TELLER_ADDRS_V1.WBTC_TELLER, TELLER_ADDRS_V2.WBTC_TELLER],
+      [BondName.USDT]: [TELLER_ADDRS_V1.USDT_TELLER, TELLER_ADDRS_V2.USDT_TELLER],
+      [BondName.FRAX]: [TELLER_ADDRS_V2.FRAX_TELLER],
     },
-    availableFeatures: {
-      bondingV1: true,
-      stakingV1: true,
-      stakingV2: true,
-      farmingV1: true,
-      coverProducts: true,
-    },
+    featureRestrictions: {},
   },
   cache: {
     supportedProducts: [CompoundProduct, WaaveProduct, LiquityProduct],

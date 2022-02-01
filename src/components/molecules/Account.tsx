@@ -88,7 +88,7 @@ export const UserAccount: React.FC<ButtonProps & GeneralElementProps> = (props) 
               {activeNetwork.logo && (
                 <img src={activeNetwork.logo} width={25} height={25} style={{ marginRight: '2px' }} />
               )}
-              <Text t4 nowrap mt={5} autoAlignVertical {...props}>
+              <Text t5s nowrap mt={5} autoAlignVertical {...props}>
                 {activeNetwork.name}
               </Text>
             </FlexRow>

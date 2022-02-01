@@ -17,6 +17,7 @@ export type NetworkConfig = {
   rpc: {
     httpsUrl: string
     pollingInterval: number
+    blockConfirms: number
   }
   explorer: {
     name: string
@@ -28,14 +29,18 @@ export type NetworkConfig = {
   config: {
     keyContracts: { [key: string]: ContractSources }
     productContracts: { [key: string]: ContractSources }
-    bondTellerContracts: { [key: string]: string }
-    availableFeatures: {
-      bondingV1: boolean
-      stakingV1: boolean
-      stakingV2: boolean
-      farmingV1: boolean
-      coverProducts: boolean
+    bondTellerContracts: { [key: string]: string[] }
+    featureRestrictions: {
+      cannotBuySolace?: boolean
+      noBondingV1?: boolean
+      noBondingV2?: boolean
+      noCoverProducts?: boolean
+      noFarmingV1?: boolean
+      noSoteria?: boolean
+      noStakingV1?: boolean
+      noStakingV2?: boolean
     }
+    underwritingPoolAddr?: string
   }
   cache: {
     supportedProducts: SupportedProduct[]
