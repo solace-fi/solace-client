@@ -4,7 +4,7 @@ import { BKPT_3 } from '../../../constants'
 
 export interface TextFontProps {
   t1?: boolean
-  t2?: boolean
+  /** `width < BKPT_3` ? `20px` : `18px` */ t2?: boolean
   t2_5?: boolean
   t3?: boolean
   t4?: boolean
