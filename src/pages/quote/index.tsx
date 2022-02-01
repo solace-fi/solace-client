@@ -43,7 +43,7 @@ function Quote(): any {
       </Text>
       <WalletConnectButton info welcome secondary />
     </HeroContainer>
-  ) : activeNetwork.config.availableFeatures.coverProducts ? (
+  ) : !activeNetwork.config.featureRestrictions.noCoverProducts ? (
     <MultiStepForm />
   ) : (
     <Content>

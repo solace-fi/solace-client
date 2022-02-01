@@ -2,7 +2,7 @@ import React, { useMemo, useContext, createContext, useEffect, useState, useCall
 import { useLocalStorage } from 'react-use-storage'
 import { useWallet } from './WalletManager'
 
-import { LocalTx, Policy, GasFeeListState } from '../constants/types'
+import { LocalTx, Policy, GasFeeListState, TokenToPriceMapping } from '../constants/types'
 import { usePolicyGetter } from '../hooks/usePolicyGetter'
 import { useReload } from '../hooks/useReload'
 
@@ -12,6 +12,7 @@ import { useNetwork } from './NetworkManager'
 import { PolicyState, SystemNotice } from '../constants/enums'
 import { useGeneral } from './GeneralManager'
 import { AccountModal } from '../components/organisms/AccountModal'
+import { useGetTokenPricesFromCoingecko } from '../hooks/usePrice'
 
 /*
 
@@ -30,6 +31,7 @@ type CachedData = {
     userPolicies: Policy[]
     setCanGetAssessments: (toggle: boolean) => void
   }
+  tokenPriceMapping: TokenToPriceMapping
   showAccountModal: boolean
   version: number
   gasPrice: number | undefined
@@ -47,6 +49,7 @@ const CachedDataContext = createContext<CachedData>({
     setCanGetAssessments: () => undefined,
   },
   showAccountModal: false,
+  tokenPriceMapping: {},
   version: 0,
   gasPrice: undefined,
   addLocalTransactions: () => undefined,
@@ -58,6 +61,7 @@ const CachedDataContext = createContext<CachedData>({
 const CachedDataProvider: React.FC = (props) => {
   const { account, disconnect } = useWallet()
   const { chainId } = useNetwork()
+  const { tokenPriceMapping } = useGetTokenPricesFromCoingecko()
   const [localTxs, setLocalTxs] = useLocalStorage<LocalTx[]>('solace_loc_txs', [])
   const [reload, version] = useReload()
   const gasPrice = useFetchGasPrice()
@@ -126,6 +130,7 @@ const CachedDataProvider: React.FC = (props) => {
       localTransactions: localTxs,
       userPolicyData: { policiesLoading, userPolicies, setCanGetAssessments },
       showAccountModal: accountModal,
+      tokenPriceMapping,
       version,
       gasPrice,
       addLocalTransactions,
@@ -135,6 +140,7 @@ const CachedDataProvider: React.FC = (props) => {
     }),
     [
       localTxs,
+      tokenPriceMapping,
       addLocalTransactions,
       deleteLocalTransactions,
       version,

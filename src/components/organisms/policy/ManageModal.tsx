@@ -22,6 +22,7 @@ import React, { Fragment, useState, useEffect, useMemo, useCallback } from 'reac
 import { parseUnits, formatUnits } from '@ethersproject/units'
 import { BigNumber } from 'ethers'
 import { Block } from '@ethersproject/abstract-provider'
+import { TransactionReceipt, TransactionResponse } from '@ethersproject/providers'
 
 /* import managers */
 import { useCachedData } from '../../../context/CachedDataManager'
@@ -237,14 +238,14 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
 
   *************************************************************************************/
 
-  const handleToast = async (tx: any, localTx: LocalTx | null) => {
+  const handleToast = async (tx: TransactionResponse | null, localTx: LocalTx | null) => {
     if (!tx || !localTx) return
     setModalLoading(false)
     handleClose()
     addLocalTransactions(localTx)
     reload()
     makeTxToast(localTx.type, TransactionCondition.PENDING, localTx.hash)
-    await tx.wait().then((receipt: any) => {
+    await tx.wait(activeNetwork.rpc.blockConfirms).then((receipt: TransactionReceipt) => {
       const status = receipt.status ? TransactionCondition.SUCCESS : TransactionCondition.FAILURE
       makeTxToast(localTx.type, status, localTx.hash)
       reload()

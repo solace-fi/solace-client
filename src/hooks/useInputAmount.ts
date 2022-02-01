@@ -1,6 +1,7 @@
 import { useEffect, useState, useMemo } from 'react'
 import { BigNumber } from 'ethers'
 import { formatUnits, parseUnits } from '@ethersproject/units'
+import { TransactionReceipt, TransactionResponse } from '@ethersproject/providers'
 
 import { useNotifications } from '../context/NotificationsManager'
 import { useCachedData } from '../context/CachedDataManager'
@@ -17,13 +18,14 @@ import { fixed, filterAmount, formatAmount } from '../utils/formatting'
 export const useTransactionExecution = () => {
   const { addLocalTransactions, reload } = useCachedData()
   const { makeTxToast } = useNotifications()
+  const { activeNetwork } = useNetwork()
 
-  const handleToast = async (tx: any, localTx: LocalTx | null) => {
+  const handleToast = async (tx: TransactionResponse | null, localTx: LocalTx | null) => {
     if (!tx || !localTx) return
     addLocalTransactions(localTx)
     reload()
     makeTxToast(localTx.type, TransactionCondition.PENDING, localTx.hash)
-    await tx.wait().then((receipt: any) => {
+    await tx.wait(activeNetwork.rpc.blockConfirms).then((receipt: TransactionReceipt) => {
       const status = receipt.status ? TransactionCondition.SUCCESS : TransactionCondition.FAILURE
       makeTxToast(localTx.type, status, localTx.hash)
       reload()

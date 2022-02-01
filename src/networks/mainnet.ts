@@ -40,7 +40,17 @@ import { UniswapV2Product } from '../products/uniswapV2'
 import { UniswapV3Product } from '../products/uniswapV3'
 import { SushiswapProduct } from '../products/sushiswap'
 
-import { KEY_ADDRS, PRODUCT_ADDRS, TELLER_ADDRS } from '../constants/addresses/mainnet'
+import { KEY_ADDRS, PRODUCT_ADDRS, TELLER_ADDRS_V1, TELLER_ADDRS_V2 } from '../constants/addresses/mainnet'
+import {
+  DAI_ADDRESS,
+  FRAX_ADDRESS,
+  SCP_ADDRESS,
+  SOLACE_USDC_SLP_ADDRESS,
+  USDC_ADDRESS,
+  USDT_ADDRESS,
+  WBTC_ADDRESS,
+  WETH9_ADDRESS,
+} from '../constants/mappings/tokenAddressMapping'
 
 /*
 
@@ -51,47 +61,124 @@ When adding new products, please add into productContracts, functions, and cache
 const tellerToTokenMapping: {
   [key: string]: TellerToken
 } = {
-  [TELLER_ADDRS.DAI_TELLER]: {
-    addr: '0x6b175474e89094c44da98b954eedeac495271d0f',
+  [TELLER_ADDRS_V1.DAI_TELLER]: {
+    addr: DAI_ADDRESS[1],
+    mainnetAddr: DAI_ADDRESS[1],
     isBondTellerErc20: true,
     isLp: false,
     isDisabled: false,
+    cannotBuy: true,
+    version: 1,
   },
-  [TELLER_ADDRS.ETH_TELLER]: {
-    addr: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
+  [TELLER_ADDRS_V1.ETH_TELLER]: {
+    addr: WETH9_ADDRESS[1],
+    mainnetAddr: WETH9_ADDRESS[1],
     isBondTellerErc20: false,
     isLp: false,
-    isDisabled: true,
+    isDisabled: false,
+    cannotBuy: true,
+    version: 1,
   },
-  [TELLER_ADDRS.USDC_TELLER]: {
-    addr: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
+  [TELLER_ADDRS_V1.USDC_TELLER]: {
+    addr: USDC_ADDRESS[1],
+    mainnetAddr: USDC_ADDRESS[1],
     isBondTellerErc20: true,
     isLp: false,
     isDisabled: false,
+    cannotBuy: true,
+    version: 1,
   },
-  [TELLER_ADDRS.SOLACE_USDC_SLP_TELLER]: {
-    addr: '0x9c051f8a6648a51ef324d30c235da74d060153ac',
+  [TELLER_ADDRS_V1.SOLACE_USDC_SLP_TELLER]: {
+    addr: SOLACE_USDC_SLP_ADDRESS[1],
+    mainnetAddr: SOLACE_USDC_SLP_ADDRESS[1],
     isBondTellerErc20: true,
     isLp: true,
     isDisabled: false,
+    cannotBuy: true,
+    version: 1,
   },
-  [TELLER_ADDRS.SCP_TELLER]: {
-    addr: '0x501acee83a6f269b77c167c6701843d454e2efa0',
+  [TELLER_ADDRS_V1.SCP_TELLER]: {
+    addr: SCP_ADDRESS[1],
+    mainnetAddr: SCP_ADDRESS[1],
     isBondTellerErc20: true,
     isLp: false,
     isDisabled: false,
+    cannotBuy: true,
+    version: 1,
   },
-  [TELLER_ADDRS.WBTC_TELLER]: {
-    addr: '0x2260fac5e5542a773aa44fbcfedf7c193bc2c599',
+  [TELLER_ADDRS_V1.WBTC_TELLER]: {
+    addr: WBTC_ADDRESS[1],
+    mainnetAddr: WBTC_ADDRESS[1],
     isBondTellerErc20: true,
     isLp: false,
     isDisabled: false,
+    cannotBuy: true,
+    version: 1,
   },
-  [TELLER_ADDRS.USDT_TELLER]: {
-    addr: '0xdac17f958d2ee523a2206206994597c13d831ec7',
+  [TELLER_ADDRS_V1.USDT_TELLER]: {
+    addr: USDT_ADDRESS[1],
+    mainnetAddr: USDT_ADDRESS[1],
     isBondTellerErc20: true,
     isLp: false,
     isDisabled: false,
+    cannotBuy: true,
+    version: 1,
+  },
+  [TELLER_ADDRS_V2.DAI_TELLER]: {
+    addr: DAI_ADDRESS[1],
+    mainnetAddr: DAI_ADDRESS[1],
+    isBondTellerErc20: true,
+    isLp: false,
+    isDisabled: false,
+    version: 2,
+  },
+  [TELLER_ADDRS_V2.ETH_TELLER]: {
+    addr: WETH9_ADDRESS[1],
+    mainnetAddr: WETH9_ADDRESS[1],
+    isBondTellerErc20: false,
+    isLp: false,
+    isDisabled: false,
+    version: 2,
+  },
+  [TELLER_ADDRS_V2.USDC_TELLER]: {
+    addr: USDC_ADDRESS[1],
+    mainnetAddr: USDC_ADDRESS[1],
+    isBondTellerErc20: true,
+    isLp: false,
+    isDisabled: false,
+    version: 2,
+  },
+  [TELLER_ADDRS_V2.WBTC_TELLER]: {
+    addr: WBTC_ADDRESS[1],
+    mainnetAddr: WBTC_ADDRESS[1],
+    isBondTellerErc20: true,
+    isLp: false,
+    isDisabled: false,
+    version: 2,
+  },
+  [TELLER_ADDRS_V2.USDT_TELLER]: {
+    addr: USDT_ADDRESS[1],
+    mainnetAddr: USDT_ADDRESS[1],
+    isBondTellerErc20: true,
+    isLp: false,
+    isDisabled: false,
+    version: 2,
+  },
+  [TELLER_ADDRS_V2.SCP_TELLER]: {
+    addr: SCP_ADDRESS[1],
+    mainnetAddr: SCP_ADDRESS[1],
+    isBondTellerErc20: true,
+    isLp: false,
+    isDisabled: false,
+    version: 2,
+  },
+  [TELLER_ADDRS_V2.FRAX_TELLER]: {
+    addr: FRAX_ADDRESS[1],
+    mainnetAddr: FRAX_ADDRESS[1],
+    isBondTellerErc20: true,
+    isLp: false,
+    isDisabled: false,
+    version: 2,
   },
 }
 
@@ -105,6 +192,7 @@ export const MainNetwork: NetworkConfig = {
   rpc: {
     httpsUrl: `https://eth-mainnet.alchemyapi.io/v2/${String(ALCHEMY_ETHEREUM_API_KEY)}`,
     pollingInterval: 12_000,
+    blockConfirms: 2,
   },
   explorer: {
     name: 'Etherscan',
@@ -207,21 +295,17 @@ export const MainNetwork: NetworkConfig = {
       },
     },
     bondTellerContracts: {
-      [BondName.DAI]: TELLER_ADDRS.DAI_TELLER,
-      [BondName.ETH]: TELLER_ADDRS.ETH_TELLER,
-      [BondName.USDC]: TELLER_ADDRS.USDC_TELLER,
-      [BondName.SOLACE_USDC_SLP]: TELLER_ADDRS.SOLACE_USDC_SLP_TELLER,
-      [BondName.SCP]: TELLER_ADDRS.SCP_TELLER,
-      [BondName.WBTC]: TELLER_ADDRS.WBTC_TELLER,
-      [BondName.USDT]: TELLER_ADDRS.USDT_TELLER,
+      [BondName.DAI]: [TELLER_ADDRS_V1.DAI_TELLER, TELLER_ADDRS_V2.DAI_TELLER],
+      [BondName.ETH]: [TELLER_ADDRS_V1.ETH_TELLER, TELLER_ADDRS_V2.ETH_TELLER],
+      [BondName.USDC]: [TELLER_ADDRS_V1.USDC_TELLER, TELLER_ADDRS_V2.USDC_TELLER],
+      [BondName.SOLACE_USDC_SLP]: [TELLER_ADDRS_V1.SOLACE_USDC_SLP_TELLER],
+      [BondName.SCP]: [TELLER_ADDRS_V1.SCP_TELLER, TELLER_ADDRS_V2.SCP_TELLER],
+      [BondName.WBTC]: [TELLER_ADDRS_V1.WBTC_TELLER, TELLER_ADDRS_V2.WBTC_TELLER],
+      [BondName.USDT]: [TELLER_ADDRS_V1.USDT_TELLER, TELLER_ADDRS_V2.USDT_TELLER],
+      [BondName.FRAX]: [TELLER_ADDRS_V2.FRAX_TELLER],
     },
-    availableFeatures: {
-      bondingV1: true,
-      stakingV1: true,
-      stakingV2: true,
-      farmingV1: true,
-      coverProducts: true,
-    },
+    featureRestrictions: {},
+    underwritingPoolAddr: '0x5efc0d9ee3223229ce3b53e441016efc5ba83435',
   },
   cache: {
     supportedProducts: [

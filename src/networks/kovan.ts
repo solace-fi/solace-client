@@ -27,7 +27,17 @@ import waaveABI from '../constants/abi/contracts/products/WaaveProduct.sol/Waave
 import { AaveProduct } from '../products/aave'
 import { WaaveProduct } from '../products/waave'
 
-import { KEY_ADDRS, PRODUCT_ADDRS, TELLER_ADDRS } from '../constants/addresses/kovan'
+import { KEY_ADDRS, PRODUCT_ADDRS, TELLER_ADDRS_V1, TELLER_ADDRS_V2 } from '../constants/addresses/kovan'
+import {
+  DAI_ADDRESS,
+  FRAX_ADDRESS,
+  SCP_ADDRESS,
+  SOLACE_USDC_SLP_ADDRESS,
+  USDC_ADDRESS,
+  USDT_ADDRESS,
+  WBTC_ADDRESS,
+  WETH9_ADDRESS,
+} from '../constants/mappings/tokenAddressMapping'
 
 /*
 
@@ -38,58 +48,118 @@ When adding new products, please add into productContracts, functions, and cache
 const tellerToTokenMapping: {
   [key: string]: TellerToken
 } = {
-  [TELLER_ADDRS.DAI_TELLER]: {
-    addr: '0xc56010e957c325b140f182b4fbee61c2fb95fdb3',
+  [TELLER_ADDRS_V1.DAI_TELLER]: {
+    addr: DAI_ADDRESS[42],
+    mainnetAddr: DAI_ADDRESS[1],
     isBondTellerErc20: true,
     isLp: false,
     isDisabled: false,
+    version: 1,
   },
-  [TELLER_ADDRS.ETH_TELLER]: {
-    addr: '0xd0a1e359811322d97991e03f863a0c30c2cf029c',
+  [TELLER_ADDRS_V1.ETH_TELLER]: {
+    addr: WETH9_ADDRESS[42],
+    mainnetAddr: WETH9_ADDRESS[1],
     isBondTellerErc20: false,
     isLp: false,
     isDisabled: false,
+    version: 1,
   },
-  [TELLER_ADDRS.USDC_TELLER]: {
-    addr: '0xefd4e002d58a66e9ea53f9ebf0583aecc6e183f0',
+  [TELLER_ADDRS_V1.USDC_TELLER]: {
+    addr: USDC_ADDRESS[42],
+    mainnetAddr: USDC_ADDRESS[1],
     isBondTellerErc20: true,
     isLp: false,
     isDisabled: false,
+    version: 1,
   },
-  [TELLER_ADDRS.SOLACE_USDC_SLP_TELLER]: {
-    addr: '0x13465d2d66be93764b33577c73fc2411917fe9e4',
+  [TELLER_ADDRS_V1.SOLACE_USDC_SLP_TELLER]: {
+    addr: SOLACE_USDC_SLP_ADDRESS[42],
+    mainnetAddr: SOLACE_USDC_SLP_ADDRESS[1],
     isBondTellerErc20: true,
     isLp: true,
     isDisabled: false,
+    version: 1,
   },
-  [TELLER_ADDRS.SCP_TELLER]: {
-    addr: '0x501acee83a6f269b77c167c6701843d454e2efa0',
+  [TELLER_ADDRS_V1.SCP_TELLER]: {
+    addr: SCP_ADDRESS[42],
+    mainnetAddr: SCP_ADDRESS[1],
     isBondTellerErc20: true,
     isLp: false,
     isDisabled: false,
+    version: 1,
   },
-  [TELLER_ADDRS.WBTC_TELLER]: {
-    addr: '0x1063bf969f8d3d7296a2a94274d3df9202da2a3a',
+  [TELLER_ADDRS_V1.WBTC_TELLER]: {
+    addr: WBTC_ADDRESS[42],
+    mainnetAddr: WBTC_ADDRESS[1],
     isBondTellerErc20: true,
     isLp: false,
     isDisabled: false,
+    version: 1,
   },
-  [TELLER_ADDRS.USDT_TELLER]: {
-    addr: '0xaea2b0f4763c8ffc33a4c454cd08f803b02b6b53',
+  [TELLER_ADDRS_V1.USDT_TELLER]: {
+    addr: USDT_ADDRESS[42],
+    mainnetAddr: USDT_ADDRESS[1],
     isBondTellerErc20: true,
     isLp: false,
     isDisabled: false,
+    version: 1,
   },
-  // [TELLER_ADDRS.SOLACE_ETH_SLP_TELLER]: {
-  //   addr: '0x64844b869abb2f310442a692bd1cc84b393b2777',
-  //   isBondTellerErc20: true,
-  //   isLp: true,
-  // },
-  // [TELLER_ADDRS.SOLACE_DAI_SLP_TELLER]: {
-  //   addr: '0x836c25e0fe4edc95443a88b6694d7e3be37d98bd',
-  //   isBondTellerErc20: true,
-  //   isLp: true,
-  // },
+  [TELLER_ADDRS_V2.DAI_TELLER]: {
+    addr: DAI_ADDRESS[42],
+    mainnetAddr: DAI_ADDRESS[1],
+    isBondTellerErc20: true,
+    isLp: false,
+    isDisabled: false,
+    version: 2,
+  },
+  [TELLER_ADDRS_V2.ETH_TELLER]: {
+    addr: WETH9_ADDRESS[42],
+    mainnetAddr: WETH9_ADDRESS[1],
+    isBondTellerErc20: false,
+    isLp: false,
+    isDisabled: false,
+    version: 2,
+  },
+  [TELLER_ADDRS_V2.USDC_TELLER]: {
+    addr: USDC_ADDRESS[42],
+    mainnetAddr: USDC_ADDRESS[1],
+    isBondTellerErc20: true,
+    isLp: false,
+    isDisabled: false,
+    version: 2,
+  },
+  [TELLER_ADDRS_V2.SCP_TELLER]: {
+    addr: SCP_ADDRESS[42],
+    mainnetAddr: SCP_ADDRESS[1],
+    isBondTellerErc20: true,
+    isLp: false,
+    isDisabled: false,
+    version: 2,
+  },
+  [TELLER_ADDRS_V2.WBTC_TELLER]: {
+    addr: WBTC_ADDRESS[42],
+    mainnetAddr: WBTC_ADDRESS[1],
+    isBondTellerErc20: true,
+    isLp: false,
+    isDisabled: false,
+    version: 2,
+  },
+  [TELLER_ADDRS_V2.USDT_TELLER]: {
+    addr: USDT_ADDRESS[42],
+    mainnetAddr: USDT_ADDRESS[1],
+    isBondTellerErc20: true,
+    isLp: false,
+    isDisabled: false,
+    version: 2,
+  },
+  [TELLER_ADDRS_V2.FRAX_TELLER]: {
+    addr: FRAX_ADDRESS[42],
+    mainnetAddr: FRAX_ADDRESS[1],
+    isBondTellerErc20: true,
+    isLp: false,
+    isDisabled: false,
+    version: 2,
+  },
 }
 
 export const KovanNetwork: NetworkConfig = {
@@ -99,7 +169,11 @@ export const KovanNetwork: NetworkConfig = {
   logo: EthereumLogo,
   supportedTxTypes: [0, 2],
   nativeCurrency: { symbol: Unit.ETH, decimals: 18 },
-  rpc: { httpsUrl: `https://eth-kovan.alchemyapi.io/v2/${String(ALCHEMY_ETHEREUM_API_KEY)}`, pollingInterval: 12_000 },
+  rpc: {
+    httpsUrl: `https://eth-kovan.alchemyapi.io/v2/${String(ALCHEMY_ETHEREUM_API_KEY)}`,
+    pollingInterval: 12_000,
+    blockConfirms: 1,
+  },
   explorer: {
     name: 'Etherscan',
     key: String(ETHERSCAN_API_KEY),
@@ -177,23 +251,18 @@ export const KovanNetwork: NetworkConfig = {
       },
     },
     bondTellerContracts: {
-      [BondName.DAI]: TELLER_ADDRS.DAI_TELLER,
-      // [BondName.SOLACE_DAI_SLP]: TELLER_ADDRS.SOLACE_DAI_SLP_TELLER,
-      [BondName.ETH]: TELLER_ADDRS.ETH_TELLER,
-      // [BondName.SOLACE_ETH_SLP]: TELLER_ADDRS.SOLACE_ETH_SLP_TELLER,
-      [BondName.USDC]: TELLER_ADDRS.USDC_TELLER,
-      [BondName.SOLACE_USDC_SLP]: TELLER_ADDRS.SOLACE_USDC_SLP_TELLER,
-      [BondName.SCP]: TELLER_ADDRS.SCP_TELLER,
-      [BondName.WBTC]: TELLER_ADDRS.WBTC_TELLER,
-      [BondName.USDT]: TELLER_ADDRS.USDT_TELLER,
+      [BondName.DAI]: [TELLER_ADDRS_V1.DAI_TELLER, TELLER_ADDRS_V2.DAI_TELLER],
+      [BondName.ETH]: [TELLER_ADDRS_V1.ETH_TELLER, TELLER_ADDRS_V2.ETH_TELLER],
+      [BondName.USDC]: [TELLER_ADDRS_V1.USDC_TELLER, TELLER_ADDRS_V2.USDC_TELLER],
+      [BondName.SOLACE_USDC_SLP]: [TELLER_ADDRS_V1.SOLACE_USDC_SLP_TELLER],
+      [BondName.SCP]: [TELLER_ADDRS_V1.SCP_TELLER, TELLER_ADDRS_V2.SCP_TELLER],
+      [BondName.WBTC]: [TELLER_ADDRS_V1.WBTC_TELLER, TELLER_ADDRS_V2.WBTC_TELLER],
+      [BondName.USDT]: [TELLER_ADDRS_V1.USDT_TELLER, TELLER_ADDRS_V2.USDT_TELLER],
+      [BondName.FRAX]: [TELLER_ADDRS_V2.FRAX_TELLER],
+      // [BondName.SOLACE_DAI_SLP]: TELLER_ADDRS_V1.SOLACE_DAI_SLP_TELLER,
+      // [BondName.SOLACE_ETH_SLP]: TELLER_ADDRS_V1.SOLACE_ETH_SLP_TELLER,
     },
-    availableFeatures: {
-      bondingV1: true,
-      stakingV1: true,
-      stakingV2: true,
-      farmingV1: true,
-      coverProducts: true,
-    },
+    featureRestrictions: {},
   },
   cache: {
     supportedProducts: [AaveProduct, WaaveProduct],

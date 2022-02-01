@@ -9,7 +9,7 @@
     import hooks
     import utils
 
-    BondModal
+    BondModalV2
       custom hooks
       contract functions
       local functions
@@ -25,65 +25,66 @@ import useDebounce from '@rooks/use-debounce'
 import { BigNumber } from 'ethers'
 
 /* import constants */
-import { BondTellerDetails, BondToken, LocalTx } from '../../../constants/types'
-import { BKPT_3, MAX_BPS, ZERO } from '../../../constants'
-import { FunctionName, TransactionCondition } from '../../../constants/enums'
+import { BondTellerDetails, BondTokenV2, LocalTx } from '../../../../constants/types'
+import { BKPT_3, MAX_BPS, ZERO } from '../../../../constants'
+import { FunctionName, TransactionCondition } from '../../../../constants/enums'
 
 /* import managers */
-import { useWallet } from '../../../context/WalletManager'
-import { useNetwork } from '../../../context/NetworkManager'
-import { useCachedData } from '../../../context/CachedDataManager'
-import { useNotifications } from '../../../context/NotificationsManager'
-import { useContracts } from '../../../context/ContractsManager'
+import { useWallet } from '../../../../context/WalletManager'
+import { useNetwork } from '../../../../context/NetworkManager'
+import { useCachedData } from '../../../../context/CachedDataManager'
+import { useNotifications } from '../../../../context/NotificationsManager'
+import { useContracts } from '../../../../context/ContractsManager'
 
 /* import components */
-import { WalletConnectButton } from '../../molecules/WalletConnectButton'
-import { ModalContainer, ModalBase, ModalHeader, ModalCell } from '../../atoms/Modal'
-import { ModalCloseButton } from '../../molecules/Modal'
-import { FlexCol, HorizRule, MultiTabIndicator } from '../../atoms/Layout'
-import { Text } from '../../atoms/Typography'
-import { Button, ButtonWrapper } from '../../atoms/Button'
-import { Input } from '../../atoms/Input'
-import { DeFiAssetImage } from '../../atoms/DeFiAsset'
-import { Loader } from '../../atoms/Loader'
-import { FlexRow } from '../../atoms/Layout'
-import { StyledGear } from '../../atoms/Icon'
-import { BondSettingsModal } from './BondSettingsModal'
-import { OwnedBondList } from './OwnedBondList'
-import { BondOptions } from './BondOptions'
-import { PublicBondInfo } from './PublicBondInfo'
+import { WalletConnectButton } from '../../../molecules/WalletConnectButton'
+import { ModalContainer, ModalBase, ModalHeader, ModalCell } from '../../../atoms/Modal'
+import { ModalCloseButton } from '../../../molecules/Modal'
+import { FlexCol, HorizRule, MultiTabIndicator } from '../../../atoms/Layout'
+import { Text } from '../../../atoms/Typography'
+import { Button, ButtonWrapper } from '../../../atoms/Button'
+import { Input } from '../../../atoms/Input'
+import { DeFiAssetImage } from '../../../atoms/DeFiAsset'
+import { Loader } from '../../../atoms/Loader'
+import { FlexRow } from '../../../atoms/Layout'
+import { StyledGear } from '../../../atoms/Icon'
+import { BondSettingsModal } from '../BondSettingsModal'
+import { OwnedBondListV2 } from './OwnedBondListV2'
+import { BondOptionsV2 } from './BondOptionsV2'
+import { PublicBondInfo } from '../PublicBondInfo'
+import { PrivateBondInfoV2 } from './PrivateBondInfoV2'
 
 /* import hooks */
-import { useInputAmount, useTransactionExecution } from '../../../hooks/useInputAmount'
-import { useReadToken, useTokenAllowance } from '../../../hooks/useToken'
-import { useNativeTokenBalance } from '../../../hooks/useBalance'
-import { useBondTeller, useUserBondData } from '../../../hooks/useBondTeller'
-import { useWindowDimensions } from '../../../hooks/useWindowDimensions'
+import { useInputAmount, useTransactionExecution } from '../../../../hooks/useInputAmount'
+import { useReadToken, useTokenAllowance } from '../../../../hooks/useToken'
+import { useNativeTokenBalance } from '../../../../hooks/useBalance'
+import { useBondTellerV2, useUserBondDataV2 } from '../../../../hooks/useBondTellerV2'
+import { useWindowDimensions } from '../../../../hooks/useWindowDimensions'
 
 /* import utils */
-import { accurateMultiply, formatAmount } from '../../../utils/formatting'
-import { queryBalance } from '../../../utils/contract'
-import { PrivateBondInfo } from './PrivateBondInfo'
-import { FunctionGasLimits } from '../../../constants/mappings/gasMapping'
+import { accurateMultiply, formatAmount } from '../../../../utils/formatting'
+import { queryBalance } from '../../../../utils/contract'
+import { FunctionGasLimits } from '../../../../constants/mappings/gasMapping'
+import { TransactionReceipt, TransactionResponse } from '@ethersproject/providers'
 
-interface BondModalProps {
+interface BondModalV2Props {
   closeModal: () => void
   isOpen: boolean
   selectedBondDetail?: BondTellerDetails
 }
 
-export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, selectedBondDetail }) => {
+export const BondModalV2: React.FC<BondModalV2Props> = ({ closeModal, isOpen, selectedBondDetail }) => {
   /* 
   
   custom hooks 
   
   */
   const { account } = useWallet()
-  const { currencyDecimals } = useNetwork()
-  const { reload } = useCachedData()
+  const { currencyDecimals, activeNetwork } = useNetwork()
+  const { reload, version } = useCachedData()
   const { makeTxToast } = useNotifications()
   const { keyContracts } = useContracts()
-  const { solace, xSolaceV1 } = useMemo(() => keyContracts, [keyContracts])
+  const { solace } = useMemo(() => keyContracts, [keyContracts])
 
   const [canCloseOnLoading, setCanCloseOnLoading] = useState<boolean>(false)
   const [canMax, setCanMax] = useState<boolean>(true)
@@ -94,14 +95,12 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
   const [modalLoading, setModalLoading] = useState<boolean>(false)
   const [shouldUseNativeToken, setShouldUseNativeToken] = useState<boolean>(true)
   const [showBondSettingsModal, setShowBondSettingsModal] = useState<boolean>(false)
-  const [ownedBondTokens, setOwnedBondTokens] = useState<BondToken[]>([])
+  const [ownedBondTokens, setOwnedBondTokens] = useState<BondTokenV2[]>([])
 
   const [bondRecipient, setBondRecipient] = useState<string | undefined>(undefined)
   const [calculatedAmountIn, setCalculatedAmountIn] = useState<BigNumber | undefined>(ZERO)
-  const [calculatedAmountIn_X, setCalculatedAmountIn_X] = useState<BigNumber | undefined>(ZERO)
   const [calculatedAmountOut, setCalculatedAmountOut] = useState<BigNumber | undefined>(ZERO)
-  const [calculatedAmountOut_X, setCalculatedAmountOut_X] = useState<BigNumber | undefined>(ZERO)
-  const [func, setFunc] = useState<FunctionName>(FunctionName.DEPOSIT_ETH)
+  const [func, setFunc] = useState<FunctionName>(FunctionName.BOND_DEPOSIT_ETH_V2)
   const [principalBalance, setPrincipalBalance] = useState<string>('0')
   const [slippagePrct, setSlippagePrct] = useState<string>('20')
 
@@ -109,11 +108,10 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
     selectedBondDetail?.principalData.principalProps.decimals,
   ])
   const readSolaceToken = useReadToken(solace)
-  const readXSolaceToken = useReadToken(xSolaceV1)
   const nativeTokenBalance = useNativeTokenBalance()
-  const { deposit, redeem } = useBondTeller(selectedBondDetail)
+  const { deposit, claimPayout } = useBondTellerV2(selectedBondDetail)
   const { width } = useWindowDimensions()
-  const { getUserBondData } = useUserBondData()
+  const { getUserBondDataV2 } = useUserBondDataV2()
   const { amount, isAppropriateAmount, handleInputChange, setMax, resetAmount } = useInputAmount()
   const { handleToast, handleContractCallError } = useTransactionExecution()
   const [contractForAllowance, setContractForAllowance] = useState<Contract | null>(null)
@@ -125,10 +123,10 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
   )
   const assetBalance = useMemo(() => {
     switch (func) {
-      case FunctionName.BOND_DEPOSIT_ERC20:
-      case FunctionName.BOND_DEPOSIT_WETH:
+      case FunctionName.BOND_DEPOSIT_ERC20_V2:
+      case FunctionName.BOND_DEPOSIT_WETH_V2:
         return parseUnits(principalBalance, pncplDecimals)
-      case FunctionName.DEPOSIT_ETH:
+      case FunctionName.BOND_DEPOSIT_ETH_V2:
       default:
         return parseUnits(nativeTokenBalance, currencyDecimals)
     }
@@ -145,14 +143,14 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
     if (!pncpl || !selectedBondDetail) return
     setModalLoading(true)
     try {
-      const tx = await pncpl.approve(
+      const tx: TransactionResponse = await pncpl.approve(
         selectedBondDetail.tellerData.teller.contract.address,
         parseUnits(amount, pncplDecimals)
       )
       const txHash = tx.hash
       setCanCloseOnLoading(true)
       makeTxToast(FunctionName.APPROVE, TransactionCondition.PENDING, txHash)
-      await tx.wait().then((receipt: any) => {
+      await tx.wait(activeNetwork.rpc.blockConfirms).then((receipt: TransactionReceipt) => {
         const status = receipt.status ? TransactionCondition.SUCCESS : TransactionCondition.FAILURE
         makeTxToast(FunctionName.APPROVE, status, txHash)
         reload()
@@ -165,11 +163,10 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
   }
 
   const callDepositBond = async (stake: boolean) => {
-    if (!pncplDecimals || !calculatedAmountOut || !calculatedAmountOut_X || !bondRecipient) return
+    if (!pncplDecimals || !calculatedAmountOut || !bondRecipient) return
     setModalLoading(true)
     const slippageInt = parseInt(accurateMultiply(slippagePrct, 2))
-    const calcAOut = stake ? calculatedAmountOut_X : calculatedAmountOut
-    const minAmountOut = calcAOut.mul(BigNumber.from(MAX_BPS - slippageInt)).div(BigNumber.from(MAX_BPS))
+    const minAmountOut = calculatedAmountOut.mul(BigNumber.from(MAX_BPS - slippageInt)).div(BigNumber.from(MAX_BPS))
     await deposit(parseUnits(amount, pncplDecimals), minAmountOut, bondRecipient, stake, func)
       .then((res) => _handleToast(res.tx, res.localTx))
       .catch((err) => _handleContractCallError('callDepositBond', err, func))
@@ -178,7 +175,7 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
   const callRedeemBond = async (bondId: BigNumber) => {
     if (bondId.isZero()) return
     setModalLoading(true)
-    await redeem(bondId)
+    await claimPayout(bondId)
       .then((res) => _handleToast(res.tx, res.localTx))
       .catch((err) => _handleContractCallError('callRedeemBond', err, func))
   }
@@ -201,21 +198,13 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
 
   const handleClose = useCallback(() => {
     setBondRecipient(account)
-    setCalculatedAmountIn(ZERO)
-    setCalculatedAmountIn_X(ZERO)
-    setCalculatedAmountOut(ZERO)
-    setCalculatedAmountOut_X(ZERO)
-    setContractForAllowance(null)
-    setFunc(FunctionName.DEPOSIT_ETH)
+    setFunc(FunctionName.BOND_DEPOSIT_ETH_V2)
     setIsAcceptableAmount(false)
     setIsBondTellerErc20(false)
     setIsBonding(true)
     setIsStaking(false)
-    setPrincipalBalance('0')
     setShouldUseNativeToken(true)
     setSlippagePrct('0.5')
-    setSpenderAddress(null)
-    setOwnedBondTokens([])
 
     setModalLoading(false)
     resetAmount()
@@ -223,14 +212,13 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
   }, [closeModal])
 
   const _setMax = () => {
-    if (!pncplDecimals || !calculatedAmountIn || !calculatedAmountIn_X) return
-    const calcAIn = isStaking ? calculatedAmountIn_X : calculatedAmountIn
-    if (func == FunctionName.DEPOSIT_ETH) {
+    if (!pncplDecimals || !calculatedAmountIn) return
+    if (func == FunctionName.BOND_DEPOSIT_ETH_V2) {
     }
     setMax(
-      assetBalance.gt(calcAIn) ? calcAIn : assetBalance,
+      assetBalance.gt(calculatedAmountIn) ? calculatedAmountIn : assetBalance,
       pncplDecimals,
-      func == FunctionName.DEPOSIT_ETH ? FunctionGasLimits['tellerEth.depositEth'] : undefined
+      func == FunctionName.BOND_DEPOSIT_ETH_V2 ? FunctionGasLimits['tellerEth_v2.depositEth'] : undefined
     )
   }
 
@@ -247,26 +235,15 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
       } catch (e) {
         setCalculatedAmountOut(undefined)
       }
-      try {
-        const aO_X: BigNumber = await tellerContract.calculateAmountOut(
-          accurateMultiply(formattedAmount, pncplDecimals),
-          true
-        )
-        setCalculatedAmountOut_X(aO_X)
-      } catch (e) {
-        setCalculatedAmountOut_X(undefined)
-      }
     } else {
       setCalculatedAmountOut(ZERO)
-      setCalculatedAmountOut_X(ZERO)
     }
   }
 
   const calculateAmountIn = async (): Promise<void> => {
     setCanMax(false)
-    if (selectedBondDetail && xSolaceV1) {
+    if (selectedBondDetail) {
       const maxPayout = selectedBondDetail.tellerData.maxPayout
-      const maxPayout_X = await xSolaceV1.solaceToXSolace(selectedBondDetail.tellerData.maxPayout)
 
       const tellerContract = selectedBondDetail.tellerData.teller.contract
       const bondFeeBps = selectedBondDetail.tellerData.bondFeeBps
@@ -274,26 +251,15 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
       try {
         // not including bond fee to remain below maxPayout
         const aI: BigNumber = await tellerContract.calculateAmountIn(
-          maxPayout.mul(BigNumber.from(MAX_BPS).sub(bondFeeBps)).div(BigNumber.from(MAX_BPS)),
+          maxPayout.mul(BigNumber.from(MAX_BPS).sub(bondFeeBps ?? ZERO)).div(BigNumber.from(MAX_BPS)),
           false
         )
         setCalculatedAmountIn(aI)
       } catch (e) {
         setCalculatedAmountIn(undefined)
       }
-      try {
-        // not including bond fee to remain below maxPayout
-        const aI_X: BigNumber = await tellerContract.calculateAmountIn(
-          maxPayout_X.mul(BigNumber.from(MAX_BPS).sub(bondFeeBps)).div(BigNumber.from(MAX_BPS)),
-          true
-        )
-        setCalculatedAmountIn_X(aI_X)
-      } catch (e) {
-        setCalculatedAmountIn_X(undefined)
-      }
     } else {
       setCalculatedAmountIn(ZERO)
-      setCalculatedAmountIn_X(ZERO)
     }
     setCanMax(true)
   }
@@ -313,33 +279,33 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
       setSpenderAddress(selectedBondDetail.tellerData.teller.contract.address)
     }
     getBondData()
-  }, [selectedBondDetail, account, isOpen])
+  }, [selectedBondDetail, account])
 
   useEffect(() => {
     const getUserBonds = async () => {
       if (!selectedBondDetail?.principalData || !account || !isOpen) return
-      const ownedBonds = await getUserBondData(selectedBondDetail, account)
+      const ownedBonds = await getUserBondDataV2(selectedBondDetail, account)
       setOwnedBondTokens(ownedBonds.sort((a, b) => a.id.toNumber() - b.id.toNumber()))
       const principalBal = await queryBalance(selectedBondDetail.principalData.principal, account)
       setPrincipalBalance(formatUnits(principalBal, selectedBondDetail.principalData.principalProps.decimals))
     }
     getUserBonds()
-  }, [account, isOpen, selectedBondDetail, readSolaceToken, readXSolaceToken])
+  }, [account, selectedBondDetail, readSolaceToken, version])
 
   useEffect(() => {
     const getTellerType = async () => {
       if (!selectedBondDetail) return
       const isBondTellerErc20 = selectedBondDetail.tellerData.teller.isBondTellerErc20
-      const tempFunc = isBondTellerErc20 ? FunctionName.BOND_DEPOSIT_ERC20 : FunctionName.DEPOSIT_ETH
+      const tempFunc = isBondTellerErc20 ? FunctionName.BOND_DEPOSIT_ERC20_V2 : FunctionName.BOND_DEPOSIT_ETH_V2
       setIsBondTellerErc20(isBondTellerErc20)
       setFunc(tempFunc)
     }
     getTellerType()
-  }, [selectedBondDetail?.tellerData.teller.isBondTellerErc20, isOpen])
+  }, [selectedBondDetail, isOpen])
 
   useEffect(() => {
     calculateAmountIn()
-  }, [selectedBondDetail, xSolaceV1])
+  }, [selectedBondDetail])
 
   useEffect(() => {
     _calculateAmountOut(amount)
@@ -351,16 +317,12 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
   }, [pncplDecimals, assetBalance, amount])
 
   useEffect(() => {
-    resetAmount()
-  }, [isBonding])
-
-  useEffect(() => {
     setBondRecipient(account)
   }, [account])
 
   useEffect(() => {
     if (isBondTellerErc20) return
-    setFunc(shouldUseNativeToken ? FunctionName.DEPOSIT_ETH : FunctionName.BOND_DEPOSIT_WETH)
+    setFunc(shouldUseNativeToken ? FunctionName.BOND_DEPOSIT_ETH_V2 : FunctionName.BOND_DEPOSIT_WETH_V2)
   }, [shouldUseNativeToken])
 
   return (
@@ -377,7 +339,7 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
           selectedBondDetail={selectedBondDetail}
         />
         <ModalHeader style={{ position: 'relative', marginTop: '20px' }}>
-          {(approval || func == FunctionName.DEPOSIT_ETH) && (
+          {(approval || func == FunctionName.BOND_DEPOSIT_ETH_V2) && (
             <FlexRow style={{ cursor: 'pointer', position: 'absolute', left: '0', bottom: '-10px' }}>
               <StyledGear size={25} onClick={() => setShowBondSettingsModal(true)} />
             </FlexRow>
@@ -461,7 +423,10 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
               textAlignCenter
               type="text"
               onChange={(e) =>
-                handleInputChange(e.target.value, func == FunctionName.DEPOSIT_ETH ? currencyDecimals : pncplDecimals)
+                handleInputChange(
+                  e.target.value,
+                  func == FunctionName.BOND_DEPOSIT_ETH_V2 ? currencyDecimals : pncplDecimals
+                )
               }
               value={amount}
             />
@@ -483,14 +448,12 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
         ) : null}
         {isBonding && (
           <>
-            <PrivateBondInfo
+            <PrivateBondInfoV2
               func={func}
               selectedBondDetail={selectedBondDetail}
               assetBalance={assetBalance}
               pncplDecimals={pncplDecimals}
               calculatedAmountOut={calculatedAmountOut}
-              calculatedAmountOut_X={calculatedAmountOut_X}
-              isStaking={isStaking}
             />
             <HorizRule mb={20} />
             <PublicBondInfo selectedBondDetail={selectedBondDetail} />
@@ -499,7 +462,7 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
                 <Loader />
               ) : (
                 <FlexCol mt={20}>
-                  <BondOptions
+                  <BondOptionsV2
                     isBondTellerErc20={isBondTellerErc20}
                     selectedBondDetail={selectedBondDetail}
                     isStaking={isStaking}
@@ -519,7 +482,7 @@ export const BondModal: React.FC<BondModalProps> = ({ closeModal, isOpen, select
           </>
         )}
         {!isBonding && account && (
-          <OwnedBondList
+          <OwnedBondListV2
             ownedBondTokens={ownedBondTokens}
             selectedBondDetail={selectedBondDetail}
             callRedeemBond={callRedeemBond}

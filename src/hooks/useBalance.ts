@@ -15,7 +15,7 @@ import weth9 from '../constants/abi/contracts/WETH9.sol/WETH9.json'
 import { getContract } from '../utils'
 import { withBackoffRetries } from '../utils/time'
 import { ZERO } from '../constants'
-import { useGetPairPrice } from './usePair'
+import { useGetPriceFromSushiSwap } from './usePrice'
 import { floatUnits } from '../utils/formatting'
 
 import { Token, Pair } from '@sushiswap/sdk'
@@ -201,13 +201,14 @@ export const useXSolaceV1Balance = (): { xSolaceV1Balance: string; v1StakedSolac
 }
 
 export const useUnderWritingPoolBalance = () => {
-  const { activeNetwork, chainId, currencyDecimals } = useNetwork()
+  const { activeNetwork, chainId, currencyDecimals, networks } = useNetwork()
   const { tellers, keyContracts } = useContracts()
-  const { bondDepo, solace } = useMemo(() => keyContracts, [keyContracts])
+  const { tokenPriceMapping } = useCachedData()
+  const { solace } = useMemo(() => keyContracts, [keyContracts])
   const { library } = useWallet()
   const { latestBlock } = useProvider()
   const [underwritingPoolBalance, setUnderwritingPoolBalance] = useState<string>('-')
-  const { getPairPrice } = useGetPairPrice()
+  const { getPriceFromSushiswap } = useGetPriceFromSushiSwap()
 
   const coingeckoTokenId = useMemo(() => {
     switch (activeNetwork.nativeCurrency.symbol) {
@@ -222,16 +223,16 @@ export const useUnderWritingPoolBalance = () => {
 
   useEffect(() => {
     const getGnosisBalance = async () => {
-      if (!bondDepo || !solace) return
-      const multiSig = await bondDepo.underwritingPool()
+      if (
+        !solace ||
+        (Object.keys(tokenPriceMapping).length === 0 && tokenPriceMapping.constructor === Object) ||
+        !activeNetwork.config.underwritingPoolAddr
+      )
+        return
+      const multiSig = activeNetwork.config.underwritingPoolAddr
       if (!library) return
       const principalContracts = tellers.map((t) =>
-        getContract(
-          t.underlyingAddr,
-          t.isLp ? sushiswapLpAbi : t.isBondTellerErc20 ? ierc20Json.abi : weth9,
-          library,
-          undefined
-        )
+        getContract(t.addr, t.isLp ? sushiswapLpAbi : t.isBondTellerErc20 ? ierc20Json.abi : weth9, library, undefined)
       )
       principalContracts.push(solace)
       const balances: BigNumber[] = await Promise.all(principalContracts.map((c) => queryBalance(c, multiSig)))
@@ -251,8 +252,8 @@ export const useUnderWritingPoolBalance = () => {
             const poolShare = totalSupply.gt(ZERO)
               ? floatUnits(balances[i], principalDecimals) / floatUnits(totalSupply, principalDecimals)
               : 0
-            let price0 = await getPairPrice(token0Contract)
-            let price1 = await getPairPrice(token1Contract)
+            let price0 = await getPriceFromSushiswap(token0Contract)
+            let price1 = await getPriceFromSushiswap(token1Contract)
 
             if (price0 == -1) {
               const coinGeckoTokenPrice = await getCoingeckoTokenPrice(token0Contract.address, 'usd', coingeckoTokenId)
@@ -273,15 +274,12 @@ export const useUnderWritingPoolBalance = () => {
             const multiplied = poolShare * (price0 * totalReserve0 + price1 * totalReserve1)
             return multiplied
           } else {
-            let price = await getPairPrice(principalContracts[i])
-            if (price == -1) {
-              const coinGeckoTokenPrice = await getCoingeckoTokenPrice(
-                principalContracts[i].address,
-                'usd',
-                coingeckoTokenId
-              )
-              price = parseFloat(coinGeckoTokenPrice ?? '0')
+            let price = tokenPriceMapping[tellers[i].mainnetAddr.toLowerCase()]
+            if (price <= 0) {
+              const sushiPrice = await getPriceFromSushiswap(principalContracts[i])
+              if (sushiPrice != -1) price = sushiPrice
             }
+
             const principalDecimals = await principalContracts[i].decimals()
             const formattedBalance = floatUnits(balances[i], principalDecimals)
             const balanceMultipliedByPrice = price * formattedBalance
@@ -299,11 +297,10 @@ export const useUnderWritingPoolBalance = () => {
       }
 
       // add USDC for solace
-      const solacePrice = await getPairPrice(solace)
+      const solacePrice = tokenPriceMapping[networks[0].config.keyContracts.solace.addr.toLowerCase()]
       const multiSigSolaceBalance = await queryBalance(solace, multiSig)
       const principalDecimals = await solace.decimals()
-      const formattedBalance = floatUnits(multiSigSolaceBalance, principalDecimals)
-      const balanceMultipliedByPrice = solacePrice * formattedBalance
+      const balanceMultipliedByPrice = solacePrice * floatUnits(multiSigSolaceBalance, principalDecimals)
       usdcBalances.push(balanceMultipliedByPrice)
 
       const usdcTotalBalance = usdcBalances.reduce((pv, cv) => pv + cv, 0)
@@ -319,7 +316,7 @@ export const useUnderWritingPoolBalance = () => {
       }
     }
     getGnosisBalance()
-  }, [tellers, library, bondDepo, coinGeckoNativeTokenPrice, latestBlock])
+  }, [tellers, library, coinGeckoNativeTokenPrice, latestBlock, tokenPriceMapping])
 
   return { underwritingPoolBalance }
 }

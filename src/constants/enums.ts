@@ -61,10 +61,19 @@ export enum FunctionName {
   SOTERIA_DEPOSIT = 'Deposit',
   SOTERIA_WITHDRAW = 'Withdraw',
 
-  // bond tellers
-  BOND_DEPOSIT_WETH = 'DepositWeth',
-  BOND_DEPOSIT_ERC20 = 'Deposit',
-  BOND_REDEEM = 'Redeem',
+  // bond tellers v2
+  BOND_DEPOSIT_WETH_V2 = 'DepositWeth',
+  BOND_DEPOSIT_ETH_V2 = 'DepositEth',
+  BOND_DEPOSIT_ERC20_V2 = 'Deposit',
+  BOND_CLAIM_PAYOUT_V2 = 'ClaimPayout',
+
+  // bond tellers v1
+  BOND_DEPOSIT_WETH_V1 = 'DepositWeth',
+  BOND_DEPOSIT_ETH_V1 = 'DepositEth',
+  BOND_DEPOSIT_ERC20_V1 = 'Deposit',
+  BOND_REDEEM_V1 = 'Redeem',
+
+  // early farmers
   REWARDS_REDEEM = 'Redeem',
 
   // legacy
@@ -129,4 +138,5 @@ export enum BondName {
   SCP = 'SCP',
   WBTC = 'WBTC',
   USDT = 'USDT',
+  FRAX = 'FRAX',
 }
