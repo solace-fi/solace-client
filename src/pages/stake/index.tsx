@@ -67,7 +67,7 @@ import { StyledInfo } from '../../components/atoms/Icon'
 /* import hooks */
 import { useXSolaceV1Balance } from '../../hooks/useBalance'
 import { useXSolaceV1 } from '../../hooks/useXSolaceV1'
-import { useInputAmount } from '../../hooks/useInputAmount'
+import { useInputAmount, useTransactionExecution } from '../../hooks/useInputAmount'
 import { useReadToken } from '../../hooks/useToken'
 import { useUserLockData, useXSLocker } from '../../hooks/useXSLocker'
 import { useXSolaceMigrator } from '../../hooks/useXSolaceMigrator'
@@ -110,15 +110,8 @@ function Stake1(): any {
   const { xSolaceV1Balance, v1StakedSolaceBalance } = useXSolaceV1Balance()
   const readSolaceToken = useReadToken(solace)
   const readXSolaceToken = useReadToken(xSolaceV1)
-  const {
-    gasConfig,
-    amount,
-    isAppropriateAmount,
-    handleToast,
-    handleContractCallError,
-    handleInputChange,
-    setMax,
-  } = useInputAmount()
+  const { amount, isAppropriateAmount, handleInputChange, setMax } = useInputAmount()
+  const { handleToast, handleContractCallError } = useTransactionExecution()
   const { unstake_v1 } = useXSolaceV1()
   const { migrate } = useXSolaceMigrator()
   const { account } = useWallet()
@@ -137,7 +130,7 @@ function Stake1(): any {
 
   const callUnstake = async () => {
     const xSolaceToUnstake: BigNumber = await getXSolaceFromSolace()
-    await unstake_v1(xSolaceToUnstake, gasConfig)
+    await unstake_v1(xSolaceToUnstake)
       .then((res) => handleToast(res.tx, res.localTx))
       .catch((err) => handleContractCallError('callUnstake', err, FunctionName.UNSTAKE_V1))
   }
@@ -146,7 +139,7 @@ function Stake1(): any {
     if (!latestBlock || !account) return
     const xSolaceToMigrate: BigNumber = await getXSolaceFromSolace()
     const seconds = latestBlock.timestamp + parseInt(lockInputValue) * 86400
-    await migrate(account, BigNumber.from(seconds), xSolaceToMigrate, gasConfig)
+    await migrate(account, BigNumber.from(seconds), xSolaceToMigrate)
       .then((res) => handleToast(res.tx, res.localTx))
       .catch((err) => handleContractCallError('callMigrateSigned', err, FunctionName.STAKING_MIGRATE))
   }
@@ -362,7 +355,7 @@ function Stake1(): any {
               <StyledInfo size={30} />
             </TextSpan>
             <Text light bold style={{ margin: '0 auto' }}>
-              Staking V1 is not supported on this network.
+              Staking V1 is not available on this network.
             </Text>
           </Box>
         </Content>
@@ -404,7 +397,7 @@ export default function Stake(): JSX.Element {
   const { getUserLocks } = useUserLockData()
   const { withdrawFromLock } = useXSLocker()
   const { harvestLockRewards, compoundLockRewards } = useStakingRewards()
-  const { handleToast, handleContractCallError, gasConfig } = useInputAmount()
+  const { handleToast, handleContractCallError } = useTransactionExecution()
 
   const rewardsAreZero = useMemo(() => calculateTotalHarvest(getCheckedLocks(locks, locksChecked)).isZero(), [
     locks,
@@ -463,7 +456,7 @@ export default function Stake(): JSX.Element {
     const eligibleIds = eligibleLocks.map((lock) => lock.xsLockID)
     if (eligibleIds.length == 0) return
     const type = eligibleIds.length > 1 ? FunctionName.WITHDRAW_MANY_FROM_LOCK : FunctionName.WITHDRAW_FROM_LOCK
-    await withdrawFromLock(account, eligibleIds, gasConfig)
+    await withdrawFromLock(account, eligibleIds)
       .then((res) => handleToast(res.tx, res.localTx))
       .catch((err) => handleContractCallError('handleBatchWithdraw', err, type))
   }
@@ -473,7 +466,7 @@ export default function Stake(): JSX.Element {
     const eligibleLocks = selectedLocks.filter((lock) => !lock.pendingRewards.isZero())
     const eligibleIds = eligibleLocks.map((lock) => lock.xsLockID)
     const type = eligibleIds.length > 1 ? FunctionName.HARVEST_LOCKS : FunctionName.HARVEST_LOCK
-    await harvestLockRewards(eligibleIds, gasConfig)
+    await harvestLockRewards(eligibleIds)
       .then((res) => handleToast(res.tx, res.localTx))
       .catch((err) => handleContractCallError('handleBatchHarvest', err, type))
   }
@@ -484,7 +477,7 @@ export default function Stake(): JSX.Element {
     const eligibleIds = eligibleLocks.map((lock) => lock.xsLockID)
     const type = eligibleIds.length > 1 ? FunctionName.COMPOUND_LOCKS : FunctionName.COMPOUND_LOCK
     setTargetLock(undefined)
-    await compoundLockRewards(eligibleIds, gasConfig, targetLock)
+    await compoundLockRewards(eligibleIds, targetLock)
       .then((res) => {
         setIsCompoundModalOpen(false)
         handleToast(res.tx, res.localTx)
@@ -780,7 +773,7 @@ export default function Stake(): JSX.Element {
                     <StyledInfo size={30} />
                   </TextSpan>
                   <Text light bold style={{ margin: '0 auto' }}>
-                    Staking V2 is not supported on this network.
+                    Staking V2 is not available on this network.
                   </Text>
                 </Box>
               </Content>

@@ -1,5 +1,5 @@
 import EthereumLogo from '../resources/svg/networks/ethereum-logo.svg'
-import { ETHERSCAN_API_KEY, ALCHEMY_API_KEY } from '../constants'
+import { ETHERSCAN_API_KEY, ALCHEMY_ETHEREUM_API_KEY } from '../constants'
 import { BondName, ProductName, Unit } from '../constants/enums'
 import { hexValue } from '@ethersproject/bytes'
 import { NetworkConfig, TellerToken } from '../constants/types'
@@ -96,13 +96,16 @@ const tellerToTokenMapping: {
 }
 
 export const MainNetwork: NetworkConfig = {
-  name: 'mainnet',
+  name: 'Ethereum',
   chainId: 1,
   isTestnet: false,
   logo: EthereumLogo,
   supportedTxTypes: [0, 2],
   nativeCurrency: { symbol: Unit.ETH, decimals: 18 },
-  rpc: { httpsUrl: `https://eth-mainnet.alchemyapi.io/v2/${ALCHEMY_API_KEY}`, pollingInterval: 12_000 },
+  rpc: {
+    httpsUrl: `https://eth-mainnet.alchemyapi.io/v2/${String(ALCHEMY_ETHEREUM_API_KEY)}`,
+    pollingInterval: 12_000,
+  },
   explorer: {
     name: 'Etherscan',
     key: String(ETHERSCAN_API_KEY),

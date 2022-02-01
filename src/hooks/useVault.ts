@@ -8,10 +8,11 @@ import { useCachedData } from '../context/CachedDataManager'
 import { useScpBalance } from './useBalance'
 import { useNetwork } from '../context/NetworkManager'
 import { FunctionName, TransactionCondition } from '../constants/enums'
-import { GasConfiguration, LocalTx, TxResult } from '../constants/types'
+import { LocalTx, TxResult } from '../constants/types'
 import { BigNumber } from 'ethers'
 import { FunctionGasLimits } from '../constants/mappings/gasMapping'
 import { useProvider } from '../context/ProviderManager'
+import { useGetFunctionGas } from './useGas'
 
 export const useCapitalPoolSize = (): string => {
   const { keyContracts } = useContracts()
@@ -157,8 +158,9 @@ export const useVault = () => {
   const { version } = useCachedData()
   const { account } = useWallet()
   const [canTransfer, setCanTransfer] = useState<boolean>(true)
+  const { gasConfig } = useGetFunctionGas()
 
-  const depositEth = async (parsedAmount: BigNumber, gasConfig: GasConfiguration): Promise<TxResult> => {
+  const depositEth = async (parsedAmount: BigNumber): Promise<TxResult> => {
     if (!vault) return { tx: null, localTx: null }
     const tx = await vault.depositEth({
       value: parsedAmount,
@@ -173,7 +175,7 @@ export const useVault = () => {
     return { tx, localTx }
   }
 
-  const withdrawEth = async (parsedAmount: BigNumber, gasConfig: GasConfiguration): Promise<TxResult> => {
+  const withdrawEth = async (parsedAmount: BigNumber): Promise<TxResult> => {
     if (!vault) return { tx: null, localTx: null }
     const tx = await vault.withdrawEth(parsedAmount, {
       ...gasConfig,
