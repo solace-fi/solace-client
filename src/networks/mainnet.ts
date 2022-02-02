@@ -188,7 +188,7 @@ export const MainNetwork: NetworkConfig = {
   isTestnet: false,
   logo: EthereumLogo,
   supportedTxTypes: [0, 2],
-  nativeCurrency: { symbol: Unit.ETH, decimals: 18 },
+  nativeCurrency: { mainnetReference: WETH9_ADDRESS[1], symbol: Unit.ETH, decimals: 18 },
   rpc: {
     httpsUrl: `https://eth-mainnet.alchemyapi.io/v2/${String(ALCHEMY_ETHEREUM_API_KEY)}`,
     pollingInterval: 12_000,
@@ -304,7 +304,9 @@ export const MainNetwork: NetworkConfig = {
       [BondName.USDT]: [TELLER_ADDRS_V1.USDT_TELLER, TELLER_ADDRS_V2.USDT_TELLER],
       [BondName.FRAX]: [TELLER_ADDRS_V2.FRAX_TELLER],
     },
-    featureRestrictions: {},
+    restrictedFeatures: {},
+    specialFeatures: {},
+    specialContracts: {},
     underwritingPoolAddr: '0x5efc0d9ee3223229ce3b53e441016efc5ba83435',
   },
   cache: {

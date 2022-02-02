@@ -2,7 +2,7 @@ import { BondName, Unit } from '../constants/enums'
 import { NetworkConfig, TellerToken } from '../constants/types'
 import EthereumLogo from '../resources/svg/networks/ethereum-logo.svg'
 import { hexValue } from 'ethers/lib/utils'
-import { KEY_ADDRS, TELLER_ADDRS_V2 } from '../constants/addresses/auroraTestnet'
+import { KEY_ADDRS, TELLER_ADDRS_V2, SPECIAL_ADDRS } from '../constants/addresses/auroraTestnet'
 
 import solaceABI from '../constants/abi/contracts/SOLACE.sol/SOLACE.json'
 import xSolaceABI from '../constants/metadata/xSOLACE.json'
@@ -17,6 +17,9 @@ import {
   WBTC_ADDRESS,
   FRAX_ADDRESS,
 } from '../constants/mappings/tokenAddressMapping'
+
+import bridgeWrapperABI from '../constants/metadata/BridgeWrapper.json'
+import IERC20 from '../constants/metadata/IERC20Metadata.json'
 
 const tellerToTokenMapping: {
   [key: string]: TellerToken
@@ -77,7 +80,7 @@ export const AuroraTestnetNetwork: NetworkConfig = {
   isTestnet: true,
   // logo: EthereumLogo,
   supportedTxTypes: [0, 2],
-  nativeCurrency: { symbol: Unit.ETH, decimals: 18 },
+  nativeCurrency: { mainnetReference: WETH9_ADDRESS[1], symbol: Unit.ETH, decimals: 18 },
   rpc: {
     httpsUrl: `https://testnet.aurora.dev`,
     pollingInterval: 12_000,
@@ -87,7 +90,7 @@ export const AuroraTestnetNetwork: NetworkConfig = {
     name: 'Explorer',
     url: 'https://explorer.testnet.aurora.dev',
     apiUrl: 'https://explorer.testnet.aurora.dev',
-    excludedContractAddrs: [KEY_ADDRS.SOLACE],
+    excludedContractAddrs: [KEY_ADDRS.SOLACE, SPECIAL_ADDRS.BSOLACE],
   },
   config: {
     keyContracts: {
@@ -117,12 +120,25 @@ export const AuroraTestnetNetwork: NetworkConfig = {
       [BondName.USDT]: [TELLER_ADDRS_V2.USDT_TELLER],
       [BondName.FRAX]: [TELLER_ADDRS_V2.FRAX_TELLER],
     },
-    featureRestrictions: {
+    restrictedFeatures: {
       noBondingV1: true,
       noCoverProducts: true,
       noFarmingV1: true,
       noStakingV1: true,
       cannotBuySolace: true,
+    },
+    specialFeatures: {
+      unwrapBridgedSolace: true,
+    },
+    specialContracts: {
+      bSolace: {
+        addr: SPECIAL_ADDRS.BSOLACE,
+        abi: IERC20.abi,
+      },
+      bridgeWrapper: {
+        addr: SPECIAL_ADDRS.BRIDGE_WRAPPER,
+        abi: bridgeWrapperABI.abi,
+      },
     },
     underwritingPoolAddr: '0x501ace27a074471f099fffec008bd1b151c7f7de',
   },

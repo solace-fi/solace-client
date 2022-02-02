@@ -168,7 +168,7 @@ export const KovanNetwork: NetworkConfig = {
   isTestnet: true,
   logo: EthereumLogo,
   supportedTxTypes: [0, 2],
-  nativeCurrency: { symbol: Unit.ETH, decimals: 18 },
+  nativeCurrency: { mainnetReference: WETH9_ADDRESS[1], symbol: Unit.ETH, decimals: 18 },
   rpc: {
     httpsUrl: `https://eth-kovan.alchemyapi.io/v2/${String(ALCHEMY_ETHEREUM_API_KEY)}`,
     pollingInterval: 12_000,
@@ -262,7 +262,9 @@ export const KovanNetwork: NetworkConfig = {
       // [BondName.SOLACE_DAI_SLP]: TELLER_ADDRS_V1.SOLACE_DAI_SLP_TELLER,
       // [BondName.SOLACE_ETH_SLP]: TELLER_ADDRS_V1.SOLACE_ETH_SLP_TELLER,
     },
-    featureRestrictions: {},
+    restrictedFeatures: {},
+    specialFeatures: {},
+    specialContracts: {},
   },
   cache: {
     supportedProducts: [AaveProduct, WaaveProduct],

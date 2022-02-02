@@ -84,10 +84,8 @@ export const useInputAmount = () => {
     amount,
     maxSelected,
     isAppropriateAmount,
-    calculateMaxAmount,
     handleInputChange,
     setMax,
-    setAmount,
     resetAmount,
   }
 }

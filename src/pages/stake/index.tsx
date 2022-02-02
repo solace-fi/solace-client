@@ -92,6 +92,7 @@ import '../../styles/tailwind.min.css'
 // util imports
 
 import { getExpiration, getTimeFromMillis } from '../../utils/time'
+import { BridgeModal } from './organisms/BridgeModal'
 
 // disable no unused variables
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -120,8 +121,8 @@ function Stake1(): any {
 
   const [isAcceptableAmount, setIsAcceptableAmount] = useState<boolean>(false)
   const [lockInputValue, setLockInputValue] = React.useState('0')
-  const canStakeV1 = useMemo(() => !activeNetwork.config.featureRestrictions.noStakingV1, [
-    activeNetwork.config.featureRestrictions.noStakingV1,
+  const canStakeV1 = useMemo(() => !activeNetwork.config.restrictedFeatures.noStakingV1, [
+    activeNetwork.config.restrictedFeatures.noStakingV1,
   ])
   const { projectedMultiplier, projectedApy, projectedYearlyReturns } = useProjectedBenefits(
     accurateMultiply(formatAmount(amount), 18),
@@ -373,6 +374,8 @@ export default function Stake(): JSX.Element {
   const [newSafeIsOpen, setNewSafeIsOpen] = useState(false)
   const [batchActionsIsEnabled, setBatchActionsIsEnabled] = useState(false)
   const [isCompoundModalOpen, setIsCompoundModalOpen] = useState<boolean>(false)
+  const [isBridgeModalOpen, setIsBridgeModalOpen] = useState<boolean>(false)
+
   const [targetLock, setTargetLock] = useState<BigNumber | undefined>(undefined)
   const [locksChecked, setLocksChecked] = useState<LockCheckbox[]>([])
 
@@ -390,8 +393,8 @@ export default function Stake(): JSX.Element {
     yearlyReturns: ZERO,
     apy: ZERO,
   })
-  const canStakeV2 = useMemo(() => !activeNetwork.config.featureRestrictions.noStakingV2, [
-    activeNetwork.config.featureRestrictions.noStakingV2,
+  const canStakeV2 = useMemo(() => !activeNetwork.config.restrictedFeatures.noStakingV2, [
+    activeNetwork.config.restrictedFeatures.noStakingV2,
   ])
   const { getUserLocks } = useUserLockData()
   const { withdrawFromLock } = useXSLocker()
@@ -626,6 +629,16 @@ export default function Stake(): JSX.Element {
                     </ButtonWrapper>
                   )}
                 </Modal>
+                <BridgeModal
+                  modalTitle={'Bridge SOLACE'}
+                  handleClose={() => setIsBridgeModalOpen(false)}
+                  isOpen={isBridgeModalOpen}
+                />
+                {activeNetwork.config.specialFeatures.unwrapBridgedSolace && (
+                  <Flex between mt={20} mb={20}>
+                    <Button onClick={() => setIsBridgeModalOpen(true)}>Bridge</Button>
+                  </Flex>
+                )}
                 <AggregatedStakeData stakeData={userLockInfo} />
                 <Flex
                   between

@@ -65,7 +65,7 @@ function Invest(): any {
 
   return (
     <>
-      {!activeNetwork.config.featureRestrictions.noFarmingV1 ? (
+      {!activeNetwork.config.restrictedFeatures.noFarmingV1 ? (
         <>
           <PoolModalRouter
             isOpen={showPoolModal}

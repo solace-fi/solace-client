@@ -171,7 +171,7 @@ export const RinkebyNetwork: NetworkConfig = {
   isTestnet: true,
   logo: EthereumLogo,
   supportedTxTypes: [0, 2],
-  nativeCurrency: { symbol: Unit.ETH, decimals: 18 },
+  nativeCurrency: { mainnetReference: WETH9_ADDRESS[1], symbol: Unit.ETH, decimals: 18 },
   rpc: {
     httpsUrl: `https://eth-rinkeby.alchemyapi.io/v2/${String(ALCHEMY_ETHEREUM_API_KEY)}`,
     pollingInterval: 12_000,
@@ -267,7 +267,9 @@ export const RinkebyNetwork: NetworkConfig = {
       [BondName.USDT]: [TELLER_ADDRS_V1.USDT_TELLER, TELLER_ADDRS_V2.USDT_TELLER],
       [BondName.FRAX]: [TELLER_ADDRS_V2.FRAX_TELLER],
     },
-    featureRestrictions: {},
+    restrictedFeatures: {},
+    specialFeatures: {},
+    specialContracts: {},
   },
   cache: {
     supportedProducts: [CompoundProduct, WaaveProduct, LiquityProduct],

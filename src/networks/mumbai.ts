@@ -10,7 +10,7 @@ export const MumbaiNetwork: NetworkConfig = {
   isTestnet: true,
   logo: PolygonLogo,
   supportedTxTypes: [0, 2],
-  nativeCurrency: { symbol: Unit.MATIC, decimals: 18 },
+  nativeCurrency: { mainnetReference: '0x7D1AfA7B718fb893dB30A3aBc0Cfc608AaCfeBB0', symbol: Unit.MATIC, decimals: 18 },
   rpc: {
     httpsUrl: `https://polygon-mumbai.g.alchemy.com/v2/${String(ALCHEMY_MUMBAI_API_KEY)}`,
     pollingInterval: 12_000,
@@ -27,12 +27,14 @@ export const MumbaiNetwork: NetworkConfig = {
     keyContracts: {},
     productContracts: {},
     bondTellerContracts: {},
-    featureRestrictions: {
+    restrictedFeatures: {
       noBondingV1: true,
       noCoverProducts: true,
       noFarmingV1: true,
       noStakingV1: true,
     },
+    specialContracts: {},
+    specialFeatures: {},
   },
   cache: {
     supportedProducts: [],

@@ -159,11 +159,11 @@ export const SideNavbar: React.FC = () => {
               </SidebarItem>
             </ItemText>
           </StyledNavTooltip>
-          <StyledNavTooltip id={'invest-nav'} tip={'Invest'}>
+          <StyledNavTooltip id={'invest-nav'} tip={'Farms'}>
             <ItemText>
               <SidebarItem to={'/invest'} style={miniNavbarMarginSet}>
                 <Text info={location.pathname == '/invest'} light={lightText}>
-                  {width > BKPT_3 ? 'Invest' : <StyledCoinStack size={30} />}
+                  {width > BKPT_3 ? 'Farms' : <StyledCoinStack size={30} />}
                 </Text>
               </SidebarItem>
             </ItemText>
@@ -433,7 +433,7 @@ export const TopNavbar: React.FC = () => {
         </SidebarItem>
         <SidebarItem onClick={() => handleIsOpen(!isOpen)} to={'/invest'} style={{ padding: '20px 0' }}>
           <Text light bold={location.pathname == '/invest'}>
-            Invest
+            Farms
           </Text>
         </SidebarItem>
         <SidebarItem onClick={() => handleIsOpen(!isOpen)} to={'/govern'} style={{ padding: '20px 0' }}>
