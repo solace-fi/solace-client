@@ -10,7 +10,7 @@ export const PolygonNetwork: NetworkConfig = {
   isTestnet: false,
   logo: PolygonLogo,
   supportedTxTypes: [0, 2],
-  nativeCurrency: { symbol: Unit.MATIC, decimals: 18 },
+  nativeCurrency: { mainnetReference: '0x7D1AfA7B718fb893dB30A3aBc0Cfc608AaCfeBB0', symbol: Unit.MATIC, decimals: 18 },
   rpc: {
     httpsUrl: `https://polygon-mainnet.g.alchemy.com/v2/${String(ALCHEMY_POLYGON_API_KEY)}`,
     pollingInterval: 12_000,

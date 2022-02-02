@@ -80,7 +80,7 @@ export const AuroraTestnetNetwork: NetworkConfig = {
   isTestnet: true,
   // logo: EthereumLogo,
   supportedTxTypes: [0, 2],
-  nativeCurrency: { symbol: Unit.ETH, decimals: 18 },
+  nativeCurrency: { mainnetReference: WETH9_ADDRESS[1], symbol: Unit.ETH, decimals: 18 },
   rpc: {
     httpsUrl: `https://testnet.aurora.dev`,
     pollingInterval: 12_000,

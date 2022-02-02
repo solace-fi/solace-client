@@ -11,6 +11,7 @@ export type NetworkConfig = {
   logo?: string
   supportedTxTypes: number[]
   nativeCurrency: {
+    mainnetReference: string
     symbol: Unit
     decimals: number
   }
