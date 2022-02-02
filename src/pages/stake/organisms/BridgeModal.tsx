@@ -101,7 +101,7 @@ export const BridgeModal: React.FC<ModalProps> = ({ modalTitle, handleClose, isO
   }
 
   const _handleToast = async (tx: any, localTx: LocalTx | null) => {
-    handleClose()
+    _handleClose()
     await handleToast(tx, localTx)
   }
 
