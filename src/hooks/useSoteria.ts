@@ -217,7 +217,7 @@ export const useSoteria = () => {
   }
 
   return {
-    getReferralCode,
+    // getReferralCode,
     getData,
     getDataByPolicyHolder,
     getDataByPolicyId,
