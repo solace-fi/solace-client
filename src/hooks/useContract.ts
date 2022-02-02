@@ -141,6 +141,14 @@ export function useContractArray(): ContractSources[] {
         }
       })
     })
+    Object.keys(config.specialContracts).forEach((key) => {
+      if (!excludedContractAddrs.includes(config.specialContracts[key].addr)) {
+        contractSources.push({
+          addr: config.specialContracts[key].addr.toLowerCase(),
+          abi: config.specialContracts[key].abi,
+        })
+      }
+    })
     return contractSources
   }, [activeNetwork])
 }

@@ -73,6 +73,10 @@ export enum FunctionName {
   BOND_DEPOSIT_ERC20_V1 = 'Deposit',
   BOND_REDEEM_V1 = 'Redeem',
 
+  // bridge
+  BRIDGE_BSOLACE_TO_SOLACE = 'BSolaceToSolace',
+  BRIDGE_SOLACE_TO_BSOLACE = 'SolaceToBSolace',
+
   // early farmers
   REWARDS_REDEEM = 'Redeem',
 

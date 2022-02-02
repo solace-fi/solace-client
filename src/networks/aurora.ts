@@ -2,7 +2,7 @@ import { BondName, Unit } from '../constants/enums'
 import { NetworkConfig, TellerToken } from '../constants/types'
 import EthereumLogo from '../resources/svg/networks/ethereum-logo.svg'
 import { hexValue } from 'ethers/lib/utils'
-import { KEY_ADDRS, TELLER_ADDRS_V2 } from '../constants/addresses/aurora'
+import { KEY_ADDRS, SPECIAL_ADDRS, TELLER_ADDRS_V2 } from '../constants/addresses/aurora'
 import {
   DAI_ADDRESS,
   WETH9_ADDRESS,
@@ -16,6 +16,8 @@ import solaceABI from '../constants/abi/contracts/SOLACE.sol/SOLACE.json'
 import xSolaceABI from '../constants/metadata/xSOLACE.json'
 import xsLockerABI from '../constants/metadata/xsLocker.json'
 import stakingRewardsABI from '../constants/metadata/StakingRewards.json'
+import bridgeWrapperABI from '../constants/metadata/BridgeWrapper.json'
+import IERC20 from '../constants/metadata/IERC20Metadata.json'
 
 const tellerToTokenMapping: {
   [key: string]: TellerToken
@@ -86,7 +88,7 @@ export const AuroraNetwork: NetworkConfig = {
     name: 'Explorer',
     url: 'https://explorer.mainnet.aurora.dev',
     apiUrl: 'https://explorer.mainnet.aurora.dev',
-    excludedContractAddrs: [],
+    excludedContractAddrs: [KEY_ADDRS.SOLACE, SPECIAL_ADDRS.BSOLACE],
   },
   config: {
     keyContracts: {
@@ -116,12 +118,25 @@ export const AuroraNetwork: NetworkConfig = {
       [BondName.USDT]: [TELLER_ADDRS_V2.USDT_TELLER],
       [BondName.FRAX]: [TELLER_ADDRS_V2.FRAX_TELLER],
     },
-    featureRestrictions: {
+    restrictedFeatures: {
       noBondingV1: true,
       noCoverProducts: true,
       noFarmingV1: true,
       noStakingV1: true,
       cannotBuySolace: true,
+    },
+    specialFeatures: {
+      unwrapBridgedSolace: true,
+    },
+    specialContracts: {
+      bSolace: {
+        addr: SPECIAL_ADDRS.BSOLACE,
+        abi: IERC20.abi,
+      },
+      bridgeWrapper: {
+        addr: SPECIAL_ADDRS.BRIDGE_WRAPPER,
+        abi: bridgeWrapperABI.abi,
+      },
     },
     underwritingPoolAddr: '0x501ace27a074471f099fffec008bd1b151c7f7de',
   },

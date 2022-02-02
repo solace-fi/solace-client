@@ -69,11 +69,11 @@ function Bond(): any {
   const [showV2Bonds, setShowV2Bonds] = useState<boolean>(true)
   const [showV1Bonds, setShowV1Bonds] = useState<boolean>(false)
 
-  const canBondV1 = useMemo(() => !activeNetwork.config.featureRestrictions.noBondingV1, [
-    activeNetwork.config.featureRestrictions.noBondingV1,
+  const canBondV1 = useMemo(() => !activeNetwork.config.restrictedFeatures.noBondingV1, [
+    activeNetwork.config.restrictedFeatures.noBondingV1,
   ])
-  const canBondV2 = useMemo(() => !activeNetwork.config.featureRestrictions.noBondingV2, [
-    activeNetwork.config.featureRestrictions.noBondingV2,
+  const canBondV2 = useMemo(() => !activeNetwork.config.restrictedFeatures.noBondingV2, [
+    activeNetwork.config.restrictedFeatures.noBondingV2,
   ])
 
   const btdV1 = useBondTellerDetailsV1(showV1Bonds)

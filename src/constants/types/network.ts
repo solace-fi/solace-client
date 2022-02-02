@@ -31,7 +31,8 @@ export type NetworkConfig = {
     keyContracts: { [key: string]: ContractSources }
     productContracts: { [key: string]: ContractSources }
     bondTellerContracts: { [key: string]: string[] }
-    featureRestrictions: {
+    specialContracts: { [key: string]: ContractSources }
+    restrictedFeatures: {
       cannotBuySolace?: boolean
       noBondingV1?: boolean
       noBondingV2?: boolean
@@ -40,6 +41,9 @@ export type NetworkConfig = {
       noSoteria?: boolean
       noStakingV1?: boolean
       noStakingV2?: boolean
+    }
+    specialFeatures: {
+      unwrapBridgedSolace?: boolean
     }
     underwritingPoolAddr?: string
   }

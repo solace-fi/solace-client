@@ -146,7 +146,7 @@ export const Statistics: React.FC = () => {
       <BoxItem>
         <BoxItemTitle t4 light>
           SOLACE{' '}
-          {!activeNetwork.config.featureRestrictions.cannotBuySolace && (
+          {!activeNetwork.config.restrictedFeatures.cannotBuySolace && (
             <HyperLink
               href={`https://app.sushi.com/add/${USDC_ADDRESS[chainId]}/${solace ? solace.address : null}`}
               target="_blank"
@@ -163,8 +163,8 @@ export const Statistics: React.FC = () => {
           {`$${pairPrice} `}
         </Text>
       </BoxItem>
-      {(!activeNetwork.config.featureRestrictions.noBondingV1 ||
-        !activeNetwork.config.featureRestrictions.noBondingV2) && (
+      {(!activeNetwork.config.restrictedFeatures.noBondingV1 ||
+        !activeNetwork.config.restrictedFeatures.noBondingV2) && (
         <BoxItem>
           <BoxItemTitle t4 light>
             Underwriting Pool Size
@@ -174,7 +174,7 @@ export const Statistics: React.FC = () => {
           </Text>
         </BoxItem>
       )}
-      {!activeNetwork.config.featureRestrictions.noCoverProducts && (
+      {!activeNetwork.config.restrictedFeatures.noCoverProducts && (
         <>
           <BoxItem>
             <BoxItemTitle t4 light>
@@ -208,7 +208,7 @@ export const Statistics: React.FC = () => {
         <FormRow>
           <FormCol light>
             SOLACE{' '}
-            {!activeNetwork.config.featureRestrictions.cannotBuySolace && (
+            {!activeNetwork.config.restrictedFeatures.cannotBuySolace && (
               <HyperLink
                 href={`https://app.sushi.com/add/${USDC_ADDRESS[chainId]}/${solace ? solace.address : null}`}
                 target="_blank"
@@ -227,8 +227,8 @@ export const Statistics: React.FC = () => {
             </Text>
           </FormCol>
         </FormRow>
-        {(!activeNetwork.config.featureRestrictions.noBondingV1 ||
-          !activeNetwork.config.featureRestrictions.noBondingV2) && (
+        {(!activeNetwork.config.restrictedFeatures.noBondingV1 ||
+          !activeNetwork.config.restrictedFeatures.noBondingV2) && (
           <FormRow>
             <FormCol light>Underwriting Pool Size</FormCol>
             <FormCol>
@@ -238,7 +238,7 @@ export const Statistics: React.FC = () => {
             </FormCol>
           </FormRow>
         )}
-        {!activeNetwork.config.featureRestrictions.noCoverProducts && (
+        {!activeNetwork.config.restrictedFeatures.noCoverProducts && (
           <>
             <FormRow>
               <FormCol light>Active Cover Amount</FormCol>
@@ -285,7 +285,7 @@ export const Statistics: React.FC = () => {
                     </TextSpan>
                   </Text>
                 </BoxItem>
-                {!activeNetwork.config.featureRestrictions.noStakingV2 && (
+                {!activeNetwork.config.restrictedFeatures.noStakingV2 && (
                   <BoxItem>
                     <BoxItemTitle t4 light>
                       My Stake
@@ -304,7 +304,7 @@ export const Statistics: React.FC = () => {
                 <WalletConnectButton light welcome />
               </BoxItem>
             )}
-            {!activeNetwork.config.featureRestrictions.noStakingV2 && (
+            {!activeNetwork.config.restrictedFeatures.noStakingV2 && (
               <>
                 <BoxItem>
                   <BoxItemTitle t4 light>
@@ -348,7 +348,7 @@ export const Statistics: React.FC = () => {
                       </Text>
                     </FormCol>
                   </FormRow>
-                  {!activeNetwork.config.featureRestrictions.noStakingV2 && (
+                  {!activeNetwork.config.restrictedFeatures.noStakingV2 && (
                     <FormRow>
                       <FormCol light>My Stake</FormCol>
                       <FormCol>
@@ -367,7 +367,7 @@ export const Statistics: React.FC = () => {
                   <WalletConnectButton light welcome />
                 </BoxRow>
               )}
-              {!activeNetwork.config.featureRestrictions.noStakingV2 && (
+              {!activeNetwork.config.restrictedFeatures.noStakingV2 && (
                 <>
                   <FormRow>
                     <FormCol light>Global Stake</FormCol>

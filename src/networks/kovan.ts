@@ -262,7 +262,9 @@ export const KovanNetwork: NetworkConfig = {
       // [BondName.SOLACE_DAI_SLP]: TELLER_ADDRS_V1.SOLACE_DAI_SLP_TELLER,
       // [BondName.SOLACE_ETH_SLP]: TELLER_ADDRS_V1.SOLACE_ETH_SLP_TELLER,
     },
-    featureRestrictions: {},
+    restrictedFeatures: {},
+    specialFeatures: {},
+    specialContracts: {},
   },
   cache: {
     supportedProducts: [AaveProduct, WaaveProduct],

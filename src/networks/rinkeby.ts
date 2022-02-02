@@ -267,7 +267,9 @@ export const RinkebyNetwork: NetworkConfig = {
       [BondName.USDT]: [TELLER_ADDRS_V1.USDT_TELLER, TELLER_ADDRS_V2.USDT_TELLER],
       [BondName.FRAX]: [TELLER_ADDRS_V2.FRAX_TELLER],
     },
-    featureRestrictions: {},
+    restrictedFeatures: {},
+    specialFeatures: {},
+    specialContracts: {},
   },
   cache: {
     supportedProducts: [CompoundProduct, WaaveProduct, LiquityProduct],
