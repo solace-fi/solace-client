@@ -127,7 +127,9 @@ export const AuroraTestnetNetwork: NetworkConfig = {
       noStakingV1: true,
       cannotBuySolace: true,
     },
-    specialFeatures: {},
+    specialFeatures: {
+      unwrapBridgedSolace: true,
+    },
     specialContracts: {
       bSolace: {
         addr: SPECIAL_ADDRS.BSOLACE,

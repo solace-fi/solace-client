@@ -634,7 +634,7 @@ export default function Stake(): JSX.Element {
                   handleClose={() => setIsBridgeModalOpen(false)}
                   isOpen={isBridgeModalOpen}
                 />
-                {!activeNetwork.config.specialFeatures.unwrapBridgedSolace && (
+                {activeNetwork.config.specialFeatures.unwrapBridgedSolace && (
                   <Flex between mt={20} mb={20}>
                     <Button onClick={() => setIsBridgeModalOpen(true)}>Bridge</Button>
                   </Flex>
