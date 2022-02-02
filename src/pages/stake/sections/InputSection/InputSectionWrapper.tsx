@@ -10,7 +10,7 @@ export default styled.div`
   border: 1px solid ${({ theme }) => theme.separator.bg_color};
   outline: none;
   justify-content: space-between;
-  width: 300px;
+  width: 287px;
   /* for screens bigger than BKPT_5 */
   @media (min-width: ${BKPT_5}px) {
     width: 521px;

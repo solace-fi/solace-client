@@ -3,7 +3,6 @@ import Flex from '../stake/atoms/Flex'
 import RaisedBox from '../stake/atoms/RaisedBox'
 import ShadowDiv from '../stake/atoms/ShadowDiv'
 import { Text } from '../../components/atoms/Typography'
-import { StyledClock } from '../../components/atoms/Icon'
 import { QuestionCircle } from '@styled-icons/bootstrap/QuestionCircle'
 // src/components/atoms/Button/index.ts
 import { Button } from '../../components/atoms/Button'
@@ -12,12 +11,14 @@ import USD from '../../resources/svg/icons/usd.svg'
 import USDC from '../../resources/svg/icons/usdc.svg'
 import ToggleSwitch from '../../components/atoms/ToggleSwitch'
 import { FixedHeightGrayBox, StyledGrayBox } from '../stake/components/GrayBox'
-import { VerticalSeparator } from '../stake/components/VerticalSeparator'
 import { GenericInputSection } from '../stake/sections/InputSection'
 import { StyledSlider } from '../../components/atoms/Input'
 import commaNumber from '../../utils/commaNumber'
 import { Table, TableHead, TableHeader, TableBody, TableRow, TableData } from '../../components/atoms/Table'
 import { StyledTooltip } from '../../components/molecules/Tooltip'
+import { useWindowDimensions } from '../../hooks/useWindowDimensions'
+import { BKPT_5 } from '../../constants'
+import GrayBgDiv from '../stake/atoms/BodyBgCss'
 
 function Card({
   children,
@@ -150,6 +151,7 @@ function CoverageLimit() {
               style={{
                 marginTop: '40px',
               }}
+              displayIconOnMobile
             />
           )}
           {/* <div style={{ height: '8px', backgroundColor: 'gray', borderRadius: '9999px', marginTop: '18px' }}> </div> */}
@@ -168,9 +170,7 @@ function CoverageLimit() {
           />
           {isEditing && (
             <Flex baseline gap={4} center mt={isEditing ? 28 : 60}>
-              <Text t4 bold>
-                {isEditing ? 'Fund to be covered:' : 'Funds covered:'}
-              </Text>
+              <Text t4>{isEditing ? 'Fund to be covered:' : 'Funds covered:'}</Text>
               <Flex mt={2}>
                 <Text
                   t3
@@ -189,9 +189,7 @@ function CoverageLimit() {
             </Flex>
           )}
           <Flex baseline gap={4} center mt={isEditing ? 4 : 59}>
-            <Text t4 bold>
-              {'Funds covered:'}
-            </Text>
+            <Text t4>{'Funds covered:'}</Text>
             <Flex mt={2}>
               <Text
                 t3
@@ -210,9 +208,7 @@ function CoverageLimit() {
           </Flex>
           <Flex center mt={4}>
             <Flex baseline gap={4} center>
-              <Text t4 bold>
-                Total funds:
-              </Text>
+              <Text t4>Total funds:</Text>
               <Flex gap={4} baseline mt={2}>
                 <Text
                   t3
@@ -283,10 +279,14 @@ function ValuePair({
   bigText, // 18px
   smallText, // 14px
   info,
+  bigger,
+  mediumSized,
 }: {
   bigText: string
   smallText: string
   info?: boolean
+  bigger?: boolean
+  mediumSized?: boolean
 }) {
   return (
     <Flex
@@ -298,10 +298,10 @@ function ValuePair({
         }
       }
     >
-      <Text t2_5 bold info={info}>
+      <Text t2s={!mediumSized} t2_5s={mediumSized} bold info={info}>
         {bigText}
       </Text>
-      <Text t4 bold info={info}>
+      <Text t4s={bigger} bold info={info}>
         {smallText}
       </Text>
     </Flex>
@@ -313,22 +313,7 @@ const ifStringZeroUndefined = (str: string) => (Number(str) === 0 ? undefined : 
 function CoverageBalance() {
   // setters for usd and days
   const [usd, setUsd] = React.useState('0')
-  const [days, setDays] = React.useState('0')
-  // mock usd per day is $500
-  const [usdPerDay, setUsdPerDay] = React.useState(500)
-  // mock total funds is $3,123,411.32
-  const [coverageBalance, setCoverageBalance] = React.useState(3123411.32)
-  const handleUpdateDays = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setDays(e.target.value)
-    setUsd(String(Number(e.target.value) * usdPerDay))
-  }
-  const handleUpdateUsd = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setUsd(e.target.value)
-    setDays(String(Number(e.target.value) / usdPerDay))
-  }
-  const handleSubmit = () => {
-    // setCoverageBalance(usd)
-  }
+  const { ifDesktop } = useWindowDimensions()
   return (
     <Card bigger horiz>
       <Flex
@@ -336,15 +321,14 @@ function CoverageBalance() {
         // between
         stretch
         gap={40}
-        style={
-          {
-            // backgroundColor: 'green',
-          }
-        }
+        style={{
+          width: '100%',
+          // backgroundColor: 'green',
+        }}
       >
         <Flex between itemsCenter>
           <Text t2 bold>
-            Coverage Balance
+            Policy Balance
           </Text>
           <StyledTooltip id={'coverage-balance'} tip={'Coverage Balance'}>
             <QuestionCircle height={20} width={20} color={'#aaa'} />
@@ -355,33 +339,33 @@ function CoverageBalance() {
           between
           stretch
           gap={30}
-          pl={24}
-          pr={24}
+          pl={ifDesktop(24)}
+          pr={ifDesktop(24)}
           style={{
             // backgroundColor: 'red',
             height: '100%',
           }}
         >
-          <StyledGrayBox>
-            <Flex stretch between gap={24}>
-              <Flex gap={6} itemsCenter>
-                <img src={USD} height={20} />
-                <ValuePair bigText="1,432,098" smallText="USD" />
+          <Flex col gap={10} stretch>
+            <StyledGrayBox>
+              {/* <Flex> */}
+              <Flex
+                col
+                itemsCenter
+                style={{
+                  width: '100%',
+                }}
+              >
+                <ValuePair bigText="1,432,098" smallText="USD" info />
               </Flex>
-              <VerticalSeparator />
-              <Flex gap={6} itemsCenter>
-                <Text
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                  }}
-                >
-                  <StyledClock height={20} width={20} />
-                </Text>
-                <ValuePair bigText="185" smallText="Days" />
-              </Flex>
+            </StyledGrayBox>
+            <Flex gap={4} baseline justifyCenter>
+              <Text t5s>Approximate policy duration:</Text>
+              <Text t4s bold>
+                185 Days
+              </Text>
             </Flex>
-          </StyledGrayBox>
+          </Flex>
           <Flex col gap={20}>
             <GenericInputSection
               icon={<img src={USDC} height={20} />}
@@ -389,14 +373,16 @@ function CoverageBalance() {
               text="USDC"
               value={ifStringZeroUndefined(usd)}
               disabled={false}
+              displayIconOnMobile
             />
-            <GenericInputSection
+            {/* <GenericInputSection
               icon={<StyledClock height={20} width={20} />}
               onChange={(e) => setDays(e.target.value)}
               text="Days"
               value={ifStringZeroUndefined(days)}
               disabled={false}
-            />
+              displayIconOnMobile
+            /> */}
             <StyledSlider />
           </Flex>
           <Flex gap={20}>
@@ -464,7 +450,14 @@ function CoveragePrice() {
     <Card normous horiz>
       {/* top part / title */}
       {/* <Flex col stretch between> */}
-      <Flex between col>
+      <Flex
+        between
+        col
+        style={{
+          width: '100%',
+        }}
+        gap={40}
+      >
         <Flex between itemsCenter>
           <Text t2 bold>
             Coverage Price*
@@ -474,7 +467,7 @@ function CoveragePrice() {
           </StyledTooltip>
         </Flex>
         {/* middle has padding l and r 40px, rest is p l and r 24px (comes with Card); vertical justify-between */}
-        <Flex col gap={30} pl={40} pr={40}>
+        <Flex col gap={20} pl={40} pr={40}>
           <Flex between itemsCenter>
             <ValuePair bigText="0.00184" smallText="USD" info />
             <Text t5s>/ Day</Text>
@@ -488,7 +481,9 @@ function CoveragePrice() {
             <Text t5s>/ Year</Text>
           </Flex>
         </Flex>
-        <Text t5s>*The price updates continuously according to changes in your portfolio.</Text>
+        <Text t5s textAlignCenter>
+          *The price updates continuously according to changes in your portfolio.
+        </Text>
       </Flex>
       {/* </Flex> */}
     </Card>
@@ -534,6 +529,7 @@ function PortfolioTable() {
 |Yearn Finance |Assets |BTC|2154 USD|Medium|
 
   */
+  const { width } = useWindowDimensions()
   const data = [
     {
       id: '_a',
@@ -597,35 +593,62 @@ function PortfolioTable() {
           ))}
         </tbody>
       </StyledTable> */}
-      <Table>
-        <TableHead>
-          <TableHeader>Protocol</TableHeader>
-          <TableHeader>Type</TableHeader>
-          <TableHeader>Positions</TableHeader>
-          <TableHeader>Amount</TableHeader>
-          <TableHeader>Risk Level</TableHeader>
-        </TableHead>
-        <TableBody>
+      {width > BKPT_5 ? (
+        <Table>
+          <TableHead>
+            <TableHeader>Protocol</TableHeader>
+            <TableHeader>Type</TableHeader>
+            <TableHeader>Positions</TableHeader>
+            <TableHeader>Amount</TableHeader>
+            <TableHeader>Risk Level</TableHeader>
+          </TableHead>
+          <TableBody>
+            {data.map((row) => (
+              <TableRow key={row.id}>
+                <TableData>{row.protocol}</TableData>
+                <TableData>{row.type}</TableData>
+                <TableData>{row.positions.join(', ')}</TableData>
+                <TableData>{row.amount}</TableData>
+                <TableData>{row.riskLevel}</TableData>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      ) : (
+        <Flex column gap={30}>
           {data.map((row) => (
-            <TableRow key={row.id}>
-              <TableData>{row.protocol}</TableData>
-              <TableData>{row.type}</TableData>
-              <TableData>{row.positions.join(', ')}</TableData>
-              <TableData>{row.amount}</TableData>
-              <TableData>{row.riskLevel}</TableData>
-            </TableRow>
+            <GrayBgDiv
+              key={row.id}
+              style={{
+                borderRadius: '10px',
+                padding: '14px 24px',
+              }}
+            >
+              <Flex gap={30} between itemsCenter>
+                <Flex col gap={8.5}>
+                  <div>{row.protocol}</div>
+                  <div>{row.positions.join(', ')}</div>
+                </Flex>
+                <Flex col gap={8.5}>
+                  <div>{row.amount}</div>
+                  <div>{row.type}</div>
+                  <div>{row.riskLevel}</div>
+                </Flex>
+              </Flex>
+            </GrayBgDiv>
           ))}
-        </TableBody>
-      </Table>
+        </Flex>
+      )}
     </>
   )
 }
 
 export default function Soteria(): JSX.Element {
   // set coverage active
+  const { width } = useWindowDimensions()
   return (
-    <Flex col gap={24}>
-      <Flex gap={24}>
+    <Flex col gap={24} m={width < BKPT_5 ? 20 : undefined}>
+      <Flex gap={24} col={width < BKPT_5}>
         <CoverageLimit />
         <CoverageBalance />
         <Flex

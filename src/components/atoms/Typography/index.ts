@@ -1,17 +1,6 @@
 import styled, { css } from 'styled-components'
 import { GeneralElementProps, GeneralElementCss } from '../../generalInterfaces'
 import { BKPT_3 } from '../../../constants'
-
-export interface TextFontProps {
-  t1?: boolean
-  /** `width < BKPT_3` ? `20px` : `18px` */ t2?: boolean
-  t2_5?: boolean
-  t3?: boolean
-  t4?: boolean
-  t3s?: boolean
-  t5s?: boolean
-}
-
 export interface TextAlignProps {
   textAlignCenter?: boolean
   textAlignLeft?: boolean
@@ -42,58 +31,6 @@ export interface TextStyleProps extends GeneralElementProps {
 }
 
 export interface GeneralTextProps extends TextFontProps, TextAlignProps, TextStyleProps {}
-
-const Font1 = css`
-  font-size: 24px;
-
-  @media screen and (max-width: ${BKPT_3}px) {
-    font-size: 22px;
-  }
-`
-
-const Font2 = css`
-  font-size: 20px;
-
-  @media screen and (max-width: ${BKPT_3}px) {
-    font-size: 18px;
-  }
-`
-
-const font2_5 = css`
-  font-size: 18px;
-
-  @media screen and (max-width: ${BKPT_3}px) {
-    font-size: 16px;
-  }
-`
-
-const Font3 = css`
-  font-size: 16px;
-
-  @media screen and (max-width: ${BKPT_3}px) {
-    font-size: 14px;
-  }
-`
-
-const Font4 = css`
-  font-size: 14px;
-
-  @media screen and (max-width: ${BKPT_3}px) {
-    font-size: 12px;
-  }
-`
-
-const Font3Static = css`
-  font-size: 16px;
-  font-weight: 600;
-  line-height: 14.4px;
-`
-
-const Font5Static = css`
-  font-size: 12px;
-  font-weight: 600;
-  line-height: 14px;
-`
 
 const AlignCenterCss = css`
   text-align: center;
@@ -140,39 +77,69 @@ const NoWrapCss = css`
   white-space: nowrap;
 `
 
+const Text2StaticCss = css`
+  font-size: 20px;
+  line-height: 18px;
+`
+
 export const Text1Css = css`
-  ${Font1}
+  font-size: 24px;
+
+  @media screen and (max-width: ${BKPT_3}px) {
+    font-size: 22px;
+  }
 `
 
 export const Text2Css = css`
-  ${Font2}
+  font-size: 20px;
+
+  @media screen and (max-width: ${BKPT_3}px) {
+    font-size: 18px;
+  }
 `
 
 export const Text2_5Css = css`
-  ${font2_5}
+  font-size: 18px;
+
+  @media screen and (max-width: ${BKPT_3}px) {
+    font-size: 16px;
+  }
+`
+
+const Text2_5StaticCss = css`
+  font-size: 18px;
+  line-height: 16px;
 `
 
 export const Text3Css = css`
-  ${Font3}
-`
+  font-size: 16px;
 
-export const Text4Css = css`
-  ${Font4}
+  @media screen and (max-width: ${BKPT_3}px) {
+    font-size: 14px;
+  }
 `
 
 export const Text3StaticCss = css`
-  ${Font3Static}
+  font-size: 16px;
+  line-height: 14.4px;
+`
+
+export const Text4Css = css`
+  font-size: 14px;
+
+  @media screen and (max-width: ${BKPT_3}px) {
+    font-size: 12px;
+  }
+`
+
+export const Text4StaticCss = css`
+  font-size: 14px;
 `
 
 export const Text5StaticCss = css`
-  ${Font5Static}
+  font-size: 12px;
+  line-height: 1.5;
 `
-
-// // bg-clip-text bg-gradient-to-tr from-yellow-500 to-blue-800 text-transparent
-// export const TextClipCss = css`
-//   background-clip: text;
-//   color: transparent;
-// `
 
 export const TextFontCss = css<TextFontProps>`
   ${Text3Css}
@@ -181,7 +148,10 @@ export const TextFontCss = css<TextFontProps>`
   ${(props) => props.t2_5 && Text2_5Css}
   ${(props) => props.t3 && Text3Css}
   ${(props) => props.t4 && Text4Css}
+  ${(props) => props.t2s && Text2StaticCss}
+  ${(props) => props.t2_5s && Text2_5StaticCss}
   ${(props) => props.t3s && Text3StaticCss}
+  ${(props) => props.t4s && Text4StaticCss}
   ${(props) => props.t5s && Text5StaticCss}
 `
 
@@ -257,3 +227,16 @@ export const TTTest = styled.div<{
       color: 'blue';
     `}
 `
+
+export interface TextFontProps {
+  /** `width < BKPT_3` ? `24px` : `22px` */ t1?: boolean
+  /** `width < BKPT_3` ? `20px` : `18px` */ t2?: boolean
+  /** `width < BKPT_3` ? `18px` : `16px` */ t2_5?: boolean
+  /** `width < BKPT_3` ? `16px` : `14px` */ t3?: boolean
+  /** `width < BKPT_3` ? `14px` : `12px` */ t4?: boolean
+  /** `font-size: 16px`, `line-height: 14.4px` */ t3s?: boolean
+  /** `14px` */ t4s?: boolean
+  /** `font-size: 12px`, `line-height: 14px` */ t5s?: boolean
+  /** `font-size: 20px`, `line-height: 18px` */ t2s?: boolean
+  /** `font-size: 18px`, `line-height: 16px` */ t2_5s?: boolean
+}

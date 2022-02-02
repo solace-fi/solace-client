@@ -11,6 +11,7 @@ export default styled.div<{
   justifyEnd?: boolean
   stretch?: boolean
   wrap?: boolean
+  m?: number
   mb?: number
   mt?: number
   p?: number
@@ -59,6 +60,11 @@ export default styled.div<{
     `}
   flex-direction: ${({ column, col }) => (column || col ? 'column' : 'row')};
   flex-wrap: ${({ wrap }) => (wrap ? 'wrap' : 'nowrap')};
+  ${({ m }) =>
+    m &&
+    css`
+      margin: ${m}px;
+    `}
   margin-bottom: ${({ mb }) => mb + 'px'};
   margin-top: ${({ mt }) => mt + 'px'};
   padding: ${({ p }) => p}px;
