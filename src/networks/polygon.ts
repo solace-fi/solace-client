@@ -27,7 +27,9 @@ export const PolygonNetwork: NetworkConfig = {
     keyContracts: {},
     productContracts: {},
     bondTellerContracts: {},
-    featureRestrictions: {
+    specialContracts: {},
+    specialFeatures: {},
+    restrictedFeatures: {
       noBondingV1: true,
       noCoverProducts: true,
       noFarmingV1: true,

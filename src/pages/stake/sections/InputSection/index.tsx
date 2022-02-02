@@ -17,7 +17,7 @@ export default function InputSection({
   disabled,
 }: // ref,
 {
-  tab: Tab.DEPOSIT | Tab.WITHDRAW | Tab.LOCK
+  tab?: Tab.DEPOSIT | Tab.LOCK | Tab.WITHDRAW
   value: string | undefined
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void
   setMax?: () => void
@@ -25,7 +25,7 @@ export default function InputSection({
 }): JSX.Element {
   return (
     <InputSectionWrapper>
-      <IconAndText tab={tab} disabled={disabled} />
+      {tab ? <IconAndText tab={tab} disabled={disabled} /> : <></>}
       <StyledInput
         key="mainInput"
         type="text"

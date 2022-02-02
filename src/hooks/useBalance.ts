@@ -24,6 +24,7 @@ import { getCoingeckoTokenPrice } from '../utils/api'
 // import SafeServiceClient from '@gnosis.pm/safe-service-client'
 import { useProvider } from '../context/ProviderManager'
 import { useReadToken } from './useToken'
+import { useBridge } from './useBridge'
 
 export const useNativeTokenBalance = (): string => {
   const { account, library } = useWallet()
@@ -123,7 +124,7 @@ export const useSolaceBalance = (): string => {
   return solaceBalance
 }
 
-export const useXSolaceBalance = () => {
+export const useXSolaceBalance = (): string => {
   const { keyContracts } = useContracts()
   const { xSolace } = useMemo(() => keyContracts, [keyContracts])
   const { account } = useWallet()
@@ -157,6 +158,37 @@ export const useXSolaceBalance = () => {
   }, [account, xSolace, getXSolaceBalance, version])
 
   return xSolaceBalance
+}
+
+export const useBridgeBalance = (): string => {
+  const { bSolace, getUserBridgeBalance } = useBridge()
+  const { account } = useWallet()
+  const { version } = useCachedData()
+  const readToken = useReadToken(bSolace)
+  const [bridgeBalance, setBridgeBalance] = useState<string>('0')
+
+  useEffect(() => {
+    if (!bSolace || !account) return
+    const getBalance = async () => {
+      const balance = await getUserBridgeBalance()
+      const formattedBalance = formatUnits(balance, readToken.decimals)
+      setBridgeBalance(formattedBalance)
+      bSolace.on('Transfer', async (from, to) => {
+        if (from == account || to == account) {
+          const balance = await getUserBridgeBalance()
+          const formattedBalance = formatUnits(balance, readToken.decimals)
+          setBridgeBalance(formattedBalance)
+        }
+      })
+    }
+    getBalance()
+
+    return () => {
+      bSolace.removeAllListeners()
+    }
+  }, [account, bSolace, getUserBridgeBalance, version, readToken])
+
+  return bridgeBalance
 }
 
 export const useXSolaceV1Balance = (): { xSolaceV1Balance: string; v1StakedSolaceBalance: string } => {
