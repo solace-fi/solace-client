@@ -31,3 +31,10 @@ export type SystemNoticeData = {
   metadata: string
   uniqueId: string
 }
+
+export type PageInfo = {
+  name: string
+  to: string
+  icon: JSX.Element
+  component: () => any
+}

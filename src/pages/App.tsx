@@ -20,11 +20,11 @@ import { Route, Switch, useLocation } from 'react-router-dom'
 
 /* import pages */
 import About from './about'
-import Dashboard from './dashboard'
+// import Dashboard from './dashboard'
 import Invest from './invest'
 import Stake from './stake'
 import Bond from './bond'
-import Quote from './quote'
+// import Quote from './quote'
 import Govern from './govern'
 import Terms from './terms'
 
@@ -33,6 +33,13 @@ import { SideNavbar, TopNavbar } from '../components/organisms/Navbar'
 import { GlobalStyle, Layout, ContentContainer, LayoutContent, SideNavContent } from '../components/atoms/Layout'
 import { LayoutContentWithLoader } from '../components/molecules/LayoutContentWithLoader'
 import { Statistics } from '../components/organisms/Statistics'
+import {
+  StyledDashboard,
+  StyledCoinStack,
+  StyledCommunity,
+  StyledReceiptMoney,
+  // StyledFileShield,
+} from '../components/atoms/Icon'
 
 /* import constants */
 import { BKPT_5 } from '../constants'
@@ -42,20 +49,66 @@ import { useWindowDimensions } from '../hooks/useWindowDimensions'
 
 import { AnalyticsReporter } from '../analytics'
 import Soteria from './soteria'
+import { PageInfo } from '../constants/types'
 
 export default function App(): any {
   const location = useLocation()
   const { width } = useWindowDimensions()
 
+  const pages: PageInfo[] = [
+    // {
+    //   name: 'Dashboard',
+    //   to: '/dashboard',
+    //   icon: <StyledDashboard size={30} />,
+    //   component: Dashboard,
+    // },
+    {
+      name: 'Buy Policy',
+      to: '/cover',
+      icon: <StyledDashboard size={30} />,
+      component: Soteria,
+    },
+    // {
+    //   name: 'Buy Cover',
+    //   to: '/quote',
+    //   icon: <StyledFileShield size={30} />,
+    //   component: Quote,
+    // },
+    {
+      name: 'Stake',
+      to: '/stake',
+      icon: <StyledCoinStack size={30} />,
+      component: Stake,
+    },
+    {
+      name: 'Bond',
+      to: '/bond',
+      icon: <StyledReceiptMoney size={30} />,
+      component: Bond,
+    },
+    {
+      name: 'Farms',
+      to: '/farms',
+      icon: <StyledCoinStack size={30} />,
+      component: Invest,
+    },
+    {
+      name: 'Govern',
+      to: '/govern',
+      icon: <StyledCommunity size={30} />,
+      component: Govern,
+    },
+  ]
+
   return (
     <Fragment>
       <AnalyticsReporter />
       <GlobalStyle location={location} />
-      <TopNavbar />
+      <TopNavbar pages={pages} />
       <Layout>
         <ContentContainer>
           <SideNavContent>
-            <SideNavbar />
+            <SideNavbar pages={pages} />
           </SideNavContent>
           <LayoutContent>
             <LayoutContentWithLoader>
@@ -64,13 +117,16 @@ export default function App(): any {
               )}
               <Switch>
                 <Route exact path="/" component={About} />
-                <Route exact path="/dashboard" component={Dashboard} />
+                {/* <Route exact path="/dashboard" component={Dashboard} />
                 <Route exact path="/invest" component={Invest} />
                 <Route exact path="/stake" component={Stake} />
                 <Route exact path="/soteria" component={Soteria} />
                 <Route exact path="/bond" component={Bond} />
                 <Route exact path="/quote" component={Quote} />
-                <Route exact path="/govern" component={Govern} />
+                <Route exact path="/govern" component={Govern} /> */}
+                {pages.map((p) => (
+                  <Route exact key={p.to} path={p.to} component={p.component} />
+                ))}
                 <Route exact path="/terms" component={Terms} />
               </Switch>
             </LayoutContentWithLoader>

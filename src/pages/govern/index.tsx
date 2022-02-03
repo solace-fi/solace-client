@@ -20,14 +20,16 @@ import { Text } from '../../components/atoms/Typography'
 
 function Govern(): any {
   return (
-    <HeroContainer p={10}>
-      <Text t1 textAlignCenter mb={20}>
-        We are beginning the transition from a launch DAO to a community run DAO.
-      </Text>
-      <Text t1 textAlignCenter mb={10}>
-        $SOLACE stakers can participate formal discussion via our forums page, and in voting through our @SnapshotLabs
-        page.
-      </Text>
+    <HeroContainer p={10} style={{ height: 'unset' }}>
+      <Content>
+        <Text t1 textAlignCenter mb={20}>
+          We are beginning the transition from a launch DAO to a community run DAO.
+        </Text>
+        <Text t1 textAlignCenter mb={10}>
+          $SOLACE stakers can participate formal discussion via our forums page, and in voting through our @SnapshotLabs
+          page.
+        </Text>
+      </Content>
       {/* <Text t2 textAlignCenter>
         See our Medium blog post{' '}
         <HyperLink
