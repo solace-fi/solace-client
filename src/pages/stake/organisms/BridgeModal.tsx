@@ -220,7 +220,7 @@ export const BridgeModal: React.FC<ModalProps> = ({ modalTitle, handleClose, isO
       {isWrapping && (
         <Flex>
           <Text t4 bold textAlignCenter style={{ margin: '7px auto' }}>
-            Available Bridge Liquidity: {bridgeLiquidity.toString()}
+            Available Bridge Liquidity: {formatUnits(bridgeLiquidity, 18)}
           </Text>
         </Flex>
       )}
