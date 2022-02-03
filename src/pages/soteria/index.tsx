@@ -422,16 +422,30 @@ function CoverageBalance() {
 
 function CoverageActive() {
   const [coverageActive, setCoverageActive] = React.useState<boolean>(false)
+  const [cooldownLeft, setCooldownLeft] = React.useState<number>(3)
+  const showCooldown = !coverageActive && cooldownLeft > 0
   return (
     <Card>
       <Flex between itemsCenter>
-        <Flex stretch gap={7}>
-          <Text t2 bold>
-            Coverage
-          </Text>
-          <Text t2 bold info={coverageActive} warning={!coverageActive}>
-            {coverageActive ? 'Active' : 'Inactive'}
-          </Text>
+        <Flex col gap={6}>
+          <Flex stretch gap={7}>
+            <Text t2s bold>
+              Coverage
+            </Text>
+            <Text t2s bold info={coverageActive} warning={!coverageActive}>
+              {coverageActive ? 'Active' : 'Inactive'}
+            </Text>
+          </Flex>
+          {showCooldown && (
+            <Flex gap={4}>
+              <Text t5s bold>
+                Cooldown:
+              </Text>
+              <Text info t5s bold>
+                5 days 5 hours
+              </Text>
+            </Flex>
+          )}
         </Flex>
         <Flex between itemsCenter>
           <ToggleSwitch

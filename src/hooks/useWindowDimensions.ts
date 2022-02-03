@@ -18,6 +18,9 @@ export const useWindowDimensions = (): WindowDimensions => {
   const ifDesktop = function <T, V>(desktopArg: T, mobileArg?: V): T | V | undefined {
     return isMobile ? mobileArg : desktopArg
   }
+  const ifMobile = function <T, V>(mobileArg: T, desktopArg?: V): T | V | undefined {
+    return isDesktop ? desktopArg : mobileArg
+  }
 
   useEffect(() => {
     function handleResize() {
@@ -33,5 +36,6 @@ export const useWindowDimensions = (): WindowDimensions => {
     isDesktop,
     isMobile,
     ifDesktop,
+    ifMobile,
   }
 }
