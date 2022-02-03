@@ -330,7 +330,7 @@ function CoverageBalance() {
           <Text t2 bold>
             Policy Balance
           </Text>
-          <StyledTooltip id={'coverage-balance'} tip={'Coverage Balance'}>
+          <StyledTooltip id={'policy-balance'} tip={'Policy Balance'}>
             <QuestionCircle height={20} width={20} color={'#aaa'} />
           </StyledTooltip>
         </Flex>
@@ -375,22 +375,14 @@ function CoverageBalance() {
               disabled={false}
               displayIconOnMobile
             />
-            {/* <GenericInputSection
-              icon={<StyledClock height={20} width={20} />}
-              onChange={(e) => setDays(e.target.value)}
-              text="Days"
-              value={ifStringZeroUndefined(days)}
-              disabled={false}
-              displayIconOnMobile
-            /> */}
             <StyledSlider />
           </Flex>
           <Flex gap={20}>
             <Button
               info
               secondary
-              pl={46.75}
-              pr={46.75}
+              pl={ifDesktop(46.75)}
+              pr={ifDesktop(46.75)}
               pt={8}
               pb={8}
               style={{
@@ -402,8 +394,8 @@ function CoverageBalance() {
             </Button>
             <Button
               info
-              pl={46.75}
-              pr={46.75}
+              pl={ifDesktop(46.75)}
+              pr={ifDesktop(46.75)}
               pt={8}
               pb={8}
               style={{
@@ -580,33 +572,6 @@ function PortfolioTable() {
   ]
   return (
     <>
-      {/* <StyledTable>
-        <thead>
-          <tr style={{}}>
-            <th style={{ textAlign: 'start', padding: '10px 24px' }}>Protocol</th>
-            <th style={{ textAlign: 'start', padding: '10px 24px' }}>Type</th>
-            <th style={{ textAlign: 'start', padding: '10px 24px' }}>Positions</th>
-            <th style={{ textAlign: 'start', padding: '10px 24px' }}>Amount</th>
-            <th style={{ textAlign: 'start', padding: '10px 24px' }}>Risk Level</th>
-          </tr>
-        </thead>
-        <tbody>
-          {data.map((row) => (
-            <StyledTr
-              key={row.id}
-              style={{
-                marginTop: '10px',
-              }}
-            >
-              <StyledTd first>{row.protocol}</StyledTd>
-              <StyledTd>{row.type}</StyledTd>
-              <StyledTd>{row.positions.join(', ')}</StyledTd>
-              <StyledTd>{row.amount}</StyledTd>
-              <StyledTd last>{row.riskLevel}</StyledTd>
-            </StyledTr>
-          ))}
-        </tbody>
-      </StyledTable> */}
       {width > BKPT_5 ? (
         <Table>
           <TableHead>
@@ -643,7 +608,13 @@ function PortfolioTable() {
                   <div>{row.protocol}</div>
                   <div>{row.positions.join(', ')}</div>
                 </Flex>
-                <Flex col gap={8.5}>
+                <Flex
+                  col
+                  gap={8.5}
+                  style={{
+                    textAlign: 'right',
+                  }}
+                >
                   <div>{row.amount}</div>
                   <div>{row.type}</div>
                   <div>{row.riskLevel}</div>
@@ -659,10 +630,10 @@ function PortfolioTable() {
 
 export default function Soteria(): JSX.Element {
   // set coverage active
-  const { width } = useWindowDimensions()
+  const { isMobile } = useWindowDimensions()
   return (
-    <Flex col gap={24} m={width < BKPT_5 ? 20 : undefined}>
-      <Flex gap={24} col={width < BKPT_5}>
+    <Flex col gap={24} m={isMobile ? 20 : undefined}>
+      <Flex gap={24} col={isMobile}>
         <CoverageLimit />
         <CoverageBalance />
         <Flex
@@ -681,6 +652,16 @@ export default function Soteria(): JSX.Element {
         <Text t2 bold>
           Portfolio Details
         </Text>
+        {isMobile && (
+          <Flex pl={24} pr={24} pt={10} pb={10} between mt={20} mb={10}>
+            <Text bold t4s>
+              Sort by
+            </Text>
+            <Text bold t4s>
+              Amount
+            </Text>
+          </Flex>
+        )}
         <PortfolioTable />
       </Card>
     </Flex>
