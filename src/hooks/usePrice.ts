@@ -150,7 +150,6 @@ export const useGetPricesFromCoingecko = () => {
       }),
       {}
     )
-    console.log(hashmap)
     return hashmap
   }
 
