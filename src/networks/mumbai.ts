@@ -34,7 +34,7 @@ const tellerToTokenMapping: {
   [TELLER_ADDRS_V2.ETH_TELLER]: {
     addr: WETH9_ADDRESS[80001],
     mainnetAddr: WETH9_ADDRESS[1],
-    isBondTellerErc20: false,
+    isBondTellerErc20: true,
     isLp: false,
     isDisabled: false,
     version: 2,
