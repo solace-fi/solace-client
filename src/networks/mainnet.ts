@@ -15,7 +15,6 @@ import xsLockerABI from '../constants/metadata/xsLocker.json'
 import stakingRewardsABI from '../constants/metadata/StakingRewards.json'
 import xSolaceMigratorABI from '../constants/metadata/xSolaceMigrator.json'
 import cpFarmABI from '../constants/abi/contracts/CpFarm.sol/CpFarm.json'
-import bondDepoABI from '../constants/abi/contracts/BondDepository.sol/BondDepository.json'
 import claimsEscrowABI from '../constants/abi/contracts/ClaimsEscrow.sol/ClaimsEscrow.json'
 import polMagABI from '../constants/abi/contracts/PolicyManager.sol/PolicyManager.json'
 import riskManagerABI from '../constants/abi/contracts/RiskManager.sol/RiskManager.json'
@@ -254,10 +253,6 @@ export const MainNetwork: NetworkConfig = {
       riskManager: {
         addr: KEY_ADDRS.RISK_MANAGER,
         abi: riskManagerABI,
-      },
-      bondDepo: {
-        addr: KEY_ADDRS.BOND_DEPO,
-        abi: bondDepoABI,
       },
     },
     productContracts: {

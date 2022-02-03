@@ -1,4 +1,4 @@
-import * as React from 'react'
+import React, { useEffect, useState } from 'react'
 import Flex from '../stake/atoms/Flex'
 import RaisedBox from '../stake/atoms/RaisedBox'
 import ShadowDiv from '../stake/atoms/ShadowDiv'
@@ -19,6 +19,9 @@ import { StyledTooltip } from '../../components/molecules/Tooltip'
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'
 import { BKPT_5 } from '../../constants'
 import GrayBgDiv from '../stake/atoms/BodyBgCss'
+import { useSoteria } from '../../hooks/useSoteria'
+import { getSolaceRiskBalances, getSolaceRiskScores } from '../../utils/api'
+import { SolaceRiskProtocol } from '../../constants/types'
 
 function Card({
   children,
@@ -416,6 +419,9 @@ function CoverageActive() {
   const [coverageActive, setCoverageActive] = React.useState<boolean>(false)
   const [cooldownLeft, setCooldownLeft] = React.useState<number>(3)
   const showCooldown = !coverageActive && cooldownLeft > 0
+
+  const { activatePolicy, deactivatePolicy } = useSoteria()
+
   return (
     <Card>
       <Flex between itemsCenter>
@@ -536,6 +542,7 @@ function PortfolioTable() {
 
   */
   const { width } = useWindowDimensions()
+
   const data = [
     {
       id: '_a',
@@ -570,6 +577,26 @@ function PortfolioTable() {
       riskLevel: 'Medium',
     },
   ]
+
+  // const [data, setData] = useState<SolaceRiskProtocol[]>([])
+
+  useEffect(() => {
+    const getPortfolio = async () => {
+      const account = '0x09748f07b839edd1d79a429d3ad918f670d602cd'
+      try {
+        const balances = await getSolaceRiskBalances(account, 1)
+        console.log(balances)
+        const scores = await getSolaceRiskScores(account, balances)
+        const protocols = scores.protocols
+        console.log(protocols)
+        // setData(protocols)
+      } catch (e) {
+        console.log('cannot get risk assessment')
+      }
+    }
+    getPortfolio()
+  }, [])
+
   return (
     <>
       {width > BKPT_5 ? (
@@ -582,13 +609,13 @@ function PortfolioTable() {
             <TableHeader>Risk Level</TableHeader>
           </TableHead>
           <TableBody>
-            {data.map((row) => (
-              <TableRow key={row.id}>
-                <TableData>{row.protocol}</TableData>
-                <TableData>{row.type}</TableData>
-                <TableData>{row.positions.join(', ')}</TableData>
-                <TableData>{row.amount}</TableData>
-                <TableData>{row.riskLevel}</TableData>
+            {data.map((d: any) => (
+              <TableRow key={d.id}>
+                <TableData>{d.protocol}</TableData>
+                <TableData>{d.type}</TableData>
+                <TableData>{d.positions.join(', ')}</TableData>
+                <TableData>{d.balanceUSD}</TableData>
+                <TableData>{d.riskLevel}</TableData>
               </TableRow>
             ))}
           </TableBody>
