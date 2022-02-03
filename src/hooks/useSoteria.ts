@@ -11,16 +11,16 @@ export const useSoteria = () => {
   const { soteriaCoverageProduct } = useMemo(() => keyContracts, [keyContracts])
   const { gasConfig } = useGetFunctionGas()
 
-  const getReferralCode = async (account: string): Promise<BigNumber> => {
-    if (!soteriaCoverageProduct) return ZERO
-    try {
-      const referralCode = await soteriaCoverageProduct.getReferralCode(account)
-      return referralCode
-    } catch (err) {
-      console.log('error getReferralCode ', err)
-      return ZERO
-    }
-  }
+  // const getReferralCode = async (account: string): Promise<BigNumber> => {
+  //   if (!soteriaCoverageProduct) return ZERO
+  //   try {
+  //     const referralCode = await soteriaCoverageProduct.getReferralCode(account)
+  //     return referralCode
+  //   } catch (err) {
+  //     console.log('error getReferralCode ', err)
+  //     return ZERO
+  //   }
+  // }
 
   const getData = async (): Promise<{
     availableCoverCapacity: BigNumber
@@ -32,7 +32,7 @@ export const useSoteria = () => {
     maxRateDenom: BigNumber
     chargeCycle: BigNumber
     cooldownPeriod: BigNumber
-    referralRewardPercentage: BigNumber
+    referralReward: BigNumber
   }> => {
     if (!soteriaCoverageProduct)
       return {
@@ -45,7 +45,7 @@ export const useSoteria = () => {
         maxRateDenom: ZERO,
         chargeCycle: ZERO,
         cooldownPeriod: ZERO,
-        referralRewardPercentage: ZERO,
+        referralReward: ZERO,
       }
     try {
       const [
@@ -58,7 +58,7 @@ export const useSoteria = () => {
         maxRateDenom,
         chargeCycle,
         cooldownPeriod,
-        referralRewardPercentage,
+        referralReward,
       ] = await Promise.all([
         await soteriaCoverageProduct.availableCoverCapacity(),
         await soteriaCoverageProduct.maxCover(),
@@ -69,7 +69,7 @@ export const useSoteria = () => {
         await soteriaCoverageProduct.maxRateDenom(),
         await soteriaCoverageProduct.chargeCycle(),
         await soteriaCoverageProduct.cooldownPeriod(),
-        await soteriaCoverageProduct.referralRewardPercentage(),
+        await soteriaCoverageProduct.referralReward(),
       ])
       return {
         availableCoverCapacity,
@@ -81,7 +81,7 @@ export const useSoteria = () => {
         maxRateDenom,
         chargeCycle,
         cooldownPeriod,
-        referralRewardPercentage,
+        referralReward,
       }
     } catch (err) {
       console.log('error getData ', err)
@@ -95,7 +95,7 @@ export const useSoteria = () => {
         maxRateDenom: ZERO,
         chargeCycle: ZERO,
         cooldownPeriod: ZERO,
-        referralRewardPercentage: ZERO,
+        referralReward: ZERO,
       }
     }
   }
@@ -148,8 +148,7 @@ export const useSoteria = () => {
     referralCode: BigNumber
   ) => {
     if (!soteriaCoverageProduct) return { tx: null, localTx: null }
-    const tx = await soteriaCoverageProduct.activatePolicy(account, coverLimit, referralCode, {
-      value: deposit,
+    const tx = await soteriaCoverageProduct.activatePolicy(account, coverLimit, deposit, referralCode, {
       ...gasConfig,
       gasLimit: GAS_LIMIT,
     })
@@ -189,10 +188,9 @@ export const useSoteria = () => {
     return { tx, localTx }
   }
 
-  const deposit = async (deposit: BigNumber) => {
+  const deposit = async (account: string, deposit: BigNumber) => {
     if (!soteriaCoverageProduct) return { tx: null, localTx: null }
-    const tx = await soteriaCoverageProduct.deposit({
-      value: deposit,
+    const tx = await soteriaCoverageProduct.deposit(account, deposit, {
       ...gasConfig,
       gasLimit: GAS_LIMIT,
     })
@@ -204,9 +202,9 @@ export const useSoteria = () => {
     return { tx, localTx }
   }
 
-  const withdraw = async (amount: BigNumber) => {
+  const withdraw = async () => {
     if (!soteriaCoverageProduct) return { tx: null, localTx: null }
-    const tx = await soteriaCoverageProduct.withdraw(amount, {
+    const tx = await soteriaCoverageProduct.withdraw({
       ...gasConfig,
       gasLimit: GAS_LIMIT,
     })
@@ -219,7 +217,7 @@ export const useSoteria = () => {
   }
 
   return {
-    getReferralCode,
+    // getReferralCode,
     getData,
     getDataByPolicyHolder,
     getDataByPolicyId,

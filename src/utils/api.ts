@@ -1,4 +1,4 @@
-import { ClaimAssessment, SolaceRiskBalance } from '../constants/types'
+import { ClaimAssessment, SolaceRiskBalance, SolaceRiskScore } from '../constants/types'
 import axios from 'axios'
 import { withBackoffRetries } from './time'
 import { equalsIgnoreCase } from '.'
@@ -92,14 +92,27 @@ export const getSolaceRiskBalances = async (address: string, chainId: number): P
   return data
 }
 
-export const getSolaceRiskScores = async (address: string, positions: SolaceRiskBalance[]) => {
-  const { data } = await axios.get(`https://risk-data.solace.fi/scores`, {
-    params: {
-      body: {
-        account: address,
-        positions,
-      },
+export const getSolaceRiskScores = async (
+  address: string,
+  positions: SolaceRiskBalance[]
+): Promise<SolaceRiskScore> => {
+  return await fetch('https://risk-data.solace.fi/scores', {
+    method: 'POST',
+    headers: {
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
     },
+    body: JSON.stringify({
+      account: address,
+      positions: positions,
+    }),
   })
-  return data
+    .then((response) => response.json())
+    .then((data) => {
+      return data
+    })
+    .catch((error) => {
+      console.error('Error getSolaceRiskScores:', error)
+      return {}
+    })
 }

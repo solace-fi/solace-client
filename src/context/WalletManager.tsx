@@ -17,6 +17,7 @@ import { WalletModal } from '../components/organisms/wallet/WalletModal'
 import { useNetwork } from './NetworkManager'
 import { MetamaskConnector } from '../wallet/wallet-connectors/MetaMask'
 import { useGeneral } from './GeneralManager'
+import { getSolaceRiskBalances, getSolaceRiskScores } from '../utils/api'
 
 /*
 
