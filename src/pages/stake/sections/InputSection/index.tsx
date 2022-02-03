@@ -53,6 +53,7 @@ export const GenericInputSection = ({
   disabled,
   w,
   style,
+  displayIconOnMobile,
 }: {
   icon: JSX.Element
   text: string
@@ -61,6 +62,7 @@ export const GenericInputSection = ({
   disabled?: boolean
   w?: number
   style?: React.CSSProperties
+  displayIconOnMobile?: boolean
 }): JSX.Element => {
   const rawStyle = {
     ...style,
@@ -70,7 +72,7 @@ export const GenericInputSection = ({
   }
   return (
     <InputSectionWrapper style={rawStyle}>
-      <GenericIconAndText icon={icon} text={text} disabled={disabled} />
+      <GenericIconAndText icon={icon} text={text} disabled={disabled} displayOnMobile={displayIconOnMobile} />
       <StyledInput
         key="mainInput"
         type="text"
