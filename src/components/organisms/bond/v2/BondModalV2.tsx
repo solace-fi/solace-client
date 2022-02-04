@@ -64,8 +64,8 @@ import { useWindowDimensions } from '../../../../hooks/useWindowDimensions'
 /* import utils */
 import { accurateMultiply, formatAmount } from '../../../../utils/formatting'
 import { queryBalance } from '../../../../utils/contract'
-import { FunctionGasLimits } from '../../../../constants/mappings/gasMapping'
 import { TransactionReceipt, TransactionResponse } from '@ethersproject/providers'
+import { useTellerConfig } from '../../../../hooks/useDetectTeller'
 
 interface BondModalV2Props {
   closeModal: () => void
@@ -100,7 +100,13 @@ export const BondModalV2: React.FC<BondModalV2Props> = ({ closeModal, isOpen, se
   const [bondRecipient, setBondRecipient] = useState<string | undefined>(undefined)
   const [calculatedAmountIn, setCalculatedAmountIn] = useState<BigNumber | undefined>(ZERO)
   const [calculatedAmountOut, setCalculatedAmountOut] = useState<BigNumber | undefined>(ZERO)
-  const [func, setFunc] = useState<FunctionName>(FunctionName.BOND_DEPOSIT_ETH_V2)
+  const {
+    bondDepositFunctionName,
+    bondDepositWrappedFunctionName,
+    bondDepositFunctionGas,
+    bondDepositWrappedFunctionGas,
+  } = useTellerConfig(activeNetwork)
+  const [func, setFunc] = useState<FunctionName>(bondDepositFunctionName)
   const [principalBalance, setPrincipalBalance] = useState<string>('0')
   const [slippagePrct, setSlippagePrct] = useState<string>('20')
 
@@ -121,12 +127,13 @@ export const BondModalV2: React.FC<BondModalV2Props> = ({ closeModal, isOpen, se
     spenderAddress,
     amount && amount != '.' ? parseUnits(amount, pncplDecimals).toString() : '0'
   )
+
   const assetBalance = useMemo(() => {
     switch (func) {
       case FunctionName.BOND_DEPOSIT_ERC20_V2:
-      case FunctionName.BOND_DEPOSIT_WETH_V2:
+      case bondDepositWrappedFunctionName:
         return parseUnits(principalBalance, pncplDecimals)
-      case FunctionName.BOND_DEPOSIT_ETH_V2:
+      case bondDepositFunctionName:
       default:
         return parseUnits(nativeTokenBalance, currencyDecimals)
     }
@@ -167,7 +174,12 @@ export const BondModalV2: React.FC<BondModalV2Props> = ({ closeModal, isOpen, se
     setModalLoading(true)
     const slippageInt = parseInt(accurateMultiply(slippagePrct, 2))
     const minAmountOut = calculatedAmountOut.mul(BigNumber.from(MAX_BPS - slippageInt)).div(BigNumber.from(MAX_BPS))
-    await deposit(parseUnits(amount, pncplDecimals), minAmountOut, bondRecipient, stake, func)
+    let desiredFunctionGas = undefined
+    if (func == FunctionName.BOND_DEPOSIT_ERC20_V2) desiredFunctionGas = undefined
+    if (func == bondDepositFunctionName) desiredFunctionGas = bondDepositFunctionGas
+    if (func == bondDepositWrappedFunctionName) desiredFunctionGas = bondDepositWrappedFunctionGas
+
+    await deposit(parseUnits(amount, pncplDecimals), minAmountOut, bondRecipient, stake, func, desiredFunctionGas)
       .then((res) => _handleToast(res.tx, res.localTx))
       .catch((err) => _handleContractCallError('callDepositBond', err, func))
   }
@@ -198,7 +210,7 @@ export const BondModalV2: React.FC<BondModalV2Props> = ({ closeModal, isOpen, se
 
   const handleClose = useCallback(() => {
     setBondRecipient(account)
-    setFunc(FunctionName.BOND_DEPOSIT_ETH_V2)
+    setFunc(bondDepositFunctionName)
     setIsAcceptableAmount(false)
     setIsBondTellerErc20(false)
     setIsBonding(true)
@@ -213,12 +225,12 @@ export const BondModalV2: React.FC<BondModalV2Props> = ({ closeModal, isOpen, se
 
   const _setMax = () => {
     if (!pncplDecimals || !calculatedAmountIn) return
-    if (func == FunctionName.BOND_DEPOSIT_ETH_V2) {
+    if (func == bondDepositFunctionName) {
     }
     setMax(
       assetBalance.gt(calculatedAmountIn) ? calculatedAmountIn : assetBalance,
       pncplDecimals,
-      func == FunctionName.BOND_DEPOSIT_ETH_V2 ? FunctionGasLimits['tellerEth_v2.depositEth'] : undefined
+      func == bondDepositFunctionName ? bondDepositFunctionGas : undefined
     )
   }
 
@@ -296,12 +308,12 @@ export const BondModalV2: React.FC<BondModalV2Props> = ({ closeModal, isOpen, se
     const getTellerType = async () => {
       if (!selectedBondDetail) return
       const isBondTellerErc20 = selectedBondDetail.tellerData.teller.isBondTellerErc20
-      const tempFunc = isBondTellerErc20 ? FunctionName.BOND_DEPOSIT_ERC20_V2 : FunctionName.BOND_DEPOSIT_ETH_V2
+      const tempFunc = isBondTellerErc20 ? FunctionName.BOND_DEPOSIT_ERC20_V2 : bondDepositFunctionName
       setIsBondTellerErc20(isBondTellerErc20)
       setFunc(tempFunc)
     }
     getTellerType()
-  }, [selectedBondDetail, isOpen])
+  }, [selectedBondDetail?.tellerData.teller.isBondTellerErc20])
 
   useEffect(() => {
     calculateAmountIn()
@@ -322,7 +334,7 @@ export const BondModalV2: React.FC<BondModalV2Props> = ({ closeModal, isOpen, se
 
   useEffect(() => {
     if (isBondTellerErc20) return
-    setFunc(shouldUseNativeToken ? FunctionName.BOND_DEPOSIT_ETH_V2 : FunctionName.BOND_DEPOSIT_WETH_V2)
+    setFunc(shouldUseNativeToken ? bondDepositFunctionName : bondDepositWrappedFunctionName)
   }, [shouldUseNativeToken])
 
   return (
@@ -339,7 +351,7 @@ export const BondModalV2: React.FC<BondModalV2Props> = ({ closeModal, isOpen, se
           selectedBondDetail={selectedBondDetail}
         />
         <ModalHeader style={{ position: 'relative', marginTop: '20px' }}>
-          {(approval || func == FunctionName.BOND_DEPOSIT_ETH_V2) && (
+          {(approval || func == bondDepositFunctionName) && (
             <FlexRow style={{ cursor: 'pointer', position: 'absolute', left: '0', bottom: '-10px' }}>
               <StyledGear size={25} onClick={() => setShowBondSettingsModal(true)} />
             </FlexRow>
@@ -423,10 +435,7 @@ export const BondModalV2: React.FC<BondModalV2Props> = ({ closeModal, isOpen, se
               textAlignCenter
               type="text"
               onChange={(e) =>
-                handleInputChange(
-                  e.target.value,
-                  func == FunctionName.BOND_DEPOSIT_ETH_V2 ? currencyDecimals : pncplDecimals
-                )
+                handleInputChange(e.target.value, func == bondDepositFunctionName ? currencyDecimals : pncplDecimals)
               }
               value={amount}
             />

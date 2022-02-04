@@ -27,31 +27,36 @@ export const useBondTellerV2 = (selectedBondDetail: BondTellerDetails | undefine
     minAmountOut: BigNumber,
     recipient: string,
     stake: boolean,
-    func: FunctionName
+    func: FunctionName,
+    desiredFunctionGas: number | undefined
   ): Promise<TxResult> => {
     if (!selectedBondDetail) return { tx: null, localTx: null }
-    const tx =
-      func == FunctionName.BOND_DEPOSIT_ERC20_V2
-        ? await selectedBondDetail.tellerData.teller.contract.deposit(parsedAmount, minAmountOut, recipient, stake, {
-            ...gasConfig,
-            gasLimit: FunctionGasLimits['tellerErc20_v2.deposit'],
-          })
-        : func == FunctionName.BOND_DEPOSIT_ETH_V2
-        ? await selectedBondDetail.tellerData.teller.contract.depositEth(minAmountOut, recipient, stake, {
-            value: parsedAmount,
-            ...gasConfig,
-            gasLimit: FunctionGasLimits['tellerEth_v2.depositEth'],
-          })
-        : await selectedBondDetail.tellerData.teller.contract.depositWeth(
-            parsedAmount,
-            minAmountOut,
-            recipient,
-            stake,
-            {
-              ...gasConfig,
-              gasLimit: FunctionGasLimits['tellerEth_v2.depositWeth'],
-            }
-          )
+    const cntct = selectedBondDetail.tellerData.teller.contract
+    const gasSettings = { ...gasConfig, gasLimit: desiredFunctionGas ?? FunctionGasLimits['tellerErc20_v2.deposit'] }
+    let tx = null
+    switch (func) {
+      case FunctionName.BOND_DEPOSIT_ETH_V2:
+        tx = await cntct.depositEth(minAmountOut, recipient, stake, {
+          value: parsedAmount,
+          ...gasSettings,
+        })
+        break
+      case FunctionName.BOND_DEPOSIT_WETH_V2:
+        tx = await cntct.depositWeth(parsedAmount, minAmountOut, recipient, stake, gasSettings)
+        break
+      case FunctionName.BOND_DEPOSIT_MATIC:
+        tx = await cntct.depositMatic(minAmountOut, recipient, stake, {
+          value: parsedAmount,
+          ...gasSettings,
+        })
+        break
+      case FunctionName.BOND_DEPOSIT_WMATIC:
+        tx = await cntct.depositWmatic(parsedAmount, minAmountOut, recipient, stake, gasSettings)
+        break
+      case FunctionName.BOND_DEPOSIT_ERC20_V2:
+      default:
+        tx = await cntct.deposit(parsedAmount, minAmountOut, recipient, stake, gasSettings)
+    }
     const localTx: LocalTx = {
       hash: tx.hash,
       type: func,
@@ -83,7 +88,7 @@ export const useBondTellerDetailsV2 = (
   const { library, account } = useWallet()
   const { latestBlock } = useProvider()
   const { tellers } = useContracts()
-  const { activeNetwork, networks, chainId } = useNetwork()
+  const { activeNetwork, networks } = useNetwork()
   const [tellerDetails, setTellerDetails] = useState<BondTellerDetails[]>([])
   const [mounting, setMounting] = useState<boolean>(true)
   const { getPriceFromSushiswap } = useGetPriceFromSushiSwap()

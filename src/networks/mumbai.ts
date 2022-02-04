@@ -18,29 +18,45 @@ import {
   USDT_ADDRESS,
   WBTC_ADDRESS,
   FRAX_ADDRESS,
+  WMATIC,
 } from '../constants/mappings/tokenAddressMapping'
+
+import bondTellerErc20Abi_V2 from '../constants/metadata/BondTellerErc20_V2.json'
+import bondTellerMaticAbi from '../constants/metadata/BondTellerMatic.json'
 
 const tellerToTokenMapping: {
   [key: string]: TellerToken
 } = {
   [TELLER_ADDRS_V2.DAI_TELLER]: {
     addr: DAI_ADDRESS[80001],
+    abi: bondTellerErc20Abi_V2.abi,
     mainnetAddr: DAI_ADDRESS[1],
     isBondTellerErc20: true,
     isLp: false,
     isDisabled: false,
     version: 2,
   },
-  [TELLER_ADDRS_V2.ETH_TELLER]: {
+  [TELLER_ADDRS_V2.WETH_TELLER]: {
     addr: WETH9_ADDRESS[80001],
+    abi: bondTellerErc20Abi_V2.abi,
     mainnetAddr: WETH9_ADDRESS[1],
     isBondTellerErc20: true,
     isLp: false,
     isDisabled: false,
     version: 2,
   },
+  [TELLER_ADDRS_V2.MATIC_TELLER]: {
+    addr: WMATIC[80001],
+    abi: bondTellerMaticAbi.abi,
+    mainnetAddr: WMATIC[1],
+    isBondTellerErc20: false,
+    isLp: false,
+    isDisabled: false,
+    version: 2,
+  },
   [TELLER_ADDRS_V2.USDC_TELLER]: {
     addr: USDC_ADDRESS[80001],
+    abi: bondTellerErc20Abi_V2.abi,
     mainnetAddr: USDC_ADDRESS[1],
     isBondTellerErc20: true,
     isLp: false,
@@ -49,6 +65,7 @@ const tellerToTokenMapping: {
   },
   [TELLER_ADDRS_V2.WBTC_TELLER]: {
     addr: WBTC_ADDRESS[80001],
+    abi: bondTellerErc20Abi_V2.abi,
     mainnetAddr: WBTC_ADDRESS[1],
     isBondTellerErc20: true,
     isLp: false,
@@ -57,6 +74,7 @@ const tellerToTokenMapping: {
   },
   [TELLER_ADDRS_V2.USDT_TELLER]: {
     addr: USDT_ADDRESS[80001],
+    abi: bondTellerErc20Abi_V2.abi,
     mainnetAddr: USDT_ADDRESS[1],
     isBondTellerErc20: true,
     isLp: false,
@@ -65,6 +83,7 @@ const tellerToTokenMapping: {
   },
   [TELLER_ADDRS_V2.FRAX_TELLER]: {
     addr: FRAX_ADDRESS[80001],
+    abi: bondTellerErc20Abi_V2.abi,
     mainnetAddr: FRAX_ADDRESS[1],
     isBondTellerErc20: true,
     isLp: false,
@@ -114,7 +133,8 @@ export const MumbaiNetwork: NetworkConfig = {
     productContracts: {},
     bondTellerContracts: {
       [BondName.DAI]: [TELLER_ADDRS_V2.DAI_TELLER],
-      [BondName.ETH]: [TELLER_ADDRS_V2.ETH_TELLER],
+      [BondName.WETH]: [TELLER_ADDRS_V2.WETH_TELLER],
+      [BondName.MATIC]: [TELLER_ADDRS_V2.MATIC_TELLER],
       [BondName.USDC]: [TELLER_ADDRS_V2.USDC_TELLER],
       [BondName.WBTC]: [TELLER_ADDRS_V2.WBTC_TELLER],
       [BondName.USDT]: [TELLER_ADDRS_V2.USDT_TELLER],

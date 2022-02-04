@@ -62,6 +62,8 @@ export enum FunctionName {
   SOTERIA_WITHDRAW = 'Withdraw',
 
   // bond tellers v2
+  BOND_DEPOSIT_WMATIC = 'DepositWmatic',
+  BOND_DEPOSIT_MATIC = 'DepositMatic',
   BOND_DEPOSIT_WETH_V2 = 'DepositWeth',
   BOND_DEPOSIT_ETH_V2 = 'DepositEth',
   BOND_DEPOSIT_ERC20_V2 = 'Deposit',
@@ -143,4 +145,6 @@ export enum BondName {
   WBTC = 'WBTC',
   USDT = 'USDT',
   FRAX = 'FRAX',
+  WMATIC = 'WMATIC',
+  MATIC = 'MATIC',
 }
