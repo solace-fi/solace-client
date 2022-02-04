@@ -128,7 +128,7 @@ export const PolygonNetwork: NetworkConfig = {
     key: String(POLYGONSCAN_API_KEY),
     url: 'https://polygonscan.com',
     apiUrl: 'https://api.polygonscan.com',
-    excludedContractAddrs: [],
+    excludedContractAddrs: [KEY_ADDRS.SOLACE],
   },
   config: {
     keyContracts: {
@@ -150,20 +150,28 @@ export const PolygonNetwork: NetworkConfig = {
       },
     },
     productContracts: {},
-    bondTellerContracts: {},
+    bondTellerContracts: {
+      [BondName.DAI]: [TELLER_ADDRS_V2.DAI_TELLER],
+      [BondName.WETH]: [TELLER_ADDRS_V2.WETH_TELLER],
+      [BondName.MATIC]: [TELLER_ADDRS_V2.MATIC_TELLER],
+      [BondName.USDC]: [TELLER_ADDRS_V2.USDC_TELLER],
+      [BondName.WBTC]: [TELLER_ADDRS_V2.WBTC_TELLER],
+      [BondName.USDT]: [TELLER_ADDRS_V2.USDT_TELLER],
+      [BondName.FRAX]: [TELLER_ADDRS_V2.FRAX_TELLER],
+    },
     specialContracts: {},
     specialFeatures: {},
     restrictedFeatures: {
       noBondingV1: true,
-      noBondingV2: true,
       noCoverProducts: true,
       noFarmingV1: true,
       noStakingV1: true,
     },
+    underwritingPoolAddr: '0xd1108a800363C262774B990e9DF75a4287d5c075',
   },
   cache: {
     supportedProducts: [],
-    tellerToTokenMapping: {},
+    tellerToTokenMapping,
   },
   metamaskChain: {
     chainId: hexValue(chainId),
