@@ -30,7 +30,7 @@ import { useCachedData } from '../../../context/CachedDataManager'
 /* import constants */
 import { FunctionName, Unit } from '../../../constants/enums'
 import { LocalTx } from '../../../constants/types'
-import { BKPT_3 } from '../../../constants'
+import { BKPT_3, ZERO } from '../../../constants'
 import { FunctionGasLimits } from '../../../constants/mappings/gasMapping'
 
 /* import components */
@@ -92,9 +92,12 @@ export const UnderwritingPoolModal: React.FC<PoolModalProps> = ({ modalTitle, fu
   const assetBalance = useMemo(() => {
     switch (func) {
       case FunctionName.DEPOSIT_ETH:
+        if (nativeTokenBalance.includes('.') && nativeTokenBalance.split('.')[1].length > (currencyDecimals ?? 0))
+          return ZERO
         return parseUnits(nativeTokenBalance, currencyDecimals)
       case FunctionName.WITHDRAW_ETH:
       default:
+        if (scpBalance.includes('.') && scpBalance.split('.')[1].length > (currencyDecimals ?? 0)) return ZERO
         return parseUnits(scpBalance, currencyDecimals)
     }
   }, [currencyDecimals, func, nativeTokenBalance, scpBalance])

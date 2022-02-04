@@ -322,7 +322,7 @@ export const Statistics: React.FC = () => {
                     Global APY
                   </BoxItemTitle>
                   <Text t2 light bold>
-                    {`${truncateValue(globalLockStats.apy.toNumber(), 1)}`}%
+                    {`${truncateValue(globalLockStats.apy.toString(), 1)}`}%
                   </Text>
                 </BoxItem>
               </>
@@ -384,7 +384,7 @@ export const Statistics: React.FC = () => {
                     <FormCol light>Global APY</FormCol>
                     <FormCol>
                       <Text t2 light>
-                        {`${truncateValue(globalLockStats.apy.toNumber(), 1)}`}%
+                        {`${truncateValue(globalLockStats.apy.toString(), 1)}`}%
                       </Text>
                     </FormCol>
                   </FormRow>

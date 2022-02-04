@@ -94,6 +94,7 @@ export const Erc721PoolModalGeneric: React.FC<PoolModalProps & Erc721PoolModalGe
         return userNftTokenInfo.reduce((a, b) => a.add(b.value), ZERO)
       case withdrawFunc.name:
       default:
+        if (userStakeValue.includes('.') && userStakeValue.split('.')[1].length > (currencyDecimals ?? 0)) return ZERO
         return parseUnits(userStakeValue, currencyDecimals)
     }
   }, [currencyDecimals, depositFunc.name, func, userNftTokenInfo, userStakeValue, withdrawFunc.name])

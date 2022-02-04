@@ -149,7 +149,7 @@ export default function NewSafe({ isOpen }: { isOpen: boolean }): JSX.Element {
                             &nbsp;
                           </div>
                           <Text t3s techygradient>
-                            <Flex>{projectedApy.toNumber()}%</Flex>
+                            <Flex>{truncateValue(projectedApy.toString(), 1)}%</Flex>
                           </Text>
                         </Flex>
                         <VerticalSeparator />

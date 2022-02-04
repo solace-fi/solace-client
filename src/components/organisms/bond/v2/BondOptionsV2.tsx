@@ -33,6 +33,8 @@ import { StyledGraphDown, StyledSendPlane } from '../../../atoms/Icon'
 
 /* import utils */
 import { accurateMultiply, shortenAddress } from '../../../../utils/formatting'
+import { useTellerConfig } from '../../../../hooks/useDetectTeller'
+import { useNetwork } from '../../../../context/NetworkManager'
 
 interface BondOptionsV2Props {
   isBondTellerErc20: boolean
@@ -71,6 +73,8 @@ export const BondOptionsV2: React.FC<BondOptionsV2Props> = ({
   
   */
   const { haveErrors } = useGeneral()
+  const { activeNetwork } = useNetwork()
+  const { bondDepositFunctionName } = useTellerConfig(activeNetwork)
 
   return (
     <>
@@ -89,7 +93,7 @@ export const BondOptionsV2: React.FC<BondOptionsV2Props> = ({
       </FlexCol>
       {!selectedBondDetail?.tellerData.teller.cannotBuy ? (
         <ButtonWrapper isColumn>
-          {!approval && func != FunctionName.BOND_DEPOSIT_ETH_V2 && (
+          {!approval && func != bondDepositFunctionName && (
             <Button widthP={100} info disabled={!isAcceptableAmount || haveErrors} onClick={approve}>
               Approve
             </Button>
@@ -97,7 +101,7 @@ export const BondOptionsV2: React.FC<BondOptionsV2Props> = ({
           <Button
             widthP={100}
             info
-            disabled={!isAcceptableAmount || haveErrors || (!approval && func != FunctionName.BOND_DEPOSIT_ETH_V2)}
+            disabled={!isAcceptableAmount || haveErrors || (!approval && func != bondDepositFunctionName)}
             onClick={() => callDepositBond(isStaking)}
           >
             Bond
