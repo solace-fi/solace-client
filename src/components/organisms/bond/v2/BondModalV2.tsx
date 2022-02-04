@@ -313,7 +313,7 @@ export const BondModalV2: React.FC<BondModalV2Props> = ({ closeModal, isOpen, se
       setFunc(tempFunc)
     }
     getTellerType()
-  }, [selectedBondDetail?.tellerData.teller.isBondTellerErc20])
+  }, [selectedBondDetail?.tellerData.teller.addr])
 
   useEffect(() => {
     calculateAmountIn()

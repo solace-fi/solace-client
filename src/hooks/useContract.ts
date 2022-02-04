@@ -73,12 +73,14 @@ export function useGetBondTellerContracts(): BondTellerContract[] {
         const addr = mapping.addr
         const mainnetAddr = mapping.mainnetAddr
         const version = mapping.version
-        const abi = mapping.abi
-        const contract = getContract(bondTellerContract, abi, library, account ? account : undefined)
+        const tellerAbi = mapping.tellerAbi
+        const principalAbi = mapping.principalAbi
+        const contract = getContract(bondTellerContract, tellerAbi, library, account ? account : undefined)
         const cntct: BondTellerContract = {
           name: key,
           contract,
-          abi,
+          tellerAbi,
+          principalAbi,
           isBondTellerErc20,
           isLp,
           addr,
@@ -123,7 +125,7 @@ export function useContractArray(): ContractSources[] {
       const versionsArray = config.bondTellerContracts[key]
       versionsArray.forEach((bondTellerContract) => {
         if (!excludedContractAddrs.includes(bondTellerContract)) {
-          const abi = cache.tellerToTokenMapping[bondTellerContract].abi
+          const abi = cache.tellerToTokenMapping[bondTellerContract].tellerAbi
           contractSources.push({
             addr: bondTellerContract.toLowerCase(),
             abi,

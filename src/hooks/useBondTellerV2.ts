@@ -6,8 +6,6 @@ import { BigNumber } from 'ethers'
 import { useCallback, useEffect, useState, useMemo, useRef } from 'react'
 import { getContract } from '../utils'
 
-import ierc20Json from '../constants/metadata/IERC20Metadata.json'
-import weth9 from '../constants/abi/contracts/WETH9.sol/WETH9.json'
 import { useWallet } from '../context/WalletManager'
 import { FunctionGasLimits } from '../constants/mappings/gasMapping'
 import { FunctionName, TransactionCondition } from '../constants/enums'
@@ -128,12 +126,7 @@ export const useBondTellerDetailsV2 = (
                 teller.contract.maxPayout(),
               ])
 
-              const principalContract = getContract(
-                principalAddr,
-                teller.isBondTellerErc20 ? ierc20Json.abi : weth9,
-                library,
-                account ?? undefined
-              )
+              const principalContract = getContract(principalAddr, teller.principalAbi, library, account ?? undefined)
 
               const [decimals, name, symbol] = await Promise.all([
                 queryDecimals(principalContract),

@@ -62,12 +62,12 @@ export default function App(): any {
     //   icon: <StyledDashboard size={30} />,
     //   component: Dashboard,
     // },
-    {
-      name: 'Buy Policy',
-      to: '/cover',
-      icon: <StyledDashboard size={30} />,
-      component: Soteria,
-    },
+    // {
+    //   name: 'Buy Policy',
+    //   to: '/cover',
+    //   icon: <StyledDashboard size={30} />,
+    //   component: Soteria,
+    // },
     // {
     //   name: 'Buy Cover',
     //   to: '/quote',
@@ -117,6 +117,7 @@ export default function App(): any {
               )}
               <Switch>
                 <Route exact path="/" component={About} />
+                <Route exact path="/soteria" component={Soteria} />
                 {/* <Route exact path="/dashboard" component={Dashboard} />
                 <Route exact path="/invest" component={Invest} />
                 <Route exact path="/stake" component={Stake} />

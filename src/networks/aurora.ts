@@ -21,12 +21,17 @@ import IERC20 from '../constants/metadata/IERC20Metadata.json'
 
 import bondTellerErc20Abi_V2 from '../constants/metadata/BondTellerErc20_V2.json'
 import bondTellerEthAbi_V2 from '../constants/metadata/BondTellerEth_V2.json'
+
+import ierc20Json from '../constants/metadata/IERC20Metadata.json'
+import weth9 from '../constants/abi/contracts/WETH9.sol/WETH9.json'
+
 const tellerToTokenMapping: {
   [key: string]: TellerToken
 } = {
   [TELLER_ADDRS_V2.DAI_TELLER]: {
     addr: DAI_ADDRESS[1313161554],
-    abi: bondTellerErc20Abi_V2.abi,
+    principalAbi: ierc20Json.abi,
+    tellerAbi: bondTellerErc20Abi_V2.abi,
     mainnetAddr: DAI_ADDRESS[1],
     isBondTellerErc20: true,
     isLp: false,
@@ -35,7 +40,8 @@ const tellerToTokenMapping: {
   },
   [TELLER_ADDRS_V2.ETH_TELLER]: {
     addr: WETH9_ADDRESS[1313161554],
-    abi: bondTellerEthAbi_V2.abi,
+    principalAbi: weth9,
+    tellerAbi: bondTellerEthAbi_V2.abi,
     mainnetAddr: WETH9_ADDRESS[1],
     isBondTellerErc20: false,
     isLp: false,
@@ -44,7 +50,8 @@ const tellerToTokenMapping: {
   },
   [TELLER_ADDRS_V2.USDC_TELLER]: {
     addr: USDC_ADDRESS[1313161554],
-    abi: bondTellerErc20Abi_V2.abi,
+    principalAbi: ierc20Json.abi,
+    tellerAbi: bondTellerErc20Abi_V2.abi,
     mainnetAddr: USDC_ADDRESS[1],
     isBondTellerErc20: true,
     isLp: false,
@@ -53,7 +60,8 @@ const tellerToTokenMapping: {
   },
   [TELLER_ADDRS_V2.WBTC_TELLER]: {
     addr: WBTC_ADDRESS[1313161554],
-    abi: bondTellerErc20Abi_V2.abi,
+    principalAbi: ierc20Json.abi,
+    tellerAbi: bondTellerErc20Abi_V2.abi,
     mainnetAddr: WBTC_ADDRESS[1],
     isBondTellerErc20: true,
     isLp: false,
@@ -62,7 +70,8 @@ const tellerToTokenMapping: {
   },
   [TELLER_ADDRS_V2.USDT_TELLER]: {
     addr: USDT_ADDRESS[1313161554],
-    abi: bondTellerErc20Abi_V2.abi,
+    principalAbi: ierc20Json.abi,
+    tellerAbi: bondTellerErc20Abi_V2.abi,
     mainnetAddr: USDT_ADDRESS[1],
     isBondTellerErc20: true,
     isLp: false,
@@ -71,7 +80,8 @@ const tellerToTokenMapping: {
   },
   [TELLER_ADDRS_V2.FRAX_TELLER]: {
     addr: FRAX_ADDRESS[1313161554],
-    abi: bondTellerErc20Abi_V2.abi,
+    principalAbi: ierc20Json.abi,
+    tellerAbi: bondTellerErc20Abi_V2.abi,
     mainnetAddr: FRAX_ADDRESS[1],
     isBondTellerErc20: true,
     isLp: false,

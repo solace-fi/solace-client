@@ -6,8 +6,6 @@ import { floatUnits } from '../utils/formatting'
 import { queryDecimals } from '../utils/contract'
 import { Contract } from '@ethersproject/contracts'
 import { getContract } from '../utils'
-import sushiSwapLpAltABI from '../constants/metadata/ISushiswapMetadataAlt.json'
-import { useWallet } from '../context/WalletManager'
 import { USDC_ADDRESS, WETH9_ADDRESS } from '../constants/mappings/tokenAddressMapping'
 import { ZERO } from '../constants'
 import ierc20Json from '../constants/metadata/IERC20Metadata.json'
@@ -53,7 +51,7 @@ export const useGetPriceFromSushiSwap = () => {
       const TOKEN = new Token(activeNetwork.chainId, handleAddressException(token.address, activeNetwork), decimals)
       const USDC = new Token(activeNetwork.chainId, USDC_ADDRESS[activeNetwork.chainId] ?? USDC_ADDRESS[1], 6)
       const pairAddr = await Pair.getAddress(TOKEN, USDC)
-      const pairPoolContract = getContract(pairAddr, sushiSwapLpAltABI, library)
+      const pairPoolContract = getContract(pairAddr, sushiswapLpAbi, library)
       const reserves = await pairPoolContract.getReserves()
       const tokens = await Promise.all([pairPoolContract.token0(), pairPoolContract.token1()])
       if (tokens[0].toLowerCase() == token.address.toLowerCase()) {

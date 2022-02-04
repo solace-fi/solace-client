@@ -11,7 +11,6 @@ import { Unit } from '../constants/enums'
 
 import ierc20Json from '../constants/metadata/IERC20Metadata.json'
 import sushiswapLpAbi from '../constants/metadata/ISushiswapMetadataAlt.json'
-import weth9 from '../constants/abi/contracts/WETH9.sol/WETH9.json'
 import { getContract } from '../utils'
 import { withBackoffRetries } from '../utils/time'
 import { ZERO } from '../constants'
@@ -264,9 +263,7 @@ export const useUnderWritingPoolBalance = () => {
         return
       const multiSig = activeNetwork.config.underwritingPoolAddr
       if (!library) return
-      const principalContracts = tellers.map((t) =>
-        getContract(t.addr, t.isLp ? sushiswapLpAbi : t.isBondTellerErc20 ? ierc20Json.abi : weth9, library, undefined)
-      )
+      const principalContracts = tellers.map((t) => getContract(t.addr, t.principalAbi, library, undefined))
       principalContracts.push(solace)
       const balances: BigNumber[] = await Promise.all(principalContracts.map((c) => queryBalance(c, multiSig)))
       const usdcBalances: number[] = await Promise.all(
@@ -386,11 +383,7 @@ export const useCrossChainUnderwritingPoolBalance = () => {
         let usdcBalanceForNetwork = 0
         Object.keys(tellerData).forEach(async (key) => {
           const t = tellerData[key]
-          const contract = new Contract(
-            t.addr,
-            t.isLp ? sushiswapLpAbi : t.isBondTellerErc20 ? ierc20Json.abi : weth9,
-            provider
-          )
+          const contract = new Contract(t.addr, t.principalAbi, provider)
           const balance = await queryBalance(contract, multiSig)
           if (t.isLp) {
             const [token0, token1] = await Promise.all([contract.token0(), contract.token1()])
