@@ -100,7 +100,7 @@ export default function LockForm({ lock }: { lock: LockData }): JSX.Element {
                       &nbsp;
                     </div>
                     <Text t3s techygradient>
-                      <Flex>{projectedApy.toString()}%</Flex>
+                      <Flex>{truncateValue(projectedApy.toString(), 1)}%</Flex>
                     </Text>
                   </Flex>
                   <VerticalSeparator />

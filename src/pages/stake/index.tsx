@@ -292,7 +292,7 @@ function Stake1(): any {
                                 &nbsp;
                               </div>
                               <Text t3s techygradient>
-                                <Flex>{projectedApy.toString()}%</Flex>
+                                <Flex>{truncateValue(projectedApy.toString(), 1)}%</Flex>
                               </Text>
                             </Flex>
                             <VerticalSeparator />
@@ -565,7 +565,7 @@ export default function Stake(): JSX.Element {
                                   <Text light={isSelected}>{truncateValue(multiplier, 1)}x</Text>
                                 </TableData>
                                 <TableData p={10}>
-                                  <Text light={isSelected}>{lock.apy.toString()}%</Text>
+                                  <Text light={isSelected}>{truncateValue(lock.apy.toString(), 1)}%</Text>
                                 </TableData>
                               </TableRow>
                             )
@@ -612,7 +612,7 @@ export default function Stake(): JSX.Element {
                               <FormRow mb={0}>
                                 <FormCol light={isSelected}>APY</FormCol>
                                 <FormCol bold light={isSelected}>
-                                  {lock.apy.toString()}%
+                                  {truncateValue(lock.apy.toString(), 1)}%
                                 </FormCol>
                               </FormRow>
                             </Card>
