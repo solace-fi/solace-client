@@ -27,74 +27,83 @@ import bondTellerMaticAbi from '../constants/metadata/BondTellerMatic.json'
 import ierc20Json from '../constants/metadata/IERC20Metadata.json'
 import wmatic from '../constants/metadata/WMATIC.json'
 
+const chainId = 80001
+
 const tellerToTokenMapping: {
   [key: string]: TellerToken
 } = {
   [TELLER_ADDRS_V2.DAI_TELLER]: {
-    addr: DAI_ADDRESS[80001],
+    addr: DAI_ADDRESS[chainId],
     principalAbi: ierc20Json.abi,
     tellerAbi: bondTellerErc20Abi_V2.abi,
     mainnetAddr: DAI_ADDRESS[1],
+    tokenId: 'dai',
     isBondTellerErc20: true,
     isLp: false,
     isDisabled: false,
     version: 2,
   },
   [TELLER_ADDRS_V2.WETH_TELLER]: {
-    addr: WETH9_ADDRESS[80001],
+    addr: WETH9_ADDRESS[chainId],
     principalAbi: ierc20Json.abi,
     tellerAbi: bondTellerErc20Abi_V2.abi,
     mainnetAddr: WETH9_ADDRESS[1],
+    tokenId: 'ethereum',
     isBondTellerErc20: true,
     isLp: false,
     isDisabled: false,
     version: 2,
   },
   [TELLER_ADDRS_V2.MATIC_TELLER]: {
-    addr: WMATIC_ADDRESS[80001],
+    addr: WMATIC_ADDRESS[chainId],
     principalAbi: wmatic.abi,
     tellerAbi: bondTellerMaticAbi.abi,
     mainnetAddr: WMATIC_ADDRESS[1],
+    tokenId: 'matic-network',
     isBondTellerErc20: false,
     isLp: false,
     isDisabled: false,
     version: 2,
   },
   [TELLER_ADDRS_V2.USDC_TELLER]: {
-    addr: USDC_ADDRESS[80001],
+    addr: USDC_ADDRESS[chainId],
     principalAbi: ierc20Json.abi,
     tellerAbi: bondTellerErc20Abi_V2.abi,
     mainnetAddr: USDC_ADDRESS[1],
+    tokenId: '',
     isBondTellerErc20: true,
     isLp: false,
     isDisabled: false,
     version: 2,
   },
   [TELLER_ADDRS_V2.WBTC_TELLER]: {
-    addr: WBTC_ADDRESS[80001],
+    addr: WBTC_ADDRESS[chainId],
     principalAbi: ierc20Json.abi,
     tellerAbi: bondTellerErc20Abi_V2.abi,
     mainnetAddr: WBTC_ADDRESS[1],
+    tokenId: '',
     isBondTellerErc20: true,
     isLp: false,
     isDisabled: false,
     version: 2,
   },
   [TELLER_ADDRS_V2.USDT_TELLER]: {
-    addr: USDT_ADDRESS[80001],
+    addr: USDT_ADDRESS[chainId],
     principalAbi: ierc20Json.abi,
     tellerAbi: bondTellerErc20Abi_V2.abi,
     mainnetAddr: USDT_ADDRESS[1],
+    tokenId: 'tether',
     isBondTellerErc20: true,
     isLp: false,
     isDisabled: false,
     version: 2,
   },
   [TELLER_ADDRS_V2.FRAX_TELLER]: {
-    addr: FRAX_ADDRESS[80001],
+    addr: FRAX_ADDRESS[chainId],
     principalAbi: ierc20Json.abi,
     tellerAbi: bondTellerErc20Abi_V2.abi,
     mainnetAddr: FRAX_ADDRESS[1],
+    tokenId: 'frax',
     isBondTellerErc20: true,
     isLp: false,
     isDisabled: false,
@@ -104,7 +113,7 @@ const tellerToTokenMapping: {
 
 export const MumbaiNetwork: NetworkConfig = {
   name: 'Mumbai',
-  chainId: 80001,
+  chainId: chainId,
   isTestnet: true,
   logo: PolygonLogo,
   supportedTxTypes: [0, 2],
@@ -165,7 +174,7 @@ export const MumbaiNetwork: NetworkConfig = {
     tellerToTokenMapping,
   },
   metamaskChain: {
-    chainId: hexValue(80001),
+    chainId: hexValue(chainId),
     chainName: 'Mumbai Network',
     nativeCurrency: { name: 'Matic', symbol: Unit.MATIC, decimals: 18 },
     rpcUrls: ['https://polygon-mumbai.g.alchemy.com'],

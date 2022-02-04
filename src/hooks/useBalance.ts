@@ -19,7 +19,7 @@ import { floatUnits } from '../utils/formatting'
 
 import { Token, Pair } from '@sushiswap/sdk'
 import { useCoingeckoPrice } from '@usedapp/coingecko'
-import { getCoingeckoTokenPrice } from '../utils/api'
+import { getCoingeckoTokenPriceByAddr } from '../utils/api'
 // import SafeServiceClient from '@gnosis.pm/safe-service-client'
 import { useProvider } from '../context/ProviderManager'
 import { useReadToken } from './useToken'
@@ -286,11 +286,19 @@ export const useUnderWritingPoolBalance = () => {
             let price1 = await getPriceFromSushiswap(token1Contract, activeNetwork, library)
 
             if (price0 == -1) {
-              const coinGeckoTokenPrice = await getCoingeckoTokenPrice(token0Contract.address, 'usd', coingeckoTokenId)
+              const coinGeckoTokenPrice = await getCoingeckoTokenPriceByAddr(
+                token0Contract.address,
+                'usd',
+                coingeckoTokenId
+              )
               price0 = parseFloat(coinGeckoTokenPrice ?? '0')
             }
             if (price1 == -1) {
-              const coinGeckoTokenPrice = await getCoingeckoTokenPrice(token1Contract.address, 'usd', coingeckoTokenId)
+              const coinGeckoTokenPrice = await getCoingeckoTokenPriceByAddr(
+                token1Contract.address,
+                'usd',
+                coingeckoTokenId
+              )
               price1 = parseFloat(coinGeckoTokenPrice ?? '0')
             }
 
@@ -304,7 +312,9 @@ export const useUnderWritingPoolBalance = () => {
             const multiplied = poolShare * (price0 * totalReserve0 + price1 * totalReserve1)
             return multiplied
           } else {
-            let price = tokenPriceMapping[tellers[i].mainnetAddr.toLowerCase()]
+            const key =
+              tellers[i].mainnetAddr == '' ? tellers[i].tokenId.toLowerCase() : tellers[i].mainnetAddr.toLowerCase()
+            let price = tokenPriceMapping[key]
             if (price <= 0 || !price) {
               const sushiPrice = await getPriceFromSushiswap(principalContracts[i], activeNetwork, library)
               if (sushiPrice != -1) price = sushiPrice
@@ -403,7 +413,7 @@ export const useCrossChainUnderwritingPoolBalance = () => {
             let price1 = await getPriceFromSushiswap(token1Contract, activeNetwork, provider)
 
             if (price0 == -1) {
-              const coinGeckoTokenPrice = await getCoingeckoTokenPrice(
+              const coinGeckoTokenPrice = await getCoingeckoTokenPriceByAddr(
                 token0Contract.address,
                 'usd',
                 coingeckoTokenId(activeNetwork.nativeCurrency.symbol)
@@ -411,7 +421,7 @@ export const useCrossChainUnderwritingPoolBalance = () => {
               price0 = parseFloat(coinGeckoTokenPrice ?? '0')
             }
             if (price1 == -1) {
-              const coinGeckoTokenPrice = await getCoingeckoTokenPrice(
+              const coinGeckoTokenPrice = await getCoingeckoTokenPriceByAddr(
                 token1Contract.address,
                 'usd',
                 coingeckoTokenId(activeNetwork.nativeCurrency.symbol)
@@ -428,8 +438,8 @@ export const useCrossChainUnderwritingPoolBalance = () => {
             const multiplied = poolShare * (price0 * totalReserve0 + price1 * totalReserve1)
             usdcBalanceForNetwork += multiplied
           } else {
-            const mainnetCounterpart = t.mainnetAddr
-            let price = tokenPriceMapping[mainnetCounterpart.toLowerCase()]
+            const key = t.mainnetAddr == '' ? t.tokenId.toLowerCase() : t.mainnetAddr.toLowerCase()
+            let price = tokenPriceMapping[key]
             if (price <= 0 || !price) {
               const sushiPrice = await getPriceFromSushiswap(contract, activeNetwork, provider)
               if (sushiPrice != -1) price = sushiPrice

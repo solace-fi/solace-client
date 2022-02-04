@@ -74,17 +74,18 @@ export default function App(): any {
     //   icon: <StyledFileShield size={30} />,
     //   component: Quote,
     // },
-    {
-      name: 'Stake',
-      to: '/stake',
-      icon: <StyledCoinStack size={30} />,
-      component: Stake,
-    },
+
     {
       name: 'Bond',
       to: '/bond',
       icon: <StyledReceiptMoney size={30} />,
       component: Bond,
+    },
+    {
+      name: 'Stake',
+      to: '/stake',
+      icon: <StyledCoinStack size={30} />,
+      component: Stake,
     },
     {
       name: 'Farms',

@@ -132,12 +132,15 @@ export const BondModalV2: React.FC<BondModalV2Props> = ({ closeModal, isOpen, se
     switch (func) {
       case FunctionName.BOND_DEPOSIT_ERC20_V2:
       case bondDepositWrappedFunctionName:
+        if (principalBalance.includes('.') && principalBalance.split('.')[1].length > (pncplDecimals ?? 0)) return ZERO
         return parseUnits(principalBalance, pncplDecimals)
       case bondDepositFunctionName:
       default:
+        if (nativeTokenBalance.includes('.') && nativeTokenBalance.split('.')[1].length > (currencyDecimals ?? 0))
+          return ZERO
         return parseUnits(nativeTokenBalance, currencyDecimals)
     }
-  }, [func, nativeTokenBalance, principalBalance, pncplDecimals])
+  }, [func, nativeTokenBalance, principalBalance, pncplDecimals, currencyDecimals])
 
   /*************************************************************************************
 

@@ -1,6 +1,6 @@
 import { BondName, Unit } from '../constants/enums'
 import { NetworkConfig, TellerToken } from '../constants/types'
-import EthereumLogo from '../resources/svg/networks/ethereum-logo.svg'
+import AuroraLogo from '../resources/svg/networks/aurora-logo.svg'
 import { hexValue } from 'ethers/lib/utils'
 import { KEY_ADDRS, TELLER_ADDRS_V2, SPECIAL_ADDRS } from '../constants/addresses/auroraTestnet'
 
@@ -16,7 +16,8 @@ import {
   USDT_ADDRESS,
   WBTC_ADDRESS,
   FRAX_ADDRESS,
-  // NEAR_ADDRESS,
+  NEAR_ADDRESS,
+  AURORA_ADDRESS,
 } from '../constants/mappings/tokenAddressMapping'
 
 import bridgeWrapperABI from '../constants/metadata/BridgeWrapper.json'
@@ -27,85 +28,106 @@ import bondTellerEthAbi_V2 from '../constants/metadata/BondTellerEth_V2.json'
 import ierc20Json from '../constants/metadata/IERC20Metadata.json'
 import weth9 from '../constants/abi/contracts/WETH9.sol/WETH9.json'
 
+const chainId = 1313161555
+
 const tellerToTokenMapping: {
   [key: string]: TellerToken
 } = {
   [TELLER_ADDRS_V2.DAI_TELLER]: {
-    addr: DAI_ADDRESS[1313161555],
+    addr: DAI_ADDRESS[chainId],
     principalAbi: ierc20Json.abi,
     tellerAbi: bondTellerErc20Abi_V2.abi,
     mainnetAddr: DAI_ADDRESS[1],
+    tokenId: 'dai',
     isBondTellerErc20: true,
     isLp: false,
     isDisabled: false,
     version: 2,
   },
   [TELLER_ADDRS_V2.ETH_TELLER]: {
-    addr: WETH9_ADDRESS[1313161555],
+    addr: WETH9_ADDRESS[chainId],
     principalAbi: weth9,
     tellerAbi: bondTellerEthAbi_V2.abi,
     mainnetAddr: WETH9_ADDRESS[1],
+    tokenId: 'ethereum',
     isBondTellerErc20: false,
     isLp: false,
     isDisabled: false,
     version: 2,
   },
   [TELLER_ADDRS_V2.USDC_TELLER]: {
-    addr: USDC_ADDRESS[1313161555],
+    addr: USDC_ADDRESS[chainId],
     principalAbi: ierc20Json.abi,
     tellerAbi: bondTellerErc20Abi_V2.abi,
     mainnetAddr: USDC_ADDRESS[1],
+    tokenId: '',
     isBondTellerErc20: true,
     isLp: false,
     isDisabled: false,
     version: 2,
   },
   [TELLER_ADDRS_V2.WBTC_TELLER]: {
-    addr: WBTC_ADDRESS[1313161555],
+    addr: WBTC_ADDRESS[chainId],
     principalAbi: ierc20Json.abi,
     tellerAbi: bondTellerErc20Abi_V2.abi,
     mainnetAddr: WBTC_ADDRESS[1],
+    tokenId: '',
     isBondTellerErc20: true,
     isLp: false,
     isDisabled: false,
     version: 2,
   },
   [TELLER_ADDRS_V2.USDT_TELLER]: {
-    addr: USDT_ADDRESS[1313161555],
+    addr: USDT_ADDRESS[chainId],
     principalAbi: ierc20Json.abi,
     tellerAbi: bondTellerErc20Abi_V2.abi,
     mainnetAddr: USDT_ADDRESS[1],
+    tokenId: 'tether',
     isBondTellerErc20: true,
     isLp: false,
     isDisabled: false,
     version: 2,
   },
   [TELLER_ADDRS_V2.FRAX_TELLER]: {
-    addr: FRAX_ADDRESS[1313161555],
+    addr: FRAX_ADDRESS[chainId],
     principalAbi: ierc20Json.abi,
     tellerAbi: bondTellerErc20Abi_V2.abi,
     mainnetAddr: FRAX_ADDRESS[1],
+    tokenId: 'frax',
     isBondTellerErc20: true,
     isLp: false,
     isDisabled: false,
     version: 2,
   },
-  // [TELLER_ADDRS_V2.NEAR_TELLER]: {
-  //   addr: NEAR_ADDRESS[1313161555],
-  //   principalAbi: ierc20Json.abi,
-  //   tellerAbi: bondTellerErc20Abi_V2.abi,
-
-  // },
-  // [TELLER_ADDRS_V2.AURORA_TELLER]: {
-
-  // }
+  [TELLER_ADDRS_V2.NEAR_TELLER]: {
+    addr: NEAR_ADDRESS[chainId],
+    principalAbi: ierc20Json.abi,
+    tellerAbi: bondTellerErc20Abi_V2.abi,
+    mainnetAddr: '',
+    tokenId: 'near',
+    isBondTellerErc20: true,
+    isLp: false,
+    isDisabled: false,
+    version: 2,
+  },
+  [TELLER_ADDRS_V2.AURORA_TELLER]: {
+    addr: AURORA_ADDRESS[chainId],
+    principalAbi: ierc20Json.abi,
+    tellerAbi: bondTellerErc20Abi_V2.abi,
+    mainnetAddr: AURORA_ADDRESS[1],
+    tokenId: 'aurora',
+    isBondTellerErc20: true,
+    isLp: false,
+    isDisabled: false,
+    version: 2,
+  },
 }
 
 export const AuroraTestnetNetwork: NetworkConfig = {
   name: 'Aurora Testnet',
-  chainId: 1313161555,
+  chainId: chainId,
   isTestnet: true,
-  // logo: EthereumLogo,
+  logo: AuroraLogo,
   supportedTxTypes: [0, 2],
   nativeCurrency: { mainnetReference: WETH9_ADDRESS[1], symbol: Unit.ETH, decimals: 18 },
   rpc: {
@@ -146,6 +168,8 @@ export const AuroraTestnetNetwork: NetworkConfig = {
       [BondName.WBTC]: [TELLER_ADDRS_V2.WBTC_TELLER],
       [BondName.USDT]: [TELLER_ADDRS_V2.USDT_TELLER],
       [BondName.FRAX]: [TELLER_ADDRS_V2.FRAX_TELLER],
+      [BondName.NEAR]: [TELLER_ADDRS_V2.NEAR_TELLER],
+      [BondName.AURORA]: [TELLER_ADDRS_V2.AURORA_TELLER],
     },
     restrictedFeatures: {
       noBondingV1: true,
@@ -174,7 +198,7 @@ export const AuroraTestnetNetwork: NetworkConfig = {
     tellerToTokenMapping,
   },
   metamaskChain: {
-    chainId: hexValue(1313161555),
+    chainId: hexValue(chainId),
     chainName: 'Aurora Testnet',
     nativeCurrency: { name: 'ETH', symbol: Unit.ETH, decimals: 18 },
     rpcUrls: ['https://testnet.aurora.dev'],

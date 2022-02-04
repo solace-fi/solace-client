@@ -52,6 +52,7 @@ export type TellerToken = {
   tellerAbi: any
   principalAbi: any
   mainnetAddr: string
+  tokenId: string
   isBondTellerErc20: boolean
   version: number
   isLp?: boolean

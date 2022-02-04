@@ -136,7 +136,8 @@ export const useBondTellerDetailsV2 = (
 
               let usdBondPrice = 0
 
-              usdBondPrice = tokenPriceMapping[teller.mainnetAddr.toLowerCase()] * floatUnits(bondPrice, decimals)
+              const key = teller.mainnetAddr == '' ? teller.tokenId.toLowerCase() : teller.mainnetAddr.toLowerCase()
+              usdBondPrice = tokenPriceMapping[key] * floatUnits(bondPrice, decimals)
               if (usdBondPrice <= 0) {
                 const price = await getPriceFromSushiswap(principalContract, activeNetwork, library) // via sushiswap sdk
                 if (price != -1) usdBondPrice = price * floatUnits(bondPrice, decimals)

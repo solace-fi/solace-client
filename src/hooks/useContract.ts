@@ -72,6 +72,7 @@ export function useGetBondTellerContracts(): BondTellerContract[] {
         const cannotBuy = mapping.cannotBuy
         const addr = mapping.addr
         const mainnetAddr = mapping.mainnetAddr
+        const tokenId = mapping.tokenId
         const version = mapping.version
         const tellerAbi = mapping.tellerAbi
         const principalAbi = mapping.principalAbi
@@ -85,6 +86,7 @@ export function useGetBondTellerContracts(): BondTellerContract[] {
           isLp,
           addr,
           mainnetAddr,
+          tokenId,
           version,
           isDisabled,
           cannotBuy,

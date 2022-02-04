@@ -147,4 +147,6 @@ export enum BondName {
   FRAX = 'FRAX',
   WMATIC = 'WMATIC',
   MATIC = 'MATIC',
+  NEAR = 'NEAR',
+  AURORA = 'AURORA',
 }
