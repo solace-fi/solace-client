@@ -210,9 +210,7 @@ export const BondModalV2: React.FC<BondModalV2Props> = ({ closeModal, isOpen, se
 
   const handleClose = useCallback(() => {
     setBondRecipient(account)
-    setFunc(bondDepositFunctionName)
     setIsAcceptableAmount(false)
-    setIsBondTellerErc20(false)
     setIsBonding(true)
     setIsStaking(false)
     setShouldUseNativeToken(true)
@@ -225,8 +223,6 @@ export const BondModalV2: React.FC<BondModalV2Props> = ({ closeModal, isOpen, se
 
   const _setMax = () => {
     if (!pncplDecimals || !calculatedAmountIn) return
-    if (func == bondDepositFunctionName) {
-    }
     setMax(
       assetBalance.gt(calculatedAmountIn) ? calculatedAmountIn : assetBalance,
       pncplDecimals,
@@ -313,7 +309,7 @@ export const BondModalV2: React.FC<BondModalV2Props> = ({ closeModal, isOpen, se
       setFunc(tempFunc)
     }
     getTellerType()
-  }, [selectedBondDetail?.tellerData.teller.addr])
+  }, [selectedBondDetail?.tellerData.teller.isBondTellerErc20, selectedBondDetail?.tellerData.teller.addr])
 
   useEffect(() => {
     calculateAmountIn()
