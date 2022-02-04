@@ -1,5 +1,3 @@
-import { GAS_LIMIT } from '..'
-
 export const FunctionGasLimits: { [key: string]: number } = {
   ['claimsEscrow.withdrawClaimsPayout']: 150000,
   ['cpFarm.depositCp']: 189538,
@@ -22,8 +20,8 @@ export const FunctionGasLimits: { [key: string]: number } = {
   ['tellerEth_v1.depositWeth']: 664339,
   ['tellerEth_v2.depositEth']: 509098,
   ['tellerEth_v2.depositWeth']: 597664,
-  ['tellerMatic.depositMatic']: GAS_LIMIT,
-  ['tellerMatic.depositWmatic']: GAS_LIMIT,
+  ['tellerMatic.depositMatic']: 509164,
+  ['tellerMatic.depositWmatic']: 597700,
   ['teller_v1.redeem']: 171085,
   ['teller_v2.claimPayout']: 157950,
   ['vault.depositEth']: 126777,
