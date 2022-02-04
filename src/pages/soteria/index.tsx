@@ -17,11 +17,13 @@ import commaNumber from '../../utils/commaNumber'
 import { Table, TableHead, TableHeader, TableBody, TableRow, TableData } from '../../components/atoms/Table'
 import { StyledTooltip } from '../../components/molecules/Tooltip'
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'
-import { BKPT_5 } from '../../constants'
+import { BKPT_5, ZERO } from '../../constants'
 import GrayBgDiv from '../stake/atoms/BodyBgCss'
 import { useSoteria } from '../../hooks/useSoteria'
 import { getSolaceRiskBalances, getSolaceRiskScores } from '../../utils/api'
 import { SolaceRiskProtocol } from '../../constants/types'
+import { useWallet } from '../../context/WalletManager'
+import { BigNumber } from 'ethers'
 
 function Card({
   children,
@@ -317,6 +319,23 @@ function CoverageBalance() {
   // setters for usd and days
   const [usd, setUsd] = React.useState('0')
   const { ifDesktop } = useWindowDimensions()
+  const { account } = useWallet()
+
+  const [balance, setBalance] = useState<BigNumber>(ZERO)
+  const [cooldownStart, setCooldownStart] = useState<BigNumber>(ZERO)
+
+  const { getAccountBalanceOf, deposit, withdraw, getCooldownPeriod, getCooldownStart } = useSoteria()
+
+  useEffect(() => {
+    ;async () => {
+      if (!account) return
+      const bal = await getAccountBalanceOf(account)
+      const cdStart = await getCooldownStart(account)
+      setCooldownStart(cdStart)
+      setBalance(bal)
+    }
+  }, [])
+
   return (
     <Card bigger horiz>
       <Flex
