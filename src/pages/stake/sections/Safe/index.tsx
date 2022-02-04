@@ -121,7 +121,7 @@ export default function Safe({
               label="APY"
               desktop={width > BKPT_5}
             >
-              <CardSectionValue highlight={true}>{lock.apy.toNumber()}%</CardSectionValue>
+              <CardSectionValue highlight={true}>{lock.apy.toString()}%</CardSectionValue>
             </InfoPair>
             <InfoPair
               isSafePreview

@@ -116,7 +116,7 @@ export default function WithdrawForm({ lock }: { lock: LockData }): JSX.Element 
                       &nbsp;
                     </div>
                     <Text t3s techygradient>
-                      <Flex>{projectedApy.toNumber()}%</Flex>
+                      <Flex>{projectedApy.toString()}%</Flex>
                     </Text>
                   </Flex>
                   <VerticalSeparator />
