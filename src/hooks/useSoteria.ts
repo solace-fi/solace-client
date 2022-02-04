@@ -154,6 +154,17 @@ export const useSoteria = () => {
     }
   }
 
+  const getIsReferralCodeUsed = async (account: string): Promise<boolean> => {
+    if (!solaceCoverageProduct) return true
+    try {
+      const d = await solaceCoverageProduct.isReferralCodeUsed(account)
+      return d
+    } catch (e) {
+      console.log('error getIsReferralCodeUsed ', e)
+      return true
+    }
+  }
+
   const getRewardPointsOf = async (account: string): Promise<BigNumber> => {
     if (!solaceCoverageProduct) return ZERO
     try {
@@ -270,6 +281,7 @@ export const useSoteria = () => {
 
   return {
     getAvailableCoverCapacity,
+    getIsReferralCodeUsed,
     getMaxCover,
     getPaused,
     getActiveCoverLimit,
