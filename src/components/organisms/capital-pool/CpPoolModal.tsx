@@ -54,6 +54,7 @@ import { useInputAmount, useTransactionExecution } from '../../../hooks/useInput
 /* import utils */
 import { getUnit, truncateValue } from '../../../utils/formatting'
 import { FunctionGasLimits } from '../../../constants/mappings/gasMapping'
+import { ZERO } from '../../../constants'
 
 export const CpPoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, closeModal }) => {
   /*************************************************************************************
@@ -88,9 +89,12 @@ export const CpPoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen
   const assetBalance = useMemo(() => {
     switch (func) {
       case FunctionName.DEPOSIT_CP:
+        if (scpBalance.includes('.') && scpBalance.split('.')[1].length > (currencyDecimals ?? 0)) return ZERO
         return parseUnits(scpBalance, currencyDecimals)
       case FunctionName.WITHDRAW_CP:
       default:
+        if (cpUserStakeValue.includes('.') && cpUserStakeValue.split('.')[1].length > (currencyDecimals ?? 0))
+          return ZERO
         return parseUnits(cpUserStakeValue, currencyDecimals)
     }
   }, [cpUserStakeValue, currencyDecimals, func, scpBalance])

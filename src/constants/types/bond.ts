@@ -49,7 +49,10 @@ export type BondPrincipalData = {
 
 export type TellerToken = {
   addr: string
+  tellerAbi: any
+  principalAbi: any
   mainnetAddr: string
+  tokenId: string
   isBondTellerErc20: boolean
   version: number
   isLp?: boolean

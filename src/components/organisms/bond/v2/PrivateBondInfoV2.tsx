@@ -33,6 +33,7 @@ import { Text } from '../../../atoms/Typography'
 
 /* import hooks */
 import { useReadToken } from '../../../../hooks/useToken'
+import { useTellerConfig } from '../../../../hooks/useDetectTeller'
 
 interface PrivateBondInfoV2Props {
   func: FunctionName
@@ -60,6 +61,7 @@ export const PrivateBondInfoV2: React.FC<PrivateBondInfoV2Props> = ({
   const { keyContracts } = useContracts()
   const { solace } = useMemo(() => keyContracts, [keyContracts])
   const readSolaceToken = useReadToken(solace)
+  const { bondDepositFunctionName } = useTellerConfig(activeNetwork)
   return (
     <>
       {account && (
@@ -71,7 +73,7 @@ export const PrivateBondInfoV2: React.FC<PrivateBondInfoV2Props> = ({
             <FormCol>
               <Text info textAlignRight bold>
                 {formatUnits(assetBalance, pncplDecimals)}{' '}
-                {func == FunctionName.BOND_DEPOSIT_ETH_V2
+                {func == bondDepositFunctionName
                   ? activeNetwork.nativeCurrency.symbol
                   : selectedBondDetail?.principalData.principalProps?.symbol}
               </Text>

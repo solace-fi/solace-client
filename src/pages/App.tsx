@@ -62,29 +62,30 @@ export default function App(): any {
     //   icon: <StyledDashboard size={30} />,
     //   component: Dashboard,
     // },
-    {
-      name: 'Buy Policy',
-      to: '/cover',
-      icon: <StyledDashboard size={30} />,
-      component: Soteria,
-    },
+    // {
+    //   name: 'Buy Policy',
+    //   to: '/cover',
+    //   icon: <StyledDashboard size={30} />,
+    //   component: Soteria,
+    // },
     // {
     //   name: 'Buy Cover',
     //   to: '/quote',
     //   icon: <StyledFileShield size={30} />,
     //   component: Quote,
     // },
-    {
-      name: 'Stake',
-      to: '/stake',
-      icon: <StyledCoinStack size={30} />,
-      component: Stake,
-    },
+
     {
       name: 'Bond',
       to: '/bond',
       icon: <StyledReceiptMoney size={30} />,
       component: Bond,
+    },
+    {
+      name: 'Stake',
+      to: '/stake',
+      icon: <StyledCoinStack size={30} />,
+      component: Stake,
     },
     {
       name: 'Farms',
@@ -117,6 +118,7 @@ export default function App(): any {
               )}
               <Switch>
                 <Route exact path="/" component={About} />
+                <Route exact path="/soteria" component={Soteria} />
                 {/* <Route exact path="/dashboard" component={Dashboard} />
                 <Route exact path="/invest" component={Invest} />
                 <Route exact path="/stake" component={Stake} />

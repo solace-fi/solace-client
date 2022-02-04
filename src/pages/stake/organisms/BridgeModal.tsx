@@ -68,9 +68,8 @@ export const BridgeModal: React.FC<ModalProps> = ({ modalTitle, handleClose, isO
   const approve = async () => {
     if (!solace || !account || !bSolace || !bridgeWrapper) return
     try {
-      const decimals = 18
       const token = isWrapping ? solace : bSolace
-      const tx: TransactionResponse = await token.approve(bridgeWrapper.address, parseUnits(amount, decimals))
+      const tx: TransactionResponse = await token.approve(bridgeWrapper.address, parseUnits(amount, 18))
       const txHash = tx.hash
       setButtonLoading(true)
       makeTxToast(FunctionName.APPROVE, TransactionCondition.PENDING, txHash)

@@ -65,27 +65,28 @@ export function useGetBondTellerContracts(): BondTellerContract[] {
     Object.keys(config.bondTellerContracts).forEach((key) => {
       const versionsArray = config.bondTellerContracts[key]
       versionsArray.forEach((bondTellerContract) => {
-        const isBondTellerErc20 = cache.tellerToTokenMapping[bondTellerContract].isBondTellerErc20
-        const isLp = cache.tellerToTokenMapping[bondTellerContract].isLp
-        const isDisabled = cache.tellerToTokenMapping[bondTellerContract].isDisabled
-        const cannotBuy = cache.tellerToTokenMapping[bondTellerContract].cannotBuy
-        const addr = cache.tellerToTokenMapping[bondTellerContract].addr
-        const mainnetAddr = cache.tellerToTokenMapping[bondTellerContract].mainnetAddr
-        const version = cache.tellerToTokenMapping[bondTellerContract].version
-        let abi = null
-        if (version == 1) {
-          abi = isBondTellerErc20 ? bondTellerErc20Abi_V1 : bondTellerEthAbi_V1
-        } else {
-          abi = isBondTellerErc20 ? bondTellerErc20Abi_V2.abi : bondTellerEthAbi_V2.abi
-        }
-        const contract = getContract(bondTellerContract, abi, library, account ? account : undefined)
+        const mapping = cache.tellerToTokenMapping[bondTellerContract]
+        const isBondTellerErc20 = mapping.isBondTellerErc20
+        const isLp = mapping.isLp
+        const isDisabled = mapping.isDisabled
+        const cannotBuy = mapping.cannotBuy
+        const addr = mapping.addr
+        const mainnetAddr = mapping.mainnetAddr
+        const tokenId = mapping.tokenId
+        const version = mapping.version
+        const tellerAbi = mapping.tellerAbi
+        const principalAbi = mapping.principalAbi
+        const contract = getContract(bondTellerContract, tellerAbi, library, account ? account : undefined)
         const cntct: BondTellerContract = {
           name: key,
           contract,
+          tellerAbi,
+          principalAbi,
           isBondTellerErc20,
           isLp,
           addr,
           mainnetAddr,
+          tokenId,
           version,
           isDisabled,
           cannotBuy,
@@ -126,14 +127,7 @@ export function useContractArray(): ContractSources[] {
       const versionsArray = config.bondTellerContracts[key]
       versionsArray.forEach((bondTellerContract) => {
         if (!excludedContractAddrs.includes(bondTellerContract)) {
-          const isBondTellerErc20 = cache.tellerToTokenMapping[bondTellerContract].isBondTellerErc20
-          const version = cache.tellerToTokenMapping[bondTellerContract].version
-          let abi = null
-          if (version == 1) {
-            abi = isBondTellerErc20 ? bondTellerErc20Abi_V1 : bondTellerEthAbi_V1
-          } else {
-            abi = isBondTellerErc20 ? bondTellerErc20Abi_V2.abi : bondTellerEthAbi_V2.abi
-          }
+          const abi = cache.tellerToTokenMapping[bondTellerContract].tellerAbi
           contractSources.push({
             addr: bondTellerContract.toLowerCase(),
             abi,
