@@ -19,7 +19,7 @@ import { StyledTooltip } from '../../components/molecules/Tooltip'
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'
 import { BKPT_5, ZERO } from '../../constants'
 import GrayBgDiv from '../stake/atoms/BodyBgCss'
-import { useSoteria } from '../../hooks/useSoteria'
+import { useSoteria } from '../../hooks/useSolaceCoverProduct'
 import { getSolaceRiskBalances, getSolaceRiskScores } from '../../utils/api'
 import { SolaceRiskProtocol } from '../../constants/types'
 import { useWallet } from '../../context/WalletManager'
@@ -567,7 +567,6 @@ function PortfolioTable() {
       id: '_a',
       protocol: 'Uniswap',
       type: 'DEX',
-      positions: ['ETH', 'BTC', 'DAI'],
       amount: '42345 USD',
       riskLevel: 'Low',
     },
@@ -575,7 +574,6 @@ function PortfolioTable() {
       id: '_b',
       protocol: 'Nexus Mutual',
       type: 'Derivatives',
-      positions: ['ETH', 'DAI'],
       amount: '34562 USD',
       riskLevel: 'High',
     },
@@ -583,7 +581,6 @@ function PortfolioTable() {
       id: '_c',
       protocol: 'Aave',
       type: 'Lending',
-      positions: ['ETH', 'DAI'],
       amount: '12809 USD',
       riskLevel: 'Medium',
     },
@@ -591,7 +588,6 @@ function PortfolioTable() {
       id: '_d',
       protocol: 'Yearn Finance',
       type: 'Assets',
-      positions: ['BTC'],
       amount: '2154 USD',
       riskLevel: 'Medium',
     },
@@ -623,7 +619,6 @@ function PortfolioTable() {
           <TableHead>
             <TableHeader>Protocol</TableHeader>
             <TableHeader>Type</TableHeader>
-            <TableHeader>Positions</TableHeader>
             <TableHeader>Amount</TableHeader>
             <TableHeader>Risk Level</TableHeader>
           </TableHead>
@@ -632,7 +627,6 @@ function PortfolioTable() {
               <TableRow key={d.id}>
                 <TableData>{d.protocol}</TableData>
                 <TableData>{d.type}</TableData>
-                <TableData>{d.positions.join(', ')}</TableData>
                 <TableData>{d.balanceUSD}</TableData>
                 <TableData>{d.riskLevel}</TableData>
               </TableRow>
@@ -652,7 +646,6 @@ function PortfolioTable() {
               <Flex gap={30} between itemsCenter>
                 <Flex col gap={8.5}>
                   <div>{row.protocol}</div>
-                  <div>{row.positions.join(', ')}</div>
                 </Flex>
                 <Flex
                   col
