@@ -24,7 +24,7 @@ import About from './about'
 import Invest from './invest'
 import Stake from './stake'
 import Bond from './bond'
-// import Quote from './quote'
+import Quote from './quote'
 import Govern from './govern'
 import Terms from './terms'
 
@@ -38,7 +38,7 @@ import {
   StyledCoinStack,
   StyledCommunity,
   StyledReceiptMoney,
-  // StyledFileShield,
+  StyledFileShield,
 } from '../components/atoms/Icon'
 
 /* import constants */
@@ -68,12 +68,12 @@ export default function App(): any {
     //   icon: <StyledDashboard size={30} />,
     //   component: Soteria,
     // },
-    // {
-    //   name: 'Buy Cover',
-    //   to: '/quote',
-    //   icon: <StyledFileShield size={30} />,
-    //   component: Quote,
-    // },
+    {
+      name: 'Buy Cover',
+      to: '/quote',
+      icon: <StyledFileShield size={30} />,
+      component: Quote,
+    },
 
     {
       name: 'Bond',

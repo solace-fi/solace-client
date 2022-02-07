@@ -128,7 +128,7 @@ export const AuroraTestnetNetwork: NetworkConfig = {
   chainId: chainId,
   isTestnet: true,
   logo: AuroraLogo,
-  supportedTxTypes: [0, 2],
+  supportedTxTypes: [0],
   nativeCurrency: { mainnetReference: WETH9_ADDRESS[1], symbol: Unit.ETH, decimals: 18 },
   rpc: {
     httpsUrl: `https://testnet.aurora.dev`,

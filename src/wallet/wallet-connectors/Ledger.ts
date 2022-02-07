@@ -13,7 +13,7 @@ export const LedgerConnector = {
   id: 'ledger',
   logo: LedgerLogo,
   name: 'Ledger',
-  supportedTxTypes: [0],
+  supportedTxTypes: [0, 2],
   getConnector(network: NetworkConfig, args?: LedgerWalletArgs): AbstractConnector {
     let baseDerivationPath: string | undefined = args?.baseDerivationPath
 
