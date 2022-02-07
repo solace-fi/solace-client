@@ -57,7 +57,7 @@ export default function AggregatedStakeData({ stakeData }: { stakeData: UserLock
               <div>
                 <InfoPair importance="secondary" label="APY" horizontal={BKPT_6 > width}>
                   <Text bold style={{ fontSize: '16px' }}>
-                    {stakeData.apy.toNumber()}%
+                    {truncateValue(stakeData.apy.toString(), 1)}%
                   </Text>
                 </InfoPair>
               </div>
@@ -110,7 +110,7 @@ export default function AggregatedStakeData({ stakeData }: { stakeData: UserLock
             <FormCol>APY</FormCol>
             <FormCol>
               <Text t2 nowrap bold>
-                {stakeData.apy.toNumber()}%
+                {truncateValue(stakeData.apy.toString(), 1)}%
               </Text>
             </FormCol>
           </FormRow>

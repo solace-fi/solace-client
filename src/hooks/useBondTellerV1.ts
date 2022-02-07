@@ -4,15 +4,12 @@ import { BondTellerDetails, TxResult, LocalTx } from '../constants/types'
 import { useContracts } from '../context/ContractsManager'
 import { getContract } from '../utils'
 
-import ierc20Json from '../constants/metadata/IERC20Metadata.json'
-import sushiswapLpAbi from '../constants/metadata/ISushiswapMetadataAlt.json'
-import weth9 from '../constants/abi/contracts/WETH9.sol/WETH9.json'
 import { useWallet } from '../context/WalletManager'
 import { FunctionGasLimits } from '../constants/mappings/gasMapping'
 import { FunctionName, TransactionCondition } from '../constants/enums'
 import { queryDecimals, queryName, querySymbol } from '../utils/contract'
 import { useProvider } from '../context/ProviderManager'
-import { useGetPriceFromSushiSwap } from './usePrice'
+import { usePriceSdk } from './usePrice'
 import { useNetwork } from '../context/NetworkManager'
 import { floatUnits, truncateValue } from '../utils/formatting'
 import { BondTokenV1 } from '../constants/types'
@@ -84,10 +81,10 @@ export const useBondTellerDetailsV1 = (
   const { library, account } = useWallet()
   const { latestBlock } = useProvider()
   const { tellers } = useContracts()
-  const { activeNetwork, networks, chainId } = useNetwork()
+  const { activeNetwork, networks } = useNetwork()
   const [tellerDetails, setTellerDetails] = useState<BondTellerDetails[]>([])
   const [mounting, setMounting] = useState<boolean>(true)
-  const { getPriceFromSushiswap, getPriceFromSushiswapLp } = useGetPriceFromSushiSwap()
+  const { getPriceSdkFunc } = usePriceSdk()
   const canBondV1 = useMemo(() => !activeNetwork.config.restrictedFeatures.noBondingV1, [
     activeNetwork.config.restrictedFeatures.noBondingV1,
   ])
@@ -132,12 +129,7 @@ export const useBondTellerDetailsV1 = (
                 teller.contract.bondFeeBps(),
               ])
 
-              const principalContract = getContract(
-                principalAddr,
-                teller.isLp ? sushiswapLpAbi : teller.isBondTellerErc20 ? ierc20Json.abi : weth9,
-                library,
-                account ?? undefined
-              )
+              const principalContract = getContract(principalAddr, teller.principalAbi, library, account ?? undefined)
 
               const [decimals, name, symbol] = await Promise.all([
                 queryDecimals(principalContract),
@@ -148,9 +140,11 @@ export const useBondTellerDetailsV1 = (
               let lpData = {}
               let usdBondPrice = 0
 
+              const { getSdkTokenPrice, getSdkLpPrice } = getPriceSdkFunc(teller.sdk)
+
               // get usdBondPrice
               if (teller.isLp) {
-                const price = await getPriceFromSushiswapLp(principalContract, activeNetwork, library)
+                const price = await getSdkLpPrice(principalContract, activeNetwork, library)
                 usdBondPrice = Math.max(price, 0) * floatUnits(bondPrice, decimals)
                 const [token0, token1] = await Promise.all([principalContract.token0(), principalContract.token1()])
                 lpData = {
@@ -158,10 +152,11 @@ export const useBondTellerDetailsV1 = (
                   token1,
                 }
               } else {
-                usdBondPrice = tokenPriceMapping[teller.mainnetAddr.toLowerCase()] * floatUnits(bondPrice, decimals)
+                const key = teller.mainnetAddr == '' ? teller.tokenId.toLowerCase() : teller.mainnetAddr.toLowerCase()
+                usdBondPrice = tokenPriceMapping[key] * floatUnits(bondPrice, decimals)
                 if (usdBondPrice <= 0) {
-                  const price = await getPriceFromSushiswap(principalContract, activeNetwork, library) // via sushiswap sdk
-                  if (price != -1) usdBondPrice = price * floatUnits(bondPrice, decimals)
+                  const price = await getSdkTokenPrice(principalContract, activeNetwork, library) // via sushiswap sdk
+                  usdBondPrice = price * floatUnits(bondPrice, decimals)
                 }
               }
 

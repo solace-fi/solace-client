@@ -4,23 +4,12 @@ import { useWallet } from '../context/WalletManager'
 import { useCachedData } from '../context/CachedDataManager'
 import { useState, useEffect, useRef } from 'react'
 import { formatUnits } from '@ethersproject/units'
-import { BigNumber, Contract } from 'ethers'
-import { queryBalance, queryDecimals } from '../utils/contract'
+import { Contract } from 'ethers'
+import { queryBalance } from '../utils/contract'
 import { useNetwork } from '../context/NetworkManager'
-import { Unit } from '../constants/enums'
 
-import ierc20Json from '../constants/metadata/IERC20Metadata.json'
-import sushiswapLpAbi from '../constants/metadata/ISushiswapMetadataAlt.json'
-import weth9 from '../constants/abi/contracts/WETH9.sol/WETH9.json'
-import { getContract } from '../utils'
-import { withBackoffRetries } from '../utils/time'
-import { ZERO } from '../constants'
-import { useGetPriceFromSushiSwap } from './usePrice'
+import { usePriceSdk } from './usePrice'
 import { floatUnits } from '../utils/formatting'
-
-import { Token, Pair } from '@sushiswap/sdk'
-import { useCoingeckoPrice } from '@usedapp/coingecko'
-import { getCoingeckoTokenPrice } from '../utils/api'
 // import SafeServiceClient from '@gnosis.pm/safe-service-client'
 import { useProvider } from '../context/ProviderManager'
 import { useReadToken } from './useToken'
@@ -233,143 +222,12 @@ export const useXSolaceV1Balance = (): { xSolaceV1Balance: string; v1StakedSolac
   return { xSolaceV1Balance, v1StakedSolaceBalance }
 }
 
-export const useUnderWritingPoolBalance = () => {
-  const { activeNetwork, chainId, currencyDecimals, networks } = useNetwork()
-  const { tellers, keyContracts } = useContracts()
-  const { tokenPriceMapping } = useCachedData()
-  const { solace } = useMemo(() => keyContracts, [keyContracts])
-  const { library } = useWallet()
-  const { latestBlock } = useProvider()
-  const [underwritingPoolBalance, setUnderwritingPoolBalance] = useState<string>('-')
-  const { getPriceFromSushiswap } = useGetPriceFromSushiSwap()
-
-  const coingeckoTokenId = useMemo(() => {
-    switch (activeNetwork.nativeCurrency.symbol) {
-      case Unit.ETH:
-        return 'ethereum'
-      case Unit.MATIC:
-      default:
-        return 'matic-network'
-    }
-  }, [activeNetwork.nativeCurrency.symbol])
-  const coinGeckoNativeTokenPrice = useCoingeckoPrice(coingeckoTokenId, 'usd')
-
-  useEffect(() => {
-    const getGnosisBalance = async () => {
-      if (
-        !solace ||
-        (Object.keys(tokenPriceMapping).length === 0 && tokenPriceMapping.constructor === Object) ||
-        !activeNetwork.config.underwritingPoolAddr
-      )
-        return
-      const multiSig = activeNetwork.config.underwritingPoolAddr
-      if (!library) return
-      const principalContracts = tellers.map((t) =>
-        getContract(t.addr, t.isLp ? sushiswapLpAbi : t.isBondTellerErc20 ? ierc20Json.abi : weth9, library, undefined)
-      )
-      principalContracts.push(solace)
-      const balances: BigNumber[] = await Promise.all(principalContracts.map((c) => queryBalance(c, multiSig)))
-      const usdcBalances: number[] = await Promise.all(
-        tellers.map(async (t, i) => {
-          if (t.isLp) {
-            const [token0, token1] = await Promise.all([principalContracts[i].token0(), principalContracts[i].token1()])
-            const token0Contract = getContract(token0, ierc20Json.abi, library)
-            const token1Contract = getContract(token1, ierc20Json.abi, library)
-
-            const [decimals0, decimals1, totalSupply, principalDecimals] = await Promise.all([
-              withBackoffRetries(async () => queryDecimals(token0Contract)),
-              withBackoffRetries(async () => queryDecimals(token1Contract)),
-              principalContracts[i].totalSupply(),
-              queryDecimals(principalContracts[i]),
-            ])
-            const poolShare = totalSupply.gt(ZERO)
-              ? floatUnits(balances[i], principalDecimals) / floatUnits(totalSupply, principalDecimals)
-              : 0
-            let price0 = await getPriceFromSushiswap(token0Contract, activeNetwork, library)
-            let price1 = await getPriceFromSushiswap(token1Contract, activeNetwork, library)
-
-            if (price0 == -1) {
-              const coinGeckoTokenPrice = await getCoingeckoTokenPrice(token0Contract.address, 'usd', coingeckoTokenId)
-              price0 = parseFloat(coinGeckoTokenPrice ?? '0')
-            }
-            if (price1 == -1) {
-              const coinGeckoTokenPrice = await getCoingeckoTokenPrice(token1Contract.address, 'usd', coingeckoTokenId)
-              price1 = parseFloat(coinGeckoTokenPrice ?? '0')
-            }
-
-            const TOKEN0 = new Token(chainId, token0, decimals0)
-            const TOKEN1 = new Token(chainId, token1, decimals1)
-            const pairAddr = await Pair.getAddress(TOKEN0, TOKEN1)
-            const pairPoolContract = getContract(pairAddr, sushiswapLpAbi, library)
-            const reserves = await pairPoolContract.getReserves()
-            const totalReserve0 = floatUnits(reserves._reserve0, decimals0)
-            const totalReserve1 = floatUnits(reserves._reserve1, decimals1)
-            const multiplied = poolShare * (price0 * totalReserve0 + price1 * totalReserve1)
-            return multiplied
-          } else {
-            let price = tokenPriceMapping[tellers[i].mainnetAddr.toLowerCase()]
-            if (price <= 0 || !price) {
-              const sushiPrice = await getPriceFromSushiswap(principalContracts[i], activeNetwork, library)
-              if (sushiPrice != -1) price = sushiPrice
-            }
-
-            const principalDecimals = await principalContracts[i].decimals()
-            const formattedBalance = floatUnits(balances[i], principalDecimals)
-            const balanceMultipliedByPrice = price * formattedBalance
-            return balanceMultipliedByPrice
-          }
-        })
-      )
-
-      // add USDC of native ETH balance
-      if (coinGeckoNativeTokenPrice) {
-        const ethBalance = await library.getBalance(multiSig)
-        const formattedBalance = floatUnits(ethBalance, currencyDecimals)
-        const balanceMultipliedByPrice = parseFloat(coinGeckoNativeTokenPrice) * formattedBalance
-        usdcBalances.push(balanceMultipliedByPrice)
-      }
-
-      // add USDC for solace
-      const solacePrice = tokenPriceMapping[networks[0].config.keyContracts.solace.addr.toLowerCase()]
-      const multiSigSolaceBalance = await queryBalance(solace, multiSig)
-      const principalDecimals = await solace.decimals()
-      const balanceMultipliedByPrice = solacePrice * floatUnits(multiSigSolaceBalance, principalDecimals)
-      usdcBalances.push(balanceMultipliedByPrice)
-
-      const usdcTotalBalance = usdcBalances.reduce((pv, cv) => pv + cv, 0)
-      setUnderwritingPoolBalance(usdcTotalBalance.toString())
-      try {
-        // const safeService = new SafeServiceClient('https://safe-transaction.gnosis.io')
-        // const usdBalances = await safeService.getUsdBalances(multiSig)
-        // const usdcTotalBalance = usdBalances.reduce((pv, cv) => pv + parseFloat(cv.fiatBalance), 0)
-        // console.log(usdcTotalBalance)
-        // setUnderwritingPoolBalance(usdcTotalBalance.toString())
-      } catch (e) {
-        // console.log('getGnosisBalance, pulling balances using pairPrice', e)
-      }
-    }
-    getGnosisBalance()
-  }, [tellers, library, coinGeckoNativeTokenPrice, latestBlock, tokenPriceMapping])
-
-  return { underwritingPoolBalance }
-}
-
 export const useCrossChainUnderwritingPoolBalance = () => {
   const { networks } = useNetwork()
   const { latestBlock } = useProvider()
   const { tokenPriceMapping } = useCachedData()
   const [underwritingPoolBalance, setUnderwritingPoolBalance] = useState<string>('-')
-  const { getPriceFromSushiswap } = useGetPriceFromSushiSwap()
-
-  const coingeckoTokenId = (unit: Unit) => {
-    switch (unit) {
-      case Unit.ETH:
-        return 'ethereum'
-      case Unit.MATIC:
-      default:
-        return 'matic-network'
-    }
-  }
+  const { getPriceSdkFunc } = usePriceSdk()
 
   useEffect(() => {
     const getBalance = async () => {
@@ -386,66 +244,23 @@ export const useCrossChainUnderwritingPoolBalance = () => {
         let usdcBalanceForNetwork = 0
         Object.keys(tellerData).forEach(async (key) => {
           const t = tellerData[key]
-          const contract = new Contract(
-            t.addr,
-            t.isLp ? sushiswapLpAbi : t.isBondTellerErc20 ? ierc20Json.abi : weth9,
-            provider
-          )
+          const contract = new Contract(t.addr, t.principalAbi, provider)
           const balance = await queryBalance(contract, multiSig)
+          const { getSdkTokenPrice, getSdkLpPrice } = getPriceSdkFunc(t.sdk)
           if (t.isLp) {
-            const [token0, token1] = await Promise.all([contract.token0(), contract.token1()])
-            const token0Contract = new Contract(token0, ierc20Json.abi, provider)
-            const token1Contract = new Contract(token1, ierc20Json.abi, provider)
-
-            const [decimals0, decimals1, totalSupply, principalDecimals] = await Promise.all([
-              withBackoffRetries(async () => queryDecimals(token0Contract)),
-              withBackoffRetries(async () => queryDecimals(token1Contract)),
-              contract.totalSupply(),
-              queryDecimals(contract),
-            ])
-            const poolShare = totalSupply.gt(ZERO)
-              ? floatUnits(balance, principalDecimals) / floatUnits(totalSupply, principalDecimals)
-              : 0
-            let price0 = await getPriceFromSushiswap(token0Contract, activeNetwork, provider)
-            let price1 = await getPriceFromSushiswap(token1Contract, activeNetwork, provider)
-
-            if (price0 == -1) {
-              const coinGeckoTokenPrice = await getCoingeckoTokenPrice(
-                token0Contract.address,
-                'usd',
-                coingeckoTokenId(activeNetwork.nativeCurrency.symbol)
-              )
-              price0 = parseFloat(coinGeckoTokenPrice ?? '0')
-            }
-            if (price1 == -1) {
-              const coinGeckoTokenPrice = await getCoingeckoTokenPrice(
-                token1Contract.address,
-                'usd',
-                coingeckoTokenId(activeNetwork.nativeCurrency.symbol)
-              )
-              price1 = parseFloat(coinGeckoTokenPrice ?? '0')
-            }
-            const TOKEN0 = new Token(activeNetwork.chainId, token0, decimals0)
-            const TOKEN1 = new Token(activeNetwork.chainId, token1, decimals1)
-            const pairAddr = await Pair.getAddress(TOKEN0, TOKEN1)
-            const pairPoolContract = new Contract(pairAddr, sushiswapLpAbi, provider)
-            const reserves = await pairPoolContract.getReserves()
-            const totalReserve0 = floatUnits(reserves._reserve0, decimals0)
-            const totalReserve1 = floatUnits(reserves._reserve1, decimals1)
-            const multiplied = poolShare * (price0 * totalReserve0 + price1 * totalReserve1)
+            const multiplied = await getSdkLpPrice(contract, activeNetwork, provider, balance)
             usdcBalanceForNetwork += multiplied
           } else {
-            const mainnetCounterpart = t.mainnetAddr
-            let price = tokenPriceMapping[mainnetCounterpart.toLowerCase()]
+            const key = t.mainnetAddr == '' ? t.tokenId.toLowerCase() : t.mainnetAddr.toLowerCase()
+            let price = tokenPriceMapping[key]
             if (price <= 0 || !price) {
-              const sushiPrice = await getPriceFromSushiswap(contract, activeNetwork, provider)
-              if (sushiPrice != -1) price = sushiPrice
+              const sdkPrice = await getSdkTokenPrice(contract, activeNetwork, provider)
+              price = sdkPrice
             }
             const principalDecimals = await contract.decimals()
             const formattedBalance = floatUnits(balance, principalDecimals)
             const balanceMultipliedByPrice = price * formattedBalance
             usdcBalanceForNetwork += balanceMultipliedByPrice
-            // console.log('usdcBalanceForNetwork erc20', price, mainnetCounterpart)
           }
         })
 
@@ -455,7 +270,6 @@ export const useCrossChainUnderwritingPoolBalance = () => {
         const coinGeckoNativePrice = tokenPriceMapping[activeNetwork.nativeCurrency.mainnetReference.toLowerCase()]
         const nativeBalanceMultipliedByPrice = coinGeckoNativePrice * formattedBalance
         usdcBalanceForNetwork += nativeBalanceMultipliedByPrice
-        // console.log('usdcBalanceForNetwork native', usdcBalanceForNetwork)
 
         const solaceSource = activeNetwork.config.keyContracts.solace
         const solace = new Contract(solaceSource.addr, solaceSource.abi, provider)
@@ -464,7 +278,6 @@ export const useCrossChainUnderwritingPoolBalance = () => {
         const solacePrice = tokenPriceMapping[networks[0].config.keyContracts.solace.addr.toLowerCase()]
         const solaceBalanceMultipliedByPrice = solacePrice * floatUnits(solaceBalance, solaceDecimals)
         usdcBalanceForNetwork += solaceBalanceMultipliedByPrice
-        // console.log('usdcBalanceForNetwork solace', usdcBalanceForNetwork)
 
         totalUsdcBalance += usdcBalanceForNetwork
       }

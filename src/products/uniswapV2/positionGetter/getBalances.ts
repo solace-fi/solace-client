@@ -4,7 +4,7 @@ import ierc20Json from '../../../constants/metadata/IERC20Metadata.json'
 import { getContract } from '../../../utils'
 import { queryBalance } from '../../../utils/contract'
 import { ZERO } from '../../../constants'
-import { get1InchPrice, getCoingeckoTokenPrice, getZapperProtocolBalances } from '../../../utils/api'
+import { get1InchPrice, getCoingeckoTokenPriceByAddr, getZapperProtocolBalances } from '../../../utils/api'
 import { createZapperBalanceMap, networkNames } from '../../zapperBalances'
 import { WETH9_ADDRESS } from '../../../constants/mappings/tokenAddressMapping'
 
@@ -48,7 +48,7 @@ export const getBalances = async (
   const zapperNet = networkNames[activeNetwork.chainId]
   if (!zapperNet) return []
 
-  const coinGeckoEthPrice = await getCoingeckoTokenPrice(WETH9_ADDRESS[activeNetwork.chainId], 'usd', 'ethereum')
+  const coinGeckoEthPrice = await getCoingeckoTokenPriceByAddr(WETH9_ADDRESS[activeNetwork.chainId], 'usd', 'ethereum')
   const data = await getZapperProtocolBalances('uniswap-v2', [user], zapperNet)
 
   const finalTokens: Token[] = []

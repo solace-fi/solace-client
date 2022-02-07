@@ -29,11 +29,10 @@ type Contracts = {
     stakingRewards?: Contract | null
     xSolaceMigrator?: Contract | null
     cpFarm?: Contract | null
-    bondDepo?: Contract | null
     claimsEscrow?: Contract | null
     policyManager?: Contract | null
     riskManager?: Contract | null
-    soteriaCoverageProduct?: Contract | null
+    solaceCoverageProduct?: Contract | null
   }
   products: ProductContract[]
   tellers: BondTellerContract[]
@@ -55,11 +54,10 @@ const ContractsContext = createContext<Contracts>({
     stakingRewards: undefined,
     xSolaceMigrator: undefined,
     cpFarm: undefined,
-    bondDepo: undefined,
     claimsEscrow: undefined,
     policyManager: undefined,
     riskManager: undefined,
-    soteriaCoverageProduct: undefined,
+    solaceCoverageProduct: undefined,
   },
   products: [],
   tellers: [],
@@ -88,8 +86,7 @@ const ContractsProvider: React.FC = (props) => {
   const claimsEscrow = useGetContract(keyContracts.claimsEscrow)
   const policyManager = useGetContract(keyContracts.policyManager)
   const riskManager = useGetContract(keyContracts.riskManager)
-  const bondDepo = useGetContract(keyContracts.bondDepo)
-  const soteriaCoverageProduct = useGetContract(keyContracts.soteriaCoverageProduct)
+  const solaceCoverageProduct = useGetContract(keyContracts.solaceCoverageProduct)
   const products = useGetProductContracts()
   const tellers = useGetBondTellerContracts()
 
@@ -122,11 +119,10 @@ const ContractsProvider: React.FC = (props) => {
         stakingRewards,
         xSolaceMigrator,
         cpFarm,
-        bondDepo,
         claimsEscrow,
         policyManager,
         riskManager,
-        soteriaCoverageProduct,
+        solaceCoverageProduct,
       },
       products,
       tellers,
@@ -146,11 +142,10 @@ const ContractsProvider: React.FC = (props) => {
       stakingRewards,
       xSolaceMigrator,
       cpFarm,
-      bondDepo,
       claimsEscrow,
       policyManager,
       riskManager,
-      soteriaCoverageProduct,
+      solaceCoverageProduct,
       products,
       tellers,
       contractSources,

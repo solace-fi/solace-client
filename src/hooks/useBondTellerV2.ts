@@ -6,14 +6,12 @@ import { BigNumber } from 'ethers'
 import { useCallback, useEffect, useState, useMemo, useRef } from 'react'
 import { getContract } from '../utils'
 
-import ierc20Json from '../constants/metadata/IERC20Metadata.json'
-import weth9 from '../constants/abi/contracts/WETH9.sol/WETH9.json'
 import { useWallet } from '../context/WalletManager'
 import { FunctionGasLimits } from '../constants/mappings/gasMapping'
 import { FunctionName, TransactionCondition } from '../constants/enums'
 import { queryDecimals, queryName, querySymbol } from '../utils/contract'
 import { useProvider } from '../context/ProviderManager'
-import { useGetPriceFromSushiSwap } from './usePrice'
+import { usePriceSdk } from './usePrice'
 import { useNetwork } from '../context/NetworkManager'
 import { floatUnits, truncateValue } from '../utils/formatting'
 import { useGetFunctionGas } from './useGas'
@@ -27,31 +25,36 @@ export const useBondTellerV2 = (selectedBondDetail: BondTellerDetails | undefine
     minAmountOut: BigNumber,
     recipient: string,
     stake: boolean,
-    func: FunctionName
+    func: FunctionName,
+    desiredFunctionGas: number | undefined
   ): Promise<TxResult> => {
     if (!selectedBondDetail) return { tx: null, localTx: null }
-    const tx =
-      func == FunctionName.BOND_DEPOSIT_ERC20_V2
-        ? await selectedBondDetail.tellerData.teller.contract.deposit(parsedAmount, minAmountOut, recipient, stake, {
-            ...gasConfig,
-            gasLimit: FunctionGasLimits['tellerErc20_v2.deposit'],
-          })
-        : func == FunctionName.BOND_DEPOSIT_ETH_V2
-        ? await selectedBondDetail.tellerData.teller.contract.depositEth(minAmountOut, recipient, stake, {
-            value: parsedAmount,
-            ...gasConfig,
-            gasLimit: FunctionGasLimits['tellerEth_v2.depositEth'],
-          })
-        : await selectedBondDetail.tellerData.teller.contract.depositWeth(
-            parsedAmount,
-            minAmountOut,
-            recipient,
-            stake,
-            {
-              ...gasConfig,
-              gasLimit: FunctionGasLimits['tellerEth_v2.depositWeth'],
-            }
-          )
+    const cntct = selectedBondDetail.tellerData.teller.contract
+    const gasSettings = { ...gasConfig, gasLimit: desiredFunctionGas ?? FunctionGasLimits['tellerErc20_v2.deposit'] }
+    let tx = null
+    switch (func) {
+      case FunctionName.BOND_DEPOSIT_ETH_V2:
+        tx = await cntct.depositEth(minAmountOut, recipient, stake, {
+          value: parsedAmount,
+          ...gasSettings,
+        })
+        break
+      case FunctionName.BOND_DEPOSIT_WETH_V2:
+        tx = await cntct.depositWeth(parsedAmount, minAmountOut, recipient, stake, gasSettings)
+        break
+      case FunctionName.BOND_DEPOSIT_MATIC:
+        tx = await cntct.depositMatic(minAmountOut, recipient, stake, {
+          value: parsedAmount,
+          ...gasSettings,
+        })
+        break
+      case FunctionName.BOND_DEPOSIT_WMATIC:
+        tx = await cntct.depositWmatic(parsedAmount, minAmountOut, recipient, stake, gasSettings)
+        break
+      case FunctionName.BOND_DEPOSIT_ERC20_V2:
+      default:
+        tx = await cntct.deposit(parsedAmount, minAmountOut, recipient, stake, gasSettings)
+    }
     const localTx: LocalTx = {
       hash: tx.hash,
       type: func,
@@ -83,10 +86,10 @@ export const useBondTellerDetailsV2 = (
   const { library, account } = useWallet()
   const { latestBlock } = useProvider()
   const { tellers } = useContracts()
-  const { activeNetwork, networks, chainId } = useNetwork()
+  const { activeNetwork, networks } = useNetwork()
   const [tellerDetails, setTellerDetails] = useState<BondTellerDetails[]>([])
   const [mounting, setMounting] = useState<boolean>(true)
-  const { getPriceFromSushiswap } = useGetPriceFromSushiSwap()
+  const { getPriceSdkFunc } = usePriceSdk()
   const canBondV2 = useMemo(() => !activeNetwork.config.restrictedFeatures.noBondingV2, [
     activeNetwork.config.restrictedFeatures.noBondingV2,
   ])
@@ -123,12 +126,7 @@ export const useBondTellerDetailsV2 = (
                 teller.contract.maxPayout(),
               ])
 
-              const principalContract = getContract(
-                principalAddr,
-                teller.isBondTellerErc20 ? ierc20Json.abi : weth9,
-                library,
-                account ?? undefined
-              )
+              const principalContract = getContract(principalAddr, teller.principalAbi, library, account ?? undefined)
 
               const [decimals, name, symbol] = await Promise.all([
                 queryDecimals(principalContract),
@@ -137,11 +135,13 @@ export const useBondTellerDetailsV2 = (
               ])
 
               let usdBondPrice = 0
+              const { getSdkTokenPrice } = getPriceSdkFunc(teller.sdk)
 
-              usdBondPrice = tokenPriceMapping[teller.mainnetAddr.toLowerCase()] * floatUnits(bondPrice, decimals)
+              const key = teller.mainnetAddr == '' ? teller.tokenId.toLowerCase() : teller.mainnetAddr.toLowerCase()
+              usdBondPrice = tokenPriceMapping[key] * floatUnits(bondPrice, decimals)
               if (usdBondPrice <= 0) {
-                const price = await getPriceFromSushiswap(principalContract, activeNetwork, library) // via sushiswap sdk
-                if (price != -1) usdBondPrice = price * floatUnits(bondPrice, decimals)
+                const price = await getSdkTokenPrice(principalContract, activeNetwork, library)
+                usdBondPrice = price * floatUnits(bondPrice, decimals)
               }
 
               const bondRoi = usdBondPrice > 0 ? ((solacePrice - usdBondPrice) * 100) / usdBondPrice : 0

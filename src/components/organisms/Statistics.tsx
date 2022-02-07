@@ -43,11 +43,7 @@ import { Card, CardContainer } from '../atoms/Card'
 import { HyperLink } from '../atoms/Link'
 
 /* import hooks */
-import {
-  useSolaceBalance,
-  useUnderWritingPoolBalance,
-  useCrossChainUnderwritingPoolBalance,
-} from '../../hooks/useBalance'
+import { useSolaceBalance, useCrossChainUnderwritingPoolBalance } from '../../hooks/useBalance'
 import { usePolicyGetter } from '../../hooks/usePolicyGetter'
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'
 import { useUserLockData } from '../../hooks/useXSLocker'
@@ -322,7 +318,7 @@ export const Statistics: React.FC = () => {
                     Global APY
                   </BoxItemTitle>
                   <Text t2 light bold>
-                    {`${truncateValue(globalLockStats.apy.toNumber(), 1)}`}%
+                    {`${truncateValue(globalLockStats.apy.toString(), 1)}`}%
                   </Text>
                 </BoxItem>
               </>
@@ -384,7 +380,7 @@ export const Statistics: React.FC = () => {
                     <FormCol light>Global APY</FormCol>
                     <FormCol>
                       <Text t2 light>
-                        {`${truncateValue(globalLockStats.apy.toNumber(), 1)}`}%
+                        {`${truncateValue(globalLockStats.apy.toString(), 1)}`}%
                       </Text>
                     </FormCol>
                   </FormRow>

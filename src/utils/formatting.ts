@@ -212,6 +212,13 @@ export const getUnit = (function_name: string, activeNetwork?: NetworkConfig): U
       return Unit.CLAIM
     case FunctionName.BOND_DEPOSIT_ERC20_V1:
     case FunctionName.BOND_DEPOSIT_WETH_V1:
+    case FunctionName.BOND_DEPOSIT_ETH_V1:
+    case FunctionName.BOND_DEPOSIT_WMATIC:
+    case FunctionName.BOND_DEPOSIT_MATIC:
+    case FunctionName.BOND_DEPOSIT_WETH_V2:
+    case FunctionName.BOND_DEPOSIT_ETH_V2:
+    case FunctionName.BOND_DEPOSIT_ERC20_V2:
+    case FunctionName.BOND_CLAIM_PAYOUT_V2:
     case FunctionName.BOND_REDEEM_V1:
       return Unit.BOND
     case FunctionName.START_COOLDOWN:

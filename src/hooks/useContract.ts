@@ -5,11 +5,6 @@ import { Contract } from '@ethersproject/contracts'
 import { BondTellerContract, ContractSources, ProductContract, SupportedProduct } from '../constants/types'
 import { useNetwork } from '../context/NetworkManager'
 
-import bondTellerErc20Abi_V1 from '../constants/abi/contracts/BondTellerErc20.sol/BondTellerErc20.json'
-import bondTellerErc20Abi_V2 from '../constants/metadata/BondTellerErc20_V2.json'
-import bondTellerEthAbi_V1 from '../constants/abi/contracts/BondTellerEth.sol/BondTellerEth.json'
-import bondTellerEthAbi_V2 from '../constants/metadata/BondTellerEth_V2.json'
-
 export function useGetContract(source: ContractSources | undefined, hasSigner = true): Contract | null {
   const { library, account } = useWallet()
 
@@ -58,40 +53,18 @@ export function useGetBondTellerContracts(): BondTellerContract[] {
   const { activeNetwork } = useNetwork()
 
   return useMemo(() => {
-    const config = activeNetwork.config
     const cache = activeNetwork.cache
     if (!library) return []
     const bondTellerContracts: BondTellerContract[] = []
-    Object.keys(config.bondTellerContracts).forEach((key) => {
-      const versionsArray = config.bondTellerContracts[key]
-      versionsArray.forEach((bondTellerContract) => {
-        const isBondTellerErc20 = cache.tellerToTokenMapping[bondTellerContract].isBondTellerErc20
-        const isLp = cache.tellerToTokenMapping[bondTellerContract].isLp
-        const isDisabled = cache.tellerToTokenMapping[bondTellerContract].isDisabled
-        const cannotBuy = cache.tellerToTokenMapping[bondTellerContract].cannotBuy
-        const addr = cache.tellerToTokenMapping[bondTellerContract].addr
-        const mainnetAddr = cache.tellerToTokenMapping[bondTellerContract].mainnetAddr
-        const version = cache.tellerToTokenMapping[bondTellerContract].version
-        let abi = null
-        if (version == 1) {
-          abi = isBondTellerErc20 ? bondTellerErc20Abi_V1 : bondTellerEthAbi_V1
-        } else {
-          abi = isBondTellerErc20 ? bondTellerErc20Abi_V2.abi : bondTellerEthAbi_V2.abi
-        }
-        const contract = getContract(bondTellerContract, abi, library, account ? account : undefined)
-        const cntct: BondTellerContract = {
-          name: key,
-          contract,
-          isBondTellerErc20,
-          isLp,
-          addr,
-          mainnetAddr,
-          version,
-          isDisabled,
-          cannotBuy,
-        }
-        bondTellerContracts.push(cntct)
-      })
+    Object.keys(cache.tellerToTokenMapping).forEach((key) => {
+      const mapping = cache.tellerToTokenMapping[key]
+      const tellerAbi = mapping.tellerAbi
+      const contract = getContract(key, tellerAbi, library, account ? account : undefined)
+      const cntct: BondTellerContract = {
+        contract,
+        ...mapping,
+      }
+      bondTellerContracts.push(cntct)
     })
     return bondTellerContracts
   }, [library, account, activeNetwork])
@@ -122,24 +95,14 @@ export function useContractArray(): ContractSources[] {
         })
       }
     })
-    Object.keys(config.bondTellerContracts).forEach((key) => {
-      const versionsArray = config.bondTellerContracts[key]
-      versionsArray.forEach((bondTellerContract) => {
-        if (!excludedContractAddrs.includes(bondTellerContract)) {
-          const isBondTellerErc20 = cache.tellerToTokenMapping[bondTellerContract].isBondTellerErc20
-          const version = cache.tellerToTokenMapping[bondTellerContract].version
-          let abi = null
-          if (version == 1) {
-            abi = isBondTellerErc20 ? bondTellerErc20Abi_V1 : bondTellerEthAbi_V1
-          } else {
-            abi = isBondTellerErc20 ? bondTellerErc20Abi_V2.abi : bondTellerEthAbi_V2.abi
-          }
-          contractSources.push({
-            addr: bondTellerContract.toLowerCase(),
-            abi,
-          })
-        }
-      })
+    Object.keys(cache.tellerToTokenMapping).forEach((key) => {
+      if (!excludedContractAddrs.includes(key)) {
+        const abi = cache.tellerToTokenMapping[key].tellerAbi
+        contractSources.push({
+          addr: key.toLowerCase(),
+          abi,
+        })
+      }
     })
     Object.keys(config.specialContracts).forEach((key) => {
       if (!excludedContractAddrs.includes(config.specialContracts[key].addr)) {
