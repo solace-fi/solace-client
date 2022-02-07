@@ -43,11 +43,7 @@ import { Card, CardContainer } from '../atoms/Card'
 import { HyperLink } from '../atoms/Link'
 
 /* import hooks */
-import {
-  useSolaceBalance,
-  useUnderWritingPoolBalance,
-  useCrossChainUnderwritingPoolBalance,
-} from '../../hooks/useBalance'
+import { useSolaceBalance, useCrossChainUnderwritingPoolBalance } from '../../hooks/useBalance'
 import { usePolicyGetter } from '../../hooks/usePolicyGetter'
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'
 import { useUserLockData } from '../../hooks/useXSLocker'

@@ -119,6 +119,7 @@ const tellerToTokenMapping: {
     tokenId: '',
     isBondTellerErc20: true,
     isLp: true,
+    sdk: 'sushi',
     isDisabled: false,
     cannotBuy: true,
     version: 1,

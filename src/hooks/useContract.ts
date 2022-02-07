@@ -5,11 +5,6 @@ import { Contract } from '@ethersproject/contracts'
 import { BondTellerContract, ContractSources, ProductContract, SupportedProduct } from '../constants/types'
 import { useNetwork } from '../context/NetworkManager'
 
-import bondTellerErc20Abi_V1 from '../constants/abi/contracts/BondTellerErc20.sol/BondTellerErc20.json'
-import bondTellerErc20Abi_V2 from '../constants/metadata/BondTellerErc20_V2.json'
-import bondTellerEthAbi_V1 from '../constants/abi/contracts/BondTellerEth.sol/BondTellerEth.json'
-import bondTellerEthAbi_V2 from '../constants/metadata/BondTellerEth_V2.json'
-
 export function useGetContract(source: ContractSources | undefined, hasSigner = true): Contract | null {
   const { library, account } = useWallet()
 
@@ -63,31 +58,11 @@ export function useGetBondTellerContracts(): BondTellerContract[] {
     const bondTellerContracts: BondTellerContract[] = []
     Object.keys(cache.tellerToTokenMapping).forEach((key) => {
       const mapping = cache.tellerToTokenMapping[key]
-      const isBondTellerErc20 = mapping.isBondTellerErc20
-      const isLp = mapping.isLp
-      const isDisabled = mapping.isDisabled
-      const cannotBuy = mapping.cannotBuy
-      const addr = mapping.addr
-      const mainnetAddr = mapping.mainnetAddr
-      const tokenId = mapping.tokenId
-      const version = mapping.version
       const tellerAbi = mapping.tellerAbi
-      const principalAbi = mapping.principalAbi
-      const name = mapping.name
       const contract = getContract(key, tellerAbi, library, account ? account : undefined)
       const cntct: BondTellerContract = {
-        name,
         contract,
-        tellerAbi,
-        principalAbi,
-        isBondTellerErc20,
-        isLp,
-        addr,
-        mainnetAddr,
-        tokenId,
-        version,
-        isDisabled,
-        cannotBuy,
+        ...mapping,
       }
       bondTellerContracts.push(cntct)
     })
