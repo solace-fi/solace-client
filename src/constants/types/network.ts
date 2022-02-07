@@ -30,7 +30,6 @@ export type NetworkConfig = {
   config: {
     keyContracts: { [key: string]: ContractSources }
     productContracts: { [key: string]: ContractSources }
-    bondTellerContracts: { [key: string]: string[] }
     specialContracts: { [key: string]: ContractSources }
     restrictedFeatures: {
       cannotBuySolace?: boolean

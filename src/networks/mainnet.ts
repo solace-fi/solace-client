@@ -15,7 +15,6 @@ import xsLockerABI from '../constants/metadata/xsLocker.json'
 import stakingRewardsABI from '../constants/metadata/StakingRewards.json'
 import xSolaceMigratorABI from '../constants/metadata/xSolaceMigrator.json'
 import cpFarmABI from '../constants/abi/contracts/CpFarm.sol/CpFarm.json'
-import bondDepoABI from '../constants/abi/contracts/BondDepository.sol/BondDepository.json'
 import claimsEscrowABI from '../constants/abi/contracts/ClaimsEscrow.sol/ClaimsEscrow.json'
 import polMagABI from '../constants/abi/contracts/PolicyManager.sol/PolicyManager.json'
 import riskManagerABI from '../constants/abi/contracts/RiskManager.sol/RiskManager.json'
@@ -73,6 +72,7 @@ const tellerToTokenMapping: {
   [key: string]: TellerToken
 } = {
   [TELLER_ADDRS_V1.DAI_TELLER]: {
+    name: BondName.DAI,
     addr: DAI_ADDRESS[chainId],
     principalAbi: ierc20Json.abi,
     tellerAbi: bondTellerErc20Abi_V1,
@@ -85,6 +85,7 @@ const tellerToTokenMapping: {
     version: 1,
   },
   [TELLER_ADDRS_V1.ETH_TELLER]: {
+    name: BondName.ETH,
     addr: WETH9_ADDRESS[chainId],
     principalAbi: weth9,
     tellerAbi: bondTellerEthAbi_V1,
@@ -97,6 +98,7 @@ const tellerToTokenMapping: {
     version: 1,
   },
   [TELLER_ADDRS_V1.USDC_TELLER]: {
+    name: BondName.USDC,
     addr: USDC_ADDRESS[chainId],
     principalAbi: ierc20Json.abi,
     tellerAbi: bondTellerErc20Abi_V1,
@@ -109,6 +111,7 @@ const tellerToTokenMapping: {
     version: 1,
   },
   [TELLER_ADDRS_V1.SOLACE_USDC_SLP_TELLER]: {
+    name: BondName.SOLACE_USDC_SLP,
     addr: SOLACE_USDC_SLP_ADDRESS[chainId],
     principalAbi: sushiswapLpAbi,
     tellerAbi: bondTellerErc20Abi_V1,
@@ -121,6 +124,7 @@ const tellerToTokenMapping: {
     version: 1,
   },
   [TELLER_ADDRS_V1.SCP_TELLER]: {
+    name: BondName.SCP,
     addr: SCP_ADDRESS[chainId],
     principalAbi: ierc20Json.abi,
     tellerAbi: bondTellerErc20Abi_V1,
@@ -133,6 +137,7 @@ const tellerToTokenMapping: {
     version: 1,
   },
   [TELLER_ADDRS_V1.WBTC_TELLER]: {
+    name: BondName.WBTC,
     addr: WBTC_ADDRESS[chainId],
     principalAbi: ierc20Json.abi,
     tellerAbi: bondTellerErc20Abi_V1,
@@ -145,6 +150,7 @@ const tellerToTokenMapping: {
     version: 1,
   },
   [TELLER_ADDRS_V1.USDT_TELLER]: {
+    name: BondName.USDT,
     addr: USDT_ADDRESS[chainId],
     principalAbi: ierc20Json.abi,
     tellerAbi: bondTellerErc20Abi_V1,
@@ -157,6 +163,7 @@ const tellerToTokenMapping: {
     version: 1,
   },
   [TELLER_ADDRS_V2.DAI_TELLER]: {
+    name: BondName.DAI,
     addr: DAI_ADDRESS[chainId],
     principalAbi: ierc20Json.abi,
     tellerAbi: bondTellerErc20Abi_V2.abi,
@@ -168,6 +175,7 @@ const tellerToTokenMapping: {
     version: 2,
   },
   [TELLER_ADDRS_V2.ETH_TELLER]: {
+    name: BondName.ETH,
     addr: WETH9_ADDRESS[chainId],
     principalAbi: ierc20Json.abi,
     tellerAbi: bondTellerEthAbi_V2.abi,
@@ -179,6 +187,7 @@ const tellerToTokenMapping: {
     version: 2,
   },
   [TELLER_ADDRS_V2.USDC_TELLER]: {
+    name: BondName.USDC,
     addr: USDC_ADDRESS[chainId],
     principalAbi: ierc20Json.abi,
     tellerAbi: bondTellerErc20Abi_V2.abi,
@@ -190,6 +199,7 @@ const tellerToTokenMapping: {
     version: 2,
   },
   [TELLER_ADDRS_V2.WBTC_TELLER]: {
+    name: BondName.WBTC,
     addr: WBTC_ADDRESS[chainId],
     principalAbi: ierc20Json.abi,
     tellerAbi: bondTellerErc20Abi_V2.abi,
@@ -201,6 +211,7 @@ const tellerToTokenMapping: {
     version: 2,
   },
   [TELLER_ADDRS_V2.USDT_TELLER]: {
+    name: BondName.USDT,
     addr: USDT_ADDRESS[chainId],
     principalAbi: ierc20Json.abi,
     tellerAbi: bondTellerErc20Abi_V2.abi,
@@ -212,6 +223,7 @@ const tellerToTokenMapping: {
     version: 2,
   },
   [TELLER_ADDRS_V2.SCP_TELLER]: {
+    name: BondName.SCP,
     addr: SCP_ADDRESS[chainId],
     principalAbi: ierc20Json.abi,
     tellerAbi: bondTellerErc20Abi_V2.abi,
@@ -223,6 +235,7 @@ const tellerToTokenMapping: {
     version: 2,
   },
   [TELLER_ADDRS_V2.FRAX_TELLER]: {
+    name: BondName.FRAX,
     addr: FRAX_ADDRESS[chainId],
     principalAbi: ierc20Json.abi,
     tellerAbi: bondTellerErc20Abi_V2.abi,
@@ -308,10 +321,6 @@ export const MainNetwork: NetworkConfig = {
         addr: KEY_ADDRS.RISK_MANAGER,
         abi: riskManagerABI,
       },
-      bondDepo: {
-        addr: KEY_ADDRS.BOND_DEPO,
-        abi: bondDepoABI,
-      },
     },
     productContracts: {
       [ProductName.AAVE]: {
@@ -346,16 +355,6 @@ export const MainNetwork: NetworkConfig = {
         addr: PRODUCT_ADDRS.YEARN_PRODUCT,
         abi: yearnABI,
       },
-    },
-    bondTellerContracts: {
-      [BondName.DAI]: [TELLER_ADDRS_V1.DAI_TELLER, TELLER_ADDRS_V2.DAI_TELLER],
-      [BondName.ETH]: [TELLER_ADDRS_V1.ETH_TELLER, TELLER_ADDRS_V2.ETH_TELLER],
-      [BondName.USDC]: [TELLER_ADDRS_V1.USDC_TELLER, TELLER_ADDRS_V2.USDC_TELLER],
-      [BondName.SOLACE_USDC_SLP]: [TELLER_ADDRS_V1.SOLACE_USDC_SLP_TELLER],
-      [BondName.SCP]: [TELLER_ADDRS_V1.SCP_TELLER, TELLER_ADDRS_V2.SCP_TELLER],
-      [BondName.WBTC]: [TELLER_ADDRS_V1.WBTC_TELLER, TELLER_ADDRS_V2.WBTC_TELLER],
-      [BondName.USDT]: [TELLER_ADDRS_V1.USDT_TELLER, TELLER_ADDRS_V2.USDT_TELLER],
-      [BondName.FRAX]: [TELLER_ADDRS_V2.FRAX_TELLER],
     },
     restrictedFeatures: {},
     specialFeatures: {},

@@ -31,6 +31,7 @@ const tellerToTokenMapping: {
   [key: string]: TellerToken
 } = {
   [TELLER_ADDRS_V2.DAI_TELLER]: {
+    name: BondName.DAI,
     addr: DAI_ADDRESS[chainId],
     principalAbi: ierc20Json.abi,
     tellerAbi: bondTellerErc20Abi_V2.abi,
@@ -42,6 +43,7 @@ const tellerToTokenMapping: {
     version: 2,
   },
   [TELLER_ADDRS_V2.ETH_TELLER]: {
+    name: BondName.ETH,
     addr: WETH9_ADDRESS[chainId],
     principalAbi: weth9,
     tellerAbi: bondTellerEthAbi_V2.abi,
@@ -53,6 +55,7 @@ const tellerToTokenMapping: {
     version: 2,
   },
   [TELLER_ADDRS_V2.USDC_TELLER]: {
+    name: BondName.USDC,
     addr: USDC_ADDRESS[chainId],
     principalAbi: ierc20Json.abi,
     tellerAbi: bondTellerErc20Abi_V2.abi,
@@ -64,6 +67,7 @@ const tellerToTokenMapping: {
     version: 2,
   },
   [TELLER_ADDRS_V2.WBTC_TELLER]: {
+    name: BondName.WBTC,
     addr: WBTC_ADDRESS[chainId],
     principalAbi: ierc20Json.abi,
     tellerAbi: bondTellerErc20Abi_V2.abi,
@@ -75,6 +79,7 @@ const tellerToTokenMapping: {
     version: 2,
   },
   [TELLER_ADDRS_V2.USDT_TELLER]: {
+    name: BondName.USDT,
     addr: USDT_ADDRESS[chainId],
     principalAbi: ierc20Json.abi,
     tellerAbi: bondTellerErc20Abi_V2.abi,
@@ -86,6 +91,7 @@ const tellerToTokenMapping: {
     version: 2,
   },
   [TELLER_ADDRS_V2.FRAX_TELLER]: {
+    name: BondName.FRAX,
     addr: FRAX_ADDRESS[chainId],
     principalAbi: ierc20Json.abi,
     tellerAbi: bondTellerErc20Abi_V2.abi,
@@ -136,14 +142,6 @@ export const AuroraNetwork: NetworkConfig = {
       },
     },
     productContracts: {},
-    bondTellerContracts: {
-      [BondName.DAI]: [TELLER_ADDRS_V2.DAI_TELLER],
-      [BondName.ETH]: [TELLER_ADDRS_V2.ETH_TELLER],
-      [BondName.USDC]: [TELLER_ADDRS_V2.USDC_TELLER],
-      [BondName.WBTC]: [TELLER_ADDRS_V2.WBTC_TELLER],
-      [BondName.USDT]: [TELLER_ADDRS_V2.USDT_TELLER],
-      [BondName.FRAX]: [TELLER_ADDRS_V2.FRAX_TELLER],
-    },
     restrictedFeatures: {
       noBondingV1: true,
       noCoverProducts: true,

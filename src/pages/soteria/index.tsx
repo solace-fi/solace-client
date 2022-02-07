@@ -1,4 +1,4 @@
-import * as React from 'react'
+import React, { useEffect, useState } from 'react'
 import Flex from '../stake/atoms/Flex'
 import RaisedBox from '../stake/atoms/RaisedBox'
 import ShadowDiv from '../stake/atoms/ShadowDiv'
@@ -17,8 +17,13 @@ import commaNumber from '../../utils/commaNumber'
 import { Table, TableHead, TableHeader, TableBody, TableRow, TableData } from '../../components/atoms/Table'
 import { StyledTooltip } from '../../components/molecules/Tooltip'
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'
-import { BKPT_5 } from '../../constants'
+import { BKPT_5, ZERO } from '../../constants'
 import GrayBgDiv from '../stake/atoms/BodyBgCss'
+import { useSoteria } from '../../hooks/useSolaceCoverProduct'
+import { getSolaceRiskBalances, getSolaceRiskScores } from '../../utils/api'
+import { SolaceRiskProtocol } from '../../constants/types'
+import { useWallet } from '../../context/WalletManager'
+import { BigNumber } from 'ethers'
 
 function Card({
   children,
@@ -314,6 +319,23 @@ function CoverageBalance() {
   // setters for usd and days
   const [usd, setUsd] = React.useState('0')
   const { ifDesktop } = useWindowDimensions()
+  const { account } = useWallet()
+
+  const [balance, setBalance] = useState<BigNumber>(ZERO)
+  const [cooldownStart, setCooldownStart] = useState<BigNumber>(ZERO)
+
+  const { getAccountBalanceOf, deposit, withdraw, getCooldownPeriod, getCooldownStart } = useSoteria()
+
+  useEffect(() => {
+    ;async () => {
+      if (!account) return
+      const bal = await getAccountBalanceOf(account)
+      const cdStart = await getCooldownStart(account)
+      setCooldownStart(cdStart)
+      setBalance(bal)
+    }
+  }, [])
+
   return (
     <Card bigger horiz>
       <Flex
@@ -416,6 +438,9 @@ function CoverageActive() {
   const [coverageActive, setCoverageActive] = React.useState<boolean>(false)
   const [cooldownLeft, setCooldownLeft] = React.useState<number>(3)
   const showCooldown = !coverageActive && cooldownLeft > 0
+
+  const { activatePolicy, deactivatePolicy } = useSoteria()
+
   return (
     <Card>
       <Flex between itemsCenter>
@@ -536,12 +561,12 @@ function PortfolioTable() {
 
   */
   const { width } = useWindowDimensions()
+
   const data = [
     {
       id: '_a',
       protocol: 'Uniswap',
       type: 'DEX',
-      positions: ['ETH', 'BTC', 'DAI'],
       amount: '42345 USD',
       riskLevel: 'Low',
     },
@@ -549,7 +574,6 @@ function PortfolioTable() {
       id: '_b',
       protocol: 'Nexus Mutual',
       type: 'Derivatives',
-      positions: ['ETH', 'DAI'],
       amount: '34562 USD',
       riskLevel: 'High',
     },
@@ -557,7 +581,6 @@ function PortfolioTable() {
       id: '_c',
       protocol: 'Aave',
       type: 'Lending',
-      positions: ['ETH', 'DAI'],
       amount: '12809 USD',
       riskLevel: 'Medium',
     },
@@ -565,11 +588,30 @@ function PortfolioTable() {
       id: '_d',
       protocol: 'Yearn Finance',
       type: 'Assets',
-      positions: ['BTC'],
       amount: '2154 USD',
       riskLevel: 'Medium',
     },
   ]
+
+  // const [data, setData] = useState<SolaceRiskProtocol[]>([])
+
+  useEffect(() => {
+    const getPortfolio = async () => {
+      const account = '0x09748f07b839edd1d79a429d3ad918f670d602cd'
+      try {
+        const balances = await getSolaceRiskBalances(account, 1)
+        console.log(balances)
+        const scores = await getSolaceRiskScores(account, balances)
+        const protocols = scores.protocols
+        console.log(protocols)
+        // setData(protocols)
+      } catch (e) {
+        console.log('cannot get risk assessment')
+      }
+    }
+    getPortfolio()
+  }, [])
+
   return (
     <>
       {width > BKPT_5 ? (
@@ -577,18 +619,16 @@ function PortfolioTable() {
           <TableHead>
             <TableHeader>Protocol</TableHeader>
             <TableHeader>Type</TableHeader>
-            <TableHeader>Positions</TableHeader>
             <TableHeader>Amount</TableHeader>
             <TableHeader>Risk Level</TableHeader>
           </TableHead>
           <TableBody>
-            {data.map((row) => (
-              <TableRow key={row.id}>
-                <TableData>{row.protocol}</TableData>
-                <TableData>{row.type}</TableData>
-                <TableData>{row.positions.join(', ')}</TableData>
-                <TableData>{row.amount}</TableData>
-                <TableData>{row.riskLevel}</TableData>
+            {data.map((d: any) => (
+              <TableRow key={d.id}>
+                <TableData>{d.protocol}</TableData>
+                <TableData>{d.type}</TableData>
+                <TableData>{d.balanceUSD}</TableData>
+                <TableData>{d.riskLevel}</TableData>
               </TableRow>
             ))}
           </TableBody>
@@ -606,7 +646,6 @@ function PortfolioTable() {
               <Flex gap={30} between itemsCenter>
                 <Flex col gap={8.5}>
                   <div>{row.protocol}</div>
-                  <div>{row.positions.join(', ')}</div>
                 </Flex>
                 <Flex
                   col
