@@ -5,7 +5,6 @@ import { useNetwork } from '../context/NetworkManager'
 import { floatUnits } from '../utils/formatting'
 import { queryDecimals } from '../utils/contract'
 import { Contract } from '@ethersproject/contracts'
-import { getContract } from '../utils'
 import { USDC_ADDRESS, WETH9_ADDRESS } from '../constants/mappings/tokenAddressMapping'
 import { ZERO } from '../constants'
 import ierc20Json from '../constants/metadata/IERC20Metadata.json'
@@ -19,6 +18,21 @@ import sushiswapLpAbi from '../constants/metadata/ISushiswapMetadataAlt.json'
 import { Unit } from '../constants/enums'
 import { NetworkConfig, TokenToPriceMapping } from '../constants/types'
 import { useProvider } from '../context/ProviderManager'
+import { BigNumber } from 'ethers'
+import { JsonRpcProvider } from '@ethersproject/providers'
+
+export const usePriceSdk = () => {
+  const { getPriceFromSushiswap, getPriceFromSushiswapLp } = useGetPriceFromSushiSwap()
+  const getPriceSdkFunc = (sdkStr?: string) => {
+    switch (sdkStr) {
+      case 'sushi':
+      default:
+        return { getSdkTokenPrice: getPriceFromSushiswap, getSdkLpPrice: getPriceFromSushiswapLp }
+    }
+  }
+
+  return { getPriceSdkFunc }
+}
 
 export const useGetPriceFromSushiSwap = () => {
   const coingeckoTokenId = (unit: Unit) => {
@@ -41,20 +55,20 @@ export const useGetPriceFromSushiSwap = () => {
   const getPriceFromSushiswap = async (
     token: Contract,
     activeNetwork: NetworkConfig,
-    library: any
+    _provider?: any
   ): Promise<number> => {
-    if (!library) return -1
     if (
       token.address.toLowerCase() == USDC_ADDRESS[activeNetwork.chainId].toLowerCase() ??
       USDC_ADDRESS[1].toLowerCase()
     )
       return 1
     try {
+      const provider = _provider ?? new JsonRpcProvider(activeNetwork.rpc.httpsUrl)
       const decimals = await queryDecimals(token)
       const TOKEN = new Token(activeNetwork.chainId, handleAddressException(token.address, activeNetwork), decimals)
       const USDC = new Token(activeNetwork.chainId, USDC_ADDRESS[activeNetwork.chainId] ?? USDC_ADDRESS[1], 6)
       const pairAddr = await Pair.getAddress(TOKEN, USDC)
-      const pairPoolContract = getContract(pairAddr, sushiswapLpAbi, library)
+      const pairPoolContract = new Contract(pairAddr, sushiswapLpAbi, provider)
       const reserves = await pairPoolContract.getReserves()
       const tokens = await Promise.all([pairPoolContract.token0(), pairPoolContract.token1()])
       if (tokens[0].toLowerCase() == token.address.toLowerCase()) {
@@ -70,7 +84,12 @@ export const useGetPriceFromSushiSwap = () => {
       }
     } catch (err) {
       console.log(`getPriceFromSushiswap, cannot retrieve for ${token.address}`, err)
-      return -1
+      const coinGeckoTokenPrice = await getCoingeckoTokenPriceByAddr(
+        token.address,
+        'usd',
+        coingeckoTokenId(activeNetwork.nativeCurrency.symbol)
+      )
+      return parseFloat(coinGeckoTokenPrice ?? '0')
     }
   }
 
@@ -78,13 +97,14 @@ export const useGetPriceFromSushiSwap = () => {
   const getPriceFromSushiswapLp = async (
     lpToken: Contract,
     activeNetwork: NetworkConfig,
-    library: any
+    _provider?: any,
+    balance?: BigNumber
   ): Promise<number> => {
-    if (!library) return -1
     try {
+      const provider = _provider ?? new JsonRpcProvider(activeNetwork.rpc.httpsUrl)
       const [token0, token1] = await Promise.all([lpToken.token0(), lpToken.token1()])
-      const token0Contract = getContract(token0, ierc20Json.abi, library)
-      const token1Contract = getContract(token1, ierc20Json.abi, library)
+      const token0Contract = new Contract(token0, ierc20Json.abi, provider)
+      const token1Contract = new Contract(token1, ierc20Json.abi, provider)
 
       const [decimals0, decimals1, totalSupply, principalDecimals] = await Promise.all([
         withBackoffRetries(async () => queryDecimals(token0Contract)),
@@ -93,46 +113,35 @@ export const useGetPriceFromSushiSwap = () => {
         queryDecimals(lpToken),
       ])
 
-      const poolShareOfOneUnit = totalSupply.gt(ZERO) ? 1 / floatUnits(totalSupply, principalDecimals) : 0
-      let price0 = await getPriceFromSushiswap(token0Contract, activeNetwork, library)
-      let price1 = await getPriceFromSushiswap(token1Contract, activeNetwork, library)
-
-      if (price0 == -1) {
-        const coinGeckoTokenPrice = await getCoingeckoTokenPriceByAddr(
-          token0Contract.address,
-          'usd',
-          coingeckoTokenId(activeNetwork.nativeCurrency.symbol)
-        )
-        price0 = parseFloat(coinGeckoTokenPrice ?? '0')
-      }
-      if (price1 == -1) {
-        const coinGeckoTokenPrice = await getCoingeckoTokenPriceByAddr(
-          token1Contract.address,
-          'usd',
-          coingeckoTokenId(activeNetwork.nativeCurrency.symbol)
-        )
-        price1 = parseFloat(coinGeckoTokenPrice ?? '0')
-      }
+      const portion = balance ? floatUnits(balance, principalDecimals) : 1
+      const poolShare = totalSupply.gt(ZERO) ? portion / floatUnits(totalSupply, principalDecimals) : 0
+      const price0 = await getPriceFromSushiswap(token0Contract, activeNetwork, provider)
+      const price1 = await getPriceFromSushiswap(token1Contract, activeNetwork, provider)
 
       const TOKEN0 = new Token(activeNetwork.chainId, token0, decimals0)
       const TOKEN1 = new Token(activeNetwork.chainId, token1, decimals1)
       const pairAddr = await Pair.getAddress(TOKEN0, TOKEN1)
-      const pairPoolContract = getContract(pairAddr, sushiswapLpAbi, library)
+      const pairPoolContract = new Contract(pairAddr, sushiswapLpAbi, provider)
       const reserves = await pairPoolContract.getReserves()
       const totalReserve0 = floatUnits(reserves._reserve0, decimals0)
       const totalReserve1 = floatUnits(reserves._reserve1, decimals1)
-      const multiplied = poolShareOfOneUnit * (price0 * totalReserve0 + price1 * totalReserve1)
+      const multiplied = poolShare * (price0 * totalReserve0 + price1 * totalReserve1)
       return multiplied
     } catch (err) {
       console.log(`getPriceFromSushiswapLp, cannot retrieve for ${lpToken.address}`, err)
-      return -1
+      return 0
     }
   }
 
   return { getPriceFromSushiswap, getPriceFromSushiswapLp }
 }
 
-export const useGetPricesFromCoingecko = () => {
+export const useGetCrossTokenPricesFromCoingecko = () => {
+  const [tokenPriceMapping, setPriceMapping] = useState<TokenToPriceMapping>({})
+  const gettingPrices = useRef(false)
+  const { networks } = useNetwork()
+  const { latestBlock } = useProvider()
+
   const getPricesByAddress = async (addrs: string[]): Promise<TokenToPriceMapping> => {
     const uniqueAddrs = addrs.filter((v, i, a) => a.indexOf(v) === i)
     const prices = await fetchCoingeckoTokenPricesByAddr(uniqueAddrs, 'usd', 'ethereum')
@@ -177,16 +186,6 @@ export const useGetPricesFromCoingecko = () => {
     )
     return hashmap
   }
-
-  return { getPricesByAddress, getPricesById }
-}
-
-export const useGetCrossTokenPricesFromCoingecko = () => {
-  const [tokenPriceMapping, setPriceMapping] = useState<TokenToPriceMapping>({})
-  const gettingPrices = useRef(false)
-  const { networks } = useNetwork()
-  const { latestBlock } = useProvider()
-  const { getPricesByAddress, getPricesById } = useGetPricesFromCoingecko()
 
   useEffect(() => {
     const getPrices = async () => {

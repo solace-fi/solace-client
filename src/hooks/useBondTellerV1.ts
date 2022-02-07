@@ -9,7 +9,7 @@ import { FunctionGasLimits } from '../constants/mappings/gasMapping'
 import { FunctionName, TransactionCondition } from '../constants/enums'
 import { queryDecimals, queryName, querySymbol } from '../utils/contract'
 import { useProvider } from '../context/ProviderManager'
-import { useGetPriceFromSushiSwap } from './usePrice'
+import { usePriceSdk } from './usePrice'
 import { useNetwork } from '../context/NetworkManager'
 import { floatUnits, truncateValue } from '../utils/formatting'
 import { BondTokenV1 } from '../constants/types'
@@ -84,7 +84,7 @@ export const useBondTellerDetailsV1 = (
   const { activeNetwork, networks } = useNetwork()
   const [tellerDetails, setTellerDetails] = useState<BondTellerDetails[]>([])
   const [mounting, setMounting] = useState<boolean>(true)
-  const { getPriceFromSushiswap, getPriceFromSushiswapLp } = useGetPriceFromSushiSwap()
+  const { getPriceSdkFunc } = usePriceSdk()
   const canBondV1 = useMemo(() => !activeNetwork.config.restrictedFeatures.noBondingV1, [
     activeNetwork.config.restrictedFeatures.noBondingV1,
   ])
@@ -140,9 +140,11 @@ export const useBondTellerDetailsV1 = (
               let lpData = {}
               let usdBondPrice = 0
 
+              const { getSdkTokenPrice, getSdkLpPrice } = getPriceSdkFunc(teller.sdk)
+
               // get usdBondPrice
               if (teller.isLp) {
-                const price = await getPriceFromSushiswapLp(principalContract, activeNetwork, library)
+                const price = await getSdkLpPrice(principalContract, activeNetwork, library)
                 usdBondPrice = Math.max(price, 0) * floatUnits(bondPrice, decimals)
                 const [token0, token1] = await Promise.all([principalContract.token0(), principalContract.token1()])
                 lpData = {
@@ -153,8 +155,8 @@ export const useBondTellerDetailsV1 = (
                 const key = teller.mainnetAddr == '' ? teller.tokenId.toLowerCase() : teller.mainnetAddr.toLowerCase()
                 usdBondPrice = tokenPriceMapping[key] * floatUnits(bondPrice, decimals)
                 if (usdBondPrice <= 0) {
-                  const price = await getPriceFromSushiswap(principalContract, activeNetwork, library) // via sushiswap sdk
-                  if (price != -1) usdBondPrice = price * floatUnits(bondPrice, decimals)
+                  const price = await getSdkTokenPrice(principalContract, activeNetwork, library) // via sushiswap sdk
+                  usdBondPrice = price * floatUnits(bondPrice, decimals)
                 }
               }
 

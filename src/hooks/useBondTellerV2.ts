@@ -11,7 +11,7 @@ import { FunctionGasLimits } from '../constants/mappings/gasMapping'
 import { FunctionName, TransactionCondition } from '../constants/enums'
 import { queryDecimals, queryName, querySymbol } from '../utils/contract'
 import { useProvider } from '../context/ProviderManager'
-import { useGetPriceFromSushiSwap } from './usePrice'
+import { usePriceSdk } from './usePrice'
 import { useNetwork } from '../context/NetworkManager'
 import { floatUnits, truncateValue } from '../utils/formatting'
 import { useGetFunctionGas } from './useGas'
@@ -89,7 +89,7 @@ export const useBondTellerDetailsV2 = (
   const { activeNetwork, networks } = useNetwork()
   const [tellerDetails, setTellerDetails] = useState<BondTellerDetails[]>([])
   const [mounting, setMounting] = useState<boolean>(true)
-  const { getPriceFromSushiswap } = useGetPriceFromSushiSwap()
+  const { getPriceSdkFunc } = usePriceSdk()
   const canBondV2 = useMemo(() => !activeNetwork.config.restrictedFeatures.noBondingV2, [
     activeNetwork.config.restrictedFeatures.noBondingV2,
   ])
@@ -135,12 +135,13 @@ export const useBondTellerDetailsV2 = (
               ])
 
               let usdBondPrice = 0
+              const { getSdkTokenPrice } = getPriceSdkFunc(teller.sdk)
 
               const key = teller.mainnetAddr == '' ? teller.tokenId.toLowerCase() : teller.mainnetAddr.toLowerCase()
               usdBondPrice = tokenPriceMapping[key] * floatUnits(bondPrice, decimals)
               if (usdBondPrice <= 0) {
-                const price = await getPriceFromSushiswap(principalContract, activeNetwork, library) // via sushiswap sdk
-                if (price != -1) usdBondPrice = price * floatUnits(bondPrice, decimals)
+                const price = await getSdkTokenPrice(principalContract, activeNetwork, library)
+                usdBondPrice = price * floatUnits(bondPrice, decimals)
               }
 
               const bondRoi = usdBondPrice > 0 ? ((solacePrice - usdBondPrice) * 100) / usdBondPrice : 0
