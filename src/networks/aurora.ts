@@ -103,7 +103,7 @@ export const AuroraNetwork: NetworkConfig = {
   chainId: chainId,
   isTestnet: false,
   logo: AuroraLogo,
-  supportedTxTypes: [0, 2],
+  supportedTxTypes: [0],
   nativeCurrency: { mainnetReference: WETH9_ADDRESS[1], symbol: Unit.ETH, decimals: 18 },
   rpc: {
     httpsUrl: `https://mainnet.aurora.dev`,
