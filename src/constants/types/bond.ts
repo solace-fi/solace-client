@@ -48,6 +48,7 @@ export type BondPrincipalData = {
 }
 
 export type TellerToken = {
+  name: string
   addr: string
   tellerAbi: any
   principalAbi: any

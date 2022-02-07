@@ -58,41 +58,38 @@ export function useGetBondTellerContracts(): BondTellerContract[] {
   const { activeNetwork } = useNetwork()
 
   return useMemo(() => {
-    const config = activeNetwork.config
     const cache = activeNetwork.cache
     if (!library) return []
     const bondTellerContracts: BondTellerContract[] = []
-    Object.keys(config.bondTellerContracts).forEach((key) => {
-      const versionsArray = config.bondTellerContracts[key]
-      versionsArray.forEach((bondTellerContract) => {
-        const mapping = cache.tellerToTokenMapping[bondTellerContract]
-        const isBondTellerErc20 = mapping.isBondTellerErc20
-        const isLp = mapping.isLp
-        const isDisabled = mapping.isDisabled
-        const cannotBuy = mapping.cannotBuy
-        const addr = mapping.addr
-        const mainnetAddr = mapping.mainnetAddr
-        const tokenId = mapping.tokenId
-        const version = mapping.version
-        const tellerAbi = mapping.tellerAbi
-        const principalAbi = mapping.principalAbi
-        const contract = getContract(bondTellerContract, tellerAbi, library, account ? account : undefined)
-        const cntct: BondTellerContract = {
-          name: key,
-          contract,
-          tellerAbi,
-          principalAbi,
-          isBondTellerErc20,
-          isLp,
-          addr,
-          mainnetAddr,
-          tokenId,
-          version,
-          isDisabled,
-          cannotBuy,
-        }
-        bondTellerContracts.push(cntct)
-      })
+    Object.keys(cache.tellerToTokenMapping).forEach((key) => {
+      const mapping = cache.tellerToTokenMapping[key]
+      const isBondTellerErc20 = mapping.isBondTellerErc20
+      const isLp = mapping.isLp
+      const isDisabled = mapping.isDisabled
+      const cannotBuy = mapping.cannotBuy
+      const addr = mapping.addr
+      const mainnetAddr = mapping.mainnetAddr
+      const tokenId = mapping.tokenId
+      const version = mapping.version
+      const tellerAbi = mapping.tellerAbi
+      const principalAbi = mapping.principalAbi
+      const name = mapping.name
+      const contract = getContract(key, tellerAbi, library, account ? account : undefined)
+      const cntct: BondTellerContract = {
+        name,
+        contract,
+        tellerAbi,
+        principalAbi,
+        isBondTellerErc20,
+        isLp,
+        addr,
+        mainnetAddr,
+        tokenId,
+        version,
+        isDisabled,
+        cannotBuy,
+      }
+      bondTellerContracts.push(cntct)
     })
     return bondTellerContracts
   }, [library, account, activeNetwork])
@@ -123,17 +120,14 @@ export function useContractArray(): ContractSources[] {
         })
       }
     })
-    Object.keys(config.bondTellerContracts).forEach((key) => {
-      const versionsArray = config.bondTellerContracts[key]
-      versionsArray.forEach((bondTellerContract) => {
-        if (!excludedContractAddrs.includes(bondTellerContract)) {
-          const abi = cache.tellerToTokenMapping[bondTellerContract].tellerAbi
-          contractSources.push({
-            addr: bondTellerContract.toLowerCase(),
-            abi,
-          })
-        }
-      })
+    Object.keys(cache.tellerToTokenMapping).forEach((key) => {
+      if (!excludedContractAddrs.includes(key)) {
+        const abi = cache.tellerToTokenMapping[key].tellerAbi
+        contractSources.push({
+          addr: key.toLowerCase(),
+          abi,
+        })
+      }
     })
     Object.keys(config.specialContracts).forEach((key) => {
       if (!excludedContractAddrs.includes(config.specialContracts[key].addr)) {

@@ -7,7 +7,6 @@ export type ProductContract = {
 }
 
 export type BondTellerContract = TellerToken & {
-  name: string
   contract: Contract
 }
 
