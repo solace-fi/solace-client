@@ -337,3 +337,29 @@ export const useCheckIsCoverageActive = (account: string | undefined) => {
 
   return { policyId, status, coverageLimit }
 }
+
+export const useTotalAccountBalance = (account: string | undefined) => {
+  const { getAccountBalanceOf, getRewardPointsOf } = useFunctions()
+  const [totalAccountBalance, setTotalAccountBalance] = useState<BigNumber>(ZERO)
+  const [personalBalance, setPersonalBalance] = useState<BigNumber>(ZERO)
+  const [earnedBalance, setEarnedBalance] = useState<BigNumber>(ZERO)
+
+  useEffect(() => {
+    const getBal = async () => {
+      if (!account) {
+        setTotalAccountBalance(ZERO)
+        setPersonalBalance(ZERO)
+        setEarnedBalance(ZERO)
+        return
+      }
+      const accountBalance = await getAccountBalanceOf(account)
+      const rewardPoints = await getRewardPointsOf(account)
+      setTotalAccountBalance(accountBalance.add(rewardPoints))
+      setPersonalBalance(accountBalance)
+      setEarnedBalance(rewardPoints)
+    }
+    getBal()
+  }, [account])
+
+  return { totalAccountBalance, personalBalance, earnedBalance }
+}
