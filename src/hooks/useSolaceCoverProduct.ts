@@ -35,17 +35,6 @@ export const useFunctions = () => {
     }
   }
 
-  const getPaused = async (): Promise<boolean> => {
-    if (!solaceCoverageProduct) return true
-    try {
-      const d = await solaceCoverageProduct.paused()
-      return d
-    } catch (e) {
-      console.log('error getPaused ', e)
-      return true
-    }
-  }
-
   const getActiveCoverLimit = async (): Promise<BigNumber> => {
     if (!solaceCoverageProduct) return ZERO
     try {
@@ -64,39 +53,6 @@ export const useFunctions = () => {
       return d
     } catch (e) {
       console.log('error getPolicyCount ', e)
-      return ZERO
-    }
-  }
-
-  const getMaxRateNum = async (): Promise<BigNumber> => {
-    if (!solaceCoverageProduct) return ZERO
-    try {
-      const d = await solaceCoverageProduct.maxRateNum()
-      return d
-    } catch (e) {
-      console.log('error getMaxRateNum ', e)
-      return ZERO
-    }
-  }
-
-  const getMaxRateDenom = async (): Promise<BigNumber> => {
-    if (!solaceCoverageProduct) return ZERO
-    try {
-      const d = await solaceCoverageProduct.maxRateDenom()
-      return d
-    } catch (e) {
-      console.log('error getMaxRateDenom ', e)
-      return ZERO
-    }
-  }
-
-  const getChargeCycle = async (): Promise<BigNumber> => {
-    if (!solaceCoverageProduct) return ZERO
-    try {
-      const d = await solaceCoverageProduct.chargeCycle()
-      return d
-    } catch (e) {
-      console.log('error getChargeCycle ', e)
       return ZERO
     }
   }
@@ -120,17 +76,6 @@ export const useFunctions = () => {
     } catch (e) {
       console.log('error getReferralReward ', e)
       return ZERO
-    }
-  }
-
-  const getIsReferralOn = async (): Promise<boolean> => {
-    if (!solaceCoverageProduct) return true
-    try {
-      const d = await solaceCoverageProduct.isReferralOn()
-      return d
-    } catch (e) {
-      console.log('error getIsReferralOn ', e)
-      return true
     }
   }
 
@@ -285,15 +230,10 @@ export const useFunctions = () => {
     getAvailableCoverCapacity,
     getIsReferralCodeUsed,
     getMaxCover,
-    getPaused,
     getActiveCoverLimit,
     getPolicyCount,
-    getMaxRateNum,
-    getMaxRateDenom,
-    getChargeCycle,
     getCooldownPeriod,
     getReferralReward,
-    getIsReferralOn,
     getPolicyStatus,
     getCoverLimitOf,
     getRewardPointsOf,
@@ -308,12 +248,13 @@ export const useFunctions = () => {
   }
 }
 
-export const usePortfolio = (account: string, chainId: number): SolaceRiskProtocol[] => {
+export const usePortfolio = (account: string | undefined, chainId: number): SolaceRiskProtocol[] => {
   const [data, setData] = useState<SolaceRiskProtocol[]>([])
 
   useEffect(() => {
     const getPortfolio = async () => {
       try {
+        if (!account) return
         const balances = await getSolaceRiskBalances(account, chainId)
         const scores = await getSolaceRiskScores(account, balances)
         const protocols = scores.protocols
@@ -328,7 +269,7 @@ export const usePortfolio = (account: string, chainId: number): SolaceRiskProtoc
   return data
 }
 
-export const useCheckCooldown = (account: string | undefined) => {
+export const useCooldownDetails = (account: string | undefined) => {
   const { latestBlock } = useProvider()
   const { getCooldownPeriod, getCooldownStart } = useFunctions()
 
@@ -372,7 +313,12 @@ export const useCheckIsCoverageActive = (account: string | undefined) => {
 
   useEffect(() => {
     const getStatus = async () => {
-      if (!account) return
+      if (!account) {
+        setPolicyId(ZERO)
+        setStatus(false)
+        setCoverageLimit(ZERO)
+        return
+      }
       const policyId = await getPolicyOf(account)
       if (policyId.eq(ZERO)) {
         setPolicyId(ZERO)

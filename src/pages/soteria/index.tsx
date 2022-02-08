@@ -19,7 +19,7 @@ import { StyledTooltip } from '../../components/molecules/Tooltip'
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'
 import { BKPT_5, ZERO } from '../../constants'
 import GrayBgDiv from '../stake/atoms/BodyBgCss'
-import { useCheckCooldown, useFunctions, usePortfolio } from '../../hooks/useSolaceCoverProduct'
+import { useCooldownDetails, useFunctions, usePortfolio } from '../../hooks/useSolaceCoverProduct'
 import { useWallet } from '../../context/WalletManager'
 import { BigNumber } from 'ethers'
 import { SolaceRiskProtocol } from '../../constants/types'
@@ -460,7 +460,7 @@ function CoverageActive() {
 
   const { activatePolicy, deactivatePolicy } = useFunctions()
   const { account } = useWallet()
-  const { isCooldownActive, cooldownLeft } = useCheckCooldown(account)
+  const { isCooldownActive, cooldownLeft } = useCooldownDetails(account)
   const showCooldown = isCooldownActive && cooldownLeft.gt(ZERO)
   const { handleToast, handleContractCallError } = useTransactionExecution()
 
