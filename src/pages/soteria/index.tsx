@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useMemo } from 'react'
 import Flex from '../stake/atoms/Flex'
 import RaisedBox from '../stake/atoms/RaisedBox'
 import ShadowDiv from '../stake/atoms/ShadowDiv'
@@ -19,11 +19,14 @@ import { StyledTooltip } from '../../components/molecules/Tooltip'
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'
 import { BKPT_5, ZERO } from '../../constants'
 import GrayBgDiv from '../stake/atoms/BodyBgCss'
-import { useSoteria } from '../../hooks/useSolaceCoverProduct'
-import { getSolaceRiskBalances, getSolaceRiskScores } from '../../utils/api'
-import { SolaceRiskProtocol } from '../../constants/types'
+import { useCheckCooldown, useFunctions, usePortfolio } from '../../hooks/useSolaceCoverProduct'
 import { useWallet } from '../../context/WalletManager'
 import { BigNumber } from 'ethers'
+import { SolaceRiskProtocol } from '../../constants/types'
+import { capitalizeFirstLetter, floatUnits } from '../../utils/formatting'
+import { getTimeFromMillis } from '../../utils/time'
+import { useTransactionExecution } from '../../hooks/useInputAmount'
+import { FunctionName } from '../../constants/enums'
 
 function Card({
   children,
@@ -89,13 +92,31 @@ function Card({
 // third line is a text below the circle
 // fourth line is 1 submit and 1 cancel button
 
-function CoverageLimit() {
+function CoverageLimit({ portfolio }: { portfolio: SolaceRiskProtocol[] }) {
   const [isEditing, setIsEditing] = React.useState(false)
   const startEditing = () => setIsEditing(true)
   const stopEditing = () => setIsEditing(false)
   const [usd, setUsd] = React.useState<number>(0)
+  const [coverageLimit, setCoverageLimit] = useState<BigNumber>(ZERO)
+
+  const { account } = useWallet()
+  const balanceUsdSum = useMemo(() => {
+    portfolio.reduce((total, protocol) => (total += protocol.balanceUSD), 0)
+  }, [portfolio])
+
+  const { getPolicyOf, getCoverLimitOf, updateCoverLimit } = useFunctions()
+
+  useEffect(() => {
+    const init = async () => {
+      if (!account) return
+      const policyId = await getPolicyOf(account)
+      const coverLimit = await getCoverLimitOf(policyId)
+      setCoverageLimit(coverLimit)
+    }
+    init()
+  }, [account])
+
   const totalFunds = 23325156
-  const coverageLimit = 15325156
   React.useEffect(() => {
     if (15325156) {
       setUsd(15325156)
@@ -138,7 +159,7 @@ function CoverageLimit() {
             >
               <Flex baseline center gap={4}>
                 <Text techygradient t2 bold>
-                  {commaNumber(coverageLimit)}
+                  {commaNumber(floatUnits(coverageLimit, 18))}
                 </Text>
                 <Text techygradient t4 bold>
                   USD
@@ -171,7 +192,7 @@ function CoverageLimit() {
                     1
                   }
             }
-            value={isEditing ? (usd > 0 ? String(usd) : usd > 0 ? String(usd) : '0') : coverageLimit}
+            value={isEditing ? (usd > 0 ? String(usd) : usd > 0 ? String(usd) : '0') : floatUnits(coverageLimit, 18)}
           />
           {isEditing && (
             <Flex baseline gap={4} center mt={isEditing ? 28 : 60}>
@@ -185,7 +206,7 @@ function CoverageLimit() {
                   }}
                 >
                   {/* formula: fund covered * 100 / totalFunds = fundsCovered% */}
-                  {(((isEditing ? usd : coverageLimit) * 100) / totalFunds).toFixed(0)}%
+                  {(((isEditing ? usd : floatUnits(coverageLimit, 18)) * 100) / totalFunds).toFixed(0)}%
                 </Text>
                 {/* <Text t4 bold>
                 USD
@@ -204,7 +225,7 @@ function CoverageLimit() {
                 }}
               >
                 {/* formula: fund covered * 100 / totalFunds = fundsCovered% */}
-                {((coverageLimit * 100) / totalFunds).toFixed(0)}%
+                {((floatUnits(coverageLimit, 18) * 100) / totalFunds).toFixed(0)}%
               </Text>
               {/* <Text t4 bold>
                 USD
@@ -324,7 +345,7 @@ function CoverageBalance() {
   const [balance, setBalance] = useState<BigNumber>(ZERO)
   const [cooldownStart, setCooldownStart] = useState<BigNumber>(ZERO)
 
-  const { getAccountBalanceOf, deposit, withdraw, getCooldownPeriod, getCooldownStart } = useSoteria()
+  const { getAccountBalanceOf, deposit, withdraw, getCooldownPeriod, getCooldownStart } = useFunctions()
 
   useEffect(() => {
     ;async () => {
@@ -378,7 +399,7 @@ function CoverageBalance() {
                   width: '100%',
                 }}
               >
-                <ValuePair bigText="1,432,098" smallText="USD" info />
+                <ValuePair bigText={commaNumber(floatUnits(balance, 18))} smallText="USD" info />
               </Flex>
             </StyledGrayBox>
             <Flex gap={4} baseline justifyCenter>
@@ -436,10 +457,26 @@ function CoverageBalance() {
 
 function CoverageActive() {
   const [coverageActive, setCoverageActive] = React.useState<boolean>(false)
-  const [cooldownLeft, setCooldownLeft] = React.useState<number>(3)
-  const showCooldown = !coverageActive && cooldownLeft > 0
 
-  const { activatePolicy, deactivatePolicy } = useSoteria()
+  const { activatePolicy, deactivatePolicy } = useFunctions()
+  const { account } = useWallet()
+  const { isCooldownActive, cooldownLeft } = useCheckCooldown(account)
+  const showCooldown = isCooldownActive && cooldownLeft.gt(ZERO)
+  const { handleToast, handleContractCallError } = useTransactionExecution()
+
+  const callActivatePolicy = async () => {
+    if (!account) return
+    await activatePolicy(account, ZERO, ZERO, '')
+      .then((res) => handleToast(res.tx, res.localTx))
+      .catch((err) => handleContractCallError('callActivatePolicy', err, FunctionName.SOTERIA_ACTIVATE))
+  }
+
+  const callDeactivatePolicy = async () => {
+    if (!account) return
+    await deactivatePolicy()
+      .then((res) => handleToast(res.tx, res.localTx))
+      .catch((err) => handleContractCallError('callDeactivatePolicy', err, FunctionName.SOTERIA_DEACTIVATE))
+  }
 
   return (
     <Card>
@@ -449,8 +486,8 @@ function CoverageActive() {
             <Text t2s bold>
               Coverage
             </Text>
-            <Text t2s bold info={coverageActive} warning={!coverageActive}>
-              {coverageActive ? 'Active' : 'Inactive'}
+            <Text t2s bold info={!isCooldownActive} warning={isCooldownActive}>
+              {!isCooldownActive ? 'Active' : 'Inactive'}
             </Text>
           </Flex>
           {showCooldown && (
@@ -459,7 +496,7 @@ function CoverageActive() {
                 Cooldown:
               </Text>
               <Text info t5s bold>
-                5 days 5 hours
+                {getTimeFromMillis(cooldownLeft.toNumber())}
               </Text>
             </Flex>
           )}
@@ -467,7 +504,7 @@ function CoverageActive() {
         <Flex between itemsCenter>
           <ToggleSwitch
             id="bird"
-            toggled={coverageActive}
+            toggled={!isCooldownActive}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => setCoverageActive(e.target.checked)}
           />
         </Flex>
@@ -550,7 +587,7 @@ function CoveragePrice() {
 //     `}
 // `
 
-function PortfolioTable() {
+function PortfolioTable({ portfolio }: { portfolio: SolaceRiskProtocol[] }) {
   /* table like this:
 |protocol|type| positions |amount|risk level|
 |:-------|:---|:---------:|:-----:|:--------|
@@ -561,56 +598,6 @@ function PortfolioTable() {
 
   */
   const { width } = useWindowDimensions()
-
-  const data = [
-    {
-      id: '_a',
-      protocol: 'Uniswap',
-      type: 'DEX',
-      amount: '42345 USD',
-      riskLevel: 'Low',
-    },
-    {
-      id: '_b',
-      protocol: 'Nexus Mutual',
-      type: 'Derivatives',
-      amount: '34562 USD',
-      riskLevel: 'High',
-    },
-    {
-      id: '_c',
-      protocol: 'Aave',
-      type: 'Lending',
-      amount: '12809 USD',
-      riskLevel: 'Medium',
-    },
-    {
-      id: '_d',
-      protocol: 'Yearn Finance',
-      type: 'Assets',
-      amount: '2154 USD',
-      riskLevel: 'Medium',
-    },
-  ]
-
-  // const [data, setData] = useState<SolaceRiskProtocol[]>([])
-
-  useEffect(() => {
-    const getPortfolio = async () => {
-      const account = '0x09748f07b839edd1d79a429d3ad918f670d602cd'
-      try {
-        const balances = await getSolaceRiskBalances(account, 1)
-        console.log(balances)
-        const scores = await getSolaceRiskScores(account, balances)
-        const protocols = scores.protocols
-        console.log(protocols)
-        // setData(protocols)
-      } catch (e) {
-        console.log('cannot get risk assessment')
-      }
-    }
-    getPortfolio()
-  }, [])
 
   return (
     <>
@@ -623,21 +610,21 @@ function PortfolioTable() {
             <TableHeader>Risk Level</TableHeader>
           </TableHead>
           <TableBody>
-            {data.map((d: any) => (
-              <TableRow key={d.id}>
-                <TableData>{d.protocol}</TableData>
-                <TableData>{d.type}</TableData>
+            {portfolio.map((d: SolaceRiskProtocol) => (
+              <TableRow key={d.network}>
+                <TableData>{capitalizeFirstLetter(d.network)}</TableData>
+                <TableData>{d.category}</TableData>
                 <TableData>{d.balanceUSD}</TableData>
-                <TableData>{d.riskLevel}</TableData>
+                <TableData>{d.tier}</TableData>
               </TableRow>
             ))}
           </TableBody>
         </Table>
       ) : (
         <Flex column gap={30}>
-          {data.map((row) => (
+          {portfolio.map((row) => (
             <GrayBgDiv
-              key={row.id}
+              key={row.network}
               style={{
                 borderRadius: '10px',
                 padding: '14px 24px',
@@ -645,7 +632,7 @@ function PortfolioTable() {
             >
               <Flex gap={30} between itemsCenter>
                 <Flex col gap={8.5}>
-                  <div>{row.protocol}</div>
+                  <div>{row.network}</div>
                 </Flex>
                 <Flex
                   col
@@ -654,9 +641,9 @@ function PortfolioTable() {
                     textAlign: 'right',
                   }}
                 >
-                  <div>{row.amount}</div>
-                  <div>{row.type}</div>
-                  <div>{row.riskLevel}</div>
+                  <div>{row.category}</div>
+                  <div>{row.balanceUSD}</div>
+                  <div>{row.tier}</div>
                 </Flex>
               </Flex>
             </GrayBgDiv>
@@ -670,10 +657,13 @@ function PortfolioTable() {
 export default function Soteria(): JSX.Element {
   // set coverage active
   const { isMobile } = useWindowDimensions()
+
+  const portfolio = usePortfolio('0x09748f07b839edd1d79a429d3ad918f670d602cd', 1)
+
   return (
     <Flex col gap={24} m={isMobile ? 20 : undefined}>
       <Flex gap={24} col={isMobile}>
-        <CoverageLimit />
+        <CoverageLimit portfolio={portfolio} />
         <CoverageBalance />
         <Flex
           col
@@ -701,7 +691,7 @@ export default function Soteria(): JSX.Element {
             </Text>
           </Flex>
         )}
-        <PortfolioTable />
+        <PortfolioTable portfolio={portfolio} />
       </Card>
     </Flex>
   )

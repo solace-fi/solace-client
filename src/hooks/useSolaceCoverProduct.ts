@@ -1,12 +1,14 @@
+import { useMemo, useEffect, useState } from 'react'
 import { BigNumber } from 'ethers'
-import { useMemo } from 'react'
 import { GAS_LIMIT, ZERO } from '../constants'
 import { FunctionName, TransactionCondition } from '../constants/enums'
-import { LocalTx } from '../constants/types'
+import { LocalTx, SolaceRiskProtocol } from '../constants/types'
 import { useContracts } from '../context/ContractsManager'
 import { useGetFunctionGas } from './useGas'
+import { getSolaceRiskBalances, getSolaceRiskScores } from '../utils/api'
+import { useProvider } from '../context/ProviderManager'
 
-export const useSoteria = () => {
+export const useFunctions = () => {
   const { keyContracts } = useContracts()
   const { solaceCoverageProduct } = useMemo(() => keyContracts, [keyContracts])
   const { gasConfig } = useGetFunctionGas()
@@ -304,4 +306,88 @@ export const useSoteria = () => {
     deposit,
     withdraw,
   }
+}
+
+export const usePortfolio = (account: string, chainId: number): SolaceRiskProtocol[] => {
+  const [data, setData] = useState<SolaceRiskProtocol[]>([])
+
+  useEffect(() => {
+    const getPortfolio = async () => {
+      try {
+        const balances = await getSolaceRiskBalances(account, chainId)
+        const scores = await getSolaceRiskScores(account, balances)
+        const protocols = scores.protocols
+        setData(protocols)
+      } catch (e) {
+        console.log('cannot get risk assessment')
+      }
+    }
+    getPortfolio()
+  }, [account, chainId])
+
+  return data
+}
+
+export const useCheckCooldown = (account: string | undefined) => {
+  const { latestBlock } = useProvider()
+  const { getCooldownPeriod, getCooldownStart } = useFunctions()
+
+  const [isCooldownActive, setIsCooldownActive] = useState<boolean>(true)
+  const [cooldownStart, setCooldownStart] = useState<BigNumber>(ZERO)
+  const [cooldownPeriod, setCooldownPeriod] = useState<BigNumber>(ZERO)
+  const [cooldownLeft, setCooldownLeft] = useState<BigNumber>(ZERO)
+
+  useEffect(() => {
+    const getCooldownAssessment = async () => {
+      if (!latestBlock || !account) return
+      const cooldownStart = await getCooldownStart(account)
+      setCooldownStart(cooldownStart)
+      if (!cooldownStart.isZero()) {
+        const cooldownPeriod = await getCooldownPeriod()
+        setCooldownPeriod(cooldownPeriod)
+        const timePassed = latestBlock.timestamp - cooldownStart.toNumber()
+        if (timePassed > cooldownPeriod.toNumber()) {
+          setIsCooldownActive(false)
+          setCooldownLeft(ZERO)
+        } else {
+          setIsCooldownActive(true)
+          setCooldownLeft(cooldownPeriod.sub(BigNumber.from(timePassed)))
+        }
+      } else {
+        setIsCooldownActive(false)
+        setCooldownLeft(ZERO)
+      }
+    }
+    getCooldownAssessment
+  }, [account, latestBlock])
+
+  return { isCooldownActive, cooldownStart, cooldownPeriod, cooldownLeft }
+}
+
+export const useCheckIsCoverageActive = (account: string | undefined) => {
+  const { getPolicyOf, getPolicyStatus, getCoverLimitOf } = useFunctions()
+  const [policyId, setPolicyId] = useState<BigNumber>(ZERO)
+  const [status, setStatus] = useState<boolean>(false)
+  const [coverageLimit, setCoverageLimit] = useState<BigNumber>(ZERO)
+
+  useEffect(() => {
+    const getStatus = async () => {
+      if (!account) return
+      const policyId = await getPolicyOf(account)
+      if (policyId.eq(ZERO)) {
+        setPolicyId(ZERO)
+        setStatus(false)
+        setCoverageLimit(ZERO)
+      } else {
+        const status = await getPolicyStatus(policyId)
+        const coverLimit = await getCoverLimitOf(policyId)
+        setPolicyId(policyId)
+        setStatus(status)
+        setCoverageLimit(coverLimit)
+      }
+    }
+    getStatus()
+  }, [account])
+
+  return { policyId, status }
 }
