@@ -53,7 +53,7 @@ const GeneralProvider: React.FC = (props) => {
   const [referralCode, setReferralCode] = useLocalStorage<string | undefined>('sol_data_referral_code')
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
-    const referralCodeFromUrl = params.get('r')
+    const referralCodeFromUrl = params.get('rc')
     if (referralCodeFromUrl) {
       history.pushState(null, '', location.href.split('?')[0])
       setReferralCode(referralCodeFromUrl)

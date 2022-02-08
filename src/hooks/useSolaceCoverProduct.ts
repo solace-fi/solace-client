@@ -7,6 +7,7 @@ import { useContracts } from '../context/ContractsManager'
 import { useGetFunctionGas } from './useGas'
 import { getSolaceRiskBalances, getSolaceRiskScores } from '../utils/api'
 import { useProvider } from '../context/ProviderManager'
+import { useCachedData } from '../context/CachedDataManager'
 
 export const useFunctions = () => {
   const { keyContracts } = useContracts()
@@ -156,6 +157,17 @@ export const useFunctions = () => {
     }
   }
 
+  const getMinRequiredAccountBalance = async (coverLimit: BigNumber): Promise<BigNumber> => {
+    if (!solaceCoverageProduct) return ZERO
+    try {
+      const d = await solaceCoverageProduct.minRequiredAccountBalance(coverLimit)
+      return d
+    } catch (e) {
+      console.log('error getMinRequiredAccountBalance ', e)
+      return ZERO
+    }
+  }
+
   const activatePolicy = async (account: string, coverLimit: BigNumber, deposit: BigNumber, referralCode: string) => {
     if (!solaceCoverageProduct) return { tx: null, localTx: null }
     const tx = await solaceCoverageProduct.activatePolicy(account, coverLimit, deposit, referralCode, {
@@ -240,6 +252,7 @@ export const useFunctions = () => {
     getAccountBalanceOf,
     getPolicyOf,
     getCooldownStart,
+    getMinRequiredAccountBalance,
     activatePolicy,
     deactivatePolicy,
     updateCoverLimit,
@@ -250,11 +263,12 @@ export const useFunctions = () => {
 
 export const usePortfolio = (account: string | undefined, chainId: number): SolaceRiskProtocol[] => {
   const [data, setData] = useState<SolaceRiskProtocol[]>([])
+  const { latestBlock } = useProvider()
 
   useEffect(() => {
     const getPortfolio = async () => {
       try {
-        if (!account) return
+        if (!account || !latestBlock) return
         const balances = await getSolaceRiskBalances(account, chainId)
         const scores = await getSolaceRiskScores(account, balances)
         const protocols = scores.protocols
@@ -264,7 +278,7 @@ export const usePortfolio = (account: string | undefined, chainId: number): Sola
       }
     }
     getPortfolio()
-  }, [account, chainId])
+  }, [account, chainId, latestBlock])
 
   return data
 }
@@ -272,6 +286,7 @@ export const usePortfolio = (account: string | undefined, chainId: number): Sola
 export const useCooldownDetails = (account: string | undefined) => {
   const { latestBlock } = useProvider()
   const { getCooldownPeriod, getCooldownStart } = useFunctions()
+  const { version } = useCachedData()
 
   const [isCooldownActive, setIsCooldownActive] = useState<boolean>(true)
   const [cooldownStart, setCooldownStart] = useState<BigNumber>(ZERO)
@@ -300,20 +315,22 @@ export const useCooldownDetails = (account: string | undefined) => {
       }
     }
     getCooldownAssessment
-  }, [account, latestBlock])
+  }, [account, latestBlock, version])
 
   return { isCooldownActive, cooldownStart, cooldownPeriod, cooldownLeft }
 }
 
 export const useCheckIsCoverageActive = (account: string | undefined) => {
   const { getPolicyOf, getPolicyStatus, getCoverLimitOf } = useFunctions()
+  const { version } = useCachedData()
+  const { latestBlock } = useProvider()
   const [policyId, setPolicyId] = useState<BigNumber>(ZERO)
   const [status, setStatus] = useState<boolean>(false)
   const [coverageLimit, setCoverageLimit] = useState<BigNumber>(ZERO)
 
   useEffect(() => {
     const getStatus = async () => {
-      if (!account) {
+      if (!account || !latestBlock) {
         setPolicyId(ZERO)
         setStatus(false)
         setCoverageLimit(ZERO)
@@ -333,20 +350,22 @@ export const useCheckIsCoverageActive = (account: string | undefined) => {
       }
     }
     getStatus()
-  }, [account])
+  }, [account, latestBlock, version])
 
   return { policyId, status, coverageLimit }
 }
 
 export const useTotalAccountBalance = (account: string | undefined) => {
   const { getAccountBalanceOf, getRewardPointsOf } = useFunctions()
+  const { version } = useCachedData()
+  const { latestBlock } = useProvider()
   const [totalAccountBalance, setTotalAccountBalance] = useState<BigNumber>(ZERO)
   const [personalBalance, setPersonalBalance] = useState<BigNumber>(ZERO)
   const [earnedBalance, setEarnedBalance] = useState<BigNumber>(ZERO)
 
   useEffect(() => {
     const getBal = async () => {
-      if (!account) {
+      if (!account || !latestBlock) {
         setTotalAccountBalance(ZERO)
         setPersonalBalance(ZERO)
         setEarnedBalance(ZERO)
@@ -359,7 +378,7 @@ export const useTotalAccountBalance = (account: string | undefined) => {
       setEarnedBalance(rewardPoints)
     }
     getBal()
-  }, [account])
+  }, [account, latestBlock, version])
 
   return { totalAccountBalance, personalBalance, earnedBalance }
 }
