@@ -389,5 +389,5 @@ export const useCheckIsCoverageActive = (account: string | undefined) => {
     getStatus()
   }, [account])
 
-  return { policyId, status }
+  return { policyId, status, coverageLimit }
 }
