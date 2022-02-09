@@ -108,6 +108,7 @@ export const WMATIC_ADDRESS: {
 export const NEAR_ADDRESS: {
   [chainId: number]: string
 } = {
+  [1313161554]: '0xC42C30aC6Cc15faC9bD938618BcaA1a1FaE8501d',
   [1313161555]: '0x80dAF9794A2b6f0A6B1E58c6Ae99803c028c00f8',
 }
 
@@ -115,5 +116,6 @@ export const AURORA_ADDRESS: {
   [chainId: number]: string
 } = {
   [1]: '0xaaaaaa20d9e0e2461697782ef11675f668207961',
+  [1313161554]: '0x8BEc47865aDe3B172A928df8f990Bc7f2A3b9f79',
   [1313161555]: '0x034c971902b0B2EF37abd249c1A5DEc5Dc5bE14B',
 }
