@@ -21,7 +21,6 @@ import {
 } from '../constants/mappings/tokenAddressMapping'
 
 import bridgeWrapperABI from '../constants/metadata/BridgeWrapper.json'
-import IERC20 from '../constants/metadata/IERC20Metadata.json'
 import bondTellerErc20Abi_V2 from '../constants/metadata/BondTellerErc20_V2.json'
 import bondTellerEthAbi_V2 from '../constants/metadata/BondTellerEth_V2.json'
 
@@ -182,7 +181,7 @@ export const AuroraTestnetNetwork: NetworkConfig = {
     specialContracts: {
       bSolace: {
         addr: SPECIAL_ADDRS.BSOLACE,
-        abi: IERC20.abi,
+        abi: ierc20Json.abi,
       },
       bridgeWrapper: {
         addr: SPECIAL_ADDRS.BRIDGE_WRAPPER,
