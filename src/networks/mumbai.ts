@@ -4,7 +4,7 @@ import PolygonLogo from '../resources/svg/networks/polygon-matic-logo.svg'
 import { ALCHEMY_MUMBAI_API_KEY, POLYGONSCAN_API_KEY } from '../constants'
 import { hexValue } from 'ethers/lib/utils'
 
-import { KEY_ADDRS, TELLER_ADDRS_V2 } from '../constants/addresses/mumbai'
+import { KEY_ADDRS, TELLER_ADDRS_V2, SPECIAL_ADDRS } from '../constants/addresses/mumbai'
 
 import solaceABI from '../constants/abi/contracts/SOLACE.sol/SOLACE.json'
 import xSolaceABI from '../constants/metadata/xSOLACE.json'
@@ -21,6 +21,7 @@ import {
   WMATIC_ADDRESS,
 } from '../constants/mappings/tokenAddressMapping'
 
+import bridgeWrapperABI from '../constants/metadata/BridgeWrapper.json'
 import bondTellerErc20Abi_V2 from '../constants/metadata/BondTellerErc20_V2.json'
 import bondTellerMaticAbi from '../constants/metadata/BondTellerMatic.json'
 
@@ -164,8 +165,19 @@ export const MumbaiNetwork: NetworkConfig = {
       noStakingV1: true,
       cannotBuySolace: true,
     },
-    specialContracts: {},
-    specialFeatures: {},
+    specialFeatures: {
+      unwrapBridgedSolace: true,
+    },
+    specialContracts: {
+      bSolace: {
+        addr: SPECIAL_ADDRS.BSOLACE,
+        abi: ierc20Json.abi,
+      },
+      bridgeWrapper: {
+        addr: SPECIAL_ADDRS.BRIDGE_WRAPPER,
+        abi: bridgeWrapperABI.abi,
+      },
+    },
   },
   cache: {
     supportedProducts: [],

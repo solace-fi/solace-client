@@ -1,12 +1,15 @@
+import { useMemo, useEffect, useState } from 'react'
 import { BigNumber } from 'ethers'
-import { useMemo } from 'react'
 import { GAS_LIMIT, ZERO } from '../constants'
 import { FunctionName, TransactionCondition } from '../constants/enums'
-import { LocalTx } from '../constants/types'
+import { LocalTx, SolaceRiskProtocol } from '../constants/types'
 import { useContracts } from '../context/ContractsManager'
 import { useGetFunctionGas } from './useGas'
+import { getSolaceRiskBalances, getSolaceRiskScores } from '../utils/api'
+import { useProvider } from '../context/ProviderManager'
+import { useCachedData } from '../context/CachedDataManager'
 
-export const useSoteria = () => {
+export const useFunctions = () => {
   const { keyContracts } = useContracts()
   const { solaceCoverageProduct } = useMemo(() => keyContracts, [keyContracts])
   const { gasConfig } = useGetFunctionGas()
@@ -33,17 +36,6 @@ export const useSoteria = () => {
     }
   }
 
-  const getPaused = async (): Promise<boolean> => {
-    if (!solaceCoverageProduct) return true
-    try {
-      const d = await solaceCoverageProduct.paused()
-      return d
-    } catch (e) {
-      console.log('error getPaused ', e)
-      return true
-    }
-  }
-
   const getActiveCoverLimit = async (): Promise<BigNumber> => {
     if (!solaceCoverageProduct) return ZERO
     try {
@@ -62,39 +54,6 @@ export const useSoteria = () => {
       return d
     } catch (e) {
       console.log('error getPolicyCount ', e)
-      return ZERO
-    }
-  }
-
-  const getMaxRateNum = async (): Promise<BigNumber> => {
-    if (!solaceCoverageProduct) return ZERO
-    try {
-      const d = await solaceCoverageProduct.maxRateNum()
-      return d
-    } catch (e) {
-      console.log('error getMaxRateNum ', e)
-      return ZERO
-    }
-  }
-
-  const getMaxRateDenom = async (): Promise<BigNumber> => {
-    if (!solaceCoverageProduct) return ZERO
-    try {
-      const d = await solaceCoverageProduct.maxRateDenom()
-      return d
-    } catch (e) {
-      console.log('error getMaxRateDenom ', e)
-      return ZERO
-    }
-  }
-
-  const getChargeCycle = async (): Promise<BigNumber> => {
-    if (!solaceCoverageProduct) return ZERO
-    try {
-      const d = await solaceCoverageProduct.chargeCycle()
-      return d
-    } catch (e) {
-      console.log('error getChargeCycle ', e)
       return ZERO
     }
   }
@@ -118,17 +77,6 @@ export const useSoteria = () => {
     } catch (e) {
       console.log('error getReferralReward ', e)
       return ZERO
-    }
-  }
-
-  const getIsReferralOn = async (): Promise<boolean> => {
-    if (!solaceCoverageProduct) return true
-    try {
-      const d = await solaceCoverageProduct.isReferralOn()
-      return d
-    } catch (e) {
-      console.log('error getIsReferralOn ', e)
-      return true
     }
   }
 
@@ -209,6 +157,17 @@ export const useSoteria = () => {
     }
   }
 
+  const getMinRequiredAccountBalance = async (coverLimit: BigNumber): Promise<BigNumber> => {
+    if (!solaceCoverageProduct) return ZERO
+    try {
+      const d = await solaceCoverageProduct.minRequiredAccountBalance(coverLimit)
+      return d
+    } catch (e) {
+      console.log('error getMinRequiredAccountBalance ', e)
+      return ZERO
+    }
+  }
+
   const activatePolicy = async (account: string, coverLimit: BigNumber, deposit: BigNumber, referralCode: string) => {
     if (!solaceCoverageProduct) return { tx: null, localTx: null }
     const tx = await solaceCoverageProduct.activatePolicy(account, coverLimit, deposit, referralCode, {
@@ -283,25 +242,143 @@ export const useSoteria = () => {
     getAvailableCoverCapacity,
     getIsReferralCodeUsed,
     getMaxCover,
-    getPaused,
     getActiveCoverLimit,
     getPolicyCount,
-    getMaxRateNum,
-    getMaxRateDenom,
-    getChargeCycle,
     getCooldownPeriod,
     getReferralReward,
-    getIsReferralOn,
     getPolicyStatus,
     getCoverLimitOf,
     getRewardPointsOf,
     getAccountBalanceOf,
     getPolicyOf,
     getCooldownStart,
+    getMinRequiredAccountBalance,
     activatePolicy,
     deactivatePolicy,
     updateCoverLimit,
     deposit,
     withdraw,
   }
+}
+
+export const usePortfolio = (account: string | undefined, chainId: number): SolaceRiskProtocol[] => {
+  const [data, setData] = useState<SolaceRiskProtocol[]>([])
+  const { latestBlock } = useProvider()
+
+  useEffect(() => {
+    const getPortfolio = async () => {
+      try {
+        if (!account || !latestBlock) return
+        const balances = await getSolaceRiskBalances(account, chainId)
+        const scores = await getSolaceRiskScores(account, balances)
+        const protocols = scores.protocols
+        setData(protocols)
+      } catch (e) {
+        console.log('cannot get risk assessment')
+      }
+    }
+    getPortfolio()
+  }, [account, chainId, latestBlock])
+
+  return data
+}
+
+export const useCooldownDetails = (account: string | undefined) => {
+  const { latestBlock } = useProvider()
+  const { getCooldownPeriod, getCooldownStart } = useFunctions()
+  const { version } = useCachedData()
+
+  const [isCooldownActive, setIsCooldownActive] = useState<boolean>(true)
+  const [cooldownStart, setCooldownStart] = useState<BigNumber>(ZERO)
+  const [cooldownPeriod, setCooldownPeriod] = useState<BigNumber>(ZERO)
+  const [cooldownLeft, setCooldownLeft] = useState<BigNumber>(ZERO)
+
+  useEffect(() => {
+    const getCooldownAssessment = async () => {
+      if (!latestBlock || !account) return
+      const cooldownStart = await getCooldownStart(account)
+      setCooldownStart(cooldownStart)
+      if (!cooldownStart.isZero()) {
+        const cooldownPeriod = await getCooldownPeriod()
+        setCooldownPeriod(cooldownPeriod)
+        const timePassed = latestBlock.timestamp - cooldownStart.toNumber()
+        if (timePassed > cooldownPeriod.toNumber()) {
+          setIsCooldownActive(false)
+          setCooldownLeft(ZERO)
+        } else {
+          setIsCooldownActive(true)
+          setCooldownLeft(cooldownPeriod.sub(BigNumber.from(timePassed)))
+        }
+      } else {
+        setIsCooldownActive(false)
+        setCooldownLeft(ZERO)
+      }
+    }
+    getCooldownAssessment
+  }, [account, latestBlock, version])
+
+  return { isCooldownActive, cooldownStart, cooldownPeriod, cooldownLeft }
+}
+
+export const useCheckIsCoverageActive = (account: string | undefined) => {
+  const { getPolicyOf, getPolicyStatus, getCoverLimitOf } = useFunctions()
+  const { version } = useCachedData()
+  const { latestBlock } = useProvider()
+  const [policyId, setPolicyId] = useState<BigNumber>(ZERO)
+  const [status, setStatus] = useState<boolean>(false)
+  const [coverageLimit, setCoverageLimit] = useState<BigNumber>(ZERO)
+
+  useEffect(() => {
+    const getStatus = async () => {
+      if (!account || !latestBlock) {
+        setPolicyId(ZERO)
+        setStatus(false)
+        setCoverageLimit(ZERO)
+        return
+      }
+      const policyId = await getPolicyOf(account)
+      if (policyId.eq(ZERO)) {
+        setPolicyId(ZERO)
+        setStatus(false)
+        setCoverageLimit(ZERO)
+      } else {
+        const status = await getPolicyStatus(policyId)
+        const coverLimit = await getCoverLimitOf(policyId)
+        setPolicyId(policyId)
+        setStatus(status)
+        setCoverageLimit(coverLimit)
+      }
+    }
+    getStatus()
+  }, [account, latestBlock, version])
+
+  return { policyId, status, coverageLimit }
+}
+
+export const useTotalAccountBalance = (account: string | undefined) => {
+  const { getAccountBalanceOf, getRewardPointsOf } = useFunctions()
+  const { version } = useCachedData()
+  const { latestBlock } = useProvider()
+  const [totalAccountBalance, setTotalAccountBalance] = useState<BigNumber>(ZERO)
+  const [personalBalance, setPersonalBalance] = useState<BigNumber>(ZERO)
+  const [earnedBalance, setEarnedBalance] = useState<BigNumber>(ZERO)
+
+  useEffect(() => {
+    const getBal = async () => {
+      if (!account || !latestBlock) {
+        setTotalAccountBalance(ZERO)
+        setPersonalBalance(ZERO)
+        setEarnedBalance(ZERO)
+        return
+      }
+      const accountBalance = await getAccountBalanceOf(account)
+      const rewardPoints = await getRewardPointsOf(account)
+      setTotalAccountBalance(accountBalance.add(rewardPoints))
+      setPersonalBalance(accountBalance)
+      setEarnedBalance(rewardPoints)
+    }
+    getBal()
+  }, [account, latestBlock, version])
+
+  return { totalAccountBalance, personalBalance, earnedBalance }
 }
