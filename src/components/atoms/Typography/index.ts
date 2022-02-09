@@ -21,6 +21,7 @@ export interface TextStyleProps extends GeneralElementProps {
   medium?: boolean
   bold?: boolean
   extrabold?: boolean
+  italics?: boolean
   info?: boolean
   success?: boolean
   error?: boolean
@@ -28,6 +29,7 @@ export interface TextStyleProps extends GeneralElementProps {
   fade?: boolean
   techygradient?: boolean
   lineThrough?: boolean
+  inline?: boolean
 }
 
 export interface GeneralTextProps extends TextFontProps, TextAlignProps, TextStyleProps {}
@@ -141,6 +143,11 @@ export const Text5StaticCss = css`
   line-height: 1.5;
 `
 
+export const Text6StaticCss = css`
+  font-size: 10px;
+  line-height: 12px;
+`
+
 export const TextFontCss = css<TextFontProps>`
   ${Text3Css}
   ${(props) => props.t1 && Text1Css}
@@ -153,6 +160,7 @@ export const TextFontCss = css<TextFontProps>`
   ${(props) => props.t3s && Text3StaticCss}
   ${(props) => props.t4s && Text4StaticCss}
   ${(props) => props.t5s && Text5StaticCss}
+  ${(props) => props.t6s && Text6StaticCss}
 `
 
 export const TextAlignCss = css<TextAlignProps>`
@@ -171,6 +179,7 @@ export const TextStyleCss = css<TextStyleProps>`
   ${(props) => props.medium && 'font-weight: 500;'}
   ${(props) => props.bold && 'font-weight: 600;'}
   ${(props) => props.extrabold && 'font-weight: 700;'}
+  ${(props) => props.italics && 'font-style: italic;'}
   ${(props) => props.lineHeight && `line-height: ${props.lineHeight};`}
   ${(props) => props.lineThrough && 'text-decoration: line-through;'}
 
@@ -185,14 +194,21 @@ export const TextStyleCss = css<TextStyleProps>`
   ${(props) => props.light && `color: ${props.theme.typography.lightText};`}
   ${(props) => props.dark && `color: ${props.theme.typography.darkText};`}
   ${(props) => props.fade && `opacity: 0.8;`}
+  ${(props) => props.inline && `display: inline-block;`}
   /* techy gradient is props.theme.typography.techyGradientA and techyGradientB (top to bottom); text bg clip css */
   ${(props) =>
     props.techygradient &&
-    `background-image: linear-gradient(to bottom, ${props.theme.typography.techyGradientA}, ${props.theme.typography.techyGradientB});
-    background-clip: text;
-    -webkit-background-clip: text;
-    color: transparent;
-    font-weight: 600;`}
+    css`
+      background-image: linear-gradient(
+        to bottom,
+        ${props.theme.typography.techyGradientA},
+        ${props.theme.typography.techyGradientB}
+      );
+      background-clip: text;
+      -webkit-background-clip: text;
+      color: transparent;
+      font-weight: 600;
+    `}
   ${GeneralElementCss}
   transition: all 200ms ease;
 `
@@ -234,9 +250,10 @@ export interface TextFontProps {
   /** `width < BKPT_3` ? `18px` : `16px` */ t2_5?: boolean
   /** `width < BKPT_3` ? `16px` : `14px` */ t3?: boolean
   /** `width < BKPT_3` ? `14px` : `12px` */ t4?: boolean
+  /** `font-size: 20px`, `line-height: 18px` */ t2s?: boolean
+  /** `font-size: 18px`, `line-height: 16px` */ t2_5s?: boolean
   /** `font-size: 16px`, `line-height: 14.4px` */ t3s?: boolean
   /** `14px` */ t4s?: boolean
   /** `font-size: 12px`, `line-height: 14px` */ t5s?: boolean
-  /** `font-size: 20px`, `line-height: 18px` */ t2s?: boolean
-  /** `font-size: 18px`, `line-height: 16px` */ t2_5s?: boolean
+  /** `font-size: 10px`, `line-height: 12px` */ t6s?: boolean
 }

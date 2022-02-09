@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useMemo } from 'react'
 import Flex from '../stake/atoms/Flex'
-import RaisedBox from '../stake/atoms/RaisedBox'
+import RaisedBox from '../../components/atoms/RaisedBox'
 import ShadowDiv from '../stake/atoms/ShadowDiv'
 import { Text } from '../../components/atoms/Typography'
 import { QuestionCircle } from '@styled-icons/bootstrap/QuestionCircle'
@@ -8,9 +8,9 @@ import { QuestionCircle } from '@styled-icons/bootstrap/QuestionCircle'
 import { Button } from '../../components/atoms/Button'
 // src/resources/svg/icons/usd.svg
 import USD from '../../resources/svg/icons/usd.svg'
-import USDC from '../../resources/svg/icons/usdc.svg'
+import DAI from '../../resources/svg/icons/dai.svg'
 import ToggleSwitch from '../../components/atoms/ToggleSwitch'
-import { FixedHeightGrayBox, StyledGrayBox } from '../stake/components/GrayBox'
+import GrayBox, { FixedHeightGrayBox, StyledGrayBox } from '../stake/components/GrayBox'
 import { GenericInputSection } from '../stake/sections/InputSection'
 import { StyledSlider } from '../../components/atoms/Input'
 import commaNumber from '../../utils/commaNumber'
@@ -22,6 +22,9 @@ import GrayBgDiv from '../stake/atoms/BodyBgCss'
 import { useCooldownDetails, useFunctions, usePortfolio } from '../../hooks/useSolaceCoverProduct'
 import { useWallet } from '../../context/WalletManager'
 import { BigNumber } from 'ethers'
+import { VerticalSeparator } from '../stake/components/VerticalSeparator'
+import { useGeneral } from '../../context/GeneralManager'
+import { StyledCopy, TechyGradientCopy } from '../../components/atoms/Icon'
 import { SolaceRiskProtocol } from '../../constants/types'
 import { capitalizeFirstLetter, floatUnits } from '../../utils/formatting'
 import { getTimeFromMillis } from '../../utils/time'
@@ -32,17 +35,29 @@ function Card({
   children,
   style,
   thinner,
+  innerBigger,
+  innerThinner,
   bigger,
   normous,
   horiz,
+  firstTime,
+  noShadow,
+  noPadding,
+  gap,
   ...rest
 }: {
   children: React.ReactNode
   style?: React.CSSProperties
-  thinner?: boolean
-  /** it middle card flex 1.2 */ bigger?: boolean
-  /*flex: 12*/ normous?: boolean
+  /** first card - `flex: 0.8` */ thinner?: boolean
+  /** second card - `flex 1` */ bigger?: boolean
+  /** second card firstTime - `flex 1.2` */ innerBigger?: boolean
+  /** second card - `flex: 0.8` */ innerThinner?: boolean
+  /* big box under coverage active toggle - flex: 12*/ normous?: boolean
+  /** first time 2-form card - `flex 2` */ firstTime?: boolean
   horiz?: boolean
+  noShadow?: boolean
+  noPadding?: boolean
+  gap?: number
 }) {
   const defaultStyle = style ?? {}
   // thinner is 0.8, bigger is 1.2
@@ -51,7 +66,10 @@ function Card({
     flex: (() => {
       if (thinner) return 0.8
       if (bigger) return 1
+      if (innerBigger) return 1.2
+      if (innerThinner) return 0.9
       if (normous) return 12
+      if (firstTime) return 2
     })(),
     // alignItems: 'stretch',
     // justifyContent: between ? 'space-between' : 'flex-start',
@@ -69,22 +87,28 @@ function Card({
     flexDirection: 'row',
     alignItems: 'stretch',
   }
-  return (
-    <ShadowDiv stretch style={combinedStyle} {...rest}>
+
+  return !noShadow ? (
+    <ShadowDiv style={combinedStyle} {...rest}>
       <RaisedBox style={horiz ? rowStyle : colStyle}>
-        <Flex
-          p={24}
-          column={!horiz}
-          stretch
-          flex1
-          // style={{
-          //   backgroundColor: 'green',
-          // }}
-        >
+        <Flex p={!noPadding ? 24 : undefined} column={!horiz} stretch flex1 gap={gap}>
           {children}
         </Flex>
       </RaisedBox>
     </ShadowDiv>
+  ) : (
+    <Flex
+      style={combinedStyle}
+      {...rest}
+      col
+      // style={innerBigger || innerThinner ? { ...combinedStyle, border: '1px solid #e6e6e6' } : { ...combinedStyle }}
+    >
+      <RaisedBox style={horiz ? rowStyle : colStyle}>
+        <Flex p={!noPadding ? 24 : undefined} column={!horiz} stretch flex1 gap={gap}>
+          {children}
+        </Flex>
+      </RaisedBox>
+    </Flex>
   )
 }
 
@@ -92,10 +116,18 @@ function Card({
 // third line is a text below the circle
 // fourth line is 1 submit and 1 cancel button
 
-function CoverageLimit({ portfolio }: { portfolio: SolaceRiskProtocol[] }) {
-  const [isEditing, setIsEditing] = React.useState(false)
-  const startEditing = () => setIsEditing(true)
-  const stopEditing = () => setIsEditing(false)
+function CoverageLimitBasicForm({
+  portfolio,
+  isEditing,
+  setIsEditing,
+}: {
+  portfolio: SolaceRiskProtocol[]
+  isEditing: boolean
+  setIsEditing: (b: boolean) => void
+}) {
+  // const [isEditing, setIsEditing] = React.useState(false)
+  // const startEditing = () => setIsEditing(true)
+  // const stopEditing = () => setIsEditing(false)
   const [usd, setUsd] = React.useState<number>(0)
   const [coverageLimit, setCoverageLimit] = useState<BigNumber>(ZERO)
 
@@ -123,50 +155,63 @@ function CoverageLimit({ portfolio }: { portfolio: SolaceRiskProtocol[] }) {
     }
   }, [])
   return (
-    <Card thinner>
-      <Flex
-        between
-        col
-        stretch
-        style={{
-          flex: '2',
-        }}
-      >
-        <Flex
-          itemsCenter
-          // style={{
-          //   // just between
-          //   justifyContent: 'space-between',
-          // }}
-          between
-        >
-          <Text t2 bold>
-            Coverage Limit
-          </Text>
-          <StyledTooltip id={'coverage-limit'} tip={'Coverage Limit tip'}>
-            <QuestionCircle height={20} width={20} color={'#aaa'} />
-          </StyledTooltip>
-        </Flex>
-        <div>
-          {!isEditing ? (
-            <FixedHeightGrayBox
-              h={66}
-              style={{
-                justifyContent: 'center',
-                alignItems: 'center',
-                marginTop: '40px',
-              }}
-            >
-              <Flex baseline center gap={4}>
-                <Text techygradient t2 bold>
-                  {commaNumber(floatUnits(coverageLimit, 18))}
-                </Text>
-                <Text techygradient t4 bold>
+    <>
+      <Flex col gap={30} stretch>
+        {!isEditing ? (
+          <FixedHeightGrayBox
+            h={66}
+            style={{
+              justifyContent: 'center',
+              alignItems: 'center',
+              marginTop: '40px',
+            }}
+          >
+            <Flex baseline center>
+              <Text techygradient t2 bold>
+                {commaNumber(floatUnits(coverageLimit, 18))}{' '}
+                <Text techygradient t4 bold inline>
                   USD
                 </Text>
+              </Text>
+            </Flex>
+          </FixedHeightGrayBox>
+        ) : (
+          <Flex col stretch>
+            <Flex justifyCenter>
+              <Text t4s>Set Limit to</Text>
+            </Flex>
+            <Flex between itemsCenter mt={10}>
+              <div
+                style={{
+                  padding: '10px',
+                  borderRadius: '10px',
+                  backgroundColor: '#fafafa',
+                  color: 'purple',
+                  flexShrink: 0,
+                }}
+              >
+                &lt;
+              </div>
+              <Flex col itemsCenter>
+                <Text info t4s bold>
+                  Highest position
+                </Text>
+                <Text info t5s>
+                  in Portfolio
+                </Text>
               </Flex>
-            </FixedHeightGrayBox>
-          ) : (
+              <div
+                style={{
+                  padding: '10px',
+                  borderRadius: '10px',
+                  backgroundColor: '#fafafa',
+                  color: 'purple',
+                  flexShrink: 0,
+                }}
+              >
+                &gt;
+              </div>
+            </Flex>
             <GenericInputSection
               icon={<img src={USD} height={20} />}
               onChange={(e) => setUsd(Number(e.target.value))}
@@ -175,66 +220,16 @@ function CoverageLimit({ portfolio }: { portfolio: SolaceRiskProtocol[] }) {
               disabled={false}
               w={300}
               style={{
-                marginTop: '40px',
+                marginTop: '20px',
               }}
               displayIconOnMobile
             />
-          )}
-          {/* <div style={{ height: '8px', backgroundColor: 'gray', borderRadius: '9999px', marginTop: '18px' }}> </div> */}
-          <StyledSlider
-            mt={18}
-            min={0}
-            max={totalFunds}
-            onChange={(e) =>
-              isEditing
-                ? setUsd(Number(e.target.value))
-                : () => {
-                    1
-                  }
-            }
-            value={isEditing ? (usd > 0 ? String(usd) : usd > 0 ? String(usd) : '0') : floatUnits(coverageLimit, 18)}
-          />
-          {isEditing && (
-            <Flex baseline gap={4} center mt={isEditing ? 28 : 60}>
-              <Text t4>{isEditing ? 'Fund to be covered:' : 'Funds covered:'}</Text>
-              <Flex mt={2}>
-                <Text
-                  t3
-                  bold
-                  style={{
-                    fontSize: '18px',
-                  }}
-                >
-                  {/* formula: fund covered * 100 / totalFunds = fundsCovered% */}
-                  {(((isEditing ? usd : floatUnits(coverageLimit, 18)) * 100) / totalFunds).toFixed(0)}%
-                </Text>
-                {/* <Text t4 bold>
-                USD
-              </Text> */}
-              </Flex>
-            </Flex>
-          )}
-          <Flex baseline gap={4} center mt={isEditing ? 4 : 59}>
-            <Text t4>{'Funds covered:'}</Text>
-            <Flex mt={2}>
-              <Text
-                t3
-                bold
-                style={{
-                  fontSize: '18px',
-                }}
-              >
-                {/* formula: fund covered * 100 / totalFunds = fundsCovered% */}
-                {((floatUnits(coverageLimit, 18) * 100) / totalFunds).toFixed(0)}%
-              </Text>
-              {/* <Text t4 bold>
-                USD
-              </Text> */}
-            </Flex>
           </Flex>
+        )}
+        <Flex col stretch>
           <Flex center mt={4}>
             <Flex baseline gap={4} center>
-              <Text t4>Total funds:</Text>
+              <Text t4>Highest position:</Text>
               <Flex gap={4} baseline mt={2}>
                 <Text
                   t3
@@ -243,7 +238,7 @@ function CoverageLimit({ portfolio }: { portfolio: SolaceRiskProtocol[] }) {
                     fontSize: '18px',
                   }}
                 >
-                  {totalFunds}
+                  {1234567}
                 </Text>
                 <Text t4 bold>
                   USD
@@ -251,7 +246,7 @@ function CoverageLimit({ portfolio }: { portfolio: SolaceRiskProtocol[] }) {
               </Flex>
             </Flex>
           </Flex>
-          <Flex center mt={6.5}>
+          <Flex center mt={5}>
             <Text t4>
               Risk level:{' '}
               <Text
@@ -266,39 +261,99 @@ function CoverageLimit({ portfolio }: { portfolio: SolaceRiskProtocol[] }) {
               </Text>
             </Text>
           </Flex>
-        </div>
-        <Flex mt={40} justifyCenter={!isEditing} between={isEditing} gap={isEditing ? 20 : undefined}>
-          {!isEditing ? (
-            <Button
-              info
-              secondary
-              pl={46.75}
-              pr={46.75}
-              pt={8}
-              pb={8}
-              style={{
-                fontWeight: 600,
-              }}
-              onClick={startEditing}
-            >
-              Edit Limit
-            </Button>
-          ) : (
-            <>
-              <Button info secondary pt={8} pb={8} style={{ fontWeight: 600, flex: 1, transition: '0s' }}>
-                Set Limit
-              </Button>
-              <Button info pt={8} pb={8} style={{ fontWeight: 600, flex: 1, transition: '0s' }} onClick={stopEditing}>
-                Cancel
-              </Button>
-            </>
-          )}
         </Flex>
       </Flex>
-      {/* <Button info>Cancel</Button> */}
-    </Card>
+    </>
   )
 }
+
+// second line is an svg circle with a text inside
+// third line is a text below the circle
+// fourth line is 1 submit and 1 cancel button
+
+function CoverageLimit({
+  isEditing,
+  portfolio,
+  setIsEditing,
+  firstTime,
+}: {
+  isEditing: boolean
+  portfolio: SolaceRiskProtocol[]
+  setIsEditing: (isEditing: boolean) => void
+  firstTime?: boolean
+}) {
+  const startEditing = () => setIsEditing(true)
+  const stopEditing = () => setIsEditing(false)
+  return (
+    // <Card thinner>
+    <Flex
+      between
+      col
+      stretch
+      style={{
+        flex: '1',
+      }}
+    >
+      <Flex
+        itemsCenter
+        // style={{
+        //   // just between
+        //   justifyContent: 'space-between',
+        // }}
+        between
+      >
+        <Text t2 bold>
+          Coverage Limit
+        </Text>
+        <StyledTooltip id={'coverage-limit'} tip={'Coverage Limit tip'}>
+          <QuestionCircle height={20} width={20} color={'#aaa'} />
+        </StyledTooltip>
+      </Flex>
+      <CoverageLimitBasicForm isEditing={isEditing} portfolio={portfolio} setIsEditing={setIsEditing} />
+      <Flex justifyCenter={!isEditing} between={isEditing} gap={isEditing ? 20 : undefined}>
+        {firstTime ? (
+          <div style={{ height: '36px' }} />
+        ) : !isEditing ? (
+          <Button
+            info
+            secondary
+            pl={46.75}
+            pr={46.75}
+            pt={8}
+            pb={8}
+            style={{
+              fontWeight: 600,
+            }}
+            onClick={startEditing}
+          >
+            Edit Limit
+          </Button>
+        ) : (
+          <>
+            <Button info pt={8} pb={8} style={{ fontWeight: 600, flex: 1, transition: '0s' }} onClick={stopEditing}>
+              Discard
+            </Button>
+            <Button info secondary pt={8} pb={8} style={{ fontWeight: 600, flex: 1, transition: '0s' }}>
+              Save
+            </Button>
+          </>
+        )}
+      </Flex>
+    </Flex>
+  )
+}
+/*
+
+#plan :
+
+remove Card wrappers for CoverageLimit and PolicyBalance
+make two components, one will be a div containing the two, the other will <><CustomContainers 1 & 2>Stuff</></>
+Wrap everything in something that gives stuff props & setters, as well as submitters
+
+CoverageLimit: <Card thinner>
+PolicyBalance: <Card bigger horiz>
+
+*/
 
 // 18px 14px value pair
 function ValuePair({
@@ -336,7 +391,7 @@ function ValuePair({
 
 const ifStringZeroUndefined = (str: string) => (Number(str) === 0 ? undefined : str)
 
-function CoverageBalance() {
+function PolicyBalance({ firstTime }: { firstTime?: boolean }) {
   // setters for usd and days
   const [usd, setUsd] = React.useState('0')
   const { ifDesktop } = useWindowDimensions()
@@ -358,69 +413,141 @@ function CoverageBalance() {
   }, [])
 
   return (
-    <Card bigger horiz>
+    <Flex
+      col
+      stretch
+      gap={40}
+      style={{
+        width: '100%',
+      }}
+    >
+      <Flex between itemsCenter>
+        <Text t2 bold>
+          Policy Balance
+        </Text>
+        <StyledTooltip id={'policy-balance'} tip={'Policy Balance'}>
+          <QuestionCircle height={20} width={20} color={'#aaa'} />
+        </StyledTooltip>
+      </Flex>
       <Flex
         col
-        // between
+        between
         stretch
-        gap={40}
+        gap={30}
+        pl={ifDesktop(24)}
+        pr={ifDesktop(24)}
         style={{
-          width: '100%',
-          // backgroundColor: 'green',
+          height: '100%',
         }}
       >
-        <Flex between itemsCenter>
-          <Text t2 bold>
-            Policy Balance
-          </Text>
-          <StyledTooltip id={'policy-balance'} tip={'Policy Balance'}>
-            <QuestionCircle height={20} width={20} color={'#aaa'} />
-          </StyledTooltip>
-        </Flex>
-        <Flex
-          col
-          between
-          stretch
-          gap={30}
-          pl={ifDesktop(24)}
-          pr={ifDesktop(24)}
-          style={{
-            // backgroundColor: 'red',
-            height: '100%',
-          }}
-        >
-          <Flex col gap={10} stretch>
-            <StyledGrayBox>
-              {/* <Flex> */}
+        <Flex col gap={10} stretch>
+          <StyledGrayBox>
+            <Flex
+              stretch
+              gap={24}
+              style={{
+                width: '100%',
+              }}
+            >
+              <Flex col gap={8}>
+                <Text t4s bold>
+                  Effective Balance
+                </Text>
+                <Flex gap={6}>
+                  $
+                  <Text t2s bold>
+                    0
+                  </Text>
+                </Flex>
+              </Flex>
+              <VerticalSeparator />
               <Flex
                 col
-                itemsCenter
+                stretch
+                gap={5.5}
                 style={{
-                  width: '100%',
+                  flex: 1,
                 }}
               >
-                <ValuePair bigText={commaNumber(floatUnits(balance, 18))} smallText="USD" info />
+                <Flex between>
+                  <Text t4s bold info>
+                    Personal
+                  </Text>
+                  <Text t4s bold info>
+                    0 DAI
+                  </Text>
+                </Flex>
+                <Flex between>
+                  <Text t4s bold techygradient>
+                    Bonus
+                  </Text>
+                  <Text t4s bold techygradient>
+                    0 DAI
+                  </Text>
+                </Flex>
               </Flex>
-            </StyledGrayBox>
-            <Flex gap={4} baseline justifyCenter>
+            </Flex>
+          </StyledGrayBox>
+          {/* coverage price (dynamic): 0.00189 DAI/day; Approximate policy duration: 0 days */}
+          <Flex pl={24} pr={24} mt={10} col gap={10}>
+            <Flex between>
+              <Text t4s>Coverage Price</Text>
+              <Text t4s bold>
+                0.00189{' '}
+                <Text t6s inline>
+                  DAI/Day
+                </Text>
+              </Text>
+            </Flex>
+            <Flex between>
+              <Text t4s>Approximate Policy Duration</Text>
+              <Text t4s bold>
+                0{' '}
+                <Text t6s inline>
+                  Days
+                </Text>
+              </Text>
+            </Flex>
+          </Flex>
+          {/* <Flex gap={4} baseline justifyCenter>
               <Text t5s>Approximate policy duration:</Text>
               <Text t4s bold>
                 185 Days
               </Text>
-            </Flex>
+            </Flex> */}
+        </Flex>
+        <Flex col gap={20}>
+          <GenericInputSection
+            icon={<img src={DAI} height={20} />}
+            onChange={(e) => setUsd(e.target.value)}
+            text="DAI"
+            value={ifStringZeroUndefined(usd)}
+            disabled={false}
+            displayIconOnMobile
+          />
+          <StyledSlider />
+        </Flex>
+        {firstTime ? (
+          <Flex flex1 col stretch>
+            <Button info secondary>
+              Activate my policy
+            </Button>
           </Flex>
-          <Flex col gap={20}>
-            <GenericInputSection
-              icon={<img src={USDC} height={20} />}
-              onChange={(e) => setUsd(e.target.value)}
-              text="USDC"
-              value={ifStringZeroUndefined(usd)}
-              disabled={false}
-              displayIconOnMobile
-            />
-            <StyledSlider />
-          </Flex>
+        ) : (
           <Flex gap={20}>
+            <Button
+              info
+              pl={ifDesktop(46.75)}
+              pr={ifDesktop(46.75)}
+              pt={8}
+              pb={8}
+              style={{
+                fontWeight: 600,
+                flex: 1,
+              }}
+            >
+              Withdraw
+            </Button>
             <Button
               info
               secondary
@@ -435,28 +562,24 @@ function CoverageBalance() {
             >
               Deposit
             </Button>
-            <Button
-              info
-              pl={ifDesktop(46.75)}
-              pr={ifDesktop(46.75)}
-              pt={8}
-              pb={8}
-              style={{
-                fontWeight: 600,
-                flex: 1,
-              }}
-            >
-              Withdraw
-            </Button>
           </Flex>
-        </Flex>
+        )}
       </Flex>
-    </Card>
+    </Flex>
+    // </Card>
   )
 }
 
-function CoverageActive() {
-  const [coverageActive, setCoverageActive] = React.useState<boolean>(false)
+function CoverageActive({
+  coverageActive,
+  setCoverageActive,
+}: {
+  coverageActive: boolean
+  setCoverageActive: React.Dispatch<React.SetStateAction<boolean>>
+}) {
+  // const [cooldownLeft, setCooldownLeft] = React.useState<number>(3)
+  // const showCooldown = !coverageActive && cooldownLeft > 0
+  // const [coverageActive, setCoverageActive] = React.useState<boolean>(false)
 
   const { activatePolicy, deactivatePolicy } = useFunctions()
   const { account } = useWallet()
@@ -513,6 +636,74 @@ function CoverageActive() {
   )
 }
 
+function ReferralSection({
+  referralCode,
+  setReferralCode,
+}: {
+  referralCode: string | undefined
+  setReferralCode: (referralCode: string | undefined) => void
+}) {
+  return (
+    <Card normous horiz>
+      {/* top part / title */}
+      {/* <Flex col stretch between> */}
+      <Flex
+        stretch
+        col
+        style={{
+          width: '100%',
+        }}
+        gap={40}
+      >
+        <Flex between itemsCenter>
+          <Text t2 bold techygradient>
+            Bonuses
+          </Text>
+          <StyledTooltip id={'coverage-price'} tip={'ReferralSection - Bonuses tooltip'}>
+            <QuestionCircle height={20} width={20} color={'#aaa'} />
+          </StyledTooltip>
+        </Flex>
+        {/* middle has padding l and r 40px, rest is p l and r 24px (comes with Card); vertical justify-between */}
+        <Flex col flex1 gap={40} stretch justifyCenter>
+          <Flex col gap={10} stretch>
+            <Text t4s>Get more bonuses for everyone who gets coverage via your referral link:</Text>
+            <Text t4s bold techygradient>
+              solace.fi/referral/s37asodfkj1o3ig...{' '}
+              <TechyGradientCopy
+                style={{
+                  height: '14px',
+                  width: '14px',
+                  // backgroundColor: 'red',
+                }}
+              />
+            </Text>
+          </Flex>
+          <Flex col gap={10} stretch>
+            <Text t4s>
+              <Text t4s inline bold techygradient>
+                Got a promo code?
+              </Text>{' '}
+              Enter here to claim:
+            </Text>
+            <GrayBgDiv
+              style={{
+                borderRadius: '10px',
+              }}
+            >
+              <Flex flex1 stretch itemsCenter justifyCenter pl={24} pr={24} pt={20} pb={20}>
+                <Text techygradient bold t2s>
+                  {referralCode}
+                </Text>
+              </Flex>
+            </GrayBgDiv>
+          </Flex>
+        </Flex>
+      </Flex>
+      {/* </Flex> */}
+    </Card>
+  )
+}
+
 function CoveragePrice() {
   return (
     <Card normous horiz>
@@ -527,10 +718,10 @@ function CoveragePrice() {
         gap={40}
       >
         <Flex between itemsCenter>
-          <Text t2 bold>
-            Coverage Price*
+          <Text t2 bold techygradient>
+            Bonuses*
           </Text>
-          <StyledTooltip id={'coverage-price'} tip={'Coverage Price'}>
+          <StyledTooltip id={'coverage-price'} tip={'ReferralSection - Bonuses tooltip'}>
             <QuestionCircle height={20} width={20} color={'#aaa'} />
           </StyledTooltip>
         </Flex>
@@ -654,29 +845,150 @@ function PortfolioTable({ portfolio }: { portfolio: SolaceRiskProtocol[] }) {
   )
 }
 
+enum ReferralSource {
+  'Custom',
+  'Standard',
+  'StakeDAO',
+}
+
+enum FormStages {
+  'Welcome',
+  'InitialSetup',
+  'RegularUser',
+}
+
+function WelcomeMessage({ type, goToSecondStage }: { type: ReferralSource; goToSecondStage: () => void }): JSX.Element {
+  const handleClick = () => goToSecondStage()
+  switch (type) {
+    case ReferralSource.Custom:
+      return (
+        <Card>
+          <Flex col gap={30} itemsCenter>
+            <Text t2s>When the flies fly they do unfly</Text>
+            <Flex col gap={10} itemsCenter>
+              <Text t5s>The table below is a list of your funds in protocols available for coverage.</Text>
+              <Text t5s>By subscribing to Solace Wallet Coverage, all funds in the list are covered.</Text>
+              <Text t5s italics>
+                <Text bold inline t5s>
+                  Tip:
+                </Text>{' '}
+                all future changes to your portfolio are also covered automatically.
+              </Text>
+            </Flex>
+            <Button info secondary pl={23} pr={23} onClick={goToSecondStage}>
+              Sounds good, what&apos;s next?
+            </Button>
+          </Flex>
+        </Card>
+      )
+    case ReferralSource.Standard:
+      return (
+        <Card>
+          <Flex col gap={30} itemsCenter>
+            <Text t2s>When the flies fly they do unfly</Text>
+            <Flex col gap={10} itemsCenter>
+              <Text t5s>The table below is a list of your funds in protocols available for coverage.</Text>
+              <Text t5s>By subscribing to Solace Wallet Coverage, all funds in the list are covered.</Text>
+              <Text t5s italics>
+                <Text bold inline t5s>
+                  Tip:
+                </Text>{' '}
+                all future changes to your portfolio are also covered automatically.
+              </Text>
+            </Flex>
+            <Button info secondary pl={23} pr={23} onClick={goToSecondStage}>
+              Sounds good, what&apos;s next?
+            </Button>
+          </Flex>
+        </Card>
+      )
+    case ReferralSource.StakeDAO:
+      return (
+        <Card>
+          <Flex col gap={30} itemsCenter>
+            <Text t2s>When the flies fly they do unfly</Text>
+            <Flex col gap={10} itemsCenter>
+              <Text t5s>The table below is a list of your funds in protocols available for coverage.</Text>
+              <Text t5s>By subscribing to Solace Wallet Coverage, all funds in the list are covered.</Text>
+              <Text t5s italics>
+                <Text bold inline t5s>
+                  Tip:
+                </Text>{' '}
+                all future changes to your portfolio are also covered automatically.
+              </Text>
+            </Flex>
+            <Button info secondary pl={23} pr={23} onClick={goToSecondStage}>
+              Sounds good, what&apos;s next?
+            </Button>
+          </Flex>
+        </Card>
+      )
+  }
+}
+
 export default function Soteria(): JSX.Element {
   // set coverage active
   const { isMobile } = useWindowDimensions()
-
+  const [referralType, setReferralType] = useState<ReferralSource>(ReferralSource.Standard)
+  const [firstTime, setFirstTime] = useState(true)
+  const [formStage, setFormStage] = useState<FormStages>(FormStages.Welcome)
+  const goToSecondStage = () => setFormStage(FormStages.InitialSetup)
+  const [coverageActive, setCoverageActive] = React.useState<boolean>(false)
+  const [isEditing, setIsEditing] = React.useState(false)
+  const [referralCode, setReferralCode] = React.useState<string | undefined>(undefined)
+  const { referralCode: referralCodeFromStorage } = useGeneral()
   const portfolio = usePortfolio('0x09748f07b839edd1d79a429d3ad918f670d602cd', 1)
+  useEffect(() => {
+    if (referralCodeFromStorage) {
+      setReferralCode(referralCodeFromStorage)
+    }
+  }, [referralCodeFromStorage])
 
   return (
     <Flex col gap={24} m={isMobile ? 20 : undefined}>
-      <Flex gap={24} col={isMobile}>
-        <CoverageLimit portfolio={portfolio} />
-        <CoverageBalance />
-        <Flex
-          col
-          stretch
-          gap={24}
-          style={{
-            flex: '0.8',
-          }}
-        >
-          <CoverageActive />
-          <CoveragePrice />
+      {firstTime && formStage === FormStages.Welcome ? (
+        <WelcomeMessage type={referralType} goToSecondStage={goToSecondStage} />
+      ) : (
+        <Flex gap={24} col={isMobile}>
+          {/* <RaisedBox>
+            <Flex gap={24}> */}
+          {!coverageActive ? (
+            <>
+              <Card thinner>
+                <CoverageLimit isEditing={isEditing} portfolio={portfolio} setIsEditing={setIsEditing} />{' '}
+              </Card>
+              <Card bigger horiz>
+                <PolicyBalance />
+              </Card>
+            </>
+          ) : (
+            // <>
+            <Card firstTime horiz noPadding gap={24}>
+              <Card innerThinner noShadow>
+                <CoverageLimit isEditing={isEditing} portfolio={portfolio} setIsEditing={setIsEditing} firstTime />
+              </Card>{' '}
+              <Card innerBigger noShadow>
+                <PolicyBalance firstTime />
+              </Card>
+            </Card>
+            // </>
+          )}
+
+          {/* </Flex>
+          </RaisedBox> */}
+          <Flex
+            col
+            stretch
+            gap={24}
+            style={{
+              flex: '0.8',
+            }}
+          >
+            <CoverageActive coverageActive={coverageActive} setCoverageActive={setCoverageActive} />
+            <ReferralSection referralCode={referralCode} setReferralCode={setReferralCode} />
+          </Flex>
         </Flex>
-      </Flex>
+      )}
       <Card>
         <Text t2 bold>
           Portfolio Details

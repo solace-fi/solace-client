@@ -1,8 +1,9 @@
-import React, { useMemo, useState, useRef } from 'react'
+import React, { useMemo, useState } from 'react'
 
 import { Button } from '../../../../components/atoms/Button'
 import Flex from '../../atoms/Flex'
-import RaisedBox from '../../atoms/RaisedBox'
+
+import RaisedBox from '../../../../components/atoms/RaisedBox'
 import ShadowDiv from '../../atoms/ShadowDiv'
 import CardSectionValue from '../../components/CardSectionValue'
 import InfoPair, { Label } from '../../molecules/InfoPair'

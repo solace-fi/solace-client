@@ -6,6 +6,7 @@ export default styled.div<{
 }>`
   background-color: ${({ theme }) => theme.v2.raised};
   border-radius: 10px;
+  flex: 1;
   // padding: 24px;
   ${({ flex }) => flex && 'display: flex;'}
 `

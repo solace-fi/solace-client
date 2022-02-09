@@ -91,8 +91,6 @@ export const StyledTheme = styled(DarkTheme)``
 
 export const StyledArrowDropDown = styled(ArrowDropDown)``
 
-export const StyledCopy = styled(Copy)``
-
 export const StyledLinkExternal = styled(LinkExternal)``
 
 export const StyledLockFile = styled(FileEarmarkLock2Fill)``
@@ -118,3 +116,20 @@ export const StyledSendPlane = styled(SendPlane)``
 export const StyledRefresh = styled(Refresh)``
 
 export const StyledMultiselect = styled(Multiselect)``
+
+export const StyledCopy = styled(Copy)``
+
+export const TechyGradientCopy = styled(Copy)`
+  ${(props) =>
+    css`
+      background-image: linear-gradient(
+        to bottom,
+        ${props.theme.typography.techyGradientA},
+        ${props.theme.typography.techyGradientB}
+      );
+      /* background-clip: text;
+      -webkit-background-clip: text; */
+      /* color: transparent; */
+      font-weight: 600;
+    `}
+`
