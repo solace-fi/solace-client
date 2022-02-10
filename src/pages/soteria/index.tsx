@@ -24,6 +24,7 @@ import {
   useCooldownDetails,
   useFunctions,
   usePortfolio,
+  useTotalAccountBalance,
 } from '../../hooks/useSolaceCoverProduct'
 import { useWallet } from '../../context/WalletManager'
 import { BigNumber, Contract } from 'ethers'
@@ -31,7 +32,14 @@ import { VerticalSeparator } from '../stake/components/VerticalSeparator'
 import { useGeneral } from '../../context/GeneralManager'
 import { StyledCopy, TechyGradientCopy } from '../../components/atoms/Icon'
 import { SolaceRiskProtocol } from '../../constants/types'
-import { accurateMultiply, capitalizeFirstLetter, filterAmount, floatUnits, formatAmount } from '../../utils/formatting'
+import {
+  accurateMultiply,
+  capitalizeFirstLetter,
+  filterAmount,
+  floatUnits,
+  formatAmount,
+  truncateValue,
+} from '../../utils/formatting'
 import { getTimeFromMillis } from '../../utils/time'
 import { useInputAmount, useTransactionExecution } from '../../hooks/useInputAmount'
 import { FunctionName } from '../../constants/enums'
@@ -224,8 +232,8 @@ function CoverageLimitBasicForm({
     if (!highestPosition) return
     /** Big Number Balance */ const bnBal = BigNumber.from(accurateMultiply(highestPosition.balanceUSD, 18))
     /** balance + 20% */ const bnHigherBal = bnBal.add(bnBal.div(BigNumber.from('5')))
-    setHighestAmount(bnHigherBal)
-    setRecommendedAmount(bnBal)
+    setHighestAmount(bnBal)
+    setRecommendedAmount(bnHigherBal)
   }, [highestPosition])
 
   // useEffect switch tht listens to newCoverageLimit and chosenLimit, and sets the chosenInputAmount to recommended amount
@@ -279,6 +287,7 @@ function CoverageLimitBasicForm({
                   backgroundColor: '#fafafa',
                   color: 'purple',
                   flexShrink: 0,
+                  cursor: 'pointer',
                 }}
                 onClick={() => setChosenLimit(prevChosenLimit(chosenLimit))}
               >
@@ -311,6 +320,7 @@ function CoverageLimitBasicForm({
                   backgroundColor: '#fafafa',
                   color: 'purple',
                   flexShrink: 0,
+                  cursor: 'pointer',
                 }}
                 onClick={() => setChosenLimit(nextChosenLimit(chosenLimit))}
               >
@@ -345,7 +355,7 @@ function CoverageLimitBasicForm({
                     fontSize: '18px',
                   }}
                 >
-                  {1234567}
+                  {highestPosition ? highestPosition.balanceUSD : '-'}
                 </Text>
                 <Text t4 bold>
                   USD
@@ -539,13 +549,13 @@ function PolicyBalance({
   const { ifDesktop } = useWindowDimensions()
   const { account, library } = useWallet()
   const { activeNetwork } = useNetwork()
-  const { amount, maxSelected, isAppropriateAmount, handleInputChange, setMax, resetAmount } = useInputAmount()
+  const { amount, isAppropriateAmount, handleInputChange, resetAmount } = useInputAmount()
 
-  const [accountBalance, setAccountBalance] = useState<BigNumber>(ZERO)
   const [walletAssetBalance, setWalletAssetBalance] = useState<BigNumber>(ZERO)
   const [walletAssetDecimals, setWalletAssetDecimals] = useState<number>(0)
 
-  const { getAccountBalanceOf, deposit, withdraw, getMinRequiredAccountBalance, activatePolicy } = useFunctions()
+  const { deposit, withdraw, getMinRequiredAccountBalance, activatePolicy } = useFunctions()
+  const { totalAccountBalance, personalBalance, earnedBalance } = useTotalAccountBalance(account)
   const { handleToast, handleContractCallError } = useTransactionExecution()
 
   const isAcceptableAmount = useMemo(() => isAppropriateAmount(amount, walletAssetDecimals, walletAssetBalance), [
@@ -582,7 +592,7 @@ function PolicyBalance({
   const _checkMinReqAccountBal = useDebounce(async () => {
     const minReqAccountBal = await getMinRequiredAccountBalance(newCoverageLimit)
     const bnAmount = BigNumber.from(accurateMultiply(amount, 18))
-    setDoesReachMinReqAccountBal(accountBalance.add(bnAmount).gt(minReqAccountBal))
+    setDoesReachMinReqAccountBal(personalBalance.add(bnAmount).gt(minReqAccountBal))
   }, 300)
 
   const _getAvailableFunds = useDebounce(async () => {
@@ -595,16 +605,8 @@ function PolicyBalance({
   }, 300)
 
   useEffect(() => {
-    ;async () => {
-      if (!account) return
-      const bal = await getAccountBalanceOf(account)
-      setAccountBalance(bal)
-    }
-  }, [account])
-
-  useEffect(() => {
     _checkMinReqAccountBal()
-  }, [newCoverageLimit, accountBalance, amount])
+  }, [newCoverageLimit, personalBalance, amount])
 
   useEffect(() => {
     _getAvailableFunds()
@@ -653,8 +655,8 @@ function PolicyBalance({
                 </Text>
                 <Flex gap={6}>
                   $
-                  <Text t2s bold>
-                    0
+                  <Text t2s bold autoAlignVertical>
+                    {truncateValue(formatUnits(totalAccountBalance, walletAssetDecimals), 2)}
                   </Text>
                 </Flex>
               </Flex>
@@ -672,7 +674,7 @@ function PolicyBalance({
                     Personal
                   </Text>
                   <Text t4s bold info>
-                    0 DAI
+                    {truncateValue(formatUnits(personalBalance, walletAssetDecimals), 2)} DAI
                   </Text>
                 </Flex>
                 <Flex between>
@@ -680,7 +682,7 @@ function PolicyBalance({
                     Bonus
                   </Text>
                   <Text t4s bold techygradient>
-                    0 DAI
+                    {truncateValue(formatUnits(earnedBalance, walletAssetDecimals), 2)} DAI
                   </Text>
                 </Flex>
               </Flex>
