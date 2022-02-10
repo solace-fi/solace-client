@@ -44,6 +44,7 @@ import IERC20 from '../../constants/metadata/IERC20Metadata.json'
 import { queryBalance, queryDecimals } from '../../utils/contract'
 import useDebounce from '@rooks/use-debounce'
 import { formatUnits } from 'ethers/lib/utils'
+import { EnumType } from 'typescript'
 
 function Card({
   children,
@@ -134,6 +135,29 @@ enum ChosenLimit {
   Custom,
   MaxPosition,
   Recommended,
+}
+
+function getChosenLimitMetadata(chosenLimit: ChosenLimit) {
+  const values = Object.values(ChosenLimit) as (string | ChosenLimit)[]
+  const index = Object.values(ChosenLimit).indexOf(chosenLimit)
+  const len = Object.values(ChosenLimit).length
+  const chosenIndex = index - len / 2
+  const ChosenLimitArray = values.slice(len / 2) as ChosenLimit[]
+  return { ChosenLimitArray, chosenIndex }
+}
+
+function nextChosenLimit(chosenLimit: ChosenLimit): ChosenLimit {
+  const { chosenIndex, ChosenLimitArray } = getChosenLimitMetadata(chosenLimit)
+  const nextIndex = chosenIndex + 1
+  if (nextIndex > ChosenLimitArray.length - 1) return ChosenLimitArray[0]
+  return ChosenLimitArray[nextIndex]
+}
+
+function prevChosenLimit(chosenLimit: ChosenLimit): ChosenLimit {
+  const { chosenIndex, ChosenLimitArray } = getChosenLimitMetadata(chosenLimit)
+  const prevIndex = chosenIndex - 1
+  if (prevIndex < 0) return ChosenLimitArray[ChosenLimitArray.length - 1]
+  return ChosenLimitArray[prevIndex]
 }
 
 function CoverageLimitBasicForm({
@@ -256,6 +280,7 @@ function CoverageLimitBasicForm({
                   color: 'purple',
                   flexShrink: 0,
                 }}
+                onClick={() => setChosenLimit(prevChosenLimit(chosenLimit))}
               >
                 &lt;
               </div>
@@ -287,6 +312,7 @@ function CoverageLimitBasicForm({
                   color: 'purple',
                   flexShrink: 0,
                 }}
+                onClick={() => setChosenLimit(nextChosenLimit(chosenLimit))}
               >
                 &gt;
               </div>
