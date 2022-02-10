@@ -119,10 +119,10 @@ export default function Safe({
               isSafePreview
               batch={batchActionsIsEnabled}
               importance="tertiary"
-              label="APY"
+              label="APR"
               desktop={width > BKPT_5}
             >
-              <CardSectionValue highlight={true}>{truncateValue(lock.apy.toString(), 1)}%</CardSectionValue>
+              <CardSectionValue highlight={true}>{truncateValue(lock.apr.toString(), 1)}%</CardSectionValue>
             </InfoPair>
             <InfoPair
               isSafePreview

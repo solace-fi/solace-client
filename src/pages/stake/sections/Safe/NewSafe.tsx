@@ -60,7 +60,7 @@ export default function NewSafe({ isOpen }: { isOpen: boolean }): JSX.Element {
   const [stakeInputValue, setStakeInputValue] = React.useState('0')
   const [stakeRangeValue, setStakeRangeValue] = React.useState('0')
   const [lockInputValue, setLockInputValue] = React.useState('0')
-  const { projectedMultiplier, projectedApy, projectedYearlyReturns } = useProjectedBenefits(
+  const { projectedMultiplier, projectedApr, projectedYearlyReturns } = useProjectedBenefits(
     stakeRangeValue,
     latestBlock ? latestBlock.timestamp + parseInt(lockInputValue) * 86400 : 0
   )
@@ -143,13 +143,13 @@ export default function NewSafe({ isOpen }: { isOpen: boolean }): JSX.Element {
                       <Flex stretch gap={24}>
                         <Flex column gap={2}>
                           <Text t5s techygradient mb={8}>
-                            APY
+                            APR
                           </Text>
                           <div style={BKPT_5 > width ? { margin: '-4px 0', display: 'block' } : { display: 'none' }}>
                             &nbsp;
                           </div>
                           <Text t3s techygradient>
-                            <Flex>{truncateValue(projectedApy.toString(), 1)}%</Flex>
+                            <Flex>{truncateValue(projectedApr.toString(), 1)}%</Flex>
                           </Text>
                         </Flex>
                         <VerticalSeparator />

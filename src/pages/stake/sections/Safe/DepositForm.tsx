@@ -43,7 +43,7 @@ export default function DepositForm({ lock }: { lock: LockData }): JSX.Element {
   const [inputValue, setInputValue] = React.useState('0')
   const [rangeValue, setRangeValue] = React.useState('0')
 
-  const { projectedMultiplier, projectedApy, projectedYearlyReturns } = useProjectedBenefits(
+  const { projectedMultiplier, projectedApr, projectedYearlyReturns } = useProjectedBenefits(
     convertSciNotaToPrecise((parseFloat(lock.unboostedAmount.toString()) + parseFloat(rangeValue)).toString()),
     lock.end.toNumber()
   )
@@ -114,13 +114,13 @@ export default function DepositForm({ lock }: { lock: LockData }): JSX.Element {
                 <Flex stretch gap={24}>
                   <Flex column gap={2}>
                     <Text t5s techygradient mb={8}>
-                      APY
+                      APR
                     </Text>
                     <div style={BKPT_5 > width ? { margin: '-4px 0', display: 'block' } : { display: 'none' }}>
                       &nbsp;
                     </div>
                     <Text t3s techygradient>
-                      <Flex>{truncateValue(projectedApy.toString(), 1)}%</Flex>
+                      <Flex>{truncateValue(projectedApr.toString(), 1)}%</Flex>
                     </Text>
                   </Flex>
                   <VerticalSeparator />

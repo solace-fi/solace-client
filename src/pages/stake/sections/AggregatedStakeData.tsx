@@ -55,9 +55,9 @@ export default function AggregatedStakeData({ stakeData }: { stakeData: UserLock
             <Flex col={BKPT_6 > width} gap={91} stretch>
               <Separator horizontal={BKPT_6 > width} />
               <div>
-                <InfoPair importance="secondary" label="APY" horizontal={BKPT_6 > width}>
+                <InfoPair importance="secondary" label="APR" horizontal={BKPT_6 > width}>
                   <Text bold style={{ fontSize: '16px' }}>
-                    {truncateValue(stakeData.apy.toString(), 1)}%
+                    {truncateValue(stakeData.apr.toString(), 1)}%
                   </Text>
                 </InfoPair>
               </div>
@@ -107,10 +107,10 @@ export default function AggregatedStakeData({ stakeData }: { stakeData: UserLock
             </FormCol>
           </FormRow>
           <FormRow>
-            <FormCol>APY</FormCol>
+            <FormCol>APR</FormCol>
             <FormCol>
               <Text t2 nowrap bold>
-                {truncateValue(stakeData.apy.toString(), 1)}%
+                {truncateValue(stakeData.apr.toString(), 1)}%
               </Text>
             </FormCol>
           </FormRow>

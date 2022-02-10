@@ -150,9 +150,10 @@ function CoverageLimitBasicForm({
   const { latestBlock } = useProvider()
   const { version } = useCachedData()
 
-  const highestPosition = useMemo(() => portfolio.reduce((pn, cn) => (cn.balanceUSD > pn.balanceUSD ? cn : pn)), [
-    portfolio,
-  ])
+  const highestPosition = useMemo(
+    () => (portfolio.length > 0 ? portfolio.reduce((pn, cn) => (cn.balanceUSD > pn.balanceUSD ? cn : pn)) : undefined),
+    [portfolio]
+  )
 
   const { getAvailableCoverCapacity } = useFunctions()
 
@@ -163,11 +164,12 @@ function CoverageLimitBasicForm({
   const [availableCoverCapacity, setAvailableCoverCapacity] = useState<BigNumber>(ZERO)
 
   useEffect(() => {
+    if (!highestPosition) return
     const bnBal = BigNumber.from(accurateMultiply(highestPosition.balanceUSD, 18))
     const bnHigherBal = bnBal.add(bnBal.div(BigNumber.from('5')))
     setHighestAmount(bnHigherBal)
     setDefaultAmount(bnBal)
-  }, [highestPosition.balanceUSD])
+  }, [highestPosition])
 
   const _getCapacity = useDebounce(async () => {
     const capacity = await getAvailableCoverCapacity()

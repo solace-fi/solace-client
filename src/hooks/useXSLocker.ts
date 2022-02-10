@@ -201,7 +201,7 @@ export const useUserLockData = () => {
           lockedBalance: ZERO,
           unlockedBalance: ZERO,
           yearlyReturns: ZERO,
-          apy: ZERO,
+          apr: ZERO,
         },
         locks: [],
       }
@@ -231,7 +231,7 @@ export const useUserLockData = () => {
         const yearlyReturns: BigNumber = valueStaked.gt(ZERO)
           ? rewardPerSecond.mul(BigNumber.from(31536000)).mul(stakedLock.value).div(valueStaked)
           : ZERO
-        const apy: BigNumber = lock.amount.gt(ZERO) ? yearlyReturns.mul(100).div(lock.amount) : ZERO
+        const apr: BigNumber = lock.amount.gt(ZERO) ? yearlyReturns.mul(100).div(lock.amount) : ZERO
         const _lock: LockData = {
           xsLockID: xsLockID,
           unboostedAmount: lock.amount,
@@ -239,7 +239,7 @@ export const useUserLockData = () => {
           timeLeft: timeLeft,
           boostedValue: stakedLock.value,
           pendingRewards: rewards,
-          apy: apy,
+          apr: apr,
         }
         return _lock
       })
@@ -254,14 +254,14 @@ export const useUserLockData = () => {
     const userYearlyReturns: BigNumber = valueStaked.gt(ZERO)
       ? rewardPerSecond.mul(BigNumber.from(31536000)).mul(userValue).div(valueStaked)
       : ZERO
-    const userApy: BigNumber = stakedBalance.gt(ZERO) ? userYearlyReturns.mul(100).div(stakedBalance) : ZERO
+    const userApr: BigNumber = stakedBalance.gt(ZERO) ? userYearlyReturns.mul(100).div(stakedBalance) : ZERO
     const userInfo: UserLocksInfo = {
       pendingRewards: pendingRewards,
       stakedBalance: stakedBalance,
       lockedBalance: lockedBalance,
       unlockedBalance: unlockedBalance,
       yearlyReturns: userYearlyReturns,
-      apy: userApy,
+      apr: userApr,
     }
     const data = {
       user: userInfo,
