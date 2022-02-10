@@ -224,8 +224,8 @@ function CoverageLimitBasicForm({
     if (!highestPosition) return
     /** Big Number Balance */ const bnBal = BigNumber.from(accurateMultiply(highestPosition.balanceUSD, 18))
     /** balance + 20% */ const bnHigherBal = bnBal.add(bnBal.div(BigNumber.from('5')))
-    setHighestAmount(bnHigherBal)
-    setRecommendedAmount(bnBal)
+    setHighestAmount(bnBal)
+    setRecommendedAmount(bnHigherBal)
   }, [highestPosition])
 
   // useEffect switch tht listens to newCoverageLimit and chosenLimit, and sets the chosenInputAmount to recommended amount
@@ -345,7 +345,7 @@ function CoverageLimitBasicForm({
                     fontSize: '18px',
                   }}
                 >
-                  {1234567}
+                  {formatUnits(highestAmount.toString())}
                 </Text>
                 <Text t4 bold>
                   USD
