@@ -115,29 +115,3 @@ export const useXSolaceV1Details = () => {
 
   return { userShare, xSolacePerSolace, solacePerXSolace }
 }
-
-export const useStakingApyV1 = () => {
-  const { latestBlock } = useProvider()
-  const [stakingApy, setStakingApy] = useState<string>('-%')
-  const { keyContracts } = useContracts()
-  const { xSolaceV1 } = useMemo(() => keyContracts, [keyContracts])
-
-  const getStakingAPY = useCallback(async () => {
-    if (!latestBlock || !xSolaceV1) return
-    try {
-      const amount = await xSolaceV1.solaceToXSolace(parseUnits('1', 18))
-      const apy = (1 / parseFloat(formatUnits(amount, 18)) - 1) * 100
-      const formattedApy = `${truncateValue(apy, 2, false)}%`
-      setStakingApy(formattedApy)
-    } catch (err) {
-      console.log('error getStakingAPY ', err)
-    }
-  }, [xSolaceV1, latestBlock])
-
-  useEffect(() => {
-    if (!latestBlock) return
-    getStakingAPY()
-  }, [latestBlock, getStakingAPY])
-
-  return { stakingApy }
-}

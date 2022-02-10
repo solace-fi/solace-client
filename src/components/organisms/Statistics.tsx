@@ -81,14 +81,14 @@ export const Statistics: React.FC = () => {
     lockedBalance: ZERO,
     unlockedBalance: ZERO,
     yearlyReturns: ZERO,
-    apy: ZERO,
+    apr: ZERO,
   })
   const [globalLockStats, setGlobalLockStats] = React.useState<GlobalLockInfo>({
     solaceStaked: ZERO,
     valueStaked: ZERO,
     numLocks: ZERO,
     rewardPerSecond: ZERO,
-    apy: ZERO,
+    apr: ZERO,
   })
 
   /*************************************************************************************
@@ -315,10 +315,10 @@ export const Statistics: React.FC = () => {
                 </BoxItem>
                 <BoxItem>
                   <BoxItemTitle t4 light>
-                    Global APY
+                    Global APR
                   </BoxItemTitle>
                   <Text t2 light bold>
-                    {`${truncateValue(globalLockStats.apy.toString(), 1)}`}%
+                    {`${truncateValue(globalLockStats.apr.toString(), 1)}`}%
                   </Text>
                 </BoxItem>
               </>
@@ -377,10 +377,10 @@ export const Statistics: React.FC = () => {
                     </FormCol>
                   </FormRow>
                   <FormRow>
-                    <FormCol light>Global APY</FormCol>
+                    <FormCol light>Global APR</FormCol>
                     <FormCol>
                       <Text t2 light>
-                        {`${truncateValue(globalLockStats.apy.toString(), 1)}`}%
+                        {`${truncateValue(globalLockStats.apr.toString(), 1)}`}%
                       </Text>
                     </FormCol>
                   </FormRow>

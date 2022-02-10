@@ -66,7 +66,7 @@ export const useStakingRewards = () => {
         valueStaked: ZERO,
         numLocks: ZERO,
         rewardPerSecond: ZERO,
-        apy: ZERO,
+        apr: ZERO,
       }
     let totalSolaceStaked = ZERO
     const [rewardPerSecond, valueStaked, numlocks] = await Promise.all([
@@ -88,7 +88,7 @@ export const useStakingRewards = () => {
     locks.forEach((lock) => {
       totalSolaceStaked = totalSolaceStaked.add(lock.amount)
     })
-    const apy = totalSolaceStaked.gt(0)
+    const apr = totalSolaceStaked.gt(0)
       ? rewardPerSecond.mul(BigNumber.from(31536000)).mul(BigNumber.from(100)).div(totalSolaceStaked)
       : BigNumber.from(1000)
     return {
@@ -96,7 +96,7 @@ export const useStakingRewards = () => {
       valueStaked: valueStaked,
       numLocks: numlocks,
       rewardPerSecond: rewardPerSecond,
-      apy: apy, // individual lock apy may be up to 2.5x this
+      apr: apr, // individual lock apr may be up to 2.5x this
     }
   }
 
@@ -163,21 +163,21 @@ export const useProjectedBenefits = (
   lockEnd: number
 ): {
   projectedMultiplier: string
-  projectedApy: BigNumber
+  projectedApr: BigNumber
   projectedYearlyReturns: BigNumber
 } => {
   const { getGlobalLockStats } = useStakingRewards()
   const { latestBlock } = useProvider()
 
   const [projectedMultiplier, setProjectedMultiplier] = useState<string>('0')
-  const [projectedApy, setProjectedApy] = useState<BigNumber>(ZERO)
+  const [projectedApr, setProjectedApr] = useState<BigNumber>(ZERO)
   const [projectedYearlyReturns, setProjectedYearlyReturns] = useState<BigNumber>(ZERO)
   const [globalLockStats, setGlobalLockStats] = useState<GlobalLockInfo>({
     solaceStaked: ZERO,
     valueStaked: ZERO,
     numLocks: ZERO,
     rewardPerSecond: ZERO,
-    apy: ZERO,
+    apr: ZERO,
   })
 
   useEffect(() => {
@@ -205,15 +205,15 @@ export const useProjectedBenefits = (
       : ZERO
     const formattedStakeValue = formatAmount(formatUnits(BigNumber.from(bnBalance)))
     const parsedStakeValue = parseUnits(parseFloat(formattedStakeValue) == 0 ? '0' : formattedStakeValue, 18)
-    const projectedApy = parsedStakeValue.gt(0) ? projectedYearlyReturns.mul(100).div(parsedStakeValue) : ZERO
+    const projectedApr = parsedStakeValue.gt(0) ? projectedYearlyReturns.mul(100).div(parsedStakeValue) : ZERO
 
     const strRewardMultiplier = truncateValue(rewardMultiplier.toString(), 2)
     setProjectedMultiplier(strRewardMultiplier)
-    setProjectedApy(projectedApy)
+    setProjectedApr(projectedApr)
     setProjectedYearlyReturns(projectedYearlyReturns)
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [globalLockStats, lockEnd, bnBalance])
 
-  return { projectedMultiplier, projectedApy, projectedYearlyReturns }
+  return { projectedMultiplier, projectedApr, projectedYearlyReturns }
 }

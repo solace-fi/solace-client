@@ -124,7 +124,7 @@ function Stake1(): any {
   const canStakeV1 = useMemo(() => !activeNetwork.config.restrictedFeatures.noStakingV1, [
     activeNetwork.config.restrictedFeatures.noStakingV1,
   ])
-  const { projectedMultiplier, projectedApy, projectedYearlyReturns } = useProjectedBenefits(
+  const { projectedMultiplier, projectedApr, projectedYearlyReturns } = useProjectedBenefits(
     accurateMultiply(formatAmount(amount), 18),
     latestBlock ? latestBlock.timestamp + parseInt(lockInputValue) * 86400 : 0
   )
@@ -284,7 +284,7 @@ function Stake1(): any {
                           <Flex stretch gap={24}>
                             <Flex column gap={2}>
                               <Text t5s techygradient mb={8}>
-                                APY
+                                APR
                               </Text>
                               <div
                                 style={BKPT_5 > width ? { margin: '-4px 0', display: 'block' } : { display: 'none' }}
@@ -292,7 +292,7 @@ function Stake1(): any {
                                 &nbsp;
                               </div>
                               <Text t3s techygradient>
-                                <Flex>{truncateValue(projectedApy.toString(), 1)}%</Flex>
+                                <Flex>{truncateValue(projectedApr.toString(), 1)}%</Flex>
                               </Text>
                             </Flex>
                             <VerticalSeparator />
@@ -391,7 +391,7 @@ export default function Stake(): JSX.Element {
     lockedBalance: ZERO,
     unlockedBalance: ZERO,
     yearlyReturns: ZERO,
-    apy: ZERO,
+    apr: ZERO,
   })
   const canStakeV2 = useMemo(() => !activeNetwork.config.restrictedFeatures.noStakingV2, [
     activeNetwork.config.restrictedFeatures.noStakingV2,
@@ -529,7 +529,7 @@ export default function Stake(): JSX.Element {
                               Multiplier
                             </TableHeader>
                             <TableHeader t5s pl={2} pr={2}>
-                              APY
+                              APR
                             </TableHeader>
                           </TableRow>
                         </TableHead>
@@ -565,7 +565,7 @@ export default function Stake(): JSX.Element {
                                   <Text light={isSelected}>{truncateValue(multiplier, 1)}x</Text>
                                 </TableData>
                                 <TableData p={10}>
-                                  <Text light={isSelected}>{truncateValue(lock.apy.toString(), 1)}%</Text>
+                                  <Text light={isSelected}>{truncateValue(lock.apr.toString(), 1)}%</Text>
                                 </TableData>
                               </TableRow>
                             )
@@ -610,9 +610,9 @@ export default function Stake(): JSX.Element {
                                 </FormCol>
                               </FormRow>
                               <FormRow mb={0}>
-                                <FormCol light={isSelected}>APY</FormCol>
+                                <FormCol light={isSelected}>APR</FormCol>
                                 <FormCol bold light={isSelected}>
-                                  {truncateValue(lock.apy.toString(), 1)}%
+                                  {truncateValue(lock.apr.toString(), 1)}%
                                 </FormCol>
                               </FormRow>
                             </Card>
