@@ -102,17 +102,6 @@ export const useFunctions = () => {
     }
   }
 
-  const getIsReferralCodeUsed = async (account: string): Promise<boolean> => {
-    if (!solaceCoverageProduct) return true
-    try {
-      const d = await solaceCoverageProduct.isReferralCodeUsed(account)
-      return d
-    } catch (e) {
-      console.log('error getIsReferralCodeUsed ', e)
-      return true
-    }
-  }
-
   const getRewardPointsOf = async (account: string): Promise<BigNumber> => {
     if (!solaceCoverageProduct) return ZERO
     try {
@@ -165,6 +154,28 @@ export const useFunctions = () => {
     } catch (e) {
       console.log('error getMinRequiredAccountBalance ', e)
       return ZERO
+    }
+  }
+
+  const getIsReferralCodeUsed = async (account: string): Promise<boolean> => {
+    if (!solaceCoverageProduct) return true
+    try {
+      const d = await solaceCoverageProduct.isReferralCodeUsed(account)
+      return d
+    } catch (e) {
+      console.log('error getMinRequiredAccountBalance ', e)
+      return true
+    }
+  }
+
+  const getIsReferralCodeValid = async (account: string): Promise<boolean> => {
+    if (!solaceCoverageProduct) return false
+    try {
+      const d = await solaceCoverageProduct.isReferralCodeValid(account)
+      return d
+    } catch (e) {
+      console.log('error getIsReferralCodeValid ', e)
+      return false
     }
   }
 
@@ -241,6 +252,7 @@ export const useFunctions = () => {
   return {
     getAvailableCoverCapacity,
     getIsReferralCodeUsed,
+    getIsReferralCodeValid,
     getMaxCover,
     getActiveCoverLimit,
     getPolicyCount,
