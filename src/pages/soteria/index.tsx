@@ -145,28 +145,11 @@ enum ChosenLimit {
   Recommended,
 }
 
-function getChosenLimitMetadata(chosenLimit: ChosenLimit) {
-  const values = Object.values(ChosenLimit) as (string | ChosenLimit)[]
-  const index = Object.values(ChosenLimit).indexOf(chosenLimit)
-  const len = Object.values(ChosenLimit).length
-  const chosenIndex = index - len / 2
-  const ChosenLimitArray = values.slice(len / 2) as ChosenLimit[]
-  return { ChosenLimitArray, chosenIndex }
-}
+const ChosenLimitLength = Object.values(ChosenLimit).filter((x) => typeof x === 'number').length
 
-function nextChosenLimit(chosenLimit: ChosenLimit): ChosenLimit {
-  const { chosenIndex, ChosenLimitArray } = getChosenLimitMetadata(chosenLimit)
-  const nextIndex = chosenIndex + 1
-  if (nextIndex > ChosenLimitArray.length - 1) return ChosenLimitArray[0]
-  return ChosenLimitArray[nextIndex]
-}
-
-function prevChosenLimit(chosenLimit: ChosenLimit): ChosenLimit {
-  const { chosenIndex, ChosenLimitArray } = getChosenLimitMetadata(chosenLimit)
-  const prevIndex = chosenIndex - 1
-  if (prevIndex < 0) return ChosenLimitArray[ChosenLimitArray.length - 1]
-  return ChosenLimitArray[prevIndex]
-}
+const nextChosenLimit = (chosenLimit: ChosenLimit) => ((chosenLimit + 1) % ChosenLimitLength) as ChosenLimit
+const prevChosenLimit = (chosenLimit: ChosenLimit) =>
+  ((chosenLimit - 1 + ChosenLimitLength) % ChosenLimitLength) as ChosenLimit
 
 function CoverageLimitBasicForm({
   portfolio,
@@ -280,19 +263,23 @@ function CoverageLimitBasicForm({
               <Text t4s>Set Limit to</Text>
             </Flex>
             <Flex between itemsCenter mt={10}>
-              <div
+              <Flex
+                itemsCenter
+                justifyCenter
+                p={10}
                 style={{
-                  padding: '10px',
                   borderRadius: '10px',
                   backgroundColor: '#fafafa',
                   color: 'purple',
-                  flexShrink: 0,
+                  height: '20px',
+                  width: '20px',
+                  userSelect: 'none',
                   cursor: 'pointer',
                 }}
                 onClick={() => setChosenLimit(prevChosenLimit(chosenLimit))}
               >
                 &lt;
-              </div>
+              </Flex>
               <Flex col itemsCenter>
                 <Text info t4s bold>
                   {
@@ -313,19 +300,23 @@ function CoverageLimitBasicForm({
                   }
                 </Text>
               </Flex>
-              <div
+              <Flex
+                itemsCenter
+                justifyCenter
+                p={10}
                 style={{
-                  padding: '10px',
                   borderRadius: '10px',
                   backgroundColor: '#fafafa',
                   color: 'purple',
-                  flexShrink: 0,
+                  height: '20px',
+                  width: '20px',
+                  userSelect: 'none',
                   cursor: 'pointer',
                 }}
                 onClick={() => setChosenLimit(nextChosenLimit(chosenLimit))}
               >
                 &gt;
-              </div>
+              </Flex>
             </Flex>
             <GenericInputSection
               icon={<img src={USD} height={20} />}
@@ -355,7 +346,7 @@ function CoverageLimitBasicForm({
                     fontSize: '18px',
                   }}
                 >
-                  {highestPosition ? highestPosition.balanceUSD : '-'}
+                  {truncateValue(formatUnits(highestAmount, 18), 2)}
                 </Text>
                 <Text t4 bold>
                   USD
