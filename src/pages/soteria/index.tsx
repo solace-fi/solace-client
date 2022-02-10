@@ -149,7 +149,6 @@ function CoverageLimitBasicForm({
   setIsEditing: (b: boolean) => void
   setNewCoverageLimit: (newCoverageLimit: BigNumber) => void
 }) {
-  const [usd, setUsd] = useState<number>(0)
   const [chosenLimit, setChosenLimit] = useState<ChosenLimit>(ChosenLimit.Recommended)
   const { latestBlock } = useProvider()
   const { version } = useCachedData()
@@ -167,6 +166,36 @@ function CoverageLimitBasicForm({
 
   const [availableCoverCapacity, setAvailableCoverCapacity] = useState<BigNumber>(ZERO)
 
+  const handleInputChange = (input: string) => {
+    // allow only numbers and decimals
+    const filtered = filterAmount(input, customInputAmount)
+
+    // if filtered is only "0." or "." or '', filtered becomes '0.0'
+    // const formatted = formatAmount(filtered)
+
+    // if number has more than max decimal places, do not update
+    if (filtered.includes('.') && filtered.split('.')[1]?.length > 18) return
+
+    // if number is greater than available cover capacity, do not update
+    // if (parseUnits(formatted, 18).gt(availableCoverCapacity)) return
+
+    const bnFiltered = BigNumber.from(accurateMultiply(filtered, 18))
+    setNewCoverageLimit(bnFiltered)
+    setCustomInputAmount(filtered)
+    if (!recommendedAmount.eq(bnFiltered) && !highestAmount.eq(bnFiltered)) {
+      setChosenLimit(ChosenLimit.Custom)
+    }
+  }
+
+  const _getCapacity = useDebounce(async () => {
+    const capacity = await getAvailableCoverCapacity()
+    setAvailableCoverCapacity(capacity)
+  }, 300)
+
+  useEffect(() => {
+    _getCapacity()
+  }, [latestBlock, version])
+
   useEffect(() => {
     if (!highestPosition) return
     /** Big Number Balance */ const bnBal = BigNumber.from(accurateMultiply(highestPosition.balanceUSD, 18))
@@ -180,52 +209,17 @@ function CoverageLimitBasicForm({
   // max: highestAmount
   // custom: chosenInputAmount
   useEffect(() => {
-    const inputAmount = BigNumber.from(Number(customInputAmount).toFixed(0))
-
-    if (!recommendedAmount.eq(inputAmount) && !highestAmount.eq(inputAmount)) {
-      setChosenLimit(ChosenLimit.Custom)
-      setCustomInputAmount(inputAmount.toString())
-    }
-
     switch (chosenLimit) {
       case ChosenLimit.Recommended:
         setNewCoverageLimit(recommendedAmount)
-        setCustomInputAmount(recommendedAmount.toString())
+        setCustomInputAmount(formatUnits(recommendedAmount))
         break
       case ChosenLimit.MaxPosition:
         setNewCoverageLimit(highestAmount)
-        setCustomInputAmount(highestAmount.toString())
+        setCustomInputAmount(formatUnits(highestAmount))
         break
-      case ChosenLimit.Custom:
-        setNewCoverageLimit(inputAmount)
     }
   }, [chosenLimit, highestAmount, setNewCoverageLimit, recommendedAmount, customInputAmount])
-
-  const _getCapacity = useDebounce(async () => {
-    const capacity = await getAvailableCoverCapacity()
-    setAvailableCoverCapacity(capacity)
-  }, 300)
-
-  useEffect(() => {
-    _getCapacity()
-  }, [latestBlock, version])
-
-  const handleInputChange = (input: string) => {
-    // allow only numbers and decimals
-    const filtered = filterAmount(input, customInputAmount)
-
-    // if filtered is only "0." or "." or '', filtered becomes '0.0'
-    const formatted = formatAmount(filtered)
-
-    // if number has more than max decimal places, do not update
-    if (filtered.includes('.') && filtered.split('.')[1]?.length > 18) return
-
-    // if number is greater than available cover capacity, do not update
-    if (parseUnits(formatted, 18).gt(availableCoverCapacity)) return
-
-    setCustomInputAmount(filtered)
-    setNewCoverageLimit(BigNumber.from(accurateMultiply(filtered, 18)))
-  }
 
   return (
     <>
