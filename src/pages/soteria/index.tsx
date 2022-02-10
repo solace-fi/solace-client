@@ -130,6 +130,12 @@ function Card({
 // third line is a text below the circle
 // fourth line is 1 submit and 1 cancel button
 
+enum ChosenLimit {
+  Custom,
+  MaxPosition,
+  Recommended,
+}
+
 function CoverageLimitBasicForm({
   portfolio,
   currentCoverageLimit,
@@ -143,10 +149,8 @@ function CoverageLimitBasicForm({
   setIsEditing: (b: boolean) => void
   setNewCoverageLimit: (newCoverageLimit: BigNumber) => void
 }) {
-  // const [isEditing, setIsEditing] = React.useState(false)
-  // const startEditing = () => setIsEditing(true)
-  // const stopEditing = () => setIsEditing(false)
   const [usd, setUsd] = useState<number>(0)
+  const [chosenLimit, setChosenLimit] = useState<ChosenLimit>(ChosenLimit.Recommended)
   const { latestBlock } = useProvider()
   const { version } = useCachedData()
 
@@ -158,18 +162,44 @@ function CoverageLimitBasicForm({
   const { getAvailableCoverCapacity } = useFunctions()
 
   const [highestAmount, setHighestAmount] = useState<BigNumber>(ZERO)
-  const [defaultAmount, setDefaultAmount] = useState<BigNumber>(ZERO)
+  const [recommendedAmount, setRecommendedAmount] = useState<BigNumber>(ZERO)
   const [customInputAmount, setCustomInputAmount] = useState<string>('')
 
   const [availableCoverCapacity, setAvailableCoverCapacity] = useState<BigNumber>(ZERO)
 
   useEffect(() => {
     if (!highestPosition) return
-    const bnBal = BigNumber.from(accurateMultiply(highestPosition.balanceUSD, 18))
-    const bnHigherBal = bnBal.add(bnBal.div(BigNumber.from('5')))
+    /** Big Number Balance */ const bnBal = BigNumber.from(accurateMultiply(highestPosition.balanceUSD, 18))
+    /** balance + 20% */ const bnHigherBal = bnBal.add(bnBal.div(BigNumber.from('5')))
     setHighestAmount(bnHigherBal)
-    setDefaultAmount(bnBal)
+    setRecommendedAmount(bnBal)
   }, [highestPosition])
+
+  // useEffect switch tht listens to newCoverageLimit and chosenLimit, and sets the chosenInputAmount to recommended amount
+  // recommended: highestAmount * 1.2
+  // max: highestAmount
+  // custom: chosenInputAmount
+  useEffect(() => {
+    const inputAmount = BigNumber.from(Number(customInputAmount).toFixed(0))
+
+    if (!recommendedAmount.eq(inputAmount) && !highestAmount.eq(inputAmount)) {
+      setChosenLimit(ChosenLimit.Custom)
+      setCustomInputAmount(inputAmount.toString())
+    }
+
+    switch (chosenLimit) {
+      case ChosenLimit.Recommended:
+        setNewCoverageLimit(recommendedAmount)
+        setCustomInputAmount(recommendedAmount.toString())
+        break
+      case ChosenLimit.MaxPosition:
+        setNewCoverageLimit(highestAmount)
+        setCustomInputAmount(highestAmount.toString())
+        break
+      case ChosenLimit.Custom:
+        setNewCoverageLimit(inputAmount)
+    }
+  }, [chosenLimit, highestAmount, setNewCoverageLimit, recommendedAmount, customInputAmount])
 
   const _getCapacity = useDebounce(async () => {
     const capacity = await getAvailableCoverCapacity()
@@ -237,10 +267,22 @@ function CoverageLimitBasicForm({
               </div>
               <Flex col itemsCenter>
                 <Text info t4s bold>
-                  Highest position
+                  {
+                    {
+                      [ChosenLimit.Recommended]: 'Recommended',
+                      [ChosenLimit.MaxPosition]: 'Highest position',
+                      [ChosenLimit.Custom]: 'Manual',
+                    }[chosenLimit]
+                  }
                 </Text>
                 <Text info t5s>
-                  in Portfolio
+                  {
+                    {
+                      [ChosenLimit.Recommended]: `Highest position + 20%`,
+                      [ChosenLimit.MaxPosition]: `in Portfolio`,
+                      [ChosenLimit.Custom]: `Enter amount below`,
+                    }[chosenLimit]
+                  }
                 </Text>
               </Flex>
               <div
@@ -257,9 +299,11 @@ function CoverageLimitBasicForm({
             </Flex>
             <GenericInputSection
               icon={<img src={USD} height={20} />}
-              onChange={(e) => setUsd(Number(e.target.value))}
+              // onChange={(e) => setUsd(Number(e.target.value))}
+              onChange={(e) => handleInputChange(e.target.value)}
               text="USD"
-              value={usd > 0 ? String(usd) : ''}
+              // value={usd > 0 ? String(usd) : ''}
+              value={customInputAmount}
               disabled={false}
               w={300}
               style={{
@@ -1063,6 +1107,12 @@ export default function Soteria(): JSX.Element {
   const [isEditing, setIsEditing] = useState(false)
 
   useEffect(() => {
+    if (firstTime) {
+      setIsEditing(true)
+    }
+  }, [firstTime])
+
+  useEffect(() => {
     if (referralCodeFromStorage) setReferralCode(referralCodeFromStorage)
   }, [referralCodeFromStorage])
 
@@ -1074,7 +1124,7 @@ export default function Soteria(): JSX.Element {
         <Flex gap={24} col={isMobile}>
           {/* <RaisedBox>
             <Flex gap={24}> */}
-          {!coverageActive ? (
+          {!firstTime ? (
             <>
               <Card thinner>
                 <CoverageLimit
