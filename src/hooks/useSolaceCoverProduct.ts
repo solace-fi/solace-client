@@ -168,6 +168,17 @@ export const useFunctions = () => {
     }
   }
 
+  const getIsReferralCodeValid = async (account: string): Promise<boolean> => {
+    if (!solaceCoverProduct) return false
+    try {
+      const d = await solaceCoverProduct.isReferralCodeValid(account)
+      return d
+    } catch (e) {
+      console.log('error getIsReferralCodeValid ', e)
+      return false
+    }
+  }
+
   const activatePolicy = async (
     account: string,
     coverLimit: BigNumber,
@@ -246,6 +257,7 @@ export const useFunctions = () => {
   return {
     getAvailableCoverCapacity,
     getIsReferralCodeUsed,
+    getIsReferralCodeValid,
     getMaxCover,
     getActiveCoverLimit,
     getPolicyCount,

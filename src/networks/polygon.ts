@@ -19,8 +19,9 @@ import {
   WMATIC_ADDRESS,
 } from '../constants/mappings/tokenAddressMapping'
 
-import { KEY_ADDRS, TELLER_ADDRS_V2 } from '../constants/addresses/polygon'
+import { KEY_ADDRS, TELLER_ADDRS_V2, SPECIAL_ADDRS } from '../constants/addresses/polygon'
 
+import bridgeWrapperABI from '../constants/metadata/BridgeWrapper.json'
 import bondTellerErc20Abi_V2 from '../constants/metadata/BondTellerErc20_V2.json'
 import bondTellerMaticAbi from '../constants/metadata/BondTellerMatic.json'
 
@@ -157,13 +158,25 @@ export const PolygonNetwork: NetworkConfig = {
       },
     },
     productContracts: {},
-    specialContracts: {},
-    specialFeatures: {},
     restrictedFeatures: {
       noBondingV1: true,
       noCoverProducts: true,
       noFarmingV1: true,
       noStakingV1: true,
+      cannotBuySolace: true,
+    },
+    specialFeatures: {
+      unwrapBridgedSolace: true,
+    },
+    specialContracts: {
+      bSolace: {
+        addr: SPECIAL_ADDRS.BSOLACE,
+        abi: ierc20Json.abi,
+      },
+      bridgeWrapper: {
+        addr: SPECIAL_ADDRS.BRIDGE_WRAPPER,
+        abi: bridgeWrapperABI.abi,
+      },
     },
     underwritingPoolAddr: '0xd1108a800363C262774B990e9DF75a4287d5c075',
   },

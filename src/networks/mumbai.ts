@@ -4,8 +4,6 @@ import PolygonLogo from '../resources/svg/networks/polygon-matic-logo.svg'
 import { ALCHEMY_MUMBAI_API_KEY, POLYGONSCAN_API_KEY } from '../constants'
 import { hexValue } from 'ethers/lib/utils'
 
-import { KEY_ADDRS, TELLER_ADDRS_V2, SPECIAL_ADDRS } from '../constants/addresses/mumbai'
-
 import solaceABI from '../constants/abi/contracts/SOLACE.sol/SOLACE.json'
 import xSolaceABI from '../constants/metadata/xSOLACE.json'
 import xsLockerABI from '../constants/metadata/xsLocker.json'
@@ -20,6 +18,8 @@ import {
   FRAX_ADDRESS,
   WMATIC_ADDRESS,
 } from '../constants/mappings/tokenAddressMapping'
+
+import { KEY_ADDRS, TELLER_ADDRS_V2, SPECIAL_ADDRS } from '../constants/addresses/mumbai'
 
 import bridgeWrapperABI from '../constants/metadata/BridgeWrapper.json'
 import bondTellerErc20Abi_V2 from '../constants/metadata/BondTellerErc20_V2.json'
