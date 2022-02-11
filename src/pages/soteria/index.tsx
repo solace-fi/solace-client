@@ -1065,12 +1065,17 @@ function ReferralSection({
           </StyledTooltip>
         </Flex>
         <Flex col flex1 gap={40} stretch justifyCenter>
-          {userCanRefer && (
+          {!userCanRefer && (
             <Flex col gap={10} stretch>
-              <Text t4s>Get more bonuses for everyone who gets coverage via your referral link:</Text>
+              <Text t4s>
+                <Text t4s bold inline>
+                  Get bonuses
+                </Text>{' '}
+                for everyone who gets coverage via your referral link:
+              </Text>
               {generatedReferralCode.length > 0 ? (
                 <Text t4s bold techygradient>
-                  solace.fi/referral/{shortenAddress(generatedReferralCode)}{' '}
+                  solace.fi/?r={shortenAddress(generatedReferralCode)}{' '}
                   <TechyGradientCopy
                     style={{
                       height: '14px',
@@ -1079,7 +1084,9 @@ function ReferralSection({
                   />
                 </Text>
               ) : (
-                <Button onClick={getReferralCode}>Get My Code</Button>
+                <Button info onClick={getReferralCode}>
+                  Get My Code
+                </Button>
               )}
             </Flex>
           )}
