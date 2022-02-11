@@ -40,6 +40,7 @@ import {
   formatAmount,
   truncateValue,
   convertSciNotaToPrecise,
+  shortenAddress,
 } from '../../utils/formatting'
 import { getTimeFromMillis } from '../../utils/time'
 import { useInputAmount, useTransactionExecution } from '../../hooks/useInputAmount'
@@ -169,8 +170,6 @@ function CoverageLimitBasicForm({
   setNewCoverageLimit: (newCoverageLimit: BigNumber) => void
 }) {
   const [chosenLimit, setChosenLimit] = useState<ChosenLimit>(ChosenLimit.Recommended)
-  const { latestBlock } = useProvider()
-  const { version } = useCachedData()
 
   const highestPosition = useMemo(
     () =>
@@ -180,13 +179,9 @@ function CoverageLimitBasicForm({
     [portfolio]
   )
 
-  const { getAvailableCoverCapacity } = useFunctions()
-
   const [highestAmount, setHighestAmount] = useState<BigNumber>(ZERO)
   const [recommendedAmount, setRecommendedAmount] = useState<BigNumber>(ZERO)
   const [customInputAmount, setCustomInputAmount] = useState<string>('')
-
-  const [availableCoverCapacity, setAvailableCoverCapacity] = useState<BigNumber>(ZERO)
 
   const handleInputChange = (input: string) => {
     // allow only numbers and decimals
@@ -208,15 +203,6 @@ function CoverageLimitBasicForm({
       setChosenLimit(ChosenLimit.Custom)
     }
   }
-
-  const _getCapacity = useDebounce(async () => {
-    const capacity = await getAvailableCoverCapacity()
-    setAvailableCoverCapacity(capacity)
-  }, 300)
-
-  useEffect(() => {
-    _getCapacity()
-  }, [latestBlock, version])
 
   useEffect(() => {
     if (!highestPosition) return
@@ -358,7 +344,7 @@ function CoverageLimitBasicForm({
               </Flex>
             </Flex>
           </Flex>
-          <Flex center mt={5}>
+          {/* <Flex center mt={5}>
             <Text t4>
               Risk level:{' '}
               <Text
@@ -372,7 +358,7 @@ function CoverageLimitBasicForm({
                 Medium
               </Text>
             </Text>
-          </Flex>
+          </Flex> */}
         </Flex>
       </Flex>
     </>
@@ -410,11 +396,19 @@ function CoverageLimit({
   setIsEditing: (isEditing: boolean) => void
   firstTime?: boolean
 }) {
+  const { latestBlock } = useProvider()
+  const { version } = useCachedData()
   const startEditing = () => setIsEditing(true)
   const stopEditing = () => setIsEditing(false)
   const [doesReachMinReqAccountBal, setDoesReachMinReqAccountBal] = useState(false)
+  const [availableCoverCapacity, setAvailableCoverCapacity] = useState<BigNumber>(ZERO)
 
-  const { updateCoverLimit } = useFunctions()
+  const canPurchaseNewCover = useMemo(() => {
+    if (newCoverageLimit.lte(currentCoverageLimit)) return true
+    return newCoverageLimit.sub(currentCoverageLimit).lt(availableCoverCapacity)
+  }, [availableCoverCapacity, currentCoverageLimit, newCoverageLimit])
+
+  const { updateCoverLimit, getAvailableCoverCapacity } = useFunctions()
   const { handleToast, handleContractCallError } = useTransactionExecution()
 
   const callUpdateCoverLimit = async () => {
@@ -435,6 +429,15 @@ function CoverageLimit({
   const _checkMinReqAccountBal = useDebounce(async () => {
     setDoesReachMinReqAccountBal(balances.totalAccountBalance.gt(minReqAccBal))
   }, 300)
+
+  const _getCapacity = useDebounce(async () => {
+    const capacity = await getAvailableCoverCapacity()
+    setAvailableCoverCapacity(capacity)
+  }, 300)
+
+  useEffect(() => {
+    _getCapacity()
+  }, [latestBlock, version])
 
   useEffect(() => {
     _checkMinReqAccountBal()
@@ -501,7 +504,7 @@ function CoverageLimit({
               pb={8}
               style={{ fontWeight: 600, flex: 1, transition: '0s' }}
               onClick={callUpdateCoverLimit}
-              disabled={!doesReachMinReqAccountBal}
+              disabled={!doesReachMinReqAccountBal || !canPurchaseNewCover}
             >
               Save
             </Button>
@@ -623,7 +626,6 @@ function PolicyBalance({
 
   const dailyCost = useMemo(() => {
     const numberifiedCurrentCoverageLimit = floatUnits(currentCoverageLimit, 18)
-    console.log(usdBalanceSum, numberifiedCurrentCoverageLimit, dailyRate)
     if (usdBalanceSum < numberifiedCurrentCoverageLimit) return usdBalanceSum * dailyRate
     return numberifiedCurrentCoverageLimit * dailyRate
   }, [currentCoverageLimit, dailyRate, usdBalanceSum])
@@ -662,7 +664,7 @@ function PolicyBalance({
   const callDeposit = async () => {
     if (!account) return
     await deposit(account, parseUnits(amount, 18))
-      .then((res) => handleToast(res.tx, res.localTx))
+      .then((res) => _handleToast(res.tx, res.localTx))
       .catch((err) => handleContractCallError('callDeposit', err, FunctionName.SOTERIA_DEPOSIT))
   }
 
@@ -677,7 +679,7 @@ function PolicyBalance({
     if (!account) return
     const totalBalance = parseUnits(amount, 18).add(balances.totalAccountBalance)
     await activatePolicy(account, newCoverageLimit, totalBalance, referralCode ?? [])
-      .then((res) => handleToast(res.tx, res.localTx))
+      .then((res) => _handleToast(res.tx, res.localTx))
       .catch((err) => handleContractCallError('callActivatePolicy', err, FunctionName.SOTERIA_ACTIVATE))
   }
 
@@ -695,6 +697,11 @@ function PolicyBalance({
       )
     )
     setRangeValue(`${convertFromSciNota ? convertSciNotaToPrecise(rangeAmount) : rangeAmount}`)
+  }
+
+  const _handleToast = async (tx: any, localTx: LocalTx | null) => {
+    await handleToast(tx, localTx)
+    resetAmount()
   }
 
   const _checkMinReqAccountBal = useDebounce(async () => {
@@ -875,6 +882,7 @@ function PolicyBalance({
                 flex: 1,
               }}
               onClick={callWithdraw}
+              disabled={balances.personalBalance.isZero()}
             >
               Withdraw
             </Button>
@@ -921,7 +929,7 @@ function PolicyBalance({
   )
 }
 
-function CoverageActive() {
+function CoverageActive({ policyStatus }: { policyStatus: boolean }) {
   const { deactivatePolicy } = useFunctions()
   const { account } = useWallet()
   const { isCooldownActive, cooldownLeft } = useCooldownDetails(account)
@@ -943,8 +951,8 @@ function CoverageActive() {
             <Text t2s bold>
               Coverage
             </Text>
-            <Text t2s bold info={!isCooldownActive} warning={isCooldownActive}>
-              {!isCooldownActive ? 'Active' : 'Inactive'}
+            <Text t2s bold info={policyStatus} warning={!policyStatus}>
+              {policyStatus ? 'Active' : 'Inactive'}
             </Text>
           </Flex>
           {showCooldown && (
@@ -959,7 +967,7 @@ function CoverageActive() {
           )}
         </Flex>
         <Flex between itemsCenter>
-          {!isCooldownActive && <ToggleSwitch id="bird" toggled={!isCooldownActive} onChange={callDeactivatePolicy} />}
+          {policyStatus && <ToggleSwitch id="bird" toggled={!isCooldownActive} onChange={callDeactivatePolicy} />}
         </Flex>
       </Flex>
     </Card>
@@ -976,6 +984,47 @@ function ReferralSection({
   userCanRefer: boolean
 }) {
   const [formReferralCode, setFormReferralCode] = useState('')
+  const [generatedReferralCode, setGeneratedReferralCode] = useState('')
+
+  const getReferralCode = async () => {
+    const ethereum = (window as any).ethereum
+    if (!ethereum) return
+    const domainType = [
+      { name: 'name', type: 'string' },
+      { name: 'version', type: 'string' },
+      { name: 'chainId', type: 'uint256' },
+      { name: 'verifyingContract', type: 'address' },
+    ]
+
+    const msgParams = JSON.stringify({
+      domain: {
+        name: 'Solace.fi-SolaceCoverProduct',
+        version: '1',
+        chainId: 4,
+        verifyingContract: '0x501acE970F0E1B811dBc8a01a3468b198b5e7f84',
+      },
+
+      message: {
+        version: 1,
+      },
+
+      primaryType: 'SolaceReferral',
+
+      types: {
+        EIP712Domain: domainType,
+        SolaceReferral: [{ name: 'version', type: 'uint256' }],
+      },
+    })
+
+    ethereum
+      .request({
+        method: 'eth_signTypedData_v3',
+        params: [ethereum.selectedAddress, msgParams],
+      })
+      .then((code: any) => setGeneratedReferralCode(code))
+      .catch((error: any) => console.log(error))
+  }
+
   return (
     <Card normous horiz>
       {/* top part / title */}
@@ -1000,15 +1049,19 @@ function ReferralSection({
           {userCanRefer && (
             <Flex col gap={10} stretch>
               <Text t4s>Get more bonuses for everyone who gets coverage via your referral link:</Text>
-              <Text t4s bold techygradient>
-                solace.fi/referral/s37asodfkj1o3ig...{' '}
-                <TechyGradientCopy
-                  style={{
-                    height: '14px',
-                    width: '14px',
-                  }}
-                />
-              </Text>
+              {generatedReferralCode.length > 0 ? (
+                <Text t4s bold techygradient>
+                  solace.fi/referral/{shortenAddress(generatedReferralCode)}{' '}
+                  <TechyGradientCopy
+                    style={{
+                      height: '14px',
+                      width: '14px',
+                    }}
+                  />
+                </Text>
+              ) : (
+                <Button onClick={getReferralCode}>Get My Code</Button>
+              )}
             </Flex>
           )}
           <Flex col gap={10} stretch>
@@ -1218,9 +1271,7 @@ export default function Soteria(): JSX.Element {
   }, [newCoverageLimit])
 
   useEffect(() => {
-    if (firstTime) {
-      setIsEditing(true)
-    }
+    setIsEditing(firstTime)
   }, [firstTime])
 
   useEffect(() => {
@@ -1303,7 +1354,7 @@ export default function Soteria(): JSX.Element {
               flex: '0.8',
             }}
           >
-            <CoverageActive />
+            <CoverageActive policyStatus={status} />
             <ReferralSection userCanRefer={status} referralCode={referralCode} setReferralCode={setReferralCode} />
           </Flex>
         </Flex>

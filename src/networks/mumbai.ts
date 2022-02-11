@@ -136,7 +136,7 @@ export const MumbaiNetwork: NetworkConfig = {
     key: String(POLYGONSCAN_API_KEY),
     url: 'https://mumbai.polygonscan.com/',
     apiUrl: 'https://api-testnet.polygonscan.com/',
-    excludedContractAddrs: [KEY_ADDRS.SOLACE],
+    excludedContractAddrs: [KEY_ADDRS.SOLACE, SPECIAL_ADDRS.BSOLACE],
   },
   config: {
     keyContracts: {

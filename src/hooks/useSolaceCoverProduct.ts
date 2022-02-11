@@ -338,7 +338,7 @@ export const useCooldownDetails = (account: string | undefined) => {
         setCooldownLeft(ZERO)
       }
     }
-    getCooldownAssessment
+    getCooldownAssessment()
   }, [account, latestBlock, version])
 
   return { isCooldownActive, cooldownStart, cooldownPeriod, cooldownLeft }

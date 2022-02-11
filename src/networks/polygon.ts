@@ -136,7 +136,7 @@ export const PolygonNetwork: NetworkConfig = {
     key: String(POLYGONSCAN_API_KEY),
     url: 'https://polygonscan.com',
     apiUrl: 'https://api.polygonscan.com',
-    excludedContractAddrs: [KEY_ADDRS.SOLACE],
+    excludedContractAddrs: [KEY_ADDRS.SOLACE, SPECIAL_ADDRS.BSOLACE],
   },
   config: {
     keyContracts: {
