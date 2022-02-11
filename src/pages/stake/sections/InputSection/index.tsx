@@ -58,6 +58,7 @@ export const GenericInputSection = ({
   buttonOnClick,
   inputWidth,
   iconAndTextWidth,
+  placeholder,
 }: {
   icon?: JSX.Element
   text?: string
@@ -71,6 +72,7 @@ export const GenericInputSection = ({
   buttonOnClick?: () => void
   inputWidth?: number
   iconAndTextWidth?: number
+  placeholder?: string
 }): JSX.Element => {
   const rawStyle = {
     ...style,
@@ -93,7 +95,7 @@ export const GenericInputSection = ({
         key="mainInput"
         type="text"
         className="py-3 lg:py-5 px-5 outline-none rounded-xl lg:border-0 lg:rounded-none"
-        placeholder="0"
+        placeholder={placeholder ?? '0'}
         value={value}
         onChange={onChange}
         style={{ backgroundColor: 'inherit', color: 'inherit', borderRadius: 'inherit', width: inputWidth ?? '100%' }}
