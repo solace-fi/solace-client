@@ -263,8 +263,8 @@ function CoverageLimitBasicForm({
                   borderRadius: '10px',
                   backgroundColor: '#fafafa',
                   color: 'purple',
-                  height: '20px',
-                  width: '20px',
+                  height: '15px',
+                  width: '15px',
                   userSelect: 'none',
                   cursor: 'pointer',
                 }}
@@ -300,8 +300,8 @@ function CoverageLimitBasicForm({
                   borderRadius: '10px',
                   backgroundColor: '#fafafa',
                   color: 'purple',
-                  height: '20px',
-                  width: '20px',
+                  height: '15px',
+                  width: '15px',
                   userSelect: 'none',
                   cursor: 'pointer',
                 }}
@@ -311,17 +311,18 @@ function CoverageLimitBasicForm({
               </Flex>
             </Flex>
             <GenericInputSection
-              icon={<img src={USD} height={20} />}
+              icon={<img src={DAI} alt="DAI" height={20} />}
               // onChange={(e) => setUsd(Number(e.target.value))}
               onChange={(e) => handleInputChange(e.target.value)}
-              text="USD"
+              text="DAI"
               // value={usd > 0 ? String(usd) : ''}
               value={customInputAmount}
               disabled={false}
-              w={300}
+              // w={300}
               style={{
                 marginTop: '20px',
               }}
+              iconAndTextWidth={80}
               displayIconOnMobile
             />
           </Flex>
@@ -635,7 +636,7 @@ function PolicyBalance({
           <StyledGrayBox>
             <Flex
               stretch
-              gap={24}
+              gap={13}
               style={{
                 width: '100%',
               }}
@@ -645,7 +646,7 @@ function PolicyBalance({
                   Effective Balance
                 </Text>
                 <Flex gap={6}>
-                  $
+                  <img src={DAI} alt={'DAI'} height={20} width={20} />
                   <Text t2s bold>
                     0
                   </Text>
@@ -813,10 +814,13 @@ function CoverageActive({ coverageActive }: { coverageActive: boolean }) {
 function ReferralSection({
   referralCode,
   setReferralCode,
+  userCanRefer,
 }: {
   referralCode: string | undefined
   setReferralCode: (referralCode: string | undefined) => void
+  userCanRefer: boolean
 }) {
+  const [formReferralCode, setFormReferralCode] = useState('')
   return (
     <Card normous horiz>
       {/* top part / title */}
@@ -827,7 +831,7 @@ function ReferralSection({
         style={{
           width: '100%',
         }}
-        gap={40}
+        gap={userCanRefer ? 40 : 0}
       >
         <Flex between itemsCenter>
           <Text t2 bold techygradient>
@@ -837,39 +841,45 @@ function ReferralSection({
             <QuestionCircle height={20} width={20} color={'#aaa'} />
           </StyledTooltip>
         </Flex>
-        {/* middle has padding l and r 40px, rest is p l and r 24px (comes with Card); vertical justify-between */}
         <Flex col flex1 gap={40} stretch justifyCenter>
+          {userCanRefer && (
+            <Flex col gap={10} stretch>
+              <Text t4s>Get more bonuses for everyone who gets coverage via your referral link:</Text>
+              <Text t4s bold techygradient>
+                solace.fi/referral/s37asodfkj1o3ig...{' '}
+                <TechyGradientCopy
+                  style={{
+                    height: '14px',
+                    width: '14px',
+                  }}
+                />
+              </Text>
+            </Flex>
+          )}
           <Flex col gap={10} stretch>
-            <Text t4s>Get more bonuses for everyone who gets coverage via your referral link:</Text>
-            <Text t4s bold techygradient>
-              solace.fi/referral/s37asodfkj1o3ig...{' '}
-              <TechyGradientCopy
-                style={{
-                  height: '14px',
-                  width: '14px',
-                  // backgroundColor: 'red',
-                }}
-              />
-            </Text>
-          </Flex>
-          <Flex col gap={10} stretch>
-            <Text t4s>
-              <Text t4s inline bold techygradient>
-                Got a promo code?
-              </Text>{' '}
-              Enter here to claim:
-            </Text>
-            <GrayBgDiv
-              style={{
-                borderRadius: '10px',
-              }}
-            >
-              <Flex flex1 stretch itemsCenter justifyCenter pl={24} pr={24} pt={20} pb={20}>
-                <Text techygradient bold t2s>
-                  {referralCode}
-                </Text>
-              </Flex>
-            </GrayBgDiv>
+            {!referralCode ? (
+              <Text t4s>
+                <Text t4s inline bold techygradient>
+                  Got a promo code?
+                </Text>{' '}
+                Enter here to claim:
+              </Text>
+            ) : (
+              <Text t4s techygradient bold>
+                Your referral link is applied.
+                <br />
+                You&apos;ll be able to use Bonus DAI after you activate your policy.
+              </Text>
+            )}
+            <GenericInputSection
+              onChange={(e) => setFormReferralCode(e.target.value)}
+              value={formReferralCode}
+              disabled={false}
+              displayIconOnMobile
+              placeholder={referralCode ?? 'Enter your referral code'}
+              buttonOnClick={() => setReferralCode(formReferralCode)}
+              buttonText="Apply"
+            />
           </Flex>
         </Flex>
       </Flex>
@@ -877,91 +887,8 @@ function ReferralSection({
     </Card>
   )
 }
-
-function CoveragePrice() {
-  return (
-    <Card normous horiz>
-      {/* top part / title */}
-      {/* <Flex col stretch between> */}
-      <Flex
-        between
-        col
-        style={{
-          width: '100%',
-        }}
-        gap={40}
-      >
-        <Flex between itemsCenter>
-          <Text t2 bold techygradient>
-            Bonuses*
-          </Text>
-          <StyledTooltip id={'coverage-price'} tip={'ReferralSection - Bonuses tooltip'}>
-            <QuestionCircle height={20} width={20} color={'#aaa'} />
-          </StyledTooltip>
-        </Flex>
-        {/* middle has padding l and r 40px, rest is p l and r 24px (comes with Card); vertical justify-between */}
-        <Flex col gap={20} pl={40} pr={40}>
-          <Flex between itemsCenter>
-            <ValuePair bigText="0.00184" smallText="USD" info />
-            <Text t5s>/ Day</Text>
-          </Flex>
-          <Flex between itemsCenter>
-            <ValuePair bigText="0.0552" smallText="USD" info />
-            <Text t5s>/ Month</Text>
-          </Flex>
-          <Flex between itemsCenter>
-            <ValuePair bigText="0.6716" smallText="USD" info />
-            <Text t5s>/ Year</Text>
-          </Flex>
-        </Flex>
-        <Text t5s textAlignCenter>
-          *The price updates continuously according to changes in your portfolio.
-        </Text>
-      </Flex>
-      {/* </Flex> */}
-    </Card>
-  )
-}
-
-// const StyledTable = styled.table`
-//   background-color: ${(props) => props.theme.v2.raised};
-//   border-collapse: separate;
-//   border-spacing: 0 10px;
-//   font-size: 14px;
-// `
-// const StyledTr = styled.tr``
-
-// const StyledTd = styled.td<{
-//   first?: boolean
-//   last?: boolean
-// }>`
-//   background-color: ${(props) => props.theme.body.bg_color};
-//   padding: 10px 24px;
-//   /* first and last ones have border-radius left and right 10px respectively */
-//   ${(props) =>
-//     props.first &&
-//     css`
-//       border-top-left-radius: 10px;
-//       border-bottom-left-radius: 10px;
-//     `}
-//   ${(props) =>
-//     props.last &&
-//     css`
-//       border-top-right-radius: 10px;
-//       border-bottom-right-radius: 10px;
-//     `}
-// `
 
 function PortfolioTable({ portfolio }: { portfolio: SolaceRiskProtocol[] }) {
-  /* table like this:
-|protocol|type| positions |amount|risk level|
-|:-------|:---|:---------:|:-----:|:--------|
-|Uniswap |DEX |ETH,BTC,DAI|42345 USD|Low|
-|Nexus Mutual| Derivatives| ETH,DAI|34562 USD|High|
-|Aave |Lending |ETH,DAI|12809 USD|Medium|
-|Yearn Finance |Assets |BTC|2154 USD|Medium|
-
-  */
   const { width } = useWindowDimensions()
 
   return (
@@ -1185,7 +1112,11 @@ export default function Soteria(): JSX.Element {
             }}
           >
             <CoverageActive coverageActive={coverageActive} />
-            <ReferralSection referralCode={referralCode} setReferralCode={setReferralCode} />
+            <ReferralSection
+              referralCode={referralCode}
+              setReferralCode={setReferralCode}
+              userCanRefer={coverageActive}
+            />
           </Flex>
         </Flex>
       )}
