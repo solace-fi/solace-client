@@ -2,7 +2,7 @@ import { useMemo, useEffect, useState } from 'react'
 import { BigNumber } from 'ethers'
 import { GAS_LIMIT, ZERO } from '../constants'
 import { FunctionName, TransactionCondition } from '../constants/enums'
-import { LocalTx, SolaceRiskProtocol } from '../constants/types'
+import { LocalTx, SolaceRiskScore } from '../constants/types'
 import { useContracts } from '../context/ContractsManager'
 import { useGetFunctionGas } from './useGas'
 import { getSolaceRiskBalances, getSolaceRiskScores } from '../utils/api'
@@ -196,9 +196,9 @@ export const useFunctions = () => {
     return { tx, localTx }
   }
 
-  const updateCoverLimit = async (newCoverLimit: BigNumber, referralCode: string) => {
+  const updateCoverLimit = async (newCoverageLimit: BigNumber, referralCode: string) => {
     if (!solaceCoverageProduct) return { tx: null, localTx: null }
-    const tx = await solaceCoverageProduct.updateCoverLimit(newCoverLimit, referralCode, {
+    const tx = await solaceCoverageProduct.updateCoverLimit(newCoverageLimit, referralCode, {
       ...gasConfig,
       gasLimit: GAS_LIMIT,
     })
@@ -261,8 +261,8 @@ export const useFunctions = () => {
   }
 }
 
-export const usePortfolio = (account: string | undefined, chainId: number): SolaceRiskProtocol[] => {
-  const [data, setData] = useState<SolaceRiskProtocol[]>([])
+export const usePortfolio = (account: string | undefined, chainId: number): SolaceRiskScore | undefined => {
+  const [score, setScore] = useState<SolaceRiskScore | undefined>(undefined)
   const { latestBlock } = useProvider()
 
   useEffect(() => {
@@ -271,8 +271,7 @@ export const usePortfolio = (account: string | undefined, chainId: number): Sola
         if (!account || !latestBlock) return
         const balances = await getSolaceRiskBalances(account, chainId)
         const scores = await getSolaceRiskScores(account, balances)
-        const protocols = scores.protocols
-        setData(protocols)
+        setScore(scores)
       } catch (e) {
         console.log('cannot get risk assessment')
       }
@@ -280,7 +279,7 @@ export const usePortfolio = (account: string | undefined, chainId: number): Sola
     getPortfolio()
   }, [account, chainId, latestBlock])
 
-  return data
+  return score
 }
 
 export const useCooldownDetails = (account: string | undefined) => {

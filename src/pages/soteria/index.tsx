@@ -31,7 +31,7 @@ import { BigNumber, Contract } from 'ethers'
 import { VerticalSeparator } from '../stake/components/VerticalSeparator'
 import { useGeneral } from '../../context/GeneralManager'
 import { StyledCopy, TechyGradientCopy } from '../../components/atoms/Icon'
-import { SolaceRiskProtocol } from '../../constants/types'
+import { SolaceRiskProtocol, SolaceRiskScore } from '../../constants/types'
 import {
   accurateMultiply,
   capitalizeFirstLetter,
@@ -52,7 +52,6 @@ import IERC20 from '../../constants/metadata/IERC20Metadata.json'
 import { queryBalance, queryDecimals } from '../../utils/contract'
 import useDebounce from '@rooks/use-debounce'
 import { formatUnits } from 'ethers/lib/utils'
-import { EnumType } from 'typescript'
 
 function Card({
   children,
@@ -158,7 +157,7 @@ function CoverageLimitBasicForm({
   setIsEditing,
   setNewCoverageLimit,
 }: {
-  portfolio: SolaceRiskProtocol[]
+  portfolio: SolaceRiskScore | undefined
   currentCoverageLimit: BigNumber
   isEditing: boolean
   setIsEditing: (b: boolean) => void
@@ -169,7 +168,10 @@ function CoverageLimitBasicForm({
   const { version } = useCachedData()
 
   const highestPosition = useMemo(
-    () => (portfolio.length > 0 ? portfolio.reduce((pn, cn) => (cn.balanceUSD > pn.balanceUSD ? cn : pn)) : undefined),
+    () =>
+      portfolio && portfolio.protocols.length > 0
+        ? portfolio.protocols.reduce((pn, cn) => (cn.balanceUSD > pn.balanceUSD ? cn : pn))
+        : undefined,
     [portfolio]
   )
 
@@ -219,10 +221,6 @@ function CoverageLimitBasicForm({
     setRecommendedAmount(bnHigherBal)
   }, [highestPosition])
 
-  // useEffect switch tht listens to newCoverageLimit and chosenLimit, and sets the chosenInputAmount to recommended amount
-  // recommended: highestAmount * 1.2
-  // max: highestAmount
-  // custom: chosenInputAmount
   useEffect(() => {
     switch (chosenLimit) {
       case ChosenLimit.Recommended:
@@ -320,10 +318,8 @@ function CoverageLimitBasicForm({
             </Flex>
             <GenericInputSection
               icon={<img src={USD} height={20} />}
-              // onChange={(e) => setUsd(Number(e.target.value))}
               onChange={(e) => handleInputChange(e.target.value)}
               text="USD"
-              // value={usd > 0 ? String(usd) : ''}
               value={customInputAmount}
               disabled={false}
               w={300}
@@ -346,7 +342,7 @@ function CoverageLimitBasicForm({
                     fontSize: '18px',
                   }}
                 >
-                  {truncateValue(formatUnits(highestAmount, 18), 2)}
+                  {truncateValue(formatUnits(highestAmount, 18), 2, false)}
                 </Text>
                 <Text t4 bold>
                   USD
@@ -381,6 +377,7 @@ function CoverageLimitBasicForm({
 
 function CoverageLimit({
   currentCoverageLimit,
+  newCoverageLimit,
   isEditing,
   portfolio,
   referralCode,
@@ -389,8 +386,9 @@ function CoverageLimit({
   firstTime,
 }: {
   currentCoverageLimit: BigNumber
+  newCoverageLimit: BigNumber
   isEditing: boolean
-  portfolio: SolaceRiskProtocol[]
+  portfolio: SolaceRiskScore | undefined
   referralCode: string | undefined
   setNewCoverageLimit: (newCoverageLimit: BigNumber) => void
   setIsEditing: (isEditing: boolean) => void
@@ -399,14 +397,11 @@ function CoverageLimit({
   const startEditing = () => setIsEditing(true)
   const stopEditing = () => setIsEditing(false)
 
-  const { account } = useWallet()
-
   const { updateCoverLimit } = useFunctions()
   const { handleToast, handleContractCallError } = useTransactionExecution()
 
-  const callUpdateCoverLimit = async (amount: BigNumber) => {
-    if (!account) return
-    await updateCoverLimit(amount, referralCode ?? '')
+  const callUpdateCoverLimit = async () => {
+    await updateCoverLimit(newCoverageLimit, referralCode ?? '')
       .then((res) => handleToast(res.tx, res.localTx))
       .catch((err) => handleContractCallError('callUpdateCoverLimit', err, FunctionName.SOTERIA_UPDATE))
   }
@@ -525,16 +520,19 @@ function ValuePair({
 const ifStringZeroUndefined = (str: string) => (Number(str) === 0 ? undefined : str)
 
 function PolicyBalance({
+  portfolio,
+  currentCoverageLimit,
   newCoverageLimit,
   referralCode,
   firstTime,
 }: {
+  portfolio: SolaceRiskScore | undefined
+  currentCoverageLimit: BigNumber
   newCoverageLimit: BigNumber
   referralCode: string | undefined
   firstTime?: boolean
 }) {
   // setters for usd and days
-  const [usd, setUsd] = React.useState('0')
   const [doesReachMinReqAccountBal, setDoesReachMinReqAccountBal] = useState(false)
 
   const { ifDesktop } = useWindowDimensions()
@@ -548,6 +546,27 @@ function PolicyBalance({
   const { deposit, withdraw, getMinRequiredAccountBalance, activatePolicy } = useFunctions()
   const { totalAccountBalance, personalBalance, earnedBalance } = useTotalAccountBalance(account)
   const { handleToast, handleContractCallError } = useTransactionExecution()
+
+  const usdBalanceSum = useMemo(
+    () =>
+      portfolio && portfolio.protocols.length > 0
+        ? portfolio.protocols.reduce((total, protocol) => (total += protocol.balanceUSD), 0)
+        : 0,
+    [portfolio]
+  )
+
+  const dailyRate = useMemo(() => (portfolio ? portfolio.current_rate / 365.25 : 0), [portfolio])
+
+  const dailyCost = useMemo(() => {
+    const numberifiedCurrentCoverageLimit = floatUnits(currentCoverageLimit, 18)
+    if (usdBalanceSum < numberifiedCurrentCoverageLimit) return usdBalanceSum * dailyRate
+    return numberifiedCurrentCoverageLimit * dailyRate
+  }, [currentCoverageLimit, dailyRate, usdBalanceSum])
+
+  const policyDuration = useMemo(() => (dailyCost > 0 ? floatUnits(totalAccountBalance, 18) / dailyCost : 0), [
+    dailyCost,
+    totalAccountBalance,
+  ])
 
   const isAcceptableAmount = useMemo(() => isAppropriateAmount(amount, walletAssetDecimals, walletAssetBalance), [
     amount,
@@ -576,8 +595,8 @@ function PolicyBalance({
       .catch((err) => handleContractCallError('callActivatePolicy', err, FunctionName.SOTERIA_ACTIVATE))
   }
 
-  const _handleInputChange = () => {
-    handleInputChange(amount, walletAssetDecimals, formatUnits(walletAssetBalance, walletAssetDecimals))
+  const _handleInputChange = (_amount: string) => {
+    handleInputChange(_amount, walletAssetDecimals, formatUnits(walletAssetBalance, walletAssetDecimals))
   }
 
   const _checkMinReqAccountBal = useDebounce(async () => {
@@ -684,7 +703,7 @@ function PolicyBalance({
             <Flex between>
               <Text t4s>Coverage Price</Text>
               <Text t4s bold>
-                0.00189{' '}
+                {truncateValue(dailyCost, 5)}{' '}
                 <Text t6s inline>
                   DAI/Day
                 </Text>
@@ -693,7 +712,7 @@ function PolicyBalance({
             <Flex between>
               <Text t4s>Approximate Policy Duration</Text>
               <Text t4s bold>
-                0{' '}
+                {policyDuration}{' '}
                 <Text t6s inline>
                   Days
                 </Text>
@@ -710,9 +729,9 @@ function PolicyBalance({
         <Flex col gap={20}>
           <GenericInputSection
             icon={<img src={DAI} height={20} />}
-            onChange={(e) => setUsd(e.target.value)}
+            onChange={(e) => _handleInputChange(e.target.value)}
             text="DAI"
-            value={ifStringZeroUndefined(usd)}
+            value={amount}
             disabled={false}
             displayIconOnMobile
           />
@@ -761,7 +780,7 @@ function PolicyBalance({
   )
 }
 
-function CoverageActive({ coverageActive }: { coverageActive: boolean }) {
+function CoverageActive() {
   const { deactivatePolicy } = useFunctions()
   const { account } = useWallet()
   const { isCooldownActive, cooldownLeft } = useCooldownDetails(account)
@@ -878,81 +897,7 @@ function ReferralSection({
   )
 }
 
-function CoveragePrice() {
-  return (
-    <Card normous horiz>
-      {/* top part / title */}
-      {/* <Flex col stretch between> */}
-      <Flex
-        between
-        col
-        style={{
-          width: '100%',
-        }}
-        gap={40}
-      >
-        <Flex between itemsCenter>
-          <Text t2 bold techygradient>
-            Bonuses*
-          </Text>
-          <StyledTooltip id={'coverage-price'} tip={'ReferralSection - Bonuses tooltip'}>
-            <QuestionCircle height={20} width={20} color={'#aaa'} />
-          </StyledTooltip>
-        </Flex>
-        {/* middle has padding l and r 40px, rest is p l and r 24px (comes with Card); vertical justify-between */}
-        <Flex col gap={20} pl={40} pr={40}>
-          <Flex between itemsCenter>
-            <ValuePair bigText="0.00184" smallText="USD" info />
-            <Text t5s>/ Day</Text>
-          </Flex>
-          <Flex between itemsCenter>
-            <ValuePair bigText="0.0552" smallText="USD" info />
-            <Text t5s>/ Month</Text>
-          </Flex>
-          <Flex between itemsCenter>
-            <ValuePair bigText="0.6716" smallText="USD" info />
-            <Text t5s>/ Year</Text>
-          </Flex>
-        </Flex>
-        <Text t5s textAlignCenter>
-          *The price updates continuously according to changes in your portfolio.
-        </Text>
-      </Flex>
-      {/* </Flex> */}
-    </Card>
-  )
-}
-
-// const StyledTable = styled.table`
-//   background-color: ${(props) => props.theme.v2.raised};
-//   border-collapse: separate;
-//   border-spacing: 0 10px;
-//   font-size: 14px;
-// `
-// const StyledTr = styled.tr``
-
-// const StyledTd = styled.td<{
-//   first?: boolean
-//   last?: boolean
-// }>`
-//   background-color: ${(props) => props.theme.body.bg_color};
-//   padding: 10px 24px;
-//   /* first and last ones have border-radius left and right 10px respectively */
-//   ${(props) =>
-//     props.first &&
-//     css`
-//       border-top-left-radius: 10px;
-//       border-bottom-left-radius: 10px;
-//     `}
-//   ${(props) =>
-//     props.last &&
-//     css`
-//       border-top-right-radius: 10px;
-//       border-bottom-right-radius: 10px;
-//     `}
-// `
-
-function PortfolioTable({ portfolio }: { portfolio: SolaceRiskProtocol[] }) {
+function PortfolioTable({ portfolio }: { portfolio: SolaceRiskScore | undefined }) {
   /* table like this:
 |protocol|type| positions |amount|risk level|
 |:-------|:---|:---------:|:-----:|:--------|
@@ -975,44 +920,46 @@ function PortfolioTable({ portfolio }: { portfolio: SolaceRiskProtocol[] }) {
             <TableHeader>Risk Level</TableHeader>
           </TableHead>
           <TableBody>
-            {portfolio.map((d: SolaceRiskProtocol) => (
-              <TableRow key={d.network}>
-                <TableData>{capitalizeFirstLetter(d.network)}</TableData>
-                <TableData>{d.category}</TableData>
-                <TableData>{d.balanceUSD}</TableData>
-                <TableData>{d.tier}</TableData>
-              </TableRow>
-            ))}
+            {portfolio &&
+              portfolio.protocols.map((d: SolaceRiskProtocol) => (
+                <TableRow key={d.network}>
+                  <TableData>{capitalizeFirstLetter(d.network)}</TableData>
+                  <TableData>{d.category}</TableData>
+                  <TableData>{d.balanceUSD}</TableData>
+                  <TableData>{d.tier}</TableData>
+                </TableRow>
+              ))}
           </TableBody>
         </Table>
       ) : (
         <Flex column gap={30}>
-          {portfolio.map((row) => (
-            <GrayBgDiv
-              key={row.network}
-              style={{
-                borderRadius: '10px',
-                padding: '14px 24px',
-              }}
-            >
-              <Flex gap={30} between itemsCenter>
-                <Flex col gap={8.5}>
-                  <div>{row.network}</div>
+          {portfolio &&
+            portfolio.protocols.map((row) => (
+              <GrayBgDiv
+                key={row.network}
+                style={{
+                  borderRadius: '10px',
+                  padding: '14px 24px',
+                }}
+              >
+                <Flex gap={30} between itemsCenter>
+                  <Flex col gap={8.5}>
+                    <div>{row.network}</div>
+                  </Flex>
+                  <Flex
+                    col
+                    gap={8.5}
+                    style={{
+                      textAlign: 'right',
+                    }}
+                  >
+                    <div>{row.category}</div>
+                    <div>{row.balanceUSD}</div>
+                    <div>{row.tier}</div>
+                  </Flex>
                 </Flex>
-                <Flex
-                  col
-                  gap={8.5}
-                  style={{
-                    textAlign: 'right',
-                  }}
-                >
-                  <div>{row.category}</div>
-                  <div>{row.balanceUSD}</div>
-                  <div>{row.tier}</div>
-                </Flex>
-              </Flex>
-            </GrayBgDiv>
-          ))}
+              </GrayBgDiv>
+            ))}
         </Flex>
       )}
     </>
@@ -1106,10 +1053,9 @@ export default function Soteria(): JSX.Element {
 
   const portfolio = usePortfolio('0x09748f07b839edd1d79a429d3ad918f670d602cd', 1)
   const { isMobile } = useWindowDimensions()
-  const { policyId, status, coverageLimit } = useCheckIsCoverageActive(account)
+  const { policyId, coverageLimit } = useCheckIsCoverageActive(account)
 
   const currentCoverageLimit = useMemo(() => coverageLimit, [coverageLimit])
-  const coverageActive = useMemo(() => status, [status])
   const firstTime = useMemo(() => policyId.isZero(), [policyId])
 
   const [referralType, setReferralType] = useState<ReferralSource>(ReferralSource.Standard)
@@ -1142,6 +1088,7 @@ export default function Soteria(): JSX.Element {
               <Card thinner>
                 <CoverageLimit
                   currentCoverageLimit={currentCoverageLimit}
+                  newCoverageLimit={newCoverageLimit}
                   setNewCoverageLimit={setNewCoverageLimit}
                   referralCode={referralCode}
                   isEditing={isEditing}
@@ -1150,7 +1097,12 @@ export default function Soteria(): JSX.Element {
                 />{' '}
               </Card>
               <Card bigger horiz>
-                <PolicyBalance newCoverageLimit={newCoverageLimit} referralCode={referralCode} />
+                <PolicyBalance
+                  portfolio={portfolio}
+                  currentCoverageLimit={currentCoverageLimit}
+                  newCoverageLimit={newCoverageLimit}
+                  referralCode={referralCode}
+                />
               </Card>
             </>
           ) : (
@@ -1159,6 +1111,7 @@ export default function Soteria(): JSX.Element {
               <Card innerThinner noShadow>
                 <CoverageLimit
                   currentCoverageLimit={currentCoverageLimit}
+                  newCoverageLimit={newCoverageLimit}
                   setNewCoverageLimit={setNewCoverageLimit}
                   referralCode={referralCode}
                   isEditing={isEditing}
@@ -1168,7 +1121,13 @@ export default function Soteria(): JSX.Element {
                 />
               </Card>{' '}
               <Card innerBigger noShadow>
-                <PolicyBalance newCoverageLimit={newCoverageLimit} referralCode={referralCode} firstTime />
+                <PolicyBalance
+                  portfolio={portfolio}
+                  currentCoverageLimit={currentCoverageLimit}
+                  newCoverageLimit={newCoverageLimit}
+                  referralCode={referralCode}
+                  firstTime
+                />
               </Card>
             </Card>
             // </>
@@ -1184,7 +1143,7 @@ export default function Soteria(): JSX.Element {
               flex: '0.8',
             }}
           >
-            <CoverageActive coverageActive={coverageActive} />
+            <CoverageActive />
             <ReferralSection referralCode={referralCode} setReferralCode={setReferralCode} />
           </Flex>
         </Flex>
