@@ -32,7 +32,7 @@ type Contracts = {
     claimsEscrow?: Contract | null
     policyManager?: Contract | null
     riskManager?: Contract | null
-    solaceCoverageProduct?: Contract | null
+    solaceCoverProduct?: Contract | null
   }
   products: ProductContract[]
   tellers: BondTellerContract[]
@@ -57,7 +57,7 @@ const ContractsContext = createContext<Contracts>({
     claimsEscrow: undefined,
     policyManager: undefined,
     riskManager: undefined,
-    solaceCoverageProduct: undefined,
+    solaceCoverProduct: undefined,
   },
   products: [],
   tellers: [],
@@ -86,7 +86,7 @@ const ContractsProvider: React.FC = (props) => {
   const claimsEscrow = useGetContract(keyContracts.claimsEscrow)
   const policyManager = useGetContract(keyContracts.policyManager)
   const riskManager = useGetContract(keyContracts.riskManager)
-  const solaceCoverageProduct = useGetContract(keyContracts.solaceCoverageProduct)
+  const solaceCoverProduct = useGetContract(keyContracts.solaceCoverProduct)
   const products = useGetProductContracts()
   const tellers = useGetBondTellerContracts()
 
@@ -122,7 +122,7 @@ const ContractsProvider: React.FC = (props) => {
         claimsEscrow,
         policyManager,
         riskManager,
-        solaceCoverageProduct,
+        solaceCoverProduct,
       },
       products,
       tellers,
@@ -145,7 +145,7 @@ const ContractsProvider: React.FC = (props) => {
       claimsEscrow,
       policyManager,
       riskManager,
-      solaceCoverageProduct,
+      solaceCoverProduct,
       products,
       tellers,
       contractSources,
