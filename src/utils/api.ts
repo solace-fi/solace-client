@@ -101,19 +101,27 @@ export const getZapperProtocolBalances = async (appId: string, addresses: string
 }
 
 export const getSolaceRiskBalances = async (address: string, chainId: number): Promise<SolaceRiskBalance[]> => {
-  const { data } = await axios.get(`https://risk-data.solace.fi/balances`, {
-    params: {
-      account: address,
-      chain_id: chainId,
+  return await fetch(`https://risk-data.solace.fi/balances?account=${address}&chain_id=${chainId}`, {
+    method: 'GET',
+    headers: {
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
     },
   })
-  return data
+    .then((response) => response.json())
+    .then((data) => {
+      return data
+    })
+    .catch((error) => {
+      console.error('Error getSolaceRiskBalances:', error)
+      return []
+    })
 }
 
 export const getSolaceRiskScores = async (
   address: string,
   positions: SolaceRiskBalance[]
-): Promise<SolaceRiskScore> => {
+): Promise<SolaceRiskScore | undefined> => {
   return await fetch('https://risk-data.solace.fi/scores', {
     method: 'POST',
     headers: {
@@ -131,6 +139,6 @@ export const getSolaceRiskScores = async (
     })
     .catch((error) => {
       console.error('Error getSolaceRiskScores:', error)
-      return {}
+      return undefined
     })
 }

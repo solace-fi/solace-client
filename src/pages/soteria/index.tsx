@@ -580,6 +580,7 @@ function PolicyBalance({
   const { ifDesktop } = useWindowDimensions()
   const { account, library } = useWallet()
   const { activeNetwork } = useNetwork()
+  const { latestBlock } = useProvider()
   const { amount, isAppropriateAmount, handleInputChange, resetAmount } = useInputAmount()
 
   const [walletAssetBalance, setWalletAssetBalance] = useState<BigNumber>(ZERO)
@@ -634,7 +635,6 @@ function PolicyBalance({
   const callActivatePolicy = async () => {
     if (!account) return
     const totalBalance = parseUnits(amount, 18).add(balances.totalAccountBalance)
-    console.log(newCoverageLimit, totalBalance)
     await activatePolicy(account, newCoverageLimit, totalBalance, referralCode ?? [])
       .then((res) => handleToast(res.tx, res.localTx))
       .catch((err) => handleContractCallError('callActivatePolicy', err, FunctionName.SOTERIA_ACTIVATE))
@@ -676,7 +676,7 @@ function PolicyBalance({
 
   useEffect(() => {
     _getAvailableFunds()
-  }, [account, activeNetwork.chainId, library])
+  }, [account, activeNetwork.chainId, library, latestBlock])
 
   useEffect(() => {
     resetAmount()
@@ -892,7 +892,7 @@ function CoverageActive() {
           )}
         </Flex>
         <Flex between itemsCenter>
-          <ToggleSwitch id="bird" toggled={!isCooldownActive} onChange={callDeactivatePolicy} />
+          {!isCooldownActive && <ToggleSwitch id="bird" toggled={!isCooldownActive} onChange={callDeactivatePolicy} />}
         </Flex>
       </Flex>
     </Card>
@@ -1016,7 +1016,7 @@ function PortfolioTable({ portfolio }: { portfolio: SolaceRiskScore | undefined 
               >
                 <Flex gap={30} between itemsCenter>
                   <Flex col gap={8.5}>
-                    <div>{row.network}</div>
+                    <div>{capitalizeFirstLetter(row.network)}</div>
                   </Flex>
                   <Flex
                     col
@@ -1143,7 +1143,6 @@ export default function Soteria(): JSX.Element {
 
   const _checkMinReqAccountBal = useDebounce(async () => {
     const minReqAccountBal = await getMinRequiredAccountBalance(newCoverageLimit)
-    console.log('minReqAccBal', minReqAccountBal)
     setMinReqAccBal(minReqAccountBal)
   }, 300)
 
