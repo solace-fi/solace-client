@@ -961,7 +961,7 @@ function CoverageActive({ policyStatus }: { policyStatus: boolean }) {
                 Cooldown:
               </Text>
               <Text info t5s bold>
-                {getTimeFromMillis(cooldownLeft.toNumber())}
+                {getTimeFromMillis(cooldownLeft.toNumber() * 1000)}
               </Text>
             </Flex>
           )}
@@ -983,8 +983,13 @@ function ReferralSection({
   setReferralCode: (referralCode: string | undefined) => void
   userCanRefer: boolean
 }) {
+  const { account } = useWallet()
   const [formReferralCode, setFormReferralCode] = useState('')
   const [generatedReferralCode, setGeneratedReferralCode] = useState('')
+
+  const [codeIsApplicable, setCodeIsApplicable] = useState<boolean>(false)
+
+  const { getIsReferralCodeUsed, getIsReferralCodeValid } = useFunctions()
 
   const getReferralCode = async () => {
     const ethereum = (window as any).ethereum
@@ -1024,6 +1029,20 @@ function ReferralSection({
       .then((code: any) => setGeneratedReferralCode(code))
       .catch((error: any) => console.log(error))
   }
+
+  const _checkReferralCode = useDebounce(async () => {
+    if (!account) {
+      setCodeIsApplicable(false)
+      return
+    }
+    const isUsed = await getIsReferralCodeUsed(account)
+    const isValid = await getIsReferralCodeValid(formReferralCode)
+    setCodeIsApplicable(isUsed && isValid)
+  }, 300)
+
+  useEffect(() => {
+    _checkReferralCode()
+  }, [formReferralCode])
 
   return (
     <Card normous horiz>
@@ -1082,7 +1101,7 @@ function ReferralSection({
             <GenericInputSection
               onChange={(e) => setFormReferralCode(e.target.value)}
               value={formReferralCode}
-              disabled={false}
+              disabled={!codeIsApplicable}
               displayIconOnMobile
               placeholder={referralCode ?? 'Enter your referral code'}
               buttonOnClick={() => setReferralCode(formReferralCode)}
