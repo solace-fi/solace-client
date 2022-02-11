@@ -30,7 +30,7 @@ import { useWallet } from '../../context/WalletManager'
 import { BigNumber, Contract } from 'ethers'
 import { VerticalSeparator } from '../stake/components/VerticalSeparator'
 import { useGeneral } from '../../context/GeneralManager'
-import { StyledCopy, TechyGradientCopy } from '../../components/atoms/Icon'
+import { StyledCopy, InfoCopy, InfoCheckmark } from '../../components/atoms/Icon'
 import { LocalTx, SolaceRiskProtocol, SolaceRiskScore } from '../../constants/types'
 import {
   accurateMultiply,
@@ -60,6 +60,7 @@ import { useNotifications } from '../../context/NotificationsManager'
 import { TransactionReceipt } from '@ethersproject/providers'
 import { TransactionResponse } from '@ethersproject/providers'
 import { useTokenAllowance } from '../../hooks/useToken'
+import useCopyClipboard from '../../hooks/useCopyToClipboard'
 
 function Card({
   children,
@@ -989,6 +990,7 @@ function ReferralSection({
 
   const [codeIsApplicable, setCodeIsApplicable] = useState<boolean>(false)
 
+  const [isCopied, setCopied] = useCopyClipboard()
   const { getIsReferralCodeUsed, getIsReferralCodeValid } = useFunctions()
 
   const getReferralCode = async () => {
@@ -1031,7 +1033,7 @@ function ReferralSection({
   }
 
   const _checkReferralCode = useDebounce(async () => {
-    if (!account || formReferralCode.length == 0) {
+    if (!account) {
       setCodeIsApplicable(false)
       return
     }
@@ -1074,15 +1076,19 @@ function ReferralSection({
                 for everyone who gets coverage via your referral link:
               </Text>
               {generatedReferralCode.length > 0 ? (
-                <Text t4s bold techygradient>
-                  solace.fi/?r={shortenAddress(generatedReferralCode)}{' '}
-                  <TechyGradientCopy
-                    style={{
-                      height: '14px',
-                      width: '14px',
-                    }}
-                  />
-                </Text>
+                <Flex
+                  gap={10}
+                  style={{
+                    alignItems: 'flex-end',
+                    cursor: 'pointer',
+                  }}
+                  onClick={() => setCopied(`https://solace.fi/?r=${generatedReferralCode}`)}
+                >
+                  <Text t4s bold techygradient>
+                    solace.fi/?r={shortenAddress(generatedReferralCode)}
+                  </Text>
+                  {isCopied ? <InfoCheckmark /> : <InfoCopy />}
+                </Flex>
               ) : (
                 <Button info onClick={getReferralCode}>
                   Get My Code
@@ -1108,7 +1114,7 @@ function ReferralSection({
             <GenericInputSection
               onChange={(e) => setFormReferralCode(e.target.value)}
               value={formReferralCode}
-              buttonDisabled={!codeIsApplicable}
+              disabled={!codeIsApplicable}
               displayIconOnMobile
               placeholder={referralCode ?? 'Enter your referral code'}
               buttonOnClick={() => setReferralCode(formReferralCode)}
