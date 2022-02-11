@@ -1031,7 +1031,7 @@ function ReferralSection({
   }
 
   const _checkReferralCode = useDebounce(async () => {
-    if (!account) {
+    if (!account || formReferralCode.length == 0) {
       setCodeIsApplicable(false)
       return
     }
@@ -1108,7 +1108,7 @@ function ReferralSection({
             <GenericInputSection
               onChange={(e) => setFormReferralCode(e.target.value)}
               value={formReferralCode}
-              disabled={!codeIsApplicable}
+              buttonDisabled={!codeIsApplicable}
               displayIconOnMobile
               placeholder={referralCode ?? 'Enter your referral code'}
               buttonOnClick={() => setReferralCode(formReferralCode)}
