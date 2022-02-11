@@ -307,7 +307,7 @@ export const RinkebyNetwork: NetworkConfig = {
       },
       solaceCoverProduct: {
         addr: KEY_ADDRS.SOLACE_COVER_PRODUCT,
-        abi: solaceCoverProductABI,
+        abi: solaceCoverProductABI.abi,
       },
     },
     productContracts: {

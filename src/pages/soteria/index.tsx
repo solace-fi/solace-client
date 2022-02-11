@@ -24,14 +24,23 @@ import {
   useCooldownDetails,
   useFunctions,
   usePortfolio,
+  useTotalAccountBalance,
 } from '../../hooks/useSolaceCoverProduct'
 import { useWallet } from '../../context/WalletManager'
 import { BigNumber, Contract } from 'ethers'
 import { VerticalSeparator } from '../stake/components/VerticalSeparator'
 import { useGeneral } from '../../context/GeneralManager'
 import { StyledCopy, TechyGradientCopy } from '../../components/atoms/Icon'
-import { SolaceRiskProtocol } from '../../constants/types'
-import { accurateMultiply, capitalizeFirstLetter, filterAmount, floatUnits, formatAmount } from '../../utils/formatting'
+import { LocalTx, SolaceRiskProtocol, SolaceRiskScore } from '../../constants/types'
+import {
+  accurateMultiply,
+  capitalizeFirstLetter,
+  filterAmount,
+  floatUnits,
+  formatAmount,
+  truncateValue,
+  convertSciNotaToPrecise,
+} from '../../utils/formatting'
 import { getTimeFromMillis } from '../../utils/time'
 import { useInputAmount, useTransactionExecution } from '../../hooks/useInputAmount'
 import { FunctionName } from '../../constants/enums'
@@ -44,7 +53,6 @@ import IERC20 from '../../constants/metadata/IERC20Metadata.json'
 import { queryBalance, queryDecimals } from '../../utils/contract'
 import useDebounce from '@rooks/use-debounce'
 import { formatUnits } from 'ethers/lib/utils'
-import { EnumType } from 'typescript'
 
 function Card({
   children,
@@ -147,13 +155,11 @@ function CoverageLimitBasicForm({
   portfolio,
   currentCoverageLimit,
   isEditing,
-  setIsEditing,
   setNewCoverageLimit,
 }: {
-  portfolio: SolaceRiskProtocol[]
+  portfolio: SolaceRiskScore | undefined
   currentCoverageLimit: BigNumber
   isEditing: boolean
-  setIsEditing: (b: boolean) => void
   setNewCoverageLimit: (newCoverageLimit: BigNumber) => void
 }) {
   const [chosenLimit, setChosenLimit] = useState<ChosenLimit>(ChosenLimit.Recommended)
@@ -161,7 +167,10 @@ function CoverageLimitBasicForm({
   const { version } = useCachedData()
 
   const highestPosition = useMemo(
-    () => (portfolio.length > 0 ? portfolio.reduce((pn, cn) => (cn.balanceUSD > pn.balanceUSD ? cn : pn)) : undefined),
+    () =>
+      portfolio && portfolio.protocols.length > 0
+        ? portfolio.protocols.reduce((pn, cn) => (cn.balanceUSD > pn.balanceUSD ? cn : pn))
+        : undefined,
     [portfolio]
   )
 
@@ -211,19 +220,15 @@ function CoverageLimitBasicForm({
     setRecommendedAmount(bnHigherBal)
   }, [highestPosition])
 
-  // useEffect switch tht listens to newCoverageLimit and chosenLimit, and sets the chosenInputAmount to recommended amount
-  // recommended: highestAmount * 1.2
-  // max: highestAmount
-  // custom: chosenInputAmount
   useEffect(() => {
     switch (chosenLimit) {
       case ChosenLimit.Recommended:
         setNewCoverageLimit(recommendedAmount)
-        setCustomInputAmount(formatUnits(recommendedAmount))
+        setCustomInputAmount(formatUnits(recommendedAmount, 18))
         break
       case ChosenLimit.MaxPosition:
         setNewCoverageLimit(highestAmount)
-        setCustomInputAmount(formatUnits(highestAmount))
+        setCustomInputAmount(formatUnits(highestAmount, 18))
         break
     }
   }, [chosenLimit, highestAmount, setNewCoverageLimit, recommendedAmount, customInputAmount])
@@ -339,7 +344,7 @@ function CoverageLimitBasicForm({
                     fontSize: '18px',
                   }}
                 >
-                  {formatUnits(highestAmount.toString())}
+                  {truncateValue(formatUnits(highestAmount, 18), 2, false)}
                 </Text>
                 <Text t4 bold>
                   USD
@@ -373,7 +378,10 @@ function CoverageLimitBasicForm({
 // fourth line is 1 submit and 1 cancel button
 
 function CoverageLimit({
+  balances,
+  minReqAccBal,
   currentCoverageLimit,
+  newCoverageLimit,
   isEditing,
   portfolio,
   referralCode,
@@ -381,9 +389,16 @@ function CoverageLimit({
   setIsEditing,
   firstTime,
 }: {
+  balances: {
+    totalAccountBalance: BigNumber
+    personalBalance: BigNumber
+    earnedBalance: BigNumber
+  }
+  minReqAccBal: BigNumber
   currentCoverageLimit: BigNumber
+  newCoverageLimit: BigNumber
   isEditing: boolean
-  portfolio: SolaceRiskProtocol[]
+  portfolio: SolaceRiskScore | undefined
   referralCode: string | undefined
   setNewCoverageLimit: (newCoverageLimit: BigNumber) => void
   setIsEditing: (isEditing: boolean) => void
@@ -391,18 +406,33 @@ function CoverageLimit({
 }) {
   const startEditing = () => setIsEditing(true)
   const stopEditing = () => setIsEditing(false)
-
-  const { account } = useWallet()
+  const [doesReachMinReqAccountBal, setDoesReachMinReqAccountBal] = useState(false)
 
   const { updateCoverLimit } = useFunctions()
   const { handleToast, handleContractCallError } = useTransactionExecution()
 
-  const callUpdateCoverLimit = async (amount: BigNumber) => {
-    if (!account) return
-    await updateCoverLimit(amount, referralCode ?? '')
-      .then((res) => handleToast(res.tx, res.localTx))
-      .catch((err) => handleContractCallError('callUpdateCoverLimit', err, FunctionName.SOTERIA_UPDATE))
+  const callUpdateCoverLimit = async () => {
+    await updateCoverLimit(newCoverageLimit, referralCode ?? [])
+      .then((res) => _handleToast(res.tx, res.localTx))
+      .catch((err) => _handleContractCallError('callUpdateCoverLimit', err, FunctionName.SOTERIA_UPDATE))
   }
+
+  const _handleToast = async (tx: any, localTx: LocalTx | null) => {
+    await handleToast(tx, localTx)
+    stopEditing()
+  }
+
+  const _handleContractCallError = (functionName: string, err: any, txType: FunctionName) => {
+    handleContractCallError(functionName, err, txType)
+  }
+
+  const _checkMinReqAccountBal = useDebounce(async () => {
+    setDoesReachMinReqAccountBal(balances.totalAccountBalance.gt(minReqAccBal))
+  }, 300)
+
+  useEffect(() => {
+    _checkMinReqAccountBal()
+  }, [minReqAccBal, balances])
 
   return (
     // <Card thinner>
@@ -433,7 +463,6 @@ function CoverageLimit({
         currentCoverageLimit={currentCoverageLimit}
         isEditing={isEditing}
         portfolio={portfolio}
-        setIsEditing={setIsEditing}
         setNewCoverageLimit={setNewCoverageLimit}
       />
       <Flex justifyCenter={!isEditing} between={isEditing} gap={isEditing ? 20 : undefined}>
@@ -459,7 +488,15 @@ function CoverageLimit({
             <Button info pt={8} pb={8} style={{ fontWeight: 600, flex: 1, transition: '0s' }} onClick={stopEditing}>
               Discard
             </Button>
-            <Button info secondary pt={8} pb={8} style={{ fontWeight: 600, flex: 1, transition: '0s' }}>
+            <Button
+              info
+              secondary
+              pt={8}
+              pb={8}
+              style={{ fontWeight: 600, flex: 1, transition: '0s' }}
+              onClick={callUpdateCoverLimit}
+              disabled={!doesReachMinReqAccountBal}
+            >
               Save
             </Button>
           </>
@@ -518,29 +555,61 @@ function ValuePair({
 const ifStringZeroUndefined = (str: string) => (Number(str) === 0 ? undefined : str)
 
 function PolicyBalance({
+  balances,
+  minReqAccBal,
+  portfolio,
+  currentCoverageLimit,
   newCoverageLimit,
   referralCode,
   firstTime,
 }: {
+  balances: {
+    totalAccountBalance: BigNumber
+    personalBalance: BigNumber
+    earnedBalance: BigNumber
+  }
+  minReqAccBal: BigNumber
+  portfolio: SolaceRiskScore | undefined
+  currentCoverageLimit: BigNumber
   newCoverageLimit: BigNumber
   referralCode: string | undefined
   firstTime?: boolean
 }) {
-  // setters for usd and days
-  const [usd, setUsd] = React.useState('0')
   const [doesReachMinReqAccountBal, setDoesReachMinReqAccountBal] = useState(false)
 
   const { ifDesktop } = useWindowDimensions()
   const { account, library } = useWallet()
   const { activeNetwork } = useNetwork()
-  const { amount, maxSelected, isAppropriateAmount, handleInputChange, setMax, resetAmount } = useInputAmount()
+  const { amount, isAppropriateAmount, handleInputChange, resetAmount } = useInputAmount()
 
-  const [accountBalance, setAccountBalance] = useState<BigNumber>(ZERO)
   const [walletAssetBalance, setWalletAssetBalance] = useState<BigNumber>(ZERO)
   const [walletAssetDecimals, setWalletAssetDecimals] = useState<number>(0)
 
-  const { getAccountBalanceOf, deposit, withdraw, getMinRequiredAccountBalance, activatePolicy } = useFunctions()
+  const { deposit, withdraw, activatePolicy } = useFunctions()
   const { handleToast, handleContractCallError } = useTransactionExecution()
+
+  const [rangeValue, setRangeValue] = useState<string>('0')
+
+  const usdBalanceSum = useMemo(
+    () =>
+      portfolio && portfolio.protocols.length > 0
+        ? portfolio.protocols.reduce((total, protocol) => (total += protocol.balanceUSD), 0)
+        : 0,
+    [portfolio]
+  )
+
+  const dailyRate = useMemo(() => (portfolio ? portfolio.current_rate / 365.25 : 0), [portfolio])
+
+  const dailyCost = useMemo(() => {
+    const numberifiedCurrentCoverageLimit = floatUnits(currentCoverageLimit, 18)
+    if (usdBalanceSum < numberifiedCurrentCoverageLimit) return usdBalanceSum * dailyRate
+    return numberifiedCurrentCoverageLimit * dailyRate
+  }, [currentCoverageLimit, dailyRate, usdBalanceSum])
+
+  const policyDuration = useMemo(() => (dailyCost > 0 ? floatUnits(balances.totalAccountBalance, 18) / dailyCost : 0), [
+    dailyCost,
+    balances.totalAccountBalance,
+  ])
 
   const isAcceptableAmount = useMemo(() => isAppropriateAmount(amount, walletAssetDecimals, walletAssetBalance), [
     amount,
@@ -564,19 +633,32 @@ function PolicyBalance({
 
   const callActivatePolicy = async () => {
     if (!account) return
-    await activatePolicy(account, newCoverageLimit, parseUnits(amount, 18), referralCode ?? '')
+    const totalBalance = parseUnits(amount, 18).add(balances.totalAccountBalance)
+    console.log(newCoverageLimit, totalBalance)
+    await activatePolicy(account, newCoverageLimit, totalBalance, referralCode ?? [])
       .then((res) => handleToast(res.tx, res.localTx))
       .catch((err) => handleContractCallError('callActivatePolicy', err, FunctionName.SOTERIA_ACTIVATE))
   }
 
-  const _handleInputChange = () => {
-    handleInputChange(amount, walletAssetDecimals, formatUnits(walletAssetBalance, walletAssetDecimals))
+  const _handleInputChange = (_amount: string) => {
+    handleInputChange(_amount, walletAssetDecimals)
+    const filtered = filterAmount(_amount, amount)
+    setRangeValue(accurateMultiply(filtered, walletAssetDecimals))
+  }
+
+  const handleRangeChange = (rangeAmount: string, convertFromSciNota = true) => {
+    handleInputChange(
+      formatUnits(
+        BigNumber.from(`${convertFromSciNota ? convertSciNotaToPrecise(rangeAmount) : rangeAmount}`),
+        walletAssetDecimals
+      )
+    )
+    setRangeValue(`${convertFromSciNota ? convertSciNotaToPrecise(rangeAmount) : rangeAmount}`)
   }
 
   const _checkMinReqAccountBal = useDebounce(async () => {
-    const minReqAccountBal = await getMinRequiredAccountBalance(newCoverageLimit)
     const bnAmount = BigNumber.from(accurateMultiply(amount, 18))
-    setDoesReachMinReqAccountBal(accountBalance.add(bnAmount).gt(minReqAccountBal))
+    setDoesReachMinReqAccountBal(balances.totalAccountBalance.add(bnAmount).gt(minReqAccBal))
   }, 300)
 
   const _getAvailableFunds = useDebounce(async () => {
@@ -589,20 +671,16 @@ function PolicyBalance({
   }, 300)
 
   useEffect(() => {
-    ;async () => {
-      if (!account) return
-      const bal = await getAccountBalanceOf(account)
-      setAccountBalance(bal)
-    }
-  }, [account])
-
-  useEffect(() => {
     _checkMinReqAccountBal()
-  }, [newCoverageLimit, accountBalance, amount])
+  }, [balances.totalAccountBalance, amount, minReqAccBal])
 
   useEffect(() => {
     _getAvailableFunds()
   }, [account, activeNetwork.chainId, library])
+
+  useEffect(() => {
+    resetAmount()
+  }, [firstTime])
 
   return (
     <Flex
@@ -646,9 +724,9 @@ function PolicyBalance({
                   Effective Balance
                 </Text>
                 <Flex gap={6}>
-                  <img src={DAI} alt={'DAI'} height={20} width={20} />
-                  <Text t2s bold>
-                    0
+                  $
+                  <Text t2s bold autoAlignVertical>
+                    {truncateValue(formatUnits(balances.totalAccountBalance, walletAssetDecimals), 2)}
                   </Text>
                 </Flex>
               </Flex>
@@ -666,7 +744,7 @@ function PolicyBalance({
                     Personal
                   </Text>
                   <Text t4s bold info>
-                    0 DAI
+                    {truncateValue(formatUnits(balances.personalBalance, walletAssetDecimals), 2)} DAI
                   </Text>
                 </Flex>
                 <Flex between>
@@ -674,7 +752,7 @@ function PolicyBalance({
                     Bonus
                   </Text>
                   <Text t4s bold techygradient>
-                    0 DAI
+                    {truncateValue(formatUnits(balances.earnedBalance, walletAssetDecimals), 2)} DAI
                   </Text>
                 </Flex>
               </Flex>
@@ -685,7 +763,7 @@ function PolicyBalance({
             <Flex between>
               <Text t4s>Coverage Price</Text>
               <Text t4s bold>
-                0.00189{' '}
+                {truncateValue(dailyCost, 5)}{' '}
                 <Text t6s inline>
                   DAI/Day
                 </Text>
@@ -694,7 +772,7 @@ function PolicyBalance({
             <Flex between>
               <Text t4s>Approximate Policy Duration</Text>
               <Text t4s bold>
-                0{' '}
+                {policyDuration}{' '}
                 <Text t6s inline>
                   Days
                 </Text>
@@ -711,17 +789,28 @@ function PolicyBalance({
         <Flex col gap={20}>
           <GenericInputSection
             icon={<img src={DAI} height={20} />}
-            onChange={(e) => setUsd(e.target.value)}
+            onChange={(e) => _handleInputChange(e.target.value)}
             text="DAI"
-            value={ifStringZeroUndefined(usd)}
+            value={amount}
             disabled={false}
             displayIconOnMobile
           />
-          <StyledSlider />
+          <StyledSlider
+            disabled={false}
+            min={0}
+            max={walletAssetBalance.toString()}
+            value={rangeValue}
+            onChange={(e) => handleRangeChange(e.target.value)}
+          />
         </Flex>
         {firstTime ? (
           <Flex flex1 col stretch>
-            <Button info secondary>
+            <Button
+              info
+              secondary
+              disabled={!isAcceptableAmount || !doesReachMinReqAccountBal}
+              onClick={callActivatePolicy}
+            >
               Activate my policy
             </Button>
           </Flex>
@@ -737,12 +826,14 @@ function PolicyBalance({
                 fontWeight: 600,
                 flex: 1,
               }}
+              onClick={callWithdraw}
             >
               Withdraw
             </Button>
             <Button
               info
               secondary
+              disabled={!isAcceptableAmount}
               pl={ifDesktop(46.75)}
               pr={ifDesktop(46.75)}
               pt={8}
@@ -751,6 +842,7 @@ function PolicyBalance({
                 fontWeight: 600,
                 flex: 1,
               }}
+              onClick={callDeposit}
             >
               Deposit
             </Button>
@@ -762,7 +854,7 @@ function PolicyBalance({
   )
 }
 
-function CoverageActive({ coverageActive }: { coverageActive: boolean }) {
+function CoverageActive() {
   const { deactivatePolicy } = useFunctions()
   const { account } = useWallet()
   const { isCooldownActive, cooldownLeft } = useCooldownDetails(account)
@@ -800,11 +892,7 @@ function CoverageActive({ coverageActive }: { coverageActive: boolean }) {
           )}
         </Flex>
         <Flex between itemsCenter>
-          {/* <ToggleSwitch
-            id="bird"
-            toggled={!isCooldownActive}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setCoverageActive(e.target.checked)}
-          /> */}
+          <ToggleSwitch id="bird" toggled={!isCooldownActive} onChange={callDeactivatePolicy} />
         </Flex>
       </Flex>
     </Card>
@@ -860,7 +948,7 @@ function ReferralSection({
             {!referralCode ? (
               <Text t4s>
                 <Text t4s inline bold techygradient>
-                  Got a promo code?
+                  Got a referral code?
                 </Text>{' '}
                 Enter here to claim:
               </Text>
@@ -888,7 +976,7 @@ function ReferralSection({
   )
 }
 
-function PortfolioTable({ portfolio }: { portfolio: SolaceRiskProtocol[] }) {
+function PortfolioTable({ portfolio }: { portfolio: SolaceRiskScore | undefined }) {
   const { width } = useWindowDimensions()
 
   return (
@@ -896,50 +984,54 @@ function PortfolioTable({ portfolio }: { portfolio: SolaceRiskProtocol[] }) {
       {width > BKPT_5 ? (
         <Table>
           <TableHead>
-            <TableHeader>Protocol</TableHeader>
-            <TableHeader>Type</TableHeader>
-            <TableHeader>Amount</TableHeader>
-            <TableHeader>Risk Level</TableHeader>
+            <TableRow>
+              <TableHeader>Protocol</TableHeader>
+              <TableHeader>Type</TableHeader>
+              <TableHeader>Amount</TableHeader>
+              <TableHeader>Risk Level</TableHeader>
+            </TableRow>
           </TableHead>
           <TableBody>
-            {portfolio.map((d: SolaceRiskProtocol) => (
-              <TableRow key={d.network}>
-                <TableData>{capitalizeFirstLetter(d.network)}</TableData>
-                <TableData>{d.category}</TableData>
-                <TableData>{d.balanceUSD}</TableData>
-                <TableData>{d.tier}</TableData>
-              </TableRow>
-            ))}
+            {portfolio &&
+              portfolio.protocols.map((d: SolaceRiskProtocol) => (
+                <TableRow key={d.network}>
+                  <TableData>{capitalizeFirstLetter(d.network)}</TableData>
+                  <TableData>{d.category}</TableData>
+                  <TableData>{d.balanceUSD}</TableData>
+                  <TableData>{d.tier}</TableData>
+                </TableRow>
+              ))}
           </TableBody>
         </Table>
       ) : (
         <Flex column gap={30}>
-          {portfolio.map((row) => (
-            <GrayBgDiv
-              key={row.network}
-              style={{
-                borderRadius: '10px',
-                padding: '14px 24px',
-              }}
-            >
-              <Flex gap={30} between itemsCenter>
-                <Flex col gap={8.5}>
-                  <div>{row.network}</div>
+          {portfolio &&
+            portfolio.protocols.map((row) => (
+              <GrayBgDiv
+                key={row.network}
+                style={{
+                  borderRadius: '10px',
+                  padding: '14px 24px',
+                }}
+              >
+                <Flex gap={30} between itemsCenter>
+                  <Flex col gap={8.5}>
+                    <div>{row.network}</div>
+                  </Flex>
+                  <Flex
+                    col
+                    gap={8.5}
+                    style={{
+                      textAlign: 'right',
+                    }}
+                  >
+                    <div>{row.category}</div>
+                    <div>{row.balanceUSD}</div>
+                    <div>{row.tier}</div>
+                  </Flex>
                 </Flex>
-                <Flex
-                  col
-                  gap={8.5}
-                  style={{
-                    textAlign: 'right',
-                  }}
-                >
-                  <div>{row.category}</div>
-                  <div>{row.balanceUSD}</div>
-                  <div>{row.tier}</div>
-                </Flex>
-              </Flex>
-            </GrayBgDiv>
-          ))}
+              </GrayBgDiv>
+            ))}
         </Flex>
       )}
     </>
@@ -1034,9 +1126,10 @@ export default function Soteria(): JSX.Element {
   const portfolio = usePortfolio('0x09748f07b839edd1d79a429d3ad918f670d602cd', 1)
   const { isMobile } = useWindowDimensions()
   const { policyId, status, coverageLimit } = useCheckIsCoverageActive(account)
+  const { getMinRequiredAccountBalance } = useFunctions()
+  const balances = useTotalAccountBalance(account)
 
   const currentCoverageLimit = useMemo(() => coverageLimit, [coverageLimit])
-  const coverageActive = useMemo(() => status, [status])
   const firstTime = useMemo(() => policyId.isZero(), [policyId])
 
   const [referralType, setReferralType] = useState<ReferralSource>(ReferralSource.Standard)
@@ -1045,6 +1138,18 @@ export default function Soteria(): JSX.Element {
   const [referralCode, setReferralCode] = useState<string | undefined>(undefined)
   const [newCoverageLimit, setNewCoverageLimit] = useState<BigNumber>(ZERO)
   const [isEditing, setIsEditing] = useState(false)
+
+  const [minReqAccBal, setMinReqAccBal] = useState<BigNumber>(ZERO)
+
+  const _checkMinReqAccountBal = useDebounce(async () => {
+    const minReqAccountBal = await getMinRequiredAccountBalance(newCoverageLimit)
+    console.log('minReqAccBal', minReqAccountBal)
+    setMinReqAccBal(minReqAccountBal)
+  }, 300)
+
+  useEffect(() => {
+    _checkMinReqAccountBal()
+  }, [newCoverageLimit])
 
   useEffect(() => {
     if (firstTime) {
@@ -1068,7 +1173,10 @@ export default function Soteria(): JSX.Element {
             <>
               <Card thinner>
                 <CoverageLimit
+                  balances={balances}
+                  minReqAccBal={minReqAccBal}
                   currentCoverageLimit={currentCoverageLimit}
+                  newCoverageLimit={newCoverageLimit}
                   setNewCoverageLimit={setNewCoverageLimit}
                   referralCode={referralCode}
                   isEditing={isEditing}
@@ -1077,7 +1185,14 @@ export default function Soteria(): JSX.Element {
                 />{' '}
               </Card>
               <Card bigger horiz>
-                <PolicyBalance newCoverageLimit={newCoverageLimit} referralCode={referralCode} />
+                <PolicyBalance
+                  balances={balances}
+                  minReqAccBal={minReqAccBal}
+                  portfolio={portfolio}
+                  currentCoverageLimit={currentCoverageLimit}
+                  newCoverageLimit={newCoverageLimit}
+                  referralCode={referralCode}
+                />
               </Card>
             </>
           ) : (
@@ -1085,7 +1200,10 @@ export default function Soteria(): JSX.Element {
             <Card firstTime horiz noPadding gap={24}>
               <Card innerThinner noShadow>
                 <CoverageLimit
+                  balances={balances}
+                  minReqAccBal={minReqAccBal}
                   currentCoverageLimit={currentCoverageLimit}
+                  newCoverageLimit={newCoverageLimit}
                   setNewCoverageLimit={setNewCoverageLimit}
                   referralCode={referralCode}
                   isEditing={isEditing}
@@ -1095,7 +1213,15 @@ export default function Soteria(): JSX.Element {
                 />
               </Card>{' '}
               <Card innerBigger noShadow>
-                <PolicyBalance newCoverageLimit={newCoverageLimit} referralCode={referralCode} firstTime />
+                <PolicyBalance
+                  balances={balances}
+                  minReqAccBal={minReqAccBal}
+                  portfolio={portfolio}
+                  currentCoverageLimit={currentCoverageLimit}
+                  newCoverageLimit={newCoverageLimit}
+                  referralCode={referralCode}
+                  firstTime
+                />
               </Card>
             </Card>
             // </>
@@ -1111,12 +1237,8 @@ export default function Soteria(): JSX.Element {
               flex: '0.8',
             }}
           >
-            <CoverageActive coverageActive={coverageActive} />
-            <ReferralSection
-              referralCode={referralCode}
-              setReferralCode={setReferralCode}
-              userCanRefer={coverageActive}
-            />
+            <CoverageActive />
+            <ReferralSection userCanRefer={status} referralCode={referralCode} setReferralCode={setReferralCode} />
           </Flex>
         </Flex>
       )}
