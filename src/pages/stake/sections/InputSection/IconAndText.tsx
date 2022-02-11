@@ -28,7 +28,7 @@ const StyledGrayBox = styled(GrayBgDiv)`
 `
 
 // hidden 1024px:flex rounded-l-xl border-r p-5 space-x-1 items-center
-const StyledGenericIconAndText = styled.div<{ disabled?: boolean; displayOnMobile?: boolean }>`
+const StyledGenericIconAndText = styled.div<{ disabled?: boolean; displayOnMobile?: boolean; width?: number }>`
   display: hidden;
   @media (min-width: ${({ displayOnMobile }) => (displayOnMobile ? 0 : BKPT_5)}px) {
     display: flex;
@@ -41,6 +41,7 @@ const StyledGenericIconAndText = styled.div<{ disabled?: boolean; displayOnMobil
     font-size: 12px;
     font-weight: 600;
     line-height: 1.5;
+    ${({ width }) => width && `width: ${width}px`};
     color: ${({ disabled, theme }) => (disabled ? '#979797' : theme.typography.contrastText)};
   }
 `
@@ -50,14 +51,16 @@ export function GenericIconAndText({
   text,
   disabled,
   displayOnMobile,
+  width,
 }: {
   icon: JSX.Element
   text: string
   disabled?: boolean
   displayOnMobile?: boolean
+  width?: number
 }): JSX.Element {
   return (
-    <StyledGenericIconAndText disabled={disabled} displayOnMobile={displayOnMobile}>
+    <StyledGenericIconAndText disabled={disabled} displayOnMobile={displayOnMobile} width={width}>
       {icon}
       <div>{text}</div>
     </StyledGenericIconAndText>

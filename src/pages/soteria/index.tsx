@@ -269,8 +269,8 @@ function CoverageLimitBasicForm({
                   borderRadius: '10px',
                   backgroundColor: '#fafafa',
                   color: 'purple',
-                  height: '20px',
-                  width: '20px',
+                  height: '15px',
+                  width: '15px',
                   userSelect: 'none',
                   cursor: 'pointer',
                 }}
@@ -306,8 +306,8 @@ function CoverageLimitBasicForm({
                   borderRadius: '10px',
                   backgroundColor: '#fafafa',
                   color: 'purple',
-                  height: '20px',
-                  width: '20px',
+                  height: '15px',
+                  width: '15px',
                   userSelect: 'none',
                   cursor: 'pointer',
                 }}
@@ -317,15 +317,18 @@ function CoverageLimitBasicForm({
               </Flex>
             </Flex>
             <GenericInputSection
-              icon={<img src={USD} height={20} />}
+              icon={<img src={DAI} alt="DAI" height={20} />}
+              // onChange={(e) => setUsd(Number(e.target.value))}
               onChange={(e) => handleInputChange(e.target.value)}
-              text="USD"
+              text="DAI"
+              // value={usd > 0 ? String(usd) : ''}
               value={customInputAmount}
               disabled={false}
-              w={300}
+              // w={300}
               style={{
                 marginTop: '20px',
               }}
+              iconAndTextWidth={80}
               displayIconOnMobile
             />
           </Flex>
@@ -654,7 +657,7 @@ function PolicyBalance({
           <StyledGrayBox>
             <Flex
               stretch
-              gap={24}
+              gap={13}
               style={{
                 width: '100%',
               }}
@@ -832,10 +835,13 @@ function CoverageActive() {
 function ReferralSection({
   referralCode,
   setReferralCode,
+  userCanRefer,
 }: {
   referralCode: string | undefined
   setReferralCode: (referralCode: string | undefined) => void
+  userCanRefer: boolean
 }) {
+  const [formReferralCode, setFormReferralCode] = useState('')
   return (
     <Card normous horiz>
       {/* top part / title */}
@@ -846,7 +852,7 @@ function ReferralSection({
         style={{
           width: '100%',
         }}
-        gap={40}
+        gap={userCanRefer ? 40 : 0}
       >
         <Flex between itemsCenter>
           <Text t2 bold techygradient>
@@ -856,39 +862,45 @@ function ReferralSection({
             <QuestionCircle height={20} width={20} color={'#aaa'} />
           </StyledTooltip>
         </Flex>
-        {/* middle has padding l and r 40px, rest is p l and r 24px (comes with Card); vertical justify-between */}
         <Flex col flex1 gap={40} stretch justifyCenter>
+          {userCanRefer && (
+            <Flex col gap={10} stretch>
+              <Text t4s>Get more bonuses for everyone who gets coverage via your referral link:</Text>
+              <Text t4s bold techygradient>
+                solace.fi/referral/s37asodfkj1o3ig...{' '}
+                <TechyGradientCopy
+                  style={{
+                    height: '14px',
+                    width: '14px',
+                  }}
+                />
+              </Text>
+            </Flex>
+          )}
           <Flex col gap={10} stretch>
-            <Text t4s>Get more bonuses for everyone who gets coverage via your referral link:</Text>
-            <Text t4s bold techygradient>
-              solace.fi/referral/s37asodfkj1o3ig...{' '}
-              <TechyGradientCopy
-                style={{
-                  height: '14px',
-                  width: '14px',
-                  // backgroundColor: 'red',
-                }}
-              />
-            </Text>
-          </Flex>
-          <Flex col gap={10} stretch>
-            <Text t4s>
-              <Text t4s inline bold techygradient>
-                Got a promo code?
-              </Text>{' '}
-              Enter here to claim:
-            </Text>
-            <GrayBgDiv
-              style={{
-                borderRadius: '10px',
-              }}
-            >
-              <Flex flex1 stretch itemsCenter justifyCenter pl={24} pr={24} pt={20} pb={20}>
-                <Text techygradient bold t2s>
-                  {referralCode}
-                </Text>
-              </Flex>
-            </GrayBgDiv>
+            {!referralCode ? (
+              <Text t4s>
+                <Text t4s inline bold techygradient>
+                  Got a promo code?
+                </Text>{' '}
+                Enter here to claim:
+              </Text>
+            ) : (
+              <Text t4s techygradient bold>
+                Your referral link is applied.
+                <br />
+                You&apos;ll be able to use Bonus DAI after you activate your policy.
+              </Text>
+            )}
+            <GenericInputSection
+              onChange={(e) => setFormReferralCode(e.target.value)}
+              value={formReferralCode}
+              disabled={false}
+              displayIconOnMobile
+              placeholder={referralCode ?? 'Enter your referral code'}
+              buttonOnClick={() => setReferralCode(formReferralCode)}
+              buttonText="Apply"
+            />
           </Flex>
         </Flex>
       </Flex>
@@ -898,15 +910,6 @@ function ReferralSection({
 }
 
 function PortfolioTable({ portfolio }: { portfolio: SolaceRiskScore | undefined }) {
-  /* table like this:
-|protocol|type| positions |amount|risk level|
-|:-------|:---|:---------:|:-----:|:--------|
-|Uniswap |DEX |ETH,BTC,DAI|42345 USD|Low|
-|Nexus Mutual| Derivatives| ETH,DAI|34562 USD|High|
-|Aave |Lending |ETH,DAI|12809 USD|Medium|
-|Yearn Finance |Assets |BTC|2154 USD|Medium|
-
-  */
   const { width } = useWindowDimensions()
 
   return (
@@ -1053,7 +1056,7 @@ export default function Soteria(): JSX.Element {
 
   const portfolio = usePortfolio('0x09748f07b839edd1d79a429d3ad918f670d602cd', 1)
   const { isMobile } = useWindowDimensions()
-  const { policyId, coverageLimit } = useCheckIsCoverageActive(account)
+  const { policyId, status, coverageLimit } = useCheckIsCoverageActive(account)
 
   const currentCoverageLimit = useMemo(() => coverageLimit, [coverageLimit])
   const firstTime = useMemo(() => policyId.isZero(), [policyId])
@@ -1144,7 +1147,7 @@ export default function Soteria(): JSX.Element {
             }}
           >
             <CoverageActive />
-            <ReferralSection referralCode={referralCode} setReferralCode={setReferralCode} />
+            <ReferralSection userCanRefer={status} referralCode={referralCode} setReferralCode={setReferralCode} />
           </Flex>
         </Flex>
       )}
