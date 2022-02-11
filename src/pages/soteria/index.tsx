@@ -43,7 +43,7 @@ import {
 } from '../../utils/formatting'
 import { getTimeFromMillis } from '../../utils/time'
 import { useInputAmount, useTransactionExecution } from '../../hooks/useInputAmount'
-import { FunctionName } from '../../constants/enums'
+import { FunctionName, TransactionCondition } from '../../constants/enums'
 import { parseUnits } from 'ethers/lib/utils'
 import { useCachedData } from '../../context/CachedDataManager'
 import { useProvider } from '../../context/ProviderManager'
@@ -53,6 +53,12 @@ import IERC20 from '../../constants/metadata/IERC20Metadata.json'
 import { queryBalance, queryDecimals } from '../../utils/contract'
 import useDebounce from '@rooks/use-debounce'
 import { formatUnits } from 'ethers/lib/utils'
+import { getContract } from '../../utils'
+import { useContracts } from '../../context/ContractsManager'
+import { useNotifications } from '../../context/NotificationsManager'
+import { TransactionReceipt } from '@ethersproject/providers'
+import { TransactionResponse } from '@ethersproject/providers'
+import { useTokenAllowance } from '../../hooks/useToken'
 
 function Card({
   children,
@@ -581,10 +587,22 @@ function PolicyBalance({
   const { account, library } = useWallet()
   const { activeNetwork } = useNetwork()
   const { latestBlock } = useProvider()
+  const { keyContracts } = useContracts()
+  const { solaceCoverProduct } = useMemo(() => keyContracts, [keyContracts])
+  const { makeTxToast } = useNotifications()
+  const { reload } = useCachedData()
   const { amount, isAppropriateAmount, handleInputChange, resetAmount } = useInputAmount()
 
   const [walletAssetBalance, setWalletAssetBalance] = useState<BigNumber>(ZERO)
   const [walletAssetDecimals, setWalletAssetDecimals] = useState<number>(0)
+
+  const [contractForAllowance, setContractForAllowance] = useState<Contract | null>(null)
+  const spenderAddress = useMemo(() => (solaceCoverProduct ? solaceCoverProduct.address : null), [solaceCoverProduct])
+  const approval = useTokenAllowance(
+    contractForAllowance,
+    spenderAddress,
+    amount && amount != '.' ? parseUnits(amount, walletAssetDecimals).toString() : '0'
+  )
 
   const { deposit, withdraw, activatePolicy } = useFunctions()
   const { handleToast, handleContractCallError } = useTransactionExecution()
@@ -599,10 +617,13 @@ function PolicyBalance({
     [portfolio]
   )
 
-  const dailyRate = useMemo(() => (portfolio ? portfolio.current_rate / 365.25 : 0), [portfolio])
+  const dailyRate = useMemo(() => (portfolio && portfolio.current_rate ? portfolio.current_rate / 365.25 : 0), [
+    portfolio,
+  ])
 
   const dailyCost = useMemo(() => {
     const numberifiedCurrentCoverageLimit = floatUnits(currentCoverageLimit, 18)
+    console.log(usdBalanceSum, numberifiedCurrentCoverageLimit, dailyRate)
     if (usdBalanceSum < numberifiedCurrentCoverageLimit) return usdBalanceSum * dailyRate
     return numberifiedCurrentCoverageLimit * dailyRate
   }, [currentCoverageLimit, dailyRate, usdBalanceSum])
@@ -617,6 +638,26 @@ function PolicyBalance({
     walletAssetBalance,
     walletAssetDecimals,
   ])
+
+  const approve = async () => {
+    if (!solaceCoverProduct || !account || !library) return
+    const stablecoinContract = getContract(DAI_ADDRESS[activeNetwork.chainId], IERC20.abi, library, account)
+    try {
+      const tx: TransactionResponse = await stablecoinContract.approve(
+        solaceCoverProduct.address,
+        parseUnits(amount, walletAssetDecimals)
+      )
+      const txHash = tx.hash
+      makeTxToast(FunctionName.APPROVE, TransactionCondition.PENDING, txHash)
+      await tx.wait(activeNetwork.rpc.blockConfirms).then((receipt: TransactionReceipt) => {
+        const status = receipt.status ? TransactionCondition.SUCCESS : TransactionCondition.FAILURE
+        makeTxToast(FunctionName.APPROVE, status, txHash)
+        reload()
+      })
+    } catch (err) {
+      handleContractCallError('approve', err, FunctionName.APPROVE)
+    }
+  }
 
   const callDeposit = async () => {
     if (!account) return
@@ -668,6 +709,7 @@ function PolicyBalance({
     const decimals = await queryDecimals(tokenContract)
     setWalletAssetBalance(balance)
     setWalletAssetDecimals(decimals)
+    setContractForAllowance(tokenContract)
   }, 300)
 
   useEffect(() => {
@@ -805,14 +847,20 @@ function PolicyBalance({
         </Flex>
         {firstTime ? (
           <Flex flex1 col stretch>
-            <Button
-              info
-              secondary
-              disabled={!isAcceptableAmount || !doesReachMinReqAccountBal}
-              onClick={callActivatePolicy}
-            >
-              Activate my policy
-            </Button>
+            {approval ? (
+              <Button
+                info
+                secondary
+                disabled={!isAcceptableAmount || !doesReachMinReqAccountBal}
+                onClick={callActivatePolicy}
+              >
+                Activate my policy
+              </Button>
+            ) : (
+              <Button info secondary onClick={approve} disabled={amount == '' || parseUnits(amount, 18).eq(ZERO)}>
+                Approve
+              </Button>
+            )}
           </Flex>
         ) : (
           <Flex gap={20}>
@@ -830,22 +878,41 @@ function PolicyBalance({
             >
               Withdraw
             </Button>
-            <Button
-              info
-              secondary
-              disabled={!isAcceptableAmount}
-              pl={ifDesktop(46.75)}
-              pr={ifDesktop(46.75)}
-              pt={8}
-              pb={8}
-              style={{
-                fontWeight: 600,
-                flex: 1,
-              }}
-              onClick={callDeposit}
-            >
-              Deposit
-            </Button>
+            {approval ? (
+              <Button
+                info
+                secondary
+                disabled={!isAcceptableAmount}
+                pl={ifDesktop(46.75)}
+                pr={ifDesktop(46.75)}
+                pt={8}
+                pb={8}
+                style={{
+                  fontWeight: 600,
+                  flex: 1,
+                }}
+                onClick={callDeposit}
+              >
+                Deposit
+              </Button>
+            ) : (
+              <Button
+                info
+                secondary
+                pl={ifDesktop(46.75)}
+                pr={ifDesktop(46.75)}
+                pt={8}
+                pb={8}
+                style={{
+                  fontWeight: 600,
+                  flex: 1,
+                }}
+                onClick={approve}
+                disabled={amount == '' || parseUnits(amount, 18).eq(ZERO)}
+              >
+                Approve
+              </Button>
+            )}
           </Flex>
         )}
       </Flex>
