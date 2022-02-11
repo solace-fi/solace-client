@@ -1067,7 +1067,7 @@ function ReferralSection({
           </StyledTooltip>
         </Flex>
         <Flex col flex1 gap={40} stretch justifyCenter>
-          {!userCanRefer && (
+          {userCanRefer && (
             <Flex col gap={10} stretch>
               <Text t4s>
                 <Text t4s bold inline>
@@ -1114,7 +1114,7 @@ function ReferralSection({
             <GenericInputSection
               onChange={(e) => setFormReferralCode(e.target.value)}
               value={formReferralCode}
-              disabled={!codeIsApplicable}
+              buttonDisabled={!codeIsApplicable}
               displayIconOnMobile
               placeholder={referralCode ?? 'Enter your referral code'}
               buttonOnClick={() => setReferralCode(formReferralCode)}

@@ -52,11 +52,12 @@ const ButtonColorFunc = (props: ButtonProps, theme: any) => {
     if (props.success) bgColor = `${theme.typography.successText}`
     if (props.warning) bgColor = `${theme.typography.warningText}`
     if (props.error) bgColor = `${theme.typography.errorText}`
-    return `
+    return css`
       color: ${textColor};
       background-color: ${bgColor};
       opacity: 0.5;
       transform: scale(0.9);
+      cursor: default;
     `
   }
   if (props.disabled) {
