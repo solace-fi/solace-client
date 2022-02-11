@@ -11,13 +11,13 @@ import { useCachedData } from '../context/CachedDataManager'
 
 export const useFunctions = () => {
   const { keyContracts } = useContracts()
-  const { solaceCoverageProduct } = useMemo(() => keyContracts, [keyContracts])
+  const { solaceCoverProduct } = useMemo(() => keyContracts, [keyContracts])
   const { gasConfig } = useGetFunctionGas()
 
   const getAvailableCoverCapacity = async (): Promise<BigNumber> => {
-    if (!solaceCoverageProduct) return ZERO
+    if (!solaceCoverProduct) return ZERO
     try {
-      const d = await solaceCoverageProduct.availableCoverCapacity()
+      const d = await solaceCoverProduct.availableCoverCapacity()
       return d
     } catch (e) {
       console.log('error getAvailableCoverCapacity ', e)
@@ -26,9 +26,9 @@ export const useFunctions = () => {
   }
 
   const getMaxCover = async (): Promise<BigNumber> => {
-    if (!solaceCoverageProduct) return ZERO
+    if (!solaceCoverProduct) return ZERO
     try {
-      const d = await solaceCoverageProduct.maxCover()
+      const d = await solaceCoverProduct.maxCover()
       return d
     } catch (e) {
       console.log('error getMaxCover ', e)
@@ -37,9 +37,9 @@ export const useFunctions = () => {
   }
 
   const getActiveCoverLimit = async (): Promise<BigNumber> => {
-    if (!solaceCoverageProduct) return ZERO
+    if (!solaceCoverProduct) return ZERO
     try {
-      const d = await solaceCoverageProduct.activeCoverLimit()
+      const d = await solaceCoverProduct.activeCoverLimit()
       return d
     } catch (e) {
       console.log('error getActiveCoverLimit ', e)
@@ -48,9 +48,9 @@ export const useFunctions = () => {
   }
 
   const getPolicyCount = async (): Promise<BigNumber> => {
-    if (!solaceCoverageProduct) return ZERO
+    if (!solaceCoverProduct) return ZERO
     try {
-      const d = await solaceCoverageProduct.policyCount()
+      const d = await solaceCoverProduct.policyCount()
       return d
     } catch (e) {
       console.log('error getPolicyCount ', e)
@@ -59,9 +59,9 @@ export const useFunctions = () => {
   }
 
   const getCooldownPeriod = async (): Promise<BigNumber> => {
-    if (!solaceCoverageProduct) return ZERO
+    if (!solaceCoverProduct) return ZERO
     try {
-      const d = await solaceCoverageProduct.cooldownPeriod()
+      const d = await solaceCoverProduct.cooldownPeriod()
       return d
     } catch (e) {
       console.log('error getCooldownPeriod ', e)
@@ -70,9 +70,9 @@ export const useFunctions = () => {
   }
 
   const getReferralReward = async (): Promise<BigNumber> => {
-    if (!solaceCoverageProduct) return ZERO
+    if (!solaceCoverProduct) return ZERO
     try {
-      const d = await solaceCoverageProduct.referralReward()
+      const d = await solaceCoverProduct.referralReward()
       return d
     } catch (e) {
       console.log('error getReferralReward ', e)
@@ -81,9 +81,9 @@ export const useFunctions = () => {
   }
 
   const getPolicyStatus = async (policyId: BigNumber): Promise<boolean> => {
-    if (!solaceCoverageProduct) return true
+    if (!solaceCoverProduct) return true
     try {
-      const d = await solaceCoverageProduct.policyStatus(policyId)
+      const d = await solaceCoverProduct.policyStatus(policyId)
       return d
     } catch (e) {
       console.log('error getPolicyStatus ', e)
@@ -92,9 +92,9 @@ export const useFunctions = () => {
   }
 
   const getCoverLimitOf = async (policyId: BigNumber): Promise<BigNumber> => {
-    if (!solaceCoverageProduct) return ZERO
+    if (!solaceCoverProduct) return ZERO
     try {
-      const d = await solaceCoverageProduct.coverLimitOf(policyId)
+      const d = await solaceCoverProduct.coverLimitOf(policyId)
       return d
     } catch (e) {
       console.log('error getCoverLimitOf ', e)
@@ -103,9 +103,9 @@ export const useFunctions = () => {
   }
 
   const getIsReferralCodeUsed = async (account: string): Promise<boolean> => {
-    if (!solaceCoverageProduct) return true
+    if (!solaceCoverProduct) return true
     try {
-      const d = await solaceCoverageProduct.isReferralCodeUsed(account)
+      const d = await solaceCoverProduct.isReferralCodeUsed(account)
       return d
     } catch (e) {
       console.log('error getIsReferralCodeUsed ', e)
@@ -114,9 +114,9 @@ export const useFunctions = () => {
   }
 
   const getRewardPointsOf = async (account: string): Promise<BigNumber> => {
-    if (!solaceCoverageProduct) return ZERO
+    if (!solaceCoverProduct) return ZERO
     try {
-      const d = await solaceCoverageProduct.rewardPointsOf(account)
+      const d = await solaceCoverProduct.rewardPointsOf(account)
       return d
     } catch (e) {
       console.log('error getRewardPointsOf ', e)
@@ -125,9 +125,9 @@ export const useFunctions = () => {
   }
 
   const getAccountBalanceOf = async (account: string): Promise<BigNumber> => {
-    if (!solaceCoverageProduct) return ZERO
+    if (!solaceCoverProduct) return ZERO
     try {
-      const d = await solaceCoverageProduct.accountBalanceOf(account)
+      const d = await solaceCoverProduct.accountBalanceOf(account)
       return d
     } catch (e) {
       console.log('error getAccountBalanceOf ', e)
@@ -136,9 +136,9 @@ export const useFunctions = () => {
   }
 
   const getPolicyOf = async (account: string): Promise<BigNumber> => {
-    if (!solaceCoverageProduct) return ZERO
+    if (!solaceCoverProduct) return ZERO
     try {
-      const d = await solaceCoverageProduct.policyOf(account)
+      const d = await solaceCoverProduct.policyOf(account)
       return d
     } catch (e) {
       console.log('error getPolicyOf ', e)
@@ -147,9 +147,9 @@ export const useFunctions = () => {
   }
 
   const getCooldownStart = async (account: string): Promise<BigNumber> => {
-    if (!solaceCoverageProduct) return ZERO
+    if (!solaceCoverProduct) return ZERO
     try {
-      const d = await solaceCoverageProduct.cooldownStart(account)
+      const d = await solaceCoverProduct.cooldownStart(account)
       return d
     } catch (e) {
       console.log('error getCooldownStart ', e)
@@ -158,9 +158,9 @@ export const useFunctions = () => {
   }
 
   const getMinRequiredAccountBalance = async (coverLimit: BigNumber): Promise<BigNumber> => {
-    if (!solaceCoverageProduct) return ZERO
+    if (!solaceCoverProduct) return ZERO
     try {
-      const d = await solaceCoverageProduct.minRequiredAccountBalance(coverLimit)
+      const d = await solaceCoverProduct.minRequiredAccountBalance(coverLimit)
       return d
     } catch (e) {
       console.log('error getMinRequiredAccountBalance ', e)
@@ -168,9 +168,14 @@ export const useFunctions = () => {
     }
   }
 
-  const activatePolicy = async (account: string, coverLimit: BigNumber, deposit: BigNumber, referralCode: string) => {
-    if (!solaceCoverageProduct) return { tx: null, localTx: null }
-    const tx = await solaceCoverageProduct.activatePolicy(account, coverLimit, deposit, referralCode, {
+  const activatePolicy = async (
+    account: string,
+    coverLimit: BigNumber,
+    deposit: BigNumber,
+    referralCode: string | []
+  ) => {
+    if (!solaceCoverProduct) return { tx: null, localTx: null }
+    const tx = await solaceCoverProduct.activatePolicy(account, coverLimit, deposit, referralCode, {
       ...gasConfig,
       gasLimit: GAS_LIMIT,
     })
@@ -183,8 +188,8 @@ export const useFunctions = () => {
   }
 
   const deactivatePolicy = async () => {
-    if (!solaceCoverageProduct) return { tx: null, localTx: null }
-    const tx = await solaceCoverageProduct.deactivatePolicy({
+    if (!solaceCoverProduct) return { tx: null, localTx: null }
+    const tx = await solaceCoverProduct.deactivatePolicy({
       ...gasConfig,
       gasLimit: GAS_LIMIT,
     })
@@ -196,9 +201,9 @@ export const useFunctions = () => {
     return { tx, localTx }
   }
 
-  const updateCoverLimit = async (newCoverageLimit: BigNumber, referralCode: string) => {
-    if (!solaceCoverageProduct) return { tx: null, localTx: null }
-    const tx = await solaceCoverageProduct.updateCoverLimit(newCoverageLimit, referralCode, {
+  const updateCoverLimit = async (newCoverageLimit: BigNumber, referralCode: string | []) => {
+    if (!solaceCoverProduct) return { tx: null, localTx: null }
+    const tx = await solaceCoverProduct.updateCoverLimit(newCoverageLimit, referralCode, {
       ...gasConfig,
       gasLimit: GAS_LIMIT,
     })
@@ -211,8 +216,8 @@ export const useFunctions = () => {
   }
 
   const deposit = async (account: string, deposit: BigNumber) => {
-    if (!solaceCoverageProduct) return { tx: null, localTx: null }
-    const tx = await solaceCoverageProduct.deposit(account, deposit, {
+    if (!solaceCoverProduct) return { tx: null, localTx: null }
+    const tx = await solaceCoverProduct.deposit(account, deposit, {
       ...gasConfig,
       gasLimit: GAS_LIMIT,
     })
@@ -225,8 +230,8 @@ export const useFunctions = () => {
   }
 
   const withdraw = async () => {
-    if (!solaceCoverageProduct) return { tx: null, localTx: null }
-    const tx = await solaceCoverageProduct.withdraw({
+    if (!solaceCoverProduct) return { tx: null, localTx: null }
+    const tx = await solaceCoverProduct.withdraw({
       ...gasConfig,
       gasLimit: GAS_LIMIT,
     })
