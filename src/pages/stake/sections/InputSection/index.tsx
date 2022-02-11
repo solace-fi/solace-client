@@ -54,25 +54,41 @@ export const GenericInputSection = ({
   w,
   style,
   displayIconOnMobile,
+  buttonText,
+  buttonOnClick,
+  inputWidth,
+  iconAndTextWidth,
 }: {
-  icon: JSX.Element
-  text: string
+  icon?: JSX.Element
+  text?: string
   value: string | undefined
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void
   disabled?: boolean
   w?: number
   style?: React.CSSProperties
   displayIconOnMobile?: boolean
+  buttonText?: string
+  buttonOnClick?: () => void
+  inputWidth?: number
+  iconAndTextWidth?: number
 }): JSX.Element => {
   const rawStyle = {
     ...style,
     // width: w ? w : '335px',
-    width: '100%',
+    width: w ? w : '100%',
     height: '64px',
   }
   return (
     <InputSectionWrapper style={rawStyle}>
-      <GenericIconAndText icon={icon} text={text} disabled={disabled} displayOnMobile={displayIconOnMobile} />
+      {icon && text && (
+        <GenericIconAndText
+          icon={icon}
+          text={text}
+          disabled={disabled}
+          displayOnMobile={displayIconOnMobile}
+          width={iconAndTextWidth}
+        />
+      )}
       <StyledInput
         key="mainInput"
         type="text"
@@ -80,14 +96,14 @@ export const GenericInputSection = ({
         placeholder="0"
         value={value}
         onChange={onChange}
-        style={{ backgroundColor: 'inherit', color: 'inherit', borderRadius: 'inherit', width: '100%' }}
+        style={{ backgroundColor: 'inherit', color: 'inherit', borderRadius: 'inherit', width: inputWidth ?? '100%' }}
         disabled={disabled}
       />
-      {/* {setMax && (
-      <Button onClick={setMax} disabled={disabled} m={10}>
-        MAX
-      </Button>
-    )} */}
+      {buttonText && (
+        <Button m={10} onClick={buttonOnClick} disabled={disabled}>
+          {buttonText}
+        </Button>
+      )}
     </InputSectionWrapper>
   )
 }

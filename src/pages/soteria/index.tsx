@@ -263,8 +263,8 @@ function CoverageLimitBasicForm({
                   borderRadius: '10px',
                   backgroundColor: '#fafafa',
                   color: 'purple',
-                  height: '20px',
-                  width: '20px',
+                  height: '15px',
+                  width: '15px',
                   userSelect: 'none',
                   cursor: 'pointer',
                 }}
@@ -300,8 +300,8 @@ function CoverageLimitBasicForm({
                   borderRadius: '10px',
                   backgroundColor: '#fafafa',
                   color: 'purple',
-                  height: '20px',
-                  width: '20px',
+                  height: '15px',
+                  width: '15px',
                   userSelect: 'none',
                   cursor: 'pointer',
                 }}
@@ -311,17 +311,18 @@ function CoverageLimitBasicForm({
               </Flex>
             </Flex>
             <GenericInputSection
-              icon={<img src={USD} height={20} />}
+              icon={<img src={DAI} alt="DAI" height={20} />}
               // onChange={(e) => setUsd(Number(e.target.value))}
               onChange={(e) => handleInputChange(e.target.value)}
-              text="USD"
+              text="DAI"
               // value={usd > 0 ? String(usd) : ''}
               value={customInputAmount}
               disabled={false}
-              w={300}
+              // w={300}
               style={{
                 marginTop: '20px',
               }}
+              iconAndTextWidth={80}
               displayIconOnMobile
             />
           </Flex>
@@ -635,7 +636,7 @@ function PolicyBalance({
           <StyledGrayBox>
             <Flex
               stretch
-              gap={24}
+              gap={13}
               style={{
                 width: '100%',
               }}
@@ -859,17 +860,20 @@ function ReferralSection({
               </Text>{' '}
               Enter here to claim:
             </Text>
-            <GrayBgDiv
+            {/* <GrayBgDiv
               style={{
                 borderRadius: '10px',
               }}
-            >
-              <Flex flex1 stretch itemsCenter justifyCenter pl={24} pr={24} pt={20} pb={20}>
-                <Text techygradient bold t2s>
-                  {referralCode}
-                </Text>
-              </Flex>
-            </GrayBgDiv>
+            > */}
+            <GenericInputSection
+              onChange={(e) => setReferralCode(e.target.value)}
+              // text="Referral Code"
+              value={referralCode}
+              disabled={false}
+              displayIconOnMobile
+              buttonOnClick={() => alert('clickity click')}
+              buttonText="Apply"
+            />
           </Flex>
         </Flex>
       </Flex>
