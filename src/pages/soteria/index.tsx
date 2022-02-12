@@ -946,7 +946,8 @@ function ReferralSection({
   const [generatedReferralCode, setGeneratedReferralCode] = useState('')
   const [isCopied, setCopied] = useCopyClipboard()
 
-  const [codeIsApplicable, setCodeIsApplicable] = useState<boolean>(false)
+  const [codeIsUsable, setCodeIsUsable] = useState<boolean>(true)
+  const [codeIsValid, setCodeIsValid] = useState<boolean>(true)
 
   const { getIsReferralCodeUsed, getIsReferralCodeValid } = useFunctions()
 
@@ -991,12 +992,14 @@ function ReferralSection({
 
   const _checkReferralCode = useDebounce(async () => {
     if (!account || !formReferralCode || formReferralCode.length == 0) {
-      setCodeIsApplicable(false)
+      setCodeIsUsable(false)
+      setCodeIsValid(false)
       return
     }
     const isUsed = await getIsReferralCodeUsed(account)
     const isValid = await getIsReferralCodeValid(formReferralCode)
-    setCodeIsApplicable(!isUsed && isValid)
+    setCodeIsUsable(isUsed)
+    setCodeIsValid(isValid)
   }, 300)
 
   useEffect(() => {
@@ -1035,20 +1038,32 @@ function ReferralSection({
                     alignItems: 'flex-end',
                     cursor: 'pointer',
                   }}
-                  onClick={() => setCopied(`https://solace.fi/?rc=${generatedReferralCode}`)}
+                  onClick={() => setCopied(`${(window as any).location.href}/?rc=${generatedReferralCode}`)}
                 >
                   <Text t4s bold techygradient>
-                    solace.fi/?rc={shortenAddress(generatedReferralCode)}
+                    {(window as any).location.href}/?rc={shortenAddress(generatedReferralCode)}
                   </Text>
                   {isCopied ? <InfoCheckmark /> : <InfoCopy />}
                 </Flex>
               ) : (
-                <Button onClick={getReferralCode}>Get My Code</Button>
+                <Button info onClick={getReferralCode}>
+                  Get My Code
+                </Button>
               )}
             </Flex>
           )}
           <Flex col gap={10} stretch>
-            {!referralCode ? (
+            {referralCode && formReferralCode === referralCode ? (
+              codeIsUsable && codeIsValid ? (
+                <Text t4s techygradient bold>
+                  This referral code is valid and usable.
+                </Text>
+              ) : (
+                <Text t4s error bold>
+                  This referral code is invalid or already used by your account.
+                </Text>
+              )
+            ) : (
               <Text t4s>
                 <Text t4s inline bold techygradient>
                   Got a referral code?
@@ -1065,17 +1080,16 @@ function ReferralSection({
                 </Text>
                 :
               </Text>
-            ) : (
-              <Text t4s techygradient bold>
-                Your referral link is applied.
-              </Text>
             )}
             <GenericInputSection
               onChange={(e) => setFormReferralCode(e.target.value)}
-              value={formReferralCode ?? ''}
-              buttonDisabled={!codeIsApplicable}
+              value={formReferralCode}
+              buttonDisabled={
+                (!codeIsUsable && !codeIsValid) ||
+                (referralCode != undefined && formReferralCode != undefined && formReferralCode === referralCode)
+              }
               displayIconOnMobile
-              placeholder={referralCode ?? 'Enter your referral code'}
+              placeholder={'Enter your referral code'}
               buttonOnClick={() => setReferralCode(formReferralCode)}
               buttonText="Apply"
             />
@@ -1245,6 +1259,7 @@ export default function Soteria(): JSX.Element {
   const [formStage, setFormStage] = useState<FormStages>(FormStages.Welcome)
   const goToSecondStage = () => setFormStage(FormStages.RegularUser)
   const [referralCode, setReferralCode] = useState<string | undefined>(undefined)
+
   const [newCoverageLimit, setNewCoverageLimit] = useState<BigNumber>(ZERO)
   const [isEditing, setIsEditing] = useState(false)
 

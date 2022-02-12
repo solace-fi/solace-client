@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useCallback, useRef, useEffect } from 'react'
-import { useLocalStorage } from 'react-use-storage'
+import { useLocalStorage, useSessionStorage } from 'react-use-storage'
 import { ThemeProvider } from 'styled-components'
 import { lightTheme, darkTheme } from '../styles/themes'
 import { Error, SystemNotice } from '../constants/enums'
@@ -50,7 +50,7 @@ const GeneralProvider: React.FC = (props) => {
   const theme = appTheme == 'light' ? lightTheme : darkTheme
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [referralCode, setReferralCode] = useLocalStorage<string | undefined>('sol_data_referral_code')
+  const [referralCode, setReferralCode] = useSessionStorage<string | undefined>('sol_data_referral_code')
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
     const referralCodeFromUrl = params.get('rc')
