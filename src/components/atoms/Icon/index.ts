@@ -32,6 +32,8 @@ import { Wallet } from '@styled-icons/boxicons-solid/Wallet'
 import { Warning } from '@styled-icons/fluentui-system-regular/Warning'
 import { Work } from '@styled-icons/material/Work'
 import { Multiselect } from '@styled-icons/fluentui-system-regular/Multiselect'
+import { ArrowIosForwardOutline } from '@styled-icons/evaicons-outline/ArrowIosForwardOutline'
+import { ArrowIosBackOutline } from '@styled-icons/evaicons-outline/ArrowIosBackOutline'
 
 export const StyledIconCss = css`
   margin: auto;
@@ -129,3 +131,7 @@ export const InfoCheckmark = styled(Checkmark)`
   height: 16px;
   width: 16px;
 `
+
+export const StyledArrowIosForwardOutline = styled(ArrowIosForwardOutline)``
+
+export const StyledArrowIosBackOutline = styled(ArrowIosBackOutline)``

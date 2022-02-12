@@ -69,7 +69,7 @@ const ButtonColorFunc = (props: ButtonProps, theme: any) => {
     if (props.success) textColor = `${theme.typography.successText}`
     if (props.warning) textColor = `${theme.typography.warningText}`
     if (props.error) textColor = `${theme.typography.errorText}`
-    return `
+    return css`
       color: ${textColor};
       background-color: rgba(0, 0, 0, 0);
       opacity: 0.5;
@@ -92,10 +92,14 @@ const ButtonColorFunc = (props: ButtonProps, theme: any) => {
     if (props.warning) bgColor = `${theme.typography.warningText}`
     if (props.error) bgColor = `${theme.typography.errorText}`
     if (props.techygradient) {
-      return `
+      return css`
         color: ${theme.typography.lightText};
         // gradient to bottom right, gradient is theme.typography.techyGradientA to theme.typography.techyGradientB
-        background-image: linear-gradient(to bottom right, ${theme.typography.techyGradientA}, ${theme.typography.techyGradientB});
+        background-image: linear-gradient(
+          to bottom right,
+          ${theme.typography.techyGradientA},
+          ${theme.typography.techyGradientB}
+        );
         opacity: 1;
         transform: scale(1);
         &:hover {
@@ -103,11 +107,11 @@ const ButtonColorFunc = (props: ButtonProps, theme: any) => {
         }
       `
     }
-    return `
+    return css`
       color: ${textColor};
       background-color: ${bgColor};
-      &:hover { 
-        ${!props.nohover && `opacity: 0.8;`} 
+      &:hover {
+        ${!props.nohover && `opacity: 0.8;`}
       }
     `
   }
@@ -152,17 +156,15 @@ const ButtonColorFunc = (props: ButtonProps, theme: any) => {
       hoverBgColor = `${theme.typography.analogicalText}`
     }
   }
-  return `
+  return css`
     color: ${textColor};
     background-color: rgba(0, 0, 0, 0);
     &:hover {
-      ${
-        !props.nohover &&
-        `
-      color: ${hoverTextColor};
-      background-color: ${hoverBgColor};
-      `
-      }
+      ${!props.nohover &&
+      css`
+        color: ${hoverTextColor};
+        background-color: ${hoverBgColor};
+      `}
     }
   `
 }
@@ -209,6 +211,21 @@ export const ButtonBaseCss = css<ButtonProps & GeneralElementProps>`
 export const Button = styled.button<ButtonProps & GeneralElementProps>`
   ${ButtonBaseCss}
   ${GeneralElementCss}
+`
+
+export const GraySquareButton = styled(Button)`
+  border-radius: 10px;
+  height: 15px;
+  width: 15px;
+  min-height: 34px;
+  min-width: 34px;
+  background-color: ${(props) => props.theme.body.bg_color};
+  border: 1px solid ${(props) => props.theme.typography.separator};
+  color: ${(props) => props.theme.typography.infoText};
+  &:hover {
+    background-color: ${(props) => props.theme.typography.separator};
+    color: ${(props) => props.theme.typography.infoText};
+  }
 `
 
 export const NavButton = styled.button`

@@ -5,12 +5,11 @@ import ShadowDiv from '../stake/atoms/ShadowDiv'
 import { Text } from '../../components/atoms/Typography'
 import { QuestionCircle } from '@styled-icons/bootstrap/QuestionCircle'
 // src/components/atoms/Button/index.ts
-import { Button } from '../../components/atoms/Button'
+import { Button, GraySquareButton } from '../../components/atoms/Button'
 // src/resources/svg/icons/usd.svg
-import USD from '../../resources/svg/icons/usd.svg'
 import DAI from '../../resources/svg/icons/dai.svg'
 import ToggleSwitch from '../../components/atoms/ToggleSwitch'
-import GrayBox, { FixedHeightGrayBox, StyledGrayBox } from '../stake/components/GrayBox'
+import { FixedHeightGrayBox, StyledGrayBox } from '../stake/components/GrayBox'
 import { GenericInputSection } from '../stake/sections/InputSection'
 import { StyledSlider } from '../../components/atoms/Input'
 import commaNumber from '../../utils/commaNumber'
@@ -30,14 +29,18 @@ import { useWallet } from '../../context/WalletManager'
 import { BigNumber, Contract } from 'ethers'
 import { VerticalSeparator } from '../stake/components/VerticalSeparator'
 import { useGeneral } from '../../context/GeneralManager'
-import { StyledCopy, InfoCopy, InfoCheckmark } from '../../components/atoms/Icon'
+import {
+  InfoCopy,
+  InfoCheckmark,
+  StyledArrowIosBackOutline,
+  StyledArrowIosForwardOutline,
+} from '../../components/atoms/Icon'
 import { LocalTx, SolaceRiskProtocol, SolaceRiskScore } from '../../constants/types'
 import {
   accurateMultiply,
   capitalizeFirstLetter,
   filterAmount,
   floatUnits,
-  formatAmount,
   truncateValue,
   convertSciNotaToPrecise,
   shortenAddress,
@@ -254,23 +257,9 @@ function CoverageLimitBasicForm({
               <Text t4s>Set Limit to</Text>
             </Flex>
             <Flex between itemsCenter mt={10}>
-              <Flex
-                itemsCenter
-                justifyCenter
-                p={10}
-                style={{
-                  borderRadius: '10px',
-                  backgroundColor: '#fafafa',
-                  color: 'purple',
-                  height: '15px',
-                  width: '15px',
-                  userSelect: 'none',
-                  cursor: 'pointer',
-                }}
-                onClick={() => setChosenLimit(prevChosenLimit(chosenLimit))}
-              >
-                &lt;
-              </Flex>
+              <GraySquareButton onClick={() => setChosenLimit(prevChosenLimit(chosenLimit))}>
+                <StyledArrowIosBackOutline height={18} />
+              </GraySquareButton>
               <Flex col itemsCenter>
                 <Text info t4s bold>
                   {
@@ -291,23 +280,9 @@ function CoverageLimitBasicForm({
                   }
                 </Text>
               </Flex>
-              <Flex
-                itemsCenter
-                justifyCenter
-                p={10}
-                style={{
-                  borderRadius: '10px',
-                  backgroundColor: '#fafafa',
-                  color: 'purple',
-                  height: '15px',
-                  width: '15px',
-                  userSelect: 'none',
-                  cursor: 'pointer',
-                }}
-                onClick={() => setChosenLimit(nextChosenLimit(chosenLimit))}
-              >
-                &gt;
-              </Flex>
+              <GraySquareButton onClick={() => setChosenLimit(nextChosenLimit(chosenLimit))}>
+                <StyledArrowIosForwardOutline height={18} />
+              </GraySquareButton>
             </Flex>
             <GenericInputSection
               icon={<img src={DAI} alt="DAI" height={20} />}
@@ -442,10 +417,12 @@ function CoverageLimit({
 
   useEffect(() => {
     _getCapacity()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [latestBlock, version])
 
   useEffect(() => {
     _checkMinReqAccountBal()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [minReqAccBal, balances])
 
   return (
@@ -533,40 +510,6 @@ PolicyBalance: <Card bigger horiz>
 */
 
 // 18px 14px value pair
-function ValuePair({
-  bigText, // 18px
-  smallText, // 14px
-  info,
-  bigger,
-  mediumSized,
-}: {
-  bigText: string
-  smallText: string
-  info?: boolean
-  bigger?: boolean
-  mediumSized?: boolean
-}) {
-  return (
-    <Flex
-      gap={4}
-      baseline
-      style={
-        {
-          // justifyContent: 'space-between',
-        }
-      }
-    >
-      <Text t2s={!mediumSized} t2_5s={mediumSized} bold info={info}>
-        {bigText}
-      </Text>
-      <Text t4s={bigger} bold info={info}>
-        {smallText}
-      </Text>
-    </Flex>
-  )
-}
-
-const ifStringZeroUndefined = (str: string) => (Number(str) === 0 ? undefined : str)
 
 function PolicyBalance({
   balances,
@@ -642,11 +585,11 @@ function PolicyBalance({
     balances.totalAccountBalance,
   ])
 
-  const isAcceptableAmount = useMemo(() => isAppropriateAmount(amount, walletAssetDecimals, walletAssetBalance), [
-    amount,
-    walletAssetBalance,
-    walletAssetDecimals,
-  ])
+  const isAcceptableAmount = useMemo(
+    () => isAppropriateAmount(amount, walletAssetDecimals, walletAssetBalance),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [amount, walletAssetBalance, walletAssetDecimals]
+  )
 
   const approve = async () => {
     if (!solaceCoverProduct || !account || !library) return
@@ -733,14 +676,17 @@ function PolicyBalance({
 
   useEffect(() => {
     _checkMinReqAccountBal()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [balances.personalBalance, amount, minReqAccBal])
 
   useEffect(() => {
     _getAvailableFunds()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [account, activeNetwork.chainId, library, latestBlock])
 
   useEffect(() => {
     resetAmount()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [inactive])
 
   return (
@@ -1055,6 +1001,7 @@ function ReferralSection({
 
   useEffect(() => {
     _checkReferralCode()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [formReferralCode])
 
   return (
@@ -1214,7 +1161,6 @@ enum FormStages {
 }
 
 function WelcomeMessage({ type, goToSecondStage }: { type: ReferralSource; goToSecondStage: () => void }): JSX.Element {
-  const handleClick = () => goToSecondStage()
   switch (type) {
     case ReferralSource.Custom:
       return (
@@ -1311,6 +1257,7 @@ export default function Soteria(): JSX.Element {
 
   useEffect(() => {
     _checkMinReqAccountBal()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [newCoverageLimit])
 
   useEffect(() => {
