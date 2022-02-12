@@ -942,6 +942,8 @@ function ReferralSection({
   userCanRefer: boolean
 }) {
   const { account } = useWallet()
+  const { latestBlock } = useProvider()
+  const { version } = useCachedData()
   const [formReferralCode, setFormReferralCode] = useState(referralCode)
   const [generatedReferralCode, setGeneratedReferralCode] = useState('')
   const [isCopied, setCopied] = useCopyClipboard()
@@ -998,14 +1000,14 @@ function ReferralSection({
     }
     const isUsed = await getIsReferralCodeUsed(account)
     const isValid = await getIsReferralCodeValid(formReferralCode)
-    setCodeIsUsable(isUsed)
+    setCodeIsUsable(!isUsed)
     setCodeIsValid(isValid)
   }, 300)
 
   useEffect(() => {
     _checkReferralCode()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [formReferralCode])
+  }, [formReferralCode, latestBlock, version])
 
   return (
     <Card normous horiz>
