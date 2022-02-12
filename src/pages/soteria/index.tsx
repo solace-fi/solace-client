@@ -375,6 +375,7 @@ function CoverageLimit({
   setReferralCode: (referralCode: string | undefined) => void
   inactive?: boolean
 }) {
+  const { account } = useWallet()
   const { latestBlock } = useProvider()
   const { version } = useCachedData()
   const startEditing = () => setIsEditing(true)
@@ -387,11 +388,14 @@ function CoverageLimit({
     return newCoverageLimit.sub(currentCoverageLimit).lt(availableCoverCapacity)
   }, [availableCoverCapacity, currentCoverageLimit, newCoverageLimit])
 
-  const { updateCoverLimit, getAvailableCoverCapacity } = useFunctions()
+  const { getIsReferralCodeUsed, getIsReferralCodeValid, updateCoverLimit, getAvailableCoverCapacity } = useFunctions()
   const { handleToast, handleContractCallError } = useTransactionExecution()
 
   const callUpdateCoverLimit = async () => {
-    await updateCoverLimit(newCoverageLimit, referralCode ?? [])
+    if (!account) return
+    const isUsed = await getIsReferralCodeUsed(account)
+    const isValid = referralCode ? await getIsReferralCodeValid(referralCode) : false
+    await updateCoverLimit(newCoverageLimit, !isUsed && isValid && referralCode ? referralCode : [])
       .then((res) => _handleToast(res.tx, res.localTx))
       .catch((err) => _handleContractCallError('callUpdateCoverLimit', err, FunctionName.SOTERIA_UPDATE))
   }
@@ -557,7 +561,7 @@ function PolicyBalance({
     amount && amount != '.' ? parseUnits(amount, walletAssetDecimals).toString() : '0'
   )
 
-  const { deposit, withdraw, activatePolicy } = useFunctions()
+  const { getIsReferralCodeUsed, getIsReferralCodeValid, deposit, withdraw, activatePolicy } = useFunctions()
   const { handleToast, handleContractCallError } = useTransactionExecution()
 
   const [rangeValue, setRangeValue] = useState<string>('0')
@@ -627,8 +631,15 @@ function PolicyBalance({
 
   const callActivatePolicy = async () => {
     if (!account) return
+    const isUsed = await getIsReferralCodeUsed(account)
+    const isValid = referralCode ? await getIsReferralCodeValid(referralCode) : false
     const totalBalance = parseUnits(amount, 18).add(balances.totalAccountBalance)
-    await activatePolicy(account, newCoverageLimit, totalBalance, referralCode ?? [])
+    await activatePolicy(
+      account,
+      newCoverageLimit,
+      totalBalance,
+      !isUsed && isValid && referralCode ? referralCode : []
+    )
       .then((res) => _handleToast2(res.tx, res.localTx))
       .catch((err) => handleContractCallError('callActivatePolicy', err, FunctionName.SOTERIA_ACTIVATE))
   }
@@ -1058,11 +1069,19 @@ function ReferralSection({
             {referralCode && formReferralCode === referralCode ? (
               codeIsUsable && codeIsValid ? (
                 <Text t4s techygradient bold>
-                  This referral code is valid and usable.
+                  This referral code has been applied.
+                </Text>
+              ) : !codeIsUsable ? (
+                <Text t4s error bold>
+                  This referral code has been used by your policy. Will not be applied.
+                </Text>
+              ) : !codeIsValid ? (
+                <Text t4s error bold>
+                  This referral code is invalid. Will not be applied.
                 </Text>
               ) : (
                 <Text t4s error bold>
-                  This referral code is invalid or already used by your account.
+                  This referral code is invalid or is already used by your policy. Will not be applied.
                 </Text>
               )
             ) : (
@@ -1093,7 +1112,7 @@ function ReferralSection({
               displayIconOnMobile
               placeholder={'Enter your referral code'}
               buttonOnClick={() => setReferralCode(formReferralCode)}
-              buttonText="Apply"
+              buttonText="Change"
             />
           </Flex>
         </Flex>
