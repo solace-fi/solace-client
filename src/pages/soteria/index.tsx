@@ -1033,7 +1033,7 @@ function ReferralSection({
   }
 
   const _checkReferralCode = useDebounce(async () => {
-    if (!account) {
+    if (!account || formReferralCode.length == 0) {
       setCodeIsApplicable(false)
       return
     }
