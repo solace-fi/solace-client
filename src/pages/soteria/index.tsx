@@ -942,7 +942,7 @@ function ReferralSection({
   userCanRefer: boolean
 }) {
   const { account } = useWallet()
-  const [formReferralCode, setFormReferralCode] = useState('')
+  const [formReferralCode, setFormReferralCode] = useState(referralCode)
   const [generatedReferralCode, setGeneratedReferralCode] = useState('')
   const [isCopied, setCopied] = useCopyClipboard()
 
@@ -990,7 +990,7 @@ function ReferralSection({
   }
 
   const _checkReferralCode = useDebounce(async () => {
-    if (!account || formReferralCode.length == 0) {
+    if (!account || !formReferralCode || formReferralCode.length == 0) {
       setCodeIsApplicable(false)
       return
     }
@@ -1072,7 +1072,7 @@ function ReferralSection({
             )}
             <GenericInputSection
               onChange={(e) => setFormReferralCode(e.target.value)}
-              value={formReferralCode}
+              value={formReferralCode ?? ''}
               buttonDisabled={!codeIsApplicable}
               displayIconOnMobile
               placeholder={referralCode ?? 'Enter your referral code'}
