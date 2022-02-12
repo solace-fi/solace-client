@@ -1,6 +1,6 @@
 import { useMemo, useEffect, useState } from 'react'
 import { BigNumber } from 'ethers'
-import { GAS_LIMIT, ZERO } from '../constants'
+import { ADDRESS_ZERO, GAS_LIMIT, ZERO } from '../constants'
 import { FunctionName, TransactionCondition } from '../constants/enums'
 import { LocalTx, SolaceRiskScore } from '../constants/types'
 import { useContracts } from '../context/ContractsManager'
@@ -179,6 +179,17 @@ export const useFunctions = () => {
     }
   }
 
+  const getReferralCodeFromReferralCode = async (referralCode: string | undefined): Promise<string> => {
+    if (!solaceCoverProduct) return ADDRESS_ZERO
+    try {
+      const d = await solaceCoverProduct.referralCodeFromReferralCode(referralCode ? referralCode : [])
+      return d
+    } catch (e) {
+      console.log('error getReferralCodeFromReferralCode ', e)
+      return ADDRESS_ZERO
+    }
+  }
+
   const activatePolicy = async (
     account: string,
     coverLimit: BigNumber,
@@ -270,6 +281,7 @@ export const useFunctions = () => {
     getPolicyOf,
     getCooldownStart,
     getMinRequiredAccountBalance,
+    getReferralCodeFromReferralCode,
     activatePolicy,
     deactivatePolicy,
     updateCoverLimit,

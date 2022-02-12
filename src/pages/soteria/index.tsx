@@ -348,6 +348,7 @@ function CoverageLimitBasicForm({
 
 function CoverageLimit({
   balances,
+  referralChecks,
   minReqAccBal,
   currentCoverageLimit,
   newCoverageLimit,
@@ -363,6 +364,10 @@ function CoverageLimit({
     totalAccountBalance: BigNumber
     personalBalance: BigNumber
     earnedBalance: BigNumber
+  }
+  referralChecks: {
+    codeIsUsable: boolean
+    codeIsValid: boolean
   }
   minReqAccBal: BigNumber
   currentCoverageLimit: BigNumber
@@ -388,14 +393,15 @@ function CoverageLimit({
     return newCoverageLimit.sub(currentCoverageLimit).lt(availableCoverCapacity)
   }, [availableCoverCapacity, currentCoverageLimit, newCoverageLimit])
 
-  const { getIsReferralCodeUsed, getIsReferralCodeValid, updateCoverLimit, getAvailableCoverCapacity } = useFunctions()
+  const { updateCoverLimit, getAvailableCoverCapacity } = useFunctions()
   const { handleToast, handleContractCallError } = useTransactionExecution()
 
   const callUpdateCoverLimit = async () => {
     if (!account) return
-    const isUsed = await getIsReferralCodeUsed(account)
-    const isValid = referralCode ? await getIsReferralCodeValid(referralCode) : false
-    await updateCoverLimit(newCoverageLimit, !isUsed && isValid && referralCode ? referralCode : [])
+    await updateCoverLimit(
+      newCoverageLimit,
+      referralChecks.codeIsUsable && referralChecks.codeIsValid && referralCode ? referralCode : []
+    )
       .then((res) => _handleToast(res.tx, res.localTx))
       .catch((err) => _handleContractCallError('callUpdateCoverLimit', err, FunctionName.SOTERIA_UPDATE))
   }
@@ -517,6 +523,7 @@ PolicyBalance: <Card bigger horiz>
 
 function PolicyBalance({
   balances,
+  referralChecks,
   minReqAccBal,
   portfolio,
   currentCoverageLimit,
@@ -529,6 +536,10 @@ function PolicyBalance({
     totalAccountBalance: BigNumber
     personalBalance: BigNumber
     earnedBalance: BigNumber
+  }
+  referralChecks: {
+    codeIsUsable: boolean
+    codeIsValid: boolean
   }
   minReqAccBal: BigNumber
   portfolio: SolaceRiskScore | undefined
@@ -561,7 +572,7 @@ function PolicyBalance({
     amount && amount != '.' ? parseUnits(amount, walletAssetDecimals).toString() : '0'
   )
 
-  const { getIsReferralCodeUsed, getIsReferralCodeValid, deposit, withdraw, activatePolicy } = useFunctions()
+  const { deposit, withdraw, activatePolicy } = useFunctions()
   const { handleToast, handleContractCallError } = useTransactionExecution()
 
   const [rangeValue, setRangeValue] = useState<string>('0')
@@ -631,14 +642,12 @@ function PolicyBalance({
 
   const callActivatePolicy = async () => {
     if (!account) return
-    const isUsed = await getIsReferralCodeUsed(account)
-    const isValid = referralCode ? await getIsReferralCodeValid(referralCode) : false
     const totalBalance = parseUnits(amount, 18).add(balances.totalAccountBalance)
     await activatePolicy(
       account,
       newCoverageLimit,
       totalBalance,
-      !isUsed && isValid && referralCode ? referralCode : []
+      referralChecks.codeIsUsable && referralChecks.codeIsValid && referralCode ? referralCode : []
     )
       .then((res) => _handleToast2(res.tx, res.localTx))
       .catch((err) => handleContractCallError('callActivatePolicy', err, FunctionName.SOTERIA_ACTIVATE))
@@ -945,24 +954,21 @@ function CoverageActive({ policyStatus }: { policyStatus: boolean }) {
 
 function ReferralSection({
   referralCode,
+  referralChecks,
   setReferralCode,
   userCanRefer,
 }: {
   referralCode: string | undefined
+  referralChecks: {
+    codeIsUsable: boolean
+    codeIsValid: boolean
+  }
   setReferralCode: (referralCode: string | undefined) => void
   userCanRefer: boolean
 }) {
-  const { account } = useWallet()
-  const { latestBlock } = useProvider()
-  const { version } = useCachedData()
   const [formReferralCode, setFormReferralCode] = useState(referralCode)
   const [generatedReferralCode, setGeneratedReferralCode] = useState('')
   const [isCopied, setCopied] = useCopyClipboard()
-
-  const [codeIsUsable, setCodeIsUsable] = useState<boolean>(true)
-  const [codeIsValid, setCodeIsValid] = useState<boolean>(true)
-
-  const { getIsReferralCodeUsed, getIsReferralCodeValid } = useFunctions()
 
   const getReferralCode = async () => {
     const ethereum = (window as any).ethereum
@@ -1002,23 +1008,6 @@ function ReferralSection({
       .then((code: any) => setGeneratedReferralCode(code))
       .catch((error: any) => console.log(error))
   }
-
-  const _checkReferralCode = useDebounce(async () => {
-    if (!account || !referralCode || referralCode.length == 0) {
-      setCodeIsUsable(false)
-      setCodeIsValid(false)
-      return
-    }
-    const isUsed = await getIsReferralCodeUsed(account)
-    const isValid = await getIsReferralCodeValid(referralCode)
-    setCodeIsUsable(!isUsed)
-    setCodeIsValid(isValid)
-  }, 300)
-
-  useEffect(() => {
-    _checkReferralCode()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [referralCode, latestBlock, version])
 
   return (
     <Card normous horiz>
@@ -1083,11 +1072,11 @@ function ReferralSection({
               :
             </Text>
             {referralCode && formReferralCode === referralCode ? (
-              !codeIsUsable ? (
+              !referralChecks.codeIsUsable ? (
                 <Text t4s error bold>
                   This policy has already used a referral code. Cannot be applied.
                 </Text>
-              ) : !codeIsValid ? (
+              ) : !referralChecks.codeIsValid ? (
                 <Text t4s error bold>
                   This referral code is invalid. Cannot be applied.
                 </Text>
@@ -1260,11 +1249,16 @@ function WelcomeMessage({ type, goToSecondStage }: { type: ReferralSource; goToS
 export default function Soteria(): JSX.Element {
   const { referralCode: referralCodeFromStorage } = useGeneral()
   const { account } = useWallet()
-
+  const { latestBlock } = useProvider()
+  const { activeNetwork } = useNetwork()
+  const { version } = useCachedData()
+  const canShowSoteria = useMemo(() => !activeNetwork.config.restrictedFeatures.noSoteria, [
+    activeNetwork.config.restrictedFeatures.noSoteria,
+  ])
   const portfolio = usePortfolio('0x09748f07b839edd1d79a429d3ad918f670d602cd', 1)
   const { isMobile } = useWindowDimensions()
   const { policyId, status, coverageLimit, mounting } = useCheckIsCoverageActive(account)
-  const { getMinRequiredAccountBalance } = useFunctions()
+  const { getMinRequiredAccountBalance, getIsReferralCodeUsed, getIsReferralCodeValid } = useFunctions()
   const balances = useTotalAccountBalance(account)
 
   const currentCoverageLimit = useMemo(() => coverageLimit, [coverageLimit])
@@ -1277,6 +1271,8 @@ export default function Soteria(): JSX.Element {
 
   const [newCoverageLimit, setNewCoverageLimit] = useState<BigNumber>(ZERO)
   const [isEditing, setIsEditing] = useState(false)
+  const [codeIsUsable, setCodeIsUsable] = useState<boolean>(true)
+  const [codeIsValid, setCodeIsValid] = useState<boolean>(true)
 
   const [minReqAccBal, setMinReqAccBal] = useState<BigNumber>(ZERO)
 
@@ -1284,6 +1280,20 @@ export default function Soteria(): JSX.Element {
     const minReqAccountBal = await getMinRequiredAccountBalance(newCoverageLimit)
     setMinReqAccBal(minReqAccountBal)
   }, 300)
+
+  const _checkReferralCode = useDebounce(async () => {
+    if (!referralCode || referralCode.length == 0) {
+      setCodeIsValid(false)
+      return
+    }
+    const isValid = await getIsReferralCodeValid(referralCode)
+    setCodeIsValid(isValid)
+  }, 300)
+
+  useEffect(() => {
+    _checkReferralCode()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [referralCode, latestBlock, version])
 
   useEffect(() => {
     _checkMinReqAccountBal()
@@ -1298,6 +1308,17 @@ export default function Soteria(): JSX.Element {
   useEffect(() => {
     if (referralCodeFromStorage) setReferralCode(referralCodeFromStorage)
   }, [referralCodeFromStorage])
+
+  useEffect(() => {
+    ;async () => {
+      if (!account) {
+        setCodeIsUsable(false)
+        return
+      }
+      const isUsed = await getIsReferralCodeUsed(account)
+      setCodeIsUsable(!isUsed)
+    }
+  }, [account])
 
   return (
     <>
@@ -1317,6 +1338,7 @@ export default function Soteria(): JSX.Element {
                 <>
                   <Card thinner>
                     <CoverageLimit
+                      referralChecks={{ codeIsUsable, codeIsValid }}
                       balances={balances}
                       minReqAccBal={minReqAccBal}
                       currentCoverageLimit={currentCoverageLimit}
@@ -1331,6 +1353,7 @@ export default function Soteria(): JSX.Element {
                   </Card>
                   <Card bigger horiz>
                     <PolicyBalance
+                      referralChecks={{ codeIsUsable, codeIsValid }}
                       balances={balances}
                       minReqAccBal={minReqAccBal}
                       portfolio={portfolio}
@@ -1346,6 +1369,7 @@ export default function Soteria(): JSX.Element {
                 <Card inactive horiz noPadding gap={24}>
                   <Card innerThinner noShadow>
                     <CoverageLimit
+                      referralChecks={{ codeIsUsable, codeIsValid }}
                       balances={balances}
                       minReqAccBal={minReqAccBal}
                       currentCoverageLimit={currentCoverageLimit}
@@ -1361,6 +1385,7 @@ export default function Soteria(): JSX.Element {
                   </Card>{' '}
                   <Card innerBigger noShadow>
                     <PolicyBalance
+                      referralChecks={{ codeIsUsable, codeIsValid }}
                       balances={balances}
                       minReqAccBal={minReqAccBal}
                       portfolio={portfolio}
@@ -1386,7 +1411,12 @@ export default function Soteria(): JSX.Element {
                 }}
               >
                 <CoverageActive policyStatus={status} />
-                <ReferralSection userCanRefer={status} referralCode={referralCode} setReferralCode={setReferralCode} />
+                <ReferralSection
+                  referralChecks={{ codeIsUsable, codeIsValid }}
+                  userCanRefer={status}
+                  referralCode={referralCode}
+                  setReferralCode={setReferralCode}
+                />
               </Flex>
             </Flex>
           )}
