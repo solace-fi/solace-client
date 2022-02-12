@@ -285,15 +285,18 @@ export const usePortfolio = (account: string | undefined, chainId: number): Sola
   useEffect(() => {
     const getPortfolio = async () => {
       if (!account || !latestBlock) return
+      let error = false
       const balances = await getSolaceRiskBalances(account, chainId).catch((e) => {
         console.log('cannot get risk balances', e)
+        error = true
         return []
       })
       const scores = await getSolaceRiskScores(account, balances).catch((e) => {
         console.log('cannot get risk scores', e)
+        error = true
         return undefined
       })
-      if (scores) setScore(scores)
+      if (scores && !error) setScore(scores)
     }
     getPortfolio()
   }, [account, chainId, latestBlock])
@@ -345,6 +348,7 @@ export const useCheckIsCoverageActive = (account: string | undefined) => {
   const [policyId, setPolicyId] = useState<BigNumber>(ZERO)
   const [status, setStatus] = useState<boolean>(false)
   const [coverageLimit, setCoverageLimit] = useState<BigNumber>(ZERO)
+  const [mounting, setMounting] = useState<boolean>(true)
 
   useEffect(() => {
     const getStatus = async () => {
@@ -366,11 +370,12 @@ export const useCheckIsCoverageActive = (account: string | undefined) => {
         setStatus(status)
         setCoverageLimit(coverLimit)
       }
+      setMounting(false)
     }
     getStatus()
   }, [account, latestBlock, version])
 
-  return { policyId, status, coverageLimit }
+  return { policyId, status, coverageLimit, mounting }
 }
 
 export const useTotalAccountBalance = (account: string | undefined) => {

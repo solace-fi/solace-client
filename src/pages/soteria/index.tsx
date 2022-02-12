@@ -61,6 +61,7 @@ import { TransactionReceipt } from '@ethersproject/providers'
 import { TransactionResponse } from '@ethersproject/providers'
 import { useTokenAllowance } from '../../hooks/useToken'
 import useCopyClipboard from '../../hooks/useCopyToClipboard'
+import { Loader } from '../../components/atoms/Loader'
 
 function Card({
   children,
@@ -71,7 +72,7 @@ function Card({
   bigger,
   normous,
   horiz,
-  firstTime,
+  inactive,
   noShadow,
   noPadding,
   gap,
@@ -81,10 +82,10 @@ function Card({
   style?: React.CSSProperties
   /** first card - `flex: 0.8` */ thinner?: boolean
   /** second card - `flex 1` */ bigger?: boolean
-  /** second card firstTime - `flex 1.2` */ innerBigger?: boolean
+  /** second card inactive - `flex 1.2` */ innerBigger?: boolean
   /** second card - `flex: 0.8` */ innerThinner?: boolean
   /* big box under coverage active toggle - flex: 12*/ normous?: boolean
-  /** first time 2-form card - `flex 2` */ firstTime?: boolean
+  /** first time 2-form card - `flex 2` */ inactive?: boolean
   horiz?: boolean
   noShadow?: boolean
   noPadding?: boolean
@@ -100,7 +101,7 @@ function Card({
       if (innerBigger) return 1.2
       if (innerThinner) return 0.9
       if (normous) return 12
-      if (firstTime) return 2
+      if (inactive) return 2
     })(),
     // alignItems: 'stretch',
     // justifyContent: between ? 'space-between' : 'flex-start',
@@ -380,7 +381,8 @@ function CoverageLimit({
   referralCode,
   setNewCoverageLimit,
   setIsEditing,
-  firstTime,
+  setReferralCode,
+  inactive,
 }: {
   balances: {
     totalAccountBalance: BigNumber
@@ -395,7 +397,8 @@ function CoverageLimit({
   referralCode: string | undefined
   setNewCoverageLimit: (newCoverageLimit: BigNumber) => void
   setIsEditing: (isEditing: boolean) => void
-  firstTime?: boolean
+  setReferralCode: (referralCode: string | undefined) => void
+  inactive?: boolean
 }) {
   const { latestBlock } = useProvider()
   const { version } = useCachedData()
@@ -420,6 +423,7 @@ function CoverageLimit({
 
   const _handleToast = async (tx: any, localTx: LocalTx | null) => {
     await handleToast(tx, localTx)
+    setReferralCode(undefined)
     stopEditing()
   }
 
@@ -476,7 +480,7 @@ function CoverageLimit({
         setNewCoverageLimit={setNewCoverageLimit}
       />
       <Flex justifyCenter={!isEditing} between={isEditing} gap={isEditing ? 20 : undefined}>
-        {firstTime ? (
+        {inactive ? (
           <div style={{ height: '36px' }} />
         ) : !isEditing ? (
           <Button
@@ -571,7 +575,8 @@ function PolicyBalance({
   currentCoverageLimit,
   newCoverageLimit,
   referralCode,
-  firstTime,
+  inactive,
+  setReferralCode,
 }: {
   balances: {
     totalAccountBalance: BigNumber
@@ -583,7 +588,8 @@ function PolicyBalance({
   currentCoverageLimit: BigNumber
   newCoverageLimit: BigNumber
   referralCode: string | undefined
-  firstTime?: boolean
+  inactive?: boolean
+  setReferralCode: (referralCode: string | undefined) => void
 }) {
   const [doesReachMinReqAccountBal, setDoesReachMinReqAccountBal] = useState(false)
 
@@ -665,7 +671,7 @@ function PolicyBalance({
   const callDeposit = async () => {
     if (!account) return
     await deposit(account, parseUnits(amount, 18))
-      .then((res) => _handleToast(res.tx, res.localTx))
+      .then((res) => _handleToast1(res.tx, res.localTx))
       .catch((err) => handleContractCallError('callDeposit', err, FunctionName.SOTERIA_DEPOSIT))
   }
 
@@ -680,7 +686,7 @@ function PolicyBalance({
     if (!account) return
     const totalBalance = parseUnits(amount, 18).add(balances.totalAccountBalance)
     await activatePolicy(account, newCoverageLimit, totalBalance, referralCode ?? [])
-      .then((res) => _handleToast(res.tx, res.localTx))
+      .then((res) => _handleToast2(res.tx, res.localTx))
       .catch((err) => handleContractCallError('callActivatePolicy', err, FunctionName.SOTERIA_ACTIVATE))
   }
 
@@ -700,14 +706,19 @@ function PolicyBalance({
     setRangeValue(`${convertFromSciNota ? convertSciNotaToPrecise(rangeAmount) : rangeAmount}`)
   }
 
-  const _handleToast = async (tx: any, localTx: LocalTx | null) => {
+  const _handleToast1 = async (tx: any, localTx: LocalTx | null) => {
+    await _handleToast2(tx, localTx)
+    setReferralCode(undefined)
+  }
+
+  const _handleToast2 = async (tx: any, localTx: LocalTx | null) => {
     await handleToast(tx, localTx)
     resetAmount()
   }
 
   const _checkMinReqAccountBal = useDebounce(async () => {
     const bnAmount = BigNumber.from(accurateMultiply(amount, 18))
-    setDoesReachMinReqAccountBal(balances.totalAccountBalance.add(bnAmount).gt(minReqAccBal))
+    setDoesReachMinReqAccountBal(balances.personalBalance.add(bnAmount).gt(minReqAccBal))
   }, 300)
 
   const _getAvailableFunds = useDebounce(async () => {
@@ -722,7 +733,7 @@ function PolicyBalance({
 
   useEffect(() => {
     _checkMinReqAccountBal()
-  }, [balances.totalAccountBalance, amount, minReqAccBal])
+  }, [balances.personalBalance, amount, minReqAccBal])
 
   useEffect(() => {
     _getAvailableFunds()
@@ -730,7 +741,7 @@ function PolicyBalance({
 
   useEffect(() => {
     resetAmount()
-  }, [firstTime])
+  }, [inactive])
 
   return (
     <Flex
@@ -822,7 +833,7 @@ function PolicyBalance({
             <Flex between>
               <Text t4s>Approximate Policy Duration</Text>
               <Text t4s bold>
-                {policyDuration}{' '}
+                {truncateValue(policyDuration, 2)}{' '}
                 <Text t6s inline>
                   Days
                 </Text>
@@ -853,19 +864,19 @@ function PolicyBalance({
             onChange={(e) => handleRangeChange(e.target.value)}
           />
         </Flex>
-        {firstTime ? (
+        {inactive ? (
           <Flex flex1 col stretch>
-            {approval ? (
+            {approval || amount == '' ? (
               <Button
                 info
                 secondary
-                disabled={!isAcceptableAmount || !doesReachMinReqAccountBal}
+                disabled={(!isAcceptableAmount && amount != '') || !doesReachMinReqAccountBal}
                 onClick={callActivatePolicy}
               >
                 Activate my policy
               </Button>
             ) : (
-              <Button info secondary onClick={approve} disabled={amount == '' || parseUnits(amount, 18).eq(ZERO)}>
+              <Button info secondary onClick={approve} disabled={parseUnits(amount, 18).eq(ZERO)}>
                 Approve
               </Button>
             )}
@@ -1039,7 +1050,7 @@ function ReferralSection({
     }
     const isUsed = await getIsReferralCodeUsed(account)
     const isValid = await getIsReferralCodeValid(formReferralCode)
-    setCodeIsApplicable(isUsed && isValid)
+    setCodeIsApplicable(!isUsed && isValid)
   }, 300)
 
   useEffect(() => {
@@ -1102,13 +1113,21 @@ function ReferralSection({
                 <Text t4s inline bold techygradient>
                   Got a referral code?
                 </Text>{' '}
-                Enter here to claim:
+                Enter here to claim bonus credit when you{' '}
+                <Text t4s inline info>
+                  activate a policy
+                </Text>{' '}
+                <Text t4s inline>
+                  or
+                </Text>{' '}
+                <Text t4s inline info>
+                  update your coverage limit
+                </Text>
+                :
               </Text>
             ) : (
               <Text t4s techygradient bold>
                 Your referral link is applied.
-                <br />
-                You&apos;ll be able to use Bonus DAI after you activate your policy.
               </Text>
             )}
             <GenericInputSection
@@ -1277,7 +1296,7 @@ export default function Soteria(): JSX.Element {
 
   const portfolio = usePortfolio('0x09748f07b839edd1d79a429d3ad918f670d602cd', 1)
   const { isMobile } = useWindowDimensions()
-  const { policyId, status, coverageLimit } = useCheckIsCoverageActive(account)
+  const { policyId, status, coverageLimit, mounting } = useCheckIsCoverageActive(account)
   const { getMinRequiredAccountBalance } = useFunctions()
   const balances = useTotalAccountBalance(account)
 
@@ -1303,110 +1322,123 @@ export default function Soteria(): JSX.Element {
   }, [newCoverageLimit])
 
   useEffect(() => {
-    setIsEditing(firstTime)
-  }, [firstTime])
+    if (mounting) return
+    setIsEditing(!status)
+  }, [status, mounting])
 
   useEffect(() => {
     if (referralCodeFromStorage) setReferralCode(referralCodeFromStorage)
   }, [referralCodeFromStorage])
 
   return (
-    <Flex col gap={24} m={isMobile ? 20 : undefined}>
-      {firstTime && formStage === FormStages.Welcome ? (
-        <WelcomeMessage type={referralType} goToSecondStage={goToSecondStage} />
+    <>
+      {mounting ? (
+        <Flex col gap={24} m={isMobile ? 20 : undefined}>
+          <Loader />
+        </Flex>
       ) : (
-        <Flex gap={24} col={isMobile}>
-          {/* <RaisedBox>
-            <Flex gap={24}> */}
-          {!firstTime ? (
-            <>
-              <Card thinner>
-                <CoverageLimit
-                  balances={balances}
-                  minReqAccBal={minReqAccBal}
-                  currentCoverageLimit={currentCoverageLimit}
-                  newCoverageLimit={newCoverageLimit}
-                  setNewCoverageLimit={setNewCoverageLimit}
-                  referralCode={referralCode}
-                  isEditing={isEditing}
-                  portfolio={portfolio}
-                  setIsEditing={setIsEditing}
-                />{' '}
-              </Card>
-              <Card bigger horiz>
-                <PolicyBalance
-                  balances={balances}
-                  minReqAccBal={minReqAccBal}
-                  portfolio={portfolio}
-                  currentCoverageLimit={currentCoverageLimit}
-                  newCoverageLimit={newCoverageLimit}
-                  referralCode={referralCode}
-                />
-              </Card>
-            </>
+        <Flex col gap={24} m={isMobile ? 20 : undefined}>
+          {firstTime && formStage === FormStages.Welcome ? (
+            <WelcomeMessage type={referralType} goToSecondStage={goToSecondStage} />
           ) : (
-            // <>
-            <Card firstTime horiz noPadding gap={24}>
-              <Card innerThinner noShadow>
-                <CoverageLimit
-                  balances={balances}
-                  minReqAccBal={minReqAccBal}
-                  currentCoverageLimit={currentCoverageLimit}
-                  newCoverageLimit={newCoverageLimit}
-                  setNewCoverageLimit={setNewCoverageLimit}
-                  referralCode={referralCode}
-                  isEditing={isEditing}
-                  portfolio={portfolio}
-                  setIsEditing={setIsEditing}
-                  firstTime
-                />
-              </Card>{' '}
-              <Card innerBigger noShadow>
-                <PolicyBalance
-                  balances={balances}
-                  minReqAccBal={minReqAccBal}
-                  portfolio={portfolio}
-                  currentCoverageLimit={currentCoverageLimit}
-                  newCoverageLimit={newCoverageLimit}
-                  referralCode={referralCode}
-                  firstTime
-                />
-              </Card>
-            </Card>
-            // </>
-          )}
+            <Flex gap={24} col={isMobile}>
+              {/* <RaisedBox>
+            <Flex gap={24}> */}
+              {status ? (
+                <>
+                  <Card thinner>
+                    <CoverageLimit
+                      balances={balances}
+                      minReqAccBal={minReqAccBal}
+                      currentCoverageLimit={currentCoverageLimit}
+                      newCoverageLimit={newCoverageLimit}
+                      setNewCoverageLimit={setNewCoverageLimit}
+                      referralCode={referralCode}
+                      isEditing={isEditing}
+                      portfolio={portfolio}
+                      setIsEditing={setIsEditing}
+                      setReferralCode={setReferralCode}
+                    />{' '}
+                  </Card>
+                  <Card bigger horiz>
+                    <PolicyBalance
+                      balances={balances}
+                      minReqAccBal={minReqAccBal}
+                      portfolio={portfolio}
+                      currentCoverageLimit={currentCoverageLimit}
+                      newCoverageLimit={newCoverageLimit}
+                      referralCode={referralCode}
+                      setReferralCode={setReferralCode}
+                    />
+                  </Card>
+                </>
+              ) : (
+                // <>
+                <Card inactive horiz noPadding gap={24}>
+                  <Card innerThinner noShadow>
+                    <CoverageLimit
+                      balances={balances}
+                      minReqAccBal={minReqAccBal}
+                      currentCoverageLimit={currentCoverageLimit}
+                      newCoverageLimit={newCoverageLimit}
+                      setNewCoverageLimit={setNewCoverageLimit}
+                      referralCode={referralCode}
+                      isEditing={isEditing}
+                      portfolio={portfolio}
+                      setIsEditing={setIsEditing}
+                      setReferralCode={setReferralCode}
+                      inactive
+                    />
+                  </Card>{' '}
+                  <Card innerBigger noShadow>
+                    <PolicyBalance
+                      balances={balances}
+                      minReqAccBal={minReqAccBal}
+                      portfolio={portfolio}
+                      currentCoverageLimit={currentCoverageLimit}
+                      newCoverageLimit={newCoverageLimit}
+                      referralCode={referralCode}
+                      setReferralCode={setReferralCode}
+                      inactive
+                    />
+                  </Card>
+                </Card>
+                // </>
+              )}
 
-          {/* </Flex>
+              {/* </Flex>
           </RaisedBox> */}
-          <Flex
-            col
-            stretch
-            gap={24}
-            style={{
-              flex: '0.8',
-            }}
-          >
-            <CoverageActive policyStatus={status} />
-            <ReferralSection userCanRefer={status} referralCode={referralCode} setReferralCode={setReferralCode} />
-          </Flex>
+              <Flex
+                col
+                stretch
+                gap={24}
+                style={{
+                  flex: '0.8',
+                }}
+              >
+                <CoverageActive policyStatus={status} />
+                <ReferralSection userCanRefer={status} referralCode={referralCode} setReferralCode={setReferralCode} />
+              </Flex>
+            </Flex>
+          )}
+          <Card>
+            <Text t2 bold>
+              Portfolio Details
+            </Text>
+            {isMobile && (
+              <Flex pl={24} pr={24} pt={10} pb={10} between mt={20} mb={10}>
+                <Text bold t4s>
+                  Sort by
+                </Text>
+                <Text bold t4s>
+                  Amount
+                </Text>
+              </Flex>
+            )}
+            <PortfolioTable portfolio={portfolio} />
+          </Card>
         </Flex>
       )}
-      <Card>
-        <Text t2 bold>
-          Portfolio Details
-        </Text>
-        {isMobile && (
-          <Flex pl={24} pr={24} pt={10} pb={10} between mt={20} mb={10}>
-            <Text bold t4s>
-              Sort by
-            </Text>
-            <Text bold t4s>
-              Amount
-            </Text>
-          </Flex>
-        )}
-        <PortfolioTable portfolio={portfolio} />
-      </Card>
-    </Flex>
+    </>
   )
 }
