@@ -50,6 +50,7 @@ export const GenericInputSection = ({
   text,
   value,
   onChange,
+  buttonDisabled,
   disabled,
   w,
   style,
@@ -64,6 +65,7 @@ export const GenericInputSection = ({
   text?: string
   value: string | undefined
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void
+  buttonDisabled?: boolean
   disabled?: boolean
   w?: number
   style?: React.CSSProperties
@@ -102,7 +104,19 @@ export const GenericInputSection = ({
         disabled={disabled}
       />
       {buttonText && (
-        <Button m={10} onClick={buttonOnClick} disabled={disabled} info>
+        <Button
+          m={10}
+          onClick={buttonOnClick}
+          disabled={buttonDisabled}
+          info
+          style={
+            buttonDisabled
+              ? {
+                  cursor: 'default',
+                }
+              : {}
+          }
+        >
           {buttonText}
         </Button>
       )}

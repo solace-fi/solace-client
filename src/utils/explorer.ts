@@ -5,24 +5,6 @@ import { GasPriceResult, NetworkConfig } from '../constants/types'
 export const getExplorerItemUrl = (explorer: string, address: string, api: ExplorerscanApi): string =>
   `${explorer}/${api}/${address}`
 
-export async function fetchExplorerTxHistoryByAddress(activeNetwork: NetworkConfig, address: string): Promise<any> {
-  const key = activeNetwork.explorer.key ? { apikey: activeNetwork.explorer.key } : {}
-  const { data } = await axios.get(`${activeNetwork.explorer.apiUrl}/api`, {
-    params: {
-      module: 'account',
-      action: 'txlist',
-      address,
-      startblock: '0',
-      endblock: 'latest',
-      page: '1',
-      offset: '4500',
-      sort: 'desc',
-      ...key,
-    },
-  })
-  return data
-}
-
 export async function fetchGasPrice(activeNetwork: NetworkConfig): Promise<GasPriceResult> {
   const key = activeNetwork.explorer.key ? { apikey: activeNetwork.explorer.key } : {}
   const { data } = await axios.get(`${activeNetwork.explorer.apiUrl}/api`, {
@@ -40,6 +22,24 @@ export async function fetchGasPrice(activeNetwork: NetworkConfig): Promise<GasPr
   }
   if (activeNetwork.chainId == 1) fetchedResult.suggestBaseFee = Number(result.suggestBaseFee)
   return fetchedResult
+}
+
+export async function fetchExplorerTxHistoryByAddress(activeNetwork: NetworkConfig, address: string): Promise<any> {
+  const key = activeNetwork.explorer.key ? { apikey: activeNetwork.explorer.key } : {}
+  const { data } = await axios.get(`${activeNetwork.explorer.apiUrl}/api`, {
+    params: {
+      module: 'account',
+      action: 'txlist',
+      address,
+      startblock: '0',
+      endblock: 'latest',
+      page: '1',
+      offset: '4500',
+      sort: 'desc',
+      ...key,
+    },
+  })
+  return data
 }
 
 export async function fetchTransferEventsOfUser(activeNetwork: NetworkConfig, user: string): Promise<any> {

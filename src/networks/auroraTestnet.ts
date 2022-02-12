@@ -26,6 +26,7 @@ import bondTellerEthAbi_V2 from '../constants/metadata/BondTellerEth_V2.json'
 
 import ierc20Json from '../constants/metadata/IERC20Metadata.json'
 import weth9 from '../constants/abi/contracts/WETH9.sol/WETH9.json'
+import { AURORASCAN_API_KEY } from '../constants'
 
 const chainId = 1313161555
 
@@ -143,10 +144,11 @@ export const AuroraTestnetNetwork: NetworkConfig = {
     blockConfirms: 3,
   },
   explorer: {
-    name: 'Explorer',
-    url: 'https://explorer.testnet.aurora.dev',
-    apiUrl: 'https://explorer.testnet.aurora.dev',
+    name: 'Aurorascan',
+    url: 'https://testnet.aurorascan.dev',
+    apiUrl: 'https://api-testnet.aurorascan.dev',
     excludedContractAddrs: [KEY_ADDRS.SOLACE, SPECIAL_ADDRS.BSOLACE],
+    key: String(AURORASCAN_API_KEY),
   },
   config: {
     keyContracts: {
@@ -169,6 +171,7 @@ export const AuroraTestnetNetwork: NetworkConfig = {
     },
     productContracts: {},
     restrictedFeatures: {
+      noSoteria: true,
       noBondingV1: true,
       noCoverProducts: true,
       noFarmingV1: true,
@@ -199,7 +202,7 @@ export const AuroraTestnetNetwork: NetworkConfig = {
     chainName: 'Aurora Testnet',
     nativeCurrency: { name: 'ETH', symbol: Unit.ETH, decimals: 18 },
     rpcUrls: ['https://testnet.aurora.dev'],
-    blockExplorerUrls: ['https://explorer.testnet.aurora.dev'],
+    blockExplorerUrls: ['https://testnet.aurorascan.dev'],
   },
   walletConfig: {
     portisId: String(process.env.REACT_APP_PORTIS_ID),

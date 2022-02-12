@@ -732,6 +732,25 @@
       "type": "function"
     },
     {
+      "inputs": [
+        {
+          "internalType": "bytes",
+          "name": "referralCode",
+          "type": "bytes"
+        }
+      ],
+      "name": "getReferrerFromReferralCode",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "referrer",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
       "inputs": [],
       "name": "governance",
       "outputs": [

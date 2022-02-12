@@ -357,7 +357,7 @@ export const MainNetwork: NetworkConfig = {
         abi: yearnABI,
       },
     },
-    restrictedFeatures: {},
+    restrictedFeatures: { noSoteria: true },
     specialFeatures: {},
     specialContracts: {},
     underwritingPoolAddr: '0x5efc0d9ee3223229ce3b53e441016efc5ba83435',

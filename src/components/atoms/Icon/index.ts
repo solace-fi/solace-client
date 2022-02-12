@@ -32,6 +32,8 @@ import { Wallet } from '@styled-icons/boxicons-solid/Wallet'
 import { Warning } from '@styled-icons/fluentui-system-regular/Warning'
 import { Work } from '@styled-icons/material/Work'
 import { Multiselect } from '@styled-icons/fluentui-system-regular/Multiselect'
+import { ArrowIosForwardOutline } from '@styled-icons/evaicons-outline/ArrowIosForwardOutline'
+import { ArrowIosBackOutline } from '@styled-icons/evaicons-outline/ArrowIosBackOutline'
 
 export const StyledIconCss = css`
   margin: auto;
@@ -119,17 +121,17 @@ export const StyledMultiselect = styled(Multiselect)``
 
 export const StyledCopy = styled(Copy)``
 
-export const TechyGradientCopy = styled(Copy)`
-  ${(props) =>
-    css`
-      background-image: linear-gradient(
-        to bottom,
-        ${props.theme.typography.techyGradientA},
-        ${props.theme.typography.techyGradientB}
-      );
-      /* background-clip: text;
-      -webkit-background-clip: text; */
-      /* color: transparent; */
-      font-weight: 600;
-    `}
+export const InfoCopy = styled(Copy)`
+  color: ${(props) => props.theme.typography.infoText};
+  height: 16px;
+  width: 16px;
 `
+export const InfoCheckmark = styled(Checkmark)`
+  color: ${(props) => props.theme.typography.infoText};
+  height: 16px;
+  width: 16px;
+`
+
+export const StyledArrowIosForwardOutline = styled(ArrowIosForwardOutline)``
+
+export const StyledArrowIosBackOutline = styled(ArrowIosBackOutline)``

@@ -1,6 +1,6 @@
 import { useMemo, useEffect, useState } from 'react'
 import { BigNumber } from 'ethers'
-import { GAS_LIMIT, ZERO } from '../constants'
+import { ADDRESS_ZERO, GAS_LIMIT, ZERO } from '../constants'
 import { FunctionName, TransactionCondition } from '../constants/enums'
 import { LocalTx, SolaceRiskScore } from '../constants/types'
 import { useContracts } from '../context/ContractsManager'
@@ -179,6 +179,17 @@ export const useFunctions = () => {
     }
   }
 
+  const getReferrerFromReferralCode = async (referralCode: string | undefined): Promise<string> => {
+    if (!solaceCoverProduct) return ADDRESS_ZERO
+    try {
+      const d = await solaceCoverProduct.getReferrerFromReferralCode(referralCode ? referralCode : [])
+      return d
+    } catch (e) {
+      console.log('error getReferrerFromReferralCode ', e)
+      return ADDRESS_ZERO
+    }
+  }
+
   const activatePolicy = async (
     account: string,
     coverLimit: BigNumber,
@@ -270,6 +281,7 @@ export const useFunctions = () => {
     getPolicyOf,
     getCooldownStart,
     getMinRequiredAccountBalance,
+    getReferrerFromReferralCode,
     activatePolicy,
     deactivatePolicy,
     updateCoverLimit,
@@ -285,21 +297,18 @@ export const usePortfolio = (account: string | undefined, chainId: number): Sola
   useEffect(() => {
     const getPortfolio = async () => {
       if (!account || !latestBlock) return
-      let balances = []
-      let scores = undefined
-      try {
-        balances = await getSolaceRiskBalances(account, chainId)
-      } catch {
-        console.log('cannot get risk balances')
-        return
-      }
-      try {
-        scores = await getSolaceRiskScores(account, balances)
-      } catch {
-        console.log('cannot get risk scores')
-        return
-      }
-      setScore(scores)
+      let error = false
+      const balances = await getSolaceRiskBalances(account, chainId).catch((e) => {
+        console.log('cannot get risk balances', e)
+        error = true
+        return []
+      })
+      const scores = await getSolaceRiskScores(account, balances).catch((e) => {
+        console.log('cannot get risk scores', e)
+        error = true
+        return undefined
+      })
+      if (scores && !error) setScore(scores)
     }
     getPortfolio()
   }, [account, chainId, latestBlock])
@@ -338,7 +347,7 @@ export const useCooldownDetails = (account: string | undefined) => {
         setCooldownLeft(ZERO)
       }
     }
-    getCooldownAssessment
+    getCooldownAssessment()
   }, [account, latestBlock, version])
 
   return { isCooldownActive, cooldownStart, cooldownPeriod, cooldownLeft }
@@ -351,6 +360,7 @@ export const useCheckIsCoverageActive = (account: string | undefined) => {
   const [policyId, setPolicyId] = useState<BigNumber>(ZERO)
   const [status, setStatus] = useState<boolean>(false)
   const [coverageLimit, setCoverageLimit] = useState<BigNumber>(ZERO)
+  const [mounting, setMounting] = useState<boolean>(true)
 
   useEffect(() => {
     const getStatus = async () => {
@@ -358,6 +368,7 @@ export const useCheckIsCoverageActive = (account: string | undefined) => {
         setPolicyId(ZERO)
         setStatus(false)
         setCoverageLimit(ZERO)
+        setMounting(false)
         return
       }
       const policyId = await getPolicyOf(account)
@@ -372,11 +383,12 @@ export const useCheckIsCoverageActive = (account: string | undefined) => {
         setStatus(status)
         setCoverageLimit(coverLimit)
       }
+      setMounting(false)
     }
     getStatus()
   }, [account, latestBlock, version])
 
-  return { policyId, status, coverageLimit }
+  return { policyId, status, coverageLimit, mounting }
 }
 
 export const useTotalAccountBalance = (account: string | undefined) => {
