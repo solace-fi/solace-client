@@ -1067,9 +1067,9 @@ function ReferralSection({
           )}
           <Flex col gap={10} stretch>
             {referralCode && formReferralCode === referralCode ? (
-              codeIsUsable && codeIsValid ? (
-                <Text t4s techygradient bold>
-                  This referral code has been applied.
+              !codeIsUsable && !codeIsValid ? (
+                <Text t4s error bold>
+                  This referral code is invalid or is already used by your policy. Will not be applied.
                 </Text>
               ) : !codeIsUsable ? (
                 <Text t4s error bold>
@@ -1080,8 +1080,8 @@ function ReferralSection({
                   This referral code is invalid. Will not be applied.
                 </Text>
               ) : (
-                <Text t4s error bold>
-                  This referral code is invalid or is already used by your policy. Will not be applied.
+                <Text t4s techygradient bold>
+                  This referral code has been applied.
                 </Text>
               )
             ) : (
