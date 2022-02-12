@@ -179,13 +179,13 @@ export const useFunctions = () => {
     }
   }
 
-  const getReferralCodeFromReferralCode = async (referralCode: string | undefined): Promise<string> => {
+  const getReferrerFromReferralCode = async (referralCode: string | undefined): Promise<string> => {
     if (!solaceCoverProduct) return ADDRESS_ZERO
     try {
-      const d = await solaceCoverProduct.referralCodeFromReferralCode(referralCode ? referralCode : [])
+      const d = await solaceCoverProduct.getReferrerFromReferralCode(referralCode ? referralCode : [])
       return d
     } catch (e) {
-      console.log('error getReferralCodeFromReferralCode ', e)
+      console.log('error getReferrerFromReferralCode ', e)
       return ADDRESS_ZERO
     }
   }
@@ -281,7 +281,7 @@ export const useFunctions = () => {
     getPolicyOf,
     getCooldownStart,
     getMinRequiredAccountBalance,
-    getReferralCodeFromReferralCode,
+    getReferrerFromReferralCode,
     activatePolicy,
     deactivatePolicy,
     updateCoverLimit,
@@ -368,6 +368,7 @@ export const useCheckIsCoverageActive = (account: string | undefined) => {
         setPolicyId(ZERO)
         setStatus(false)
         setCoverageLimit(ZERO)
+        setMounting(false)
         return
       }
       const policyId = await getPolicyOf(account)

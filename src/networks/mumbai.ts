@@ -159,6 +159,7 @@ export const MumbaiNetwork: NetworkConfig = {
     },
     productContracts: {},
     restrictedFeatures: {
+      noSoteria: true,
       noBondingV1: true,
       noCoverProducts: true,
       noFarmingV1: true,

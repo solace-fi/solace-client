@@ -2,7 +2,6 @@ import React, { useEffect, useState, useMemo } from 'react'
 import Flex from '../stake/atoms/Flex'
 import RaisedBox from '../../components/atoms/RaisedBox'
 import ShadowDiv from '../stake/atoms/ShadowDiv'
-import { Text } from '../../components/atoms/Typography'
 import { QuestionCircle } from '@styled-icons/bootstrap/QuestionCircle'
 // src/components/atoms/Button/index.ts
 import { Button, GraySquareButton } from '../../components/atoms/Button'
@@ -16,7 +15,7 @@ import commaNumber from '../../utils/commaNumber'
 import { Table, TableHead, TableHeader, TableBody, TableRow, TableData } from '../../components/atoms/Table'
 import { StyledTooltip } from '../../components/molecules/Tooltip'
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'
-import { BKPT_5, ZERO } from '../../constants'
+import { ADDRESS_ZERO, BKPT_5, ZERO } from '../../constants'
 import GrayBgDiv from '../stake/atoms/BodyBgCss'
 import {
   useCheckIsCoverageActive,
@@ -65,6 +64,11 @@ import { TransactionResponse } from '@ethersproject/providers'
 import { useTokenAllowance } from '../../hooks/useToken'
 import { Loader } from '../../components/atoms/Loader'
 import useCopyClipboard from '../../hooks/useCopyToClipboard'
+import { TextSpan, Text } from '../../components/atoms/Typography'
+import { Box } from '../../components/atoms/Box'
+import { StyledInfo } from '../../components/atoms/Icon'
+import { Content, HeroContainer } from '../../components/atoms/Layout'
+import { WalletConnectButton } from '../../components/molecules/WalletConnectButton'
 
 function Card({
   children,
@@ -368,6 +372,8 @@ function CoverageLimit({
   referralChecks: {
     codeIsUsable: boolean
     codeIsValid: boolean
+    referrerIsActive: boolean
+    checkingReferral: boolean
   }
   minReqAccBal: BigNumber
   currentCoverageLimit: BigNumber
@@ -396,12 +402,18 @@ function CoverageLimit({
   const { updateCoverLimit, getAvailableCoverCapacity } = useFunctions()
   const { handleToast, handleContractCallError } = useTransactionExecution()
 
+  const referralValidation = useMemo(
+    () =>
+      referralChecks.codeIsUsable &&
+      referralChecks.codeIsValid &&
+      referralChecks.referrerIsActive &&
+      !referralChecks.checkingReferral,
+    [referralChecks]
+  )
+
   const callUpdateCoverLimit = async () => {
     if (!account) return
-    await updateCoverLimit(
-      newCoverageLimit,
-      referralChecks.codeIsUsable && referralChecks.codeIsValid && referralCode ? referralCode : []
-    )
+    await updateCoverLimit(newCoverageLimit, referralValidation && referralCode ? referralCode : [])
       .then((res) => _handleToast(res.tx, res.localTx))
       .catch((err) => _handleContractCallError('callUpdateCoverLimit', err, FunctionName.SOTERIA_UPDATE))
   }
@@ -540,6 +552,8 @@ function PolicyBalance({
   referralChecks: {
     codeIsUsable: boolean
     codeIsValid: boolean
+    referrerIsActive: boolean
+    checkingReferral: boolean
   }
   minReqAccBal: BigNumber
   portfolio: SolaceRiskScore | undefined
@@ -605,6 +619,14 @@ function PolicyBalance({
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [amount, walletAssetBalance, walletAssetDecimals]
   )
+  const referralValidation = useMemo(
+    () =>
+      referralChecks.codeIsUsable &&
+      referralChecks.codeIsValid &&
+      referralChecks.referrerIsActive &&
+      !referralChecks.checkingReferral,
+    [referralChecks]
+  )
 
   const approve = async () => {
     if (!solaceCoverProduct || !account || !library) return
@@ -647,7 +669,7 @@ function PolicyBalance({
       account,
       newCoverageLimit,
       totalBalance,
-      referralChecks.codeIsUsable && referralChecks.codeIsValid && referralCode ? referralCode : []
+      referralValidation && referralCode ? referralCode : []
     )
       .then((res) => _handleToast2(res.tx, res.localTx))
       .catch((err) => handleContractCallError('callActivatePolicy', err, FunctionName.SOTERIA_ACTIVATE))
@@ -962,6 +984,8 @@ function ReferralSection({
   referralChecks: {
     codeIsUsable: boolean
     codeIsValid: boolean
+    referrerIsActive: boolean
+    checkingReferral: boolean
   }
   setReferralCode: (referralCode: string | undefined) => void
   userCanRefer: boolean
@@ -1071,17 +1095,21 @@ function ReferralSection({
               </Text>
               :
             </Text>
-            {referralCode && formReferralCode === referralCode ? (
+            {referralCode && formReferralCode === referralCode && !referralChecks.checkingReferral ? (
               !referralChecks.codeIsUsable ? (
                 <Text t4s error bold>
-                  This policy has already used a referral code. Cannot be applied.
+                  This policy already used a referral code. Cannot be applied.
                 </Text>
               ) : !referralChecks.codeIsValid ? (
                 <Text t4s error bold>
                   This referral code is invalid. Cannot be applied.
                 </Text>
+              ) : !referralChecks.referrerIsActive ? (
+                <Text t4s error bold>
+                  The referrer of this code has no active policy. Cannot be applied.
+                </Text>
               ) : (
-                <Text t4s techygradient bold>
+                <Text t4s success bold>
                   This referral code has been applied.
                 </Text>
               )
@@ -1258,7 +1286,14 @@ export default function Soteria(): JSX.Element {
   const portfolio = usePortfolio('0x09748f07b839edd1d79a429d3ad918f670d602cd', 1)
   const { isMobile } = useWindowDimensions()
   const { policyId, status, coverageLimit, mounting } = useCheckIsCoverageActive(account)
-  const { getMinRequiredAccountBalance, getIsReferralCodeUsed, getIsReferralCodeValid } = useFunctions()
+  const {
+    getMinRequiredAccountBalance,
+    getIsReferralCodeUsed,
+    getIsReferralCodeValid,
+    getReferrerFromReferralCode,
+    getPolicyOf,
+    getPolicyStatus,
+  } = useFunctions()
   const balances = useTotalAccountBalance(account)
 
   const currentCoverageLimit = useMemo(() => coverageLimit, [coverageLimit])
@@ -1273,6 +1308,8 @@ export default function Soteria(): JSX.Element {
   const [isEditing, setIsEditing] = useState(false)
   const [codeIsUsable, setCodeIsUsable] = useState<boolean>(true)
   const [codeIsValid, setCodeIsValid] = useState<boolean>(true)
+  const [referrerIsActive, setIsReferrerIsActive] = useState<boolean>(true)
+  const [checkingReferral, setCheckingReferral] = useState<boolean>(false)
 
   const [minReqAccBal, setMinReqAccBal] = useState<BigNumber>(ZERO)
 
@@ -1282,12 +1319,25 @@ export default function Soteria(): JSX.Element {
   }, 300)
 
   const _checkReferralCode = useDebounce(async () => {
+    setCheckingReferral(true)
     if (!referralCode || referralCode.length == 0) {
       setCodeIsValid(false)
+      setCheckingReferral(false)
       return
     }
     const isValid = await getIsReferralCodeValid(referralCode)
+    if (isValid) {
+      const referrer = await getReferrerFromReferralCode(referralCode)
+      if (referrer == ADDRESS_ZERO) {
+        setIsReferrerIsActive(false)
+      } else {
+        const refId = await getPolicyOf(referrer)
+        const refStatus = await getPolicyStatus(refId)
+        setIsReferrerIsActive(refStatus)
+      }
+    }
     setCodeIsValid(isValid)
+    setCheckingReferral(false)
   }, 300)
 
   useEffect(() => {
@@ -1322,121 +1372,143 @@ export default function Soteria(): JSX.Element {
 
   return (
     <>
-      {mounting ? (
-        <Flex col gap={24} m={isMobile ? 20 : undefined}>
-          <Loader />
-        </Flex>
-      ) : (
-        <Flex col gap={24} m={isMobile ? 20 : undefined}>
-          {firstTime && formStage === FormStages.Welcome ? (
-            <WelcomeMessage type={referralType} goToSecondStage={goToSecondStage} />
+      {!account ? (
+        <HeroContainer>
+          <Text bold t1 textAlignCenter>
+            Please connect wallet to view dashboard
+          </Text>
+          <WalletConnectButton info welcome secondary />
+        </HeroContainer>
+      ) : canShowSoteria ? (
+        <>
+          {mounting ? (
+            <Flex col gap={24} m={isMobile ? 20 : undefined}>
+              <Loader />
+            </Flex>
           ) : (
-            <Flex gap={24} col={isMobile}>
-              {/* <RaisedBox>
-            <Flex gap={24}> */}
-              {status ? (
-                <>
-                  <Card thinner>
-                    <CoverageLimit
-                      referralChecks={{ codeIsUsable, codeIsValid }}
-                      balances={balances}
-                      minReqAccBal={minReqAccBal}
-                      currentCoverageLimit={currentCoverageLimit}
-                      newCoverageLimit={newCoverageLimit}
-                      setNewCoverageLimit={setNewCoverageLimit}
-                      referralCode={referralCode}
-                      isEditing={isEditing}
-                      portfolio={portfolio}
-                      setIsEditing={setIsEditing}
-                      setReferralCode={setReferralCode}
-                    />{' '}
-                  </Card>
-                  <Card bigger horiz>
-                    <PolicyBalance
-                      referralChecks={{ codeIsUsable, codeIsValid }}
-                      balances={balances}
-                      minReqAccBal={minReqAccBal}
-                      portfolio={portfolio}
-                      currentCoverageLimit={currentCoverageLimit}
-                      newCoverageLimit={newCoverageLimit}
-                      referralCode={referralCode}
-                      setReferralCode={setReferralCode}
-                    />
-                  </Card>
-                </>
+            <Flex col gap={24} m={isMobile ? 20 : undefined}>
+              {firstTime && formStage === FormStages.Welcome ? (
+                <WelcomeMessage type={referralType} goToSecondStage={goToSecondStage} />
               ) : (
-                // <>
-                <Card inactive horiz noPadding gap={24}>
-                  <Card innerThinner noShadow>
-                    <CoverageLimit
-                      referralChecks={{ codeIsUsable, codeIsValid }}
-                      balances={balances}
-                      minReqAccBal={minReqAccBal}
-                      currentCoverageLimit={currentCoverageLimit}
-                      newCoverageLimit={newCoverageLimit}
-                      setNewCoverageLimit={setNewCoverageLimit}
-                      referralCode={referralCode}
-                      isEditing={isEditing}
-                      portfolio={portfolio}
-                      setIsEditing={setIsEditing}
-                      setReferralCode={setReferralCode}
-                      inactive
-                    />
-                  </Card>{' '}
-                  <Card innerBigger noShadow>
-                    <PolicyBalance
-                      referralChecks={{ codeIsUsable, codeIsValid }}
-                      balances={balances}
-                      minReqAccBal={minReqAccBal}
-                      portfolio={portfolio}
-                      currentCoverageLimit={currentCoverageLimit}
-                      newCoverageLimit={newCoverageLimit}
-                      referralCode={referralCode}
-                      setReferralCode={setReferralCode}
-                      inactive
-                    />
-                  </Card>
-                </Card>
-                // </>
-              )}
+                <Flex gap={24} col={isMobile}>
+                  {/* <RaisedBox>
+              <Flex gap={24}> */}
+                  {status ? (
+                    <>
+                      <Card thinner>
+                        <CoverageLimit
+                          referralChecks={{ codeIsUsable, codeIsValid, referrerIsActive, checkingReferral }}
+                          balances={balances}
+                          minReqAccBal={minReqAccBal}
+                          currentCoverageLimit={currentCoverageLimit}
+                          newCoverageLimit={newCoverageLimit}
+                          setNewCoverageLimit={setNewCoverageLimit}
+                          referralCode={referralCode}
+                          isEditing={isEditing}
+                          portfolio={portfolio}
+                          setIsEditing={setIsEditing}
+                          setReferralCode={setReferralCode}
+                        />{' '}
+                      </Card>
+                      <Card bigger horiz>
+                        <PolicyBalance
+                          referralChecks={{ codeIsUsable, codeIsValid, referrerIsActive, checkingReferral }}
+                          balances={balances}
+                          minReqAccBal={minReqAccBal}
+                          portfolio={portfolio}
+                          currentCoverageLimit={currentCoverageLimit}
+                          newCoverageLimit={newCoverageLimit}
+                          referralCode={referralCode}
+                          setReferralCode={setReferralCode}
+                        />
+                      </Card>
+                    </>
+                  ) : (
+                    // <>
+                    <Card inactive horiz noPadding gap={24}>
+                      <Card innerThinner noShadow>
+                        <CoverageLimit
+                          referralChecks={{ codeIsUsable, codeIsValid, referrerIsActive, checkingReferral }}
+                          balances={balances}
+                          minReqAccBal={minReqAccBal}
+                          currentCoverageLimit={currentCoverageLimit}
+                          newCoverageLimit={newCoverageLimit}
+                          setNewCoverageLimit={setNewCoverageLimit}
+                          referralCode={referralCode}
+                          isEditing={isEditing}
+                          portfolio={portfolio}
+                          setIsEditing={setIsEditing}
+                          setReferralCode={setReferralCode}
+                          inactive
+                        />
+                      </Card>{' '}
+                      <Card innerBigger noShadow>
+                        <PolicyBalance
+                          referralChecks={{ codeIsUsable, codeIsValid, referrerIsActive, checkingReferral }}
+                          balances={balances}
+                          minReqAccBal={minReqAccBal}
+                          portfolio={portfolio}
+                          currentCoverageLimit={currentCoverageLimit}
+                          newCoverageLimit={newCoverageLimit}
+                          referralCode={referralCode}
+                          setReferralCode={setReferralCode}
+                          inactive
+                        />
+                      </Card>
+                    </Card>
+                    // </>
+                  )}
 
-              {/* </Flex>
-          </RaisedBox> */}
-              <Flex
-                col
-                stretch
-                gap={24}
-                style={{
-                  flex: '0.8',
-                }}
-              >
-                <CoverageActive policyStatus={status} />
-                <ReferralSection
-                  referralChecks={{ codeIsUsable, codeIsValid }}
-                  userCanRefer={status}
-                  referralCode={referralCode}
-                  setReferralCode={setReferralCode}
-                />
-              </Flex>
+                  {/* </Flex>
+            </RaisedBox> */}
+                  <Flex
+                    col
+                    stretch
+                    gap={24}
+                    style={{
+                      flex: '0.8',
+                    }}
+                  >
+                    <CoverageActive policyStatus={status} />
+                    <ReferralSection
+                      referralChecks={{ codeIsUsable, codeIsValid, referrerIsActive, checkingReferral }}
+                      userCanRefer={status}
+                      referralCode={referralCode}
+                      setReferralCode={setReferralCode}
+                    />
+                  </Flex>
+                </Flex>
+              )}
+              <Card>
+                <Text t2 bold>
+                  Portfolio Details
+                </Text>
+                {isMobile && (
+                  <Flex pl={24} pr={24} pt={10} pb={10} between mt={20} mb={10}>
+                    <Text bold t4s>
+                      Sort by
+                    </Text>
+                    <Text bold t4s>
+                      Amount
+                    </Text>
+                  </Flex>
+                )}
+                <PortfolioTable portfolio={portfolio} />
+              </Card>
             </Flex>
           )}
-          <Card>
-            <Text t2 bold>
-              Portfolio Details
+        </>
+      ) : (
+        <Content>
+          <Box error pt={10} pb={10} pl={15} pr={15}>
+            <TextSpan light textAlignLeft>
+              <StyledInfo size={30} />
+            </TextSpan>
+            <Text light bold style={{ margin: '0 auto' }}>
+              This dashboard is not supported on this network.
             </Text>
-            {isMobile && (
-              <Flex pl={24} pr={24} pt={10} pb={10} between mt={20} mb={10}>
-                <Text bold t4s>
-                  Sort by
-                </Text>
-                <Text bold t4s>
-                  Amount
-                </Text>
-              </Flex>
-            )}
-            <PortfolioTable portfolio={portfolio} />
-          </Card>
-        </Flex>
+          </Box>
+        </Content>
       )}
     </>
   )

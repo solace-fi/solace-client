@@ -159,6 +159,7 @@ export const PolygonNetwork: NetworkConfig = {
     },
     productContracts: {},
     restrictedFeatures: {
+      noSoteria: true,
       noBondingV1: true,
       noCoverProducts: true,
       noFarmingV1: true,

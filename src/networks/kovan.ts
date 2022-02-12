@@ -312,7 +312,7 @@ export const KovanNetwork: NetworkConfig = {
         abi: waaveABI,
       },
     },
-    restrictedFeatures: {},
+    restrictedFeatures: { noSoteria: true },
     specialFeatures: {},
     specialContracts: {},
   },
