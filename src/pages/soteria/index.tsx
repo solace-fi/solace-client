@@ -1004,13 +1004,13 @@ function ReferralSection({
   }
 
   const _checkReferralCode = useDebounce(async () => {
-    if (!account || !formReferralCode || formReferralCode.length == 0) {
+    if (!account || !referralCode || referralCode.length == 0) {
       setCodeIsUsable(false)
       setCodeIsValid(false)
       return
     }
     const isUsed = await getIsReferralCodeUsed(account)
-    const isValid = await getIsReferralCodeValid(formReferralCode)
+    const isValid = await getIsReferralCodeValid(referralCode)
     setCodeIsUsable(!isUsed)
     setCodeIsValid(isValid)
   }, 300)
@@ -1018,7 +1018,7 @@ function ReferralSection({
   useEffect(() => {
     _checkReferralCode()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [formReferralCode, latestBlock, version])
+  }, [referralCode, latestBlock, version])
 
   return (
     <Card normous horiz>
@@ -1066,53 +1066,47 @@ function ReferralSection({
             </Flex>
           )}
           <Flex col gap={10} stretch>
+            <Text t4s>
+              <Text t4s inline bold techygradient>
+                Got a referral code?
+              </Text>{' '}
+              Enter here to claim bonus credit when you{' '}
+              <Text t4s inline info italics>
+                activate a policy
+              </Text>{' '}
+              <Text t4s inline>
+                or
+              </Text>{' '}
+              <Text t4s inline info italics>
+                update your coverage limit
+              </Text>
+              :
+            </Text>
             {referralCode && formReferralCode === referralCode ? (
-              !codeIsUsable && !codeIsValid ? (
+              !codeIsUsable ? (
                 <Text t4s error bold>
-                  This referral code is invalid or is already used by your policy. Will not be applied.
-                </Text>
-              ) : !codeIsUsable ? (
-                <Text t4s error bold>
-                  This referral code has been used by your policy. Will not be applied.
+                  This policy has already used a referral code. Cannot be applied.
                 </Text>
               ) : !codeIsValid ? (
                 <Text t4s error bold>
-                  This referral code is invalid. Will not be applied.
+                  This referral code is invalid. Cannot be applied.
                 </Text>
               ) : (
                 <Text t4s techygradient bold>
                   This referral code has been applied.
                 </Text>
               )
-            ) : (
-              <Text t4s>
-                <Text t4s inline bold techygradient>
-                  Got a referral code?
-                </Text>{' '}
-                Enter here to claim bonus credit when you{' '}
-                <Text t4s inline info>
-                  activate a policy
-                </Text>{' '}
-                <Text t4s inline>
-                  or
-                </Text>{' '}
-                <Text t4s inline info>
-                  update your coverage limit
-                </Text>
-                :
-              </Text>
-            )}
+            ) : null}
             <GenericInputSection
               onChange={(e) => setFormReferralCode(e.target.value)}
               value={formReferralCode}
               buttonDisabled={
-                (!codeIsUsable && !codeIsValid) ||
-                (referralCode != undefined && formReferralCode != undefined && formReferralCode === referralCode)
+                referralCode != undefined && formReferralCode != undefined && formReferralCode === referralCode
               }
               displayIconOnMobile
               placeholder={'Enter your referral code'}
               buttonOnClick={() => setReferralCode(formReferralCode)}
-              buttonText="Change"
+              buttonText="Apply"
             />
           </Flex>
         </Flex>
