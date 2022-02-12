@@ -60,8 +60,8 @@ import { useNotifications } from '../../context/NotificationsManager'
 import { TransactionReceipt } from '@ethersproject/providers'
 import { TransactionResponse } from '@ethersproject/providers'
 import { useTokenAllowance } from '../../hooks/useToken'
-import useCopyClipboard from '../../hooks/useCopyToClipboard'
 import { Loader } from '../../components/atoms/Loader'
+import useCopyClipboard from '../../hooks/useCopyToClipboard'
 
 function Card({
   children,
@@ -998,10 +998,10 @@ function ReferralSection({
   const { account } = useWallet()
   const [formReferralCode, setFormReferralCode] = useState('')
   const [generatedReferralCode, setGeneratedReferralCode] = useState('')
+  const [isCopied, setCopied] = useCopyClipboard()
 
   const [codeIsApplicable, setCodeIsApplicable] = useState<boolean>(false)
 
-  const [isCopied, setCopied] = useCopyClipboard()
   const { getIsReferralCodeUsed, getIsReferralCodeValid } = useFunctions()
 
   const getReferralCode = async () => {
@@ -1080,12 +1080,7 @@ function ReferralSection({
         <Flex col flex1 gap={40} stretch justifyCenter>
           {userCanRefer && (
             <Flex col gap={10} stretch>
-              <Text t4s>
-                <Text t4s bold inline>
-                  Get bonuses
-                </Text>{' '}
-                for everyone who gets coverage via your referral link:
-              </Text>
+              <Text t4s>Get more bonuses for everyone who gets coverage via your referral link:</Text>
               {generatedReferralCode.length > 0 ? (
                 <Flex
                   gap={10}
@@ -1093,17 +1088,15 @@ function ReferralSection({
                     alignItems: 'flex-end',
                     cursor: 'pointer',
                   }}
-                  onClick={() => setCopied(`https://solace.fi/?r=${generatedReferralCode}`)}
+                  onClick={() => setCopied(`https://solace.fi/?rc=${generatedReferralCode}`)}
                 >
                   <Text t4s bold techygradient>
-                    solace.fi/?r={shortenAddress(generatedReferralCode)}
+                    solace.fi/?rc={shortenAddress(generatedReferralCode)}
                   </Text>
                   {isCopied ? <InfoCheckmark /> : <InfoCopy />}
                 </Flex>
               ) : (
-                <Button info onClick={getReferralCode}>
-                  Get My Code
-                </Button>
+                <Button onClick={getReferralCode}>Get My Code</Button>
               )}
             </Flex>
           )}
@@ -1217,7 +1210,6 @@ enum ReferralSource {
 
 enum FormStages {
   'Welcome',
-  'InitialSetup',
   'RegularUser',
 }
 
@@ -1305,7 +1297,7 @@ export default function Soteria(): JSX.Element {
 
   const [referralType, setReferralType] = useState<ReferralSource>(ReferralSource.Standard)
   const [formStage, setFormStage] = useState<FormStages>(FormStages.Welcome)
-  const goToSecondStage = () => setFormStage(FormStages.InitialSetup)
+  const goToSecondStage = () => setFormStage(FormStages.RegularUser)
   const [referralCode, setReferralCode] = useState<string | undefined>(undefined)
   const [newCoverageLimit, setNewCoverageLimit] = useState<BigNumber>(ZERO)
   const [isEditing, setIsEditing] = useState(false)
