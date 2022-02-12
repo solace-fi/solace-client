@@ -5,7 +5,7 @@ import ShadowDiv from '../stake/atoms/ShadowDiv'
 import { Text } from '../../components/atoms/Typography'
 import { QuestionCircle } from '@styled-icons/bootstrap/QuestionCircle'
 // src/components/atoms/Button/index.ts
-import { Button } from '../../components/atoms/Button'
+import { Button, GraySquareButton } from '../../components/atoms/Button'
 // src/resources/svg/icons/usd.svg
 import USD from '../../resources/svg/icons/usd.svg'
 import DAI from '../../resources/svg/icons/dai.svg'
@@ -30,7 +30,13 @@ import { useWallet } from '../../context/WalletManager'
 import { BigNumber, Contract } from 'ethers'
 import { VerticalSeparator } from '../stake/components/VerticalSeparator'
 import { useGeneral } from '../../context/GeneralManager'
-import { StyledCopy, InfoCopy, InfoCheckmark } from '../../components/atoms/Icon'
+import {
+  StyledCopy,
+  InfoCopy,
+  InfoCheckmark,
+  StyledArrowIosBackOutline,
+  StyledArrowIosForwardOutline,
+} from '../../components/atoms/Icon'
 import { LocalTx, SolaceRiskProtocol, SolaceRiskScore } from '../../constants/types'
 import {
   accurateMultiply,
@@ -253,23 +259,9 @@ function CoverageLimitBasicForm({
               <Text t4s>Set Limit to</Text>
             </Flex>
             <Flex between itemsCenter mt={10}>
-              <Flex
-                itemsCenter
-                justifyCenter
-                p={10}
-                style={{
-                  borderRadius: '10px',
-                  backgroundColor: '#fafafa',
-                  color: 'purple',
-                  height: '15px',
-                  width: '15px',
-                  userSelect: 'none',
-                  cursor: 'pointer',
-                }}
-                onClick={() => setChosenLimit(prevChosenLimit(chosenLimit))}
-              >
-                &lt;
-              </Flex>
+              <GraySquareButton onClick={() => setChosenLimit(prevChosenLimit(chosenLimit))}>
+                <StyledArrowIosBackOutline height={18} />
+              </GraySquareButton>
               <Flex col itemsCenter>
                 <Text info t4s bold>
                   {
@@ -290,23 +282,9 @@ function CoverageLimitBasicForm({
                   }
                 </Text>
               </Flex>
-              <Flex
-                itemsCenter
-                justifyCenter
-                p={10}
-                style={{
-                  borderRadius: '10px',
-                  backgroundColor: '#fafafa',
-                  color: 'purple',
-                  height: '15px',
-                  width: '15px',
-                  userSelect: 'none',
-                  cursor: 'pointer',
-                }}
-                onClick={() => setChosenLimit(nextChosenLimit(chosenLimit))}
-              >
-                &gt;
-              </Flex>
+              <GraySquareButton onClick={() => setChosenLimit(nextChosenLimit(chosenLimit))}>
+                <StyledArrowIosForwardOutline height={18} />
+              </GraySquareButton>
             </Flex>
             <GenericInputSection
               icon={<img src={DAI} alt="DAI" height={20} />}
