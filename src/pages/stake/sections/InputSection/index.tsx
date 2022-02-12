@@ -104,7 +104,19 @@ export const GenericInputSection = ({
         disabled={disabled}
       />
       {buttonText && (
-        <Button m={10} onClick={buttonOnClick} disabled={buttonDisabled} info>
+        <Button
+          m={10}
+          onClick={buttonOnClick}
+          disabled={buttonDisabled}
+          info
+          style={
+            buttonDisabled
+              ? {
+                  cursor: 'default',
+                }
+              : {}
+          }
+        >
           {buttonText}
         </Button>
       )}

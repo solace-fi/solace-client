@@ -30,7 +30,7 @@ import { useWallet } from '../../context/WalletManager'
 import { BigNumber, Contract } from 'ethers'
 import { VerticalSeparator } from '../stake/components/VerticalSeparator'
 import { useGeneral } from '../../context/GeneralManager'
-import { StyledCopy, TechyGradientCopy } from '../../components/atoms/Icon'
+import { StyledCopy, InfoCopy, InfoCheckmark } from '../../components/atoms/Icon'
 import { LocalTx, SolaceRiskProtocol, SolaceRiskScore } from '../../constants/types'
 import {
   accurateMultiply,
@@ -60,6 +60,7 @@ import { useNotifications } from '../../context/NotificationsManager'
 import { TransactionReceipt } from '@ethersproject/providers'
 import { TransactionResponse } from '@ethersproject/providers'
 import { useTokenAllowance } from '../../hooks/useToken'
+import useCopyClipboard from '../../hooks/useCopyToClipboard'
 import { Loader } from '../../components/atoms/Loader'
 
 function Card({
@@ -1000,6 +1001,7 @@ function ReferralSection({
 
   const [codeIsApplicable, setCodeIsApplicable] = useState<boolean>(false)
 
+  const [isCopied, setCopied] = useCopyClipboard()
   const { getIsReferralCodeUsed, getIsReferralCodeValid } = useFunctions()
 
   const getReferralCode = async () => {
@@ -1078,19 +1080,30 @@ function ReferralSection({
         <Flex col flex1 gap={40} stretch justifyCenter>
           {userCanRefer && (
             <Flex col gap={10} stretch>
-              <Text t4s>Get more bonuses for everyone who gets coverage via your referral link:</Text>
+              <Text t4s>
+                <Text t4s bold inline>
+                  Get bonuses
+                </Text>{' '}
+                for everyone who gets coverage via your referral link:
+              </Text>
               {generatedReferralCode.length > 0 ? (
-                <Text t4s bold techygradient>
-                  solace.fi/referral/{shortenAddress(generatedReferralCode)}{' '}
-                  <TechyGradientCopy
-                    style={{
-                      height: '14px',
-                      width: '14px',
-                    }}
-                  />
-                </Text>
+                <Flex
+                  gap={10}
+                  style={{
+                    alignItems: 'flex-end',
+                    cursor: 'pointer',
+                  }}
+                  onClick={() => setCopied(`https://solace.fi/?r=${generatedReferralCode}`)}
+                >
+                  <Text t4s bold techygradient>
+                    solace.fi/?r={shortenAddress(generatedReferralCode)}
+                  </Text>
+                  {isCopied ? <InfoCheckmark /> : <InfoCopy />}
+                </Flex>
               ) : (
-                <Button onClick={getReferralCode}>Get My Code</Button>
+                <Button info onClick={getReferralCode}>
+                  Get My Code
+                </Button>
               )}
             </Flex>
           )}
