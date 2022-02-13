@@ -46,6 +46,7 @@ interface BondOptionsV2Props {
   isAcceptableAmount: boolean
   slippagePrct: string
   bondRecipient: string | undefined
+  cannotApproveAmount: boolean
   setIsStaking: React.Dispatch<React.SetStateAction<boolean>>
   setShouldUseNativeToken: React.Dispatch<React.SetStateAction<boolean>>
   approve: () => Promise<void>
@@ -62,6 +63,7 @@ export const BondOptionsV2: React.FC<BondOptionsV2Props> = ({
   isAcceptableAmount,
   slippagePrct,
   bondRecipient,
+  cannotApproveAmount,
   setIsStaking,
   setShouldUseNativeToken,
   approve,
@@ -94,7 +96,7 @@ export const BondOptionsV2: React.FC<BondOptionsV2Props> = ({
       {!selectedBondDetail?.tellerData.teller.cannotBuy ? (
         <ButtonWrapper isColumn>
           {!approval && func != bondDepositFunctionName && (
-            <Button widthP={100} info disabled={!isAcceptableAmount || haveErrors} onClick={approve}>
+            <Button widthP={100} info disabled={cannotApproveAmount || haveErrors} onClick={approve}>
               Approve
             </Button>
           )}

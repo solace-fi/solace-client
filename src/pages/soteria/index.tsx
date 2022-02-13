@@ -857,7 +857,9 @@ function PolicyBalance({
               <Button
                 info
                 secondary
-                disabled={(!isAcceptableAmount && amount != '') || !doesReachMinReqAccountBal}
+                disabled={
+                  (!isAcceptableAmount && amount != '') || !doesReachMinReqAccountBal || newCoverageLimit.eq(ZERO)
+                }
                 onClick={callActivatePolicy}
               >
                 Activate my policy

@@ -142,6 +142,8 @@ export const BondModalV2: React.FC<BondModalV2Props> = ({ closeModal, isOpen, se
     }
   }, [func, nativeTokenBalance, principalBalance, pncplDecimals, currencyDecimals])
 
+  const cannotApproveAmount = useMemo(() => amount == '' || parseUnits(amount, 18).eq(ZERO), [amount])
+
   /*************************************************************************************
 
   contract functions
@@ -480,6 +482,7 @@ export const BondModalV2: React.FC<BondModalV2Props> = ({ closeModal, isOpen, se
                     isAcceptableAmount={isAcceptableAmount}
                     slippagePrct={slippagePrct}
                     bondRecipient={bondRecipient}
+                    cannotApproveAmount={cannotApproveAmount}
                     setIsStaking={setIsStaking}
                     setShouldUseNativeToken={setShouldUseNativeToken}
                     approve={approve}

@@ -229,7 +229,12 @@ export const BridgeModal: React.FC<ModalProps> = ({ modalTitle, handleClose, isO
         ) : (
           <>
             {!approval && (
-              <Button widthP={100} info disabled={!isAcceptableAmount || haveErrors} onClick={approve}>
+              <Button
+                widthP={100}
+                info
+                disabled={amount == '' || parseUnits(amount, 18).eq(ZERO) || haveErrors}
+                onClick={approve}
+              >
                 Approve
               </Button>
             )}

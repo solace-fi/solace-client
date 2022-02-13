@@ -354,7 +354,7 @@ export const EarlyFarmRewardsWindow: React.FC = () => {
               <Button
                 widthP={100}
                 info
-                disabled={!isAcceptableAmount || haveErrors || stablecoinUnsupported}
+                disabled={amount == '' || parseUnits(amount, 18).eq(ZERO) || haveErrors || stablecoinUnsupported}
                 onClick={approve}
               >
                 Approve
