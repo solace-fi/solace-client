@@ -297,18 +297,10 @@ export const usePortfolio = (account: string | undefined, chainId: number): Sola
   useEffect(() => {
     const getPortfolio = async () => {
       if (!account || !latestBlock) return
-      let error = false
-      const balances = await getSolaceRiskBalances(account, chainId).catch((e) => {
-        console.log('cannot get risk balances', e)
-        error = true
-        return []
-      })
-      const scores = await getSolaceRiskScores(account, balances).catch((e) => {
-        console.log('cannot get risk scores', e)
-        error = true
-        return undefined
-      })
-      if (scores && !error) setScore(scores)
+      const balances = await getSolaceRiskBalances(account, chainId)
+      if (!balances) return
+      const scores = await getSolaceRiskScores(account, balances)
+      if (scores) setScore(scores)
     }
     getPortfolio()
   }, [account, chainId, latestBlock])

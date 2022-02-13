@@ -468,7 +468,7 @@ function CoverageLimit({
         <Text t2 bold>
           Coverage Limit
         </Text>
-        <StyledTooltip id={'coverage-limit'} tip={'Coverage Limit tip'}>
+        <StyledTooltip id={'coverage-limit'} tip={'Cover limit is the maximum payout in the event of a claim'}>
           <QuestionCircle height={20} width={20} color={'#aaa'} />
         </StyledTooltip>
       </Flex>
@@ -990,13 +990,16 @@ function ReferralSection({
   setReferralCode: (referralCode: string | undefined) => void
   userCanRefer: boolean
 }) {
+  const { keyContracts } = useContracts()
+  const { solaceCoverProduct } = useMemo(() => keyContracts, [keyContracts])
+  const { activeNetwork } = useNetwork()
   const [formReferralCode, setFormReferralCode] = useState(referralCode)
   const [generatedReferralCode, setGeneratedReferralCode] = useState('')
   const [isCopied, setCopied] = useCopyClipboard()
 
   const getReferralCode = async () => {
     const ethereum = (window as any).ethereum
-    if (!ethereum) return
+    if (!ethereum || !solaceCoverProduct) return
     const domainType = [
       { name: 'name', type: 'string' },
       { name: 'version', type: 'string' },
@@ -1008,8 +1011,8 @@ function ReferralSection({
       domain: {
         name: 'Solace.fi-SolaceCoverProduct',
         version: '1',
-        chainId: 4,
-        verifyingContract: '0x501acE970F0E1B811dBc8a01a3468b198b5e7f84',
+        chainId: activeNetwork.chainId,
+        verifyingContract: solaceCoverProduct.address,
       },
 
       message: {
@@ -1150,9 +1153,9 @@ function PortfolioTable({ portfolio }: { portfolio: SolaceRiskScore | undefined 
           </TableHead>
           <TableBody>
             {portfolio &&
-              portfolio.protocols.map((d: SolaceRiskProtocol) => (
-                <TableRow key={d.network}>
-                  <TableData>{capitalizeFirstLetter(d.network)}</TableData>
+              portfolio.protocols.map((d: SolaceRiskProtocol, i) => (
+                <TableRow key={i}>
+                  <TableData>{capitalizeFirstLetter(d.appId)}</TableData>
                   <TableData>{d.category}</TableData>
                   <TableData>{d.balanceUSD}</TableData>
                   <TableData>{d.tier}</TableData>
@@ -1165,7 +1168,7 @@ function PortfolioTable({ portfolio }: { portfolio: SolaceRiskScore | undefined 
           {portfolio &&
             portfolio.protocols.map((row) => (
               <GrayBgDiv
-                key={row.network}
+                key={row.appId}
                 style={{
                   borderRadius: '10px',
                   padding: '14px 24px',

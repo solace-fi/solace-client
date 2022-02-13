@@ -100,7 +100,10 @@ export const getZapperProtocolBalances = async (appId: string, addresses: string
   return data
 }
 
-export const getSolaceRiskBalances = async (address: string, chainId: number): Promise<SolaceRiskBalance[]> => {
+export const getSolaceRiskBalances = async (
+  address: string,
+  chainId: number
+): Promise<SolaceRiskBalance[] | undefined> => {
   return await fetch(`https://risk-data.solace.fi/balances?account=${address}&chain_id=${chainId}`, {
     method: 'GET',
     headers: {
@@ -114,7 +117,7 @@ export const getSolaceRiskBalances = async (address: string, chainId: number): P
     })
     .catch((error) => {
       console.error('Error getSolaceRiskBalances:', error)
-      return []
+      return undefined
     })
 }
 
