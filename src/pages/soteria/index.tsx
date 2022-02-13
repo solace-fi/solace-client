@@ -664,11 +664,10 @@ function PolicyBalance({
 
   const callActivatePolicy = async () => {
     if (!account) return
-    const totalBalance = parseUnits(amount, 18).add(balances.totalAccountBalance)
     await activatePolicy(
       account,
       newCoverageLimit,
-      totalBalance,
+      parseUnits(amount, 18),
       referralValidation && referralCode ? referralCode : []
     )
       .then((res) => _handleToast2(res.tx, res.localTx))
