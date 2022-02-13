@@ -1114,7 +1114,7 @@ function ReferralSection({
                 </Text>
               ) : (
                 <Text t4s success bold>
-                  This referral code has been applied.
+                  This referral code is valid. Will be applied.
                 </Text>
               )
             ) : null}
@@ -1127,7 +1127,7 @@ function ReferralSection({
               displayIconOnMobile
               placeholder={'Enter your referral code'}
               buttonOnClick={() => setReferralCode(formReferralCode)}
-              buttonText="Apply"
+              buttonText="Check"
             />
           </Flex>
         </Flex>
