@@ -429,7 +429,7 @@ function CoverageLimit({
   }
 
   const _checkMinReqAccountBal = useDebounce(async () => {
-    setDoesReachMinReqAccountBal(balances.totalAccountBalance.gt(minReqAccBal))
+    setDoesReachMinReqAccountBal(balances.personalBalance.gt(minReqAccBal))
   }, 300)
 
   const _getCapacity = useDebounce(async () => {
