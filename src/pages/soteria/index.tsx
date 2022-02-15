@@ -7,7 +7,6 @@ import { QuestionCircle } from '@styled-icons/bootstrap/QuestionCircle'
 import { Button, GraySquareButton } from '../../components/atoms/Button'
 // src/resources/svg/icons/usd.svg
 import DAI from '../../resources/svg/icons/dai.svg'
-import ToggleSwitch from '../../components/atoms/ToggleSwitch'
 import { FixedHeightGrayBox, StyledGrayBox } from '../stake/components/GrayBox'
 import { GenericInputSection } from '../stake/sections/InputSection'
 import { StyledSlider } from '../../components/atoms/Input'
@@ -422,7 +421,7 @@ function CoverageLimit({
         portfolio={portfolio}
         setNewCoverageLimit={setNewCoverageLimit}
       />
-      <Flex justifyCenter={!isEditing} between={isEditing} gap={isEditing ? 20 : undefined}>
+      <Flex justifyCenter={!isEditing} between={isEditing} gap={isEditing ? 20 : undefined} pt={10} pb={10}>
         {inactive ? (
           <div style={{ height: '36px' }} />
         ) : !isEditing ? (
@@ -1112,7 +1111,7 @@ function ReferralSection({
                 </Text>
               ) : !referralChecks.referrerIsOther ? (
                 <Text t4s error bold>
-                  Sorry, but you cannot use your own referral code. Cannot be applied.
+                  Sorry, but you cannot use your own referral code.
                 </Text>
               ) : (
                 <Text t4s success bold>
@@ -1286,19 +1285,13 @@ function WelcomeMessage({ type, goToSecondStage }: { type: ReferralSource; goToS
       return (
         <Card>
           <Flex col gap={30} itemsCenter>
-            <Text t2s>When the flies fly they do unfly</Text>
+            <Text t2s>Solace Wallet Coverage</Text>
             <Flex col gap={10} itemsCenter>
-              <Text t5s>The table below is a list of your funds in protocols available for coverage.</Text>
-              <Text t5s>By subscribing to Solace Wallet Coverage, all funds in the list are covered.</Text>
-              <Text t5s italics>
-                <Text bold inline t5s>
-                  Tip:
-                </Text>{' '}
-                all future changes to your portfolio are also covered automatically.
-              </Text>
+              <Text t5s>By funding a single policy for your entire portfolio, you will be covered.</Text>
+              <Text t5s>The table below is a list of your positions on protocols available for coverage.</Text>
             </Flex>
             <Button info secondary pl={23} pr={23} onClick={goToSecondStage}>
-              Sounds good, what&apos;s next?
+              Continue
             </Button>
           </Flex>
         </Card>
@@ -1307,19 +1300,13 @@ function WelcomeMessage({ type, goToSecondStage }: { type: ReferralSource; goToS
       return (
         <Card>
           <Flex col gap={30} itemsCenter>
-            <Text t2s>When the flies fly they do unfly</Text>
+            <Text t2s>Solace Wallet Coverage</Text>
             <Flex col gap={10} itemsCenter>
-              <Text t5s>The table below is a list of your funds in protocols available for coverage.</Text>
-              <Text t5s>By subscribing to Solace Wallet Coverage, all funds in the list are covered.</Text>
-              <Text t5s italics>
-                <Text bold inline t5s>
-                  Tip:
-                </Text>{' '}
-                all future changes to your portfolio are also covered automatically.
-              </Text>
+              <Text t5s>By funding a single policy for your entire portfolio, you will be covered.</Text>
+              <Text t5s>The table below is a list of your positions on protocols available for coverage.</Text>
             </Flex>
             <Button info secondary pl={23} pr={23} onClick={goToSecondStage}>
-              Sounds good, what&apos;s next?
+              Continue
             </Button>
           </Flex>
         </Card>
@@ -1328,19 +1315,13 @@ function WelcomeMessage({ type, goToSecondStage }: { type: ReferralSource; goToS
       return (
         <Card>
           <Flex col gap={30} itemsCenter>
-            <Text t2s>When the flies fly they do unfly</Text>
+            <Text t2s>Solace Wallet Coverage</Text>
             <Flex col gap={10} itemsCenter>
-              <Text t5s>The table below is a list of your funds in protocols available for coverage.</Text>
-              <Text t5s>By subscribing to Solace Wallet Coverage, all funds in the list are covered.</Text>
-              <Text t5s italics>
-                <Text bold inline t5s>
-                  Tip:
-                </Text>{' '}
-                all future changes to your portfolio are also covered automatically.
-              </Text>
+              <Text t5s>By funding a single policy for your entire portfolio, you will be covered.</Text>
+              <Text t5s>The table below is a list of your positions on protocols available for coverage.</Text>
             </Flex>
             <Button info secondary pl={23} pr={23} onClick={goToSecondStage}>
-              Sounds good, what&apos;s next?
+              Continue
             </Button>
           </Flex>
         </Card>

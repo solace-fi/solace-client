@@ -360,7 +360,6 @@ export const useCheckIsCoverageActive = (account: string | undefined) => {
         setPolicyId(ZERO)
         setStatus(false)
         setCoverageLimit(ZERO)
-        setMounting(false)
         return
       }
       const policyId = await getPolicyOf(account)
