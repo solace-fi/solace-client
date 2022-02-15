@@ -248,7 +248,7 @@ function CoverageLimitBasicForm({
           >
             <Flex baseline center>
               <Text techygradient t2 bold>
-                {commaNumber(floatUnits(currentCoverageLimit, 18))}{' '}
+                {commaNumber(truncateValue(floatUnits(currentCoverageLimit, 18), 2, false))}{' '}
                 <Text techygradient t4 bold inline>
                   USD
                 </Text>
@@ -539,9 +539,9 @@ function PolicyBalance({
     [portfolio]
   )
 
-  const dailyRate = useMemo(() => (portfolio && portfolio.current_rate ? portfolio.current_rate / 365.25 : 0), [
-    portfolio,
-  ])
+  const annualCost = useMemo(() => (portfolio && portfolio.current_rate ? portfolio.current_rate : 0), [portfolio])
+
+  const dailyRate = useMemo(() => annualCost / 365.25, [annualCost])
 
   const dailyCost = useMemo(() => {
     const numberifiedCurrentCoverageLimit = floatUnits(currentCoverageLimit, 18)
@@ -553,6 +553,17 @@ function PolicyBalance({
     dailyCost,
     balances.totalAccountBalance,
   ])
+
+  const projectedDailyCost = useMemo(() => {
+    const numberifiedNewCoverageLimit = floatUnits(newCoverageLimit, 18)
+    if (usdBalanceSum < numberifiedNewCoverageLimit) return usdBalanceSum * dailyRate
+    return numberifiedNewCoverageLimit * dailyRate
+  }, [newCoverageLimit, dailyRate, usdBalanceSum])
+
+  const projectedPolicyDuration = useMemo(() => {
+    const bnAmount = BigNumber.from(accurateMultiply(inputProps.amount, 18))
+    return projectedDailyCost > 0 ? floatUnits(balances.totalAccountBalance.add(bnAmount), 18) / projectedDailyCost : 0
+  }, [projectedDailyCost, balances.totalAccountBalance, inputProps.amount])
 
   const isAcceptableAmount = useMemo(
     () => inputProps.isAppropriateAmount(inputProps.amount, walletAssetDecimals, walletAssetBalance),
@@ -671,7 +682,7 @@ function PolicyBalance({
         <Text t2 bold>
           Policy Balance
         </Text>
-        <StyledTooltip id={'policy-balance'} tip={'Policy Balance'}>
+        <StyledTooltip id={'policy-balance'} tip={'Your balance is deducted daily to pay for your policy.'}>
           <QuestionCircle height={20} width={20} color={'#aaa'} />
         </StyledTooltip>
       </Flex>
@@ -687,6 +698,68 @@ function PolicyBalance({
         }}
       >
         <Flex col gap={10} stretch>
+          {coverageActivity.status && (
+            <Flex pl={24} pr={24} mt={10} col gap={10}>
+              <Flex between>
+                <Text t4s>Your Annual Rate</Text>
+                <Text t4s bold>
+                  {truncateValue(annualCost, 2)}{' '}
+                  <Text t6s inline>
+                    DAI/Year
+                  </Text>
+                </Text>
+              </Flex>
+              <Flex between>
+                <Text t4s>Coverage Price</Text>
+                <Text t4s bold>
+                  {truncateValue(dailyCost, 2)}{' '}
+                  <Text t6s inline>
+                    DAI/Day
+                  </Text>
+                </Text>
+              </Flex>
+              <Flex between>
+                <Text t4s>Estimated Policy Duration</Text>
+                <Text t4s bold>
+                  {truncateValue(policyDuration, 2)}{' '}
+                  <Text t6s inline>
+                    Days
+                  </Text>
+                </Text>
+              </Flex>
+            </Flex>
+          )}
+          {!coverageActivity.status && (
+            <Flex pl={24} pr={24} mt={10} col gap={10}>
+              <Flex between>
+                <Text t4s>Your Annual Rate</Text>
+                <Text t4s bold>
+                  {truncateValue(annualCost, 2)}{' '}
+                  <Text t6s inline>
+                    DAI/Year
+                  </Text>
+                </Text>
+              </Flex>
+              <Flex between>
+                <Text t4s>Projected Coverage Price</Text>
+                <Text t4s bold warning>
+                  {truncateValue(projectedDailyCost, 2)}{' '}
+                  <Text t6s inline>
+                    DAI/Day
+                  </Text>
+                </Text>
+              </Flex>
+              <Flex between>
+                <Text t4s>Projected Policy Duration</Text>
+                <Text t4s bold warning>
+                  {truncateValue(projectedPolicyDuration, 2)}{' '}
+                  <Text t6s inline>
+                    Days
+                  </Text>
+                </Text>
+              </Flex>
+            </Flex>
+          )}
           <StyledGrayBox>
             <Flex
               stretch
@@ -734,28 +807,6 @@ function PolicyBalance({
               </Flex>
             </Flex>
           </StyledGrayBox>
-          {coverageActivity.status && (
-            <Flex pl={24} pr={24} mt={10} col gap={10}>
-              <Flex between>
-                <Text t4s>Coverage Price</Text>
-                <Text t4s bold>
-                  {truncateValue(dailyCost, 5)}{' '}
-                  <Text t6s inline>
-                    DAI/Day
-                  </Text>
-                </Text>
-              </Flex>
-              <Flex between>
-                <Text t4s>Approximate Policy Duration</Text>
-                <Text t4s bold>
-                  {truncateValue(policyDuration, 2)}{' '}
-                  <Text t6s inline>
-                    Days
-                  </Text>
-                </Text>
-              </Flex>
-            </Flex>
-          )}
         </Flex>
         {!coverageActivity.policyId.eq(ZERO) && (
           <div style={{ gridTemplateColumns: '1fr 0fr 1fr', display: 'grid', position: 'relative' }}>
@@ -1058,7 +1109,10 @@ function ReferralSection({
           <Text t2 bold techygradient>
             Bonuses
           </Text>
-          <StyledTooltip id={'coverage-price'} tip={'ReferralSection - Bonuses tooltip'}>
+          <StyledTooltip
+            id={'coverage-price'}
+            tip={'You can use a referral code to claim a bonus, or share your own code with other users'}
+          >
             <QuestionCircle height={20} width={20} color={'#aaa'} />
           </StyledTooltip>
         </Flex>
@@ -1238,7 +1292,9 @@ function PortfolioTable({ portfolio }: { portfolio: SolaceRiskScore | undefined 
                   <TableData>{capitalizeFirstLetter(d.appId)}</TableData>
                   <TableData>{d.category}</TableData>
                   <TableData>{d.balanceUSD}</TableData>
-                  {tierColors.length > 0 && <TableData style={{ color: getColorByTier(d.tier) }}>{d.tier}</TableData>}
+                  {tierColors.length > 0 && (
+                    <TableData style={{ color: getColorByTier(d.tier) }}>{d.tier == 0 ? 'Unrated' : d.tier}</TableData>
+                  )}
                 </TableRow>
               ))}
           </TableBody>
@@ -1267,7 +1323,9 @@ function PortfolioTable({ portfolio }: { portfolio: SolaceRiskScore | undefined 
                   >
                     <div>{row.category}</div>
                     <div>{row.balanceUSD}</div>
-                    {tierColors.length > 0 && <div style={{ color: getColorByTier(row.tier) }}>{row.tier}</div>}{' '}
+                    {tierColors.length > 0 && (
+                      <div style={{ color: getColorByTier(row.tier) }}>{row.tier == 0 ? 'Unrated' : row.tier}</div>
+                    )}{' '}
                   </Flex>
                 </Flex>
               </GrayBgDiv>
@@ -1289,7 +1347,17 @@ enum FormStages {
   'RegularUser',
 }
 
-function WelcomeMessage({ type, goToSecondStage }: { type: ReferralSource; goToSecondStage: () => void }): JSX.Element {
+function WelcomeMessage({
+  portfolio,
+  type,
+  goToSecondStage,
+}: {
+  portfolio: SolaceRiskScore | undefined
+  type: ReferralSource
+  goToSecondStage: () => void
+}): JSX.Element {
+  const annualCost = useMemo(() => (portfolio && portfolio.current_rate ? portfolio.current_rate : 0), [portfolio])
+
   switch (type) {
     case ReferralSource.Custom:
       return (
@@ -1297,11 +1365,12 @@ function WelcomeMessage({ type, goToSecondStage }: { type: ReferralSource; goToS
           <Flex col gap={30} itemsCenter>
             <Text t2s>Solace Wallet Coverage</Text>
             <Flex col gap={10} itemsCenter>
+              <Text t2>Your annual rate based on your portfolio: {truncateValue(annualCost, 2)} USD/yr</Text>
               <Text t5s>By funding a single policy for your entire portfolio, you will be covered.</Text>
               <Text t5s>The table below is a list of your positions on protocols available for coverage.</Text>
             </Flex>
             <Button info secondary pl={23} pr={23} onClick={goToSecondStage}>
-              Continue
+              Get Started
             </Button>
           </Flex>
         </Card>
@@ -1312,11 +1381,12 @@ function WelcomeMessage({ type, goToSecondStage }: { type: ReferralSource; goToS
           <Flex col gap={30} itemsCenter>
             <Text t2s>Solace Wallet Coverage</Text>
             <Flex col gap={10} itemsCenter>
+              <Text t2>Your annual rate based on your portfolio: {truncateValue(annualCost, 2)} USD/yr</Text>
               <Text t5s>By funding a single policy for your entire portfolio, you will be covered.</Text>
               <Text t5s>The table below is a list of your positions on protocols available for coverage.</Text>
             </Flex>
             <Button info secondary pl={23} pr={23} onClick={goToSecondStage}>
-              Continue
+              Get Started
             </Button>
           </Flex>
         </Card>
@@ -1327,11 +1397,12 @@ function WelcomeMessage({ type, goToSecondStage }: { type: ReferralSource; goToS
           <Flex col gap={30} itemsCenter>
             <Text t2s>Solace Wallet Coverage</Text>
             <Flex col gap={10} itemsCenter>
+              <Text t2>Your annual rate based on your portfolio: {truncateValue(annualCost, 2)} USD/yr</Text>
               <Text t5s>By funding a single policy for your entire portfolio, you will be covered.</Text>
               <Text t5s>The table below is a list of your positions on protocols available for coverage.</Text>
             </Flex>
             <Button info secondary pl={23} pr={23} onClick={goToSecondStage}>
-              Continue
+              Get Started
             </Button>
           </Flex>
         </Card>
@@ -1348,7 +1419,7 @@ export default function Soteria(): JSX.Element {
   const canShowSoteria = useMemo(() => !activeNetwork.config.restrictedFeatures.noSoteria, [
     activeNetwork.config.restrictedFeatures.noSoteria,
   ])
-  const portfolio = usePortfolio('0x09748f07b839edd1d79a429d3ad918f670d602cd', 1)
+  const portfolio = usePortfolio(account, 1)
   const { isMobile } = useWindowDimensions()
   const { policyId, status, coverageLimit, mounting } = useCheckIsCoverageActive(account)
   const {
@@ -1511,7 +1582,7 @@ export default function Soteria(): JSX.Element {
           ) : (
             <Flex col gap={24} m={isMobile ? 20 : undefined}>
               {firstTime && formStage === FormStages.Welcome ? (
-                <WelcomeMessage type={referralType} goToSecondStage={goToSecondStage} />
+                <WelcomeMessage portfolio={portfolio} type={referralType} goToSecondStage={goToSecondStage} />
               ) : (
                 <Flex gap={24} col={isMobile}>
                   {status ? (
