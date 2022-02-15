@@ -606,10 +606,11 @@ function PolicyBalance({
 
   const callActivatePolicy = async () => {
     if (!account) return
+    const amount_ = inputProps.amount.length > 0 ? inputProps.amount : '0'
     await activatePolicy(
       account,
       newCoverageLimit,
-      parseUnits(inputProps.amount, 18),
+      parseUnits(amount_, 18),
       referralValidation && referralCode ? referralCode : []
     )
       .then((res) => _handleToast2(res.tx, res.localTx))
@@ -839,7 +840,12 @@ function PolicyBalance({
                       {!cooldownStart.eq(ZERO) && getTimeFromMillis(cooldownLeft.toNumber() * 1000) == '0'
                         ? truncateValue(formatUnits(balances.personalBalance, walletAssetDecimals), 2)
                         : truncateValue(
-                            formatUnits(balances.personalBalance.sub(minReqAccBal), walletAssetDecimals),
+                            formatUnits(
+                              balances.personalBalance.gt(minReqAccBal)
+                                ? balances.personalBalance.sub(minReqAccBal)
+                                : ZERO,
+                              walletAssetDecimals
+                            ),
                             2
                           )}
                     </Text>
