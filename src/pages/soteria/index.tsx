@@ -938,6 +938,11 @@ function PolicyBalance({
                       {truncateValue(formatUnits(minReqAccBal, walletAssetDecimals), 2)})
                     </Text>
                   )}
+                  {newCoverageLimit.eq(ZERO) && (
+                    <Text autoAlignHorizontal t4 error>
+                      Your coverage limit cannot be zero
+                    </Text>
+                  )}
                   <Button
                     info
                     secondary
