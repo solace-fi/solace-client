@@ -66,7 +66,7 @@ import useCopyClipboard from '../../hooks/useCopyToClipboard'
 import { TextSpan, Text } from '../../components/atoms/Typography'
 import { Box } from '../../components/atoms/Box'
 import { StyledInfo } from '../../components/atoms/Icon'
-import { Content, HeroContainer } from '../../components/atoms/Layout'
+import { Content, HeroContainer, HorizRule } from '../../components/atoms/Layout'
 import { WalletConnectButton } from '../../components/molecules/WalletConnectButton'
 import { ModalCell } from '../../components/atoms/Modal'
 
@@ -682,7 +682,10 @@ function PolicyBalance({
         <Text t2 bold>
           Policy Balance
         </Text>
-        <StyledTooltip id={'policy-balance'} tip={'Your balance is deducted daily to pay for your policy.'}>
+        <StyledTooltip
+          id={'policy-balance'}
+          tip={'To pay for your coverage, your balance is deducted weekly or when you make changes to the policy.'}
+        >
           <QuestionCircle height={20} width={20} color={'#aaa'} />
         </StyledTooltip>
       </Flex>
@@ -808,6 +811,7 @@ function PolicyBalance({
             </Flex>
           </StyledGrayBox>
         </Flex>
+        <HorizRule widthP={100} />
         {!coverageActivity.policyId.eq(ZERO) && (
           <div style={{ gridTemplateColumns: '1fr 0fr 1fr', display: 'grid', position: 'relative' }}>
             <ModalCell
@@ -845,7 +849,7 @@ function PolicyBalance({
         <Flex col gap={20}>
           {isDepositing ? (
             <>
-              {inactive && <Text t4>Set the coverage limit and starting deposit for your policy</Text>}
+              {inactive && <Text t4>Set the coverage limit and initial deposit for your policy</Text>}
               <GenericInputSection
                 icon={<img src={DAI} height={20} />}
                 onChange={(e) => _handleInputChange(e.target.value)}
@@ -940,7 +944,8 @@ function PolicyBalance({
                     disabled={
                       !doesReachMinReqAccountBal ||
                       newCoverageLimit.eq(ZERO) ||
-                      (inputProps.amount != '' && !isAcceptableAmount)
+                      (inputProps.amount != '' &&
+                        parseUnits(inputProps.amount, walletAssetDecimals).gt(walletAssetBalance))
                     }
                     onClick={callActivatePolicy}
                   >

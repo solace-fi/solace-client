@@ -293,6 +293,7 @@ export const useFunctions = () => {
 export const usePortfolio = (account: string | undefined, chainId: number): SolaceRiskScore | undefined => {
   const [score, setScore] = useState<SolaceRiskScore | undefined>(undefined)
   const { latestBlock } = useProvider()
+  const { version } = useCachedData()
 
   useEffect(() => {
     const getPortfolio = async () => {
@@ -303,7 +304,7 @@ export const usePortfolio = (account: string | undefined, chainId: number): Sola
       if (scores) setScore(scores)
     }
     getPortfolio()
-  }, [account, chainId, latestBlock])
+  }, [account, chainId, latestBlock, version])
 
   return score
 }
