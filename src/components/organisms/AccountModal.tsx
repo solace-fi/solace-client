@@ -52,7 +52,7 @@ import { useWindowDimensions } from '../../hooks/useWindowDimensions'
 
 /* import utils */
 import { getExplorerItemUrl } from '../../utils/explorer'
-import { capitalizeFirstLetter, shortenAddress } from '../../utils/formatting'
+import { shortenAddress } from '../../utils/formatting'
 import { timeAgo } from '../../utils/time'
 import { decodeInput } from '../../utils/decoder'
 
@@ -100,7 +100,7 @@ export const AccountModal: React.FC<AccountModalProps> = ({ closeModal, isOpen }
               <Input widthP={100} readOnly value={account} light textAlignCenter />
             </FormRow>
             <ButtonWrapper pt={10} pb={5} isColumn={width <= BKPT_3}>
-              <CopyButton toCopy={account} />
+              <CopyButton light toCopy={account} objectName={'address'} />
               <HyperLink
                 href={getExplorerItemUrl(activeNetwork.explorer.url, account, ExplorerscanApi.ADDRESS)}
                 target="_blank"
@@ -125,7 +125,7 @@ export const AccountModal: React.FC<AccountModalProps> = ({ closeModal, isOpen }
             <BoxItem>
               <BoxItemTitle light>Network</BoxItemTitle>
               <Text light t2 bold nowrap>
-                {capitalizeFirstLetter(activeNetwork.name)}
+                {activeNetwork.name}
               </Text>
             </BoxItem>
           </Box>

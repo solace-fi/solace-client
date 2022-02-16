@@ -22,6 +22,7 @@ import React, { Fragment, useState, useEffect, useMemo, useCallback } from 'reac
 import { parseUnits, formatUnits } from '@ethersproject/units'
 import { BigNumber } from 'ethers'
 import { Block } from '@ethersproject/abstract-provider'
+import { TransactionReceipt, TransactionResponse } from '@ethersproject/providers'
 
 /* import managers */
 import { useCachedData } from '../../../context/CachedDataManager'
@@ -55,7 +56,7 @@ import { useWindowDimensions } from '../../../hooks/useWindowDimensions'
 
 /* import utils */
 import { accurateMultiply, convertSciNotaToPrecise, filterAmount, formatAmount } from '../../../utils/formatting'
-import { getDaysLeft, getExpiration } from '../../../utils/time'
+import { getDaysLeftByBlockNum, getExpiration } from '../../../utils/time'
 
 interface ManageModalProps {
   closeModal: () => void
@@ -90,10 +91,10 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
     currencyDecimals,
   ])
   const { width } = useWindowDimensions()
-  const { getAutoGasConfig } = useGetFunctionGas()
-  const gasConfig = useMemo(() => getAutoGasConfig(), [getAutoGasConfig])
+  const { gasConfig } = useGetFunctionGas()
   const daysLeft = useMemo(
-    () => getDaysLeft(selectedPolicy ? selectedPolicy.expirationBlock : 0, latestBlock ? latestBlock.number : 0),
+    () =>
+      getDaysLeftByBlockNum(selectedPolicy ? selectedPolicy.expirationBlock : 0, latestBlock ? latestBlock.number : 0),
     [latestBlock, selectedPolicy]
   )
   const blocksLeft = useMemo(
@@ -237,14 +238,14 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
 
   *************************************************************************************/
 
-  const handleToast = async (tx: any, localTx: LocalTx | null) => {
+  const handleToast = async (tx: TransactionResponse | null, localTx: LocalTx | null) => {
     if (!tx || !localTx) return
     setModalLoading(false)
     handleClose()
     addLocalTransactions(localTx)
     reload()
     makeTxToast(localTx.type, TransactionCondition.PENDING, localTx.hash)
-    await tx.wait().then((receipt: any) => {
+    await tx.wait(activeNetwork.rpc.blockConfirms).then((receipt: TransactionReceipt) => {
       const status = receipt.status ? TransactionCondition.SUCCESS : TransactionCondition.FAILURE
       makeTxToast(localTx.type, status, localTx.hash)
       reload()
@@ -290,7 +291,10 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
     if (
       parseFloat(filtered) <=
         DAYS_PER_YEAR -
-          getDaysLeft(selectedPolicy ? selectedPolicy.expirationBlock : 0, latestBlock ? latestBlock.number : 0) ||
+          getDaysLeftByBlockNum(
+            selectedPolicy ? selectedPolicy.expirationBlock : 0,
+            latestBlock ? latestBlock.number : 0
+          ) ||
       filtered == ''
     ) {
       setExtendedTime(filtered)

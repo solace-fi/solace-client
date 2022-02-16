@@ -22,6 +22,7 @@ import useDebounce from '@rooks/use-debounce'
 import { formatUnits, parseUnits } from '@ethersproject/units'
 import { BigNumber } from 'ethers'
 import { Contract } from '@ethersproject/contracts'
+import { TransactionReceipt, TransactionResponse } from '@ethersproject/providers'
 
 /* import constants */
 import { FunctionName, TransactionCondition } from '../../constants/enums'
@@ -53,10 +54,11 @@ import { Loader } from '../atoms/Loader'
 import { SourceContract } from './SourceContract'
 
 /* import hooks */
-import { useInputAmount } from '../../hooks/useInputAmount'
+import { useInputAmount, useTransactionExecution } from '../../hooks/useInputAmount'
 import { useTokenAllowance } from '../../hooks/useToken'
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'
 import { useEarlyFarmRewards } from '../../hooks/useFarm'
+import { useGetFunctionGas } from '../../hooks/useGas'
 
 /* import utils */
 import { getDateStringWithMonthName } from '../../utils/time'
@@ -74,19 +76,12 @@ export const EarlyFarmRewardsWindow: React.FC = () => {
   const { keyContracts } = useContracts()
   const { farmRewards } = useMemo(() => keyContracts, [keyContracts])
   const { library, account } = useWallet()
-  const { chainId, currencyDecimals } = useNetwork()
+  const { chainId, currencyDecimals, activeNetwork } = useNetwork()
   const { makeTxToast } = useNotifications()
   const { reload } = useCachedData()
-  const {
-    gasConfig,
-    amount,
-    isAppropriateAmount,
-    handleToast,
-    handleContractCallError,
-    handleInputChange,
-    setMax,
-    resetAmount,
-  } = useInputAmount()
+  const { gasConfig } = useGetFunctionGas()
+  const { amount, isAppropriateAmount, handleInputChange, setMax, resetAmount } = useInputAmount()
+  const { handleToast, handleContractCallError } = useTransactionExecution()
   const stablecoins = useMemo(
     () => [
       { value: `${USDC_ADDRESS[chainId]}`, label: 'USDC' },
@@ -134,11 +129,14 @@ export const EarlyFarmRewardsWindow: React.FC = () => {
     if (!farmRewards || !account || !isAddress(stablecoinPayment.value) || !library) return
     const stablecoinContract = getContract(stablecoinPayment.value, IERC20.abi, library, account)
     try {
-      const tx = await stablecoinContract.approve(farmRewards.address, parseUnits(amount, userStablecoinDecimals))
+      const tx: TransactionResponse = await stablecoinContract.approve(
+        farmRewards.address,
+        parseUnits(amount, userStablecoinDecimals)
+      )
       const txHash = tx.hash
       setButtonLoading(true)
       makeTxToast(FunctionName.APPROVE, TransactionCondition.PENDING, txHash)
-      await tx.wait().then((receipt: any) => {
+      await tx.wait(activeNetwork.rpc.blockConfirms).then((receipt: TransactionReceipt) => {
         const status = receipt.status ? TransactionCondition.SUCCESS : TransactionCondition.FAILURE
         makeTxToast(FunctionName.APPROVE, status, txHash)
         reload()
@@ -356,7 +354,7 @@ export const EarlyFarmRewardsWindow: React.FC = () => {
               <Button
                 widthP={100}
                 info
-                disabled={!isAcceptableAmount || haveErrors || stablecoinUnsupported}
+                disabled={amount == '' || parseUnits(amount, 18).eq(ZERO) || haveErrors || stablecoinUnsupported}
                 onClick={approve}
               >
                 Approve

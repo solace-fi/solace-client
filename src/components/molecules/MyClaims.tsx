@@ -50,6 +50,7 @@ import { useGetFunctionGas } from '../../hooks/useGas'
 /* import utils */
 import { accurateMultiply, truncateValue } from '../../utils/formatting'
 import { getTimeFromMillis } from '../../utils/time'
+import { TransactionReceipt, TransactionResponse } from '@ethersproject/providers'
 
 export const MyClaims: React.FC = () => {
   /*************************************************************************************
@@ -64,8 +65,7 @@ export const MyClaims: React.FC = () => {
   const { addLocalTransactions, reload } = useCachedData()
   const { makeTxToast } = useNotifications()
   const claimsDetails = useGetClaimsDetails()
-  const { getAutoGasConfig } = useGetFunctionGas()
-  const gasConfig = useMemo(() => getAutoGasConfig(), [getAutoGasConfig])
+  const { gasConfig } = useGetFunctionGas()
   const [openClaims, setOpenClaims] = useState<boolean>(true)
   const { width } = useWindowDimensions()
 
@@ -79,7 +79,7 @@ export const MyClaims: React.FC = () => {
     if (!claimsEscrow || !_claimId) return
     const txType = FunctionName.WITHDRAW_CLAIMS_PAYOUT
     try {
-      const tx = await claimsEscrow.withdrawClaimsPayout(_claimId, {
+      const tx: TransactionResponse = await claimsEscrow.withdrawClaimsPayout(_claimId, {
         ...gasConfig,
         gasLimit: FunctionGasLimits['claimsEscrow.withdrawClaimsPayout'],
       })
@@ -92,7 +92,7 @@ export const MyClaims: React.FC = () => {
       addLocalTransactions(localTx)
       reload()
       makeTxToast(txType, TransactionCondition.PENDING, txHash)
-      await tx.wait().then((receipt: any) => {
+      await tx.wait(activeNetwork.rpc.blockConfirms).then((receipt: TransactionReceipt) => {
         const status = receipt.status ? TransactionCondition.SUCCESS : TransactionCondition.FAILURE
         makeTxToast(txType, status, txHash)
         reload()

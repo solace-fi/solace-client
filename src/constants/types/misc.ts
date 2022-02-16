@@ -5,8 +5,10 @@ export type BasicData = {
 
 export type StringToStringMapping = { [key: string]: string }
 
+export type TokenToPriceMapping = { [key: string]: number }
+
 export type ZerionPosition = {
-  apy: any
+  apr: any
   asset: ZerionAsset
   chain: string | null
   id: string | null

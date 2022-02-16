@@ -1,7 +1,7 @@
-const lockingBenefitsCalculator = (days: number): { apy: number; multiplier: number } => {
+const lockingBenefitsCalculator = (days: number): { apr: number; multiplier: number } => {
   const multiplier = 1 + (days / 365) * 0.2
-  const apy = multiplier * 2000
-  return { apy, multiplier }
+  const apr = multiplier * 2000
+  return { apr, multiplier }
 }
 
 export default lockingBenefitsCalculator

@@ -5,13 +5,14 @@ import { useNetwork } from '../context/NetworkManager'
 import { useReadToken } from './useToken'
 import { formatUnits } from '@ethersproject/units'
 import { BigNumber } from 'ethers'
-import { GasConfiguration, LocalTx, LockData, UserLocksData, UserLocksInfo } from '../constants/types'
+import { LocalTx, LockData, UserLocksData, UserLocksInfo } from '../constants/types'
 import { getPermitErc20Signature } from '../utils/signature'
 import { DEADLINE, ZERO } from '../constants'
 import { FunctionName, TransactionCondition } from '../constants/enums'
 import { useProvider } from '../context/ProviderManager'
 import { rangeFrom0 } from '../utils/numeric'
 import { FunctionGasLimits } from '../constants/mappings/gasMapping'
+import { useGetFunctionGas } from './useGas'
 
 export const useXSLocker = () => {
   const { keyContracts } = useContracts()
@@ -20,6 +21,7 @@ export const useXSLocker = () => {
   const { chainId } = useNetwork()
   const { latestBlock } = useProvider()
   const readToken = useReadToken(solace)
+  const { gasConfig } = useGetFunctionGas()
 
   const getLock = async (xsLockID: BigNumber) => {
     if (!xsLocker) return null
@@ -66,7 +68,7 @@ export const useXSLocker = () => {
     }
   }
 
-  const createLock = async (recipient: string, amount: BigNumber, end: BigNumber, gasConfig: GasConfiguration) => {
+  const createLock = async (recipient: string, amount: BigNumber, end: BigNumber) => {
     if (!xsLocker || !solace) return { tx: null, localTx: null }
     const { v, r, s } = await getPermitErc20Signature(recipient, chainId, library, xsLocker.address, solace, amount)
     const tx = await xsLocker.createLockSigned(amount, end, DEADLINE, v, r, s, {
@@ -81,12 +83,7 @@ export const useXSLocker = () => {
     return { tx, localTx }
   }
 
-  const increaseLockAmount = async (
-    recipient: string,
-    xsLockID: BigNumber,
-    amount: BigNumber,
-    gasConfig: GasConfiguration
-  ) => {
+  const increaseLockAmount = async (recipient: string, xsLockID: BigNumber, amount: BigNumber) => {
     if (!xsLocker || !solace) return { tx: null, localTx: null }
     const { v, r, s } = await getPermitErc20Signature(recipient, chainId, library, xsLocker.address, solace, amount)
     const tx = await xsLocker.increaseAmountSigned(xsLockID, amount, DEADLINE, v, r, s, {
@@ -101,7 +98,7 @@ export const useXSLocker = () => {
     return { tx, localTx }
   }
 
-  const extendLock = async (xsLockID: BigNumber, end: BigNumber, gasConfig: GasConfiguration) => {
+  const extendLock = async (xsLockID: BigNumber, end: BigNumber) => {
     if (!xsLocker || !solace) return { tx: null, localTx: null }
     const tx = await xsLocker.extendLock(xsLockID, end, {
       ...gasConfig,
@@ -115,12 +112,7 @@ export const useXSLocker = () => {
     return { tx, localTx }
   }
 
-  const withdrawFromLock = async (
-    recipient: string,
-    xsLockIDs: BigNumber[],
-    gasConfig: GasConfiguration,
-    amount?: BigNumber
-  ) => {
+  const withdrawFromLock = async (recipient: string, xsLockIDs: BigNumber[], amount?: BigNumber) => {
     if (!xsLocker || !solace || xsLockIDs.length == 0) return { tx: null, localTx: null }
     let tx = null
     let type = FunctionName.WITHDRAW_IN_PART_FROM_LOCK
@@ -209,7 +201,7 @@ export const useUserLockData = () => {
           lockedBalance: ZERO,
           unlockedBalance: ZERO,
           yearlyReturns: ZERO,
-          apy: ZERO,
+          apr: ZERO,
         },
         locks: [],
       }
@@ -239,7 +231,7 @@ export const useUserLockData = () => {
         const yearlyReturns: BigNumber = valueStaked.gt(ZERO)
           ? rewardPerSecond.mul(BigNumber.from(31536000)).mul(stakedLock.value).div(valueStaked)
           : ZERO
-        const apy: BigNumber = lock.amount.gt(ZERO) ? yearlyReturns.mul(100).div(lock.amount) : ZERO
+        const apr: BigNumber = lock.amount.gt(ZERO) ? yearlyReturns.mul(100).div(lock.amount) : ZERO
         const _lock: LockData = {
           xsLockID: xsLockID,
           unboostedAmount: lock.amount,
@@ -247,7 +239,7 @@ export const useUserLockData = () => {
           timeLeft: timeLeft,
           boostedValue: stakedLock.value,
           pendingRewards: rewards,
-          apy: apy,
+          apr: apr,
         }
         return _lock
       })
@@ -262,14 +254,14 @@ export const useUserLockData = () => {
     const userYearlyReturns: BigNumber = valueStaked.gt(ZERO)
       ? rewardPerSecond.mul(BigNumber.from(31536000)).mul(userValue).div(valueStaked)
       : ZERO
-    const userApy: BigNumber = stakedBalance.gt(ZERO) ? userYearlyReturns.mul(100).div(stakedBalance) : ZERO
+    const userApr: BigNumber = stakedBalance.gt(ZERO) ? userYearlyReturns.mul(100).div(stakedBalance) : ZERO
     const userInfo: UserLocksInfo = {
       pendingRewards: pendingRewards,
       stakedBalance: stakedBalance,
       lockedBalance: lockedBalance,
       unlockedBalance: unlockedBalance,
       yearlyReturns: userYearlyReturns,
-      apy: userApy,
+      apr: userApr,
     }
     const data = {
       user: userInfo,

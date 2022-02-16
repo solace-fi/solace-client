@@ -8,7 +8,7 @@
     import components
     import hooks
 
-    PrivateBondInfo
+    PrivateBondInfoV2
       custom hooks
 
   *************************************************************************************/
@@ -19,40 +19,36 @@ import { formatUnits } from '@ethersproject/units'
 import { BigNumber } from 'ethers'
 
 /* import constants */
-import { FunctionName } from '../../../constants/enums'
-import { BondTellerDetails } from '../../../constants/types'
+import { FunctionName } from '../../../../constants/enums'
+import { BondTellerDetails } from '../../../../constants/types'
 
 /* import managers */
-import { useNetwork } from '../../../context/NetworkManager'
-import { useWallet } from '../../../context/WalletManager'
-import { useContracts } from '../../../context/ContractsManager'
+import { useNetwork } from '../../../../context/NetworkManager'
+import { useWallet } from '../../../../context/WalletManager'
+import { useContracts } from '../../../../context/ContractsManager'
 
 /* import components */
-import { FormCol, FormRow } from '../../atoms/Form'
-import { Text } from '../../atoms/Typography'
-import { SmallBox } from '../../atoms/Box'
+import { FormCol, FormRow } from '../../../atoms/Form'
+import { Text } from '../../../atoms/Typography'
 
 /* import hooks */
-import { useReadToken } from '../../../hooks/useToken'
+import { useReadToken } from '../../../../hooks/useToken'
+import { useTellerConfig } from '../../../../hooks/useDetectTeller'
 
-interface PrivateBondInfoProps {
+interface PrivateBondInfoV2Props {
   func: FunctionName
   selectedBondDetail?: BondTellerDetails
   assetBalance: BigNumber
   pncplDecimals: number | undefined
   calculatedAmountOut?: BigNumber
-  calculatedAmountOut_X?: BigNumber
-  isStaking: boolean
 }
 
-export const PrivateBondInfo: React.FC<PrivateBondInfoProps> = ({
+export const PrivateBondInfoV2: React.FC<PrivateBondInfoV2Props> = ({
   func,
   selectedBondDetail,
   assetBalance,
   pncplDecimals,
   calculatedAmountOut,
-  calculatedAmountOut_X,
-  isStaking,
 }) => {
   /*
 
@@ -63,9 +59,9 @@ export const PrivateBondInfo: React.FC<PrivateBondInfoProps> = ({
   const { account } = useWallet()
   const { activeNetwork } = useNetwork()
   const { keyContracts } = useContracts()
-  const { solace, xSolaceV1 } = useMemo(() => keyContracts, [keyContracts])
+  const { solace } = useMemo(() => keyContracts, [keyContracts])
   const readSolaceToken = useReadToken(solace)
-  const readXSolaceToken = useReadToken(xSolaceV1)
+  const { bondDepositFunctionName } = useTellerConfig(activeNetwork)
   return (
     <>
       {account && (
@@ -77,7 +73,7 @@ export const PrivateBondInfo: React.FC<PrivateBondInfoProps> = ({
             <FormCol>
               <Text info textAlignRight bold>
                 {formatUnits(assetBalance, pncplDecimals)}{' '}
-                {func == FunctionName.DEPOSIT_ETH
+                {func == bondDepositFunctionName
                   ? activeNetwork.nativeCurrency.symbol
                   : selectedBondDetail?.principalData.principalProps?.symbol}
               </Text>
@@ -94,22 +90,6 @@ export const PrivateBondInfo: React.FC<PrivateBondInfoProps> = ({
                   : `-`}
               </Text>
             </FormCol>
-          </FormRow>
-          <FormRow mb={30} jc={'right'}>
-            <SmallBox transparent collapse={!isStaking} m={0} p={0}>
-              <FormRow mb={10}>
-                <FormCol></FormCol>
-                <FormCol>
-                  <Text t4 textAlignRight>
-                    {'( '}
-                    {calculatedAmountOut_X
-                      ? `${formatUnits(calculatedAmountOut_X, readXSolaceToken.decimals)} ${readXSolaceToken.symbol}`
-                      : `-`}
-                    {' )'}
-                  </Text>
-                </FormCol>
-              </FormRow>
-            </SmallBox>
           </FormRow>
         </>
       )}

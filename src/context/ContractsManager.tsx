@@ -29,10 +29,10 @@ type Contracts = {
     stakingRewards?: Contract | null
     xSolaceMigrator?: Contract | null
     cpFarm?: Contract | null
-    bondDepo?: Contract | null
     claimsEscrow?: Contract | null
     policyManager?: Contract | null
     riskManager?: Contract | null
+    solaceCoverProduct?: Contract | null
   }
   products: ProductContract[]
   tellers: BondTellerContract[]
@@ -54,10 +54,10 @@ const ContractsContext = createContext<Contracts>({
     stakingRewards: undefined,
     xSolaceMigrator: undefined,
     cpFarm: undefined,
-    bondDepo: undefined,
     claimsEscrow: undefined,
     policyManager: undefined,
     riskManager: undefined,
+    solaceCoverProduct: undefined,
   },
   products: [],
   tellers: [],
@@ -86,7 +86,7 @@ const ContractsProvider: React.FC = (props) => {
   const claimsEscrow = useGetContract(keyContracts.claimsEscrow)
   const policyManager = useGetContract(keyContracts.policyManager)
   const riskManager = useGetContract(keyContracts.riskManager)
-  const bondDepo = useGetContract(keyContracts.bondDepo)
+  const solaceCoverProduct = useGetContract(keyContracts.solaceCoverProduct)
   const products = useGetProductContracts()
   const tellers = useGetBondTellerContracts()
 
@@ -119,10 +119,10 @@ const ContractsProvider: React.FC = (props) => {
         stakingRewards,
         xSolaceMigrator,
         cpFarm,
-        bondDepo,
         claimsEscrow,
         policyManager,
         riskManager,
+        solaceCoverProduct,
       },
       products,
       tellers,
@@ -142,10 +142,10 @@ const ContractsProvider: React.FC = (props) => {
       stakingRewards,
       xSolaceMigrator,
       cpFarm,
-      bondDepo,
       claimsEscrow,
       policyManager,
       riskManager,
+      solaceCoverProduct,
       products,
       tellers,
       contractSources,

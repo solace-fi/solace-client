@@ -7,7 +7,7 @@ export type LockData = {
   timeLeft: BigNumber
   boostedValue: BigNumber
   pendingRewards: BigNumber
-  apy: BigNumber
+  apr: BigNumber
 }
 
 export type UserLocksInfo = {
@@ -16,7 +16,7 @@ export type UserLocksInfo = {
   lockedBalance: BigNumber
   unlockedBalance: BigNumber
   yearlyReturns: BigNumber
-  apy: BigNumber
+  apr: BigNumber
 }
 
 export type UserLocksData = {
@@ -29,5 +29,5 @@ export type GlobalLockInfo = {
   valueStaked: BigNumber
   numLocks: BigNumber
   rewardPerSecond: BigNumber
-  apy: BigNumber
+  apr: BigNumber
 }

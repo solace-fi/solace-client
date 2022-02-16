@@ -8,19 +8,21 @@ export type NetworkConfig = {
   name: string
   chainId: number
   isTestnet: boolean
-  logo: string
+  logo?: string
   supportedTxTypes: number[]
   nativeCurrency: {
+    mainnetReference: string
     symbol: Unit
     decimals: number
   }
   rpc: {
     httpsUrl: string
     pollingInterval: number
+    blockConfirms: number
   }
   explorer: {
-    name: 'Etherscan' | 'Polygonscan'
-    key: string
+    name: string
+    key?: string
     url: string
     apiUrl: string
     excludedContractAddrs: string[]
@@ -28,7 +30,21 @@ export type NetworkConfig = {
   config: {
     keyContracts: { [key: string]: ContractSources }
     productContracts: { [key: string]: ContractSources }
-    bondTellerContracts: { [key: string]: string }
+    specialContracts: { [key: string]: ContractSources }
+    restrictedFeatures: {
+      cannotBuySolace?: boolean
+      noBondingV1?: boolean
+      noBondingV2?: boolean
+      noCoverProducts?: boolean
+      noFarmingV1?: boolean
+      noSoteria?: boolean
+      noStakingV1?: boolean
+      noStakingV2?: boolean
+    }
+    specialFeatures: {
+      unwrapBridgedSolace?: boolean
+    }
+    underwritingPoolAddr?: string
   }
   cache: {
     supportedProducts: SupportedProduct[]

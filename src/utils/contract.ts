@@ -54,6 +54,15 @@ export const sortTokens = (tokenA: string, tokenB: string): [string, string] => 
   return BigNumber.from(tokenA).lt(BigNumber.from(tokenB)) ? [tokenA, tokenB] : [tokenB, tokenA]
 }
 
+export const listTokens = async (contract: Contract): Promise<BigNumber[]> => {
+  const supply: BigNumber = await contract.totalSupply()
+  const indices = rangeFrom0(supply.toNumber())
+  const tokenIds: BigNumber[] = await Promise.all(
+    indices.map(async (index: number) => await contract.tokenByIndex(index))
+  )
+  return tokenIds
+}
+
 export const listTokensOfOwner = async (token: Contract, account: string): Promise<BigNumber[]> => {
   const numTokensOfOwner: BigNumber = await queryBalance(token, account)
   const indices = rangeFrom0(numTokensOfOwner.toNumber())

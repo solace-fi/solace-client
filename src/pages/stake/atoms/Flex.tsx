@@ -1,13 +1,17 @@
-import styled from 'styled-components'
+import styled, { css } from 'styled-components'
 
 export default styled.div<{
   between?: boolean
+  // center?: boolean
+  justifyCenter?: boolean
+  itemsCenter?: boolean
   center?: boolean
   column?: boolean
   col?: boolean
-  end?: boolean
+  justifyEnd?: boolean
   stretch?: boolean
   wrap?: boolean
+  m?: number
   mb?: number
   mt?: number
   p?: number
@@ -18,13 +22,49 @@ export default styled.div<{
   gap?: number
   w?: number
   hidden?: boolean
+  baseline?: boolean
+  flex1?: boolean
 }>`
   display: flex;
-  justify-content: ${({ between, end, center }) =>
-    between ? 'space-between' : end ? 'flex-end' : center ? 'center' : 'flex-start'};
-  align-items: ${({ center, stretch }) => (center ? 'center' : stretch ? 'stretch' : 'flex-start')};
+  justify-content: 'flex-start';
+  ${({ justifyCenter }) =>
+    justifyCenter &&
+    css`
+      justify-content: center;
+    `}
+  ${({ between }) =>
+    between &&
+    css`
+      justify-content: space-between;
+    `}
+  ${({ itemsCenter }) =>
+    itemsCenter &&
+    css`
+      align-items: center;
+    `}
+  ${({ center }) =>
+    center &&
+    css`
+      justify-content: center;
+      align-items: center;
+    `}
+  ${({ stretch }) =>
+    stretch &&
+    css`
+      align-items: stretch;
+    `}
+    ${({ baseline }) =>
+    baseline &&
+    css`
+      align-items: baseline;
+    `}
   flex-direction: ${({ column, col }) => (column || col ? 'column' : 'row')};
   flex-wrap: ${({ wrap }) => (wrap ? 'wrap' : 'nowrap')};
+  ${({ m }) =>
+    m &&
+    css`
+      margin: ${m}px;
+    `}
   margin-bottom: ${({ mb }) => mb + 'px'};
   margin-top: ${({ mt }) => mt + 'px'};
   padding: ${({ p }) => p}px;
@@ -35,4 +75,6 @@ export default styled.div<{
   gap: ${({ gap }) => gap}px;
   width: ${({ w }) => w}px;
   ${({ hidden }) => hidden && 'display: none;'}
+  ${({ justifyEnd }) => justifyEnd && 'justify-content: flex-end;'}
+  ${({ flex1 }) => flex1 && 'flex: 1;'}
 `

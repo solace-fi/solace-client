@@ -1,6 +1,6 @@
 import React from 'react'
 import Flex from '../atoms/Flex'
-import RaisedBox from '../atoms/RaisedBox'
+import RaisedBox from '../../../components/atoms/RaisedBox'
 import CardSectionValue from '../components/CardSectionValue'
 import { Separator } from '../components/VerticalSeparator'
 import InfoPair from '../molecules/InfoPair'
@@ -55,9 +55,9 @@ export default function AggregatedStakeData({ stakeData }: { stakeData: UserLock
             <Flex col={BKPT_6 > width} gap={91} stretch>
               <Separator horizontal={BKPT_6 > width} />
               <div>
-                <InfoPair importance="secondary" label="APY" horizontal={BKPT_6 > width}>
+                <InfoPair importance="secondary" label="APR" horizontal={BKPT_6 > width}>
                   <Text bold style={{ fontSize: '16px' }}>
-                    {stakeData.apy.toNumber()}%
+                    {truncateValue(stakeData.apr.toString(), 1)}%
                   </Text>
                 </InfoPair>
               </div>
@@ -107,10 +107,10 @@ export default function AggregatedStakeData({ stakeData }: { stakeData: UserLock
             </FormCol>
           </FormRow>
           <FormRow>
-            <FormCol>APY</FormCol>
+            <FormCol>APR</FormCol>
             <FormCol>
               <Text t2 nowrap bold>
-                {stakeData.apy.toNumber()}%
+                {truncateValue(stakeData.apr.toString(), 1)}%
               </Text>
             </FormCol>
           </FormRow>

@@ -5,9 +5,6 @@ import { Contract } from '@ethersproject/contracts'
 import { BondTellerContract, ContractSources, ProductContract, SupportedProduct } from '../constants/types'
 import { useNetwork } from '../context/NetworkManager'
 
-import bondTellerErc20Abi from '../constants/abi/contracts/BondTellerErc20.sol/BondTellerErc20.json'
-import bondTellerEthAbi from '../constants/abi/contracts/BondTellerEth.sol/BondTellerEth.json'
-
 export function useGetContract(source: ContractSources | undefined, hasSigner = true): Contract | null {
   const { library, account } = useWallet()
 
@@ -56,31 +53,18 @@ export function useGetBondTellerContracts(): BondTellerContract[] {
   const { activeNetwork } = useNetwork()
 
   return useMemo(() => {
-    const config = activeNetwork.config
     const cache = activeNetwork.cache
     if (!library) return []
     const bondTellerContracts: BondTellerContract[] = []
-    Object.keys(config.bondTellerContracts).forEach((key) => {
-      const bondTellerContractAddr = config.bondTellerContracts[key]
-      const isBondTellerErc20 = cache.tellerToTokenMapping[bondTellerContractAddr].isBondTellerErc20
-      const isLp = cache.tellerToTokenMapping[bondTellerContractAddr].isLp
-      const isDisabled = cache.tellerToTokenMapping[bondTellerContractAddr].isDisabled
-      const name = key
-      const underlyingAddr = cache.tellerToTokenMapping[bondTellerContractAddr].addr
-      const contract = getContract(
-        bondTellerContractAddr,
-        isBondTellerErc20 ? bondTellerErc20Abi : bondTellerEthAbi,
-        library,
-        account ? account : undefined
-      )
-      bondTellerContracts.push({
-        name,
+    Object.keys(cache.tellerToTokenMapping).forEach((key) => {
+      const mapping = cache.tellerToTokenMapping[key]
+      const tellerAbi = mapping.tellerAbi
+      const contract = getContract(key, tellerAbi, library, account ? account : undefined)
+      const cntct: BondTellerContract = {
         contract,
-        isBondTellerErc20,
-        isLp,
-        isDisabled,
-        underlyingAddr,
-      })
+        ...mapping,
+      }
+      bondTellerContracts.push(cntct)
     })
     return bondTellerContracts
   }, [library, account, activeNetwork])
@@ -111,12 +95,20 @@ export function useContractArray(): ContractSources[] {
         })
       }
     })
-    Object.keys(config.bondTellerContracts).forEach((key) => {
-      if (!excludedContractAddrs.includes(config.bondTellerContracts[key])) {
-        const isBondTellerErc20 = cache.tellerToTokenMapping[config.bondTellerContracts[key]].isBondTellerErc20
+    Object.keys(cache.tellerToTokenMapping).forEach((key) => {
+      if (!excludedContractAddrs.includes(key)) {
+        const abi = cache.tellerToTokenMapping[key].tellerAbi
         contractSources.push({
-          addr: config.bondTellerContracts[key].toLowerCase(),
-          abi: isBondTellerErc20 ? bondTellerErc20Abi : bondTellerEthAbi,
+          addr: key.toLowerCase(),
+          abi,
+        })
+      }
+    })
+    Object.keys(config.specialContracts).forEach((key) => {
+      if (!excludedContractAddrs.includes(config.specialContracts[key].addr)) {
+        contractSources.push({
+          addr: config.specialContracts[key].addr.toLowerCase(),
+          abi: config.specialContracts[key].abi,
         })
       }
     })

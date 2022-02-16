@@ -2,7 +2,7 @@ import React from 'react'
 import styled from 'styled-components'
 import { Button } from '../../../../components/atoms/Button'
 import { Tab } from '../../types/Tab'
-import IconAndText from './IconAndText'
+import IconAndText, { GenericIconAndText } from './IconAndText'
 import InputSectionWrapper from './InputSectionWrapper'
 
 const StyledInput = styled.input`
@@ -17,7 +17,7 @@ export default function InputSection({
   disabled,
 }: // ref,
 {
-  tab: Tab.DEPOSIT | Tab.WITHDRAW | Tab.LOCK
+  tab?: Tab.DEPOSIT | Tab.LOCK | Tab.WITHDRAW
   value: string | undefined
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void
   setMax?: () => void
@@ -25,7 +25,7 @@ export default function InputSection({
 }): JSX.Element {
   return (
     <InputSectionWrapper>
-      <IconAndText tab={tab} disabled={disabled} />
+      {tab ? <IconAndText tab={tab} disabled={disabled} /> : <></>}
       <StyledInput
         key="mainInput"
         type="text"
@@ -39,6 +39,85 @@ export default function InputSection({
       {setMax && (
         <Button onClick={setMax} disabled={disabled} m={10}>
           MAX
+        </Button>
+      )}
+    </InputSectionWrapper>
+  )
+}
+
+export const GenericInputSection = ({
+  icon,
+  text,
+  value,
+  onChange,
+  buttonDisabled,
+  disabled,
+  w,
+  style,
+  displayIconOnMobile,
+  buttonText,
+  buttonOnClick,
+  inputWidth,
+  iconAndTextWidth,
+  placeholder,
+}: {
+  icon?: JSX.Element
+  text?: string
+  value: string | undefined
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void
+  buttonDisabled?: boolean
+  disabled?: boolean
+  w?: number
+  style?: React.CSSProperties
+  displayIconOnMobile?: boolean
+  buttonText?: string
+  buttonOnClick?: () => void
+  inputWidth?: number
+  iconAndTextWidth?: number
+  placeholder?: string
+}): JSX.Element => {
+  const rawStyle = {
+    ...style,
+    // width: w ? w : '335px',
+    width: w ? w : '100%',
+    height: '64px',
+  }
+  return (
+    <InputSectionWrapper style={rawStyle}>
+      {icon && text && (
+        <GenericIconAndText
+          icon={icon}
+          text={text}
+          disabled={disabled}
+          displayOnMobile={displayIconOnMobile}
+          width={iconAndTextWidth}
+        />
+      )}
+      <StyledInput
+        key="mainInput"
+        type="text"
+        className="py-3 lg:py-5 px-5 outline-none rounded-xl lg:border-0 lg:rounded-none"
+        placeholder={placeholder ?? '0'}
+        value={value}
+        onChange={onChange}
+        style={{ backgroundColor: 'inherit', color: 'inherit', borderRadius: 'inherit', width: inputWidth ?? '100%' }}
+        disabled={disabled}
+      />
+      {buttonText && (
+        <Button
+          m={10}
+          onClick={buttonOnClick}
+          disabled={buttonDisabled}
+          info
+          style={
+            buttonDisabled
+              ? {
+                  cursor: 'default',
+                }
+              : {}
+          }
+        >
+          {buttonText}
         </Button>
       )}
     </InputSectionWrapper>

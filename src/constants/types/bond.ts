@@ -2,12 +2,21 @@ import { BigNumber } from 'ethers'
 import { Contract } from '@ethersproject/contracts'
 import { BondTellerContract } from './contract'
 
-export type BondToken = {
+export type BondTokenV1 = {
   id: BigNumber
   payoutToken: string
   payoutAmount: BigNumber
   pricePaid: BigNumber
   maturation: BigNumber
+}
+
+export type BondTokenV2 = {
+  id: BigNumber
+  payoutAmount: BigNumber
+  payoutAlreadyClaimed: BigNumber
+  principalPaid: BigNumber
+  vestingStart: number
+  localVestingTerm: number
 }
 
 export type BondTellerDetails = {
@@ -23,7 +32,7 @@ export type BondTellerData = {
   vestingTermInSeconds: number
   capacity: BigNumber
   maxPayout: BigNumber
-  bondFeeBps: BigNumber
+  bondFeeBps?: BigNumber
   bondRoi: number
 }
 
@@ -39,8 +48,16 @@ export type BondPrincipalData = {
 }
 
 export type TellerToken = {
+  name: string
   addr: string
+  tellerAbi: any
+  principalAbi: any
+  mainnetAddr: string
+  tokenId: string
   isBondTellerErc20: boolean
-  isLp: boolean
-  isDisabled: boolean
+  version: number
+  isLp?: boolean
+  sdk?: string
+  isDisabled?: boolean
+  cannotBuy?: boolean
 }

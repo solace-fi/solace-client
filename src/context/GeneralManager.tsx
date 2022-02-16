@@ -1,5 +1,5 @@
-import React, { createContext, useContext, useState, useCallback, useRef } from 'react'
-import { useLocalStorage } from 'react-use-storage'
+import React, { createContext, useContext, useState, useCallback, useRef, useEffect } from 'react'
+import { useLocalStorage, useSessionStorage } from 'react-use-storage'
 import { ThemeProvider } from 'styled-components'
 import { lightTheme, darkTheme } from '../styles/themes'
 import { Error, SystemNotice } from '../constants/enums'
@@ -22,6 +22,7 @@ type GeneralContextType = {
   removeNotices: (noticesToRemove: SystemNotice[]) => void
   addErrors: (errorsToAdd: ErrorData[]) => void
   removeErrors: (errorsToRemove: Error[]) => void
+  referralCode: string | undefined
 }
 
 const GeneralContext = createContext<GeneralContextType>({
@@ -34,6 +35,7 @@ const GeneralContext = createContext<GeneralContextType>({
   removeNotices: () => undefined,
   addErrors: () => undefined,
   removeErrors: () => undefined,
+  referralCode: undefined,
 })
 
 export function useGeneral(): GeneralContextType {
@@ -46,6 +48,19 @@ const GeneralProvider: React.FC = (props) => {
   )
   const appTheme: 'light' | 'dark' = selectedTheme ?? 'light'
   const theme = appTheme == 'light' ? lightTheme : darkTheme
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [referralCode, setReferralCode] = useSessionStorage<string | undefined>('sol_data_referral_code')
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    const referralCodeFromUrl = params.get('rc')
+    if (referralCodeFromUrl) {
+      history.pushState(null, '', location.href.split('?')[0])
+      setReferralCode(referralCodeFromUrl)
+      console.log('referralCodeFromUrl', referralCodeFromUrl)
+    }
+  }, [setReferralCode])
+
   const [notices, setNotices] = useState<string[]>([])
   const [errors, setErrors] = useState<string[]>([])
   const haveErrors = useRef(errors.length > 0)
@@ -57,6 +72,7 @@ const GeneralProvider: React.FC = (props) => {
     const stringifiedNoticeData = noticesToAdd.map((notice) => JSON.stringify(notice))
 
     setNotices([...stringifiedNoticeData, ...notices])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const removeNotices = useCallback((noticesToRemove: SystemNotice[]) => {
@@ -68,6 +84,7 @@ const GeneralProvider: React.FC = (props) => {
     )
     if (updatedNotices == notices) return
     setNotices(updatedNotices)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const addErrors = useCallback((errorsToAdd: ErrorData[]) => {
@@ -77,6 +94,7 @@ const GeneralProvider: React.FC = (props) => {
     const stringifiedErrorData = errorsToAdd.map((error) => JSON.stringify(error))
 
     setErrors([...stringifiedErrorData, ...errors])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const removeErrors = useCallback((errorsToRemove: Error[]) => {
@@ -88,6 +106,7 @@ const GeneralProvider: React.FC = (props) => {
     )
     if (updatedErrors == notices) return
     setErrors(updatedErrors)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   function toggleTheme() {
@@ -108,6 +127,7 @@ const GeneralProvider: React.FC = (props) => {
     removeNotices,
     addErrors,
     removeErrors,
+    referralCode,
   }
 
   return (

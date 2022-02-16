@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react'
 import { useContracts } from '../context/ContractsManager'
 import { useNetwork } from '../context/NetworkManager'
 import { useWallet } from '../context/WalletManager'
-import { GasConfiguration, LocalTx, TxResult } from '../constants/types'
+import { LocalTx, TxResult } from '../constants/types'
 import { BigNumber } from 'ethers'
 import { DEADLINE, ZERO } from '../constants'
 import { FunctionName, TransactionCondition } from '../constants/enums'
@@ -14,14 +14,16 @@ import { useCachedData } from '../context/CachedDataManager'
 import { parseUnits, formatUnits } from '@ethersproject/units'
 import { useProvider } from '../context/ProviderManager'
 import { useReadToken } from './useToken'
+import { useGetFunctionGas } from './useGas'
 
 export const useXSolaceV1 = () => {
   const { keyContracts } = useContracts()
   const { solace, xSolaceV1 } = useMemo(() => keyContracts, [keyContracts])
   const { account, library } = useWallet()
   const { chainId } = useNetwork()
+  const { gasConfig } = useGetFunctionGas()
 
-  const stake_v1 = async (parsedAmount: BigNumber, gasConfig: GasConfiguration) => {
+  const stake_v1 = async (parsedAmount: BigNumber) => {
     if (!solace || !xSolaceV1 || !account) return { tx: null, localTx: null }
     const { v, r, s } = await getPermitErc20Signature(
       account,
@@ -43,7 +45,7 @@ export const useXSolaceV1 = () => {
     return { tx, localTx }
   }
 
-  const unstake_v1 = async (parsedAmount: BigNumber, gasConfig: GasConfiguration): Promise<TxResult> => {
+  const unstake_v1 = async (parsedAmount: BigNumber): Promise<TxResult> => {
     if (!xSolaceV1) return { tx: null, localTx: null }
     const tx = await xSolaceV1.unstake(parsedAmount, {
       ...gasConfig,
@@ -112,30 +114,4 @@ export const useXSolaceV1Details = () => {
   }, [latestBlock, version, getXSolaceUserPoolShare, getSolacePerXSolace, getXSolacePerSolace])
 
   return { userShare, xSolacePerSolace, solacePerXSolace }
-}
-
-export const useStakingApyV1 = () => {
-  const { latestBlock } = useProvider()
-  const [stakingApy, setStakingApy] = useState<string>('-%')
-  const { keyContracts } = useContracts()
-  const { xSolaceV1 } = useMemo(() => keyContracts, [keyContracts])
-
-  const getStakingAPY = useCallback(async () => {
-    if (!latestBlock || !xSolaceV1) return
-    try {
-      const amount = await xSolaceV1.solaceToXSolace(parseUnits('1', 18))
-      const apy = (1 / parseFloat(formatUnits(amount, 18)) - 1) * 100
-      const formattedApy = `${truncateValue(apy, 2, false)}%`
-      setStakingApy(formattedApy)
-    } catch (err) {
-      console.log('error getStakingAPY ', err)
-    }
-  }, [xSolaceV1, latestBlock])
-
-  useEffect(() => {
-    if (!latestBlock) return
-    getStakingAPY()
-  }, [latestBlock, getStakingAPY])
-
-  return { stakingApy }
 }

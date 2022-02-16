@@ -46,7 +46,7 @@ import { AssetsModal } from '../AssetsModal'
 import { useWindowDimensions } from '../../../hooks/useWindowDimensions'
 
 /* import utils */
-import { getDaysLeft } from '../../../utils/time'
+import { getDaysLeftByBlockNum } from '../../../utils/time'
 import { truncateValue } from '../../../utils/formatting'
 
 interface PolicyModalInfoProps {
@@ -67,7 +67,8 @@ export const PolicyModalInfo: React.FC<PolicyModalInfoProps> = ({ appraisal, sel
   const [showAssetsModal, setShowAssetsModal] = useState<boolean>(false)
   const [formattedAssets, setFormattedAssets] = useState<BasicData[]>([])
   const daysLeft = useMemo(
-    () => getDaysLeft(selectedPolicy ? selectedPolicy.expirationBlock : 0, latestBlock ? latestBlock.number : 0),
+    () =>
+      getDaysLeftByBlockNum(selectedPolicy ? selectedPolicy.expirationBlock : 0, latestBlock ? latestBlock.number : 0),
     [latestBlock, selectedPolicy]
   )
   const MaxPositionsToDisplay = 4

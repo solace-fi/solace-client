@@ -13,7 +13,7 @@ import {
   truncateValue,
 } from '../../../../utils/formatting'
 import { BigNumber } from 'ethers'
-import { useInputAmount } from '../../../../hooks/useInputAmount'
+import { useInputAmount, useTransactionExecution } from '../../../../hooks/useInputAmount'
 import { useXSLocker } from '../../../../hooks/useXSLocker'
 import { useWallet } from '../../../../context/WalletManager'
 import { FunctionName } from '../../../../constants/enums'
@@ -30,14 +30,15 @@ import { BKPT_5 } from '../../../../constants'
 import { Text } from '../../../../components/atoms/Typography'
 
 export default function WithdrawForm({ lock }: { lock: LockData }): JSX.Element {
-  const { handleToast, handleContractCallError, isAppropriateAmount, gasConfig } = useInputAmount()
+  const { isAppropriateAmount } = useInputAmount()
+  const { handleToast, handleContractCallError } = useTransactionExecution()
   const { withdrawFromLock } = useXSLocker()
   const { account } = useWallet()
   const { width } = useWindowDimensions()
 
   const [inputValue, setInputValue] = React.useState('0')
   const [rangeValue, setRangeValue] = React.useState('0')
-  const { projectedMultiplier, projectedApy, projectedYearlyReturns } = useProjectedBenefits(
+  const { projectedMultiplier, projectedApr, projectedYearlyReturns } = useProjectedBenefits(
     convertSciNotaToPrecise((parseFloat(lock.unboostedAmount.toString()) - parseFloat(rangeValue)).toString()),
     lock.end.toNumber()
   )
@@ -49,7 +50,7 @@ export default function WithdrawForm({ lock }: { lock: LockData }): JSX.Element 
     if (isMax) {
       type = FunctionName.WITHDRAW_FROM_LOCK
     }
-    await withdrawFromLock(account, [lock.xsLockID], gasConfig, isMax ? undefined : parseUnits(inputValue, 18))
+    await withdrawFromLock(account, [lock.xsLockID], isMax ? undefined : parseUnits(inputValue, 18))
       .then((res) => handleToast(res.tx, res.localTx))
       .catch((err) => handleContractCallError('callWithdrawFromLock', err, type))
   }
@@ -80,7 +81,10 @@ export default function WithdrawForm({ lock }: { lock: LockData }): JSX.Element 
         gap: '30px',
       }}
     >
-      <InformationBox type={InfoBoxType.info} text="Withdrawal is available only when the lockup period ends." />
+      <InformationBox
+        type={InfoBoxType.info}
+        text="Withdrawal is available only when the lockup period ends. Withdrawing harvests rewards for you."
+      />
       <StyledForm>
         <Flex column={BKPT_5 > width} gap={24}>
           <Flex column gap={24}>
@@ -106,13 +110,13 @@ export default function WithdrawForm({ lock }: { lock: LockData }): JSX.Element 
                 <Flex stretch gap={24}>
                   <Flex column gap={2}>
                     <Text t5s techygradient mb={8}>
-                      APY
+                      APR
                     </Text>
                     <div style={BKPT_5 > width ? { margin: '-4px 0', display: 'block' } : { display: 'none' }}>
                       &nbsp;
                     </div>
                     <Text t3s techygradient>
-                      <Flex>{projectedApy.toNumber()}%</Flex>
+                      <Flex>{truncateValue(projectedApr.toString(), 1)}%</Flex>
                     </Text>
                   </Flex>
                   <VerticalSeparator />

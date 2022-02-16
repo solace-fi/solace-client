@@ -29,25 +29,21 @@ import { useNotifications } from '../../context/NotificationsManager'
 /* import constants */
 import { BKPT_3 } from '../../constants'
 import { SystemNotice } from '../../constants/enums'
+import { PageInfo } from '../../constants/types'
 
 /* import components */
 import { SidebarItem, TopNav, ItemText, ItemList, SidebarText } from '../atoms/Navbar'
 import { NavButton } from '../atoms/Button'
 import { Logo, MiniLogo } from '../molecules/Logo'
 import {
-  StyledDashboard,
   StyledMedium,
   StyledMenu,
   StyledDiscord,
   StyledGithub,
   StyledTwitter,
-  StyledFileShield,
-  StyledCoinStack,
-  StyledCommunity,
   StyledDocuments,
   StyledWork,
   StyledLockFile,
-  StyledReceiptMoney,
 } from '../atoms/Icon'
 import { Text, TextSpan } from '../atoms/Typography'
 import { HyperLink } from '../atoms/Link'
@@ -72,7 +68,11 @@ import { useWindowDimensions } from '../../hooks/useWindowDimensions'
 //   }
 // `
 
-export const SideNavbar: React.FC = () => {
+interface Navbar {
+  pages: PageInfo[]
+}
+
+export const SideNavbar: React.FC<Navbar> = ({ pages }) => {
   /*
 
   hooks
@@ -123,7 +123,7 @@ export const SideNavbar: React.FC = () => {
         )}
         <ItemList>
           <HorizRule location={location} />
-          <StyledNavTooltip id={'dashboard-nav'} tip={'Dashboard'}>
+          {/* <StyledNavTooltip id={'dashboard-nav'} tip={'Dashboard'}>
             <ItemText>
               <SidebarItem to={'/dashboard'} style={miniNavbarMarginSet}>
                 <Text info={location.pathname == '/dashboard'} light={lightText}>
@@ -159,11 +159,11 @@ export const SideNavbar: React.FC = () => {
               </SidebarItem>
             </ItemText>
           </StyledNavTooltip>
-          <StyledNavTooltip id={'invest-nav'} tip={'Invest'}>
+          <StyledNavTooltip id={'invest-nav'} tip={'Farms'}>
             <ItemText>
               <SidebarItem to={'/invest'} style={miniNavbarMarginSet}>
                 <Text info={location.pathname == '/invest'} light={lightText}>
-                  {width > BKPT_3 ? 'Invest' : <StyledCoinStack size={30} />}
+                  {width > BKPT_3 ? 'Farms' : <StyledCoinStack size={30} />}
                 </Text>
               </SidebarItem>
             </ItemText>
@@ -176,7 +176,18 @@ export const SideNavbar: React.FC = () => {
                 </Text>
               </SidebarItem>
             </ItemText>
-          </StyledNavTooltip>
+          </StyledNavTooltip> */}
+          {pages.map((p) => (
+            <StyledNavTooltip key={p.to} id={`${p.to}-nav`} tip={p.name}>
+              <ItemText>
+                <SidebarItem to={p.to} style={miniNavbarMarginSet}>
+                  <Text info={location.pathname == p.to} light={lightText}>
+                    {width > BKPT_3 ? p.name : p.icon}
+                  </Text>
+                </SidebarItem>
+              </ItemText>
+            </StyledNavTooltip>
+          ))}
         </ItemList>
         <div style={{ flex: '1 1' }}></div>
         <ItemList>
@@ -365,7 +376,7 @@ export const SideNavbar: React.FC = () => {
   )
 }
 
-export const TopNavbar: React.FC = () => {
+export const TopNavbar: React.FC<Navbar> = ({ pages }) => {
   /*************************************************************************************
 
   custom hooks
@@ -411,7 +422,7 @@ export const TopNavbar: React.FC = () => {
     <TopNav id="top-nav" isOpen={isOpen} style={{ overflowY: isOpen ? 'auto' : 'hidden' }}>
       <Logo location={location} pl={10} />
       <ItemList>
-        <SidebarItem onClick={() => handleIsOpen(!isOpen)} to={'/dashboard'} style={{ padding: '20px 0' }}>
+        {/* <SidebarItem onClick={() => handleIsOpen(!isOpen)} to={'/dashboard'} style={{ padding: '20px 0' }}>
           <Text light bold={location.pathname == '/dashboard'}>
             Dashboard
           </Text>
@@ -433,14 +444,21 @@ export const TopNavbar: React.FC = () => {
         </SidebarItem>
         <SidebarItem onClick={() => handleIsOpen(!isOpen)} to={'/invest'} style={{ padding: '20px 0' }}>
           <Text light bold={location.pathname == '/invest'}>
-            Invest
+            Farms
           </Text>
         </SidebarItem>
         <SidebarItem onClick={() => handleIsOpen(!isOpen)} to={'/govern'} style={{ padding: '20px 0' }}>
           <Text light bold={location.pathname == '/govern'}>
             Govern
           </Text>
-        </SidebarItem>
+        </SidebarItem> */}
+        {pages.map((p) => (
+          <SidebarItem key={p.to} onClick={() => handleIsOpen(!isOpen)} to={p.to} style={{ padding: '20px 0' }}>
+            <Text light bold={location.pathname == p.to}>
+              {p.name}
+            </Text>
+          </SidebarItem>
+        ))}
       </ItemList>
       <HorizRule />
       <UserAccount light={location.pathname == '/'} />

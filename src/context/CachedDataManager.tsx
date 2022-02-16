@@ -2,7 +2,7 @@ import React, { useMemo, useContext, createContext, useEffect, useState, useCall
 import { useLocalStorage } from 'react-use-storage'
 import { useWallet } from './WalletManager'
 
-import { LocalTx, Policy, GasFeeListState } from '../constants/types'
+import { LocalTx, Policy, GasFeeListState, TokenToPriceMapping } from '../constants/types'
 import { usePolicyGetter } from '../hooks/usePolicyGetter'
 import { useReload } from '../hooks/useReload'
 
@@ -12,6 +12,7 @@ import { useNetwork } from './NetworkManager'
 import { PolicyState, SystemNotice } from '../constants/enums'
 import { useGeneral } from './GeneralManager'
 import { AccountModal } from '../components/organisms/AccountModal'
+import { useGetCrossTokenPricesFromCoingecko } from '../hooks/usePrice'
 
 /*
 
@@ -30,9 +31,10 @@ type CachedData = {
     userPolicies: Policy[]
     setCanGetAssessments: (toggle: boolean) => void
   }
+  tokenPriceMapping: TokenToPriceMapping
   showAccountModal: boolean
   version: number
-  gasPrices: GasFeeListState
+  gasPrice: number | undefined
   addLocalTransactions: (txToAdd: LocalTx) => void
   deleteLocalTransactions: (txsToDelete: []) => void
   openAccountModal: () => void
@@ -47,11 +49,9 @@ const CachedDataContext = createContext<CachedData>({
     setCanGetAssessments: () => undefined,
   },
   showAccountModal: false,
+  tokenPriceMapping: {},
   version: 0,
-  gasPrices: {
-    options: [],
-    loading: true,
-  },
+  gasPrice: undefined,
   addLocalTransactions: () => undefined,
   deleteLocalTransactions: () => undefined,
   openAccountModal: () => undefined,
@@ -61,9 +61,10 @@ const CachedDataContext = createContext<CachedData>({
 const CachedDataProvider: React.FC = (props) => {
   const { account, disconnect } = useWallet()
   const { chainId } = useNetwork()
+  const { tokenPriceMapping } = useGetCrossTokenPricesFromCoingecko()
   const [localTxs, setLocalTxs] = useLocalStorage<LocalTx[]>('solace_loc_txs', [])
   const [reload, version] = useReload()
-  const gasPrices = useFetchGasPrice()
+  const gasPrice = useFetchGasPrice()
   const { addNotices, removeNotices } = useGeneral()
   const { policiesLoading, userPolicies, setCanGetAssessments } = usePolicyGetter(false, account)
   const [accountModal, setAccountModal] = useState<boolean>(false)
@@ -129,8 +130,9 @@ const CachedDataProvider: React.FC = (props) => {
       localTransactions: localTxs,
       userPolicyData: { policiesLoading, userPolicies, setCanGetAssessments },
       showAccountModal: accountModal,
+      tokenPriceMapping,
       version,
-      gasPrices,
+      gasPrice,
       addLocalTransactions,
       deleteLocalTransactions,
       openAccountModal: openModal,
@@ -138,10 +140,11 @@ const CachedDataProvider: React.FC = (props) => {
     }),
     [
       localTxs,
+      tokenPriceMapping,
       addLocalTransactions,
       deleteLocalTransactions,
       version,
-      gasPrices,
+      gasPrice,
       policiesLoading,
       userPolicies,
       setCanGetAssessments,

@@ -1,17 +1,13 @@
 import { Contract } from '@ethersproject/contracts'
+import { TellerToken } from '.'
 
 export type ProductContract = {
   name: string
   contract: Contract
 }
 
-export type BondTellerContract = {
-  name: string
+export type BondTellerContract = TellerToken & {
   contract: Contract
-  isBondTellerErc20: boolean
-  isLp: boolean
-  isDisabled: boolean
-  underlyingAddr: string
 }
 
 export type ContractSources = { addr: string; abi: any }

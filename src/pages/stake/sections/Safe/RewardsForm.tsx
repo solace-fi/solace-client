@@ -3,23 +3,23 @@ import { Button, ButtonWrapper } from '../../../../components/atoms/Button'
 import InformationBox from '../../components/InformationBox'
 import { InfoBoxType } from '../../types/InfoBoxType'
 import { LockData } from '../../../../constants/types'
-import { useInputAmount } from '../../../../hooks/useInputAmount'
+import { useTransactionExecution } from '../../../../hooks/useInputAmount'
 import { useStakingRewards } from '../../../../hooks/useStakingRewards'
 import { FunctionName } from '../../../../constants/enums'
 import { StyledForm } from '../../atoms/StyledForm'
 
 export default function RewardsForm({ lock }: { lock: LockData }): JSX.Element {
-  const { handleToast, handleContractCallError, gasConfig } = useInputAmount()
+  const { handleToast, handleContractCallError } = useTransactionExecution()
   const { harvestLockRewards, compoundLockRewards } = useStakingRewards()
 
   const callHarvestLockRewards = async () => {
-    await harvestLockRewards([lock.xsLockID], gasConfig)
+    await harvestLockRewards([lock.xsLockID])
       .then((res) => handleToast(res.tx, res.localTx))
       .catch((err) => handleContractCallError('callHarvestLockRewards', err, FunctionName.HARVEST_LOCK))
   }
 
   const callCompoundLockRewards = async () => {
-    await compoundLockRewards([lock.xsLockID], gasConfig)
+    await compoundLockRewards([lock.xsLockID])
       .then((res) => handleToast(res.tx, res.localTx))
       .catch((err) => handleContractCallError('callCompoundLockRewards', err, FunctionName.COMPOUND_LOCK))
   }
@@ -36,7 +36,7 @@ export default function RewardsForm({ lock }: { lock: LockData }): JSX.Element {
         type={InfoBoxType.info}
         text={
           !lock.pendingRewards.isZero()
-            ? 'Rewards are accrued second. Depositing or withdrawing SOLACE, or extending a lockup period also harvests rewards for you.'
+            ? 'Rewards are accrued per second. Depositing, withdrawing, or changing a lockup period harvests rewards for you. You may compound your rewards if you wish to stake them.'
             : "You don't have any rewards to collect. Stake SOLACE to earn rewards!"
         }
       />

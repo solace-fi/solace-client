@@ -15,7 +15,7 @@ import InformationBox from '../../components/InformationBox'
 import { InfoBoxType } from '../../types/InfoBoxType'
 import { Tab } from '../../types/Tab'
 import InputSection from '../InputSection'
-import { useInputAmount } from '../../../../hooks/useInputAmount'
+import { useInputAmount, useTransactionExecution } from '../../../../hooks/useInputAmount'
 import { LockData } from '../../../../constants/types'
 import { FunctionName } from '../../../../constants/enums'
 import { useXSLocker } from '../../../../hooks/useXSLocker'
@@ -32,7 +32,8 @@ import { Text } from '../../../../components/atoms/Typography'
 
 export default function DepositForm({ lock }: { lock: LockData }): JSX.Element {
   const solaceBalance = useSolaceBalance()
-  const { handleToast, handleContractCallError, isAppropriateAmount, gasConfig } = useInputAmount()
+  const { isAppropriateAmount } = useInputAmount()
+  const { handleToast, handleContractCallError } = useTransactionExecution()
   const { increaseLockAmount } = useXSLocker()
   const { account } = useWallet()
   const { width } = useWindowDimensions()
@@ -42,25 +43,21 @@ export default function DepositForm({ lock }: { lock: LockData }): JSX.Element {
   const [inputValue, setInputValue] = React.useState('0')
   const [rangeValue, setRangeValue] = React.useState('0')
 
-  const { projectedMultiplier, projectedApy, projectedYearlyReturns } = useProjectedBenefits(
+  const { projectedMultiplier, projectedApr, projectedYearlyReturns } = useProjectedBenefits(
     convertSciNotaToPrecise((parseFloat(lock.unboostedAmount.toString()) + parseFloat(rangeValue)).toString()),
     lock.end.toNumber()
   )
 
   const callIncreaseLockAmount = async () => {
     if (!account) return
-    await increaseLockAmount(account, lock.xsLockID, parseUnits(inputValue, 18), gasConfig)
+    await increaseLockAmount(account, lock.xsLockID, parseUnits(inputValue, 18))
       .then((res) => handleToast(res.tx, res.localTx))
       .catch((err) => handleContractCallError('callIncreaseLockAmount', err, FunctionName.INCREASE_LOCK_AMOUNT))
   }
 
   const inputOnChange = (value: string) => {
     const filtered = filterAmount(value, inputValue)
-    const formatted = formatAmount(filtered)
     if (filtered.includes('.') && filtered.split('.')[1]?.length > 18) return
-
-    if (parseUnits(formatted, 18).gt(parseUnits(solaceBalance, 18))) return
-
     setRangeValue(accurateMultiply(filtered, 18))
     setInputValue(filtered)
   }
@@ -80,7 +77,10 @@ export default function DepositForm({ lock }: { lock: LockData }): JSX.Element {
         gap: '30px',
       }}
     >
-      <InformationBox type={InfoBoxType.info} text="Stake additional SOLACE to this safe." />
+      <InformationBox
+        type={InfoBoxType.info}
+        text="Stake additional SOLACE to this safe. Staking harvests rewards for you."
+      />
       <StyledForm>
         <Flex column={BKPT_5 > width} gap={24}>
           <Flex column gap={24}>
@@ -114,13 +114,13 @@ export default function DepositForm({ lock }: { lock: LockData }): JSX.Element {
                 <Flex stretch gap={24}>
                   <Flex column gap={2}>
                     <Text t5s techygradient mb={8}>
-                      APY
+                      APR
                     </Text>
                     <div style={BKPT_5 > width ? { margin: '-4px 0', display: 'block' } : { display: 'none' }}>
                       &nbsp;
                     </div>
                     <Text t3s techygradient>
-                      <Flex>{projectedApy.toNumber()}%</Flex>
+                      <Flex>{truncateValue(projectedApr.toString(), 1)}%</Flex>
                     </Text>
                   </Flex>
                   <VerticalSeparator />

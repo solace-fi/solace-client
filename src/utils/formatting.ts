@@ -124,12 +124,12 @@ export const accurateMultiply = (value: number | string, decimals: number): stri
     // if current number of decimal places is greater than the number of decimals to multiply to,
     // it is time to truncate
     const numCharsToCut = decimals - currentNumDecimalPlaces
-    result = result.substr(0, decimalIndex).concat(result.substr(decimalIndex + 1, result.length))
+    result = result.substring(0, decimalIndex).concat(result.substring(decimalIndex + 1, result.length))
     result = result.slice(0, numCharsToCut)
     return result
   }
 
-  result = result.substr(0, decimalIndex).concat(result.substr(decimalIndex + 1, result.length))
+  result = result.substring(0, decimalIndex).concat(result.substring(decimalIndex + 1, result.length))
   const range = rangeFrom0(decimalPlacesToAdd)
   range.forEach(() => (result += '0'))
   const finalRes = result.replace(/^0+/, '')
@@ -147,6 +147,10 @@ export const fixedPositionBalance = (balance: string, decimals: number): number 
 }
 
 export const getNonHumanValue = (value: BigNumber | number, decimals = 0): BigNumber => {
+  if (typeof value == 'number') {
+    const productStr = accurateMultiply(value, decimals)
+    return BigNumber.from(productStr)
+  }
   return BigNumber.from(value).mul(getExponentValue(decimals))
 }
 
@@ -206,9 +210,16 @@ export const getUnit = (function_name: string, activeNetwork?: NetworkConfig): U
       return Unit.POLICY
     case FunctionName.WITHDRAW_CLAIMS_PAYOUT:
       return Unit.CLAIM
-    case FunctionName.BOND_DEPOSIT_ERC20:
-    case FunctionName.BOND_DEPOSIT_WETH:
-    case FunctionName.BOND_REDEEM:
+    case FunctionName.BOND_DEPOSIT_ERC20_V1:
+    case FunctionName.BOND_DEPOSIT_WETH_V1:
+    case FunctionName.BOND_DEPOSIT_ETH_V1:
+    case FunctionName.BOND_DEPOSIT_WMATIC:
+    case FunctionName.BOND_DEPOSIT_MATIC:
+    case FunctionName.BOND_DEPOSIT_WETH_V2:
+    case FunctionName.BOND_DEPOSIT_ETH_V2:
+    case FunctionName.BOND_DEPOSIT_ERC20_V2:
+    case FunctionName.BOND_CLAIM_PAYOUT_V2:
+    case FunctionName.BOND_REDEEM_V1:
       return Unit.BOND
     case FunctionName.START_COOLDOWN:
     case FunctionName.STOP_COOLDOWN:
@@ -218,52 +229,52 @@ export const getUnit = (function_name: string, activeNetwork?: NetworkConfig): U
   }
 }
 
-export const formatTransactionContent = (
-  function_name: string,
-  activeNetwork: NetworkConfig,
-  amount: string,
-  toAddr?: string
-): string => {
-  if (amount == '') return 'N/A'
-  const unit = getUnit(function_name, activeNetwork)
-  switch (function_name) {
-    case FunctionName.WITHDRAW_CLAIMS_PAYOUT:
-    case FunctionName.BUY_POLICY:
-    case FunctionName.EXTEND_POLICY_PERIOD:
-    case FunctionName.UPDATE_POLICY:
-    case FunctionName.UPDATE_POLICY_AMOUNT:
-    case FunctionName.CANCEL_POLICY:
-    case FunctionName.SUBMIT_CLAIM:
-    case FunctionName.BOND_DEPOSIT_ERC20:
-    case FunctionName.BOND_DEPOSIT_WETH:
-    case FunctionName.BOND_REDEEM:
-      return `${unit} #${BigNumber.from(amount)}`
-    case FunctionName.WITHDRAW_LP:
-      return `#${BigNumber.from(amount)} ${Unit.LP}`
-    case FunctionName.DEPOSIT_ETH:
-      if (toAddr && activeNetwork.cache.tellerToTokenMapping[toAddr]) {
-        return `Bond #${BigNumber.from(amount)}`
-      }
-      return `${truncateValue(formatUnits(BigNumber.from(amount), activeNetwork.nativeCurrency.decimals))} ${unit}`
-    case FunctionName.DEPOSIT_CP:
-    case FunctionName.WITHDRAW_CP:
-    case FunctionName.WITHDRAW_REWARDS:
-    case FunctionName.APPROVE:
-    case FunctionName.STAKE_V1:
-    case FunctionName.UNSTAKE_V1:
-    case FunctionName.WITHDRAW_ETH:
-      return `${truncateValue(formatUnits(BigNumber.from(amount), activeNetwork.nativeCurrency.decimals))} ${unit}`
-    case FunctionName.DEPOSIT_LP_SIGNED:
-    case FunctionName.WITHDRAW_LP:
-      return `#${BigNumber.from(amount)} ${unit}`
-    case FunctionName.START_COOLDOWN:
-      return `Thaw started`
-    case FunctionName.STOP_COOLDOWN:
-      return `Thaw stopped`
-    default:
-      return `${amount} ${unit}`
-  }
-}
+// export const formatTransactionContent = (
+//   function_name: string,
+//   activeNetwork: NetworkConfig,
+//   amount: string,
+//   toAddr?: string
+// ): string => {
+//   if (amount == '') return 'N/A'
+//   const unit = getUnit(function_name, activeNetwork)
+//   switch (function_name) {
+//     case FunctionName.WITHDRAW_CLAIMS_PAYOUT:
+//     case FunctionName.BUY_POLICY:
+//     case FunctionName.EXTEND_POLICY_PERIOD:
+//     case FunctionName.UPDATE_POLICY:
+//     case FunctionName.UPDATE_POLICY_AMOUNT:
+//     case FunctionName.CANCEL_POLICY:
+//     case FunctionName.SUBMIT_CLAIM:
+//     case FunctionName.BOND_DEPOSIT_ERC20_V1:
+//     case FunctionName.BOND_DEPOSIT_WETH_V1:
+//     case FunctionName.BOND_REDEEM_V1:
+//       return `${unit} #${BigNumber.from(amount)}`
+//     case FunctionName.WITHDRAW_LP:
+//       return `#${BigNumber.from(amount)} ${Unit.LP}`
+//     case FunctionName.DEPOSIT_ETH:
+//       if (toAddr && activeNetwork.cache.tellerToTokenMapping[toAddr]) {
+//         return `Bond #${BigNumber.from(amount)}`
+//       }
+//       return `${truncateValue(formatUnits(BigNumber.from(amount), activeNetwork.nativeCurrency.decimals))} ${unit}`
+//     case FunctionName.DEPOSIT_CP:
+//     case FunctionName.WITHDRAW_CP:
+//     case FunctionName.WITHDRAW_REWARDS:
+//     case FunctionName.APPROVE:
+//     case FunctionName.STAKE_V1:
+//     case FunctionName.UNSTAKE_V1:
+//     case FunctionName.WITHDRAW_ETH:
+//       return `${truncateValue(formatUnits(BigNumber.from(amount), activeNetwork.nativeCurrency.decimals))} ${unit}`
+//     case FunctionName.DEPOSIT_LP_SIGNED:
+//     case FunctionName.WITHDRAW_LP:
+//       return `#${BigNumber.from(amount)} ${unit}`
+//     case FunctionName.START_COOLDOWN:
+//       return `Thaw started`
+//     case FunctionName.STOP_COOLDOWN:
+//       return `Thaw stopped`
+//     default:
+//       return `${amount} ${unit}`
+//   }
+// }
 
 export const capitalizeFirstLetter = (str: string): string => str.charAt(0).toUpperCase().concat(str.slice(1))
 

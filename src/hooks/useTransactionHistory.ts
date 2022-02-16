@@ -5,7 +5,7 @@ import { useWallet } from '../context/WalletManager'
 import { FunctionName } from '../constants/enums'
 import { Provider, Web3Provider } from '@ethersproject/providers'
 import { decodeInput } from '../utils/decoder'
-import { formatTransactionContent } from '../utils/formatting'
+// import { formatTransactionContent } from '../utils/formatting'
 import { useContracts } from '../context/ContractsManager'
 import { useNetwork } from '../context/NetworkManager'
 import { useProvider } from '../context/ProviderManager'
@@ -21,7 +21,7 @@ export const useFetchTxHistoryByAddress = (): any => {
 
   const fetchTxHistoryByAddress = async (account: string) => {
     running.current = true
-    await fetchExplorerTxHistoryByAddress(activeNetwork.explorer.apiUrl, account, contractSources)
+    await fetchExplorerTxHistoryByAddress(activeNetwork, account)
       .then((result) => {
         if (result.status == '1') {
           const contractAddrs = contractSources.map((contract) => contract.addr)
@@ -98,9 +98,9 @@ export const useTransactionDetails = (): { txHistory: any; amounts: string[] } =
         const data = logs[logs.length - 1].data
         if (!data) return { data: '' }
         return { data }
-      case FunctionName.BOND_DEPOSIT_ERC20:
-      case FunctionName.BOND_DEPOSIT_WETH:
-      case FunctionName.BOND_REDEEM:
+      case FunctionName.BOND_DEPOSIT_ERC20_V1:
+      case FunctionName.BOND_DEPOSIT_WETH_V1:
+      case FunctionName.BOND_REDEEM_V1:
         const edTopics = logs[logs.length - 2].topics
         return { data: edTopics[edTopics.length - 1] }
       case FunctionName.MULTI_CALL:

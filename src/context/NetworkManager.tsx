@@ -8,6 +8,10 @@ import { MetamaskConnector } from '../wallet/wallet-connectors/MetaMask'
 import { MainNetwork } from '../networks/mainnet'
 import { KovanNetwork } from '../networks/kovan'
 import { RinkebyNetwork } from '../networks/rinkeby'
+import { PolygonNetwork } from '../networks/polygon'
+import { MumbaiNetwork } from '../networks/mumbai'
+import { AuroraNetwork } from '../networks/aurora'
+import { AuroraTestnetNetwork } from '../networks/auroraTestnet'
 
 /*
 
@@ -15,7 +19,15 @@ This manager keeps track of the current network and other important information.
 
 */
 
-export const networks: NetworkConfig[] = [MainNetwork, RinkebyNetwork, KovanNetwork]
+export const networks: NetworkConfig[] = [
+  MainNetwork,
+  RinkebyNetwork,
+  KovanNetwork,
+  PolygonNetwork,
+  MumbaiNetwork,
+  AuroraNetwork,
+  AuroraTestnetNetwork,
+]
 
 type NetworkContext = {
   activeNetwork: NetworkConfig
@@ -69,10 +81,10 @@ const NetworksProvider: React.FC = (props) => {
       setLastNetwork(network.name.toLowerCase())
 
       // there were cases where changing networks with the same wallet (not metamask) does not pull data correctly
-      if (connector && !(connector instanceof MetamaskConnector)) window.location.reload()
+      // if (connector && !(connector instanceof MetamaskConnector)) window.location.reload()
 
       // there were cases where changing networks with the same wallet does not pull data correctly
-      if (connector) window.location.reload() // <- uncomment if there's too many errors going on
+      // if (connector) window.location.reload() // <- uncomment if there's too many errors going on
     }
 
     return network

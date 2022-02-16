@@ -1,6 +1,7 @@
 import { useEffect, useState, useMemo } from 'react'
 import { BigNumber } from 'ethers'
 import { formatUnits, parseUnits } from '@ethersproject/units'
+import { TransactionReceipt, TransactionResponse } from '@ethersproject/providers'
 
 import { useNotifications } from '../context/NotificationsManager'
 import { useCachedData } from '../context/CachedDataManager'
@@ -13,18 +14,18 @@ import { GasFeeOption, LocalTx } from '../constants/types'
 import { useGetFunctionGas } from './useGas'
 
 import { fixed, filterAmount, formatAmount } from '../utils/formatting'
-import { getNameToFunctionGasLimit } from '../constants/mappings/gasMapping'
 
 export const useTransactionExecution = () => {
   const { addLocalTransactions, reload } = useCachedData()
   const { makeTxToast } = useNotifications()
+  const { activeNetwork } = useNetwork()
 
-  const handleToast = async (tx: any, localTx: LocalTx | null) => {
+  const handleToast = async (tx: TransactionResponse | null, localTx: LocalTx | null) => {
     if (!tx || !localTx) return
     addLocalTransactions(localTx)
     reload()
     makeTxToast(localTx.type, TransactionCondition.PENDING, localTx.hash)
-    await tx.wait().then((receipt: any) => {
+    await tx.wait(activeNetwork.rpc.blockConfirms).then((receipt: TransactionReceipt) => {
       const status = receipt.status ? TransactionCondition.SUCCESS : TransactionCondition.FAILURE
       makeTxToast(localTx.type, status, localTx.hash)
       reload()
@@ -42,14 +43,7 @@ export const useTransactionExecution = () => {
 
 export const useInputAmount = () => {
   const { currencyDecimals } = useNetwork()
-  const { gasPrices } = useCachedData()
-  const [selectedGasOption, setSelectedGasOption] = useState<GasFeeOption | undefined>(gasPrices.selected)
-  const { getGasConfig } = useGetFunctionGas()
-  const { handleToast, handleContractCallError } = useTransactionExecution()
-  const gasConfig = useMemo(() => getGasConfig(selectedGasOption ? selectedGasOption.value : undefined), [
-    selectedGasOption,
-    getGasConfig,
-  ])
+  const { gasPrice } = useCachedData()
   const [amount, setAmount] = useState<string>('')
   const [maxSelected, setMaxSelected] = useState<boolean>(false)
 
@@ -58,13 +52,12 @@ export const useInputAmount = () => {
     return assetBalance.gte(parseUnits(amount, amountDecimals))
   }
 
-  const handleSelectGasChange = (option: GasFeeOption | undefined) => setSelectedGasOption(option)
-
-  const calculateMaxAmount = (balance: BigNumber, amountDecimals: number, func?: FunctionName, funcCond?: string) => {
+  const calculateMaxAmount = (balance: BigNumber, amountDecimals: number, gasLimit?: number) => {
     const bal = formatUnits(balance, amountDecimals)
-    if (func !== FunctionName.DEPOSIT_ETH || !selectedGasOption?.value) return bal
-    const gasInEth = (getNameToFunctionGasLimit(func, funcCond) / POW_NINE) * selectedGasOption.value
-    return Math.max(fixed(fixed(bal, 6) - fixed(gasInEth, 6), 6), 0)
+    if (!gasLimit || !gasPrice) return bal
+    // if currency to send is also for paying gas, subtract gas from amount to send
+    const gasInCurrency = (gasLimit / POW_NINE) * gasPrice
+    return Math.max(fixed(fixed(bal, 6) - fixed(gasInCurrency, 6), 6), 0)
   }
 
   const handleInputChange = (input: string, maxDecimals?: number, maxBalance?: string) => {
@@ -76,8 +69,8 @@ export const useInputAmount = () => {
     setMaxSelected(false)
   }
 
-  const setMax = (balance: BigNumber, balanceDecimals: number, func?: FunctionName, funcCond?: string) => {
-    const calculatedMaxAmount = calculateMaxAmount(balance, balanceDecimals, func, funcCond)
+  const setMax = (balance: BigNumber, balanceDecimals: number, gasLimit?: number) => {
+    const calculatedMaxAmount = calculateMaxAmount(balance, balanceDecimals, gasLimit)
     setAmount(calculatedMaxAmount.toString())
     setMaxSelected(true)
   }
@@ -87,25 +80,12 @@ export const useInputAmount = () => {
     setMaxSelected(false)
   }
 
-  useEffect(() => {
-    if (!gasPrices.selected) return
-    handleSelectGasChange(gasPrices.selected)
-  }, [gasPrices])
-
   return {
-    gasConfig,
-    gasPrices,
-    selectedGasOption,
     amount,
     maxSelected,
-    handleSelectGasChange,
     isAppropriateAmount,
-    handleToast,
-    handleContractCallError,
-    calculateMaxAmount,
     handleInputChange,
     setMax,
-    setAmount,
     resetAmount,
   }
 }

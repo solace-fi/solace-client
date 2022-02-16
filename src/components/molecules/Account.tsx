@@ -33,11 +33,11 @@ import { Text } from '../atoms/Typography'
 import { UserImage } from '../atoms/User'
 import { Button, ButtonProps } from '../atoms/Button'
 import { FlexCol, FlexRow } from '../atoms/Layout'
-import { StyledNetworkChart, StyledWallet } from '../atoms/Icon'
+import { StyledWallet } from '../atoms/Icon'
 import { GeneralElementProps } from '../generalInterfaces'
 
 /* import utils */
-import { shortenAddress, capitalizeFirstLetter } from '../../utils/formatting'
+import { shortenAddress } from '../../utils/formatting'
 
 export const UserAccount: React.FC<ButtonProps & GeneralElementProps> = (props) => {
   /*************************************************************************************
@@ -85,9 +85,11 @@ export const UserAccount: React.FC<ButtonProps & GeneralElementProps> = (props) 
               </Text>
             )}
             <FlexRow>
-              <StyledNetworkChart size={25} />
-              <Text t4 nowrap mt={5} {...props}>
-                {capitalizeFirstLetter(activeNetwork.name)}
+              {activeNetwork.logo && (
+                <img src={activeNetwork.logo} width={25} height={25} style={{ marginRight: '2px' }} />
+              )}
+              <Text t5s nowrap mt={5} autoAlignVertical {...props}>
+                {activeNetwork.name}
               </Text>
             </FlexRow>
           </FlexCol>

@@ -1,6 +1,6 @@
 import { BondName, ProductName, Unit } from '../constants/enums'
 import { NetworkConfig, TellerToken } from '../constants/types'
-import { ETHERSCAN_API_KEY, ALCHEMY_API_KEY } from '../constants'
+import { ETHERSCAN_API_KEY, ALCHEMY_ETHEREUM_API_KEY } from '../constants'
 import { hexValue } from '@ethersproject/bytes'
 import EthereumLogo from '../resources/svg/networks/ethereum-logo.svg'
 
@@ -15,10 +15,10 @@ import xsLockerABI from '../constants/metadata/xsLocker.json'
 import stakingRewardsABI from '../constants/metadata/StakingRewards.json'
 import xSolaceMigratorABI from '../constants/metadata/xSolaceMigrator.json'
 import cpFarmABI from '../constants/abi/contracts/CpFarm.sol/CpFarm.json'
-import bondDepoABI from '../constants/abi/contracts/BondDepository.sol/BondDepository.json'
 import claimsEscrowABI from '../constants/abi/contracts/ClaimsEscrow.sol/ClaimsEscrow.json'
 import polMagABI from '../constants/abi/contracts/PolicyManager.sol/PolicyManager.json'
 import riskManagerABI from '../constants/abi/contracts/RiskManager.sol/RiskManager.json'
+import solaceCoverProductABI from '../constants/metadata/SolaceCoverProduct.json'
 
 /* product contract abi */
 import liquityProductABI from '../constants/abi/contracts/products/LiquityProduct.sol/LiquityProduct.json'
@@ -30,7 +30,25 @@ import { CompoundProduct } from '../products/compound'
 import { WaaveProduct } from '../products/waave'
 import { LiquityProduct } from '../products/liquity'
 
-import { KEY_ADDRS, PRODUCT_ADDRS, TELLER_ADDRS } from '../constants/addresses/rinkeby'
+import { KEY_ADDRS, PRODUCT_ADDRS, TELLER_ADDRS_V1, TELLER_ADDRS_V2 } from '../constants/addresses/rinkeby'
+import {
+  DAI_ADDRESS,
+  FRAX_ADDRESS,
+  SCP_ADDRESS,
+  SOLACE_USDC_SLP_ADDRESS,
+  USDC_ADDRESS,
+  USDT_ADDRESS,
+  WBTC_ADDRESS,
+  WETH9_ADDRESS,
+} from '../constants/mappings/tokenAddressMapping'
+import bondTellerErc20Abi_V1 from '../constants/abi/contracts/BondTellerErc20.sol/BondTellerErc20.json'
+import bondTellerErc20Abi_V2 from '../constants/metadata/BondTellerErc20_V2.json'
+import bondTellerEthAbi_V1 from '../constants/abi/contracts/BondTellerEth.sol/BondTellerEth.json'
+import bondTellerEthAbi_V2 from '../constants/metadata/BondTellerEth_V2.json'
+
+import ierc20Json from '../constants/metadata/IERC20Metadata.json'
+import weth9 from '../constants/abi/contracts/WETH9.sol/WETH9.json'
+import sushiswapLpAbi from '../constants/metadata/ISushiswapMetadataAlt.json'
 
 /*
 
@@ -38,71 +56,194 @@ When adding new products, please add into productContracts, functions, and cache
 
 */
 
+const chainId = 4
+
 const tellerToTokenMapping: {
   [key: string]: TellerToken
 } = {
-  [TELLER_ADDRS.DAI_TELLER]: {
-    addr: '0x5592ec0cfb4dbc12d3ab100b257153436a1f0fea',
+  [TELLER_ADDRS_V1.DAI_TELLER]: {
+    name: BondName.DAI,
+    addr: DAI_ADDRESS[chainId],
+    principalAbi: ierc20Json.abi,
+    tellerAbi: bondTellerErc20Abi_V1,
+    mainnetAddr: DAI_ADDRESS[1],
+    tokenId: 'dai',
     isBondTellerErc20: true,
     isLp: false,
     isDisabled: false,
+    version: 1,
   },
-  [TELLER_ADDRS.ETH_TELLER]: {
-    addr: '0xc778417e063141139fce010982780140aa0cd5ab',
+  [TELLER_ADDRS_V1.ETH_TELLER]: {
+    name: BondName.ETH,
+    addr: WETH9_ADDRESS[chainId],
+    principalAbi: weth9,
+    tellerAbi: bondTellerEthAbi_V1,
+    mainnetAddr: WETH9_ADDRESS[1],
+    tokenId: 'ethereum',
     isBondTellerErc20: false,
     isLp: false,
     isDisabled: false,
+    version: 1,
   },
-  [TELLER_ADDRS.USDC_TELLER]: {
-    addr: '0x4dbcdf9b62e891a7cec5a2568c3f4faf9e8abe2b',
+  [TELLER_ADDRS_V1.USDC_TELLER]: {
+    name: BondName.USDC,
+    addr: USDC_ADDRESS[chainId],
+    principalAbi: ierc20Json.abi,
+    tellerAbi: bondTellerErc20Abi_V1,
+    mainnetAddr: USDC_ADDRESS[1],
+    tokenId: '',
     isBondTellerErc20: true,
     isLp: false,
     isDisabled: false,
+    version: 1,
   },
-  [TELLER_ADDRS.SOLACE_USDC_SLP_TELLER]: {
-    addr: '0x7bec68fb902f90ba84634e764c91fdffca04d084',
+  [TELLER_ADDRS_V1.SOLACE_USDC_SLP_TELLER]: {
+    name: BondName.SOLACE_USDC_SLP,
+    addr: SOLACE_USDC_SLP_ADDRESS[chainId],
+    principalAbi: sushiswapLpAbi,
+    tellerAbi: bondTellerErc20Abi_V1,
+    mainnetAddr: SOLACE_USDC_SLP_ADDRESS[1],
+    tokenId: '',
     isBondTellerErc20: true,
     isLp: true,
+    sdk: 'sushi',
     isDisabled: false,
+    version: 1,
   },
-  [TELLER_ADDRS.SCP_TELLER]: {
-    addr: '0x501acee83a6f269b77c167c6701843d454e2efa0',
+  [TELLER_ADDRS_V1.SCP_TELLER]: {
+    name: BondName.SCP,
+    addr: SCP_ADDRESS[chainId],
+    principalAbi: ierc20Json.abi,
+    tellerAbi: bondTellerErc20Abi_V1,
+    mainnetAddr: SCP_ADDRESS[1],
+    tokenId: '',
     isBondTellerErc20: true,
     isLp: false,
     isDisabled: false,
+    version: 1,
   },
-  [TELLER_ADDRS.WBTC_TELLER]: {
-    addr: '0x20fb9cddbca5a5eb468c76010aec6ed4eacc037f',
+  [TELLER_ADDRS_V1.WBTC_TELLER]: {
+    name: BondName.WBTC,
+    addr: WBTC_ADDRESS[chainId],
+    principalAbi: ierc20Json.abi,
+    tellerAbi: bondTellerErc20Abi_V1,
+    mainnetAddr: WBTC_ADDRESS[1],
+    tokenId: '',
     isBondTellerErc20: true,
     isLp: false,
     isDisabled: false,
+    version: 1,
   },
-  [TELLER_ADDRS.USDT_TELLER]: {
-    addr: '0xd9ba894e0097f8cc2bbc9d24d308b98e36dc6d02',
+  [TELLER_ADDRS_V1.USDT_TELLER]: {
+    name: BondName.USDT,
+    addr: USDT_ADDRESS[chainId],
+    principalAbi: ierc20Json.abi,
+    tellerAbi: bondTellerErc20Abi_V1,
+    mainnetAddr: USDT_ADDRESS[1],
+    tokenId: 'tether',
     isBondTellerErc20: true,
     isLp: false,
     isDisabled: false,
+    version: 1,
   },
-  // [TELLER_ADDRS.SOLACE_ETH_SLP_TELLER]: {
-  //   addr: '0x66844fbeb515f3da46c6129fe911f0cb436ba2e0',
-  //   isBondTellerErc20: true,
-  //   isLp: true,
-  // },
-  // [TELLER_ADDRS.SOLACE_DAI_SLP_TELLER]: {
-  //   addr: '0xf57fec00d4712e68fb0bceac77a2841edd7a155e',
-  //   isBondTellerErc20: true,
-  //   isLp: true,
-  // },
+  [TELLER_ADDRS_V2.DAI_TELLER]: {
+    name: BondName.DAI,
+    addr: DAI_ADDRESS[chainId],
+    principalAbi: ierc20Json.abi,
+    tellerAbi: bondTellerErc20Abi_V2.abi,
+    mainnetAddr: DAI_ADDRESS[1],
+    tokenId: 'dai',
+    isBondTellerErc20: true,
+    isLp: false,
+    isDisabled: false,
+    version: 2,
+  },
+  [TELLER_ADDRS_V2.ETH_TELLER]: {
+    name: BondName.ETH,
+    addr: WETH9_ADDRESS[chainId],
+    principalAbi: weth9,
+    tellerAbi: bondTellerEthAbi_V2.abi,
+    mainnetAddr: WETH9_ADDRESS[1],
+    tokenId: 'ethereum',
+    isBondTellerErc20: false,
+    isLp: false,
+    isDisabled: false,
+    version: 2,
+  },
+  [TELLER_ADDRS_V2.USDC_TELLER]: {
+    name: BondName.USDC,
+    addr: USDC_ADDRESS[chainId],
+    principalAbi: ierc20Json.abi,
+    tellerAbi: bondTellerErc20Abi_V2.abi,
+    mainnetAddr: USDC_ADDRESS[1],
+    tokenId: '',
+    isBondTellerErc20: true,
+    isLp: false,
+    isDisabled: false,
+    version: 2,
+  },
+  [TELLER_ADDRS_V2.SCP_TELLER]: {
+    name: BondName.SCP,
+    addr: SCP_ADDRESS[chainId],
+    principalAbi: ierc20Json.abi,
+    tellerAbi: bondTellerErc20Abi_V2.abi,
+    mainnetAddr: SCP_ADDRESS[1],
+    tokenId: '',
+    isBondTellerErc20: true,
+    isLp: false,
+    isDisabled: false,
+    version: 2,
+  },
+  [TELLER_ADDRS_V2.WBTC_TELLER]: {
+    name: BondName.WBTC,
+    addr: WBTC_ADDRESS[chainId],
+    principalAbi: ierc20Json.abi,
+    tellerAbi: bondTellerErc20Abi_V2.abi,
+    mainnetAddr: WBTC_ADDRESS[1],
+    tokenId: '',
+    isBondTellerErc20: true,
+    isLp: false,
+    isDisabled: false,
+    version: 2,
+  },
+  [TELLER_ADDRS_V2.USDT_TELLER]: {
+    name: BondName.USDT,
+    addr: USDT_ADDRESS[chainId],
+    principalAbi: ierc20Json.abi,
+    tellerAbi: bondTellerErc20Abi_V2.abi,
+    mainnetAddr: USDT_ADDRESS[1],
+    tokenId: 'tether',
+    isBondTellerErc20: true,
+    isLp: false,
+    isDisabled: false,
+    version: 2,
+  },
+  [TELLER_ADDRS_V2.FRAX_TELLER]: {
+    name: BondName.FRAX,
+    addr: FRAX_ADDRESS[chainId],
+    principalAbi: ierc20Json.abi,
+    tellerAbi: bondTellerErc20Abi_V2.abi,
+    mainnetAddr: FRAX_ADDRESS[1],
+    tokenId: 'frax',
+    isBondTellerErc20: true,
+    isLp: false,
+    isDisabled: false,
+    version: 2,
+  },
 }
 
 export const RinkebyNetwork: NetworkConfig = {
-  name: 'rinkeby',
-  chainId: 4,
+  name: 'Rinkeby',
+  chainId: chainId,
   isTestnet: true,
   logo: EthereumLogo,
   supportedTxTypes: [0, 2],
-  nativeCurrency: { symbol: Unit.ETH, decimals: 18 },
-  rpc: { httpsUrl: `https://eth-rinkeby.alchemyapi.io/v2/${ALCHEMY_API_KEY}`, pollingInterval: 12_000 },
+  nativeCurrency: { mainnetReference: WETH9_ADDRESS[1], symbol: Unit.ETH, decimals: 18 },
+  rpc: {
+    httpsUrl: `https://eth-rinkeby.alchemyapi.io/v2/${String(ALCHEMY_ETHEREUM_API_KEY)}`,
+    pollingInterval: 12_000,
+    blockConfirms: 1,
+  },
   explorer: {
     name: 'Etherscan',
     key: String(ETHERSCAN_API_KEY),
@@ -164,9 +305,9 @@ export const RinkebyNetwork: NetworkConfig = {
         addr: KEY_ADDRS.RISK_MANAGER,
         abi: riskManagerABI,
       },
-      bondDepo: {
-        addr: KEY_ADDRS.BOND_DEPO,
-        abi: bondDepoABI,
+      solaceCoverProduct: {
+        addr: KEY_ADDRS.SOLACE_COVER_PRODUCT,
+        abi: solaceCoverProductABI.abi,
       },
     },
     productContracts: {
@@ -183,24 +324,16 @@ export const RinkebyNetwork: NetworkConfig = {
         abi: liquityProductABI,
       },
     },
-    bondTellerContracts: {
-      [BondName.DAI]: TELLER_ADDRS.DAI_TELLER,
-      // [BondName.SOLACE_DAI_SLP]: TELLER_ADDRS.SOLACE_DAI_SLP_TELLER,
-      [BondName.ETH]: TELLER_ADDRS.ETH_TELLER,
-      // [BondName.SOLACE_ETH_SLP]: TELLER_ADDRS.SOLACE_ETH_SLP_TELLER,
-      [BondName.USDC]: TELLER_ADDRS.USDC_TELLER,
-      [BondName.SOLACE_USDC_SLP]: TELLER_ADDRS.SOLACE_USDC_SLP_TELLER,
-      [BondName.SCP]: TELLER_ADDRS.SCP_TELLER,
-      [BondName.WBTC]: TELLER_ADDRS.WBTC_TELLER,
-      [BondName.USDT]: TELLER_ADDRS.USDT_TELLER,
-    },
+    restrictedFeatures: {},
+    specialFeatures: {},
+    specialContracts: {},
   },
   cache: {
     supportedProducts: [CompoundProduct, WaaveProduct, LiquityProduct],
     tellerToTokenMapping,
   },
   metamaskChain: {
-    chainId: hexValue(4),
+    chainId: hexValue(chainId),
     chainName: 'Rinkeby Testnet',
     nativeCurrency: { name: 'Ether', symbol: Unit.ETH, decimals: 18 },
     rpcUrls: ['https://eth-rinkeby.alchemyapi.io'],

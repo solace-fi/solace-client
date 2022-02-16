@@ -1,5 +1,4 @@
 import React from 'react'
-import styled from 'styled-components'
 import { Button } from '../../../../components/atoms/Button'
 import { StyledSlider } from '../../../../components/atoms/Input'
 import InformationBox from '../../components/InformationBox'
@@ -9,7 +8,7 @@ import InputSection from '../InputSection'
 import { LockData } from '../../../../constants/types'
 import { BKPT_5, DAYS_PER_YEAR } from '../../../../constants'
 import { useXSLocker } from '../../../../hooks/useXSLocker'
-import { useInputAmount } from '../../../../hooks/useInputAmount'
+import { useTransactionExecution } from '../../../../hooks/useInputAmount'
 import { FunctionName } from '../../../../constants/enums'
 import { BigNumber } from 'ethers'
 import { useProvider } from '../../../../context/ProviderManager'
@@ -29,23 +28,19 @@ import { useProjectedBenefits } from '../../../../hooks/useStakingRewards'
 export default function LockForm({ lock }: { lock: LockData }): JSX.Element {
   const { latestBlock } = useProvider()
   const { extendLock } = useXSLocker()
-  const { handleToast, handleContractCallError, gasConfig } = useInputAmount()
+  const { handleToast, handleContractCallError } = useTransactionExecution()
   const { width } = useWindowDimensions()
 
   const [inputValue, setInputValue] = React.useState('0')
-  const { projectedMultiplier, projectedApy, projectedYearlyReturns } = useProjectedBenefits(
+  const { projectedMultiplier, projectedApr, projectedYearlyReturns } = useProjectedBenefits(
     lock.unboostedAmount.toString(),
-    lock.end.toNumber() == 0
-      ? latestBlock
-        ? latestBlock.timestamp + parseInt(inputValue) * 86400
-        : 0
-      : lock.end.toNumber() + parseInt(inputValue) * 86400
+    latestBlock ? latestBlock.timestamp + parseInt(inputValue) * 86400 : 0
   )
 
   const callExtendLock = async () => {
     if (!latestBlock || !inputValue || inputValue == '0') return
     const seconds = latestBlock.timestamp + parseInt(inputValue) * 86400
-    await extendLock(lock.xsLockID, BigNumber.from(seconds), gasConfig)
+    await extendLock(lock.xsLockID, BigNumber.from(seconds))
       .then((res) => handleToast(res.tx, res.localTx))
       .catch((err) => handleContractCallError('callExtendLock', err, FunctionName.INCREASE_LOCK_AMOUNT))
   }
@@ -72,7 +67,7 @@ export default function LockForm({ lock }: { lock: LockData }): JSX.Element {
     >
       <InformationBox
         type={InfoBoxType.info}
-        text="You may extend or start the lockup period of this safe. Note that you cannot withdraw funds during a lockup period."
+        text="The maximum lockup period is 4 years. Note that you cannot withdraw funds during a lockup period. Setting the lockup period harvests rewards for you."
       />
       <StyledForm>
         <Flex column={BKPT_5 > width} gap={24}>
@@ -99,13 +94,13 @@ export default function LockForm({ lock }: { lock: LockData }): JSX.Element {
                 <Flex stretch gap={24}>
                   <Flex column gap={2}>
                     <Text t5s techygradient mb={8}>
-                      APY
+                      APR
                     </Text>
                     <div style={BKPT_5 > width ? { margin: '-4px 0', display: 'block' } : { display: 'none' }}>
                       &nbsp;
                     </div>
                     <Text t3s techygradient>
-                      <Flex>{projectedApy.toNumber()}%</Flex>
+                      <Flex>{truncateValue(projectedApr.toString(), 1)}%</Flex>
                     </Text>
                   </Flex>
                   <VerticalSeparator />
@@ -142,10 +137,10 @@ export default function LockForm({ lock }: { lock: LockData }): JSX.Element {
           secondary
           info
           noborder
-          disabled={!inputValue || inputValue == '0'}
+          disabled={!inputValue || parseInt(inputValue) * 86400 <= lock.timeLeft.toNumber()}
           onClick={callExtendLock}
         >
-          {lock.timeLeft.toNumber() > 0 ? `Extend Lockup` : `Start Lockup`}
+          {lock.timeLeft.toNumber() > 0 ? `Reset Lockup` : `Start Lockup`}
         </Button>
       </StyledForm>
     </div>

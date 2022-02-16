@@ -10,7 +10,7 @@ import JSBI from 'jsbi'
 
 import { ApolloClient, InMemoryCache, gql } from '@apollo/client'
 import { getContract } from '../../../utils'
-import { get1InchPrice, getCoingeckoTokenPrice, getZapperProtocolBalances } from '../../../utils/api'
+import { get1InchPrice, getCoingeckoTokenPriceByAddr, getZapperProtocolBalances } from '../../../utils/api'
 import { WETH9_ADDRESS } from '../../../constants/mappings/tokenAddressMapping'
 import { formatUnits, parseUnits } from '@ethersproject/units'
 import { createZapperBalanceMap, networkNames } from '../../zapperBalances'
@@ -37,7 +37,7 @@ export const getBalances = async (
   const zapperNet = networkNames[activeNetwork.chainId]
   if (!zapperNet) return []
 
-  const coinGeckoEthPrice = await getCoingeckoTokenPrice(WETH9_ADDRESS[activeNetwork.chainId], 'usd', 'ethereum')
+  const coinGeckoEthPrice = await getCoingeckoTokenPriceByAddr(WETH9_ADDRESS[activeNetwork.chainId], 'usd', 'ethereum')
   const data = await getZapperProtocolBalances('uniswap-v3', [user], zapperNet)
 
   const finalTokens: _Token[] = []

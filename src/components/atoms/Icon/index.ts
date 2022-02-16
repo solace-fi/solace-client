@@ -1,6 +1,7 @@
 import styled, { css } from 'styled-components'
 import { ArrowDropDown } from '@styled-icons/remix-line/ArrowDropDown'
 import { Checkmark } from '@styled-icons/evaicons-solid/Checkmark'
+import { Clock } from 'styled-icons/bootstrap'
 import { CoinStack } from '@styled-icons/boxicons-solid/CoinStack'
 import { Copy } from '@styled-icons/boxicons-regular/Copy'
 import { DarkMode } from '@styled-icons/material-outlined/DarkMode'
@@ -31,6 +32,9 @@ import { Wallet } from '@styled-icons/boxicons-solid/Wallet'
 import { Warning } from '@styled-icons/fluentui-system-regular/Warning'
 import { Work } from '@styled-icons/material/Work'
 import { Multiselect } from '@styled-icons/fluentui-system-regular/Multiselect'
+import { ArrowIosForwardOutline } from '@styled-icons/evaicons-outline/ArrowIosForwardOutline'
+import { ArrowIosBackOutline } from '@styled-icons/evaicons-outline/ArrowIosBackOutline'
+import { Tractor } from '@styled-icons/fa-solid/Tractor'
 
 export const StyledIconCss = css`
   margin: auto;
@@ -62,6 +66,8 @@ export const StyledReceiptMoney = styled(ReceiptMoney)``
 
 export const StyledFileShield = styled(FileShield)``
 
+export const StyledClock = styled(Clock)``
+
 export const StyledCoinStack = styled(CoinStack)``
 
 export const StyledCommunity = styled(PeopleCommunity)``
@@ -88,8 +94,6 @@ export const StyledTheme = styled(DarkTheme)``
 
 export const StyledArrowDropDown = styled(ArrowDropDown)``
 
-export const StyledCopy = styled(Copy)``
-
 export const StyledLinkExternal = styled(LinkExternal)``
 
 export const StyledLockFile = styled(FileEarmarkLock2Fill)``
@@ -115,3 +119,22 @@ export const StyledSendPlane = styled(SendPlane)``
 export const StyledRefresh = styled(Refresh)``
 
 export const StyledMultiselect = styled(Multiselect)``
+
+export const StyledCopy = styled(Copy)``
+
+export const InfoCopy = styled(Copy)`
+  color: ${(props) => props.theme.typography.infoText};
+  height: 16px;
+  width: 16px;
+`
+export const InfoCheckmark = styled(Checkmark)`
+  color: ${(props) => props.theme.typography.infoText};
+  height: 16px;
+  width: 16px;
+`
+
+export const StyledArrowIosForwardOutline = styled(ArrowIosForwardOutline)``
+
+export const StyledArrowIosBackOutline = styled(ArrowIosBackOutline)``
+
+export const StyledTractor = styled(Tractor)``

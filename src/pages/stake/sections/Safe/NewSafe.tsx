@@ -16,7 +16,7 @@ import InformationBox from '../../components/InformationBox'
 import { InfoBoxType } from '../../types/InfoBoxType'
 import { Tab } from '../../types/Tab'
 import InputSection from '../InputSection'
-import { useInputAmount } from '../../../../hooks/useInputAmount'
+import { useInputAmount, useTransactionExecution } from '../../../../hooks/useInputAmount'
 import { FunctionName } from '../../../../constants/enums'
 import { useXSLocker } from '../../../../hooks/useXSLocker'
 import { useWallet } from '../../../../context/WalletManager'
@@ -24,7 +24,7 @@ import { SmallBox } from '../../../../components/atoms/Box'
 import { Text } from '../../../../components/atoms/Typography'
 import { BKPT_5, DAYS_PER_YEAR } from '../../../../constants'
 import { getExpiration } from '../../../../utils/time'
-import RaisedBox from '../../atoms/RaisedBox'
+import RaisedBox from '../../../../components/atoms/RaisedBox'
 import ShadowDiv from '../../atoms/ShadowDiv'
 import InfoPair, { Label } from '../../molecules/InfoPair'
 import Flex from '../../atoms/Flex'
@@ -51,7 +51,8 @@ export default function NewSafe({ isOpen }: { isOpen: boolean }): JSX.Element {
   const { account } = useWallet()
   const { latestBlock } = useProvider()
   const solaceBalance = useSolaceBalance()
-  const { handleToast, handleContractCallError, isAppropriateAmount, gasConfig } = useInputAmount()
+  const { isAppropriateAmount } = useInputAmount()
+  const { handleToast, handleContractCallError } = useTransactionExecution()
   const { createLock } = useXSLocker()
 
   const accordionRef = useRef<HTMLDivElement>(null)
@@ -59,7 +60,7 @@ export default function NewSafe({ isOpen }: { isOpen: boolean }): JSX.Element {
   const [stakeInputValue, setStakeInputValue] = React.useState('0')
   const [stakeRangeValue, setStakeRangeValue] = React.useState('0')
   const [lockInputValue, setLockInputValue] = React.useState('0')
-  const { projectedMultiplier, projectedApy, projectedYearlyReturns } = useProjectedBenefits(
+  const { projectedMultiplier, projectedApr, projectedYearlyReturns } = useProjectedBenefits(
     stakeRangeValue,
     latestBlock ? latestBlock.timestamp + parseInt(lockInputValue) * 86400 : 0
   )
@@ -67,7 +68,7 @@ export default function NewSafe({ isOpen }: { isOpen: boolean }): JSX.Element {
   const callCreateLock = async () => {
     if (!latestBlock || !account) return
     const seconds = latestBlock.timestamp + parseInt(lockInputValue) * 86400
-    await createLock(account, parseUnits(stakeInputValue, 18), BigNumber.from(seconds), gasConfig)
+    await createLock(account, parseUnits(stakeInputValue, 18), BigNumber.from(seconds))
       .then((res) => handleToast(res.tx, res.localTx))
       .catch((err) => handleContractCallError('callCreateLock', err, FunctionName.CREATE_LOCK))
   }
@@ -75,11 +76,7 @@ export default function NewSafe({ isOpen }: { isOpen: boolean }): JSX.Element {
   /*            STAKE INPUT & RANGE HANDLERS             */
   const stakeInputOnChange = (value: string) => {
     const filtered = filterAmount(value, stakeInputValue)
-    const formatted = formatAmount(filtered)
     if (filtered.includes('.') && filtered.split('.')[1]?.length > 18) return
-
-    if (parseUnits(formatted, 18).gt(parseUnits(solaceBalance, 18))) return
-
     setStakeRangeValue(accurateMultiply(filtered, 18))
     setStakeInputValue(filtered)
   }
@@ -110,7 +107,7 @@ export default function NewSafe({ isOpen }: { isOpen: boolean }): JSX.Element {
     <Accordion
       noScroll
       isOpen={isOpen}
-      style={{ backgroundColor: 'inherit' }}
+      style={{ backgroundColor: 'inherit', marginBottom: '20px' }}
       customHeight={accordionRef.current != null ? `${accordionRef.current.scrollHeight}px` : undefined}
     >
       <ShadowDiv ref={accordionRef} style={{ marginBottom: '20px' }}>
@@ -146,13 +143,13 @@ export default function NewSafe({ isOpen }: { isOpen: boolean }): JSX.Element {
                       <Flex stretch gap={24}>
                         <Flex column gap={2}>
                           <Text t5s techygradient mb={8}>
-                            APY
+                            APR
                           </Text>
                           <div style={BKPT_5 > width ? { margin: '-4px 0', display: 'block' } : { display: 'none' }}>
                             &nbsp;
                           </div>
                           <Text t3s techygradient>
-                            <Flex>{projectedApy.toNumber()}%</Flex>
+                            <Flex>{truncateValue(projectedApr.toString(), 1)}%</Flex>
                           </Text>
                         </Flex>
                         <VerticalSeparator />
@@ -211,13 +208,13 @@ export default function NewSafe({ isOpen }: { isOpen: boolean }): JSX.Element {
                 </Flex>
               </Flex>
             </Flex>
-            <Flex p={24} stretch>
+            {/* <Flex p={24} stretch>
               <InformationBox
                 type={InfoBoxType.info}
                 text="New deposit will be added to current locked amount locked for the same time."
                 forceExpand
               />
-            </Flex>
+            </Flex> */}
             <Flex pb={24} pl={24} w={BKPT_5 > width ? 333 : undefined}>
               <Button
                 secondary

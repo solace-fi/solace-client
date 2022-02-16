@@ -21,6 +21,7 @@
 import React, { Fragment, useCallback, useEffect, useState, useRef, useMemo } from 'react'
 import { formatUnits } from '@ethersproject/units'
 import { Block } from '@ethersproject/abstract-provider'
+import { TransactionReceipt, TransactionResponse } from '@ethersproject/providers'
 
 /* import managers */
 import { useCachedData } from '../../../context/CachedDataManager'
@@ -80,8 +81,7 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
   const { haveErrors } = useGeneral()
   const { activeNetwork, currencyDecimals, chainId } = useNetwork()
   const { width } = useWindowDimensions()
-  const { getAutoGasConfig, getSupportedProductGasLimit } = useGetFunctionGas()
-  const gasConfig = useMemo(() => getAutoGasConfig(), [getAutoGasConfig])
+  const { gasConfig, getSupportedProductGasLimit } = useGetFunctionGas()
   const appraisal = useAppraisePolicyPosition(selectedPolicy)
   const [canCloseOnLoading, setCanCloseOnLoading] = useState<boolean>(false)
   const mounting = useRef(true)
@@ -120,13 +120,13 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
 
   *************************************************************************************/
 
-  const handleToast = async (tx: any, localTx: LocalTx | null) => {
+  const handleToast = async (tx: TransactionResponse | null, localTx: LocalTx | null) => {
     if (!tx || !localTx) return
     addLocalTransactions(localTx)
     reload()
     makeTxToast(localTx.type, TransactionCondition.PENDING, localTx.hash)
     setCanCloseOnLoading(true)
-    await tx.wait().then((receipt: any) => {
+    await tx.wait(activeNetwork.rpc.blockConfirms).then((receipt: TransactionReceipt) => {
       const status = receipt.status ? TransactionCondition.SUCCESS : TransactionCondition.FAILURE
       makeTxToast(localTx.type, status, localTx.hash)
       setCanCloseOnLoading(false)

@@ -54,10 +54,32 @@ export enum FunctionName {
   COMPOUND_LOCK = 'CompoundLock',
   COMPOUND_LOCKS = 'CompoundLocks',
 
-  // bond tellers
-  BOND_DEPOSIT_WETH = 'DepositWeth',
-  BOND_DEPOSIT_ERC20 = 'Deposit',
-  BOND_REDEEM = 'Redeem',
+  // soteria
+  SOTERIA_ACTIVATE = 'ActivatePolicy',
+  SOTERIA_DEACTIVATE = 'DeactivatePolicy',
+  SOTERIA_UPDATE = 'UpdateCoverLimit',
+  SOTERIA_DEPOSIT = 'Deposit',
+  SOTERIA_WITHDRAW = 'Withdraw',
+
+  // bond tellers v2
+  BOND_DEPOSIT_WMATIC = 'DepositWmatic',
+  BOND_DEPOSIT_MATIC = 'DepositMatic',
+  BOND_DEPOSIT_WETH_V2 = 'DepositWeth',
+  BOND_DEPOSIT_ETH_V2 = 'DepositEth',
+  BOND_DEPOSIT_ERC20_V2 = 'Deposit',
+  BOND_CLAIM_PAYOUT_V2 = 'ClaimPayout',
+
+  // bond tellers v1
+  BOND_DEPOSIT_WETH_V1 = 'DepositWeth',
+  BOND_DEPOSIT_ETH_V1 = 'DepositEth',
+  BOND_DEPOSIT_ERC20_V1 = 'Deposit',
+  BOND_REDEEM_V1 = 'Redeem',
+
+  // bridge
+  BRIDGE_BSOLACE_TO_SOLACE = 'BSolaceToSolace',
+  BRIDGE_SOLACE_TO_BSOLACE = 'SolaceToBSolace',
+
+  // early farmers
   REWARDS_REDEEM = 'Redeem',
 
   // legacy
@@ -122,4 +144,9 @@ export enum BondName {
   SCP = 'SCP',
   WBTC = 'WBTC',
   USDT = 'USDT',
+  FRAX = 'FRAX',
+  WMATIC = 'WMATIC',
+  MATIC = 'MATIC',
+  NEAR = 'NEAR',
+  AURORA = 'AURORA',
 }
