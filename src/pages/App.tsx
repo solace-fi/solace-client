@@ -63,19 +63,18 @@ export default function App(): any {
     //   icon: <StyledDashboard size={30} />,
     //   component: Dashboard,
     // },
-    // {
-    //   name: 'Wallet Coverage',
-    //   to: '/cover',
-    //   icon: <StyledDashboard size={30} />,
-    //   component: Soteria,
-    // },
     {
-      name: 'Buy Cover',
-      to: '/quote',
-      icon: <StyledFileShield size={30} />,
-      component: Quote,
+      name: 'My Coverage',
+      to: '/cover',
+      icon: <StyledDashboard size={30} />,
+      component: Soteria,
     },
-
+    // {
+    //   name: 'Buy Cover',
+    //   to: '/quote',
+    //   icon: <StyledFileShield size={30} />,
+    //   component: Quote,
+    // },
     {
       name: 'Bond',
       to: '/bond',
@@ -119,7 +118,7 @@ export default function App(): any {
               )}
               <Switch>
                 <Route exact path="/" component={About} />
-                <Route exact path="/cover" component={Soteria} />
+                {/* <Route exact path="/cover" component={Soteria} /> */}
                 {/* <Route exact path="/dashboard" component={Dashboard} />
                 <Route exact path="/invest" component={Invest} />
                 <Route exact path="/stake" component={Stake} />
