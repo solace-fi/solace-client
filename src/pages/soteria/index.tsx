@@ -1050,7 +1050,7 @@ function PolicyBalance({
                   onClick={unlimitedApprove}
                   // disabled={inputProps.amount == '' || parseUnits(inputProps.amount, 18).eq(ZERO)}
                 >
-                  Unlimited Approve
+                  Unlimited Approval
                 </Button>
               )}
             </>
