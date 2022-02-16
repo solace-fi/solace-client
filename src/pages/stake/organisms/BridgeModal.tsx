@@ -26,7 +26,7 @@ import { Modal } from '../../../components/molecules/Modal'
 import { Text } from '../../../components/atoms/Typography'
 import Flex from '../atoms/Flex'
 import InputSection from '../sections/InputSection'
-import { VerticalSeparator } from '../components/VerticalSeparator'
+import { VerticalSeparator } from '../components/Separator'
 
 /* import hooks */
 import { useBridgeBalance, useSolaceBalance } from '../../../hooks/useBalance'

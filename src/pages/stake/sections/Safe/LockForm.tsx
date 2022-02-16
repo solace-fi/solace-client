@@ -21,7 +21,7 @@ import Flex from '../../atoms/Flex'
 import { useWindowDimensions } from '../../../../hooks/useWindowDimensions'
 import InfoPair, { Label } from '../../molecules/InfoPair'
 import GrayBox from '../../components/GrayBox'
-import { VerticalSeparator } from '../../components/VerticalSeparator'
+import { VerticalSeparator } from '../../components/Separator'
 import { parseUnits, formatUnits } from 'ethers/lib/utils'
 import { useProjectedBenefits } from '../../../../hooks/useStakingRewards'
 

@@ -43,6 +43,8 @@ import { Text } from '../atoms/Typography'
 
 /* import utils */
 import { GeneralElementProps } from '../generalInterfaces'
+import Checkbox from '../../pages/stake/atoms/Checkbox'
+import Flex from '../../pages/stake/atoms/Flex'
 
 export interface PoolModalProps {
   modalTitle: string
@@ -165,11 +167,10 @@ export const CheckboxOption: React.FC<CheckboxProps & GeneralElementProps> = ({
   text,
   ...props
 }) => (
-  <RadioCircle {...props}>
-    <RadioCircleInput type="checkbox" checked={isChecked} onChange={(e) => setChecked(e.target.checked)} />
-    <RadioCircleFigure />
-    <Text info textAlignCenter t3>
+  <Flex {...props}>
+    <Checkbox type="checkbox" checked={isChecked} onChange={(e) => setChecked(e.target.checked)} />
+    <Text info textAlignCenter t3 pl={5}>
       {text}
     </Text>
-  </RadioCircle>
+  </Flex>
 )

@@ -14,6 +14,8 @@ export default styled.div<{
   m?: number
   mb?: number
   mt?: number
+  ml?: number
+  mr?: number
   p?: number
   pb?: number
   pl?: number
@@ -67,6 +69,8 @@ export default styled.div<{
     `}
   margin-bottom: ${({ mb }) => mb + 'px'};
   margin-top: ${({ mt }) => mt + 'px'};
+  margin-left: ${({ ml }) => ml + 'px'};
+  margin-right: ${({ mr }) => mr + 'px'};
   padding: ${({ p }) => p}px;
   padding-bottom: ${({ pb }) => pb}px;
   padding-left: ${({ pl }) => pl}px;

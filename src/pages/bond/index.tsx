@@ -50,7 +50,7 @@ import { useBondTellerDetailsV2 } from '../../hooks/useBondTellerV2'
 /* import utils */
 import { truncateValue } from '../../utils/formatting'
 import { ModalCell } from '../../components/atoms/Modal'
-import { VerticalSeparator } from '../stake/components/VerticalSeparator'
+import { VerticalSeparator } from '../stake/components/Separator'
 
 function Bond(): any {
   /*

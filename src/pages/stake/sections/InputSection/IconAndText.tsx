@@ -2,7 +2,6 @@ import React from 'react'
 import styled from 'styled-components'
 import { Clock } from 'styled-icons/bootstrap'
 import GrayBgDiv from '../../atoms/BodyBgCss'
-import Twiv from '../../components/Twiv'
 import { Tab } from '../../types/Tab'
 import { BKPT_5 } from '../../../../constants'
 

@@ -25,7 +25,7 @@ import {
 } from '../../hooks/useSolaceCoverProduct'
 import { useWallet } from '../../context/WalletManager'
 import { BigNumber, Contract } from 'ethers'
-import { VerticalSeparator } from '../stake/components/VerticalSeparator'
+import { VerticalSeparator } from '../stake/components/Separator'
 import { useGeneral } from '../../context/GeneralManager'
 import {
   InfoCopy,
