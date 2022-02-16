@@ -188,6 +188,14 @@ function CoverageLimitBasicForm({
     [portfolio]
   )
 
+  // const usdBalanceSum = useMemo(
+  //   () =>
+  //     portfolio && portfolio.protocols.length > 0
+  //       ? portfolio.protocols.reduce((total, protocol) => (total += protocol.balanceUSD), 0)
+  //       : 0,
+  //   [portfolio]
+  // )
+
   const [highestAmount, setHighestAmount] = useState<BigNumber>(ZERO)
   const [recommendedAmount, setRecommendedAmount] = useState<BigNumber>(ZERO)
   const [customInputAmount, setCustomInputAmount] = useState<string>('')
@@ -258,18 +266,18 @@ function CoverageLimitBasicForm({
         ) : (
           <Flex col stretch>
             <Flex justifyCenter>
-              <Text t4s>Set Limit to</Text>
+              <Text t4s>Select Limit</Text>
             </Flex>
             <Flex between itemsCenter mt={10}>
               <GraySquareButton onClick={() => setChosenLimit(prevChosenLimit(chosenLimit))}>
                 <StyledArrowIosBackOutline height={18} />
               </GraySquareButton>
               <Flex col itemsCenter>
-                <Text info t4s bold>
+                <Text info t3 bold>
                   {
                     {
                       [ChosenLimit.Recommended]: 'Recommended',
-                      [ChosenLimit.MaxPosition]: 'Highest position',
+                      [ChosenLimit.MaxPosition]: 'Base',
                       [ChosenLimit.Custom]: 'Manual',
                     }[chosenLimit]
                   }
@@ -277,9 +285,9 @@ function CoverageLimitBasicForm({
                 <Text info t5s>
                   {
                     {
-                      [ChosenLimit.Recommended]: `Highest position + 20%`,
-                      [ChosenLimit.MaxPosition]: `in Portfolio`,
-                      [ChosenLimit.Custom]: `Enter amount below`,
+                      [ChosenLimit.Recommended]: `120% of your highest position`,
+                      [ChosenLimit.MaxPosition]: `100% of your highest position`,
+                      [ChosenLimit.Custom]: `Enter custom amount below`,
                     }[chosenLimit]
                   }
                 </Text>
@@ -289,20 +297,55 @@ function CoverageLimitBasicForm({
               </GraySquareButton>
             </Flex>
             <GenericInputSection
-              icon={<img src={DAI} alt="DAI" height={20} />}
-              // onChange={(e) => setUsd(Number(e.target.value))}
+              // icon={<img src={DAI} alt="DAI" height={20} />}
               onChange={(e) => handleInputChange(e.target.value)}
               text="DAI"
-              // value={usd > 0 ? String(usd) : ''}
               value={customInputAmount}
               disabled={false}
-              // w={300}
               style={{
                 marginTop: '20px',
               }}
               iconAndTextWidth={80}
               displayIconOnMobile
             />
+          </Flex>
+        )}
+        {portfolio && portfolio.protocols.length > 0 && (
+          <Flex col stretch>
+            {/* <Flex center mt={4}>
+              <Flex baseline gap={4} center>
+                <Text t4>Net worth found in your portfolio:</Text>
+              </Flex>
+            </Flex>
+            <Flex center mt={4}>
+              <Flex baseline gap={4} center>
+                <Flex gap={4} baseline mt={2}>
+                  <Text t3 bold>
+                    {truncateValue(usdBalanceSum, 2, false)}
+                  </Text>
+                  <Text t4 bold>
+                    USD
+                  </Text>
+                </Flex>
+              </Flex>
+            </Flex> */}
+            <Flex center mt={20}>
+              <Flex baseline gap={4} center>
+                <Text t4>Highest position in your portfolio:</Text>
+              </Flex>
+            </Flex>
+            <Flex center mt={4}>
+              <Flex baseline gap={4} center>
+                <Flex gap={4} baseline mt={2}>
+                  <Text t2 bold>
+                    {truncateValue(formatUnits(highestAmount, 18), 2, false)}
+                  </Text>
+                  <Text t4 bold>
+                    USD
+                  </Text>
+                </Flex>
+              </Flex>
+            </Flex>
           </Flex>
         )}
       </Flex>
@@ -411,7 +454,13 @@ function CoverageLimit({
         <Text t2 bold>
           Coverage Limit
         </Text>
-        <StyledTooltip id={'coverage-limit'} tip={'Cover limit is the maximum payout in the event of a claim'}>
+        <StyledTooltip
+          id={'coverage-limit'}
+          tip={[
+            'Cover limit is the maximum payout in the event of a claim.',
+            'You may set your cover limit to the amount of your largest position, or an amount of your choice.',
+          ]}
+        >
           <QuestionCircle height={20} width={20} color={'#aaa'} />
         </StyledTooltip>
       </Flex>
@@ -684,7 +733,10 @@ function PolicyBalance({
         </Text>
         <StyledTooltip
           id={'policy-balance'}
-          tip={'To pay for your coverage, your balance is deducted weekly or when you make changes to the policy.'}
+          tip={[
+            'You can control the balance on your policy here.',
+            'To pay for your coverage, your balance is deducted weekly or when you make changes to the policy.',
+          ]}
         >
           <QuestionCircle height={20} width={20} color={'#aaa'} />
         </StyledTooltip>
@@ -1086,7 +1138,7 @@ function ReferralSection({
       domain: {
         name: 'Solace.fi-SolaceCoverProduct',
         version: '1',
-        chainId: activeNetwork.chainId,
+        chainId: activeNetwork.isTestnet ? 1 : activeNetwork.chainId,
         verifyingContract: solaceCoverProduct.address,
       },
 
@@ -1437,7 +1489,7 @@ export default function Soteria(): JSX.Element {
   const canShowSoteria = useMemo(() => !activeNetwork.config.restrictedFeatures.noSoteria, [
     activeNetwork.config.restrictedFeatures.noSoteria,
   ])
-  const portfolio = usePortfolio(account, 1)
+  const portfolio = usePortfolio(account, activeNetwork.isTestnet ? 1 : activeNetwork.chainId)
   const { isMobile } = useWindowDimensions()
   const { policyId, status, coverageLimit, mounting } = useCheckIsCoverageActive(account)
   const {

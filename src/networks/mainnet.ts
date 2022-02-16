@@ -18,8 +18,9 @@ import cpFarmABI from '../constants/abi/contracts/CpFarm.sol/CpFarm.json'
 import claimsEscrowABI from '../constants/abi/contracts/ClaimsEscrow.sol/ClaimsEscrow.json'
 import polMagABI from '../constants/abi/contracts/PolicyManager.sol/PolicyManager.json'
 import riskManagerABI from '../constants/abi/contracts/RiskManager.sol/RiskManager.json'
-/* product contract abi */
+import solaceCoverProductABI from '../constants/metadata/SolaceCoverProduct.json'
 
+/* product contract abi */
 import aaveABI from '../constants/abi/contracts/products/AaveV2Product.sol/AaveV2Product.json'
 import compABI from '../constants/abi/contracts/products/CompoundProduct.sol/CompoundProduct.json'
 import curveABI from '../constants/abi/contracts/products/CurveProduct.sol/CurveProduct.json'
@@ -322,6 +323,10 @@ export const MainNetwork: NetworkConfig = {
         addr: KEY_ADDRS.RISK_MANAGER,
         abi: riskManagerABI,
       },
+      solaceCoverProduct: {
+        addr: KEY_ADDRS.SOLACE_COVER_PRODUCT,
+        abi: solaceCoverProductABI.abi,
+      },
     },
     productContracts: {
       [ProductName.AAVE]: {
@@ -357,7 +362,7 @@ export const MainNetwork: NetworkConfig = {
         abi: yearnABI,
       },
     },
-    restrictedFeatures: { noSoteria: true },
+    restrictedFeatures: {},
     specialFeatures: {},
     specialContracts: {},
     underwritingPoolAddr: '0x5efc0d9ee3223229ce3b53e441016efc5ba83435',
