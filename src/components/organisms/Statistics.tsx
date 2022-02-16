@@ -204,10 +204,7 @@ export const Statistics: React.FC = () => {
               Active Cover Limit
             </BoxItemTitle>
             <Text t2 nowrap light bold>
-              {totalActiveCoverLimit}{' '}
-              <TextSpan t4 light bold>
-                USD
-              </TextSpan>
+              ${totalActiveCoverLimit}{' '}
             </Text>
           </BoxItem>
           <BoxItem>
