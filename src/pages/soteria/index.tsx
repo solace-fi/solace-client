@@ -1533,7 +1533,7 @@ export default function Soteria(): JSX.Element {
   const canShowSoteria = useMemo(() => !activeNetwork.config.restrictedFeatures.noSoteria, [
     activeNetwork.config.restrictedFeatures.noSoteria,
   ])
-  const portfolio = usePortfolio(account, activeNetwork.isTestnet ? 1 : activeNetwork.chainId)
+  const portfolio = usePortfolio(account, 1)
   const { isMobile } = useWindowDimensions()
   const { policyId, status, coverageLimit, mounting } = useCheckIsCoverageActive(account)
   const {

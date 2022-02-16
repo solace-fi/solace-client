@@ -8,6 +8,7 @@ import { useGetFunctionGas } from './useGas'
 import { getSolaceRiskBalances, getSolaceRiskScores } from '../utils/api'
 import { useProvider } from '../context/ProviderManager'
 import { useCachedData } from '../context/CachedDataManager'
+import { useNetwork } from '../context/NetworkManager'
 
 export const useFunctions = () => {
   const { keyContracts } = useContracts()
@@ -292,12 +293,13 @@ export const useFunctions = () => {
 
 export const usePortfolio = (account: string | undefined, chainId: number): SolaceRiskScore | undefined => {
   const [score, setScore] = useState<SolaceRiskScore | undefined>(undefined)
+  const { activeNetwork } = useNetwork()
   const { latestBlock } = useProvider()
   const { version } = useCachedData()
 
   useEffect(() => {
     const getPortfolio = async () => {
-      if (!account || !latestBlock) return
+      if (!account || !latestBlock || activeNetwork.config.restrictedFeatures.noSoteria) return
       const balances = await getSolaceRiskBalances(account, chainId)
       if (!balances) return
       const scores = await getSolaceRiskScores(account, balances)
