@@ -39,6 +39,7 @@ import {
   StyledCommunity,
   StyledReceiptMoney,
   StyledFileShield,
+  StyledTractor,
 } from '../components/atoms/Icon'
 
 /* import constants */
@@ -63,7 +64,7 @@ export default function App(): any {
     //   component: Dashboard,
     // },
     // {
-    //   name: 'Buy Policy',
+    //   name: 'Wallet Coverage',
     //   to: '/cover',
     //   icon: <StyledDashboard size={30} />,
     //   component: Soteria,
@@ -90,7 +91,7 @@ export default function App(): any {
     {
       name: 'Farms',
       to: '/farms',
-      icon: <StyledCoinStack size={30} />,
+      icon: <StyledTractor size={30} />,
       component: Invest,
     },
     {

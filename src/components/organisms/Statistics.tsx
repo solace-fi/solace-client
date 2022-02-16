@@ -52,6 +52,7 @@ import { useReadToken } from '../../hooks/useToken'
 
 /* import utils */
 import { truncateValue } from '../../utils/formatting'
+import { useTotalActivePolicies } from '../../hooks/usePolicy'
 
 export const Statistics: React.FC = () => {
   /*************************************************************************************
@@ -73,6 +74,7 @@ export const Statistics: React.FC = () => {
   const { getGlobalLockStats } = useStakingRewards()
   const [totalActiveCoverAmount, setTotalActiveCoverAmount] = useState<string>('-')
   const [totalActivePolicies, setTotalActivePolicies] = useState<string>('-')
+  const totalCrossChainActivePolicies = useTotalActivePolicies()
   const [pairPrice, setPairPrice] = useState<string>('-')
   const { underwritingPoolBalance } = useCrossChainUnderwritingPoolBalance()
   const [userLockInfo, setUserLockInfo] = useState<UserLocksInfo>({
@@ -170,7 +172,7 @@ export const Statistics: React.FC = () => {
           </Text>
         </BoxItem>
       )}
-      {!activeNetwork.config.restrictedFeatures.noCoverProducts && (
+      {/* {!activeNetwork.config.restrictedFeatures.noCoverProducts && (
         <>
           <BoxItem>
             <BoxItemTitle t4 light>
@@ -191,6 +193,18 @@ export const Statistics: React.FC = () => {
             </BoxItemTitle>
             <Text t2 nowrap light bold>
               {totalActivePolicies}
+            </Text>
+          </BoxItem>
+        </>
+      )} */}
+      {!activeNetwork.config.restrictedFeatures.noSoteria && (
+        <>
+          <BoxItem>
+            <BoxItemTitle t4 light>
+              Total Active Policies
+            </BoxItemTitle>
+            <Text t2 nowrap light bold>
+              {totalCrossChainActivePolicies}
             </Text>
           </BoxItem>
         </>
@@ -234,7 +248,7 @@ export const Statistics: React.FC = () => {
             </FormCol>
           </FormRow>
         )}
-        {!activeNetwork.config.restrictedFeatures.noCoverProducts && (
+        {/* {!activeNetwork.config.restrictedFeatures.noCoverProducts && (
           <>
             <FormRow>
               <FormCol light>Active Cover Amount</FormCol>
@@ -254,6 +268,18 @@ export const Statistics: React.FC = () => {
               <FormCol>
                 <Text t2 nowrap light>
                   {totalActivePolicies}
+                </Text>
+              </FormCol>
+            </FormRow>
+          </>
+        )} */}
+        {!activeNetwork.config.restrictedFeatures.noSoteria && (
+          <>
+            <FormRow>
+              <FormCol light>Total Active Policies</FormCol>
+              <FormCol>
+                <Text t2 nowrap light>
+                  {totalCrossChainActivePolicies}
                 </Text>
               </FormCol>
             </FormRow>
