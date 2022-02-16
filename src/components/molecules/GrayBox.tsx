@@ -1,6 +1,6 @@
 import React from 'react'
 import styled from 'styled-components'
-import GrayBgDiv from '../atoms/BodyBgCss'
+import { GrayBgDiv } from '../../components/atoms/Layout'
 
 export const StyledGrayBox = styled.div`
   border-radius: 10px;
@@ -30,7 +30,7 @@ export const FixedHeightGrayBox = styled.div<{
   background-color: ${({ theme }) => theme.body.bg_color};
 `
 
-export default function GrayBox({ children }: { children: React.ReactNode | string }): JSX.Element {
+export const GrayBox = ({ children }: { children: React.ReactNode | string }): JSX.Element => {
   return (
     <GrayBgDiv
       className="flex text-[#213a4d] rounded-xl items-stretch font-medium mb-8"

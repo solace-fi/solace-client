@@ -1,21 +1,20 @@
 import React, { useEffect, useState, useMemo } from 'react'
-import { Flex } from '../../components/atoms/Layout'
+import { Flex, ShadowDiv } from '../../components/atoms/Layout'
 import RaisedBox from '../../components/atoms/RaisedBox'
-import ShadowDiv from '../stake/atoms/ShadowDiv'
 import { QuestionCircle } from '@styled-icons/bootstrap/QuestionCircle'
 // src/components/atoms/Button/index.ts
 import { Button, GraySquareButton } from '../../components/atoms/Button'
 // src/resources/svg/icons/usd.svg
 import DAI from '../../resources/svg/icons/dai.svg'
-import { FixedHeightGrayBox, StyledGrayBox } from '../stake/components/GrayBox'
-import { GenericInputSection } from '../stake/sections/InputSection'
+import { GrayBgDiv } from '../../components/atoms/Layout'
+import { FixedHeightGrayBox, StyledGrayBox } from '../../components/molecules/GrayBox'
+import { GenericInputSection } from '../../components/molecules/InputSection'
 import { Input, StyledSlider } from '../../components/atoms/Input'
 import commaNumber from '../../utils/commaNumber'
 import { Table, TableHead, TableHeader, TableBody, TableRow, TableData } from '../../components/atoms/Table'
 import { StyledTooltip } from '../../components/molecules/Tooltip'
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'
 import { ADDRESS_ZERO, BKPT_5, MAX_APPROVAL_AMOUNT, ZERO } from '../../constants'
-import GrayBgDiv from '../stake/atoms/BodyBgCss'
 import {
   useCheckIsCoverageActive,
   useCooldownDetails,
@@ -25,14 +24,8 @@ import {
 } from '../../hooks/useSolaceCoverProduct'
 import { useWallet } from '../../context/WalletManager'
 import { BigNumber, Contract } from 'ethers'
-import { VerticalSeparator } from '../stake/components/Separator'
 import { useGeneral } from '../../context/GeneralManager'
-import {
-  InfoCopy,
-  InfoCheckmark,
-  StyledArrowIosBackOutline,
-  StyledArrowIosForwardOutline,
-} from '../../components/atoms/Icon'
+import { StyledArrowIosBackOutline, StyledArrowIosForwardOutline } from '../../components/atoms/Icon'
 import { LocalTx, SolaceRiskProtocol, SolaceRiskScore } from '../../constants/types'
 import {
   accurateMultiply,
@@ -65,7 +58,7 @@ import { Loader } from '../../components/atoms/Loader'
 import { TextSpan, Text } from '../../components/atoms/Typography'
 import { Box } from '../../components/atoms/Box'
 import { StyledInfo } from '../../components/atoms/Icon'
-import { Content, HeroContainer, HorizRule } from '../../components/atoms/Layout'
+import { Content, HeroContainer, HorizRule, VerticalSeparator } from '../../components/atoms/Layout'
 import { WalletConnectButton } from '../../components/molecules/WalletConnectButton'
 import { ModalCell } from '../../components/atoms/Modal'
 

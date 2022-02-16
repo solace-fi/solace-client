@@ -1,6 +1,7 @@
 import { BKPT_5 } from '../../../constants'
 import styled, { css } from 'styled-components'
 import { GeneralElementProps, GeneralElementCss, HeightAndWidthProps, HeightAndWidthCss } from '../../generalInterfaces'
+import { BKPT_6 } from '../../../constants'
 
 export const Flex = styled.div<{
   between?: boolean
@@ -91,6 +92,44 @@ export const Flex = styled.div<{
   ${({ flex1 }) => flex1 && 'flex: 1;'}
 `
 
+export const GridOrRow = styled(Flex)`
+  display: flex;
+  /* gap: 80px; */
+  align-items: stretch;
+  @media screen and (max-width: ${BKPT_6}px) {
+    margin-left: auto;
+    margin-right: auto;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+    grid-column-gap: 20px;
+    grid-row-gap: 22px;
+    .items-6 {
+      grid-area: 1 / 1 / 3 / 4;
+    }
+    .items-1 {
+      grid-area: 3 / 2 / 4 / 3;
+    }
+  }
+`
+
+export const ShadowDiv = styled.div<{
+  stretch?: boolean
+}>`
+  box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.12);
+  border-radius: 10px;
+  ${(props) =>
+    props.stretch &&
+    css`
+      display: flex;
+      flex-direction: column;
+      & > * {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    `}
+`
+
 export const HeroContainer = styled.div<HeightAndWidthProps & GeneralElementProps>`
   display: flex;
   flex-direction: column;
@@ -108,4 +147,16 @@ export const Content = styled.div<GeneralElementProps>`
     padding: 30px 20px;
   }
   ${GeneralElementCss}
+`
+
+export const BodyBgInput = styled.input`
+  background-color: ${(props) => props.theme.body.bg_color};
+`
+
+// both of these are the same
+export const BodyBgDiv = styled.div`
+  background-color: ${(props) => props.theme.body.bg_color};
+`
+export const GrayBgDiv = styled.div`
+  background-color: ${(props) => props.theme.body.bg_color};
 `

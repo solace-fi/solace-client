@@ -1,5 +1,5 @@
 import React, { Fragment } from 'react'
-import { VerticalSeparator } from '../components/Separator'
+import { VerticalSeparator } from '../../../components/atoms/Layout'
 
 export default function separateChildren(children: React.ReactNode[]): JSX.Element[] {
   const len = children.length

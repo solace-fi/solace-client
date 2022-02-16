@@ -1,15 +1,15 @@
 import React from 'react'
 import styled from 'styled-components'
-import { Button } from '../../../../components/atoms/Button'
-import { Tab } from '../../types/Tab'
-import IconAndText, { GenericIconAndText } from './IconAndText'
-import InputSectionWrapper from './InputSectionWrapper'
+import { Button } from '../atoms/Button'
+import { Tab } from '../../constants/enums'
+import { GenericIconAndText, IconAndText } from './IconAndText'
+import { InputSectionWrapper } from '../atoms/Input'
 
 const StyledInput = styled.input`
   border-color: ${({ theme }) => theme.separator.bg_color};
 `
 
-export default function InputSection({
+export const InputSection = ({
   tab,
   value,
   onChange,
@@ -22,7 +22,7 @@ export default function InputSection({
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void
   setMax?: () => void
   disabled?: boolean
-}): JSX.Element {
+}): JSX.Element => {
   return (
     <InputSectionWrapper>
       {tab ? <IconAndText tab={tab} disabled={disabled} /> : <></>}

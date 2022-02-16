@@ -150,3 +150,10 @@ export enum BondName {
   NEAR = 'NEAR',
   AURORA = 'AURORA',
 }
+
+export enum Tab {
+  DEPOSIT,
+  LOCK,
+  WITHDRAW,
+  REWARDS,
+}

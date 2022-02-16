@@ -14,7 +14,7 @@ import { useNetwork } from '../../../context/NetworkManager'
 
 /* import constants */
 import { FunctionName, TransactionCondition } from '../../../constants/enums'
-import { BKPT_1, BKPT_5, DAYS_PER_YEAR, ZERO, Z_TABLE } from '../../../constants'
+import { ZERO } from '../../../constants'
 import { LocalTx } from '../../../constants/types'
 
 /* import components */
@@ -24,9 +24,8 @@ import { FormCol, FormRow } from '../../../components/atoms/Form'
 import { ModalCell } from '../../../components/atoms/Modal'
 import { Modal } from '../../../components/molecules/Modal'
 import { Text } from '../../../components/atoms/Typography'
-import { Flex } from '../../../components/atoms/Layout'
-import InputSection from '../sections/InputSection'
-import { VerticalSeparator } from '../components/Separator'
+import { Flex, VerticalSeparator } from '../../../components/atoms/Layout'
+import { InputSection } from '../../../components/molecules/InputSection'
 
 /* import hooks */
 import { useBridgeBalance, useSolaceBalance } from '../../../hooks/useBalance'

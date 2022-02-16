@@ -32,7 +32,7 @@ import { Table, TableData, TableHead, TableHeader, TableRow, TableBody } from '.
 import { DeFiAssetImage } from '../../components/atoms/DeFiAsset'
 import { Card, CardContainer } from '../../components/atoms/Card'
 import { FormRow, FormCol } from '../../components/atoms/Form'
-import { Flex, HeroContainer, Scrollable } from '../../components/atoms/Layout'
+import { Flex, HeroContainer, Scrollable, VerticalSeparator } from '../../components/atoms/Layout'
 import { BondModalV1 } from '../../components/organisms/bond/v1/BondModalV1'
 import { BondModalV2 } from '../../components/organisms/bond/v2/BondModalV2'
 import { Loader } from '../../components/atoms/Loader'
@@ -50,7 +50,6 @@ import { useBondTellerDetailsV2 } from '../../hooks/useBondTellerV2'
 /* import utils */
 import { truncateValue } from '../../utils/formatting'
 import { ModalCell } from '../../components/atoms/Modal'
-import { VerticalSeparator } from '../stake/components/Separator'
 
 function Bond(): any {
   /*
