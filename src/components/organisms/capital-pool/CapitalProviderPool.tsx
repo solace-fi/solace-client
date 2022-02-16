@@ -28,7 +28,8 @@ import { Text } from '../../atoms/Typography'
 import { Table, TableHead, TableRow, TableHeader, TableBody, TableData, TableDataGroup } from '../../atoms/Table'
 import { Button, ButtonWrapper } from '../../atoms/Button'
 import { Card } from '../../atoms/Card'
-import { FormRow, FormCol } from '../../atoms/Form'
+import { FormCol } from '../../atoms/Form'
+import { Flex } from '../../atoms/Layout'
 import { HyperLink } from '../../atoms/Link'
 
 /* import constants */
@@ -123,47 +124,47 @@ export const CapitalProviderPool: React.FC<CapitalProviderPoolProps> = ({ openMo
         // tablet version
         <Card isHighlight>
           {account && (
-            <FormRow>
+            <Flex stretch between mb={24}>
               <FormCol light>My Stake:</FormCol>
               <FormCol light t2>
                 {truncateValue(cpUserStakeValue, 2)}
               </FormCol>
-            </FormRow>
+            </Flex>
           )}
-          <FormRow>
+          <Flex stretch between mb={24}>
             <FormCol light>Total Assets:</FormCol>
             <FormCol light t2>
               {truncateValue(cpPoolValue, 2)}
             </FormCol>
-          </FormRow>
-          <FormRow>
+          </Flex>
+          <Flex stretch between mb={24}>
             <FormCol light>ROI:</FormCol>
             <FormCol light t2>
               N/A
             </FormCol>
-          </FormRow>
+          </Flex>
           {account && (
             <>
-              <FormRow>
+              <Flex stretch between mb={24}>
                 <FormCol light>My Rewards:</FormCol>
                 <FormCol light t2>
                   {truncateValue(cpUserRewards, 2)}
                 </FormCol>
-              </FormRow>
-              <FormRow>
+              </Flex>
+              <Flex stretch between mb={24}>
                 <FormCol light>My Daily Rewards:</FormCol>
                 <FormCol light t2>
                   {truncateValue(cpUserRewardsPerDay, 2)}
                 </FormCol>
-              </FormRow>
+              </Flex>
             </>
           )}
-          <FormRow>
+          <Flex stretch between mb={24}>
             <FormCol light>Daily Rewards:</FormCol>
             <FormCol light t2>
               {truncateValue(cpRewardsPerDay, 2)}
             </FormCol>
-          </FormRow>
+          </Flex>
           {account && (
             <ButtonWrapper isColumn={width <= BKPT_4}>
               <Button

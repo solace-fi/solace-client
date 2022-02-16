@@ -28,7 +28,8 @@ import { useWallet } from '../../../../context/WalletManager'
 import { useContracts } from '../../../../context/ContractsManager'
 
 /* import components */
-import { FormCol, FormRow } from '../../../atoms/Form'
+import { FormCol } from '../../../atoms/Form'
+import { Flex } from '../../../atoms/Layout'
 import { Text } from '../../../atoms/Typography'
 import { SmallBox } from '../../../atoms/Box'
 
@@ -70,7 +71,7 @@ export const PrivateBondInfoV1: React.FC<PrivateBondInfoV1Props> = ({
     <>
       {account && (
         <>
-          <FormRow mt={40} mb={10}>
+          <Flex stretch between mt={40} mb={10}>
             <FormCol>
               <Text bold>My Balance</Text>
             </FormCol>
@@ -82,8 +83,8 @@ export const PrivateBondInfoV1: React.FC<PrivateBondInfoV1Props> = ({
                   : selectedBondDetail?.principalData.principalProps?.symbol}
               </Text>
             </FormCol>
-          </FormRow>
-          <FormRow mb={5}>
+          </Flex>
+          <Flex stretch between mb={5}>
             <FormCol>
               <Text bold>You Will Get</Text>
             </FormCol>
@@ -94,10 +95,10 @@ export const PrivateBondInfoV1: React.FC<PrivateBondInfoV1Props> = ({
                   : `-`}
               </Text>
             </FormCol>
-          </FormRow>
-          <FormRow mb={30} jc={'right'}>
+          </Flex>
+          <Flex stretch between mb={30} style={{ justifyContent: 'right' }}>
             <SmallBox transparent collapse={!isStaking} m={0} p={0}>
-              <FormRow mb={10}>
+              <Flex stretch between mb={10}>
                 <FormCol></FormCol>
                 <FormCol>
                   <Text t4 textAlignRight>
@@ -108,9 +109,9 @@ export const PrivateBondInfoV1: React.FC<PrivateBondInfoV1Props> = ({
                     {' )'}
                   </Text>
                 </FormCol>
-              </FormRow>
+              </Flex>
             </SmallBox>
-          </FormRow>
+          </Flex>
         </>
       )}
     </>

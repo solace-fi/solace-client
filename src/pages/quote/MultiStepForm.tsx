@@ -47,7 +47,7 @@ import { DeFiAsset, DeFiAssetImage, ProtocolTitle } from '../../components/atoms
 import { Box, BoxItem, BoxRow } from '../../components/atoms/Box'
 import { Button, ButtonWrapper } from '../../components/atoms/Button'
 import { Card, CardContainer } from '../../components/atoms/Card'
-import { FormRow, FormCol } from '../../components/atoms/Form'
+import { FormCol } from '../../components/atoms/Form'
 import { Text } from '../../components/atoms/Typography'
 import { Flex } from '../../components/atoms/Layout'
 import { StyledDots } from '../../components/atoms/Icon'
@@ -225,7 +225,7 @@ export const MultiStepForm = () => {
         <StyledStepComponent stepSections={StepSections} currentStep={Number(StepNumber[step.id]) + 1} />
       ) : (
         // mobile version
-        <FormRow mb={0} mt={20} ml={30} mr={30} jc={'center'}>
+        <Flex stretch between mt={20} ml={30} mr={30} justifyCenter>
           <FormCol>
             <div style={{ width: 100, height: 100 }}>
               <CircularProgressbar
@@ -247,7 +247,7 @@ export const MultiStepForm = () => {
             </Text>
             <Text t4>{StepSections[Number(StepNumber[step.id])].description}</Text>
           </FormCol>
-        </FormRow>
+        </Flex>
       )}
       {Number(StepNumber[step.id]) !== 0 && Number(StepNumber[step.id]) !== 3 && (
         <>
@@ -324,7 +324,7 @@ export const MultiStepForm = () => {
             //mobile version
             <CardContainer m={20}>
               <Card color1>
-                <FormRow>
+                <Flex stretch between mb={24}>
                   <FormCol>
                     <DeFiAssetImage mr={10}>
                       <img src={`https://assets.solace.fi/${protocol.name.toLowerCase()}`} alt={protocol.name} />
@@ -335,23 +335,23 @@ export const MultiStepForm = () => {
                       {protocol.name}
                     </Text>
                   </FormCol>
-                </FormRow>
-                <FormRow>
+                </Flex>
+                <Flex stretch between mb={24}>
                   <FormCol light>Yearly Cost</FormCol>
                   <FormCol>
                     <Text bold t2 light>
                       {fixed(protocol.yearlyCost * 100, 2)}%
                     </Text>
                   </FormCol>
-                </FormRow>
-                <FormRow>
+                </Flex>
+                <Flex stretch between mb={24}>
                   <FormCol light>Available Coverage</FormCol>
                   <FormCol>
                     <Text bold t2 light>
                       {protocol.availableCoverage} {activeNetwork.nativeCurrency.symbol}
                     </Text>
                   </FormCol>
-                </FormRow>
+                </Flex>
                 <ButtonWrapper>
                   <Button light widthP={100} onClick={resetForm}>
                     Change

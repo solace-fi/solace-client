@@ -39,8 +39,8 @@ import { Table, TableData, TableHead, TableHeader, TableRow, TableBody } from '.
 import { Search } from '../../components/atoms/Input'
 import { DeFiAsset, DeFiAssetImage, ProtocolTitle } from '../../components/atoms/DeFiAsset'
 import { Card, CardContainer } from '../../components/atoms/Card'
-import { FormRow, FormCol } from '../../components/atoms/Form'
-import { Scrollable } from '../../components/atoms/Layout'
+import { FormCol } from '../../components/atoms/Form'
+import { Scrollable, Flex } from '../../components/atoms/Layout'
 import { Text } from '../../components/atoms/Typography'
 
 /* import hooks */
@@ -178,7 +178,7 @@ export const ProtocolStep: React.FC<formProps> = ({ setForm, navigation }) => {
                 .map((protocol: ProductContract) => {
                   return (
                     <Card key={protocol.name} onClick={haveErrors ? undefined : () => handleChange(protocol.name)}>
-                      <FormRow>
+                      <Flex stretch between mb={24}>
                         <FormCol>
                           <DeFiAssetImage mr={10}>
                             <img src={`https://assets.solace.fi/${protocol.name.toLowerCase()}`} alt={protocol.name} />
@@ -189,23 +189,23 @@ export const ProtocolStep: React.FC<formProps> = ({ setForm, navigation }) => {
                             {protocol.name}
                           </Text>
                         </FormCol>
-                      </FormRow>
-                      <FormRow>
+                      </Flex>
+                      <Flex stretch between mb={24}>
                         <FormCol>Yearly Cost</FormCol>
                         <FormCol>
                           <Text bold t2>
                             {fixed(getAdjustedYearlyCost(yearlyCosts[protocol.name]) * 100, 2)}%
                           </Text>
                         </FormCol>
-                      </FormRow>
-                      <FormRow>
+                      </Flex>
+                      <Flex stretch between mb={24}>
                         <FormCol>Coverage Available</FormCol>
                         <FormCol>
                           <Text bold t2>
                             {handleAvailableCoverage(protocol.name)} {activeNetwork.nativeCurrency.symbol}
                           </Text>
                         </FormCol>
-                      </FormRow>
+                      </Flex>
                     </Card>
                   )
                 })}

@@ -31,7 +31,7 @@ import { Button } from '../../components/atoms/Button'
 import { Table, TableData, TableHead, TableHeader, TableRow, TableBody } from '../../components/atoms/Table'
 import { DeFiAssetImage } from '../../components/atoms/DeFiAsset'
 import { Card, CardContainer } from '../../components/atoms/Card'
-import { FormRow, FormCol } from '../../components/atoms/Form'
+import { FormCol } from '../../components/atoms/Form'
 import { Flex, HeroContainer, Scrollable, VerticalSeparator, Content } from '../../components/atoms/Layout'
 import { BondModalV1 } from '../../components/organisms/bond/v1/BondModalV1'
 import { BondModalV2 } from '../../components/organisms/bond/v2/BondModalV2'
@@ -265,7 +265,7 @@ function Bond(): any {
                             {currentTellerDetailsV2.map((tellerDetail, i) => (
                               <Card key={i} onClick={haveErrors ? undefined : () => openModalV2(true, tellerDetail)}>
                                 <Flex col style={{ alignItems: 'center' }}>
-                                  <FormRow>
+                                  <Flex stretch between mb={24}>
                                     <Flex>
                                       {tellerDetail.principalData ? (
                                         <DeFiAssetImage mr={10} noborder>
@@ -278,14 +278,14 @@ function Bond(): any {
                                         <Loader height={10} width={10} />
                                       )}
                                     </Flex>
-                                  </FormRow>
+                                  </Flex>
                                   <Flex col style={{ alignItems: 'center' }}>
                                     <Text t2 mb={20}>
                                       {tellerDetail.tellerData.teller.name}
                                     </Text>
                                   </Flex>
                                 </Flex>
-                                <FormRow>
+                                <Flex stretch between mb={24}>
                                   <FormCol>Price</FormCol>
                                   <FormCol>
                                     <Text bold t2 fade={tellerDetail.tellerData.usdBondPrice <= 0}>
@@ -294,15 +294,15 @@ function Bond(): any {
                                         : `USD price not found`}
                                     </Text>
                                   </FormCol>
-                                </FormRow>
-                                <FormRow>
+                                </Flex>
+                                <Flex stretch between mb={24}>
                                   <FormCol>ROI</FormCol>
                                   <FormCol>
                                     <Text bold t2>
                                       {truncateValue(tellerDetail.tellerData.bondRoi, 2, false)}%
                                     </Text>
                                   </FormCol>
-                                </FormRow>
+                                </Flex>
                               </Card>
                             ))}
                           </CardContainer>
@@ -403,7 +403,7 @@ function Bond(): any {
                             {currentTellerDetailsV1.map((tellerDetail, i) => (
                               <Card key={i} onClick={haveErrors ? undefined : () => openModalV1(true, tellerDetail)}>
                                 <Flex col style={{ alignItems: 'center' }}>
-                                  <FormRow>
+                                  <Flex stretch between mb={24}>
                                     <Flex>
                                       {tellerDetail.principalData ? (
                                         tellerDetail.principalData.token0 && tellerDetail.principalData.token1 ? (
@@ -433,14 +433,14 @@ function Bond(): any {
                                         <Loader height={10} width={10} />
                                       )}
                                     </Flex>
-                                  </FormRow>
+                                  </Flex>
                                   <Flex style={{ alignItems: 'center' }}>
                                     <Text t2 mb={20}>
                                       {tellerDetail.tellerData.teller.name}
                                     </Text>
                                   </Flex>
                                 </Flex>
-                                {/* <FormRow>
+                                {/* <Flex stretch between mb={24}>
                                   <FormCol>Price</FormCol>
                                   <FormCol>
                                     <Text bold t2 fade={tellerDetail.tellerData.usdBondPrice <= 0}>
@@ -449,15 +449,15 @@ function Bond(): any {
                                         : `USD price not found`}
                                     </Text>
                                   </FormCol>
-                                </FormRow> */}
-                                {/* <FormRow>
+                                </Flex> */}
+                                {/* <Flex stretch between mb={24}>
                                   <FormCol>ROI</FormCol>
                                   <FormCol>
                                     <Text bold t2>
                                       {truncateValue(tellerDetail.tellerData.bondRoi, 2, false)}%
                                     </Text>
                                   </FormCol>
-                                </FormRow> */}
+                                </Flex> */}
                               </Card>
                             ))}
                           </CardContainer>

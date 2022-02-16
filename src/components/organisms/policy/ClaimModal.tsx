@@ -32,7 +32,8 @@ import { useGeneral } from '../../../context/GeneralManager'
 
 /* import components */
 import { Modal } from '../../molecules/Modal'
-import { FormRow, FormCol } from '../../atoms/Form'
+import { FormCol } from '../../atoms/Form'
+import { Flex } from '../../atoms/Layout'
 import { Text } from '../../atoms/Typography'
 import { PolicyModalInfo } from './PolicyModalInfo'
 import { Loader } from '../../atoms/Loader'
@@ -204,16 +205,16 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
           assessment ? (
             <Fragment>
               {width > BKPT_3 && (
-                <FormRow mb={0}>
+                <Flex stretch between>
                   <FormCol>
                     <Text t4 autoAlign nowrap>
                       By submitting a claim, you receive
                     </Text>
                   </FormCol>
                   <FormCol></FormCol>
-                </FormRow>
+                </Flex>
               )}
-              <FormRow mb={0}>
+              <Flex stretch between>
                 <FormCol>
                   <Text t4 autoAlign nowrap>
                     {width > BKPT_3 ? 'pre-exploit assets value equal to' : 'Receiving'}
@@ -225,7 +226,7 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
                     {activeNetwork.nativeCurrency.symbol}
                   </Text>
                 </FormCol>
-              </FormRow>
+              </Flex>
               <SmallBox jc={'center'} transparent mt={10}>
                 <Text t4 bold warning textAlignCenter>
                   Please wait for the review period to elapse before withdrawing your payout.

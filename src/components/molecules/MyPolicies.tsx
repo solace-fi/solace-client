@@ -34,7 +34,7 @@ import { Button, ButtonWrapper } from '../atoms/Button'
 import { Text } from '../atoms/Typography'
 import { Flex, Content } from '../atoms/Layout'
 import { Card, CardContainer } from '../atoms/Card'
-import { FormRow, FormCol } from '../atoms/Form'
+import { FormCol } from '../atoms/Form'
 import { DeFiAssetImage } from '../atoms/DeFiAsset'
 import { StyledDots } from '../atoms/Icon'
 import { Loader } from '../atoms/Loader'
@@ -180,7 +180,7 @@ export const MyPolicies: React.FC<MyPoliciesProps> = ({
                   return (
                     <Card key={policy.policyId}>
                       <Flex col style={{ alignItems: 'center' }}>
-                        <FormRow>
+                        <Flex stretch between mb={24}>
                           <Flex>
                             <DeFiAssetImage secured>
                               <img
@@ -200,34 +200,34 @@ export const MyPolicies: React.FC<MyPoliciesProps> = ({
                               </Flex>
                             </Flex>
                           </Flex>
-                        </FormRow>
+                        </Flex>
                         <Flex col style={{ alignItems: 'center' }}>
                           <Text t2>{policy.productName}</Text>
                         </Flex>
                       </Flex>
-                      <FormRow mb={10}>
+                      <Flex stretch between mb={10}>
                         <FormCol>ID:</FormCol>
                         <FormCol>
                           <Text t2>{policy.policyId}</Text>
                         </FormCol>
-                      </FormRow>
-                      <FormRow mb={10}>
+                      </Flex>
+                      <Flex stretch between mb={10}>
                         <FormCol>Status:</FormCol>
                         <FormCol>
                           <Text t2 error={policy.status === PolicyState.EXPIRED} warning={isWarned}>
                             {policy.status}
                           </Text>
                         </FormCol>
-                      </FormRow>
-                      <FormRow mb={10}>
+                      </Flex>
+                      <Flex stretch between mb={10}>
                         <FormCol>Expiration Date:</FormCol>
                         <FormCol>
                           <Text t2 warning={isWarned}>
                             {calculatePolicyExpirationDate(latestBlock, policy.expirationBlock)}
                           </Text>
                         </FormCol>
-                      </FormRow>
-                      <FormRow mb={10}>
+                      </Flex>
+                      <Flex stretch between mb={10}>
                         <FormCol>Covered Amount:</FormCol>
                         <FormCol>
                           <Text t2>
@@ -237,7 +237,7 @@ export const MyPolicies: React.FC<MyPoliciesProps> = ({
                             {activeNetwork.nativeCurrency.symbol}
                           </Text>
                         </FormCol>
-                      </FormRow>
+                      </Flex>
                       {policy.status === PolicyState.ACTIVE && (
                         <ButtonWrapper isColumn>
                           <Button

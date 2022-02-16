@@ -31,9 +31,9 @@ import { useProvider } from '../../../../context/ProviderManager'
 /* import components */
 import { Text } from '../../../atoms/Typography'
 import { Button } from '../../../atoms/Button'
-import { FormCol, FormRow } from '../../../atoms/Form'
+import { FormCol } from '../../../atoms/Form'
 import { Card, CardContainer } from '../../../atoms/Card'
-import { Scrollable, HeroContainer } from '../../../atoms/Layout'
+import { Scrollable, HeroContainer, Flex } from '../../../atoms/Layout'
 
 /* import hooks */
 import { useReadToken } from '../../../../hooks/useToken'
@@ -86,21 +86,21 @@ export const OwnedBondListV1: React.FC<OwnedBondListV1Props> = ({
           <CardContainer cardsPerRow={1}>
             {ownedBondTokens.map((token) => (
               <Card p={15} key={token.id.toString()}>
-                <FormRow mb={10}>
+                <Flex stretch between mb={10}>
                   <FormCol>
                     <Text>ID</Text>
                   </FormCol>
                   <FormCol>{token.id.toString()}</FormCol>
-                </FormRow>
-                <FormRow mb={10}>
+                </Flex>
+                <Flex stretch between mb={10}>
                   <FormCol>
                     <Text>Paid Price</Text>
                   </FormCol>
                   <FormCol>
                     <Text textAlignRight>{formatUnits(token.pricePaid, pncplDecimals)}</Text>
                   </FormCol>
-                </FormRow>
-                <FormRow mb={10}>
+                </Flex>
+                <Flex stretch between mb={10}>
                   <FormCol>
                     <Text>Payout</Text>
                   </FormCol>
@@ -109,12 +109,12 @@ export const OwnedBondListV1: React.FC<OwnedBondListV1Props> = ({
                       {`${formatUnits(token.payoutAmount, readSolaceToken.decimals)} ${token.payoutToken}`}
                     </Text>
                   </FormCol>
-                </FormRow>
+                </Flex>
                 {token.maturation.toNumber() > timestamp ? (
-                  <FormRow mb={10}>
+                  <Flex stretch between mb={10}>
                     <FormCol>Time Until Fully Vested</FormCol>
                     <FormCol>{getTimeFromMillis((token.maturation.toNumber() - timestamp) * 1000)}</FormCol>
-                  </FormRow>
+                  </Flex>
                 ) : (
                   <>
                     <Text textAlignCenter success mb={10}>

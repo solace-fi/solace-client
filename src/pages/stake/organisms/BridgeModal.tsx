@@ -20,7 +20,7 @@ import { LocalTx } from '../../../constants/types'
 /* import components */
 import { Button, ButtonWrapper } from '../../../components/atoms/Button'
 import { Card } from '../../../components/atoms/Card'
-import { FormCol, FormRow } from '../../../components/atoms/Form'
+import { FormCol } from '../../../components/atoms/Form'
 import { ModalCell } from '../../../components/atoms/Modal'
 import { Modal } from '../../../components/molecules/Modal'
 import { Text } from '../../../components/atoms/Typography'
@@ -185,7 +185,7 @@ export const BridgeModal: React.FC<ModalProps> = ({ modalTitle, handleClose, isO
             </Text>
           </ModalCell>
         </div>
-        <FormRow mt={20} mb={10}>
+        <Flex stretch between mt={20} mb={10}>
           <FormCol>
             <Text fade={isWrapping} t3={!isWrapping} t4={isWrapping}>
               bSOLACE
@@ -196,8 +196,8 @@ export const BridgeModal: React.FC<ModalProps> = ({ modalTitle, handleClose, isO
               {bridgeBalance}
             </Text>
           </FormCol>
-        </FormRow>
-        <FormRow mt={10} mb={20}>
+        </Flex>
+        <Flex stretch between mt={10} mb={20}>
           <FormCol>
             <Text fade={!isWrapping} t3={isWrapping} t4={!isWrapping}>
               SOLACE
@@ -208,7 +208,7 @@ export const BridgeModal: React.FC<ModalProps> = ({ modalTitle, handleClose, isO
               {solaceBalance}
             </Text>
           </FormCol>
-        </FormRow>
+        </Flex>
       </Card>
       <Flex column gap={24}>
         <div>

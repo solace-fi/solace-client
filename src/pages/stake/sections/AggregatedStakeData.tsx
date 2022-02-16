@@ -9,7 +9,7 @@ import { truncateValue } from '../../../utils/formatting'
 import { formatUnits } from '@ethersproject/units'
 import { useWindowDimensions } from '../../../hooks/useWindowDimensions'
 import { BKPT_6 } from '../../../constants'
-import { FormRow, FormCol } from '../../../components/atoms/Form'
+import { FormCol } from '../../../components/atoms/Form'
 import { Card } from '../../../components/atoms/Card'
 
 export default function AggregatedStakeData({ stakeData }: { stakeData: UserLocksInfo }): JSX.Element {
@@ -65,7 +65,7 @@ export default function AggregatedStakeData({ stakeData }: { stakeData: UserLock
         </RaisedBox>
       ) : (
         <Card>
-          <FormRow>
+          <Flex stretch between mb={24}>
             <FormCol info bold>
               Staked Balance
             </FormCol>
@@ -74,8 +74,8 @@ export default function AggregatedStakeData({ stakeData }: { stakeData: UserLock
                 {truncateValue(formatUnits(stakeData.stakedBalance, 18), 2)} SOLACE
               </Text>
             </FormCol>
-          </FormRow>
-          <FormRow>
+          </Flex>
+          <Flex stretch between mb={24}>
             <FormCol info bold>
               Unlocked Balance
             </FormCol>
@@ -84,8 +84,8 @@ export default function AggregatedStakeData({ stakeData }: { stakeData: UserLock
                 {truncateValue(formatUnits(stakeData.unlockedBalance, 18), 2)} SOLACE
               </Text>
             </FormCol>
-          </FormRow>
-          <FormRow>
+          </Flex>
+          <Flex stretch between mb={24}>
             <FormCol info bold>
               Locked Balance
             </FormCol>
@@ -94,8 +94,8 @@ export default function AggregatedStakeData({ stakeData }: { stakeData: UserLock
                 {truncateValue(formatUnits(stakeData.lockedBalance, 18), 2)} SOLACE
               </Text>
             </FormCol>
-          </FormRow>
-          <FormRow>
+          </Flex>
+          <Flex stretch between mb={24}>
             <FormCol info bold>
               Total Rewards
             </FormCol>
@@ -104,15 +104,15 @@ export default function AggregatedStakeData({ stakeData }: { stakeData: UserLock
                 {truncateValue(formatUnits(stakeData.pendingRewards, 18), 2)} SOLACE
               </Text>
             </FormCol>
-          </FormRow>
-          <FormRow>
+          </Flex>
+          <Flex stretch between mb={24}>
             <FormCol>APR</FormCol>
             <FormCol>
               <Text t2 nowrap bold>
                 {truncateValue(stakeData.apr.toString(), 1)}%
               </Text>
             </FormCol>
-          </FormRow>
+          </Flex>
         </Card>
       )}
     </>

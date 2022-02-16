@@ -37,7 +37,7 @@ import { useNetwork } from '../../context/NetworkManager'
 import { useGeneral } from '../../context/GeneralManager'
 
 /* import components */
-import { FormRow, FormCol } from '../../components/atoms/Form'
+import { FormCol } from '../../components/atoms/Form'
 import { Button, ButtonWrapper } from '../../components/atoms/Button'
 import { formProps } from './MultiStepForm'
 import { Card } from '../../components/atoms/Card'
@@ -264,7 +264,7 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
 
   return (
     <Card style={{ margin: 'auto' }}>
-      <FormRow mb={5}>
+      <Flex stretch between mb={5}>
         <FormCol>
           <Text bold t2>
             Total Assets
@@ -275,8 +275,8 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
             {formatUnits(positionAmount, currencyDecimals)} {activeNetwork.nativeCurrency.symbol}
           </Text>
         </FormCol>
-      </FormRow>
-      <FormRow mb={15}>
+      </Flex>
+      <Flex stretch between mb={15}>
         <FormCol>
           <Text t3>Max Coverage</Text>
         </FormCol>
@@ -285,7 +285,7 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
             {maxCoverPerPolicy} {activeNetwork.nativeCurrency.symbol}
           </Text>
         </FormCol>
-      </FormRow>
+      </Flex>
       <HorizRule mb={10} />
       <Flex mb={20} style={{ padding: '10px 30px' }}>
         <div style={{ textAlign: 'center' }}>
@@ -365,7 +365,7 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
         </div>
       </Flex>
       <HorizRule mb={20} />
-      <FormRow mb={5}>
+      <Flex stretch between mb={5}>
         <FormCol>
           <Text t4>Covered Assets</Text>
         </FormCol>
@@ -376,8 +376,8 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
             </Text>
           </Flex>
         </FormCol>
-      </FormRow>
-      <FormRow mb={5}>
+      </Flex>
+      <Flex stretch between mb={5}>
         <FormCol>
           <Text t4>Covered Period</Text>
         </FormCol>
@@ -392,8 +392,8 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
             </TextSpan>
           </Text>
         </FormCol>
-      </FormRow>
-      <FormRow mb={5}>
+      </Flex>
+      <Flex stretch between mb={5}>
         <FormCol>
           <Text t2 bold>
             Premium
@@ -404,7 +404,7 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
             {quote} {activeNetwork.nativeCurrency.symbol}
           </Text>
         </FormCol>
-      </FormRow>
+      </Flex>
       <ButtonWrapper>
         {!loading ? (
           <Button widthP={100} onClick={buyPolicy} disabled={haveErrors || coveredAssets == '0.0'} info>

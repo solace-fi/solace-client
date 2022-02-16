@@ -32,7 +32,7 @@ import { BKPT_3, ZERO } from '../../../constants'
 
 /* import components */
 import { Box, BoxItem, BoxItemTitle } from '../../atoms/Box'
-import { FormCol, FormRow } from '../../atoms/Form'
+import { FormCol } from '../../atoms/Form'
 import { Flex, HeroContainer, HorizRule } from '../../atoms/Layout'
 import { DeFiAsset, DeFiAssetImage } from '../../atoms/DeFiAsset'
 import { Loader } from '../../atoms/Loader'
@@ -156,7 +156,7 @@ export const PolicyModalInfo: React.FC<PolicyModalInfoProps> = ({ appraisal, sel
       ) : (
         // mobile version
         <Card transparent>
-          <FormRow mb={10}>
+          <Flex stretch between mb={10}>
             <FormCol>
               <Text t4>Policy ID:</Text>
             </FormCol>
@@ -165,8 +165,8 @@ export const PolicyModalInfo: React.FC<PolicyModalInfoProps> = ({ appraisal, sel
                 {selectedPolicy?.policyId}
               </Text>
             </FormCol>
-          </FormRow>
-          <FormRow mb={10}>
+          </Flex>
+          <Flex stretch between mb={10}>
             <FormCol>
               <Text t4>Days to expiration:</Text>
             </FormCol>
@@ -175,8 +175,8 @@ export const PolicyModalInfo: React.FC<PolicyModalInfoProps> = ({ appraisal, sel
                 {daysLeft}
               </Text>
             </FormCol>
-          </FormRow>
-          <FormRow mb={10}>
+          </Flex>
+          <Flex stretch between mb={10}>
             <FormCol>
               <Text t4>Cover Amount:</Text>
             </FormCol>
@@ -188,8 +188,8 @@ export const PolicyModalInfo: React.FC<PolicyModalInfoProps> = ({ appraisal, sel
                 {activeNetwork.nativeCurrency.symbol}
               </Text>
             </FormCol>
-          </FormRow>
-          <FormRow mb={10}>
+          </Flex>
+          <Flex stretch between mb={10}>
             <FormCol>
               <Text t4>Position Amount:</Text>
             </FormCol>
@@ -204,7 +204,7 @@ export const PolicyModalInfo: React.FC<PolicyModalInfoProps> = ({ appraisal, sel
                 )}{' '}
               </Text>
             </FormCol>
-          </FormRow>
+          </Flex>
         </Card>
       )}
       <HeroContainer height={width > BKPT_3 ? 150 : 200}>

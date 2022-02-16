@@ -27,7 +27,8 @@ import { BondTellerDetails } from '../../../constants/types'
 
 /* import components */
 import { Text } from '../../atoms/Typography'
-import { FormCol, FormRow } from '../../../components/atoms/Form'
+import { FormCol } from '../../../components/atoms/Form'
+import { Flex } from '../../../components/atoms/Layout'
 
 /* import hooks */
 import { useReadToken } from '../../../hooks/useToken'
@@ -66,7 +67,7 @@ export const PublicBondInfo: React.FC<PublicBondInfoProps> = ({ selectedBondDeta
 
   return (
     <>
-      <FormRow mb={10}>
+      <Flex stretch between mb={10}>
         <FormCol>
           <Text t4>MAX You Can Buy</Text>
         </FormCol>
@@ -77,8 +78,8 @@ export const PublicBondInfo: React.FC<PublicBondInfoProps> = ({ selectedBondDeta
             }`}
           </Text>
         </FormCol>
-      </FormRow>
-      <FormRow mb={10}>
+      </Flex>
+      <Flex stretch between mb={10}>
         <FormCol>
           <Text t4>Vesting Term</Text>
         </FormCol>
@@ -87,9 +88,9 @@ export const PublicBondInfo: React.FC<PublicBondInfoProps> = ({ selectedBondDeta
             {getLongtimeFromMillis(vestingTermInMillis)}
           </Text>
         </FormCol>
-      </FormRow>
+      </Flex>
       {selectedBondDetail?.tellerData.bondFeeBps && (
-        <FormRow>
+        <Flex stretch between mb={24}>
           <FormCol>
             <Text t4>Bond Fee</Text>
           </FormCol>
@@ -98,7 +99,7 @@ export const PublicBondInfo: React.FC<PublicBondInfoProps> = ({ selectedBondDeta
               {parseInt(selectedBondDetail?.tellerData.bondFeeBps.toString()) / 100}%
             </Text>
           </FormCol>
-        </FormRow>
+        </Flex>
       )}
     </>
   )

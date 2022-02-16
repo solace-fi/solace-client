@@ -26,12 +26,12 @@ import { BKPT_4, BKPT_6 } from '../../../constants'
 import { FunctionName } from '../../../constants/enums'
 
 /* import components */
-import { Content } from '../../atoms/Layout'
+import { Content, Flex } from '../../atoms/Layout'
 import { Text } from '../../atoms/Typography'
 import { Table, TableHead, TableRow, TableHeader, TableBody, TableData, TableDataGroup } from '../../atoms/Table'
 import { Button, ButtonWrapper } from '../../atoms/Button'
 import { Card } from '../../atoms/Card'
-import { FormRow, FormCol } from '../../atoms/Form'
+import { FormCol } from '../../atoms/Form'
 
 /* import hooks */
 import { useCapitalPoolSize, useUserVaultDetails } from '../../../hooks/useVault'
@@ -105,30 +105,30 @@ export const UnderwritingPool: React.FC<UnderwritingPoolProps> = ({ openModal })
         // tablet version
         <Card isHighlight>
           {account && (
-            <FormRow>
+            <Flex stretch between mb={24}>
               <FormCol light>My Assets:</FormCol>
               <FormCol light t2>
                 {truncateValue(userVaultAssets, 2)}
               </FormCol>
-            </FormRow>
+            </Flex>
           )}
-          <FormRow>
+          <Flex stretch between mb={24}>
             <FormCol light>Total Assets:</FormCol>
             <FormCol light t2>
               {truncateValue(capitalPoolSize, 2)}
             </FormCol>
-          </FormRow>
-          <FormRow>
+          </Flex>
+          <Flex stretch between mb={24}>
             <FormCol light>ROI:</FormCol>
             <FormCol light t2>
               N/A
             </FormCol>
-          </FormRow>
+          </Flex>
           {account && (
-            <FormRow>
+            <Flex stretch between mb={24}>
               <FormCol light>My Vault Share:</FormCol>
               <FormCol light t2>{`${truncateValue(userVaultShare, 2)}%`}</FormCol>
-            </FormRow>
+            </Flex>
           )}
           {account && (
             <ButtonWrapper isColumn={width <= BKPT_4}>

@@ -38,7 +38,8 @@ import { BoxRow, Box, BoxItem, BoxItemTitle } from '../atoms/Box'
 import { Button } from '../atoms/Button'
 import { Text, TextSpan } from '../atoms/Typography'
 import { WalletConnectButton } from '../molecules/WalletConnectButton'
-import { FormRow, FormCol } from '../atoms/Form'
+import { FormCol } from '../atoms/Form'
+import { Flex } from '../atoms/Layout'
 import { Card, CardContainer } from '../atoms/Card'
 import { HyperLink } from '../atoms/Link'
 
@@ -223,7 +224,7 @@ export const Statistics: React.FC = () => {
   const GlobalCard: React.FC = () => {
     return (
       <Card color2>
-        <FormRow>
+        <Flex stretch between mb={24}>
           <FormCol light>
             SOLACE{' '}
             {!activeNetwork.config.restrictedFeatures.cannotBuySolace && (
@@ -244,21 +245,21 @@ export const Statistics: React.FC = () => {
               {`$${pairPrice}`}
             </Text>
           </FormCol>
-        </FormRow>
+        </Flex>
         {(!activeNetwork.config.restrictedFeatures.noBondingV1 ||
           !activeNetwork.config.restrictedFeatures.noBondingV2) && (
-          <FormRow>
+          <Flex stretch between mb={24}>
             <FormCol light>Underwriting Pool Size</FormCol>
             <FormCol>
               <Text t2 nowrap light>
                 {underwritingPoolBalance == '-' ? '$-' : `$${truncateValue(underwritingPoolBalance, 2)}`}
               </Text>
             </FormCol>
-          </FormRow>
+          </Flex>
         )}
         {/* {!activeNetwork.config.restrictedFeatures.noCoverProducts && (
           <>
-            <FormRow>
+            <Flex stretch between mb={24}>
               <FormCol light>Active Cover Amount</FormCol>
               <FormCol>
                 <Text t2 nowrap light>
@@ -270,20 +271,20 @@ export const Statistics: React.FC = () => {
                   </TextSpan>
                 </Text>
               </FormCol>
-            </FormRow>
-            <FormRow>
+            </Flex>
+            <Flex stretch between mb={24}>
               <FormCol light>Total Active Policies</FormCol>
               <FormCol>
                 <Text t2 nowrap light>
                   {totalActivePolicies}
                 </Text>
               </FormCol>
-            </FormRow>
+            </Flex>
           </>
         )} */}
         {!activeNetwork.config.restrictedFeatures.noSoteria && (
           <>
-            <FormRow>
+            <Flex stretch between mb={24}>
               <FormCol light>Active Cover Limit</FormCol>
               <FormCol>
                 <Text t2 nowrap light>
@@ -293,15 +294,15 @@ export const Statistics: React.FC = () => {
                   </TextSpan>
                 </Text>
               </FormCol>
-            </FormRow>
-            <FormRow>
+            </Flex>
+            <Flex stretch between mb={24}>
               <FormCol light>Total Active Policies</FormCol>
               <FormCol>
                 <Text t2 nowrap light>
                   {totalActivePolicies}
                 </Text>
               </FormCol>
-            </FormRow>
+            </Flex>
           </>
         )}
       </Card>
@@ -378,7 +379,7 @@ export const Statistics: React.FC = () => {
             <Card color1>
               {initialized && account ? (
                 <>
-                  <FormRow>
+                  <Flex stretch between mb={24}>
                     <FormCol light>My SOLACE Balance</FormCol>
                     <FormCol>
                       <Text t2 light>
@@ -388,9 +389,9 @@ export const Statistics: React.FC = () => {
                         </TextSpan>
                       </Text>
                     </FormCol>
-                  </FormRow>
+                  </Flex>
                   {!activeNetwork.config.restrictedFeatures.noStakingV2 && (
-                    <FormRow>
+                    <Flex stretch between mb={24}>
                       <FormCol light>My Stake</FormCol>
                       <FormCol>
                         <Text t2 light>
@@ -400,7 +401,7 @@ export const Statistics: React.FC = () => {
                           </TextSpan>
                         </Text>
                       </FormCol>
-                    </FormRow>
+                    </Flex>
                   )}
                 </>
               ) : (
@@ -410,7 +411,7 @@ export const Statistics: React.FC = () => {
               )}
               {!activeNetwork.config.restrictedFeatures.noStakingV2 && (
                 <>
-                  <FormRow>
+                  <Flex stretch between mb={24}>
                     <FormCol light>Global Stake</FormCol>
                     <FormCol>
                       <Text t2 light>
@@ -420,15 +421,15 @@ export const Statistics: React.FC = () => {
                         </TextSpan>
                       </Text>
                     </FormCol>
-                  </FormRow>
-                  <FormRow>
+                  </Flex>
+                  <Flex stretch between mb={24}>
                     <FormCol light>Global APR</FormCol>
                     <FormCol>
                       <Text t2 light>
                         {`${truncateValue(globalLockStats.apr.toString(), 1)}`}%
                       </Text>
                     </FormCol>
-                  </FormRow>
+                  </Flex>
                 </>
               )}
             </Card>

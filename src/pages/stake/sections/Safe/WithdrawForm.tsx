@@ -1,7 +1,7 @@
 import React from 'react'
 import { Button } from '../../../../components/atoms/Button'
 import { StyledSlider } from '../../../../components/atoms/Input'
-import { Tab } from '../../types/Tab'
+import { Tab } from '../../../../constants/enums'
 import { InputSection } from '../../../../components/molecules/InputSection'
 import { LockData } from '../../../../constants/types'
 import { formatUnits, parseUnits } from '@ethersproject/units'

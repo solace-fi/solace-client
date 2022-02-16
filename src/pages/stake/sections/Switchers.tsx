@@ -2,8 +2,7 @@ import React, { Dispatch, SetStateAction } from 'react'
 
 import Twan from '../components/Twan'
 import Twiv from '../components/Twiv'
-import { Tab } from '../types/Tab'
-import { StakingVersion } from '../types/Version'
+import { Tab, StakingVersion } from '../../../constants/enums'
 export default function Switchers({
   tab,
   setTab,

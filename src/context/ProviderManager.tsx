@@ -7,7 +7,6 @@ import { Card, CardContainer } from '../components/atoms/Card'
 import { ModalCell } from '../components/atoms/Modal'
 import { Text } from '../components/atoms/Typography'
 import { Modal } from '../components/molecules/Modal'
-import { FormRow } from '../components/atoms/Form'
 
 import { Z_MODAL } from '../constants'
 
@@ -202,13 +201,13 @@ const ProviderManager: React.FC = ({ children }) => {
                 jc={'center'}
                 style={{ display: 'flex' }}
               >
-                <FormRow mb={0}>
+                <Flex stretch between>
                   <ModalCell p={10}>
                     <Text t4 bold light={network.name == activeNetwork.name}>
                       {network.name}
                     </Text>
                   </ModalCell>
-                </FormRow>
+                </Flex>
               </Card>
             ))}
           </CardContainer>

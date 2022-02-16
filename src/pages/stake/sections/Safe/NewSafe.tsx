@@ -14,7 +14,7 @@ import {
 } from '../../../../utils/formatting'
 import InformationBox from '../../components/InformationBox'
 import { InfoBoxType } from '../../types/InfoBoxType'
-import { Tab } from '../../types/Tab'
+import { Tab } from '../../../../constants/enums'
 import { InputSection } from '../../../../components/molecules/InputSection'
 import { useInputAmount, useTransactionExecution } from '../../../../hooks/useInputAmount'
 import { FunctionName } from '../../../../constants/enums'

@@ -31,14 +31,13 @@ import { useNetwork } from '../../context/NetworkManager'
 import { FunctionName } from '../../constants/enums'
 import { BKPT_1, BKPT_5, DAYS_PER_YEAR, ZERO, Z_TABLE } from '../../constants'
 import { LockData, UserLocksInfo } from '../../constants/types'
-import { StakingVersion } from './types/Version'
 import { LockCheckbox } from './types/LockCheckbox'
-import { Tab } from './types/Tab'
+import { Tab, StakingVersion } from '../../constants/enums'
 
 /* import components */
 import { Button, ButtonWrapper } from '../../components/atoms/Button'
 import { Card, CardContainer } from '../../components/atoms/Card'
-import { FormCol, FormRow } from '../../components/atoms/Form'
+import { FormCol } from '../../components/atoms/Form'
 import { StyledSlider, Checkbox } from '../../components/atoms/Input'
 import { Content, Flex, Scrollable, VerticalSeparator, HeroContainer } from '../../components/atoms/Layout'
 import { ModalCell } from '../../components/atoms/Modal'
@@ -221,7 +220,7 @@ function Stake1(): any {
                       </Text>
                     </ModalCell>
                   </div>
-                  <FormRow mt={20} mb={10}>
+                  <Flex stretch between mt={20} mb={10}>
                     <FormCol>
                       <Text>Staked Balance</Text>
                     </FormCol>
@@ -230,7 +229,7 @@ function Stake1(): any {
                         {v1StakedSolaceBalance} {readSolaceToken.symbol}
                       </Text>
                     </FormCol>
-                  </FormRow>
+                  </Flex>
                   <Flex mb={30} style={{ textAlign: 'center' }}>
                     <InputSection
                       tab={Tab.DEPOSIT}
@@ -505,10 +504,10 @@ export default function Stake(): JSX.Element {
                   }}
                   modalTitle={'Select a safe to deposit your rewards'}
                 >
-                  <FormRow>
+                  <Flex stretch between mb={24}>
                     <FormCol>Rewards from selected safes</FormCol>
                     <FormCol>{formattedRewards}</FormCol>
-                  </FormRow>
+                  </Flex>
                   <Scrollable maxMobileHeight={60}>
                     {width > BKPT_1 ? (
                       <Table>
@@ -586,30 +585,30 @@ export default function Stake(): JSX.Element {
                               isHighlight={isSelected}
                               onClick={() => setTargetLock(lock.xsLockID)}
                             >
-                              <FormRow mb={0}>
+                              <Flex stretch between>
                                 <FormCol light={isSelected}>Amount</FormCol>
                                 <FormCol bold light={isSelected}>
                                   {truncateValue(formatUnits(lock.unboostedAmount, 18), 4)}
                                 </FormCol>
-                              </FormRow>
-                              <FormRow mb={0}>
+                              </Flex>
+                              <Flex stretch between>
                                 <FormCol light={isSelected}>Lock time left</FormCol>
                                 <FormCol bold light={isSelected}>
                                   {getTimeFromMillis(lock.timeLeft.toNumber() * 1000)}
                                 </FormCol>
-                              </FormRow>
-                              <FormRow mb={0}>
+                              </Flex>
+                              <Flex stretch between>
                                 <FormCol light={isSelected}>Multiplier</FormCol>
                                 <FormCol bold light={isSelected}>
                                   {truncateValue(multiplier, 1)}x
                                 </FormCol>
-                              </FormRow>
-                              <FormRow mb={0}>
+                              </Flex>
+                              <Flex stretch between>
                                 <FormCol light={isSelected}>APR</FormCol>
                                 <FormCol bold light={isSelected}>
                                   {truncateValue(lock.apr.toString(), 1)}%
                                 </FormCol>
-                              </FormRow>
+                              </Flex>
                             </Card>
                           )
                         })}
