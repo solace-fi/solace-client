@@ -14,7 +14,7 @@ import commaNumber from '../../utils/commaNumber'
 import { Table, TableHead, TableHeader, TableBody, TableRow, TableData } from '../../components/atoms/Table'
 import { StyledTooltip } from '../../components/molecules/Tooltip'
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'
-import { ADDRESS_ZERO, BKPT_5, ZERO } from '../../constants'
+import { ADDRESS_ZERO, BKPT_5, MAX_APPROVAL_AMOUNT, ZERO } from '../../constants'
 import GrayBgDiv from '../stake/atoms/BodyBgCss'
 import {
   useCheckIsCoverageActive,
@@ -632,14 +632,11 @@ function PolicyBalance({
     [referralChecks]
   )
 
-  const approve = async () => {
+  const unlimitedApprove = async () => {
     if (!solaceCoverProduct || !account || !library) return
     const stablecoinContract = getContract(DAI_ADDRESS[activeNetwork.chainId], IERC20.abi, library, account)
     try {
-      const tx: TransactionResponse = await stablecoinContract.approve(
-        solaceCoverProduct.address,
-        parseUnits(inputProps.amount, walletAssetDecimals)
-      )
+      const tx: TransactionResponse = await stablecoinContract.approve(solaceCoverProduct.address, MAX_APPROVAL_AMOUNT)
       const txHash = tx.hash
       makeTxToast(FunctionName.APPROVE, TransactionCondition.PENDING, txHash)
       await tx.wait(activeNetwork.rpc.blockConfirms).then((receipt: TransactionReceipt) => {
@@ -1050,10 +1047,10 @@ function PolicyBalance({
                     fontWeight: 600,
                     flex: 1,
                   }}
-                  onClick={approve}
-                  disabled={inputProps.amount == '' || parseUnits(inputProps.amount, 18).eq(ZERO)}
+                  onClick={unlimitedApprove}
+                  // disabled={inputProps.amount == '' || parseUnits(inputProps.amount, 18).eq(ZERO)}
                 >
-                  Approve
+                  Unlimited Approve
                 </Button>
               )}
             </>
@@ -1140,7 +1137,7 @@ function ReferralSection({
       domain: {
         name: 'Solace.fi-SolaceCoverProduct',
         version: '1',
-        chainId: activeNetwork.isTestnet ? 1 : activeNetwork.chainId,
+        chainId: activeNetwork.chainId,
         verifyingContract: solaceCoverProduct.address,
       },
 
@@ -1191,7 +1188,10 @@ function ReferralSection({
         <Flex col flex1 gap={40} stretch justifyCenter>
           {userCanRefer && (
             <Flex col gap={10} stretch>
-              <Text t4s>Give bonuses to users who get coverage via your referral link while you are covered:</Text>
+              <Text t4s>
+                Give bonuses to users who get coverage via your referral link while you are covered (You&apos;ll get $50
+                when your referral code is used) :
+              </Text>
               {generatedReferralCode.length > 0 ? (
                 <Flex
                   p={5}
@@ -1220,7 +1220,7 @@ function ReferralSection({
               <Text t4s inline bold techygradient>
                 Got a referral code?
               </Text>{' '}
-              Enter here to claim bonus credit when you{' '}
+              Enter here to claim $50 bonus credit when you{' '}
               <Text t4s inline info italics>
                 activate a policy
               </Text>{' '}
