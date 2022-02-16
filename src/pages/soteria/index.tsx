@@ -70,6 +70,9 @@ import { Content, HeroContainer, HorizRule } from '../../components/atoms/Layout
 import { WalletConnectButton } from '../../components/molecules/WalletConnectButton'
 import { ModalCell } from '../../components/atoms/Modal'
 
+import Zapper from '../../resources/svg/zapper.svg'
+import ZapperDark from '../../resources/svg/zapper-dark.svg'
+
 function Card({
   children,
   style,
@@ -1428,6 +1431,7 @@ function WelcomeMessage({
   type: ReferralSource
   goToSecondStage: () => void
 }): JSX.Element {
+  const { appTheme } = useGeneral()
   const annualCost = useMemo(() => (portfolio && portfolio.address_rp ? portfolio.address_rp : 0), [portfolio])
 
   switch (type) {
@@ -1444,6 +1448,16 @@ function WelcomeMessage({
             <Button info secondary pl={23} pr={23} onClick={goToSecondStage}>
               Get Started
             </Button>
+            {appTheme == 'light' && (
+              <Flex center>
+                <img src={Zapper} style={{ width: '145px' }} />
+              </Flex>
+            )}
+            {appTheme == 'dark' && (
+              <Flex center>
+                <img src={ZapperDark} style={{ width: '145px' }} />
+              </Flex>
+            )}
           </Flex>
         </Card>
       )
@@ -1460,6 +1474,16 @@ function WelcomeMessage({
             <Button info secondary pl={23} pr={23} onClick={goToSecondStage}>
               Get Started
             </Button>
+            {appTheme == 'light' && (
+              <Flex center>
+                <img src={Zapper} style={{ width: '200px' }} />
+              </Flex>
+            )}
+            {appTheme == 'dark' && (
+              <Flex center>
+                <img src={ZapperDark} style={{ width: '200px' }} />
+              </Flex>
+            )}
           </Flex>
         </Card>
       )
@@ -1476,6 +1500,16 @@ function WelcomeMessage({
             <Button info secondary pl={23} pr={23} onClick={goToSecondStage}>
               Get Started
             </Button>
+            {appTheme == 'light' && (
+              <Flex center>
+                <img src={Zapper} style={{ width: '200px' }} />
+              </Flex>
+            )}
+            {appTheme == 'dark' && (
+              <Flex center>
+                <img src={ZapperDark} style={{ width: '200px' }} />
+              </Flex>
+            )}
           </Flex>
         </Card>
       )
