@@ -12,7 +12,7 @@ import { PositionType } from '../constants/enums'
 import { useProvider } from '../context/ProviderManager'
 import { JsonRpcProvider } from '@ethersproject/providers'
 import { isAddress } from '../utils'
-import { numberAbbreviate } from '../utils/formatting'
+import { numberAbbreviate, truncateValue } from '../utils/formatting'
 
 export const useGetPolicyPrice = (policyId: number): string => {
   const [policyPrice, setPolicyPrice] = useState<string>('')
@@ -262,15 +262,17 @@ export const useGetQuote = (coverAmount: string | null, days: string): string =>
   return quote
 }
 
-export const useTotalActivePolicies = (): string => {
+export const useTotalActivePolicies = () => {
   const { latestBlock } = useProvider()
   const { networks } = useNetwork()
   const [totalActivePolicies, setTotalActivePolicies] = useState<string>('-')
+  const [totalActiveCoverLimit, setTotalActiveCoverLimit] = useState<string>('-')
 
   useEffect(() => {
     const getPolicyCount = async () => {
       const countedNetworks = networks.filter((n) => !n.isTestnet)
       let totalPolicyCount = ZERO
+      let activeCoverLimit = ZERO
       for (let i = 0; i < countedNetworks.length; i++) {
         const activeNetwork = countedNetworks[i]
         if (activeNetwork.config.restrictedFeatures.noSoteria) continue
@@ -281,12 +283,15 @@ export const useTotalActivePolicies = (): string => {
           continue
         const solaceCoverProductContract = new Contract(solaceCoverProductSrc.addr, solaceCoverProductSrc.abi, provider)
         const policyCount = await solaceCoverProductContract.policyCount()
+        const coverLimit = await solaceCoverProductContract.activeCoverLimit()
+        activeCoverLimit = activeCoverLimit.add(coverLimit)
         totalPolicyCount = totalPolicyCount.add(policyCount)
       }
       setTotalActivePolicies(numberAbbreviate(totalPolicyCount.toString()))
+      setTotalActiveCoverLimit(truncateValue(formatUnits(activeCoverLimit, 18), 2))
     }
     getPolicyCount()
   }, [latestBlock])
 
-  return totalActivePolicies
+  return { totalActivePolicies, totalActiveCoverLimit }
 }
