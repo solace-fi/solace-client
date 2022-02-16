@@ -32,7 +32,7 @@ import { Table, TableData, TableHead, TableHeader, TableRow, TableBody } from '.
 import { DeFiAssetImage } from '../../components/atoms/DeFiAsset'
 import { Card, CardContainer } from '../../components/atoms/Card'
 import { FormRow, FormCol } from '../../components/atoms/Form'
-import { Flex, HeroContainer, Scrollable, VerticalSeparator } from '../../components/atoms/Layout'
+import { Flex, HeroContainer, Scrollable, VerticalSeparator, Content } from '../../components/atoms/Layout'
 import { BondModalV1 } from '../../components/organisms/bond/v1/BondModalV1'
 import { BondModalV2 } from '../../components/organisms/bond/v2/BondModalV2'
 import { Loader } from '../../components/atoms/Loader'
@@ -40,7 +40,6 @@ import { HyperLink } from '../../components/atoms/Link'
 import { Box } from '../../components/atoms/Box'
 import { TextSpan, Text } from '../../components/atoms/Typography'
 import { StyledInfo } from '../../components/atoms/Icon'
-import { Content } from '../../components/atoms/Layout'
 
 /* import hooks */
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'

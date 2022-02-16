@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react'
 
 import { Button } from '../../../../components/atoms/Button'
-import { Flex, ShadowDiv, HorizontalSeparator } from '../../../../components/atoms/Layout'
+import { Flex, ShadowDiv, HorizontalSeparator, GridOrRow } from '../../../../components/atoms/Layout'
 
 import RaisedBox from '../../../../components/atoms/RaisedBox'
 import CardSectionValue from '../../components/CardSectionValue'
@@ -16,10 +16,9 @@ import { LockData } from '../../../../constants/types'
 import { getDateStringWithMonthName, getTimeFromMillis } from '../../../../utils/time'
 import { truncateValue } from '../../../../utils/formatting'
 import { formatUnits } from 'ethers/lib/utils'
-import { GridOrRow } from '../../../../components/atoms/Layout'
 import { BKPT_5 } from '../../../../constants'
 import { useWindowDimensions } from '../../../../hooks/useWindowDimensions'
-import Checkbox from '../../atoms/Checkbox'
+import { Checkbox } from '../../../../components/atoms/Input'
 import { StyledTooltip } from '../../../../components/molecules/Tooltip'
 
 export default function Safe({

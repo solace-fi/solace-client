@@ -38,12 +38,11 @@ import { Input } from '../atoms/Input'
 import { ModalRow, ModalCell } from '../atoms/Modal'
 import { Button } from '../atoms/Button'
 import { StyledSelect } from '../molecules/Select'
-import { RadioCircle, RadioCircleFigure, RadioCircleInput } from '../atoms/Radio'
 import { Text } from '../atoms/Typography'
 
 /* import utils */
 import { GeneralElementProps } from '../generalInterfaces'
-import Checkbox from '../../pages/stake/atoms/Checkbox'
+import { Checkbox } from '../../components/atoms/Input'
 import { Flex } from '../../components/atoms/Layout'
 
 export interface PoolModalProps {

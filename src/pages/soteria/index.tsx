@@ -1,12 +1,19 @@
 import React, { useEffect, useState, useMemo } from 'react'
-import { Flex, ShadowDiv } from '../../components/atoms/Layout'
+import {
+  Flex,
+  ShadowDiv,
+  GrayBgDiv,
+  Content,
+  HeroContainer,
+  HorizRule,
+  VerticalSeparator,
+} from '../../components/atoms/Layout'
 import RaisedBox from '../../components/atoms/RaisedBox'
 import { QuestionCircle } from '@styled-icons/bootstrap/QuestionCircle'
 // src/components/atoms/Button/index.ts
 import { Button, GraySquareButton } from '../../components/atoms/Button'
 // src/resources/svg/icons/usd.svg
 import DAI from '../../resources/svg/icons/dai.svg'
-import { GrayBgDiv } from '../../components/atoms/Layout'
 import { FixedHeightGrayBox, StyledGrayBox } from '../../components/molecules/GrayBox'
 import { GenericInputSection } from '../../components/molecules/InputSection'
 import { Input, StyledSlider } from '../../components/atoms/Input'
@@ -58,7 +65,6 @@ import { Loader } from '../../components/atoms/Loader'
 import { TextSpan, Text } from '../../components/atoms/Typography'
 import { Box } from '../../components/atoms/Box'
 import { StyledInfo } from '../../components/atoms/Icon'
-import { Content, HeroContainer, HorizRule, VerticalSeparator } from '../../components/atoms/Layout'
 import { WalletConnectButton } from '../../components/molecules/WalletConnectButton'
 import { ModalCell } from '../../components/atoms/Modal'
 
