@@ -32,7 +32,6 @@ export const Separator = styled.div<{
   background-color: ${({ theme }) => theme.separator.bg_color};
 `
 
-// export HorizontalSeparator and VerticalSeparator by passing the horizontal or vertical props to the Separator component
 export const HorizontalSeparator = styled(Separator).attrs({
   horizontal: true,
 })``

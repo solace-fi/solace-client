@@ -8,7 +8,6 @@ import {
   HorizRule,
   VerticalSeparator,
 } from '../../components/atoms/Layout'
-import RaisedBox from '../../components/atoms/RaisedBox'
 import { QuestionCircle } from '@styled-icons/bootstrap/QuestionCircle'
 // src/components/atoms/Button/index.ts
 import { Button, GraySquareButton } from '../../components/atoms/Button'
@@ -63,7 +62,7 @@ import { TransactionResponse } from '@ethersproject/providers'
 import { useTokenAllowance } from '../../hooks/useToken'
 import { Loader } from '../../components/atoms/Loader'
 import { TextSpan, Text } from '../../components/atoms/Typography'
-import { Box } from '../../components/atoms/Box'
+import { Box, RaisedBox } from '../../components/atoms/Box'
 import { StyledInfo } from '../../components/atoms/Icon'
 import { WalletConnectButton } from '../../components/molecules/WalletConnectButton'
 import { ModalCell } from '../../components/atoms/Modal'

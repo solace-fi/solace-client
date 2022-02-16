@@ -3,7 +3,7 @@ import React, { useMemo, useState } from 'react'
 import { Button } from '../../../../components/atoms/Button'
 import { Flex, ShadowDiv, HorizontalSeparator, GridOrRow } from '../../../../components/atoms/Layout'
 
-import RaisedBox from '../../../../components/atoms/RaisedBox'
+import { RaisedBox } from '../../../../components/atoms/Box'
 import CardSectionValue from '../../components/CardSectionValue'
 import InfoPair, { Label } from '../../molecules/InfoPair'
 import DepositForm from './DepositForm'

@@ -1,6 +1,6 @@
 import React from 'react'
 import { Flex, Separator } from '../../../components/atoms/Layout'
-import RaisedBox from '../../../components/atoms/RaisedBox'
+import { RaisedBox } from '../../../components/atoms/Box'
 import CardSectionValue from '../components/CardSectionValue'
 import InfoPair from '../molecules/InfoPair'
 import { Text } from '../../../components/atoms/Typography'

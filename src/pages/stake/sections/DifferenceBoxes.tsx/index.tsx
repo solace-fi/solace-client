@@ -1,6 +1,6 @@
 import React from 'react'
 import { Flex, ShadowDiv } from '../../../../components/atoms/Layout'
-import RaisedBox from '../../../../components/atoms/RaisedBox'
+import { RaisedBox } from '../../../../components/atoms/Box'
 import { Text } from '../../../../components/atoms/Typography'
 import { Button } from '../../../../components/atoms/Button'
 import styled, { css } from 'styled-components'
