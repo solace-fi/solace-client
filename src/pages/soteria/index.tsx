@@ -9,7 +9,7 @@ import { Button, GraySquareButton } from '../../components/atoms/Button'
 import DAI from '../../resources/svg/icons/dai.svg'
 import { FixedHeightGrayBox, StyledGrayBox } from '../stake/components/GrayBox'
 import { GenericInputSection } from '../stake/sections/InputSection'
-import { StyledSlider } from '../../components/atoms/Input'
+import { Input, StyledSlider } from '../../components/atoms/Input'
 import commaNumber from '../../utils/commaNumber'
 import { Table, TableHead, TableHeader, TableBody, TableRow, TableData } from '../../components/atoms/Table'
 import { StyledTooltip } from '../../components/molecules/Tooltip'
@@ -62,7 +62,6 @@ import { TransactionReceipt } from '@ethersproject/providers'
 import { TransactionResponse } from '@ethersproject/providers'
 import { useTokenAllowance } from '../../hooks/useToken'
 import { Loader } from '../../components/atoms/Loader'
-import useCopyClipboard from '../../hooks/useCopyToClipboard'
 import { TextSpan, Text } from '../../components/atoms/Typography'
 import { Box } from '../../components/atoms/Box'
 import { StyledInfo } from '../../components/atoms/Icon'
@@ -72,6 +71,7 @@ import { ModalCell } from '../../components/atoms/Modal'
 
 import Zapper from '../../resources/svg/zapper.svg'
 import ZapperDark from '../../resources/svg/zapper-dark.svg'
+import { CopyButton } from '../../components/molecules/CopyButton'
 
 function Card({
   children,
@@ -1124,7 +1124,6 @@ function ReferralSection({
   const { activeNetwork } = useNetwork()
   const [formReferralCode, setFormReferralCode] = useState(referralCode)
   const [generatedReferralCode, setGeneratedReferralCode] = useState('')
-  const [isCopied, setCopied] = useCopyClipboard()
 
   const getReferralCode = async () => {
     const ethereum = (window as any).ethereum
@@ -1158,7 +1157,7 @@ function ReferralSection({
 
     ethereum
       .request({
-        method: 'eth_signTypedData_v3',
+        method: 'eth_signTypedData_v4',
         params: [ethereum.selectedAddress, msgParams],
       })
       .then((code: any) => setGeneratedReferralCode(code))
@@ -1196,21 +1195,30 @@ function ReferralSection({
                 when your referral code is used) :
               </Text>
               {generatedReferralCode.length > 0 ? (
-                <Flex
-                  p={5}
-                  gap={10}
-                  style={{
-                    alignItems: 'flex-end',
-                    cursor: 'pointer',
-                    backgroundColor: 'rgba(0, 0, 0, 0.1)',
-                  }}
-                  onClick={() => setCopied(`${(window as any).location.href}?rc=${generatedReferralCode}`)}
-                >
-                  <Text t4s bold techygradient>
-                    {(window as any).location.href}?rc={shortenAddress(generatedReferralCode)}
-                  </Text>
-                  {isCopied ? <InfoCheckmark /> : <InfoCopy />}
-                </Flex>
+                <>
+                  <Flex
+                    p={5}
+                    style={{
+                      alignItems: 'flex-end',
+                    }}
+                  >
+                    <Input
+                      t4s
+                      bold
+                      techygradient
+                      widthP={100}
+                      readOnly
+                      value={shortenAddress(generatedReferralCode)}
+                      textAlignCenter
+                    />
+                  </Flex>
+                  <CopyButton info toCopy={generatedReferralCode} objectName={'Code'} />
+                  <CopyButton
+                    info
+                    toCopy={`${(window as any).location.href}?rc=${generatedReferralCode}`}
+                    objectName={'Link'}
+                  />
+                </>
               ) : (
                 <Button info onClick={getReferralCode}>
                   Get My Code
