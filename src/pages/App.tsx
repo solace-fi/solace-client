@@ -20,7 +20,7 @@ import { Route, Switch, useLocation } from 'react-router-dom'
 
 /* import pages */
 import About from './about'
-// import Dashboard from './dashboard'
+import Dashboard from './dashboard'
 import Invest from './invest'
 import Stake from './stake'
 import Bond from './bond'
@@ -118,7 +118,6 @@ export default function App(): any {
               )}
               <Switch>
                 <Route exact path="/" component={About} />
-                {/* <Route exact path="/cover" component={Soteria} /> */}
                 {/* <Route exact path="/dashboard" component={Dashboard} />
                 <Route exact path="/invest" component={Invest} />
                 <Route exact path="/stake" component={Stake} />

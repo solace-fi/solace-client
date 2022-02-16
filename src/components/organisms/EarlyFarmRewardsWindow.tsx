@@ -49,7 +49,6 @@ import { ModalRow } from '../atoms/Modal'
 import { StyledSelect } from '../molecules/Select'
 import { Box, BoxItem, BoxItemTitle, SmallBox } from '../atoms/Box'
 import { Text } from '../atoms/Typography'
-import { FormCol } from '../atoms/Form'
 import { Loader } from '../atoms/Loader'
 import { SourceContract } from './SourceContract'
 
@@ -314,37 +313,37 @@ export const EarlyFarmRewardsWindow: React.FC = () => {
           </Button>
         </Flex>
         <Flex stretch between mb={10}>
-          <FormCol bold>My balance</FormCol>
-          <FormCol bold textAlignRight info>
+          <Text bold>My balance</Text>
+          <Text bold textAlignRight info>
             {truncateValue(formatUnits(userStablecoinBalance, userStablecoinDecimals), userStablecoinDecimals, false)}{' '}
             {stablecoinPayment.label}
-          </FormCol>
+          </Text>
         </Flex>
         <Flex stretch between mb={20}>
-          <FormCol bold>You will get</FormCol>
-          <FormCol bold textAlignRight info>
+          <Text bold>You will get</Text>
+          <Text bold textAlignRight info>
             {calculatedAmountOut ? `${truncateValue(formatUnits(calculatedAmountOut, 18), 18, false)}` : `-`} SOLACE
-          </FormCol>
+          </Text>
         </Flex>
         <HorizRule />
         <Flex stretch between mt={20}>
-          <FormCol bold>Amount you can redeem now</FormCol>
-          <FormCol bold textAlignRight info>
+          <Text bold>Amount you can redeem now</Text>
+          <Text bold textAlignRight info>
             {truncateValue(formatUnits(purchaseableSolace, currencyDecimals), 4, false)} SOLACE
-          </FormCol>
+          </Text>
         </Flex>
         <Flex stretch between>
-          <FormCol bold>Your total earned amount</FormCol>
-          <FormCol bold textAlignRight info>
+          <Text bold>Your total earned amount</Text>
+          <Text bold textAlignRight info>
             {truncateValue(formatUnits(totalEarnedSolaceRewards, currencyDecimals), 4, false)} SOLACE
-          </FormCol>
+          </Text>
         </Flex>
         <HorizRule />
         <Flex stretch between mb={24}>
-          <FormCol t4>End of Vesting Term</FormCol>
-          <FormCol t4 textAlignRight>
+          <Text t4>End of Vesting Term</Text>
+          <Text t4 textAlignRight>
             {vestingEnd.gt(ZERO) ? vestingEndString : `-`}
-          </FormCol>
+          </Text>
         </Flex>
         {buttonLoading ? (
           <Loader />

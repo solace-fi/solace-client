@@ -28,7 +28,6 @@ import { useWallet } from '../../../../context/WalletManager'
 import { useContracts } from '../../../../context/ContractsManager'
 
 /* import components */
-import { FormCol } from '../../../atoms/Form'
 import { Flex } from '../../../atoms/Layout'
 import { Text } from '../../../atoms/Typography'
 import { SmallBox } from '../../../atoms/Box'
@@ -72,43 +71,33 @@ export const PrivateBondInfoV1: React.FC<PrivateBondInfoV1Props> = ({
       {account && (
         <>
           <Flex stretch between mt={40} mb={10}>
-            <FormCol>
-              <Text bold>My Balance</Text>
-            </FormCol>
-            <FormCol>
-              <Text info textAlignRight bold>
-                {formatUnits(assetBalance, pncplDecimals)}{' '}
-                {func == FunctionName.BOND_DEPOSIT_ETH_V1
-                  ? activeNetwork.nativeCurrency.symbol
-                  : selectedBondDetail?.principalData.principalProps?.symbol}
-              </Text>
-            </FormCol>
+            <Text bold>My Balance</Text>
+            <Text info textAlignRight bold>
+              {formatUnits(assetBalance, pncplDecimals)}{' '}
+              {func == FunctionName.BOND_DEPOSIT_ETH_V1
+                ? activeNetwork.nativeCurrency.symbol
+                : selectedBondDetail?.principalData.principalProps?.symbol}
+            </Text>
           </Flex>
           <Flex stretch between mb={5}>
-            <FormCol>
-              <Text bold>You Will Get</Text>
-            </FormCol>
-            <FormCol>
-              <Text info textAlignRight bold>
-                {calculatedAmountOut
-                  ? `${formatUnits(calculatedAmountOut, readSolaceToken.decimals)} ${readSolaceToken.symbol}`
-                  : `-`}
-              </Text>
-            </FormCol>
+            <Text bold>You Will Get</Text>
+            <Text info textAlignRight bold>
+              {calculatedAmountOut
+                ? `${formatUnits(calculatedAmountOut, readSolaceToken.decimals)} ${readSolaceToken.symbol}`
+                : `-`}
+            </Text>
           </Flex>
           <Flex stretch between mb={30} style={{ justifyContent: 'right' }}>
             <SmallBox transparent collapse={!isStaking} m={0} p={0}>
               <Flex stretch between mb={10}>
-                <FormCol></FormCol>
-                <FormCol>
-                  <Text t4 textAlignRight>
-                    {'( '}
-                    {calculatedAmountOut_X
-                      ? `${formatUnits(calculatedAmountOut_X, readXSolaceToken.decimals)} ${readXSolaceToken.symbol}`
-                      : `-`}
-                    {' )'}
-                  </Text>
-                </FormCol>
+                <Text></Text>
+                <Text t4 textAlignRight>
+                  {'( '}
+                  {calculatedAmountOut_X
+                    ? `${formatUnits(calculatedAmountOut_X, readXSolaceToken.decimals)} ${readXSolaceToken.symbol}`
+                    : `-`}
+                  {' )'}
+                </Text>
               </Flex>
             </SmallBox>
           </Flex>

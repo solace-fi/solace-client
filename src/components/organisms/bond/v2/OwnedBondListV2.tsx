@@ -31,7 +31,6 @@ import { useProvider } from '../../../../context/ProviderManager'
 /* import components */
 import { Text } from '../../../atoms/Typography'
 import { Button } from '../../../atoms/Button'
-import { FormCol } from '../../../atoms/Form'
 import { Flex } from '../../../atoms/Layout'
 import { Card, CardContainer } from '../../../atoms/Card'
 import { Scrollable, HeroContainer } from '../../../atoms/Layout'
@@ -88,33 +87,21 @@ export const OwnedBondListV2: React.FC<OwnedBondListV2Props> = ({
             {ownedBondTokens.map((token) => (
               <Card p={15} key={token.id.toString()}>
                 <Flex stretch between mb={10}>
-                  <FormCol>
-                    <Text>ID</Text>
-                  </FormCol>
-                  <FormCol>{token.id.toString()}</FormCol>
+                  <Text>ID</Text>
+                  <Text>{token.id.toString()}</Text>
                 </Flex>
                 <Flex stretch between mb={10}>
-                  <FormCol>
-                    <Text>Paid Price</Text>
-                  </FormCol>
-                  <FormCol>
-                    <Text textAlignRight>{formatUnits(token.principalPaid, pncplDecimals)}</Text>
-                  </FormCol>
+                  <Text>Paid Price</Text>
+                  <Text textAlignRight>{formatUnits(token.principalPaid, pncplDecimals)}</Text>
                 </Flex>
                 <Flex stretch between mb={10}>
-                  <FormCol>
-                    <Text>Payout</Text>
-                  </FormCol>
-                  <FormCol>
-                    <Text textAlignRight>{`${formatUnits(token.payoutAmount, readSolaceToken.decimals)}`}</Text>
-                  </FormCol>
+                  <Text>Payout</Text>
+                  <Text textAlignRight>{`${formatUnits(token.payoutAmount, readSolaceToken.decimals)}`}</Text>
                 </Flex>
                 {token.vestingStart + token.localVestingTerm > timestamp ? (
                   <Flex stretch between mb={10}>
-                    <FormCol>Time Until Fully Vested</FormCol>
-                    <FormCol>
-                      {getTimeFromMillis((token.vestingStart + token.localVestingTerm - timestamp) * 1000)}
-                    </FormCol>
+                    <Text>Time Until Fully Vested</Text>
+                    <Text>{getTimeFromMillis((token.vestingStart + token.localVestingTerm - timestamp) * 1000)}</Text>
                   </Flex>
                 ) : (
                   <>

@@ -39,7 +39,6 @@ import { Table, TableData, TableHead, TableHeader, TableRow, TableBody } from '.
 import { Search } from '../../components/atoms/Input'
 import { DeFiAsset, DeFiAssetImage, ProtocolTitle } from '../../components/atoms/DeFiAsset'
 import { Card, CardContainer } from '../../components/atoms/Card'
-import { FormCol } from '../../components/atoms/Form'
 import { Scrollable, Flex } from '../../components/atoms/Layout'
 import { Text } from '../../components/atoms/Typography'
 
@@ -179,32 +178,24 @@ export const ProtocolStep: React.FC<formProps> = ({ setForm, navigation }) => {
                   return (
                     <Card key={protocol.name} onClick={haveErrors ? undefined : () => handleChange(protocol.name)}>
                       <Flex stretch between mb={24}>
-                        <FormCol>
-                          <DeFiAssetImage mr={10}>
-                            <img src={`https://assets.solace.fi/${protocol.name.toLowerCase()}`} alt={protocol.name} />
-                          </DeFiAssetImage>
-                        </FormCol>
-                        <FormCol style={{ display: 'flex', alignItems: 'center' }}>
-                          <Text bold t2>
-                            {protocol.name}
-                          </Text>
-                        </FormCol>
+                        <DeFiAssetImage mr={10}>
+                          <img src={`https://assets.solace.fi/${protocol.name.toLowerCase()}`} alt={protocol.name} />
+                        </DeFiAssetImage>
+                        <Text bold t2 autoAlignVertical>
+                          {protocol.name}
+                        </Text>
                       </Flex>
                       <Flex stretch between mb={24}>
-                        <FormCol>Yearly Cost</FormCol>
-                        <FormCol>
-                          <Text bold t2>
-                            {fixed(getAdjustedYearlyCost(yearlyCosts[protocol.name]) * 100, 2)}%
-                          </Text>
-                        </FormCol>
+                        <Text>Yearly Cost</Text>
+                        <Text bold t2>
+                          {fixed(getAdjustedYearlyCost(yearlyCosts[protocol.name]) * 100, 2)}%
+                        </Text>
                       </Flex>
                       <Flex stretch between mb={24}>
-                        <FormCol>Coverage Available</FormCol>
-                        <FormCol>
-                          <Text bold t2>
-                            {handleAvailableCoverage(protocol.name)} {activeNetwork.nativeCurrency.symbol}
-                          </Text>
-                        </FormCol>
+                        <Text>Coverage Available</Text>
+                        <Text bold t2>
+                          {handleAvailableCoverage(protocol.name)} {activeNetwork.nativeCurrency.symbol}
+                        </Text>
                       </Flex>
                     </Card>
                   )

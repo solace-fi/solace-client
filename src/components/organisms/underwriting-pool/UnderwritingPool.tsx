@@ -31,7 +31,6 @@ import { Text } from '../../atoms/Typography'
 import { Table, TableHead, TableRow, TableHeader, TableBody, TableData, TableDataGroup } from '../../atoms/Table'
 import { Button, ButtonWrapper } from '../../atoms/Button'
 import { Card } from '../../atoms/Card'
-import { FormCol } from '../../atoms/Form'
 
 /* import hooks */
 import { useCapitalPoolSize, useUserVaultDetails } from '../../../hooks/useVault'
@@ -106,28 +105,28 @@ export const UnderwritingPool: React.FC<UnderwritingPoolProps> = ({ openModal })
         <Card isHighlight>
           {account && (
             <Flex stretch between mb={24}>
-              <FormCol light>My Assets:</FormCol>
-              <FormCol light t2>
+              <Text light>My Assets:</Text>
+              <Text light t2>
                 {truncateValue(userVaultAssets, 2)}
-              </FormCol>
+              </Text>
             </Flex>
           )}
           <Flex stretch between mb={24}>
-            <FormCol light>Total Assets:</FormCol>
-            <FormCol light t2>
+            <Text light>Total Assets:</Text>
+            <Text light t2>
               {truncateValue(capitalPoolSize, 2)}
-            </FormCol>
+            </Text>
           </Flex>
           <Flex stretch between mb={24}>
-            <FormCol light>ROI:</FormCol>
-            <FormCol light t2>
+            <Text light>ROI:</Text>
+            <Text light t2>
               N/A
-            </FormCol>
+            </Text>
           </Flex>
           {account && (
             <Flex stretch between mb={24}>
-              <FormCol light>My Vault Share:</FormCol>
-              <FormCol light t2>{`${truncateValue(userVaultShare, 2)}%`}</FormCol>
+              <Text light>My Vault Share:</Text>
+              <Text light t2>{`${truncateValue(userVaultShare, 2)}%`}</Text>
             </Flex>
           )}
           {account && (

@@ -27,7 +27,6 @@ import { BondTellerDetails } from '../../../constants/types'
 
 /* import components */
 import { Text } from '../../atoms/Typography'
-import { FormCol } from '../../../components/atoms/Form'
 import { Flex } from '../../../components/atoms/Layout'
 
 /* import hooks */
@@ -68,37 +67,25 @@ export const PublicBondInfo: React.FC<PublicBondInfoProps> = ({ selectedBondDeta
   return (
     <>
       <Flex stretch between mb={10}>
-        <FormCol>
-          <Text t4>MAX You Can Buy</Text>
-        </FormCol>
-        <FormCol>
-          <Text t4 info textAlignRight>
-            {`${formatUnits(selectedBondDetail?.tellerData.maxPayout ?? ZERO, readSolaceToken.decimals)} ${
-              readSolaceToken.symbol
-            }`}
-          </Text>
-        </FormCol>
+        <Text t4>MAX You Can Buy</Text>
+        <Text t4 info textAlignRight>
+          {`${formatUnits(selectedBondDetail?.tellerData.maxPayout ?? ZERO, readSolaceToken.decimals)} ${
+            readSolaceToken.symbol
+          }`}
+        </Text>
       </Flex>
       <Flex stretch between mb={10}>
-        <FormCol>
-          <Text t4>Vesting Term</Text>
-        </FormCol>
-        <FormCol>
-          <Text t4 info textAlignRight>
-            {getLongtimeFromMillis(vestingTermInMillis)}
-          </Text>
-        </FormCol>
+        <Text t4>Vesting Term</Text>
+        <Text t4 info textAlignRight>
+          {getLongtimeFromMillis(vestingTermInMillis)}
+        </Text>
       </Flex>
       {selectedBondDetail?.tellerData.bondFeeBps && (
         <Flex stretch between mb={24}>
-          <FormCol>
-            <Text t4>Bond Fee</Text>
-          </FormCol>
-          <FormCol>
-            <Text t4 info textAlignRight>
-              {parseInt(selectedBondDetail?.tellerData.bondFeeBps.toString()) / 100}%
-            </Text>
-          </FormCol>
+          <Text t4>Bond Fee</Text>
+          <Text t4 info textAlignRight>
+            {parseInt(selectedBondDetail?.tellerData.bondFeeBps.toString()) / 100}%
+          </Text>
         </Flex>
       )}
     </>

@@ -32,7 +32,6 @@ import { useGeneral } from '../../../context/GeneralManager'
 
 /* import components */
 import { Modal } from '../../molecules/Modal'
-import { FormCol } from '../../atoms/Form'
 import { Flex } from '../../atoms/Layout'
 import { Text } from '../../atoms/Typography'
 import { PolicyModalInfo } from './PolicyModalInfo'
@@ -206,26 +205,20 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
             <Fragment>
               {width > BKPT_3 && (
                 <Flex stretch between>
-                  <FormCol>
-                    <Text t4 autoAlign nowrap>
-                      By submitting a claim, you receive
-                    </Text>
-                  </FormCol>
-                  <FormCol></FormCol>
+                  <Text t4 autoAlign nowrap>
+                    By submitting a claim, you receive
+                  </Text>
+                  <Text></Text>
                 </Flex>
               )}
               <Flex stretch between>
-                <FormCol>
-                  <Text t4 autoAlign nowrap>
-                    {width > BKPT_3 ? 'pre-exploit assets value equal to' : 'Receiving'}
-                  </Text>
-                </FormCol>
-                <FormCol>
-                  <Text bold t2 autoAlign>
-                    {truncateValue(formatUnits(assessment.amountOut || 0, currencyDecimals))}{' '}
-                    {activeNetwork.nativeCurrency.symbol}
-                  </Text>
-                </FormCol>
+                <Text t4 autoAlign nowrap>
+                  {width > BKPT_3 ? 'pre-exploit assets value equal to' : 'Receiving'}
+                </Text>
+                <Text bold t2 autoAlign>
+                  {truncateValue(formatUnits(assessment.amountOut || 0, currencyDecimals))}{' '}
+                  {activeNetwork.nativeCurrency.symbol}
+                </Text>
               </Flex>
               <SmallBox jc={'center'} transparent mt={10}>
                 <Text t4 bold warning textAlignCenter>

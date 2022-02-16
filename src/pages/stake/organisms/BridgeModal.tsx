@@ -20,7 +20,6 @@ import { LocalTx } from '../../../constants/types'
 /* import components */
 import { Button, ButtonWrapper } from '../../../components/atoms/Button'
 import { Card } from '../../../components/atoms/Card'
-import { FormCol } from '../../../components/atoms/Form'
 import { ModalCell } from '../../../components/atoms/Modal'
 import { Modal } from '../../../components/molecules/Modal'
 import { Text } from '../../../components/atoms/Typography'
@@ -186,28 +185,20 @@ export const BridgeModal: React.FC<ModalProps> = ({ modalTitle, handleClose, isO
           </ModalCell>
         </div>
         <Flex stretch between mt={20} mb={10}>
-          <FormCol>
-            <Text fade={isWrapping} t3={!isWrapping} t4={isWrapping}>
-              bSOLACE
-            </Text>
-          </FormCol>
-          <FormCol>
-            <Text fade={isWrapping} t3={!isWrapping} t4={isWrapping} textAlignRight info>
-              {bridgeBalance}
-            </Text>
-          </FormCol>
+          <Text fade={isWrapping} t3={!isWrapping} t4={isWrapping}>
+            bSOLACE
+          </Text>
+          <Text fade={isWrapping} t3={!isWrapping} t4={isWrapping} textAlignRight info>
+            {bridgeBalance}
+          </Text>
         </Flex>
         <Flex stretch between mt={10} mb={20}>
-          <FormCol>
-            <Text fade={!isWrapping} t3={isWrapping} t4={!isWrapping}>
-              SOLACE
-            </Text>
-          </FormCol>
-          <FormCol>
-            <Text fade={!isWrapping} t3={isWrapping} t4={!isWrapping} textAlignRight info>
-              {solaceBalance}
-            </Text>
-          </FormCol>
+          <Text fade={!isWrapping} t3={isWrapping} t4={!isWrapping}>
+            SOLACE
+          </Text>
+          <Text fade={!isWrapping} t3={isWrapping} t4={!isWrapping} textAlignRight info>
+            {solaceBalance}
+          </Text>
         </Flex>
       </Card>
       <Flex column gap={24}>

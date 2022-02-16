@@ -37,7 +37,6 @@ import { useNetwork } from '../../context/NetworkManager'
 import { useGeneral } from '../../context/GeneralManager'
 
 /* import components */
-import { FormCol } from '../../components/atoms/Form'
 import { Button, ButtonWrapper } from '../../components/atoms/Button'
 import { formProps } from './MultiStepForm'
 import { Card } from '../../components/atoms/Card'
@@ -265,26 +264,18 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
   return (
     <Card style={{ margin: 'auto' }}>
       <Flex stretch between mb={5}>
-        <FormCol>
-          <Text bold t2>
-            Total Assets
-          </Text>
-        </FormCol>
-        <FormCol>
-          <Text bold t2 textAlignRight info>
-            {formatUnits(positionAmount, currencyDecimals)} {activeNetwork.nativeCurrency.symbol}
-          </Text>
-        </FormCol>
+        <Text bold t2>
+          Total Assets
+        </Text>
+        <Text bold t2 textAlignRight info>
+          {formatUnits(positionAmount, currencyDecimals)} {activeNetwork.nativeCurrency.symbol}
+        </Text>
       </Flex>
       <Flex stretch between mb={15}>
-        <FormCol>
-          <Text t3>Max Coverage</Text>
-        </FormCol>
-        <FormCol>
-          <Text t3 textAlignRight info>
-            {maxCoverPerPolicy} {activeNetwork.nativeCurrency.symbol}
-          </Text>
-        </FormCol>
+        <Text t3>Max Coverage</Text>
+        <Text t3 textAlignRight info>
+          {maxCoverPerPolicy} {activeNetwork.nativeCurrency.symbol}
+        </Text>
       </Flex>
       <HorizRule mb={10} />
       <Flex mb={20} style={{ padding: '10px 30px' }}>
@@ -366,44 +357,30 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
       </Flex>
       <HorizRule mb={20} />
       <Flex stretch between mb={5}>
-        <FormCol>
-          <Text t4>Covered Assets</Text>
-        </FormCol>
-        <FormCol>
-          <Flex>
-            <Text t4 bold info>
-              {coveredAssets} {activeNetwork.nativeCurrency.symbol}
-            </Text>
-          </Flex>
-        </FormCol>
+        <Text t4>Covered Assets</Text>
+        <Text t4 bold info>
+          {coveredAssets} {activeNetwork.nativeCurrency.symbol}
+        </Text>
       </Flex>
       <Flex stretch between mb={5}>
-        <FormCol>
-          <Text t4>Covered Period</Text>
-        </FormCol>
-        <FormCol>
-          <Text t4>
-            <TextSpan nowrap pl={5} pr={5} info>
-              {getDateStringWithMonthName(new Date(Date.now()))}
-            </TextSpan>{' '}
-            <TextSpan info>-</TextSpan>{' '}
-            <TextSpan pl={5} pr={5} info>
-              {getDateStringWithMonthName(getDateExtended(parseFloat(timePeriod || '1')))}
-            </TextSpan>
-          </Text>
-        </FormCol>
+        <Text t4>Covered Period</Text>
+        <Text t4>
+          <TextSpan nowrap pl={5} pr={5} info>
+            {getDateStringWithMonthName(new Date(Date.now()))}
+          </TextSpan>{' '}
+          <TextSpan info>-</TextSpan>{' '}
+          <TextSpan pl={5} pr={5} info>
+            {getDateStringWithMonthName(getDateExtended(parseFloat(timePeriod || '1')))}
+          </TextSpan>
+        </Text>
       </Flex>
       <Flex stretch between mb={5}>
-        <FormCol>
-          <Text t2 bold>
-            Premium
-          </Text>
-        </FormCol>
-        <FormCol>
-          <Text t2 bold info>
-            {quote} {activeNetwork.nativeCurrency.symbol}
-          </Text>
-        </FormCol>
+        <Text t2 bold>
+          Premium
+        </Text>
+        <Text t2 bold info>
+          {quote} {activeNetwork.nativeCurrency.symbol}
+        </Text>
       </Flex>
       <ButtonWrapper>
         {!loading ? (

@@ -33,7 +33,6 @@ import { useGeneral } from '../../../context/GeneralManager'
 
 /* import components */
 import { Modal } from '../../molecules/Modal'
-import { FormCol } from '../../atoms/Form'
 import { Text } from '../../atoms/Typography'
 import { PolicyModalInfo } from './PolicyModalInfo'
 import { Input, StyledSlider } from '../../../components/atoms/Input'
@@ -487,13 +486,11 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
           ) : (
             <Flex col mt={180} mb={30}>
               <Flex stretch between mb={10}>
-                <FormCol>
-                  <Text t4>
-                    Refund amount: {formatUnits(refundAmount, currencyDecimals)} {activeNetwork.nativeCurrency.symbol}
-                  </Text>
-                </FormCol>
+                <Text t4>
+                  Refund amount: {formatUnits(refundAmount, currencyDecimals)} {activeNetwork.nativeCurrency.symbol}
+                </Text>
               </Flex>
-              <FormCol></FormCol>
+              <Text></Text>
               <ButtonWrapper>
                 {policyPrice !== '' ? (
                   <Button widthP={100} disabled={haveErrors} onClick={cancelPolicy} info>

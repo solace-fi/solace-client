@@ -47,7 +47,6 @@ import { DeFiAsset, DeFiAssetImage, ProtocolTitle } from '../../components/atoms
 import { Box, BoxItem, BoxRow } from '../../components/atoms/Box'
 import { Button, ButtonWrapper } from '../../components/atoms/Button'
 import { Card, CardContainer } from '../../components/atoms/Card'
-import { FormCol } from '../../components/atoms/Form'
 import { Text } from '../../components/atoms/Typography'
 import { Flex } from '../../components/atoms/Layout'
 import { StyledDots } from '../../components/atoms/Icon'
@@ -226,7 +225,7 @@ export const MultiStepForm = () => {
       ) : (
         // mobile version
         <Flex stretch between mt={20} ml={30} mr={30} justifyCenter>
-          <FormCol>
+          <Flex col>
             <div style={{ width: 100, height: 100 }}>
               <CircularProgressbar
                 value={((Number(StepNumber[step.id]) + 1) / StepSections.length) * 100}
@@ -240,13 +239,13 @@ export const MultiStepForm = () => {
                 })}
               />
             </div>
-          </FormCol>
-          <FormCol>
+          </Flex>
+          <Flex col>
             <Text t2 style={{ marginBottom: '10px' }}>
               {StepSections[Number(StepNumber[step.id])].name}
             </Text>
             <Text t4>{StepSections[Number(StepNumber[step.id])].description}</Text>
-          </FormCol>
+          </Flex>
         </Flex>
       )}
       {Number(StepNumber[step.id]) !== 0 && Number(StepNumber[step.id]) !== 3 && (
@@ -325,32 +324,24 @@ export const MultiStepForm = () => {
             <CardContainer m={20}>
               <Card color1>
                 <Flex stretch between mb={24}>
-                  <FormCol>
-                    <DeFiAssetImage mr={10}>
-                      <img src={`https://assets.solace.fi/${protocol.name.toLowerCase()}`} alt={protocol.name} />
-                    </DeFiAssetImage>
-                  </FormCol>
-                  <FormCol style={{ display: 'flex', alignItems: 'center' }}>
-                    <Text bold t2 light>
-                      {protocol.name}
-                    </Text>
-                  </FormCol>
+                  <DeFiAssetImage mr={10}>
+                    <img src={`https://assets.solace.fi/${protocol.name.toLowerCase()}`} alt={protocol.name} />
+                  </DeFiAssetImage>
+                  <Text bold t2 light autoAlignVertical>
+                    {protocol.name}
+                  </Text>
                 </Flex>
                 <Flex stretch between mb={24}>
-                  <FormCol light>Yearly Cost</FormCol>
-                  <FormCol>
-                    <Text bold t2 light>
-                      {fixed(protocol.yearlyCost * 100, 2)}%
-                    </Text>
-                  </FormCol>
+                  <Text light>Yearly Cost</Text>
+                  <Text bold t2 light>
+                    {fixed(protocol.yearlyCost * 100, 2)}%
+                  </Text>
                 </Flex>
                 <Flex stretch between mb={24}>
-                  <FormCol light>Available Coverage</FormCol>
-                  <FormCol>
-                    <Text bold t2 light>
-                      {protocol.availableCoverage} {activeNetwork.nativeCurrency.symbol}
-                    </Text>
-                  </FormCol>
+                  <Text light>Available Coverage</Text>
+                  <Text bold t2 light>
+                    {protocol.availableCoverage} {activeNetwork.nativeCurrency.symbol}
+                  </Text>
                 </Flex>
                 <ButtonWrapper>
                   <Button light widthP={100} onClick={resetForm}>

@@ -31,7 +31,6 @@ import { Button } from '../../components/atoms/Button'
 import { Table, TableData, TableHead, TableHeader, TableRow, TableBody } from '../../components/atoms/Table'
 import { DeFiAssetImage } from '../../components/atoms/DeFiAsset'
 import { Card, CardContainer } from '../../components/atoms/Card'
-import { FormCol } from '../../components/atoms/Form'
 import { Flex, HeroContainer, Scrollable, VerticalSeparator, Content } from '../../components/atoms/Layout'
 import { BondModalV1 } from '../../components/organisms/bond/v1/BondModalV1'
 import { BondModalV2 } from '../../components/organisms/bond/v2/BondModalV2'
@@ -286,22 +285,18 @@ function Bond(): any {
                                   </Flex>
                                 </Flex>
                                 <Flex stretch between mb={24}>
-                                  <FormCol>Price</FormCol>
-                                  <FormCol>
-                                    <Text bold t2 fade={tellerDetail.tellerData.usdBondPrice <= 0}>
-                                      {tellerDetail.tellerData.usdBondPrice > 0
-                                        ? `$${truncateValue(tellerDetail.tellerData.usdBondPrice, 4)}`
-                                        : `USD price not found`}
-                                    </Text>
-                                  </FormCol>
+                                  <Text>Price</Text>
+                                  <Text bold t2 fade={tellerDetail.tellerData.usdBondPrice <= 0}>
+                                    {tellerDetail.tellerData.usdBondPrice > 0
+                                      ? `$${truncateValue(tellerDetail.tellerData.usdBondPrice, 4)}`
+                                      : `USD price not found`}
+                                  </Text>
                                 </Flex>
                                 <Flex stretch between mb={24}>
-                                  <FormCol>ROI</FormCol>
-                                  <FormCol>
-                                    <Text bold t2>
-                                      {truncateValue(tellerDetail.tellerData.bondRoi, 2, false)}%
-                                    </Text>
-                                  </FormCol>
+                                  <Text>ROI</Text>
+                                  <Text bold t2>
+                                    {truncateValue(tellerDetail.tellerData.bondRoi, 2, false)}%
+                                  </Text>
                                 </Flex>
                               </Card>
                             ))}
@@ -441,22 +436,18 @@ function Bond(): any {
                                   </Flex>
                                 </Flex>
                                 {/* <Flex stretch between mb={24}>
-                                  <FormCol>Price</FormCol>
-                                  <FormCol>
+                                  <Text>Price</Text>
                                     <Text bold t2 fade={tellerDetail.tellerData.usdBondPrice <= 0}>
                                       {tellerDetail.tellerData.usdBondPrice > 0
                                         ? `$${truncateValue(tellerDetail.tellerData.usdBondPrice, 4)}`
                                         : `USD price not found`}
-                                    </Text>
-                                  </FormCol>
+                                  </Text>
                                 </Flex> */}
                                 {/* <Flex stretch between mb={24}>
-                                  <FormCol>ROI</FormCol>
-                                  <FormCol>
+                                  <Text>ROI</Text>
                                     <Text bold t2>
                                       {truncateValue(tellerDetail.tellerData.bondRoi, 2, false)}%
-                                    </Text>
-                                  </FormCol>
+                                  </Text>
                                 </Flex> */}
                               </Card>
                             ))}

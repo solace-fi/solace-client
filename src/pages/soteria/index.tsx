@@ -453,7 +453,7 @@ function CoverageLimit({
       }}
     >
       <Flex itemsCenter between>
-        <Text t2 bold>
+        <Text t2 bold techygradient>
           Coverage Limit
         </Text>
         <StyledTooltip
@@ -729,7 +729,7 @@ function PolicyBalance({
       }}
     >
       <Flex between itemsCenter>
-        <Text t2 bold>
+        <Text t2 bold techygradient>
           Policy Balance
         </Text>
         <StyledTooltip
@@ -1758,7 +1758,7 @@ export default function Soteria(): JSX.Element {
                     </>
                   ) : (
                     // <>
-                    <Card inactive horiz noPadding gap={24}>
+                    <Card inactive horiz={!isMobile} noPadding gap={24}>
                       <Card innerThinner noShadow>
                         <CoverageLimit
                           referralChecks={{

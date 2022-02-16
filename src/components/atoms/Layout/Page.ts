@@ -6,7 +6,6 @@ import { BKPT_6 } from '../../../constants'
 export const Flex = styled.div<{
   between?: boolean
   around?: boolean
-  // center?: boolean
   justifyCenter?: boolean
   itemsCenter?: boolean
   center?: boolean

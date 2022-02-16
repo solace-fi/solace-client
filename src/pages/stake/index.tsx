@@ -37,7 +37,6 @@ import { Tab, StakingVersion } from '../../constants/enums'
 /* import components */
 import { Button, ButtonWrapper } from '../../components/atoms/Button'
 import { Card, CardContainer } from '../../components/atoms/Card'
-import { FormCol } from '../../components/atoms/Form'
 import { StyledSlider, Checkbox } from '../../components/atoms/Input'
 import { Content, Flex, Scrollable, VerticalSeparator, HeroContainer } from '../../components/atoms/Layout'
 import { ModalCell } from '../../components/atoms/Modal'
@@ -221,14 +220,10 @@ function Stake1(): any {
                     </ModalCell>
                   </div>
                   <Flex stretch between mt={20} mb={10}>
-                    <FormCol>
-                      <Text>Staked Balance</Text>
-                    </FormCol>
-                    <FormCol>
-                      <Text textAlignRight info>
-                        {v1StakedSolaceBalance} {readSolaceToken.symbol}
-                      </Text>
-                    </FormCol>
+                    <Text>Staked Balance</Text>
+                    <Text textAlignRight info>
+                      {v1StakedSolaceBalance} {readSolaceToken.symbol}
+                    </Text>
                   </Flex>
                   <Flex mb={30} style={{ textAlign: 'center' }}>
                     <InputSection
@@ -505,8 +500,8 @@ export default function Stake(): JSX.Element {
                   modalTitle={'Select a safe to deposit your rewards'}
                 >
                   <Flex stretch between mb={24}>
-                    <FormCol>Rewards from selected safes</FormCol>
-                    <FormCol>{formattedRewards}</FormCol>
+                    <Text>Rewards from selected safes</Text>
+                    <Text>{formattedRewards}</Text>
                   </Flex>
                   <Scrollable maxMobileHeight={60}>
                     {width > BKPT_1 ? (
@@ -586,28 +581,28 @@ export default function Stake(): JSX.Element {
                               onClick={() => setTargetLock(lock.xsLockID)}
                             >
                               <Flex stretch between>
-                                <FormCol light={isSelected}>Amount</FormCol>
-                                <FormCol bold light={isSelected}>
+                                <Text light={isSelected}>Amount</Text>
+                                <Text bold light={isSelected}>
                                   {truncateValue(formatUnits(lock.unboostedAmount, 18), 4)}
-                                </FormCol>
+                                </Text>
                               </Flex>
                               <Flex stretch between>
-                                <FormCol light={isSelected}>Lock time left</FormCol>
-                                <FormCol bold light={isSelected}>
+                                <Text light={isSelected}>Lock time left</Text>
+                                <Text bold light={isSelected}>
                                   {getTimeFromMillis(lock.timeLeft.toNumber() * 1000)}
-                                </FormCol>
+                                </Text>
                               </Flex>
                               <Flex stretch between>
-                                <FormCol light={isSelected}>Multiplier</FormCol>
-                                <FormCol bold light={isSelected}>
+                                <Text light={isSelected}>Multiplier</Text>
+                                <Text bold light={isSelected}>
                                   {truncateValue(multiplier, 1)}x
-                                </FormCol>
+                                </Text>
                               </Flex>
                               <Flex stretch between>
-                                <FormCol light={isSelected}>APR</FormCol>
-                                <FormCol bold light={isSelected}>
+                                <Text light={isSelected}>APR</Text>
+                                <Text bold light={isSelected}>
                                   {truncateValue(lock.apr.toString(), 1)}%
-                                </FormCol>
+                                </Text>
                               </Flex>
                             </Card>
                           )

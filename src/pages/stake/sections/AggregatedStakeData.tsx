@@ -9,7 +9,6 @@ import { truncateValue } from '../../../utils/formatting'
 import { formatUnits } from '@ethersproject/units'
 import { useWindowDimensions } from '../../../hooks/useWindowDimensions'
 import { BKPT_6 } from '../../../constants'
-import { FormCol } from '../../../components/atoms/Form'
 import { Card } from '../../../components/atoms/Card'
 
 export default function AggregatedStakeData({ stakeData }: { stakeData: UserLocksInfo }): JSX.Element {
@@ -66,52 +65,42 @@ export default function AggregatedStakeData({ stakeData }: { stakeData: UserLock
       ) : (
         <Card>
           <Flex stretch between mb={24}>
-            <FormCol info bold>
+            <Text info bold>
               Staked Balance
-            </FormCol>
-            <FormCol>
-              <Text t2 nowrap bold>
-                {truncateValue(formatUnits(stakeData.stakedBalance, 18), 2)} SOLACE
-              </Text>
-            </FormCol>
+            </Text>
+            <Text t2 nowrap bold>
+              {truncateValue(formatUnits(stakeData.stakedBalance, 18), 2)} SOLACE
+            </Text>
           </Flex>
           <Flex stretch between mb={24}>
-            <FormCol info bold>
+            <Text info bold>
               Unlocked Balance
-            </FormCol>
-            <FormCol>
-              <Text t2 nowrap bold>
-                {truncateValue(formatUnits(stakeData.unlockedBalance, 18), 2)} SOLACE
-              </Text>
-            </FormCol>
+            </Text>
+            <Text t2 nowrap bold>
+              {truncateValue(formatUnits(stakeData.unlockedBalance, 18), 2)} SOLACE
+            </Text>
           </Flex>
           <Flex stretch between mb={24}>
-            <FormCol info bold>
+            <Text info bold>
               Locked Balance
-            </FormCol>
-            <FormCol>
-              <Text t2 nowrap bold>
-                {truncateValue(formatUnits(stakeData.lockedBalance, 18), 2)} SOLACE
-              </Text>
-            </FormCol>
+            </Text>
+            <Text t2 nowrap bold>
+              {truncateValue(formatUnits(stakeData.lockedBalance, 18), 2)} SOLACE
+            </Text>
           </Flex>
           <Flex stretch between mb={24}>
-            <FormCol info bold>
+            <Text info bold>
               Total Rewards
-            </FormCol>
-            <FormCol>
-              <Text t2 nowrap bold>
-                {truncateValue(formatUnits(stakeData.pendingRewards, 18), 2)} SOLACE
-              </Text>
-            </FormCol>
+            </Text>
+            <Text t2 nowrap bold>
+              {truncateValue(formatUnits(stakeData.pendingRewards, 18), 2)} SOLACE
+            </Text>
           </Flex>
           <Flex stretch between mb={24}>
-            <FormCol>APR</FormCol>
-            <FormCol>
-              <Text t2 nowrap bold>
-                {truncateValue(stakeData.apr.toString(), 1)}%
-              </Text>
-            </FormCol>
+            <Text>APR</Text>
+            <Text t2 nowrap bold>
+              {truncateValue(stakeData.apr.toString(), 1)}%
+            </Text>
           </Flex>
         </Card>
       )}

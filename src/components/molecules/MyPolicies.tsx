@@ -34,7 +34,6 @@ import { Button, ButtonWrapper } from '../atoms/Button'
 import { Text } from '../atoms/Typography'
 import { Flex, Content } from '../atoms/Layout'
 import { Card, CardContainer } from '../atoms/Card'
-import { FormCol } from '../atoms/Form'
 import { DeFiAssetImage } from '../atoms/DeFiAsset'
 import { StyledDots } from '../atoms/Icon'
 import { Loader } from '../atoms/Loader'
@@ -206,37 +205,27 @@ export const MyPolicies: React.FC<MyPoliciesProps> = ({
                         </Flex>
                       </Flex>
                       <Flex stretch between mb={10}>
-                        <FormCol>ID:</FormCol>
-                        <FormCol>
-                          <Text t2>{policy.policyId}</Text>
-                        </FormCol>
+                        <Text>ID:</Text>
+                        <Text t2>{policy.policyId}</Text>
                       </Flex>
                       <Flex stretch between mb={10}>
-                        <FormCol>Status:</FormCol>
-                        <FormCol>
-                          <Text t2 error={policy.status === PolicyState.EXPIRED} warning={isWarned}>
-                            {policy.status}
-                          </Text>
-                        </FormCol>
+                        <Text>Status:</Text>
+                        <Text t2 error={policy.status === PolicyState.EXPIRED} warning={isWarned}>
+                          {policy.status}
+                        </Text>
                       </Flex>
                       <Flex stretch between mb={10}>
-                        <FormCol>Expiration Date:</FormCol>
-                        <FormCol>
-                          <Text t2 warning={isWarned}>
-                            {calculatePolicyExpirationDate(latestBlock, policy.expirationBlock)}
-                          </Text>
-                        </FormCol>
+                        <Text>Expiration Date:</Text>
+                        <Text t2 warning={isWarned}>
+                          {calculatePolicyExpirationDate(latestBlock, policy.expirationBlock)}
+                        </Text>
                       </Flex>
                       <Flex stretch between mb={10}>
-                        <FormCol>Covered Amount:</FormCol>
-                        <FormCol>
-                          <Text t2>
-                            {policy.coverAmount
-                              ? truncateValue(formatUnits(policy.coverAmount, currencyDecimals), 2)
-                              : 0}{' '}
-                            {activeNetwork.nativeCurrency.symbol}
-                          </Text>
-                        </FormCol>
+                        <Text>Covered Amount:</Text>
+                        <Text t2>
+                          {policy.coverAmount ? truncateValue(formatUnits(policy.coverAmount, currencyDecimals), 2) : 0}{' '}
+                          {activeNetwork.nativeCurrency.symbol}
+                        </Text>
                       </Flex>
                       {policy.status === PolicyState.ACTIVE && (
                         <ButtonWrapper isColumn>

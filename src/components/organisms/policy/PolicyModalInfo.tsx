@@ -32,7 +32,6 @@ import { BKPT_3, ZERO } from '../../../constants'
 
 /* import components */
 import { Box, BoxItem, BoxItemTitle } from '../../atoms/Box'
-import { FormCol } from '../../atoms/Form'
 import { Flex, HeroContainer, HorizRule } from '../../atoms/Layout'
 import { DeFiAsset, DeFiAssetImage } from '../../atoms/DeFiAsset'
 import { Loader } from '../../atoms/Loader'
@@ -157,85 +156,65 @@ export const PolicyModalInfo: React.FC<PolicyModalInfoProps> = ({ appraisal, sel
         // mobile version
         <Card transparent>
           <Flex stretch between mb={10}>
-            <FormCol>
-              <Text t4>Policy ID:</Text>
-            </FormCol>
-            <FormCol>
-              <Text bold t3>
-                {selectedPolicy?.policyId}
-              </Text>
-            </FormCol>
+            <Text t4>Policy ID:</Text>
+            <Text bold t3>
+              {selectedPolicy?.policyId}
+            </Text>
           </Flex>
           <Flex stretch between mb={10}>
-            <FormCol>
-              <Text t4>Days to expiration:</Text>
-            </FormCol>
-            <FormCol>
-              <Text bold t3>
-                {daysLeft}
-              </Text>
-            </FormCol>
+            <Text t4>Days to expiration:</Text>
+
+            <Text bold t3>
+              {daysLeft}
+            </Text>
           </Flex>
           <Flex stretch between mb={10}>
-            <FormCol>
-              <Text t4>Cover Amount:</Text>
-            </FormCol>
-            <FormCol>
-              <Text bold t3>
-                {selectedPolicy?.coverAmount
-                  ? truncateValue(formatUnits(selectedPolicy.coverAmount, currencyDecimals))
-                  : 0}{' '}
-                {activeNetwork.nativeCurrency.symbol}
-              </Text>
-            </FormCol>
+            <Text t4>Cover Amount:</Text>
+            <Text bold t3>
+              {selectedPolicy?.coverAmount
+                ? truncateValue(formatUnits(selectedPolicy.coverAmount, currencyDecimals))
+                : 0}{' '}
+              {activeNetwork.nativeCurrency.symbol}
+            </Text>
           </Flex>
           <Flex stretch between mb={10}>
-            <FormCol>
-              <Text t4>Position Amount:</Text>
-            </FormCol>
-            <FormCol>
-              <Text bold t3>
-                {appraisal.gt(ZERO) ? (
-                  `${truncateValue(formatUnits(appraisal, currencyDecimals) || 0)} ${
-                    activeNetwork.nativeCurrency.symbol
-                  }`
-                ) : (
-                  <Loader width={10} height={10} />
-                )}{' '}
-              </Text>
-            </FormCol>
+            <Text t4>Position Amount:</Text>
+
+            <Text bold t3>
+              {appraisal.gt(ZERO) ? (
+                `${truncateValue(formatUnits(appraisal, currencyDecimals) || 0)} ${activeNetwork.nativeCurrency.symbol}`
+              ) : (
+                <Loader width={10} height={10} />
+              )}{' '}
+            </Text>
           </Flex>
         </Card>
       )}
       <HeroContainer height={width > BKPT_3 ? 150 : 200}>
         {width > BKPT_3 ? (
           <Flex>
-            <FormCol>
-              <DeFiAsset style={{ flexDirection: 'column' }}>
-                <DeFiAssetImage width={60} height={60}>
-                  <img
-                    src={`https://assets.solace.fi/${selectedPolicy?.productName.toLowerCase()}`}
-                    alt={selectedPolicy?.productName}
-                  />
-                </DeFiAssetImage>
-                <TextSpan t2>{selectedPolicy?.productName}</TextSpan>
-              </DeFiAsset>
-            </FormCol>
-            <FormCol style={{ margin: 'auto' }}>
-              <Flex>
-                {selectedPolicy?.positionNames.length == 0 && <Loader width={10} height={10} />}
-                {selectedPolicy?.positionNames.slice(0, MaxPositionsToDisplay).map((name: string) => (
-                  <Flex col style={{ alignItems: 'center' }} key={name}>
-                    <DeFiAssetImage noborder width={45} height={45}>
-                      <img src={`https://assets.solace.fi/${name.toLowerCase()}`} alt={name} />
-                    </DeFiAssetImage>
-                  </Flex>
-                ))}
-                {selectedPolicy?.positionNames && selectedPolicy?.positionNames.length > MaxPositionsToDisplay && (
-                  <StyledDots size={40} />
-                )}
-              </Flex>
-            </FormCol>
+            <DeFiAsset style={{ flexDirection: 'column' }}>
+              <DeFiAssetImage width={60} height={60}>
+                <img
+                  src={`https://assets.solace.fi/${selectedPolicy?.productName.toLowerCase()}`}
+                  alt={selectedPolicy?.productName}
+                />
+              </DeFiAssetImage>
+              <TextSpan t2>{selectedPolicy?.productName}</TextSpan>
+            </DeFiAsset>
+            <Flex center>
+              {selectedPolicy?.positionNames.length == 0 && <Loader width={10} height={10} />}
+              {selectedPolicy?.positionNames.slice(0, MaxPositionsToDisplay).map((name: string) => (
+                <Flex col style={{ alignItems: 'center' }} key={name}>
+                  <DeFiAssetImage noborder width={45} height={45}>
+                    <img src={`https://assets.solace.fi/${name.toLowerCase()}`} alt={name} />
+                  </DeFiAssetImage>
+                </Flex>
+              ))}
+              {selectedPolicy?.positionNames && selectedPolicy?.positionNames.length > MaxPositionsToDisplay && (
+                <StyledDots size={40} />
+              )}
+            </Flex>
           </Flex>
         ) : (
           // mobile version

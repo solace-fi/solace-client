@@ -31,7 +31,6 @@ import { useProvider } from '../../../../context/ProviderManager'
 /* import components */
 import { Text } from '../../../atoms/Typography'
 import { Button } from '../../../atoms/Button'
-import { FormCol } from '../../../atoms/Form'
 import { Card, CardContainer } from '../../../atoms/Card'
 import { Scrollable, HeroContainer, Flex } from '../../../atoms/Layout'
 
@@ -87,33 +86,23 @@ export const OwnedBondListV1: React.FC<OwnedBondListV1Props> = ({
             {ownedBondTokens.map((token) => (
               <Card p={15} key={token.id.toString()}>
                 <Flex stretch between mb={10}>
-                  <FormCol>
-                    <Text>ID</Text>
-                  </FormCol>
-                  <FormCol>{token.id.toString()}</FormCol>
+                  <Text>ID</Text>
+                  <Text>{token.id.toString()}</Text>
                 </Flex>
                 <Flex stretch between mb={10}>
-                  <FormCol>
-                    <Text>Paid Price</Text>
-                  </FormCol>
-                  <FormCol>
-                    <Text textAlignRight>{formatUnits(token.pricePaid, pncplDecimals)}</Text>
-                  </FormCol>
+                  <Text>Paid Price</Text>
+                  <Text textAlignRight>{formatUnits(token.pricePaid, pncplDecimals)}</Text>
                 </Flex>
                 <Flex stretch between mb={10}>
-                  <FormCol>
-                    <Text>Payout</Text>
-                  </FormCol>
-                  <FormCol>
-                    <Text textAlignRight>
-                      {`${formatUnits(token.payoutAmount, readSolaceToken.decimals)} ${token.payoutToken}`}
-                    </Text>
-                  </FormCol>
+                  <Text>Payout</Text>
+                  <Text textAlignRight>
+                    {`${formatUnits(token.payoutAmount, readSolaceToken.decimals)} ${token.payoutToken}`}
+                  </Text>
                 </Flex>
                 {token.maturation.toNumber() > timestamp ? (
                   <Flex stretch between mb={10}>
-                    <FormCol>Time Until Fully Vested</FormCol>
-                    <FormCol>{getTimeFromMillis((token.maturation.toNumber() - timestamp) * 1000)}</FormCol>
+                    <Text>Time Until Fully Vested</Text>
+                    <Text>{getTimeFromMillis((token.maturation.toNumber() - timestamp) * 1000)}</Text>
                   </Flex>
                 ) : (
                   <>
