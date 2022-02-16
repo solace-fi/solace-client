@@ -24,7 +24,7 @@ import { FormCol, FormRow } from '../../../components/atoms/Form'
 import { ModalCell } from '../../../components/atoms/Modal'
 import { Modal } from '../../../components/molecules/Modal'
 import { Text } from '../../../components/atoms/Typography'
-import Flex from '../atoms/Flex'
+import { Flex } from '../../../components/atoms/Layout'
 import InputSection from '../sections/InputSection'
 import { VerticalSeparator } from '../components/Separator'
 

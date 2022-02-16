@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo } from 'react'
-import Flex from '../stake/atoms/Flex'
+import { Flex } from '../../components/atoms/Layout'
 import RaisedBox from '../../components/atoms/RaisedBox'
 import ShadowDiv from '../stake/atoms/ShadowDiv'
 import { QuestionCircle } from '@styled-icons/bootstrap/QuestionCircle'

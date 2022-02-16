@@ -40,13 +40,12 @@ import { useContracts } from '../../../../context/ContractsManager'
 import { WalletConnectButton } from '../../../molecules/WalletConnectButton'
 import { ModalContainer, ModalBase, ModalHeader, ModalCell } from '../../../atoms/Modal'
 import { ModalCloseButton } from '../../../molecules/Modal'
-import { FlexCol, HorizRule, MultiTabIndicator } from '../../../atoms/Layout'
+import { Flex, HorizRule, MultiTabIndicator } from '../../../atoms/Layout'
 import { Text } from '../../../atoms/Typography'
 import { Button, ButtonWrapper } from '../../../atoms/Button'
 import { Input } from '../../../atoms/Input'
 import { DeFiAssetImage } from '../../../atoms/DeFiAsset'
 import { Loader } from '../../../atoms/Loader'
-import { FlexRow } from '../../../atoms/Layout'
 import { StyledGear } from '../../../atoms/Icon'
 import { BondSettingsModal } from '../BondSettingsModal'
 import { OwnedBondListV2 } from './OwnedBondListV2'
@@ -353,11 +352,11 @@ export const BondModalV2: React.FC<BondModalV2Props> = ({ closeModal, isOpen, se
         />
         <ModalHeader style={{ position: 'relative', marginTop: '20px' }}>
           {(approval || func == bondDepositFunctionName) && (
-            <FlexRow style={{ cursor: 'pointer', position: 'absolute', left: '0', bottom: '-10px' }}>
+            <Flex style={{ cursor: 'pointer', position: 'absolute', left: '0', bottom: '-10px' }}>
               <StyledGear size={25} onClick={() => setShowBondSettingsModal(true)} />
-            </FlexRow>
+            </Flex>
           )}
-          <FlexRow style={{ position: 'absolute', left: '50%', transform: 'translate(-50%)' }}>
+          <Flex style={{ position: 'absolute', left: '50%', transform: 'translate(-50%)' }}>
             {selectedBondDetail?.principalData &&
               (selectedBondDetail.principalData.token0 && selectedBondDetail.principalData.token1 ? (
                 <>
@@ -382,10 +381,10 @@ export const BondModalV2: React.FC<BondModalV2Props> = ({ closeModal, isOpen, se
                   />
                 </DeFiAssetImage>
               ))}
-          </FlexRow>
-          <FlexRow style={{ position: 'absolute', right: '0', bottom: '-10px' }}>
+          </Flex>
+          <Flex style={{ position: 'absolute', right: '0', bottom: '-10px' }}>
             <ModalCloseButton hidden={modalLoading && !canCloseOnLoading} onClick={handleClose} />
-          </FlexRow>
+          </Flex>
         </ModalHeader>
         <div
           style={{
@@ -471,7 +470,7 @@ export const BondModalV2: React.FC<BondModalV2Props> = ({ closeModal, isOpen, se
               (modalLoading ? (
                 <Loader />
               ) : (
-                <FlexCol mt={20}>
+                <Flex col mt={20}>
                   <BondOptionsV2
                     isBondTellerErc20={isBondTellerErc20}
                     selectedBondDetail={selectedBondDetail}
@@ -488,7 +487,7 @@ export const BondModalV2: React.FC<BondModalV2Props> = ({ closeModal, isOpen, se
                     approve={approve}
                     callDepositBond={callDepositBond}
                   />
-                </FlexCol>
+                </Flex>
               ))}
           </>
         )}

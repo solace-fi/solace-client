@@ -44,7 +44,7 @@ import { useCachedData } from '../../context/CachedDataManager'
 import { Button, ButtonWrapper } from '../atoms/Button'
 import { Card } from '../atoms/Card'
 import { Input } from '../atoms/Input'
-import { FlexCol, FlexRow, HorizRule } from '../atoms/Layout'
+import { Flex, HorizRule } from '../atoms/Layout'
 import { ModalRow } from '../atoms/Modal'
 import { StyledSelect } from '../molecules/Select'
 import { Box, BoxItem, BoxItemTitle, SmallBox } from '../atoms/Box'
@@ -259,7 +259,7 @@ export const EarlyFarmRewardsWindow: React.FC = () => {
   }, [farmRewards, purchaseableSolace, stablecoinPayment.value])
 
   return (
-    <FlexCol>
+    <Flex col>
       <Card style={{ margin: 'auto' }}>
         <Box glow success mb={20}>
           <BoxItem style={{ textAlign: 'center' }}>
@@ -295,7 +295,7 @@ export const EarlyFarmRewardsWindow: React.FC = () => {
         >
           <Text error>Stablecoin unsupported on this network</Text>
         </SmallBox>
-        <FlexRow mb={20} style={{ textAlign: 'center', position: 'relative' }}>
+        <Flex mb={20} style={{ textAlign: 'center', position: 'relative' }}>
           <Input
             widthP={100}
             minLength={1}
@@ -312,7 +312,7 @@ export const EarlyFarmRewardsWindow: React.FC = () => {
           <Button info ml={10} pt={4} pb={4} pl={8} pr={8} width={70} height={30} onClick={_setMax}>
             MAX
           </Button>
-        </FlexRow>
+        </Flex>
         <FormRow mb={10}>
           <FormCol bold>My balance</FormCol>
           <FormCol bold textAlignRight info>
@@ -372,6 +372,6 @@ export const EarlyFarmRewardsWindow: React.FC = () => {
         )}
         {farmRewards && <SourceContract contract={farmRewards} />}
       </Card>
-    </FlexCol>
+    </Flex>
   )
 }

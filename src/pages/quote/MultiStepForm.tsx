@@ -49,7 +49,7 @@ import { Button, ButtonWrapper } from '../../components/atoms/Button'
 import { Card, CardContainer } from '../../components/atoms/Card'
 import { FormRow, FormCol } from '../../components/atoms/Form'
 import { Text } from '../../components/atoms/Typography'
-import { FlexRow } from '../../components/atoms/Layout'
+import { Flex } from '../../components/atoms/Layout'
 import { StyledDots } from '../../components/atoms/Icon'
 import { AssetsModal } from '../../components/organisms/AssetsModal'
 import { StyledStepComponent } from '../../components/molecules/Step'
@@ -290,7 +290,7 @@ export const MultiStepForm = () => {
               {Number(StepNumber[step.id]) == 2 && positions.length > 0 && (
                 <Box color2>
                   <BoxItem>
-                    <FlexRow>
+                    <Flex>
                       {formattedAssets.slice(0, maxPositionsToDisplay).map((data) => {
                         return (
                           <DeFiAsset key={data.address}>
@@ -303,7 +303,7 @@ export const MultiStepForm = () => {
                       {positions.length > maxPositionsToDisplay && (
                         <StyledDots size={20} style={{ color: 'rgb(250, 250, 250)' }} />
                       )}
-                    </FlexRow>
+                    </Flex>
                   </BoxItem>
                   <BoxItem>
                     <ButtonWrapper>
@@ -367,7 +367,7 @@ export const MultiStepForm = () => {
               )}
               {Number(StepNumber[step.id]) == 2 && positions.length > 0 && (
                 <Card color2>
-                  <FlexRow>
+                  <Flex>
                     {formattedAssets.slice(0, maxPositionsToDisplay).map((data) => {
                       return (
                         <DeFiAssetImage mr={5} key={data.address}>
@@ -378,7 +378,7 @@ export const MultiStepForm = () => {
                     {positions.length > maxPositionsToDisplay && (
                       <StyledDots size={20} style={{ color: 'rgb(250, 250, 250)' }} />
                     )}
-                  </FlexRow>
+                  </Flex>
                   <ButtonWrapper isColumn>
                     {positions.length > maxPositionsToDisplay && (
                       <Button light widthP={100} onClick={() => setShowAssetsModal(true)}>

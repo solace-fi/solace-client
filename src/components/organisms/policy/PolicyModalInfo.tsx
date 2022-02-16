@@ -33,7 +33,7 @@ import { BKPT_3, ZERO } from '../../../constants'
 /* import components */
 import { Box, BoxItem, BoxItemTitle } from '../../atoms/Box'
 import { FormCol, FormRow } from '../../atoms/Form'
-import { FlexCol, FlexRow, HeroContainer, HorizRule } from '../../atoms/Layout'
+import { Flex, HeroContainer, HorizRule } from '../../atoms/Layout'
 import { DeFiAsset, DeFiAssetImage } from '../../atoms/DeFiAsset'
 import { Loader } from '../../atoms/Loader'
 import { Text, TextSpan } from '../../atoms/Typography'
@@ -209,7 +209,7 @@ export const PolicyModalInfo: React.FC<PolicyModalInfoProps> = ({ appraisal, sel
       )}
       <HeroContainer height={width > BKPT_3 ? 150 : 200}>
         {width > BKPT_3 ? (
-          <FlexRow>
+          <Flex>
             <FormCol>
               <DeFiAsset style={{ flexDirection: 'column' }}>
                 <DeFiAssetImage width={60} height={60}>
@@ -222,26 +222,26 @@ export const PolicyModalInfo: React.FC<PolicyModalInfoProps> = ({ appraisal, sel
               </DeFiAsset>
             </FormCol>
             <FormCol style={{ margin: 'auto' }}>
-              <FlexRow>
+              <Flex>
                 {selectedPolicy?.positionNames.length == 0 && <Loader width={10} height={10} />}
                 {selectedPolicy?.positionNames.slice(0, MaxPositionsToDisplay).map((name: string) => (
-                  <FlexCol style={{ alignItems: 'center' }} key={name}>
+                  <Flex col style={{ alignItems: 'center' }} key={name}>
                     <DeFiAssetImage noborder width={45} height={45}>
                       <img src={`https://assets.solace.fi/${name.toLowerCase()}`} alt={name} />
                     </DeFiAssetImage>
-                  </FlexCol>
+                  </Flex>
                 ))}
                 {selectedPolicy?.positionNames && selectedPolicy?.positionNames.length > MaxPositionsToDisplay && (
                   <StyledDots size={40} />
                 )}
-              </FlexRow>
+              </Flex>
             </FormCol>
-          </FlexRow>
+          </Flex>
         ) : (
           // mobile version
-          <FlexCol>
-            <FlexRow jc={'center'} mt={10} mb={10}>
-              <FlexCol>
+          <Flex col>
+            <Flex justifyCenter mt={10} mb={10}>
+              <Flex col>
                 <DeFiAsset style={{ flexDirection: 'column' }}>
                   <DeFiAssetImage width={60} height={60}>
                     <img
@@ -251,22 +251,22 @@ export const PolicyModalInfo: React.FC<PolicyModalInfoProps> = ({ appraisal, sel
                   </DeFiAssetImage>
                   <TextSpan t2>{selectedPolicy?.productName}</TextSpan>
                 </DeFiAsset>
-              </FlexCol>
-            </FlexRow>
-            <FlexRow jc={'center'}>
+              </Flex>
+            </Flex>
+            <Flex justifyCenter>
               {selectedPolicy?.positionNames.length == 0 && <Loader width={10} height={10} />}
               {selectedPolicy?.positionNames.slice(0, MaxPositionsToDisplay).map((name: string) => (
-                <FlexCol key={name}>
+                <Flex col key={name}>
                   <DeFiAssetImage noborder width={45} height={45}>
                     <img src={`https://assets.solace.fi/${name.toLowerCase()}`} alt={name} />
                   </DeFiAssetImage>
-                </FlexCol>
+                </Flex>
               ))}
               {selectedPolicy?.positionNames && selectedPolicy?.positionNames.length > MaxPositionsToDisplay && (
                 <StyledDots size={40} />
               )}
-            </FlexRow>
-          </FlexCol>
+            </Flex>
+          </Flex>
         )}
         {selectedPolicy?.positionNames && selectedPolicy?.positionNames.length > MaxPositionsToDisplay && (
           <ButtonWrapper style={{ width: '100%' }}>

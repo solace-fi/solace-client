@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react'
 
 import { Button } from '../../../../components/atoms/Button'
-import Flex from '../../atoms/Flex'
+import { Flex } from '../../../../components/atoms/Layout'
 
 import RaisedBox from '../../../../components/atoms/RaisedBox'
 import ShadowDiv from '../../atoms/ShadowDiv'

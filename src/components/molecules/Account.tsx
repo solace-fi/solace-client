@@ -32,7 +32,7 @@ import { useGeneral } from '../../context/GeneralManager'
 import { Text } from '../atoms/Typography'
 import { UserImage } from '../atoms/User'
 import { Button, ButtonProps } from '../atoms/Button'
-import { FlexCol, FlexRow } from '../atoms/Layout'
+import { Flex } from '../atoms/Layout'
 import { StyledWallet } from '../atoms/Icon'
 import { GeneralElementProps } from '../generalInterfaces'
 
@@ -57,15 +57,16 @@ export const UserAccount: React.FC<ButtonProps & GeneralElementProps> = (props) 
 
   return (
     <Button noborder nohover p={0} onClick={openAccountModal} {...props}>
-      <FlexCol
+      <Flex
+        col
         style={{
           backgroundColor: bgColor,
           borderRadius: '10px',
           padding: '5px',
         }}
       >
-        <FlexRow>
-          <FlexCol>
+        <Flex>
+          <Flex col>
             <UserImage pt={4} pb={4} pr={10}>
               {account ? (
                 <img style={{ borderRadius: '10px' }} src={makeBlockie(account)} alt={'account'} />
@@ -73,8 +74,8 @@ export const UserAccount: React.FC<ButtonProps & GeneralElementProps> = (props) 
                 <StyledWallet size={40} />
               )}
             </UserImage>
-          </FlexCol>
-          <FlexCol jc={'space-around'}>
+          </Flex>
+          <Flex col around>
             {account ? (
               <Text textAlignLeft t4 {...props}>
                 {name ?? shortenAddress(account)}
@@ -84,17 +85,17 @@ export const UserAccount: React.FC<ButtonProps & GeneralElementProps> = (props) 
                 Not Connected
               </Text>
             )}
-            <FlexRow>
+            <Flex>
               {activeNetwork.logo && (
                 <img src={activeNetwork.logo} width={25} height={25} style={{ marginRight: '2px' }} />
               )}
               <Text t5s nowrap mt={5} autoAlignVertical {...props}>
                 {activeNetwork.name}
               </Text>
-            </FlexRow>
-          </FlexCol>
-        </FlexRow>
-      </FlexCol>
+            </Flex>
+          </Flex>
+        </Flex>
+      </Flex>
     </Button>
   )
 }
@@ -116,7 +117,8 @@ export const MiniUserAccount: React.FC<ButtonProps & GeneralElementProps> = (pro
 
   return (
     <Button noborder nohover p={0} onClick={openAccountModal} {...props}>
-      <FlexCol
+      <Flex
+        col
         style={{
           backgroundColor: bgColor,
           borderRadius: '10px',
@@ -130,7 +132,7 @@ export const MiniUserAccount: React.FC<ButtonProps & GeneralElementProps> = (pro
             <StyledWallet size={30} />
           )}
         </UserImage>
-      </FlexCol>
+      </Flex>
     </Button>
   )
 }

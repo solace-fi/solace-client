@@ -24,11 +24,10 @@ import { FunctionName } from '../../../../constants/enums'
 import { useGeneral } from '../../../../context/GeneralManager'
 
 /* import components */
-import { FlexCol } from '../../../atoms/Layout'
+import { Flex } from '../../../atoms/Layout'
 import { Text } from '../../../atoms/Typography'
 import { Button, ButtonWrapper } from '../../../atoms/Button'
 import { CheckboxOption } from '../../PoolModalRouter'
-import { FlexRow } from '../../../atoms/Layout'
 import { StyledGraphDown, StyledSendPlane } from '../../../atoms/Icon'
 
 /* import utils */
@@ -80,7 +79,7 @@ export const BondOptionsV2: React.FC<BondOptionsV2Props> = ({
 
   return (
     <>
-      <FlexCol style={{ margin: 'auto' }}>
+      <Flex col style={{ margin: 'auto' }}>
         {!isBondTellerErc20 && (
           <>
             <CheckboxOption
@@ -92,7 +91,7 @@ export const BondOptionsV2: React.FC<BondOptionsV2Props> = ({
           </>
         )}
         <CheckboxOption isChecked={isStaking} setChecked={setIsStaking} text={'Autostake and create a lock'} />
-      </FlexCol>
+      </Flex>
       {!selectedBondDetail?.tellerData.teller.cannotBuy ? (
         <ButtonWrapper isColumn>
           {!approval && func != bondDepositFunctionName && (
@@ -108,20 +107,20 @@ export const BondOptionsV2: React.FC<BondOptionsV2Props> = ({
           >
             Bond
           </Button>
-          <FlexRow>
+          <Flex>
             <StyledGraphDown size={15} />
             <Text t4 ml={5}>
               {parseInt(accurateMultiply(slippagePrct, 2)) / 100}%
             </Text>
             {bondRecipient && (
-              <FlexRow ml={10}>
+              <Flex ml={10}>
                 <StyledSendPlane size={15} />
                 <Text t4 ml={5}>
                   {shortenAddress(bondRecipient)}
                 </Text>
-              </FlexRow>
+              </Flex>
             )}
-          </FlexRow>
+          </Flex>
         </ButtonWrapper>
       ) : (
         <ButtonWrapper>

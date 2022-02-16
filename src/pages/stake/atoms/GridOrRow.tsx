@@ -1,6 +1,6 @@
 import styled from 'styled-components'
 import { BKPT_6 } from '../../../constants'
-import Flex from './Flex'
+import { Flex } from '../../../components/atoms/Layout'
 
 export const GridOrRow = styled(Flex)`
   display: flex;

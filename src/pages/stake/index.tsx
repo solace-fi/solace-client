@@ -40,7 +40,7 @@ import { Button, ButtonWrapper } from '../../components/atoms/Button'
 import { Card, CardContainer } from '../../components/atoms/Card'
 import { FormCol, FormRow } from '../../components/atoms/Form'
 import { StyledSlider } from '../../components/atoms/Input'
-import { Content, FlexCol, FlexRow, Scrollable } from '../../components/atoms/Layout'
+import { Content, Flex, Scrollable } from '../../components/atoms/Layout'
 import { ModalCell } from '../../components/atoms/Modal'
 import { Text, TextSpan } from '../../components/atoms/Typography'
 import { HeroContainer } from '../../components/atoms/Layout'
@@ -49,7 +49,6 @@ import { Modal } from '../../components/molecules/Modal'
 import { Table, TableBody, TableData, TableHead, TableHeader, TableRow } from '../../components/atoms/Table'
 import { StyledMultiselect } from '../../components/atoms/Icon'
 import DifferenceNotification from './organisms/DifferenceNotification'
-import Flex from './atoms/Flex'
 import Safe from './sections/Safe/index'
 import AggregatedStakeData from './sections/AggregatedStakeData'
 import NewSafe from './sections/Safe/NewSafe'
@@ -195,7 +194,7 @@ function Stake1(): any {
             </HeroContainer>
           ) : (
             <Content>
-              <FlexCol>
+              <Flex col>
                 <Card style={{ margin: 'auto' }}>
                   <div style={{ gridTemplateColumns: '1fr 0fr 1fr', display: 'grid', position: 'relative' }}>
                     <ModalCell
@@ -236,14 +235,14 @@ function Stake1(): any {
                       </Text>
                     </FormCol>
                   </FormRow>
-                  <FlexRow mb={30} style={{ textAlign: 'center' }}>
+                  <Flex mb={30} style={{ textAlign: 'center' }}>
                     <InputSection
                       tab={Tab.DEPOSIT}
                       value={amount}
                       onChange={(e) => handleInputChange(e.target.value, readSolaceToken.decimals)}
                       setMax={_setMax}
                     />
-                  </FlexRow>
+                  </Flex>
                   <Accordion noScroll noBackgroundColor isOpen={isMigrating}>
                     <Flex column gap={24} mb={20}>
                       <div>
@@ -344,7 +343,7 @@ function Stake1(): any {
                     )}
                   </ButtonWrapper>
                 </Card>
-              </FlexCol>
+              </Flex>
             </Content>
           )}
         </>

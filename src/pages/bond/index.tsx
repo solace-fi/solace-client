@@ -32,7 +32,7 @@ import { Table, TableData, TableHead, TableHeader, TableRow, TableBody } from '.
 import { DeFiAssetImage } from '../../components/atoms/DeFiAsset'
 import { Card, CardContainer } from '../../components/atoms/Card'
 import { FormRow, FormCol } from '../../components/atoms/Form'
-import { FlexCol, FlexRow, HeroContainer, Scrollable } from '../../components/atoms/Layout'
+import { Flex, HeroContainer, Scrollable } from '../../components/atoms/Layout'
 import { BondModalV1 } from '../../components/organisms/bond/v1/BondModalV1'
 import { BondModalV2 } from '../../components/organisms/bond/v2/BondModalV2'
 import { Loader } from '../../components/atoms/Loader'
@@ -224,7 +224,7 @@ function Bond(): any {
                                   style={{ cursor: 'pointer' }}
                                 >
                                   <TableData>
-                                    <FlexRow jc={'center'}>
+                                    <Flex justifyCenter>
                                       {tellerDetail.principalData ? (
                                         <DeFiAssetImage noborder>
                                           <img
@@ -235,7 +235,7 @@ function Bond(): any {
                                       ) : (
                                         <Loader height={10} width={10} />
                                       )}
-                                    </FlexRow>
+                                    </Flex>
                                   </TableData>
                                   <TableData>{tellerDetail.tellerData.teller.name}</TableData>
                                   <TableData>
@@ -266,9 +266,9 @@ function Bond(): any {
                           <CardContainer cardsPerRow={2}>
                             {currentTellerDetailsV2.map((tellerDetail, i) => (
                               <Card key={i} onClick={haveErrors ? undefined : () => openModalV2(true, tellerDetail)}>
-                                <FlexCol style={{ alignItems: 'center' }}>
+                                <Flex col style={{ alignItems: 'center' }}>
                                   <FormRow>
-                                    <FlexRow>
+                                    <Flex>
                                       {tellerDetail.principalData ? (
                                         <DeFiAssetImage mr={10} noborder>
                                           <img
@@ -279,14 +279,14 @@ function Bond(): any {
                                       ) : (
                                         <Loader height={10} width={10} />
                                       )}
-                                    </FlexRow>
+                                    </Flex>
                                   </FormRow>
-                                  <FlexCol style={{ display: 'flex', alignItems: 'center' }}>
+                                  <Flex col style={{ alignItems: 'center' }}>
                                     <Text t2 mb={20}>
                                       {tellerDetail.tellerData.teller.name}
                                     </Text>
-                                  </FlexCol>
-                                </FlexCol>
+                                  </Flex>
+                                </Flex>
                                 <FormRow>
                                   <FormCol>Price</FormCol>
                                   <FormCol>
@@ -345,7 +345,7 @@ function Bond(): any {
                                   style={{ cursor: 'pointer' }}
                                 >
                                   <TableData>
-                                    <FlexRow jc={'center'}>
+                                    <Flex justifyCenter>
                                       {tellerDetail.principalData ? (
                                         tellerDetail.principalData.token0 && tellerDetail.principalData.token1 ? (
                                           <>
@@ -373,7 +373,7 @@ function Bond(): any {
                                       ) : (
                                         <Loader height={10} width={10} />
                                       )}
-                                    </FlexRow>
+                                    </Flex>
                                   </TableData>
                                   <TableData>{tellerDetail.tellerData.teller.name}</TableData>
                                   {/* <TableData>
@@ -404,9 +404,9 @@ function Bond(): any {
                           <CardContainer cardsPerRow={2}>
                             {currentTellerDetailsV1.map((tellerDetail, i) => (
                               <Card key={i} onClick={haveErrors ? undefined : () => openModalV1(true, tellerDetail)}>
-                                <FlexCol style={{ alignItems: 'center' }}>
+                                <Flex col style={{ alignItems: 'center' }}>
                                   <FormRow>
-                                    <FlexRow>
+                                    <Flex>
                                       {tellerDetail.principalData ? (
                                         tellerDetail.principalData.token0 && tellerDetail.principalData.token1 ? (
                                           <>
@@ -434,14 +434,14 @@ function Bond(): any {
                                       ) : (
                                         <Loader height={10} width={10} />
                                       )}
-                                    </FlexRow>
+                                    </Flex>
                                   </FormRow>
-                                  <FlexCol style={{ display: 'flex', alignItems: 'center' }}>
+                                  <Flex style={{ alignItems: 'center' }}>
                                     <Text t2 mb={20}>
                                       {tellerDetail.tellerData.teller.name}
                                     </Text>
-                                  </FlexCol>
-                                </FlexCol>
+                                  </Flex>
+                                </Flex>
                                 {/* <FormRow>
                                   <FormCol>Price</FormCol>
                                   <FormCol>

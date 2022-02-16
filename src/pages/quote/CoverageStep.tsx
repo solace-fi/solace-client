@@ -44,7 +44,7 @@ import { Card } from '../../components/atoms/Card'
 import { Text, TextSpan } from '../../components/atoms/Typography'
 import { Input, StyledSlider } from '../../components/atoms/Input'
 import { Loader } from '../../components/atoms/Loader'
-import { FlexCol, FlexRow, HorizRule } from '../../components/atoms/Layout'
+import { Flex, HorizRule } from '../../components/atoms/Layout'
 
 /* import hooks */
 import { useGetQuote, useGetMaxCoverPerPolicy } from '../../hooks/usePolicy'
@@ -287,7 +287,7 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
         </FormCol>
       </FormRow>
       <HorizRule mb={10} />
-      <FlexCol mb={20} style={{ padding: '10px 30px' }}>
+      <Flex mb={20} style={{ padding: '10px 30px' }}>
         <div style={{ textAlign: 'center' }}>
           <Text t3>Coverage Amount</Text>
           <Text t4>How much do you want to cover?</Text>
@@ -363,18 +363,18 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
             max={DAYS_PER_YEAR}
           />
         </div>
-      </FlexCol>
+      </Flex>
       <HorizRule mb={20} />
       <FormRow mb={5}>
         <FormCol>
           <Text t4>Covered Assets</Text>
         </FormCol>
         <FormCol>
-          <FlexRow>
+          <Flex>
             <Text t4 bold info>
               {coveredAssets} {activeNetwork.nativeCurrency.symbol}
             </Text>
-          </FlexRow>
+          </Flex>
         </FormCol>
       </FormRow>
       <FormRow mb={5}>

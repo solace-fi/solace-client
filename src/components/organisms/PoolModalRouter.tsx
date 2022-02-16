@@ -44,7 +44,7 @@ import { Text } from '../atoms/Typography'
 /* import utils */
 import { GeneralElementProps } from '../generalInterfaces'
 import Checkbox from '../../pages/stake/atoms/Checkbox'
-import Flex from '../../pages/stake/atoms/Flex'
+import { Flex } from '../../components/atoms/Layout'
 
 export interface PoolModalProps {
   modalTitle: string

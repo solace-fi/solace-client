@@ -1,5 +1,5 @@
 import React from 'react'
-import Flex from '../atoms/Flex'
+import { Flex } from '../../../components/atoms/Layout'
 import RaisedBox from '../../../components/atoms/RaisedBox'
 import CardSectionValue from '../components/CardSectionValue'
 import { Separator } from '../components/Separator'

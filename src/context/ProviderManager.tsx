@@ -16,9 +16,8 @@ import { NetworkCache, SupportedProduct, ZerionPosition } from '../constants/typ
 import { useCachePositions } from '../hooks/useCachePositions'
 import { useZerion } from '../hooks/useZerion'
 import { Scrollable } from '../components/atoms/Layout'
-import Flex from '../pages/stake/atoms/Flex'
+import { Flex } from '../components/atoms/Layout'
 import ToggleSwitch from '../components/atoms/ToggleSwitch'
-import { Table, TableBody } from '../components/atoms/Table'
 
 /*
 

@@ -39,7 +39,7 @@ import { PolicyModalInfo } from './PolicyModalInfo'
 import { Input, StyledSlider } from '../../../components/atoms/Input'
 import { Button, ButtonWrapper } from '../../atoms/Button'
 import { Loader } from '../../atoms/Loader'
-import { FlexCol, MultiTabIndicator } from '../../atoms/Layout'
+import { Flex, MultiTabIndicator } from '../../atoms/Layout'
 import { ModalCell } from '../../atoms/Modal'
 import { SourceContract } from '../SourceContract'
 
@@ -398,7 +398,7 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
         </div>
         {!modalLoading ? (
           isUpdate ? (
-            <FlexCol jc={'center'} style={{ marginTop: '20px' }}>
+            <Flex col justifyCenter mt={20}>
               <div style={{ width: '100%' }}>
                 <div style={{ textAlign: 'center', padding: '5px' }}>
                   <Text t4>Edit Coverage</Text>
@@ -483,9 +483,9 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
                   </ButtonWrapper>
                 </div>
               </div>
-            </FlexCol>
+            </Flex>
           ) : (
-            <FlexCol mt={180} mb={30}>
+            <Flex col mt={180} mb={30}>
               <FormRow mb={10}>
                 <FormCol>
                   <Text t4>
@@ -503,7 +503,7 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
                   <Loader width={10} height={10} />
                 )}
               </ButtonWrapper>
-            </FlexCol>
+            </Flex>
           )
         ) : (
           <Loader />
