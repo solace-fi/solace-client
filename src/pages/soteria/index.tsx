@@ -588,9 +588,11 @@ function PolicyBalance({
     [portfolio]
   )
 
-  const annualCost = useMemo(() => (portfolio && portfolio.current_rate ? portfolio.current_rate : 0), [portfolio])
+  const annualRate = useMemo(() => (portfolio && portfolio.current_rate ? portfolio.current_rate : 0), [portfolio])
 
-  const dailyRate = useMemo(() => annualCost / 365.25, [annualCost])
+  const annualCost = useMemo(() => (portfolio && portfolio.address_rp ? portfolio.address_rp : 0), [portfolio])
+
+  const dailyRate = useMemo(() => annualRate / 365.25, [annualRate])
 
   const dailyCost = useMemo(() => {
     const numberifiedCurrentCoverageLimit = floatUnits(currentCoverageLimit, 18)
@@ -787,7 +789,7 @@ function PolicyBalance({
           {!coverageActivity.status && (
             <Flex pl={24} pr={24} mt={10} col gap={10}>
               <Flex between>
-                <Text t4s>Your Annual Rate</Text>
+                <Text t4s>Your Annual Cost</Text>
                 <Text t4s bold>
                   {truncateValue(annualCost, 2)}{' '}
                   <Text t6s inline>
@@ -1426,7 +1428,7 @@ function WelcomeMessage({
   type: ReferralSource
   goToSecondStage: () => void
 }): JSX.Element {
-  const annualCost = useMemo(() => (portfolio && portfolio.current_rate ? portfolio.current_rate : 0), [portfolio])
+  const annualCost = useMemo(() => (portfolio && portfolio.address_rp ? portfolio.address_rp : 0), [portfolio])
 
   switch (type) {
     case ReferralSource.Custom:
@@ -1435,7 +1437,7 @@ function WelcomeMessage({
           <Flex col gap={30} itemsCenter>
             <Text t2s>Solace Wallet Coverage</Text>
             <Flex col gap={10} itemsCenter>
-              <Text t2>Your annual rate based on your portfolio: {truncateValue(annualCost, 2)} USD/yr</Text>
+              <Text t2>Your annual cost based on your portfolio: {truncateValue(annualCost, 2)} USD/yr</Text>
               <Text t5s>By funding a single policy for your entire portfolio, you will be covered.</Text>
               <Text t5s>The table below is a list of your positions on protocols available for coverage.</Text>
             </Flex>
@@ -1451,7 +1453,7 @@ function WelcomeMessage({
           <Flex col gap={30} itemsCenter>
             <Text t2s>Solace Wallet Coverage</Text>
             <Flex col gap={10} itemsCenter>
-              <Text t2>Your annual rate based on your portfolio: {truncateValue(annualCost, 2)} USD/yr</Text>
+              <Text t2>Your annual cost based on your portfolio: {truncateValue(annualCost, 2)} USD/yr</Text>
               <Text t5s>By funding a single policy for your entire portfolio, you will be covered.</Text>
               <Text t5s>The table below is a list of your positions on protocols available for coverage.</Text>
             </Flex>
@@ -1467,7 +1469,7 @@ function WelcomeMessage({
           <Flex col gap={30} itemsCenter>
             <Text t2s>Solace Wallet Coverage</Text>
             <Flex col gap={10} itemsCenter>
-              <Text t2>Your annual rate based on your portfolio: {truncateValue(annualCost, 2)} USD/yr</Text>
+              <Text t2>Your annual cost based on your portfolio: {truncateValue(annualCost, 2)} USD/yr</Text>
               <Text t5s>By funding a single policy for your entire portfolio, you will be covered.</Text>
               <Text t5s>The table below is a list of your positions on protocols available for coverage.</Text>
             </Flex>
