@@ -10,6 +10,8 @@ export const lightTheme = {
     successText: 'rgb(40, 167, 69)',
     techyGradientA: 'rgb(212, 120, 216)',
     techyGradientB: 'rgb(95, 93, 249)',
+    warmGradientA: 'rgba(243, 211, 126, 1)',
+    warmGradientB: 'rgba(240, 77, 66, 1)',
     separator: '#E3E4E6',
   },
   body: {
@@ -109,6 +111,8 @@ export const darkTheme = {
     successText: 'rgb(0, 255, 209)',
     techyGradientA: '#F3D37E',
     techyGradientB: '#F04D42',
+    warmGradientA: 'rgba(243, 211, 126, 1)',
+    warmGradientB: 'rgba(240, 77, 66, 1)',
     separator: '#828282',
   },
   body: {

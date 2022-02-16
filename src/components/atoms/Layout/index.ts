@@ -1,5 +1,5 @@
 import { BKPT_NAVBAR, MAX_WIDTH, BKPT_5, BKPT_3, Z_FOOTER } from '../../../constants'
-import styled, { createGlobalStyle, keyframes } from 'styled-components'
+import styled, { createGlobalStyle, css, keyframes } from 'styled-components'
 import { GeneralElementProps, GeneralElementCss, HeightAndWidthProps, HeightAndWidthCss } from '../../generalInterfaces'
 import { Text3Css } from '../Typography'
 
@@ -46,18 +46,12 @@ export const GlobalStyle = createGlobalStyle<LayoutProps>`
     background: ${({ theme }) => theme.body.bg_color};
     ${(props) =>
       props.location.pathname == '/' &&
-      `background: radial-gradient(ellipse 120% 150% at 60% 0,
-      rgba(212,120,216,1) 10%,
-      rgba(212,120,216,0) 50%),
-  radial-gradient(ellipse 50% 150% at 40% 100%,
-      rgba(243,211,126,1) 20%,
-      rgba(243,211,126,0) 80%),
-  radial-gradient(ellipse 50% 200% at 100% 50%,
-      rgba(95,93,249,1) 10%,
-      rgba(95,93,249,0) 90%),
-  radial-gradient(ellipse 100% 200% at 0 100%,
-      rgba(240,77,66,1) 10%,
-      rgba(240,77,66,0) 100%);`}
+      css`
+        background: radial-gradient(ellipse 120% 150% at 60% 0, rgba(212, 120, 216, 1) 10%, rgba(212, 120, 216, 0) 50%),
+          radial-gradient(ellipse 50% 150% at 40% 100%, rgba(243, 211, 126, 1) 20%, rgba(243, 211, 126, 0) 80%),
+          radial-gradient(ellipse 50% 200% at 100% 50%, rgba(95, 93, 249, 1) 10%, rgba(95, 93, 249, 0) 90%),
+          radial-gradient(ellipse 100% 200% at 0 100%, rgba(240, 77, 66, 1) 10%, rgba(240, 77, 66, 0) 100%);
+      `}
     background-attachment: fixed;
     background-size: cover;
     animation: ${movingGradient} 30s ease infinite;

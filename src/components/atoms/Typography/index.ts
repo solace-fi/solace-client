@@ -18,16 +18,19 @@ export interface TextStyleProps extends GeneralElementProps {
   autoAlignVertical?: boolean
   autoAlignHorizontal?: boolean
   autoAlign?: boolean
+  regular?: boolean
   medium?: boolean
   bold?: boolean
   extrabold?: boolean
   italics?: boolean
+  underline?: boolean
   info?: boolean
   success?: boolean
   error?: boolean
   warning?: boolean
   fade?: boolean
   techygradient?: boolean
+  warmgradient?: boolean
   lineThrough?: boolean
   inline?: boolean
 }
@@ -148,6 +151,11 @@ export const Text6StaticCss = css`
   line-height: 12px;
 `
 
+export const Text1StaticCss = css`
+  font-size: 24px;
+  line-height: 24px;
+`
+
 export const TextFontCss = css<TextFontProps>`
   ${Text3Css}
   ${(props) => props.t1 && Text1Css}
@@ -155,6 +163,7 @@ export const TextFontCss = css<TextFontProps>`
   ${(props) => props.t2_5 && Text2_5Css}
   ${(props) => props.t3 && Text3Css}
   ${(props) => props.t4 && Text4Css}
+  ${(props) => props.t1s && Text1StaticCss}
   ${(props) => props.t2s && Text2StaticCss}
   ${(props) => props.t2_5s && Text2_5StaticCss}
   ${(props) => props.t3s && Text3StaticCss}
@@ -177,16 +186,22 @@ export const TextStyleCss = css<TextStyleProps>`
   ${(props) => props.autoAlignVertical && AlignVerticalCss}
   ${(props) => props.autoAlignHorizontal && AlignHorizontalCss}
   ${(props) => props.medium && 'font-weight: 500;'}
-  ${(props) => props.bold && 'font-weight: 600;'}
+  ${(props) =>
+    props.bold && props.mont
+      ? css`
+          font-weight: 700;
+          letter-spacing: 0.5px;
+        `
+      : 'font-weight: 600;'}
+  ${(props) => props.regular && 'font-weight: 400;'}
   ${(props) => props.extrabold && 'font-weight: 700;'}
   ${(props) => props.italics && 'font-style: italic;'}
+  ${(props) => props.underline && 'text-decoration: underline;'}
+
   ${(props) => props.lineHeight && `line-height: ${props.lineHeight};`}
   ${(props) => props.lineThrough && 'text-decoration: line-through;'}
 
-  ${(props) =>
-    props.analogical
-      ? `color: ${props.theme.typography.analogicalText};`
-      : `color: ${props.theme.typography.contrastText};`}
+  ${(props) => (props.analogical ? `color: ${props.theme.typography.analogicalText};` : `color: inherit;`)}
   ${(props) => props.info && `color: ${props.theme.typography.infoText};`}
   ${(props) => props.success && `color: ${props.theme.typography.successText};`}
   ${(props) => props.error && `color: ${props.theme.typography.errorText};`}
@@ -194,7 +209,7 @@ export const TextStyleCss = css<TextStyleProps>`
   ${(props) => props.light && `color: ${props.theme.typography.lightText};`}
   ${(props) => props.dark && `color: ${props.theme.typography.darkText};`}
   ${(props) => props.fade && `opacity: 0.8;`}
-  ${(props) => props.inline && `display: inline-block;`}
+  ${(props) => props.inline && `display: inline;`}
   /* techy gradient is props.theme.typography.techyGradientA and techyGradientB (top to bottom); text bg clip css */
   ${(props) =>
     props.techygradient &&
@@ -203,6 +218,20 @@ export const TextStyleCss = css<TextStyleProps>`
         to bottom,
         ${props.theme.typography.techyGradientA},
         ${props.theme.typography.techyGradientB}
+      );
+      background-clip: text;
+      -webkit-background-clip: text;
+      color: transparent;
+      font-weight: 600;
+    `}
+  /* warm gradient is props.theme.typography.warmGradientA and warmGradientB (top left to bottom right); text bg clip css */
+  ${(props) =>
+    props.warmgradient &&
+    css`
+      background-image: linear-gradient(
+        to bottom right,
+        ${props.theme.typography.warmGradientA},
+        ${props.theme.typography.warmGradientB}
       );
       background-clip: text;
       -webkit-background-clip: text;
@@ -250,6 +279,7 @@ export interface TextFontProps {
   /** `width < BKPT_3` ? `18px` : `16px` */ t2_5?: boolean
   /** `width < BKPT_3` ? `16px` : `14px` */ t3?: boolean
   /** `width < BKPT_3` ? `14px` : `12px` */ t4?: boolean
+  /** `font-size: 24px`, `line-height: 20px` */ t1s?: boolean
   /** `font-size: 20px`, `line-height: 18px` */ t2s?: boolean
   /** `font-size: 18px`, `line-height: 16px` */ t2_5s?: boolean
   /** `font-size: 16px`, `line-height: 14.4px` */ t3s?: boolean
