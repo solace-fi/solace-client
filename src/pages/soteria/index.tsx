@@ -778,7 +778,9 @@ function PolicyBalance({
                 <Flex gap={6}>
                   $
                   <Text t2s bold autoAlignVertical>
-                    {truncateValue(formatUnits(balances.totalAccountBalance, walletAssetDecimals), 2)}
+                    {commaNumber(
+                      truncateValue(formatUnits(balances.totalAccountBalance, walletAssetDecimals), 2, false)
+                    )}
                   </Text>
                 </Flex>
               </Flex>
@@ -796,7 +798,8 @@ function PolicyBalance({
                     Personal
                   </Text>
                   <Text t4s bold info>
-                    {truncateValue(formatUnits(balances.personalBalance, walletAssetDecimals), 2)} DAI
+                    {commaNumber(truncateValue(formatUnits(balances.personalBalance, walletAssetDecimals), 2, false))}{' '}
+                    DAI
                   </Text>
                 </Flex>
                 <Flex between>
@@ -804,7 +807,7 @@ function PolicyBalance({
                     Bonus
                   </Text>
                   <Text t4s bold techygradient>
-                    {truncateValue(formatUnits(balances.earnedBalance, walletAssetDecimals), 2)} DAI
+                    {commaNumber(truncateValue(formatUnits(balances.earnedBalance, walletAssetDecimals), 2, false))} DAI
                   </Text>
                 </Flex>
               </Flex>
@@ -893,15 +896,20 @@ function PolicyBalance({
                     </Text>
                     <Text info t5s bold>
                       {!cooldownStart.eq(ZERO) && getTimeFromMillis(cooldownLeft.toNumber() * 1000) == '0'
-                        ? truncateValue(formatUnits(balances.personalBalance, walletAssetDecimals), 2)
-                        : truncateValue(
-                            formatUnits(
-                              balances.personalBalance.gt(minReqAccBal)
-                                ? balances.personalBalance.sub(minReqAccBal)
-                                : ZERO,
-                              walletAssetDecimals
-                            ),
-                            2
+                        ? commaNumber(
+                            truncateValue(formatUnits(balances.personalBalance, walletAssetDecimals), 2, false)
+                          )
+                        : commaNumber(
+                            truncateValue(
+                              formatUnits(
+                                balances.personalBalance.gt(minReqAccBal)
+                                  ? balances.personalBalance.sub(minReqAccBal)
+                                  : ZERO,
+                                walletAssetDecimals
+                              ),
+                              2,
+                              false
+                            )
                           )}
                     </Text>
                   </Flex>
