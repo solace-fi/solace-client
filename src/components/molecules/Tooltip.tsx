@@ -35,10 +35,11 @@ import { Text } from '../atoms/Typography'
 
 /* import hooks */
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'
+import { timingSafeEqual } from 'crypto'
 
 type StyledTooltipProps = {
   id: string
-  tip: string
+  tip: string | string[]
   link?: string
 }
 
@@ -82,9 +83,20 @@ export const StyledNavTooltip: React.FC<StyledTooltipProps> = ({ id, tip, childr
             place="right"
             backgroundColor={location.pathname == '/' ? 'rgba(0, 0, 0, 0.4)' : 'rgba(25, 29, 36, 1)'}
           >
-            <Text t4 light>
-              {tip}
-            </Text>
+            {Array.isArray(tip) ? (
+              tip.map((_tip, i) => (
+                <>
+                  <Text t4 light key={i}>
+                    {_tip}
+                  </Text>
+                  <br />
+                </>
+              ))
+            ) : (
+              <Text t4 light>
+                {tip}
+              </Text>
+            )}
           </CustomNavbarTooltip>
         </>
       ) : (
@@ -123,18 +135,44 @@ export const StyledTooltip: React.FC<StyledTooltipProps & { alwaysShowChildren?:
                 rel="noopener noreferrer"
                 style={{ textDecoration: 'none', color: '#fff' }}
               >
-                <Text t4 light>
-                  {tip}
-                </Text>
-                <br />
+                {Array.isArray(tip) ? (
+                  tip.map((_tip, i) => (
+                    <div key={i}>
+                      <Text t4 light>
+                        {_tip}
+                      </Text>
+                      <br />
+                    </div>
+                  ))
+                ) : (
+                  <>
+                    <Text t4 light>
+                      {tip}
+                    </Text>
+                    <br />
+                  </>
+                )}
                 <Text success textAlignRight style={{ marginTop: '1px' }}>
                   Learn more <StyledLinkExternal size={20} />
                 </Text>
               </a>
             ) : (
-              <Text t4 light>
-                {tip}
-              </Text>
+              <>
+                {Array.isArray(tip) ? (
+                  tip.map((_tip, i) => (
+                    <div key={i}>
+                      <Text t4 light>
+                        {_tip}
+                      </Text>
+                      {i + 1 < tip.length && <br />}
+                    </div>
+                  ))
+                ) : (
+                  <Text t4 light>
+                    {tip}
+                  </Text>
+                )}
+              </>
             )}
           </CustomTooltip>
         </>

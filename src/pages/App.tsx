@@ -39,6 +39,7 @@ import {
   StyledCommunity,
   StyledReceiptMoney,
   StyledFileShield,
+  StyledTractor,
 } from '../components/atoms/Icon'
 
 /* import constants */
@@ -62,19 +63,18 @@ export default function App(): any {
     //   icon: <StyledDashboard size={30} />,
     //   component: Dashboard,
     // },
-    // {
-    //   name: 'Buy Policy',
-    //   to: '/cover',
-    //   icon: <StyledDashboard size={30} />,
-    //   component: Soteria,
-    // },
     {
-      name: 'Buy Cover',
-      to: '/quote',
-      icon: <StyledFileShield size={30} />,
-      component: Quote,
+      name: 'My Coverage',
+      to: '/cover',
+      icon: <StyledDashboard size={30} />,
+      component: Soteria,
     },
-
+    // {
+    //   name: 'Buy Cover',
+    //   to: '/quote',
+    //   icon: <StyledFileShield size={30} />,
+    //   component: Quote,
+    // },
     {
       name: 'Bond',
       to: '/bond',
@@ -90,7 +90,7 @@ export default function App(): any {
     {
       name: 'Farms',
       to: '/farms',
-      icon: <StyledCoinStack size={30} />,
+      icon: <StyledTractor size={30} />,
       component: Invest,
     },
     {
@@ -118,11 +118,11 @@ export default function App(): any {
               )}
               <Switch>
                 <Route exact path="/" component={About} />
-                <Route exact path="/soteria" component={Soteria} />
+                {/* <Route exact path="/cover" component={Soteria} /> */}
                 {/* <Route exact path="/dashboard" component={Dashboard} />
                 <Route exact path="/invest" component={Invest} />
                 <Route exact path="/stake" component={Stake} />
-                <Route exact path="/soteria" component={Soteria} />
+                <Route exact path="/cover" component={Soteria} />
                 <Route exact path="/bond" component={Bond} />
                 <Route exact path="/quote" component={Quote} />
                 <Route exact path="/govern" component={Govern} /> */}

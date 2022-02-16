@@ -52,6 +52,7 @@ import { useReadToken } from '../../hooks/useToken'
 
 /* import utils */
 import { truncateValue } from '../../utils/formatting'
+import { useTotalActivePolicies } from '../../hooks/usePolicy'
 
 export const Statistics: React.FC = () => {
   /*************************************************************************************
@@ -67,12 +68,13 @@ export const Statistics: React.FC = () => {
   const solaceBalance = useSolaceBalance()
   const { tokenPriceMapping } = useCachedData()
   const readSolaceToken = useReadToken(solace)
-  const { allPolicies } = usePolicyGetter(true)
+  // const { allPolicies } = usePolicyGetter(true)
   const { getUserLocks } = useUserLockData()
   const { width } = useWindowDimensions()
   const { getGlobalLockStats } = useStakingRewards()
-  const [totalActiveCoverAmount, setTotalActiveCoverAmount] = useState<string>('-')
-  const [totalActivePolicies, setTotalActivePolicies] = useState<string>('-')
+  // const [totalActiveCoverAmount, setTotalActiveCoverAmount] = useState<string>('-')
+  // const [totalActivePolicies, setTotalActivePolicies] = useState<string>('-')
+  const { totalActivePolicies, totalActiveCoverLimit } = useTotalActivePolicies()
   const [pairPrice, setPairPrice] = useState<string>('-')
   const { underwritingPoolBalance } = useCrossChainUnderwritingPoolBalance()
   const [userLockInfo, setUserLockInfo] = useState<UserLocksInfo>({
@@ -105,19 +107,19 @@ export const Statistics: React.FC = () => {
     getPrice()
   }, [tokenPriceMapping])
 
-  useEffect(() => {
-    try {
-      const fetchPolicies = async () => {
-        const activePolicies = allPolicies.filter(({ status }) => status === PolicyState.ACTIVE)
-        const activeCoverAmount = activePolicies.reduce((pv, cv) => pv.add(cv.coverAmount), ZERO)
-        setTotalActiveCoverAmount(formatUnits(activeCoverAmount, currencyDecimals))
-        setTotalActivePolicies(activePolicies.length.toString())
-      }
-      fetchPolicies()
-    } catch (err) {
-      console.log(err)
-    }
-  }, [allPolicies])
+  // useEffect(() => {
+  //   try {
+  //     const fetchPolicies = async () => {
+  //       const activePolicies = allPolicies.filter(({ status }) => status === PolicyState.ACTIVE)
+  //       const activeCoverAmount = activePolicies.reduce((pv, cv) => pv.add(cv.coverAmount), ZERO)
+  //       setTotalActiveCoverAmount(formatUnits(activeCoverAmount, currencyDecimals))
+  //       setTotalActivePolicies(activePolicies.length.toString())
+  //     }
+  //     fetchPolicies()
+  //   } catch (err) {
+  //     console.log(err)
+  //   }
+  // }, [allPolicies])
 
   useEffect(() => {
     const _getUserLocks = async () => {
@@ -170,7 +172,7 @@ export const Statistics: React.FC = () => {
           </Text>
         </BoxItem>
       )}
-      {!activeNetwork.config.restrictedFeatures.noCoverProducts && (
+      {/* {!activeNetwork.config.restrictedFeatures.noCoverProducts && (
         <>
           <BoxItem>
             <BoxItemTitle t4 light>
@@ -183,6 +185,26 @@ export const Statistics: React.FC = () => {
               <TextSpan t4 light bold>
                 {activeNetwork.nativeCurrency.symbol}
               </TextSpan>
+            </Text>
+          </BoxItem>
+          <BoxItem>
+            <BoxItemTitle t4 light>
+              Total Active Policies
+            </BoxItemTitle>
+            <Text t2 nowrap light bold>
+              {totalActivePolicies}
+            </Text>
+          </BoxItem>
+        </>
+      )} */}
+      {!activeNetwork.config.restrictedFeatures.noSoteria && (
+        <>
+          <BoxItem>
+            <BoxItemTitle t4 light>
+              Active Cover Limit
+            </BoxItemTitle>
+            <Text t2 nowrap light bold>
+              ${totalActiveCoverLimit}{' '}
             </Text>
           </BoxItem>
           <BoxItem>
@@ -234,7 +256,7 @@ export const Statistics: React.FC = () => {
             </FormCol>
           </FormRow>
         )}
-        {!activeNetwork.config.restrictedFeatures.noCoverProducts && (
+        {/* {!activeNetwork.config.restrictedFeatures.noCoverProducts && (
           <>
             <FormRow>
               <FormCol light>Active Cover Amount</FormCol>
@@ -245,6 +267,29 @@ export const Statistics: React.FC = () => {
                     : `${totalActiveCoverAmount} `}
                   <TextSpan t4 light>
                     {activeNetwork.nativeCurrency.symbol}
+                  </TextSpan>
+                </Text>
+              </FormCol>
+            </FormRow>
+            <FormRow>
+              <FormCol light>Total Active Policies</FormCol>
+              <FormCol>
+                <Text t2 nowrap light>
+                  {totalActivePolicies}
+                </Text>
+              </FormCol>
+            </FormRow>
+          </>
+        )} */}
+        {!activeNetwork.config.restrictedFeatures.noSoteria && (
+          <>
+            <FormRow>
+              <FormCol light>Active Cover Limit</FormCol>
+              <FormCol>
+                <Text t2 nowrap light>
+                  {totalActiveCoverLimit}
+                  <TextSpan t4 light>
+                    USD
                   </TextSpan>
                 </Text>
               </FormCol>
