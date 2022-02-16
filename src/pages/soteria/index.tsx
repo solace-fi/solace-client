@@ -758,7 +758,7 @@ function PolicyBalance({
           {coverageActivity.status && (
             <Flex pl={24} pr={24} mt={10} col gap={10}>
               <Flex between>
-                <Text t4s>Your Annual Rate</Text>
+                <Text t4s>Your Annual Cost</Text>
                 <Text t4s bold>
                   {truncateValue(annualCost, 2)}{' '}
                   <Text t6s inline>
@@ -1085,7 +1085,7 @@ function CoverageActive({ policyStatus }: { policyStatus: boolean }) {
             <Text t2s bold>
               Coverage
             </Text>
-            <Text t2s bold info={policyStatus} warning={!policyStatus}>
+            <Text t2s bold success={policyStatus} warning={!policyStatus}>
               {policyStatus ? 'Active' : 'Inactive'}
             </Text>
           </Flex>
