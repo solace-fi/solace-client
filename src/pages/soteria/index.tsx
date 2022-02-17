@@ -1198,8 +1198,9 @@ function ReferralSection({
                       textAlignCenter
                     />
                   </Flex>
-                  <CopyButton info toCopy={generatedReferralCode} objectName={'Code'} />
+                  <CopyButton widthP={100} info toCopy={generatedReferralCode} objectName={'Code'} />
                   <CopyButton
+                    widthP={100}
                     info
                     toCopy={`${(window as any).location.href}?rc=${generatedReferralCode}`}
                     objectName={'Link'}
