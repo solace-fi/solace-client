@@ -26,7 +26,7 @@ import { BigNumber } from 'ethers'
 
 /* import constants */
 import { BondTellerDetails, BondTokenV2, LocalTx } from '../../../../constants/types'
-import { BKPT_3, MAX_BPS, ZERO } from '../../../../constants'
+import { BKPT_3, MAX_APPROVAL_AMOUNT, MAX_BPS, ZERO } from '../../../../constants'
 import { FunctionName, TransactionCondition } from '../../../../constants/enums'
 
 /* import managers */
@@ -141,22 +141,20 @@ export const BondModalV2: React.FC<BondModalV2Props> = ({ closeModal, isOpen, se
     }
   }, [func, nativeTokenBalance, principalBalance, pncplDecimals, currencyDecimals])
 
-  const cannotApproveAmount = useMemo(() => amount == '' || parseUnits(amount, 18).eq(ZERO), [amount])
-
   /*************************************************************************************
 
   contract functions
 
   *************************************************************************************/
 
-  const approve = async () => {
+  const unlimitedApprove = async () => {
     const pncpl = selectedBondDetail?.principalData.principal
     if (!pncpl || !selectedBondDetail) return
     setModalLoading(true)
     try {
       const tx: TransactionResponse = await pncpl.approve(
         selectedBondDetail.tellerData.teller.contract.address,
-        parseUnits(amount, pncplDecimals)
+        MAX_APPROVAL_AMOUNT
       )
       const txHash = tx.hash
       setCanCloseOnLoading(true)
@@ -481,10 +479,9 @@ export const BondModalV2: React.FC<BondModalV2Props> = ({ closeModal, isOpen, se
                     isAcceptableAmount={isAcceptableAmount}
                     slippagePrct={slippagePrct}
                     bondRecipient={bondRecipient}
-                    cannotApproveAmount={cannotApproveAmount}
                     setIsStaking={setIsStaking}
                     setShouldUseNativeToken={setShouldUseNativeToken}
-                    approve={approve}
+                    approve={unlimitedApprove}
                     callDepositBond={callDepositBond}
                   />
                 </Flex>

@@ -45,7 +45,6 @@ interface BondOptionsV2Props {
   isAcceptableAmount: boolean
   slippagePrct: string
   bondRecipient: string | undefined
-  cannotApproveAmount: boolean
   setIsStaking: React.Dispatch<React.SetStateAction<boolean>>
   setShouldUseNativeToken: React.Dispatch<React.SetStateAction<boolean>>
   approve: () => Promise<void>
@@ -62,7 +61,6 @@ export const BondOptionsV2: React.FC<BondOptionsV2Props> = ({
   isAcceptableAmount,
   slippagePrct,
   bondRecipient,
-  cannotApproveAmount,
   setIsStaking,
   setShouldUseNativeToken,
   approve,
@@ -95,18 +93,20 @@ export const BondOptionsV2: React.FC<BondOptionsV2Props> = ({
       {!selectedBondDetail?.tellerData.teller.cannotBuy ? (
         <ButtonWrapper isColumn>
           {!approval && func != bondDepositFunctionName && (
-            <Button widthP={100} info disabled={cannotApproveAmount || haveErrors} onClick={approve}>
+            <Button widthP={100} info disabled={haveErrors} onClick={approve}>
               Approve
             </Button>
           )}
-          <Button
-            widthP={100}
-            info
-            disabled={!isAcceptableAmount || haveErrors || (!approval && func != bondDepositFunctionName)}
-            onClick={() => callDepositBond(isStaking)}
-          >
-            Bond
-          </Button>
+          {approval && (
+            <Button
+              widthP={100}
+              info
+              disabled={!isAcceptableAmount || haveErrors || (!approval && func != bondDepositFunctionName)}
+              onClick={() => callDepositBond(isStaking)}
+            >
+              Bond
+            </Button>
+          )}
           <Flex>
             <StyledGraphDown size={15} />
             <Text t4 ml={5}>

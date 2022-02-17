@@ -14,7 +14,7 @@ import { useNetwork } from '../../../context/NetworkManager'
 
 /* import constants */
 import { FunctionName, TransactionCondition } from '../../../constants/enums'
-import { ZERO } from '../../../constants'
+import { MAX_APPROVAL_AMOUNT, ZERO } from '../../../constants'
 import { LocalTx } from '../../../constants/types'
 
 /* import components */
@@ -63,11 +63,11 @@ export const BridgeModal: React.FC<ModalProps> = ({ modalTitle, handleClose, isO
   const [isAcceptableAmount, setIsAcceptableAmount] = useState<boolean>(false)
   const [bridgeLiquidity, setBridgeLiquidity] = useState<BigNumber>(ZERO)
 
-  const approve = async () => {
+  const unlimitedApprove = async () => {
     if (!solace || !account || !bSolace || !bridgeWrapper) return
     try {
       const token = isWrapping ? solace : bSolace
-      const tx: TransactionResponse = await token.approve(bridgeWrapper.address, parseUnits(amount, 18))
+      const tx: TransactionResponse = await token.approve(bridgeWrapper.address, MAX_APPROVAL_AMOUNT)
       const txHash = tx.hash
       setButtonLoading(true)
       makeTxToast(FunctionName.APPROVE, TransactionCondition.PENDING, txHash)
@@ -219,18 +219,15 @@ export const BridgeModal: React.FC<ModalProps> = ({ modalTitle, handleClose, isO
         ) : (
           <>
             {!approval && (
-              <Button
-                widthP={100}
-                info
-                disabled={amount == '' || parseUnits(amount, 18).eq(ZERO) || haveErrors}
-                onClick={approve}
-              >
-                Approve
+              <Button widthP={100} info secondary disabled={haveErrors} onClick={unlimitedApprove}>
+                Unlimited Approval
               </Button>
             )}
-            <Button widthP={100} info disabled={!isAcceptableAmount || haveErrors} onClick={confirm}>
-              {isWrapping ? 'Wrap' : 'Unwrap'}
-            </Button>
+            {approval && (
+              <Button widthP={100} secondary info disabled={!isAcceptableAmount || haveErrors} onClick={confirm}>
+                {isWrapping ? 'Wrap' : 'Unwrap'}
+              </Button>
+            )}
           </>
         )}
       </ButtonWrapper>

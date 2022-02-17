@@ -110,8 +110,6 @@ function Card({
       if (normous) return 12
       if (inactive) return 2
     })(),
-    // alignItems: 'stretch',
-    // justifyContent: between ? 'space-between' : 'flex-start',
   }
   const combinedStyle = { ...defaultStyle, ...customStyle }
 
@@ -136,12 +134,7 @@ function Card({
       </RaisedBox>
     </ShadowDiv>
   ) : (
-    <Flex
-      style={combinedStyle}
-      {...rest}
-      col
-      // style={innerBigger || innerThinner ? { ...combinedStyle, border: '1px solid #e6e6e6' } : { ...combinedStyle }}
-    >
+    <Flex style={combinedStyle} {...rest} col>
       <RaisedBox style={horiz ? rowStyle : colStyle}>
         <Flex p={!noPadding ? 24 : undefined} column={!horiz} stretch flex1 gap={gap}>
           {children}
@@ -441,7 +434,6 @@ function CoverageLimit({
   }, [minReqAccBal, balances])
 
   return (
-    // <Card thinner>
     <Flex
       between
       col
@@ -1058,7 +1050,6 @@ function PolicyBalance({
         </Flex>
       </Flex>
     </Flex>
-    // </Card>
   )
 }
 
@@ -1163,8 +1154,6 @@ function ReferralSection({
 
   return (
     <Card normous horiz>
-      {/* top part / title */}
-      {/* <Flex col stretch between> */}
       <Flex
         stretch
         col
@@ -1277,7 +1266,6 @@ function ReferralSection({
           </Flex>
         </Flex>
       </Flex>
-      {/* </Flex> */}
     </Card>
   )
 }

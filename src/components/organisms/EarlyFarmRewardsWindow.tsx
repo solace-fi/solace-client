@@ -28,7 +28,7 @@ import { TransactionReceipt, TransactionResponse } from '@ethersproject/provider
 import { FunctionName, TransactionCondition } from '../../constants/enums'
 import { LocalTx } from '../../constants/types'
 import { USDC_ADDRESS, USDT_ADDRESS, DAI_ADDRESS, FRAX_ADDRESS } from '../../constants/mappings/tokenAddressMapping'
-import { BKPT_5, ZERO } from '../../constants'
+import { MAX_APPROVAL_AMOUNT, ZERO } from '../../constants'
 import IERC20 from '../../constants/metadata/IERC20Metadata.json'
 import { FunctionGasLimits } from '../../constants/mappings/gasMapping'
 
@@ -55,7 +55,6 @@ import { SourceContract } from './SourceContract'
 /* import hooks */
 import { useInputAmount, useTransactionExecution } from '../../hooks/useInputAmount'
 import { useTokenAllowance } from '../../hooks/useToken'
-import { useWindowDimensions } from '../../hooks/useWindowDimensions'
 import { useEarlyFarmRewards } from '../../hooks/useFarm'
 import { useGetFunctionGas } from '../../hooks/useGas'
 
@@ -90,7 +89,6 @@ export const EarlyFarmRewardsWindow: React.FC = () => {
     ],
     [chainId]
   )
-  const { width } = useWindowDimensions()
 
   const [stablecoinPayment, setStablecoinPayment] = useState(stablecoins[0])
   const [stablecoinUnsupported, setStablecoinUnsupported] = useState<boolean>(false)
@@ -124,14 +122,11 @@ export const EarlyFarmRewardsWindow: React.FC = () => {
 
   */
 
-  const approve = async () => {
+  const unlimitedApprove = async () => {
     if (!farmRewards || !account || !isAddress(stablecoinPayment.value) || !library) return
     const stablecoinContract = getContract(stablecoinPayment.value, IERC20.abi, library, account)
     try {
-      const tx: TransactionResponse = await stablecoinContract.approve(
-        farmRewards.address,
-        parseUnits(amount, userStablecoinDecimals)
-      )
+      const tx: TransactionResponse = await stablecoinContract.approve(farmRewards.address, MAX_APPROVAL_AMOUNT)
       const txHash = tx.hash
       setButtonLoading(true)
       makeTxToast(FunctionName.APPROVE, TransactionCondition.PENDING, txHash)
@@ -348,25 +343,22 @@ export const EarlyFarmRewardsWindow: React.FC = () => {
         {buttonLoading ? (
           <Loader />
         ) : (
-          <ButtonWrapper isColumn={width <= BKPT_5}>
+          <ButtonWrapper>
             {!approval && (
+              <Button widthP={100} info disabled={haveErrors || stablecoinUnsupported} onClick={unlimitedApprove}>
+                Unlimited Approval
+              </Button>
+            )}
+            {approval && (
               <Button
                 widthP={100}
                 info
-                disabled={amount == '' || parseUnits(amount, 18).eq(ZERO) || haveErrors || stablecoinUnsupported}
-                onClick={approve}
+                disabled={haveErrors || !isAcceptableAmount || stablecoinUnsupported}
+                onClick={callRedeem}
               >
-                Approve
+                Redeem Rewards
               </Button>
             )}
-            <Button
-              widthP={100}
-              info
-              disabled={haveErrors || !isAcceptableAmount || !approval || stablecoinUnsupported}
-              onClick={callRedeem}
-            >
-              Redeem Rewards
-            </Button>
           </ButtonWrapper>
         )}
         {farmRewards && <SourceContract contract={farmRewards} />}
