@@ -346,7 +346,7 @@ export const EarlyFarmRewardsWindow: React.FC = () => {
           <ButtonWrapper>
             {!approval && (
               <Button widthP={100} info disabled={haveErrors || stablecoinUnsupported} onClick={unlimitedApprove}>
-                Unlimited Approval
+                Approve
               </Button>
             )}
             {approval && (
