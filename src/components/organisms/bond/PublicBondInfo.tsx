@@ -27,7 +27,7 @@ import { BondTellerDetails } from '../../../constants/types'
 
 /* import components */
 import { Text } from '../../atoms/Typography'
-import { FormCol, FormRow } from '../../../components/atoms/Form'
+import { Flex } from '../../../components/atoms/Layout'
 
 /* import hooks */
 import { useReadToken } from '../../../hooks/useToken'
@@ -66,39 +66,27 @@ export const PublicBondInfo: React.FC<PublicBondInfoProps> = ({ selectedBondDeta
 
   return (
     <>
-      <FormRow mb={10}>
-        <FormCol>
-          <Text t4>MAX You Can Buy</Text>
-        </FormCol>
-        <FormCol>
-          <Text t4 info textAlignRight>
-            {`${formatUnits(selectedBondDetail?.tellerData.maxPayout ?? ZERO, readSolaceToken.decimals)} ${
-              readSolaceToken.symbol
-            }`}
-          </Text>
-        </FormCol>
-      </FormRow>
-      <FormRow mb={10}>
-        <FormCol>
-          <Text t4>Vesting Term</Text>
-        </FormCol>
-        <FormCol>
-          <Text t4 info textAlignRight>
-            {getLongtimeFromMillis(vestingTermInMillis)}
-          </Text>
-        </FormCol>
-      </FormRow>
+      <Flex stretch between mb={10}>
+        <Text t4>MAX You Can Buy</Text>
+        <Text t4 info textAlignRight>
+          {`${formatUnits(selectedBondDetail?.tellerData.maxPayout ?? ZERO, readSolaceToken.decimals)} ${
+            readSolaceToken.symbol
+          }`}
+        </Text>
+      </Flex>
+      <Flex stretch between mb={10}>
+        <Text t4>Vesting Term</Text>
+        <Text t4 info textAlignRight>
+          {getLongtimeFromMillis(vestingTermInMillis)}
+        </Text>
+      </Flex>
       {selectedBondDetail?.tellerData.bondFeeBps && (
-        <FormRow>
-          <FormCol>
-            <Text t4>Bond Fee</Text>
-          </FormCol>
-          <FormCol>
-            <Text t4 info textAlignRight>
-              {parseInt(selectedBondDetail?.tellerData.bondFeeBps.toString()) / 100}%
-            </Text>
-          </FormCol>
-        </FormRow>
+        <Flex stretch between mb={24}>
+          <Text t4>Bond Fee</Text>
+          <Text t4 info textAlignRight>
+            {parseInt(selectedBondDetail?.tellerData.bondFeeBps.toString()) / 100}%
+          </Text>
+        </Flex>
       )}
     </>
   )

@@ -1,21 +1,26 @@
 import React, { useEffect, useState, useMemo } from 'react'
-import Flex from '../stake/atoms/Flex'
-import RaisedBox from '../../components/atoms/RaisedBox'
-import ShadowDiv from '../stake/atoms/ShadowDiv'
+import {
+  Flex,
+  ShadowDiv,
+  GrayBgDiv,
+  Content,
+  HeroContainer,
+  HorizRule,
+  VerticalSeparator,
+} from '../../components/atoms/Layout'
 import { QuestionCircle } from '@styled-icons/bootstrap/QuestionCircle'
 // src/components/atoms/Button/index.ts
 import { Button, GraySquareButton } from '../../components/atoms/Button'
 // src/resources/svg/icons/usd.svg
 import DAI from '../../resources/svg/icons/dai.svg'
-import { FixedHeightGrayBox, StyledGrayBox } from '../stake/components/GrayBox'
-import { GenericInputSection } from '../stake/sections/InputSection'
+import { FixedHeightGrayBox, StyledGrayBox } from '../../components/molecules/GrayBox'
+import { GenericInputSection } from '../../components/molecules/InputSection'
 import { Input, StyledSlider } from '../../components/atoms/Input'
 import commaNumber from '../../utils/commaNumber'
 import { Table, TableHead, TableHeader, TableBody, TableRow, TableData } from '../../components/atoms/Table'
 import { StyledTooltip } from '../../components/molecules/Tooltip'
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'
 import { ADDRESS_ZERO, BKPT_5, MAX_APPROVAL_AMOUNT, ZERO } from '../../constants'
-import GrayBgDiv from '../stake/atoms/BodyBgCss'
 import {
   useCheckIsCoverageActive,
   useCooldownDetails,
@@ -25,14 +30,8 @@ import {
 } from '../../hooks/useSolaceCoverProduct'
 import { useWallet } from '../../context/WalletManager'
 import { BigNumber, Contract } from 'ethers'
-import { VerticalSeparator } from '../stake/components/VerticalSeparator'
 import { useGeneral } from '../../context/GeneralManager'
-import {
-  InfoCopy,
-  InfoCheckmark,
-  StyledArrowIosBackOutline,
-  StyledArrowIosForwardOutline,
-} from '../../components/atoms/Icon'
+import { StyledArrowIosBackOutline, StyledArrowIosForwardOutline } from '../../components/atoms/Icon'
 import { LocalTx, SolaceRiskProtocol, SolaceRiskScore } from '../../constants/types'
 import {
   accurateMultiply,
@@ -58,14 +57,12 @@ import { formatUnits } from 'ethers/lib/utils'
 import { getContract } from '../../utils'
 import { useContracts } from '../../context/ContractsManager'
 import { useNotifications } from '../../context/NotificationsManager'
-import { TransactionReceipt } from '@ethersproject/providers'
-import { TransactionResponse } from '@ethersproject/providers'
+import { TransactionReceipt, TransactionResponse } from '@ethersproject/providers'
 import { useTokenAllowance } from '../../hooks/useToken'
 import { Loader } from '../../components/atoms/Loader'
 import { TextSpan, Text } from '../../components/atoms/Typography'
-import { Box } from '../../components/atoms/Box'
+import { Box, RaisedBox } from '../../components/atoms/Box'
 import { StyledInfo } from '../../components/atoms/Icon'
-import { Content, HeroContainer, HorizRule } from '../../components/atoms/Layout'
 import { WalletConnectButton } from '../../components/molecules/WalletConnectButton'
 import { ModalCell } from '../../components/atoms/Modal'
 
@@ -113,8 +110,6 @@ function Card({
       if (normous) return 12
       if (inactive) return 2
     })(),
-    // alignItems: 'stretch',
-    // justifyContent: between ? 'space-between' : 'flex-start',
   }
   const combinedStyle = { ...defaultStyle, ...customStyle }
 
@@ -139,12 +134,7 @@ function Card({
       </RaisedBox>
     </ShadowDiv>
   ) : (
-    <Flex
-      style={combinedStyle}
-      {...rest}
-      col
-      // style={innerBigger || innerThinner ? { ...combinedStyle, border: '1px solid #e6e6e6' } : { ...combinedStyle }}
-    >
+    <Flex style={combinedStyle} {...rest} col>
       <RaisedBox style={horiz ? rowStyle : colStyle}>
         <Flex p={!noPadding ? 24 : undefined} column={!horiz} stretch flex1 gap={gap}>
           {children}
@@ -444,7 +434,6 @@ function CoverageLimit({
   }, [minReqAccBal, balances])
 
   return (
-    // <Card thinner>
     <Flex
       between
       col
@@ -454,7 +443,7 @@ function CoverageLimit({
       }}
     >
       <Flex itemsCenter between>
-        <Text t2 bold>
+        <Text t2 bold techygradient>
           Coverage Limit
         </Text>
         <StyledTooltip
@@ -730,7 +719,7 @@ function PolicyBalance({
       }}
     >
       <Flex between itemsCenter>
-        <Text t2 bold>
+        <Text t2 bold techygradient>
           Policy Balance
         </Text>
         <StyledTooltip
@@ -1061,7 +1050,6 @@ function PolicyBalance({
         </Flex>
       </Flex>
     </Flex>
-    // </Card>
   )
 }
 
@@ -1166,8 +1154,6 @@ function ReferralSection({
 
   return (
     <Card normous horiz>
-      {/* top part / title */}
-      {/* <Flex col stretch between> */}
       <Flex
         stretch
         col
@@ -1212,8 +1198,9 @@ function ReferralSection({
                       textAlignCenter
                     />
                   </Flex>
-                  <CopyButton info toCopy={generatedReferralCode} objectName={'Code'} />
+                  <CopyButton widthP={100} info toCopy={generatedReferralCode} objectName={'Code'} />
                   <CopyButton
+                    widthP={100}
                     info
                     toCopy={`${(window as any).location.href}?rc=${generatedReferralCode}`}
                     objectName={'Link'}
@@ -1280,7 +1267,6 @@ function ReferralSection({
           </Flex>
         </Flex>
       </Flex>
-      {/* </Flex> */}
     </Card>
   )
 }
@@ -1759,7 +1745,7 @@ export default function Soteria(): JSX.Element {
                     </>
                   ) : (
                     // <>
-                    <Card inactive horiz noPadding gap={24}>
+                    <Card inactive horiz={!isMobile} noPadding gap={24}>
                       <Card innerThinner noShadow>
                         <CoverageLimit
                           referralChecks={{

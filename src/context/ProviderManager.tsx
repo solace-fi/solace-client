@@ -7,7 +7,6 @@ import { Card, CardContainer } from '../components/atoms/Card'
 import { ModalCell } from '../components/atoms/Modal'
 import { Text } from '../components/atoms/Typography'
 import { Modal } from '../components/molecules/Modal'
-import { FormRow } from '../components/atoms/Form'
 
 import { Z_MODAL } from '../constants'
 
@@ -16,9 +15,8 @@ import { NetworkCache, SupportedProduct, ZerionPosition } from '../constants/typ
 import { useCachePositions } from '../hooks/useCachePositions'
 import { useZerion } from '../hooks/useZerion'
 import { Scrollable } from '../components/atoms/Layout'
-import Flex from '../pages/stake/atoms/Flex'
+import { Flex } from '../components/atoms/Layout'
 import ToggleSwitch from '../components/atoms/ToggleSwitch'
-import { Table, TableBody } from '../components/atoms/Table'
 
 /*
 
@@ -203,13 +201,13 @@ const ProviderManager: React.FC = ({ children }) => {
                 jc={'center'}
                 style={{ display: 'flex' }}
               >
-                <FormRow mb={0}>
+                <Flex stretch between>
                   <ModalCell p={10}>
                     <Text t4 bold light={network.name == activeNetwork.name}>
                       {network.name}
                     </Text>
                   </ModalCell>
-                </FormRow>
+                </Flex>
               </Card>
             ))}
           </CardContainer>

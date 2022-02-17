@@ -32,9 +32,8 @@ import { PolicyState } from '../../constants/enums'
 import { Table, TableBody, TableHead, TableRow, TableHeader, TableData, TableDataGroup } from '../atoms/Table'
 import { Button, ButtonWrapper } from '../atoms/Button'
 import { Text } from '../atoms/Typography'
-import { FlexCol, FlexRow, Content } from '../atoms/Layout'
+import { Flex, Content } from '../atoms/Layout'
 import { Card, CardContainer } from '../atoms/Card'
-import { FormRow, FormCol } from '../atoms/Form'
 import { DeFiAssetImage } from '../atoms/DeFiAsset'
 import { StyledDots } from '../atoms/Icon'
 import { Loader } from '../atoms/Loader'
@@ -110,15 +109,15 @@ export const MyPolicies: React.FC<MyPoliciesProps> = ({
                           </Text>
                         </TableData>
                         <TableData>
-                          <FlexRow>
+                          <Flex>
                             <DeFiAssetImage secured>
                               <img
                                 src={`https://assets.solace.fi/${policy.productName.toLowerCase()}`}
                                 alt={policy.productName}
                               />
                             </DeFiAssetImage>
-                            <FlexCol>
-                              <FlexRow>
+                            <Flex col>
+                              <Flex>
                                 {policy.positionNames.length == 0 && <Loader width={10} height={10} />}
                                 {policy.positionNames.slice(0, 8).map((name) => (
                                   <DeFiAssetImage key={name} width={30} height={30} ml={1} noborder>
@@ -126,14 +125,14 @@ export const MyPolicies: React.FC<MyPoliciesProps> = ({
                                   </DeFiAssetImage>
                                 ))}
                                 {policy.positionNames.length > 8 && <StyledDots size={20} />}
-                              </FlexRow>
-                              <FlexRow>
+                              </Flex>
+                              <Flex>
                                 <Text t4 warning={isWarned}>
                                   {policy.productName}
                                 </Text>
-                              </FlexRow>
-                            </FlexCol>
-                          </FlexRow>
+                              </Flex>
+                            </Flex>
+                          </Flex>
                         </TableData>
                         <TableData>
                           <Text t2 error={policy.status === PolicyState.EXPIRED} warning={isWarned}>
@@ -179,17 +178,17 @@ export const MyPolicies: React.FC<MyPoliciesProps> = ({
                   const isWarned = shouldWarnUser(latestBlock, policy)
                   return (
                     <Card key={policy.policyId}>
-                      <FlexCol style={{ alignItems: 'center' }}>
-                        <FormRow>
-                          <FlexRow>
+                      <Flex col style={{ alignItems: 'center' }}>
+                        <Flex stretch between mb={24}>
+                          <Flex>
                             <DeFiAssetImage secured>
                               <img
                                 src={`https://assets.solace.fi/${policy.productName.toLowerCase()}`}
                                 alt={policy.productName}
                               />
                             </DeFiAssetImage>
-                            <FlexCol>
-                              <FlexRow>
+                            <Flex col>
+                              <Flex>
                                 {policy.positionNames.length == 0 && <Loader width={10} height={10} />}
                                 {policy.positionNames.slice(0, 4).map((name) => (
                                   <DeFiAssetImage key={name} width={25} height={25} secured>
@@ -197,47 +196,37 @@ export const MyPolicies: React.FC<MyPoliciesProps> = ({
                                   </DeFiAssetImage>
                                 ))}
                                 {policy.positionNames.length > 4 && <StyledDots size={20} />}
-                              </FlexRow>
-                            </FlexCol>
-                          </FlexRow>
-                        </FormRow>
-                        <FlexCol style={{ display: 'flex', alignItems: 'center' }}>
+                              </Flex>
+                            </Flex>
+                          </Flex>
+                        </Flex>
+                        <Flex col style={{ alignItems: 'center' }}>
                           <Text t2>{policy.productName}</Text>
-                        </FlexCol>
-                      </FlexCol>
-                      <FormRow mb={10}>
-                        <FormCol>ID:</FormCol>
-                        <FormCol>
-                          <Text t2>{policy.policyId}</Text>
-                        </FormCol>
-                      </FormRow>
-                      <FormRow mb={10}>
-                        <FormCol>Status:</FormCol>
-                        <FormCol>
-                          <Text t2 error={policy.status === PolicyState.EXPIRED} warning={isWarned}>
-                            {policy.status}
-                          </Text>
-                        </FormCol>
-                      </FormRow>
-                      <FormRow mb={10}>
-                        <FormCol>Expiration Date:</FormCol>
-                        <FormCol>
-                          <Text t2 warning={isWarned}>
-                            {calculatePolicyExpirationDate(latestBlock, policy.expirationBlock)}
-                          </Text>
-                        </FormCol>
-                      </FormRow>
-                      <FormRow mb={10}>
-                        <FormCol>Covered Amount:</FormCol>
-                        <FormCol>
-                          <Text t2>
-                            {policy.coverAmount
-                              ? truncateValue(formatUnits(policy.coverAmount, currencyDecimals), 2)
-                              : 0}{' '}
-                            {activeNetwork.nativeCurrency.symbol}
-                          </Text>
-                        </FormCol>
-                      </FormRow>
+                        </Flex>
+                      </Flex>
+                      <Flex stretch between mb={10}>
+                        <Text>ID:</Text>
+                        <Text t2>{policy.policyId}</Text>
+                      </Flex>
+                      <Flex stretch between mb={10}>
+                        <Text>Status:</Text>
+                        <Text t2 error={policy.status === PolicyState.EXPIRED} warning={isWarned}>
+                          {policy.status}
+                        </Text>
+                      </Flex>
+                      <Flex stretch between mb={10}>
+                        <Text>Expiration Date:</Text>
+                        <Text t2 warning={isWarned}>
+                          {calculatePolicyExpirationDate(latestBlock, policy.expirationBlock)}
+                        </Text>
+                      </Flex>
+                      <Flex stretch between mb={10}>
+                        <Text>Covered Amount:</Text>
+                        <Text t2>
+                          {policy.coverAmount ? truncateValue(formatUnits(policy.coverAmount, currencyDecimals), 2) : 0}{' '}
+                          {activeNetwork.nativeCurrency.symbol}
+                        </Text>
+                      </Flex>
                       {policy.status === PolicyState.ACTIVE && (
                         <ButtonWrapper isColumn>
                           <Button

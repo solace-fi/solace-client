@@ -17,6 +17,7 @@ import React from 'react'
 /* import components */
 import { Button, ButtonProps } from '../atoms/Button'
 import { StyledCheckmark, StyledCopy } from '../atoms/Icon'
+import { GeneralElementProps } from '../generalInterfaces'
 
 /* import hooks */
 import useCopyClipboard from '../../hooks/useCopyToClipboard'
@@ -26,7 +27,7 @@ interface CopyProps {
   objectName: string
 }
 
-export const CopyButton: React.FC<CopyProps & ButtonProps> = (props) => {
+export const CopyButton: React.FC<CopyProps & ButtonProps & GeneralElementProps> = (props) => {
   /*
 
   hooks
@@ -35,7 +36,7 @@ export const CopyButton: React.FC<CopyProps & ButtonProps> = (props) => {
   const [isCopied, setCopied] = useCopyClipboard()
 
   return (
-    <Button widthP={100} onClick={() => setCopied(props.toCopy)} {...props}>
+    <Button onClick={() => setCopied(props.toCopy)} {...props}>
       {isCopied ? (
         <>
           <StyledCheckmark size={30} style={{ margin: 'inherit' }} />

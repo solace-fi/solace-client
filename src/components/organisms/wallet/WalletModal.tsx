@@ -25,7 +25,7 @@ import { Card, CardContainer } from '../../atoms/Card'
 import { ModalCell } from '../../atoms/Modal'
 import { Text } from '../../atoms/Typography'
 import { Modal } from '../../molecules/Modal'
-import { FormRow } from '../../atoms/Form'
+import { Flex } from '../../atoms/Layout'
 import { Button, ButtonWrapper } from '../../atoms/Button'
 import { Scrollable } from '../../atoms/Layout'
 import { LedgerDerivationPathModal } from './LedgerDerivationPathModal'
@@ -104,7 +104,7 @@ export const WalletModal: React.FC<WalletModalProps> = ({ closeModal, isOpen }) 
               jc={'center'}
               style={{ display: 'flex' }}
             >
-              <FormRow mb={0}>
+              <Flex stretch between>
                 <ModalCell p={10}>
                   <img src={wallet.logo} alt={wallet.name} height={32} />
                 </ModalCell>
@@ -113,7 +113,7 @@ export const WalletModal: React.FC<WalletModalProps> = ({ closeModal, isOpen }) 
                     {wallet.name}
                   </Text>
                 </ModalCell>
-              </FormRow>
+              </Flex>
             </Card>
           ))}
         </CardContainer>

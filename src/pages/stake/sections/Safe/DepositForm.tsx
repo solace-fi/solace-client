@@ -4,28 +4,21 @@ import { formatUnits, parseUnits } from '@ethersproject/units'
 import { Button } from '../../../../components/atoms/Button'
 import { StyledSlider } from '../../../../components/atoms/Input'
 import { useSolaceBalance } from '../../../../hooks/useBalance'
-import {
-  accurateMultiply,
-  convertSciNotaToPrecise,
-  filterAmount,
-  formatAmount,
-  truncateValue,
-} from '../../../../utils/formatting'
+import { accurateMultiply, convertSciNotaToPrecise, filterAmount, truncateValue } from '../../../../utils/formatting'
 import InformationBox from '../../components/InformationBox'
 import { InfoBoxType } from '../../types/InfoBoxType'
-import { Tab } from '../../types/Tab'
-import InputSection from '../InputSection'
+import { Tab } from '../../../../constants/enums'
+import { InputSection } from '../../../../components/molecules/InputSection'
 import { useInputAmount, useTransactionExecution } from '../../../../hooks/useInputAmount'
 import { LockData } from '../../../../constants/types'
 import { FunctionName } from '../../../../constants/enums'
 import { useXSLocker } from '../../../../hooks/useXSLocker'
 import { useWallet } from '../../../../context/WalletManager'
 import { StyledForm } from '../../atoms/StyledForm'
-import Flex from '../../atoms/Flex'
+import { Flex, VerticalSeparator } from '../../../../components/atoms/Layout'
 import { useWindowDimensions } from '../../../../hooks/useWindowDimensions'
 import { Label } from '../../molecules/InfoPair'
-import GrayBox from '../../components/GrayBox'
-import { VerticalSeparator } from '../../components/VerticalSeparator'
+import { GrayBox } from '../../../../components/molecules/GrayBox'
 import { useProjectedBenefits } from '../../../../hooks/useStakingRewards'
 import { BKPT_5 } from '../../../../constants'
 import { Text } from '../../../../components/atoms/Typography'

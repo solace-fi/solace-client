@@ -22,10 +22,9 @@ import { useNetwork } from '../../context/NetworkManager'
 import { MultiStepForm } from './MultiStepForm'
 import { Text, TextSpan } from '../../components/atoms/Typography'
 import { WalletConnectButton } from '../../components/molecules/WalletConnectButton'
-import { HeroContainer } from '../../components/atoms/Layout'
+import { HeroContainer, Content } from '../../components/atoms/Layout'
 import { Box } from '../../components/atoms/Box'
 import { StyledInfo } from '../../components/atoms/Icon'
-import { Content } from '../../components/atoms/Layout'
 
 function Quote(): any {
   /*************************************************************************************

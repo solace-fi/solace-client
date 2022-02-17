@@ -1,6 +1,5 @@
 import React from 'react'
 import styled from 'styled-components'
-import Twan from './Twan'
 
 function isOneOf<T>(value: T, list: T[]) {
   return list.indexOf(value) > -1
@@ -101,7 +100,6 @@ export default function CardSectionValue({
 }): JSX.Element {
   return (
     <BaseDiv>
-      {/* <Twan css={firstInterpolation}>{children}</Twan>{' '} */}
       <Value importance={highlight ? 'tertiary' : 'primary'} smol={smol} info={info}>
         {children}
       </Value>{' '}
@@ -109,9 +107,6 @@ export default function CardSectionValue({
         <Annotation importance={highlight ? 'tertiary' : 'primary'} smol={smol} info={info}>
           {annotation}
         </Annotation>
-        // <>
-        //   <Twan css={secondInterpolation}>{annotation}</Twan>
-        // </>
       )}
     </BaseDiv>
   )

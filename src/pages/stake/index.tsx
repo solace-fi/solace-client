@@ -31,38 +31,31 @@ import { useNetwork } from '../../context/NetworkManager'
 import { FunctionName } from '../../constants/enums'
 import { BKPT_1, BKPT_5, DAYS_PER_YEAR, ZERO, Z_TABLE } from '../../constants'
 import { LockData, UserLocksInfo } from '../../constants/types'
-import { StakingVersion } from './types/Version'
 import { LockCheckbox } from './types/LockCheckbox'
-import { Tab } from './types/Tab'
+import { Tab, StakingVersion } from '../../constants/enums'
 
 /* import components */
 import { Button, ButtonWrapper } from '../../components/atoms/Button'
 import { Card, CardContainer } from '../../components/atoms/Card'
-import { FormCol, FormRow } from '../../components/atoms/Form'
-import { StyledSlider } from '../../components/atoms/Input'
-import { Content, FlexCol, FlexRow, Scrollable } from '../../components/atoms/Layout'
+import { StyledSlider, Checkbox } from '../../components/atoms/Input'
+import { Content, Flex, Scrollable, VerticalSeparator, HeroContainer } from '../../components/atoms/Layout'
 import { ModalCell } from '../../components/atoms/Modal'
 import { Text, TextSpan } from '../../components/atoms/Typography'
-import { HeroContainer } from '../../components/atoms/Layout'
 import { WalletConnectButton } from '../../components/molecules/WalletConnectButton'
 import { Modal } from '../../components/molecules/Modal'
 import { Table, TableBody, TableData, TableHead, TableHeader, TableRow } from '../../components/atoms/Table'
-import { StyledMultiselect } from '../../components/atoms/Icon'
+import { StyledMultiselect, StyledInfo } from '../../components/atoms/Icon'
 import DifferenceNotification from './organisms/DifferenceNotification'
-import Flex from './atoms/Flex'
 import Safe from './sections/Safe/index'
 import AggregatedStakeData from './sections/AggregatedStakeData'
 import NewSafe from './sections/Safe/NewSafe'
 import DifferenceBoxes from './sections/DifferenceBoxes.tsx'
-import Checkbox from './atoms/Checkbox'
 import CardSectionValue from './components/CardSectionValue'
 import { Label } from './molecules/InfoPair'
-import InputSection from './sections/InputSection'
+import { InputSection } from '../../components/molecules/InputSection'
 import { SmallBox, Box } from '../../components/atoms/Box'
-import { VerticalSeparator } from './components/VerticalSeparator'
 import { Accordion } from '../../components/atoms/Accordion'
-import GrayBox from './components/GrayBox'
-import { StyledInfo } from '../../components/atoms/Icon'
+import { GrayBox } from '../../components/molecules/GrayBox'
 
 /* import hooks */
 import { useXSolaceV1Balance } from '../../hooks/useBalance'
@@ -195,7 +188,7 @@ function Stake1(): any {
             </HeroContainer>
           ) : (
             <Content>
-              <FlexCol>
+              <Flex col>
                 <Card style={{ margin: 'auto' }}>
                   <div style={{ gridTemplateColumns: '1fr 0fr 1fr', display: 'grid', position: 'relative' }}>
                     <ModalCell
@@ -226,24 +219,20 @@ function Stake1(): any {
                       </Text>
                     </ModalCell>
                   </div>
-                  <FormRow mt={20} mb={10}>
-                    <FormCol>
-                      <Text>Staked Balance</Text>
-                    </FormCol>
-                    <FormCol>
-                      <Text textAlignRight info>
-                        {v1StakedSolaceBalance} {readSolaceToken.symbol}
-                      </Text>
-                    </FormCol>
-                  </FormRow>
-                  <FlexRow mb={30} style={{ textAlign: 'center' }}>
+                  <Flex stretch between mt={20} mb={10}>
+                    <Text>Staked Balance</Text>
+                    <Text textAlignRight info>
+                      {v1StakedSolaceBalance} {readSolaceToken.symbol}
+                    </Text>
+                  </Flex>
+                  <Flex mb={30} style={{ textAlign: 'center' }}>
                     <InputSection
                       tab={Tab.DEPOSIT}
                       value={amount}
                       onChange={(e) => handleInputChange(e.target.value, readSolaceToken.decimals)}
                       setMax={_setMax}
                     />
-                  </FlexRow>
+                  </Flex>
                   <Accordion noScroll noBackgroundColor isOpen={isMigrating}>
                     <Flex column gap={24} mb={20}>
                       <div>
@@ -344,7 +333,7 @@ function Stake1(): any {
                     )}
                   </ButtonWrapper>
                 </Card>
-              </FlexCol>
+              </Flex>
             </Content>
           )}
         </>
@@ -510,10 +499,10 @@ export default function Stake(): JSX.Element {
                   }}
                   modalTitle={'Select a safe to deposit your rewards'}
                 >
-                  <FormRow>
-                    <FormCol>Rewards from selected safes</FormCol>
-                    <FormCol>{formattedRewards}</FormCol>
-                  </FormRow>
+                  <Flex stretch between mb={24}>
+                    <Text>Rewards from selected safes</Text>
+                    <Text>{formattedRewards}</Text>
+                  </Flex>
                   <Scrollable maxMobileHeight={60}>
                     {width > BKPT_1 ? (
                       <Table>
@@ -591,30 +580,30 @@ export default function Stake(): JSX.Element {
                               isHighlight={isSelected}
                               onClick={() => setTargetLock(lock.xsLockID)}
                             >
-                              <FormRow mb={0}>
-                                <FormCol light={isSelected}>Amount</FormCol>
-                                <FormCol bold light={isSelected}>
+                              <Flex stretch between>
+                                <Text light={isSelected}>Amount</Text>
+                                <Text bold light={isSelected}>
                                   {truncateValue(formatUnits(lock.unboostedAmount, 18), 4)}
-                                </FormCol>
-                              </FormRow>
-                              <FormRow mb={0}>
-                                <FormCol light={isSelected}>Lock time left</FormCol>
-                                <FormCol bold light={isSelected}>
+                                </Text>
+                              </Flex>
+                              <Flex stretch between>
+                                <Text light={isSelected}>Lock time left</Text>
+                                <Text bold light={isSelected}>
                                   {getTimeFromMillis(lock.timeLeft.toNumber() * 1000)}
-                                </FormCol>
-                              </FormRow>
-                              <FormRow mb={0}>
-                                <FormCol light={isSelected}>Multiplier</FormCol>
-                                <FormCol bold light={isSelected}>
+                                </Text>
+                              </Flex>
+                              <Flex stretch between>
+                                <Text light={isSelected}>Multiplier</Text>
+                                <Text bold light={isSelected}>
                                   {truncateValue(multiplier, 1)}x
-                                </FormCol>
-                              </FormRow>
-                              <FormRow mb={0}>
-                                <FormCol light={isSelected}>APR</FormCol>
-                                <FormCol bold light={isSelected}>
+                                </Text>
+                              </Flex>
+                              <Flex stretch between>
+                                <Text light={isSelected}>APR</Text>
+                                <Text bold light={isSelected}>
                                   {truncateValue(lock.apr.toString(), 1)}%
-                                </FormCol>
-                              </FormRow>
+                                </Text>
+                              </Flex>
                             </Card>
                           )
                         })}

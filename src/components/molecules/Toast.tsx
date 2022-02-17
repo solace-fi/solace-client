@@ -32,13 +32,14 @@ import { HyperLink } from '../atoms/Link'
 import { Button } from '../atoms/Button'
 import { ToastWrapper, FlexedToastMessage } from '../atoms/Message'
 import { StyledCheckmark, StyledWarning, StyledInfo } from '../atoms/Icon'
-import { Text } from '../atoms/Typography'
+import { Text, TextSpan } from '../atoms/Typography'
 
 /* import utils */
 import { getExplorerItemUrl } from '../../utils/explorer'
 
 /* import resources */
 import quantstampPdf from '../../resources/pdf/Solace-Quantstamp-Report.pdf'
+import { CopyButton } from './CopyButton'
 
 interface AppToastProps {
   message: string
@@ -46,9 +47,10 @@ interface AppToastProps {
 }
 
 interface NotificationToastProps {
-  message: string
+  txType: string
   condition: TransactionCondition
   txHash?: string
+  errObj?: any
 }
 
 export const AppToast: React.FC<AppToastProps> = ({ message, icon }) => {
@@ -93,7 +95,7 @@ export const AuditToast: React.FC = () => {
   )
 }
 
-export const NotificationToast: React.FC<NotificationToastProps> = ({ message, condition, txHash }) => {
+export const NotificationToast: React.FC<NotificationToastProps> = ({ txType, condition, txHash, errObj }) => {
   /*************************************************************************************
 
    custom hooks
@@ -124,8 +126,24 @@ export const NotificationToast: React.FC<NotificationToastProps> = ({ message, c
   return (
     <ToastWrapper>
       <FlexedToastMessage light>
-        {message}: Transaction {getStateFromCondition(condition)}
+        {txType}: Transaction {getStateFromCondition(condition)}
       </FlexedToastMessage>
+      {errObj && (
+        <FlexedToastMessage light>
+          <Text t4 light>
+            {errObj.message && errObj.code ? (
+              <>
+                <TextSpan t4 light bold>
+                  ({errObj.code})
+                </TextSpan>{' '}
+                {errObj.message.length > 120 ? `${errObj.message.substring(0, 120)}...` : errObj.message}
+              </>
+            ) : (
+              'Unknown error, please check full error log'
+            )}
+          </Text>
+        </FlexedToastMessage>
+      )}
       <FlexedToastMessage light>
         {txHash && (
           <HyperLink
@@ -135,6 +153,16 @@ export const NotificationToast: React.FC<NotificationToastProps> = ({ message, c
           >
             <Button light>Check on {activeNetwork.explorer.name}</Button>
           </HyperLink>
+        )}
+        {errObj && (
+          <CopyButton
+            toCopy={
+              errObj.message && errObj.code
+                ? JSON.stringify({ code: errObj.code, message: errObj.message })
+                : JSON.stringify(errObj)
+            }
+            objectName={'Error Log'}
+          />
         )}
         {condition == TransactionCondition.PENDING ? (
           <Loader width={10} height={10} isLight />

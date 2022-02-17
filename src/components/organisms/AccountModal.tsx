@@ -32,7 +32,7 @@ import { useWallet } from '../../context/WalletManager'
 /* import components */
 import { Modal } from '../molecules/Modal'
 import { Button, ButtonWrapper } from '../atoms/Button'
-import { Scrollable } from '../atoms/Layout'
+import { Scrollable, Flex } from '../atoms/Layout'
 import { HyperLink } from '../atoms/Link'
 import { Loader } from '../atoms/Loader'
 import { Table, TableHead, TableHeader, TableRow, TableBody, TableData } from '../atoms/Table'
@@ -40,7 +40,6 @@ import { Text } from '../atoms/Typography'
 import { WalletConnectButton } from '../molecules/WalletConnectButton'
 import { NetworkConnectButton } from '../molecules/NetworkConnectButton'
 import { Card, CardContainer } from '../atoms/Card'
-import { FormRow } from '../atoms/Form'
 import { UserImage } from '../atoms/User'
 import { Input } from '../atoms/Input'
 import { Box, BoxItem, BoxItemTitle } from '../atoms/Box'
@@ -88,19 +87,19 @@ export const AccountModal: React.FC<AccountModalProps> = ({ closeModal, isOpen }
       <CardContainer cardsPerRow={account ? 2 : 1} mb={10}>
         {account && activeWalletConnector && (
           <Card color1>
-            <FormRow jc={'center'} m={0}>
+            <Flex stretch between justifyCenter>
               <Text t2 bold light>
                 <UserImage width={30} height={30} pr={5} style={{ display: 'inline-flex', verticalAlign: 'bottom' }}>
                   <img style={{ borderRadius: '10px' }} src={makeBlockie(account)} alt={'account'} />
                 </UserImage>
                 {name ?? shortenAddress(account)}
               </Text>
-            </FormRow>
-            <FormRow mb={5}>
+            </Flex>
+            <Flex stretch between mb={5}>
               <Input widthP={100} readOnly value={account} light textAlignCenter />
-            </FormRow>
+            </Flex>
             <ButtonWrapper pt={10} pb={5} isColumn={width <= BKPT_3}>
-              <CopyButton light toCopy={account} objectName={'address'} />
+              <CopyButton light toCopy={account} objectName={'address'} widthP={100} />
               <HyperLink
                 href={getExplorerItemUrl(activeNetwork.explorer.url, account, ExplorerscanApi.ADDRESS)}
                 target="_blank"

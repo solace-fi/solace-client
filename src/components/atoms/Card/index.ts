@@ -1,7 +1,6 @@
 import styled, { css } from 'styled-components'
 import { GeneralElementCss, GeneralElementProps } from '../../generalInterfaces'
 import { ClickProps } from '../Button'
-import { FlexCol } from '../Layout'
 import { BKPT_3, BKPT_4 } from '../../../constants'
 import { GeneralTextProps, GeneralTextCss } from '../Typography'
 
@@ -33,6 +32,7 @@ const CardCss = css<CardProps>`
     props.canHover &&
     `cursor: pointer; &:hover { background-color: ${props.theme.card.hover_color}; transition: background-color 200ms linear; }`}
   ${(props) => props.glow && `box-shadow: ${props.theme.card.glow};`}
+  ${GeneralElementCss}
 `
 
 export const CardContainer = styled.div<CardContainerProps & GeneralTextProps>`
@@ -64,7 +64,9 @@ export const InvestmentCard = styled.div<CardProps>`
   ${CardCss}
 `
 
-export const PositionCard = styled(FlexCol)<CardProps>`
+export const PositionCard = styled.div<CardProps>`
+  display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   cursor: pointer;

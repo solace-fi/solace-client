@@ -28,7 +28,7 @@ import { useWallet } from '../../../../context/WalletManager'
 import { useContracts } from '../../../../context/ContractsManager'
 
 /* import components */
-import { FormCol, FormRow } from '../../../atoms/Form'
+import { Flex } from '../../../atoms/Layout'
 import { Text } from '../../../atoms/Typography'
 
 /* import hooks */
@@ -66,31 +66,23 @@ export const PrivateBondInfoV2: React.FC<PrivateBondInfoV2Props> = ({
     <>
       {account && (
         <>
-          <FormRow mt={40} mb={10}>
-            <FormCol>
-              <Text bold>My Balance</Text>
-            </FormCol>
-            <FormCol>
-              <Text info textAlignRight bold>
-                {formatUnits(assetBalance, pncplDecimals)}{' '}
-                {func == bondDepositFunctionName
-                  ? activeNetwork.nativeCurrency.symbol
-                  : selectedBondDetail?.principalData.principalProps?.symbol}
-              </Text>
-            </FormCol>
-          </FormRow>
-          <FormRow mb={5}>
-            <FormCol>
-              <Text bold>You Will Get</Text>
-            </FormCol>
-            <FormCol>
-              <Text info textAlignRight bold>
-                {calculatedAmountOut
-                  ? `${formatUnits(calculatedAmountOut, readSolaceToken.decimals)} ${readSolaceToken.symbol}`
-                  : `-`}
-              </Text>
-            </FormCol>
-          </FormRow>
+          <Flex stretch between mt={40} mb={10}>
+            <Text bold>My Balance</Text>
+            <Text info textAlignRight bold>
+              {formatUnits(assetBalance, pncplDecimals)}{' '}
+              {func == bondDepositFunctionName
+                ? activeNetwork.nativeCurrency.symbol
+                : selectedBondDetail?.principalData.principalProps?.symbol}
+            </Text>
+          </Flex>
+          <Flex stretch between mb={5}>
+            <Text bold>You Will Get</Text>
+            <Text info textAlignRight bold>
+              {calculatedAmountOut
+                ? `${formatUnits(calculatedAmountOut, readSolaceToken.decimals)} ${readSolaceToken.symbol}`
+                : `-`}
+            </Text>
+          </Flex>
         </>
       )}
     </>

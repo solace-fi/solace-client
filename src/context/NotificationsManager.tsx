@@ -21,7 +21,7 @@ if an error occurs.
 */
 
 type ToastSystem = {
-  makeTxToast: (txType: string, condition: TransactionCondition, txHash?: string) => void
+  makeTxToast: (txType: string, condition: TransactionCondition, txHash?: string, errObj?: any) => void
   makeAppToast: (
     parsedData: SystemNoticeData | ErrorData,
     id: SystemNotice | Error,
@@ -68,7 +68,7 @@ const ToastsProvider: React.FC = (props) => {
     autoClose: 10000,
     type: toast.TYPE.ERROR,
     position: toast.POSITION.BOTTOM_RIGHT,
-    closeOnClick: true,
+    closeOnClick: false,
     closeButton: true,
     className: 'error-toast',
   }
@@ -86,13 +86,15 @@ const ToastsProvider: React.FC = (props) => {
     type: toast.TYPE.ERROR,
     position: toast.POSITION.BOTTOM_RIGHT,
     autoClose: false,
-    closeOnClick: true,
+    closeOnClick: false,
     closeButton: true,
     className: 'error-toast',
   }
 
-  const makeTxToast = (txType: string, condition: TransactionCondition, txHash?: string) => {
-    const TxToast = (message: string) => <NotificationToast message={message} condition={condition} txHash={txHash} />
+  const makeTxToast = (txType: string, condition: TransactionCondition, txHash?: string, errObj?: any) => {
+    const TxToast = (txType: string) => (
+      <NotificationToast txType={txType} condition={condition} txHash={txHash} errObj={errObj} />
+    )
     switch (condition) {
       case 'Complete':
         if (txHash) {

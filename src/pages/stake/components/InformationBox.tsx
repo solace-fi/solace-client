@@ -1,6 +1,5 @@
 import React from 'react'
 import styled, { css } from 'styled-components'
-import { GeneralElementProps } from '../../../components/generalInterfaces'
 import { InfoBoxType } from '../types/InfoBoxType'
 import Twiv from './Twiv'
 import { StyledInfo } from '../../../components/atoms/Icon'
