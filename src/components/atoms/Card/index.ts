@@ -1,7 +1,6 @@
 import styled, { css } from 'styled-components'
 import { GeneralElementCss, GeneralElementProps } from '../../generalInterfaces'
 import { ClickProps } from '../Button'
-import { FlexCol } from '../Layout'
 import { BKPT_3, BKPT_4 } from '../../../constants'
 import { GeneralTextProps, GeneralTextCss } from '../Typography'
 
@@ -25,24 +24,15 @@ const CardCss = css<CardProps>`
   background: ${({ theme }) => theme.card.bg_color_0};
   ${(props) => props.color1 && `background: ${props.theme.card.bg_color_1};`}
   ${(props) => props.color2 && `background: ${props.theme.card.bg_color_2};`}
-  ${(props) => props.isHighlight && `background: ${props.theme.table.highlight_bg_color};`}}
+  ${(props) => props.isHighlight && `background: ${props.theme.table.highlight_bg_color};`}
 
   ${(props) => props.transparent && `background: rgba(255, 255, 255, 0);`}
   ${(props) => props.fade && `background: ${props.theme.card.fade};`}
   ${(props) =>
     props.canHover &&
-    css`
-      cursor: pointer;
-      &:hover {
-        background-color: ${props.theme.card.hover_color};
-        transition: background-color 200ms linear;
-      }
-    `}
-  ${(props) =>
-    props.glow &&
-    css`
-      box-shadow: ${props.theme.card.glow};
-    `}
+    `cursor: pointer; &:hover { background-color: ${props.theme.card.hover_color}; transition: background-color 200ms linear; }`}
+  ${(props) => props.glow && `box-shadow: ${props.theme.card.glow};`}
+  ${GeneralElementCss}
 `
 
 export const CardContainer = styled.div<CardContainerProps & GeneralTextProps>`
@@ -74,7 +64,9 @@ export const InvestmentCard = styled.div<CardProps>`
   ${CardCss}
 `
 
-export const PositionCard = styled(FlexCol)<CardProps>`
+export const PositionCard = styled.div<CardProps>`
+  display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   cursor: pointer;

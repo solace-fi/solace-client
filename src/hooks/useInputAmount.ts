@@ -34,7 +34,7 @@ export const useTransactionExecution = () => {
 
   const handleContractCallError = (functionName: string, err: any, txType: FunctionName) => {
     console.log(functionName, err)
-    makeTxToast(txType, TransactionCondition.CANCELLED)
+    makeTxToast(txType, TransactionCondition.CANCELLED, undefined, err)
     reload()
   }
 

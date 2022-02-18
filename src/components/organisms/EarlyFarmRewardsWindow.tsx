@@ -28,7 +28,7 @@ import { TransactionReceipt, TransactionResponse } from '@ethersproject/provider
 import { FunctionName, TransactionCondition } from '../../constants/enums'
 import { LocalTx } from '../../constants/types'
 import { USDC_ADDRESS, USDT_ADDRESS, DAI_ADDRESS, FRAX_ADDRESS } from '../../constants/mappings/tokenAddressMapping'
-import { BKPT_5, ZERO } from '../../constants'
+import { MAX_APPROVAL_AMOUNT, ZERO } from '../../constants'
 import IERC20 from '../../constants/metadata/IERC20Metadata.json'
 import { FunctionGasLimits } from '../../constants/mappings/gasMapping'
 
@@ -44,19 +44,17 @@ import { useCachedData } from '../../context/CachedDataManager'
 import { Button, ButtonWrapper } from '../atoms/Button'
 import { Card } from '../atoms/Card'
 import { Input } from '../atoms/Input'
-import { FlexCol, FlexRow, HorizRule } from '../atoms/Layout'
+import { Flex, HorizRule } from '../atoms/Layout'
 import { ModalRow } from '../atoms/Modal'
 import { StyledSelect } from '../molecules/Select'
 import { Box, BoxItem, BoxItemTitle, SmallBox } from '../atoms/Box'
 import { Text } from '../atoms/Typography'
-import { FormRow, FormCol } from '../atoms/Form'
 import { Loader } from '../atoms/Loader'
 import { SourceContract } from './SourceContract'
 
 /* import hooks */
 import { useInputAmount, useTransactionExecution } from '../../hooks/useInputAmount'
 import { useTokenAllowance } from '../../hooks/useToken'
-import { useWindowDimensions } from '../../hooks/useWindowDimensions'
 import { useEarlyFarmRewards } from '../../hooks/useFarm'
 import { useGetFunctionGas } from '../../hooks/useGas'
 
@@ -91,7 +89,6 @@ export const EarlyFarmRewardsWindow: React.FC = () => {
     ],
     [chainId]
   )
-  const { width } = useWindowDimensions()
 
   const [stablecoinPayment, setStablecoinPayment] = useState(stablecoins[0])
   const [stablecoinUnsupported, setStablecoinUnsupported] = useState<boolean>(false)
@@ -125,14 +122,11 @@ export const EarlyFarmRewardsWindow: React.FC = () => {
 
   */
 
-  const approve = async () => {
+  const unlimitedApprove = async () => {
     if (!farmRewards || !account || !isAddress(stablecoinPayment.value) || !library) return
     const stablecoinContract = getContract(stablecoinPayment.value, IERC20.abi, library, account)
     try {
-      const tx: TransactionResponse = await stablecoinContract.approve(
-        farmRewards.address,
-        parseUnits(amount, userStablecoinDecimals)
-      )
+      const tx: TransactionResponse = await stablecoinContract.approve(farmRewards.address, MAX_APPROVAL_AMOUNT)
       const txHash = tx.hash
       setButtonLoading(true)
       makeTxToast(FunctionName.APPROVE, TransactionCondition.PENDING, txHash)
@@ -259,7 +253,7 @@ export const EarlyFarmRewardsWindow: React.FC = () => {
   }, [farmRewards, purchaseableSolace, stablecoinPayment.value])
 
   return (
-    <FlexCol>
+    <Flex col>
       <Card style={{ margin: 'auto' }}>
         <Box glow success mb={20}>
           <BoxItem style={{ textAlign: 'center' }}>
@@ -295,7 +289,7 @@ export const EarlyFarmRewardsWindow: React.FC = () => {
         >
           <Text error>Stablecoin unsupported on this network</Text>
         </SmallBox>
-        <FlexRow mb={20} style={{ textAlign: 'center', position: 'relative' }}>
+        <Flex mb={20} style={{ textAlign: 'center', position: 'relative' }}>
           <Input
             widthP={100}
             minLength={1}
@@ -312,66 +306,63 @@ export const EarlyFarmRewardsWindow: React.FC = () => {
           <Button info ml={10} pt={4} pb={4} pl={8} pr={8} width={70} height={30} onClick={_setMax}>
             MAX
           </Button>
-        </FlexRow>
-        <FormRow mb={10}>
-          <FormCol bold>My balance</FormCol>
-          <FormCol bold textAlignRight info>
+        </Flex>
+        <Flex stretch between mb={10}>
+          <Text bold>My balance</Text>
+          <Text bold textAlignRight info>
             {truncateValue(formatUnits(userStablecoinBalance, userStablecoinDecimals), userStablecoinDecimals, false)}{' '}
             {stablecoinPayment.label}
-          </FormCol>
-        </FormRow>
-        <FormRow mb={20}>
-          <FormCol bold>You will get</FormCol>
-          <FormCol bold textAlignRight info>
+          </Text>
+        </Flex>
+        <Flex stretch between mb={20}>
+          <Text bold>You will get</Text>
+          <Text bold textAlignRight info>
             {calculatedAmountOut ? `${truncateValue(formatUnits(calculatedAmountOut, 18), 18, false)}` : `-`} SOLACE
-          </FormCol>
-        </FormRow>
+          </Text>
+        </Flex>
         <HorizRule />
-        <FormRow mt={20} mb={0}>
-          <FormCol bold>Amount you can redeem now</FormCol>
-          <FormCol bold textAlignRight info>
+        <Flex stretch between mt={20}>
+          <Text bold>Amount you can redeem now</Text>
+          <Text bold textAlignRight info>
             {truncateValue(formatUnits(purchaseableSolace, currencyDecimals), 4, false)} SOLACE
-          </FormCol>
-        </FormRow>
-        <FormRow mb={0}>
-          <FormCol bold>Your total earned amount</FormCol>
-          <FormCol bold textAlignRight info>
+          </Text>
+        </Flex>
+        <Flex stretch between>
+          <Text bold>Your total earned amount</Text>
+          <Text bold textAlignRight info>
             {truncateValue(formatUnits(totalEarnedSolaceRewards, currencyDecimals), 4, false)} SOLACE
-          </FormCol>
-        </FormRow>
+          </Text>
+        </Flex>
         <HorizRule />
-        <FormRow>
-          <FormCol t4>End of Vesting Term</FormCol>
-          <FormCol t4 textAlignRight>
+        <Flex stretch between mb={24}>
+          <Text t4>End of Vesting Term</Text>
+          <Text t4 textAlignRight>
             {vestingEnd.gt(ZERO) ? vestingEndString : `-`}
-          </FormCol>
-        </FormRow>
+          </Text>
+        </Flex>
         {buttonLoading ? (
           <Loader />
         ) : (
-          <ButtonWrapper isColumn={width <= BKPT_5}>
+          <ButtonWrapper>
             {!approval && (
+              <Button widthP={100} info disabled={haveErrors || stablecoinUnsupported} onClick={unlimitedApprove}>
+                Unlimited Approval
+              </Button>
+            )}
+            {approval && (
               <Button
                 widthP={100}
                 info
-                disabled={amount == '' || parseUnits(amount, 18).eq(ZERO) || haveErrors || stablecoinUnsupported}
-                onClick={approve}
+                disabled={haveErrors || !isAcceptableAmount || stablecoinUnsupported}
+                onClick={callRedeem}
               >
-                Approve
+                Redeem Rewards
               </Button>
             )}
-            <Button
-              widthP={100}
-              info
-              disabled={haveErrors || !isAcceptableAmount || !approval || stablecoinUnsupported}
-              onClick={callRedeem}
-            >
-              Redeem Rewards
-            </Button>
           </ButtonWrapper>
         )}
         {farmRewards && <SourceContract contract={farmRewards} />}
       </Card>
-    </FlexCol>
+    </Flex>
   )
 }

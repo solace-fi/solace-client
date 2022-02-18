@@ -29,7 +29,7 @@ import { ModalProps } from '../../atoms/Modal'
 import { Input } from '../../atoms/Input'
 import { Text } from '../../atoms/Typography'
 import { Button, ButtonWrapper } from '../../atoms/Button'
-import { FlexCol } from '../../atoms/Layout'
+import { Flex } from '../../atoms/Layout'
 
 /* import utils */
 import { isAddress } from '../../../utils'
@@ -109,7 +109,7 @@ export const BondSettingsModal: React.FC<BondSettingsModalProps> = ({
 
   return (
     <Modal isOpen={isOpen} modalTitle={modalTitle} handleClose={closeModal}>
-      <FlexCol>
+      <Flex col>
         <Text bold>Slippage Tolerance %</Text>
         <Input info bold type="string" value={slippage} onChange={(e) => handleInputSlippage(e.target.value)} />
         <Text textAlignCenter t4 mb={30}>
@@ -127,7 +127,7 @@ export const BondSettingsModal: React.FC<BondSettingsModalProps> = ({
         <Text t4 warning textAlignCenter width={270} style={{ margin: '0 auto' }}>
           Changes to these settings will be reset when reopening the bond popup window.
         </Text>
-      </FlexCol>
+      </Flex>
       <ButtonWrapper isColumn>
         <Button widthP={100} info onClick={applyChanges} disabled={!isAddress(recipient)}>
           Apply Changes

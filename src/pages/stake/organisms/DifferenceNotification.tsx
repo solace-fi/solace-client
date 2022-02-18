@@ -1,7 +1,7 @@
 import { Dispatch, SetStateAction } from 'react'
 import styled, { css } from 'styled-components'
 import { GeneralElementProps } from '../../../components/generalInterfaces'
-import { StakingVersion } from '../types/Version'
+import { StakingVersion } from '../../../constants/enums'
 import React from 'react'
 import { useWindowDimensions } from '../../../hooks/useWindowDimensions'
 import { BKPT_4 } from '../../../constants'

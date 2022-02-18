@@ -1,10 +1,9 @@
 import React from 'react'
 import styled from 'styled-components'
 import { Clock } from 'styled-icons/bootstrap'
-import GrayBgDiv from '../../atoms/BodyBgCss'
-import Twiv from '../../components/Twiv'
-import { Tab } from '../../types/Tab'
-import { BKPT_5 } from '../../../../constants'
+import { GrayBgDiv } from '../atoms/Layout'
+import { Tab } from '../../constants/enums'
+import { BKPT_5 } from '../../constants'
 
 const StyledImg = styled.img``
 function StyledImage({ src, alt, css }: { src: string; alt?: string; css: string }): JSX.Element {
@@ -46,7 +45,7 @@ const StyledGenericIconAndText = styled.div<{ disabled?: boolean; displayOnMobil
   }
 `
 
-export function GenericIconAndText({
+export const GenericIconAndText = ({
   icon,
   text,
   disabled,
@@ -58,7 +57,7 @@ export function GenericIconAndText({
   disabled?: boolean
   displayOnMobile?: boolean
   width?: number
-}): JSX.Element {
+}): JSX.Element => {
   return (
     <StyledGenericIconAndText disabled={disabled} displayOnMobile={displayOnMobile} width={width}>
       {icon}
@@ -67,13 +66,13 @@ export function GenericIconAndText({
   )
 }
 
-export default function IconAndText({
+export const IconAndText = ({
   tab,
   disabled,
 }: {
   tab: Tab.DEPOSIT | Tab.LOCK | Tab.WITHDRAW
   disabled?: boolean
-}): JSX.Element {
+}): JSX.Element => {
   const className = 'w-5 h-5 pt-px'
   const disabledClassName = 'w-5 h-5 pt-px opacity-50'
   return (

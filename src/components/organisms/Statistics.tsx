@@ -38,7 +38,7 @@ import { BoxRow, Box, BoxItem, BoxItemTitle } from '../atoms/Box'
 import { Button } from '../atoms/Button'
 import { Text, TextSpan } from '../atoms/Typography'
 import { WalletConnectButton } from '../molecules/WalletConnectButton'
-import { FormRow, FormCol } from '../atoms/Form'
+import { Flex } from '../atoms/Layout'
 import { Card, CardContainer } from '../atoms/Card'
 import { HyperLink } from '../atoms/Link'
 
@@ -52,6 +52,7 @@ import { useReadToken } from '../../hooks/useToken'
 
 /* import utils */
 import { truncateValue } from '../../utils/formatting'
+import { useTotalActivePolicies } from '../../hooks/usePolicy'
 
 export const Statistics: React.FC = () => {
   /*************************************************************************************
@@ -67,12 +68,13 @@ export const Statistics: React.FC = () => {
   const solaceBalance = useSolaceBalance()
   const { tokenPriceMapping } = useCachedData()
   const readSolaceToken = useReadToken(solace)
-  const { allPolicies } = usePolicyGetter(true)
+  // const { allPolicies } = usePolicyGetter(true)
   const { getUserLocks } = useUserLockData()
   const { width } = useWindowDimensions()
   const { getGlobalLockStats } = useStakingRewards()
-  const [totalActiveCoverAmount, setTotalActiveCoverAmount] = useState<string>('-')
-  const [totalActivePolicies, setTotalActivePolicies] = useState<string>('-')
+  // const [totalActiveCoverAmount, setTotalActiveCoverAmount] = useState<string>('-')
+  // const [totalActivePolicies, setTotalActivePolicies] = useState<string>('-')
+  const { totalActivePolicies, totalActiveCoverLimit } = useTotalActivePolicies()
   const [pairPrice, setPairPrice] = useState<string>('-')
   const { underwritingPoolBalance } = useCrossChainUnderwritingPoolBalance()
   const [userLockInfo, setUserLockInfo] = useState<UserLocksInfo>({
@@ -105,19 +107,19 @@ export const Statistics: React.FC = () => {
     getPrice()
   }, [tokenPriceMapping])
 
-  useEffect(() => {
-    try {
-      const fetchPolicies = async () => {
-        const activePolicies = allPolicies.filter(({ status }) => status === PolicyState.ACTIVE)
-        const activeCoverAmount = activePolicies.reduce((pv, cv) => pv.add(cv.coverAmount), ZERO)
-        setTotalActiveCoverAmount(formatUnits(activeCoverAmount, currencyDecimals))
-        setTotalActivePolicies(activePolicies.length.toString())
-      }
-      fetchPolicies()
-    } catch (err) {
-      console.log(err)
-    }
-  }, [allPolicies])
+  // useEffect(() => {
+  //   try {
+  //     const fetchPolicies = async () => {
+  //       const activePolicies = allPolicies.filter(({ status }) => status === PolicyState.ACTIVE)
+  //       const activeCoverAmount = activePolicies.reduce((pv, cv) => pv.add(cv.coverAmount), ZERO)
+  //       setTotalActiveCoverAmount(formatUnits(activeCoverAmount, currencyDecimals))
+  //       setTotalActivePolicies(activePolicies.length.toString())
+  //     }
+  //     fetchPolicies()
+  //   } catch (err) {
+  //     console.log(err)
+  //   }
+  // }, [allPolicies])
 
   useEffect(() => {
     const _getUserLocks = async () => {
@@ -170,7 +172,7 @@ export const Statistics: React.FC = () => {
           </Text>
         </BoxItem>
       )}
-      {!activeNetwork.config.restrictedFeatures.noCoverProducts && (
+      {/* {!activeNetwork.config.restrictedFeatures.noCoverProducts && (
         <>
           <BoxItem>
             <BoxItemTitle t4 light>
@@ -194,6 +196,26 @@ export const Statistics: React.FC = () => {
             </Text>
           </BoxItem>
         </>
+      )} */}
+      {!activeNetwork.config.restrictedFeatures.noSoteria && (
+        <>
+          <BoxItem>
+            <BoxItemTitle t4 light>
+              Active Cover Limit
+            </BoxItemTitle>
+            <Text t2 nowrap light bold>
+              ${totalActiveCoverLimit}{' '}
+            </Text>
+          </BoxItem>
+          <BoxItem>
+            <BoxItemTitle t4 light>
+              Total Active Policies
+            </BoxItemTitle>
+            <Text t2 nowrap light bold>
+              {totalActivePolicies}
+            </Text>
+          </BoxItem>
+        </>
       )}
     </Box>
   )
@@ -201,8 +223,8 @@ export const Statistics: React.FC = () => {
   const GlobalCard: React.FC = () => {
     return (
       <Card color2>
-        <FormRow>
-          <FormCol light>
+        <Flex stretch between mb={24}>
+          <Text light>
             SOLACE{' '}
             {!activeNetwork.config.restrictedFeatures.cannotBuySolace && (
               <HyperLink
@@ -216,29 +238,24 @@ export const Statistics: React.FC = () => {
                 </Button>
               </HyperLink>
             )}
-          </FormCol>
-          <FormCol>
-            <Text t2 nowrap light>
-              {`$${pairPrice}`}
-            </Text>
-          </FormCol>
-        </FormRow>
+          </Text>
+          <Text t2 nowrap light>
+            {`$${pairPrice}`}
+          </Text>
+        </Flex>
         {(!activeNetwork.config.restrictedFeatures.noBondingV1 ||
           !activeNetwork.config.restrictedFeatures.noBondingV2) && (
-          <FormRow>
-            <FormCol light>Underwriting Pool Size</FormCol>
-            <FormCol>
-              <Text t2 nowrap light>
-                {underwritingPoolBalance == '-' ? '$-' : `$${truncateValue(underwritingPoolBalance, 2)}`}
-              </Text>
-            </FormCol>
-          </FormRow>
+          <Flex stretch between mb={24}>
+            <Text light>Underwriting Pool Size</Text>
+            <Text t2 nowrap light>
+              {underwritingPoolBalance == '-' ? '$-' : `$${truncateValue(underwritingPoolBalance, 2)}`}
+            </Text>
+          </Flex>
         )}
-        {!activeNetwork.config.restrictedFeatures.noCoverProducts && (
+        {/* {!activeNetwork.config.restrictedFeatures.noCoverProducts && (
           <>
-            <FormRow>
-              <FormCol light>Active Cover Amount</FormCol>
-              <FormCol>
+            <Flex stretch between mb={24}>
+              <Text light>Active Cover Amount</Text>
                 <Text t2 nowrap light>
                   {totalActiveCoverAmount !== '-'
                     ? `${truncateValue(totalActiveCoverAmount, 2)} `
@@ -246,17 +263,30 @@ export const Statistics: React.FC = () => {
                   <TextSpan t4 light>
                     {activeNetwork.nativeCurrency.symbol}
                   </TextSpan>
-                </Text>
-              </FormCol>
-            </FormRow>
-            <FormRow>
-              <FormCol light>Total Active Policies</FormCol>
-              <FormCol>
+              </Text>
+            </Flex>
+            <Flex stretch between mb={24}>
+              <Text light>Total Active Policies</Text>
                 <Text t2 nowrap light>
                   {totalActivePolicies}
                 </Text>
-              </FormCol>
-            </FormRow>
+            </Flex>
+          </>
+        )} */}
+        {!activeNetwork.config.restrictedFeatures.noSoteria && (
+          <>
+            <Flex stretch between mb={24}>
+              <Text light>Active Cover Limit</Text>
+              <Text t2 nowrap light>
+                ${totalActiveCoverLimit}
+              </Text>
+            </Flex>
+            <Flex stretch between mb={24}>
+              <Text light>Total Active Policies</Text>
+              <Text t2 nowrap light>
+                {totalActivePolicies}
+              </Text>
+            </Flex>
           </>
         )}
       </Card>
@@ -333,29 +363,25 @@ export const Statistics: React.FC = () => {
             <Card color1>
               {initialized && account ? (
                 <>
-                  <FormRow>
-                    <FormCol light>My SOLACE Balance</FormCol>
-                    <FormCol>
+                  <Flex stretch between mb={24}>
+                    <Text light>My SOLACE Balance</Text>
+                    <Text t2 light>
+                      {`${truncateValue(solaceBalance, 1)} `}
+                      <TextSpan t4 light>
+                        {readSolaceToken.symbol}
+                      </TextSpan>
+                    </Text>
+                  </Flex>
+                  {!activeNetwork.config.restrictedFeatures.noStakingV2 && (
+                    <Flex stretch between mb={24}>
+                      <Text light>My Stake</Text>
                       <Text t2 light>
-                        {`${truncateValue(solaceBalance, 1)} `}
+                        {`${truncateValue(formatUnits(userLockInfo.stakedBalance, 18), 1)} `}
                         <TextSpan t4 light>
                           {readSolaceToken.symbol}
                         </TextSpan>
                       </Text>
-                    </FormCol>
-                  </FormRow>
-                  {!activeNetwork.config.restrictedFeatures.noStakingV2 && (
-                    <FormRow>
-                      <FormCol light>My Stake</FormCol>
-                      <FormCol>
-                        <Text t2 light>
-                          {`${truncateValue(formatUnits(userLockInfo.stakedBalance, 18), 1)} `}
-                          <TextSpan t4 light>
-                            {readSolaceToken.symbol}
-                          </TextSpan>
-                        </Text>
-                      </FormCol>
-                    </FormRow>
+                    </Flex>
                   )}
                 </>
               ) : (
@@ -365,25 +391,21 @@ export const Statistics: React.FC = () => {
               )}
               {!activeNetwork.config.restrictedFeatures.noStakingV2 && (
                 <>
-                  <FormRow>
-                    <FormCol light>Global Stake</FormCol>
-                    <FormCol>
-                      <Text t2 light>
-                        {`${truncateValue(formatUnits(globalLockStats.solaceStaked, 18), 1)} `}
-                        <TextSpan t4 light>
-                          {readSolaceToken.symbol}
-                        </TextSpan>
-                      </Text>
-                    </FormCol>
-                  </FormRow>
-                  <FormRow>
-                    <FormCol light>Global APR</FormCol>
-                    <FormCol>
-                      <Text t2 light>
-                        {`${truncateValue(globalLockStats.apr.toString(), 1)}`}%
-                      </Text>
-                    </FormCol>
-                  </FormRow>
+                  <Flex stretch between mb={24}>
+                    <Text light>Global Stake</Text>
+                    <Text t2 light>
+                      {`${truncateValue(formatUnits(globalLockStats.solaceStaked, 18), 1)} `}
+                      <TextSpan t4 light>
+                        {readSolaceToken.symbol}
+                      </TextSpan>
+                    </Text>
+                  </Flex>
+                  <Flex stretch between mb={24}>
+                    <Text light>Global APR</Text>
+                    <Text t2 light>
+                      {`${truncateValue(globalLockStats.apr.toString(), 1)}`}%
+                    </Text>
+                  </Flex>
                 </>
               )}
             </Card>

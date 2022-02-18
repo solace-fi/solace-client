@@ -14,19 +14,17 @@ import { useNetwork } from '../../../context/NetworkManager'
 
 /* import constants */
 import { FunctionName, TransactionCondition } from '../../../constants/enums'
-import { BKPT_1, BKPT_5, DAYS_PER_YEAR, ZERO, Z_TABLE } from '../../../constants'
+import { MAX_APPROVAL_AMOUNT, ZERO } from '../../../constants'
 import { LocalTx } from '../../../constants/types'
 
 /* import components */
 import { Button, ButtonWrapper } from '../../../components/atoms/Button'
 import { Card } from '../../../components/atoms/Card'
-import { FormCol, FormRow } from '../../../components/atoms/Form'
 import { ModalCell } from '../../../components/atoms/Modal'
 import { Modal } from '../../../components/molecules/Modal'
 import { Text } from '../../../components/atoms/Typography'
-import Flex from '../atoms/Flex'
-import InputSection from '../sections/InputSection'
-import { VerticalSeparator } from '../components/VerticalSeparator'
+import { Flex, VerticalSeparator } from '../../../components/atoms/Layout'
+import { InputSection } from '../../../components/molecules/InputSection'
 
 /* import hooks */
 import { useBridgeBalance, useSolaceBalance } from '../../../hooks/useBalance'
@@ -65,11 +63,11 @@ export const BridgeModal: React.FC<ModalProps> = ({ modalTitle, handleClose, isO
   const [isAcceptableAmount, setIsAcceptableAmount] = useState<boolean>(false)
   const [bridgeLiquidity, setBridgeLiquidity] = useState<BigNumber>(ZERO)
 
-  const approve = async () => {
+  const unlimitedApprove = async () => {
     if (!solace || !account || !bSolace || !bridgeWrapper) return
     try {
       const token = isWrapping ? solace : bSolace
-      const tx: TransactionResponse = await token.approve(bridgeWrapper.address, parseUnits(amount, 18))
+      const tx: TransactionResponse = await token.approve(bridgeWrapper.address, MAX_APPROVAL_AMOUNT)
       const txHash = tx.hash
       setButtonLoading(true)
       makeTxToast(FunctionName.APPROVE, TransactionCondition.PENDING, txHash)
@@ -186,30 +184,22 @@ export const BridgeModal: React.FC<ModalProps> = ({ modalTitle, handleClose, isO
             </Text>
           </ModalCell>
         </div>
-        <FormRow mt={20} mb={10}>
-          <FormCol>
-            <Text fade={isWrapping} t3={!isWrapping} t4={isWrapping}>
-              bSOLACE
-            </Text>
-          </FormCol>
-          <FormCol>
-            <Text fade={isWrapping} t3={!isWrapping} t4={isWrapping} textAlignRight info>
-              {bridgeBalance}
-            </Text>
-          </FormCol>
-        </FormRow>
-        <FormRow mt={10} mb={20}>
-          <FormCol>
-            <Text fade={!isWrapping} t3={isWrapping} t4={!isWrapping}>
-              SOLACE
-            </Text>
-          </FormCol>
-          <FormCol>
-            <Text fade={!isWrapping} t3={isWrapping} t4={!isWrapping} textAlignRight info>
-              {solaceBalance}
-            </Text>
-          </FormCol>
-        </FormRow>
+        <Flex stretch between mt={20} mb={10}>
+          <Text fade={isWrapping} t3={!isWrapping} t4={isWrapping}>
+            bSOLACE
+          </Text>
+          <Text fade={isWrapping} t3={!isWrapping} t4={isWrapping} textAlignRight info>
+            {bridgeBalance}
+          </Text>
+        </Flex>
+        <Flex stretch between mt={10} mb={20}>
+          <Text fade={!isWrapping} t3={isWrapping} t4={!isWrapping}>
+            SOLACE
+          </Text>
+          <Text fade={!isWrapping} t3={isWrapping} t4={!isWrapping} textAlignRight info>
+            {solaceBalance}
+          </Text>
+        </Flex>
       </Card>
       <Flex column gap={24}>
         <div>
@@ -229,18 +219,15 @@ export const BridgeModal: React.FC<ModalProps> = ({ modalTitle, handleClose, isO
         ) : (
           <>
             {!approval && (
-              <Button
-                widthP={100}
-                info
-                disabled={amount == '' || parseUnits(amount, 18).eq(ZERO) || haveErrors}
-                onClick={approve}
-              >
-                Approve
+              <Button widthP={100} info secondary disabled={haveErrors} onClick={unlimitedApprove}>
+                Unlimited Approval
               </Button>
             )}
-            <Button widthP={100} info disabled={!isAcceptableAmount || haveErrors} onClick={confirm}>
-              {isWrapping ? 'Wrap' : 'Unwrap'}
-            </Button>
+            {approval && (
+              <Button widthP={100} secondary info disabled={!isAcceptableAmount || haveErrors} onClick={confirm}>
+                {isWrapping ? 'Wrap' : 'Unwrap'}
+              </Button>
+            )}
           </>
         )}
       </ButtonWrapper>

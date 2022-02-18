@@ -21,7 +21,7 @@ import { BKPT_1, BKPT_3, BKPT_NAVBAR } from '../../constants'
 
 /* import components */
 import { Button, ButtonWrapper } from '../../components/atoms/Button'
-import { FlexRow, HeroContainer } from '../../components/atoms/Layout'
+import { Flex, HeroContainer } from '../../components/atoms/Layout'
 import { Text, TextSpan } from '../../components/atoms/Typography'
 import { StyledNavLink } from '../../components/atoms/Link'
 
@@ -120,11 +120,11 @@ function About1(): any {
                   FROM
                 </TextSpan>
               </Text>
-              <FlexRow jc={'space-between'}>
+              <Flex between>
                 <img src={polygonLogo} />
                 <img src={aaveLogo} />
                 <img src={nearLogo} />
-              </FlexRow>
+              </Flex>
             </div>
           </HeroContainer>
           <HeroContainer heightP={75}>
@@ -196,11 +196,11 @@ function About1(): any {
                   FROM
                 </TextSpan>
               </Text>
-              <FlexRow jc={'space-between'}>
+              <Flex between>
                 <img src={polygonLogo} />
                 <img src={aaveLogo} />
                 <img src={nearLogo} />
-              </FlexRow>
+              </Flex>
             </div>
           </HeroContainer>
           <HeroContainer style={{ height: '80vh', marginTop: 'max(350px, 15%)' }}>

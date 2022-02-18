@@ -31,8 +31,7 @@ import { Button } from '../../components/atoms/Button'
 import { Table, TableData, TableHead, TableHeader, TableRow, TableBody } from '../../components/atoms/Table'
 import { DeFiAssetImage } from '../../components/atoms/DeFiAsset'
 import { Card, CardContainer } from '../../components/atoms/Card'
-import { FormRow, FormCol } from '../../components/atoms/Form'
-import { FlexCol, FlexRow, HeroContainer, Scrollable } from '../../components/atoms/Layout'
+import { Flex, HeroContainer, Scrollable, VerticalSeparator, Content } from '../../components/atoms/Layout'
 import { BondModalV1 } from '../../components/organisms/bond/v1/BondModalV1'
 import { BondModalV2 } from '../../components/organisms/bond/v2/BondModalV2'
 import { Loader } from '../../components/atoms/Loader'
@@ -40,7 +39,6 @@ import { HyperLink } from '../../components/atoms/Link'
 import { Box } from '../../components/atoms/Box'
 import { TextSpan, Text } from '../../components/atoms/Typography'
 import { StyledInfo } from '../../components/atoms/Icon'
-import { Content } from '../../components/atoms/Layout'
 
 /* import hooks */
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'
@@ -50,7 +48,6 @@ import { useBondTellerDetailsV2 } from '../../hooks/useBondTellerV2'
 /* import utils */
 import { truncateValue } from '../../utils/formatting'
 import { ModalCell } from '../../components/atoms/Modal'
-import { VerticalSeparator } from '../stake/components/VerticalSeparator'
 
 function Bond(): any {
   /*
@@ -224,7 +221,7 @@ function Bond(): any {
                                   style={{ cursor: 'pointer' }}
                                 >
                                   <TableData>
-                                    <FlexRow jc={'center'}>
+                                    <Flex justifyCenter>
                                       {tellerDetail.principalData ? (
                                         <DeFiAssetImage noborder>
                                           <img
@@ -235,7 +232,7 @@ function Bond(): any {
                                       ) : (
                                         <Loader height={10} width={10} />
                                       )}
-                                    </FlexRow>
+                                    </Flex>
                                   </TableData>
                                   <TableData>{tellerDetail.tellerData.teller.name}</TableData>
                                   <TableData>
@@ -266,9 +263,9 @@ function Bond(): any {
                           <CardContainer cardsPerRow={2}>
                             {currentTellerDetailsV2.map((tellerDetail, i) => (
                               <Card key={i} onClick={haveErrors ? undefined : () => openModalV2(true, tellerDetail)}>
-                                <FlexCol style={{ alignItems: 'center' }}>
-                                  <FormRow>
-                                    <FlexRow>
+                                <Flex col style={{ alignItems: 'center' }}>
+                                  <Flex stretch between mb={24}>
+                                    <Flex>
                                       {tellerDetail.principalData ? (
                                         <DeFiAssetImage mr={10} noborder>
                                           <img
@@ -279,32 +276,28 @@ function Bond(): any {
                                       ) : (
                                         <Loader height={10} width={10} />
                                       )}
-                                    </FlexRow>
-                                  </FormRow>
-                                  <FlexCol style={{ display: 'flex', alignItems: 'center' }}>
+                                    </Flex>
+                                  </Flex>
+                                  <Flex col style={{ alignItems: 'center' }}>
                                     <Text t2 mb={20}>
                                       {tellerDetail.tellerData.teller.name}
                                     </Text>
-                                  </FlexCol>
-                                </FlexCol>
-                                <FormRow>
-                                  <FormCol>Price</FormCol>
-                                  <FormCol>
-                                    <Text bold t2 fade={tellerDetail.tellerData.usdBondPrice <= 0}>
-                                      {tellerDetail.tellerData.usdBondPrice > 0
-                                        ? `$${truncateValue(tellerDetail.tellerData.usdBondPrice, 4)}`
-                                        : `USD price not found`}
-                                    </Text>
-                                  </FormCol>
-                                </FormRow>
-                                <FormRow>
-                                  <FormCol>ROI</FormCol>
-                                  <FormCol>
-                                    <Text bold t2>
-                                      {truncateValue(tellerDetail.tellerData.bondRoi, 2, false)}%
-                                    </Text>
-                                  </FormCol>
-                                </FormRow>
+                                  </Flex>
+                                </Flex>
+                                <Flex stretch between mb={24}>
+                                  <Text>Price</Text>
+                                  <Text bold t2 fade={tellerDetail.tellerData.usdBondPrice <= 0}>
+                                    {tellerDetail.tellerData.usdBondPrice > 0
+                                      ? `$${truncateValue(tellerDetail.tellerData.usdBondPrice, 4)}`
+                                      : `USD price not found`}
+                                  </Text>
+                                </Flex>
+                                <Flex stretch between mb={24}>
+                                  <Text>ROI</Text>
+                                  <Text bold t2>
+                                    {truncateValue(tellerDetail.tellerData.bondRoi, 2, false)}%
+                                  </Text>
+                                </Flex>
                               </Card>
                             ))}
                           </CardContainer>
@@ -345,7 +338,7 @@ function Bond(): any {
                                   style={{ cursor: 'pointer' }}
                                 >
                                   <TableData>
-                                    <FlexRow jc={'center'}>
+                                    <Flex justifyCenter>
                                       {tellerDetail.principalData ? (
                                         tellerDetail.principalData.token0 && tellerDetail.principalData.token1 ? (
                                           <>
@@ -373,7 +366,7 @@ function Bond(): any {
                                       ) : (
                                         <Loader height={10} width={10} />
                                       )}
-                                    </FlexRow>
+                                    </Flex>
                                   </TableData>
                                   <TableData>{tellerDetail.tellerData.teller.name}</TableData>
                                   {/* <TableData>
@@ -404,9 +397,9 @@ function Bond(): any {
                           <CardContainer cardsPerRow={2}>
                             {currentTellerDetailsV1.map((tellerDetail, i) => (
                               <Card key={i} onClick={haveErrors ? undefined : () => openModalV1(true, tellerDetail)}>
-                                <FlexCol style={{ alignItems: 'center' }}>
-                                  <FormRow>
-                                    <FlexRow>
+                                <Flex col style={{ alignItems: 'center' }}>
+                                  <Flex stretch between mb={24}>
+                                    <Flex>
                                       {tellerDetail.principalData ? (
                                         tellerDetail.principalData.token0 && tellerDetail.principalData.token1 ? (
                                           <>
@@ -434,32 +427,28 @@ function Bond(): any {
                                       ) : (
                                         <Loader height={10} width={10} />
                                       )}
-                                    </FlexRow>
-                                  </FormRow>
-                                  <FlexCol style={{ display: 'flex', alignItems: 'center' }}>
+                                    </Flex>
+                                  </Flex>
+                                  <Flex style={{ alignItems: 'center' }}>
                                     <Text t2 mb={20}>
                                       {tellerDetail.tellerData.teller.name}
                                     </Text>
-                                  </FlexCol>
-                                </FlexCol>
-                                {/* <FormRow>
-                                  <FormCol>Price</FormCol>
-                                  <FormCol>
+                                  </Flex>
+                                </Flex>
+                                {/* <Flex stretch between mb={24}>
+                                  <Text>Price</Text>
                                     <Text bold t2 fade={tellerDetail.tellerData.usdBondPrice <= 0}>
                                       {tellerDetail.tellerData.usdBondPrice > 0
                                         ? `$${truncateValue(tellerDetail.tellerData.usdBondPrice, 4)}`
                                         : `USD price not found`}
-                                    </Text>
-                                  </FormCol>
-                                </FormRow> */}
-                                {/* <FormRow>
-                                  <FormCol>ROI</FormCol>
-                                  <FormCol>
+                                  </Text>
+                                </Flex> */}
+                                {/* <Flex stretch between mb={24}>
+                                  <Text>ROI</Text>
                                     <Text bold t2>
                                       {truncateValue(tellerDetail.tellerData.bondRoi, 2, false)}%
-                                    </Text>
-                                  </FormCol>
-                                </FormRow> */}
+                                  </Text>
+                                </Flex> */}
                               </Card>
                             ))}
                           </CardContainer>

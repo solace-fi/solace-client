@@ -1,5 +1,5 @@
 import useDebounce from '@rooks/use-debounce'
-import { BigNumber } from 'ethers'
+import { BigNumber, Contract } from 'ethers'
 import { formatUnits } from '@ethersproject/units'
 import { useEffect, useMemo, useState } from 'react'
 import { NUM_BLOCKS_PER_DAY, ZERO } from '../constants'
@@ -10,6 +10,9 @@ import { useCachedData } from '../context/CachedDataManager'
 import { useNetwork } from '../context/NetworkManager'
 import { PositionType } from '../constants/enums'
 import { useProvider } from '../context/ProviderManager'
+import { JsonRpcProvider } from '@ethersproject/providers'
+import { isAddress } from '../utils'
+import { numberAbbreviate, truncateValue } from '../utils/formatting'
 
 export const useGetPolicyPrice = (policyId: number): string => {
   const [policyPrice, setPolicyPrice] = useState<string>('')
@@ -257,4 +260,38 @@ export const useGetQuote = (coverAmount: string | null, days: string): string =>
   }, [coverAmount, selectedProtocol, account, days])
 
   return quote
+}
+
+export const useTotalActivePolicies = () => {
+  const { latestBlock } = useProvider()
+  const { networks } = useNetwork()
+  const [totalActivePolicies, setTotalActivePolicies] = useState<string>('-')
+  const [totalActiveCoverLimit, setTotalActiveCoverLimit] = useState<string>('-')
+
+  useEffect(() => {
+    const getPolicyCount = async () => {
+      const countedNetworks = networks.filter((n) => !n.isTestnet)
+      let totalPolicyCount = ZERO
+      let activeCoverLimit = ZERO
+      for (let i = 0; i < countedNetworks.length; i++) {
+        const activeNetwork = countedNetworks[i]
+        if (activeNetwork.config.restrictedFeatures.noSoteria) continue
+        const provider = new JsonRpcProvider(activeNetwork.rpc.httpsUrl)
+        const solaceCoverProductSrc = activeNetwork.config.keyContracts.solaceCoverProduct
+        if (!solaceCoverProductSrc) continue
+        if (!solaceCoverProductSrc.addr || !isAddress(solaceCoverProductSrc.addr) || !solaceCoverProductSrc.abi)
+          continue
+        const solaceCoverProductContract = new Contract(solaceCoverProductSrc.addr, solaceCoverProductSrc.abi, provider)
+        const policyCount = await solaceCoverProductContract.policyCount()
+        const coverLimit = await solaceCoverProductContract.activeCoverLimit()
+        activeCoverLimit = activeCoverLimit.add(coverLimit)
+        totalPolicyCount = totalPolicyCount.add(policyCount)
+      }
+      setTotalActivePolicies(numberAbbreviate(totalPolicyCount.toString()))
+      setTotalActiveCoverLimit(truncateValue(formatUnits(activeCoverLimit, 18), 2))
+    }
+    getPolicyCount()
+  }, [latestBlock])
+
+  return { totalActivePolicies, totalActiveCoverLimit }
 }

@@ -1,23 +1,3 @@
-export enum TransactionCondition {
-  SUCCESS = 'Complete',
-  FAILURE = 'Incomplete',
-  PENDING = 'Pending',
-  CANCELLED = 'Cancelled',
-}
-
-export enum Error {
-  UNSUPPORTED_NETWORK = 'UN',
-  NO_PROVIDER = 'NP',
-  UNKNOWN_WALLET_ERROR = 'UWE',
-  NO_ACCESS = 'NA',
-  WALLET_NETWORK_UNSYNC = 'WNU',
-}
-
-export enum SystemNotice {
-  LOSS_EVENT_DETECTED = 'LED',
-  AUDIT_NOTICE = 'AN',
-}
-
 export enum FunctionName {
   APPROVE = 'Approve',
   BUY_POLICY = 'BuyPolicy',
@@ -89,64 +69,4 @@ export enum FunctionName {
   // discontinued
   EXERCISE_OPTION = 'ExerciseOption',
   FARM_OPTION_MULTI = 'FarmOptionMulti',
-}
-
-export enum ExplorerscanApi {
-  TX = 'tx',
-  BLOCK = 'block',
-  ADDRESS = 'address',
-}
-
-export enum Unit {
-  ETH = 'ETH',
-  MATIC = 'MATIC',
-  SCP = 'CP Token',
-  SOLACE = 'SOLACE',
-  X_SOLACE = 'xSolace',
-  LP = 'LP Token',
-  POLICY = 'Policy',
-  CLAIM = 'Claim',
-  BOND = 'Bond',
-  _ = 'Unknown',
-}
-
-export enum PolicyState {
-  ACTIVE = 'Active',
-  EXPIRED = 'Expired',
-}
-
-export enum ProductName {
-  AAVE = 'Aave',
-  COMPOUND = 'Compound',
-  CURVE = 'Curve',
-  LIQUITY = 'Liquity',
-  SUSHISWAP = 'Sushiswap',
-  UNISWAP_V2 = 'UniswapV2',
-  UNISWAP_V3 = 'UniswapV3',
-  WAAVE = 'Waave',
-  YEARN = 'Yearn',
-}
-
-export enum PositionType {
-  TOKEN = 'token',
-  LQTY = 'liquity',
-  OTHER = 'other',
-}
-
-export enum BondName {
-  DAI = 'DAI',
-  SOLACE_DAI_SLP = 'SOLACE-DAI SLP',
-  ETH = 'ETH',
-  WETH = 'WETH',
-  SOLACE_ETH_SLP = 'SOLACE-ETH SLP',
-  USDC = 'USDC',
-  SOLACE_USDC_SLP = 'SOLACE-USDC SLP',
-  SCP = 'SCP',
-  WBTC = 'WBTC',
-  USDT = 'USDT',
-  FRAX = 'FRAX',
-  WMATIC = 'WMATIC',
-  MATIC = 'MATIC',
-  NEAR = 'NEAR',
-  AURORA = 'AURORA',
 }

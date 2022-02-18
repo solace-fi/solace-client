@@ -1,11 +1,11 @@
 import styled from 'styled-components'
-import { FlexCol } from '../Layout'
+import { GeneralElementProps, GeneralElementCss } from '../../generalInterfaces'
 
-interface ProgressProps {
+interface ProgressProps extends GeneralElementProps {
   step: number
 }
 
-export const StepsContainer = styled(FlexCol)<ProgressProps>`
+export const StepsContainer = styled.div<ProgressProps>`
   ${(props) =>
     props.step === 2 &&
     `
@@ -53,6 +53,9 @@ export const StepsContainer = styled(FlexCol)<ProgressProps>`
   `}
 
   padding: 10px;
+  display: flex;
+  flex-direction: column;
+  ${GeneralElementCss}
 `
 
 export const StepsWrapper = styled.div`

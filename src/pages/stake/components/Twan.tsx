@@ -1,6 +1,6 @@
 import React from 'react'
 
-export default function Twiv({
+export default function Twan({
   className,
   children,
   css,

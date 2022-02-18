@@ -26,12 +26,11 @@ import { BKPT_4, BKPT_6 } from '../../../constants'
 import { FunctionName } from '../../../constants/enums'
 
 /* import components */
-import { Content } from '../../atoms/Layout'
+import { Content, Flex } from '../../atoms/Layout'
 import { Text } from '../../atoms/Typography'
 import { Table, TableHead, TableRow, TableHeader, TableBody, TableData, TableDataGroup } from '../../atoms/Table'
 import { Button, ButtonWrapper } from '../../atoms/Button'
 import { Card } from '../../atoms/Card'
-import { FormRow, FormCol } from '../../atoms/Form'
 
 /* import hooks */
 import { useCapitalPoolSize, useUserVaultDetails } from '../../../hooks/useVault'
@@ -105,30 +104,30 @@ export const UnderwritingPool: React.FC<UnderwritingPoolProps> = ({ openModal })
         // tablet version
         <Card isHighlight>
           {account && (
-            <FormRow>
-              <FormCol light>My Assets:</FormCol>
-              <FormCol light t2>
+            <Flex stretch between mb={24}>
+              <Text light>My Assets:</Text>
+              <Text light t2>
                 {truncateValue(userVaultAssets, 2)}
-              </FormCol>
-            </FormRow>
+              </Text>
+            </Flex>
           )}
-          <FormRow>
-            <FormCol light>Total Assets:</FormCol>
-            <FormCol light t2>
+          <Flex stretch between mb={24}>
+            <Text light>Total Assets:</Text>
+            <Text light t2>
               {truncateValue(capitalPoolSize, 2)}
-            </FormCol>
-          </FormRow>
-          <FormRow>
-            <FormCol light>ROI:</FormCol>
-            <FormCol light t2>
+            </Text>
+          </Flex>
+          <Flex stretch between mb={24}>
+            <Text light>ROI:</Text>
+            <Text light t2>
               N/A
-            </FormCol>
-          </FormRow>
+            </Text>
+          </Flex>
           {account && (
-            <FormRow>
-              <FormCol light>My Vault Share:</FormCol>
-              <FormCol light t2>{`${truncateValue(userVaultShare, 2)}%`}</FormCol>
-            </FormRow>
+            <Flex stretch between mb={24}>
+              <Text light>My Vault Share:</Text>
+              <Text light t2>{`${truncateValue(userVaultShare, 2)}%`}</Text>
+            </Flex>
           )}
           {account && (
             <ButtonWrapper isColumn={width <= BKPT_4}>

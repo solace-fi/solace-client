@@ -32,7 +32,7 @@ import { useGeneral } from '../../../context/GeneralManager'
 
 /* import components */
 import { Modal } from '../../molecules/Modal'
-import { FormRow, FormCol } from '../../atoms/Form'
+import { Flex } from '../../atoms/Layout'
 import { Text } from '../../atoms/Typography'
 import { PolicyModalInfo } from './PolicyModalInfo'
 import { Loader } from '../../atoms/Loader'
@@ -204,28 +204,22 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
           assessment ? (
             <Fragment>
               {width > BKPT_3 && (
-                <FormRow mb={0}>
-                  <FormCol>
-                    <Text t4 autoAlign nowrap>
-                      By submitting a claim, you receive
-                    </Text>
-                  </FormCol>
-                  <FormCol></FormCol>
-                </FormRow>
-              )}
-              <FormRow mb={0}>
-                <FormCol>
+                <Flex stretch between>
                   <Text t4 autoAlign nowrap>
-                    {width > BKPT_3 ? 'pre-exploit assets value equal to' : 'Receiving'}
+                    By submitting a claim, you receive
                   </Text>
-                </FormCol>
-                <FormCol>
-                  <Text bold t2 autoAlign>
-                    {truncateValue(formatUnits(assessment.amountOut || 0, currencyDecimals))}{' '}
-                    {activeNetwork.nativeCurrency.symbol}
-                  </Text>
-                </FormCol>
-              </FormRow>
+                  <Text></Text>
+                </Flex>
+              )}
+              <Flex stretch between>
+                <Text t4 autoAlign nowrap>
+                  {width > BKPT_3 ? 'pre-exploit assets value equal to' : 'Receiving'}
+                </Text>
+                <Text bold t2 autoAlign>
+                  {truncateValue(formatUnits(assessment.amountOut || 0, currencyDecimals))}{' '}
+                  {activeNetwork.nativeCurrency.symbol}
+                </Text>
+              </Flex>
               <SmallBox jc={'center'} transparent mt={10}>
                 <Text t4 bold warning textAlignCenter>
                   Please wait for the review period to elapse before withdrawing your payout.

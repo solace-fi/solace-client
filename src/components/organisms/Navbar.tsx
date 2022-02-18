@@ -48,7 +48,7 @@ import {
 import { Text, TextSpan } from '../atoms/Typography'
 import { HyperLink } from '../atoms/Link'
 import { ThemeButton } from '../molecules/ThemeButton'
-import { FlexRow, HorizRule } from '../atoms/Layout'
+import { Flex, HorizRule } from '../atoms/Layout'
 import { MiniUserAccount, UserAccount } from '../molecules/Account'
 import { StyledNavTooltip } from '../molecules/Tooltip'
 import { AuditToast } from '../molecules/Toast'
@@ -359,14 +359,14 @@ export const SideNavbar: React.FC<Navbar> = ({ pages }) => {
           {width > BKPT_3 && (
             <>
               {appTheme == 'light' && (
-                <FlexRow jc={'center'}>
+                <Flex justifyCenter>
                   <img src={AlchemyBadgeLight} style={{ width: '145px' }} />
-                </FlexRow>
+                </Flex>
               )}
               {appTheme == 'dark' && (
-                <FlexRow jc={'center'}>
+                <Flex justifyCenter>
                   <img src={AlchemyBadgeDark} style={{ width: '145px' }} />
-                </FlexRow>
+                </Flex>
               )}
             </>
           )}

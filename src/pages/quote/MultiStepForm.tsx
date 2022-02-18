@@ -47,9 +47,8 @@ import { DeFiAsset, DeFiAssetImage, ProtocolTitle } from '../../components/atoms
 import { Box, BoxItem, BoxRow } from '../../components/atoms/Box'
 import { Button, ButtonWrapper } from '../../components/atoms/Button'
 import { Card, CardContainer } from '../../components/atoms/Card'
-import { FormRow, FormCol } from '../../components/atoms/Form'
 import { Text } from '../../components/atoms/Typography'
-import { FlexRow } from '../../components/atoms/Layout'
+import { Flex } from '../../components/atoms/Layout'
 import { StyledDots } from '../../components/atoms/Icon'
 import { AssetsModal } from '../../components/organisms/AssetsModal'
 import { StyledStepComponent } from '../../components/molecules/Step'
@@ -225,8 +224,8 @@ export const MultiStepForm = () => {
         <StyledStepComponent stepSections={StepSections} currentStep={Number(StepNumber[step.id]) + 1} />
       ) : (
         // mobile version
-        <FormRow mb={0} mt={20} ml={30} mr={30} jc={'center'}>
-          <FormCol>
+        <Flex stretch between mt={20} ml={30} mr={30} justifyCenter>
+          <Flex col>
             <div style={{ width: 100, height: 100 }}>
               <CircularProgressbar
                 value={((Number(StepNumber[step.id]) + 1) / StepSections.length) * 100}
@@ -240,14 +239,14 @@ export const MultiStepForm = () => {
                 })}
               />
             </div>
-          </FormCol>
-          <FormCol>
+          </Flex>
+          <Flex col>
             <Text t2 style={{ marginBottom: '10px' }}>
               {StepSections[Number(StepNumber[step.id])].name}
             </Text>
             <Text t4>{StepSections[Number(StepNumber[step.id])].description}</Text>
-          </FormCol>
-        </FormRow>
+          </Flex>
+        </Flex>
       )}
       {Number(StepNumber[step.id]) !== 0 && Number(StepNumber[step.id]) !== 3 && (
         <>
@@ -290,7 +289,7 @@ export const MultiStepForm = () => {
               {Number(StepNumber[step.id]) == 2 && positions.length > 0 && (
                 <Box color2>
                   <BoxItem>
-                    <FlexRow>
+                    <Flex>
                       {formattedAssets.slice(0, maxPositionsToDisplay).map((data) => {
                         return (
                           <DeFiAsset key={data.address}>
@@ -303,7 +302,7 @@ export const MultiStepForm = () => {
                       {positions.length > maxPositionsToDisplay && (
                         <StyledDots size={20} style={{ color: 'rgb(250, 250, 250)' }} />
                       )}
-                    </FlexRow>
+                    </Flex>
                   </BoxItem>
                   <BoxItem>
                     <ButtonWrapper>
@@ -324,34 +323,26 @@ export const MultiStepForm = () => {
             //mobile version
             <CardContainer m={20}>
               <Card color1>
-                <FormRow>
-                  <FormCol>
-                    <DeFiAssetImage mr={10}>
-                      <img src={`https://assets.solace.fi/${protocol.name.toLowerCase()}`} alt={protocol.name} />
-                    </DeFiAssetImage>
-                  </FormCol>
-                  <FormCol style={{ display: 'flex', alignItems: 'center' }}>
-                    <Text bold t2 light>
-                      {protocol.name}
-                    </Text>
-                  </FormCol>
-                </FormRow>
-                <FormRow>
-                  <FormCol light>Yearly Cost</FormCol>
-                  <FormCol>
-                    <Text bold t2 light>
-                      {fixed(protocol.yearlyCost * 100, 2)}%
-                    </Text>
-                  </FormCol>
-                </FormRow>
-                <FormRow>
-                  <FormCol light>Available Coverage</FormCol>
-                  <FormCol>
-                    <Text bold t2 light>
-                      {protocol.availableCoverage} {activeNetwork.nativeCurrency.symbol}
-                    </Text>
-                  </FormCol>
-                </FormRow>
+                <Flex stretch between mb={24}>
+                  <DeFiAssetImage mr={10}>
+                    <img src={`https://assets.solace.fi/${protocol.name.toLowerCase()}`} alt={protocol.name} />
+                  </DeFiAssetImage>
+                  <Text bold t2 light autoAlignVertical>
+                    {protocol.name}
+                  </Text>
+                </Flex>
+                <Flex stretch between mb={24}>
+                  <Text light>Yearly Cost</Text>
+                  <Text bold t2 light>
+                    {fixed(protocol.yearlyCost * 100, 2)}%
+                  </Text>
+                </Flex>
+                <Flex stretch between mb={24}>
+                  <Text light>Available Coverage</Text>
+                  <Text bold t2 light>
+                    {protocol.availableCoverage} {activeNetwork.nativeCurrency.symbol}
+                  </Text>
+                </Flex>
                 <ButtonWrapper>
                   <Button light widthP={100} onClick={resetForm}>
                     Change
@@ -367,7 +358,7 @@ export const MultiStepForm = () => {
               )}
               {Number(StepNumber[step.id]) == 2 && positions.length > 0 && (
                 <Card color2>
-                  <FlexRow>
+                  <Flex>
                     {formattedAssets.slice(0, maxPositionsToDisplay).map((data) => {
                       return (
                         <DeFiAssetImage mr={5} key={data.address}>
@@ -378,7 +369,7 @@ export const MultiStepForm = () => {
                     {positions.length > maxPositionsToDisplay && (
                       <StyledDots size={20} style={{ color: 'rgb(250, 250, 250)' }} />
                     )}
-                  </FlexRow>
+                  </Flex>
                   <ButtonWrapper isColumn>
                     {positions.length > maxPositionsToDisplay && (
                       <Button light widthP={100} onClick={() => setShowAssetsModal(true)}>

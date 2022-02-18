@@ -1,22 +1,26 @@
 import React, { useEffect, useState, useMemo } from 'react'
-import Flex from '../stake/atoms/Flex'
-import RaisedBox from '../../components/atoms/RaisedBox'
-import ShadowDiv from '../stake/atoms/ShadowDiv'
+import {
+  Flex,
+  ShadowDiv,
+  GrayBgDiv,
+  Content,
+  HeroContainer,
+  HorizRule,
+  VerticalSeparator,
+} from '../../components/atoms/Layout'
 import { QuestionCircle } from '@styled-icons/bootstrap/QuestionCircle'
 // src/components/atoms/Button/index.ts
 import { Button, GraySquareButton } from '../../components/atoms/Button'
 // src/resources/svg/icons/usd.svg
 import DAI from '../../resources/svg/icons/dai.svg'
-import ToggleSwitch from '../../components/atoms/ToggleSwitch'
-import { FixedHeightGrayBox, StyledGrayBox } from '../stake/components/GrayBox'
-import { GenericInputSection } from '../stake/sections/InputSection'
-import { StyledSlider } from '../../components/atoms/Input'
+import { FixedHeightGrayBox, StyledGrayBox } from '../../components/molecules/GrayBox'
+import { GenericInputSection } from '../../components/molecules/InputSection'
+import { Input, StyledSlider } from '../../components/atoms/Input'
 import commaNumber from '../../utils/commaNumber'
 import { Table, TableHead, TableHeader, TableBody, TableRow, TableData } from '../../components/atoms/Table'
 import { StyledTooltip } from '../../components/molecules/Tooltip'
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'
-import { ADDRESS_ZERO, BKPT_5, ZERO } from '../../constants'
-import GrayBgDiv from '../stake/atoms/BodyBgCss'
+import { ADDRESS_ZERO, BKPT_5, MAX_APPROVAL_AMOUNT, ZERO } from '../../constants'
 import {
   useCheckIsCoverageActive,
   useCooldownDetails,
@@ -26,14 +30,8 @@ import {
 } from '../../hooks/useSolaceCoverProduct'
 import { useWallet } from '../../context/WalletManager'
 import { BigNumber, Contract } from 'ethers'
-import { VerticalSeparator } from '../stake/components/VerticalSeparator'
 import { useGeneral } from '../../context/GeneralManager'
-import {
-  InfoCopy,
-  InfoCheckmark,
-  StyledArrowIosBackOutline,
-  StyledArrowIosForwardOutline,
-} from '../../components/atoms/Icon'
+import { StyledArrowIosBackOutline, StyledArrowIosForwardOutline } from '../../components/atoms/Icon'
 import { LocalTx, SolaceRiskProtocol, SolaceRiskScore } from '../../constants/types'
 import {
   accurateMultiply,
@@ -59,16 +57,18 @@ import { formatUnits } from 'ethers/lib/utils'
 import { getContract } from '../../utils'
 import { useContracts } from '../../context/ContractsManager'
 import { useNotifications } from '../../context/NotificationsManager'
-import { TransactionReceipt } from '@ethersproject/providers'
-import { TransactionResponse } from '@ethersproject/providers'
+import { TransactionReceipt, TransactionResponse } from '@ethersproject/providers'
 import { useTokenAllowance } from '../../hooks/useToken'
 import { Loader } from '../../components/atoms/Loader'
-import useCopyClipboard from '../../hooks/useCopyToClipboard'
 import { TextSpan, Text } from '../../components/atoms/Typography'
-import { Box } from '../../components/atoms/Box'
+import { Box, RaisedBox } from '../../components/atoms/Box'
 import { StyledInfo } from '../../components/atoms/Icon'
-import { Content, HeroContainer } from '../../components/atoms/Layout'
 import { WalletConnectButton } from '../../components/molecules/WalletConnectButton'
+import { ModalCell } from '../../components/atoms/Modal'
+
+import Zapper from '../../resources/svg/zapper.svg'
+import ZapperDark from '../../resources/svg/zapper-dark.svg'
+import { CopyButton } from '../../components/molecules/CopyButton'
 
 function Card({
   children,
@@ -110,8 +110,6 @@ function Card({
       if (normous) return 12
       if (inactive) return 2
     })(),
-    // alignItems: 'stretch',
-    // justifyContent: between ? 'space-between' : 'flex-start',
   }
   const combinedStyle = { ...defaultStyle, ...customStyle }
 
@@ -136,12 +134,7 @@ function Card({
       </RaisedBox>
     </ShadowDiv>
   ) : (
-    <Flex
-      style={combinedStyle}
-      {...rest}
-      col
-      // style={innerBigger || innerThinner ? { ...combinedStyle, border: '1px solid #e6e6e6' } : { ...combinedStyle }}
-    >
+    <Flex style={combinedStyle} {...rest} col>
       <RaisedBox style={horiz ? rowStyle : colStyle}>
         <Flex p={!noPadding ? 24 : undefined} column={!horiz} stretch flex1 gap={gap}>
           {children}
@@ -187,6 +180,14 @@ function CoverageLimitBasicForm({
         : undefined,
     [portfolio]
   )
+
+  // const usdBalanceSum = useMemo(
+  //   () =>
+  //     portfolio && portfolio.protocols.length > 0
+  //       ? portfolio.protocols.reduce((total, protocol) => (total += protocol.balanceUSD), 0)
+  //       : 0,
+  //   [portfolio]
+  // )
 
   const [highestAmount, setHighestAmount] = useState<BigNumber>(ZERO)
   const [recommendedAmount, setRecommendedAmount] = useState<BigNumber>(ZERO)
@@ -248,7 +249,7 @@ function CoverageLimitBasicForm({
           >
             <Flex baseline center>
               <Text techygradient t2 bold>
-                {commaNumber(floatUnits(currentCoverageLimit, 18))}{' '}
+                {commaNumber(truncateValue(floatUnits(currentCoverageLimit, 18), 2, false))}{' '}
                 <Text techygradient t4 bold inline>
                   USD
                 </Text>
@@ -258,18 +259,18 @@ function CoverageLimitBasicForm({
         ) : (
           <Flex col stretch>
             <Flex justifyCenter>
-              <Text t4s>Set Limit to</Text>
+              <Text t4s>Select Limit</Text>
             </Flex>
             <Flex between itemsCenter mt={10}>
               <GraySquareButton onClick={() => setChosenLimit(prevChosenLimit(chosenLimit))}>
                 <StyledArrowIosBackOutline height={18} />
               </GraySquareButton>
               <Flex col itemsCenter>
-                <Text info t4s bold>
+                <Text info t3 bold>
                   {
                     {
                       [ChosenLimit.Recommended]: 'Recommended',
-                      [ChosenLimit.MaxPosition]: 'Highest position',
+                      [ChosenLimit.MaxPosition]: 'Base',
                       [ChosenLimit.Custom]: 'Manual',
                     }[chosenLimit]
                   }
@@ -277,9 +278,9 @@ function CoverageLimitBasicForm({
                 <Text info t5s>
                   {
                     {
-                      [ChosenLimit.Recommended]: `Highest position + 20%`,
-                      [ChosenLimit.MaxPosition]: `in Portfolio`,
-                      [ChosenLimit.Custom]: `Enter amount below`,
+                      [ChosenLimit.Recommended]: `120% of your highest position`,
+                      [ChosenLimit.MaxPosition]: `100% of your highest position`,
+                      [ChosenLimit.Custom]: `Enter custom amount below`,
                     }[chosenLimit]
                   }
                 </Text>
@@ -289,14 +290,11 @@ function CoverageLimitBasicForm({
               </GraySquareButton>
             </Flex>
             <GenericInputSection
-              icon={<img src={DAI} alt="DAI" height={20} />}
-              // onChange={(e) => setUsd(Number(e.target.value))}
+              // icon={<img src={DAI} alt="DAI" height={20} />}
               onChange={(e) => handleInputChange(e.target.value)}
               text="DAI"
-              // value={usd > 0 ? String(usd) : ''}
               value={customInputAmount}
               disabled={false}
-              // w={300}
               style={{
                 marginTop: '20px',
               }}
@@ -305,42 +303,44 @@ function CoverageLimitBasicForm({
             />
           </Flex>
         )}
-        <Flex col stretch>
-          <Flex center mt={4}>
-            <Flex baseline gap={4} center>
-              <Text t4>Highest position:</Text>
-              <Flex gap={4} baseline mt={2}>
-                <Text
-                  t3
-                  bold
-                  style={{
-                    fontSize: '18px',
-                  }}
-                >
-                  {truncateValue(formatUnits(highestAmount, 18), 2, false)}
-                </Text>
-                <Text t4 bold>
-                  USD
-                </Text>
+        {portfolio && portfolio.protocols.length > 0 && (
+          <Flex col stretch>
+            {/* <Flex center mt={4}>
+              <Flex baseline gap={4} center>
+                <Text t4>Net worth found in your portfolio:</Text>
+              </Flex>
+            </Flex>
+            <Flex center mt={4}>
+              <Flex baseline gap={4} center>
+                <Flex gap={4} baseline mt={2}>
+                  <Text t3 bold>
+                    {truncateValue(usdBalanceSum, 2, false)}
+                  </Text>
+                  <Text t4 bold>
+                    USD
+                  </Text>
+                </Flex>
+              </Flex>
+            </Flex> */}
+            <Flex center mt={20}>
+              <Flex baseline gap={4} center>
+                <Text t4>Highest position in your portfolio:</Text>
+              </Flex>
+            </Flex>
+            <Flex center mt={4}>
+              <Flex baseline gap={4} center>
+                <Flex gap={4} baseline mt={2}>
+                  <Text t2 bold>
+                    {truncateValue(formatUnits(highestAmount, 18), 2, false)}
+                  </Text>
+                  <Text t4 bold>
+                    USD
+                  </Text>
+                </Flex>
               </Flex>
             </Flex>
           </Flex>
-          {/* <Flex center mt={5}>
-            <Text t4>
-              Risk level:{' '}
-              <Text
-                t3
-                warning
-                bold
-                style={{
-                  display: 'inline',
-                }}
-              >
-                Medium
-              </Text>
-            </Text>
-          </Flex> */}
-        </Flex>
+        )}
       </Flex>
     </>
   )
@@ -362,6 +362,7 @@ function CoverageLimit({
   setNewCoverageLimit,
   setIsEditing,
   setReferralCode,
+  canPurchaseNewCover,
   inactive,
 }: {
   balances: {
@@ -374,6 +375,7 @@ function CoverageLimit({
     codeIsValid: boolean
     referrerIsActive: boolean
     checkingReferral: boolean
+    referrerIsOther: boolean
   }
   minReqAccBal: BigNumber
   currentCoverageLimit: BigNumber
@@ -384,22 +386,15 @@ function CoverageLimit({
   setNewCoverageLimit: (newCoverageLimit: BigNumber) => void
   setIsEditing: (isEditing: boolean) => void
   setReferralCode: (referralCode: string | undefined) => void
+  canPurchaseNewCover: boolean
   inactive?: boolean
 }) {
   const { account } = useWallet()
-  const { latestBlock } = useProvider()
-  const { version } = useCachedData()
   const startEditing = () => setIsEditing(true)
   const stopEditing = () => setIsEditing(false)
   const [doesReachMinReqAccountBal, setDoesReachMinReqAccountBal] = useState(false)
-  const [availableCoverCapacity, setAvailableCoverCapacity] = useState<BigNumber>(ZERO)
 
-  const canPurchaseNewCover = useMemo(() => {
-    if (newCoverageLimit.lte(currentCoverageLimit)) return true
-    return newCoverageLimit.sub(currentCoverageLimit).lt(availableCoverCapacity)
-  }, [availableCoverCapacity, currentCoverageLimit, newCoverageLimit])
-
-  const { updateCoverLimit, getAvailableCoverCapacity } = useFunctions()
+  const { updateCoverLimit } = useFunctions()
   const { handleToast, handleContractCallError } = useTransactionExecution()
 
   const referralValidation = useMemo(
@@ -407,7 +402,8 @@ function CoverageLimit({
       referralChecks.codeIsUsable &&
       referralChecks.codeIsValid &&
       referralChecks.referrerIsActive &&
-      !referralChecks.checkingReferral,
+      !referralChecks.checkingReferral &&
+      referralChecks.referrerIsOther,
     [referralChecks]
   )
 
@@ -432,23 +428,12 @@ function CoverageLimit({
     setDoesReachMinReqAccountBal(balances.personalBalance.gt(minReqAccBal))
   }, 300)
 
-  const _getCapacity = useDebounce(async () => {
-    const capacity = await getAvailableCoverCapacity()
-    setAvailableCoverCapacity(capacity)
-  }, 300)
-
-  useEffect(() => {
-    _getCapacity()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [latestBlock, version])
-
   useEffect(() => {
     _checkMinReqAccountBal()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [minReqAccBal, balances])
 
   return (
-    // <Card thinner>
     <Flex
       between
       col
@@ -457,18 +442,17 @@ function CoverageLimit({
         flex: '1',
       }}
     >
-      <Flex
-        itemsCenter
-        // style={{
-        //   // just between
-        //   justifyContent: 'space-between',
-        // }}
-        between
-      >
-        <Text t2 bold>
+      <Flex itemsCenter between>
+        <Text t2 bold techygradient>
           Coverage Limit
         </Text>
-        <StyledTooltip id={'coverage-limit'} tip={'Cover limit is the maximum payout in the event of a claim'}>
+        <StyledTooltip
+          id={'coverage-limit'}
+          tip={[
+            'Cover limit is the maximum payout in the event of a claim.',
+            'You may set your cover limit to the amount of your largest position, or an amount of your choice.',
+          ]}
+        >
           <QuestionCircle height={20} width={20} color={'#aaa'} />
         </StyledTooltip>
       </Flex>
@@ -478,7 +462,7 @@ function CoverageLimit({
         portfolio={portfolio}
         setNewCoverageLimit={setNewCoverageLimit}
       />
-      <Flex justifyCenter={!isEditing} between={isEditing} gap={isEditing ? 20 : undefined}>
+      <Flex justifyCenter={!isEditing} between={isEditing} gap={isEditing ? 20 : undefined} pt={10} pb={10}>
         {inactive ? (
           <div style={{ height: '36px' }} />
         ) : !isEditing ? (
@@ -518,20 +502,6 @@ function CoverageLimit({
     </Flex>
   )
 }
-/*
-
-#plan :
-
-remove Card wrappers for CoverageLimit and PolicyBalance
-make two components, one will be a div containing the two, the other will <><CustomContainers 1 & 2>Stuff</></>
-Wrap everything in something that gives stuff props & setters, as well as submitters
-
-CoverageLimit: <Card thinner>
-PolicyBalance: <Card bigger horiz>
-
-*/
-
-// 18px 14px value pair
 
 function PolicyBalance({
   balances,
@@ -541,7 +511,12 @@ function PolicyBalance({
   currentCoverageLimit,
   newCoverageLimit,
   referralCode,
+  walletAssetBalance,
+  walletAssetDecimals,
+  approval,
   inactive,
+  inputProps,
+  coverageActivity,
   setReferralCode,
 }: {
   balances: {
@@ -554,12 +529,28 @@ function PolicyBalance({
     codeIsValid: boolean
     referrerIsActive: boolean
     checkingReferral: boolean
+    referrerIsOther: boolean
   }
   minReqAccBal: BigNumber
   portfolio: SolaceRiskScore | undefined
   currentCoverageLimit: BigNumber
   newCoverageLimit: BigNumber
   referralCode: string | undefined
+  walletAssetBalance: BigNumber
+  walletAssetDecimals: number
+  approval: boolean
+  inputProps: {
+    amount: string
+    isAppropriateAmount: (amount: string, amountDecimals: number, assetBalance: BigNumber) => boolean
+    handleInputChange: (input: string, maxDecimals?: number | undefined, maxBalance?: string | undefined) => void
+    resetAmount: () => void
+  }
+  coverageActivity: {
+    policyId: BigNumber
+    status: boolean
+    coverageLimit: BigNumber
+    mounting: boolean
+  }
   inactive?: boolean
   setReferralCode: (referralCode: string | undefined) => void
 }) {
@@ -568,28 +559,18 @@ function PolicyBalance({
   const { ifDesktop } = useWindowDimensions()
   const { account, library } = useWallet()
   const { activeNetwork } = useNetwork()
-  const { latestBlock } = useProvider()
   const { keyContracts } = useContracts()
   const { solaceCoverProduct } = useMemo(() => keyContracts, [keyContracts])
   const { makeTxToast } = useNotifications()
   const { reload } = useCachedData()
-  const { amount, isAppropriateAmount, handleInputChange, resetAmount } = useInputAmount()
 
-  const [walletAssetBalance, setWalletAssetBalance] = useState<BigNumber>(ZERO)
-  const [walletAssetDecimals, setWalletAssetDecimals] = useState<number>(0)
-
-  const [contractForAllowance, setContractForAllowance] = useState<Contract | null>(null)
-  const spenderAddress = useMemo(() => (solaceCoverProduct ? solaceCoverProduct.address : null), [solaceCoverProduct])
-  const approval = useTokenAllowance(
-    contractForAllowance,
-    spenderAddress,
-    amount && amount != '.' ? parseUnits(amount, walletAssetDecimals).toString() : '0'
-  )
+  const { cooldownStart, cooldownLeft } = useCooldownDetails(account)
 
   const { deposit, withdraw, activatePolicy } = useFunctions()
   const { handleToast, handleContractCallError } = useTransactionExecution()
 
   const [rangeValue, setRangeValue] = useState<string>('0')
+  const [isDepositing, setIsDepositing] = useState<boolean>(true)
 
   const usdBalanceSum = useMemo(
     () =>
@@ -599,9 +580,11 @@ function PolicyBalance({
     [portfolio]
   )
 
-  const dailyRate = useMemo(() => (portfolio && portfolio.current_rate ? portfolio.current_rate / 365.25 : 0), [
-    portfolio,
-  ])
+  const annualRate = useMemo(() => (portfolio && portfolio.current_rate ? portfolio.current_rate : 0), [portfolio])
+
+  const annualCost = useMemo(() => (portfolio && portfolio.address_rp ? portfolio.address_rp : 0), [portfolio])
+
+  const dailyRate = useMemo(() => annualRate / 365.25, [annualRate])
 
   const dailyCost = useMemo(() => {
     const numberifiedCurrentCoverageLimit = floatUnits(currentCoverageLimit, 18)
@@ -614,28 +597,38 @@ function PolicyBalance({
     balances.totalAccountBalance,
   ])
 
+  const projectedDailyCost = useMemo(() => {
+    const numberifiedNewCoverageLimit = floatUnits(newCoverageLimit, 18)
+    if (usdBalanceSum < numberifiedNewCoverageLimit) return usdBalanceSum * dailyRate
+    return numberifiedNewCoverageLimit * dailyRate
+  }, [newCoverageLimit, dailyRate, usdBalanceSum])
+
+  const projectedPolicyDuration = useMemo(() => {
+    const bnAmount = BigNumber.from(accurateMultiply(inputProps.amount, 18))
+    return projectedDailyCost > 0 ? floatUnits(balances.totalAccountBalance.add(bnAmount), 18) / projectedDailyCost : 0
+  }, [projectedDailyCost, balances.totalAccountBalance, inputProps.amount])
+
   const isAcceptableAmount = useMemo(
-    () => isAppropriateAmount(amount, walletAssetDecimals, walletAssetBalance),
+    () => inputProps.isAppropriateAmount(inputProps.amount, walletAssetDecimals, walletAssetBalance),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [amount, walletAssetBalance, walletAssetDecimals]
+    [inputProps.amount, walletAssetBalance, walletAssetDecimals]
   )
+
   const referralValidation = useMemo(
     () =>
       referralChecks.codeIsUsable &&
       referralChecks.codeIsValid &&
       referralChecks.referrerIsActive &&
-      !referralChecks.checkingReferral,
+      !referralChecks.checkingReferral &&
+      referralChecks.referrerIsOther,
     [referralChecks]
   )
 
-  const approve = async () => {
+  const unlimitedApprove = async () => {
     if (!solaceCoverProduct || !account || !library) return
     const stablecoinContract = getContract(DAI_ADDRESS[activeNetwork.chainId], IERC20.abi, library, account)
     try {
-      const tx: TransactionResponse = await stablecoinContract.approve(
-        solaceCoverProduct.address,
-        parseUnits(amount, walletAssetDecimals)
-      )
+      const tx: TransactionResponse = await stablecoinContract.approve(solaceCoverProduct.address, MAX_APPROVAL_AMOUNT)
       const txHash = tx.hash
       makeTxToast(FunctionName.APPROVE, TransactionCondition.PENDING, txHash)
       await tx.wait(activeNetwork.rpc.blockConfirms).then((receipt: TransactionReceipt) => {
@@ -650,7 +643,7 @@ function PolicyBalance({
 
   const callDeposit = async () => {
     if (!account) return
-    await deposit(account, parseUnits(amount, 18))
+    await deposit(account, parseUnits(inputProps.amount, 18))
       .then((res) => _handleToast1(res.tx, res.localTx))
       .catch((err) => handleContractCallError('callDeposit', err, FunctionName.SOTERIA_DEPOSIT))
   }
@@ -664,10 +657,11 @@ function PolicyBalance({
 
   const callActivatePolicy = async () => {
     if (!account) return
+    const amount_ = inputProps.amount.length > 0 ? inputProps.amount : '0'
     await activatePolicy(
       account,
       newCoverageLimit,
-      parseUnits(amount, 18),
+      parseUnits(amount_, 18),
       referralValidation && referralCode ? referralCode : []
     )
       .then((res) => _handleToast2(res.tx, res.localTx))
@@ -675,13 +669,13 @@ function PolicyBalance({
   }
 
   const _handleInputChange = (_amount: string) => {
-    handleInputChange(_amount, walletAssetDecimals)
-    const filtered = filterAmount(_amount, amount)
+    inputProps.handleInputChange(_amount, walletAssetDecimals)
+    const filtered = filterAmount(_amount, inputProps.amount)
     setRangeValue(accurateMultiply(filtered, walletAssetDecimals))
   }
 
   const handleRangeChange = (rangeAmount: string, convertFromSciNota = true) => {
-    handleInputChange(
+    inputProps.handleInputChange(
       formatUnits(
         BigNumber.from(`${convertFromSciNota ? convertSciNotaToPrecise(rangeAmount) : rangeAmount}`),
         walletAssetDecimals
@@ -697,36 +691,21 @@ function PolicyBalance({
 
   const _handleToast2 = async (tx: any, localTx: LocalTx | null) => {
     await handleToast(tx, localTx)
-    resetAmount()
+    inputProps.resetAmount()
   }
 
   const _checkMinReqAccountBal = useDebounce(async () => {
-    const bnAmount = BigNumber.from(accurateMultiply(amount, 18))
+    const bnAmount = BigNumber.from(accurateMultiply(inputProps.amount, 18))
     setDoesReachMinReqAccountBal(balances.personalBalance.add(bnAmount).gt(minReqAccBal))
-  }, 300)
-
-  const _getAvailableFunds = useDebounce(async () => {
-    if (!library || !account) return
-    const tokenContract = new Contract(DAI_ADDRESS[activeNetwork.chainId], IERC20.abi, library)
-    const balance = await queryBalance(tokenContract, account)
-    const decimals = await queryDecimals(tokenContract)
-    setWalletAssetBalance(balance)
-    setWalletAssetDecimals(decimals)
-    setContractForAllowance(tokenContract)
   }, 300)
 
   useEffect(() => {
     _checkMinReqAccountBal()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [balances.personalBalance, amount, minReqAccBal])
+  }, [balances.personalBalance, inputProps.amount, minReqAccBal])
 
   useEffect(() => {
-    _getAvailableFunds()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [account, activeNetwork.chainId, library, latestBlock])
-
-  useEffect(() => {
-    resetAmount()
+    inputProps.resetAmount()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [inactive])
 
@@ -740,10 +719,16 @@ function PolicyBalance({
       }}
     >
       <Flex between itemsCenter>
-        <Text t2 bold>
+        <Text t2 bold techygradient>
           Policy Balance
         </Text>
-        <StyledTooltip id={'policy-balance'} tip={'Policy Balance'}>
+        <StyledTooltip
+          id={'policy-balance'}
+          tip={[
+            'You can control the balance on your policy here.',
+            'To pay for your coverage, your balance is deducted weekly or when you make changes to the policy.',
+          ]}
+        >
           <QuestionCircle height={20} width={20} color={'#aaa'} />
         </StyledTooltip>
       </Flex>
@@ -752,13 +737,75 @@ function PolicyBalance({
         between
         stretch
         gap={30}
-        pl={ifDesktop(24)}
-        pr={ifDesktop(24)}
+        pl={ifDesktop(2)}
+        pr={ifDesktop(2)}
         style={{
           height: '100%',
         }}
       >
         <Flex col gap={10} stretch>
+          {coverageActivity.status && (
+            <Flex pl={24} pr={24} mt={10} col gap={10}>
+              <Flex between>
+                <Text t4s>Your Annual Cost</Text>
+                <Text t4s bold>
+                  {truncateValue(annualCost, 2)}{' '}
+                  <Text t6s inline>
+                    DAI/Year
+                  </Text>
+                </Text>
+              </Flex>
+              <Flex between>
+                <Text t4s>Coverage Price</Text>
+                <Text t4s bold>
+                  {truncateValue(dailyCost, 2)}{' '}
+                  <Text t6s inline>
+                    DAI/Day
+                  </Text>
+                </Text>
+              </Flex>
+              <Flex between>
+                <Text t4s>Estimated Policy Duration</Text>
+                <Text t4s bold>
+                  {truncateValue(policyDuration, 2)}{' '}
+                  <Text t6s inline>
+                    Days
+                  </Text>
+                </Text>
+              </Flex>
+            </Flex>
+          )}
+          {!coverageActivity.status && (
+            <Flex pl={24} pr={24} mt={10} col gap={10}>
+              <Flex between>
+                <Text t4s>Your Annual Cost</Text>
+                <Text t4s bold>
+                  {truncateValue(annualCost, 2)}{' '}
+                  <Text t6s inline>
+                    DAI/Year
+                  </Text>
+                </Text>
+              </Flex>
+              <Flex between>
+                <Text t4s>Projected Coverage Price</Text>
+                <Text t4s bold warning>
+                  {truncateValue(projectedDailyCost, 2)}{' '}
+                  <Text t6s inline>
+                    DAI/Day
+                  </Text>
+                </Text>
+              </Flex>
+              <Flex between>
+                <Text t4s>Projected Policy Duration</Text>
+                <Text t4s bold warning>
+                  {truncateValue(projectedPolicyDuration, 2)}{' '}
+                  <Text t6s inline>
+                    Days
+                  </Text>
+                </Text>
+              </Flex>
+            </Flex>
+          )}
           <StyledGrayBox>
             <Flex
               stretch
@@ -774,7 +821,9 @@ function PolicyBalance({
                 <Flex gap={6}>
                   $
                   <Text t2s bold autoAlignVertical>
-                    {truncateValue(formatUnits(balances.totalAccountBalance, walletAssetDecimals), 2)}
+                    {commaNumber(
+                      truncateValue(formatUnits(balances.totalAccountBalance, walletAssetDecimals), 2, false)
+                    )}
                   </Text>
                 </Flex>
               </Flex>
@@ -792,7 +841,8 @@ function PolicyBalance({
                     Personal
                   </Text>
                   <Text t4s bold info>
-                    {truncateValue(formatUnits(balances.personalBalance, walletAssetDecimals), 2)} DAI
+                    {commaNumber(truncateValue(formatUnits(balances.personalBalance, walletAssetDecimals), 2, false))}{' '}
+                    DAI
                   </Text>
                 </Flex>
                 <Flex between>
@@ -800,78 +850,119 @@ function PolicyBalance({
                     Bonus
                   </Text>
                   <Text t4s bold techygradient>
-                    {truncateValue(formatUnits(balances.earnedBalance, walletAssetDecimals), 2)} DAI
+                    {commaNumber(truncateValue(formatUnits(balances.earnedBalance, walletAssetDecimals), 2, false))} DAI
                   </Text>
                 </Flex>
               </Flex>
             </Flex>
           </StyledGrayBox>
-          {/* coverage price (dynamic): 0.00189 DAI/day; Approximate policy duration: 0 days */}
-          <Flex pl={24} pr={24} mt={10} col gap={10}>
-            <Flex between>
-              <Text t4s>Coverage Price</Text>
-              <Text t4s bold>
-                {truncateValue(dailyCost, 5)}{' '}
-                <Text t6s inline>
-                  DAI/Day
-                </Text>
+        </Flex>
+        <HorizRule widthP={100} />
+        {!coverageActivity.policyId.eq(ZERO) && (
+          <div style={{ gridTemplateColumns: '1fr 0fr 1fr', display: 'grid', position: 'relative' }}>
+            <ModalCell
+              pt={5}
+              pb={10}
+              pl={0}
+              pr={0}
+              onClick={() => setIsDepositing(true)}
+              jc={'center'}
+              style={{ cursor: 'pointer', backgroundColor: !isDepositing ? 'rgba(0, 0, 0, .05)' : 'inherit' }}
+            >
+              <Text t2 bold info={isDepositing}>
+                {inactive ? 'Activate' : 'Deposit'}
               </Text>
-            </Flex>
-            <Flex between>
-              <Text t4s>Approximate Policy Duration</Text>
-              <Text t4s bold>
-                {truncateValue(policyDuration, 2)}{' '}
-                <Text t6s inline>
-                  Days
-                </Text>
+            </ModalCell>
+            <VerticalSeparator />
+            <ModalCell
+              pt={5}
+              pb={10}
+              pl={0}
+              pr={0}
+              onClick={() => setIsDepositing(false)}
+              jc={'center'}
+              style={{
+                cursor: 'pointer',
+                backgroundColor: isDepositing ? 'rgba(0, 0, 0, .05)' : 'inherit',
+              }}
+            >
+              <Text t2 bold info={!isDepositing}>
+                Withdraw
               </Text>
-            </Flex>
-          </Flex>
-          {/* <Flex gap={4} baseline justifyCenter>
-              <Text t5s>Approximate policy duration:</Text>
-              <Text t4s bold>
-                185 Days
+            </ModalCell>
+          </div>
+        )}
+        <Flex col gap={20}>
+          {isDepositing ? (
+            <>
+              {inactive && <Text t4>Set the coverage limit and initial deposit for your policy</Text>}
+              <GenericInputSection
+                icon={<img src={DAI} height={20} />}
+                onChange={(e) => _handleInputChange(e.target.value)}
+                text="DAI"
+                value={inputProps.amount}
+                disabled={false}
+                displayIconOnMobile
+                style={{ width: '99%' }}
+              />
+              <StyledSlider
+                disabled={false}
+                min={0}
+                max={walletAssetBalance.toString()}
+                value={rangeValue}
+                onChange={(e) => handleRangeChange(e.target.value)}
+              />
+            </>
+          ) : (
+            <>
+              <Text t4>
+                You can withdraw your entire personal balance after your cooldown period has passed. To start the
+                cooldown, deactivate your policy first.
               </Text>
-            </Flex> */}
+              {!coverageActivity.policyId.eq(ZERO) && (
+                <Flex between gap={10}>
+                  <Flex gap={4}>
+                    <Text t5s bold>
+                      Cooldown:
+                    </Text>
+                    <Text info t5s bold>
+                      {cooldownStart.eq(ZERO)
+                        ? 'Not started'
+                        : getTimeFromMillis(cooldownLeft.toNumber() * 1000) == '0'
+                        ? 'Passed'
+                        : getTimeFromMillis(cooldownLeft.toNumber() * 1000)}
+                    </Text>
+                  </Flex>
+                  <Flex gap={4}>
+                    <Text t5s bold>
+                      Withdrawable:
+                    </Text>
+                    <Text info t5s bold>
+                      {!cooldownStart.eq(ZERO) && getTimeFromMillis(cooldownLeft.toNumber() * 1000) == '0'
+                        ? commaNumber(
+                            truncateValue(formatUnits(balances.personalBalance, walletAssetDecimals), 2, false)
+                          )
+                        : commaNumber(
+                            truncateValue(
+                              formatUnits(
+                                balances.personalBalance.gt(minReqAccBal)
+                                  ? balances.personalBalance.sub(minReqAccBal)
+                                  : ZERO,
+                                walletAssetDecimals
+                              ),
+                              2,
+                              false
+                            )
+                          )}
+                    </Text>
+                  </Flex>
+                </Flex>
+              )}
+            </>
+          )}
         </Flex>
         <Flex col gap={20}>
-          <GenericInputSection
-            icon={<img src={DAI} height={20} />}
-            onChange={(e) => _handleInputChange(e.target.value)}
-            text="DAI"
-            value={amount}
-            disabled={false}
-            displayIconOnMobile
-          />
-          <StyledSlider
-            disabled={false}
-            min={0}
-            max={walletAssetBalance.toString()}
-            value={rangeValue}
-            onChange={(e) => handleRangeChange(e.target.value)}
-          />
-        </Flex>
-        {inactive ? (
-          <Flex flex1 col stretch>
-            {approval || amount == '' ? (
-              <Button
-                info
-                secondary
-                disabled={
-                  (!isAcceptableAmount && amount != '') || !doesReachMinReqAccountBal || newCoverageLimit.eq(ZERO)
-                }
-                onClick={callActivatePolicy}
-              >
-                Activate my policy
-              </Button>
-            ) : (
-              <Button info secondary onClick={approve} disabled={parseUnits(amount, 18).eq(ZERO)}>
-                Approve
-              </Button>
-            )}
-          </Flex>
-        ) : (
-          <Flex gap={20}>
+          {!isDepositing && (
             <Button
               info
               pl={ifDesktop(46.75)}
@@ -887,54 +978,84 @@ function PolicyBalance({
             >
               Withdraw
             </Button>
-            {approval ? (
-              <Button
-                info
-                secondary
-                disabled={!isAcceptableAmount}
-                pl={ifDesktop(46.75)}
-                pr={ifDesktop(46.75)}
-                pt={8}
-                pb={8}
-                style={{
-                  fontWeight: 600,
-                  flex: 1,
-                }}
-                onClick={callDeposit}
-              >
-                Deposit
-              </Button>
-            ) : (
-              <Button
-                info
-                secondary
-                pl={ifDesktop(46.75)}
-                pr={ifDesktop(46.75)}
-                pt={8}
-                pb={8}
-                style={{
-                  fontWeight: 600,
-                  flex: 1,
-                }}
-                onClick={approve}
-                disabled={amount == '' || parseUnits(amount, 18).eq(ZERO)}
-              >
-                Approve
-              </Button>
-            )}
-          </Flex>
-        )}
+          )}
+          {isDepositing && (
+            <>
+              {inactive && approval && (
+                <>
+                  {!doesReachMinReqAccountBal && (
+                    <Text autoAlignHorizontal t4 error>
+                      Insufficient deposit (Need at least over:{' '}
+                      {truncateValue(formatUnits(minReqAccBal, walletAssetDecimals), 2)})
+                    </Text>
+                  )}
+                  {newCoverageLimit.eq(ZERO) && (
+                    <Text autoAlignHorizontal t4 error>
+                      Your coverage limit cannot be zero
+                    </Text>
+                  )}
+                  <Button
+                    info
+                    secondary
+                    disabled={
+                      !doesReachMinReqAccountBal ||
+                      newCoverageLimit.eq(ZERO) ||
+                      (inputProps.amount != '' &&
+                        parseUnits(inputProps.amount, walletAssetDecimals).gt(walletAssetBalance))
+                    }
+                    onClick={callActivatePolicy}
+                  >
+                    Activate my policy
+                  </Button>
+                </>
+              )}
+              {!inactive && approval && (
+                <Button
+                  info
+                  secondary
+                  disabled={!isAcceptableAmount}
+                  pl={ifDesktop(46.75)}
+                  pr={ifDesktop(46.75)}
+                  pt={8}
+                  pb={8}
+                  style={{
+                    fontWeight: 600,
+                    flex: 1,
+                  }}
+                  onClick={callDeposit}
+                >
+                  Deposit
+                </Button>
+              )}
+              {!approval && (
+                <Button
+                  info
+                  secondary
+                  pl={ifDesktop(46.75)}
+                  pr={ifDesktop(46.75)}
+                  pt={8}
+                  pb={8}
+                  style={{
+                    fontWeight: 600,
+                    flex: 1,
+                  }}
+                  onClick={unlimitedApprove}
+                  // disabled={inputProps.amount == '' || parseUnits(inputProps.amount, 18).eq(ZERO)}
+                >
+                  Unlimited Approval
+                </Button>
+              )}
+            </>
+          )}
+        </Flex>
       </Flex>
     </Flex>
-    // </Card>
   )
 }
 
 function CoverageActive({ policyStatus }: { policyStatus: boolean }) {
   const { deactivatePolicy } = useFunctions()
   const { account } = useWallet()
-  const { isCooldownActive, cooldownLeft } = useCooldownDetails(account)
-  const showCooldown = useMemo(() => isCooldownActive && cooldownLeft.gt(ZERO), [isCooldownActive, cooldownLeft])
   const { handleToast, handleContractCallError } = useTransactionExecution()
 
   const callDeactivatePolicy = async () => {
@@ -952,23 +1073,17 @@ function CoverageActive({ policyStatus }: { policyStatus: boolean }) {
             <Text t2s bold>
               Coverage
             </Text>
-            <Text t2s bold info={policyStatus} warning={!policyStatus}>
+            <Text t2s bold success={policyStatus} warning={!policyStatus}>
               {policyStatus ? 'Active' : 'Inactive'}
             </Text>
           </Flex>
-          {showCooldown && (
-            <Flex gap={4}>
-              <Text t5s bold>
-                Cooldown:
-              </Text>
-              <Text info t5s bold>
-                {getTimeFromMillis(cooldownLeft.toNumber() * 1000)}
-              </Text>
-            </Flex>
-          )}
         </Flex>
         <Flex between itemsCenter>
-          {policyStatus && <ToggleSwitch id="bird" toggled={!isCooldownActive} onChange={callDeactivatePolicy} />}
+          {policyStatus && (
+            <Button onClick={callDeactivatePolicy} error>
+              Deactivate
+            </Button>
+          )}
         </Flex>
       </Flex>
     </Card>
@@ -987,6 +1102,7 @@ function ReferralSection({
     codeIsValid: boolean
     referrerIsActive: boolean
     checkingReferral: boolean
+    referrerIsOther: boolean
   }
   setReferralCode: (referralCode: string | undefined) => void
   userCanRefer: boolean
@@ -996,7 +1112,6 @@ function ReferralSection({
   const { activeNetwork } = useNetwork()
   const [formReferralCode, setFormReferralCode] = useState(referralCode)
   const [generatedReferralCode, setGeneratedReferralCode] = useState('')
-  const [isCopied, setCopied] = useCopyClipboard()
 
   const getReferralCode = async () => {
     const ethereum = (window as any).ethereum
@@ -1030,7 +1145,7 @@ function ReferralSection({
 
     ethereum
       .request({
-        method: 'eth_signTypedData_v3',
+        method: 'eth_signTypedData_v4',
         params: [ethereum.selectedAddress, msgParams],
       })
       .then((code: any) => setGeneratedReferralCode(code))
@@ -1039,8 +1154,6 @@ function ReferralSection({
 
   return (
     <Card normous horiz>
-      {/* top part / title */}
-      {/* <Flex col stretch between> */}
       <Flex
         stretch
         col
@@ -1053,28 +1166,46 @@ function ReferralSection({
           <Text t2 bold techygradient>
             Bonuses
           </Text>
-          <StyledTooltip id={'coverage-price'} tip={'ReferralSection - Bonuses tooltip'}>
+          <StyledTooltip
+            id={'coverage-price'}
+            tip={'You can use a referral code to claim a bonus, or share your own code with other users'}
+          >
             <QuestionCircle height={20} width={20} color={'#aaa'} />
           </StyledTooltip>
         </Flex>
         <Flex col flex1 gap={40} stretch justifyCenter>
           {userCanRefer && (
             <Flex col gap={10} stretch>
-              <Text t4s>Get more bonuses for everyone who gets coverage via your referral link:</Text>
+              <Text t4s>
+                Give bonuses to users who get coverage via your referral link while you are covered (You&apos;ll get $50
+                when your referral code is used) :
+              </Text>
               {generatedReferralCode.length > 0 ? (
-                <Flex
-                  gap={10}
-                  style={{
-                    alignItems: 'flex-end',
-                    cursor: 'pointer',
-                  }}
-                  onClick={() => setCopied(`${(window as any).location.href}/?rc=${generatedReferralCode}`)}
-                >
-                  <Text t4s bold techygradient>
-                    {(window as any).location.href}/?rc={shortenAddress(generatedReferralCode)}
-                  </Text>
-                  {isCopied ? <InfoCheckmark /> : <InfoCopy />}
-                </Flex>
+                <>
+                  <Flex
+                    p={5}
+                    style={{
+                      alignItems: 'flex-end',
+                    }}
+                  >
+                    <Input
+                      t4s
+                      bold
+                      techygradient
+                      widthP={100}
+                      readOnly
+                      value={shortenAddress(generatedReferralCode)}
+                      textAlignCenter
+                    />
+                  </Flex>
+                  <CopyButton widthP={100} info toCopy={generatedReferralCode} objectName={'Code'} />
+                  <CopyButton
+                    widthP={100}
+                    info
+                    toCopy={`${(window as any).location.href}?rc=${generatedReferralCode}`}
+                    objectName={'Link'}
+                  />
+                </>
               ) : (
                 <Button info onClick={getReferralCode}>
                   Get My Code
@@ -1087,7 +1218,7 @@ function ReferralSection({
               <Text t4s inline bold techygradient>
                 Got a referral code?
               </Text>{' '}
-              Enter here to claim bonus credit when you{' '}
+              Enter here to claim $50 bonus credit when you{' '}
               <Text t4s inline info italics>
                 activate a policy
               </Text>{' '}
@@ -1112,6 +1243,10 @@ function ReferralSection({
                 <Text t4s error bold>
                   The referrer of this code has no active policy. Cannot be applied.
                 </Text>
+              ) : !referralChecks.referrerIsOther ? (
+                <Text t4s error bold>
+                  Sorry, but you cannot use your own referral code.
+                </Text>
               ) : (
                 <Text t4s success bold>
                   This referral code is valid. Will be applied.
@@ -1132,13 +1267,80 @@ function ReferralSection({
           </Flex>
         </Flex>
       </Flex>
-      {/* </Flex> */}
     </Card>
   )
 }
 
 function PortfolioTable({ portfolio }: { portfolio: SolaceRiskScore | undefined }) {
   const { width } = useWindowDimensions()
+  const { appTheme } = useGeneral()
+  const [tierColors, setTierColors] = useState<string[]>([])
+
+  useEffect(() => {
+    const getGreenToRedColors = (maxTier: number) => {
+      if (!portfolio) return
+
+      // rgb settings: since we only want red to green colors, only values r and g will be adjusted
+      const luminosityPercentage = appTheme == 'light' ? 0.7 : 0.8
+      const rangeMin = appTheme == 'light' ? 60 : 80
+      const rangeMax = 255
+
+      // b value appears to represent color intensity in this case, so it is set to rangeMin
+      // the lower b is, the stronger the color
+      const b = rangeMin
+      let r = rangeMax
+      let g = b
+
+      const colors = []
+
+      // since we are changing r and g, we are changing two color ranges of equal length,
+      // then divide the product by the number of tiers to get the increment
+      // we do not need increment if the max tier is 0 or 1
+      const increment = maxTier > 1 ? ((rangeMax - rangeMin) * 2) / maxTier : (rangeMax - rangeMin) * 2
+
+      // we start by changing the g value to get the green colors first
+      let changingR = false
+      for (let i = 0; i < maxTier + 1; i++) {
+        // for easier index-to-color access, we are pushing values toward the beginning of the array
+        // the lower the index, the greener the color, and the higher the index, the redder the color
+        colors.unshift(`rgb(${r * luminosityPercentage}, ${g * luminosityPercentage}, ${b * luminosityPercentage})`)
+        if (changingR) {
+          r -= increment
+        } else {
+          // if g goes past the max range, pour that leftover increment into subtracting from r
+          if (g + increment > rangeMax) {
+            const leftOver = g + increment - rangeMax
+            g = rangeMax
+            r -= leftOver
+            changingR = true
+          } else {
+            g += increment
+          }
+          // switch to change r value if we got all the g colors
+          if (g == rangeMax) {
+            changingR = true
+          }
+        }
+      }
+      setTierColors(colors)
+    }
+    const maxTierProtocol =
+      portfolio && portfolio.protocols.length > 0
+        ? portfolio.protocols.reduce((pn, cn) => (cn.tier > pn.tier ? cn : pn))
+        : undefined
+    if (maxTierProtocol) {
+      getGreenToRedColors(maxTierProtocol.tier)
+    }
+  }, [portfolio, appTheme])
+
+  const getColorByTier = (tier: number) => {
+    const index = tier - 1
+    if (index < 0) {
+      return tierColors[tierColors.length - 1]
+    } else {
+      return tierColors[index]
+    }
+  }
 
   return (
     <>
@@ -1159,7 +1361,9 @@ function PortfolioTable({ portfolio }: { portfolio: SolaceRiskScore | undefined 
                   <TableData>{capitalizeFirstLetter(d.appId)}</TableData>
                   <TableData>{d.category}</TableData>
                   <TableData>{d.balanceUSD}</TableData>
-                  <TableData>{d.tier}</TableData>
+                  {tierColors.length > 0 && (
+                    <TableData style={{ color: getColorByTier(d.tier) }}>{d.tier == 0 ? 'Unrated' : d.tier}</TableData>
+                  )}
                 </TableRow>
               ))}
           </TableBody>
@@ -1167,9 +1371,9 @@ function PortfolioTable({ portfolio }: { portfolio: SolaceRiskScore | undefined 
       ) : (
         <Flex column gap={30}>
           {portfolio &&
-            portfolio.protocols.map((row) => (
+            portfolio.protocols.map((row, i) => (
               <GrayBgDiv
-                key={row.appId}
+                key={i}
                 style={{
                   borderRadius: '10px',
                   padding: '14px 24px',
@@ -1177,7 +1381,7 @@ function PortfolioTable({ portfolio }: { portfolio: SolaceRiskScore | undefined 
               >
                 <Flex gap={30} between itemsCenter>
                   <Flex col gap={8.5}>
-                    <div>{capitalizeFirstLetter(row.network)}</div>
+                    <div>{capitalizeFirstLetter(row.appId)}</div>
                   </Flex>
                   <Flex
                     col
@@ -1188,7 +1392,9 @@ function PortfolioTable({ portfolio }: { portfolio: SolaceRiskScore | undefined 
                   >
                     <div>{row.category}</div>
                     <div>{row.balanceUSD}</div>
-                    <div>{row.tier}</div>
+                    {tierColors.length > 0 && (
+                      <div style={{ color: getColorByTier(row.tier) }}>{row.tier == 0 ? 'Unrated' : row.tier}</div>
+                    )}{' '}
                   </Flex>
                 </Flex>
               </GrayBgDiv>
@@ -1210,26 +1416,42 @@ enum FormStages {
   'RegularUser',
 }
 
-function WelcomeMessage({ type, goToSecondStage }: { type: ReferralSource; goToSecondStage: () => void }): JSX.Element {
+function WelcomeMessage({
+  portfolio,
+  type,
+  goToSecondStage,
+}: {
+  portfolio: SolaceRiskScore | undefined
+  type: ReferralSource
+  goToSecondStage: () => void
+}): JSX.Element {
+  const { appTheme } = useGeneral()
+  const annualCost = useMemo(() => (portfolio && portfolio.address_rp ? portfolio.address_rp : 0), [portfolio])
+
   switch (type) {
     case ReferralSource.Custom:
       return (
         <Card>
           <Flex col gap={30} itemsCenter>
-            <Text t2s>When the flies fly they do unfly</Text>
+            <Text t2s>Solace Wallet Coverage</Text>
             <Flex col gap={10} itemsCenter>
-              <Text t5s>The table below is a list of your funds in protocols available for coverage.</Text>
-              <Text t5s>By subscribing to Solace Wallet Coverage, all funds in the list are covered.</Text>
-              <Text t5s italics>
-                <Text bold inline t5s>
-                  Tip:
-                </Text>{' '}
-                all future changes to your portfolio are also covered automatically.
-              </Text>
+              <Text t2>Your annual cost based on your portfolio: {truncateValue(annualCost, 2)} USD/yr</Text>
+              <Text t5s>By funding a single policy for your entire portfolio, you will be covered.</Text>
+              <Text t5s>The table below is a list of your positions on protocols available for coverage.</Text>
             </Flex>
             <Button info secondary pl={23} pr={23} onClick={goToSecondStage}>
-              Sounds good, what&apos;s next?
+              Get Started
             </Button>
+            {appTheme == 'light' && (
+              <Flex center>
+                <img src={Zapper} style={{ width: '145px' }} />
+              </Flex>
+            )}
+            {appTheme == 'dark' && (
+              <Flex center>
+                <img src={ZapperDark} style={{ width: '145px' }} />
+              </Flex>
+            )}
           </Flex>
         </Card>
       )
@@ -1237,20 +1459,25 @@ function WelcomeMessage({ type, goToSecondStage }: { type: ReferralSource; goToS
       return (
         <Card>
           <Flex col gap={30} itemsCenter>
-            <Text t2s>When the flies fly they do unfly</Text>
+            <Text t2s>Solace Wallet Coverage</Text>
             <Flex col gap={10} itemsCenter>
-              <Text t5s>The table below is a list of your funds in protocols available for coverage.</Text>
-              <Text t5s>By subscribing to Solace Wallet Coverage, all funds in the list are covered.</Text>
-              <Text t5s italics>
-                <Text bold inline t5s>
-                  Tip:
-                </Text>{' '}
-                all future changes to your portfolio are also covered automatically.
-              </Text>
+              <Text t2>Your annual cost based on your portfolio: {truncateValue(annualCost, 2)} USD/yr</Text>
+              <Text t5s>By funding a single policy for your entire portfolio, you will be covered.</Text>
+              <Text t5s>The table below is a list of your positions on protocols available for coverage.</Text>
             </Flex>
             <Button info secondary pl={23} pr={23} onClick={goToSecondStage}>
-              Sounds good, what&apos;s next?
+              Get Started
             </Button>
+            {appTheme == 'light' && (
+              <Flex center>
+                <img src={Zapper} style={{ width: '200px' }} />
+              </Flex>
+            )}
+            {appTheme == 'dark' && (
+              <Flex center>
+                <img src={ZapperDark} style={{ width: '200px' }} />
+              </Flex>
+            )}
           </Flex>
         </Card>
       )
@@ -1258,20 +1485,25 @@ function WelcomeMessage({ type, goToSecondStage }: { type: ReferralSource; goToS
       return (
         <Card>
           <Flex col gap={30} itemsCenter>
-            <Text t2s>When the flies fly they do unfly</Text>
+            <Text t2s>Solace Wallet Coverage</Text>
             <Flex col gap={10} itemsCenter>
-              <Text t5s>The table below is a list of your funds in protocols available for coverage.</Text>
-              <Text t5s>By subscribing to Solace Wallet Coverage, all funds in the list are covered.</Text>
-              <Text t5s italics>
-                <Text bold inline t5s>
-                  Tip:
-                </Text>{' '}
-                all future changes to your portfolio are also covered automatically.
-              </Text>
+              <Text t2>Your annual cost based on your portfolio: {truncateValue(annualCost, 2)} USD/yr</Text>
+              <Text t5s>By funding a single policy for your entire portfolio, you will be covered.</Text>
+              <Text t5s>The table below is a list of your positions on protocols available for coverage.</Text>
             </Flex>
             <Button info secondary pl={23} pr={23} onClick={goToSecondStage}>
-              Sounds good, what&apos;s next?
+              Get Started
             </Button>
+            {appTheme == 'light' && (
+              <Flex center>
+                <img src={Zapper} style={{ width: '200px' }} />
+              </Flex>
+            )}
+            {appTheme == 'dark' && (
+              <Flex center>
+                <img src={ZapperDark} style={{ width: '200px' }} />
+              </Flex>
+            )}
           </Flex>
         </Card>
       )
@@ -1280,14 +1512,14 @@ function WelcomeMessage({ type, goToSecondStage }: { type: ReferralSource; goToS
 
 export default function Soteria(): JSX.Element {
   const { referralCode: referralCodeFromStorage } = useGeneral()
-  const { account } = useWallet()
+  const { account, library } = useWallet()
   const { latestBlock } = useProvider()
   const { activeNetwork } = useNetwork()
   const { version } = useCachedData()
   const canShowSoteria = useMemo(() => !activeNetwork.config.restrictedFeatures.noSoteria, [
     activeNetwork.config.restrictedFeatures.noSoteria,
   ])
-  const portfolio = usePortfolio('0x09748f07b839edd1d79a429d3ad918f670d602cd', 1)
+  const portfolio = usePortfolio(account, 1)
   const { isMobile } = useWindowDimensions()
   const { policyId, status, coverageLimit, mounting } = useCheckIsCoverageActive(account)
   const {
@@ -1297,10 +1529,14 @@ export default function Soteria(): JSX.Element {
     getReferrerFromReferralCode,
     getPolicyOf,
     getPolicyStatus,
+    getAvailableCoverCapacity,
   } = useFunctions()
   const balances = useTotalAccountBalance(account)
+  const { amount, isAppropriateAmount, handleInputChange, resetAmount } = useInputAmount()
 
   const currentCoverageLimit = useMemo(() => coverageLimit, [coverageLimit])
+  const { keyContracts } = useContracts()
+  const { solaceCoverProduct } = useMemo(() => keyContracts, [keyContracts])
   const firstTime = useMemo(() => policyId.isZero(), [policyId])
 
   const [referralType, setReferralType] = useState<ReferralSource>(ReferralSource.Standard)
@@ -1313,9 +1549,28 @@ export default function Soteria(): JSX.Element {
   const [codeIsUsable, setCodeIsUsable] = useState<boolean>(true)
   const [codeIsValid, setCodeIsValid] = useState<boolean>(true)
   const [referrerIsActive, setIsReferrerIsActive] = useState<boolean>(true)
+  const [referrerIsOther, setIsReferrerIsOther] = useState<boolean>(true)
   const [checkingReferral, setCheckingReferral] = useState<boolean>(false)
 
   const [minReqAccBal, setMinReqAccBal] = useState<BigNumber>(ZERO)
+
+  const [walletAssetBalance, setWalletAssetBalance] = useState<BigNumber>(ZERO)
+  const [walletAssetDecimals, setWalletAssetDecimals] = useState<number>(0)
+
+  const [contractForAllowance, setContractForAllowance] = useState<Contract | null>(null)
+  const spenderAddress = useMemo(() => (solaceCoverProduct ? solaceCoverProduct.address : null), [solaceCoverProduct])
+  const approval = useTokenAllowance(
+    contractForAllowance,
+    spenderAddress,
+    amount && amount != '.' ? parseUnits(amount, walletAssetDecimals).toString() : '0'
+  )
+
+  const [availableCoverCapacity, setAvailableCoverCapacity] = useState<BigNumber>(ZERO)
+
+  const canPurchaseNewCover = useMemo(() => {
+    if (newCoverageLimit.lte(currentCoverageLimit)) return true
+    return newCoverageLimit.sub(currentCoverageLimit).lt(availableCoverCapacity)
+  }, [availableCoverCapacity, currentCoverageLimit, newCoverageLimit])
 
   const _checkMinReqAccountBal = useDebounce(async () => {
     const minReqAccountBal = await getMinRequiredAccountBalance(newCoverageLimit)
@@ -1323,10 +1578,10 @@ export default function Soteria(): JSX.Element {
   }, 300)
 
   const _checkReferralCode = useDebounce(async () => {
-    setCheckingReferral(true)
-    if (!referralCode || referralCode.length == 0) {
+    if (!referralCode || referralCode.length == 0 || !account) {
       setCodeIsValid(false)
       setCheckingReferral(false)
+      setIsReferrerIsOther(true)
       return
     }
     const isValid = await getIsReferralCodeValid(referralCode)
@@ -1334,20 +1589,55 @@ export default function Soteria(): JSX.Element {
       const referrer = await getReferrerFromReferralCode(referralCode)
       if (referrer == ADDRESS_ZERO) {
         setIsReferrerIsActive(false)
+        setIsReferrerIsOther(true)
+      } else if (referrer.toLowerCase() == account.toLowerCase()) {
+        setIsReferrerIsOther(false)
       } else {
         const refId = await getPolicyOf(referrer)
         const refStatus = await getPolicyStatus(refId)
         setIsReferrerIsActive(refStatus)
+        setIsReferrerIsOther(true)
       }
     }
     setCodeIsValid(isValid)
     setCheckingReferral(false)
   }, 300)
 
+  const _getAvailableFunds = useDebounce(async () => {
+    if (!library || !account) return
+    const tokenContract = new Contract(DAI_ADDRESS[activeNetwork.chainId], IERC20.abi, library)
+    const balance = await queryBalance(tokenContract, account)
+    const decimals = await queryDecimals(tokenContract)
+    setWalletAssetBalance(balance)
+    setWalletAssetDecimals(decimals)
+    setContractForAllowance(tokenContract)
+  }, 300)
+
+  const _getCapacity = useDebounce(async () => {
+    const capacity = await getAvailableCoverCapacity()
+    setAvailableCoverCapacity(capacity)
+  }, 300)
+
+  useEffect(() => {
+    _getCapacity()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [latestBlock, version])
+
+  useEffect(() => {
+    _getAvailableFunds()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [account, activeNetwork.chainId, library, latestBlock])
+
+  useEffect(() => {
+    setCheckingReferral(true)
+    _checkReferralCode()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [referralCode])
+
   useEffect(() => {
     _checkReferralCode()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [referralCode, latestBlock, version])
+  }, [latestBlock, version])
 
   useEffect(() => {
     _checkMinReqAccountBal()
@@ -1392,16 +1682,20 @@ export default function Soteria(): JSX.Element {
           ) : (
             <Flex col gap={24} m={isMobile ? 20 : undefined}>
               {firstTime && formStage === FormStages.Welcome ? (
-                <WelcomeMessage type={referralType} goToSecondStage={goToSecondStage} />
+                <WelcomeMessage portfolio={portfolio} type={referralType} goToSecondStage={goToSecondStage} />
               ) : (
                 <Flex gap={24} col={isMobile}>
-                  {/* <RaisedBox>
-              <Flex gap={24}> */}
                   {status ? (
                     <>
                       <Card thinner>
                         <CoverageLimit
-                          referralChecks={{ codeIsUsable, codeIsValid, referrerIsActive, checkingReferral }}
+                          referralChecks={{
+                            codeIsUsable,
+                            codeIsValid,
+                            referrerIsActive,
+                            checkingReferral,
+                            referrerIsOther,
+                          }}
                           balances={balances}
                           minReqAccBal={minReqAccBal}
                           currentCoverageLimit={currentCoverageLimit}
@@ -1412,27 +1706,55 @@ export default function Soteria(): JSX.Element {
                           portfolio={portfolio}
                           setIsEditing={setIsEditing}
                           setReferralCode={setReferralCode}
+                          canPurchaseNewCover={canPurchaseNewCover}
                         />{' '}
                       </Card>
                       <Card bigger horiz>
                         <PolicyBalance
-                          referralChecks={{ codeIsUsable, codeIsValid, referrerIsActive, checkingReferral }}
+                          referralChecks={{
+                            codeIsUsable,
+                            codeIsValid,
+                            referrerIsActive,
+                            checkingReferral,
+                            referrerIsOther,
+                          }}
                           balances={balances}
                           minReqAccBal={minReqAccBal}
                           portfolio={portfolio}
                           currentCoverageLimit={currentCoverageLimit}
                           newCoverageLimit={newCoverageLimit}
                           referralCode={referralCode}
+                          walletAssetBalance={walletAssetBalance}
+                          walletAssetDecimals={walletAssetDecimals}
+                          approval={approval}
                           setReferralCode={setReferralCode}
+                          inputProps={{
+                            amount,
+                            isAppropriateAmount,
+                            handleInputChange,
+                            resetAmount,
+                          }}
+                          coverageActivity={{
+                            policyId,
+                            status,
+                            coverageLimit,
+                            mounting,
+                          }}
                         />
                       </Card>
                     </>
                   ) : (
                     // <>
-                    <Card inactive horiz noPadding gap={24}>
+                    <Card inactive horiz={!isMobile} noPadding gap={24}>
                       <Card innerThinner noShadow>
                         <CoverageLimit
-                          referralChecks={{ codeIsUsable, codeIsValid, referrerIsActive, checkingReferral }}
+                          referralChecks={{
+                            codeIsUsable,
+                            codeIsValid,
+                            referrerIsActive,
+                            checkingReferral,
+                            referrerIsOther,
+                          }}
                           balances={balances}
                           minReqAccBal={minReqAccBal}
                           currentCoverageLimit={currentCoverageLimit}
@@ -1443,28 +1765,46 @@ export default function Soteria(): JSX.Element {
                           portfolio={portfolio}
                           setIsEditing={setIsEditing}
                           setReferralCode={setReferralCode}
+                          canPurchaseNewCover={canPurchaseNewCover}
                           inactive
                         />
                       </Card>{' '}
                       <Card innerBigger noShadow>
                         <PolicyBalance
-                          referralChecks={{ codeIsUsable, codeIsValid, referrerIsActive, checkingReferral }}
+                          referralChecks={{
+                            codeIsUsable,
+                            codeIsValid,
+                            referrerIsActive,
+                            checkingReferral,
+                            referrerIsOther,
+                          }}
                           balances={balances}
                           minReqAccBal={minReqAccBal}
                           portfolio={portfolio}
                           currentCoverageLimit={currentCoverageLimit}
                           newCoverageLimit={newCoverageLimit}
                           referralCode={referralCode}
+                          walletAssetBalance={walletAssetBalance}
+                          walletAssetDecimals={walletAssetDecimals}
+                          approval={approval}
                           setReferralCode={setReferralCode}
+                          inputProps={{
+                            amount,
+                            isAppropriateAmount,
+                            handleInputChange,
+                            resetAmount,
+                          }}
+                          coverageActivity={{
+                            policyId,
+                            status,
+                            coverageLimit,
+                            mounting,
+                          }}
                           inactive
                         />
                       </Card>
                     </Card>
-                    // </>
                   )}
-
-                  {/* </Flex>
-            </RaisedBox> */}
                   <Flex
                     col
                     stretch
@@ -1475,7 +1815,13 @@ export default function Soteria(): JSX.Element {
                   >
                     <CoverageActive policyStatus={status} />
                     <ReferralSection
-                      referralChecks={{ codeIsUsable, codeIsValid, referrerIsActive, checkingReferral }}
+                      referralChecks={{
+                        codeIsUsable,
+                        codeIsValid,
+                        referrerIsActive,
+                        checkingReferral,
+                        referrerIsOther,
+                      }}
                       userCanRefer={status}
                       referralCode={referralCode}
                       setReferralCode={setReferralCode}
