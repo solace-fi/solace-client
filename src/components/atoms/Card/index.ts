@@ -31,8 +31,18 @@ const CardCss = css<CardProps>`
   ${(props) => props.fade && `background: ${props.theme.card.fade};`}
   ${(props) =>
     props.canHover &&
-    `cursor: pointer; &:hover { background-color: ${props.theme.card.hover_color}; transition: background-color 200ms linear; }`}
-  ${(props) => props.glow && `box-shadow: ${props.theme.card.glow};`}
+    css`
+      cursor: pointer;
+      &:hover {
+        background-color: ${props.theme.card.hover_color};
+        transition: background-color 200ms linear;
+      }
+    `}
+  ${(props) =>
+    props.glow &&
+    css`
+      box-shadow: ${props.theme.card.glow};
+    `}
 `
 
 export const CardContainer = styled.div<CardContainerProps & GeneralTextProps>`
