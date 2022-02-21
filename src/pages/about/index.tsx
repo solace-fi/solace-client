@@ -51,9 +51,9 @@ function About(): any {
               We’re here to protect your funds, so you don’t have to stress about getting rekt anymore.
             </Text>
             <ButtonWrapper pt={70} pb={90}>
-              <StyledNavLink to="/quote">
+              <StyledNavLink to="/cover">
                 <Button light width={200} style={{ padding: '15px 50px', borderRadius: '55px' }}>
-                  Buy Cover
+                  Buy Coverage
                 </Button>
               </StyledNavLink>
               <StyledNavLink to="/bond">
@@ -125,10 +125,10 @@ function About(): any {
               We’re here to protect your funds, so you don’t have to stress about getting rekt anymore.
             </Text>
             <ButtonWrapper pt={70} pb={90}>
-              <StyledNavLink to="/quote">
+              <StyledNavLink to="/cover">
                 <Button light width={150} style={{ padding: '15px 50px', borderRadius: '55px' }}>
                   <TextSpan light nowrap>
-                    Buy Cover
+                    Buy Coverage
                   </TextSpan>
                 </Button>
               </StyledNavLink>
