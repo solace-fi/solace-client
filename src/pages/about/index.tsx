@@ -37,8 +37,9 @@ import { ScrollDot } from '../../components/atoms/Icon/ScrollDot'
 import { ExploitsCoverageSection } from './components/organisms/ExploitsCoverageSection'
 import { AboutFirstSection } from './components/organisms/AboutFirstSection'
 import { StakingSection } from './components/organisms/StakingSection'
-import { AdvisorsAndContributorsSection } from './components/organisms/TeamAndAdvisors/AdvisorsAndContributorsSection'
-import { TeamSection } from './components/organisms/TeamAndAdvisors/TeamSection'
+// import { AdvisorsAndContributorsSection } from './components/organisms/TeamAndAdvisors/AdvisorsAndContributorsSection'
+// import { TeamSection } from './components/organisms/TeamAndAdvisors/TeamSection'
+import { TeamSection, AdvisorsAndContributorsSection } from './components/organisms/TeamAndAdvisors'
 import { handleDesktopScrollingEvents } from './utils/handleDesktopScrollingEvents'
 
 function About1(): any {

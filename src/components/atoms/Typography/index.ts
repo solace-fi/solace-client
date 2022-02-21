@@ -290,9 +290,12 @@ export interface TextFontProps {
 
 export const SectionTitle = styled(Text)<{
   extrabold?: boolean
+  lineHeight?: number
+  fontSize?: number
 }>`
-  font-size: 48px;
-  line-height: 82px;
+  font-size: ${(props) => (props.fontSize ?? 48) + 'px'};
+  line-height: ${({ lineHeight }) => (lineHeight ?? 82) + 'px'};
   font-family: Montserrat;
   font-weight: ${({ extrabold }) => (extrabold ? 700 : 400)};
+  ${GeneralElementCss}
 `

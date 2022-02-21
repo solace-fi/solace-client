@@ -1,12 +1,13 @@
 import React from 'react'
+import { SectionTitle } from '../../../../../components/atoms/Typography'
 import team from '../../../../../resources/team'
 import { HardcodedGrid, HardcodedResponsiveFlex, TeamMember } from './commonComponents'
 
 export const TeamSection = (
   <HardcodedResponsiveFlex>
-    {/* <SectionTitle light extrabold>
+    <SectionTitle light extrabold>
       Team
-    </SectionTitle> */}
+    </SectionTitle>
 
     <HardcodedGrid>
       {team.map(({ name, role, twitter }) => (

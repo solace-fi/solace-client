@@ -3,8 +3,7 @@ import styled, { css } from 'styled-components'
 import { GeneralElementProps, GeneralElementCss, HeightAndWidthProps, HeightAndWidthCss } from '../../generalInterfaces'
 import { BKPT_6 } from '../../../constants'
 
-// prettier-ignore
-export const Flex = styled.div<{
+export interface FlexProps {
   between?: boolean
   around?: boolean
   justifyCenter?: boolean
@@ -34,7 +33,10 @@ export const Flex = styled.div<{
   hidden?: boolean
   baseline?: boolean
   flex1?: boolean
-}>`
+}
+
+// prettier-ignore
+export const Flex = styled.div<FlexProps>`
   display: flex;
   ${({ justifyCenter }) => justifyCenter && css`justify-content: center;`}
   ${({ justifyEnd })    => justifyEnd    && css`justify-content: flex-end;`}
@@ -88,9 +90,10 @@ export const GridOrRow = styled(Flex)`
   }
 `
 
-export const ShadowDiv = styled.div<{
+export interface ShadowDivProps {
   stretch?: boolean
-}>`
+}
+export const ShadowDiv = styled.div<ShadowDivProps>`
   box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.12);
   border-radius: 10px;
   ${(props) =>
@@ -106,15 +109,22 @@ export const ShadowDiv = styled.div<{
     `}
 `
 
-export const Grid = styled(Flex)<{
+export interface GridProps extends GeneralElementProps, HeightAndWidthProps {
   columns?: number
   columnGap?: number
   rowGap?: number
-}>`
+  gap?: number
+}
+
+// prettier-ignore
+export const Grid = styled.div<GridProps & GeneralElementProps & HeightAndWidthProps>`
   display: grid;
-  grid-template-columns: repeat(${(props) => props.columns}, 1fr);
-  grid-column-gap: ${(props) => props.columnGap}px;
-  grid-row-gap: ${(props) => props.rowGap}px;
+  ${({ columns })   => columns   !== undefined && css`grid-template-columns: repeat(${columns}, 1fr);`}
+  ${({ columnGap }) => columnGap !== undefined && css`grid-column-gap: ${columnGap}px;`}
+  ${({ rowGap })    => rowGap    !== undefined && css`grid-row-gap: ${rowGap}px;`}
+  ${({ gap })       => gap       !== undefined && css`gap: ${gap}px;`}
+  ${GeneralElementCss}
+  ${HeightAndWidthCss}
 `
 
 export const HeroContainer = styled.div<HeightAndWidthProps & GeneralElementProps>`
