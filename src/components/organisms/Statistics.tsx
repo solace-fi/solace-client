@@ -102,7 +102,7 @@ export const Statistics: React.FC = () => {
   useEffect(() => {
     const getPrice = async () => {
       if (Object.keys(tokenPriceMapping).length === 0 && tokenPriceMapping.constructor === Object) return
-      setPairPrice(truncateValue(tokenPriceMapping[networks[0].config.keyContracts.solace.addr.toLowerCase()], 2))
+      setPairPrice(truncateValue(tokenPriceMapping[networks[0].config.keyContracts.solace.addr.toLowerCase()], 3))
     }
     getPrice()
   }, [tokenPriceMapping])
