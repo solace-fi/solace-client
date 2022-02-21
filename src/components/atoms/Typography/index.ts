@@ -287,3 +287,12 @@ export interface TextFontProps {
   /** `font-size: 12px`, `line-height: 14px` */ t5s?: boolean
   /** `font-size: 10px`, `line-height: 12px` */ t6s?: boolean
 }
+
+export const SectionTitle = styled(Text)<{
+  extrabold?: boolean
+}>`
+  font-size: 48px;
+  line-height: 82px;
+  font-family: Montserrat;
+  font-weight: ${({ extrabold }) => (extrabold ? 700 : 400)};
+`

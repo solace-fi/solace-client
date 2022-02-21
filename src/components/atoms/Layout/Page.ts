@@ -3,6 +3,7 @@ import styled, { css } from 'styled-components'
 import { GeneralElementProps, GeneralElementCss, HeightAndWidthProps, HeightAndWidthCss } from '../../generalInterfaces'
 import { BKPT_6 } from '../../../constants'
 
+// prettier-ignore
 export const Flex = styled.div<{
   between?: boolean
   around?: boolean
@@ -19,11 +20,15 @@ export const Flex = styled.div<{
   mt?: number
   ml?: number
   mr?: number
+  mx?: number
+  my?: number
   p?: number
   pb?: number
   pl?: number
   pr?: number
   pt?: number
+  px?: number
+  py?: number
   gap?: number
   w?: number
   hidden?: boolean
@@ -31,64 +36,35 @@ export const Flex = styled.div<{
   flex1?: boolean
 }>`
   display: flex;
-  justify-content: 'flex-start';
-  ${({ justifyCenter }) =>
-    justifyCenter &&
-    css`
-      justify-content: center;
-    `}
-  ${({ between }) =>
-    between &&
-    css`
-      justify-content: space-between;
-    `}
-    ${({ around }) =>
-    around &&
-    css`
-      justify-content: space-around;
-    `}
-  ${({ itemsCenter }) =>
-    itemsCenter &&
-    css`
-      align-items: center;
-    `}
-  ${({ center }) =>
-    center &&
-    css`
-      justify-content: center;
-      align-items: center;
-    `}
-  ${({ stretch }) =>
-    stretch &&
-    css`
-      align-items: stretch;
-    `}
-    ${({ baseline }) =>
-    baseline &&
-    css`
-      align-items: baseline;
-    `}
-  flex-direction: ${({ column, col }) => (column || col ? 'column' : 'row')};
-  flex-wrap: ${({ wrap }) => (wrap ? 'wrap' : 'nowrap')};
-  ${({ m }) =>
-    m &&
-    css`
-      margin: ${m}px;
-    `}
-  margin-bottom: ${({ mb }) => mb + 'px'};
-  margin-top: ${({ mt }) => mt + 'px'};
-  margin-left: ${({ ml }) => ml + 'px'};
-  margin-right: ${({ mr }) => mr + 'px'};
-  padding: ${({ p }) => p}px;
-  padding-bottom: ${({ pb }) => pb}px;
-  padding-left: ${({ pl }) => pl}px;
-  padding-right: ${({ pr }) => pr}px;
-  padding-top: ${({ pt }) => pt}px;
-  gap: ${({ gap }) => gap}px;
-  width: ${({ w }) => w}px;
-  ${({ hidden }) => hidden && 'display: none;'}
-  ${({ justifyEnd }) => justifyEnd && 'justify-content: flex-end;'}
-  ${({ flex1 }) => flex1 && 'flex: 1;'}
+  ${({ justifyCenter }) => justifyCenter && css`justify-content: center;`}
+  ${({ justifyEnd })    => justifyEnd    && css`justify-content: flex-end;`}
+  ${({ itemsCenter })   => itemsCenter   && css`align-items: center;`}
+  ${({ center })        => center        && css`justify-content: center;`}
+  ${({ column })        => column        && css`flex-direction: column;`}
+  ${({ col })           => col           && css`flex-direction: column;`}
+  ${({ stretch })       => stretch       && css`flex-grow: 1;`}
+  ${({ wrap })          => wrap          && css`flex-wrap: wrap;`}
+  ${({ between })       => between       && css`justify-content: space-between;`}
+  ${({ around })        => around        && css`justify-content: space-around;`}
+  ${({ m })             => m             && css`margin: ${m}px;`}
+  ${({ mb })            => mb            && css`margin-bottom: ${mb}px;`}
+  ${({ mt })            => mt            && css`margin-top: ${mt}px;`}
+  ${({ ml })            => ml            && css`margin-left: ${ml}px;`}
+  ${({ mr })            => mr            && css`margin-right: ${mr}px;`}
+  ${({ mx })            => mx            && css`margin-left: ${mx}px; margin-right: ${mx}px;`}
+  ${({ my })            => my            && css`margin-top: ${my}px; margin-bottom: ${my}px;`}
+  ${({ p })             => p             && css`padding: ${p}px;`}
+  ${({ pb })            => pb            && css`padding-bottom: ${pb}px;`}
+  ${({ pl })            => pl            && css`padding-left: ${pl}px;`}
+  ${({ pr })            => pr            && css`padding-right: ${pr}px;`}
+  ${({ pt })            => pt            && css`padding-top: ${pt}px;`}
+  ${({ px })            => px            && css`padding-left: ${px}px; padding-right: ${px}px;`}
+  ${({ py })            => py            && css`padding-top: ${py}px; padding-bottom: ${py}px;`}
+  ${({ gap })           => gap           && css`gap: ${gap}px;`}
+  ${({ w })             => w             && css`width: ${w}px;`}
+  ${({ hidden })        => hidden        && css`display: none;`}
+  ${({ baseline })      => baseline      && css`align-self: baseline;`}
+  ${({ flex1 })         => flex1         && css`flex: 1;`}
 `
 
 export const GridOrRow = styled(Flex)`
@@ -126,7 +102,19 @@ export const ShadowDiv = styled.div<{
         height: 100%;
         display: flex;
         flex-direction: column;
+      }
     `}
+`
+
+export const Grid = styled(Flex)<{
+  columns?: number
+  columnGap?: number
+  rowGap?: number
+}>`
+  display: grid;
+  grid-template-columns: repeat(${(props) => props.columns}, 1fr);
+  grid-column-gap: ${(props) => props.columnGap}px;
+  grid-row-gap: ${(props) => props.rowGap}px;
 `
 
 export const HeroContainer = styled.div<HeightAndWidthProps & GeneralElementProps>`
