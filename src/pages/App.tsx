@@ -118,13 +118,6 @@ export default function App(): any {
               )}
               <Switch>
                 <Route exact path="/" component={About} />
-                {/* <Route exact path="/dashboard" component={Dashboard} />
-                <Route exact path="/invest" component={Invest} />
-                <Route exact path="/stake" component={Stake} />
-                <Route exact path="/cover" component={Soteria} />
-                <Route exact path="/bond" component={Bond} />
-                <Route exact path="/quote" component={Quote} />
-                <Route exact path="/govern" component={Govern} /> */}
                 {pages.map((p) => (
                   <Route exact key={p.to} path={p.to} component={p.component} />
                 ))}
