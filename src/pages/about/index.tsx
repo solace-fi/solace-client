@@ -219,6 +219,8 @@ function About(): JSX.Element {
       if (isMobile) {
         window.document.body.style.overflowY = 'scroll'
       }
+      // note for later: these functions should use the `key` object prop instead of the number maybe
+      // or some derivative for good performance
       const setPreviousSection = () => setSection((section) => (section <= 0 ? 0 : section - 1))
       const setNextSection = () =>
         setSection((section) => (section >= AboutSections.length - 1 ? AboutSections.length - 1 : section + 1))
