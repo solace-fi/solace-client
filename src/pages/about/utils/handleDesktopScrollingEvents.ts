@@ -11,7 +11,9 @@ export function handleDesktopScrollingEvents({
   onHome: () => void
 }) {
   // detect scrolling
-  window.addEventListener('wheel', (e) => (e.deltaY < 0 ? onUp() : e.deltaY > 0 && onDown()))
+  window.addEventListener('wheel', (e) =>
+    e.deltaY < 0 ? setTimeout(onUp, 100) : e.deltaY > 0 && setTimeout(onDown, 100)
+  )
   // detect arrow keys
   window.addEventListener('keydown', (e) => {
     // up arrow or page up

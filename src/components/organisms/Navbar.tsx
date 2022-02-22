@@ -123,60 +123,6 @@ export const SideNavbar: React.FC<Navbar> = ({ pages }) => {
         )}
         <ItemList>
           <HorizRule location={location} />
-          {/* <StyledNavTooltip id={'dashboard-nav'} tip={'Dashboard'}>
-            <ItemText>
-              <SidebarItem to={'/dashboard'} style={miniNavbarMarginSet}>
-                <Text info={location.pathname == '/dashboard'} light={lightText}>
-                  {width > BKPT_3 ? 'Dashboard' : <StyledDashboard size={30} />}
-                </Text>
-              </SidebarItem>
-            </ItemText>
-          </StyledNavTooltip>
-          <StyledNavTooltip id={'buy-cover-nav'} tip={'Buy Cover'}>
-            <ItemText>
-              <SidebarItem to={'/quote'} style={miniNavbarMarginSet}>
-                <Text info={location.pathname == '/quote'} light={lightText}>
-                  {width > BKPT_3 ? 'Buy Cover' : <StyledFileShield size={30} />}
-                </Text>
-              </SidebarItem>
-            </ItemText>
-          </StyledNavTooltip>
-          <StyledNavTooltip id={'stake-nav'} tip={'Stake'}>
-            <ItemText>
-              <SidebarItem to={'/stake'} style={miniNavbarMarginSet}>
-                <Text info={location.pathname == '/stake'} light={lightText}>
-                  {width > BKPT_3 ? 'Stake' : <StyledCoinStack size={30} />}
-                </Text>
-              </SidebarItem>
-            </ItemText>
-          </StyledNavTooltip>
-          <StyledNavTooltip id={'bond-nav'} tip={'Bond'}>
-            <ItemText>
-              <SidebarItem to={'/bond'} style={miniNavbarMarginSet}>
-                <Text info={location.pathname == '/bond'} light={lightText}>
-                  {width > BKPT_3 ? 'Bond' : <StyledReceiptMoney size={30} />}
-                </Text>
-              </SidebarItem>
-            </ItemText>
-          </StyledNavTooltip>
-          <StyledNavTooltip id={'invest-nav'} tip={'Farms'}>
-            <ItemText>
-              <SidebarItem to={'/invest'} style={miniNavbarMarginSet}>
-                <Text info={location.pathname == '/invest'} light={lightText}>
-                  {width > BKPT_3 ? 'Farms' : <StyledCoinStack size={30} />}
-                </Text>
-              </SidebarItem>
-            </ItemText>
-          </StyledNavTooltip>
-          <StyledNavTooltip id={'govern-nav'} tip={'Govern'}>
-            <ItemText>
-              <SidebarItem to={'/govern'} style={miniNavbarMarginSet}>
-                <Text info={location.pathname == '/govern'} light={lightText}>
-                  {width > BKPT_3 ? 'Govern' : <StyledCommunity size={30} />}
-                </Text>
-              </SidebarItem>
-            </ItemText>
-          </StyledNavTooltip> */}
           {pages.map((p) => (
             <StyledNavTooltip key={p.to} id={`${p.to}-nav`} tip={p.name}>
               <ItemText>
@@ -207,22 +153,6 @@ export const SideNavbar: React.FC<Navbar> = ({ pages }) => {
               </HyperLink>
             </ItemText>
           </StyledNavTooltip>
-          {/* <StyledNavTooltip id={'whitepaper-nav'} tip={'Whitepaper'}>
-            <ItemText>
-              <HyperLink
-                href={'https://whitepaper.solace.fi/'}
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{ ...miniNavbarMarginSet }}
-              >
-                <SidebarText>
-                  <TextSpan t4 light={lightText}>
-                    {width > BKPT_3 ? 'Whitepaper' : <StyledDocumentText size={30} />}
-                  </TextSpan>
-                </SidebarText>
-              </HyperLink>
-            </ItemText>
-          </StyledNavTooltip> */}
           <StyledNavTooltip id={'jobs-nav'} tip={`We\'re hiring!`}>
             <ItemText>
               <HyperLink
@@ -422,36 +352,6 @@ export const TopNavbar: React.FC<Navbar> = ({ pages }) => {
     <TopNav id="top-nav" isOpen={isOpen} style={{ overflowY: isOpen ? 'auto' : 'hidden' }}>
       <Logo location={location} pl={10} />
       <ItemList>
-        {/* <SidebarItem onClick={() => handleIsOpen(!isOpen)} to={'/dashboard'} style={{ padding: '20px 0' }}>
-          <Text light bold={location.pathname == '/dashboard'}>
-            Dashboard
-          </Text>
-        </SidebarItem>
-        <SidebarItem onClick={() => handleIsOpen(!isOpen)} to={'/quote'} style={{ padding: '20px 0' }}>
-          <Text light bold={location.pathname == '/quote'}>
-            Buy Cover
-          </Text>
-        </SidebarItem>
-        <SidebarItem onClick={() => handleIsOpen(!isOpen)} to={'/stake'} style={{ padding: '20px 0' }}>
-          <Text light bold={location.pathname == '/stake'}>
-            Stake
-          </Text>
-        </SidebarItem>
-        <SidebarItem onClick={() => handleIsOpen(!isOpen)} to={'/bond'} style={{ padding: '20px 0' }}>
-          <Text light bold={location.pathname == '/bond'}>
-            Bond
-          </Text>
-        </SidebarItem>
-        <SidebarItem onClick={() => handleIsOpen(!isOpen)} to={'/invest'} style={{ padding: '20px 0' }}>
-          <Text light bold={location.pathname == '/invest'}>
-            Farms
-          </Text>
-        </SidebarItem>
-        <SidebarItem onClick={() => handleIsOpen(!isOpen)} to={'/govern'} style={{ padding: '20px 0' }}>
-          <Text light bold={location.pathname == '/govern'}>
-            Govern
-          </Text>
-        </SidebarItem> */}
         {pages.map((p) => (
           <SidebarItem key={p.to} onClick={() => handleIsOpen(!isOpen)} to={p.to} style={{ padding: '20px 0' }}>
             <Text light bold={location.pathname == p.to}>
@@ -470,13 +370,6 @@ export const TopNavbar: React.FC<Navbar> = ({ pages }) => {
             </TextSpan>
           </HyperLink>
         </ItemText>
-        {/* <ItemText jc={'center'} style={{ padding: '10px' }}>
-          <HyperLink href={'https://whitepaper.solace.fi/'} target="_blank" rel="noopener noreferrer">
-            <TextSpan t4 light>
-              Whitepaper
-            </TextSpan>
-          </HyperLink>
-        </ItemText> */}
         <ItemText jc={'center'} style={{ padding: '10px' }}>
           <HyperLink
             href={'https://www.notion.so/Solace-16cc777c403a46c8a2ffaba68008fcd9'}

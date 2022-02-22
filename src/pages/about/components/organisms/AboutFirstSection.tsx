@@ -41,7 +41,7 @@ function AboutFirstSectionFunction() {
       </Flex>
       {/* BUTTONS */}
       <Flex col={isMobile} gap={24} mt={62} px={isMobile ? 39 : undefined}>
-        <StyledNavLink to="/quote">
+        <StyledNavLink to="/cover">
           <Button secondary light width={200} style={{ padding: '15px 50px', borderRadius: '55px' }}>
             <Text warmgradient>Buy Cover</Text>
           </Button>
