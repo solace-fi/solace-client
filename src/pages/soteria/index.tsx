@@ -1042,7 +1042,7 @@ function PolicyBalance({
                   onClick={unlimitedApprove}
                   // disabled={inputProps.amount == '' || parseUnits(inputProps.amount, 18).eq(ZERO)}
                 >
-                  Unlimited Approval
+                  Approve
                 </Button>
               )}
             </>
@@ -1148,7 +1148,12 @@ function ReferralSection({
         method: 'eth_signTypedData_v4',
         params: [ethereum.selectedAddress, msgParams],
       })
-      .then((code: any) => setGeneratedReferralCode(code))
+      .then((code: any) => {
+        let code_ = String(code)
+        if (code_.substring(code_.length - 2, code_.length) == '00') code_ = code_.substring(0, code_.length - 2) + '1b'
+        if (code_.substring(code_.length - 2, code_.length) == '01') code_ = code_.substring(0, code_.length - 2) + '1c'
+        setGeneratedReferralCode(code_)
+      })
       .catch((error: any) => console.log(error))
   }
 

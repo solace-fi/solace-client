@@ -220,7 +220,7 @@ export const BridgeModal: React.FC<ModalProps> = ({ modalTitle, handleClose, isO
           <>
             {!approval && (
               <Button widthP={100} info secondary disabled={haveErrors} onClick={unlimitedApprove}>
-                Unlimited Approval
+                Approve
               </Button>
             )}
             {approval && (

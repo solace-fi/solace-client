@@ -23,7 +23,7 @@ export const FunctionGasLimits: { [key: string]: number } = {
   ['tellerMatic.depositMatic']: 509164,
   ['tellerMatic.depositWmatic']: 597700,
   ['teller_v1.redeem']: 171085,
-  ['teller_v2.claimPayout']: 157950,
+  ['teller_v2.claimPayout']: 190950,
   ['vault.depositEth']: 126777,
   ['vault.withdrawEth']: 123823,
   ['xSolace.stakeSigned']: 143344,
