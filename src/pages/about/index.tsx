@@ -14,7 +14,7 @@
   *************************************************************************************/
 
 /* import packages */
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 
 /* import constants */
 import { BKPT_1, BKPT_3, BKPT_NAVBAR } from '../../constants'
@@ -33,8 +33,16 @@ import aaveLogo from '../../resources/svg/grants/aave-logo-white.svg'
 
 /* import hooks */
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'
+import { ScrollDot } from '../../components/atoms/Icon/ScrollDot'
+import { ExploitsCoverageSection } from './components/organisms/ExploitsCoverageSection'
+import { AboutFirstSection } from './components/organisms/AboutFirstSection'
+import { StakingSection } from './components/organisms/StakingSection'
+// import { AdvisorsAndContributorsSection } from './components/organisms/TeamAndAdvisors/AdvisorsAndContributorsSection'
+// import { TeamSection } from './components/organisms/TeamAndAdvisors/TeamSection'
+import { TeamSection, AdvisorsAndContributorsSection } from './components/organisms/TeamAndAdvisors'
+import { handleDesktopScrollingEvents } from './utils/handleDesktopScrollingEvents'
 
-function About(): any {
+function About1(): any {
   /* hooks */
   const { width } = useWindowDimensions()
 
@@ -48,7 +56,7 @@ function About(): any {
               Safe. Secure. Simple.
             </Text>
             <Text light t4 textAlignCenter style={{ lineHeight: '1.8', width: '500px', fontSize: '18px' }}>
-              We’re here to protect your funds, so you don’t have to stress about getting rekt anymore.
+              We&apos;re here to protect your funds, so you don&apos;t have to stress about getting rekt anymore.
             </Text>
             <ButtonWrapper pt={70} pb={90}>
               <StyledNavLink to="/cover">
@@ -122,7 +130,7 @@ function About(): any {
               textAlignCenter
               style={{ lineHeight: '1.8', width: '300px', fontSize: '18px', marginTop: '300px' }}
             >
-              We’re here to protect your funds, so you don’t have to stress about getting rekt anymore.
+              We&apos;re here to protect your funds, so you don&apos;t have to stress about getting rekt anymore.
             </Text>
             <ButtonWrapper pt={70} pb={90}>
               <StyledNavLink to="/cover">
@@ -186,4 +194,96 @@ function About(): any {
   )
 }
 
+const AboutSections = [
+  { section: AboutFirstSection, key: 'about' },
+  { section: ExploitsCoverageSection, key: 'coverage' },
+  { section: StakingSection, key: 'staking' },
+  // {section: RoadmapSection, key: 'roadmap'},
+  { section: AdvisorsAndContributorsSection, key: 'advisors' },
+  { section: TeamSection, key: 'team' },
+] as const
+
+const AboutContent = ({ section }: { section: number }) => <>{AboutSections[section].section}</>
+
+function About(): JSX.Element {
+  /* hooks */
+  const { isMobile, height } = useWindowDimensions()
+  const [section, setSection] = useState<number>(0)
+
+  useEffect(
+    () => {
+      // desktop cannot scroll normally
+      if (!isMobile) {
+        window.document.body.style.overflowY = 'hidden'
+      }
+      if (isMobile) {
+        window.document.body.style.overflowY = 'scroll'
+      }
+      // note for later: these functions should use the `key` object prop instead of the number maybe
+      // or some derivative for good performance
+      const setPreviousSection = () => setSection((section) => (section <= 0 ? 0 : section - 1))
+      const setNextSection = () =>
+        setSection((section) => (section >= AboutSections.length - 1 ? AboutSections.length - 1 : section + 1))
+
+      const { removeListeners } = handleDesktopScrollingEvents({
+        onDown: setNextSection,
+        onUp: setPreviousSection,
+        onHome: () => setSection(0),
+        onEnd: () => setSection(AboutSections.length - 1),
+      })
+      return () => {
+        window.document.body.style.overflowY = 'auto'
+        removeListeners()
+      }
+    },
+    [isMobile] /* eslint-disable-line react-hooks/exhaustive-deps */
+  )
+
+  return (
+    <>
+      <Flex
+        itemsCenter
+        justifyCenter
+        col
+        style={{
+          height: !isMobile ? height - 100 + 'px' : '100%',
+          // border: '5px solid black',
+          position: 'relative',
+        }}
+      >
+        {!isMobile ? (
+          <AboutContent section={section} key={AboutSections[section].key} />
+        ) : (
+          <Flex col gap={81}>
+            {AboutSections.map((Section, index) => (
+              <React.Fragment key={'section' + index}>{Section.section}</React.Fragment>
+            ))}
+          </Flex>
+        )}
+        {!isMobile && (
+          <Flex
+            col
+            gap={20}
+            justifyCenter
+            w={8}
+            style={{
+              position: 'absolute',
+              right: '30px',
+              height: '100%',
+            }}
+          >
+            {AboutSections.map((_section, index) => (
+              <ScrollDot
+                hoverable
+                key={_section.key + 'dot'}
+                active={index === section}
+                onClick={() => setSection(index)}
+              />
+            ))}
+          </Flex>
+        )}
+      </Flex>
+    </>
+  )
+}
 export default About

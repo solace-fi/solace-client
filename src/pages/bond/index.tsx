@@ -236,14 +236,14 @@ function Bond(): any {
                                   </TableData>
                                   <TableData>{tellerDetail.tellerData.teller.name}</TableData>
                                   <TableData>
-                                    <Text fade={tellerDetail.tellerData.usdBondPrice <= 0}>
+                                    <Text t3 fade={tellerDetail.tellerData.usdBondPrice <= 0}>
                                       {tellerDetail.tellerData.usdBondPrice > 0
                                         ? `$${truncateValue(tellerDetail.tellerData.usdBondPrice, 4)}`
                                         : `USD price not found`}
                                     </Text>
                                   </TableData>
                                   <TableData>
-                                    <Text>{truncateValue(tellerDetail.tellerData.bondRoi, 2, false)}%</Text>
+                                    <Text t3>{truncateValue(tellerDetail.tellerData.bondRoi, 2, false)}%</Text>
                                   </TableData>
                                   <TableData textAlignRight>
                                     <Button disabled={haveErrors || tellerDetail.tellerData.teller.isDisabled} info>

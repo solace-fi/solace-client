@@ -24,7 +24,7 @@ const CardCss = css<CardProps>`
   background: ${({ theme }) => theme.card.bg_color_0};
   ${(props) => props.color1 && `background: ${props.theme.card.bg_color_1};`}
   ${(props) => props.color2 && `background: ${props.theme.card.bg_color_2};`}
-  ${(props) => props.isHighlight && `background: ${props.theme.table.highlight_bg_color};`}}
+  ${(props) => props.isHighlight && `background: ${props.theme.table.highlight_bg_color};`}
 
   ${(props) => props.transparent && `background: rgba(255, 255, 255, 0);`}
   ${(props) => props.fade && `background: ${props.theme.card.fade};`}

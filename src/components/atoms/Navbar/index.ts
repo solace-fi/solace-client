@@ -28,7 +28,7 @@ export const TopNav = styled.div<TopNavProps>`
 `
 
 export const SidebarTextCss = css<GeneralTextProps>`
-  font-weight: 500;
+  font-weight: 400;
   font-size: 14px;
   color: ${({ theme }) => `${theme.typography.contrastText}`};
   text-decoration: none;
