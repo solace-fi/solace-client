@@ -82,11 +82,6 @@ const NoWrapCss = css`
   white-space: nowrap;
 `
 
-const Text2StaticCss = css`
-  font-size: 20px;
-  line-height: 18px;
-`
-
 export const Text1Css = css`
   font-size: 24px;
 
@@ -111,11 +106,6 @@ export const Text2_5Css = css`
   }
 `
 
-const Text2_5StaticCss = css`
-  font-size: 18px;
-  line-height: 16px;
-`
-
 export const Text3Css = css`
   font-size: 16px;
 
@@ -124,6 +114,20 @@ export const Text3Css = css`
   }
 `
 
+export const Text1StaticCss = css`
+  font-size: 24px;
+  line-height: 24px;
+`
+
+const Text2StaticCss = css`
+  font-size: 20px;
+  line-height: 18px;
+`
+
+const Text2_5StaticCss = css`
+  font-size: 18px;
+  line-height: 16px;
+`
 export const Text3StaticCss = css`
   font-size: 16px;
   line-height: 14.4px;
@@ -151,25 +155,22 @@ export const Text6StaticCss = css`
   line-height: 12px;
 `
 
-export const Text1StaticCss = css`
-  font-size: 24px;
-  line-height: 24px;
-`
-
 export const TextFontCss = css<TextFontProps>`
-  ${Text3Css}
-  ${(props) => props.t1 && Text1Css}
-  ${(props) => props.t2 && Text2Css}
-  ${(props) => props.t2_5 && Text2_5Css}
-  ${(props) => props.t3 && Text3Css}
-  ${(props) => props.t4 && Text4Css}
-  ${(props) => props.t1s && Text1StaticCss}
-  ${(props) => props.t2s && Text2StaticCss}
-  ${(props) => props.t2_5s && Text2_5StaticCss}
-  ${(props) => props.t3s && Text3StaticCss}
-  ${(props) => props.t4s && Text4StaticCss}
-  ${(props) => props.t5s && Text5StaticCss}
-  ${(props) => props.t6s && Text6StaticCss}
+  ${(props) => {
+    if (props.t1) return Text1Css
+    if (props.t2) return Text2Css
+    if (props.t2_5) return Text2_5Css
+    if (props.t3) return Text3Css
+    if (props.t4) return Text4Css
+    if (props.t1s) return Text1StaticCss
+    if (props.t2s) return Text2StaticCss
+    if (props.t2_5s) return Text2_5StaticCss
+    if (props.t3s) return Text3StaticCss
+    if (props.t4s) return Text4StaticCss
+    if (props.t5s) return Text5StaticCss
+    if (props.t6s) return Text6StaticCss
+    return Text3Css
+  }}
 `
 
 export const TextAlignCss = css<TextAlignProps>`
@@ -186,13 +187,17 @@ export const TextStyleCss = css<TextStyleProps>`
   ${(props) => props.autoAlignVertical && AlignVerticalCss}
   ${(props) => props.autoAlignHorizontal && AlignHorizontalCss}
   ${(props) => props.medium && 'font-weight: 500;'}
-  ${(props) =>
-    props.bold && props.mont
-      ? css`
-          font-weight: 700;
-          letter-spacing: 0.5px;
-        `
-      : 'font-weight: 600;'}
+  ${(props) => {
+    if (props.bold && props.mont)
+      return css`
+        font-weight: 700;
+        letter-spacing: 0.5px;
+      `
+    if (props.bold)
+      return css`
+        font-weight: 600;
+      `
+  }}
   ${(props) => props.regular && 'font-weight: 400;'}
   ${(props) => props.extrabold && 'font-weight: 700;'}
   ${(props) => props.italics && 'font-style: italic;'}

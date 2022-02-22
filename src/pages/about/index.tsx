@@ -195,15 +195,15 @@ function About1(): any {
 }
 
 const AboutSections = [
-  AboutFirstSection,
-  ExploitsCoverageSection,
-  StakingSection,
-  // RoadmapSection,
-  AdvisorsAndContributorsSection,
-  TeamSection,
+  { section: AboutFirstSection, key: 'about' },
+  { section: ExploitsCoverageSection, key: 'coverage' },
+  { section: StakingSection, key: 'staking' },
+  // {section: RoadmapSection, key: 'roadmap'},
+  { section: AdvisorsAndContributorsSection, key: 'advisors' },
+  { section: TeamSection, key: 'team' },
 ] as const
 
-const AboutContent = ({ section }: { section: number }) => <>{AboutSections[section]}</>
+const AboutContent = ({ section }: { section: number }) => <>{AboutSections[section].section}</>
 
 function About(): JSX.Element {
   /* hooks */
@@ -250,11 +250,11 @@ function About(): JSX.Element {
         }}
       >
         {!isMobile ? (
-          <AboutContent section={section} />
+          <AboutContent section={section} key={AboutSections[section].key} />
         ) : (
           <Flex col gap={81}>
             {AboutSections.map((Section, index) => (
-              <React.Fragment key={'section' + index}>{Section}</React.Fragment>
+              <React.Fragment key={'section' + index}>{Section.section}</React.Fragment>
             ))}
           </Flex>
         )}
@@ -270,8 +270,13 @@ function About(): JSX.Element {
               height: '100%',
             }}
           >
-            {AboutSections.map((_, index) => (
-              <ScrollDot hoverable key={index} active={index === section} onClick={() => setSection(index)} />
+            {AboutSections.map((_section, index) => (
+              <ScrollDot
+                hoverable
+                key={_section.key + 'dot'}
+                active={index === section}
+                onClick={() => setSection(index)}
+              />
             ))}
           </Flex>
         )}

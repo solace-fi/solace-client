@@ -54,17 +54,23 @@ function AboutFirstSectionFunction() {
           </Button>
         </StyledNavLink>
       </Flex>
-      <Flex
-        justifyCenter
-        style={{
-          width: '100%',
-          position: 'absolute',
-          bottom: '40px',
-          right: '40px',
-        }}
-      >
-        <img src={grantsFrom} />
-      </Flex>
+      {!isMobile ? (
+        <Flex
+          justifyCenter
+          style={{
+            width: '100%',
+            position: 'absolute',
+            bottom: '40px',
+            right: '40px',
+          }}
+        >
+          <img src={grantsFrom} />
+        </Flex>
+      ) : (
+        <Flex mt={90}>
+          <img src={grantsFrom} />
+        </Flex>
+      )}
     </Flex>
   )
 }

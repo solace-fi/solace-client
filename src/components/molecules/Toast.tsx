@@ -67,7 +67,7 @@ export const AuditToast: React.FC = () => {
     <ToastWrapper>
       <StyledInfo size={30} />
       <FlexedToastMessage>
-        <Text light>
+        <Text t3 regular light>
           solace.fi has been audited by{' '}
           <HyperLink
             href={'https://hacken.io/audits/#solace'}
