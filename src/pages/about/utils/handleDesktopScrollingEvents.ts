@@ -11,11 +11,11 @@ export function handleDesktopScrollingEvents({
   onHome: () => void
 }) {
   // detect scrolling
-  window.addEventListener('wheel', (e) =>
+  const wheelHandler = (e: WheelEvent) =>
     e.deltaY < 0 ? setTimeout(onUp, 100) : e.deltaY > 0 && setTimeout(onDown, 100)
-  )
+
   // detect arrow keys
-  window.addEventListener('keydown', (e) => {
+  const keyDownHandler = (e: KeyboardEvent) => {
     // up arrow or page up
     if (e.code === 'ArrowUp' || e.code === 'PageUp') {
       onUp()
@@ -31,11 +31,14 @@ export function handleDesktopScrollingEvents({
     if (e.code === 'End') {
       onEnd()
     }
-  })
+  }
+
+  window.addEventListener('wheel', wheelHandler)
+  window.addEventListener('keydown', keyDownHandler)
   return {
     removeListeners: () => {
-      window.removeEventListener('wheel', () => undefined)
-      window.removeEventListener('keydown', () => undefined)
+      window.removeEventListener('wheel', () => wheelHandler)
+      window.removeEventListener('keydown', () => keyDownHandler)
     },
   }
 }
