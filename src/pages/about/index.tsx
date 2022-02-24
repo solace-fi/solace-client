@@ -40,7 +40,7 @@ import { StakingSection } from './components/organisms/StakingSection'
 import { RoadmapSection } from './components/organisms/RoadmapSection'
 // import { AdvisorsAndContributorsSection } from './components/organisms/TeamAndAdvisors/AdvisorsAndContributorsSection'
 // import { TeamSection } from './components/organisms/TeamAndAdvisors/TeamSection'
-import { TeamSection, AdvisorsAndContributorsSection } from './components/organisms/TeamAndAdvisors'
+import { Advisors, CoreContributors, Investors } from './components/organisms/TeamAndAdvisors'
 import { handleDesktopScrollingEvents } from './utils/handleDesktopScrollingEvents'
 
 function About1(): any {
@@ -200,8 +200,9 @@ const AboutSections = [
   { section: ExploitsCoverageSection, key: 'coverage' },
   { section: StakingSection, key: 'staking' },
   { section: RoadmapSection, key: 'roadmap' },
-  { section: AdvisorsAndContributorsSection, key: 'advisors' },
-  { section: TeamSection, key: 'team' },
+  { section: Investors, key: 'investors' },
+  { section: Advisors, key: 'advisors' },
+  { section: CoreContributors, key: 'team' },
 ] as const
 
 const AboutContent = ({ section }: { section: number }) => <>{AboutSections[section].section}</>

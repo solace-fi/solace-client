@@ -70,7 +70,6 @@ export function ListOfPeople({
   )
 }
 
-export const AdvisorsAndContributorsSection = (
-  <ListOfPeople list={advisorsAndContributors} title="Advisors & Contributors" />
-)
-export const TeamSection = <ListOfPeople list={team} title="Team" />
+export const Investors = <ListOfPeople list={advisorsAndContributors} title="Investors" />
+export const Advisors = <ListOfPeople list={advisorsAndContributors} title="Advisors" />
+export const CoreContributors = <ListOfPeople list={team} title="Core contributors" />

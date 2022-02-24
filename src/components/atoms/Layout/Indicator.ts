@@ -5,9 +5,9 @@ import { LayoutProps } from '.'
 export const HorizRule = styled.hr<LayoutProps & GeneralElementProps>`
   ${GeneralElementCss}
   border: none;
-  ${(props) => `color: ${props.theme.typography.contrastText};`}
+  ${(props) => `color: ${props.theme.typography.separator};`}
   height: 1px;
-  ${(props) => `background-color: ${props.theme.typography.contrastText};`}
+  ${(props) => `background-color: ${props.theme.typography.separator};`}
   ${(props) =>
     props.location &&
     props.location.pathname == '/' &&
