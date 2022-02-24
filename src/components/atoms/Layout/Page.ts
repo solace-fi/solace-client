@@ -6,12 +6,13 @@ import { BKPT_6 } from '../../../constants'
 export interface FlexProps {
   between?: boolean
   around?: boolean
+  justifyStart?: boolean
   justifyCenter?: boolean
+  justifyEnd?: boolean
   itemsCenter?: boolean
   center?: boolean
   column?: boolean
   col?: boolean
-  justifyEnd?: boolean
   stretch?: boolean
   wrap?: boolean
   m?: number
@@ -35,16 +36,22 @@ export interface FlexProps {
   flex1?: boolean
 }
 
+// type Conditional = string | number | boolean | undefined
+
+// function ifNotFalsey(value: Conditional, css: ThemedCssFunction<DefaultTheme>) {
+// }
+
 // prettier-ignore
 export const Flex = styled.div<FlexProps>`
   display: flex;
+  ${({ justifyStart })  => justifyStart  && css`justify-content: flex-start;`}
   ${({ justifyCenter }) => justifyCenter && css`justify-content: center;`}
   ${({ justifyEnd })    => justifyEnd    && css`justify-content: flex-end;`}
   ${({ itemsCenter })   => itemsCenter   && css`align-items: center;`}
   ${({ center })        => center        && css`justify-content: center;`}
   ${({ column })        => column        && css`flex-direction: column;`}
   ${({ col })           => col           && css`flex-direction: column;`}
-  ${({ stretch })       => stretch       && css`flex-grow: 1;`}
+  ${({ stretch })       => stretch       && css`align-items: stretch;`}
   ${({ wrap })          => wrap          && css`flex-wrap: wrap;`}
   ${({ between })       => between       && css`justify-content: space-between;`}
   ${({ around })        => around        && css`justify-content: space-around;`}

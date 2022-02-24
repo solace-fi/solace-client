@@ -237,7 +237,7 @@ function CoverageLimitBasicForm({
 
   return (
     <>
-      <Flex col gap={30} stretch>
+      <Flex col justifyStart gap={30} stretch>
         {!isEditing ? (
           <FixedHeightGrayBox
             h={66}
@@ -435,33 +435,35 @@ function CoverageLimit({
 
   return (
     <Flex
-      between
       col
       stretch
+      between
       style={{
         flex: '1',
       }}
     >
-      <Flex itemsCenter between>
-        <Text t2 bold techygradient>
-          Coverage Limit
-        </Text>
-        <StyledTooltip
-          id={'coverage-limit'}
-          tip={[
-            'Cover limit is the maximum payout in the event of a claim.',
-            'You may set your cover limit to the amount of your largest position, or an amount of your choice.',
-          ]}
-        >
-          <QuestionCircle height={20} width={20} color={'#aaa'} />
-        </StyledTooltip>
+      <Flex col stretch gap={30} flex1>
+        <Flex itemsCenter between>
+          <Text t2 bold techygradient>
+            Coverage Limit
+          </Text>
+          <StyledTooltip
+            id={'coverage-limit'}
+            tip={[
+              'Cover limit is the maximum payout in the event of a claim.',
+              'You may set your cover limit to the amount of your largest position, or an amount of your choice.',
+            ]}
+          >
+            <QuestionCircle height={20} width={20} color={'#aaa'} />
+          </StyledTooltip>
+        </Flex>
+        <CoverageLimitBasicForm
+          currentCoverageLimit={currentCoverageLimit}
+          isEditing={isEditing}
+          portfolio={portfolio}
+          setNewCoverageLimit={setNewCoverageLimit}
+        />
       </Flex>
-      <CoverageLimitBasicForm
-        currentCoverageLimit={currentCoverageLimit}
-        isEditing={isEditing}
-        portfolio={portfolio}
-        setNewCoverageLimit={setNewCoverageLimit}
-      />
       <Flex justifyCenter={!isEditing} between={isEditing} gap={isEditing ? 20 : undefined} pt={10} pb={10}>
         {inactive ? (
           <div style={{ height: '36px' }} />
@@ -1544,6 +1546,7 @@ export default function Soteria(): JSX.Element {
   const { solaceCoverProduct } = useMemo(() => keyContracts, [keyContracts])
   const firstTime = useMemo(() => policyId.isZero(), [policyId])
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [referralType, setReferralType] = useState<ReferralSource>(ReferralSource.Standard)
   const [formStage, setFormStage] = useState<FormStages>(FormStages.Welcome)
   const goToSecondStage = () => setFormStage(FormStages.RegularUser)
@@ -1667,6 +1670,7 @@ export default function Soteria(): JSX.Element {
       const isUsed = await getIsReferralCodeUsed(account)
       setCodeIsUsable(!isUsed)
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [account])
 
   return (

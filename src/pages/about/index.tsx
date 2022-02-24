@@ -37,6 +37,7 @@ import { ScrollDot } from '../../components/atoms/Icon/ScrollDot'
 import { ExploitsCoverageSection } from './components/organisms/ExploitsCoverageSection'
 import { AboutFirstSection } from './components/organisms/AboutFirstSection'
 import { StakingSection } from './components/organisms/StakingSection'
+import { RoadmapSection } from './components/organisms/RoadmapSection'
 // import { AdvisorsAndContributorsSection } from './components/organisms/TeamAndAdvisors/AdvisorsAndContributorsSection'
 // import { TeamSection } from './components/organisms/TeamAndAdvisors/TeamSection'
 import { TeamSection, AdvisorsAndContributorsSection } from './components/organisms/TeamAndAdvisors'
@@ -198,7 +199,7 @@ const AboutSections = [
   { section: AboutFirstSection, key: 'about' },
   { section: ExploitsCoverageSection, key: 'coverage' },
   { section: StakingSection, key: 'staking' },
-  // {section: RoadmapSection, key: 'roadmap'},
+  { section: RoadmapSection, key: 'roadmap' },
   { section: AdvisorsAndContributorsSection, key: 'advisors' },
   { section: TeamSection, key: 'team' },
 ] as const
