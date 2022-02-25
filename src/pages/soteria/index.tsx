@@ -129,7 +129,7 @@ export default function Soteria(): JSX.Element {
   const canShowSoteria = useMemo(() => !activeNetwork.config.restrictedFeatures.noSoteria, [
     activeNetwork.config.restrictedFeatures.noSoteria,
   ])
-  const portfolio = usePortfolio(account, 1)
+  const { portfolio, loading } = usePortfolio(account, 1)
   const { isMobile } = useWindowDimensions()
   const { policyId, status, coverageLimit, mounting } = useCheckIsCoverageActive(account)
   const {
@@ -455,7 +455,7 @@ export default function Soteria(): JSX.Element {
                     </Text>
                   </Flex>
                 )}
-                <PortfolioTable portfolio={portfolio} />
+                <PortfolioTable portfolio={portfolio} loading={loading} />
               </Card>
             </Flex>
           )}

@@ -86,6 +86,7 @@ import '../../styles/tailwind.min.css'
 
 import { getExpiration, getTimeFromMillis } from '../../utils/time'
 import { BridgeModal } from './organisms/BridgeModal'
+import { Loader } from '../../components/atoms/Loader'
 
 // disable no unused variables
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -364,6 +365,7 @@ export default function Stake(): JSX.Element {
   const [batchActionsIsEnabled, setBatchActionsIsEnabled] = useState(false)
   const [isCompoundModalOpen, setIsCompoundModalOpen] = useState<boolean>(false)
   const [isBridgeModalOpen, setIsBridgeModalOpen] = useState<boolean>(false)
+  const [loading, setLoading] = useState<boolean>(true)
 
   const [targetLock, setTargetLock] = useState<BigNumber | undefined>(undefined)
   const [locksChecked, setLocksChecked] = useState<LockCheckbox[]>([])
@@ -414,10 +416,15 @@ export default function Stake(): JSX.Element {
       setLocks(userLockData.locks)
       setLocksChecked(updateLocksChecked(userLockData.locks, locksChecked))
       setUserLockInfo(userLockData.user)
+      setLoading(false)
     }
     _getUserLocks()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [account, latestBlock, version])
+  }, [account, activeNetwork, latestBlock, version])
+
+  useEffect(() => {
+    setLoading(true)
+  }, [account, activeNetwork])
 
   const openSafe = () => setNewSafeIsOpen(true)
   const closeSafe = () => setNewSafeIsOpen(false)
@@ -654,9 +661,7 @@ export default function Stake(): JSX.Element {
                       </Button>
                     )
                   ) : (
-                    // checkbox + Select all, Rewards selected (harvest), Withdraw selected (withdraw)
                     <>
-                      {/* select all checkbox */}
                       <Flex gap={15} style={{ marginTop: 'auto', marginBottom: 'auto' }} between={width < BKPT_5}>
                         <Flex
                           center
@@ -754,16 +759,30 @@ export default function Stake(): JSX.Element {
                   </Flex>
                 </Flex>
                 <NewSafe isOpen={newSafeIsOpen} />
-                {locks.map((lock, i) => (
-                  <Safe
-                    key={lock.xsLockID.toNumber()}
-                    lock={lock}
-                    batchActionsIsEnabled={batchActionsIsEnabled}
-                    isChecked={lockIsChecked(locksChecked, lock.xsLockID)}
-                    onCheck={() => handleLockCheck(lock.xsLockID)}
-                    index={i}
-                  />
-                ))}
+                {loading && (
+                  <Content>
+                    <Loader />
+                  </Content>
+                )}
+                {!loading && locks.length == 0 && (
+                  <HeroContainer>
+                    <Text t1 textAlignCenter>
+                      You do not have any safes.
+                    </Text>
+                  </HeroContainer>
+                )}
+                {!loading &&
+                  locks.length > 0 &&
+                  locks.map((lock, i) => (
+                    <Safe
+                      key={lock.xsLockID.toNumber()}
+                      lock={lock}
+                      batchActionsIsEnabled={batchActionsIsEnabled}
+                      isChecked={lockIsChecked(locksChecked, lock.xsLockID)}
+                      onCheck={() => handleLockCheck(lock.xsLockID)}
+                      index={i}
+                    />
+                  ))}
               </>
             ) : (
               <Content>
