@@ -210,34 +210,37 @@ function About(): JSX.Element {
   const { isMobile, height } = useWindowDimensions()
   const [section, setSection] = useState<number>(0)
 
-  useEffect(
-    () => {
-      // desktop cannot scroll normally
-      if (!isMobile) {
-        window.document.body.style.overflowY = 'hidden'
-      }
-      if (isMobile) {
-        window.document.body.style.overflowY = 'scroll'
-      }
-      // note for later: these functions should use the `key` object prop instead of the number maybe
-      // or some derivative for good performance
-      const setPreviousSection = () => setSection((section) => (section <= 0 ? 0 : section - 1))
-      const setNextSection = () =>
-        setSection((section) => (section >= AboutSections.length - 1 ? AboutSections.length - 1 : section + 1))
+  useEffect(() => {
+    // desktop cannot scroll normally
+    if (!isMobile) {
+      window.document.body.style.overflowY = 'hidden'
+    }
+    if (isMobile) {
+      window.document.body.style.overflowY = 'scroll'
+    }
+    return () => {
+      window.document.body.style.overflowY = 'auto'
+    }
+  }, [isMobile])
 
-      const { removeListeners } = handleDesktopScrollingEvents({
-        onDown: setNextSection,
-        onUp: setPreviousSection,
-        onHome: () => setSection(0),
-        onEnd: () => setSection(AboutSections.length - 1),
-      })
-      return () => {
-        window.document.body.style.overflowY = 'auto'
-        removeListeners()
-      }
-    },
-    [isMobile] /* eslint-disable-line react-hooks/exhaustive-deps */
-  )
+  useEffect(() => {
+    // note for later: these functions should use the `key` object prop instead of the number maybe
+    // or some derivative for good performance
+
+    const setPreviousSection = () => setSection((section) => (section <= 0 ? 0 : section - 1))
+    const setNextSection = () => {
+      console.log('next section')
+      setSection((section) => (section >= AboutSections.length - 1 ? AboutSections.length - 1 : section + 1))
+    }
+
+    const { removeListeners } = handleDesktopScrollingEvents({
+      onDown: setNextSection,
+      onUp: setPreviousSection,
+      onHome: () => setSection(0),
+      onEnd: () => setSection(AboutSections.length - 1),
+    })
+    return removeListeners()
+  }, [])
 
   return (
     <>
