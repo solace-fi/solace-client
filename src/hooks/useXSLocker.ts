@@ -204,6 +204,7 @@ export const useUserLockData = () => {
           apr: ZERO,
         },
         locks: [],
+        goodFetch: false,
       }
     const timestamp = latestBlock.timestamp
     let stakedBalance = ZERO // staked = locked + unlocked
@@ -266,6 +267,7 @@ export const useUserLockData = () => {
     const data = {
       user: userInfo,
       locks: locks,
+      goodFetch: true,
     }
     return data
   }

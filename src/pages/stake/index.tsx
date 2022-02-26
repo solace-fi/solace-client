@@ -30,7 +30,7 @@ import { useNetwork } from '../../context/NetworkManager'
 /* import constants */
 import { FunctionName } from '../../constants/enums'
 import { BKPT_1, BKPT_5, DAYS_PER_YEAR, ZERO, Z_TABLE } from '../../constants'
-import { LockData, UserLocksInfo } from '../../constants/types'
+import { LockData, UserLocksData, UserLocksInfo } from '../../constants/types'
 import { LockCheckbox } from './types/LockCheckbox'
 import { Tab, StakingVersion } from '../../constants/enums'
 
@@ -412,11 +412,14 @@ export default function Stake(): JSX.Element {
   useEffect(() => {
     const _getUserLocks = async () => {
       if (!account) return
-      const userLockData = await getUserLocks(account)
-      setLocks(userLockData.locks)
-      setLocksChecked(updateLocksChecked(userLockData.locks, locksChecked))
-      setUserLockInfo(userLockData.user)
-      setLoading(false)
+      await getUserLocks(account).then((userLockData: UserLocksData) => {
+        if (userLockData.goodFetch) {
+          setLocks(userLockData.locks)
+          setLocksChecked(updateLocksChecked(userLockData.locks, locksChecked))
+          setUserLockInfo(userLockData.user)
+          setLoading(false)
+        }
+      })
     }
     _getUserLocks()
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -764,13 +767,6 @@ export default function Stake(): JSX.Element {
                     <Loader />
                   </Content>
                 )}
-                {!loading && locks.length == 0 && (
-                  <HeroContainer>
-                    <Text t1 textAlignCenter>
-                      You do not have any safes.
-                    </Text>
-                  </HeroContainer>
-                )}
                 {!loading &&
                   locks.length > 0 &&
                   locks.map((lock, i) => (
@@ -783,6 +779,13 @@ export default function Stake(): JSX.Element {
                       index={i}
                     />
                   ))}
+                {!loading && locks.length == 0 && (
+                  <HeroContainer>
+                    <Text t1 textAlignCenter>
+                      You do not have any safes.
+                    </Text>
+                  </HeroContainer>
+                )}
               </>
             ) : (
               <Content>
