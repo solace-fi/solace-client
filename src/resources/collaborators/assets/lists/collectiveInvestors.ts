@@ -10,7 +10,7 @@ prycto`
 const collectiveInvestors: Collective[] = collectiveStr.split('\n').map((altName) => {
   return {
     altName,
-    filename: `${altName}.png`,
+    fileName: `${altName}.png`,
   }
 })
 

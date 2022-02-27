@@ -9,6 +9,7 @@ export function AboutThesis({ title, text }: { title: string; text: string | Rea
       <Flex
         style={{
           minWidth: '30px',
+          marginTop: '5px',
         }}
       >
         {/* <img src={whiteCircle} alt="small circle" /> */}
@@ -17,7 +18,7 @@ export function AboutThesis({ title, text }: { title: string; text: string | Rea
       <Flex col gap={10}>
         <Text
           style={{
-            lineHeight: '16px',
+            lineHeight: '24px',
           }}
           mont
           extrabold

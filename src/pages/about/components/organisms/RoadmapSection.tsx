@@ -12,9 +12,9 @@ function RoadmapSectionFunction(): JSX.Element {
   return (
     <Flex col stretch pr={70} justifyCenter>
       <SectionTitle light extrabold fontSize={isMobile ? 36 : 48} lineHeight={isMobile ? 43.88 : 82} ml={80}>
-        Staking
+        Roadmap
       </SectionTitle>
-      <Flex mt={70}>
+      {/* <Flex mt={70}>
         <Grid gap={isMobile ? 50 : 60} columns={isMobile ? 1 : 2} ml={50}>
           <AboutThesis
             title="No risk of loss"
@@ -75,7 +75,7 @@ function RoadmapSectionFunction(): JSX.Element {
             }
           />
         </Grid>
-      </Flex>
+      </Flex> */}
     </Flex>
   )
 }

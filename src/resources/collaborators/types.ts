@@ -2,9 +2,10 @@ export type Person = {
   name: string
   role: string
   twitter?: string
+  profilePic?: string
 }
 
 export type Collective = {
   altName: string
-  filename: string
+  fileName: string
 }
