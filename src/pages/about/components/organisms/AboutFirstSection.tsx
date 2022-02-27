@@ -57,11 +57,10 @@ function AboutFirstSectionFunction() {
       {!isMobile ? (
         <Flex
           justifyCenter
+          mt={40}
+          ml={-40}
           style={{
             width: '100%',
-            position: 'absolute',
-            bottom: '40px',
-            right: '40px',
           }}
         >
           <img src={grantsFrom} />
