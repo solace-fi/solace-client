@@ -1,0 +1,17 @@
+import { Collective } from '../../types'
+
+const collectiveStr = `parataxis
+capital
+alchemy
+1010capital
+prycto`
+
+// get individual investors, simply add .png to the end right now
+const collectiveInvestors: Collective[] = collectiveStr.split('\n').map((altName) => {
+  return {
+    altName,
+    filename: `${altName}.png`,
+  }
+})
+
+export default collectiveInvestors

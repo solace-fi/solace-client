@@ -3,8 +3,10 @@ import { Flex, Grid } from '../../../../../components/atoms/Layout'
 import { Text } from '../../../../../components/atoms/Typography'
 import { useWindowDimensions } from '../../../../../hooks/useWindowDimensions'
 import { SectionTitle } from '../../../../../components/atoms/Typography'
-import advisorsAndContributors from '../../../../../resources/advisorsAndContributors'
-import team from '../../../../../resources/team'
+import collectiveInvestors from '../../../../../resources/collaborators/collectiveInvestors'
+import individualInvestors from '../../../../../resources/collaborators/individualInvestors'
+import advisors from '../../../../../resources/collaborators/advisors'
+import coreContributors from '../../../../../resources/collaborators/coreContributors'
 
 type TeamMember = {
   name: string
@@ -41,11 +43,12 @@ export function TeamMember({ name, role, twitterUsername }: TeamMemberProps): JS
 }
 
 export function ListOfPeople({
-  list, // array of { name, role, twitter }
+  peopleList: list, // array of { name, role, twitter }
   title, // string
 }: {
-  list: TeamMember[]
+  peopleList: TeamMember[]
   title: string
+  logoList?: string[]
 }): JSX.Element {
   const { isMobile } = useWindowDimensions()
   return (
@@ -70,6 +73,8 @@ export function ListOfPeople({
   )
 }
 
-export const Investors = <ListOfPeople list={advisorsAndContributors} title="Investors" />
-export const Advisors = <ListOfPeople list={advisorsAndContributors} title="Advisors" />
-export const CoreContributors = <ListOfPeople list={team} title="Core contributors" />
+export const Investors = (
+  <ListOfPeople logoList={collectiveInvestors} peopleList={individualInvestors} title="Investors" />
+)
+export const Advisors = <ListOfPeople peopleList={advisors} title="Advisors" />
+export const CoreContributors = <ListOfPeople peopleList={coreContributors} title="Core contributors" />

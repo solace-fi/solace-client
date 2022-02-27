@@ -40,7 +40,7 @@ import { StakingSection } from './components/organisms/StakingSection'
 import { RoadmapSection } from './components/organisms/RoadmapSection'
 // import { AdvisorsAndContributorsSection } from './components/organisms/TeamAndAdvisors/AdvisorsAndContributorsSection'
 // import { TeamSection } from './components/organisms/TeamAndAdvisors/TeamSection'
-import { Advisors, CoreContributors, Investors } from './components/organisms/TeamAndAdvisors'
+import { Advisors, CoreContributors, Investors } from './components/organisms/Collaborators'
 import { handleDesktopScrollingEvents } from './utils/handleDesktopScrollingEvents'
 
 function About1(): any {
