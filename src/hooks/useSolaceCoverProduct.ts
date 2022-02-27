@@ -291,11 +291,15 @@ export const useFunctions = () => {
   }
 }
 
-export const usePortfolio = (account: string | undefined, chainId: number): SolaceRiskScore | undefined => {
+export const usePortfolio = (
+  account: string | undefined,
+  chainId: number
+): { portfolio: SolaceRiskScore | undefined; loading: boolean } => {
   const [score, setScore] = useState<SolaceRiskScore | undefined>(undefined)
   const { activeNetwork } = useNetwork()
   const { latestBlock } = useProvider()
   const { version } = useCachedData()
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     const getPortfolio = async () => {
@@ -304,11 +308,16 @@ export const usePortfolio = (account: string | undefined, chainId: number): Sola
       if (!balances) return
       const scores = await getSolaceRiskScores(account, balances)
       if (scores) setScore(scores)
+      setLoading(false)
     }
     getPortfolio()
   }, [account, chainId, latestBlock, version])
 
-  return score
+  useEffect(() => {
+    setLoading(true)
+  }, [account, chainId])
+
+  return { portfolio: score, loading }
 }
 
 export const useCooldownDetails = (account: string | undefined) => {

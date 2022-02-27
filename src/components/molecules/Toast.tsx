@@ -136,7 +136,7 @@ export const NotificationToast: React.FC<NotificationToastProps> = ({ txType, co
                 <TextSpan t4 light bold>
                   ({errObj.code})
                 </TextSpan>{' '}
-                {errObj.message.length > 120 ? `${errObj.message.substring(0, 120)}...` : errObj.message}
+                {errObj.message.length > 90 ? `${errObj.message.substring(0, 90)}...` : errObj.message}
               </>
             ) : (
               'Unknown error, please check full error log'

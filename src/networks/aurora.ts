@@ -65,6 +65,7 @@ export const AuroraNetwork: NetworkConfig = {
     },
     specialFeatures: {
       unwrapBridgedSolace: true,
+      hardcodedGasPrice: 0.03,
     },
     specialContracts: {
       bSolace: {

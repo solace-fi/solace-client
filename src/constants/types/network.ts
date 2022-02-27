@@ -43,6 +43,7 @@ export type NetworkConfig = {
     }
     specialFeatures: {
       unwrapBridgedSolace?: boolean
+      hardcodedGasPrice?: number
     }
     underwritingPoolAddr?: string
   }
