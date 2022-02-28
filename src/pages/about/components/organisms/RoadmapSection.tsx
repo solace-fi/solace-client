@@ -4,6 +4,32 @@ import { SectionTitle } from '../../../../components/atoms/Typography'
 import { AboutThesis } from '../molecules/AboutThesis'
 import { Text } from '../../../../components/atoms/Typography'
 import { useWindowDimensions } from '../../../../hooks/useWindowDimensions'
+import styled from 'styled-components'
+
+const ProgressBarContainer = styled.div`
+  grid-column: span 4 / span 4;
+  height: 3px;
+  background-color: ${({ theme }) => theme.typography.lightNeutral};
+  border-radius: 999px;
+`
+const ProgressBarContent = styled.div<{ progress: number }>`
+  height: 3px;
+  background-color: ${({ theme }) => theme.typography.lightText};
+  border-radius: 999px;
+  width: ${(props) => props.progress}%;
+`
+
+function ProgressBar() {
+  return (
+    <>
+      {/* progress bar container */}
+      <ProgressBarContainer>
+        {/* progress bar */}
+        <ProgressBarContent progress={50} />
+      </ProgressBarContainer>
+    </>
+  )
+}
 
 export const RoadmapSection = <RoadmapSectionFunction />
 function RoadmapSectionFunction(): JSX.Element {
@@ -11,71 +37,85 @@ function RoadmapSectionFunction(): JSX.Element {
   // export const RoadmapSection = (
   return (
     <Flex col stretch pr={70} justifyCenter>
-      <SectionTitle light extrabold fontSize={isMobile ? 36 : 48} lineHeight={isMobile ? 43.88 : 82} ml={80}>
+      <SectionTitle light extrabold fontSize={isMobile ? 36 : 48} lineHeight={isMobile ? 43.88 : 82}>
         Roadmap
       </SectionTitle>
-      {/* <Flex mt={70}>
-        <Grid gap={isMobile ? 50 : 60} columns={isMobile ? 1 : 2} ml={50}>
-          <AboutThesis
-            title="No risk of loss"
-            text={
-              <Text light regular>
-                Users earn revenue from the underwriting activity and further $SOLACE distribution, while the{' '}
-                <Text extrabold inline light>
-                  risk of underwriting falls on the protocol’s owned pool.
-                </Text>
-              </Text>
-            }
-          />
-          <AboutThesis
-            title="Stake and get votes"
-            text={
-              <>
-                Each staked $SOLACE gives you one{' '}
-                <Text inline extrabold light>
-                  vote in the DAO.
-                </Text>
-              </>
-            }
-          />
-          <AboutThesis
-            title="Long-term bonuses"
-            text={
-              <>
-                Users can{' '}
-                <Text extrabold inline>
-                  multiply
-                </Text>{' '}
-                their{' '}
-                <Text extrabold inline>
-                  rewards
-                </Text>{' '}
-                (up to 2.5x) and voting rights (up to 4x) as they lock $SOLACE for chosen period.
-              </>
-            }
-          />
-          <AboutThesis
-            title="Multiple revenue streams"
-            text={
-              <>
-                Staked $SOLACE provides you with exposure to underwriting{' '}
-                <Text extrabold inline>
-                  rewards
-                </Text>
-                , underwriting pool{' '}
-                <Text extrabold inline>
-                  investments
-                </Text>
-                , plus $SOLACE{' '}
-                <Text extrabold inline>
-                  emissions
-                </Text>
-                .
-              </>
-            }
-          />
-        </Grid>
-      </Flex> */}
+      <Grid columns={4} gap={10} mt={60}>
+        <Text big2 mont bold>
+          2021
+        </Text>
+        <Text big2 mont bold>
+          2022
+        </Text>
+        <ProgressBar />
+        <div>
+          <Text t1s mont bold>
+            Q4
+          </Text>
+          <ul
+            style={{
+              display: 'flex',
+              gap: '20px',
+              flexDirection: 'column',
+            }}
+          >
+            <li>$SOLACE token launch </li>
+            <li>Protocol Owned Underwriting Pool </li>
+            <li>Protocol coverage products</li>
+          </ul>
+        </div>
+        <div>
+          <Text t1s mont bold>
+            Q1
+          </Text>
+          <ul
+            style={{
+              display: 'flex',
+              gap: '20px',
+              flexDirection: 'column',
+            }}
+          >
+            <li>DAO-2-DAO coverage launch</li>
+            <li>Solace Wallet Coverage launch</li>
+            <li>Cross-chain Deployments (Aurora, Polygon)</li>
+            <li>Staking V2 w/locking and voting rights</li>
+          </ul>
+        </div>
+        <div>
+          <Text t1s mont bold>
+            Q2
+          </Text>
+          <ul
+            style={{
+              display: 'flex',
+              gap: '20px',
+              flexDirection: 'column',
+            }}
+          >
+            <li>Cross-chain Deployments (BNB, FTM, AVAX, etc.)</li>
+            <li>Decentralization of Claims System</li>
+            <li>Cross-chain balancing of staking/locking APY%</li>
+            <li>Dynamic inflation-control model</li>
+          </ul>
+        </div>
+        <div>
+          <Text t1s mont bold>
+            Q3
+          </Text>
+          <ul
+            style={{
+              display: 'flex',
+              gap: '20px',
+              flexDirection: 'column',
+            }}
+          >
+            <li>Non-EVM deployments</li>
+            <li>Asset Protection Tools beyond DeFi</li>
+            <li>Transition to Community-run DAO</li>
+            <li>Solace Market - open cover product platform</li>
+          </ul>
+        </div>
+      </Grid>
     </Flex>
   )
 }
