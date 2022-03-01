@@ -1,7 +1,6 @@
 import React from 'react'
 import { Flex, Grid } from '../../../../components/atoms/Layout'
 import { SectionTitle } from '../../../../components/atoms/Typography'
-import { AboutThesis } from '../molecules/AboutThesis'
 import { Text } from '../../../../components/atoms/Typography'
 import { useWindowDimensions } from '../../../../hooks/useWindowDimensions'
 import styled from 'styled-components'
@@ -31,8 +30,8 @@ function ProgressBar() {
   )
 }
 
-export const RoadmapSection = <RoadmapSectionFunction />
-function RoadmapSectionFunction(): JSX.Element {
+// export const RoadmapSection = <RoadmapSectionFunction />
+export function RoadmapSection(): JSX.Element {
   const { isMobile } = useWindowDimensions()
   // export const RoadmapSection = (
   return (

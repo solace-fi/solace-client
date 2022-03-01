@@ -52,6 +52,7 @@
     "react-toastify": "^7.0.4",
     "react-tooltip": "^4.2.21",
     "react-use-storage": "^0.4.4",
+    "react-visibility-sensor": "^5.1.1",
     "rebass": "^4.0.7",
     "socket.io-client": "^2.4.0",
     "styled-components": "^5.3.3",

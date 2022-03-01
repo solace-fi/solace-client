@@ -5,10 +5,9 @@ import { AboutThesis } from '../molecules/AboutThesis'
 import { Text } from '../../../../components/atoms/Typography'
 import { useWindowDimensions } from '../../../../hooks/useWindowDimensions'
 
-export const StakingSection = <StakingSectionFunction />
-function StakingSectionFunction(): JSX.Element {
+// export const StakingSection = <StakingSectionFunction />
+export function StakingSection(): JSX.Element {
   const { isMobile } = useWindowDimensions()
-  // export const StakingSection = (
   return (
     <Flex col stretch pr={70} justifyCenter>
       <SectionTitle light extrabold fontSize={isMobile ? 36 : 48} lineHeight={isMobile ? 43.88 : 82} ml={80}>

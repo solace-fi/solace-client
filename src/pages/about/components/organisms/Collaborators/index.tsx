@@ -175,16 +175,20 @@ export function ListOfPeople({
   )
 }
 
-export const Investors = (
-  <ListOfPeople
-    collectiveList={collectiveInvestors}
-    peopleList={individualInvestors}
-    title="Investors"
-    mobileColumns={1}
-    direction="row"
-  />
-)
-export const Advisors = <ListOfPeople peopleList={advisors} title="Advisors" mobileColumns={1} desktopColumns={2} />
-export const CoreContributors = (
-  <ListOfPeople peopleList={coreContributors} title="Core contributors" mobileColumns={1} desktopColumns={3} />
-)
+export function Investors(): JSX.Element {
+  return (
+    <ListOfPeople
+      collectiveList={collectiveInvestors}
+      peopleList={individualInvestors}
+      title="Investors"
+      mobileColumns={1}
+      direction="row"
+    />
+  )
+}
+export function Advisors(): JSX.Element {
+  return <ListOfPeople peopleList={advisors} title="Advisors" mobileColumns={1} desktopColumns={2} />
+}
+export function CoreContributors(): JSX.Element {
+  return <ListOfPeople peopleList={coreContributors} title="Core contributors" mobileColumns={1} desktopColumns={3} />
+}

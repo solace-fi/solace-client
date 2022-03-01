@@ -26,26 +26,8 @@ import { Flex } from '../../components/atoms/Layout'
 /* import hooks */
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'
 import { ScrollDot } from '../../components/atoms/Icon/ScrollDot'
-import { ExploitsCoverageSection } from './components/organisms/ExploitsCoverageSection'
-import { AboutFirstSection } from './components/organisms/AboutFirstSection'
-import { StakingSection } from './components/organisms/StakingSection'
-import { RoadmapSection } from './components/organisms/RoadmapSection'
-// import { AdvisorsAndContributorsSection } from './components/organisms/TeamAndAdvisors/AdvisorsAndContributorsSection'
-// import { TeamSection } from './components/organisms/TeamAndAdvisors/TeamSection'
-import { Advisors, CoreContributors, Investors } from './components/organisms/Collaborators'
-import { handleDesktopScrollingEvents } from './utils/handleDesktopScrollingEvents'
-
-const AboutSections = [
-  { section: AboutFirstSection, key: 'about' },
-  { section: ExploitsCoverageSection, key: 'coverage' },
-  { section: StakingSection, key: 'staking' },
-  { section: RoadmapSection, key: 'roadmap' },
-  { section: Investors, key: 'investors' },
-  { section: Advisors, key: 'advisors' },
-  { section: CoreContributors, key: 'team' },
-] as const
-
-const AboutContent = ({ section }: { section: number }) => <>{AboutSections[section].section}</>
+import { useHomepageSections } from './utils/useHomepageSections'
+import DesktopScrollableArea from './components/organisms/DesktopScrollableArea'
 
 function About(): JSX.Element {
   /* hooks */
@@ -65,24 +47,13 @@ function About(): JSX.Element {
     }
   }, [isMobile])
 
+  const [visibleSection, setVisibleSection] = useState(0)
   useEffect(() => {
-    // note for later: these functions should use the `key` object prop instead of the number maybe
-    // or some derivative for good performance
+    // when visible section changes, use setSection make the ScrollDot switch to the current one
+    setSection(visibleSection)
+  }, [visibleSection])
 
-    const setPreviousSection = () => setSection((section) => (section <= 0 ? 0 : section - 1))
-    const setNextSection = () => {
-      console.log('next section')
-      setSection((section) => (section >= AboutSections.length - 1 ? AboutSections.length - 1 : section + 1))
-    }
-
-    const { removeListeners } = handleDesktopScrollingEvents({
-      onDown: setNextSection,
-      onUp: setPreviousSection,
-      onHome: () => setSection(0),
-      onEnd: () => setSection(AboutSections.length - 1),
-    })
-    return removeListeners()
-  }, [])
+  const { HomepageSections } = useHomepageSections()
 
   return (
     <>
@@ -96,15 +67,20 @@ function About(): JSX.Element {
           position: 'relative',
         }}
       >
-        {!isMobile ? (
-          <AboutContent section={section} key={AboutSections[section].key} />
-        ) : (
-          <Flex col gap={81}>
-            {AboutSections.map((Section, index) => (
-              <React.Fragment key={'section' + index}>{Section.section}</React.Fragment>
-            ))}
-          </Flex>
-        )}
+        <DesktopScrollableArea
+          visibleSection={visibleSection}
+          setVisibleSection={setVisibleSection}
+          HomepageSections={HomepageSections}
+        />
+        {/* {!isMobile ? (
+          <DesktopScrollableArea visibleSection={visibleSection} setVisibleSection={setVisibleSection} isMobile={isMobile} />
+        // ) : (
+        //   <Flex col gap={81}>
+        //     {homepageSections.map((Section, index) => (
+        //       <React.Fragment key={'section' + index}>{Section.section}</React.Fragment>
+        //     ))}
+        //   </Flex>
+        // )*/}
         {!isMobile && (
           <Flex
             col
@@ -117,7 +93,7 @@ function About(): JSX.Element {
               height: '100%',
             }}
           >
-            {AboutSections.map((_section, index) => (
+            {HomepageSections.map((_section, index) => (
               <ScrollDot
                 hoverable
                 key={_section.key + 'dot'}
