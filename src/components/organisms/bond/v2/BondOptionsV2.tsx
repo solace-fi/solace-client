@@ -88,7 +88,7 @@ export const BondOptionsV2: React.FC<BondOptionsV2Props> = ({
             />
           </>
         )}
-        <CheckboxOption isChecked={isStaking} setChecked={setIsStaking} text={'Autostake and create a lock'} />
+        <CheckboxOption isChecked={isStaking} setChecked={setIsStaking} text={'Autostake and create a safe'} />
       </Flex>
       {!selectedBondDetail?.tellerData.teller.cannotBuy ? (
         <ButtonWrapper isColumn>

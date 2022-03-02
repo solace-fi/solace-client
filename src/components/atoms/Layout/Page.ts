@@ -36,6 +36,11 @@ export interface FlexProps {
   flex1?: boolean
 }
 
+// type Conditional = string | number | boolean | undefined
+
+// function ifNotFalsey(value: Conditional, css: ThemedCssFunction<DefaultTheme>) {
+// }
+
 // prettier-ignore
 export const Flex = styled.div<FlexProps>`
   display: flex;

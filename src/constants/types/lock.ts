@@ -22,6 +22,7 @@ export type UserLocksInfo = {
 export type UserLocksData = {
   user: UserLocksInfo
   locks: LockData[]
+  goodFetch: boolean
 }
 
 export type GlobalLockInfo = {

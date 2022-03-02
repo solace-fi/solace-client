@@ -1,17 +1,32 @@
-import React from 'react'
+import React, { RefObject, useEffect, useMemo } from 'react'
 import { Flex, Grid } from '../../../../components/atoms/Layout'
 import { SectionTitle } from '../../../../components/atoms/Typography'
 import { AboutThesis } from '../molecules/AboutThesis'
 import { Text } from '../../../../components/atoms/Typography'
 import { useWindowDimensions } from '../../../../hooks/useWindowDimensions'
 
-export const StakingSection = <StakingSectionFunction />
-function StakingSectionFunction(): JSX.Element {
+// export const StakingSection = <StakingSectionFunction />
+export function StakingSection({
+  sectionRef: ref,
+  getScrollerForThisRef,
+  isVisible,
+}: {
+  sectionRef?: React.Ref<HTMLDivElement>
+  getScrollerForThisRef?: (ref: ((instance: HTMLDivElement | null) => void) | RefObject<HTMLDivElement>) => () => void
+  isVisible?: boolean
+}): JSX.Element {
   const { isMobile } = useWindowDimensions()
-  // export const StakingSection = (
+  const scroller = useMemo(
+    () => (ref && getScrollerForThisRef ? getScrollerForThisRef(ref) : () => console.log('no ref')),
+    [ref, getScrollerForThisRef]
+  )
+  useEffect(() => {
+    if (isVisible) scroller()
+  }, [isVisible, scroller, ref])
+
   return (
-    <Flex col stretch pr={70} justifyCenter>
-      <SectionTitle light extrabold fontSize={isMobile ? 36 : 48} lineHeight={isMobile ? 43.88 : 82} ml={80}>
+    <Flex col stretch pr={70} justifyCenter ref={ref}>
+      <SectionTitle light extrabold isMobile={isMobile} ml={80}>
         Staking
       </SectionTitle>
       <Flex mt={70}>

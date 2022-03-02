@@ -13,6 +13,7 @@ export const lightTheme = {
     warmGradientA: 'rgba(243, 211, 126, 1)',
     warmGradientB: 'rgba(240, 77, 66, 1)',
     separator: '#E3E4E6',
+    lightNeutral: '#F2CAD6',
   },
   body: {
     bg_color: '#fafafa',
@@ -96,6 +97,7 @@ export const lightTheme = {
     secondary: '#5e5e5e',
     tertiary: '#969696',
     separator: '#E3E4E6',
+    lightNeutral: '#F2CAD6',
   },
 } as const
 
@@ -114,6 +116,7 @@ export const darkTheme = {
     warmGradientA: 'rgba(243, 211, 126, 1)',
     warmGradientB: 'rgba(240, 77, 66, 1)',
     separator: '#828282',
+    lightNeutral: '#F2CAD6',
   },
   body: {
     bg_color: '#242933',
@@ -197,6 +200,7 @@ export const darkTheme = {
     secondary: 'rgb(250, 250, 250)',
     tertiary: '#a6a6a6',
     separator: '#E3E4E6',
+    lightNeutral: '#F2CAD6',
   },
 } as const
 
