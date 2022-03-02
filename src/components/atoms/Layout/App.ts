@@ -28,7 +28,7 @@ export const GlobalStyle = createGlobalStyle<LayoutProps>`
       `background: radial-gradient(ellipse 120% 150% at 60% 0,
       rgba(212,120,216,1) 10%,
       rgba(212,120,216,0) 50%),
-  radial-gradient(ellipse 50% 150% at 40% 100%,
+  radial-gradient(ellipse 50% 150% at 40% 150%,
       rgba(243,211,126,1) 20%,
       rgba(243,211,126,0) 80%),
   radial-gradient(ellipse 50% 200% at 100% 50%,

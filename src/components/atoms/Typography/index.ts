@@ -201,7 +201,9 @@ export const TextFontCss = css<TextFontProps>`
     if (props.big1) return BigSize1Css
     if (props.big2) return BigSize2Css
     if (props.big3) return BigSize3Css
-    return Text3Css
+    // return css`
+    //   font-size: inherit;
+    // `
   }}
 `
 
@@ -314,9 +316,11 @@ export const SectionTitle = styled(Text)<{
   extrabold?: boolean
   lineHeight?: number
   fontSize?: number
+  isMobile?: boolean
 }>`
-  font-size: ${(props) => (props.fontSize ?? 48) + 'px'};
-  line-height: ${({ lineHeight }) => (lineHeight ?? 82) + 'px'};
+  /* use breakpoint BKPT_5 to decide if it's mobile; if mobile, default font size is 36px, otherwise it's 48px */
+  font-size: ${({ fontSize, isMobile }) => (fontSize ?? isMobile ? 36 : 48) + 'px'};
+  line-height: ${({ lineHeight, isMobile }) => (lineHeight ?? isMobile ? 43.88 : 82) + 'px'};
   font-family: Montserrat;
   font-weight: ${({ extrabold }) => (extrabold ? 700 : 400)};
   ${GeneralElementCss}

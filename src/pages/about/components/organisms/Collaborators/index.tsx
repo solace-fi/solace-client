@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { Ref, RefObject, useEffect, useMemo } from 'react'
 import { Flex, Grid } from '../../../../../components/atoms/Layout'
 import { Text } from '../../../../../components/atoms/Typography'
 import { useWindowDimensions } from '../../../../../hooks/useWindowDimensions'
@@ -128,6 +128,7 @@ export function ListOfPeople({
   columns, // number
   mobileColumns,
   desktopColumns,
+  sectionRef,
 }: {
   peopleList: Person[]
   // if there's a collective list, the first column will be the collective, and the optional second and third will be the people
@@ -138,6 +139,7 @@ export function ListOfPeople({
   columns?: number
   mobileColumns?: number
   desktopColumns?: number
+  sectionRef?: Ref<HTMLDivElement>
 }): JSX.Element {
   const { isMobile } = useWindowDimensions()
   const reactTeam = peopleList.map(({ name, role, twitter, profilePic }) => (
@@ -154,8 +156,16 @@ export function ListOfPeople({
   const wantedRows = Math.ceil(totalArray.length / 2)
   const rows = gridColumns ?? columns ?? Math.min(wantedRows, maxRows)
   return (
-    <Flex col stretch pr={isMobile ? undefined : 70} gap={isMobile ? 50 : 70} pl={isMobile ? 80 : 50} justifyCenter>
-      <SectionTitle light extrabold>
+    <Flex
+      col
+      stretch
+      pr={isMobile ? 20 : 70}
+      gap={isMobile ? 50 : 70}
+      pl={isMobile ? 60 : 50}
+      justifyCenter
+      ref={sectionRef}
+    >
+      <SectionTitle light extrabold isMobile={isMobile}>
         {title}
       </SectionTitle>
 
@@ -175,16 +185,78 @@ export function ListOfPeople({
   )
 }
 
-export const Investors = (
-  <ListOfPeople
-    collectiveList={collectiveInvestors}
-    peopleList={individualInvestors}
-    title="Investors"
-    mobileColumns={1}
-    direction="row"
-  />
-)
-export const Advisors = <ListOfPeople peopleList={advisors} title="Advisors" mobileColumns={1} desktopColumns={2} />
-export const CoreContributors = (
-  <ListOfPeople peopleList={coreContributors} title="Core contributors" mobileColumns={1} desktopColumns={3} />
-)
+export function Investors({
+  sectionRef: ref,
+  getScrollerForThisRef,
+  isVisible,
+}: {
+  sectionRef?: React.Ref<HTMLDivElement>
+  getScrollerForThisRef?: (ref: ((instance: HTMLDivElement | null) => void) | RefObject<HTMLDivElement>) => () => void
+  isVisible?: boolean
+}): JSX.Element {
+  const scroller = useMemo(
+    () => (ref && getScrollerForThisRef ? getScrollerForThisRef(ref) : () => console.log('no ref')),
+    [ref, getScrollerForThisRef]
+  )
+  useEffect(() => {
+    if (isVisible) scroller()
+  }, [isVisible, scroller, ref])
+  return (
+    <ListOfPeople
+      sectionRef={ref}
+      collectiveList={collectiveInvestors}
+      peopleList={individualInvestors}
+      title="Investors"
+      mobileColumns={1}
+      direction="row"
+    />
+  )
+}
+
+export function Advisors({
+  sectionRef: ref,
+  getScrollerForThisRef,
+  isVisible,
+}: {
+  sectionRef?: React.Ref<HTMLDivElement>
+  getScrollerForThisRef?: (ref: ((instance: HTMLDivElement | null) => void) | RefObject<HTMLDivElement>) => () => void
+  isVisible?: boolean
+}): JSX.Element {
+  const scroller = useMemo(
+    () => (ref && getScrollerForThisRef ? getScrollerForThisRef(ref) : () => console.log('no ref')),
+    [ref, getScrollerForThisRef]
+  )
+  useEffect(() => {
+    if (isVisible) console.log("advisors is visible! here's the ref: ", ref)
+    if (isVisible) scroller()
+  }, [isVisible, scroller, ref])
+  return <ListOfPeople sectionRef={ref} peopleList={advisors} title="Advisors" mobileColumns={1} desktopColumns={2} />
+}
+
+export function CoreContributors({
+  sectionRef: ref,
+  getScrollerForThisRef,
+  isVisible,
+}: {
+  sectionRef?: React.Ref<HTMLDivElement>
+  getScrollerForThisRef?: (ref: ((instance: HTMLDivElement | null) => void) | RefObject<HTMLDivElement>) => () => void
+  isVisible?: boolean
+}): JSX.Element {
+  const scroller = useMemo(
+    () => (ref && getScrollerForThisRef ? getScrollerForThisRef(ref) : () => console.log('no ref')),
+    [ref, getScrollerForThisRef]
+  )
+  useEffect(() => {
+    if (isVisible) scroller()
+  }, [isVisible, scroller, ref])
+
+  return (
+    <ListOfPeople
+      sectionRef={ref}
+      peopleList={coreContributors}
+      title="Core contributors"
+      mobileColumns={1}
+      desktopColumns={3}
+    />
+  )
+}
