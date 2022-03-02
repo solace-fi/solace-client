@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { RefObject, useEffect, useMemo } from 'react'
 import { Flex, Grid } from '../../../../../components/atoms/Layout'
 import { Text } from '../../../../../components/atoms/Typography'
 import { useWindowDimensions } from '../../../../../hooks/useWindowDimensions'
@@ -175,7 +175,22 @@ export function ListOfPeople({
   )
 }
 
-export function Investors(): JSX.Element {
+export function Investors({
+  sectionRef: ref,
+  getScrollerForThisRef,
+  isVisible,
+}: {
+  sectionRef?: React.Ref<HTMLDivElement>
+  getScrollerForThisRef: (ref: ((instance: HTMLDivElement | null) => void) | RefObject<HTMLDivElement>) => () => void
+  isVisible: boolean
+}): JSX.Element {
+  const scroller = useMemo(() => (ref ? getScrollerForThisRef(ref) : () => console.log('no ref')), [
+    ref,
+    getScrollerForThisRef,
+  ])
+  useEffect(() => {
+    if (isVisible) scroller()
+  }, [isVisible, scroller])
   return (
     <ListOfPeople
       collectiveList={collectiveInvestors}
@@ -186,9 +201,42 @@ export function Investors(): JSX.Element {
     />
   )
 }
-export function Advisors(): JSX.Element {
+
+export function Advisors({
+  sectionRef: ref,
+  getScrollerForThisRef,
+  isVisible,
+}: {
+  sectionRef?: React.Ref<HTMLDivElement>
+  getScrollerForThisRef: (ref: ((instance: HTMLDivElement | null) => void) | RefObject<HTMLDivElement>) => () => void
+  isVisible: boolean
+}): JSX.Element {
+  const scroller = useMemo(() => (ref ? getScrollerForThisRef(ref) : () => console.log('no ref')), [
+    ref,
+    getScrollerForThisRef,
+  ])
+  useEffect(() => {
+    if (isVisible) scroller()
+  }, [isVisible, scroller])
   return <ListOfPeople peopleList={advisors} title="Advisors" mobileColumns={1} desktopColumns={2} />
 }
-export function CoreContributors(): JSX.Element {
+
+export function CoreContributors({
+  sectionRef: ref,
+  getScrollerForThisRef,
+  isVisible,
+}: {
+  sectionRef?: React.Ref<HTMLDivElement>
+  getScrollerForThisRef: (ref: ((instance: HTMLDivElement | null) => void) | RefObject<HTMLDivElement>) => () => void
+  isVisible: boolean
+}): JSX.Element {
+  const scroller = useMemo(() => (ref ? getScrollerForThisRef(ref) : () => console.log('no ref')), [
+    ref,
+    getScrollerForThisRef,
+  ])
+  useEffect(() => {
+    if (isVisible) scroller()
+  }, [isVisible, scroller])
+
   return <ListOfPeople peopleList={coreContributors} title="Core contributors" mobileColumns={1} desktopColumns={3} />
 }

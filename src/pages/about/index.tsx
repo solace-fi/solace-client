@@ -47,13 +47,12 @@ function About(): JSX.Element {
     }
   }, [isMobile])
 
-  const [visibleSection, setVisibleSection] = useState(0)
-  useEffect(() => {
-    // when visible section changes, use setSection make the ScrollDot switch to the current one
-    setSection(visibleSection)
-  }, [visibleSection])
-
   const { HomepageSections } = useHomepageSections()
+
+  function changeVisibleSection(index: number) {
+    setSection(index)
+    console.log('changeVisibleSection', index, section)
+  }
 
   return (
     <>
@@ -68,8 +67,8 @@ function About(): JSX.Element {
         }}
       >
         <DesktopScrollableArea
-          visibleSection={visibleSection}
-          setVisibleSection={setVisibleSection}
+          visibleSection={section}
+          setVisibleSection={setSection}
           HomepageSections={HomepageSections}
         />
         {/* {!isMobile ? (
@@ -93,12 +92,12 @@ function About(): JSX.Element {
               height: '100%',
             }}
           >
-            {HomepageSections.map((_section, index) => (
+            {HomepageSections.map((Section, index) => (
               <ScrollDot
                 hoverable
-                key={_section.key + 'dot'}
+                key={Section.key + 'dot'}
                 active={index === section}
-                onClick={() => setSection(index)}
+                onClick={() => changeVisibleSection(index)}
               />
             ))}
           </Flex>

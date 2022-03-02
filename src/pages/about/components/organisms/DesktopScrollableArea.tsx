@@ -1,6 +1,6 @@
 import VisibilitySensor from 'react-visibility-sensor'
 import styled from 'styled-components'
-import React, { useEffect } from 'react'
+import React, { RefObject, useEffect, useMemo } from 'react'
 import { HomepageSections } from '../../utils/useHomepageSections'
 
 const SnapScroll = styled.div`
@@ -23,16 +23,29 @@ export default function DesktopScrollableArea({
   setVisibleSection: (section: number) => void
   HomepageSections: HomepageSections
 }): JSX.Element {
-  const visibilityRef = React.useRef<HTMLDivElement>(null)
-
-  useEffect(() => {
-    if (visibilityRef.current) {
-      visibilityRef.current.scrollIntoView({
+  const scrollElementIntoView = (ref: React.RefObject<HTMLDivElement>) => {
+    console.log('scrollElementIntoView > ref.current =', ref.current)
+    if (ref.current !== null) {
+      ref.current.scrollIntoView({
         behavior: 'smooth',
         block: 'start',
       })
     }
-  }, [visibleSection])
+  }
+  const getScrollerForThisRef = (
+    ref: RefObject<HTMLDivElement> | ((instance: HTMLDivElement | null) => void)
+  ) => () => {
+    console.log('getScrollerForThisRef > ref =', ref)
+    scrollElementIntoView(ref as RefObject<HTMLDivElement>)
+  }
+  // detect changes in visibleSection and scroll to the current one
+  useEffect(() => {
+    setVisibleSection(visibleSection)
+  }, [visibleSection, setVisibleSection])
+
+  /*
+    Current problem I'm noticing: all of the scrollers are being triggered whenever we scroll. Scrolling with buttons does nothing.
+  */
 
   return (
     <SnapScroll>
@@ -44,7 +57,11 @@ export default function DesktopScrollableArea({
             }
             return (
               <React.Fragment key={Section.key}>
-                <Section.Section ref={Section.ref} />
+                <Section.Section
+                  sectionRef={Section.ref}
+                  getScrollerForThisRef={getScrollerForThisRef}
+                  isVisible={isVisible}
+                />
               </React.Fragment>
             )
           }}

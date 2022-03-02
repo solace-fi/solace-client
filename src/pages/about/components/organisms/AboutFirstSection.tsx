@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { RefObject, useEffect, useMemo } from 'react'
 import { Flex } from '../../../../components/atoms/Layout'
 import { Text, TextSpan } from '../../../../components/atoms/Typography'
 import { useWindowDimensions } from '../../../../hooks/useWindowDimensions'
@@ -9,10 +9,37 @@ import grantsFrom from '../../../../resources/svg/grants/grants-from.svg'
 
 // export const AboutFirstSection = <AboutFirstSectionFunction />
 
-export function AboutFirstSection({ ref }: { ref?: React.Ref<HTMLDivElement> }): JSX.Element {
+export function AboutFirstSection({
+  sectionRef: ref,
+  getScrollerForThisRef,
+  isVisible,
+}: {
+  sectionRef?: React.Ref<HTMLDivElement>
+  getScrollerForThisRef: (ref: ((instance: HTMLDivElement | null) => void) | RefObject<HTMLDivElement>) => () => void
+  isVisible: boolean
+}): JSX.Element {
   const { isMobile } = useWindowDimensions()
+  const scroller = useMemo(() => (ref ? getScrollerForThisRef(ref) : () => console.log('no ref')), [
+    ref,
+    getScrollerForThisRef,
+  ])
+  useEffect(() => {
+    if (isVisible) {
+      console.log('AboutFirstSection > useEffect > isVisible > now trying to scroll here')
+      console.log('my ref: ', ref)
+      scroller()
+    }
+  }, [isVisible, scroller, ref])
+
   return (
-    <Flex col px={isMobile ? 47 : undefined} itemsCenter justifyCenter={!isMobile} mt={isMobile ? 100 : undefined}>
+    <Flex
+      col
+      px={isMobile ? 47 : undefined}
+      itemsCenter
+      justifyCenter={!isMobile}
+      mt={isMobile ? 100 : undefined}
+      ref={ref}
+    >
       <Flex col w={isMobile ? undefined : 507}>
         {/* LOGO */}
         <img src={whiteLogo} style={{ width: isMobile ? '232px' : '507px' }} />
