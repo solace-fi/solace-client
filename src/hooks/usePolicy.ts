@@ -5,7 +5,15 @@ import { useEffect, useMemo, useState } from 'react'
 import { NUM_BLOCKS_PER_DAY, ZERO } from '../constants'
 import { useContracts } from '../context/ContractsManager'
 import { useWallet } from '../context/WalletManager'
-import { LiquityPosition, Policy, Position, StringToStringMapping, SupportedProduct, Token } from '../constants/types'
+import {
+  LiquityPosition,
+  NetworkConfig,
+  Policy,
+  Position,
+  StringToStringMapping,
+  SupportedProduct,
+  Token,
+} from '../constants/types'
 import { useCachedData } from '../context/CachedDataManager'
 import { useNetwork } from '../context/NetworkManager'
 import { PositionType } from '../constants/enums'
@@ -294,4 +302,49 @@ export const useTotalActivePolicies = () => {
   }, [latestBlock])
 
   return { totalActivePolicies, totalActiveCoverLimit }
+}
+
+export const useExistingPolicy = () => {
+  const { account } = useWallet()
+  const { networks } = useNetwork()
+  const { latestBlock } = useProvider()
+  const [loading, setLoading] = useState(true)
+  const [policyId, setPolicyId] = useState<BigNumber | undefined>(undefined)
+  const [network, setNetwork] = useState<NetworkConfig | undefined>(undefined)
+
+  useEffect(() => {
+    const getExistingPolicy = async () => {
+      if (!account) {
+        setPolicyId(undefined)
+        setLoading(false)
+      }
+      const countedNetworks = networks.filter((n) => !n.isTestnet)
+      let _id = ZERO
+      let _network = undefined
+      for (let i = 0; i < countedNetworks.length; i++) {
+        const activeNetwork = countedNetworks[i]
+        if (activeNetwork.config.restrictedFeatures.noSoteria) continue
+        const provider = new JsonRpcProvider(activeNetwork.rpc.httpsUrl)
+        const solaceCoverProductSrc = activeNetwork.config.keyContracts.solaceCoverProduct
+        if (!solaceCoverProductSrc) continue
+        if (!solaceCoverProductSrc.addr || !isAddress(solaceCoverProductSrc.addr) || !solaceCoverProductSrc.abi)
+          continue
+        const solaceCoverProductContract = new Contract(solaceCoverProductSrc.addr, solaceCoverProductSrc.abi, provider)
+        const _policyId = await solaceCoverProductContract.policyOf(account)
+        _id = _policyId
+        _network = activeNetwork
+        if (_id.gt(ZERO)) break
+      }
+      setNetwork(_network)
+      setPolicyId(_id)
+      setLoading(false)
+    }
+    getExistingPolicy()
+  }, [account, latestBlock, networks])
+
+  useEffect(() => {
+    setLoading(true)
+  }, [account])
+
+  return { policyId, network, loading }
 }
