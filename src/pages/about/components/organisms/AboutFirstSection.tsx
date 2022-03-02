@@ -25,8 +25,9 @@ export function AboutFirstSection({
   ])
   useEffect(() => {
     if (isVisible) {
-      console.log('AboutFirstSection > useEffect > isVisible > now trying to scroll here')
-      console.log('my ref: ', ref)
+      // console.log('currently visible: ', 'about-first-section')
+      // console.log('AboutFirstSection > useEffect > isVisible > now trying to scroll here')
+      // console.log('my ref: ', ref)
       scroller()
     }
   }, [isVisible, scroller, ref])

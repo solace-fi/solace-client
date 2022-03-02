@@ -60,7 +60,7 @@ export default function DesktopScrollableArea({
                 <Section.Section
                   sectionRef={Section.ref}
                   getScrollerForThisRef={getScrollerForThisRef}
-                  isVisible={isVisible}
+                  isVisible={visibleSection === index}
                 />
               </React.Fragment>
             )
