@@ -201,7 +201,9 @@ export const TextFontCss = css<TextFontProps>`
     if (props.big1) return BigSize1Css
     if (props.big2) return BigSize2Css
     if (props.big3) return BigSize3Css
-    return Text3Css
+    return css`
+      font-size: inherit;
+    `
   }}
 `
 

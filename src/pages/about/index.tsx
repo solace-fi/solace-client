@@ -66,20 +66,21 @@ function About(): JSX.Element {
           position: 'relative',
         }}
       >
-        <DesktopScrollableArea
-          visibleSection={section}
-          setVisibleSection={setSection}
-          HomepageSections={HomepageSections}
-        />
-        {/* {!isMobile ? (
-          <DesktopScrollableArea visibleSection={visibleSection} setVisibleSection={setVisibleSection} isMobile={isMobile} />
-        // ) : (
-        //   <Flex col gap={81}>
-        //     {homepageSections.map((Section, index) => (
-        //       <React.Fragment key={'section' + index}>{Section.section}</React.Fragment>
-        //     ))}
-        //   </Flex>
-        // )*/}
+        {!isMobile ? (
+          <DesktopScrollableArea
+            visibleSection={section}
+            setVisibleSection={setSection}
+            HomepageSections={HomepageSections}
+          />
+        ) : (
+          <Flex col gap={81}>
+            {HomepageSections.map((Section, index) => (
+              <React.Fragment key={'section' + index}>
+                <Section.Section />
+              </React.Fragment>
+            ))}
+          </Flex>
+        )}
         {!isMobile && (
           <Flex
             col

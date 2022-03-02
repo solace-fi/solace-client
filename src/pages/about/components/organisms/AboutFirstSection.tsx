@@ -15,19 +15,16 @@ export function AboutFirstSection({
   isVisible,
 }: {
   sectionRef?: React.Ref<HTMLDivElement>
-  getScrollerForThisRef: (ref: ((instance: HTMLDivElement | null) => void) | RefObject<HTMLDivElement>) => () => void
-  isVisible: boolean
+  getScrollerForThisRef?: (ref: ((instance: HTMLDivElement | null) => void) | RefObject<HTMLDivElement>) => () => void
+  isVisible?: boolean
 }): JSX.Element {
   const { isMobile } = useWindowDimensions()
-  const scroller = useMemo(() => (ref ? getScrollerForThisRef(ref) : () => console.log('no ref')), [
-    ref,
-    getScrollerForThisRef,
-  ])
+  const scroller = useMemo(
+    () => (ref && getScrollerForThisRef ? getScrollerForThisRef(ref) : () => console.log('no ref')),
+    [ref, getScrollerForThisRef]
+  )
   useEffect(() => {
     if (isVisible) {
-      // console.log('currently visible: ', 'about-first-section')
-      // console.log('AboutFirstSection > useEffect > isVisible > now trying to scroll here')
-      // console.log('my ref: ', ref)
       scroller()
     }
   }, [isVisible, scroller, ref])

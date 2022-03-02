@@ -1,6 +1,6 @@
 import VisibilitySensor from 'react-visibility-sensor'
 import styled from 'styled-components'
-import React, { RefObject, useEffect, useMemo } from 'react'
+import React, { RefObject, useEffect } from 'react'
 import { HomepageSections } from '../../utils/useHomepageSections'
 
 const SnapScroll = styled.div`
