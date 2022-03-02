@@ -159,13 +159,13 @@ export function ListOfPeople({
     <Flex
       col
       stretch
-      pr={isMobile ? undefined : 70}
+      pr={isMobile ? 20 : 70}
       gap={isMobile ? 50 : 70}
-      pl={isMobile ? 80 : 50}
+      pl={isMobile ? 60 : 50}
       justifyCenter
       ref={sectionRef}
     >
-      <SectionTitle light extrabold>
+      <SectionTitle light extrabold isMobile={isMobile}>
         {title}
       </SectionTitle>
 

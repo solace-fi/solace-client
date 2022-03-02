@@ -12,6 +12,10 @@ const SnapScroll = styled.div`
     scroll-snap-align: start;
     height: calc(100vh - 100px);
   }
+  &::-webkit-scrollbar {
+    width: 0; /* Remove scrollbar space */
+    background: transparent; /* Optional: just make scrollbar invisible */
+  }
 `
 
 export default function DesktopScrollableArea({

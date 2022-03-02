@@ -26,7 +26,7 @@ export function StakingSection({
 
   return (
     <Flex col stretch pr={70} justifyCenter ref={ref}>
-      <SectionTitle light extrabold fontSize={isMobile ? 36 : 48} lineHeight={isMobile ? 43.88 : 82} ml={80}>
+      <SectionTitle light extrabold isMobile={isMobile} ml={80}>
         Staking
       </SectionTitle>
       <Flex mt={70}>

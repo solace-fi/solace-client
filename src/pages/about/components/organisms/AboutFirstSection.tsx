@@ -1,6 +1,6 @@
 import React, { RefObject, useEffect, useMemo } from 'react'
 import { Flex } from '../../../../components/atoms/Layout'
-import { Text, TextSpan } from '../../../../components/atoms/Typography'
+import { Text } from '../../../../components/atoms/Typography'
 import { useWindowDimensions } from '../../../../hooks/useWindowDimensions'
 import { Button } from '../../../../components/atoms/Button'
 import { StyledNavLink } from '../../../../components/atoms/Link'
@@ -38,9 +38,16 @@ export function AboutFirstSection({
       mt={isMobile ? 100 : undefined}
       ref={ref}
     >
-      <Flex col w={isMobile ? undefined : 507}>
+      <Flex col w={isMobile ? undefined : 507} itemsCenter={isMobile}>
         {/* LOGO */}
-        <img src={whiteLogo} style={{ width: isMobile ? '232px' : '507px' }} />
+        <img
+          src={whiteLogo}
+          style={{
+            width: isMobile ? '232px' : '507px',
+            // padding left if mobile is 40px
+            paddingLeft: isMobile ? '25px' : undefined,
+          }}
+        />
         {/* TEXT */}
         <Flex col pr={isMobile ? undefined : 50} mt={isMobile ? 30 : 40}>
           <Text
@@ -52,8 +59,10 @@ export function AboutFirstSection({
               fontSize: !isMobile ? '20px' : '16px',
               lineHeight: '1.6',
               fontWeight: 400,
-              padding: !isMobile ? '0px' : '47px',
+              // padding: !isMobile ? '0px' : '46px',
             }}
+            pl={isMobile ? undefined : 46}
+            pr={isMobile ? undefined : 46}
           >
             Insurance protocol built to secure DeFi&apos;s future by solving complexity of risk management with
             user-friendly, intelligent and transparent tools.
@@ -65,16 +74,19 @@ export function AboutFirstSection({
             <Button secondary light width={200} style={{ padding: '15px 50px', borderRadius: '55px' }}>
               <Text warmgradient>Buy Cover</Text>
             </Button>
+            {/* <Button secondary light width={200} style={{ padding: '15px 50px', borderRadius: '55px' }}>
+              <Text techygradient>Buy Solace Token</Text>
+            </Button> */}
           </StyledNavLink>
           <StyledNavLink to="/bond">
             <Button light width={200} style={{ padding: '15px 50px', borderRadius: '55px' }}>
-              <TextSpan nowrap style={{ color: 'inherit' }}>
+              <Text nowrap style={{ color: 'inherit' }}>
                 Underwrite Risk
-              </TextSpan>
+              </Text>
             </Button>
           </StyledNavLink>
         </Flex>
-        {!isMobile ? (
+        {!isMobile && isVisible ? (
           <Flex
             justifyCenter
             style={{
