@@ -199,7 +199,7 @@ function Stake1(): any {
                       pr={0}
                       onClick={() => setIsMigrating(true)}
                       jc={'center'}
-                      style={{ cursor: 'pointer', backgroundColor: !isMigrating ? 'rgba(0, 0, 0, .05)' : 'inherit' }}
+                      style={{ cursor: 'pointer', backgroundColor: isMigrating ? 'rgba(0, 0, 0, .05)' : 'inherit' }}
                     >
                       <Text t1 bold info={isMigrating}>
                         Migrate
@@ -213,7 +213,7 @@ function Stake1(): any {
                       pr={0}
                       onClick={() => setIsMigrating(false)}
                       jc={'center'}
-                      style={{ cursor: 'pointer', backgroundColor: isMigrating ? 'rgba(0, 0, 0, .05)' : 'inherit' }}
+                      style={{ cursor: 'pointer', backgroundColor: !isMigrating ? 'rgba(0, 0, 0, .05)' : 'inherit' }}
                     >
                       <Text t1 bold info={!isMigrating}>
                         Unstake

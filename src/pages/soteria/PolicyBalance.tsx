@@ -404,7 +404,7 @@ export function PolicyBalance({
               pr={0}
               onClick={() => setIsDepositing(true)}
               jc={'center'}
-              style={{ cursor: 'pointer', backgroundColor: !isDepositing ? 'rgba(0, 0, 0, .05)' : 'inherit' }}
+              style={{ cursor: 'pointer', backgroundColor: isDepositing ? 'rgba(0, 0, 0, .05)' : 'inherit' }}
             >
               <Text t2 bold info={isDepositing}>
                 {inactive ? 'Activate' : 'Deposit'}
@@ -420,7 +420,7 @@ export function PolicyBalance({
               jc={'center'}
               style={{
                 cursor: 'pointer',
-                backgroundColor: isDepositing ? 'rgba(0, 0, 0, .05)' : 'inherit',
+                backgroundColor: !isDepositing ? 'rgba(0, 0, 0, .05)' : 'inherit',
               }}
             >
               <Text t2 bold info={!isDepositing}>
