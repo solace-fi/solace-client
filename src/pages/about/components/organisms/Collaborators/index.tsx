@@ -128,7 +128,7 @@ export function ListOfPeople({
   columns, // number
   mobileColumns,
   desktopColumns,
-  ref,
+  sectionRef,
 }: {
   peopleList: Person[]
   // if there's a collective list, the first column will be the collective, and the optional second and third will be the people
@@ -139,7 +139,7 @@ export function ListOfPeople({
   columns?: number
   mobileColumns?: number
   desktopColumns?: number
-  ref?: Ref<HTMLDivElement>
+  sectionRef?: Ref<HTMLDivElement>
 }): JSX.Element {
   const { isMobile } = useWindowDimensions()
   const reactTeam = peopleList.map(({ name, role, twitter, profilePic }) => (
@@ -163,7 +163,7 @@ export function ListOfPeople({
       gap={isMobile ? 50 : 70}
       pl={isMobile ? 80 : 50}
       justifyCenter
-      ref={ref}
+      ref={sectionRef}
     >
       <SectionTitle light extrabold>
         {title}
@@ -203,7 +203,7 @@ export function Investors({
   }, [isVisible, scroller, ref])
   return (
     <ListOfPeople
-      ref={ref}
+      sectionRef={ref}
       collectiveList={collectiveInvestors}
       peopleList={individualInvestors}
       title="Investors"
@@ -227,9 +227,10 @@ export function Advisors({
     getScrollerForThisRef,
   ])
   useEffect(() => {
+    if (isVisible) console.log("advisors is visible! here's the ref: ", ref)
     if (isVisible) scroller()
   }, [isVisible, scroller, ref])
-  return <ListOfPeople ref={ref} peopleList={advisors} title="Advisors" mobileColumns={1} desktopColumns={2} />
+  return <ListOfPeople sectionRef={ref} peopleList={advisors} title="Advisors" mobileColumns={1} desktopColumns={2} />
 }
 
 export function CoreContributors({
@@ -251,7 +252,7 @@ export function CoreContributors({
 
   return (
     <ListOfPeople
-      ref={ref}
+      sectionRef={ref}
       peopleList={coreContributors}
       title="Core contributors"
       mobileColumns={1}
