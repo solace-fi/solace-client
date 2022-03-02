@@ -46,7 +46,7 @@ export interface TextFontProps {
   /** `font-size: 24px`, `line-height: 20px` */ t1s?: boolean
   /** `font-size: 20px`, `line-height: 18px` */ t2s?: boolean
   /** `font-size: 18px`, `line-height: 16px` */ t2_5s?: boolean
-  /** `font-size: 16px`, `line-height: 14.4px` */ t3s?: boolean
+  /** `font-size: 16px` */ t3s?: boolean
   /** `14px` */ t4s?: boolean
   /** `font-size: 12px`, `line-height: 14px` */ t5s?: boolean
   /** `font-size: 10px`, `line-height: 12px` */ t6s?: boolean
@@ -147,7 +147,7 @@ const Text2_5StaticCss = css`
 `
 export const Text3StaticCss = css`
   font-size: 16px;
-  line-height: 14.4px;
+  /* line-height: 14.4px; */
 `
 
 export const Text4Css = css`
