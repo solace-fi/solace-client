@@ -34,6 +34,23 @@ export interface TextStyleProps extends GeneralElementProps {
   lineThrough?: boolean
   inline?: boolean
 }
+export interface TextFontProps {
+  /* `48px` */ big1?: boolean
+  /* `36px` */ big2?: boolean
+  /* `24px` */ big3?: boolean
+  /** `width < BKPT_3` ? `24px` : `22px` */ t1?: boolean
+  /** `width < BKPT_3` ? `20px` : `18px` */ t2?: boolean
+  /** `width < BKPT_3` ? `18px` : `16px` */ t2_5?: boolean
+  /** `width < BKPT_3` ? `16px` : `14px` */ t3?: boolean
+  /** `width < BKPT_3` ? `14px` : `12px` */ t4?: boolean
+  /** `font-size: 24px`, `line-height: 20px` */ t1s?: boolean
+  /** `font-size: 20px`, `line-height: 18px` */ t2s?: boolean
+  /** `font-size: 18px`, `line-height: 16px` */ t2_5s?: boolean
+  /** `font-size: 16px`, `line-height: 14.4px` */ t3s?: boolean
+  /** `14px` */ t4s?: boolean
+  /** `font-size: 12px`, `line-height: 14px` */ t5s?: boolean
+  /** `font-size: 10px`, `line-height: 12px` */ t6s?: boolean
+}
 
 export interface GeneralTextProps extends TextFontProps, TextAlignProps, TextStyleProps {}
 
@@ -155,6 +172,18 @@ export const Text6StaticCss = css`
   line-height: 12px;
 `
 
+export const BigSize1Css = css`
+  font-size: 48px;
+`
+
+export const BigSize2Css = css`
+  font-size: 36px;
+`
+
+export const BigSize3Css = css`
+  font-size: 24px;
+`
+
 export const TextFontCss = css<TextFontProps>`
   ${(props) => {
     if (props.t1) return Text1Css
@@ -169,7 +198,12 @@ export const TextFontCss = css<TextFontProps>`
     if (props.t4s) return Text4StaticCss
     if (props.t5s) return Text5StaticCss
     if (props.t6s) return Text6StaticCss
-    return Text3Css
+    if (props.big1) return BigSize1Css
+    if (props.big2) return BigSize2Css
+    if (props.big3) return BigSize3Css
+    // return css`
+    //   font-size: inherit;
+    // `
   }}
 `
 
@@ -278,28 +312,15 @@ export const TTTest = styled.div<{
     `}
 `
 
-export interface TextFontProps {
-  /** `width < BKPT_3` ? `24px` : `22px` */ t1?: boolean
-  /** `width < BKPT_3` ? `20px` : `18px` */ t2?: boolean
-  /** `width < BKPT_3` ? `18px` : `16px` */ t2_5?: boolean
-  /** `width < BKPT_3` ? `16px` : `14px` */ t3?: boolean
-  /** `width < BKPT_3` ? `14px` : `12px` */ t4?: boolean
-  /** `font-size: 24px`, `line-height: 20px` */ t1s?: boolean
-  /** `font-size: 20px`, `line-height: 18px` */ t2s?: boolean
-  /** `font-size: 18px`, `line-height: 16px` */ t2_5s?: boolean
-  /** `font-size: 16px`, `line-height: 14.4px` */ t3s?: boolean
-  /** `14px` */ t4s?: boolean
-  /** `font-size: 12px`, `line-height: 14px` */ t5s?: boolean
-  /** `font-size: 10px`, `line-height: 12px` */ t6s?: boolean
-}
-
 export const SectionTitle = styled(Text)<{
   extrabold?: boolean
   lineHeight?: number
   fontSize?: number
+  isMobile?: boolean
 }>`
-  font-size: ${(props) => (props.fontSize ?? 48) + 'px'};
-  line-height: ${({ lineHeight }) => (lineHeight ?? 82) + 'px'};
+  /* use breakpoint BKPT_5 to decide if it's mobile; if mobile, default font size is 36px, otherwise it's 48px */
+  font-size: ${({ fontSize, isMobile }) => (fontSize ?? isMobile ? 36 : 48) + 'px'};
+  line-height: ${({ lineHeight, isMobile }) => (lineHeight ?? isMobile ? 43.88 : 82) + 'px'};
   font-family: Montserrat;
   font-weight: ${({ extrabold }) => (extrabold ? 700 : 400)};
   ${GeneralElementCss}

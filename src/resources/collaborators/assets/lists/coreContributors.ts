@@ -1,3 +1,5 @@
+import getPeopleFromString from '../../getPeopleFromString'
+
 const teamStr = `Nikita Buzov
 Founder
 @NikitaBuzovEth
@@ -54,24 +56,5 @@ Marketing & Content
 Petr Lipatov
 Product Marketing`
 
-type User = {
-  name: string
-  role: string
-  twitter?: string
-}
-
 // line 1: name, line 2: role, line 3: twitter
-const userTuples = teamStr.split('\n\n')
-const users = userTuples.map((tuple) => {
-  const lines = tuple.split('\n')
-  const user = {
-    name: lines[0],
-    role: lines[1],
-  } as User
-  if (lines[2]) {
-    user.twitter = lines[2].replace('@', '')
-  }
-  return user
-})
-
-export default users
+export default getPeopleFromString(teamStr)
