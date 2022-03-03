@@ -304,23 +304,23 @@ export const useTotalActivePolicies = () => {
   return { totalActivePolicies, totalActiveCoverLimit }
 }
 
-export const useExistingPolicy = () => {
-  const { account } = useWallet()
+export const useExistingPolicy = (account: string | undefined) => {
   const { networks } = useNetwork()
   const { latestBlock } = useProvider()
   const [loading, setLoading] = useState(true)
-  const [policyId, setPolicyId] = useState<BigNumber | undefined>(undefined)
-  const [network, setNetwork] = useState<NetworkConfig | undefined>(undefined)
+  const [policyId, setPolicyId] = useState<BigNumber>(ZERO)
+  const [network, setNetwork] = useState<NetworkConfig>(networks[0])
 
   useEffect(() => {
     const getExistingPolicy = async () => {
       if (!account) {
-        setPolicyId(undefined)
-        setLoading(false)
+        setPolicyId(ZERO)
+        setLoading(true)
       }
       const countedNetworks = networks.filter((n) => !n.isTestnet)
+      // const countedNetworks = networks
       let _id = ZERO
-      let _network = undefined
+      let _network = networks[0]
       for (let i = 0; i < countedNetworks.length; i++) {
         const activeNetwork = countedNetworks[i]
         if (activeNetwork.config.restrictedFeatures.noSoteria) continue

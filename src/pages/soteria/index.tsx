@@ -15,7 +15,7 @@ import { useInputAmount } from '../../hooks/useInputAmount'
 import { parseUnits } from 'ethers/lib/utils'
 import { useCachedData } from '../../context/CachedDataManager'
 import { useProvider } from '../../context/ProviderManager'
-import { DAI_ADDRESS } from '../../constants/mappings/tokenAddressMapping'
+import { DAI_ADDRESS, FRAX_ADDRESS } from '../../constants/mappings/tokenAddressMapping'
 import { useNetwork } from '../../context/NetworkManager'
 import IERC20 from '../../constants/metadata/IERC20Metadata.json'
 import { queryBalance, queryDecimals } from '../../utils/contract'
@@ -27,6 +27,7 @@ import { TextSpan, Text } from '../../components/atoms/Typography'
 import { Box, RaisedBox } from '../../components/atoms/Box'
 import { StyledInfo } from '../../components/atoms/Icon'
 import { WalletConnectButton } from '../../components/molecules/WalletConnectButton'
+import { Button, ButtonWrapper } from '../../components/atoms/Button'
 
 import { PortfolioTable } from './PortfolioTable'
 import { ReferralSection } from './ReferralSection'
@@ -34,6 +35,10 @@ import { CoverageActive } from './CoverageActive'
 import { WelcomeMessage } from './WelcomeMessage'
 import { PolicyBalance } from './PolicyBalance'
 import { CoverageLimit } from './CoverageLimit'
+import { useExistingPolicy } from '../../hooks/usePolicy'
+
+import Zapper from '../../resources/svg/zapper.svg'
+import ZapperDark from '../../resources/svg/zapper-dark.svg'
 
 export function Card({
   children,
@@ -121,17 +126,18 @@ enum FormStages {
 }
 
 export default function Soteria(): JSX.Element {
-  const { referralCode: referralCodeFromStorage } = useGeneral()
+  const { referralCode: referralCodeFromStorage, appTheme } = useGeneral()
   const { account, library } = useWallet()
-  const { latestBlock } = useProvider()
+  const { latestBlock, switchNetwork } = useProvider()
   const { activeNetwork } = useNetwork()
   const { version } = useCachedData()
   const canShowSoteria = useMemo(() => !activeNetwork.config.restrictedFeatures.noSoteria, [
     activeNetwork.config.restrictedFeatures.noSoteria,
   ])
-  const { portfolio, loading } = usePortfolio(account, 1)
+  const { portfolio, loading } = usePortfolio(account)
   const { isMobile } = useWindowDimensions()
   const { policyId, status, coverageLimit, mounting } = useCheckIsCoverageActive(account)
+  const existingPolicy = useExistingPolicy(account)
   const {
     getMinRequiredAccountBalance,
     getIsReferralCodeUsed,
@@ -147,7 +153,7 @@ export default function Soteria(): JSX.Element {
   const currentCoverageLimit = useMemo(() => coverageLimit, [coverageLimit])
   const { keyContracts } = useContracts()
   const { solaceCoverProduct } = useMemo(() => keyContracts, [keyContracts])
-  const firstTime = useMemo(() => policyId.isZero(), [policyId])
+  const firstTime = useMemo(() => existingPolicy.policyId.isZero(), [existingPolicy.policyId])
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [referralType, setReferralType] = useState<ReferralSource>(ReferralSource.Standard)
@@ -162,6 +168,8 @@ export default function Soteria(): JSX.Element {
   const [referrerIsActive, setIsReferrerIsActive] = useState<boolean>(true)
   const [referrerIsOther, setIsReferrerIsOther] = useState<boolean>(true)
   const [checkingReferral, setCheckingReferral] = useState<boolean>(false)
+  const [showExistingPolicyMessage, setShowExistingPolicyMessage] = useState<boolean>(true)
+  const [stableCoin, setStableCoin] = useState<string>(DAI_ADDRESS[activeNetwork.chainId])
 
   const [minReqAccBal, setMinReqAccBal] = useState<BigNumber>(ZERO)
 
@@ -216,7 +224,7 @@ export default function Soteria(): JSX.Element {
 
   const _getAvailableFunds = useDebounce(async () => {
     if (!library || !account) return
-    const tokenContract = new Contract(DAI_ADDRESS[activeNetwork.chainId], IERC20.abi, library)
+    const tokenContract = new Contract(stableCoin, IERC20.abi, library)
     const balance = await queryBalance(tokenContract, account)
     const decimals = await queryDecimals(tokenContract)
     setWalletAssetBalance(balance)
@@ -228,6 +236,18 @@ export default function Soteria(): JSX.Element {
     const capacity = await getAvailableCoverCapacity()
     setAvailableCoverCapacity(capacity)
   }, 300)
+
+  useEffect(() => {
+    setShowExistingPolicyMessage(true)
+    switch (activeNetwork.chainId) {
+      case 80001:
+      case 137:
+        setStableCoin(FRAX_ADDRESS[activeNetwork.chainId])
+        break
+      default:
+        setStableCoin(DAI_ADDRESS[activeNetwork.chainId])
+    }
+  }, [activeNetwork.chainId])
 
   useEffect(() => {
     _getCapacity()
@@ -287,7 +307,7 @@ export default function Soteria(): JSX.Element {
         </HeroContainer>
       ) : canShowSoteria ? (
         <>
-          {mounting ? (
+          {mounting || existingPolicy.loading ? (
             <Flex col gap={24} m={isMobile ? 20 : undefined}>
               <Loader />
             </Flex>
@@ -295,6 +315,36 @@ export default function Soteria(): JSX.Element {
             <Flex col gap={24} m={isMobile ? 20 : undefined}>
               {firstTime && formStage === FormStages.Welcome ? (
                 <WelcomeMessage portfolio={portfolio} type={referralType} goToSecondStage={goToSecondStage} />
+              ) : !firstTime && policyId.isZero() && showExistingPolicyMessage ? (
+                <Card>
+                  <Flex col gap={30} itemsCenter>
+                    <Text t2s>Solace Wallet Coverage</Text>
+                    <Flex col gap={10} itemsCenter>
+                      <Text t2>Cover your wallet on any of our supported chains with one policy!</Text>
+                      <Text t2 warning>
+                        It looks like you already have a policy on {existingPolicy.network.name}.
+                      </Text>
+                    </Flex>
+                    <ButtonWrapper isColumn={isMobile}>
+                      <Button info secondary pl={23} pr={23} onClick={() => switchNetwork(existingPolicy.network.name)}>
+                        Switch to {existingPolicy.network.name}
+                      </Button>
+                      <Button info pl={23} pr={23} onClick={() => setShowExistingPolicyMessage(false)}>
+                        Continue Anyway
+                      </Button>
+                    </ButtonWrapper>
+                    {appTheme == 'light' && (
+                      <Flex center>
+                        <img src={Zapper} style={{ width: '145px' }} />
+                      </Flex>
+                    )}
+                    {appTheme == 'dark' && (
+                      <Flex center>
+                        <img src={ZapperDark} style={{ width: '145px' }} />
+                      </Flex>
+                    )}
+                  </Flex>
+                </Card>
               ) : (
                 <Flex gap={24} col={isMobile}>
                   {status ? (
@@ -330,6 +380,7 @@ export default function Soteria(): JSX.Element {
                             checkingReferral,
                             referrerIsOther,
                           }}
+                          stableCoin={stableCoin}
                           balances={balances}
                           minReqAccBal={minReqAccBal}
                           portfolio={portfolio}
@@ -390,6 +441,7 @@ export default function Soteria(): JSX.Element {
                             checkingReferral,
                             referrerIsOther,
                           }}
+                          stableCoin={stableCoin}
                           balances={balances}
                           minReqAccBal={minReqAccBal}
                           portfolio={portfolio}

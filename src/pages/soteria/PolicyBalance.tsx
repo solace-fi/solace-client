@@ -28,7 +28,6 @@ import { useTransactionExecution } from '../../hooks/useInputAmount'
 import { FunctionName, TransactionCondition } from '../../constants/enums'
 import { parseUnits } from 'ethers/lib/utils'
 import { useCachedData } from '../../context/CachedDataManager'
-import { DAI_ADDRESS } from '../../constants/mappings/tokenAddressMapping'
 import { useNetwork } from '../../context/NetworkManager'
 import IERC20 from '../../constants/metadata/IERC20Metadata.json'
 import useDebounce from '@rooks/use-debounce'
@@ -43,6 +42,7 @@ import { ModalCell } from '../../components/atoms/Modal'
 export function PolicyBalance({
   balances,
   referralChecks,
+  stableCoin,
   minReqAccBal,
   portfolio,
   currentCoverageLimit,
@@ -68,6 +68,7 @@ export function PolicyBalance({
     checkingReferral: boolean
     referrerIsOther: boolean
   }
+  stableCoin: string
   minReqAccBal: BigNumber
   portfolio: SolaceRiskScore | undefined
   currentCoverageLimit: BigNumber
@@ -108,6 +109,8 @@ export function PolicyBalance({
 
   const [rangeValue, setRangeValue] = useState<string>('0')
   const [isDepositing, setIsDepositing] = useState<boolean>(true)
+  const [stableCoinName, setStableCoinName] = useState<string>('')
+  const [stableCoinSymbol, setStableCoinSymbol] = useState<string>('')
 
   const usdBalanceSum = useMemo(
     () =>
@@ -163,7 +166,7 @@ export function PolicyBalance({
 
   const unlimitedApprove = async () => {
     if (!solaceCoverProduct || !account || !library) return
-    const stablecoinContract = getContract(DAI_ADDRESS[activeNetwork.chainId], IERC20.abi, library, account)
+    const stablecoinContract = getContract(stableCoin, IERC20.abi, library, account)
     try {
       const tx: TransactionResponse = await stablecoinContract.approve(solaceCoverProduct.address, MAX_APPROVAL_AMOUNT)
       const txHash = tx.hash
@@ -235,6 +238,16 @@ export function PolicyBalance({
     const bnAmount = BigNumber.from(accurateMultiply(inputProps.amount, 18))
     setDoesReachMinReqAccountBal(balances.personalBalance.add(bnAmount).gt(minReqAccBal))
   }, 300)
+
+  useEffect(() => {
+    const getStableCoinDetails = async () => {
+      const contract = getContract(stableCoin, IERC20.abi, library, account)
+      const [name, symbol] = await Promise.all([contract.name(), contract.symbol()])
+      setStableCoinName(name)
+      setStableCoinSymbol(symbol)
+    }
+    getStableCoinDetails()
+  }, [stableCoin])
 
   useEffect(() => {
     _checkMinReqAccountBal()
@@ -434,9 +447,9 @@ export function PolicyBalance({
             <>
               {inactive && <Text t4>Set the coverage limit and initial deposit for your policy</Text>}
               <GenericInputSection
-                icon={<img src={DAI} height={20} />}
+                icon={<img src={`https://assets.solace.fi/${stableCoinName.toLowerCase()}`} height={20} />}
                 onChange={(e) => _handleInputChange(e.target.value)}
-                text="DAI"
+                text={stableCoinSymbol}
                 value={inputProps.amount}
                 disabled={false}
                 displayIconOnMobile

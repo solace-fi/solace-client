@@ -2,7 +2,7 @@ import { useMemo, useEffect, useState } from 'react'
 import { BigNumber } from 'ethers'
 import { ADDRESS_ZERO, GAS_LIMIT, ZERO } from '../constants'
 import { FunctionName, TransactionCondition } from '../constants/enums'
-import { LocalTx, SolaceRiskScore } from '../constants/types'
+import { LocalTx, SolaceRiskBalance, SolaceRiskScore } from '../constants/types'
 import { useContracts } from '../context/ContractsManager'
 import { useGetFunctionGas } from './useGas'
 import { getSolaceRiskBalances, getSolaceRiskScores } from '../utils/api'
@@ -292,30 +292,35 @@ export const useFunctions = () => {
 }
 
 export const usePortfolio = (
-  account: string | undefined,
-  chainId: number
+  account: string | undefined
 ): { portfolio: SolaceRiskScore | undefined; loading: boolean } => {
   const [score, setScore] = useState<SolaceRiskScore | undefined>(undefined)
-  const { activeNetwork } = useNetwork()
+  const { networks } = useNetwork()
   const { latestBlock } = useProvider()
   const { version } = useCachedData()
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     const getPortfolio = async () => {
-      if (!account || !latestBlock || activeNetwork.config.restrictedFeatures.noSoteria) return
-      const balances = await getSolaceRiskBalances(account, chainId)
-      if (!balances) return
-      const scores = await getSolaceRiskScores(account, balances)
+      if (!account || !latestBlock) return
+      const countedNetworks = networks.filter((n) => !n.isTestnet)
+      const totalBalances: SolaceRiskBalance[] = []
+      for (let i = 0; i < countedNetworks.length; i++) {
+        const activeNetwork = countedNetworks[i]
+        if (activeNetwork.config.restrictedFeatures.noSoteria) continue
+        const balances = await getSolaceRiskBalances(account, activeNetwork.chainId)
+        if (balances) totalBalances.push(...balances)
+      }
+      const scores = await getSolaceRiskScores(account, totalBalances)
       if (scores) setScore(scores)
       setLoading(false)
     }
     getPortfolio()
-  }, [account, chainId, latestBlock, version])
+  }, [account, latestBlock, version])
 
   useEffect(() => {
     setLoading(true)
-  }, [account, chainId])
+  }, [account])
 
   return { portfolio: score, loading }
 }
