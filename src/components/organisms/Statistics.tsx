@@ -22,8 +22,8 @@ import { formatUnits } from '@ethersproject/units'
 
 /* import constants */
 import { BKPT_3, ZERO } from '../../constants'
-import { PolicyState } from '../../constants/enums'
-import { USDC_ADDRESS } from '../../constants/mappings/tokenAddressMapping'
+// import { PolicyState } from '../../constants/enums'
+// import { USDC_ADDRESS } from '../../constants/mappings/tokenAddressMapping'
 import { GlobalLockInfo, UserLocksInfo } from '../../constants/types'
 
 /* import managers */
@@ -44,7 +44,7 @@ import { HyperLink } from '../atoms/Link'
 
 /* import hooks */
 import { useSolaceBalance, useCrossChainUnderwritingPoolBalance } from '../../hooks/useBalance'
-import { usePolicyGetter } from '../../hooks/usePolicyGetter'
+// import { usePolicyGetter } from '../../hooks/usePolicyGetter'
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'
 import { useUserLockData } from '../../hooks/useXSLocker'
 import { useStakingRewards } from '../../hooks/useStakingRewards'
