@@ -314,7 +314,7 @@ export const usePortfolio = (
       setLoading(false)
     }
     getPortfolio()
-  }, [account, activeNetwork.config.restrictedFeatures.noSoteria, chainId])
+  }, [account, networks])
 
   useEffect(() => {
     setLoading(true)
