@@ -318,7 +318,9 @@ export const usePortfolio = (
   return { portfolio: score, loading }
 }
 
-export const useCooldownDetails = (account: string | undefined) => {
+export const useCooldownDetails = (
+  account: string | undefined
+): { isCooldownActive: boolean; cooldownStart: BigNumber; cooldownPeriod: BigNumber; cooldownLeft: BigNumber } => {
   const { latestBlock } = useProvider()
   const { getCooldownPeriod, getCooldownStart } = useFunctions()
   const { version } = useCachedData()
