@@ -296,13 +296,11 @@ export const usePortfolio = (
 ): { portfolio: SolaceRiskScore | undefined; loading: boolean } => {
   const [score, setScore] = useState<SolaceRiskScore | undefined>(undefined)
   const { networks } = useNetwork()
-  const { latestBlock } = useProvider()
-  const { version } = useCachedData()
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     const getPortfolio = async () => {
-      if (!account || !latestBlock) return
+      if (!account) return
       const countedNetworks = networks.filter((n) => !n.isTestnet)
       const totalBalances: SolaceRiskBalance[] = []
       for (let i = 0; i < countedNetworks.length; i++) {
@@ -316,7 +314,7 @@ export const usePortfolio = (
       setLoading(false)
     }
     getPortfolio()
-  }, [account, latestBlock, version])
+  }, [account, activeNetwork.config.restrictedFeatures.noSoteria, chainId])
 
   useEffect(() => {
     setLoading(true)

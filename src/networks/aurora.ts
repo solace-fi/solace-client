@@ -3,7 +3,7 @@ import { NetworkConfig } from '../constants/types'
 import AuroraLogo from '../resources/svg/networks/aurora-logo.svg'
 import { hexValue } from 'ethers/lib/utils'
 import { KEY_ADDRS, SPECIAL_ADDRS } from '../constants/addresses/aurora'
-import { WETH9_ADDRESS } from '../constants/mappings/tokenAddressMapping'
+import { NEAR_ADDRESS, WETH9_ADDRESS } from '../constants/mappings/tokenAddressMapping'
 
 import solaceABI from '../constants/abi/contracts/SOLACE.sol/SOLACE.json'
 import xSolaceABI from '../constants/metadata/xSOLACE.json'
@@ -61,9 +61,9 @@ export const AuroraNetwork: NetworkConfig = {
       noCoverProducts: true,
       noFarmingV1: true,
       noStakingV1: true,
-      cannotBuySolace: true,
     },
     specialFeatures: {
+      solaceBuyLink: `https://www.trisolaris.io/#/swap?inputCurrency=${NEAR_ADDRESS[chainId]}&outputCurrency=${KEY_ADDRS.SOLACE}`,
       unwrapBridgedSolace: true,
       hardcodedGasPrice: 0.03,
     },

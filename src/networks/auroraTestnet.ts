@@ -9,7 +9,7 @@ import xSolaceABI from '../constants/metadata/xSOLACE.json'
 import xsLockerABI from '../constants/metadata/xsLocker.json'
 import stakingRewardsABI from '../constants/metadata/StakingRewards.json'
 
-import { WETH9_ADDRESS } from '../constants/mappings/tokenAddressMapping'
+import { NEAR_ADDRESS, WETH9_ADDRESS } from '../constants/mappings/tokenAddressMapping'
 
 import bridgeWrapperABI from '../constants/metadata/BridgeWrapper.json'
 
@@ -64,9 +64,9 @@ export const AuroraTestnetNetwork: NetworkConfig = {
       noCoverProducts: true,
       noFarmingV1: true,
       noStakingV1: true,
-      cannotBuySolace: true,
     },
     specialFeatures: {
+      solaceBuyLink: `https://www.trisolaris.io/#/swap?inputCurrency=${NEAR_ADDRESS[chainId]}&outputCurrency=${KEY_ADDRS.SOLACE}`,
       unwrapBridgedSolace: true,
     },
     specialContracts: {
