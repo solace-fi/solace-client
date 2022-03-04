@@ -41,7 +41,7 @@ import { UniswapV3Product } from '../products/uniswapV3'
 import { SushiswapProduct } from '../products/sushiswap'
 
 import { KEY_ADDRS, PRODUCT_ADDRS } from '../constants/addresses/mainnet'
-import { WETH9_ADDRESS } from '../constants/mappings/tokenAddressMapping'
+import { USDC_ADDRESS, WETH9_ADDRESS } from '../constants/mappings/tokenAddressMapping'
 import { tellerToTokenMapping } from '../constants/mappings/tellerToTokenMappings/mainnet'
 
 /*
@@ -165,7 +165,9 @@ export const MainNetwork: NetworkConfig = {
       },
     },
     restrictedFeatures: {},
-    specialFeatures: {},
+    specialFeatures: {
+      solaceBuyLink: `https://app.sushi.com/swap?inputCurrency=${USDC_ADDRESS[chainId]}&outputCurrency=${KEY_ADDRS.SOLACE}`,
+    },
     specialContracts: {},
     underwritingPoolAddr: '0x5efc0d9ee3223229ce3b53e441016efc5ba83435',
   },

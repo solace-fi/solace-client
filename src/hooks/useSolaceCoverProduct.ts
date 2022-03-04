@@ -297,13 +297,11 @@ export const usePortfolio = (
 ): { portfolio: SolaceRiskScore | undefined; loading: boolean } => {
   const [score, setScore] = useState<SolaceRiskScore | undefined>(undefined)
   const { activeNetwork } = useNetwork()
-  const { latestBlock } = useProvider()
-  const { version } = useCachedData()
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     const getPortfolio = async () => {
-      if (!account || !latestBlock || activeNetwork.config.restrictedFeatures.noSoteria) return
+      if (!account || activeNetwork.config.restrictedFeatures.noSoteria) return
       const balances = await getSolaceRiskBalances(account, chainId)
       if (!balances) return
       const scores = await getSolaceRiskScores(account, balances)
@@ -311,7 +309,7 @@ export const usePortfolio = (
       setLoading(false)
     }
     getPortfolio()
-  }, [account, chainId, latestBlock, version])
+  }, [account, activeNetwork.config.restrictedFeatures.noSoteria, chainId])
 
   useEffect(() => {
     setLoading(true)
