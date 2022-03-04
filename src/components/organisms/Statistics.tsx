@@ -144,15 +144,15 @@ export const Statistics: React.FC = () => {
       <BoxItem>
         <BoxItemTitle t4 light>
           SOLACE{' '}
-          {!activeNetwork.config.restrictedFeatures.cannotBuySolace && (
+          {activeNetwork.config.specialFeatures.solaceBuyLink && (
             <HyperLink
-              href={`https://app.sushi.com/add/${USDC_ADDRESS[chainId]}/${solace ? solace.address : null}`}
+              href={activeNetwork.config.specialFeatures.solaceBuyLink}
               target="_blank"
               rel="noopener noreferrer"
               style={{ width: '100%' }}
             >
               <Button light style={{ whiteSpace: 'nowrap', minWidth: 'unset', minHeight: 'unset' }} p={4}>
-                buy on sushi
+                Buy
               </Button>
             </HyperLink>
           )}
@@ -226,15 +226,15 @@ export const Statistics: React.FC = () => {
         <Flex stretch between mb={24}>
           <Text light>
             SOLACE{' '}
-            {!activeNetwork.config.restrictedFeatures.cannotBuySolace && (
+            {activeNetwork.config.specialFeatures.solaceBuyLink && (
               <HyperLink
-                href={`https://app.sushi.com/add/${USDC_ADDRESS[chainId]}/${solace ? solace.address : null}`}
+                href={activeNetwork.config.specialFeatures.solaceBuyLink}
                 target="_blank"
                 rel="noopener noreferrer"
                 style={{ width: '100%' }}
               >
                 <Button light style={{ whiteSpace: 'nowrap', minWidth: 'unset', minHeight: 'unset' }} p={4}>
-                  buy on sushi
+                  Buy
                 </Button>
               </HyperLink>
             )}

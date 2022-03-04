@@ -63,7 +63,6 @@ export const PolygonNetwork: NetworkConfig = {
       noCoverProducts: true,
       noFarmingV1: true,
       noStakingV1: true,
-      cannotBuySolace: true,
     },
     specialFeatures: {
       unwrapBridgedSolace: true,
