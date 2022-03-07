@@ -10,6 +10,7 @@ import xsLockerABI from '../constants/metadata/xsLocker.json'
 import stakingRewardsABI from '../constants/metadata/StakingRewards.json'
 import bridgeWrapperABI from '../constants/metadata/BridgeWrapper.json'
 import solaceCoverProductABI from '../constants/metadata/SolaceCoverProduct.json'
+import solaceCoverProductV2ABI from '../constants/metadata/SolaceCoverProductV2.json'
 
 import { KEY_ADDRS, SPECIAL_ADDRS } from '../constants/addresses/mumbai'
 
@@ -56,8 +57,8 @@ export const MumbaiNetwork: NetworkConfig = {
         abi: stakingRewardsABI.abi,
       },
       solaceCoverProduct: {
-        addr: KEY_ADDRS.SOLACE_COVER_PRODUCT,
-        abi: solaceCoverProductABI.abi,
+        addr: SPECIAL_ADDRS.SOLACE_COVER_PRODUCT_V2,
+        abi: solaceCoverProductV2ABI,
       },
     },
     productContracts: {},

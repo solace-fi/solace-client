@@ -102,14 +102,18 @@ export const getZapperProtocolBalances = async (appId: string, addresses: string
 
 export const getSolaceRiskBalances = async (
   address: string,
-  chainId: number
+  chains: number[]
 ): Promise<SolaceRiskBalance[] | undefined> => {
-  return await fetch(`https://risk-data.solace.fi/balances?account=${address}&chain_id=${chainId}`, {
-    method: 'GET',
+  return await fetch(`https://risk-data.solace.fi/balances`, {
+    method: 'POST',
     headers: {
       Accept: 'application/json',
       'Content-Type': 'application/json',
     },
+    body: JSON.stringify({
+      chains: chains,
+      account: address,
+    }),
   })
     .then((response) => response.json())
     .then((data) => {

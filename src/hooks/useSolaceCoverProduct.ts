@@ -2,7 +2,7 @@ import { useMemo, useEffect, useState } from 'react'
 import { BigNumber } from 'ethers'
 import { ADDRESS_ZERO, GAS_LIMIT, ZERO } from '../constants'
 import { FunctionName, TransactionCondition } from '../constants/enums'
-import { LocalTx, SolaceRiskBalance, SolaceRiskScore } from '../constants/types'
+import { LocalTx, SolaceRiskScore } from '../constants/types'
 import { useContracts } from '../context/ContractsManager'
 import { useGetFunctionGas } from './useGas'
 import { getSolaceRiskBalances, getSolaceRiskScores } from '../utils/api'
@@ -12,6 +12,7 @@ import { useNetwork } from '../context/NetworkManager'
 
 export const useFunctions = () => {
   const { keyContracts } = useContracts()
+  const { activeNetwork } = useNetwork()
   const { solaceCoverProduct } = useMemo(() => keyContracts, [keyContracts])
   const { gasConfig } = useGetFunctionGas()
 
@@ -198,10 +199,19 @@ export const useFunctions = () => {
     referralCode: string | []
   ) => {
     if (!solaceCoverProduct) return { tx: null, localTx: null }
-    const tx = await solaceCoverProduct.activatePolicy(account, coverLimit, deposit, referralCode, {
-      ...gasConfig,
-      gasLimit: GAS_LIMIT,
-    })
+    let tx = undefined
+    const useV2 = activeNetwork.chainId == 80001 || 137
+    if (useV2) {
+      tx = await solaceCoverProduct.activatePolicy(account, coverLimit, deposit, referralCode, [BigNumber.from(137)], {
+        ...gasConfig,
+        gasLimit: GAS_LIMIT,
+      })
+    } else {
+      tx = await solaceCoverProduct.activatePolicy(account, coverLimit, deposit, referralCode, {
+        ...gasConfig,
+        gasLimit: GAS_LIMIT,
+      })
+    }
     const localTx: LocalTx = {
       hash: tx.hash,
       type: FunctionName.SOTERIA_ACTIVATE,
@@ -295,21 +305,16 @@ export const usePortfolio = (
   account: string | undefined
 ): { portfolio: SolaceRiskScore | undefined; loading: boolean } => {
   const [score, setScore] = useState<SolaceRiskScore | undefined>(undefined)
-  const { networks } = useNetwork()
+  const { networks, activeNetwork } = useNetwork()
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     const getPortfolio = async () => {
       if (!account) return
-      const countedNetworks = networks.filter((n) => !n.isTestnet)
-      const totalBalances: SolaceRiskBalance[] = []
-      for (let i = 0; i < countedNetworks.length; i++) {
-        const activeNetwork = countedNetworks[i]
-        if (activeNetwork.config.restrictedFeatures.noSoteria) continue
-        const balances = await getSolaceRiskBalances(account, activeNetwork.chainId)
-        if (balances) totalBalances.push(...balances)
-      }
-      const scores = await getSolaceRiskScores(account, totalBalances)
+      const useV2 = activeNetwork.chainId == 80001 || 137
+      const balances = await getSolaceRiskBalances(account, [useV2 ? 137 : 1])
+      if (!balances) return
+      const scores = await getSolaceRiskScores(account, balances)
       if (scores) setScore(scores)
       setLoading(false)
     }
