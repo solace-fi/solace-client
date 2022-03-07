@@ -45,7 +45,7 @@ export function ReferralSection({
       { name: 'verifyingContract', type: 'address' },
     ]
 
-    const useV2 = activeNetwork.chainId == 80001 || 137
+    const useV2 = activeNetwork.config.keyContracts.solaceCoverProduct.additionalInfo == 'v2'
 
     const msgParams = JSON.stringify({
       domain: {

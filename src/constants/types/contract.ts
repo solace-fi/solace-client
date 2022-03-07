@@ -10,4 +10,4 @@ export type BondTellerContract = TellerToken & {
   contract: Contract
 }
 
-export type ContractSources = { addr: string; abi: any }
+export type ContractSources = { addr: string; abi: any; additionalInfo?: string }

@@ -200,7 +200,7 @@ export const useFunctions = () => {
   ) => {
     if (!solaceCoverProduct) return { tx: null, localTx: null }
     let tx = undefined
-    const useV2 = activeNetwork.chainId == 80001 || 137
+    const useV2 = activeNetwork.config.keyContracts.solaceCoverProduct.additionalInfo == 'v2'
     if (useV2) {
       tx = await solaceCoverProduct.activatePolicy(account, coverLimit, deposit, referralCode, [BigNumber.from(137)], {
         ...gasConfig,
@@ -311,7 +311,7 @@ export const usePortfolio = (
   useEffect(() => {
     const getPortfolio = async () => {
       if (!account) return
-      const useV2 = activeNetwork.chainId == 80001 || 137
+      const useV2 = activeNetwork.config.keyContracts.solaceCoverProduct.additionalInfo == 'v2'
       const balances = await getSolaceRiskBalances(account, [useV2 ? 137 : 1])
       if (!balances) return
       const scores = await getSolaceRiskScores(account, balances)
@@ -319,7 +319,7 @@ export const usePortfolio = (
       setLoading(false)
     }
     getPortfolio()
-  }, [account, networks])
+  }, [account, networks, activeNetwork])
 
   useEffect(() => {
     setLoading(true)

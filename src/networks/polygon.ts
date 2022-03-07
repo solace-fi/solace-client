@@ -59,6 +59,7 @@ export const PolygonNetwork: NetworkConfig = {
       solaceCoverProduct: {
         addr: SPECIAL_ADDRS.SOLACE_COVER_PRODUCT_V2,
         abi: solaceCoverProductV2ABI.abi,
+        additionalInfo: 'v2',
       },
     },
     productContracts: {},
