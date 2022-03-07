@@ -92,10 +92,17 @@ export function PortfolioTable({
           <Loader />
         </Content>
       )}
-      {!loading && portfolio && portfolio.protocols.length == 0 && (
+      {!loading && !portfolio && (
         <HeroContainer>
           <Text t1 textAlignCenter>
             Unable to retrieve your positions.
+          </Text>
+        </HeroContainer>
+      )}
+      {!loading && portfolio && portfolio.protocols.length == 0 && (
+        <HeroContainer>
+          <Text t1 textAlignCenter>
+            No DeFi positions found in this account.
           </Text>
         </HeroContainer>
       )}
