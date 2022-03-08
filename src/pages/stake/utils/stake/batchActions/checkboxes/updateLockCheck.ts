@@ -10,12 +10,12 @@ import { CheckboxData } from '../../../../types/LockCheckbox'
  * @returns The updated array of checkboxes
  */
 
-const updateLockCheck = (checkboxArray: CheckboxData[], id: BigNumber, checked: boolean): CheckboxData[] =>
-  checkboxArray.map(({ id: _id, checked: lockChecked }) => {
-    if (_id.eq(id)) {
+const updateLockCheck = (checkboxArray: CheckboxData[], ID: BigNumber, checked: boolean): CheckboxData[] =>
+  checkboxArray.map(({ id: _id, checked: boxChecked }) => {
+    if (_id.eq(ID)) {
       return { id: _id, checked: checked }
     }
-    return { id: _id, checked: lockChecked }
+    return { id: _id, checked: boxChecked }
   })
 
 export default updateLockCheck

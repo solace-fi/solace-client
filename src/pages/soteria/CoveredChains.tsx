@@ -38,6 +38,8 @@ import { useNotifications } from '../../context/NotificationsManager'
 import { TransactionReceipt, TransactionResponse } from '@ethersproject/providers'
 import { Text } from '../../components/atoms/Typography'
 import { CheckboxData } from '../stake/types/LockCheckbox'
+import updateLockCheck from '../stake/utils/stake/batchActions/checkboxes/updateLockCheck'
+import lockIsChecked from '../stake/utils/stake/batchActions/checkboxes/lockIsChecked'
 
 export function CoveredChains({
   isEditing,
@@ -56,6 +58,24 @@ export function CoveredChains({
     () => networks.filter((m) => m.config.keyContracts.solaceCoverProduct && !m.isTestnet),
     [networks]
   )
+
+  const handleChainCheck = (id: BigNumber) => {
+    const checkboxStatus = lockIsChecked(chainsChecked, id)
+    const newArr = updateLockCheck(chainsChecked, id, !checkboxStatus)
+    setChainsChecked(newArr)
+  }
+
+  const updateLocksChecked = (chains: number[], oldArray: CheckboxData[]): CheckboxData[] => {
+    if (oldArray.length === 0) return chains.map((c) => ({ id: BigNumber.from(c), checked: false }))
+    return chains.map((c) => {
+      const oldBox = oldArray.find((oldBox) => oldBox.id.eq(BigNumber.from(c)))
+      return oldBox ? { id: BigNumber.from(c), checked: oldBox.checked } : { id: BigNumber.from(c), checked: false }
+    })
+  }
+
+  useEffect(() => {
+    setChainsChecked(updateLocksChecked([1, 137], chainsChecked))
+  }, [])
 
   return (
     <Flex
@@ -105,12 +125,16 @@ export function CoveredChains({
           </Button>
         ) : (
           <>
-            <Flex justifyCenter>
-              {coverableNetworks.map((n) => (
-                <div key={n.chainId}>
-                  <Checkbox type="checkbox" />
+            <Flex justifyCenter col>
+              {coverableNetworks.map((n, i) => (
+                <Flex key={n.chainId}>
+                  <Checkbox
+                    type="checkbox"
+                    checked={lockIsChecked(chainsChecked, BigNumber.from(n.chainId))}
+                    onChange={() => handleChainCheck(BigNumber.from(n.chainId))}
+                  />
                   <div>{n.name}</div>
-                </div>
+                </Flex>
               ))}
             </Flex>
             <Flex justifyCenter={!isEditing} between={isEditing} gap={isEditing ? 20 : undefined} pt={10} pb={10}>
