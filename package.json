@@ -98,7 +98,6 @@
     "eslint-plugin-prettier": "^3.4.1",
     "eslint-plugin-react": "^7.24.0",
     "prettier": "2.2.1",
-    "rebass": "^4.0.7",
-    "twin.macro": "^2.8.2"
+    "rebass": "^4.0.7"
   }
 }
