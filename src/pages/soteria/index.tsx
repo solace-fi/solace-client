@@ -39,6 +39,7 @@ import { useExistingPolicy } from '../../hooks/usePolicy'
 
 import Zapper from '../../resources/svg/zapper.svg'
 import ZapperDark from '../../resources/svg/zapper-dark.svg'
+import { CoveredChains } from './CoveredChains'
 
 export function Card({
   children,
@@ -409,29 +410,41 @@ export default function Soteria(): JSX.Element {
                   ) : (
                     // <>
                     <Card inactive horiz={!isMobile} noPadding gap={24}>
-                      <Card innerThinner noShadow>
-                        <CoverageLimit
-                          referralChecks={{
-                            codeIsUsable,
-                            codeIsValid,
-                            referrerIsActive,
-                            checkingReferral,
-                            referrerIsOther,
-                          }}
-                          balances={balances}
-                          minReqAccBal={minReqAccBal}
-                          currentCoverageLimit={currentCoverageLimit}
-                          newCoverageLimit={newCoverageLimit}
-                          setNewCoverageLimit={setNewCoverageLimit}
-                          referralCode={referralCode}
-                          isEditing={isEditing}
-                          portfolio={portfolio}
-                          setIsEditing={setIsEditing}
-                          setReferralCode={setReferralCode}
-                          canPurchaseNewCover={canPurchaseNewCover}
-                          inactive
-                        />
-                      </Card>{' '}
+                      <Flex
+                        col
+                        stretch
+                        gap={24}
+                        style={{
+                          flex: '0.8',
+                        }}
+                      >
+                        <Card innerThinner noShadow>
+                          <CoverageLimit
+                            referralChecks={{
+                              codeIsUsable,
+                              codeIsValid,
+                              referrerIsActive,
+                              checkingReferral,
+                              referrerIsOther,
+                            }}
+                            balances={balances}
+                            minReqAccBal={minReqAccBal}
+                            currentCoverageLimit={currentCoverageLimit}
+                            newCoverageLimit={newCoverageLimit}
+                            setNewCoverageLimit={setNewCoverageLimit}
+                            referralCode={referralCode}
+                            isEditing={isEditing}
+                            portfolio={portfolio}
+                            setIsEditing={setIsEditing}
+                            setReferralCode={setReferralCode}
+                            canPurchaseNewCover={canPurchaseNewCover}
+                            inactive
+                          />
+                        </Card>
+                        <Card innerThinner noShadow>
+                          <CoveredChains isEditing={isEditing} setIsEditing={setIsEditing} />
+                        </Card>
+                      </Flex>
                       <Card innerBigger noShadow>
                         <PolicyBalance
                           referralChecks={{

@@ -186,7 +186,7 @@ export function CoverageLimitBasicForm({
                   </Flex>
                 </Flex>
               </Flex> */}
-            <Flex center mt={20}>
+            {/* <Flex center mt={20}>
               <Flex baseline gap={4} center>
                 <Text t4>Highest position in your portfolio:</Text>
               </Flex>
@@ -202,7 +202,7 @@ export function CoverageLimitBasicForm({
                   </Text>
                 </Flex>
               </Flex>
-            </Flex>
+            </Flex> */}
           </Flex>
         )}
       </Flex>

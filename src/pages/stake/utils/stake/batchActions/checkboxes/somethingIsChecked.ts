@@ -1,6 +1,5 @@
-import { LockCheckbox } from '../../../../types/LockCheckbox'
+import { CheckboxData } from '../../../../types/LockCheckbox'
 
-const somethingIsChecked = (lockCheckboxArray: LockCheckbox[]): boolean =>
-  lockCheckboxArray.some(({ checked }) => checked)
+const somethingIsChecked = (checkboxArray: CheckboxData[]): boolean => checkboxArray.some(({ checked }) => checked)
 
 export default somethingIsChecked

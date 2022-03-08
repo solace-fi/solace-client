@@ -1,17 +1,17 @@
-import { LockCheckbox } from '../../../../types/LockCheckbox'
+import { CheckboxData } from '../../../../types/LockCheckbox'
 
 /**
- * @name checkAllLocks
+ * @name checkAllBoxes
  * @description Takes an array of lock checkboxes and returns an array of locks with all locks checked
- * @param lockCheckboxArray The array of lock checkboxes
+ * @param checkboxArray The array of lock checkboxes
  * @returns The array of locks with all locks checked
  * @example checkAllLocks(lockArray)
  */
 
-const checkAllLocks = (lockCheckboxArray: LockCheckbox[]): LockCheckbox[] =>
-  lockCheckboxArray.map(({ xsLockID }) => ({
-    xsLockID,
+const checkAllBoxes = (checkboxArray: CheckboxData[]): CheckboxData[] =>
+  checkboxArray.map(({ id }) => ({
+    id,
     checked: true,
   }))
 
-export default checkAllLocks
+export default checkAllBoxes

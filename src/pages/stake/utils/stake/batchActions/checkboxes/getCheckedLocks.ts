@@ -1,5 +1,5 @@
 import { LockData } from '../../../../../../constants/types'
-import { LockCheckbox } from '../../../../types/LockCheckbox'
+import { CheckboxData } from '../../../../types/LockCheckbox'
 
 /**
  * @name getCheckedLocks
@@ -8,26 +8,14 @@ import { LockCheckbox } from '../../../../types/LockCheckbox'
  * @param checkboxArray The array of checkboxes
  * @returns The array of locks with all locks checked
  */
-const getCheckedLocks = (lockArray: LockData[], checkboxArray: LockCheckbox[]): LockData[] => {
+const getCheckedLocks = (lockArray: LockData[], checkboxArray: CheckboxData[]): LockData[] => {
   // find all xsLockIDs in the checkbox array, and return the corresponding locks
   return lockArray.filter((lock) => {
     return checkboxArray.find((checkbox) => {
-      if (checkbox.xsLockID === undefined) console.log('undefined ID lock', JSON.stringify(checkbox))
-      return checkbox.xsLockID.eq(lock.xsLockID) && checkbox.checked
+      if (checkbox.id === undefined) console.log('undefined ID lock', JSON.stringify(checkbox))
+      return checkbox.id.eq(lock.xsLockID) && checkbox.checked
     })
   })
 }
-
-// const checkedLocks: LockData[] = []
-// lockArray.forEach((lock, index) => {
-//   if (checkboxArray[index].checked) {
-//     checkedLocks.push(lock)
-//   }
-// })
-// return checkedLocks
-// }
-//   lockArray.filter(
-//     ({ xsLockID }) => checkboxArray.find(({ xsLockID: lockID }) => lockID.eq(xsLockID))?.checked ?? false
-//   )
 
 export default getCheckedLocks
