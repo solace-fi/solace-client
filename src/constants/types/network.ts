@@ -32,7 +32,6 @@ export type NetworkConfig = {
     productContracts: { [key: string]: ContractSources }
     specialContracts: { [key: string]: ContractSources }
     restrictedFeatures: {
-      cannotBuySolace?: boolean
       noBondingV1?: boolean
       noBondingV2?: boolean
       noCoverProducts?: boolean
@@ -42,6 +41,7 @@ export type NetworkConfig = {
       noStakingV2?: boolean
     }
     specialFeatures: {
+      solaceBuyLink?: string
       unwrapBridgedSolace?: boolean
       hardcodedGasPrice?: number
     }

@@ -85,6 +85,7 @@ export const TableData = styled.td<TableProps>`
   }
   overflow: hidden;
   text-overflow: ellipsis;
+  font-size: 16px;
   ${GeneralTextCss}
   ${GeneralElementCss}
 `

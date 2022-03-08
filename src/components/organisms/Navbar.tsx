@@ -127,7 +127,7 @@ export const SideNavbar: React.FC<Navbar> = ({ pages }) => {
             <StyledNavTooltip key={p.to} id={`${p.to}-nav`} tip={p.name}>
               <ItemText>
                 <SidebarItem to={p.to} style={miniNavbarMarginSet}>
-                  <Text info={location.pathname == p.to} light={lightText}>
+                  <Text info={location.pathname == p.to} light={lightText} t3s>
                     {width > BKPT_3 ? p.name : p.icon}
                   </Text>
                 </SidebarItem>
@@ -146,7 +146,7 @@ export const SideNavbar: React.FC<Navbar> = ({ pages }) => {
                 style={{ ...miniNavbarMarginSet }}
               >
                 <SidebarText>
-                  <TextSpan t4 light={lightText}>
+                  <TextSpan t3s light={lightText}>
                     {width > BKPT_3 ? 'Docs' : <StyledDocuments size={30} />}
                   </TextSpan>
                 </SidebarText>
@@ -162,7 +162,7 @@ export const SideNavbar: React.FC<Navbar> = ({ pages }) => {
                 style={{ ...miniNavbarMarginSet }}
               >
                 <SidebarText>
-                  <TextSpan t4 light={lightText} bold>
+                  <TextSpan t3s light={lightText} bold>
                     {width > BKPT_3 ? `We\'re hiring!` : <StyledWork size={30} />}
                   </TextSpan>
                 </SidebarText>
@@ -172,7 +172,7 @@ export const SideNavbar: React.FC<Navbar> = ({ pages }) => {
           <StyledNavTooltip id={'terms-nav'} tip={'Terms & Conditions'}>
             <ItemText>
               <SidebarItem to={'/terms'} style={{ ...miniNavbarMarginSet }}>
-                <TextSpan t4 light={lightText}>
+                <TextSpan t3s light={lightText}>
                   {width > BKPT_3 ? 'Terms & Conditions' : <StyledLockFile size={30} />}
                 </TextSpan>
               </SidebarItem>
@@ -365,7 +365,7 @@ export const TopNavbar: React.FC<Navbar> = ({ pages }) => {
       <ItemList>
         <ItemText jc={'center'} style={{ padding: '10px' }}>
           <HyperLink href={'https://docs.solace.fi/'} target="_blank" rel="noopener noreferrer">
-            <TextSpan t4 light>
+            <TextSpan t3s light>
               Docs
             </TextSpan>
           </HyperLink>
@@ -376,14 +376,14 @@ export const TopNavbar: React.FC<Navbar> = ({ pages }) => {
             target="_blank"
             rel="noopener noreferrer"
           >
-            <TextSpan t4 light bold>
+            <TextSpan t3s light bold>
               We&apos;re hiring!
             </TextSpan>
           </HyperLink>
         </ItemText>
         <ItemText jc={'center'} style={{ padding: '10px' }}>
           <SidebarItem onClick={() => handleIsOpen(!isOpen)} to={'/terms'}>
-            <TextSpan t4 light>
+            <TextSpan t3s light>
               Terms &amp; Conditions
             </TextSpan>
           </SidebarItem>
