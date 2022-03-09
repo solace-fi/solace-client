@@ -215,7 +215,12 @@ export const useFunctions = () => {
   }
 
   const getPolicyChainInfo = async (policyId: BigNumber): Promise<BigNumber[]> => {
-    if (!solaceCoverProduct || activeNetwork.config.keyContracts.solaceCoverProduct.additionalInfo != 'v2') return []
+    if (
+      !solaceCoverProduct ||
+      activeNetwork.config.keyContracts.solaceCoverProduct.additionalInfo != 'v2' ||
+      policyId.isZero()
+    )
+      return []
     try {
       const d = await solaceCoverProduct.getPolicyChainInfo(policyId)
       return d

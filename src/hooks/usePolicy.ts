@@ -404,12 +404,10 @@ export const useGetPolicyChains = (policyId: BigNumber) => {
   }
 
   useEffect(() => {
-    if (policyId.isZero()) return
     getPolicyChains(true)
   }, [policyId, networks])
 
   useEffect(() => {
-    if (policyId.isZero()) return
     getPolicyChains(false)
   }, [version])
 
