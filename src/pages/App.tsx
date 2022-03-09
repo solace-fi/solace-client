@@ -125,7 +125,7 @@ export default function App(): any {
               </Switch>
             </LayoutContentWithLoader>
           </LayoutContent>
-          {location.pathname == '/' && width > BKPT_5 && <SideNavContent />}
+          {/* {location.pathname == '/' && width > BKPT_5 && <SideNavContent />} */}
         </ContentContainer>
       </Layout>
     </Fragment>

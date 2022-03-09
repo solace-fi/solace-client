@@ -9,6 +9,7 @@ const SnapScroll = styled.div`
   overflow-y: scroll;
   /* scroll-snap-stop: always; */
   /* scroll-behavior: smooth; */
+  scrollbar-width: none;
   & > * {
     scroll-snap-align: start;
     height: calc(100vh - 100px);

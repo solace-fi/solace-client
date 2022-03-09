@@ -40,13 +40,19 @@ function Quarter({ children }: { children: React.ReactNode }): JSX.Element {
 
 function RoadmapList({ children }: { children: React.ReactNode[] }): JSX.Element {
   return (
-    <RoadmapList>
+    <ul
+      style={{
+        display: 'flex',
+        gap: '20px',
+        flexDirection: 'column',
+      }}
+    >
       {children.map((child, index) => (
         <li key={index}>
           <Text light>{child}</Text>
         </li>
       ))}
-    </RoadmapList>
+    </ul>
   )
 }
 
@@ -73,7 +79,8 @@ export function RoadmapSection({
     <Flex
       col
       stretch
-      pr={70}
+      pr={isMobile ? 40 : 150}
+      pl={isMobile ? 40 : 150}
       justifyCenter
       ref={ref}
       style={{
@@ -84,10 +91,10 @@ export function RoadmapSection({
         Roadmap
       </SectionTitle>
       <Grid columns={4} gap={10} mt={60}>
-        <Text big2 mont bold>
+        <Text big2 mont bold light>
           2021
         </Text>
-        <Text big2 mont bold>
+        <Text big2 mont bold light>
           2022
         </Text>
         <ProgressBar />

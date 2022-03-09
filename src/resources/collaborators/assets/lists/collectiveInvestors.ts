@@ -1,6 +1,7 @@
 import { Collective } from '../../types'
 
 const collectiveStr = `parataxis
+stablenode
 capital
 alchemy
 1010capital
