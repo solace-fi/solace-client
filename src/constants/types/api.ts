@@ -2,7 +2,6 @@ export type SolaceRiskBalance = {
   network: string
   appId: string
   balanceUSD: number
-  balanceETH: number
 }
 
 export type SolaceRiskScore = {
@@ -24,7 +23,6 @@ export type SolaceRiskScore = {
 
 export type SolaceRiskProtocol = {
   appId: string
-  balanceETH: number
   balanceUSD: number
   category: string
   network: string

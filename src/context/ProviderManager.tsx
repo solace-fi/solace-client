@@ -37,6 +37,7 @@ and write to the blockchain.
 
 type ProviderContextType = {
   openNetworkModal: () => void
+  switchNetwork: (networkName: string) => Promise<void>
   latestBlock: Block | undefined
   userPositions: ZerionPosition[]
   tokenPosData: {
@@ -49,6 +50,7 @@ type ProviderContextType = {
 
 const InitialContextValue: ProviderContextType = {
   openNetworkModal: () => undefined,
+  switchNetwork: () => Promise.reject(),
   latestBlock: undefined,
   userPositions: [],
   tokenPosData: {
@@ -145,6 +147,7 @@ const ProviderManager: React.FC = ({ children }) => {
   const value = React.useMemo(
     () => ({
       openNetworkModal: openModal,
+      switchNetwork,
       userPositions: zerionPositions,
       latestBlock,
       tokenPosData: cachePositions,

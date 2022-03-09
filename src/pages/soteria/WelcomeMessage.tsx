@@ -30,6 +30,7 @@ export function WelcomeMessage({
           <Flex col gap={30} itemsCenter>
             <Text t2s>Solace Wallet Coverage</Text>
             <Flex col gap={10} itemsCenter>
+              <Text t2>Cover your wallet on any of our supported chains with one policy!</Text>
               <Text t2>Your annual cost based on your portfolio: {truncateValue(annualCost, 2)} USD/yr</Text>
               <Text t5s>By funding a single policy for your entire portfolio, you will be covered.</Text>
               <Text t5s>The table below is a list of your positions on protocols available for coverage.</Text>
@@ -56,6 +57,7 @@ export function WelcomeMessage({
           <Flex col gap={30} itemsCenter>
             <Text t2s>Solace Wallet Coverage</Text>
             <Flex col gap={10} itemsCenter>
+              <Text t2>Cover your wallet on any of our supported chains with one policy!</Text>
               <Text t2>Your annual cost based on your portfolio: {truncateValue(annualCost, 2)} USD/yr</Text>
               <Text t5s>By funding a single policy for your entire portfolio, you will be covered.</Text>
               <Text t5s>The table below is a list of your positions on protocols available for coverage.</Text>
@@ -82,6 +84,7 @@ export function WelcomeMessage({
           <Flex col gap={30} itemsCenter>
             <Text t2s>Solace Wallet Coverage</Text>
             <Flex col gap={10} itemsCenter>
+              <Text t2>Cover your wallet on any of our supported chains with one policy!</Text>
               <Text t2>Your annual cost based on your portfolio: {truncateValue(annualCost, 2)} USD/yr</Text>
               <Text t5s>By funding a single policy for your entire portfolio, you will be covered.</Text>
               <Text t5s>The table below is a list of your positions on protocols available for coverage.</Text>

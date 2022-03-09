@@ -21,6 +21,8 @@ import { useProvider } from '../context/ProviderManager'
 import { JsonRpcProvider } from '@ethersproject/providers'
 import { isAddress } from '../utils'
 import { numberAbbreviate, truncateValue } from '../utils/formatting'
+import { useFunctions } from './useSolaceCoverProduct'
+import { CheckboxData } from '../pages/stake/types/LockCheckbox'
 
 export const useGetPolicyPrice = (policyId: number): string => {
   const [policyPrice, setPolicyPrice] = useState<string>('')
@@ -304,23 +306,23 @@ export const useTotalActivePolicies = () => {
   return { totalActivePolicies, totalActiveCoverLimit }
 }
 
-export const useExistingPolicy = () => {
-  const { account } = useWallet()
+export const useExistingPolicy = (account: string | undefined) => {
   const { networks } = useNetwork()
   const { latestBlock } = useProvider()
   const [loading, setLoading] = useState(true)
-  const [policyId, setPolicyId] = useState<BigNumber | undefined>(undefined)
-  const [network, setNetwork] = useState<NetworkConfig | undefined>(undefined)
+  const [policyId, setPolicyId] = useState<BigNumber>(ZERO)
+  const [network, setNetwork] = useState<NetworkConfig>(networks[0])
 
   useEffect(() => {
     const getExistingPolicy = async () => {
       if (!account) {
-        setPolicyId(undefined)
-        setLoading(false)
+        setPolicyId(ZERO)
+        setLoading(true)
       }
       const countedNetworks = networks.filter((n) => !n.isTestnet)
+      // const countedNetworks = networks
       let _id = ZERO
-      let _network = undefined
+      let _network = networks[0]
       for (let i = 0; i < countedNetworks.length; i++) {
         const activeNetwork = countedNetworks[i]
         if (activeNetwork.config.restrictedFeatures.noSoteria) continue
@@ -347,4 +349,75 @@ export const useExistingPolicy = () => {
   }, [account])
 
   return { policyId, network, loading }
+}
+
+export const useGetPolicyChains = (policyId: BigNumber) => {
+  const { networks } = useNetwork()
+  const { version } = useCachedData()
+  const { getNumSupportedChains, getChain, getPolicyChainInfo } = useFunctions()
+
+  const [portfolioChains, setPortfolioChains] = useState<number[]>([])
+  const [loading, setLoading] = useState(true)
+  const [policyChains, setPolicyChains] = useState<number[]>([])
+  const [policyChainsChecked, setPolicyChainsChecked] = useState<CheckboxData[]>([])
+  const [coverableChains, setCoverableChains] = useState<NetworkConfig[]>([])
+  const [chainsChecked, setChainsChecked] = useState<CheckboxData[]>([])
+
+  const updateBoxChecked = (chains: CheckboxData[], oldArray: CheckboxData[]): CheckboxData[] => {
+    if (oldArray.length === 0) return chains
+    return chains.map((chain) => {
+      const oldBox = oldArray.find((oldBox) => oldBox.id.eq(chain.id))
+      return oldBox ? { id: chain.id, checked: oldBox.checked } : { id: chain.id, checked: false }
+    })
+  }
+  const getPolicyChains = async (shouldUpdateBoxchecked: boolean) => {
+    const numChains = await getNumSupportedChains()
+    const chains: BigNumber[] = []
+    const supportedNetworks = []
+    for (let i = 0; i < numChains.toNumber(); i++) {
+      const chain = await getChain(BigNumber.from(i))
+      chains.push(chain)
+      const chainNumber = chain.toNumber()
+      const network = networks.find((n) => n.chainId == chainNumber)
+      if (network) supportedNetworks.push(network)
+    }
+    setCoverableChains(supportedNetworks)
+    const _policyChains = await getPolicyChainInfo(policyId)
+    if (_policyChains.length > 0) {
+      setPortfolioChains(_policyChains.map((c) => c.toNumber()))
+    } else {
+      setPortfolioChains(chains.map((c) => c.toNumber()))
+    }
+    const numPolicyChains = _policyChains.map((c) => c.toNumber())
+    setPolicyChains(numPolicyChains)
+    const newArr = chains.map((c) => {
+      if (numPolicyChains.includes(c.toNumber())) return { id: c, checked: true }
+      return { id: c, checked: false }
+    })
+    setPolicyChainsChecked(newArr)
+    if (shouldUpdateBoxchecked) {
+      setChainsChecked(updateBoxChecked(newArr, chainsChecked))
+    } else {
+      setChainsChecked(newArr)
+    }
+    setLoading(false)
+  }
+
+  useEffect(() => {
+    getPolicyChains(true)
+  }, [policyId, networks])
+
+  useEffect(() => {
+    getPolicyChains(false)
+  }, [version])
+
+  return {
+    portfolioChains,
+    policyChains,
+    policyChainsChecked,
+    coverableChains,
+    chainsChecked,
+    setChainsChecked,
+    loading,
+  }
 }

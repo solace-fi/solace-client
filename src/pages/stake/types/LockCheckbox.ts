@@ -1,3 +1,3 @@
 import { BigNumber } from 'ethers'
 
-export type LockCheckbox = { xsLockID: BigNumber; checked: boolean }
+export type CheckboxData = { id: BigNumber; checked: boolean }
