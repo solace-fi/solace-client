@@ -8,7 +8,7 @@ Matt Ladin
 COO
 @MBLADIN
 
-Tim H
+Tim Harrison
 Risk Assessment
 @npcza
 
@@ -31,7 +31,7 @@ Front End
 Haraldur Haraldsson
 Research and Risk Assessment
 
-Jefferson T
+Jefferson Tang
 Smart Contracts
 
 Selcuk Sozuer
@@ -42,7 +42,7 @@ Kevin McDonald
 Research and Risk Assessment
 @i001962
 
-Sebastian C
+Sebastian Chacon
 Front End
 
 Ivan Andreev

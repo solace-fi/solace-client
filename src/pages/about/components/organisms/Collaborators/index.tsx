@@ -120,6 +120,18 @@ export function CollectiveComponent({ altName, fileName }: Collective): JSX.Elem
   )
 }
 
+function ReactCollective({ collectiveList, isMobile }: { collectiveList: Collective[]; isMobile: boolean }) {
+  return (
+    <Flex col gap={isMobile ? 30 : undefined} between={!isMobile}>
+      {collectiveList.map((collective) => {
+        return (
+          <CollectiveComponent altName={collective.altName} fileName={collective.fileName} key={collective.altName} />
+        )
+      })}
+    </Flex>
+  )
+}
+
 export function ListOfPeople({
   peopleList, // array of { name, role, twitter }
   collectiveList,
@@ -145,23 +157,32 @@ export function ListOfPeople({
   const reactTeam = peopleList.map(({ name, role, twitter, profilePic }) => (
     <TeamMemberComponent key={name} name={name} role={role} twitterUsername={twitter} profilePic={profilePic} />
   ))
-  const reactCollective = collectiveList?.map(({ altName, fileName }) => (
-    <CollectiveComponent key={altName} altName={altName} fileName={fileName} />
-  ))
-  const totalArray = reactCollective ? [...reactCollective, ...reactTeam] : [...reactTeam]
+
+  const teamLength = reactTeam.length
+  const collectiveLength = collectiveList?.length || 0
+  const addedLength = teamLength + collectiveLength
 
   const gridColumns = isMobile ? mobileColumns : desktopColumns
+  const maxColumns = 3
+  const wantedColumns = Math.ceil(addedLength / 2)
+  const actualColumns = gridColumns ?? columns ?? Math.min(wantedColumns, maxColumns)
 
-  const maxRows = 5
-  const wantedRows = Math.ceil(totalArray.length / 2)
-  const rows = gridColumns ?? columns ?? Math.min(wantedRows, maxRows)
+  // if we want the first column to be the collectiveList and the other 2 columns to be the peopleList
+  // then the first column should reduce total columns by 1
+  // therefore, when reactCollective is true, gridColumns is reduced by one.
+  // Then in the JSX we add <Parent><Collective><People></Parent>
+
+  const maybeReducedColumns = collectiveList ? actualColumns - 1 : actualColumns
+
   return (
     <Flex
       col
       stretch
-      pr={isMobile ? 20 : 70}
+      pr={isMobile ? 40 : 150}
+      pl={isMobile ? 40 : 150}
+      // pr={isMobile ? 20 : 70}
       gap={isMobile ? 50 : 70}
-      pl={isMobile ? 60 : 50}
+      // pl={isMobile ? 60 : 50}
       justifyCenter
       ref={sectionRef}
     >
@@ -169,18 +190,21 @@ export function ListOfPeople({
         {title}
       </SectionTitle>
 
-      <Grid
-        columnGap={60}
-        rowGap={30}
-        // columns={isMobile ? 1 : undefined}
-        style={{
-          gridAutoFlow: direction ?? reactCollective ? (isMobile ? 'row' : 'column') : 'row',
-          gridTemplateRows: reactCollective ? `repeat(${rows}, auto)` : undefined,
-          gridTemplateColumns: reactCollective ? undefined : `repeat(${gridColumns ?? columns ?? rows}, auto)`,
-        }}
-      >
-        {totalArray}
-      </Grid>
+      <Flex gap={isMobile ? 30 : 60} col={isMobile}>
+        {collectiveList && <ReactCollective collectiveList={collectiveList} isMobile={isMobile} />}
+        <Grid
+          columnGap={60}
+          rowGap={30}
+          // columns={isMobile ? 1 : undefined}
+          style={{
+            gridAutoFlow: direction ?? 'row',
+            // gridTemplateRows: reactCollective ? `repeat(${rows}, auto)` : undefined,
+            gridTemplateColumns: `repeat(${maybeReducedColumns}, auto)`,
+          }}
+        >
+          {reactTeam}
+        </Grid>
+      </Flex>
     </Flex>
   )
 }

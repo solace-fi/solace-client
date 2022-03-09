@@ -1,7 +1,7 @@
 import React from 'react'
 import styled from 'styled-components'
 import { GeneralElementProps, GeneralElementCss } from '../../generalInterfaces'
-import { GeneralTextProps, GeneralTextCss, Text2_5Css, Text3Css } from '../Typography'
+import { GeneralTextProps, GeneralTextCss, Text3Css } from '../Typography'
 import { Z_TABLE } from '../../../constants/'
 
 interface TableProps extends GeneralTextProps, GeneralElementProps {

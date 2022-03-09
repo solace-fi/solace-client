@@ -30,6 +30,32 @@ function ProgressBar() {
   )
 }
 
+function Quarter({ children }: { children: React.ReactNode }): JSX.Element {
+  return (
+    <Text t1s mont bold light>
+      {children}
+    </Text>
+  )
+}
+
+function RoadmapList({ children }: { children: React.ReactNode[] }): JSX.Element {
+  return (
+    <ul
+      style={{
+        display: 'flex',
+        gap: '20px',
+        flexDirection: 'column',
+      }}
+    >
+      {children.map((child, index) => (
+        <li key={index}>
+          <Text light>{child}</Text>
+        </li>
+      ))}
+    </ul>
+  )
+}
+
 // export const RoadmapSection = <RoadmapSectionFunction />
 export function RoadmapSection({
   sectionRef: ref,
@@ -53,7 +79,8 @@ export function RoadmapSection({
     <Flex
       col
       stretch
-      pr={70}
+      pr={isMobile ? 40 : 150}
+      pl={isMobile ? 40 : 150}
       justifyCenter
       ref={ref}
       style={{
@@ -64,79 +91,47 @@ export function RoadmapSection({
         Roadmap
       </SectionTitle>
       <Grid columns={4} gap={10} mt={60}>
-        <Text big2 mont bold>
+        <Text big2 mont bold light>
           2021
         </Text>
-        <Text big2 mont bold>
+        <Text big2 mont bold light>
           2022
         </Text>
         <ProgressBar />
         <div>
-          <Text t1s mont bold>
-            Q4
-          </Text>
-          <ul
-            style={{
-              display: 'flex',
-              gap: '20px',
-              flexDirection: 'column',
-            }}
-          >
+          <Quarter>Q4</Quarter>
+          <RoadmapList>
             <li>$SOLACE token launch </li>
             <li>Protocol Owned Underwriting Pool </li>
             <li>Protocol coverage products</li>
-          </ul>
+          </RoadmapList>
         </div>
         <div>
-          <Text t1s mont bold>
-            Q1
-          </Text>
-          <ul
-            style={{
-              display: 'flex',
-              gap: '20px',
-              flexDirection: 'column',
-            }}
-          >
+          <Quarter>Q1</Quarter>
+          <RoadmapList>
             <li>DAO-2-DAO coverage launch</li>
             <li>Solace Wallet Coverage launch</li>
             <li>Cross-chain Deployments (Aurora, Polygon)</li>
             <li>Staking V2 w/locking and voting rights</li>
-          </ul>
+          </RoadmapList>
         </div>
         <div>
-          <Text t1s mont bold>
-            Q2
-          </Text>
-          <ul
-            style={{
-              display: 'flex',
-              gap: '20px',
-              flexDirection: 'column',
-            }}
-          >
+          <Quarter>Q2</Quarter>
+          <RoadmapList>
             <li>Cross-chain Deployments (BNB, FTM, AVAX, etc.)</li>
             <li>Decentralization of Claims System</li>
             <li>Cross-chain balancing of staking/locking APY%</li>
             <li>Dynamic inflation-control model</li>
-          </ul>
+          </RoadmapList>
         </div>
         <div>
-          <Text t1s mont bold>
-            Q3
-          </Text>
-          <ul
-            style={{
-              display: 'flex',
-              gap: '20px',
-              flexDirection: 'column',
-            }}
-          >
+          <Quarter>Q3</Quarter>
+          <RoadmapList>
             <li>Non-EVM deployments</li>
             <li>Asset Protection Tools beyond DeFi</li>
             <li>Transition to Community-run DAO</li>
             <li>Solace Market - open cover product platform</li>
-          </ul>
+          </RoadmapList>
         </div>
       </Grid>
     </Flex>

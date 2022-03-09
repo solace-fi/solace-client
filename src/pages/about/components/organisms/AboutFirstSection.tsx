@@ -61,8 +61,8 @@ export function AboutFirstSection({
               fontWeight: 400,
               // padding: !isMobile ? '0px' : '46px',
             }}
-            pl={isMobile ? undefined : 46}
-            pr={isMobile ? undefined : 46}
+            // pl={isMobile ? undefined : 46}
+            // pr={isMobile ? undefined : 46}
           >
             Insurance protocol built to secure DeFi&apos;s future by solving complexity of risk management with
             user-friendly, intelligent and transparent tools.
@@ -71,33 +71,37 @@ export function AboutFirstSection({
         {/* BUTTONS */}
         <Flex col={isMobile} gap={24} mt={62} px={isMobile ? 39 : undefined}>
           <StyledNavLink to="/cover">
-            <Button secondary light width={200} style={{ padding: '15px 50px', borderRadius: '55px' }}>
-              <Text warmgradient>Buy Cover</Text>
+            <Button secondary light width={200} style={{ padding: '17px 50px', borderRadius: '55px' }}>
+              <Text warmgradient t3s>
+                Buy Cover
+              </Text>
             </Button>
-            {/* <Button secondary light width={200} style={{ padding: '15px 50px', borderRadius: '55px' }}>
+            {/* <Button secondary light width={200} style={{ padding: '17px 50px', borderRadius: '55px' }}>
               <Text techygradient>Buy Solace Token</Text>
             </Button> */}
           </StyledNavLink>
           <StyledNavLink to="/bond">
-            <Button light width={200} style={{ padding: '15px 50px', borderRadius: '55px' }}>
-              <Text nowrap style={{ color: 'inherit' }}>
+            <Button light width={200} style={{ padding: '17px 50px', borderRadius: '55px' }}>
+              <Text nowrap style={{ color: 'inherit' }} t3s>
                 Underwrite Risk
               </Text>
             </Button>
           </StyledNavLink>
         </Flex>
-        {!isMobile && isVisible ? (
-          <Flex
-            justifyCenter
-            style={{
-              width: '100%',
-              position: 'absolute',
-              bottom: '40px',
-              right: '40px',
-            }}
-          >
-            <img src={grantsFrom} />
-          </Flex>
+        {!isMobile ? (
+          isVisible && (
+            <Flex
+              justifyCenter
+              style={{
+                width: '100%',
+                position: 'absolute',
+                bottom: '40px',
+                right: '40px',
+              }}
+            >
+              <img src={grantsFrom} />
+            </Flex>
+          )
         ) : (
           <Flex mt={90}>
             <img src={grantsFrom} />
