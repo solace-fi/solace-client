@@ -155,7 +155,9 @@ export function CoveredChains({
                       checked={lockIsChecked(chainsChecked, BigNumber.from(n.chainId))}
                       onChange={() => handleChainCheck(BigNumber.from(n.chainId))}
                     />
-                    <Flex ml={10}>{n.name}</Flex>
+                    <Flex ml={10}>
+                      <Text t4s>{n.name}</Text>
+                    </Flex>
                   </Flex>
                 ))}
               </Flex>
