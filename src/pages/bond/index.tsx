@@ -147,7 +147,7 @@ function Bond(): any {
           {' '}
           More information on bonding here.
         </HyperLink>
-        <Content>
+        {/* <Content>
           <Card>
             <div style={{ gridTemplateColumns: '1fr 0fr 1fr', display: 'grid', position: 'relative' }}>
               <ModalCell
@@ -160,7 +160,7 @@ function Bond(): any {
                   setShowV2Bonds(false)
                 }}
                 jc={'center'}
-                style={{ cursor: 'pointer', backgroundColor: !showV1Bonds ? 'rgba(0, 0, 0, .05)' : 'inherit' }}
+                style={{ cursor: 'pointer', backgroundColor: showV1Bonds ? 'rgba(0, 0, 0, .05)' : 'inherit' }}
               >
                 <Text t1 bold info={showV1Bonds}>
                   V1
@@ -177,7 +177,7 @@ function Bond(): any {
                   setShowV2Bonds(true)
                 }}
                 jc={'center'}
-                style={{ cursor: 'pointer', backgroundColor: !showV2Bonds ? 'rgba(0, 0, 0, .05)' : 'inherit' }}
+                style={{ cursor: 'pointer', backgroundColor: showV2Bonds ? 'rgba(0, 0, 0, .05)' : 'inherit' }}
               >
                 <Text t1 bold info={showV2Bonds}>
                   V2
@@ -185,7 +185,7 @@ function Bond(): any {
               </ModalCell>
             </div>
           </Card>
-        </Content>
+        </Content> */}
         {canBondV1 || canBondV2 ? (
           <>
             {(btdV1.mounting && showV1Bonds && canBondV1) || (btdV2.mounting && showV2Bonds && canBondV2) ? (

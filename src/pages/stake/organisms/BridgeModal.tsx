@@ -160,7 +160,7 @@ export const BridgeModal: React.FC<ModalProps> = ({ modalTitle, handleClose, isO
             pr={0}
             onClick={() => setIsWrapping(false)}
             jc={'center'}
-            style={{ cursor: 'pointer', backgroundColor: isWrapping ? 'rgba(0, 0, 0, .05)' : 'inherit' }}
+            style={{ cursor: 'pointer', backgroundColor: !isWrapping ? 'rgba(0, 0, 0, .05)' : 'inherit' }}
           >
             <Text t1 bold info={!isWrapping}>
               Unwrap
@@ -176,7 +176,7 @@ export const BridgeModal: React.FC<ModalProps> = ({ modalTitle, handleClose, isO
             jc={'center'}
             style={{
               cursor: 'pointer',
-              backgroundColor: !isWrapping ? 'rgba(0, 0, 0, .05)' : 'inherit',
+              backgroundColor: isWrapping ? 'rgba(0, 0, 0, .05)' : 'inherit',
             }}
           >
             <Text t1 bold info={isWrapping}>

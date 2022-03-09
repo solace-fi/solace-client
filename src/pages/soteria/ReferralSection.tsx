@@ -32,7 +32,7 @@ export function ReferralSection({
   const { keyContracts } = useContracts()
   const { solaceCoverProduct } = useMemo(() => keyContracts, [keyContracts])
   const { activeNetwork } = useNetwork()
-  const [formReferralCode, setFormReferralCode] = useState(referralCode)
+  const [formReferralCode, setFormReferralCode] = useState(referralCode ?? '')
   const [generatedReferralCode, setGeneratedReferralCode] = useState('')
 
   const getReferralCode = async () => {
@@ -45,20 +45,19 @@ export function ReferralSection({
       { name: 'verifyingContract', type: 'address' },
     ]
 
+    const useV2 = activeNetwork.config.keyContracts.solaceCoverProduct.additionalInfo == 'v2'
+
     const msgParams = JSON.stringify({
       domain: {
-        name: 'Solace.fi-SolaceCoverProduct',
-        version: '1',
+        name: !useV2 ? 'Solace.fi-SolaceCoverProduct' : 'Solace.fi-SolaceCoverProductV2',
+        version: !useV2 ? '1' : '2',
         chainId: activeNetwork.chainId,
         verifyingContract: solaceCoverProduct.address,
       },
-
       message: {
-        version: 1,
+        version: !useV2 ? 1 : 2,
       },
-
       primaryType: 'SolaceReferral',
-
       types: {
         EIP712Domain: domainType,
         SolaceReferral: [{ name: 'version', type: 'uint256' }],

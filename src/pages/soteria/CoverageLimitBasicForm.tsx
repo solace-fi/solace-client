@@ -111,7 +111,7 @@ export function CoverageLimitBasicForm({
               marginTop: '40px',
             }}
           >
-            <Flex baseline center>
+            <Flex center>
               <Text techygradient t2 bold>
                 {commaNumber(truncateValue(floatUnits(currentCoverageLimit, 18), 2, false))}{' '}
                 <Text techygradient t4 bold inline>
@@ -187,13 +187,20 @@ export function CoverageLimitBasicForm({
                 </Flex>
               </Flex> */}
             <Flex center mt={20}>
-              <Flex baseline gap={4} center>
+              <Flex gap={4} center>
                 <Text t4>Highest position in your portfolio:</Text>
               </Flex>
             </Flex>
             <Flex center mt={4}>
-              <Flex baseline gap={4} center>
-                <Flex gap={4} baseline mt={2}>
+              <Flex gap={4} center>
+                <Flex
+                  gap={4}
+                  mt={2}
+                  style={{
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                  }}
+                >
                   <Text t2 bold>
                     {truncateValue(formatUnits(highestAmount, 18), 2, false)}
                   </Text>

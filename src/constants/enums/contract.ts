@@ -37,7 +37,8 @@ export enum FunctionName {
   // soteria
   SOTERIA_ACTIVATE = 'ActivatePolicy',
   SOTERIA_DEACTIVATE = 'DeactivatePolicy',
-  SOTERIA_UPDATE = 'UpdateCoverLimit',
+  SOTERIA_UPDATE_LIMIT = 'UpdateCoverLimit',
+  SOTERIA_UPDATE_CHAINS = 'UpdatePolicyChainInfo',
   SOTERIA_DEPOSIT = 'Deposit',
   SOTERIA_WITHDRAW = 'Withdraw',
 
