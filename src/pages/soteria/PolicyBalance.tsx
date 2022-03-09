@@ -38,10 +38,12 @@ import { useNotifications } from '../../context/NotificationsManager'
 import { TransactionReceipt, TransactionResponse } from '@ethersproject/providers'
 import { Text } from '../../components/atoms/Typography'
 import { ModalCell } from '../../components/atoms/Modal'
+import { CheckboxData } from '../stake/types/LockCheckbox'
 
 export function PolicyBalance({
   balances,
   referralChecks,
+  chainsChecked,
   stableCoin,
   minReqAccBal,
   portfolio,
@@ -68,6 +70,7 @@ export function PolicyBalance({
     checkingReferral: boolean
     referrerIsOther: boolean
   }
+  chainsChecked: CheckboxData[]
   stableCoin: string
   minReqAccBal: BigNumber
   portfolio: SolaceRiskScore | undefined
@@ -99,6 +102,12 @@ export function PolicyBalance({
   const { activeNetwork } = useNetwork()
   const { keyContracts } = useContracts()
   const { solaceCoverProduct } = useMemo(() => keyContracts, [keyContracts])
+  const noChainsSelected = useMemo(
+    () =>
+      activeNetwork.config.keyContracts.solaceCoverProduct.additionalInfo == 'v2' &&
+      chainsChecked.filter((c) => c.checked).length == 0,
+    [activeNetwork.config.keyContracts.solaceCoverProduct.additionalInfo, chainsChecked]
+  )
   const { makeTxToast } = useNotifications()
   const { reload } = useCachedData()
 
@@ -198,11 +207,13 @@ export function PolicyBalance({
   const callActivatePolicy = async () => {
     if (!account) return
     const amount_ = inputProps.amount.length > 0 ? inputProps.amount : '0'
+    const selectedChains = chainsChecked.filter((c) => c.checked).map((c) => c.id)
     await activatePolicy(
       account,
       newCoverageLimit,
       parseUnits(amount_, 18),
-      referralValidation && referralCode ? referralCode : []
+      referralValidation && referralCode ? referralCode : [],
+      selectedChains
     )
       .then((res) => _handleToast2(res.tx, res.localTx))
       .catch((err) => handleContractCallError('callActivatePolicy', err, FunctionName.SOTERIA_ACTIVATE))
@@ -465,7 +476,7 @@ export function PolicyBalance({
             </>
           ) : (
             <>
-              <Text t4>
+              <Text t4 warning>
                 You can withdraw your entire personal balance after your cooldown period has passed. To start the
                 cooldown, deactivate your policy first.
               </Text>
@@ -544,6 +555,11 @@ export function PolicyBalance({
                       Your coverage limit cannot be zero
                     </Text>
                   )}
+                  {noChainsSelected && (
+                    <Text autoAlignHorizontal t4 error>
+                      Select the chains you would like to cover
+                    </Text>
+                  )}
                   <Button
                     info
                     secondary
@@ -551,7 +567,8 @@ export function PolicyBalance({
                       !doesReachMinReqAccountBal ||
                       newCoverageLimit.eq(ZERO) ||
                       (inputProps.amount != '' &&
-                        parseUnits(inputProps.amount, walletAssetDecimals).gt(walletAssetBalance))
+                        parseUnits(inputProps.amount, walletAssetDecimals).gt(walletAssetBalance)) ||
+                      noChainsSelected
                     }
                     onClick={callActivatePolicy}
                   >

@@ -35,10 +35,12 @@ import { CoverageActive } from './CoverageActive'
 import { WelcomeMessage } from './WelcomeMessage'
 import { PolicyBalance } from './PolicyBalance'
 import { CoverageLimit } from './CoverageLimit'
-import { useExistingPolicy } from '../../hooks/usePolicy'
+import { useExistingPolicy, useGetPolicyChains } from '../../hooks/usePolicy'
 
 import Zapper from '../../resources/svg/zapper.svg'
 import ZapperDark from '../../resources/svg/zapper-dark.svg'
+import { CoveredChains } from './CoveredChains'
+import { CheckboxData } from '../stake/types/LockCheckbox'
 
 export function Card({
   children,
@@ -134,9 +136,18 @@ export default function Soteria(): JSX.Element {
   const canShowSoteria = useMemo(() => !activeNetwork.config.restrictedFeatures.noSoteria, [
     activeNetwork.config.restrictedFeatures.noSoteria,
   ])
-  const { portfolio, loading } = usePortfolio(account)
-  const { isMobile } = useWindowDimensions()
   const { policyId, status, coverageLimit, mounting } = useCheckIsCoverageActive(account)
+  const {
+    portfolioChains,
+    policyChains,
+    policyChainsChecked,
+    coverableChains,
+    chainsChecked,
+    setChainsChecked,
+    loading: chainsLoading,
+  } = useGetPolicyChains(policyId)
+  const { portfolio, loading } = usePortfolio(account, portfolioChains, chainsLoading)
+  const { isMobile } = useWindowDimensions()
   const existingPolicy = useExistingPolicy(account)
   const {
     getMinRequiredAccountBalance,
@@ -162,7 +173,8 @@ export default function Soteria(): JSX.Element {
   const [referralCode, setReferralCode] = useState<string | undefined>(undefined)
 
   const [newCoverageLimit, setNewCoverageLimit] = useState<BigNumber>(ZERO)
-  const [isEditing, setIsEditing] = useState(false)
+  const [isEditingLimit, setIsEditingLimit] = useState(false)
+  const [isEditingChains, setIsEditingChains] = useState(false)
   const [codeIsUsable, setCodeIsUsable] = useState<boolean>(true)
   const [codeIsValid, setCodeIsValid] = useState<boolean>(true)
   const [referrerIsActive, setIsReferrerIsActive] = useState<boolean>(true)
@@ -277,7 +289,8 @@ export default function Soteria(): JSX.Element {
 
   useEffect(() => {
     if (mounting) return
-    setIsEditing(!status)
+    setIsEditingLimit(!status)
+    setIsEditingChains(!status)
   }, [status, mounting])
 
   useEffect(() => {
@@ -349,28 +362,82 @@ export default function Soteria(): JSX.Element {
                 <Flex gap={24} col={isMobile}>
                   {status ? (
                     <>
-                      <Card thinner>
-                        <CoverageLimit
-                          referralChecks={{
-                            codeIsUsable,
-                            codeIsValid,
-                            referrerIsActive,
-                            checkingReferral,
-                            referrerIsOther,
+                      {activeNetwork.config.keyContracts.solaceCoverProduct.additionalInfo == 'v2' ? (
+                        <Flex
+                          col
+                          stretch
+                          gap={24}
+                          style={{
+                            flex: '0.8',
                           }}
-                          balances={balances}
-                          minReqAccBal={minReqAccBal}
-                          currentCoverageLimit={currentCoverageLimit}
-                          newCoverageLimit={newCoverageLimit}
-                          setNewCoverageLimit={setNewCoverageLimit}
-                          referralCode={referralCode}
-                          isEditing={isEditing}
-                          portfolio={portfolio}
-                          setIsEditing={setIsEditing}
-                          setReferralCode={setReferralCode}
-                          canPurchaseNewCover={canPurchaseNewCover}
-                        />{' '}
-                      </Card>
+                        >
+                          <Card thinner>
+                            <CoverageLimit
+                              referralChecks={{
+                                codeIsUsable,
+                                codeIsValid,
+                                referrerIsActive,
+                                checkingReferral,
+                                referrerIsOther,
+                              }}
+                              balances={balances}
+                              minReqAccBal={minReqAccBal}
+                              currentCoverageLimit={currentCoverageLimit}
+                              newCoverageLimit={newCoverageLimit}
+                              setNewCoverageLimit={setNewCoverageLimit}
+                              referralCode={referralCode}
+                              isEditing={isEditingLimit}
+                              portfolio={portfolio}
+                              setIsEditing={setIsEditingLimit}
+                              setReferralCode={setReferralCode}
+                              canPurchaseNewCover={canPurchaseNewCover}
+                            />{' '}
+                          </Card>
+                          {activeNetwork.config.keyContracts.solaceCoverProduct.additionalInfo == 'v2' && (
+                            <Card thinner>
+                              <CoveredChains
+                                coverageActivity={{
+                                  status,
+                                  mounting,
+                                }}
+                                chainActivity={{
+                                  coverableChains,
+                                  policyChains,
+                                  policyChainsChecked,
+                                  chainsChecked,
+                                  setChainsChecked,
+                                  chainsLoading,
+                                }}
+                                isEditing={isEditingChains}
+                                setIsEditing={setIsEditingChains}
+                              />
+                            </Card>
+                          )}
+                        </Flex>
+                      ) : (
+                        <Card thinner>
+                          <CoverageLimit
+                            referralChecks={{
+                              codeIsUsable,
+                              codeIsValid,
+                              referrerIsActive,
+                              checkingReferral,
+                              referrerIsOther,
+                            }}
+                            balances={balances}
+                            minReqAccBal={minReqAccBal}
+                            currentCoverageLimit={currentCoverageLimit}
+                            newCoverageLimit={newCoverageLimit}
+                            setNewCoverageLimit={setNewCoverageLimit}
+                            referralCode={referralCode}
+                            isEditing={isEditingLimit}
+                            portfolio={portfolio}
+                            setIsEditing={setIsEditingLimit}
+                            setReferralCode={setReferralCode}
+                            canPurchaseNewCover={canPurchaseNewCover}
+                          />{' '}
+                        </Card>
+                      )}
                       <Card bigger horiz>
                         <PolicyBalance
                           referralChecks={{
@@ -381,6 +448,7 @@ export default function Soteria(): JSX.Element {
                             referrerIsOther,
                           }}
                           stableCoin={stableCoin}
+                          chainsChecked={chainsChecked}
                           balances={balances}
                           minReqAccBal={minReqAccBal}
                           portfolio={portfolio}
@@ -409,29 +477,59 @@ export default function Soteria(): JSX.Element {
                   ) : (
                     // <>
                     <Card inactive horiz={!isMobile} noPadding gap={24}>
-                      <Card innerThinner noShadow>
-                        <CoverageLimit
-                          referralChecks={{
-                            codeIsUsable,
-                            codeIsValid,
-                            referrerIsActive,
-                            checkingReferral,
-                            referrerIsOther,
-                          }}
-                          balances={balances}
-                          minReqAccBal={minReqAccBal}
-                          currentCoverageLimit={currentCoverageLimit}
-                          newCoverageLimit={newCoverageLimit}
-                          setNewCoverageLimit={setNewCoverageLimit}
-                          referralCode={referralCode}
-                          isEditing={isEditing}
-                          portfolio={portfolio}
-                          setIsEditing={setIsEditing}
-                          setReferralCode={setReferralCode}
-                          canPurchaseNewCover={canPurchaseNewCover}
-                          inactive
-                        />
-                      </Card>{' '}
+                      <Flex
+                        col
+                        stretch
+                        gap={24}
+                        style={{
+                          flex:
+                            activeNetwork.config.keyContracts.solaceCoverProduct.additionalInfo == 'v2' ? '0.8' : '1',
+                        }}
+                      >
+                        <Card innerThinner noShadow>
+                          <CoverageLimit
+                            referralChecks={{
+                              codeIsUsable,
+                              codeIsValid,
+                              referrerIsActive,
+                              checkingReferral,
+                              referrerIsOther,
+                            }}
+                            balances={balances}
+                            minReqAccBal={minReqAccBal}
+                            currentCoverageLimit={currentCoverageLimit}
+                            newCoverageLimit={newCoverageLimit}
+                            setNewCoverageLimit={setNewCoverageLimit}
+                            referralCode={referralCode}
+                            isEditing={isEditingLimit}
+                            portfolio={portfolio}
+                            setIsEditing={setIsEditingLimit}
+                            setReferralCode={setReferralCode}
+                            canPurchaseNewCover={canPurchaseNewCover}
+                            inactive
+                          />
+                        </Card>
+                        {activeNetwork.config.keyContracts.solaceCoverProduct.additionalInfo == 'v2' && (
+                          <Card innerThinner noShadow>
+                            <CoveredChains
+                              coverageActivity={{
+                                status,
+                                mounting,
+                              }}
+                              chainActivity={{
+                                coverableChains,
+                                policyChains,
+                                policyChainsChecked,
+                                chainsChecked,
+                                setChainsChecked,
+                                chainsLoading,
+                              }}
+                              isEditing={isEditingChains}
+                              setIsEditing={setIsEditingChains}
+                            />
+                          </Card>
+                        )}
+                      </Flex>
                       <Card innerBigger noShadow>
                         <PolicyBalance
                           referralChecks={{
@@ -442,6 +540,7 @@ export default function Soteria(): JSX.Element {
                             referrerIsOther,
                           }}
                           stableCoin={stableCoin}
+                          chainsChecked={chainsChecked}
                           balances={balances}
                           minReqAccBal={minReqAccBal}
                           portfolio={portfolio}

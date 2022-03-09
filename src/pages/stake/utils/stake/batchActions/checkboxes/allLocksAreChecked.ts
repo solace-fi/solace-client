@@ -1,5 +1,5 @@
-import { LockCheckbox } from '../../../../types/LockCheckbox'
+import { CheckboxData } from '../../../../types/LockCheckbox'
 
-const allLocksAreChecked = (locks: LockCheckbox[]): boolean => locks.every(({ checked }) => checked)
+const allBoxesAreChecked = (boxes: CheckboxData[]): boolean => boxes.every(({ checked }) => checked)
 
-export default allLocksAreChecked
+export default allBoxesAreChecked

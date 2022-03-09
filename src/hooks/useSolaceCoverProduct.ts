@@ -192,17 +192,71 @@ export const useFunctions = () => {
     }
   }
 
+  const getNumSupportedChains = async (): Promise<BigNumber> => {
+    if (!solaceCoverProduct || activeNetwork.config.keyContracts.solaceCoverProduct.additionalInfo != 'v2') return ZERO
+    try {
+      const d = await solaceCoverProduct.numSupportedChains()
+      return d
+    } catch (e) {
+      console.log('error getNumSupportedChains ', e)
+      return ZERO
+    }
+  }
+
+  const getChain = async (chainIndex: BigNumber): Promise<BigNumber> => {
+    if (!solaceCoverProduct || activeNetwork.config.keyContracts.solaceCoverProduct.additionalInfo != 'v2') return ZERO
+    try {
+      const d = await solaceCoverProduct.getChain(chainIndex)
+      return d
+    } catch (e) {
+      console.log('error getNumSupportedChains ', e)
+      return ZERO
+    }
+  }
+
+  const getPolicyChainInfo = async (policyId: BigNumber): Promise<BigNumber[]> => {
+    if (
+      !solaceCoverProduct ||
+      activeNetwork.config.keyContracts.solaceCoverProduct.additionalInfo != 'v2' ||
+      policyId.isZero()
+    )
+      return []
+    try {
+      const d = await solaceCoverProduct.getPolicyChainInfo(policyId)
+      return d
+    } catch (e) {
+      console.log('error getNumSupportedChains ', e)
+      return []
+    }
+  }
+
+  const updatePolicyChainInfo = async (chains: BigNumber[]) => {
+    if (!solaceCoverProduct || activeNetwork.config.keyContracts.solaceCoverProduct.additionalInfo != 'v2')
+      return { tx: null, localTx: null }
+    const tx = await solaceCoverProduct.updatePolicyChainInfo(chains, {
+      ...gasConfig,
+      gasLimit: GAS_LIMIT,
+    })
+    const localTx: LocalTx = {
+      hash: tx.hash,
+      type: FunctionName.SOTERIA_UPDATE_CHAINS,
+      status: TransactionCondition.PENDING,
+    }
+    return { tx, localTx }
+  }
+
   const activatePolicy = async (
     account: string,
     coverLimit: BigNumber,
     deposit: BigNumber,
-    referralCode: string | []
+    referralCode: string | [],
+    chains: BigNumber[]
   ) => {
     if (!solaceCoverProduct) return { tx: null, localTx: null }
     let tx = undefined
     const useV2 = activeNetwork.config.keyContracts.solaceCoverProduct.additionalInfo == 'v2'
     if (useV2) {
-      tx = await solaceCoverProduct.activatePolicy(account, coverLimit, deposit, referralCode, [BigNumber.from(137)], {
+      tx = await solaceCoverProduct.activatePolicy(account, coverLimit, deposit, referralCode, chains, {
         ...gasConfig,
         gasLimit: GAS_LIMIT,
       })
@@ -242,7 +296,7 @@ export const useFunctions = () => {
     })
     const localTx: LocalTx = {
       hash: tx.hash,
-      type: FunctionName.SOTERIA_UPDATE,
+      type: FunctionName.SOTERIA_UPDATE_LIMIT,
       status: TransactionCondition.PENDING,
     }
     return { tx, localTx }
@@ -293,6 +347,10 @@ export const useFunctions = () => {
     getCooldownStart,
     getMinRequiredAccountBalance,
     getReferrerFromReferralCode,
+    getNumSupportedChains,
+    getChain,
+    getPolicyChainInfo,
+    updatePolicyChainInfo,
     activatePolicy,
     deactivatePolicy,
     updateCoverLimit,
@@ -302,7 +360,9 @@ export const useFunctions = () => {
 }
 
 export const usePortfolio = (
-  account: string | undefined
+  account: string | undefined,
+  chains: number[],
+  chainsLoading: boolean
 ): { portfolio: SolaceRiskScore | undefined; loading: boolean } => {
   const [score, setScore] = useState<SolaceRiskScore | undefined>(undefined)
   const { networks, activeNetwork } = useNetwork()
@@ -310,16 +370,16 @@ export const usePortfolio = (
 
   useEffect(() => {
     const getPortfolio = async () => {
-      if (!account) return
       const useV2 = activeNetwork.config.keyContracts.solaceCoverProduct.additionalInfo == 'v2'
-      const balances = await getSolaceRiskBalances(account, [useV2 ? 137 : 1])
+      if (!account || (useV2 && chains.length == 0) || chainsLoading) return
+      const balances = await getSolaceRiskBalances(account, useV2 ? chains : [1])
       if (!balances) return
       const scores = await getSolaceRiskScores(account, balances)
       if (scores) setScore(scores)
       setLoading(false)
     }
     getPortfolio()
-  }, [account, networks, activeNetwork])
+  }, [account, networks, activeNetwork, chainsLoading, chains])
 
   useEffect(() => {
     setLoading(true)

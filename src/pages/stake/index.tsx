@@ -31,7 +31,7 @@ import { useNetwork } from '../../context/NetworkManager'
 import { FunctionName } from '../../constants/enums'
 import { BKPT_1, BKPT_5, DAYS_PER_YEAR, ZERO, Z_TABLE } from '../../constants'
 import { LockData, UserLocksData, UserLocksInfo } from '../../constants/types'
-import { LockCheckbox } from './types/LockCheckbox'
+import { CheckboxData } from './types/LockCheckbox'
 import { Tab, StakingVersion } from '../../constants/enums'
 
 /* import components */
@@ -368,7 +368,7 @@ export default function Stake(): JSX.Element {
   const [loading, setLoading] = useState<boolean>(true)
 
   const [targetLock, setTargetLock] = useState<BigNumber | undefined>(undefined)
-  const [locksChecked, setLocksChecked] = useState<LockCheckbox[]>([])
+  const [locksChecked, setLocksChecked] = useState<CheckboxData[]>([])
 
   const { account } = useWallet()
   const { latestBlock } = useProvider()

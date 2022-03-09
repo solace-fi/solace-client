@@ -1,16 +1,16 @@
 import { BigNumber } from 'ethers'
-import { LockCheckbox } from '../../../../types/LockCheckbox'
+import { CheckboxData } from '../../../../types/LockCheckbox'
 
 /**
- * @name lockIsChecked
- * @description Checks if a lock checkbox is checked
- * @param lockCheckboxArray The array of lock checkboxes
- * @param xsLockID The lock ID to check
- * @returns The checked status of the lock checkbox
- * @example lockIsChecked(lockCheckboxArray, xsLockID)
+ * @name boxIsChecked
+ * @description Checks if a checkbox is checked
+ * @param checkboxArray The array of checkboxes
+ * @param ID The ID to check
+ * @returns The checked status of the checkbox
+ * @example boxIsChecked(checkboxArray, ID)
  */
 
-const lockIsChecked = (lockCheckboxArray: LockCheckbox[], xsLockID: BigNumber): boolean =>
-  lockCheckboxArray.find(({ xsLockID: lockID }) => lockID.eq(xsLockID))?.checked ?? false
+const boxIsChecked = (checkboxArray: CheckboxData[], ID: BigNumber): boolean =>
+  checkboxArray.find(({ id: _id }) => _id.eq(ID))?.checked ?? false
 
-export default lockIsChecked
+export default boxIsChecked
