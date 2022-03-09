@@ -1,63 +1,80 @@
 import React, { useEffect, useState, useMemo } from 'react'
-import { Flex, HorizRule, VerticalSeparator } from '../../components/atoms/Layout'
+import { Flex } from '../../components/atoms/Layout'
 import { QuestionCircle } from '@styled-icons/bootstrap/QuestionCircle'
-// src/components/atoms/Button/index.ts
 import { Button } from '../../components/atoms/Button'
-// src/resources/svg/icons/usd.svg
-import DAI from '../../resources/svg/icons/dai.svg'
-import { StyledGrayBox } from '../../components/molecules/GrayBox'
-import { GenericInputSection } from '../../components/molecules/InputSection'
-import { Checkbox, StyledSlider } from '../../components/atoms/Input'
-import commaNumber from '../../utils/commaNumber'
+import { Checkbox } from '../../components/atoms/Input'
 import { StyledTooltip } from '../../components/molecules/Tooltip'
 import { useWindowDimensions } from '../../hooks/useWindowDimensions'
-import { MAX_APPROVAL_AMOUNT, ZERO } from '../../constants'
-import { useCooldownDetails, useFunctions } from '../../hooks/useSolaceCoverProduct'
+import { useFunctions } from '../../hooks/useSolaceCoverProduct'
 import { useWallet } from '../../context/WalletManager'
 import { BigNumber } from 'ethers'
-import { LocalTx, SolaceRiskScore } from '../../constants/types'
-import {
-  accurateMultiply,
-  filterAmount,
-  floatUnits,
-  truncateValue,
-  convertSciNotaToPrecise,
-} from '../../utils/formatting'
-import { getTimeFromMillis } from '../../utils/time'
+import { NetworkConfig } from '../../constants/types'
 import { useTransactionExecution } from '../../hooks/useInputAmount'
-import { FunctionName, TransactionCondition } from '../../constants/enums'
-import { parseUnits } from 'ethers/lib/utils'
-import { useCachedData } from '../../context/CachedDataManager'
+import { FunctionName } from '../../constants/enums'
 import { useNetwork } from '../../context/NetworkManager'
-import IERC20 from '../../constants/metadata/IERC20Metadata.json'
-import useDebounce from '@rooks/use-debounce'
-import { formatUnits } from 'ethers/lib/utils'
-import { getContract } from '../../utils'
-import { useContracts } from '../../context/ContractsManager'
-import { useNotifications } from '../../context/NotificationsManager'
-import { TransactionReceipt, TransactionResponse } from '@ethersproject/providers'
 import { Text } from '../../components/atoms/Typography'
 import { CheckboxData } from '../stake/types/LockCheckbox'
 import updateLockCheck from '../stake/utils/stake/batchActions/checkboxes/updateLockCheck'
 import lockIsChecked from '../stake/utils/stake/batchActions/checkboxes/lockIsChecked'
+import { Loader } from '../../components/atoms/Loader'
+import { FixedHeightGrayBox } from '../../components/molecules/GrayBox'
 
 export function CoveredChains({
+  coverageActivity: { status, mounting },
+  chainActivity: { coverableChains, policyChains, policyChainsChecked, chainsChecked, setChainsChecked, chainsLoading },
   isEditing,
   setIsEditing,
 }: {
+  coverageActivity: {
+    status: boolean
+    mounting: boolean
+  }
+  chainActivity: {
+    coverableChains: NetworkConfig[]
+    policyChains: number[]
+    policyChainsChecked: CheckboxData[]
+    chainsChecked: CheckboxData[]
+    setChainsChecked: (checkboxData: CheckboxData[]) => void
+    chainsLoading: boolean
+  }
   isEditing: boolean
   setIsEditing: (isEditing: boolean) => void
 }): JSX.Element {
   const { ifDesktop } = useWindowDimensions()
-  const { networks } = useNetwork()
-  const startEditing = () => setIsEditing(true)
-  const stopEditing = () => setIsEditing(false)
-  const [chainsChecked, setChainsChecked] = useState<CheckboxData[]>([])
+  const { account } = useWallet()
+  const { activeNetwork } = useNetwork()
+  const { handleToast, handleContractCallError } = useTransactionExecution()
+  const { updatePolicyChainInfo } = useFunctions()
 
-  const coverableNetworks = useMemo(
-    () => networks.filter((m) => m.config.keyContracts.solaceCoverProduct && !m.isTestnet),
-    [networks]
+  const startEditing = () => setIsEditing(true)
+  const stopEditing = () => {
+    setIsEditing(false)
+    setChainsChecked(policyChainsChecked)
+  }
+
+  const noChainsSelected = useMemo(
+    () =>
+      activeNetwork.config.keyContracts.solaceCoverProduct.additionalInfo == 'v2' &&
+      chainsChecked.filter((c) => c.checked).length == 0,
+    [activeNetwork.config.keyContracts.solaceCoverProduct.additionalInfo, chainsChecked]
   )
+
+  const checkedChainsMatchPolicyChains = useMemo(() => {
+    const selectedChains = chainsChecked.filter((c) => c.checked).map((c) => c.id.toNumber())
+    return (
+      selectedChains.every((item) => policyChains.includes(item)) &&
+      policyChains.every((item) => selectedChains.includes(item))
+    )
+  }, [chainsChecked, policyChains])
+
+  const callUpdatePolicyChainInfo = async () => {
+    if (!account) return
+    const selectedChains = chainsChecked.filter((c) => c.checked).map((c) => c.id)
+    await updatePolicyChainInfo(selectedChains)
+      .then((res) => handleToast(res.tx, res.localTx))
+      .then(() => stopEditing())
+      .catch((err) => handleContractCallError('callActivatePolicy', err, FunctionName.SOTERIA_UPDATE_CHAINS))
+  }
 
   const handleChainCheck = (id: BigNumber) => {
     const checkboxStatus = lockIsChecked(chainsChecked, id)
@@ -65,25 +82,13 @@ export function CoveredChains({
     setChainsChecked(newArr)
   }
 
-  const updateLocksChecked = (chains: number[], oldArray: CheckboxData[]): CheckboxData[] => {
-    if (oldArray.length === 0) return chains.map((c) => ({ id: BigNumber.from(c), checked: false }))
-    return chains.map((c) => {
-      const oldBox = oldArray.find((oldBox) => oldBox.id.eq(BigNumber.from(c)))
-      return oldBox ? { id: BigNumber.from(c), checked: oldBox.checked } : { id: BigNumber.from(c), checked: false }
-    })
-  }
-
-  useEffect(() => {
-    setChainsChecked(updateLocksChecked([1, 137], chainsChecked))
-  }, [])
-
   return (
     <Flex
       col
       stretch
       gap={40}
       style={{
-        width: '100%',
+        flex: '1',
       }}
     >
       <Flex between itemsCenter>
@@ -108,42 +113,97 @@ export function CoveredChains({
           height: '100%',
         }}
       >
-        {!isEditing ? (
-          <Button
-            info
-            secondary
-            pl={46.75}
-            pr={46.75}
-            pt={8}
-            pb={8}
-            style={{
-              fontWeight: 600,
-            }}
-            onClick={startEditing}
-          >
-            Edit Chains
-          </Button>
+        {chainsLoading || mounting ? (
+          <Loader />
         ) : (
           <>
-            <Flex justifyCenter col>
-              {coverableNetworks.map((n, i) => (
-                <Flex key={n.chainId}>
-                  <Checkbox
-                    type="checkbox"
-                    checked={lockIsChecked(chainsChecked, BigNumber.from(n.chainId))}
-                    onChange={() => handleChainCheck(BigNumber.from(n.chainId))}
-                  />
-                  <div>{n.name}</div>
-                </Flex>
-              ))}
-            </Flex>
+            {!isEditing ? (
+              <Flex col gap={30}>
+                <FixedHeightGrayBox h={66}>
+                  <Flex
+                    style={{
+                      marginLeft: 'auto',
+                      marginRight: 'auto',
+                      display: 'grid',
+                      gridTemplateColumns: `repeat(${Math.min(3, policyChains.length)}, 1fr)`,
+                      gridTemplateRows: `repeat(${Math.floor(policyChains.length / 3) + 1}, 1fr)`,
+                      gridColumnGap: '10px',
+                      gridRowGap: '10px',
+                    }}
+                  >
+                    {coverableChains
+                      .filter((n) => policyChains.includes(n.chainId))
+                      .map((policyNetwork) => (
+                        <Flex key={policyNetwork.chainId} justifyCenter col>
+                          <Flex justifyCenter>
+                            <img src={policyNetwork.logo} width={40} height={40} />
+                          </Flex>
+                          <Flex justifyCenter>
+                            <Text t5s>{policyNetwork.name}</Text>
+                          </Flex>
+                        </Flex>
+                      ))}
+                  </Flex>
+                </FixedHeightGrayBox>
+              </Flex>
+            ) : (
+              <Flex col justifyCenter between={isEditing} gap={10} pt={10} pb={10}>
+                {coverableChains.map((n) => (
+                  <Flex key={n.chainId}>
+                    <Checkbox
+                      type="checkbox"
+                      checked={lockIsChecked(chainsChecked, BigNumber.from(n.chainId))}
+                      onChange={() => handleChainCheck(BigNumber.from(n.chainId))}
+                    />
+                    <Flex ml={10}>{n.name}</Flex>
+                  </Flex>
+                ))}
+              </Flex>
+            )}
             <Flex justifyCenter={!isEditing} between={isEditing} gap={isEditing ? 20 : undefined} pt={10} pb={10}>
-              <Button info pt={8} pb={8} style={{ fontWeight: 600, flex: 1, transition: '0s' }} onClick={stopEditing}>
-                Discard
-              </Button>
-              <Button info secondary pt={8} pb={8} style={{ fontWeight: 600, flex: 1, transition: '0s' }}>
-                Save
-              </Button>
+              {!isEditing ? (
+                <Button
+                  info
+                  secondary
+                  pl={46.75}
+                  pr={46.75}
+                  pt={8}
+                  pb={8}
+                  style={{
+                    fontWeight: 600,
+                  }}
+                  onClick={startEditing}
+                >
+                  Edit Chains
+                </Button>
+              ) : (
+                <>
+                  {status && (
+                    <>
+                      <Button
+                        info
+                        pt={8}
+                        pb={8}
+                        style={{ fontWeight: 600, flex: 1, transition: '0s' }}
+                        onClick={stopEditing}
+                      >
+                        Discard
+                      </Button>
+                      <Button
+                        info
+                        secondary
+                        pt={8}
+                        pb={8}
+                        style={{ fontWeight: 600, flex: 1, transition: '0s' }}
+                        onClick={callUpdatePolicyChainInfo}
+                        disabled={noChainsSelected || checkedChainsMatchPolicyChains}
+                      >
+                        Save
+                      </Button>
+                    </>
+                  )}
+                </>
+              )}
             </Flex>
           </>
         )}

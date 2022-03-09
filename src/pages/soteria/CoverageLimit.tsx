@@ -74,7 +74,7 @@ export function CoverageLimit({
     if (!account) return
     await updateCoverLimit(newCoverageLimit, referralValidation && referralCode ? referralCode : [])
       .then((res) => _handleToast(res.tx, res.localTx))
-      .catch((err) => _handleContractCallError('callUpdateCoverLimit', err, FunctionName.SOTERIA_UPDATE))
+      .catch((err) => _handleContractCallError('callUpdateCoverLimit', err, FunctionName.SOTERIA_UPDATE_LIMIT))
   }
 
   const _handleToast = async (tx: any, localTx: LocalTx | null) => {
@@ -128,9 +128,7 @@ export function CoverageLimit({
         />
       </Flex>
       <Flex justifyCenter={!isEditing} between={isEditing} gap={isEditing ? 20 : undefined} pt={10} pb={10}>
-        {inactive ? (
-          <div style={{ height: '36px' }} />
-        ) : !isEditing ? (
+        {inactive ? null : !isEditing ? (
           <Button
             info
             secondary

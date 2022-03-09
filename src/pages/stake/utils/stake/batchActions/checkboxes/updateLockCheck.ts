@@ -2,7 +2,7 @@ import { BigNumber } from 'ethers'
 import { CheckboxData } from '../../../../types/LockCheckbox'
 
 /**
- * @name updateLockCheck
+ * @name updateCheck
  * @description Updates the checkbox array with the new check
  * @param checkboxArray The array of checkboxes
  * @param id The ID to update
@@ -10,7 +10,7 @@ import { CheckboxData } from '../../../../types/LockCheckbox'
  * @returns The updated array of checkboxes
  */
 
-const updateLockCheck = (checkboxArray: CheckboxData[], ID: BigNumber, checked: boolean): CheckboxData[] =>
+const updateCheck = (checkboxArray: CheckboxData[], ID: BigNumber, checked: boolean): CheckboxData[] =>
   checkboxArray.map(({ id: _id, checked: boxChecked }) => {
     if (_id.eq(ID)) {
       return { id: _id, checked: checked }
@@ -18,4 +18,4 @@ const updateLockCheck = (checkboxArray: CheckboxData[], ID: BigNumber, checked: 
     return { id: _id, checked: boxChecked }
   })
 
-export default updateLockCheck
+export default updateCheck

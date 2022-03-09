@@ -111,6 +111,7 @@ export function PortfolioTable({
           <TableHead>
             <TableRow>
               <TableHeader>Protocol</TableHeader>
+              <TableHeader>Network</TableHeader>
               <TableHeader>Type</TableHeader>
               <TableHeader>Amount</TableHeader>
               <TableHeader>Risk Level</TableHeader>
@@ -120,6 +121,7 @@ export function PortfolioTable({
             {portfolio.protocols.map((d: SolaceRiskProtocol, i) => (
               <TableRow key={i}>
                 <TableData>{capitalizeFirstLetter(d.appId)}</TableData>
+                <TableData>{capitalizeFirstLetter(d.network)}</TableData>
                 <TableData>{d.category}</TableData>
                 <TableData>{d.balanceUSD}</TableData>
                 {tierColors.length > 0 && (
@@ -143,6 +145,9 @@ export function PortfolioTable({
               <Flex gap={30} between itemsCenter>
                 <Flex col gap={8.5}>
                   <div>{capitalizeFirstLetter(row.appId)}</div>
+                </Flex>
+                <Flex col gap={8.5}>
+                  <div>{capitalizeFirstLetter(row.network)}</div>
                 </Flex>
                 <Flex
                   col
