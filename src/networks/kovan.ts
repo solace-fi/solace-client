@@ -27,7 +27,7 @@ import { AaveProduct } from '../products/aave'
 import { WaaveProduct } from '../products/waave'
 
 import { KEY_ADDRS, PRODUCT_ADDRS } from '../constants/addresses/kovan'
-import { WETH9_ADDRESS } from '../constants/mappings/tokenAddressMapping'
+import { USDC_ADDRESS, WETH9_ADDRESS } from '../constants/mappings/tokenAddressMapping'
 import { tellerToTokenMapping } from '../constants/mappings/tellerToTokenMappings/kovan'
 
 /*
@@ -123,7 +123,9 @@ export const KovanNetwork: NetworkConfig = {
       },
     },
     restrictedFeatures: { noSoteria: true },
-    specialFeatures: {},
+    specialFeatures: {
+      solaceBuyLink: `https://app.sushi.com/swap?inputCurrency=${USDC_ADDRESS[chainId]}&outputCurrency=${KEY_ADDRS.SOLACE}`,
+    },
     specialContracts: {},
   },
   cache: {
