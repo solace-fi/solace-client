@@ -16,6 +16,7 @@ import bridgeWrapperABI from '../constants/metadata/BridgeWrapper.json'
 
 import ierc20Json from '../constants/metadata/IERC20Metadata.json'
 import { tellerToTokenMapping } from '../constants/mappings/tellerToTokenMappings/polygon'
+import { FRAX_ADDRESS } from '../constants/mappings/tokenAddressMapping'
 
 const chainId = 137
 
@@ -71,6 +72,7 @@ export const PolygonNetwork: NetworkConfig = {
     },
     specialFeatures: {
       unwrapBridgedSolace: true,
+      solaceBuyLink: `https://app.uniswap.org/#/swap?chain=polygon&inputCurrency=${FRAX_ADDRESS[chainId]}&outputCurrency=${KEY_ADDRS.SOLACE}`,
     },
     specialContracts: {
       bSolace: {
