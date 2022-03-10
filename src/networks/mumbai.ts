@@ -71,7 +71,7 @@ export const MumbaiNetwork: NetworkConfig = {
     },
     specialFeatures: {
       unwrapBridgedSolace: true,
-      solaceBuyLink: `https://app.uniswap.org/#/swap?chain=polygon&inputCurrency=${FRAX_ADDRESS[chainId]}&outputCurrency=${KEY_ADDRS.SOLACE}`,
+      solaceBuyLink: `https://app.uniswap.org/#/swap?chain=polygon_mumbai&inputCurrency=${FRAX_ADDRESS[chainId]}&outputCurrency=${KEY_ADDRS.SOLACE}`,
     },
     specialContracts: {
       bSolace: {
