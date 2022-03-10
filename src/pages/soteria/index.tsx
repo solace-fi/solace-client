@@ -139,13 +139,12 @@ export default function Soteria(): JSX.Element {
   const { policyId, status, coverageLimit, mounting } = useCheckIsCoverageActive(account)
   const {
     portfolioChains,
-    policyChains,
     policyChainsChecked,
-    coverableChains,
+    coverableNetworks,
     chainsChecked,
     setChainsChecked,
     loading: chainsLoading,
-  } = useGetPolicyChains(policyId)
+  } = useGetPolicyChains(policyId ? policyId.toNumber() : undefined)
   const { portfolio, loading } = usePortfolio(account, portfolioChains, chainsLoading)
   const { isMobile } = useWindowDimensions()
   const existingPolicy = useExistingPolicy(account)
@@ -328,7 +327,7 @@ export default function Soteria(): JSX.Element {
             <Flex col gap={24} m={isMobile ? 20 : undefined}>
               {firstTime && formStage === FormStages.Welcome ? (
                 <WelcomeMessage portfolio={portfolio} type={referralType} goToSecondStage={goToSecondStage} />
-              ) : !firstTime && policyId.isZero() && showExistingPolicyMessage ? (
+              ) : !firstTime && policyId?.isZero() && showExistingPolicyMessage ? (
                 <Card>
                   <Flex col gap={30} itemsCenter>
                     <Text t2s>Solace Wallet Coverage</Text>
@@ -401,8 +400,7 @@ export default function Soteria(): JSX.Element {
                                   mounting,
                                 }}
                                 chainActivity={{
-                                  coverableChains,
-                                  policyChains,
+                                  coverableNetworks,
                                   policyChainsChecked,
                                   chainsChecked,
                                   setChainsChecked,
@@ -517,8 +515,7 @@ export default function Soteria(): JSX.Element {
                                 mounting,
                               }}
                               chainActivity={{
-                                coverableChains,
-                                policyChains,
+                                coverableNetworks,
                                 policyChainsChecked,
                                 chainsChecked,
                                 setChainsChecked,

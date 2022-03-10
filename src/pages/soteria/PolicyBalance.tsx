@@ -87,7 +87,7 @@ export function PolicyBalance({
     resetAmount: () => void
   }
   coverageActivity: {
-    policyId: BigNumber
+    policyId: BigNumber | undefined
     status: boolean
     coverageLimit: BigNumber
     mounting: boolean
@@ -419,7 +419,7 @@ export function PolicyBalance({
           </StyledGrayBox>
         </Flex>
         <HorizRule widthP={100} />
-        {!coverageActivity.policyId.eq(ZERO) && (
+        {!coverageActivity.policyId?.isZero() && (
           <div style={{ gridTemplateColumns: '1fr 0fr 1fr', display: 'grid', position: 'relative' }}>
             <ModalCell
               pt={5}
@@ -480,14 +480,14 @@ export function PolicyBalance({
                 You can withdraw your entire personal balance after your cooldown period has passed. To start the
                 cooldown, deactivate your policy first.
               </Text>
-              {!coverageActivity.policyId.eq(ZERO) && (
+              {!coverageActivity.policyId?.isZero() && (
                 <Flex between gap={10}>
                   <Flex gap={4}>
                     <Text t5s bold>
                       Cooldown:
                     </Text>
                     <Text info t5s bold>
-                      {cooldownStart.eq(ZERO)
+                      {cooldownStart.isZero()
                         ? 'Not started'
                         : getTimeFromMillis(cooldownLeft.toNumber() * 1000) == '0'
                         ? 'Passed'
@@ -499,7 +499,7 @@ export function PolicyBalance({
                       Withdrawable:
                     </Text>
                     <Text info t5s bold>
-                      {!cooldownStart.eq(ZERO) && getTimeFromMillis(cooldownLeft.toNumber() * 1000) == '0'
+                      {!cooldownStart.isZero() && getTimeFromMillis(cooldownLeft.toNumber() * 1000) == '0'
                         ? commaNumber(
                             truncateValue(formatUnits(balances.personalBalance, walletAssetDecimals), 2, false)
                           )
