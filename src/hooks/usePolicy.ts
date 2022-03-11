@@ -353,6 +353,7 @@ export const useExistingPolicy = (account: string | undefined) => {
 
 export const useGetPolicyChains = (policyId: number | undefined) => {
   const { keyContracts } = useContracts()
+  const { activeNetwork } = useNetwork()
   const { solaceCoverProduct } = useMemo(() => keyContracts, [keyContracts])
   const { getPolicyChainInfo } = useFunctions()
   const { coverableNetworks, coverableChains } = useSupportedChains()
@@ -371,7 +372,11 @@ export const useGetPolicyChains = (policyId: number | undefined) => {
   }
 
   const getPolicyChains = async (_policyId: number, shouldUpdateBoxchecked: boolean) => {
-    if (coverableNetworks.length == 0 || coverableChains.length == 0) return
+    if (
+      activeNetwork.config.keyContracts.solaceCoverProduct.additionalInfo == 'v2' &&
+      (coverableNetworks.length == 0 || coverableChains.length == 0)
+    )
+      return
     const _policyChains = await getPolicyChainInfo(BigNumber.from(_policyId))
 
     /* 

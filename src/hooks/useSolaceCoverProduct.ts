@@ -500,13 +500,13 @@ export const useSupportedChains = () => {
   const { getNumSupportedChains, getChain } = useFunctions()
   const { keyContracts } = useContracts()
   const { solaceCoverProduct } = useMemo(() => keyContracts, [keyContracts])
-  const { networks } = useNetwork()
+  const { activeNetwork, networks } = useNetwork()
   const [coverableNetworks, setCoverableNetworks] = useState<NetworkConfig[]>([])
   const [coverableChains, setCoverableChains] = useState<BigNumber[]>([])
 
   useEffect(() => {
     const getSupportedChains = async () => {
-      if (!solaceCoverProduct) return
+      if (!solaceCoverProduct || activeNetwork.config.keyContracts.solaceCoverProduct.additionalInfo != 'v2') return
       const numChains = await getNumSupportedChains()
       const numChainsIndices = rangeFrom0(numChains.toNumber())
       const chains: BigNumber[] = []
