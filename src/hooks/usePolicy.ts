@@ -371,12 +371,11 @@ export const useGetPolicyChains = (policyId: number | undefined) => {
     })
   }
 
-  const getPolicyChains = async (_policyId: number, shouldUpdateBoxchecked: boolean) => {
-    if (
-      activeNetwork.config.keyContracts.solaceCoverProduct.additionalInfo == 'v2' &&
-      (coverableNetworks.length == 0 || coverableChains.length == 0)
-    )
+  const getPolicyChains = async (_policyId: number, _coverableChains: BigNumber[], shouldUpdateBoxchecked: boolean) => {
+    if (activeNetwork.config.keyContracts.solaceCoverProduct.additionalInfo == 'v2' && _coverableChains.length == 0) {
+      console.log('is v2 but no general chain info returned')
       return
+    }
     const _policyChains = await getPolicyChainInfo(BigNumber.from(_policyId))
 
     /* 
@@ -386,11 +385,11 @@ export const useGetPolicyChains = (policyId: number | undefined) => {
     if (_policyChains.length > 0) {
       setPortfolioChains(_policyChains.map((c) => c.toNumber()))
     } else {
-      setPortfolioChains(coverableChains.map((c) => c.toNumber()))
+      setPortfolioChains(_coverableChains.map((c) => c.toNumber()))
     }
 
     const numPolicyChains = _policyChains.map((c) => c.toNumber())
-    const newArr = coverableChains.map((c) => {
+    const newArr = _coverableChains.map((c) => {
       if (numPolicyChains.includes(c.toNumber())) return { id: c, checked: true }
       return { id: c, checked: false }
     })
@@ -405,9 +404,11 @@ export const useGetPolicyChains = (policyId: number | undefined) => {
 
   // Should run based on whether the user has a policy or not
   useEffect(() => {
-    if (policyId == undefined) return
-    getPolicyChains(policyId, true)
-  }, [policyId, coverableNetworks, coverableChains])
+    if (policyId == undefined) {
+      return
+    }
+    getPolicyChains(policyId, coverableChains, true)
+  }, [policyId, coverableChains.length])
 
   /* 
     Should run when the user makes a change with their policy
@@ -416,12 +417,12 @@ export const useGetPolicyChains = (policyId: number | undefined) => {
   useEffect(() => {
     if (!solaceCoverProduct || policyId == undefined) return
     solaceCoverProduct.on('PolicyUpdated', async (id) => {
-      if (BigNumber.from(policyId).eq(id)) getPolicyChains(id, false)
+      if (BigNumber.from(policyId).eq(id)) getPolicyChains(id, coverableChains, false)
     })
     return () => {
       solaceCoverProduct.removeAllListeners()
     }
-  }, [solaceCoverProduct, policyId])
+  }, [solaceCoverProduct, policyId, coverableChains])
 
   return {
     portfolioChains,

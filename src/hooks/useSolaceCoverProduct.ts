@@ -374,7 +374,11 @@ export const usePortfolio = (
       const useV2 = activeNetwork.config.keyContracts.solaceCoverProduct.additionalInfo == 'v2'
       if (!account || (useV2 && chains.length == 0) || chainsLoading) return
       const balances = await getSolaceRiskBalances(account, useV2 ? chains : [1])
-      if (!balances) return
+      if (!balances) {
+        console.log('balances do not exist from risk api')
+        setLoading(false)
+        return
+      }
       const scores = await getSolaceRiskScores(account, balances)
       if (scores) setScore(scores)
       setLoading(false)
