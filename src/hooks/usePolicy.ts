@@ -400,7 +400,7 @@ export const useGetPolicyChains = (policyId: number | undefined) => {
 
   // Should run based on whether the user has a policy or not
   useEffect(() => {
-    if (!policyId) return
+    if (policyId == undefined) return
     getPolicyChains(policyId, true)
   }, [policyId, coverableNetworks, coverableChains])
 
@@ -409,7 +409,7 @@ export const useGetPolicyChains = (policyId: number | undefined) => {
     that should be reflected on the display
   */
   useEffect(() => {
-    if (!solaceCoverProduct || !policyId) return
+    if (!solaceCoverProduct || policyId == undefined) return
     solaceCoverProduct.on('PolicyUpdated', async (id) => {
       if (BigNumber.from(policyId).eq(id)) getPolicyChains(id, false)
     })
