@@ -67,8 +67,8 @@ export const CapitalProviderPool: React.FC<CapitalProviderPoolProps> = ({ openMo
 
   return (
     <Content>
-      <Text bold t1 mb={0} info>
-        Options Farming Pool
+      <Text bold t1 mb={0} warning>
+        V1 Options Farming Pool
       </Text>
       <Text t4 pt={10} pb={10}>
         This pool rewards coverage underwriters with $SOLACE token call options.

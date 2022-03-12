@@ -35,6 +35,7 @@ import { Multiselect } from '@styled-icons/fluentui-system-regular/Multiselect'
 import { ArrowIosForwardOutline } from '@styled-icons/evaicons-outline/ArrowIosForwardOutline'
 import { ArrowIosBackOutline } from '@styled-icons/evaicons-outline/ArrowIosBackOutline'
 import { Tractor } from '@styled-icons/fa-solid/Tractor'
+import { FolderHistory } from '@styled-icons/remix-fill/FolderHistory'
 
 export const StyledIconCss = css`
   margin: auto;
@@ -138,3 +139,5 @@ export const StyledArrowIosForwardOutline = styled(ArrowIosForwardOutline)``
 export const StyledArrowIosBackOutline = styled(ArrowIosBackOutline)``
 
 export const StyledTractor = styled(Tractor)``
+
+export const StyledFolderHistory = styled(FolderHistory)``

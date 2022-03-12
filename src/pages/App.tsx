@@ -38,7 +38,7 @@ import {
   StyledCoinStack,
   StyledCommunity,
   StyledReceiptMoney,
-  StyledFileShield,
+  StyledFolderHistory,
   StyledTractor,
 } from '../components/atoms/Icon'
 
@@ -51,6 +51,7 @@ import { useWindowDimensions } from '../hooks/internal/useWindowDimensions'
 import { AnalyticsReporter } from '../analytics'
 import Soteria from './soteria'
 import { PageInfo } from '../constants/types'
+import Archive from './archive'
 
 export default function App(): any {
   const location = useLocation()
@@ -98,6 +99,12 @@ export default function App(): any {
       to: '/govern',
       icon: <StyledCommunity size={30} />,
       component: Govern,
+    },
+    {
+      name: 'Archive',
+      to: '/archive',
+      icon: <StyledFolderHistory size={30} />,
+      component: Archive,
     },
   ]
 
