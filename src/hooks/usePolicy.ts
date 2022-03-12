@@ -390,7 +390,7 @@ export const useGetPolicyChains = (policyId: number | undefined) => {
 
     const numPolicyChains = _policyChains.map((c) => c.toNumber())
     const newArr = _coverableChains.map((c) => {
-      if (numPolicyChains.includes(c.toNumber())) return { id: c, checked: true }
+      if (numPolicyChains.includes(c.toNumber()) || numPolicyChains.length == 0) return { id: c, checked: true }
       return { id: c, checked: false }
     })
     setPolicyChainsChecked(newArr)
