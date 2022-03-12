@@ -9,15 +9,15 @@ import {
   PositionsCacheValue,
   SupportedProduct,
   Token,
-} from '../constants/types'
-import { useWallet } from '../context/WalletManager'
-import { useNetwork } from '../context/NetworkManager'
+} from '../../constants/types'
+import { useWallet } from '../../context/WalletManager'
+import { useNetwork } from '../../context/NetworkManager'
 import { useSessionStorage } from 'react-use-storage'
-import { NetworkCache } from '../constants/types'
-import { PositionType } from '../constants/enums'
-import { getTroveContract } from '../products/liquity/positionGetter/getPositions'
-import { ZERO } from '../constants'
-import { fetchTransferEventsOfUser } from '../utils/explorer'
+import { NetworkCache } from '../../constants/types'
+import { PositionType } from '../../constants/enums'
+import { getTroveContract } from '../../products/liquity/positionGetter/getPositions'
+import { ZERO } from '../../constants'
+import { fetchTransferEventsOfUser } from '../../utils/explorer'
 
 export const useCachePositions = () => {
   const { library, account } = useWallet()

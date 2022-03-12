@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { Content, Flex, GrayBgDiv, HeroContainer } from '../../components/atoms/Layout'
 import { Table, TableHead, TableHeader, TableBody, TableRow, TableData } from '../../components/atoms/Table'
-import { useWindowDimensions } from '../../hooks/useWindowDimensions'
+import { useWindowDimensions } from '../../hooks/internal/useWindowDimensions'
 import { useGeneral } from '../../context/GeneralManager'
 import { SolaceRiskProtocol, SolaceRiskScore } from '../../constants/types'
 import { capitalizeFirstLetter } from '../../utils/formatting'

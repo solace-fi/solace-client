@@ -1,9 +1,9 @@
-import { useWallet } from '../context/WalletManager'
+import { useWallet } from '../../context/WalletManager'
 import { useMemo } from 'react'
-import { getContract, isAddress } from '../utils'
+import { getContract, isAddress } from '../../utils'
 import { Contract } from '@ethersproject/contracts'
-import { BondTellerContract, ContractSources, ProductContract, SupportedProduct } from '../constants/types'
-import { useNetwork } from '../context/NetworkManager'
+import { BondTellerContract, ContractSources, ProductContract, SupportedProduct } from '../../constants/types'
+import { useNetwork } from '../../context/NetworkManager'
 
 export function useGetContract(source: ContractSources | undefined, hasSigner = true): Contract | null {
   const { library, account } = useWallet()

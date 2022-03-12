@@ -41,12 +41,12 @@ import { Erc721InputPanel, PoolModalProps } from './PoolModalRouter'
 import { SourceContract } from './SourceContract'
 
 /* import hooks */
-import { useUserStakedValue } from '../../hooks/useFarm'
-import { useTransactionExecution } from '../../hooks/useInputAmount'
+import { useUserStakedValue } from '../../hooks/farm/useFarm'
+import { useTransactionExecution } from '../../hooks/internal/useInputAmount'
 
 /* import utils */
 import { getUnit, truncateValue } from '../../utils/formatting'
-import { useGetFunctionGas } from '../../hooks/useGas'
+import { useGetFunctionGas } from '../../hooks/provider/useGas'
 
 interface Erc721PoolModalGenericProps {
   farmContract: Contract | null | undefined

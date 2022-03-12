@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
-import { FunctionName } from '../constants/enums'
-import { FunctionGasLimits } from '../constants/mappings/gasMapping'
-import { NetworkConfig } from '../constants/types'
+import { FunctionName } from '../../constants/enums'
+import { FunctionGasLimits } from '../../constants/mappings/gasMapping'
+import { NetworkConfig } from '../../constants/types'
 
 /*
 returns FunctionNames for BOND_DEPOSIT, BOND_DEPOSIT_W, and the functionGasLimits for those two functions

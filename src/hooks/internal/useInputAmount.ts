@@ -3,17 +3,17 @@ import { BigNumber } from 'ethers'
 import { formatUnits, parseUnits } from '@ethersproject/units'
 import { TransactionReceipt, TransactionResponse } from '@ethersproject/providers'
 
-import { useNotifications } from '../context/NotificationsManager'
-import { useCachedData } from '../context/CachedDataManager'
-import { useNetwork } from '../context/NetworkManager'
+import { useNotifications } from '../../context/NotificationsManager'
+import { useCachedData } from '../../context/CachedDataManager'
+import { useNetwork } from '../../context/NetworkManager'
 
-import { POW_NINE, ZERO } from '../constants'
-import { FunctionName, TransactionCondition } from '../constants/enums'
-import { GasFeeOption, LocalTx } from '../constants/types'
+import { POW_NINE, ZERO } from '../../constants'
+import { FunctionName, TransactionCondition } from '../../constants/enums'
+import { GasFeeOption, LocalTx } from '../../constants/types'
 
-import { useGetFunctionGas } from './useGas'
+import { useGetFunctionGas } from '../provider/useGas'
 
-import { fixed, filterAmount, formatAmount } from '../utils/formatting'
+import { fixed, filterAmount, formatAmount } from '../../utils/formatting'
 
 export const useTransactionExecution = () => {
   const { addLocalTransactions, reload } = useCachedData()

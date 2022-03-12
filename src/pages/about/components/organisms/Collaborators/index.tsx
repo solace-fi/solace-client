@@ -1,7 +1,7 @@
 import React, { Ref, RefObject, useEffect, useMemo } from 'react'
 import { Flex, Grid } from '../../../../../components/atoms/Layout'
 import { Text } from '../../../../../components/atoms/Typography'
-import { useWindowDimensions } from '../../../../../hooks/useWindowDimensions'
+import { useWindowDimensions } from '../../../../../hooks/internal/useWindowDimensions'
 import { SectionTitle } from '../../../../../components/atoms/Typography'
 import collectiveInvestors from '../../../../../resources/collaborators/assets/lists/collectiveInvestors'
 // import individualInvestors from '../../../../../resources/collaborators/assets/lists/individualInvestors'

@@ -2,9 +2,9 @@ import useDebounce from '@rooks/use-debounce'
 import { BigNumber, Contract } from 'ethers'
 import { formatUnits } from '@ethersproject/units'
 import { useEffect, useMemo, useState } from 'react'
-import { NUM_BLOCKS_PER_DAY, ZERO } from '../constants'
-import { useContracts } from '../context/ContractsManager'
-import { useWallet } from '../context/WalletManager'
+import { NUM_BLOCKS_PER_DAY, ZERO } from '../../constants'
+import { useContracts } from '../../context/ContractsManager'
+import { useWallet } from '../../context/WalletManager'
 import {
   LiquityPosition,
   NetworkConfig,
@@ -13,16 +13,16 @@ import {
   StringToStringMapping,
   SupportedProduct,
   Token,
-} from '../constants/types'
-import { useCachedData } from '../context/CachedDataManager'
-import { useNetwork } from '../context/NetworkManager'
-import { PositionType } from '../constants/enums'
-import { useProvider } from '../context/ProviderManager'
+} from '../../constants/types'
+import { useCachedData } from '../../context/CachedDataManager'
+import { useNetwork } from '../../context/NetworkManager'
+import { PositionType } from '../../constants/enums'
+import { useProvider } from '../../context/ProviderManager'
 import { JsonRpcProvider } from '@ethersproject/providers'
-import { isAddress } from '../utils'
-import { numberAbbreviate, truncateValue } from '../utils/formatting'
+import { isAddress } from '../../utils'
+import { numberAbbreviate, truncateValue } from '../../utils/formatting'
 import { useFunctions, useSupportedChains } from './useSolaceCoverProduct'
-import { CheckboxData } from '../pages/stake/types/LockCheckbox'
+import { CheckboxData } from '../../pages/stake/types/LockCheckbox'
 
 export const useGetPolicyPrice = (policyId: number): string => {
   const [policyPrice, setPolicyPrice] = useState<string>('')

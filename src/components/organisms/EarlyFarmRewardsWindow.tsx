@@ -53,10 +53,10 @@ import { Loader } from '../atoms/Loader'
 import { SourceContract } from './SourceContract'
 
 /* import hooks */
-import { useInputAmount, useTransactionExecution } from '../../hooks/useInputAmount'
-import { useTokenAllowance } from '../../hooks/useToken'
-import { useEarlyFarmRewards } from '../../hooks/useFarm'
-import { useGetFunctionGas } from '../../hooks/useGas'
+import { useInputAmount, useTransactionExecution } from '../../hooks/internal/useInputAmount'
+import { useTokenAllowance } from '../../hooks/contract/useToken'
+import { useEarlyFarmRewards } from '../../hooks/farm/useFarm'
+import { useGetFunctionGas } from '../../hooks/provider/useGas'
 
 /* import utils */
 import { getDateStringWithMonthName } from '../../utils/time'

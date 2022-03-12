@@ -43,16 +43,15 @@ import { Card, CardContainer } from '../atoms/Card'
 import { HyperLink } from '../atoms/Link'
 
 /* import hooks */
-import { useSolaceBalance, useCrossChainUnderwritingPoolBalance } from '../../hooks/useBalance'
-import { usePolicyGetter } from '../../hooks/usePolicyGetter'
-import { useWindowDimensions } from '../../hooks/useWindowDimensions'
-import { useUserLockData } from '../../hooks/useXSLocker'
-import { useStakingRewards } from '../../hooks/useStakingRewards'
-import { useReadToken } from '../../hooks/useToken'
+import { useSolaceBalance, useCrossChainUnderwritingPoolBalance } from '../../hooks/balance/useBalance'
+import { useWindowDimensions } from '../../hooks/internal/useWindowDimensions'
+import { useUserLockData } from '../../hooks/stake/useXSLocker'
+import { useStakingRewards } from '../../hooks/stake/useStakingRewards'
+import { useReadToken } from '../../hooks/contract/useToken'
 
 /* import utils */
 import { truncateValue } from '../../utils/formatting'
-import { useTotalActivePolicies } from '../../hooks/usePolicy'
+import { useTotalActivePolicies } from '../../hooks/policy/usePolicy'
 
 export const Statistics: React.FC = () => {
   /*************************************************************************************
@@ -61,19 +60,16 @@ export const Statistics: React.FC = () => {
 
   *************************************************************************************/
   const { account, initialized } = useWallet()
-  const { activeNetwork, currencyDecimals, chainId, networks } = useNetwork()
+  const { activeNetwork, networks } = useNetwork()
   const { keyContracts } = useContracts()
   const { latestBlock } = useProvider()
   const { solace } = useMemo(() => keyContracts, [keyContracts])
   const solaceBalance = useSolaceBalance()
   const { tokenPriceMapping } = useCachedData()
   const readSolaceToken = useReadToken(solace)
-  // const { allPolicies } = usePolicyGetter(true)
   const { getUserLocks } = useUserLockData()
   const { width } = useWindowDimensions()
   const { getGlobalLockStats } = useStakingRewards()
-  // const [totalActiveCoverAmount, setTotalActiveCoverAmount] = useState<string>('-')
-  // const [totalActivePolicies, setTotalActivePolicies] = useState<string>('-')
   const { totalActivePolicies, totalActiveCoverLimit } = useTotalActivePolicies()
   const [pairPrice, setPairPrice] = useState<string>('-')
   const { underwritingPoolBalance } = useCrossChainUnderwritingPoolBalance()

@@ -44,12 +44,12 @@ import { Text } from '../../atoms/Typography'
 import { SourceContract } from '../SourceContract'
 
 /* import hooks */
-import { useUserStakedValue } from '../../../hooks/useFarm'
-import { useScpBalance } from '../../../hooks/useBalance'
-import { useTokenAllowance } from '../../../hooks/useToken'
-import { useCpFarm } from '../../../hooks/useCpFarm'
-import { useVault } from '../../../hooks/useVault'
-import { useInputAmount, useTransactionExecution } from '../../../hooks/useInputAmount'
+import { useUserStakedValue } from '../../../hooks/farm/useFarm'
+import { useScpBalance } from '../../../hooks/balance/useBalance'
+import { useTokenAllowance } from '../../../hooks/contract/useToken'
+import { useCpFarm } from '../../../hooks/_legacy/useCpFarm'
+import { useVault } from '../../../hooks/_legacy/useVault'
+import { useInputAmount, useTransactionExecution } from '../../../hooks/internal/useInputAmount'
 
 /* import utils */
 import { getUnit, truncateValue } from '../../../utils/formatting'

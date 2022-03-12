@@ -1,10 +1,10 @@
 import { BigNumber } from 'ethers'
-import { useContracts } from '../context/ContractsManager'
-import { FunctionName, TransactionCondition } from '../constants/enums'
-import { LocalTx, TxResult } from '../constants/types'
-import { FunctionGasLimits } from '../constants/mappings/gasMapping'
+import { useContracts } from '../../context/ContractsManager'
+import { FunctionName, TransactionCondition } from '../../constants/enums'
+import { LocalTx, TxResult } from '../../constants/types'
+import { FunctionGasLimits } from '../../constants/mappings/gasMapping'
 import { useMemo } from 'react'
-import { useGetFunctionGas } from './useGas'
+import { useGetFunctionGas } from '../provider/useGas'
 
 export const useCpFarm = () => {
   const { keyContracts } = useContracts()

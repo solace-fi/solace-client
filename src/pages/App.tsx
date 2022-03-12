@@ -46,7 +46,7 @@ import {
 import { BKPT_5 } from '../constants'
 
 /* import hooks */
-import { useWindowDimensions } from '../hooks/useWindowDimensions'
+import { useWindowDimensions } from '../hooks/internal/useWindowDimensions'
 
 import { AnalyticsReporter } from '../analytics'
 import Soteria from './soteria'

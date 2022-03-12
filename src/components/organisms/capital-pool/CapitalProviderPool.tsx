@@ -36,9 +36,9 @@ import { BKPT_4, BKPT_6 } from '../../../constants'
 import { FunctionName } from '../../../constants/enums'
 
 /* import hooks */
-import { useRewardsPerDay, useUserPendingRewards, useUserRewardsPerDay } from '../../../hooks/useRewards'
-import { useUserStakedValue, usePoolStakedValue } from '../../../hooks/useFarm'
-import { useWindowDimensions } from '../../../hooks/useWindowDimensions'
+import { useRewardsPerDay, useUserPendingRewards, useUserRewardsPerDay } from '../../../hooks/_legacy/useRewards'
+import { useUserStakedValue, usePoolStakedValue } from '../../../hooks/farm/useFarm'
+import { useWindowDimensions } from '../../../hooks/internal/useWindowDimensions'
 
 /* import utils */
 import { truncateValue } from '../../../utils/formatting'

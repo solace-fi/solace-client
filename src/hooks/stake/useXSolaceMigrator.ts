@@ -1,14 +1,14 @@
 import { useMemo } from 'react'
-import { useContracts } from '../context/ContractsManager'
-import { useWallet } from '../context/WalletManager'
-import { useNetwork } from '../context/NetworkManager'
-import { LocalTx } from '../constants/types'
+import { useContracts } from '../../context/ContractsManager'
+import { useWallet } from '../../context/WalletManager'
+import { useNetwork } from '../../context/NetworkManager'
+import { LocalTx } from '../../constants/types'
 import { BigNumber } from 'ethers'
-import { getPermitErc20Signature } from '../utils/signature'
-import { DEADLINE } from '../constants'
-import { FunctionName, TransactionCondition } from '../constants/enums'
-import { FunctionGasLimits } from '../constants/mappings/gasMapping'
-import { useGetFunctionGas } from './useGas'
+import { getPermitErc20Signature } from '../../utils/signature'
+import { DEADLINE } from '../../constants'
+import { FunctionName, TransactionCondition } from '../../constants/enums'
+import { FunctionGasLimits } from '../../constants/mappings/gasMapping'
+import { useGetFunctionGas } from '../provider/useGas'
 
 export const useXSolaceMigrator = () => {
   const { keyContracts } = useContracts()

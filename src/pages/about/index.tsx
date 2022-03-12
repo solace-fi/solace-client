@@ -24,7 +24,7 @@ import { Flex } from '../../components/atoms/Layout'
 /* import resources */
 
 /* import hooks */
-import { useWindowDimensions } from '../../hooks/useWindowDimensions'
+import { useWindowDimensions } from '../../hooks/internal/useWindowDimensions'
 import { ScrollDot } from '../../components/atoms/Icon/ScrollDot'
 import { useHomepageSections } from './utils/useHomepageSections'
 import DesktopScrollableArea from './components/organisms/DesktopScrollableArea'

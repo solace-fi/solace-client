@@ -20,7 +20,7 @@ import { StyledCheckmark, StyledCopy } from '../atoms/Icon'
 import { GeneralElementProps } from '../generalInterfaces'
 
 /* import hooks */
-import useCopyClipboard from '../../hooks/useCopyToClipboard'
+import useCopyClipboard from '../../hooks/internal/useCopyToClipboard'
 
 interface CopyProps {
   toCopy: string

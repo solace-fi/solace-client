@@ -32,8 +32,8 @@ import { Flex } from '../../../atoms/Layout'
 import { Text } from '../../../atoms/Typography'
 
 /* import hooks */
-import { useReadToken } from '../../../../hooks/useToken'
-import { useTellerConfig } from '../../../../hooks/useDetectTeller'
+import { useReadToken } from '../../../../hooks/contract/useToken'
+import { useTellerConfig } from '../../../../hooks/bond/useDetectTeller'
 
 interface PrivateBondInfoV2Props {
   func: FunctionName

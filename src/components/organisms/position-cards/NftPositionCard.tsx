@@ -27,7 +27,7 @@ import { PositionCardButton, PositionCardText, PositionCardName } from '../../at
 import { Button } from '../../atoms/Button'
 
 /* import hooks */
-import { useWindowDimensions } from '../../../hooks/useWindowDimensions'
+import { useWindowDimensions } from '../../../hooks/internal/useWindowDimensions'
 
 /* import utils */
 import { trim0x } from '../../../utils/formatting'

@@ -43,8 +43,8 @@ import { Scrollable, Flex } from '../../components/atoms/Layout'
 import { Text } from '../../components/atoms/Typography'
 
 /* import hooks */
-import { useGetAvailableCoverages, useGetYearlyCosts } from '../../hooks/usePolicy'
-import { useWindowDimensions } from '../../hooks/useWindowDimensions'
+import { useGetAvailableCoverages, useGetYearlyCosts } from '../../hooks/policy/usePolicy'
+import { useWindowDimensions } from '../../hooks/internal/useWindowDimensions'
 
 /* import utils */
 import { fixed, truncateValue } from '../../utils/formatting'

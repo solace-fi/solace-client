@@ -2,17 +2,17 @@ import React, { useMemo, useContext, createContext, useEffect, useState, useCall
 import { useLocalStorage } from 'react-use-storage'
 import { useWallet } from './WalletManager'
 
-import { LocalTx, Policy, GasFeeListState, TokenToPriceMapping } from '../constants/types'
-import { usePolicyGetter } from '../hooks/usePolicyGetter'
-import { useReload } from '../hooks/useReload'
+import { LocalTx, Policy, TokenToPriceMapping } from '../constants/types'
+import { usePolicyGetter } from '../hooks/_legacy/usePolicyGetter'
+import { useReload } from '../hooks/internal/useReload'
 
-import { useFetchGasPrice } from '../hooks/useGas'
+import { useFetchGasPrice } from '../hooks/provider/useGas'
 
 import { useNetwork } from './NetworkManager'
 import { PolicyState, SystemNotice } from '../constants/enums'
 import { useGeneral } from './GeneralManager'
 import { AccountModal } from '../components/organisms/AccountModal'
-import { useGetCrossTokenPricesFromCoingecko } from '../hooks/usePrice'
+import { useGetCrossTokenPricesFromCoingecko } from '../hooks/api/usePrice'
 
 /*
 

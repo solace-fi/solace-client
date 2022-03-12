@@ -1,13 +1,13 @@
 import { useState, useEffect, useMemo } from 'react'
-import { useContracts } from '../context/ContractsManager'
-import { useWallet } from '../context/WalletManager'
-import { usePoolStakedValue, useUserStakedValue } from './useFarm'
+import { useContracts } from '../../context/ContractsManager'
+import { useWallet } from '../../context/WalletManager'
+import { usePoolStakedValue, useUserStakedValue } from '../farm/useFarm'
 import { formatUnits, parseUnits } from '@ethersproject/units'
-import { NUM_SECONDS_PER_DAY, ZERO } from '../constants'
+import { NUM_SECONDS_PER_DAY, ZERO } from '../../constants'
 import { Contract } from '@ethersproject/contracts'
-import { floatUnits } from '../utils/formatting'
-import { useNetwork } from '../context/NetworkManager'
-import { useProvider } from '../context/ProviderManager'
+import { floatUnits } from '../../utils/formatting'
+import { useNetwork } from '../../context/NetworkManager'
+import { useProvider } from '../../context/ProviderManager'
 
 const useFarmControllerValues = (farmId: number) => {
   const { keyContracts } = useContracts()

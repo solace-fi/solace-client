@@ -43,9 +43,9 @@ import { ClaimDetails, LocalTx } from '../../constants/types'
 import { FunctionGasLimits } from '../../constants/mappings/gasMapping'
 
 /* import hooks */
-import { useGetClaimsDetails } from '../../hooks/useClaimsEscrow'
-import { useWindowDimensions } from '../../hooks/useWindowDimensions'
-import { useGetFunctionGas } from '../../hooks/useGas'
+import { useGetClaimsDetails } from '../../hooks/_legacy/useClaimsEscrow'
+import { useWindowDimensions } from '../../hooks/internal/useWindowDimensions'
+import { useGetFunctionGas } from '../../hooks/provider/useGas'
 
 /* import utils */
 import { accurateMultiply, truncateValue } from '../../utils/formatting'

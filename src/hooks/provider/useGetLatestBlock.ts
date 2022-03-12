@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { Block } from '@ethersproject/abstract-provider'
-import { useWallet } from '../context/WalletManager'
+import { useWallet } from '../../context/WalletManager'
 
 export const useGetLatestBlock = (): Block | undefined => {
   const { library } = useWallet()

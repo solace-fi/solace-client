@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
-import { BKPT_5 } from '../constants'
-import { WindowDimensions } from '../constants/types'
+import { BKPT_5 } from '../../constants'
+import { WindowDimensions } from '../../constants/types'
 
 function getWindowDimensions() {
   const { innerWidth: width, innerHeight: height } = window

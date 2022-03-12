@@ -48,7 +48,7 @@ import { LiquityPosition, Policy, Position, SupportedProduct, Token } from '../.
 import { BKPT_3 } from '../../constants'
 
 /* import hooks */
-import { useWindowDimensions } from '../../hooks/useWindowDimensions'
+import { useWindowDimensions } from '../../hooks/internal/useWindowDimensions'
 
 /* import utils */
 import { userHasActiveProductPosition } from '../../utils/policy'

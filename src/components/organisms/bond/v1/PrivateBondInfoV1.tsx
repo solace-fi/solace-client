@@ -33,7 +33,7 @@ import { Text } from '../../../atoms/Typography'
 import { SmallBox } from '../../../atoms/Box'
 
 /* import hooks */
-import { useReadToken } from '../../../../hooks/useToken'
+import { useReadToken } from '../../../../hooks/contract/useToken'
 
 interface PrivateBondInfoV1Props {
   func: FunctionName

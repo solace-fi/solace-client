@@ -6,7 +6,7 @@ import {
   useGetBondTellerContracts,
   useGetContract,
   useGetProductContracts,
-} from '../hooks/useContract'
+} from '../hooks/contract/useContract'
 import { BondTellerContract, ContractSources, ProductContract } from '../constants/types'
 import { useNetwork } from './NetworkManager'
 

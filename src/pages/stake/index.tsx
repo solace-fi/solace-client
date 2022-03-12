@@ -58,14 +58,14 @@ import { Accordion } from '../../components/atoms/Accordion'
 import { GrayBox } from '../../components/molecules/GrayBox'
 
 /* import hooks */
-import { useXSolaceV1Balance } from '../../hooks/useBalance'
-import { useXSolaceV1 } from '../../hooks/useXSolaceV1'
-import { useInputAmount, useTransactionExecution } from '../../hooks/useInputAmount'
-import { useReadToken } from '../../hooks/useToken'
-import { useUserLockData, useXSLocker } from '../../hooks/useXSLocker'
-import { useXSolaceMigrator } from '../../hooks/useXSolaceMigrator'
-import { useWindowDimensions } from '../../hooks/useWindowDimensions'
-import { useProjectedBenefits, useStakingRewards } from '../../hooks/useStakingRewards'
+import { useXSolaceV1Balance } from '../../hooks/balance/useBalance'
+import { useXSolaceV1 } from '../../hooks/_legacy/useXSolaceV1'
+import { useInputAmount, useTransactionExecution } from '../../hooks/internal/useInputAmount'
+import { useReadToken } from '../../hooks/contract/useToken'
+import { useUserLockData, useXSLocker } from '../../hooks/stake/useXSLocker'
+import { useXSolaceMigrator } from '../../hooks/stake/useXSolaceMigrator'
+import { useWindowDimensions } from '../../hooks/internal/useWindowDimensions'
+import { useProjectedBenefits, useStakingRewards } from '../../hooks/stake/useStakingRewards'
 
 /* import utils */
 import { accurateMultiply, formatAmount, truncateValue } from '../../utils/formatting'

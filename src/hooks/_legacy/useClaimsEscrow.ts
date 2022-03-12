@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useState } from 'react'
 import { BigNumber } from 'ethers'
-import { useContracts } from '../context/ContractsManager'
-import { ClaimDetails } from '../constants/types'
-import { useWallet } from '../context/WalletManager'
-import { useProvider } from '../context/ProviderManager'
+import { useContracts } from '../../context/ContractsManager'
+import { ClaimDetails } from '../../constants/types'
+import { useWallet } from '../../context/WalletManager'
+import { useProvider } from '../../context/ProviderManager'
 
 export const useGetClaimsDetails = (): ClaimDetails[] => {
   const { account } = useWallet()

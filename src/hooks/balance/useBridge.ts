@@ -1,13 +1,13 @@
 import { TransactionResponse } from '@ethersproject/providers'
 import { BigNumber } from 'ethers'
 import { useMemo } from 'react'
-import { GAS_LIMIT, ZERO } from '../constants'
-import { FunctionName, TransactionCondition } from '../constants/enums'
-import { LocalTx } from '../constants/types'
-import { useNetwork } from '../context/NetworkManager'
-import { useWallet } from '../context/WalletManager'
-import { useGetContract } from './useContract'
-import { useGetFunctionGas } from './useGas'
+import { GAS_LIMIT, ZERO } from '../../constants'
+import { FunctionName, TransactionCondition } from '../../constants/enums'
+import { LocalTx } from '../../constants/types'
+import { useNetwork } from '../../context/NetworkManager'
+import { useWallet } from '../../context/WalletManager'
+import { useGetContract } from '../contract/useContract'
+import { useGetFunctionGas } from '../provider/useGas'
 
 export const useBridge = () => {
   const { activeNetwork } = useNetwork()

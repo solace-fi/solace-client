@@ -1,14 +1,14 @@
 import { Contract } from '@ethersproject/contracts'
 import { formatUnits } from '@ethersproject/units'
 import { useState, useEffect, useMemo } from 'react'
-import { useCachedData } from '../context/CachedDataManager'
-import { useContracts } from '../context/ContractsManager'
-import { useNetwork } from '../context/NetworkManager'
-import { useProvider } from '../context/ProviderManager'
-import { useWallet } from '../context/WalletManager'
+import { useCachedData } from '../../context/CachedDataManager'
+import { useContracts } from '../../context/ContractsManager'
+import { useNetwork } from '../../context/NetworkManager'
+import { useProvider } from '../../context/ProviderManager'
+import { useWallet } from '../../context/WalletManager'
 import { BigNumber } from 'ethers'
-import { ZERO } from '../constants'
-import { earlyFarmRewards } from '../constants/mappings/earlyFarmRewards'
+import { ZERO } from '../../constants'
+import { earlyFarmRewards } from '../../constants/mappings/earlyFarmRewards'
 
 export const useUserStakedValue = (farm: Contract | null | undefined): string => {
   const { account } = useWallet()

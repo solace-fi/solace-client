@@ -1,7 +1,7 @@
 import io from 'socket.io-client'
 import { useEffect, useState } from 'react'
-import { useWallet } from '../context/WalletManager'
-import { ZerionPosition } from '../constants/types'
+import { useWallet } from '../../context/WalletManager'
+import { ZerionPosition } from '../../constants/types'
 
 export const useZerion = () => {
   const { account } = useWallet()

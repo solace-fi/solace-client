@@ -1,13 +1,13 @@
-import { useWallet } from '../context/WalletManager'
-import { PolicyState } from '../constants/enums'
-import { Policy, SupportedProduct, PositionNamesCacheValue } from '../constants/types'
+import { useWallet } from '../../context/WalletManager'
+import { PolicyState } from '../../constants/enums'
+import { Policy, SupportedProduct, PositionNamesCacheValue } from '../../constants/types'
 import { BigNumber } from 'ethers'
-import { useContracts } from '../context/ContractsManager'
+import { useContracts } from '../../context/ContractsManager'
 import { useState, useEffect, useRef, useMemo } from 'react'
-import { useNetwork } from '../context/NetworkManager'
-import { getClaimAssessment } from '../utils/api'
-import { trim0x } from '../utils/formatting'
-import { useProvider } from '../context/ProviderManager'
+import { useNetwork } from '../../context/NetworkManager'
+import { getClaimAssessment } from '../../utils/api'
+import { trim0x } from '../../utils/formatting'
+import { useProvider } from '../../context/ProviderManager'
 
 export const usePolicyGetter = (
   getAll: boolean,

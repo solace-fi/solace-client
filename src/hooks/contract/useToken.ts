@@ -1,10 +1,10 @@
-import { useWallet } from '../context/WalletManager'
+import { useWallet } from '../../context/WalletManager'
 import { useCallback, useEffect, useState, useMemo } from 'react'
 import { Contract } from '@ethersproject/contracts'
-import { useCachedData } from '../context/CachedDataManager'
-import { queryName, queryDecimals, querySymbol } from '../utils/contract'
-import { ReadToken } from '../constants/types'
-import { hasApproval } from '../utils'
+import { useCachedData } from '../../context/CachedDataManager'
+import { queryName, queryDecimals, querySymbol } from '../../utils/contract'
+import { ReadToken } from '../../constants/types'
+import { hasApproval } from '../../utils'
 
 export const useTokenAllowance = (
   tokenContract: Contract | null,

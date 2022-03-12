@@ -36,7 +36,7 @@ import { Card, CardContainer } from '../../../atoms/Card'
 import { Scrollable, HeroContainer } from '../../../atoms/Layout'
 
 /* import hooks */
-import { useReadToken } from '../../../../hooks/useToken'
+import { useReadToken } from '../../../../hooks/contract/useToken'
 
 /* import utils */
 import { getTimeFromMillis } from '../../../../utils/time'

@@ -1,23 +1,23 @@
 import { useEffect, useRef, useState } from 'react'
 import { Token, Pair } from '@sushiswap/sdk'
 
-import { useNetwork } from '../context/NetworkManager'
-import { floatUnits } from '../utils/formatting'
-import { queryDecimals } from '../utils/contract'
+import { useNetwork } from '../../context/NetworkManager'
+import { floatUnits } from '../../utils/formatting'
+import { queryDecimals } from '../../utils/contract'
 import { Contract } from '@ethersproject/contracts'
-import { USDC_ADDRESS, WETH9_ADDRESS } from '../constants/mappings/tokenAddressMapping'
-import { ZERO } from '../constants'
-import ierc20Json from '../constants/metadata/IERC20Metadata.json'
+import { USDC_ADDRESS, WETH9_ADDRESS } from '../../constants/mappings/tokenAddressMapping'
+import { ZERO } from '../../constants'
+import ierc20Json from '../../constants/metadata/IERC20Metadata.json'
 import {
   fetchCoingeckoTokenPriceById,
   fetchCoingeckoTokenPricesByAddr,
   getCoingeckoTokenPriceByAddr,
-} from '../utils/api'
-import { withBackoffRetries } from '../utils/time'
-import sushiswapLpAbi from '../constants/metadata/ISushiswapMetadataAlt.json'
-import { Unit } from '../constants/enums'
-import { NetworkConfig, TokenToPriceMapping } from '../constants/types'
-import { useProvider } from '../context/ProviderManager'
+} from '../../utils/api'
+import { withBackoffRetries } from '../../utils/time'
+import sushiswapLpAbi from '../../constants/metadata/ISushiswapMetadataAlt.json'
+import { Unit } from '../../constants/enums'
+import { NetworkConfig, TokenToPriceMapping } from '../../constants/types'
+import { useProvider } from '../../context/ProviderManager'
 import { BigNumber } from 'ethers'
 import { JsonRpcProvider } from '@ethersproject/providers'
 

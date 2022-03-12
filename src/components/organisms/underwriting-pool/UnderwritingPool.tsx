@@ -33,8 +33,8 @@ import { Button, ButtonWrapper } from '../../atoms/Button'
 import { Card } from '../../atoms/Card'
 
 /* import hooks */
-import { useCapitalPoolSize, useUserVaultDetails } from '../../../hooks/useVault'
-import { useWindowDimensions } from '../../../hooks/useWindowDimensions'
+import { useCapitalPoolSize, useUserVaultDetails } from '../../../hooks/_legacy/useVault'
+import { useWindowDimensions } from '../../../hooks/internal/useWindowDimensions'
 
 /* import utils */
 import { truncateValue } from '../../../utils/formatting'

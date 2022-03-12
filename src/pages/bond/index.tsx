@@ -41,9 +41,9 @@ import { TextSpan, Text } from '../../components/atoms/Typography'
 import { StyledInfo } from '../../components/atoms/Icon'
 
 /* import hooks */
-import { useWindowDimensions } from '../../hooks/useWindowDimensions'
-import { useBondTellerDetailsV1 } from '../../hooks/useBondTellerV1'
-import { useBondTellerDetailsV2 } from '../../hooks/useBondTellerV2'
+import { useWindowDimensions } from '../../hooks/internal/useWindowDimensions'
+import { useBondTellerDetailsV1 } from '../../hooks/bond/useBondTellerV1'
+import { useBondTellerDetailsV2 } from '../../hooks/bond/useBondTellerV2'
 
 /* import utils */
 import { truncateValue } from '../../utils/formatting'
@@ -147,45 +147,6 @@ function Bond(): any {
           {' '}
           More information on bonding here.
         </HyperLink>
-        {/* <Content>
-          <Card>
-            <div style={{ gridTemplateColumns: '1fr 0fr 1fr', display: 'grid', position: 'relative' }}>
-              <ModalCell
-                pt={5}
-                pb={10}
-                pl={0}
-                pr={0}
-                onClick={() => {
-                  setShowV1Bonds(true)
-                  setShowV2Bonds(false)
-                }}
-                jc={'center'}
-                style={{ cursor: 'pointer', backgroundColor: showV1Bonds ? 'rgba(0, 0, 0, .05)' : 'inherit' }}
-              >
-                <Text t1 bold info={showV1Bonds}>
-                  V1
-                </Text>
-              </ModalCell>
-              <VerticalSeparator />
-              <ModalCell
-                pt={5}
-                pb={10}
-                pl={0}
-                pr={0}
-                onClick={() => {
-                  setShowV1Bonds(false)
-                  setShowV2Bonds(true)
-                }}
-                jc={'center'}
-                style={{ cursor: 'pointer', backgroundColor: showV2Bonds ? 'rgba(0, 0, 0, .05)' : 'inherit' }}
-              >
-                <Text t1 bold info={showV2Bonds}>
-                  V2
-                </Text>
-              </ModalCell>
-            </div>
-          </Card>
-        </Content> */}
         {canBondV1 || canBondV2 ? (
           <>
             {(btdV1.mounting && showV1Bonds && canBondV1) || (btdV2.mounting && showV2Bonds && canBondV2) ? (
@@ -369,16 +330,6 @@ function Bond(): any {
                                     </Flex>
                                   </TableData>
                                   <TableData>{tellerDetail.tellerData.teller.name}</TableData>
-                                  {/* <TableData>
-                                    <Text fade={tellerDetail.tellerData.usdBondPrice <= 0}>
-                                      {tellerDetail.tellerData.usdBondPrice > 0
-                                        ? `$${truncateValue(tellerDetail.tellerData.usdBondPrice, 4)}`
-                                        : `USD price not found`}
-                                    </Text>
-                                  </TableData> */}
-                                  {/* <TableData>
-                                    <Text>{truncateValue(tellerDetail.tellerData.bondRoi, 2, false)}%</Text>
-                                  </TableData> */}
                                   <TableData textAlignRight>
                                     <Button disabled={haveErrors || tellerDetail.tellerData.teller.isDisabled} info>
                                       {tellerDetail.tellerData.teller.isDisabled ? 'Disabled' : 'Redeem'}
