@@ -2,13 +2,14 @@ import { useMemo, useEffect, useState } from 'react'
 import { BigNumber } from 'ethers'
 import { ADDRESS_ZERO, GAS_LIMIT, ZERO } from '../constants'
 import { FunctionName, TransactionCondition } from '../constants/enums'
-import { LocalTx, SolaceRiskScore } from '../constants/types'
+import { LocalTx, NetworkConfig, SolaceRiskScore } from '../constants/types'
 import { useContracts } from '../context/ContractsManager'
 import { useGetFunctionGas } from './useGas'
 import { getSolaceRiskBalances, getSolaceRiskScores } from '../utils/api'
 import { useProvider } from '../context/ProviderManager'
 import { useCachedData } from '../context/CachedDataManager'
 import { useNetwork } from '../context/NetworkManager'
+import { rangeFrom0 } from '../utils/numeric'
 
 export const useFunctions = () => {
   const { keyContracts } = useContracts()
@@ -373,7 +374,11 @@ export const usePortfolio = (
       const useV2 = activeNetwork.config.keyContracts.solaceCoverProduct.additionalInfo == 'v2'
       if (!account || (useV2 && chains.length == 0) || chainsLoading) return
       const balances = await getSolaceRiskBalances(account, useV2 ? chains : [1])
-      if (!balances) return
+      if (!balances) {
+        console.log('balances do not exist from risk api')
+        setLoading(false)
+        return
+      }
       const scores = await getSolaceRiskScores(account, balances)
       if (scores) setScore(scores)
       setLoading(false)
@@ -431,21 +436,24 @@ export const useCheckIsCoverageActive = (account: string | undefined) => {
   const { getPolicyOf, getPolicyStatus, getCoverLimitOf } = useFunctions()
   const { version } = useCachedData()
   const { latestBlock } = useProvider()
-  const [policyId, setPolicyId] = useState<BigNumber>(ZERO)
+  const [policyId, setPolicyId] = useState<BigNumber | undefined>(undefined)
   const [status, setStatus] = useState<boolean>(false)
   const [coverageLimit, setCoverageLimit] = useState<BigNumber>(ZERO)
   const [mounting, setMounting] = useState<boolean>(true)
 
+  const { keyContracts } = useContracts()
+  const { solaceCoverProduct } = useMemo(() => keyContracts, [keyContracts])
+
   useEffect(() => {
     const getStatus = async () => {
-      if (!account || !latestBlock) {
-        setPolicyId(ZERO)
+      if (!account || !latestBlock || !solaceCoverProduct) {
+        setPolicyId(undefined)
         setStatus(false)
         setCoverageLimit(ZERO)
         return
       }
       const policyId = await getPolicyOf(account)
-      if (policyId.eq(ZERO)) {
+      if (policyId.isZero()) {
         setPolicyId(ZERO)
         setStatus(false)
         setCoverageLimit(ZERO)
@@ -459,7 +467,7 @@ export const useCheckIsCoverageActive = (account: string | undefined) => {
       setMounting(false)
     }
     getStatus()
-  }, [account, latestBlock, version])
+  }, [account, latestBlock, solaceCoverProduct, version])
 
   return { policyId, status, coverageLimit, mounting }
 }
@@ -490,4 +498,35 @@ export const useTotalAccountBalance = (account: string | undefined) => {
   }, [account, latestBlock, version])
 
   return { totalAccountBalance, personalBalance, earnedBalance }
+}
+
+export const useSupportedChains = () => {
+  const { getNumSupportedChains, getChain } = useFunctions()
+  const { keyContracts } = useContracts()
+  const { solaceCoverProduct } = useMemo(() => keyContracts, [keyContracts])
+  const { activeNetwork, networks } = useNetwork()
+  const [coverableNetworks, setCoverableNetworks] = useState<NetworkConfig[]>([])
+  const [coverableChains, setCoverableChains] = useState<BigNumber[]>([])
+
+  useEffect(() => {
+    const getSupportedChains = async () => {
+      if (!solaceCoverProduct || activeNetwork.config.keyContracts.solaceCoverProduct.additionalInfo != 'v2') return
+      const numChains = await getNumSupportedChains()
+      const numChainsIndices = rangeFrom0(numChains.toNumber())
+      const chains: BigNumber[] = []
+      const supportedNetworks: NetworkConfig[] = []
+      numChainsIndices.forEach(async (i) => {
+        const chain = await getChain(BigNumber.from(i))
+        chains.push(chain)
+        const chainNumber = chain.toNumber()
+        const network = networks.find((n) => n.chainId == chainNumber)
+        if (network) supportedNetworks.push(network)
+      })
+      setCoverableNetworks(supportedNetworks)
+      setCoverableChains(chains)
+    }
+    getSupportedChains()
+  }, [solaceCoverProduct])
+
+  return { coverableNetworks, coverableChains }
 }

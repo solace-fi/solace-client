@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from 'react'
+import React, { useMemo } from 'react'
 import { Flex } from '../../components/atoms/Layout'
 import { QuestionCircle } from '@styled-icons/bootstrap/QuestionCircle'
 import { Button } from '../../components/atoms/Button'
@@ -21,7 +21,7 @@ import { FixedHeightGrayBox } from '../../components/molecules/GrayBox'
 
 export function CoveredChains({
   coverageActivity: { status, mounting },
-  chainActivity: { coverableChains, policyChains, policyChainsChecked, chainsChecked, setChainsChecked, chainsLoading },
+  chainActivity: { coverableNetworks, policyChainsChecked, chainsChecked, setChainsChecked, chainsLoading },
   isEditing,
   setIsEditing,
 }: {
@@ -30,8 +30,7 @@ export function CoveredChains({
     mounting: boolean
   }
   chainActivity: {
-    coverableChains: NetworkConfig[]
-    policyChains: number[]
+    coverableNetworks: NetworkConfig[]
     policyChainsChecked: CheckboxData[]
     chainsChecked: CheckboxData[]
     setChainsChecked: (checkboxData: CheckboxData[]) => void
@@ -45,6 +44,9 @@ export function CoveredChains({
   const { activeNetwork } = useNetwork()
   const { handleToast, handleContractCallError } = useTransactionExecution()
   const { updatePolicyChainInfo } = useFunctions()
+  const policyChains = useMemo(() => policyChainsChecked.filter((c) => c.checked).map((c) => c.id.toNumber()), [
+    policyChainsChecked,
+  ])
 
   const startEditing = () => setIsEditing(true)
   const stopEditing = () => {
@@ -131,7 +133,7 @@ export function CoveredChains({
                       gridRowGap: '10px',
                     }}
                   >
-                    {coverableChains
+                    {coverableNetworks
                       .filter((n) => policyChains.includes(n.chainId))
                       .map((policyNetwork) => (
                         <Flex key={policyNetwork.chainId} justifyCenter col>
@@ -148,7 +150,7 @@ export function CoveredChains({
               </Flex>
             ) : (
               <Flex col justifyCenter between={isEditing} gap={10} pt={10} pb={10}>
-                {coverableChains.map((n) => (
+                {coverableNetworks.map((n) => (
                   <Flex key={n.chainId}>
                     <Checkbox
                       type="checkbox"

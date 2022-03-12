@@ -21,7 +21,7 @@ import { useProvider } from '../context/ProviderManager'
 import { JsonRpcProvider } from '@ethersproject/providers'
 import { isAddress } from '../utils'
 import { numberAbbreviate, truncateValue } from '../utils/formatting'
-import { useFunctions } from './useSolaceCoverProduct'
+import { useFunctions, useSupportedChains } from './useSolaceCoverProduct'
 import { CheckboxData } from '../pages/stake/types/LockCheckbox'
 
 export const useGetPolicyPrice = (policyId: number): string => {
@@ -351,16 +351,16 @@ export const useExistingPolicy = (account: string | undefined) => {
   return { policyId, network, loading }
 }
 
-export const useGetPolicyChains = (policyId: BigNumber) => {
-  const { networks } = useNetwork()
-  const { version } = useCachedData()
-  const { getNumSupportedChains, getChain, getPolicyChainInfo } = useFunctions()
+export const useGetPolicyChains = (policyId: number | undefined) => {
+  const { keyContracts } = useContracts()
+  const { activeNetwork } = useNetwork()
+  const { solaceCoverProduct } = useMemo(() => keyContracts, [keyContracts])
+  const { getPolicyChainInfo } = useFunctions()
+  const { coverableNetworks, coverableChains } = useSupportedChains()
 
   const [portfolioChains, setPortfolioChains] = useState<number[]>([])
   const [loading, setLoading] = useState(true)
-  const [policyChains, setPolicyChains] = useState<number[]>([])
   const [policyChainsChecked, setPolicyChainsChecked] = useState<CheckboxData[]>([])
-  const [coverableChains, setCoverableChains] = useState<NetworkConfig[]>([])
   const [chainsChecked, setChainsChecked] = useState<CheckboxData[]>([])
 
   const updateBoxChecked = (chains: CheckboxData[], oldArray: CheckboxData[]): CheckboxData[] => {
@@ -370,28 +370,27 @@ export const useGetPolicyChains = (policyId: BigNumber) => {
       return oldBox ? { id: chain.id, checked: oldBox.checked } : { id: chain.id, checked: false }
     })
   }
-  const getPolicyChains = async (shouldUpdateBoxchecked: boolean) => {
-    const numChains = await getNumSupportedChains()
-    const chains: BigNumber[] = []
-    const supportedNetworks = []
-    for (let i = 0; i < numChains.toNumber(); i++) {
-      const chain = await getChain(BigNumber.from(i))
-      chains.push(chain)
-      const chainNumber = chain.toNumber()
-      const network = networks.find((n) => n.chainId == chainNumber)
-      if (network) supportedNetworks.push(network)
+
+  const getPolicyChains = async (_policyId: number, _coverableChains: BigNumber[], shouldUpdateBoxchecked: boolean) => {
+    if (activeNetwork.config.keyContracts.solaceCoverProduct.additionalInfo == 'v2' && _coverableChains.length == 0) {
+      console.log('is v2 but no general chain info returned')
+      return
     }
-    setCoverableChains(supportedNetworks)
-    const _policyChains = await getPolicyChainInfo(policyId)
+    const _policyChains = await getPolicyChainInfo(BigNumber.from(_policyId))
+
+    /* 
+      if there are no chains from this policy, return portfolio for all chains
+      else, return portfolio for chains from this policy
+    */
     if (_policyChains.length > 0) {
       setPortfolioChains(_policyChains.map((c) => c.toNumber()))
     } else {
-      setPortfolioChains(chains.map((c) => c.toNumber()))
+      setPortfolioChains(_coverableChains.map((c) => c.toNumber()))
     }
+
     const numPolicyChains = _policyChains.map((c) => c.toNumber())
-    setPolicyChains(numPolicyChains)
-    const newArr = chains.map((c) => {
-      if (numPolicyChains.includes(c.toNumber())) return { id: c, checked: true }
+    const newArr = _coverableChains.map((c) => {
+      if (numPolicyChains.includes(c.toNumber()) || numPolicyChains.length == 0) return { id: c, checked: true }
       return { id: c, checked: false }
     })
     setPolicyChainsChecked(newArr)
@@ -403,19 +402,32 @@ export const useGetPolicyChains = (policyId: BigNumber) => {
     setLoading(false)
   }
 
+  // Should run based on whether the user has a policy or not
   useEffect(() => {
-    getPolicyChains(true)
-  }, [policyId, networks])
+    if (policyId == undefined) {
+      return
+    }
+    getPolicyChains(policyId, coverableChains, true)
+  }, [policyId, coverableChains.length])
 
+  /* 
+    Should run when the user makes a change with their policy
+    that should be reflected on the display
+  */
   useEffect(() => {
-    getPolicyChains(false)
-  }, [version])
+    if (!solaceCoverProduct || policyId == undefined) return
+    solaceCoverProduct.on('PolicyUpdated', async (id) => {
+      if (BigNumber.from(policyId).eq(id)) getPolicyChains(id, coverableChains, false)
+    })
+    return () => {
+      solaceCoverProduct.removeAllListeners()
+    }
+  }, [solaceCoverProduct, policyId, coverableChains])
 
   return {
     portfolioChains,
-    policyChains,
     policyChainsChecked,
-    coverableChains,
+    coverableNetworks,
     chainsChecked,
     setChainsChecked,
     loading,

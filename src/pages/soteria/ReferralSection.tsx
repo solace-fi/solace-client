@@ -171,7 +171,7 @@ export function ReferralSection({
                 </Text>
               ) : !referralChecks.referrerIsOther ? (
                 <Text t4s error bold>
-                  Sorry, but you cannot use your own referral code.
+                  Sorry, you cannot use your own referral code.
                 </Text>
               ) : (
                 <Text t4s success bold>
