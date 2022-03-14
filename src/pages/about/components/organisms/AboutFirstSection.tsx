@@ -35,7 +35,10 @@ export function AboutFirstSection({
       px={isMobile ? 47 : undefined}
       itemsCenter
       justifyCenter={!isMobile}
+      // 100 cuz idk, 192 cuz grants is 59 and it has 133 margin to top and we still want the rest to be centered to screen.
       mt={isMobile ? 100 : undefined}
+      mr={!isMobile ? 118 : undefined}
+      pt={!isMobile ? 90 : undefined}
       ref={ref}
     >
       <Flex col w={isMobile ? undefined : 507} itemsCenter={isMobile}>
@@ -89,19 +92,24 @@ export function AboutFirstSection({
           </StyledNavLink>
         </Flex>
         {!isMobile ? (
-          isVisible && (
-            <Flex
-              justifyCenter
+          <Flex
+            justifyCenter
+            style={{
+              width: '100%',
+              marginTop: '133px',
+              // position: 'absolute',
+              // bottom: '40px',
+              // right: '40px',
+            }}
+          >
+            {/* height is 59 so margin bottom for the container should be -133px -59px, or a total of 192 */}
+            <img
+              src={grantsFrom}
               style={{
-                width: '100%',
-                position: 'absolute',
-                bottom: '40px',
-                right: '40px',
+                marginRight: '96px',
               }}
-            >
-              <img src={grantsFrom} />
-            </Flex>
-          )
+            />
+          </Flex>
         ) : (
           <Flex mt={90}>
             <img src={grantsFrom} />
