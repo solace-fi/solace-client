@@ -73,6 +73,8 @@ export const PolygonNetwork: NetworkConfig = {
     specialFeatures: {
       unwrapBridgedSolace: true,
       solaceBuyLink: `https://app.uniswap.org/#/swap?chain=polygon&inputCurrency=${FRAX_ADDRESS[chainId]}&outputCurrency=${KEY_ADDRS.SOLACE}`,
+      hardcodedMaxFeePerGas: 31,
+      hardcodedMaxPriorityFeePerGas: 31,
     },
     specialContracts: {
       bSolace: {

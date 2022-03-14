@@ -67,7 +67,7 @@ export const CpPoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen
   const { activeNetwork, currencyDecimals } = useNetwork()
   const { keyContracts } = useContracts()
   const { cpFarm, vault } = useMemo(() => keyContracts, [keyContracts])
-  const { gasPrice, reload } = useCachedData()
+  const { gasData, reload } = useCachedData()
   const { makeTxToast } = useNotifications()
   const [modalLoading, setModalLoading] = useState<boolean>(false)
   const [canCloseOnLoading, setCanCloseOnLoading] = useState<boolean>(false)
@@ -185,7 +185,7 @@ export const CpPoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen
 
   useEffect(() => {
     if (maxSelected) _setMax()
-  }, [gasPrice])
+  }, [gasData])
 
   useEffect(() => {
     setIsAcceptableAmount(isAppropriateAmount(amount, currencyDecimals, assetBalance))

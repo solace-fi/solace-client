@@ -43,7 +43,7 @@ export const useTransactionExecution = () => {
 
 export const useInputAmount = () => {
   const { currencyDecimals } = useNetwork()
-  const { gasPrice } = useCachedData()
+  const { gasData } = useCachedData()
   const [amount, setAmount] = useState<string>('')
   const [maxSelected, setMaxSelected] = useState<boolean>(false)
 
@@ -54,9 +54,9 @@ export const useInputAmount = () => {
 
   const calculateMaxAmount = (balance: BigNumber, amountDecimals: number, gasLimit?: number) => {
     const bal = formatUnits(balance, amountDecimals)
-    if (!gasLimit || !gasPrice) return bal
+    if (!gasLimit || !gasData) return bal
     // if currency to send is also for paying gas, subtract gas from amount to send
-    const gasInCurrency = (gasLimit / POW_NINE) * gasPrice
+    const gasInCurrency = (gasLimit / POW_NINE) * gasData.gasPrice
     return Math.max(fixed(fixed(bal, 6) - fixed(gasInCurrency, 6), 6), 0)
   }
 

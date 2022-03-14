@@ -97,11 +97,11 @@ export const BondOptionsV2: React.FC<BondOptionsV2Props> = ({
               Approve
             </Button>
           )}
-          {approval && (
+          {((approval && func != bondDepositFunctionName) || func == bondDepositFunctionName) && (
             <Button
               widthP={100}
               info
-              disabled={!isAcceptableAmount || haveErrors || (!approval && func != bondDepositFunctionName)}
+              disabled={!isAcceptableAmount || haveErrors}
               onClick={() => callDepositBond(isStaking)}
             >
               Bond

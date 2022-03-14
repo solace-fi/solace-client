@@ -1,112 +1,71 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from 'react'
-import { fetchGasPrice } from '../../utils/explorer'
-import { GasConfiguration, GasFeeListState } from '../../constants/types'
+import { GasConfiguration, GasData } from '../../constants/types'
 import { useCachedData } from '../../context/CachedDataManager'
 import { useNetwork } from '../../context/NetworkManager'
 import { getGasValue } from '../../utils/formatting'
 import { useWallet } from '../../context/WalletManager'
 import { FunctionName } from '../../constants/enums'
-import { GAS_LIMIT } from '../../constants'
+import { GAS_LIMIT, ZERO } from '../../constants'
 import { useProvider } from '../../context/ProviderManager'
 import { formatUnits } from 'ethers/lib/utils'
-import { BigNumber } from 'ethers'
+import { FeeData } from '@ethersproject/providers'
 
-export const useFetchGasPrice = (): number | undefined => {
+export const useFetchGasData = (): GasData | undefined => {
   const { activeNetwork, chainId } = useNetwork()
   const { latestBlock } = useProvider()
   const { library } = useWallet()
   const running = useRef(false)
   // const running = useRef(false)
-  const [gasPrice, setGasPrice] = useState<number | undefined>(undefined)
+  const [gasData, setGasData] = useState<GasData | undefined>(undefined)
 
   useEffect(() => {
-    const fetchGasPrices = async () => {
+    const fetchGasData = async () => {
       running.current = true
-      await library.getGasPrice().then((result: BigNumber) => {
-        const gasString = formatUnits(result, 'gwei')
-        const gasPadding = 1
-        const gasNumber = parseFloat(gasString)
-        const gasVal = activeNetwork.config.specialFeatures.hardcodedGasPrice ?? Math.ceil(gasNumber * gasPadding)
-        setGasPrice(gasVal)
+      await library.getFeeData().then((result: FeeData) => {
+        const gasPriceStr = formatUnits(result.gasPrice ?? ZERO, 'gwei')
+        const gasPrice = activeNetwork.config.specialFeatures.hardcodedGasPrice ?? Math.ceil(parseFloat(gasPriceStr))
+
+        const maxFeePerGasStr = formatUnits(result.maxFeePerGas ?? ZERO, 'gwei')
+        const maxFeePerGas =
+          activeNetwork.config.specialFeatures.hardcodedMaxFeePerGas ?? Math.ceil(parseFloat(maxFeePerGasStr))
+
+        const maxPriorityFeePerGasStr = formatUnits(result.maxPriorityFeePerGas ?? ZERO, 'gwei')
+        const maxPriorityFeePerGas =
+          activeNetwork.config.specialFeatures.hardcodedMaxPriorityFeePerGas ??
+          Math.ceil(parseFloat(maxPriorityFeePerGasStr))
+
+        const data = { gasPrice, maxFeePerGas, maxPriorityFeePerGas }
+        setGasData(data)
       })
-      // await fetchGasPrice(activeNetwork).then((result) => {
-      //   console.log(result)
-      // })
       running.current = false
     }
     if (!latestBlock || running.current || !library) return
 
-    fetchGasPrices()
+    fetchGasData()
   }, [chainId, latestBlock])
 
-  // const [state, setState] = useState<GasFeeListState>({
-  //   options: [],
-  //   loading: true,
-  // })
-
-  // useEffect(() => {
-  //   const fetchGasPrices = async () => {
-  //     running.current = true
-  //     await fetchGasPrice(activeNetwork)
-  //       .then((result) => {
-  //         const options = [
-  //           {
-  //             key: 'low',
-  //             name: 'Slow',
-  //             value: result.safe != NaN ? result.safe : state.options[0].value,
-  //           },
-  //           {
-  //             key: 'average',
-  //             name: 'Standard',
-  //             value: result.proposed != NaN ? result.proposed : state.options[1].value,
-  //           },
-  //           {
-  //             key: 'fast',
-  //             name: 'Fast',
-  //             value: result.fast != NaN ? result.fast : state.options[2].value,
-  //           },
-  //         ]
-  //         console.log(options)
-  //         setState({
-  //           loading: false,
-  //           options,
-  //           selected: options[1],
-  //           suggestedBaseFee: result.suggestBaseFee,
-  //         })
-  //       })
-  //       .catch(() => {
-  //         setState({
-  //           ...state,
-  //           loading: false,
-  //         })
-  //       })
-  //     running.current = false
-  //   }
-  //   if (!latestBlock || running.current) return
-  //   fetchGasPrices()
-  // }, [chainId, latestBlock])
-
-  return gasPrice
+  return gasData
 }
 
 export const useGetFunctionGas = () => {
   const { activeNetwork } = useNetwork()
   const { activeWalletConnector } = useWallet()
-  const { gasPrice } = useCachedData()
+  const { gasData } = useCachedData()
 
   const getGasConfig = useCallback(
     (_gasValue: number | undefined): GasConfiguration => {
       // null check and testnet check
-      const gasValue = _gasValue ?? gasPrice
+      const gasValue = _gasValue ?? gasData?.gasPrice
 
-      if (!activeWalletConnector || activeNetwork.isTestnet || !gasValue) {
+      if (!activeWalletConnector || activeNetwork.isTestnet || !gasValue || !gasData) {
         return {}
       }
 
       // type 2 transaction
       if (activeWalletConnector.supportedTxTypes.includes(2) && activeNetwork.supportedTxTypes.includes(2))
         return {
-          maxFeePerGas: getGasValue(gasValue),
+          maxFeePerGas: getGasValue(gasData.maxFeePerGas),
+          maxPriorityFeePerGas: getGasValue(gasData.maxPriorityFeePerGas),
           type: 2,
         }
 
@@ -115,7 +74,7 @@ export const useGetFunctionGas = () => {
         gasPrice: getGasValue(gasValue),
       }
     },
-    [activeNetwork, activeWalletConnector, gasPrice]
+    [activeNetwork, activeWalletConnector, gasData]
   )
 
   const getAutoGasConfig = useCallback((): GasConfiguration => getGasConfig(undefined), [getGasConfig])
