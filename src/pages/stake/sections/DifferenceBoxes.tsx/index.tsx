@@ -6,7 +6,7 @@ import { Button } from '../../../../components/atoms/Button'
 import styled, { css } from 'styled-components'
 import { StakingVersion } from '../../../../constants/enums'
 import { BKPT_5 } from '../../../../constants'
-import { useWindowDimensions } from '../../../../hooks/useWindowDimensions'
+import { useWindowDimensions } from '../../../../hooks/internal/useWindowDimensions'
 
 /*
           style={{

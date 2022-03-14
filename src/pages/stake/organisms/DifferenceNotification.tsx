@@ -3,7 +3,7 @@ import styled, { css } from 'styled-components'
 import { GeneralElementProps } from '../../../components/generalInterfaces'
 import { StakingVersion } from '../../../constants/enums'
 import React from 'react'
-import { useWindowDimensions } from '../../../hooks/useWindowDimensions'
+import { useWindowDimensions } from '../../../hooks/internal/useWindowDimensions'
 import { BKPT_4 } from '../../../constants'
 // text-sm font-bold underline mt-3 text-underline-offset[4px] text-decoration-thickness[2px] self-center cursor-pointer select-none hover:opacity-80 duration-200
 const StyledText = styled.div`

@@ -17,7 +17,7 @@ import { getDateStringWithMonthName, getTimeFromMillis } from '../../../../utils
 import { truncateValue } from '../../../../utils/formatting'
 import { formatUnits } from 'ethers/lib/utils'
 import { BKPT_5 } from '../../../../constants'
-import { useWindowDimensions } from '../../../../hooks/useWindowDimensions'
+import { useWindowDimensions } from '../../../../hooks/internal/useWindowDimensions'
 import { Checkbox } from '../../../../components/atoms/Input'
 import { StyledTooltip } from '../../../../components/molecules/Tooltip'
 

@@ -42,7 +42,7 @@ import { StyledDots } from '../../atoms/Icon'
 import { AssetsModal } from '../AssetsModal'
 
 /* import hooks */
-import { useWindowDimensions } from '../../../hooks/useWindowDimensions'
+import { useWindowDimensions } from '../../../hooks/internal/useWindowDimensions'
 
 /* import utils */
 import { getDaysLeftByBlockNum } from '../../../utils/time'

@@ -1,17 +1,17 @@
 import React, { useEffect, useState, useMemo } from 'react'
 import { Flex, ShadowDiv, Content, HeroContainer } from '../../components/atoms/Layout'
-import { useWindowDimensions } from '../../hooks/useWindowDimensions'
+import { useWindowDimensions } from '../../hooks/internal/useWindowDimensions'
 import { ADDRESS_ZERO, ZERO } from '../../constants'
 import {
   useCheckIsCoverageActive,
   useFunctions,
   usePortfolio,
   useTotalAccountBalance,
-} from '../../hooks/useSolaceCoverProduct'
+} from '../../hooks/policy/useSolaceCoverProduct'
 import { useWallet } from '../../context/WalletManager'
 import { BigNumber, Contract } from 'ethers'
 import { useGeneral } from '../../context/GeneralManager'
-import { useInputAmount } from '../../hooks/useInputAmount'
+import { useInputAmount } from '../../hooks/internal/useInputAmount'
 import { parseUnits } from 'ethers/lib/utils'
 import { useCachedData } from '../../context/CachedDataManager'
 import { useProvider } from '../../context/ProviderManager'
@@ -21,7 +21,7 @@ import IERC20 from '../../constants/metadata/IERC20Metadata.json'
 import { queryBalance, queryDecimals } from '../../utils/contract'
 import useDebounce from '@rooks/use-debounce'
 import { useContracts } from '../../context/ContractsManager'
-import { useTokenAllowance } from '../../hooks/useToken'
+import { useTokenAllowance } from '../../hooks/contract/useToken'
 import { Loader } from '../../components/atoms/Loader'
 import { TextSpan, Text } from '../../components/atoms/Typography'
 import { Box, RaisedBox } from '../../components/atoms/Box'
@@ -35,7 +35,7 @@ import { CoverageActive } from './CoverageActive'
 import { WelcomeMessage } from './WelcomeMessage'
 import { PolicyBalance } from './PolicyBalance'
 import { CoverageLimit } from './CoverageLimit'
-import { useExistingPolicy, useGetPolicyChains } from '../../hooks/usePolicy'
+import { useExistingPolicy, useGetPolicyChains } from '../../hooks/policy/usePolicy'
 
 import Zapper from '../../resources/svg/zapper.svg'
 import ZapperDark from '../../resources/svg/zapper-dark.svg'

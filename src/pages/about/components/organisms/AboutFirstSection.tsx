@@ -1,7 +1,7 @@
 import React, { RefObject, useEffect, useMemo } from 'react'
 import { Flex } from '../../../../components/atoms/Layout'
 import { Text } from '../../../../components/atoms/Typography'
-import { useWindowDimensions } from '../../../../hooks/useWindowDimensions'
+import { useWindowDimensions } from '../../../../hooks/internal/useWindowDimensions'
 import { Button } from '../../../../components/atoms/Button'
 import { StyledNavLink } from '../../../../components/atoms/Link'
 import whiteLogo from '../../../../resources/svg/solace-logo-white.svg'

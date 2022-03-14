@@ -32,7 +32,7 @@ import { StyledGraphDown, StyledSendPlane } from '../../../atoms/Icon'
 
 /* import utils */
 import { accurateMultiply, shortenAddress } from '../../../../utils/formatting'
-import { useTellerConfig } from '../../../../hooks/useDetectTeller'
+import { useTellerConfig } from '../../../../hooks/bond/useDetectTeller'
 import { useNetwork } from '../../../../context/NetworkManager'
 
 interface BondOptionsV2Props {

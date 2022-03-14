@@ -4,7 +4,7 @@ import React, { useRef } from 'react'
 import styled from 'styled-components'
 import { Button } from '../../../../components/atoms/Button'
 import { StyledSlider } from '../../../../components/atoms/Input'
-import { useSolaceBalance } from '../../../../hooks/useBalance'
+import { useSolaceBalance } from '../../../../hooks/balance/useBalance'
 import {
   accurateMultiply,
   convertSciNotaToPrecise,
@@ -16,9 +16,9 @@ import InformationBox from '../../components/InformationBox'
 import { InfoBoxType } from '../../types/InfoBoxType'
 import { Tab } from '../../../../constants/enums'
 import { InputSection } from '../../../../components/molecules/InputSection'
-import { useInputAmount, useTransactionExecution } from '../../../../hooks/useInputAmount'
+import { useInputAmount, useTransactionExecution } from '../../../../hooks/internal/useInputAmount'
 import { FunctionName } from '../../../../constants/enums'
-import { useXSLocker } from '../../../../hooks/useXSLocker'
+import { useXSLocker } from '../../../../hooks/stake/useXSLocker'
 import { useWallet } from '../../../../context/WalletManager'
 import { SmallBox } from '../../../../components/atoms/Box'
 import { Text } from '../../../../components/atoms/Typography'
@@ -30,8 +30,8 @@ import { Flex, ShadowDiv, VerticalSeparator } from '../../../../components/atoms
 import { GrayBox } from '../../../../components/molecules/GrayBox'
 import { Accordion } from '../../../../components/atoms/Accordion'
 import { useProvider } from '../../../../context/ProviderManager'
-import { useProjectedBenefits } from '../../../../hooks/useStakingRewards'
-import { useWindowDimensions } from '../../../../hooks/useWindowDimensions'
+import { useProjectedBenefits } from '../../../../hooks/stake/useStakingRewards'
+import { useWindowDimensions } from '../../../../hooks/internal/useWindowDimensions'
 
 const StyledForm = styled.div`
   display: flex;

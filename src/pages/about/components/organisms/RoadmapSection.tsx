@@ -2,7 +2,7 @@ import React, { RefObject, useEffect, useMemo } from 'react'
 import { Flex, Grid } from '../../../../components/atoms/Layout'
 import { SectionTitle } from '../../../../components/atoms/Typography'
 import { Text } from '../../../../components/atoms/Typography'
-import { useWindowDimensions } from '../../../../hooks/useWindowDimensions'
+import { useWindowDimensions } from '../../../../hooks/internal/useWindowDimensions'
 import styled from 'styled-components'
 
 const ProgressBarContainer = styled.div`
