@@ -66,7 +66,7 @@ export const UnderwritingPoolModal: React.FC<PoolModalProps> = ({ modalTitle, fu
 
   const { haveErrors } = useGeneral()
   const { activeNetwork, currencyDecimals } = useNetwork()
-  const { gasPrice } = useCachedData()
+  const { gasData } = useCachedData()
 
   const [modalLoading, setModalLoading] = useState<boolean>(false)
   const [canCloseOnLoading, setCanCloseOnLoading] = useState<boolean>(false)
@@ -184,7 +184,7 @@ export const UnderwritingPoolModal: React.FC<PoolModalProps> = ({ modalTitle, fu
 
   useEffect(() => {
     if (maxSelected) _setMax()
-  }, [gasPrice])
+  }, [gasData])
 
   useEffect(() => {
     setIsAcceptableAmount(isAppropriateAmount(amount, currencyDecimals, assetBalance))

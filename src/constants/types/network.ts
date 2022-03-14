@@ -44,6 +44,8 @@ export type NetworkConfig = {
       solaceBuyLink?: string
       unwrapBridgedSolace?: boolean
       hardcodedGasPrice?: number
+      hardcodedMaxFeePerGas?: number
+      hardcodedMaxPriorityFeePerGas?: number
     }
     underwritingPoolAddr?: string
   }

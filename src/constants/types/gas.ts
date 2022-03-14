@@ -18,19 +18,15 @@ export type GasPriceResult = {
   suggestBaseFee?: number
 }
 
-export type GasConfiguration =
-  | {
-      maxFeePerGas?: undefined
-      type?: undefined
-      gasPrice?: undefined
-    }
-  | {
-      maxFeePerGas: number
-      type: number
-      gasPrice?: undefined
-    }
-  | {
-      gasPrice: number
-      maxFeePerGas?: undefined
-      type?: undefined
-    }
+export type GasConfiguration = {
+  gasPrice?: number
+  maxFeePerGas?: number
+  maxPriorityFeePerGas?: number
+  type?: number
+}
+
+export type GasData = {
+  gasPrice: number
+  maxFeePerGas: number
+  maxPriorityFeePerGas: number
+}
