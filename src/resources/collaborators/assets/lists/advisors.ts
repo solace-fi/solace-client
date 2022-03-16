@@ -2,7 +2,7 @@ import getPeopleFromString from '../../getPeopleFromString'
 
 const teamStr = `Gustav Arentoft
 1inch & StableNode
-@StableNode
+@GArentoft
 
 Preston Van Loon
 Prysmatic Labs & Cryptex
