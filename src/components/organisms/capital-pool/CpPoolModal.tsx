@@ -44,7 +44,7 @@ import { Text } from '../../atoms/Typography'
 import { SourceContract } from '../SourceContract'
 
 /* import hooks */
-import { useUserStakedValue } from '../../../hooks/farm/useFarm'
+import { useUserStakedValue } from '../../../hooks/_legacy/useFarm'
 import { useScpBalance } from '../../../hooks/balance/useBalance'
 import { useTokenAllowance } from '../../../hooks/contract/useToken'
 import { useCpFarm } from '../../../hooks/_legacy/useCpFarm'
