@@ -31,7 +31,7 @@ import { useNetwork } from '../../context/NetworkManager'
 import { FunctionName } from '../../constants/enums'
 import { BKPT_1, BKPT_5, DAYS_PER_YEAR, ZERO, Z_TABLE } from '../../constants'
 import { LockData, UserLocksData, UserLocksInfo } from '../../constants/types'
-import { LockCheckbox } from './types/LockCheckbox'
+import { CheckboxData } from './types/LockCheckbox'
 import { Tab, StakingVersion } from '../../constants/enums'
 
 /* import components */
@@ -58,14 +58,14 @@ import { Accordion } from '../../components/atoms/Accordion'
 import { GrayBox } from '../../components/molecules/GrayBox'
 
 /* import hooks */
-import { useXSolaceV1Balance } from '../../hooks/useBalance'
-import { useXSolaceV1 } from '../../hooks/useXSolaceV1'
-import { useInputAmount, useTransactionExecution } from '../../hooks/useInputAmount'
-import { useReadToken } from '../../hooks/useToken'
-import { useUserLockData, useXSLocker } from '../../hooks/useXSLocker'
-import { useXSolaceMigrator } from '../../hooks/useXSolaceMigrator'
-import { useWindowDimensions } from '../../hooks/useWindowDimensions'
-import { useProjectedBenefits, useStakingRewards } from '../../hooks/useStakingRewards'
+import { useXSolaceV1Balance } from '../../hooks/balance/useBalance'
+import { useXSolaceV1 } from '../../hooks/_legacy/useXSolaceV1'
+import { useInputAmount, useTransactionExecution } from '../../hooks/internal/useInputAmount'
+import { useReadToken } from '../../hooks/contract/useToken'
+import { useUserLockData, useXSLocker } from '../../hooks/stake/useXSLocker'
+import { useXSolaceMigrator } from '../../hooks/stake/useXSolaceMigrator'
+import { useWindowDimensions } from '../../hooks/internal/useWindowDimensions'
+import { useProjectedBenefits, useStakingRewards } from '../../hooks/stake/useStakingRewards'
 
 /* import utils */
 import { accurateMultiply, formatAmount, truncateValue } from '../../utils/formatting'
@@ -199,7 +199,7 @@ function Stake1(): any {
                       pr={0}
                       onClick={() => setIsMigrating(true)}
                       jc={'center'}
-                      style={{ cursor: 'pointer', backgroundColor: !isMigrating ? 'rgba(0, 0, 0, .05)' : 'inherit' }}
+                      style={{ cursor: 'pointer', backgroundColor: isMigrating ? 'rgba(0, 0, 0, .05)' : 'inherit' }}
                     >
                       <Text t1 bold info={isMigrating}>
                         Migrate
@@ -213,7 +213,7 @@ function Stake1(): any {
                       pr={0}
                       onClick={() => setIsMigrating(false)}
                       jc={'center'}
-                      style={{ cursor: 'pointer', backgroundColor: isMigrating ? 'rgba(0, 0, 0, .05)' : 'inherit' }}
+                      style={{ cursor: 'pointer', backgroundColor: !isMigrating ? 'rgba(0, 0, 0, .05)' : 'inherit' }}
                     >
                       <Text t1 bold info={!isMigrating}>
                         Unstake
@@ -368,7 +368,7 @@ export default function Stake(): JSX.Element {
   const [loading, setLoading] = useState<boolean>(true)
 
   const [targetLock, setTargetLock] = useState<BigNumber | undefined>(undefined)
-  const [locksChecked, setLocksChecked] = useState<LockCheckbox[]>([])
+  const [locksChecked, setLocksChecked] = useState<CheckboxData[]>([])
 
   const { account } = useWallet()
   const { latestBlock } = useProvider()

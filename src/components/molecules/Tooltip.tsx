@@ -34,7 +34,7 @@ import { StyledInfo, StyledLinkExternal } from '../atoms/Icon'
 import { Text } from '../atoms/Typography'
 
 /* import hooks */
-import { useWindowDimensions } from '../../hooks/useWindowDimensions'
+import { useWindowDimensions } from '../../hooks/internal/useWindowDimensions'
 import { timingSafeEqual } from 'crypto'
 
 type StyledTooltipProps = {

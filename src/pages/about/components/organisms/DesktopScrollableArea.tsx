@@ -4,7 +4,7 @@ import React, { RefObject, useEffect } from 'react'
 import { HomepageSections } from '../../utils/useHomepageSections'
 
 const SnapScroll = styled.div`
-  height: calc(100vh - 100px);
+  height: calc(100vh);
   scroll-snap-type: y mandatory;
   overflow-y: scroll;
   scroll-behavior: smooth;

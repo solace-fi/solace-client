@@ -32,7 +32,7 @@ import { StyledGraphDown, StyledSendPlane } from '../../../atoms/Icon'
 
 /* import utils */
 import { accurateMultiply, shortenAddress } from '../../../../utils/formatting'
-import { useTellerConfig } from '../../../../hooks/useDetectTeller'
+import { useTellerConfig } from '../../../../hooks/bond/useDetectTeller'
 import { useNetwork } from '../../../../context/NetworkManager'
 
 interface BondOptionsV2Props {
@@ -97,11 +97,11 @@ export const BondOptionsV2: React.FC<BondOptionsV2Props> = ({
               Approve
             </Button>
           )}
-          {approval && (
+          {((approval && func != bondDepositFunctionName) || func == bondDepositFunctionName) && (
             <Button
               widthP={100}
               info
-              disabled={!isAcceptableAmount || haveErrors || (!approval && func != bondDepositFunctionName)}
+              disabled={!isAcceptableAmount || haveErrors}
               onClick={() => callDepositBond(isStaking)}
             >
               Bond

@@ -53,11 +53,11 @@ import { BondOptionsV1 } from './BondOptionsV1'
 import { PublicBondInfo } from '../PublicBondInfo'
 
 /* import hooks */
-import { useInputAmount, useTransactionExecution } from '../../../../hooks/useInputAmount'
-import { useReadToken, useTokenAllowance } from '../../../../hooks/useToken'
-import { useNativeTokenBalance } from '../../../../hooks/useBalance'
-import { useBondTellerV1, useUserBondDataV1 } from '../../../../hooks/useBondTellerV1'
-import { useWindowDimensions } from '../../../../hooks/useWindowDimensions'
+import { useInputAmount, useTransactionExecution } from '../../../../hooks/internal/useInputAmount'
+import { useReadToken, useTokenAllowance } from '../../../../hooks/contract/useToken'
+import { useNativeTokenBalance } from '../../../../hooks/balance/useBalance'
+import { useBondTellerV1, useUserBondDataV1 } from '../../../../hooks/bond/useBondTellerV1'
+import { useWindowDimensions } from '../../../../hooks/internal/useWindowDimensions'
 
 /* import utils */
 import { accurateMultiply, formatAmount } from '../../../../utils/formatting'

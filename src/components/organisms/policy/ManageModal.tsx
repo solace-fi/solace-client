@@ -49,9 +49,9 @@ import { LocalTx, Policy } from '../../../constants/types'
 import { FunctionGasLimits } from '../../../constants/mappings/gasMapping'
 
 /* import hooks */
-import { useAppraisePolicyPosition, useGetMaxCoverPerPolicy, useGetPolicyPrice } from '../../../hooks/usePolicy'
-import { useGetFunctionGas } from '../../../hooks/useGas'
-import { useWindowDimensions } from '../../../hooks/useWindowDimensions'
+import { useAppraisePolicyPosition, useGetMaxCoverPerPolicy, useGetPolicyPrice } from '../../../hooks/policy/usePolicy'
+import { useGetFunctionGas } from '../../../hooks/provider/useGas'
+import { useWindowDimensions } from '../../../hooks/internal/useWindowDimensions'
 
 /* import utils */
 import { accurateMultiply, convertSciNotaToPrecise, filterAmount, formatAmount } from '../../../utils/formatting'

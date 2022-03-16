@@ -44,12 +44,12 @@ import { Text } from '../../atoms/Typography'
 import { SourceContract } from '../SourceContract'
 
 /* import hooks */
-import { useUserStakedValue } from '../../../hooks/useFarm'
-import { useScpBalance } from '../../../hooks/useBalance'
-import { useTokenAllowance } from '../../../hooks/useToken'
-import { useCpFarm } from '../../../hooks/useCpFarm'
-import { useVault } from '../../../hooks/useVault'
-import { useInputAmount, useTransactionExecution } from '../../../hooks/useInputAmount'
+import { useUserStakedValue } from '../../../hooks/farm/useFarm'
+import { useScpBalance } from '../../../hooks/balance/useBalance'
+import { useTokenAllowance } from '../../../hooks/contract/useToken'
+import { useCpFarm } from '../../../hooks/_legacy/useCpFarm'
+import { useVault } from '../../../hooks/_legacy/useVault'
+import { useInputAmount, useTransactionExecution } from '../../../hooks/internal/useInputAmount'
 
 /* import utils */
 import { getUnit, truncateValue } from '../../../utils/formatting'
@@ -67,7 +67,7 @@ export const CpPoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen
   const { activeNetwork, currencyDecimals } = useNetwork()
   const { keyContracts } = useContracts()
   const { cpFarm, vault } = useMemo(() => keyContracts, [keyContracts])
-  const { gasPrice, reload } = useCachedData()
+  const { gasData, reload } = useCachedData()
   const { makeTxToast } = useNotifications()
   const [modalLoading, setModalLoading] = useState<boolean>(false)
   const [canCloseOnLoading, setCanCloseOnLoading] = useState<boolean>(false)
@@ -185,7 +185,7 @@ export const CpPoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen
 
   useEffect(() => {
     if (maxSelected) _setMax()
-  }, [gasPrice])
+  }, [gasData])
 
   useEffect(() => {
     setIsAcceptableAmount(isAppropriateAmount(amount, currencyDecimals, assetBalance))

@@ -8,6 +8,7 @@ import solaceABI from '../constants/abi/contracts/SOLACE.sol/SOLACE.json'
 import xSolaceABI from '../constants/metadata/xSOLACE.json'
 import xsLockerABI from '../constants/metadata/xsLocker.json'
 import stakingRewardsABI from '../constants/metadata/StakingRewards.json'
+import solaceCoverProductV2ABI from '../constants/metadata/SolaceCoverProductV2.json'
 
 import { KEY_ADDRS, SPECIAL_ADDRS } from '../constants/addresses/polygon'
 
@@ -15,6 +16,7 @@ import bridgeWrapperABI from '../constants/metadata/BridgeWrapper.json'
 
 import ierc20Json from '../constants/metadata/IERC20Metadata.json'
 import { tellerToTokenMapping } from '../constants/mappings/tellerToTokenMappings/polygon'
+import { FRAX_ADDRESS } from '../constants/mappings/tokenAddressMapping'
 
 const chainId = 137
 
@@ -55,10 +57,14 @@ export const PolygonNetwork: NetworkConfig = {
         addr: KEY_ADDRS.STAKING_REWARDS,
         abi: stakingRewardsABI.abi,
       },
+      solaceCoverProduct: {
+        addr: SPECIAL_ADDRS.SOLACE_COVER_PRODUCT_V2,
+        abi: solaceCoverProductV2ABI.abi,
+        additionalInfo: 'v2',
+      },
     },
     productContracts: {},
     restrictedFeatures: {
-      noSoteria: true,
       noBondingV1: true,
       noCoverProducts: true,
       noFarmingV1: true,
@@ -66,6 +72,9 @@ export const PolygonNetwork: NetworkConfig = {
     },
     specialFeatures: {
       unwrapBridgedSolace: true,
+      solaceBuyLink: `https://app.uniswap.org/#/swap?chain=polygon&inputCurrency=${FRAX_ADDRESS[chainId]}&outputCurrency=${KEY_ADDRS.SOLACE}`,
+      hardcodedMaxFeePerGas: 31,
+      hardcodedMaxPriorityFeePerGas: 31,
     },
     specialContracts: {
       bSolace: {

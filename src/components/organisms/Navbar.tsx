@@ -59,7 +59,7 @@ import AlchemyBadgeLight from '../../resources/svg/alchemy-badge-light.svg'
 import AlchemyBadgeDark from '../../resources/svg/alchemy-badge-dark.svg'
 
 /* import hooks */
-import { useWindowDimensions } from '../../hooks/useWindowDimensions'
+import { useWindowDimensions } from '../../hooks/internal/useWindowDimensions'
 // import styled from 'styled-components'
 
 // const NavbarWrapper = styled.div`

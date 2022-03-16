@@ -54,17 +54,17 @@ import { PublicBondInfo } from '../PublicBondInfo'
 import { PrivateBondInfoV2 } from './PrivateBondInfoV2'
 
 /* import hooks */
-import { useInputAmount, useTransactionExecution } from '../../../../hooks/useInputAmount'
-import { useReadToken, useTokenAllowance } from '../../../../hooks/useToken'
-import { useNativeTokenBalance } from '../../../../hooks/useBalance'
-import { useBondTellerV2, useUserBondDataV2 } from '../../../../hooks/useBondTellerV2'
-import { useWindowDimensions } from '../../../../hooks/useWindowDimensions'
+import { useInputAmount, useTransactionExecution } from '../../../../hooks/internal/useInputAmount'
+import { useReadToken, useTokenAllowance } from '../../../../hooks/contract/useToken'
+import { useNativeTokenBalance } from '../../../../hooks/balance/useBalance'
+import { useBondTellerV2, useUserBondDataV2 } from '../../../../hooks/bond/useBondTellerV2'
+import { useWindowDimensions } from '../../../../hooks/internal/useWindowDimensions'
 
 /* import utils */
 import { accurateMultiply, formatAmount } from '../../../../utils/formatting'
 import { queryBalance } from '../../../../utils/contract'
 import { TransactionReceipt, TransactionResponse } from '@ethersproject/providers'
-import { useTellerConfig } from '../../../../hooks/useDetectTeller'
+import { useTellerConfig } from '../../../../hooks/bond/useDetectTeller'
 
 interface BondModalV2Props {
   closeModal: () => void

@@ -10,10 +10,10 @@ import { Modal } from '../components/molecules/Modal'
 
 import { Z_MODAL } from '../constants'
 
-import { useGetLatestBlock } from '../hooks/useGetLatestBlock'
+import { useGetLatestBlock } from '../hooks/provider/useGetLatestBlock'
 import { NetworkCache, SupportedProduct, ZerionPosition } from '../constants/types'
-import { useCachePositions } from '../hooks/useCachePositions'
-import { useZerion } from '../hooks/useZerion'
+import { useCachePositions } from '../hooks/_legacy/useCachePositions'
+import { useZerion } from '../hooks/_legacy/useZerion'
 import { Scrollable } from '../components/atoms/Layout'
 import { Flex } from '../components/atoms/Layout'
 import ToggleSwitch from '../components/atoms/ToggleSwitch'
@@ -37,6 +37,7 @@ and write to the blockchain.
 
 type ProviderContextType = {
   openNetworkModal: () => void
+  switchNetwork: (networkName: string) => Promise<void>
   latestBlock: Block | undefined
   userPositions: ZerionPosition[]
   tokenPosData: {
@@ -49,6 +50,7 @@ type ProviderContextType = {
 
 const InitialContextValue: ProviderContextType = {
   openNetworkModal: () => undefined,
+  switchNetwork: () => Promise.reject(),
   latestBlock: undefined,
   userPositions: [],
   tokenPosData: {
@@ -145,6 +147,7 @@ const ProviderManager: React.FC = ({ children }) => {
   const value = React.useMemo(
     () => ({
       openNetworkModal: openModal,
+      switchNetwork,
       userPositions: zerionPositions,
       latestBlock,
       tokenPosData: cachePositions,

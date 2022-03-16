@@ -41,7 +41,7 @@ import { Accordion } from '../atoms/Accordion'
 import { StyledArrowDropDown } from '../atoms/Icon'
 
 /* import hooks */
-import { useWindowDimensions } from '../../hooks/useWindowDimensions'
+import { useWindowDimensions } from '../../hooks/internal/useWindowDimensions'
 
 /* import utils */
 import { truncateValue } from '../../utils/formatting'

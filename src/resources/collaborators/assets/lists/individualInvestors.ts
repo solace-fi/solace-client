@@ -6,7 +6,7 @@ NEAR
 
 Jeffrey Zirlin
 Axie Infinity
-@StableNode
+@Jihoz_Axie
 
 Julien Bouteloup
 StakeDAO & rekt.news
@@ -38,7 +38,7 @@ Axie Infinity
 
 Quentin Milne
 Stake Capital
-@StableNode`
+@Kyuu_______`
 
 // line 1: name, line 2: role, line 3: twitter
 export default getPeopleFromString(teamStr)

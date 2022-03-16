@@ -3,7 +3,7 @@ import { Flex, Grid } from '../../../../components/atoms/Layout'
 import { SectionTitle } from '../../../../components/atoms/Typography'
 import { AboutThesis } from '../molecules/AboutThesis'
 import { Text } from '../../../../components/atoms/Typography'
-import { useWindowDimensions } from '../../../../hooks/useWindowDimensions'
+import { useWindowDimensions } from '../../../../hooks/internal/useWindowDimensions'
 
 // export const StakingSection = <StakingSectionFunction />
 export function StakingSection({
@@ -25,12 +25,12 @@ export function StakingSection({
   }, [isVisible, scroller, ref])
 
   return (
-    <Flex col stretch pr={70} justifyCenter ref={ref}>
-      <SectionTitle light extrabold isMobile={isMobile} ml={80}>
+    <Flex col stretch pr={isMobile ? 40 : 150} pl={isMobile ? 40 : 150} justifyCenter ref={ref}>
+      <SectionTitle light extrabold isMobile={isMobile}>
         Staking
       </SectionTitle>
       <Flex mt={70}>
-        <Grid gap={isMobile ? 50 : 60} columns={isMobile ? 1 : 2} ml={50}>
+        <Grid gap={isMobile ? 50 : 60} columns={isMobile ? 1 : 2}>
           <AboutThesis
             title="No risk of loss"
             text={

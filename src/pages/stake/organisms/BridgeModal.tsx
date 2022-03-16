@@ -27,11 +27,11 @@ import { Flex, VerticalSeparator } from '../../../components/atoms/Layout'
 import { InputSection } from '../../../components/molecules/InputSection'
 
 /* import hooks */
-import { useBridgeBalance, useSolaceBalance } from '../../../hooks/useBalance'
-import { useInputAmount, useTransactionExecution } from '../../../hooks/useInputAmount'
-import { useTokenAllowance } from '../../../hooks/useToken'
+import { useBridgeBalance, useSolaceBalance } from '../../../hooks/balance/useBalance'
+import { useInputAmount, useTransactionExecution } from '../../../hooks/internal/useInputAmount'
+import { useTokenAllowance } from '../../../hooks/contract/useToken'
 import { ModalProps } from '../../../components/atoms/Modal'
-import { useBridge } from '../../../hooks/useBridge'
+import { useBridge } from '../../../hooks/balance/useBridge'
 import useDebounce from '@rooks/use-debounce'
 import { TransactionReceipt, TransactionResponse } from '@ethersproject/providers'
 import { useNotifications } from '../../../context/NotificationsManager'
@@ -160,7 +160,7 @@ export const BridgeModal: React.FC<ModalProps> = ({ modalTitle, handleClose, isO
             pr={0}
             onClick={() => setIsWrapping(false)}
             jc={'center'}
-            style={{ cursor: 'pointer', backgroundColor: isWrapping ? 'rgba(0, 0, 0, .05)' : 'inherit' }}
+            style={{ cursor: 'pointer', backgroundColor: !isWrapping ? 'rgba(0, 0, 0, .05)' : 'inherit' }}
           >
             <Text t1 bold info={!isWrapping}>
               Unwrap
@@ -176,7 +176,7 @@ export const BridgeModal: React.FC<ModalProps> = ({ modalTitle, handleClose, isO
             jc={'center'}
             style={{
               cursor: 'pointer',
-              backgroundColor: !isWrapping ? 'rgba(0, 0, 0, .05)' : 'inherit',
+              backgroundColor: isWrapping ? 'rgba(0, 0, 0, .05)' : 'inherit',
             }}
           >
             <Text t1 bold info={isWrapping}>

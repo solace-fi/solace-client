@@ -48,10 +48,10 @@ import { BKPT_3 } from '../../../constants'
 import { Policy, ClaimAssessment, LocalTx } from '../../../constants/types'
 
 /* import hooks */
-import { useGetCooldownPeriod } from '../../../hooks/useClaimsEscrow'
-import { useWindowDimensions } from '../../../hooks/useWindowDimensions'
-import { useAppraisePolicyPosition } from '../../../hooks/usePolicy'
-import { useGetFunctionGas } from '../../../hooks/useGas'
+import { useGetCooldownPeriod } from '../../../hooks/_legacy/useClaimsEscrow'
+import { useWindowDimensions } from '../../../hooks/internal/useWindowDimensions'
+import { useAppraisePolicyPosition } from '../../../hooks/policy/usePolicy'
+import { useGetFunctionGas } from '../../../hooks/provider/useGas'
 
 /* import utils */
 import { truncateValue } from '../../../utils/formatting'

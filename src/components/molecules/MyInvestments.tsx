@@ -31,8 +31,8 @@ import { CardContainer, InvestmentCard, CardHeader, CardTitle, CardBlock } from 
 import { Unit } from '../../constants/enums'
 
 /* import hooks */
-import { useUserStakedValue } from '../../hooks/useFarm'
-import { useUserPendingRewards, useUserRewardsPerDay } from '../../hooks/useRewards'
+import { useUserStakedValue } from '../../hooks/farm/useFarm'
+import { useUserPendingRewards, useUserRewardsPerDay } from '../../hooks/_legacy/useRewards'
 
 /* import utils */
 import { truncateValue } from '../../utils/formatting'

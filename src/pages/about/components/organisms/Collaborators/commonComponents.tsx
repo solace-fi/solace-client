@@ -1,7 +1,7 @@
 import React from 'react'
 import { Flex, Grid } from '../../../../../components/atoms/Layout'
 import { Text } from '../../../../../components/atoms/Typography'
-import { useWindowDimensions } from '../../../../../hooks/useWindowDimensions'
+import { useWindowDimensions } from '../../../../../hooks/internal/useWindowDimensions'
 
 export function TeamMember({
   name,

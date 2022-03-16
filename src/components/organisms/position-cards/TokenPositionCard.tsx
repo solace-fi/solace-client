@@ -28,7 +28,7 @@ import { Button } from '../../atoms/Button'
 import { TextSpan } from '../../atoms/Typography'
 
 /* import hooks */
-import { useWindowDimensions } from '../../../hooks/useWindowDimensions'
+import { useWindowDimensions } from '../../../hooks/internal/useWindowDimensions'
 
 /* import utils */
 import { fixedTokenPositionBalance, truncateValue, trim0x } from '../../../utils/formatting'

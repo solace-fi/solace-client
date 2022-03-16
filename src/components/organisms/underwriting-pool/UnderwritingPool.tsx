@@ -33,8 +33,8 @@ import { Button, ButtonWrapper } from '../../atoms/Button'
 import { Card } from '../../atoms/Card'
 
 /* import hooks */
-import { useCapitalPoolSize, useUserVaultDetails } from '../../../hooks/useVault'
-import { useWindowDimensions } from '../../../hooks/useWindowDimensions'
+import { useCapitalPoolSize, useUserVaultDetails } from '../../../hooks/_legacy/useVault'
+import { useWindowDimensions } from '../../../hooks/internal/useWindowDimensions'
 
 /* import utils */
 import { truncateValue } from '../../../utils/formatting'
@@ -58,11 +58,11 @@ export const UnderwritingPool: React.FC<UnderwritingPoolProps> = ({ openModal })
 
   return (
     <Content>
-      <Text bold t1 mb={0} info>
-        Underwriting Pool
+      <Text bold t1 mb={0} warning>
+        V1 Underwriting Pool
       </Text>
       <Text t4 pt={10} pb={10}>
-        This capital is utilized to back the risk of coverage policies and earns revenue from policy sales.
+        This capital is utilized to back the risk of V1 coverage policies and earns revenue from policy sales.
       </Text>
       {width > BKPT_6 ? (
         <Table isHighlight textAlignCenter>

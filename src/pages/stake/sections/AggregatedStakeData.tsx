@@ -7,7 +7,7 @@ import { Text } from '../../../components/atoms/Typography'
 import { UserLocksInfo } from '../../../constants/types'
 import { truncateValue } from '../../../utils/formatting'
 import { formatUnits } from '@ethersproject/units'
-import { useWindowDimensions } from '../../../hooks/useWindowDimensions'
+import { useWindowDimensions } from '../../../hooks/internal/useWindowDimensions'
 import { BKPT_6 } from '../../../constants'
 import { Card } from '../../../components/atoms/Card'
 

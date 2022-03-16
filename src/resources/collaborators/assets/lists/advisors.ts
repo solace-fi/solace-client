@@ -1,15 +1,15 @@
 import getPeopleFromString from '../../getPeopleFromString'
 
-const teamStr = `Gustav Arentoft, Doo Wan Nam 
-MakerDAO & StableNode
-@StableNode
+const teamStr = `Gustav Arentoft
+1inch & StableNode
+@GArentoft
 
 Preston Van Loon
-Prysmatic Labs
+Prysmatic Labs & Cryptex
 @preston_vanloon
 
 Cameron Dennis
-Blockchain Acceleration Foundation
+NEAR & BAF
 @Cameron_Dennis_
 
 Arjun Kalsy

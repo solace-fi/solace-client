@@ -33,7 +33,7 @@ import {
 } from '../../../components/atoms/DeFiAsset'
 
 /* import hooks */
-import { useWindowDimensions } from '../../../hooks/useWindowDimensions'
+import { useWindowDimensions } from '../../../hooks/internal/useWindowDimensions'
 
 /* import utils */
 import { fixedPositionBalance, truncateValue, trim0x } from '../../../utils/formatting'

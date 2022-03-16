@@ -46,8 +46,8 @@ import { Box, BoxItem, BoxItemTitle } from '../atoms/Box'
 import { CopyButton } from '../molecules/CopyButton'
 
 /* import hooks */
-import { useTransactionDetails } from '../../hooks/useTransactionHistory'
-import { useWindowDimensions } from '../../hooks/useWindowDimensions'
+import { useTransactionDetails } from '../../hooks/api/useTransactionHistory'
+import { useWindowDimensions } from '../../hooks/internal/useWindowDimensions'
 
 /* import utils */
 import { getExplorerItemUrl } from '../../utils/explorer'

@@ -46,12 +46,12 @@ import { ModalRow, ModalCell } from '../../atoms/Modal'
 import { SourceContract } from '../SourceContract'
 
 /* import hooks */
-import { useNativeTokenBalance } from '../../../hooks/useBalance'
-import { useScpBalance } from '../../../hooks/useBalance'
-import { useCooldown, useVault } from '../../../hooks/useVault'
-import { useCpFarm } from '../../../hooks/useCpFarm'
-import { useWindowDimensions } from '../../../hooks/useWindowDimensions'
-import { useInputAmount, useTransactionExecution } from '../../../hooks/useInputAmount'
+import { useNativeTokenBalance } from '../../../hooks/balance/useBalance'
+import { useScpBalance } from '../../../hooks/balance/useBalance'
+import { useCooldown, useVault } from '../../../hooks/_legacy/useVault'
+import { useCpFarm } from '../../../hooks/_legacy/useCpFarm'
+import { useWindowDimensions } from '../../../hooks/internal/useWindowDimensions'
+import { useInputAmount, useTransactionExecution } from '../../../hooks/internal/useInputAmount'
 
 /* import utils */
 import { truncateValue } from '../../../utils/formatting'
@@ -66,7 +66,7 @@ export const UnderwritingPoolModal: React.FC<PoolModalProps> = ({ modalTitle, fu
 
   const { haveErrors } = useGeneral()
   const { activeNetwork, currencyDecimals } = useNetwork()
-  const { gasPrice } = useCachedData()
+  const { gasData } = useCachedData()
 
   const [modalLoading, setModalLoading] = useState<boolean>(false)
   const [canCloseOnLoading, setCanCloseOnLoading] = useState<boolean>(false)
@@ -184,7 +184,7 @@ export const UnderwritingPoolModal: React.FC<PoolModalProps> = ({ modalTitle, fu
 
   useEffect(() => {
     if (maxSelected) _setMax()
-  }, [gasPrice])
+  }, [gasData])
 
   useEffect(() => {
     setIsAcceptableAmount(isAppropriateAmount(amount, currencyDecimals, assetBalance))

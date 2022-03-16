@@ -30,7 +30,7 @@ import { Text } from '../../atoms/Typography'
 import { Flex } from '../../../components/atoms/Layout'
 
 /* import hooks */
-import { useReadToken } from '../../../hooks/useToken'
+import { useReadToken } from '../../../hooks/contract/useToken'
 
 /* import utils */
 import { getLongtimeFromMillis } from '../../../utils/time'

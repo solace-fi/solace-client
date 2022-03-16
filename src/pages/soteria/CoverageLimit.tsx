@@ -3,11 +3,11 @@ import { Flex } from '../../components/atoms/Layout'
 import { QuestionCircle } from '@styled-icons/bootstrap/QuestionCircle'
 import { Button } from '../../components/atoms/Button'
 import { StyledTooltip } from '../../components/molecules/Tooltip'
-import { useFunctions } from '../../hooks/useSolaceCoverProduct'
+import { useFunctions } from '../../hooks/policy/useSolaceCoverProduct'
 import { useWallet } from '../../context/WalletManager'
 import { BigNumber } from 'ethers'
 import { LocalTx, SolaceRiskScore } from '../../constants/types'
-import { useTransactionExecution } from '../../hooks/useInputAmount'
+import { useTransactionExecution } from '../../hooks/internal/useInputAmount'
 import { FunctionName } from '../../constants/enums'
 import useDebounce from '@rooks/use-debounce'
 import { Text } from '../../components/atoms/Typography'
@@ -74,7 +74,7 @@ export function CoverageLimit({
     if (!account) return
     await updateCoverLimit(newCoverageLimit, referralValidation && referralCode ? referralCode : [])
       .then((res) => _handleToast(res.tx, res.localTx))
-      .catch((err) => _handleContractCallError('callUpdateCoverLimit', err, FunctionName.SOTERIA_UPDATE))
+      .catch((err) => _handleContractCallError('callUpdateCoverLimit', err, FunctionName.SOTERIA_UPDATE_LIMIT))
   }
 
   const _handleToast = async (tx: any, localTx: LocalTx | null) => {
@@ -128,9 +128,7 @@ export function CoverageLimit({
         />
       </Flex>
       <Flex justifyCenter={!isEditing} between={isEditing} gap={isEditing ? 20 : undefined} pt={10} pb={10}>
-        {inactive ? (
-          <div style={{ height: '36px' }} />
-        ) : !isEditing ? (
+        {inactive ? null : !isEditing ? (
           <Button
             info
             secondary
