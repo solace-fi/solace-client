@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react'
 import { useContracts } from '../../context/ContractsManager'
 import { useWallet } from '../../context/WalletManager'
-import { usePoolStakedValue, useUserStakedValue } from '../farm/useFarm'
+import { usePoolStakedValue, useUserStakedValue } from '../_legacy/useFarm'
 import { formatUnits, parseUnits } from '@ethersproject/units'
 import { NUM_SECONDS_PER_DAY, ZERO } from '../../constants'
 import { Contract } from '@ethersproject/contracts'

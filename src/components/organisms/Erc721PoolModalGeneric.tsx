@@ -41,7 +41,7 @@ import { Erc721InputPanel, PoolModalProps } from './PoolModalRouter'
 import { SourceContract } from './SourceContract'
 
 /* import hooks */
-import { useUserStakedValue } from '../../hooks/farm/useFarm'
+import { useUserStakedValue } from '../../hooks/_legacy/useFarm'
 import { useTransactionExecution } from '../../hooks/internal/useInputAmount'
 
 /* import utils */
