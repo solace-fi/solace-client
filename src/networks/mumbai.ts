@@ -1,7 +1,7 @@
 import { Unit } from '../constants/enums'
 import { NetworkConfig } from '../constants/types'
 import PolygonLogo from '../resources/svg/networks/polygon-matic-logo.svg'
-import { ALCHEMY_MUMBAI_API_KEY, POLYGONSCAN_API_KEY } from '../constants'
+import { ALCHEMY_POLYGON_API_KEY, POLYGONSCAN_API_KEY } from '../constants'
 import { hexValue } from 'ethers/lib/utils'
 
 import solaceABI from '../constants/abi/contracts/SOLACE.sol/SOLACE.json'
@@ -27,7 +27,7 @@ export const MumbaiNetwork: NetworkConfig = {
   supportedTxTypes: [0, 2],
   nativeCurrency: { mainnetReference: '0x7D1AfA7B718fb893dB30A3aBc0Cfc608AaCfeBB0', symbol: Unit.MATIC, decimals: 18 },
   rpc: {
-    httpsUrl: `https://polygon-mumbai.g.alchemy.com/v2/${String(ALCHEMY_MUMBAI_API_KEY)}`,
+    httpsUrl: `https://polygon-mumbai.g.alchemy.com/v2/${String(ALCHEMY_POLYGON_API_KEY)}`,
     pollingInterval: 12_000,
     blockConfirms: 1,
   },

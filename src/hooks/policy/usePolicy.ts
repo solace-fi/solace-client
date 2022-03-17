@@ -58,6 +58,7 @@ export const useExistingPolicy = (account: string | undefined) => {
       if (!account) {
         setPolicyId(ZERO)
         setLoading(true)
+        return
       }
       const countedNetworks = networks.filter((n) => !n.isTestnet)
       // const countedNetworks = networks
