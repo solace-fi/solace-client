@@ -371,7 +371,9 @@ export const usePortfolio = (
 
   useEffect(() => {
     const getPortfolio = async () => {
-      const useV2 = activeNetwork.config.keyContracts.solaceCoverProduct.additionalInfo == 'v2'
+      const useV2 =
+        activeNetwork.config.keyContracts.solaceCoverProduct &&
+        activeNetwork.config.keyContracts.solaceCoverProduct.additionalInfo == 'v2'
       if (!account || (useV2 && chains.length == 0) || chainsLoading) return
       const balances = await getSolaceRiskBalances(account, useV2 ? chains : [1])
       if (!balances) {
