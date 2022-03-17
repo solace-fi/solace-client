@@ -14,7 +14,7 @@
   *************************************************************************************/
 
 /* import packages */
-import React, { Fragment } from 'react'
+import React, { Fragment, useState } from 'react'
 import { Route, Switch, useLocation } from 'react-router-dom'
 /* import managers */
 
@@ -52,10 +52,13 @@ import { AnalyticsReporter } from '../analytics'
 import Soteria from './soteria'
 import { PageInfo } from '../constants/types'
 import Archive from './archive'
+import { AppMenu } from '../components/organisms/AppMenu'
 
 export default function App(): any {
   const location = useLocation()
   const { width } = useWindowDimensions()
+
+  const [sidebar, setSidebar] = useState(true)
 
   const pages: PageInfo[] = [
     // {
@@ -113,6 +116,7 @@ export default function App(): any {
       <AnalyticsReporter />
       <GlobalStyle location={location} />
       <TopNavbar pages={pages} />
+      <AppMenu show={sidebar} setShow={setSidebar} />
       <Layout>
         <ContentContainer>
           <SideNavContent>

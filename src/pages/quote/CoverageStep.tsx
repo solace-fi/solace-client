@@ -46,7 +46,7 @@ import { Loader } from '../../components/atoms/Loader'
 import { Flex, HorizRule } from '../../components/atoms/Layout'
 
 /* import hooks */
-import { useGetQuote, useGetMaxCoverPerPolicy } from '../../hooks/policy/usePolicy'
+import { useGetQuote, useGetMaxCoverPerPolicy } from '../../hooks/_legacy/usePolicy'
 import { useGetFunctionGas } from '../../hooks/provider/useGas'
 
 /* import utils */

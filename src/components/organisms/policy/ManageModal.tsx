@@ -49,7 +49,7 @@ import { LocalTx, Policy } from '../../../constants/types'
 import { FunctionGasLimits } from '../../../constants/mappings/gasMapping'
 
 /* import hooks */
-import { useAppraisePolicyPosition, useGetMaxCoverPerPolicy, useGetPolicyPrice } from '../../../hooks/policy/usePolicy'
+import { useGetPolicyPrice, useAppraisePolicyPosition, useGetMaxCoverPerPolicy } from '../../../hooks/_legacy/usePolicy'
 import { useGetFunctionGas } from '../../../hooks/provider/useGas'
 import { useWindowDimensions } from '../../../hooks/internal/useWindowDimensions'
 

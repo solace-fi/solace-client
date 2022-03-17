@@ -19,11 +19,6 @@
     "@types/rebass": "^4.0.10",
     "@types/rebass__forms": "^4.0.5",
     "@types/styled-components": "^5.1.17",
-    "@uniswap/sdk": "^3.0.3",
-    "@uniswap/sdk-core": "^3.0.1",
-    "@uniswap/v3-core": "^1.0.0",
-    "@uniswap/v3-sdk": "^3.7.1",
-    "@usedapp/coingecko": "^0.3.25",
     "@web3-react/authereum-connector": "^6.2.0",
     "@web3-react/core": "^6.1.9",
     "@web3-react/fortmatic-connector": "^6.1.6",
@@ -97,7 +92,6 @@
     "eslint-plugin-jsx-a11y": "^6.4.1",
     "eslint-plugin-prettier": "^3.4.1",
     "eslint-plugin-react": "^7.24.0",
-    "prettier": "2.2.1",
-    "rebass": "^4.0.7"
+    "prettier": "2.2.1"
   }
 }

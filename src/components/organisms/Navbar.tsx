@@ -415,7 +415,7 @@ export const TopNavbar: React.FC<Navbar> = ({ pages }) => {
           </SidebarItem>
         </ItemText>
       </ItemList>
-      <ItemText jc={'center'} style={{ padding: '0', gap: '60px' }}>
+      <ItemText jc={'center'} style={{ padding: '0', gap: '10vw' }}>
         <HyperLink
           href={'https://discord.gg/7v8qsyepfu'}
           target="_blank"

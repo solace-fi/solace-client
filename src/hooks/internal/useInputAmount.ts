@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from 'react'
+import { useState } from 'react'
 import { BigNumber } from 'ethers'
 import { formatUnits, parseUnits } from '@ethersproject/units'
 import { TransactionReceipt, TransactionResponse } from '@ethersproject/providers'
@@ -9,9 +9,7 @@ import { useNetwork } from '../../context/NetworkManager'
 
 import { POW_NINE, ZERO } from '../../constants'
 import { FunctionName, TransactionCondition } from '../../constants/enums'
-import { GasFeeOption, LocalTx } from '../../constants/types'
-
-import { useGetFunctionGas } from '../provider/useGas'
+import { LocalTx } from '../../constants/types'
 
 import { fixed, filterAmount, formatAmount } from '../../utils/formatting'
 

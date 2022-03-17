@@ -37,7 +37,7 @@ import { FunctionName } from '../../../constants/enums'
 
 /* import hooks */
 import { useRewardsPerDay, useUserPendingRewards, useUserRewardsPerDay } from '../../../hooks/_legacy/useRewards'
-import { useUserStakedValue, usePoolStakedValue } from '../../../hooks/farm/useFarm'
+import { useUserStakedValue, usePoolStakedValue } from '../../../hooks/_legacy/useFarm'
 import { useWindowDimensions } from '../../../hooks/internal/useWindowDimensions'
 
 /* import utils */

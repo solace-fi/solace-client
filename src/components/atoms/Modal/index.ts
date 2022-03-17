@@ -16,6 +16,7 @@ export interface ModalProps extends BaseModalProps {
 }
 
 export interface ModalButtonProps extends ClickProps {
+  lightColor: boolean
   hidden?: boolean
 }
 

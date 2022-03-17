@@ -50,7 +50,7 @@ import { Policy, ClaimAssessment, LocalTx } from '../../../constants/types'
 /* import hooks */
 import { useGetCooldownPeriod } from '../../../hooks/_legacy/useClaimsEscrow'
 import { useWindowDimensions } from '../../../hooks/internal/useWindowDimensions'
-import { useAppraisePolicyPosition } from '../../../hooks/policy/usePolicy'
+import { useAppraisePolicyPosition } from '../../../hooks/_legacy/usePolicy'
 import { useGetFunctionGas } from '../../../hooks/provider/useGas'
 
 /* import utils */

@@ -35,6 +35,7 @@ import { useNetwork } from '../../../../context/NetworkManager'
 import { useCachedData } from '../../../../context/CachedDataManager'
 import { useNotifications } from '../../../../context/NotificationsManager'
 import { useContracts } from '../../../../context/ContractsManager'
+import { useGeneral } from '../../../../context/GeneralManager'
 
 /* import components */
 import { WalletConnectButton } from '../../../molecules/WalletConnectButton'
@@ -83,6 +84,7 @@ export const BondModalV2: React.FC<BondModalV2Props> = ({ closeModal, isOpen, se
   const { reload, version } = useCachedData()
   const { makeTxToast } = useNotifications()
   const { keyContracts } = useContracts()
+  const { appTheme } = useGeneral()
   const { solace } = useMemo(() => keyContracts, [keyContracts])
 
   const [canCloseOnLoading, setCanCloseOnLoading] = useState<boolean>(false)
@@ -381,7 +383,11 @@ export const BondModalV2: React.FC<BondModalV2Props> = ({ closeModal, isOpen, se
               ))}
           </Flex>
           <Flex style={{ position: 'absolute', right: '0', bottom: '-10px' }}>
-            <ModalCloseButton hidden={modalLoading && !canCloseOnLoading} onClick={handleClose} />
+            <ModalCloseButton
+              hidden={modalLoading && !canCloseOnLoading}
+              onClick={handleClose}
+              lightColor={appTheme == 'dark'}
+            />
           </Flex>
         </ModalHeader>
         <div
