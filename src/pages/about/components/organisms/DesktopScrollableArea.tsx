@@ -29,7 +29,7 @@ export default function DesktopScrollableArea({
   HomepageSections: HomepageSections
 }): JSX.Element {
   const scrollElementIntoView = (ref: React.RefObject<HTMLDivElement>) => {
-    console.log('scrollElementIntoView > ref.current =', ref.current)
+    // console.log('scrollElementIntoView > ref.current =', ref.current)
     if (ref.current !== null) {
       ref.current.scrollIntoView({
         behavior: 'smooth',
@@ -40,7 +40,7 @@ export default function DesktopScrollableArea({
   const getScrollerForThisRef = (
     ref: RefObject<HTMLDivElement> | ((instance: HTMLDivElement | null) => void)
   ) => () => {
-    console.log('getScrollerForThisRef > ref =', ref)
+    // console.log('getScrollerForThisRef > ref =', ref)
     scrollElementIntoView(ref as RefObject<HTMLDivElement>)
   }
   // detect changes in visibleSection and scroll to the current one

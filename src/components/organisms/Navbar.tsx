@@ -44,6 +44,7 @@ import {
   StyledDocuments,
   StyledWork,
   StyledLockFile,
+  DefiPulse,
 } from '../atoms/Icon'
 import { Text, TextSpan } from '../atoms/Typography'
 import { HyperLink } from '../atoms/Link'
@@ -221,6 +222,16 @@ export const SideNavbar: React.FC<Navbar> = ({ pages }) => {
                   <StyledMedium size={20} />
                 </SidebarText>
               </HyperLink>
+              <HyperLink
+                href={'https://medium.com/frigate-fi'}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ lineHeight: '0' }}
+              >
+                <SidebarText style={{ opacity: '0.8' }} light={location.pathname == '/'}>
+                  <DefiPulse size={20} />
+                </SidebarText>
+              </HyperLink>
             </ItemText>
           ) : (
             <ItemList>
@@ -276,6 +287,20 @@ export const SideNavbar: React.FC<Navbar> = ({ pages }) => {
                   >
                     <SidebarText style={{ opacity: '0.8' }} light={lightText}>
                       <StyledMedium size={20} />
+                    </SidebarText>
+                  </HyperLink>
+                </ItemText>
+              </StyledNavTooltip>
+              <StyledNavTooltip id={'defipulse-nav'} tip={'Medium'}>
+                <ItemText>
+                  <HyperLink
+                    href={'https://medium.com/frigate-fi'}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{ lineHeight: '0', ...miniNavbarMarginSet }}
+                  >
+                    <SidebarText style={{ opacity: '0.8' }} light={lightText}>
+                      <DefiPulse size={20} />
                     </SidebarText>
                   </HyperLink>
                 </ItemText>
@@ -346,6 +371,7 @@ export const TopNavbar: React.FC<Navbar> = ({ pages }) => {
         true
       )
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location])
 
   return (

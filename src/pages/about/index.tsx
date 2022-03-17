@@ -51,7 +51,7 @@ function About(): JSX.Element {
 
   function changeVisibleSection(index: number) {
     setSection(index)
-    console.log('changeVisibleSection', index, section)
+    // console.log('changeVisibleSection', index, section)
   }
 
   return (
