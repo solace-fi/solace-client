@@ -91,11 +91,8 @@ export default function DifferenceBoxes({
             <Text t1 extrabold light>
               Staking V2
             </Text>
-            {/* <Text t5s light textAlignCenter style={{ fontWeight: 400, margin: '10px 55px 0px 55px' }}>
-              Users are in more control of their funds and returns. Users can utilize safes to take ad
-            </Text> */}
             <Flex column gap={20} center>
-              <Text t2 light textAlignCenter>
+              <Text t2 light>
                 Rewards Distributed Each Second
               </Text>
               <Text t2 light>

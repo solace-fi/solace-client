@@ -72,7 +72,13 @@ const ProviderManager: React.FC = ({ children }) => {
   const { networks, activeNetwork, findNetworkByChainId, findNetworkByName, changeNetwork } = useNetwork()
   const { connector } = useWallet()
   const latestBlock = useGetLatestBlock()
-  const cachePositions = useCachePositions()
+  // const cachePositions = useCachePositions()
+  const cachePositions = {
+    batchFetching: false,
+    storedPosData: [],
+    handleGetCache: () => Promise.reject(),
+    getCacheForPolicies: () => Promise.reject(),
+  }
   const [networkModal, setNetworkModal] = useState<boolean>(false)
   const [showTestnets, setShowTestnets] = useState<boolean>(false)
   const zerionPositions = useZerion()
