@@ -116,7 +116,7 @@ export default function App(): any {
       <AnalyticsReporter />
       <GlobalStyle location={location} />
       <TopNavbar pages={pages} />
-      <AppMenu show={sidebar} setShow={setSidebar} />
+      {/* <AppMenu show={sidebar} setShow={setSidebar} /> */}
       <Layout>
         <ContentContainer>
           <SideNavContent>
@@ -136,7 +136,6 @@ export default function App(): any {
               </Switch>
             </LayoutContentWithLoader>
           </LayoutContent>
-          {/* {location.pathname == '/' && width > BKPT_5 && <SideNavContent />} */}
         </ContentContainer>
       </Layout>
     </Fragment>
