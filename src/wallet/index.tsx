@@ -5,7 +5,7 @@ import { WalletConnectConnector } from './wallet-connectors/WalletConnect'
 import { WalletLinkConnector } from './wallet-connectors/WalletLink'
 import { FortmaticConnector } from './wallet-connectors/Fortmatic'
 import { AuthereumConnector } from './wallet-connectors/Authereum'
-// import { TorusConnector } from './wallet-connectors/Torus'
+import { TorusConnector } from './wallet-connectors/Torus'
 import { PortisConnector } from './wallet-connectors/Portis'
 import { TrezorConnector } from './wallet-connectors/Trezor'
 import { LedgerConnector } from './wallet-connectors/Ledger'
@@ -27,7 +27,7 @@ export const SUPPORTED_WALLETS: WalletConnector[] = [
   WalletLinkConnector,
   FortmaticConnector,
   AuthereumConnector,
-  // TorusConnector,
+  TorusConnector,
   PortisConnector,
   TrezorConnector,
   LedgerConnector,
