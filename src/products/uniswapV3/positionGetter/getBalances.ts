@@ -1,31 +1,7 @@
 import { NetworkConfig, Token as _Token } from '../../../constants/types'
-import { accurateMultiply, capitalizeFirstLetter, getExponentValue } from '../../../utils/formatting'
-import { BigNumber } from 'ethers'
-import { TickMath, Position, Pool, Route } from '@uniswap/v3-sdk'
-import { Token, Price } from '@uniswap/sdk-core'
-import UniV3FactoryAbi from './_contracts/IUniswapV3Factory.json'
-
-import { ADDRESS_ZERO, ZERO } from '../../../constants'
-import JSBI from 'jsbi'
-
-import { ApolloClient, InMemoryCache, gql } from '@apollo/client'
-import { getContract } from '../../../utils'
-import { get1InchPrice, getCoingeckoTokenPriceByAddr, getZapperProtocolBalances } from '../../../utils/api'
+import { getCoingeckoTokenPriceByAddr, getZapperProtocolBalances } from '../../../utils/api'
 import { WETH9_ADDRESS } from '../../../constants/mappings/tokenAddressMapping'
-import { formatUnits, parseUnits } from '@ethersproject/units'
 import { createZapperBalanceMap, networkNames } from '../../zapperBalances'
-
-const UniV3FactoryAddr = '0x1F98431c8aD98523631AE4a59f267346ea31F984'
-
-const ETH = '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee'
-const WETH = '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2'
-
-const WETHToken = new Token(1, '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2', 18, 'WETH', 'Wrapped Ether') // mainnet eth
-
-const client = new ApolloClient({
-  uri: 'https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v3',
-  cache: new InMemoryCache(),
-})
 
 export const getBalances = async (
   user: string,
@@ -33,7 +9,6 @@ export const getBalances = async (
   activeNetwork: NetworkConfig,
   tokens: _Token[]
 ): Promise<_Token[]> => {
-  // const nativeToken = tokenForChain[activeNetwork.chainId]
   const zapperNet = networkNames[activeNetwork.chainId]
   if (!zapperNet) return []
 
@@ -230,8 +205,4 @@ export const getBalances = async (
   //   tokens[i].eth.balance = BigNumber.from(accurateMultiply(convertedNativeTokenAmount, nativeToken.decimals))
   // }
   // return tokens
-}
-
-export const tokenForChain: { [chainId: number]: Token } = {
-  [1]: WETHToken,
 }

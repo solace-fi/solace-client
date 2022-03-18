@@ -40,7 +40,7 @@ const z3 = above + z2
 // page layout
 export const Z_TABLE = z0
 export const Z_FOOTER = z0
-export const Z_TOPNAV = z1
+export const Z_NAV = z1
 export const Z_MODAL = z2
 export const Z_TOOLTIP = z3
 

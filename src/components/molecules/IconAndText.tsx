@@ -1,6 +1,6 @@
 import React from 'react'
 import styled from 'styled-components'
-import { Clock } from 'styled-icons/bootstrap'
+import { Clock } from '@styled-icons/bootstrap/Clock'
 import { GrayBgDiv } from '../atoms/Layout'
 import { Tab } from '../../constants/enums'
 import { BKPT_5 } from '../../constants'
