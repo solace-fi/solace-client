@@ -41,6 +41,7 @@ import Zapper from '../../resources/svg/zapper.svg'
 import ZapperDark from '../../resources/svg/zapper-dark.svg'
 import { CoveredChains } from './CoveredChains'
 import { CheckboxData } from '../stake/types/LockCheckbox'
+import { PortfolioEditor } from './PortfolioEditor'
 
 export function Card({
   children,
@@ -603,7 +604,13 @@ export default function Soteria(): JSX.Element {
                     </Text>
                   </Flex>
                 )}
-                <PortfolioTable portfolio={portfolio} loading={loading} />
+                {/* <PortfolioTable portfolio={portfolio} loading={loading} /> */}
+                <PortfolioEditor
+                  portfolio={portfolio}
+                  loading={loading}
+                  currentCoverageLimit={currentCoverageLimit}
+                  totalAccountBalance={balances.totalAccountBalance}
+                />
               </Card>
             </Flex>
           )}

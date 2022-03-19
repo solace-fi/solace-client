@@ -149,3 +149,21 @@ export const getSolaceRiskScores = async (
       return undefined
     })
 }
+
+export const getSolaceRiskSeries = async () => {
+  return await fetch('https://risk-data.solace.fi/series', {
+    method: 'GET',
+    headers: {
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
+    },
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      return data
+    })
+    .catch((error) => {
+      console.error('Error getSolaceRiskSeries:', error)
+      return undefined
+    })
+}

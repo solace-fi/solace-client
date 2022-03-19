@@ -36,6 +36,7 @@ import { ArrowIosForwardOutline } from '@styled-icons/evaicons-outline/ArrowIosF
 import { ArrowIosBackOutline } from '@styled-icons/evaicons-outline/ArrowIosBackOutline'
 import { Tractor } from '@styled-icons/fa-solid/Tractor'
 import { FolderHistory } from '@styled-icons/remix-fill/FolderHistory'
+import { RemoveCircleOutline } from '@styled-icons/material-outlined/RemoveCircleOutline'
 
 export const StyledIconCss = css`
   margin: auto;
@@ -141,3 +142,5 @@ export const StyledArrowIosBackOutline = styled(ArrowIosBackOutline)``
 export const StyledTractor = styled(Tractor)``
 
 export const StyledFolderHistory = styled(FolderHistory)``
+
+export const StyledRemoveCircleOutline = styled(RemoveCircleOutline)``
