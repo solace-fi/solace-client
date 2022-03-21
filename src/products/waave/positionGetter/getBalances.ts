@@ -4,7 +4,7 @@ import { Contract } from '@ethersproject/contracts'
 import { addNativeTokenBalances, getProductTokenBalances } from '../../getBalances'
 import { getNonHumanValue } from '../../../utils/formatting'
 import { withBackoffRetries } from '../../../utils/time'
-import waaveTokenAbi from '../../../constants/abi/contracts/interface/Waave/IWaToken.sol/IWaToken.json'
+import waaveTokenAbi from '../../../constants/metadata/IWaToken.json'
 
 export const getBalances = async (
   user: string,
