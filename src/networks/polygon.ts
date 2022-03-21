@@ -4,7 +4,7 @@ import PolygonLogo from '../resources/svg/networks/polygon-matic-logo.svg'
 import { ALCHEMY_POLYGON_API_KEY, POLYGONSCAN_API_KEY } from '../constants'
 import { hexValue } from 'ethers/lib/utils'
 
-import solaceABI from '../constants/abi/contracts/SOLACE.sol/SOLACE.json'
+import solaceABI from '../constants/metadata/SOLACE.json'
 import xSolaceABI from '../constants/metadata/xSOLACE.json'
 import xsLockerABI from '../constants/metadata/xsLocker.json'
 import stakingRewardsABI from '../constants/metadata/StakingRewards.json'
