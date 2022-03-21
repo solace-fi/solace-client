@@ -9,7 +9,7 @@ import { Text } from '../../components/atoms/Typography'
 import { useTierColors } from '../../hooks/internal/useTierColors'
 import { Input, Search } from '../../components/atoms/Input'
 import useDebounce from '@rooks/use-debounce'
-import { getSolaceRiskSeries } from '../../utils/api'
+import { getSolaceRiskScores, getSolaceRiskSeries } from '../../utils/api'
 import { Button, GraySquareButton } from '../../components/atoms/Button'
 import { GenericInputSection } from '../../components/molecules/InputSection'
 import {
@@ -18,6 +18,7 @@ import {
   StyledRemoveCircleOutline,
 } from '../../components/atoms/Icon'
 import { BigNumber } from 'ethers'
+import { useWallet } from '../../context/WalletManager'
 
 type EditableProtocol = {
   appId: string
@@ -30,57 +31,18 @@ type EditableProtocol = {
 
 export function PortfolioEditor({
   portfolio,
-  currentCoverageLimit,
-  totalAccountBalance,
   loading,
 }: {
   portfolio: SolaceRiskScore | undefined
-  currentCoverageLimit: BigNumber
-  totalAccountBalance: BigNumber
   loading: boolean
 }): JSX.Element {
+  const { account } = useWallet()
   const { isDesktop, isMobile } = useWindowDimensions()
   const [searchValue, setSearchValue] = useState<string>('')
   const [editableProtocols, setEditablePortfolio] = useState<EditableProtocol[]>([])
   const [protocolMap, setProtocolMap] = useState<{ appId: string; category: string; tier: number }[]>([])
-  const [newPositionAmount, setNewPositionAmount] = useState<string>('')
   const [currentPage, setCurrentPage] = useState<number>(0)
-
-  const usdBalanceSum = useMemo(
-    () =>
-      portfolio && portfolio.protocols.length > 0
-        ? portfolio.protocols.reduce((total, protocol) => (total += protocol.balanceUSD), 0)
-        : 0,
-    [portfolio]
-  )
-
-  const annualRate = useMemo(() => (portfolio && portfolio.current_rate ? portfolio.current_rate : 0), [portfolio])
-
-  const annualCost = useMemo(() => (portfolio && portfolio.address_rp ? portfolio.address_rp : 0), [portfolio])
-
-  const dailyRate = useMemo(() => annualRate / 365.25, [annualRate])
-
-  const dailyCost = useMemo(() => {
-    const numberifiedCurrentCoverageLimit = floatUnits(currentCoverageLimit, 18)
-    if (usdBalanceSum < numberifiedCurrentCoverageLimit) return usdBalanceSum * dailyRate
-    return numberifiedCurrentCoverageLimit * dailyRate
-  }, [currentCoverageLimit, dailyRate, usdBalanceSum])
-
-  const policyDuration = useMemo(() => (dailyCost > 0 ? floatUnits(totalAccountBalance, 18) / dailyCost : 0), [
-    dailyCost,
-    totalAccountBalance,
-  ])
-
-  // const projectedDailyCost = useMemo(() => {
-  //   const numberifiedNewCoverageLimit = floatUnits(newCoverageLimit, 18)
-  //   if (usdBalanceSum < numberifiedNewCoverageLimit) return usdBalanceSum * dailyRate
-  //   return numberifiedNewCoverageLimit * dailyRate
-  // }, [newCoverageLimit, dailyRate, usdBalanceSum])
-
-  // const projectedPolicyDuration = useMemo(() => {
-  //   const bnAmount = BigNumber.from(accurateMultiply(inputProps.amount, 18))
-  //   return projectedDailyCost > 0 ? floatUnits(totalAccountBalance.add(bnAmount), 18) / projectedDailyCost : 0
-  // }, [projectedDailyCost, totalAccountBalance, inputProps.amount])
+  const [score, setScore] = useState<SolaceRiskScore | undefined>(undefined)
 
   const protocolMapSorted = useMemo(
     () =>
@@ -111,6 +73,17 @@ export function PortfolioEditor({
     [currentPage, protocolMapFiltered]
   )
 
+  const editablePortfolioSelectiveBalance = useMemo(
+    () =>
+      editableProtocols.reduce(
+        (total, protocol) =>
+          (total +=
+            protocol.balanceUSD.length == 0 || protocol.erroneous ? 0 : parseFloat(formatAmount(protocol.balanceUSD))),
+        0
+      ),
+    [editableProtocols]
+  )
+
   const editablePortfolioTotalBalance = useMemo(
     () =>
       editableProtocols.reduce(
@@ -121,21 +94,25 @@ export function PortfolioEditor({
     [editableProtocols]
   )
 
-  const editablePortfolioRiskLevel = useMemo(() => editableProtocols.reduce((pv, cv) => cv.tier + pv, 0), [
-    editableProtocols,
-  ])
+  const largestPosition = useMemo(
+    () =>
+      editableProtocols.length > 0
+        ? editableProtocols.reduce((pn, cn) => (parseFloat(cn.balanceUSD) > parseFloat(pn.balanceUSD) ? cn : pn))
+        : undefined,
+    [editableProtocols]
+  )
+
+  const estimatedAnnualPrice = useMemo(() => {
+    if (score && largestPosition) {
+      return score.address_rp * parseFloat(largestPosition.balanceUSD)
+    } else {
+      return 0
+    }
+  }, [largestPosition, score])
+
+  const dailyRate = useMemo(() => estimatedAnnualPrice / 365.25, [estimatedAnnualPrice])
 
   const tierColors = useTierColors(protocolMapSorted.map((p) => p.tier))
-
-  /* if search value does not match or the one found protocol is already added, cannot add
-   */
-  const cannotAddPosition = useMemo(() => {
-    const searchedProtocol = protocolMapFiltered.find((p) => p.appId.toLowerCase() == searchValue.toLowerCase())
-    const protocolAlreadyAdded =
-      searchedProtocol &&
-      editableProtocols.find((p) => p.appId.toLowerCase() == searchedProtocol.appId.toLowerCase()) != undefined
-    return searchedProtocol == undefined || protocolAlreadyAdded
-  }, [editableProtocols, protocolMapFiltered, searchValue])
 
   const getColorByTier = (tier: number) => {
     const index = tier - 1
@@ -151,21 +128,25 @@ export function PortfolioEditor({
     setSearchValue(searchValue)
   }
 
-  const handleInputChange = (input: string) => {
-    // allow only numbers and decimals
-    const filtered = filterAmount(input, newPositionAmount)
+  const getScores = useDebounce(async () => {
+    if (!account) return
+    const acceptableProtocols = editableProtocols.filter((p) => !p.erroneous)
+    const acceptableRiskBalances = acceptableProtocols.map((p) => {
+      return {
+        network: p.network,
+        appId: p.appId,
+        balanceUSD: parseFloat(p.balanceUSD),
+      }
+    })
+    const scores = await getSolaceRiskScores(account, acceptableRiskBalances)
+    if (scores) setScore(scores)
+  }, 300)
 
-    // if number has more than max decimal places, do not update
-    if (filtered.includes('.') && filtered.split('.')[1]?.length > 18) return
-
-    setNewPositionAmount(filtered)
-  }
-
-  const addPosition = () => {
-    const appId = capitalizeFirstLetter(protocolMapFiltered[0].appId)
-    const balanceUSD = newPositionAmount == '' ? '0' : newPositionAmount
-    const category = protocolMapFiltered[0].category
-    const tier = protocolMapFiltered[0].tier
+  const addPosition = (protocol?: { appId: string; category: string; tier: number }) => {
+    const appId = protocol ? protocol.appId : ''
+    const balanceUSD = ''
+    const category = protocol ? protocol.category : 'unknown'
+    const tier = protocol ? protocol.tier : 0
     setEditablePortfolio((editableProtocols) => [
       ...editableProtocols,
       {
@@ -174,7 +155,7 @@ export function PortfolioEditor({
         category,
         network: '',
         tier,
-        erroneous: false,
+        erroneous: protocol == undefined,
       },
     ])
   }
@@ -263,6 +244,11 @@ export function PortfolioEditor({
     )
   }, [loading, portfolio])
 
+  useEffect(() => {
+    if (editableProtocols.length == 0) return
+    getScores()
+  }, [editableProtocols])
+
   return (
     <>
       {loading && (
@@ -290,65 +276,89 @@ export function PortfolioEditor({
           </Text>
         </HeroContainer>
       )}
-      {isDesktop && !loading && editableProtocols && editableProtocols.length > 0 && (
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableHeader>Protocol</TableHeader>
-              <TableHeader>Type</TableHeader>
-              <TableHeader>Amount</TableHeader>
-              <TableHeader>Risk Level</TableHeader>
-              <TableHeader></TableHeader>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {editableProtocols.map((d: EditableProtocol, i) => (
-              <TableRow key={i}>
-                <TableData>
-                  <Input
-                    error={d.erroneous}
-                    value={capitalizeFirstLetter(d.appId)}
-                    onChange={(e) => changeAppId(d.appId, e.target.value)}
-                  />
-                </TableData>
-                <TableData>
-                  <Text error={d.erroneous}>{d.category}</Text>
-                </TableData>
-                <TableData>
-                  <Input
-                    error={d.erroneous}
-                    value={d.balanceUSD}
-                    onChange={(e) => changeBalance(d.appId, d.balanceUSD, e.target.value)}
-                  />
-                </TableData>
-                {tierColors.length > 0 && (
-                  <TableData style={{ color: getColorByTier(d.tier) }}>{d.tier == 0 ? 'Unrated' : d.tier}</TableData>
-                )}
-                <TableData>
-                  <Button error nohover noborder onClick={() => removePosition(i)}>
-                    <StyledRemoveCircleOutline size={20} />
-                  </Button>
-                </TableData>
+      {isDesktop && !loading && (
+        <>
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableHeader>Protocol</TableHeader>
+                <TableHeader>Type</TableHeader>
+                <TableHeader>Amount</TableHeader>
+                <TableHeader>Risk Level</TableHeader>
+                <TableHeader></TableHeader>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+            </TableHead>
+            <TableBody>
+              {editableProtocols &&
+                editableProtocols.length > 0 &&
+                editableProtocols.map((d: EditableProtocol, i) => (
+                  <TableRow key={i}>
+                    <TableData>
+                      <Input
+                        error={d.erroneous}
+                        value={capitalizeFirstLetter(d.appId)}
+                        onChange={(e) => changeAppId(d.appId, e.target.value)}
+                      />
+                    </TableData>
+                    <TableData>
+                      <Text error={d.erroneous}>{d.category}</Text>
+                    </TableData>
+                    <TableData>
+                      <Input
+                        error={d.erroneous}
+                        value={d.balanceUSD}
+                        onChange={(e) => changeBalance(d.appId, d.balanceUSD, e.target.value)}
+                      />
+                    </TableData>
+                    {tierColors.length > 0 && (
+                      <TableData style={{ color: getColorByTier(d.tier) }}>
+                        {d.tier == 0 ? 'Unrated' : d.tier}
+                      </TableData>
+                    )}
+                    <TableData>
+                      <Button error nohover noborder onClick={() => removePosition(i)}>
+                        <StyledRemoveCircleOutline size={20} />
+                      </Button>
+                    </TableData>
+                  </TableRow>
+                ))}
+            </TableBody>
+          </Table>
+          <Button info onClick={() => addPosition()}>
+            Add New Protocol
+          </Button>
+        </>
       )}
-      {editableProtocols && (
-        <Flex m={30} around>
-          <Text bold>Total Portfolio Value</Text>
-          <Text bold>{editablePortfolioTotalBalance}</Text>
-          {/* <Text bold>{editablePortfolioRiskLevel}</Text> */}
+      {score && (
+        <Flex col>
+          <Flex m={30} around>
+            <Text bold>Total Portfolio Value</Text>
+            <Text bold error={editablePortfolioSelectiveBalance != editablePortfolioTotalBalance}>
+              {editablePortfolioSelectiveBalance}
+            </Text>
+          </Flex>
+          <Flex around>
+            <Text bold>Projected Annual Rate</Text>
+            <Text bold error={editablePortfolioSelectiveBalance != editablePortfolioTotalBalance}>
+              {estimatedAnnualPrice}
+            </Text>
+          </Flex>
+          <Flex around>
+            <Text bold>Projected Daily Rate</Text>
+            <Text bold error={editablePortfolioSelectiveBalance != editablePortfolioTotalBalance}>
+              {dailyRate}
+            </Text>
+          </Flex>
         </Flex>
       )}
       <Flex gap={10} itemsCenter>
         <Text bold nowrap>
-          Add Custom Position
+          Search for Protocol
         </Text>
         <HorizRule widthP={100} />
       </Flex>
       <GrayBgDiv style={{ borderRadius: '10px', padding: '16px', margin: '30px 0' }}>
-        <Flex between>
+        <Flex>
           <Flex itemsCenter gap={2}>
             <GraySquareButton onClick={() => setCurrentPage(currentPage - 1 < 0 ? numPages - 1 : currentPage - 1)}>
               <StyledArrowIosBackOutline height={18} />
@@ -362,37 +372,30 @@ export function PortfolioEditor({
             <GraySquareButton onClick={() => setCurrentPage(currentPage + 1 > numPages - 1 ? 0 : currentPage + 1)}>
               <StyledArrowIosForwardOutline height={18} />
             </GraySquareButton>
-            <Text t4>
-              Page {currentPage + 1}/{numPages}
-            </Text>
+            {numPages > 1 && (
+              <Text t4>
+                Page {currentPage + 1}/{numPages}
+              </Text>
+            )}
           </Flex>
-          <Input
-            placeholder={'Enter optional USD amount'}
-            value={newPositionAmount}
-            onChange={(e) => handleInputChange(e.target.value)}
-          />
-          <Button info secondary disabled={cannotAddPosition} onClick={addPosition}>
-            Add
-          </Button>
         </Flex>
-        <Table canHover>
-          <TableBody>
-            {protocolMapPaginated.map((p: { appId: string; category: string; tier: number }, i) => (
-              <TableRow
-                key={i}
-                onClick={() => setSearchValue(capitalizeFirstLetter(p.appId))}
-                isHighlight={searchValue.toLowerCase() == p.appId.toLowerCase()}
-                style={{ cursor: 'pointer' }}
-              >
-                <TableData>{capitalizeFirstLetter(p.appId)}</TableData>
-                <TableData>{p.category}</TableData>
-                {tierColors.length > 0 && (
-                  <TableData style={{ color: getColorByTier(p.tier) }}>{p.tier == 0 ? 'Unrated' : p.tier}</TableData>
-                )}
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+        {protocolMapPaginated.length > 0 ? (
+          <Table canHover>
+            <TableBody>
+              {protocolMapPaginated.map((p: { appId: string; category: string; tier: number }, i) => (
+                <TableRow key={i} onClick={() => addPosition(p)} style={{ cursor: 'pointer' }}>
+                  <TableData>{capitalizeFirstLetter(p.appId)}</TableData>
+                  <TableData>{p.category}</TableData>
+                  {tierColors.length > 0 && (
+                    <TableData style={{ color: getColorByTier(p.tier) }}>{p.tier == 0 ? 'Unrated' : p.tier}</TableData>
+                  )}
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        ) : (
+          <Text>No results found. If you would like to see a protocol added, contact our team!</Text>
+        )}
       </GrayBgDiv>
       {/* {isMobile && !loading && portfolio && portfolio.protocols.length > 0 && (
         <Flex column gap={30}>

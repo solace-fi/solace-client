@@ -605,12 +605,7 @@ export default function Soteria(): JSX.Element {
                   </Flex>
                 )}
                 {/* <PortfolioTable portfolio={portfolio} loading={loading} /> */}
-                <PortfolioEditor
-                  portfolio={portfolio}
-                  loading={loading}
-                  currentCoverageLimit={currentCoverageLimit}
-                  totalAccountBalance={balances.totalAccountBalance}
-                />
+                <PortfolioEditor portfolio={portfolio} loading={loading} />
               </Card>
             </Flex>
           )}
