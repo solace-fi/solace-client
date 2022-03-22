@@ -31,6 +31,7 @@ const AppNav = styled.div<{ shouldShow: boolean }>`
   z-index: ${Z_NAV};
   display: flex;
   flex-direction: column;
+  overflow-y: auto;
   ${(props) => props.shouldShow && `right: 0; transition: 350ms;`};
 `
 

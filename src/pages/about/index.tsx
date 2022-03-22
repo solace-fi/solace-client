@@ -61,7 +61,7 @@ function About(): JSX.Element {
         justifyCenter
         col
         style={{
-          height: !isMobile ? height - 100 + 'px' : '100%',
+          height: !isMobile ? height - 150 + 'px' : '100%',
           // border: '5px solid black',
           position: 'relative',
         }}

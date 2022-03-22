@@ -46,7 +46,7 @@ export const GlobalStyle = createGlobalStyle<LayoutProps>`
 
 export const Layout = styled.div`
   display: flex;
-  min-height: 100vh;
+  /* min-height: 100vh; */
   padding: 30px;
 
   @media screen and (max-width: ${BKPT_NAVBAR}px) {
@@ -64,13 +64,19 @@ export const ContentContainer = styled.div`
     justify-content: center;
   }
 `
-export const SideNavContent = styled.div<HeightAndWidthProps>`
+
+interface SideNavbarProps {
+  desktopWidth?: number
+  mobileWidth?: number
+}
+
+export const SideNavContent = styled.div<SideNavbarProps>`
   padding: 20px;
   align-content: start;
-  min-width: ${(props) => ((props.width ? props.width : 12) / 100) * MAX_WIDTH}px;
+  min-width: ${(props) => ((props.desktopWidth ? props.desktopWidth : 12) / 100) * MAX_WIDTH}px;
 
   @media screen and (max-width: ${BKPT_3}px) {
-    min-width: ${(props) => ((props.width ? props.width : 4) / 100) * MAX_WIDTH}px;
+    min-width: ${(props) => ((props.mobileWidth ? props.mobileWidth : 4) / 100) * MAX_WIDTH}px;
   }
 
   @media screen and (max-width: ${BKPT_NAVBAR}px) {

@@ -30,6 +30,7 @@ import Terms from './terms'
 
 /* import components */
 import { SideNavbar, TopNavbar } from '../components/organisms/Navbar'
+import { MenusTopNavBar } from '../components/organisms/MenusTopNavbar'
 import { GlobalStyle, Layout, ContentContainer, LayoutContent, SideNavContent } from '../components/atoms/Layout'
 import { LayoutContentWithLoader } from '../components/molecules/LayoutContentWithLoader'
 import { Statistics } from '../components/organisms/Statistics'
@@ -43,7 +44,7 @@ import {
 } from '../components/atoms/Icon'
 
 /* import constants */
-import { BKPT_5 } from '../constants'
+import { BKPT_5, BKPT_NAVBAR } from '../constants'
 
 /* import hooks */
 import { useWindowDimensions } from '../hooks/internal/useWindowDimensions'
@@ -53,12 +54,15 @@ import Soteria from './soteria'
 import { PageInfo } from '../constants/types'
 import Archive from './archive'
 import { AppMenu } from '../components/organisms/AppMenu'
+import { InfoSideNavbar, MobileInfoSideNavbar } from '../components/organisms/AppInfoNavbar'
+import { AppMenuHeader } from '../components/organisms/AppMenuHeader'
 
 export default function App(): any {
   const location = useLocation()
   const { width } = useWindowDimensions()
 
-  const [sidebar, setSidebar] = useState(true)
+  const [rightSidebar, setRightSidebar] = useState(false)
+  const [leftSidebar, setLeftSidebar] = useState(false)
 
   const pages: PageInfo[] = [
     // {
@@ -111,18 +115,49 @@ export default function App(): any {
     },
   ]
 
+  const tabs = [
+    {
+      collapsibleName: 'Products',
+      pages: [
+        { pageName: 'Coverage', to: '/' },
+        { pageName: 'Staking', to: '/' },
+        { pageName: 'Bonding', to: '/' },
+      ],
+    },
+    {
+      collapsibleName: 'Developers',
+      pages: [
+        { pageName: 'Docs', to: 'https://docs.solace.fi/' },
+        { pageName: 'SDK', to: '/' },
+      ],
+    },
+    {
+      collapsibleName: 'About',
+      pages: [
+        { pageName: 'Roadmap', to: '/' },
+        { pageName: 'Investors', to: '/' },
+        { pageName: 'Advisors', to: '/' },
+        { pageName: 'Core Contributors', to: '/' },
+      ],
+    },
+  ]
+
   return (
     <Fragment>
       <AnalyticsReporter />
       <GlobalStyle location={location} />
-      <TopNavbar pages={pages} />
-      {/* <AppMenu show={sidebar} setShow={setSidebar} /> */}
+      {/* <TopNavbar pages={pages} /> */}
+      <MenusTopNavBar setShowLeft={setLeftSidebar} setShowRight={setRightSidebar} />
+      <AppMenu show={rightSidebar} setShow={setRightSidebar} />
       <Layout>
         <ContentContainer>
-          <SideNavContent>
-            <SideNavbar pages={pages} />
+          <SideNavContent mobileWidth={6}>
+            {/* <SideNavbar pages={pages} /> */}
+            <InfoSideNavbar tabs={tabs} />
           </SideNavContent>
+          <MobileInfoSideNavbar show={leftSidebar && width < BKPT_NAVBAR} setShow={setLeftSidebar} tabs={tabs} />
           <LayoutContent>
+            {width >= BKPT_NAVBAR && <AppMenuHeader setShow={setRightSidebar} />}
             <LayoutContentWithLoader>
               {location.pathname !== '/quote' && location.pathname !== '/terms' && location.pathname !== '/' && (
                 <Statistics />
