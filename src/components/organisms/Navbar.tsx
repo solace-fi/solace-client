@@ -220,8 +220,13 @@ export const SideNavbar: React.FC<Navbar> = ({ pages }) => {
                 rel="noopener noreferrer"
                 style={{ lineHeight: '0' }}
               >
-                <SidebarText style={{ opacity: '0.8' }} light={location.pathname == '/'}>
-                  <img src={defipulse} width={16} height={16} />
+                <SidebarText style={{ opacity: '0.8' }}>
+                  <img
+                    src={defipulse}
+                    width={16}
+                    height={16}
+                    style={{ filter: location.pathname == '/' || appTheme == 'dark' ? 'unset' : 'invert(.6)' }}
+                  />
                 </SidebarText>
               </HyperLink>
             </ItemText>
@@ -291,8 +296,13 @@ export const SideNavbar: React.FC<Navbar> = ({ pages }) => {
                     rel="noopener noreferrer"
                     style={{ lineHeight: '0', ...miniNavbarMarginSet }}
                   >
-                    <SidebarText style={{ opacity: '0.8' }} light={lightText}>
-                      <img src={defipulse} width={16} height={16} />
+                    <SidebarText style={{ opacity: '0.8' }}>
+                      <img
+                        src={defipulse}
+                        width={16}
+                        height={16}
+                        style={{ filter: location.pathname == '/' || appTheme == 'dark' ? 'unset' : 'invert(.6)' }}
+                      />
                     </SidebarText>
                   </HyperLink>
                 </ItemText>
@@ -453,7 +463,7 @@ export const TopNavbar: React.FC<Navbar> = ({ pages }) => {
           rel="noopener noreferrer"
           style={{ lineHeight: '0' }}
         >
-          <SidebarText light>
+          <SidebarText>
             <img src={defipulse} width={16} height={16} />
           </SidebarText>
         </HyperLink>
