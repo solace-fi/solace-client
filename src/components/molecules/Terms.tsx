@@ -9,29 +9,46 @@ export const TermsText: React.FC<GeneralElementProps> = (props) => (
   <Content {...props}>
     <Flex stretch between mb={24}>
       <Text t2 bold>
-        Terms and conditions
+        SOLACE TERMS &amp; CONDITIONS
       </Text>
     </Flex>
     <Flex stretch between mb={24}>
       <Text t2 bold>
-        By using the Solace protocol you agree that you have read, understand and are bound to the Terms &amp;
-        Conditions of Service. If you do not agree please exit and do not use the site.
+        Thank you for checking out Solace. Below are the details concerning Solace Coverage and the process and
+        procedures when a smart contract exploit event occurs. Please read them carefully prior to using the site or
+        purchasing coverage, and if you do not agree with these terms and conditions please exit the site. If you have
+        any questions please contact us on twitter or discord and we can provide clarity. Solace reserves the right to
+        change the terms and conditions at any time.
       </Text>
     </Flex>
     <Flex stretch between mb={24}>
       <Text t2 bold>
-        Additionally, you agree that the use of our site, protocol and products are risky and could result in loss of
-        funds and other known and unknown risks. If you choose to use Solace, the protocol, or products you are agreeing
-        to be bound by this agreement which is a legally binding contract together with all other agreements and
-        policies that are incorporated herein by reference which shall govern your use of the site or products at all
-        times. Use at your own risk. You agree to comply with all local laws, any federal and/or international laws
-        regarding online conduct and acceptable content.
+        TIMING OF COVERAGE
       </Text>
     </Flex>
     <Flex stretch between mb={24}>
       <Text t2 bold>
-        You acknowledge that the website and your use of the website contain risks, and that you assume all risks in
-        connection with your access and use of the Solace website, the Solace application and Solace smart contracts.
+        Solace coverage is based upon a model that allows for users to carry a balance for payment of their premiums.
+        This premium balance is then gradually used to secure and protect their positions. As long as there is a balance
+        to cover select positions, coverage is secure and active. Cover shall terminate and the previously covered
+        position(s) will no longer be active when the prepaid policy premium hits a zero balance.
+      </Text>
+    </Flex>
+    <Flex stretch between mb={24}>
+      <Text t2 bold>
+        At this time we are unable to provide notification when your position is no longer covered or the covered
+        position exceeds the selected protection. This could occur if your position increases in value. We suggest that
+        in addition to actively managing your coverage, that you select the option to protect 120% of your highest
+        position to help mitigate this possibility.
+      </Text>
+    </Flex>
+    <Flex stretch between mb={24}>
+      <Text t2 bold>
+        When your wallet is connected and the coverage process is complete, the timing of the start of coverage will be
+        as follows. If the covered protocol is on the same Blockchain where the policy was purchased, the policy will
+        take effect in the next block once the policy has been confirmed. If the covered protocol is on a different
+        Blockchain from where the policy was purchased, the Cover will take effect 15 minutes after the timestamp of the
+        block where the cover is confirmed on the Blockchain.
       </Text>
     </Flex>
     <Flex stretch between mb={24}>
@@ -43,79 +60,90 @@ export const TermsText: React.FC<GeneralElementProps> = (props) => (
     </Flex>
     <Flex stretch between mb={24}>
       <Text t2 bold>
-        This coverage is not a contract of insurance. Coverage is provided on a discretionary basis with Solace protocol
-        and the decentralized governance being the final determinant. In the event of any disagreement with claims that
-        are not paid based upon the determination by the Automatic Claim Assessment System your claim can be presented
-        to the core team and/or the DAO for review of your claim decision. The DAO shall provide the final decision on
-        the legitimacy of any claim under these circumstances.
+        COVERED EVENTS
       </Text>
     </Flex>
     <Flex stretch between mb={24}>
       <Text t2 bold>
-        <b>Solace provides coverage policies across following exploits types:</b>
+        <b>
+          Solace coverage products cover technical risk or smart contract exploits and hacks. These include all of the
+          following.
+        </b>
         <ul>
-          <li>Minting vulnerability</li>
+          <li>Minting vulnerabilities</li>
           <li>Flash loan attack</li>
-          <li>Trojan fake token</li>
+          <li>Trojan fake tokens</li>
           <li>Proxy manipulation</li>
           <li>Math error</li>
           <li>Re-entry attack</li>
         </ul>
+      </Text>
+    </Flex>
+    <Flex stretch between mb={24}>
+      <Text t2 bold>
+        NON-COVERED EVENTS
+      </Text>
+    </Flex>
+    <Flex stretch between mb={24}>
+      <Text t2 bold>
         <b>Does not provide for:</b>
         <ul>
-          <li>Price arbitrage</li>
-          <li>Compromised private keys</li>
-          <li>Phishing attack</li>
+          <li>NFT losses</li>
+          <li>Losses due to phishing, private key security breaches, malware, exchange transaction hacks</li>
+          <li>
+            Any other activities where the Designated smart contract continues to act as intended or any activities
+            conducted by insured because of personal careless or misunderstanding
+          </li>
+          <li>Any hacks or pre-defined insured events occurring outside of the blocks when a policy has premium</li>
+          <li>Positions that were previously held but not currently protected with coverage</li>
+          <li>Any other event that is not listed under coverage events above</li>
         </ul>
       </Text>
     </Flex>
     <Flex stretch between mb={24}>
       <Text t2 bold>
-        That means you are prevented from making a claim in cases including but not limited to losing private keys,
-        using hacked application’s frontend and/or market volatility.
+        PAYOUT AMOUNT
       </Text>
     </Flex>
     <Flex stretch between mb={24}>
       <Text t2 bold>
-        Solace only pays out financial loss (within coverage limit) and not the overall position covered by the end
-        user. You can make a claim only during the period you’ve set before buying a policy that provides protection
-        during your coverage window.
+        A claim payout will only cover losses actually incurred where such losses do not exceed the Cover Limit in
+        effect at the time of exploit. Calculation of actual loss shall be done by examining the price of the
+        cryptocurrency in question at the time of transaction in which loss occurs based on data extracted from
+        CoinGecko or any other sources regarded as reliable and fair. Any recovered losses received from the exploited
+        protocol as compensation for your losses shall be excluded from the claim payment and not considered part of the
+        loss amount.
       </Text>
     </Flex>
     <Flex stretch between mb={24}>
       <Text t2 bold>
-        Solace is designed to provide access to a decentralized, non-custodial, coverage protocol that allows
-        blockchain-based assets to transact using smart contracts. To obtain coverage, you must connect your
-        cryptocurrency wallet. You are responsible for maintaining the confidentiality of your wallet, password,
-        personal information, and account details. You are fully responsible for any and all activities that occur with
-        your wallet, password, personal information and/or account. Solace will not be liable for any loss or damage
-        arising from the use of your wallet or failure to comply with this paragraph.
+        AUTOMATED PAYOUT PROCESS
       </Text>
     </Flex>
     <Flex stretch between mb={24}>
       <Text t2 bold>
-        Solace reserves the right to make any changes, at any time, to these Terms &amp; Conditions and all policies
-        referenced herein. In addition, some services offered through the Site may be subject to additional terms and
-        conditions promulgated from time to time. The changes and additional terms and conditions are incorporated into
-        this Agreement by reference, and, unless otherwise provided herein or in the applicable policy, they will be
-        effective as of the date the revised version is posted on the Site.
+        Following determination that an exploit has occurred, and a subsequent loss, claims are processed proactively
+        and require no action from the policyholder. This occurs within seven (7) days after the loss.
       </Text>
     </Flex>
     <Flex stretch between mb={24}>
       <Text t2 bold>
-        Use of the site or services following any such change or additions constitutes acceptance of the revised Terms
-        &amp; Conditions and/or policies. Thus, it is important that the Terms &amp; Conditions and policies be reviewed
-        regularly.
+        Should a policyholder believe they are entitled to a claim that has not been paid out within seven (7) days of
+        an exploit, a request can be made to reexamine the matter. Under these circumstances, proof of loss must be
+        submitted during the Cover Period or within 15 days after the Cover expires. Proof of loss could include, but is
+        not limited to: a snapshot of the impacted wallet address&apos;s balance at blocks before and after any losses
+        have been applied; and/or a description of the attack which results in the loss from the covered protocol team
+        or security specialist; and/or references to any relevant on-chain transactions showing assets being moved;
+        and/or evidence to prove the ownership of the impacted wallet address; and/or supporting materials to determine
+        the price of lost assets; and/or other evidence showing a loss occurred.
       </Text>
     </Flex>
     <Flex stretch between mb={24}>
       <Text t2 bold>
-        UNDER NO CIRCUMSTANCES WILL SOLACE, ITS AFFILIATES OR THEIR LICENSORS, SERVICE PROVIDERS, EMPLOYEES, AGENTS,
-        DAO, COMMUNITY MEMBERS, OFFICERS OR DIRECTORS BE LIABLE FOR DAMAGE OF ANY KIND, ARISING OUT OF OR IN CONNECTION
-        WITH YOUR USE, OR INABILITY TO USE, THE WEBSITE, ANY WEBSITES LINKED TO IT, INCLUDING ANY DIRECT, INDIRECT,
-        SPECIAL, INCIDENTAL, CONSEQUENTIAL OR PUNITIVE DAMAGES, INCLUDING BUT NOT LIMITED TO, PERSONAL INJURY, PAIN AND
-        SUFFERING, EMOTIONAL DISTRESS, LOSS OF REVENUE, LOSS OF PROFITS, LOSS OF BUSINESS OR ANTICIPATED SAVINGS, LOSS
-        OF DATA, AND WHETHER CAUSED BY TORT (INCLUDING NEGLIGENCE), BREACH OF CONTRACT OR OTHERWISE.
+        Upon considering a rejected claim, Solace Claims Assessors will examine any evidence of proof of loss that is
+        provided, as well as any additional details that assist in resolving the matter. All Cover is provided on an
+        optimistic settlement basis with Solace DAO members having final determination on which reexamined claims are
+        within our coverage policy as listed above.
       </Text>
     </Flex>
   </Content>

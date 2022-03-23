@@ -110,7 +110,7 @@ export const SideNavbar: React.FC<Navbar> = ({ pages }) => {
           <>
             <MiniLogo location={location} mb={35} style={{ margin: 'auto' }} />
             <StyledNavTooltip id={'mini-account-nav'} tip={'Account'}>
-              <MiniUserAccount light={lightText} width={40} />
+              <MiniUserAccount light={lightText} width={40} style={{ margin: 'auto' }} />
             </StyledNavTooltip>
           </>
         )}
