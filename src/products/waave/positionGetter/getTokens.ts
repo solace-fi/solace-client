@@ -3,8 +3,8 @@ import { Contract } from '@ethersproject/contracts'
 import { ZERO } from '../../../constants'
 import { rangeFrom0 } from '../../../utils/numeric'
 
-import waaveRegistryAbi from '../../../constants/abi/contracts/interface/Waave/IWaRegistry.sol/IWaRegistry.json'
-import waaveTokenAbi from '../../../constants/abi/contracts/interface/Waave/IWaToken.sol/IWaToken.json'
+import waaveRegistryAbi from '../../../constants/metadata/IWaRegistry.json'
+import waaveTokenAbi from '../../../constants/metadata/IWaToken.json'
 import { queryDecimals, queryName, querySymbol, queryUnderLying } from '../../../utils/contract'
 
 import { TOKEN_ADDRS as rinkebyTokenAddrs } from '../../../constants/addresses/rinkeby'

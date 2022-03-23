@@ -11,13 +11,13 @@ import {
   WBTC_ADDRESS,
   WETH9_ADDRESS,
 } from '../../mappings/tokenAddressMapping'
-import bondTellerErc20Abi_V1 from '../../abi/contracts/BondTellerErc20.sol/BondTellerErc20.json'
+import bondTellerErc20Abi_V1 from '../../metadata/BondTellerErc20.json'
 import bondTellerErc20Abi_V2 from '../../metadata/BondTellerErc20_V2.json'
-import bondTellerEthAbi_V1 from '../../abi/contracts/BondTellerEth.sol/BondTellerEth.json'
+import bondTellerEthAbi_V1 from '../../metadata/BondTellerEth.json'
 import bondTellerEthAbi_V2 from '../../metadata/BondTellerEth_V2.json'
 
 import ierc20Json from '../../metadata/IERC20Metadata.json'
-import weth9 from '../../abi/contracts/WETH9.sol/WETH9.json'
+import weth9 from '../../metadata/WETH9.json'
 import sushiswapLpAbi from '../../metadata/ISushiswapMetadataAlt.json'
 
 const chainId = 4

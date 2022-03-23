@@ -5,7 +5,7 @@ import { hexValue } from 'ethers/lib/utils'
 import { KEY_ADDRS, SPECIAL_ADDRS } from '../constants/addresses/aurora'
 import { NEAR_ADDRESS, WETH9_ADDRESS } from '../constants/mappings/tokenAddressMapping'
 
-import solaceABI from '../constants/abi/contracts/SOLACE.sol/SOLACE.json'
+import solaceABI from '../constants/metadata/SOLACE.json'
 import xSolaceABI from '../constants/metadata/xSOLACE.json'
 import xsLockerABI from '../constants/metadata/xsLocker.json'
 import stakingRewardsABI from '../constants/metadata/StakingRewards.json'

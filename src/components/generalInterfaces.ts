@@ -1,4 +1,9 @@
+import React from 'react'
 import { css } from 'styled-components'
+
+export interface ReactProps {
+  style?: React.CSSProperties
+}
 
 export interface HeightAndWidthProps {
   width?: number
@@ -54,7 +59,12 @@ export const ChildrenPositioningCss = css<ChildrenPositioningProps>`
   ${(props) => props.jc != undefined && `justify-content: ${props.jc};`}
 `
 
-export interface GeneralElementProps extends HeightAndWidthProps, PaddingProps, MarginProps, ChildrenPositioningProps {}
+export interface GeneralElementProps
+  extends ReactProps,
+    HeightAndWidthProps,
+    PaddingProps,
+    MarginProps,
+    ChildrenPositioningProps {}
 
 export const GeneralElementCss = css<GeneralElementProps>`
   ${HeightAndWidthCss}

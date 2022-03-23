@@ -4,7 +4,7 @@ import AuroraLogo from '../resources/svg/networks/aurora-logo.svg'
 import { hexValue } from 'ethers/lib/utils'
 import { KEY_ADDRS, SPECIAL_ADDRS } from '../constants/addresses/auroraTestnet'
 
-import solaceABI from '../constants/abi/contracts/SOLACE.sol/SOLACE.json'
+import solaceABI from '../constants/metadata/SOLACE.json'
 import xSolaceABI from '../constants/metadata/xSOLACE.json'
 import xsLockerABI from '../constants/metadata/xsLocker.json'
 import stakingRewardsABI from '../constants/metadata/StakingRewards.json'

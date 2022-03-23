@@ -47,14 +47,14 @@ export const Logo: React.FC<GeneralElementProps & LogoProps> = ({ ...props }) =>
   )
 }
 
-export const MiniLogo: React.FC<GeneralElementProps & LogoProps> = ({ ...props }) => {
+export const MiniLogo: React.FC<GeneralElementProps & LogoProps & { style?: React.CSSProperties }> = ({ ...props }) => {
   /*************************************************************************************
 
     Render
 
   *************************************************************************************/
   return (
-    <StyledNavLink to="/" style={{ margin: 'auto' }}>
+    <StyledNavLink to="/" style={props.style}>
       <LogoBase {...props} width={40}>
         <img
           src={props.location.pathname !== '/' ? coloredCircle : whiteCircle}
