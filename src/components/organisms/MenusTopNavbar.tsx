@@ -1,7 +1,7 @@
 import React from 'react'
 import { useLocation } from 'react-router'
 
-import { TopNav } from '../atoms/Navbar'
+import { NewTopNav } from '../atoms/Navbar'
 import { Button } from '../atoms/Button'
 import { StyledMenu, StyledWallet } from '../atoms/Icon'
 import { Flex } from '../atoms/Layout'
@@ -18,9 +18,9 @@ export const MenusTopNavBar: React.FC<{
   const { account } = useWallet()
 
   return (
-    <TopNav style={{ backgroundColor: location.pathname == '/' ? 'transparent' : undefined }}>
+    <NewTopNav style={{ backgroundColor: location.pathname == '/' ? 'transparent' : undefined }}>
       <Flex between>
-        <Button nohover noborder onClick={() => setShowLeft(true)}>
+        <Button light={location.pathname == '/'} nohover noborder onClick={() => setShowLeft(true)}>
           <StyledMenu size={40} />
         </Button>
         <Button nohover noborder onClick={() => setShowRight(true)}>
@@ -29,6 +29,6 @@ export const MenusTopNavBar: React.FC<{
           </UserImage>
         </Button>
       </Flex>
-    </TopNav>
+    </NewTopNav>
   )
 }

@@ -88,7 +88,9 @@ export const InfoSideNavbar: React.FC<CollapsibleNavbar> = ({ tabs }) => {
                 style={{ cursor: 'pointer', justifyContent: width > BKPT_3 ? 'left' : 'center' }}
                 onClick={() => setOpenTab(openTab != t.collapsibleName ? t.collapsibleName : '')}
               >
-                <Text t3>{t.collapsibleName}</Text>
+                <Text t3 light={lightText}>
+                  {t.collapsibleName}
+                </Text>
               </Button>
               <Accordion
                 key={i}
