@@ -112,7 +112,7 @@ export const WalletModal: React.FC<WalletModalProps> = ({ closeModal, isOpen }) 
               )}
               <ModalCell p={10}>
                 <Text t4 bold light={SUPPORTED_WALLETS[0].id == activeWalletConnector?.id}>
-                  {isMetamask ? SUPPORTED_WALLETS[0].name : 'Injected'}
+                  {isMetamask ? SUPPORTED_WALLETS[0].name : 'Browser Wallet'}
                 </Text>
               </ModalCell>
             </Flex>
