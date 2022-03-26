@@ -27,6 +27,7 @@ export function CoverageLimit({
   setReferralCode,
   canPurchaseNewCover,
   inactive,
+  stableCoin,
 }: {
   balances: {
     totalAccountBalance: BigNumber
@@ -50,6 +51,7 @@ export function CoverageLimit({
   setIsEditing: (isEditing: boolean) => void
   setReferralCode: (referralCode: string | undefined) => void
   canPurchaseNewCover: boolean
+  stableCoin: string
   inactive?: boolean
 }): JSX.Element {
   const { account } = useWallet()
@@ -124,6 +126,7 @@ export function CoverageLimit({
           currentCoverageLimit={currentCoverageLimit}
           isEditing={isEditing}
           portfolio={portfolio}
+          stableCoin={stableCoin}
           setNewCoverageLimit={setNewCoverageLimit}
         />
       </Flex>

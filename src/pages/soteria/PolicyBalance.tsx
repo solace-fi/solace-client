@@ -1,10 +1,7 @@
 import React, { useEffect, useState, useMemo } from 'react'
 import { Flex, HorizRule, VerticalSeparator } from '../../components/atoms/Layout'
 import { QuestionCircle } from '@styled-icons/bootstrap/QuestionCircle'
-// src/components/atoms/Button/index.ts
 import { Button } from '../../components/atoms/Button'
-// src/resources/svg/icons/usd.svg
-import DAI from '../../resources/svg/icons/dai.svg'
 import { StyledGrayBox } from '../../components/molecules/GrayBox'
 import { GenericInputSection } from '../../components/molecules/InputSection'
 import { StyledSlider } from '../../components/atoms/Input'
@@ -39,6 +36,7 @@ import { TransactionReceipt, TransactionResponse } from '@ethersproject/provider
 import { Text } from '../../components/atoms/Typography'
 import { ModalCell } from '../../components/atoms/Modal'
 import { CheckboxData } from '../stake/types/LockCheckbox'
+import { useReadToken } from '../../hooks/contract/useToken'
 
 export function PolicyBalance({
   balances,
@@ -99,6 +97,9 @@ export function PolicyBalance({
 
   const { ifDesktop } = useWindowDimensions()
   const { account, library } = useWallet()
+  const { name: stableCoinName, symbol: stableCoinSymbol } = useReadToken(
+    getContract(stableCoin, IERC20.abi, library, account)
+  )
   const { activeNetwork } = useNetwork()
   const { keyContracts } = useContracts()
   const { solaceCoverProduct } = useMemo(() => keyContracts, [keyContracts])
@@ -118,8 +119,6 @@ export function PolicyBalance({
 
   const [rangeValue, setRangeValue] = useState<string>('0')
   const [isDepositing, setIsDepositing] = useState<boolean>(true)
-  const [stableCoinName, setStableCoinName] = useState<string>('')
-  const [stableCoinSymbol, setStableCoinSymbol] = useState<string>('')
 
   const usdBalanceSum = useMemo(
     () =>
@@ -251,16 +250,6 @@ export function PolicyBalance({
   }, 300)
 
   useEffect(() => {
-    const getStableCoinDetails = async () => {
-      const contract = getContract(stableCoin, IERC20.abi, library, account)
-      const [name, symbol] = await Promise.all([contract.name(), contract.symbol()])
-      setStableCoinName(name)
-      setStableCoinSymbol(symbol)
-    }
-    getStableCoinDetails()
-  }, [stableCoin])
-
-  useEffect(() => {
     _checkMinReqAccountBal()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [balances.personalBalance, inputProps.amount, minReqAccBal])
@@ -312,7 +301,7 @@ export function PolicyBalance({
                 <Text t4s bold>
                   {truncateValue(annualCost, 2)}{' '}
                   <Text t6s inline>
-                    DAI/Year
+                    {stableCoinSymbol}/Year
                   </Text>
                 </Text>
               </Flex>
@@ -321,7 +310,7 @@ export function PolicyBalance({
                 <Text t4s bold>
                   {truncateValue(dailyCost, 2)}{' '}
                   <Text t6s inline>
-                    DAI/Day
+                    {stableCoinSymbol}/Day
                   </Text>
                 </Text>
               </Flex>
@@ -343,7 +332,7 @@ export function PolicyBalance({
                 <Text t4s bold>
                   {truncateValue(annualCost, 2)}{' '}
                   <Text t6s inline>
-                    DAI/Year
+                    {stableCoinSymbol}/Year
                   </Text>
                 </Text>
               </Flex>
@@ -352,7 +341,7 @@ export function PolicyBalance({
                 <Text t4s bold warning>
                   {truncateValue(projectedDailyCost, 2)}{' '}
                   <Text t6s inline>
-                    DAI/Day
+                    {stableCoinSymbol}/Day
                   </Text>
                 </Text>
               </Flex>
@@ -403,7 +392,7 @@ export function PolicyBalance({
                   </Text>
                   <Text t4s bold info>
                     {commaNumber(truncateValue(formatUnits(balances.personalBalance, walletAssetDecimals), 2, false))}{' '}
-                    DAI
+                    {stableCoinSymbol}
                   </Text>
                 </Flex>
                 <Flex between>
@@ -411,7 +400,8 @@ export function PolicyBalance({
                     Bonus
                   </Text>
                   <Text t4s bold techygradient>
-                    {commaNumber(truncateValue(formatUnits(balances.earnedBalance, walletAssetDecimals), 2, false))} DAI
+                    {commaNumber(truncateValue(formatUnits(balances.earnedBalance, walletAssetDecimals), 2, false))}{' '}
+                    {stableCoinSymbol}
                   </Text>
                 </Flex>
               </Flex>
