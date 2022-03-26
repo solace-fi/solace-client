@@ -373,6 +373,7 @@ export default function Soteria(): JSX.Element {
                         >
                           <Card thinner>
                             <CoverageLimit
+                              stableCoin={stableCoin}
                               referralChecks={{
                                 codeIsUsable,
                                 codeIsValid,
@@ -416,6 +417,7 @@ export default function Soteria(): JSX.Element {
                       ) : (
                         <Card thinner>
                           <CoverageLimit
+                            stableCoin={stableCoin}
                             referralChecks={{
                               codeIsUsable,
                               codeIsValid,
@@ -487,6 +489,7 @@ export default function Soteria(): JSX.Element {
                       >
                         <Card innerThinner noShadow>
                           <CoverageLimit
+                            stableCoin={stableCoin}
                             referralChecks={{
                               codeIsUsable,
                               codeIsValid,
