@@ -161,10 +161,6 @@ const WalletProvider: React.FC = (props) => {
           walletErrors.push({ type: AppError.UNKNOWN_WALLET_ERROR, metadata: `${String(err)}`, uniqueId: `${date}` })
           console.log(err)
         }
-        if (walletErrors.length > 0) {
-          setActiveConnector(undefined)
-          setSelectedProvider(undefined)
-        }
         addErrors(walletErrors)
       }
 
