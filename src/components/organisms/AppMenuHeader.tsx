@@ -15,11 +15,16 @@ export const AppMenuHeader: React.FC<{ setShow: (show: boolean) => void }> = ({ 
 
   return (
     <Flex justifyEnd itemsCenter p={10}>
-      <Text light={location.pathname == '/'}>My Solace App</Text>
       <Button nohover noborder onClick={() => setShow(true)}>
-        <UserImage style={{ width: '40px', height: '40px', margin: 'auto' }}>
-          {account ? <img src={makeBlockie(account)} alt={'account'} /> : <StyledWallet size={30} />}
-        </UserImage>
+        {account ? (
+          <UserImage style={{ width: '40px', height: '40px', margin: 'auto' }}>
+            <img src={makeBlockie(account)} alt={'account'} />
+          </UserImage>
+        ) : (
+          <Text light={location.pathname == '/'}>
+            <StyledWallet size={30} />
+          </Text>
+        )}
       </Button>
     </Flex>
   )

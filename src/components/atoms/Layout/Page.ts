@@ -6,6 +6,7 @@ import { BKPT_6 } from '../../../constants'
 export interface FlexProps {
   between?: boolean
   around?: boolean
+  evenly?: boolean
   justifyStart?: boolean
   justifyCenter?: boolean
   justifyEnd?: boolean
@@ -55,6 +56,7 @@ export const Flex = styled.div<FlexProps>`
   ${({ wrap })          => wrap          && css`flex-wrap: wrap;`}
   ${({ between })       => between       && css`justify-content: space-between;`}
   ${({ around })        => around        && css`justify-content: space-around;`}
+  ${({ evenly })        => evenly        && css`justify-content: space-evenly;`}
   ${({ m })             => m             && css`margin: ${m}px;`}
   ${({ mb })            => mb            && css`margin-bottom: ${mb}px;`}
   ${({ mt })            => mt            && css`margin-top: ${mt}px;`}
