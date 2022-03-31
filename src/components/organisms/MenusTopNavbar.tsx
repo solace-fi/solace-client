@@ -9,6 +9,7 @@ import { Flex } from '../atoms/Layout'
 import { UserImage } from '../atoms/User'
 import { useWallet } from '../../context/WalletManager'
 import makeBlockie from 'ethereum-blockies-base64'
+import { Text } from '../atoms/Typography'
 
 export const MenusTopNavBar: React.FC<{
   setShowLeft: (show: boolean) => void
@@ -25,7 +26,13 @@ export const MenusTopNavBar: React.FC<{
         </Button>
         <Button nohover noborder onClick={() => setShowRight(true)}>
           <UserImage style={{ width: '40px', height: '40px', margin: 'auto' }}>
-            {account ? <img src={makeBlockie(account)} alt={'account'} /> : <StyledWallet size={30} />}
+            {account ? (
+              <img src={makeBlockie(account)} alt={'account'} />
+            ) : (
+              <Text light={location.pathname == '/'}>
+                <StyledWallet size={30} />
+              </Text>
+            )}
           </UserImage>
         </Button>
       </Flex>

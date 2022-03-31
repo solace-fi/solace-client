@@ -48,6 +48,10 @@ const AppNav = styled.div<{ shouldShow: boolean; showSettings: boolean }>`
   ${(props) => props.shouldShow && `right: 0; transition: 350ms;`};
 `
 
+const AppButton = styled(Button)`
+  background: ${(props) => props.theme.box.bg_color_2};
+`
+
 const AppNavItemList = styled.ul`
   width: 100%;
   padding: 0;
@@ -137,14 +141,20 @@ export const AppMenu = ({ show, setShow }: { show: boolean; setShow: (show: bool
         showSettings={showWalletSettings}
       >
         <Flex between p={10}>
-          <Button
+          <AppButton
             nohover
             noborder
             secondary
             p={8}
             style={{ borderRadius: '28px' }}
-            techygradient
-            onClick={account ? () => setShowWalletSettings(!showWalletSettings) : () => openWalletModal()}
+            onClick={
+              account
+                ? () => setShowWalletSettings(!showWalletSettings)
+                : () => {
+                    openWalletModal()
+                    setShowWalletSettings(!showWalletSettings)
+                  }
+            }
           >
             <Flex between gap={5} itemsCenter>
               <UserImage>
@@ -152,23 +162,25 @@ export const AppMenu = ({ show, setShow }: { show: boolean; setShow: (show: bool
               </UserImage>
               {account ? (
                 <Flex col around>
-                  <Text textAlignLeft t4>
+                  <Text light textAlignLeft t4>
                     {name ?? shortenAddress(account)}
                   </Text>
                   <Flex>
                     {activeNetwork.logo && (
                       <img src={activeNetwork.logo} width={25} height={25} style={{ marginRight: '2px' }} />
                     )}
-                    <Text t5s nowrap mt={5} autoAlignVertical>
+                    <Text light t5s nowrap mt={5} autoAlignVertical>
                       {activeNetwork.name}
                     </Text>
                   </Flex>
                 </Flex>
               ) : (
-                <Text t4>Connect Wallet</Text>
+                <Text light t4>
+                  Connect Wallet
+                </Text>
               )}
             </Flex>
-          </Button>
+          </AppButton>
 
           <div style={{ cursor: 'pointer' }} onClick={() => setShow(false)}>
             <svg width="30" height="40" viewBox="0 0 20 19" fill="none" xmlns="http://www.w3.org/2000/svg">
