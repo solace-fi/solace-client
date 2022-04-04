@@ -22,9 +22,7 @@ export const AppMenuHeader: React.FC<{ setShow: (show: boolean) => void }> = ({ 
               <img src={makeBlockie(account)} alt={'account'} />
             </UserImage>
           ) : (
-            <Text light={location.pathname == '/'}>
-              <StyledWallet size={30} />
-            </Text>
+            <StyledWallet size={30} />
           )}
           <Text t4 bold techygradient autoAlignVertical>
             My Solace
