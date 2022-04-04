@@ -36,7 +36,7 @@ const AppNav = styled.div<{ shouldShow: boolean; showSettings: boolean }>`
   background-color: ${({ theme }) => theme.modal.base_color};
   background: ${(props) => (!props.showSettings ? props.theme.modal.base_color : props.theme.box.bg_color_2)};
   height: 100vh;
-  width: 250px;
+  width: 375px;
   position: fixed;
   top: 0;
   right: -100%;
@@ -137,7 +137,7 @@ export const AppMenu = ({ show, setShow }: { show: boolean; setShow: (show: bool
       <AppNav
         ref={wrapperRef}
         shouldShow={show}
-        style={{ width: `${Math.min(width, 250)}px` }}
+        style={{ width: `${Math.min(width, 375)}px` }}
         showSettings={showWalletSettings}
       >
         <Flex between p={10}>
@@ -157,9 +157,16 @@ export const AppMenu = ({ show, setShow }: { show: boolean; setShow: (show: bool
             }
           >
             <Flex between gap={5} itemsCenter>
-              <UserImage>
-                {account ? <img src={makeBlockie(account)} alt={'account'} /> : <StyledWallet size={30} />}
-              </UserImage>
+              {account ? (
+                <UserImage>
+                  <img src={makeBlockie(account)} alt={'account'} />
+                </UserImage>
+              ) : (
+                <Text light>
+                  <StyledWallet size={30} />
+                </Text>
+              )}
+
               {account ? (
                 <Flex col around>
                   <Text light textAlignLeft t4>
@@ -182,7 +189,13 @@ export const AppMenu = ({ show, setShow }: { show: boolean; setShow: (show: bool
             </Flex>
           </AppButton>
 
-          <div style={{ cursor: 'pointer' }} onClick={() => setShow(false)}>
+          <div
+            style={{ cursor: 'pointer' }}
+            onClick={() => {
+              setShow(false)
+              setShowWalletSettings(false)
+            }}
+          >
             <svg width="30" height="40" viewBox="0 0 20 19" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path
                 d="M18.5351 3.30802C19.1823 2.6609 19.1823 1.61172 18.5351 0.964604C17.888 0.317488 16.8388 0.317488 16.1917 0.964604L9.99894 7.15739L3.80678 0.965226C3.15966 0.31811 2.11048 0.31811 1.46336 0.965226C0.816248 1.61234 0.816248 2.66152 1.46336 3.30864L7.65553 9.5008L1.46496 15.6914C0.817846 16.3385 0.817845 17.3877 1.46496 18.0348C2.11208 18.6819 3.16126 18.6819 3.80838 18.0348L9.99894 11.8442L16.1901 18.0354C16.8372 18.6825 17.8864 18.6825 18.5335 18.0354C19.1807 17.3883 19.1807 16.3391 18.5335 15.692L12.3424 9.5008L18.5351 3.30802Z"
@@ -308,7 +321,7 @@ export const AppMenu = ({ show, setShow }: { show: boolean; setShow: (show: bool
                 <Text light>Hash</Text>
               </Flex>
               {txHistory.slice(0, 5).map((tx: any) => (
-                <Flex stretch between pl={5} pr={5} key={tx.hash}>
+                <Flex stretch between pl={10} pr={10} key={tx.hash}>
                   <Text light t4>
                     {decodeInput(tx, contractSources)}
                   </Text>
