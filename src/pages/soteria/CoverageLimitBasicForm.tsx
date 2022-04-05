@@ -11,10 +11,6 @@ import { SolaceRiskScore } from '../../constants/types'
 import { accurateMultiply, filterAmount, floatUnits, truncateValue } from '../../utils/formatting'
 import { formatUnits } from 'ethers/lib/utils'
 import { Text } from '../../components/atoms/Typography'
-import { useWallet } from '../../context/WalletManager'
-import IERC20 from '../../constants/metadata/IERC20Metadata.json'
-import { getContract } from '../../utils'
-import { useReadToken } from '../../hooks/contract/useToken'
 
 enum ChosenLimit {
   Custom,
@@ -32,19 +28,13 @@ export function CoverageLimitBasicForm({
   portfolio,
   currentCoverageLimit,
   isEditing,
-  stableCoin,
   setNewCoverageLimit,
 }: {
   portfolio: SolaceRiskScore | undefined
   currentCoverageLimit: BigNumber
   isEditing: boolean
-  stableCoin: string
   setNewCoverageLimit: (newCoverageLimit: BigNumber) => void
 }): JSX.Element {
-  const { account, library } = useWallet()
-  const { name: stableCoinName, symbol: stableCoinSymbol } = useReadToken(
-    getContract(stableCoin, IERC20.abi, library, account)
-  )
   const [chosenLimit, setChosenLimit] = useState<ChosenLimit>(ChosenLimit.Recommended)
 
   const highestPosition = useMemo(
@@ -164,9 +154,7 @@ export function CoverageLimitBasicForm({
               </GraySquareButton>
             </Flex>
             <GenericInputSection
-              icon={<img src={`https://assets.solace.fi/${stableCoinName.toLowerCase()}`} height={20} />}
               onChange={(e) => handleInputChange(e.target.value)}
-              text={stableCoinSymbol}
               value={customInputAmount}
               disabled={false}
               style={{
@@ -179,23 +167,6 @@ export function CoverageLimitBasicForm({
         )}
         {portfolio && portfolio.protocols.length > 0 && (
           <Flex col stretch>
-            {/* <Flex center mt={4}>
-                <Flex baseline gap={4} center>
-                  <Text t4>Net worth found in your portfolio:</Text>
-                </Flex>
-              </Flex>
-              <Flex center mt={4}>
-                <Flex baseline gap={4} center>
-                  <Flex gap={4} baseline mt={2}>
-                    <Text t3 bold>
-                      {truncateValue(usdBalanceSum, 2, false)}
-                    </Text>
-                    <Text t4 bold>
-                      USD
-                    </Text>
-                  </Flex>
-                </Flex>
-              </Flex> */}
             <Flex center mt={20}>
               <Flex gap={4} center>
                 <Text t4>Highest position in your portfolio:</Text>

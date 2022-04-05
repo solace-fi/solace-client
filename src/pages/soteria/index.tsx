@@ -21,7 +21,7 @@ import IERC20 from '../../constants/metadata/IERC20Metadata.json'
 import { queryBalance, queryDecimals } from '../../utils/contract'
 import useDebounce from '@rooks/use-debounce'
 import { useContracts } from '../../context/ContractsManager'
-import { useTokenAllowance } from '../../hooks/contract/useToken'
+import { useReadToken, useTokenAllowance } from '../../hooks/contract/useToken'
 import { Loader } from '../../components/atoms/Loader'
 import { TextSpan, Text } from '../../components/atoms/Typography'
 import { Box, RaisedBox } from '../../components/atoms/Box'
@@ -42,6 +42,7 @@ import ZapperDark from '../../resources/svg/zapper-dark.svg'
 import { CoveredChains } from './CoveredChains'
 import { CheckboxData } from '../stake/types/LockCheckbox'
 import { PortfolioEditor } from './PortfolioEditor'
+import { getContract } from '../../utils'
 
 export function Card({
   children,
@@ -179,9 +180,9 @@ export default function Soteria(): JSX.Element {
   const [codeIsValid, setCodeIsValid] = useState<boolean>(true)
   const [referrerIsActive, setIsReferrerIsActive] = useState<boolean>(true)
   const [referrerIsOther, setIsReferrerIsOther] = useState<boolean>(true)
-  const [checkingReferral, setCheckingReferral] = useState<boolean>(false)
   const [showExistingPolicyMessage, setShowExistingPolicyMessage] = useState<boolean>(true)
   const [stableCoin, setStableCoin] = useState<string>(DAI_ADDRESS[activeNetwork.chainId])
+  const stableCoinData = useReadToken(getContract(stableCoin, IERC20.abi, library, account))
 
   const [minReqAccBal, setMinReqAccBal] = useState<BigNumber>(ZERO)
 
@@ -198,15 +199,20 @@ export default function Soteria(): JSX.Element {
 
   const [availableCoverCapacity, setAvailableCoverCapacity] = useState<BigNumber>(ZERO)
 
+  const [checkingReferral, setCheckingReferral] = useState<boolean>(false)
+  const [checkingMinReqAccBal, setCheckingMinReqAccBal] = useState<boolean>(false)
+
   const canPurchaseNewCover = useMemo(() => {
     if (newCoverageLimit.lte(currentCoverageLimit)) return true
     return newCoverageLimit.sub(currentCoverageLimit).lt(availableCoverCapacity)
   }, [availableCoverCapacity, currentCoverageLimit, newCoverageLimit])
 
   const _checkMinReqAccountBal = useDebounce(async () => {
+    setCheckingMinReqAccBal(true)
     const minReqAccountBal = await getMinRequiredAccountBalance(newCoverageLimit)
     setMinReqAccBal(minReqAccountBal)
-  }, 300)
+    setCheckingMinReqAccBal(false)
+  }, 200)
 
   const _checkReferralCode = useDebounce(async () => {
     if (!referralCode || referralCode.length == 0 || !account) {
@@ -373,7 +379,7 @@ export default function Soteria(): JSX.Element {
                         >
                           <Card thinner>
                             <CoverageLimit
-                              stableCoin={stableCoin}
+                              stableCoinData={stableCoinData}
                               referralChecks={{
                                 codeIsUsable,
                                 codeIsValid,
@@ -383,6 +389,7 @@ export default function Soteria(): JSX.Element {
                               }}
                               balances={balances}
                               minReqAccBal={minReqAccBal}
+                              checkingMinReqAccBal={checkingMinReqAccBal}
                               currentCoverageLimit={currentCoverageLimit}
                               newCoverageLimit={newCoverageLimit}
                               setNewCoverageLimit={setNewCoverageLimit}
@@ -417,7 +424,7 @@ export default function Soteria(): JSX.Element {
                       ) : (
                         <Card thinner>
                           <CoverageLimit
-                            stableCoin={stableCoin}
+                            stableCoinData={stableCoinData}
                             referralChecks={{
                               codeIsUsable,
                               codeIsValid,
@@ -427,6 +434,7 @@ export default function Soteria(): JSX.Element {
                             }}
                             balances={balances}
                             minReqAccBal={minReqAccBal}
+                            checkingMinReqAccBal={checkingMinReqAccBal}
                             currentCoverageLimit={currentCoverageLimit}
                             newCoverageLimit={newCoverageLimit}
                             setNewCoverageLimit={setNewCoverageLimit}
@@ -448,7 +456,7 @@ export default function Soteria(): JSX.Element {
                             checkingReferral,
                             referrerIsOther,
                           }}
-                          stableCoin={stableCoin}
+                          stableCoinData={stableCoinData}
                           chainsChecked={chainsChecked}
                           balances={balances}
                           minReqAccBal={minReqAccBal}
@@ -489,7 +497,7 @@ export default function Soteria(): JSX.Element {
                       >
                         <Card innerThinner noShadow>
                           <CoverageLimit
-                            stableCoin={stableCoin}
+                            stableCoinData={stableCoinData}
                             referralChecks={{
                               codeIsUsable,
                               codeIsValid,
@@ -499,6 +507,7 @@ export default function Soteria(): JSX.Element {
                             }}
                             balances={balances}
                             minReqAccBal={minReqAccBal}
+                            checkingMinReqAccBal={checkingMinReqAccBal}
                             currentCoverageLimit={currentCoverageLimit}
                             newCoverageLimit={newCoverageLimit}
                             setNewCoverageLimit={setNewCoverageLimit}
@@ -540,7 +549,7 @@ export default function Soteria(): JSX.Element {
                             checkingReferral,
                             referrerIsOther,
                           }}
-                          stableCoin={stableCoin}
+                          stableCoinData={stableCoinData}
                           chainsChecked={chainsChecked}
                           balances={balances}
                           minReqAccBal={minReqAccBal}
