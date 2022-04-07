@@ -154,9 +154,7 @@ export function CoverageLimitBasicForm({
               </GraySquareButton>
             </Flex>
             <GenericInputSection
-              // icon={<img src={DAI} alt="DAI" height={20} />}
               onChange={(e) => handleInputChange(e.target.value)}
-              text="DAI"
               value={customInputAmount}
               disabled={false}
               style={{
@@ -169,23 +167,6 @@ export function CoverageLimitBasicForm({
         )}
         {portfolio && portfolio.protocols.length > 0 && (
           <Flex col stretch>
-            {/* <Flex center mt={4}>
-                <Flex baseline gap={4} center>
-                  <Text t4>Net worth found in your portfolio:</Text>
-                </Flex>
-              </Flex>
-              <Flex center mt={4}>
-                <Flex baseline gap={4} center>
-                  <Flex gap={4} baseline mt={2}>
-                    <Text t3 bold>
-                      {truncateValue(usdBalanceSum, 2, false)}
-                    </Text>
-                    <Text t4 bold>
-                      USD
-                    </Text>
-                  </Flex>
-                </Flex>
-              </Flex> */}
             <Flex center mt={20}>
               <Flex gap={4} center>
                 <Text t4>Highest position in your portfolio:</Text>
