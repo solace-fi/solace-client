@@ -111,7 +111,7 @@ export const useStakingRewards = () => {
       tx = await stakingRewards.harvestLocks(xsLockIDs, {
         ...gasConfig,
         // gasLimit: FunctionGasLimits['stakingRewards.harvestLocks'],
-        gasLimit: parseInt(estGas.toString()),
+        gasLimit: Math.floor(parseInt(estGas.toString()) * 1.5),
       })
       type = FunctionName.HARVEST_LOCKS
     } else {
@@ -120,7 +120,7 @@ export const useStakingRewards = () => {
       tx = await stakingRewards.harvestLock(xsLockIDs[0], {
         ...gasConfig,
         // gasLimit: FunctionGasLimits['stakingRewards.harvestLock'],
-        gasLimit: parseInt(estGas.toString()),
+        gasLimit: Math.floor(parseInt(estGas.toString()) * 1.5),
       })
     }
     const localTx: LocalTx = {
@@ -141,7 +141,7 @@ export const useStakingRewards = () => {
       tx = await stakingRewards.compoundLocks(xsLockIDs, targetXsLockID, {
         ...gasConfig,
         // gasLimit: FunctionGasLimits['stakingRewards.compoundLocks'],
-        gasLimit: parseInt(estGas.toString()),
+        gasLimit: Math.floor(parseInt(estGas.toString()) * 1.5),
       })
       type = FunctionName.COMPOUND_LOCKS
     } else {
@@ -150,7 +150,7 @@ export const useStakingRewards = () => {
       tx = await stakingRewards.compoundLock(xsLockIDs[0], {
         ...gasConfig,
         // gasLimit: FunctionGasLimits['stakingRewards.compoundLock'],
-        gasLimit: parseInt(estGas.toString()),
+        gasLimit: Math.floor(parseInt(estGas.toString()) * 1.5),
       })
     }
     const localTx: LocalTx = {

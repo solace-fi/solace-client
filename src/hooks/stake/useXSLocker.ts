@@ -77,7 +77,7 @@ export const useXSLocker = () => {
     const tx = await xsLocker.createLockSigned(amount, end, DEADLINE, v, r, s, {
       ...gasConfig,
       // gasLimit: FunctionGasLimits['xsLocker.createLockSigned'],
-      gasLimit: parseInt(estGas.toString()),
+      gasLimit: Math.floor(parseInt(estGas.toString()) * 1.5),
     })
     const localTx: LocalTx = {
       hash: tx.hash,
@@ -95,7 +95,7 @@ export const useXSLocker = () => {
     const tx = await xsLocker.increaseAmountSigned(xsLockID, amount, DEADLINE, v, r, s, {
       ...gasConfig,
       // gasLimit: FunctionGasLimits['xsLocker.increaseAmountSigned'],
-      gasLimit: parseInt(estGas.toString()),
+      gasLimit: Math.floor(parseInt(estGas.toString()) * 1.5),
     })
     const localTx: LocalTx = {
       hash: tx.hash,
@@ -112,7 +112,7 @@ export const useXSLocker = () => {
     const tx = await xsLocker.extendLock(xsLockID, end, {
       ...gasConfig,
       // gasLimit: FunctionGasLimits['xsLocker.extendLock'],
-      gasLimit: parseInt(estGas.toString()),
+      gasLimit: Math.floor(parseInt(estGas.toString()) * 1.5),
     })
     const localTx: LocalTx = {
       hash: tx.hash,
@@ -132,7 +132,7 @@ export const useXSLocker = () => {
       tx = await xsLocker.withdrawInPart(xsLockIDs[0], recipient, amount, {
         ...gasConfig,
         // gasLimit: FunctionGasLimits['xsLocker.withdrawInPart'],
-        gasLimit: parseInt(estGas.toString()),
+        gasLimit: Math.floor(parseInt(estGas.toString()) * 1.5),
       })
     } else if (xsLockIDs.length > 1) {
       const estGas = await xsLocker.estimateGas.withdrawMany(xsLockIDs, recipient)
@@ -140,7 +140,7 @@ export const useXSLocker = () => {
       tx = await xsLocker.withdrawMany(xsLockIDs, recipient, {
         ...gasConfig,
         // gasLimit: FunctionGasLimits['xsLocker.withdrawMany'],
-        gasLimit: parseInt(estGas.toString()),
+        gasLimit: Math.floor(parseInt(estGas.toString()) * 1.5),
       })
       type = FunctionName.WITHDRAW_MANY_FROM_LOCK
     } else {
@@ -149,7 +149,7 @@ export const useXSLocker = () => {
       tx = await xsLocker.withdraw(xsLockIDs[0], recipient, {
         ...gasConfig,
         // gasLimit: FunctionGasLimits['xsLocker.withdraw'],
-        gasLimit: parseInt(estGas.toString()),
+        gasLimit: Math.floor(parseInt(estGas.toString()) * 1.5),
       })
       type = FunctionName.WITHDRAW_FROM_LOCK
     }

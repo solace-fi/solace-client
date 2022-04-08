@@ -153,7 +153,7 @@ export const EarlyFarmRewardsWindow: React.FC = () => {
       const tx = await farmRewards.redeem(stablecoinContract.address, parseUnits(amount, userStablecoinDecimals), {
         ...gasConfig,
         // gasLimit: FunctionGasLimits['farmRewards.redeem'],
-        gasLimit: parseInt(estGas.toString()),
+        gasLimit: Math.floor(parseInt(estGas.toString()) * 1.5),
       })
       const localTx: LocalTx = {
         hash: tx.hash,

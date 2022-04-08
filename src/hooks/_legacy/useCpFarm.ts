@@ -47,7 +47,7 @@ export const useCpFarm = () => {
     const tx = await cpFarm.withdrawCp(parsedAmount, {
       ...gasConfig,
       // gasLimit: FunctionGasLimits['cpFarm.withdrawCp'],
-      gasLimit: parseInt(estGas.toString()),
+      gasLimit: Math.floor(parseInt(estGas.toString()) * 1.5),
     })
     const localTx: LocalTx = {
       hash: tx.hash,

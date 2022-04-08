@@ -84,7 +84,7 @@ export const MyClaims: React.FC = () => {
       const tx: TransactionResponse = await claimsEscrow.withdrawClaimsPayout(_claimId, {
         ...gasConfig,
         // gasLimit: FunctionGasLimits['claimsEscrow.withdrawClaimsPayout'],
-        gasLimit: parseInt(estGas.toString()),
+        gasLimit: Math.floor(parseInt(estGas.toString()) * 1.5),
       })
       const txHash = tx.hash
       const localTx: LocalTx = {

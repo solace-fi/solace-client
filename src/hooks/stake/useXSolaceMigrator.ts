@@ -32,7 +32,7 @@ export const useXSolaceMigrator = () => {
     const tx = await xSolaceMigrator.migrateSigned(amount, end, DEADLINE, v, r, s, {
       ...gasConfig,
       // gasLimit: FunctionGasLimits['xSolaceMigrator.migrateSigned'],
-      gasLimit: parseInt(estGas.toString()),
+      gasLimit: Math.floor(parseInt(estGas.toString()) * 1.5),
     })
     const localTx: LocalTx = {
       hash: tx.hash,

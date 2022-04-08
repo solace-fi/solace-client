@@ -51,14 +51,14 @@ export const useBondTellerV1 = (selectedBondDetail: BondTellerDetails | undefine
         ? await selectedBondDetail.tellerData.teller.contract.deposit(parsedAmount, minAmountOut, recipient, stake, {
             ...gasConfig,
             // gasLimit: FunctionGasLimits['tellerErc20_v1.deposit'],
-            gasLimit: parseInt(estGas.toString()),
+            gasLimit: Math.floor(parseInt(estGas.toString()) * 1.5),
           })
         : func == FunctionName.BOND_DEPOSIT_ETH_V1
         ? await selectedBondDetail.tellerData.teller.contract.depositEth(minAmountOut, recipient, stake, {
             value: parsedAmount,
             ...gasConfig,
             // gasLimit: FunctionGasLimits['tellerEth_v1.depositEth'],
-            gasLimit: parseInt(estGas.toString()),
+            gasLimit: Math.floor(parseInt(estGas.toString()) * 1.5),
           })
         : await selectedBondDetail.tellerData.teller.contract.depositWeth(
             parsedAmount,
@@ -68,7 +68,7 @@ export const useBondTellerV1 = (selectedBondDetail: BondTellerDetails | undefine
             {
               ...gasConfig,
               // gasLimit: FunctionGasLimits['tellerEth_v1.depositWeth'],
-              gasLimit: parseInt(estGas.toString()),
+              gasLimit: Math.floor(parseInt(estGas.toString()) * 1.5),
             }
           )
     const localTx: LocalTx = {
@@ -86,7 +86,7 @@ export const useBondTellerV1 = (selectedBondDetail: BondTellerDetails | undefine
     const tx = await selectedBondDetail.tellerData.teller.contract.redeem(bondId, {
       ...gasConfig,
       // gasLimit: FunctionGasLimits['teller_v1.redeem'],
-      gasLimit: parseInt(estGas.toString()),
+      gasLimit: Math.floor(parseInt(estGas.toString()) * 1.5),
     })
     const localTx: LocalTx = {
       hash: tx.hash,

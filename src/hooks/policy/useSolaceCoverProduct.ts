@@ -242,7 +242,7 @@ export const useFunctions = () => {
     const tx = await solaceCoverProduct.updatePolicyChainInfo(chains, {
       ...gasConfig,
       // gasLimit: GAS_LIMIT,
-      gasLimit: parseInt(estGas.toString()),
+      gasLimit: Math.floor(parseInt(estGas.toString()) * 1.5),
     })
     const localTx: LocalTx = {
       hash: tx.hash,
@@ -274,7 +274,7 @@ export const useFunctions = () => {
       tx = await solaceCoverProduct.activatePolicy(account, coverLimit, deposit, referralCode, chains, {
         ...gasConfig,
         // gasLimit: GAS_LIMIT,
-        gasLimit: parseInt(estGas.toString()),
+        gasLimit: Math.floor(parseInt(estGas.toString()) * 1.5),
       })
     } else {
       const estGas = await solaceCoverProduct.estimateGas.activatePolicy(account, coverLimit, deposit, referralCode)
@@ -282,7 +282,7 @@ export const useFunctions = () => {
       tx = await solaceCoverProduct.activatePolicy(account, coverLimit, deposit, referralCode, {
         ...gasConfig,
         // gasLimit: GAS_LIMIT,
-        gasLimit: parseInt(estGas.toString()),
+        gasLimit: Math.floor(parseInt(estGas.toString()) * 1.5),
       })
     }
     const localTx: LocalTx = {
@@ -300,7 +300,7 @@ export const useFunctions = () => {
     const tx = await solaceCoverProduct.deactivatePolicy({
       ...gasConfig,
       // gasLimit: GAS_LIMIT,
-      gasLimit: parseInt(estGas.toString()),
+      gasLimit: Math.floor(parseInt(estGas.toString()) * 1.5),
     })
     const localTx: LocalTx = {
       hash: tx.hash,
@@ -316,7 +316,7 @@ export const useFunctions = () => {
     console.log('solaceCoverProduct.estimateGas.updateCoverLimit', estGas.toString())
     const tx = await solaceCoverProduct.updateCoverLimit(newCoverageLimit, referralCode, {
       ...gasConfig,
-      gasLimit: parseInt(estGas.toString()),
+      gasLimit: Math.floor(parseInt(estGas.toString()) * 1.5),
     })
     const localTx: LocalTx = {
       hash: tx.hash,
@@ -332,7 +332,7 @@ export const useFunctions = () => {
     console.log('solaceCoverProduct.estimateGas.deposit', estGas.toString())
     const tx = await solaceCoverProduct.deposit(account, deposit, {
       ...gasConfig,
-      gasLimit: parseInt(estGas.toString()),
+      gasLimit: Math.floor(parseInt(estGas.toString()) * 1.5),
     })
     const localTx: LocalTx = {
       hash: tx.hash,
@@ -348,7 +348,7 @@ export const useFunctions = () => {
     console.log('solaceCoverProduct.estimateGas.withdraw', estGas.toString())
     const tx = await solaceCoverProduct.withdraw({
       ...gasConfig,
-      gasLimit: parseInt(estGas.toString()),
+      gasLimit: Math.floor(parseInt(estGas.toString()) * 1.5),
     })
     const localTx: LocalTx = {
       hash: tx.hash,

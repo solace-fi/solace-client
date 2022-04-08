@@ -182,7 +182,7 @@ export const useVault = () => {
     const tx = await vault.withdrawEth(parsedAmount, {
       ...gasConfig,
       // gasLimit: FunctionGasLimits['vault.withdrawEth'],
-      gasLimit: parseInt(estGas.toString()),
+      gasLimit: Math.floor(parseInt(estGas.toString()) * 1.5),
     })
     const localTx: LocalTx = {
       hash: tx.hash,

@@ -42,7 +42,7 @@ export const useBondTellerV2 = (selectedBondDetail: BondTellerDetails | undefine
           value: parsedAmount,
           ...gasConfig,
           // ...gasSettings,
-          gasLimit: parseInt(estGas.toString()),
+          gasLimit: Math.floor(parseInt(estGas.toString()) * 1.5),
         })
         break
       case FunctionName.BOND_DEPOSIT_WETH_V2:
@@ -50,7 +50,7 @@ export const useBondTellerV2 = (selectedBondDetail: BondTellerDetails | undefine
         console.log('cntct.estimateGas.depositWeth', estGas.toString())
         tx = await cntct.depositWeth(parsedAmount, minAmountOut, recipient, stake, {
           ...gasConfig,
-          gasLimit: parseInt(estGas.toString()),
+          gasLimit: Math.floor(parseInt(estGas.toString()) * 1.5),
         })
         break
       case FunctionName.BOND_DEPOSIT_MATIC:
@@ -60,7 +60,7 @@ export const useBondTellerV2 = (selectedBondDetail: BondTellerDetails | undefine
           value: parsedAmount,
           ...gasConfig,
           // ...gasSettings,
-          gasLimit: parseInt(estGas.toString()),
+          gasLimit: Math.floor(parseInt(estGas.toString()) * 1.5),
         })
         break
       case FunctionName.BOND_DEPOSIT_WMATIC:
@@ -68,7 +68,7 @@ export const useBondTellerV2 = (selectedBondDetail: BondTellerDetails | undefine
         console.log('cntct.estimateGas.depositWmatic', estGas.toString())
         tx = await cntct.depositWmatic(parsedAmount, minAmountOut, recipient, stake, {
           ...gasConfig,
-          gasLimit: parseInt(estGas.toString()),
+          gasLimit: Math.floor(parseInt(estGas.toString()) * 1.5),
         })
         break
       case FunctionName.BOND_DEPOSIT_ERC20_V2:
@@ -77,7 +77,7 @@ export const useBondTellerV2 = (selectedBondDetail: BondTellerDetails | undefine
         console.log('cntct.estimateGas.deposit', estGas.toString())
         tx = await cntct.deposit(parsedAmount, minAmountOut, recipient, stake, {
           ...gasConfig,
-          gasLimit: parseInt(estGas.toString()),
+          gasLimit: Math.floor(parseInt(estGas.toString()) * 1.5),
         })
     }
     const localTx: LocalTx = {
@@ -95,7 +95,7 @@ export const useBondTellerV2 = (selectedBondDetail: BondTellerDetails | undefine
     const tx = await selectedBondDetail.tellerData.teller.contract.claimPayout(bondId, {
       ...gasConfig,
       // gasLimit: FunctionGasLimits['teller_v2.claimPayout'],
-      gasLimit: parseInt(estGas.toString()),
+      gasLimit: Math.floor(parseInt(estGas.toString()) * 1.5),
     })
     const localTx: LocalTx = {
       hash: tx.hash,
