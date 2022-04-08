@@ -58,7 +58,7 @@ export const ContentContainer = styled.div`
   display: flex;
   margin: 0 auto;
   width: 100%;
-  max-width: ${MAX_WIDTH}px;
+  /* max-width: ${MAX_WIDTH}px; */
 
   @media screen and (max-width: ${BKPT_NAVBAR}px) {
     justify-content: center;

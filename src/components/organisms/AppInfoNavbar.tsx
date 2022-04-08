@@ -88,9 +88,21 @@ export const InfoSideNavbar: React.FC<CollapsibleNavbar> = ({ tabs }) => {
                 style={{ cursor: 'pointer', justifyContent: width > BKPT_3 ? 'left' : 'center' }}
                 onClick={() => setOpenTab(openTab != t.collapsibleName ? t.collapsibleName : '')}
               >
-                <Text t3 light={lightText}>
-                  {t.collapsibleName}
-                </Text>
+                <Flex gap={3}>
+                  <Text t3 light={lightText}>
+                    {t.collapsibleName}
+                  </Text>
+                  <Text
+                    light={lightText}
+                    autoAlignVertical
+                    style={{
+                      fontSize: '7px',
+                      transform: openTab == t.collapsibleName ? 'rotate(180deg)' : 'rotate(0deg)',
+                    }}
+                  >
+                    ▼
+                  </Text>
+                </Flex>
               </Button>
               <Accordion
                 key={i}
