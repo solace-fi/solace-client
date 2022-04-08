@@ -67,10 +67,13 @@ export const useGetPriceFromSushiSwap = () => {
       const decimals = await queryDecimals(token)
       const TOKEN = new Token(activeNetwork.chainId, handleAddressException(token.address, activeNetwork), decimals)
       const USDC = new Token(activeNetwork.chainId, USDC_ADDRESS[activeNetwork.chainId] ?? USDC_ADDRESS[1], 6)
-      const pairAddr = await Pair.getAddress(TOKEN, USDC)
+      const pairAddr = await withBackoffRetries(async () => Pair.getAddress(TOKEN, USDC))
       const pairPoolContract = new Contract(pairAddr, sushiswapLpAbi, provider)
-      const reserves = await pairPoolContract.getReserves()
-      const tokens = await Promise.all([pairPoolContract.token0(), pairPoolContract.token1()])
+      const reserves = await withBackoffRetries(async () => pairPoolContract.getReserves())
+      const tokens = await Promise.all([
+        withBackoffRetries(async () => pairPoolContract.token0()),
+        withBackoffRetries(async () => pairPoolContract.token1()),
+      ])
       if (tokens[0].toLowerCase() == token.address.toLowerCase()) {
         const token0ReadableAmount = floatUnits(reserves._reserve0, decimals)
         const token1ReadableAmount = floatUnits(reserves._reserve1, 6)
@@ -84,10 +87,8 @@ export const useGetPriceFromSushiSwap = () => {
       }
     } catch (err) {
       console.log(`getPriceFromSushiswap, cannot retrieve for ${token.address}`, err)
-      const coinGeckoTokenPrice = await getCoingeckoTokenPriceByAddr(
-        token.address,
-        'usd',
-        coingeckoTokenId(activeNetwork.nativeCurrency.symbol)
+      const coinGeckoTokenPrice = await withBackoffRetries(async () =>
+        getCoingeckoTokenPriceByAddr(token.address, 'usd', coingeckoTokenId(activeNetwork.nativeCurrency.symbol))
       )
       return parseFloat(coinGeckoTokenPrice ?? '0')
     }
@@ -102,14 +103,17 @@ export const useGetPriceFromSushiSwap = () => {
   ): Promise<number> => {
     try {
       const provider = _provider ?? new JsonRpcProvider(activeNetwork.rpc.httpsUrl)
-      const [token0, token1] = await Promise.all([lpToken.token0(), lpToken.token1()])
+      const [token0, token1] = await Promise.all([
+        withBackoffRetries(async () => lpToken.token0()),
+        withBackoffRetries(async () => lpToken.token1()),
+      ])
       const token0Contract = new Contract(token0, ierc20Json.abi, provider)
       const token1Contract = new Contract(token1, ierc20Json.abi, provider)
 
       const [decimals0, decimals1, totalSupply, principalDecimals] = await Promise.all([
-        withBackoffRetries(async () => queryDecimals(token0Contract)),
-        withBackoffRetries(async () => queryDecimals(token1Contract)),
-        lpToken.totalSupply(),
+        queryDecimals(token0Contract),
+        queryDecimals(token1Contract),
+        withBackoffRetries(async () => lpToken.totalSupply()),
         queryDecimals(lpToken),
       ])
 
@@ -120,9 +124,9 @@ export const useGetPriceFromSushiSwap = () => {
 
       const TOKEN0 = new Token(activeNetwork.chainId, token0, decimals0)
       const TOKEN1 = new Token(activeNetwork.chainId, token1, decimals1)
-      const pairAddr = await Pair.getAddress(TOKEN0, TOKEN1)
+      const pairAddr = await withBackoffRetries(async () => Pair.getAddress(TOKEN0, TOKEN1))
       const pairPoolContract = new Contract(pairAddr, sushiswapLpAbi, provider)
-      const reserves = await pairPoolContract.getReserves()
+      const reserves = await withBackoffRetries(async () => pairPoolContract.getReserves())
       const totalReserve0 = floatUnits(reserves._reserve0, decimals0)
       const totalReserve1 = floatUnits(reserves._reserve1, decimals1)
       const multiplied = poolShare * (price0 * totalReserve0 + price1 * totalReserve1)
@@ -144,7 +148,7 @@ export const useGetCrossTokenPricesFromCoingecko = () => {
 
   const getPricesByAddress = async (addrs: string[]): Promise<TokenToPriceMapping> => {
     const uniqueAddrs = addrs.filter((v, i, a) => a.indexOf(v) === i)
-    const prices = await fetchCoingeckoTokenPricesByAddr(uniqueAddrs, 'usd', 'ethereum')
+    const prices = await withBackoffRetries(async () => fetchCoingeckoTokenPricesByAddr(uniqueAddrs, 'usd', 'ethereum'))
     const array: { addr: string; price: number }[] = []
     uniqueAddrs.forEach((uniqueAddr) => {
       if (!prices[uniqueAddr.toLowerCase()]) {
@@ -165,7 +169,7 @@ export const useGetCrossTokenPricesFromCoingecko = () => {
 
   const getPricesById = async (ids: string[]) => {
     const uniqueIds = ids.filter((v, i, a) => a.indexOf(v) === i)
-    const prices = await fetchCoingeckoTokenPriceById(uniqueIds, 'usd')
+    const prices = await withBackoffRetries(async () => fetchCoingeckoTokenPriceById(uniqueIds, 'usd'))
     const array: { id: string; price: number }[] = []
     uniqueIds.forEach((uniqueId) => {
       if (!prices.find((p: any) => (p.id = uniqueId.toLowerCase()))) {

@@ -66,6 +66,7 @@ import { accurateMultiply, formatAmount } from '../../../../utils/formatting'
 import { queryBalance } from '../../../../utils/contract'
 import { TransactionReceipt, TransactionResponse } from '@ethersproject/providers'
 import { useTellerConfig } from '../../../../hooks/bond/useDetectTeller'
+import { withBackoffRetries } from '../../../../utils/time'
 
 interface BondModalV2Props {
   closeModal: () => void
@@ -239,9 +240,8 @@ export const BondModalV2: React.FC<BondModalV2Props> = ({ closeModal, isOpen, se
       const formattedAmount = formatAmount(_amount)
       const tellerContract = selectedBondDetail.tellerData.teller.contract
       try {
-        const aO: BigNumber = await tellerContract.calculateAmountOut(
-          accurateMultiply(formattedAmount, pncplDecimals),
-          false
+        const aO: BigNumber = await withBackoffRetries(async () =>
+          tellerContract.calculateAmountOut(accurateMultiply(formattedAmount, pncplDecimals), false)
         )
         setCalculatedAmountOut(aO)
       } catch (e) {
@@ -262,9 +262,11 @@ export const BondModalV2: React.FC<BondModalV2Props> = ({ closeModal, isOpen, se
 
       try {
         // not including bond fee to remain below maxPayout
-        const aI: BigNumber = await tellerContract.calculateAmountIn(
-          maxPayout.mul(BigNumber.from(MAX_BPS).sub(bondFeeBps ?? ZERO)).div(BigNumber.from(MAX_BPS)),
-          false
+        const aI: BigNumber = await withBackoffRetries(async () =>
+          tellerContract.calculateAmountIn(
+            maxPayout.mul(BigNumber.from(MAX_BPS).sub(bondFeeBps ?? ZERO)).div(BigNumber.from(MAX_BPS)),
+            false
+          )
         )
         setCalculatedAmountIn(aI)
       } catch (e) {

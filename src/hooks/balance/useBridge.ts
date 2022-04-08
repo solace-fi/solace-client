@@ -6,6 +6,7 @@ import { FunctionName, TransactionCondition } from '../../constants/enums'
 import { LocalTx } from '../../constants/types'
 import { useNetwork } from '../../context/NetworkManager'
 import { useWallet } from '../../context/WalletManager'
+import { withBackoffRetries } from '../../utils/time'
 import { useGetContract } from '../contract/useContract'
 import { useGetFunctionGas } from '../provider/useGas'
 
@@ -20,7 +21,7 @@ export const useBridge = () => {
   const getUserBridgeBalance = async () => {
     if (!bSolace || !account) return ZERO
     try {
-      const balance = await bSolace.balanceOf(account)
+      const balance = await withBackoffRetries(async () => bSolace.balanceOf(account))
       return balance
     } catch (err) {
       console.log('error getUserBridgeBalance ', account, err)
@@ -31,7 +32,7 @@ export const useBridge = () => {
   const getBridgeLiquidity = async () => {
     if (!bSolace || !bridgeWrapper) return ZERO
     try {
-      const liquidity = await bSolace.balanceOf(bridgeWrapper.address)
+      const liquidity = await withBackoffRetries(async () => bSolace.balanceOf(bridgeWrapper.address))
       return liquidity
     } catch (err) {
       console.log('error getBridgeLiquidity', err)

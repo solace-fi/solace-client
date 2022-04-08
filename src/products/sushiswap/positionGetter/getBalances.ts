@@ -87,8 +87,8 @@ export const getBalances = async (
   //     const token0Contract = getContract(balances[i].underlying[0].address, ierc20Json.abi, provider)
   //     const token1Contract = getContract(balances[i].underlying[1].address, ierc20Json.abi, provider)
 
-  //     const bal0 = await withBackoffRetries(async () => queryBalance(token0Contract, balances[i].token.address))
-  //     const bal1 = await withBackoffRetries(async () => queryBalance(token1Contract, balances[i].token.address))
+  //     const bal0 = await queryBalance(token0Contract, balances[i].token.address)
+  //     const bal1 = await queryBalance(token1Contract, balances[i].token.address)
 
   //     const totalSupply = await lpTokenContracts[i].totalSupply()
   //     const liquidity = await withBackoffRetries(async () =>
