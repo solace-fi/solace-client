@@ -239,7 +239,7 @@ export const AppMenu = ({ show, setShow }: { show: boolean; setShow: (show: bool
                 {data.map((item, index) => {
                   return (
                     <AppNavItemText key={index}>
-                      <NavLink to={item.path}>
+                      <NavLink to={item.path} onClick={() => setShow(false)}>
                         <Text
                           t3
                           warmgradient={location.pathname == item.path && appTheme == 'dark'}
