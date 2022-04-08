@@ -42,9 +42,12 @@ export const useCpFarm = () => {
 
   const withdrawCp = async (parsedAmount: BigNumber): Promise<TxResult> => {
     if (!cpFarm) return { tx: null, localTx: null }
+    const estGas = await cpFarm.estimateGas.withdrawCp(parsedAmount)
+    console.log('cpFarm.estimateGas.withdrawCp', estGas.toString())
     const tx = await cpFarm.withdrawCp(parsedAmount, {
       ...gasConfig,
-      gasLimit: FunctionGasLimits['cpFarm.withdrawCp'],
+      // gasLimit: FunctionGasLimits['cpFarm.withdrawCp'],
+      gasLimit: parseInt(estGas.toString()),
     })
     const localTx: LocalTx = {
       hash: tx.hash,

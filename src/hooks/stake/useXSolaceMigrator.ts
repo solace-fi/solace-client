@@ -27,9 +27,12 @@ export const useXSolaceMigrator = () => {
       xSolaceV1,
       amount
     )
+    const estGas = await xSolaceMigrator.estimateGas.migrateSigned(amount, end, DEADLINE, v, r, s)
+    console.log('xSolaceMigrator.estimateGas.migrateSigned', estGas.toString())
     const tx = await xSolaceMigrator.migrateSigned(amount, end, DEADLINE, v, r, s, {
       ...gasConfig,
-      gasLimit: FunctionGasLimits['xSolaceMigrator.migrateSigned'],
+      // gasLimit: FunctionGasLimits['xSolaceMigrator.migrateSigned'],
+      gasLimit: parseInt(estGas.toString()),
     })
     const localTx: LocalTx = {
       hash: tx.hash,

@@ -237,9 +237,12 @@ export const useFunctions = () => {
   const updatePolicyChainInfo = async (chains: BigNumber[]) => {
     if (!solaceCoverProduct || activeNetwork.config.keyContracts.solaceCoverProduct.additionalInfo != 'v2')
       return { tx: null, localTx: null }
+    const estGas = await solaceCoverProduct.estimateGas.updatePolicyChainInfo(chains)
+    console.log('solaceCoverProduct.estimateGas.updatePolicyChainInfo', estGas.toString())
     const tx = await solaceCoverProduct.updatePolicyChainInfo(chains, {
       ...gasConfig,
-      gasLimit: GAS_LIMIT,
+      // gasLimit: GAS_LIMIT,
+      gasLimit: parseInt(estGas.toString()),
     })
     const localTx: LocalTx = {
       hash: tx.hash,
@@ -260,14 +263,26 @@ export const useFunctions = () => {
     let tx = undefined
     const useV2 = activeNetwork.config.keyContracts.solaceCoverProduct.additionalInfo == 'v2'
     if (useV2) {
+      const estGas = await solaceCoverProduct.estimateGas.activatePolicy(
+        account,
+        coverLimit,
+        deposit,
+        referralCode,
+        chains
+      )
+      console.log('solaceCoverProduct.estimateGas.activatePolicy (V2)', estGas.toString())
       tx = await solaceCoverProduct.activatePolicy(account, coverLimit, deposit, referralCode, chains, {
         ...gasConfig,
-        gasLimit: GAS_LIMIT,
+        // gasLimit: GAS_LIMIT,
+        gasLimit: parseInt(estGas.toString()),
       })
     } else {
+      const estGas = await solaceCoverProduct.estimateGas.activatePolicy(account, coverLimit, deposit, referralCode)
+      console.log('solaceCoverProduct.estimateGas.activatePolicy', estGas.toString())
       tx = await solaceCoverProduct.activatePolicy(account, coverLimit, deposit, referralCode, {
         ...gasConfig,
-        gasLimit: GAS_LIMIT,
+        // gasLimit: GAS_LIMIT,
+        gasLimit: parseInt(estGas.toString()),
       })
     }
     const localTx: LocalTx = {
@@ -280,9 +295,12 @@ export const useFunctions = () => {
 
   const deactivatePolicy = async () => {
     if (!solaceCoverProduct) return { tx: null, localTx: null }
+    const estGas = await solaceCoverProduct.estimateGas.deactivatePolicy()
+    console.log('solaceCoverProduct.estimateGas.deactivatePolicy', estGas.toString())
     const tx = await solaceCoverProduct.deactivatePolicy({
       ...gasConfig,
-      gasLimit: GAS_LIMIT,
+      // gasLimit: GAS_LIMIT,
+      gasLimit: parseInt(estGas.toString()),
     })
     const localTx: LocalTx = {
       hash: tx.hash,
@@ -294,9 +312,11 @@ export const useFunctions = () => {
 
   const updateCoverLimit = async (newCoverageLimit: BigNumber, referralCode: string | []) => {
     if (!solaceCoverProduct) return { tx: null, localTx: null }
+    const estGas = await solaceCoverProduct.estimateGas.updateCoverLimit(newCoverageLimit, referralCode)
+    console.log('solaceCoverProduct.estimateGas.updateCoverLimit', estGas.toString())
     const tx = await solaceCoverProduct.updateCoverLimit(newCoverageLimit, referralCode, {
       ...gasConfig,
-      gasLimit: GAS_LIMIT,
+      gasLimit: parseInt(estGas.toString()),
     })
     const localTx: LocalTx = {
       hash: tx.hash,
@@ -308,9 +328,11 @@ export const useFunctions = () => {
 
   const deposit = async (account: string, deposit: BigNumber) => {
     if (!solaceCoverProduct) return { tx: null, localTx: null }
+    const estGas = await solaceCoverProduct.estimateGas.deposit(account, deposit)
+    console.log('solaceCoverProduct.estimateGas.deposit', estGas.toString())
     const tx = await solaceCoverProduct.deposit(account, deposit, {
       ...gasConfig,
-      gasLimit: GAS_LIMIT,
+      gasLimit: parseInt(estGas.toString()),
     })
     const localTx: LocalTx = {
       hash: tx.hash,
@@ -322,9 +344,11 @@ export const useFunctions = () => {
 
   const withdraw = async () => {
     if (!solaceCoverProduct) return { tx: null, localTx: null }
+    const estGas = await solaceCoverProduct.estimateGas.withdraw()
+    console.log('solaceCoverProduct.estimateGas.withdraw', estGas.toString())
     const tx = await solaceCoverProduct.withdraw({
       ...gasConfig,
-      gasLimit: GAS_LIMIT,
+      gasLimit: parseInt(estGas.toString()),
     })
     const localTx: LocalTx = {
       hash: tx.hash,
