@@ -17,6 +17,7 @@ import { useCachedData } from '../../context/CachedDataManager'
 import { useNetwork } from '../../context/NetworkManager'
 import { PositionType } from '../../constants/enums'
 import { useProvider } from '../../context/ProviderManager'
+import { withBackoffRetries } from '../../utils/time'
 
 export const useGetPolicyPrice = (policyId: number): string => {
   const [policyPrice, setPolicyPrice] = useState<string>('')
@@ -151,7 +152,9 @@ export const useGetMaxCoverPerPolicy = (): string => {
   const getMaxCoverPerPolicy = async () => {
     if (!selectedProtocol || !riskManager) return
     try {
-      const maxCoverPerPolicy = await riskManager.maxCoverPerPolicy(selectedProtocol.address)
+      const maxCoverPerPolicy = await withBackoffRetries(async () =>
+        riskManager.maxCoverPerPolicy(selectedProtocol.address)
+      )
       const formattedMaxCover = formatUnits(maxCoverPerPolicy, currencyDecimals)
       setMaxCoverPerPolicy(formattedMaxCover)
     } catch (err) {
@@ -180,7 +183,7 @@ export const useGetYearlyCosts = (): StringToStringMapping => {
         products.map(async (productContract) => {
           const product = getProtocolByName(productContract.name)
           if (product) {
-            const params = await riskManager.productRiskParams(product.address)
+            const params = await withBackoffRetries(async () => riskManager.productRiskParams(product.address))
             newYearlyCosts[productContract.name] = formatUnits(params.price, currencyDecimals)
           } else {
             newYearlyCosts[productContract.name] = '0'
@@ -214,7 +217,9 @@ export const useGetAvailableCoverages = (): StringToStringMapping => {
         products.map(async (productContract) => {
           const product = getProtocolByName(productContract.name)
           if (product) {
-            const sellableCoverPerProduct = await riskManager.sellableCoverPerProduct(product.address)
+            const sellableCoverPerProduct = await withBackoffRetries(async () =>
+              riskManager.sellableCoverPerProduct(product.address)
+            )
             const coverage = formatUnits(sellableCoverPerProduct, currencyDecimals)
             newAvailableCoverages[productContract.name] = coverage
           } else {
@@ -244,9 +249,8 @@ export const useGetQuote = (coverAmount: string | null, days: string): string =>
   const getQuote = async () => {
     if (!selectedProtocol || !coverAmount) return
     try {
-      const positionsQuote: BigNumber = await selectedProtocol.getQuote(
-        coverAmount,
-        BigNumber.from(NUM_BLOCKS_PER_DAY * parseInt(days))
+      const positionsQuote: BigNumber = await withBackoffRetries(async () =>
+        selectedProtocol.getQuote(coverAmount, BigNumber.from(NUM_BLOCKS_PER_DAY * parseInt(days)))
       )
       const formattedQuote = formatUnits(positionsQuote, currencyDecimals)
       setQuote(formattedQuote)

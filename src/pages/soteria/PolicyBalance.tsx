@@ -12,7 +12,7 @@ import { MAX_APPROVAL_AMOUNT, ZERO } from '../../constants'
 import { useCooldownDetails, useFunctions } from '../../hooks/policy/useSolaceCoverProduct'
 import { useWallet } from '../../context/WalletManager'
 import { BigNumber } from 'ethers'
-import { LocalTx, SolaceRiskScore } from '../../constants/types'
+import { LocalTx, ReadToken, SolaceRiskScore } from '../../constants/types'
 import {
   accurateMultiply,
   filterAmount,
@@ -42,7 +42,7 @@ export function PolicyBalance({
   balances,
   referralChecks,
   chainsChecked,
-  stableCoin,
+  stableCoinData,
   minReqAccBal,
   portfolio,
   currentCoverageLimit,
@@ -69,7 +69,7 @@ export function PolicyBalance({
     referrerIsOther: boolean
   }
   chainsChecked: CheckboxData[]
-  stableCoin: string
+  stableCoinData: ReadToken
   minReqAccBal: BigNumber
   portfolio: SolaceRiskScore | undefined
   currentCoverageLimit: BigNumber
@@ -97,9 +97,6 @@ export function PolicyBalance({
 
   const { ifDesktop } = useWindowDimensions()
   const { account, library } = useWallet()
-  const { name: stableCoinName, symbol: stableCoinSymbol } = useReadToken(
-    getContract(stableCoin, IERC20.abi, library, account)
-  )
   const { activeNetwork } = useNetwork()
   const { keyContracts } = useContracts()
   const { solaceCoverProduct } = useMemo(() => keyContracts, [keyContracts])
@@ -174,7 +171,7 @@ export function PolicyBalance({
 
   const unlimitedApprove = async () => {
     if (!solaceCoverProduct || !account || !library) return
-    const stablecoinContract = getContract(stableCoin, IERC20.abi, library, account)
+    const stablecoinContract = getContract(stableCoinData.address, IERC20.abi, library, account)
     try {
       const tx: TransactionResponse = await stablecoinContract.approve(solaceCoverProduct.address, MAX_APPROVAL_AMOUNT)
       const txHash = tx.hash
@@ -301,7 +298,7 @@ export function PolicyBalance({
                 <Text t4s bold>
                   {truncateValue(annualCost, 2)}{' '}
                   <Text t6s inline>
-                    {stableCoinSymbol}/Year
+                    {stableCoinData.symbol}/Year
                   </Text>
                 </Text>
               </Flex>
@@ -310,7 +307,7 @@ export function PolicyBalance({
                 <Text t4s bold>
                   {truncateValue(dailyCost, 2)}{' '}
                   <Text t6s inline>
-                    {stableCoinSymbol}/Day
+                    {stableCoinData.symbol}/Day
                   </Text>
                 </Text>
               </Flex>
@@ -332,7 +329,7 @@ export function PolicyBalance({
                 <Text t4s bold>
                   {truncateValue(annualCost, 2)}{' '}
                   <Text t6s inline>
-                    {stableCoinSymbol}/Year
+                    {stableCoinData.symbol}/Year
                   </Text>
                 </Text>
               </Flex>
@@ -341,7 +338,7 @@ export function PolicyBalance({
                 <Text t4s bold warning>
                   {truncateValue(projectedDailyCost, 2)}{' '}
                   <Text t6s inline>
-                    {stableCoinSymbol}/Day
+                    {stableCoinData.symbol}/Day
                   </Text>
                 </Text>
               </Flex>
@@ -392,7 +389,7 @@ export function PolicyBalance({
                   </Text>
                   <Text t4s bold info>
                     {commaNumber(truncateValue(formatUnits(balances.personalBalance, walletAssetDecimals), 2, false))}{' '}
-                    {stableCoinSymbol}
+                    {stableCoinData.symbol}
                   </Text>
                 </Flex>
                 <Flex between>
@@ -401,7 +398,7 @@ export function PolicyBalance({
                   </Text>
                   <Text t4s bold techygradient>
                     {commaNumber(truncateValue(formatUnits(balances.earnedBalance, walletAssetDecimals), 2, false))}{' '}
-                    {stableCoinSymbol}
+                    {stableCoinData.symbol}
                   </Text>
                 </Flex>
               </Flex>
@@ -448,9 +445,9 @@ export function PolicyBalance({
             <>
               {inactive && <Text t4>Set the coverage limit and initial deposit for your policy</Text>}
               <GenericInputSection
-                icon={<img src={`https://assets.solace.fi/${stableCoinName.toLowerCase()}`} height={20} />}
+                icon={<img src={`https://assets.solace.fi/${stableCoinData.name.toLowerCase()}`} height={20} />}
                 onChange={(e) => _handleInputChange(e.target.value)}
-                text={stableCoinSymbol}
+                text={stableCoinData.symbol}
                 value={inputProps.amount}
                 disabled={false}
                 displayIconOnMobile

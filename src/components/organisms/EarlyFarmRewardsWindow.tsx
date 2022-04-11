@@ -59,7 +59,7 @@ import { useEarlyFarmRewards } from '../../hooks/farm/useFarm'
 import { useGetFunctionGas } from '../../hooks/provider/useGas'
 
 /* import utils */
-import { getDateStringWithMonthName } from '../../utils/time'
+import { getDateStringWithMonthName, withBackoffRetries } from '../../utils/time'
 import { queryBalance, queryDecimals } from '../../utils/contract'
 import { truncateValue } from '../../utils/formatting'
 import { getContract, isAddress } from '../../utils'
@@ -198,9 +198,8 @@ export const EarlyFarmRewardsWindow: React.FC = () => {
     if (!farmRewards || !isAddress(stablecoinPayment.value) || buttonLoading) return
     setButtonLoading(true)
     try {
-      const calculatedAmountOut = await farmRewards.calculateAmountOut(
-        stablecoinPayment.value,
-        parseUnits(amount, userStablecoinDecimals)
+      const calculatedAmountOut = await withBackoffRetries(async () =>
+        farmRewards.calculateAmountOut(stablecoinPayment.value, parseUnits(amount, userStablecoinDecimals))
       )
       setCalculatedAmountOut(calculatedAmountOut)
       const isApproriateAmount = isAppropriateAmount(amount, userStablecoinDecimals, userStablecoinBalance)
@@ -233,7 +232,7 @@ export const EarlyFarmRewardsWindow: React.FC = () => {
   useEffect(() => {
     const getFarmRewardsData = async () => {
       if (!farmRewards) return
-      const vestingEnd = await farmRewards.VESTING_END()
+      const vestingEnd = await withBackoffRetries(async () => farmRewards.VESTING_END())
       setVestingEnd(vestingEnd)
       setSpenderAddress(farmRewards.address)
     }
@@ -244,7 +243,9 @@ export const EarlyFarmRewardsWindow: React.FC = () => {
     ;(async () => {
       if (!farmRewards || !isAddress(stablecoinPayment.value)) return
       try {
-        const pSolace_Stablecoin = await farmRewards.calculateAmountIn(stablecoinPayment.value, purchaseableSolace)
+        const pSolace_Stablecoin = await withBackoffRetries(async () =>
+          farmRewards.calculateAmountIn(stablecoinPayment.value, purchaseableSolace)
+        )
         setPSolaceInStablecoin(pSolace_Stablecoin)
       } catch (e) {
         setPSolaceInStablecoin(undefined)
