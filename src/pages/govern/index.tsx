@@ -30,47 +30,7 @@ function Govern(): any {
           page.
         </Text>
       </Content>
-      {/* <Text t2 textAlignCenter>
-        See our Medium blog post{' '}
-        <HyperLink
-          href={
-            'https://medium.com/solace-fi/solace-forms-a-launch-dao-to-deliver-its-defi-coverage-products-5137199369c2'
-          }
-          target="_blank"
-          rel="noopener noreferrer"
-          info
-          t2
-        >
-          here
-        </HyperLink>{' '}
-        to learn more about our approach to governance.
-      </Text> */}
       <Content>
-        {/* <CardContainer cardsPerRow={2}>
-          <HyperLink
-            href={
-              'https://medium.com/solace-fi/solace-forms-a-launch-dao-to-deliver-its-defi-coverage-products-5137199369c2'
-            }
-            target="_blank"
-            rel="noopener noreferrer"
-            info
-            t2
-          >
-            <Card canHover>
-              <Text textAlignCenter>Launch DAO Article</Text>
-            </Card>
-          </HyperLink>
-          <HyperLink href={'https://forum.solace.fi/'} target="_blank" rel="noopener noreferrer" info t2>
-            <Card canHover>
-              <Text textAlignCenter>Forum</Text>
-            </Card>
-          </HyperLink>
-          <HyperLink href={'https://snapshot.org/#/solacefi.eth'} target="_blank" rel="noopener noreferrer" info t2>
-            <Card canHover>
-              <Text textAlignCenter>Snapshot</Text>
-            </Card>
-          </HyperLink>
-        </CardContainer> */}
         <Flex
           gap={20}
           style={{
