@@ -10,6 +10,7 @@ import { FunctionGasLimits } from '../../constants/mappings/gasMapping'
 import { useProvider } from '../../context/ProviderManager'
 import { convertSciNotaToPrecise, truncateValue, formatAmount } from '../../utils/formatting'
 import { useGetFunctionGas } from '../provider/useGas'
+import { withBackoffRetries } from '../../utils/time'
 
 export const useStakingRewards = () => {
   const { keyContracts } = useContracts()
@@ -19,11 +20,11 @@ export const useStakingRewards = () => {
   const getUserPendingRewards = async (account: string) => {
     let pendingRewards = ZERO
     if (!xsLocker || !stakingRewards) return pendingRewards
-    const numLocks = await xsLocker.balanceOf(account)
+    const numLocks = await withBackoffRetries(async () => xsLocker.balanceOf(account))
     const indices = rangeFrom0(numLocks.toNumber())
     const xsLockIDs = await Promise.all(
       indices.map(async (index) => {
-        return await xsLocker.tokenOfOwnerByIndex(account, index)
+        return await withBackoffRetries(async () => xsLocker.tokenOfOwnerByIndex(account, index))
       })
     )
     const rewards = await Promise.all(
@@ -40,7 +41,7 @@ export const useStakingRewards = () => {
   const getPendingRewardsOfLock = async (xsLockID: BigNumber): Promise<BigNumber> => {
     if (!stakingRewards) return ZERO
     try {
-      const pendingRewards = await stakingRewards.pendingRewardsOfLock(xsLockID)
+      const pendingRewards = await withBackoffRetries(async () => stakingRewards.pendingRewardsOfLock(xsLockID))
       return pendingRewards
     } catch (err) {
       console.log('error getPendingRewardsOfLock ', err)
@@ -51,7 +52,7 @@ export const useStakingRewards = () => {
   const getStakedLockInfo = async (xsLockID: BigNumber) => {
     if (!stakingRewards) return null
     try {
-      const userInfo = await stakingRewards.stakedLockInfo(xsLockID)
+      const userInfo = await withBackoffRetries(async () => stakingRewards.stakedLockInfo(xsLockID))
       return userInfo
     } catch (err) {
       console.log('error getStakedLockInfo ', err)
@@ -70,19 +71,19 @@ export const useStakingRewards = () => {
       }
     let totalSolaceStaked = ZERO
     const [rewardPerSecond, valueStaked, numlocks] = await Promise.all([
-      stakingRewards.rewardPerSecond({ blockTag: blockNum }), // across all locks
-      stakingRewards.valueStaked({ blockTag: blockNum }), // across all locks
-      xsLocker.totalSupply({ blockTag: blockNum }),
+      withBackoffRetries(async () => stakingRewards.rewardPerSecond({ blockTag: blockNum })), // across all locks
+      withBackoffRetries(async () => stakingRewards.valueStaked({ blockTag: blockNum })), // across all locks
+      withBackoffRetries(async () => xsLocker.totalSupply({ blockTag: blockNum })),
     ])
     const indices = rangeFrom0(numlocks.toNumber())
     const xsLockIDs = await Promise.all(
       indices.map(async (index) => {
-        return await xsLocker.tokenByIndex(index, { blockTag: blockNum })
+        return await withBackoffRetries(async () => xsLocker.tokenByIndex(index, { blockTag: blockNum }))
       })
     )
     const locks = await Promise.all(
       xsLockIDs.map(async (xsLockID) => {
-        return await xsLocker.locks(xsLockID, { blockTag: blockNum })
+        return await withBackoffRetries(async () => xsLocker.locks(xsLockID, { blockTag: blockNum }))
       })
     )
     locks.forEach((lock) => {

@@ -5,7 +5,7 @@ import { useCachedData } from '../../context/CachedDataManager'
 import { useState, useEffect, useRef } from 'react'
 import { formatUnits } from '@ethersproject/units'
 import { Contract } from 'ethers'
-import { queryBalance } from '../../utils/contract'
+import { queryBalance, queryDecimals } from '../../utils/contract'
 import { useNetwork } from '../../context/NetworkManager'
 
 import { usePriceSdk } from '../api/usePrice'
@@ -15,6 +15,7 @@ import { useProvider } from '../../context/ProviderManager'
 import { useReadToken } from '../contract/useToken'
 import { useBridge } from './useBridge'
 import { JsonRpcProvider } from '@ethersproject/providers'
+import { withBackoffRetries } from '../../utils/time'
 
 export const useNativeTokenBalance = (): string => {
   const { account, library } = useWallet()
@@ -195,7 +196,7 @@ export const useXSolaceV1Balance = (): { xSolaceV1Balance: string; v1StakedSolac
     if (!xSolaceV1 || !account) return
     try {
       const balance = await queryBalance(xSolaceV1, account)
-      const stakedBalance = await xSolaceV1.xSolaceToSolace(balance)
+      const stakedBalance = await withBackoffRetries(async () => xSolaceV1.xSolaceToSolace(balance))
       const formattedStakedBalance = formatUnits(stakedBalance, readToken.decimals)
       const formattedBalance = formatUnits(balance, readXV1Token.decimals)
       setXSolaceV1Balance(formattedBalance)
@@ -257,7 +258,7 @@ export const useCrossChainUnderwritingPoolBalance = () => {
               const sdkPrice = await getSdkTokenPrice(contract, activeNetwork, provider)
               price = sdkPrice
             }
-            const principalDecimals = await contract.decimals()
+            const principalDecimals = await queryDecimals(contract)
             const formattedBalance = floatUnits(balance, principalDecimals)
             const balanceMultipliedByPrice = price * formattedBalance
             usdcBalanceForNetwork += balanceMultipliedByPrice
@@ -273,7 +274,7 @@ export const useCrossChainUnderwritingPoolBalance = () => {
 
         const solaceSource = activeNetwork.config.keyContracts.solace
         const solace = new Contract(solaceSource.addr, solaceSource.abi, provider)
-        const solaceDecimals = await solace.decimals()
+        const solaceDecimals = await queryDecimals(solace)
         const solaceBalance = await queryBalance(solace, multiSig)
         const solacePrice = tokenPriceMapping[networks[0].config.keyContracts.solace.addr.toLowerCase()]
         const solaceBalanceMultipliedByPrice = solacePrice * floatUnits(solaceBalance, solaceDecimals)

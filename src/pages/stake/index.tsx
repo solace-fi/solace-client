@@ -84,7 +84,7 @@ import '../../styles/tailwind.min.css'
 
 // util imports
 
-import { getExpiration, getTimeFromMillis } from '../../utils/time'
+import { getExpiration, getTimeFromMillis, withBackoffRetries } from '../../utils/time'
 import { BridgeModal } from './organisms/BridgeModal'
 import { Loader } from '../../components/atoms/Loader'
 
@@ -124,7 +124,7 @@ function Stake1(): any {
   )
 
   const callUnstake = async () => {
-    const xSolaceToUnstake: BigNumber = await getXSolaceFromSolace()
+    const xSolaceToUnstake: BigNumber = await withBackoffRetries(async () => getXSolaceFromSolace())
     await unstake_v1(xSolaceToUnstake)
       .then((res) => handleToast(res.tx, res.localTx))
       .catch((err) => handleContractCallError('callUnstake', err, FunctionName.UNSTAKE_V1))
@@ -132,7 +132,7 @@ function Stake1(): any {
 
   const callMigrateSigned = async () => {
     if (!latestBlock || !account) return
-    const xSolaceToMigrate: BigNumber = await getXSolaceFromSolace()
+    const xSolaceToMigrate: BigNumber = await withBackoffRetries(async () => getXSolaceFromSolace())
     const seconds = latestBlock.timestamp + parseInt(lockInputValue) * 86400
     await migrate(account, BigNumber.from(seconds), xSolaceToMigrate)
       .then((res) => handleToast(res.tx, res.localTx))
@@ -148,7 +148,9 @@ function Stake1(): any {
     if (formatted == v1StakedSolaceBalance) {
       xSolace = parseUnits(xSolaceV1Balance, readXSolaceToken.decimals)
     } else {
-      xSolace = await xSolaceV1.solaceToXSolace(parseUnits(formatted, readSolaceToken.decimals))
+      xSolace = await withBackoffRetries(async () =>
+        xSolaceV1.solaceToXSolace(parseUnits(formatted, readSolaceToken.decimals))
+      )
     }
     return xSolace
   }

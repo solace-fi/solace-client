@@ -16,6 +16,7 @@ import { BondTokenV1 } from '../../constants/types'
 import { useReadToken } from '../contract/useToken'
 import { useGetFunctionGas } from '../provider/useGas'
 import { useCachedData } from '../../context/CachedDataManager'
+import { withBackoffRetries } from '../../utils/time'
 
 export const useBondTellerV1 = (selectedBondDetail: BondTellerDetails | undefined) => {
   const { gasConfig } = useGetFunctionGas()
@@ -121,12 +122,12 @@ export const useBondTellerDetailsV1 = (
                 maxPayout,
                 bondFeeBps,
               ] = await Promise.all([
-                teller.contract.principal(),
-                teller.contract.bondPrice(),
-                teller.contract.vestingTerm(),
-                teller.contract.capacity(),
-                teller.contract.maxPayout(),
-                teller.contract.bondFeeBps(),
+                withBackoffRetries(async () => teller.contract.principal()),
+                withBackoffRetries(async () => teller.contract.bondPrice()),
+                withBackoffRetries(async () => teller.contract.vestingTerm()),
+                withBackoffRetries(async () => teller.contract.capacity()),
+                withBackoffRetries(async () => teller.contract.maxPayout()),
+                withBackoffRetries(async () => teller.contract.bondFeeBps()),
               ])
 
               const principalContract = getContract(principalAddr, teller.principalAbi, library, account ?? undefined)
@@ -146,7 +147,10 @@ export const useBondTellerDetailsV1 = (
               if (teller.isLp) {
                 const price = await getSdkLpPrice(principalContract, activeNetwork, library)
                 usdBondPrice = Math.max(price, 0) * floatUnits(bondPrice, decimals)
-                const [token0, token1] = await Promise.all([principalContract.token0(), principalContract.token1()])
+                const [token0, token1] = await Promise.all([
+                  withBackoffRetries(async () => principalContract.token0()),
+                  withBackoffRetries(async () => principalContract.token1()),
+                ])
                 lpData = {
                   token0,
                   token1,
@@ -210,9 +214,13 @@ export const useUserBondDataV1 = () => {
   const readXSolaceToken = useReadToken(xSolaceV1)
 
   const getUserBondDataV1 = async (selectedBondDetail: BondTellerDetails, account: string) => {
-    const ownedTokenIds: BigNumber[] = await selectedBondDetail.tellerData.teller.contract.listTokensOfOwner(account)
+    const ownedTokenIds: BigNumber[] = await withBackoffRetries(async () =>
+      selectedBondDetail.tellerData.teller.contract.listTokensOfOwner(account)
+    )
     const ownedBondData = await Promise.all(
-      ownedTokenIds.map(async (id) => await selectedBondDetail.tellerData.teller.contract.bonds(id))
+      ownedTokenIds.map(
+        async (id) => await withBackoffRetries(async () => selectedBondDetail.tellerData.teller.contract.bonds(id))
+      )
     )
     const ownedBonds: BondTokenV1[] = ownedTokenIds.map((id, idx) => {
       const payoutToken: string =

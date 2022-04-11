@@ -5,6 +5,7 @@ import { useCachedData } from '../../context/CachedDataManager'
 import { useNetwork } from '../../context/NetworkManager'
 import { useProvider } from '../../context/ProviderManager'
 import { useWallet } from '../../context/WalletManager'
+import { withBackoffRetries } from '../../utils/time'
 
 export const useUserStakedValue = (farm: Contract | null | undefined): string => {
   const { account } = useWallet()
@@ -16,7 +17,7 @@ export const useUserStakedValue = (farm: Contract | null | undefined): string =>
     const getUserStakedValue = async () => {
       if (!farm || !account) return
       try {
-        const userStaked = await farm.userStaked(account)
+        const userStaked = await withBackoffRetries(async () => farm.userStaked(account))
         const formattedUserStakedValue = formatUnits(userStaked, currencyDecimals)
         setUserStakedValue(formattedUserStakedValue)
       } catch (err) {
@@ -38,7 +39,7 @@ export const usePoolStakedValue = (farm: Contract | null | undefined): string =>
     const getPoolStakedValue = async () => {
       if (!farm) return
       try {
-        const poolValue = await farm.valueStaked()
+        const poolValue = await withBackoffRetries(async () => farm.valueStaked())
         const formattedPoolValue = formatUnits(poolValue, currencyDecimals)
         setPoolValue(formattedPoolValue)
       } catch (err) {

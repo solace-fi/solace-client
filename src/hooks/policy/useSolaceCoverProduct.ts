@@ -10,6 +10,7 @@ import { useProvider } from '../../context/ProviderManager'
 import { useCachedData } from '../../context/CachedDataManager'
 import { useNetwork } from '../../context/NetworkManager'
 import { rangeFrom0 } from '../../utils/numeric'
+import { withBackoffRetries } from '../../utils/time'
 
 export const useFunctions = () => {
   const { keyContracts } = useContracts()
@@ -20,7 +21,7 @@ export const useFunctions = () => {
   const getAvailableCoverCapacity = async (): Promise<BigNumber> => {
     if (!solaceCoverProduct) return ZERO
     try {
-      const d = await solaceCoverProduct.availableCoverCapacity()
+      const d = await withBackoffRetries(async () => solaceCoverProduct.availableCoverCapacity())
       return d
     } catch (e) {
       console.log('error getAvailableCoverCapacity ', e)
@@ -31,7 +32,7 @@ export const useFunctions = () => {
   const getMaxCover = async (): Promise<BigNumber> => {
     if (!solaceCoverProduct) return ZERO
     try {
-      const d = await solaceCoverProduct.maxCover()
+      const d = await withBackoffRetries(async () => solaceCoverProduct.maxCover())
       return d
     } catch (e) {
       console.log('error getMaxCover ', e)
@@ -42,7 +43,7 @@ export const useFunctions = () => {
   const getActiveCoverLimit = async (): Promise<BigNumber> => {
     if (!solaceCoverProduct) return ZERO
     try {
-      const d = await solaceCoverProduct.activeCoverLimit()
+      const d = await withBackoffRetries(async () => solaceCoverProduct.activeCoverLimit())
       return d
     } catch (e) {
       console.log('error getActiveCoverLimit ', e)
@@ -53,7 +54,7 @@ export const useFunctions = () => {
   const getPolicyCount = async (): Promise<BigNumber> => {
     if (!solaceCoverProduct) return ZERO
     try {
-      const d = await solaceCoverProduct.policyCount()
+      const d = await withBackoffRetries(async () => solaceCoverProduct.policyCount())
       return d
     } catch (e) {
       console.log('error getPolicyCount ', e)
@@ -64,7 +65,7 @@ export const useFunctions = () => {
   const getCooldownPeriod = async (): Promise<BigNumber> => {
     if (!solaceCoverProduct) return ZERO
     try {
-      const d = await solaceCoverProduct.cooldownPeriod()
+      const d = await withBackoffRetries(async () => solaceCoverProduct.cooldownPeriod())
       return d
     } catch (e) {
       console.log('error getCooldownPeriod ', e)
@@ -75,7 +76,7 @@ export const useFunctions = () => {
   const getReferralReward = async (): Promise<BigNumber> => {
     if (!solaceCoverProduct) return ZERO
     try {
-      const d = await solaceCoverProduct.referralReward()
+      const d = await withBackoffRetries(async () => solaceCoverProduct.referralReward())
       return d
     } catch (e) {
       console.log('error getReferralReward ', e)
@@ -86,7 +87,7 @@ export const useFunctions = () => {
   const getPolicyStatus = async (policyId: BigNumber): Promise<boolean> => {
     if (!solaceCoverProduct) return true
     try {
-      const d = await solaceCoverProduct.policyStatus(policyId)
+      const d = await withBackoffRetries(async () => solaceCoverProduct.policyStatus(policyId))
       return d
     } catch (e) {
       console.log('error getPolicyStatus ', e)
@@ -97,7 +98,7 @@ export const useFunctions = () => {
   const getCoverLimitOf = async (policyId: BigNumber): Promise<BigNumber> => {
     if (!solaceCoverProduct) return ZERO
     try {
-      const d = await solaceCoverProduct.coverLimitOf(policyId)
+      const d = await withBackoffRetries(async () => solaceCoverProduct.coverLimitOf(policyId))
       return d
     } catch (e) {
       console.log('error getCoverLimitOf ', e)
@@ -108,7 +109,7 @@ export const useFunctions = () => {
   const getIsReferralCodeUsed = async (account: string): Promise<boolean> => {
     if (!solaceCoverProduct) return true
     try {
-      const d = await solaceCoverProduct.isReferralCodeUsed(account)
+      const d = await withBackoffRetries(async () => solaceCoverProduct.isReferralCodeUsed(account))
       return d
     } catch (e) {
       console.log('error getIsReferralCodeUsed ', e)
@@ -119,7 +120,7 @@ export const useFunctions = () => {
   const getRewardPointsOf = async (account: string): Promise<BigNumber> => {
     if (!solaceCoverProduct) return ZERO
     try {
-      const d = await solaceCoverProduct.rewardPointsOf(account)
+      const d = await withBackoffRetries(async () => solaceCoverProduct.rewardPointsOf(account))
       return d
     } catch (e) {
       console.log('error getRewardPointsOf ', e)
@@ -130,7 +131,7 @@ export const useFunctions = () => {
   const getAccountBalanceOf = async (account: string): Promise<BigNumber> => {
     if (!solaceCoverProduct) return ZERO
     try {
-      const d = await solaceCoverProduct.accountBalanceOf(account)
+      const d = await withBackoffRetries(async () => solaceCoverProduct.accountBalanceOf(account))
       return d
     } catch (e) {
       console.log('error getAccountBalanceOf ', e)
@@ -141,7 +142,7 @@ export const useFunctions = () => {
   const getPolicyOf = async (account: string): Promise<BigNumber> => {
     if (!solaceCoverProduct) return ZERO
     try {
-      const d = await solaceCoverProduct.policyOf(account)
+      const d = await withBackoffRetries(async () => solaceCoverProduct.policyOf(account))
       return d
     } catch (e) {
       console.log('error getPolicyOf ', e)
@@ -152,7 +153,7 @@ export const useFunctions = () => {
   const getCooldownStart = async (account: string): Promise<BigNumber> => {
     if (!solaceCoverProduct) return ZERO
     try {
-      const d = await solaceCoverProduct.cooldownStart(account)
+      const d = await withBackoffRetries(async () => solaceCoverProduct.cooldownStart(account))
       return d
     } catch (e) {
       console.log('error getCooldownStart ', e)
@@ -163,7 +164,7 @@ export const useFunctions = () => {
   const getMinRequiredAccountBalance = async (coverLimit: BigNumber): Promise<BigNumber> => {
     if (!solaceCoverProduct) return ZERO
     try {
-      const d = await solaceCoverProduct.minRequiredAccountBalance(coverLimit)
+      const d = await withBackoffRetries(async () => solaceCoverProduct.minRequiredAccountBalance(coverLimit))
       return d
     } catch (e) {
       console.log('error getMinRequiredAccountBalance ', e)
@@ -174,7 +175,7 @@ export const useFunctions = () => {
   const getIsReferralCodeValid = async (account: string): Promise<boolean> => {
     if (!solaceCoverProduct) return false
     try {
-      const d = await solaceCoverProduct.isReferralCodeValid(account)
+      const d = await withBackoffRetries(async () => solaceCoverProduct.isReferralCodeValid(account))
       return d
     } catch (e) {
       console.log('error getIsReferralCodeValid ', e)
@@ -185,7 +186,9 @@ export const useFunctions = () => {
   const getReferrerFromReferralCode = async (referralCode: string | undefined): Promise<string> => {
     if (!solaceCoverProduct) return ADDRESS_ZERO
     try {
-      const d = await solaceCoverProduct.getReferrerFromReferralCode(referralCode ? referralCode : [])
+      const d = await withBackoffRetries(async () =>
+        solaceCoverProduct.getReferrerFromReferralCode(referralCode ? referralCode : [])
+      )
       return d
     } catch (e) {
       console.log('error getReferrerFromReferralCode ', e)
@@ -196,7 +199,7 @@ export const useFunctions = () => {
   const getNumSupportedChains = async (): Promise<BigNumber> => {
     if (!solaceCoverProduct || activeNetwork.config.keyContracts.solaceCoverProduct.additionalInfo != 'v2') return ZERO
     try {
-      const d = await solaceCoverProduct.numSupportedChains()
+      const d = await withBackoffRetries(async () => solaceCoverProduct.numSupportedChains())
       return d
     } catch (e) {
       console.log('error getNumSupportedChains ', e)
@@ -207,7 +210,7 @@ export const useFunctions = () => {
   const getChain = async (chainIndex: BigNumber): Promise<BigNumber> => {
     if (!solaceCoverProduct || activeNetwork.config.keyContracts.solaceCoverProduct.additionalInfo != 'v2') return ZERO
     try {
-      const d = await solaceCoverProduct.getChain(chainIndex)
+      const d = await withBackoffRetries(async () => solaceCoverProduct.getChain(chainIndex))
       return d
     } catch (e) {
       console.log('error getNumSupportedChains ', e)
@@ -223,7 +226,7 @@ export const useFunctions = () => {
     )
       return []
     try {
-      const d = await solaceCoverProduct.getPolicyChainInfo(policyId)
+      const d = await withBackoffRetries(async () => solaceCoverProduct.getPolicyChainInfo(policyId))
       return d
     } catch (e) {
       console.log('error getNumSupportedChains ', e)
