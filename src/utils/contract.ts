@@ -55,10 +55,10 @@ export const sortTokens = (tokenA: string, tokenB: string): [string, string] => 
 }
 
 export const listTokens = async (contract: Contract): Promise<BigNumber[]> => {
-  const supply: BigNumber = await contract.totalSupply()
+  const supply: BigNumber = await withBackoffRetries(async () => contract.totalSupply())
   const indices = rangeFrom0(supply.toNumber())
   const tokenIds: BigNumber[] = await Promise.all(
-    indices.map(async (index: number) => await contract.tokenByIndex(index))
+    indices.map(async (index: number) => await withBackoffRetries(async () => contract.tokenByIndex(index)))
   ).catch((e) => {
     console.log('error: listTokens', e)
     return []
@@ -70,7 +70,9 @@ export const listTokensOfOwner = async (token: Contract, account: string): Promi
   const numTokensOfOwner: BigNumber = await queryBalance(token, account)
   const indices = rangeFrom0(numTokensOfOwner.toNumber())
   const tokenIds: BigNumber[] = await Promise.all(
-    indices.map(async (index: number) => await token.tokenOfOwnerByIndex(account, index))
+    indices.map(
+      async (index: number) => await withBackoffRetries(async () => token.tokenOfOwnerByIndex(account, index))
+    )
   ).catch((e) => {
     console.log('error: listTokensOfOwner', e)
     return []

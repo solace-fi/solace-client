@@ -11,6 +11,7 @@ import { isAddress } from '../../utils'
 import { numberAbbreviate, truncateValue } from '../../utils/formatting'
 import { useFunctions, useSupportedChains } from './useSolaceCoverProduct'
 import { CheckboxData } from '../../pages/stake/types/LockCheckbox'
+import { withBackoffRetries } from '../../utils/time'
 
 export const useTotalActivePolicies = () => {
   const { latestBlock } = useProvider()
@@ -32,8 +33,8 @@ export const useTotalActivePolicies = () => {
         if (!solaceCoverProductSrc.addr || !isAddress(solaceCoverProductSrc.addr) || !solaceCoverProductSrc.abi)
           continue
         const solaceCoverProductContract = new Contract(solaceCoverProductSrc.addr, solaceCoverProductSrc.abi, provider)
-        const policyCount = await solaceCoverProductContract.policyCount()
-        const coverLimit = await solaceCoverProductContract.activeCoverLimit()
+        const policyCount = await withBackoffRetries(async () => solaceCoverProductContract.policyCount())
+        const coverLimit = await withBackoffRetries(async () => solaceCoverProductContract.activeCoverLimit())
         activeCoverLimit = activeCoverLimit.add(coverLimit)
         totalPolicyCount = totalPolicyCount.add(policyCount)
       }
@@ -73,7 +74,7 @@ export const useExistingPolicy = (account: string | undefined) => {
         if (!solaceCoverProductSrc.addr || !isAddress(solaceCoverProductSrc.addr) || !solaceCoverProductSrc.abi)
           continue
         const solaceCoverProductContract = new Contract(solaceCoverProductSrc.addr, solaceCoverProductSrc.abi, provider)
-        const _policyId = await solaceCoverProductContract.policyOf(account)
+        const _policyId = await withBackoffRetries(async () => solaceCoverProductContract.policyOf(account))
         _id = _policyId
         _network = activeNetwork
         if (_id.gt(ZERO)) break

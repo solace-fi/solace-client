@@ -5,6 +5,7 @@ import { useCachedData } from '../../context/CachedDataManager'
 import { queryName, queryDecimals, querySymbol } from '../../utils/contract'
 import { ReadToken } from '../../constants/types'
 import { hasApproval } from '../../utils'
+import { withBackoffRetries } from '../../utils/time'
 
 export const useTokenAllowance = (
   tokenContract: Contract | null,
@@ -19,7 +20,7 @@ export const useTokenAllowance = (
   const checkAllowance = async () => {
     try {
       if (!library || !account || !tokenContract || !spender) return
-      const _allowance = await tokenContract.allowance(account, spender)
+      const _allowance = await withBackoffRetries(async () => tokenContract.allowance(account, spender))
       setAllowance(_allowance.toString())
     } catch (err) {
       console.log('checkAllowance', err)

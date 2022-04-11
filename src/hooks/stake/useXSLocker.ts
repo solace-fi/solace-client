@@ -13,6 +13,7 @@ import { useProvider } from '../../context/ProviderManager'
 import { rangeFrom0 } from '../../utils/numeric'
 import { FunctionGasLimits } from '../../constants/mappings/gasMapping'
 import { useGetFunctionGas } from '../provider/useGas'
+import { withBackoffRetries } from '../../utils/time'
 
 export const useXSLocker = () => {
   const { keyContracts } = useContracts()
@@ -26,7 +27,7 @@ export const useXSLocker = () => {
   const getLock = async (xsLockID: BigNumber) => {
     if (!xsLocker) return null
     try {
-      const lock = await xsLocker.locks(xsLockID)
+      const lock = await withBackoffRetries(async () => xsLocker.locks(xsLockID))
       return lock
     } catch (err) {
       console.log('error getLock ', xsLockID.toString(), err)
@@ -37,7 +38,7 @@ export const useXSLocker = () => {
   const getIsLocked = async (xsLockID: BigNumber): Promise<boolean> => {
     if (!xsLocker) return false
     try {
-      const lock = await xsLocker.isLocked(xsLockID)
+      const lock = await withBackoffRetries(async () => xsLocker.isLocked(xsLockID))
       return lock
     } catch (err) {
       console.log('error getIsLocked ', xsLockID.toString(), err)
@@ -48,7 +49,7 @@ export const useXSLocker = () => {
   const getTimeLeft = async (xsLockID: BigNumber): Promise<BigNumber> => {
     if (!xsLocker) return ZERO
     try {
-      const lock = await xsLocker.timeLeft(xsLockID)
+      const lock = await withBackoffRetries(async () => xsLocker.timeLeft(xsLockID))
       return lock
     } catch (err) {
       console.log('error getTimeLeft ', xsLockID.toString(), err)
@@ -59,7 +60,7 @@ export const useXSLocker = () => {
   const getStakedBalance = async (account: string) => {
     if (!xsLocker) return '0'
     try {
-      const stakedBalance = await xsLocker.stakedBalance(account)
+      const stakedBalance = await withBackoffRetries(async () => xsLocker.stakedBalance(account))
       const formattedStakedBalance = formatUnits(stakedBalance, readToken.decimals)
       return formattedStakedBalance
     } catch (err) {
@@ -149,16 +150,16 @@ export const useXSLocker = () => {
     let stakedBalance = ZERO // staked = locked + unlocked
     let lockedBalance = ZERO
     let unlockedBalance = ZERO
-    const numLocks = await xsLocker.balanceOf(account)
+    const numLocks = await withBackoffRetries(async () => xsLocker.balanceOf(account))
     const indices = rangeFrom0(numLocks.toNumber())
     const xsLockIDs = await Promise.all(
       indices.map(async (index) => {
-        return await xsLocker.tokenOfOwnerByIndex(account, index)
+        return await withBackoffRetries(async () => xsLocker.tokenOfOwnerByIndex(account, index))
       })
     )
     const locks = await Promise.all(
       xsLockIDs.map(async (xsLockID) => {
-        return await xsLocker.locks(xsLockID)
+        return await withBackoffRetries(async () => xsLocker.locks(xsLockID))
       })
     )
     locks.forEach((lock) => {
@@ -213,22 +214,22 @@ export const useUserLockData = () => {
     let pendingRewards = ZERO
     let userValue = ZERO // measured in SOLACE * rewards multiplier
     const [rewardPerSecond, valueStaked, numLocks] = await Promise.all([
-      stakingRewards.rewardPerSecond(), // across all locks
-      stakingRewards.valueStaked(), // across all locks from all users
-      xsLocker.balanceOf(user),
+      withBackoffRetries(async () => stakingRewards.rewardPerSecond()), // across all locks
+      withBackoffRetries(async () => stakingRewards.valueStaked()), // across all locks from all users
+      withBackoffRetries(async () => xsLocker.balanceOf(user)),
     ])
     const indices = rangeFrom0(numLocks)
     const xsLockIDs = await Promise.all(
       indices.map(async (index) => {
-        return await xsLocker.tokenOfOwnerByIndex(user, index)
+        return await withBackoffRetries(async () => xsLocker.tokenOfOwnerByIndex(user, index))
       })
     )
     const locks: LockData[] = await Promise.all(
       xsLockIDs.map(async (xsLockID) => {
-        const rewards: BigNumber = await stakingRewards.pendingRewardsOfLock(xsLockID)
-        const lock = await xsLocker.locks(xsLockID)
+        const rewards: BigNumber = await withBackoffRetries(async () => stakingRewards.pendingRewardsOfLock(xsLockID))
+        const lock = await withBackoffRetries(async () => xsLocker.locks(xsLockID))
         const timeLeft: BigNumber = lock.end.gt(timestamp) ? lock.end.sub(timestamp) : ZERO
-        const stakedLock = await stakingRewards.stakedLockInfo(xsLockID)
+        const stakedLock = await withBackoffRetries(async () => stakingRewards.stakedLockInfo(xsLockID))
         const yearlyReturns: BigNumber = valueStaked.gt(ZERO)
           ? rewardPerSecond.mul(BigNumber.from(31536000)).mul(stakedLock.value).div(valueStaked)
           : ZERO

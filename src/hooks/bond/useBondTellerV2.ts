@@ -16,6 +16,7 @@ import { useNetwork } from '../../context/NetworkManager'
 import { floatUnits, truncateValue } from '../../utils/formatting'
 import { useGetFunctionGas } from '../provider/useGas'
 import { useCachedData } from '../../context/CachedDataManager'
+import { withBackoffRetries } from '../../utils/time'
 
 export const useBondTellerV2 = (selectedBondDetail: BondTellerDetails | undefined) => {
   const { gasConfig } = useGetFunctionGas()
@@ -119,11 +120,11 @@ export const useBondTellerDetailsV2 = (
             .filter((t) => t.version == 2)
             .map(async (teller) => {
               const [principalAddr, bondPrice, vestingTermInSeconds, capacity, maxPayout] = await Promise.all([
-                teller.contract.principal(),
-                teller.contract.bondPrice(),
-                teller.contract.globalVestingTerm(),
-                teller.contract.capacity(),
-                teller.contract.maxPayout(),
+                withBackoffRetries(async () => teller.contract.principal()),
+                withBackoffRetries(async () => teller.contract.bondPrice()),
+                withBackoffRetries(async () => teller.contract.globalVestingTerm()),
+                withBackoffRetries(async () => teller.contract.capacity()),
+                withBackoffRetries(async () => teller.contract.maxPayout()),
               ])
 
               const principalContract = getContract(principalAddr, teller.principalAbi, library, account ?? undefined)
@@ -186,7 +187,9 @@ export const useUserBondDataV2 = () => {
   const getUserBondDataV2 = async (selectedBondDetail: BondTellerDetails, account: string) => {
     const ownedTokenIds: BigNumber[] = await listTokensOfOwner(selectedBondDetail.tellerData.teller.contract, account)
     const ownedBondData = await Promise.all(
-      ownedTokenIds.map(async (id) => await selectedBondDetail.tellerData.teller.contract.bonds(id))
+      ownedTokenIds.map(
+        async (id) => await withBackoffRetries(async () => selectedBondDetail.tellerData.teller.contract.bonds(id))
+      )
     )
     const ownedBonds: BondTokenV2[] = ownedTokenIds.map((id, idx) => {
       return {

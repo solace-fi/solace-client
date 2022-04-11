@@ -34,12 +34,14 @@ const fetchCoingeckoTokenPrice = (fetchFunction: any) => async (contract: string
     const quoteId = quote.toLowerCase()
     const platformId = platform.toLowerCase()
     const url = `https://api.coingecko.com/api/v3/simple/token_price/${platformId}?contract_addresses=${contract}&vs_currencies=${quoteId}`
-    const data = await fetchFunction(url, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    })
+    const data = await withBackoffRetries(async () =>
+      fetchFunction(url, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
+    )
     const result = await data.json()
     const price = result[addr][quoteId]
     return price ? price + '' : undefined
@@ -104,48 +106,52 @@ export const getSolaceRiskBalances = async (
   address: string,
   chains: number[]
 ): Promise<SolaceRiskBalance[] | undefined> => {
-  return await fetch(`https://risk-data.solace.fi/balances`, {
-    method: 'POST',
-    headers: {
-      Accept: 'application/json',
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      chains: chains,
-      account: address,
-    }),
-  })
-    .then((response) => response.json())
-    .then((data) => {
-      return data
+  return await withBackoffRetries(async () =>
+    fetch(`https://risk-data.solace.fi/balances`, {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        chains: chains,
+        account: address,
+      }),
     })
-    .catch((error) => {
-      console.error('Error getSolaceRiskBalances:', error)
-      return undefined
-    })
+      .then((response) => response.json())
+      .then((data) => {
+        return data
+      })
+      .catch((error) => {
+        console.error('Error getSolaceRiskBalances:', error)
+        return undefined
+      })
+  )
 }
 
 export const getSolaceRiskScores = async (
   address: string,
   positions: SolaceRiskBalance[]
 ): Promise<SolaceRiskScore | undefined> => {
-  return await fetch('https://risk-data.solace.fi/scores', {
-    method: 'POST',
-    headers: {
-      Accept: 'application/json',
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      account: address,
-      positions: positions,
-    }),
-  })
-    .then((response) => response.json())
-    .then((data) => {
-      return data
+  return await withBackoffRetries(async () =>
+    fetch('https://risk-data.solace.fi/scores', {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        account: address,
+        positions: positions,
+      }),
     })
-    .catch((error) => {
-      console.error('Error getSolaceRiskScores:', error)
-      return undefined
-    })
+      .then((response) => response.json())
+      .then((data) => {
+        return data
+      })
+      .catch((error) => {
+        console.error('Error getSolaceRiskScores:', error)
+        return undefined
+      })
+  )
 }
