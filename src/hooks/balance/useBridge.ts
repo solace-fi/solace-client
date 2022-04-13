@@ -42,9 +42,12 @@ export const useBridge = () => {
 
   const bSolaceToSolace = async (amount: BigNumber) => {
     if (!bridgeWrapper || !account) return { tx: null, localTx: null }
+    const estGas = await bridgeWrapper.estimateGas.bsolaceToSolace(amount, account)
+    console.log('bridgeWrapper.estimateGas.bsolaceToSolace', estGas.toString())
     const tx: TransactionResponse = await bridgeWrapper.bsolaceToSolace(amount, account, {
       ...gasConfig,
-      gasLimit: GAS_LIMIT,
+      // gasLimit: GAS_LIMIT,
+      gasLimit: Math.floor(parseInt(estGas.toString()) * 1.5),
     })
     const localTx: LocalTx = {
       hash: tx.hash,
@@ -56,9 +59,12 @@ export const useBridge = () => {
 
   const solaceToBSolace = async (amount: BigNumber) => {
     if (!bridgeWrapper || !account) return { tx: null, localTx: null }
+    const estGas = await bridgeWrapper.estimateGas.solaceToBSolace(amount, account)
+    console.log('bridgeWrapper.estimateGas.solaceToBSolace', estGas.toString())
     const tx: TransactionResponse = await bridgeWrapper.solaceToBSolace(amount, account, {
       ...gasConfig,
-      gasLimit: GAS_LIMIT,
+      // gasLimit: GAS_LIMIT,
+      gasLimit: Math.floor(parseInt(estGas.toString()) * 1.5),
     })
     const localTx: LocalTx = {
       hash: tx.hash,

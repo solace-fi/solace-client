@@ -158,7 +158,9 @@ export const NotificationToast: React.FC<NotificationToastProps> = ({ txType, co
           <CopyButton
             light
             toCopy={
-              errObj.message && errObj.code
+              errObj.message && errObj.code && errObj.data
+                ? JSON.stringify({ code: errObj.code, message: errObj.message, data: errObj.data })
+                : errObj.message && errObj.code
                 ? JSON.stringify({ code: errObj.code, message: errObj.message })
                 : JSON.stringify(errObj)
             }

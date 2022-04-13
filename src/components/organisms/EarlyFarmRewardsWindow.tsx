@@ -145,9 +145,15 @@ export const EarlyFarmRewardsWindow: React.FC = () => {
     if (!farmRewards || !account || !isAddress(stablecoinPayment.value) || !library) return
     try {
       const stablecoinContract = getContract(stablecoinPayment.value, IERC20.abi, library, account)
+      const estGas = await farmRewards.estimateGas.redeem(
+        stablecoinContract.address,
+        parseUnits(amount, userStablecoinDecimals)
+      )
+      console.log('farmRewards.estimateGas.redeem', estGas.toString())
       const tx = await farmRewards.redeem(stablecoinContract.address, parseUnits(amount, userStablecoinDecimals), {
         ...gasConfig,
-        gasLimit: FunctionGasLimits['farmRewards.redeem'],
+        // gasLimit: FunctionGasLimits['farmRewards.redeem'],
+        gasLimit: Math.floor(parseInt(estGas.toString()) * 1.5),
       })
       const localTx: LocalTx = {
         hash: tx.hash,
