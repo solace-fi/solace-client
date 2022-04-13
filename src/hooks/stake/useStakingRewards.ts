@@ -106,15 +106,21 @@ export const useStakingRewards = () => {
     let tx = null
     let type = FunctionName.HARVEST_LOCK
     if (xsLockIDs.length > 1) {
+      const estGas = await stakingRewards.estimateGas.harvestLocks(xsLockIDs)
+      console.log('stakingRewards.estimateGas.harvestLocks', estGas.toString())
       tx = await stakingRewards.harvestLocks(xsLockIDs, {
         ...gasConfig,
-        gasLimit: FunctionGasLimits['stakingRewards.harvestLocks'],
+        // gasLimit: FunctionGasLimits['stakingRewards.harvestLocks'],
+        gasLimit: Math.floor(parseInt(estGas.toString()) * 1.5),
       })
       type = FunctionName.HARVEST_LOCKS
     } else {
+      const estGas = await stakingRewards.estimateGas.harvestLock(xsLockIDs[0])
+      console.log('stakingRewards.estimateGas.harvestLock', estGas.toString())
       tx = await stakingRewards.harvestLock(xsLockIDs[0], {
         ...gasConfig,
-        gasLimit: FunctionGasLimits['stakingRewards.harvestLock'],
+        // gasLimit: FunctionGasLimits['stakingRewards.harvestLock'],
+        gasLimit: Math.floor(parseInt(estGas.toString()) * 1.5),
       })
     }
     const localTx: LocalTx = {
@@ -130,15 +136,21 @@ export const useStakingRewards = () => {
     let tx = null
     let type = FunctionName.COMPOUND_LOCK
     if (xsLockIDs.length > 1 && targetXsLockID) {
+      const estGas = await stakingRewards.estimateGas.compoundLocks(xsLockIDs, targetXsLockID)
+      console.log('stakingRewards.estimateGas.compoundLocks', estGas.toString())
       tx = await stakingRewards.compoundLocks(xsLockIDs, targetXsLockID, {
         ...gasConfig,
-        gasLimit: FunctionGasLimits['stakingRewards.compoundLocks'],
+        // gasLimit: FunctionGasLimits['stakingRewards.compoundLocks'],
+        gasLimit: Math.floor(parseInt(estGas.toString()) * 1.5),
       })
       type = FunctionName.COMPOUND_LOCKS
     } else {
+      const estGas = await stakingRewards.estimateGas.compoundLock(xsLockIDs[0])
+      console.log('stakingRewards.estimateGas.compoundLock', estGas.toString())
       tx = await stakingRewards.compoundLock(xsLockIDs[0], {
         ...gasConfig,
-        gasLimit: FunctionGasLimits['stakingRewards.compoundLock'],
+        // gasLimit: FunctionGasLimits['stakingRewards.compoundLock'],
+        gasLimit: Math.floor(parseInt(estGas.toString()) * 1.5),
       })
     }
     const localTx: LocalTx = {

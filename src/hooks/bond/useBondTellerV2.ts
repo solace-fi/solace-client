@@ -31,30 +31,54 @@ export const useBondTellerV2 = (selectedBondDetail: BondTellerDetails | undefine
   ): Promise<TxResult> => {
     if (!selectedBondDetail) return { tx: null, localTx: null }
     const cntct = selectedBondDetail.tellerData.teller.contract
-    const gasSettings = { ...gasConfig, gasLimit: desiredFunctionGas ?? FunctionGasLimits['tellerErc20_v2.deposit'] }
+    // const gasSettings = { ...gasConfig, gasLimit: desiredFunctionGas ?? FunctionGasLimits['tellerErc20_v2.deposit'] }
     let tx = null
+    let estGas = null
     switch (func) {
       case FunctionName.BOND_DEPOSIT_ETH_V2:
+        estGas = await cntct.estimateGas.depositEth(minAmountOut, recipient, stake)
+        console.log('cntct.estimateGas.depositEth', estGas.toString())
         tx = await cntct.depositEth(minAmountOut, recipient, stake, {
           value: parsedAmount,
-          ...gasSettings,
+          ...gasConfig,
+          // ...gasSettings,
+          gasLimit: Math.floor(parseInt(estGas.toString()) * 1.5),
         })
         break
       case FunctionName.BOND_DEPOSIT_WETH_V2:
-        tx = await cntct.depositWeth(parsedAmount, minAmountOut, recipient, stake, gasSettings)
+        estGas = await cntct.estimateGas.depositWeth(parsedAmount, minAmountOut, recipient, stake)
+        console.log('cntct.estimateGas.depositWeth', estGas.toString())
+        tx = await cntct.depositWeth(parsedAmount, minAmountOut, recipient, stake, {
+          ...gasConfig,
+          gasLimit: Math.floor(parseInt(estGas.toString()) * 1.5),
+        })
         break
       case FunctionName.BOND_DEPOSIT_MATIC:
+        estGas = await cntct.estimateGas.depositMatic(minAmountOut, recipient, stake)
+        console.log('cntct.estimateGas.depositMatic', estGas.toString())
         tx = await cntct.depositMatic(minAmountOut, recipient, stake, {
           value: parsedAmount,
-          ...gasSettings,
+          ...gasConfig,
+          // ...gasSettings,
+          gasLimit: Math.floor(parseInt(estGas.toString()) * 1.5),
         })
         break
       case FunctionName.BOND_DEPOSIT_WMATIC:
-        tx = await cntct.depositWmatic(parsedAmount, minAmountOut, recipient, stake, gasSettings)
+        estGas = await cntct.estimateGas.depositWmatic(parsedAmount, minAmountOut, recipient, stake)
+        console.log('cntct.estimateGas.depositWmatic', estGas.toString())
+        tx = await cntct.depositWmatic(parsedAmount, minAmountOut, recipient, stake, {
+          ...gasConfig,
+          gasLimit: Math.floor(parseInt(estGas.toString()) * 1.5),
+        })
         break
       case FunctionName.BOND_DEPOSIT_ERC20_V2:
       default:
-        tx = await cntct.deposit(parsedAmount, minAmountOut, recipient, stake, gasSettings)
+        estGas = await cntct.estimateGas.deposit(parsedAmount, minAmountOut, recipient, stake)
+        console.log('cntct.estimateGas.deposit', estGas.toString())
+        tx = await cntct.deposit(parsedAmount, minAmountOut, recipient, stake, {
+          ...gasConfig,
+          gasLimit: Math.floor(parseInt(estGas.toString()) * 1.5),
+        })
     }
     const localTx: LocalTx = {
       hash: tx.hash,
@@ -66,9 +90,12 @@ export const useBondTellerV2 = (selectedBondDetail: BondTellerDetails | undefine
 
   const claimPayout = async (bondId: BigNumber): Promise<TxResult> => {
     if (!selectedBondDetail) return { tx: null, localTx: null }
+    const estGas = await selectedBondDetail.tellerData.teller.contract.estimateGas.claimPayout(bondId)
+    console.log('selectedBondDetail.tellerData.teller.contract.claimPayout', estGas.toString())
     const tx = await selectedBondDetail.tellerData.teller.contract.claimPayout(bondId, {
       ...gasConfig,
-      gasLimit: FunctionGasLimits['teller_v2.claimPayout'],
+      // gasLimit: FunctionGasLimits['teller_v2.claimPayout'],
+      gasLimit: Math.floor(parseInt(estGas.toString()) * 1.5),
     })
     const localTx: LocalTx = {
       hash: tx.hash,
