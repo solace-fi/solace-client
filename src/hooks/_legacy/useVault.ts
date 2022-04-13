@@ -177,9 +177,12 @@ export const useVault = () => {
 
   const withdrawEth = async (parsedAmount: BigNumber): Promise<TxResult> => {
     if (!vault) return { tx: null, localTx: null }
+    const estGas = await vault.estimateGas.withdrawEth(parsedAmount)
+    console.log('vault.estimateGas.withdrawEth', estGas.toString())
     const tx = await vault.withdrawEth(parsedAmount, {
       ...gasConfig,
-      gasLimit: FunctionGasLimits['vault.withdrawEth'],
+      // gasLimit: FunctionGasLimits['vault.withdrawEth'],
+      gasLimit: Math.floor(parseInt(estGas.toString()) * 1.5),
     })
     const localTx: LocalTx = {
       hash: tx.hash,

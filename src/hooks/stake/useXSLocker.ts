@@ -72,9 +72,12 @@ export const useXSLocker = () => {
   const createLock = async (recipient: string, amount: BigNumber, end: BigNumber) => {
     if (!xsLocker || !solace) return { tx: null, localTx: null }
     const { v, r, s } = await getPermitErc20Signature(recipient, chainId, library, xsLocker.address, solace, amount)
+    const estGas = await xsLocker.estimateGas.createLockSigned(amount, end, DEADLINE, v, r, s)
+    console.log('xsLocker.estimateGas.createLockSigned', estGas.toString())
     const tx = await xsLocker.createLockSigned(amount, end, DEADLINE, v, r, s, {
       ...gasConfig,
-      gasLimit: FunctionGasLimits['xsLocker.createLockSigned'],
+      // gasLimit: FunctionGasLimits['xsLocker.createLockSigned'],
+      gasLimit: Math.floor(parseInt(estGas.toString()) * 1.5),
     })
     const localTx: LocalTx = {
       hash: tx.hash,
@@ -87,9 +90,12 @@ export const useXSLocker = () => {
   const increaseLockAmount = async (recipient: string, xsLockID: BigNumber, amount: BigNumber) => {
     if (!xsLocker || !solace) return { tx: null, localTx: null }
     const { v, r, s } = await getPermitErc20Signature(recipient, chainId, library, xsLocker.address, solace, amount)
+    const estGas = await xsLocker.estimateGas.increaseAmountSigned(xsLockID, amount, DEADLINE, v, r, s)
+    console.log('xsLocker.estimateGas.increaseAmountSigned', estGas.toString())
     const tx = await xsLocker.increaseAmountSigned(xsLockID, amount, DEADLINE, v, r, s, {
       ...gasConfig,
-      gasLimit: FunctionGasLimits['xsLocker.increaseAmountSigned'],
+      // gasLimit: FunctionGasLimits['xsLocker.increaseAmountSigned'],
+      gasLimit: Math.floor(parseInt(estGas.toString()) * 1.5),
     })
     const localTx: LocalTx = {
       hash: tx.hash,
@@ -101,9 +107,12 @@ export const useXSLocker = () => {
 
   const extendLock = async (xsLockID: BigNumber, end: BigNumber) => {
     if (!xsLocker || !solace) return { tx: null, localTx: null }
+    const estGas = await xsLocker.estimateGas.extendLock(xsLockID, end)
+    console.log('xsLocker.estimateGas.extendLock', estGas.toString())
     const tx = await xsLocker.extendLock(xsLockID, end, {
       ...gasConfig,
-      gasLimit: FunctionGasLimits['xsLocker.extendLock'],
+      // gasLimit: FunctionGasLimits['xsLocker.extendLock'],
+      gasLimit: Math.floor(parseInt(estGas.toString()) * 1.5),
     })
     const localTx: LocalTx = {
       hash: tx.hash,
@@ -118,20 +127,29 @@ export const useXSLocker = () => {
     let tx = null
     let type = FunctionName.WITHDRAW_IN_PART_FROM_LOCK
     if (amount) {
+      const estGas = await xsLocker.estimateGas.withdrawInPart(xsLockIDs[0], recipient, amount)
+      console.log('xsLocker.estimateGas.withdrawInPart', estGas.toString())
       tx = await xsLocker.withdrawInPart(xsLockIDs[0], recipient, amount, {
         ...gasConfig,
-        gasLimit: FunctionGasLimits['xsLocker.withdrawInPart'],
+        // gasLimit: FunctionGasLimits['xsLocker.withdrawInPart'],
+        gasLimit: Math.floor(parseInt(estGas.toString()) * 1.5),
       })
     } else if (xsLockIDs.length > 1) {
+      const estGas = await xsLocker.estimateGas.withdrawMany(xsLockIDs, recipient)
+      console.log('xsLocker.estimateGas.withdrawMany', estGas.toString())
       tx = await xsLocker.withdrawMany(xsLockIDs, recipient, {
         ...gasConfig,
-        gasLimit: FunctionGasLimits['xsLocker.withdrawMany'],
+        // gasLimit: FunctionGasLimits['xsLocker.withdrawMany'],
+        gasLimit: Math.floor(parseInt(estGas.toString()) * 1.5),
       })
       type = FunctionName.WITHDRAW_MANY_FROM_LOCK
     } else {
+      const estGas = await xsLocker.estimateGas.withdraw(xsLockIDs[0], recipient)
+      console.log('xsLocker.estimateGas.withdraw', estGas.toString())
       tx = await xsLocker.withdraw(xsLockIDs[0], recipient, {
         ...gasConfig,
-        gasLimit: FunctionGasLimits['xsLocker.withdraw'],
+        // gasLimit: FunctionGasLimits['xsLocker.withdraw'],
+        gasLimit: Math.floor(parseInt(estGas.toString()) * 1.5),
       })
       type = FunctionName.WITHDRAW_FROM_LOCK
     }

@@ -29,17 +29,36 @@ export const useBondTellerV1 = (selectedBondDetail: BondTellerDetails | undefine
     func: FunctionName
   ): Promise<TxResult> => {
     if (!selectedBondDetail) return { tx: null, localTx: null }
+    const estGas =
+      func == FunctionName.BOND_DEPOSIT_ERC20_V1
+        ? await selectedBondDetail.tellerData.teller.contract.estimateGas.deposit(
+            parsedAmount,
+            minAmountOut,
+            recipient,
+            stake
+          )
+        : func == FunctionName.BOND_DEPOSIT_ETH_V1
+        ? await selectedBondDetail.tellerData.teller.contract.estimateGas.depositEth(minAmountOut, recipient, stake)
+        : await selectedBondDetail.tellerData.teller.contract.estimateGas.depositWeth(
+            parsedAmount,
+            minAmountOut,
+            recipient,
+            stake
+          )
+    console.log('selectedBondDetail.tellerData.teller.contract.estimateGas.deposit', estGas.toString())
     const tx =
       func == FunctionName.BOND_DEPOSIT_ERC20_V1
         ? await selectedBondDetail.tellerData.teller.contract.deposit(parsedAmount, minAmountOut, recipient, stake, {
             ...gasConfig,
-            gasLimit: FunctionGasLimits['tellerErc20_v1.deposit'],
+            // gasLimit: FunctionGasLimits['tellerErc20_v1.deposit'],
+            gasLimit: Math.floor(parseInt(estGas.toString()) * 1.5),
           })
         : func == FunctionName.BOND_DEPOSIT_ETH_V1
         ? await selectedBondDetail.tellerData.teller.contract.depositEth(minAmountOut, recipient, stake, {
             value: parsedAmount,
             ...gasConfig,
-            gasLimit: FunctionGasLimits['tellerEth_v1.depositEth'],
+            // gasLimit: FunctionGasLimits['tellerEth_v1.depositEth'],
+            gasLimit: Math.floor(parseInt(estGas.toString()) * 1.5),
           })
         : await selectedBondDetail.tellerData.teller.contract.depositWeth(
             parsedAmount,
@@ -48,7 +67,8 @@ export const useBondTellerV1 = (selectedBondDetail: BondTellerDetails | undefine
             stake,
             {
               ...gasConfig,
-              gasLimit: FunctionGasLimits['tellerEth_v1.depositWeth'],
+              // gasLimit: FunctionGasLimits['tellerEth_v1.depositWeth'],
+              gasLimit: Math.floor(parseInt(estGas.toString()) * 1.5),
             }
           )
     const localTx: LocalTx = {
@@ -61,9 +81,12 @@ export const useBondTellerV1 = (selectedBondDetail: BondTellerDetails | undefine
 
   const redeem = async (bondId: BigNumber): Promise<TxResult> => {
     if (!selectedBondDetail) return { tx: null, localTx: null }
+    const estGas = await selectedBondDetail.tellerData.teller.contract.estimateGas.redeem(bondId)
+    console.log('selectedBondDetail.tellerData.teller.contract.estimateGas.redeem', estGas.toString())
     const tx = await selectedBondDetail.tellerData.teller.contract.redeem(bondId, {
       ...gasConfig,
-      gasLimit: FunctionGasLimits['teller_v1.redeem'],
+      // gasLimit: FunctionGasLimits['teller_v1.redeem'],
+      gasLimit: Math.floor(parseInt(estGas.toString()) * 1.5),
     })
     const localTx: LocalTx = {
       hash: tx.hash,
