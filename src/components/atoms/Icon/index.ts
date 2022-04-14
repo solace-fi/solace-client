@@ -1,5 +1,5 @@
 import styled, { css } from 'styled-components'
-import { ArrowDropDown } from '@styled-icons/remix-line/ArrowDropDown'
+import { ArrowDropDown } from '@styled-icons/material-rounded/ArrowDropDown'
 import { Checkmark } from '@styled-icons/evaicons-solid/Checkmark'
 import { Clock } from '@styled-icons/bootstrap/Clock'
 import { CoinStack } from '@styled-icons/boxicons-solid/CoinStack'
