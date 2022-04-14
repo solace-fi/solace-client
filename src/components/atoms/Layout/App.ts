@@ -71,7 +71,6 @@ interface SideNavbarProps {
 }
 
 export const SideNavContent = styled.div<SideNavbarProps>`
-  padding: 20px;
   align-content: start;
   min-width: ${(props) => ((props.desktopWidth ? props.desktopWidth : 12) / 100) * MAX_WIDTH}px;
 
