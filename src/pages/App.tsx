@@ -73,6 +73,7 @@ export default function App(): any {
     // },
     {
       name: 'My Coverage',
+      title: 'My Policy',
       to: '/cover',
       icon: <StyledDashboard size={30} />,
       component: Soteria,
@@ -85,30 +86,35 @@ export default function App(): any {
     // },
     {
       name: 'Bond',
+      title: 'My Bonding',
       to: '/bond',
       icon: <StyledReceiptMoney size={30} />,
       component: Bond,
     },
     {
       name: 'Stake',
+      title: 'My Staking',
       to: '/stake',
       icon: <StyledCoinStack size={30} />,
       component: Stake,
     },
     {
       name: 'Farms',
+      title: 'My Farming',
       to: '/farms',
       icon: <StyledTractor size={30} />,
       component: Invest,
     },
     {
       name: 'Govern',
+      title: 'Governance',
       to: '/govern',
       icon: <StyledCommunity size={30} />,
       component: Govern,
     },
     {
       name: 'Archive',
+      title: 'Archived Features',
       to: '/archive',
       icon: <StyledFolderHistory size={30} />,
       component: Archive,
@@ -146,18 +152,16 @@ export default function App(): any {
     <Fragment>
       <AnalyticsReporter />
       <GlobalStyle location={location} />
-      {/* <TopNavbar pages={pages} /> */}
       <MenusTopNavBar setShowLeft={setLeftSidebar} setShowRight={setRightSidebar} />
       <AppMenu show={rightSidebar} setShow={setRightSidebar} />
       <Layout>
         <ContentContainer>
           <SideNavContent mobileWidth={6}>
-            {/* <SideNavbar pages={pages} /> */}
             <InfoSideNavbar tabs={tabs} />
           </SideNavContent>
           <MobileInfoSideNavbar show={leftSidebar && width < BKPT_NAVBAR} setShow={setLeftSidebar} tabs={tabs} />
           <LayoutContent>
-            {width >= BKPT_NAVBAR && <AppMenuHeader setShow={setRightSidebar} />}
+            {width >= BKPT_NAVBAR && <AppMenuHeader pages={pages} setShow={setRightSidebar} />}
             <LayoutContentWithLoader>
               {/* {location.pathname !== '/quote' && location.pathname !== '/terms' && location.pathname !== '/' && (
                 <Statistics />

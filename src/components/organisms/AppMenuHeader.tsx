@@ -1,5 +1,5 @@
-import React from 'react'
-import { Flex } from '../atoms/Layout'
+import React, { useMemo } from 'react'
+import { Flex, ShadowDiv } from '../atoms/Layout'
 
 import { UserImage } from '../atoms/User'
 import { useWallet } from '../../context/WalletManager'
@@ -8,34 +8,56 @@ import { StyledWallet } from '../atoms/Icon'
 import { Button } from '../atoms/Button'
 import { Text } from '../atoms/Typography'
 import { useLocation } from 'react-router-dom'
+import { PageInfo } from '../../constants/types'
+import { SolaceGradientCircle } from '../molecules/SolaceGradientCircle'
 
-export const AppMenuHeader: React.FC<{ setShow: (show: boolean) => void }> = ({ setShow }) => {
+export const AppMenuHeader: React.FC<{ pages: PageInfo[]; setShow: (show: boolean) => void }> = ({
+  pages,
+  setShow,
+}) => {
   const { account } = useWallet()
   const location = useLocation()
+  const title = useMemo(() => {
+    const to = location.pathname
+    const page = pages.find((p) => p.to === to)
+    if (page) {
+      return page.title
+    }
+    return ''
+  }, [location.pathname, pages])
 
   return (
-    <Flex justifyEnd itemsCenter p={10}>
-      <Button
-        secondary
-        nohover
-        noborder
-        p={8}
-        style={{ borderRadius: '28px', boxShadow: '0px 0px 30px rgba(138, 138, 138, 0.15)', backgroundColor: '#fff' }}
-        onClick={() => setShow(true)}
-      >
-        <Flex gap={8}>
-          {account ? (
-            <UserImage style={{ width: '30px', height: '30px', margin: 'auto' }}>
-              <img src={makeBlockie(account)} alt={'account'} />
-            </UserImage>
-          ) : (
-            <StyledWallet size={30} />
-          )}
-          <Text t4 bold techygradient autoAlignVertical>
-            My Solace
-          </Text>
-        </Flex>
-      </Button>
+    <Flex stretch between itemsCenter p={10}>
+      <Text bold big2>
+        {title}
+      </Text>
+      <ShadowDiv style={{ borderRadius: '28px', position: 'fixed', right: '50px' }}>
+        <Button
+          secondary
+          nohover
+          noborder
+          p={8}
+          style={{ borderRadius: '28px', backgroundColor: '#fff' }}
+          onClick={() => setShow(true)}
+        >
+          <Flex gap={8}>
+            {account ? (
+              <SolaceGradientCircle>
+                <UserImage style={{ width: '30px', height: '30px', margin: 'auto' }}>
+                  <img src={makeBlockie(account)} alt={'account'} />
+                </UserImage>
+              </SolaceGradientCircle>
+            ) : (
+              <Text dark>
+                <StyledWallet size={30} />
+              </Text>
+            )}
+            <Text t4 bold techygradient autoAlignVertical>
+              My Solace
+            </Text>
+          </Flex>
+        </Button>
+      </ShadowDiv>
     </Flex>
   )
 }

@@ -10,6 +10,7 @@ import { UserImage } from '../atoms/User'
 import { useWallet } from '../../context/WalletManager'
 import makeBlockie from 'ethereum-blockies-base64'
 import { Text } from '../atoms/Typography'
+import { SolaceGradientCircle } from '../molecules/SolaceGradientCircle'
 
 export const MenusTopNavBar: React.FC<{
   setShowLeft: (show: boolean) => void
@@ -25,15 +26,17 @@ export const MenusTopNavBar: React.FC<{
           <StyledMenu size={40} />
         </Button>
         <Button nohover noborder onClick={() => setShowRight(true)}>
-          <UserImage style={{ width: '40px', height: '40px', margin: 'auto' }}>
-            {account ? (
-              <img src={makeBlockie(account)} alt={'account'} />
-            ) : (
-              <Text light={location.pathname == '/'}>
-                <StyledWallet size={30} />
-              </Text>
-            )}
-          </UserImage>
+          {account ? (
+            <SolaceGradientCircle>
+              <UserImage style={{ width: '40px', height: '40px', margin: 'auto' }}>
+                <img src={makeBlockie(account)} alt={'account'} />
+              </UserImage>
+            </SolaceGradientCircle>
+          ) : (
+            <Text light={location.pathname == '/'}>
+              <StyledWallet size={30} />
+            </Text>
+          )}
         </Button>
       </Flex>
     </NewTopNav>

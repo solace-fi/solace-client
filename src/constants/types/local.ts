@@ -34,6 +34,7 @@ export type SystemNoticeData = {
 
 export type PageInfo = {
   name: string
+  title: string
   to: string
   icon: JSX.Element
   component: () => any
