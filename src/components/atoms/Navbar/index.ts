@@ -83,6 +83,7 @@ export const ItemText = styled.li<GeneralTextProps>`
 export const ItemList = styled.ul`
   width: 100%;
   padding: 0;
+  margin: 0;
 
   @media screen and (max-width: ${BKPT_NAVBAR}px) {
     display: flex;

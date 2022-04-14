@@ -15,8 +15,15 @@ export const AppMenuHeader: React.FC<{ setShow: (show: boolean) => void }> = ({ 
 
   return (
     <Flex justifyEnd itemsCenter p={10}>
-      <Button light secondary nohover noborder p={8} style={{ borderRadius: '28px' }} onClick={() => setShow(true)}>
-        <Flex gap={5}>
+      <Button
+        secondary
+        nohover
+        noborder
+        p={8}
+        style={{ borderRadius: '28px', boxShadow: '0px 0px 30px rgba(138, 138, 138, 0.15)', backgroundColor: '#fff' }}
+        onClick={() => setShow(true)}
+      >
+        <Flex gap={8}>
           {account ? (
             <UserImage style={{ width: '30px', height: '30px', margin: 'auto' }}>
               <img src={makeBlockie(account)} alt={'account'} />

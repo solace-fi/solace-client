@@ -12,7 +12,15 @@ import { BKPT_3, Z_NAV } from '../../constants'
 import { ItemText, ItemList } from '../atoms/Navbar'
 import { Button } from '../atoms/Button'
 import { Logo, MiniLogo } from '../molecules/Logo'
-import { StyledMedium, StyledDiscord, StyledGithub, StyledTwitter, StyledWork, StyledLockFile } from '../atoms/Icon'
+import {
+  StyledMedium,
+  StyledDiscord,
+  StyledGithub,
+  StyledTwitter,
+  StyledWork,
+  StyledLockFile,
+  StyledArrowDropDown,
+} from '../atoms/Icon'
 import { Text, TextSpan } from '../atoms/Typography'
 import { HyperLink } from '../atoms/Link'
 import { Flex } from '../atoms/Layout'
@@ -71,16 +79,16 @@ export const InfoSideNavbar: React.FC<CollapsibleNavbar> = ({ tabs }) => {
       >
         {width > BKPT_3 ? (
           <>
-            <Logo location={location} mb={25} />
+            <Logo location={location} mb={33} />
           </>
         ) : (
           <>
-            <MiniLogo location={location} mb={25} style={{ margin: 'auto' }} />
+            <MiniLogo location={location} mb={33} style={{ margin: 'auto' }} />
           </>
         )}
         <ItemList>
           {tabs.map((t, i) => (
-            <Flex col key={i} mt={15} mb={15}>
+            <Flex col key={i} mb={16}>
               <Button
                 p={0}
                 nohover
@@ -88,11 +96,11 @@ export const InfoSideNavbar: React.FC<CollapsibleNavbar> = ({ tabs }) => {
                 style={{ cursor: 'pointer', justifyContent: width > BKPT_3 ? 'left' : 'center' }}
                 onClick={() => setOpenTab(openTab != t.collapsibleName ? t.collapsibleName : '')}
               >
-                <Flex gap={3}>
+                <Flex gap={4}>
                   <Text t3 light={lightText}>
                     {t.collapsibleName}
                   </Text>
-                  <Text
+                  {/* <Text
                     light={lightText}
                     autoAlignVertical
                     style={{
@@ -101,6 +109,12 @@ export const InfoSideNavbar: React.FC<CollapsibleNavbar> = ({ tabs }) => {
                     }}
                   >
                     ▼
+                  </Text> */}
+                  <Text autoAlignVertical>
+                    <StyledArrowDropDown
+                      style={{ transform: openTab == t.collapsibleName ? 'rotate(180deg)' : 'rotate(0deg)' }}
+                      size={20}
+                    />
                   </Text>
                 </Flex>
               </Button>

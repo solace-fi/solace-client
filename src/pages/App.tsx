@@ -53,8 +53,8 @@ import { AnalyticsReporter } from '../analytics'
 import Soteria from './soteria'
 import { PageInfo } from '../constants/types'
 import Archive from './archive'
-import { AppMenu } from '../components/organisms/AppMenu'
-import { InfoSideNavbar, MobileInfoSideNavbar } from '../components/organisms/AppInfoNavbar'
+import { AppMenu } from '../components/organisms/RightNavbar'
+import { InfoSideNavbar, MobileInfoSideNavbar } from '../components/organisms/LeftNavbar'
 import { AppMenuHeader } from '../components/organisms/AppMenuHeader'
 
 export default function App(): any {
@@ -159,9 +159,9 @@ export default function App(): any {
           <LayoutContent>
             {width >= BKPT_NAVBAR && <AppMenuHeader setShow={setRightSidebar} />}
             <LayoutContentWithLoader>
-              {location.pathname !== '/quote' && location.pathname !== '/terms' && location.pathname !== '/' && (
+              {/* {location.pathname !== '/quote' && location.pathname !== '/terms' && location.pathname !== '/' && (
                 <Statistics />
-              )}
+              )} */}
               <Switch>
                 <Route exact path="/" component={About} />
                 {pages.map((p) => (
