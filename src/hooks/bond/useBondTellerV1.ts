@@ -195,7 +195,6 @@ export const useBondTellerDetailsV1 = (
               const d: BondTellerDetails = {
                 tellerData: {
                   teller,
-                  principalAddr,
                   bondPrice,
                   usdBondPrice,
                   vestingTermInSeconds,
@@ -210,6 +209,7 @@ export const useBondTellerDetailsV1 = (
                     symbol,
                     decimals,
                     name,
+                    address: principalAddr,
                   },
                   ...lpData,
                 },

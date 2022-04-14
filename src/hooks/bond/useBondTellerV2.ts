@@ -26,12 +26,10 @@ export const useBondTellerV2 = (selectedBondDetail: BondTellerDetails | undefine
     minAmountOut: BigNumber,
     recipient: string,
     stake: boolean,
-    func: FunctionName,
-    desiredFunctionGas: number | undefined
+    func: FunctionName
   ): Promise<TxResult> => {
     if (!selectedBondDetail) return { tx: null, localTx: null }
     const cntct = selectedBondDetail.tellerData.teller.contract
-    // const gasSettings = { ...gasConfig, gasLimit: desiredFunctionGas ?? FunctionGasLimits['tellerErc20_v2.deposit'] }
     let tx = null
     let estGas = null
     switch (func) {
@@ -177,7 +175,6 @@ export const useBondTellerDetailsV2 = (
               const d: BondTellerDetails = {
                 tellerData: {
                   teller,
-                  principalAddr,
                   bondPrice,
                   usdBondPrice,
                   vestingTermInSeconds,
@@ -191,6 +188,7 @@ export const useBondTellerDetailsV2 = (
                     symbol,
                     decimals,
                     name,
+                    address: principalAddr,
                   },
                 },
               }

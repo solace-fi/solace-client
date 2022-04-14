@@ -179,12 +179,8 @@ export const BondModalV2: React.FC<BondModalV2Props> = ({ closeModal, isOpen, se
     setModalLoading(true)
     const slippageInt = parseInt(accurateMultiply(slippagePrct, 2))
     const minAmountOut = calculatedAmountOut.mul(BigNumber.from(MAX_BPS - slippageInt)).div(BigNumber.from(MAX_BPS))
-    let desiredFunctionGas = undefined
-    if (func == FunctionName.BOND_DEPOSIT_ERC20_V2) desiredFunctionGas = undefined
-    if (func == bondDepositFunctionName) desiredFunctionGas = bondDepositFunctionGas
-    if (func == bondDepositWrappedFunctionName) desiredFunctionGas = bondDepositWrappedFunctionGas
 
-    await deposit(parseUnits(amount, pncplDecimals), minAmountOut, bondRecipient, stake, func, desiredFunctionGas)
+    await deposit(parseUnits(amount, pncplDecimals), minAmountOut, bondRecipient, stake, func)
       .then((res) => _handleToast(res.tx, res.localTx))
       .catch((err) => _handleContractCallError('callDepositBond', err, func))
   }
