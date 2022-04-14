@@ -26,7 +26,6 @@ export type BondTellerDetails = {
 
 export type BondTellerData = {
   teller: BondTellerContract
-  principalAddr: string
   bondPrice: BigNumber
   usdBondPrice: number
   vestingTermInSeconds: number
@@ -42,6 +41,7 @@ export type BondPrincipalData = {
     symbol: string
     decimals: number
     name: string
+    address: string
   }
   token0?: string
   token1?: string

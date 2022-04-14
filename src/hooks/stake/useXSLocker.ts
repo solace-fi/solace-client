@@ -209,10 +209,10 @@ export const useXSLocker = () => {
 export const useUserLockData = () => {
   const { latestBlock } = useProvider()
   const { keyContracts } = useContracts()
-  const { xsLocker, stakingRewards, solace } = useMemo(() => keyContracts, [keyContracts])
+  const { xsLocker, stakingRewards } = useMemo(() => keyContracts, [keyContracts])
 
   const getUserLocks = async (user: string): Promise<UserLocksData> => {
-    if (!latestBlock || !stakingRewards || !xsLocker || !solace)
+    if (!latestBlock || !stakingRewards || !xsLocker)
       return {
         user: {
           pendingRewards: ZERO,
