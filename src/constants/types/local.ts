@@ -3,6 +3,7 @@ import { TransactionCondition, SystemNotice, Error } from '../enums'
 export type WindowDimensions = {
   width: number
   height: number
+  scrollPosition: number
   isDesktop: boolean
   isMobile: boolean
   ifDesktop: <T, V>(desktopArg: T, mobileArg?: V | undefined) => T | V | undefined

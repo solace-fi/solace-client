@@ -10,11 +10,13 @@ import { Text } from '../atoms/Typography'
 import { useLocation } from 'react-router-dom'
 import { PageInfo } from '../../constants/types'
 import { SolaceGradientCircle } from '../molecules/SolaceGradientCircle'
+import { useWindowDimensions } from '../../hooks/internal/useWindowDimensions'
 
 export const AppMenuHeader: React.FC<{ pages: PageInfo[]; setShow: (show: boolean) => void }> = ({
   pages,
   setShow,
 }) => {
+  const { scrollPosition } = useWindowDimensions()
   const { account } = useWallet()
   const location = useLocation()
   const title = useMemo(() => {
@@ -37,10 +39,10 @@ export const AppMenuHeader: React.FC<{ pages: PageInfo[]; setShow: (show: boolea
           nohover
           noborder
           p={8}
-          style={{ borderRadius: '28px', backgroundColor: '#fff' }}
+          style={{ borderRadius: '28px', backgroundColor: '#fff', minWidth: 'unset' }}
           onClick={() => setShow(true)}
         >
-          <Flex gap={8}>
+          <Flex>
             {account ? (
               <SolaceGradientCircle>
                 <UserImage style={{ width: '30px', height: '30px', margin: 'auto' }}>
@@ -52,9 +54,11 @@ export const AppMenuHeader: React.FC<{ pages: PageInfo[]; setShow: (show: boolea
                 <StyledWallet size={30} />
               </Text>
             )}
-            <Text t4 bold techygradient autoAlignVertical>
-              My Solace
-            </Text>
+            {scrollPosition == 0 && (
+              <Text t4 bold techygradient autoAlignVertical ml={8}>
+                My Solace
+              </Text>
+            )}
           </Flex>
         </Button>
       </ShadowDiv>
