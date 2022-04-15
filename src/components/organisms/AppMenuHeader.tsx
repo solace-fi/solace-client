@@ -27,7 +27,7 @@ export const AppMenuHeader: React.FC<{ pages: PageInfo[]; setShow: (show: boolea
   }, [location.pathname, pages])
 
   return (
-    <Flex stretch between itemsCenter p={10}>
+    <Flex stretch between itemsCenter pb={40}>
       <Text bold big2>
         {title}
       </Text>
@@ -43,7 +43,7 @@ export const AppMenuHeader: React.FC<{ pages: PageInfo[]; setShow: (show: boolea
           <Flex gap={8}>
             {account ? (
               <SolaceGradientCircle>
-                <UserImage style={{ width: '30px', height: '30px', margin: 'auto' }}>
+                <UserImage style={{ width: '24px', height: '24px', margin: 'auto' }}>
                   <img src={makeBlockie(account)} alt={'account'} />
                 </UserImage>
               </SolaceGradientCircle>

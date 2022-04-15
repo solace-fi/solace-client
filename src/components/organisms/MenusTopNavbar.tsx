@@ -28,7 +28,7 @@ export const MenusTopNavBar: React.FC<{
         <Button nohover noborder onClick={() => setShowRight(true)}>
           {account ? (
             <SolaceGradientCircle>
-              <UserImage style={{ width: '40px', height: '40px', margin: 'auto' }}>
+              <UserImage style={{ width: '24px', height: '24px', margin: 'auto' }}>
                 <img src={makeBlockie(account)} alt={'account'} />
               </UserImage>
             </SolaceGradientCircle>
