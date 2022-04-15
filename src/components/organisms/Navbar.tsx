@@ -51,7 +51,7 @@ import { ThemeButton } from '../molecules/ThemeButton'
 import { Flex, HorizRule } from '../atoms/Layout'
 import { MiniUserAccount, UserAccount } from '../molecules/Account'
 import { StyledNavTooltip } from '../molecules/Tooltip'
-import { AuditToast } from '../molecules/Toast'
+// import { AuditToast } from '../molecules/Toast'
 
 import defipulse from '../../resources/svg/defipulse.svg'
 
@@ -359,21 +359,21 @@ export const TopNavbar: React.FC<Navbar> = ({ pages }) => {
 
   *************************************************************************************/
 
-  useEffect(() => {
-    if (location && location.pathname && location.pathname != '/' && location.pathname != '/terms') {
-      makeAppToast(
-        {
-          type: SystemNotice.AUDIT_NOTICE,
-          metadata: 'Audited',
-          uniqueId: `${SystemNotice.AUDIT_NOTICE}`,
-        },
-        SystemNotice.AUDIT_NOTICE,
-        <AuditToast />,
-        toastSettings.appNotice,
-        true
-      )
-    }
-  }, [location])
+  // useEffect(() => {
+  //   if (location && location.pathname && location.pathname != '/' && location.pathname != '/terms') {
+  //     makeAppToast(
+  //       {
+  //         type: SystemNotice.AUDIT_NOTICE,
+  //         metadata: 'Audited',
+  //         uniqueId: `${SystemNotice.AUDIT_NOTICE}`,
+  //       },
+  //       SystemNotice.AUDIT_NOTICE,
+  //       <AuditToast />,
+  //       toastSettings.appNotice,
+  //       true
+  //     )
+  //   }
+  // }, [location])
 
   return (
     <TopNav id="top-nav" isOpen={isOpen} style={{ overflowY: isOpen ? 'auto' : 'hidden' }}>
