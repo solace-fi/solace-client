@@ -125,31 +125,35 @@ export default function App(): any {
     {
       collapsibleName: 'Products',
       pages: [
-        { pageName: 'Coverage', to: '/' },
-        { pageName: 'Staking', to: '/' },
-        { pageName: 'Bonding', to: '/' },
+        { pageName: 'Coverage', to: 'https://solace.fi/about/cover' },
+        { pageName: 'Staking', to: 'https://solace.fi/about/staking' },
+        { pageName: 'Bonding', to: 'https://solace.fi/about/staking' },
       ],
     },
     {
       collapsibleName: 'Governance',
       pages: [
-        { pageName: 'Token', to: '/' },
-        { pageName: 'DAO', to: '/' },
+        {
+          pageName: 'Token',
+          to: 'https://etherscan.io/token/0x501acE9c35E60f03A2af4d484f49F9B1EFde9f40',
+          newTab: true,
+        },
+        { pageName: 'DAO', to: 'https://forum.solace.fi/', newTab: true },
       ],
     },
     {
       collapsibleName: 'Developers',
       pages: [
-        { pageName: 'Docs', to: 'https://docs.solace.fi/' },
-        { pageName: 'SDK', to: '/' },
+        { pageName: 'Docs', to: 'https://docs.solace.fi/', newTab: true },
+        { pageName: 'SDK', to: 'https://docs.solace.fi/docs/dev-docs/sdk/getting-started', newTab: true },
       ],
     },
     {
       collapsibleName: 'About',
       pages: [
-        { pageName: 'Roadmap', to: '/' },
-        { pageName: 'Investors', to: '/' },
-        { pageName: 'Advisors', to: '/' },
+        { pageName: 'Roadmap', to: 'https://solace.fi/#roadmap' },
+        { pageName: 'Investors', to: 'https://solace.fi/#investors' },
+        { pageName: 'Advisors', to: 'https://solace.fi/#advisors' },
         { pageName: 'Core Contributors', to: '/' },
       ],
     },

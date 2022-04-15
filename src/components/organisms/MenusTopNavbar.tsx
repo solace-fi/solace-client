@@ -3,14 +3,14 @@ import { useLocation } from 'react-router'
 
 import { NewTopNav } from '../atoms/Navbar'
 import { Button } from '../atoms/Button'
-import { StyledMenu, StyledWallet } from '../atoms/Icon'
+import { StyledMenu } from '../atoms/Icon'
 import { Flex } from '../atoms/Layout'
 
 import { UserImage } from '../atoms/User'
 import { useWallet } from '../../context/WalletManager'
 import makeBlockie from 'ethereum-blockies-base64'
-import { Text } from '../atoms/Typography'
 import { SolaceGradientCircle } from '../molecules/SolaceGradientCircle'
+import UserGradient from '../../resources/svg/user_gradient.svg'
 
 export const MenusTopNavBar: React.FC<{
   setShowLeft: (show: boolean) => void
@@ -33,9 +33,7 @@ export const MenusTopNavBar: React.FC<{
               </UserImage>
             </SolaceGradientCircle>
           ) : (
-            <Text light={location.pathname == '/'}>
-              <StyledWallet size={30} />
-            </Text>
+            <img src={UserGradient} />
           )}
         </Button>
       </Flex>

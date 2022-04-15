@@ -20,6 +20,7 @@ import {
   StyledWork,
   StyledLockFile,
   StyledArrowDropDown,
+  StyledHelpCircle,
 } from '../atoms/Icon'
 import { Text, TextSpan } from '../atoms/Typography'
 import { HyperLink } from '../atoms/Link'
@@ -48,6 +49,7 @@ interface CollapsibleNavbar {
     pages: {
       pageName: string
       to: string
+      newTab?: boolean
     }[]
   }[]
 }
@@ -128,11 +130,19 @@ export const InfoSideNavbar: React.FC<CollapsibleNavbar> = ({ tabs }) => {
               >
                 {t.pages.map((p, i) => (
                   <ItemText key={i} style={{ height: '25px', justifyContent: width > BKPT_3 ? 'inherit' : 'center' }}>
-                    <HyperLink href={p.to} target="_blank" rel="noopener noreferrer">
-                      <TextSpan t4 light={lightText}>
-                        {p.pageName}
-                      </TextSpan>
-                    </HyperLink>
+                    {p.newTab ? (
+                      <HyperLink href={p.to} target="_blank" rel="noopener noreferrer">
+                        <TextSpan t4 light={lightText}>
+                          {p.pageName}
+                        </TextSpan>
+                      </HyperLink>
+                    ) : (
+                      <HyperLink href={p.to}>
+                        <TextSpan t4 light={lightText}>
+                          {p.pageName}
+                        </TextSpan>
+                      </HyperLink>
+                    )}
                   </ItemText>
                 ))}
               </Accordion>
@@ -140,7 +150,7 @@ export const InfoSideNavbar: React.FC<CollapsibleNavbar> = ({ tabs }) => {
           ))}
         </ItemList>
         <div style={{ flex: '1 1' }}></div>
-        <Flex col style={{ margin: 'auto' }}>
+        <Flex col marginAuto gap={10}>
           <StyledNavTooltip id={'jobs-nav'} tip={`We\'re hiring!`}>
             <HyperLink
               href={'https://www.notion.so/Solace-16cc777c403a46c8a2ffaba68008fcd9'}
@@ -152,15 +162,26 @@ export const InfoSideNavbar: React.FC<CollapsibleNavbar> = ({ tabs }) => {
               </TextSpan>
             </HyperLink>
           </StyledNavTooltip>
-          <StyledNavTooltip id={'terms-nav'} tip={'Terms & Conditions'}>
-            <ItemText>
-              <NavLink to={'/terms'}>
-                <TextSpan t3s light={lightText}>
-                  {width > BKPT_3 ? 'Terms & Conditions' : <StyledLockFile size={30} />}
-                </TextSpan>
-              </NavLink>
-            </ItemText>
+          <StyledNavTooltip id={'help-nav'} tip={`Help & Support`}>
+            <HyperLink
+              href={'https://www.notion.so/solacefi/Solace-Public-Page-16cc777c403a46c8a2ffaba68008fcd9'}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <TextSpan t3s light={lightText}>
+                {width > BKPT_3 ? `Help & Support` : <StyledHelpCircle size={30} />}
+              </TextSpan>
+            </HyperLink>
           </StyledNavTooltip>
+          <StyledNavTooltip id={'terms-nav'} tip={'Terms & Conditions'}>
+            <NavLink to={'/terms'}>
+              <TextSpan t3s light={lightText}>
+                {width > BKPT_3 ? 'Terms & Conditions' : <StyledLockFile size={30} />}
+              </TextSpan>
+            </NavLink>
+          </StyledNavTooltip>
+        </Flex>
+        <Flex col marginAuto gap={10}>
           {width > BKPT_3 ? (
             <ItemText jc={'space-between'} style={{ padding: '4px 0' }}>
               <HyperLink

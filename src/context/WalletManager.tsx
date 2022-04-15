@@ -17,7 +17,6 @@ import { WalletModal } from '../components/organisms/wallet/WalletModal'
 import { useNetwork } from './NetworkManager'
 import { MetamaskConnector } from '../wallet/wallet-connectors/MetaMask'
 import { useGeneral } from './GeneralManager'
-import { getSolaceRiskBalances, getSolaceRiskScores } from '../utils/api'
 
 /*
 
@@ -88,6 +87,16 @@ const WalletProvider: React.FC = (props) => {
     AppError.WALLET_NETWORK_UNSYNC,
     AppError.UNKNOWN_WALLET_ERROR,
   ]
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    const prompt = params.get('connect-wallet')
+    if (prompt) {
+      history.pushState(null, '', location.href.split('?')[0])
+      setWalletModal(true)
+      console.log('connect wallet', prompt)
+    }
+  }, [setWalletModal])
 
   const openModal = useCallback(() => {
     document.body.style.overflowY = 'hidden'

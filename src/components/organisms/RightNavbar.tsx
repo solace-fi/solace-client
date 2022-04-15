@@ -26,12 +26,10 @@ import { formatUnits } from 'ethers/lib/utils'
 import { useContracts } from '../../context/ContractsManager'
 import { useReadToken } from '../../hooks/contract/useToken'
 import { useTransactionDetails } from '../../hooks/api/useTransactionHistory'
-import { timeAgo } from '../../utils/time'
 import { decodeInput } from '../../utils/decoder'
-import { TableData, TableRow, Table, TableBody, TableHead, TableHeader } from '../atoms/Table'
-import { Loader } from '../atoms/Loader'
 import useCopyClipboard from '../../hooks/internal/useCopyToClipboard'
 import { SolaceGradientCircle } from '../molecules/SolaceGradientCircle'
+import UserWhite from '../../resources/svg/user_white.svg'
 
 const AppNav = styled.div<{ shouldShow: boolean }>`
   background-color: ${({ theme }) => theme.modal.base_color};
@@ -72,7 +70,7 @@ const AppNavItemText = styled.li`
 
 const data = [
   {
-    name: 'Cover',
+    name: 'My Policy',
     path: '/cover',
   },
   {
@@ -163,11 +161,8 @@ export const AppMenu = ({ show, setShow }: { show: boolean; setShow: (show: bool
                         </UserImage>
                       </SolaceGradientCircle>
                     ) : (
-                      <Text light>
-                        <StyledWallet size={30} />
-                      </Text>
+                      <img src={UserWhite} />
                     )}
-
                     {account ? (
                       <Flex col around>
                         <Text light textAlignLeft t4>
@@ -247,7 +242,6 @@ export const AppMenu = ({ show, setShow }: { show: boolean; setShow: (show: bool
                               t3
                               warmgradient={location.pathname == item.path && appTheme == 'dark'}
                               techygradient={location.pathname == item.path && appTheme == 'light'}
-                              bold
                             >
                               {item.name}
                             </Text>

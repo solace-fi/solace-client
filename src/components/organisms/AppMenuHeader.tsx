@@ -4,13 +4,13 @@ import { Flex, ShadowDiv } from '../atoms/Layout'
 import { UserImage } from '../atoms/User'
 import { useWallet } from '../../context/WalletManager'
 import makeBlockie from 'ethereum-blockies-base64'
-import { StyledWallet } from '../atoms/Icon'
 import { Button } from '../atoms/Button'
 import { Text } from '../atoms/Typography'
 import { useLocation } from 'react-router-dom'
 import { PageInfo } from '../../constants/types'
 import { SolaceGradientCircle } from '../molecules/SolaceGradientCircle'
 import { useWindowDimensions } from '../../hooks/internal/useWindowDimensions'
+import UserGradient from '../../resources/svg/user_gradient.svg'
 
 export const AppMenuHeader: React.FC<{ pages: PageInfo[]; setShow: (show: boolean) => void }> = ({
   pages,
@@ -50,9 +50,7 @@ export const AppMenuHeader: React.FC<{ pages: PageInfo[]; setShow: (show: boolea
                 </UserImage>
               </SolaceGradientCircle>
             ) : (
-              <Text dark>
-                <StyledWallet size={30} />
-              </Text>
+              <img src={UserGradient} />
             )}
             {scrollPosition == 0 && (
               <Text t4 bold techygradient autoAlignVertical ml={8}>

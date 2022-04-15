@@ -11,6 +11,7 @@ import { Discord } from '@styled-icons/simple-icons/Discord'
 import { DocumentText } from '@styled-icons/typicons/DocumentText'
 import { Documents } from '@styled-icons/ionicons-sharp/Documents'
 import { DotsHorizontalRounded } from '@styled-icons/boxicons-regular/DotsHorizontalRounded'
+import { HelpCircle } from '@styled-icons/boxicons-regular/HelpCircle'
 import { FileEarmarkLock2Fill } from '@styled-icons/bootstrap/FileEarmarkLock2Fill'
 import { FileShield } from '@styled-icons/remix-fill/FileShield'
 import { Gear } from '@styled-icons/octicons/Gear'
@@ -141,3 +142,5 @@ export const StyledArrowIosBackOutline = styled(ArrowIosBackOutline)``
 export const StyledTractor = styled(Tractor)``
 
 export const StyledFolderHistory = styled(FolderHistory)``
+
+export const StyledHelpCircle = styled(HelpCircle)``
