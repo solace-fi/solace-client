@@ -151,7 +151,7 @@ export const AppMenu = ({ show, setShow }: { show: boolean; setShow: (show: bool
                   secondary
                   p={8}
                   style={{ borderRadius: '28px' }}
-                  onClick={account ? () => setShowWalletSettings(!showWalletSettings) : () => openWalletModal()}
+                  onClick={() => setShowWalletSettings(!showWalletSettings)}
                 >
                   <Flex between gap={5} itemsCenter>
                     {account ? (
@@ -178,9 +178,21 @@ export const AppMenu = ({ show, setShow }: { show: boolean; setShow: (show: bool
                         </Flex>
                       </Flex>
                     ) : (
-                      <Text light t4>
-                        Connect Wallet
-                      </Text>
+                      <Flex col around>
+                        <Text light textAlignLeft t5s>
+                          Not connected
+                        </Text>
+                        <Text light textAlignLeft t4>
+                          <Flex>
+                            {activeNetwork.logo && (
+                              <img src={activeNetwork.logo} width={20} height={20} style={{ marginRight: '2px' }} />
+                            )}
+                            <Text light t5s nowrap autoAlignVertical>
+                              {activeNetwork.name}
+                            </Text>
+                          </Flex>
+                        </Text>
+                      </Flex>
                     )}
                   </Flex>
                 </AppButton>
@@ -277,19 +289,19 @@ export const AppMenu = ({ show, setShow }: { show: boolean; setShow: (show: bool
             )}
             {showWalletSettings && (
               <>
-                {account && (
-                  <>
-                    <Flex col mt={10} gap={10}>
-                      <Text t1 bold textAlignCenter mb={10} light>
-                        My Wallet
-                      </Text>
-                      <Flex col itemsCenter gap={20} mt={30} mb={30}>
-                        <Text t3 light style={{ cursor: 'pointer' }} onClick={openNetworkModal}>
-                          Switch Network
-                        </Text>
-                        <Text t3 light style={{ cursor: 'pointer' }} onClick={openWalletModal}>
-                          Switch Wallet
-                        </Text>
+                <Flex col mt={10} gap={10}>
+                  <Text t1 bold textAlignCenter mb={10} light>
+                    My Wallet
+                  </Text>
+                  <Flex col itemsCenter gap={20} mt={30} mb={30}>
+                    <Text t3 light style={{ cursor: 'pointer' }} onClick={openNetworkModal}>
+                      Switch Network
+                    </Text>
+                    <Text t3 light style={{ cursor: 'pointer' }} onClick={openWalletModal}>
+                      {account ? 'Switch Wallet' : 'Connect Wallet'}
+                    </Text>
+                    {account && (
+                      <>
                         <Text t3 light style={{ cursor: 'pointer' }} onClick={() => setCopied(account)}>
                           {isCopied ? 'Copied!' : 'Copy Wallet Address'}
                         </Text>
@@ -303,49 +315,59 @@ export const AppMenu = ({ show, setShow }: { show: boolean; setShow: (show: bool
                             View on {activeNetwork.explorer.name}
                           </HyperLink>
                         </Text>
+                      </>
+                    )}
+                  </Flex>
+                </Flex>
+                {account && (
+                  <>
+                    <div style={{ flex: '1 1' }}></div>
+                    <Flex col gap={24}>
+                      <Text t1 bold textAlignCenter mb={10} light>
+                        My Recent Transactions
+                      </Text>
+                      {txHistory.length > 0 ? (
+                        <Flex col>
+                          <Flex stretch around pb={12}>
+                            <Text light>Type</Text>
+                            <Text light>Hash</Text>
+                          </Flex>
+                          {txHistory.slice(0, 5).map((tx: any) => (
+                            <Flex stretch between pl={40} pr={40} pb={12} key={tx.hash}>
+                              <Text light t4>
+                                {decodeInput(tx, contractSources)}
+                              </Text>
+                              <HyperLink
+                                href={getExplorerItemUrl(activeNetwork.explorer.url, tx.hash, ExplorerscanApi.TX)}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                              >
+                                <Text light t4 underline>
+                                  {shortenAddress(tx.hash)}
+                                </Text>
+                              </HyperLink>
+                            </Flex>
+                          ))}
+                        </Flex>
+                      ) : (
+                        <Text textAlignCenter light>
+                          No transactions found
+                        </Text>
+                      )}
+                      <Flex stretch evenly>
+                        <Text
+                          mb={50}
+                          light
+                          underline
+                          style={{ cursor: 'pointer' }}
+                          onClick={() => setShowTxHistory(true)}
+                        >
+                          View All Transactions
+                        </Text>
                       </Flex>
                     </Flex>
                   </>
                 )}
-                <div style={{ flex: '1 1' }}></div>
-                <Flex col gap={24}>
-                  <Text t1 bold textAlignCenter mb={10} light>
-                    My Recent Transactions
-                  </Text>
-                  {txHistory.length > 0 ? (
-                    <Flex col>
-                      <Flex stretch around pb={12}>
-                        <Text light>Type</Text>
-                        <Text light>Hash</Text>
-                      </Flex>
-                      {txHistory.slice(0, 5).map((tx: any) => (
-                        <Flex stretch between pl={40} pr={40} pb={12} key={tx.hash}>
-                          <Text light t4>
-                            {decodeInput(tx, contractSources)}
-                          </Text>
-                          <HyperLink
-                            href={getExplorerItemUrl(activeNetwork.explorer.url, tx.hash, ExplorerscanApi.TX)}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                          >
-                            <Text light t4 underline>
-                              {shortenAddress(tx.hash)}
-                            </Text>
-                          </HyperLink>
-                        </Flex>
-                      ))}
-                    </Flex>
-                  ) : (
-                    <Text textAlignCenter light>
-                      No transactions found
-                    </Text>
-                  )}
-                  <Flex stretch evenly>
-                    <Text mb={50} light underline style={{ cursor: 'pointer' }} onClick={() => setShowTxHistory(true)}>
-                      View All Transactions
-                    </Text>
-                  </Flex>
-                </Flex>
               </>
             )}
           </AppNavGradient>

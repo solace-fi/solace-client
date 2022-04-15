@@ -87,6 +87,7 @@ import '../../styles/tailwind.min.css'
 import { getExpiration, getTimeFromMillis, withBackoffRetries } from '../../utils/time'
 import { BridgeModal } from './organisms/BridgeModal'
 import { Loader } from '../../components/atoms/Loader'
+import { PleaseConnectWallet } from '../../components/molecules/PleaseConnectWallet'
 
 // disable no unused variables
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -181,165 +182,152 @@ function Stake1(): any {
   return (
     <>
       {canStakeV1 ? (
-        <>
-          {!account ? (
-            <HeroContainer>
-              <Text bold t1 textAlignCenter>
-                Please connect wallet to begin staking
-              </Text>
-              <WalletConnectButton info welcome secondary />
-            </HeroContainer>
-          ) : (
-            <Content>
-              <Flex col>
-                <Card style={{ margin: 'auto' }}>
-                  <div style={{ gridTemplateColumns: '1fr 0fr 1fr', display: 'grid', position: 'relative' }}>
-                    <ModalCell
-                      pt={5}
-                      pb={10}
-                      pl={0}
-                      pr={0}
-                      onClick={() => setIsMigrating(true)}
-                      jc={'center'}
-                      style={{ cursor: 'pointer', backgroundColor: isMigrating ? 'rgba(0, 0, 0, .05)' : 'inherit' }}
-                    >
-                      <Text t1 bold info={isMigrating}>
-                        Migrate
-                      </Text>
-                    </ModalCell>
-                    <VerticalSeparator />
-                    <ModalCell
-                      pt={5}
-                      pb={10}
-                      pl={0}
-                      pr={0}
-                      onClick={() => setIsMigrating(false)}
-                      jc={'center'}
-                      style={{ cursor: 'pointer', backgroundColor: !isMigrating ? 'rgba(0, 0, 0, .05)' : 'inherit' }}
-                    >
-                      <Text t1 bold info={!isMigrating}>
-                        Unstake
-                      </Text>
-                    </ModalCell>
-                  </div>
-                  <Flex stretch between mt={20} mb={10}>
-                    <Text>Staked Balance</Text>
-                    <Text textAlignRight info>
-                      {v1StakedSolaceBalance} {readSolaceToken.symbol}
-                    </Text>
-                  </Flex>
-                  <Flex mb={30} style={{ textAlign: 'center' }}>
-                    <InputSection
-                      tab={Tab.DEPOSIT}
-                      value={amount}
-                      onChange={(e) => handleInputChange(e.target.value, readSolaceToken.decimals)}
-                      setMax={_setMax}
-                    />
-                  </Flex>
-                  <Accordion noScroll noBackgroundColor isOpen={isMigrating}>
-                    <Flex column gap={24} mb={20}>
-                      <div>
-                        <Label importance="quaternary" style={{ marginBottom: '8px' }}>
-                          Choose a Lock time (optional)
-                        </Label>
-                        <InputSection
-                          tab={Tab.LOCK}
-                          value={lockInputValue}
-                          onChange={(e) => lockInputOnChange(e.target.value)}
-                          setMax={lockSetMax}
-                        />
-                      </div>
-                      <StyledSlider
-                        value={lockInputValue}
-                        onChange={(e) => lockRangeOnChange(e.target.value)}
-                        min={0}
-                        max={DAYS_PER_YEAR * 4}
-                      />
-                      {
-                        <SmallBox transparent collapse={!lockInputValue || lockInputValue == '0'} m={0} p={0}>
-                          <Text
-                            style={{
-                              fontWeight: 500,
-                            }}
-                          >
-                            Lock End Date: {getExpiration(parseInt(lockInputValue))}
-                          </Text>
-                        </SmallBox>
-                      }
-                    </Flex>
-                    <Flex column stretch w={BKPT_5 > width ? 300 : 521}>
-                      <Label importance="quaternary" style={{ marginBottom: '8px' }}>
-                        Projected benefits when migrated
-                      </Label>
-                      <GrayBox>
-                        <Flex stretch column>
-                          <Flex stretch gap={24}>
-                            <Flex column gap={2}>
-                              <Text t5s techygradient mb={8}>
-                                APR
-                              </Text>
-                              <div
-                                style={BKPT_5 > width ? { margin: '-4px 0', display: 'block' } : { display: 'none' }}
-                              >
-                                &nbsp;
-                              </div>
-                              <Text t3s techygradient>
-                                <Flex>{truncateValue(projectedApr.toString(), 1)}%</Flex>
-                              </Text>
-                            </Flex>
-                            <VerticalSeparator />
-                            <Flex column gap={2}>
-                              <Text t5s techygradient mb={8}>
-                                Reward Multiplier
-                              </Text>
-                              <Text t3s techygradient>
-                                {projectedMultiplier}x
-                              </Text>
-                            </Flex>
-                            <VerticalSeparator />
-                            <Flex column gap={2}>
-                              <Text t5s techygradient mb={8}>
-                                Yearly Return
-                              </Text>
-                              <Text t3s techygradient>
-                                {truncateValue(formatUnits(projectedYearlyReturns, 18), 4, false)}
-                              </Text>
-                            </Flex>
-                          </Flex>
-                        </Flex>
-                      </GrayBox>
-                    </Flex>
-                  </Accordion>
-                  <ButtonWrapper>
-                    {isMigrating ? (
-                      <Button
-                        widthP={100}
-                        error
-                        style={{ backgroundColor: '#f04d42' }}
-                        disabled={!isAcceptableAmount || haveErrors}
-                        secondary
-                        onClick={callMigrateSigned}
-                        light
-                      >
-                        Migrate to STAKING V2
-                      </Button>
-                    ) : (
-                      <Button
-                        widthP={100}
-                        info
-                        secondary
-                        disabled={!isAcceptableAmount || haveErrors}
-                        onClick={callUnstake}
-                      >
-                        Unstake
-                      </Button>
-                    )}
-                  </ButtonWrapper>
-                </Card>
+        <Content>
+          <Flex col>
+            <Card style={{ margin: 'auto' }}>
+              <div style={{ gridTemplateColumns: '1fr 0fr 1fr', display: 'grid', position: 'relative' }}>
+                <ModalCell
+                  pt={5}
+                  pb={10}
+                  pl={0}
+                  pr={0}
+                  onClick={() => setIsMigrating(true)}
+                  jc={'center'}
+                  style={{ cursor: 'pointer', backgroundColor: isMigrating ? 'rgba(0, 0, 0, .05)' : 'inherit' }}
+                >
+                  <Text t1 bold info={isMigrating}>
+                    Migrate
+                  </Text>
+                </ModalCell>
+                <VerticalSeparator />
+                <ModalCell
+                  pt={5}
+                  pb={10}
+                  pl={0}
+                  pr={0}
+                  onClick={() => setIsMigrating(false)}
+                  jc={'center'}
+                  style={{ cursor: 'pointer', backgroundColor: !isMigrating ? 'rgba(0, 0, 0, .05)' : 'inherit' }}
+                >
+                  <Text t1 bold info={!isMigrating}>
+                    Unstake
+                  </Text>
+                </ModalCell>
+              </div>
+              <Flex stretch between mt={20} mb={10}>
+                <Text>Staked Balance</Text>
+                <Text textAlignRight info>
+                  {v1StakedSolaceBalance} {readSolaceToken.symbol}
+                </Text>
               </Flex>
-            </Content>
-          )}
-        </>
+              <Flex mb={30} style={{ textAlign: 'center' }}>
+                <InputSection
+                  tab={Tab.DEPOSIT}
+                  value={amount}
+                  onChange={(e) => handleInputChange(e.target.value, readSolaceToken.decimals)}
+                  setMax={_setMax}
+                />
+              </Flex>
+              <Accordion noScroll noBackgroundColor isOpen={isMigrating}>
+                <Flex column gap={24} mb={20}>
+                  <div>
+                    <Label importance="quaternary" style={{ marginBottom: '8px' }}>
+                      Choose a Lock time (optional)
+                    </Label>
+                    <InputSection
+                      tab={Tab.LOCK}
+                      value={lockInputValue}
+                      onChange={(e) => lockInputOnChange(e.target.value)}
+                      setMax={lockSetMax}
+                    />
+                  </div>
+                  <StyledSlider
+                    value={lockInputValue}
+                    onChange={(e) => lockRangeOnChange(e.target.value)}
+                    min={0}
+                    max={DAYS_PER_YEAR * 4}
+                  />
+                  {
+                    <SmallBox transparent collapse={!lockInputValue || lockInputValue == '0'} m={0} p={0}>
+                      <Text
+                        style={{
+                          fontWeight: 500,
+                        }}
+                      >
+                        Lock End Date: {getExpiration(parseInt(lockInputValue))}
+                      </Text>
+                    </SmallBox>
+                  }
+                </Flex>
+                <Flex column stretch w={BKPT_5 > width ? 300 : 521}>
+                  <Label importance="quaternary" style={{ marginBottom: '8px' }}>
+                    Projected benefits when migrated
+                  </Label>
+                  <GrayBox>
+                    <Flex stretch column>
+                      <Flex stretch gap={24}>
+                        <Flex column gap={2}>
+                          <Text t5s techygradient mb={8}>
+                            APR
+                          </Text>
+                          <div style={BKPT_5 > width ? { margin: '-4px 0', display: 'block' } : { display: 'none' }}>
+                            &nbsp;
+                          </div>
+                          <Text t3s techygradient>
+                            <Flex>{truncateValue(projectedApr.toString(), 1)}%</Flex>
+                          </Text>
+                        </Flex>
+                        <VerticalSeparator />
+                        <Flex column gap={2}>
+                          <Text t5s techygradient mb={8}>
+                            Reward Multiplier
+                          </Text>
+                          <Text t3s techygradient>
+                            {projectedMultiplier}x
+                          </Text>
+                        </Flex>
+                        <VerticalSeparator />
+                        <Flex column gap={2}>
+                          <Text t5s techygradient mb={8}>
+                            Yearly Return
+                          </Text>
+                          <Text t3s techygradient>
+                            {truncateValue(formatUnits(projectedYearlyReturns, 18), 4, false)}
+                          </Text>
+                        </Flex>
+                      </Flex>
+                    </Flex>
+                  </GrayBox>
+                </Flex>
+              </Accordion>
+              <ButtonWrapper>
+                {isMigrating ? (
+                  <Button
+                    widthP={100}
+                    error
+                    style={{ backgroundColor: '#f04d42' }}
+                    disabled={!isAcceptableAmount || haveErrors}
+                    secondary
+                    onClick={callMigrateSigned}
+                    light
+                  >
+                    Migrate to STAKING V2
+                  </Button>
+                ) : (
+                  <Button
+                    widthP={100}
+                    info
+                    secondary
+                    disabled={!isAcceptableAmount || haveErrors}
+                    onClick={callUnstake}
+                  >
+                    Unstake
+                  </Button>
+                )}
+              </ButtonWrapper>
+            </Card>
+          </Flex>
+        </Content>
       ) : (
         <Content>
           <Box error pt={10} pb={10} pl={15} pr={15}>
@@ -491,12 +479,7 @@ export default function Stake(): JSX.Element {
   return (
     <>
       {!account ? (
-        <HeroContainer>
-          <Text bold t1 textAlignCenter>
-            Please connect wallet to begin staking
-          </Text>
-          <WalletConnectButton info welcome secondary />
-        </HeroContainer>
+        <PleaseConnectWallet />
       ) : (
         <Content>
           <DifferenceNotification version={stakingVersion} setVersion={setStakingVersion} />

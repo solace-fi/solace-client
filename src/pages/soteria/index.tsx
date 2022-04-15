@@ -42,6 +42,7 @@ import ZapperDark from '../../resources/svg/zapper-dark.svg'
 import { CoveredChains } from './CoveredChains'
 import { CheckboxData } from '../stake/types/LockCheckbox'
 import { getContract } from '../../utils'
+import { PleaseConnectWallet } from '../../components/molecules/PleaseConnectWallet'
 
 export function Card({
   children,
@@ -316,14 +317,7 @@ export default function Soteria(): JSX.Element {
 
   return (
     <>
-      {!account ? (
-        <HeroContainer>
-          <Text bold t1 textAlignCenter>
-            Please connect wallet to view dashboard
-          </Text>
-          <WalletConnectButton info welcome secondary />
-        </HeroContainer>
-      ) : canShowSoteria ? (
+      {canShowSoteria && account ? (
         <>
           {mounting || existingPolicy.loading ? (
             <Flex col gap={24} m={isMobile ? 20 : undefined}>
@@ -620,7 +614,7 @@ export default function Soteria(): JSX.Element {
             </Flex>
           )}
         </>
-      ) : (
+      ) : account ? (
         <Content>
           <Box error pt={10} pb={10} pl={15} pr={15}>
             <TextSpan light textAlignLeft>
@@ -631,6 +625,8 @@ export default function Soteria(): JSX.Element {
             </Text>
           </Box>
         </Content>
+      ) : (
+        <PleaseConnectWallet />
       )}
     </>
   )

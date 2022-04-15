@@ -78,6 +78,7 @@ const WalletProvider: React.FC = (props) => {
   const { addErrors, removeErrors } = useGeneral()
   const [name, setName] = useState<string | undefined>(undefined)
   const ethProvider = useMemo(() => new JsonRpcProvider(activeNetwork.rpc.httpsUrl), [activeNetwork])
+  const accountRef = useRef(web3React.account)
 
   const date = Date.now()
   const ContextErrors = [
@@ -87,18 +88,6 @@ const WalletProvider: React.FC = (props) => {
     AppError.WALLET_NETWORK_UNSYNC,
     AppError.UNKNOWN_WALLET_ERROR,
   ]
-
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search)
-    const prompt = params.get('connect-wallet')
-    if (prompt) {
-      history.pushState(null, '', location.href.split('?')[0])
-      if (!selectedProvider) {
-        setWalletModal(true)
-        console.log('connect wallet', prompt)
-      }
-    }
-  }, [setWalletModal])
 
   const openModal = useCallback(() => {
     document.body.style.overflowY = 'hidden'
@@ -222,6 +211,24 @@ const WalletProvider: React.FC = (props) => {
     }
     checkForENS()
   }, [web3React.account, web3React.library])
+
+  useEffect(() => {
+    accountRef.current = web3React.account
+  }, [web3React.account])
+
+  useEffect(() => {
+    setTimeout(() => {
+      const params = new URLSearchParams(window.location.search)
+      const prompt = params.get('connect-wallet')
+      if (prompt) {
+        history.pushState(null, '', location.href.split('?')[0])
+        if (!accountRef.current) {
+          setWalletModal(true)
+          console.log('connect wallet', prompt)
+        }
+      }
+    }, 1500)
+  }, [setWalletModal])
 
   const value = useMemo<ContextWallet>(
     () => ({
