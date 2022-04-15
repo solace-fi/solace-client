@@ -175,9 +175,9 @@ export const AppMenu = ({ show, setShow }: { show: boolean; setShow: (show: bool
                         </Text>
                         <Flex>
                           {activeNetwork.logo && (
-                            <img src={activeNetwork.logo} width={25} height={25} style={{ marginRight: '2px' }} />
+                            <img src={activeNetwork.logo} width={20} height={20} style={{ marginRight: '2px' }} />
                           )}
-                          <Text light t5s nowrap mt={5} autoAlignVertical>
+                          <Text light t5s nowrap autoAlignVertical>
                             {activeNetwork.name}
                           </Text>
                         </Flex>

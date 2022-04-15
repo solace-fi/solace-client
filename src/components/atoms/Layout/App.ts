@@ -86,7 +86,6 @@ export const SideNavContent = styled.div<SideNavbarProps>`
 export const LayoutContent = styled.div<HeightAndWidthProps>`
   align-content: start;
   ${(props) => (props.width ? `width: ${(props.width / 100) * MAX_WIDTH}px;` : 'width: 100%;')}
-  padding: 20px;
 
   @media screen and (max-width: ${BKPT_5}px) {
     padding: 0px;
