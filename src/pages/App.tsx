@@ -131,6 +131,13 @@ export default function App(): any {
       ],
     },
     {
+      collapsibleName: 'Governance',
+      pages: [
+        { pageName: 'Token', to: '/' },
+        { pageName: 'DAO', to: '/' },
+      ],
+    },
+    {
       collapsibleName: 'Developers',
       pages: [
         { pageName: 'Docs', to: 'https://docs.solace.fi/' },

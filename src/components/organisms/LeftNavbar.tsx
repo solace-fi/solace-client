@@ -72,7 +72,7 @@ export const InfoSideNavbar: React.FC<CollapsibleNavbar> = ({ tabs }) => {
     >
       <div
         style={{
-          padding: '40px 5px 20px 5px',
+          padding: '30px 5px 20px 0px',
           display: 'flex',
           flexDirection: 'column',
         }}
@@ -93,11 +93,11 @@ export const InfoSideNavbar: React.FC<CollapsibleNavbar> = ({ tabs }) => {
                 p={0}
                 nohover
                 noborder
-                style={{ cursor: 'pointer', justifyContent: width > BKPT_3 ? 'left' : 'center' }}
+                style={{ cursor: 'pointer', justifyContent: width > BKPT_3 ? 'left' : 'center', minHeight: 'unset' }}
                 onClick={() => setOpenTab(openTab != t.collapsibleName ? t.collapsibleName : '')}
               >
                 <Flex>
-                  <Text t3 light={lightText}>
+                  <Text t3 light={lightText} bold>
                     {t.collapsibleName}
                   </Text>
                   {/* <Text
