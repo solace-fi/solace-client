@@ -127,7 +127,7 @@ export default function App(): any {
       pages: [
         { pageName: 'Coverage', to: 'https://solace.fi/about/cover' },
         { pageName: 'Staking', to: 'https://solace.fi/about/staking' },
-        { pageName: 'Bonding', to: 'https://solace.fi/about/staking' },
+        { pageName: 'Bonding', to: 'https://solace.fi/about/tokenomics' },
       ],
     },
     {
@@ -154,7 +154,7 @@ export default function App(): any {
         { pageName: 'Roadmap', to: 'https://solace.fi/#roadmap' },
         { pageName: 'Investors', to: 'https://solace.fi/#investors' },
         { pageName: 'Advisors', to: 'https://solace.fi/#advisors' },
-        { pageName: 'Core Contributors', to: '/' },
+        { pageName: 'Core Contributors', to: 'https://solace.fi/#coreContributors' },
       ],
     },
   ]

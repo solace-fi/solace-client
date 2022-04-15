@@ -93,8 +93,10 @@ const WalletProvider: React.FC = (props) => {
     const prompt = params.get('connect-wallet')
     if (prompt) {
       history.pushState(null, '', location.href.split('?')[0])
-      setWalletModal(true)
-      console.log('connect wallet', prompt)
+      if (!selectedProvider) {
+        setWalletModal(true)
+        console.log('connect wallet', prompt)
+      }
     }
   }, [setWalletModal])
 

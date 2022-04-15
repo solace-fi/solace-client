@@ -102,16 +102,6 @@ export const InfoSideNavbar: React.FC<CollapsibleNavbar> = ({ tabs }) => {
                   <Text t3 light={lightText} bold>
                     {t.collapsibleName}
                   </Text>
-                  {/* <Text
-                    light={lightText}
-                    autoAlignVertical
-                    style={{
-                      fontSize: '7px',
-                      transform: openTab == t.collapsibleName ? 'rotate(180deg)' : 'rotate(0deg)',
-                    }}
-                  >
-                    ▼
-                  </Text> */}
                   <Text autoAlignVertical light={lightText}>
                     <StyledArrowDropDown
                       style={{ transform: openTab == t.collapsibleName ? 'rotate(180deg)' : 'rotate(0deg)' }}
