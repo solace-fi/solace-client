@@ -178,7 +178,14 @@ export default function App(): any {
                 <Statistics />
               )} */}
               <Switch>
-                <Route exact path="/" component={About} />
+                <Route
+                  exact
+                  path="/"
+                  component={() => {
+                    window.location.href = MARKETING_SITE
+                    return null
+                  }}
+                />
                 {pages.map((p) => (
                   <Route exact key={p.to} path={p.to} component={p.component} />
                 ))}
