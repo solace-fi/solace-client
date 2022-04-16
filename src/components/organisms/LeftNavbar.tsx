@@ -153,11 +153,7 @@ export const InfoSideNavbar: React.FC<CollapsibleNavbar> = ({ tabs }) => {
             </HyperLink>
           </StyledNavTooltip>
           <StyledNavTooltip id={'help-nav'} tip={`Help & Support`}>
-            <HyperLink
-              href={'https://www.notion.so/solacefi/Solace-Public-Page-16cc777c403a46c8a2ffaba68008fcd9'}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
+            <HyperLink href={'https://discord.gg/7v8qsyepfu'} target="_blank" rel="noopener noreferrer">
               <TextSpan t3s light={lightText}>
                 {width > BKPT_3 ? `Help & Support` : <StyledHelpCircle size={30} />}
               </TextSpan>
