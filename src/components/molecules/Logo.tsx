@@ -24,6 +24,7 @@ import coloredLogo from '../../resources/svg/solace-logo-color.svg'
 import whiteLogo from '../../resources/svg/solace-logo-white.svg'
 import coloredCircle from '../../resources/svg/solace-circle-color.svg'
 import whiteCircle from '../../resources/svg/solace-circle-white.svg'
+import { MARKETING_SITE } from '../../constants'
 
 interface LogoProps {
   location: any
@@ -37,7 +38,7 @@ export const Logo: React.FC<GeneralElementProps & LogoProps> = ({ ...props }) =>
   *************************************************************************************/
   return (
     // <StyledNavLink to="/">
-    <a href={'https://solace.fi'}>
+    <a href={MARKETING_SITE}>
       <LogoBase {...props}>
         <img
           src={props.location.pathname !== '/' ? coloredLogo : whiteLogo}
@@ -57,7 +58,7 @@ export const MiniLogo: React.FC<GeneralElementProps & LogoProps & { style?: Reac
   *************************************************************************************/
   return (
     // <StyledNavLink to="/" style={props.style}>
-    <a href={'https://solace.fi'}>
+    <a href={MARKETING_SITE}>
       <LogoBase {...props} width={40}>
         <img
           src={props.location.pathname !== '/' ? coloredCircle : whiteCircle}

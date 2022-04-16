@@ -44,7 +44,7 @@ import {
 } from '../components/atoms/Icon'
 
 /* import constants */
-import { BKPT_5, BKPT_NAVBAR } from '../constants'
+import { BKPT_NAVBAR, MARKETING_SITE } from '../constants'
 
 /* import hooks */
 import { useWindowDimensions } from '../hooks/internal/useWindowDimensions'
@@ -125,9 +125,9 @@ export default function App(): any {
     {
       collapsibleName: 'Products',
       pages: [
-        { pageName: 'Coverage', to: 'https://solace.fi/about/cover' },
-        { pageName: 'Staking', to: 'https://solace.fi/about/staking' },
-        { pageName: 'Bonding', to: 'https://solace.fi/about/tokenomics' },
+        { pageName: 'Coverage', to: `${MARKETING_SITE}/about/cover` },
+        { pageName: 'Staking', to: `${MARKETING_SITE}/about/staking` },
+        { pageName: 'Bonding', to: `${MARKETING_SITE}/about/tokenomics` },
       ],
     },
     {
@@ -151,10 +151,10 @@ export default function App(): any {
     {
       collapsibleName: 'About',
       pages: [
-        { pageName: 'Roadmap', to: 'https://solace.fi/#roadmap' },
-        { pageName: 'Investors', to: 'https://solace.fi/#investors' },
-        { pageName: 'Advisors', to: 'https://solace.fi/#advisors' },
-        { pageName: 'Core Contributors', to: 'https://solace.fi/#coreContributors' },
+        { pageName: 'Roadmap', to: `${MARKETING_SITE}/#roadmap` },
+        { pageName: 'Investors', to: `${MARKETING_SITE}/#investors` },
+        { pageName: 'Advisors', to: `${MARKETING_SITE}/#advisors` },
+        { pageName: 'Core Contributors', to: `${MARKETING_SITE}/#coreContributors` },
       ],
     },
   ]
