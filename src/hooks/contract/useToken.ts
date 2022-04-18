@@ -33,37 +33,3 @@ export const useTokenAllowance = (
 
   return approval
 }
-
-export const useReadToken = (tokenContract: Contract | null | undefined): ReadToken => {
-  const { library } = useWallet()
-  const [readToken, setReadToken] = useState<ReadToken>({ name: '', decimals: 0, symbol: '', address: '' })
-
-  const callReadToken = useCallback(async () => {
-    try {
-      if (!tokenContract || !library) return
-      const [name, decimals, symbol] = await Promise.all([
-        queryName(tokenContract, library),
-        queryDecimals(tokenContract),
-        querySymbol(tokenContract, library),
-      ])
-      return {
-        name,
-        decimals,
-        symbol,
-        address: tokenContract.address,
-      }
-    } catch (err) {
-      console.log('callReadToken', err)
-    }
-  }, [tokenContract, library])
-
-  useEffect(() => {
-    const doCallReadToken = async () => {
-      const token = await callReadToken()
-      if (token) setReadToken(token)
-    }
-    doCallReadToken()
-  }, [callReadToken])
-
-  return readToken
-}

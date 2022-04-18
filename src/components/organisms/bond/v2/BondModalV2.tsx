@@ -56,7 +56,7 @@ import { PrivateBondInfoV2 } from './PrivateBondInfoV2'
 
 /* import hooks */
 import { useInputAmount, useTransactionExecution } from '../../../../hooks/internal/useInputAmount'
-import { useReadToken, useTokenAllowance } from '../../../../hooks/contract/useToken'
+import { useTokenAllowance } from '../../../../hooks/contract/useToken'
 import { useNativeTokenBalance } from '../../../../hooks/balance/useBalance'
 import { useBondTellerV2, useUserBondDataV2 } from '../../../../hooks/bond/useBondTellerV2'
 import { useWindowDimensions } from '../../../../hooks/internal/useWindowDimensions'
@@ -106,7 +106,7 @@ export const BondModalV2: React.FC<BondModalV2Props> = ({ closeModal, isOpen, se
     bondDepositFunctionName,
     bondDepositWrappedFunctionName,
     bondDepositFunctionGas,
-    bondDepositWrappedFunctionGas,
+    // bondDepositWrappedFunctionGas,
   } = useTellerConfig(activeNetwork)
   const [func, setFunc] = useState<FunctionName>(bondDepositFunctionName)
   const [principalBalance, setPrincipalBalance] = useState<string>('0')
@@ -115,7 +115,6 @@ export const BondModalV2: React.FC<BondModalV2Props> = ({ closeModal, isOpen, se
   const pncplDecimals = useMemo(() => selectedBondDetail?.principalData.principalProps.decimals, [
     selectedBondDetail?.principalData.principalProps.decimals,
   ])
-  const readSolaceToken = useReadToken(solace)
   const nativeTokenBalance = useNativeTokenBalance()
   const { deposit, claimPayout } = useBondTellerV2(selectedBondDetail)
   const { width } = useWindowDimensions()
@@ -300,7 +299,7 @@ export const BondModalV2: React.FC<BondModalV2Props> = ({ closeModal, isOpen, se
       setPrincipalBalance(formatUnits(principalBal, selectedBondDetail.principalData.principalProps.decimals))
     }
     getUserBonds()
-  }, [account, selectedBondDetail, readSolaceToken, version])
+  }, [account, selectedBondDetail, version])
 
   useEffect(() => {
     const getTellerType = async () => {

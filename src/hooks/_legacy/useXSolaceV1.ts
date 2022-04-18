@@ -7,14 +7,14 @@ import { BigNumber } from 'ethers'
 import { DEADLINE, ZERO } from '../../constants'
 import { FunctionName, TransactionCondition } from '../../constants/enums'
 import { getPermitErc20Signature } from '../../utils/signature'
-import { FunctionGasLimits } from '../../constants/mappings/gasMapping'
+import { FunctionGasLimits } from '../../constants/mappings/gas'
 import { useXSolaceBalance } from '../balance/useBalance'
-import { floatUnits, truncateValue } from '../../utils/formatting'
+import { floatUnits } from '../../utils/formatting'
 import { useCachedData } from '../../context/CachedDataManager'
 import { parseUnits, formatUnits } from '@ethersproject/units'
 import { useProvider } from '../../context/ProviderManager'
-import { useReadToken } from '../contract/useToken'
 import { useGetFunctionGas } from '../provider/useGas'
+import { SOLACE_TOKEN, XSOLACE_V1_TOKEN } from '../../constants/mappings/token'
 
 export const useXSolaceV1 = () => {
   const { keyContracts } = useContracts()
@@ -64,12 +64,10 @@ export const useXSolaceV1 = () => {
 
 export const useXSolaceV1Details = () => {
   const { keyContracts } = useContracts()
-  const { solace, xSolaceV1 } = useMemo(() => keyContracts, [keyContracts])
+  const { xSolaceV1 } = useMemo(() => keyContracts, [keyContracts])
   const { version } = useCachedData()
   const { latestBlock } = useProvider()
   const xSolaceBalance = useXSolaceBalance()
-  const readSolaceToken = useReadToken(solace)
-  const readXSolaceToken = useReadToken(xSolaceV1)
   const [userShare, setUserShare] = useState<string>('0')
   const [xSolacePerSolace, setXSolacePerSolace] = useState<string>('1')
   const [solacePerXSolace, setSolacePerXSolace] = useState<string>('1')
@@ -79,33 +77,33 @@ export const useXSolaceV1Details = () => {
     try {
       const totalSupply = await xSolaceV1.totalSupply()
       const userShare = totalSupply.gt(ZERO)
-        ? parseFloat(xSolaceBalance) / floatUnits(totalSupply, readXSolaceToken.decimals)
+        ? parseFloat(xSolaceBalance) / floatUnits(totalSupply, XSOLACE_V1_TOKEN.constants.decimals)
         : 0
       setUserShare(userShare.toString())
     } catch (err) {
       console.log('error getXSolaceUserPoolShare ', err)
     }
-  }, [xSolaceV1, xSolaceBalance, readXSolaceToken])
+  }, [xSolaceV1, xSolaceBalance])
 
   const getXSolacePerSolace = useCallback(async () => {
-    if (!xSolaceV1 || !readSolaceToken || !readXSolaceToken) return
+    if (!xSolaceV1 || !SOLACE_TOKEN || !XSOLACE_V1_TOKEN) return
     try {
-      const amount = await xSolaceV1.solaceToXSolace(parseUnits('1', readSolaceToken.decimals))
-      setXSolacePerSolace(formatUnits(amount, readXSolaceToken.decimals))
+      const amount = await xSolaceV1.solaceToXSolace(parseUnits('1', SOLACE_TOKEN.constants.decimals))
+      setXSolacePerSolace(formatUnits(amount, XSOLACE_V1_TOKEN.constants.decimals))
     } catch (err) {
       console.log('error getXSolacePerSolace ', err)
     }
-  }, [xSolaceV1, readSolaceToken, readXSolaceToken])
+  }, [xSolaceV1])
 
   const getSolacePerXSolace = useCallback(async () => {
     if (!xSolaceV1) return
     try {
-      const amount = await xSolaceV1.xSolaceToSolace(parseUnits('1', readXSolaceToken.decimals))
-      setSolacePerXSolace(formatUnits(amount, readSolaceToken.decimals))
+      const amount = await xSolaceV1.xSolaceToSolace(parseUnits('1', XSOLACE_V1_TOKEN.constants.decimals))
+      setSolacePerXSolace(formatUnits(amount, SOLACE_TOKEN.constants.decimals))
     } catch (err) {
       console.log('error getSolacePerXSolace ', err)
     }
-  }, [xSolaceV1, readSolaceToken, readXSolaceToken])
+  }, [xSolaceV1])
 
   useEffect(() => {
     getXSolaceUserPoolShare()

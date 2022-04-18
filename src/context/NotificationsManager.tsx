@@ -180,7 +180,6 @@ const ToastsProvider: React.FC = (props) => {
     // if this is the first account, meaning the account went from undefined to valid, do
     // not dismiss toasts
     if (!account || !lastAccount.current) return
-    console.log(lastAccount.current, account)
     lastAccount.current = account
     toast.dismiss()
   }, [account])

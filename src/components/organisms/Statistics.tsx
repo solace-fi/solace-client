@@ -17,18 +17,16 @@
   *************************************************************************************/
 
 /* import packages */
-import React, { useEffect, useState, useMemo } from 'react'
+import React, { useEffect, useState } from 'react'
 import { formatUnits } from '@ethersproject/units'
 
 /* import constants */
 import { BKPT_3, ZERO } from '../../constants'
-import { PolicyState } from '../../constants/enums'
-import { USDC_ADDRESS } from '../../constants/mappings/tokenAddressMapping'
+import { SOLACE_TOKEN } from '../../constants/mappings/token'
 import { GlobalLockInfo, UserLocksInfo } from '../../constants/types'
 
 /* import managers */
 import { useWallet } from '../../context/WalletManager'
-import { useContracts } from '../../context/ContractsManager'
 import { useNetwork } from '../../context/NetworkManager'
 import { useProvider } from '../../context/ProviderManager'
 import { useCachedData } from '../../context/CachedDataManager'
@@ -47,7 +45,6 @@ import { useSolaceBalance, useCrossChainUnderwritingPoolBalance } from '../../ho
 import { useWindowDimensions } from '../../hooks/internal/useWindowDimensions'
 import { useUserLockData } from '../../hooks/stake/useXSLocker'
 import { useStakingRewards } from '../../hooks/stake/useStakingRewards'
-import { useReadToken } from '../../hooks/contract/useToken'
 
 /* import utils */
 import { truncateValue } from '../../utils/formatting'
@@ -61,12 +58,9 @@ export const Statistics: React.FC = () => {
   *************************************************************************************/
   const { account, initialized } = useWallet()
   const { activeNetwork, networks } = useNetwork()
-  const { keyContracts } = useContracts()
   const { latestBlock } = useProvider()
-  const { solace } = useMemo(() => keyContracts, [keyContracts])
   const solaceBalance = useSolaceBalance()
   const { tokenPriceMapping } = useCachedData()
-  const readSolaceToken = useReadToken(solace)
   const { getUserLocks } = useUserLockData()
   const { width } = useWindowDimensions()
   const { getGlobalLockStats } = useStakingRewards()
@@ -102,20 +96,6 @@ export const Statistics: React.FC = () => {
     }
     getPrice()
   }, [tokenPriceMapping])
-
-  // useEffect(() => {
-  //   try {
-  //     const fetchPolicies = async () => {
-  //       const activePolicies = allPolicies.filter(({ status }) => status === PolicyState.ACTIVE)
-  //       const activeCoverAmount = activePolicies.reduce((pv, cv) => pv.add(cv.coverAmount), ZERO)
-  //       setTotalActiveCoverAmount(formatUnits(activeCoverAmount, currencyDecimals))
-  //       setTotalActivePolicies(activePolicies.length.toString())
-  //     }
-  //     fetchPolicies()
-  //   } catch (err) {
-  //     console.log(err)
-  //   }
-  // }, [allPolicies])
 
   useEffect(() => {
     const _getUserLocks = async () => {
@@ -168,31 +148,6 @@ export const Statistics: React.FC = () => {
           </Text>
         </BoxItem>
       )}
-      {/* {!activeNetwork.config.restrictedFeatures.noCoverProducts && (
-        <>
-          <BoxItem>
-            <BoxItemTitle t4 light>
-              Active Cover Amount
-            </BoxItemTitle>
-            <Text t2 nowrap light bold>
-              {totalActiveCoverAmount !== '-'
-                ? `${truncateValue(totalActiveCoverAmount, 2)} `
-                : `${totalActiveCoverAmount} `}
-              <TextSpan t4 light bold>
-                {activeNetwork.nativeCurrency.symbol}
-              </TextSpan>
-            </Text>
-          </BoxItem>
-          <BoxItem>
-            <BoxItemTitle t4 light>
-              Total Active Policies
-            </BoxItemTitle>
-            <Text t2 nowrap light bold>
-              {totalActivePolicies}
-            </Text>
-          </BoxItem>
-        </>
-      )} */}
       {!activeNetwork.config.restrictedFeatures.noSoteria && (
         <>
           <BoxItem>
@@ -303,7 +258,7 @@ export const Statistics: React.FC = () => {
                   <Text t2 light bold>
                     {`${truncateValue(solaceBalance, 1)} `}
                     <TextSpan t4 light bold>
-                      {readSolaceToken.symbol}
+                      {SOLACE_TOKEN.constants.symbol}
                     </TextSpan>
                   </Text>
                 </BoxItem>
@@ -315,7 +270,7 @@ export const Statistics: React.FC = () => {
                     <Text t2 light bold>
                       {`${truncateValue(formatUnits(userLockInfo.stakedBalance, 18), 1)} `}
                       <TextSpan t4 light bold>
-                        {readSolaceToken.symbol}
+                        {SOLACE_TOKEN.constants.symbol}
                       </TextSpan>
                     </Text>
                   </BoxItem>
@@ -335,7 +290,7 @@ export const Statistics: React.FC = () => {
                   <Text t2 light bold>
                     {`${truncateValue(formatUnits(globalLockStats.solaceStaked, 18), 1)} `}
                     <TextSpan t4 light bold>
-                      {readSolaceToken.symbol}
+                      {SOLACE_TOKEN.constants.symbol}
                     </TextSpan>
                   </Text>
                 </BoxItem>
@@ -364,7 +319,7 @@ export const Statistics: React.FC = () => {
                     <Text t2 light>
                       {`${truncateValue(solaceBalance, 1)} `}
                       <TextSpan t4 light>
-                        {readSolaceToken.symbol}
+                        {SOLACE_TOKEN.constants.symbol}
                       </TextSpan>
                     </Text>
                   </Flex>
@@ -374,7 +329,7 @@ export const Statistics: React.FC = () => {
                       <Text t2 light>
                         {`${truncateValue(formatUnits(userLockInfo.stakedBalance, 18), 1)} `}
                         <TextSpan t4 light>
-                          {readSolaceToken.symbol}
+                          {SOLACE_TOKEN.constants.symbol}
                         </TextSpan>
                       </Text>
                     </Flex>
@@ -392,7 +347,7 @@ export const Statistics: React.FC = () => {
                     <Text t2 light>
                       {`${truncateValue(formatUnits(globalLockStats.solaceStaked, 18), 1)} `}
                       <TextSpan t4 light>
-                        {readSolaceToken.symbol}
+                        {SOLACE_TOKEN.constants.symbol}
                       </TextSpan>
                     </Text>
                   </Flex>

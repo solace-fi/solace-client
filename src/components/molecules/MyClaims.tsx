@@ -40,7 +40,7 @@ import { Accordion } from '../atoms/Accordion'
 import { FunctionName, TransactionCondition } from '../../constants/enums'
 import { BKPT_3 } from '../../constants'
 import { ClaimDetails, LocalTx } from '../../constants/types'
-import { FunctionGasLimits } from '../../constants/mappings/gasMapping'
+import { FunctionGasLimits } from '../../constants/mappings/gas'
 
 /* import hooks */
 import { useGetClaimsDetails } from '../../hooks/_legacy/useClaimsEscrow'

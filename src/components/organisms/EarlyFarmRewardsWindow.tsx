@@ -27,10 +27,9 @@ import { TransactionReceipt, TransactionResponse } from '@ethersproject/provider
 /* import constants */
 import { FunctionName, TransactionCondition } from '../../constants/enums'
 import { LocalTx } from '../../constants/types'
-import { USDC_ADDRESS, USDT_ADDRESS, DAI_ADDRESS, FRAX_ADDRESS } from '../../constants/mappings/tokenAddressMapping'
+import { USDC_TOKEN, USDT_TOKEN, DAI_TOKEN, FRAX_TOKEN } from '../../constants/mappings/token'
 import { MAX_APPROVAL_AMOUNT, ZERO } from '../../constants'
 import IERC20 from '../../constants/metadata/IERC20Metadata.json'
-import { FunctionGasLimits } from '../../constants/mappings/gasMapping'
 
 /* import managers */
 import { useNetwork } from '../../context/NetworkManager'
@@ -60,7 +59,7 @@ import { useGetFunctionGas } from '../../hooks/provider/useGas'
 
 /* import utils */
 import { getDateStringWithMonthName, withBackoffRetries } from '../../utils/time'
-import { queryBalance, queryDecimals } from '../../utils/contract'
+import { queryBalance } from '../../utils/contract'
 import { truncateValue } from '../../utils/formatting'
 import { getContract, isAddress } from '../../utils'
 
@@ -82,10 +81,26 @@ export const EarlyFarmRewardsWindow: React.FC = () => {
   const { handleToast, handleContractCallError } = useTransactionExecution()
   const stablecoins = useMemo(
     () => [
-      { value: `${USDC_ADDRESS[chainId]}`, label: 'USDC' },
-      { value: `${USDT_ADDRESS[chainId]}`, label: 'USDT' },
-      { value: `${DAI_ADDRESS[chainId]}`, label: 'DAI' },
-      { value: `${FRAX_ADDRESS[chainId]}`, label: 'FRAX' },
+      {
+        value: `${USDC_TOKEN.address[chainId]}`,
+        label: USDC_TOKEN.constants.symbol,
+        decimals: USDC_TOKEN.constants.decimals,
+      },
+      {
+        value: `${USDT_TOKEN.address[chainId]}`,
+        label: USDT_TOKEN.constants.symbol,
+        decimals: USDT_TOKEN.constants.decimals,
+      },
+      {
+        value: `${DAI_TOKEN.address[chainId]}`,
+        label: DAI_TOKEN.constants.symbol,
+        decimals: DAI_TOKEN.constants.decimals,
+      },
+      {
+        value: `${FRAX_TOKEN.address[chainId]}`,
+        label: FRAX_TOKEN.constants.symbol,
+        decimals: FRAX_TOKEN.constants.decimals,
+      },
     ],
     [chainId]
   )
@@ -93,7 +108,7 @@ export const EarlyFarmRewardsWindow: React.FC = () => {
   const [stablecoinPayment, setStablecoinPayment] = useState(stablecoins[0])
   const [stablecoinUnsupported, setStablecoinUnsupported] = useState<boolean>(false)
   const [userStablecoinBalance, setUserStablecoinBalance] = useState<BigNumber>(ZERO)
-  const [userStablecoinDecimals, setUserStablecoinDecimals] = useState<number>(0)
+  const [userStablecoinDecimals, setUserStablecoinDecimals] = useState<number>(stablecoins[0].decimals)
 
   const [vestingEnd, setVestingEnd] = useState<BigNumber>(ZERO)
 
@@ -193,8 +208,7 @@ export const EarlyFarmRewardsWindow: React.FC = () => {
     }
     const stablecoinContract = getContract(stablecoinPayment.value, IERC20.abi, library, account)
     const balance = await queryBalance(stablecoinContract, account)
-    const decimals = await queryDecimals(stablecoinContract)
-    setUserStablecoinDecimals(decimals)
+    setUserStablecoinDecimals(stablecoinPayment.decimals)
     setUserStablecoinBalance(balance)
     setContractForAllowance(stablecoinContract)
     setStablecoinUnsupported(false)

@@ -2,12 +2,11 @@ import React, { useRef, useState, useEffect, useMemo } from 'react'
 import { NavLink, useLocation } from 'react-router-dom'
 import styled from 'styled-components'
 import { BKPT_3, BKPT_5, ZERO, Z_NAV, Z_TABLE } from '../../constants'
-import { ModalCloseButton } from '../molecules/Modal'
 import { Text, TextSpan } from '../atoms/Typography'
 import { Flex, ShadowDiv, VerticalSeparator } from '../atoms/Layout'
 import makeBlockie from 'ethereum-blockies-base64'
 import { UserImage } from '../atoms/User'
-import { StyledMoon, StyledSun, StyledWallet } from '../atoms/Icon'
+import { StyledMoon, StyledSun } from '../atoms/Icon'
 import { useWallet } from '../../context/WalletManager'
 import { useNetwork } from '../../context/NetworkManager'
 import { shortenAddress, truncateValue } from '../../utils/formatting'
@@ -24,12 +23,12 @@ import { useSolaceBalance } from '../../hooks/balance/useBalance'
 import { useUserLockData } from '../../hooks/stake/useXSLocker'
 import { formatUnits } from 'ethers/lib/utils'
 import { useContracts } from '../../context/ContractsManager'
-import { useReadToken } from '../../hooks/contract/useToken'
 import { useTransactionDetails } from '../../hooks/api/useTransactionHistory'
 import { decodeInput } from '../../utils/decoder'
 import useCopyClipboard from '../../hooks/internal/useCopyToClipboard'
 import { SolaceGradientCircle } from '../molecules/SolaceGradientCircle'
 import UserWhite from '../../resources/svg/user_white.svg'
+import { SOLACE_TOKEN } from '../../constants/mappings/token'
 
 const AppNav = styled.div<{ shouldShow: boolean }>`
   background-color: ${({ theme }) => theme.modal.base_color};
@@ -108,9 +107,7 @@ export const AppMenu = ({ show, setShow }: { show: boolean; setShow: (show: bool
 
   const wrapperRef = useRef(null)
   const { latestBlock } = useProvider()
-  const { keyContracts, contractSources } = useContracts()
-  const { solace } = useMemo(() => keyContracts, [keyContracts])
-  const readSolaceToken = useReadToken(solace)
+  const { contractSources } = useContracts()
   const [isCopied, setCopied] = useCopyClipboard()
 
   const solaceBalance = useSolaceBalance()
@@ -225,7 +222,7 @@ export const AppMenu = ({ show, setShow }: { show: boolean; setShow: (show: bool
                           <Text bold>My balance</Text>
                           <Text>
                             <TextSpan t3 bold>{`${truncateValue(solaceBalance, 1)} `}</TextSpan>
-                            <TextSpan t4>{readSolaceToken.symbol}</TextSpan>
+                            <TextSpan t4>{SOLACE_TOKEN.constants.symbol}</TextSpan>
                           </Text>
                         </Flex>
                         <VerticalSeparator />
@@ -236,7 +233,7 @@ export const AppMenu = ({ show, setShow }: { show: boolean; setShow: (show: bool
                               formatUnits(userLockInfo.stakedBalance, 18),
                               1
                             )} `}</TextSpan>
-                            <TextSpan t4>{readSolaceToken.symbol}</TextSpan>
+                            <TextSpan t4>{SOLACE_TOKEN.constants.symbol}</TextSpan>
                           </Text>
                         </Flex>
                       </Flex>

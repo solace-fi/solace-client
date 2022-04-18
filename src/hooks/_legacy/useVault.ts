@@ -10,7 +10,7 @@ import { useNetwork } from '../../context/NetworkManager'
 import { FunctionName, TransactionCondition } from '../../constants/enums'
 import { LocalTx, TxResult } from '../../constants/types'
 import { BigNumber } from 'ethers'
-import { FunctionGasLimits } from '../../constants/mappings/gasMapping'
+import { FunctionGasLimits } from '../../constants/mappings/gas'
 import { useProvider } from '../../context/ProviderManager'
 import { useGetFunctionGas } from '../provider/useGas'
 

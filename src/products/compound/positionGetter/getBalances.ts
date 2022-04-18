@@ -6,7 +6,7 @@ import { Contract } from '@ethersproject/contracts'
 import { getNonHumanValue } from '../../../utils/formatting'
 import { withBackoffRetries } from '../../../utils/time'
 import { getCoingeckoTokenPriceByAddr, getZapperProtocolBalances } from '../../../utils/api'
-import { WETH9_ADDRESS } from '../../../constants/mappings/tokenAddressMapping'
+import { WETH9_TOKEN } from '../../../constants/mappings/token'
 import { createZapperBalanceMap, networkNames } from '../../zapperBalances'
 
 export const getBalances = async (
@@ -18,7 +18,7 @@ export const getBalances = async (
   const zapperNet = networkNames[activeNetwork.chainId]
   if (zapperNet) {
     const coinGeckoEthPrice = await getCoingeckoTokenPriceByAddr(
-      WETH9_ADDRESS[activeNetwork.chainId],
+      WETH9_TOKEN.address[activeNetwork.chainId],
       'usd',
       'ethereum'
     )

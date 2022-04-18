@@ -53,7 +53,7 @@ import { useInputAmount, useTransactionExecution } from '../../../hooks/internal
 
 /* import utils */
 import { getUnit, truncateValue } from '../../../utils/formatting'
-import { FunctionGasLimits } from '../../../constants/mappings/gasMapping'
+import { FunctionGasLimits } from '../../../constants/mappings/gas'
 import { ZERO } from '../../../constants'
 
 export const CpPoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, closeModal }) => {

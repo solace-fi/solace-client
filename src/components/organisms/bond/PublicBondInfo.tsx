@@ -16,21 +16,16 @@
   *************************************************************************************/
 
 /* import packages */
-import React, { useMemo, useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import { formatUnits } from '@ethersproject/units'
-
-/* import managers */
-import { useContracts } from '../../../context/ContractsManager'
 
 /* import constants */
 import { BondTellerDetails } from '../../../constants/types'
+import { SOLACE_TOKEN } from '../../../constants/mappings/token'
 
 /* import components */
 import { Text } from '../../atoms/Typography'
 import { Flex } from '../../../components/atoms/Layout'
-
-/* import hooks */
-import { useReadToken } from '../../../hooks/contract/useToken'
 
 /* import utils */
 import { getLongtimeFromMillis } from '../../../utils/time'
@@ -41,16 +36,6 @@ interface PublicBondInfoProps {
 }
 
 export const PublicBondInfo: React.FC<PublicBondInfoProps> = ({ selectedBondDetail }) => {
-  /*
-
-  custom hooks
-
-  */
-
-  const { keyContracts } = useContracts()
-  const { solace } = useMemo(() => keyContracts, [keyContracts])
-  const readSolaceToken = useReadToken(solace)
-
   const [vestingTermInMillis, setVestingTermInMillis] = useState<number>(0)
 
   /*
@@ -69,8 +54,8 @@ export const PublicBondInfo: React.FC<PublicBondInfoProps> = ({ selectedBondDeta
       <Flex stretch between mb={10}>
         <Text t4>MAX You Can Buy</Text>
         <Text t4 info textAlignRight>
-          {`${formatUnits(selectedBondDetail?.tellerData.maxPayout ?? ZERO, readSolaceToken.decimals)} ${
-            readSolaceToken.symbol
+          {`${formatUnits(selectedBondDetail?.tellerData.maxPayout ?? ZERO, SOLACE_TOKEN.constants.decimals)} ${
+            SOLACE_TOKEN.constants.symbol
           }`}
         </Text>
       </Flex>

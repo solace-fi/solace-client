@@ -41,7 +41,6 @@ import { StyledSlider, Checkbox } from '../../components/atoms/Input'
 import { Content, Flex, Scrollable, VerticalSeparator, HeroContainer } from '../../components/atoms/Layout'
 import { ModalCell } from '../../components/atoms/Modal'
 import { Text, TextSpan } from '../../components/atoms/Typography'
-import { WalletConnectButton } from '../../components/molecules/WalletConnectButton'
 import { Modal } from '../../components/molecules/Modal'
 import { Table, TableBody, TableData, TableHead, TableHeader, TableRow } from '../../components/atoms/Table'
 import { StyledMultiselect, StyledInfo } from '../../components/atoms/Icon'
@@ -61,7 +60,6 @@ import { GrayBox } from '../../components/molecules/GrayBox'
 import { useXSolaceV1Balance } from '../../hooks/balance/useBalance'
 import { useXSolaceV1 } from '../../hooks/_legacy/useXSolaceV1'
 import { useInputAmount, useTransactionExecution } from '../../hooks/internal/useInputAmount'
-import { useReadToken } from '../../hooks/contract/useToken'
 import { useUserLockData, useXSLocker } from '../../hooks/stake/useXSLocker'
 import { useXSolaceMigrator } from '../../hooks/stake/useXSolaceMigrator'
 import { useWindowDimensions } from '../../hooks/internal/useWindowDimensions'
@@ -88,6 +86,7 @@ import { getExpiration, getTimeFromMillis, withBackoffRetries } from '../../util
 import { BridgeModal } from './organisms/BridgeModal'
 import { Loader } from '../../components/atoms/Loader'
 import { PleaseConnectWallet } from '../../components/molecules/PleaseConnectWallet'
+import { SOLACE_TOKEN, XSOLACE_V1_TOKEN } from '../../constants/mappings/token'
 
 // disable no unused variables
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -101,11 +100,9 @@ function Stake1(): any {
   const { haveErrors } = useGeneral()
   const { activeNetwork } = useNetwork()
   const { keyContracts } = useContracts()
-  const { solace, xSolaceV1 } = useMemo(() => keyContracts, [keyContracts])
+  const { xSolaceV1 } = useMemo(() => keyContracts, [keyContracts])
   const [isMigrating, setIsMigrating] = useState<boolean>(true)
   const { xSolaceV1Balance, v1StakedSolaceBalance } = useXSolaceV1Balance()
-  const readSolaceToken = useReadToken(solace)
-  const readXSolaceToken = useReadToken(xSolaceV1)
   const { amount, isAppropriateAmount, handleInputChange, setMax } = useInputAmount()
   const { handleToast, handleContractCallError } = useTransactionExecution()
   const { unstake_v1 } = useXSolaceV1()
@@ -140,17 +137,18 @@ function Stake1(): any {
       .catch((err) => handleContractCallError('callMigrateSigned', err, FunctionName.STAKING_MIGRATE))
   }
 
-  const _setMax = () => setMax(parseUnits(v1StakedSolaceBalance, readSolaceToken.decimals), readSolaceToken.decimals)
+  const _setMax = () =>
+    setMax(parseUnits(v1StakedSolaceBalance, SOLACE_TOKEN.constants.decimals), SOLACE_TOKEN.constants.decimals)
 
   const getXSolaceFromSolace = async () => {
     const formatted = formatAmount(amount)
     let xSolace: BigNumber = ZERO
     if (!xSolaceV1) return xSolace
     if (formatted == v1StakedSolaceBalance) {
-      xSolace = parseUnits(xSolaceV1Balance, readXSolaceToken.decimals)
+      xSolace = parseUnits(xSolaceV1Balance, XSOLACE_V1_TOKEN.constants.decimals)
     } else {
       xSolace = await withBackoffRetries(async () =>
-        xSolaceV1.solaceToXSolace(parseUnits(formatted, readSolaceToken.decimals))
+        xSolaceV1.solaceToXSolace(parseUnits(formatted, SOLACE_TOKEN.constants.decimals))
       )
     }
     return xSolace
@@ -174,10 +172,14 @@ function Stake1(): any {
 
   useEffect(() => {
     setIsAcceptableAmount(
-      isAppropriateAmount(amount, readSolaceToken.decimals, parseUnits(v1StakedSolaceBalance, readSolaceToken.decimals))
+      isAppropriateAmount(
+        amount,
+        SOLACE_TOKEN.constants.decimals,
+        parseUnits(v1StakedSolaceBalance, SOLACE_TOKEN.constants.decimals)
+      )
     )
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [amount, parseUnits(v1StakedSolaceBalance, readSolaceToken.decimals), readSolaceToken.decimals])
+  }, [amount, parseUnits(v1StakedSolaceBalance, SOLACE_TOKEN.constants.decimals), SOLACE_TOKEN.constants.decimals])
 
   return (
     <>
@@ -217,14 +219,14 @@ function Stake1(): any {
               <Flex stretch between mt={20} mb={10}>
                 <Text>Staked Balance</Text>
                 <Text textAlignRight info>
-                  {v1StakedSolaceBalance} {readSolaceToken.symbol}
+                  {v1StakedSolaceBalance} {SOLACE_TOKEN.constants.symbol}
                 </Text>
               </Flex>
               <Flex mb={30} style={{ textAlign: 'center' }}>
                 <InputSection
                   tab={Tab.DEPOSIT}
                   value={amount}
-                  onChange={(e) => handleInputChange(e.target.value, readSolaceToken.decimals)}
+                  onChange={(e) => handleInputChange(e.target.value, SOLACE_TOKEN.constants.decimals)}
                   setMax={_setMax}
                 />
               </Flex>
