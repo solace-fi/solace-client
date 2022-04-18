@@ -20,7 +20,8 @@ import { useWallet } from '../../context/WalletManager'
 
 /* import components */
 import { Loader } from '../atoms/Loader'
-import { HeroContainer } from '../atoms/Layout'
+import { Flex, HeroContainer, SideNavContent } from '../atoms/Layout'
+import { MAX_WIDTH } from '../../constants'
 
 export const LayoutContentWithLoader: React.FC = ({ children }) => {
   /* hooks */
@@ -32,14 +33,17 @@ export const LayoutContentWithLoader: React.FC = ({ children }) => {
   }, [initialized])
 
   return (
-    <Fragment>
-      {loader || location.pathname == '/' ? (
-        children
-      ) : (
-        <HeroContainer>
-          <Loader />
-        </HeroContainer>
-      )}
-    </Fragment>
+    <Flex>
+      <div style={{ width: '100%' }}>
+        {loader || location.pathname == '/' ? (
+          children
+        ) : (
+          <HeroContainer>
+            <Loader />
+          </HeroContainer>
+        )}
+      </div>
+      <SideNavContent desktopWidth={8}></SideNavContent>
+    </Flex>
   )
 }

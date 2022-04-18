@@ -46,7 +46,7 @@ export const GlobalStyle = createGlobalStyle<LayoutProps>`
 
 export const Layout = styled.div`
   display: flex;
-  min-height: 100vh;
+  /* min-height: 100vh; */
   padding: 30px;
 
   @media screen and (max-width: ${BKPT_NAVBAR}px) {
@@ -58,19 +58,24 @@ export const ContentContainer = styled.div`
   display: flex;
   margin: 0 auto;
   width: 100%;
-  max-width: ${MAX_WIDTH}px;
+  /* max-width: ${MAX_WIDTH}px; */
 
   @media screen and (max-width: ${BKPT_NAVBAR}px) {
     justify-content: center;
   }
 `
-export const SideNavContent = styled.div<HeightAndWidthProps>`
-  padding: 20px;
+
+interface SideNavbarProps {
+  desktopWidth?: number
+  mobileWidth?: number
+}
+
+export const SideNavContent = styled.div<SideNavbarProps>`
   align-content: start;
-  min-width: ${(props) => ((props.width ? props.width : 12) / 100) * MAX_WIDTH}px;
+  min-width: ${(props) => ((props.desktopWidth ? props.desktopWidth : 12) / 100) * MAX_WIDTH}px;
 
   @media screen and (max-width: ${BKPT_3}px) {
-    min-width: ${(props) => ((props.width ? props.width : 4) / 100) * MAX_WIDTH}px;
+    min-width: ${(props) => ((props.mobileWidth ? props.mobileWidth : 4) / 100) * MAX_WIDTH}px;
   }
 
   @media screen and (max-width: ${BKPT_NAVBAR}px) {
@@ -81,7 +86,6 @@ export const SideNavContent = styled.div<HeightAndWidthProps>`
 export const LayoutContent = styled.div<HeightAndWidthProps>`
   align-content: start;
   ${(props) => (props.width ? `width: ${(props.width / 100) * MAX_WIDTH}px;` : 'width: 100%;')}
-  padding: 20px;
 
   @media screen and (max-width: ${BKPT_5}px) {
     padding: 0px;

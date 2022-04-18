@@ -39,7 +39,7 @@ export function AboutFirstSection({
       justifyCenter={!isMobile}
       // 100 cuz idk, 192 cuz grants is 59 and it has 133 margin to top and we still want the rest to be centered to screen.
       mt={isMobile ? 100 : undefined}
-      mr={!isMobile ? 118 : undefined}
+      // mr={!isMobile ? 118 : undefined}
       pt={!isMobile ? 90 : undefined}
       ref={ref}
     >

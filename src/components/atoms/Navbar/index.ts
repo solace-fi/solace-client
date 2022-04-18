@@ -27,6 +27,26 @@ export const TopNav = styled.div<TopNavProps>`
   }
 `
 
+export const NewTopNav = styled.div<TopNavProps>`
+  position: fixed;
+  overflow: hidden;
+  background-color: ${(props) => props.theme.body.bg_color};
+  display: none;
+  padding: 10px 0;
+  transition: 200ms ease;
+
+  @media screen and (max-width: ${BKPT_NAVBAR}px) {
+    display: block;
+    width: 100%;
+    z-index: ${Z_NAV};
+  }
+
+  @media screen and (max-width: ${BKPT_3}px) {
+    ${(props) => (props.isOpen == false ? 'max-height: 2.5rem;' : 'max-height: calc(100vh - 20px);')}
+    text-align: center;
+  }
+`
+
 export const SidebarTextCss = css<GeneralTextProps>`
   font-weight: 400;
   font-size: 14px;
@@ -63,6 +83,7 @@ export const ItemText = styled.li<GeneralTextProps>`
 export const ItemList = styled.ul`
   width: 100%;
   padding: 0;
+  margin: 0;
 
   @media screen and (max-width: ${BKPT_NAVBAR}px) {
     display: flex;
