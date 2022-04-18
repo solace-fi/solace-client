@@ -80,6 +80,7 @@ const WalletProvider: React.FC = (props) => {
   const ethProvider = useMemo(() => new JsonRpcProvider(activeNetwork.rpc.httpsUrl), [activeNetwork])
   const accountRef = useRef(web3React.account)
   const initializedRef = useRef(initialized)
+  accountRef.current = web3React.account
   initializedRef.current = initialized
 
   const date = Date.now()
@@ -214,10 +215,6 @@ const WalletProvider: React.FC = (props) => {
     }
     checkForENS()
   }, [web3React.account, web3React.library])
-
-  useEffect(() => {
-    accountRef.current = web3React.account
-  }, [web3React.account])
 
   useEffect(() => {
     setTimeout(() => {

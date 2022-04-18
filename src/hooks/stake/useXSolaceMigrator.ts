@@ -7,7 +7,6 @@ import { BigNumber } from 'ethers'
 import { getPermitErc20Signature } from '../../utils/signature'
 import { DEADLINE } from '../../constants'
 import { FunctionName, TransactionCondition } from '../../constants/enums'
-import { FunctionGasLimits } from '../../constants/mappings/gas'
 import { useGetFunctionGas } from '../provider/useGas'
 
 export const useXSolaceMigrator = () => {
