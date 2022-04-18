@@ -231,7 +231,7 @@ export const usePolicyGetter = (
     }
 
     if (!policyManager) return
-    loadOnBoot()
+    // loadOnBoot()
   }, [policyHolder, policyManager])
 
   useEffect(() => {
@@ -257,7 +257,7 @@ export const usePolicyGetter = (
       await getPolicies()
     }
     if (policyHolder !== undefined || !getAll) return
-    loadOverTime()
+    // loadOverTime()
   }, [latestBlock])
 
   useEffect(() => {

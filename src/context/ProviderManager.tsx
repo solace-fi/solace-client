@@ -12,7 +12,6 @@ import { Z_MODAL } from '../constants'
 
 import { useGetLatestBlock } from '../hooks/provider/useGetLatestBlock'
 import { NetworkCache, SupportedProduct, ZerionPosition } from '../constants/types'
-import { useCachePositions } from '../hooks/_legacy/useCachePositions'
 import { useZerion } from '../hooks/_legacy/useZerion'
 import { Scrollable } from '../components/atoms/Layout'
 import { Flex } from '../components/atoms/Layout'

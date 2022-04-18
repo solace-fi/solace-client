@@ -17,12 +17,11 @@
   *************************************************************************************/
 
 /* import packages */
-import React, { useEffect, useState, useMemo } from 'react'
+import React, { useEffect, useState } from 'react'
 import { formatUnits } from '@ethersproject/units'
 
 /* import constants */
 import { BKPT_3, ZERO } from '../../constants'
-import { PolicyState } from '../../constants/enums'
 import { SOLACE_TOKEN } from '../../constants/mappings/token'
 import { GlobalLockInfo, UserLocksInfo } from '../../constants/types'
 
@@ -98,20 +97,6 @@ export const Statistics: React.FC = () => {
     getPrice()
   }, [tokenPriceMapping])
 
-  // useEffect(() => {
-  //   try {
-  //     const fetchPolicies = async () => {
-  //       const activePolicies = allPolicies.filter(({ status }) => status === PolicyState.ACTIVE)
-  //       const activeCoverAmount = activePolicies.reduce((pv, cv) => pv.add(cv.coverAmount), ZERO)
-  //       setTotalActiveCoverAmount(formatUnits(activeCoverAmount, currencyDecimals))
-  //       setTotalActivePolicies(activePolicies.length.toString())
-  //     }
-  //     fetchPolicies()
-  //   } catch (err) {
-  //     console.log(err)
-  //   }
-  // }, [allPolicies])
-
   useEffect(() => {
     const _getUserLocks = async () => {
       if (!account) return
@@ -163,31 +148,6 @@ export const Statistics: React.FC = () => {
           </Text>
         </BoxItem>
       )}
-      {/* {!activeNetwork.config.restrictedFeatures.noCoverProducts && (
-        <>
-          <BoxItem>
-            <BoxItemTitle t4 light>
-              Active Cover Amount
-            </BoxItemTitle>
-            <Text t2 nowrap light bold>
-              {totalActiveCoverAmount !== '-'
-                ? `${truncateValue(totalActiveCoverAmount, 2)} `
-                : `${totalActiveCoverAmount} `}
-              <TextSpan t4 light bold>
-                {activeNetwork.nativeCurrency.symbol}
-              </TextSpan>
-            </Text>
-          </BoxItem>
-          <BoxItem>
-            <BoxItemTitle t4 light>
-              Total Active Policies
-            </BoxItemTitle>
-            <Text t2 nowrap light bold>
-              {totalActivePolicies}
-            </Text>
-          </BoxItem>
-        </>
-      )} */}
       {!activeNetwork.config.restrictedFeatures.noSoteria && (
         <>
           <BoxItem>
