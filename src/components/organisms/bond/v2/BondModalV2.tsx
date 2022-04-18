@@ -34,7 +34,6 @@ import { useWallet } from '../../../../context/WalletManager'
 import { useNetwork } from '../../../../context/NetworkManager'
 import { useCachedData } from '../../../../context/CachedDataManager'
 import { useNotifications } from '../../../../context/NotificationsManager'
-import { useContracts } from '../../../../context/ContractsManager'
 import { useGeneral } from '../../../../context/GeneralManager'
 
 /* import components */
@@ -84,9 +83,7 @@ export const BondModalV2: React.FC<BondModalV2Props> = ({ closeModal, isOpen, se
   const { currencyDecimals, activeNetwork } = useNetwork()
   const { reload, version } = useCachedData()
   const { makeTxToast } = useNotifications()
-  const { keyContracts } = useContracts()
   const { appTheme } = useGeneral()
-  const { solace } = useMemo(() => keyContracts, [keyContracts])
 
   const [canCloseOnLoading, setCanCloseOnLoading] = useState<boolean>(false)
   const [canMax, setCanMax] = useState<boolean>(true)

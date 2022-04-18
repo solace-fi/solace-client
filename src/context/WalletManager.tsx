@@ -79,6 +79,8 @@ const WalletProvider: React.FC = (props) => {
   const [name, setName] = useState<string | undefined>(undefined)
   const ethProvider = useMemo(() => new JsonRpcProvider(activeNetwork.rpc.httpsUrl), [activeNetwork])
   const accountRef = useRef(web3React.account)
+  const initializedRef = useRef(initialized)
+  initializedRef.current = initialized
 
   const date = Date.now()
   const ContextErrors = [
@@ -192,9 +194,10 @@ const WalletProvider: React.FC = (props) => {
     ;(async () => {
       if (selectedProvider) {
         const walletConnector = WalletConnectors.find((c) => c.id === selectedProvider)
-        if (walletConnector) await connect(walletConnector)
+        if (walletConnector) await connect(walletConnector).then(() => setInitialized(true))
+      } else {
+        setInitialized(true)
       }
-      setInitialized(true)
     })()
   }, [web3React])
 
@@ -222,7 +225,7 @@ const WalletProvider: React.FC = (props) => {
       const prompt = params.get('connect-wallet')
       if (prompt) {
         history.pushState(null, '', location.href.split('?')[0])
-        if (!accountRef.current) {
+        if (!accountRef.current && initializedRef.current) {
           setWalletModal(true)
           console.log('connect wallet', prompt)
         }
