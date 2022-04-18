@@ -46,7 +46,7 @@ import { SourceContract } from '../SourceContract'
 import { BKPT_3, DAYS_PER_YEAR, NUM_BLOCKS_PER_DAY, ZERO } from '../../../constants'
 import { FunctionName, TransactionCondition } from '../../../constants/enums'
 import { LocalTx, Policy } from '../../../constants/types'
-import { FunctionGasLimits } from '../../../constants/mappings/gasMapping'
+import { FunctionGasLimits } from '../../../constants/mappings/gas'
 
 /* import hooks */
 import { useGetPolicyPrice, useAppraisePolicyPosition, useGetMaxCoverPerPolicy } from '../../../hooks/_legacy/usePolicy'

@@ -14,7 +14,7 @@
   *************************************************************************************/
 
 /* import packages */
-import React, { useMemo } from 'react'
+import React from 'react'
 import { formatUnits } from '@ethersproject/units'
 import { BigNumber } from 'ethers'
 
@@ -25,15 +25,12 @@ import { BondTellerDetails } from '../../../../constants/types'
 /* import managers */
 import { useNetwork } from '../../../../context/NetworkManager'
 import { useWallet } from '../../../../context/WalletManager'
-import { useContracts } from '../../../../context/ContractsManager'
 
 /* import components */
 import { Flex } from '../../../atoms/Layout'
 import { Text } from '../../../atoms/Typography'
 import { SmallBox } from '../../../atoms/Box'
-
-/* import hooks */
-import { useReadToken } from '../../../../hooks/contract/useToken'
+import { SOLACE_TOKEN, XSOLACE_V1_TOKEN } from '../../../../constants/mappings/token'
 
 interface PrivateBondInfoV1Props {
   func: FunctionName
@@ -62,10 +59,6 @@ export const PrivateBondInfoV1: React.FC<PrivateBondInfoV1Props> = ({
 
   const { account } = useWallet()
   const { activeNetwork } = useNetwork()
-  const { keyContracts } = useContracts()
-  const { solace, xSolaceV1 } = useMemo(() => keyContracts, [keyContracts])
-  const readSolaceToken = useReadToken(solace)
-  const readXSolaceToken = useReadToken(xSolaceV1)
   return (
     <>
       {account && (
@@ -83,7 +76,9 @@ export const PrivateBondInfoV1: React.FC<PrivateBondInfoV1Props> = ({
             <Text bold>You Will Get</Text>
             <Text info textAlignRight bold>
               {calculatedAmountOut
-                ? `${formatUnits(calculatedAmountOut, readSolaceToken.decimals)} ${readSolaceToken.symbol}`
+                ? `${formatUnits(calculatedAmountOut, SOLACE_TOKEN.constants.decimals)} ${
+                    SOLACE_TOKEN.constants.symbol
+                  }`
                 : `-`}
             </Text>
           </Flex>
@@ -94,7 +89,9 @@ export const PrivateBondInfoV1: React.FC<PrivateBondInfoV1Props> = ({
                 <Text t4 textAlignRight>
                   {'( '}
                   {calculatedAmountOut_X
-                    ? `${formatUnits(calculatedAmountOut_X, readXSolaceToken.decimals)} ${readXSolaceToken.symbol}`
+                    ? `${formatUnits(calculatedAmountOut_X, XSOLACE_V1_TOKEN.constants.decimals)} ${
+                        XSOLACE_V1_TOKEN.constants.symbol
+                      }`
                     : `-`}
                   {' )'}
                 </Text>

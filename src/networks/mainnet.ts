@@ -41,7 +41,7 @@ import { UniswapV3Product } from '../products/uniswapV3'
 import { SushiswapProduct } from '../products/sushiswap'
 
 import { KEY_ADDRS, PRODUCT_ADDRS } from '../constants/addresses/mainnet'
-import { USDC_ADDRESS, WETH9_ADDRESS } from '../constants/mappings/tokenAddressMapping'
+import { USDC_TOKEN, WETH9_TOKEN } from '../constants/mappings/token'
 import { tellerToTokenMapping } from '../constants/mappings/tellerToTokenMappings/mainnet'
 
 /*
@@ -58,7 +58,7 @@ export const MainNetwork: NetworkConfig = {
   isTestnet: false,
   logo: EthereumLogo,
   supportedTxTypes: [0, 2],
-  nativeCurrency: { mainnetReference: WETH9_ADDRESS[1], symbol: Unit.ETH, decimals: 18 },
+  nativeCurrency: { mainnetReference: WETH9_TOKEN.address[1], symbol: Unit.ETH, decimals: 18 },
   rpc: {
     httpsUrl: `https://eth-mainnet.alchemyapi.io/v2/${String(ALCHEMY_ETHEREUM_API_KEY)}`,
     pollingInterval: 12_000,
@@ -166,7 +166,7 @@ export const MainNetwork: NetworkConfig = {
     },
     restrictedFeatures: {},
     specialFeatures: {
-      solaceBuyLink: `https://app.sushi.com/swap?inputCurrency=${USDC_ADDRESS[chainId]}&outputCurrency=${KEY_ADDRS.SOLACE}`,
+      solaceBuyLink: `https://app.sushi.com/swap?inputCurrency=${USDC_TOKEN.address[chainId]}&outputCurrency=${KEY_ADDRS.SOLACE}`,
     },
     specialContracts: {},
     underwritingPoolAddr: '0x5efc0d9ee3223229ce3b53e441016efc5ba83435',

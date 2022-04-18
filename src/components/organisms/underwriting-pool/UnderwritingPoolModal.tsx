@@ -31,7 +31,7 @@ import { useCachedData } from '../../../context/CachedDataManager'
 import { FunctionName, Unit } from '../../../constants/enums'
 import { LocalTx } from '../../../constants/types'
 import { BKPT_3, ZERO } from '../../../constants'
-import { FunctionGasLimits } from '../../../constants/mappings/gasMapping'
+import { FunctionGasLimits } from '../../../constants/mappings/gas'
 
 /* import components */
 import { Modal } from '../../molecules/Modal'

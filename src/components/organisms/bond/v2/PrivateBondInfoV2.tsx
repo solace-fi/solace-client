@@ -14,7 +14,7 @@
   *************************************************************************************/
 
 /* import packages */
-import React, { useMemo } from 'react'
+import React from 'react'
 import { formatUnits } from '@ethersproject/units'
 import { BigNumber } from 'ethers'
 
@@ -25,15 +25,13 @@ import { BondTellerDetails } from '../../../../constants/types'
 /* import managers */
 import { useNetwork } from '../../../../context/NetworkManager'
 import { useWallet } from '../../../../context/WalletManager'
-import { useContracts } from '../../../../context/ContractsManager'
 
 /* import components */
 import { Flex } from '../../../atoms/Layout'
 import { Text } from '../../../atoms/Typography'
 
-/* import hooks */
-import { useReadToken } from '../../../../hooks/contract/useToken'
 import { useTellerConfig } from '../../../../hooks/bond/useDetectTeller'
+import { SOLACE_TOKEN } from '../../../../constants/mappings/token'
 
 interface PrivateBondInfoV2Props {
   func: FunctionName
@@ -58,9 +56,6 @@ export const PrivateBondInfoV2: React.FC<PrivateBondInfoV2Props> = ({
 
   const { account } = useWallet()
   const { activeNetwork } = useNetwork()
-  const { keyContracts } = useContracts()
-  const { solace } = useMemo(() => keyContracts, [keyContracts])
-  const readSolaceToken = useReadToken(solace)
   const { bondDepositFunctionName } = useTellerConfig(activeNetwork)
   return (
     <>
@@ -79,7 +74,9 @@ export const PrivateBondInfoV2: React.FC<PrivateBondInfoV2Props> = ({
             <Text bold>You Will Get</Text>
             <Text info textAlignRight bold>
               {calculatedAmountOut
-                ? `${formatUnits(calculatedAmountOut, readSolaceToken.decimals)} ${readSolaceToken.symbol}`
+                ? `${formatUnits(calculatedAmountOut, SOLACE_TOKEN.constants.decimals)} ${
+                    SOLACE_TOKEN.constants.symbol
+                  }`
                 : `-`}
             </Text>
           </Flex>

@@ -2,7 +2,6 @@ import { useMemo } from 'react'
 import { useContracts } from '../../context/ContractsManager'
 import { useWallet } from '../../context/WalletManager'
 import { useNetwork } from '../../context/NetworkManager'
-import { useReadToken } from '../contract/useToken'
 import { formatUnits } from '@ethersproject/units'
 import { BigNumber } from 'ethers'
 import { LocalTx, LockData, UserLocksData, UserLocksInfo } from '../../constants/types'
@@ -11,9 +10,9 @@ import { DEADLINE, ZERO } from '../../constants'
 import { FunctionName, TransactionCondition } from '../../constants/enums'
 import { useProvider } from '../../context/ProviderManager'
 import { rangeFrom0 } from '../../utils/numeric'
-import { FunctionGasLimits } from '../../constants/mappings/gasMapping'
 import { useGetFunctionGas } from '../provider/useGas'
 import { withBackoffRetries } from '../../utils/time'
+import { SOLACE_TOKEN } from '../../constants/mappings/token'
 
 export const useXSLocker = () => {
   const { keyContracts } = useContracts()
@@ -21,7 +20,6 @@ export const useXSLocker = () => {
   const { library } = useWallet()
   const { chainId } = useNetwork()
   const { latestBlock } = useProvider()
-  const readToken = useReadToken(solace)
   const { gasConfig } = useGetFunctionGas()
 
   const getLock = async (xsLockID: BigNumber) => {
@@ -61,7 +59,7 @@ export const useXSLocker = () => {
     if (!xsLocker) return '0'
     try {
       const stakedBalance = await withBackoffRetries(async () => xsLocker.stakedBalance(account))
-      const formattedStakedBalance = formatUnits(stakedBalance, readToken.decimals)
+      const formattedStakedBalance = formatUnits(stakedBalance, SOLACE_TOKEN.constants.decimals)
       return formattedStakedBalance
     } catch (err) {
       console.log('error getStakedBalance ', err)
@@ -187,9 +185,9 @@ export const useXSLocker = () => {
     })
 
     return {
-      stakedBalance: formatUnits(stakedBalance, readToken.decimals),
-      lockedBalance: formatUnits(lockedBalance, readToken.decimals),
-      unlockedBalance: formatUnits(unlockedBalance, readToken.decimals),
+      stakedBalance: formatUnits(stakedBalance, SOLACE_TOKEN.constants.decimals),
+      lockedBalance: formatUnits(lockedBalance, SOLACE_TOKEN.constants.decimals),
+      unlockedBalance: formatUnits(unlockedBalance, SOLACE_TOKEN.constants.decimals),
     }
   }
 

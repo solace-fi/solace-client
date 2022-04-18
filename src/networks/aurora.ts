@@ -3,7 +3,7 @@ import { NetworkConfig } from '../constants/types'
 import AuroraLogo from '../resources/svg/networks/aurora-logo.svg'
 import { hexValue } from 'ethers/lib/utils'
 import { KEY_ADDRS, SPECIAL_ADDRS } from '../constants/addresses/aurora'
-import { NEAR_ADDRESS, WETH9_ADDRESS } from '../constants/mappings/tokenAddressMapping'
+import { NEAR_TOKEN, WETH9_TOKEN } from '../constants/mappings/token'
 
 import solaceABI from '../constants/metadata/SOLACE.json'
 import xSolaceABI from '../constants/metadata/xSOLACE.json'
@@ -22,7 +22,7 @@ export const AuroraNetwork: NetworkConfig = {
   isTestnet: false,
   logo: AuroraLogo,
   supportedTxTypes: [0],
-  nativeCurrency: { mainnetReference: WETH9_ADDRESS[1], symbol: Unit.ETH, decimals: 18 },
+  nativeCurrency: { mainnetReference: WETH9_TOKEN.address[1], symbol: Unit.ETH, decimals: 18 },
   rpc: {
     httpsUrl: `https://mainnet.aurora.dev`,
     pollingInterval: 12_000,
@@ -63,7 +63,7 @@ export const AuroraNetwork: NetworkConfig = {
       noStakingV1: true,
     },
     specialFeatures: {
-      solaceBuyLink: `https://www.trisolaris.io/#/swap?inputCurrency=${NEAR_ADDRESS[chainId]}&outputCurrency=${KEY_ADDRS.SOLACE}`,
+      solaceBuyLink: `https://www.trisolaris.io/#/swap?inputCurrency=${NEAR_TOKEN.address[chainId]}&outputCurrency=${KEY_ADDRS.SOLACE}`,
       unwrapBridgedSolace: true,
       hardcodedGasPrice: 0.03,
     },

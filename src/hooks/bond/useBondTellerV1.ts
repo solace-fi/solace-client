@@ -1,11 +1,10 @@
 import { BigNumber } from 'ethers'
-import { useCallback, useEffect, useState, useMemo, useRef } from 'react'
+import { useEffect, useState, useMemo, useRef } from 'react'
 import { BondTellerDetails, TxResult, LocalTx } from '../../constants/types'
 import { useContracts } from '../../context/ContractsManager'
 import { getContract } from '../../utils'
 
 import { useWallet } from '../../context/WalletManager'
-import { FunctionGasLimits } from '../../constants/mappings/gasMapping'
 import { FunctionName, TransactionCondition } from '../../constants/enums'
 import { queryDecimals, queryName, querySymbol } from '../../utils/contract'
 import { useProvider } from '../../context/ProviderManager'
@@ -13,10 +12,10 @@ import { usePriceSdk } from '../api/usePrice'
 import { useNetwork } from '../../context/NetworkManager'
 import { floatUnits, truncateValue } from '../../utils/formatting'
 import { BondTokenV1 } from '../../constants/types'
-import { useReadToken } from '../contract/useToken'
 import { useGetFunctionGas } from '../provider/useGas'
 import { useCachedData } from '../../context/CachedDataManager'
 import { withBackoffRetries } from '../../utils/time'
+import { SOLACE_TOKEN, XSOLACE_V1_TOKEN } from '../../constants/mappings/token'
 
 export const useBondTellerV1 = (selectedBondDetail: BondTellerDetails | undefined) => {
   const { gasConfig } = useGetFunctionGas()
@@ -231,11 +230,6 @@ export const useBondTellerDetailsV1 = (
 }
 
 export const useUserBondDataV1 = () => {
-  const { keyContracts } = useContracts()
-  const { solace, xSolaceV1 } = useMemo(() => keyContracts, [keyContracts])
-  const readSolaceToken = useReadToken(solace)
-  const readXSolaceToken = useReadToken(xSolaceV1)
-
   const getUserBondDataV1 = async (selectedBondDetail: BondTellerDetails, account: string) => {
     const ownedTokenIds: BigNumber[] = await withBackoffRetries(async () =>
       selectedBondDetail.tellerData.teller.contract.listTokensOfOwner(account)
@@ -247,10 +241,10 @@ export const useUserBondDataV1 = () => {
     )
     const ownedBonds: BondTokenV1[] = ownedTokenIds.map((id, idx) => {
       const payoutToken: string =
-        ownedBondData[idx].payoutToken == readSolaceToken.address
-          ? readSolaceToken.symbol
-          : ownedBondData[idx].payoutToken == readXSolaceToken.address
-          ? readXSolaceToken.symbol
+        ownedBondData[idx].payoutToken == SOLACE_TOKEN.address
+          ? SOLACE_TOKEN.constants.symbol
+          : ownedBondData[idx].payoutToken == XSOLACE_V1_TOKEN.address
+          ? XSOLACE_V1_TOKEN.constants.symbol
           : ''
       return {
         id,

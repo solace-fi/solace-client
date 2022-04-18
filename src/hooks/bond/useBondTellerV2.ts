@@ -7,7 +7,7 @@ import { useCallback, useEffect, useState, useMemo, useRef } from 'react'
 import { getContract } from '../../utils'
 
 import { useWallet } from '../../context/WalletManager'
-import { FunctionGasLimits } from '../../constants/mappings/gasMapping'
+import { FunctionGasLimits } from '../../constants/mappings/gas'
 import { FunctionName, TransactionCondition } from '../../constants/enums'
 import { queryDecimals, queryName, querySymbol } from '../../utils/contract'
 import { useProvider } from '../../context/ProviderManager'
