@@ -137,11 +137,11 @@ export const useBondTellerDetailsV2 = (
       )
         return
       running.current = true
-      const solacePrice = tokenPriceMapping[networks[0].config.keyContracts.solace.addr.toLowerCase()]
+      const solacePrice = tokenPriceMapping['solace']
       try {
         const data: BondTellerDetails[] = await Promise.all(
           tellers
-            .filter((t) => t.version == 2)
+            .filter((t) => t.metadata.version == 2)
             .map(async (teller) => {
               const [principalAddr, bondPrice, vestingTermInSeconds, capacity, maxPayout] = await Promise.all([
                 withBackoffRetries(async () => teller.contract.principal()),
@@ -151,7 +151,12 @@ export const useBondTellerDetailsV2 = (
                 withBackoffRetries(async () => teller.contract.maxPayout()),
               ])
 
-              const principalContract = getContract(principalAddr, teller.principalAbi, library, account ?? undefined)
+              const principalContract = getContract(
+                principalAddr,
+                teller.metadata.principalAbi,
+                library,
+                account ?? undefined
+              )
 
               const [decimals, name, symbol] = await Promise.all([
                 queryDecimals(principalContract),
@@ -160,9 +165,10 @@ export const useBondTellerDetailsV2 = (
               ])
 
               let usdBondPrice = 0
-              const { getSdkTokenPrice } = getPriceSdkFunc(teller.sdk)
+              const { getSdkTokenPrice } = getPriceSdkFunc(teller.metadata.sdk)
 
-              const key = teller.mainnetAddr == '' ? teller.tokenId.toLowerCase() : teller.mainnetAddr.toLowerCase()
+              const key =
+                teller.metadata.mainnetAddr == '' ? teller.metadata.tokenId.toLowerCase() : symbol.toLowerCase()
               usdBondPrice = tokenPriceMapping[key] * floatUnits(bondPrice, decimals)
               if (usdBondPrice <= 0) {
                 const price = await getSdkTokenPrice(principalContract, activeNetwork, library)
@@ -173,7 +179,7 @@ export const useBondTellerDetailsV2 = (
 
               const d: BondTellerDetails = {
                 tellerData: {
-                  teller,
+                  teller: { contract: teller.contract, type: teller.type },
                   bondPrice,
                   usdBondPrice,
                   vestingTermInSeconds,
@@ -190,6 +196,7 @@ export const useBondTellerDetailsV2 = (
                     address: principalAddr,
                   },
                 },
+                metadata: teller.metadata,
               }
               return d
             })

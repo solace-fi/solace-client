@@ -11,6 +11,7 @@ import { useCachedData } from '../../context/CachedDataManager'
 import { useNetwork } from '../../context/NetworkManager'
 import { rangeFrom0 } from '../../utils/numeric'
 import { withBackoffRetries } from '../../utils/time'
+import { Risk, SolaceRiskBalance } from '@solace-fi/sdk-nightly'
 
 export const useFunctions = () => {
   const { keyContracts } = useContracts()
@@ -398,17 +399,18 @@ export const usePortfolio = (
 
   useEffect(() => {
     const getPortfolio = async () => {
+      const risk = new Risk()
       const useV2 =
         activeNetwork.config.keyContracts.solaceCoverProduct &&
         activeNetwork.config.keyContracts.solaceCoverProduct.additionalInfo == 'v2'
       if (!account || (useV2 && chains.length == 0) || chainsLoading) return
-      const balances = await getSolaceRiskBalances(account, useV2 ? chains : [1])
+      const balances: SolaceRiskBalance[] | undefined = await getSolaceRiskBalances(account, useV2 ? chains : [1])
       if (!balances) {
         console.log('balances do not exist from risk api')
         setLoading(false)
         return
       }
-      const scores = await getSolaceRiskScores(account, balances)
+      const scores: SolaceRiskScore | undefined = await getSolaceRiskScores(account, balances)
       if (scores) setScore(scores)
       setLoading(false)
     }

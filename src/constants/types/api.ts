@@ -1,25 +1,12 @@
+import { SolaceRiskScore as SolaceRiskScoreType } from '@solace-fi/sdk-nightly'
+
 export type SolaceRiskBalance = {
   network: string
   appId: string
   balanceUSD: number
 }
 
-export type SolaceRiskScore = {
-  address: string
-  address_rp: number
-  current_rate: number
-  timestamp: string
-  metadata: {
-    seriesName: string
-    version: string
-    dateCreated: string
-    provenance: string
-    generatedBy: string
-    sourceDataType: string
-    sourceDataVersion: string
-  }
-  protocols: SolaceRiskProtocol[]
-}
+export type SolaceRiskScore = SolaceRiskScoreType
 
 export type SolaceRiskProtocol = {
   appId: string

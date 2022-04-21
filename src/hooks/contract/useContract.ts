@@ -2,7 +2,13 @@ import { useWallet } from '../../context/WalletManager'
 import { useMemo } from 'react'
 import { getContract, isAddress } from '../../utils'
 import { Contract } from '@ethersproject/contracts'
-import { BondTellerContract, ContractSources, ProductContract, SupportedProduct } from '../../constants/types'
+import {
+  BondTellerContractData,
+  ContractSources,
+  ProductContract,
+  SupportedProduct,
+  TellerTokenMetadata,
+} from '../../constants/types'
 import { useNetwork } from '../../context/NetworkManager'
 
 export function useGetContract(source: ContractSources | undefined, hasSigner = true): Contract | null {
@@ -48,21 +54,23 @@ export function useGetProductContracts(): ProductContract[] {
   }, [library, account, activeNetwork])
 }
 
-export function useGetBondTellerContracts(): BondTellerContract[] {
+export function useGetBondTellerContracts(): (BondTellerContractData & { metadata: TellerTokenMetadata })[] {
   const { library, account } = useWallet()
   const { activeNetwork } = useNetwork()
 
   return useMemo(() => {
     const cache = activeNetwork.cache
     if (!library) return []
-    const bondTellerContracts: BondTellerContract[] = []
+    const bondTellerContracts: (BondTellerContractData & { metadata: TellerTokenMetadata })[] = []
     Object.keys(cache.tellerToTokenMapping).forEach((key) => {
       const mapping = cache.tellerToTokenMapping[key]
       const tellerAbi = mapping.tellerAbi
       const contract = getContract(key, tellerAbi, library, account ? account : undefined)
-      const cntct: BondTellerContract = {
+      const type = mapping.isBondTellerErc20 ? 'erc20' : mapping.name == 'ETH' ? 'eth' : 'matic'
+      const cntct: BondTellerContractData & { metadata: TellerTokenMetadata } = {
         contract,
-        ...mapping,
+        type,
+        metadata: mapping,
       }
       bondTellerContracts.push(cntct)
     })

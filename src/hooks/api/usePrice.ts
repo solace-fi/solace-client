@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { Token, Pair } from '@sushiswap/sdk'
+import { Token, Pair, Price } from '@sushiswap/sdk'
 
 import { useNetwork } from '../../context/NetworkManager'
 import { floatUnits } from '../../utils/formatting'
@@ -8,11 +8,7 @@ import { Contract } from '@ethersproject/contracts'
 import { USDC_TOKEN, WETH9_TOKEN } from '../../constants/mappings/token'
 import { ZERO } from '../../constants'
 import ierc20Json from '../../constants/metadata/IERC20Metadata.json'
-import {
-  fetchCoingeckoTokenPriceById,
-  fetchCoingeckoTokenPricesByAddr,
-  getCoingeckoTokenPriceByAddr,
-} from '../../utils/api'
+import { getCoingeckoTokenPriceByAddr } from '../../utils/api'
 import { withBackoffRetries } from '../../utils/time'
 import sushiswapLpAbi from '../../constants/metadata/ISushiswapMetadataAlt.json'
 import { Unit } from '../../constants/enums'
@@ -20,6 +16,7 @@ import { NetworkConfig, TokenToPriceMapping } from '../../constants/types'
 import { useProvider } from '../../context/ProviderManager'
 import { BigNumber } from 'ethers'
 import { JsonRpcProvider } from '@ethersproject/providers'
+import { Price as PriceApi } from '@solace-fi/sdk-nightly'
 
 export const usePriceSdk = () => {
   const { getPriceFromSushiswap, getPriceFromSushiswapLp } = useGetPriceFromSushiSwap()
@@ -145,86 +142,18 @@ export const useGetPriceFromSushiSwap = () => {
 }
 
 export const useGetCrossTokenPricesFromCoingecko = () => {
-  const [tokenPriceMapping, setPriceMapping] = useState<TokenToPriceMapping>({})
+  const [tokenPriceMapping, setTokenPriceMapping] = useState<TokenToPriceMapping>({})
   const gettingPrices = useRef(false)
-  const { networks } = useNetwork()
   const { latestBlock } = useProvider()
-
-  const getPricesByAddress = async (addrs: string[]): Promise<TokenToPriceMapping> => {
-    const uniqueAddrs = addrs.filter((v, i, a) => a.indexOf(v) === i)
-    const prices = await withBackoffRetries(async () => fetchCoingeckoTokenPricesByAddr(uniqueAddrs, 'usd', 'ethereum'))
-    const array: { addr: string; price: number }[] = []
-    uniqueAddrs.forEach((uniqueAddr) => {
-      if (!prices[uniqueAddr.toLowerCase()]) {
-        array.push({ addr: uniqueAddr.toLowerCase(), price: 0 })
-      } else {
-        array.push({ addr: uniqueAddr.toLowerCase(), price: prices[uniqueAddr.toLowerCase()].usd })
-      }
-    })
-    const hashmap: TokenToPriceMapping = array.reduce(
-      (prices: any, data: { addr: string; price: number }) => ({
-        ...prices,
-        [data.addr.toLowerCase()]: data.price,
-      }),
-      {}
-    )
-    return hashmap
-  }
-
-  const getPricesById = async (ids: string[]) => {
-    const uniqueIds = ids.filter((v, i, a) => a.indexOf(v) === i)
-    const prices = await withBackoffRetries(async () => fetchCoingeckoTokenPriceById(uniqueIds, 'usd'))
-    const array: { id: string; price: number }[] = []
-    uniqueIds.forEach((uniqueId) => {
-      if (!prices.find((p: any) => (p.id = uniqueId.toLowerCase()))) {
-        array.push({ id: uniqueId.toLowerCase(), price: 0 })
-      } else {
-        array.push({
-          id: uniqueId.toLowerCase(),
-          price: prices.find((p: any) => (p.id = uniqueId.toLowerCase())).current_price,
-        })
-      }
-    })
-    const hashmap: TokenToPriceMapping = array.reduce(
-      (prices: any, data: { id: string; price: number }) => ({
-        ...prices,
-        [data.id.toLowerCase()]: data.price,
-      }),
-      {}
-    )
-    return hashmap
-  }
 
   useEffect(() => {
     const getPrices = async () => {
       if (gettingPrices.current) return
       gettingPrices.current = true
-      const solaceAddr = networks[0].config.keyContracts.solace.addr
+      const price = new PriceApi()
+      const consolidatedPriceMapping = await price.getCoinGeckoTokenPrices()
 
-      const nativeAddrs = networks.map((n) => n.nativeCurrency.mainnetReference)
-      const tokenAddrs: string[] = []
-      const tokenids: string[] = []
-
-      for (let i = 0; i < networks.length; i++) {
-        const n = networks[i]
-        Object.keys(n.cache.tellerToTokenMapping).forEach((teller) => {
-          const tellerToTokenMapping = n.cache.tellerToTokenMapping
-          const addr = tellerToTokenMapping[teller].mainnetAddr
-          if (addr != '') {
-            tokenAddrs.push(addr)
-          } else {
-            tokenids.push(tellerToTokenMapping[teller].tokenId)
-          }
-        })
-      }
-
-      const mainnetAddrs = [...nativeAddrs, ...tokenAddrs]
-      mainnetAddrs.push(solaceAddr)
-
-      const priceMapByAddress = mainnetAddrs.length > 0 ? await getPricesByAddress(mainnetAddrs) : {}
-      const priceMapById = tokenids.length > 0 ? await getPricesById(tokenids) : {}
-      const consolidatedPriceMapping = { ...priceMapByAddress, ...priceMapById }
-      setPriceMapping(consolidatedPriceMapping)
+      setTokenPriceMapping(consolidatedPriceMapping)
       gettingPrices.current = false
     }
     getPrices()
