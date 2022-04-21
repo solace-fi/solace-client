@@ -8,9 +8,7 @@ import {
 import { UserRejectedRequestError as UserRejectedRequestErrorWalletConnect } from '@web3-react/walletconnect-connector'
 import { WalletConnector, SUPPORTED_WALLETS } from '../wallet'
 import { AbstractConnector } from '@web3-react/abstract-connector'
-import { Web3ReactProvider } from '@web3-react/core'
 import { JsonRpcProvider } from '@ethersproject/providers'
-import getLibrary from '../utils/getLibrary'
 import { Error as AppError } from '../constants/enums'
 import { ErrorData } from '../constants/types'
 import { WalletModal } from '../components/organisms/wallet/WalletModal'
@@ -262,11 +260,7 @@ export function useWallet(): ContextWallet {
 }
 
 const WalletManager: React.FC = (props) => {
-  return (
-    <Web3ReactProvider getLibrary={getLibrary}>
-      <WalletProvider>{props.children}</WalletProvider>
-    </Web3ReactProvider>
-  )
+  return <WalletProvider>{props.children}</WalletProvider>
 }
 
 export default WalletManager

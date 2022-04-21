@@ -2,7 +2,6 @@ import React, { createContext, useCallback, useContext, useMemo } from 'react'
 import { useLocalStorage } from 'react-use-storage'
 import { NetworkConfig } from '../constants/types'
 import { AbstractConnector } from '@web3-react/abstract-connector'
-import { MetamaskConnector } from '../wallet/wallet-connectors/MetaMask'
 
 /* networks */
 import { MainNetwork } from '../networks/mainnet'
@@ -53,7 +52,6 @@ const NetworksProvider: React.FC = (props) => {
   const [lastNetwork, setLastNetwork] = useLocalStorage<string | undefined>('solace_net')
   const activeNetwork = useMemo(() => {
     let network: NetworkConfig | undefined
-
     try {
       if (lastNetwork) {
         const networkName = lastNetwork?.toLowerCase()
@@ -72,9 +70,7 @@ const NetworksProvider: React.FC = (props) => {
     return networks.find((network) => network.chainId == chainId)
   }, [])
 
-  const changeNetwork = useCallback((networkName: string, connector: AbstractConnector | undefined):
-    | NetworkConfig
-    | undefined => {
+  const changeNetwork = useCallback((networkName: string, connector?: AbstractConnector): NetworkConfig | undefined => {
     const network = findNetworkByName(networkName)
 
     if (network) {
