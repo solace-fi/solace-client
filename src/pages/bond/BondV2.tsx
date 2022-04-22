@@ -62,7 +62,7 @@ export const BondV2 = () => {
     activeNetwork.config.restrictedFeatures.noBondingV2,
   ])
 
-  const btd = useBondTellerDetailsV2(true)
+  const btd = useBondTellerDetailsV2()
 
   const currentTellerDetails = useMemo(() => btd.tellerDetails, [btd.tellerDetails])
 

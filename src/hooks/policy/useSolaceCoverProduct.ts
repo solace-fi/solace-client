@@ -5,7 +5,6 @@ import { FunctionName, TransactionCondition } from '../../constants/enums'
 import { LocalTx, NetworkConfig, SolaceRiskScore } from '../../constants/types'
 import { useContracts } from '../../context/ContractsManager'
 import { useGetFunctionGas } from '../provider/useGas'
-import { getSolaceRiskBalances, getSolaceRiskScores } from '../../utils/api'
 import { useProvider } from '../../context/ProviderManager'
 import { useCachedData } from '../../context/CachedDataManager'
 import { useNetwork } from '../../context/NetworkManager'
@@ -404,13 +403,13 @@ export const usePortfolio = (
         activeNetwork.config.keyContracts.solaceCoverProduct &&
         activeNetwork.config.keyContracts.solaceCoverProduct.additionalInfo == 'v2'
       if (!account || (useV2 && chains.length == 0) || chainsLoading) return
-      const balances: SolaceRiskBalance[] | undefined = await getSolaceRiskBalances(account, useV2 ? chains : [1])
+      const balances: SolaceRiskBalance[] | undefined = await risk.getSolaceRiskBalances(account, useV2 ? chains : [1])
       if (!balances) {
         console.log('balances do not exist from risk api')
         setLoading(false)
         return
       }
-      const scores: SolaceRiskScore | undefined = await getSolaceRiskScores(account, balances)
+      const scores: SolaceRiskScore | undefined = await risk.getSolaceRiskScores(account, balances)
       if (scores) setScore(scores)
       setLoading(false)
     }

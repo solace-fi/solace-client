@@ -8,8 +8,6 @@ import { LocalTx, LockData, UserLocksData, UserLocksInfo } from '../../constants
 import { getPermitErc20Signature } from '../../utils/signature'
 import { DEADLINE, ZERO } from '../../constants'
 import { FunctionName, TransactionCondition } from '../../constants/enums'
-import { useProvider } from '../../context/ProviderManager'
-import { rangeFrom0 } from '../../utils/numeric'
 import { useGetFunctionGas } from '../provider/useGas'
 import { withBackoffRetries } from '../../utils/time'
 import { SOLACE_TOKEN } from '../../constants/mappings/token'
@@ -20,7 +18,6 @@ export const useXSLocker = () => {
   const { xsLocker, solace } = useMemo(() => keyContracts, [keyContracts])
   const { library } = useWallet()
   const { chainId } = useNetwork()
-  const { latestBlock } = useProvider()
   const { gasConfig } = useGetFunctionGas()
 
   const getLock = async (xsLockID: BigNumber) => {
@@ -162,34 +159,9 @@ export const useXSLocker = () => {
   }
 
   const getUserLockerBalances = async (account: string) => {
-    if (!latestBlock || !xsLocker) return { stakedBalance: '0', lockedBalance: '0', unlockedBalance: '0' }
-    const timestamp: number = latestBlock.timestamp
-    let stakedBalance = ZERO // staked = locked + unlocked
-    let lockedBalance = ZERO
-    let unlockedBalance = ZERO
-    const numLocks = await withBackoffRetries(async () => xsLocker.balanceOf(account))
-    const indices = rangeFrom0(numLocks.toNumber())
-    const xsLockIDs = await Promise.all(
-      indices.map(async (index) => {
-        return await withBackoffRetries(async () => xsLocker.tokenOfOwnerByIndex(account, index))
-      })
-    )
-    const locks = await Promise.all(
-      xsLockIDs.map(async (xsLockID) => {
-        return await withBackoffRetries(async () => xsLocker.locks(xsLockID))
-      })
-    )
-    locks.forEach((lock) => {
-      stakedBalance = stakedBalance.add(lock.amount)
-      if (lock.end.gt(timestamp)) lockedBalance = lockedBalance.add(lock.amount)
-      else unlockedBalance = unlockedBalance.add(lock.amount)
-    })
-
-    return {
-      stakedBalance: formatUnits(stakedBalance, SOLACE_TOKEN.constants.decimals),
-      lockedBalance: formatUnits(lockedBalance, SOLACE_TOKEN.constants.decimals),
-      unlockedBalance: formatUnits(unlockedBalance, SOLACE_TOKEN.constants.decimals),
-    }
+    const lock = new Lock(chainId, library)
+    const userLockerBalances = await lock.getUserLockerBalances(account)
+    return userLockerBalances
   }
 
   return {
@@ -207,10 +179,11 @@ export const useXSLocker = () => {
 
 export const useUserLockData = () => {
   const { chainId } = useNetwork()
+  const { library } = useWallet()
 
   const getUserLocks = async (user: string): Promise<UserLocksData> => {
-    const lock = new Lock()
-    const userLocks = await lock.getUserLocks(chainId, user)
+    const lock = new Lock(chainId, library)
+    const userLocks = await lock.getUserLocks(user)
     return userLocks
   }
 

@@ -290,7 +290,7 @@ export const BondModalV2: React.FC<BondModalV2Props> = ({ closeModal, isOpen, se
   useEffect(() => {
     const getUserBonds = async () => {
       if (!selectedBondDetail?.principalData || !account || !isOpen) return
-      const ownedBonds = await getUserBondDataV2(selectedBondDetail, account)
+      const ownedBonds = await getUserBondDataV2(selectedBondDetail.tellerData.teller.contract.address, account)
       setOwnedBondTokens(ownedBonds.sort((a, b) => a.id.toNumber() - b.id.toNumber()))
       const principalBal = await queryBalance(selectedBondDetail.principalData.principal, account)
       setPrincipalBalance(formatUnits(principalBal, selectedBondDetail.principalData.principalProps.decimals))
