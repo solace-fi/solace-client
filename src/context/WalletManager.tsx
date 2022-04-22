@@ -120,7 +120,7 @@ const WalletProvider: React.FC = (props) => {
 
       connectingRef.current = walletConnector
       setConnecting(walletConnector)
-      const connector = walletConnector.getConnector(activeNetwork, args)
+      const connector = walletConnector.getConnector()
 
       // when connecting via metamask, if app not initialized yet,
       // set wallet network to app network before activation

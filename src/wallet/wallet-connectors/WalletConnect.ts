@@ -11,7 +11,7 @@ export const WalletConnectConnector = {
   name: 'WalletConnect',
   logo: WalletConnectLogo,
   supportedTxTypes: [0],
-  getConnector(network: NetworkConfig): AbstractConnector {
+  getConnector(): AbstractConnector {
     return new WalletConnect_Connector({
       supportedChainIds: networks.map((network) => network.chainId),
       rpc: networks.reduce(

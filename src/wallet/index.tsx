@@ -15,7 +15,7 @@ export interface WalletConnector {
   id: string
   logo: string
   supportedTxTypes: number[]
-  getConnector(network: NetworkConfig, args?: Record<string, any>): AbstractConnector
+  getConnector(): any
   onConnect?(connector: AbstractConnector, args?: Record<string, any>): void
   onDisconnect?(connector?: AbstractConnector): void
   onError(error: Error): Error | undefined
@@ -25,10 +25,15 @@ export const SUPPORTED_WALLETS: WalletConnector[] = [
   MetaMaskConnector,
   WalletConnectConnector,
   WalletLinkConnector,
-  FortmaticConnector,
-  AuthereumConnector,
-  TorusConnector,
-  PortisConnector,
-  TrezorConnector,
-  LedgerConnector,
+  // FortmaticConnector,
+  // AuthereumConnector,
+  // TorusConnector,
+  // PortisConnector,
+  // TrezorConnector,
+  // LedgerConnector,
 ]
+
+export const SUPPORTED_WALLETS_MAPPING = SUPPORTED_WALLETS.reduce((wallets: any, connector: WalletConnector) => ({
+  ...wallets,
+  [connector.id]: connector,
+}))

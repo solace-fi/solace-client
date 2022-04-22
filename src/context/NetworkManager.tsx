@@ -28,6 +28,11 @@ export const networks: NetworkConfig[] = [
   AuroraTestnetNetwork,
 ]
 
+export const networksMapping = networks.reduce((configs: any, networkConfig: NetworkConfig) => ({
+  ...configs,
+  [networkConfig.chainId]: networkConfig,
+}))
+
 type NetworkContext = {
   activeNetwork: NetworkConfig
   chainId: number

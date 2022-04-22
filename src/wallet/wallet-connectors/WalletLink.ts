@@ -10,18 +10,11 @@ export const WalletLinkConnector = {
   name: 'Coinbase Wallet',
   logo: CoinbaseWalletLogo,
   supportedTxTypes: [0],
-  getConnector(network: NetworkConfig): AbstractConnector {
+  getConnector(): AbstractConnector {
     return new WalletLink_Connector({
       supportedChainIds: networks.map((network) => network.chainId),
-      url: networks.reduce(
-        (rpcUrls: any, network: NetworkConfig) => ({
-          ...rpcUrls,
-          [network.chainId]: network.rpc.httpsUrl,
-        }),
-        {}
-      ),
+      url: networks[0].rpc.httpsUrl,
       appName: 'solace-coinbase',
-      appLogoUrl: '',
     })
   },
   onDisconnect(connector?: WalletLink_Connector): void {
