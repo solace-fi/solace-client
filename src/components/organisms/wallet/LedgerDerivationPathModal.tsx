@@ -70,11 +70,12 @@ export const LedgerDerivationPathModal: React.FC<LedgerDerivationPathModalProps>
 
   const handleConnect = async () => {
     handleClose()
-    connect(LedgerConnector, {
-      baseDerivationPath: derivationPath.value,
-    })
-      .then(onSuccess)
-      .catch(Error)
+    // TODO: uncomment this or delete when time comes
+    // connect(LedgerConnector, {
+    //   baseDerivationPath: derivationPath.value,
+    // })
+    //   .then(onSuccess)
+    //   .catch(Error)
   }
 
   const onSuccess = () => {

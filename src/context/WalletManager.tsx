@@ -15,6 +15,8 @@ import { WalletModal } from '../components/organisms/wallet/WalletModal'
 import { useNetwork } from './NetworkManager'
 import { MetamaskConnector } from '../wallet/wallet-connectors/MetaMask'
 import { useGeneral } from './GeneralManager'
+import { useWalletModal } from '../hooks/wallet/useWalletModal'
+import { useENS } from '../hooks/wallet/useENS'
 
 /*
 
@@ -72,14 +74,14 @@ const WalletProvider: React.FC = (props) => {
   const [initialized, setInitialized] = useState<boolean>(false)
   const connectingRef = useRef<WalletConnector | undefined>(connecting)
   connectingRef.current = connecting
-  const [walletModal, setWalletModal] = useState<boolean>(false)
   const { addErrors, removeErrors } = useGeneral()
-  const [name, setName] = useState<string | undefined>(undefined)
+  const name = useENS()
   const ethProvider = useMemo(() => new JsonRpcProvider(activeNetwork.rpc.httpsUrl), [activeNetwork])
   const accountRef = useRef(web3React.account)
   const initializedRef = useRef(initialized)
   accountRef.current = web3React.account
   initializedRef.current = initialized
+  const { showWalletModal, openModal, closeModal } = useWalletModal(initializedRef.current)
 
   const date = Date.now()
   const ContextErrors = [
@@ -89,16 +91,6 @@ const WalletProvider: React.FC = (props) => {
     AppError.WALLET_NETWORK_UNSYNC,
     AppError.UNKNOWN_WALLET_ERROR,
   ]
-
-  const openModal = useCallback(() => {
-    document.body.style.overflowY = 'hidden'
-    setWalletModal(true)
-  }, [])
-
-  const closeModal = useCallback(() => {
-    document.body.style.overflowY = 'scroll'
-    setWalletModal(false)
-  }, [])
 
   const changeWallet = useCallback((walletConnector: WalletConnector) => {
     // there were cases where changing wallets without changing the network does not pull data correctly in that network
@@ -200,34 +192,6 @@ const WalletProvider: React.FC = (props) => {
     })()
   }, [web3React])
 
-  useEffect(() => {
-    if (!web3React.account || !web3React.library) return
-    const checkForENS = async () => {
-      const network = await web3React.library.getNetwork()
-      if (!network.ensAddress) return
-      const name = await web3React.library.lookupAddress(web3React.account)
-      if (!name) return
-      const address = await web3React.library.resolveName(name)
-      if (!address) return
-      if (address == web3React.account) setName(name)
-    }
-    checkForENS()
-  }, [web3React.account, web3React.library])
-
-  useEffect(() => {
-    setTimeout(() => {
-      const params = new URLSearchParams(window.location.search)
-      const prompt = params.get('connect-wallet')
-      if (prompt) {
-        history.pushState(null, '', location.href.split('?')[0])
-        if (!accountRef.current && initializedRef.current) {
-          setWalletModal(true)
-          console.log('connect wallet', prompt)
-        }
-      }
-    }, 1500)
-  }, [setWalletModal])
-
   const value = useMemo<ContextWallet>(
     () => ({
       initialized,
@@ -248,7 +212,7 @@ const WalletProvider: React.FC = (props) => {
 
   return (
     <WalletContext.Provider value={value}>
-      <WalletModal closeModal={closeModal} isOpen={walletModal} />
+      <WalletModal closeModal={closeModal} isOpen={showWalletModal} />
       {props.children}
     </WalletContext.Provider>
   )
