@@ -31,8 +31,6 @@ the connection will be automatic.
 
 */
 
-export const WalletConnectors = SUPPORTED_WALLETS
-
 export type ContextWallet = {
   initialized: boolean
   connecting?: WalletConnector
@@ -184,7 +182,7 @@ const WalletProvider: React.FC = (props) => {
     // If the user has a local provider already
     ;(async () => {
       if (selectedProvider) {
-        const walletConnector = WalletConnectors.find((c) => c.id === selectedProvider)
+        const walletConnector = SUPPORTED_WALLETS.find((c) => c.id === selectedProvider)
         if (walletConnector) await connect(walletConnector).then(() => setInitialized(true))
       } else {
         setInitialized(true)

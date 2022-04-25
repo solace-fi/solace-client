@@ -61,3 +61,13 @@ export const MetaMaskConnector = {
     return undefined
   },
 }
+
+export const MetaMaskConnector2 = {
+  id: 'metamask',
+  name: 'MetaMask',
+  logo: MetamaskLogo,
+  supportedTxTypes: [0, 2],
+  connector: new InjectedConnector({
+    supportedChainIds: networks.map((network) => network.chainId),
+  }),
+}

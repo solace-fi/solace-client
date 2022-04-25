@@ -1,35 +1,24 @@
 import { useWeb3React } from '@web3-react/core'
+import { InjectedConnector } from '@web3-react/injected-connector'
 import { useEffect, useState } from 'react'
-import { WalletConnectors } from '../../context/WalletManager'
-import { WalletConnector } from '../../wallet'
-import { MetaMaskConnector, MetamaskConnector } from '../../wallet/wallet-connectors/MetaMask'
+import { SUPPORTED_WALLETS2 } from '../../wallet'
+import { MetaMaskConnector2 } from '../../wallet/wallet-connectors/MetaMask'
 import { useWindowDimensions } from '../internal/useWindowDimensions'
 
 // try to eager connect on boot if the user has a selectedProvider or a browser wallet available already
-export const useEagerConnect = (selectedProvider?: string): { tried: boolean; activeConnector?: WalletConnector } => {
-  const { activate, active, connector } = useWeb3React()
+export const useEagerConnect = (selectedProvider?: string): boolean => {
+  const { activate, active } = useWeb3React()
   const { isMobile } = useWindowDimensions()
 
   const [triedLocallyStored, setTriedLocallyStored] = useState(false)
   const [tried, setTried] = useState(false)
 
-  const [activeConnector, setActiveConnector] = useState<WalletConnector | undefined>(undefined)
-
-  // if connector has been changed and becomes undefined, set active connector to undefined
-  useEffect(() => {
-    if (!connector) {
-      setActiveConnector(undefined)
-    }
-  }, [connector])
-
   // If there is a locally stored selectedProvider and it is not an injected, we'll try to connect to that first.
   useEffect(() => {
     if (selectedProvider) {
-      const walletConnector = WalletConnectors.find((c) => c.id === selectedProvider)
-      if (walletConnector && !(walletConnector.getConnector() instanceof MetamaskConnector)) {
-        activate(walletConnector.getConnector())
-          .then(() => setActiveConnector(walletConnector))
-          .catch(() => setTriedLocallyStored(true))
+      const walletConnector = SUPPORTED_WALLETS2.find((c) => c.id === selectedProvider)
+      if (walletConnector && !(walletConnector.connector instanceof InjectedConnector)) {
+        activate(walletConnector.connector).catch(() => setTriedLocallyStored(true))
       }
     } else {
       setTriedLocallyStored(true)
@@ -39,19 +28,15 @@ export const useEagerConnect = (selectedProvider?: string): { tried: boolean; ac
   // Try injected connector if the web3 is still not active & already tried using locally stored provider
   useEffect(() => {
     if (!active && triedLocallyStored) {
-      const injected = MetaMaskConnector.getConnector()
+      const injected = MetaMaskConnector2.connector
       injected.isAuthorized().then((isAuthorized) => {
         if (isAuthorized) {
-          activate(injected)
-            .then(() => setActiveConnector(MetaMaskConnector))
-            .catch(() => setTried(true))
+          activate(injected).catch(() => setTried(true))
         } else {
           if (isMobile && (window as any).ethereum) {
-            activate(injected, undefined, true)
-              .then(() => setActiveConnector(MetaMaskConnector))
-              .catch(() => {
-                setTried(true)
-              })
+            activate(injected, undefined, true).catch(() => {
+              setTried(true)
+            })
           } else {
             setTried(true)
           }
@@ -68,7 +53,7 @@ export const useEagerConnect = (selectedProvider?: string): { tried: boolean; ac
   }, [active])
 
   // tried is a flag for allowing inactiveListener to be called, isInjected indicates if connector is an injected, not an injected, or undefined
-  return { tried, activeConnector }
+  return tried
 }
 
 // in case eager connect did not connect the user's wallet, react to logins on a potential injected provider
@@ -79,7 +64,7 @@ export const useInactiveListener = (suppress = false): void => {
 
     // if web3 is inactive
     if (!suppress && !active && !error && ethereum && ethereum.on) {
-      const injected = MetaMaskConnector.getConnector()
+      const injected = MetaMaskConnector2.connector
 
       const handleConnect = () => {
         console.log("Handling 'connect' event")

@@ -1,8 +1,8 @@
 import { AbstractConnector } from '@web3-react/abstract-connector'
 import { NetworkConfig } from '../constants/types'
-import { MetaMaskConnector } from './wallet-connectors/MetaMask'
-import { WalletConnectConnector } from './wallet-connectors/WalletConnect'
-import { WalletLinkConnector } from './wallet-connectors/WalletLink'
+import { MetaMaskConnector, MetaMaskConnector2 } from './wallet-connectors/MetaMask'
+import { WalletConnectConnector, WalletConnectConnector2 } from './wallet-connectors/WalletConnect'
+import { WalletLinkConnector, WalletLinkConnector2 } from './wallet-connectors/WalletLink'
 import { FortmaticConnector } from './wallet-connectors/Fortmatic'
 import { AuthereumConnector } from './wallet-connectors/Authereum'
 import { TorusConnector } from './wallet-connectors/Torus'
@@ -15,10 +15,18 @@ export interface WalletConnector {
   id: string
   logo: string
   supportedTxTypes: number[]
-  getConnector(): any
+  getConnector(): AbstractConnector
   onConnect?(connector: AbstractConnector, args?: Record<string, any>): void
   onDisconnect?(connector?: AbstractConnector): void
   onError(error: Error): Error | undefined
+}
+
+export interface WalletConnector2 {
+  name: string
+  id: string
+  logo: string
+  supportedTxTypes: number[]
+  connector: AbstractConnector
 }
 
 export const SUPPORTED_WALLETS: WalletConnector[] = [
@@ -37,3 +45,9 @@ export const SUPPORTED_WALLETS_MAPPING = SUPPORTED_WALLETS.reduce((wallets: any,
   ...wallets,
   [connector.id]: connector,
 }))
+
+export const SUPPORTED_WALLETS2: WalletConnector2[] = [
+  MetaMaskConnector2,
+  WalletConnectConnector2,
+  WalletLinkConnector2,
+]

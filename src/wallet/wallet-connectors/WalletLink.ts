@@ -31,3 +31,15 @@ export const WalletLinkConnector = {
     return error
   },
 }
+
+export const WalletLinkConnector2 = {
+  id: 'coinbase',
+  name: 'Coinbase Wallet',
+  logo: CoinbaseWalletLogo,
+  supportedTxTypes: [0],
+  connector: new WalletLink_Connector({
+    supportedChainIds: networks.map((network) => network.chainId),
+    url: networks[0].rpc.httpsUrl,
+    appName: 'solace-coinbase',
+  }),
+}

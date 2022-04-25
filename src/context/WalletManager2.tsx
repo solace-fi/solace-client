@@ -4,9 +4,9 @@ import {
   NoEthereumProviderError,
   UserRejectedRequestError as UserRejectedRequestErrorInjected,
 } from '@web3-react/injected-connector'
-import { createContext, useCallback, useContext, useMemo, useState } from 'react'
+import { createContext, useCallback, useContext, useMemo } from 'react'
 import { useLocalStorage } from 'react-use-storage'
-import { SUPPORTED_WALLETS, WalletConnector } from '../wallet'
+import { SUPPORTED_WALLETS2, WalletConnector } from '../wallet'
 import { Error as AppError } from '../constants/enums'
 import { UserRejectedRequestError as UserRejectedRequestErrorWalletConnect } from '@web3-react/walletconnect-connector'
 import { ErrorData } from '../constants/types'
@@ -17,7 +17,7 @@ import { useGeneral } from './GeneralManager'
 import { WalletModal } from '../components/organisms/wallet/WalletModal'
 import { useWalletModal } from '../hooks/wallet/useWalletModal'
 
-export const WalletConnectors = SUPPORTED_WALLETS
+export const WalletConnectors = SUPPORTED_WALLETS2
 
 type WalletContextType = {
   activeConnector?: WalletConnector
@@ -50,7 +50,7 @@ const WalletManager: React.FC = (props) => {
     'sol_wallet_0'
   )
 
-  const { tried: triedEager, activeConnector } = useEagerConnect(selectedProvider)
+  const triedEager = useEagerConnect(selectedProvider)
   const triedEagerRef = useRef(triedEager)
   triedEagerRef.current = triedEager
 
@@ -76,6 +76,7 @@ const WalletManager: React.FC = (props) => {
 
       function onError(error: Error) {
         const date = Date.now()
+
         const walletErrors: ErrorData[] = []
         if (error instanceof NoEthereumProviderError) {
           walletErrors.push({ type: AppError.NO_PROVIDER, metadata: 'n/a', uniqueId: `${AppError.NO_PROVIDER}` })
@@ -104,7 +105,6 @@ const WalletManager: React.FC = (props) => {
 
   const value = useMemo<WalletContextType>(
     () => ({
-      activeConnector,
       initialized: triedEagerRef.current,
       connect,
       disconnect,
@@ -119,6 +119,10 @@ const WalletManager: React.FC = (props) => {
       {props.children}
     </WalletContext.Provider>
   )
+}
+
+export function useWallet2(): WalletContextType {
+  return useContext(WalletContext)
 }
 
 export default WalletManager
