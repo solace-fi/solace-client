@@ -29,8 +29,9 @@ export const useEagerConnect = (
 
   // Try injected connector if the web3 is still not active & already tried using locally stored provider
   useEffect(() => {
-    if (!active && triedLocallyStored && (window as any).ethereum)
+    if (!active && triedLocallyStored && (window as any).ethereum) {
       connect(MetaMaskConnector).catch(() => setTried(true))
+    }
   }, [connect, active, isMobile, triedLocallyStored])
 
   // wait until we get confirmation of a connection to flip the flag
@@ -49,7 +50,7 @@ export const useInactiveListener = (
   suppress = false,
   connect: (walletConnector: WalletConnector) => Promise<void>
 ): void => {
-  const { active, error, activate } = useWeb3React()
+  const { active, error } = useWeb3React()
   useEffect(() => {
     const ethereum = (window as any).ethereum
 
@@ -96,5 +97,5 @@ export const useInactiveListener = (
     }
 
     return undefined
-  }, [active, error, suppress, activate])
+  }, [active, error, suppress, connect])
 }

@@ -29,7 +29,7 @@ export const useWalletHandler = (
   disconnect: () => void
 } => {
   const { addErrors, removeErrors } = useGeneral()
-  const { connector, activate } = useWeb3React()
+  const { connector, activate, deactivate } = useWeb3React()
 
   const connect = useCallback(
     async (walletConnector: WalletConnector) => {
@@ -71,7 +71,7 @@ export const useWalletHandler = (
   )
 
   const disconnect = useCallback(() => {
-    ;(connector as any).close()
+    deactivate()
     removeSelectedProvider()
   }, [removeSelectedProvider, connector])
 
