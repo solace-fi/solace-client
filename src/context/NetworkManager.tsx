@@ -79,19 +79,11 @@ const NetworkManager: React.FC = (props) => {
           // 4902 is the error code for attempting to switch to an unrecognized chainId
           if (error.code === 4902) {
             const netConfig = findNetworkByChainId(targetChain)
-            if (!netConfig) return
+            if (!netConfig || !netConfig.metamaskChain) return
 
             await library.provider.request({
               method: 'wallet_addEthereumChain',
-              params: [
-                {
-                  chainId: formattedChainId,
-                  chainName: netConfig.name,
-                  rpcUrls: netConfig.rpc.httpsUrl,
-                  nativeCurrency: netConfig.metamaskChain?.nativeCurrency,
-                  blockExplorerUrls: [netConfig.explorer.url],
-                },
-              ],
+              params: [{ ...netConfig.metamaskChain }],
             })
             // metamask (only known implementer) automatically switches after a network is added
             // the second call is done here because that behavior is not a part of the spec and cannot be relied upon in the future

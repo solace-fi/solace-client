@@ -92,7 +92,7 @@ export const MumbaiNetwork: NetworkConfig = {
     chainId: hexValue(chainId),
     chainName: 'Mumbai Network',
     nativeCurrency: { name: 'Matic', symbol: Unit.MATIC, decimals: 18 },
-    rpcUrls: ['https://polygon-mumbai.g.alchemy.com'],
+    rpcUrls: ['https://rpc-mumbai.matic.today'],
     blockExplorerUrls: ['https://mumbai.polygonscan.com/'],
   },
   walletConfig: {
