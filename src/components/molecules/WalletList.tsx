@@ -6,6 +6,7 @@ import { Text } from '../atoms/Typography'
 import { ModalCell } from '../atoms/Modal'
 import { Card, CardContainer } from '../atoms/Card'
 import { LedgerDerivationPathModal } from '../organisms/wallet/LedgerDerivationPathModal'
+import { useWeb3React } from '@web3-react/core'
 
 type ConnectWalletModalState = {
   showLedgerModal: boolean
@@ -16,26 +17,30 @@ const InitialState: ConnectWalletModalState = {
 }
 
 export const WalletList = () => {
-  const { changeWallet, activeWalletConnector } = useWallet()
+  const { connector } = useWeb3React()
+  const { connect } = useWallet()
   const [state, setState] = useState<ConnectWalletModalState>(InitialState)
 
-  const connectWallet = useCallback(async (id: string) => {
-    const foundWalletConnector = SUPPORTED_WALLETS[SUPPORTED_WALLETS.findIndex((wallet) => wallet.id === id)]
+  const connectWallet = useCallback(
+    async (id: string) => {
+      const foundWalletConnector = SUPPORTED_WALLETS[SUPPORTED_WALLETS.findIndex((wallet) => wallet.id === id)]
 
-    if (foundWalletConnector.id === 'ledger') {
-      setState({
-        showLedgerModal: true,
-      })
-      return
-    }
+      if (foundWalletConnector.id === 'ledger') {
+        setState({
+          showLedgerModal: true,
+        })
+        return
+      }
 
-    await changeWallet(foundWalletConnector)
-  }, [])
+      await connect(foundWalletConnector)
+    },
+    [connect]
+  )
 
   const isMetamask = (window as any)?.ethereum?.isMetaMask
   return (
     <>
-      <CardContainer cardsPerRow={2} style={{ margin: 'auto' }}>
+      <CardContainer cardsPerRow={1} style={{ margin: 'auto' }}>
         <Card
           canHover
           pt={5}
@@ -43,8 +48,8 @@ export const WalletList = () => {
           pl={30}
           pr={30}
           onClick={() => connectWallet(SUPPORTED_WALLETS[0].id)}
-          glow={SUPPORTED_WALLETS[0].id == activeWalletConnector?.id}
-          color1={SUPPORTED_WALLETS[0].id == activeWalletConnector?.id}
+          glow={SUPPORTED_WALLETS[0].connector === connector}
+          color1={SUPPORTED_WALLETS[0].connector === connector}
           jc={'center'}
           style={{ display: 'flex' }}
         >
@@ -55,7 +60,7 @@ export const WalletList = () => {
               </ModalCell>
             )}
             <ModalCell p={10}>
-              <Text t4 bold light={SUPPORTED_WALLETS[0].id == activeWalletConnector?.id}>
+              <Text t4 bold light={SUPPORTED_WALLETS[0].connector === connector}>
                 {isMetamask ? SUPPORTED_WALLETS[0].name : 'Browser Wallet'}
               </Text>
             </ModalCell>
@@ -70,8 +75,8 @@ export const WalletList = () => {
             pr={30}
             key={wallet.id}
             onClick={() => connectWallet(wallet.id)}
-            glow={wallet.id == activeWalletConnector?.id}
-            color1={wallet.id == activeWalletConnector?.id}
+            glow={wallet.connector === connector}
+            color1={wallet.connector === connector}
             jc={'center'}
             style={{ display: 'flex' }}
           >
@@ -80,7 +85,7 @@ export const WalletList = () => {
                 <img src={wallet.logo} alt={wallet.name} height={32} />
               </ModalCell>
               <ModalCell p={10}>
-                <Text t4 bold light={wallet.id == activeWalletConnector?.id}>
+                <Text t4 bold light={wallet.connector === connector}>
                   {wallet.name}
                 </Text>
               </ModalCell>

@@ -8,7 +8,6 @@ import {
   usePortfolio,
   useTotalAccountBalance,
 } from '../../hooks/policy/useSolaceCoverProduct'
-import { useWallet } from '../../context/WalletManager'
 import { BigNumber, Contract } from 'ethers'
 import { useGeneral } from '../../context/GeneralManager'
 import { useInputAmount } from '../../hooks/internal/useInputAmount'
@@ -43,6 +42,7 @@ import { CheckboxData } from '../stake/types/LockCheckbox'
 import { getContract } from '../../utils'
 import { PleaseConnectWallet } from '../../components/molecules/PleaseConnectWallet'
 import { ReadTokenData } from '../../constants/types'
+import { useWeb3React } from '@web3-react/core'
 
 export function Card({
   children,
@@ -131,9 +131,9 @@ enum FormStages {
 
 export default function Soteria(): JSX.Element {
   const { referralCode: referralCodeFromStorage, appTheme } = useGeneral()
-  const { account, library } = useWallet()
-  const { latestBlock, switchNetwork } = useProvider()
-  const { activeNetwork } = useNetwork()
+  const { account } = useWeb3React()
+  const { latestBlock, library } = useProvider()
+  const { activeNetwork, changeNetwork } = useNetwork()
   const { version } = useCachedData()
   const canShowSoteria = useMemo(() => !activeNetwork.config.restrictedFeatures.noSoteria, [
     activeNetwork.config.restrictedFeatures.noSoteria,
@@ -340,7 +340,13 @@ export default function Soteria(): JSX.Element {
                       </Text>
                     </Flex>
                     <ButtonWrapper isColumn={isMobile}>
-                      <Button info secondary pl={23} pr={23} onClick={() => switchNetwork(existingPolicy.network.name)}>
+                      <Button
+                        info
+                        secondary
+                        pl={23}
+                        pr={23}
+                        onClick={() => changeNetwork(existingPolicy.network.chainId)}
+                      >
                         Switch to {existingPolicy.network.name}
                       </Button>
                       <Button info pl={23} pr={23} onClick={() => setShowExistingPolicyMessage(false)}>

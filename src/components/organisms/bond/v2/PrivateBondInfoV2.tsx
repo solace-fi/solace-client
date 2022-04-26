@@ -24,7 +24,6 @@ import { BondTellerDetails } from '../../../../constants/types'
 
 /* import managers */
 import { useNetwork } from '../../../../context/NetworkManager'
-import { useWallet } from '../../../../context/WalletManager'
 
 /* import components */
 import { Flex } from '../../../atoms/Layout'
@@ -32,6 +31,7 @@ import { Text } from '../../../atoms/Typography'
 
 import { useTellerConfig } from '../../../../hooks/bond/useDetectTeller'
 import { SOLACE_TOKEN } from '../../../../constants/mappings/token'
+import { useWeb3React } from '@web3-react/core'
 
 interface PrivateBondInfoV2Props {
   func: FunctionName
@@ -54,7 +54,7 @@ export const PrivateBondInfoV2: React.FC<PrivateBondInfoV2Props> = ({
 
   */
 
-  const { account } = useWallet()
+  const { account } = useWeb3React()
   const { activeNetwork } = useNetwork()
   const { bondDepositFunctionName } = useTellerConfig(activeNetwork)
   return (

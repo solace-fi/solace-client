@@ -20,7 +20,6 @@ import React, { useState, useCallback, useEffect } from 'react'
 
 /* import managers */
 import { useContracts } from '../../context/ContractsManager'
-import { useWallet } from '../../context/WalletManager'
 import { useCachedData } from '../../context/CachedDataManager'
 import { useProvider } from '../../context/ProviderManager'
 import { useNetwork } from '../../context/NetworkManager'
@@ -39,6 +38,7 @@ import { MyInvestments } from '../../components/molecules/MyInvestments'
 import { WalletConnectButton } from '../../components/molecules/WalletConnectButton'
 import { Box } from '../../components/atoms/Box'
 import { StyledInfo } from '../../components/atoms/Icon'
+import { useWeb3React } from '@web3-react/core'
 
 /* import hooks */
 
@@ -57,7 +57,7 @@ function Dashboard(): any {
   const { setSelectedProtocolByName } = useContracts()
   const { userPolicyData } = useCachedData()
   const { latestBlock } = useProvider()
-  const { account } = useWallet()
+  const { account } = useWeb3React()
   const { activeNetwork } = useNetwork()
 
   /*************************************************************************************

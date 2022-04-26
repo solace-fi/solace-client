@@ -1,12 +1,14 @@
-import { useWallet } from '../../context/WalletManager'
 import { useMemo } from 'react'
 import { getContract, isAddress } from '../../utils'
 import { Contract } from '@ethersproject/contracts'
 import { BondTellerContract, ContractSources, ProductContract, SupportedProduct } from '../../constants/types'
 import { useNetwork } from '../../context/NetworkManager'
+import { useWeb3React } from '@web3-react/core'
+import { useProvider } from '../../context/ProviderManager'
 
 export function useGetContract(source: ContractSources | undefined, hasSigner = true): Contract | null {
-  const { library, account } = useWallet()
+  const { account } = useWeb3React()
+  const { library } = useProvider()
 
   return useMemo(() => {
     if (!source || !library) return null
@@ -22,8 +24,9 @@ export function useGetContract(source: ContractSources | undefined, hasSigner = 
 }
 
 export function useGetProductContracts(): ProductContract[] {
-  const { library, account } = useWallet()
+  const { account } = useWeb3React()
   const { activeNetwork } = useNetwork()
+  const { library } = useProvider()
 
   return useMemo(() => {
     const config = activeNetwork.config
@@ -49,8 +52,9 @@ export function useGetProductContracts(): ProductContract[] {
 }
 
 export function useGetBondTellerContracts(): BondTellerContract[] {
-  const { library, account } = useWallet()
+  const { account } = useWeb3React()
   const { activeNetwork } = useNetwork()
+  const { library } = useProvider()
 
   return useMemo(() => {
     const cache = activeNetwork.cache

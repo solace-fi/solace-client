@@ -1,5 +1,7 @@
-import React, { useState, useEffect, useCallback, useMemo, createContext } from 'react'
-import { useNetwork2, networks } from './NetworkManager2'
+import React, { useState, useEffect, useCallback, useMemo } from 'react'
+import { useNetwork2 } from './NetworkManager2'
+import { useWallet2 } from './WalletManager2'
+import { MetamaskConnector } from '../wallet/wallet-connectors/MetaMask'
 import { Block } from '@ethersproject/abstract-provider'
 import { Card, CardContainer } from '../components/atoms/Card'
 import { ModalCell } from '../components/atoms/Modal'
@@ -9,11 +11,11 @@ import { Modal } from '../components/molecules/Modal'
 import { Z_MODAL } from '../constants'
 
 import { useGetLatestBlock } from '../hooks/provider/useGetLatestBlock'
+import { NetworkCache, SupportedProduct, ZerionPosition } from '../constants/types'
+import { useZerion } from '../hooks/_legacy/useZerion'
 import { Scrollable } from '../components/atoms/Layout'
 import { Flex } from '../components/atoms/Layout'
 import ToggleSwitch from '../components/atoms/ToggleSwitch'
-import { JsonRpcProvider } from '@ethersproject/providers'
-import { useWeb3React } from '@web3-react/core'
 
 /*
 
@@ -34,31 +36,58 @@ and write to the blockchain.
 
 type ProviderContextType = {
   openNetworkModal: () => void
-  latestBlock?: Block
-  library?: any
+  switchNetwork: (networkName: string) => Promise<void>
+  latestBlock: Block | undefined
+  userPositions: ZerionPosition[]
+  tokenPosData: {
+    batchFetching: boolean
+    storedPosData: NetworkCache[]
+    handleGetCache: (supportedProduct: SupportedProduct) => Promise<NetworkCache | undefined>
+    getCacheForPolicies: (supportedProducts: SupportedProduct[]) => Promise<NetworkCache>
+  }
 }
 
-const ProviderContext = createContext<ProviderContextType>({
+const InitialContextValue: ProviderContextType = {
   openNetworkModal: () => undefined,
+  switchNetwork: () => Promise.reject(),
   latestBlock: undefined,
-  library: undefined,
-})
+  userPositions: [],
+  tokenPosData: {
+    batchFetching: false,
+    storedPosData: [],
+    handleGetCache: () => Promise.reject(),
+    getCacheForPolicies: () => Promise.reject(),
+  },
+}
 
-const ProviderManager: React.FC = (props) => {
-  const { account, library } = useWeb3React()
-  const { activeNetwork, changeNetwork } = useNetwork2()
+const ProviderContext = React.createContext<ProviderContextType>(InitialContextValue)
+
+// To get access to this Manager, import this into your component or hook
+export function useProvider(): ProviderContextType {
+  return React.useContext(ProviderContext)
+}
+
+const ProviderManager: React.FC = ({ children }) => {
+  const { networks, activeNetwork, findNetworkByChainId, findNetworkByName, changeNetwork } = useNetwork2()
+  const { connector } = useWallet2()
   const latestBlock = useGetLatestBlock()
-  const ethProvider = useMemo(() => new JsonRpcProvider(activeNetwork.rpc.httpsUrl), [activeNetwork])
-
+  // const cachePositions = useCachePositions()
+  const cachePositions = {
+    batchFetching: false,
+    storedPosData: [],
+    handleGetCache: () => Promise.reject(),
+    getCacheForPolicies: () => Promise.reject(),
+  }
   const [networkModal, setNetworkModal] = useState<boolean>(false)
   const [showTestnets, setShowTestnets] = useState<boolean>(false)
+  const zerionPositions = useZerion()
 
   const adjustedNetworks = useMemo(() => {
     const sortedNetworks = networks.sort((a, b) => {
       return a.isTestnet === b.isTestnet ? 0 : a.isTestnet ? 1 : -1
     })
     return showTestnets ? sortedNetworks : sortedNetworks.filter((n) => !n.isTestnet)
-  }, [showTestnets])
+  }, [showTestnets, networks])
 
   const openModal = useCallback(() => {
     document.body.style.overflowY = 'hidden'
@@ -74,15 +103,62 @@ const ProviderManager: React.FC = (props) => {
     setShowTestnets(activeNetwork.isTestnet)
   }, [activeNetwork])
 
+  useEffect(() => {
+    if (connector instanceof MetamaskConnector) {
+      connector.getProvider().then((provider) => {
+        provider.on('chainChanged', (chainId: number) => {
+          const network = findNetworkByChainId(Number(chainId)) ?? networks[0]
+          changeNetwork(network.name, connector)
+        })
+      })
+    }
+  }, [connector, changeNetwork, findNetworkByChainId])
+
+  const switchNetwork = useCallback(
+    async (networkName: string) => {
+      const network = findNetworkByName(networkName)
+
+      if (!network) {
+        return
+      }
+
+      let canSetNetwork = true
+      if (connector instanceof MetamaskConnector && network.metamaskChain) {
+        try {
+          const error = await connector.switchChain({
+            chainId: network.metamaskChain.chainId,
+          })
+
+          if (error) {
+            canSetNetwork = false
+          }
+        } catch (e) {
+          canSetNetwork = false
+
+          if ((e as any).code === 4902) {
+            await connector.addChain(network.metamaskChain)
+          }
+        }
+      }
+
+      if (canSetNetwork) {
+        changeNetwork(network.name, connector)
+      }
+      closeModal()
+    },
+    [connector]
+  )
+
   const value = React.useMemo(
     () => ({
       openNetworkModal: openModal,
+      switchNetwork,
+      userPositions: zerionPositions,
       latestBlock,
-      library: account ? library : ethProvider,
+      tokenPosData: cachePositions,
     }),
-    [openModal, latestBlock, library, account, ethProvider]
+    [openModal, latestBlock, cachePositions, zerionPositions]
   )
-
   return (
     <ProviderContext.Provider value={value}>
       <Modal
@@ -127,7 +203,7 @@ const ProviderManager: React.FC = (props) => {
                 pl={30}
                 pr={30}
                 key={network.name}
-                onClick={() => changeNetwork(network.chainId)}
+                onClick={() => switchNetwork(network.name)}
                 glow={network.name == activeNetwork.name}
                 color1={network.name == activeNetwork.name}
                 jc={'center'}
@@ -145,7 +221,7 @@ const ProviderManager: React.FC = (props) => {
           </CardContainer>
         </Scrollable>
       </Modal>
-      {props.children}
+      {children}
     </ProviderContext.Provider>
   )
 }

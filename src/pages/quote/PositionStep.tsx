@@ -21,7 +21,6 @@
 import React, { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 /* import managers */
-import { useWallet } from '../../context/WalletManager'
 import { useContracts } from '../../context/ContractsManager'
 import { useCachedData } from '../../context/CachedDataManager'
 import { useNetwork } from '../../context/NetworkManager'
@@ -52,6 +51,7 @@ import { useWindowDimensions } from '../../hooks/internal/useWindowDimensions'
 
 /* import utils */
 import { userHasActiveProductPosition } from '../../utils/policy'
+import { useWeb3React } from '@web3-react/core'
 
 export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigation }) => {
   const { protocol, loading, positions } = formData
@@ -62,11 +62,11 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
 
   *************************************************************************************/
 
-  const { account, library } = useWallet()
-  const { activeNetwork, findNetworkByChainId, chainId } = useNetwork()
+  const { account } = useWeb3React()
+  const { activeNetwork, findNetworkByChainId } = useNetwork()
   const { setSelectedProtocolByName } = useContracts()
   const { userPolicyData } = useCachedData()
-  const { latestBlock, tokenPosData } = useProvider()
+  const { latestBlock, library } = useProvider()
   const { width } = useWindowDimensions()
   const [showManageModal, setShowManageModal] = useState<boolean>(false)
   const [selectedPolicy, setSelectedPolicy] = useState<Policy | undefined>(undefined)
@@ -114,48 +114,48 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
     }
   }
 
-  const handleFetchPositions = async (supportedProduct: SupportedProduct): Promise<Position[] | undefined> => {
-    const matchingCache = await tokenPosData.handleGetCache(supportedProduct)
-    if (!account || !library || !matchingCache) return undefined
-    const savedPositions = matchingCache.positionsCache[supportedProduct.name].positions
-    switch (supportedProduct.positionsType) {
-      case PositionType.TOKEN:
-        if (typeof supportedProduct.getBalances !== 'undefined') {
-          const balances: Token[] = await supportedProduct.getBalances[activeNetwork.chainId](
-            account,
-            library,
-            activeNetwork,
-            savedPositions.map((position) => position.position as Token)
-          ).catch((e) => {
-            console.log(`PositionStep: getBalances() for ${supportedProduct.name} failed`, e)
-            return []
-          })
-          return balances.map((balance) => {
-            return { type: PositionType.TOKEN, position: balance }
-          })
-        }
-        return []
-      case PositionType.LQTY:
-        if (typeof supportedProduct.getPositions !== 'undefined') {
-          const positions: LiquityPosition[] = await supportedProduct.getPositions[activeNetwork.chainId](
-            account,
-            library,
-            activeNetwork,
-            savedPositions.map((position) => position.position as LiquityPosition)
-          ).catch((e: any) => {
-            console.log(`PositionStep: getPositions() for ${supportedProduct.name} failed`, e)
-            return []
-          })
-          return positions.map((balance) => {
-            return { type: PositionType.LQTY, position: balance }
-          })
-        }
-        return []
-      case PositionType.OTHER:
-      default:
-        return []
-    }
-  }
+  // const handleFetchPositions = async (supportedProduct: SupportedProduct): Promise<Position[] | undefined> => {
+  //   const matchingCache = await tokenPosData.handleGetCache(supportedProduct)
+  //   if (!account || !library || !matchingCache) return undefined
+  //   const savedPositions = matchingCache.positionsCache[supportedProduct.name].positions
+  //   switch (supportedProduct.positionsType) {
+  //     case PositionType.TOKEN:
+  //       if (typeof supportedProduct.getBalances !== 'undefined') {
+  //         const balances: Token[] = await supportedProduct.getBalances[activeNetwork.chainId](
+  //           account,
+  //           library,
+  //           activeNetwork,
+  //           savedPositions.map((position) => position.position as Token)
+  //         ).catch((e) => {
+  //           console.log(`PositionStep: getBalances() for ${supportedProduct.name} failed`, e)
+  //           return []
+  //         })
+  //         return balances.map((balance) => {
+  //           return { type: PositionType.TOKEN, position: balance }
+  //         })
+  //       }
+  //       return []
+  //     case PositionType.LQTY:
+  //       if (typeof supportedProduct.getPositions !== 'undefined') {
+  //         const positions: LiquityPosition[] = await supportedProduct.getPositions[activeNetwork.chainId](
+  //           account,
+  //           library,
+  //           activeNetwork,
+  //           savedPositions.map((position) => position.position as LiquityPosition)
+  //         ).catch((e: any) => {
+  //           console.log(`PositionStep: getPositions() for ${supportedProduct.name} failed`, e)
+  //           return []
+  //         })
+  //         return positions.map((balance) => {
+  //           return { type: PositionType.LQTY, position: balance }
+  //         })
+  //       }
+  //       return []
+  //     case PositionType.OTHER:
+  //     default:
+  //       return []
+  //   }
+  // }
 
   const handleSelect = (position: Position) => {
     const found = selectedPositions.some((selectedPosition) => handlePositionAddressFind(selectedPosition, position))
@@ -187,29 +187,29 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
     }
   }
 
-  const getUserPositions = async () => {
-    if (!chainId || !canFetchPositions.current) return
-    canFetchPositions.current = false
-    if (findNetworkByChainId(chainId)) {
-      try {
-        if (!supportedProduct) return
-        const _fetchedPositions = await handleFetchPositions(supportedProduct)
-        canFetchPositions.current = true
-        if (_fetchedPositions != undefined) {
-          setFetchedPositions(_fetchedPositions)
-          setForm({
-            target: {
-              name: 'loading',
-              value: false,
-            },
-          })
-        }
-      } catch (err) {
-        canFetchPositions.current = true
-        console.log(err)
-      }
-    }
-  }
+  // const getUserPositions = async () => {
+  //   if (!activeNetwork.chainId || !canFetchPositions.current) return
+  //   canFetchPositions.current = false
+  //   if (findNetworkByChainId(activeNetwork.chainId)) {
+  //     try {
+  //       if (!supportedProduct) return
+  //       const _fetchedPositions = await handleFetchPositions(supportedProduct)
+  //       canFetchPositions.current = true
+  //       if (_fetchedPositions != undefined) {
+  //         setFetchedPositions(_fetchedPositions)
+  //         setForm({
+  //           target: {
+  //             name: 'loading',
+  //             value: false,
+  //           },
+  //         })
+  //       }
+  //     } catch (err) {
+  //       canFetchPositions.current = true
+  //       console.log(err)
+  //     }
+  //   }
+  // }
 
   const openManageModal = async (policy: Policy) => {
     setShowManageModal((prev) => !prev)
@@ -237,28 +237,28 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
     getProductLink()
   }, [])
 
-  useEffect(() => {
-    const loadOnBoot = async () => {
-      setForm({
-        target: {
-          name: 'loading',
-          value: true,
-        },
-      })
-      await getUserPositions()
-      canLoadOverTime.current = true
-    }
-    loadOnBoot()
-  }, [])
+  // useEffect(() => {
+  //   const loadOnBoot = async () => {
+  //     setForm({
+  //       target: {
+  //         name: 'loading',
+  //         value: true,
+  //       },
+  //     })
+  //     await getUserPositions()
+  //     canLoadOverTime.current = true
+  //   }
+  //   loadOnBoot()
+  // }, [])
 
-  useEffect(() => {
-    const loadOverTime = async () => {
-      if (canLoadOverTime.current || !tokenPosData.batchFetching) {
-        await getUserPositions()
-      }
-    }
-    loadOverTime()
-  }, [latestBlock, tokenPosData.batchFetching])
+  // useEffect(() => {
+  //   const loadOverTime = async () => {
+  //     if (canLoadOverTime.current || !tokenPosData.batchFetching) {
+  //       await getUserPositions()
+  //     }
+  //   }
+  //   loadOverTime()
+  // }, [latestBlock, tokenPosData.batchFetching])
 
   useEffect(() => {
     setSelectablePositions(

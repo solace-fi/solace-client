@@ -18,7 +18,6 @@
 import React, { useMemo } from 'react'
 
 /* import managers */
-import { useWallet } from '../../context/WalletManager'
 import { useContracts } from '../../context/ContractsManager'
 import { useNetwork } from '../../context/NetworkManager'
 
@@ -36,6 +35,7 @@ import { useUserPendingRewards, useUserRewardsPerDay } from '../../hooks/_legacy
 
 /* import utils */
 import { truncateValue } from '../../utils/formatting'
+import { useWeb3React } from '@web3-react/core'
 
 export const MyInvestments: React.FC = () => {
   /*************************************************************************************
@@ -43,7 +43,7 @@ export const MyInvestments: React.FC = () => {
     hooks
 
   *************************************************************************************/
-  const { account } = useWallet()
+  const { account } = useWeb3React()
   const { activeNetwork } = useNetwork()
   const { keyContracts } = useContracts()
   const { cpFarm } = useMemo(() => keyContracts, [keyContracts])

@@ -24,7 +24,6 @@ import { Block } from '@ethersproject/abstract-provider'
 
 /* import managers */
 import { useNetwork } from '../../../context/NetworkManager'
-import { useWallet } from '../../../context/WalletManager'
 
 /* import constants */
 import { Policy, BasicData } from '../../../constants/types'
@@ -47,6 +46,7 @@ import { useWindowDimensions } from '../../../hooks/internal/useWindowDimensions
 /* import utils */
 import { getDaysLeftByBlockNum } from '../../../utils/time'
 import { truncateValue } from '../../../utils/formatting'
+import { useWeb3React } from '@web3-react/core'
 
 interface PolicyModalInfoProps {
   appraisal: BigNumber
@@ -60,9 +60,9 @@ export const PolicyModalInfo: React.FC<PolicyModalInfoProps> = ({ appraisal, sel
     hooks
 
   *************************************************************************************/
-  const { activeNetwork, currencyDecimals } = useNetwork()
+  const { activeNetwork } = useNetwork()
   const { width } = useWindowDimensions()
-  const { account } = useWallet()
+  const { account } = useWeb3React()
   const [showAssetsModal, setShowAssetsModal] = useState<boolean>(false)
   const [formattedAssets, setFormattedAssets] = useState<BasicData[]>([])
   const daysLeft = useMemo(
@@ -136,7 +136,7 @@ export const PolicyModalInfo: React.FC<PolicyModalInfoProps> = ({ appraisal, sel
             <BoxItemTitle t3>Cover Amount</BoxItemTitle>
             <Text t2 nowrap>
               {selectedPolicy?.coverAmount
-                ? truncateValue(formatUnits(selectedPolicy.coverAmount, currencyDecimals))
+                ? truncateValue(formatUnits(selectedPolicy.coverAmount, activeNetwork.nativeCurrency.decimals))
                 : 0}{' '}
               {activeNetwork.nativeCurrency.symbol}
             </Text>
@@ -145,7 +145,9 @@ export const PolicyModalInfo: React.FC<PolicyModalInfoProps> = ({ appraisal, sel
             <BoxItemTitle t3>Position Amount</BoxItemTitle>
             <Text t2 nowrap>
               {appraisal.gt(ZERO) ? (
-                `${truncateValue(formatUnits(appraisal, currencyDecimals) || 0)} ${activeNetwork.nativeCurrency.symbol}`
+                `${truncateValue(formatUnits(appraisal, activeNetwork.nativeCurrency.decimals) || 0)} ${
+                  activeNetwork.nativeCurrency.symbol
+                }`
               ) : (
                 <Loader width={10} height={10} />
               )}
@@ -172,7 +174,7 @@ export const PolicyModalInfo: React.FC<PolicyModalInfoProps> = ({ appraisal, sel
             <Text t4>Cover Amount:</Text>
             <Text bold t3>
               {selectedPolicy?.coverAmount
-                ? truncateValue(formatUnits(selectedPolicy.coverAmount, currencyDecimals))
+                ? truncateValue(formatUnits(selectedPolicy.coverAmount, activeNetwork.nativeCurrency.decimals))
                 : 0}{' '}
               {activeNetwork.nativeCurrency.symbol}
             </Text>
@@ -182,7 +184,9 @@ export const PolicyModalInfo: React.FC<PolicyModalInfoProps> = ({ appraisal, sel
 
             <Text bold t3>
               {appraisal.gt(ZERO) ? (
-                `${truncateValue(formatUnits(appraisal, currencyDecimals) || 0)} ${activeNetwork.nativeCurrency.symbol}`
+                `${truncateValue(formatUnits(appraisal, activeNetwork.nativeCurrency.decimals) || 0)} ${
+                  activeNetwork.nativeCurrency.symbol
+                }`
               ) : (
                 <Loader width={10} height={10} />
               )}{' '}

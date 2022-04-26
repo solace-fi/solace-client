@@ -30,6 +30,8 @@ import { Z_MODAL } from '../../../constants'
 
 /* import wallets */
 import { WalletList } from '../../molecules/WalletList'
+import { useWeb3React } from '@web3-react/core'
+import { WalletConnectConnector } from '@web3-react/walletconnect-connector'
 
 interface WalletModalProps {
   closeModal: () => void
@@ -42,7 +44,8 @@ export const WalletModal: React.FC<WalletModalProps> = ({ closeModal, isOpen }) 
   hooks
 
   *************************************************************************************/
-  const { disconnect, activeWalletConnector } = useWallet()
+  const { connector } = useWeb3React()
+  const { disconnect } = useWallet()
 
   /************************************************************************************* 
     
@@ -64,7 +67,7 @@ export const WalletModal: React.FC<WalletModalProps> = ({ closeModal, isOpen }) 
       <Scrollable maxMobileHeight={60}>
         <WalletList />
       </Scrollable>
-      {activeWalletConnector && (
+      {connector instanceof WalletConnectConnector && (
         <ButtonWrapper>
           <Button widthP={100} onClick={disconnect}>
             Disconnect Wallet

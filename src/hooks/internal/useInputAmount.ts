@@ -40,7 +40,7 @@ export const useTransactionExecution = () => {
 }
 
 export const useInputAmount = () => {
-  const { currencyDecimals } = useNetwork()
+  const { activeNetwork } = useNetwork()
   const { gasData } = useCachedData()
   const [amount, setAmount] = useState<string>('')
   const [maxSelected, setMaxSelected] = useState<boolean>(false)
@@ -61,7 +61,11 @@ export const useInputAmount = () => {
   const handleInputChange = (input: string, maxDecimals?: number, maxBalance?: string) => {
     const filtered = filterAmount(input, amount)
     const formatted = formatAmount(filtered)
-    if (filtered.includes('.') && filtered.split('.')[1]?.length > (maxDecimals ?? currencyDecimals)) return
+    if (
+      filtered.includes('.') &&
+      filtered.split('.')[1]?.length > (maxDecimals ?? activeNetwork.nativeCurrency.decimals)
+    )
+      return
     if (maxBalance && parseUnits(formatted, 18).gt(parseUnits(maxBalance, 18))) return
     setAmount(filtered)
     setMaxSelected(false)

@@ -43,7 +43,7 @@ export class MetamaskConnector extends InjectedConnector {
   }
 }
 
-export const MetaMaskConnector = {
+export const MetaMaskConnector2 = {
   id: 'metamask',
   name: 'MetaMask',
   logo: MetamaskLogo,
@@ -62,7 +62,7 @@ export const MetaMaskConnector = {
   },
 }
 
-export const MetaMaskConnector2 = {
+export const MetaMaskConnector = {
   id: 'metamask',
   name: 'MetaMask',
   logo: MetamaskLogo,

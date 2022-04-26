@@ -1,6 +1,5 @@
 import { useMemo } from 'react'
 import { useContracts } from '../../context/ContractsManager'
-import { useWallet } from '../../context/WalletManager'
 import { useNetwork } from '../../context/NetworkManager'
 import { formatUnits } from '@ethersproject/units'
 import { BigNumber } from 'ethers'
@@ -17,8 +16,8 @@ import { SOLACE_TOKEN } from '../../constants/mappings/token'
 export const useXSLocker = () => {
   const { keyContracts } = useContracts()
   const { xsLocker, solace } = useMemo(() => keyContracts, [keyContracts])
-  const { library } = useWallet()
-  const { chainId } = useNetwork()
+  const { library } = useProvider()
+  const { activeNetwork } = useNetwork()
   const { latestBlock } = useProvider()
   const { gasConfig } = useGetFunctionGas()
 
@@ -69,7 +68,14 @@ export const useXSLocker = () => {
 
   const createLock = async (recipient: string, amount: BigNumber, end: BigNumber) => {
     if (!xsLocker || !solace) return { tx: null, localTx: null }
-    const { v, r, s } = await getPermitErc20Signature(recipient, chainId, library, xsLocker.address, solace, amount)
+    const { v, r, s } = await getPermitErc20Signature(
+      recipient,
+      activeNetwork.chainId,
+      library,
+      xsLocker.address,
+      solace,
+      amount
+    )
     const estGas = await xsLocker.estimateGas.createLockSigned(amount, end, DEADLINE, v, r, s)
     console.log('xsLocker.estimateGas.createLockSigned', estGas.toString())
     const tx = await xsLocker.createLockSigned(amount, end, DEADLINE, v, r, s, {
@@ -87,7 +93,14 @@ export const useXSLocker = () => {
 
   const increaseLockAmount = async (recipient: string, xsLockID: BigNumber, amount: BigNumber) => {
     if (!xsLocker || !solace) return { tx: null, localTx: null }
-    const { v, r, s } = await getPermitErc20Signature(recipient, chainId, library, xsLocker.address, solace, amount)
+    const { v, r, s } = await getPermitErc20Signature(
+      recipient,
+      activeNetwork.chainId,
+      library,
+      xsLocker.address,
+      solace,
+      amount
+    )
     const estGas = await xsLocker.estimateGas.increaseAmountSigned(xsLockID, amount, DEADLINE, v, r, s)
     console.log('xsLocker.estimateGas.increaseAmountSigned', estGas.toString())
     const tx = await xsLocker.increaseAmountSigned(xsLockID, amount, DEADLINE, v, r, s, {

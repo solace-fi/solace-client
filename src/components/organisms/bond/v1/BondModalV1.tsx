@@ -33,7 +33,7 @@ import {
 } from '../../../../constants/enums'
 
 /* import managers */
-import { useWallet } from '../../../../context/WalletManager'
+// import { useWallet } from '../../../../context/WalletManager'
 // import { useNetwork } from '../../../../context/NetworkManager'
 // import { useCachedData } from '../../../../context/CachedDataManager'
 // import { useNotifications } from '../../../../context/NotificationsManager'
@@ -75,6 +75,7 @@ import {
 // import { useTokenAllowance } from '../../../../hooks/contract/useToken'
 // import { useNativeTokenBalance } from '../../../../hooks/balance/useBalance'
 import { useBondTellerV1, useUserBondDataV1 } from '../../../../hooks/bond/useBondTellerV1'
+import { useWeb3React } from '@web3-react/core'
 // import { useWindowDimensions } from '../../../../hooks/internal/useWindowDimensions'
 
 /* import utils */
@@ -95,9 +96,9 @@ export const BondModalV1: React.FC<BondModalV1Props> = ({ closeModal, isOpen, se
   custom hooks 
   
   */
-  const { account } = useWallet()
+  const { account } = useWeb3React()
   const { appTheme } = useGeneral()
-  // const { currencyDecimals } = useNetwork()
+  // const { activeNetwork } = useNetwork()
   // const { reload } = useCachedData()
   // const { makeTxToast } = useNotifications()
   const { keyContracts } = useContracts()
@@ -114,7 +115,7 @@ export const BondModalV1: React.FC<BondModalV1Props> = ({ closeModal, isOpen, se
   const [showBondSettingsModal, setShowBondSettingsModal] = useState<boolean>(false)
   const [ownedBondTokens, setOwnedBondTokens] = useState<BondTokenV1[]>([])
 
-  const [bondRecipient, setBondRecipient] = useState<string | undefined>(undefined)
+  const [bondRecipient, setBondRecipient] = useState<string | null | undefined>(undefined)
   // const [calculatedAmountIn, setCalculatedAmountIn] = useState<BigNumber | undefined>(ZERO)
   // const [calculatedAmountIn_X, setCalculatedAmountIn_X] = useState<BigNumber | undefined>(ZERO)
   // const [calculatedAmountOut, setCalculatedAmountOut] = useState<BigNumber | undefined>(ZERO)

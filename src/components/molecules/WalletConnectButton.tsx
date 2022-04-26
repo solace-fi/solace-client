@@ -13,6 +13,7 @@
   *************************************************************************************/
 
 /* import packages */
+import { useWeb3React } from '@web3-react/core'
 import React from 'react'
 
 /* import managers */
@@ -39,7 +40,8 @@ export const WalletConnectButton: React.FC<GeneralElementProps & ButtonProps & W
    hooks
 
   *************************************************************************************/
-  const { isActive, openWalletModal } = useWallet()
+  const { openWalletModal } = useWallet()
+  const { active } = useWeb3React()
 
   return (
     <>
@@ -50,7 +52,7 @@ export const WalletConnectButton: React.FC<GeneralElementProps & ButtonProps & W
       ) : (
         <Button onClick={openWalletModal} {...props}>
           <StyledWallet size={30} />
-          {isActive ? 'Switch Wallet' : 'Connect Wallet'}
+          {active ? 'Switch Wallet' : 'Connect Wallet'}
         </Button>
       )}
     </>

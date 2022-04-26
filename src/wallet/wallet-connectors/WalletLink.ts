@@ -5,7 +5,7 @@ import { networks } from '../../context/NetworkManager'
 
 import CoinbaseWalletLogo from '../../resources/svg/wallets/coinbase-logo.svg'
 
-export const WalletLinkConnector = {
+export const WalletLinkConnector2 = {
   id: 'coinbase',
   name: 'Coinbase Wallet',
   logo: CoinbaseWalletLogo,
@@ -32,7 +32,7 @@ export const WalletLinkConnector = {
   },
 }
 
-export const WalletLinkConnector2 = {
+export const WalletLinkConnector = {
   id: 'coinbase',
   name: 'Coinbase Wallet',
   logo: CoinbaseWalletLogo,

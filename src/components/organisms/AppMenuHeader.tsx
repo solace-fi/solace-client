@@ -2,7 +2,6 @@ import React, { useMemo } from 'react'
 import { Flex, ShadowDiv } from '../atoms/Layout'
 
 import { UserImage } from '../atoms/User'
-import { useWallet } from '../../context/WalletManager'
 import makeBlockie from 'ethereum-blockies-base64'
 import { Button } from '../atoms/Button'
 import { Text } from '../atoms/Typography'
@@ -11,13 +10,14 @@ import { PageInfo } from '../../constants/types'
 import { SolaceGradientCircle } from '../molecules/SolaceGradientCircle'
 import { useWindowDimensions } from '../../hooks/internal/useWindowDimensions'
 import UserGradient from '../../resources/svg/user_gradient.svg'
+import { useWeb3React } from '@web3-react/core'
 
 export const AppMenuHeader: React.FC<{ pages: PageInfo[]; setShow: (show: boolean) => void }> = ({
   pages,
   setShow,
 }) => {
   const { scrollPosition } = useWindowDimensions()
-  const { account } = useWallet()
+  const { account } = useWeb3React()
   const location = useLocation()
   const title = useMemo(() => {
     const to = location.pathname

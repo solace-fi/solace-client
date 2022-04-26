@@ -24,13 +24,13 @@ import { BondTellerDetails } from '../../../../constants/types'
 
 /* import managers */
 import { useNetwork } from '../../../../context/NetworkManager'
-import { useWallet } from '../../../../context/WalletManager'
 
 /* import components */
 import { Flex } from '../../../atoms/Layout'
 import { Text } from '../../../atoms/Typography'
 import { SmallBox } from '../../../atoms/Box'
 import { SOLACE_TOKEN, XSOLACE_V1_TOKEN } from '../../../../constants/mappings/token'
+import { useWeb3React } from '@web3-react/core'
 
 interface PrivateBondInfoV1Props {
   func: FunctionName
@@ -57,7 +57,7 @@ export const PrivateBondInfoV1: React.FC<PrivateBondInfoV1Props> = ({
 
   */
 
-  const { account } = useWallet()
+  const { account } = useWeb3React()
   const { activeNetwork } = useNetwork()
   return (
     <>

@@ -11,9 +11,6 @@ import { PolygonNetwork } from '../networks/polygon'
 import { MumbaiNetwork } from '../networks/mumbai'
 import { AuroraNetwork } from '../networks/aurora'
 import { AuroraTestnetNetwork } from '../networks/auroraTestnet'
-import { useWeb3React } from '@web3-react/core'
-import { hexStripZeros } from 'ethers/lib/utils'
-import { BigNumber } from 'ethers'
 
 /*
 
@@ -36,98 +33,87 @@ export const networksMapping = networks.reduce((configs: any, networkConfig: Net
   [networkConfig.chainId]: networkConfig,
 }))
 
-type NetworkContextType = {
+type NetworkContext = {
   activeNetwork: NetworkConfig
+  chainId: number
+  currencyDecimals: number
+  networks: NetworkConfig[]
   findNetworkByChainId: (chainId: number | undefined) => NetworkConfig | undefined
-  changeNetwork: (targetChain: number) => void
+  findNetworkByName: (networkName: string) => NetworkConfig | undefined
+  changeNetwork: (networkName: string, connector: AbstractConnector | undefined) => NetworkConfig | undefined
 }
 
-const NetworkContext = createContext<NetworkContextType>({
+const NetworkContext = createContext<NetworkContext>({
   activeNetwork: networks[0],
+  chainId: networks[0].chainId,
+  currencyDecimals: networks[0].nativeCurrency.decimals,
+  networks,
   findNetworkByChainId: () => undefined,
+  findNetworkByName: () => undefined,
   changeNetwork: () => undefined,
 })
 
-const NetworkManager: React.FC = (props) => {
-  const { chainId, library } = useWeb3React()
+const NetworksProvider: React.FC = (props) => {
+  const [lastNetwork, setLastNetwork] = useLocalStorage<string | undefined>('solace_net')
+  const activeNetwork = useMemo(() => {
+    let network: NetworkConfig | undefined
+    try {
+      if (lastNetwork) {
+        const networkName = lastNetwork?.toLowerCase()
+        network = networks.find((n) => n.name.toLowerCase() === networkName)
+      }
+    } catch {}
+    return network ?? networks[0]
+  }, [lastNetwork])
+
+  const findNetworkByName = useCallback((networkName: string): NetworkConfig | undefined => {
+    return networks.find((n) => n.name.toLowerCase() === networkName.toLowerCase())
+  }, [])
 
   const findNetworkByChainId = useCallback((chainId: number | undefined): NetworkConfig | undefined => {
     if (chainId == undefined) return undefined
     return networks.find((network) => network.chainId == chainId)
   }, [])
 
-  const activeNetwork = useMemo(() => {
-    const netConfig = findNetworkByChainId(chainId)
-    return netConfig ?? networks[0]
-  }, [chainId, findNetworkByChainId])
+  const changeNetwork = useCallback((networkName: string, connector?: AbstractConnector): NetworkConfig | undefined => {
+    const network = findNetworkByName(networkName)
 
-  const changeNetwork = useCallback(
-    async (targetChain: number) => {
-      const switchToNetwork = async (targetChain: number) => {
-        if (!library?.provider?.request) return
+    if (network) {
+      setLastNetwork(network.name.toLowerCase())
 
-        const formattedChainId = hexStripZeros(BigNumber.from(targetChain).toHexString())
-        try {
-          await library.provider.request({
-            method: 'wallet_switchEthereumChain',
-            params: [{ chainId: formattedChainId }],
-          })
-        } catch (error: any) {
-          // 4902 is the error code for attempting to switch to an unrecognized chainId
-          if (error.code === 4902) {
-            const netConfig = findNetworkByChainId(targetChain)
-            if (!netConfig) return
+      // there were cases where changing networks with the same wallet (not metamask) does not pull data correctly
+      // if (connector && !(connector instanceof MetamaskConnector)) window.location.reload()
 
-            await library.provider.request({
-              method: 'wallet_addEthereumChain',
-              params: [
-                {
-                  chainId: formattedChainId,
-                  chainName: netConfig.name,
-                  rpcUrls: netConfig.rpc.httpsUrl,
-                  nativeCurrency: netConfig.metamaskChain?.nativeCurrency,
-                  blockExplorerUrls: [netConfig.explorer.url],
-                },
-              ],
-            })
-            // metamask (only known implementer) automatically switches after a network is added
-            // the second call is done here because that behavior is not a part of the spec and cannot be relied upon in the future
-            // metamask's behavior when switching to the current network is just to return null (a no-op)
-            try {
-              await library.provider.request({
-                method: 'wallet_switchEthereumChain',
-                params: [{ chainId: formattedChainId }],
-              })
-            } catch (error) {
-              console.debug('Added network but could not switch chains', error)
-            }
-          } else {
-            throw error
-          }
-        }
-      }
+      // there were cases where changing networks with the same wallet does not pull data correctly
+      // if (connector) window.location.reload() // <- uncomment if there's too many errors going on
+    }
 
-      switchToNetwork(targetChain).catch((error) => {
-        console.error('Failed to switch network', error)
-      })
-    },
-    [findNetworkByChainId, library.provider]
-  )
+    return network
+  }, [])
 
-  const value = useMemo<NetworkContextType>(
+  const value = useMemo<NetworkContext>(
     () => ({
       activeNetwork,
+      chainId: activeNetwork.chainId,
+      currencyDecimals: activeNetwork?.nativeCurrency.decimals ?? networks[0].nativeCurrency.decimals,
+      networks,
       findNetworkByChainId,
+      findNetworkByName,
       changeNetwork,
     }),
-    [activeNetwork, findNetworkByChainId, changeNetwork]
+    [activeNetwork, findNetworkByChainId, changeNetwork, findNetworkByName]
   )
 
   return <NetworkContext.Provider value={value}>{props.children}</NetworkContext.Provider>
 }
 
-export function useNetwork2(): NetworkContextType {
+// To get access to this Manager, import this into your component or hook
+export function useNetwork2(): NetworkContext {
   return useContext(NetworkContext)
+}
+
+const NetworkManager: React.FC = (props) => {
+  return <NetworksProvider>{props.children}</NetworksProvider>
 }
 
 export default NetworkManager

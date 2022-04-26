@@ -36,6 +36,8 @@ import { TransactionReceipt, TransactionResponse } from '@ethersproject/provider
 import { Text } from '../../components/atoms/Typography'
 import { ModalCell } from '../../components/atoms/Modal'
 import { CheckboxData } from '../stake/types/LockCheckbox'
+import { useProvider } from '../../context/ProviderManager'
+import { useWeb3React } from '@web3-react/core'
 
 export function PolicyBalance({
   balances,
@@ -93,7 +95,8 @@ export function PolicyBalance({
   const [doesReachMinReqAccountBal, setDoesReachMinReqAccountBal] = useState(false)
 
   const { ifDesktop } = useWindowDimensions()
-  const { account, library } = useWallet()
+  const { account } = useWeb3React()
+  const { library } = useProvider()
   const { activeNetwork } = useNetwork()
   const { keyContracts } = useContracts()
   const { solaceCoverProduct } = useMemo(() => keyContracts, [keyContracts])

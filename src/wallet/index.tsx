@@ -10,7 +10,7 @@ import { PortisConnector } from './wallet-connectors/Portis'
 import { TrezorConnector } from './wallet-connectors/Trezor'
 import { LedgerConnector } from './wallet-connectors/Ledger'
 
-export interface WalletConnector {
+export interface WalletConnector2 {
   name: string
   id: string
   logo: string
@@ -21,7 +21,7 @@ export interface WalletConnector {
   onError(error: Error): Error | undefined
 }
 
-export interface WalletConnector2 {
+export interface WalletConnector {
   name: string
   id: string
   logo: string
@@ -29,10 +29,10 @@ export interface WalletConnector2 {
   connector: AbstractConnector
 }
 
-export const SUPPORTED_WALLETS: WalletConnector[] = [
-  MetaMaskConnector,
-  WalletConnectConnector,
-  WalletLinkConnector,
+export const SUPPORTED_WALLETS2: WalletConnector2[] = [
+  MetaMaskConnector2,
+  WalletConnectConnector2,
+  WalletLinkConnector2,
   // FortmaticConnector,
   // AuthereumConnector,
   // TorusConnector,
@@ -41,13 +41,9 @@ export const SUPPORTED_WALLETS: WalletConnector[] = [
   // LedgerConnector,
 ]
 
+export const SUPPORTED_WALLETS: WalletConnector[] = [MetaMaskConnector, WalletConnectConnector, WalletLinkConnector]
+
 export const SUPPORTED_WALLETS_MAPPING = SUPPORTED_WALLETS.reduce((wallets: any, connector: WalletConnector) => ({
   ...wallets,
   [connector.id]: connector,
 }))
-
-export const SUPPORTED_WALLETS2: WalletConnector2[] = [
-  MetaMaskConnector2,
-  WalletConnectConnector2,
-  WalletLinkConnector2,
-]

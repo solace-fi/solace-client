@@ -5,7 +5,6 @@ import { BigNumber, Contract } from 'ethers'
 import { formatUnits } from 'ethers/lib/utils'
 
 /* import managers */
-import { useWallet } from '../../../context/WalletManager'
 import { useGeneral } from '../../../context/GeneralManager'
 import { useContracts } from '../../../context/ContractsManager'
 import { useProvider } from '../../../context/ProviderManager'
@@ -36,6 +35,7 @@ import useDebounce from '@rooks/use-debounce'
 import { TransactionReceipt, TransactionResponse } from '@ethersproject/providers'
 import { useNotifications } from '../../../context/NotificationsManager'
 import { Loader } from '../../../components/atoms/Loader'
+import { useWeb3React } from '@web3-react/core'
 
 export const BridgeModal: React.FC<ModalProps> = ({ modalTitle, handleClose, isOpen }) => {
   const [isWrapping, setIsWrapping] = useState<boolean>(false)
@@ -45,7 +45,7 @@ export const BridgeModal: React.FC<ModalProps> = ({ modalTitle, handleClose, isO
   const { latestBlock } = useProvider()
   const { keyContracts } = useContracts()
   const { activeNetwork } = useNetwork()
-  const { account } = useWallet()
+  const { account } = useWeb3React()
   const { solace } = useMemo(() => keyContracts, [keyContracts])
   const { amount, setMax, handleInputChange, isAppropriateAmount, resetAmount } = useInputAmount()
   const { handleToast, handleContractCallError } = useTransactionExecution()

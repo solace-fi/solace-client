@@ -6,7 +6,7 @@ import { networks } from '../../context/NetworkManager'
 
 import WalletConnectLogo from '../../resources/svg/wallets/walletconnect-logo.svg'
 
-export const WalletConnectConnector = {
+export const WalletConnectConnector2 = {
   id: 'walletconnect',
   name: 'WalletConnect',
   logo: WalletConnectLogo,
@@ -33,7 +33,7 @@ export const WalletConnectConnector = {
   },
 }
 
-export const WalletConnectConnector2 = {
+export const WalletConnectConnector = {
   id: 'walletconnect',
   name: 'WalletConnect',
   logo: WalletConnectLogo,

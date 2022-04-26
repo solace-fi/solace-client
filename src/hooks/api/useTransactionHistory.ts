@@ -9,9 +9,10 @@ import { decodeInput } from '../../utils/decoder'
 import { useContracts } from '../../context/ContractsManager'
 import { useNetwork } from '../../context/NetworkManager'
 import { useProvider } from '../../context/ProviderManager'
+import { useWeb3React } from '@web3-react/core'
 
 export const useFetchTxHistoryByAddress = (): any => {
-  const { account } = useWallet()
+  const { account } = useWeb3React()
   const { activeNetwork } = useNetwork()
   const { deleteLocalTransactions } = useCachedData()
   const { latestBlock } = useProvider()
@@ -45,7 +46,7 @@ export const useFetchTxHistoryByAddress = (): any => {
 }
 
 export const useTransactionDetails = (): { txHistory: any; amounts: string[] } => {
-  const { library } = useWallet()
+  const { library } = useProvider()
   const { activeNetwork } = useNetwork()
   const [amounts, setAmounts] = useState<string[]>([])
   const { contractSources } = useContracts()
