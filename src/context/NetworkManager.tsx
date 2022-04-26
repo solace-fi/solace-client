@@ -48,6 +48,7 @@ const NetworkContext = createContext<NetworkContextType>({
 
 const NetworkManager: React.FC = (props) => {
   const { chainId, library } = useWeb3React()
+  const [unconnectedChainId, setUnconnectedChainId] = React.useState<number | undefined>(undefined)
 
   const findNetworkByChainId = useCallback((chainId: number | undefined): NetworkConfig | undefined => {
     if (chainId == undefined) return undefined
@@ -56,13 +57,17 @@ const NetworkManager: React.FC = (props) => {
 
   const activeNetwork = useMemo(() => {
     const netConfig = findNetworkByChainId(chainId)
-    return netConfig ?? networks[0]
-  }, [chainId, findNetworkByChainId])
+    const unconnectedNetConfig = findNetworkByChainId(unconnectedChainId)
+    return netConfig ?? unconnectedNetConfig ?? networks[0]
+  }, [chainId, unconnectedChainId, findNetworkByChainId])
 
   const changeNetwork = useCallback(
     async (targetChain: number) => {
       const switchToNetwork = async (targetChain: number) => {
-        if (!library?.provider?.request) return
+        if (!library?.provider?.request) {
+          setUnconnectedChainId(targetChain)
+          return
+        }
 
         const formattedChainId = hexStripZeros(BigNumber.from(targetChain).toHexString())
         try {
