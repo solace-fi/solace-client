@@ -37,7 +37,7 @@ export const WalletList = () => {
     [connect]
   )
 
-  const isMetamask = (window as any)?.ethereum?.isMetaMask
+  // const isMetamask = (window as any)?.ethereum?.isMetaMask
   return (
     <>
       <CardContainer cardsPerRow={1} style={{ margin: 'auto' }}>
@@ -54,14 +54,15 @@ export const WalletList = () => {
           style={{ display: 'flex' }}
         >
           <Flex stretch between>
-            {isMetamask && (
+            {/* {isMetamask && (
               <ModalCell p={10}>
                 <img src={SUPPORTED_WALLETS[0].logo} alt={SUPPORTED_WALLETS[0].name} height={32} />
               </ModalCell>
-            )}
+            )} */}
             <ModalCell p={10}>
               <Text t4 bold light={SUPPORTED_WALLETS[0].connector === connector}>
-                {isMetamask ? SUPPORTED_WALLETS[0].name : 'Browser Wallet'}
+                {/* {isMetamask ? SUPPORTED_WALLETS[0].name : 'Browser Wallet'} */}
+                Browser Wallet
               </Text>
             </ModalCell>
           </Flex>

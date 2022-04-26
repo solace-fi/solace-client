@@ -29,22 +29,7 @@ export const useEagerConnect = (
 
   // Try injected connector if the web3 is still not active & already tried using locally stored provider
   useEffect(() => {
-    if (!active && triedLocallyStored) {
-      const injected = MetaMaskConnector.connector
-      injected.isAuthorized().then((isAuthorized) => {
-        if (isAuthorized) {
-          connect(MetaMaskConnector).catch(() => setTried(true))
-        } else {
-          if (isMobile && (window as any).ethereum) {
-            connect(MetaMaskConnector).catch(() => {
-              setTried(true)
-            })
-          } else {
-            setTried(true)
-          }
-        }
-      })
-    }
+    if (!active && triedLocallyStored) connect(MetaMaskConnector).catch(() => setTried(true))
   }, [connect, active, isMobile, triedLocallyStored])
 
   // wait until we get confirmation of a connection to flip the flag
