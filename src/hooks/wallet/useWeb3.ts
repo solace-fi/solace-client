@@ -8,6 +8,7 @@ import { useWindowDimensions } from '../internal/useWindowDimensions'
 // try to eager connect on boot if the user has a selectedProvider or a browser wallet available already
 export const useEagerConnect = (
   connect: (walletConnector: WalletConnector) => Promise<void>,
+  manuallyDisconnected: boolean,
   selectedProvider?: string
 ): boolean => {
   const { active } = useWeb3React()
@@ -29,14 +30,14 @@ export const useEagerConnect = (
 
   // Try injected connector if the web3 is still not active & already tried using locally stored provider
   useEffect(() => {
-    if (!active && triedLocallyStored && (window as any).ethereum) {
+    if (!active && triedLocallyStored && (window as any).ethereum && !manuallyDisconnected) {
       connect(MetaMaskConnector).catch(() => setTried(true))
     }
-  }, [connect, active, isMobile, triedLocallyStored])
+  }, [connect, active, isMobile, triedLocallyStored, manuallyDisconnected])
 
   // wait until we get confirmation of a connection to flip the flag
   useEffect(() => {
-    if (active) {
+    if (active && !manuallyDisconnected) {
       setTried(true)
     }
   }, [active])

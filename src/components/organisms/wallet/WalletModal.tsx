@@ -45,7 +45,7 @@ export const WalletModal: React.FC<WalletModalProps> = ({ closeModal, isOpen }) 
   hooks
 
   *************************************************************************************/
-  const { connector, active, error } = useWeb3React()
+  const { connector, active, error, account } = useWeb3React()
   const { disconnect } = useWallet()
 
   /************************************************************************************* 
@@ -79,7 +79,7 @@ export const WalletModal: React.FC<WalletModalProps> = ({ closeModal, isOpen }) 
       <Scrollable maxMobileHeight={60}>
         <WalletList />
       </Scrollable>
-      {connector instanceof WalletConnectConnector && (
+      {account && (
         <ButtonWrapper>
           <Button widthP={100} onClick={disconnect}>
             Disconnect Wallet
