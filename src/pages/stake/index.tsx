@@ -20,7 +20,6 @@ import { BigNumber } from 'ethers'
 import { formatUnits } from 'ethers/lib/utils'
 
 /* import managers */
-import { useWallet } from '../../context/WalletManager'
 import { useGeneral } from '../../context/GeneralManager'
 import { useContracts } from '../../context/ContractsManager'
 import { useProvider } from '../../context/ProviderManager'
@@ -87,6 +86,7 @@ import { BridgeModal } from './organisms/BridgeModal'
 import { Loader } from '../../components/atoms/Loader'
 import { PleaseConnectWallet } from '../../components/molecules/PleaseConnectWallet'
 import { SOLACE_TOKEN, XSOLACE_V1_TOKEN } from '../../constants/mappings/token'
+import { useWeb3React } from '@web3-react/core'
 
 // disable no unused variables
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -107,7 +107,7 @@ function Stake1(): any {
   const { handleToast, handleContractCallError } = useTransactionExecution()
   const { unstake_v1 } = useXSolaceV1()
   const { migrate } = useXSolaceMigrator()
-  const { account } = useWallet()
+  const { account } = useWeb3React()
   const { latestBlock } = useProvider()
   const { width } = useWindowDimensions()
 
@@ -362,7 +362,7 @@ export default function Stake(): JSX.Element {
   const [targetLock, setTargetLock] = useState<BigNumber | undefined>(undefined)
   const [locksChecked, setLocksChecked] = useState<CheckboxData[]>([])
 
-  const { account } = useWallet()
+  const { account } = useWeb3React()
   const { latestBlock } = useProvider()
   const { activeNetwork } = useNetwork()
   const { version } = useCachedData()

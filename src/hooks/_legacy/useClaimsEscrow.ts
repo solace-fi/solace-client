@@ -2,12 +2,12 @@ import { useEffect, useMemo, useState } from 'react'
 import { BigNumber } from 'ethers'
 import { useContracts } from '../../context/ContractsManager'
 import { ClaimDetails } from '../../constants/types'
-import { useWallet } from '../../context/WalletManager'
 import { useProvider } from '../../context/ProviderManager'
 import { withBackoffRetries } from '../../utils/time'
+import { useWeb3React } from '@web3-react/core'
 
 export const useGetClaimsDetails = (): ClaimDetails[] => {
-  const { account } = useWallet()
+  const { account } = useWeb3React()
   const { keyContracts } = useContracts()
   const { claimsEscrow } = useMemo(() => keyContracts, [keyContracts])
   const [claimsDetails, setClaimsDetails] = useState<ClaimDetails[]>([])

@@ -7,7 +7,7 @@ import { useContracts } from '../../context/ContractsManager'
 import { useGetFunctionGas } from '../provider/useGas'
 import { useProvider } from '../../context/ProviderManager'
 import { useCachedData } from '../../context/CachedDataManager'
-import { useNetwork } from '../../context/NetworkManager'
+import { useNetwork, networks } from '../../context/NetworkManager'
 import { rangeFrom0 } from '../../utils/numeric'
 import { withBackoffRetries } from '../../utils/time'
 import { Risk, SolaceRiskBalance } from '@solace-fi/sdk-nightly'
@@ -388,12 +388,12 @@ export const useFunctions = () => {
 }
 
 export const usePortfolio = (
-  account: string | undefined,
+  account: string | null | undefined,
   chains: number[],
   chainsLoading: boolean
 ): { portfolio: SolaceRiskScore | undefined; loading: boolean } => {
   const [score, setScore] = useState<SolaceRiskScore | undefined>(undefined)
-  const { networks, activeNetwork } = useNetwork()
+  const { activeNetwork } = useNetwork()
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -414,7 +414,7 @@ export const usePortfolio = (
       setLoading(false)
     }
     getPortfolio()
-  }, [account, networks, activeNetwork, chainsLoading, chains])
+  }, [account, activeNetwork, chainsLoading, chains])
 
   useEffect(() => {
     setLoading(true)
@@ -424,7 +424,7 @@ export const usePortfolio = (
 }
 
 export const useCooldownDetails = (
-  account: string | undefined
+  account: string | null | undefined
 ): { isCooldownActive: boolean; cooldownStart: BigNumber; cooldownPeriod: BigNumber; cooldownLeft: BigNumber } => {
   const { latestBlock } = useProvider()
   const { getCooldownPeriod, getCooldownStart } = useFunctions()
@@ -462,7 +462,7 @@ export const useCooldownDetails = (
   return { isCooldownActive, cooldownStart, cooldownPeriod, cooldownLeft }
 }
 
-export const useCheckIsCoverageActive = (account: string | undefined) => {
+export const useCheckIsCoverageActive = (account: string | null | undefined) => {
   const { getPolicyOf, getPolicyStatus, getCoverLimitOf } = useFunctions()
   const { version } = useCachedData()
   const { latestBlock } = useProvider()
@@ -502,7 +502,7 @@ export const useCheckIsCoverageActive = (account: string | undefined) => {
   return { policyId, status, coverageLimit, mounting }
 }
 
-export const useTotalAccountBalance = (account: string | undefined) => {
+export const useTotalAccountBalance = (account: string | null | undefined) => {
   const { getAccountBalanceOf, getRewardPointsOf } = useFunctions()
   const { version } = useCachedData()
   const { latestBlock } = useProvider()
@@ -534,7 +534,7 @@ export const useSupportedChains = () => {
   const { getNumSupportedChains, getChain } = useFunctions()
   const { keyContracts } = useContracts()
   const { solaceCoverProduct } = useMemo(() => keyContracts, [keyContracts])
-  const { activeNetwork, networks } = useNetwork()
+  const { activeNetwork } = useNetwork()
   const [coverableNetworks, setCoverableNetworks] = useState<NetworkConfig[]>([])
   const [coverableChains, setCoverableChains] = useState<BigNumber[]>([])
 

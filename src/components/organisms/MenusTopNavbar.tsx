@@ -7,17 +7,17 @@ import { StyledMenu } from '../atoms/Icon'
 import { Flex } from '../atoms/Layout'
 
 import { UserImage } from '../atoms/User'
-import { useWallet } from '../../context/WalletManager'
 import makeBlockie from 'ethereum-blockies-base64'
 import { SolaceGradientCircle } from '../molecules/SolaceGradientCircle'
 import UserGradient from '../../resources/svg/user_gradient.svg'
+import { useWeb3React } from '@web3-react/core'
 
 export const MenusTopNavBar: React.FC<{
   setShowLeft: (show: boolean) => void
   setShowRight: (show: boolean) => void
 }> = ({ setShowLeft, setShowRight }) => {
   const location = useLocation()
-  const { account } = useWallet()
+  const { account } = useWeb3React()
 
   return (
     <NewTopNav style={{ backgroundColor: location.pathname == '/' ? 'transparent' : undefined }}>

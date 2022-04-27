@@ -2,15 +2,15 @@ import React from 'react'
 import { Flex } from '../../components/atoms/Layout'
 import { Button } from '../../components/atoms/Button'
 import { useFunctions } from '../../hooks/policy/useSolaceCoverProduct'
-import { useWallet } from '../../context/WalletManager'
 import { useTransactionExecution } from '../../hooks/internal/useInputAmount'
 import { FunctionName } from '../../constants/enums'
 import { Text } from '../../components/atoms/Typography'
 import { Card } from '.'
+import { useWeb3React } from '@web3-react/core'
 
 export function CoverageActive({ policyStatus }: { policyStatus: boolean }) {
   const { deactivatePolicy } = useFunctions()
-  const { account } = useWallet()
+  const { account } = useWeb3React()
   const { handleToast, handleContractCallError } = useTransactionExecution()
 
   const callDeactivatePolicy = async () => {

@@ -1,18 +1,18 @@
 import { TransactionResponse } from '@ethersproject/providers'
+import { useWeb3React } from '@web3-react/core'
 import { BigNumber } from 'ethers'
 import { useMemo } from 'react'
 import { GAS_LIMIT, ZERO } from '../../constants'
 import { FunctionName, TransactionCondition } from '../../constants/enums'
 import { LocalTx } from '../../constants/types'
 import { useNetwork } from '../../context/NetworkManager'
-import { useWallet } from '../../context/WalletManager'
 import { withBackoffRetries } from '../../utils/time'
 import { useGetContract } from '../contract/useContract'
 import { useGetFunctionGas } from '../provider/useGas'
 
 export const useBridge = () => {
   const { activeNetwork } = useNetwork()
-  const { account } = useWallet()
+  const { account } = useWeb3React()
   const specialContracts = useMemo(() => activeNetwork.config.specialContracts, [activeNetwork])
   const bSolace = useGetContract(specialContracts.bSolace)
   const bridgeWrapper = useGetContract(specialContracts.bridgeWrapper)

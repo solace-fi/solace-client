@@ -32,7 +32,7 @@ import Terms from './terms'
 import { SideNavbar, TopNavbar } from '../components/organisms/Navbar'
 import { MenusTopNavBar } from '../components/organisms/MenusTopNavbar'
 import { GlobalStyle, Layout, ContentContainer, LayoutContent, SideNavContent } from '../components/atoms/Layout'
-import { LayoutContentWithLoader } from '../components/molecules/LayoutContentWithLoader'
+import { MainContent } from '../components/molecules/MainContent'
 import { Statistics } from '../components/organisms/Statistics'
 import {
   StyledDashboard,
@@ -173,7 +173,7 @@ export default function App(): any {
           <MobileInfoSideNavbar show={leftSidebar && width < BKPT_NAVBAR} setShow={setLeftSidebar} tabs={tabs} />
           <LayoutContent>
             {width >= BKPT_NAVBAR && <AppMenuHeader pages={pages} setShow={setRightSidebar} />}
-            <LayoutContentWithLoader>
+            <MainContent>
               {/* {location.pathname !== '/quote' && location.pathname !== '/terms' && location.pathname !== '/' && (
                 <Statistics />
               )} */}
@@ -191,7 +191,7 @@ export default function App(): any {
                 ))}
                 <Route exact path="/terms" component={Terms} />
               </Switch>
-            </LayoutContentWithLoader>
+            </MainContent>
           </LayoutContent>
         </ContentContainer>
       </Layout>

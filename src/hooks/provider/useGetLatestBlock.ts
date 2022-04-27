@@ -1,9 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { Block } from '@ethersproject/abstract-provider'
-import { useWallet } from '../../context/WalletManager'
 
-export const useGetLatestBlock = (): Block | undefined => {
-  const { library } = useWallet()
+export const useGetLatestBlock = (library?: any): Block | undefined => {
   const [latestBlock, setLatestBlock] = useState<Block | undefined>(undefined)
   const running = useRef(false)
 

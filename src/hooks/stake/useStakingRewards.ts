@@ -10,21 +10,22 @@ import { useProvider } from '../../context/ProviderManager'
 import { convertSciNotaToPrecise, truncateValue, formatAmount } from '../../utils/formatting'
 import { useGetFunctionGas } from '../provider/useGas'
 import { withBackoffRetries } from '../../utils/time'
+// import { Staker } from '@solace-fi/sdk-nightly'
 import { useNetwork } from '../../context/NetworkManager'
-import { getProviderOrSigner } from '../../utils'
-import { useWallet } from '../../context/WalletManager'
+// import { getProviderOrSigner } from '../../utils'
+// import { useWallet } from '../../context/WalletManager'
 
 import { Lock, Staker } from '@solace-fi/sdk-nightly'
 
 export const useStakingRewards = () => {
-  const { library, account } = useWallet()
-  const { chainId } = useNetwork()
+  // const { account } = useWeb3React()
+  const { library } = useProvider()
+  const { activeNetwork } = useNetwork()
   const { keyContracts } = useContracts()
   const { stakingRewards, xsLocker } = useMemo(() => keyContracts, [keyContracts])
   const { gasConfig } = useGetFunctionGas()
-  // const signer1 = useMemo(() => getProviderOrSigner(library, account), [library, account])
-
-  // const staker1 = useMemo(() => new Staker(chainId, signer1), [chainId, signer1])
+  // const providerOrSigner = useMemo(() => getProviderOrSigner(library, account), [library, account])
+  // const staker = useMemo(() => new Staker(activeNetwork.chainId, providerOrSigner), [activeNetwork.chainId, providerOrSigner])
 
   const getUserPendingRewards = async (account: string) => {
     let pendingRewards = ZERO
@@ -70,8 +71,8 @@ export const useStakingRewards = () => {
   }
 
   const getGlobalLockStats = async (): Promise<GlobalLockInfo> => {
-    const lock = new Lock(chainId, library)
-    const stats = await lock.getGlobalLockStats(chainId)
+    const lock = new Lock(activeNetwork.chainId, library)
+    const stats = await lock.getGlobalLockStats(activeNetwork.chainId)
     return stats
   }
 

@@ -136,7 +136,7 @@ export const KovanNetwork: NetworkConfig = {
     chainId: hexValue(chainId),
     chainName: 'Kovan Testnet',
     nativeCurrency: { name: 'Ether', symbol: Unit.ETH, decimals: 18 },
-    rpcUrls: ['https://eth-kovan.alchemyapi.io'],
+    rpcUrls: ['https://kovan.infura.io/v3/'],
     blockExplorerUrls: ['https://kovan.etherscan.io'],
   },
   walletConfig: {

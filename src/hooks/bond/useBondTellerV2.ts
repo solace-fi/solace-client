@@ -12,7 +12,6 @@ import { listTokensOfOwner } from '../../utils/contract'
 import { BigNumber } from 'ethers'
 import { useEffect, useState, useMemo, useRef } from 'react'
 
-import { useWallet } from '../../context/WalletManager'
 import { FunctionName, TransactionCondition } from '../../constants/enums'
 import { useProvider } from '../../context/ProviderManager'
 import { useNetwork } from '../../context/NetworkManager'
@@ -20,6 +19,7 @@ import { useGetFunctionGas } from '../provider/useGas'
 import { useCachedData } from '../../context/CachedDataManager'
 import { withBackoffRetries } from '../../utils/time'
 import { Bond } from '@solace-fi/sdk-nightly'
+import { useWeb3React } from '@web3-react/core'
 
 export const useBondTellerV2 = (selectedBondDetail: BondTellerDetails | undefined) => {
   const { gasConfig } = useGetFunctionGas()
@@ -110,10 +110,9 @@ export const useBondTellerV2 = (selectedBondDetail: BondTellerDetails | undefine
 }
 
 export const useBondTellerDetailsV2 = (): { tellerDetails: BondTellerDetails[]; mounting: boolean } => {
-  const { library } = useWallet()
-  const { latestBlock } = useProvider()
+  const { latestBlock, library } = useProvider()
   const { tellers } = useContracts()
-  const { activeNetwork, chainId } = useNetwork()
+  const { activeNetwork } = useNetwork()
   const [tellerDetails, setTellerDetails] = useState<BondTellerDetails[]>([])
   const [mounting, setMounting] = useState<boolean>(true)
   const canBondV2 = useMemo(() => !activeNetwork.config.restrictedFeatures.noBondingV2, [
@@ -137,7 +136,7 @@ export const useBondTellerDetailsV2 = (): { tellerDetails: BondTellerDetails[]; 
       )
         return
       running.current = true
-      const bond = new Bond(chainId, library)
+      const bond = new Bond(activeNetwork.chainId, library)
       const fetchedTellerData = await bond.getBondTellerData(tokenPriceMapping)
 
       const metadataMapping = tellers.reduce(
@@ -166,17 +165,17 @@ export const useBondTellerDetailsV2 = (): { tellerDetails: BondTellerDetails[]; 
       return setTellerDetails(adjustedTellerDetails)
     }
     getPrices()
-  }, [latestBlock, library, tellers, canBondV2, tokenPriceMapping, chainId])
+  }, [latestBlock, library, tellers, canBondV2, tokenPriceMapping, activeNetwork])
 
   return { tellerDetails, mounting }
 }
 
 export const useUserBondDataV2 = () => {
-  const { library } = useWallet()
-  const { chainId } = useNetwork()
+  const { library } = useProvider()
+  const { activeNetwork } = useNetwork()
 
   const getUserBondDataV2 = async (bondTellerContractAddress: string, account: string) => {
-    const bond = new Bond(chainId, library)
+    const bond = new Bond(activeNetwork.chainId, library)
     const ownedBonds = await bond.getUserBondData(bondTellerContractAddress, account)
     return ownedBonds
   }

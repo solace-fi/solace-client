@@ -1,6 +1,5 @@
 import React, { createContext, useContext, useMemo, useEffect, useState, useRef } from 'react'
 import { toast } from 'react-toastify'
-import { useWallet } from '../context/WalletManager'
 
 import 'animate.css/animate.min.css'
 import 'react-toastify/dist/ReactToastify.css'
@@ -12,6 +11,7 @@ import { AppToast, NotificationToast } from '../components/molecules/Toast'
 import { StyledInfo, StyledWarning } from '../components/atoms/Icon'
 import { useGeneral } from './GeneralManager'
 import { ErrorData, SystemNoticeData } from '../constants/types'
+import { useWeb3React } from '@web3-react/core'
 
 /*
 This manager allows for notifications to be created. such notifications can be created
@@ -50,7 +50,7 @@ const ToastsContext = createContext<ToastSystem>({
 
 const ToastsProvider: React.FC = (props) => {
   const { notices, errors } = useGeneral()
-  const { account } = useWallet()
+  const { account } = useWeb3React()
   const [noticeMap, setNoticeMap] = useState(new Map())
   const [errorMap, setErrorMap] = useState(new Map())
   const lastAccount = useRef<string>('')

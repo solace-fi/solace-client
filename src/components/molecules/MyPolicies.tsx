@@ -69,7 +69,7 @@ export const MyPolicies: React.FC<MyPoliciesProps> = ({
   *************************************************************************************/
   const { userPolicyData } = useCachedData()
   const { width } = useWindowDimensions()
-  const { activeNetwork, currencyDecimals } = useNetwork()
+  const { activeNetwork } = useNetwork()
 
   return (
     <Content>
@@ -146,7 +146,7 @@ export const MyPolicies: React.FC<MyPoliciesProps> = ({
                         </TableData>
                         <TableData>
                           <Text t2 warning={isWarned}>
-                            {truncateValue(formatUnits(policy.coverAmount, currencyDecimals), 2)}{' '}
+                            {truncateValue(formatUnits(policy.coverAmount, activeNetwork.nativeCurrency.decimals), 2)}{' '}
                             {activeNetwork.nativeCurrency.symbol}
                           </Text>
                         </TableData>
@@ -223,7 +223,9 @@ export const MyPolicies: React.FC<MyPoliciesProps> = ({
                       <Flex stretch between mb={10}>
                         <Text>Covered Amount:</Text>
                         <Text t2>
-                          {policy.coverAmount ? truncateValue(formatUnits(policy.coverAmount, currencyDecimals), 2) : 0}{' '}
+                          {policy.coverAmount
+                            ? truncateValue(formatUnits(policy.coverAmount, activeNetwork.nativeCurrency.decimals), 2)
+                            : 0}{' '}
                           {activeNetwork.nativeCurrency.symbol}
                         </Text>
                       </Flex>

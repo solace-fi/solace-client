@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { ZERO } from '../../constants'
 import { useContracts } from '../../context/ContractsManager'
 import { NetworkConfig } from '../../constants/types'
-import { useNetwork } from '../../context/NetworkManager'
+import { useNetwork, networks } from '../../context/NetworkManager'
 import { useProvider } from '../../context/ProviderManager'
 import { JsonRpcProvider } from '@ethersproject/providers'
 import { isAddress } from '../../utils'
@@ -32,8 +32,7 @@ export const useTotalActivePolicies = () => {
   return { totalActivePolicies, totalActiveCoverLimit }
 }
 
-export const useExistingPolicy = (account: string | undefined) => {
-  const { networks } = useNetwork()
+export const useExistingPolicy = (account: string | null | undefined) => {
   const { latestBlock } = useProvider()
   const [loading, setLoading] = useState(true)
   const [policyId, setPolicyId] = useState<BigNumber>(ZERO)

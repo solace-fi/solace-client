@@ -1,10 +1,10 @@
 import io from 'socket.io-client'
 import { useEffect, useState } from 'react'
-import { useWallet } from '../../context/WalletManager'
 import { ZerionPosition } from '../../constants/types'
+import { useWeb3React } from '@web3-react/core'
 
 export const useZerion = () => {
-  const { account } = useWallet()
+  const { account } = useWeb3React()
   const [zerionPositions, setZerionPositions] = useState<ZerionPosition[]>([])
 
   const getZerion = async (user: string): Promise<any> => {

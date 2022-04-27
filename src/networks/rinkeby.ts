@@ -148,7 +148,7 @@ export const RinkebyNetwork: NetworkConfig = {
     chainId: hexValue(chainId),
     chainName: 'Rinkeby Testnet',
     nativeCurrency: { name: 'Ether', symbol: Unit.ETH, decimals: 18 },
-    rpcUrls: ['https://eth-rinkeby.alchemyapi.io'],
+    rpcUrls: ['https://rinkeby.infura.io/v3/'],
     blockExplorerUrls: ['https://rinkeby.etherscan.io'],
   },
   walletConfig: {

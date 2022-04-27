@@ -65,7 +65,7 @@ export const UnderwritingPoolModal: React.FC<PoolModalProps> = ({ modalTitle, fu
   *************************************************************************************/
 
   const { haveErrors } = useGeneral()
-  const { activeNetwork, currencyDecimals } = useNetwork()
+  const { activeNetwork } = useNetwork()
   const { gasData } = useCachedData()
 
   const [modalLoading, setModalLoading] = useState<boolean>(false)
@@ -92,15 +92,19 @@ export const UnderwritingPoolModal: React.FC<PoolModalProps> = ({ modalTitle, fu
   const assetBalance = useMemo(() => {
     switch (func) {
       case FunctionName.DEPOSIT_ETH:
-        if (nativeTokenBalance.includes('.') && nativeTokenBalance.split('.')[1].length > (currencyDecimals ?? 0))
+        if (
+          nativeTokenBalance.includes('.') &&
+          nativeTokenBalance.split('.')[1].length > (activeNetwork.nativeCurrency.decimals ?? 0)
+        )
           return ZERO
-        return parseUnits(nativeTokenBalance, currencyDecimals)
+        return parseUnits(nativeTokenBalance, activeNetwork.nativeCurrency.decimals)
       case FunctionName.WITHDRAW_ETH:
       default:
-        if (scpBalance.includes('.') && scpBalance.split('.')[1].length > (currencyDecimals ?? 0)) return ZERO
-        return parseUnits(scpBalance, currencyDecimals)
+        if (scpBalance.includes('.') && scpBalance.split('.')[1].length > (activeNetwork.nativeCurrency.decimals ?? 0))
+          return ZERO
+        return parseUnits(scpBalance, activeNetwork.nativeCurrency.decimals)
     }
-  }, [currencyDecimals, func, nativeTokenBalance, scpBalance])
+  }, [activeNetwork.nativeCurrency.decimals, func, nativeTokenBalance, scpBalance])
 
   /*************************************************************************************
 
@@ -124,7 +128,7 @@ export const UnderwritingPoolModal: React.FC<PoolModalProps> = ({ modalTitle, fu
 
   const callDeposit = async () => {
     setModalLoading(true)
-    await depositEth(parseUnits(amount, currencyDecimals))
+    await depositEth(parseUnits(amount, activeNetwork.nativeCurrency.decimals))
       .then((res) => _handleToast(res.tx, res.localTx))
       .catch((err) => _handleContractCallError('callDeposit', err, FunctionName.DEPOSIT_ETH))
   }
@@ -132,14 +136,14 @@ export const UnderwritingPoolModal: React.FC<PoolModalProps> = ({ modalTitle, fu
   const callDepositEth = async () => {
     setModalLoading(true)
     await cpFarmFunctions
-      .depositEth(parseUnits(amount, currencyDecimals))
+      .depositEth(parseUnits(amount, activeNetwork.nativeCurrency.decimals))
       .then((res) => _handleToast(res.tx, res.localTx))
       .catch((err) => _handleContractCallError('callDepositEth', err, FunctionName.DEPOSIT_ETH))
   }
 
   const callWithdrawEth = async () => {
     setModalLoading(true)
-    await withdrawEth(parseUnits(amount, currencyDecimals))
+    await withdrawEth(parseUnits(amount, activeNetwork.nativeCurrency.decimals))
       .then((res) => _handleToast(res.tx, res.localTx))
       .catch((err) => _handleContractCallError('callWithdrawEth', err, FunctionName.WITHDRAW_ETH))
   }
@@ -163,7 +167,7 @@ export const UnderwritingPoolModal: React.FC<PoolModalProps> = ({ modalTitle, fu
   const _setMax = () => {
     setMax(
       assetBalance,
-      currencyDecimals,
+      activeNetwork.nativeCurrency.decimals,
       func == FunctionName.DEPOSIT_ETH ? FunctionGasLimits['vault.depositEth'] : undefined
     )
   }
@@ -187,7 +191,7 @@ export const UnderwritingPoolModal: React.FC<PoolModalProps> = ({ modalTitle, fu
   }, [gasData])
 
   useEffect(() => {
-    setIsAcceptableAmount(isAppropriateAmount(amount, currencyDecimals, assetBalance))
+    setIsAcceptableAmount(isAppropriateAmount(amount, activeNetwork.nativeCurrency.decimals, assetBalance))
   }, [amount, assetBalance])
 
   /*************************************************************************************
@@ -257,7 +261,7 @@ export const UnderwritingPoolModal: React.FC<PoolModalProps> = ({ modalTitle, fu
             value={amount}
           />
           <div style={{ position: 'absolute', top: '70%' }}>
-            Available: {truncateValue(formatUnits(assetBalance, currencyDecimals))}
+            Available: {truncateValue(formatUnits(assetBalance, activeNetwork.nativeCurrency.decimals))}
           </div>
         </ModalCell>
         <ModalCell t3>

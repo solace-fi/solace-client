@@ -80,7 +80,7 @@ export const Erc721PoolModalGeneric: React.FC<PoolModalProps & Erc721PoolModalGe
   *************************************************************************************/
 
   const { haveErrors } = useGeneral()
-  const { activeNetwork, currencyDecimals } = useNetwork()
+  const { activeNetwork } = useNetwork()
   const [modalLoading, setModalLoading] = useState<boolean>(false)
   const [nftId, setNftId] = useState<BigNumber>(ZERO)
   const [nftSelection, setNftSelection] = useState<{ value: string; label: string }>({ value: '', label: '' })
@@ -94,10 +94,21 @@ export const Erc721PoolModalGeneric: React.FC<PoolModalProps & Erc721PoolModalGe
         return userNftTokenInfo.reduce((a, b) => a.add(b.value), ZERO)
       case withdrawFunc.name:
       default:
-        if (userStakeValue.includes('.') && userStakeValue.split('.')[1].length > (currencyDecimals ?? 0)) return ZERO
-        return parseUnits(userStakeValue, currencyDecimals)
+        if (
+          userStakeValue.includes('.') &&
+          userStakeValue.split('.')[1].length > (activeNetwork.nativeCurrency.decimals ?? 0)
+        )
+          return ZERO
+        return parseUnits(userStakeValue, activeNetwork.nativeCurrency.decimals)
     }
-  }, [currencyDecimals, depositFunc.name, func, userNftTokenInfo, userStakeValue, withdrawFunc.name])
+  }, [
+    activeNetwork.nativeCurrency.decimals,
+    depositFunc.name,
+    func,
+    userNftTokenInfo,
+    userStakeValue,
+    withdrawFunc.name,
+  ])
 
   /*************************************************************************************
 
@@ -167,13 +178,16 @@ export const Erc721PoolModalGeneric: React.FC<PoolModalProps & Erc721PoolModalGe
         setNftId(tokenInfo[0].id)
         setNftSelection({
           value: `${tokenInfo[0].id.toString()}`,
-          label: `#${tokenInfo[0].id.toString()} - ${formatUnits(tokenInfo[0].value, currencyDecimals)}`,
+          label: `#${tokenInfo[0].id.toString()} - ${formatUnits(
+            tokenInfo[0].value,
+            activeNetwork.nativeCurrency.decimals
+          )}`,
         })
       } else {
         handleNft({ value: '0', label: '' })
       }
     },
-    [currencyDecimals, handleNft]
+    [activeNetwork.nativeCurrency.decimals, handleNft]
   )
 
   /*************************************************************************************
@@ -187,14 +201,14 @@ export const Erc721PoolModalGeneric: React.FC<PoolModalProps & Erc721PoolModalGe
       if (func == depositFunc.name) bootNft(userNftTokenInfo)
       if (func == withdrawFunc.name) bootNft(depositedNftTokenInfo)
     }
-  }, [isOpen, func, currencyDecimals])
+  }, [isOpen, func, activeNetwork.nativeCurrency.decimals])
 
   return (
     <Modal isOpen={isOpen} handleClose={handleClose} modalTitle={modalTitle} disableCloseButton={modalLoading}>
       <Erc721InputPanel
         unit={getUnit(func, activeNetwork)}
         assetTokens={getAssetTokensByFunc()}
-        availableBalance={truncateValue(formatUnits(assetBalance, currencyDecimals))}
+        availableBalance={truncateValue(formatUnits(assetBalance, activeNetwork.nativeCurrency.decimals))}
         nftSelection={nftSelection}
         handleNft={handleNft}
         nftId={nftId}

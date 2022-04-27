@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { Token, Pair, Price } from '@sushiswap/sdk'
 
-import { useNetwork } from '../../context/NetworkManager'
+import { networks } from '../../context/NetworkManager'
 import { floatUnits } from '../../utils/formatting'
 import { queryDecimals } from '../../utils/contract'
 import { Contract } from '@ethersproject/contracts'

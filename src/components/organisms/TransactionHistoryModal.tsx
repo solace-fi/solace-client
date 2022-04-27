@@ -26,7 +26,6 @@ import { ExplorerscanApi } from '../../constants/enums'
 import { useCachedData } from '../../context/CachedDataManager'
 import { useContracts } from '../../context/ContractsManager'
 import { useNetwork } from '../../context/NetworkManager'
-import { useWallet } from '../../context/WalletManager'
 
 /* import components */
 import { Modal } from '../molecules/Modal'
@@ -46,6 +45,7 @@ import { getExplorerItemUrl } from '../../utils/explorer'
 import { shortenAddress } from '../../utils/formatting'
 import { timeAgo } from '../../utils/time'
 import { decodeInput } from '../../utils/decoder'
+import { useWeb3React } from '@web3-react/core'
 
 interface TransactionHistoryModalProps {
   closeModal: () => void
@@ -62,7 +62,7 @@ export const TransactionHistoryModal: React.FC<TransactionHistoryModalProps> = (
   const { activeNetwork } = useNetwork()
   const { localTransactions } = useCachedData()
   const { contractSources } = useContracts()
-  const { account } = useWallet()
+  const { account } = useWeb3React()
   const { width } = useWindowDimensions()
   const { txHistory } = useTransactionDetails()
   /************************************************************************************* 

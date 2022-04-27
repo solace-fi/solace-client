@@ -26,8 +26,7 @@ import { SOLACE_TOKEN } from '../../constants/mappings/token'
 import { GlobalLockInfo, UserLocksInfo } from '../../constants/types'
 
 /* import managers */
-import { useWallet } from '../../context/WalletManager'
-import { useNetwork } from '../../context/NetworkManager'
+import { useNetwork, networks } from '../../context/NetworkManager'
 import { useProvider } from '../../context/ProviderManager'
 import { useCachedData } from '../../context/CachedDataManager'
 
@@ -49,6 +48,7 @@ import { useStakingRewards } from '../../hooks/stake/useStakingRewards'
 /* import utils */
 import { truncateValue } from '../../utils/formatting'
 import { useTotalActivePolicies } from '../../hooks/policy/usePolicy'
+import { useWeb3React } from '@web3-react/core'
 
 export const Statistics: React.FC = () => {
   /*************************************************************************************
@@ -56,7 +56,7 @@ export const Statistics: React.FC = () => {
   hooks
 
   *************************************************************************************/
-  const { account, initialized } = useWallet()
+  const { active, account } = useWeb3React()
   const { activeNetwork } = useNetwork()
   const { latestBlock } = useProvider()
   const solaceBalance = useSolaceBalance()
@@ -250,7 +250,7 @@ export const Statistics: React.FC = () => {
       {width > BKPT_3 ? (
         <BoxRow>
           <Box>
-            {initialized && account ? (
+            {active && account ? (
               <>
                 <BoxItem>
                   <BoxItemTitle t4 light>
@@ -313,7 +313,7 @@ export const Statistics: React.FC = () => {
         <>
           <CardContainer m={20}>
             <Card color1>
-              {initialized && account ? (
+              {active && account ? (
                 <>
                   <Flex stretch between mb={24}>
                     <Text light>My SOLACE Balance</Text>

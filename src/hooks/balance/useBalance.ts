@@ -1,6 +1,5 @@
 import { useCallback, useMemo } from 'react'
 import { useContracts } from '../../context/ContractsManager'
-import { useWallet } from '../../context/WalletManager'
 import { useCachedData } from '../../context/CachedDataManager'
 import { useState, useEffect, useRef } from 'react'
 import { formatUnits } from '@ethersproject/units'
@@ -12,9 +11,11 @@ import { useBridge } from './useBridge'
 import { withBackoffRetries } from '../../utils/time'
 import { SOLACE_TOKEN, XSOLACE_TOKEN, XSOLACE_V1_TOKEN } from '../../constants/mappings/token'
 import { UnderwritingPoolUSDBalances } from '@solace-fi/sdk-nightly'
+import { useWeb3React } from '@web3-react/core'
 
 export const useNativeTokenBalance = (): string => {
-  const { account, library } = useWallet()
+  const { library } = useProvider()
+  const { account } = useWeb3React()
   const { activeNetwork } = useNetwork()
   const { version } = useCachedData()
   const [balance, setBalance] = useState<string>('0')
@@ -43,7 +44,7 @@ export const useScpBalance = (): string => {
   const { keyContracts } = useContracts()
   const { vault } = useMemo(() => keyContracts, [keyContracts])
   const { activeNetwork } = useNetwork()
-  const { account } = useWallet()
+  const { account } = useWeb3React()
   const [scpBalance, setScpBalance] = useState<string>('0')
   const { version } = useCachedData()
 
@@ -78,7 +79,7 @@ export const useScpBalance = (): string => {
 export const useSolaceBalance = (): string => {
   const { keyContracts } = useContracts()
   const { solace } = useMemo(() => keyContracts, [keyContracts])
-  const { account } = useWallet()
+  const { account } = useWeb3React()
   const { version } = useCachedData()
   const [solaceBalance, setSolaceBalance] = useState<string>('0')
 
@@ -113,7 +114,7 @@ export const useSolaceBalance = (): string => {
 export const useXSolaceBalance = (): string => {
   const { keyContracts } = useContracts()
   const { xSolace } = useMemo(() => keyContracts, [keyContracts])
-  const { account } = useWallet()
+  const { account } = useWeb3React()
   const { version } = useCachedData()
   const [xSolaceBalance, setXSolaceBalance] = useState<string>('0')
 
@@ -147,7 +148,7 @@ export const useXSolaceBalance = (): string => {
 
 export const useBridgeBalance = (): string => {
   const { bSolace, getUserBridgeBalance } = useBridge()
-  const { account } = useWallet()
+  const { account } = useWeb3React()
   const { version } = useCachedData()
   const [bridgeBalance, setBridgeBalance] = useState<string>('0')
 
@@ -178,7 +179,7 @@ export const useBridgeBalance = (): string => {
 export const useXSolaceV1Balance = (): { xSolaceV1Balance: string; v1StakedSolaceBalance: string } => {
   const { keyContracts } = useContracts()
   const { xSolaceV1 } = useMemo(() => keyContracts, [keyContracts])
-  const { account } = useWallet()
+  const { account } = useWeb3React()
   const { version } = useCachedData()
   const [xSolaceV1Balance, setXSolaceV1Balance] = useState<string>('0')
   const [v1StakedSolaceBalance, setV1StakedSolaceBalance] = useState<string>('0')

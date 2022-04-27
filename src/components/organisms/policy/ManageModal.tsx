@@ -79,15 +79,15 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
   const [isUpdate, setIsUpdate] = useState<boolean>(true)
 
   const { haveErrors } = useGeneral()
-  const { activeNetwork, currencyDecimals } = useNetwork()
+  const { activeNetwork } = useNetwork()
   const { selectedProtocol, keyContracts } = useContracts()
   const { riskManager } = useMemo(() => keyContracts, [keyContracts])
   const { addLocalTransactions, reload } = useCachedData()
   const { makeTxToast } = useNotifications()
   const maxCoverPerPolicy = useGetMaxCoverPerPolicy()
-  const maxCoverPerPolicyInWei = useMemo(() => parseUnits(maxCoverPerPolicy, currencyDecimals), [
+  const maxCoverPerPolicyInWei = useMemo(() => parseUnits(maxCoverPerPolicy, activeNetwork.nativeCurrency.decimals), [
     maxCoverPerPolicy,
-    currencyDecimals,
+    activeNetwork.nativeCurrency.decimals,
   ])
   const { width } = useWindowDimensions()
   const { gasConfig } = useGetFunctionGas()
@@ -262,7 +262,7 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
     setInputCoverage(
       formatUnits(
         BigNumber.from(`${convertFromSciNota ? convertSciNotaToPrecise(coverAmount) : coverAmount}`),
-        currencyDecimals
+        activeNetwork.nativeCurrency.decimals
       )
     )
     setNewCoverage(`${convertFromSciNota ? convertSciNotaToPrecise(coverAmount) : coverAmount}`)
@@ -276,12 +276,12 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
     const formatted = formatAmount(filtered)
 
     // if number has more than max decimal places, do not update
-    if (filtered.includes('.') && filtered.split('.')[1]?.length > currencyDecimals) return
+    if (filtered.includes('.') && filtered.split('.')[1]?.length > activeNetwork.nativeCurrency.decimals) return
 
     // if number is greater than the max cover per user, do not update
-    if (parseUnits(formatted, currencyDecimals).gt(maxCoverPerPolicyInWei)) return
+    if (parseUnits(formatted, activeNetwork.nativeCurrency.decimals).gt(maxCoverPerPolicyInWei)) return
 
-    setNewCoverage(accurateMultiply(filtered, currencyDecimals)) // set new amount in wei
+    setNewCoverage(accurateMultiply(filtered, activeNetwork.nativeCurrency.decimals)) // set new amount in wei
     setInputCoverage(filtered) // set new amount in eth
   }
 
@@ -352,8 +352,8 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
   }, [isOpen, selectedPolicy, currentCoverAmount])
 
   useEffect(() => {
-    setCoveredAssets(formatUnits(BigNumber.from(newCoverage), currencyDecimals))
-  }, [newCoverage, currencyDecimals])
+    setCoveredAssets(formatUnits(BigNumber.from(newCoverage), activeNetwork.nativeCurrency.decimals))
+  }, [newCoverage, activeNetwork.nativeCurrency.decimals])
 
   return (
     <Modal isOpen={isOpen} handleClose={handleClose} modalTitle={'Policy Management'} disableCloseButton={modalLoading}>
@@ -487,7 +487,8 @@ export const ManageModal: React.FC<ManageModalProps> = ({ isOpen, closeModal, se
             <Flex col mt={180} mb={30}>
               <Flex stretch between mb={10}>
                 <Text t4>
-                  Refund amount: {formatUnits(refundAmount, currencyDecimals)} {activeNetwork.nativeCurrency.symbol}
+                  Refund amount: {formatUnits(refundAmount, activeNetwork.nativeCurrency.decimals)}{' '}
+                  {activeNetwork.nativeCurrency.symbol}
                 </Text>
               </Flex>
               <Text></Text>
