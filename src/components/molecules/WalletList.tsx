@@ -5,32 +5,15 @@ import { Flex } from '../atoms/Layout'
 import { Text } from '../atoms/Typography'
 import { ModalCell } from '../atoms/Modal'
 import { Card, CardContainer } from '../atoms/Card'
-import { LedgerDerivationPathModal } from '../organisms/wallet/LedgerDerivationPathModal'
 import { useWeb3React } from '@web3-react/core'
-
-type ConnectWalletModalState = {
-  showLedgerModal: boolean
-}
-
-const InitialState: ConnectWalletModalState = {
-  showLedgerModal: false,
-}
 
 export const WalletList = () => {
   const { connector } = useWeb3React()
   const { connect } = useWallet()
-  const [state, setState] = useState<ConnectWalletModalState>(InitialState)
 
   const connectWallet = useCallback(
     async (id: string) => {
       const foundWalletConnector = SUPPORTED_WALLETS[SUPPORTED_WALLETS.findIndex((wallet) => wallet.id === id)]
-
-      if (foundWalletConnector.id === 'ledger') {
-        setState({
-          showLedgerModal: true,
-        })
-        return
-      }
 
       await connect(foundWalletConnector)
     },
@@ -54,14 +37,8 @@ export const WalletList = () => {
           style={{ display: 'flex' }}
         >
           <Flex stretch between>
-            {/* {isMetamask && (
-              <ModalCell p={10}>
-                <img src={SUPPORTED_WALLETS[0].logo} alt={SUPPORTED_WALLETS[0].name} height={32} />
-              </ModalCell>
-            )} */}
             <ModalCell p={10}>
               <Text t4 bold light={SUPPORTED_WALLETS[0].connector === connector}>
-                {/* {isMetamask ? SUPPORTED_WALLETS[0].name : 'Browser Wallet'} */}
                 Browser Wallet
               </Text>
             </ModalCell>
@@ -94,10 +71,6 @@ export const WalletList = () => {
           </Card>
         ))}
       </CardContainer>
-      <LedgerDerivationPathModal
-        isOpen={state.showLedgerModal}
-        closeModal={() => setState({ showLedgerModal: false })}
-      />
     </>
   )
 }
