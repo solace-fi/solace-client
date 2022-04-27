@@ -15,7 +15,7 @@
   *************************************************************************************/
 
 /* import packages */
-import React, { useCallback } from 'react'
+import React, { useCallback, useEffect } from 'react'
 
 /* import managers */
 import { useWallet } from '../../../context/WalletManager'
@@ -30,6 +30,9 @@ import { Z_MODAL } from '../../../constants'
 
 /* import wallets */
 import { WalletList } from '../../molecules/WalletList'
+import { useWeb3React } from '@web3-react/core'
+import { WalletConnectConnector } from '@web3-react/walletconnect-connector'
+import usePrevious from '../../../hooks/internal/usePrevious'
 
 interface WalletModalProps {
   closeModal: () => void
@@ -42,7 +45,8 @@ export const WalletModal: React.FC<WalletModalProps> = ({ closeModal, isOpen }) 
   hooks
 
   *************************************************************************************/
-  const { disconnect, activeWalletConnector } = useWallet()
+  const { connector, active, error } = useWeb3React()
+  const { disconnect } = useWallet()
 
   /************************************************************************************* 
     
@@ -52,6 +56,17 @@ export const WalletModal: React.FC<WalletModalProps> = ({ closeModal, isOpen }) 
   const handleClose = useCallback(() => {
     closeModal()
   }, [closeModal])
+
+  const activePrevious = usePrevious(active)
+  const connectorPrevious = usePrevious(connector)
+
+  // if the user is inactive, then became active
+  // or if the connector is different, close modal
+  useEffect(() => {
+    if ((active && !activePrevious) || (connector && connector !== connectorPrevious && !error)) {
+      handleClose()
+    }
+  }, [active, activePrevious, handleClose, connector, connectorPrevious, error])
 
   return (
     <Modal
@@ -64,7 +79,7 @@ export const WalletModal: React.FC<WalletModalProps> = ({ closeModal, isOpen }) 
       <Scrollable maxMobileHeight={60}>
         <WalletList />
       </Scrollable>
-      {activeWalletConnector && (
+      {connector instanceof WalletConnectConnector && (
         <ButtonWrapper>
           <Button widthP={100} onClick={disconnect}>
             Disconnect Wallet

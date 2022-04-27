@@ -19,7 +19,6 @@ import { InputSection } from '../../../../components/molecules/InputSection'
 import { useInputAmount, useTransactionExecution } from '../../../../hooks/internal/useInputAmount'
 import { FunctionName } from '../../../../constants/enums'
 import { useXSLocker } from '../../../../hooks/stake/useXSLocker'
-import { useWallet } from '../../../../context/WalletManager'
 import { SmallBox } from '../../../../components/atoms/Box'
 import { Text } from '../../../../components/atoms/Typography'
 import { BKPT_5, DAYS_PER_YEAR } from '../../../../constants'
@@ -32,6 +31,7 @@ import { Accordion } from '../../../../components/atoms/Accordion'
 import { useProvider } from '../../../../context/ProviderManager'
 import { useProjectedBenefits } from '../../../../hooks/stake/useStakingRewards'
 import { useWindowDimensions } from '../../../../hooks/internal/useWindowDimensions'
+import { useWeb3React } from '@web3-react/core'
 
 const StyledForm = styled.div`
   display: flex;
@@ -46,7 +46,7 @@ const StyledForm = styled.div`
 
 export default function NewSafe({ isOpen }: { isOpen: boolean }): JSX.Element {
   const { width } = useWindowDimensions()
-  const { account } = useWallet()
+  const { account } = useWeb3React()
   const { latestBlock } = useProvider()
   const solaceBalance = useSolaceBalance()
   const { isAppropriateAmount } = useInputAmount()

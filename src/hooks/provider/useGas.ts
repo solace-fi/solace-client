@@ -3,17 +3,17 @@ import { GasConfiguration, GasData } from '../../constants/types'
 import { useCachedData } from '../../context/CachedDataManager'
 import { useNetwork } from '../../context/NetworkManager'
 import { getGasValue } from '../../utils/formatting'
-import { useWallet } from '../../context/WalletManager'
 import { FunctionName } from '../../constants/enums'
 import { GAS_LIMIT, ZERO } from '../../constants'
 import { useProvider } from '../../context/ProviderManager'
 import { formatUnits } from 'ethers/lib/utils'
 import { FeeData } from '@ethersproject/providers'
+import { useWeb3React } from '@web3-react/core'
+import { SUPPORTED_WALLETS } from '../../wallet'
 
 export const useFetchGasData = (): GasData | undefined => {
-  const { activeNetwork, chainId } = useNetwork()
-  const { latestBlock } = useProvider()
-  const { library } = useWallet()
+  const { activeNetwork } = useNetwork()
+  const { latestBlock, library } = useProvider()
   const running = useRef(false)
   // const running = useRef(false)
   const [gasData, setGasData] = useState<GasData | undefined>(undefined)
@@ -42,20 +42,22 @@ export const useFetchGasData = (): GasData | undefined => {
     if (!latestBlock || running.current || !library) return
 
     fetchGasData()
-  }, [chainId, latestBlock])
+  }, [activeNetwork.chainId, latestBlock])
 
   return gasData
 }
 
 export const useGetFunctionGas = () => {
   const { activeNetwork } = useNetwork()
-  const { activeWalletConnector } = useWallet()
+  const { connector } = useWeb3React()
   const { gasData } = useCachedData()
 
   const getGasConfig = useCallback(
     (_gasValue: number | undefined): GasConfiguration => {
       // null check and testnet check
       const gasValue = _gasValue ?? gasData?.gasPrice
+
+      const activeWalletConnector = SUPPORTED_WALLETS.find((w) => w.connector === connector)
 
       if (!activeWalletConnector || activeNetwork.isTestnet || !gasValue || !gasData) {
         return {}
@@ -74,7 +76,7 @@ export const useGetFunctionGas = () => {
         gasPrice: getGasValue(gasValue),
       }
     },
-    [activeNetwork, activeWalletConnector, gasData]
+    [activeNetwork, connector, gasData]
   )
 
   const getAutoGasConfig = useCallback((): GasConfiguration => getGasConfig(undefined), [getGasConfig])

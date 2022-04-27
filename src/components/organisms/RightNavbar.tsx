@@ -29,6 +29,8 @@ import useCopyClipboard from '../../hooks/internal/useCopyToClipboard'
 import { SolaceGradientCircle } from '../molecules/SolaceGradientCircle'
 import UserWhite from '../../resources/svg/user_white.svg'
 import { SOLACE_TOKEN } from '../../constants/mappings/token'
+import { useWeb3React } from '@web3-react/core'
+import { useENS } from '../../hooks/wallet/useENS'
 
 const AppNav = styled.div<{ shouldShow: boolean }>`
   background-color: ${({ theme }) => theme.modal.base_color};
@@ -97,16 +99,17 @@ const data = [
 export const AppMenu = ({ show, setShow }: { show: boolean; setShow: (show: boolean) => void }) => {
   const location = useLocation()
   const { appTheme, toggleTheme } = useGeneral()
-  const { width, height } = useWindowDimensions()
-  const { openNetworkModal } = useProvider()
-  const { account, activeWalletConnector, name, openWalletModal } = useWallet()
+  const { width } = useWindowDimensions()
+  const { openNetworkModal, latestBlock } = useProvider()
+  const { account } = useWeb3React()
+  const name = useENS()
+  const { openWalletModal } = useWallet()
   const { activeNetwork } = useNetwork()
   const { txHistory } = useTransactionDetails()
   const [showTxHistory, setShowTxHistory] = useState(false)
   const [showWalletSettings, setShowWalletSettings] = useState(false)
 
   const wrapperRef = useRef(null)
-  const { latestBlock } = useProvider()
   const { contractSources } = useContracts()
   const [isCopied, setCopied] = useCopyClipboard()
 

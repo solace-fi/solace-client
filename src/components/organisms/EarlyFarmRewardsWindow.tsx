@@ -33,7 +33,6 @@ import IERC20 from '../../constants/metadata/IERC20Metadata.json'
 
 /* import managers */
 import { useNetwork } from '../../context/NetworkManager'
-import { useWallet } from '../../context/WalletManager'
 import { useContracts } from '../../context/ContractsManager'
 import { useGeneral } from '../../context/GeneralManager'
 import { useNotifications } from '../../context/NotificationsManager'
@@ -62,6 +61,8 @@ import { getDateStringWithMonthName, withBackoffRetries } from '../../utils/time
 import { queryBalance } from '../../utils/contract'
 import { truncateValue } from '../../utils/formatting'
 import { getContract, isAddress } from '../../utils'
+import { useProvider } from '../../context/ProviderManager'
+import { useWeb3React } from '@web3-react/core'
 
 export const EarlyFarmRewardsWindow: React.FC = () => {
   /* 
@@ -72,8 +73,9 @@ export const EarlyFarmRewardsWindow: React.FC = () => {
   const { haveErrors } = useGeneral()
   const { keyContracts } = useContracts()
   const { farmRewards } = useMemo(() => keyContracts, [keyContracts])
-  const { library, account } = useWallet()
-  const { chainId, currencyDecimals, activeNetwork } = useNetwork()
+  const { account } = useWeb3React()
+  const { library } = useProvider()
+  const { activeNetwork } = useNetwork()
   const { makeTxToast } = useNotifications()
   const { reload } = useCachedData()
   const { gasConfig } = useGetFunctionGas()
@@ -82,27 +84,27 @@ export const EarlyFarmRewardsWindow: React.FC = () => {
   const stablecoins = useMemo(
     () => [
       {
-        value: `${USDC_TOKEN.address[chainId]}`,
+        value: `${USDC_TOKEN.address[activeNetwork.chainId]}`,
         label: USDC_TOKEN.constants.symbol,
         decimals: USDC_TOKEN.constants.decimals,
       },
       {
-        value: `${USDT_TOKEN.address[chainId]}`,
+        value: `${USDT_TOKEN.address[activeNetwork.chainId]}`,
         label: USDT_TOKEN.constants.symbol,
         decimals: USDT_TOKEN.constants.decimals,
       },
       {
-        value: `${DAI_TOKEN.address[chainId]}`,
+        value: `${DAI_TOKEN.address[activeNetwork.chainId]}`,
         label: DAI_TOKEN.constants.symbol,
         decimals: DAI_TOKEN.constants.decimals,
       },
       {
-        value: `${FRAX_TOKEN.address[chainId]}`,
+        value: `${FRAX_TOKEN.address[activeNetwork.chainId]}`,
         label: FRAX_TOKEN.constants.symbol,
         decimals: FRAX_TOKEN.constants.decimals,
       },
     ],
-    [chainId]
+    [activeNetwork.chainId]
   )
 
   const [stablecoinPayment, setStablecoinPayment] = useState(stablecoins[0])
@@ -345,13 +347,14 @@ export const EarlyFarmRewardsWindow: React.FC = () => {
         <Flex stretch between mt={20}>
           <Text bold>Amount you can redeem now</Text>
           <Text bold textAlignRight info>
-            {truncateValue(formatUnits(purchaseableSolace, currencyDecimals), 4, false)} SOLACE
+            {truncateValue(formatUnits(purchaseableSolace, activeNetwork.nativeCurrency.decimals), 4, false)} SOLACE
           </Text>
         </Flex>
         <Flex stretch between>
           <Text bold>Your total earned amount</Text>
           <Text bold textAlignRight info>
-            {truncateValue(formatUnits(totalEarnedSolaceRewards, currencyDecimals), 4, false)} SOLACE
+            {truncateValue(formatUnits(totalEarnedSolaceRewards, activeNetwork.nativeCurrency.decimals), 4, false)}{' '}
+            SOLACE
           </Text>
         </Flex>
         <HorizRule />

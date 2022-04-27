@@ -13,6 +13,7 @@ import { PolicyState, SystemNotice } from '../constants/enums'
 import { useGeneral } from './GeneralManager'
 import { AccountModal } from '../components/organisms/AccountModal'
 import { useGetCrossTokenPricesFromCoingecko } from '../hooks/api/usePrice'
+import { useWeb3React } from '@web3-react/core'
 
 /*
 
@@ -59,8 +60,9 @@ const CachedDataContext = createContext<CachedData>({
 })
 
 const CachedDataProvider: React.FC = (props) => {
-  const { account, disconnect } = useWallet()
-  const { chainId } = useNetwork()
+  const { account } = useWeb3React()
+  const { disconnect } = useWallet()
+  const { activeNetwork } = useNetwork()
   const { tokenPriceMapping } = useGetCrossTokenPricesFromCoingecko()
   const [localTxs, setLocalTxs] = useLocalStorage<LocalTx[]>('solace_loc_txs', [])
   const [reload, version] = useReload()
@@ -97,7 +99,7 @@ const CachedDataProvider: React.FC = (props) => {
       setLocalTxs([])
     }
     clearLocalTransactions()
-  }, [disconnect, account, chainId])
+  }, [disconnect, account, activeNetwork.chainId])
 
   useEffect(() => {
     if (!policiesLoading) {

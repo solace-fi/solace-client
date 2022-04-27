@@ -188,7 +188,7 @@ export const MainNetwork: NetworkConfig = {
     chainId: hexValue(chainId),
     chainName: 'Ethereum Mainnet',
     nativeCurrency: { name: 'Ether', symbol: Unit.ETH, decimals: 18 },
-    rpcUrls: ['https://eth-mainnet.alchemyapi.io'],
+    rpcUrls: ['https://mainnet.infura.io/v3/'],
     blockExplorerUrls: ['https://etherscan.io'],
   },
   walletConfig: {

@@ -2,17 +2,17 @@ import { useState, useEffect, useMemo } from 'react'
 import { useContracts } from '../../context/ContractsManager'
 import { useNetwork } from '../../context/NetworkManager'
 import { useProvider } from '../../context/ProviderManager'
-import { useWallet } from '../../context/WalletManager'
 import { BigNumber } from 'ethers'
 import { ZERO } from '../../constants'
 import { earlyFarmRewards } from '../../constants/mappings/earlyFarmRewards'
+import { useWeb3React } from '@web3-react/core'
 
 export const useEarlyFarmRewards = () => {
-  const { account } = useWallet()
+  const { account } = useWeb3React()
   const { keyContracts } = useContracts()
   const { farmRewards, xSolaceV1 } = useMemo(() => keyContracts, [keyContracts])
   const { latestBlock } = useProvider()
-  const { currencyDecimals } = useNetwork()
+  const { activeNetwork } = useNetwork()
 
   const [totalEarnedSolaceRewards, setTotalEarnedSolaceRewards] = useState<BigNumber>(ZERO)
   const [purchaseableSolace, setPurchaseableSolace] = useState<BigNumber>(ZERO)
@@ -30,7 +30,7 @@ export const useEarlyFarmRewards = () => {
       setPurchaseableSolace(purchaseableSolace)
     }
     populateRewardsInfo()
-  }, [account, farmRewards, latestBlock, xSolaceV1, currencyDecimals])
+  }, [account, farmRewards, latestBlock, xSolaceV1, activeNetwork.nativeCurrency.decimals])
 
   return {
     totalEarnedSolaceRewards,

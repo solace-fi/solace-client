@@ -96,7 +96,7 @@ export const PolygonNetwork: NetworkConfig = {
     chainId: hexValue(chainId),
     chainName: 'Matic Network',
     nativeCurrency: { name: 'Matic', symbol: Unit.MATIC, decimals: 18 },
-    rpcUrls: ['https://polygon-mainnet.g.alchemy.com'],
+    rpcUrls: ['https://rpc-mainnet.matic.network'],
     blockExplorerUrls: ['https://polygonscan.com'],
   },
   walletConfig: {

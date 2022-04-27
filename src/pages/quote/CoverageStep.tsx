@@ -30,7 +30,6 @@ import { LiquityPosition, LocalTx, Position, Token } from '../../constants/types
 
 /* import managers */
 import { useContracts } from '../../context/ContractsManager'
-import { useWallet } from '../../context/WalletManager'
 import { useCachedData } from '../../context/CachedDataManager'
 import { useNotifications } from '../../context/NotificationsManager'
 import { useNetwork } from '../../context/NetworkManager'
@@ -58,6 +57,7 @@ import {
   formatAmount,
 } from '../../utils/formatting'
 import { getDateStringWithMonthName, getDateExtended } from '../../utils/time'
+import { useWeb3React } from '@web3-react/core'
 
 export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigation }) => {
   /*************************************************************************************
@@ -69,15 +69,15 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
   const { protocol, positions, coverAmount, timePeriod, loading } = formData
   const maxCoverPerPolicy = useGetMaxCoverPerPolicy() // in eth
   const quote = useGetQuote(coverAmount, timePeriod)
-  const { account } = useWallet()
+  const { account } = useWeb3React()
   const { addLocalTransactions, reload } = useCachedData()
   const { selectedProtocol } = useContracts()
   const { makeTxToast } = useNotifications()
-  const { activeNetwork, currencyDecimals } = useNetwork()
+  const { activeNetwork } = useNetwork()
   const { gasConfig, getSupportedProductGasLimit } = useGetFunctionGas()
-  const maxCoverPerPolicyInWei = useMemo(() => parseUnits(maxCoverPerPolicy, currencyDecimals), [
+  const maxCoverPerPolicyInWei = useMemo(() => parseUnits(maxCoverPerPolicy, activeNetwork.nativeCurrency.decimals), [
     maxCoverPerPolicy,
-    currencyDecimals,
+    activeNetwork.nativeCurrency.decimals,
   ])
 
   // positionAmount: BigNumber = wei but displayable, position.eth.balance: BigNumber = wei
@@ -94,8 +94,13 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
       }
     }, ZERO)
     if (totalBalance.isZero()) return ZERO
-    return BigNumber.from(accurateMultiply(formatUnits(totalBalance, currencyDecimals), currencyDecimals))
-  }, [positions, currencyDecimals])
+    return BigNumber.from(
+      accurateMultiply(
+        formatUnits(totalBalance, activeNetwork.nativeCurrency.decimals),
+        activeNetwork.nativeCurrency.decimals
+      )
+    )
+  }, [positions, activeNetwork.nativeCurrency.decimals])
 
   const [inputCoverage, setInputCoverage] = useState<string>('')
   const [coveredAssets, setCoveredAssets] = useState<string>(maxCoverPerPolicy)
@@ -136,7 +141,7 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
           }, [])
         ),
         {
-          value: parseUnits(quote, currencyDecimals),
+          value: parseUnits(quote, activeNetwork.nativeCurrency.decimals),
           ...gasConfig,
           gasLimit: getSupportedProductGasLimit(protocol.name, txType),
         }
@@ -205,13 +210,13 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
     const formatted = formatAmount(filtered)
 
     // if number has more than max decimal places, do not update
-    if (filtered.includes('.') && filtered.split('.')[1]?.length > currencyDecimals) return
+    if (filtered.includes('.') && filtered.split('.')[1]?.length > activeNetwork.nativeCurrency.decimals) return
 
     // if number is greater than the max cover per user, do not update
-    if (parseUnits(formatted, currencyDecimals).gt(maxCoverPerPolicyInWei)) return
+    if (parseUnits(formatted, activeNetwork.nativeCurrency.decimals).gt(maxCoverPerPolicyInWei)) return
 
     setInputCoverage(filtered)
-    setCoverage(accurateMultiply(formatted, currencyDecimals))
+    setCoverage(accurateMultiply(formatted, activeNetwork.nativeCurrency.decimals))
   }
 
   // coverAmount in wei
@@ -228,7 +233,7 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
     setInputCoverage(
       formatUnits(
         BigNumber.from(`${convertFromSciNota ? convertSciNotaToPrecise(coverAmount) : coverAmount}`),
-        currencyDecimals
+        activeNetwork.nativeCurrency.decimals
       )
     )
     setCoverage(`${convertFromSciNota ? convertSciNotaToPrecise(coverAmount) : coverAmount}`)
@@ -258,8 +263,8 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
   }, [maxCoverPerPolicyInWei])
 
   useEffect(() => {
-    setCoveredAssets(formatUnits(BigNumber.from(coverAmount), currencyDecimals))
-  }, [coverAmount, currencyDecimals])
+    setCoveredAssets(formatUnits(BigNumber.from(coverAmount), activeNetwork.nativeCurrency.decimals))
+  }, [coverAmount, activeNetwork.nativeCurrency.decimals])
 
   return (
     <Card style={{ margin: 'auto' }}>
@@ -268,7 +273,7 @@ export const CoverageStep: React.FC<formProps> = ({ formData, setForm, navigatio
           Total Assets
         </Text>
         <Text bold t2 textAlignRight info>
-          {formatUnits(positionAmount, currencyDecimals)} {activeNetwork.nativeCurrency.symbol}
+          {formatUnits(positionAmount, activeNetwork.nativeCurrency.decimals)} {activeNetwork.nativeCurrency.symbol}
         </Text>
       </Flex>
       <Flex stretch between mb={15}>

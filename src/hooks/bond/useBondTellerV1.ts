@@ -4,18 +4,18 @@ import { BondTellerDetails, TxResult, LocalTx } from '../../constants/types'
 import { useContracts } from '../../context/ContractsManager'
 import { getContract } from '../../utils'
 
-import { useWallet } from '../../context/WalletManager'
 import { FunctionName, TransactionCondition } from '../../constants/enums'
 import { queryDecimals, queryName, querySymbol } from '../../utils/contract'
 import { useProvider } from '../../context/ProviderManager'
 import { usePriceSdk } from '../api/usePrice'
-import { useNetwork } from '../../context/NetworkManager'
+import { useNetwork, networks } from '../../context/NetworkManager'
 import { floatUnits, truncateValue } from '../../utils/formatting'
 import { BondTokenV1 } from '../../constants/types'
 import { useGetFunctionGas } from '../provider/useGas'
 import { useCachedData } from '../../context/CachedDataManager'
 import { withBackoffRetries } from '../../utils/time'
 import { SOLACE_TOKEN, XSOLACE_V1_TOKEN } from '../../constants/mappings/token'
+import { useWeb3React } from '@web3-react/core'
 
 export const useBondTellerV1 = (selectedBondDetail: BondTellerDetails | undefined) => {
   const { gasConfig } = useGetFunctionGas()
@@ -101,10 +101,10 @@ export const useBondTellerV1 = (selectedBondDetail: BondTellerDetails | undefine
 export const useBondTellerDetailsV1 = (
   canGetPrices: boolean
 ): { tellerDetails: BondTellerDetails[]; mounting: boolean } => {
-  const { library, account } = useWallet()
-  const { latestBlock } = useProvider()
+  const { account } = useWeb3React()
+  const { latestBlock, library } = useProvider()
   const { tellers } = useContracts()
-  const { activeNetwork, networks } = useNetwork()
+  const { activeNetwork } = useNetwork()
   const [tellerDetails, setTellerDetails] = useState<BondTellerDetails[]>([])
   const [mounting, setMounting] = useState<boolean>(true)
   const { getPriceSdkFunc } = usePriceSdk()

@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback, useMemo } from 'react'
 import { useContracts } from '../../context/ContractsManager'
 import { useNetwork } from '../../context/NetworkManager'
-import { useWallet } from '../../context/WalletManager'
 import { LocalTx, TxResult } from '../../constants/types'
 import { BigNumber } from 'ethers'
 import { DEADLINE, ZERO } from '../../constants'
@@ -15,19 +14,21 @@ import { parseUnits, formatUnits } from '@ethersproject/units'
 import { useProvider } from '../../context/ProviderManager'
 import { useGetFunctionGas } from '../provider/useGas'
 import { SOLACE_TOKEN, XSOLACE_V1_TOKEN } from '../../constants/mappings/token'
+import { useWeb3React } from '@web3-react/core'
 
 export const useXSolaceV1 = () => {
   const { keyContracts } = useContracts()
   const { solace, xSolaceV1 } = useMemo(() => keyContracts, [keyContracts])
-  const { account, library } = useWallet()
-  const { chainId } = useNetwork()
+  const { account } = useWeb3React()
+  const { library } = useProvider()
+  const { activeNetwork } = useNetwork()
   const { gasConfig } = useGetFunctionGas()
 
   const stake_v1 = async (parsedAmount: BigNumber) => {
     if (!solace || !xSolaceV1 || !account) return { tx: null, localTx: null }
     const { v, r, s } = await getPermitErc20Signature(
       account,
-      chainId,
+      activeNetwork.chainId,
       library,
       xSolaceV1.address,
       solace,

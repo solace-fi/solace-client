@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { Token, Pair } from '@sushiswap/sdk'
 
-import { useNetwork } from '../../context/NetworkManager'
+import { networks } from '../../context/NetworkManager'
 import { floatUnits } from '../../utils/formatting'
 import { queryDecimals } from '../../utils/contract'
 import { Contract } from '@ethersproject/contracts'
@@ -147,7 +147,6 @@ export const useGetPriceFromSushiSwap = () => {
 export const useGetCrossTokenPricesFromCoingecko = () => {
   const [tokenPriceMapping, setPriceMapping] = useState<TokenToPriceMapping>({})
   const gettingPrices = useRef(false)
-  const { networks } = useNetwork()
   const { latestBlock } = useProvider()
 
   const getPricesByAddress = async (addrs: string[]): Promise<TokenToPriceMapping> => {

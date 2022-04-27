@@ -13,7 +13,7 @@ import { useInputAmount, useTransactionExecution } from '../../../../hooks/inter
 import { LockData } from '../../../../constants/types'
 import { FunctionName } from '../../../../constants/enums'
 import { useXSLocker } from '../../../../hooks/stake/useXSLocker'
-import { useWallet } from '../../../../context/WalletManager'
+
 import { StyledForm } from '../../atoms/StyledForm'
 import { Flex, VerticalSeparator } from '../../../../components/atoms/Layout'
 import { useWindowDimensions } from '../../../../hooks/internal/useWindowDimensions'
@@ -22,13 +22,14 @@ import { GrayBox } from '../../../../components/molecules/GrayBox'
 import { useProjectedBenefits } from '../../../../hooks/stake/useStakingRewards'
 import { BKPT_5 } from '../../../../constants'
 import { Text } from '../../../../components/atoms/Typography'
+import { useWeb3React } from '@web3-react/core'
 
 export default function DepositForm({ lock }: { lock: LockData }): JSX.Element {
   const solaceBalance = useSolaceBalance()
   const { isAppropriateAmount } = useInputAmount()
   const { handleToast, handleContractCallError } = useTransactionExecution()
   const { increaseLockAmount } = useXSLocker()
-  const { account } = useWallet()
+  const { account } = useWeb3React()
   const { width } = useWindowDimensions()
 
   const [disabled, setDisabled] = React.useState(false)

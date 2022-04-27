@@ -26,7 +26,7 @@ import { StyledInfo } from '../../components/atoms/Icon'
 import { Content } from '../../components/atoms/Layout'
 import { EarlyFarmRewardsWindow } from '../../components/organisms/EarlyFarmRewardsWindow'
 import { PleaseConnectWallet } from '../../components/molecules/PleaseConnectWallet'
-import { useWallet } from '../../context/WalletManager'
+import { useWeb3React } from '@web3-react/core'
 
 function Invest(): any {
   /*************************************************************************************
@@ -35,7 +35,7 @@ function Invest(): any {
 
   *************************************************************************************/
   const { activeNetwork } = useNetwork()
-  const { account } = useWallet()
+  const { account } = useWeb3React()
 
   /*************************************************************************************
 

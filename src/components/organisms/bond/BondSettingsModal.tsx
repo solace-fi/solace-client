@@ -36,7 +36,7 @@ import { isAddress } from '../../../utils'
 import { filterAmount, formatAmount } from '../../../utils/formatting'
 
 interface BondSettingsModalProps extends ModalProps {
-  bondRecipient: string | undefined
+  bondRecipient: string | null | undefined
   setBondRecipient: any
   slippagePrct: string
   setSlippagePrct: any
@@ -58,7 +58,7 @@ export const BondSettingsModal: React.FC<BondSettingsModalProps> = ({
 
   */
   const [slippage, setSlippage] = useState<string>(slippagePrct)
-  const [recipient, setRecipient] = useState<string | undefined>(bondRecipient)
+  const [recipient, setRecipient] = useState<string | null | undefined>(bondRecipient)
 
   /*
 

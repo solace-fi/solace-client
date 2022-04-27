@@ -29,7 +29,6 @@ import { CircularProgressbar, buildStyles } from 'react-circular-progressbar'
 import 'react-circular-progressbar/dist/styles.css'
 
 /* import context */
-import { useWallet } from '../../context/WalletManager'
 import { useNetwork } from '../../context/NetworkManager'
 import { useGeneral } from '../../context/GeneralManager'
 
@@ -58,6 +57,7 @@ import { useWindowDimensions } from '../../hooks/internal/useWindowDimensions'
 
 /* import utils */
 import { fixed } from '../../utils/formatting'
+import { useWeb3React } from '@web3-react/core'
 
 /************************************************************************************* 
 
@@ -138,8 +138,8 @@ export const MultiStepForm = () => {
     steps,
     initialStep: 0,
   })
-  const { account } = useWallet()
-  const { activeNetwork, chainId } = useNetwork()
+  const { account } = useWeb3React()
+  const { activeNetwork } = useNetwork()
   const { appTheme } = useGeneral()
   const { width } = useWindowDimensions()
   const props = { formData, setForm, navigation }
@@ -210,7 +210,7 @@ export const MultiStepForm = () => {
 
   useEffect(() => {
     resetForm()
-  }, [account, chainId])
+  }, [account, activeNetwork.chainId])
 
   return (
     <FormContent>

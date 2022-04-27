@@ -14,6 +14,7 @@ import { Text } from '../../components/atoms/Typography'
 import { CoverageLimitBasicForm } from './CoverageLimitBasicForm'
 import { truncateValue } from '../../utils/formatting'
 import { formatUnits } from 'ethers/lib/utils'
+import { useWeb3React } from '@web3-react/core'
 
 export function CoverageLimit({
   balances,
@@ -58,7 +59,7 @@ export function CoverageLimit({
   stableCoinData: ReadToken
   inactive?: boolean
 }): JSX.Element {
-  const { account } = useWallet()
+  const { account } = useWeb3React()
   const startEditing = () => setIsEditing(true)
   const stopEditing = () => setIsEditing(false)
   const [doesReachMinReqAccountBal, setDoesReachMinReqAccountBal] = useState(false)

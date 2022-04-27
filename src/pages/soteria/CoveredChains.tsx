@@ -6,7 +6,6 @@ import { Checkbox } from '../../components/atoms/Input'
 import { StyledTooltip } from '../../components/molecules/Tooltip'
 import { useWindowDimensions } from '../../hooks/internal/useWindowDimensions'
 import { useFunctions } from '../../hooks/policy/useSolaceCoverProduct'
-import { useWallet } from '../../context/WalletManager'
 import { BigNumber } from 'ethers'
 import { NetworkConfig } from '../../constants/types'
 import { useTransactionExecution } from '../../hooks/internal/useInputAmount'
@@ -18,6 +17,7 @@ import updateLockCheck from '../stake/utils/stake/batchActions/checkboxes/update
 import lockIsChecked from '../stake/utils/stake/batchActions/checkboxes/lockIsChecked'
 import { Loader } from '../../components/atoms/Loader'
 import { FixedHeightGrayBox } from '../../components/molecules/GrayBox'
+import { useWeb3React } from '@web3-react/core'
 
 export function CoveredChains({
   coverageActivity: { status, mounting },
@@ -40,7 +40,7 @@ export function CoveredChains({
   setIsEditing: (isEditing: boolean) => void
 }): JSX.Element {
   const { ifDesktop } = useWindowDimensions()
-  const { account } = useWallet()
+  const { account } = useWeb3React()
   const { activeNetwork } = useNetwork()
   const { handleToast, handleContractCallError } = useTransactionExecution()
   const { updatePolicyChainInfo } = useFunctions()
