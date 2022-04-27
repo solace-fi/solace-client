@@ -4,7 +4,7 @@ import { useCachedData } from '../../context/CachedDataManager'
 import { useState, useEffect, useRef } from 'react'
 import { formatUnits } from '@ethersproject/units'
 import { queryBalance } from '../../utils/contract'
-import { useNetwork } from '../../context/NetworkManager'
+import { networks, useNetwork } from '../../context/NetworkManager'
 // import SafeServiceClient from '@gnosis.pm/safe-service-client'
 import { useProvider } from '../../context/ProviderManager'
 import { useBridge } from './useBridge'
@@ -12,6 +12,7 @@ import { withBackoffRetries } from '../../utils/time'
 import { SOLACE_TOKEN, XSOLACE_TOKEN, XSOLACE_V1_TOKEN } from '../../constants/mappings/token'
 import { UnderwritingPoolUSDBalances } from '@solace-fi/sdk-nightly'
 import { useWeb3React } from '@web3-react/core'
+import { NetworkConfig } from '../../constants/types'
 
 export const useNativeTokenBalance = (): string => {
   const { library } = useProvider()
@@ -222,7 +223,15 @@ export const useCrossChainUnderwritingPoolBalance = () => {
   useEffect(() => {
     const getBalance = async () => {
       const uwpUSDBals = new UnderwritingPoolUSDBalances()
-      const usdBalData = await uwpUSDBals.getUSDBalances_All()
+      const countedNetworks = networks.filter((n) => !n.isTestnet)
+      const rpcUrlMapping: { [key: string]: string } = countedNetworks.reduce(
+        (urls: any, network: NetworkConfig) => ({
+          ...urls,
+          [String(network.chainId)]: network.rpc.httpsUrl,
+        }),
+        {}
+      )
+      const usdBalData = await uwpUSDBals.getUSDBalances_All(rpcUrlMapping)
       const totalUsdcBalance = usdBalData.total
       setUnderwritingPoolBalance(totalUsdcBalance.toString())
     }

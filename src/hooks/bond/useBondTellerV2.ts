@@ -7,7 +7,6 @@ import {
   TellerTokenMetadata,
 } from '../../constants/types'
 import { useContracts } from '../../context/ContractsManager'
-import { listTokensOfOwner } from '../../utils/contract'
 
 import { BigNumber } from 'ethers'
 import { useEffect, useState, useMemo, useRef } from 'react'
@@ -17,9 +16,7 @@ import { useProvider } from '../../context/ProviderManager'
 import { useNetwork } from '../../context/NetworkManager'
 import { useGetFunctionGas } from '../provider/useGas'
 import { useCachedData } from '../../context/CachedDataManager'
-import { withBackoffRetries } from '../../utils/time'
 import { Bond } from '@solace-fi/sdk-nightly'
-import { useWeb3React } from '@web3-react/core'
 
 export const useBondTellerV2 = (selectedBondDetail: BondTellerDetails | undefined) => {
   const { gasConfig } = useGetFunctionGas()

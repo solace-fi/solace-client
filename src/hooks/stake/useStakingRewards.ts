@@ -72,7 +72,7 @@ export const useStakingRewards = () => {
 
   const getGlobalLockStats = async (): Promise<GlobalLockInfo> => {
     const lock = new Lock(activeNetwork.chainId, library)
-    const stats = await lock.getGlobalLockStats(activeNetwork.chainId)
+    const stats = await lock.getGlobalLockStats()
     return stats
   }
 

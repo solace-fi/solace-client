@@ -1,4 +1,4 @@
-import { BigNumber, Contract } from 'ethers'
+import { BigNumber } from 'ethers'
 import { formatUnits } from '@ethersproject/units'
 import { useEffect, useMemo, useState } from 'react'
 import { ZERO } from '../../constants'
@@ -6,12 +6,9 @@ import { useContracts } from '../../context/ContractsManager'
 import { NetworkConfig } from '../../constants/types'
 import { useNetwork, networks } from '../../context/NetworkManager'
 import { useProvider } from '../../context/ProviderManager'
-import { JsonRpcProvider } from '@ethersproject/providers'
-import { isAddress } from '../../utils'
 import { numberAbbreviate, truncateValue } from '../../utils/formatting'
 import { useFunctions, useSupportedChains } from './useSolaceCoverProduct'
 import { CheckboxData } from '../../pages/stake/types/LockCheckbox'
-import { withBackoffRetries } from '../../utils/time'
 import { Policy } from '@solace-fi/sdk-nightly'
 
 export const useTotalActivePolicies = () => {
@@ -22,7 +19,17 @@ export const useTotalActivePolicies = () => {
   useEffect(() => {
     const getPolicyCount = async () => {
       const policy = new Policy()
-      const data = await policy.getTotalActivePolicies_All()
+
+      const countedNetworks = networks.filter((n) => n.config.keyContracts.solaceCoverProduct && !n.isTestnet)
+      const rpcUrlMapping: { [key: number]: string } = countedNetworks.reduce(
+        (urls: any, network: NetworkConfig) => ({
+          ...urls,
+          [network.chainId]: network.rpc.httpsUrl,
+        }),
+        {}
+      )
+
+      const data = await policy.getTotalActivePolicies_All(rpcUrlMapping)
       setTotalActivePolicies(numberAbbreviate(data.totalPolicies.toString()))
       setTotalActiveCoverLimit(truncateValue(formatUnits(data.totalActiveCoverLimit, 18), 2))
     }
@@ -46,7 +53,16 @@ export const useExistingPolicy = (account: string | null | undefined) => {
         return
       }
       const policy = new Policy()
-      const data = await policy.getExistingPolicy(account)
+
+      const rpcUrlMapping: { [key: number]: string } = networks.reduce(
+        (urls: any, network: NetworkConfig) => ({
+          ...urls,
+          [network.chainId]: network.rpc.httpsUrl,
+        }),
+        {}
+      )
+
+      const data = await policy.getExistingPolicy(account, rpcUrlMapping, false)
       if (data.length > 0) {
         const network = networks.find((n) => n.chainId === data[0].chainId)
         if (network) {
