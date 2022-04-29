@@ -103,7 +103,7 @@ const ButtonColorFunc = (props: ButtonProps, theme: any) => {
         opacity: 1;
         transform: scale(1);
         &:hover {
-          opacity: 0.8;
+          ${!props.nohover && `opacity: 0.8;`}
         }
       `
     }

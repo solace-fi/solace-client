@@ -27,14 +27,12 @@ import { TransactionReceipt, TransactionResponse } from '@ethersproject/provider
 /* import constants */
 import { FunctionName, TransactionCondition } from '../../constants/enums'
 import { LocalTx } from '../../constants/types'
-import { USDC_ADDRESS, USDT_ADDRESS, DAI_ADDRESS, FRAX_ADDRESS } from '../../constants/mappings/tokenAddressMapping'
+import { USDC_TOKEN, USDT_TOKEN, DAI_TOKEN, FRAX_TOKEN } from '../../constants/mappings/token'
 import { MAX_APPROVAL_AMOUNT, ZERO } from '../../constants'
 import IERC20 from '../../constants/metadata/IERC20Metadata.json'
-import { FunctionGasLimits } from '../../constants/mappings/gasMapping'
 
 /* import managers */
 import { useNetwork } from '../../context/NetworkManager'
-import { useWallet } from '../../context/WalletManager'
 import { useContracts } from '../../context/ContractsManager'
 import { useGeneral } from '../../context/GeneralManager'
 import { useNotifications } from '../../context/NotificationsManager'
@@ -60,9 +58,11 @@ import { useGetFunctionGas } from '../../hooks/provider/useGas'
 
 /* import utils */
 import { getDateStringWithMonthName, withBackoffRetries } from '../../utils/time'
-import { queryBalance, queryDecimals } from '../../utils/contract'
+import { queryBalance } from '../../utils/contract'
 import { truncateValue } from '../../utils/formatting'
 import { getContract, isAddress } from '../../utils'
+import { useProvider } from '../../context/ProviderManager'
+import { useWeb3React } from '@web3-react/core'
 
 export const EarlyFarmRewardsWindow: React.FC = () => {
   /* 
@@ -73,8 +73,9 @@ export const EarlyFarmRewardsWindow: React.FC = () => {
   const { haveErrors } = useGeneral()
   const { keyContracts } = useContracts()
   const { farmRewards } = useMemo(() => keyContracts, [keyContracts])
-  const { library, account } = useWallet()
-  const { chainId, currencyDecimals, activeNetwork } = useNetwork()
+  const { account } = useWeb3React()
+  const { library } = useProvider()
+  const { activeNetwork } = useNetwork()
   const { makeTxToast } = useNotifications()
   const { reload } = useCachedData()
   const { gasConfig } = useGetFunctionGas()
@@ -82,18 +83,34 @@ export const EarlyFarmRewardsWindow: React.FC = () => {
   const { handleToast, handleContractCallError } = useTransactionExecution()
   const stablecoins = useMemo(
     () => [
-      { value: `${USDC_ADDRESS[chainId]}`, label: 'USDC' },
-      { value: `${USDT_ADDRESS[chainId]}`, label: 'USDT' },
-      { value: `${DAI_ADDRESS[chainId]}`, label: 'DAI' },
-      { value: `${FRAX_ADDRESS[chainId]}`, label: 'FRAX' },
+      {
+        value: `${USDC_TOKEN.address[activeNetwork.chainId]}`,
+        label: USDC_TOKEN.constants.symbol,
+        decimals: USDC_TOKEN.constants.decimals,
+      },
+      {
+        value: `${USDT_TOKEN.address[activeNetwork.chainId]}`,
+        label: USDT_TOKEN.constants.symbol,
+        decimals: USDT_TOKEN.constants.decimals,
+      },
+      {
+        value: `${DAI_TOKEN.address[activeNetwork.chainId]}`,
+        label: DAI_TOKEN.constants.symbol,
+        decimals: DAI_TOKEN.constants.decimals,
+      },
+      {
+        value: `${FRAX_TOKEN.address[activeNetwork.chainId]}`,
+        label: FRAX_TOKEN.constants.symbol,
+        decimals: FRAX_TOKEN.constants.decimals,
+      },
     ],
-    [chainId]
+    [activeNetwork.chainId]
   )
 
   const [stablecoinPayment, setStablecoinPayment] = useState(stablecoins[0])
   const [stablecoinUnsupported, setStablecoinUnsupported] = useState<boolean>(false)
   const [userStablecoinBalance, setUserStablecoinBalance] = useState<BigNumber>(ZERO)
-  const [userStablecoinDecimals, setUserStablecoinDecimals] = useState<number>(0)
+  const [userStablecoinDecimals, setUserStablecoinDecimals] = useState<number>(stablecoins[0].decimals)
 
   const [vestingEnd, setVestingEnd] = useState<BigNumber>(ZERO)
 
@@ -193,8 +210,7 @@ export const EarlyFarmRewardsWindow: React.FC = () => {
     }
     const stablecoinContract = getContract(stablecoinPayment.value, IERC20.abi, library, account)
     const balance = await queryBalance(stablecoinContract, account)
-    const decimals = await queryDecimals(stablecoinContract)
-    setUserStablecoinDecimals(decimals)
+    setUserStablecoinDecimals(stablecoinPayment.decimals)
     setUserStablecoinBalance(balance)
     setContractForAllowance(stablecoinContract)
     setStablecoinUnsupported(false)
@@ -331,13 +347,14 @@ export const EarlyFarmRewardsWindow: React.FC = () => {
         <Flex stretch between mt={20}>
           <Text bold>Amount you can redeem now</Text>
           <Text bold textAlignRight info>
-            {truncateValue(formatUnits(purchaseableSolace, currencyDecimals), 4, false)} SOLACE
+            {truncateValue(formatUnits(purchaseableSolace, activeNetwork.nativeCurrency.decimals), 4, false)} SOLACE
           </Text>
         </Flex>
         <Flex stretch between>
           <Text bold>Your total earned amount</Text>
           <Text bold textAlignRight info>
-            {truncateValue(formatUnits(totalEarnedSolaceRewards, currencyDecimals), 4, false)} SOLACE
+            {truncateValue(formatUnits(totalEarnedSolaceRewards, activeNetwork.nativeCurrency.decimals), 4, false)}{' '}
+            SOLACE
           </Text>
         </Flex>
         <HorizRule />

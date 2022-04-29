@@ -166,7 +166,7 @@ export const darkTheme = {
   },
   modal: {
     bg_color: 'rgba(21, 25, 31, 0.9)',
-    base_color: '#242933',
+    base_color: '#2a2f3b',
     glow: '0',
   },
   radio: {

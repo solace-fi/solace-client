@@ -138,7 +138,7 @@ export const Erc721InputPanel: React.FC<Erc721InputPanelProps> = ({
   handleNft,
   nftId,
 }) => {
-  const { currencyDecimals } = useNetwork()
+  const { activeNetwork } = useNetwork()
 
   return (
     <>
@@ -150,7 +150,7 @@ export const Erc721InputPanel: React.FC<Erc721InputPanelProps> = ({
             onChange={handleNft}
             options={assetTokens.map((token) => ({
               value: `${token.id.toString()}`,
-              label: `#${token.id.toString()} - ${formatUnits(token.value, currencyDecimals)}`,
+              label: `#${token.id.toString()} - ${formatUnits(token.value, activeNetwork.nativeCurrency.decimals)}`,
             }))}
           />
           <div style={{ position: 'absolute', top: '77%' }}>Available: {availableBalance}</div>

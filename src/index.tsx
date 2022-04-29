@@ -1,6 +1,8 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
 import { BrowserRouter } from 'react-router-dom'
+import { Web3ReactProvider } from '@web3-react/core'
+import getLibrary from './utils/getLibrary'
 
 import App from './pages/App'
 
@@ -31,23 +33,25 @@ already reserved in this system for something else.
 
 ReactDOM.render(
   <React.StrictMode>
-    <GeneralManager>
-      <NetworkManager>
-        <WalletManager>
-          <ProviderManager>
-            <ContractsManager>
-              <CachedDataManager>
-                <NotificationsManager>
-                  <BrowserRouter>
-                    <App />
-                  </BrowserRouter>
-                </NotificationsManager>
-              </CachedDataManager>
-            </ContractsManager>
-          </ProviderManager>
-        </WalletManager>
-      </NetworkManager>
-    </GeneralManager>
+    <Web3ReactProvider getLibrary={getLibrary}>
+      <GeneralManager>
+        <NetworkManager>
+          <WalletManager>
+            <ProviderManager>
+              <ContractsManager>
+                <CachedDataManager>
+                  <NotificationsManager>
+                    <BrowserRouter>
+                      <App />
+                    </BrowserRouter>
+                  </NotificationsManager>
+                </CachedDataManager>
+              </ContractsManager>
+            </ProviderManager>
+          </WalletManager>
+        </NetworkManager>
+      </GeneralManager>
+    </Web3ReactProvider>
   </React.StrictMode>,
   document.getElementById('root')
 )

@@ -12,6 +12,8 @@ function getWindowDimensions() {
 
 export const useWindowDimensions = (): WindowDimensions => {
   const [windowDimensions, setWindowDimensions] = useState(getWindowDimensions())
+  const [scrollPosition, setScrollPosition] = useState(0)
+
   const { width } = windowDimensions
   const isDesktop = width > BKPT_5
   const isMobile = !isDesktop
@@ -21,6 +23,18 @@ export const useWindowDimensions = (): WindowDimensions => {
   const ifMobile = function <T, V>(mobileArg: T, desktopArg?: V): T | V | undefined {
     return isDesktop ? desktopArg : mobileArg
   }
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const position = window.pageYOffset
+      setScrollPosition(position)
+    }
+    window.addEventListener('scroll', handleScroll)
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll)
+    }
+  }, [])
 
   useEffect(() => {
     function handleResize() {
@@ -33,6 +47,7 @@ export const useWindowDimensions = (): WindowDimensions => {
 
   return {
     ...windowDimensions,
+    scrollPosition,
     isDesktop,
     isMobile,
     ifDesktop,

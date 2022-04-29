@@ -31,7 +31,7 @@ import { WaaveProduct } from '../products/waave'
 import { LiquityProduct } from '../products/liquity'
 
 import { KEY_ADDRS, PRODUCT_ADDRS } from '../constants/addresses/rinkeby'
-import { USDC_ADDRESS, WETH9_ADDRESS } from '../constants/mappings/tokenAddressMapping'
+import { USDC_TOKEN, WETH9_TOKEN } from '../constants/mappings/token'
 import { tellerToTokenMapping } from '../constants/mappings/tellerToTokenMappings/rinkeby'
 
 /*
@@ -48,7 +48,7 @@ export const RinkebyNetwork: NetworkConfig = {
   isTestnet: true,
   logo: EthereumLogo,
   supportedTxTypes: [0, 2],
-  nativeCurrency: { mainnetReference: WETH9_ADDRESS[1], symbol: Unit.ETH, decimals: 18 },
+  nativeCurrency: { mainnetReference: WETH9_TOKEN.address[1], symbol: Unit.ETH, decimals: 18 },
   rpc: {
     httpsUrl: `https://eth-rinkeby.alchemyapi.io/v2/${String(ALCHEMY_ETHEREUM_API_KEY)}`,
     pollingInterval: 12_000,
@@ -136,7 +136,7 @@ export const RinkebyNetwork: NetworkConfig = {
     },
     restrictedFeatures: {},
     specialFeatures: {
-      solaceBuyLink: `https://app.sushi.com/swap?inputCurrency=${USDC_ADDRESS[chainId]}&outputCurrency=${KEY_ADDRS.SOLACE}`,
+      solaceBuyLink: `https://app.sushi.com/swap?inputCurrency=${USDC_TOKEN.address[chainId]}&outputCurrency=${KEY_ADDRS.SOLACE}`,
     },
     specialContracts: {},
   },
@@ -148,7 +148,7 @@ export const RinkebyNetwork: NetworkConfig = {
     chainId: hexValue(chainId),
     chainName: 'Rinkeby Testnet',
     nativeCurrency: { name: 'Ether', symbol: Unit.ETH, decimals: 18 },
-    rpcUrls: ['https://eth-rinkeby.alchemyapi.io'],
+    rpcUrls: ['https://rinkeby.infura.io/v3/'],
     blockExplorerUrls: ['https://rinkeby.etherscan.io'],
   },
   walletConfig: {

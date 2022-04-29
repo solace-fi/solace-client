@@ -79,7 +79,7 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
   const { selectedProtocol } = useContracts()
   const { makeTxToast } = useNotifications()
   const { haveErrors } = useGeneral()
-  const { activeNetwork, currencyDecimals, chainId } = useNetwork()
+  const { activeNetwork } = useNetwork()
   const { width } = useWindowDimensions()
   const { gasConfig, getSupportedProductGasLimit } = useGetFunctionGas()
   const appraisal = useAppraisePolicyPosition(selectedPolicy)
@@ -165,10 +165,12 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
       setCanCloseOnLoading(true)
       setModalLoading(true)
       userPolicyData.setCanGetAssessments(false)
-      const assessment = await getClaimAssessment(String(selectedPolicy.policyId), chainId).catch((err) => {
-        console.log(err)
-        return undefined
-      })
+      const assessment = await getClaimAssessment(String(selectedPolicy.policyId), activeNetwork.chainId).catch(
+        (err) => {
+          console.log(err)
+          return undefined
+        }
+      )
       setAssessment(assessment)
       setModalLoading(false)
       setCanCloseOnLoading(false)
@@ -182,10 +184,12 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
       if (!selectedPolicy || !isOpen || mounting.current) return
       if (selectedPolicy.status == PolicyState.EXPIRED) return
       userPolicyData.setCanGetAssessments(false)
-      const assessment = await getClaimAssessment(String(selectedPolicy.policyId), chainId).catch((err) => {
-        console.log(err)
-        return undefined
-      })
+      const assessment = await getClaimAssessment(String(selectedPolicy.policyId), activeNetwork.chainId).catch(
+        (err) => {
+          console.log(err)
+          return undefined
+        }
+      )
       setAssessment(assessment)
     }
     loadOverTime()
@@ -216,7 +220,7 @@ export const ClaimModal: React.FC<ClaimModalProps> = ({ isOpen, selectedPolicy, 
                   {width > BKPT_3 ? 'pre-exploit assets value equal to' : 'Receiving'}
                 </Text>
                 <Text bold t2 autoAlign>
-                  {truncateValue(formatUnits(assessment.amountOut || 0, currencyDecimals))}{' '}
+                  {truncateValue(formatUnits(assessment.amountOut || 0, activeNetwork.nativeCurrency.decimals))}{' '}
                   {activeNetwork.nativeCurrency.symbol}
                 </Text>
               </Flex>

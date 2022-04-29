@@ -32,12 +32,7 @@ export const FixedHeightGrayBox = styled.div<{
 
 export const GrayBox = ({ children }: { children: React.ReactNode | string }): JSX.Element => {
   return (
-    <GrayBgDiv
-      className="flex text-[#213a4d] rounded-xl items-stretch font-medium mb-8"
-      style={{
-        height: '64px',
-      }}
-    >
+    <GrayBgDiv className="flex text-[#213a4d] rounded-xl items-stretch font-medium mb-8">
       <div className="py-3 px-6">{children}</div>
     </GrayBgDiv>
   )

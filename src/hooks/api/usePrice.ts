@@ -1,11 +1,11 @@
 import { useEffect, useRef, useState } from 'react'
 import { Token, Pair } from '@sushiswap/sdk'
 
-import { useNetwork } from '../../context/NetworkManager'
+import { networks } from '../../context/NetworkManager'
 import { floatUnits } from '../../utils/formatting'
 import { queryDecimals } from '../../utils/contract'
 import { Contract } from '@ethersproject/contracts'
-import { USDC_ADDRESS, WETH9_ADDRESS } from '../../constants/mappings/tokenAddressMapping'
+import { USDC_TOKEN, WETH9_TOKEN } from '../../constants/mappings/token'
 import { ZERO } from '../../constants'
 import ierc20Json from '../../constants/metadata/IERC20Metadata.json'
 import {
@@ -47,7 +47,7 @@ export const useGetPriceFromSushiSwap = () => {
 
   const handleAddressException = (address: string, activeNetwork: NetworkConfig) => {
     if (address.toLowerCase() == activeNetwork.config.keyContracts['vault'].addr.toLowerCase())
-      return WETH9_ADDRESS[activeNetwork.chainId]
+      return WETH9_TOKEN.address[activeNetwork.chainId]
     return address
   }
 
@@ -58,15 +58,19 @@ export const useGetPriceFromSushiSwap = () => {
     _provider?: any
   ): Promise<number> => {
     if (
-      token.address.toLowerCase() == USDC_ADDRESS[activeNetwork.chainId].toLowerCase() ??
-      USDC_ADDRESS[1].toLowerCase()
+      token.address.toLowerCase() == USDC_TOKEN.address[activeNetwork.chainId].toLowerCase() ??
+      USDC_TOKEN.address[1].toLowerCase()
     )
       return 1
     try {
       const provider = _provider ?? new JsonRpcProvider(activeNetwork.rpc.httpsUrl)
       const decimals = await queryDecimals(token)
       const TOKEN = new Token(activeNetwork.chainId, handleAddressException(token.address, activeNetwork), decimals)
-      const USDC = new Token(activeNetwork.chainId, USDC_ADDRESS[activeNetwork.chainId] ?? USDC_ADDRESS[1], 6)
+      const USDC = new Token(
+        activeNetwork.chainId,
+        USDC_TOKEN.address[activeNetwork.chainId] ?? USDC_TOKEN.address[1],
+        6
+      )
       const pairAddr = await withBackoffRetries(async () => Pair.getAddress(TOKEN, USDC))
       const pairPoolContract = new Contract(pairAddr, sushiswapLpAbi, provider)
       const reserves = await withBackoffRetries(async () => pairPoolContract.getReserves())
@@ -143,7 +147,6 @@ export const useGetPriceFromSushiSwap = () => {
 export const useGetCrossTokenPricesFromCoingecko = () => {
   const [tokenPriceMapping, setPriceMapping] = useState<TokenToPriceMapping>({})
   const gettingPrices = useRef(false)
-  const { networks } = useNetwork()
   const { latestBlock } = useProvider()
 
   const getPricesByAddress = async (addrs: string[]): Promise<TokenToPriceMapping> => {

@@ -23,6 +23,7 @@ import { Contract } from '@ethersproject/contracts'
 import { formatUnits, parseUnits } from '@ethersproject/units'
 import useDebounce from '@rooks/use-debounce'
 import { BigNumber } from 'ethers'
+import { useWeb3React } from '@web3-react/core'
 
 /* import constants */
 import { BondTellerDetails, BondTokenV2, LocalTx } from '../../../../constants/types'
@@ -30,11 +31,9 @@ import { BKPT_3, MAX_APPROVAL_AMOUNT, MAX_BPS, ZERO } from '../../../../constant
 import { FunctionName, TransactionCondition } from '../../../../constants/enums'
 
 /* import managers */
-import { useWallet } from '../../../../context/WalletManager'
 import { useNetwork } from '../../../../context/NetworkManager'
 import { useCachedData } from '../../../../context/CachedDataManager'
 import { useNotifications } from '../../../../context/NotificationsManager'
-import { useContracts } from '../../../../context/ContractsManager'
 import { useGeneral } from '../../../../context/GeneralManager'
 
 /* import components */
@@ -56,7 +55,7 @@ import { PrivateBondInfoV2 } from './PrivateBondInfoV2'
 
 /* import hooks */
 import { useInputAmount, useTransactionExecution } from '../../../../hooks/internal/useInputAmount'
-import { useReadToken, useTokenAllowance } from '../../../../hooks/contract/useToken'
+import { useTokenAllowance } from '../../../../hooks/contract/useToken'
 import { useNativeTokenBalance } from '../../../../hooks/balance/useBalance'
 import { useBondTellerV2, useUserBondDataV2 } from '../../../../hooks/bond/useBondTellerV2'
 import { useWindowDimensions } from '../../../../hooks/internal/useWindowDimensions'
@@ -80,13 +79,11 @@ export const BondModalV2: React.FC<BondModalV2Props> = ({ closeModal, isOpen, se
   custom hooks 
   
   */
-  const { account } = useWallet()
-  const { currencyDecimals, activeNetwork } = useNetwork()
+  const { account } = useWeb3React()
+  const { activeNetwork } = useNetwork()
   const { reload, version } = useCachedData()
   const { makeTxToast } = useNotifications()
-  const { keyContracts } = useContracts()
   const { appTheme } = useGeneral()
-  const { solace } = useMemo(() => keyContracts, [keyContracts])
 
   const [canCloseOnLoading, setCanCloseOnLoading] = useState<boolean>(false)
   const [canMax, setCanMax] = useState<boolean>(true)
@@ -99,14 +96,14 @@ export const BondModalV2: React.FC<BondModalV2Props> = ({ closeModal, isOpen, se
   const [showBondSettingsModal, setShowBondSettingsModal] = useState<boolean>(false)
   const [ownedBondTokens, setOwnedBondTokens] = useState<BondTokenV2[]>([])
 
-  const [bondRecipient, setBondRecipient] = useState<string | undefined>(undefined)
+  const [bondRecipient, setBondRecipient] = useState<string | null | undefined>(undefined)
   const [calculatedAmountIn, setCalculatedAmountIn] = useState<BigNumber | undefined>(ZERO)
   const [calculatedAmountOut, setCalculatedAmountOut] = useState<BigNumber | undefined>(ZERO)
   const {
     bondDepositFunctionName,
     bondDepositWrappedFunctionName,
     bondDepositFunctionGas,
-    bondDepositWrappedFunctionGas,
+    // bondDepositWrappedFunctionGas,
   } = useTellerConfig(activeNetwork)
   const [func, setFunc] = useState<FunctionName>(bondDepositFunctionName)
   const [principalBalance, setPrincipalBalance] = useState<string>('0')
@@ -115,7 +112,6 @@ export const BondModalV2: React.FC<BondModalV2Props> = ({ closeModal, isOpen, se
   const pncplDecimals = useMemo(() => selectedBondDetail?.principalData.principalProps.decimals, [
     selectedBondDetail?.principalData.principalProps.decimals,
   ])
-  const readSolaceToken = useReadToken(solace)
   const nativeTokenBalance = useNativeTokenBalance()
   const { deposit, claimPayout } = useBondTellerV2(selectedBondDetail)
   const { width } = useWindowDimensions()
@@ -138,11 +134,14 @@ export const BondModalV2: React.FC<BondModalV2Props> = ({ closeModal, isOpen, se
         return parseUnits(principalBalance, pncplDecimals)
       case bondDepositFunctionName:
       default:
-        if (nativeTokenBalance.includes('.') && nativeTokenBalance.split('.')[1].length > (currencyDecimals ?? 0))
+        if (
+          nativeTokenBalance.includes('.') &&
+          nativeTokenBalance.split('.')[1].length > (activeNetwork.nativeCurrency.decimals ?? 0)
+        )
           return ZERO
-        return parseUnits(nativeTokenBalance, currencyDecimals)
+        return parseUnits(nativeTokenBalance, activeNetwork.nativeCurrency.decimals)
     }
-  }, [func, nativeTokenBalance, principalBalance, pncplDecimals, currencyDecimals])
+  }, [func, nativeTokenBalance, principalBalance, pncplDecimals, activeNetwork.nativeCurrency.decimals])
 
   /*************************************************************************************
 
@@ -179,12 +178,8 @@ export const BondModalV2: React.FC<BondModalV2Props> = ({ closeModal, isOpen, se
     setModalLoading(true)
     const slippageInt = parseInt(accurateMultiply(slippagePrct, 2))
     const minAmountOut = calculatedAmountOut.mul(BigNumber.from(MAX_BPS - slippageInt)).div(BigNumber.from(MAX_BPS))
-    let desiredFunctionGas = undefined
-    if (func == FunctionName.BOND_DEPOSIT_ERC20_V2) desiredFunctionGas = undefined
-    if (func == bondDepositFunctionName) desiredFunctionGas = bondDepositFunctionGas
-    if (func == bondDepositWrappedFunctionName) desiredFunctionGas = bondDepositWrappedFunctionGas
 
-    await deposit(parseUnits(amount, pncplDecimals), minAmountOut, bondRecipient, stake, func, desiredFunctionGas)
+    await deposit(parseUnits(amount, pncplDecimals), minAmountOut, bondRecipient, stake, func)
       .then((res) => _handleToast(res.tx, res.localTx))
       .catch((err) => _handleContractCallError('callDepositBond', err, func))
   }
@@ -304,7 +299,7 @@ export const BondModalV2: React.FC<BondModalV2Props> = ({ closeModal, isOpen, se
       setPrincipalBalance(formatUnits(principalBal, selectedBondDetail.principalData.principalProps.decimals))
     }
     getUserBonds()
-  }, [account, selectedBondDetail, readSolaceToken, version])
+  }, [account, selectedBondDetail, version])
 
   useEffect(() => {
     const getTellerType = async () => {
@@ -441,7 +436,10 @@ export const BondModalV2: React.FC<BondModalV2Props> = ({ closeModal, isOpen, se
               textAlignCenter
               type="text"
               onChange={(e) =>
-                handleInputChange(e.target.value, func == bondDepositFunctionName ? currencyDecimals : pncplDecimals)
+                handleInputChange(
+                  e.target.value,
+                  func == bondDepositFunctionName ? activeNetwork.nativeCurrency.decimals : pncplDecimals
+                )
               }
               value={amount}
             />

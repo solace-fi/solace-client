@@ -1,8 +1,6 @@
 import { useMemo } from 'react'
 import { useContracts } from '../../context/ContractsManager'
-import { useWallet } from '../../context/WalletManager'
 import { useNetwork } from '../../context/NetworkManager'
-import { useReadToken } from '../contract/useToken'
 import { formatUnits } from '@ethersproject/units'
 import { BigNumber } from 'ethers'
 import { LocalTx, LockData, UserLocksData, UserLocksInfo } from '../../constants/types'
@@ -11,17 +9,16 @@ import { DEADLINE, ZERO } from '../../constants'
 import { FunctionName, TransactionCondition } from '../../constants/enums'
 import { useProvider } from '../../context/ProviderManager'
 import { rangeFrom0 } from '../../utils/numeric'
-import { FunctionGasLimits } from '../../constants/mappings/gasMapping'
 import { useGetFunctionGas } from '../provider/useGas'
 import { withBackoffRetries } from '../../utils/time'
+import { SOLACE_TOKEN } from '../../constants/mappings/token'
 
 export const useXSLocker = () => {
   const { keyContracts } = useContracts()
   const { xsLocker, solace } = useMemo(() => keyContracts, [keyContracts])
-  const { library } = useWallet()
-  const { chainId } = useNetwork()
+  const { library } = useProvider()
+  const { activeNetwork } = useNetwork()
   const { latestBlock } = useProvider()
-  const readToken = useReadToken(solace)
   const { gasConfig } = useGetFunctionGas()
 
   const getLock = async (xsLockID: BigNumber) => {
@@ -61,7 +58,7 @@ export const useXSLocker = () => {
     if (!xsLocker) return '0'
     try {
       const stakedBalance = await withBackoffRetries(async () => xsLocker.stakedBalance(account))
-      const formattedStakedBalance = formatUnits(stakedBalance, readToken.decimals)
+      const formattedStakedBalance = formatUnits(stakedBalance, SOLACE_TOKEN.constants.decimals)
       return formattedStakedBalance
     } catch (err) {
       console.log('error getStakedBalance ', err)
@@ -71,7 +68,14 @@ export const useXSLocker = () => {
 
   const createLock = async (recipient: string, amount: BigNumber, end: BigNumber) => {
     if (!xsLocker || !solace) return { tx: null, localTx: null }
-    const { v, r, s } = await getPermitErc20Signature(recipient, chainId, library, xsLocker.address, solace, amount)
+    const { v, r, s } = await getPermitErc20Signature(
+      recipient,
+      activeNetwork.chainId,
+      library,
+      xsLocker.address,
+      solace,
+      amount
+    )
     const estGas = await xsLocker.estimateGas.createLockSigned(amount, end, DEADLINE, v, r, s)
     console.log('xsLocker.estimateGas.createLockSigned', estGas.toString())
     const tx = await xsLocker.createLockSigned(amount, end, DEADLINE, v, r, s, {
@@ -89,7 +93,14 @@ export const useXSLocker = () => {
 
   const increaseLockAmount = async (recipient: string, xsLockID: BigNumber, amount: BigNumber) => {
     if (!xsLocker || !solace) return { tx: null, localTx: null }
-    const { v, r, s } = await getPermitErc20Signature(recipient, chainId, library, xsLocker.address, solace, amount)
+    const { v, r, s } = await getPermitErc20Signature(
+      recipient,
+      activeNetwork.chainId,
+      library,
+      xsLocker.address,
+      solace,
+      amount
+    )
     const estGas = await xsLocker.estimateGas.increaseAmountSigned(xsLockID, amount, DEADLINE, v, r, s)
     console.log('xsLocker.estimateGas.increaseAmountSigned', estGas.toString())
     const tx = await xsLocker.increaseAmountSigned(xsLockID, amount, DEADLINE, v, r, s, {
@@ -187,9 +198,9 @@ export const useXSLocker = () => {
     })
 
     return {
-      stakedBalance: formatUnits(stakedBalance, readToken.decimals),
-      lockedBalance: formatUnits(lockedBalance, readToken.decimals),
-      unlockedBalance: formatUnits(unlockedBalance, readToken.decimals),
+      stakedBalance: formatUnits(stakedBalance, SOLACE_TOKEN.constants.decimals),
+      lockedBalance: formatUnits(lockedBalance, SOLACE_TOKEN.constants.decimals),
+      unlockedBalance: formatUnits(unlockedBalance, SOLACE_TOKEN.constants.decimals),
     }
   }
 
@@ -209,10 +220,10 @@ export const useXSLocker = () => {
 export const useUserLockData = () => {
   const { latestBlock } = useProvider()
   const { keyContracts } = useContracts()
-  const { xsLocker, stakingRewards, solace } = useMemo(() => keyContracts, [keyContracts])
+  const { xsLocker, stakingRewards } = useMemo(() => keyContracts, [keyContracts])
 
   const getUserLocks = async (user: string): Promise<UserLocksData> => {
-    if (!latestBlock || !stakingRewards || !xsLocker || !solace)
+    if (!latestBlock || !stakingRewards || !xsLocker)
       return {
         user: {
           pendingRewards: ZERO,

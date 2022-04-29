@@ -9,7 +9,7 @@ import xSolaceABI from '../constants/metadata/xSOLACE.json'
 import xsLockerABI from '../constants/metadata/xsLocker.json'
 import stakingRewardsABI from '../constants/metadata/StakingRewards.json'
 
-import { NEAR_ADDRESS, WETH9_ADDRESS } from '../constants/mappings/tokenAddressMapping'
+import { NEAR_TOKEN, WETH9_TOKEN } from '../constants/mappings/token'
 
 import bridgeWrapperABI from '../constants/metadata/BridgeWrapper.json'
 
@@ -25,7 +25,7 @@ export const AuroraTestnetNetwork: NetworkConfig = {
   isTestnet: true,
   logo: AuroraLogo,
   supportedTxTypes: [0],
-  nativeCurrency: { mainnetReference: WETH9_ADDRESS[1], symbol: Unit.ETH, decimals: 18 },
+  nativeCurrency: { mainnetReference: WETH9_TOKEN.address[1], symbol: Unit.ETH, decimals: 18 },
   rpc: {
     httpsUrl: `https://testnet.aurora.dev`,
     pollingInterval: 12_000,
@@ -66,7 +66,7 @@ export const AuroraTestnetNetwork: NetworkConfig = {
       noStakingV1: true,
     },
     specialFeatures: {
-      solaceBuyLink: `https://www.trisolaris.io/#/swap?inputCurrency=${NEAR_ADDRESS[chainId]}&outputCurrency=${KEY_ADDRS.SOLACE}`,
+      solaceBuyLink: `https://www.trisolaris.io/#/swap?inputCurrency=${NEAR_TOKEN.address[chainId]}&outputCurrency=${KEY_ADDRS.SOLACE}`,
       unwrapBridgedSolace: true,
     },
     specialContracts: {

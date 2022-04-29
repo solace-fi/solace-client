@@ -10,7 +10,6 @@ import {
   SupportedProduct,
   Token,
 } from '../../constants/types'
-import { useWallet } from '../../context/WalletManager'
 import { useNetwork } from '../../context/NetworkManager'
 import { useSessionStorage } from 'react-use-storage'
 import { NetworkCache } from '../../constants/types'
@@ -18,9 +17,12 @@ import { PositionType } from '../../constants/enums'
 import { getTroveContract } from '../../products/liquity/positionGetter/getPositions'
 import { ZERO } from '../../constants'
 import { fetchTransferEventsOfUser } from '../../utils/explorer'
+import { useProvider } from '../../context/ProviderManager'
+import { useWeb3React } from '@web3-react/core'
 
 export const useCachePositions = () => {
-  const { library, account } = useWallet()
+  const { library } = useProvider()
+  const { account } = useWeb3React()
   const { activeNetwork } = useNetwork()
   const [storedPosData, setStoredPosData] = useSessionStorage<NetworkCache[]>('sol_position_data', [])
   const [transferHistory, setTransferHistory] = useState<any>([])

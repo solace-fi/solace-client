@@ -1,5 +1,5 @@
 import styled, { css } from 'styled-components'
-import { ArrowDropDown } from '@styled-icons/remix-line/ArrowDropDown'
+import { ArrowDropDown } from '@styled-icons/material-rounded/ArrowDropDown'
 import { Checkmark } from '@styled-icons/evaicons-solid/Checkmark'
 import { Clock } from '@styled-icons/bootstrap/Clock'
 import { CoinStack } from '@styled-icons/boxicons-solid/CoinStack'
@@ -11,6 +11,7 @@ import { Discord } from '@styled-icons/simple-icons/Discord'
 import { DocumentText } from '@styled-icons/typicons/DocumentText'
 import { Documents } from '@styled-icons/ionicons-sharp/Documents'
 import { DotsHorizontalRounded } from '@styled-icons/boxicons-regular/DotsHorizontalRounded'
+import { HelpCircle } from '@styled-icons/boxicons-regular/HelpCircle'
 import { FileEarmarkLock2Fill } from '@styled-icons/bootstrap/FileEarmarkLock2Fill'
 import { FileShield } from '@styled-icons/remix-fill/FileShield'
 import { Gear } from '@styled-icons/octicons/Gear'
@@ -144,3 +145,5 @@ export const StyledTractor = styled(Tractor)``
 export const StyledFolderHistory = styled(FolderHistory)``
 
 export const StyledRemoveCircleOutline = styled(RemoveCircleOutline)``
+
+export const StyledHelpCircle = styled(HelpCircle)``

@@ -36,7 +36,8 @@ import { TransactionReceipt, TransactionResponse } from '@ethersproject/provider
 import { Text } from '../../components/atoms/Typography'
 import { ModalCell } from '../../components/atoms/Modal'
 import { CheckboxData } from '../stake/types/LockCheckbox'
-import { useReadToken } from '../../hooks/contract/useToken'
+import { useProvider } from '../../context/ProviderManager'
+import { useWeb3React } from '@web3-react/core'
 
 export function PolicyBalance({
   balances,
@@ -49,7 +50,6 @@ export function PolicyBalance({
   newCoverageLimit,
   referralCode,
   walletAssetBalance,
-  walletAssetDecimals,
   approval,
   inactive,
   inputProps,
@@ -76,7 +76,6 @@ export function PolicyBalance({
   newCoverageLimit: BigNumber
   referralCode: string | undefined
   walletAssetBalance: BigNumber
-  walletAssetDecimals: number
   approval: boolean
   inputProps: {
     amount: string
@@ -96,7 +95,8 @@ export function PolicyBalance({
   const [doesReachMinReqAccountBal, setDoesReachMinReqAccountBal] = useState(false)
 
   const { ifDesktop } = useWindowDimensions()
-  const { account, library } = useWallet()
+  const { account } = useWeb3React()
+  const { library } = useProvider()
   const { activeNetwork } = useNetwork()
   const { keyContracts } = useContracts()
   const { solaceCoverProduct } = useMemo(() => keyContracts, [keyContracts])
@@ -154,9 +154,9 @@ export function PolicyBalance({
   }, [projectedDailyCost, balances.totalAccountBalance, inputProps.amount])
 
   const isAcceptableAmount = useMemo(
-    () => inputProps.isAppropriateAmount(inputProps.amount, walletAssetDecimals, walletAssetBalance),
+    () => inputProps.isAppropriateAmount(inputProps.amount, stableCoinData.decimals, walletAssetBalance),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [inputProps.amount, walletAssetBalance, walletAssetDecimals]
+    [inputProps.amount, walletAssetBalance, stableCoinData.decimals]
   )
 
   const referralValidation = useMemo(
@@ -216,16 +216,16 @@ export function PolicyBalance({
   }
 
   const _handleInputChange = (_amount: string) => {
-    inputProps.handleInputChange(_amount, walletAssetDecimals)
+    inputProps.handleInputChange(_amount, stableCoinData.decimals)
     const filtered = filterAmount(_amount, inputProps.amount)
-    setRangeValue(accurateMultiply(filtered, walletAssetDecimals))
+    setRangeValue(accurateMultiply(filtered, stableCoinData.decimals))
   }
 
   const handleRangeChange = (rangeAmount: string, convertFromSciNota = true) => {
     inputProps.handleInputChange(
       formatUnits(
         BigNumber.from(`${convertFromSciNota ? convertSciNotaToPrecise(rangeAmount) : rangeAmount}`),
-        walletAssetDecimals
+        stableCoinData.decimals
       )
     )
     setRangeValue(`${convertFromSciNota ? convertSciNotaToPrecise(rangeAmount) : rangeAmount}`)
@@ -369,7 +369,7 @@ export function PolicyBalance({
                   $
                   <Text t2s bold autoAlignVertical>
                     {commaNumber(
-                      truncateValue(formatUnits(balances.totalAccountBalance, walletAssetDecimals), 2, false)
+                      truncateValue(formatUnits(balances.totalAccountBalance, stableCoinData.decimals), 2, false)
                     )}
                   </Text>
                 </Flex>
@@ -388,7 +388,9 @@ export function PolicyBalance({
                     Personal
                   </Text>
                   <Text t4s bold info>
-                    {commaNumber(truncateValue(formatUnits(balances.personalBalance, walletAssetDecimals), 2, false))}{' '}
+                    {commaNumber(
+                      truncateValue(formatUnits(balances.personalBalance, stableCoinData.decimals), 2, false)
+                    )}{' '}
                     {stableCoinData.symbol}
                   </Text>
                 </Flex>
@@ -397,7 +399,7 @@ export function PolicyBalance({
                     Bonus
                   </Text>
                   <Text t4s bold techygradient>
-                    {commaNumber(truncateValue(formatUnits(balances.earnedBalance, walletAssetDecimals), 2, false))}{' '}
+                    {commaNumber(truncateValue(formatUnits(balances.earnedBalance, stableCoinData.decimals), 2, false))}{' '}
                     {stableCoinData.symbol}
                   </Text>
                 </Flex>
@@ -488,7 +490,7 @@ export function PolicyBalance({
                     <Text info t5s bold>
                       {!cooldownStart.isZero() && getTimeFromMillis(cooldownLeft.toNumber() * 1000) == '0'
                         ? commaNumber(
-                            truncateValue(formatUnits(balances.personalBalance, walletAssetDecimals), 2, false)
+                            truncateValue(formatUnits(balances.personalBalance, stableCoinData.decimals), 2, false)
                           )
                         : commaNumber(
                             truncateValue(
@@ -496,7 +498,7 @@ export function PolicyBalance({
                                 balances.personalBalance.gt(minReqAccBal)
                                   ? balances.personalBalance.sub(minReqAccBal)
                                   : ZERO,
-                                walletAssetDecimals
+                                stableCoinData.decimals
                               ),
                               2,
                               false
@@ -534,7 +536,7 @@ export function PolicyBalance({
                   {!doesReachMinReqAccountBal && (
                     <Text autoAlignHorizontal t4 error>
                       Insufficient deposit (Need at least over:{' '}
-                      {truncateValue(formatUnits(minReqAccBal, walletAssetDecimals), 2)})
+                      {truncateValue(formatUnits(minReqAccBal, stableCoinData.decimals), 2)})
                     </Text>
                   )}
                   {newCoverageLimit.eq(ZERO) && (
@@ -554,7 +556,7 @@ export function PolicyBalance({
                       !doesReachMinReqAccountBal ||
                       newCoverageLimit.eq(ZERO) ||
                       (inputProps.amount != '' &&
-                        parseUnits(inputProps.amount, walletAssetDecimals).gt(walletAssetBalance)) ||
+                        parseUnits(inputProps.amount, stableCoinData.decimals).gt(walletAssetBalance)) ||
                       noChainsSelected
                     }
                     onClick={callActivatePolicy}

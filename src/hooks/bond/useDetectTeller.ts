@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { FunctionName } from '../../constants/enums'
-import { FunctionGasLimits } from '../../constants/mappings/gasMapping'
+import { FunctionGasLimits } from '../../constants/mappings/gas'
 import { NetworkConfig } from '../../constants/types'
 
 /*

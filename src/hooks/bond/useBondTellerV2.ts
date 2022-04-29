@@ -3,20 +3,19 @@ import { useContracts } from '../../context/ContractsManager'
 import { listTokensOfOwner } from '../../utils/contract'
 
 import { BigNumber } from 'ethers'
-import { useCallback, useEffect, useState, useMemo, useRef } from 'react'
+import { useEffect, useState, useMemo, useRef } from 'react'
 import { getContract } from '../../utils'
 
-import { useWallet } from '../../context/WalletManager'
-import { FunctionGasLimits } from '../../constants/mappings/gasMapping'
 import { FunctionName, TransactionCondition } from '../../constants/enums'
 import { queryDecimals, queryName, querySymbol } from '../../utils/contract'
 import { useProvider } from '../../context/ProviderManager'
 import { usePriceSdk } from '../api/usePrice'
-import { useNetwork } from '../../context/NetworkManager'
-import { floatUnits, truncateValue } from '../../utils/formatting'
+import { useNetwork, networks } from '../../context/NetworkManager'
+import { floatUnits } from '../../utils/formatting'
 import { useGetFunctionGas } from '../provider/useGas'
 import { useCachedData } from '../../context/CachedDataManager'
 import { withBackoffRetries } from '../../utils/time'
+import { useWeb3React } from '@web3-react/core'
 
 export const useBondTellerV2 = (selectedBondDetail: BondTellerDetails | undefined) => {
   const { gasConfig } = useGetFunctionGas()
@@ -26,12 +25,10 @@ export const useBondTellerV2 = (selectedBondDetail: BondTellerDetails | undefine
     minAmountOut: BigNumber,
     recipient: string,
     stake: boolean,
-    func: FunctionName,
-    desiredFunctionGas: number | undefined
+    func: FunctionName
   ): Promise<TxResult> => {
     if (!selectedBondDetail) return { tx: null, localTx: null }
     const cntct = selectedBondDetail.tellerData.teller.contract
-    // const gasSettings = { ...gasConfig, gasLimit: desiredFunctionGas ?? FunctionGasLimits['tellerErc20_v2.deposit'] }
     let tx = null
     let estGas = null
     switch (func) {
@@ -111,10 +108,10 @@ export const useBondTellerV2 = (selectedBondDetail: BondTellerDetails | undefine
 export const useBondTellerDetailsV2 = (
   canGetPrices: boolean
 ): { tellerDetails: BondTellerDetails[]; mounting: boolean } => {
-  const { library, account } = useWallet()
-  const { latestBlock } = useProvider()
+  const { account } = useWeb3React()
+  const { latestBlock, library } = useProvider()
   const { tellers } = useContracts()
-  const { activeNetwork, networks } = useNetwork()
+  const { activeNetwork } = useNetwork()
   const [tellerDetails, setTellerDetails] = useState<BondTellerDetails[]>([])
   const [mounting, setMounting] = useState<boolean>(true)
   const { getPriceSdkFunc } = usePriceSdk()
@@ -153,7 +150,6 @@ export const useBondTellerDetailsV2 = (
                 withBackoffRetries(async () => teller.contract.capacity()),
                 withBackoffRetries(async () => teller.contract.maxPayout()),
               ])
-
               const principalContract = getContract(principalAddr, teller.principalAbi, library, account ?? undefined)
 
               const [decimals, name, symbol] = await Promise.all([
@@ -177,7 +173,6 @@ export const useBondTellerDetailsV2 = (
               const d: BondTellerDetails = {
                 tellerData: {
                   teller,
-                  principalAddr,
                   bondPrice,
                   usdBondPrice,
                   vestingTermInSeconds,
@@ -191,6 +186,7 @@ export const useBondTellerDetailsV2 = (
                     symbol,
                     decimals,
                     name,
+                    address: principalAddr,
                   },
                 },
               }

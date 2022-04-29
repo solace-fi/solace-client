@@ -53,7 +53,7 @@ import { useInputAmount, useTransactionExecution } from '../../../hooks/internal
 
 /* import utils */
 import { getUnit, truncateValue } from '../../../utils/formatting'
-import { FunctionGasLimits } from '../../../constants/mappings/gasMapping'
+import { FunctionGasLimits } from '../../../constants/mappings/gas'
 import { ZERO } from '../../../constants'
 
 export const CpPoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen, closeModal }) => {
@@ -64,7 +64,7 @@ export const CpPoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen
   *************************************************************************************/
 
   const { haveErrors } = useGeneral()
-  const { activeNetwork, currencyDecimals } = useNetwork()
+  const { activeNetwork } = useNetwork()
   const { keyContracts } = useContracts()
   const { cpFarm, vault } = useMemo(() => keyContracts, [keyContracts])
   const { gasData, reload } = useCachedData()
@@ -84,20 +84,24 @@ export const CpPoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen
   const approval = useTokenAllowance(
     contractForAllowance,
     spenderAddress,
-    amount && amount != '.' ? parseUnits(amount, currencyDecimals).toString() : '0'
+    amount && amount != '.' ? parseUnits(amount, activeNetwork.nativeCurrency.decimals).toString() : '0'
   )
   const assetBalance = useMemo(() => {
     switch (func) {
       case FunctionName.DEPOSIT_CP:
-        if (scpBalance.includes('.') && scpBalance.split('.')[1].length > (currencyDecimals ?? 0)) return ZERO
-        return parseUnits(scpBalance, currencyDecimals)
+        if (scpBalance.includes('.') && scpBalance.split('.')[1].length > (activeNetwork.nativeCurrency.decimals ?? 0))
+          return ZERO
+        return parseUnits(scpBalance, activeNetwork.nativeCurrency.decimals)
       case FunctionName.WITHDRAW_CP:
       default:
-        if (cpUserStakeValue.includes('.') && cpUserStakeValue.split('.')[1].length > (currencyDecimals ?? 0))
+        if (
+          cpUserStakeValue.includes('.') &&
+          cpUserStakeValue.split('.')[1].length > (activeNetwork.nativeCurrency.decimals ?? 0)
+        )
           return ZERO
-        return parseUnits(cpUserStakeValue, currencyDecimals)
+        return parseUnits(cpUserStakeValue, activeNetwork.nativeCurrency.decimals)
     }
-  }, [cpUserStakeValue, currencyDecimals, func, scpBalance])
+  }, [cpUserStakeValue, activeNetwork.nativeCurrency.decimals, func, scpBalance])
 
   /*************************************************************************************
 
@@ -109,7 +113,10 @@ export const CpPoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen
     if (!cpFarm || !vault) return
     setModalLoading(true)
     try {
-      const tx: TransactionResponse = await vault.approve(cpFarm.address, parseUnits(amount, currencyDecimals))
+      const tx: TransactionResponse = await vault.approve(
+        cpFarm.address,
+        parseUnits(amount, activeNetwork.nativeCurrency.decimals)
+      )
       const txHash = tx.hash
       setCanCloseOnLoading(true)
       makeTxToast(FunctionName.APPROVE, TransactionCondition.PENDING, txHash)
@@ -128,7 +135,7 @@ export const CpPoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen
   const callDepositCp = async () => {
     setModalLoading(true)
     await cpFarmFunctions
-      .depositCp(parseUnits(amount, currencyDecimals))
+      .depositCp(parseUnits(amount, activeNetwork.nativeCurrency.decimals))
       .then((res) => _handleToast(res.tx, res.localTx))
       .catch((err) => _handleContractCallError('callDepositCp', err, FunctionName.DEPOSIT_CP))
   }
@@ -136,7 +143,7 @@ export const CpPoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen
   const callWithdrawCp = async () => {
     setModalLoading(true)
     await cpFarmFunctions
-      .withdrawCp(parseUnits(amount, currencyDecimals))
+      .withdrawCp(parseUnits(amount, activeNetwork.nativeCurrency.decimals))
       .then((res) => _handleToast(res.tx, res.localTx))
       .catch((err) => _handleContractCallError('callWithdrawCp', err, FunctionName.WITHDRAW_CP))
   }
@@ -160,7 +167,7 @@ export const CpPoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen
   const _setMax = () => {
     setMax(
       assetBalance,
-      currencyDecimals,
+      activeNetwork.nativeCurrency.decimals,
       func == FunctionName.DEPOSIT_ETH ? FunctionGasLimits['cpFarm.depositEth'] : undefined
     )
   }
@@ -188,7 +195,7 @@ export const CpPoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen
   }, [gasData])
 
   useEffect(() => {
-    setIsAcceptableAmount(isAppropriateAmount(amount, currencyDecimals, assetBalance))
+    setIsAcceptableAmount(isAppropriateAmount(amount, activeNetwork.nativeCurrency.decimals, assetBalance))
   }, [amount, assetBalance, assetBalance])
 
   useEffect(() => {
@@ -207,7 +214,7 @@ export const CpPoolModal: React.FC<PoolModalProps> = ({ modalTitle, func, isOpen
     >
       <Erc20InputPanel
         unit={getUnit(func, activeNetwork)}
-        availableBalance={truncateValue(formatUnits(assetBalance, currencyDecimals))}
+        availableBalance={truncateValue(formatUnits(assetBalance, activeNetwork.nativeCurrency.decimals))}
         amount={amount}
         handleInputChange={handleInputChange}
         setMax={_setMax}

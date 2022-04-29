@@ -25,6 +25,8 @@ import { TextSpan, Text } from '../../components/atoms/Typography'
 import { StyledInfo } from '../../components/atoms/Icon'
 import { Content } from '../../components/atoms/Layout'
 import { EarlyFarmRewardsWindow } from '../../components/organisms/EarlyFarmRewardsWindow'
+import { PleaseConnectWallet } from '../../components/molecules/PleaseConnectWallet'
+import { useWeb3React } from '@web3-react/core'
 
 function Invest(): any {
   /*************************************************************************************
@@ -33,6 +35,7 @@ function Invest(): any {
 
   *************************************************************************************/
   const { activeNetwork } = useNetwork()
+  const { account } = useWeb3React()
 
   /*************************************************************************************
 
@@ -42,13 +45,13 @@ function Invest(): any {
 
   return (
     <>
-      {!activeNetwork.config.restrictedFeatures.noFarmingV1 ? (
+      {!activeNetwork.config.restrictedFeatures.noFarmingV1 && account ? (
         <>
           <Content>
             <EarlyFarmRewardsWindow />
           </Content>
         </>
-      ) : (
+      ) : account ? (
         <Content>
           <Box error pt={10} pb={10} pl={15} pr={15}>
             <TextSpan light textAlignLeft>
@@ -59,6 +62,8 @@ function Invest(): any {
             </Text>
           </Box>
         </Content>
+      ) : (
+        <PleaseConnectWallet />
       )}
     </>
   )

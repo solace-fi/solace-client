@@ -18,7 +18,6 @@
 import React from 'react'
 
 /* import managers */
-import { useWallet } from '../../../context/WalletManager'
 import { useGeneral } from '../../../context/GeneralManager'
 
 /* import constants */
@@ -38,6 +37,7 @@ import { useWindowDimensions } from '../../../hooks/internal/useWindowDimensions
 
 /* import utils */
 import { truncateValue } from '../../../utils/formatting'
+import { useWeb3React } from '@web3-react/core'
 
 interface UnderwritingPoolProps {
   openModal: (func: FunctionName, modalTitle: string, farmName: string) => void
@@ -51,7 +51,7 @@ export const UnderwritingPool: React.FC<UnderwritingPoolProps> = ({ openModal })
   *************************************************************************************/
 
   const { haveErrors } = useGeneral()
-  const { account } = useWallet()
+  const { account } = useWeb3React()
   const { userVaultAssets, userVaultShare } = useUserVaultDetails()
   const capitalPoolSize = useCapitalPoolSize()
   const { width } = useWindowDimensions()

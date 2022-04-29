@@ -71,19 +71,6 @@ export type MetamaskAddEthereumChain = {
   blockExplorerUrls: string[]
 }
 
-export type MetamaskSwitchEthereumChain = {
-  chainId: string
-}
-
-export type MetamaskWatchAsset = {
-  type: string
-  options: {
-    address: string
-    symbol: string
-    decimals: number
-  }
-}
-
 export type NetworkCache = {
   chainId: number
   positionsCache: PositionsCache

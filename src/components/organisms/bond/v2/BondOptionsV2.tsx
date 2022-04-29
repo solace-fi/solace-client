@@ -44,7 +44,7 @@ interface BondOptionsV2Props {
   func: FunctionName
   isAcceptableAmount: boolean
   slippagePrct: string
-  bondRecipient: string | undefined
+  bondRecipient: string | null | undefined
   setIsStaking: React.Dispatch<React.SetStateAction<boolean>>
   setShouldUseNativeToken: React.Dispatch<React.SetStateAction<boolean>>
   approve: () => Promise<void>

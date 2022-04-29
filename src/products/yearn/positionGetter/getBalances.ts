@@ -15,7 +15,7 @@ import curveAddressProviderAbi from '../../curve/positionGetter/_contracts/ICurv
 import curvePoolAbi from '../../curve/positionGetter/_contracts/ICurvePool.json'
 import { queryDecimals } from '../../../utils/contract'
 import { get1InchPrice, getCoingeckoTokenPriceByAddr, getZapperProtocolBalances } from '../../../utils/api'
-import { WETH9_ADDRESS } from '../../../constants/mappings/tokenAddressMapping'
+import { WETH9_TOKEN } from '../../../constants/mappings/token'
 import { createZapperBalanceMap, networkNames } from '../../zapperBalances'
 
 const CURVE_ADDRRESS_PROVIDER_ADDR = '0x0000000022D53366457F9d5E68Ec105046FC4383'
@@ -33,7 +33,11 @@ export const getBalances = async (
   const zapperNet = networkNames[activeNetwork.chainId]
   if (!zapperNet) return []
 
-  const coinGeckoEthPrice = await getCoingeckoTokenPriceByAddr(WETH9_ADDRESS[activeNetwork.chainId], 'usd', 'ethereum')
+  const coinGeckoEthPrice = await getCoingeckoTokenPriceByAddr(
+    WETH9_TOKEN.address[activeNetwork.chainId],
+    'usd',
+    'ethereum'
+  )
   const data = await getZapperProtocolBalances('yearn', [user], zapperNet)
 
   const finalTokens: Token[] = []

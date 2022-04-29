@@ -19,52 +19,70 @@
 
 /* import packages */
 import React, { useCallback, useState, useMemo, useEffect } from 'react'
-import { Contract } from '@ethersproject/contracts'
-import { formatUnits, parseUnits } from '@ethersproject/units'
-import useDebounce from '@rooks/use-debounce'
+// import { Contract } from '@ethersproject/contracts'
+// import { formatUnits, parseUnits } from '@ethersproject/units'
+// import useDebounce from '@rooks/use-debounce'
 import { BigNumber } from 'ethers'
 
 /* import constants */
 import { BondTellerDetails, BondTokenV1, LocalTx } from '../../../../constants/types'
-import { BKPT_3, MAX_BPS, ZERO } from '../../../../constants'
-import { FunctionName, TransactionCondition } from '../../../../constants/enums'
+// import { BKPT_3, MAX_BPS, ZERO } from '../../../../constants'
+import {
+  FunctionName,
+  // TransactionCondition
+} from '../../../../constants/enums'
 
 /* import managers */
-import { useWallet } from '../../../../context/WalletManager'
-import { useNetwork } from '../../../../context/NetworkManager'
-import { useCachedData } from '../../../../context/CachedDataManager'
-import { useNotifications } from '../../../../context/NotificationsManager'
+// import { useWallet } from '../../../../context/WalletManager'
+// import { useNetwork } from '../../../../context/NetworkManager'
+// import { useCachedData } from '../../../../context/CachedDataManager'
+// import { useNotifications } from '../../../../context/NotificationsManager'
 import { useContracts } from '../../../../context/ContractsManager'
 import { useGeneral } from '../../../../context/GeneralManager'
 
 /* import components */
 import { WalletConnectButton } from '../../../molecules/WalletConnectButton'
-import { ModalContainer, ModalBase, ModalHeader, ModalCell } from '../../../atoms/Modal'
+import {
+  ModalContainer,
+  ModalBase,
+  ModalHeader,
+  // ModalCell
+} from '../../../atoms/Modal'
 import { ModalCloseButton } from '../../../molecules/Modal'
-import { Flex, HorizRule, MultiTabIndicator } from '../../../atoms/Layout'
-import { Text } from '../../../atoms/Typography'
-import { Button, ButtonWrapper } from '../../../atoms/Button'
-import { Input } from '../../../atoms/Input'
+import {
+  Flex,
+  // HorizRule, MultiTabIndicator
+} from '../../../atoms/Layout'
+// import { Text } from '../../../atoms/Typography'
+import {
+  // Button,
+  ButtonWrapper,
+} from '../../../atoms/Button'
+// import { Input } from '../../../atoms/Input'
 import { DeFiAssetImage } from '../../../atoms/DeFiAsset'
-import { Loader } from '../../../atoms/Loader'
-import { StyledGear } from '../../../atoms/Icon'
+// import { Loader } from '../../../atoms/Loader'
+// import { StyledGear } from '../../../atoms/Icon'
 import { BondSettingsModal } from '../BondSettingsModal'
 import { OwnedBondListV1 } from './OwnedBondListV1'
-import { BondOptionsV1 } from './BondOptionsV1'
-import { PublicBondInfo } from '../PublicBondInfo'
+// import { BondOptionsV1 } from './BondOptionsV1'
+// import { PublicBondInfo } from '../PublicBondInfo'
 
 /* import hooks */
-import { useInputAmount, useTransactionExecution } from '../../../../hooks/internal/useInputAmount'
-import { useReadToken, useTokenAllowance } from '../../../../hooks/contract/useToken'
-import { useNativeTokenBalance } from '../../../../hooks/balance/useBalance'
+import {
+  //  useInputAmount,
+  useTransactionExecution,
+} from '../../../../hooks/internal/useInputAmount'
+// import { useTokenAllowance } from '../../../../hooks/contract/useToken'
+// import { useNativeTokenBalance } from '../../../../hooks/balance/useBalance'
 import { useBondTellerV1, useUserBondDataV1 } from '../../../../hooks/bond/useBondTellerV1'
-import { useWindowDimensions } from '../../../../hooks/internal/useWindowDimensions'
+import { useWeb3React } from '@web3-react/core'
+// import { useWindowDimensions } from '../../../../hooks/internal/useWindowDimensions'
 
 /* import utils */
-import { accurateMultiply, formatAmount } from '../../../../utils/formatting'
-import { queryBalance } from '../../../../utils/contract'
-import { PrivateBondInfoV1 } from './PrivateBondInfoV1'
-import { FunctionGasLimits } from '../../../../constants/mappings/gasMapping'
+// import { accurateMultiply, formatAmount } from '../../../../utils/formatting'
+// import { queryBalance } from '../../../../utils/contract'
+// import { PrivateBondInfoV1 } from './PrivateBondInfoV1'
+// import { FunctionGasLimits } from '../../../../constants/mappings/gas'
 
 interface BondModalV1Props {
   closeModal: () => void
@@ -78,9 +96,9 @@ export const BondModalV1: React.FC<BondModalV1Props> = ({ closeModal, isOpen, se
   custom hooks 
   
   */
-  const { account } = useWallet()
+  const { account } = useWeb3React()
   const { appTheme } = useGeneral()
-  // const { currencyDecimals } = useNetwork()
+  // const { activeNetwork } = useNetwork()
   // const { reload } = useCachedData()
   // const { makeTxToast } = useNotifications()
   const { keyContracts } = useContracts()
@@ -97,7 +115,7 @@ export const BondModalV1: React.FC<BondModalV1Props> = ({ closeModal, isOpen, se
   const [showBondSettingsModal, setShowBondSettingsModal] = useState<boolean>(false)
   const [ownedBondTokens, setOwnedBondTokens] = useState<BondTokenV1[]>([])
 
-  const [bondRecipient, setBondRecipient] = useState<string | undefined>(undefined)
+  const [bondRecipient, setBondRecipient] = useState<string | null | undefined>(undefined)
   // const [calculatedAmountIn, setCalculatedAmountIn] = useState<BigNumber | undefined>(ZERO)
   // const [calculatedAmountIn_X, setCalculatedAmountIn_X] = useState<BigNumber | undefined>(ZERO)
   // const [calculatedAmountOut, setCalculatedAmountOut] = useState<BigNumber | undefined>(ZERO)
@@ -109,8 +127,6 @@ export const BondModalV1: React.FC<BondModalV1Props> = ({ closeModal, isOpen, se
   // const pncplDecimals = useMemo(() => selectedBondDetail?.principalData.principalProps.decimals, [
   //   selectedBondDetail?.principalData.principalProps.decimals,
   // ])
-  const readSolaceToken = useReadToken(solace)
-  const readXSolaceToken = useReadToken(xSolaceV1)
   // const nativeTokenBalance = useNativeTokenBalance()
   const { deposit, redeem } = useBondTellerV1(selectedBondDetail)
   // const { width } = useWindowDimensions()
@@ -325,7 +341,7 @@ export const BondModalV1: React.FC<BondModalV1Props> = ({ closeModal, isOpen, se
       // setPrincipalBalance(formatUnits(principalBal, selectedBondDetail.principalData.principalProps.decimals))
     }
     getUserBonds()
-  }, [account, isOpen, selectedBondDetail, readSolaceToken, readXSolaceToken])
+  }, [account, isOpen, selectedBondDetail])
 
   // useEffect(() => {
   //   const getTellerType = async () => {
