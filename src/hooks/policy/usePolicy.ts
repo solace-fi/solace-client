@@ -1,4 +1,4 @@
-import { BigNumber, Contract } from 'ethers'
+import { BigNumber } from 'ethers'
 import { formatUnits } from '@ethersproject/units'
 import { useEffect, useMemo, useState } from 'react'
 import { ZERO } from '../../constants'
@@ -6,12 +6,10 @@ import { useContracts } from '../../context/ContractsManager'
 import { NetworkConfig } from '../../constants/types'
 import { useNetwork, networks } from '../../context/NetworkManager'
 import { useProvider } from '../../context/ProviderManager'
-import { JsonRpcProvider } from '@ethersproject/providers'
-import { isAddress } from '../../utils'
 import { numberAbbreviate, truncateValue } from '../../utils/formatting'
 import { useFunctions, useSupportedChains } from './useSolaceCoverProduct'
 import { CheckboxData } from '../../pages/stake/types/LockCheckbox'
-import { withBackoffRetries } from '../../utils/time'
+import { Policy } from '@solace-fi/sdk-nightly'
 
 export const useTotalActivePolicies = () => {
   const { latestBlock } = useProvider()
@@ -20,25 +18,20 @@ export const useTotalActivePolicies = () => {
 
   useEffect(() => {
     const getPolicyCount = async () => {
-      const countedNetworks = networks.filter((n) => !n.isTestnet)
-      let totalPolicyCount = ZERO
-      let activeCoverLimit = ZERO
-      for (let i = 0; i < countedNetworks.length; i++) {
-        const activeNetwork = countedNetworks[i]
-        if (activeNetwork.config.restrictedFeatures.noSoteria) continue
-        const provider = new JsonRpcProvider(activeNetwork.rpc.httpsUrl)
-        const solaceCoverProductSrc = activeNetwork.config.keyContracts.solaceCoverProduct
-        if (!solaceCoverProductSrc) continue
-        if (!solaceCoverProductSrc.addr || !isAddress(solaceCoverProductSrc.addr) || !solaceCoverProductSrc.abi)
-          continue
-        const solaceCoverProductContract = new Contract(solaceCoverProductSrc.addr, solaceCoverProductSrc.abi, provider)
-        const policyCount = await withBackoffRetries(async () => solaceCoverProductContract.policyCount())
-        const coverLimit = await withBackoffRetries(async () => solaceCoverProductContract.activeCoverLimit())
-        activeCoverLimit = activeCoverLimit.add(coverLimit)
-        totalPolicyCount = totalPolicyCount.add(policyCount)
-      }
-      setTotalActivePolicies(numberAbbreviate(totalPolicyCount.toString()))
-      setTotalActiveCoverLimit(truncateValue(formatUnits(activeCoverLimit, 18), 2))
+      const policy = new Policy()
+
+      const countedNetworks = networks.filter((n) => n.config.keyContracts.solaceCoverProduct && !n.isTestnet)
+      const rpcUrlMapping: { [key: number]: string } = countedNetworks.reduce(
+        (urls: any, network: NetworkConfig) => ({
+          ...urls,
+          [network.chainId]: network.rpc.httpsUrl,
+        }),
+        {}
+      )
+
+      const data = await policy.getTotalActivePolicies_All(rpcUrlMapping)
+      setTotalActivePolicies(numberAbbreviate(data.totalPolicies.toString()))
+      setTotalActiveCoverLimit(truncateValue(formatUnits(data.totalActiveCoverLimit, 18), 2))
     }
     getPolicyCount()
   }, [latestBlock])
@@ -59,26 +52,30 @@ export const useExistingPolicy = (account: string | null | undefined) => {
         setLoading(true)
         return
       }
-      const countedNetworks = networks.filter((n) => !n.isTestnet)
-      // const countedNetworks = networks
-      let _id = ZERO
-      let _network = networks[0]
-      for (let i = 0; i < countedNetworks.length; i++) {
-        const activeNetwork = countedNetworks[i]
-        if (activeNetwork.config.restrictedFeatures.noSoteria) continue
-        const provider = new JsonRpcProvider(activeNetwork.rpc.httpsUrl)
-        const solaceCoverProductSrc = activeNetwork.config.keyContracts.solaceCoverProduct
-        if (!solaceCoverProductSrc) continue
-        if (!solaceCoverProductSrc.addr || !isAddress(solaceCoverProductSrc.addr) || !solaceCoverProductSrc.abi)
-          continue
-        const solaceCoverProductContract = new Contract(solaceCoverProductSrc.addr, solaceCoverProductSrc.abi, provider)
-        const _policyId = await withBackoffRetries(async () => solaceCoverProductContract.policyOf(account))
-        _id = _policyId
-        _network = activeNetwork
-        if (_id.gt(ZERO)) break
+      const policy = new Policy()
+
+      const rpcUrlMapping: { [key: number]: string } = networks.reduce(
+        (urls: any, network: NetworkConfig) => ({
+          ...urls,
+          [network.chainId]: network.rpc.httpsUrl,
+        }),
+        {}
+      )
+
+      const data = await policy.getExistingPolicy(account, rpcUrlMapping, false)
+      if (data.length > 0) {
+        const network = networks.find((n) => n.chainId === data[0].chainId)
+        if (network) {
+          setNetwork(network)
+          setPolicyId(data[0].policyId)
+        } else {
+          setPolicyId(ZERO)
+          setNetwork(networks[0])
+        }
+      } else {
+        setPolicyId(ZERO)
+        setNetwork(networks[0])
       }
-      setNetwork(_network)
-      setPolicyId(_id)
       setLoading(false)
     }
     getExistingPolicy()

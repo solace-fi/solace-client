@@ -293,7 +293,7 @@ export const BondModalV2: React.FC<BondModalV2Props> = ({ closeModal, isOpen, se
   useEffect(() => {
     const getUserBonds = async () => {
       if (!selectedBondDetail?.principalData || !account || !isOpen) return
-      const ownedBonds = await getUserBondDataV2(selectedBondDetail, account)
+      const ownedBonds = await getUserBondDataV2(selectedBondDetail.tellerData.teller.contract.address, account)
       setOwnedBondTokens(ownedBonds.sort((a, b) => a.id.toNumber() - b.id.toNumber()))
       const principalBal = await queryBalance(selectedBondDetail.principalData.principal, account)
       setPrincipalBalance(formatUnits(principalBal, selectedBondDetail.principalData.principalProps.decimals))
@@ -304,13 +304,13 @@ export const BondModalV2: React.FC<BondModalV2Props> = ({ closeModal, isOpen, se
   useEffect(() => {
     const getTellerType = async () => {
       if (!selectedBondDetail) return
-      const isBondTellerErc20 = selectedBondDetail.tellerData.teller.isBondTellerErc20
+      const isBondTellerErc20 = selectedBondDetail.metadata.isBondTellerErc20
       const tempFunc = isBondTellerErc20 ? FunctionName.BOND_DEPOSIT_ERC20_V2 : bondDepositFunctionName
       setIsBondTellerErc20(isBondTellerErc20)
       setFunc(tempFunc)
     }
     getTellerType()
-  }, [selectedBondDetail?.tellerData.teller.isBondTellerErc20, selectedBondDetail?.tellerData.teller.addr])
+  }, [selectedBondDetail?.metadata.isBondTellerErc20])
 
   useEffect(() => {
     calculateAmountIn()

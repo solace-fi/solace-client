@@ -22,13 +22,14 @@ export type UserLocksInfo = {
 export type UserLocksData = {
   user: UserLocksInfo
   locks: LockData[]
-  goodFetch: boolean
+  successfulFetch: boolean
 }
 
 export type GlobalLockInfo = {
-  solaceStaked: BigNumber
-  valueStaked: BigNumber
-  numLocks: BigNumber
-  rewardPerSecond: BigNumber
-  apr: BigNumber
+  solaceStaked: string
+  valueStaked: string
+  numLocks: string
+  rewardPerSecond: string
+  apr: string
+  successfulFetch: boolean
 }

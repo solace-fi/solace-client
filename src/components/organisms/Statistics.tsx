@@ -56,8 +56,7 @@ export const Statistics: React.FC = () => {
   hooks
 
   *************************************************************************************/
-  const { active } = useWeb3React()
-  const { account } = useWeb3React()
+  const { active, account } = useWeb3React()
   const { activeNetwork } = useNetwork()
   const { latestBlock } = useProvider()
   const solaceBalance = useSolaceBalance()
@@ -77,11 +76,12 @@ export const Statistics: React.FC = () => {
     apr: ZERO,
   })
   const [globalLockStats, setGlobalLockStats] = React.useState<GlobalLockInfo>({
-    solaceStaked: ZERO,
-    valueStaked: ZERO,
-    numLocks: ZERO,
-    rewardPerSecond: ZERO,
-    apr: ZERO,
+    solaceStaked: '0',
+    valueStaked: '0',
+    numLocks: '0',
+    rewardPerSecond: '0',
+    apr: '0',
+    successfulFetch: false,
   })
 
   /*************************************************************************************
@@ -93,7 +93,7 @@ export const Statistics: React.FC = () => {
   useEffect(() => {
     const getPrice = async () => {
       if (Object.keys(tokenPriceMapping).length === 0 && tokenPriceMapping.constructor === Object) return
-      setPairPrice(truncateValue(tokenPriceMapping[networks[0].config.keyContracts.solace.addr.toLowerCase()], 3))
+      setPairPrice(truncateValue(tokenPriceMapping['solace'], 3))
     }
     getPrice()
   }, [tokenPriceMapping])
@@ -110,7 +110,7 @@ export const Statistics: React.FC = () => {
   useEffect(() => {
     if (!latestBlock) return
     const _getGlobalLockStats = async () => {
-      const globalLockStats: GlobalLockInfo = await getGlobalLockStats(latestBlock.number)
+      const globalLockStats: GlobalLockInfo = await getGlobalLockStats()
       setGlobalLockStats(globalLockStats)
     }
     _getGlobalLockStats()
@@ -289,7 +289,7 @@ export const Statistics: React.FC = () => {
                     Global Stake
                   </BoxItemTitle>
                   <Text t2 light bold>
-                    {`${truncateValue(formatUnits(globalLockStats.solaceStaked, 18), 1)} `}
+                    {`${truncateValue(globalLockStats.solaceStaked, 1)} `}
                     <TextSpan t4 light bold>
                       {SOLACE_TOKEN.constants.symbol}
                     </TextSpan>
@@ -300,7 +300,7 @@ export const Statistics: React.FC = () => {
                     Global APR
                   </BoxItemTitle>
                   <Text t2 light bold>
-                    {`${truncateValue(globalLockStats.apr.toString(), 1)}`}%
+                    {`${truncateValue(globalLockStats.apr, 1)}`}%
                   </Text>
                 </BoxItem>
               </>
@@ -346,7 +346,7 @@ export const Statistics: React.FC = () => {
                   <Flex stretch between mb={24}>
                     <Text light>Global Stake</Text>
                     <Text t2 light>
-                      {`${truncateValue(formatUnits(globalLockStats.solaceStaked, 18), 1)} `}
+                      {`${truncateValue(globalLockStats.solaceStaked, 1)} `}
                       <TextSpan t4 light>
                         {SOLACE_TOKEN.constants.symbol}
                       </TextSpan>
@@ -355,7 +355,7 @@ export const Statistics: React.FC = () => {
                   <Flex stretch between mb={24}>
                     <Text light>Global APR</Text>
                     <Text t2 light>
-                      {`${truncateValue(globalLockStats.apr.toString(), 1)}`}%
+                      {`${truncateValue(globalLockStats.apr, 1)}`}%
                     </Text>
                   </Flex>
                 </>

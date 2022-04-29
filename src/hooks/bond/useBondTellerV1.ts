@@ -130,11 +130,11 @@ export const useBondTellerDetailsV1 = (
       )
         return
       running.current = true
-      const solacePrice = truncateValue(tokenPriceMapping[networks[0].config.keyContracts.solace.addr.toLowerCase()], 2)
+      const solacePrice = truncateValue(tokenPriceMapping['solace'], 2)
       try {
         const data: BondTellerDetails[] = await Promise.all(
           tellers
-            .filter((t) => t.version == 1)
+            .filter((t) => t.metadata.version == 1)
             .map(async (teller) => {
               const [
                 principalAddr,
@@ -152,7 +152,12 @@ export const useBondTellerDetailsV1 = (
                 withBackoffRetries(async () => teller.contract.bondFeeBps()),
               ])
 
-              const principalContract = getContract(principalAddr, teller.principalAbi, library, account ?? undefined)
+              const principalContract = getContract(
+                principalAddr,
+                teller.metadata.principalAbi,
+                library,
+                account ?? undefined
+              )
 
               const [decimals, name, symbol] = await Promise.all([
                 queryDecimals(principalContract),
@@ -163,10 +168,10 @@ export const useBondTellerDetailsV1 = (
               let lpData = {}
               let usdBondPrice = 0
 
-              const { getSdkTokenPrice, getSdkLpPrice } = getPriceSdkFunc(teller.sdk)
+              const { getSdkTokenPrice, getSdkLpPrice } = getPriceSdkFunc(teller.metadata.sdk)
 
               // get usdBondPrice
-              if (teller.isLp) {
+              if (teller.metadata.isLp) {
                 const price = await getSdkLpPrice(principalContract, activeNetwork, library)
                 usdBondPrice = Math.max(price, 0) * floatUnits(bondPrice, decimals)
                 const [token0, token1] = await Promise.all([
@@ -178,7 +183,8 @@ export const useBondTellerDetailsV1 = (
                   token1,
                 }
               } else {
-                const key = teller.mainnetAddr == '' ? teller.tokenId.toLowerCase() : teller.mainnetAddr.toLowerCase()
+                const key =
+                  teller.metadata.mainnetAddr == '' ? teller.metadata.tokenId.toLowerCase() : symbol.toLowerCase()
                 usdBondPrice = tokenPriceMapping[key] * floatUnits(bondPrice, decimals)
                 if (usdBondPrice <= 0) {
                   const price = await getSdkTokenPrice(principalContract, activeNetwork, library) // via sushiswap sdk
@@ -193,7 +199,7 @@ export const useBondTellerDetailsV1 = (
 
               const d: BondTellerDetails = {
                 tellerData: {
-                  teller,
+                  teller: { contract: teller.contract, type: teller.type },
                   bondPrice,
                   usdBondPrice,
                   vestingTermInSeconds,
@@ -212,6 +218,7 @@ export const useBondTellerDetailsV1 = (
                   },
                   ...lpData,
                 },
+                metadata: teller.metadata,
               }
               return d
             })
