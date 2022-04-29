@@ -1,4 +1,4 @@
-import React, { useRef } from 'react'
+import React, { useRef, useState } from 'react'
 import { createContext, useContext, useMemo } from 'react'
 import { SUPPORTED_WALLETS, WalletConnector } from '../wallet'
 
@@ -28,9 +28,12 @@ const WalletManager: React.FC = (props) => {
   const [selectedProvider, setSelectedProvider, removeSelectedProvider] = useLocalStorage<string | undefined>(
     'sol_wallet_0'
   )
-  const { connect, disconnect } = useWalletHandler(setSelectedProvider, removeSelectedProvider)
 
-  const triedEager = useEagerConnect(connect, selectedProvider)
+  const [manuallyDisconnected, setManuallyDisconnected] = useState(false)
+
+  const { connect, disconnect } = useWalletHandler(setSelectedProvider, removeSelectedProvider, setManuallyDisconnected)
+
+  const triedEager = useEagerConnect(connect, manuallyDisconnected, selectedProvider)
   const triedEagerRef = useRef(triedEager)
   triedEagerRef.current = triedEager
 

@@ -12,6 +12,7 @@ import {
 import { Error as AppError } from '../../constants/enums'
 import { useCallback } from 'react'
 import { WalletConnector } from '../../wallet'
+import { WalletLinkConnector } from '@web3-react/walletlink-connector'
 
 const ContextErrors = [
   AppError.NO_PROVIDER,
@@ -23,7 +24,8 @@ const ContextErrors = [
 
 export const useWalletHandler = (
   setSelectedProvider: (value: string | undefined) => void,
-  removeSelectedProvider: () => void
+  removeSelectedProvider: () => void,
+  setManuallyDisconnected: (value: boolean) => void
 ): {
   connect: (walletConnector: WalletConnector) => Promise<void>
   disconnect: () => void
@@ -45,6 +47,7 @@ export const useWalletHandler = (
       function onSuccess() {
         removeErrors(ContextErrors)
         setSelectedProvider(walletConnector.id)
+        setManuallyDisconnected(false)
       }
 
       function onError(error: Error) {
@@ -72,8 +75,12 @@ export const useWalletHandler = (
 
   const disconnect = useCallback(() => {
     deactivate()
+    if (connector instanceof WalletConnectConnector || connector instanceof WalletLinkConnector) {
+      connector?.close()
+    }
+    setManuallyDisconnected(true)
     removeSelectedProvider()
-  }, [removeSelectedProvider, connector])
+  }, [removeSelectedProvider, deactivate, connector])
 
   return { connect, disconnect }
 }
