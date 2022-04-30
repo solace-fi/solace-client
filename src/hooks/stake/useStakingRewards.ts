@@ -10,20 +10,17 @@ import { useProvider } from '../../context/ProviderManager'
 import { convertSciNotaToPrecise, truncateValue, formatAmount } from '../../utils/formatting'
 import { useGetFunctionGas } from '../provider/useGas'
 import { withBackoffRetries } from '../../utils/time'
-// import { Staker } from '@solace-fi/sdk-nightly'
-// import { useNetwork } from '../../context/NetworkManager'
-// import { getProviderOrSigner } from '../../utils'
-// import { useWallet } from '../../context/WalletManager'
+import { useNetwork } from '../../context/NetworkManager'
+
+import { Lock, Staker } from '@solace-fi/sdk-nightly'
 
 export const useStakingRewards = () => {
   // const { account } = useWeb3React()
-  // const { library } = useProvider()
-  // const { activeNetwork } = useNetwork()
+  const { provider } = useProvider()
+  const { activeNetwork } = useNetwork()
   const { keyContracts } = useContracts()
   const { stakingRewards, xsLocker } = useMemo(() => keyContracts, [keyContracts])
   const { gasConfig } = useGetFunctionGas()
-  // const providerOrSigner = useMemo(() => getProviderOrSigner(library, account), [library, account])
-  // const staker = useMemo(() => new Staker(activeNetwork.chainId, providerOrSigner), [activeNetwork.chainId, providerOrSigner])
 
   const getUserPendingRewards = async (account: string) => {
     let pendingRewards = ZERO
@@ -68,44 +65,19 @@ export const useStakingRewards = () => {
     }
   }
 
-  const getGlobalLockStats = async (blockNum: number): Promise<GlobalLockInfo> => {
-    if (!stakingRewards || !xsLocker)
-      return {
-        solaceStaked: ZERO,
-        valueStaked: ZERO,
-        numLocks: ZERO,
-        rewardPerSecond: ZERO,
-        apr: ZERO,
-      }
-    let totalSolaceStaked = ZERO
-    const [rewardPerSecond, valueStaked, numlocks] = await Promise.all([
-      withBackoffRetries(async () => stakingRewards.rewardPerSecond({ blockTag: blockNum })), // across all locks
-      withBackoffRetries(async () => stakingRewards.valueStaked({ blockTag: blockNum })), // across all locks
-      withBackoffRetries(async () => xsLocker.totalSupply({ blockTag: blockNum })),
-    ])
-    const indices = rangeFrom0(numlocks.toNumber())
-    const xsLockIDs = await Promise.all(
-      indices.map(async (index) => {
-        return await withBackoffRetries(async () => xsLocker.tokenByIndex(index, { blockTag: blockNum }))
-      })
-    )
-    const locks = await Promise.all(
-      xsLockIDs.map(async (xsLockID) => {
-        return await withBackoffRetries(async () => xsLocker.locks(xsLockID, { blockTag: blockNum }))
-      })
-    )
-    locks.forEach((lock) => {
-      totalSolaceStaked = totalSolaceStaked.add(lock.amount)
-    })
-    const apr = totalSolaceStaked.gt(0)
-      ? rewardPerSecond.mul(BigNumber.from(31536000)).mul(BigNumber.from(100)).div(totalSolaceStaked)
-      : BigNumber.from(1000)
+  const getGlobalLockStats = async (): Promise<GlobalLockInfo> => {
+    if (provider) {
+      const lock = new Lock(activeNetwork.chainId, provider)
+      const stats = await lock.getGlobalLockStats()
+      return stats
+    }
     return {
-      solaceStaked: totalSolaceStaked,
-      valueStaked: valueStaked,
-      numLocks: numlocks,
-      rewardPerSecond: rewardPerSecond,
-      apr: apr, // individual lock apr may be up to 2.5x this
+      solaceStaked: '0',
+      valueStaked: '0',
+      numLocks: '0',
+      rewardPerSecond: '0',
+      apr: '0',
+      successfulFetch: false,
     }
   }
 
@@ -148,18 +120,24 @@ export const useStakingRewards = () => {
       console.log('stakingRewards.estimateGas.compoundLocks', estGas.toString())
       tx = await stakingRewards.compoundLocks(xsLockIDs, targetXsLockID, {
         ...gasConfig,
-        // gasLimit: FunctionGasLimits['stakingRewards.compoundLocks'],
         gasLimit: Math.floor(parseInt(estGas.toString()) * 1.5),
       })
+      // tx = await staker1.compoundLocks(xsLockIDs, targetXsLockID, {
+      //   ...gasConfig,
+      //   gasLimit: Math.floor(parseInt(estGas.toString()) * 1.5),
+      // })
       type = FunctionName.COMPOUND_LOCKS
     } else {
       const estGas = await stakingRewards.estimateGas.compoundLock(xsLockIDs[0])
       console.log('stakingRewards.estimateGas.compoundLock', estGas.toString())
       tx = await stakingRewards.compoundLock(xsLockIDs[0], {
         ...gasConfig,
-        // gasLimit: FunctionGasLimits['stakingRewards.compoundLock'],
         gasLimit: Math.floor(parseInt(estGas.toString()) * 1.5),
       })
+      // tx = await staker1.compoundLock(xsLockIDs[0], {
+      //   ...gasConfig,
+      //   gasLimit: Math.floor(parseInt(estGas.toString()) * 1.5),
+      // })
     }
     const localTx: LocalTx = {
       hash: tx.hash,
@@ -194,17 +172,18 @@ export const useProjectedBenefits = (
   const [projectedApr, setProjectedApr] = useState<BigNumber>(ZERO)
   const [projectedYearlyReturns, setProjectedYearlyReturns] = useState<BigNumber>(ZERO)
   const [globalLockStats, setGlobalLockStats] = useState<GlobalLockInfo>({
-    solaceStaked: ZERO,
-    valueStaked: ZERO,
-    numLocks: ZERO,
-    rewardPerSecond: ZERO,
-    apr: ZERO,
+    solaceStaked: '0',
+    valueStaked: '0',
+    numLocks: '0',
+    rewardPerSecond: '0',
+    apr: '0',
+    successfulFetch: false,
   })
 
   useEffect(() => {
     if (!latestBlock) return
     const _getGlobalLockStats = async () => {
-      const globalLockStats: GlobalLockInfo = await getGlobalLockStats(latestBlock.number)
+      const globalLockStats: GlobalLockInfo = await getGlobalLockStats()
       setGlobalLockStats(globalLockStats)
     }
     _getGlobalLockStats()
@@ -220,9 +199,9 @@ export const useProjectedBenefits = (
     const preciseMultiplier = convertSciNotaToPrecise(`${Math.floor(rewardMultiplier * parseFloat(bnBalance))}`)
     const boostedValue = BigNumber.from(preciseMultiplier)
 
-    const newValueStaked = globalLockStats.valueStaked.add(boostedValue)
+    const newValueStaked = parseUnits(globalLockStats.valueStaked, 18).add(boostedValue)
     const projectedYearlyReturns = newValueStaked.gt(ZERO)
-      ? globalLockStats.rewardPerSecond.mul(31536000).mul(boostedValue).div(newValueStaked)
+      ? parseUnits(globalLockStats.rewardPerSecond, 18).mul(31536000).mul(boostedValue).div(newValueStaked)
       : ZERO
     const formattedStakeValue = formatAmount(formatUnits(BigNumber.from(bnBalance)))
     const parsedStakeValue = parseUnits(parseFloat(formattedStakeValue) == 0 ? '0' : formattedStakeValue, 18)

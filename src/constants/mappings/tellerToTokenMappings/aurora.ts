@@ -1,5 +1,5 @@
 import { BondName } from '../../enums'
-import { TellerToken } from '../../types'
+import { TellerTokenMetadata } from '../../types'
 import { TELLER_ADDRS_V2 } from '../../addresses/aurora'
 import {
   DAI_TOKEN,
@@ -20,7 +20,7 @@ import weth9 from '../../metadata/WETH9.json'
 const chainId = 1313161554
 
 export const tellerToTokenMapping: {
-  [key: string]: TellerToken
+  [key: string]: TellerTokenMetadata
 } = {
   [TELLER_ADDRS_V2.DAI_TELLER]: {
     name: BondName.DAI,

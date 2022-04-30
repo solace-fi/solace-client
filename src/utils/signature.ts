@@ -1,3 +1,4 @@
+import { JsonRpcSigner } from '@ethersproject/providers'
 import { BigNumberish, constants, Signature, Contract, BigNumber } from 'ethers'
 import { splitSignature } from 'ethers/lib/utils'
 
@@ -5,7 +6,7 @@ import { splitSignature } from 'ethers/lib/utils'
 export async function getPermitErc721EnhancedSignature(
   account: string,
   chainId: number,
-  library: any,
+  signer: JsonRpcSigner,
   contract: Contract, // ClaimsEscrow, OptionsFarming, or PolicyManager
   spender: string,
   tokenID: BigNumberish,
@@ -22,7 +23,7 @@ export async function getPermitErc721EnhancedSignature(
   // split v, r, s
   return splitSignature(
     // sign message
-    await library.getSigner(account)._signTypedData(
+    await signer._signTypedData(
       {
         name,
         version,
@@ -51,7 +52,7 @@ export async function getPermitErc721EnhancedSignature(
 export async function getPermitErc20Signature(
   account: string,
   chainId: number,
-  library: any,
+  signer: JsonRpcSigner,
   spender: string,
   token: Contract,
   amount: BigNumberish,
@@ -68,7 +69,7 @@ export async function getPermitErc20Signature(
   // split v, r, s
   return splitSignature(
     // sign message
-    await library.getSigner(account)._signTypedData(
+    await signer._signTypedData(
       {
         name,
         version,

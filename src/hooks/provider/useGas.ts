@@ -13,7 +13,7 @@ import { SUPPORTED_WALLETS } from '../../wallet'
 
 export const useFetchGasData = (): GasData | undefined => {
   const { activeNetwork } = useNetwork()
-  const { latestBlock, library } = useProvider()
+  const { latestBlock, provider } = useProvider()
   const running = useRef(false)
   // const running = useRef(false)
   const [gasData, setGasData] = useState<GasData | undefined>(undefined)
@@ -21,7 +21,7 @@ export const useFetchGasData = (): GasData | undefined => {
   useEffect(() => {
     const fetchGasData = async () => {
       running.current = true
-      await library.getFeeData().then((result: FeeData) => {
+      await provider.getFeeData().then((result: FeeData) => {
         const gasPriceStr = formatUnits(result.gasPrice ?? ZERO, 'gwei')
         const gasPrice = activeNetwork.config.specialFeatures.hardcodedGasPrice ?? Math.ceil(parseFloat(gasPriceStr))
 
@@ -39,7 +39,7 @@ export const useFetchGasData = (): GasData | undefined => {
       })
       running.current = false
     }
-    if (!latestBlock || running.current || !library) return
+    if (!latestBlock || running.current) return
 
     fetchGasData()
   }, [activeNetwork.chainId, latestBlock])

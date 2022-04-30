@@ -7,7 +7,7 @@ import {
   useGetContract,
   useGetProductContracts,
 } from '../hooks/contract/useContract'
-import { BondTellerContract, ContractSources, ProductContract } from '../constants/types'
+import { BondTellerContractData, ContractSources, ProductContract, TellerTokenMetadata } from '../constants/types'
 import { useNetwork } from './NetworkManager'
 
 /*
@@ -35,7 +35,9 @@ type Contracts = {
     solaceCoverProduct?: Contract | null
   }
   products: ProductContract[]
-  tellers: BondTellerContract[]
+  tellers: (BondTellerContractData & {
+    metadata: TellerTokenMetadata
+  })[]
   contractSources: ContractSources[]
   selectedProtocol: Contract | undefined
   getProtocolByName: (productName: string) => Contract | undefined

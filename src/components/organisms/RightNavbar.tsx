@@ -20,7 +20,7 @@ import { ExplorerscanApi } from '../../constants/enums'
 import { useWindowDimensions } from '../../hooks/internal/useWindowDimensions'
 import { UserLocksInfo } from '../../constants/types'
 import { useSolaceBalance } from '../../hooks/balance/useBalance'
-import { useUserLockData } from '../../hooks/stake/useXSLocker'
+import { useXSLocker } from '../../hooks/stake/useXSLocker'
 import { formatUnits } from 'ethers/lib/utils'
 import { useContracts } from '../../context/ContractsManager'
 import { useTransactionDetails } from '../../hooks/api/useTransactionHistory'
@@ -114,21 +114,18 @@ export const AppMenu = ({ show, setShow }: { show: boolean; setShow: (show: bool
   const [isCopied, setCopied] = useCopyClipboard()
 
   const solaceBalance = useSolaceBalance()
-  const { getUserLocks } = useUserLockData()
-  const [userLockInfo, setUserLockInfo] = useState<UserLocksInfo>({
-    pendingRewards: ZERO,
-    stakedBalance: ZERO,
-    lockedBalance: ZERO,
-    unlockedBalance: ZERO,
-    yearlyReturns: ZERO,
-    apr: ZERO,
+  const { getUserLockerBalances } = useXSLocker()
+  const [userLockInfo, setUserLockInfo] = useState({
+    stakedBalance: '0',
+    lockedBalance: '0',
+    unlockedBalance: '0',
   })
 
   useEffect(() => {
     const _getUserLocks = async () => {
       if (!account) return
-      const userLockData = await getUserLocks(account)
-      setUserLockInfo(userLockData.user)
+      const userLockData = await getUserLockerBalances(account)
+      setUserLockInfo(userLockData)
     }
     _getUserLocks()
   }, [account, latestBlock])
@@ -232,10 +229,7 @@ export const AppMenu = ({ show, setShow }: { show: boolean; setShow: (show: bool
                         <Flex col>
                           <Text bold>My stake</Text>
                           <Text>
-                            <TextSpan t3 bold>{`${truncateValue(
-                              formatUnits(userLockInfo.stakedBalance, 18),
-                              1
-                            )} `}</TextSpan>
+                            <TextSpan t3 bold>{`${truncateValue(userLockInfo.stakedBalance, 1)} `}</TextSpan>
                             <TextSpan t4>{SOLACE_TOKEN.constants.symbol}</TextSpan>
                           </Text>
                         </Flex>

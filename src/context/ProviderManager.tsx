@@ -12,8 +12,9 @@ import { useGetLatestBlock } from '../hooks/provider/useGetLatestBlock'
 import { Scrollable } from '../components/atoms/Layout'
 import { Flex } from '../components/atoms/Layout'
 import ToggleSwitch from '../components/atoms/ToggleSwitch'
-import { JsonRpcProvider } from '@ethersproject/providers'
+import { JsonRpcProvider, JsonRpcSigner } from '@ethersproject/providers'
 import { useWeb3React } from '@web3-react/core'
+import { getSigner } from '../utils'
 
 /*
 
@@ -33,23 +34,25 @@ and write to the blockchain.
 */
 
 type ProviderContextType = {
+  provider: JsonRpcProvider
+  signer?: JsonRpcSigner
   openNetworkModal: () => void
   latestBlock?: Block
-  library?: any
 }
 
 const ProviderContext = createContext<ProviderContextType>({
+  provider: new JsonRpcProvider(networks[0].rpc.httpsUrl),
+  signer: undefined,
   openNetworkModal: () => undefined,
   latestBlock: undefined,
-  library: undefined,
 })
 
 const ProviderManager: React.FC = (props) => {
   const { account, library } = useWeb3React()
   const { activeNetwork, changeNetwork } = useNetwork()
-  const ethProvider = useMemo(() => new JsonRpcProvider(activeNetwork.rpc.httpsUrl), [activeNetwork])
-  const currentProvider = useMemo(() => (account ? library : ethProvider), [account, ethProvider, library])
-  const latestBlock = useGetLatestBlock(currentProvider)
+  const provider = useMemo(() => new JsonRpcProvider(activeNetwork.rpc.httpsUrl), [activeNetwork])
+  const signer = useMemo(() => (account ? getSigner(library, account) : undefined), [library, account])
+  const latestBlock = useGetLatestBlock(provider)
 
   const [networkModal, setNetworkModal] = useState<boolean>(false)
   const [showTestnets, setShowTestnets] = useState<boolean>(false)
@@ -77,11 +80,12 @@ const ProviderManager: React.FC = (props) => {
 
   const value = React.useMemo(
     () => ({
+      provider,
+      signer,
       openNetworkModal: openModal,
       latestBlock,
-      library: currentProvider,
     }),
-    [openModal, latestBlock, currentProvider]
+    [openModal, latestBlock, provider, signer]
   )
 
   return (

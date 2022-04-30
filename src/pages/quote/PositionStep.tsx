@@ -66,7 +66,7 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
   const { activeNetwork, findNetworkByChainId } = useNetwork()
   const { setSelectedProtocolByName } = useContracts()
   const { userPolicyData } = useCachedData()
-  const { latestBlock, library } = useProvider()
+  const { latestBlock, signer } = useProvider()
   const { width } = useWindowDimensions()
   const [showManageModal, setShowManageModal] = useState<boolean>(false)
   const [selectedPolicy, setSelectedPolicy] = useState<Policy | undefined>(undefined)
@@ -116,14 +116,14 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
 
   // const handleFetchPositions = async (supportedProduct: SupportedProduct): Promise<Position[] | undefined> => {
   //   const matchingCache = await tokenPosData.handleGetCache(supportedProduct)
-  //   if (!account || !library || !matchingCache) return undefined
+  //   if (!account || !signer || !matchingCache) return undefined
   //   const savedPositions = matchingCache.positionsCache[supportedProduct.name].positions
   //   switch (supportedProduct.positionsType) {
   //     case PositionType.TOKEN:
   //       if (typeof supportedProduct.getBalances !== 'undefined') {
   //         const balances: Token[] = await supportedProduct.getBalances[activeNetwork.chainId](
   //           account,
-  //           library,
+  //           signer,
   //           activeNetwork,
   //           savedPositions.map((position) => position.position as Token)
   //         ).catch((e) => {
@@ -139,7 +139,7 @@ export const PositionStep: React.FC<formProps> = ({ formData, setForm, navigatio
   //       if (typeof supportedProduct.getPositions !== 'undefined') {
   //         const positions: LiquityPosition[] = await supportedProduct.getPositions[activeNetwork.chainId](
   //           account,
-  //           library,
+  //           signer,
   //           activeNetwork,
   //           savedPositions.map((position) => position.position as LiquityPosition)
   //         ).catch((e: any) => {

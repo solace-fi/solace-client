@@ -124,7 +124,7 @@ export const BondV1 = () => {
                             <TableRow
                               key={i}
                               onClick={
-                                haveErrors || tellerDetail.tellerData.teller.isDisabled
+                                haveErrors || tellerDetail.metadata.isDisabled
                                   ? undefined
                                   : () => openModal(true, tellerDetail)
                               }
@@ -152,7 +152,7 @@ export const BondV1 = () => {
                                       <DeFiAssetImage noborder>
                                         <img
                                           src={`https://assets.solace.fi/${tellerDetail.principalData.principalProps.name.toLowerCase()}`}
-                                          alt={tellerDetail.tellerData.teller.name}
+                                          alt={tellerDetail.metadata.name}
                                         />
                                       </DeFiAssetImage>
                                     )
@@ -161,10 +161,10 @@ export const BondV1 = () => {
                                   )}
                                 </Flex>
                               </TableData>
-                              <TableData>{tellerDetail.tellerData.teller.name}</TableData>
+                              <TableData>{tellerDetail.metadata.name}</TableData>
                               <TableData textAlignRight>
-                                <Button disabled={haveErrors || tellerDetail.tellerData.teller.isDisabled} info>
-                                  {tellerDetail.tellerData.teller.isDisabled ? 'Disabled' : 'Redeem'}
+                                <Button disabled={haveErrors || tellerDetail.metadata.isDisabled} info>
+                                  {tellerDetail.metadata.isDisabled ? 'Disabled' : 'Redeem'}
                                 </Button>
                               </TableData>
                             </TableRow>
@@ -206,7 +206,7 @@ export const BondV1 = () => {
                                       <DeFiAssetImage mr={10} noborder>
                                         <img
                                           src={`https://assets.solace.fi/${tellerDetail.principalData.principalProps.name.toLowerCase()}`}
-                                          alt={tellerDetail.tellerData.teller.name}
+                                          alt={tellerDetail.metadata.name}
                                         />
                                       </DeFiAssetImage>
                                     )
@@ -217,7 +217,7 @@ export const BondV1 = () => {
                               </Flex>
                               <Flex style={{ alignItems: 'center' }}>
                                 <Text t2 mb={20}>
-                                  {tellerDetail.tellerData.teller.name}
+                                  {tellerDetail.metadata.name}
                                 </Text>
                               </Flex>
                             </Flex>

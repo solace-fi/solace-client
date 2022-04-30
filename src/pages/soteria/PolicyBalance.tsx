@@ -10,8 +10,7 @@ import { StyledTooltip } from '../../components/molecules/Tooltip'
 import { useWindowDimensions } from '../../hooks/internal/useWindowDimensions'
 import { MAX_APPROVAL_AMOUNT, ZERO } from '../../constants'
 import { useCooldownDetails, useFunctions } from '../../hooks/policy/useSolaceCoverProduct'
-import { useWallet } from '../../context/WalletManager'
-import { BigNumber } from 'ethers'
+import { BigNumber, Contract } from 'ethers'
 import { LocalTx, ReadToken, SolaceRiskScore } from '../../constants/types'
 import {
   accurateMultiply,
@@ -96,7 +95,7 @@ export function PolicyBalance({
 
   const { ifDesktop } = useWindowDimensions()
   const { account } = useWeb3React()
-  const { library } = useProvider()
+  const { signer } = useProvider()
   const { activeNetwork } = useNetwork()
   const { keyContracts } = useContracts()
   const { solaceCoverProduct } = useMemo(() => keyContracts, [keyContracts])
@@ -170,8 +169,8 @@ export function PolicyBalance({
   )
 
   const unlimitedApprove = async () => {
-    if (!solaceCoverProduct || !account || !library) return
-    const stablecoinContract = getContract(stableCoinData.address, IERC20.abi, library, account)
+    if (!solaceCoverProduct || !signer) return
+    const stablecoinContract = new Contract(stableCoinData.address, IERC20.abi, signer)
     try {
       const tx: TransactionResponse = await stablecoinContract.approve(solaceCoverProduct.address, MAX_APPROVAL_AMOUNT)
       const txHash = tx.hash
